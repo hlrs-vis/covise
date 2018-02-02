@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-//#define NULL 0
+#define NULL 0
 
 #define NUMNULL 1.0e-6
 #define FILEEXTENSIONXODR "xodr"

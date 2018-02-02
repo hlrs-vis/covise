@@ -187,9 +187,16 @@ public:
         priority = p;
     };
 
+	void addLaneOffset(double, double, double, double, double);
+	double getLaneOffset(double);
+	double getLaneOffsetSlope(double s);
+	std::map<double, Polynom *> getLaneOffsetMap();
+
 protected:
     osg::Group *createRoadGroup(bool, bool);
     osg::Geode *createGuardRailGeode(std::map<double, LaneSection *>::iterator lsIt);
+
+	std::map<double, Polynom *> laneOffsetMap;
 
     TarmacConnection *predecessor;
     TarmacConnection *successor;

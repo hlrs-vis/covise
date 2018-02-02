@@ -267,6 +267,7 @@ RemoveOSCCatalogObjectCommand::redo()
 		oscBase_->delOSCElement(element_);
 	}
 
+	catalog_->removeObjFromObjectsMap(name_);
 	//catalog_->removeCatalogObject(name_);
 
     setRedone();

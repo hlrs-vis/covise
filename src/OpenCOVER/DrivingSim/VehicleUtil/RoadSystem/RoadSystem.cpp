@@ -423,155 +423,165 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         for (unsigned int childIndex = 0; childIndex < lanesChildrenList->getLength(); ++childIndex)
                         {
                             lanesChildElement = dynamic_cast<xercesc::DOMElement *>(lanesChildrenList->item(childIndex));
-                            if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), xercesc::XMLString::transcode("laneSection")) == 0)
-                            {
-                                double laneSectionStart = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                LaneSection *section = new LaneSection(laneSectionStart);
-                                road->addLaneSection(section);
-                                xercesc::DOMNodeList *laneSectionChildrenList = lanesChildElement->getChildNodes();
-                                xercesc::DOMElement *laneSectionChildElement;
-                                for (unsigned int childIndex = 0; childIndex < laneSectionChildrenList->getLength(); ++childIndex)
-                                {
-                                    laneSectionChildElement = dynamic_cast<xercesc::DOMElement *>(laneSectionChildrenList->item(childIndex));
-                                    if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
-                                                                    || xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("center")) == 0
-                                                                    || xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
-                                    {
-                                        xercesc::DOMNodeList *laneList = laneSectionChildElement->getChildNodes();
-                                        xercesc::DOMElement *laneElement;
-                                        for (unsigned int childIndex = 0; childIndex < laneList->getLength(); ++childIndex)
-                                        {
-                                            laneElement = dynamic_cast<xercesc::DOMElement *>(laneList->item(childIndex));
-                                            if (laneElement && xercesc::XMLString::compareIString(laneElement->getTagName(), xercesc::XMLString::transcode("lane")) == 0)
-                                            {
-                                                int laneId = atoi(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                                std::string laneType(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("type"))));
-                                                std::string laneLevel(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("level"))));
-                                                Lane *lane = new Lane(laneId, laneType, laneLevel);
-                                                section->addLane(lane);
-                                                xercesc::DOMNodeList *laneChildrenList = laneElement->getChildNodes();
-                                                xercesc::DOMElement *laneChildElement;
-                                                for (unsigned int childIndex = 0; childIndex < laneChildrenList->getLength(); ++childIndex)
-                                                {
-                                                    laneChildElement = dynamic_cast<xercesc::DOMElement *>(laneChildrenList->item(childIndex));
-                                                    if (!laneChildElement)
-                                                    {
-                                                    }
+							if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), xercesc::XMLString::transcode("laneSection")) == 0)
+							{
+								double laneSectionStart = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								LaneSection *section = new LaneSection(road, laneSectionStart);
+								road->addLaneSection(section);
+								xercesc::DOMNodeList *laneSectionChildrenList = lanesChildElement->getChildNodes();
+								xercesc::DOMElement *laneSectionChildElement;
+								for (unsigned int childIndex = 0; childIndex < laneSectionChildrenList->getLength(); ++childIndex)
+								{
+									laneSectionChildElement = dynamic_cast<xercesc::DOMElement *>(laneSectionChildrenList->item(childIndex));
+									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("center")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
+									{
+										xercesc::DOMNodeList *laneList = laneSectionChildElement->getChildNodes();
+										xercesc::DOMElement *laneElement;
+										for (unsigned int childIndex = 0; childIndex < laneList->getLength(); ++childIndex)
+										{
+											laneElement = dynamic_cast<xercesc::DOMElement *>(laneList->item(childIndex));
+											if (laneElement && xercesc::XMLString::compareIString(laneElement->getTagName(), xercesc::XMLString::transcode("lane")) == 0)
+											{
+												int laneId = atoi(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("id"))));
+												std::string laneType(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("type"))));
+												std::string laneLevel(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("level"))));
+												Lane *lane = new Lane(laneId, laneType, laneLevel);
+												section->addLane(lane);
+												xercesc::DOMNodeList *laneChildrenList = laneElement->getChildNodes();
+												xercesc::DOMElement *laneChildElement;
+												for (unsigned int childIndex = 0; childIndex < laneChildrenList->getLength(); ++childIndex)
+												{
+													laneChildElement = dynamic_cast<xercesc::DOMElement *>(laneChildrenList->item(childIndex));
+													if (!laneChildElement)
+													{
+													}
 
-                                                    else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("link")) == 0)
-                                                    {
-                                                        xercesc::DOMNodeList *linkChildrenList = laneChildElement->getChildNodes();
-                                                        xercesc::DOMElement *linkChildElement;
-                                                        for (unsigned int childIndex = 0; childIndex < linkChildrenList->getLength(); ++childIndex)
-                                                        {
-                                                            linkChildElement = dynamic_cast<xercesc::DOMElement *>(linkChildrenList->item(childIndex));
-                                                            if (!linkChildElement)
-                                                            {
-                                                            }
-                                                            else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("predecessor")) == 0)
-                                                            {
-                                                                int predecessorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                                                lane->setPredecessor(predecessorId);
-                                                            }
-                                                            else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("successor")) == 0)
-                                                            {
-                                                                int successorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                                                lane->setSuccessor(successorId);
-                                                            }
-                                                        }
-                                                    }
-                                                    else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
-                                                    {
-                                                        double widthStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double widthA = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                                        double widthB = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-                                                        double widthC = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-                                                        double widthD = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
-                                                        lane->addWidth(widthStart, widthA, widthB, widthC, widthD);
-                                                    }
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("link")) == 0)
+													{
+														xercesc::DOMNodeList *linkChildrenList = laneChildElement->getChildNodes();
+														xercesc::DOMElement *linkChildElement;
+														for (unsigned int childIndex = 0; childIndex < linkChildrenList->getLength(); ++childIndex)
+														{
+															linkChildElement = dynamic_cast<xercesc::DOMElement *>(linkChildrenList->item(childIndex));
+															if (!linkChildElement)
+															{
+															}
+															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("predecessor")) == 0)
+															{
+																int predecessorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+																lane->setPredecessor(predecessorId);
+															}
+															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("successor")) == 0)
+															{
+																int successorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+																lane->setSuccessor(successorId);
+															}
+														}
+													}
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
+													{
+														double widthStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+														double widthA = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+														double widthB = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
+														double widthC = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
+														double widthD = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+														lane->addWidth(widthStart, widthA, widthB, widthC, widthD);
+													}
 
-                                                    else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("roadMark")) == 0)
-                                                    {
-                                                        double roadMarkStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double roadMarkWidth = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("width"))));
-                                                        std::string roadMarkType(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("type"))));
-                                                        std::string roadMarkWeight(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("weight"))));
-                                                        std::string roadMarkColor(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("color"))));
-                                                        std::string roadMarkLaneChange(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("laneChange"))));
-                                                        lane->addRoadMark(new RoadMark(roadMarkStart, roadMarkWidth, roadMarkType, roadMarkWeight, roadMarkColor, roadMarkLaneChange));
-                                                    }
-                                                    // Neu Andreas 27-11-2012
-                                                    else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("speed")) == 0)
-                                                    {
-                                                        double speedLimitStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("roadMark")) == 0)
+													{
+														double roadMarkStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+														double roadMarkWidth = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("width"))));
+														std::string roadMarkType(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("type"))));
+														std::string roadMarkWeight(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("weight"))));
+														std::string roadMarkColor(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("color"))));
+														std::string roadMarkLaneChange(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("laneChange"))));
+														lane->addRoadMark(new RoadMark(roadMarkStart, roadMarkWidth, roadMarkType, roadMarkWeight, roadMarkColor, roadMarkLaneChange));
+													}
+													// Neu Andreas 27-11-2012
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("speed")) == 0)
+													{
+														double speedLimitStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
 														double speedLimitNum = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("max"))));
 														double factor = 1.0;
-														if(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")))
+														if (laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")))
 														{
-														std::string speedUnit = xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")));
-														if (speedUnit == "mph")
-															factor = 0.44704;
-														if (speedUnit == "km/h")
-															factor = 0.277778;
+															std::string speedUnit = xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")));
+															if (speedUnit == "mph")
+																factor = 0.44704;
+															if (speedUnit == "km/h")
+																factor = 0.277778;
 														}
-                                                        lane->addSpeedLimit(speedLimitStart, speedLimitNum*factor);
-                                                    }
-                                                    else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("height")) == 0)
-                                                    {
-                                                        double heightStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double inner = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("inner"))));
-                                                        double outer = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("outer"))));
+														lane->addSpeedLimit(speedLimitStart, speedLimitNum*factor);
+													}
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("height")) == 0)
+													{
+														double heightStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+														double inner = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("inner"))));
+														double outer = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("outer"))));
 
-                                                        lane->addHeight(heightStart, inner, outer);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
-                                                                    || xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
-                                    {
-                                        xercesc::DOMNodeList *batterList = laneSectionChildElement->getChildNodes();
-                                        xercesc::DOMElement *batterElement;
-                                        for (unsigned int childIndex = 0; childIndex < batterList->getLength(); ++childIndex)
-                                        {
-                                            batterElement = dynamic_cast<xercesc::DOMElement *>(batterList->item(childIndex));
-                                            if (batterElement && xercesc::XMLString::compareIString(batterElement->getTagName(), xercesc::XMLString::transcode("batter")) == 0)
-                                            {
-                                                int batterId = atoi(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                                std::string tessellateString(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("tessellate"))));
-                                                bool tessellate = !(tessellateString == "no" || tessellateString == "false");
-                                                std::cout << "batter id: " << batterId << std::endl;
-                                                Batter *batter = new Batter(batterId, tessellate);
-                                                section->addBatter(batter);
-                                                xercesc::DOMNodeList *batterChildrenList = batterElement->getChildNodes();
-                                                xercesc::DOMElement *batterChildElement;
-                                                for (unsigned int childIndex = 0; childIndex < batterChildrenList->getLength(); ++childIndex)
-                                                {
-                                                    batterChildElement = dynamic_cast<xercesc::DOMElement *>(batterChildrenList->item(childIndex));
-                                                    if (!batterChildElement)
-                                                    {
-                                                    }
-                                                    else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
-                                                    {
-                                                        double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                                        batter->addBatterWidth(widthStart, widthA);
-                                                    }
+														lane->addHeight(heightStart, inner, outer);
+													}
+												}
+											}
+										}
+									}
+									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
+									{
+										xercesc::DOMNodeList *batterList = laneSectionChildElement->getChildNodes();
+										xercesc::DOMElement *batterElement;
+										for (unsigned int childIndex = 0; childIndex < batterList->getLength(); ++childIndex)
+										{
+											batterElement = dynamic_cast<xercesc::DOMElement *>(batterList->item(childIndex));
+											if (batterElement && xercesc::XMLString::compareIString(batterElement->getTagName(), xercesc::XMLString::transcode("batter")) == 0)
+											{
+												int batterId = atoi(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("id"))));
+												std::string tessellateString(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("tessellate"))));
+												bool tessellate = !(tessellateString == "no" || tessellateString == "false");
+												std::cout << "batter id: " << batterId << std::endl;
+												Batter *batter = new Batter(batterId, tessellate);
+												section->addBatter(batter);
+												xercesc::DOMNodeList *batterChildrenList = batterElement->getChildNodes();
+												xercesc::DOMElement *batterChildElement;
+												for (unsigned int childIndex = 0; childIndex < batterChildrenList->getLength(); ++childIndex)
+												{
+													batterChildElement = dynamic_cast<xercesc::DOMElement *>(batterChildrenList->item(childIndex));
+													if (!batterChildElement)
+													{
+													}
+													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
+													{
+														double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+														double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+														batter->addBatterWidth(widthStart, widthA);
+													}
 
-                                                    else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("fall")) == 0)
-                                                    {
+													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("fall")) == 0)
+													{
 
-                                                        double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                                        double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                                        batter->addBatterFall(widthStart, widthA);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+														double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
+														double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+														batter->addBatterFall(widthStart, widthA);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							else if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), xercesc::XMLString::transcode("laneOffset")) == 0)
+							{
+								double widthStart = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								double widthA = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+								double widthB = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
+								double widthC = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
+								double widthD = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+								road->addLaneOffset(widthStart, widthA, widthB, widthC, widthD);
+							}
                         }
                     }
 
@@ -2013,7 +2023,7 @@ void RoadSystem::parseCinema4dXml(std::string filename)
                 road->addElevationPolynom(geometryMatrix[geometryIt - 1][4], geometryMatrix[geometryIt - 1][2], 0.0, 0.0, 0.0);
             }
 
-            LaneSection *laneSection = new LaneSection(0.0);
+            LaneSection *laneSection = new LaneSection(road,0.0);
             road->addLaneSection(laneSection);
             for (int laneIt = -numLaneRight; laneIt <= numLaneLeft; ++laneIt)
             {
@@ -2224,7 +2234,7 @@ void RoadSystem::parseLandXml(std::string filename)
                 double staEnd = atof(xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("staEnd"))));
                 Road *road = new Road(name, name, staStart + staEnd);
                 addRoad(road);
-                LaneSection *laneSection = new LaneSection(0.0);
+                LaneSection *laneSection = new LaneSection(road,0.0);
                 road->addLaneSection(laneSection);
                 Lane *lane = new Lane(-1, Lane::DRIVING, false);
                 laneSection->addLane(lane);
@@ -2568,7 +2578,7 @@ void RoadSystem::parseIntermapRoad(const std::string &filename, const std::strin
             Road *road = new Road(name, name);
             addRoad(road);
 
-            LaneSection *laneSection = new LaneSection(0.0);
+            LaneSection *laneSection = new LaneSection(road, 0.0);
             road->addLaneSection(laneSection);
 
             int roadType = (int)((double)FeatVector[0] / 100.0);

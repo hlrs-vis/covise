@@ -706,7 +706,6 @@ void
 OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 {
 
-    QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
     ProjectEditor::mouseAction(mouseAction);
 
     // SELECT //
@@ -715,10 +714,11 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 	if (currentTool == ODD::TOS_ELEMENT)
 	{
-		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 
         if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
 		{
+			QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
+			QPointF mousePoint = mouseEvent->scenePos();
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
 				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
