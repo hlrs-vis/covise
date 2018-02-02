@@ -29,6 +29,7 @@ osg::Vec3 Trajectory::getAbsolute(int visitedVertices, Entity *currentEntity){
 
         return absCoordinates;
     }
+	return osg::Vec3(0.0, 0.0, 0.0);
 
 }
 

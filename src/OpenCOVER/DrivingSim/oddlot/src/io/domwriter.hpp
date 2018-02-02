@@ -19,6 +19,8 @@
 #include "../data/acceptor.hpp"
 #include "../data/roadsystem/odrID.hpp"
 #include "src/gui/exportsettings.hpp"
+#include "../data/roadsystem/sections/laneoffset.hpp"
+#include <typeinfo>
 
 #include <QDomElement>
 #include <QMap>
@@ -34,7 +36,6 @@ class Pool;
 
 class GeoReference;
 class TileSystem;
-class LaneOffset;
 
 
 class DomWriter : public Visitor
@@ -51,8 +52,9 @@ public:
         return doc_;
     }
 
-    virtual void visit(Acceptor * /*acceptor*/)
+    virtual void visit(Acceptor *acceptor)
     { /* does nothing by default */
+		fprintf(stderr, "TODO: implement visitor for object %s don't forget visitor.hpp\n", typeid(*acceptor).name());
     }
 
 	void addTileInfo(QDomElement element, uint32_t tileID);
