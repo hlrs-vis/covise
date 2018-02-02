@@ -196,10 +196,6 @@ private:
 
     // attach old-style attributes
     void AddInteractionAttributes();
-
-#ifdef YAC
-    virtual void paramChanged(coParam *param);
-#endif
 };
 
 class WristWatch
@@ -208,11 +204,7 @@ private:
     timeval myClock;
 
 public:
-#ifndef YAC
     WristWatch();
-#else
-    WristWatch(int argc, char **argv);
-#endif
     ~WristWatch();
 
     void start();

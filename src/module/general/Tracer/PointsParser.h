@@ -8,9 +8,7 @@
 #ifndef _POINTS_PARSER_H_
 #define _POINTS_PARSER_H_
 
-#ifndef YAC
 #include <util/coviseCompat.h>
-#endif
 
 class PointsParser
 {

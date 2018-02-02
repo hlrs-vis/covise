@@ -282,11 +282,7 @@ PTask::suggestInitialH(const int *cell,
         float dx, dy, dz;
         coDoUniformGrid *p_uni_grid = (coDoUniformGrid *)(p_grid);
 // bounding box
-#ifndef YAC
         p_uni_grid->getDelta(&dx, &dy, &dz);
-#else
-        p_uni_grid->getDelta(&dx, &dy, &dz);
-#endif
         bbox.x_min_ = 0.0;
         bbox.y_min_ = 0.0;
         bbox.z_min_ = 0.0;
@@ -299,11 +295,7 @@ PTask::suggestInitialH(const int *cell,
             coDoVec3 *p_uni_velo = (coDoVec3 *)(p_velo);
             int x_s, y_s, z_s;
             float *u, *v, *w;
-#ifndef YAC
             p_uni_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-            p_uni_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
             p_uni_velo->getAddresses(&u, &v, &w);
             v_l[0] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2];
             v_l[1] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2] + 1;
@@ -334,11 +326,7 @@ PTask::suggestInitialH(const int *cell,
             coDoVec3 *p_uni_velo = (coDoVec3 *)(p_velo);
             int x_s, y_s, z_s;
             float *u, *v, *w;
-#ifndef YAC
             p_rct_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-            p_rct_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
             p_uni_velo->getAddresses(&u, &v, &w);
             v_l[0] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2];
             v_l[1] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2] + 1;
@@ -357,11 +345,7 @@ PTask::suggestInitialH(const int *cell,
         float *x_in, *y_in, *z_in;
         p_str_grid->getAddresses(&x_in, &y_in, &z_in);
         int x_s, y_s, z_s;
-#ifndef YAC
         p_str_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-        p_str_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
         v_l[0] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2];
         v_l[1] = cell[0] * y_s * z_s + cell[1] * z_s + cell[2] + 1;
         v_l[2] = cell[0] * y_s * z_s + (cell[1] + 1) * z_s + cell[2];
@@ -478,11 +462,7 @@ PTask::suggestInitialH(const int *cell,
         else
         {
 //       std::cout << "grid_methods::getBoundBox function was called for a standard cell in PTask::suggestInitialH" << std::endl;
-#ifndef YAC
             grid_methods::getBoundBox(bbox, UnstructuredGrid_Num_Nodes[tl[*cell]], conn + elem[*cell], x_in, y_in, z_in);
-#else
-            grid_methods::getBoundBox(bbox, coDoUnstructuredGrid::numNodes[tl[*cell]], conn + elem[*cell], x_in, y_in, z_in);
-#endif
         }
 
         // velocity
@@ -503,11 +483,7 @@ PTask::suggestInitialH(const int *cell,
             // Standard cells
             else
             {
-#ifndef YAC
                 vel = grid_methods::getMaxVel(UnstructuredGrid_Num_Nodes[tl[*cell]], conn + elem[*cell], u, v, w);
-#else
-                vel = grid_methods::getMaxVel(coDoUnstructuredGrid::numNodes[tl[*cell]], conn + elem[*cell], u, v, w);
-#endif
             }
         }
     }
@@ -618,11 +594,7 @@ PTask::interpolateFieldInGrid(const coDistributedObject *grid,
     {
         coDoUnstructuredGrid *ugrid = (coDoUnstructuredGrid *)grid;
         int ne, nc, np;
-#ifndef YAC
         ugrid->getGridSize(&ne, &nc, &np);
-#else
-        ugrid->getGridSize(&ne, &nc, &np);
-#endif
         if (np != datalen[0])
             return value;
         int cell_copy(*cell);
@@ -635,11 +607,7 @@ PTask::interpolateFieldInGrid(const coDistributedObject *grid,
     {
         coDoStructuredGrid *sgrid = (coDoStructuredGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         sgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        sgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])
@@ -658,11 +626,7 @@ PTask::interpolateFieldInGrid(const coDistributedObject *grid,
     {
         coDoUniformGrid *ugrid = (coDoUniformGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         ugrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        ugrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])
@@ -681,11 +645,7 @@ PTask::interpolateFieldInGrid(const coDistributedObject *grid,
     {
         coDoRectilinearGrid *rgrid = (coDoRectilinearGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         rgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        rgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])
@@ -731,11 +691,7 @@ PTask::mapFieldInGrid(const coDistributedObject *grid,
     {
         coDoUnstructuredGrid *ugrid = (coDoUnstructuredGrid *)grid;
         int ne, nc, np;
-#ifndef YAC
         ugrid->getGridSize(&ne, &nc, &np);
-#else
-        ugrid->getGridSize(&ne, &nc, &np);
-#endif
         if (np != datalen[0])
             return value;
         int cell_copy(*cell);
@@ -748,11 +704,7 @@ PTask::mapFieldInGrid(const coDistributedObject *grid,
     {
         coDoStructuredGrid *sgrid = (coDoStructuredGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         sgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        sgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])
@@ -771,11 +723,7 @@ PTask::mapFieldInGrid(const coDistributedObject *grid,
     {
         coDoUniformGrid *ugrid = (coDoUniformGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         ugrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        ugrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])
@@ -794,11 +742,7 @@ PTask::mapFieldInGrid(const coDistributedObject *grid,
     {
         coDoRectilinearGrid *rgrid = (coDoRectilinearGrid *)grid;
         int grid_size[3];
-#ifndef YAC
         rgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#else
-        rgrid->getGridSize(grid_size, grid_size + 1, grid_size + 2);
-#endif
         if (datalen[0] != grid_size[0]
             || datalen[1] != grid_size[1]
             || datalen[2] != grid_size[2])

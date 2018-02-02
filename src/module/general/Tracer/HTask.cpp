@@ -202,11 +202,7 @@ HTask::MakeIAsForExpand()
 
 // see header
 HTask::HTask(const coModule *mod,
-#ifndef YAC
              const char *name_line, const char *name_magnitude,
-#else
-             coObjInfo name_line, coObjInfo name_magnitude,
-#endif
              const coDistributedObject *grid,
              const coDistributedObject *velo,
              const coDistributedObject *ini_p)
@@ -465,16 +461,8 @@ HTask::Diagnose()
                 {
                     int e, c, p_g;
                     ((coDoUnstructuredGrid *)(grid_tstep[obj_at_time]))->
-#ifndef YAC
                         getGridSize(&e, &c, &p_g);
-#else
-                        getGridSize(&e, &c, &p_g);
-#endif
-#ifndef YAC
                     int p_v = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#else
-                    int p_v = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#endif
                     if (p_v != 0 && p_v != p_g)
                     {
                         module_->sendError("Vector data is not vertex-based");
@@ -493,13 +481,8 @@ HTask::Diagnose()
                 else // check dimensions
                 {
                     int p_g;
-#ifndef YAC
                     p_g = dynamic_cast<const coDoPolygons *>(grid_tstep[obj_at_time])->getNumPoints();
                     int p_v = dynamic_cast<const coDoVec3 *>(velo_tstep[obj_at_time])->getNumPoints();
-#else
-                    p_g = dynamic_cast<const coDoPolygons *>(grid_tstep[obj_at_time])->getNumPoints();
-                    int p_v = dynamic_cast<const coDoVec3 *>(velo_tstep[obj_at_time])->getNumPoints();
-#endif
                     if (p_v != 0 && p_v != p_g)
                     {
                         module_->sendError("Vector data is not vertex-based");
@@ -519,17 +502,8 @@ HTask::Diagnose()
                 {
                     int x_s, y_s, z_s;
                     ((coDoUniformGrid *)(grid_tstep[obj_at_time]))->
-#ifndef YAC
                         getGridSize(&x_s, &y_s, &z_s);
-#else
-                        getGridSize(&x_s, &y_s, &z_s);
-#endif
-
-#ifndef YAC
                     int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#else
-                    int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#endif
                     if (nelem != 0 /* ??? */ && x_s * y_s * z_s != nelem)
                     {
                         module_->sendError("Vector data is not vertex-based");
@@ -548,13 +522,8 @@ HTask::Diagnose()
                 else
                 {
                     int x_s, y_s, z_s;
-#ifndef YAC
                     ((coDoRectilinearGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
                     int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#else
-                    ((coDoRectilinearGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
-                    int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#endif
 
                     if (nelem != 0 /* ??? */ && x_s * y_s * z_s != nelem)
                     {
@@ -574,13 +543,8 @@ HTask::Diagnose()
                 else
                 {
                     int x_s, y_s, z_s;
-#ifndef YAC
                     ((coDoStructuredGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
                     int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#else
-                    ((coDoStructuredGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
-                    int nelem = ((coDoVec3 *)(velo_tstep[obj_at_time]))->getNumPoints();
-#endif
 
                     if (nelem != 0 /* ??? */ && x_s * y_s * z_s != nelem)
                     {

@@ -39,22 +39,14 @@ public:
        * @param z_ini Z coordinates of initial points
        */
     Streaklines(const coModule *mod,
-#ifndef YAC
                 const char *name_line, const char *name_magnitude,
-#else
-                coObjInfo name_line, coObjInfo name_magnitude,
-#endif
                 const coDistributedObject *grid, const coDistributedObject *velo,
                 const coDistributedObject *ini_p,
                 int number_per_tstep, real *x_ini, real *y_ini, real *z_ini,
                 const coDistributedObject *sfield = NULL);
 /** Gather results from all PTasks after a time step.
        */
-#ifndef YAC
     virtual void gatherTimeStep();
-#else
-    virtual void gatherTimeStep(coOutputPort *port);
-#endif
     /// Destructor.
     virtual ~Streaklines()
     {

@@ -66,13 +66,8 @@ PathlinesStat::gatherTimeStep()
 }
 
 PathlinesStat::PathlinesStat(const coModule *mod,
-#ifndef YAC
                              const char *name_l, // name for line object
                              const char *name_m, // name for magnitude object
-#else
-                             coObjInfo name_l, // name for line object
-                             coObjInfo name_m, // name for magnitude object
-#endif
                              const coDistributedObject *grid, // grid object
                              const coDistributedObject *velo, // velocity object
                              const coDistributedObject *ini_p, // initial points (coDoPoints type)
@@ -142,22 +137,18 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
     l_time_steps[numOfAnimationSteps] = NULL;
     m_time_steps[numOfAnimationSteps] = NULL;
 
-#ifndef YAC
     std::string line_name = p_line->getObjName();
     std::string mag_name = p_mag->getObjName();
     int num_of_releases = 0;
-#endif
     // loop over time steps
     for (tick = 0; tick < numOfAnimationSteps; ++tick)
     {
-#ifndef YAC
         char tick_trail[32];
         sprintf(tick_trail, "_%d", tick);
         std::string line_name_time(line_name);
         std::string mag_name_time(mag_name);
         line_name_time += tick_trail;
         mag_name_time += tick_trail;
-#endif
         if (task_type == Tracer::GROWING_LINES) // growing lines
         {
 #ifdef _ONE_LINE_PER_DO_LINES_
@@ -204,23 +195,12 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
                 PPathlineStat *p_task = (PPathlineStat *)(ptasks_[traj]);
                 no_vertices += p_task->numVertices(tick, interpolation[traj]);
             }
-#ifndef YAC
             l_time_steps[tick] = new coDoLines(line_name_time, no_vertices,
                                                no_vertices, no_lines_per_t);
             if (Whatout == PTask::V_VEC)
                 m_time_steps[tick] = new coDoVec3(mag_name_time, no_vertices);
             else
                 m_time_steps[tick] = new coDoFloat(mag_name_time, no_vertices);
-#else
-            // fixme timestep
-            coObjInfo lInfo = p_line->getNewObjectInfo();
-            lInfo.timeStep = tick;
-            coObjInfo mInfo = p_mag->getNewObjectInfo();
-            mInfo.timeStep = tick;
-            l_time_steps[tick] = new coDoLines(lInfo, no_vertices,
-                                               no_vertices, no_lines_per_t);
-            m_time_steps[tick] = new coDoFloat(mInfo, no_vertices);
-#endif
             if (speciesAttr.length() > 0)
             {
                 m_time_steps[tick]->addAttribute("SPECIES", speciesAttr.c_str());
@@ -271,7 +251,6 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
                 p_task->fillPointAtTime(points_x, points_y, points_z, mag,
                                         tick, interpolation[traj]);
             }
-#ifndef YAC
             int release_tick;
             int tick_newParticles = (int)timeNewParticles;
             if (newParticles) //test if ThrowNewParticles is activated
@@ -338,29 +317,6 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
                                                     NULL);
                 m_time_steps[tick] = new coDoFloat(mag_name_time, (int)mag.size(), NULL);
             }
-#else
-            // fixme timestep
-            coObjInfo lInfo = p_line->getNewObjectInfo();
-            lInfo.timeStep = tick;
-            coObjInfo mInfo = p_mag->getNewObjectInfo();
-            mInfo.timeStep = tick;
-
-            if (points_x.size())
-            {
-                l_time_steps[tick] = new coDoPoints(lInfo, points_x.size(),
-                                                    &points_x[0], &points_y[0],
-                                                    &points_z[0]);
-                m_time_steps[tick] = new coDoFloat(mInfo, mag.size(), &mag[0]);
-            }
-            else
-            {
-                l_time_steps[tick] = new coDoPoints(lInfo, points_x.size(),
-                                                    NULL, NULL,
-                                                    NULL);
-                m_time_steps[tick] = new coDoFloat(mInfo, mag.size(), NULL);
-            }
-
-#endif
             if (speciesAttr.length() > 0)
                 m_time_steps[tick]->addAttribute("SPECIES", speciesAttr.c_str());
         }
@@ -391,18 +347,8 @@ PathlinesStat::gatherAll(coOutputPort *p_line, // pointer to line output port
         }
     }
 
-#ifndef YAC
     coDoSet *output_lines = new coDoSet(line_name, l_time_steps);
     coDoSet *output_mag = new coDoSet(mag_name, m_time_steps);
-#else
-    // fixme timestep
-    coObjInfo lInfo = p_line->getNewObjectInfo();
-    lInfo.timeStep = tick;
-    coObjInfo mInfo = p_mag->getNewObjectInfo();
-    mInfo.timeStep = tick;
-    coDoSet *output_lines = new coDoSet(lInfo, l_time_steps);
-    coDoSet *output_mag = new coDoSet(mInfo, m_time_steps);
-#endif
     // set TIMESTEP attribute
     char dyna_attr[32];
     sprintf(dyna_attr, "1 %d", numOfAnimationSteps);
