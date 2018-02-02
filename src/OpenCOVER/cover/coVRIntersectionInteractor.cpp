@@ -207,9 +207,8 @@ void coVRIntersectionInteractor::disableIntersection()
         vruiIntersection::getIntersectorForAction("coAction")->remove(vNode);
         coVRIntersectionInteractorManager::the()->remove(this);
     }
-    //resetState();
-    _oldHl = NULL;
-    moveTransform->setStateSet(NULL);
+
+    resetState();
 }
 
 const osg::Matrix &coVRIntersectionInteractor::getPointerMat() const
@@ -373,7 +372,10 @@ void coVRIntersectionInteractor::removeIcon()
 {
     //fprintf(stderr,"coVRIntersectionInteractor(%s)::removeIcon and set hl off\n", _interactorName);
     coInteraction::removeIcon();
+}
 
+void coVRIntersectionInteractor::resetState()
+{
     _oldHl = NULL;
     moveTransform->setStateSet(NULL);
 }
@@ -439,6 +441,8 @@ void coVRIntersectionInteractor::stopInteraction()
     // we have to unregister
 
     moveTransform->setStateSet(_oldHl.get());
+
+    resetState();
 }
 
 void coVRIntersectionInteractor::doInteraction()

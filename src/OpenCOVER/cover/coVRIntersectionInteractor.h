@@ -134,7 +134,9 @@ public:
 
     virtual void addIcon(); // highlight and add
 
-    virtual void removeIcon(); // un-highlight and remove
+    virtual void removeIcon(); // remove
+
+    virtual void resetState(); // un-highlight
 
     // return the intersected state
     int isIntersected()
