@@ -726,8 +726,18 @@ void Road::getLaneRoadPoints(double s, int i, RoadPoint &pointIn, RoadPoint &poi
 		nx = sin(alpha) * sin(gamma) + cos(alpha) * sin(beta) * cos(gamma);
 		ny = cos(alpha) * sin(beta) * sin(gamma) - sin(alpha) * cos(gamma);
 		nz = cos(alpha) * cos(beta);
-		pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
-		pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		if (shapeSections)
+		{
+			double h1 = shapeSections->getHeight(s, disIn);
+			double h2 = shapeSections->getHeight(s, disOut);
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn + h1, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut + h2, nx, ny, nz);
+		}
+		else
+		{
+			pointIn = RoadPoint(xyPoint.x() + Tx * disIn, xyPoint.y() + Ty * disIn, zPoint[0] + heightIn + Tz * disIn, nx, ny, nz);
+			pointOut = RoadPoint(xyPoint.x() + Tx * disOut, xyPoint.y() + Ty * disOut, zPoint[0] + heightOut + Tz * disOut, nx, ny, nz);
+		}
 	}
 
     //std::cout << "s: " << s << ", i: " << i << ", inner: x: " << pointIn.x() << ", y: " << pointIn.y() << ", z: " << pointIn.z() << std::endl;
