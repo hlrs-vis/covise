@@ -31,6 +31,20 @@ class Entity {
     void setPosition(osg::Vec3 &newPosition);   
 	void setDirection(osg::Vec3 &newDirection);
 
+    // follow Trajectory attributes
+    osg::Vec3 targetPosition;
+    osg::Vec3 totaldirectionVector;
+    osg::Vec3 newPosition;
+
+    int visitedVertices;
+    float totalDistance;
+    float totaldirectionVectorLength;
+
+    // follow Trajectories functions
+    void setTargetPosition(osg::Vec3 init_targetPosition);
+    void followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished);
+    void getTrajSpeed(float deltat);
+
 };
 
 #endif // ENTITY_H

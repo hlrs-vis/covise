@@ -10,9 +10,7 @@ using namespace std;
 Maneuver::Maneuver():
 	maneuverCondition(false),
 	maneuverFinished(false),
-	totalDistance(0),
-	visitedVertices(0),
-	trajectoryCatalogReference(""),
+    trajectoryCatalogReference(""),
 	startAfterManeuver(""),
 	startConditionType("termination"),
 	targetSpeed(0)
@@ -25,39 +23,6 @@ Maneuver::~Maneuver()
 void Maneuver::finishedParsing()
 {
 	name = oscManeuver::name.getValue();
-}
-
-osg::Vec3 &Maneuver::followTrajectory(osg::Vec3 currentPos, float speed, int verticesCounter)
-{
-
-    //substract vectors
-    directionVector = totaldirectionVector;//targetPosition - currentPos;
-    float distance = directionVector.length();
-    directionVector.normalize();
-    //calculate step distance
-    //float step_distance = speed*opencover::cover->frameDuration();
-    float step_distance = speed*1/60;
-
-    if(totalDistance == 0)
-    {
-        totalDistance = distance;
-    }
-    //calculate remaining distance
-    totalDistance = totalDistance-step_distance;
-    //calculate new position
-    newPosition = currentPos+(directionVector*step_distance);
-    if (totalDistance <= 0)
-    {
-        visitedVertices++;
-        totalDistance = 0;
-        if (visitedVertices == verticesCounter)
-        {
-            maneuverCondition = false;
-            maneuverFinished = true;
-        }
-    }
-
-    return newPosition;
 }
 
 void Maneuver::checkConditions()
@@ -115,26 +80,4 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	{
 	aktivCar->setSpeed(targetSpeed);
 	}
-}
-osg::Vec3 &Maneuver::setTargetPosition(osg::Vec3 init_targetPosition, osg::Vec3 currentPosition)
-{
-    verticeStartPos = currentPosition;
-
-    // entity is heading to targetPosition
-    targetPosition = init_targetPosition;
-    totaldirectionVector = targetPosition - verticeStartPos;
-
-}
-
-
-
-float &Maneuver::getTrajSpeed(float deltat)
-{
-
-    // calculate length of targetvector
-    totaldirectionVectorLength = totaldirectionVector.length();
-    speed = totaldirectionVectorLength/deltat;
-
-
-    return speed;
 }

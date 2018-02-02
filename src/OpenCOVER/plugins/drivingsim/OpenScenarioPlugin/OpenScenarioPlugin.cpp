@@ -125,27 +125,25 @@ void OpenScenarioPlugin::preFrame()
                                 Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                                 {
-                                    //Entity* currentEntity = (*activeEntity);
+                                    Entity* currentEntity = (*activeEntity);
 
                                     // check if Trajectory is about to start or Entity arrived at vertice
-                                    if((*maneuver_iter)->totalDistance == 0){
+                                    if((*activeEntity)->totalDistance == 0){
 
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next direction
-                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*maneuver_iter)->visitedVertices,(*activeEntity));
+                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity)->visitedVertices,(*activeEntity));
 
-                                        (*maneuver_iter)->setTargetPosition(nextTargetPos,(*activeEntity)->entityPosition);
+                                        (*activeEntity)->setTargetPosition(nextTargetPos);
 
                                         if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
                                             // calculate speed from trajectory vertices
                                             //(*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*trajectory_iter)->getReference((*maneuver_iter)->visitedVertices)));
-                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.1));
+                                            (*activeEntity)->getTrajSpeed(0.01);
                                         }
 
                                     }
 
-                                    (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
-
-                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*activeEntity)->getSpeed(),(*trajectory_iter)->verticesCounter));
+                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->maneuverCondition, (*maneuver_iter)->maneuverFinished);
 
                                     unusedEntity.remove(*activeEntity);
 
