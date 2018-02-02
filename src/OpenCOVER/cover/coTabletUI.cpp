@@ -4544,7 +4544,14 @@ void coTUIComboBox::setSelectedEntry(int e)
 void coTUIComboBox::resend(bool create)
 {
     coTUIElement::resend(create);
-    iter = elements.first();
+    {
+        TokenBuffer tb;
+        tb << TABLET_SET_VALUE;
+        tb << TABLET_REMOVE_ALL;
+        tb << ID;
+        tui()->send(tb);
+        iter = elements.first();
+    }
     while (iter)
     {
         TokenBuffer tb;
