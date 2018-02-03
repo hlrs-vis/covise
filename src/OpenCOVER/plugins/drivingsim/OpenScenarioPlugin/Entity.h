@@ -4,6 +4,7 @@
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
 
+
 class Entity {
 
  public:
@@ -41,9 +42,15 @@ class Entity {
     float totaldirectionVectorLength;
 
     // follow Trajectories functions
-    void setTargetPosition(osg::Vec3 init_targetPosition);
+    void setTrajectoryDirection(osg::Vec3 init_targetPosition);
     void followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished);
     void getTrajSpeed(float deltat);
+
+    // Trajectory DLC
+    osg::Vec3 absVertPos;
+    bool absVertPosIsSet;
+
+    void setAbsVertPos();
 
 };
 

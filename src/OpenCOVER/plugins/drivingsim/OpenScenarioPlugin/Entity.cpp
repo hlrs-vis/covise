@@ -6,7 +6,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	name(entityName),
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
-    visitedVertices(0)
+    visitedVertices(0),
+    absVertPosIsSet(false)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -67,7 +68,7 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
-void Entity::setTargetPosition(osg::Vec3 init_targetPosition)
+void Entity::setTrajectoryDirection(osg::Vec3 init_targetPosition)
 {
     // entity is heading to targetPosition
     targetPosition = init_targetPosition;
@@ -115,4 +116,11 @@ void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool 
 
     entityPosition = newPosition;
     entityGeometry->setPosition(newPosition, directionVector);
+}
+
+void Entity::setAbsVertPos(){
+    if(!absVertPosIsSet){
+        absVertPos = entityPosition;
+        absVertPosIsSet = true;
+    }
 }
