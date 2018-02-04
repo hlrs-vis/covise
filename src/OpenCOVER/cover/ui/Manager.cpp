@@ -323,7 +323,13 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 m_modifiers &= ~ModMeta;
         }
 
-        std::cerr << "key " << (down ? "down" : "up") << ": ";
+        bool show = false;
+        if (down)
+        {
+            //show = true;
+        }
+        if (show)
+            std::cerr << "key " << (down ? "down" : "up") << ": ";
 
         bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
         bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
@@ -334,22 +340,26 @@ bool Manager::keyEvent(int type, int mod, int keySym)
         if (meta)
         {
             modifiers |= ModMeta;
-            std::cerr << "meta+";
+            if (show)
+                std::cerr << "meta+";
         }
         if (ctrl)
         {
             modifiers |= ModCtrl;
-            std::cerr << "ctrl+";
+            if (show)
+                std::cerr << "ctrl+";
         }
         if (alt)
         {
             modifiers |= ModAlt;
-            std::cerr << "alt+";
+            if (show)
+                std::cerr << "alt+";
         }
         if (shift)
         {
             modifiers |= ModShift;
-            std::cerr << "shift+";
+            if (show)
+                std::cerr << "shift+";
         }
 
         if (down)
@@ -359,7 +369,8 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);
             }
-            std::cerr << "'" << (char)keySym << "'" << std::endl;
+            if (show)
+                std::cerr << "'" << (char)keySym << "'" << std::endl;
 
             for (auto &elemPair: m_elements)
             {
@@ -377,7 +388,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
             }
         }
 
-        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
+        //std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
         //m_modifiers = modifiers;
     }
     else if (type == osgGA::GUIEventAdapter::RELEASE
