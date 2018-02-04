@@ -103,7 +103,7 @@ void OpenScenarioPlugin::preFrame()
     list<Entity*> unusedEntity = scenarioManager->entityList;
     list<Entity*> entityList_temp = scenarioManager->entityList;
     entityList_temp.sort();unusedEntity.sort();
-
+    scenarioManager->conditionManager();
 
     if (scenarioManager->conditionControl())
     {
@@ -160,6 +160,7 @@ void OpenScenarioPlugin::preFrame()
                             }
                         }
                     }
+                    (*maneuver_iter)->activeManeuverEntities.clear();
                 }
             }
         }

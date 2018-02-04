@@ -27,6 +27,7 @@ public:
     bool conditionControl();
     bool conditionControl(Act* act);
     bool conditionControl(Maneuver* maneuver);
+    void conditionManager();
 
 };
 

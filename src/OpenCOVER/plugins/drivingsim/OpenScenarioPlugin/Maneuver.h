@@ -15,6 +15,7 @@ class Maneuver: public OpenScenario::oscManeuver
 
 
 public:
+    std::list<Entity*> activeManeuverEntities;
     std::string name;
     std::string maneuverType;
     std::string routeCatalogReference;

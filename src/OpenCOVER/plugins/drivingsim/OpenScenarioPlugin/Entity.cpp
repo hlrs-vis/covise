@@ -7,7 +7,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    absVertPosIsSet(false)
+    absVertPosIsSet(false),
+    entityManeuverCondition(false)
 {
 	directionVector.set(1, 0, 0);
 }
