@@ -52,8 +52,6 @@ TrackingBody::TrackingBody(const std::string &name)
         if (v.valuator >= 0)
         {
             m_assemble = true;
-            if (i >= 3)
-                m_6dof = true;
             if (v.valuator >= device()->numValuators())
                 std::cerr << "TrackingBody: valuator index " << i << "=" << v.valuator << " out of range - " << v.device->numValuators() << " valuators" << std::endl;
         }
@@ -120,18 +118,22 @@ TrackingBody::TrackingBody(const std::string &name)
  */
 void TrackingBody::update()
 {
-    m_varying = device()->isVarying();
-
     if (m_assemble)
     {
-        m_valid = device()->isValid();
+        m_varying = false;
+        m_valid = true;
         m_mat.makeIdentity();
 
         double value[6];
+        bool is6dof = false;
         for (int i=0; i<6; ++i)
         {
-            value[i] = 0.;
             const auto &v = m_valuator[i];
+
+            m_varying |= v.device->isVarying();
+            m_valid &= v.device->isValid();
+
+            value[i] = 0.;
             int idx = v.valuator;
             if (idx >= 0)
             {
@@ -140,7 +142,11 @@ void TrackingBody::update()
                 val *= v.scale;
                 value[i] = val;
             }
+            if (idx >= 3)
+                is6dof = true;
         }
+        if (is6dof && m_valid)
+            m_6dof = is6dof;
 
         osg::Vec3 trans(value[0], value[1], value[2]);
         double hpr[3] = {value[3], value[4], value[5]};
@@ -150,6 +156,8 @@ void TrackingBody::update()
     }
     else
     {
+        m_varying = device()->isVarying();
+
         m_valid = device()->isBodyMatrixValid(m_idx);
         m_6dof = device()->is6Dof();
 
@@ -207,11 +215,6 @@ void TrackingBody::setMat(const osg::Matrix &mat)
     m_mat = mat;
 }
 
-bool TrackingBody::isValid() const
-{
-    return m_valid;
-}
-
 bool TrackingBody::isVarying() const
 {
 
@@ -222,11 +225,6 @@ bool TrackingBody::is6Dof() const
 {
 
     return m_6dof;
-}
-
-void TrackingBody::setValid(bool valid)
-{
-    m_valid = valid;
 }
 
 void TrackingBody::setVarying(bool isVar)

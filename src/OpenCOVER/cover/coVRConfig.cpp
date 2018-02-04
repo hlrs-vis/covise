@@ -723,7 +723,7 @@ bool coVRConfig::has6DoFInput() const
         const Person *p = Input::instance()->getPerson(i);
         if (p->hasHand(0))
             return true;
-        if (p->hasRelative())
+        if (p->hasRelative() && p->getRelative()->is6Dof())
             return true;
     }
     return false;

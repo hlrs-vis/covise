@@ -165,6 +165,8 @@ ButtonDevice::ButtonDevice(const string &name)
  */
 void ButtonDevice::update()
 {
+    InputSource::update();
+
     if (device())
     {
         m_raw = 0;

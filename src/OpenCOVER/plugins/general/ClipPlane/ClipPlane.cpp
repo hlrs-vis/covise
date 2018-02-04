@@ -196,44 +196,41 @@ bool ClipPlanePlugin::init()
             }
         });
 
-        if (coVRConfig::instance()->has6DoFInput())
-        {
-            sprintf(name, "Direct interactor for plane %d", i);
-            plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
-            plane[i].DirectInteractorButton->setGroup(cover->navGroup());
-            plane[i].DirectInteractorButton->setText(name);
-            //plane[i].DirectInteractorButton->setPos(2, i);
-            plane[i].DirectInteractorButton->setCallback([this, i](bool state){
-                ClipNode *clipNode = cover->getObjectsRoot();
-                if (state)
+        sprintf(name, "Direct interactor for plane %d", i);
+        plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
+        plane[i].DirectInteractorButton->setGroup(cover->navGroup());
+        plane[i].DirectInteractorButton->setText(name);
+        plane[i].DirectInteractorButton->setCallback([this, i](bool state){
+            ClipNode *clipNode = cover->getObjectsRoot();
+            if (state)
+            {
+                plane[i].showDirectInteractor_ = true;
+                if (!plane[i].directInteractor->isRegistered())
                 {
-                    plane[i].showDirectInteractor_ = true;
-                    if (!plane[i].directInteractor->isRegistered())
-                    {
-                        vrui::coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
-                        plane[i].enabled = true;
-                        clipNode->addClipPlane(plane[i].clip.get());
-                        plane[i].EnableButton->setState(true);
-                    }
-                    if (!plane[i].relativeInteractor->isRegistered())
-                    {
-                        vrui::coInteractionManager::the()->registerInteraction(plane[i].relativeInteractor);
-                    }
+                    vrui::coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
+                    plane[i].enabled = true;
+                    clipNode->addClipPlane(plane[i].clip.get());
+                    plane[i].EnableButton->setState(true);
                 }
-                else
+                if (!plane[i].relativeInteractor->isRegistered())
                 {
-                    plane[i].showDirectInteractor_ = false;
-                    if (plane[i].directInteractor->isRegistered())
-                    {
-                        vrui::coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
-                    }
-                    if (plane[i].relativeInteractor->isRegistered())
-                    {
-                        vrui::coInteractionManager::the()->unregisterInteraction(plane[i].relativeInteractor);
-                    }
+                    vrui::coInteractionManager::the()->registerInteraction(plane[i].relativeInteractor);
                 }
-            });
-        }
+            }
+            else
+            {
+                plane[i].showDirectInteractor_ = false;
+                if (plane[i].directInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
+                }
+                if (plane[i].relativeInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].relativeInteractor);
+                }
+            }
+        });
+        plane[i].DirectInteractorButton->setVisible(coVRConfig::instance()->has6DoFInput());
 
         plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
         plane[i].relativeInteractor = new vrui::coRelativeInputInteraction("spacemouse");
@@ -290,9 +287,18 @@ Vec4d ClipPlanePlugin::matrixToEquation(const Matrix &mat)
 
 void ClipPlanePlugin::preFrame()
 {
-
+    if (!m_directInteractorShow)
+    {
+        m_directInteractorShow = coVRConfig::instance()->has6DoFInput();
+    }
+    if (m_directInteractorShow)
+        m_directInteractorEnable = coVRConfig::instance()->has6DoFInput();
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
+        if (m_directInteractorShow && !plane[i].DirectInteractorButton->visible())
+            plane[i].DirectInteractorButton->setVisible(true);
+        if (m_directInteractorEnable != plane[i].DirectInteractorButton->enabled())
+            plane[i].DirectInteractorButton->setEnabled(m_directInteractorEnable);
 
         // pick interaction update
         plane[i].pickInteractor->preFrame();

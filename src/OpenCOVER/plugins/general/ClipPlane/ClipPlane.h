@@ -71,6 +71,7 @@ private:
     osg::Vec4d matrixToEquation(const osg::Matrix &mat);
 
     void setInitialEquation(int);
+    bool m_directInteractorShow = false, m_directInteractorEnable = false;
 
 public:
     ClipPlanePlugin();

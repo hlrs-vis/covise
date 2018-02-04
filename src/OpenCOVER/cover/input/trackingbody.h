@@ -30,7 +30,6 @@ class COVEREXPORT TrackingBody: public InputSource
     friend class Input;
 
 public:
-    bool isValid() const;
     const osg::Matrix &getMat() const;
     const osg::Matrix &getOffsetMat() const;
     void setOffsetMat(const osg::Matrix &m);
@@ -42,13 +41,11 @@ private:
 
     void update();
     void updateRelative();
-    void setValid(bool);
     void setMat(const osg::Matrix &mat);
     void setVarying(bool isVar);
     void set6Dof(bool is6Dof);
 
     TrackingBody *m_baseBody = nullptr;
-    bool m_valid = false, m_oldValid = false;
     size_t m_idx = 0;
     osg::Matrix m_mat, m_oldMat;
     osg::Matrix m_deviceOffsetMat;
