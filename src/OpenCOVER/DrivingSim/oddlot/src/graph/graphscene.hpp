@@ -22,6 +22,8 @@
 class MouseAction;
 class KeyAction;
 
+class QGraphicsSceneDragDropEvent;
+
 class GraphScene : public QGraphicsScene, public Observer
 {
     Q_OBJECT
@@ -58,6 +60,10 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
+
+	// Drag Events //
+	//
+	virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
     // Key Events //
     //

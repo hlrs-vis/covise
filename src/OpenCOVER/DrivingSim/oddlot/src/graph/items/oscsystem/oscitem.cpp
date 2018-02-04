@@ -488,6 +488,7 @@ OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	/*		Signal * newSignal = signal_->getClone();
 			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
 			getProjectGraph()->executeCommand(command); */
+			oscEditor_->cloneEntity(element_, oscObject_);
 		}
 
         GraphElement::mousePressEvent(event); // pass to baseclass

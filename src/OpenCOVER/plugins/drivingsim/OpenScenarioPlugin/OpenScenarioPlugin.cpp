@@ -103,12 +103,13 @@ void OpenScenarioPlugin::preFrame()
     list<Entity*> unusedEntity = scenarioManager->entityList;
     list<Entity*> entityList_temp = scenarioManager->entityList;
     entityList_temp.sort();unusedEntity.sort();
-
+    scenarioManager->conditionManager();
 
     if (scenarioManager->conditionControl())
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
+            Act* currrentAct = (*act_iter);
             //check act start conditions
             if (scenarioManager->conditionControl((*act_iter)))
             {
@@ -125,27 +126,23 @@ void OpenScenarioPlugin::preFrame()
                                 Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                                 {
-                                    //Entity* currentEntity = (*activeEntity);
-
+                                    Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
-                                    if((*maneuver_iter)->totalDistance == 0){
+                                    if((*activeEntity)->totalDistance == 0){
+                                        (*activeEntity)->setAbsVertPos();
+                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
+                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity));
 
-                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next direction
-                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*maneuver_iter)->visitedVertices,(*activeEntity));
-
-                                        (*maneuver_iter)->setTargetPosition(nextTargetPos,(*activeEntity)->entityPosition);
+                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos);
 
                                         if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            //(*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*trajectory_iter)->getReference((*maneuver_iter)->visitedVertices)));
-                                            (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed(0.1));
+                                            (*activeEntity)->getTrajSpeed(0.01);
                                         }
 
                                     }
 
-                                    (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
-
-                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectory((*activeEntity)->entityPosition,(*activeEntity)->getSpeed(),(*trajectory_iter)->verticesCounter));
+                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->maneuverCondition, (*maneuver_iter)->maneuverFinished);
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -163,6 +160,7 @@ void OpenScenarioPlugin::preFrame()
                             }
                         }
                     }
+                    (*maneuver_iter)->activeManeuverEntities.clear();
                 }
             }
         }
@@ -450,9 +448,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                         }
                         else if(action->Position->World.exists()){
 
-                        osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
-                        currentTentity->setInitEntityPosition(initPosition);
-                        currentTentity->setPosition(initPosition);
+                            osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
+                            currentTentity->setInitEntityPosition(initPosition);
+                            currentTentity->setPosition(initPosition);
                         }
                     }
                 }

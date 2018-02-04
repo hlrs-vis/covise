@@ -17,6 +17,7 @@
 #define MOUSEACTION_HPP
 
 class QGraphicsSceneMouseEvent;
+class QGraphicsSceneDragDropEvent;
 
 class MouseAction
 {
@@ -36,6 +37,7 @@ public:
         ATM_PRESS,
         ATM_RELEASE,
         ATM_DOUBLECLICK,
+		ATM_DROP,
 
 		// ProfileGraph //
 		//
@@ -50,6 +52,7 @@ public:
 
 public:
     MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneMouseEvent *mouseEvent);
+	MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneDragDropEvent *dragEvent);
     virtual ~MouseAction()
     { /* does nothing */
     }
@@ -60,8 +63,12 @@ public:
     }
     QGraphicsSceneMouseEvent *getEvent() const
     {
-        return event_;
+        return mouseEvent_;
     }
+	QGraphicsSceneDragDropEvent *getDragDropEvent() const
+	{
+		return dragEvent_;
+	}
 
     // Interception //
     //
@@ -90,7 +97,8 @@ private:
 protected:
 private:
     MouseActionType mouseActionType_;
-    QGraphicsSceneMouseEvent *event_;
+    QGraphicsSceneMouseEvent *mouseEvent_;
+	QGraphicsSceneDragDropEvent *dragEvent_;
 
     // Interception //
     //

@@ -24,6 +24,31 @@ Entity* ScenarioManager::getEntityByName(string entityName)
 return 0;
 }
 
+void ScenarioManager::conditionManager(){
+    if(conditionControl()){
+        for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+        {
+            if(conditionControl((*act_iter)))
+            {
+                for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+
+                {
+                    for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+
+                    {
+                        (*maneuver_iter)->activeCarName = (*activeEntity)->name;
+                        if(conditionControl(*maneuver_iter))
+                        {
+                            (*maneuver_iter)->activeManeuverEntities.push_back((*activeEntity));
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}
+
 bool ScenarioManager::conditionControl()
 {
 	if (endTime<simulationTime)

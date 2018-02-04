@@ -15,13 +15,24 @@
 
 #include "mouseaction.hpp"
 
+#include "src/globalDefines.hpp"
+
 //################//
 // CONSTRUCTOR    //
 //################//
 
 MouseAction::MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneMouseEvent *mouseEvent)
     : mouseActionType_(mouseActionType)
-    , event_(mouseEvent)
+    , mouseEvent_(mouseEvent)
+	, dragEvent_(NULL)
     , intercepted_(false)
+{
+}
+
+MouseAction::MouseAction(MouseAction::MouseActionType mouseActionType, QGraphicsSceneDragDropEvent *dragEvent)
+	: mouseActionType_(mouseActionType)
+	, dragEvent_(dragEvent)
+	, mouseEvent_(NULL)
+	, intercepted_(false)
 {
 }

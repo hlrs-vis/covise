@@ -67,6 +67,7 @@
 #include <QDialog>
 #include <QFormLayout>
 #include <QDialogButtonBox>
+#include <QMimeData>
 
 
 // Utils //
@@ -1478,6 +1479,26 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
     default:*/
         QGraphicsView::keyReleaseEvent(event);
     //}
+}
+
+void
+GraphView::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->acceptProposedAction();
+	
+}
+
+void
+GraphView::dragMoveEvent(QDragMoveEvent *event)
+{
+	event->acceptProposedAction();
+}
+
+void
+GraphView::dropEvent(QDropEvent *event)
+{
+	event->acceptProposedAction();
+	QGraphicsView::dropEvent(event);
 }
 
 void

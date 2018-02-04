@@ -4,7 +4,11 @@ using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
 	name(entityName),
-	catalogReferenceName(catalogReferenceName)
+    catalogReferenceName(catalogReferenceName),
+    totalDistance(0),
+    visitedVertices(0),
+    absVertPosIsSet(false),
+    entityManeuverCondition(false)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -63,4 +67,61 @@ void Entity::setDirection(osg::Vec3 &dir)
     directionVector = dir;
     directionVector.normalize();
 
+}
+
+void Entity::setTrajectoryDirection(osg::Vec3 init_targetPosition)
+{
+    // entity is heading to targetPosition
+    targetPosition = init_targetPosition;
+    totaldirectionVector = targetPosition - entityPosition;
+    totaldirectionVectorLength = totaldirectionVector.length();
+
+    directionVector = totaldirectionVector;
+    directionVector.normalize();
+}
+
+
+void Entity::getTrajSpeed(float deltat)
+{
+
+    // calculate length of targetvector
+    speed = totaldirectionVectorLength/deltat;
+
+}
+
+void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished)
+{
+
+    //calculate step distance
+    //float step_distance = speed*opencover::cover->frameDuration();
+    float step_distance = speed*1/60;
+
+    if(totalDistance == 0)
+    {
+        totalDistance = totaldirectionVectorLength;
+    }
+    //calculate remaining distance
+    totalDistance = totalDistance-step_distance;
+    //calculate new position
+    newPosition = entityPosition+(directionVector*step_distance);
+    if (totalDistance <= 0)
+    {
+        visitedVertices++;
+        totalDistance = 0;
+        if (visitedVertices == verticesCounter)
+        {
+            maneuverCondition = false;
+            maneuverFinished = true;
+        }
+    }
+
+    entityPosition = newPosition;
+    entityGeometry->setPosition(newPosition, directionVector);
+}
+
+void Entity::setAbsVertPos(){
+    if(!absVertPosIsSet){
+        absVertPos = entityPosition;
+        absVertPosIsSet = true;
+    }
 }
