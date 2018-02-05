@@ -49,6 +49,26 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
     return false;
 }
 
+bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
+{
+    for (int type = coInteraction::ButtonA; type < coInteraction::NumInteractorTypes; ++type)
+    {
+        // the high priority elements are at the end of the list
+        // therefore it is efficient to search from back to front
+        // set pointer to dummy element behind the last element
+        for (list<coInteraction *>::reverse_iterator it = interactionStack[type].rbegin();
+             it != interactionStack[type].rend();
+             ++it)
+        {
+            if ((*it)->getState() == coInteraction::Active && (*it)->getGroup() == group)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool coInteractionManager::update()
 {
 

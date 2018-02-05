@@ -256,9 +256,13 @@ void coVRNavigationManager::initInteractionDevice()
     mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
     mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "COVER.Input.MouseNav", 2);
     interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
+    interactionMA->setGroup(coInteraction::GroupNavigation);
     interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
+    interactionMB->setGroup(coInteraction::GroupNavigation);
     interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
+    interactionMC->setGroup(coInteraction::GroupNavigation);
     interactionRel = new coRelativeInputInteraction("SpaceMouse");
+    interactionRel->setGroup(coInteraction::GroupNavigation);
 
     wiiNav = coVRConfig::instance()->useWiiNavigationVisenso();
     /*if (wiiNav)

@@ -71,6 +71,12 @@ public:
         NumInteractorTypes
     };
 
+    enum InteractionGroup
+    {
+        GroupNonexclusive,
+        GroupNavigation,
+    };
+
     enum RunningState
     {
         StateStarted = 0,
@@ -94,6 +100,12 @@ public:
     {
         return priority;
     }
+    InteractionGroup getGroup() const
+    {
+        return group;
+    }
+    void setGroup(InteractionGroup group);
+
     int getRemoteLockID() const
     {
         return remoteLockID;
@@ -160,6 +172,7 @@ protected:
     InteractionState state;
     InteractionType type;
     InteractionPriority priority;
+    InteractionGroup group = GroupNonexclusive;
     RunningState runningState;
 
     bool notifyOnly;
