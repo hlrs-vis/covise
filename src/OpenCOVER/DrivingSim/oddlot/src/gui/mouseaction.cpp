@@ -15,7 +15,7 @@
 
 #include "mouseaction.hpp"
 
-#include "src/globalDefines.hpp"
+#include <cstdlib> // NULL
 
 //################//
 // CONSTRUCTOR    //

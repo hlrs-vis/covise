@@ -390,7 +390,6 @@ SET(ODDLOT_SOURCES
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
-	 src/globalDefines.hpp
 	 src/data/roadsystem/odrID.hpp
 	 src/data/roadsystem/track/trackcomponent.hpp
 	 src/data/roadsystem/track/trackelement.hpp

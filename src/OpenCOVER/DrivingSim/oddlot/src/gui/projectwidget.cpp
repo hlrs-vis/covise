@@ -15,8 +15,6 @@
 
 #include "projectwidget.hpp"
 
-#include "src/globalDefines.hpp"
-
 #include "src/mainwindow.hpp"
 
 #include "src/util/odd.hpp"
@@ -397,9 +395,9 @@ ProjectWidget::newFile()
     // Create a unique name by counting up numbers.
     static int documentNumber = 0;
     ++documentNumber;
-    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXODR);
+    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xodr");
     strippedFileName_ = fileName_;
-	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXOSC);
+	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xosc");
 
     // Set name in window title and project menu.
     setWindowTitle(strippedFileName_ + "[*]"); // [*] is the place for unsaved-marker
