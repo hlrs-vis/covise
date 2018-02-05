@@ -678,7 +678,7 @@ bool Input::update()
                 changed = true;
                 if (debug(Input::Transformed) && debug(Input::Buttons))
                 {
-                    std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::endl;
+                    std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::dec << std::endl;
                 }
             }
             tb << b->getButtonState();

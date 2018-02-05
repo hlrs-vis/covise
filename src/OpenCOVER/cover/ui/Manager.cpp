@@ -472,7 +472,7 @@ bool Manager::buttonEvent(int button) const
 {
     bool handled = false;
 
-    //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::endl;
+    //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::dec << std::endl;
     for (auto &elemPair: m_elements)
     {
         auto &elem = elemPair.second;

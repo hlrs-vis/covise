@@ -179,7 +179,7 @@ void ButtonDevice::update()
 
     if (Input::debug(Input::Buttons) && Input::debug(Input::Raw) && m_oldRaw!=m_raw)
     {
-        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::endl;
+        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::dec << std::endl;
     }
     m_oldRaw = m_raw;
 
