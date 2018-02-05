@@ -25,9 +25,8 @@ TrackingBody::TrackingBody(const std::string &name)
     const std::string conf = config();
 
     m_assemble = false;
-    bool hasRotation = false;
     m_6dof = false;
-    for (int i=0; i<6; ++i)
+    for (int i=0; i<9; ++i)
     {
         std::string c = conf+".Assemble";
         switch (i) {
@@ -37,6 +36,9 @@ TrackingBody::TrackingBody(const std::string &name)
         case 3: c+="H"; break;
         case 4: c+="P"; break;
         case 5: c+="R"; break;
+        case 6: c+="AxisX"; break;
+        case 7: c+="AxisY"; break;
+        case 8: c+="AxisZ"; break;
         }
 
         auto &v = m_valuator[i];
@@ -52,6 +54,8 @@ TrackingBody::TrackingBody(const std::string &name)
         if (v.valuator >= 0)
         {
             m_assemble = true;
+            if (i >= 6)
+                m_assembleWithRotationAxis = true;
             if (v.valuator >= device()->numValuators())
                 std::cerr << "TrackingBody: valuator index " << i << "=" << v.valuator << " out of range - " << v.device->numValuators() << " valuators" << std::endl;
         }
@@ -124,9 +128,9 @@ void TrackingBody::update()
         m_valid = true;
         m_mat.makeIdentity();
 
-        double value[6];
+        double value[9];
         bool is6dof = false;
-        for (int i=0; i<6; ++i)
+        for (int i=0; i<9; ++i)
         {
             const auto &v = m_valuator[i];
 
@@ -148,11 +152,17 @@ void TrackingBody::update()
         if (is6dof && m_valid)
             m_6dof = is6dof;
 
-        osg::Vec3 trans(value[0], value[1], value[2]);
-        double hpr[3] = {value[3], value[4], value[5]};
-
-        MAKE_EULER_MAT(m_mat, hpr[0], hpr[1], hpr[2]);
-        m_mat.setTrans(trans);
+        if (m_assembleWithRotationAxis)
+        {
+            osg::Vec3 rotaxis(value[7], value[8], value[6]);
+            m_mat.makeRotate(rotaxis.length()*0.01, rotaxis);
+        }
+        else
+        {
+            double hpr[3] = {value[3], value[4], value[5]};
+            MAKE_EULER_MAT(m_mat, hpr[0], hpr[1], hpr[2]);
+        }
+        m_mat.setTrans(value[0], value[1], value[2]);
     }
     else
     {

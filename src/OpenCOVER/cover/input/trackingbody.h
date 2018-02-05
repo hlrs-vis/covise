@@ -60,7 +60,8 @@ private:
     };
 
     bool m_assemble = false;
-    Assemble m_valuator[6];
+    bool m_assembleWithRotationAxis = false; // assemble from 3 valuators desrcibing a rotation axis, angle is proportional to axis length
+    Assemble m_valuator[9];
 };
 }
 #endif /* TRACKINGBODY_H_ */
