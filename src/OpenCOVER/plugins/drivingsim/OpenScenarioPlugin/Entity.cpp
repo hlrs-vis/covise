@@ -110,6 +110,10 @@ void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool 
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
+            /* entity maneuver finished: bool
+             * is set to true in here
+             * has to be checked in conditionManager before entity is added to activeManeuverEntities
+             */
             maneuverCondition = false;
             maneuverFinished = true;
         }

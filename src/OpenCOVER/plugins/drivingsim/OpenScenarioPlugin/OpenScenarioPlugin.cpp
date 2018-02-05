@@ -105,26 +105,26 @@ void OpenScenarioPlugin::preFrame()
     entityList_temp.sort();unusedEntity.sort();
     scenarioManager->conditionManager();
 
-    if (scenarioManager->conditionControl())
+    if (scenarioManager->scenarioCondition)
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
             Act* currrentAct = (*act_iter);
             //check act start conditions
-            if (scenarioManager->conditionControl((*act_iter)))
+            if ((*act_iter)->actCondition)
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
                     Maneuver* currentManeuver = (*maneuver_iter);
                     //check maneuver start conditions
-                    if (scenarioManager->conditionControl((*maneuver_iter)))
+                    if ((*maneuver_iter)->maneuverCondition)
                     {
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
                                 Trajectory* currentTrajectory = (*trajectory_iter);
-                                for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeManeuverEntities.begin(); activeEntity != (*maneuver_iter)->activeManeuverEntities.end(); activeEntity++)
                                 {
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
@@ -137,7 +137,7 @@ void OpenScenarioPlugin::preFrame()
 
                                         if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->getTrajSpeed(0.01);
+                                            (*activeEntity)->getTrajSpeed(0.1);
                                         }
 
                                     }
