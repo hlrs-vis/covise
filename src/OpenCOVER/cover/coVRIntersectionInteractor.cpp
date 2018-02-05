@@ -21,6 +21,8 @@
 #include <osg/ShapeDrawable>
 
 #include <OpenVRUI/sginterface/vruiHit.h>
+#include <OpenVRUI/osg/OSGVruiHit.h>
+#include <OpenVRUI/osg/OSGVruiNode.h>
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -252,6 +254,15 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         coVector v = hit->getWorldIntersectionPoint();
         osg::Vec3 wp(v[0], v[1], v[2]);
         _hitPos = wp * cover->getInvBaseMat();
+        auto osgvruinode = dynamic_cast<OSGVruiNode *>(hit->getNode());
+        if (osgvruinode)
+        {
+            _hitNode = osgvruinode->getNodePtr();
+        }
+        else
+        {
+            _hitNode = nullptr;
+        }
     }
     else
     {
@@ -259,6 +270,7 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         if (_interPos == osg::Vec3(0.0, 0.0, 0.0))
             _interPos.set(0.0, 0.0, 0.00001);
         _hitPos = _interPos;
+        _hitNode = nullptr;
     }
 
     _justHit = false;
