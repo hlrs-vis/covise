@@ -515,7 +515,7 @@ public:
     //! returns the current time in seconds since Jan. 1, 1970,
     //! if possible, use frameTime() as it does not require a system call
     //! @return number of seconds since Jan. 1, 1970
-    double currentTime() const;
+    static double currentTime();
 
     //! get the number of the active cursor shape
     osgViewer::GraphicsWindow::MouseCursor getCurrentCursor() const;

@@ -241,7 +241,7 @@ float coVRPluginSupport::getSceneSize() const
     return coVRConfig::instance()->getSceneSize();
 }
 
-double coVRPluginSupport::currentTime() const
+double coVRPluginSupport::currentTime()
 {
     START("coVRPluginSupport::currentTime");
     timeval currentTime;
