@@ -15,7 +15,8 @@ class Maneuver: public OpenScenario::oscManeuver
 
 
 public:
-    std::list<Entity*> activeManeuverEntities;
+    std::list<Entity*> activeEntityList;
+    std::list<Entity*> finishedEntityList;
     std::string name;
     std::string maneuverType;
     std::string routeCatalogReference;
@@ -28,7 +29,7 @@ public:
     std::string startAfterManeuver;
     std::string passiveCarName;
     std::string activeCarName;
-
+    int numberOfActiveEntities;
     float relativeDistance;
     float targetSpeed;
 
@@ -43,6 +44,7 @@ public:
 
     std::string &getName();
     void changeSpeedOfEntity(Entity *aktivCar, float dt);
+    void initialize(std::list<Entity *> &activeEntityList_temp);
 
 };
 

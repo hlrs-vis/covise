@@ -8,7 +8,7 @@ Entity::Entity(string entityName, string catalogReferenceName):
     totalDistance(0),
     visitedVertices(0),
     absVertPosIsSet(false),
-    entityManeuverCondition(false)
+    finishedCurrentTraj(false)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -89,7 +89,7 @@ void Entity::getTrajSpeed(float deltat)
 
 }
 
-void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished)
+void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEntityList)
 {
 
     //calculate step distance
@@ -112,10 +112,13 @@ void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool 
         {
             /* entity maneuver finished: bool
              * is set to true in here
-             * has to be checked in conditionManager before entity is added to activeManeuverEntities
+             * has to be checked in conditionManager before entity is added to active ManeuverEntities
              */
-            maneuverCondition = false;
-            maneuverFinished = true;
+            //maneuverCondition = false;
+            //maneuverFinished = true;
+            //activeEntityList.remove(this);
+            finishedCurrentTraj = true;
+            finishedEntityList.push_back(this);
         }
     }
 

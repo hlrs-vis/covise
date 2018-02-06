@@ -16,15 +16,18 @@ void Trajectory::initialize(int verticesCounter_temp)
 
 }
 
-osg::Vec3 Trajectory::getAbsolute(Entity* currentEntity){
+osg::Vec3 Trajectory::getAbsolute(Entity* currentEntity)
+{
     auto vert = Vertex[currentEntity->visitedVertices];
 
-    if(vert->Position->World.exists()){
+    if(vert->Position->World.exists())
+    {
         osg::Vec3 absCoordinates (vert->Position->World->x.getValue(),vert->Position->World->y.getValue(),vert->Position->World->z.getValue());
         currentEntity->absVertPos = absCoordinates;
         return absCoordinates;
     }
-    else if(vert->Position->RelativeWorld.exists()){
+    else if(vert->Position->RelativeWorld.exists())
+    {
         osg::Vec3 relCoordinates (vert->Position->RelativeWorld->dx.getValue(),vert->Position->RelativeWorld->dy.getValue(),vert->Position->RelativeWorld->dz.getValue());
         osg::Vec3 absCoordinates = relCoordinates + currentEntity->absVertPos;
         currentEntity->absVertPos = absCoordinates;
@@ -44,7 +47,8 @@ double Trajectory::getReference(int visitedVertices){
 
     t1 = Vertex[visitedVertices]->Shape->reference.getValue();
 
-    if(visitedVertices==verticesCounter){
+    if(visitedVertices==verticesCounter)
+    {
         t0 = Vertex[visitedVertices-1]->Shape->reference.getValue();
     }
     else{

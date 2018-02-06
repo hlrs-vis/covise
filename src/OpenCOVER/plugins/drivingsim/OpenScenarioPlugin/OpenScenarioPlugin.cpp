@@ -124,25 +124,27 @@ void OpenScenarioPlugin::preFrame()
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
                                 Trajectory* currentTrajectory = (*trajectory_iter);
-                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeManeuverEntities.begin(); activeEntity != (*maneuver_iter)->activeManeuverEntities.end(); activeEntity++)
+                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
-                                    if((*activeEntity)->totalDistance == 0){
+                                    if((*activeEntity)->totalDistance == 0)
+                                    {
                                         (*activeEntity)->setAbsVertPos();
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
                                         osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity));
 
                                         (*activeEntity)->setTrajectoryDirection(nextTargetPos);
 
-                                        if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
+                                        if((*trajectory_iter)->domain.getValue() == 0)
+                                        { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
                                             (*activeEntity)->getTrajSpeed(0.1);
                                         }
 
                                     }
 
-                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->maneuverCondition, (*maneuver_iter)->maneuverFinished);
+                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -160,7 +162,6 @@ void OpenScenarioPlugin::preFrame()
                             }
                         }
                     }
-                    (*maneuver_iter)->activeManeuverEntities.clear();
                 }
             }
         }
@@ -171,6 +172,7 @@ void OpenScenarioPlugin::preFrame()
             //(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
             usedEntity.clear();
         }
+        scenarioManager->endTrajectoryCheck();
     }
     else
     {
@@ -484,6 +486,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
             {
                 Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
+                maneuver->initialize(activeEntityList_temp);
                 maneuverList_temp.push_back(maneuver);
                 cout << "Manuever: " << maneuver->getName() << " created" << endl;
             }
