@@ -17,6 +17,7 @@ class TokenBuffer;
 
 namespace vrui {
 class coMouseButtonInteraction;
+class coButtonInteraction;
 }
 
 namespace opencover {
@@ -105,6 +106,7 @@ class COVER_UI_EXPORT Manager: public Owner {
 
    int m_modifiers = 0;
    std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;
+   std::vector<vrui::coButtonInteraction *> m_buttonInteraction;
 };
 
 }

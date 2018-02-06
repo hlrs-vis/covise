@@ -126,6 +126,7 @@ VRVruiRenderInterface::~VRVruiRenderInterface()
 
     delete buttons;
     delete mouseButtons;
+    delete relativeButtons;
 
     delete handMatrix;
     delete headMatrix;

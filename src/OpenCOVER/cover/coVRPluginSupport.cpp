@@ -24,6 +24,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
 #include "input/coMousePointer.h"
@@ -737,6 +738,8 @@ coVRPluginSupport::coVRPluginSupport()
 
     START("coVRPluginSupport::coVRPluginSupport");
 
+    new VRVruiRenderInterface();
+
     ui = new ui::Manager();
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
@@ -799,6 +802,8 @@ coVRPluginSupport::~coVRPluginSupport()
     if (debugLevel(2))
         fprintf(stderr, "delete coVRPluginSupport\n");
 
+    updateManager->removeAll();
+    delete VRVruiRenderInterface::the();
     delete updateManager;
 
     while(!m_notifyStream.empty())

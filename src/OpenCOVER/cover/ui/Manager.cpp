@@ -12,6 +12,7 @@
 #include <osgGA/GUIEventAdapter>
 
 #include <OpenVRUI/coMouseButtonInteraction.h>
+#include <OpenVRUI/coTrackerButtonInteraction.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
@@ -27,6 +28,16 @@ Manager::Manager()
     m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelHorizontal, "MouseWheel", vrui::coInteraction::Low));
 
     for (auto &i: m_wheelInteraction)
+        vrui::coInteractionManager::the()->registerInteraction(i);
+
+    for (int button = vrui::coInteraction::ButtonA; button <= vrui::coInteraction::LastButton; ++button)
+    {
+        auto t = static_cast<vrui::coInteraction::InteractionType>(button);
+        m_buttonInteraction.push_back(new vrui::coMouseButtonInteraction(t, "MouseButton", vrui::coInteraction::Low));
+        m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
+    }
+
+    for (auto &i: m_buttonInteraction)
         vrui::coInteractionManager::the()->registerInteraction(i);
 }
 
@@ -140,6 +151,15 @@ bool Manager::update()
             int count = std::abs(c);
             for (int i=0; i<count; ++i)
                 buttonEvent(pressed);
+        }
+    }
+
+    for (auto inter: m_buttonInteraction)
+    {
+        if (inter->wasStarted())
+        {
+            m_changed = true;
+            buttonEvent(inter->getType());
         }
     }
 

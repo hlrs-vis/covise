@@ -62,6 +62,7 @@ public:
         ButtonPrevInter,
         ButtonNextPerson,
         ButtonPrevPerson,
+        LastButton = ButtonPrevPerson,
         WheelHorizontal,
         WheelVertical,
         Wheel = WheelVertical,
