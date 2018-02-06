@@ -197,6 +197,18 @@ coPointerButton *coVRPluginSupport::getMouseButton() const
     return mouseButton;
 }
 
+coPointerButton *coVRPluginSupport::getRelativeButton() const
+{
+    if (!Input::instance()->hasRelative())
+        return NULL;
+
+    if (relativeButton == NULL)
+    {
+        relativeButton = new coPointerButton("relative");
+    }
+    return relativeButton;
+}
+
 const osg::Matrix &coVRPluginSupport::getViewerMat() const
 {
     START("coVRPluginSupport::getViewerMat");
@@ -414,6 +426,11 @@ void coVRPluginSupport::update()
    if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
       std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
 #endif
+    }
+
+    if (getRelativeButton())
+    {
+        getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
     }
 
     size_t currentPerson = Input::instance()->getActivePerson();
@@ -746,6 +763,7 @@ coVRPluginSupport::coVRPluginSupport()
 
     pointerButton = NULL;
     mouseButton = NULL;
+    relativeButton = NULL;
     baseMatrix.makeIdentity();
 
     invCalculated = false;

@@ -14,8 +14,8 @@
 using namespace opencover;
 using namespace covise;
 
-VRVruiButtons::VRVruiButtons(coPointerButton *button)
-: m_button(button)
+VRVruiButtons::VRVruiButtons(ButtonsType type)
+: m_type(type)
 {
 }
 
@@ -25,8 +25,19 @@ VRVruiButtons::~VRVruiButtons()
 
 coPointerButton *VRVruiButtons::button() const
 {
-    if (m_button)
-        return m_button;
+    switch (m_type)
+    {
+    case Pointer:
+        return cover->getPointerButton();
+        break;
+    case Mouse:
+        return cover->getMouseButton();
+        break;
+    case Relative:
+        return cover->getRelativeButton();
+        break;
+    }
+
     return cover->getPointerButton();
 }
 

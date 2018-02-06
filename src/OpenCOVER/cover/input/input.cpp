@@ -248,6 +248,12 @@ unsigned int Input::getButtonState(int num) const
     return activePerson->getButtonState(num);
 }
 
+unsigned int Input::getRelativeButtonState(int num) const
+{
+
+    return activePerson->getRelativeButtonState(num);
+}
+
 double Input::getValuatorValue(size_t idx) const
 {
 

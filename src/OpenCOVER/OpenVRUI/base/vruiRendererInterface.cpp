@@ -14,8 +14,6 @@ namespace vrui
 vruiRendererInterface *vruiRendererInterface::theInterface = 0;
 
 vruiRendererInterface::vruiRendererInterface()
-    : buttons(NULL)
-    , mouseButtons(NULL)
 {
     interactionScaleSensitivity = 1.0;
     upVector = coVector(0.0, 0.0, 1.0);

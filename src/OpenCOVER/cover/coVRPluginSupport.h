@@ -307,6 +307,9 @@ public:
     //! returns a pointer to a coPointerButton object representing the mouse buttons state
     coPointerButton *getMouseButton() const;
 
+    //! returns a pointer to a coPointerButton object representing the buttons state on the relative input device
+    coPointerButton *getRelativeButton() const;
+
     //! returns the COVER Menu (Pinboard)
     vrui::coMenu *getMenu();
 
@@ -677,6 +680,7 @@ private:
 
     mutable coPointerButton *pointerButton = nullptr;
     mutable coPointerButton *mouseButton = nullptr;
+    mutable coPointerButton *relativeButton = nullptr;
     vrui::coToolboxMenu *toolBar = nullptr;
     vrui::coRowMenu *m_vruiMenu = nullptr;
 
