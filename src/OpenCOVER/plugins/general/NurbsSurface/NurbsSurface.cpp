@@ -69,6 +69,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 #include "sisl.h"
@@ -86,18 +87,94 @@ using covise::TokenBuffer;
 using covise::coDirectory;
 
 
+    void NurbsSurface::initUI()
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "\n--- NurbsSurface::initUI\n");
+
+        SaveButton = new coButtonMenuItem("Save NurbsSurface");
+        SaveButton-> setMenuListener(this);
+
+        cover->getMenu()->add(SaveButton);
+
+        tuiSaveTab = new coTUITab("Save NurbsSurface", coVRTui::instance()->mainFolder->getID());
+        tuiSaveTab->setPos(0, 0);
+
+        tuiFileNameLabel = new coTUILabel("Filename", tuiSaveTab->getID());
+        tuiFileNameLabel->setPos(0, 2);
+
+        tuiFileName = new coTUIEditField("Filename", tuiSaveTab->getID());
+        tuiFileName->setEventListener(this);
+        tuiFileName->setText("NurbsSurface.?");
+        tuiFileName->setPos(1, 2);
+
+        tuiSavedFileLabel = new coTUILabel("saved as:", tuiSaveTab->getID());
+        tuiSavedFileLabel->setPos(2, 2);
+    
+        tuiSavedFile = new coTUILabel("", tuiSaveTab->getID());
+        tuiSavedFile->setPos(3, 2);
+
+        tuiSaveButton = new coTUIButton("Do it!", tuiSaveTab->getID());
+        tuiSaveButton->setEventListener(this);
+        tuiSaveButton->setPos(0, 4);  
+    }
+
+    bool NurbsSurface::init()
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "\n--- NurbsSurface::init\n");
+
+        doInit = true;
+        return true;
+    }
+
+    
+    void NurbsSurface::tabletPressEvent(coTUIElement *tUIItem)
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "\n--- NurbsSurface::tabletPressEvent\n");
+
+        if (tUIItem == tuiSaveButton)
+        {
+            //preparesave
+            doSave = true;
+        }
+    }
+
+    
+    void NurbsSurface::tabletReleaseEvent(coTUIElement *tUIItem)
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "\n--- NurbsSurface::tabletReleaseEvent\n");
+    }
+    
+
+/*    void NurbsSurface::menuEvent(coMenuItem *menuItem)
+    {
+        if (cover->debugLevel(3))
+            fprintf(stderr, "\n--- NurbsSurface::menuEvent\n");
+
+        if (menuItem == SaveButton)
+        {
+            //prepareSave
+            doSave = true;
+        }
+    }    
+*/
+
+
+
 NurbsSurface::NurbsSurface()
 {
-
 
     const int num_points_u = 3; // number of points in the u parameter direction
     const int num_points_v = 3; // number of points in the v parameter direction
 
     double points[] = 
     {
-        0, 1, 0,      3, 3, 0,      10, 5, 0,      
-        -0.25, 0, 0,      3, 0, 2,      10, 0, 5,      
-        0, -1, 0,      3, -3, 0,      10, -5, 0,      
+        0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
+        -0.0025, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
+        0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
     };
 
     double u_par[] = {0, 1, 2}; // point parametrization in u-direction
@@ -107,6 +184,11 @@ NurbsSurface::NurbsSurface()
 
     const int num_surf = 1;
 
+   
+/*
+    void addSliderButton(*Order_U, 2, 5, 5);
+    void addSliderButton(*Order_V, 2, 5, 5);
+*/
     const int order_u = 5;
     const int order_v = 5;
 
@@ -213,22 +295,7 @@ NurbsSurface::NurbsSurface()
         freeSurf(result_surf);
 
 
-        // option to save the NurbsSurface if satisfied
-     /*   void NurbsSurface::initUI()
-        {
-            if (cover->debugLevel(3))
-                fprintf(stderr, "\n--- NurbsSurface::initUI\n");
-        
-        saveButton = new coButtonMenuItem("Safe NurbsSurface");
-        saveButton->setMenuListener(this);
-
-        cover->getMenu()->add(saveButton);
-
-        tuiSaveTab = new coTUITab("Safe NurbsSurface", covRTui::instance()->mainFolder->getID());
-        
-        }   */
-
-    }
+        }
 }
 
 bool NurbsSurface::destroy()

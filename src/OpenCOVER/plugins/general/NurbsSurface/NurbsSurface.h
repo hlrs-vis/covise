@@ -21,21 +21,65 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coTabletUI.h>
+
+#include <OpenVRUI/coMenu.h>
+
 #include <osg/Geode>
 #include <cover/coVRCommunication.h>
 #include <net/message.h>
 
 
-class NurbsSurface : public opencover::coVRPlugin
+#include <string>
+
+namespace vrui
+{
+class coButtonMenuItem;
+}
+namespace opencover
+{
+class coVRSceneHandler;
+class coVRSceneView;
+}
+
+using namespace vrui;
+using namespace opencover;
+
+class NurbsSurface : public coVRPlugin,
+                     public coMenuListener,
+                     public coTUIListener   
 {
 public:
     NurbsSurface();
     ~NurbsSurface();
+    bool init();
     virtual bool destroy();
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
 
 private:
     osg::ref_ptr<osg::Geode> geode;
+
+    mutable bool doSave;
+
+    bool doInit;
+
+    coButtonMenuItem *SaveButton;
+
+    coTUIButton *tuiSaveButton;
+    coTUITab *tuiSaveTab;
+    coTUILabel *tuiFileNameLabel;
+    coTUIEditField *tuiFileName;
+    coTUILabel *tuiSavedFileLabel;
+    coTUILabel *tuiSavedFile; 
+
+    //void prepareSafe();
+
+   // virtual void menuEvent(coMenuItem *);
+    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    virtual void tabletReleaseEvent(coTUIElement *tUIItem);   
+
+    void initUI();
 };
 #endif
 
