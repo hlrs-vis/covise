@@ -36,6 +36,41 @@
 #include <cover/VRSceneGraph.h>
 #include <osgDB/WriteFile>
 
+#include <config/CoviseConfig.h>
+#define QT_CLEAN_NAMESPACE
+#include <QString>
+#include <QDebug>
+#include "qregexp.h"
+#include "qdir.h"
+
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRConfig.h>
+#include <cover/RenderObject.h>
+#include <cover/VRViewer.h>
+#include <cover/coVRSceneView.h>
+#include <cover/coVRMSController.h>
+#include <cover/VRWindow.h>
+#include <cover/coVRTui.h>
+#include <cover/coVRRenderer.h>
+#include <util/coFileUtil.h>
+#include <osgViewer/Renderer>
+
+#include <PluginUtil/PluginMessageTypes.h>
+
+#include <OpenVRUI/coButtonMenuItem.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coSubMenuItem.h>
+
+#include <grmsg/coGRSnapshotMsg.h>
+#include <net/tokenbuffer.h>
+
+#include <osgDB/WriteFile>
+#include <osg/Camera>
+
+#include <iostream>
+#include <sstream>
+
+#include <boost/algorithm/string.hpp>
 #include "sisl.h"
 #include "sisl_aux/sisl_aux.h"
 
@@ -43,43 +78,37 @@ static const int DEFAULT_REF = 30000000;
 static const int DEFAULT_MAX_REF = 100;
 
 using namespace opencover;
+using namespace std;
+using namespace grmsg;
 
-void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
-{
-    if (type == PluginMessageTypes::NurbsSurfacePointMsg)
-    {
-        osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
-        fprintf(stderr, "Point received %f %f %f", selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
-    }
-}
-
+using covise::coCoviseConfig;
+using covise::TokenBuffer;
+using covise::coDirectory;
 
 
 NurbsSurface::NurbsSurface()
 {
 
 
-    const int num_points_u = 5; // number of points in the u parameter direction
-    const int num_points_v = 5; // number of points in the v parameter direction
+    const int num_points_u = 3; // number of points in the u parameter direction
+    const int num_points_v = 3; // number of points in the v parameter direction
 
     double points[] = 
     {
-        0, 0, 0,      1, 0, 0,      2, 0, 0,      3, 0, 0,      4, 0, 0,
-        0, 1, 0,      1, 1, 0,      2, 1, 0,      3, 1, 0,      4, 1, 0,
-        0, 2, 0,      1, 2, 0,      2, 2, 1,      3, 2, 0,      4, 2, 0,
-        0, 3, 0,      1, 3, 0,      2, 3, 0,      3, 3, 0,      4, 3, 0,
-        0, 4, 0,      1, 4, 0,      2, 4, 0,      3, 4, 0,      4, 4, 0
+        0, 1, 0,      3, 3, 0,      10, 5, 0,      
+        -0.25, 0, 0,      3, 0, 2,      10, 0, 5,      
+        0, -1, 0,      3, -3, 0,      10, -5, 0,      
     };
 
-    double u_par[] = {0, 1, 2, 3, 4}; // point parametrization in u-direction
-    double v_par[] = {0, 1, 2, 3, 4}; // point parametrization in v-direction
+    double u_par[] = {0, 1, 2}; // point parametrization in u-direction
+    double v_par[] = {0, 1, 2}; // point parametrization in v-direction
 
     const int dim = 3; // dimension of the space we are working in
 
     const int num_surf = 1;
 
-    const int order_u = 3;
-    const int order_v = 3;
+    const int order_u = 5;
+    const int order_v = 5;
 
     // generating interpolating surface
     for (int i = 0; i < num_surf; ++i) {
@@ -182,6 +211,23 @@ NurbsSurface::NurbsSurface()
         osgDB::writeNodeFile(*geode, "test.stl");
 
         freeSurf(result_surf);
+
+
+        // option to save the NurbsSurface if satisfied
+     /*   void NurbsSurface::initUI()
+        {
+            if (cover->debugLevel(3))
+                fprintf(stderr, "\n--- NurbsSurface::initUI\n");
+        
+        saveButton = new coButtonMenuItem("Safe NurbsSurface");
+        saveButton->setMenuListener(this);
+
+        cover->getMenu()->add(saveButton);
+
+        tuiSaveTab = new coTUITab("Safe NurbsSurface", covRTui::instance()->mainFolder->getID());
+        
+        }   */
+
     }
 }
 
@@ -195,6 +241,15 @@ bool NurbsSurface::destroy()
 NurbsSurface::~NurbsSurface()
 {
     fprintf(stderr, "Goodbye\n");
+}
+
+void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
+{
+    if (type == PluginMessageTypes::NurbsSurfacePointMsg)
+    {
+        osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
+        fprintf(stderr, "Point received %f %f %f", selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
+    }
 }
 
 COVERPLUGIN(NurbsSurface)
