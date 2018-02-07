@@ -53,9 +53,7 @@ public:
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
 	int getorder_U();
 	void setorder_U(int order_U);
-//	int getorder_V();
-//	void setorder_V(int order_V);
-
+	void computeSurface();
 
 private:
    	osg::ref_ptr<osg::Geode> geode;
@@ -68,9 +66,29 @@ private:
 
 	ui::Slider *orderUSlider=nullptr;
 	ui::Slider *orderVSlider=nullptr;
+	
+	int order_U = 2;
+	int order_V = 2;
+	
+	std::string fileName = "test.obj";
 
-	int order_U = 5;
-    	int order_V = 5;
+	const int num_points_u = 3; // number of points in the u parameter direction
+    	const int num_points_v = 3; // number of points in the v parameter direction
+
+    	double points[27] = 
+    	{
+        	0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
+        	-0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
+        	0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
+   	};
+
+    	double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
+    	double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
+
+    	const int dim = 3; // dimension of the space we are working in
+
+    	const int num_surf = 1;
+
 
 
     	void initUI();

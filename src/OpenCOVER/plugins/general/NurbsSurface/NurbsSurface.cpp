@@ -102,20 +102,33 @@ void NurbsSurface::initUI()
 	});
 
     	orderUSlider = new ui::Slider(NurbsSurfaceMenu, "order_U");
-	orderVSlider = new ui::Slider(NurbsSurfaceMenu, "order_V");	
-	
+	orderVSlider = new ui::Slider(NurbsSurfaceMenu, "order_V");
+		
 	orderUSlider->setIntegral(true);
 	orderUSlider->setText("Order U");
-    	orderUSlider->setBounds(2, 5);
+    	orderUSlider->setBounds(2, 4);
    	orderUSlider->setValue(order_U);;
-	orderUSlider->setCallback([this](int val, bool released){order_U=val;});
+	orderUSlider->setCallback([this](int val, bool released)
+        {
+		destroy();           	
+		order_U=val;
+		computeSurface();		 
+	}
+        );
 
 	orderVSlider->setIntegral(true);
 	orderVSlider->setText("Order V");
-    	orderVSlider->setBounds(2, 5);
+    	orderVSlider->setBounds(2, 4);
    	orderVSlider->setValue(order_V);;
-	orderVSlider->setCallback([this](int val, bool released){order_V=val;});
-     
+	orderVSlider->setCallback([this](int val, bool released)
+        {
+		destroy();           	
+		order_V=val;
+		computeSurface();		 
+	}
+        );
+
+
 }
 
 
@@ -135,29 +148,8 @@ bool NurbsSurface::init()
         return true;
 }
 
-
-
-NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
+void NurbsSurface::computeSurface()
 {
-
-    	const int num_points_u = 3; // number of points in the u parameter direction
-    	const int num_points_v = 3; // number of points in the v parameter direction
-
-    	double points[] = 
-    	{
-        	0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
-        	-0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
-        	0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
-    	};
-
-    	double u_par[] = {0, 1, 2}; // point parametrization in u-direction
-    	double v_par[] = {0, 1, 2}; // point parametrization in v-direction
-
-    	const int dim = 3; // dimension of the space we are working in
-
-    	const int num_surf = 1;
-
-
     	// generating interpolating surface
     	for (int i = 0; i < num_surf; ++i) {
 
@@ -180,15 +172,16 @@ NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
                 1,            // open surface in the v direction 
                 &result_surf, // the generated surface
                 &jstat);      // status variable
-        /*        	if (jstat < 0) {
+                	if (jstat < 0) {
                   	throw runtime_error("Error occured inside call to SISL routine s1537.");
                   	} else if (jstat > 0) {
                   	cerr << "WARNING: warning occured inside call to SISL routine s1537. \n"
                   	<< endl;
-                  	}*/
-        	int ref=DEFAULT_REF; // Number of new knots between old ones.
-        	int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
+                  	}
 
+		int ref=DEFAULT_REF; // Number of new knots between old ones.
+        	int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
+        	
         	lower_degree_and_subdivide(&result_surf, ref, maxref); 
         	double *normal;
         	compute_surface_normals(result_surf, &normal);
@@ -260,6 +253,16 @@ NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 
 
         }
+}
+
+
+
+
+NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
+{
+
+	computeSurface();
+
 }
 
 bool NurbsSurface::destroy()
