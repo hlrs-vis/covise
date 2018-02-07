@@ -356,13 +356,11 @@ OpenScenarioEditor::move(QPointF &diff)
 }
 
 void 
-OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
+OpenScenarioEditor::translateObject(OpenScenario::oscObject *oscObject, QPointF &diff)
 {
-	OpenScenario::oscObject *oscObject = oscItem->getObject();
 	OpenScenario::oscPrivateAction *oscPrivateAction = getOrCreatePrivateAction(oscObject->name.getValue());
 
 	OpenScenario::oscPosition *oscPosition = oscPrivateAction->Position.getOrCreateObject();
-
 
 	OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getOrCreateObject();
 
@@ -385,7 +383,6 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 			getProjectGraph()->executeCommand(command);
 		}
 
-
 		SetOSCValuePropertiesCommand<double> *command = new SetOSCValuePropertiesCommand<double>(oscElement, oscPosRoad, "s", s);
 		getProjectGraph()->executeCommand(command);
 		command = new SetOSCValuePropertiesCommand<double>(oscElement, oscPosRoad, "t", dist);
@@ -405,7 +402,7 @@ OpenScenarioEditor::translate(QPointF &diff)
 		OSCItem *oscItem = dynamic_cast<OSCItem *>(item);
 		if (oscItem)
 		{
-			translateObject(oscItem, diff);
+			translateObject(oscItem->getObject(), diff);
 		}
 	}
 
@@ -444,12 +441,12 @@ OpenScenarioEditor::addObjectToRoad(RSystemElementRoad *road, double s, double t
 	return newObject;
 }
 */
+
 void 
 OpenScenarioEditor::setTrajectoryElement(OSCElement *trajectory)
 {
 	trajectoryElement_ = trajectory;
 }
-
 
 void 
 OpenScenarioEditor::catalogChanged(OpenScenario::oscCatalog * member)
@@ -460,7 +457,6 @@ OpenScenarioEditor::catalogChanged(OpenScenario::oscCatalog * member)
 OpenScenario::oscCatalog *
 OpenScenarioEditor::getCatalog(std::string name)
 {
-
 	OpenScenario::oscCatalogs *catalogs = openScenarioBase_->Catalogs.getOrCreateObject();
 	OpenScenario::oscCatalog *catalog = dynamic_cast<OpenScenario::oscCatalog *>(catalogs->getMember(name)->getObjectBase());
 	if (catalog == NULL) // create a catalog object if it does not already exist
@@ -488,7 +484,6 @@ OpenScenarioEditor::getCatalog(std::string name)
 				}
 			}
 		}
-
 
 		name = name.erase(name.find("Catalog"));
 		catalog->setCatalogNameAndType(name);
@@ -662,7 +657,7 @@ OpenScenarioEditor::getName(OpenScenario::oscArrayMember *arrayMember, const std
 	return newname;
 }
 
-void 
+OSCElement* 
 OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject)
 {
 	getProjectData()->getUndoStack()->beginMacro("Clone Entity");
@@ -690,8 +685,9 @@ OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *os
 		OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(clone->name.getValue());
 		privateAction->cloneMembers(getOrCreatePrivateAction(oscObject->name.getValue()));
 	}
-
+	
 	getProjectData()->getUndoStack()->endMacro();
+	return oscElement;
 }
 
 

@@ -117,6 +117,7 @@ protected:
 
 private:
 	OSCElement *element_;
+	OSCElement *cloneElement_;
 	OpenScenario::oscObject *oscObject_;
 	OpenScenario::oscRoad *oscRoad_;
 	RoadSystem *roadSystem_;
@@ -148,6 +149,13 @@ private:
 	QPointF mouseLastPos_;
 	bool doPan_;
 	bool copyPan_;
+
+	SVGItem *cloneSvgItem_;
+	std::string fn_;
+	QTransform tR_;
+	QTransform tS_;
+	QTransform tT_;
+	
 
     OSCTextItem *oscTextItem_;
 
