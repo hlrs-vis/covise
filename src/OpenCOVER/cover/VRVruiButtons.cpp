@@ -43,25 +43,40 @@ coPointerButton *VRVruiButtons::button() const
 
 unsigned int VRVruiButtons::wasPressed(unsigned int buttons) const
 {
+    if (!button())
+        return 0;
+
     return button()->wasPressed(buttons);
 }
 
 unsigned int VRVruiButtons::wasReleased(unsigned int buttons) const
 {
+    if (!button())
+        return 0;
+
     return button()->wasReleased(buttons);
 }
 
 unsigned int VRVruiButtons::getStatus() const
 {
+    if (!button())
+        return 0;
+
     return button()->getState();
 }
 
 unsigned int VRVruiButtons::getOldStatus() const
 {
+    if (!button())
+        return 0;
+
     return button()->oldState();
 }
 
 int VRVruiButtons::getWheelCount(size_t idx) const
 {
+    if (!button())
+        return 0;
+
     return button()->getWheel(idx);
 }

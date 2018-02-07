@@ -410,28 +410,31 @@ void coVRPluginSupport::update()
         handMat = Input::instance()->getHandMat();
     }
 
-    for (size_t i=0; i<2; ++i)
-        getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
-    getMouseButton()->setState(Input::instance()->mouse()->buttonState());
-#if 0
-   if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
-      std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
-#endif
-    // don't overwrite mouse button state if only mouseTracking is used
-    if (getPointerButton() != getMouseButton())
+    if (getRelativeButton())
+    {
+        getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
+    }
+
+    if (getPointerButton() && getPointerButton()!=getMouseButton())
     {
         for (size_t i=0; i<2; ++i)
             getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
-   if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
-      std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
+        if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
+            std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
 #endif
     }
 
-    if (getRelativeButton())
+    if (getMouseButton())
     {
-        getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
+        for (size_t i=0; i<2; ++i)
+            getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
+        getMouseButton()->setState(Input::instance()->mouse()->buttonState());
+#if 0
+        if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
+            std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
+#endif
     }
 
     size_t currentPerson = Input::instance()->getActivePerson();
