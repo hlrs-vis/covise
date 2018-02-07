@@ -22,9 +22,6 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
-#include <cover/coTabletUI.h>
-
-#include <OpenVRUI/coMenu.h>
 
 #include <osg/Geode>
 #include <cover/coVRCommunication.h>
@@ -32,23 +29,21 @@
 
 
 #include <string>
+#include <cover/ui/Owner.h>
 
-namespace vrui
-{
-class coButtonMenuItem;
-}
+
 namespace opencover
 {
 class coVRSceneHandler;
 class coVRSceneView;
+namespace ui {
+class Slider;
+}
 }
 
-using namespace vrui;
 using namespace opencover;
 
-class NurbsSurface : public coVRPlugin,
-                     public coMenuListener,
-                     public coTUIListener   
+class NurbsSurface : public coVRPlugin, public ui::Owner
 {
 public:
     NurbsSurface();
@@ -56,30 +51,29 @@ public:
     bool init();
     virtual bool destroy();
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
+	int getorder_U();
+	void setorder_U(int order_U);
+//	int getorder_V();
+//	void setorder_V(int order_V);
+
 
 private:
-    osg::ref_ptr<osg::Geode> geode;
+   	osg::ref_ptr<osg::Geode> geode;
 
-    mutable bool doSave;
 
-    bool doInit;
+	void saveFile(const std::string &fileName);
 
-    coButtonMenuItem *SaveButton;
+	ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
+	ui::Action *saveButton_;
 
-    coTUIButton *tuiSaveButton;
-    coTUITab *tuiSaveTab;
-    coTUILabel *tuiFileNameLabel;
-    coTUIEditField *tuiFileName;
-    coTUILabel *tuiSavedFileLabel;
-    coTUILabel *tuiSavedFile; 
+	ui::Slider *orderUSlider=nullptr;
+	ui::Slider *orderVSlider=nullptr;
 
-    //void prepareSafe();
+	int order_U = 5;
+    	int order_V = 5;
 
-   // virtual void menuEvent(coMenuItem *);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);   
 
-    void initUI();
+    	void initUI();
 };
 #endif
 
