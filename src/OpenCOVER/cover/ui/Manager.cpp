@@ -13,6 +13,7 @@
 
 #include <OpenVRUI/coMouseButtonInteraction.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/coRelativeButtonInteraction.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
@@ -35,6 +36,7 @@ Manager::Manager()
         auto t = static_cast<vrui::coInteraction::InteractionType>(button);
         m_buttonInteraction.push_back(new vrui::coMouseButtonInteraction(t, "MouseButton", vrui::coInteraction::Low));
         m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
+        m_buttonInteraction.push_back(new vrui::coRelativeButtonInteraction(t, "RelativeButton", vrui::coInteraction::Low));
     }
 
     for (auto &i: m_buttonInteraction)

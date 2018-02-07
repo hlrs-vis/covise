@@ -18,7 +18,7 @@ namespace vrui
 {
 
 coRelativeInputInteraction::coRelativeInputInteraction(const string &name, InteractionType type, InteractionPriority priority)
-    : coButtonInteraction(type, name, priority)
+    : coRelativeButtonInteraction(type, name, priority)
 {
 }
 
@@ -33,8 +33,7 @@ void coRelativeInputInteraction::update()
     m_matWasIdentity = m_matIsIdentity;
     m_matIsIdentity = vruiRendererInterface::the()->getRelativeMatrix()->isIdentity();
 
-    button = vruiRendererInterface::the()->getRelativeButtons();
-    coButtonInteraction::update();
+    coRelativeButtonInteraction::update();
 }
 
 bool coRelativeInputInteraction::conditionMet() const
@@ -43,7 +42,7 @@ bool coRelativeInputInteraction::conditionMet() const
         return false;
     if (type == NoButton)
         return true;
-    return coButtonInteraction::conditionMet();
+    return coRelativeButtonInteraction::conditionMet();
 }
 
 bool coRelativeInputInteraction::conditionBecameMet() const
@@ -54,7 +53,7 @@ bool coRelativeInputInteraction::conditionBecameMet() const
         return false;
     if (type == NoButton)
         return true;
-    return coButtonInteraction::conditionBecameMet();
+    return coRelativeButtonInteraction::conditionBecameMet();
 }
 
 }
