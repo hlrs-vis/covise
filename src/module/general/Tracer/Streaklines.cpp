@@ -16,11 +16,7 @@ extern string speciesAttr;
 
 Streaklines::Streaklines(
     const coModule *mod,
-#ifndef YAC
     const char *name_line, const char *name_magnitude,
-#else
-    coObjInfo name_line, coObjInfo name_magnitude,
-#endif
     const coDistributedObject *grid,
     const coDistributedObject *velo,
     const coDistributedObject *ini_p,
@@ -66,11 +62,7 @@ Streaklines::Streaklines(
 extern float verschiebung[3];
 
 void
-#ifndef YAC
 Streaklines::gatherTimeStep()
-#else
-Streaklines::gatherTimeStep(coOutputPort *port)
-#endif
 {
     std::vector<float> x_coord;
     std::vector<float> y_coord;
@@ -133,7 +125,6 @@ Streaklines::gatherTimeStep(coOutputPort *port)
     }
     if (lines_.size() <= covise_time_)
         lines_.resize(covise_time_ + 1);
-#ifndef YAC
     std::string name = name_line_;
     char buf[64];
     sprintf(buf, "_%d", covise_time_);
@@ -145,16 +136,6 @@ Streaklines::gatherTimeStep(coOutputPort *port)
                                          &z_coord[0],
                                          numVertices, &vertices[0],
                                          numLines, &lineList[0]);
-#else
-    //fixme timestep?
-    coObjInfo lInfo = port->getNewObjectInfo();
-    lines_[covise_time_] = new coDoLines(lInfo, numVertices,
-                                         &x_coord[0],
-                                         &y_coord[0],
-                                         &z_coord[0],
-                                         numVertices, &vertices[0],
-                                         numLines, &lineList[0]);
-#endif
 
     float *x_line, *y_line, *z_line;
     int *corner_list, *line_list;
@@ -169,18 +150,12 @@ Streaklines::gatherTimeStep(coOutputPort *port)
 
     if (magnitude_.size() <= covise_time_)
         magnitude_.resize(covise_time_ + 1);
-#ifndef YAC
     // magnitude
     name = name_magnitude_;
     sprintf(buf, "_%d", covise_time_);
     name += buf;
 
     magnitude_[covise_time_] = new coDoFloat(name, numVertices, &mag[0]);
-#else
-    // fixme timestep?
-    coObjInfo fInfo = port->getNewObjectInfo();
-    magnitude_[covise_time_] = new coDoFloat(fInfo, numVertices, &mag[0]);
-#endif
     if (speciesAttr.length() > 0)
         magnitude_[covise_time_]->addAttribute("SPECIES", speciesAttr.c_str());
 }
@@ -228,9 +203,7 @@ Streaklines::DiagnosePoints()
             }
             if (point_counter_int != point_counter)
             {
-#ifndef YAC
                 Covise::sendError("When creating streaklines, if the coDoPoints input object is dynamic, the number of initial points may not time-dependent");
-#endif
                 return -1;
             }
         }

@@ -1,0 +1,11 @@
+# serial SpaceMouse with inputattach
+KERNEL=="event*", ATTRS{name}=="LogiCad3D Magellan / SpaceMouse", SYMLINK+="input/spacemouse", MODE="0666"
+# USB devices with evdev interface
+KERNEL=="event*", SYSFS{manufacturer}=="3Dconnexion", SYSFS{product}=="*SpaceNavigator*", SYMLINK+="input/spacenavigator", MODE="0666"
+KERNEL=="event*", SYSFS{manufacturer}=="3Dconnexion", SYSFS{product}=="*SpaceTraveler*", SYMLINK+="input/spacenavigator", MODE="0666"
+KERNEL=="event*", SYSFS{manufacturer}=="3Dconnexion", SYSFS{product}=="*SpaceExplorer*", SYMLINK+="input/spacenavigator", MODE="0666"
+KERNEL=="event*", ATTRS{product}=="*SpaceNavigator*", SYMLINK+="input/spacenavigator", MODE="0666"
+# USB devices through HIDAPI/hidraw
+KERNEL=="hidraw*", ATTRS{product}=="*SpaceNavigator*", MODE="0666"
+# USB devices through HIDAPI/libusb
+SUBSYSTEM=="usb", ATTRS{product}=="*SpaceNavigator*", MODE="0666"

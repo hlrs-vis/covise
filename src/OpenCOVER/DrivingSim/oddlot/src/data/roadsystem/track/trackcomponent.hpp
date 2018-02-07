@@ -18,7 +18,7 @@
 
 #include "src/data/dataelement.hpp"
 
-#include "src/globalDefines.hpp"
+#include <cstdlib>
 
 // Qt //
 //

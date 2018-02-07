@@ -96,6 +96,10 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
             sh.button = ScrollUp;;
         if (button == "scrolldown")
             sh.button = ScrollDown;;
+        if (button == "scrollleft")
+            sh.button = ScrollLeft;;
+        if (button == "scrollright")
+            sh.button = ScrollRight;;
     }
     else if (key.length()>7 && key.substr(0, 7) == "button:")
     {
@@ -129,6 +133,12 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
     if (key == "esc" || key == "escape")
     {
         sh.symbol = osgGA::GUIEventAdapter::KEY_Escape;
+    }
+    else if ((key.length()==2 || key.length()==3) && key[0] == 'f')
+    {
+        int fnum = atoi(key.substr(1).c_str());
+        if (fnum >= 1 && fnum <= 20)
+            sh.symbol = osgGA::GUIEventAdapter::KEY_F1 + fnum-1;
     }
     else
     {

@@ -54,7 +54,7 @@ coMenu::coMenu(coMenu *parentMenu, const std::string &namePtr)
     // remember menu's name - better in base class for debugging
     interaction = new coCombinedButtonInteraction(coInteraction::ButtonA, "Menu", coInteraction::Menu);
     moveInteraction = new coCombinedButtonInteraction(coInteraction::ButtonC, "Menu", coInteraction::Medium);
-    wheelInteraction = new coCombinedButtonInteraction(coInteraction::Wheel, "Menu", coInteraction::Medium);
+    wheelInteraction = new coCombinedButtonInteraction(coInteraction::WheelVertical, "Menu", coInteraction::Medium);
 }
 
 /// Destructor.

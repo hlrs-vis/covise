@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+    <GLOBAL>  
+        <COVER>
+            <PointerDepth value="0"/>
+            <PointerAppearance>
+                <IconName value="HandLine"/>
+                <Width value="5"/>
+                <Length value="1500"/>
+                <!-- interscetion length is used also for mouse, it needs to be long enough to intersect far objects -->
+                <Intersection value="15000" />
+            </PointerAppearance>
+
+            <Input>
+                <MouseNav value="true" />
+                <Device>
+                    <SpaceNav driver="spacenavigator" >
+                    </SpaceNav>
+                </Device>
+
+                <Body>
+                    <SpaceMouse device="SpaceNav">
+                        <AssembleX valuator="0" scale="-400" shift="0" />
+                        <AssembleY valuator="1" scale=" 400" shift="0" />
+                        <AssembleZ valuator="2" scale=" 400" shift="0" />
+                        <AssembleH valuator="5" scale=" 4.0" shift="0" />
+                        <AssembleP valuator="3" scale="-4.0" shift="0" />
+                        <AssembleR valuator="4" scale=" 4.0" shift="0" />
+                    </SpaceMouse>
+                </Body>
+
+                <Buttons>
+                    <SpaceMouseButtons device="SpaceNav" >
+                        <Map name="0" value="ACTION_BUTTON" />
+                        <Map name="7" value="XFORM_BUTTON" />
+                        <Map name="6" value="DRIVE_BUTTON" />
+                    </SpaceMouseButtons>
+                </Buttons>
+
+                <Persons>
+                    <Person name="SpaceNavigator" relative="SpaceMouse" relativeButtons="SpaceMouseButtons" eyeDistance="0" />
+                </Persons>
+            </Input> 
+        </COVER>
+    </GLOBAL>
+</COCONFIG>
+

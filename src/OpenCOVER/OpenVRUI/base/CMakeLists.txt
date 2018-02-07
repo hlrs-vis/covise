@@ -79,6 +79,7 @@ SET(BASE_SOURCES
   coToolboxMenuHandle.cpp
   coToolboxMenuItem.cpp
   coButtonInteraction.cpp
+  coRelativeInputInteraction.cpp
   coTrackerButtonInteraction.cpp
   coMouseButtonInteraction.cpp
   coCombinedButtonInteraction.cpp
@@ -190,6 +191,7 @@ SET(BASE_HEADERS
   ../coToolboxMenuHandle.h
   ../coToolboxMenuItem.h
   ../coButtonInteraction.h
+  ../coRelativeInputInteraction.h
   ../coTrackerButtonInteraction.h
   ../coMouseButtonInteraction.h
   ../coCombinedButtonInteraction.h

@@ -442,6 +442,7 @@ OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 			cloneSvgItem_ = new SVGItem(this, fn_);
 			cloneSvgItem_->setPos(QPointF(0, 0));
 			cloneSvgItem_->setTransform(tS_*tR_*tT_);
+			oscEditor_->cloneEntity(element_, oscObject_);
 		}
 
         GraphElement::mousePressEvent(event); // pass to baseclass

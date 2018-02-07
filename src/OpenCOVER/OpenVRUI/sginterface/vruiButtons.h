@@ -57,7 +57,7 @@ public:
     virtual unsigned int getStatus() const = 0;
     virtual unsigned int getOldStatus() const = 0;
 
-    virtual int getWheelCount() const = 0;
+    virtual int getWheelCount(size_t idx=0) const = 0;
 };
 }
 #endif

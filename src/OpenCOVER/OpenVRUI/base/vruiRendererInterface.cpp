@@ -41,6 +41,11 @@ vruiButtons *vruiRendererInterface::getMouseButtons() const
     return mouseButtons;
 }
 
+vruiButtons *vruiRendererInterface::getRelativeButtons() const
+{
+    return relativeButtons;
+}
+
 /**
  * the sensitivity must be between 0 (low sensitivity) and 1(full sensitivity). 
  */

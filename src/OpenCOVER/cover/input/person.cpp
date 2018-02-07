@@ -34,6 +34,7 @@ Person::Person(const std::string &name)
     }
 
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
+    m_relative = Input::instance()->getBody(coCoviseConfig::getEntry("relative", conf, ""));
     m_activateOnAction = coCoviseConfig::isOn("activateOnAction", conf, m_activateOnAction);
 
     for (int i = 0; i < 4; ++i)
@@ -61,6 +62,7 @@ Person::Person(const std::string &name)
     }
 
     m_buttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("buttons", conf, ""));
+    m_relativebuttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("relativeButtons", conf, ""));
 
     for (int i = 0; i < 4; ++i)
     {
@@ -131,7 +133,22 @@ bool Person::isVarying() const
         }
     }
 
+    if (hasRelative() && m_relative->isVarying())
+    {
+        return true;
+    }
+
     return false;
+}
+
+bool Person::hasRelative() const
+{
+    return m_relative != nullptr;
+}
+
+bool Person::isRelativeValid() const
+{
+    return hasRelative() && m_relative->isValid();
 }
 
 TrackingBody *Person::getHead() const
@@ -147,6 +164,11 @@ TrackingBody *Person::getHand(size_t num) const
         return NULL;
 
     return m_hands[num];
+}
+
+TrackingBody *Person::getRelative() const
+{
+    return m_relative;
 }
 
 const osg::Matrix &Person::getHeadMat() const
@@ -167,13 +189,27 @@ const osg::Matrix &Person::getHandMat(size_t num) const
     return m_hands[num]->getMat();
 }
 
+const osg::Matrix &Person::getRelativeMat() const
+{
+    if (!hasRelative())
+        return s_identity;
+    return m_relative->getMat();
+}
+
 unsigned int Person::getButtonState(size_t num) const
 {
-
     if (!m_buttondev)
         return 0;
 
     return m_buttondev->getButtonState();
+}
+
+unsigned int Person::getRelativeButtonState(size_t num) const
+{
+    if (!m_relativebuttondev)
+        return 0;
+
+    return m_relativebuttondev->getButtonState();
 }
 
 double Person::getValuatorValue(size_t idx) const

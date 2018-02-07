@@ -122,11 +122,7 @@ PTraceline::derivsForAGrid(const float *y, // point: constness violated for poly
         coDoVec3 *p_uni_velo = (coDoVec3 *)(p_velo);
         float *u[3];
         int x_s, y_s, z_s;
-#ifndef YAC
         p_uni_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-        p_uni_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
         int nelem = p_uni_velo->getNumPoints();
         p_uni_velo->getAddresses(&u[0], &u[1], &u[2]);
 
@@ -141,11 +137,7 @@ PTraceline::derivsForAGrid(const float *y, // point: constness violated for poly
         coDoVec3 *p_rct_velo = (coDoVec3 *)(p_velo);
         float *u[3];
         int x_s, y_s, z_s;
-#ifndef YAC
         p_rct_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-        p_rct_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
         int nelem = p_rct_velo->getNumPoints();
         p_rct_velo->getAddresses(&u[0], &u[1], &u[2]);
 
@@ -160,11 +152,7 @@ PTraceline::derivsForAGrid(const float *y, // point: constness violated for poly
         coDoVec3 *p_str_velo = (coDoVec3 *)(p_velo);
         float *u[3];
         int x_s, y_s, z_s;
-#ifndef YAC
         p_str_grid->getGridSize(&x_s, &y_s, &z_s);
-#else
-        p_str_grid->getGridSize(&x_s, &y_s, &z_s);
-#endif
         int nelem = p_str_velo->getNumPoints();
         p_str_velo->getAddresses(&u[0], &u[1], &u[2]);
 
@@ -180,11 +168,7 @@ PTraceline::derivsForAGrid(const float *y, // point: constness violated for poly
 
         // get sizes for comparison
         int nume, numv, numc;
-#ifndef YAC
         p_uns_grid->getGridSize(&nume, &numv, &numc);
-#else
-        p_uns_grid->getGridSize(&nume, &numv, &numc);
-#endif
         int numdc;
         numdc = p_uns_velo->getNumPoints();
         float *u[3]; // vector field

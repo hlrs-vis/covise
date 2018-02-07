@@ -38,14 +38,19 @@ public:
     bool hasHand(size_t num) const;
     bool isHandValid(size_t idx) const;
     bool isVarying() const;
+    bool hasRelative() const;
+    bool isRelativeValid() const;
 
     TrackingBody *getHead() const;
     TrackingBody *getHand(size_t num) const;
+    TrackingBody *getRelative() const;
 
     const osg::Matrix &getHeadMat() const;
     const osg::Matrix &getHandMat(size_t num) const;
+    const osg::Matrix &getRelativeMat() const;
 
     unsigned int getButtonState(size_t num) const;
+    unsigned int getRelativeButtonState(size_t num) const;
     double getValuatorValue(size_t idx) const;
     
     float eyeDistance() const;
@@ -60,12 +65,14 @@ private:
     void addValuator(Valuator *val);
 
     std::string m_name;
-    TrackingBody *m_head;
+    TrackingBody *m_head = nullptr;
+    TrackingBody *m_relative = nullptr;
     std::vector<TrackingBody *> m_hands;
-    ButtonDevice *m_buttondev;
+    ButtonDevice *m_buttondev = nullptr;
+    ButtonDevice *m_relativebuttondev = nullptr;
     std::vector<Valuator *> m_valuators;
-    float m_eyeDistance;
-    bool m_activateOnAction;
+    float m_eyeDistance = 0.f;
+    bool m_activateOnAction = false;
 
     static const osg::Matrix s_identity;
 };

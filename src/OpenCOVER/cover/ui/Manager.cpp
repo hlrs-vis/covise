@@ -11,6 +11,7 @@
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
 
+#include <OpenVRUI/coMouseButtonInteraction.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
@@ -22,6 +23,11 @@ namespace ui {
 Manager::Manager()
 : Owner("Manager", this)
 {
+    m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelVertical, "MouseWheel", vrui::coInteraction::Low));
+    m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelHorizontal, "MouseWheel", vrui::coInteraction::Low));
+
+    for (auto &i: m_wheelInteraction)
+        vrui::coInteractionManager::the()->registerInteraction(i);
 }
 
 void Manager::add(Element *elem)
@@ -120,6 +126,21 @@ bool Manager::update()
         m_updateAllElements = false;
         for (auto elem: m_elements)
             elem.second->update();
+    }
+
+    for (auto &inter: m_wheelInteraction)
+    {
+        if (inter->wasStarted() || inter->isRunning())
+        {
+            m_changed = true;
+            int c = inter->getWheelCount();
+            int pressed = c<0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
+            if (inter->getType() == vrui::coInteraction::WheelHorizontal)
+                pressed = c<0 ? vrui::vruiButtons::WHEEL_LEFT : vrui::vruiButtons::WHEEL_RIGHT;
+            int count = std::abs(c);
+            for (int i=0; i<count; ++i)
+                buttonEvent(pressed);
+        }
     }
 
     bool ret = m_changed;
@@ -261,7 +282,7 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-void Manager::updateValue(const Input *input) const
+void Manager::updateValue(const EditField *input) const
 {
     for (auto v: m_views)
     {
@@ -310,7 +331,13 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 m_modifiers &= ~ModMeta;
         }
 
-        std::cerr << "key: ";
+        bool show = false;
+        if (down)
+        {
+            //show = true;
+        }
+        if (show)
+            std::cerr << "key " << (down ? "down" : "up") << ": ";
 
         bool alt = mod & osgGA::GUIEventAdapter::MODKEY_ALT;
         bool ctrl = mod & osgGA::GUIEventAdapter::MODKEY_CTRL;
@@ -321,26 +348,27 @@ bool Manager::keyEvent(int type, int mod, int keySym)
         if (meta)
         {
             modifiers |= ModMeta;
-            std::cerr << "meta+";
+            if (show)
+                std::cerr << "meta+";
         }
         if (ctrl)
         {
             modifiers |= ModCtrl;
-            std::cerr << "ctrl+";
+            if (show)
+                std::cerr << "ctrl+";
         }
         if (alt)
         {
             modifiers |= ModAlt;
-            std::cerr << "alt+";
+            if (show)
+                std::cerr << "alt+";
         }
         if (shift)
         {
             modifiers |= ModShift;
-            std::cerr << "shift+";
+            if (show)
+                std::cerr << "shift+";
         }
-
-        std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
-        //m_modifiers = modifiers;
 
         if (down)
         {
@@ -349,7 +377,8 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);
             }
-            std::cerr << "'" << (char)keySym << "'" << std::endl;
+            if (show)
+                std::cerr << "'" << (char)keySym << "'" << std::endl;
 
             for (auto &elemPair: m_elements)
             {
@@ -366,6 +395,9 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 }
             }
         }
+
+        //std::cerr << "modifiers=" << modifiers << ", m_modifiers=" << m_modifiers << std::endl;
+        //m_modifiers = modifiers;
     }
     else if (type == osgGA::GUIEventAdapter::RELEASE
              || type == osgGA::GUIEventAdapter::SCROLL)
@@ -389,6 +421,10 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 button = ScrollUp;
             if (mod == osgGA::GUIEventAdapter::SCROLL_DOWN)
                 button = ScrollDown;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_LEFT)
+                button = ScrollLeft;
+            if (mod == osgGA::GUIEventAdapter::SCROLL_RIGHT)
+                button = ScrollRight;
         }
 
         switch (button)
@@ -436,6 +472,7 @@ bool Manager::buttonEvent(int button) const
 {
     bool handled = false;
 
+    //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::dec << std::endl;
     for (auto &elemPair: m_elements)
     {
         auto &elem = elemPair.second;
@@ -542,6 +579,7 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
 {
     updates->rewind();
 
+    std::vector<ButtonGroup *> delayed;
     for (int i=0; i<numUpdates; ++i)
     {
         //std::cerr << "processing " << i << std::flush;
@@ -572,7 +610,10 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             if (runTriggers)
             {
                 setChanged();
-                elem->triggerImplementation();
+                if (auto bg = dynamic_cast<ButtonGroup *>(elem))
+                    delayed.push_back(bg);
+                else
+                    elem->triggerImplementation();
             }
             else
             {
@@ -580,6 +621,9 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             }
         }
     }
+
+    for (auto &bg: delayed)
+        bg->triggerImplementation();
 }
 
 bool Manager::sync()

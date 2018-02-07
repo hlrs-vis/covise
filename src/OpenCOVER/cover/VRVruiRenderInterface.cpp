@@ -103,10 +103,12 @@ VRVruiRenderInterface::VRVruiRenderInterface()
     handMatrix = new OSGVruiMatrix();
     headMatrix = new OSGVruiMatrix();
     mouseMatrix = new OSGVruiMatrix();
+    relativeMatrix = new OSGVruiMatrix();
 
     handMatrix->makeIdentity();
     headMatrix->makeIdentity();
     mouseMatrix->makeIdentity();
+    relativeMatrix->makeIdentity();
 
     vruiRendererInterface::theInterface = this;
     coIntersection::instance();
@@ -127,6 +129,7 @@ VRVruiRenderInterface::~VRVruiRenderInterface()
     delete handMatrix;
     delete headMatrix;
     delete mouseMatrix;
+    delete relativeMatrix;
 
     //delete coIntersection::instance();
     vruiRendererInterface::theInterface = 0;
@@ -525,6 +528,12 @@ vruiMatrix *VRVruiRenderInterface::getMouseMatrix() const
 {
     mouseMatrix->setMatrix(cover->getMouseMat());
     return mouseMatrix;
+}
+
+vruiMatrix *VRVruiRenderInterface::getRelativeMatrix() const
+{
+    relativeMatrix->setMatrix(cover->getRelativeMat());
+    return relativeMatrix;
 }
 
 bool VRVruiRenderInterface::is2DInputDevice() const

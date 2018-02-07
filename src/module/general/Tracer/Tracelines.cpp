@@ -52,7 +52,6 @@ Tracelines::WarnIfOutOfDomain()
         }
         if (finished)
         {
-#ifndef YAC
             if (warnOutOfDomain_)
             {
                 if (someInsideDomain)
@@ -60,7 +59,6 @@ Tracelines::WarnIfOutOfDomain()
                 else
                     Covise::sendWarning("All initial points are out of the domain");
             }
-#endif
         }
         else
         {
@@ -100,11 +98,7 @@ extern float verschiebung[3];
 // makes lines for a time (used in gatherTimeStep)
 #ifdef _ONE_LINE_PER_DO_LINES_
 void
-#ifndef YAC
 Tracelines::linesForATime()
-#else
-Tracelines::linesForATime(coOutputPort *port)
-#endif
 {
     int i;
     char buf[64];
@@ -126,17 +120,9 @@ Tracelines::linesForATime(coOutputPort *port)
         }
         sprintf(buf, "_%d", i);
         name += buf;
-#ifndef YAC
         set_list[i] = new coDoLines(name, p_traceline->num_points(),
                                     p_traceline->x_c(), p_traceline->y_c(), p_traceline->z_c(),
                                     p_traceline->num_points(), corner_list, 1, &zero);
-#else
-        //fixme timestep?
-        coObjInfo lInfo = port->getNewObjectInfo();
-        set_list[i] = new coDoLines(lInfo, p_traceline->num_points(),
-                                    p_traceline->x_c(), p_traceline->y_c(), p_traceline->z_c(),
-                                    p_traceline->num_points(), corner_list, 1, &zero);
-#endif
 
         float *x_line, *y_line, *z_line;
         int *corner_list, *line_list;
@@ -209,11 +195,7 @@ Tracelines::magForATime()
 // makes lines for a time (used in gatherTimeStep)
 #else
 void
-#ifndef YAC
 Tracelines::linesForATime()
-#else
-Tracelines::linesForATime(coOutputPort *port)
-#endif
 {
     int task;
     std::string name;
@@ -236,7 +218,6 @@ Tracelines::linesForATime(coOutputPort *port)
 
     if (lines_.size() <= covise_time_)
         lines_.resize(covise_time_ + 1);
-#ifndef YAC
     name = name_line_;
     if (hasTimeSteps())
     {
@@ -244,28 +225,12 @@ Tracelines::linesForATime(coOutputPort *port)
         sprintf(buf, "_%d", covise_time_);
         name += buf;
     }
-    if (no_of_points)
-        lines_[covise_time_] = new coDoLines(name, no_of_points, no_of_points, no_ptasks_ - numEmpty);
-    else
+    lines_[covise_time_] = new coDoLines(name, no_of_points, no_of_points, no_ptasks_ - numEmpty);
+    if (no_of_points == 0)
     {
         // all lines are empty - probably all starting points outside
-        // TODO create at least one entry in the lines object so that Cover interactor can work
-        lines_[covise_time_] = NULL;
         return;
     }
-#else
-    //fixme timestep?
-    if (no_of_points)
-    {
-        coObjInfo lInfo = port->getNewObjectInfo();
-        lines_[covise_time_] = new coDoLines(lInfo, no_of_points, no_of_points, no_ptasks_ - numEmpty);
-    }
-    else
-    {
-        lines_[covise_time_] = NULL;
-        return;
-    }
-#endif
 
     // this is the line list before we get rid of the empty lines
     int *orig_line_list = new int[no_ptasks_];
@@ -356,11 +321,7 @@ Tracelines::Verschieben(const float *shift, int no_p,
 
 // makes magnitude objects for a time (used in gatherTimeStep)
 void
-#ifndef YAC
 Tracelines::magForATime()
-#else
-Tracelines::magForATime(coOutputPort *port)
-#endif
 {
     int task;
     std::string name;
@@ -378,7 +339,6 @@ Tracelines::magForATime(coOutputPort *port)
 
     if (magnitude_.size() <= covise_time_)
         magnitude_.resize(covise_time_ + 1);
-#ifndef YAC
     name = name_magnitude_;
     if (hasTimeSteps())
     {
@@ -390,14 +350,6 @@ Tracelines::magForATime(coOutputPort *port)
         magnitude_[covise_time_] = new coDoFloat(name, no_of_points);
     else
         magnitude_[covise_time_] = new coDoVec3(name, no_of_points);
-#else
-    // fixme timestep?
-    coObjInfo fInfo = port->getNewObjectInfo();
-    if (Whatout != PTask::V_VEC)
-        magnitude_[covise_time_] = new coDoFloat(fInfo, no_of_points);
-    else
-        magnitude_[covise_time_] = new coDoVec3(fInfo, no_of_points);
-#endif
     if (speciesAttr.length() > 0)
         magnitude_[covise_time_]->addAttribute("SPECIES", speciesAttr.c_str());
     float *mag_array = NULL;
@@ -451,19 +403,10 @@ Tracelines::magForATime(coOutputPort *port)
 // make a static set of lines with the finished PStreamline objects
 // also a static set with the chosen magnitude
 void
-#ifndef YAC
 Tracelines::gatherTimeStep()
-#else
-Tracelines::gatherTimeStep(coOutputPort *port)
-#endif
 {
-#ifndef YAC
     linesForATime();
     magForATime();
-#else
-    linesForATime(port);
-    magForATime(port);
-#endif
 }
 
 // Gather results from all all time steps.
@@ -486,13 +429,7 @@ Tracelines::gatherAll(coOutputPort *p_line,
         {
             set_list[i] = lines_[i];
         }
-#ifndef YAC
         set_obj = new coDoSet(name_line_, set_list);
-#else
-        // fixme timestep
-        coObjInfo sInfo = p_line->getNewObjectInfo();
-        set_obj = new coDoSet(sInfo, set_list);
-#endif
         set_obj->addAttribute("TIMESTEP", buf);
         p_line->setCurrentObject(set_obj);
         for (i = 0; i < lines_.size(); ++i)
@@ -502,13 +439,7 @@ Tracelines::gatherAll(coOutputPort *p_line,
         {
             set_list[i] = magnitude_[i];
         }
-#ifndef YAC
         set_obj = new coDoSet(name_magnitude_, set_list);
-#else
-        // fixme timestep
-        coObjInfo sInfo2 = p_line->getNewObjectInfo();
-        set_obj = new coDoSet(sInfo2, set_list);
-#endif
         set_obj->addAttribute("TIMESTEP", buf);
         p_mag->setCurrentObject(set_obj);
         for (i = 0; i < lines_.size(); ++i)
@@ -525,11 +456,7 @@ Tracelines::gatherAll(coOutputPort *p_line,
 // see header
 Tracelines::Tracelines(
     const coModule *mod,
-#ifndef YAC
     const char *name_line, const char *name_magnitude,
-#else
-    coObjInfo name_line, coObjInfo name_magnitude,
-#endif
     const coDistributedObject *grid,
     const coDistributedObject *velo,
     const coDistributedObject *ini_p,
@@ -548,7 +475,6 @@ Tracelines::Tracelines(
     x_ini_ = x_ini; // delete in destructor
     y_ini_ = y_ini;
     z_ini_ = z_ini;
-#ifndef YAC
     // fixme what's this?
     char interaction[1000];
 
@@ -567,7 +493,6 @@ Tracelines::Tracelines(
         interaction[0] = '\0';
     }
     interaction_ = interaction;
-#endif
 }
 
 extern int cycles;
@@ -642,17 +567,13 @@ Tracelines::Diagnose()
     {
         if (!sfield_->isType("SETELE") || !sfield_->getAttribute("TIMESTEP"))
         {
-#ifndef YAC
             Covise::sendError("External scalar field to be mapped is static.");
-#endif
             return -1;
         }
         int no_elems = ((coDoSet *)(sfield_))->getNumElements();
         if (no_steps_ != no_elems)
         {
-#ifndef YAC
             Covise::sendError("The number of time steps of the field to be mapped is not correct.");
-#endif
             return -1;
         }
     }
@@ -660,9 +581,7 @@ Tracelines::Diagnose()
     {
         if (sfield_->isType("SETELE") && sfield_->getAttribute("TIMESTEP"))
         {
-#ifndef YAC
             Covise::sendError("The grid is static, but the field to be mapped is dynamic.");
-#endif
             return -1;
         }
     }
@@ -698,9 +617,7 @@ Tracelines::Diagnose()
         size_t no_elems = grid_tstep.size();
         if (no_elems != field_tstep.size())
         {
-#ifndef YAC
             Covise::sendError("Different number of grids and field objects at time %d.", i);
-#endif
             return -1;
         }
         // match grid objects and fields
@@ -715,9 +632,7 @@ Tracelines::Diagnose()
             }
             else
             {
-#ifndef YAC
                 Covise::sendError("Input field is not scalar.");
-#endif
                 return -1;
             }
             // get grid size
@@ -727,9 +642,7 @@ Tracelines::Diagnose()
                 ((coDoUnstructuredGrid *)(grid_tstep[obj_at_time]))->getGridSize(&e, &c, &p_g);
                 if (p_g != size)
                 {
-#ifndef YAC
                     Covise::sendError("Non-matching grid and input field objects");
-#endif
                     return -1;
                 }
             }
@@ -738,9 +651,7 @@ Tracelines::Diagnose()
                 int p_g = ((coDoPolygons *)grid_tstep[obj_at_time])->getNumPoints();
                 if (p_g != size)
                 {
-#ifndef YAC
                     Covise::sendError("Non-matching grid and input field objects");
-#endif
                     return -1;
                 }
             }
@@ -750,9 +661,7 @@ Tracelines::Diagnose()
                 ((coDoUniformGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
                 if (x_s * y_s * z_s != size)
                 {
-#ifndef YAC
                     Covise::sendError("Non-matching grid and input field objects");
-#endif
                     return -1;
                 }
             }
@@ -762,9 +671,7 @@ Tracelines::Diagnose()
                 ((coDoRectilinearGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
                 if (x_s * y_s * z_s != size)
                 {
-#ifndef YAC
                     Covise::sendError("Non-matching grid and input field objects");
-#endif
                     return -1;
                 }
             }
@@ -774,17 +681,13 @@ Tracelines::Diagnose()
                 ((coDoStructuredGrid *)(grid_tstep[obj_at_time]))->getGridSize(&x_s, &y_s, &z_s);
                 if (x_s * y_s * z_s != size)
                 {
-#ifndef YAC
                     Covise::sendError("Non-matching grid and input field objects");
-#endif
                     return -1;
                 }
             }
             else
             {
-#ifndef YAC
                 Covise::sendError("Incorrect grid type: %s", grid_tstep[obj_at_time]->getType());
-#endif
                 return -1;
             }
         }

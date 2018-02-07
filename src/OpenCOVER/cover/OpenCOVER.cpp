@@ -1000,7 +1000,22 @@ bool OpenCOVER::frame()
         render = true;
         m_renderNext = true; // for possible delayed button release
     }
-    Input::instance()->update(); //update all hardware devices
+    if (Input::instance()->update())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of input" << std::endl;
+        render = true;
+    }
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        const auto &mat = Input::instance()->getRelativeMat();
+        if (!mat.isIdentity())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of active relative input" << std::endl;
+            render = true;
+        }
+    }
 
     // wait for all cull and draw threads to complete.
     //

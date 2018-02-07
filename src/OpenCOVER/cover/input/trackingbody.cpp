@@ -20,16 +20,56 @@ namespace opencover
 
 TrackingBody::TrackingBody(const std::string &name)
     : InputSource(name, "Body")
-    , m_valid(false)
-    , m_oldValid(m_valid)
     , m_baseBody(NULL)
 {
     const std::string conf = config();
 
-    m_idx = coCoviseConfig::getInt("bodyIndex", conf, 0);
-    if (m_idx >= device()->numBodies())
+    m_assemble = false;
+    m_6dof = false;
+    for (int i=0; i<9; ++i)
     {
-        std::cerr << "TrackingBody: body index " << m_idx << " out of range - " << device()->numBodies() << " bodies" << std::endl;
+        std::string c = conf+".Assemble";
+        switch (i) {
+        case 0: c+="X"; break;
+        case 1: c+="Y"; break;
+        case 2: c+="Z"; break;
+        case 3: c+="H"; break;
+        case 4: c+="P"; break;
+        case 5: c+="R"; break;
+        case 6: c+="AxisX"; break;
+        case 7: c+="AxisY"; break;
+        case 8: c+="AxisZ"; break;
+        }
+
+        auto &v = m_valuator[i];
+        const std::string dev = covise::coCoviseConfig::getEntry("device", c, "");
+        if (!dev.empty())
+        {
+            v.device = Input::instance()->getDevice(dev);
+        }
+        if (!v.device)
+            v.device = device();
+
+        v.valuator = coCoviseConfig::getInt("valuator", c, -1);
+        if (v.valuator >= 0)
+        {
+            m_assemble = true;
+            if (i >= 6)
+                m_assembleWithRotationAxis = true;
+            if (v.valuator >= device()->numValuators())
+                std::cerr << "TrackingBody: valuator index " << i << "=" << v.valuator << " out of range - " << v.device->numValuators() << " valuators" << std::endl;
+        }
+        v.scale = coCoviseConfig::getFloat("scale", c, 1.);
+        v.shift = coCoviseConfig::getFloat("shift", c, 0.);
+    }
+
+    if (!m_assemble)
+    {
+        m_idx = coCoviseConfig::getInt("bodyIndex", conf, 0);
+        if (m_idx >= device()->numBodies())
+        {
+            std::cerr << "TrackingBody: body index " << m_idx << " out of range - " << device()->numBodies() << " bodies" << std::endl;
+        }
     }
 
     //Offset&Orientation reading and matrix creating
@@ -82,26 +122,78 @@ TrackingBody::TrackingBody(const std::string &name)
  */
 void TrackingBody::update()
 {
-    m_oldValid = m_valid;
-    m_valid = device()->isBodyMatrixValid(m_idx);
+    if (m_assemble)
+    {
+        m_varying = false;
+        m_valid = true;
+        m_mat.makeIdentity();
+
+        double value[9];
+        bool is6dof = false;
+        for (int i=0; i<9; ++i)
+        {
+            const auto &v = m_valuator[i];
+
+            m_varying |= v.device->isVarying();
+            m_valid &= v.device->isValid();
+
+            value[i] = 0.;
+            int idx = v.valuator;
+            if (idx >= 0)
+            {
+                auto val = v.device->getValuatorValue(idx);
+                val += v.shift;
+                val *= v.scale;
+                value[i] = val;
+            }
+            if (idx >= 3)
+                is6dof = true;
+        }
+        if (is6dof && m_valid)
+            m_6dof = is6dof;
+
+        if (m_assembleWithRotationAxis)
+        {
+            osg::Vec3 rotaxis(value[7], value[8], value[6]);
+            m_mat.makeRotate(rotaxis.length()*0.01, rotaxis);
+        }
+        else
+        {
+            double hpr[3] = {value[3], value[4], value[5]};
+            MAKE_EULER_MAT(m_mat, hpr[0], hpr[1], hpr[2]);
+        }
+        m_mat.setTrans(value[0], value[1], value[2]);
+    }
+    else
+    {
+        m_varying = device()->isVarying();
+
+        m_valid = device()->isBodyMatrixValid(m_idx);
+        m_6dof = device()->is6Dof();
+
+        if (m_valid)
+        {
+            m_mat = device()->getBodyMatrix(m_idx);
+        }
+    }
+
     if (Input::debug(Input::Raw) && m_valid != m_oldValid)
     {
         std::cerr << "Input: raw " << name() << " valid=" << m_valid << std::endl;
     }
+    m_oldValid = m_valid;
+
     if (m_valid)
     {
-        m_mat = device()->getBodyMatrix(m_idx);
         if (Input::debug(Input::Raw) && Input::debug(Input::Matrices) && m_mat!=m_oldMat)
         {
             std::cerr << "Input: raw " << name() << " matrix=" << m_mat << std::endl;
         }
         m_oldMat = m_mat;
+
         //std::cerr << "TrackingBody::update: getting dev idx " << m_idx << ": " << m_mat << std::endl;
         m_mat.preMult(m_deviceOffsetMat);
-
     }
-    m_varying = device()->isVarying();
-    m_6dof = device()->is6Dof();
 }
 
 void TrackingBody::updateRelative()
@@ -133,11 +225,6 @@ void TrackingBody::setMat(const osg::Matrix &mat)
     m_mat = mat;
 }
 
-bool TrackingBody::isValid() const
-{
-    return m_valid;
-}
-
 bool TrackingBody::isVarying() const
 {
 
@@ -148,11 +235,6 @@ bool TrackingBody::is6Dof() const
 {
 
     return m_6dof;
-}
-
-void TrackingBody::setValid(bool valid)
-{
-    m_valid = valid;
 }
 
 void TrackingBody::setVarying(bool isVar)

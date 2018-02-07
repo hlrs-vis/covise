@@ -21,6 +21,8 @@
 #include <osg/ShapeDrawable>
 
 #include <OpenVRUI/sginterface/vruiHit.h>
+#include <OpenVRUI/osg/OSGVruiHit.h>
+#include <OpenVRUI/osg/OSGVruiNode.h>
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -205,9 +207,8 @@ void coVRIntersectionInteractor::disableIntersection()
         vruiIntersection::getIntersectorForAction("coAction")->remove(vNode);
         coVRIntersectionInteractorManager::the()->remove(this);
     }
-    //resetState();
-    _oldHl = NULL;
-    moveTransform->setStateSet(NULL);
+
+    resetState();
 }
 
 const osg::Matrix &coVRIntersectionInteractor::getPointerMat() const
@@ -252,6 +253,15 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         coVector v = hit->getWorldIntersectionPoint();
         osg::Vec3 wp(v[0], v[1], v[2]);
         _hitPos = wp * cover->getInvBaseMat();
+        auto osgvruinode = dynamic_cast<OSGVruiNode *>(hit->getNode());
+        if (osgvruinode)
+        {
+            _hitNode = osgvruinode->getNodePtr();
+        }
+        else
+        {
+            _hitNode = nullptr;
+        }
     }
     else
     {
@@ -259,6 +269,7 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         if (_interPos == osg::Vec3(0.0, 0.0, 0.0))
             _interPos.set(0.0, 0.0, 0.00001);
         _hitPos = _interPos;
+        _hitNode = nullptr;
     }
 
     _justHit = false;
@@ -361,7 +372,10 @@ void coVRIntersectionInteractor::removeIcon()
 {
     //fprintf(stderr,"coVRIntersectionInteractor(%s)::removeIcon and set hl off\n", _interactorName);
     coInteraction::removeIcon();
+}
 
+void coVRIntersectionInteractor::resetState()
+{
     _oldHl = NULL;
     moveTransform->setStateSet(NULL);
 }
@@ -427,6 +441,8 @@ void coVRIntersectionInteractor::stopInteraction()
     // we have to unregister
 
     moveTransform->setStateSet(_oldHl.get());
+
+    resetState();
 }
 
 void coVRIntersectionInteractor::doInteraction()

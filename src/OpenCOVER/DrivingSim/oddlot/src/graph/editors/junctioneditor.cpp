@@ -417,9 +417,9 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 // Calculates the offset of a lane from the center of the road.
 //
 double
-JunctionEditor::widthOffset(Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth)
+JunctionEditor::widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth)
 {
-    double offset = 0.0;
+    double offset = road->getLaneOffset(s);
     Lane *nextLane;
 
     double sSection = s - laneSection->getSStart();
@@ -511,8 +511,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, true, offset1, offset2);
 
         if (!spiralPrototype)
@@ -532,8 +532,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, false, offset1, offset2);
 
         if (!spiralPrototype)
@@ -554,8 +554,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, true, offset1, offset2);
 
         if (!spiralPrototype)
@@ -578,8 +578,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, false, offset1, offset2);
 
         if (!spiralPrototype)

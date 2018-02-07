@@ -20,11 +20,7 @@
 #define _P_TASK_H_
 
 #include <do/covise_gridmethods.h>
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#else
-#include <util/coviseCompat.h>
-#endif
 using namespace covise;
 
 #define real float

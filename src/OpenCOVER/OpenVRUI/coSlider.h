@@ -114,7 +114,7 @@ protected:
     bool showValue; ///< true = the slider value is displayed
     coCombinedButtonInteraction *interactionA; ///< interaction for first button
     ///< interaction for wheel
-    coCombinedButtonInteraction *interactionWheel;
+    coCombinedButtonInteraction *interactionWheel[2];
     bool unregister; ///< true if the interaction should be unregistered
     float dialSize; ///< size of slider dial
     coSliderActor *myActor; ///< action listener for slider events

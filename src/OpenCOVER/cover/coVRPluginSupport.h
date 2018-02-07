@@ -146,20 +146,20 @@ public:
     ~coPointerButton();
     //! button state
     //! @return button press mask
-    unsigned int getState();
+    unsigned int getState() const;
     //! previous button state
     //! @return old button state
-    unsigned int oldState();
+    unsigned int oldState() const;
     //! buttons pressed since last frame
-    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! buttons released since last frame
-    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! is no button pressed
-    bool notPressed();
+    bool notPressed() const;
     //! accumulated number of wheel events
-    int getWheel();
+    int getWheel(size_t idx=0) const;
     //! set number wheel events
-    void setWheel(int);
+    void setWheel(size_t idx, int count);
     //! button name
     const std::string &name() const;
 
@@ -167,9 +167,9 @@ private:
     //! set button state
     void setState(unsigned int);
 
-    unsigned int buttonStatus;
-    unsigned int lastStatus;
-    int wheelCount;
+    unsigned int buttonStatus = 0;
+    unsigned int lastStatus = 0;
+    int wheelCount[2]={0,0};
     std::string m_name;
 };
 
@@ -247,6 +247,9 @@ public:
     //! get matrix of current 2D mouse matrix
     //! (the same as getPointerMat for MOUSE tracking)
     const osg::Matrix &getMouseMat() const;
+
+    //! get matrix for relative input (identity if no input)
+    const osg::Matrix &getRelativeMat() const;
 
     //! get the MatrixTransform for objects translation and rotation
     osg::MatrixTransform *getObjectsXform() const;
@@ -515,7 +518,7 @@ public:
     //! returns the current time in seconds since Jan. 1, 1970,
     //! if possible, use frameTime() as it does not require a system call
     //! @return number of seconds since Jan. 1, 1970
-    double currentTime() const;
+    static double currentTime();
 
     //! get the number of the active cursor shape
     osgViewer::GraphicsWindow::MouseCursor getCurrentCursor() const;
@@ -538,6 +541,9 @@ public:
 
     //! get normal of intersection hit
     const osg::Vec3 &getIntersectionHitPointWorldNormal() const;
+
+    //! update matrix of an interactor, honouring snapping, ...
+    osg::Matrix updateInteractorTransform(osg::Matrix mat, bool usePointer) const;
 
     /*********************************************************************/
     // do not use anything beyond this line
@@ -650,7 +656,6 @@ private:
     bool wasHandValid = false;
     osg::Matrix baseMatrix;
     mutable osg::Matrix invBaseMatrix;
-    int buttonGroup;
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;

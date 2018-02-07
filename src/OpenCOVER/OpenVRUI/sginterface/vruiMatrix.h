@@ -58,6 +58,8 @@ public:
     }
 
     virtual coVector getHPR() const = 0;
+
+    bool isIdentity() const;
 };
 
 class OPENVRUIEXPORT vruiCoord

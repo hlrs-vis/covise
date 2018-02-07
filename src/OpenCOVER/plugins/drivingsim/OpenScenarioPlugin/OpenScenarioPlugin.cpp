@@ -103,39 +103,48 @@ void OpenScenarioPlugin::preFrame()
     list<Entity*> unusedEntity = scenarioManager->entityList;
     list<Entity*> entityList_temp = scenarioManager->entityList;
     entityList_temp.sort();unusedEntity.sort();
+    scenarioManager->conditionManager();
 
-    scenarioManager->conditionControl();
-    if (scenarioManager->scenarioCondition == true)
+    if (scenarioManager->scenarioCondition)
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
-            scenarioManager->conditionControl((*act_iter));//check act start conditions
-            if ((*act_iter)->actCondition == true)
+            Act* currrentAct = (*act_iter);
+            //check act start conditions
+            if ((*act_iter)->actCondition)
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
-                    //Maneuver* currentManeuver = (*maneuver_iter);
-                    scenarioManager->conditionControl((*maneuver_iter));//check maneuver start conditions
-                    if ((*maneuver_iter)->maneuverCondition == true)
+                    Maneuver* currentManeuver = (*maneuver_iter);
+                    //check maneuver start conditions
+                    if ((*maneuver_iter)->maneuverCondition)
                     {
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
-                                //Trajectory* currentTrajectory = (*trajectory_iter);
-                                for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                Trajectory* currentTrajectory = (*trajectory_iter);
+                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
-                                    //Entity* currentEntity = (*activeEntity);
+                                    Entity* currentEntity = (*activeEntity);
+                                    // check if Trajectory is about to start or Entity arrived at vertice
+                                    if((*activeEntity)->totalDistance == 0)
+                                    {
+                                        (*activeEntity)->setAbsVertPos();
+                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
+                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity));
 
-                                    (*maneuver_iter)->setTargetPosition((*activeEntity)->entityPosition,(*trajectory_iter)->polylineVertices,(*trajectory_iter)->isRelVertice);
+                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos);
 
-                                    if((*trajectory_iter)->domain.getValue() == 0){
-                                       (*activeEntity)->setSpeed((*maneuver_iter)->getTrajSpeed((*maneuver_iter)->verticeStartPos, (*maneuver_iter)->targetPosition));
+                                        if((*trajectory_iter)->domain.getValue() == 0)
+                                        { //if domain is set to "time"
+                                            // calculate speed from trajectory vertices
+                                            (*activeEntity)->getTrajSpeed(0.1);
+                                        }
+
                                     }
 
-                                    (*activeEntity)->setDirection((*maneuver_iter)->totaldirectionVector);
-
-                                    (*activeEntity)->setPosition((*maneuver_iter)->followTrajectoryRel((*activeEntity)->entityPosition,(*maneuver_iter)->targetPosition,(*activeEntity)->getSpeed()));
+                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -163,6 +172,7 @@ void OpenScenarioPlugin::preFrame()
             //(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
             usedEntity.clear();
         }
+        scenarioManager->endTrajectoryCheck();
     }
     else
     {
@@ -429,18 +439,27 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     }
                     if(action->Position.exists())
                     {
-                        //osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
-                        //(*entity_iter)->setPosition(initPosition);
+                        if (action->Position->Lane.exists()){
 
-                        currentTentity->roadId = action->Position->Lane->roadId.getValue();
-                        currentTentity->laneId = action->Position->Lane->laneId.getValue();
-                        currentTentity->inits = action->Position->Lane->s.getValue();
+                            currentTentity->roadId = action->Position->Lane->roadId.getValue();
+                            currentTentity->laneId = action->Position->Lane->laneId.getValue();
+                            currentTentity->inits = action->Position->Lane->s.getValue();
+
+                            int roadId = atoi(currentTentity->roadId.c_str());
+                            currentTentity->setInitEntityPosition(system->getRoad(roadId));
+                        }
+                        else if(action->Position->World.exists()){
+
+                            osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
+                            currentTentity->setInitEntityPosition(initPosition);
+                            currentTentity->setPosition(initPosition);
+                        }
                     }
                 }
+
             }
         }
-        int roadId = atoi(currentTentity->roadId.c_str());
-        currentTentity->setInitEntityPosition(system->getRoad(roadId));
+
     }
 
     //initialize acts
@@ -467,6 +486,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
             {
                 Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
+                maneuver->initialize(activeEntityList_temp);
                 maneuverList_temp.push_back(maneuver);
                 cout << "Manuever: " << maneuver->getName() << " created" << endl;
             }
@@ -627,50 +647,19 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     {
         for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
         {
-            vector<osg::Vec3>polylineVertices_temp;
-            vector<bool>isRelVertice_temp;
             if((*maneuver_iter)->trajectoryCatalogReference != "")
             {
-                oscObjectBase *trajectoryCatalog = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
-                oscTrajectory* trajectory = ((oscTrajectory*)(trajectoryCatalog));
-
-                // hier noch irgendwo dt berechnen
-                for (oscVertexArrayMember::iterator it = trajectory->Vertex.begin(); it != trajectory->Vertex.end(); it++)
-                {
-                    oscVertex* vertex = ((oscVertex*)(*it));
-
-                    if (vertex->Position->RelativeWorld.exists()) {
-                        if(it == trajectory->Vertex.begin()){
-
-                        }
-
-                        osg::Vec3 polyVec_temp (vertex->Position->RelativeWorld->dx.getValue(),vertex->Position->RelativeWorld->dy.getValue(),vertex->Position->RelativeWorld->dz.getValue());
-                        polylineVertices_temp.push_back(polyVec_temp);
-
-                        isRelVertice_temp.push_back(true);
-
-
-                    }
-                    else {
-                        osg::Vec3 polyVec_temp (vertex->Position->World->x.getValue(),vertex->Position->World->y.getValue(),vertex->Position->World->z.getValue());
-                        polylineVertices_temp.push_back(polyVec_temp);
-
-                        isRelVertice_temp.push_back(false);
-
-
-                    }
-                    //(*maneuver_iter)->setPolylineVertices(polyVec_temp);
-                }
                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
                 (*maneuver_iter)->trajectoryList.push_back(traj);
 
-                traj->initialize(polylineVertices_temp,isRelVertice_temp);
-                polylineVertices_temp.clear();
-                isRelVertice_temp.clear();
+                int verticesCounter = traj->Vertex.size();
+                traj->initialize(verticesCounter);
+
             }
         }
     }
+
     return 0;
 }
 

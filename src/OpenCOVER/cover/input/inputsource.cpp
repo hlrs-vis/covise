@@ -14,6 +14,7 @@
 
 #include "input.h"
 #include "inputsource.h"
+#include "inputdevice.h"
 #include <config/CoviseConfig.h>
 
 namespace opencover
@@ -26,7 +27,11 @@ InputSource::InputSource(const std::string &name, const std::string &kind)
 {
     const std::string driver = covise::coCoviseConfig::getEntry("device", config(), "default");
 
-    if (name != "Mouse")
+    if (name == "Mouse")
+    {
+        m_valid = true;
+    }
+    else
     {
         m_dev = Input::instance()->getDevice(driver);
         if (!m_dev)
@@ -52,5 +57,27 @@ InputDevice *InputSource::device() const
 {
     return m_dev;
 }
+
+void InputSource::setValid(bool valid)
+{
+    m_valid = valid;
+}
+
+bool InputSource::isValid() const
+{
+    return m_valid;
+}
+
+void InputSource::update()
+{
+    if (device())
+        m_valid = device()->isValid();
+    if (Input::debug(Input::Raw) && m_valid != m_oldValid)
+    {
+        std::cerr << "Input: raw " << name() << " valid=" << m_valid << std::endl;
+    }
+    m_oldValid = m_valid;
+}
+
 
 }

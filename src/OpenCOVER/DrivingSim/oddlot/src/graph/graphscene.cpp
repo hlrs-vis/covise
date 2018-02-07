@@ -49,6 +49,7 @@ void
 GraphScene::init()
 {
     setBackgroundBrush(QBrush(QColor(238, 243, 238)));
+	
 
     //	// Observer //
     //	//
@@ -154,6 +155,18 @@ GraphScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
     MouseAction *mouseAction = new MouseAction(MouseAction::ATM_DOUBLECLICK, mouseEvent);
     emit(mouseActionSignal(mouseAction));
     delete mouseAction;
+}
+
+//################//
+// DRAG EVENTS    //
+//################//
+
+void 
+GraphScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+	MouseAction *mouseAction = new MouseAction(MouseAction::ATM_DROP, event);
+	emit(mouseActionSignal(mouseAction));
+	delete mouseAction; 
 }
 
 //################//

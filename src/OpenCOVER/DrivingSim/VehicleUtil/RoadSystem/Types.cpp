@@ -697,10 +697,14 @@ void roadShapePolynoms::addPolynom(ShapePolynom *sp)
 
 double roadShapePolynoms::getHeight(double t)
 {
-	auto it = shapes.lower_bound(t);
+	auto it = shapes.upper_bound(t);
+	if (it != shapes.begin())
+	{
+		it--;
+	}
 	if (it != shapes.end())
 	{
-		it->second->getHeight(t);
+		return it->second->getHeight(t);
 	}
 	return 0.0;
 }
@@ -719,24 +723,27 @@ void roadShapePolynoms::accept(XodrWriteRoadSystemVisitor *visitor)
 
 double roadShapeSections::getHeight(double s, double t)
 {
-	auto it = shapesSections.lower_bound(s);
-	if (it == shapesSections.end())
+	auto it2 = shapesSections.upper_bound(s); // greater than s
+	if (it2 == shapesSections.end())
 	{
-		if (it != shapesSections.begin())
+		if (it2 != shapesSections.begin())
 		{
-			it--;
+			it2--;
 		}
 		else
 		{
 			return 0;
 		}
 	}
-	auto it2 = it;
-	it2++;
-	if (it2 == shapesSections.end())
+	auto it = it2;
+	if (it != shapesSections.begin())
+	{
+		it--;
+	}
+	if (it == shapesSections.end())
 	{
 		// we have only one profile
-		return it->second->getHeight(t);
+		return it2->second->getHeight(t);
 	}
 	//we have two profiles, interpoate linearly
 	roadShapePolynoms *sp1 = it->second;

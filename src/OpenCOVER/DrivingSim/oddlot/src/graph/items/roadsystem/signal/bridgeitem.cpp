@@ -162,6 +162,7 @@ BridgeItem::createPath()
         {
             LaneSection *laneSection = road_->getLaneSection(currentS);
             double t = laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId() - 1, currentS);
+			t += road_->getLaneOffset(currentS);
             QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)
@@ -196,6 +197,7 @@ BridgeItem::createPath()
         {
             LaneSection *laneSection = road_->getLaneSection(currentS);
             double t = -laneSection->getLaneSpanWidth(laneSection->getLeftmostLaneId(), 0, currentS);
+			t += road_->getLaneOffset(currentS);
             QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)

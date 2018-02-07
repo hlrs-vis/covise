@@ -60,6 +60,7 @@ public:
 	} */
 
 	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
+	void createTree();
 
 
 	// Obsever Pattern //
@@ -74,7 +75,6 @@ private:
 
     void init();
 
-	void createTree();
 	QTreeWidgetItem *getItem(const QString &name);
 	QTreeWidgetItem *getItem(OpenScenario::oscObjectBase *obj);
 
@@ -83,7 +83,6 @@ private:
     //################//
 
 public:
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 	//################//
 	// SIGNALS        //
@@ -98,6 +97,7 @@ signals:
 
 public slots:
 	void onVisibilityChanged(bool);
+	void onItemClicked(QTreeWidgetItem *item, int column);
 
     //################//
     // PROPERTIES     //
@@ -128,6 +128,7 @@ private:
 	OpenScenario::oscMember *currentMember_;
 
 	ODD::ToolId currentTool_;
+
 };
 
 #endif // CATALOGTREEWIDGET_HPP

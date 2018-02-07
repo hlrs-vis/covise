@@ -217,6 +217,11 @@ const osg::Matrix &coVRPluginSupport::getMouseMat() const
     return Input::instance()->mouse()->getMatrix();
 }
 
+const osg::Matrix &coVRPluginSupport::getRelativeMat() const
+{
+    return Input::instance()->getRelativeMat();
+}
+
 const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
     //START("coVRPluginSupport::getPointerMat");
@@ -241,7 +246,7 @@ float coVRPluginSupport::getSceneSize() const
     return coVRConfig::instance()->getSceneSize();
 }
 
-double coVRPluginSupport::currentTime() const
+double coVRPluginSupport::currentTime()
 {
     START("coVRPluginSupport::currentTime");
     timeval currentTime;
@@ -392,7 +397,8 @@ void coVRPluginSupport::update()
         handMat = Input::instance()->getHandMat();
     }
 
-    getMouseButton()->setWheel(Input::instance()->mouse()->wheel());
+    for (size_t i=0; i<2; ++i)
+        getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
     getMouseButton()->setState(Input::instance()->mouse()->buttonState());
 #if 0
    if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
@@ -401,7 +407,8 @@ void coVRPluginSupport::update()
     // don't overwrite mouse button state if only mouseTracking is used
     if (getPointerButton() != getMouseButton())
     {
-        getPointerButton()->setWheel(0);
+        for (size_t i=0; i<2; ++i)
+            getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
    if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
@@ -576,15 +583,6 @@ void coVRPluginSupport::removePlugin(coVRPlugin *m)
     coVRPluginList::instance()->unload(m);
 }
 
-#if 0
-int coVRPluginSupport::createUniqueButtonGroupId()
-{
-    START("coVRPluginSupport::uniqueButtonGroup");
-    buttonGroup++;
-    return buttonGroup;
-}
-#endif
-
 int coVRPluginSupport::isPointerLocked()
 {
     //START("coVRPluginSupport::isPointerLocked");
@@ -748,7 +746,6 @@ coVRPluginSupport::coVRPluginSupport()
 
     pointerButton = NULL;
     mouseButton = NULL;
-    buttonGroup = 40;
     baseMatrix.makeIdentity();
 
     invCalculated = false;
@@ -996,44 +993,6 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
     return 1;
 }
 
-#if 0
-void
-coVRPluginSupport::enableNavigation(const char *str)
-{
-    START("coVRPluginSupport::enableNavigation");
-    setBuiltInFunctionState(str, 1);
-}
-
-void
-coVRPluginSupport::disableNavigation(const char *str)
-{
-    START("coVRPluginSupport::disableNavigation");
-    setBuiltInFunctionState(str, 0);
-}
-
-void
-coVRPluginSupport::setNavigationValue(const char *str, float value)
-{
-    START("coVRPluginSupport::setNavigationValue");
-#if 0
-    buttonSpecCell buttonSpecifier;
-
-    strcpy(buttonSpecifier.name, str);
-    buttonSpecifier.state = value;
-    VRSceneGraph::instance()->manipulate(&buttonSpecifier);
-    if (strcmp(str, "DriveSpeed") == 0)
-    {
-        setBuiltInFunctionValue(str, value);
-        callBuiltInFunctionCallback(str);
-    }
-    else
-    {
-        VRPinboard::instance()->setButtonState(str, value);
-    }
-#endif
-}
-#endif
-
 osg::Node *coVRPluginSupport::getIntersectedNode() const
 {
     return intersectedNode.get();
@@ -1054,13 +1013,47 @@ const osg::Vec3 &coVRPluginSupport::getIntersectionHitPointWorldNormal() const
     return intersectionHitPointWorldNormal;
 }
 
+osg::Matrix coVRPluginSupport::updateInteractorTransform(osg::Matrix mat, bool usePointer) const
+{
+    if (usePointer && Input::instance()->hasHand() && Input::instance()->isHandValid())
+    {
+        // get the transformation matrix of the transform
+        mat = getPointer()->getMatrix();
+        if (coVRNavigationManager::instance()->isSnapping())
+        {
+            osg::Matrix w_to_o = cover->getInvBaseMat();
+            mat.postMult(w_to_o);
+            if (!coVRNavigationManager::instance()->isDegreeSnapping())
+                snapTo45Degrees(&mat);
+            else
+                snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &mat);
+            osg::Matrix o_to_w = cover->getBaseMat();
+            mat.postMult(o_to_w);
+            coCoord coord = mat;
+            coord.makeMat(mat);
+        }
+    }
+
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        auto rel = Input::instance()->getRelativeMat();
+        auto tr = rel.getTrans();
+        coCoord coord(rel);
+        MAKE_EULER_MAT_VEC(rel, -coord.hpr);
+        rel.setTrans(-tr);
+        mat *= rel;
+    }
+
+    return mat;
+}
+
 coPointerButton::coPointerButton(const std::string &name)
     : m_name(name)
 {
     START("coPointerButton::coPointerButton");
     buttonStatus = 0;
     lastStatus = 0;
-    wheelCount = 0;
+    wheelCount[0] = wheelCount[1] = 0;
 }
 
 coPointerButton::~coPointerButton()
@@ -1074,30 +1067,30 @@ const std::string &coPointerButton::name() const
     return m_name;
 }
 
-unsigned int coPointerButton::getState()
+unsigned int coPointerButton::getState() const
 {
     //START("coPointerButton::getButtonStatus")
     return buttonStatus;
 }
 
-unsigned int coPointerButton::oldState()
+unsigned int coPointerButton::oldState() const
 {
     START("coPointerButton::oldButtonStatus");
     return lastStatus;
 }
 
-bool coPointerButton::notPressed()
+bool coPointerButton::notPressed() const
 {
     START("coPointerButton::notPressed");
     return (buttonStatus == 0);
 }
 
-unsigned int coPointerButton::wasPressed(unsigned int buttonMask)
+unsigned int coPointerButton::wasPressed(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & getState());
 }
 
-unsigned int coPointerButton::wasReleased(unsigned int buttonMask)
+unsigned int coPointerButton::wasReleased(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & oldState());
 }
@@ -1109,14 +1102,18 @@ void coPointerButton::setState(unsigned int newButton) // called from
     buttonStatus = newButton;
 }
 
-int coPointerButton::getWheel()
+int coPointerButton::getWheel(size_t idx) const
 {
-    return wheelCount;
+    if (idx >= 2)
+        return 0;
+    return wheelCount[idx];
 }
 
-void coPointerButton::setWheel(int count)
+void coPointerButton::setWheel(size_t idx, int count)
 {
-    wheelCount = count;
+    if (idx >= 2)
+        return;
+    wheelCount[idx] = count;
 }
 
 int coVRPluginSupport::registerPlayer(vrml::Player *player)

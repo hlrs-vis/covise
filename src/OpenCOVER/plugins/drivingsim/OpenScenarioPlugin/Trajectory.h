@@ -5,6 +5,8 @@
 #include<vector>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscTrajectory.h>
+#include <Entity.h>
+
 
 class Trajectory : public OpenScenario::oscTrajectory
 {
@@ -18,7 +20,14 @@ public:
     Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-    void initialize(std::vector<osg::Vec3> vec_temp, std::vector<bool> isRelVertice_temp);
+    void initialize(int verticesCounter);
+    osg::Vec3 getAbsolute(Entity* currentEntity);
+    double getReference(int visitedVertices);
+    double t0;
+    double t1;
+    double dt;
+    int verticesCounter;
+
 };
 
 #endif // TRAJECTORY_H

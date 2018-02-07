@@ -99,7 +99,7 @@ void ButtonDevice::createButtonMap(const std::string &confbase)
         MB(JOYSTICK_UP);
 
         if (!handled)
-            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".MultiMap" << endl;
+            cerr << "Input: ButtonDevice: unknown button name \"" << mapped << "\" in " << confbase << ".Map" << endl;
 
 #undef MB
     }
@@ -165,6 +165,8 @@ ButtonDevice::ButtonDevice(const string &name)
  */
 void ButtonDevice::update()
 {
+    InputSource::update();
+
     if (device())
     {
         m_raw = 0;
@@ -177,7 +179,7 @@ void ButtonDevice::update()
 
     if (Input::debug(Input::Buttons) && Input::debug(Input::Raw) && m_oldRaw!=m_raw)
     {
-        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::endl;
+        std::cerr << "Input: " << name() << " buttons: raw=0x" << std::hex << m_raw << std::dec << std::endl;
     }
     m_oldRaw = m_raw;
 

@@ -70,7 +70,7 @@ coValuePoti::coValuePoti(const string &buttonText, coValuePotiActor *actor,
 
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "Poti", coInteraction::Menu);
     interactionB = new coCombinedButtonInteraction(coInteraction::ButtonC, "Poti", coInteraction::Menu);
-    interactionW = new coCombinedButtonInteraction(coInteraction::Wheel, "Poti", coInteraction::Menu);
+    interactionW = new coCombinedButtonInteraction(coInteraction::WheelVertical, "Poti", coInteraction::Menu);
 }
 
 /// Destructor.

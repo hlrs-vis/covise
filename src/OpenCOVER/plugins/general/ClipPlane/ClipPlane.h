@@ -17,10 +17,12 @@
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coVRPlugin.h>
+#include <cover/coVRPluginSupport.h>
 
 namespace vrui
 {
 class coTrackerButtonInteraction;
+class coRelativeInputInteraction;
 }
 
 namespace opencover {
@@ -48,26 +50,11 @@ private:
         ui::Button *DirectInteractorButton = nullptr;
         ui::Button *PickInteractorButton = nullptr;
         vrui::coTrackerButtonInteraction *directInteractor = nullptr;
+        vrui::coRelativeInputInteraction *relativeInteractor = nullptr;
         coVR3DTransRotInteractor *pickInteractor = nullptr;
         bool showPickInteractor_=false, showDirectInteractor_=false;
-        Plane()
-        {
-            valid = false;
-            enabled = false;
-            showPickInteractor_ = false;
-            showDirectInteractor_ = false;
-            clip = NULL;
-            directInteractor = NULL;
-            pickInteractor = NULL;
-            EnableButton = NULL;
-            DirectInteractorButton = NULL;
-            PickInteractorButton = NULL;
-        }
-        ~Plane()
-        {
-            delete directInteractor;
-            delete pickInteractor;
-        }
+        Plane();
+        ~Plane();
     };
     Plane plane[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
 
@@ -84,6 +71,7 @@ private:
     osg::Vec4d matrixToEquation(const osg::Matrix &mat);
 
     void setInitialEquation(int);
+    bool m_directInteractorShow = false, m_directInteractorEnable = false;
 
 public:
     ClipPlanePlugin();

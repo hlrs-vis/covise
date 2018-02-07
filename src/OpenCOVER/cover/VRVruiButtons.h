@@ -39,7 +39,7 @@ public:
     virtual unsigned int getStatus() const;
     virtual unsigned int getOldStatus() const;
 
-    virtual int getWheelCount() const;
+    virtual int getWheelCount(size_t idx=0) const;
 
 private:
     coPointerButton *button() const;

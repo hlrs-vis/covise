@@ -97,9 +97,6 @@ using namespace osg;
 using namespace opencover;
 using covise::coCoviseConfig;
 
-#define SYNC_MODE_GROUP 2
-#define NAVIGATION_GROUP 0
-
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -122,8 +119,6 @@ VRSceneGraph::VRSceneGraph()
     , m_showMenu(true)
     , m_showObjects(true)
     , m_pointerType(0)
-    , m_worldTransformer(false)
-    , m_worldTransformerEnabled(true)
     , m_scaleMode(-1.0)
     , m_scaleFactor(1.0f)
     , m_scaleFactorButton(0.1f)
@@ -137,8 +132,6 @@ VRSceneGraph::VRSceneGraph()
     , m_transRestrictMaxZ(0.0f)
     , m_scalingAllObjects(false)
     , m_scaleTransform(NULL)
-    , transTraversingInteractors(Vec3(0, 0, 0))
-    , isFirstTraversal(true)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
     , m_switchToHighQuality(false)
@@ -278,12 +271,6 @@ VRSceneGraph::~VRSceneGraph()
 
 void VRSceneGraph::config()
 {
-    std::string line = coCoviseConfig::getEntry("COVER.Input.WorldXFormAddress");
-    if (!line.empty())
-    {
-        m_worldTransformer = true; //TODO: get information from somewhere else instead??
-    }
-
     // if menu mode is on -- hide menus
     if (coVRConfig::instance()->isMenuModeOn())
         setMenuMode(false);
@@ -309,18 +296,6 @@ int VRSceneGraph::readConfigFile()
     }
 
     m_coordAxis = coCoviseConfig::isOn("COVER.CoordAxis", false);
-
-    // TODO coConfig:vector
-    rotationAxis[0] = coCoviseConfig::getFloat("x", "COVER.RotationAxis", 1.0f);
-    rotationAxis[1] = coCoviseConfig::getFloat("y", "COVER.RotationAxis", 0.0f);
-    rotationAxis[2] = coCoviseConfig::getFloat("z", "COVER.RotationAxis", 0.0f);
-
-    // TODO coConfig:vector
-    rotationPoint[0] = coCoviseConfig::getFloat("x", "COVER.RotationPoint", 0.0f);
-    rotationPoint[1] = coCoviseConfig::getFloat("y", "COVER.RotationPoint", 0.0f);
-    rotationPoint[2] = coCoviseConfig::getFloat("z", "COVER.RotationPoint", 0.0f);
-
-    frameAngle = coCoviseConfig::getFloat("COVER.FrameAngle", 0.9);
 
     wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
 
@@ -514,11 +489,7 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        if (keySym == ' ')
-        {
-            m_worldTransformerEnabled = !m_worldTransformerEnabled;
-        }
-        else if (keySym == '%')
+        if (keySym == '%')
         {
             //matrixCorrect->separateColor = !matrixCorrect->separateColor;
             //fprintf(stderr,"separateColor = %d\n",matrixCorrect->separateColor);
@@ -956,19 +927,6 @@ VRSceneGraph::update()
         newWorld.invert(newWorld);
         m_objectsTransform->setMatrix(newWorld);
     }
-
-    if (m_worldTransformer)
-    {
-        static osg::Matrix oldWorldTransform;
-        osg::Matrix newWorld = VRTracker::instance()->getWorldMat();
-        if (m_worldTransformerEnabled)
-        {
-            oldWorldTransform.invert(oldWorldTransform);
-            osg::Matrix incWorld = oldWorldTransform * newWorld;
-            m_objectsTransform->setMatrix(m_objectsTransform->getMatrix() * incWorld);
-        }
-        oldWorldTransform = newWorld;
-    }
 #endif
 
     // update the viewer axis dcs with tracker not viewer mat
@@ -1395,7 +1353,7 @@ VRSceneGraph::loadHandLine()
 }
 
 osg::Vec3
-VRSceneGraph::getWorldPointOfInterest()
+VRSceneGraph::getWorldPointOfInterest() const
 {
     osg::Vec3 pointOfInterest(0, 0, 0);
     pointOfInterest = m_pointerDepthTransform.get()->getMatrix().preMult(pointOfInterest);
@@ -1652,20 +1610,6 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
 }
 #endif
 
-#ifdef VRUI
-void
-VRSceneGraph::viewallCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll();
-}
-
-void
-VRSceneGraph::resetviewCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll(true);
-}
-#endif
-
 void
 VRSceneGraph::viewAll(bool resetView)
 {
@@ -1676,34 +1620,6 @@ VRSceneGraph::viewAll(bool resetView)
     coVRCollaboration::instance()->SyncXform();
     coVRCollaboration::instance()->SyncScale();
 }
-
-#ifdef VRUI
-void
-VRSceneGraph::coordAxisCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(false);
-    }
-}
-
-void
-VRSceneGraph::highQualityCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(false);
-    }
-}
-#endif
 
 bool
 VRSceneGraph::isHighQuality() const
@@ -1746,32 +1662,6 @@ VRSceneGraph::saveScenegraph(bool storeWithMenu)
             std::cerr << "Not writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
 }
-
-#ifdef VRUI
-void
-VRSceneGraph::reloadFileCallback(void *, buttonSpecCell *)
-{
-    coVRFileManager::instance()->reloadFile();
-}
-
-void
-VRSceneGraph::scalePlusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(1.0f);
-}
-
-void
-VRSceneGraph::scaleMinusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(-1.0f);
-}
-#endif
 
 void
 VRSceneGraph::setScaleFromButton(float direction)

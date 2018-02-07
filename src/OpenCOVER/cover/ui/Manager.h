@@ -15,6 +15,10 @@ namespace covise {
 class TokenBuffer;
 }
 
+namespace vrui {
+class coMouseButtonInteraction;
+}
+
 namespace opencover {
 
 namespace ui {
@@ -54,7 +58,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    //! update allowed value range for slider on all attached views
    void updateBounds(const Slider *slider) const;
    //! update input value on all attached views
-   void updateValue(const Input *input) const;
+   void updateValue(const EditField *input) const;
 
    //! add elem to list of managed user interface items
    void add(Element *elem);
@@ -100,6 +104,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
 
    int m_modifiers = 0;
+   std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;
 };
 
 }
