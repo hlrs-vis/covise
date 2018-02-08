@@ -19,6 +19,7 @@ void Trajectory::initialize(int verticesCounter_temp)
 osg::Vec3 Trajectory::getAbsolute(Entity* currentEntity)
 {
     auto vert = Vertex[currentEntity->visitedVertices];
+    //MyPosition* myposition = ((MyPosition*)(*vert->Position));
 
     if(vert->Position->World.exists())
     {

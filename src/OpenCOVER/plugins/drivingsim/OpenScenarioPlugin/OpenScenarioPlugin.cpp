@@ -43,6 +43,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "myFactory.h"
 #include "CameraSensor.h"
 #include <config/CoviseConfig.h>
+#include "MyPosition.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -139,7 +140,7 @@ void OpenScenarioPlugin::preFrame()
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->getTrajSpeed(0.1);
+                                            (*activeEntity)->getTrajSpeed(0.01);
                                         }
 
                                     }
@@ -652,6 +653,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
                 (*maneuver_iter)->trajectoryList.push_back(traj);
+
+                MyPosition* anyPos = ((MyPosition*)(traj->Vertex[0]->Position.getObject()));
+                std::string ThisType = (*anyPos).getPositionElement();
 
                 int verticesCounter = traj->Vertex.size();
                 traj->initialize(verticesCounter);
