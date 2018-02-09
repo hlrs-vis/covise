@@ -210,6 +210,7 @@ coVRNavigationManager::~coVRNavigationManager()
     delete interactionMB;
     delete interactionMC;
     delete interactionRel;
+    delete interactionShortcut;
 
     s_instance = NULL;
 }
@@ -251,6 +252,7 @@ void coVRNavigationManager::initInteractionDevice()
     interactionB = new coNavInteraction(coInteraction::ButtonB, "ProbeMode", coInteraction::Navigation);
     interactionC = new coNavInteraction(coInteraction::ButtonC, "ProbeMode", coInteraction::Navigation);
     interactionMenu = new coNavInteraction(coInteraction::ButtonA, "MenuMode", coInteraction::Menu);
+    interactionShortcut = new coNavInteraction(coInteraction::NoButton, "Keyboard", coInteraction::Low);
 
     mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "COVER.Input.MouseNav", 0);
     mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
@@ -326,13 +328,32 @@ void coVRNavigationManager::initMatrices()
 
 void coVRNavigationManager::initMenu()
 {
+    auto protectNav = [this](std::function<void()> f){
+        bool registered = false;
+        if (!interactionShortcut->isRegistered())
+        {
+            registered = true;
+            coInteractionManager::the()->registerInteraction(interactionShortcut);
+        }
+        if (interactionShortcut->activate())
+        {
+            f();
+        }
+        if (registered)
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionShortcut);
+        }
+    };
+
     navMenu_ = new ui::Menu("Navigation", this);
 
     m_viewAll = new ui::Action(navMenu_, "ViewAll");
     m_viewAll->setText("View all");
     m_viewAll->setShortcut("v");
-    m_viewAll->setCallback([this](){
-        VRSceneGraph::instance()->viewAll(false);
+    m_viewAll->setCallback([this, protectNav](){
+        protectNav([](){
+            VRSceneGraph::instance()->viewAll(false);
+        });
     });
     m_viewAll->setPriority(ui::Element::Toolbar);
     m_viewAll->setIcon("zoom-fit-best");
@@ -340,8 +361,10 @@ void coVRNavigationManager::initMenu()
     m_resetView = new ui::Action(navMenu_, "ResetView");
     m_resetView->setText("Reset view");
     m_resetView->setShortcut("Shift+V");
-    m_resetView->setCallback([this](){
-        VRSceneGraph::instance()->viewAll(true);
+    m_resetView->setCallback([this, protectNav](){
+        protectNav([](){
+            VRSceneGraph::instance()->viewAll(true);
+        });
     });
     m_resetView->setIcon("zoom-original");
 
@@ -351,19 +374,23 @@ void coVRNavigationManager::initMenu()
     scaleSlider_->setBounds(1e-5, 1e5);
     scaleSlider_->setScale(ui::Slider::Logarithmic);
     scaleSlider_->setValue(cover->getScale());
-    scaleSlider_->setCallback([this](double val, bool released){
-        startMouseNav();
-        doMouseScale(val);
-        stopMouseNav();
+    scaleSlider_->setCallback([this, protectNav](double val, bool released){
+        protectNav([this, val](){
+            startMouseNav();
+            doMouseScale(val);
+            stopMouseNav();
+        });
     });
 
     scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
     scaleUpAction_->setText("Scale up");
     scaleUpAction_->setVisible(false);
-    scaleUpAction_->setCallback([this](){
-        startMouseNav();
-        doMouseScale(cover->getScale() * 1.1f);
-        stopMouseNav();
+    scaleUpAction_->setCallback([this, protectNav](){
+        protectNav([this](){
+            startMouseNav();
+            doMouseScale(cover->getScale() * 1.1f);
+            stopMouseNav();
+        });
     });
     scaleUpAction_->setShortcut("=");
     scaleUpAction_->addShortcut("+");
@@ -372,10 +399,12 @@ void coVRNavigationManager::initMenu()
     scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
     scaleDownAction_->setText("Scale down");
     scaleDownAction_->setVisible(false);
-    scaleDownAction_->setCallback([this](){
-        startMouseNav();
-        doMouseScale(cover->getScale() / 1.1f);
-        stopMouseNav();
+    scaleDownAction_->setCallback([this, protectNav](){
+        protectNav([this](){
+            startMouseNav();
+            doMouseScale(cover->getScale() / 1.1f);
+            stopMouseNav();
+        });
     });
     scaleDownAction_->setShortcut("-");
     scaleDownAction_->addShortcut("Button:WheelUp");
