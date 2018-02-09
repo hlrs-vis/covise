@@ -19,6 +19,9 @@
 #include <net/tokenbuffer.h>
 #include <net/message.h>
 
+#include <config/CoviseConfig.h>
+#include <util/string_util.h>
+
 namespace opencover {
 namespace ui {
 
@@ -118,6 +121,23 @@ bool Manager::update()
         elem->m_order = m_elemOrder;
         m_elements.emplace(elem->m_order, elem);
         ++m_elemOrder;
+
+        auto path = elem->path();
+        auto config = "COVER.UI."+path;
+        bool found = false;
+        auto shortcuts = covise::coCoviseConfig::getEntry("shortcuts", config, &found);
+        if (found)
+        {
+            //std::cerr << "ui::Manager: configured shortcuts for " << path << ":";
+            elem->clearShortcuts();
+            auto list = split(shortcuts, ';');
+            for (const auto &s: list)
+            {
+                //std::cerr << " " << s;
+                elem->addShortcut(s);
+            }
+            //std::cerr << std::endl;
+        }
 
         if (elem->parent())
         {
@@ -314,7 +334,7 @@ void Manager::updateValue(const EditField *input) const
 
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
-    bool handled = false;
+    std::string handled;
 
     if (type == osgGA::GUIEventAdapter::KEYDOWN
             || type == osgGA::GUIEventAdapter::KEYUP)
@@ -394,7 +414,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
 
         if (down)
         {
-            if (shift && keySym < 255 && std::isupper(keySym))
+            if (shift && keySym <= 255 && std::isupper(keySym))
             {
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);
@@ -408,11 +428,11 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
                 {
                     elem->shortcutTriggered();
-                    if (handled)
+                    if (!handled.empty())
                     {
-                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                        std::cerr << "ui::Manager: duplicate mapping for keyboard shortcut on " << elem->path() << " and " << handled << std::endl;
                     }
-                    handled = true;
+                    handled = elem->path();
                     continue;
                 }
             }
@@ -476,23 +496,23 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 if (elem->enabled() && elem->matchButton(modifiers, button))
                 {
                     elem->shortcutTriggered();
-                    if (handled)
+                    if (!handled.empty())
                     {
-                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                        std::cerr << "ui::Manager: duplicate mapping for mouse button on " << elem->path() << " and " << handled << std::endl;
                     }
-                    handled = true;
+                    handled = elem->path();
                     continue;
                 }
             }
         }
     }
 
-    return handled;
+    return !handled.empty();
 }
 
 bool Manager::buttonEvent(int button) const
 {
-    bool handled = false;
+    std::string handled;
 
     //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::dec << std::endl;
     for (auto &elemPair: m_elements)
@@ -501,16 +521,16 @@ bool Manager::buttonEvent(int button) const
         if (elem->enabled() && elem->matchButton(m_modifiers, button))
         {
             elem->shortcutTriggered();
-            if (handled)
+            if (!handled.empty())
             {
-                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << std::endl;
+                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << " and " << handled << std::endl;
             }
-            handled = true;
+            handled = elem->path();
             continue;
         }
     }
 
-    return handled;
+    return !handled.empty();
 }
 
 void Manager::flushUpdates()

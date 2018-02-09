@@ -130,7 +130,7 @@ void ShortcutListener::addShortcut(const std::string &shortcut)
         if (button == "wheelright" || button == "scrollright")
             sh.button = vrui::vruiButtons::WHEEL_RIGHT;
     }
-    if (key == "esc" || key == "escape")
+    else if (key == "esc" || key == "escape")
     {
         sh.symbol = osgGA::GUIEventAdapter::KEY_Escape;
     }

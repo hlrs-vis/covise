@@ -23,7 +23,7 @@ KeyboardHelp::KeyboardHelp(opencover::ui::Manager *mgr, QWidget *parent)
         for (size_t i=0; i<numShortcuts; ++i)
         {
             if (i > 0)
-                shortcuts += ", ";
+                shortcuts += "; ";
             shortcuts += e->shortcutText(i);
         }
         columns.append(QString::fromStdString(shortcuts));
