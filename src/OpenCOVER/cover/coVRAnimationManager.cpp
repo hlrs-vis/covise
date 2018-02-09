@@ -94,6 +94,7 @@ void coVRAnimationManager::initAnimMenu()
 
     animToggleItem = new ui::Button(animRowMenu, "Animate");
     animToggleItem->setShortcut("a");
+    animToggleItem->addShortcut(" ");
     animToggleItem->setCallback([this](bool flag){
         if (animRunning != flag)
             enableAnimation(flag);
