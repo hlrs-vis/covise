@@ -131,13 +131,21 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     });
     window->addContextAction(win.toggleMenu);
 
+    QMenuBar *menubar = nullptr;
 #ifdef __APPLE__
-    //auto menubar = new QMenuBar(nullptr);
-    auto menubar = win.window->menuBar();
-    menubar->setNativeMenuBar(false);
-#else
-    auto menubar = win.window->menuBar();
+    if (covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", false))
+    {
+        menubar = new QMenuBar(nullptr);
+        menubar->setNativeMenuBar(true);
+    }
+    else
+    {
+        menubar = win.window->menuBar();
+        menubar->setNativeMenuBar(false);
+    }
 #endif
+    if (!menubar)
+        menubar = win.window->menuBar();
     menubar->show();
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
