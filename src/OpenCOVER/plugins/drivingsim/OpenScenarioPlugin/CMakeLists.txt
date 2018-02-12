@@ -22,7 +22,7 @@ set(HEADERS
   Trajectory.h
   RouteInfo.h
   CameraSensor.h
-  MyPosition.h
+  Position.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -36,7 +36,7 @@ set(SOURCES
   Trajectory.cpp
   RouteInfo.cpp
   CameraSensor.cpp
-  MyPosition.cpp
+  Position.cpp
 )
 
 

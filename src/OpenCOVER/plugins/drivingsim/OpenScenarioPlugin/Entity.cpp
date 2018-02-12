@@ -7,7 +7,7 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    absVertPosIsSet(false),
+    refPosIsSet(false),
     finishedCurrentTraj(false)
 {
 	directionVector.set(1, 0, 0);
@@ -126,9 +126,11 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEn
     entityGeometry->setPosition(newPosition, directionVector);
 }
 
-void Entity::setAbsVertPos(){
-    if(!absVertPosIsSet){
-        absVertPos = entityPosition;
-        absVertPosIsSet = true;
+void Entity::setRefPos()
+{
+    if(!refPosIsSet)
+    {
+        referencePosition = entityPosition;
+        refPosIsSet = true;
     }
 }

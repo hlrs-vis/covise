@@ -36,12 +36,12 @@ public:
     osg::Vec3 targetPosition;
     osg::Vec3 totaldirectionVector;
     osg::Vec3 newPosition;
-    osg::Vec3 absVertPos;
+    osg::Vec3 referencePosition;
 
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool absVertPosIsSet;
+    bool refPosIsSet;
     bool finishedCurrentTraj;
 
 
@@ -49,7 +49,7 @@ public:
     void setTrajectoryDirection(osg::Vec3 init_targetPosition);
     void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
     void getTrajSpeed(float deltat);
-    void setAbsVertPos();
+    void setRefPos();
 
 };
 
