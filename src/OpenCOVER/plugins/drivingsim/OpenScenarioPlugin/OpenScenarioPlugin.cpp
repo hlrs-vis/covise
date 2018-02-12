@@ -43,7 +43,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "myFactory.h"
 #include "CameraSensor.h"
 #include <config/CoviseConfig.h>
-#include "MyPosition.h"
+#include "Position.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -106,6 +106,9 @@ void OpenScenarioPlugin::preFrame()
     entityList_temp.sort();unusedEntity.sort();
     scenarioManager->conditionManager();
 
+    Road *road = system->getRoad(0);
+
+
     if (scenarioManager->scenarioCondition)
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
@@ -131,11 +134,14 @@ void OpenScenarioPlugin::preFrame()
                                     // check if Trajectory is about to start or Entity arrived at vertice
                                     if((*activeEntity)->totalDistance == 0)
                                     {
-                                        (*activeEntity)->setAbsVertPos();
-                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
-                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity));
+                                        (*activeEntity)->setRefPos();
+                                        Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[0]->Position.getObject()));
+                                        osg::Vec3 nextTargetPos0 = (*currentPos).getAbsolutePosition((*activeEntity)->referencePosition);
 
-                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos);
+                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
+                                        osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));
+
+                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos1);
 
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
@@ -653,9 +659,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
                 (*maneuver_iter)->trajectoryList.push_back(traj);
-
-                MyPosition* anyPos = ((MyPosition*)(traj->Vertex[0]->Position.getObject()));
-                std::string ThisType = (*anyPos).getPositionElement();
 
                 int verticesCounter = traj->Vertex.size();
                 traj->initialize(verticesCounter);
