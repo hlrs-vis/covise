@@ -10,12 +10,14 @@ Position::~Position()
 osg::Vec3 Position::getAbsolutePosition(osg::Vec3 referencePosition){
     if(Lane.exists())
     {
-        entityGeometry = AgentVehicle(name, entityGeometry->CarGeometry,0,r,inits,laneId,speed,1);
+        // entityGeometry = AgentVehicle(name, entityGeometry->CarGeometry,0,r,inits,laneId,speed,1);
         // Road r; s inits;
-        auto vtrans = entityGeometry->getVehicleTransform();
-        osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-        absPosition = pos;
+        // auto vtrans = entityGeometry->getVehicleTransform();
+        // osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+        // absPosition = pos;
 
+        // return absPosition;
+        osg::Vec3 absPosition (0.0,0.0,0.0);
         return absPosition;
 
     }
