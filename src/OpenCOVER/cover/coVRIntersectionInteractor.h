@@ -71,7 +71,6 @@ protected:
     bool _standardHL;
     osg::ref_ptr<osg::Node> _hitNode;
     osg::Vec3 _hitPos;
-    osg::Vec3 _interPos; // position in object coordinates
     vrui::OSGVruiNode *vNode;
 
     osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;

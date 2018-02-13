@@ -266,10 +266,7 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
     }
     else
     {
-        //fprintf(stderr,"coVRIntersectionInteractor: Hit from extern (%f %f %f)\n", _interPos.x(), _interPos.y(), _interPos.z());
-        if (_interPos == osg::Vec3(0.0, 0.0, 0.0))
-            _interPos.set(0.0, 0.0, 0.00001);
-        _hitPos = _interPos;
+        _hitPos = getMatrix().getTrans();
         _hitNode = nullptr;
     }
 
