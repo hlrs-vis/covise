@@ -29,6 +29,7 @@
 #include "input/input.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
+#include "ui/Slider.h"
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -695,7 +696,7 @@ float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coor
         scaleVal = eyeToPosDist / (2000);
     }
 
-    return scaleVal / cover->getScale();
+    return scaleVal / cover->getScale() * interactorScale;
 }
 
 float coVRPluginSupport::getViewerScreenDistance()
@@ -747,6 +748,16 @@ coVRPluginSupport::coVRPluginSupport()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released){
+        interactorScale = value;
+    });
 
     for (int level=0; level<Notify::Fatal; ++level)
     {

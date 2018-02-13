@@ -683,6 +683,7 @@ private:
     mutable coPointerButton *relativeButton = nullptr;
     vrui::coToolboxMenu *toolBar = nullptr;
     vrui::coRowMenu *m_vruiMenu = nullptr;
+    double interactorScale = 1.;
 
     int numClipPlanes;
 
