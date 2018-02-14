@@ -37,6 +37,7 @@
 #include "Points.h"
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
+//#include "PointCloudInteractor.h"
 #include <cover/coTabletUI.h>
 
 namespace vrui
@@ -52,6 +53,7 @@ class coLabelItem;
 using namespace opencover;
 using namespace vrui;
 
+/*
 class nodeInfo
 {
 public:
@@ -65,7 +67,7 @@ public:
     std::list<nodeInfo> nodes;
     int pointSetSize;
     PointSet *pointSet;
-};
+};*/
 
 /** Plugin
   @author 
@@ -112,6 +114,7 @@ private:
     coTUITab *PCTab;
     coTUIToggleButton *adaptLODTui;
     coTUIFloatSlider *pointSizeTui;
+    //static PointCloudInteractor *s_pointCloudInteractor;
 
 protected:
     osg::MatrixTransform *planetTrans;

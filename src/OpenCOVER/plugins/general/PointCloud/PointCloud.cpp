@@ -47,6 +47,8 @@ using covise::coCoviseConfig;
 const int MAX_POINTS = 30000000;
 
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
+//PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
+
 
 COVERPLUGIN(PointCloudPlugin)
 
@@ -168,6 +170,8 @@ bool PointCloudPlugin::init()
     pointSizeLabel->setPos(0, 1);
     pointSizeTui->setPos(1, 1);
 
+    //PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
+
     return true;
 }
 
@@ -197,7 +201,7 @@ PointCloudPlugin::~PointCloudPlugin()
     //clean up TUI
     delete PCTab;
     delete adaptLODTui;
-
+    //delete PointCloudPlugin::s_pointCloudInteractor;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {

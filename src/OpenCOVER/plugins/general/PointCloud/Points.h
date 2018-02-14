@@ -8,6 +8,7 @@
 #ifndef _POINTS_H_
 #define _POINTS_H_
 
+
 struct Point
 {
     float x;
@@ -33,6 +34,21 @@ struct PointSet
     float zmax;
     Point *points;
     Color *colors;
+};
+
+class nodeInfo
+{
+public:
+    osg::Node *node;
+};
+
+class fileInfo
+{
+public:
+    std::string filename;
+    std::list<nodeInfo> nodes;
+    int pointSetSize;
+    PointSet *pointSet;
 };
 
 #endif
