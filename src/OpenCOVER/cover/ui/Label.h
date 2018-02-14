@@ -8,7 +8,10 @@ namespace ui {
 
 //! a graphical Element showing a text label
 
-/** \note QLabel */
+/** \note QLabel
+    \note vrui::coLabelMenuItem
+    \note coTUILabel
+    */
 class COVER_UI_EXPORT Label: public Element {
 
  public:

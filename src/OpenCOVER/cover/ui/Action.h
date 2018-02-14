@@ -11,7 +11,10 @@ namespace ui {
 
 //! a graphical item showing a text label that can be pressed to trigger an action
 
-/** \note QPushButton */
+/** \note QPushButton
+    \note vrui::coButtonMenuItem
+    \note coTUIButton
+    */
 class COVER_UI_EXPORT Action: public Element {
  public:
     Action(const std::string &name, Owner *owner);
