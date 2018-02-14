@@ -79,12 +79,14 @@ protected:
     coVRLabel *label_;
 
     float _interSize; // size in mm in world coordinates
+    float _scale = 1.; // scale factor for retaining screen size of interactor
 
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
     // scale sphere to keep the size when the world scaling changes
     virtual void keepSize();
+    float getScale() const;
 
     osg::Vec3 restrictToVisibleScene(osg::Vec3);
 

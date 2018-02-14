@@ -64,6 +64,7 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     scaleTransform = new osg::MatrixTransform();
     sprintf(nodeName, "coVRIntersectionInteractor-scaleTransform-%s)", interactorName);
     m.makeScale(interScale, interScale, interScale);
+    _scale = interScale;
     scaleTransform->setMatrix(m);
 
     parent = cover->getObjectsScale();
@@ -483,7 +484,13 @@ void coVRIntersectionInteractor::keepSize()
         }
         interScale = _interSize / (cover->getScale() * iconSize_);
     }
+    _scale = interScale;
     scaleTransform->setMatrix(osg::Matrix::scale(interScale, interScale, interScale));
+}
+
+float coVRIntersectionInteractor::getScale() const
+{
+    return _scale;
 }
 
 void coVRIntersectionInteractor::preFrame()
