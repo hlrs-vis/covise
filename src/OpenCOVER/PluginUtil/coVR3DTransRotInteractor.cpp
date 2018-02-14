@@ -238,14 +238,11 @@ coVR3DTransRotInteractor::doInteraction()
 
     osg::Matrix currHandMat = getPointerMat();
     // forbid translation in y-direction if traverseInteractors is on
-    if (!is2D())
+    if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
     {
-        if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
-        {
-            osg::Vec3 trans = currHandMat.getTrans();
-            trans[1] = _oldHandMat.getTrans()[1];
-            currHandMat.setTrans(trans);
-        }
+        osg::Vec3 trans = currHandMat.getTrans();
+        trans[1] = _oldHandMat.getTrans()[1];
+        currHandMat.setTrans(trans);
     }
 
     osg::Matrix o_to_w = cover->getBaseMat();
@@ -281,8 +278,8 @@ coVR3DTransRotInteractor::doInteraction()
         double t = -1.;
         if (D >= 0)
         {
-            double t1 = 0.5*(-b+sqrt(D))/a;
-            double t2 = 0.5*(-b-sqrt(D))/a;
+            double t1 = 0.5*(-b-sqrt(D))/a;
+            double t2 = 0.5*(-b+sqrt(D))/a;
             if (t1 < 0)
             {
                 t = t2;
