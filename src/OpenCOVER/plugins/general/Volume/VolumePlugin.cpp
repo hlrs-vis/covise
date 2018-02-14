@@ -708,8 +708,9 @@ bool VolumePlugin::init()
     // Create clipping menu
     auto clipModeItem = new ui::Button(clipMenu, "OpaqueClipping");
     clipModeItem->setText("Opaque clipping");
-    clipModeItem->setState(false);
+    clipModeItem->setState(opaqueClipping);
     clipModeItem->setCallback([this](bool state){
+        opaqueClipping = state;
         applyToVolumes([this, state](Volume &vol){
             vol.drawable->setSingleSliceClipping(state);
             if (state)
@@ -724,6 +725,13 @@ bool VolumePlugin::init()
     clipOutlinesItem->setState(true);
     clipOutlinesItem->setCallback([this](bool state){
         showClipOutlines = state;
+    });
+
+    auto followCoverClippingItem = new ui::Button(clipMenu, "ClipCover");
+    followCoverClippingItem->setText("Track clip planes");
+    followCoverClippingItem->setState(followCoverClipping);
+    followCoverClippingItem->setCallback([this](bool state){
+        followCoverClipping = state;
     });
 
     if (enableSphereClipping)
@@ -2123,10 +2131,18 @@ void VolumePlugin::preFrame()
                     plane->offset = v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
-                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+                    if (followCoverClipping || opaqueClipping)
+                    {
+                        state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
+                    }
+                    else
+                    {
+                        state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), false);
+                    }
 
                     ++numClipPlanes;
                 }

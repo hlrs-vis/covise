@@ -155,6 +155,8 @@ private:
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
     bool showClipOutlines;
+    bool followCoverClipping = true;
+    bool opaqueClipping = false;
     float lastRoll;
     float roiCellSize;
     float roiMaxSize;
