@@ -45,8 +45,6 @@ public:
     int hit(vruiHit *hit);
     void miss();
 
-    virtual bool updateContentBool(bool); // for boolean state transfers
-
     /// get the Element's classname
     virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname

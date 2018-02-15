@@ -85,12 +85,6 @@ int coIconToggleButtonToolboxItem::hit(vruiHit *hit)
         // perform own action (if existent) as secondary
         if (listener)
             listener->menuEvent(this);
-
-        // feed state to twin
-        if (myTwin)
-        {
-            myTwin->updateContentBool(getState());
-        }
     }
 
     return ACTION_CALL_ON_MISS;
@@ -122,25 +116,6 @@ void coIconToggleButtonToolboxItem::doActionRelease()
     // perform own action (if existent) as secondary
     if (listener)
         listener->menuEvent(this);
-
-    // feed state to twin
-    if (myTwin)
-    {
-        myTwin->updateContentBool(getState());
-    }
-}
-
-bool coIconToggleButtonToolboxItem::updateContentBool(bool newState)
-{
-    if (newState != getState())
-    {
-        myButton->setState(newState);
-    }
-
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
 }
 
 const char *coIconToggleButtonToolboxItem::getClassName() const

@@ -293,12 +293,6 @@ void coSubMenuItem::closeSubmenu()
         subMenu->setVisible(open);
     }
 
-    // contact twin
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
-    }
-
     if (vruiRendererInterface::the()->getJoystickManager())
         vruiRendererInterface::the()->getJoystickManager()->closedMenu(subMenu, myMenu);
 }
@@ -326,12 +320,6 @@ void coSubMenuItem::openSubmenu()
         {
             myMenu->setVisible(false);
         }
-    }
-
-    // contact twin
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
     }
 
     if (vruiRendererInterface::the()->getJoystickManager())
@@ -391,43 +379,6 @@ void coSubMenuItem::positionSubmenu()
 
     vruiRendererInterface::the()->deleteMatrix(transMatrix);
     vruiRendererInterface::the()->deleteMatrix(menuPosition);
-}
-
-bool coSubMenuItem::updateContentBool(bool newState)
-{
-    // copy new status
-    open = newState;
-
-    // set icon state
-    subMenuIcon->setState(open);
-
-    // the submenu was opened by a twin,
-    // so open the menu and then command the twin
-    // to position it. If the twin fails,
-    // position it myself.
-    if (subMenu)
-    {
-        subMenu->setVisible(open);
-
-        if (open)
-        {
-            if (myTwin)
-            {
-                if (!myTwin->updateContentPointer((void *)subMenu))
-                {
-                    positionSubmenu();
-                }
-            }
-            else
-            {
-                // this one is strange. We received updateContent
-                // without having a registered twin!
-                positionSubmenu();
-            }
-        }
-    }
-
-    return true;
 }
 
 void coSubMenuItem::setAttachment(int newatt)

@@ -71,8 +71,6 @@ int coSliderMenuItem::hit(vruiHit *hit)
 
     background->setHighlighted(true);
     slider->hit(hit);
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
     return ACTION_CALL_ON_MISS;
 }
 
@@ -96,16 +94,12 @@ void coSliderMenuItem::selected(bool select)
         coRowMenuItem::selected(select);
         slider->setHighlighted(select);
         label->setHighlighted(select);
-        if (myTwin)
-            myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
     }
 }
 
 void coSliderMenuItem::doActionRelease()
 {
     slider->resetLastPressAction();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
     sliderReleasedEvent(slider);
 }
 
@@ -118,15 +112,11 @@ void coSliderMenuItem::doActionPress()
         slider->joystickDown();
     else
         slider->joystickUp();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 void coSliderMenuItem::doSecondActionRelease()
 {
     slider->resetLastPressAction();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
     sliderReleasedEvent(slider);
 }
 
@@ -139,8 +129,6 @@ void coSliderMenuItem::doSecondActionPress()
         slider->joystickUp();
     else
         slider->joystickDown();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 /// Destructor.
@@ -156,8 +144,6 @@ coSliderMenuItem::~coSliderMenuItem()
 void coSliderMenuItem::setValue(float val)
 {
     slider->setValue(val);
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 /** @return current slider value
@@ -173,8 +159,6 @@ float coSliderMenuItem::getValue() const
 void coSliderMenuItem::setMin(float val)
 {
     slider->setMin(val);
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 /** Get current slider minimum value.
@@ -191,8 +175,6 @@ float coSliderMenuItem::getMin() const
 void coSliderMenuItem::setMax(float val)
 {
     slider->setMax(val);
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 /** Get slider maximum value.
@@ -276,34 +258,6 @@ bool coSliderMenuItem::isOfClassName(const char *classname) const
     return false;
 }
 
-bool coSliderMenuItem::updateContentRange(float min, float max, float value,
-                                          bool isInteger, float)
-{
-    setMax(max);
-    setMin(min);
-    setValue(value);
-    setInteger(isInteger);
-    if (listener)
-        listener->menuEvent(this);
-    return true;
-}
-
-bool coSliderMenuItem::updateContentFloat(float value)
-{
-    setValue(value);
-    if (listener)
-        listener->menuEvent(this);
-    return true;
-}
-
-bool coSliderMenuItem::updateContentReleased()
-{
-    if (listener)
-        listener->menuReleaseEvent(this);
-
-    return true;
-}
-
 void coSliderMenuItem::sliderEvent(coSlider *s)
 {
     if (s == slider && listener)
@@ -314,9 +268,6 @@ void coSliderMenuItem::sliderReleasedEvent(coSlider *s)
 {
     if (s == slider && listener)
         listener->menuReleaseEvent(this);
-
-    if (myTwin != NULL)
-        myTwin->updateContentReleased();
 }
 
 //set if item is active

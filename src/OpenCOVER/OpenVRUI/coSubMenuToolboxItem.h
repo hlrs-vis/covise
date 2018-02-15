@@ -54,12 +54,6 @@ public:
 
     virtual void setAttachment(int attachment) = 0;
 
-    /// sets the icon states
-    virtual bool updateContentBool(bool);
-
-    /// moves the pointed submenu to new position and scale
-    virtual bool updateContentPointer(void *);
-
     /// functions activates or deactivates the item
     virtual void setActive(bool a);
 

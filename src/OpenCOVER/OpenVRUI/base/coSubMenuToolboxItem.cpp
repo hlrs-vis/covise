@@ -144,11 +144,6 @@ void coSubMenuToolboxItem::closeSubmenu()
     // set Icon to appropriate state
     subMenuIcon->setState(open);
 
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
-    }
-
     if (vruiRendererInterface::the()->getJoystickManager())
         vruiRendererInterface::the()->getJoystickManager()->closedMenu(subMenu, myMenu);
 }
@@ -165,10 +160,6 @@ void coSubMenuToolboxItem::openSubmenu()
     // set Icon to appropriate state
     subMenuIcon->setState(open);
 
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
-    }
     if (vruiRendererInterface::the()->getJoystickManager())
         vruiRendererInterface::the()->getJoystickManager()->openedSubMenu(this, subMenu);
 }
@@ -248,35 +239,6 @@ void coSubMenuToolboxItem::setActive(bool a)
         coToolboxMenuItem::setActive(a);
         subMenuIcon->setActive(a);
     }
-}
-
-bool coSubMenuToolboxItem::updateContentBool(bool newState)
-{
-    // set own state
-    open = newState;
-
-    // set Icon to appropriate state
-    subMenuIcon->setState(open);
-
-    // confirm operation
-    return true;
-}
-
-bool coSubMenuToolboxItem::updateContentPointer(void *subItem)
-{
-    subMenu = static_cast<coMenu *>(subItem);
-
-    if (subMenu)
-    {
-        // if we got a submenu pointer...position it
-        // maybe some safety checks about the type should go here
-        // some day?
-        positionSubmenu();
-    }
-
-    //subMenu = 0;
-
-    return true;
 }
 
 const char *coSubMenuToolboxItem::getClassName() const
