@@ -66,6 +66,8 @@
 #include <osg/Shader>
 #include <osg/Uniform>
 
+static double AlphaThreshold = 0.01;
+
 using namespace opencover;
 using namespace covise;
 void createXYPlane(int xmin, int xmax, int ymin, int ymax, int zmin, int xsize, int ysize,
@@ -263,7 +265,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                         {
                             float r, g, b, a;
                             unpackRGBA(pc, idx, &r, &g, &b, &a);
-                            if (a < 1.0f)
+                            if (a < 1.0f && a > 0.0f)
                             {
                                 transparent = true;
                             }
@@ -278,7 +280,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                         }
                         else if (rc && gc && bc)
                         {
-                            if (transparency > 0.f)
+                            if (transparency > 0.f && transparency < 1.f)
                                 transparent = true;
                             rgba[0] = rc[idx]*255.99f;
                             rgba[1] = gc[idx]*255.99f;
@@ -714,6 +716,10 @@ void GeometryManager::setDefaultMaterial(osg::StateSet *geoState, bool transpare
     }
     geoState->setNestRenderBins(false);
 
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+
     if (isLightingOn)
     {
         geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
@@ -851,7 +857,7 @@ GeometryManager::addPolygon(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, i, &r, &g, &b, &a);
-                        if (a < 1.0)
+                        if (a < 1.0 && a > 0.0)
                         {
                             transparent = true;
                         }
@@ -859,7 +865,7 @@ GeometryManager::addPolygon(const char *object_name,
                     }
                     else
                     {
-                        if (transparency > 0.f)
+                        if (transparency > 0.f && transparency < 1.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
                     }
@@ -908,7 +914,7 @@ GeometryManager::addPolygon(const char *object_name,
                 osg::Vec4Array *colArr = new osg::Vec4Array();
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
+                if (a < 1.0 && a > 0.0)
                 {
                     transparent = true;
                 }
@@ -919,7 +925,7 @@ GeometryManager::addPolygon(const char *object_name,
             else
             {
                 osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
+                if (transparency > 0.f && transparency < 1.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
                 geom->setColorArray(colArr);
@@ -937,7 +943,7 @@ GeometryManager::addPolygon(const char *object_name,
                 {
                     float r, g, b, a;
                     unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
+                    if (a < 1.0 && a > 1.0)
                     {
                         transparent = true;
                     }
@@ -954,7 +960,7 @@ GeometryManager::addPolygon(const char *object_name,
             {
                 for (int i = 0; i < no_of_polygons; i++)
                 {
-                    if (transparency > 0.f)
+                    if (transparency > 0.f && transparency < 1.f)
                         transparent = true;
 
                     int numv;
@@ -1231,9 +1237,9 @@ GeometryManager::addPolygon(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
@@ -1318,7 +1324,7 @@ GeometryManager::addTriangles(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
+                        if (a < 1.0 && a > 0.0)
                         {
                             transparent = true;
                         }
@@ -1326,7 +1332,7 @@ GeometryManager::addTriangles(const char *object_name,
                     }
                     else
                     {
-                        if (transparency > 0.f)
+                        if (transparency > 0.f && transparency < 1.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
                     }
@@ -1344,7 +1350,7 @@ GeometryManager::addTriangles(const char *object_name,
                 osg::Vec4Array *colArr = new osg::Vec4Array();
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
+                if (a < 1.0 && a > 0.0)
                 {
                     transparent = true;
                 }
@@ -1355,7 +1361,7 @@ GeometryManager::addTriangles(const char *object_name,
             else
             {
                 osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
+                if (transparency > 0.f && transparency < 1.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
                 geom->setColorArray(colArr);
@@ -1373,7 +1379,7 @@ GeometryManager::addTriangles(const char *object_name,
                 {
                     float r, g, b, a;
                     unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
+                    if (a < 1.0 && a > 0.0)
                     {
                         transparent = true;
                     }
@@ -1385,7 +1391,7 @@ GeometryManager::addTriangles(const char *object_name,
             {
                 for (int i = 0; i < no_of_triangles; i++)
                 {
-                    if (transparency > 0.f)
+                    if (transparency > 0.f && transparency < 1.f)
                         transparent = true;
 
                     for (int j = 0; j < 3; ++j)
@@ -1547,9 +1553,9 @@ GeometryManager::addTriangles(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
@@ -1634,7 +1640,7 @@ GeometryManager::addQuads(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
+                        if (a < 1.0 && a > 0.0)
                         {
                             transparent = true;
                         }
@@ -1642,7 +1648,7 @@ GeometryManager::addQuads(const char *object_name,
                     }
                     else
                     {
-                        if (transparency > 0.f)
+                        if (transparency > 0.f && transparency < 1.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
                     }
@@ -1662,7 +1668,7 @@ GeometryManager::addQuads(const char *object_name,
                 osg::Vec4Array *colArr = new osg::Vec4Array();
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
+                if (a < 1.0 && a > 0.0)
                 {
                     transparent = true;
                 }
@@ -1673,7 +1679,7 @@ GeometryManager::addQuads(const char *object_name,
             else
             {
                 osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
+                if (transparency > 0.f && transparency < 1.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
                 geom->setColorArray(colArr);
@@ -1693,7 +1699,7 @@ GeometryManager::addQuads(const char *object_name,
                 {
                     float r, g, b, a;
                     unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
+                    if (a < 1.0 && a > 0.0)
                     {
                         transparent = true;
                     }
@@ -1705,7 +1711,7 @@ GeometryManager::addQuads(const char *object_name,
             {
                 for (int i = 0; i < no_of_quads; i++)
                 {
-                    if (transparency > 0.f)
+                    if (transparency > 0.f && transparency < 1.f)
                         transparent = true;
 
                     for (int j = 0; j < 4; ++j)
@@ -1869,9 +1875,9 @@ GeometryManager::addQuads(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
@@ -2047,7 +2053,7 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
+                        if (a < 1.0 && a > 0.0)
                         {
                             transparent = true;
                         }
@@ -2055,7 +2061,7 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
                     }
                     else
                     {
-                        if (transparency > 0.f)
+                        if (transparency > 0.f && transparency < 1.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
                     }
@@ -2074,13 +2080,13 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
             {
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
+                if (a < 1.0 && a > 0.0)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r, g, b, a));
             }
             else
             {
-                if (transparency > 0.f)
+                if (transparency > 0.f && transparency < 1.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
             }
@@ -2105,13 +2111,13 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, i, &r, &g, &b, &a);
-                        if (a < 1.0)
+                        if (a < 1.0 && a > 0.0)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r, g, b, a));
                     }
                     else
                     {
-                        if (transparency > 0.f)
+                        if (transparency > 0.f && transparency < 1.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
                     }
@@ -2325,9 +2331,9 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
@@ -2599,7 +2605,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
                     {
                         float r, g, b, a;
                         unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.f)
+                        if (a < 1.f && a > 0.f)
                             transparent = true;
                         colArr->push_back(osg::Vec4(r, g, b, a));
                     }
@@ -2620,7 +2626,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
             {
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.f)
+                if (a < 1.f && a > 0.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r, g, b, a));
             }
@@ -2645,7 +2651,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
                 {
                     float r, g, b, a;
                     unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.f)
+                    if (a < 1.f && a > 0.f)
                         transparent = true;
                     for (int n = 0; n < numv; n++)
                         colArr->push_back(osg::Vec4(r, g, b, a));
@@ -2789,10 +2795,10 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     geoState->setAttributeAndModes(blendFunc,
                                    osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
 
     geoState->setAttributeAndModes(alphaFunc,
-                                   osg::StateAttribute::OFF);
+                                   osg::StateAttribute::ON);
 
     osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
     geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
@@ -2858,7 +2864,7 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
                 {
                     float r, g, b, a;
                     unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.f)
+                    if (a < 1.f && a > 0.f)
                         transparent = true;
                     colArr->push_back(osg::Vec4(r, g, b, a));
                 }
@@ -2878,7 +2884,7 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
             {
                 float r, g, b, a;
                 unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.f)
+                if (a < 1.f && a > 0.f)
                     transparent = true;
                 colArr->push_back(osg::Vec4(r, g, b, a));
             }
@@ -2926,9 +2932,9 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     osg::Point *point = new osg::Point();
     point->setSize(pointsize);
@@ -2979,9 +2985,9 @@ GeometryManager::addSphere(const char *object_name, int no_of_points,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     if (iRenderMethod == coSphere::RENDER_METHOD_TEXTURE)
     {
         osg::Texture2D *tex = coVRFileManager::instance()->loadTexture("share/covise/materials/textures/Sphere.tiff");
