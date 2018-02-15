@@ -37,6 +37,7 @@ namespace opencover
 {
 
 class ButtonDevice;
+class TrackingBody;
 
 struct MouseEvent
 {
@@ -51,8 +52,6 @@ private:
     coMousePointer();
     ~coMousePointer();
 
-    osg::Matrix matrix;
-
     float width, height;
     int xres, yres, xori, yori;
     float screenX, screenY, screenZ;
@@ -66,7 +65,8 @@ private:
     void queueEvent(int type, int state, int code);
     void processEvents();
 
-    ButtonDevice *buttons;
+    ButtonDevice *buttons = nullptr;
+    TrackingBody *body = nullptr;
     bool buttonPressed = false;
 
 public:
@@ -77,7 +77,9 @@ public:
     void handleEvent(int type, int state, int code, bool queue = true);
 
     void update();
+#if 0
     void setMatrix(const osg::Matrix &mat);
+#endif
     const osg::Matrix &getMatrix() const;
 
     //! current mouse screen x coordinate

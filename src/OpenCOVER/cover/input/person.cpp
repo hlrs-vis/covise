@@ -30,6 +30,12 @@ Person::Person(const std::string &name)
     m_eyeDistance = coVRConfig::instance()->stereoSeparation();
     m_eyeDistance = coCoviseConfig::getFloat("eyeDistance", conf, m_eyeDistance);
 
+    bool mouseNav = coCoviseConfig::isOn("COVER.Input.MouseNav", true);
+    std::string mouse("Mouse");
+    if (!mouseNav)
+        mouse.clear();
+
+    m_mouse = Input::instance()->getBody(coCoviseConfig::getEntry("mouse", conf, mouse));
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
     m_relative = Input::instance()->getBody(coCoviseConfig::getEntry("relative", conf, ""));
     m_activateOnAction = coCoviseConfig::isOn("activateOnAction", conf, m_activateOnAction);
@@ -58,6 +64,7 @@ Person::Person(const std::string &name)
             addHand(hand2);
     }
 
+    m_mousebuttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("mouseButtons", conf, mouse));
     m_buttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("buttons", conf, ""));
     m_relativebuttondev = Input::instance()->getButtons(coCoviseConfig::getEntry("relativeButtons", conf, ""));
 
@@ -81,6 +88,11 @@ std::string Person::name() const
 {
 
     return m_name;
+}
+
+bool Person::hasMouse() const
+{
+    return m_mouse != nullptr;
 }
 
 void Person::addHand(TrackingBody *hand)
@@ -143,6 +155,11 @@ bool Person::isRelativeValid() const
     return hasRelative() && m_relative->isValid();
 }
 
+TrackingBody *Person::getMouse() const
+{
+    return m_mouse;
+}
+
 TrackingBody *Person::getHead() const
 {
 
@@ -161,6 +178,14 @@ TrackingBody *Person::getHand(size_t num) const
 TrackingBody *Person::getRelative() const
 {
     return m_relative;
+}
+
+const osg::Matrix &Person::getMouseMat() const
+{
+    if (!hasMouse())
+        return s_identity;
+
+    return getMouse()->getMat();
 }
 
 const osg::Matrix &Person::getHeadMat() const
@@ -186,6 +211,14 @@ const osg::Matrix &Person::getRelativeMat() const
     if (!hasRelative())
         return s_identity;
     return m_relative->getMat();
+}
+
+unsigned int Person::getMouseButtonState(size_t num) const
+{
+    if (!m_mousebuttondev)
+        return 0;
+
+    return m_mousebuttondev->getButtonState();
 }
 
 unsigned int Person::getButtonState(size_t num) const

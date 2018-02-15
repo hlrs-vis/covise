@@ -495,7 +495,6 @@ private:
     osg::Multisample::Mode multisampleMode;
 
     int m_dLevel; // debugLevel
-    bool m_mouseNav;
     bool m_useWiiMote;
     bool m_useWiiNavVisenso;
 

@@ -106,7 +106,6 @@ coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
     , m_useVirtualGL(false)
     , m_orthographic(false)
-    , m_mouseNav(true)
     , m_useWiiMote(false)
     , m_useWiiNavVisenso(false)
     , m_flatDisplay(false)
@@ -120,8 +119,6 @@ coVRConfig::coVRConfig()
     
     int hsize, vsize, x, y, z;
     m_passiveStereo = false;
-
-    m_mouseNav = coCoviseConfig::isOn("COVER.Input.MouseNav", m_mouseNav);
 
     constFrameTime = 0.1;
     constantFrameRate = false;
@@ -731,7 +728,7 @@ coVRConfig::setDebugLevel(int level)
 
 bool coVRConfig::mouseNav() const
 {
-    return m_mouseNav;
+    return Input::instance()->hasMouse();
 }
 
 bool coVRConfig::has6DoFInput() const

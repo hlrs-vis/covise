@@ -33,6 +33,7 @@ class COVEREXPORT Person
 public:
     std::string name() const;
 
+    bool hasMouse() const;
     bool hasHead() const;
     bool isHeadValid() const;
     bool hasHand(size_t num) const;
@@ -41,14 +42,17 @@ public:
     bool hasRelative() const;
     bool isRelativeValid() const;
 
+    TrackingBody *getMouse() const;
     TrackingBody *getHead() const;
     TrackingBody *getHand(size_t num) const;
     TrackingBody *getRelative() const;
 
+    const osg::Matrix &getMouseMat() const;
     const osg::Matrix &getHeadMat() const;
     const osg::Matrix &getHandMat(size_t num) const;
     const osg::Matrix &getRelativeMat() const;
 
+    unsigned int getMouseButtonState(size_t num) const;
     unsigned int getButtonState(size_t num) const;
     unsigned int getRelativeButtonState(size_t num) const;
     double getValuatorValue(size_t idx) const;
@@ -65,9 +69,11 @@ private:
     void addValuator(Valuator *val);
 
     std::string m_name;
+    TrackingBody *m_mouse = nullptr;
     TrackingBody *m_head = nullptr;
     TrackingBody *m_relative = nullptr;
     std::vector<TrackingBody *> m_hands;
+    ButtonDevice *m_mousebuttondev = nullptr;
     ButtonDevice *m_buttondev = nullptr;
     ButtonDevice *m_relativebuttondev = nullptr;
     std::vector<Valuator *> m_valuators;

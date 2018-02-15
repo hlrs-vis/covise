@@ -1024,7 +1024,7 @@ VRSceneGraph::update()
         fprintf(stdout, "\a");
         fflush(stdout);
     }
-    else if (m_highQuality && (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()))
+    else if (m_highQuality && (cover->getPointerButton()->wasPressed() || (cover->getMouseButton() && cover->getMouseButton()->wasPressed())))
     {
         m_highQuality = false;
         vrui::coInteractionManager::the()->unregisterInteraction(m_interactionHQ);

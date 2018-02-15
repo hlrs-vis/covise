@@ -45,9 +45,9 @@ Input *Input::instance()
 }
 
 Input::Input()
-: activePerson(NULL)
+: m_debug(0)
 , m_mouse(NULL)
-, m_debug(0)
+, activePerson(NULL)
 {
     assert(!s_singleton);
 }
@@ -179,6 +179,13 @@ bool Input::isTrackingOn() const
         return false;
 
     return (hasHand() || hasHead()) && activePerson->isVarying();
+}
+
+bool Input::hasMouse() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->hasMouse();
 }
 
 bool Input::hasHead() const
@@ -579,6 +586,11 @@ Person *Input::getPerson(size_t num)
     return getPerson(name);
 }
 
+const osg::Matrix &Input::getMouseMat() const
+{
+    return activePerson->getMouseMat();
+}
+
 size_t Input::getActivePerson() const
 {
     const std::string name = activePerson->name();
@@ -601,7 +613,6 @@ bool Input::update()
     unsigned activePerson = getActivePerson();
     unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
     unsigned int len = 0;
-    osg::Matrix mouse = osg::Matrix::identity();
 
     bool changed = false;
 
@@ -651,8 +662,7 @@ bool Input::update()
                 }
             }
             tb << m_mouse->xres << m_mouse->yres << m_mouse->width << m_mouse->height;
-            mouse = m_mouse->getMatrix();
-            tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y() <<  mouse;
+            tb << m_mouse->wheel(0) << m_mouse->wheel(1) << m_mouse->x() << m_mouse->y();
         }
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
@@ -749,8 +759,7 @@ bool Input::update()
         }
 
         tb >> m_mouse->xres >> m_mouse->yres >> m_mouse->width >> m_mouse->height;
-        tb >> m_mouse->wheelCounter[0] >> m_mouse->wheelCounter[1] >> m_mouse->mouseX >> m_mouse->mouseY >> mouse;
-        m_mouse->setMatrix(mouse);
+        tb >> m_mouse->wheelCounter[0] >> m_mouse->wheelCounter[1] >> m_mouse->mouseX >> m_mouse->mouseY;
 
         for (ButtonDeviceMap::iterator ob = buttondevices.begin(); ob != buttondevices.end(); ++ob)
         {

@@ -217,6 +217,9 @@ osg::MatrixTransform *coVRPluginSupport::getObjectsScale() const
 
 coPointerButton *coVRPluginSupport::getMouseButton() const
 {
+    if (!Input::instance()->hasMouse())
+        return NULL;
+
     if (mouseButton == NULL)
     {
         mouseButton = new coPointerButton("mouse");
@@ -253,7 +256,7 @@ const osg::Matrix &coVRPluginSupport::getXformMat() const
 const osg::Matrix &coVRPluginSupport::getMouseMat() const
 {
     START("coVRPluginSupport::getMouseMat");
-    return Input::instance()->mouse()->getMatrix();
+    return Input::instance()->getMouseMat();
 }
 
 const osg::Matrix &coVRPluginSupport::getRelativeMat() const
@@ -494,23 +497,23 @@ void coVRPluginSupport::update()
         if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
             std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
 #endif
-    }
 
-    size_t currentPerson = Input::instance()->getActivePerson();
-    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
-            || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
-    {
-        ++currentPerson;
-        currentPerson %= Input::instance()->getNumPersons();
-        Input::instance()->setActivePerson(currentPerson);
-    }
-    if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
-            || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
-    {
-        if (currentPerson == 0)
-            currentPerson = Input::instance()->getNumPersons();
-        --currentPerson;
-        Input::instance()->setActivePerson(currentPerson);
+        size_t currentPerson = Input::instance()->getActivePerson();
+        if ((getMouseButton()->wasPressed(vruiButtons::PERSON_NEXT))
+                || (getPointerButton()->wasPressed(vruiButtons::PERSON_NEXT)))
+        {
+            ++currentPerson;
+            currentPerson %= Input::instance()->getNumPersons();
+            Input::instance()->setActivePerson(currentPerson);
+        }
+        if ((getMouseButton()->wasPressed(vruiButtons::PERSON_PREV))
+                || (getPointerButton()->wasPressed(vruiButtons::PERSON_PREV)))
+        {
+            if (currentPerson == 0)
+                currentPerson = Input::instance()->getNumPersons();
+            --currentPerson;
+            Input::instance()->setActivePerson(currentPerson);
+        }
     }
 
 #ifdef DOTIMING

@@ -66,7 +66,7 @@ TrackingBody::TrackingBody(const std::string &name)
     if (!m_assemble)
     {
         m_idx = coCoviseConfig::getInt("bodyIndex", conf, 0);
-        if (m_idx >= device()->numBodies())
+        if (device() && m_idx >= device()->numBodies())
         {
             std::cerr << "TrackingBody: body index " << m_idx << " out of range - " << device()->numBodies() << " bodies" << std::endl;
         }
@@ -164,7 +164,7 @@ void TrackingBody::update()
         }
         m_mat.setTrans(value[0], value[1], value[2]);
     }
-    else
+    else if (device())
     {
         m_varying = device()->isVarying();
 

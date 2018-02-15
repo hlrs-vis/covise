@@ -62,6 +62,7 @@ public:
 
     bool isTrackingOn() const;
 
+    bool hasMouse() const; //< whether active person has a mouse
     bool hasHead() const; //< whether active person's head is tracked
     bool isHeadValid() const; //< whether active person's head matrix is valid
     bool hasHand(int num = 0) const; //< whether active person's hand is tracked
@@ -84,6 +85,7 @@ public:
     } //< number of tracked objects (not part of persons)
 
     //Interface for the users of input devices
+    const osg::Matrix &getMouseMat() const; //< mouse matrix of active persion
     const osg::Matrix &getHeadMat() const; //< head matrix of active persion
     const osg::Matrix &getRelativeMat() const; //< relative matrix of active persion
     const osg::Matrix &getHandMat(int num = 0) const; //< hand matrix of active person
