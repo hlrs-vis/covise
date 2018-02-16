@@ -318,7 +318,8 @@ void coSubMenuItem::openSubmenu()
 
         if (attachment == coUIElement::REPLACE)
         {
-            myMenu->setVisible(false);
+            if (myMenu)
+                myMenu->setVisible(false);
         }
     }
 
@@ -339,7 +340,10 @@ void coSubMenuItem::positionSubmenu()
 
     vruiTransformNode *node = background->getDCS();
     if (attachment == coUIElement::REPLACE)
-        node = myMenu->getDCS();
+    {
+        if (myMenu)
+            node = myMenu->getDCS();
+    }
 
     node->convertToWorld(transMatrix);
 
@@ -364,7 +368,9 @@ void coSubMenuItem::positionSubmenu()
         break;
     case coUIElement::REPLACE:
         sm_x = 0;
-        sm_y = myMenu->getUIElement()->getHeight();
+        sm_y = 0;
+        if (myMenu)
+            sm_y = myMenu->getUIElement()->getHeight();
         break;
     }
     // generally set new menus to front
@@ -375,7 +381,10 @@ void coSubMenuItem::positionSubmenu()
     menuPosition->preTranslated(sm_x, sm_y, sm_z, transMatrix);
 
     // set menu position and scale
-    subMenu->setTransformMatrix(menuPosition, myMenu->getScale());
+    if (myMenu)
+        subMenu->setTransformMatrix(menuPosition, myMenu->getScale());
+    else
+        subMenu->setTransformMatrix(menuPosition);
 
     vruiRendererInterface::the()->deleteMatrix(transMatrix);
     vruiRendererInterface::the()->deleteMatrix(menuPosition);
