@@ -54,4 +54,9 @@ bool coGenericSubMenuItem::isOpen() const
     return open;
 }
 
+coMenu *coGenericSubMenuItem::getMenu()
+{
+    return subMenu;
+}
+
 }

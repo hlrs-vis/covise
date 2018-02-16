@@ -135,6 +135,11 @@ void coSubMenuToolboxItem::doActionRelease()
         listener->menuEvent(this);
 }
 
+void coSubMenuToolboxItem::setMenu(coMenu *menu)
+{
+    subMenu = menu;
+}
+
 /// Close the submenu.
 void coSubMenuToolboxItem::closeSubmenu()
 {

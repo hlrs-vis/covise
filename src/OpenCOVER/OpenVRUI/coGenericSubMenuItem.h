@@ -29,17 +29,14 @@ public:
     coGenericSubMenuItem(coMenuItem *container);
     virtual ~coGenericSubMenuItem();
 
-    void setMenu(coMenu *menu);
+    virtual void setMenu(coMenu *menu);
 
     virtual void closeSubmenu() = 0;
     virtual void openSubmenu() = 0;
     virtual void positionSubmenu() = 0;
     bool isOpen() const;
 
-    coMenu *getMenu()
-    {
-        return subMenu;
-    } ///< get my subMenu
+    coMenu *getMenu(); ///< get my subMenu
 private:
     coGenericSubMenuItem();
 };
