@@ -92,7 +92,7 @@
      <DataDir value="/data/itt" />
     </Molecules>
 
-    <AKToolbar menu="true" >
+    <AKToolbar value="false" >
      <Scale value="2" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="xform" name="xform" />
