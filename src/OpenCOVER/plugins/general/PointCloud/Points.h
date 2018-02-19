@@ -36,19 +36,4 @@ struct PointSet
     Color *colors;
 };
 
-class nodeInfo
-{
-public:
-    osg::Node *node;
-};
-
-class fileInfo
-{
-public:
-    std::string filename;
-    std::list<nodeInfo> nodes;
-    int pointSetSize;
-    PointSet *pointSet;
-};
-
 #endif

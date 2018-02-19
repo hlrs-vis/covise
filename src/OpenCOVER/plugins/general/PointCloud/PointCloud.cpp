@@ -23,6 +23,9 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
+
 // OSG:
 #include <osg/Node>
 #include <osg/Group>
@@ -47,13 +50,14 @@ using covise::coCoviseConfig;
 const int MAX_POINTS = 30000000;
 
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
-//PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
+PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
 
 
 COVERPLUGIN(PointCloudPlugin)
 
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
+: ui::Owner("PointCloud",cover->ui)
 {
 }
 
@@ -105,6 +109,37 @@ bool PointCloudPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[3]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[5]);
+
+    //Create main menu button
+    pointCloudMenu = new ui::Menu("PointCloudMenu",this);
+    pointCloudMenu->setText("Point Model Plugin");
+
+    // Create menu
+    char name[100];
+    sprintf(name, "PointModelOptions");
+    fileGroup = new ui::Group(pointCloudMenu, name);
+    sprintf(name, "Point Model Options");
+    fileGroup->setText(name);
+
+    loadMenu = new ui::Menu("Load",fileGroup);
+    deleteButton = new ui::Button(fileGroup,"Delete");
+
+    selectionGroup = new ui::Group(pointCloudMenu,"Selection");
+    
+    singleSelectButton = new ui::Button(selectionGroup, "SelectPoints");
+    singleSelectButton->setText("Select Points");
+    singleSelectButton->setCallback([this](bool state){
+    if (state)
+        {
+            //enable interaction
+            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+        }
+        else
+        {
+            vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+        } 
+    });
+/*
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");
     imanPluginInstanceMenuItem->setMenuListener(this);
@@ -127,7 +162,7 @@ bool PointCloudPlugin::init()
     deleteMenuItem = new coButtonMenuItem("Delete");
     imanPluginInstanceMenu->add(deleteMenuItem);
     deleteMenuItem->setMenuListener(this);
-
+*/
     //imanPluginInstanceDrawable = NULL;
     //imanPluginInstanceNode = NULL;
     planetTrans = new MatrixTransform();
@@ -149,7 +184,7 @@ bool PointCloudPlugin::init()
     pointSet = NULL;
 
     //read in menu data
-    readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
+    //readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
 
     PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
     PCTab->setPos(0, 0);
@@ -170,7 +205,7 @@ bool PointCloudPlugin::init()
     pointSizeLabel->setPos(0, 1);
     pointSizeTui->setPos(1, 1);
 
-    //PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
+    PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
 
     return true;
 }
@@ -194,20 +229,22 @@ PointCloudPlugin::~PointCloudPlugin()
         cover->getObjectsRoot()->removeChild(planetTrans);
     planetTrans = NULL;
 
-    delete imanPluginInstanceMenuItem;
+/*    delete imanPluginInstanceMenuItem;
     delete imanPluginInstanceMenu;
     delete loadMenuItem;
     delete loadMenu;
+*/
     //clean up TUI
     delete PCTab;
     delete adaptLODTui;
-    //delete PointCloudPlugin::s_pointCloudInteractor;
+    
+    delete PointCloudPlugin::s_pointCloudInteractor;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
         delete itEntry->fileMenuItem;
     }
-    delete deleteMenuItem;
+    //delete deleteMenuItem;
 }
 
 void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
@@ -246,6 +283,7 @@ int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, cons
     return 1;
 }
 
+/*
 void PointCloudPlugin::menuEvent(coMenuItem *menuItem)
 {
     if (menuItem == deleteMenuItem)
@@ -258,6 +296,7 @@ void PointCloudPlugin::menuEvent(coMenuItem *menuItem)
         selectedMenuButton(menuItem);
     }
 }
+*/
 
 // read in and store the menu data from the configuration file
 void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, coRowMenu &subMenu)
@@ -837,6 +876,35 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                 }
                 delete[] pc;
 
+                if (pointSet[i].size >0)
+                {
+                    pointSet[i].xmax = pointSet[i].xmin = pointSet[i].points[0].x;
+                    pointSet[i].ymax = pointSet[i].ymin = pointSet[i].points[0].y;
+                    pointSet[i].zmax = pointSet[i].zmin = pointSet[i].points[0].z;
+
+                    if (pointSet[i].size >1)
+                    {
+                        for (int k=1; k<pointSet[i].size; k++)
+                        {
+
+                            if(pointSet[i].points[k].x<pointSet[i].xmin)
+                                pointSet[i].xmin= pointSet[i].points[k].x;
+                            else if (pointSet[i].points[k].x>pointSet[i].xmax)
+                                pointSet[i].xmax= pointSet[i].points[k].x;
+
+                            if(pointSet[i].points[k].y<pointSet[i].ymin)
+                                pointSet[i].ymin= pointSet[i].points[k].y;
+                            else if (pointSet[i].points[k].y>pointSet[i].ymax)
+                                pointSet[i].ymax= pointSet[i].points[k].y;
+
+                            if(pointSet[i].points[k].z<pointSet[i].zmin)
+                               pointSet[i].zmin= pointSet[i].points[k].z;
+                            else if (pointSet[i].points[k].z> pointSet[i].zmax)
+                                pointSet[i].zmax= pointSet[i].points[k].z;
+                        }
+                    }
+                }
+
                 //create drawable and geode and add to the scene (make sure the cube is not empty)
 
                 if (pointSet[i].size != 0)
@@ -855,6 +923,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
             files.push_back(fi);
             cerr << "closing the file" << endl;
             file.close();
+            s_pointCloudInteractor->updatePoints(&files);
             return;
         }
         cout << "Error opening file" << endl;
