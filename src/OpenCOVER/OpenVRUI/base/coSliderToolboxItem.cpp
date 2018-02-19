@@ -94,11 +94,6 @@ int coSliderToolboxItem::hit(vruiHit *hit)
     if (preReturn != ACTION_UNDEF)
         return preReturn;
 
-    float oldMin = getMin();
-    float oldMax = getMax();
-    float oldVal = getValue();
-    bool oldInteger = isInteger();
-
     slider->hit(hit);
 
     return ACTION_CALL_ON_MISS;
@@ -317,6 +312,8 @@ void coSliderToolboxItem::setActive(bool a)
 void coSliderToolboxItem::setLabel(const std::string &name)
 {
     std::string labelstr = "[" + name + "]";
+    if (name.empty())
+        labelstr.clear();
     label->setString(labelstr);
 }
 }
