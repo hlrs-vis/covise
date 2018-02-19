@@ -22,6 +22,9 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <osg/Geode>
+#include <cover/coVRCommunication.h>
+#include <net/message.h>
+
 
 class NurbsSurface : public opencover::coVRPlugin
 {
@@ -29,6 +32,7 @@ public:
     NurbsSurface();
     ~NurbsSurface();
     virtual bool destroy();
+    void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
 
 private:
     osg::ref_ptr<osg::Geode> geode;
