@@ -7,17 +7,26 @@ Position::~Position()
 {}
 
 
-osg::Vec3 Position::getAbsolutePosition(osg::Vec3 referencePosition){
+osg::Vec3 Position::getAbsolutePosition(osg::Vec3 referencePosition, Entity* currentEntity, ::Road* road)
+{
     if(Lane.exists())
     {
-        // entityGeometry = AgentVehicle(name, entityGeometry->CarGeometry,0,r,inits,laneId,speed,1);
+
+        roadId = Lane->roadId.getValue();
+        laneId = Lane->laneId.getValue();
+        offset = Lane->offset.getValue();
+        s = Lane->s.getValue();
+
+        AgentVehicle* entityGeometry = new AgentVehicle(currentEntity->name, currentEntity->entityGeometry->getCarGeometry(),0,road,s,laneId,currentEntity->speed,1);
+
         // Road r; s inits;
-        // auto vtrans = entityGeometry->getVehicleTransform();
-        // osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-        // absPosition = pos;
+        auto vtrans = entityGeometry->getVehicleTransform();
+        osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+        absPosition = pos;
 
         // return absPosition;
-        osg::Vec3 absPosition (0.0,0.0,0.0);
+        //osg::Vec3 absPosition (0.0,0.0,0.0);
+
         return absPosition;
 
     }
@@ -35,6 +44,7 @@ osg::Vec3 Position::getAbsolutePosition(osg::Vec3 referencePosition){
 
         osg::Vec3 relPosition (dx,dy,dz);
         osg::Vec3 absPosition = relPosition+referencePosition;
+
         return absPosition;
 
     }
@@ -52,6 +62,7 @@ osg::Vec3 Position::getAbsolutePosition(osg::Vec3 referencePosition){
 
         osg::Vec3 relPosition (dx,dy,dz);
         osg::Vec3 absPosition = relPosition+referencePosition;
+
         return absPosition;
 
 

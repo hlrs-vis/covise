@@ -22,6 +22,9 @@
 
 #include "NurbsSurface.h"
 #include <cover/coVRPluginSupport.h>
+#include <PluginUtil/PluginMessageTypes.h>
+#include <cover/coVRCommunication.h>
+
 #include <osg/Geometry>
 #include <osg/Material>
 #include <osg/Vec3>
@@ -40,6 +43,18 @@ static const int DEFAULT_REF = 30000000;
 static const int DEFAULT_MAX_REF = 100;
 
 using namespace opencover;
+
+void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
+{
+    if (type == PluginMessageTypes::NurbsSurfacePointMsg)
+    {
+        osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
+        fprintf(stderr, "Point received %f %f %f", selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
+    }
+}
+
+
+
 NurbsSurface::NurbsSurface()
 {
 

@@ -133,4 +133,7 @@ void Entity::setRefPos()
         referencePosition = entityPosition;
         refPosIsSet = true;
     }
+    else {
+        referencePosition = targetPosition;
+    }
 }

@@ -8,6 +8,7 @@
 #ifndef _POINTS_H_
 #define _POINTS_H_
 
+
 struct Point
 {
     float x;

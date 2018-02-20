@@ -1,6 +1,7 @@
 #set(VISIONARAY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../3rdparty/visionaray/include")
 #include_directories(${VISIONARAY_INCLUDE_DIR})
 
+USING(GLEW)
 USING(VISIONARAY)
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 

@@ -135,13 +135,15 @@ void OpenScenarioPlugin::preFrame()
                                     if((*activeEntity)->totalDistance == 0)
                                     {
                                         (*activeEntity)->setRefPos();
-                                        Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[0]->Position.getObject()));
-                                        osg::Vec3 nextTargetPos0 = (*currentPos).getAbsolutePosition((*activeEntity)->referencePosition);
+                                        Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
+
+                                        Road *road = system->getRoad(0);
+                                        osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity)->referencePosition,(*activeEntity),road);
 
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
-                                        osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));
+                                        //osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));
 
-                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos1);
+                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
 
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
