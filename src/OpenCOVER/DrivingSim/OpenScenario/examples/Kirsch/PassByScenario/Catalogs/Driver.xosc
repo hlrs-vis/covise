@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OpenSCENARIO_DriverCatalog>
+  <FileHeader revMajor="0" revMinor="0" date="1900-01-01T01:01:01+01:00" description="description1" author="author1" />
+  <Driver name="name1">
+    <Behavior>
+      <Parameter name="name1" value="value1" type="type1" scope="scope1" />
+      <Parameter name="name2" value="value2" type="type2" scope="scope2" />
+      <Parameter name="name3" value="value3" type="type3" scope="scope3" />
+    </Behavior>
+    <Description weight="1" height="1" eyeDistance="1" age="1" sex="male">
+      <Parameter name="name1" value="value1" type="type1" scope="scope1" />
+      <Parameter name="name2" value="value2" type="type2" scope="scope2" />
+      <Parameter name="name3" value="value3" type="type3" scope="scope3" />
+    </Description>
+  </Driver>
+  <Driver name="name2">
+    <Behavior>
+      <Parameter name="name4" value="value4" type="type4" scope="scope4" />
+      <Parameter name="name5" value="value5" type="type5" scope="scope5" />
+      <Parameter name="name6" value="value6" type="type6" scope="scope6" />
+    </Behavior>
+    <Description weight="1" height="1" eyeDistance="1" age="1" sex="female">
+      <Parameter name="name4" value="value4" type="type4" scope="scope4" />
+      <Parameter name="name5" value="value5" type="type5" scope="scope5" />
+      <Parameter name="name6" value="value6" type="type6" scope="scope6" />
+    </Description>
+  </Driver>
+  <Driver name="name3">
+    <Behavior>
+      <Parameter name="name7" value="value7" type="type7" scope="scope7" />
+      <Parameter name="name8" value="value8" type="type8" scope="scope8" />
+      <Parameter name="name9" value="value9" type="type9" scope="scope9" />
+    </Behavior>
+    <Description weight="1" height="1" eyeDistance="1" age="1" sex="male">
+      <Parameter name="name7" value="value7" type="type7" scope="scope7" />
+      <Parameter name="name8" value="value8" type="type8" scope="scope8" />
+      <Parameter name="name9" value="value9" type="type9" scope="scope9" />
+    </Description>
+  </Driver>
+</OpenSCENARIO_DriverCatalog>
