@@ -138,7 +138,7 @@ void OpenScenarioPlugin::preFrame()
                                         Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
                                         Road *road = system->getRoad(0);
-                                        osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity)->referencePosition,(*activeEntity),road);
+                                        osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
 
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
                                         //osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));

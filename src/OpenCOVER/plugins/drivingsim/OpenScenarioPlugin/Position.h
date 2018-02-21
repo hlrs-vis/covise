@@ -38,9 +38,13 @@ public:
     double y;
     double z;
     osg::Vec3 absPosition;
+    osg::Vec3 referencePosition;
 
-    osg::Vec3 getAbsolutePosition(osg::Vec3 referencePosition, Entity* currentEntity, ::Road* road);
-    double getDx();
+    osg::Vec3 getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
+    osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, int landeId);
+    osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, double t);
+
+    osg::Vec3 getRelObjectPos(std::string relObject, Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
 
 
 

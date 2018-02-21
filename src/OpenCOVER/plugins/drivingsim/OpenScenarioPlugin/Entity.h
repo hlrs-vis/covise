@@ -50,6 +50,8 @@ public:
     void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
     void getTrajSpeed(float deltat);
     void setRefPos();
+    void setRefPos(osg::Vec3 newReferencePosition);
+
 
 };
 

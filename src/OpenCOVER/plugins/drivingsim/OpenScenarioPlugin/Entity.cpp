@@ -133,7 +133,9 @@ void Entity::setRefPos()
         referencePosition = entityPosition;
         refPosIsSet = true;
     }
-    else {
-        referencePosition = targetPosition;
-    }
+}
+
+void Entity::setRefPos(osg::Vec3 newReferencePosition)
+{
+    referencePosition = newReferencePosition;
 }
