@@ -10,7 +10,6 @@
 
 #include <config/CoviseConfig.h>
 #include "coVRAnimationManager.h"
-#include <OpenVRUI/coTrackerButtonInteraction.h>
 #include "ui/Menu.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -55,7 +54,6 @@ coVRAnimationManager::coVRAnimationManager()
 
     initAnimMenu();
     showAnimMenu(false);
-    animWheelInteraction = new vrui::coTrackerButtonInteraction(vrui::coInteraction::Wheel, "Animation", vrui::coInteraction::Low);
 }
 
 coVRAnimationManager::~coVRAnimationManager()
@@ -96,6 +94,7 @@ void coVRAnimationManager::initAnimMenu()
 
     animToggleItem = new ui::Button(animRowMenu, "Animate");
     animToggleItem->setShortcut("a");
+    animToggleItem->addShortcut(" ");
     animToggleItem->setCallback([this](bool flag){
         if (animRunning != flag)
             enableAnimation(flag);
@@ -122,7 +121,8 @@ void coVRAnimationManager::initAnimMenu()
     animBackItem = new ui::Action(animStepGroup, "StepBackward");
     animBackItem->setText("Step backward");
     animBackItem->setShortcut(",");
-    animBackItem->addShortcut("Alt+Button:WheelDown");
+    animBackItem->addShortcut("Shift+Button:WheelDown");
+    animBackItem->addShortcut("Button:WheelLeft");
     animBackItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -134,7 +134,8 @@ void coVRAnimationManager::initAnimMenu()
     animForwardItem = new ui::Action(animStepGroup, "StepForward");
     animForwardItem->setText("Step forward");
     animForwardItem->setShortcut(".");
-    animForwardItem->addShortcut("Alt+Button:WheelUp");
+    animForwardItem->addShortcut("Shift+Button:WheelUp");
+    animForwardItem->addShortcut("Button:WheelRight");
     animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -392,20 +393,8 @@ coVRAnimationManager::enableAnimation(bool state)
 bool
 coVRAnimationManager::update()
 {
-
-    if (animWheelInteraction->wasStarted() || animWheelInteraction->isRunning())
-    {
-        if (animationRunning())
-            enableAnimation(false);
-
-        requestAnimationFrame(getAnimationFrame() + animWheelInteraction->getWheelCount());
-        return true;
-    }
-    else
-    {
-        // Set selected animation frame:
-        return updateAnimationFrame();
-    }
+    // Set selected animation frame:
+    return updateAnimationFrame();
 
 #if 0
    // rotate world menu button is checked
@@ -453,21 +442,6 @@ void coVRAnimationManager::setNumTimesteps(int t)
     animStartItem->setValue(startFrame);
     stopFrame = numFrames - 1;
     animStopItem->setValue(startFrame);
-
-    if (numFrames > 1)
-    {
-        if (!animWheelInteraction->isRegistered())
-        {
-            vrui::coInteractionManager::the()->registerInteraction(animWheelInteraction);
-        }
-    }
-    else
-    {
-        if (animWheelInteraction->isRegistered())
-        {
-            vrui::coInteractionManager::the()->unregisterInteraction(animWheelInteraction);
-        }
-    }
 }
 
 void coVRAnimationManager::showAnimMenu(bool visible)

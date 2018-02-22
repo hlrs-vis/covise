@@ -100,10 +100,25 @@
    <NavigationMode value="XForm" />
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
+   <FramebufferSRGB value="false" />
    <StencilBits value="8" />
    <Stencil value="true" />
 
    <VRUI>
+       <!-- position of transfer editor menu /-->
+       <!--TFE>
+           <Menu>
+               <Size value="0.15" />
+               <Position x="-200" y="0" z="80" />
+           </Menu>
+       </TFE-->
+       <!--position of error message window (PDBplugin) /-->
+      <!--Messages>
+         <Menu>
+         <Size value="0.15" />
+         <Position x="100" y="0" z="120" />
+         </Menu>
+      </Messages-->
      <VNC>
        <Menu>
          <Orientation h="-90" p="0" r="0" />
@@ -261,19 +276,7 @@
    </ViewportConfig>
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
-
-
-  <!-- position of transfer editor menu>
-
-      <TFE>
-         <MenuPosition value="-200 0 80" >
-         <MenuSize value="0.15" >
-      </TFE--><!--position of error message window (PDBplugin)>
-
-      <Messages>
-         <MenuPosition value="100 0 120" />
-         <MenuSize value="0.15" />
-      </Messages--> </GLOBAL>
+ </GLOBAL>
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>

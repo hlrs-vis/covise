@@ -66,6 +66,8 @@ public:
     bool isHeadValid() const; //< whether active person's head matrix is valid
     bool hasHand(int num = 0) const; //< whether active person's hand is tracked
     bool isHandValid(int num = 0) const; //< whether active person's hand matrix is valid
+    bool hasRelative() const; //< whether active person has a relative input matrix
+    bool isRelativeValid() const; //< whether active person's relative matrix is valid
 
     //Persons control
     size_t getNumPersons() const; //< number of configured persons
@@ -83,8 +85,10 @@ public:
 
     //Interface for the users of input devices
     const osg::Matrix &getHeadMat() const; //< head matrix of active persion
+    const osg::Matrix &getRelativeMat() const; //< relative matrix of active persion
     const osg::Matrix &getHandMat(int num = 0) const; //< hand matrix of active person
     unsigned int getButtonState(int num = 0) const; //< button states of active person's device
+    unsigned int getRelativeButtonState(int num = 0) const; //< button states of active person's device
     double getValuatorValue(size_t idx) const; //< valuator values corresponding to current person
     float eyeDistance() const; //< eye distance (in mm) of active person
 

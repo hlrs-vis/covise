@@ -33,12 +33,8 @@ PPathlineStatNoControl::fillInterpolation(std::vector<int> &)
 
 void
 PPathlineStatNoControl::pathUpToTime(
-#ifndef YAC
     const char *line_name_time_traj,
     const char *mag_name_time_traj,
-#else
-    coOutputPort *port,
-#endif
     int tick,
     std::vector<int> &interpolation,
     coDistributedObject **line,
@@ -69,14 +65,9 @@ PPathlineStatNoControl::pathUpToTime(
     {
         corner_list.push_back(i);
     }
-#ifndef YAC
     *line = new coDoLines(line_name_time_traj, (int)x_l.size(), &x_l[0], &y_l[0], &z_l[0], (int)x_l.size(), &corner_list[0], 1, &zero);
 
     *magn = new coDoFloat(mag_name_time_traj, (int)m_l.size(), &m_l[0]);
-#else
-    *line = new coDoLines(port->getNewObjectInfo(), (int)x_l.size(), &x_l[0], &y_l[0], &z_l[0], x_l.size(), &corner_list[0], 1, &zero);
-    *magn = new coDoFloat(port->getNewObjectInfo(), (int)m_l.size(), &m_l[0]);
-#endif
 }
 
 void PPathlineStatNoControl::fillPointAtTime(std::vector<float> &points_x,

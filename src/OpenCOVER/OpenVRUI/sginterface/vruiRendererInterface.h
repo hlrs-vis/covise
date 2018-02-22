@@ -86,6 +86,7 @@ public:
 
     virtual vruiButtons *getButtons() const;
     virtual vruiButtons *getMouseButtons() const;
+    virtual vruiButtons *getRelativeButtons() const;
 
     virtual double getFrameTime() const = 0; //{ return currentFrameTime; }
     //inline void setFrameTime(double t) { currentFrameTime = t; } // set frame start time by Renderer
@@ -127,6 +128,7 @@ public:
     virtual vruiMatrix *getViewerMatrix() const = 0;
     virtual vruiMatrix *getHandMatrix() const = 0;
     virtual vruiMatrix *getMouseMatrix() const = 0;
+    virtual vruiMatrix *getRelativeMatrix() const = 0;
 
     virtual bool is2DInputDevice() const = 0;
     virtual bool isMultiTouchDevice() const
@@ -173,8 +175,9 @@ public:
       virtual vruiMatrix *doBillboarding(vruiMatrix *invStartHandTrans, coVector pickPosition, coVector localPickPosition, float myScale) = 0;*/
 
 protected:
-    vruiButtons *buttons;
-    vruiButtons *mouseButtons;
+    vruiButtons *buttons = nullptr;
+    vruiButtons *mouseButtons = nullptr;
+    vruiButtons *relativeButtons = nullptr;
 
     std::map<std::string, vruiNode *> iconsList;
 
@@ -186,7 +189,7 @@ protected:
 
     static vruiRendererInterface *theInterface;
 
-    bool ray;
+    bool ray = false;
 };
 }
 #endif

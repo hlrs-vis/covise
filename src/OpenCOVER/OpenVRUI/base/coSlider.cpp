@@ -91,7 +91,8 @@ coSlider::coSlider(coSliderActor *actor, bool showValue)
     vruiRendererInterface::the()->getUpdateManager()->add(this);
 
     interactionA = new coCombinedButtonInteraction(coInteraction::ButtonA, "Slider", coInteraction::Menu);
-    interactionWheel = new coCombinedButtonInteraction(coInteraction::Wheel, "Slider", coInteraction::Menu);
+    interactionWheel[0] = new coCombinedButtonInteraction(coInteraction::WheelVertical, "Slider", coInteraction::Menu);
+    interactionWheel[1] = new coCombinedButtonInteraction(coInteraction::WheelHorizontal, "Slider", coInteraction::Menu);
 
     lastPressAction = 0;
 }
@@ -107,7 +108,8 @@ coSlider::~coSlider()
     }
 
     delete interactionA;
-    delete interactionWheel;
+    delete interactionWheel[0];
+    delete interactionWheel[1];
 }
 
 /////////////////// Better values for the slider
@@ -353,37 +355,40 @@ void coSlider::setActive(bool a)
 bool coSlider::update()
 {
 
-    if (interactionWheel->isRunning() || interactionWheel->wasStarted())
+    for (int i=0; i<2; ++i)
     {
-        float oldValue = value;
-
-        if (maxVal - minVal > 0.0)
+        if (interactionWheel[i]->isRunning() || interactionWheel[i]->wasStarted())
         {
-            if (integer && maxVal - minVal < 30.0)
+            float oldValue = value;
+
+            if (maxVal - minVal > 0.0)
             {
-                value += interactionWheel->getWheelCount();
-                if (value < minVal)
-                    value = minVal;
-                if (value > maxVal)
-                    value = maxVal;
+                if (integer && maxVal - minVal < 30.0)
+                {
+                    value += interactionWheel[i]->getWheelCount();
+                    if (value < minVal)
+                        value = minVal;
+                    if (value > maxVal)
+                        value = maxVal;
+                }
+                else
+                {
+                    value += interactionWheel[i]->getWheelCount() * (maxVal - minVal) / 30.0f;
+                }
             }
-            else
+
+            if (integer)
             {
-                value += interactionWheel->getWheelCount() * (maxVal - minVal) / 30.0f;
+                value = (float)(static_cast<int>(value));
             }
+
+            clamp();
+
+            uiElementProvider->update();
+
+            if (value != oldValue && myActor)
+                myActor->sliderEvent(this);
         }
-
-        if (integer)
-        {
-            value = (float)(static_cast<int>(value));
-        }
-
-        clamp();
-
-        uiElementProvider->update();
-
-        if (value != oldValue && myActor)
-            myActor->sliderEvent(this);
     }
     if (interactionA->isRunning())
     {
@@ -404,9 +409,13 @@ bool coSlider::update()
         {
             coInteractionManager::the()->unregisterInteraction(interactionA);
         }
-        if (interactionWheel->isRegistered() /* && (interactionWheel->getState() != coInteraction::Active)*/)
+
+        for (int i=0; i<2; ++i)
         {
-            coInteractionManager::the()->unregisterInteraction(interactionWheel);
+            if (interactionWheel[i]->isRegistered() /* && (interactionWheel->getState() != coInteraction::Active)*/)
+            {
+                coInteractionManager::the()->unregisterInteraction(interactionWheel[i]);
+            }
         }
         unregister = false;
     }
@@ -443,10 +452,13 @@ int coSlider::hit(vruiHit *hit)
         interactionA->setHitByMouse(hit->isMouseHit());
     }
 
-    if (!interactionWheel->isRegistered())
+    for (int i=0; i<2; ++i)
     {
-        coInteractionManager::the()->registerInteraction(interactionWheel);
-        interactionWheel->setHitByMouse(hit->isMouseHit());
+        if (!interactionWheel[i]->isRegistered())
+        {
+            coInteractionManager::the()->registerInteraction(interactionWheel[i]);
+            interactionWheel[i]->setHitByMouse(hit->isMouseHit());
+        }
     }
 
     if (interactionA->isRunning() || interactionA->wasStarted())

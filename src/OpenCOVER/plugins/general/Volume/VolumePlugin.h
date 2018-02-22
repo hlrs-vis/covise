@@ -105,7 +105,7 @@ public:
     void removeObject(const char *, bool) override;
     void postFrame() override;
     void setTimestep(int) override;
-    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string());
+    bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr);
     void saveVolume();
     void cropVolume();
 
@@ -155,6 +155,8 @@ private:
     std::vector<shared_ptr<coClipSphere> > clipSpheres;
 
     bool showClipOutlines;
+    bool followCoverClipping = true;
+    bool opaqueClipping = false;
     float lastRoll;
     float roiCellSize;
     float roiMaxSize;

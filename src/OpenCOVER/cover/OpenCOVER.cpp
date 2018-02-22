@@ -73,7 +73,6 @@
 #include "VRSceneGraph.h"
 #include "coVRLighting.h"
 #include "ARToolKit.h"
-#include "VRVruiRenderInterface.h"
 #include "coHud.h"
 #include "coVRShader.h"
 #include "coOnscreenDebug.h"
@@ -568,6 +567,7 @@ bool OpenCOVER::init()
 	coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
 	Input::instance()->init();
+
     coVRTui::instance();
 
     ARToolKit::instance();
@@ -581,8 +581,6 @@ bool OpenCOVER::init()
 
     // init channels and view
     VRViewer::instance();
-
-    new VRVruiRenderInterface();
 
     coVRAnimationManager::instance();
     coVRShaderList::instance()->update();
@@ -1006,6 +1004,16 @@ bool OpenCOVER::frame()
             std::cerr << "OpenCOVER::frame: rendering because of input" << std::endl;
         render = true;
     }
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        const auto &mat = Input::instance()->getRelativeMat();
+        if (!mat.isIdentity())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of active relative input" << std::endl;
+            render = true;
+        }
+    }
 
     // wait for all cull and draw threads to complete.
     //
@@ -1222,7 +1230,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    delete VRVruiRenderInterface::theInterface;
     delete coVRConfig::instance();
     delete VRWindow::instance();
 

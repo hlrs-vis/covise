@@ -18,7 +18,6 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
-    bool entityManeuverCondition;
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
@@ -37,19 +36,22 @@ public:
     osg::Vec3 targetPosition;
     osg::Vec3 totaldirectionVector;
     osg::Vec3 newPosition;
-    osg::Vec3 absVertPos;
+    osg::Vec3 referencePosition;
 
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool absVertPosIsSet;
+    bool refPosIsSet;
+    bool finishedCurrentTraj;
 
 
     // follow Trajectories functions
     void setTrajectoryDirection(osg::Vec3 init_targetPosition);
-    void followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished);
+    void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
     void getTrajSpeed(float deltat);
-    void setAbsVertPos();
+    void setRefPos();
+    void setRefPos(osg::Vec3 newReferencePosition);
+
 
 };
 

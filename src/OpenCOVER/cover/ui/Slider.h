@@ -11,7 +11,10 @@ namespace ui {
 
 //! a graphical item showing a text label and value that can be manipulated with a slider or dial
 
-/** \note QSlider */
+/** \note QSlider
+    \note vrui::coSliderMenuItem, vrui::coPotiMenuItem
+    \note coTUISlider, coTUIFloatSlider
+    */
 class COVER_UI_EXPORT Slider: public Element {
  public:
    typedef double ValueType;

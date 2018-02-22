@@ -10,6 +10,8 @@
 #include "CuttingSurfacePlugin.h"
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/osg/mathUtils.h>
+#include <cover/coVRNavigationManager.h>
 
 #include <cover/coInteractor.h>
 #include <cover/VRSceneGraph.h>
@@ -123,20 +125,29 @@ CuttingSurfacePlane::preFrame(int restrictToAxis)
         newModule_ = false;
         if (!wait_)
         {
-            osg::Matrix pointerMat = cover->getPointerMat();
-            //printMatrix("pointer", pointerMat);
             osg::Matrix w_to_o = cover->getInvBaseMat();
+            osg::Matrix pointerMat_o = cover->getPointerMat() * w_to_o;
+            if (coVRNavigationManager::instance()->isSnapping())
+            {
+                if (coVRNavigationManager::instance()->isDegreeSnapping())
+                {
+                    // snap orientation
+                    snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &pointerMat_o);
+                }
+                else
+                {
+                    // snap orientation to 45 degree
+                    snapTo45Degrees(&pointerMat_o);
+                }
+            }
 
-            osg::Vec3 cuttingSurfacePos_w, cuttingSurfacePos_o;
-            cuttingSurfacePos_w = pointerMat.getTrans();
             //planeDirectInteractor_->getIconWorldPosition(cuttingSurfacePos_w[0], cuttingSurfacePos_w[1], cuttingSurfacePos_w[2]);
-            cuttingSurfacePos_o = cuttingSurfacePos_w * w_to_o;
-            osg::Vec4 yaxis(0, 1, 0, 0), cuttingSurfaceNormal_w, cuttingSurfaceNormal_o;
+            osg::Vec3 cuttingSurfacePos_o = pointerMat_o.getTrans();
+            osg::Vec4 yaxis(0, 1, 0, 0), cuttingSurfaceNormal_o;
 
             if (restrictToAxis == CuttingSurfaceInteraction::RESTRICT_NONE)
             {
-                cuttingSurfaceNormal_w = yaxis * pointerMat;
-                cuttingSurfaceNormal_o = cuttingSurfaceNormal_w * w_to_o;
+                cuttingSurfaceNormal_o = yaxis * pointerMat_o;
                 cuttingSurfaceNormal_o.normalize();
             }
             else if (restrictToAxis == CuttingSurfaceInteraction::RESTRICT_X)

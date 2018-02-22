@@ -31,23 +31,31 @@ void ScenarioManager::conditionManager(){
             if(conditionControl((*act_iter)))
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
-
                 {
-                    for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
-
-                    {
-                        (*maneuver_iter)->activeCarName = (*activeEntity)->name;
-                        if(conditionControl(*maneuver_iter))
-                        {
-                            (*maneuver_iter)->activeManeuverEntities.push_back((*activeEntity));
-                        }
-                    }
+                    conditionControl(*maneuver_iter);
                 }
-
             }
         }
     }
 }
+
+void ScenarioManager::endTrajectoryCheck(){
+    for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+    {
+        for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+        {
+            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+            {
+                if((*activeEntity)->finishedCurrentTraj)
+                {
+                    (*maneuver_iter)->activeEntityList.remove((*activeEntity));
+                    (*activeEntity)->finishedCurrentTraj = false;
+                }
+            }
+        }
+    }
+}
+
 
 bool ScenarioManager::conditionControl()
 {
@@ -93,6 +101,11 @@ bool ScenarioManager::conditionControl(Act* act)
 
 bool ScenarioManager::conditionControl(Maneuver* maneuver)
 {
+    if (maneuver->activeEntityList.empty()){
+        maneuver->maneuverFinished = true;
+        maneuver->maneuverCondition = false;
+        return maneuver->maneuverCondition;
+    }
 	if (maneuver->startConditionType=="time")
 	{
 		if(maneuver->startTime<simulationTime && maneuver->maneuverFinished != true)

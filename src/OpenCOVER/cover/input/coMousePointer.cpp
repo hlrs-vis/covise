@@ -137,19 +137,17 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
         return;
     }
 
-    if (type & osgGA::GUIEventAdapter::DRAG)
+    switch(type)
     {
+    case osgGA::GUIEventAdapter::DRAG:
         mouseX = state;
         mouseY = code;
-    }
-    if (type & osgGA::GUIEventAdapter::MOVE)
-    {
+        break;
+    case osgGA::GUIEventAdapter::MOVE:
         mouseX = state;
         mouseY = code;
-    }
-
-    if (type & osgGA::GUIEventAdapter::SCROLL)
-    {
+        break;
+    case osgGA::GUIEventAdapter::SCROLL:
         if (!buttonPressed)
         {
             if (state == osgGA::GUIEventAdapter::SCROLL_UP)
@@ -161,10 +159,8 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
             else if (state == osgGA::GUIEventAdapter::SCROLL_LEFT)
                 --newWheelCounter[1];
         }
-    }
-
-    if (type & osgGA::GUIEventAdapter::PUSH)
-    {
+        break;
+    case osgGA::GUIEventAdapter::PUSH:
         buttonPressed = bool(state);
         if (mouseTime == mouseButtonTime)
             queueEvent(type, state, code);
@@ -173,9 +169,8 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
             buttons->setButtonState(state, true);
             mouseButtonTime = cover->frameRealTime();
         }
-    }
-    if (type & osgGA::GUIEventAdapter::RELEASE)
-    {
+        break;
+    case osgGA::GUIEventAdapter::RELEASE:
         if (mouseTime == mouseButtonTime)
             queueEvent(type, state, code);
         else
@@ -184,12 +179,11 @@ void coMousePointer::handleEvent(int type, int state, int code, bool queue)
             mouseButtonTime = cover->frameRealTime();
         }
         buttonPressed = bool(state);
-    }
-
-    if (type & osgGA::GUIEventAdapter::DOUBLECLICK)
-    {
+        break;
+    case osgGA::GUIEventAdapter::DOUBLECLICK:
         handleEvent(osgGA::GUIEventAdapter::PUSH, state, code, queue);
         handleEvent(osgGA::GUIEventAdapter::RELEASE, state, code, true);
+        break;
     }
 }
 
@@ -204,7 +198,7 @@ coMousePointer::update()
         return;
 
     unsigned state = buttons->getButtonState();
-    state &= ~(vrui::vruiButtons::WHEEL_DOWN | vrui::vruiButtons::WHEEL_UP);
+    state &= ~(vrui::vruiButtons::WHEEL);
     buttons->setButtonState(state);
 
     processEvents();
@@ -212,13 +206,6 @@ coMousePointer::update()
     wheelCounter[0] = newWheelCounter[0];
     wheelCounter[1] = newWheelCounter[1];
     newWheelCounter[0] = newWheelCounter[1] = 0;
-
-    if (wheel(0))
-    {
-        state = buttons->getButtonState();
-        state |= wheel(0) < 0 ? vrui::vruiButtons::WHEEL_DOWN : vrui::vruiButtons::WHEEL_UP;
-        buttons->setButtonState(state);
-    }
 
     static int oldWidth = -1, oldHeight = -1;
     int currentW, currentH;

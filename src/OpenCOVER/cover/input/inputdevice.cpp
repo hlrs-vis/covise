@@ -42,9 +42,11 @@ osg::Matrix InputDevice::s_identity = osg::Matrix::identity();
 InputDevice::InputDevice(const std::string &config)
     : loop_is_running(true)
     , m_config(config)
+    , m_valid(false)
     , m_offsetMatrix(osg::Matrix::identity())
     , m_isVarying(true)
     , m_is6Dof(false)
+    , m_validFrame(m_valid)
 {
     if(m_config.compare(0,19,"COVER.Input.Device.")==0)
         m_name = m_config.substr(19,std::string::npos);
@@ -87,6 +89,16 @@ void InputDevice::setOffsetMat(const osg::Matrix &m)
     m_offsetMatrix = m;
 }
 
+string &InputDevice::getCalibrationPointName(int i)
+{
+    return m_calibrationPointNames[i];
+}
+
+osg::Vec3 &InputDevice::getCalibrationPoint(int i)
+{
+    return m_calibrationPoints[i];
+}
+
 InputDevice::~InputDevice()
 {
     stopLoop();
@@ -115,6 +127,11 @@ bool InputDevice::is6Dof() const
     return m_is6Dof;
 }
 
+const string &InputDevice::getName() const
+{
+    return m_name;
+}
+
 std::string InputDevice::configPath(const std::string &ent) const
 {
 
@@ -141,6 +158,11 @@ void InputDevice::stopLoop()
         OpenThreads::Thread::microSleep(1000); //wait for the main loop stop
         //cout<<"stopping....."<<endl;
     }
+}
+
+bool InputDevice::isValid() const
+{
+    return m_validFrame;
 }
 
 /**
@@ -180,6 +202,12 @@ bool InputDevice::poll()
 void InputDevice::update()
 {
     m_mutex.lock();
+
+    m_validFrame = m_valid;
+
+    if (m_bodyMatricesRelativeFrame.size() != m_bodyMatricesRelative.size())
+        m_bodyMatricesRelativeFrame.resize(m_bodyMatricesRelative.size());
+    std::copy(m_bodyMatricesRelative.begin(), m_bodyMatricesRelative.end(), m_bodyMatricesRelativeFrame.begin());
 
     if (m_bodyMatricesValidFrame.size() != m_bodyMatricesValid.size())
         m_bodyMatricesValidFrame.resize(m_bodyMatricesValid.size());
@@ -244,6 +272,14 @@ bool InputDevice::isBodyMatrixValid(size_t idx) const
     return m_bodyMatricesValidFrame[idx];
 }
 
+bool InputDevice::isBodyMatrixRelative(size_t idx) const
+{
+    if (idx >= m_bodyMatricesRelativeFrame.size())
+        return false;
+
+    return m_bodyMatricesRelativeFrame[idx];
+}
+
 const osg::Matrix &InputDevice::getBodyMatrix(size_t idx) const
 {
 
@@ -274,5 +310,10 @@ const std::string &DriverFactoryBase::name() const
 {
 
     return m_name;
+}
+
+CO_SHLIB_HANDLE DriverFactoryBase::getLibHandle() const
+{
+    return m_handle;
 }
 }

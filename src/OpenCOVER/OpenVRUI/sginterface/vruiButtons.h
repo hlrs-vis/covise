@@ -50,6 +50,7 @@ public:
         JOYSTICK_UP = 0x80000000,
         ALL_BUTTONS = ACTION_BUTTON | DRIVE_BUTTON | XFORM_BUTTON | FORWARD_BUTTON | BACKWARD_BUTTON
     };
+    static_assert(coInteraction::ButtonPrevPerson == coInteraction::LastButton, "add missing buttons in Buttons enum");
 
     virtual unsigned int wasPressed(unsigned int buttonMask=ALL_BUTTONS) const = 0;
     virtual unsigned int wasReleased(unsigned int buttonMask=ALL_BUTTONS) const = 0;
@@ -57,7 +58,7 @@ public:
     virtual unsigned int getStatus() const = 0;
     virtual unsigned int getOldStatus() const = 0;
 
-    virtual int getWheelCount() const = 0;
+    virtual int getWheelCount(size_t idx=0) const = 0;
 };
 }
 #endif

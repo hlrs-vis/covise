@@ -10,3 +10,15 @@
 vrui::vruiMatrix::~vruiMatrix()
 {
 }
+
+bool vrui::vruiMatrix::isIdentity() const
+{
+    for (int i=0; i<4; ++i)
+    {
+        for (int j=0; j<4; ++j)
+            if ((*this)(i,j) != (double)(i==j))
+                return false;
+    }
+
+    return true;
+}

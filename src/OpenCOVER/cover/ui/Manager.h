@@ -15,6 +15,11 @@ namespace covise {
 class TokenBuffer;
 }
 
+namespace vrui {
+class coMouseButtonInteraction;
+class coButtonInteraction;
+}
+
 namespace opencover {
 
 namespace ui {
@@ -100,6 +105,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
 
    int m_modifiers = 0;
+   std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;
+   std::vector<vrui::coButtonInteraction *> m_buttonInteraction;
 };
 
 }

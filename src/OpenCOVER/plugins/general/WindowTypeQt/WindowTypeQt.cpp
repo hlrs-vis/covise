@@ -131,13 +131,21 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     });
     window->addContextAction(win.toggleMenu);
 
+    QMenuBar *menubar = nullptr;
 #ifdef __APPLE__
-    //auto menubar = new QMenuBar(nullptr);
-    auto menubar = win.window->menuBar();
-    menubar->setNativeMenuBar(false);
-#else
-    auto menubar = win.window->menuBar();
+    if (covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", false))
+    {
+        menubar = new QMenuBar(nullptr);
+        menubar->setNativeMenuBar(true);
+    }
+    else
+    {
+        menubar = win.window->menuBar();
+        menubar->setNativeMenuBar(false);
+    }
 #endif
+    if (!menubar)
+        menubar = win.window->menuBar();
     menubar->show();
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
@@ -202,14 +210,32 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
+
+#if QT_VERSION >= 0x050A00
+    bool sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
+    if (sRGB)
+    {
+        std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
+        format.setColorSpace(QSurfaceFormat::sRGBColorSpace);
+    }
+#endif
     QSurfaceFormat::setDefaultFormat(format);
     win.widget = new QtOsgWidget(win.window);
+#if QT_VERSION >= 0x050A00
+    if (sRGB)
+    {
+        win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
+    }
+#endif
     win.window->setCentralWidget(win.widget);
     win.widget->show();
     conf.windows[i].context = win.widget->graphicsWindow();
     conf.windows[i].doublebuffer = false;
 
     //std::cerr << "window " << i << ": ctx=" << coVRConfig::instance()->windows[i].context << std::endl;
+
+    qApp->sendPostedEvents();
+    qApp->processEvents();
 
     return true;
 }

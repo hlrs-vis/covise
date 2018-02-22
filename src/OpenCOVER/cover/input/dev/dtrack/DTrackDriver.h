@@ -47,8 +47,6 @@ class DTrackDriver : public opencover::InputDevice
 
     std::vector<size_t> m_handButtonBase; //Temp button base indices for hands
 
-
-    bool init();
     virtual bool poll();
     void initArrays();
 

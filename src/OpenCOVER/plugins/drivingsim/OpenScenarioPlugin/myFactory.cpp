@@ -5,6 +5,7 @@
 #include "Condition.h"
 #include "RouteInfo.h"
 #include "FollowTrajectory.h"
+#include "Position.h"
 #include <DrivingSim/OpenScenario/oscFactories.h>
 
 myFactory::myFactory(){}
@@ -36,5 +37,9 @@ OpenScenario::oscObjectBase *myFactory::create(const std::string &name)
 	{
 		return new FollowTrajectory();
 	}
+    if (name == "oscPosition")
+    {
+        return new Position();
+    }
 	return OpenScenario::oscFactories::staticObjectFactory.create(name);
 }

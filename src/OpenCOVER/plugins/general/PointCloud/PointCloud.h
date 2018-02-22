@@ -37,6 +37,7 @@
 #include "Points.h"
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
+#include "PointCloudInteractor.h"
 #include <cover/coTabletUI.h>
 
 namespace vrui
@@ -51,6 +52,7 @@ class coLabelItem;
 
 using namespace opencover;
 using namespace vrui;
+
 
 class nodeInfo
 {
@@ -70,7 +72,7 @@ public:
 /** Plugin
   @author 
 */
-class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener
+class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener, public ui::Owner
 {
 
     /** File entry class for Image Plugin
@@ -112,17 +114,25 @@ private:
     coTUITab *PCTab;
     coTUIToggleButton *adaptLODTui;
     coTUIFloatSlider *pointSizeTui;
+    static PointCloudInteractor *s_pointCloudInteractor;
 
 protected:
     osg::MatrixTransform *planetTrans;
 
-    coSubMenuItem *imanPluginInstanceMenuItem;
-    coRowMenu *imanPluginInstanceMenu;
-    //coCheckboxMenuItem* enablePointCloudPlugin;
-    coRowMenu *loadMenu;
-    coSubMenuItem *loadMenuItem;
-    coButtonMenuItem *deleteMenuItem;
-    void menuEvent(coMenuItem *);
+    //coSubMenuItem *imanPluginInstanceMenuItem;
+    //coRowMenu *imanPluginInstanceMenu;
+    // //coCheckboxMenuItem* enablePointCloudPlugin;
+    //coRowMenu *loadMenu;
+    //coSubMenuItem *loadMenuItem;
+    //coButtonMenuItem *deleteMenuItem;
+    ui::Menu *pointCloudMenu = nullptr;
+    ui::Menu *loadMenu = nullptr;
+    ui::Group *fileGroup = nullptr;
+    ui::Group *selectionGroup = nullptr;
+    ui::Button *singleSelectButton = nullptr;
+    ui::Button *deleteButton = nullptr;
+
+    //void menuEvent(coMenuItem *);
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
 
 public:
@@ -140,6 +150,7 @@ public:
     int unloadFile(std::string filename);
     void tabletEvent(coTUIElement *);
     static PointCloudPlugin *plugin;
+    ui::Group *FileGroup;
 };
 
 #endif

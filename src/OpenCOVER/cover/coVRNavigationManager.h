@@ -44,6 +44,7 @@ namespace vrui
 {
 class coNavInteraction;
 class coMouseButtonInteraction;
+class coRelativeInputInteraction;
 class coButtonMenuItem;
 class coRowMenu;
 }
@@ -146,18 +147,6 @@ public:
     void toggleShowName(bool state);
     void toggleInteractors(bool state);
     void toggleCollide(bool state);
-#if 0
-    void toggleXform(bool state);
-    void toggleXformRotate(bool state);
-    void toggleXformTranslate(bool state);
-    void toggleScale(bool state);
-    void toggleFly(bool state);
-    void toggleWalk(bool state);
-    void toggleGlide(bool state);
-    void toggleAxis(bool state);
-    void toggleMeasure(bool state);
-    void toggleMenu();
-#endif
 
     void startXform();
     void doXform();
@@ -177,7 +166,7 @@ public:
     void doMouseFly();
     void doMouseXform();
     void doMouseScale();
-    void doScale(float);
+    void doMouseScale(float);
     void doMouseWalk();
     void stopMouseNav();
     void startMouseNav();
@@ -198,7 +187,8 @@ public:
     void doXformTranslate();
 
     void highlightSelectedNode(osg::Node *selectedNode);
-    double speedFactor(double delta);
+    double speedFactor(double delta) const;
+    osg::Vec3 applySpeedFactor(osg::Vec3 vec) const;
 
     void getHandWorldPosition(float *, float *, float *);
 
@@ -235,12 +225,6 @@ public:
     {
         guiTranslateFactor = f;
     }
-#if 0
-    void setShowName(bool on)
-    {
-        toggleShowName(on);
-    }
-#endif
 
 private:
     bool doMouseNav;
@@ -282,7 +266,6 @@ private:
     bool rotationPointVisible;
     bool rotationAxis;
     float guiTranslateFactor;
-    float startFrame;
 
     float actScaleFactor; //fuer die Skalieroption, Initialisierung in der naechsten ifSchleife
     float mx, my;
@@ -291,11 +274,6 @@ private:
     float modifiedVSize, modifiedHSize, yValViewer, yValObject;
     float transXRel, transYRel, transZRel;
     float originX, originY;
-    int curTypeYRot;
-    int curTypeZRot;
-    int curTypeDef;
-    int curTypeZTrans;
-    int curTypeContRot;
 
     int wiiFlag;
 
@@ -315,13 +293,15 @@ private:
     bool visensoJoystick;
     bool joystickActive;
 
-    vrui::coNavInteraction *interactionA; ///< interaction for first button
-    vrui::coNavInteraction *interactionB; ///< interaction for second button
-    vrui::coNavInteraction *interactionC; ///< interaction for third button
-    vrui::coNavInteraction *interactionMenu; ///< interaction for steadycam
-    vrui::coMouseButtonInteraction *interactionMA; ///< interaction for first mouse button
-    vrui::coMouseButtonInteraction *interactionMB; ///< interaction for first mouse button
-    vrui::coMouseButtonInteraction *interactionMC; ///< interaction for first mouse button
+    vrui::coNavInteraction *interactionA = nullptr; ///< interaction for first button
+    vrui::coNavInteraction *interactionB = nullptr; ///< interaction for second button
+    vrui::coNavInteraction *interactionC = nullptr; ///< interaction for third button
+    vrui::coNavInteraction *interactionMenu = nullptr; ///< interaction for steadycam
+    vrui::coNavInteraction *interactionShortcut = nullptr; ///< interaction for navigation with keyboard shortcuts
+    vrui::coMouseButtonInteraction *interactionMA = nullptr; ///< interaction for first mouse button
+    vrui::coMouseButtonInteraction *interactionMB = nullptr; ///< interaction for first mouse button
+    vrui::coMouseButtonInteraction *interactionMC = nullptr; ///< interaction for first mouse button
+    vrui::coRelativeInputInteraction *interactionRel = nullptr; ///< interaction for relative input (space mouse) without button
 
     float navExp;
 
@@ -332,21 +312,17 @@ private:
     float driveSpeed;
 
     void init();
-    bool navigating;
     bool jump; // set to true if a jump has been performed to disable collision detection
     bool snapping;
     bool snappingD;
     float snapDegrees;
     bool m_restrict = false;
     float rotationSpeed;
-    int oldKeyMask;
     bool turntable;
     bool animationWasRunning=false;
 
-    bool showNames_;
     bool showGeodeName_;
     osg::Node *oldShowNamesNode_ = nullptr;
-    osg::Node *oldSelectInteractNode_ = nullptr;
     coVRLabel *nameLabel_;
     vrui::coRowMenu *nameMenu_;
     vrui::coButtonMenuItem *nameButton_;
@@ -378,9 +354,9 @@ private:
     void initShowName();
     void initMeasure();
 
-#ifdef VRUI
-    virtual void menuEvent(vrui::coMenuItem *);
-#endif
+    osg::Vec3 getCenter() const;
+
+    osg::Vec3 mouseNavCenter;
 };
 }
 #endif

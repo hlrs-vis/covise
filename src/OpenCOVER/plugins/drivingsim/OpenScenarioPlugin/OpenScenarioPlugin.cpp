@@ -43,6 +43,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "myFactory.h"
 #include "CameraSensor.h"
 #include <config/CoviseConfig.h>
+#include "Position.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -105,44 +106,54 @@ void OpenScenarioPlugin::preFrame()
     entityList_temp.sort();unusedEntity.sort();
     scenarioManager->conditionManager();
 
-    if (scenarioManager->conditionControl())
+    Road *road = system->getRoad(0);
+
+
+    if (scenarioManager->scenarioCondition)
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
             Act* currrentAct = (*act_iter);
             //check act start conditions
-            if (scenarioManager->conditionControl((*act_iter)))
+            if ((*act_iter)->actCondition)
             {
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
                     Maneuver* currentManeuver = (*maneuver_iter);
                     //check maneuver start conditions
-                    if (scenarioManager->conditionControl((*maneuver_iter)))
+                    if ((*maneuver_iter)->maneuverCondition)
                     {
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                             {
                                 Trajectory* currentTrajectory = (*trajectory_iter);
-                                for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
-                                    if((*activeEntity)->totalDistance == 0){
-                                        (*activeEntity)->setAbsVertPos();
+                                    if((*activeEntity)->totalDistance == 0)
+                                    {
+                                        (*activeEntity)->setRefPos();
+                                        Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
+
+                                        Road *road = system->getRoad(0);
+                                        osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
+
                                         // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
-                                        osg::Vec3 nextTargetPos = (*trajectory_iter)->getAbsolute((*activeEntity));
+                                        //osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));
 
-                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos);
+                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
 
-                                        if((*trajectory_iter)->domain.getValue() == 0){ //if domain is set to "time"
+                                        if((*trajectory_iter)->domain.getValue() == 0)
+                                        { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
                                             (*activeEntity)->getTrajSpeed(0.01);
                                         }
 
                                     }
 
-                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->maneuverCondition, (*maneuver_iter)->maneuverFinished);
+                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -160,7 +171,6 @@ void OpenScenarioPlugin::preFrame()
                             }
                         }
                     }
-                    (*maneuver_iter)->activeManeuverEntities.clear();
                 }
             }
         }
@@ -171,6 +181,7 @@ void OpenScenarioPlugin::preFrame()
             //(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
             usedEntity.clear();
         }
+        scenarioManager->endTrajectoryCheck();
     }
     else
     {
@@ -484,6 +495,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
             {
                 Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
+                maneuver->initialize(activeEntityList_temp);
                 maneuverList_temp.push_back(maneuver);
                 cout << "Manuever: " << maneuver->getName() << " created" << endl;
             }

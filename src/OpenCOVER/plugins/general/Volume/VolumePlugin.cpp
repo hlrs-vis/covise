@@ -708,10 +708,15 @@ bool VolumePlugin::init()
     // Create clipping menu
     auto clipModeItem = new ui::Button(clipMenu, "OpaqueClipping");
     clipModeItem->setText("Opaque clipping");
-    clipModeItem->setState(false);
+    clipModeItem->setState(opaqueClipping);
     clipModeItem->setCallback([this](bool state){
+        opaqueClipping = state;
         applyToVolumes([this, state](Volume &vol){
             vol.drawable->setSingleSliceClipping(state);
+            if (state)
+                vol.drawable->setLighting(false);
+            else
+                vol.drawable->setLighting(vol.lighting);
         });
     });
 
@@ -720,6 +725,13 @@ bool VolumePlugin::init()
     clipOutlinesItem->setState(true);
     clipOutlinesItem->setCallback([this](bool state){
         showClipOutlines = state;
+    });
+
+    auto followCoverClippingItem = new ui::Button(clipMenu, "ClipCover");
+    followCoverClippingItem->setText("Track clip planes");
+    followCoverClippingItem->setState(followCoverClipping);
+    followCoverClippingItem->setCallback([this](bool state){
+        followCoverClipping = state;
     });
 
     if (enableSphereClipping)
@@ -1258,12 +1270,12 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
 
     vd->printInfoLine("Loaded");
 
+    // a volumefile will be loaded now , so show the TFE
     if (showTFE)
     {
         editor->show();
         tfeItem->setState(true);
     }
-    // a volumefile will be loaded now , so show the TFE
 
     updateVolume(fileName, vd, false, fileName);
 
@@ -1562,15 +1574,11 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
             }
 
             if (container->getName())
-                updateVolume(container->getName(), volDesc);
+                updateVolume(container->getName(), volDesc, true, "", container);
             else if (geometry && geometry->getName())
-                updateVolume(geometry->getName(), volDesc);
+                updateVolume(geometry->getName(), volDesc, true, "", container);
             else
-                updateVolume("Anonymous COVISE object", volDesc);
-            if (currentVolume != volumes.end())
-            {
-                coVRPluginList::instance()->addNode(currentVolume->second.transform, container, this);
-            }
+                updateVolume("Anonymous COVISE object", volDesc, true, "", container);
 
             if (shader >= 0 && currentVolume != volumes.end())
             {
@@ -1715,7 +1723,7 @@ void VolumePlugin::saveVolume()
     }
 }
 
-bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename)
+bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF, const std::string &filename, const RenderObject *container)
 {
     if (!vd)
     {
@@ -1746,6 +1754,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
     VolumeMap::iterator volume = volumes.find(name);
     if (volume == volumes.end())
     {
+        volumes[name].transform->setName("Volume: "+name);
         volumes[name].addToScene();
         volumes[name].filename = filename;
         volumes[name].multiDimTF = vd->getChan() == 1;
@@ -1788,6 +1797,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             volumes[name].channelWeights = vd->channelWeights;
         }
         volume = volumes.find(name);
+        coVRPluginList::instance()->addNode(volume->second.transform, container, this);
     }
 
     virvo::VolumeDrawable *drawable = volume->second.drawable.get();
@@ -2121,10 +2131,18 @@ void VolumePlugin::preFrame()
                     plane->offset = v.w();
 
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
-                    drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+                    if (followCoverClipping || opaqueClipping)
+                    {
+                        state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
+                    }
+                    else
+                    {
+                        state->removeMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum());
+                        drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), false);
+                    }
 
                     ++numClipPlanes;
                 }

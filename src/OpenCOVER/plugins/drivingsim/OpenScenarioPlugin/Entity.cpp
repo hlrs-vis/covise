@@ -7,8 +7,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    absVertPosIsSet(false),
-    entityManeuverCondition(false)
+    refPosIsSet(false),
+    finishedCurrentTraj(false)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -89,7 +89,7 @@ void Entity::getTrajSpeed(float deltat)
 
 }
 
-void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool &maneuverFinished)
+void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEntityList)
 {
 
     //calculate step distance
@@ -110,8 +110,15 @@ void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool 
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
-            maneuverCondition = false;
-            maneuverFinished = true;
+            /* entity maneuver finished: bool
+             * is set to true in here
+             * has to be checked in conditionManager before entity is added to active ManeuverEntities
+             */
+            //maneuverCondition = false;
+            //maneuverFinished = true;
+            //activeEntityList.remove(this);
+            finishedCurrentTraj = true;
+            finishedEntityList.push_back(this);
         }
     }
 
@@ -119,9 +126,16 @@ void Entity::followTrajectory(int verticesCounter,bool &maneuverCondition, bool 
     entityGeometry->setPosition(newPosition, directionVector);
 }
 
-void Entity::setAbsVertPos(){
-    if(!absVertPosIsSet){
-        absVertPos = entityPosition;
-        absVertPosIsSet = true;
+void Entity::setRefPos()
+{
+    if(!refPosIsSet)
+    {
+        referencePosition = entityPosition;
+        refPosIsSet = true;
     }
+}
+
+void Entity::setRefPos(osg::Vec3 newReferencePosition)
+{
+    referencePosition = newReferencePosition;
 }

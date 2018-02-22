@@ -19,6 +19,11 @@ Maneuver::Maneuver():
 Maneuver::~Maneuver()
 {
 }
+void Maneuver::initialize(std::list<Entity*> &activeEntityList_temp)
+{
+    activeEntityList = activeEntityList_temp;
+}
+
 
 void Maneuver::finishedParsing()
 {
