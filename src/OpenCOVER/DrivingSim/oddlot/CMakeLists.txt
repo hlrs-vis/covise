@@ -116,6 +116,8 @@ SET(ODDLOT_SOURCES
 	 src/data/dataelement.cpp
 	 src/data/commands/dataelementcommands.cpp
 	 src/graph/items/graphelement.cpp
+	 src/graph/items/svgelement.cpp
+	 src/graph/items/basegraphelement.cpp
 	 src/gui/tools/toolmanager.cpp
 	 src/gui/tools/tool.cpp
 	 src/gui/tools/zoomtool.cpp
@@ -356,6 +358,7 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/scenario/oscroaditem.cpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.cpp
 	src/graph/items/oscsystem/oscbaseitem.cpp
+	src/graph/items/oscsystem/oscbaseshapeitem.cpp
 	src/graph/items/oscsystem/oscitem.cpp
 	src/graph/items/oscsystem/oscshapeitem.cpp
 	src/graph/items/oscsystem/osctextitem.cpp
@@ -386,7 +389,6 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
-	src/graph/items/oscsystem/svgitem.cpp
 )
 SET(ODDLOT_MOC_HEADERS
      src/mainwindow.hpp
@@ -454,6 +456,7 @@ SET(ODDLOT_MOC_HEADERS
 	 src/data/dataelement.hpp
 	 src/data/commands/dataelementcommands.hpp
 	 src/graph/items/graphelement.hpp
+	 src/graph/items/svgelement.hpp
 	 src/gui/tools/toolmanager.hpp
 	 src/gui/tools/tool.hpp
 	 src/gui/tools/zoomtool.hpp
@@ -692,7 +695,6 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/roadsystem/scenario/oscobjectitem.hpp
 	src/graph/items/roadsystem/scenario/oscroaditem.hpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp
-	src/graph/items/oscsystem/oscbaseitem.hpp
 	src/graph/items/oscsystem/oscitem.hpp
 	src/graph/items/oscsystem/oscshapeitem.hpp
 	src/graph/items/oscsystem/osctextitem.hpp
@@ -705,7 +707,6 @@ SET(ODDLOT_MOC_HEADERS
 	src/graph/items/roadsystem/shape/shapesectionpolynomialitem.hpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.hpp
 	src/graph/items/handles/splinemovehandle.hpp
-	src/graph/items/oscsystem/svgitem.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
@@ -751,6 +752,7 @@ SET(ODDLOT_RESOURCES
    style/style.qrc
    icons/tools/tools.qrc
    ../../../../share/covise/signs/icons/signalIcons.qrc
+   ../../../../share/covise/icons/svg/svgIcons.qrc
 )
 SET(ODDLOT_OTHER_FILES
      prototypes/prototypes.odd

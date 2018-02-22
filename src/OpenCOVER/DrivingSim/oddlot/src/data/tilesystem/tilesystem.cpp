@@ -121,7 +121,7 @@ void TileSystem::write(QDomDocument *doc_, QDomElement &root)
 void TileSystem::addTileIfNecessary(const odrID &elementID)
 {
 	odrID tid;
-	tid.setTileID(elementID.getTileID());
+	tid.setID(elementID.getTileID());
 	tid.setType(odrID::ID_Tile);
 	Tile *t = getTile(tid);
 	if (t == NULL)

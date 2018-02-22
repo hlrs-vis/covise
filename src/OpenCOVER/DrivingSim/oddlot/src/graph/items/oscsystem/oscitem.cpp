@@ -14,7 +14,6 @@
 **************************************************************************/
 
 #include "oscitem.hpp"
-#include "osctextitem.hpp"
 
 #include "src/graph/items/roadsystem/scenario/oscroaditem.hpp"
 
@@ -29,6 +28,7 @@
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/commands/dataelementcommands.hpp"
 
 // Widget //
 //
@@ -38,11 +38,12 @@
 //
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphview.hpp"
+#include "src/graph/graphscene.hpp"
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
-#include "src/graph/items/oscsystem/svgitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
+#include "src/graph/items/oscsystem/svgitem.hpp"
 
 // Tools //
 //
@@ -66,10 +67,13 @@
 #include <QString>
 #include <QKeyEvent>
 #include <QTransform>
+#include <QFile>
+
+#include "QtSvg/qsvgrenderer.h"
 
 
 OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad)
-    : GraphElement(oscBaseItem, element)
+    : SVGElement(oscBaseItem, element)
 	, element_(element)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
@@ -77,129 +81,13 @@ OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::os
 	, catalog_(catalog)
 	, angle_(0)
 {
-
     init();
 }
 
 OSCItem::~OSCItem()
 {
-	delete svgItem_;
-}
 
-void OSCItem::updateIcon()
-{
-	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(oscObject_);
-	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
-	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
-	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
-	if (widthBoundBox < 1.0)
-		widthBoundBox = 1.8;
-	if (lengthBoundBox < 1.0)
-		lengthBoundBox = 3;
-	if (heightBoundBox < 1.0)
-		heightBoundBox = 1.5;
-	if (vehicle)
-	{
-		//svgItem->setElementId((int)vehicle->category.getValue())
-		switch (vehicle->category.getValue())
-		{
-		case oscVehicle::car:
-		{
-			break;
-		}
-		case oscVehicle::truck:
-		{
-			break;
-		}
-		case oscVehicle::bus:
-		{
-			break;
-		}
-		default:
-		{
-			//path.addRect(0, 0, lengthBoundBox, heightBoundBox);
-		}
-
-		//	trailer,
-		//	motorbike,
-		//	bicycle,
-		//		train,
-		//	tram,
-		}
-	}
-}
-/*!
-* Initializes the path 
-
-QPainterPath 
-	createVehiclePath(OpenScenario::oscObjectBase *object, RSystemElementRoad *road)
-{
-	QPainterPath path = QPainterPath();
-	
-	OpenScenario::oscVehicle *vehicle = dynamic_cast<OpenScenario::oscVehicle *>(object);
-	double widthBoundBox = vehicle->BoundingBox->Dimension->width;
-	double lengthBoundBox = vehicle->BoundingBox->Dimension->length;
-	double heightBoundBox = vehicle->BoundingBox->Dimension->height;
-	if (widthBoundBox < 1.0)
-		widthBoundBox = 1.8;
-	if (lengthBoundBox < 1.0)
-		lengthBoundBox = 3;
-	if (heightBoundBox < 1.0)
-		heightBoundBox = 1.5;
-	if(vehicle)
-	{
-		switch (vehicle->category.getValue())
-		{
-		case oscVehicle::car:
-			{
-				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0, widthBoundBox /2) << QPointF(lengthBoundBox/3, widthBoundBox) << QPointF(lengthBoundBox/1.5, widthBoundBox) << QPointF(lengthBoundBox/1.2, widthBoundBox /2) << QPointF(lengthBoundBox/1.086, widthBoundBox /2) << QPointF(lengthBoundBox/1.02, widthBoundBox /3.33) << QPointF(lengthBoundBox,0);
-				path.addPolygon(polygon);
-				path.closeSubpath();
-				path.addEllipse(QPointF(lengthBoundBox/5,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-				path.addEllipse(QPointF(lengthBoundBox/1.25,-widthBoundBox /40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-
-				
-				break;
-			}
-		case oscVehicle::truck:
-			{
-				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox) << QPointF(lengthBoundBox/1.88, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.58, heightBoundBox/1.5) << QPointF(lengthBoundBox/1.3, heightBoundBox/3) << QPointF(lengthBoundBox/1.1,heightBoundBox/3) << QPointF(lengthBoundBox/1.08,heightBoundBox/5) << QPointF(lengthBoundBox,0);
-				path.addPolygon(polygon);
-				path.closeSubpath();
-				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-
-				break;
-			}
-		case oscVehicle::bus:
-			{
-				QPolygonF polygon;
-				polygon << QPointF(0,0) << QPointF(0, heightBoundBox) << QPointF(lengthBoundBox, heightBoundBox) << QPointF(lengthBoundBox, 0);
-				path.addPolygon(polygon);
-				path.closeSubpath();
-				path.addEllipse(QPointF(lengthBoundBox/5,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-				path.addEllipse(QPointF(lengthBoundBox/1.25,-heightBoundBox/40), lengthBoundBox/12.5,lengthBoundBox/12.5);
-
-				break;
-			}
-		default:
-			{
-				path.addRect( 0,0 , lengthBoundBox, heightBoundBox);
-			}
-
-	//	trailer,
-	//	motorbike,
-	//	bicycle,
-//		train,
-	//	tram,
-		}
-	}
-	path.translate(-lengthBoundBox/2, -heightBoundBox/2);
-	return path;
-
-}*/
+} 
 
 void
 OSCItem::init()
@@ -209,26 +97,21 @@ OSCItem::init()
     // Hover Events //
     //
     setAcceptHoverEvents(true);
-//    setSelectable();
-	setFlag(QGraphicsItem::ItemIsSelectable);
-	setFlag(ItemIsFocusable);
+    setSelectable();
+//	setFlag(QGraphicsItem::ItemIsSelectable);
+	setFlag(ItemIsFocusable); 
 
     // OpenScenario Editor
     //
     oscEditor_ = dynamic_cast<OpenScenarioEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
 
-    // Context Menu //
-    //
-
-    QAction *removeElementAction = getRemoveMenu()->addAction(tr("OpenScenario Object"));
-    connect(removeElementAction, SIGNAL(triggered()), this, SLOT(removeElement()));
 
     if (getTopviewGraph()) // not for profile graph
     {
         // Text //
         //
 		QString name = updateName();
-        oscTextItem_ = new OSCTextItem(element_, this, name, pos_);
+        oscTextItem_ = new OSCTextSVGItem(element_, this, name, pos_);
         oscTextItem_->setZValue(1.0); // stack before siblings
     }
 
@@ -241,10 +124,9 @@ OSCItem::init()
 	std::string catalogName = catalogReference->catalogName.getValue();
 	std::string entryName = catalogReference->entryName.getValue();
 
-
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
-
-	odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+//	odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()),0," ",odrID::ID_Road);
+	odrID roadID(QString::fromStdString(oscRoad_->roadId.getValue()));
 	road_ = roadSystem_->getRoad(roadID);
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
@@ -255,21 +137,21 @@ OSCItem::init()
 	copyPan_ = false;
 	lastPos_ = pos_;
 
-
-
-	// TODO: get type and object from catalog reference //
-	//
-
+	std::string categoryName;
 	OpenScenario::oscObjectBase *catalogObject = catalog_->getCatalogObject(catalogName,entryName);
-
-/*	OpenScenario::oscMember *categoryMember = catalogObject->getMember("category");
-	if (categoryMember)
+	if (!catalogObject)
 	{
-		OpenScenario::oscEnum *oscVar = dynamic_cast<OpenScenario::oscEnum *>(categoryMember);
-		oscIntValue *iv = dynamic_cast<oscIntValue *>(categoryMember->getValue()); 
-		qDebug() << "Category: " << oscVar->getValueAsStr(iv->getValue()).c_str();
-	} */
+		return;		//nothing to draw
+	}
 
+	OpenScenario::oscMember *categoryMember = catalogObject->getMember("category");
+
+	if (categoryMember) 
+	{
+		OpenScenario::oscEnum *categoryEnums = dynamic_cast<OpenScenario::oscEnum*>(categoryMember);
+		OpenScenario::oscIntValue *categoryValue = dynamic_cast<OpenScenario::oscIntValue*>(categoryMember->getValue());
+		categoryName = categoryEnums->getValueAsStr(categoryValue->getValue());
+	}
 
 #ifdef WIN32
 	char *pValue;
@@ -285,24 +167,16 @@ OSCItem::init()
 	if (covisedir_ == "")
 		covisedir_ = getenv("COVISEDIR");
 #endif
-	std::string fn = covisedir_+"/share/covise/icons/svg/car.svg";
-	svgItem_ = new SVGItem(this, fn);
 
+	updateIcon(catalogObject, catalogName, categoryName, entryName);
 
 	if (catalogObject)
 	{
 
-		if (catalog_->getCatalogName() == "Vehicle")
-		{
-			createPath = NULL;
-			updateColor(catalog_->getCatalogName());
-			//path_ = createPath(catalogObject, road_);
 			pos_ = road_->getGlobalPoint(s_, t_);
 			lastPos_ = pos_;
 			doPan_ = false;
 			updatePosition();
-		}
-
 	}
 }
 
@@ -321,20 +195,77 @@ QString
 }
 
 
-/*! \brief Sets the color according to the number of links.
-*/
-void
-OSCItem::updateColor(const std::string &type)
-{
-	if (type == "Vehicle")
-	{
-		QPen pen;
-		pen.setBrush(Qt::black);
-		pen.setWidthF(0.2);
-		setPen(pen);
-	}
-}
 
+/*
+*	update icon
+*/
+void OSCItem::updateIcon(OpenScenario::oscObjectBase *catalogObject, std::string catalogName, std::string categoryName, std::string entryName)
+{
+	QFile file;
+	QString dir = ":/svgIcons/";
+	std::string fn;
+
+	QString qCatalogName = QString::fromStdString(catalogName);
+	QString qCategoryName = QString::fromStdString(categoryName);
+	QString qEntryName = QString::fromStdString(entryName);
+
+	OpenScenario::oscMember *boundingBoxMember = catalogObject->getMember("BoundingBox");
+
+	if (boundingBoxMember)
+	{
+		oscBoundingBox *BoundingBox = dynamic_cast<OpenScenario::oscBoundingBox*>(boundingBoxMember->getObjectBase());
+
+		if (BoundingBox)
+		{
+			double widthBoundBox = BoundingBox->Dimension->width;
+			double lengthBoundBox = BoundingBox->Dimension->length;
+			double heightBoundBox = BoundingBox->Dimension->height;
+			if (widthBoundBox < 1.0)
+				widthBoundBox = 1.8;
+			if (lengthBoundBox < 1.0)
+				lengthBoundBox = 3;
+			if (heightBoundBox < 1.0)
+				heightBoundBox = 1.5;
+
+			if (file.exists(dir + qCatalogName + "_" + qCategoryName + "_" + qEntryName + ".svg"))
+			{
+				fn_ = ":/svgIcons/" + catalogName + "_" + categoryName + "_" + entryName + ".svg";
+			}
+			else if (file.exists(dir + qCatalogName + "_" + qCategoryName + ".svg"))
+			{
+				fn_ = ":/svgIcons/" + catalogName + "_" + categoryName + ".svg";
+			}
+			else
+			{
+				fn_ = ":/svgIcons/" + catalogName + ".svg";
+			}
+
+			renderer_ = new QSvgRenderer(QString::fromStdString(fn_));
+			setSharedRenderer(renderer_);
+
+			QRectF svgRect = boundingRect();
+			iconScaleX_ = (1 / svgRect.width()) * lengthBoundBox;
+			iconScaleY_ = (1 / svgRect.height()) * heightBoundBox;
+			svgCenter_ = QPointF(lengthBoundBox / 2, heightBoundBox / 2);
+		}
+		else
+		{
+			fn_ = ":/svgIcons/default.svg";
+			renderer_ = new QSvgRenderer(QString::fromStdString(fn_));
+			setSharedRenderer(renderer_);
+
+			QRectF svgRect = boundingRect();
+			iconScaleX_ = (1 / svgRect.width()) * 2;
+			iconScaleY_ = (1 / svgRect.height()) * 2;
+		}
+	}
+
+	// Context Menu //
+	//
+
+	QAction *removeElementAction = getRemoveMenu()->addAction(tr("OpenScenario Object"));
+	connect(removeElementAction, SIGNAL(triggered()), this, SLOT(removeElement()));
+}
 
 /*
 * Update position
@@ -342,18 +273,41 @@ OSCItem::updateColor(const std::string &type)
 void
 OSCItem::updatePosition()
 {
-	QTransform transform;
-//	double s = road_->getSFromGlobalPoint(pos_);
-	double heading = road_->getGlobalHeading(s_);
-	transform.rotate(road_->getGlobalHeading(s_));
-	transform.translate(pos_.x(),pos_.y());
-	QRectF rect = svgItem_->boundingRect();
-//	qDebug() << rect.width() << " " << rect.height();
-	transform.scale(0.1, 0.1);
-	svgItem_->setTransform(transform);
+	/*QTransform tR;
+	QTransform tS;
+	QTransform tT;*/
+	tR_.reset();
+	tS_.reset();
+	tT_.reset();
 
-/*	path_ = transform.map(path_);
-	setPath(path_); */
+	QTransform tM;
+	QTransform tR2;
+
+	double s = road_->getSFromGlobalPoint(pos_);
+	QVector2D vec = QVector2D(pos_ - road_->getGlobalPoint(s));
+	double t = vec.length();
+	QVector2D normal = road_->getGlobalNormal(s);
+	double heading = road_->getGlobalHeading(s);
+
+	if (QVector2D::dotProduct(normal, vec) > 0)
+	{
+		t = -t;
+	}
+
+	if (t + svgCenter_.y() > 0)
+	{
+		heading += 180;
+	}
+
+	tM.translate(-svgCenter_.x(), -svgCenter_.y());
+	tR2.rotate(heading);
+
+	tR_ = tM * tR2 * tM.inverted();
+	tT_.translate(pos_.x(), pos_.y());
+	tS_.scale(iconScaleX_, iconScaleY_);
+
+	setPos(QPointF(0, 0));
+	setTransform(tS_*tR_*tT_);
 
 	angle_ = heading;
 
@@ -365,8 +319,6 @@ OSCItem::updatePosition()
 void
 OSCItem::move(QPointF &diff)
 {
-	path_.translate(diff); 
-	setPath(path_);
 	pos_ += diff;
 	updatePosition();
 }
@@ -427,7 +379,6 @@ OSCItem::removeElement()
 void
 OSCItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-
 	setCursor(Qt::OpenHandCursor);
 	setFocus();
 
@@ -438,7 +389,7 @@ OSCItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 	// Parent //
 	//
-	GraphElement::hoverEnterEvent(event); // pass to baseclass
+	SVGElement::hoverEnterEvent(event); // pass to baseclass
 }
 
 void
@@ -456,7 +407,7 @@ OSCItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    GraphElement::hoverLeaveEvent(event); // pass to baseclass
+    SVGElement::hoverLeaveEvent(event); // pass to baseclass
 }
 
 void
@@ -465,13 +416,13 @@ OSCItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
     // Parent //
     //
-    GraphElement::hoverMoveEvent(event);
+    SVGElement::hoverMoveEvent(event);
 }
 
 void
 OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    pressPos_ = lastPos_ = event->scenePos();
+    mousePressPos_ = mouseLastPos_ = event->scenePos();
 	closestRoad_ = road_;
 
     ODD::ToolId tool = oscEditor_->getCurrentTool(); // Editor Delete Signal
@@ -481,17 +432,19 @@ OSCItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     else 
     {
-
 		doPan_ = true;
-		if (copyPan_)
+		if (event->modifiers() & Qt::ShiftModifier)
 		{
-	/*		Signal * newSignal = signal_->getClone();
-			AddSignalCommand *command = new AddSignalCommand(newSignal, signal_->getParentRoad(), NULL);
-			getProjectGraph()->executeCommand(command); */
-			oscEditor_->cloneEntity(element_, oscObject_);
+			copyPan_ = true;
+
+			cloneSvgItem_ = new QGraphicsSvgItem();
+			cloneSvgItem_->setSharedRenderer(renderer_);
+			cloneSvgItem_->setPos(QPointF(0, 0));
+			cloneSvgItem_->setTransform(tS_*tR_*tT_); 
+			getTopviewGraph()->getScene()->addItem(cloneSvgItem_);
 		}
 
-        GraphElement::mousePressEvent(event); // pass to baseclass
+        SVGElement::mousePressEvent(event); // pass to baseclass
 
     }
 
@@ -503,15 +456,14 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {	
 	if (doPan_)
 	{
-
-		QPointF newPos = event->scenePos();
-		QPointF diff = newPos - lastPos_;
+		QPointF mouseNewPos = event->scenePos();
+		QPointF diff = mouseNewPos - mouseLastPos_;
 		oscEditor_->move(diff);
-		lastPos_ = newPos;
+		mouseLastPos_ = mouseNewPos;
 
 		QVector2D vec;
 
-		RSystemElementRoad * nearestRoad = roadSystem_->findClosestRoad( newPos, s_, t_, vec);
+		RSystemElementRoad * nearestRoad = roadSystem_->findClosestRoad( mouseNewPos, s_, t_, vec);
 		if (!nearestRoad)
 		{
 			nearestRoad = road_;
@@ -525,25 +477,46 @@ OSCItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 			closestRoad_ = nearestRoad;
 		}
 
-		GraphElement::mouseMoveEvent(event);
+		SVGElement::mouseMoveEvent(event);
 	}
 }
 
 void
 OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-
     if (doPan_)
     {
-		double diff = (lastPos_ - pressPos_).manhattanLength();
+		double diff = (mouseLastPos_ - mousePressPos_).manhattanLength();
 		if (diff > 0.01) // otherwise item has not been moved by intention
 		{
-			QPointF diff = lastPos_ - pressPos_;
-			oscEditor_->translate(diff);
+			QPointF diffPoint = mouseLastPos_ - mousePressPos_;
+			if (copyPan_)
+			{
+				cloneElement_ = oscEditor_->cloneEntity(element_, oscObject_);
+				pos_ -= diffPoint;
+				updatePosition();
+
+				OpenScenario::oscObject *cloneObject = dynamic_cast<OpenScenario::oscObject *>(cloneElement_->getObject());
+
+				oscEditor_->translateObject(cloneObject, diffPoint);
+
+				DeselectDataElementCommand *command = new DeselectDataElementCommand(element_);
+				getProjectGraph()->executeCommand(command); 
+				SelectDataElementCommand *selectCommand = new SelectDataElementCommand(cloneElement_);
+				getProjectGraph()->executeCommand(selectCommand);
+				
+				getTopviewGraph()->getScene()->removeItem(cloneSvgItem_);
+				delete cloneSvgItem_;
+				copyPan_ = false;
+			}
+			else
+			{
+				oscEditor_->translate(diffPoint);
+			}
 		}
 		else
 		{
-			pos_ = lastPos_;
+			//pos_ = mouseLastPos_;
 		}
 
 		doPan_ = false;
@@ -551,48 +524,9 @@ OSCItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 	oscTextItem_->setVisible(true);
 
-	GraphElement::mouseReleaseEvent(event);
+	SVGElement::mouseReleaseEvent(event);
 }
 
-/*! \brief Key events for panning, etc.
-*
-*/
-void
-OSCItem::keyPressEvent(QKeyEvent *event)
-{
-    // TODO: This will not notice a key pressed, when the view is not active
-    switch (event->key())
-    {
-	case Qt::Key_Shift:
-        copyPan_ = true;
-        break;
-
-    default:
-        QGraphicsItem::keyPressEvent(event);
-    }
-}
-
-/*! \brief Key events for panning, etc.
-*
-*/
-void
-OSCItem::keyReleaseEvent(QKeyEvent *event)
-{
-    switch (event->key())
-    {
-    case Qt::Key_Shift:
-        copyPan_ = false;
-		if (!isHovered())
-		{
-			clearFocus();
-		}
-        break;
-
-
-    default:
-        QGraphicsItem::keyReleaseEvent(event);
-    }
-}
 
 //##################//
 // Observer Pattern //
@@ -606,7 +540,7 @@ OSCItem::updateObserver()
 {
     // Parent //
     //
-    GraphElement::updateObserver();
+    SVGElement::updateObserver();
     if (isInGarbage())
     {
         return; // will be deleted anyway
@@ -624,12 +558,25 @@ OSCItem::updateObserver()
         {
 			oscTextItem_->updateText(updateName());
 		}
-		odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
+
+//		odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()), 0, " ", odrID::ID_Road);
+		odrID roadID(QString::fromStdString(oscRoad_->roadId.getValue()));
 		road_ = roadSystem_->getRoad(roadID);
-		path_.translate(-pos_);
 		s_ = oscRoad_->s.getValue();
 		t_ = oscRoad_->t.getValue();
+		pos_ = road_->getGlobalPoint(s_, t_);
 		updatePosition();
+	}
+
+	int dataChanges = element_->getDataElementChanges();
+	if (dataChanges & DataElement::CDE_SelectionChange)
+	{
+		// Selection //
+		//
+		if (isSelected() != element_->isElementSelected())
+		{
+			setSelected(element_->isElementSelected());
+		}
 	}
 
     // Signal //

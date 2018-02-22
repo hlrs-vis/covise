@@ -13,12 +13,11 @@
 **
 **************************************************************************/
 
-#include "graphelement.hpp"
+#include "svgelement.hpp"
 
 // Data //
 //
 #include "src/data/commands/dataelementcommands.hpp"
-
 
 
 //################//
@@ -26,16 +25,14 @@
 //################//
 
 
-GraphElement::GraphElement(GraphElement *parentGraphElement, DataElement *dataElement)
-	: QObject()
-	, BaseGraphElement<QGraphicsPathItem>(parentGraphElement, dataElement)
+SVGElement::SVGElement(SVGElement *parentElement, DataElement *dataElement)
+	: BaseGraphElement<QGraphicsSvgItem>(parentElement, dataElement)
 
 {
 
 }
 
-
-GraphElement::~GraphElement()
+SVGElement::~SVGElement()
 {
 
 }
@@ -45,7 +42,7 @@ GraphElement::~GraphElement()
 //################//
 
 void
-GraphElement::hideGraphElement()
+SVGElement::hideGraphElement()
 {
 	if (getDataElement())
 	{
@@ -54,13 +51,12 @@ GraphElement::hideGraphElement()
 
 		HideDataElementCommand *command = new HideDataElementCommand(elements, NULL);
 		getProjectGraph()->executeCommand(command);
-	}
+	} 
 }
 
 void
-GraphElement::hideRoads()
+SVGElement::hideRoads()
 {
 	hideGraphElement();
 }
-
 

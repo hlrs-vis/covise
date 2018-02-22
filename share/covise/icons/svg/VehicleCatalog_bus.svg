@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+   ***************************************************************************
+   Bundesanstalt fuer Strassenwesen
+   RWBA-Symbol
+   Bezeichnung:
+   Kraftomnibus
+   Ausdehnung in cm:
+         X_min     X_max     Y_min     Y_max
+         0.00000  15.00000   0.00000  15.00000
+-->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="130.00031"
+   height="51.250099"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="VehicleCatalog_bus.svg">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1600"
+     inkscape:window-height="837"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="1.5733333"
+     inkscape:cx="65.000298"
+     inkscape:cy="26.249998"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <!--
+   ***************************************************************************
+-->
+  <!--
+      INHALT
+      BUS
+      ** AEUSSERE UMRANDUNG **
+-->
+  <path
+     d="M 112.5002,42.5001 A 11.25,11.25 0 0 0 95.6252,32.757314 11.25,11.25 0 0 0 90.0002,42.5001 H 43.7501 A 11.25,11.25 0 0 0 26.8751,32.757314 11.25,11.25 0 0 0 21.2501,42.5001 H 5 a 5,5 0 0 1 -5,-5 V 23.5505 A 7.5,7.5 0 0 1 0.288571,21.490091 L 5.39248,3.626394 A 5,5 0 0 1 10.2001,0 h 113.5502 a 1.25,1.25 0 0 1 1.25,1.25 v 2.5 a 1.25,1.25 0 0 1 -0.99734,1.224198 l 8e-5,4e-6 a 1.25,1.25 0 0 0 -0.92452,1.644618 l 6.48484,18.157858 a 7.5,7.5 0 0 1 0.43694,2.522522 v 12.7009 a 2.5,2.5 0 0 1 -2.5,2.5 h -15 z m 11.0894,-20 h -14.9643 a 1.875,1.875 0 0 1 -1.875,-1.875 V 6.875 A 1.875,1.875 0 0 1 108.6253,5 h 10.0536 a 1.875,1.875 0 0 1 1.76577,1.244369 l 4.9107,13.7501 A 1.875,1.875 0 0 1 123.5896,22.5001 Z m -21.9643,0 H 88.486 A 1.875,1.875 0 0 1 86.683143,20.109998 L 90.61164,6.359898 A 1.875,1.875 0 0 1 92.4145,5 h 9.2108 a 1.875,1.875 0 0 1 1.875,1.875 v 13.7501 a 1.875,1.875 0 0 1 -1.875,1.875 z m -20.2894,0 h -12.6 a 1.875,1.875 0 0 1 -1.802857,-2.390102 l 3.9286,-13.7501 A 1.875,1.875 0 0 1 72.6645,5 h 12.6 a 1.875,1.875 0 0 1 1.802857,2.390102 l -3.9286,13.7501 A 1.875,1.875 0 0 1 81.3359,22.5001 Z m -19.75,0 h -12.6 a 1.875,1.875 0 0 1 -1.802857,-2.390102 l 3.9285,-13.7501 A 1.875,1.875 0 0 1 52.9144,5 h 12.6 a 1.875,1.875 0 0 1 1.802857,2.390102 l -3.9285,13.7501 A 1.875,1.875 0 0 1 61.5859,22.5001 Z m -19.7501,0 h -12.6 a 1.875,1.875 0 0 1 -1.802857,-2.390102 l 3.9286,-13.7501 A 1.875,1.875 0 0 1 33.1644,5 h 12.6 a 1.875,1.875 0 0 1 1.802857,2.390102 l -3.9286,13.7501 A 1.875,1.875 0 0 1 41.8358,22.5001 Z m -19.7501,0 H 9.4858 A 1.875,1.875 0 0 1 7.682943,20.109998 l 3.9285,-13.7501 A 1.875,1.875 0 0 1 13.4143,5 h 12.6 a 1.875,1.875 0 0 1 1.802857,2.390102 l -3.9286,13.7501 A 1.875,1.875 0 0 1 22.0857,22.5001 Z m 1.6644,20 a 8.75,8.75 0 0 1 13.125,-7.577722 8.75,8.75 0 0 1 0,15.155442 8.75,8.75 0 0 1 -13.125,-7.57772 m 68.7501,0 a 8.75,8.75 0 0 1 13.125,-7.577722 8.75,8.75 0 0 1 0,15.155442 8.75,8.75 0 0 1 -13.125,-7.57772 z"
+     id="path6"
+     inkscape:connector-curvature="0"
+     style="fill:#000000;fill-rule:evenodd;stroke:none" />
+  <!--
+       ** 1. FENSTER (VON LINKS) **
+       ** 2. FENSTER (VON LINKS) **
+       ** 3. FENSTER (VON LINKS) **
+       ** 4. FENSTER (VON LINKS) **
+       ** 5. FENSTER (VON LINKS) **
+       ** 6. FENSTER (VON LINKS) **
+       ** RAEDER **
+-->
+</svg>
