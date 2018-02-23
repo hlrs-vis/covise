@@ -13,10 +13,26 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	directionVector.set(1, 0, 0);
 }
 
+
+void Entity::setInitEntityPosition(osg::Matrix m)
+{
+    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
+    entityGeometry->setTransform(m);
+    osg::Vec3 pos(m(3,0),m(3,1),m(3,2));
+    entityPosition = pos;
+}
+
 void Entity::setInitEntityPosition(osg::Vec3 initPos)
 {
 	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
 	entityGeometry->setPosition(initPos, directionVector);
+}
+
+void Entity::setInitEntityPosition(osg::Vec3 initPos, osg::Vec3 initDirVec)
+{
+    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
+    directionVector.set(initDirVec[0], initDirVec[1], initDirVec[2]);
+    entityGeometry->setPosition(initPos, directionVector);
 }
 
 void Entity::setInitEntityPosition(Road *r)
@@ -32,7 +48,9 @@ void Entity::setInitEntityPosition(Road *r)
 void Entity::moveLongitudinal()
 {
 	float step_distance = speed*opencover::cover->frameDuration();
-	entityPosition[0] = entityPosition[0] + step_distance;
+    // entityPosition[0] = entityPosition[0] + step_distance;
+    entityPosition = entityPosition+(directionVector*step_distance);
+
 }
 
 osg::Vec3 &Entity::getPosition()
@@ -139,3 +157,4 @@ void Entity::setRefPos(osg::Vec3 newReferencePosition)
 {
     referencePosition = newReferencePosition;
 }
+

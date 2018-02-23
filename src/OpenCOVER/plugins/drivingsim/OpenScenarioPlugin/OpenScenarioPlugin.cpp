@@ -106,9 +106,6 @@ void OpenScenarioPlugin::preFrame()
     entityList_temp.sort();unusedEntity.sort();
     scenarioManager->conditionManager();
 
-    Road *road = system->getRoad(0);
-
-
     if (scenarioManager->scenarioCondition)
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
@@ -137,11 +134,7 @@ void OpenScenarioPlugin::preFrame()
                                         (*activeEntity)->setRefPos();
                                         Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
-                                        Road *road = system->getRoad(0);
                                         osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
-
-                                        // read next vertice from trajectory, convert it to absolute coordinates and put it as next target
-                                        //osg::Vec3 nextTargetPos1 = (*trajectory_iter)->getAbsolute((*activeEntity));
 
                                         (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
 
@@ -176,8 +169,9 @@ void OpenScenarioPlugin::preFrame()
         }
         for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)
         {
+            Entity* currentEntity = (*entity_iter);
             (*entity_iter)->moveLongitudinal();
-            (*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition, (*entity_iter)->directionVector);
+            (*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition,(*entity_iter)->directionVector);
             //(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
             usedEntity.clear();
         }
@@ -457,11 +451,23 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                             int roadId = atoi(currentTentity->roadId.c_str());
                             currentTentity->setInitEntityPosition(system->getRoad(roadId));
                         }
-                        else if(action->Position->World.exists()){
+                        else if(action->Position->World.exists())
+                        {
+                            Position* pos = (Position*)(action->Position.getObject());
+                            osg::Vec3 initPosition = pos->getAbsoluteWorld();
+                            osg::Vec3 initDirVec = pos->hpr2directionVector();
 
-                            osg::Vec3 initPosition(action->Position->World->x.getValue(), action->Position->World->y.getValue(), action->Position->World->z.getValue());
-                            currentTentity->setInitEntityPosition(initPosition);
+//                            osg::Matrix m;
+//                            m(0,0)=0;m(0,1)=1;m(0,2)=0;m(0,3)=0;
+//                            m(1,0)=-1;m(1,1)=0;m(1,2)=0;m(1,3)=0;
+//                            m(2,0)=0;m(2,1)=0;m(2,2)=1;m(2,3)=0;
+//                            m(3,0)=-250.77;m(3,1)=-60.0;m(3,2)=0;m(3,3)=1;
+//                            currentTentity->setInitEntityPosition(m);
+                            currentTentity->setInitEntityPosition(initPosition, initDirVec);
                             currentTentity->setPosition(initPosition);
+
+
+
                         }
                     }
                 }
