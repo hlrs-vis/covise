@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OpenSCENARIO>
+  <FileHeader revMajor="0" revMinor="0" date="1900-01-01T01:01:01+01:00" description="description1" author="author1" />
+  <Catalog name="Vehicle">
+    <Vehicle name="volvo" category="car">
+      <Properties>
+        <File filepath="test/vehicle_files/volvo/volvo_blue_nrm.3ds" />
+      </Properties>
+      <Axles>
+        <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
+        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
+      </Axles>
+      <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
+      <BoundingBox>
+        <Dimension width="1" length="1" height="1" />
+        <Center x="1" y="1" z="1" />
+      </BoundingBox>
+      <ParameterDeclaration>
+        <Parameter name="name1" type="int" value="value1" />
+        <Parameter name="name2" type="double" value="value2" />
+        <Parameter name="name3" type="string" value="value3" />
+      </ParameterDeclaration>
+    </Vehicle>
+    <Vehicle name="golf" category="car">
+      <Properties>
+        <File filepath="test/vehicle_files/vw/golf3_grey_sml.3ds" />
+      </Properties>
+      <Axles>
+        <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
+        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
+      </Axles>
+      <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
+      <BoundingBox>
+        <Dimension width="1" length="1" height="1" />
+        <Center x="1" y="1" z="1" />
+      </BoundingBox>
+      <ParameterDeclaration>
+        <Parameter name="name1" type="int" value="value1" />
+        <Parameter name="name2" type="double" value="value2" />
+        <Parameter name="name3" type="string" value="value3" />
+      </ParameterDeclaration>
+    </Vehicle>
+    <Vehicle name="seat" category="car">
+      <Properties>
+        <File filepath="test/vehicle_files/seat/ibiza_orange_nrm.3ds" />
+      </Properties>
+      <Axles>
+        <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
+        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
+        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
+      </Axles>
+      <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
+      <BoundingBox>
+        <Dimension width="1" length="1" height="1" />
+        <Center x="1" y="1" z="1" />
+      </BoundingBox>
+      <ParameterDeclaration>
+        <Parameter name="name1" type="int" value="value1" />
+        <Parameter name="name2" type="double" value="value2" />
+        <Parameter name="name3" type="string" value="value3" />
+      </ParameterDeclaration>
+    </Vehicle>
+  </Catalog>
+</OpenSCENARIO>
