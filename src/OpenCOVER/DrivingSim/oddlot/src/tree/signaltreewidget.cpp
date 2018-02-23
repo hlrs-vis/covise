@@ -213,14 +213,26 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 
 		QTreeWidgetItem *item = selectedItems().at(0);
 		const QString text = item->text(0);
-		SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
+		QString country;
+		QString category;
+		QTreeWidgetItem *parentItem = item->parent();
+		if (parentItem)
+		{
+			parentItem = parentItem->parent();
+			if (parentItem)
+			{
+				country = parentItem->text(0);
+			}
+		}
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(country, text);
 		if (signalContainer)				// selected item is a signal
 		{
 			signalManager_->setSelectedSignalContainer(signalContainer);
 			currentTool_ = ODD::TSG_SIGNAL;
-			if (signalEditor_ && projectWidget_)
+
+			if (signalEditor_ && projectWidget_ && parentItem && !country.isEmpty())
 			{
-				const QString &country = signalManager_->getCountry(signalContainer);
+//				const QString &country = signalManager_->getCountry(signalContainer);
 				QString type = signalContainer->getSignalType();
 				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
 				QString subtype = signalContainer->getSignalSubType();

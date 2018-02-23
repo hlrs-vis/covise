@@ -500,6 +500,11 @@ ShapeSection::getClone()
 		clone = new ShapeSection(getSStart(), 0.0);
 	}
 
+	foreach (PolynomialLateralSection *poly, shapes_)
+	{
+		clone->addShape(poly->getTStart(), poly->getClone());
+	}
+
     return clone;
 }
 

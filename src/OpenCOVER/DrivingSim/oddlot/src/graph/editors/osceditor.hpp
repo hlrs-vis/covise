@@ -37,6 +37,7 @@ class oscArrayMember;
 }
 
 class OSCBaseItem;
+class OSCBaseShapeItem;
 class OSCItem;
 class OSCRoadSystemItem;
 class OSCElement;
@@ -74,12 +75,12 @@ public:
     //
 	void move(QPointF &diff);
 	void translate(QPointF &diff);
-	void translateObject(OSCItem *oscItem, QPointF &diff);
+	void translateObject(OpenScenario::oscObject *oscObject, QPointF &diff);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
 	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
 	std::string getName(OpenScenario::oscArrayMember *arrayMember, const std::string &baseName);
-	void cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
+	OSCElement* cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
 
 
 	// Catalog dock widget changed //
@@ -144,6 +145,7 @@ private:
 	//
 	OSCBase * oscBase_;
 	OSCBaseItem * oscBaseItem_;
+	OSCBaseShapeItem *oscBaseShapeItem_;
 	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
 	// Selected catalog //

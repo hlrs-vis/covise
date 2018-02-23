@@ -52,6 +52,7 @@
 #include "src/graph/items/oscsystem/oscitem.hpp"
 #include "src/graph/items/oscsystem/oscshapeitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
+#include "src/graph/items/oscsystem/oscbaseshapeitem.hpp"
 
 // Tools //
 //
@@ -113,6 +114,7 @@ OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData
     : ProjectEditor(projectWidget, projectData, topviewGraph)
 	, topviewGraph_(topviewGraph)
 	, oscBaseItem_(NULL)
+	, oscBaseShapeItem_(NULL)
 	, oscBase_(NULL)
 	, oscCatalog_(NULL)
     , trajectoryElement_(NULL)
@@ -238,6 +240,14 @@ OpenScenarioEditor::init()
 		getTopviewGraph()->getScene()->addItem(oscBaseItem_);
 	}
 
+	if (!oscBaseShapeItem_ && openScenarioBase_->getSource())   // OpenScenario Editor graphischee Elemente
+	{
+		// Root OSC item //
+		//
+		oscBaseShapeItem_ = new OSCBaseShapeItem(getTopviewGraph(), oscBase_);
+		getTopviewGraph()->getScene()->addItem(oscBaseShapeItem_);
+	}
+
 
         // Signal Handle //
         //
@@ -283,6 +293,12 @@ OpenScenarioEditor::kill()
 	{
 		delete oscBaseItem_;
 		oscBaseItem_ = NULL;
+	}
+
+	if (oscBaseShapeItem_)
+	{
+		delete oscBaseShapeItem_;
+		oscBaseShapeItem_ = NULL;
 	}
 }
 
@@ -356,9 +372,8 @@ OpenScenarioEditor::move(QPointF &diff)
 }
 
 void 
-OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
+OpenScenarioEditor::translateObject(OpenScenario::oscObject *oscObject, QPointF &diff)
 {
-	OpenScenario::oscObject *oscObject = oscItem->getObject();
 	OpenScenario::oscPrivateAction *oscPrivateAction = getOrCreatePrivateAction(oscObject->name.getValue());
 
 	OpenScenario::oscPosition *oscPosition = oscPrivateAction->Position.getOrCreateObject();
@@ -366,7 +381,8 @@ OpenScenarioEditor::translateObject(OSCItem *oscItem, QPointF &diff)
 
 	OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getOrCreateObject();
 
-	odrID roadId(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
+//	odrID roadId(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
+	odrID roadId(QString::fromStdString(oscPosRoad->roadId.getValue()));
 	RSystemElementRoad *road = getProjectData()->getRoadSystem()->getRoad(roadId);
 	if (road)
 	{
@@ -405,7 +421,7 @@ OpenScenarioEditor::translate(QPointF &diff)
 		OSCItem *oscItem = dynamic_cast<OSCItem *>(item);
 		if (oscItem)
 		{
-			translateObject(oscItem, diff);
+			translateObject(oscItem->getObject(), diff);
 		}
 	}
 
@@ -607,7 +623,7 @@ OpenScenarioEditor::getOrCreatePrivateAction(const std::string &selectedObjectNa
 	}
 
 	OpenScenario::oscPrivateAction *privateActions = privateObject->Action.getOrCreateObject();
-	OpenScenario::oscArrayMember *privateActionsArray = dynamic_cast<OpenScenario::oscArrayMember *>(privateActions->getOwnMember());
+	OpenScenario::oscArrayMember *privateActionsArray = dynamic_cast<OpenScenario::oscArrayMember *>(privateObject->getMember("Action"));
 	OpenScenario::oscPrivateAction *privateAction = NULL;
 
 	for(oscArrayMember::iterator it =privateActionsArray->begin();it != privateActionsArray->end();it++)
@@ -662,7 +678,7 @@ OpenScenarioEditor::getName(OpenScenario::oscArrayMember *arrayMember, const std
 	return newname;
 }
 
-void 
+OSCElement* 
 OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject)
 {
 	getProjectData()->getUndoStack()->beginMacro("Clone Entity");
@@ -674,7 +690,7 @@ OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *os
 		AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, oscObject->getParentObj(), NULL, "Object", element->getOSCBase(), oscElement);
 		getProjectGraph()->executeCommand(command);
 		OpenScenario::oscObject *clone = static_cast<OpenScenario::oscObject *>(oscElement->getObject());
-		clone->cloneMembers(oscObject);
+		clone->cloneMembers(oscObject, clone->getParentObj(), oscObject->getOwnMember());
 
 		OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
 		std::string name;
@@ -687,11 +703,13 @@ OpenScenarioEditor::cloneEntity(OSCElement *element, OpenScenario::oscObject *os
 			name = oscObject->name.getValue();
 		}
 		clone->name.setValue(getName(oscObjectArray, name));
-		OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(clone->name.getValue());
-		privateAction->cloneMembers(getOrCreatePrivateAction(oscObject->name.getValue()));
+		OpenScenario::oscPrivateAction *clonePrivateAction = getOrCreatePrivateAction(clone->name.getValue());
+		OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(oscObject->name.getValue());
+		clonePrivateAction->cloneMembers(privateAction, clonePrivateAction->getParentObj(), privateAction->getOwnMember());
 	}
-
+	
 	getProjectData()->getUndoStack()->endMacro();
+	return oscElement;
 }
 
 
@@ -706,6 +724,7 @@ void
 OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 {
 
+    QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
     ProjectEditor::mouseAction(mouseAction);
 
     // SELECT //
@@ -714,11 +733,10 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 	if (currentTool == ODD::TOS_ELEMENT)
 	{
+		QPointF mousePoint = mouseAction->getEvent()->scenePos();
 
         if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
 		{
-			QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
-			QPointF mousePoint = mouseEvent->scenePos();
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
 				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);

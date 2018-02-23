@@ -16,7 +16,10 @@
 #ifndef OSCITEM_HPP
 #define OSCITEM_HPP
 
-#include "oscbaseitem.hpp"
+#include "osctextitem.hpp"
+#include "src/graph/items/svgelement.hpp"
+
+#include <QtSvg/QGraphicsSvgItem>
 
 namespace OpenScenario
 {
@@ -31,15 +34,16 @@ class oscPosition;
 class oscRoad;
 }
 
+class OSCRoadSystemItem;
 class RoadSystem;
 class OpenScenarioEditor;
-class OSCTextItem;
+
 class OSCBaseItem;
-class SVGItem;
+class OSCTextItem;
 
 class QColor;
 
-class OSCItem : public GraphElement
+class OSCItem : public SVGElement
 {
     Q_OBJECT
 
@@ -61,12 +65,6 @@ public:
 		return oscObject_;
 	}
 
-    // Graphics //
-    //
-	void updateColor(const std::string &type);
-	
-	// Function for path drawing //
-	QPainterPath (*createPath)(OpenScenario::oscObjectBase *, RSystemElementRoad *);
 
     void updatePosition();
 	void move(QPointF &diff);
@@ -103,8 +101,6 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -117,17 +113,17 @@ protected:
 
 private:
 	OSCElement *element_;
+	OSCElement *cloneElement_;
 	OpenScenario::oscObject *oscObject_;
 	OpenScenario::oscRoad *oscRoad_;
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
-	SVGItem *svgItem_;
 	std::string covisedir_;
 	
 
     void init();
-	void updateIcon();
+	void updateIcon(OpenScenario::oscObjectBase *catalogObject, std::string catalogName, std::string categoryName, std::string entryName);
     QString updateName();
 
 	OpenScenario::oscCatalog *catalog_;
@@ -137,19 +133,32 @@ private:
 	double s_;
 	double t_;
 	double angle_;
+	double iconScaleX_;
+	double iconScaleY_;
+	QPointF svgCenter_;
     QPointF pos_;
+	QPointF lastPos_;
 	QPainterPath path_;
 
-    QPointF pressPos_;
-	QPointF lastPos_;
+    QPointF mousePressPos_;
+	QPointF mouseLastPos_;
 	bool doPan_;
 	bool copyPan_;
 
-    OSCTextItem *oscTextItem_;
+	QGraphicsSvgItem *cloneSvgItem_;
+	std::string fn_;
+	QTransform tR_;
+	QTransform tS_;
+	QTransform tT_;
+	
+
+	OSCTextSVGItem *oscTextItem_;
 
     QColor color_;
 
     OpenScenarioEditor *oscEditor_;
+
+	QSvgRenderer *renderer_;
 
 
 };

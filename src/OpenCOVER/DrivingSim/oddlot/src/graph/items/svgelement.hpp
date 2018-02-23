@@ -1,6 +1,6 @@
 /* This file is part of COVISE.
 
-   You can use it under the terms of the GNU Lesser General Public LicenseGraphElement
+   You can use it under the terms of the GNU Lesser General Public LicenseSVGElement
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
@@ -13,14 +13,15 @@
 **
 **************************************************************************/
 
-#ifndef GraphElement_HPP
-#define GraphElement_HPP
+#ifndef SVGElement_HPP
+#define SVGElement_HPP
 
 
-#include <QGraphicsPathItem>
-#include "src/graph/items/basegraphelement.hpp"
+#include <QtSvg/QGraphicsSvgItem>
+#include "src/graph/items/baseGraphElement.hpp"
 
-class GraphElement : public QObject, public BaseGraphElement<QGraphicsPathItem>
+
+class SVGElement : public BaseGraphElement<QGraphicsSvgItem>
 {
 	Q_OBJECT
 
@@ -29,9 +30,9 @@ class GraphElement : public QObject, public BaseGraphElement<QGraphicsPathItem>
     //################//
 
 public:
-    explicit GraphElement(GraphElement *parentGraphElement, DataElement *dataElement);
-    virtual ~GraphElement();
+    explicit SVGElement(SVGElement *parentElement, DataElement *dataElement);
 
+    virtual ~SVGElement();
 
 	//################//
 	// SLOTS          //
@@ -41,7 +42,9 @@ public slots:
 	void hideGraphElement();
 	virtual void hideRoads();
 
+private:
+
+ 
 };
 
-
-#endif // GraphElement_HPP
+#endif // SVGElement_HPP

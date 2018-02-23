@@ -1068,6 +1068,33 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
         delete command;
     }
 
+	// Superpose planar SuperelevationSection //
+	//
+	QList<PrototypeContainer<RSystemElementRoad *> *> superelevationSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
+
+	for (int i = 0; i < superelevationSectionPrototypes.size(); i++)
+	{
+		if (superelevationSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+		{
+			spiralPrototype->superposePrototype(superelevationSectionPrototypes.at(i)->getPrototype());
+			break;
+		}
+	}
+
+	// Superpose planar CrossfallSection //
+	//
+	QList<PrototypeContainer<RSystemElementRoad *> *> crossfallSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
+
+	for (int i = 0; i < crossfallSectionPrototypes.size(); i++)
+	{
+		if (crossfallSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+		{
+			spiralPrototype->superposePrototype(crossfallSectionPrototypes.at(i)->getPrototype());
+			break;
+		}
+	}
+
+
     return spiralPrototype;
 }
 
@@ -1964,6 +1991,19 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                                     startLanesIterator++;
                                 }*/
+
+								// Superpose planar ShapeSection //
+								//
+								QList<PrototypeContainer<RSystemElementRoad *> *> shapeSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
+
+								for (int i = 0; i < shapeSectionPrototypes.size(); i++)
+								{
+									if (shapeSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+									{
+										spiralPrototype->superposePrototype(shapeSectionPrototypes.at(i)->getPrototype());
+										break;
+									}
+								}
 
                                 NewRoadCommand *command = new NewRoadCommand(spiralPrototype, getProjectData()->getRoadSystem(), NULL);
                                 getProjectGraph()->executeCommand(command);

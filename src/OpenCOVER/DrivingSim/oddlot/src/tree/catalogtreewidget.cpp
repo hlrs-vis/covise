@@ -195,10 +195,10 @@ CatalogTreeWidget::createTree()
 				}
 
 				QTreeWidgetItem *item = new QTreeWidgetItem();
-				TreeDataTyoe td;
+/*				TreeDataTyoe td;
 				td.str = elementName;
 				td.obj = obj;
-//				item->setData(0, Qt::UserRole, qVariantFromValue<TreeDataTyoe>(td));
+				item->setData(0, Qt::UserRole, qVariantFromValue<TreeDataTyoe>(td));  */
 				item->setText(0,elementName);
 				item->setFlags(Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 				
@@ -224,7 +224,7 @@ QTreeWidgetItem *CatalogTreeWidget::getItem(const QString &name)
 
 QTreeWidgetItem *CatalogTreeWidget::getItem(OpenScenario::oscObjectBase *obj)
 {
-	QTreeWidgetItemIterator it(this);
+/*	QTreeWidgetItemIterator it(this);
 	while (*it)
 	{
 		if ((*it)->data(0, Qt::UserRole).value<TreeDataTyoe>().obj == obj)
@@ -232,6 +232,15 @@ QTreeWidgetItem *CatalogTreeWidget::getItem(OpenScenario::oscObjectBase *obj)
 			return (*it);
 		}
 		++it;
+	} */
+
+	const OpenScenario::oscCatalog::ObjectsMap objects = catalog_->getObjectsMap();
+	for (OpenScenario::oscCatalog::ObjectsMap::const_iterator it = objects.begin(); it != objects.end(); it++)
+	{
+		if (it->second.object == obj)
+		{
+			return getItem(QString::fromStdString(it->first));
+		}
 	}
 
 	return NULL;
@@ -443,6 +452,11 @@ CatalogTreeWidget::updateObserver()
 		createTree();
 		return;
 	} */
+
+	if (!oscElement_)
+	{
+		return;
+	}
 
     // Object name //
     //

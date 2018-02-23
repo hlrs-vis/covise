@@ -137,7 +137,7 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 	QStringList parts = oscElement->getID().split("_");
 
 	bool number = false;
-	int tn = parts.at(0).toInt(&number);
+	int tn = parts.at(1).toInt(&number);
 	odrID tid;
 	tid.setID(tn);
 	getProjectData()->getTileSystem()->getTile(tid)->removeOSCID(oscElement->getID());

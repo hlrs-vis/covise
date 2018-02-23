@@ -149,7 +149,7 @@ SignalItem::updateCategory()
     }
     else
     {
-        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
+        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getCountry(), signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
 		if (signalContainer)
 		{
 			QString category = signalContainer->getSignalCategory();

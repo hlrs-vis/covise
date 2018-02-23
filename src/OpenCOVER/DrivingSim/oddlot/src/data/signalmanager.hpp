@@ -271,8 +271,8 @@ public:
     {
         return signals_.values(country);
     };
-	SignalContainer * getSignalContainer(const QString &type, const QString &typeSubclass, const QString &subType);
-	SignalContainer * getSignalContainer(const QString &name);
+	SignalContainer * getSignalContainer(const QString &country, const QString &type, const QString &typeSubclass, const QString &subType);
+	SignalContainer * getSignalContainer(const QString &country,const QString &name);
 
 	SignalContainer *getSelectedSignalContainer()
 	{

@@ -30,7 +30,6 @@
 #include "src/graph/graphscene.hpp"
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/oscsystem/oscitem.hpp"
-#include "src/graph/items/oscsystem/oscshapeitem.hpp"
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
 
@@ -67,7 +66,7 @@
 using namespace OpenScenario;
 
 OSCBaseItem::OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase)
-	: GraphElement(NULL, oscBase)
+	: SVGElement(NULL, oscBase)
 	, topviewGraph_(topviewGraph)
 	, oscBase_(oscBase)
 {
@@ -131,7 +130,8 @@ OSCBaseItem::init()
 						if (oscPosRoad)
 						{
 
-							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+	//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+							odrID roadID(QString::fromStdString(oscPosRoad->roadId.getValue()));
 							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
 							if (road)
 							{
@@ -143,15 +143,6 @@ OSCBaseItem::init()
 						break;
 					}
 				}
-			}
-		}
-
-		else
-		{
-			OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-			if (trajectory)
-			{
-				new OSCShapeItem(element, this, trajectory);
 			}
 		}
 	}
@@ -222,23 +213,6 @@ OSCBaseItem::removeOSCItem(OSCItem *oscItem)
     return oscItems_.remove(element->getID());
 }
 
-void
-OSCBaseItem::appendOSCShapeItem(OSCShapeItem *oscShapeItem)
-{
-	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
-	QString id = element->getID();
-    if (!oscShapeItems_.contains(id))
-    {
-        oscShapeItems_.insert(id, oscShapeItem);
-    }
-}
-
-bool
-OSCBaseItem::removeOSCShapeItem(OSCShapeItem *oscShapeItem)
-{
-	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
-    return oscShapeItems_.remove(element->getID());
-}
 
 //##################//
 // Observer Pattern //
@@ -248,11 +222,11 @@ OSCBaseItem::removeOSCShapeItem(OSCShapeItem *oscShapeItem)
 *
 */
 void
-OSCBaseItem::updateObserver()
+OSCBaseItem:: updateObserver()
 {
     // Parent //
     //
-    GraphElement::updateObserver();
+    SVGElement::updateObserver();
     if (isInGarbage())
     {
         return; // will be deleted anyway
@@ -287,7 +261,7 @@ OSCBaseItem::updateObserver()
 					//
 
 					OpenScenario::oscPrivate *privateObject = NULL;
-					for(oscArrayMember::iterator it =privateArray->begin();it != privateArray->end();it++)
+					for (oscArrayMember::iterator it = privateArray->begin(); it != privateArray->end(); it++)
 					{
 						privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
 						if (privateObject->object.getValue() == object->name.getValue())
@@ -316,30 +290,18 @@ OSCBaseItem::updateObserver()
 						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
 						if (oscPosRoad)
 						{
-							odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+							//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+							odrID roadID(QString::fromStdString(oscPosRoad->roadId.getValue()));
 							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
-                            if (road)
-                            {
-                                new OSCItem(element, this, object, catalog, oscPosRoad);
-                            }
-                        }
-                    }
-				}
-			}
-			else
-			{
-
-				OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-				if (trajectory)
-				{
-					if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-						|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-					{
-						new OSCShapeItem(element, this, trajectory);
+							if (road)
+							{
+								new OSCItem(element, this, object, catalog, oscPosRoad);
+							}
+						}
 					}
 				}
-
 			}
+
             iter++;
         }
     }

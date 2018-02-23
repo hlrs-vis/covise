@@ -156,7 +156,7 @@ SignalSettings::updateProperties()
         ui->typeBox->setText(signal_->getType());
         ui->subclassLineEdit->setText(signal_->getTypeSubclass());
         ui->subtypeBox->setText(signal_->getSubtype());
-		SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(),signal_->getTypeSubclass(),signal_->getSubtype());
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getCountry(), signal_->getType(),signal_->getTypeSubclass(),signal_->getSubtype());
 		if (signalContainer)
 		{
 			QIcon icon = signalContainer->getSignalIcon();

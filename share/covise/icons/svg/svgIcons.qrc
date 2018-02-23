@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/svgIcons">
+	<file>VehicleCatalog_bicycle.svg</file>
+	<file>VehicleCatalog_bus.svg</file>
+	<file>VehicleCatalog_car.svg</file>
+	<file>VehicleCatalog_car_porsche.svg</file>
+	<file>PedestrianCatalog_pedestrian.svg</file>
+	<file>VehicleCatalog_trailer.svg</file>
+	<file>VehicleCatalog_motorbike.svg</file>
+	<file>VehicleCatalog_train.svg</file>
+	<file>VehicleCatalog_tram.svg</file>
+	<file>VehicleCatalog_truck.svg</file>
+	<file>default.svg</file>
+    </qresource>
+</RCC>

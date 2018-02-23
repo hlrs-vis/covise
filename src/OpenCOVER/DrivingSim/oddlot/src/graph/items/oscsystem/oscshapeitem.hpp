@@ -16,7 +16,8 @@
 #ifndef OSCSHAPEITEM_HPP
 #define OSCSHAPEITEM_HPP
 
-#include "oscbaseitem.hpp"
+#include "oscbaseshapeitem.hpp"
+#include "src/graph/items/graphelement.hpp"
 
 namespace OpenScenario
 {
@@ -26,7 +27,9 @@ class oscTrajectory;
 }
 
 class OpenScenarioEditor;
+
 class OSCTextItem;
+
 class OSCBaseItem;
 
 class QColor;
@@ -40,7 +43,7 @@ class OSCShapeItem : public GraphElement
     //################//
 
 public:
-	explicit OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscTrajectory *trajectory);
+	explicit OSCShapeItem(OSCElement *element, OSCBaseShapeItem *oscBaseShapeItem, OpenScenario::oscTrajectory *trajectory);
     virtual ~OSCShapeItem();
 
 
@@ -100,7 +103,7 @@ protected:
 private:
     OpenScenario::oscTrajectory *trajectory_;
 	OSCElement *element_;
-	OSCBaseItem * oscBaseItem_;
+	OSCBaseShapeItem * oscBaseShapeItem_;
     void init();
     void createControlPoints();
     QString updateName();
