@@ -67,6 +67,7 @@ AppendRoadPrototypeCommand::AppendRoadPrototypeCommand(RSystemElementRoad *road,
     oldSuperelevationSections_ = road->getSuperelevationSections();
     oldCrossfallSections_ = road->getCrossfallSections();
     oldLaneSections_ = road->getLaneSections();
+	oldShapeSections_ = road->getShapeSections();
 
     if (atStart_)
     {
@@ -196,6 +197,18 @@ AppendRoadPrototypeCommand::AppendRoadPrototypeCommand(RSystemElementRoad *road,
         newLaneSections_.insert(clone->getSStart(), clone);
     }
 
+	// ShapeSections //
+	//
+	foreach(ShapeSection *section, prototype_->getShapeSections())
+	{
+		ShapeSection *clone = section->getClone();
+		if (!atStart_)
+		{
+			clone->setSStart(clone->getSStart() + deltaS);
+		}
+		newShapeSections_.insert(clone->getSStart(), clone);
+	}
+
     // Done //
     //
     setValid();
@@ -235,6 +248,10 @@ AppendRoadPrototypeCommand::~AppendRoadPrototypeCommand()
         {
             delete section; // delete sections
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			delete section; // delete sections
+		}
     }
     else
     {
@@ -319,6 +336,18 @@ AppendRoadPrototypeCommand::redo()
             }
             road_->setLaneSections(newSections);
         }
+		if (!newShapeSections_.isEmpty())
+		{
+			// Move old sections //
+			//
+			QMap<double, ShapeSection *> newSections = newShapeSections_;
+			foreach(ShapeSection *section, oldShapeSections_)
+			{
+				section->setSStart(section->getSStart() + prototypeLength_);
+				newSections.insert(section->getSStart(), section);
+			}
+			road_->setShapeSections(newSections);
+		}
     }
     else
     {
@@ -346,6 +375,10 @@ AppendRoadPrototypeCommand::redo()
         {
             road_->addLaneSection(section);
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			road_->addShapeSection(section);
+		}
     }
 
     setRedone();
@@ -416,6 +449,16 @@ AppendRoadPrototypeCommand::undo()
             newLaneSections.insert(section->getSStart(), section);
         }
         road_->setLaneSections(newLaneSections);
+
+		// ShapeSections //
+		//
+		QMap<double, ShapeSection *> newShapeSections;
+		foreach(ShapeSection *section, oldShapeSections_)
+		{
+			section->setSStart(section->getSStart() - prototypeLength_);
+			newShapeSections.insert(section->getSStart(), section);
+		}
+		road_->setShapeSections(newShapeSections);
     }
     else
     {
@@ -443,6 +486,10 @@ AppendRoadPrototypeCommand::undo()
         {
             road_->delLaneSection(section);
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			road_->delShapeSection(section);
+		}
     }
 
     setUndone();
@@ -485,6 +532,7 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
     oldSuperelevationSections_ = road1->getSuperelevationSections();
     oldCrossfallSections_ = road1->getCrossfallSections();
     oldLaneSections_ = road1->getLaneSections();
+	oldShapeSections_ = road1->getShapeSections();
     
 
     QTransform road1Trafo, road2Trafo;
@@ -571,6 +619,15 @@ MergeRoadsCommand::MergeRoadsCommand(RSystemElementRoad *road1, RSystemElementRo
         newLaneSections_.insert(clone->getSStart(), clone);
     }
 
+	// ShapeSections //
+	//
+	foreach(ShapeSection *section, road2_->getShapeSections())
+	{
+		ShapeSection *clone = section->getClone();
+		clone->setSStart(clone->getSStart() + deltaS);
+		newShapeSections_.insert(clone->getSStart(), clone);
+	}
+
     // Done //
     //
     setValid();
@@ -610,6 +667,10 @@ MergeRoadsCommand::~MergeRoadsCommand()
         {
             delete section; // delete sections
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			delete section; // delete sections
+		}
     }
     else
     {
@@ -649,6 +710,10 @@ MergeRoadsCommand::redo()
     {
         road1_->addLaneSection(section);
     }
+	foreach(ShapeSection *section, newShapeSections_)
+	{
+		road1_->addShapeSection(section);
+	}
 
     setRedone();
 }
@@ -684,6 +749,10 @@ MergeRoadsCommand::undo()
     {
         road1_->delLaneSection(section);
     }
+	foreach(ShapeSection *section, newShapeSections_)
+	{
+		road1_->delShapeSection(section);
+	}
     roadSystem_->addRoad(road2_);
 
     setUndone();
@@ -755,6 +824,7 @@ SnapRoadsCommand::SnapRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad
         oldSuperelevationSections_ = road1->getSuperelevationSections();
         oldCrossfallSections_ = road1->getCrossfallSections();
         oldLaneSections_ = road1->getLaneSections();
+		oldShapeSections_ = road1->getShapeSections();
 
         // TrackSections //
         //
@@ -832,6 +902,18 @@ SnapRoadsCommand::SnapRoadsCommand(RSystemElementRoad *road1, RSystemElementRoad
             }
             newLaneSections_.insert(clone->getSStart(), clone);
         }
+
+		// ShapeSections //
+		//
+		foreach(ShapeSection *section, road2_->getShapeSections())
+		{
+			ShapeSection *clone = section->getClone();
+			if (pos & (SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart))
+			{
+				clone->setSStart(road1->getLength() + clone->getSStart());
+			}
+			newShapeSections_.insert(clone->getSStart(), clone);
+		}
     }
 
     // Done //
@@ -875,6 +957,10 @@ SnapRoadsCommand::~SnapRoadsCommand()
             {
                 delete section; // delete sections
             }
+			foreach(ShapeSection *section, newShapeSections_)
+			{
+				delete section; // delete sections
+			}
         }
     }
     else
@@ -990,6 +1076,18 @@ SnapRoadsCommand::redo()
             }
             road1_->setLaneSections(newSections);
         }
+		if (!newShapeSections_.isEmpty())
+		{
+			// Move old sections //
+			//
+			QMap<double, ShapeSection *> newSections = newShapeSections_;
+			foreach(ShapeSection *section, oldShapeSections_)
+			{
+				section->setSStart(section->getSStart() + road2_->getLength());
+				newSections.insert(section->getSStart(), section);
+			}
+			road1_->setShapeSections(newSections);
+		}
 
         roadSystem_->delRoad(road2_);
     }
@@ -1019,6 +1117,10 @@ SnapRoadsCommand::redo()
         {
             road1_->addLaneSection(section);
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			road1_->addShapeSection(section);
+		}
 
         roadSystem_->delRoad(road2_);
     }
@@ -1096,6 +1198,16 @@ SnapRoadsCommand::undo()
         road1_->setLaneSections(newLaneSections);
 
         roadSystem_->addRoad(road2_);
+
+		// ShapeSections //
+		//
+		QMap<double, ShapeSection *> newShapeSections;
+		foreach(ShapeSection *section, oldShapeSections_)
+		{
+			section->setSStart(section->getSStart() - road2_->getLength());
+			newShapeSections.insert(section->getSStart(), section);
+		}
+		road1_->setShapeSections(newShapeSections);
     }
     break;
     case SetRoadLinkRoadsCommand::FirstRoadEnd | SetRoadLinkRoadsCommand::SecondRoadStart:
@@ -1126,6 +1238,10 @@ SnapRoadsCommand::undo()
         {
             road1_->delLaneSection(section);
         }
+		foreach(ShapeSection *section, newShapeSections_)
+		{
+			road1_->delShapeSection(section);
+		}
 
         roadSystem_->addRoad(road2_);
     }
@@ -2028,6 +2144,16 @@ RemoveTrackCommand::RemoveTrackCommand(RSystemElementRoad *road, TrackComponent 
                 laneSections_.insert(section->getSStart(), section);
             }
         }
+
+		// ShapeSections //
+		//
+		foreach(ShapeSection *section, road_->getShapeSections())
+		{
+			if (section->getSStart() >= sCut_)
+			{
+				shapeSections_.insert(section->getSStart(), section);
+			}
+		}
     }
 
     // Done //
@@ -2073,6 +2199,10 @@ RemoveTrackCommand::~RemoveTrackCommand()
         {
             delete section; // delete sections
         }
+		foreach(ShapeSection *section, shapeSections_)
+		{
+			delete section; // delete sections
+		}
     }
 }
 
@@ -2200,6 +2330,10 @@ RemoveTrackCommand::redo()
         {
             road_->delLaneSection(section);
         }
+		foreach(ShapeSection *section, shapeSections_)
+		{
+			road_->delShapeSection(section);
+		}
 
         QMap<double, TrackComponent *>::const_iterator i = trackSections_.constEnd();
         while (i != trackSections_.constBegin())
@@ -2341,6 +2475,10 @@ RemoveTrackCommand::undo()
         {
             road_->addLaneSection(section);
         }
+		foreach(ShapeSection *section, shapeSections_)
+		{
+			road_->addShapeSection(section);
+		}
     }
 
     setUndone();
@@ -3115,6 +3253,39 @@ SplitRoadCommand::splitBefore(double s)
     }
     newRoadA_->setLaneSections(laneSectionsA);
     newRoadB_->setLaneSections(laneSectionsB);
+
+	// shape //
+	QMap<double, ShapeSection *> shapeSectionsA;
+	QMap<double, ShapeSection *> shapeSectionsB;
+	if (!road_->getShapeSections().isEmpty())
+	{
+		foreach(ShapeSection *section, road_->getShapeSections())
+		{
+			bool exactMatch = false;
+			if (section->getSStart() < s)
+			{
+				section = section->getClone();
+				shapeSectionsA.insert(section->getSStart(), section);
+			}
+			else if (fabs(section->getSStart() - s) < NUMERICAL_ZERO6)
+			{
+				exactMatch = true;
+				section = section->getClone();
+				section->setSStart(0.0);
+				shapeSectionsB.insert(0.0, section);
+			}
+
+		}
+		if (shapeSectionsB.isEmpty())
+		{
+			ShapeSection *splittedSection = road_->getShapeSection(s);
+			splittedSection = splittedSection->getClone();
+			splittedSection->setSStart(0.0);
+			shapeSectionsB.insert(0.0, splittedSection);
+		}
+		newRoadA_->setShapeSections(shapeSectionsA);
+		newRoadB_->setShapeSections(shapeSectionsB);
+	}
 }
 
 /*! \brief .

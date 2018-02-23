@@ -413,6 +413,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/graphviewitems/graphviewshapeitem.hpp
     src/graph/heightgraph.hpp
     src/graph/items/graphelement.hpp
+	src/graph/items/svgelement.hpp
     src/graph/items/handles/handle.hpp
     src/graph/items/handles/sliderhandle.hpp
     src/graph/items/handles/slidermovehandle.hpp
@@ -422,7 +423,6 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/oscsystem/oscitem.hpp
     src/graph/items/oscsystem/oscshapeitem.hpp
     src/graph/items/oscsystem/osctextitem.hpp
-    src/graph/items/oscsystem/svgitem.hpp
     src/graph/items/roadsystem/controlleritem.hpp
     src/graph/items/roadsystem/crossfall/crossfallmovehandle.hpp
     src/graph/items/roadsystem/crossfall/crossfallsectionitem.hpp

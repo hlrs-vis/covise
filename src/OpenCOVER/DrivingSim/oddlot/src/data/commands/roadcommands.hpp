@@ -84,6 +84,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -136,6 +139,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -189,6 +195,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -414,6 +423,7 @@ private:
     QMap<double, SuperelevationSection *> superelevationSections_;
     QMap<double, CrossfallSection *> crossfallSections_;
     QMap<double, LaneSection *> laneSections_;
+	QMap<double, ShapeSection *> shapeSections_;
 };
 
 //#########################//
