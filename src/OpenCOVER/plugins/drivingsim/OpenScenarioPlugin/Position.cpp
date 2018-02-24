@@ -208,11 +208,11 @@ osg::Vec3 Position::hpr2directionVector()
     double p = World->p.getValue();
 
     osg::Matrix rz;
-    rz(0,0) = cos(p); rz(0,1)=sin(p);
-    rz(1,0) = -sin(p); rz(1,1)=cos(p);
+    rz(0,0) = cos(h); rz(0,1)=sin(h);
+    rz(1,0) = -sin(h); rz(1,1)=cos(h);
     osg::Matrix ry;
-    ry(0,0) = cos(h); ry(0,2) = -sin(h);
-    ry(2,0) = sin(h); ry(2,2) = cos(h);
+    ry(0,0) = cos(p); ry(0,2) = -sin(p);
+    ry(2,0) = sin(p); ry(2,2) = cos(p);
 
     osg::Vec3 e0(1,0,0);
 

@@ -457,17 +457,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                             osg::Vec3 initPosition = pos->getAbsoluteWorld();
                             osg::Vec3 initDirVec = pos->hpr2directionVector();
 
-//                            osg::Matrix m;
-//                            m(0,0)=0;m(0,1)=1;m(0,2)=0;m(0,3)=0;
-//                            m(1,0)=-1;m(1,1)=0;m(1,2)=0;m(1,3)=0;
-//                            m(2,0)=0;m(2,1)=0;m(2,2)=1;m(2,3)=0;
-//                            m(3,0)=-250.77;m(3,1)=-60.0;m(3,2)=0;m(3,3)=1;
-//                            currentTentity->setInitEntityPosition(m);
                             currentTentity->setInitEntityPosition(initPosition, initDirVec);
                             currentTentity->setPosition(initPosition);
-
-
-
                         }
                     }
                 }
