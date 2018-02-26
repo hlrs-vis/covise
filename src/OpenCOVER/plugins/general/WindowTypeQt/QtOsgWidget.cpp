@@ -201,7 +201,6 @@ bool QtGraphicsWindow::makeCurrentImplementation()
         m_glWidget->makeCurrent();
     else
         std::cerr << "QtGraphicsWindow: making context current without GL widget" << std::endl;
-    glEnable(GL_FRAMEBUFFER_SRGB);
     return true;
 }
 
