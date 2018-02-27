@@ -113,6 +113,12 @@ Element *Manager::getByPath(const std::string &path) const
 
 bool Manager::update()
 {
+    for (auto v: m_views)
+    {
+        if (v.second->update())
+            m_changed = true;
+    }
+
     while (!m_newElements.empty())
     {
         m_changed = true;
