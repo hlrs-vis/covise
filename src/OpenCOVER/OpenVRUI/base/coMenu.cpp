@@ -484,4 +484,15 @@ void coMenu::setAttachment(int attachment)
         }
     }
 }
+
+bool coMenu::wasMoved() const
+{
+    return wasMoved_;
+}
+
+void coMenu::setMoved(bool flag)
+{
+    wasMoved_ = flag;
+}
+
 }

@@ -149,6 +149,9 @@ public:
         return attachment_;
     };
 
+    bool wasMoved() const;
+    void setMoved(bool flag);
+
 protected:
     std::list<coMenuItem *> items; ///< list of menu items which can be accessed from this menu
     coMenu *parent; ///< parent menu, NULL if this is the topmost menu
@@ -167,6 +170,7 @@ protected:
     vruiMatrix *matrix_;
 
     int attachment_;
+    bool wasMoved_ = false;
 };
 }
 #endif
