@@ -3,8 +3,9 @@
 
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
-
-
+#include <iostream>
+//#include "Spline.h"
+class Spline;
 class Entity {
 
 public:
@@ -18,6 +19,11 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
+
+    // Splines
+    std::string activeShape;
+    Spline *spline;
+
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();

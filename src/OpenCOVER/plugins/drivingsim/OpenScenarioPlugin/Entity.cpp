@@ -8,7 +8,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     totalDistance(0),
     visitedVertices(0),
     refPosIsSet(false),
-    finishedCurrentTraj(false)
+    finishedCurrentTraj(false),
+    activeShape("Polyline")
 {
 	directionVector.set(1, 0, 0);
 }
@@ -157,4 +158,3 @@ void Entity::setRefPos(osg::Vec3 newReferencePosition)
 {
     referencePosition = newReferencePosition;
 }
-

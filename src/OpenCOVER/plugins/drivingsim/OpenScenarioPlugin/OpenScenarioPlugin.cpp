@@ -44,6 +44,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "CameraSensor.h"
 #include <config/CoviseConfig.h>
 #include "Position.h"
+#include "Spline.h"
+#include "Entity.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -135,6 +137,12 @@ void OpenScenarioPlugin::preFrame()
                                         Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
                                         osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
+                                        oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
+
+                                        if(currentShape->Spline.exists())
+                                        {
+                                            (*activeEntity)->spline = new Spline(currentPos);
+                                        }
 
                                         (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
 
@@ -143,10 +151,17 @@ void OpenScenarioPlugin::preFrame()
                                             // calculate speed from trajectory vertices
                                             (*activeEntity)->getTrajSpeed(0.01);
                                         }
-
+                                    }
+                                    if(false)
+                                    {
+                                        // follow Spline
+                                    }
+                                    else
+                                    {
+                                        (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
                                     }
 
-                                    (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
+
 
                                     unusedEntity.remove(*activeEntity);
 

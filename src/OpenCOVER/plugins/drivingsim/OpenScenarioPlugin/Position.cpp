@@ -1,4 +1,6 @@
 #include "Position.h"
+
+
 Position::Position():oscPosition()
 {}
 
@@ -96,7 +98,7 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
         dz = RelativeWorld->dz.getValue();
 
         osg::Vec3 relPosition (dx,dy,dz);
-        osg::Vec3 absPosition = relPosition+referencePosition;
+        absPosition = relPosition+referencePosition;
 
         currentEntity->setRefPos(absPosition);
         return absPosition;
@@ -229,5 +231,4 @@ osg::Vec3 Position::getAbsoluteWorld()
 
     return osg::Vec3(x,y,z);
 }
-
 

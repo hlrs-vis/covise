@@ -5,15 +5,18 @@
 #include<vector>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscShape.h>
+#include "Trajectory.h"
 #include <TrafficSimulation/AgentVehicle.h>
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 #include <Entity.h>
 #include <TrafficSimulation/CarGeometry.h>
 #include <VehicleUtil/RoadSystem/RoadSystem.h>
 #include <math.h>       /* sin */
+#include <iostream>
 
 class Road;
-
+//class OpenScenario::oscShape;
 
 class Position : public OpenScenario::oscPosition
 {
@@ -21,6 +24,9 @@ class Position : public OpenScenario::oscPosition
 public:
     Position();
     ~Position();
+
+    //shapeInfo
+    OpenScenario::oscShape* shapeInfo;
 
     // Road Coordinates
     std::string roadId;
