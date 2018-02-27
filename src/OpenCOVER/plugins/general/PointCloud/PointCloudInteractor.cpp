@@ -28,13 +28,10 @@ PointCloudInteractor::PointCloudInteractor(coInteraction::InteractionType type, 
     , m_selectedWithBox(false)
 {
     fprintf(stderr, "\nPointCloudInteractor\n");
-    selectedPointsGeode = new osg::Geode();
-    selectedPointsGeode->setName("selectedPoints");
-    previewPointsGeode = new osg::Geode();
-    previewPointsGeode->setName("previewPoints");
-    
-    cover->getObjectsRoot()->addChild(selectedPointsGeode.get());
-    cover->getObjectsRoot()->addChild(previewPointsGeode.get());
+    selectedPointsGroup = new osg::Group();
+    previewPointsGroup = new osg::Group();
+    cover->getObjectsRoot()->addChild(selectedPointsGroup.get());
+    cover->getObjectsRoot()->addChild(previewPointsGroup.get());
 }
 
 
@@ -45,8 +42,8 @@ destroy();
 
 bool PointCloudInteractor::destroy()
 {
-    cover->getObjectsRoot()->removeChild(selectedPointsGeode.get());
-    cover->getObjectsRoot()->removeChild(previewPointsGeode.get());
+    cover->getObjectsRoot()->removeChild(selectedPointsGroup.get());
+    cover->getObjectsRoot()->removeChild(previewPointsGroup.get());
     return true;
 }
 
@@ -70,23 +67,21 @@ PointCloudInteractor::stopInteraction()
     if (cover->debugLevel(3))
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
 
-    //if (coVRMSController::instance()->isMaster())
-    //{
-        while (previewPointsGeode->getNumDrawables() > 0)
-            previewPointsGeode->removeDrawables(0);
+        while (previewPointsGroup->getNumChildren() > 0)
+            previewPointsGroup->removeChild(0,1);
 
-        Vec3 bestPoint;
+        previewPoints.clear();
+
+        pointSelection bestPoint;
         bool hitPointSuccess = hitPoint(bestPoint);
         if (hitPointSuccess)
         {
-            addSelectedPoint(bestPoint);
             highlightPoint(bestPoint);
         }
-    //}
 }
 
 
-bool PointCloudInteractor::hitPoint(Vec3& bestPoint)
+bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 {
     bool hitPointSuccess = false;
     if (m_files)
@@ -101,6 +96,7 @@ bool PointCloudInteractor::hitPoint(Vec3& bestPoint)
         Vec3 currHandDirection = currHandEnd - currHandBegin;
 
         double smallestDistance = FLT_MAX;
+        
         for (std::list<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
             if (fit->pointSet)
@@ -123,7 +119,10 @@ bool PointCloudInteractor::hitPoint(Vec3& bestPoint)
                             if (distance<smallestDistance)
                             {
                                 smallestDistance=distance;
-                                bestPoint=currentPoint;   
+                                //bestPoint=currentPoint;   
+                                bestPoint.pointSetIndex = i;
+                                bestPoint.pointIndex = j;
+                                bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
                             }                
                         }            
@@ -131,8 +130,6 @@ bool PointCloudInteractor::hitPoint(Vec3& bestPoint)
                 }
             }
         }
-        if (cover->debugLevel(3))
-            fprintf(stderr, "\nPointCloudInteractor::foundPoint %f %f %f \n", bestPoint.x(), bestPoint.y(), bestPoint.z());
     }
     return hitPointSuccess;
 }
@@ -143,7 +140,7 @@ PointCloudInteractor::doInteraction()
     if (cover->debugLevel(3))
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
 
-    Vec3 bestPoint;
+    pointSelection bestPoint;
     bool hitPointSuccess= hitPoint(bestPoint);
     if (hitPointSuccess)
     {
@@ -152,14 +149,26 @@ PointCloudInteractor::doInteraction()
 }
 
 void
-PointCloudInteractor::highlightPoint(Vec3 selectedPoint, bool preview)
-{
-    osg::Sphere *selectedSphere = new osg::Sphere(selectedPoint,0.01);
+PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)
+{   
+    osg::MatrixTransform *translateMatrix = new osg::MatrixTransform;
+    osg::MatrixTransform *scaleMatrix = new osg::MatrixTransform;
+    Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
+                                 selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
+                                 selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
+    selectedPoint.scaleMatrix = scaleMatrix;
+    translateMatrix->setMatrix(osg::Matrix::translate(newSelectedPoint));
+    translateMatrix->addChild(scaleMatrix);
+    osg::Geode *sphereGeode = new osg::Geode;
+    scaleMatrix->addChild(sphereGeode);
+    osg::Sphere *selectedSphere = new osg::Sphere(Vec3(.0f,0.f,0.f),1.0f);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);
     osg::ShapeDrawable *selectedSphereDrawable = new osg::ShapeDrawable(selectedSphere, hint);
     osg::Material *selMaterial = new osg::Material();
+    sphereGeode->addDrawable(selectedSphereDrawable);
+
     if (preview)
     {
         selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.6, 0.0, 1.0f));
@@ -167,20 +176,23 @@ PointCloudInteractor::highlightPoint(Vec3 selectedPoint, bool preview)
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
-        if (previewPointsGeode->getNumDrawables() == 0)
-            previewPointsGeode->addDrawable(selectedSphereDrawable);
+        if (previewPointsGroup->getNumChildren() == 0)
+            previewPointsGroup->addChild(translateMatrix);
         else
-            previewPointsGeode->setDrawable(0,selectedSphereDrawable);
+            previewPointsGroup->setChild(0,translateMatrix);
+        previewPoints.clear();
+        previewPoints.push_back(selectedPoint);
     }
     else
     {
+        selectedPointsGroup->addChild(translateMatrix);
         selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.0, 0.0, 1.0f));
         selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.0, 0.0, 1.0f));
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
-
-        selectedPointsGeode->addDrawable(selectedSphereDrawable);
+        addSelectedPoint(newSelectedPoint);
+        selectedPoints.push_back(selectedPoint);
     }
     stateSet->setAttribute(selMaterial);
     selectedSphereDrawable->setStateSet(stateSet);
@@ -278,3 +290,34 @@ bool PointCloudInteractor::hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, Poi
     }
     return false;
 }
+
+void PointCloudInteractor::resize()
+{
+    osg::Vec3 wpoint1 = osg::Vec3(0, 0, 0);
+    osg::Vec3 wpoint2 = osg::Vec3(0, 0, 1);
+    osg::Vec3 opoint1 = wpoint1 * cover->getInvBaseMat();
+    osg::Vec3 opoint2 = wpoint2 * cover->getInvBaseMat();
+
+    //distance formula
+    osg::Vec3 wDiff = wpoint2 - wpoint1;
+    osg::Vec3 oDiff = opoint2 - opoint1;
+    double distWld = wDiff.length();
+    double distObj = oDiff.length();
+
+    //controls the sphere size
+    double scaleFactor = sphereSize * distObj / distWld;
+    //scaleFactor = 1.1f;
+
+    // scale all selected points
+    for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
+    {
+        iter->scaleMatrix->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+    }
+    
+    //scale the preview point(s)
+    for (std::vector<pointSelection>::iterator iter = previewPoints.begin(); iter !=previewPoints.end(); iter++)
+    {
+        iter->scaleMatrix->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+    }
+}
+

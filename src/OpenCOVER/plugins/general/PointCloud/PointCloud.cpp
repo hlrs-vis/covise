@@ -214,7 +214,6 @@ bool PointCloudPlugin::init()
 PointCloudPlugin::~PointCloudPlugin()
 {
 
-
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[2]);
@@ -1020,7 +1019,8 @@ void PointCloudPlugin::potiValueChanged(float, float, coValuePoti *, int)
 /// Called before each frame
 void PointCloudPlugin::preFrame()
 {
-
+    //resize the speheres of selected and preview points
+    s_pointCloudInteractor->resize();
     //translate viewer position into object space
     //vecBase = (cover->getViewerMat() * Matrix::inverse(CUI::computeLocal2Root(cover->getObjectsRoot()))).getTrans();
     //Matrix ObjectToRoot = CUI::computeLocal2Root(planetTrans);

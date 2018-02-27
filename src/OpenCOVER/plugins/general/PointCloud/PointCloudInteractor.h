@@ -56,6 +56,7 @@ public:
     // returns the cosine of angle
     double LinePointMeasure(osg::Vec3 center, osg::Vec3 handPos, osg::Vec3 handDirection);
     
+    void resize();
 
 private:
 
@@ -67,17 +68,26 @@ private:
 
     void swap(float &m, float &n);
 
-    bool hitPoint(osg::Vec3 &bestPoint);
-    void highlightPoint(osg::Vec3, bool preview= false);
+    bool hitPoint(pointSelection &bestPoint);
+    void highlightPoint(pointSelection&, bool preview= false);
     bool hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset);
     double LinePointDistance(osg::Vec3 center, osg::Vec3 handPos, osg::Vec3 handDirection);
 
     bool hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, osg::Vec3 center, float radius);
 
+    osg::MatrixTransform *sc; 
+    
+    double sphereSize = 10.0;
+
+    std::vector<pointSelection> selectedPoints;
+    std::vector<pointSelection> previewPoints;
+    //pointSelection previewPoint;
 
     osg::ref_ptr<osg::MatrixTransform> highlight;
-    osg::ref_ptr<osg::Geode> selectedPointsGeode;
-    osg::ref_ptr<osg::Geode> previewPointsGeode;
+    //osg::ref_ptr<osg::Geode> selectedPointsGeode;
+    //osg::ref_ptr<osg::Geode> previewPointsGeode;
+    osg::ref_ptr<osg::Group> selectedPointsGroup;
+    osg::ref_ptr<osg::Group> previewPointsGroup;
     //osg::ShapeDrawable *previewSphereDrawable;
 };
 #endif //POINTCLOUD_INTERACTOR_H
