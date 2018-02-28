@@ -137,6 +137,8 @@ private:
 	BaseGraphElement &operator=(const BaseGraphElement &); /* not allowed */
 
 	void init();
+    QGraphicsItem *This();
+    const QGraphicsItem *This() const;
 
 
 	//################//

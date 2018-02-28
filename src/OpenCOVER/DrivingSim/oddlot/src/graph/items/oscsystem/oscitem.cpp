@@ -43,7 +43,7 @@
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
-#include "src/graph/items/oscsystem/svgitem.hpp"
+#include "src/graph/items/svgelement.hpp"
 
 // Tools //
 //
