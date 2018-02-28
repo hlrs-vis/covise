@@ -67,8 +67,8 @@ void
 ShapeSectionPolynomialItems::init()
 {
 	shapeEditor_ = dynamic_cast<ShapeEditor *>(profileGraph_->getProjectWidget()->getProjectEditor());
-	createPath();
 	createPolynomialItems();
+	createPath();
 	
 }
 
@@ -78,6 +78,24 @@ ShapeSectionPolynomialItems::createPolynomialItems()
 
 	if (shapeEditor_)
 	{
+		// Remove shapes with zero width //
+		//
+		bool shapeDeleted;
+		do
+		{
+			shapeDeleted = false;
+			foreach(PolynomialLateralSection *shape, shapeSection_->getShapes())
+			{
+				if (!shape->getRealPointHigh())
+				{
+					shapeSection_->delShape(shape->getTStart());
+					shapeDeleted = true;
+					break;
+				}
+			}
+		}
+		while (shapeDeleted);
+
 		// Create all lateral polynoms and cotrol handles //
 		//
 		foreach(PolynomialLateralSection *shape, shapeSection_->getShapes())
@@ -112,13 +130,13 @@ ShapeSectionPolynomialItems::createPath()
 	{
 		if (lane->getId() > 0)
 		{
-			pathRL.moveTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 0.0);
-			pathRL.lineTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), shapeSection_->getLength());
+			pathRL.moveTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), -5.0);
+			pathRL.lineTo(laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 5.0);
 		}
 		else if (lane->getId() < 0)
 		{
-			pathRL.moveTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 0.0);
-			pathRL.lineTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), shapeSection_->getLength());
+			pathRL.moveTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), -5.0);
+			pathRL.lineTo(-laneSection->getLaneSpanWidth(0, lane->getId(), s) + road->getLaneOffset(s), 5.0);
 		}
 		else
 		{
@@ -146,8 +164,8 @@ ShapeSectionPolynomialItems::createPath()
 					pathItemM->setPen(pen);
 				}
 
-				pathM.moveTo(0.0, 0.0);
-				pathM.lineTo(0.0, shapeSection_->getLength());
+				pathM.moveTo(0.0, -5.0);
+				pathM.lineTo(0.0, 5.0);
 			}
 		}
 	}

@@ -23,6 +23,7 @@
 
 
 
+
 //####################//
 // Constructors       //
 //####################//
@@ -53,15 +54,21 @@ PolynomialLateralSection::getRealPointsFromParameters()
 }
 
 void
-PolynomialLateralSection::getControlPointsFromParameters()
+PolynomialLateralSection::getControlPointsFromParameters(bool markZeroLengthSection)
 {
 
 	QPointF T(getTStart(), 0);
 	double l = getLength();
 
-
-	realPointLow_->getPoint() = QPointF(0, a_) + T;
-	realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
+	if (markZeroLengthSection && (abs(l) < NUMERICAL_ZERO6))
+	{
+		realPointLow_ = realPointHigh_ = NULL;
+	}
+	else
+	{
+		realPointLow_->getPoint() = QPointF(0, a_) + T;
+		realPointHigh_->getPoint() = QPointF(l, f(l)) + T;
+	}
 
 }
 

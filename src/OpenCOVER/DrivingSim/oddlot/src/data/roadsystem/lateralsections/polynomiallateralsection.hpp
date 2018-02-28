@@ -82,7 +82,7 @@ public:
     // PolynomialLateralSection //
     //
 	void getRealPointsFromParameters();
-	void getControlPointsFromParameters();
+	void getControlPointsFromParameters(bool markZeroLengthSection);
 
 	SplineControlPoint *getRealPointLow()
 	{

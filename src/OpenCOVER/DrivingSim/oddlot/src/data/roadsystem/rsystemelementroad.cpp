@@ -2862,9 +2862,9 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
 
 			if (prototypeRoad->getLaneSections().isEmpty())
 			{
+				double width = getMinWidth(clone->getSStart());
 				foreach(PolynomialLateralSection *poly, clone->getShapes())
 				{
-					double width = getMinWidth(clone->getSStart());
 					clone->moveLateralSection(poly, poly->getTStart() + width);
 				}
 			}
