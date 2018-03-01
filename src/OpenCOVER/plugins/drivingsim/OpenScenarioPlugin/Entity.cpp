@@ -9,7 +9,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     visitedVertices(0),
     refPosIsSet(false),
     finishedCurrentTraj(false),
-    activeShape("Polyline")
+    activeShape("Polyline"),
+    visitedSplineVertices(0)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -112,8 +113,8 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEn
 {
 
     //calculate step distance
-    //float step_distance = speed*opencover::cover->frameDuration();
-    float step_distance = speed*1/60;
+    float step_distance = speed*opencover::cover->frameDuration();
+    //float step_distance = speed*1/60;
 
     if(totalDistance == 0)
     {
@@ -157,4 +158,50 @@ void Entity::setRefPos()
 void Entity::setRefPos(osg::Vec3 newReferencePosition)
 {
     referencePosition = newReferencePosition;
+}
+
+void Entity::setActiveShape(std::string shapestring)
+{
+    activeShape = shapestring;
+}
+
+void Entity::setSplinePos(osg::Vec3 initPos)
+{
+    splinePos = initPos;
+}
+
+void Entity::followSpline()
+{
+    totalDistance = 1.0;
+    targetPosition = splinePos;
+    directionVector = targetPosition-entityPosition;
+    totaldirectionVectorLength = directionVector.length();
+    directionVector.normalize();
+
+    float step_distance = speed*opencover::cover->frameDuration();
+
+    if(splineDistance == 0)
+    {
+        splineDistance = totaldirectionVectorLength;
+    }
+    //calculate remaining distance
+    splineDistance = splineDistance-step_distance;
+    //calculate new position
+    newPosition = entityPosition+(directionVector*step_distance);
+    if (splineDistance <= 0)
+    {
+        visitedSplineVertices++;
+        splineDistance = 0;
+        if (visitedSplineVertices == 10)
+        {
+            totalDistance = 0;
+            activeShape = "Polyline";
+            visitedVertices++;
+
+        }
+    }
+
+    entityPosition = newPosition;
+    entityGeometry->setPosition(newPosition, directionVector);
+
 }
