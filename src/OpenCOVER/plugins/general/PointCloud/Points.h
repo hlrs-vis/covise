@@ -42,7 +42,7 @@ struct pointSelection
     const fileInfo *file;
     int pointSetIndex;
     int pointIndex;
-    osg::MatrixTransform *scaleMatrix;
+    osg::MatrixTransform *transformationMatrix;
 };
 
 #endif

@@ -51,13 +51,15 @@ public:
         this->m_files = allFiles;
     };
 
+        void setDeselection(bool);
+
     // measure angle between hand position-point and hand-direction
     // returns -1 on pointing away from point
     // returns the cosine of angle
     double LinePointMeasure(osg::Vec3 center, osg::Vec3 handPos, osg::Vec3 handDirection);
     
     void resize();
-
+    bool deselectPoint();
 private:
 
     // needed for interaction
@@ -79,15 +81,16 @@ private:
     
     double sphereSize = 10.0;
 
+    bool m_deselection = false;
+
     std::vector<pointSelection> selectedPoints;
     std::vector<pointSelection> previewPoints;
     //pointSelection previewPoint;
 
     osg::ref_ptr<osg::MatrixTransform> highlight;
-    //osg::ref_ptr<osg::Geode> selectedPointsGeode;
-    //osg::ref_ptr<osg::Geode> previewPointsGeode;
+
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
-    //osg::ShapeDrawable *previewSphereDrawable;
+
 };
 #endif //POINTCLOUD_INTERACTOR_H
