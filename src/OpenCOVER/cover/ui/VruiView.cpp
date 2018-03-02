@@ -996,7 +996,7 @@ bool VruiViewElement::isTopOfStack() const
 
 void VruiViewElement::addToStack()
 {
-    assert(!inStack());
+    assert(!isInStack());
 
     if (!view)
         return;
@@ -1007,8 +1007,6 @@ void VruiViewElement::addToStack()
 
 void VruiViewElement::popStack()
 {
-    assert(isTopOfStack());
-
     if (!view)
         return;
 
