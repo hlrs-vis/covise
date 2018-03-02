@@ -102,7 +102,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         Vec3 currHandDirection = currHandEnd - currHandBegin;
 
         double smallestDistance = FLT_MAX;
-        
+
         for (std::list<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
             if (fit->pointSet)
@@ -120,18 +120,26 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                         {
                             Vec3 currentPoint = Vec3(fit->pointSet[i].points[j].x,fit->pointSet[i].points[j].y,fit->pointSet[i].points[j].z);
                             double distance = LinePointDistance(currentPoint, currHandBegin, currHandDirection);
-                            //double distance = LinePointMeasure(currentPoint, currHandBegin, currHandDirection);
                             if (distance<smallestDistance)
                             {
                                 smallestDistance=distance;
-                                //bestPoint=currentPoint;   
                                 bestPoint.pointSetIndex = i;
                                 bestPoint.pointIndex = j;
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
-                            }                
-                        }            
+                            }
+                        }
                     }
+                }
+            }
+        }
+        if (hitPointSuccess)
+        {
+            for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
+            {
+                if (iter->pointSetIndex==bestPoint.pointSetIndex && iter->pointIndex==bestPoint.pointIndex)
+                {
+                    hitPointSuccess=false;
                 }
             }
         }
