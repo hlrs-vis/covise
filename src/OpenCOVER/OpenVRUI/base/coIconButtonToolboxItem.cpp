@@ -81,19 +81,11 @@ int coIconButtonToolboxItem::hit(vruiHit *hit)
     if (buttons->wasPressed())
     {
         pressed = true;
-
-        // feed state to twin
-        if (myTwin != NULL)
-            myTwin->updateContentBool(true);
     }
 
     if (pressed && buttons->wasReleased())
     {
         pressed = false;
-
-        // feed state to twin
-        if (myTwin != NULL)
-            myTwin->updateContentBool(false);
 
         if (lastHit != hit->getNode())
         {
@@ -129,19 +121,9 @@ void coIconButtonToolboxItem::selected(bool select)
   */
 void coIconButtonToolboxItem::doActionRelease()
 {
-    // feed state to twin
-    if (myTwin != NULL)
-        myTwin->updateContentBool(false);
-
     // perform own action (if existent) as secondary
     if (listener)
         listener->menuEvent(this);
-}
-
-bool coIconButtonToolboxItem::updateContentBool(bool /*newState*/)
-{
-    // ignore new optics
-    return true;
 }
 
 const char *coIconButtonToolboxItem::getClassName() const

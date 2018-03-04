@@ -137,12 +137,6 @@ void coPotiToolboxItem::doSecondActionPress()
 /// Calls the value changed listener (coValuePotiActor) when poti value was changed.
 void coPotiToolboxItem::potiValueChanged(float /*oldValue*/, float newValue, coValuePoti * /*this_poti*/, int /*context*/)
 {
-    // activate twin
-    if (myTwin != NULL)
-    {
-        myTwin->updateContentFloat(newValue);
-    }
-
     // activate own listener
     if (listener)
         listener->menuEvent(this);
@@ -153,9 +147,6 @@ void coPotiToolboxItem::potiPressed(coValuePoti *, int)
 {
     if (listener)
         listener->menuPressEvent(this);
-
-    if (myTwin != 0)
-        myTwin->updateContentPressed();
 }
 
 /// Calls the value changed listener (coValuePotiActor) when button was released.
@@ -163,9 +154,6 @@ void coPotiToolboxItem::potiReleased(coValuePoti *, int)
 {
     if (listener)
         listener->menuReleaseEvent(this);
-
-    if (myTwin != 0)
-        myTwin->updateContentReleased();
 }
 
 /** Get current poti value.
@@ -174,44 +162,6 @@ void coPotiToolboxItem::potiReleased(coValuePoti *, int)
 float coPotiToolboxItem::getValue() const
 {
     return poti->getValue();
-}
-
-bool coPotiToolboxItem::updateContentFloat(float newValue)
-{
-    // Attention! modifications of the local 'setValue()'
-    // have to be copied here
-    poti->setValue(newValue);
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
-}
-
-bool coPotiToolboxItem::updateContentRange(float min, float max, float value,
-                                           bool isInteger, float step)
-{
-    poti->setState(min, max, value, isInteger, step);
-
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
-}
-
-bool coPotiToolboxItem::updateContentReleased()
-{
-    if (listener)
-        listener->menuReleaseEvent(this);
-
-    return true;
-}
-
-bool coPotiToolboxItem::updateContentPressed()
-{
-    if (listener)
-        listener->menuPressEvent(this);
-
-    return true;
 }
 
 void coPotiToolboxItem::setIncrement(float incr)

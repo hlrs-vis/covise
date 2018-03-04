@@ -129,19 +129,22 @@ void OpenScenarioPlugin::preFrame()
                                 Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
+                                    Position* currentPos;
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
                                     if((*activeEntity)->totalDistance == 0)
                                     {
                                         (*activeEntity)->setRefPos();
-                                        Position* currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
+                                        currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
                                         osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
                                         oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
 
                                         if(currentShape->Spline.exists())
                                         {
-                                            (*activeEntity)->spline = new Spline(currentPos);
+                                            (*activeEntity)->spline = new Spline();
+                                            (*activeEntity)->spline->poly3Spline(currentPos);
+                                            (*activeEntity)->setActiveShape("Spline");
                                         }
 
                                         (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
@@ -152,9 +155,11 @@ void OpenScenarioPlugin::preFrame()
                                             (*activeEntity)->getTrajSpeed(0.01);
                                         }
                                     }
-                                    if(false)
+                                    if((*activeEntity)->activeShape == "Spline")
                                     {
-                                        // follow Spline
+                                        osg::Vec3 test =(*activeEntity)->spline->getSplinePos((*activeEntity)->visitedSplineVertices);
+                                        (*activeEntity)->setSplinePos(test);
+                                        (*activeEntity)->followSpline();
                                     }
                                     else
                                     {

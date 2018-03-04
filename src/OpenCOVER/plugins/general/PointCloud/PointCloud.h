@@ -130,7 +130,9 @@ protected:
     ui::Group *fileGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
+    ui::Button *deselectButton = nullptr;
     ui::Button *deleteButton = nullptr;
+    ui::ButtonGroup *selectionButtonGroup = nullptr;
 
     //void menuEvent(coMenuItem *);
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);

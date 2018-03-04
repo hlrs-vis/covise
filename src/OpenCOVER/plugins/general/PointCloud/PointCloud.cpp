@@ -125,11 +125,12 @@ bool PointCloudPlugin::init()
     deleteButton = new ui::Button(fileGroup,"Delete");
 
     selectionGroup = new ui::Group(pointCloudMenu,"Selection");
-    
-    singleSelectButton = new ui::Button(selectionGroup, "SelectPoints");
+    selectionButtonGroup = new ui::ButtonGroup(selectionGroup, "SelectionGroup");
+    selectionButtonGroup->enableDeselect(true);
+    singleSelectButton = new ui::Button(selectionGroup, "SelectPoints", selectionButtonGroup);
     singleSelectButton->setText("Select Points");
     singleSelectButton->setCallback([this](bool state){
-    if (state)
+        if (state)
         {
             //enable interaction
             vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
@@ -139,6 +140,22 @@ bool PointCloudPlugin::init()
             vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
         } 
     });
+    deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
+    deselectButton->setText("Deselect Points");
+    deselectButton->setCallback([this](bool state){
+        if (state)
+        {
+        //enable interaction
+        vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+        s_pointCloudInteractor->setDeselection(true);
+        }
+        else
+        {
+        vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+        s_pointCloudInteractor->setDeselection(false);
+        }
+    });
+
 /*
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");

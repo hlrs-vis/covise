@@ -23,6 +23,13 @@ public:
     // Splines
     std::string activeShape;
     Spline *spline;
+    void followSpline();
+    float splineDistance;
+    int visitedSplineVertices;
+    void setActiveShape(std::string);
+    osg::Vec3 splinePos;
+    void setSplinePos(osg::Vec3);
+
 
 
     Entity(std::string entityName, std::string catalogReferenceName);

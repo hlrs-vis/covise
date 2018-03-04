@@ -8,7 +8,6 @@
 #include <OpenVRUI/coGenericSubMenuItem.h>
 
 #include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coMenuChangeListener.h>
 
 namespace vrui
 {
@@ -19,7 +18,6 @@ namespace vrui
 coGenericSubMenuItem::coGenericSubMenuItem(coMenuItem *container)
 {
     subMenu = 0;
-    listener_ = 0;
     container_ = container;
     open = false;
 }
@@ -42,8 +40,6 @@ void coGenericSubMenuItem::setMenu(coMenu *menu)
 
     if (subMenu)
     {
-        if (listener_)
-            subMenu->setMenuChangeListener(listener_);
         subMenu->setSubMenuItem(this);
         if (container_)
             subMenu->setParent(container_->getParentMenu());
@@ -58,8 +54,9 @@ bool coGenericSubMenuItem::isOpen() const
     return open;
 }
 
-void coGenericSubMenuItem::setMenuChangeListener(coMenuChangeListener *listener)
+coMenu *coGenericSubMenuItem::getMenu()
 {
-    listener_ = listener;
+    return subMenu;
 }
+
 }

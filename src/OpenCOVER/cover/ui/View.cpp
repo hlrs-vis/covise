@@ -37,6 +37,12 @@ Manager *View::manager() const
     return m_manager;
 }
 
+bool View::update()
+{
+    // don't request a re-render
+    return false;
+}
+
 View::ViewElement *View::elementFactory(Element *elem)
 {
     ViewElement *ve = nullptr;
