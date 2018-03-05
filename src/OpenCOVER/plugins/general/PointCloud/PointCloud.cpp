@@ -112,13 +112,13 @@ bool PointCloudPlugin::init()
 
     //Create main menu button
     pointCloudMenu = new ui::Menu("PointCloudMenu",this);
-    pointCloudMenu->setText("Point Model Plugin");
+    pointCloudMenu->setText("PointCloud");
 
     // Create menu
     char name[100];
-    sprintf(name, "PointModelOptions");
+    sprintf(name, "PointCloud");
     fileGroup = new ui::Group(pointCloudMenu, name);
-    sprintf(name, "Point Model Options");
+    sprintf(name, "PointCloud");
     fileGroup->setText(name);
 
     loadMenu = new ui::Menu("Load",fileGroup);
