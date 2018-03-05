@@ -34,14 +34,14 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
     {
         // get current road of entity
         int roadId_int = atoi(currentEntity->roadId.c_str());
-        ::Road *road = system->getRoad(roadId_int);
+        ::Road *road = system->getRoad(roadId_int); // auch Road ID als String
 
         //convert reference position from absolute world coordinates to absolute lane coordinates
         const Vector3D vec3d = Vector3D(referencePosition[0], referencePosition[1], referencePosition[2]);
         Vector2D vec2D = road->searchPosition(vec3d, 0.0);
         s = vec2D[0];
 
-        laneId =  road->searchLane(vec2D[0], vec2D[1]);
+        laneId =  road->searchLane(s, vec2D[1]);
 
 
         // relative lane coordinates
