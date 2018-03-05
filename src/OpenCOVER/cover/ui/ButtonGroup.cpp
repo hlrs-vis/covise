@@ -173,13 +173,12 @@ void ButtonGroup::toggle(const Button *b)
             bset->radioTrigger();
         }
     }
-    else if (!bthis->state())
+    else if (!bthis->state() && !m_allowDeselect)
     {
         change = true;
         bthis->setState(true, false);
         bthis->radioTrigger();
     }
-
     if (change)
         trigger();
 }
