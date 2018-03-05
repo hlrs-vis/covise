@@ -1108,7 +1108,19 @@ bool OpenCOVER::frame()
                     return false;
                 }
                 m_renderNext = false;
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
             }
+            else
+            {
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+            }
+        }
+        else
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
         }
     }
 
