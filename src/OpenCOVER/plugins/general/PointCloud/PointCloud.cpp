@@ -25,6 +25,7 @@
 
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
 
 // OSG:
 #include <osg/Node>
@@ -121,8 +122,8 @@ bool PointCloudPlugin::init()
     sprintf(name, "PointCloud");
     fileGroup->setText(name);
 
-    loadMenu = new ui::Menu("Load",fileGroup);
-    deleteButton = new ui::Button(fileGroup,"Delete");
+    //loadMenu = new ui::Menu("Load",fileGroup);
+    //deleteButton = new ui::Button(fileGroup,"Delete");
 
     selectionGroup = new ui::Group(pointCloudMenu,"Selection");
     selectionButtonGroup = new ui::ButtonGroup(selectionGroup, "SelectionGroup");
@@ -203,9 +204,36 @@ bool PointCloudPlugin::init()
     //read in menu data
     //readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
 
-    PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
-    PCTab->setPos(0, 0);
 
+    //PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
+    //PCTab->setPos(0, 0);
+
+    //viewGroup = new ui::Group(pointCloudMenu,"PCView");
+    adaptLODButton = new ui::Button(pointCloudMenu,"adaptLOD");
+    adaptLODButton->setText("adaptLOD");
+    adaptLODButton->setCallback([this](bool state){
+        adaptLOD = state;
+        for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+        {
+            //TODO calc distance correctly
+            for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+            {
+                if (!adaptLOD)
+                {
+                    ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
+                }
+            }
+        }
+    });
+
+    pointSizeSlider = new ui::Slider(pointCloudMenu, "pointSize");
+    pointSizeSlider->setBounds(1.0,10.0);
+    pointSizeSlider->setValue(pointSizeValue);
+    pointSizeSlider->setCallback([this](double value, bool released){
+        pointSizeValue = value;
+    });
+
+/*
     adaptLODTui = new coTUIToggleButton("adaptLOD", PCTab->getID());
     adaptLODTui->setEventListener(this);
     adaptLODTui->setState(adaptLOD);
@@ -221,6 +249,7 @@ bool PointCloudPlugin::init()
     adaptLODTui->setPos(0, 0);
     pointSizeLabel->setPos(0, 1);
     pointSizeTui->setPos(1, 1);
+    */
 
     PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
 
@@ -251,8 +280,8 @@ PointCloudPlugin::~PointCloudPlugin()
     delete loadMenu;
 */
     //clean up TUI
-    delete PCTab;
-    delete adaptLODTui;
+    //delete PCTab;
+    //delete adaptLODTui;
     
     delete PointCloudPlugin::s_pointCloudInteractor;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();

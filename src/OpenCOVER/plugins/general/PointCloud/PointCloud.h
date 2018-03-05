@@ -131,8 +131,11 @@ protected:
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
     ui::Button *deselectButton = nullptr;
-    ui::Button *deleteButton = nullptr;
+    //ui::Button *deleteButton = nullptr;
     ui::ButtonGroup *selectionButtonGroup = nullptr;
+    ui::Group *viewGroup = nullptr;
+    ui::Button *adaptLODButton = nullptr;
+    ui::Slider *pointSizeSlider = nullptr;
 
     //void menuEvent(coMenuItem *);
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
