@@ -44,6 +44,7 @@ VRRegisterSceneGraph::VRRegisterSceneGraph()
     registerId = 0;
     sceneGraphAppendixIdString = "SCGR";
     blocked = false;
+	active = false;
 }
 
 VRRegisterSceneGraph::~VRRegisterSceneGraph()
@@ -60,6 +61,8 @@ void VRRegisterSceneGraph::setRegisterStartIndex(int startIndex)
 
 void VRRegisterSceneGraph::registerNode(osg::Node *node, string parent)
 {
+	if (!active)
+		return;
     if (blocked)
         return;
     //fprintf(stderr, "VRRegisterSceneGraph::registerNode %s\n", node->getName().c_str());
@@ -73,6 +76,8 @@ void VRRegisterSceneGraph::registerNode(osg::Node *node, string parent)
 
 void VRRegisterSceneGraph::unregisterNode(osg::Node *node, string parent)
 {
+	if (!active)
+		return;
     if (blocked)
         return;
     whole_message = "SCENEGRAPH: \t";
