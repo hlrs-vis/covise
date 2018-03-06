@@ -10,7 +10,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     refPosIsSet(false),
     finishedCurrentTraj(false),
     activeShape("Polyline"),
-    visitedSplineVertices(0)
+    visitedSplineVertices(0),
+    refPos(NULL)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -130,13 +131,6 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEn
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
-            /* entity maneuver finished: bool
-             * is set to true in here
-             * has to be checked in conditionManager before entity is added to active ManeuverEntities
-             */
-            //maneuverCondition = false;
-            //maneuverFinished = true;
-            //activeEntityList.remove(this);
             finishedCurrentTraj = true;
             finishedEntityList.push_back(this);
         }

@@ -21,8 +21,8 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
         s = Lane->s.getValue();
 
         // access road
-        int roadId_int = atoi(roadId.c_str());
-        ::Road *road = system->getRoad(roadId_int);
+        // int roadId_int = atoi(roadId.c_str());
+        ::Road *road = system->getRoad(roadId);
 
         absPosition = getAbsoluteFromRoad(road, s, laneId);
 
@@ -33,6 +33,7 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
     else if(RelativeLane.exists())
     {
         // get current road of entity
+        roadId = currentEntity->roadId.c_str();
         int roadId_int = atoi(currentEntity->roadId.c_str());
         ::Road *road = system->getRoad(roadId_int); // auch Road ID als String
 
@@ -45,11 +46,11 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
 
 
         // relative lane coordinates
-        double dlaneId = RelativeLane->dLane.getValue();
+        int dlaneId = RelativeLane->dLane.getValue();
         offset = RelativeLane->offset.getValue();
         double ds = RelativeLane->ds.getValue();
 
-        absPosition = getAbsoluteFromRoad(road, s+ds, dlaneId+laneId);
+        absPosition = getAbsoluteFromRoad(road, s+ds, laneId+dlaneId);
 
         currentEntity->setRefPos(absPosition);
         return absPosition;

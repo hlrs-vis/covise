@@ -4,8 +4,10 @@
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <iostream>
+
 //#include "Spline.h"
 class Spline;
+class ReferencePosition;
 class Entity {
 
 public:
@@ -30,7 +32,7 @@ public:
     osg::Vec3 splinePos;
     void setSplinePos(osg::Vec3);
 
-
+    ReferencePosition* refPos;
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
