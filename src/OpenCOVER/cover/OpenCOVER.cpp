@@ -1082,6 +1082,7 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+	double beginPluginTime = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
     {
         if (coVRPluginList::instance()->update())
@@ -1114,7 +1115,6 @@ bool OpenCOVER::frame()
 
     if (frameNum > 2)
     {
-        double beginTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1123,9 +1123,9 @@ bool OpenCOVER::frame()
         {
             int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
             double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
         }
     }
     ARToolKit::instance()->update();
