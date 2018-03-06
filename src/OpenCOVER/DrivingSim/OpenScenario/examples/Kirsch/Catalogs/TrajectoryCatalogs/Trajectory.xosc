@@ -8,7 +8,7 @@
           <RelativeWorld dx="13" dy="-3.25" dz="0"/>
         </Position>
         <Shape reference="1.000000">
-          <Polyline />
+          <Spline />
         </Shape>
       </Vertex>
       <Vertex>
