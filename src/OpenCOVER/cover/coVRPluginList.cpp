@@ -52,7 +52,7 @@ typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
         }                                                                                                  \
     }
 
-coVRPlugin *coVRPluginList::loadPlugin(const char *name)
+coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
 {
     if (cover->debugLevel(3))
     {
@@ -63,24 +63,27 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name)
     }
 
     std::string libName = coVRDynLib::libName(name);
-    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName);
+    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName, showErrors);
     if (handle == NULL)
     {
-        cerr << "ERROR: could not load shared Library " << libName << endl;
+        if (showErrors)
+            cerr << "ERROR: could not load shared Library " << libName << endl;
         return NULL;
     }
     coVRPluginInitFunc *initFunc = (coVRPluginInitFunc *)coVRDynLib::dlsym(handle, "coVRPluginInit");
     if (initFunc == NULL)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
+        if (showErrors)
+            cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
         return NULL;
     }
     coVRPlugin *plugin = initFunc();
     if (!plugin)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
+        if (showErrors)
+            cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
         return NULL;
     }
 
@@ -522,7 +525,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {
-        m = loadPlugin(name);
+        m = loadPlugin(name, domain == Default);
         if (m && m->init())
         {
             manage(m, domain);
@@ -531,7 +534,8 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
         }
         else
         {
-            cerr << "plugin " << name << " failed to initialise" << endl;
+            if (domain == Default)
+                cerr << "plugin " << name << " failed to initialise" << endl;
             delete m;
             m = NULL;
         }

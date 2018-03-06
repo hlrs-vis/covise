@@ -564,8 +564,6 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance();
 
-	coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
-
 	Input::instance()->init();
 
     coVRTui::instance();
@@ -664,6 +662,8 @@ bool OpenCOVER::init()
         return false;
 
     VRViewer::instance()->config();
+
+    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());
@@ -1109,7 +1109,19 @@ bool OpenCOVER::frame()
                     return false;
                 }
                 m_renderNext = false;
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
             }
+            else
+            {
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+            }
+        }
+        else
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
         }
     }
 
