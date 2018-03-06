@@ -265,6 +265,7 @@ SpaceNavigatorDriver::SpaceNavigatorDriver(const std::string &config)
 
     std::vector<std::string> tried;
     std::string deviceFile = coCoviseConfig::getEntry("device", configPath(), "");
+#ifndef WIN32
     int flags = O_RDONLY | O_NONBLOCK;
     if (!deviceFile.empty())
     {
@@ -293,6 +294,7 @@ SpaceNavigatorDriver::SpaceNavigatorDriver(const std::string &config)
         std::cerr << std::endl;
         return;
     }
+#endif
 
     if (Input::instance()->debug(Input::Driver) && Input::instance()->debug(Input::Config))
     {
@@ -348,6 +350,22 @@ void SpaceNavigatorDriver::processRaw(int axis, int value)
         std::cerr << "Input: SpaceNavigator: axis " << axis << ": " << fvalue << std::endl;
     }
 }
+
+void SpaceNavigatorDriver::spaceMouseEvent(double transX, double transY, double transZ, double rotX, double rotY, double rotZ, double angle)
+{
+	smd.tx = transX;
+	smd.ty = transY;
+	smd.tz = transZ;
+
+	osg::Matrix relMat;
+	relMat.makeRotate(angle / 500.0, rotX, rotY, rotZ);
+	coCoord coord = relMat;
+	smd.h = coord.hpr[0];
+	smd.p = coord.hpr[1];
+	smd.r = coord.hpr[2];
+}
+
+
 bool SpaceNavigatorDriver::poll()
 {
     if (m_hidapi)
@@ -426,7 +444,7 @@ bool SpaceNavigatorDriver::poll()
             // Check if the cap is still displaced
             if (pRotation->Angle > 0. || pTranslation->Length > 0.)
             {
-                spacedMouseEvent(pTranslation->X, pTranslation->Y, pTranslation->Z, pRotation->X, pRotation->Y, pRotation->Z, pRotation->Angle);
+                spaceMouseEvent(pTranslation->X, pTranslation->Y, pTranslation->Z, pRotation->X, pRotation->Y, pRotation->Z, pRotation->Angle);
             }
 
             pRotation.Release();
