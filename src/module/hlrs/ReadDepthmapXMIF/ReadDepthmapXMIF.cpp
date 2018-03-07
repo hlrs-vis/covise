@@ -270,6 +270,7 @@ int ReadDepthmapXMIF::readLines()
 		}
 
 	}
+	fseek(d_linesFile, 0, SEEK_SET);
 	return res;
 }
 
