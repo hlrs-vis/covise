@@ -475,9 +475,15 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
 
                         if (!includeNode)
                         {
-                            COCONFIGLOG("coConfigRoot::setContentsFromDom error: could not open include file " << filename);
-                            if (nodeName != "TRYINCLUDE")
+                            if (nodeName == "TRYINCLUDE")
+                            {
+                                COCONFIGLOG("coConfigRoot::setContentsFromDom info: could not open tryinclude file " << filename);
+                            }
+                            else
+                            {
+                                COCONFIGLOG("coConfigRoot::setContentsFromDom error: could not open include file " << filename);
                                 exit(1);
+                            }
                         }
                         else
                         {
