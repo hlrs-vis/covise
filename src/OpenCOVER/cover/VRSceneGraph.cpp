@@ -1474,6 +1474,8 @@ VRSceneGraph::getBoundingSphere()
             }
             BoundsData bd(bsphere);
             coVRMSController::instance()->sendSlaves(&bd, sizeof(bd));
+            bsphere.center() = osg::Vec3(bd.x, bd.y, bd.z);
+            bsphere.radius() = bd.r;
         }
     }
 
