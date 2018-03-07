@@ -1,5 +1,5 @@
 #include "Entity.h"
-
+#include "ReferencePosition.h"
 using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
@@ -53,7 +53,10 @@ void Entity::moveLongitudinal()
 	float step_distance = speed*opencover::cover->frameDuration();
     // entityPosition[0] = entityPosition[0] + step_distance;
     entityPosition = entityPosition+(directionVector*step_distance);
+    refPos->moveForward(opencover::cover->frameDuration(),speed);
 
+    newPosition = refPos->getPosition();
+    entityGeometry->setPosition(newPosition,directionVector);
 }
 
 osg::Vec3 &Entity::getPosition()

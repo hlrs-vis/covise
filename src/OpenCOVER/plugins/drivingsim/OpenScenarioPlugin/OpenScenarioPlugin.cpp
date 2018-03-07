@@ -130,6 +130,7 @@ void OpenScenarioPlugin::preFrame()
                                 Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
+                                    cout << "Start to follow Trajectory" << endl;
                                     Position* currentPos;
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
@@ -167,8 +168,6 @@ void OpenScenarioPlugin::preFrame()
                                         (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
                                     }
 
-
-
                                     unusedEntity.remove(*activeEntity);
 
                                     usedEntity.push_back((*activeEntity));
@@ -188,13 +187,15 @@ void OpenScenarioPlugin::preFrame()
                 }
             }
         }
-        for(list<Entity*>::iterator entity_iter = unusedEntity.begin(); entity_iter != unusedEntity.end(); entity_iter++)
+        if(scenarioManager->anyActTrue)
         {
-            Entity* currentEntity = (*entity_iter);
-            (*entity_iter)->moveLongitudinal();
-            (*entity_iter)->entityGeometry->setPosition((*entity_iter)->entityPosition,(*entity_iter)->directionVector);
-            //(*activeEntity)->entityGeometry->move(opencover::cover->frameDuration());
-            usedEntity.clear();
+            for(list<Entity*>::iterator activeEntity = unusedEntity.begin(); activeEntity != unusedEntity.end(); activeEntity++)
+            {
+                Entity* currentEntity = (*activeEntity);
+                (*activeEntity)->moveLongitudinal();
+
+                usedEntity.clear();
+            }
         }
         scenarioManager->endTrajectoryCheck();
     }

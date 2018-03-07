@@ -17,10 +17,35 @@ void ReferencePosition::initFromLane(std::string init_roadId, int init_laneId, d
 
     road = system->getRoad(roadId);
 
-    LaneSection* LS = road->getLaneSection(s);
+    LS = road->getLaneSection(s);
     Vector2D laneCenter = LS->getLaneCenter(laneId, s);
 
     t = laneCenter[0];
     Transform vtrans = road->getRoadTransform(s, laneCenter[0]);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+
+    roadLength = road->getLength();
+}
+
+void ReferencePosition::moveForward(float dt,float speed)
+{
+    float step = dt*speed;
+    s = step+s;
+
+    LaneSection* newLS = road->getLaneSection(s);
+
+    if (newLS != LS)
+    {
+        laneId =  road->searchLane(s,t);
+        LS = newLS;
+    }
+
+    Transform vtrans = road->getRoadTransform(s,t);
+    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+
+}
+
+osg::Vec3 ReferencePosition::getPosition()
+{
+    return xyz;
 }

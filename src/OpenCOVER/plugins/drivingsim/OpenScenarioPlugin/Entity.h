@@ -33,6 +33,7 @@ public:
     void setSplinePos(osg::Vec3);
 
     ReferencePosition* refPos;
+    //void updateRefPos();
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();

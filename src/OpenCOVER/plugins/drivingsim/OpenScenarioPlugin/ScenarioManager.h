@@ -17,6 +17,7 @@ public:
 	float simulationTime;
 
 	//conditions
+    bool anyActTrue;
 	bool scenarioCondition;
 	string endConditionType;
     float endTime;

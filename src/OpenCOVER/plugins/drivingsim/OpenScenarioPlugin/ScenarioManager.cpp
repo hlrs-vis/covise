@@ -3,7 +3,8 @@
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
-	scenarioCondition(true)
+    scenarioCondition(true),
+    anyActTrue(false)
 {
 }
 
@@ -30,6 +31,7 @@ void ScenarioManager::conditionManager(){
         {
             if(conditionControl((*act_iter)))
             {
+                anyActTrue = true;
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
                     conditionControl(*maneuver_iter);
@@ -123,7 +125,7 @@ bool ScenarioManager::conditionControl(Maneuver* maneuver)
 	{
 		auto activeCar = getEntityByName(maneuver->activeCarName);
 		auto passiveCar = getEntityByName(maneuver->passiveCarName);
-		if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
+        if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
 		{
 			maneuver->maneuverCondition = true;
             return maneuver->maneuverCondition;
