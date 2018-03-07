@@ -24,6 +24,7 @@ set(HEADERS
   CameraSensor.h
   Position.h
   Spline.h
+  ReferencePosition.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -39,6 +40,7 @@ set(SOURCES
   CameraSensor.cpp
   Position.cpp
   Spline.cpp
+  ReferencePosition.cpp
 )
 
 

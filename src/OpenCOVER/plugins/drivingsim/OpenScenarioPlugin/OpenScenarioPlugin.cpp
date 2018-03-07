@@ -46,6 +46,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Position.h"
 #include "Spline.h"
 #include "Entity.h"
+#include "ReferencePosition.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -462,11 +463,16 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     }
                     if(action->Position.exists())
                     {
-                        if (action->Position->Lane.exists()){
+                        if (action->Position->Lane.exists())
+                        {
 
                             currentTentity->roadId = action->Position->Lane->roadId.getValue();
                             currentTentity->laneId = action->Position->Lane->laneId.getValue();
                             currentTentity->inits = action->Position->Lane->s.getValue();
+
+                            ReferencePosition* refPos = new ReferencePosition();
+                            refPos->initFromLane(action->Position->Lane->roadId.getValue(),action->Position->Lane->laneId.getValue(),action->Position->Lane->s.getValue(),system);
+                            currentTentity->refPos = refPos;
 
                             int roadId = atoi(currentTentity->roadId.c_str());
                             currentTentity->setInitEntityPosition(system->getRoad(roadId));

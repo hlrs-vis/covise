@@ -157,7 +157,7 @@ CO_SHLIB_HANDLE coVRDynLib::dlopen(const char *filename, bool showErrors)
     if (!absolute && !bundlepath.empty())
     {
         snprintf(buf, sizeof(buf), "%s/Contents/PlugIns/%s", bundlepath.c_str(), filename);
-        handle = try_dlopen(buf);
+        handle = try_dlopen(buf, showErrors);
         tried_files.push_back(buf);
     }
 #endif

@@ -52,6 +52,13 @@ int main(int argc, char **argv)
             SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
         }
     }
+
+#ifdef NDEBUG
+    // disable "debug dialog": it prevents the application from exiting,
+    // but still all sockets remain open
+    DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+    SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+#endif
 #endif
 
     QApplication a(argc, argv);
