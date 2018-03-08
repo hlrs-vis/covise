@@ -291,19 +291,32 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
     }
 }
 
+
+//method for creating edges in unsorted points
+//
+//    local_x -> local x-value for creating upper edge
+//        for upper edge:   local_x = 0
+//        for right edge:   local_x = 1
+//    local_y -> local y-value for creating upper edge
+//        for upper edge:   local_y = 1
+//        for right edge:   local_y = 0
+//    change -> changes upper edge to lower edge and right edge to left edge
+//        without changing:   change = 1
+//        with changing:      change = -1
+
 alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change) {
 
 
     numberOfAllPoints = all_points.size();                                                   //number of points
-    maximum_x = -FLT_MAX;                                                                    //maximum x-value
-    minimum_x = FLT_MAX;                                                                     //minimum x-value
-    maximum_y = -FLT_MAX;                                                                    //maximum y-value
-    minimum_y = FLT_MAX;                                                                     //minimum y-value
+    maximum_x = -FLT_MAX;                                                                    //maximum local x-value
+    minimum_x = FLT_MAX;                                                                     //minimum local x-value
+    maximum_y = -FLT_MAX;                                                                    //maximum local y-value
+    minimum_y = FLT_MAX;                                                                     //minimum local y-value
 
 
 
-    for(int i = 0; i < numberOfAllPoints; i++) {
-        if ((change * all_points[i][local_x]) > maximum_x) {  //all_points[i]._v[i]
+    for(int i = 0; i < numberOfAllPoints; i++) {                                             //search for minimum and maximum local x and y
+        if ((change * all_points[i][local_x]) > maximum_x) {
             maximum_x = all_points[i][local_x];
         }
         if ((change * all_points[i][local_x]) < minimum_x) {
@@ -316,16 +329,16 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
             minimum_y = all_points[i][local_y];
         }
     }
-    //fprintf(stderr,"%i %i %i\n", numberOfAllPoints, maximum_x, maximum_y);
+
 
     int numberOfQuadrants = 3;                                                               //number of quadrants
     float widthOfQuadrant = (maximum_x-minimum_x)/numberOfQuadrants;                         //width of quadrant
 
 
-    std::vector< std::vector<float> > upperEdge;
-    std::vector< std::vector<float> > upperEdgeTemp;
-    real_1d_array LocalXForFirstCurve;
-    real_1d_array LocalYForFirstCurve;
+    real_1d_array LocalXForFirstCurve;                                                       //array for all local x-values with maximum value in their quadrant
+    real_1d_array LocalYForFirstCurve;                                                       //array for all local y-values with maximum value in their quadrant
+    real_1d_array LocalXForSecondCurve;                                                      //array for all local x-values witch are needed for curve interpolation
+    real_1d_array LocalYForSecondCurve;                                                      //array for all local y-values witch are needed for curve interpolation
 
 
     std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
@@ -333,16 +346,20 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
     std::vector<osg::Vec3> pointsAboveCurve;
 
 
-    //initialize spline
+    //initialize spline firstCurveWithMaximumPointsPerQuadrant
     ae_int_t degree = 3;
     double spot = 2;
     ae_int_t info;
-    barycentricinterpolant curve;
+    barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
     polynomialfitreport repo;
     double test;
 
+    //initialize spline curve
+    barycentricinterpolant curve;
+
     int numberOfSectorsWithMaximum = 0;
 
+    //find all maximum points in the quadrants
     for(int i = 0; i < numberOfAllPoints; i++) {
         for(int j = 0; j < numberOfQuadrants; j++) {
             if (all_points[i][local_x] >= (minimum_x + j*widthOfQuadrant) && all_points[i][local_x] < (minimum_x + (j+1)*widthOfQuadrant)) {
@@ -359,93 +376,64 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
         }
     }
 
+
+    //only built a curve, when there are minimal two points
     if (numberOfSectorsWithMaximum > 1) {
 
         LocalXForFirstCurve.setlength(numberOfSectorsWithMaximum);
         LocalYForFirstCurve.setlength(numberOfSectorsWithMaximum);
 
+        int countFirstCurve = 0;
+
         for(int k = 0; k < maximumPointsInAllQuadrants.size(); k++) {
-
-            LocalXForFirstCurve[k] = maximumPointsInAllQuadrants[k]->_v[local_x];
-
-            LocalYForFirstCurve[k] = maximumPointsInAllQuadrants[k]->_v[local_y];
-
+            if (!maximumPointsInAllQuadrants[k]) {
+            }
+            else{
+                LocalXForFirstCurve[countFirstCurve] = maximumPointsInAllQuadrants[k]->_v[local_x];
+                LocalYForFirstCurve[countFirstCurve] = maximumPointsInAllQuadrants[k]->_v[local_y];
+                countFirstCurve++;
+            }
         }
 
-        polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, curve, repo);
+        //built first curve out of maximum points per quadrant
+        polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, firstCurveWithMaximumPointsPerQuadrant, repo);
 
+        //compare all points with first curve, if they are above or below
         for(int i = 0; i < numberOfAllPoints; i++) {
-            if (all_points[i][local_y] > barycentriccalc(curve, all_points[i][local_x])) {
+            if (all_points[i][local_y] > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, all_points[i][local_x])) {
                 pointsAboveCurve.push_back(all_points[i]);
             }
         }
+
+
+        LocalXForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+        LocalYForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+
+        int countSecondCurve = 0;
+
+        for(int k = 0; k < maximumPointsInAllQuadrants.size(); k++) {
+            if (!maximumPointsInAllQuadrants[k]) {
+            }
+            else{
+                LocalXForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->_v[local_x];
+                LocalYForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->_v[local_y];
+                countSecondCurve++;
+            }
+        }
+
+        for(int j = 0; j < pointsAboveCurve.size(); j++) {
+            LocalXForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j][local_x];
+            LocalYForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j][local_y];
+        }
+
+        //built second curve out of maximum points per quadrant and all points above the first curve
+        polynomialfit(LocalXForSecondCurve, LocalYForSecondCurve, degree, info, curve, repo);
+        return(curve);
+
     }
 
-
-    /*if (all_points[i][local_x] <= (minimum_x + widthOfQuadrant) && all_points[i][local_x] >= minimum_x) {                      //first quadrant
-      if (all_points[i][local_y] > ) {
-
-      }
-      else {
-      if (all_points[i][local_y] >  ) {
-
-      }
-      }
-
-      }
-
-      if (all_points[i][local_x] <= (minimum_x + 2*widthOfQuadrant) && all_points[i][local_x] > (minimum_x + widthOfQuadrant)) {      //second Quadrant
-
-      }
-
-      if (all_points[i][local_x] <= maximum_x && all_points[i][local_x] > (minimum_x + 2*widthOfQuadrant)) {                     //third Quadrant
-      */
-
-
-    /*
-       if (upperEdgeTemp.size()<n)                                                         //Arrays bauen bis n erreicht
-       {
-       std::vector<float> r2(2);
-       r2[0] = xy[i][x];
-       r2[1] = xy[i][y];
-       upperEdgeTemp.push_back(r2);
-
-       LocalXForFirstCurve.setlength(upperEdgeTemp.size());
-       LocalYForFirstCurve.setlength(upperEdgeTemp.size());
-
-       for (int j=0; j<upperEdgeTemp.size();j++)                                       //Baue real_1d_array LocalXForFirstCurve
-       {
-       LocalXForFirstCurve[j] = upperEdgeTemp[j][x];
-    //fprintf(stderr,"%i %f\n", upperEdgeTemp.size(), LocalXForFirstCurve[j]);
-    }
-    for (int j=0; j<upperEdgeTemp.size();j++)                                       //Baue real_1d_array LocalYForFirstCurve
-    {
-    LocalYForFirstCurve[j] = upperEdgeTemp[j][y];
-    //fprintf(stderr,"%f\n", LocalYForFirstCurve[j]);
-    }
-
-    }*/
-    /*
-       else
-       {
-    //if-Schleife: liegt der Punkt außerhalb des Randes?
-    if ((wechsel * xy[i][y]) > barycentriccalc(curve, xy[i][x]))
-    {
-    //Wenn Punkt hinzugefügt, Spline neu bauen, schlechtesten Punkt löschen
-    std::vector<float> r3(2);
-    r3[0] = xy[i][x];
-    r3[1] = xy[i][y];
-    upperEdgeTemp.push_back(r3);
-
-    polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, curve, repo);
-    }
-    }*/
-
-    //Spline Punkte aktualieren, bauen
-    polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, curve, repo);
-
-
-return(curve);
+//return empty curve if number of sectors with maximum is lower than 1
+return (curve);
 }
 
 COVERPLUGIN(NurbsSurface)
