@@ -122,9 +122,9 @@ bool PointCloudPlugin::init()
     sprintf(name, "PointCloud");
     fileGroup->setText(name);
 
-    //loadMenu = new ui::Menu("Load",fileGroup);
+    loadMenu = new ui::Menu(pointCloudMenu,"Load");
+    //loadGroup = new ui::Group("Load", loadMenu);
     //deleteButton = new ui::Button(fileGroup,"Delete");
-
     selectionGroup = new ui::Group(pointCloudMenu,"Selection");
     selectionButtonGroup = new ui::ButtonGroup(selectionGroup, "SelectionGroup");
     selectionButtonGroup->enableDeselect(true);
@@ -186,10 +186,10 @@ bool PointCloudPlugin::init()
     planetTrans = new MatrixTransform();
     osg::Matrix mat;
     mat.makeIdentity();
-    float scale = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.Scale", 1000);
+    float scale = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.Scale", 1);
     float x = coCoviseConfig::getFloat("x", "COVER.Plugin.PointCloud.Translation", 0);
     float y = coCoviseConfig::getFloat("y", "COVER.Plugin.PointCloud.Translation", 0);
-    float z = coCoviseConfig::getFloat("z", "COVER.Plugin.PointCloud.Translation", -1840);
+    float z = coCoviseConfig::getFloat("z", "COVER.Plugin.PointCloud.Translation", 0);
     adaptLOD = coCoviseConfig::isOn("COVER.Plugin.PointCloud.AdaptLOD", true);
     mat.makeScale(scale, scale, scale);
     mat.setTrans(Vec3(x, y, z));
@@ -202,7 +202,7 @@ bool PointCloudPlugin::init()
     pointSet = NULL;
 
     //read in menu data
-    //readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
+    readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, loadMenu);
 
 
     //PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
@@ -344,7 +344,7 @@ void PointCloudPlugin::menuEvent(coMenuItem *menuItem)
 */
 
 // read in and store the menu data from the configuration file
-void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, coRowMenu &subMenu)
+void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, ui::Group *subMenu)
 {
     coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries(menu);
     const char **entries = e.getValue();
@@ -358,18 +358,21 @@ void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntr
             entries++;
             if (fileName && menuName)
             {
+                std::string filename= fileName;
                 //create button and append it to the submenu
-                coButtonMenuItem *temp = new coButtonMenuItem(menuName);
-                subMenu.add(temp);
-                temp->setMenuListener(this);
-                menulist.push_back(ImageFileEntry(menuName, fileName, (coMenuItem *)temp));
+                ui::Button *temp = new ui::Button(subMenu, fileName);
+                temp->setCallback([this, filename](bool state){
+                    if (state)
+                        createGeodes(planetTrans, filename);
+                });
+                menulist.push_back(ImageFileEntry(menuName, fileName, (ui::Element *)temp));
             }
         }
     }
 }
 
 // create and add geodes to the scene  //DEFAULT JUST LOADS New_10x10x10.xyz  //UPDATE will be using the menu
-void PointCloudPlugin::createGeodes(Group *parent, string &filename)
+void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 {
     opencover::coVRShader *pointShader = opencover::coVRShaderList::instance()->get("Points");
     const char *cfile = filename.c_str();
@@ -1038,7 +1041,7 @@ void PointCloudPlugin::clearData()
 }
 
 //used to handle new menu items in pointset lists
-void PointCloudPlugin::selectedMenuButton(coMenuItem *menuItem)
+void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
 {
     string filename;
 
