@@ -69,17 +69,17 @@ BaseGraphElement<T>::~BaseGraphElement()
 }
 
 template<class T>
-QGraphicsItem *
+T *
 BaseGraphElement<T>::This()
 {
-    return static_cast<QGraphicsItem *>(this);
+    return static_cast<T *>(this);
 }
 
 template<class T>
-const QGraphicsItem *
+const T *
 BaseGraphElement<T>::This() const
 {
-    return static_cast<const QGraphicsItem *>(this);
+    return static_cast<const T *>(this);
 }
 
 template<class T>

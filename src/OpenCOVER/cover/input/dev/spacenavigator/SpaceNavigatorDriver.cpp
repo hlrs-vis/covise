@@ -351,6 +351,7 @@ void SpaceNavigatorDriver::processRaw(int axis, int value)
     }
 }
 
+#ifdef WIN32
 void SpaceNavigatorDriver::spaceMouseEvent(double transX, double transY, double transZ, double rotX, double rotY, double rotZ, double angle)
 {
 	smd.tx = transX;
@@ -364,6 +365,7 @@ void SpaceNavigatorDriver::spaceMouseEvent(double transX, double transY, double 
 	smd.p = coord.hpr[1];
 	smd.r = coord.hpr[2];
 }
+#endif
 
 
 bool SpaceNavigatorDriver::poll()

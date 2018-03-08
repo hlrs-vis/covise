@@ -82,9 +82,9 @@ class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public 
     public:
         string menuName;
         string fileName;
-        coMenuItem *fileMenuItem;
+        ui::Element *fileMenuItem;
 
-        ImageFileEntry(const char *menu, const char *file, coMenuItem *menuitem)
+        ImageFileEntry(const char *menu, const char *file, ui::Element *menuitem)
         {
             menuName = menu;
             fileName = file;
@@ -97,14 +97,14 @@ private:
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
-    void createGeodes(osg::Group *, string &);
+    void createGeodes(osg::Group *, const std::string &);
     int pointSetSize;
     PointSet *pointSet;
     osg::Vec3 vecBase;
     std::vector<ImageFileEntry> pointVec;
     void clearData();
-    void selectedMenuButton(coMenuItem *);
-    void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, coRowMenu &);
+    void selectedMenuButton(ui::Element *);
+    void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, ui::Group *);
     bool intensityOnly;
     float intensityScale;
     bool intColor;
@@ -128,6 +128,7 @@ protected:
     ui::Menu *pointCloudMenu = nullptr;
     ui::Menu *loadMenu = nullptr;
     ui::Group *fileGroup = nullptr;
+    ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
     ui::Button *deselectButton = nullptr;
