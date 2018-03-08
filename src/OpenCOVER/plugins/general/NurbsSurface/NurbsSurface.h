@@ -31,6 +31,11 @@
 #include <string>
 #include <cover/ui/Owner.h>
 
+#include "alglib/stdafx.h"
+#include "alglib/interpolation.h"
+
+
+
 
 namespace opencover
 {
@@ -42,6 +47,7 @@ class Slider;
 }
 
 using namespace opencover;
+using namespace alglib;
 
 class NurbsSurface : public coVRPlugin, public ui::Owner
 {
@@ -54,6 +60,7 @@ public:
 	int getorder_U();
 	void setorder_U(int order_U);
 	void computeSurface();
+    alglib::barycentricinterpolant edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change);
 
 private:
    	osg::ref_ptr<osg::Geode> geode;
@@ -89,7 +96,11 @@ private:
 
     	const int num_surf = 1;
 
-
+        int numberOfAllPoints;
+        float maximum_x;
+        float minimum_x;
+        float maximum_y;
+        float minimum_y;
 
     	void initUI();
 };
