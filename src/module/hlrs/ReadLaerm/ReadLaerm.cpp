@@ -221,7 +221,7 @@ ReadLaerm::param(const char *paramName, bool inMapLoading)
                         if (headerState == SUCCESS)
                         {
 
-                            coModule::sendInfo("Found Dataset with size %dx%d", (long)header.ndimx, (long)header.ndimy);
+                            coModule::sendInfo("Found Dataset with size %dx%d", header.ndimx, header.ndimy);
 
                             // lists for Choice Labels
                             vector<string> dataChoices;
