@@ -73,7 +73,7 @@ string &Maneuver::getName()
 	return name;
 }
 
-void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
+void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt,std::list<Entity*> *activeEntityList)
 {
 	float negativeAcceleration = 50;
 	float dv = negativeAcceleration*dt;
@@ -83,6 +83,7 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	}
 	else
 	{
-	aktivCar->setSpeed(targetSpeed);
+        aktivCar->setSpeed(targetSpeed);
+        activeEntityList->remove(aktivCar);
 	}
 }

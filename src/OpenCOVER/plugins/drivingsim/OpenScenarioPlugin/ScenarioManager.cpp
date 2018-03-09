@@ -41,24 +41,6 @@ void ScenarioManager::conditionManager(){
     }
 }
 
-void ScenarioManager::endTrajectoryCheck(){
-    for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
-    {
-        for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
-        {
-            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
-            {
-                if((*activeEntity)->finishedCurrentTraj)
-                {
-                    (*maneuver_iter)->activeEntityList.remove((*activeEntity));
-                    (*activeEntity)->finishedCurrentTraj = false;
-                }
-            }
-        }
-    }
-}
-
-
 bool ScenarioManager::conditionControl()
 {
 	if (endTime<simulationTime)

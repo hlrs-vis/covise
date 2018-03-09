@@ -1,4 +1,5 @@
 #include "Position.h"
+#include "ReferencePosition.h"
 
 
 Position::Position():oscPosition()
@@ -8,9 +9,11 @@ Position::~Position()
 {}
 
 
-osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList)
+ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList)
 {
-    referencePosition = currentEntity->referencePosition;
+    referencePosition = currentEntity->refPos;
+    newReferencePosition = new ReferencePosition(currentEntity->refPos);
+    currentEntity->newRefPos = newReferencePosition;
 
     if(Lane.exists())
     {
@@ -26,34 +29,18 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
 
         absPosition = getAbsoluteFromRoad(road, s, laneId);
 
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
+        referencePosition->update(roadId, s, laneId);
+        return referencePosition;
 
     }
     else if(RelativeLane.exists())
     {
-        // get current road of entity
-        roadId = currentEntity->roadId.c_str();
-        int roadId_int = atoi(currentEntity->roadId.c_str());
-        ::Road *road = system->getRoad(roadId_int); // auch Road ID als String
-
-        //convert reference position from absolute world coordinates to absolute lane coordinates
-        const Vector3D vec3d = Vector3D(referencePosition[0], referencePosition[1], referencePosition[2]);
-        Vector2D vec2D = road->searchPosition(vec3d, 0.0);
-        s = vec2D[0];
-
-        laneId =  road->searchLane(s, vec2D[1]);
-
-
         // relative lane coordinates
         int dlaneId = RelativeLane->dLane.getValue();
-        offset = RelativeLane->offset.getValue();
         double ds = RelativeLane->ds.getValue();
 
-        absPosition = getAbsoluteFromRoad(road, s+ds, laneId+dlaneId);
-
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
+        referencePosition->update(dlaneId, ds);
+        return referencePosition;
     }
     else if(RelativeObject.exists())
     {
@@ -62,74 +49,38 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
         dz = RelativeObject->dz.getValue();
         relObject = RelativeObject->object.getValue();
 
-        referencePosition = getRelObjectPos(relObject, currentEntity, system, entityList);
+        osg::Vec3 referenceObjectPosition = getRelObjectPos(relObject, currentEntity, system, entityList);
 
-
-        osg::Vec3 relPosition (dx,dy,dz);
-        osg::Vec3 absPosition = relPosition+referencePosition;
-
-        return absPosition;
+        return NULL;
 
     }
     else if(RelativeRoad.exists())
     {
-        // get current road of entity
-        int roadId_int = atoi(currentEntity->roadId.c_str());
-        ::Road *road = system->getRoad(roadId_int);
         // relative road coordinates
         double ds = RelativeRoad->ds.getValue();
         double dt = RelativeRoad->dt.getValue();
 
-        //convert reference position from absolute world coordinates to absolute lane coordinates
-        const Vector3D vec3d = Vector3D(referencePosition[0], referencePosition[1], referencePosition[2]);
-        Vector2D vec2D = road->searchPosition(vec3d, 0.0);
-        double s = vec2D[0];
-        double t = vec2D[1];
+        referencePosition->update(ds,dt);
 
-        absPosition = getAbsoluteFromRoad(road, s+ds, t+dt);
-
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
+        return referencePosition;
 
     }
-    else if(RelativeWorld.exists())
-    {
-        dx = RelativeWorld->dx.getValue();
-        dy = RelativeWorld->dy.getValue();
-        dz = RelativeWorld->dz.getValue();
 
-        osg::Vec3 relPosition (dx,dy,dz);
-        absPosition = relPosition+referencePosition;
-
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
-
-
-    }
     else if(Road.exists())
     {
         // read road coordinates
         roadId = Road->roadId.getValue();
         s = Road->s.getValue();
-        double t = Road->t.getValue();
+        t = Road->t.getValue();
 
-        int roadId_int = atoi(roadId.c_str());
-        ::Road *road = system->getRoad(roadId_int);
-
-        // find the lane which belongs to the coordinates in the vertex
-        laneId =  road->searchLane(s,t);
-
-        absPosition = getAbsoluteFromRoad(road, s, t);
-
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
+        referencePosition->update(roadId,s,t);
+        return referencePosition;
 
     }
     else if(Route.exists())
     {
         // Route is not implemented yet
-        osg::Vec3 absPosition (0.0,0.0,0.0);
-        return absPosition;
+        return NULL;
 
     }
     else if(World.exists())
@@ -138,13 +89,23 @@ osg::Vec3 Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* syste
         y = World->y.getValue();
         z = World->z.getValue();
 
-        osg::Vec3 absPosition (x,y,z);
-
-        currentEntity->setRefPos(absPosition);
-        return absPosition;
+        referencePosition->update(dx,dy,dz);
+        return referencePosition;
     }
 
-    return osg::Vec3(0.0, 0.0, 0.0);
+    else if(RelativeWorld.exists())
+    {
+        dx = RelativeWorld->dx.getValue();
+        dy = RelativeWorld->dy.getValue();
+        dz = RelativeWorld->dz.getValue();
+
+        referencePosition->update(dx,dy,dz,true);
+        return referencePosition;
+
+
+    }
+
+    return NULL;
 }
 
 osg::Vec3 Position::getAbsoluteFromRoad(::Road* road, double s, int laneId)

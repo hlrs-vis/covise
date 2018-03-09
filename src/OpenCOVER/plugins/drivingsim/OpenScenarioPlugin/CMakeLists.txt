@@ -23,7 +23,6 @@ set(HEADERS
   RouteInfo.h
   CameraSensor.h
   Position.h
-  Spline.h
   ReferencePosition.h
 )
 set(SOURCES
@@ -39,7 +38,6 @@ set(SOURCES
   RouteInfo.cpp
   CameraSensor.cpp
   Position.cpp
-  Spline.cpp
   ReferencePosition.cpp
 )
 

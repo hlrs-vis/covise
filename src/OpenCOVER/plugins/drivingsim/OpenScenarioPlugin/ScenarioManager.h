@@ -29,8 +29,6 @@ public:
     bool conditionControl(Act* act);
     bool conditionControl(Maneuver* maneuver);
     void conditionManager();
-    void endTrajectoryCheck();
-
 
 };
 

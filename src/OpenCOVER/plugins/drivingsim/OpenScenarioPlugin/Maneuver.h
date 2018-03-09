@@ -43,7 +43,7 @@ public:
     virtual void finishedParsing();
 
     std::string &getName();
-    void changeSpeedOfEntity(Entity *aktivCar, float dt);
+    void changeSpeedOfEntity(Entity *aktivCar, float dt, std::list<Entity *> *activeEntityList);
     void initialize(std::list<Entity *> &activeEntityList_temp);
 
 };

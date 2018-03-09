@@ -33,6 +33,7 @@ public:
     void setSplinePos(osg::Vec3);
 
     ReferencePosition* refPos;
+    ReferencePosition* newRefPos;
     //void updateRefPos();
 
     Entity(std::string entityName, std::string catalogReferenceName);
@@ -64,11 +65,15 @@ public:
 
 
     // follow Trajectories functions
-    void setTrajectoryDirection(osg::Vec3 init_targetPosition);
-    void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
+    void setTrajectoryDirection();
+    void followTrajectory(int verticesCounter, std::list<Entity *> *finishedEntityList);
     void getTrajSpeed(float deltat);
     void setRefPos();
     void setRefPos(osg::Vec3 newReferencePosition);
+    void followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList);
+    void setTrajectoryDirectionOnRoad();
+
+
 
 
 };

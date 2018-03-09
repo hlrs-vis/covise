@@ -11,7 +11,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     finishedCurrentTraj(false),
     activeShape("Polyline"),
     visitedSplineVertices(0),
-    refPos(NULL)
+    refPos(NULL),
+    newRefPos(NULL)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -93,10 +94,10 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
-void Entity::setTrajectoryDirection(osg::Vec3 init_targetPosition)
+void Entity::setTrajectoryDirection()
 {
     // entity is heading to targetPosition
-    targetPosition = init_targetPosition;
+    targetPosition = refPos->getPosition();
     totaldirectionVector = targetPosition - entityPosition;
     totaldirectionVectorLength = totaldirectionVector.length();
 
@@ -113,9 +114,8 @@ void Entity::getTrajSpeed(float deltat)
 
 }
 
-void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEntityList)
+void Entity::followTrajectory(int verticesCounter,std::list<Entity*> *activeEntityList)
 {
-
     //calculate step distance
     float step_distance = speed*opencover::cover->frameDuration();
     //float step_distance = speed*1/60;
@@ -127,18 +127,21 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEn
     //calculate remaining distance
     totalDistance = totalDistance-step_distance;
     //calculate new position
-    newPosition = entityPosition+(directionVector*step_distance);
+    newRefPos->move(directionVector*step_distance);
+    newPosition = newRefPos->getPosition();
+
     if (totalDistance <= 0)
     {
+        cout << name << " arrived at vertice " << visitedVertices << endl;
         visitedVertices++;
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
             finishedCurrentTraj = true;
-            finishedEntityList.push_back(this);
+            activeEntityList->remove(this);
+            //finishedEntityList.push_back(this);
         }
     }
-
     entityPosition = newPosition;
     entityGeometry->setPosition(newPosition, directionVector);
 }
@@ -200,5 +203,48 @@ void Entity::followSpline()
 
     entityPosition = newPosition;
     entityGeometry->setPosition(newPosition, directionVector);
+
+}
+
+void Entity::setTrajectoryDirectionOnRoad()
+{
+    targetPosition = refPos->getPosition();
+    totaldirectionVector = targetPosition - newRefPos->getPosition();
+    totaldirectionVectorLength = totaldirectionVector.length();
+
+    directionVector = totaldirectionVector;
+    directionVector.normalize();
+}
+
+void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList)
+{
+    float step = opencover::cover->frameDuration()*speed;
+    double ds = refPos->s - newRefPos->s;
+    double dt = refPos->t - newRefPos->t;
+
+    cout << "New deltas: ds = " << ds << " dt = " << dt << endl;
+
+    if(totalDistance == 0)
+    {
+        totalDistance = totaldirectionVectorLength;
+    }
+    //calculate remaining distance
+    totalDistance = totalDistance-step;
+
+    if(totalDistance <= 0)
+    {
+        cout << "Arrived at " << visitedVertices << endl;
+        visitedVertices++;
+        totalDistance = 0;
+        if(visitedVertices == verticesCounter)
+        {
+            activeEntityList->remove(this);
+        }
+    }
+
+    newRefPos->moveOnTrajectory(ds,dt,step);
+    Transform vehicleTransform = newRefPos->road->getRoadTransform(newRefPos->s, newRefPos->t);
+    entityGeometry->setTransform(vehicleTransform,newRefPos->hdg);
+
 
 }

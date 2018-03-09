@@ -123,6 +123,8 @@ void OpenScenarioPlugin::preFrame()
                     //check maneuver start conditions
                     if ((*maneuver_iter)->maneuverCondition)
                     {
+                        list<Entity*> activeManeuverEntities = (*maneuver_iter)->activeEntityList;
+
                         if((*maneuver_iter)->maneuverType == "followTrajectory")
                         {
                             for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
@@ -130,43 +132,45 @@ void OpenScenarioPlugin::preFrame()
                                 Trajectory* currentTrajectory = (*trajectory_iter);
                                 for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
                                 {
-                                    cout << "Start to follow Trajectory" << endl;
                                     Position* currentPos;
                                     Entity* currentEntity = (*activeEntity);
                                     // check if Trajectory is about to start or Entity arrived at vertice
                                     if((*activeEntity)->totalDistance == 0)
                                     {
-                                        (*activeEntity)->setRefPos();
                                         currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
-                                        osg::Vec3 nextTargetPos0 = currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
-                                        oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
+                                        currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
+                                        cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
 
-                                        if(currentShape->Spline.exists())
-                                        {
-                                            (*activeEntity)->spline = new Spline();
-                                            (*activeEntity)->spline->poly3Spline(currentPos);
-                                            (*activeEntity)->setActiveShape("Spline");
-                                        }
+//                                        oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
 
-                                        (*activeEntity)->setTrajectoryDirection(nextTargetPos0);
+//                                        if(currentShape->Spline.exists())
+//                                        {
+//                                            (*activeEntity)->spline = new Spline();
+//                                            (*activeEntity)->spline->poly3Spline(currentPos);
+//                                            (*activeEntity)->setActiveShape("Spline");
+//                                        }
 
+                                        //(*activeEntity)->setTrajectoryDirection();
+                                        (*activeEntity)->setTrajectoryDirectionOnRoad();
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
                                             (*activeEntity)->getTrajSpeed(0.01);
                                         }
                                     }
-                                    if((*activeEntity)->activeShape == "Spline")
-                                    {
-                                        osg::Vec3 test =(*activeEntity)->spline->getSplinePos((*activeEntity)->visitedSplineVertices);
-                                        (*activeEntity)->setSplinePos(test);
-                                        (*activeEntity)->followSpline();
-                                    }
-                                    else
-                                    {
-                                        (*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,(*maneuver_iter)->finishedEntityList);
-                                    }
+//                                    if((*activeEntity)->activeShape == "Spline")
+//                                    {
+//                                        osg::Vec3 test =(*activeEntity)->spline->getSplinePos((*activeEntity)->visitedSplineVertices);
+//                                        (*activeEntity)->setSplinePos(test);
+//                                        (*activeEntity)->followSpline();
+//                                    }
+                                    // else
+                                    //{
+                                    //(*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
+                                    (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
+                                    //}
+                                    //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
 
                                     unusedEntity.remove(*activeEntity);
 
@@ -180,9 +184,12 @@ void OpenScenarioPlugin::preFrame()
                         {
                             for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                             {
-                                (*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration());
+                                (*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration(),&activeManeuverEntities);
+                                cout << (*activeEntity)->getName() << " is breaking!" << endl;
+
                             }
                         }
+                        (*maneuver_iter)->activeEntityList = activeManeuverEntities;
                     }
                 }
             }
@@ -197,7 +204,6 @@ void OpenScenarioPlugin::preFrame()
                 usedEntity.clear();
             }
         }
-        scenarioManager->endTrajectoryCheck();
     }
     else
     {
