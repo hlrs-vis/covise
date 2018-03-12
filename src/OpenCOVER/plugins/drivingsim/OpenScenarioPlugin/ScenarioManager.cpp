@@ -1,5 +1,6 @@
 #include "ScenarioManager.h"
 #include <vector>
+#include "ReferencePosition.h"
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
@@ -107,7 +108,7 @@ bool ScenarioManager::conditionControl(Maneuver* maneuver)
 	{
 		auto activeCar = getEntityByName(maneuver->activeCarName);
 		auto passiveCar = getEntityByName(maneuver->passiveCarName);
-        if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
+        if (activeCar->refPos->s-passiveCar->refPos->s >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
 		{
 			maneuver->maneuverCondition = true;
             return maneuver->maneuverCondition;

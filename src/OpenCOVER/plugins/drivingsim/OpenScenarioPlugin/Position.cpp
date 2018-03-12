@@ -166,23 +166,9 @@ osg::Vec3 Position::getRelObjectPos(std::string relObject, Entity* currentEntity
 
 }
 
-osg::Vec3 Position::hpr2directionVector()
+double Position::getHdg()
 {
-    double h = World->h.getValue();
-    double p = World->p.getValue();
-
-    osg::Matrix rz;
-    rz(0,0) = cos(h); rz(0,1)=sin(h);
-    rz(1,0) = -sin(h); rz(1,1)=cos(h);
-    osg::Matrix ry;
-    ry(0,0) = cos(p); ry(0,2) = -sin(p);
-    ry(2,0) = sin(p); ry(2,2) = cos(p);
-
-    osg::Vec3 e0(1,0,0);
-
-
-    osg::Vec3 dirVec = e0*ry*rz;
-    return dirVec;
+    return World->h.getValue();
 }
 
 osg::Vec3 Position::getAbsoluteWorld()

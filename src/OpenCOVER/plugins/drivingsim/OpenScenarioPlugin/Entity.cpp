@@ -17,26 +17,10 @@ Entity::Entity(string entityName, string catalogReferenceName):
 	directionVector.set(1, 0, 0);
 }
 
-
-void Entity::setInitEntityPosition(osg::Matrix m)
-{
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
-    entityGeometry->setTransform(m);
-    osg::Vec3 pos(m(3,0),m(3,1),m(3,2));
-    entityPosition = pos;
-}
-
 void Entity::setInitEntityPosition(osg::Vec3 initPos)
 {
 	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
 	entityGeometry->setPosition(initPos, directionVector);
-}
-
-void Entity::setInitEntityPosition(osg::Vec3 initPos, osg::Vec3 initDirVec)
-{
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
-    directionVector.set(initDirVec[0], initDirVec[1], initDirVec[2]);
-    entityGeometry->setPosition(initPos, directionVector);
 }
 
 void Entity::setInitEntityPosition(Road *r)
@@ -49,15 +33,27 @@ void Entity::setInitEntityPosition(Road *r)
 	entityGeometry->setPosition(pos, directionVector);
 }
 
+void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
+{
+    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+    // Road r; s inits;
+    auto vtrans = entityGeometry->getVehicleTransform();
+    osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+    entityPosition = pos;
+    entityGeometry->setPosition(pos, directionVector);
+}
+
+
 void Entity::moveLongitudinal()
 {
 	float step_distance = speed*opencover::cover->frameDuration();
-    // entityPosition[0] = entityPosition[0] + step_distance;
-    entityPosition = entityPosition+(directionVector*step_distance);
-    refPos->moveForward(opencover::cover->frameDuration(),speed);
+    double ds = 1.0;
+    double dt = 0.0;
 
-    newPosition = refPos->getPosition();
-    entityGeometry->setPosition(newPosition,directionVector);
+    refPos->move(ds,dt,step_distance);
+
+    Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
+    entityGeometry->setTransform(vehicleTransform,refPos->hdg);
 }
 
 osg::Vec3 &Entity::getPosition()
@@ -127,8 +123,7 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> *activeEnti
     //calculate remaining distance
     totalDistance = totalDistance-step_distance;
     //calculate new position
-    newRefPos->move(directionVector*step_distance);
-    newPosition = newRefPos->getPosition();
+    newPosition = entityPosition+(directionVector*step_distance);
 
     if (totalDistance <= 0)
     {
@@ -137,9 +132,7 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> *activeEnti
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
-            finishedCurrentTraj = true;
             activeEntityList->remove(this);
-            //finishedEntityList.push_back(this);
         }
     }
     entityPosition = newPosition;
@@ -218,7 +211,7 @@ void Entity::setTrajectoryDirectionOnRoad()
 
 void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList)
 {
-    float step = opencover::cover->frameDuration()*speed;
+    float step_distance = opencover::cover->frameDuration()*speed;
     double ds = refPos->s - newRefPos->s;
     double dt = refPos->t - newRefPos->t;
 
@@ -229,7 +222,7 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         totalDistance = totaldirectionVectorLength;
     }
     //calculate remaining distance
-    totalDistance = totalDistance-step;
+    totalDistance = totalDistance-step_distance;
 
     if(totalDistance <= 0)
     {
@@ -242,7 +235,7 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         }
     }
 
-    newRefPos->moveOnTrajectory(ds,dt,step);
+    newRefPos->move(ds,dt,step_distance);
     Transform vehicleTransform = newRefPos->road->getRoadTransform(newRefPos->s, newRefPos->t);
     entityGeometry->setTransform(vehicleTransform,newRefPos->hdg);
 

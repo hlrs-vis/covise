@@ -39,9 +39,8 @@ public:
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
     void setInitEntityPosition(osg::Vec3 init);
-    void setInitEntityPosition(osg::Vec3 init, osg::Vec3 initDirVec);
-    void setInitEntityPosition(osg::Matrix m);
     void setInitEntityPosition(Road *r);
+    void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);

@@ -55,7 +55,7 @@ public:
     osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, double t);
 
     osg::Vec3 getRelObjectPos(std::string relObject, Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
-    osg::Vec3 hpr2directionVector();
+    double getHdg();
     osg::Vec3 getAbsoluteWorld();
 
 

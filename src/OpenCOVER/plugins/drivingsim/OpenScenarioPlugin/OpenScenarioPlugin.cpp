@@ -470,28 +470,30 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     }
                     if(action->Position.exists())
                     {
-                        if (action->Position->Lane.exists())
+                        Position* initPos = (Position*)(action->Position.getObject());
+                        if (initPos->Lane.exists())
                         {
-
-                            currentTentity->roadId = action->Position->Lane->roadId.getValue();
-                            currentTentity->laneId = action->Position->Lane->laneId.getValue();
-                            currentTentity->inits = action->Position->Lane->s.getValue();
+                            ReferencePosition* refPos = new ReferencePosition();
+                            refPos->init(initPos->Lane->roadId.getValue(),initPos->Lane->laneId.getValue(),initPos->Lane->s.getValue(),system);
+                            currentTentity->setInitEntityPosition(refPos);
+                            currentTentity->refPos = refPos;
+                        }
+                        else if(initPos->World.exists())
+                        {
+                            osg::Vec3 initPosition = initPos->getAbsoluteWorld();
+                            double hdg = initPos->getHdg();
 
                             ReferencePosition* refPos = new ReferencePosition();
-                            refPos->initFromLane(action->Position->Lane->roadId.getValue(),action->Position->Lane->laneId.getValue(),action->Position->Lane->s.getValue(),system);
+                            refPos->init(initPosition,hdg,system);
+                            currentTentity->setInitEntityPosition(refPos);
                             currentTentity->refPos = refPos;
-
-                            int roadId = atoi(currentTentity->roadId.c_str());
-                            currentTentity->setInitEntityPosition(system->getRoad(roadId));
                         }
-                        else if(action->Position->World.exists())
+                        else if(initPos->Road.exists())
                         {
-                            Position* pos = (Position*)(action->Position.getObject());
-                            osg::Vec3 initPosition = pos->getAbsoluteWorld();
-                            osg::Vec3 initDirVec = pos->hpr2directionVector();
-
-                            currentTentity->setInitEntityPosition(initPosition, initDirVec);
-                            currentTentity->setPosition(initPosition);
+                            ReferencePosition* refPos = new ReferencePosition();
+                            refPos->init(initPos->Road->roadId.getValue(),initPos->Road->s.getValue(),initPos->Road->t.getValue(),system);
+                            currentTentity->setInitEntityPosition(refPos);
+                            currentTentity->refPos = refPos;
                         }
                     }
                 }

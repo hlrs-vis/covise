@@ -36,9 +36,12 @@ public:
     // Absolute
     osg::Vec3 xyz;
 
-    void initFromLane(std::string init_roadId, int init_laneId, double init_s, RoadSystem *system);
-    void moveForward(float dt, float speed);
-    void moveOnTrajectory(double ds, double dt, float step);
+    // intialize ReferencePosition:
+    void init(std::string init_roadId, int init_laneId, double init_s, RoadSystem *system); // via Lane Coordinates
+    void init(osg::Vec3 initPos, double init_hdg, RoadSystem* init_system); // via World Coordinates
+    void init(std::string, double init_s, double init_t, RoadSystem* init_system); // via Road Coordinates
+
+    void move(double ds, double dt, float step); // move Reference Position forward
 
     osg::Vec3 getPosition();
     void update(std::string init_roadId, double init_s, int init_laneId);
