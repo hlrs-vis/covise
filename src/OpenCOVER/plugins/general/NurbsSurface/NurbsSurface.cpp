@@ -135,13 +135,10 @@ void NurbsSurface::initUI()
 
 }
 
-
 void NurbsSurface::saveFile(const std::string &fileName)
 {
         osgDB::writeNodeFile(*geode, fileName.c_str());
 }
-
-
 
 bool NurbsSurface::init()
 {
@@ -154,13 +151,13 @@ bool NurbsSurface::init()
 
 void NurbsSurface::computeSurface()
 {
-        // generating interpolating surface
-        for (int i = 0; i < num_surf; ++i) {
+    // generating interpolating surface
+    for (int i = 0; i < num_surf; ++i) {
 
-            SISLSurf* result_surf = 0;
-            int jstat = 0;
+        SISLSurf* result_surf = 0;
+        int jstat = 0;
 
-            s1537(points,       // pointer to the array of points to interpolate
+        s1537(points,       // pointer to the array of points to interpolate
                 num_points_u, // number of interpolating points along the 'u' parameter
                 num_points_v, // number of interpolating points along the 'v' parameter
                 dim,          // dimension of the Euclidean space
@@ -176,91 +173,85 @@ void NurbsSurface::computeSurface()
                 1,            // open surface in the v direction 
                 &result_surf, // the generated surface
                 &jstat);      // status variable
-                    if (jstat < 0) {
-                    throw runtime_error("Error occured inside call to SISL routine s1537.");
-                    } else if (jstat > 0) {
-                    cerr << "WARNING: warning occured inside call to SISL routine s1537. \n"
-                    << endl;
-                    }
+        if (jstat < 0) {
+            throw runtime_error("Error occured inside call to SISL routine s1537.");
+        } else if (jstat > 0) {
+            cerr << "WARNING: warning occured inside call to SISL routine s1537. \n"
+                << endl;
+        }
 
         int ref=DEFAULT_REF; // Number of new knots between old ones.
-            int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
-            
-            lower_degree_and_subdivide(&result_surf, ref, maxref); 
-            double *normal;
-            compute_surface_normals(result_surf, &normal);
+        int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
 
-            // create the Geode (Geometry Node) to contain all our osg::Geometry objects.
-            geode = new osg::Geode();
+        lower_degree_and_subdivide(&result_surf, ref, maxref); 
+        double *normal;
+        compute_surface_normals(result_surf, &normal);
 
-            // create Geometry object to store all the vertices and lines primtive
-            osg::Geometry* polyGeom = new osg::Geometry();
+        // create the Geode (Geometry Node) to contain all our osg::Geometry objects.
+        geode = new osg::Geode();
 
-            osg::Vec3Array* vertices = new osg::Vec3Array;
-            osg::Vec3Array* normals = new osg::Vec3Array;
-            osg::Vec4Array* colors = new osg::Vec4Array;
-            osg::Vec4 _color;
-            _color.set(1.0, 0.0, 0.0, 1.0);
+        // create Geometry object to store all the vertices and lines primtive
+        osg::Geometry* polyGeom = new osg::Geometry();
 
-            for (int j=0; j<result_surf->in1-1; j++)
-            {
-                int vertexBegin=vertices->size();
-                    for (int k=0; k<result_surf->in2; k++) 
-                    { 
-                        int p=3*(j+k*result_surf->in1); 
-                        vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
-                        normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
-                        colors->push_back(_color);
-                        p+=3;
-                        vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
-                        normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
-                        colors->push_back(_color);
-                    }
+        osg::Vec3Array* vertices = new osg::Vec3Array;
+        osg::Vec3Array* normals = new osg::Vec3Array;
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        osg::Vec4 _color;
+        _color.set(1.0, 0.0, 0.0, 1.0);
+
+        for (int j=0; j<result_surf->in1-1; j++)
+        {
+            int vertexBegin=vertices->size();
+            for (int k=0; k<result_surf->in2; k++) 
+            { 
+                int p=3*(j+k*result_surf->in1); 
+                vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
+                normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
+                colors->push_back(_color);
+                p+=3;
+                vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
+                normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
+                colors->push_back(_color);
+            }
             int vertexEnd=vertices->size()-vertexBegin;
             polyGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLE_STRIP,vertexBegin,vertexEnd));
-            } 
-            
+        } 
+
         // pass the created vertex array to the points geometry object
-            polyGeom->setVertexArray(vertices);
-        
-            // use the color array.
-            polyGeom->setColorArray(colors);
-            polyGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+        polyGeom->setVertexArray(vertices);
 
-            // use the normal array.
-            polyGeom->setNormalArray(normals);
-            polyGeom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+        // use the color array.
+        polyGeom->setColorArray(colors);
+        polyGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 
-            //TriangleStrip
-            geode->addDrawable(polyGeom);
+        // use the normal array.
+        polyGeom->setNormalArray(normals);
+        polyGeom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
-            // stateSet
-            osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);//polyGeom->getOrCreateStateSet();
-            /*osg::Material* matirial = new osg::Material; 
-            matirial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE); 
-            matirial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-            matirial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-            matirial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-            matirial->setShininess(osg::Material::FRONT_AND_BACK, 10.0f); 
-            stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); */
-            osg::LightModel* ltModel = new osg::LightModel; 
-            ltModel->setTwoSided(true); 
-            stateSet->setAttribute(ltModel); 
-            stateSet->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
-            polyGeom->setStateSet(stateSet);
+        //TriangleStrip
+        geode->addDrawable(polyGeom);
 
-            // add the points geomtry to the geode.
-            cover->getObjectsRoot()->addChild(geode.get());
+        // stateSet
+        osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);//polyGeom->getOrCreateStateSet();
+        /*osg::Material* matirial = new osg::Material; 
+          matirial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE); 
+          matirial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
+          matirial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
+          matirial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
+          matirial->setShininess(osg::Material::FRONT_AND_BACK, 10.0f); 
+          stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); */
+        osg::LightModel* ltModel = new osg::LightModel; 
+        ltModel->setTwoSided(true); 
+        stateSet->setAttribute(ltModel); 
+        stateSet->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
+        polyGeom->setStateSet(stateSet);
 
+        // add the points geomtry to the geode.
+        cover->getObjectsRoot()->addChild(geode.get());
 
-            freeSurf(result_surf);
-
-
-        }
+        freeSurf(result_surf);
+    }
 }
-
-
-
 
 NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 {

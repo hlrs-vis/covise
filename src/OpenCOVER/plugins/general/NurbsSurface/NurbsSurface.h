@@ -13,10 +13,10 @@
  ** Description: NurbsSurface OpenCOVER Plugin (draws a NurbsSurface)        **
  **                                                                          **
  **                                                                          **
- ** Author: F.Karle/ K.Ahmann	                                             **
+ ** Author: F.Karle/ K.Ahmann                                                **
  **                                                                          **
- ** History:  			  	                                     **
- ** December 2017  v1		                                             **
+ ** History:                                                                 **
+ ** December 2017  v1                                                        **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
@@ -57,44 +57,44 @@ public:
     bool init();
     virtual bool destroy();
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
-	int getorder_U();
-	void setorder_U(int order_U);
-	void computeSurface();
+    int getorder_U();
+    void setorder_U(int order_U);
+    void computeSurface();
     alglib::barycentricinterpolant edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change);
 
 private:
-   	osg::ref_ptr<osg::Geode> geode;
+    osg::ref_ptr<osg::Geode> geode;
 
 
-	void saveFile(const std::string &fileName);
+    void saveFile(const std::string &fileName);
 
-	ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
-	ui::Action *saveButton_;
+    ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
+    ui::Action *saveButton_;
 
-	ui::Slider *orderUSlider=nullptr;
-	ui::Slider *orderVSlider=nullptr;
-	
-	int order_U = 2;
-	int order_V = 2;
-	
-	std::string fileName = "test.obj";
+    ui::Slider *orderUSlider=nullptr;
+    ui::Slider *orderVSlider=nullptr;
+    
+    int order_U = 2;
+    int order_V = 2;
+    
+    std::string fileName = "test.obj";
 
-	const int num_points_u = 3; // number of points in the u parameter direction
-    	const int num_points_v = 3; // number of points in the v parameter direction
+    const int num_points_u = 3; // number of points in the u parameter direction
+        const int num_points_v = 3; // number of points in the v parameter direction
 
-    	double points[27] = 
-    	{
-        	0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
-        	-0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
-        	0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
-   	};
+        double points[27] = 
+        {
+            0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
+            -0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
+            0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
+    };
 
-    	double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
-    	double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
+        double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
+        double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
 
-    	const int dim = 3; // dimension of the space we are working in
+        const int dim = 3; // dimension of the space we are working in
 
-    	const int num_surf = 1;
+        const int num_surf = 1;
 
         int numberOfAllPoints;
         float maximum_x;
@@ -102,7 +102,7 @@ private:
         float maximum_y;
         float minimum_y;
 
-    	void initUI();
+        void initUI();
 };
 #endif
 
