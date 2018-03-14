@@ -42,6 +42,7 @@ public:
     void init(std::string, double init_s, double init_t, RoadSystem* init_system); // via Road Coordinates
 
     void move(double ds, double dt, float step); // move Reference Position forward
+    void move(osg::Vec3 dirVec,float step_distance); // move Reference Position forward (w/o Road)
 
     osg::Vec3 getPosition();
     void update(std::string init_roadId, double init_s, int init_laneId);
@@ -51,6 +52,9 @@ public:
     void update(double x, double y, double z);
     void update(double dx, double dy, double dz, bool dummy);
     void move(osg::Vec3 newPos);
+
+    void getSuccessor();
+    void getPredecessor();
 };
 
 #endif // SPLINE_H

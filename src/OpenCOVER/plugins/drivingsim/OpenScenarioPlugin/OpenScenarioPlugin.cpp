@@ -180,7 +180,7 @@ void OpenScenarioPlugin::preFrame()
                                 //set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));
                             }
                         }
-                        if((*maneuver_iter)->maneuverType == "break")
+                        if((*maneuver_iter)->maneuverType == "break") // no Maneuver called "break" in OpenSCENARIO Standard
                         {
                             for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
                             {

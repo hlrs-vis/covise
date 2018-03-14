@@ -83,21 +83,24 @@ void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, RoadSystem* ini
     const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
     Vector2D output = system->searchPosition(newPoint, road, s);
 
+    if(road != NULL){
 
-    Vector2D stNew = road->searchPosition(newPoint, s);
+        Vector2D stNew = road->searchPosition(newPoint, s);
 
-    s = stNew[0];
-    t = stNew[1];
+        s = stNew[0];
+        t = stNew[1];
 
-    LaneSection* newLS = road->getLaneSection(s);
-    LS = newLS;
+        LaneSection* newLS = road->getLaneSection(s);
+        LS = newLS;
 
-    laneId = LS->searchLane(s,t);
+        laneId = LS->searchLane(s,t);
 
-    Transform vtrans = road->getRoadTransform(s, t);
-    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+        Transform vtrans = road->getRoadTransform(s, t);
+        xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
-    roadLength = road->getLength();
+        roadLength = road->getLength();
+    }
+
 
 }
 
@@ -112,6 +115,15 @@ void ReferencePosition::move(double ds, double dt, float step)
     double phi = atan(dt1/ds1);
     hdg = phi + road->getHeading(s);
 
+    if(s>roadLength)
+    {
+        this->getSuccessor();
+    }
+    else if(s<0)
+    {
+        this->getPredecessor();
+    }
+
     LaneSection* newLS = road->getLaneSection(s);
 
     if (newLS != LS)
@@ -122,6 +134,11 @@ void ReferencePosition::move(double ds, double dt, float step)
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+}
+
+void ReferencePosition::move(osg::Vec3 dirVec,float step_distance)
+{
+    xyz = xyz+(dirVec*step_distance);
 }
 
 
@@ -210,16 +227,40 @@ void ReferencePosition::update(double x, double y, double z)
     xyz = osg::Vec3(x,y,z);
 
     //Vector2D searchHere = Vector2D(x,y); road->isOnRoad(searchHere);
-    Vector3D newPoint = Vector3D(x,y,z);
-    Vector2D stNew = road->searchPosition(newPoint, s);
+    if(road == NULL)
+    {
+        const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+        Vector2D output = system->searchPosition(newPoint, road, s);
 
-    s = stNew[0];
-    t = stNew[1];
+        if (road != NULL)
+        {
+            Vector3D newPoint = Vector3D(x,y,z);
+            Vector2D stNew = road->searchPosition(newPoint, s);
 
-    LaneSection* newLS = road->getLaneSection(s);
-    LS = newLS;
+            s = stNew[0];
+            t = stNew[1];
 
-    laneId = LS->searchLane(s,t);
+            LaneSection* newLS = road->getLaneSection(s);
+            LS = newLS;
+
+            laneId = LS->searchLane(s,t);
+        }
+
+    }
+    else
+    {
+        Vector3D newPoint = Vector3D(x,y,z);
+        Vector2D stNew = road->searchPosition(newPoint, s);
+
+        s = stNew[0];
+        t = stNew[1];
+
+        LaneSection* newLS = road->getLaneSection(s);
+        LS = newLS;
+
+        laneId = LS->searchLane(s,t);
+    }
+
 
 }
 
@@ -245,4 +286,27 @@ void ReferencePosition::update(double dx, double dy, double dz, bool dummy)
 
 }
 
+void ReferencePosition::getSuccessor()
+{
+    TarmacConnection* connection;
+
+    connection = road->getSuccessorConnection();
+    road = dynamic_cast<Road *>(connection->getConnectingTarmac());
+
+    s = s-roadLength;
+    roadId = system->getRoadId(road);
+    roadLength = road->getLength();
+}
+
+void ReferencePosition::getPredecessor()
+{
+    TarmacConnection* connection;
+
+    connection = road->getPredecessorConnection();
+    road = dynamic_cast<Road *>(connection->getConnectingTarmac());
+
+    roadId = system->getRoadId(road);
+    roadLength = road->getLength();
+    s = roadLength+s;
+}
 

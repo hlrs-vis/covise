@@ -24,7 +24,6 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         s = Lane->s.getValue();
 
         // access road
-        // int roadId_int = atoi(roadId.c_str());
         ::Road *road = system->getRoad(roadId);
 
         absPosition = getAbsoluteFromRoad(road, s, laneId);

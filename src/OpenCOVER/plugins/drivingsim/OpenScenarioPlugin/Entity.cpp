@@ -46,14 +46,18 @@ void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 
 void Entity::moveLongitudinal()
 {
-	float step_distance = speed*opencover::cover->frameDuration();
-    double ds = 1.0;
-    double dt = 0.0;
+    if(refPos->road != NULL)
+    {
+        float step_distance = speed*opencover::cover->frameDuration();
+        double ds = 1.0;
+        double dt = 0.0;
 
-    refPos->move(ds,dt,step_distance);
+        refPos->move(ds,dt,step_distance);
 
-    Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-    entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+        Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
+        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+        cout << name << " is driving on Road: " << refPos->roadId << endl;
+    }
 }
 
 osg::Vec3 &Entity::getPosition()
@@ -211,11 +215,8 @@ void Entity::setTrajectoryDirectionOnRoad()
 
 void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList)
 {
-    float step_distance = opencover::cover->frameDuration()*speed;
-    double ds = refPos->s - newRefPos->s;
-    double dt = refPos->t - newRefPos->t;
 
-    cout << "New deltas: ds = " << ds << " dt = " << dt << endl;
+    float step_distance = opencover::cover->frameDuration()*speed;
 
     if(totalDistance == 0)
     {
@@ -235,9 +236,22 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         }
     }
 
-    newRefPos->move(ds,dt,step_distance);
-    Transform vehicleTransform = newRefPos->road->getRoadTransform(newRefPos->s, newRefPos->t);
-    entityGeometry->setTransform(vehicleTransform,newRefPos->hdg);
+
+    if(refPos->road != NULL)
+    {
+        double ds = refPos->s - newRefPos->s;
+        double dt = refPos->t - newRefPos->t;
+
+        newRefPos->move(ds,dt,step_distance);
+        Transform vehicleTransform = newRefPos->road->getRoadTransform(newRefPos->s, newRefPos->t);
+        entityGeometry->setTransform(vehicleTransform,newRefPos->hdg);
+    }
+    else
+    {
+        newRefPos->move(directionVector,step_distance);
+        osg::Vec3 pos = newRefPos->getPosition();
+        entityGeometry->setPosition(pos, directionVector);
+    }
 
 
 }
