@@ -156,7 +156,7 @@ void OpenScenarioPlugin::preFrame()
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->getTrajSpeed(0.01);
+                                            (*activeEntity)->getTrajSpeed(0.1);
                                         }
                                     }
 //                                    if((*activeEntity)->activeShape == "Spline")

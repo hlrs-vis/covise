@@ -89,7 +89,7 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         y = World->y.getValue();
         z = World->z.getValue();
 
-        referencePosition->update(dx,dy,dz);
+        referencePosition->update(x,y,z);
         return referencePosition;
     }
 
