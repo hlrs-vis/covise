@@ -102,6 +102,7 @@
 #include <QGraphicsItem>
 #include <QUndoStack>
 #include <QStatusBar>
+#include <QMimeData>
 
 using namespace OpenScenario;
 
@@ -710,7 +711,162 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 
 	if (currentTool == ODD::TOS_ELEMENT)
 	{
+		if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP)
+		{
+			QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
+			QPointF mousePoint = mouseEvent->scenePos();
 
+			QString dropText = mouseEvent->mimeData()->text();
+
+			if (!dropText.isEmpty())
+			{
+				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
+
+				// find the closest road //
+				double s;
+				double t;
+				QVector2D vec;
+
+				RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
+				if (road)
+				{
+					// Create new object //
+
+					std::string catalogName = oscCatalog_->getCatalogName();
+					OpenScenario::oscObjectBase *selectedObject = oscCatalog_->getCatalogObject(catalogName, dropText.toStdString());
+					std::string selectedObjectName;
+
+					/*QList<DataElement *> elements = getProjectData()->getSelectedElements();
+					for (int i = 0; i < elements.size(); i++)
+					{
+						OSCElement *element = dynamic_cast<OSCElement *>(elements.at(i));
+						if (element)
+						{
+							selectedObject = element->getObject();*/
+							if (selectedObject)				// all catalog elements have a name
+							{
+								if (oscCatalog_->getCatalogObject(catalogName, dropText.toStdString()))
+								{
+
+									OpenScenario::oscMember *memberName = NULL;
+									if (catalogName == "Driver")
+									{
+										OpenScenario::oscDriver *object = dynamic_cast<OpenScenario::oscDriver *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Environment")
+									{
+										OpenScenario::oscEnvironment *object = dynamic_cast<OpenScenario::oscEnvironment *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Maneuver")
+									{
+										OpenScenario::oscManeuver *object = dynamic_cast<OpenScenario::oscManeuver *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "MiscObject")
+									{
+										OpenScenario::oscMiscObject *object = dynamic_cast<OpenScenario::oscMiscObject *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Pedestrian")
+									{
+										OpenScenario::oscPedestrian *object = dynamic_cast<OpenScenario::oscPedestrian *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "PedestrianController")
+									{
+										OpenScenario::oscPedestrianController *object = dynamic_cast<OpenScenario::oscPedestrianController *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Route")
+									{
+										OpenScenario::oscRoute *object = dynamic_cast<OpenScenario::oscRoute *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Trajectory")
+									{
+										OpenScenario::oscTrajectory *object = dynamic_cast<OpenScenario::oscTrajectory *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+									else if (catalogName == "Vehicle")
+									{
+										OpenScenario::oscVehicle *object = dynamic_cast<OpenScenario::oscVehicle *>(selectedObject);
+										memberName = object->getMember("name");
+									}
+
+
+									if (memberName)
+									{
+										OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(memberName->getValue());
+										if (str)
+										{
+											selectedObjectName = str->getValue();
+										}
+									}
+									//break;
+									//}
+
+									/*		OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(name->getValue());
+									selectedObjectName = str->getValue();
+									selectedObject = oscCatalog_->getCatalogObject(selectedObjectName);
+									if (selectedObject)
+									{
+										break;
+									}*/
+								}
+							}
+						//}
+					//}
+
+
+					if (selectedObject)
+					{
+
+
+						OpenScenario::oscEntities *entitiesObject = openScenarioBase_->Entities.getOrCreateObject();
+						OpenScenario::oscMember *objectsMember = entitiesObject->getMember("Object");
+						OpenScenario::oscObjectBase *objects = objectsMember->getOrCreateObjectBase();
+
+						OpenScenario::oscArrayMember *oscObjectArray = dynamic_cast<OpenScenario::oscArrayMember *>(objectsMember);
+
+						OSCElement *oscElement = new OSCElement("Object");
+						if (oscElement)
+						{
+							getProjectData()->getUndoStack()->beginMacro(QObject::tr("New Object"));
+
+							AddOSCArrayMemberCommand *command = new AddOSCArrayMemberCommand(oscObjectArray, entitiesObject, NULL, "Object", oscBase_, oscElement);
+							getProjectGraph()->executeCommand(command);
+
+							OpenScenario::oscObject *oscObject = static_cast<OpenScenario::oscObject *>(oscElement->getObject());
+							OpenScenario::oscCatalogReference *catalogReference = oscObject->CatalogReference.getOrCreateObject();
+							if (oscObject->name.getValue() == "")
+							{
+								oscObject->name.setValue(getName(oscObjectArray, selectedObjectName));
+							}
+							catalogReference->entryName.setValue(selectedObjectName);
+							catalogReference->catalogName.setValue(oscCatalog_->getCatalogName() + "Catalog");
+
+
+							OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(oscObject->name.getValue());
+							OpenScenario::oscPosition *oscPosition = privateAction->Position.getOrCreateObject();
+							OpenScenario::oscRoad *oscRoad = oscPosition->Road.getOrCreateObject();
+							SetOSCValuePropertiesCommand<std::string> *roadCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscRoad, "roadId", road->getID().writeString().toStdString());
+							getProjectGraph()->executeCommand(roadCommand);
+							SetOSCValuePropertiesCommand<double> *propertyCommand = new SetOSCValuePropertiesCommand<double>(oscElement, oscRoad, "s", s);
+							getProjectGraph()->executeCommand(propertyCommand);
+							propertyCommand = new SetOSCValuePropertiesCommand<double>(oscElement, oscRoad, "t", t);
+							getProjectGraph()->executeCommand(propertyCommand);
+
+							//							OSCItem *oscItem = new OSCItem(oscElement, oscBaseItem_, oscObject, oscCatalog_, oscRoad); 
+
+							getProjectData()->getUndoStack()->endMacro();
+						}
+					}
+				}
+			}
+		}
+		/*
         if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
 		{
 			QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
@@ -804,13 +960,13 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 									break;
 									//}
 
-									/*								OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(name->getValue());
-									selectedObjectName = str->getValue();
-									selectedObject = oscCatalog_->getCatalogObject(selectedObjectName);
-									if (selectedObject)
-									{
-									break;
-									} */
+									//								OpenScenario::oscStringValue *str = dynamic_cast<OpenScenario::oscStringValue *>(name->getValue());
+									//selectedObjectName = str->getValue();
+									//selectedObject = oscCatalog_->getCatalogObject(selectedObjectName);
+									//if (selectedObject)
+									//{
+									//break;
+									//} 
 								}
 							}
 						}
@@ -862,7 +1018,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 					}
 				}
 			}
-		}
+		}*/
 	}
 
     //	ProjectEditor::mouseAction(mouseAction);
