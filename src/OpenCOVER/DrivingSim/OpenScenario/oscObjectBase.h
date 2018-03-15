@@ -87,7 +87,7 @@ public:
 
 	// Clone for members //
 	//
-	void cloneMembers(oscObjectBase *objectBase);
+	void cloneMembers(oscObjectBase *objectBase, oscObjectBase *parentObj, oscMember *ownMember);
 
     //
     virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source

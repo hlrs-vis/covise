@@ -162,7 +162,7 @@ private:
     void unmanage(coVRPlugin *plug);
 
     //! try to load a plugin
-    coVRPlugin *loadPlugin(const char *name);
+    coVRPlugin *loadPlugin(const char *name, bool showErrors = true);
 
     void grabKeyboard(coVRPlugin *);
     coVRPlugin *keyboardGrabber() const

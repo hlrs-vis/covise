@@ -17,6 +17,7 @@ public:
 	float simulationTime;
 
 	//conditions
+    bool anyActTrue;
 	bool scenarioCondition;
 	string endConditionType;
     float endTime;
@@ -28,8 +29,6 @@ public:
     bool conditionControl(Act* act);
     bool conditionControl(Maneuver* maneuver);
     void conditionManager();
-    void endTrajectoryCheck();
-
 
 };
 

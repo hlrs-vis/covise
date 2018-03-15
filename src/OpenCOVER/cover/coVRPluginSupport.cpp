@@ -16,6 +16,7 @@
 #include "coVRMSController.h"
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
+#include <OpenVRUI/coToolboxMenu.h>
 #include <config/CoviseConfig.h>
 #include <assert.h>
 #include <net/tokenbuffer.h>
@@ -24,10 +25,12 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
+#include "ui/Slider.h"
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -197,6 +200,18 @@ coPointerButton *coVRPluginSupport::getMouseButton() const
     return mouseButton;
 }
 
+coPointerButton *coVRPluginSupport::getRelativeButton() const
+{
+    if (!Input::instance()->hasRelative())
+        return NULL;
+
+    if (relativeButton == NULL)
+    {
+        relativeButton = new coPointerButton("relative");
+    }
+    return relativeButton;
+}
+
 const osg::Matrix &coVRPluginSupport::getViewerMat() const
 {
     START("coVRPluginSupport::getViewerMat");
@@ -294,7 +309,7 @@ coMenu *coVRPluginSupport::getMenu()
     {
         if (cover->debugLevel(4))
         {
-            fprintf(stderr, "coVRPluginSupport::getMenu, creating\n");
+            fprintf(stderr, "coVRPluginSupport::getMenu, creating menu\n");
         }
         osg::Matrix dcsTransMat, dcsRotMat, dcsMat, preRot, tmp;
         float xp = 0.0, yp = 0.0, zp = 0.0;
@@ -302,7 +317,6 @@ coMenu *coVRPluginSupport::getMenu()
         float size = 1;
         m_vruiMenu = new coRowMenu("COVER");
         m_vruiMenu->setVisible(true);
-        //menu->myMenu->setMenuListener(menu);
 
         xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
         yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);
@@ -323,8 +337,9 @@ coMenu *coVRPluginSupport::getMenu()
         OSGVruiMatrix menuMatrix;
         menuMatrix.setMatrix(dcsMat);
         m_vruiMenu->setTransformMatrix(&menuMatrix);
-        m_vruiMenu->setScale(size * (cover->getSceneSize() / 2500.0));
+        m_vruiMenu->setScale(size * (getSceneSize() / 2500.0));
     }
+
     return m_vruiMenu;
 }
 
@@ -397,22 +412,30 @@ void coVRPluginSupport::update()
         handMat = Input::instance()->getHandMat();
     }
 
-    for (size_t i=0; i<2; ++i)
-        getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
-    getMouseButton()->setState(Input::instance()->mouse()->buttonState());
-#if 0
-   if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
-      std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
-#endif
-    // don't overwrite mouse button state if only mouseTracking is used
-    if (getPointerButton() != getMouseButton())
+    if (getRelativeButton())
+    {
+        getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
+    }
+
+    if (getPointerButton() && getPointerButton()!=getMouseButton())
     {
         for (size_t i=0; i<2; ++i)
             getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
-   if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
-      std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
+        if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
+            std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
+#endif
+    }
+
+    if (getMouseButton())
+    {
+        for (size_t i=0; i<2; ++i)
+            getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
+        getMouseButton()->setState(Input::instance()->mouse()->buttonState());
+#if 0
+        if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
+            std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
 #endif
     }
 
@@ -674,7 +697,7 @@ float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coor
         scaleVal = eyeToPosDist / (2000);
     }
 
-    return scaleVal / cover->getScale();
+    return scaleVal / cover->getScale() * interactorScale;
 }
 
 float coVRPluginSupport::getViewerScreenDistance()
@@ -699,14 +722,68 @@ bool coVRPluginSupport::restrictOn() const
     return coVRNavigationManager::instance()->restrictOn();
 }
 
-coToolboxMenu *coVRPluginSupport::getToolBar() const
+coToolboxMenu *coVRPluginSupport::getToolBar(bool create)
 {
-    return toolBar;
+    if (create && !m_toolBar)
+    {
+        auto tb = new coToolboxMenu("Toolbar");
+
+        //////////////////////////////////////////////////////////
+        // position AK-Toolbar and make it visible
+        float x = coCoviseConfig::getFloat("x", "COVER.Plugin.AKToolbar.Position", -400);
+        float y = coCoviseConfig::getFloat("y", "COVER.Plugin.AKToolbar.Position", -200);
+        float z = coCoviseConfig::getFloat("z", "COVER.Plugin.AKToolbar.Position", 0);
+
+        float h = coCoviseConfig::getFloat("h", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float p = coCoviseConfig::getFloat("p", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float r = coCoviseConfig::getFloat("r", "COVER.Plugin.AKToolbar.Orientation", 0);
+
+        float scale = coCoviseConfig::getFloat("COVER.Plugin.AKToolbar.Scale", 0.2);
+
+        int attachment = coUIElement::TOP;
+        std::string att = coCoviseConfig::getEntry("COVER.Plugin.AKToolbar.Attachment");
+        if (att != "")
+        {
+            if (!strcasecmp(att.c_str(), "BOTTOM"))
+            {
+                attachment = coUIElement::BOTTOM;
+            }
+            else if (!strcasecmp(att.c_str(), "LEFT"))
+            {
+                attachment = coUIElement::LEFT;
+            }
+            else if (!strcasecmp(att.c_str(), "RIGHT"))
+            {
+                attachment = coUIElement::RIGHT;
+            }
+        }
+
+        //float sceneSize = cover->getSceneSize();
+
+        vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *trans = vruiRendererInterface::the()->createMatrix();
+
+        rot->makeEuler(h, p, r);
+        trans->makeTranslate(x, y, z);
+        mat->makeIdentity();
+        mat->mult(rot);
+        mat->mult(trans);
+        tb->setTransformMatrix(mat);
+        tb->setScale(scale);
+        tb->setVisible(true);
+        tb->fixPos(true);
+        tb->setAttachment(attachment);
+
+        m_toolBar = tb;
+    }
+
+    return m_toolBar;
 }
 
 void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
 {
-    toolBar = tb;
+    m_toolBar = tb;
 }
 
 coVRPluginSupport::coVRPluginSupport()
@@ -720,10 +797,22 @@ coVRPluginSupport::coVRPluginSupport()
 
     START("coVRPluginSupport::coVRPluginSupport");
 
+    new VRVruiRenderInterface();
+
     ui = new ui::Manager();
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released){
+        interactorScale = value;
+    });
 
     for (int level=0; level<Notify::Fatal; ++level)
     {
@@ -734,7 +823,7 @@ coVRPluginSupport::coVRPluginSupport()
     /// path for the viewpoint file: initialized by 1st param() call
     intersectedNode = NULL;
 
-    toolBar = NULL;
+    m_toolBar = NULL;
     numClipPlanes = coCoviseConfig::getInt("COVER.NumClipPlanes", 3);
     for (int i = 0; i < numClipPlanes; i++)
     {
@@ -746,6 +835,7 @@ coVRPluginSupport::coVRPluginSupport()
 
     pointerButton = NULL;
     mouseButton = NULL;
+    relativeButton = NULL;
     baseMatrix.makeIdentity();
 
     invCalculated = false;
@@ -781,6 +871,8 @@ coVRPluginSupport::~coVRPluginSupport()
     if (debugLevel(2))
         fprintf(stderr, "delete coVRPluginSupport\n");
 
+    updateManager->removeAll();
+    delete VRVruiRenderInterface::the();
     delete updateManager;
 
     while(!m_notifyStream.empty())

@@ -45,20 +45,26 @@ oscObjectBase::~oscObjectBase()
 /************
 * clone members
 ************/
-void oscObjectBase::cloneMembers(oscObjectBase *objectBase)
+void oscObjectBase::cloneMembers(oscObjectBase *objectBase, oscObjectBase *parentObj, oscMember *ownMember)
 {
-	initialize(base, objectBase->getParentObj(), objectBase->getOwnMember(), objectBase->getSource());
+	initialize(base, parentObj, ownMember, objectBase->getSource());
 
 	std::list<oscObjectBase::MemberElement> cloneMembers = objectBase->getMembers();
-	for (auto it = cloneMembers.cbegin(); it != cloneMembers.cend(); ++it)
+	for (auto it = cloneMembers.cbegin(); it != cloneMembers.cend(); it++ )
 	{
 		oscMember *cloneMember = (*it).member;
 		oscObjectBase *memberObject = cloneMember->getObjectBase();
+		oscMember *member = getMember((*it).name);
+		if (cloneMember->isSelected())
+		{
+			member->setSelected(true);
+		}
+
 		if (memberObject)
 		{
-			oscObjectBase *obj = getMember((*it).name)->createObjectBase();
-			obj->cloneMembers(memberObject);
+			oscObjectBase *obj = member->createObjectBase();
 
+			obj->cloneMembers(memberObject, this, member);
 		}
 		else
 		{

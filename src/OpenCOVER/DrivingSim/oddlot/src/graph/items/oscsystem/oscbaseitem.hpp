@@ -16,7 +16,7 @@
 #ifndef OSCBASEITEM_HPP
 #define OSCBASEITEM_HPP
 
-#include "src/graph/items/graphelement.hpp"
+#include "src/graph/items/svgelement.hpp"
 
 namespace OpenScenario
 {
@@ -30,14 +30,12 @@ class oscPrivate;
 
 class TopviewGraph;
 class OSCItem;
-class OSCShapeItem;
 class OSCBase;
 class RoadSystem;
 class OSCRoadSystemItem;
 
-class OSCBaseItem : public GraphElement
+class OSCBaseItem : public SVGElement
 {
-    Q_OBJECT
 
     //################//
     // FUNCTIONS      //
@@ -81,10 +79,6 @@ public:
         return oscItems_;
     }
 
-     // OSCItems //
-    //
-    void appendOSCShapeItem(OSCShapeItem *oscShapeItem);
-    bool removeOSCShapeItem(OSCShapeItem *oscShapeItem);
 
     // delete this item
     virtual bool deleteRequest()
@@ -116,7 +110,6 @@ private:
 	 // OSCObjectItems //
     //
     QMap<QString, OSCItem *> oscItems_;
-    QMap<QString, OSCShapeItem *> oscShapeItems_;
 
 	RoadSystem *roadSystem_;
 	OSCRoadSystemItem *oscRoadSystemItem_;

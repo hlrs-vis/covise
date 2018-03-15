@@ -37,6 +37,7 @@ class oscArrayMember;
 }
 
 class OSCBaseItem;
+class OSCBaseShapeItem;
 class OSCItem;
 class OSCRoadSystemItem;
 class OSCElement;
@@ -144,6 +145,7 @@ private:
 	//
 	OSCBase * oscBase_;
 	OSCBaseItem * oscBaseItem_;
+	OSCBaseShapeItem *oscBaseShapeItem_;
 	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
 	// Selected catalog //

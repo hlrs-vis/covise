@@ -58,10 +58,6 @@ public:
     /// check if the Element or any ancestor is this classname
     virtual bool isOfClassName(const char *) const;
 
-    bool updateContentRange(float min, float max, float value,
-                            bool isInteger, float step);
-    bool updateContentFloat(float value);
-    bool updateContentReleased();
     /// functions activates or deactivates the item
     virtual void setActive(bool a);
 

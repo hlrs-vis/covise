@@ -16,7 +16,10 @@
 #ifndef OSCITEM_HPP
 #define OSCITEM_HPP
 
-#include "oscbaseitem.hpp"
+#include "osctextitem.hpp"
+#include "src/graph/items/svgelement.hpp"
+
+#include <QtSvg/QGraphicsSvgItem>
 
 namespace OpenScenario
 {
@@ -31,15 +34,16 @@ class oscPosition;
 class oscRoad;
 }
 
+class OSCRoadSystemItem;
 class RoadSystem;
 class OpenScenarioEditor;
-class OSCTextItem;
+
 class OSCBaseItem;
-class SVGItem;
+class OSCTextItem;
 
 class QColor;
 
-class OSCItem : public GraphElement
+class OSCItem : public SVGElement
 {
     Q_OBJECT
 
@@ -61,12 +65,6 @@ public:
 		return oscObject_;
 	}
 
-    // Graphics //
-    //
-	void updateColor(const std::string &type);
-	
-	// Function for path drawing //
-	QPainterPath (*createPath)(OpenScenario::oscObjectBase *, RSystemElementRoad *);
 
     void updatePosition();
 	void move(QPointF &diff);
@@ -103,8 +101,6 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
 
 protected:
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -123,7 +119,6 @@ private:
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
-	SVGItem *svgItem_;
 	std::string covisedir_;
 	
 
@@ -150,18 +145,20 @@ private:
 	bool doPan_;
 	bool copyPan_;
 
-	SVGItem *cloneSvgItem_;
+	QGraphicsSvgItem *cloneSvgItem_;
 	std::string fn_;
 	QTransform tR_;
 	QTransform tS_;
 	QTransform tT_;
 	
 
-    OSCTextItem *oscTextItem_;
+	OSCTextSVGItem *oscTextItem_;
 
     QColor color_;
 
     OpenScenarioEditor *oscEditor_;
+
+	QSvgRenderer *renderer_;
 
 
 };

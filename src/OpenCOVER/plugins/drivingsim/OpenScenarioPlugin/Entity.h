@@ -3,8 +3,11 @@
 
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
+#include <iostream>
 
-
+//#include "Spline.h"
+class Spline;
+class ReferencePosition;
 class Entity {
 
 public:
@@ -19,10 +22,25 @@ public:
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
 
+    // Splines
+    std::string activeShape;
+    Spline *spline;
+    void followSpline();
+    float splineDistance;
+    int visitedSplineVertices;
+    void setActiveShape(std::string);
+    osg::Vec3 splinePos;
+    void setSplinePos(osg::Vec3);
+
+    ReferencePosition* refPos;
+    ReferencePosition* newRefPos;
+    //void updateRefPos();
+
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
     void setInitEntityPosition(osg::Vec3 init);
     void setInitEntityPosition(Road *r);
+    void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
@@ -36,20 +54,26 @@ public:
     osg::Vec3 targetPosition;
     osg::Vec3 totaldirectionVector;
     osg::Vec3 newPosition;
-    osg::Vec3 absVertPos;
+    osg::Vec3 referencePosition;
 
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool absVertPosIsSet;
+    bool refPosIsSet;
     bool finishedCurrentTraj;
 
 
     // follow Trajectories functions
-    void setTrajectoryDirection(osg::Vec3 init_targetPosition);
-    void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
+    void setTrajectoryDirection();
+    void followTrajectory(int verticesCounter, std::list<Entity *> *finishedEntityList);
     void getTrajSpeed(float deltat);
-    void setAbsVertPos();
+    void setRefPos();
+    void setRefPos(osg::Vec3 newReferencePosition);
+    void followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList);
+    void setTrajectoryDirectionOnRoad();
+
+
+
 
 };
 

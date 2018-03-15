@@ -2761,36 +2761,36 @@ RSystemElementRoad::delSensor(Sensor *sensor)
     // Delete section //
     //
     bool success = delSensor(s);
-    if (!success)
-    {
-        qDebug("WARNING 1006231544! Could not delete sensor.");
-    }
+if (!success)
+{
+	qDebug("WARNING 1006231544! Could not delete sensor.");
+}
 
-    return success;
+return success;
 }
 
 bool
 RSystemElementRoad::delSensor(double s)
 {
-    Sensor *sensor = sensors_.value(s, NULL);
-    if (!sensor)
-    {
-        qDebug("WARNING 1003221758! Tried to delete a sensor that wasn't there.");
-        return false;
-    }
-    else
-    {
-        // Notify section //
-        //
-        sensor->setParentRoad(NULL);
+	Sensor *sensor = sensors_.value(s, NULL);
+	if (!sensor)
+	{
+		qDebug("WARNING 1003221758! Tried to delete a sensor that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		sensor->setParentRoad(NULL);
 
-        // Delete and Notify //
-        //
-        sensors_.remove(s);
-        addRoadChanges(RSystemElementRoad::CRD_SensorChange);
+		// Delete and Notify //
+		//
+		sensors_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_SensorChange);
 
-        return true;
-    }
+		return true;
+	}
 }
 
 
@@ -2805,53 +2805,53 @@ RSystemElementRoad::delSensor(double s)
 void
 RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
 {
-    if (!prototypeRoad->trackSections_.empty() && trackSections_.empty())
-    {
-        foreach (TrackComponent *track, prototypeRoad->trackSections_)
-        {
-            addTrackComponent(track->getClone());
-        }
-    }
+	if (!prototypeRoad->trackSections_.empty() && trackSections_.empty())
+	{
+		foreach(TrackComponent *track, prototypeRoad->trackSections_)
+		{
+			addTrackComponent(track->getClone());
+		}
+	}
 
-    if (!prototypeRoad->typeSections_.empty() && typeSections_.empty())
-    {
-        foreach (TypeSection *section, prototypeRoad->typeSections_)
-        {
-            addTypeSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->typeSections_.empty() && typeSections_.empty())
+	{
+		foreach(TypeSection *section, prototypeRoad->typeSections_)
+		{
+			addTypeSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->elevationSections_.empty() && elevationSections_.empty())
-    {
-        foreach (ElevationSection *section, prototypeRoad->elevationSections_)
-        {
-            addElevationSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->elevationSections_.empty() && elevationSections_.empty())
+	{
+		foreach(ElevationSection *section, prototypeRoad->elevationSections_)
+		{
+			addElevationSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->superelevationSections_.empty() && superelevationSections_.empty())
-    {
-        foreach (SuperelevationSection *section, prototypeRoad->superelevationSections_)
-        {
-            addSuperelevationSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->superelevationSections_.empty() && superelevationSections_.empty())
+	{
+		foreach(SuperelevationSection *section, prototypeRoad->superelevationSections_)
+		{
+			addSuperelevationSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->crossfallSections_.empty() && crossfallSections_.empty())
-    {
-        foreach (CrossfallSection *section, prototypeRoad->crossfallSections_)
-        {
-            addCrossfallSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->crossfallSections_.empty() && crossfallSections_.empty())
+	{
+		foreach(CrossfallSection *section, prototypeRoad->crossfallSections_)
+		{
+			addCrossfallSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->laneSections_.empty() && laneSections_.empty())
-    {
-        foreach (LaneSection *section, prototypeRoad->laneSections_)
-        {
-            addLaneSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->laneSections_.empty() && laneSections_.empty())
+	{
+		foreach(LaneSection *section, prototypeRoad->laneSections_)
+		{
+			addLaneSection(section->getClone());
+		}
+	}
 
 	if (!prototypeRoad->shapeSections_.empty() && shapeSections_.empty())
 	{
@@ -2859,6 +2859,16 @@ RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
 		{
 			ShapeSection *clone = section->getClone();
 			addShapeSection(clone);
+
+			if (prototypeRoad->getLaneSections().isEmpty())
+			{
+				double width = getMinWidth(clone->getSStart());
+				foreach(PolynomialLateralSection *poly, clone->getShapes())
+				{
+					clone->moveLateralSection(poly, poly->getTStart() + width);
+				}
+			}
+
 /*			if (!laneSections_.isEmpty())
 			{
 				double s = section->getSStart();

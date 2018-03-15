@@ -37,6 +37,7 @@
 #include "Points.h"
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
+#include "PointCloudInteractor.h"
 #include <cover/coTabletUI.h>
 
 namespace vrui
@@ -51,6 +52,7 @@ class coLabelItem;
 
 using namespace opencover;
 using namespace vrui;
+
 
 class nodeInfo
 {
@@ -70,7 +72,7 @@ public:
 /** Plugin
   @author 
 */
-class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener
+class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener, public ui::Owner
 {
 
     /** File entry class for Image Plugin
@@ -80,9 +82,9 @@ class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public 
     public:
         string menuName;
         string fileName;
-        coMenuItem *fileMenuItem;
+        ui::Element *fileMenuItem;
 
-        ImageFileEntry(const char *menu, const char *file, coMenuItem *menuitem)
+        ImageFileEntry(const char *menu, const char *file, ui::Element *menuitem)
         {
             menuName = menu;
             fileName = file;
@@ -95,14 +97,14 @@ private:
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
-    void createGeodes(osg::Group *, string &);
+    void createGeodes(osg::Group *, const std::string &);
     int pointSetSize;
     PointSet *pointSet;
     osg::Vec3 vecBase;
     std::vector<ImageFileEntry> pointVec;
     void clearData();
-    void selectedMenuButton(coMenuItem *);
-    void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, coRowMenu &);
+    void selectedMenuButton(ui::Element *);
+    void readMenuConfigData(const char *, std::vector<ImageFileEntry> &, ui::Group *);
     bool intensityOnly;
     float intensityScale;
     bool intColor;
@@ -112,17 +114,31 @@ private:
     coTUITab *PCTab;
     coTUIToggleButton *adaptLODTui;
     coTUIFloatSlider *pointSizeTui;
+    static PointCloudInteractor *s_pointCloudInteractor;
 
 protected:
     osg::MatrixTransform *planetTrans;
 
-    coSubMenuItem *imanPluginInstanceMenuItem;
-    coRowMenu *imanPluginInstanceMenu;
-    //coCheckboxMenuItem* enablePointCloudPlugin;
-    coRowMenu *loadMenu;
-    coSubMenuItem *loadMenuItem;
-    coButtonMenuItem *deleteMenuItem;
-    void menuEvent(coMenuItem *);
+    //coSubMenuItem *imanPluginInstanceMenuItem;
+    //coRowMenu *imanPluginInstanceMenu;
+    // //coCheckboxMenuItem* enablePointCloudPlugin;
+    //coRowMenu *loadMenu;
+    //coSubMenuItem *loadMenuItem;
+    //coButtonMenuItem *deleteMenuItem;
+    ui::Menu *pointCloudMenu = nullptr;
+    ui::Menu *loadMenu = nullptr;
+    ui::Group *fileGroup = nullptr;
+    ui::Group *loadGroup = nullptr;
+    ui::Group *selectionGroup = nullptr;
+    ui::Button *singleSelectButton = nullptr;
+    ui::Button *deselectButton = nullptr;
+    //ui::Button *deleteButton = nullptr;
+    ui::ButtonGroup *selectionButtonGroup = nullptr;
+    ui::Group *viewGroup = nullptr;
+    ui::Button *adaptLODButton = nullptr;
+    ui::Slider *pointSizeSlider = nullptr;
+
+    //void menuEvent(coMenuItem *);
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
 
 public:
@@ -140,6 +156,7 @@ public:
     int unloadFile(std::string filename);
     void tabletEvent(coTUIElement *);
     static PointCloudPlugin *plugin;
+    ui::Group *FileGroup;
 };
 
 #endif

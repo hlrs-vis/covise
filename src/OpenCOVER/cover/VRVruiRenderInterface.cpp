@@ -97,8 +97,9 @@ VRVruiRenderInterface::VRVruiRenderInterface()
 
     groupNode = 0;
     sceneNode = 0;
-    buttons = new VRVruiButtons();
-    mouseButtons = new VRVruiButtons(cover->getMouseButton());
+    buttons = new VRVruiButtons(VRVruiButtons::Pointer);
+    mouseButtons = new VRVruiButtons(VRVruiButtons::Mouse);
+    relativeButtons = new VRVruiButtons(VRVruiButtons::Relative);
 
     handMatrix = new OSGVruiMatrix();
     headMatrix = new OSGVruiMatrix();
@@ -125,6 +126,7 @@ VRVruiRenderInterface::~VRVruiRenderInterface()
 
     delete buttons;
     delete mouseButtons;
+    delete relativeButtons;
 
     delete handMatrix;
     delete headMatrix;

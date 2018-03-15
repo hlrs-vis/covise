@@ -30,7 +30,7 @@ struct COVER_UI_EXPORT TabletViewElement: public View::ViewElement, public coTUI
    void newRow();
 };
 
-//! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
+//! concrete implementation of View for showing user interface \ref Element "elements" on a tablet PC running tabletUI
 class COVER_UI_EXPORT TabletView: public View
 {
  public:

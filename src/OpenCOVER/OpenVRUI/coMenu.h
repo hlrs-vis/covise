@@ -23,7 +23,6 @@ namespace vrui
 
 class coMenuItem;
 class coGenericSubMenuItem;
-class coMenuChangeListener;
 class coCombinedButtonInteraction;
 
 class vruiMatrix;
@@ -69,7 +68,6 @@ public:
     virtual void add(coMenuItem *item);
     virtual void insert(coMenuItem *item, int location);
     virtual void setMenuListener(coMenuFocusListener *listener);
-    virtual void setMenuChangeListener(coMenuChangeListener *listener);
     virtual int hit(vruiHit *hit);
     virtual void miss();
     virtual coUIElement *getUIElement();
@@ -124,9 +122,6 @@ public:
     /// check whether menu is currently visible
     bool isVisible() const;
 
-    /// this menu item changed - if it's one of mine, alert the menuChangeListenet
-    void itemRenamed(coMenuItem *item);
-
     /// get my menu's name
     const char *getName() const;
 
@@ -154,6 +149,9 @@ public:
         return attachment_;
     };
 
+    bool wasMoved() const;
+    void setMoved(bool flag);
+
 protected:
     std::list<coMenuItem *> items; ///< list of menu items which can be accessed from this menu
     coMenu *parent; ///< parent menu, NULL if this is the topmost menu
@@ -161,8 +159,6 @@ protected:
     coGenericSubMenuItem *myMenuItem;
     coMenuFocusListener *listener; ///< menu event listener, triggered on menu selection
 
-    /// menu event listeners, triggered on menu changes
-    coMenuChangeListener *changeListener;
     int showMode; ///< how to show and hide this Menu
     bool visible;
     std::string name;
@@ -174,6 +170,7 @@ protected:
     vruiMatrix *matrix_;
 
     int attachment_;
+    bool wasMoved_ = false;
 };
 }
 #endif

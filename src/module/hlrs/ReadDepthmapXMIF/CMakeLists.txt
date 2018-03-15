@@ -1,0 +1,20 @@
+
+#ADD_DEFINITIONS()
+#INCLUDE_DIRECTORIES()
+
+SET(HEADERS
+  ReadDepthmapXMIF.h
+)
+
+SET(SOURCES
+  ReadDepthmapXMIF.cpp
+)
+
+SET(EXTRASOURCES
+)
+
+
+ADD_COVISE_MODULE(IO ReadDepthmapXMIF ${EXTRASOURCES} )
+TARGET_LINK_LIBRARIES(ReadDepthmapXMIF  coReader coApi coAppl coCore coUtil)
+
+COVISE_INSTALL_TARGET(ReadDepthmapXMIF)

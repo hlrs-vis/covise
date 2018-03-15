@@ -1,5 +1,5 @@
 #include "Entity.h"
-
+#include "ReferencePosition.h"
 using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
@@ -7,8 +7,12 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    absVertPosIsSet(false),
-    finishedCurrentTraj(false)
+    refPosIsSet(false),
+    finishedCurrentTraj(false),
+    activeShape("Polyline"),
+    visitedSplineVertices(0),
+    refPos(NULL),
+    newRefPos(NULL)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -29,10 +33,31 @@ void Entity::setInitEntityPosition(Road *r)
 	entityGeometry->setPosition(pos, directionVector);
 }
 
+void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
+{
+    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+    // Road r; s inits;
+    auto vtrans = entityGeometry->getVehicleTransform();
+    osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+    entityPosition = pos;
+    entityGeometry->setPosition(pos, directionVector);
+}
+
+
 void Entity::moveLongitudinal()
 {
-	float step_distance = speed*opencover::cover->frameDuration();
-	entityPosition[0] = entityPosition[0] + step_distance;
+    if(refPos->road != NULL)
+    {
+        float step_distance = speed*opencover::cover->frameDuration();
+        double ds = 1.0;
+        double dt = 0.0;
+
+        refPos->move(ds,dt,step_distance);
+
+        Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
+        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+        cout << name << " is driving on Road: " << refPos->roadId << endl;
+    }
 }
 
 osg::Vec3 &Entity::getPosition()
@@ -69,10 +94,10 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
-void Entity::setTrajectoryDirection(osg::Vec3 init_targetPosition)
+void Entity::setTrajectoryDirection()
 {
     // entity is heading to targetPosition
-    targetPosition = init_targetPosition;
+    targetPosition = refPos->getPosition();
     totaldirectionVector = targetPosition - entityPosition;
     totaldirectionVectorLength = totaldirectionVector.length();
 
@@ -89,12 +114,11 @@ void Entity::getTrajSpeed(float deltat)
 
 }
 
-void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEntityList)
+void Entity::followTrajectory(int verticesCounter,std::list<Entity*> *activeEntityList)
 {
-
     //calculate step distance
-    //float step_distance = speed*opencover::cover->frameDuration();
-    float step_distance = speed*1/60;
+    float step_distance = speed*opencover::cover->frameDuration();
+    //float step_distance = speed*1/60;
 
     if(totalDistance == 0)
     {
@@ -104,31 +128,130 @@ void Entity::followTrajectory(int verticesCounter,std::list<Entity*> &finishedEn
     totalDistance = totalDistance-step_distance;
     //calculate new position
     newPosition = entityPosition+(directionVector*step_distance);
+
     if (totalDistance <= 0)
     {
+        cout << name << " arrived at vertice " << visitedVertices << endl;
         visitedVertices++;
         totalDistance = 0;
         if (visitedVertices == verticesCounter)
         {
-            /* entity maneuver finished: bool
-             * is set to true in here
-             * has to be checked in conditionManager before entity is added to active ManeuverEntities
-             */
-            //maneuverCondition = false;
-            //maneuverFinished = true;
-            //activeEntityList.remove(this);
-            finishedCurrentTraj = true;
-            finishedEntityList.push_back(this);
+            activeEntityList->remove(this);
+        }
+    }
+    entityPosition = newPosition;
+    entityGeometry->setPosition(newPosition, directionVector);
+}
+
+void Entity::setRefPos()
+{
+    if(!refPosIsSet)
+    {
+        referencePosition = entityPosition;
+        refPosIsSet = true;
+    }
+}
+
+void Entity::setRefPos(osg::Vec3 newReferencePosition)
+{
+    referencePosition = newReferencePosition;
+}
+
+void Entity::setActiveShape(std::string shapestring)
+{
+    activeShape = shapestring;
+}
+
+void Entity::setSplinePos(osg::Vec3 initPos)
+{
+    splinePos = initPos;
+}
+
+void Entity::followSpline()
+{
+    totalDistance = 1.0;
+    targetPosition = splinePos;
+    directionVector = targetPosition-entityPosition;
+    totaldirectionVectorLength = directionVector.length();
+    directionVector.normalize();
+
+    float step_distance = speed*opencover::cover->frameDuration();
+
+    if(splineDistance == 0)
+    {
+        splineDistance = totaldirectionVectorLength;
+    }
+    //calculate remaining distance
+    splineDistance = splineDistance-step_distance;
+    //calculate new position
+    newPosition = entityPosition+(directionVector*step_distance);
+    if (splineDistance <= 0)
+    {
+        visitedSplineVertices++;
+        splineDistance = 0;
+        if (visitedSplineVertices == 10)
+        {
+            totalDistance = 0;
+            activeShape = "Polyline";
+            visitedVertices++;
+
         }
     }
 
     entityPosition = newPosition;
     entityGeometry->setPosition(newPosition, directionVector);
+
 }
 
-void Entity::setAbsVertPos(){
-    if(!absVertPosIsSet){
-        absVertPos = entityPosition;
-        absVertPosIsSet = true;
+void Entity::setTrajectoryDirectionOnRoad()
+{
+    targetPosition = refPos->getPosition();
+    totaldirectionVector = targetPosition - newRefPos->getPosition();
+    totaldirectionVectorLength = totaldirectionVector.length();
+
+    directionVector = totaldirectionVector;
+    directionVector.normalize();
+}
+
+void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList)
+{
+
+    float step_distance = opencover::cover->frameDuration()*speed;
+
+    if(totalDistance == 0)
+    {
+        totalDistance = totaldirectionVectorLength;
     }
+    //calculate remaining distance
+    totalDistance = totalDistance-step_distance;
+
+    if(totalDistance <= 0)
+    {
+        cout << "Arrived at " << visitedVertices << endl;
+        visitedVertices++;
+        totalDistance = 0;
+        if(visitedVertices == verticesCounter)
+        {
+            activeEntityList->remove(this);
+        }
+    }
+
+
+    if(refPos->road != NULL)
+    {
+        double ds = refPos->s - newRefPos->s;
+        double dt = refPos->t - newRefPos->t;
+
+        newRefPos->move(ds,dt,step_distance);
+        Transform vehicleTransform = newRefPos->road->getRoadTransform(newRefPos->s, newRefPos->t);
+        entityGeometry->setTransform(vehicleTransform,newRefPos->hdg);
+    }
+    else
+    {
+        newRefPos->move(directionVector,step_distance);
+        osg::Vec3 pos = newRefPos->getPosition();
+        entityGeometry->setPosition(pos, directionVector);
+    }
+
+
 }

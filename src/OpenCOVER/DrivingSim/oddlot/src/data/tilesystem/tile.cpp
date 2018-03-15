@@ -152,11 +152,7 @@ Tile::getUniqueOSCID(const QString &suggestion, const QString &name)
 	
 
 	QString id;
-	int index = 0;
-	do {
-		id = QString("%1_%2_%3").arg(getID().getID()).arg(index).arg(myName);
-		index++;
-	} while (oscIDs.contains(id));
+		id = QString("%1_%2_%3").arg(uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
 
 	oscIDs.insert(id);
 	return id;

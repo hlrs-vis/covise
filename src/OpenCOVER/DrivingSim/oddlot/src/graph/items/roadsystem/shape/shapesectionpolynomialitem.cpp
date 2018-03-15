@@ -76,7 +76,7 @@ ShapeSectionPolynomialItem::init()
 {
 	if (abs(polynomialLateralSection_->getRealPointLow()->getPoint().x() - polynomialLateralSection_->getRealPointHigh()->getPoint().x()) < NUMERICAL_ZERO6)
 	{
-		polynomialLateralSection_->getControlPointsFromParameters();
+		polynomialLateralSection_->getControlPointsFromParameters(false);
 	}
 
 	realPointLowHandle_ = new SplineMoveHandle(shapeEditor_, this, polynomialLateralSection_->getRealPointLow());

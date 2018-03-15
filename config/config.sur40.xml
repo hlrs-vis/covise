@@ -140,7 +140,7 @@
      </Animations>
     </PDB>
 
-    <AKToolbar value="on">
+    <AKToolbar value="off">
      <Attachment value="TOP" />
      <Scale value=".2" />
      <Position x="-150" y="180" z="30" />
@@ -156,6 +156,10 @@
     <Amber value="off"/>    
 
    </Plugin>
+
+   <UI>
+       <VRUI toolbar="true" />
+   </UI>
 
    <Menu>
     <Position x="150" y="0" z="0" />

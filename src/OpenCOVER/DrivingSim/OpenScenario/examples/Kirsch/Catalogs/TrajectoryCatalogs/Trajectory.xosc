@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OpenSCENARIO>
+  <FileHeader revMajor="0" revMinor="0" date="1900-01-01T01:01:01+01:00" description="description1" author="author1" />
+  <Catalog name="tCatalog">
+    <Trajectory name="MyLaneChangeTrajectory" closed="true" domain="distance">
+      <Vertex>
+        <Position>
+          <RelativeWorld dx="13" dy="-3.25" dz="0"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Spline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <RelativeWorld dx="5" dy="0" dz="0"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+    <Trajectory name="MyLaneChangeTrajectory2" closed="true" domain="distance">
+      <ParameterDeclaration>
+        <Parameter name="name151" type="int" value="value151" />
+        <Parameter name="name152" type="double" value="value152" />
+        <Parameter name="name153" type="string" value="value153" />
+      </ParameterDeclaration>
+      <Vertex>
+        <Position>
+          <Lane laneId="-4" offset="0.000000" roadId="0" s="170.000"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <Lane laneId="-4" offset="0.000000" roadId="0" s="175.000000"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+    <Trajectory name="MyLaneChangeTrajectory3" closed="true" domain="distance">
+      <ParameterDeclaration>
+        <Parameter name="name151" type="int" value="value151" />
+        <Parameter name="name152" type="double" value="value152" />
+        <Parameter name="name153" type="string" value="value153" />
+      </ParameterDeclaration>
+      <Vertex>
+        <Position>
+          <RelativeLane dLane="-1" offset="0.000000" ds="15.000"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <RelativeLane dLane="0" offset="0.000000" ds="5.000000"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+    <Trajectory name="MyLaneChangeTrajectory4" closed="true" domain="distance">
+      <ParameterDeclaration>
+        <Parameter name="name151" type="int" value="value151" />
+        <Parameter name="name152" type="double" value="value152" />
+        <Parameter name="name153" type="string" value="value153" />
+      </ParameterDeclaration>
+      <Vertex>
+        <Position>
+          <Road roadId="0" s="170.000000" t="-7.25"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <Road roadId="0" s="175.000000" t="-7.25"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+    <Trajectory name="MyLaneChangeTrajectory5" closed="true" domain="distance">
+      <ParameterDeclaration>
+        <Parameter name="name151" type="int" value="value151" />
+        <Parameter name="name152" type="double" value="value152" />
+        <Parameter name="name153" type="string" value="value153" />
+      </ParameterDeclaration>
+      <Vertex>
+        <Position>
+          <RelativeRoad ds="15.000000" dt="-4"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <RelativeRoad ds="5" dt="0"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+    <Trajectory name="MyLaneChangeTrajectory6" closed="true" domain="distance">
+      <ParameterDeclaration>
+        <Parameter name="name151" type="int" value="value151" />
+        <Parameter name="name152" type="double" value="value152" />
+        <Parameter name="name153" type="string" value="value153" />
+      </ParameterDeclaration>
+      <Vertex>
+        <Position>
+          <RelativeObject object="274-55_p" dx="20" dy="0" dz="0"/>
+        </Position>
+        <Shape reference="1.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+      <Vertex>
+        <Position>
+          <RelativeObject object="274-55_p" dx="0" dy="0" dz="0"/>
+        </Position>
+        <Shape reference="2.000000">
+          <Polyline />
+        </Shape>
+      </Vertex>
+    </Trajectory>
+  </Catalog>
+</OpenSCENARIO>

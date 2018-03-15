@@ -618,6 +618,10 @@ int main(int argc, char **argv)
 				{
 					intensityOnly = true;
 				}
+				if (argv[i][1] == 'r')
+                {
+                    format = FORMAT_RGB;
+                }
 
 			}
 			else
@@ -638,8 +642,8 @@ int main(int argc, char **argv)
 					ReadData(argv[i], vec, format);
 				}
 				else if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
-				{
-					format = FORMAT_If;
+				{   if (format != FORMAT_RGB)
+					    format = FORMAT_If;
 					ReadData(argv[i], vec, format);
 				}
 				else

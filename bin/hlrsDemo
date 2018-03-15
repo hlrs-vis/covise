@@ -37,6 +37,7 @@ do
     echo -e "${MENU} ${OPT} 17)  ${MENU} Aneurysma                 "
     echo -e "${MENU} ${OPT} 18)  ${MENU} Radfahrer                 "
     echo -e "${MENU} ${OPT} 19)  ${MENU} Motorradfahrer            "
+    echo -e "${MENU} ${OPT} 20)  ${MENU} Wasserflugzeug            "
 
     echo -e "${MENU}-----${TYP} Archaeology ${MENU}---------------------------"
     echo -e "${MENU} ${OPT} 21)  ${MENU} Octagon                   "
@@ -192,6 +193,10 @@ do
     19)
         echo -e "starting Motorbike";
             covise -e /data/covise_net/2016/Maltes_motorrad_read.net
+        ;;
+    20)
+        echo -e "starting Wasserflugzeug";
+            covise -e /data/covise_net/2017/cowling_evaluate_05k4.net
         ;;
 
 # ARCHEOLOGY

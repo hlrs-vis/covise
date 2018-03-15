@@ -31,6 +31,7 @@
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/visitors/trackmovevalidator.hpp"
 
@@ -1957,6 +1958,18 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
                 }
             }
         }
+
+		// shape //
+		if (!roads_.at(i)->getShapeSections().isEmpty())
+		{
+			foreach(ShapeSection *section, roads_.at(i)->getShapeSections())
+			{
+				if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
+				{
+					shapeSections_.insert(i, section);
+				}
+			}
+		}
     }
 
     setValid();
@@ -2250,6 +2263,13 @@ TranslateTrackComponentsCommand::redo()
             roads_.at(i)->addLaneSection(iterLaneAdd.value());
             iterLaneAdd++;
         }
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+		{
+			roads_.at(i)->delShapeSection(iterShape.value());
+			iterShape++;
+		}
     }
 
     setRedone();
@@ -2305,6 +2325,13 @@ TranslateTrackComponentsCommand::undo()
             roads_.at(i)->addLaneSection(iterLane.value());
             iterLane++;
         }
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+		{
+			roads_.at(i)->addShapeSection(iterShape.value());
+			iterShape++;
+		}
     }
 
     setUndone();
@@ -2399,6 +2426,13 @@ TranslateTrackComponentsCommand::mergeWith(const QUndoCommand *other)
             laneSections_.insert(i, iterLane.value());
             iterLane++;
         }
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = command->shapeSections_.find(i);
+		while ((iterShape != command->shapeSections_.end()) && (iterShape.key() == i))
+		{
+			shapeSections_.insert(i, iterShape.value());
+			iterShape++;
+		}
     }
 
     return true;

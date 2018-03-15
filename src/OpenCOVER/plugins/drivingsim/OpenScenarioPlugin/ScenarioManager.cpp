@@ -1,9 +1,11 @@
 #include "ScenarioManager.h"
 #include <vector>
+#include "ReferencePosition.h"
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
-	scenarioCondition(true)
+    scenarioCondition(true),
+    anyActTrue(false)
 {
 }
 
@@ -30,6 +32,7 @@ void ScenarioManager::conditionManager(){
         {
             if(conditionControl((*act_iter)))
             {
+                anyActTrue = true;
                 for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
                 {
                     conditionControl(*maneuver_iter);
@@ -38,24 +41,6 @@ void ScenarioManager::conditionManager(){
         }
     }
 }
-
-void ScenarioManager::endTrajectoryCheck(){
-    for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
-    {
-        for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
-        {
-            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
-            {
-                if((*activeEntity)->finishedCurrentTraj)
-                {
-                    (*maneuver_iter)->activeEntityList.remove((*activeEntity));
-                    (*activeEntity)->finishedCurrentTraj = false;
-                }
-            }
-        }
-    }
-}
-
 
 bool ScenarioManager::conditionControl()
 {
@@ -123,7 +108,7 @@ bool ScenarioManager::conditionControl(Maneuver* maneuver)
 	{
 		auto activeCar = getEntityByName(maneuver->activeCarName);
 		auto passiveCar = getEntityByName(maneuver->passiveCarName);
-		if (activeCar->entityPosition[0]-passiveCar->entityPosition[0] >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
+        if (activeCar->refPos->s-passiveCar->refPos->s >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
 		{
 			maneuver->maneuverCondition = true;
             return maneuver->maneuverCondition;

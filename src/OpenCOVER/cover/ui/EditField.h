@@ -10,6 +10,8 @@ namespace ui {
 
 //! a graphical Element allowing for keyboard input
 
+/** \note QLineEdit
+    \note coTUIEditField */
 class COVER_UI_EXPORT EditField: public Element {
 
  public:

@@ -38,6 +38,7 @@ class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
 class LaneSection;
+class ShapeSection;
 
 //##########################//
 // TrackComponentGlobalPointsCommand //
@@ -551,6 +552,7 @@ private:
     QMap<int, SuperelevationSection *> superelevationSections_;
     QMap<int, CrossfallSection *> crossfallSections_;
     QMap<int, LaneSection *> laneSections_;
+	QMap<int, ShapeSection *> shapeSections_;
 
     QMap<int, LaneSection *> laneSectionsAdd_; // lane sections to add //
 };

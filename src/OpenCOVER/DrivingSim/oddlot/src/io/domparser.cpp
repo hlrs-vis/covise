@@ -1227,13 +1227,14 @@ DomParser::parseRoadElement(QDomElement &element)
         //		qDebug("NOT OPTIONAL: <lanes>");
     }
 
+	bool foundShape = false;
 	child = element.firstChildElement("lateralProfile");
 	if (!child.isNull())
 	{
 		child = child.firstChildElement("shape");
 		while (!child.isNull())
 		{
-			foundLateral = true;
+			foundShape = true;
 			parseShapeElement(child, road);
 			child = child.nextSiblingElement("shape");
 		}
@@ -1248,8 +1249,14 @@ DomParser::parseRoadElement(QDomElement &element)
 
 			CrossfallSection *cSection = new CrossfallSection(CrossfallSection::DCF_SIDE_BOTH, 0.0, 0.0, 0.0, 0.0, 0.0);
 			road->addCrossfallSection(cSection);
+		}
+	}
 
-			ShapeSection *sSection = new ShapeSection(0.0, -road->getMinWidth(0.0));
+	if (!foundShape)
+	{
+		if (mode_ != DomParser::MODE_PROTOTYPES)
+		{
+			ShapeSection *sSection = new ShapeSection(0.0, road->getMinWidth(0.0));
 			road->addShapeSection(sSection);
 		}
 	}
@@ -1259,7 +1266,7 @@ DomParser::parseRoadElement(QDomElement &element)
 		{
 			foreach(PolynomialLateralSection *poly, section->getShapes())
 			{
-				poly->getControlPointsFromParameters();
+				poly->getControlPointsFromParameters(mode_ != DomParser::MODE_PROTOTYPES);
 			}
 		}
 	}

@@ -12,7 +12,8 @@ namespace ui {
 
 //! a graphical Element allowing selection of one item from a list
 
-/** \note QComboBox */
+/** \note QComboBox
+    \note coTUIComboBox */
 class COVER_UI_EXPORT SelectionList: public Element {
 
  public:

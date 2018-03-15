@@ -1170,8 +1170,8 @@ DomWriter::visit(TypeSection *section)
         }
 		speedElement.setAttribute("unit", section->getSpeedRecord()->maxUnit);
         element.appendChild(speedElement);
-    }
-    currentRoad_.appendChild(element);
+	}
+	currentRoad_.appendChild(element);
 }
 
 //#################//
@@ -1180,37 +1180,37 @@ DomWriter::visit(TypeSection *section)
 void
 DomWriter::visit(SurfaceSection *section)
 {
-    QDomElement element = doc_->createElement("surface");
-    for (int i = 0; i < section->getNumCRG(); i++)
-    {
-        QDomElement crgElement = doc_->createElement("CRG");
+	QDomElement element = doc_->createElement("surface");
+	for (int i = 0; i < section->getNumCRG(); i++)
+	{
+		QDomElement crgElement = doc_->createElement("CRG");
 
-        if (section->getFile(i).length() > 0)
-            crgElement.setAttribute("file", section->getFile(i));
-        if (section->getSStart(i).length() > 0)
-            crgElement.setAttribute("sStart", section->getSStart(i));
-        if (section->getSEnd(i).length() > 0)
-            crgElement.setAttribute("sEnd", section->getSEnd(i));
-        if (section->getOrientation(i).length() > 0)
-            crgElement.setAttribute("orientation", section->getOrientation(i));
-        if (section->getMode(i).length() > 0)
-            crgElement.setAttribute("mode", section->getMode(i));
+		if (section->getFile(i).length() > 0)
+			crgElement.setAttribute("file", section->getFile(i));
+		if (section->getSStart(i).length() > 0)
+			crgElement.setAttribute("sStart", section->getSStart(i));
+		if (section->getSEnd(i).length() > 0)
+			crgElement.setAttribute("sEnd", section->getSEnd(i));
+		if (section->getOrientation(i).length() > 0)
+			crgElement.setAttribute("orientation", section->getOrientation(i));
+		if (section->getMode(i).length() > 0)
+			crgElement.setAttribute("mode", section->getMode(i));
 		if (section->getPurpose(i).length() > 0)
 			crgElement.setAttribute("purpose", section->getPurpose(i));
-        if (section->getSOffset(i).length() > 0)
-            crgElement.setAttribute("sOffset", section->getSOffset(i));
-        if (section->getTOffset(i).length() > 0)
-            crgElement.setAttribute("tOffset", section->getTOffset(i));
-        if (section->getZOffset(i).length() > 0)
-            crgElement.setAttribute("zOffset", section->getZOffset(i));
-        if (section->getZScale(i).length() > 0)
-            crgElement.setAttribute("zScale", section->getZScale(i));
-        if (section->getHOffset(i).length() > 0)
-            crgElement.setAttribute("hOffset", section->getHOffset(i));
+		if (section->getSOffset(i).length() > 0)
+			crgElement.setAttribute("sOffset", section->getSOffset(i));
+		if (section->getTOffset(i).length() > 0)
+			crgElement.setAttribute("tOffset", section->getTOffset(i));
+		if (section->getZOffset(i).length() > 0)
+			crgElement.setAttribute("zOffset", section->getZOffset(i));
+		if (section->getZScale(i).length() > 0)
+			crgElement.setAttribute("zScale", section->getZScale(i));
+		if (section->getHOffset(i).length() > 0)
+			crgElement.setAttribute("hOffset", section->getHOffset(i));
 
-        element.appendChild(crgElement);
-    }
-    currentRoad_.appendChild(element);
+		element.appendChild(crgElement);
+	}
+	currentRoad_.appendChild(element);
 }
 
 //###################//
@@ -1220,13 +1220,13 @@ DomWriter::visit(SurfaceSection *section)
 void
 DomWriter::visit(ElevationSection *section)
 {
-    QDomElement element = doc_->createElement("elevation");
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA());
-    element.setAttribute("b", section->getB());
-    element.setAttribute("c", section->getC());
-    element.setAttribute("d", section->getD());
-    currentElevationProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("elevation");
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA());
+	element.setAttribute("b", section->getB());
+	element.setAttribute("c", section->getC());
+	element.setAttribute("d", section->getD());
+	currentElevationProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1236,13 +1236,13 @@ DomWriter::visit(ElevationSection *section)
 void
 DomWriter::visit(SuperelevationSection *section)
 {
-    QDomElement element = doc_->createElement("superelevation");
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * M_PI / 180.0);
-    element.setAttribute("b", section->getB() * M_PI / 180.0);
-    element.setAttribute("c", section->getC() * M_PI / 180.0);
-    element.setAttribute("d", section->getD() * M_PI / 180.0);
-    currentLateralProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("superelevation");
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA() * M_PI / 180.0);
+	element.setAttribute("b", section->getB() * M_PI / 180.0);
+	element.setAttribute("c", section->getC() * M_PI / 180.0);
+	element.setAttribute("d", section->getD() * M_PI / 180.0);
+	currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1252,14 +1252,14 @@ DomWriter::visit(SuperelevationSection *section)
 void
 DomWriter::visit(CrossfallSection *section)
 {
-    QDomElement element = doc_->createElement("crossfall");
-    element.setAttribute("side", CrossfallSection::parseCrossfallSideBack(section->getSide()));
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * M_PI / 180.0);
-    element.setAttribute("b", section->getB() * M_PI / 180.0);
-    element.setAttribute("c", section->getC() * M_PI / 180.0);
-    element.setAttribute("d", section->getD() * M_PI / 180.0);
-    currentLateralProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("crossfall");
+	element.setAttribute("side", CrossfallSection::parseCrossfallSideBack(section->getSide()));
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA() * M_PI / 180.0);
+	element.setAttribute("b", section->getB() * M_PI / 180.0);
+	element.setAttribute("c", section->getC() * M_PI / 180.0);
+	element.setAttribute("d", section->getD() * M_PI / 180.0);
+	currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1269,6 +1269,13 @@ DomWriter::visit(CrossfallSection *section)
 void
 DomWriter::visit(ShapeSection *section)
 {
+	if (section->getShapes().size() == 1)		// Do not write section, if there was no editing
+	{
+		if (section->getFirstPolynomialLateralSection()->getDegree() == -1)
+		{
+			return;
+		}
+	}
 
 	QMap<double, PolynomialLateralSection *>::const_iterator iter = section->getShapes().constBegin();
 	while (iter != section->getShapes().constEnd())

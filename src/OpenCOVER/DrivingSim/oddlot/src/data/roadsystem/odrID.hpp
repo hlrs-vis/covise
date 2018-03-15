@@ -2,6 +2,7 @@
 #define ODRID_HPP
 #include <stdint.h>
 #include <qstring.h>
+#include<qstringlist.h>
 
 class odrID
 {
@@ -19,6 +20,7 @@ public:
 		ID_Bridge,
 		ID_Vehicle,
 		ID_Signal,
+		ID_OSC,
 		NUM_IDs
 	};
 	odrID()
@@ -43,6 +45,67 @@ public:
 		name = _name;
 		type = t;
 	};
+	odrID(const QString &id)
+	{
+		QStringList subStrings = id.split("_");
+		if (subStrings[0] == "r")
+		{
+			type = ID_Road;
+		}
+		else if (subStrings[0] == "j")
+		{
+			type = ID_Junction;
+		}
+		else if (subStrings[0] == "c")
+		{
+			type = ID_Controller;
+		}
+		else if (subStrings[0] == "f")
+		{
+			type = ID_Fiddleyard;
+		}
+		else if (subStrings[0] == "pf")
+		{
+			type = ID_PedFiddleyard;
+		}
+		else if (subStrings[0] == "o")
+		{
+			type = ID_Object;
+		}
+		else if (subStrings[0] == "b")
+		{
+			type = ID_Bridge;
+		}
+		else if (subStrings[0] == "none")
+		{
+			type = ID_None;
+		}
+		else if (subStrings[0] == "s")
+		{
+			type = ID_Signal;
+		}
+		else if (subStrings[0] == "t")
+		{
+			type = ID_Tile;
+		}
+		else if (subStrings[0] == "v")
+		{
+			type = ID_Vehicle;
+		}
+
+		if (subStrings.size() > 1)
+		{
+			ID = subStrings[1].toInt();
+			if (subStrings.size() > 2)
+			{
+				tileID = subStrings[2].toInt();
+				if (subStrings.size() > 3)
+				{
+					name = subStrings[3] + id.split(subStrings[3])[1];
+				}
+			}
+		}
+	}
 	odrID(const odrID &o) // creates an copy of an ID
 	{
 		ID = o.ID;

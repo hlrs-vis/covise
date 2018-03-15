@@ -133,11 +133,6 @@ bool Person::isVarying() const
         }
     }
 
-    if (hasRelative() && m_relative->isVarying())
-    {
-        return true;
-    }
-
     return false;
 }
 

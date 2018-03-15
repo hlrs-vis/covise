@@ -1,0 +1,29 @@
+<NoDpethTest>
+<uniform name="diffuseMap" type="sampler2D" value="0"/>
+<vertexProgram>
+  
+     
+        
+    varying vec2 Texcoord;
+     
+  void main( void )
+  {  
+        Texcoord = gl_MultiTexCoord0;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+	gl_Position = ftransform();	
+  }
+  </vertexProgram>
+  <fragmentProgram>
+   
+    varying vec2 Texcoord;
+    uniform sampler2D diffuseMap;
+   void main( void )
+   {
+     vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
+      gl_FragColor = DiffuseColor ;
+	  gl_FragCoord.z = 1.0;
+          
+   }
+  </fragmentProgram></NoDpethTest>

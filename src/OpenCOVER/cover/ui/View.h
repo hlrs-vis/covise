@@ -56,6 +56,9 @@ class COVER_UI_EXPORT View {
     //! return manager this view is attached to
     Manager *manager() const;
 
+    //! update View, return true if rendering is required
+    virtual bool update();
+
     //! establish graphical representation of a user interface element
     ViewElement *elementFactory(Element *elem);
 

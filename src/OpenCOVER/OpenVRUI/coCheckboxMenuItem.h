@@ -60,8 +60,6 @@ public:
 
     /// functions activates or deactivates the item
     virtual void setActive(bool a);
-
-    bool updateContentBool(bool newState);
 };
 }
 #endif

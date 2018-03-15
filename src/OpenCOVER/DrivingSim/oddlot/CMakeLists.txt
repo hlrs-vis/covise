@@ -116,6 +116,8 @@ SET(ODDLOT_SOURCES
 	 src/data/dataelement.cpp
 	 src/data/commands/dataelementcommands.cpp
 	 src/graph/items/graphelement.cpp
+	 src/graph/items/svgelement.cpp
+	 src/graph/items/basegraphelement.cpp
 	 src/gui/tools/toolmanager.cpp
 	 src/gui/tools/tool.cpp
 	 src/gui/tools/zoomtool.cpp
@@ -356,6 +358,7 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/scenario/oscroaditem.cpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.cpp
 	src/graph/items/oscsystem/oscbaseitem.cpp
+	src/graph/items/oscsystem/oscbaseshapeitem.cpp
 	src/graph/items/oscsystem/oscitem.cpp
 	src/graph/items/oscsystem/oscshapeitem.cpp
 	src/graph/items/oscsystem/osctextitem.cpp
@@ -386,7 +389,6 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
-	src/graph/items/oscsystem/svgitem.cpp
 )
 SET(ODDLOT_MOC_HEADERS
     src/data/changemanager.hpp
@@ -411,6 +413,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/graphviewitems/graphviewshapeitem.hpp
     src/graph/heightgraph.hpp
     src/graph/items/graphelement.hpp
+	src/graph/items/svgelement.hpp
     src/graph/items/handles/handle.hpp
     src/graph/items/handles/sliderhandle.hpp
     src/graph/items/handles/slidermovehandle.hpp
@@ -420,7 +423,6 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/oscsystem/oscitem.hpp
     src/graph/items/oscsystem/oscshapeitem.hpp
     src/graph/items/oscsystem/osctextitem.hpp
-    src/graph/items/oscsystem/svgitem.hpp
     src/graph/items/roadsystem/controlleritem.hpp
     src/graph/items/roadsystem/crossfall/crossfallmovehandle.hpp
     src/graph/items/roadsystem/crossfall/crossfallsectionitem.hpp

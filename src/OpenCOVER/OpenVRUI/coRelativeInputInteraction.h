@@ -8,13 +8,13 @@
 #ifndef CO_RELATIVEINPUTINTERACTION_H
 #define CO_RELATIVEINPUTINTERACTION_H
 
-#include <OpenVRUI/coButtonInteraction.h>
+#include <OpenVRUI/coRelativeButtonInteraction.h>
 
 namespace vrui
 {
 
 class OPENVRUIEXPORT coRelativeInputInteraction
-    : public coButtonInteraction
+    : public coRelativeButtonInteraction
 {
 public:
     coRelativeInputInteraction(const std::string &name, InteractionType type = NoButton, InteractionPriority priority = Medium);

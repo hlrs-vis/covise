@@ -8,6 +8,8 @@
 #ifndef _POINTS_H_
 #define _POINTS_H_
 
+class fileInfo;
+
 struct Point
 {
     float x;
@@ -33,6 +35,14 @@ struct PointSet
     float zmax;
     Point *points;
     Color *colors;
+};
+
+struct pointSelection
+{
+    const fileInfo *file;
+    int pointSetIndex;
+    int pointIndex;
+    osg::MatrixTransform *transformationMatrix;
 };
 
 #endif

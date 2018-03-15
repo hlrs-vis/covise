@@ -78,8 +78,6 @@ coRowMenuItem::~coRowMenuItem()
 void coRowMenuItem::setLabel(coLabel *newLabel)
 {
     label = newLabel;
-    if (myMenu)
-        myMenu->itemRenamed(this);
 }
 
 /** Get the current label.
@@ -93,8 +91,6 @@ coLabel *coRowMenuItem::getLabel()
 void coRowMenuItem::setLabel(const string &labelString)
 {
     label->setString(labelString);
-    if (myMenu)
-        myMenu->itemRenamed(this);
 }
 
 /// return the actual UI Element that represents this menu.

@@ -5554,6 +5554,11 @@ bool coTabletUI::update()
     }
     if (serverConn && serverConn->check_for_input())
     {
+        if (conn)
+        {
+            delete conn;
+            conn = NULL;
+        }
         conn = serverConn->spawn_connection();
         if (conn && conn->is_connected())
         {

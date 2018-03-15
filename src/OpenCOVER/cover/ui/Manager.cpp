@@ -12,10 +12,15 @@
 #include <osgGA/GUIEventAdapter>
 
 #include <OpenVRUI/coMouseButtonInteraction.h>
+#include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/coRelativeButtonInteraction.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
+
+#include <config/CoviseConfig.h>
+#include <util/string_util.h>
 
 namespace opencover {
 namespace ui {
@@ -27,6 +32,17 @@ Manager::Manager()
     m_wheelInteraction.push_back(new vrui::coMouseButtonInteraction(vrui::coInteraction::WheelHorizontal, "MouseWheel", vrui::coInteraction::Low));
 
     for (auto &i: m_wheelInteraction)
+        vrui::coInteractionManager::the()->registerInteraction(i);
+
+    for (int button = vrui::coInteraction::ButtonA; button <= vrui::coInteraction::LastButton; ++button)
+    {
+        auto t = static_cast<vrui::coInteraction::InteractionType>(button);
+        m_buttonInteraction.push_back(new vrui::coMouseButtonInteraction(t, "MouseButton", vrui::coInteraction::Low));
+        m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
+        m_buttonInteraction.push_back(new vrui::coRelativeButtonInteraction(t, "RelativeButton", vrui::coInteraction::Low));
+    }
+
+    for (auto &i: m_buttonInteraction)
         vrui::coInteractionManager::the()->registerInteraction(i);
 }
 
@@ -97,6 +113,12 @@ Element *Manager::getByPath(const std::string &path) const
 
 bool Manager::update()
 {
+    for (auto v: m_views)
+    {
+        if (v.second->update())
+            m_changed = true;
+    }
+
     while (!m_newElements.empty())
     {
         m_changed = true;
@@ -105,6 +127,23 @@ bool Manager::update()
         elem->m_order = m_elemOrder;
         m_elements.emplace(elem->m_order, elem);
         ++m_elemOrder;
+
+        auto path = elem->path();
+        auto config = "COVER.UI."+path;
+        bool found = false;
+        auto shortcuts = covise::coCoviseConfig::getEntry("shortcuts", config, &found);
+        if (found)
+        {
+            //std::cerr << "ui::Manager: configured shortcuts for " << path << ":";
+            elem->clearShortcuts();
+            auto list = split(shortcuts, ';');
+            for (const auto &s: list)
+            {
+                //std::cerr << " " << s;
+                elem->addShortcut(s);
+            }
+            //std::cerr << std::endl;
+        }
 
         if (elem->parent())
         {
@@ -140,6 +179,15 @@ bool Manager::update()
             int count = std::abs(c);
             for (int i=0; i<count; ++i)
                 buttonEvent(pressed);
+        }
+    }
+
+    for (auto inter: m_buttonInteraction)
+    {
+        if (inter->wasStarted())
+        {
+            m_changed = true;
+            buttonEvent(inter->getType());
         }
     }
 
@@ -292,7 +340,7 @@ void Manager::updateValue(const EditField *input) const
 
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
-    bool handled = false;
+    std::string handled;
 
     if (type == osgGA::GUIEventAdapter::KEYDOWN
             || type == osgGA::GUIEventAdapter::KEYUP)
@@ -372,7 +420,7 @@ bool Manager::keyEvent(int type, int mod, int keySym)
 
         if (down)
         {
-            if (shift && keySym < 255 && std::isupper(keySym))
+            if (shift && keySym <= 255 && std::isupper(keySym))
             {
                 //std::cerr << "ui::Manager: mapping to lower" << std::endl;
                 keySym = std::tolower(keySym);
@@ -386,11 +434,11 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 if (elem->enabled() && elem->matchShortcut(modifiers, keySym))
                 {
                     elem->shortcutTriggered();
-                    if (handled)
+                    if (!handled.empty())
                     {
-                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                        std::cerr << "ui::Manager: duplicate mapping for keyboard shortcut on " << elem->path() << " and " << handled << std::endl;
                     }
-                    handled = true;
+                    handled = elem->path();
                     continue;
                 }
             }
@@ -454,23 +502,23 @@ bool Manager::keyEvent(int type, int mod, int keySym)
                 if (elem->enabled() && elem->matchButton(modifiers, button))
                 {
                     elem->shortcutTriggered();
-                    if (handled)
+                    if (!handled.empty())
                     {
-                        std::cerr << "ui::Manager: duplicate mapping for shortcut on " << elem->path() << std::endl;
+                        std::cerr << "ui::Manager: duplicate mapping for mouse button on " << elem->path() << " and " << handled << std::endl;
                     }
-                    handled = true;
+                    handled = elem->path();
                     continue;
                 }
             }
         }
     }
 
-    return handled;
+    return !handled.empty();
 }
 
 bool Manager::buttonEvent(int button) const
 {
-    bool handled = false;
+    std::string handled;
 
     //std::cerr << "ui::Manager::buttonEvent: button=0x" << std::hex << button << ", modifiers=" << m_modifiers << std::dec << std::endl;
     for (auto &elemPair: m_elements)
@@ -479,16 +527,16 @@ bool Manager::buttonEvent(int button) const
         if (elem->enabled() && elem->matchButton(m_modifiers, button))
         {
             elem->shortcutTriggered();
-            if (handled)
+            if (!handled.empty())
             {
-                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << std::endl;
+                std::cerr << "ui::Manager: duplicate mapping for button on " << elem->path() << " and " << handled << std::endl;
             }
-            handled = true;
+            handled = elem->path();
             continue;
         }
     }
 
-    return handled;
+    return !handled.empty();
 }
 
 void Manager::flushUpdates()

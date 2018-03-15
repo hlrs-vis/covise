@@ -297,6 +297,7 @@ private:
     vrui::coNavInteraction *interactionB = nullptr; ///< interaction for second button
     vrui::coNavInteraction *interactionC = nullptr; ///< interaction for third button
     vrui::coNavInteraction *interactionMenu = nullptr; ///< interaction for steadycam
+    vrui::coNavInteraction *interactionShortcut = nullptr; ///< interaction for navigation with keyboard shortcuts
     vrui::coMouseButtonInteraction *interactionMA = nullptr; ///< interaction for first mouse button
     vrui::coMouseButtonInteraction *interactionMB = nullptr; ///< interaction for first mouse button
     vrui::coMouseButtonInteraction *interactionMC = nullptr; ///< interaction for first mouse button

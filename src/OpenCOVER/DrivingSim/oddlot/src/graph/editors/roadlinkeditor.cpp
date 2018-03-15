@@ -177,7 +177,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                 RoadLink *newRoadLink = NULL;
                 RSystemElementJunction *junction = NULL;
                 JunctionConnection *newConnection = NULL;
-                if (road->getJunction().isInvalid())
+                if (road->getJunction().isValid())
                 {
                     junction = getProjectData()->getRoadSystem()->getJunction(road->getJunction());
                     int numConn = 0;

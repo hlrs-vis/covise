@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<OpenSCENARIO>
+
+  <FileHeader author="Andreas Biehn" date="2016-10-18T10:00:00" description="Beispielszenario fuer PEGASUS" revMajor="0" revMinor="11"/>
+
+  <ParameterDeclaration/>
+
+  <Catalogs>
+    <VehicleCatalog>
+      <Directory path="Catalogs/VehicleCatalogs"/>
+    </VehicleCatalog>
+    <DriverCatalog>
+      <Directory path="Catalogs/DriverCatalogs"/>
+    </DriverCatalog>
+    <PedestrianCatalog>
+      <Directory path="Catalogs/ObserverCatalogs"/>
+    </PedestrianCatalog>
+    <PedestrianControllerCatalog>
+      <Directory path="Catalogs/PedestrianCatalogs"/>
+    </PedestrianControllerCatalog>
+    <MiscObjectCatalog>
+      <Directory path="Catalogs/MiscObjectCatalogs"/>
+    </MiscObjectCatalog>
+    <EnvironmentCatalog>
+      <Directory path="Catalogs/EnvironmentCatalogs"/>
+    </EnvironmentCatalog>
+    <ManeuverCatalog>
+      <Directory path="Catalogs/ManeuverCatalogs"/>
+    </ManeuverCatalog>
+    <TrajectoryCatalog>
+      <Directory path="Catalogs/TrajectoryCatalogs"/>
+    </TrajectoryCatalog>
+    <RouteCatalog>
+      <Directory path="Catalogs/RoutingCatalogs"/>
+    </RouteCatalog>
+  </Catalogs>
+
+  <RoadNetwork>
+    <Logics filepath="szenario.xodr"/>
+    <SceneGraph filepath="Tracks/Bin/RQ31_130Limit/RQ31_130Limit.opt.osgb"/>
+  </RoadNetwork>
+
+  <Entities>
+    <Object name="Ego">
+      <CatalogReference catalogName="VechicleCatalog" entryName="volvo"/>
+      <Controller>
+        <CatalogReference catalogName="DriverCatalog" entryName="HastyDriver"/>
+      </Controller>
+    </Object>
+    <Object name="Target1">
+      <CatalogReference catalogName="VechicleCatalog" entryName="seat"/>
+      <Controller>
+        <CatalogReference catalogName="DriverCatalog" entryName="DefaultDriver"/>
+      </Controller>
+    </Object>
+    <Object name="Target2">
+      <CatalogReference catalogName="VechicleCatalog" entryName="golf"/>
+      <Controller>
+        <CatalogReference catalogName="DriverCatalog" entryName="DefaultDriver"/>
+      </Controller>
+    </Object>
+  </Entities>
+
+  <Storyboard>
+    <Init>
+      <Actions>
+        <Private object="Ego">
+          <Action>
+            <Longitudinal>
+              <Speed>
+                <Dynamics rate="0.000000" shape="step"/>
+                <Target>
+                  <Absolute value="8.300000"/>
+                </Target>
+              </Speed>
+            </Longitudinal>
+          </Action>
+          <Action>
+            <Position>
+              <Lane laneId="-4" offset="0.000000" roadId="0" s="30.000000"/>
+            </Position>
+          </Action>
+        </Private>
+        <Private object="Target1">
+          <Action>
+            <Longitudinal>
+              <Speed>
+                <Dynamics rate="0.000000" shape="step"/>
+                <Target>
+                  <Absolute value="8.300000"/>
+                </Target>
+              </Speed>
+            </Longitudinal>
+          </Action>
+          <Action>
+            <Position>
+              <Lane laneId="-4" offset="0.000000" roadId="0" s="130.000000"/>
+            </Position>
+          </Action>
+        </Private>
+        <Private object="Target2">
+          <Action>
+            <Longitudinal>
+              <Speed>
+                <Dynamics rate="0.000000" shape="step"/>
+                <Target>
+                  <Absolute value="13.900000"/>
+                </Target>
+              </Speed>
+            </Longitudinal>
+          </Action>
+          <Action>
+            <Position>
+              <Lane laneId="-3" offset="0.000000" roadId="0" s="10.000000"/>
+            </Position>
+          </Action>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="MyStory" owner="Target2">
+      <Act name="MyAct">
+        <Sequence name="MySequence" numberOfExecutions="1">
+          <Actors>
+            <Entity name="$owner"/>
+          </Actors>
+          <Maneuver name="laneChange">
+            <Event name="MyLaneChangeEvent" priority="overwrite">
+              <Action name="MyLaneChangeAction">
+                <Private>
+                  <Routing>
+                    <FollowTrajectory>
+                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory"/>
+                      <Longitudinal>
+                        <None/>
+                      </Longitudinal>
+                      <Lateral purpose="steering"/>
+                    </FollowTrajectory>
+                  </Routing>
+                </Private>
+              </Action>
+              <Conditions>
+                <Start>
+                  <ConditionGroup>
+                    <Condition delay="0.000000" edge="rising" name="">
+                      <ByEntity>
+                        <TriggeringEntities rule="any">
+                          <Entity name="Target2"/>
+                        </TriggeringEntities>
+                        <EntityCondition>
+                          <RelativeDistance entity="Ego" freespace="false" rule="equal-to" type="longitudinal" value="40.000000"/>
+                        </EntityCondition>
+                      </ByEntity>
+                    </Condition>
+                  </ConditionGroup>
+                </Start>
+              </Conditions>
+            </Event>
+          </Maneuver>
+          <Maneuver name="break">
+            <Event name="MyLaneChangeEvent" priority="overwrite">
+              <Action name="MyLaneChangeAction">
+                <Private>
+                  <Longitudinal>
+                    <Speed>
+                      <Dynamics distance="0.000000" rate="0.000000" shape="step" time="0.000000"/>
+                      <Target>
+                        <Absolute value="8.300000"/>
+                      </Target>
+                    </Speed>
+                  </Longitudinal>
+                </Private>
+              </Action>
+              <Conditions>
+                <Start>
+                  <ConditionGroup>
+                    <Condition delay="0.000000" edge="rising" name="">
+                      <ByState>
+                        <AfterTermination name="laneChange" rule="end" type="maneuver"/>
+                      </ByState>
+                    </Condition>
+                  </ConditionGroup>
+                </Start>
+              </Conditions>
+            </Event>
+          </Maneuver>
+        </Sequence>
+        <Conditions>
+          <Start>
+            <ConditionGroup>
+              <Condition delay="0.000000" edge="rising" name="">
+                <ByValue>
+                  <SimulationTime rule="equal-to" value="10.000000"/>
+                </ByValue>
+              </Condition>
+            </ConditionGroup>
+          </Start>
+          <End>
+            <ConditionGroup>
+              <Condition delay="0.000000" edge="rising" name="">
+                <ByValue>
+                  <SimulationTime rule="equal-to" value="20.000000"/>
+                </ByValue>
+              </Condition>
+            </ConditionGroup>
+          </End>
+        </Conditions>
+      </Act>
+    </Story>  
+<!-->    <Start>
+      <ConditionGroup>
+       <Condition delay="0.000000" edge="rising" name="">
+         <ByValue>
+           <SimulationTime rule="equal-to" value="5.000000"/>
+         </ByValue>
+       </Condition>
+      </ConditionGroup>
+    </Start><!-->
+    <End>
+      <ConditionGroup>
+        <Condition delay="0.000000" edge="rising" name="">
+          <ByValue>
+            <SimulationTime rule="equal-to" value="45.000000"/>
+          </ByValue>
+        </Condition>
+      </ConditionGroup>
+    </End>
+  </Storyboard>
+
+</OpenSCENARIO>

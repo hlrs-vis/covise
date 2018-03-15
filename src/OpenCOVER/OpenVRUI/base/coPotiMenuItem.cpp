@@ -125,9 +125,6 @@ void coPotiMenuItem::potiValueChanged(float /*oldValue*/, float newValue, coValu
 {
     if (listener)
         listener->menuEvent(this);
-
-    if (myTwin)
-        myTwin->updateContentFloat(newValue);
 }
 
 /// Calls the value changed listener (coValuePotiActor) when button was pressed.
@@ -136,9 +133,6 @@ void coPotiMenuItem::potiPressed(coValuePoti *, int)
 {
     if (listener)
         listener->menuPressEvent(this);
-
-    if (myTwin != 0)
-        myTwin->updateContentPressed();
 }
 
 /// Calls the value changed listener (coValuePotiActor) when button was released.
@@ -147,9 +141,6 @@ void coPotiMenuItem::potiReleased(coValuePoti *, int)
 {
     if (listener)
         listener->menuReleaseEvent(this);
-
-    if (myTwin != 0)
-        myTwin->updateContentReleased();
 }
 
 /** Set a new poti value.
@@ -158,10 +149,6 @@ void coPotiMenuItem::potiReleased(coValuePoti *, int)
 void coPotiMenuItem::setValue(float newValue)
 {
     poti->setValue(newValue);
-
-    // inconsistent behaviour! twin's view is updated ... 'this' not
-    if (myTwin != 0)
-        myTwin->updateContentFloat(newValue);
 }
 
 /** Set minimum poti value.
@@ -170,9 +157,6 @@ void coPotiMenuItem::setValue(float newValue)
 void coPotiMenuItem::setMin(float min)
 {
     poti->setMin(min);
-    if (myTwin != 0)
-        myTwin->updateContentRange(poti->getMin(), poti->getMax(), poti->getValue(),
-                                   poti->isInteger(), poti->getIncrement());
 }
 
 /** Set poti value type.
@@ -181,9 +165,6 @@ void coPotiMenuItem::setMin(float min)
 void coPotiMenuItem::setInteger(bool i)
 {
     poti->setInteger(i);
-    if (myTwin != 0)
-        myTwin->updateContentRange(poti->getMin(), poti->getMax(), poti->getValue(),
-                                   poti->isInteger(), poti->getIncrement());
 }
 
 /** Set increment.
@@ -192,9 +173,6 @@ void coPotiMenuItem::setInteger(bool i)
 void coPotiMenuItem::setIncrement(float incr)
 {
     poti->setIncrement(incr);
-    if (myTwin != 0)
-        myTwin->updateContentRange(poti->getMin(), poti->getMax(), poti->getValue(),
-                                   poti->isInteger(), poti->getIncrement());
 }
 
 /** Set maximum poti value.
@@ -204,9 +182,6 @@ void coPotiMenuItem::setIncrement(float incr)
 void coPotiMenuItem::setMax(float m)
 {
     poti->setMax(m);
-    if (myTwin != 0)
-        myTwin->updateContentRange(poti->getMin(), poti->getMax(), poti->getValue(),
-                                   poti->isInteger(), poti->getIncrement());
 }
 
 /** Get current poti value.
@@ -230,44 +205,6 @@ float coPotiMenuItem::getMin() const
 bool coPotiMenuItem::isInteger() const
 {
     return poti->isInteger();
-}
-
-bool coPotiMenuItem::updateContentFloat(float newValue)
-{
-    // Attention! modifications of the local 'setValue()'
-    // have to be copied here
-    poti->setValue(newValue);
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
-}
-
-bool coPotiMenuItem::updateContentRange(float min, float max, float value,
-                                        bool isInteger, float step)
-{
-    poti->setState(min, max, value, isInteger, step);
-
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
-}
-
-bool coPotiMenuItem::updateContentReleased()
-{
-    if (listener)
-        listener->menuReleaseEvent(this);
-
-    return true;
-}
-
-bool coPotiMenuItem::updateContentPressed()
-{
-    if (listener)
-        listener->menuPressEvent(this);
-
-    return true;
 }
 
 const char *coPotiMenuItem::getClassName() const

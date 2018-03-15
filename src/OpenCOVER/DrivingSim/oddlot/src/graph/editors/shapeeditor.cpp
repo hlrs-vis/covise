@@ -65,7 +65,6 @@ ShapeEditor::ShapeEditor(ProjectWidget *projectWidget, ProjectData *projectData,
 	, roadSystemItem_(NULL)
 	, profileGraph_(profileGraph)
 	, insertSectionHandle_(NULL)
-	, boundingBox_(QRectF(-7.5, 0, 15.0, 8.0))
 {
 
 }
@@ -107,12 +106,16 @@ ShapeEditor::addSelectedShapeSection(ShapeSection *shapeSection)
 
 		// Fit View //
 		//
-		double width = shapeSectionPolynomialItems->getSectionWidth();
+/*		double width = shapeSectionPolynomialItems->getSectionWidth();
 		QRectF BB = shapeSectionPolynomialItems->boundingRect();
-		boundingBox_ = QRectF(-width, BB.y(), 2 * width, (BB.height() > 8.0) ? BB.height() : 8.0);
+		boundingBox_ = QRectF(-width, BB.y(), 2 * width, (BB.height() > 8.0) ? BB.height() : 8.0); */
 
-		profileGraph_->getView()->fitInView(boundingBox_);
-		profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
+		if (boundingBox_.isEmpty())
+		{
+			boundingBox_ = QRectF(-20.0, -5.0, 40.0, 10.0);
+			profileGraph_->getView()->fitInView(boundingBox_);
+			profileGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
+		}
 
 	}
 	else
@@ -464,7 +467,8 @@ ShapeEditor::init()
     // ProfileGraph //
     //
 
-    profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+//    profileGraph_->getScene()->setSceneRect(-1000.0, -45.0, 20000.0, 90.0);
+	profileGraph_->getScene()->setSceneRect(-200.0, -50.0, 400.0, 100.0);
 
 
     // Section Handle //

@@ -18,31 +18,25 @@ namespace vrui
 
 class coMenu;
 class coMenuItem;
-class coMenuChangeListener;
 
 class OPENVRUIEXPORT coGenericSubMenuItem
 {
 protected:
     coMenu *subMenu; ///< the subMenu which is opened and closed by thes button
     bool open; ///< current state of the menu (open or closed)
-    coMenuChangeListener *listener_; ///< attach this listener to the menu when added to one
     coMenuItem *container_; ///< containing menu item
 public:
     coGenericSubMenuItem(coMenuItem *container);
     virtual ~coGenericSubMenuItem();
 
-    void setMenu(coMenu *menu);
-    void setMenuChangeListener(coMenuChangeListener *listener);
+    virtual void setMenu(coMenu *menu);
 
     virtual void closeSubmenu() = 0;
     virtual void openSubmenu() = 0;
     virtual void positionSubmenu() = 0;
     bool isOpen() const;
 
-    coMenu *getMenu()
-    {
-        return subMenu;
-    } ///< get my subMenu
+    coMenu *getMenu(); ///< get my subMenu
 private:
     coGenericSubMenuItem();
 };

@@ -229,7 +229,6 @@ ShapeSection::calculateShapeParameters()
 		return;
 	}
 
-
 	QMap<double, PolynomialLateralSection *>::const_iterator it = shapes_.constBegin();
 	it++;
 	int i = 1;
@@ -276,9 +275,23 @@ ShapeSection::calculateShapeParameters()
 
 	c = solver.solve(b);
 
-	it = shapes_.constBegin();
+/*	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			qDebug() << i << ";" << j << " " << A.coeff(i, j);
+		}
+	}
 
+	for (int j = 0; j < n; j++)
+	{
+		qDebug() << "c " << c(j) << "; b " << b(j);
+	} */
+
+	it = shapes_.constBegin();
+		
 	PolynomialLateralSection *poly = it.value();
+
 	PolynomialLateralSection *nextLateralSection = getPolynomialLateralSectionNext(poly->getTStart());
 	double a0 = poly->getRealPointLow()->getPoint().y();
 	double a1 = nextLateralSection->getRealPointLow()->getPoint().y();
@@ -498,6 +511,11 @@ ShapeSection::getClone()
 	else
 	{
 		clone = new ShapeSection(getSStart(), 0.0);
+	}
+
+	foreach (PolynomialLateralSection *poly, shapes_)
+	{
+		clone->addShape(poly->getTStart(), poly->getClone());
 	}
 
     return clone;

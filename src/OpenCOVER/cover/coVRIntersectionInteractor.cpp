@@ -64,6 +64,7 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     scaleTransform = new osg::MatrixTransform();
     sprintf(nodeName, "coVRIntersectionInteractor-scaleTransform-%s)", interactorName);
     m.makeScale(interScale, interScale, interScale);
+    _scale = interScale;
     scaleTransform->setMatrix(m);
 
     parent = cover->getObjectsScale();
@@ -265,10 +266,7 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
     }
     else
     {
-        //fprintf(stderr,"coVRIntersectionInteractor: Hit from extern (%f %f %f)\n", _interPos.x(), _interPos.y(), _interPos.z());
-        if (_interPos == osg::Vec3(0.0, 0.0, 0.0))
-            _interPos.set(0.0, 0.0, 0.00001);
-        _hitPos = _interPos;
+        _hitPos = getMatrix().getTrans();
         _hitNode = nullptr;
     }
 
@@ -483,7 +481,13 @@ void coVRIntersectionInteractor::keepSize()
         }
         interScale = _interSize / (cover->getScale() * iconSize_);
     }
+    _scale = interScale;
     scaleTransform->setMatrix(osg::Matrix::scale(interScale, interScale, interScale));
+}
+
+float coVRIntersectionInteractor::getScale() const
+{
+    return _scale;
 }
 
 void coVRIntersectionInteractor::preFrame()

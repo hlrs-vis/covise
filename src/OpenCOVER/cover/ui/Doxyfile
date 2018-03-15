@@ -1,6 +1,6 @@
 PROJECT_NAME = "COVER Abstract UI"
 PROJECT_NUMBER =
-INPUT = . ../../plugins/general/WindowTypeQt
+INPUT = . ../../plugins/general/WindowTypeQt/QtView.h
 FILE_PATTERNS = *.h *.inc
 STRIP_FROM_PATH = .
 OUTPUT_DIRECTORY = dox

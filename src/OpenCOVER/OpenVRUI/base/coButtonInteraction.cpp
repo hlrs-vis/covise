@@ -52,21 +52,11 @@ void coButtonInteraction::update()
 
 bool coButtonInteraction::conditionMet() const
 {
-    if (type == WheelVertical)
+    if (type == WheelVertical || type == WheelHorizontal)
     {
-        if (button->getWheelCount(0) != 0)
-        {
-            return true;
-        }
+        return wheelCount != 0;
     }
-    else if (type == WheelHorizontal)
-    {
-        if (button->getWheelCount(1) != 0)
-        {
-            return true;
-        }
-    }
-    else
+    else if (button)
     {
         return (buttonmask & button->getStatus());
     }
@@ -80,7 +70,7 @@ bool coButtonInteraction::conditionBecameMet() const
     {
         return conditionMet();
     }
-    else
+    else if (button)
     {
         return button->wasPressed(buttonmask);
     }

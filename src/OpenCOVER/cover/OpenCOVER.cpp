@@ -73,7 +73,6 @@
 #include "VRSceneGraph.h"
 #include "coVRLighting.h"
 #include "ARToolKit.h"
-#include "VRVruiRenderInterface.h"
 #include "coHud.h"
 #include "coVRShader.h"
 #include "coOnscreenDebug.h"
@@ -565,9 +564,8 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance();
 
-	coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
-
 	Input::instance()->init();
+
     coVRTui::instance();
 
     ARToolKit::instance();
@@ -581,8 +579,6 @@ bool OpenCOVER::init()
 
     // init channels and view
     VRViewer::instance();
-
-    new VRVruiRenderInterface();
 
     coVRAnimationManager::instance();
     coVRShaderList::instance()->update();
@@ -666,6 +662,8 @@ bool OpenCOVER::init()
         return false;
 
     VRViewer::instance()->config();
+
+    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());
@@ -1084,6 +1082,7 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+	double beginPluginTime = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
     {
         if (coVRPluginList::instance()->update())
@@ -1110,13 +1109,24 @@ bool OpenCOVER::frame()
                     return false;
                 }
                 m_renderNext = false;
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
             }
+            else
+            {
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+            }
+        }
+        else
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
         }
     }
 
     if (frameNum > 2)
     {
-        double beginTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1125,9 +1135,9 @@ bool OpenCOVER::frame()
         {
             int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
             double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1232,7 +1242,6 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    delete VRVruiRenderInterface::theInterface;
     delete coVRConfig::instance();
     delete VRWindow::instance();
 
