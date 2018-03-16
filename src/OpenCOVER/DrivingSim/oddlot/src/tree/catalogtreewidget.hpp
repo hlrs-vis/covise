@@ -82,7 +82,9 @@ private:
     // EVENTS         //
     //################//
 
-public:
+protected:
+	virtual void mousePressEvent(QMouseEvent *event);
+	virtual void mouseMoveEvent(QMouseEvent *event);
 
 	//################//
 	// SIGNALS        //
@@ -128,6 +130,8 @@ private:
 	OpenScenario::oscMember *currentMember_;
 
 	ODD::ToolId currentTool_;
+
+	QPointF dragStartPosition_;
 
 };
 
