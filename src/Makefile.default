@@ -36,7 +36,7 @@ install: makefile
 	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) $@
 else
    MAKEFILE=$(PROJBUILDDIR)/build.ninja
-   GENERATOR=Ninja
+   GENERATOR="CodeBlocks - Ninja"
 ifeq ($(RELBUILDDIR),)
       TARGETPREFIX=
 else
