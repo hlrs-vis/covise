@@ -2257,7 +2257,7 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    dcs_mat.postMult(applySpeedFactor(delta));
+    dcs_mat.postMult(osg::Matrix::translate(applySpeedFactor(delta)));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
