@@ -254,22 +254,24 @@ void NurbsSurface::computeSurface()
 
 NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 {
-
+    splinePointsGroup = new osg::Group();
+    cover->getObjectsRoot()->addChild(splinePointsGroup.get());
     computeSurface();
 
 }
 
 bool NurbsSurface::destroy()
 {
-        cover->getObjectsRoot()->removeChild(geode.get());
-        return true;
+    cover->getObjectsRoot()->removeChild(geode.get());
+    return true;
 }
 
 
 // this is called if the plugin is removed at runtime
 NurbsSurface::~NurbsSurface()
 {
-        fprintf(stderr, "Goodbye\n");
+    fprintf(stderr, "Goodbye\n");
+    cover->getObjectsRoot()->removeChild(splinePointsGroup.get());
 }
 
 void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
@@ -277,10 +279,109 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
     if (type == PluginMessageTypes::NurbsSurfacePointMsg)
     {
         osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
-        fprintf(stderr, "Point received %f %f %f", selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
+        receivedPoints.push_back(*selectedPoint);
+        fprintf(stderr, "Point received %i %f %f %f\n", receivedPoints.size(), selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
+        pointReceived();
     }
 }
 
+void NurbsSurface::pointReceived()
+{
+    while (splinePointsGroup->getNumChildren()>0)
+    {
+        splinePointsGroup->removeChildren(0,1);
+    }
+    transformMatrices.clear();
+    curveInfo upper;
+    curveInfo lower;
+    curveInfo left;
+    curveInfo right;
+    edge(receivedPoints,0,1,1,upper);
+    edge(receivedPoints,1,0,1,right);
+    edge(receivedPoints,0,1,-1,lower);
+    edge(receivedPoints,1,0,-1,left);
+    if (upper.curve /*&& lower.curve && left.curve*/ && right.curve)
+    {
+
+    curveCurveIntersection(upper.curve, upper.endPar, right.curve, right.endPar);
+    curveCurveIntersection(lower.curve, lower.endPar, right.curve, right.startPar);
+    curveCurveIntersection(lower.curve, lower.startPar, left.curve, left.startPar);
+    curveCurveIntersection(upper.curve, upper.startPar, left.curve, left.endPar);
+
+
+        fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
+        fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
+        fprintf(stderr, "right curve end parameter %f \n", right.endPar);
+        fprintf(stderr, "right curve start parameter %f \n", right.startPar);
+
+
+    }
+
+    resize();
+}
+
+bool NurbsSurface::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCurve *c2, double& c2Param)
+{
+    // calculating intersection points
+    double epsco = 1.0e-15; // computational epsilon
+    double epsge = 1.0e-5; // geometric tolerance
+    int num_int_points = 0; // number of found intersection points
+    double* intpar1 = 0; // parameter values for the first curve in the intersections
+    double* intpar2 = 0; // parameter values for the second curve in the intersections
+    int num_int_curves = 0;   // number of intersection curves
+    SISLIntcurve** intcurve = 0; // pointer to array of detected intersection curves
+    int jstat; // status variable
+
+    s1857(c1,              // first curve
+          c2,              // second curve
+          epsco,           // computational resolution
+          epsge,           // geometry resolution
+          &num_int_points, // number of single intersection points
+          &intpar1,        // pointer to array of parameter values
+          &intpar2,        //               "
+          &num_int_curves, // number of detected intersection curves
+          &intcurve,       // pointer to array of detected intersection curves.
+          &jstat);
+
+    if (jstat < 0) {
+        throw runtime_error("Error occured inside call to SISL routine s1857.");
+    } else if (jstat > 0) {
+        cerr << "WARNING: warning occured inside call to SISL routine s1857. \n"
+             << endl;
+    }
+    fprintf(stderr,"Number of intersection points detected: %i\n", num_int_points);
+    if (num_int_points>0)
+    {
+    c1Param=*intpar1;
+    c2Param=*intpar2;
+    fprintf(stderr,"value %f\n",*intpar1);
+
+    // evaluating intersection points
+    vector<double> point_coords_3D(3 * num_int_points);
+    int i;
+    for (i = 0; i < num_int_points; ++i) {
+        // calculating position, using curve 1
+        // (we could also have used curve 2, which would give approximately
+        // the same points).
+        int temp;
+        s1227(c1,         // we evaluate on the first curve
+          0,          // calculate no derivatives
+          intpar1[i], // parameter value on which to evaluate
+          &temp,      // not used for our purposes (gives parameter interval)
+          &point_coords_3D[3 * i], // result written here
+          &jstat);
+
+        if (jstat < 0) {
+        throw runtime_error("Error occured inside call to SISL routine s1227.");
+        } else if (jstat > 0) {
+        cerr << "WARNING: warning occured inside call to SISL routine s1227. \n"
+             << endl;
+        }
+    }
+    return true;
+}
+return false;
+}
 
 //method for creating edges in unsorted points
 //
@@ -294,8 +395,9 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
 //        without changing:   change = 1
 //        with changing:      change = -1
 
-alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change) {
+int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo) {
 
+    SISLCurve *result_curve = 0;
 
     numberOfAllPoints = all_points.size();                                                   //number of points
     maximum_x = -FLT_MAX;                                                                    //maximum local x-value
@@ -306,10 +408,10 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
 
 
     for(int i = 0; i < numberOfAllPoints; i++) {                                             //search for minimum and maximum local x and y
-        if ((change * all_points[i][local_x]) > maximum_x) {
+        if ((all_points[i][local_x]) > maximum_x) {
             maximum_x = all_points[i][local_x];
         }
-        if ((change * all_points[i][local_x]) < minimum_x) {
+        if ((all_points[i][local_x]) < minimum_x) {
             minimum_x = all_points[i][local_x];
         }
         if ((change * all_points[i][local_y]) > maximum_y) {
@@ -319,9 +421,10 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
             minimum_y = all_points[i][local_y];
         }
     }
+    //fprintf(stderr, "minimum x: %f y: %f, maximum x: %f y:%f\n", minimum_x, minimum_y, maximum_x, maximum_y);
 
 
-    int numberOfQuadrants = 3;                                                               //number of quadrants
+    int numberOfQuadrants = 5;                                                               //number of quadrants
     float widthOfQuadrant = (maximum_x-minimum_x)/numberOfQuadrants;                         //width of quadrant
 
 
@@ -338,7 +441,7 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
 
     //initialize spline firstCurveWithMaximumPointsPerQuadrant
     ae_int_t degree = 3;
-    double spot = 2;
+
     ae_int_t info;
     barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
     polynomialfitreport repo;
@@ -349,23 +452,32 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
 
     int numberOfSectorsWithMaximum = 0;
 
+
     //find all maximum points in the quadrants
+    if (minimum_x<maximum_x)
+    {
     for(int i = 0; i < numberOfAllPoints; i++) {
-        for(int j = 0; j < numberOfQuadrants; j++) {
-            if (all_points[i][local_x] >= (minimum_x + j*widthOfQuadrant) && all_points[i][local_x] < (minimum_x + (j+1)*widthOfQuadrant)) {
+        int j=int((all_points[i][local_x]-minimum_x)/(maximum_x-minimum_x)*numberOfQuadrants);
+        j=min(numberOfQuadrants-1,j);
+
+        //for(int j = 0; j < numberOfQuadrants; j++) {
+            //if (all_points[i][local_x] >= (minimum_x + j*widthOfQuadrant) && all_points[i][local_x] < (minimum_x + (j+1)*widthOfQuadrant)) {
                 if (!maximumPointsInAllQuadrants[j]) {
                     maximumPointsInAllQuadrants[j] = &all_points[i];
                     numberOfSectorsWithMaximum++;
                 }
                 else{
-                    if (all_points[i][local_y] > maximumPointsInAllQuadrants[j]->_v[local_y]) {
+                    if (change * all_points[i][local_y] > change * maximumPointsInAllQuadrants[j]->_v[local_y]) {
                         maximumPointsInAllQuadrants[j] = &all_points[i];
                     }
-                }
+                //}
+            }
+            if (maximumPointsInAllQuadrants[j])
+            {
+                //fprintf(stderr, "maximum point in quadrant %i is now x: %f y: %f\n",j,maximumPointsInAllQuadrants[j]->_v[0],maximumPointsInAllQuadrants[j]->_v[1]);
             }
         }
     }
-
 
     //only built a curve, when there are minimal two points
     if (numberOfSectorsWithMaximum > 1) {
@@ -390,7 +502,7 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
 
         //compare all points with first curve, if they are above or below
         for(int i = 0; i < numberOfAllPoints; i++) {
-            if (all_points[i][local_y] > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, all_points[i][local_x])) {
+            if (change * all_points[i][local_y] > change * barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, all_points[i][local_x])) {
                 pointsAboveCurve.push_back(all_points[i]);
             }
         }
@@ -418,12 +530,141 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
 
         //built second curve out of maximum points per quadrant and all points above the first curve
         polynomialfit(LocalXForSecondCurve, LocalYForSecondCurve, degree, info, curve, repo);
-        return(curve);
+        //return(curve);
 
+        //Also build a SISL-curve from this data for intersection calculation
+        //using transformed global coordinates
+        const int num_points = numberOfQuadrants;
+        double pointsSISLCurve[2*num_points];
+        int type[num_points];
+        for (int i=0; i!=num_points; i++)
+        {
+            double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
+            pointsSISLCurve[i*2+local_y]=barycentriccalc(curve,x);
+            pointsSISLCurve[i*2+local_x]=x;
+            type[i]=1;
+            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],0.0);
+            highlightPoint(point);
+            //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
+        }
+        const double cstartpar = 0;
+        try {
+
+         double cendpar;
+
+         double* gpar = 0;
+         int jnbpar;
+         int jstat;
+
+         s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
+               num_points,    // number of points to be interpolated
+               2,             // the dimension
+               type,          // what type of information is stored at a particular point
+               0,             // no additional condition at start point
+               0,             // no additional condition at end point
+               1,             // open curve
+               3,             // order of the spline curve to be produced
+               cstartpar,     // parameter value to be used at start of curve
+               &cendpar,      // parameter value at the end of the curve (to be determined)
+               &result_curve, // the resulting spline curve (to be determined)
+               &gpar,         // pointer to the parameter values of the points in the curve
+                              // (to be determined)
+               &jnbpar,       // number of unique parameter values (to be determined)
+               &jstat);       // status message
+
+         if (jstat < 0) {
+             throw runtime_error("Error occured inside call to SISL routine.");
+         } else if (jstat > 0) {
+             cerr << "WARNING: warning occured inside call to SISL routine. \n" << endl;
+         }
+         resultCurveInfo.curve = result_curve;
+         resultCurveInfo.startPar = cstartpar;
+         resultCurveInfo.endPar = cendpar;
+         fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
+
+         // cleaning up
+         //freeCurve(result_curve);
+         free(gpar);
+        } catch (exception& e) {
+            cerr << "Exception thrown: " << e.what() << endl;
+            return -1;
+            }
     }
 
 //return empty curve if number of sectors with maximum is lower than 1
-return (curve);
+return 0;
+}
+
+void NurbsSurface::updateModel()
+{
+    real_2d_array xy;
+    xy.setlength(receivedPoints.size(),3);
+    for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end();)
+    {
+        //xy[]
+    }
+}
+
+void
+NurbsSurface::highlightPoint(osg::Vec3& newSelectedPoint)
+{
+
+    osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
+    sphereTransformationMatrix->makeTranslate(newSelectedPoint);
+
+    osg::MatrixTransform *sphereTransformation = new osg::MatrixTransform;
+    sphereTransformation->setMatrix(*sphereTransformationMatrix);
+
+    transformMatrices.push_back(sphereTransformation);
+
+    osg::Geode *sphereGeode = new osg::Geode;
+    sphereTransformation->addChild(sphereGeode);
+    osg::Sphere *selectedSphere = new osg::Sphere(Vec3(.0f,0.f,0.f),1.0f);
+    osg::TessellationHints *hint = new osg::TessellationHints();
+    hint->setDetailRatio(0.5);
+    osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);
+    osg::ShapeDrawable *selectedSphereDrawable = new osg::ShapeDrawable(selectedSphere, hint);
+    osg::Material *selMaterial = new osg::Material();
+    sphereGeode->addDrawable(selectedSphereDrawable);
+
+        splinePointsGroup->addChild(sphereTransformation);
+        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
+        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
+        selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+        selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
+        selMaterial->setColorMode(osg::Material::OFF);
+
+    stateSet->setAttribute(selMaterial);
+    selectedSphereDrawable->setStateSet(stateSet);
+}
+
+
+void NurbsSurface::resize()
+{
+    osg::Vec3 wpoint1 = osg::Vec3(0, 0, 0);
+    osg::Vec3 wpoint2 = osg::Vec3(0, 0, 1);
+    osg::Vec3 opoint1 = wpoint1 * cover->getInvBaseMat();
+    osg::Vec3 opoint2 = wpoint2 * cover->getInvBaseMat();
+
+    //distance formula
+    osg::Vec3 wDiff = wpoint2 - wpoint1;
+    osg::Vec3 oDiff = opoint2 - opoint1;
+    double distWld = wDiff.length();
+    double distObj = oDiff.length();
+
+    //controls the sphere size
+    double scaleFactor = sphereSize * distObj / distWld;
+    //scaleFactor = 1.1f;
+
+    // scale all selected points
+    for (std::vector<osg::MatrixTransform*>::iterator iter = transformMatrices.begin(); iter !=transformMatrices.end(); iter++)
+    {
+        osg::Matrix sphereMatrix = (*iter)->getMatrix();
+        Vec3 translation = sphereMatrix.getTrans();
+        sphereMatrix.makeScale(scaleFactor, scaleFactor, scaleFactor);
+        sphereMatrix.setTrans(translation);
+        (*iter)->setMatrix(sphereMatrix);
+    }
 }
 
 COVERPLUGIN(NurbsSurface)

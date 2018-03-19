@@ -24,6 +24,7 @@
 #include <cover/coVRPluginSupport.h>
 
 #include <osg/Geode>
+#include <osg/ShapeDrawable>
 #include <cover/coVRCommunication.h>
 #include <net/message.h>
 
@@ -34,7 +35,8 @@
 #include "alglib/stdafx.h"
 #include "alglib/interpolation.h"
 
-
+#include "sisl.h"
+#include "sisl_aux/sisl_aux.h"
 
 
 namespace opencover
@@ -48,10 +50,16 @@ class Slider;
 
 using namespace opencover;
 using namespace alglib;
+using namespace osg;
 
 class NurbsSurface : public coVRPlugin, public ui::Owner
 {
 public:
+struct curveInfo{
+  double startPar = 0.0;
+  double endPar = 0.0;
+  SISLCurve *curve = nullptr;
+};
     NurbsSurface();
     ~NurbsSurface();
     bool init();
@@ -60,7 +68,7 @@ public:
     int getorder_U();
     void setorder_U(int order_U);
     void computeSurface();
-    alglib::barycentricinterpolant edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change);
+    int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
 
 private:
     osg::ref_ptr<osg::Geode> geode;
@@ -88,6 +96,19 @@ private:
             -0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
             0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
     };
+
+        std::vector<osg::Vec3> receivedPoints;
+        osg::ref_ptr<osg::Group> splinePointsGroup;
+        std::vector<osg::MatrixTransform*> transformMatrices;
+        void updateModel();
+        void pointReceived();
+        bool curveCurveIntersection(SISLCurve* c1, double& c1Param, SISLCurve* c2, double& c2Param);
+        double sphereSize = 10.0;
+
+
+
+        void highlightPoint(osg::Vec3& newSelectedPoint);
+        void resize();
 
         double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
         double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
