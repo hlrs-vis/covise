@@ -764,13 +764,16 @@ VruiViewElement::~VruiViewElement()
     m_group = nullptr;
 }
 
-namespace {
-
-void updateSlider(Slider *s, coMenuItem *item, bool moving)
+void VruiViewElement::updateSlider(const coMenuItem *item, bool moving)
 {
-    auto vd = dynamic_cast<coPotiMenuItem *>(item);
-    auto vs = dynamic_cast<coSliderMenuItem *>(item);
-    auto ts = dynamic_cast<coSliderToolboxItem *>(item);
+    Slider *s = dynamic_cast<Slider *>(element);
+    assert(s);
+    if (!s)
+        return;
+
+    auto vd = dynamic_cast<const coPotiMenuItem *>(item);
+    auto vs = dynamic_cast<const coSliderMenuItem *>(item);
+    auto ts = dynamic_cast<const coSliderToolboxItem *>(item);
     if (vd)
         s->setValue(vd->getValue());
     if (vs)
@@ -779,8 +782,6 @@ void updateSlider(Slider *s, coMenuItem *item, bool moving)
         s->setValue(ts->getValue());
     s->setMoving(moving);
     s->trigger();
-}
-
 }
 
 void VruiViewElement::menuEvent(coMenuItem *menuItem)
@@ -847,7 +848,7 @@ void VruiViewElement::menuEvent(coMenuItem *menuItem)
         }
         else
         {
-            updateSlider(s, menuItem, true);
+            updateSlider(menuItem, true);
         }
         return;
     }
@@ -900,8 +901,9 @@ void VruiViewElement::menuReleaseEvent(coMenuItem *menuItem)
 {
     if (auto s = dynamic_cast<Slider *>(element))
     {
-        if (!m_toolboxItem || menuItem == m_toolboxItem)
-            updateSlider(s, menuItem, false);
+        auto vv = static_cast<VruiView *>(view);
+        if (!vv->useToolbar() || menuItem == m_toolboxItem)
+            updateSlider(menuItem, false);
     }
 }
 
