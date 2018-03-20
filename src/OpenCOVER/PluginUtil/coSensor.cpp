@@ -37,7 +37,7 @@
 #include <osg/TexGen>
 #include <osgDB/ReadFile>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
 #include <osgText/Font>
 #include <util/unixcompat.h>
 #include <util/coHashIter.h>
@@ -303,17 +303,17 @@ void coHandSensor::update()
 {
     //START("coHandSensor::update");
     int newActiveFlag;
-    osg::Vec3 q0, q1, q2, q3, q4, q5;
+    osg::Vec3 start[3], end[3];
     osg::Matrix handMat;
     handMat = cover->getPointerMat();
-    q0.set(0.0f, -threshold, 0.0f);
-    q1.set(0.0f, threshold, 0.0f);
+    start[0].set(0.0f, -threshold, 0.0f);
+    end[0].set(0.0f, threshold, 0.0f);
 
-    q2.set(-threshold, 0.0f, 0.0f);
-    q3.set(threshold, 0.0f, 0.0f);
+    start[1].set(-threshold, 0.0f, 0.0f);
+    end[1].set(threshold, 0.0f, 0.0f);
 
-    q4.set(0.0f, 0.0f, -threshold);
-    q5.set(0.0f, 0.0f, threshold);
+    start[2].set(0.0f, 0.0f, -threshold);
+    end[2].set(0.0f, 0.0f, threshold);
 
     osg::Node *parent;
     osg::Matrix tr;
@@ -339,51 +339,35 @@ void coHandSensor::update()
     trinv.preMult(handMat);
 
     // xform the intersection line segment
-    q0 = trinv.preMult(q0);
-    q1 = trinv.preMult(q1);
+    for (int i=0; i<3; ++i)
+    {
+        start[i] = trinv.preMult(start[i]);
+        end[i] = trinv.preMult(end[i]);
+    }
 
-    q2 = trinv.preMult(q2);
-    q3 = trinv.preMult(q3);
+    osg::ref_ptr<coIntersector> intersector[3];
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    for (int i=0; i<3; ++i)
+    {
+        intersector[i] = coIntersection::instance()->newIntersector(start[i], end[i]);
+        igroup->addIntersector(intersector[i]);
+    }
 
-    q4 = trinv.preMult(q4);
-    q5 = trinv.preMult(q5);
-
-    osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    osg::ref_ptr<osg::LineSegment> ray3 = new osg::LineSegment();
-    ray->set(q0, q1);
-    ray2->set(q2, q3);
-    ray3->set(q4, q5);
-
-    osgUtil::IntersectVisitor visitor;
-    visitor.addLineSegment(ray.get());
-    visitor.addLineSegment(ray2.get());
-    visitor.addLineSegment(ray3.get());
-
-    node->accept(visitor);
-    int num1 = visitor.getNumHits(ray.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    int num3 = visitor.getNumHits(ray3.get());
-
-    osgUtil::Hit hitInformation1;
-    osgUtil::Hit hitInformation2;
-    osgUtil::Hit hitInformation3;
+    bool haveIsect = false;
     if (enabled)
     {
-        if (num1)
+        osgUtil::IntersectionVisitor visitor(igroup);
+        node->accept(visitor);
+
+        for (int i=0; i<3; ++i)
         {
-            hitInformation1 = visitor.getHitList(ray.get()).front();
-            hitPoint = hitInformation1.getWorldIntersectPoint();
-        }
-        if (num2)
-        {
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-            hitPoint = hitInformation2.getWorldIntersectPoint();
-        }
-        if (num3)
-        {
-            hitInformation3 = visitor.getHitList(ray3.get()).front();
-            hitPoint = hitInformation3.getWorldIntersectPoint();
+            if (intersector[i]->containsIntersections())
+            {
+                haveIsect = true;
+                auto isect = intersector[i]->getFirstIntersection();
+                hitPoint = isect.getWorldIntersectPoint();
+            }
+
         }
     }
     else
@@ -395,7 +379,7 @@ void coHandSensor::update()
         }
     }
 
-    newActiveFlag = num1 || num2 || num3;
+    newActiveFlag = haveIsect;
     if (newActiveFlag != active)
     {
         if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))

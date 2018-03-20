@@ -29,7 +29,6 @@
 #include <osg/CullFace>
 #include <osg/Material>
 #include <osg/PolygonMode>
-#include <osgUtil/IntersectVisitor>
 
 #include <config/CoviseConfig.h>
 

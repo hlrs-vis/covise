@@ -39,7 +39,6 @@
 #include <osg/LineSegment>
 #include <osg/Matrix>
 #include <osg/Vec3>
-#include <osgUtil/IntersectVisitor>
 #include <cover/coVRAnimationManager.h>
 #define MAXSAMPLES 1200
 using namespace osg;
