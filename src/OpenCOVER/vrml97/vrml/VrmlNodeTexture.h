@@ -34,6 +34,11 @@ public:
     // Define the fields of Texture nodes
     static VrmlNodeType *defineType(VrmlNodeType *t);
 
+    static void enableTextureNPOT(bool flag);
+    static bool useTextureNPOT();
+    static void setMaxTextureSize(int size);
+    static int maxTextureSize();
+
     VrmlNodeTexture(VrmlScene *s);
     virtual ~VrmlNodeTexture();
 
@@ -125,6 +130,10 @@ protected:
     int d_blendModeOverwrite;
 
     VrmlSFString d_relativeUrl;
+
+private:
+    static bool s_useTextureNPOT;
+    static int s_maxTextureSize;
 };
 }
 #endif // _VRMLNODETEXTURE_
