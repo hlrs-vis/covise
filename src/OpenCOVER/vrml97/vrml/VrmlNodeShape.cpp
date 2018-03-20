@@ -82,7 +82,10 @@ void VrmlNodeShape::cloneChildren(VrmlNamespace *ns)
 
 bool VrmlNodeShape::isModified() const
 {
-    return (d_modified || (d_geometry.get() && d_geometry.get()->isModified()) || (d_appearance.get() && d_appearance.get()->isModified()) || (d_effect.get() && d_effect.get()->isModified()));
+    return (d_modified
+            || (d_geometry.get() && d_geometry.get()->isModified())
+            || (d_appearance.get() && d_appearance.get()->isModified())
+            || (d_effect.get() && d_effect.get()->isModified()));
 }
 
 void VrmlNodeShape::clearFlags()
