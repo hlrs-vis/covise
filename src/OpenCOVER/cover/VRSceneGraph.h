@@ -343,6 +343,7 @@ private:
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
+    ui::Button *m_useTextures=nullptr;
 };
 }
 #endif
