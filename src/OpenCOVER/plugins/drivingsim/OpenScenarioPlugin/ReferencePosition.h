@@ -49,8 +49,8 @@ public:
     void update(int init_dLane, double init_ds);
     void update(std::string init_roadId, double init_s, double init_t);
     void update(double init_ds, double init_dt);
-    void update(double x, double y, double z);
-    void update(double dx, double dy, double dz, bool dummy);
+    void update(double x, double y, double z, double init_hdg);
+    void update(double dx, double dy, double dz);
     void move(osg::Vec3 newPos);
 
     void getSuccessor();

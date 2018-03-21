@@ -12,8 +12,12 @@ Position::~Position()
 ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList)
 {
     referencePosition = currentEntity->refPos;
-    newReferencePosition = new ReferencePosition(currentEntity->refPos);
-    currentEntity->newRefPos = newReferencePosition;
+    if(currentEntity->newRefPos == NULL)
+    {
+        newReferencePosition = new ReferencePosition(currentEntity->refPos);
+        currentEntity->newRefPos = newReferencePosition;
+    }
+
 
     if(Lane.exists())
     {
@@ -28,8 +32,8 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
 
         absPosition = getAbsoluteFromRoad(road, s, laneId);
 
-        referencePosition->update(roadId, s, laneId);
-        return referencePosition;
+        currentEntity->newRefPos->update(roadId, s, laneId);
+        return currentEntity->newRefPos;
 
     }
     else if(RelativeLane.exists())
@@ -38,8 +42,8 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         int dlaneId = RelativeLane->dLane.getValue();
         double ds = RelativeLane->ds.getValue();
 
-        referencePosition->update(dlaneId, ds);
-        return referencePosition;
+        currentEntity->newRefPos->update(dlaneId, ds);
+        return currentEntity->newRefPos;
     }
     else if(RelativeObject.exists())
     {
@@ -59,9 +63,9 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         double ds = RelativeRoad->ds.getValue();
         double dt = RelativeRoad->dt.getValue();
 
-        referencePosition->update(ds,dt);
+        currentEntity->newRefPos->update(ds,dt);
 
-        return referencePosition;
+        return currentEntity->newRefPos;
 
     }
 
@@ -72,8 +76,8 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         s = Road->s.getValue();
         t = Road->t.getValue();
 
-        referencePosition->update(roadId,s,t);
-        return referencePosition;
+        currentEntity->newRefPos->update(roadId,s,t);
+        return currentEntity->newRefPos;
 
     }
     else if(Route.exists())
@@ -87,9 +91,10 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         x = World->x.getValue();
         y = World->y.getValue();
         z = World->z.getValue();
+        hdg = World->h.getValue();
 
-        referencePosition->update(x,y,z);
-        return referencePosition;
+        currentEntity->newRefPos->update(x,y,z,hdg);
+        return currentEntity->newRefPos;
     }
 
     else if(RelativeWorld.exists())
@@ -98,8 +103,8 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         dy = RelativeWorld->dy.getValue();
         dz = RelativeWorld->dz.getValue();
 
-        referencePosition->update(dx,dy,dz,true);
-        return referencePosition;
+        currentEntity->newRefPos->update(dx,dy,dz);
+        return currentEntity->newRefPos;
 
 
     }

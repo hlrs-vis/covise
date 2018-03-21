@@ -142,32 +142,15 @@ void OpenScenarioPlugin::preFrame()
                                         currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
                                         cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
 
-//                                        oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
-
-//                                        if(currentShape->Spline.exists())
-//                                        {
-//                                            (*activeEntity)->spline = new Spline();
-//                                            (*activeEntity)->spline->poly3Spline(currentPos);
-//                                            (*activeEntity)->setActiveShape("Spline");
-//                                        }
-
-                                        //(*activeEntity)->setTrajectoryDirection();
                                         (*activeEntity)->setTrajectoryDirectionOnRoad();
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->getTrajSpeed(0.1);
+                                            (*activeEntity)->setTrajSpeed((*trajectory_iter)->getReference((*activeEntity)->visitedVertices));
+
                                         }
                                     }
-//                                    if((*activeEntity)->activeShape == "Spline")
-//                                    {
-//                                        osg::Vec3 test =(*activeEntity)->spline->getSplinePos((*activeEntity)->visitedSplineVertices);
-//                                        (*activeEntity)->setSplinePos(test);
-//                                        (*activeEntity)->followSpline();
-//                                    }
-                                    // else
-                                    //{
-                                    //(*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
+
                                     (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
                                     //}
                                     //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
