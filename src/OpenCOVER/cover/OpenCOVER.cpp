@@ -663,6 +663,9 @@ bool OpenCOVER::init()
 
     VRViewer::instance()->config();
 
+    hud->setText2("loading plugins");
+    hud->redraw();
+
     coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
@@ -702,7 +705,8 @@ bool OpenCOVER::init()
 
     coVRLighting::instance()->initMenu();
 
-    hud->setText2("loading plugin");
+    hud->setText2("initialising plugins");
+    hud->redraw();
 
     coVRPluginList::instance()->init();
 
@@ -736,6 +740,44 @@ bool OpenCOVER::init()
     beginAppTraversal = VRViewer::instance()->elapsedTime();
 
     coVRShaderList::instance()->init();
+
+    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+    m_quitGroup->setText("");
+    m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setShortcut("q");
+    m_quit->addShortcut("Q");
+    m_quit->addShortcut("Esc");
+    m_quit->setCallback([this](){
+#if 1
+        requestQuit();
+#else
+        auto qd = new QuitDialog;
+        qd->show();
+#endif
+    });
+    m_quit->setIcon("application-exit");
+    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    {
+        m_quit->setEnabled(false);
+        m_quit->setVisible(false);
+    }
+
+    cover->vruiView = new ui::VruiView;
+    cover->ui->addView(cover->vruiView);
+
+    cover->ui->addView(new ui::TabletView(coVRTui::instance()->mainFolder));
+    tabletUIs.push_back(coTabletUI::instance());
+
+    auto mapeditorTui = new coTabletUI("localhost", 31803);
+    cover->ui->addView(new ui::TabletView("mapeditor", mapeditorTui));
+    tabletUIs.push_back(mapeditorTui);
+    for (auto tui: tabletUIs)
+    {
+        tui->tryConnect();
+        tui->update();
+    }
+
+    frame();
 
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
@@ -772,37 +814,6 @@ bool OpenCOVER::init()
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
     
     coVRPluginList::instance()->init2();
-
-    cover->vruiView = new ui::VruiView;
-    cover->ui->addView(cover->vruiView);
-
-    cover->ui->addView(new ui::TabletView(coVRTui::instance()->mainFolder));
-    tabletUIs.push_back(coTabletUI::instance());
-
-    auto mapeditorTui = new coTabletUI("localhost", 31803);
-    cover->ui->addView(new ui::TabletView("mapeditor", mapeditorTui));
-    tabletUIs.push_back(mapeditorTui);
-
-    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
-    m_quitGroup->setText("");
-    m_quit = new ui::Action(m_quitGroup, "Quit");
-    m_quit->setShortcut("q");
-    m_quit->addShortcut("Q");
-    m_quit->addShortcut("Esc");
-    m_quit->setCallback([this](){
-#if 1
-        requestQuit();
-#else
-        auto qd = new QuitDialog;
-        qd->show();
-#endif
-    });
-    m_quit->setIcon("application-exit");
-    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
-    {
-        m_quit->setEnabled(false);
-        m_quit->setVisible(false);
-    }
 
     m_initialized = true;
     return true;
