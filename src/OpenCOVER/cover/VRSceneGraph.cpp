@@ -232,7 +232,7 @@ void VRSceneGraph::init()
 
     m_showStats = new ui::SelectionList("ShowStats", this);
     m_showStats->setText("Renderer statistics");
-    m_showStats->setShortcut("Alt+Shift+S");
+    m_showStats->setShortcut("Shift+S");
     m_showStats->append("Off");
     m_showStats->append("Frames/s");
     m_showStats->append("Viewer");
@@ -243,6 +243,25 @@ void VRSceneGraph::init()
     m_showStats->setCallback([this](int val){
         coVRConfig::instance()->drawStatistics = val;
         statsDisplay->showStats(val, VRViewer::instance());
+    });
+
+    m_useTextures = new ui::Button("Texturing", this);
+    m_useTextures->setVisible(false, ui::View::VR);
+    m_useTextures->setShortcut("Shift+T");
+    m_useTextures->setState(m_textured);
+    cover->viewOptionsMenu->add(m_useTextures);
+    m_useTextures->setCallback([this](bool state){
+        m_textured = state;
+        if (m_textured)
+        {
+            osg::Texture *texture = new osg::Texture2D;
+            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+        }
+        else
+        {
+            osg::Texture *texture = new osg::Texture2D;
+            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
     });
 }
 
@@ -508,24 +527,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
             else if (keySym == 'W' || keySym == 8722) // W
             {
                 saveScenegraph(true);
-                handled = true;
-            }
-            else if (keySym == 's' || keySym == 223) // s
-            {
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "toggling texturing\n");
-                if (m_textured)
-                {
-                    osg::Texture *texture = new osg::Texture2D;
-                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-                    m_textured = false;
-                }
-                else
-                {
-                    osg::Texture *texture = new osg::Texture2D;
-                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
-                    m_textured = true;
-                }
                 handled = true;
             }
             else if (keySym == 'c' || keySym == 231) //c

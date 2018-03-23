@@ -32,7 +32,6 @@
 #include <cover/VRViewer.h>
 
 #include <visionaray/gl/bvh_outline_renderer.h>
-#include <visionaray/array.h>
 #include <visionaray/kernels.h>
 
 #include "kernels/bvh_costs_kernel.h"

@@ -24,7 +24,6 @@ using std::endl;
 using namespace vrml;
 
 bool VrmlNodeImageTexture::scaledown = false;
-int maxTextureSize = 65536;
 static VrmlNode *creator(VrmlScene *s)
 {
     return new VrmlNodeImageTexture(s);
@@ -55,7 +54,12 @@ VrmlNodeType *VrmlNodeImageTexture::defineType(VrmlNodeType *t)
         std::string sizeString = System::the->getConfigEntry("COVER.Plugin.Vrml97.MaxTextureSize");
         if (!sizeString.empty())
         {
-            sscanf(sizeString.c_str(), "%d", &maxTextureSize);
+            int maxSize = 0;
+            sscanf(sizeString.c_str(), "%d", &maxSize);
+            if (maxSize > 0)
+            {
+                setMaxTextureSize(maxSize);
+            }
         }
         //cerr << "Scaledown" << scaledown << endl;
     }
@@ -171,10 +175,10 @@ void VrmlNodeImageTexture::render(Viewer *viewer)
             else
             {
                 for (i = 0; i < nSizes; ++i)
-                    if (w < sizes[i] && w <= maxTextureSize)
+                    if (w < sizes[i] && w <= maxTextureSize())
                         break;
                 for (j = 0; j < nSizes; ++j)
-                    if (h < sizes[j] && h <= maxTextureSize)
+                    if (h < sizes[j] && h <= maxTextureSize())
                         break;
 
                 if (i > 0 && j > 0)
@@ -185,7 +189,7 @@ void VrmlNodeImageTexture::render(Viewer *viewer)
                         j--;
                     // Always scale images down in size and reuse the same pixel
                     // memory. This can cause some ugliness...
-                    if (w != sizes[i - 1] || h != sizes[j - 1])
+                    if (w>maxTextureSize() || h>maxTextureSize() || scaledown || (!useTextureNPOT() && (w != sizes[i - 1] || h != sizes[j - 1])))
                     {
                         //cerr << endl<< "Scaling texture " << d_image->url()<< endl;
                         viewer->scaleTexture(w, h, sizes[i - 1], sizes[j - 1],

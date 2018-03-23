@@ -4,6 +4,7 @@
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <iostream>
+#include <math.h>
 
 //#include "Spline.h"
 class Spline;
@@ -21,16 +22,6 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
-
-    // Splines
-    std::string activeShape;
-    Spline *spline;
-    void followSpline();
-    float splineDistance;
-    int visitedSplineVertices;
-    void setActiveShape(std::string);
-    osg::Vec3 splinePos;
-    void setSplinePos(osg::Vec3);
 
     ReferencePosition* refPos;
     ReferencePosition* newRefPos;
@@ -59,16 +50,12 @@ public:
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool refPosIsSet;
     bool finishedCurrentTraj;
 
 
     // follow Trajectories functions
     void setTrajectoryDirection();
-    void followTrajectory(int verticesCounter, std::list<Entity *> *finishedEntityList);
-    void getTrajSpeed(float deltat);
-    void setRefPos();
-    void setRefPos(osg::Vec3 newReferencePosition);
+    void setTrajSpeed(float deltat);
     void followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList);
     void setTrajectoryDirectionOnRoad();
 

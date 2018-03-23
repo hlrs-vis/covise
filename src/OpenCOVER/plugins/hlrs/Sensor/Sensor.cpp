@@ -15,7 +15,6 @@
 #include <cover/coVRCommunication.h>
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11

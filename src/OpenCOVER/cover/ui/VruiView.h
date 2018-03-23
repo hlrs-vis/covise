@@ -36,6 +36,8 @@ struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
    void menuEvent(vrui::coMenuItem *menuItem) override;
    void menuReleaseEvent(vrui::coMenuItem *menuItem) override;
 
+   void updateSlider(const vrui::coMenuItem *item, bool moving);
+
    VruiViewElement *root() const;
    void hideOthers();
    void showMenu(bool state);

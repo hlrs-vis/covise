@@ -343,7 +343,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
     else
     {
         // Ensure image dimensions are powers of 2 (move to VrmlNodeTexture...)
-        int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+        int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
         int nSizes = sizeof(sizes) / sizeof(int);
         int w = d_image->w();
         int h = d_image->h();
@@ -358,7 +358,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
         if (i > 0 && j > 0)
         {
             // Always scale images down in size and reuse the same pixel memory.
-            if (w != sizes[i - 1] || h != sizes[j - 1])
+            if (w>maxTextureSize() || h>maxTextureSize() || (!useTextureNPOT() && (w != sizes[i - 1] || h != sizes[j - 1])))
             {
                 cerr << endl << "Scaling texture " << d_image->url() << endl;
                 viewer->scaleTexture(w, h, sizes[i - 1], sizes[j - 1],

@@ -142,32 +142,15 @@ void OpenScenarioPlugin::preFrame()
                                         currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
                                         cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
 
-//                                        oscShape* currentShape = (*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Shape.getObject();
-
-//                                        if(currentShape->Spline.exists())
-//                                        {
-//                                            (*activeEntity)->spline = new Spline();
-//                                            (*activeEntity)->spline->poly3Spline(currentPos);
-//                                            (*activeEntity)->setActiveShape("Spline");
-//                                        }
-
-                                        //(*activeEntity)->setTrajectoryDirection();
                                         (*activeEntity)->setTrajectoryDirectionOnRoad();
                                         if((*trajectory_iter)->domain.getValue() == 0)
                                         { //if domain is set to "time"
                                             // calculate speed from trajectory vertices
-                                            (*activeEntity)->getTrajSpeed(0.1);
+                                            (*activeEntity)->setTrajSpeed((*trajectory_iter)->getReference((*activeEntity)->visitedVertices));
+
                                         }
                                     }
-//                                    if((*activeEntity)->activeShape == "Spline")
-//                                    {
-//                                        osg::Vec3 test =(*activeEntity)->spline->getSplinePos((*activeEntity)->visitedSplineVertices);
-//                                        (*activeEntity)->setSplinePos(test);
-//                                        (*activeEntity)->followSpline();
-//                                    }
-                                    // else
-                                    //{
-                                    //(*activeEntity)->followTrajectory((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
+
                                     (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
                                     //}
                                     //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
@@ -555,128 +538,106 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     }
     for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
     {
+        Act* currentAct = (*act_iter);
+        //Act Start Condition
+        for (oscConditionArrayMember::iterator it = currentAct->Conditions->Start->ConditionGroup->Condition.begin(); it != currentAct->Conditions->Start->ConditionGroup->Condition.end(); it++)
+        {
+            oscCondition* condition = ((oscCondition*)(*it));
+            if(condition->ByValue.exists())
+            {
+
+                (*act_iter)->startConditionType = "time";
+                (*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+
+            }
+        }
+        //Act End Condition
+        for (oscConditionArrayMember::iterator it = currentAct->Conditions->End->ConditionGroup.begin(); it != currentAct->Conditions->End->ConditionGroup.end(); it++)
+        {
+            oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
+            for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+            {
+                oscCondition* condition = ((oscCondition*)(*it));
+                if(condition->ByValue.exists())
+                {
+
+                    (*act_iter)->endConditionType = "time";
+                    (*act_iter)->endTime = condition->ByValue->SimulationTime->value.getValue();
+
+                }
+            }
+        }
+
         for (list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
         {
-            for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++)
+            Maneuver* currentManeuver = (*maneuver_iter);
+            for (oscEventArrayMember::iterator it = currentManeuver->Event.begin(); it != currentManeuver->Event.end(); it++)
             {
-                oscStory* story = ((oscStory*)(*it));
-                for (oscActArrayMember::iterator it = story->Act.begin(); it != story->Act.end(); it++)
+                oscEvent* event = ((oscEvent*)(*it));
+                for (oscConditionsArrayMember::iterator it = event->Conditions.begin(); it != event->Conditions.end(); it++)
                 {
-                    oscAct* act = ((oscAct*)(*it));
-                    //Act Start Condition
-                    for (oscConditionArrayMember::iterator it = act->Conditions->Start->ConditionGroup->Condition.begin(); it != act->Conditions->Start->ConditionGroup->Condition.end(); it++)
+                    oscConditions* conditions = ((oscConditions*)(*it));
+                    //get Maneuver Start conditions
+                    if(conditions->Start.exists())
                     {
-                        oscCondition* condition = ((oscCondition*)(*it));
-                        if(condition->ByValue.exists())
-                        {
-                            if ((*act_iter)->getName() == act->name.getValue())
-                            {
-                                (*act_iter)->startConditionType = "time";
-                                (*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
-                            }
-                        }
-                    }
-                    //Act End Condition
-                    for (oscConditionArrayMember::iterator it = act->Conditions->End->ConditionGroup.begin(); it != act->Conditions->End->ConditionGroup.end(); it++)
-                    {
-                        oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
-                        for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
+                        for (oscConditionArrayMember::iterator it = conditions->Start->ConditionGroup->Condition.begin(); it != conditions->Start->ConditionGroup->Condition.end(); it++)
                         {
                             oscCondition* condition = ((oscCondition*)(*it));
                             if(condition->ByValue.exists())
                             {
-                                if ((*act_iter)->getName() == act->name.getValue())
+
+                                (*maneuver_iter)->startConditionType="time";
+                                (*maneuver_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+
+                            }
+                            if(condition->ByState.exists())
+                            {
+                                (*maneuver_iter)->startConditionType="termination";
+                                (*maneuver_iter)->startAfterManeuver = condition->ByState->AfterTermination->name.getValue();
+                            }
+                            if(condition->ByEntity.exists())
+                            {
+
+                                (*maneuver_iter)->startConditionType="distance";
+                                (*maneuver_iter)->passiveCarName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+                                (*maneuver_iter)->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
+
+                                for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
                                 {
-                                    (*act_iter)->endConditionType = "time";
-                                    (*act_iter)->endTime = condition->ByValue->SimulationTime->value.getValue();
+                                    oscEntity* entity = ((oscEntity*)(*it));
+                                    (*maneuver_iter)->activeCarName = entity->name.getValue();
                                 }
                             }
                         }
                     }
-                    for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
+                }
+
+                //get trajectoryCatalogReference
+                for (oscActionArrayMember::iterator it = event->Action.begin(); it != event->Action.end(); it++)
+                {
+                    oscAction* action = ((oscAction*)(*it));
+
+                    if(action->Private->Routing.exists())
                     {
-                        oscManeuver* maneuver = ((oscManeuver*)(*it));
-                        for (oscEventArrayMember::iterator it = maneuver->Event.begin(); it != maneuver->Event.end(); it++)
+
+                        if (action->Private->Routing->FollowTrajectory.exists())
                         {
-                            oscEvent* event = ((oscEvent*)(*it));
-                            for (oscConditionsArrayMember::iterator it = event->Conditions.begin(); it != event->Conditions.end(); it++)
-                            {
-                                oscConditions* conditions = ((oscConditions*)(*it));
-
-                                //get Maneuver conditions
-                                if(conditions->Start.exists())
-                                {
-                                    for (oscConditionArrayMember::iterator it = conditions->Start->ConditionGroup->Condition.begin(); it != conditions->Start->ConditionGroup->Condition.end(); it++)
-                                    {
-                                        oscCondition* condition = ((oscCondition*)(*it));
-                                        if(condition->ByValue.exists())
-                                        {
-                                            if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                            {
-                                                (*maneuver_iter)->startConditionType="time";
-                                                (*maneuver_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
-                                            }
-                                        }
-                                        if(condition->ByState.exists())
-                                        {
-                                            if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                            {
-                                                (*maneuver_iter)->startConditionType="termination";
-                                                (*maneuver_iter)->startAfterManeuver = condition->ByState->AfterTermination->name.getValue();
-                                            }
-                                        }
-                                        if(condition->ByEntity.exists())
-                                        {
-                                            if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                            {
-                                                (*maneuver_iter)->startConditionType="distance";
-                                                (*maneuver_iter)->passiveCarName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
-                                                (*maneuver_iter)->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
-
-                                                for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
-                                                {
-                                                    oscEntity* entity = ((oscEntity*)(*it));
-                                                    (*maneuver_iter)->activeCarName = entity->name.getValue();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            //get trajectoryCatalogReference
-                            for (oscActionArrayMember::iterator it = event->Action.begin(); it != event->Action.end(); it++)
-                            {
-                                oscAction* action = ((oscAction*)(*it));
-
-                                if(action->Private->Routing.exists())
-                                {
-                                    if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                    {
-                                        if (action->Private->Routing->FollowTrajectory.exists())
-                                        {
-                                            (*maneuver_iter)->maneuverType = "followTrajectory";
-                                            (*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
-                                        }
-                                        else if (action->Private->Routing->FollowRoute.exists())
-                                        {
-                                            (*maneuver_iter)->maneuverType = "FollowRoute";
-                                            (*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
-                                        }
-                                    }
-                                }
-                                if(action->Private->Longitudinal.exists())
-                                {
-                                    if ((*maneuver_iter)->getName() == maneuver->name.getValue())
-                                    {
-                                        (*maneuver_iter)->maneuverType="break";
-                                        (*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
-                                    }
-                                }
-                            }
-
-
+                            (*maneuver_iter)->maneuverType = "followTrajectory";
+                            (*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
                         }
+                        else if (action->Private->Routing->FollowRoute.exists())
+                        {
+                            (*maneuver_iter)->maneuverType = "FollowRoute";
+                            (*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+                        }
+
+                    }
+                    if(action->Private->Longitudinal.exists())
+                    {
+
+                        (*maneuver_iter)->maneuverType="break";
+                        (*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
+
                     }
                 }
             }

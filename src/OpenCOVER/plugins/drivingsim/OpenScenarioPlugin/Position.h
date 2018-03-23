@@ -43,6 +43,7 @@ public:
     std::string relObject;
 
     //absolute Coordinates
+    double hdg;
     double x;
     double y;
     double z;

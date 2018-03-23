@@ -41,6 +41,7 @@ void ReferencePosition::init(std::string init_roadId, int init_laneId, double in
     system = init_system;
 
     road = system->getRoad(roadId);
+    hdg = road->getHeading(s);
 
     LS = road->getLaneSection(s);
     Vector2D laneCenter = LS->getLaneCenter(laneId, s);
@@ -62,6 +63,7 @@ void ReferencePosition::init(std::string init_roadId,double init_s,double init_t
     system = init_system;
 
     road = system->getRoad(roadId);
+    hdg = road->getHeading(s);
 
     LS = road->getLaneSection(s);
     laneId = LS->searchLane(s,t);
@@ -222,9 +224,10 @@ void ReferencePosition::update(double init_ds, double init_dt)
 
 }
 
-void ReferencePosition::update(double x, double y, double z)
+void ReferencePosition::update(double x, double y, double z,double init_hdg)
 {
     xyz = osg::Vec3(x,y,z);
+    hdg = init_hdg;
 
     //Vector2D searchHere = Vector2D(x,y); road->isOnRoad(searchHere);
     if(road == NULL)
@@ -264,7 +267,7 @@ void ReferencePosition::update(double x, double y, double z)
 
 }
 
-void ReferencePosition::update(double dx, double dy, double dz, bool dummy)
+void ReferencePosition::update(double dx, double dy, double dz)
 {
     xyz[0] +=dx;
     xyz[1] +=dy;

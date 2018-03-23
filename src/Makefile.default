@@ -1,5 +1,5 @@
-CURDIR=$(TOPBUILDDIR)/$(shell unset PWD; /bin/pwd)
-TOPDIR=$(shell echo $(COVISEDIR) | sed -e 's;/*$$;;' -e 's;/[^/]*$$;;')
+CURDIR=$(shell unset PWD; /bin/pwd)
+TOPDIR=$(shell echo $(COVISEDIR) | sed -e 's;/*$$;;')
 PROJSRCDIR=$(TOPDIR)
 RELSRCDIR=../..
 ifeq ($(ARCHSUFFIX),)
@@ -36,18 +36,31 @@ install: makefile
 	cd $(BUILDDIR) && $(MAKE) -f $(MAKEFILE) $@
 else
    MAKEFILE=$(PROJBUILDDIR)/build.ninja
-   GENERATOR=Ninja
+   GENERATOR="CodeBlocks - Ninja"
 ifeq ($(RELBUILDDIR),)
       TARGETPREFIX=
 else
       TARGETPREFIX=$(RELBUILDDIR)/
 endif
+ifeq ($(INOPENCOVER),)
+ifeq ($(CURDIR),$(PROJSRCDIR)/src)
+	DEFAULTTARGET=
+else
+	DEFAULTTARGET=$(TARGETPREFIX)all
+endif
+else
+ifeq ($(CURDIR),$(PROJSRCDIR))
+	DEFAULTTARGET=
+else
+	DEFAULTTARGET=$(TARGETPREFIX)all
+endif
+endif
 
 first: makefile 
-	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) $(TARGETPREFIX)all
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) $(DEFAULTTARGET)
 
 verbose: makefile 
-	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) -v $(TARGETPREFIX)all
+	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) -v $(DEFAULTTARGET)
 
 clean: makefile
 	cd $(PROJBUILDDIR) && ninja $(COVISE_NINJA_OPTIONS) clean
