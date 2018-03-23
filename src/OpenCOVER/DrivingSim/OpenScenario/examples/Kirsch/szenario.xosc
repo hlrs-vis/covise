@@ -129,7 +129,7 @@
                 <Private>
                   <Routing>
                     <FollowTrajectory>
-                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory"/>
+                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory4"/>
                       <Longitudinal>
                         <None/>
                       </Longitudinal>
@@ -189,7 +189,7 @@
             <ConditionGroup>
               <Condition delay="0.000000" edge="rising" name="">
                 <ByValue>
-                  <SimulationTime rule="equal-to" value="10.000000"/>
+                  <SimulationTime rule="equal-to" value="5.000000"/>
                 </ByValue>
               </Condition>
             </ConditionGroup>

@@ -9,12 +9,12 @@
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscManeuver.h>
 
-
 class Maneuver: public OpenScenario::oscManeuver
 {
 
 
 public:
+
     std::list<Entity*> activeEntityList;
     std::list<Entity*> finishedEntityList;
     std::string name;

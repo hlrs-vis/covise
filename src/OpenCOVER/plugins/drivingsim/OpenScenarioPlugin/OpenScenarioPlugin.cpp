@@ -125,54 +125,62 @@ void OpenScenarioPlugin::preFrame()
                     {
                         list<Entity*> activeManeuverEntities = (*maneuver_iter)->activeEntityList;
 
-                        if((*maneuver_iter)->maneuverType == "followTrajectory")
+                        for(oscEventArrayMember::iterator event_iter = (*maneuver_iter)->Event.begin(); event_iter != (*maneuver_iter)->Event.end(); event_iter++)
                         {
-                            for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
+                            oscEvent* currentEvent = ((oscEvent*)(*event_iter));
+                            for(oscActionArrayMember::iterator action_iter = currentEvent->Action.begin(); action_iter != currentEvent->Action.end(); action_iter++)
                             {
-                                Trajectory* currentTrajectory = (*trajectory_iter);
-                                for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
+                                oscAction* currentAction = ((oscAction*)(*action_iter));
+                                if((*maneuver_iter)->maneuverType == "followTrajectory")
                                 {
-                                    Position* currentPos;
-                                    Entity* currentEntity = (*activeEntity);
-                                    // check if Trajectory is about to start or Entity arrived at vertice
-                                    if((*activeEntity)->totalDistance == 0)
+                                    for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
                                     {
-                                        currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
+                                        Trajectory* currentTrajectory = (*trajectory_iter);
+                                        for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
+                                        {
+                                            Position* currentPos;
+                                            Entity* currentEntity = (*activeEntity);
+                                            // check if Trajectory is about to start or Entity arrived at vertice
+                                            if((*activeEntity)->totalDistance == 0)
+                                            {
+                                                currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
 
-                                        currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
-                                        cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
+                                                currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
+                                                cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
 
-                                        (*activeEntity)->setTrajectoryDirectionOnRoad();
-                                        if((*trajectory_iter)->domain.getValue() == 0)
-                                        { //if domain is set to "time"
-                                            // calculate speed from trajectory vertices
-                                            (*activeEntity)->setTrajSpeed((*trajectory_iter)->getReference((*activeEntity)->visitedVertices));
+                                                (*activeEntity)->setTrajectoryDirectionOnRoad();
+                                                if((*trajectory_iter)->domain.getValue() == 0)
+                                                { //if domain is set to "time"
+                                                    // calculate speed from trajectory vertices
+                                                    (*activeEntity)->setTrajSpeed((*trajectory_iter)->getReference((*activeEntity)->visitedVertices));
 
+                                                }
+                                            }
+
+                                            (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
+                                            //}
+                                            //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
+
+                                            unusedEntity.remove(*activeEntity);
+
+                                            usedEntity.push_back((*activeEntity));
+                                            usedEntity.sort();usedEntity.unique();
                                         }
+                                        //set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));
                                     }
-
-                                    (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
-                                    //}
-                                    //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
-
-                                    unusedEntity.remove(*activeEntity);
-
-                                    usedEntity.push_back((*activeEntity));
-                                    usedEntity.sort();usedEntity.unique();
                                 }
-                                //set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));
-                            }
-                        }
-                        if((*maneuver_iter)->maneuverType == "break") // no Maneuver called "break" in OpenSCENARIO Standard
-                        {
-                            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
-                            {
-                                (*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration(),&activeManeuverEntities);
-                                cout << (*activeEntity)->getName() << " is breaking!" << endl;
+                                if((*maneuver_iter)->maneuverType == "break") // no Maneuver called "break" in OpenSCENARIO Standard
+                                {
+                                    for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                    {
+                                        (*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration(),&activeManeuverEntities);
+                                        cout << (*activeEntity)->getName() << " is breaking!" << endl;
 
+                                    }
+                                }
+                                (*maneuver_iter)->activeEntityList = activeManeuverEntities;
                             }
                         }
-                        (*maneuver_iter)->activeEntityList = activeManeuverEntities;
                     }
                 }
             }

@@ -73,7 +73,7 @@ void Entity::moveLongitudinal()
     }
     else
     {
-        entityGeometry->setPosition(entityPosition, directionVector);
+        entityGeometry->setPosition(refPos->xyz, directionVector);
     }
 
 }
@@ -140,11 +140,10 @@ void Entity::setTrajectoryDirectionOnRoad()
     totaldirectionVector = targetPosition - refPos->getPosition();
     totaldirectionVectorLength = totaldirectionVector.length();
 
-    if(totaldirectionVectorLength !=0)
-    {
-        directionVector = totaldirectionVector;
-        directionVector.normalize();
-    }
+    directionVector = totaldirectionVector;
+    directionVector.normalize();
+
+
 
 }
 
@@ -183,8 +182,12 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
     }
     else
     {
+        directionVector = newRefPos->getPosition() -refPos->getPosition();
         refPos->move(directionVector,step_distance);
         osg::Vec3 pos = refPos->getPosition();
+        //directionVector[0] = directionVector[0]*cos(refPos->hdg);
+        //directionVector[1] = directionVector[1]*sin(refPos->hdg);
+
         entityGeometry->setPosition(pos, directionVector);
     }
 
