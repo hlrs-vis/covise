@@ -7,9 +7,9 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    finishedCurrentTraj(false),
     refPos(NULL),
-    newRefPos(NULL)
+    newRefPos(NULL),
+    dt(0.0)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -78,9 +78,9 @@ void Entity::moveLongitudinal()
 
 }
 
-osg::Vec3 &Entity::getPosition()
+osg::Vec3 Entity::getPosition()
 {
-	return entityPosition;
+    return refPos->getPosition();
 }
 
 void Entity::setPosition(osg::Vec3 &newPosition)
@@ -189,6 +189,51 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         //directionVector[1] = directionVector[1]*sin(refPos->hdg);
 
         entityGeometry->setPosition(pos, directionVector);
+    }
+}
+
+void Entity::longitudinalSpeedAction(std::list<Entity*> *activeEntityList, double init_targetSpeed, int shape)
+{
+    float targetSpeed = (float) init_targetSpeed;
+
+    //linear
+    if(shape == 0)
+    {
+        if (dt == 0)
+        {
+            old_speed = speed;
+
+            if (targetSpeed>old_speed)
+            {
+                acceleration = 50;
+            }
+            else
+            {
+                acceleration = -50;
+            }
+        }
+    }
+    // step
+    else
+    {
+        old_speed = targetSpeed;
+        acceleration = 1000;
+    }
+
+    float frametime = opencover::cover->frameDuration();
+    dt += frametime;
+
+    cout << getName() << " is breaking! New speed: " << speed << endl;
+    float t_end = (targetSpeed-old_speed)/acceleration;
+    if(dt>=t_end)
+    {
+        speed = targetSpeed;
+        activeEntityList->remove(this);
+        dt = 0.0;
+    }
+    else
+    {
+        speed = acceleration*dt+old_speed;
     }
 
 

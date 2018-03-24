@@ -35,9 +35,10 @@ public:
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
+    void longitudinalSpeedAction(std::list<Entity*> *activeEntityList, double init_targetSpeed, int shape);
 
     float &getSpeed();
-    osg::Vec3 &getPosition();
+    osg::Vec3 getPosition();
     void setPosition(osg::Vec3 &newPosition);
     void setDirection(osg::Vec3 &newDirection);
 
@@ -50,14 +51,17 @@ public:
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool finishedCurrentTraj;
-
 
     // follow Trajectories functions
     void setTrajectoryDirection();
     void setTrajSpeed(float deltat);
     void followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList);
     void setTrajectoryDirectionOnRoad();
+
+    //Longitudinal attributes
+    float dt;
+    float old_speed;
+    float acceleration;
 
 
 

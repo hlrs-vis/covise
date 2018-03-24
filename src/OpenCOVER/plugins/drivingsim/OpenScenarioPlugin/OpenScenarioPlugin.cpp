@@ -121,64 +121,77 @@ void OpenScenarioPlugin::preFrame()
                 {
                     Maneuver* currentManeuver = (*maneuver_iter);
                     //check maneuver start conditions
-                    if ((*maneuver_iter)->maneuverCondition)
+                    if (currentManeuver->maneuverCondition)
                     {
-                        list<Entity*> activeManeuverEntities = (*maneuver_iter)->activeEntityList;
+                        list<Entity*> activeManeuverEntities = currentManeuver->activeEntityList;
 
-                        for(oscEventArrayMember::iterator event_iter = (*maneuver_iter)->Event.begin(); event_iter != (*maneuver_iter)->Event.end(); event_iter++)
+                        for(oscEventArrayMember::iterator event_iter = currentManeuver->Event.begin(); event_iter != currentManeuver->Event.end(); event_iter++)
                         {
                             oscEvent* currentEvent = ((oscEvent*)(*event_iter));
                             for(oscActionArrayMember::iterator action_iter = currentEvent->Action.begin(); action_iter != currentEvent->Action.end(); action_iter++)
                             {
                                 oscAction* currentAction = ((oscAction*)(*action_iter));
-                                if((*maneuver_iter)->maneuverType == "followTrajectory")
+                                if(currentAction->Private.exists())
                                 {
-                                    for(list<Trajectory*>::iterator trajectory_iter = (*maneuver_iter)->trajectoryList.begin(); trajectory_iter != (*maneuver_iter)->trajectoryList.end(); trajectory_iter++)
+                                    if (currentAction->Private->Routing.exists())
                                     {
-                                        Trajectory* currentTrajectory = (*trajectory_iter);
-                                        for(list<Entity*>::iterator activeEntity = (*maneuver_iter)->activeEntityList.begin(); activeEntity != (*maneuver_iter)->activeEntityList.end(); activeEntity++)
+                                        if (currentAction->Private->Routing.exists())
                                         {
-                                            Position* currentPos;
-                                            Entity* currentEntity = (*activeEntity);
-                                            // check if Trajectory is about to start or Entity arrived at vertice
-                                            if((*activeEntity)->totalDistance == 0)
+                                            if(currentAction->Private->Routing->FollowTrajectory.exists())
                                             {
-                                                currentPos = ((Position*)((*trajectory_iter)->Vertex[(*activeEntity)->visitedVertices]->Position.getObject()));
+                                                for(list<Trajectory*>::iterator trajectory_iter = currentManeuver->trajectoryList.begin(); trajectory_iter != currentManeuver->trajectoryList.end(); trajectory_iter++)
+                                                {
+                                                    Trajectory* currentTrajectory = (*trajectory_iter);
+                                                    for(list<Entity*>::iterator activeEntity = currentManeuver->activeEntityList.begin(); activeEntity != currentManeuver->activeEntityList.end(); activeEntity++)
+                                                    {
+                                                        Position* currentPos;
+                                                        Entity* currentEntity = (*activeEntity);
+                                                        // check if Trajectory is about to start or Entity arrived at vertice
+                                                        if(currentEntity->totalDistance == 0)
+                                                        {
+                                                            currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
 
-                                                currentPos->getAbsolutePosition((*activeEntity),system, scenarioManager->entityList);
-                                                cout << "Next target: " << (*activeEntity)->refPos->xyz[0] << ", " << (*activeEntity)->refPos->xyz[1] << ", "<< (*activeEntity)->refPos->xyz[2] << endl;
+                                                            currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
+                                                            cout << "Next target: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
-                                                (*activeEntity)->setTrajectoryDirectionOnRoad();
-                                                if((*trajectory_iter)->domain.getValue() == 0)
-                                                { //if domain is set to "time"
-                                                    // calculate speed from trajectory vertices
-                                                    (*activeEntity)->setTrajSpeed((*trajectory_iter)->getReference((*activeEntity)->visitedVertices));
+                                                            currentEntity->setTrajectoryDirectionOnRoad();
+                                                            if(currentTrajectory->domain.getValue() == 0)
+                                                            {
+                                                                // calculate speed from trajectory vertices
+                                                                currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
+                                                            }
+                                                        }
 
+                                                        currentEntity->followTrajectoryOnRoad(currentTrajectory->verticesCounter,&activeManeuverEntities);
+                                                        //}
+                                                        //cout << "CurrentPos: " << currentEntity->newPosition[0] << currentEntity->newPosition[1] << currentEntity->newPosition[2] << endl;
+
+                                                        unusedEntity.remove(currentEntity);
+
+                                                        usedEntity.push_back(currentEntity);
+                                                        usedEntity.sort();usedEntity.unique();
+                                                    }
                                                 }
                                             }
-
-                                            (*activeEntity)->followTrajectoryOnRoad((*trajectory_iter)->verticesCounter,&activeManeuverEntities);
-                                            //}
-                                            //cout << "CurrentPos: " << (*activeEntity)->newPosition[0] << (*activeEntity)->newPosition[1] << (*activeEntity)->newPosition[2] << endl;
-
-                                            unusedEntity.remove(*activeEntity);
-
-                                            usedEntity.push_back((*activeEntity));
-                                            usedEntity.sort();usedEntity.unique();
                                         }
-                                        //set_difference(entityList_temp.begin(), entityList_temp.end(), usedEntity.begin(), usedEntity.end(), inserter(unusedEntity, unusedEntity.begin()));
                                     }
-                                }
-                                if((*maneuver_iter)->maneuverType == "break") // no Maneuver called "break" in OpenSCENARIO Standard
-                                {
-                                    for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                    else if(currentAction->Private->Longitudinal.exists())
                                     {
-                                        (*maneuver_iter)->changeSpeedOfEntity((*activeEntity),opencover::cover->frameDuration(),&activeManeuverEntities);
-                                        cout << (*activeEntity)->getName() << " is breaking!" << endl;
+                                        if(currentAction->Private->Longitudinal->Speed.exists())
+                                        {
+                                            double targetspeed = currentAction->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
+                                            int shape = currentAction->Private->Longitudinal->Speed->Dynamics->shape.getValue();
+                                            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
+                                            {
+                                                Entity* currentEntity = (*activeEntity);
 
+                                                currentEntity->longitudinalSpeedAction(&activeManeuverEntities,targetspeed,shape);
+
+                                            }
+                                        }
                                     }
                                 }
-                                (*maneuver_iter)->activeEntityList = activeManeuverEntities;
+                                currentManeuver->activeEntityList = activeManeuverEntities;
                             }
                         }
                     }
@@ -190,7 +203,7 @@ void OpenScenarioPlugin::preFrame()
             for(list<Entity*>::iterator activeEntity = unusedEntity.begin(); activeEntity != unusedEntity.end(); activeEntity++)
             {
                 Entity* currentEntity = (*activeEntity);
-                (*activeEntity)->moveLongitudinal();
+                currentEntity->moveLongitudinal();
 
                 usedEntity.clear();
             }
