@@ -219,6 +219,8 @@ public:
         return clipPlanes[num].get();
     }
 
+	void preparePluginUnload();
+
     //! returns true if clipping is on
     bool isClippingOn() const;
 
