@@ -51,6 +51,7 @@ public:
     void update(double init_ds, double init_dt);
     void update(double x, double y, double z, double init_hdg);
     void update(double dx, double dy, double dz);
+    void update();
     void move(osg::Vec3 newPos);
 
     void getSuccessor();

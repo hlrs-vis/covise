@@ -1,4 +1,5 @@
 #include "ReferencePosition.h"
+#include <iostream>
 
 
 ReferencePosition::ReferencePosition():
@@ -158,6 +159,47 @@ osg::Vec3 ReferencePosition::getPosition()
     return xyz;
 }
 
+void ReferencePosition::update()
+{
+    if(road == NULL)
+    {
+        const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+        Vector2D output = system->searchPosition(newPoint, road, s);
+
+        if (road != NULL)
+        {
+            Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+            Vector2D stNew = road->searchPosition(newPoint, s);
+            roadLength = road->getLength();
+            roadId = system->getRoadId(road);
+
+            s = stNew[0];
+            t = stNew[1];
+
+            LaneSection* newLS = road->getLaneSection(s);
+            LS = newLS;
+
+            laneId = LS->searchLane(s,t);
+        }
+    }
+    else
+    {
+        Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+        Vector2D stNew = road->searchPosition(newPoint, s);
+
+        s = stNew[0];
+        t = stNew[1];
+
+        LaneSection* newLS = road->getLaneSection(s);
+        LS = newLS;
+
+        laneId = LS->searchLane(s,t);
+        roadLength = road->getLength();
+        roadId = system->getRoadId(road);
+
+    }
+}
+
 void ReferencePosition::update(std::string init_roadId, double init_s, int init_laneId)
 {
     s = init_s;
@@ -166,8 +208,10 @@ void ReferencePosition::update(std::string init_roadId, double init_s, int init_
     if(init_roadId != roadId)
     {
         road = system->getRoad(init_roadId);
+        roadLength = road->getLength();
     }
     roadId = init_roadId;
+    hdg = road->getHeading(s);
 
     LaneSection* newLS = road->getLaneSection(s);
     LS = newLS;
@@ -204,8 +248,10 @@ void ReferencePosition::update(std::string init_roadId, double init_s, double in
     if(init_roadId != roadId)
     {
         road = system->getRoad(init_roadId);
+        roadLength = road->getLength();
     }
     roadId = init_roadId;
+    hdg = road->getHeading(s);
 
     LaneSection* newLS = road->getLaneSection(s);
     LS = newLS;
@@ -238,42 +284,7 @@ void ReferencePosition::update(double x, double y, double z,double init_hdg)
     xyz = osg::Vec3(x,y,z);
     hdg = init_hdg;
 
-    //Vector2D searchHere = Vector2D(x,y); road->isOnRoad(searchHere);
-    if(road == NULL)
-    {
-        const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
-        Vector2D output = system->searchPosition(newPoint, road, s);
-
-        if (road != NULL)
-        {
-            Vector3D newPoint = Vector3D(x,y,z);
-            Vector2D stNew = road->searchPosition(newPoint, s);
-
-            s = stNew[0];
-            t = stNew[1];
-
-            LaneSection* newLS = road->getLaneSection(s);
-            LS = newLS;
-
-            laneId = LS->searchLane(s,t);
-        }
-
-    }
-    else
-    {
-        Vector3D newPoint = Vector3D(x,y,z);
-        Vector2D stNew = road->searchPosition(newPoint, s);
-
-        s = stNew[0];
-        t = stNew[1];
-
-        LaneSection* newLS = road->getLaneSection(s);
-        LS = newLS;
-
-        laneId = LS->searchLane(s,t);
-    }
-
-
+    update();
 }
 
 void ReferencePosition::update(double dx, double dy, double dz)
@@ -282,19 +293,11 @@ void ReferencePosition::update(double dx, double dy, double dz)
     xyz[1] +=dy;
     xyz[2] +=dz;
 
-    //xyz = osg::Vec3(x,y,z);
-
-    //Vector2D searchHere = Vector2D(x,y); road->isOnRoad(searchHere);
-    Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
-    Vector2D stNew = road->searchPosition(newPoint, s);
-
-    s = stNew[0];
-    t = stNew[1];
-
-    LaneSection* newLS = road->getLaneSection(s);
-    LS = newLS;
-
-    laneId = LS->searchLane(s,t);
+    update();
+    if (road != NULL)
+    {
+        hdg = road->getHeading(s);
+    }
 
 }
 

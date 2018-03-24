@@ -7,9 +7,9 @@ Entity::Entity(string entityName, string catalogReferenceName):
     catalogReferenceName(catalogReferenceName),
     totalDistance(0),
     visitedVertices(0),
-    finishedCurrentTraj(false),
     refPos(NULL),
-    newRefPos(NULL)
+    newRefPos(NULL),
+    dt(0.0)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -73,14 +73,14 @@ void Entity::moveLongitudinal()
     }
     else
     {
-        entityGeometry->setPosition(entityPosition, directionVector);
+        entityGeometry->setPosition(refPos->xyz, directionVector);
     }
 
 }
 
-osg::Vec3 &Entity::getPosition()
+osg::Vec3 Entity::getPosition()
 {
-	return entityPosition;
+    return refPos->getPosition();
 }
 
 void Entity::setPosition(osg::Vec3 &newPosition)
@@ -115,12 +115,13 @@ void Entity::setDirection(osg::Vec3 &dir)
 void Entity::setTrajectoryDirection()
 {
     // entity is heading to targetPosition
-    targetPosition = refPos->getPosition();
-    totaldirectionVector = targetPosition - newRefPos->getPosition();
+    targetPosition = newRefPos->getPosition();
+    totaldirectionVector = targetPosition - refPos->getPosition();
     totaldirectionVectorLength = totaldirectionVector.length();
 
     directionVector = totaldirectionVector;
     directionVector.normalize();
+
 }
 
 
@@ -140,11 +141,10 @@ void Entity::setTrajectoryDirectionOnRoad()
     totaldirectionVector = targetPosition - refPos->getPosition();
     totaldirectionVectorLength = totaldirectionVector.length();
 
-    if(totaldirectionVectorLength !=0)
-    {
-        directionVector = totaldirectionVector;
-        directionVector.normalize();
-    }
+    directionVector = totaldirectionVector;
+    directionVector.normalize();
+
+
 
 }
 
@@ -160,6 +160,15 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
     //calculate remaining distance
     totalDistance = totalDistance-step_distance;
 
+    directionVector = newRefPos->getPosition() - refPos->getPosition();
+    directionVector.normalize();
+    refPos->move(directionVector,step_distance);
+    osg::Vec3 pos = refPos->getPosition();
+    //directionVector[0] = directionVector[0]*cos(refPos->hdg);
+    //directionVector[1] = directionVector[1]*sin(refPos->hdg);
+
+    entityGeometry->setPosition(pos, directionVector);
+
     if(totalDistance <= 0)
     {
         cout << "Arrived at " << visitedVertices << endl;
@@ -168,24 +177,53 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         if(visitedVertices == verticesCounter)
         {
             activeEntityList->remove(this);
+            refPos->update();
         }
     }
+}
 
+void Entity::longitudinalSpeedAction(std::list<Entity*> *activeEntityList, double init_targetSpeed, int shape)
+{
+    float targetSpeed = (float) init_targetSpeed;
 
-    if(refPos->road != NULL)
+    //linear
+    if(shape == 0)
     {
-        double ds = newRefPos->s - refPos->s;
-        double dt = newRefPos->t - refPos->t;
+        if (dt == 0)
+        {
+            old_speed = speed;
 
-        refPos->move(ds,dt,step_distance);
-        Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+            if (targetSpeed>old_speed)
+            {
+                acceleration = 50;
+            }
+            else
+            {
+                acceleration = -50;
+            }
+        }
+    }
+    // step
+    else
+    {
+        old_speed = targetSpeed;
+        acceleration = 1000;
+    }
+
+    float frametime = opencover::cover->frameDuration();
+    dt += frametime;
+
+    cout << getName() << " is breaking! New speed: " << speed << endl;
+    float t_end = (targetSpeed-old_speed)/acceleration;
+    if(dt>=t_end)
+    {
+        speed = targetSpeed;
+        activeEntityList->remove(this);
+        dt = 0.0;
     }
     else
     {
-        refPos->move(directionVector,step_distance);
-        osg::Vec3 pos = refPos->getPosition();
-        entityGeometry->setPosition(pos, directionVector);
+        speed = acceleration*dt+old_speed;
     }
 
 

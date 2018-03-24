@@ -77,7 +77,7 @@
           </Action>
           <Action>
             <Position>
-              <Lane laneId="-4" offset="0.000000" roadId="0" s="30.000000"/>
+              <Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="30.000000"/>
             </Position>
           </Action>
         </Private>
@@ -94,7 +94,7 @@
           </Action>
           <Action>
             <Position>
-              <Lane laneId="-4" offset="0.000000" roadId="0" s="130.000000"/>
+              <Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="130.000000"/>
             </Position>
           </Action>
         </Private>
@@ -111,7 +111,7 @@
           </Action>
           <Action>
             <Position>
-              <Lane laneId="-3" offset="0.000000" roadId="0" s="10.000000"/>
+              <Lane laneId="-3" offset="0.000000" roadId="0_0_unnamed" s="10.000000"/>
             </Position>
           </Action>
         </Private>
@@ -129,7 +129,7 @@
                 <Private>
                   <Routing>
                     <FollowTrajectory>
-                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory"/>
+                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory4"/>
                       <Longitudinal>
                         <None/>
                       </Longitudinal>
@@ -189,7 +189,7 @@
             <ConditionGroup>
               <Condition delay="0.000000" edge="rising" name="">
                 <ByValue>
-                  <SimulationTime rule="equal-to" value="10.000000"/>
+                  <SimulationTime rule="equal-to" value="5.000000"/>
                 </ByValue>
               </Condition>
             </ConditionGroup>
