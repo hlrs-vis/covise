@@ -78,6 +78,7 @@ private:
 	void parseOpenDrive(xercesc::DOMElement *);
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
+	osg::Group *trafficSignalGroup;
 	RoadSystem *system;
 	std::list<Source *> sources;
 

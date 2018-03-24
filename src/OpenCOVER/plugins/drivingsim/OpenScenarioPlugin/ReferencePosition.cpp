@@ -4,7 +4,8 @@
 ReferencePosition::ReferencePosition():
     road(NULL),
     s(0.0),
-    t(0.0)
+    t(0.0),
+	hdg(0.0)
 {
 }
 
@@ -41,17 +42,25 @@ void ReferencePosition::init(std::string init_roadId, int init_laneId, double in
     system = init_system;
 
     road = system->getRoad(roadId);
-    hdg = road->getHeading(s);
+	if(road)
+	{
+		hdg = road->getHeading(s);
 
-    LS = road->getLaneSection(s);
-    Vector2D laneCenter = LS->getLaneCenter(laneId, s);
 
-    t = laneCenter[0];
+		LS = road->getLaneSection(s);
+		Vector2D laneCenter = LS->getLaneCenter(laneId, s);
 
-    Transform vtrans = road->getRoadTransform(s, t);
-    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+		t = laneCenter[0];
 
-    roadLength = road->getLength();
+		Transform vtrans = road->getRoadTransform(s, t);
+		xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+
+		roadLength = road->getLength();
+	}
+	else
+	{
+		std::cerr << "Did not find road with id: " << roadId << std::endl;
+	}
 }
 
 void ReferencePosition::init(std::string init_roadId,double init_s,double init_t,RoadSystem* init_system)

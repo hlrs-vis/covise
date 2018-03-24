@@ -93,6 +93,9 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 
     // coTrafficSimulation::freeInstance();
     fprintf(stderr, "OpenScenarioPlugin::~OpenScenarioPlugin\n");
+
+	cover->getObjectsRoot()->removeChild(trafficSignalGroup);
+	cover->getObjectsRoot()->removeChild(roadGroup);
 }
 
 bool OpenScenarioPlugin::update()
@@ -791,7 +794,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
             cover->getObjectsRoot()->addChild(roadGroup);
         }
 
-        osg::Group *trafficSignalGroup = new osg::Group;
+        trafficSignalGroup = new osg::Group;
         trafficSignalGroup->setName("TrafficSignals");
         //Traffic control
         for (int i = 0; i < system->getNumRoadSignals(); ++i)
