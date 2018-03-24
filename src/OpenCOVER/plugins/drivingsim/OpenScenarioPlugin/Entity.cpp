@@ -115,12 +115,13 @@ void Entity::setDirection(osg::Vec3 &dir)
 void Entity::setTrajectoryDirection()
 {
     // entity is heading to targetPosition
-    targetPosition = refPos->getPosition();
-    totaldirectionVector = targetPosition - newRefPos->getPosition();
+    targetPosition = newRefPos->getPosition();
+    totaldirectionVector = targetPosition - refPos->getPosition();
     totaldirectionVectorLength = totaldirectionVector.length();
 
     directionVector = totaldirectionVector;
     directionVector.normalize();
+
 }
 
 
@@ -159,6 +160,15 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
     //calculate remaining distance
     totalDistance = totalDistance-step_distance;
 
+    directionVector = newRefPos->getPosition() - refPos->getPosition();
+    directionVector.normalize();
+    refPos->move(directionVector,step_distance);
+    osg::Vec3 pos = refPos->getPosition();
+    //directionVector[0] = directionVector[0]*cos(refPos->hdg);
+    //directionVector[1] = directionVector[1]*sin(refPos->hdg);
+
+    entityGeometry->setPosition(pos, directionVector);
+
     if(totalDistance <= 0)
     {
         cout << "Arrived at " << visitedVertices << endl;
@@ -167,28 +177,8 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         if(visitedVertices == verticesCounter)
         {
             activeEntityList->remove(this);
+            refPos->update();
         }
-    }
-
-
-    if(refPos->road != NULL)
-    {
-        double ds = newRefPos->s - refPos->s;
-        double dt = newRefPos->t - refPos->t;
-
-        refPos->move(ds,dt,step_distance);
-        Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
-    }
-    else
-    {
-        directionVector = newRefPos->getPosition() -refPos->getPosition();
-        refPos->move(directionVector,step_distance);
-        osg::Vec3 pos = refPos->getPosition();
-        //directionVector[0] = directionVector[0]*cos(refPos->hdg);
-        //directionVector[1] = directionVector[1]*sin(refPos->hdg);
-
-        entityGeometry->setPosition(pos, directionVector);
     }
 }
 

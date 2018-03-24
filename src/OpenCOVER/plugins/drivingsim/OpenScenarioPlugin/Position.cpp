@@ -18,7 +18,6 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         currentEntity->newRefPos = newReferencePosition;
     }
 
-
     if(Lane.exists())
     {
         // read parameters from vertex
@@ -42,6 +41,8 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         int dlaneId = RelativeLane->dLane.getValue();
         double ds = RelativeLane->ds.getValue();
 
+        currentEntity->newRefPos->update();
+
         currentEntity->newRefPos->update(dlaneId, ds);
         return currentEntity->newRefPos;
     }
@@ -63,6 +64,7 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         double ds = RelativeRoad->ds.getValue();
         double dt = RelativeRoad->dt.getValue();
 
+        currentEntity->newRefPos->update();
         currentEntity->newRefPos->update(ds,dt);
 
         return currentEntity->newRefPos;
