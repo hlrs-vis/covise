@@ -54,7 +54,12 @@ VrmlNodeType *VrmlNodeImageTexture::defineType(VrmlNodeType *t)
         std::string sizeString = System::the->getConfigEntry("COVER.Plugin.Vrml97.MaxTextureSize");
         if (!sizeString.empty())
         {
-            sscanf(sizeString.c_str(), "%d", &maxTextureSize);
+            int maxSize = 0;
+            sscanf(sizeString.c_str(), "%d", &maxSize);
+            if (maxSize > 0)
+            {
+                setMaxTextureSize(maxSize);
+            }
         }
         //cerr << "Scaledown" << scaledown << endl;
     }

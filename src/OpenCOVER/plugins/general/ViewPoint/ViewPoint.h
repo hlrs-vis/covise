@@ -70,7 +70,7 @@ public:
     osg::Matrix currentMat_;
     float curr_scale;
     double initTime;
-    int flyingStatus;
+    bool flyingStatus;
     bool flyingMode;
     int flight_index;
     float flightTime;
@@ -85,7 +85,8 @@ public:
     void deleteViewPoint(int id);
 
     // fly around all items marked in flight list
-    void completeFlight();
+    void completeFlight(bool state);
+    void pauseFlight(bool state);
     void loadViewpoint(int id);
     void loadViewpoint(const char *name);
     void loadViewpoint(ViewDesc *viewDesc);
@@ -164,7 +165,11 @@ private:
     ui::Menu *flightMenu_; //< menu for Flight
     ui::Action *saveButton_;
     ui::Button *flyingModeCheck_;
-    ui::Action *runButton_;
+    ui::Menu *runMenu_; //< menu for Flight
+    ui::Button *runButton;
+    ui::Button *pauseButton;
+    ui::Slider *speedSlider;
+    ui::Slider *animPositionSlider;
     ui::Action *startStopRecButton_;
     ui::Button *useClipPlanesCheck_;
     ui::Button *turnTableAnimationCheck_;
