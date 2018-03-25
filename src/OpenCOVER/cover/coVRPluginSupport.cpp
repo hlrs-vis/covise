@@ -786,6 +786,12 @@ void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
     m_toolBar = tb;
 }
 
+void coVRPluginSupport::preparePluginUnload()
+{
+	cover->intersectedDrawable = nullptr; // intersectedDrawable might be a node from this plugin
+	cover->intersectedNode = nullptr;
+}
+
 coVRPluginSupport::coVRPluginSupport()
     : scaleFactor(0.0)
     , viewerDist(0.0)
@@ -886,7 +892,10 @@ coVRPluginSupport::~coVRPluginSupport()
         m_notifyBuf.pop_back();
     }
 
+	intersectedDrawable = nullptr;
+	intersectedNode = nullptr;
     cover = NULL;
+
 }
 
 int coVRPluginSupport::getNumClipPlanes()

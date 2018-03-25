@@ -136,6 +136,8 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
                 cerr << " " << plug->getName();
             m_unloadQueue.push_back(plug->handle);
             plug->destroy();
+
+			cover->preparePluginUnload();
         }
         unmanage(plug);
         delete plug;
@@ -249,6 +251,7 @@ void coVRPluginList::unload(coVRPlugin *plugin)
     if (plugin->destroy())
     {
         m_unloadQueue.push_back(plugin->handle);
+		cover->preparePluginUnload();
         unmanage(plugin);
         delete plugin;
         updateState();

@@ -49,8 +49,11 @@ float Trajectory::getReference(int visitedVertices){
 
     if(visitedVertices==0)
     {
-        t1 = Vertex[visitedVertices+2]->Shape->reference.getValue();
-        t0 = Vertex[visitedVertices+1]->Shape->reference.getValue();
+		if(Vertex.size()>1)
+		{
+        t1 = Vertex[1]->Shape->reference.getValue();
+        t0 = Vertex[0]->Shape->reference.getValue();
+		}
         dt = (float) t1-t0;
         return dt;
     }

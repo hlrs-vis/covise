@@ -228,6 +228,19 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 							point.x = p[0];
 							point.y = p[1];
 							point.z = p[2];
+							if (point.x < min_x)
+								min_x = point.x;
+							if (point.y < min_y)
+								min_y = point.y;
+							if (point.z < min_z)
+								min_z = point.z;
+
+							if (point.x > max_x)
+								max_x = point.x;
+							if (point.y > max_y)
+								max_y = point.y;
+							if (point.z > max_z)
+								max_z = point.z;
 
 
 							if (bIntensity) {		//Normalize intensity to 0 - 1.
@@ -384,7 +397,11 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
 
     std::map<int, int>::iterator it;
 
-    printf("Number of points is %d\n", (int)vec.size());
+	printf("Number of points is %d\n", (int)vec.size());
+	printf("min %f %f %f\n", min_x, min_y, min_z);
+	printf("max %f %f %f\n", max_x, max_y, max_z);
+	printf("size %f %f %f\n", xsize, ysize, zsize);
+	printf("grid %d\n", grid);
 
     for (int i = 0; i < vec.size(); i++)
     {
@@ -553,8 +570,11 @@ int main(int argc, char **argv)
             else
             {
                 ++nread;
-                printf("Reading in %s\n", argv[i]);
+                printf("Reading %s\n", argv[i]);
                 ReadData(argv[i], vec, format);
+
+				printf("min %f %f %f\n", min_x, min_y, min_z);
+				printf("max %f %f %f\n", max_x, max_y, max_z);
             }
         }
         if (nread > 0)
