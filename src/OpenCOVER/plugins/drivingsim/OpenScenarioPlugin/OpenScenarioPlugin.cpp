@@ -47,6 +47,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Spline.h"
 #include "Entity.h"
 #include "ReferencePosition.h"
+#include "Action.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -123,75 +124,72 @@ void OpenScenarioPlugin::preFrame()
                     //check maneuver start conditions
                     if (currentManeuver->maneuverCondition)
                     {
-                        list<Entity*> activeManeuverEntities = currentManeuver->activeEntityList;
-
-                        for(oscEventArrayMember::iterator event_iter = currentManeuver->Event.begin(); event_iter != currentManeuver->Event.end(); event_iter++)
+                        for(list<Entity*>::iterator activeEntity = currrentAct->activeEntityList.begin(); activeEntity != currrentAct->activeEntityList.end(); activeEntity++)
                         {
-                            oscEvent* currentEvent = ((oscEvent*)(*event_iter));
-                            for(oscActionArrayMember::iterator action_iter = currentEvent->Action.begin(); action_iter != currentEvent->Action.end(); action_iter++)
+                            Entity* currentEntity = (*activeEntity);
+                            Action* currentAction;
+                            if (currentEntity->actionCounter < (*maneuver_iter)->actionVector.size())
                             {
-                                oscAction* currentAction = ((oscAction*)(*action_iter));
-                                if(currentAction->Private.exists())
+                                currentAction = (*maneuver_iter)->actionVector[currentEntity->actionCounter];
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            if(currentAction->Private.exists())
+                            {
+                                if (currentAction->Private->Routing.exists())
                                 {
                                     if (currentAction->Private->Routing.exists())
                                     {
-                                        if (currentAction->Private->Routing.exists())
+                                        if(currentAction->Private->Routing->FollowTrajectory.exists())
                                         {
-                                            if(currentAction->Private->Routing->FollowTrajectory.exists())
+
+                                            Trajectory* currentTrajectory = currentAction->actionTrajectory;
+
+                                            Position* currentPos;
+                                            // check if Trajectory is about to start or Entity arrived at vertice
+                                            if(currentEntity->totalDistance == 0)
                                             {
-                                                for(list<Trajectory*>::iterator trajectory_iter = currentManeuver->trajectoryList.begin(); trajectory_iter != currentManeuver->trajectoryList.end(); trajectory_iter++)
+                                                currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
+
+                                                currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
+                                                cout << "Next target: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
+
+                                                currentEntity->setTrajectoryDirectionOnRoad();
+                                                if(currentTrajectory->domain.getValue() == 0)
                                                 {
-                                                    Trajectory* currentTrajectory = (*trajectory_iter);
-                                                    for(list<Entity*>::iterator activeEntity = currentManeuver->activeEntityList.begin(); activeEntity != currentManeuver->activeEntityList.end(); activeEntity++)
-                                                    {
-                                                        Position* currentPos;
-                                                        Entity* currentEntity = (*activeEntity);
-                                                        // check if Trajectory is about to start or Entity arrived at vertice
-                                                        if(currentEntity->totalDistance == 0)
-                                                        {
-                                                            currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
-
-                                                            currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
-                                                            cout << "Next target: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
-
-                                                            currentEntity->setTrajectoryDirectionOnRoad();
-                                                            if(currentTrajectory->domain.getValue() == 0)
-                                                            {
-                                                                // calculate speed from trajectory vertices
-                                                                currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
-                                                            }
-                                                        }
-
-                                                        currentEntity->followTrajectoryOnRoad(currentTrajectory->verticesCounter,&activeManeuverEntities);
-                                                        //}
-                                                        //cout << "CurrentPos: " << currentEntity->newPosition[0] << currentEntity->newPosition[1] << currentEntity->newPosition[2] << endl;
-
-                                                        unusedEntity.remove(currentEntity);
-
-                                                        usedEntity.push_back(currentEntity);
-                                                        usedEntity.sort();usedEntity.unique();
-                                                    }
+                                                    // calculate speed from trajectory vertices
+                                                    currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
                                                 }
                                             }
-                                        }
-                                    }
-                                    else if(currentAction->Private->Longitudinal.exists())
-                                    {
-                                        if(currentAction->Private->Longitudinal->Speed.exists())
-                                        {
-                                            double targetspeed = currentAction->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
-                                            int shape = currentAction->Private->Longitudinal->Speed->Dynamics->shape.getValue();
-                                            for(list<Entity*>::iterator activeEntity = (*act_iter)->activeEntityList.begin(); activeEntity != (*act_iter)->activeEntityList.end(); activeEntity++)
-                                            {
-                                                Entity* currentEntity = (*activeEntity);
 
-                                                currentEntity->longitudinalSpeedAction(&activeManeuverEntities,targetspeed,shape);
+                                            currentEntity->followTrajectoryOnRoad((*maneuver_iter),currentTrajectory->verticesCounter);
+                                            //}
+                                            //cout << "CurrentPos: " << currentEntity->newPosition[0] << currentEntity->newPosition[1] << currentEntity->newPosition[2] << endl;
 
-                                            }
+                                            unusedEntity.remove(currentEntity);
+
+                                            usedEntity.push_back(currentEntity);
+                                            usedEntity.sort();usedEntity.unique();
+
+
                                         }
                                     }
                                 }
-                                currentManeuver->activeEntityList = activeManeuverEntities;
+                                else if(currentAction->Private->Longitudinal.exists())
+                                {
+                                    if(currentAction->Private->Longitudinal->Speed.exists())
+                                    {
+                                        double targetspeed = currentAction->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
+                                        int shape = currentAction->Private->Longitudinal->Speed->Dynamics->shape.getValue();
+
+                                        currentEntity->longitudinalSpeedAction((*maneuver_iter),targetspeed,shape);
+
+
+                                    }
+                                }
                             }
                         }
                     }
@@ -531,7 +529,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
             {
                 Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
-                maneuver->initialize(activeEntityList_temp);
+                maneuver->initialize(activeEntityList_temp.size());
                 maneuverList_temp.push_back(maneuver);
                 cout << "Manuever: " << maneuver->getName() << " created" << endl;
             }
@@ -636,20 +634,24 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 //get trajectoryCatalogReference
                 for (oscActionArrayMember::iterator it = event->Action.begin(); it != event->Action.end(); it++)
                 {
-                    oscAction* action = ((oscAction*)(*it));
-
+                    Action* action = ((Action*)(*it));
                     if(action->Private->Routing.exists())
                     {
-
                         if (action->Private->Routing->FollowTrajectory.exists())
                         {
                             (*maneuver_iter)->maneuverType = "followTrajectory";
                             (*maneuver_iter)->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+                            action->trajectoryCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+                            (*maneuver_iter)->actionVector.push_back(action);
+
                         }
                         else if (action->Private->Routing->FollowRoute.exists())
                         {
                             (*maneuver_iter)->maneuverType = "FollowRoute";
                             (*maneuver_iter)->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+                            action->routeCatalogReference = action->Private->Routing->FollowTrajectory->CatalogReference->entryName.getValue();
+                            (*maneuver_iter)->actionVector.push_back(action);
+
                         }
 
                     }
@@ -658,7 +660,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 
                         (*maneuver_iter)->maneuverType="break";
                         (*maneuver_iter)->targetSpeed = action->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
-
+                        (*maneuver_iter)->actionVector.push_back(action);
                     }
                 }
             }
@@ -668,17 +670,21 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     //acess maneuvers in acts
     for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
     {
-        for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+        list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin();
+        for(maneuver_iter; maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
         {
-            if((*maneuver_iter)->trajectoryCatalogReference != "")
+            for(int action_iter = 0; action_iter < (*maneuver_iter)->actionVector.size(); ++action_iter)
             {
-                oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", (*maneuver_iter)->trajectoryCatalogReference);
-                Trajectory* traj = ((Trajectory*)(trajectoryClass));
-                (*maneuver_iter)->trajectoryList.push_back(traj);
+                Action* currentAction = (*maneuver_iter)->actionVector[action_iter];
+                if(currentAction->trajectoryCatalogReference != "")
+                {
+                    oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", currentAction->trajectoryCatalogReference);
+                    Trajectory* traj = ((Trajectory*)(trajectoryClass));
+                    currentAction->setTrajectory(traj);
 
-                int verticesCounter = traj->Vertex.size();
-                traj->initialize(verticesCounter);
-
+                    int verticesCounter = traj->Vertex.size();
+                    traj->initialize(verticesCounter);
+                }
             }
         }
     }

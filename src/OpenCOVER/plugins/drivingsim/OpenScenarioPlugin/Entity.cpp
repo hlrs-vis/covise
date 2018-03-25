@@ -1,5 +1,7 @@
 #include "Entity.h"
 #include "ReferencePosition.h"
+#include "Action.h"
+#include "Maneuver.h"
 using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
@@ -9,7 +11,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     visitedVertices(0),
     refPos(NULL),
     newRefPos(NULL),
-    dt(0.0)
+    dt(0.0),
+    actionCounter(0)
 {
 	directionVector.set(1, 0, 0);
 }
@@ -148,7 +151,7 @@ void Entity::setTrajectoryDirectionOnRoad()
 
 }
 
-void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList)
+void Entity::followTrajectoryOnRoad(Maneuver* maneuver, int verticesCounter)
 {
 
     float step_distance = opencover::cover->frameDuration()*speed;
@@ -176,13 +179,16 @@ void Entity::followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *acti
         totalDistance = 0;
         if(visitedVertices == verticesCounter)
         {
-            activeEntityList->remove(this);
+            visitedVertices = 0;
+            ++actionCounter;
+            maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
+
             refPos->update();
         }
     }
 }
 
-void Entity::longitudinalSpeedAction(std::list<Entity*> *activeEntityList, double init_targetSpeed, int shape)
+void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed, int shape)
 {
     float targetSpeed = (float) init_targetSpeed;
 
@@ -218,8 +224,10 @@ void Entity::longitudinalSpeedAction(std::list<Entity*> *activeEntityList, doubl
     if(dt>=t_end)
     {
         speed = targetSpeed;
-        activeEntityList->remove(this);
         dt = 0.0;
+        ++actionCounter;
+        maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
+
     }
     else
     {
@@ -227,4 +235,13 @@ void Entity::longitudinalSpeedAction(std::list<Entity*> *activeEntityList, doubl
     }
 
 
+}
+
+void Entity::resetActionAttributes()
+{
+    totalDistance = 0;
+    visitedVertices = 0;
+
+    dt = 0.0;
+    actionCounter = 0;
 }

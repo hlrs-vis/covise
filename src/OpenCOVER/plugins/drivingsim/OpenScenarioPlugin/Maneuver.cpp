@@ -13,15 +13,16 @@ Maneuver::Maneuver():
     trajectoryCatalogReference(""),
 	startAfterManeuver(""),
 	startConditionType("termination"),
-	targetSpeed(0)
+    targetSpeed(0),
+    finishedEntityActions(0)
 {
 }
 Maneuver::~Maneuver()
 {
 }
-void Maneuver::initialize(std::list<Entity*> &activeEntityList_temp)
+void Maneuver::initialize(int numEntites)
 {
-    activeEntityList = activeEntityList_temp;
+    activeEntites = numEntites;
 }
 
 
