@@ -123,7 +123,8 @@ JunctionRoadItem::rebuildSections(bool fullRebuild)
         //
         if ((junctionEditor_->isCurrentTool(ODD::TTE_ADD))
             || (junctionEditor_->isCurrentTool(ODD::TTE_ADD_CURVE))
-            || (junctionEditor_->isCurrentTool(ODD::TTE_ADD_LINE)))
+            || (junctionEditor_->isCurrentTool(ODD::TTE_ADD_LINE))
+			|| (junctionEditor_->isCurrentTool(ODD::TTE_ADD_POLY)))
         {
             if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
             {

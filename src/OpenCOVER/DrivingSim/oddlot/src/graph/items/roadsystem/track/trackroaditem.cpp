@@ -138,7 +138,8 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
         //
         if ((trackEditor_->isCurrentTool(ODD::TTE_ADD))
             || (trackEditor_->isCurrentTool(ODD::TTE_ADD_CURVE))
-            || (trackEditor_->isCurrentTool(ODD::TTE_ADD_LINE)))
+            || (trackEditor_->isCurrentTool(ODD::TTE_ADD_LINE))
+			|| (trackEditor_->isCurrentTool(ODD::TTE_ADD_POLY)))
         {
             if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
             {

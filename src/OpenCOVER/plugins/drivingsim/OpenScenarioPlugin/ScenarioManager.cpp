@@ -86,7 +86,12 @@ bool ScenarioManager::conditionControl(Act* act)
 
 bool ScenarioManager::conditionControl(Maneuver* maneuver)
 {
-    if (maneuver->activeEntityList.empty()){
+    if ((maneuver->finishedEntityActions) == (maneuver->activeEntites*maneuver->actionVector.size()))
+    {
+        for(list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
+        {
+            (*entity_iter)->resetActionAttributes();
+        }
         maneuver->maneuverFinished = true;
         maneuver->maneuverCondition = false;
         return maneuver->maneuverCondition;

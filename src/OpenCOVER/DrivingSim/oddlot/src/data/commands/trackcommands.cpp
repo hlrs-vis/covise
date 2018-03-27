@@ -1472,7 +1472,7 @@ MorphIntoPoly3Command::MorphIntoPoly3Command(TrackComponent *track, DataCommand 
         setInvalid();
         setText(QObject::tr("Morph track: sorry, morphing is not possible with these parameters."));
         return;
-    }
+    } 
 
     setValid();
     setText(QObject::tr("Morph track"));
@@ -1860,7 +1860,8 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
 
     for (int i = 0; i < translateTracks_.size(); i++)
     {
-        if (!validate(translateTracks_.at(i)))
+//        if (((translateTracks_.at(i)->lowSlot->getTrackType() != TrackComponent::DTT_POLY3) || (translateTracks_.at(i)->highSlot->getTrackType() != TrackComponent::DTT_POLY3)) && !validate(translateTracks_.at(i)))
+		if (!validate(translateTracks_.at(i)))
         {
             setInvalid();
             setText(QObject::tr("Translation not valid"));
@@ -2021,7 +2022,7 @@ TranslateTrackComponentsCommand::validate(TrackMoveProperties *props)
         validationVisitor = new TrackMoveValidator();
 
         if (props->transform & TT_ROTATE)
-        {
+		{
             if (props->highSlot && (props->highSlot->getStartPosDOF() == 2))
             {
                 TrackComponent *highSlotCopy = props->highSlot->getClone();
@@ -2257,12 +2258,12 @@ TranslateTrackComponentsCommand::redo()
             iterLane++;
         }
 
-        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
+ /*       QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
         while ((iterLane != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i))
         {
             roads_.at(i)->addLaneSection(iterLaneAdd.value());
             iterLaneAdd++;
-        }
+        } */
 
 		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
 		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))

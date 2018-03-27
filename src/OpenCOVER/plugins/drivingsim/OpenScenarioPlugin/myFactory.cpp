@@ -6,6 +6,7 @@
 #include "RouteInfo.h"
 #include "FollowTrajectory.h"
 #include "Position.h"
+#include "Action.h"
 #include <DrivingSim/OpenScenario/oscFactories.h>
 
 myFactory::myFactory(){}
@@ -40,6 +41,10 @@ OpenScenario::oscObjectBase *myFactory::create(const std::string &name)
     if (name == "oscPosition")
     {
         return new Position();
+    }
+    if (name == "oscAction")
+    {
+        return new Action();
     }
 	return OpenScenario::oscFactories::staticObjectFactory.create(name);
 }

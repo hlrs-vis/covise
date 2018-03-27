@@ -21,6 +21,7 @@
 
 #include <QMultiMap>
 #include <QPointF>
+#include <QGraphicsItem>
 
 class ProjectData;
 class TopviewGraph;
@@ -42,6 +43,7 @@ class CircularRotateHandle;
 
 class TrackRoadSystemItem;
 
+
 // TODO
 class SectionHandle;
 
@@ -52,6 +54,14 @@ class TrackEditor : public ProjectEditor
     //################//
     // STATIC         //
     //################//
+
+public:
+
+	enum CacheMode
+	{
+		NoCache,
+		DeviceCache
+	};
 
 private:
     enum TrackEditorState
@@ -112,6 +122,8 @@ public:
     void registerRoadRotateHandle(RoadRotateHandle *handle);
     int unregisterRoadRotateHandle(RoadRotateHandle *handle);
     bool rotateRoadRotateHandles(const QPointF &pivotPoint, double angleDegrees);
+	void setCacheMode(RSystemElementRoad *road, CacheMode cache);
+	void setChildCacheMode(QGraphicsItem *child, QGraphicsItem::CacheMode mode);
 
     // AddHandles //
     //
@@ -166,6 +178,11 @@ private:
     //
     QGraphicsLineItem *newRoadLineItem_;
 
+	// New Polynomial Tool //
+	//
+	TrackMoveHandle *newRoadPolyItem_;
+	RSystemElementRoad *newPolyRoad_;
+
 
 	// New Circle Tool //
 	//
@@ -201,6 +218,10 @@ private:
 
     // TODO
     SectionHandle *sectionHandle_;
+
+	// Line or Polynomial chosen for new road
+	//
+	ODD::ToolId lastEditorTool_;
 };
 
 #endif // TRACKEDITOR_HPP

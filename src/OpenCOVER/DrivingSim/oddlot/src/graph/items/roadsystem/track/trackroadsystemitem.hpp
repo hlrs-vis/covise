@@ -40,6 +40,7 @@ public:
     //
     void addRoadItem(TrackRoadItem *item);
     int removeRoadItem(TrackRoadItem *item);
+	TrackRoadItem *getRoadItem(RSystemElementRoad *road);
 
     // Handles //
     //

@@ -21,7 +21,6 @@
  \date
  */
 
-#include <util/DLinkList.h>
 #include <util/coExport.h>
 
 #include <cstring>

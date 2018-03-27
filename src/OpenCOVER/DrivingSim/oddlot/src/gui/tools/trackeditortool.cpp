@@ -383,6 +383,7 @@ TrackEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
     ribbonToolGroup->addButton(ui->trackNewLine, ODD::TTE_ADD_LINE);
     ribbonToolGroup->addButton(ui->trackNewCurve, ODD::TTE_ADD_CURVE);
+	ribbonToolGroup->addButton(ui->trackNewPoly, ODD::TTE_ADD_POLY);
     ribbonToolGroup->addButton(ui->trackAddPrototype, ODD::TTE_ADD);
     ribbonToolGroup->addButton(ui->trackDelete, ODD::TTE_DELETE);
     ribbonToolGroup->addButton(ui->trackSplit, ODD::TTE_TRACK_SPLIT);
@@ -484,6 +485,11 @@ TrackEditorTool::handleToolClick(int id)
         sectionPrototypesGroupBox_->setVisible(true);
         sectionPrototypesGroupBox_->setEnabled(true);
     }
+	else if (toolId_ == ODD::TTE_ADD_POLY)
+	{
+		sectionPrototypesGroupBox_->setVisible(true);
+		sectionPrototypesGroupBox_->setEnabled(true);
+	}
     else if (toolId_ == ODD::TTE_ROADSYSTEM_ADD)
     {
         roadSystemPrototypesGroupBox_->setVisible(true);

@@ -6,9 +6,10 @@
 #include <iostream>
 #include <math.h>
 
-//#include "Spline.h"
 class Spline;
 class ReferencePosition;
+class Action;
+class Maneuver;
 class Entity {
 
 public:
@@ -22,6 +23,8 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
+    int actionCounter;
+
 
     ReferencePosition* refPos;
     ReferencePosition* newRefPos;
@@ -35,7 +38,8 @@ public:
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
-    void longitudinalSpeedAction(std::list<Entity*> *activeEntityList, double init_targetSpeed, int shape);
+    void longitudinalSpeedAction(Maneuver *maneuver, double init_targetSpeed, int shape);
+    void resetActionAttributes();
 
     float &getSpeed();
     osg::Vec3 getPosition();
@@ -55,7 +59,7 @@ public:
     // follow Trajectories functions
     void setTrajectoryDirection();
     void setTrajSpeed(float deltat);
-    void followTrajectoryOnRoad(int verticesCounter,std::list<Entity*> *activeEntityList);
+    void followTrajectoryOnRoad(Maneuver *maneuver, int verticesCounter);
     void setTrajectoryDirectionOnRoad();
 
     //Longitudinal attributes

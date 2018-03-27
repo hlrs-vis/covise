@@ -176,6 +176,13 @@ RoadRotateHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 }
 
 void
+RoadRotateHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::NoCache);
+	RotateHandle::mousePressEvent(event);
+}
+
+void
 RoadRotateHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QPointF direction = event->scenePos() - scenePos();
@@ -193,4 +200,11 @@ RoadRotateHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 
     //	RotateHandle::mouseMoveEvent(event); // pass to baseclass
+}
+
+void
+RoadRotateHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::DeviceCache);
+	RotateHandle::mouseReleaseEvent(event);
 }

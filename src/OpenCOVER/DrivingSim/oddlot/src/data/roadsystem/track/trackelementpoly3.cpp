@@ -160,7 +160,7 @@ TrackElementPoly3::getT(double s)
 
     double t = s * 0.5; // first approximation
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 30; ++i)  // 20 is not enough!
     {
 
         // Flo's code //
