@@ -109,10 +109,6 @@ public:
         connectionMutex.unlock();
     }
     covise::Host *connectedHost;
-    covise::Host *getServerHost()
-    {
-        return serverHost;
-    }
 
     bool serverMode = false;
     covise::Connection *conn = nullptr;

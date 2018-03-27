@@ -137,6 +137,8 @@ private:
 	BaseGraphElement &operator=(const BaseGraphElement &); /* not allowed */
 
 	void init();
+    T *This();
+    const T *This() const;
 
 
 	//################//

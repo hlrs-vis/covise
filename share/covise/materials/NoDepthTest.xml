@@ -23,7 +23,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
    {
      vec4 DiffuseColor = texture2D( diffuseMap, Texcoord );
       gl_FragColor = DiffuseColor ;
-	  gl_FragCoord.z = 1.0;
+	  gl_FragDepth = -1.0;
           
    }
   </fragmentProgram></NoDpethTest>

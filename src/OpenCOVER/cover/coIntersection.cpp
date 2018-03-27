@@ -153,6 +153,14 @@ coIntersection::~coIntersection()
     intersector = NULL;
 }
 
+coIntersector *coIntersection::newIntersector(const Vec3 &start, const Vec3 &end)
+{
+    auto intersector = new coIntersector(start, end);
+    for (auto h: handlers)
+        intersector->addHandler(h);
+    return intersector;
+}
+
 void coIntersection::addHandler(osg::ref_ptr<IntersectionHandler> handler)
 {
     handlers.push_back(handler);

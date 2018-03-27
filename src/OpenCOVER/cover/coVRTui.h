@@ -32,20 +32,6 @@
 
 namespace opencover
 {
-class coPluginEntry : public coTUIListener
-{
-public:
-    coPluginEntry(const char *libName, coTUITab *, int n);
-    virtual ~coPluginEntry();
-    char *name;
-    coTUIToggleButton *tuiEntry;
-
-private:
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-};
-
 class coInputTUI: public coTUIListener
 {
 public:
@@ -96,17 +82,6 @@ private:
 
 	int calibrationStep;
 	osg::Vec3 calibrationPositions[3];
-};
-
-class coPluginEntryList : public covise::DLinkList<coPluginEntry *>
-{
-public:
-    coPluginEntryList(coTUITab *);
-    virtual ~coPluginEntryList();
-    void updateState();
-
-private:
-    coTUITab *myTab;
 };
 
 class DontDrawBin : public osgUtil::RenderBin::DrawCallback

@@ -16,7 +16,7 @@
 #include <iostream>
 
 class Road;
-//class OpenScenario::oscShape;
+class ReferencePosition;
 
 class Position : public OpenScenario::oscPosition
 {
@@ -33,6 +33,7 @@ public:
     int laneId;
     double offset;
     double s;
+    double t;
 
     // Relative Coordinates (Road/Object)
     double dx;
@@ -42,18 +43,20 @@ public:
     std::string relObject;
 
     //absolute Coordinates
+    double hdg;
     double x;
     double y;
     double z;
     osg::Vec3 absPosition;
-    osg::Vec3 referencePosition;
+    ReferencePosition* referencePosition;
+    ReferencePosition* newReferencePosition;
 
-    osg::Vec3 getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
+    ReferencePosition *getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
     osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, int landeId);
     osg::Vec3 getAbsoluteFromRoad(::Road* road, double s, double t);
 
     osg::Vec3 getRelObjectPos(std::string relObject, Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList);
-    osg::Vec3 hpr2directionVector();
+    double getHdg();
     osg::Vec3 getAbsoluteWorld();
 
 

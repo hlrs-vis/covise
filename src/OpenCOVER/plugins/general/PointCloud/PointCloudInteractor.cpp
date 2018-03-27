@@ -71,12 +71,18 @@ PointCloudInteractor::stopInteraction()
             previewPointsGroup->removeChild(0,1);
 
         previewPoints.clear();
-
-        pointSelection bestPoint;
-        bool hitPointSuccess = hitPoint(bestPoint);
-        if (hitPointSuccess)
+        if (!m_deselection)
         {
-            highlightPoint(bestPoint);
+            pointSelection bestPoint;
+            bool hitPointSuccess = hitPoint(bestPoint);
+            if (hitPointSuccess)
+            {
+                highlightPoint(bestPoint);
+            }
+        }
+        else
+        {
+            deselectPoint();
         }
 }
 
@@ -96,7 +102,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         Vec3 currHandDirection = currHandEnd - currHandBegin;
 
         double smallestDistance = FLT_MAX;
-        
+
         for (std::list<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
             if (fit->pointSet)
@@ -108,25 +114,32 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                     Vec3 radiusVec = center-corner;
                     float radius = 1.5 * radiusVec.length();
 
-                    //if (hitPointSet(currHandDirection, currHandBegin, &fit->pointSet[i]))
                     if (hitPointSetBoundingSphere(currHandDirection, currHandBegin, center, radius))
                     {
                         for (int j=0; j<fit->pointSet[i].size; j++)
                         {
                             Vec3 currentPoint = Vec3(fit->pointSet[i].points[j].x,fit->pointSet[i].points[j].y,fit->pointSet[i].points[j].z);
                             double distance = LinePointDistance(currentPoint, currHandBegin, currHandDirection);
-                            //double distance = LinePointMeasure(currentPoint, currHandBegin, currHandDirection);
                             if (distance<smallestDistance)
                             {
                                 smallestDistance=distance;
-                                //bestPoint=currentPoint;   
                                 bestPoint.pointSetIndex = i;
                                 bestPoint.pointIndex = j;
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
-                            }                
-                        }            
+                            }
+                        }
                     }
+                }
+            }
+        }
+        if (hitPointSuccess)
+        {
+            for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
+            {
+                if (iter->pointSetIndex==bestPoint.pointSetIndex && iter->pointIndex==bestPoint.pointIndex)
+                {
+                    hitPointSuccess=false;
                 }
             }
         }
@@ -151,16 +164,19 @@ PointCloudInteractor::doInteraction()
 void
 PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)
 {   
-    osg::MatrixTransform *translateMatrix = new osg::MatrixTransform;
-    osg::MatrixTransform *scaleMatrix = new osg::MatrixTransform;
+
     Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
-    selectedPoint.scaleMatrix = scaleMatrix;
-    translateMatrix->setMatrix(osg::Matrix::translate(newSelectedPoint));
-    translateMatrix->addChild(scaleMatrix);
+    osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
+    sphereTransformationMatrix->makeTranslate(newSelectedPoint);
+
+    osg::MatrixTransform *sphereTransformation = new osg::MatrixTransform;
+    sphereTransformation->setMatrix(*sphereTransformationMatrix);
+    selectedPoint.transformationMatrix = sphereTransformation;
+
     osg::Geode *sphereGeode = new osg::Geode;
-    scaleMatrix->addChild(sphereGeode);
+    sphereTransformation->addChild(sphereGeode);
     osg::Sphere *selectedSphere = new osg::Sphere(Vec3(.0f,0.f,0.f),1.0f);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
@@ -177,15 +193,15 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
         if (previewPointsGroup->getNumChildren() == 0)
-            previewPointsGroup->addChild(translateMatrix);
+            previewPointsGroup->addChild(sphereTransformation);
         else
-            previewPointsGroup->setChild(0,translateMatrix);
+            previewPointsGroup->setChild(0,sphereTransformation);
         previewPoints.clear();
         previewPoints.push_back(selectedPoint);
     }
     else
     {
-        selectedPointsGroup->addChild(translateMatrix);
+        selectedPointsGroup->addChild(sphereTransformation);
         selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.0, 0.0, 1.0f));
         selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.6, 0.0, 0.0, 1.0f));
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
@@ -311,13 +327,67 @@ void PointCloudInteractor::resize()
     // scale all selected points
     for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
     {
-        iter->scaleMatrix->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+        osg::Matrix sphereMatrix = iter->transformationMatrix->getMatrix();
+        Vec3 translation = sphereMatrix.getTrans();
+        sphereMatrix.makeScale(scaleFactor, scaleFactor, scaleFactor);
+        sphereMatrix.setTrans(translation);
+        iter->transformationMatrix->setMatrix(sphereMatrix);
     }
     
     //scale the preview point(s)
     for (std::vector<pointSelection>::iterator iter = previewPoints.begin(); iter !=previewPoints.end(); iter++)
     {
-        iter->scaleMatrix->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
+        osg::Matrix sphereMatrix = iter->transformationMatrix->getMatrix();
+        Vec3 translation = sphereMatrix.getTrans();
+        sphereMatrix.makeScale(scaleFactor, scaleFactor, scaleFactor);
+        sphereMatrix.setTrans(translation);
+        iter->transformationMatrix->setMatrix(sphereMatrix);
     }
 }
 
+bool PointCloudInteractor::deselectPoint()
+{
+    bool hitPointSuccess = false;
+    if (m_files)
+    {
+        Matrix currHandMat = cover->getPointerMat();
+        Matrix invBase = cover->getInvBaseMat();
+
+        currHandMat = currHandMat * invBase;
+
+        Vec3 currHandBegin = currHandMat.preMult(Vec3(0.0, 0.0, 0.0));
+        Vec3 currHandEnd = currHandMat.preMult(Vec3(0.0, 1.0, 0.0));
+        Vec3 currHandDirection = currHandEnd - currHandBegin;
+
+        double smallestDistance = FLT_MAX;
+        std::vector<pointSelection>::iterator deselectionPoint;
+
+        for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
+        {
+            int i = iter->pointSetIndex;
+            int j = iter->pointIndex;
+            Vec3 currentPoint = Vec3(iter->file->pointSet[i].points[j].x,iter->file->pointSet[i].points[j].y,iter->file->pointSet[i].points[j].z);
+            double distance = LinePointDistance(currentPoint, currHandBegin, currHandDirection);
+            if (distance<smallestDistance)
+            {
+                smallestDistance=distance;
+                deselectionPoint = iter;
+                hitPointSuccess = true;
+            }                
+        }
+        if (hitPointSuccess)
+        {
+            selectedPointsGroup->removeChild(deselectionPoint->transformationMatrix);
+            selectedPoints.erase(deselectionPoint);
+        }
+    }
+    return hitPointSuccess;
+}
+
+void PointCloudInteractor::setDeselection(bool deselection)
+{
+    if (deselection)
+        m_deselection = true;
+    else
+        m_deselection = false;
+}

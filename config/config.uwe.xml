@@ -98,8 +98,8 @@
     <MouseNav value="ON" />
         <Device>
            <Vive driver="Vive">
-              <Offset x="-846.235" y="1021.28" z="-409.376" />
-              <Orientation h="-83.4106" p="85.9763" r="-32.3326" />
+              <Offset x="-2067.77" y="421.621" z="-444.042" />
+              <Orientation h="40.1318" p="88.603" r="-159.867" />
               <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
               <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
               <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>
@@ -248,7 +248,7 @@
      </Animations>
     </PDB>
 
-    <AKToolbar value="false" menu="true">
+    <AKToolbar value="false" menu="false">
      <Attachment value="TOP" />
      <Scale value=".8" />
      <MinClickTime value="0.2" />

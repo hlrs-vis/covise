@@ -48,47 +48,47 @@ public:
 	odrID(const QString &id)
 	{
 		QStringList subStrings = id.split("_");
-		if (subStrings[0] == 'r')
+		if (subStrings[0] == "r")
 		{
 			type = ID_Road;
 		}
-		else if (subStrings[0] == 'j')
+		else if (subStrings[0] == "j")
 		{
 			type = ID_Junction;
 		}
-		else if (subStrings[0] == 'c')
+		else if (subStrings[0] == "c")
 		{
 			type = ID_Controller;
 		}
-		else if (subStrings[0] == 'f')
+		else if (subStrings[0] == "f")
 		{
 			type = ID_Fiddleyard;
 		}
-		else if (subStrings[0] == 'pf')
+		else if (subStrings[0] == "pf")
 		{
 			type = ID_PedFiddleyard;
 		}
-		else if (subStrings[0] == 'o')
+		else if (subStrings[0] == "o")
 		{
 			type = ID_Object;
 		}
-		else if (subStrings[0] == 'b')
+		else if (subStrings[0] == "b")
 		{
 			type = ID_Bridge;
 		}
-		else if (subStrings[0] == 'none')
+		else if (subStrings[0] == "none")
 		{
 			type = ID_None;
 		}
-		else if (subStrings[0] == 's')
+		else if (subStrings[0] == "s")
 		{
 			type = ID_Signal;
 		}
-		else if (subStrings[0] == 't')
+		else if (subStrings[0] == "t")
 		{
 			type = ID_Tile;
 		}
-		else if (subStrings[0] == 'v')
+		else if (subStrings[0] == "v")
 		{
 			type = ID_Vehicle;
 		}

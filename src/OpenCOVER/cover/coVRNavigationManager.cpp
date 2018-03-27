@@ -70,7 +70,8 @@
 
 #include <osg/Vec4>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
 #include <osg/io_utils>
@@ -573,10 +574,7 @@ void coVRNavigationManager::saveCurrentBaseMatAsOldBaseMat()
 // returns true if collision occurred
 bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
 {
-    osg::Vec3 tmp;
     osg::Vec3 oPos[2], Tip[2], nPos[2];
-    osg::Vec3 diff;
-    osg::Matrix dcs_mat;
     glideVec.set(0, 0, 0);
     osg::Vec3 rightPos(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
     osg::Vec3 leftPos(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
@@ -584,9 +582,8 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     currentRightPos = vmat.preMult(rightPos);
     currentLeftPos = vmat.preMult(leftPos);
 
-    osg::Matrix currentBase, diffMat;
-    currentBase = cover->getBaseMat();
-    diffMat = oldInvBaseMatrix * currentBase;
+    osg::Matrix currentBase = cover->getBaseMat();
+    osg::Matrix diffMat = oldInvBaseMatrix * currentBase;
 
     // left segment
     nPos[0].set(currentLeftPos[0], currentLeftPos[1], currentLeftPos[2]);
@@ -595,7 +592,7 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     oPos[0] = diffMat.preMult(oldLeftPos);
     oPos[1] = diffMat.preMult(oldRightPos);
 
-    diff = nPos[0] - oPos[0];
+    osg::Vec3 diff = nPos[0] - oPos[0];
     float dist = diff.length();
     if (dist < 1)
     {
@@ -612,86 +609,70 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     diff *= collisionDist / dist;
     Tip[0] = nPos[0] + diff;
 
-    osg::ref_ptr<osg::LineSegment> ray1 = new osg::LineSegment();
-    ray1->set(oPos[0], Tip[0]);
-
     diff = nPos[1] - oPos[1];
     diff *= collisionDist / diff.length();
     Tip[1] = nPos[1] + diff;
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(oPos[1], Tip[1]);
+
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[2];
+    for (int i=0; i<2; ++i)
+    {
+        intersector[i] = coIntersection::instance()->newIntersector(oPos[i], Tip[i]);
+        igroup->addIntersector(intersector[i]);
+    }
 
     osg::Vec3 hitPoint[2];
     osg::Vec3 hitNormal[2];
 
-    osgUtil::IntersectVisitor visitor;
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(ray1.get());
-    visitor.addLineSegment(ray2.get());
-
     cover->getScene()->accept(visitor);
 
-    int num1 = visitor.getNumHits(ray1.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    if (num1 || num2)
+    osg::Vec3 distVec[2];
+    osg::Vec3 glideV[2];
+    float dists[2]{0, 0};
+    for (int i=0; i<2; ++i)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray1.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-        osg::Matrix xform;
-        osg::Vec3 distVec[2];
-        osg::Vec3 glideV[2];
-        float dist[2];
-        dist[0] = 0;
-        dist[1] = 0;
-        float cangle;
-        int i;
-        hitPoint[0] = hitInformation1.getWorldIntersectPoint();
-        hitPoint[1] = hitInformation2.getWorldIntersectPoint();
-        hitNormal[0] = hitInformation1.getWorldIntersectNormal();
-        hitNormal[1] = hitInformation1.getWorldIntersectNormal();
-        for (i = 0; i < 2; i++)
-        {
-            distVec[i] = hitPoint[i] - oPos[i];
-            distVec[i] *= 0.9;
-            hitPoint[i] = oPos[i] + distVec[i];
-            distVec[i] = hitPoint[i] - Tip[i];
-            dist[i] = distVec[i].length();
-            //fprintf(stderr,"hitPoint: %f %f %f\n",hitPoint[i][0],hitPoint[i][1],hitPoint[i][2]);
-            //fprintf(stderr,"Tip: %f %f %f\n",Tip[i][0],Tip[i][1],Tip[i][2]);
-            //fprintf(stderr,"oPos: %f %f %f\n",oPos[i][0],oPos[i][1],oPos[i][2]);
-            //fprintf(stderr,"nPos: %f %f %f\n",nPos[i][0],nPos[i][1],nPos[i][2]);
-            //fprintf(stderr,"distVec: %f %f %f %d\n",distVec[i][0],distVec[i][1],distVec[i][2],i);
-            //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+        if (!intersector[i]->containsIntersections())
+            continue;
 
-            tmp = distVec[i];
-            tmp.normalize();
-            hitNormal[i].normalize();
-            cangle = hitNormal[i] * (tmp);
-            if (cangle > M_PI_2 || cangle < -M_PI_2)
-            {
-                hitNormal[i] = -hitNormal[i];
-            }
-            //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
-            //fprintf(stderr,"tmp: %f %f %f %f\n",tmp[0],tmp[1],tmp[2],cangle);
-            hitNormal[i] *= (dist[i]) * cangle;
-            glideV[i] = hitNormal[i] - distVec[i];
-            // fprintf(stderr,"glideV: %f %f %f %d\n",glideV[i][0],glideV[i][1],glideV[i][2],i);
+        auto isect = intersector[i]->getFirstIntersection();
+        hitPoint[i] = isect.getWorldIntersectPoint();
+        hitNormal[i] = isect.getWorldIntersectNormal();
+
+        distVec[i] = hitPoint[i] - oPos[i];
+        distVec[i] *= 0.9;
+        hitPoint[i] = oPos[i] + distVec[i];
+        distVec[i] = hitPoint[i] - Tip[i];
+        dists[i] = distVec[i].length();
+        //fprintf(stderr,"hitPoint: %f %f %f\n",hitPoint[i][0],hitPoint[i][1],hitPoint[i][2]);
+        //fprintf(stderr,"Tip: %f %f %f\n",Tip[i][0],Tip[i][1],Tip[i][2]);
+        //fprintf(stderr,"oPos: %f %f %f\n",oPos[i][0],oPos[i][1],oPos[i][2]);
+        //fprintf(stderr,"nPos: %f %f %f\n",nPos[i][0],nPos[i][1],nPos[i][2]);
+        //fprintf(stderr,"distVec: %f %f %f %d\n",distVec[i][0],distVec[i][1],distVec[i][2],i);
+        //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+
+        auto tmp = distVec[i];
+        tmp.normalize();
+        hitNormal[i].normalize();
+        float cangle = hitNormal[i] * (tmp);
+        if (cangle > M_PI_2 || cangle < -M_PI_2)
+        {
+            hitNormal[i] = -hitNormal[i];
         }
+        //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+        //fprintf(stderr,"tmp: %f %f %f %f\n",tmp[0],tmp[1],tmp[2],cangle);
+        hitNormal[i] *= (dists[i]) * cangle;
+        glideV[i] = hitNormal[i] - distVec[i];
+        // fprintf(stderr,"glideV: %f %f %f %d\n",glideV[i][0],glideV[i][1],glideV[i][2],i);
+    }
+
+    if (igroup->containsIntersections())
+    {
+        int i = dists[0]>dists[1] ? 0 : 1;
+
         // get xform matrix
-        dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-        if (dist[0] > dist[1])
-        {
-            //use dist1
-            i = 0;
-        }
-        else
-        {
-            i = 1;
-        }
+        osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
         osg::Matrix tmp;
         tmp.makeTranslate(-distVec[i][0], -distVec[i][1], -distVec[i][2]);
         dcs_mat.postMult(tmp);
@@ -702,6 +683,7 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
         coVRCollaboration::instance()->SyncXform();
         return true;
     }
+
     saveCurrentBaseMatAsOldBaseMat();
     return false;
 }
@@ -2257,7 +2239,7 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    dcs_mat.postMult(applySpeedFactor(delta));
+    dcs_mat.postMult(osg::Matrix::translate(applySpeedFactor(delta)));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
@@ -2414,201 +2396,164 @@ void coVRNavigationManager::doWalkMoveToFloor()
     p0.set(pos[0], pos[1], floorHeight + stepSize);
     q0.set(pos[0], pos[1], floorHeight - stepSize);
 
-    osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
-    ray->set(p0, q0);
+    osg::ref_ptr<osg::LineSegment> ray[2];
+    ray[0] = new osg::LineSegment(p0, q0);
 
     // down segment 2
     p0.set(pos[0], pos[1] + 10, floorHeight + stepSize);
     q0.set(pos[0], pos[1] + 10, floorHeight - stepSize);
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(p0, q0);
+    ray[1] = new osg::LineSegment(p0, q0);
 
-    osgUtil::IntersectVisitor visitor;
-    visitor.setTraversalMask(Isect::Walk);
-    visitor.addLineSegment(ray.get());
-    visitor.addLineSegment(ray2.get());
-
-    VRSceneGraph::instance()->getTransform()->accept(visitor);
-    int num1 = visitor.getNumHits(ray.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    if (num1 || num2)
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
+    for (int i=0; i<2; ++i)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-        if (num1 || num2)
+        intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
+        igroup->addIntersector(intersectors[i]);
+    }
+
+    osgUtil::IntersectionVisitor visitor(igroup);
+    visitor.setTraversalMask(Isect::Walk);
+    VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+    bool haveIsect[2];
+    for (int i=0; i<2; ++i)
+        haveIsect[i] = intersectors[i]->containsIntersections();
+    if (!haveIsect[0] && !haveIsect[1])
+    {
+        oldFloorNode = NULL;
+        return;
+
+    }
+
+    osg::Node *floorNode = NULL;
+
+    float dist = FLT_MAX;
+    osgUtil::LineSegmentIntersector::Intersection isect;
+    if (haveIsect[0])
+    {
+        isect = intersectors[0]->getFirstIntersection();
+        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+        floorNode = isect.nodePath.back();
+    }
+    if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+    {
+        isect = intersectors[1]->getFirstIntersection();
+        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+        floorNode = isect.nodePath.back();
+    }
+
+    //  get xform matrix
+    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+
+    if (floorNode && floorNode == oldFloorNode)
+    {
+        // we are walking on the same object as last time so move with the object if it is moving
+        osg::Matrix modelTransform;
+        modelTransform.makeIdentity();
+        int on = oldNodePath.size() - 1;
+        bool notSamePath = false;
+        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
         {
-            float dist = 0.0;
-			osg::Node *floorNode = NULL;
-			osgUtil::Hit *usedHI = NULL;
-			if (num1 && !num2)
-			{
-				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-				floorNode = hitInformation1.getGeode();
-				usedHI = &hitInformation1;
-
-			}
-			else if (!num1 && num2)
-			{
-				dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-				floorNode = hitInformation2.getGeode();
-				usedHI = &hitInformation2;
-			}
-			else if (num1 && num2)
-			{
-				floorNode = hitInformation1.getGeode();
-				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-				usedHI = &hitInformation1;
-				if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-				{
-					dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-					usedHI = &hitInformation2;
-				}
+            osg::Node*n = isect.nodePath[i];
+            if (n == cover->getObjectsRoot())
+                break;
+            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+            if (t != NULL)
+            {
+                modelTransform = modelTransform * t->getMatrix();
             }
+            // check if this is really the same object as it could be a reused object thus compare the whole NodePath
+            // instead of just the last node
+            if (on < 0 || n != oldNodePath[on])
+            {
+                //oops, not same path
+                notSamePath = true;
+            }
+            on--;
+        }
+        if (notSamePath)
+        {
+            oldFloorMatrix = modelTransform;
+            oldFloorNode = floorNode;
+            oldNodePath = isect.nodePath;
+        }
+        else if (modelTransform != oldFloorMatrix)
+        {
 
-			//  get xform matrix
-			osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-
-			if (floorNode == oldFloorNode)
-			{
-				// we are walking on the same object as last time so move with the object if it is moving
-				osg::Matrix modelTransform;
-				modelTransform.makeIdentity();
-				int on = oldNodePath.size() - 1;
-				bool notSamePath = false;
-				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
-				{
-					osg::Node*n = usedHI->getNodePath()[i];
-					if (n == cover->getObjectsRoot())
-						break;
-					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-					if (t != NULL)
-					{
-						modelTransform = modelTransform * t->getMatrix();
-					}
-					// check if this is really the same object as it could be a reused object thus compare the whole NodePath
-					// instead of just the last node
-					if (on < 0 || n != oldNodePath[on])
-					{
-						//oops, not same path
-						notSamePath = true;
-					}
-					on--;
-				}
-				if (notSamePath)
-				{
-					oldFloorMatrix = modelTransform;
-					oldFloorNode = floorNode;
-					oldNodePath = usedHI->getNodePath();
-				}
-				if(modelTransform != oldFloorMatrix)
-				{
-					
-					//osg::Matrix iT;
-					osg::Matrix iS;
-					osg::Matrix S;
-					osg::Matrix imT;
-					//iT.invert_4x4(dcs_mat);
-					float sf = cover->getScale();
-					S.makeScale(sf, sf, sf);
-					sf = 1.0 / sf;
-					iS.makeScale(sf, sf, sf);
-					imT.invert_4x4(modelTransform);
-					dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
-					oldFloorMatrix = modelTransform;
-					// set new xform matrix
-					VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-					// now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
-					VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-					int num1 = visitor.getNumHits(ray.get());
-					int num2 = visitor.getNumHits(ray2.get());
-					if (num1 || num2)
-					{
-						osgUtil::Hit hitInformation1;
-						osgUtil::Hit hitInformation2;
-						if (num1)
-							hitInformation1 = visitor.getHitList(ray.get()).front();
-						if (num2)
-							hitInformation2 = visitor.getHitList(ray2.get()).front();
-						if (num1 || num2)
-						{
-							float dist = 0.0;
-							osg::Node *floorNode = NULL;
-							osgUtil::Hit *usedHI = NULL;
-							if (num1 && !num2)
-							{
-								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-								floorNode = hitInformation1.getGeode();
-								usedHI = &hitInformation1;
-
-							}
-							else if (!num1 && num2)
-							{
-								dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-								floorNode = hitInformation2.getGeode();
-								usedHI = &hitInformation2;
-							}
-							else if (num1 && num2)
-							{
-								floorNode = hitInformation1.getGeode();
-								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-								usedHI = &hitInformation1;
-								if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-								{
-									dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-									usedHI = &hitInformation2;
-								}
-							}
-						}
-					}
-				}
-
-				
-			}
-
-
-            //  apply translation , so that isectPt is at floorLevel
-            osg::Matrix tmp;
-            tmp.makeTranslate(0, 0, -dist);
-            dcs_mat.postMult(tmp);
-
+            //osg::Matrix iT;
+            osg::Matrix iS;
+            osg::Matrix S;
+            osg::Matrix imT;
+            //iT.invert_4x4(dcs_mat);
+            float sf = cover->getScale();
+            S.makeScale(sf, sf, sf);
+            sf = 1.0 / sf;
+            iS.makeScale(sf, sf, sf);
+            imT.invert_4x4(modelTransform);
+            dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
+            oldFloorMatrix = modelTransform;
             // set new xform matrix
             VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+            // now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
+            //
+            VRSceneGraph::instance()->getTransform()->accept(visitor);
 
+            osgUtil::IntersectionVisitor visitor(igroup);
+            igroup->reset();
+            visitor.setTraversalMask(Isect::Walk);
+            VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-			if ((floorNode != oldFloorNode) && (usedHI != NULL))
-			{
-				osg::Matrix modelTransform;
-				modelTransform.makeIdentity();
-				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
-				{
-					osg::Node*n = usedHI->getNodePath()[i];
-					if (n == cover->getObjectsRoot())
-						break;
-					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-					if (t != NULL)
-					{
-						modelTransform = modelTransform * t->getMatrix();
-					}
-				}
-				oldFloorMatrix = modelTransform;
-				oldNodePath = usedHI->getNodePath();
-			}
-
-			oldFloorNode = floorNode;
-
-            // do not sync with remote, they will do the same
-            // on their side SyncXform();
+            for (int i=0; i<2; ++i)
+                haveIsect[i] = intersectors[i]->containsIntersections();
+            dist = FLT_MAX;
+            if (haveIsect[0])
+            {
+                isect = intersectors[0]->getFirstIntersection();
+                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+                floorNode = isect.nodePath.back();
+            }
+            if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+            {
+                isect = intersectors[1]->getFirstIntersection();
+                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+                floorNode = isect.nodePath.back();
+            }
         }
     }
-	else
-	{
-		oldFloorNode = NULL;
-	}
+
+
+    //  apply translation , so that isectPt is at floorLevel
+    osg::Matrix tmp;
+    tmp.makeTranslate(0, 0, -dist);
+    dcs_mat.postMult(tmp);
+
+    // set new xform matrix
+    VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+
+    if ((floorNode != oldFloorNode) && !isect.nodePath.empty())
+    {
+        osg::Matrix modelTransform;
+        modelTransform.makeIdentity();
+        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
+        {
+            osg::Node*n = isect.nodePath[i];
+            if (n == cover->getObjectsRoot())
+                break;
+            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+            if (t != NULL)
+            {
+                modelTransform = modelTransform * t->getMatrix();
+            }
+        }
+        oldFloorMatrix = modelTransform;
+        oldNodePath = isect.nodePath;
+    }
+
+    oldFloorNode = floorNode;
+
+    // do not sync with remote, they will do the same
+    // on their side SyncXform();
 	
     // coVRCollaboration::instance()->SyncXform();
 }

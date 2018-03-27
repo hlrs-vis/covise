@@ -8,15 +8,16 @@
 #include <list>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscManeuver.h>
-
-
+class Action;
 class Maneuver: public OpenScenario::oscManeuver
 {
 
 
 public:
+    std::vector<Action*> actionVector;
     std::list<Entity*> activeEntityList;
-    std::list<Entity*> finishedEntityList;
+    int finishedEntityActions;
+    int activeEntites;
     std::string name;
     std::string maneuverType;
     std::string routeCatalogReference;
@@ -43,8 +44,8 @@ public:
     virtual void finishedParsing();
 
     std::string &getName();
-    void changeSpeedOfEntity(Entity *aktivCar, float dt);
-    void initialize(std::list<Entity *> &activeEntityList_temp);
+    void changeSpeedOfEntity(Entity *aktivCar, float dt, std::list<Entity *> *activeEntityList);
+    void initialize(int numEntities);
 
 };
 

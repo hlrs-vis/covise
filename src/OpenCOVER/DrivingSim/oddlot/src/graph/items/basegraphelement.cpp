@@ -69,6 +69,20 @@ BaseGraphElement<T>::~BaseGraphElement()
 }
 
 template<class T>
+T *
+BaseGraphElement<T>::This()
+{
+    return static_cast<T *>(this);
+}
+
+template<class T>
+const T *
+BaseGraphElement<T>::This() const
+{
+    return static_cast<const T *>(this);
+}
+
+template<class T>
 void
 BaseGraphElement<T>::init()
 {
@@ -88,14 +102,14 @@ BaseGraphElement<T>::init()
 
     // Selection //
     //
-    setFlag(QGraphicsItem::ItemIsSelectable, false); // not selectable by default
+    This()->setFlag(QGraphicsItem::ItemIsSelectable, false); // not selectable by default
 
     if (dataElement_)
     {
         // Selection/Hiding //
         //
-        setVisible(!dataElement_->isElementHidden());
-        setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+        This()->setVisible(!dataElement_->isElementHidden());
+        This()->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
         //setSelected(dataElement_->isElementSelected()); // will be ignored, if not selectable
 
         // Observer //
@@ -110,8 +124,8 @@ BaseGraphElement<T>::setSelectable()
 {
     if (dataElement_)
     {
-        setFlag(QGraphicsItem::ItemIsSelectable, true);
-        setSelected(dataElement_->isElementSelected());
+        This()->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        This()->setSelected(dataElement_->isElementSelected());
     }
 }
 
@@ -244,11 +258,11 @@ BaseGraphElement<T>::setHighlighting(bool highlight)
 
     if (highlight)
     {
-        setOpacity(highlightOpacity_);
+        This()->setOpacity(highlightOpacity_);
     }
     else
     {
-        setOpacity(normalOpacity_);
+        This()->setOpacity(normalOpacity_);
     }
 }
 
@@ -300,7 +314,7 @@ BaseGraphElement<T>::updateObserver()
     //
     if ((changes & DataElement::CDE_HidingChange))
     {
-        setVisible(!dataElement_->isElementHidden()); // Do this before handling the selection!
+        This()->setVisible(!dataElement_->isElementHidden()); // Do this before handling the selection!
     }
 
     // Selection //
@@ -309,10 +323,10 @@ BaseGraphElement<T>::updateObserver()
     {
         // Selection //
         //
-        if (isSelected() != dataElement_->isElementSelected())
+        if (This()->isSelected() != dataElement_->isElementSelected())
         {
             // DO NOT LET THE OBSERVER CALL itemChange() WHEN YOU ARE ALREADY IN IT!
-            setSelected(dataElement_->isElementSelected());
+            This()->setSelected(dataElement_->isElementSelected());
         }
 
         // Highlighting //

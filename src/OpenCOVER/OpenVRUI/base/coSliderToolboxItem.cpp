@@ -94,17 +94,7 @@ int coSliderToolboxItem::hit(vruiHit *hit)
     if (preReturn != ACTION_UNDEF)
         return preReturn;
 
-    float oldMin = getMin();
-    float oldMax = getMax();
-    float oldVal = getValue();
-    bool oldInteger = isInteger();
-
     slider->hit(hit);
-
-    bool changed = (oldMin != getMin() || oldMax != getMax() || oldVal != getValue() || oldInteger != isInteger());
-
-    if (changed && myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 
     return ACTION_CALL_ON_MISS;
 }
@@ -138,8 +128,6 @@ void coSliderToolboxItem::doActionPress()
         slider->joystickUp();
     else
         slider->joystickDown();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 /**
   * move slider to upper
@@ -151,8 +139,6 @@ void coSliderToolboxItem::doSecondActionPress()
         slider->joystickDown();
     else
         slider->joystickUp();
-    if (myTwin)
-        myTwin->updateContentRange(getMin(), getMax(), getValue(), isInteger(), 0.0f);
 }
 
 /** Set the slider value.
@@ -293,34 +279,6 @@ bool coSliderToolboxItem::isOfClassName(const char *classname) const
     return false;
 }
 
-bool coSliderToolboxItem::updateContentRange(float min, float max, float value,
-                                             bool isInteger, float)
-{
-    setMax(max);
-    setMin(min);
-    setValue(value);
-    setInteger(isInteger);
-    if (listener)
-        listener->menuEvent(this);
-    return true;
-}
-
-bool coSliderToolboxItem::updateContentFloat(float value)
-{
-    setValue(value);
-    if (listener)
-        listener->menuEvent(this);
-    return true;
-}
-
-bool coSliderToolboxItem::updateContentReleased()
-{
-    if (listener)
-        listener->menuReleaseEvent(this);
-
-    return true;
-}
-
 void coSliderToolboxItem::sliderEvent(coSlider *s)
 {
     if (s == slider && listener)
@@ -331,9 +289,6 @@ void coSliderToolboxItem::sliderReleasedEvent(coSlider *s)
 {
     if (s == slider && listener)
         listener->menuReleaseEvent(this);
-
-    if (myTwin != 0)
-        myTwin->updateContentReleased();
 }
 
 //set if item is active
@@ -357,6 +312,8 @@ void coSliderToolboxItem::setActive(bool a)
 void coSliderToolboxItem::setLabel(const std::string &name)
 {
     std::string labelstr = "[" + name + "]";
+    if (name.empty())
+        labelstr.clear();
     label->setString(labelstr);
 }
 }

@@ -179,6 +179,7 @@ SET(VRML_SOURCES
   VrmlNodeSpotLight.cpp
   VrmlNodeSwitch.cpp
   VrmlNodeText.cpp
+  VrmlNodeTexture.cpp
   VrmlNodeTextureCoordinate.cpp
   VrmlNodeTextureCoordinateGenerator.cpp
   VrmlNodeTextureTransform.cpp

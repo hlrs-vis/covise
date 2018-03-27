@@ -38,7 +38,6 @@
 #include <osg/TexEnv>
 
 #include <osgDB/ReadFile>
-#include <osgUtil/IntersectVisitor>
 
 #include <config/CoviseConfig.h>
 

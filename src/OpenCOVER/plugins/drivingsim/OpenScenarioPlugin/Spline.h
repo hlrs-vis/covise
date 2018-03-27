@@ -7,13 +7,13 @@
 #include <math.h>
 #include <iostream>
 #include <Position.h>
-
+#include "Entity.h"
 
 class Spline
 {
 
 public:
-    Spline(Position *initPos);
+    Spline();
     ~Spline();
 
     // Coordinates
@@ -23,16 +23,20 @@ public:
     double x1;
     double y1;
 
+
     //polynomial
     double a0;
     double b0;
     double c0; // is zero
     double d0;
 
+    int n; // number of vertices in spline
     double step;
+    std::vector<osg::Vec3> splineTraj;
 
-    std::vector<double> xx;
-    std::vector<double> yy;
+    osg::Vec3 getSplinePos(int i);
+
+    void poly3Spline(Position*);
 
 };
 

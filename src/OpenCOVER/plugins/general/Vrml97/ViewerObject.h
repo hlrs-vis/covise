@@ -26,6 +26,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #endif
+#include <vector>
 #include <osg/GL>
 #include <osg/Node>
 #include <osg/Vec2>
@@ -37,16 +38,6 @@
 #include <vrml97/vrml/Viewer.h>
 #include <vrml97/vrml/VrmlNode.h>
 
-/*
-#include <cover/coVRPluginSupport.h>
-*/
-
-#include <util/DLinkList.h>
-/*
-#include <cover/SpinMenu.h>
-#include <cover/PointerTooltip.h>
-*/
-
 #include <osg/TexGen>
 #include <osg/TexEnv>
 #include <osg/TexMat>
@@ -57,13 +48,11 @@
 class coCubeMap;
 class osgViewerObject;
 class ViewerOsg;
-//class pfViewerBillboard;
 
 using namespace vrml;
 using namespace opencover;
 
-typedef covise::DLinkList<osgViewerObject *> objList;
-//typedef DLinkList< pfViewerBillboard* > billboardList;
+typedef std::vector<osgViewerObject *> objList;
 
 class coSensiveSensor;
 

@@ -52,8 +52,6 @@ protected:
     std::string myName; ///< name of the item (internal
     ///< symbolic name, or displayed as label)
 
-    coMenuItem *myTwin; ///< pointer to a cloned 'twin' version (toolbar/menu) of this item. On changes the current content state should be forwarded to the twin so it can update is representation to it. (see 'updateContent()' methods)
-
     bool active_; ///< flag if item is active
 
 public:
@@ -72,19 +70,6 @@ public:
 
     virtual const char *getName() const;
     virtual coUIElement *getUIElement();
-
-    virtual coMenuItem *getTwin(); ///get the twin MenuItem
-    virtual void setTwin(coMenuItem *twin); /// set the twin MenuItem
-
-    virtual bool updateContentBool(bool); /// for boolean state transfers
-    virtual bool updateContentPressed(); /// for boolean state transfers
-    virtual bool updateContentReleased(); /// for boolean state transfers
-    virtual bool updateContentInt(int); /// for discrete state transfers
-    virtual bool updateContentFloat(float); /// for floating point state transfers
-    /// for floating point state transfers between fixed boundaries
-    virtual bool updateContentRange(float, float, float, bool, float);
-    virtual bool updateContentPointer(void *); // for custom data state transfers. The interpretation is up to the receiving item.
-    /// The 'updateContent()' methods are activated if the item's content should be changed from outside. The proper reaction is to transfer the new content into the item's internal state and update its representation immediately.<BR>Several content types are known, the item has to convert or ignore them depending on it's own content.<BR>These methods are to be called by the 'twin' item (see 'myTwin' attribute).<BR>The return value indicates if the update was sucessful (accepted type, etc...).
 
     /// get the Element's classname
     virtual const char *getClassName() const;

@@ -18,7 +18,7 @@
 
 
 #include <QtSvg/QGraphicsSvgItem>
-#include "src/graph/items/baseGraphElement.hpp"
+#include "src/graph/items/basegraphelement.hpp"
 
 
 class SVGElement : public BaseGraphElement<QGraphicsSvgItem>

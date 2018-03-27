@@ -170,7 +170,7 @@
     </Vrml97>
 
     <VncClient value="OFF" rfbPort="31590" rfbHost="172.26.80.190" />
-    <AKToolbar menu="ON" value="OFF">
+    <AKToolbar menu="Off" value="OFF">
      <Scale value="0.6" />
      <Attachment value="TOP" />
      <Position x="-170" y="0" z="640" />

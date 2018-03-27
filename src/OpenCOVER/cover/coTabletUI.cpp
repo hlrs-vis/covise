@@ -1734,26 +1734,29 @@ void coTUITextureTab::resend(bool create)
 
 void coTUITextureTab::tryConnect()
 {
-    serverHost = NULL;
-    localHost = new Host("localhost");
-
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
-    serverHost = tui()->getServerHost();
-    conn = new ClientConnection(serverHost, texturePort, 0, (sender_type)0, 0);
-    if (!conn->is_connected()) // could not open server port
-    {
-#ifndef _WIN32
-        if (errno != ECONNREFUSED)
-        {
-            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                    localHost->getName(), texturePort, strerror(errno));
-        }
-#else
-        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
-#endif
-        delete conn;
-        conn = NULL;
 
+    if (serverHost)
+    {
+        conn = new ClientConnection(serverHost, texturePort, 0, (sender_type)0, 0);
+        if (!conn->is_connected()) // could not open server port
+        {
+#ifndef _WIN32
+            if (errno != ECONNREFUSED)
+            {
+                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                        localHost->getName(), texturePort, strerror(errno));
+            }
+#else
+            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
+#endif
+            delete conn;
+            conn = NULL;
+        }
+    }
+
+    if (!conn && localHost)
+    {
         conn = new ClientConnection(localHost, texturePort, 0, (sender_type)0, 0);
         if (!conn->is_connected()) // could not open server port
         {
@@ -5431,8 +5434,6 @@ bool coTabletUI::update()
                 {
                     fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
                             serverHost->getName(), port, strerror(errno));
-                    delete serverHost;
-                    serverHost = NULL;
                 }
 #else
                 fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
@@ -5554,6 +5555,11 @@ bool coTabletUI::update()
     }
     if (serverConn && serverConn->check_for_input())
     {
+        if (conn)
+        {
+            delete conn;
+            conn = NULL;
+        }
         conn = serverConn->spawn_connection();
         if (conn && conn->is_connected())
         {

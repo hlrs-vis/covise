@@ -38,7 +38,6 @@
 #include <osg/LineSegment>
 #include <osg/Matrix>
 #include <osg/Vec3>
-#include <osgUtil/IntersectVisitor>
 #include <cover/coVRAnimationManager.h>
 
 #include <impl/surfel.hpp>

@@ -219,6 +219,8 @@ public:
         return clipPlanes[num].get();
     }
 
+	void preparePluginUnload();
+
     //! returns true if clipping is on
     bool isClippingOn() const;
 
@@ -488,7 +490,7 @@ public:
     };
     /// @endcond INTERNAL
 
-    vrui::coToolboxMenu *getToolBar() const;
+    vrui::coToolboxMenu *getToolBar(bool create = false);
     void setToolBar(vrui::coToolboxMenu *tb);
 
     //! use only during coVRPlugin::update()
@@ -537,8 +539,8 @@ private:
     mutable coPointerButton *pointerButton = nullptr;
     mutable coPointerButton *mouseButton = nullptr;
     mutable coPointerButton *relativeButton = nullptr;
-    vrui::coToolboxMenu *toolBar = nullptr;
-    vrui::coRowMenu *m_vruiMenu = nullptr;
+    vrui::coToolboxMenu *m_toolBar = nullptr;
+    vrui::coMenu *m_vruiMenu = nullptr;
     double interactorScale = 1.;
 
     int numClipPlanes;

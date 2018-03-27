@@ -342,7 +342,7 @@ void Vive::postFrame()
 		{
 			maxBodyNumber = nDevice;
 			if (m_DeviceID[nDevice] > maxBodyNumber)
-				maxBodyNumber == m_DeviceID[nDevice];
+				maxBodyNumber = m_DeviceID[nDevice];
 		}
 	}
 
@@ -350,7 +350,7 @@ void Vive::postFrame()
 
 	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
 	if (maxBodyNumber + 1 > bodyMatSize)
-		bodyMatSize + maxBodyNumber;
+		bodyMatSize = maxBodyNumber;
 	if (bodyMatSize > m_bodyMatrices.size())
 	{
 		m_mutex.lock();

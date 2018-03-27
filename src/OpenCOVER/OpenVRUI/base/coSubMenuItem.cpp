@@ -293,12 +293,6 @@ void coSubMenuItem::closeSubmenu()
         subMenu->setVisible(open);
     }
 
-    // contact twin
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
-    }
-
     if (vruiRendererInterface::the()->getJoystickManager())
         vruiRendererInterface::the()->getJoystickManager()->closedMenu(subMenu, myMenu);
 }
@@ -324,14 +318,9 @@ void coSubMenuItem::openSubmenu()
 
         if (attachment == coUIElement::REPLACE)
         {
-            myMenu->setVisible(false);
+            if (myMenu)
+                myMenu->setVisible(false);
         }
-    }
-
-    // contact twin
-    if (myTwin != 0)
-    {
-        myTwin->updateContentBool(open);
     }
 
     if (vruiRendererInterface::the()->getJoystickManager())
@@ -351,7 +340,10 @@ void coSubMenuItem::positionSubmenu()
 
     vruiTransformNode *node = background->getDCS();
     if (attachment == coUIElement::REPLACE)
-        node = myMenu->getDCS();
+    {
+        if (myMenu)
+            node = myMenu->getDCS();
+    }
 
     node->convertToWorld(transMatrix);
 
@@ -376,7 +368,9 @@ void coSubMenuItem::positionSubmenu()
         break;
     case coUIElement::REPLACE:
         sm_x = 0;
-        sm_y = myMenu->getUIElement()->getHeight();
+        sm_y = 0;
+        if (myMenu)
+            sm_y = myMenu->getUIElement()->getHeight();
         break;
     }
     // generally set new menus to front
@@ -387,47 +381,13 @@ void coSubMenuItem::positionSubmenu()
     menuPosition->preTranslated(sm_x, sm_y, sm_z, transMatrix);
 
     // set menu position and scale
-    subMenu->setTransformMatrix(menuPosition, myMenu->getScale());
+    if (myMenu)
+        subMenu->setTransformMatrix(menuPosition, myMenu->getScale());
+    else
+        subMenu->setTransformMatrix(menuPosition);
 
     vruiRendererInterface::the()->deleteMatrix(transMatrix);
     vruiRendererInterface::the()->deleteMatrix(menuPosition);
-}
-
-bool coSubMenuItem::updateContentBool(bool newState)
-{
-    // copy new status
-    open = newState;
-
-    // set icon state
-    subMenuIcon->setState(open);
-
-    // the submenu was opened by a twin,
-    // so open the menu and then command the twin
-    // to position it. If the twin fails,
-    // position it myself.
-    if (subMenu)
-    {
-        subMenu->setVisible(open);
-
-        if (open)
-        {
-            if (myTwin)
-            {
-                if (!myTwin->updateContentPointer((void *)subMenu))
-                {
-                    positionSubmenu();
-                }
-            }
-            else
-            {
-                // this one is strange. We received updateContent
-                // without having a registered twin!
-                positionSubmenu();
-            }
-        }
-    }
-
-    return true;
 }
 
 void coSubMenuItem::setAttachment(int newatt)

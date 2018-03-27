@@ -16,6 +16,7 @@
 #include "coVRMSController.h"
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
+#include <OpenVRUI/coToolboxMenu.h>
 #include <config/CoviseConfig.h>
 #include <assert.h>
 #include <net/tokenbuffer.h>
@@ -308,7 +309,7 @@ coMenu *coVRPluginSupport::getMenu()
     {
         if (cover->debugLevel(4))
         {
-            fprintf(stderr, "coVRPluginSupport::getMenu, creating\n");
+            fprintf(stderr, "coVRPluginSupport::getMenu, creating menu\n");
         }
         osg::Matrix dcsTransMat, dcsRotMat, dcsMat, preRot, tmp;
         float xp = 0.0, yp = 0.0, zp = 0.0;
@@ -316,7 +317,6 @@ coMenu *coVRPluginSupport::getMenu()
         float size = 1;
         m_vruiMenu = new coRowMenu("COVER");
         m_vruiMenu->setVisible(true);
-        //menu->myMenu->setMenuListener(menu);
 
         xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
         yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);
@@ -337,8 +337,9 @@ coMenu *coVRPluginSupport::getMenu()
         OSGVruiMatrix menuMatrix;
         menuMatrix.setMatrix(dcsMat);
         m_vruiMenu->setTransformMatrix(&menuMatrix);
-        m_vruiMenu->setScale(size * (cover->getSceneSize() / 2500.0));
+        m_vruiMenu->setScale(size * (getSceneSize() / 2500.0));
     }
+
     return m_vruiMenu;
 }
 
@@ -721,14 +722,74 @@ bool coVRPluginSupport::restrictOn() const
     return coVRNavigationManager::instance()->restrictOn();
 }
 
-coToolboxMenu *coVRPluginSupport::getToolBar() const
+coToolboxMenu *coVRPluginSupport::getToolBar(bool create)
 {
-    return toolBar;
+    if (create && !m_toolBar)
+    {
+        auto tb = new coToolboxMenu("Toolbar");
+
+        //////////////////////////////////////////////////////////
+        // position AK-Toolbar and make it visible
+        float x = coCoviseConfig::getFloat("x", "COVER.Plugin.AKToolbar.Position", -400);
+        float y = coCoviseConfig::getFloat("y", "COVER.Plugin.AKToolbar.Position", -200);
+        float z = coCoviseConfig::getFloat("z", "COVER.Plugin.AKToolbar.Position", 0);
+
+        float h = coCoviseConfig::getFloat("h", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float p = coCoviseConfig::getFloat("p", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float r = coCoviseConfig::getFloat("r", "COVER.Plugin.AKToolbar.Orientation", 0);
+
+        float scale = coCoviseConfig::getFloat("COVER.Plugin.AKToolbar.Scale", 0.2);
+
+        int attachment = coUIElement::TOP;
+        std::string att = coCoviseConfig::getEntry("COVER.Plugin.AKToolbar.Attachment");
+        if (att != "")
+        {
+            if (!strcasecmp(att.c_str(), "BOTTOM"))
+            {
+                attachment = coUIElement::BOTTOM;
+            }
+            else if (!strcasecmp(att.c_str(), "LEFT"))
+            {
+                attachment = coUIElement::LEFT;
+            }
+            else if (!strcasecmp(att.c_str(), "RIGHT"))
+            {
+                attachment = coUIElement::RIGHT;
+            }
+        }
+
+        //float sceneSize = cover->getSceneSize();
+
+        vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *trans = vruiRendererInterface::the()->createMatrix();
+
+        rot->makeEuler(h, p, r);
+        trans->makeTranslate(x, y, z);
+        mat->makeIdentity();
+        mat->mult(rot);
+        mat->mult(trans);
+        tb->setTransformMatrix(mat);
+        tb->setScale(scale);
+        tb->setVisible(true);
+        tb->fixPos(true);
+        tb->setAttachment(attachment);
+
+        m_toolBar = tb;
+    }
+
+    return m_toolBar;
 }
 
 void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
 {
-    toolBar = tb;
+    m_toolBar = tb;
+}
+
+void coVRPluginSupport::preparePluginUnload()
+{
+	cover->intersectedDrawable = nullptr; // intersectedDrawable might be a node from this plugin
+	cover->intersectedNode = nullptr;
 }
 
 coVRPluginSupport::coVRPluginSupport()
@@ -768,7 +829,7 @@ coVRPluginSupport::coVRPluginSupport()
     /// path for the viewpoint file: initialized by 1st param() call
     intersectedNode = NULL;
 
-    toolBar = NULL;
+    m_toolBar = NULL;
     numClipPlanes = coCoviseConfig::getInt("COVER.NumClipPlanes", 3);
     for (int i = 0; i < numClipPlanes; i++)
     {
@@ -831,7 +892,10 @@ coVRPluginSupport::~coVRPluginSupport()
         m_notifyBuf.pop_back();
     }
 
+	intersectedDrawable = nullptr;
+	intersectedNode = nullptr;
     cover = NULL;
+
 }
 
 int coVRPluginSupport::getNumClipPlanes()

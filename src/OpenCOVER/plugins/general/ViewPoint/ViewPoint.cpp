@@ -27,6 +27,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
 #include <net/message_types.h>
 #include <net/message.h>
 #include <util/unixcompat.h>
@@ -93,7 +94,7 @@ bool ViewPoints::init()
     actSharedVPData->index = -1;
     actSharedVPData->isEnabled = 0;
 
-    flyingStatus = 0;
+    flyingStatus = false;
     fileNumber = 0;
     record = false;
     videoBeingCaptured = false;
@@ -191,11 +192,47 @@ bool ViewPoints::init()
     flightMenu_ = new ui::Menu(viewPointMenu_, "FlightConfig");
     flightMenu_->setText("Flight configuration");
 
-    runButton_ = new ui::Action(viewPointMenu_, "RunFlight");
-    runButton_->setText("Run flight");
-    runButton_->setCallback([this](){
-        completeFlight();
+
+    runMenu_ = new ui::Menu(viewPointMenu_, "run");
+    runMenu_->setText("run flight");
+
+
+    runButton = new ui::Button(runMenu_, "RunFlight");
+    runButton->setText("Run flight");
+    runButton->setCallback([this](bool state){
+        completeFlight(state);
     });
+    
+    pauseButton = new ui::Button(runMenu_, "Pause");
+    pauseButton->setText("Pause flight");
+    pauseButton->setState(false);
+    pauseButton->setCallback([this](bool state){
+        pauseFlight(state);
+    });
+    
+    speedSlider = new ui::Slider(runMenu_, "animSpeed");
+    speedSlider->setBounds(0., 30.);
+    speedSlider->setValue(flightTime);
+    speedSlider->setIntegral(false);
+    speedSlider->setText("flight speed");
+    speedSlider->setPresentation(ui::Slider::AsDial);
+    speedSlider->setCallback([this](double value, bool released){
+        flightTime = value;
+    });
+    animPositionSlider = new ui::Slider(runMenu_, "animPosition");
+    animPositionSlider->setBounds(0., 100.);
+    animPositionSlider->setValue(0.0);
+    animPositionSlider->setIntegral(false);
+    animPositionSlider->setText("flight time");
+    //animPositionSlider->setPresentation(ui::Slider::AsSilder);
+    animPositionSlider->setCallback([this](double value, bool released){
+        flightTime = value;
+	float delta = 100.0/(viewpoints.size()-1);
+	flight_index = value/delta;
+	float lambda = (value - flight_index * delta)/delta * flightTime;
+	initTime = -((lambda * flightTime) - cover->frameTime());
+    });
+    
 
     // Edit VP menu
 
@@ -626,7 +663,7 @@ bool ViewPoints::init2()
 
     updateSHMData();
     if (loopMode)
-        completeFlight();
+        completeFlight(true);
 
     return true;
 }
@@ -880,7 +917,7 @@ void ViewPoints::message(int, int, int, const void *data)
     if (strncmp(chbuf, "completeFlight", strlen("completeFlight")) == 0)
     {
         //cerr << "calling completeFlight" << endl;
-        completeFlight();
+        completeFlight(true);
     }
 
     if (strncmp(chbuf, "loadViewpoint", strlen("loadViewpoint")) == 0)
@@ -1041,11 +1078,10 @@ void ViewPoints::key(int type, int keySym, int mod)
                 curr_coord = m;
                 curr_scale = cover->getScale();
 
-                struct timeval tp;
-                gettimeofday(&tp, NULL);
-                initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+                double initTime = cover->frameTime();
 
-                flyingStatus = 1;
+                flyingStatus = true;
+	        runButton->setState(flyingStatus);
             }
             else
             {
@@ -1070,7 +1106,7 @@ void ViewPoints::key(int type, int keySym, int mod)
     }
     if (keySym == osgGA::GUIEventAdapter::KEY_KP_9)
     {
-        completeFlight();
+        completeFlight(true);
     }
 //#ifndef _WIN32
     // QuickNav
@@ -1810,20 +1846,22 @@ void ViewPoints::preFrame()
     if (!activeVP)
     {
         if (loopMode)
-            completeFlight();
+            completeFlight(true);
     }
 
     if (flyingStatus)
     {
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        double thisTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double thisTime = cover->frameTime();
 
         float lambda = (thisTime - initTime) / flightTime;
         //fprintf(stderr,"flyingStatus thisTime=%f initTime=%f lambda=%f\n", thisTime,initTime,lambda);
         if (lambda < 0)
             lambda = 0;
+	    
+	float delta = 100.0/(viewpoints.size()-1);
+	
+        animPositionSlider->setValue((flight_index + lambda)* delta);
 
         Matrix rotMat, initialMat, destMat;
 
@@ -1974,7 +2012,8 @@ void ViewPoints::preFrame()
                 // prescale scales translation
                 m.preMultScale(Vec3(curr_scale, curr_scale, curr_scale));
                 flightPathVisualizer->updateCamera(m);
-                flyingStatus = 0;
+                flyingStatus = false;
+	        runButton->setState(flyingStatus);
             }
             else
             {
@@ -1991,7 +2030,7 @@ void ViewPoints::preFrame()
             //===================================================
             if (flight_index > 0)
             {
-                flyingStatus = 1;
+                flyingStatus = true;
                 while (flight_index > 0 && !viewpoints[viewpoints.size() - flight_index]->getFlightState())
                 {
                     flight_index--;
@@ -2002,14 +2041,16 @@ void ViewPoints::preFrame()
                     flight_index--;
                 }
                 else
-                    flyingStatus = 0;
+                    flyingStatus = false;
+	        runButton->setState(flyingStatus);
             }
             else //set the destination viewpoint
             {
                 updateViewPointIndex();
-                flyingStatus = 0;
+                flyingStatus = false;
+	        runButton->setState(flyingStatus);
                 if (loopMode)
-                    completeFlight();
+                    completeFlight(true);
             }
         } // end else lambda
     } //end flying status
@@ -2082,9 +2123,7 @@ void ViewPoints::preFrame()
     }
     if (turnTableStep_)
     {
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        double thisTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double thisTime = cover->frameTime();;
 
         float lambda = (thisTime - turnTableStepInitTime_) / flightTime;
         if (lambda < 0)
@@ -2226,8 +2265,10 @@ void ViewPoints::startRecord()
         perror("Animation.wrl");
 }
 
-void ViewPoints::completeFlight()
+void ViewPoints::completeFlight(bool state)
 {
+    if(state)
+    {
     tangentIn = tangentOut = Vec3(0, 0, 0);
     int num = viewpoints.size() - 1;
     flight_index = num;
@@ -2261,14 +2302,32 @@ void ViewPoints::completeFlight()
         curr_coord = m;
         curr_scale = cover->getScale();
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        initTime = cover->frameTime();
 
-        flyingStatus = 1;
+        flyingStatus = true;
         activeVP = viewpoints[num - flight_index];
         updateViewPointIndex();
     }
+    }
+    else
+    {
+        flyingStatus = false;
+    }
+    runButton->setState(flyingStatus);
+}
+
+void ViewPoints::pauseFlight(bool state)
+{
+	static double pauseTime = 0.0;
+        flyingStatus = state;
+	if(state)
+	{
+	   pauseTime = cover->frameTime();
+	}
+	else
+	{
+	   initTime += cover->frameTime()-pauseTime;
+	}
 }
 
 // this methods is called also from gui msg to cover here we should not send back a msg
@@ -2368,9 +2427,8 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
             lastVP = viewpoints[numberOfDefaultVP];
         }
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+	
+        initTime = cover->frameTime();
         // add time offset if we have an active Flight
         // if (lastVP != NULL && lastVP->equalVP(m) && flightmanager->activeFlight)
         // {
@@ -2397,7 +2455,8 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
         //    curr_rotationMode = Interpolator::QUATERNION;
         // }
 
-        flyingStatus = 1;
+        flyingStatus = true;
+	runButton->setState(flyingStatus);
     }
     else
     {
@@ -2921,9 +2980,7 @@ void ViewPoints::turnTableStep()
         turnTableAnimation_ = false;
     }
 
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    turnTableStepInitTime_ = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double turnTableStepInitTime_ = cover->frameTime();
     osg::Matrix m1, m2, m;
     turnTableStep_ = true;
     VRSceneGraph::instance()->scaleAllObjects();

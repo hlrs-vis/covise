@@ -43,32 +43,27 @@ public:
     coSubMenuToolboxItem(const std::string &name);
     virtual ~coSubMenuToolboxItem();
 
-    int hit(vruiHit *hit);
-    void miss();
+    int hit(vruiHit *hit) override;
+    void miss() override;
 
-    virtual void selected(bool select); ///< MenuItem is selected via joystick
-    virtual void doActionRelease(); ///< Action is called via joystick
+    virtual void selected(bool select) override; ///< MenuItem is selected via joystick
+    virtual void doActionRelease() override; ///< Action is called via joystick
 
-    virtual void closeSubmenu();
-    virtual void openSubmenu();
+    virtual void setMenu(coMenu *menu) override;
+    virtual void closeSubmenu() override;
+    virtual void openSubmenu() override;
 
-    virtual void setAttachment(int attachment) = 0;
-
-    /// sets the icon states
-    virtual bool updateContentBool(bool);
-
-    /// moves the pointed submenu to new position and scale
-    virtual bool updateContentPointer(void *);
+    virtual void setAttachment(int attachment) override = 0;
 
     /// functions activates or deactivates the item
-    virtual void setActive(bool a);
+    virtual void setActive(bool a) override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
+    virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(const char *) const;
+    virtual bool isOfClassName(const char *) const override;
 
-    void positionSubmenu();
+    void positionSubmenu() override;
 };
 }
 #endif

@@ -42,7 +42,6 @@ SET(BASE_SOURCES
   coLabelMenuItem.cpp
   coLabelSubMenuToolboxItem.cpp
   coMenu.cpp
-  coMenuChangeListener.cpp
   coMenuContainer.cpp
   coMenuItem.cpp
   coNavInteraction.cpp
@@ -160,7 +159,6 @@ SET(BASE_HEADERS
   ../coLabelMenuItem.h
   ../coLabelSubMenuToolboxItem.h
   ../coMenu.h
-  ../coMenuChangeListener.h
   ../coMenuContainer.h
   ../coMenuItem.h
   ../coNavInteraction.h

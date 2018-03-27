@@ -22,7 +22,7 @@ public:
 	virtual void finishedParsing();
     void initialize(int verticesCounter);
     osg::Vec3 getAbsolute(Entity* currentEntity);
-    double getReference(int visitedVertices);
+    float getReference(int visitedVertices);
     double t0;
     double t1;
     double dt;

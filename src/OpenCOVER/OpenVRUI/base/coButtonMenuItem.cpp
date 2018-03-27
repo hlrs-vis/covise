@@ -105,18 +105,10 @@ int coButtonMenuItem::hit(vruiHit *hit)
     if (buttons->wasPressed())
     {
         pressed = true;
-
-        // feed state to twin
-        if (myTwin != 0)
-            myTwin->updateContentBool(true);
     }
 
     if (buttons->wasReleased() && !vruiRendererInterface::the()->isJoystickActive())
     {
-        // feed state to twin
-        if (myTwin != 0)
-            myTwin->updateContentBool(false);
-
         if (pressed && listener)
             listener->menuEvent(this);
 
@@ -143,8 +135,6 @@ void coButtonMenuItem::miss()
 void coButtonMenuItem::selected(bool select)
 {
     background->setHighlighted(select);
-    if (myTwin != 0)
-        myTwin->updateContentBool(true);
     coRowMenuItem::selected(select);
 }
 
@@ -154,28 +144,8 @@ void coButtonMenuItem::selected(bool select)
   */
 void coButtonMenuItem::doActionRelease()
 {
-    // feed state to twin
-    if (myTwin != 0)
-        myTwin->updateContentBool(false);
-
     if (listener)
         listener->menuEvent(this);
-}
-
-bool coButtonMenuItem::updateContentBool(bool newContent)
-{
-    // this button only works as 'key' button, so
-    // only react if button was released after a push
-    if (lastContent && !newContent)
-    {
-        // activate listener
-        if (listener)
-            listener->menuEvent(this);
-    }
-
-    lastContent = newContent;
-
-    return true;
 }
 
 const char *coButtonMenuItem::getClassName() const

@@ -4,8 +4,12 @@
 #include<string>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <iostream>
-//#include "Spline.h"
+#include <math.h>
+
 class Spline;
+class ReferencePosition;
+class Action;
+class Maneuver;
 class Entity {
 
 public:
@@ -19,24 +23,26 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
+    int actionCounter;
 
-    // Splines
-    std::string activeShape;
-    Spline *spline;
 
+    ReferencePosition* refPos;
+    ReferencePosition* newRefPos;
+    //void updateRefPos();
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
     void setInitEntityPosition(osg::Vec3 init);
-    void setInitEntityPosition(osg::Vec3 init, osg::Vec3 initDirVec);
-    void setInitEntityPosition(osg::Matrix m);
     void setInitEntityPosition(Road *r);
+    void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
+    void longitudinalSpeedAction(Maneuver *maneuver, double init_targetSpeed, int shape);
+    void resetActionAttributes();
 
     float &getSpeed();
-    osg::Vec3 &getPosition();
+    osg::Vec3 getPosition();
     void setPosition(osg::Vec3 &newPosition);
     void setDirection(osg::Vec3 &newDirection);
 
@@ -49,16 +55,19 @@ public:
     int visitedVertices;
     float totalDistance;
     float totaldirectionVectorLength;
-    bool refPosIsSet;
-    bool finishedCurrentTraj;
-
 
     // follow Trajectories functions
-    void setTrajectoryDirection(osg::Vec3 init_targetPosition);
-    void followTrajectory(int verticesCounter, std::list<Entity*> &finishedEntityList);
-    void getTrajSpeed(float deltat);
-    void setRefPos();
-    void setRefPos(osg::Vec3 newReferencePosition);
+    void setTrajectoryDirection();
+    void setTrajSpeed(float deltat);
+    void followTrajectoryOnRoad(Maneuver *maneuver, int verticesCounter);
+    void setTrajectoryDirectionOnRoad();
+
+    //Longitudinal attributes
+    float dt;
+    float old_speed;
+    float acceleration;
+
+
 
 
 };

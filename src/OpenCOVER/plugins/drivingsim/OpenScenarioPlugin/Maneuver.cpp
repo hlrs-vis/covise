@@ -13,15 +13,16 @@ Maneuver::Maneuver():
     trajectoryCatalogReference(""),
 	startAfterManeuver(""),
 	startConditionType("termination"),
-	targetSpeed(0)
+    targetSpeed(0),
+    finishedEntityActions(0)
 {
 }
 Maneuver::~Maneuver()
 {
 }
-void Maneuver::initialize(std::list<Entity*> &activeEntityList_temp)
+void Maneuver::initialize(int numEntites)
 {
-    activeEntityList = activeEntityList_temp;
+    activeEntites = numEntites;
 }
 
 
@@ -73,7 +74,7 @@ string &Maneuver::getName()
 	return name;
 }
 
-void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
+void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt,std::list<Entity*> *activeEntityList)
 {
 	float negativeAcceleration = 50;
 	float dv = negativeAcceleration*dt;
@@ -83,6 +84,7 @@ void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt)
 	}
 	else
 	{
-	aktivCar->setSpeed(targetSpeed);
+        aktivCar->setSpeed(targetSpeed);
+        activeEntityList->remove(aktivCar);
 	}
 }

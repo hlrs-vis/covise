@@ -23,7 +23,8 @@ set(HEADERS
   RouteInfo.h
   CameraSensor.h
   Position.h
-  Spline.h
+  ReferencePosition.h
+  Action.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -38,7 +39,8 @@ set(SOURCES
   RouteInfo.cpp
   CameraSensor.cpp
   Position.cpp
-  Spline.cpp
+  ReferencePosition.cpp
+  Action.cpp
 )
 
 

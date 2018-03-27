@@ -540,6 +540,9 @@ int coRowMenuHandle::hit(vruiHit *hit)
                                                                         : interactionB->wasStarted() ? interactionB
                                                                                                      : interactionC->wasStarted() ? interactionC
                                                                                                                                   : myMenu->getMoveInteraction();
+
+        myMenu->setMoved(true);
+
         startPosition->makeIdentity();
         startPosition->mult(getDCS()->getMatrix());
 

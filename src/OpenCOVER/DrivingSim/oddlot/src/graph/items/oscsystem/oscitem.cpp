@@ -43,7 +43,7 @@
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/items/oscsystem/oscbaseitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
-#include "src/graph/items/oscsystem/svgitem.hpp"
+#include "src/graph/items/svgelement.hpp"
 
 // Tools //
 //
@@ -273,16 +273,13 @@ void OSCItem::updateIcon(OpenScenario::oscObjectBase *catalogObject, std::string
 void
 OSCItem::updatePosition()
 {
-	/*QTransform tR;
-	QTransform tS;
-	QTransform tT;*/
 	tR_.reset();
 	tS_.reset();
 	tT_.reset();
 
 	QTransform tM;
 	QTransform tR2;
-
+	
 	double s = road_->getSFromGlobalPoint(pos_);
 	QVector2D vec = QVector2D(pos_ - road_->getGlobalPoint(s));
 	double t = vec.length();
@@ -294,7 +291,7 @@ OSCItem::updatePosition()
 		t = -t;
 	}
 
-	if (t  > 0)
+	if (t > 0)
 	{
 		heading += 180;
 	}
@@ -302,7 +299,7 @@ OSCItem::updatePosition()
 	tM.translate(-svgCenter_.x(), -svgCenter_.y());
 	tR2.rotate(heading);
 
-	tR_ = tM * tR2 * tM.inverted();
+	tR_ = tM * tR2;
 	tT_.translate(pos_.x(), pos_.y());
 	tS_.scale(iconScaleX_, iconScaleY_);
 
