@@ -28,6 +28,7 @@
 #include "src/data/roadsystem/track/trackelementline.hpp"
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
+#include "src/data/roadsystem/track/trackelementpoly3.hpp"
 
 #include "src/data/tilesystem/tilesystem.hpp"
 
@@ -70,7 +71,6 @@
 
 // Qt //
 //
-#include <QGraphicsItem>
 #include <QGraphicsLineItem>
 #include <QVector2D>
 #include <QGraphicsSceneMouseEvent>
@@ -88,11 +88,14 @@ TrackEditor::TrackEditor(ProjectWidget *projectWidget, ProjectData *projectData,
     , trackRoadSystemItem_(NULL)
     , pressPoint_(0.0, 0.0)
     , newRoadLineItem_(NULL)
+	, newRoadPolyItem_(NULL)
+	, newPolyRoad_(NULL)
     , addRoadSystemHandle_(NULL)
     , currentRoadPrototype_(NULL)
     , currentRoadSystemPrototype_(NULL)
     , state_(TrackEditor::STE_NONE)
     , sectionHandle_(NULL)
+	, lastEditorTool_(ODD::TNO_TOOL)
 {
 }
 
@@ -128,74 +131,82 @@ TrackEditor::toolAction(ToolAction *toolAction)
 
     // Change Tool //
     //
-    if (lastTool != getCurrentTool())
-    {
-        // State //
-        //
-        state_ = TrackEditor::STE_NONE;
+	if (lastTool != getCurrentTool())
+	{
+		if ((state_ == TrackEditor::STE_NEW_PRESSED) && (lastEditorTool_ == ODD::TTE_ADD_POLY))
+		{
+			newRoadPolyItem_->hide();
+		}
 
-        // Move Tile Tool //
-        //
-        if (lastTool == ODD::TTE_TILE_MOVE)
-        {
-            selectedRoads_.clear();
-        }
+		// State //
+		//
+		state_ = TrackEditor::STE_NONE;
 
-        
-        if (getCurrentTool() == ODD::TTE_ROAD_MERGE)
-        {
-            selectedRoads_.clear();
-        }
-        if (getCurrentTool() == ODD::TTE_ROAD_SNAP)
-        {
-            selectedRoads_.clear();
-        }
-        // Move and Rotate Tool //
-        //
-        else if (getCurrentTool() == ODD::TTE_MOVE_ROTATE)
-        {
-            if (trackRoadSystemItem_)
-            {
-                trackRoadSystemItem_->rebuildMoveRotateHandles();
-            }
-        }
+		// Move Tile Tool //
+		//
+		if (lastTool == ODD::TTE_TILE_MOVE)
+		{
+			selectedRoads_.clear();
+		}
 
-        // Add Tool //
-        //
-        else if (getCurrentTool() == ODD::TTE_ADD
-                 || getCurrentTool() == ODD::TTE_ADD_LINE
-                 || getCurrentTool() == ODD::TTE_ADD_CURVE)
-        {
-            if (trackRoadSystemItem_)
-            {
-                trackRoadSystemItem_->rebuildAddHandles();
-            }
-        }
 
-        // Move & Rotate Tool //
-        //
-        else if (getCurrentTool() == ODD::TTE_ROAD_MOVE_ROTATE)
-        {
-            if (trackRoadSystemItem_)
-            {
-                trackRoadSystemItem_->rebuildRoadMoveRotateHandles();
-            }
-        }
+		if (getCurrentTool() == ODD::TTE_ROAD_MERGE)
+		{
+			selectedRoads_.clear();
+		}
+		if (getCurrentTool() == ODD::TTE_ROAD_SNAP)
+		{
+			selectedRoads_.clear();
+		}
+		// Move and Rotate Tool //
+		//
+		else if (getCurrentTool() == ODD::TTE_MOVE_ROTATE)
+		{
+			if (trackRoadSystemItem_)
+			{
+				trackRoadSystemItem_->rebuildMoveRotateHandles();
+			}
+		}
 
-        // Tool Without Handles //
-        //
-        else
-        {
-            if (trackRoadSystemItem_)
-            {
-                trackRoadSystemItem_->deleteHandles();
-            }
-        }
+		// Add Tool //
+		//
+		else if (getCurrentTool() == ODD::TTE_ADD
+			|| getCurrentTool() == ODD::TTE_ADD_LINE
+			|| getCurrentTool() == ODD::TTE_ADD_CURVE
+			|| getCurrentTool() == ODD::TTE_ADD_POLY)
+		{
+			if (trackRoadSystemItem_)
+			{
+				trackRoadSystemItem_->rebuildAddHandles();
+			}
+			lastEditorTool_ = getCurrentTool();
+		}
 
-        // Garbage disposal //
-        //
-        getTopviewGraph()->garbageDisposal();
-    }
+		// Move & Rotate Tool //
+		//
+		else if (getCurrentTool() == ODD::TTE_ROAD_MOVE_ROTATE)
+		{
+			if (trackRoadSystemItem_)
+			{
+				trackRoadSystemItem_->rebuildRoadMoveRotateHandles();
+			}
+		}
+
+		// Tool Without Handles //
+		//
+		else
+		{
+			if (trackRoadSystemItem_)
+			{
+				trackRoadSystemItem_->deleteHandles();
+			}
+		}
+
+		// Garbage disposal //
+		//
+		getTopviewGraph()->garbageDisposal();
+
+	}
 
     // Prototypes //
     //
@@ -205,6 +216,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
         if (isCurrentTool(ODD::TTE_ADD)
             || isCurrentTool(ODD::TTE_ADD_LINE)
             || isCurrentTool(ODD::TTE_ADD_CURVE)
+			|| isCurrentTool(ODD::TTE_ADD_POLY)
 			|| isCurrentTool(ODD::TTE_ROAD_NEW)
 			|| isCurrentTool(ODD::TTE_ROAD_CIRCLE))
         {
@@ -218,6 +230,11 @@ TrackEditor::toolAction(ToolAction *toolAction)
             {
                 currentRoadPrototype_->superposePrototype(road);
             }
+
+			if (isCurrentTool(ODD::TTE_ADD_LINE) || isCurrentTool(ODD::TTE_ADD_POLY))
+			{
+				lastEditorTool_ = getCurrentTool();
+			}
         }
 
         if (isCurrentTool(ODD::TTE_ROADSYSTEM_ADD))
@@ -259,7 +276,8 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
     //
     if (getCurrentTool() == ODD::TTE_ADD
         || getCurrentTool() == ODD::TTE_ADD_LINE
-        || getCurrentTool() == ODD::TTE_ADD_CURVE)
+        || getCurrentTool() == ODD::TTE_ADD_CURVE
+		|| getCurrentTool() == ODD::TTE_ADD_POLY)
     {
         if (selectedTrackAddHandles_.size() == 0)
         {
@@ -291,207 +309,372 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
 
                     // Line //
                     //
-                    if (getCurrentTool() == ODD::TTE_ADD_LINE)
-                    {
-                        TrackComponent *track = NULL;
-                        RSystemElementRoad *linePrototype = NULL;
-                        double length = 0.0;
+					if (getCurrentTool() == ODD::TTE_ADD_LINE)
+					{
+						TrackComponent *track = NULL;
+						RSystemElementRoad *linePrototype = NULL;
+						double length = 0.0;
 
-                        if (isStart)
-                        {
-                            // Last track (at the front) where the new one should be appended //
-                            //
-                            track = road->getTrackComponent(0.0);
+						if (isStart)
+						{
+							// Last track (at the front) where the new one should be appended //
+							//
+							track = road->getTrackComponent(0.0);
 
-                            // Calculate Length //
-                            //
-                            QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
-                            QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_); // length != 1
-                            length = QVector2D::dotProduct(t, d);
+							// Calculate Length //
+							//
+							QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
+							QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_); // length != 1
+							length = QVector2D::dotProduct(t, d);
+						}
+						else
+						{
+							// Last track (at the end) where the new one should be appended //
+							//
+							track = road->getTrackComponent(road->getLength());
+
+							// Calculate Length //
+							//
+							QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
+							QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())); // length != 1
+							length = QVector2D::dotProduct(t, d);
+						}
+
+						if (length <= 1.0)
+						{
+							printStatusBarMsg(tr("A line can not be inserted here."), 4000);
+							return; // line with this length not possible
+						}
+
+						// Protoype //
+						//
+						TrackElementLine *line = new TrackElementLine(0.0, 0.0, 0.0, 0.0, length);
+
+						linePrototype = new RSystemElementRoad("prototype");
+						linePrototype->addTrackComponent(line);
+
+						// Append Prototype //
+						//
+						linePrototype->superposePrototype(currentRoadPrototype_);
+
+						getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
+						AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, linePrototype, isStart, NULL);
+						getProjectGraph()->executeCommand(command);
+						LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
+						getProjectGraph()->executeCommand(linkLanesCommand);
+						getProjectData()->getUndoStack()->endMacro();
+					}
+
+					// Polynomial //
+					//
+
+					// Curve //
+					//
+					else if ((getCurrentTool() == ODD::TTE_ADD_CURVE) || (getCurrentTool() == ODD::TTE_ADD_POLY))
+					{
+						// Declarations //
+						//
+						TrackComponent *track = NULL;
+						RSystemElementRoad *spiralPrototype = NULL;
+						double newHeadingDeg = 0.0;
+						bool foundHandle = false;
+						bool foundHandleIsStart = false;
+
+						// Look for existing handles //
+						//
+						foreach(QGraphicsItem *item, getTopviewGraph()->getScene()->items(pressPoint_, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
+						{
+							if (!foundHandle)
+							{
+								TrackAddHandle *handle = dynamic_cast<TrackAddHandle *>(item);
+								if (handle)
+								{
+									pressPoint_ = handle->pos();
+									newHeadingDeg = handle->rotation();
+									foundHandle = true;
+									foundHandleIsStart = handle->isStart();
+								}
+							}
+						}
+
+
+						// Adjust translation and rotation //
+						//
+						if (isStart)
+						{
+							// Old code: see backups until 18.06.2010
+
+							// Last track (at the front) where the new one should be appended //
+							//
+							track = road->getTrackComponent(0.0);
+
+							// Calculate Transformation //
+							//
+							QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
+							QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_).normalized(); // length = 1
+							if (!foundHandle)
+							{
+								newHeadingDeg = track->getGlobalHeading(track->getSStart()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
+
+							}
+
+							QPointF startPoint = track->getGlobalPoint(track->getSStart());
+							double startHeadingDeg = track->getGlobalHeading(track->getSStart());
+
+							QTransform trafo;
+							trafo.translate(pressPoint_.x(), pressPoint_.y());
+							trafo.rotate(newHeadingDeg);
+
+
+							if (getCurrentTool() == ODD::TTE_ADD_CURVE)
+							{
+								if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
+								{
+									printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+									return; // symmetric curve not possible
+								}
+
+								// Protoype //
+								//
+								TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg, 0.5);
+
+								if (!spiral->validParameters())
+								{
+									delete spiral;
+
+									// Try opposite heading // (neccessary when the found handle points to the other direction)
+									//
+									trafo.rotate(180);
+									spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg + 180, 0.5);
+									;
+									if (!spiral->validParameters())
+									{
+										delete spiral;
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										return;
+									}
+								}
+
+								spiralPrototype = new RSystemElementRoad("prototype");
+								spiralPrototype->addTrackComponent(spiral);
+							}
+							else
+							{
+								// Protoype //
+								//
+
+								if (foundHandle && foundHandleIsStart)
+								{
+										newHeadingDeg += 180;
+										trafo.rotate(180);
+								}
+								QPointF mappedPoint = trafo.inverted().map(startPoint);
+								
+								while (newHeadingDeg > 360) newHeadingDeg -= 360.0;
+								while (newHeadingDeg < -360) newHeadingDeg += 360.0;
+								double angle = startHeadingDeg - newHeadingDeg;
+								double absAngle = fabs(angle);
+
+								if (absAngle >= 90.0 && absAngle <= 270.0)
+								{
+									if (foundHandle)
+									{
+										if (angle < 180)
+										{
+											newHeadingDeg += 180;
+										}
+										else
+										{
+											newHeadingDeg -= 180;
+										}
+									}
+									else
+									{
+										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+										return;
+									}
+
+								}
+
+
+								double df1 = tan(angle * 2.0 * M_PI / 360.0);
+								Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
+
+								if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
+								{
+									printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+									return;
+								}
+
+								// Track //
+								//
+								TrackElementPoly3 *poly = new TrackElementPoly3(pressPoint_.x(), pressPoint_.y(), newHeadingDeg, 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
+
+
+								spiralPrototype = new RSystemElementRoad("prototype");
+								spiralPrototype->addTrackComponent(poly);
+
+							}
+
+
                         }
-                        else
-                        {
-                            // Last track (at the end) where the new one should be appended //
-                            //
-                            track = road->getTrackComponent(road->getLength());
+						else
+						{
+							// Old code: see backups until 18.06.2010
 
-                            // Calculate Length //
-                            //
-                            QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
-                            QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())); // length != 1
-                            length = QVector2D::dotProduct(t, d);
-                        }
+							// Last track (at the end) where the new one should be appended //
+							//
+							track = road->getTrackComponent(road->getLength());
 
-                        if (length <= 1.0)
-                        {
-                            printStatusBarMsg(tr("A line can not be inserted here."), 4000);
-                            return; // line with this length not possible
-                        }
+							// Calculate Transformation //
+							//
+							QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
+							QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())).normalized(); // length = 1
+							if (!foundHandle)
+							{
+								newHeadingDeg = track->getGlobalHeading(track->getSEnd()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
+							}
 
-                        // Protoype //
-                        //
-                        TrackElementLine *line = new TrackElementLine(0.0, 0.0, 0.0, 0.0, length);
+							QPointF startPoint = track->getGlobalPoint(track->getSEnd());
+							double startHeadingDeg = track->getGlobalHeading(track->getSEnd());
 
-                        linePrototype = new RSystemElementRoad("prototype");
-                        linePrototype->addTrackComponent(line);
+							QTransform trafo;
+							trafo.translate(startPoint.x(), startPoint.y());
+							trafo.rotate(startHeadingDeg);
 
-                        // Append Prototype //
-                        //
-                        linePrototype->superposePrototype(currentRoadPrototype_);
+							if (getCurrentTool() == ODD::TTE_ADD_CURVE)
+							{
 
-                        getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
-                        AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, linePrototype, isStart, NULL);
-                        getProjectGraph()->executeCommand(command);
-                        LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
-                        getProjectGraph()->executeCommand(linkLanesCommand);
-                        getProjectData()->getUndoStack()->endMacro();
-                    }
+								if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
+								{
+									printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+									return; // symmetric curve not possible
+								}
 
-                    // Curve //
-                    //
-                    else if (getCurrentTool() == ODD::TTE_ADD_CURVE)
-                    {
-                        // Declarations //
-                        //
-                        TrackComponent *track = NULL;
-                        RSystemElementRoad *spiralPrototype = NULL;
-                        double newHeadingDeg = 0.0;
-                        bool foundHandle = false;
+								// Protoype //
+								//
+								TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg, 0.5);
+								if (!spiral->validParameters())
+								{
+									delete spiral;
 
-                        // Look for existing handles //
-                        //
-                        foreach (QGraphicsItem *item, getTopviewGraph()->getScene()->items(pressPoint_, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
-                        {
-                            if (!foundHandle)
-                            {
-                                TrackAddHandle *handle = dynamic_cast<TrackAddHandle *>(item);
-                                if (handle)
-                                {
-                                    pressPoint_ = handle->pos();
-                                    newHeadingDeg = handle->rotation();
-                                    foundHandle = true;
-                                }
-                            }
-                        }
+									// Try opposite heading // (neccessary when the found handle points to the other direction)
+									//
+									spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg + 180.0, 0.5);
+									if (!spiral->validParameters())
+									{
+										delete spiral;
+										printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
+										return;
+									}
+								}
 
-                        // Adjust translation and rotation //
-                        //
-                        if (isStart)
-                        {
-                            // Old code: see backups until 18.06.2010
+								spiralPrototype = new RSystemElementRoad("prototype");
+								spiralPrototype->addTrackComponent(spiral);
+							}
+							else
+							{
 
-                            // Last track (at the front) where the new one should be appended //
-                            //
-                            track = road->getTrackComponent(0.0);
+								// Prototype //
+								//
+								double angle = newHeadingDeg - startHeadingDeg;
+								while (angle > 360) angle -= 360.0;
+								while (angle < -360) angle += 360.0;
+								double absAngle = fabs(angle);
 
-                            // Calculate Transformation //
-                            //
-                            QVector2D t = track->getGlobalTangent(track->getSStart()); // length = 1
-                            QVector2D d = QVector2D(track->getGlobalPoint(track->getSStart()) - pressPoint_).normalized(); // length = 1
-                            if (!foundHandle)
-                            {
-                                newHeadingDeg = track->getGlobalHeading(track->getSStart()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
-                            }
+								if (absAngle >= 90.0 && absAngle <= 270.0)
+								{
+									if (foundHandle)
+									{
+										if (absAngle < 180)
+										{
+											angle += 180;
+										}
+										else
+										{
+											angle -= 180;
+										}
+									}
+									else
+									{
+										printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+										return;
+									}
+								}
 
-                            if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
-                            {
-                                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-                                return; // symmetric curve not possible
-                            }
 
-                            QPointF startPoint = track->getGlobalPoint(track->getSStart());
-                            double startHeadingDeg = track->getGlobalHeading(track->getSStart());
+									/*						QTransform rot;
+															double df1;
+															TrackElementPoly3 *poly;
+															if (angle < 180)
+															{
+																rot.rotate(-90.0);
+																df1 = tan((newHeadingDeg - startHeadingDeg - 90.0) * 2.0 * M_PI / 360.0);
 
-                            QTransform trafo;
-                            trafo.translate(pressPoint_.x(), pressPoint_.y());
-                            trafo.rotate(newHeadingDeg);
+																QPointF mappedPoint = trafo.inverted().map(pressPoint_);
+																Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.x(), df1, mappedPoint.y());
+																double length = poly3->getCurveLength(0.0, mappedPoint.x());
+																double f = poly3->f(mappedPoint.y());
 
-                            // Protoype //
-                            //
-                            TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg, 0.5);
+																// Track //
+																//
+																double s = track->getSEnd();
+																poly = new TrackElementPoly3(startPoint.x(), startPoint.y(), track->getLocalHeading(s) + 90.0, 0.0, poly3->getCurveLength(0.0, mappedPoint.y()), *poly3);
 
-                            if (!spiral->validParameters())
-                            {
-                                delete spiral;
+															}
+															else
+															{
+																rot.rotate(90.0);
+																df1 = tan((newHeadingDeg - startHeadingDeg + 90.0) * 2.0 * M_PI / 360.0);
 
-                                // Try opposite heading // (neccessary when the found handle points to the other direction)
-                                //
-                                trafo.rotate(180);
-                                spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(startPoint), 0.0, startHeadingDeg - newHeadingDeg + 180, 0.5);
-                                ;
-                                if (!spiral->validParameters())
-                                {
-                                    delete spiral;
-                                    printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-                                    return;
-                                }
-                            }
+																QPointF mappedPoint = trafo.inverted().map(pressPoint_);
+																Polynomial *poly3 = new Polynomial(0.0, 0.0, rot.map(mappedPoint).y(), df1, rot.map(mappedPoint).x());
 
-                            spiralPrototype = new RSystemElementRoad("prototype");
-                            spiralPrototype->addTrackComponent(spiral);
-                        }
-                        else
-                        {
-                            // Old code: see backups until 18.06.2010
+																// Track //
+																//
+																double s = track->getSEnd();
+																poly = new TrackElementPoly3(startPoint.x(), startPoint.y(), track->getLocalHeading(s) + 90.0, 0.0, poly3->getCurveLength(0.0, rot.map(mappedPoint).x()), *poly3);
+															}
 
-                            // Last track (at the end) where the new one should be appended //
-                            //
-                            track = road->getTrackComponent(road->getLength());
 
-                            // Calculate Transformation //
-                            //
-                            QVector2D t = track->getGlobalTangent(track->getSEnd()); // length = 1
-                            QVector2D d = QVector2D(pressPoint_ - track->getGlobalPoint(track->getSEnd())).normalized(); // length = 1
-                            if (!foundHandle)
-                            {
-                                newHeadingDeg = track->getGlobalHeading(track->getSEnd()) + 2.0 * (atan2(d.y(), d.x()) - atan2(t.y(), t.x())) * 360.0 / (2.0 * M_PI);
-                            }
+															spiralPrototype = new RSystemElementRoad("prototype");
+															spiralPrototype->addTrackComponent(poly);
+															road->getRoadSystem()->addRoad(spiralPrototype); */
 
-                            if (QVector2D::dotProduct(t, d) <= 0.1 /*NUMERICAL_ZERO8*/) // zero or negative
-                            {
-                                printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-                                return; // symmetric curve not possible
-                            }
 
-                            QPointF startPoint = track->getGlobalPoint(track->getSEnd());
-                            double startHeadingDeg = track->getGlobalHeading(track->getSEnd());
 
-                            QTransform trafo;
-                            trafo.translate(startPoint.x(), startPoint.y());
-                            trafo.rotate(startHeadingDeg);
+								QPointF mappedPoint = trafo.inverted().map(pressPoint_);
+								double df1 = tan(angle * 2.0 * M_PI / 360.0);
+								Polynomial *poly3 = new Polynomial(0.0, 0.0, mappedPoint.y(), df1, mappedPoint.x());
+								if (poly3->getCurveLength(0.0, mappedPoint.x()) < 0.0)
+								{
+									printStatusBarMsg(tr("A polynomial curve can not be inserted here."), 4000);
+									return;
+								}
 
-                            // Protoype //
-                            //
-                            TrackSpiralArcSpiral *spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg, 0.5);
-                            if (!spiral->validParameters())
-                            {
-                                delete spiral;
+								// Track //
+								//
+								double s = track->getSEnd();
+								TrackElementPoly3 *poly = new TrackElementPoly3(startPoint.x(), startPoint.y(), track->getLocalHeading(s), 0.0, poly3->getCurveLength(0.0, mappedPoint.x()), *poly3);
 
-                                // Try opposite heading // (neccessary when the found handle points to the other direction)
-                                //
-                                spiral = new TrackSpiralArcSpiral(QPointF(0.0, 0.0), trafo.inverted().map(pressPoint_), 0.0, newHeadingDeg - startHeadingDeg + 180.0, 0.5);
-                                if (!spiral->validParameters())
-                                {
-                                    delete spiral;
-                                    printStatusBarMsg(tr("A symmetric curve can not be inserted here."), 4000);
-                                    return;
-                                }
-                            }
+								spiralPrototype = new RSystemElementRoad("prototype");
+								spiralPrototype->addTrackComponent(poly);
 
-                            spiralPrototype = new RSystemElementRoad("prototype");
-                            spiralPrototype->addTrackComponent(spiral);
-                        }
+
+							}
+						}
 
                         // Append Prototype //
                         //
                         spiralPrototype->superposePrototype(currentRoadPrototype_);
 
                         getProjectData()->getUndoStack()->beginMacro(QObject::tr("Append Roads"));
+
                         AppendRoadPrototypeCommand *command = new AppendRoadPrototypeCommand(road, spiralPrototype, isStart, NULL);
                         getProjectGraph()->executeCommand(command);
                         LinkLanesCommand *linkLanesCommand = new LinkLanesCommand(road);
                         getProjectGraph()->executeCommand(linkLanesCommand);
-                        getProjectData()->getUndoStack()->endMacro();
+                        getProjectData()->getUndoStack()->endMacro();  
                    }
 
                     // Prototypes //
@@ -788,13 +971,110 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                 {
                     pressPoint_ = mouseAction->getEvent()->scenePos();
                 }
-                state_ = TrackEditor::STE_NEW_PRESSED;
-                newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
-                newRoadLineItem_->show();
+				
+				if (lastEditorTool_ == ODD::TTE_ADD_LINE)
+				{
+					newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
+					newRoadLineItem_->show();
+
+					state_ = TrackEditor::STE_NEW_PRESSED;
+				}
+				else if (lastEditorTool_ == ODD::TTE_ADD_POLY) 
+				{
+					if (state_ == STE_NONE)
+					{
+						if (currentRoadPrototype_)
+						{
+							newRoadPolyItem_->setPos(pressPoint_);
+							newRoadPolyItem_->show();
+							state_ = TrackEditor::STE_NEW_PRESSED;
+
+							// Road //
+							//
+							newPolyRoad_ = new RSystemElementRoad("unnamed");
+							// Append Prototype //
+							//
+							newPolyRoad_->superposePrototype(currentRoadPrototype_);
+
+						}
+						else
+						{
+							printStatusBarMsg("New road: Please reselect a Prototype.", 8000);
+						}
+					}
+					else
+					{
+						newRoadPolyItem_->hide();
+
+						// Calculate Transformation //
+						//
+						QVector2D d = QVector2D(pressPoint_ - newRoadPolyItem_->pos()); 
+
+						Polynomial *poly3 = new Polynomial(0.0, 0.0, 0.0, 0.0);  // always start with a straight line
+
+						// Track //
+						//
+						TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), atan2(d.y(), d.x()) * 180 / M_PI, 0.0, d.length(), *poly3);
+						newPolyRoad_->addTrackComponent(poly);
+						
+
+				/*		double df1;
+
+						if ((d.x() < 0) && (d.x() < -NUMERICAL_ZERO3))
+						{
+							QTransform rot;
+							rot.rotate(180.0);
+							double tx, ty;
+							rot.map(d.x(), d.y(), &tx, &ty);
+							df1 = ty / tx;
+
+							Polynomial *poly3 = new Polynomial(0.0, 0.0, rot.map(pressPoint_ - newRoadPolyItem_->pos()).y(), df1, rot.map(pressPoint_ - newRoadPolyItem_->pos()).x());
+
+							// Track //
+							//
+							TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), 180.0, 0.0, poly3->getCurveLength(0.0, rot.map(pressPoint_ - newRoadPolyItem_->pos()).x()), *poly3);
+							newPolyRoad_->addTrackComponent(poly);
+
+
+						} 
+						else
+						{
+							Polynomial *poly3;
+							if (abs(d.x()) < NUMERICAL_ZERO3)
+							{
+								poly3 = new Polynomial(0.0, 0.0, 0.0, 0.0);
+							}
+							else
+							{ 
+								df1 = d.y() / d.x();
+								poly3 = new Polynomial(0.0, 0.0, pressPoint_.y() - newRoadPolyItem_->pos().y(), df1, pressPoint_.x() - newRoadPolyItem_->pos().x());
+							} */
+
+							// Track //
+							//
+				/*			TrackElementPoly3 *poly = new TrackElementPoly3(newRoadPolyItem_->pos().x(), newRoadPolyItem_->pos().y(), 0.0, 0.0, poly3->getCurveLength(0.0, pressPoint_.x() - newRoadPolyItem_->pos().x()), *poly3);
+							newPolyRoad_->addTrackComponent(poly);
+						} */
+
+						NewRoadCommand *command = new NewRoadCommand(newPolyRoad_, getProjectData()->getRoadSystem(), NULL);
+						if (command->isValid())
+						{
+							getProjectData()->getUndoStack()->push(command);
+						}
+						else
+						{
+							printStatusBarMsg(command->text(), 4000);
+							delete command;
+							return; // usually not the case, only if road or prototype are NULL
+						}
+
+						state_ = TrackEditor::STE_NONE;
+					}
+				}
             }
         }
 
-        else if (mouseAction->getMouseActionType() == MouseAction::ATM_MOVE)
+        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_MOVE) && (lastEditorTool_ == ODD::TTE_ADD_LINE))
         {
             if (state_ == TrackEditor::STE_NEW_PRESSED)
             {
@@ -803,7 +1083,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             }
         }
 
-        else if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
+        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE) && (lastEditorTool_ == ODD::TTE_ADD_LINE))
         {
             if (mouseAction->getEvent()->button() == Qt::LeftButton)
             {
@@ -1266,6 +1546,11 @@ TrackEditor::translateTrackComponents(const QPointF &pressPos, const QPointF &mo
         }
     }
 
+	if ((mousePos - pressPos).manhattanLength() < NUMERICAL_ZERO6)
+	{
+		return false;
+	}
+
     QMultiMap<TrackComponent *, bool> selectedTrackComponents;
     QMultiMap<int, TrackMoveHandle *>::const_iterator it = selectedTrackMoveHandles_.constBegin();
     while (it != selectedTrackMoveHandles_.constEnd())
@@ -1465,6 +1750,47 @@ TrackEditor::rotateRoadRotateHandles(const QPointF &pivotPoint, double angleDegr
     return true;
 }
 
+void
+TrackEditor::setChildCacheMode(QGraphicsItem *child, QGraphicsItem::CacheMode mode)
+{
+	foreach(QGraphicsItem *item, child->childItems())
+	{
+		RoadMarkItem *roadMarkItem = dynamic_cast<RoadMarkItem *>(item);
+		if (roadMarkItem)
+		{
+			LaneRoadMark *roadMark = dynamic_cast<LaneRoadMark *>(roadMarkItem->getDataElement());
+			if (roadMark && (roadMark->getRoadMarkType() != LaneRoadMark::RMT_NONE))
+			{
+				item->setCacheMode(mode);
+			}
+		}
+		setChildCacheMode(item, mode);
+	}
+}
+
+void 
+TrackEditor::setCacheMode(RSystemElementRoad *road, CacheMode cache)
+{
+	TrackRoadItem *roadItem = trackRoadSystemItem_->getRoadItem(road);
+	if (roadItem)
+	{
+		if (cache == CacheMode::NoCache)
+		{
+			foreach(QGraphicsItem *item, roadItem->childItems())
+			{
+				setChildCacheMode(item, QGraphicsItem::CacheMode::NoCache);
+			}
+		}
+		else
+		{
+			foreach(QGraphicsItem *item, roadItem->childItems())
+			{
+				setChildCacheMode(item, QGraphicsItem::CacheMode::DeviceCoordinateCache);
+			}
+		}
+	}
+}
+
 //###################//
 // ROADS			//
 //##################//
@@ -1508,6 +1834,10 @@ TrackEditor::init()
 		newRoadCircleItem_->setPen(pen);
 		newRoadCircleItem_->hide();
 
+		newRoadPolyItem_ = new TrackMoveHandle(this, trackRoadSystemItem_);
+		newRoadPolyItem_->setVisible(false);
+
+
         // Add RoadSystem Item //
         //
         addRoadSystemHandle_ = new CircularRotateHandle(trackRoadSystemItem_);
@@ -1531,6 +1861,11 @@ TrackEditor::kill()
     //	trackRoadSystemItem_->deleteHandles();
     //	getTopviewGraph()->getScene()->removeItem(trackRoadSystemItem_);
     //	topviewGraph_->graphScene()->removeItem(trackRoadSystemItem_);
+/*	if (newRoadPolyItem_)
+	{
+		newRoadPolyItem_->setParent(NULL);
+		delete newRoadPolyItem_;
+	} */
     delete trackRoadSystemItem_;
     trackRoadSystemItem_ = NULL;
 

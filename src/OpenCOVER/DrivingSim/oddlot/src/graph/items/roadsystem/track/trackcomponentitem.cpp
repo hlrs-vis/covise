@@ -124,7 +124,8 @@ TrackComponentItem::init()
 
     // ContextMenu //
     //
-    if (!((trackComponent_->getTrackType() == TrackComponent::DTT_POLY3) && !parentTrackRoadItem_)) // if poly3 and no parent: no morphing
+ //   if (!((trackComponent_->getTrackType() == TrackComponent::DTT_POLY3) && !parentTrackRoadItem_)) // if poly3 and no parent: no morphing
+	if (!(trackComponent_->getTrackType() == TrackComponent::DTT_POLY3)) // if poly3: no morphing
     {
         QAction *action = getContextMenu()->addAction("Morph into poly3");
         connect(action, SIGNAL(triggered()), this, SLOT(morphIntoPoly3()));

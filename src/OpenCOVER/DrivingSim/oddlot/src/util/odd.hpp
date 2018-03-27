@@ -137,6 +137,7 @@ public:
         TTE_ADD,
         TTE_ADD_LINE,
         TTE_ADD_CURVE,
+		TTE_ADD_POLY,
         TTE_DELETE,
         TTE_TRACK_SPLIT,
         TTE_ROAD_NEW,

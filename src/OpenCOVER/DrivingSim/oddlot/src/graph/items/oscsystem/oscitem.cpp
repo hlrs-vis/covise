@@ -294,7 +294,7 @@ OSCItem::updatePosition()
 		t = -t;
 	}
 
-	if (t + svgCenter_.y() > 0)
+	if (t  > 0)
 	{
 		heading += 180;
 	}

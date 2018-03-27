@@ -164,21 +164,21 @@ RoadMoveHandle::itemChange(GraphicsItemChange change, const QVariant &value)
     return MoveHandle::itemChange(change, value);
 }
 
-//void
-//	RoadMoveHandle
-//	::mousePressEvent(QGraphicsSceneMouseEvent * event)
-//{
+void
+RoadMoveHandle::mousePressEvent(QGraphicsSceneMouseEvent * event)
+{
 //	setCursor(Qt::ClosedHandCursor);
-//	MoveHandle::mousePressEvent(event); // pass to baseclass
-//}
-//
-//void
-//	RoadMoveHandle
-//	::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
-//{
+	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::NoCache);
+	MoveHandle::mousePressEvent(event); // pass to baseclass
+}
+
+void
+RoadMoveHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+{
 //	setCursor(Qt::OpenHandCursor);
-//	MoveHandle::mouseReleaseEvent(event); // pass to baseclass
-//}
+	trackEditor_->setCacheMode(road_, TrackEditor::CacheMode::DeviceCache);
+	MoveHandle::mouseReleaseEvent(event); // pass to baseclass
+}
 
 void
 RoadMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

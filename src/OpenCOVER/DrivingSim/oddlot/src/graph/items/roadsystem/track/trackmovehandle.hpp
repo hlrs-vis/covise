@@ -72,7 +72,9 @@ private:
 protected:
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
     //################//
     // PROPERTIES     //
