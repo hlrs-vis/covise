@@ -28,7 +28,7 @@ oscRouteRef()
         OSC_OBJECT_ADD_MEMBER(Route, "oscRoute", 1);
         OSC_OBJECT_ADD_MEMBER(CatalogReference, "oscCatalogReference", 1);
     };
-        const char *getScope(){return "/OSCPosition/Route";};
+        const char *getScope(){return "/OSCPosition/PositionRoute";};
     oscRouteMember Route;
     oscCatalogReferenceMember CatalogReference;
 

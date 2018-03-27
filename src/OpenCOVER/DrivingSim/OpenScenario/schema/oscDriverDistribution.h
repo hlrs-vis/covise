@@ -15,7 +15,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscVehicle.h"
+#include "oscDriver.h"
 
 namespace OpenScenario
 {
@@ -24,14 +24,10 @@ class OPENSCENARIOEXPORT oscDriverDistribution : public oscObjectBase
 public:
 oscDriverDistribution()
 {
-        OSC_ADD_MEMBER(name, 0);
-        OSC_ADD_MEMBER(percentage, 0);
-        OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle", 0);
+        OSC_OBJECT_ADD_MEMBER(Driver, "oscDriver", 0);
     };
         const char *getScope(){return "/OSCTrafficDefinition";};
-    oscString name;
-    oscDouble percentage;
-    oscVehicleArrayMember Vehicle;
+    oscDriverArrayMember Driver;
 
 };
 

@@ -98,8 +98,8 @@
     <MouseNav value="ON" />
         <Device>
            <Vive driver="Vive">
-              <Offset x="-2067.77" y="421.621" z="-444.042" />
-              <Orientation h="40.1318" p="88.603" r="-159.867" />
+              <Offset x="-1597.57" y="1947.44" z="622.879" />
+              <Orientation h="182.939" p="64.1311" r="24.4913" />
               <CalibrationPoint x="-1000" y="-300" z="-1000" info="left_front" name="0"/>
               <CalibrationPoint x="1000" y="-300" z="-1000" info="right_front" name="1"/>
               <CalibrationPoint x="-1000" y="-2000" z="-1000" info="left_back" name="2"/>

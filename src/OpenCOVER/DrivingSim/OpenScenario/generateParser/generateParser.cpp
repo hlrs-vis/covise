@@ -722,9 +722,17 @@ version 2.1 or later, see lgpl - 2.1.txt.\n\
 		
 			for (std::list<std::string>::iterator it = cl->enumHeaders.begin(); it != cl->enumHeaders.end(); it++)
 			{
+				if (cl->name == "oscWaypoint" && (*it)=="oscPosition") // spetial case to prevent recursion
+				{
+				}
+				else
 				fprintf(header, "#include \"%s.h\"\n",(*it).c_str());
 			}
 			fprintf(header, "\nnamespace OpenScenario\n{\n");
+			if (cl->name == "oscWaypoint") // spetial case to prevent recursion
+			{
+				fprintf(header, "   class oscPosition;\n");
+			}
 
 		for (std::list<oscEnum *>::iterator it = classEnums.begin(); it != classEnums.end(); it++)
 		{
@@ -751,64 +759,72 @@ static %sType *instance();\n\
 		}
 		else
 		{
-			fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
+			if (cl->name == "oscWaypoint")
+			{
+				fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
+%s();\n", cl->name.c_str(), cl->name.c_str());
+			}
+			else
+			{
+				fprintf(header, "class OPENSCENARIOEXPORT %s : public oscObjectBase\n{\npublic:\n\
 %s()\n\
 {\n\
 ", cl->name.c_str(), cl->name.c_str());
 
 
-		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
-		{
-			oscMember *attrib = *ait;
-
-			if(attrib->optional)
-			{
-				fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s, %d);\n", attrib->name.c_str(), attrib->choice);
-			}
-			else
-			{
-				fprintf(header, "        OSC_ADD_MEMBER(%s, %d);\n", attrib->name.c_str(), attrib->choice);
-			}
-		}
-		for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
-		{
-			oscMember *member = *mit;
-			
-			if (member->optional)
-			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
-			}
-			else
-			{
-				fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
-			}
-		}
-
-		for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
-		{
-			oscMember *attrib = *ait;
-			if (attrib->type.find("Enum_") != std::string::npos)
-			{
-				bool found = false;
-				for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
+				for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
 				{
-					if ((*it)->name == attrib->type)
+					oscMember *attrib = *ait;
+
+					if (attrib->optional)
 					{
-						found = true;
+						fprintf(header, "        OSC_ADD_MEMBER_OPTIONAL(%s, %d);\n", attrib->name.c_str(), attrib->choice);
+					}
+					else
+					{
+						fprintf(header, "        OSC_ADD_MEMBER(%s, %d);\n", attrib->name.c_str(), attrib->choice);
+					}
+				}
+				for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
+				{
+					oscMember *member = *mit;
 
-						fprintf(header, "        %s.enumType = %sType::instance();\n", attrib->name.c_str(), (*it)->name.c_str());
-						break;
+					if (member->optional)
+					{
+						fprintf(header, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
+					}
+					else
+					{
+						fprintf(header, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
+					}
+				}
 
-						if (!found)
+				for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
+				{
+					oscMember *attrib = *ait;
+					if (attrib->type.find("Enum_") != std::string::npos)
+					{
+						bool found = false;
+						for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
 						{
-							fprintf(stderr, "attribute type %s not implemented or enum not found\n", attrib->type.c_str());
+							if ((*it)->name == attrib->type)
+							{
+								found = true;
+
+								fprintf(header, "        %s.enumType = %sType::instance();\n", attrib->name.c_str(), (*it)->name.c_str());
+								break;
+
+								if (!found)
+								{
+									fprintf(stderr, "attribute type %s not implemented or enum not found\n", attrib->type.c_str());
+								}
+							}
 						}
 					}
 				}
+
+				fprintf(header, "    };\n");
 			}
-		}
-		
-		fprintf(header, "    };\n");
 
 		fprintf(header, "        const char *getScope(){return \"%s\";};\n", cl->parentName.c_str());
 
@@ -858,7 +874,14 @@ static %sType *instance();\n\
 			}
 			else
 			{
-				fprintf(header, "    %sMember %s;\n", member->type.c_str(), member->name.c_str());
+				if ((cl->name == "oscWaypoint") && member->type == "oscPosition") // spetial case to prevent recursion
+				{
+					fprintf(header, "    oscObjectVariable<%s *> %s;\n", member->type.c_str(), member->name.c_str());
+				}
+				else
+				{
+					fprintf(header, "    %sMember %s;\n", member->type.c_str(), member->name.c_str());
+				}
 			}
 		}
 		for (std::list<oscEnum *>::iterator it = classEnums.begin(); it != classEnums.end(); it++)
@@ -940,6 +963,68 @@ using namespace OpenScenario;\n\
 				fprintf(cpp, "%sType *%sType::inst = NULL;\n", currentEnum->name.c_str(), currentEnum->name.c_str());
 
 			}
+		}
+
+		if (cl->name == "oscWaypoint")
+		{
+			fprintf(cpp, "#include \"oscPosition.h\"\n\
+%s::%s()\n\
+{\n\
+", cl->name.c_str(), cl->name.c_str());
+
+
+			for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
+			{
+				oscMember *attrib = *ait;
+
+				if (attrib->optional)
+				{
+					fprintf(cpp, "        OSC_ADD_MEMBER_OPTIONAL(%s, %d);\n", attrib->name.c_str(), attrib->choice);
+				}
+				else
+				{
+					fprintf(cpp, "        OSC_ADD_MEMBER(%s, %d);\n", attrib->name.c_str(), attrib->choice);
+				}
+			}
+			for (std::list<oscMember *>::iterator mit = cl->members.begin(); mit != cl->members.end(); mit++)
+			{
+				oscMember *member = *mit;
+
+				if (member->optional)
+				{
+					fprintf(cpp, "        OSC_OBJECT_ADD_MEMBER_OPTIONAL(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
+				}
+				else
+				{
+					fprintf(cpp, "        OSC_OBJECT_ADD_MEMBER(%s, \"%s\", %d);\n", member->name.c_str(), member->type.c_str(), member->choice);
+				}
+			}
+
+			for (std::list<oscMember *>::iterator ait = cl->attributes.begin(); ait != cl->attributes.end(); ait++)
+			{
+				oscMember *attrib = *ait;
+				if (attrib->type.find("Enum_") != std::string::npos)
+				{
+					bool found = false;
+					for (std::list<oscEnum *>::iterator it = enums.begin(); it != enums.end(); it++)
+					{
+						if ((*it)->name == attrib->type)
+						{
+							found = true;
+
+							fprintf(cpp, "        %s.enumType = %sType::instance();\n", attrib->name.c_str(), (*it)->name.c_str());
+							break;
+
+							if (!found)
+							{
+								fprintf(stderr, "attribute type %s not implemented or enum not found\n", attrib->type.c_str());
+							}
+						}
+					}
+				}
+			}
+
+			fprintf(cpp, "    };\n");
 		}
 
 

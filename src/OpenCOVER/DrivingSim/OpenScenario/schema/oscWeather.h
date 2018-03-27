@@ -48,7 +48,7 @@ oscWeather()
 
     enum Enum_cloudState
     {
-sky_off,
+skyOff,
 free,
 cloudy,
 overcast,

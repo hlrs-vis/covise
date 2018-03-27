@@ -339,7 +339,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                                 for(int i=0;i<vd->Vehicle.size();i++)
                                 {
                                     oscVehicle *vehicle = vd->Vehicle[i];
-                                    vs->addVehicleRatio(vehicle->name.getValue(), vd->percentage.getValue());
+									//vs->addVehicleRatio(vehicle->name.getValue(), vd->percentage.getValue());
+									vs->addVehicleRatio(vehicle->name.getValue(), 50.0);
                                 }
                                 //ls->getLane();
                                 //VehicleSource *source = new VehicleSource(sid, lane, 2, 8, 13.667, 6.0);
@@ -547,7 +548,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     }
 
     //get Conditions
-    for (oscConditionArrayMember::iterator it = osdb->Storyboard->End->ConditionGroup.begin(); it != osdb->Storyboard->End->ConditionGroup.end(); it++)
+    for (oscConditionArrayMember::iterator it = osdb->Storyboard->EndConditions->ConditionGroup.begin(); it != osdb->Storyboard->EndConditions->ConditionGroup.end(); it++)
     {
         oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
         for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
@@ -598,13 +599,13 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscEventArrayMember::iterator it = currentManeuver->Event.begin(); it != currentManeuver->Event.end(); it++)
             {
                 oscEvent* event = ((oscEvent*)(*it));
-                for (oscConditionsArrayMember::iterator it = event->Conditions.begin(); it != event->Conditions.end(); it++)
+               // for (oscStartConditionsArrayMember::iterator it = event->StartConditions..begin(); it != event->StartConditions.end(); it++)
                 {
-                    oscConditions* conditions = ((oscConditions*)(*it));
+					oscStartConditions* conditions = event->StartConditions.getObject();// ((oscStartConditions*)(*it));
                     //get Maneuver Start conditions
-                    if(conditions->Start.exists())
+                    if(conditions->ConditionGroup.exists())
                     {
-                        for (oscConditionArrayMember::iterator it = conditions->Start->ConditionGroup->Condition.begin(); it != conditions->Start->ConditionGroup->Condition.end(); it++)
+                        for (oscConditionArrayMember::iterator it = conditions->ConditionGroup->Condition.begin(); it != conditions->ConditionGroup->Condition.end(); it++)
                         {
                             oscCondition* condition = ((oscCondition*)(*it));
                             if(condition->ByValue.exists())

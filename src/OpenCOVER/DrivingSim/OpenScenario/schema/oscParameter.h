@@ -43,7 +43,7 @@ oscParameter()
 
     enum Enum_OSC_Parameter_type
     {
-int_t,
+integer,
 double_t,
 string,
 

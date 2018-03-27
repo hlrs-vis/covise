@@ -16,7 +16,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 
 #include "../oscVariables.h"
 #include "oscGlobalAction.h"
-#include "oscGlobalAction.h"
+#include "oscUserDefinedAction.h"
 #include "oscPrivate.h"
 
 namespace OpenScenario
@@ -27,12 +27,12 @@ public:
 oscActions()
 {
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Global, "oscGlobalAction", 0);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscGlobalAction", 0);
+        OSC_OBJECT_ADD_MEMBER_OPTIONAL(UserDefined, "oscUserDefinedAction", 0);
         OSC_OBJECT_ADD_MEMBER_OPTIONAL(Private, "oscPrivate", 0);
     };
         const char *getScope(){return "/OpenSCENARIO/Storyboard/Init";};
     oscGlobalActionArrayMember Global;
-    oscGlobalActionArrayMember UserDefined;
+    oscUserDefinedActionArrayMember UserDefined;
     oscPrivateArrayMember Private;
 
 };

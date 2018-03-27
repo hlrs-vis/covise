@@ -31,7 +31,7 @@ oscSignalsController()
     };
         const char *getScope(){return "/OpenSCENARIO/RoadNetwork/Signals";};
     oscString name;
-    oscString delay;
+    oscDouble delay;
     oscString reference;
     oscPhaseArrayMember Phase;
 

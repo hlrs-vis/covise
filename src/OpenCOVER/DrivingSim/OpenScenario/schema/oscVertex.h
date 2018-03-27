@@ -25,10 +25,12 @@ class OPENSCENARIOEXPORT oscVertex : public oscObjectBase
 public:
 oscVertex()
 {
+        OSC_ADD_MEMBER(reference, 0);
         OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
         OSC_OBJECT_ADD_MEMBER(Shape, "oscShape", 0);
     };
         const char *getScope(){return "/OSCTrajectory";};
+    oscDouble reference;
     oscPositionMember Position;
     oscShapeMember Shape;
 

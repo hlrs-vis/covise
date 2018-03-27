@@ -15,11 +15,11 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscPosition.h"
 
 namespace OpenScenario
 {
-class oscPosition;class OPENSCENARIOEXPORT Enum_Route_strategyType : public oscEnumType
+   class oscPosition;
+class OPENSCENARIOEXPORT Enum_Route_strategyType : public oscEnumType
 {
 public:
 static Enum_Route_strategyType *instance();
@@ -30,12 +30,7 @@ static Enum_Route_strategyType *instance();
 class OPENSCENARIOEXPORT oscWaypoint : public oscObjectBase
 {
 public:
-oscWaypoint()
-{
-        OSC_ADD_MEMBER(strategy, 0);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
-        strategy.enumType = Enum_Route_strategyType::instance();
-    };
+oscWaypoint();
         const char *getScope(){return "/OSCRoute";};
     oscEnum strategy;
     oscObjectVariable<oscPosition *> Position;

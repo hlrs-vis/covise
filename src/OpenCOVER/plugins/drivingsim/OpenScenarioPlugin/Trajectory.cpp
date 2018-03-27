@@ -51,16 +51,16 @@ float Trajectory::getReference(int visitedVertices){
     {
 		if(Vertex.size()>1)
 		{
-        t1 = Vertex[1]->Shape->reference.getValue();
-        t0 = Vertex[0]->Shape->reference.getValue();
+        t1 = Vertex[1]->reference.getValue();
+        t0 = Vertex[0]->reference.getValue();
 		}
         dt = (float) t1-t0;
         return dt;
     }
     else if(visitedVertices==verticesCounter-1)
     {
-        t1 = Vertex[visitedVertices]->Shape->reference.getValue();
-        t0 = Vertex[visitedVertices-1]->Shape->reference.getValue();
+        t1 = Vertex[visitedVertices]->reference.getValue();
+        t0 = Vertex[visitedVertices-1]->reference.getValue();
 
         dt = t1-t0;
 
@@ -69,8 +69,8 @@ float Trajectory::getReference(int visitedVertices){
     }
     else
     {
-        t0 = Vertex[visitedVertices]->Shape->reference.getValue();
-        t1 = Vertex[visitedVertices+1]->Shape->reference.getValue();
+        t0 = Vertex[visitedVertices]->reference.getValue();
+        t1 = Vertex[visitedVertices+1]->reference.getValue();
 
         dt = t1-t0;
 
