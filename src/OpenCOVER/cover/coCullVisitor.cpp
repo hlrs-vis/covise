@@ -754,47 +754,49 @@ void coCullVisitor::updateCalculatedNearFar(const osg::Vec3 &pos)
 
 void coCullVisitor::apply(osg::Drawable &drawable)
 {
-    RefMatrix &matrix = *getModelViewMatrix();
+    RefMatrix& matrix = *getModelViewMatrix();
 
-    const BoundingBox &bb = drawable.getBoundingBox();
+    const BoundingBox &bb =drawable.getBoundingBox();
 
-    if (drawable.getCullCallback())
+    if( drawable.getCullCallback() )
     {
-        osg::Drawable::CullCallback *dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable.getCullCallback());
+        osg::DrawableCullCallback* dcb = drawable.getCullCallback()->asDrawableCullCallback();
         if (dcb)
         {
-            if (dcb->cull(this, &drawable, &_renderInfo) == true)
-                return;
+            if( dcb->cull( this, &drawable, &_renderInfo ) == true ) return;
+        }
+        else
+        {
+            drawable.getCullCallback()->run(&drawable,this);
         }
     }
 
-    if (!getNodePath().empty() && getNodePath().back()->isCullingActive() && isCulled(bb))
-        return;
+    if (drawable.isCullingActive() && isCulled(bb)) return;
+
 
     if (_computeNearFar && bb.valid())
     {
-        if (!updateCalculatedNearFar(matrix, drawable, false))
-            return;
+        if (!updateCalculatedNearFar(matrix,drawable,false)) return;
     }
 
     // need to track how push/pops there are, so we can unravel the stack correctly.
     unsigned int numPopStateSetRequired = 0;
 
     // push the geoset's state on the geostate stack.
-    StateSet *stateset = drawable.getStateSet();
+    StateSet* stateset = drawable.getStateSet();
     if (stateset)
     {
         ++numPopStateSetRequired;
         pushStateSet(stateset);
     }
 
-    CullingSet &cs = getCurrentCullingSet();
+    CullingSet& cs = getCurrentCullingSet();
     if (!cs.getStateFrustumList().empty())
     {
-        osg::CullingSet::StateFrustumList &sfl = cs.getStateFrustumList();
-        for (osg::CullingSet::StateFrustumList::iterator itr = sfl.begin();
-             itr != sfl.end();
-             ++itr)
+        osg::CullingSet::StateFrustumList& sfl = cs.getStateFrustumList();
+        for(osg::CullingSet::StateFrustumList::iterator itr = sfl.begin();
+                itr != sfl.end();
+                ++itr)
         {
             if (itr->second.contains(bb))
             {
@@ -804,13 +806,13 @@ void coCullVisitor::apply(osg::Drawable &drawable)
         }
     }
 
-    float depth = bb.valid() ? distance(bb.center(), matrix) : 0.0f;
+    float depth = bb.valid() ? distance(bb.center(),matrix) : 0.0f;
 
     if (osg::isNaN(depth))
     {
-        OSG_NOTICE << "CullVisitor::apply(Geode&) detected NaN," << std::endl
-                   << "    depth=" << depth << ", center=(" << bb.center() << ")," << std::endl
-                   << "    matrix=" << matrix << std::endl;
+        OSG_NOTICE<<"CullVisitor::apply(Geode&) detected NaN,"<<std::endl
+            <<"    depth="<<depth<<", center=("<<bb.center()<<"),"<<std::endl
+            <<"    matrix="<<matrix<<std::endl;
         OSG_DEBUG << "    NodePath:" << std::endl;
         for (NodePath::const_iterator i = getNodePath().begin(); i != getNodePath().end(); ++i)
         {
@@ -819,10 +821,10 @@ void coCullVisitor::apply(osg::Drawable &drawable)
     }
     else
     {
-        addDrawableAndDepth(&drawable, &matrix, depth);
+        addDrawableAndDepth(&drawable,&matrix,depth);
     }
 
-    for (unsigned int i = 0; i < numPopStateSetRequired; ++i)
+    for(unsigned int i=0;i< numPopStateSetRequired; ++i)
     {
         popStateSet();
     }
@@ -830,43 +832,41 @@ void coCullVisitor::apply(osg::Drawable &drawable)
 
 void coCullVisitor::apply(Billboard &node)
 {
-    if (isCulled(node))
-        return;
+    if (isCulled(node)) return;
 
     // push the node's state.
-    StateSet *node_state = node.getStateSet();
-    if (node_state)
-        pushStateSet(node_state);
+    StateSet* node_state = node.getStateSet();
+    if (node_state) pushStateSet(node_state);
 
     // Don't traverse billboard, since drawables are handled manually below
     //handle_cull_callbacks_and_traverse(node);
 
-    const Vec3 &eye_local = getEyeLocal();
-    const RefMatrix &modelview = *getModelViewMatrix();
+    const Vec3& eye_local = getEyeLocal();
+    const RefMatrix& modelview = *getModelViewMatrix();
 
-    for (unsigned int i = 0; i < node.getNumDrawables(); ++i)
+    for(unsigned int i=0;i<node.getNumDrawables();++i)
     {
-        const Vec3 &pos = node.getPosition(i);
+        const Vec3& pos = node.getPosition(i);
 
-        Drawable *drawable = node.getDrawable(i);
+        Drawable* drawable = node.getDrawable(i);
         // need to modify isCulled to handle the billboard offset.
-        // if (isCulled(drawable->getBoundingBox())) continue;
+        // if (isCulled(drawable->getBound())) continue;
 
-        if (drawable->getCullCallback())
+        if( drawable->getCullCallback() )
         {
-            osg::Drawable::CullCallback *dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable->getCullCallback());
-            if (dcb && dcb->cull(this, drawable, &_renderInfo) == true)
+            osg::DrawableCullCallback* dcb = drawable->getCullCallback()->asDrawableCullCallback();
+            if (dcb && dcb->cull( this, drawable, &_renderInfo ) == true )
                 continue;
         }
 
-        RefMatrix *billboard_matrix = createOrReuseMatrix(modelview);
+        RefMatrix* billboard_matrix = createOrReuseMatrix(modelview);
 
-        node.computeMatrix(*billboard_matrix, eye_local, pos);
+        node.computeMatrix(*billboard_matrix,eye_local,pos);
 
-        if (_computeNearFar && drawable->getBoundingBox().valid())
-            updateCalculatedNearFar(*billboard_matrix, *drawable, true);
-        float depth = distance(pos, modelview);
-        /*
+
+        if (_computeNearFar && drawable->getBoundingBox().valid()) updateCalculatedNearFar(*billboard_matrix,*drawable,true);
+        float depth = distance(pos,modelview);
+/*
         if (_computeNearFar)
         {
             if (d<_computed_znear)
@@ -877,31 +877,29 @@ void coCullVisitor::apply(Billboard &node)
             if (d>_computed_zfar) _computed_zfar = d;
         }
 */
-        StateSet *stateset = drawable->getStateSet();
-        if (stateset)
-            pushStateSet(stateset);
+        StateSet* stateset = drawable->getStateSet();
+        if (stateset) pushStateSet(stateset);
 
         if (osg::isNaN(depth))
         {
-            OSG_NOTICE << "CullVisitor::apply(Billboard&) detected NaN," << std::endl
-                       << "    depth=" << depth << ", pos=(" << pos << ")," << std::endl
-                       << "    *billboard_matrix=" << *billboard_matrix << std::endl;
+            OSG_NOTICE<<"CullVisitor::apply(Billboard&) detected NaN,"<<std::endl
+                                    <<"    depth="<<depth<<", pos=("<<pos<<"),"<<std::endl
+                                    <<"    *billboard_matrix="<<*billboard_matrix<<std::endl;
             OSG_DEBUG << "    NodePath:" << std::endl;
-            for (NodePath::const_iterator i = getNodePath().begin(); i != getNodePath().end(); ++i)
+            for (NodePath::const_iterator itr = getNodePath().begin(); itr != getNodePath().end(); ++itr)
             {
-                OSG_DEBUG << "        \"" << (*i)->getName() << "\"" << std::endl;
+                OSG_DEBUG << "        \"" << (*itr)->getName() << "\"" << std::endl;
             }
         }
         else
         {
-            addDrawableAndDepth(drawable, billboard_matrix, depth);
+            addDrawableAndDepth(drawable,billboard_matrix,depth);
         }
 
-        if (stateset)
-            popStateSet();
+        if (stateset) popStateSet();
+
     }
 
     // pop the node's state off the geostate stack.
-    if (node_state)
-        popStateSet();
+    if (node_state) popStateSet();
 }
