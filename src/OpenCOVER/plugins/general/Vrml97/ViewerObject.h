@@ -27,6 +27,7 @@
 #include <windows.h>
 #endif
 #include <vector>
+#include <unordered_map>
 #include <osg/GL>
 #include <osg/Node>
 #include <osg/Vec2>
@@ -79,6 +80,7 @@ private:
     int level;
     int refcount;
     objList children;
+    std::unordered_map<const VrmlNode *, osgViewerObject *> childIndex;
 
 public:
     ViewerOsg *viewer;

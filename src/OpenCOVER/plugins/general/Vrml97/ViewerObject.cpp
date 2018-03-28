@@ -146,6 +146,12 @@ class MoveInfo;
 
 osgViewerObject *osgViewerObject::getChild(VrmlNode *n)
 {
+    auto iter = childIndex.find(n);
+    if (iter != childIndex.end())
+    {
+        return iter->second;
+    }
+
     auto it = std::find_if(children.begin(), children.end(), [n](const osgViewerObject *c){ return c->node == n;});
     if (it == children.end())
         return NULL;
@@ -175,6 +181,8 @@ void osgViewerObject::addChild(osgViewerObject *n)
     //cerr << "osgViewerObject::addChild, num: " << children.num() << ", node:" << n->node << endl;
     n->parent = this;
     children.push_back(n);
+    if (n->node)
+        childIndex[n->node] = n;
     n->ref();
     if (rootNode.get())
         n->setRootNode(rootNode.get());
@@ -370,6 +378,7 @@ osgViewerObject::~osgViewerObject()
         c->deref();
     }
     children.clear();
+    childIndex.clear();
 
     if (pNode.get())
     {
@@ -401,6 +410,10 @@ osgViewerObject::~osgViewerObject()
 
 void osgViewerObject::removeChild(osgViewerObject *rmObj)
 {
+    auto iter = childIndex.find(rmObj->node);
+    if (iter != childIndex.end())
+        childIndex.erase(iter);
+
     auto it = std::find(children.begin(), children.end(), rmObj);
     if (it == children.end())
         return;
