@@ -669,7 +669,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_selectMode = false;
     UseFieldOfViewForScaling = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseFieldOfViewForScaling", false);
-    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold",10000);
+    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold", 10000);
 
     currentTransform.makeIdentity();
 
@@ -1473,8 +1473,7 @@ Viewer::Object ViewerOsg::insertLineSet(int npoints,
         Geode *geode = new Geode();
 
         Geometry *geom = new Geometry();
-        geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-        geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+        cover->setRenderStrategy(geom);
         geode->addDrawable(geom);
         StateSet *geoState = geode->getOrCreateStateSet();
         geoState->setNestRenderBins(false);
@@ -1578,8 +1577,7 @@ Viewer::Object ViewerOsg::insertPointSet(int npoints,
     Geode *geode = new Geode();
 
     Geometry *geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
     geode->addDrawable(geom);
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -1883,8 +1881,7 @@ ViewerOsg::insertShell(unsigned int mask,
     //geode->setName(objName);
 
     ref_ptr<Geometry> geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -2156,6 +2153,8 @@ ViewerOsg::insertShell(unsigned int mask,
         if(((unsigned int)nfaces > SubdivideThreshold) && !((d_currentObject->pNode.get() && (mask & MASK_CONVEX) && !strncmp(objName, "Animated", 8))))
         {
             splitGeometry(geode,SubdivideThreshold);
+            if (cover->debugLevel(2))
+                cerr << "-" << nfaces  << "/" << geode->getNumChildren() << ":";
         }
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
@@ -2222,8 +2221,8 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
     {
         didSplit = false;
         numLevels++;
-        std::list<osg::Geometry *> newDrawables;
-        std::list<osg::Drawable *> oldDrawables;
+        std::vector<osg::ref_ptr<osg::Geometry>> newDrawables;
+        std::vector<osg::Drawable *> oldDrawables;
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Drawable *d = geode->getDrawable(i);
@@ -2252,11 +2251,11 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
             }
         }
         
-        for(std::list<osg::Drawable *>::iterator it = oldDrawables.begin(); it != oldDrawables.end();it++)
+        for(auto it = oldDrawables.begin(); it != oldDrawables.end();it++)
         {
             geode->removeDrawable(*it);
         }
-        for(std::list<osg::Geometry *>::iterator it = newDrawables.begin(); it != newDrawables.end();it++)
+        for(auto it = newDrawables.begin(); it != newDrawables.end();it++)
         {
             geode->addDrawable(*it);
         }
@@ -2309,10 +2308,9 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         int nv=0;
         int np=0;
         int vertNum=0;
-        int v;
         for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
         {
-            v = (*polygons)[i];
+            int v = (*polygons)[i];
             if((*vertexArray)[vertNum][index] < splitAt)
             {
                 nv +=v;
@@ -2365,7 +2363,7 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         vertNum=0;
         for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
         {
-            v = (*polygons)[i];
+            int v = (*polygons)[i];
             if((*vertexArray)[vertNum][index] < splitAt)
             {
                 polygonsMin->push_back(v);
@@ -3262,10 +3260,7 @@ void ViewerOsg::setModesByName(const char *objectName)
                 osg::Drawable *drawable = pGeode->getDrawable(i);
                 if (drawable)
                 {
-                    if (animated)
-                    {
-                        drawable->setUseDisplayList(false);
-                    }
+                    cover->setRenderStrategy(drawable, false);
 
                     StateSet *stateset = drawable->getOrCreateStateSet();
                     stateset->setNestRenderBins(false);

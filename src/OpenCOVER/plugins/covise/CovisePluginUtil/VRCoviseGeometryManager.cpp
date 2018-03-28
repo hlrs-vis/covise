@@ -149,8 +149,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
     geode = new osg::Geode();
     geode->setName(object);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
@@ -756,8 +755,7 @@ GeometryManager::addPolygon(const char *object_name,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     int numv;
@@ -1146,8 +1144,7 @@ GeometryManager::addTriangles(const char *object_name,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
@@ -1467,8 +1464,7 @@ GeometryManager::addQuads(const char *object_name,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
@@ -1877,8 +1873,7 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
@@ -2427,8 +2422,7 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
@@ -2706,8 +2700,7 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;

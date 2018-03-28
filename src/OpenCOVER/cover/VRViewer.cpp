@@ -598,7 +598,7 @@ void VRViewer::createViewportCameras(int i)
                 osg::UShortArray *indexArray = new osg::UShortArray;
                 osg::ref_ptr<osg::DrawElementsUShort> drawElement;
                 geometry = new osg::Geometry;
-                geometry->setUseDisplayList(false);
+                geometry->setSupportsDisplayList(false);
                 geometry->setUseVertexBufferObjects(true);
                 positionArray->push_back(osg::Vec3f(0,0,0));
                 positionArray->push_back(osg::Vec3f(1,0,0));
@@ -805,7 +805,7 @@ osg::Geometry *VRViewer::distortionMesh(const char *fileName)
     // Get triangle indicies
 
     osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-    geometry->setUseDisplayList(false);
+    geometry->setSupportsDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
 
     FILE *fp = NULL;
