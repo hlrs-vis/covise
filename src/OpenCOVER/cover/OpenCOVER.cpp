@@ -267,15 +267,6 @@ bool OpenCOVER::run()
 
     if (init())
     {
-        if (!coVRConfig::instance()->continuousRendering())
-        {
-            if (dl >= 1)
-            {
-                fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
-            }
-            VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
-        }
-
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
 
@@ -775,11 +766,15 @@ bool OpenCOVER::init()
         tui->tryConnect();
         tui->update();
     }
+
     hud->setText2("initialising plugins");
     hud->redraw();
 
     coVRPluginList::instance()->init();
 
+    hud->redraw();
+
+    double loadStart = cover->currentTime();
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
     {
@@ -810,11 +805,33 @@ bool OpenCOVER::init()
         for (int i = 0; i < num; i++)
             coVRMSController::instance()->loadFile(NULL);
     }
-    hud->hideLater();
+    double loadEnd = cover->currentTime();
+
+    coVRPluginList::instance()->init2();
+    double init2End = cover->currentTime();
+
+    if (!coVRConfig::instance()->continuousRendering())
+    {
+        if (cover->debugLevel(1))
+        {
+            fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
+        }
+        VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+    }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
-    
-    coVRPluginList::instance()->init2();
+    frame();
+    double frameEnd = cover->currentTime();
+    hud->hideLater();
+
+    if (cover->debugLevel(1))
+    {
+        std::cerr << std::endl << "INIT TIMES:"
+                  << " load " << loadEnd-loadStart << "s"
+                  << ", init2 " << init2End-loadEnd << "s"
+                  << ", 1st frame " << frameEnd-init2End << "s"
+                  << std::endl;
+    }
 
     m_initialized = true;
     return true;
