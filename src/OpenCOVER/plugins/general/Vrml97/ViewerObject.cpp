@@ -363,6 +363,11 @@ osgViewerObject::osgViewerObject(VrmlNode *n)
 
 osgViewerObject::~osgViewerObject()
 {
+    if (auto group = pNode->asGroup())
+    {
+        group->removeChildren(0, group->getNumChildren());
+    }
+
     if (sensor)
     {
         sensor->remove(); // can't be deleted here, because it could be active right now
