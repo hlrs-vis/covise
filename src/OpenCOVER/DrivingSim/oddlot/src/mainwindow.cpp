@@ -1172,7 +1172,7 @@ MainWindow::importOSMRoad()
 void
 MainWindow::about()
 {
-    QMessageBox::about(this, tr("About ODDLOT"), tr("The <b>oddlot: OpenDRIVE Designer</b> was initially created by Frank Naegele and is now further developed by the HLRS, University of Stuttgart.<br> Main contributors are Jutta Sauer, Uwe W&ouml;ssner<br> Since 2015, oddlot is now open source (LGPL2+) and available as part of the COVISE/OpenCOVER package on GitHub."));
+    QMessageBox::about(this, tr("About ODDLOT"), tr("The <b>oddlot: OpenDRIVE Designer</b> was initially created by Frank Naegele and is now further developed by the HLRS, University of Stuttgart.<br> Main contributors are Jutta Sauer, Uwe W&ouml;ssner<br> Since 2015, oddlot is now open source (LGPL2+) and available as part of the COVISE/OpenCOVER package on GitHub.<br> Credits: Train icon by Hannah Strobel from thenounproject.com<br> Tram icon by Arthur Lacote from thenounproject.com<br> Truck icon by Simon Child from thenounproject.com<br> RV icon by Yi Chen from thenounproject.com"));
     return;
 }
 
