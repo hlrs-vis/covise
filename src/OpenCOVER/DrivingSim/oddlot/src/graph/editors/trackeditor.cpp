@@ -972,7 +972,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
                     pressPoint_ = mouseAction->getEvent()->scenePos();
                 }
 				
-				if (lastEditorTool_ == ODD::TTE_ADD_LINE)
+				if ((lastEditorTool_  == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE))
 				{
 					newRoadLineItem_->setLine(QLineF(pressPoint_, mousePoint));
 					newRoadLineItem_->show();
@@ -1074,7 +1074,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             }
         }
 
-        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_MOVE) && (lastEditorTool_ == ODD::TTE_ADD_LINE))
+        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_MOVE) && ((lastEditorTool_ == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE)))
         {
             if (state_ == TrackEditor::STE_NEW_PRESSED)
             {
@@ -1083,7 +1083,7 @@ TrackEditor::mouseAction(MouseAction *mouseAction)
             }
         }
 
-        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE) && (lastEditorTool_ == ODD::TTE_ADD_LINE))
+        else if ((mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE) && ((lastEditorTool_ == ODD::TNO_TOOL) || (lastEditorTool_ == ODD::TTE_ADD_LINE)))
         {
             if (mouseAction->getEvent()->button() == Qt::LeftButton)
             {
@@ -1861,11 +1861,7 @@ TrackEditor::kill()
     //	trackRoadSystemItem_->deleteHandles();
     //	getTopviewGraph()->getScene()->removeItem(trackRoadSystemItem_);
     //	topviewGraph_->graphScene()->removeItem(trackRoadSystemItem_);
-/*	if (newRoadPolyItem_)
-	{
-		newRoadPolyItem_->setParent(NULL);
-		delete newRoadPolyItem_;
-	} */
+
     delete trackRoadSystemItem_;
     trackRoadSystemItem_ = NULL;
 
