@@ -498,7 +498,14 @@ OpenScenarioEditor::getCatalog(std::string name)
 				dirName = catalog->Directory->path = catalogsDir + name;
 				if (!bf::exists(bf::path(dirName)))
 				{
-					bf::create_directory(dirName);
+					try
+					{
+						bf::create_directory(dirName);
+					}
+					catch(...)
+					{
+						fprintf(stderr, "Could not create directory %s\n", dirName.c_str());
+					}
 				}
 			}
 		}
