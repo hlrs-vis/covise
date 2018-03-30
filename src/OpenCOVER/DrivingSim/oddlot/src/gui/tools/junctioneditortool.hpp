@@ -96,7 +96,8 @@ public slots:
 	void activateRibbonEditor();
     void handleToolClick(int);
 	void handleRibbonToolClick(int);
-    void setRadius();
+	void setRadius();
+	void setRRadius(double);
     void setRRadius();
 
     //################//

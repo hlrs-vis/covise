@@ -126,7 +126,7 @@ TrackEditor::toolAction(ToolAction *toolAction)
 {
     // Parent //
     //
-    ODD::ToolId lastTool = lastEditorTool_;
+    ODD::ToolId lastTool = getCurrentTool();
     ProjectEditor::toolAction(toolAction);
 
     // Change Tool //

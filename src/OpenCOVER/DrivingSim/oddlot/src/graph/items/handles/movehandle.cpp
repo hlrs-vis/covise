@@ -56,7 +56,7 @@ MoveHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void
 MoveHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    setCursor(Qt::OpenHandCursor);
+    setCursor(Qt::CrossCursor);
     Handle::mouseReleaseEvent(event); // pass to baseclass
 }
 
@@ -69,7 +69,7 @@ MoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void
 MoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    setCursor(Qt::OpenHandCursor);
+    setCursor(Qt::CrossCursor);
     Handle::hoverEnterEvent(event);
 }
 

@@ -131,6 +131,17 @@ JunctionEditor::toolAction(ToolAction *toolAction)
     //
     ODD::ToolId lastTool = getCurrentTool();
     ProjectEditor::toolAction(toolAction);
+	if (getCurrentTool() == ODD::TJE_CIRCLE)
+	{
+		JunctionEditorToolAction *action = dynamic_cast<JunctionEditorToolAction *>(toolAction);
+		if (action)
+		{
+			
+		}
+	}
+	else
+	{
+	}
 
     if (getCurrentTool() == ODD::TJE_ADD_TO_JUNCTION)
     {
