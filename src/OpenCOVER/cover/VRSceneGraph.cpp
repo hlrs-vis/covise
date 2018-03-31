@@ -253,15 +253,31 @@ void VRSceneGraph::init()
     cover->viewOptionsMenu->add(m_useTextures);
     m_useTextures->setCallback([this](bool state){
         m_textured = state;
-        if (m_textured)
+        osg::Texture *texture = new osg::Texture2D;
+        for (int unit=0; unit<4; ++unit)
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+            if (m_textured)
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OFF);
+            else
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
+    });
+
+    m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders->setVisible(false, ui::View::VR);
+    m_useShaders->setShortcut("Alt+s");
+    m_useShaders->setState(m_shaders);
+    cover->viewOptionsMenu->add(m_useShaders);
+    m_useShaders->setCallback([this](bool state){
+        m_shaders = state;
+        osg::Program *program = new osg::Program;
+        if (m_shaders)
+        {
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OFF);
         }
         else
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
         }
     });
 }
