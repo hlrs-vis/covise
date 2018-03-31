@@ -200,6 +200,7 @@ void VRSceneGraph::init()
     m_drawStyle->append("Wireframe");
     m_drawStyle->append("Hidden lines (dark)");
     m_drawStyle->append("Hidden lines (bright)");
+    m_drawStyle->append("Points");
     cover->viewOptionsMenu->add(m_drawStyle);
     m_drawStyle->setShortcut("Alt+w");
     m_drawStyle->setCallback([this](int style){
@@ -1083,11 +1084,17 @@ VRSceneGraph::setWireframe(WireframeMode wf)
     {
         case Disabled:
         case Enabled:
+        case Points:
         {
             osg::PolygonMode *polymode = new osg::PolygonMode;
             if (m_wireframe == Disabled)
             {
                 m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+            }
+            else if (m_wireframe == Points)
+            {
+                polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
             }
             else
             {

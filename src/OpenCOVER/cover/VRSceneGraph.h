@@ -66,7 +66,8 @@ public:
         Disabled,
         Enabled,
         HiddenLineBlack,
-        HiddenLineWhite
+        HiddenLineWhite,
+        Points,
     };
     VRSceneGraph();
     virtual ~VRSceneGraph();
