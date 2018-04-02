@@ -152,11 +152,7 @@ osgViewerObject *osgViewerObject::getChild(VrmlNode *n)
         return iter->second;
     }
 
-    auto it = std::find_if(children.begin(), children.end(), [n](const osgViewerObject *c){ return c->node == n;});
-    if (it == children.end())
-        return NULL;
-
-    return *it;
+    return nullptr;
 }
 
 bool osgViewerObject::hasChild(osgViewerObject *o)
