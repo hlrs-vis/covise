@@ -1866,6 +1866,25 @@ ViewerOsg::insertShell(unsigned int mask,
         // save old Mask if object already exists
         nodeMask = d_currentObject->pNode->getNodeMask();
 
+        if (auto geode = d_currentObject->pNode->asGeode())
+        {
+            for (unsigned i=0; i<geode->getNumDrawables(); ++i)
+            {
+                if (auto geom = geode->getDrawable(i)->asGeometry())
+                {
+                    auto vert = geom->getVertexArray();
+                    if (vert)
+                        numVert -= vert->getNumElements();
+                    for (unsigned j=0; j<geom->getNumPrimitiveSets(); ++j)
+                    {
+                        auto prim = geom->getPrimitiveSet(j);
+                        if (prim)
+                            numPoly -= prim->getNumPrimitives();
+                    }
+                }
+            }
+        }
+
         while (d_currentObject->pNode->getNumParents())
         {
             Group *parentNode = d_currentObject->pNode->getParent(0);
