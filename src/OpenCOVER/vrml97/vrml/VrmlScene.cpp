@@ -1703,19 +1703,20 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
     d_audioClips->remove(audio_clip);
 }
 
-void VrmlScene::storeCachedInline(const char *url, const Viewer::Object d_viewerObject)
+void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
     if (cache)
     {
-        char *fileName;
+        char *fileName = NULL;
 
-        int urlTime;
+        int urlTime = 0;
 #ifdef _WIN32
         struct _stat sbuf;
-        _stat(url, &sbuf);
+        _stat(pathname, &sbuf);
 #else
         struct stat sbuf;
-        stat(url, &sbuf);
+        int ret = stat(pathname, &sbuf);
+        if (ret == 0)
 #endif
 
 #ifdef __sgi
@@ -1740,17 +1741,18 @@ void VrmlScene::storeCachedInline(const char *url, const Viewer::Object d_viewer
     }
 }
 
-Viewer::Object VrmlScene::getCachedInline(const char *url)
+Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 {
     if (cache)
     {
-        int urlTime;
+        int urlTime = -1;
 #ifdef _WIN32
         struct _stat sbuf;
         _stat(url, &sbuf);
 #else
         struct stat sbuf;
-        stat(url, &sbuf);
+        int ret = stat(pathname, &sbuf);
+        if (ret == 0)
 #endif
 #ifdef __sgi
         urlTime = sbuf.st_mtim.tv_sec;
@@ -1772,10 +1774,12 @@ InlineCache::InlineCache(const char *vrmlfile)
     char *tmpName = coDirectory::canonical(vrmlfile);
     fileBase = coDirectory::fileOf(tmpName);
     directory = coDirectory::dirOf(tmpName);
-    char *cacheIndexName = new char[strlen(directory) + 1000];
-    sprintf(cacheIndexName, "%s/%s.cache", directory, fileBase);
-    FILE *fp = fopen(cacheIndexName, "r");
-    delete[] cacheIndexName;
+    delete[] tmpName;
+
+    std::stringstream str;
+    str << directory << "/cache_" << fileBase << ".cache";
+    cacheIndexName = str.str();
+    FILE *fp = fopen(cacheIndexName.c_str(), "r");
     char buf[1000];
     char fn[1000];
     char url[1000];
@@ -1789,20 +1793,27 @@ InlineCache::InlineCache(const char *vrmlfile)
             retval_fgets = fgets(buf, 1000, fp);
             if (retval_fgets == NULL)
             {
-                std::cerr << "InlineCache::InlineCache: fgets failed" << std::endl;
-                return;
+                if (!feof(fp))
+                {
+                    std::cerr << "InlineCache::InlineCache: fgets failed" << std::endl;
+                    fclose(fp);
+                    return;
+                }
             }
-            retval_sscanf = sscanf(buf, "%s %s %d", url, fn, &time);
-            if (retval_sscanf != 3)
+            else
             {
-                std::cerr << "InlineCache::InlineCache: sscanf failed" << std::endl;
-                return;
+                retval_sscanf = sscanf(buf, "%s %s %d", url, fn, &time);
+                if (retval_sscanf != 3)
+                {
+                    std::cerr << "InlineCache::InlineCache: sscanf failed" << std::endl;
+                    fclose(fp);
+                    return;
+                }
+                cacheList.push_back(cacheEntry(url, fn, time));
             }
-            cacheList.push_back(cacheEntry(url, fn, time));
         }
         fclose(fp);
     }
-    delete[] tmpName;
     modified = false;
 }
 
@@ -1817,10 +1828,7 @@ void InlineCache::save()
     if (modified)
     {
         modified = false;
-        char *cacheIndexName = new char[strlen(directory) + 1000];
-        sprintf(cacheIndexName, "%s/%s.cache", directory, fileBase);
-        FILE *fp = fopen(cacheIndexName, "w");
-        delete[] cacheIndexName;
+        FILE *fp = fopen(cacheIndexName.c_str(), "w");
         if (fp)
         {
             list<cacheEntry>::iterator i, end = cacheList.end();

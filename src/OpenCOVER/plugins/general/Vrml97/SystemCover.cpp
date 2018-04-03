@@ -79,6 +79,13 @@
 
 using namespace covise;
 
+namespace
+{
+
+const char cacheExt[] = ".osgb";
+
+}
+
 ViewpointEntry::ViewpointEntry(VrmlNodeViewpoint *aViewPoint, VrmlScene *aScene)
 {
     scene = aScene;
@@ -1047,7 +1054,7 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
             osgUtil::Optimizer optimzer;
             optimzer.optimize(osgNode);
             std::string n(name);
-            n += ".osgb";
+            n += cacheExt;
             osgDB::writeNodeFile(*osgNode, n.c_str());
         }
     }
@@ -1057,7 +1064,7 @@ Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::Group *g = new osg::Group;
     std::string n(name);
-    std::string cached = n + ".osgb";
+    std::string cached = n + cacheExt;
 
     coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
     if (g->getNumChildren() > 0)
