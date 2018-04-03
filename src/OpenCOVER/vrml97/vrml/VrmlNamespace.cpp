@@ -424,7 +424,11 @@ void VrmlNamespace::repairRoutes()
 {
     for (auto &n: d_nameList)
     {
-        findNode(n.second->name())->repairRoutes();
+        auto node = findNode(n.second->name());
+        if (node)
+            node->repairRoutes();
+        else
+            std::cerr << "VrmlNamespace::repairRoutes: did not find node " << n.second->name() << std::endl;
     }
 }
 
