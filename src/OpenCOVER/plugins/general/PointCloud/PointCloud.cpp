@@ -27,6 +27,9 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
 
+#include <OpenVRUI/coButtonInteraction.h>
+#include <cover/coVRShader.h>
+
 // OSG:
 #include <osg/Node>
 #include <osg/Group>
@@ -47,6 +50,7 @@
 using namespace osg;
 using namespace std;
 using covise::coCoviseConfig;
+using vrui::coInteraction;
 
 const int MAX_POINTS = 30000000;
 
@@ -293,30 +297,6 @@ PointCloudPlugin::~PointCloudPlugin()
     //delete deleteMenuItem;
 }
 
-void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == adaptLODTui)
-    {
-        adaptLOD = adaptLODTui->getState();
-    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
-    {
-        //TODO calc distance correctly
-        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
-        {
-
-            if (!adaptLOD)
-            {
-                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
-            }
-        }
-    }
-    }
-    if (tUIItem == pointSizeTui)
-    {
-        pointSizeValue = pointSizeTui->getValue();
-    }
-    
-}
 int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, const char *)
 {
     std::string filen;
@@ -329,20 +309,6 @@ int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, cons
     return 1;
 }
 
-/*
-void PointCloudPlugin::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == deleteMenuItem)
-    {
-        clearData();
-    }
-    else
-    {
-        // see if a menu item was selected
-        selectedMenuButton(menuItem);
-    }
-}
-*/
 
 // read in and store the menu data from the configuration file
 void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, ui::Group *subMenu)
@@ -1059,11 +1025,6 @@ void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
             return; //exit
         }
     }
-}
-
-// need to define because abstract
-void PointCloudPlugin::potiValueChanged(float, float, coValuePoti *, int)
-{
 }
 
 /// Called before each frame

@@ -8,51 +8,19 @@
 #ifndef _NEWPROJECTNAME_PLUGIN_H_
 #define _NEWPROJECTNAME_PLUGIN_H_
 
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coSquareButtonGeometry.h>
-#include <OpenVRUI/coTrackerButtonInteraction.h>
-#include <OpenVRUI/coButtonMenuItem.h>
 #include <cover/coVRPlugin.h>
-#include <list>
+#include <vector>
 
-#include <cover/coVRShader.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coPanel.h>
-#include <OpenVRUI/coPopupHandle.h>
-#include <OpenVRUI/coFlatPanelGeometry.h>
-#include <OpenVRUI/coFlatButtonGeometry.h>
-#include <OpenVRUI/coRectButtonGeometry.h>
-#include <OpenVRUI/coValuePoti.h>
-#include <OpenVRUI/coButton.h>
-#include <OpenVRUI/coLabel.h>
-#include <OpenVRUI/coFrame.h>
 #include <config/CoviseConfig.h>
 #include "Points.h"
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
 #include "PointCloudInteractor.h"
-#include <cover/coTabletUI.h>
-
-namespace vrui
-{
-class coFrame;
-class coPanel;
-class coButtonMenuItem;
-class coButton;
-class coPotiItem;
-class coLabelItem;
-}
 
 using namespace opencover;
-using namespace vrui;
-
 
 class nodeInfo
 {
@@ -72,7 +40,7 @@ public:
 /** Plugin
   @author 
 */
-class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public coVRPlugin, public coTUIListener, public ui::Owner
+class PointCloudPlugin : public coVRPlugin, public ui::Owner
 {
 
     /** File entry class for Image Plugin
@@ -111,9 +79,6 @@ private:
     bool polar;
     float pointSizeValue;
     bool adaptLOD;
-    coTUITab *PCTab;
-    coTUIToggleButton *adaptLODTui;
-    coTUIFloatSlider *pointSizeTui;
     static PointCloudInteractor *s_pointCloudInteractor;
 
 protected:
@@ -138,9 +103,6 @@ protected:
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
 
-    //void menuEvent(coMenuItem *);
-    void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
-
 public:
     PointCloudPlugin();
     ~PointCloudPlugin();
@@ -154,7 +116,6 @@ public:
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
     int unloadFile(std::string filename);
-    void tabletEvent(coTUIElement *);
     static PointCloudPlugin *plugin;
     ui::Group *FileGroup;
 };
