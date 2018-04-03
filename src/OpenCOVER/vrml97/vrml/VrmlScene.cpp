@@ -391,9 +391,10 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         return true;
     }
 
+    //std::cerr << "VrmlScene::load(url=" << (url?url:"<null>") << ", localCopy=" << (localCopy?localCopy:"<null>") << ")" << std::endl;
+
     // Try to load a file. Prefer a local copy if available.
     Doc *tryUrl;
-
     if (localCopy)
         tryUrl = new Doc(localCopy, 0);
     else
@@ -1322,7 +1323,8 @@ void VrmlScene::render(Viewer *viewer)
 
     clearModified();
 
-    cache->save();
+    if (cache)
+        cache->save();
 
     // If any events were generated during render (ugly...) do an update
     if (eventsPending())
