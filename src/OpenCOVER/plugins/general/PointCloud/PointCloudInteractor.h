@@ -43,6 +43,7 @@ public:
     void startInteraction();
 
     void addSelectedPoint(osg::Vec3);
+    void updateMessage(vector<pointSelection> points);
 
     // updates the temporary copy of the spheres
     // on them the intersection test takes place

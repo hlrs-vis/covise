@@ -207,8 +207,9 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
-        addSelectedPoint(newSelectedPoint);
+        //addSelectedPoint(newSelectedPoint);
         selectedPoints.push_back(selectedPoint);
+        updateMessage(selectedPoints);
     }
     stateSet->setAttribute(selMaterial);
     selectedSphereDrawable->setStateSet(stateSet);
@@ -220,6 +221,12 @@ PointCloudInteractor::addSelectedPoint(Vec3 selectedPoint)
 {
 //send message to NurbsSurfacePlugin
 cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(selectedPoint), &selectedPoint);
+}
+
+void PointCloudInteractor::updateMessage(vector<pointSelection> points)
+{
+    //send message to NurbsSurfacePlugin
+    cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(points), &points);
 }
 
 double
