@@ -373,11 +373,11 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
 {
     bool displaylist = coVRConfig::instance()->useDisplayLists() && !dynamic;
     bool vbo = !displaylist && coVRConfig::instance()->useVBOs();
-    bool vao = false;
+    //bool vao = false;
 
     draw->setUseDisplayList(displaylist);
     draw->setUseVertexBufferObjects(vbo);
-    draw->setUseVertexArrayObject(vao);
+    //draw->setUseVertexArrayObject(vao);
 }
 
 void coVRPluginSupport::setFrameRealTime(double ft)
