@@ -82,7 +82,7 @@ using namespace covise;
 namespace
 {
 
-const char cacheExt[] = ".osgb";
+const char cacheExt[] = ".ive";
 
 }
 
