@@ -1071,7 +1071,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         gpuMemValue->setPosition(pos);
         gpuMemValue->setText("7777.77", osgText::String::ENCODING_UTF8);
 
-        gpuMemValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1e-6));
+        gpuMemValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024));
 
         pos.y() -= characterSize * 1.5f;
     }
