@@ -176,7 +176,8 @@ public:
         return backgroundColor;
     };
 
-    bool clearWindow; // if set to true, the whole window is cleared once
+    bool clearWindow = true; // if set to true, the whole window is cleared once
+    int numClears = 0;
 
     void toggleStatistics();
     void overwriteViewAndProjectionMatrix(bool state)
@@ -187,6 +188,8 @@ public:
     {
         return overwritePAndV;
     };
+
+    void glContextOperation(osg::GraphicsContext *ctx);
 
     // assert: cull masks of all channels are equal!
     osg::Node::NodeMask getCullMask() /*const*/;

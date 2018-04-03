@@ -108,6 +108,11 @@ function find_executable() {
       echo "$b"
       return 0
    fi
+   local e="${EXTERNLIBS}/ALL/bin/${name}"
+   if [ -e "$e" ]; then
+      echo "$e"
+      return 0
+   fi
    echo "$p"
    return 1
 }

@@ -369,6 +369,17 @@ void coVRPluginSupport::setFrameTime(double ft)
     frameStartTime = ft;
 }
 
+void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
+{
+    bool displaylist = coVRConfig::instance()->useDisplayLists() && !dynamic;
+    bool vbo = !displaylist && coVRConfig::instance()->useVBOs();
+    bool vao = false;
+
+    draw->setUseDisplayList(displaylist);
+    draw->setUseVertexBufferObjects(vbo);
+    draw->setUseVertexArrayObject(vao);
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;

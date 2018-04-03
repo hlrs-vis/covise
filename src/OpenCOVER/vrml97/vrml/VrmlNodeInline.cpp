@@ -141,7 +141,6 @@ void VrmlNodeInline::render(Viewer *viewer)
             d_viewerObject = viewer->beginObject(name(), 0, this);
             System::the->insertObject(d_viewerObject, sgObject);
             viewer->endObject();
-            clearModified();
         }
         else // render the children an store the viewerObject in the cache
         {
@@ -150,10 +149,19 @@ void VrmlNodeInline::render(Viewer *viewer)
             {
                 if (d_viewerObject)
                 {
-                    d_scene->storeCachedInline(d_url.get(0), d_viewerObject);
+                    Doc url;
+                    const char *pathname = NULL;
+                    if (d_relative.get())
+                    {
+                        Doc relDoc(d_relative.get());
+                        url.seturl(d_url.get(0), &relDoc);
+                        pathname = url.localName();
+                    }
+                    d_scene->storeCachedInline(d_url.get(0), pathname, d_viewerObject);
                 }
             }
         }
+        clearModified();
     }
     else
     {
@@ -191,7 +199,7 @@ void VrmlNodeInline::load(const char *relativeUrl)
         if (strncmp(name(), "Cached", 6) == 0)
         {
             setModified();
-            sgObject = d_scene->getCachedInline(d_url.get(0)); // relative files in cache
+            sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
         }
         int slen = (int)strlen(url.url());
         const char *end = url.url() + slen;

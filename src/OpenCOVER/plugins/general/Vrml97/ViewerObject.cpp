@@ -146,11 +146,13 @@ class MoveInfo;
 
 osgViewerObject *osgViewerObject::getChild(VrmlNode *n)
 {
-    auto it = std::find_if(children.begin(), children.end(), [n](const osgViewerObject *c){ return c->node == n;});
-    if (it == children.end())
-        return NULL;
+    auto iter = childIndex.find(n);
+    if (iter != childIndex.end())
+    {
+        return iter->second;
+    }
 
-    return *it;
+    return nullptr;
 }
 
 bool osgViewerObject::hasChild(osgViewerObject *o)
@@ -175,6 +177,8 @@ void osgViewerObject::addChild(osgViewerObject *n)
     //cerr << "osgViewerObject::addChild, num: " << children.num() << ", node:" << n->node << endl;
     n->parent = this;
     children.push_back(n);
+    if (n->node)
+        childIndex[n->node] = n;
     n->ref();
     if (rootNode.get())
         n->setRootNode(rootNode.get());
@@ -359,6 +363,11 @@ osgViewerObject::osgViewerObject(VrmlNode *n)
 
 osgViewerObject::~osgViewerObject()
 {
+    if (auto group = pNode->asGroup())
+    {
+        group->removeChildren(0, group->getNumChildren());
+    }
+
     if (sensor)
     {
         sensor->remove(); // can't be deleted here, because it could be active right now
@@ -370,6 +379,7 @@ osgViewerObject::~osgViewerObject()
         c->deref();
     }
     children.clear();
+    childIndex.clear();
 
     if (pNode.get())
     {
@@ -401,6 +411,10 @@ osgViewerObject::~osgViewerObject()
 
 void osgViewerObject::removeChild(osgViewerObject *rmObj)
 {
+    auto iter = childIndex.find(rmObj->node);
+    if (iter != childIndex.end())
+        childIndex.erase(iter);
+
     auto it = std::find(children.begin(), children.end(), rmObj);
     if (it == children.end())
         return;

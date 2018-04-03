@@ -1368,8 +1368,7 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geode *geode = new osg::Geode();
 			geode->setName(name);
 			osg::Geometry *geom = new osg::Geometry();
-			geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-			geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+            cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
 
 			// set up geometry

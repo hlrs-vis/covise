@@ -66,7 +66,8 @@ public:
         Disabled,
         Enabled,
         HiddenLineBlack,
-        HiddenLineWhite
+        HiddenLineWhite,
+        Points,
     };
     VRSceneGraph();
     virtual ~VRSceneGraph();
@@ -289,10 +290,11 @@ private:
 
     float m_floorHeight;
     WireframeMode m_wireframe;
-    bool m_textured; /* =true: textures are drawn as intended */
-    bool m_coordAxis; /* =true: coord Axis will be drawn */
-    bool m_showMenu;
-    bool m_showObjects;
+    bool m_textured = true; /* =true: textures are drawn as intended */
+    bool m_shaders = true; /* =true: shaders are applied */
+    bool m_coordAxis = false; /* =true: coord Axis will be drawn */
+    bool m_showMenu = true;
+    bool m_showObjects = true;
     bool m_firstTime = true;
     bool m_pointerVisible = false;
 
@@ -343,7 +345,7 @@ private:
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
-    ui::Button *m_useTextures=nullptr;
+    ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
 };
 }
 #endif

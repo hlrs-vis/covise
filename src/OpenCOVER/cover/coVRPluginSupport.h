@@ -496,6 +496,8 @@ public:
     //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
+    void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
+
 private:
     void setFrameRealTime(double ft);
 

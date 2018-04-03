@@ -200,6 +200,7 @@ void VRSceneGraph::init()
     m_drawStyle->append("Wireframe");
     m_drawStyle->append("Hidden lines (dark)");
     m_drawStyle->append("Hidden lines (bright)");
+    m_drawStyle->append("Points");
     cover->viewOptionsMenu->add(m_drawStyle);
     m_drawStyle->setShortcut("Alt+w");
     m_drawStyle->setCallback([this](int style){
@@ -252,15 +253,31 @@ void VRSceneGraph::init()
     cover->viewOptionsMenu->add(m_useTextures);
     m_useTextures->setCallback([this](bool state){
         m_textured = state;
-        if (m_textured)
+        osg::Texture *texture = new osg::Texture2D;
+        for (int unit=0; unit<4; ++unit)
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+            if (m_textured)
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OFF);
+            else
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
+    });
+
+    m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders->setVisible(false, ui::View::VR);
+    m_useShaders->setShortcut("Alt+s");
+    m_useShaders->setState(m_shaders);
+    cover->viewOptionsMenu->add(m_useShaders);
+    m_useShaders->setCallback([this](bool state){
+        m_shaders = state;
+        osg::Program *program = new osg::Program;
+        if (m_shaders)
+        {
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OFF);
         }
         else
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
         }
     });
 }
@@ -1083,11 +1100,17 @@ VRSceneGraph::setWireframe(WireframeMode wf)
     {
         case Disabled:
         case Enabled:
+        case Points:
         {
             osg::PolygonMode *polymode = new osg::PolygonMode;
             if (m_wireframe == Disabled)
             {
                 m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+            }
+            else if (m_wireframe == Points)
+            {
+                polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
             }
             else
             {

@@ -153,16 +153,16 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *)
 {
     //fprintf(stderr, "----Vrml97Plugin::loadVrml %s\n", filename);
-    fprintf(stderr, "Loding VRML %s\n", filename);
+    fprintf(stderr, "Loading VRML %s\n", filename);
     if (plugin->vrmlScene)
     {
-        VrmlMFString url((char *)filename);
+        VrmlMFString url(filename);
         if (group)
             plugin->viewer->setRootNode(group);
         else
             plugin->viewer->setRootNode(cover->getObjectsRoot());
         plugin->vrmlScene->clearRelativeURL();
-        plugin->vrmlScene->loadUrl(&url, NULL, false);
+
 
         //allow plugin to unregister
         VRRegisterSceneGraph::instance()->unregisterNode(getRegistrationRoot(), "root");
@@ -171,7 +171,12 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
     }
     else
     {
-        plugin->vrmlScene = new VrmlScene(filename, filename);
+        const char *local = NULL;
+        Doc url(filename);
+        std::string proto = url.urlProtocol();
+        if (proto.empty() || proto=="file")
+            local = filename;
+        plugin->vrmlScene = new VrmlScene(filename, local);
         if (group)
             plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
         else
