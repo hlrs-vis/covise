@@ -486,7 +486,6 @@ void coVRLighting::initMenu()
 
     auto shadowChoice = new ui::SelectionList(lightingMenu_, "Shadows");
     shadowChoice->append("No shadows");
-    shadowChoice->append("Shadow volume");
     shadowChoice->append("Shadow texture");
     shadowChoice->append("Soft shadow map");
     shadowChoice->append("Standard shadow map");
@@ -499,14 +498,13 @@ void coVRLighting::initMenu()
         std::string t = "NoShadows";
         switch(idx)
         {
-        case 1: t="ShadowVolume"; break;
-        case 2: t="ShadowTexture"; break;
-        case 3: t="SoftShadowMap"; break;
-        case 4: t="StandardShadowMap"; break;
-        case 5: t="LightSpacePerspectiveShadowMapVB"; break;
-        case 6: t="LightSpacePerspectiveShadowMapCB"; break;
-        case 7: t="LightSpacePerspectiveShadowMapDB"; break;
-        case 8: t="ShadowMap"; break;
+        case 1: t="ShadowTexture"; break;
+        case 2: t="SoftShadowMap"; break;
+        case 3: t="StandardShadowMap"; break;
+        case 4: t="LightSpacePerspectiveShadowMapVB"; break;
+        case 5: t="LightSpacePerspectiveShadowMapCB"; break;
+        case 6: t="LightSpacePerspectiveShadowMapDB"; break;
+        case 7: t="ShadowMap"; break;
         }
         coVRShadowManager::instance()->setTechnique(t);
     });

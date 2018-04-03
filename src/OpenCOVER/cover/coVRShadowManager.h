@@ -23,7 +23,6 @@
 #include <util/coExport.h>
 #include <osgShadow/ShadowedScene>
 #include <osgShadow/ShadowMap>
-#include <osgShadow/ShadowVolume>
 #include <osgShadow/ShadowTexture>
 #include <osgShadow/SoftShadowMap>
 #include <osgShadow/StandardShadowMap>
@@ -52,7 +51,6 @@ private:
     coVRShadowManager();
     std::string technique;
     static coVRShadowManager* inst;
-    osg::ref_ptr<osgShadow::ShadowVolume> sv;
     osg::ref_ptr<osgShadow::ShadowTexture> st;
     osg::ref_ptr<osgShadow::SoftShadowMap> softSM;
     osg::ref_ptr<osgShadow::StandardShadowMap> standardSM;

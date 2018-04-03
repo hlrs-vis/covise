@@ -19,7 +19,6 @@
 #include <osgShadow/MinimalShadowMap>
 #include <osgShadow/SoftShadowMap>
 #include <osgShadow/LightSpacePerspectiveShadowMap>
-#include <osgShadow/ShadowVolume>
 
 using namespace covise;
 using namespace opencover;
@@ -115,15 +114,7 @@ bool LightCreator::buildGeometryFromXML(Light *light, QDomElement *root)
         if (!tec.isNull())
         {
             std::string technique = tec.attribute("value").toStdString();
-            if (technique.compare("ShadowVolume") == 0)
-            {
-                osg::ref_ptr<osgShadow::ShadowVolume> sv = new osgShadow::ShadowVolume;
-                sv->setDynamicShadowVolumes(false);
-                sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
-                //sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
-                shadowedScene->setShadowTechnique(sv.get());
-            }
-            else if (technique.compare("ShadowTexture") == 0)
+            if (technique.compare("ShadowTexture") == 0)
             {
                 osg::ref_ptr<osgShadow::ShadowTexture> st = new osgShadow::ShadowTexture;
                 shadowedScene->setShadowTechnique(st.get());

@@ -53,13 +53,6 @@
 #include <osg/AnimationPath>
 #include <osg/ShapeDrawable>
 
-#include <osgShadow/ShadowedScene>
-#include <osgShadow/ShadowMap>
-#include <osgShadow/ShadowTexture>
-#include <osgShadow/ShadowVolume>
-#include <osgShadow/ParallelSplitShadowMap>
-#include <osgShadow/ViewDependentShadowTechnique>
-
 using namespace osg;
 using namespace covise;
 using namespace grmsg;
