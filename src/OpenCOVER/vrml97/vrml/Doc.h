@@ -32,18 +32,18 @@ class VRMLEXPORT Doc
 {
 
 public:
-    Doc(const char *url = 0, Doc *relative = 0);
+    Doc(const char *url = 0, const Doc *relative = 0);
     Doc(Doc *);
     ~Doc();
 
-    void seturl(const char *url, Doc *relative = 0);
+    void seturl(const char *url, const Doc *relative = 0);
 
-    const char *url(); // "http://www.foo.com/dir/file.xyz#Viewpoint"
-    const char *urlBase(); // "file" or ""
-    const char *urlExt(); // "xyz" or ""
-    const char *urlPath(); // "http://www.foo.com/dir/" or ""
-    const char *urlProtocol(); // "http"
-    const char *urlModifier(); // "#Viewpoint" or ""
+    const char *url() const; // "http://www.foo.com/dir/file.xyz#Viewpoint"
+    const char *urlBase() const; // "file" or ""
+    const char *urlExt() const; // "xyz" or ""
+    const char *urlPath() const; // "http://www.foo.com/dir/" or ""
+    const char *urlProtocol() const; // "http"
+    const char *urlModifier() const; // "#Viewpoint" or ""
 
     const char *localName(); // "/tmp/file.xyz" or NULL
     const char *localPath(); // "/tmp/" or NULL
