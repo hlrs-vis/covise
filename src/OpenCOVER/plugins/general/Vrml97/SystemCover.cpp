@@ -1062,11 +1062,14 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
 
 Viewer::Object SystemCover::getInline(const char *name)
 {
-    osg::Group *g = new osg::Group;
+    osg::ref_ptr<osg::Group> g = new osg::Group;
     std::string n(name);
     std::string cached = n + cacheExt;
 
     coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
+    if (g->getNumChildren() <= 0)
+        coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
+
     if (g->getNumChildren() > 0)
     {
         osg::Node *loadedNode = g->getChild(0);
@@ -1075,19 +1078,6 @@ Viewer::Object SystemCover::getInline(const char *name)
         loadedNode->unref_nodelete(); //refcount now back to 0 but the node is not deleted
         //will be added to something later on and thus deleted when removed from there.
         return ((Viewer::Object)loadedNode);
-    }
-
-    coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
-    {
-        if (g->getNumChildren() > 0)
-        {
-            osg::Node *loadedNode = g->getChild(0);
-            loadedNode->ref();
-            g->removeChild(loadedNode);
-            loadedNode->unref_nodelete(); //refcount now back to 0 but the node is not deleted
-            //will be added to something later on and thus deleted when removed from there.
-            return ((Viewer::Object)loadedNode);
-        }
     }
 
     return 0L;

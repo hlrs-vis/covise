@@ -1726,8 +1726,7 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
 #else
         urlTime = (int)sbuf.st_mtime;
 #endif
-        cacheEntry *e = cache->findEntry(url);
-        if (e)
+        if (cacheEntry *e = cache->findEntry(url))
         {
             fileName = e->fileName;
             e->time = urlTime;
@@ -1735,16 +1734,19 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
         else
         {
             fileName = new char[strlen(cache->directory) + 1000];
-            sprintf(fileName, "%s/cache_%s_%lu", cache->directory, cache->fileBase, (unsigned long)cache->cacheList.size());
+            sprintf(fileName, "cache_%s_%lu", cache->fileBase, (unsigned long)cache->cacheList.size());
             cache->cacheList.push_back(cacheEntry(url, fileName, urlTime, d_viewerObject));
         }
+        std::stringstream str;
+        str << cache->directory << "/" << fileName;
         cache->modified = true;
-        System::the->storeInline(fileName, d_viewerObject);
+        System::the->storeInline(str.str().c_str(), d_viewerObject);
     }
 }
 
 Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 {
+    //std::cerr << "VrmlScene::getCachedInline(url=" << url << ", local=" << (pathname?pathname:"<null>") << std::endl;
     if (cache)
     {
         int urlTime = -1;
@@ -1765,7 +1767,9 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
         cacheEntry *e = cache->findEntry(url);
         if (e && urlTime == e->time)
         {
-            return System::the->getInline(e->fileName);
+            std::stringstream str;
+            str << cache->directory << "/" << e->fileName;
+            return System::the->getInline(str.str().c_str());
         }
     }
     return 0L;
@@ -1781,6 +1785,7 @@ InlineCache::InlineCache(const char *vrmlfile)
     std::stringstream str;
     str << directory << "/cache_" << fileBase << ".cache";
     cacheIndexName = str.str();
+    //std::cerr << "InlineCache(file=" << vrmlfile << ") -> " << cacheIndexName << std::endl;
     FILE *fp = fopen(cacheIndexName.c_str(), "r");
     char buf[1000];
     char fn[1000];
