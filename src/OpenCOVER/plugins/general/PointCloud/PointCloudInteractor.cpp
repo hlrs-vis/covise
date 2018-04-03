@@ -103,7 +103,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 
         double smallestDistance = FLT_MAX;
 
-        for (std::list<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
+        for (std::vector<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
             if (fit->pointSet)
             {

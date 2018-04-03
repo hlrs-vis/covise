@@ -210,13 +210,14 @@ bool PointCloudPlugin::init()
 
     //viewGroup = new ui::Group(pointCloudMenu,"PCView");
     adaptLODButton = new ui::Button(pointCloudMenu,"adaptLOD");
-    adaptLODButton->setText("adaptLOD");
+    adaptLODButton->setState(adaptLOD);
+    adaptLODButton->setText("Adapt level of detail");
     adaptLODButton->setCallback([this](bool state){
         adaptLOD = state;
-        for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+        for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
         {
             //TODO calc distance correctly
-            for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+            for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
             {
                 if (!adaptLOD)
                 {
@@ -297,10 +298,10 @@ void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
     if (tUIItem == adaptLODTui)
     {
         adaptLOD = adaptLODTui->getState();
-	for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         //TODO calc distance correctly
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
 
             if (!adaptLOD)
@@ -980,11 +981,11 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 }
 int PointCloudPlugin::unloadFile(std::string filename)
 {
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         if (fit->filename == filename)
         {
-            for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+            for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
             {
                 if (nit->node->getNumParents() > 0)
                     nit->node->getParent(0)->removeChild(nit->node);
@@ -1017,9 +1018,9 @@ int PointCloudPlugin::unloadPTS(const char *filename, const char *)
 //remove currently loaded data and free up any memory that has been allocated
 void PointCloudPlugin::clearData()
 {
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             if (nit->node->getNumParents() > 0)
                 nit->node->getParent(0)->removeChild(nit->node);
@@ -1070,6 +1071,10 @@ void PointCloudPlugin::preFrame()
 {
     //resize the speheres of selected and preview points
     s_pointCloudInteractor->resize();
+
+    if (!adaptLOD)
+        return;
+
     //translate viewer position into object space
     //vecBase = (cover->getViewerMat() * Matrix::inverse(CUI::computeLocal2Root(cover->getObjectsRoot()))).getTrans();
     //Matrix ObjectToRoot = CUI::computeLocal2Root(planetTrans);
@@ -1081,10 +1086,10 @@ void PointCloudPlugin::preFrame()
     // level of detail
     float levelOfDetail = 0.4;
 
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         //TODO calc distance correctly
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             osg::Matrix tr;
             tr.makeIdentity();

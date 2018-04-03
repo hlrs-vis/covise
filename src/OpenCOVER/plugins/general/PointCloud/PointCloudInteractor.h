@@ -46,7 +46,7 @@ public:
 
     // updates the temporary copy of the spheres
     // on them the intersection test takes place
-    void updatePoints(const std::list<fileInfo> *allFiles)
+    void updatePoints(const std::vector<fileInfo> *allFiles)
     {
         this->m_files = allFiles;
     };
@@ -65,7 +65,7 @@ private:
     // needed for interaction
     osg::Vec3 m_initHandPos, m_initHandDirection;
 
-    const std::list<fileInfo> *m_files;
+    const std::vector<fileInfo> *m_files;
     bool m_selectedWithBox;
 
     void swap(float &m, float &n);

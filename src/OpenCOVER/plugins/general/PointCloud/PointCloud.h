@@ -64,7 +64,7 @@ class fileInfo
 {
 public:
     std::string filename;
-    std::list<nodeInfo> nodes;
+    std::vector<nodeInfo> nodes;
     int pointSetSize;
     PointSet *pointSet;
 };
@@ -93,7 +93,7 @@ class PointCloudPlugin : public coMenuListener, public coValuePotiActor, public 
     };
 
 private:
-    std::list<fileInfo> files;
+    std::vector<fileInfo> files;
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
