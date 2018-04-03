@@ -72,6 +72,9 @@
 #include <sstream>
 #include <string>
 
+#include "../PointCloud/Points.h"
+#include "../PointCloud/fileInfo.h"
+
 #include <boost/algorithm/string.hpp>
 #include "sisl.h"
 #include "sisl_aux/sisl_aux.h"
@@ -94,7 +97,7 @@ using covise::coDirectory;
 
 void NurbsSurface::initUI()
 {
-        if (cover->debugLevel(3))
+    if (cover->debugLevel(3))
         fprintf(stderr, "\n--- NurbsSurface::initUI\n");
 
     NurbsSurfaceMenu = new ui::Menu("NurbsSurface", this);
@@ -102,36 +105,50 @@ void NurbsSurface::initUI()
     saveButton_ = new ui::Action(NurbsSurfaceMenu, "SaveFile");
     saveButton_->setText("SaveFile");
     saveButton_->setCallback([this](){
-                saveFile("test.obj");
+        saveFile("test.obj");
     });
 
-        orderUSlider = new ui::Slider(NurbsSurfaceMenu, "order_U");
+    orderUSlider = new ui::Slider(NurbsSurfaceMenu, "order_U");
     orderVSlider = new ui::Slider(NurbsSurfaceMenu, "order_V");
-        
+
     orderUSlider->setIntegral(true);
     orderUSlider->setText("Order U");
-        orderUSlider->setBounds(2, 4);
+    orderUSlider->setBounds(2, 4);
     orderUSlider->setValue(order_U);;
     orderUSlider->setCallback([this](int val, bool released)
-        {
-        destroy();              
+    {
+        destroy();
         order_U=val;
-        computeSurface();        
+        updateSurface();
     }
-        );
+    );
+
+
 
     orderVSlider->setIntegral(true);
     orderVSlider->setText("Order V");
-        orderVSlider->setBounds(2, 4);
+    orderVSlider->setBounds(2, 4);
     orderVSlider->setValue(order_V);;
     orderVSlider->setCallback([this](int val, bool released)
-        {
-        destroy();              
+    {
+        destroy();
         order_V=val;
-        computeSurface();        
+        updateSurface();
     }
-        );
+    );
 
+    numEdgeSectorsSlider = new ui::Slider(NurbsSurfaceMenu, "edge_sectors");
+    numEdgeSectorsSlider->setIntegral(true);
+    numEdgeSectorsSlider->setText("Number of sectors for edge interpolation");
+    numEdgeSectorsSlider->setBounds(2,10);
+    numEdgeSectorsSlider->setValue(numEdgeSectors);
+    numEdgeSectorsSlider->setCallback([this](int val, bool released)
+    {
+        destroy();
+        numEdgeSectors=val;
+        updateSurface();
+    }
+    );
 
 }
 
@@ -146,10 +163,11 @@ bool NurbsSurface::init()
                 fprintf(stderr, "\n--- NurbsSurface::init\n");
 
         initUI();
+        createRBFModel();
         return true;
 }
 
-void NurbsSurface::computeSurface()
+void NurbsSurface::computeSurface(double* points)
 {
     // generating interpolating surface
     for (int i = 0; i < num_surf; ++i) {
@@ -256,7 +274,7 @@ NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 {
     splinePointsGroup = new osg::Group();
     cover->getObjectsRoot()->addChild(splinePointsGroup.get());
-    computeSurface();
+    updateSurface();
 
 }
 
@@ -278,46 +296,135 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::NurbsSurfacePointMsg)
     {
+        vector<pointSelection> *selectedPoints = (vector<pointSelection> *)buf;
+        receivedPoints.clear();
+        for (vector<pointSelection>::const_iterator iter=selectedPoints->begin(); iter!=selectedPoints->end(); iter++)
+        {
+        Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
+                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
+                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
+        receivedPoints.push_back(newSelectedPoint);
+        }
+                fprintf(stderr, "Points received %i\n", receivedPoints.size());
+                updateSurface();
+    }
+    /*{
         osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
         receivedPoints.push_back(*selectedPoint);
         fprintf(stderr, "Point received %i %f %f %f\n", receivedPoints.size(), selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
-        pointReceived();
-    }
+        updateSurface();
+    }*/
 }
 
-void NurbsSurface::pointReceived()
+void NurbsSurface::updateSurface()
 {
     while (splinePointsGroup->getNumChildren()>0)
     {
         splinePointsGroup->removeChildren(0,1);
     }
     transformMatrices.clear();
-    curveInfo upper;
-    curveInfo lower;
-    curveInfo left;
-    curveInfo right;
+    if (receivedPoints.size()>20)
+    {
+        calcEdges();
+        updateModel();
+        resize();
+        int pointsNewSize=num_points_u*num_points_v*3;
+        double pointsNew[pointsNewSize];//num_points_u*num_points_v*3];
+        vector<double> pointTempUpper(2);
+        vector<double> pointTempLower(2);
+        vector<double> pointTempRight(2);
+        vector<double> pointTempLeft(2);
+        vector<double> pointTempRightZero(2);
+        vector<double> pointTempLeftZero(2);
+        vector<double> pointTempRightOne(2);
+        vector<double> pointTempLeftOne(2);
+        vector<double> interpolatedPoint(2);
+        evaluateCurveAtParam(left,1.0,pointTempLeftOne);
+        evaluateCurveAtParam(right,1.0,pointTempRightOne);
+        //pointTempLeftOne=evaluateCurveAtParam(left,1.0);
+        //pointTempRightOne=evaluateCurveAtParam(right,1.0);
+        evaluateCurveAtParam(left,0.0,pointTempLeftZero);
+        evaluateCurveAtParam(right,0.0,pointTempRightZero);
+        int jstat; // status variable
+        int temp;
+        int k=0;
+        for (int i=0; i!=num_points_u; i++)
+        {
+            double paramFactor0=1.0/(num_points_u-1)*i;
+            fprintf(stderr,"paramFactor0: %f ",paramFactor0);
+            for (int j=0; j!=num_points_v;j++)
+            {
+                double paramFactor1=1.0/(num_points_v-1)*j;
+                fprintf(stderr,"paramFactor1: %f \n",paramFactor1);
+                evaluateCurveAtParam(upper,paramFactor0,pointTempUpper);
+                evaluateCurveAtParam(lower,paramFactor0,pointTempLower);
+                vector<double> pointTempUpperLower = pointTempUpper+(pointTempLower-pointTempUpper)*paramFactor1;
+                evaluateCurveAtParam(left,paramFactor1,pointTempLeft);
+                evaluateCurveAtParam(right,paramFactor1,pointTempRight);
+                vector<double> pointTempLeftRight = (paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1))+
+                                                     (1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1)));
+                interpolatedPoint = pointTempUpperLower + pointTempLeftRight;
+                pointsNew[k++]=interpolatedPoint[0];
+                pointsNew[k++]=interpolatedPoint[1];
+                real_1d_array x;
+                x.setlength(2);
+                x[0]=interpolatedPoint[0];
+                x[1]=interpolatedPoint[1];
+                real_1d_array y;
+                y.setlength(1);
+                rbfcalc(model,x,y);
+                pointsNew[k++]=y[0];
+            }
+        }
+
+        int l=0;
+        while (l!=pointsNewSize)
+        {
+            fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
+            if (l % 3 ==2)
+                fprintf(stderr,"\n");
+            l++;
+        }
+        destroy();
+        computeSurface(pointsNew);
+    }
+}
+
+void NurbsSurface::evaluateCurveAtParam(curveInfo& curve, double paramFactor, vector<double> &point)
+{
+    int jstat; // status variable
+    int temp;
+    s1227(curve.curve,0,curve.startPar+paramFactor*(curve.endPar-curve.startPar),&temp,&point[0],&jstat);
+}
+
+vector<double> NurbsSurface::evaluateCurveAtParam(curveInfo& curve, double paramFactor)
+{
+    vector<double> result;
+    int jstat; // status variable
+    int temp;
+    s1227(curve.curve,0,curve.startPar+paramFactor*(curve.endPar-curve.startPar),&temp,&result[0],&jstat);
+    return result;
+}
+
+bool NurbsSurface::calcEdges()
+{
     edge(receivedPoints,0,1,1,upper);
     edge(receivedPoints,1,0,1,right);
     edge(receivedPoints,0,1,-1,lower);
     edge(receivedPoints,1,0,-1,left);
-    if (upper.curve /*&& lower.curve && left.curve*/ && right.curve)
+    if (upper.curve && lower.curve && left.curve && right.curve)
     {
-
-    curveCurveIntersection(upper.curve, upper.endPar, right.curve, right.endPar);
-    curveCurveIntersection(lower.curve, lower.endPar, right.curve, right.startPar);
-    curveCurveIntersection(lower.curve, lower.startPar, left.curve, left.startPar);
-    curveCurveIntersection(upper.curve, upper.startPar, left.curve, left.endPar);
-
-
-        fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
-        fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
-        fprintf(stderr, "right curve end parameter %f \n", right.endPar);
-        fprintf(stderr, "right curve start parameter %f \n", right.startPar);
-
-
+        curveCurveIntersection(upper.curve, upper.endPar, right.curve, right.endPar);
+        curveCurveIntersection(lower.curve, lower.endPar, right.curve, right.startPar);
+        curveCurveIntersection(lower.curve, lower.startPar, left.curve, left.startPar);
+        curveCurveIntersection(upper.curve, upper.startPar, left.curve, left.endPar);
+        /*fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
+    fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
+    fprintf(stderr, "right curve end parameter %f \n", right.endPar);
+    fprintf(stderr, "right curve start parameter %f \n", right.startPar);*/
+        return true;
     }
-
-    resize();
+    return false;
 }
 
 bool NurbsSurface::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCurve *c2, double& c2Param)
@@ -424,7 +531,7 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
     //fprintf(stderr, "minimum x: %f y: %f, maximum x: %f y:%f\n", minimum_x, minimum_y, maximum_x, maximum_y);
 
 
-    int numberOfQuadrants = 5;                                                               //number of quadrants
+    int numberOfQuadrants = numEdgeSectors;                                                  //number of quadrants
     float widthOfQuadrant = (maximum_x-minimum_x)/numberOfQuadrants;                         //width of quadrant
 
 
@@ -595,14 +702,26 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
 return 0;
 }
 
+void NurbsSurface::createRBFModel()
+{
+    rbfcreate(2,1,model);
+    rbfsetalgohierarchical(model, 1.0, 5, 0.0);
+}
+
 void NurbsSurface::updateModel()
 {
-    real_2d_array xy;
     xy.setlength(receivedPoints.size(),3);
-    for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end();)
+    int i=0;
+    for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
-        //xy[]
+        xy[i][0]=iter->_v[0];
+        xy[i][1]=iter->_v[1];
+        xy[i][2]=iter->_v[2];
+        i++;
     }
+    rbfsetpoints(model,xy);
+    rbfreport rep;
+    rbfbuildmodel(model, rep);
 }
 
 void
@@ -666,5 +785,7 @@ void NurbsSurface::resize()
         (*iter)->setMatrix(sphereMatrix);
     }
 }
+
+
 
 COVERPLUGIN(NurbsSurface)

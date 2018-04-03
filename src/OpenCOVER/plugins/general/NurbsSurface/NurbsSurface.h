@@ -38,6 +38,11 @@
 #include "sisl.h"
 #include "sisl_aux/sisl_aux.h"
 
+#include <algorithm>
+#include <functional>
+#include <assert.h>
+
+
 
 namespace opencover
 {
@@ -67,10 +72,12 @@ struct curveInfo{
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     int getorder_U();
     void setorder_U(int order_U);
-    void computeSurface();
+    void computeSurface(double* points);
     int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
 
 private:
+
+
     osg::ref_ptr<osg::Geode> geode;
 
 
@@ -81,9 +88,13 @@ private:
 
     ui::Slider *orderUSlider=nullptr;
     ui::Slider *orderVSlider=nullptr;
-    
+
+
     int order_U = 2;
     int order_V = 2;
+
+    ui::Slider *numEdgeSectorsSlider=nullptr;
+    int numEdgeSectors = 5;
     
     std::string fileName = "test.obj";
 
@@ -100,8 +111,18 @@ private:
         std::vector<osg::Vec3> receivedPoints;
         osg::ref_ptr<osg::Group> splinePointsGroup;
         std::vector<osg::MatrixTransform*> transformMatrices;
+        curveInfo upper;
+        curveInfo lower;
+        curveInfo left;
+        curveInfo right;
+        void createRBFModel();
         void updateModel();
-        void pointReceived();
+        bool calcEdges();
+        void evaluateCurveAtParam(curveInfo& curve, double paramFactor, std::vector<double>& point);
+        std::vector<double> evaluateCurveAtParam(curveInfo& curve, double paramFactor);
+        rbfmodel model;
+        real_2d_array xy;
+        void updateSurface();
         bool curveCurveIntersection(SISLCurve* c1, double& c1Param, SISLCurve* c2, double& c2Param);
         double sphereSize = 10.0;
 
@@ -125,5 +146,71 @@ private:
 
         void initUI();
 };
+
+template <typename T>
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<T> result;
+    result.reserve(a.size());
+
+    std::transform(a.begin(), a.end(), b.begin(),
+                   std::back_inserter(result), std::plus<T>());
+    return result;
+}
+
+
+
+template <typename T>
+std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<T> result;
+    result.reserve(a.size());
+
+    std::transform(a.begin(), a.end(), b.begin(),
+                   std::back_inserter(result), std::minus<T>());
+    return result;
+}
+
+template <typename T, typename U>
+std::vector<T> operator/(const std::vector<T>& a, const U& b)
+{
+    std::vector<T> result;
+    result.reserve(a.size());
+    typename std::vector<T>::const_iterator begin;
+    begin = a.begin();
+    while(begin != a.end())
+                   *std::back_inserter(result)= *begin++/b;
+    return result;
+}
+
+template <typename T, typename U>
+std::vector<T> operator*(const std::vector<T>& a, const U& b)
+{
+    std::vector<T> result;
+    result.reserve(a.size());
+    typename std::vector<T>::const_iterator begin;
+    begin = a.begin();
+    while(begin != a.end())
+                   *std::back_inserter(result)= *begin++*b;
+    return result;
+}
+
+template <typename U, typename T>
+std::vector<T> operator*(const U& b,const std::vector<T>& a)
+{
+    std::vector<T> result;
+    result.reserve(a.size());
+    typename std::vector<T>::const_iterator begin;
+    begin = a.begin();
+    while(begin != a.end())
+                   *std::back_inserter(result)= *begin++*b;
+    return result;
+}
+
+
 #endif
 
