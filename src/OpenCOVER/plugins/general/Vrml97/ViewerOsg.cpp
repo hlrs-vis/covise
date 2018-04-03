@@ -2103,7 +2103,8 @@ ViewerOsg::insertShell(unsigned int mask,
 
         if (ntcoords > 0)
         {
-            Vec2Array *tcArray = new Vec2Array(ntci[unit]);
+            Vec2Array *tcArray = new Vec2Array();
+			tcArray->reserve(ntci[unit]);
             int j = 0;
             if (mask & MASK_CCW)
             {
@@ -2111,7 +2112,7 @@ ViewerOsg::insertShell(unsigned int mask,
                 {
                     if (faces[i] != -1)
                     {
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+                        tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                 }
@@ -2130,7 +2131,7 @@ ViewerOsg::insertShell(unsigned int mask,
                     while (i > startPoly)
                     {
                         i--;
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+						tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                     i = endPoly + 1;
