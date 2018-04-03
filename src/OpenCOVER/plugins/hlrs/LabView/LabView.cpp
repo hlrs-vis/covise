@@ -137,6 +137,15 @@ void VrmlNodeLabView::render(Viewer *)
         d_ints.set(LabViewPlugin::plugin->numInts, LabViewPlugin::plugin->intValues);
         eventOut(timeStamp, "ints_changed", d_ints);
     }
+
+	fprintf(stderr, "%d", LabViewPlugin::plugin->numFloats);
+	for (int i = 0; i < LabViewPlugin::plugin->numFloats; i++)
+		fprintf(stderr, "%f;", LabViewPlugin::plugin->floatValues[i]);
+	fprintf(stderr, "\n");
+	fprintf(stderr, "%d", LabViewPlugin::plugin->numInts);
+	for (int i = 0; i < LabViewPlugin::plugin->numInts; i++)
+		fprintf(stderr, "%d;", LabViewPlugin::plugin->intValues[i]);
+	fprintf(stderr, "\n");
 }
 
 LabViewPlugin::LabViewPlugin()
@@ -196,7 +205,11 @@ bool LabViewPlugin::readVal(void *buf, unsigned int numBytes)
     int readBytes = 0;
     while (numRead < numBytes)
     {
-        readBytes = conn->getSocket()->Read(((unsigned char *)buf) + readBytes, toRead);
+		if (conn == NULL)
+			return false;
+		if (conn->is_connected() == false)
+			return false;
+        readBytes = conn->getSocket()->Read(((unsigned char *)buf) + numRead, toRead);
         if (readBytes < 0)
         {
             cerr << "error reading data from socket" << endl;
