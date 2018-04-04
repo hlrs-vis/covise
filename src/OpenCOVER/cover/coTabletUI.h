@@ -28,6 +28,7 @@
 #include <queue>
 #include <map>
 #include <string>
+#include <future>
 //#ifndef WIN32
 //#include <stdint.h>
 //#define FILESYS_SEP "\\"
@@ -99,6 +100,7 @@ public:
     void tryConnect();
     void close();
     bool debugTUI();
+    bool isConnected() const;
 
     void lock()
     {
@@ -108,10 +110,9 @@ public:
     {
         connectionMutex.unlock();
     }
-    covise::Host *connectedHost;
+    covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
-    covise::Connection *conn = nullptr;
     covise::Connection *textureConn = nullptr;
     covise::Connection *sgConn = nullptr;
 
@@ -128,6 +129,9 @@ protected:
     bool debugTUIState = false;
     double oldTime = 0.0;
     bool firstConnection = true;
+
+    covise::Connection *conn = nullptr;
+    std::future<covise::Host *> connFuture;
 };
 
 

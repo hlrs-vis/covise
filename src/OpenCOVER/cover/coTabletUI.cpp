@@ -1713,7 +1713,7 @@ void coTUITextureTab::setTexture(int height, int width, int depth, int dataLengt
 
 void coTUITextureTab::setTexture(int texNumber, int mode, int texGenMode)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -1736,35 +1736,16 @@ void coTUITextureTab::tryConnect()
 {
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
 
-    if (serverHost)
+    if (tui()->connectedHost)
     {
-        conn = new ClientConnection(serverHost, texturePort, 0, (sender_type)0, 0);
+        conn = new ClientConnection(tui()->connectedHost, texturePort, 0, (sender_type)0, 0);
         if (!conn->is_connected()) // could not open server port
         {
 #ifndef _WIN32
             if (errno != ECONNREFUSED)
             {
                 fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        localHost->getName(), texturePort, strerror(errno));
-            }
-#else
-            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
-#endif
-            delete conn;
-            conn = NULL;
-        }
-    }
-
-    if (!conn && localHost)
-    {
-        conn = new ClientConnection(localHost, texturePort, 0, (sender_type)0, 0);
-        if (!conn->is_connected()) // could not open server port
-        {
-#ifndef _WIN32
-            if (errno != ECONNREFUSED)
-            {
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        localHost->getName(), texturePort, strerror(errno));
+                        tui()->connectedHost->getName(), texturePort, strerror(errno));
             }
 #else
             fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
@@ -2140,7 +2121,7 @@ void coTUISGBrowserTab::setTexture(int height, int width, int depth, int texInde
 
 void coTUISGBrowserTab::setTexture(int texNumber, int mode, int texGenMode, int texIndex)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2158,7 +2139,7 @@ void coTUISGBrowserTab::setTexture(int texNumber, int mode, int texGenMode, int 
 void coTUISGBrowserTab::sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren)
 {
 
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2178,7 +2159,7 @@ void coTUISGBrowserTab::sendType(int type, const char *nodeType, const char *nam
 
 void coTUISGBrowserTab::sendEnd()
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2189,7 +2170,7 @@ void coTUISGBrowserTab::sendEnd()
 
 void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     int i;
@@ -2216,7 +2197,7 @@ void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int 
 
 void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[])
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     int i;
@@ -2254,7 +2235,7 @@ void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
     if (listener)
         listener->tabletCurrentEvent(this);
 
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     const char *currentPath = path.c_str();
@@ -2269,7 +2250,7 @@ void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
 void coTUISGBrowserTab::sendRemoveNode(std::string path, std::string parentPath)
 {
 
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     const char *removePath = path.c_str();
@@ -2285,7 +2266,7 @@ void coTUISGBrowserTab::sendRemoveNode(std::string path, std::string parentPath)
 
 void coTUISGBrowserTab::sendShader(std::string name)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     const char *shaderName = name.c_str();
@@ -2300,7 +2281,7 @@ void coTUISGBrowserTab::sendShader(std::string name)
 
 void coTUISGBrowserTab::sendUniform(std::string name, std::string type, std::string value, std::string min, std::string max, std::string textureFile)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2318,7 +2299,7 @@ void coTUISGBrowserTab::sendUniform(std::string name, std::string type, std::str
 
 void coTUISGBrowserTab::sendShaderSource(std::string vertex, std::string fragment, std::string geometry, std::string tessControl, std::string tessEval)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2335,7 +2316,7 @@ void coTUISGBrowserTab::sendShaderSource(std::string vertex, std::string fragmen
 
 void coTUISGBrowserTab::updateUniform(std::string shader, std::string name, std::string value, std::string textureFile)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2351,7 +2332,7 @@ void coTUISGBrowserTab::updateUniform(std::string shader, std::string name, std:
 
 void coTUISGBrowserTab::updateShaderSourceV(std::string shader, std::string vertex)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2365,7 +2346,7 @@ void coTUISGBrowserTab::updateShaderSourceV(std::string shader, std::string vert
 
 void coTUISGBrowserTab::updateShaderSourceTC(std::string shader, std::string tessControl)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2379,7 +2360,7 @@ void coTUISGBrowserTab::updateShaderSourceTC(std::string shader, std::string tes
 
 void coTUISGBrowserTab::updateShaderSourceTE(std::string shader, std::string tessEval)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2393,7 +2374,7 @@ void coTUISGBrowserTab::updateShaderSourceTE(std::string shader, std::string tes
 
 void coTUISGBrowserTab::updateShaderSourceF(std::string shader, std::string fragment)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2407,7 +2388,7 @@ void coTUISGBrowserTab::updateShaderSourceF(std::string shader, std::string frag
 
 void coTUISGBrowserTab::updateShaderSourceG(std::string shader, std::string geometry)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2421,7 +2402,7 @@ void coTUISGBrowserTab::updateShaderSourceG(std::string shader, std::string geom
 
 void coTUISGBrowserTab::updateShaderNumVertices(std::string shader, int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2435,7 +2416,7 @@ void coTUISGBrowserTab::updateShaderNumVertices(std::string shader, int value)
 
 void coTUISGBrowserTab::updateShaderOutputType(std::string shader, int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2448,7 +2429,7 @@ void coTUISGBrowserTab::updateShaderOutputType(std::string shader, int value)
 }
 void coTUISGBrowserTab::updateShaderInputType(std::string shader, int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -2717,7 +2698,7 @@ void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
 
 void coTUIAnnotationTab::setNewButtonState(bool state)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2731,7 +2712,7 @@ void coTUIAnnotationTab::setNewButtonState(bool state)
 
 void coTUIAnnotationTab::addAnnotation(int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2745,7 +2726,7 @@ void coTUIAnnotationTab::addAnnotation(int id)
 
 void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2760,7 +2741,7 @@ void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
 
 void coTUIAnnotationTab::setSelectedAnnotation(int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2804,7 +2785,7 @@ void coTUIFunctionEditorTab::resend(bool create)
     coTUIElement::resend(create);
 
     //resend the transfer function information
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5037,7 +5018,7 @@ coTUIListener *coTUIElement::getMenuListener()
 
 void coTUIElement::setVal(float value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5050,7 +5031,7 @@ void coTUIElement::setVal(float value)
 
 void coTUIElement::setVal(bool value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5063,7 +5044,7 @@ void coTUIElement::setVal(bool value)
 
 void coTUIElement::setVal(int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5076,7 +5057,7 @@ void coTUIElement::setVal(int value)
 
 void coTUIElement::setVal(const std::string &value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     //cerr << "coTUIElement::setVal info: " << (value ? value : "*NULL*") << endl;
@@ -5091,7 +5072,7 @@ void coTUIElement::setVal(const std::string &value)
 
 void coTUIElement::setVal(int type, int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5104,7 +5085,7 @@ void coTUIElement::setVal(int type, int value)
 
 void coTUIElement::setVal(int type, float value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5116,7 +5097,7 @@ void coTUIElement::setVal(int type, float value)
 }
 void coTUIElement::setVal(int type, int value, const std::string &nodePath)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -5128,7 +5109,7 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath)
 }
 void coTUIElement::setVal(int type, const std::string &nodePath, const std::string &simPath, const std::string &simName)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5143,7 +5124,7 @@ void coTUIElement::setVal(int type, const std::string &nodePath, const std::stri
 
 void coTUIElement::setVal(int type, int value, const std::string &nodePath, const std::string &parentPath)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5347,6 +5328,11 @@ void coTabletUI::init()
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
 }
 
+bool coTabletUI::isConnected() const
+{
+    return connectedHost != nullptr;
+}
+
 void coTabletUI::close()
 {
     delete conn;
@@ -5399,7 +5385,7 @@ bool coTabletUI::update()
     if (coVRMSController::instance() == NULL)
         return false;
 
-    if (conn)
+    if (connectedHost)
     {
     }
     else if (coVRMSController::instance()->isMaster() && serverMode)
@@ -5412,147 +5398,172 @@ bool coTabletUI::update()
     }
     else if ((coVRMSController::instance()->isMaster()) && (serverHost != NULL || localHost != NULL))
     {
-        lock();
-        connectedHost = NULL;
-        unlock();
-        // try to connect to server every 2 secnods
-        if ((cover->frameRealTime() - oldTime) > 2)
+        if (cover->frameRealTime() - oldTime > 2.)
         {
-            if (serverHost)
-            {
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
-                conn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
-                firstConnection = false;
-            }
-            if (conn && !conn->is_connected()) // could not open server port
-            {
-#ifndef _WIN32
-                if (errno != ECONNREFUSED)
-                {
-                    fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                            serverHost->getName(), port, strerror(errno));
-                }
-#else
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
-                delete serverHost;
-                serverHost = NULL;
-#endif
-                delete conn;
-                conn = NULL;
-            }
-            else if (conn)
-            {
-                lock();
-                connectedHost = serverHost;
-                unlock();
-            }
+            oldTime = cover->frameRealTime();
 
-            if (!conn && localHost)
-            {
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
-                conn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
-                firstConnection = false;
-                if (!conn->is_connected()) // could not open server port
-                {
-#ifndef _WIN32
-                    if (errno != ECONNREFUSED)
-                    {
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                                localHost->getName(), port, strerror(errno));
-                    }
-#else
-                    fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-#endif
-                    delete conn;
-                    conn = NULL;
-                }
-                else
-                {
-                    lock();
-                    connectedHost = localHost;
-                    unlock();
-                }
-            }
-
-            if (conn && conn->is_connected())
-            {
-                // create Texture and SGBrowser Connections
-                Message *msg = new covise::Message();
-                conn->recv_msg(msg);
-                if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-                {
-                    delete conn;
-                    conn = NULL;
-                }
-                else
-                {
-                    TokenBuffer tb(msg);
-                    int tPort;
-                    tb >> tPort;
-
-                    ClientConnection *cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
-                    if (!cconn->is_connected()) // could not open server port
-                    {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                    connectedHost->getName(), tPort, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
-#endif
-                        delete cconn;
-                        cconn = NULL;
-                    }
-                    textureConn = cconn;
-
-                    conn->recv_msg(msg);
-                    TokenBuffer stb(msg);
-
-                    stb >> tPort;
-
-                    cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
-                    if (!cconn->is_connected()) // could not open server port
-                    {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                    connectedHost->getName(), tPort, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
-#endif
-                        delete cconn;
-                        cconn = NULL;
-                    }
-
-                    sgConn = cconn;
-                    // resend all ui Elements to the TabletPC
-                    coDLListIter<coTUIElement *> iter;
-                    iter = elements.first();
-                    while (iter)
-                    {
-                        iter->resend(true);
-                        iter++;
-                    }
-                }
-            }
-            else
             {
                 Message msg(Message::UI, "WANT_TABLETUI");
                 coVRPluginList::instance()->sendVisMessage(&msg);
             }
-            oldTime = cover->frameRealTime();
+
+            lock();
+            if (!connFuture.valid())
+            {
+                connectedHost = NULL;
+                connFuture = std::async(std::launch::async, [this]() -> covise::Host *
+                {
+                    ClientConnection *nconn = nullptr;
+                    if (serverHost)
+                    {
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
+                        nconn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
+                        firstConnection = false;
+                    }
+                    if (nconn && nconn->is_connected())
+                    {
+                        conn = nconn;
+                        return serverHost;
+                    }
+                    else if (nconn) // could not open server port
+                    {
+        #ifndef _WIN32
+                        if (errno != ECONNREFUSED)
+                        {
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                            serverHost->getName(), port, strerror(errno));
+                        }
+        #else
+                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
+                        delete serverHost;
+                        serverHost = NULL;
+        #endif
+                        delete nconn;
+                        nconn = NULL;
+                    }
+
+                    if (localHost)
+                    {
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
+                        nconn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
+                        firstConnection = false;
+
+                        if (nconn->is_connected())
+                        {
+                            conn = nconn;
+                            return localHost;
+                        }
+
+                        // could not open server port
+                        delete nconn;
+                        nconn = NULL;
+        #ifndef _WIN32
+                        if (errno != ECONNREFUSED)
+                        {
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                            localHost->getName(), port, strerror(errno));
+                        }
+        #else
+                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
+        #endif
+                    }
+
+                    return nullptr;
+                });
+            }
+            unlock();
+        }
+
+        if (connFuture.valid())
+        {
+            lock();
+            auto status = connFuture.wait_for(std::chrono::seconds(0));
+            if (status == std::future_status::ready)
+            {
+                connectedHost = connFuture.get();
+
+                if (!connectedHost)
+                {
+                    delete conn;
+                    conn = NULL;
+                }
+                else
+                {
+                    // create Texture and SGBrowser Connections
+                    Message *msg = new covise::Message();
+                    conn->recv_msg(msg);
+                    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+                    {
+                        connectedHost = NULL;
+                        delete conn;
+                        conn = NULL;
+                    }
+                    else
+                    {
+                        TokenBuffer tb(msg);
+                        int tPort;
+                        tb >> tPort;
+
+                        ClientConnection *cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
+                        if (!cconn->is_connected()) // could not open server port
+                        {
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
+                                        connectedHost->getName(), tPort, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
+#endif
+                            delete cconn;
+                            cconn = NULL;
+                        }
+                        textureConn = cconn;
+
+                        conn->recv_msg(msg);
+                        TokenBuffer stb(msg);
+
+                        stb >> tPort;
+
+                        cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
+                        if (!cconn->is_connected()) // could not open server port
+                        {
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
+                                        connectedHost->getName(), tPort, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
+#endif
+                            delete cconn;
+                            cconn = NULL;
+                        }
+
+                        sgConn = cconn;
+                        // resend all ui Elements to the TabletPC
+                        coDLListIter<coTUIElement *> iter;
+                        iter = elements.first();
+                        while (iter)
+                        {
+                            iter->resend(true);
+                            iter++;
+                        }
+                    }
+                }
+            }
+            unlock();
         }
     }
+
     if (serverConn && serverConn->check_for_input())
     {
         if (conn)
