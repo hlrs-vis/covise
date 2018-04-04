@@ -1055,7 +1055,8 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
             optimzer.optimize(osgNode);
             std::string n(name);
             n += cacheExt;
-            osgDB::writeNodeFile(*osgNode, n.c_str());
+            if (coVRMSController::instance()->isMaster())
+                osgDB::writeNodeFile(*osgNode, n.c_str());
         }
     }
 }
