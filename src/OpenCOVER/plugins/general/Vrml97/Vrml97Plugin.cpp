@@ -162,6 +162,7 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
         else
             plugin->viewer->setRootNode(cover->getObjectsRoot());
         plugin->vrmlScene->clearRelativeURL();
+        plugin->vrmlScene->loadUrl(&url, NULL, false);
 
 
         //allow plugin to unregister
