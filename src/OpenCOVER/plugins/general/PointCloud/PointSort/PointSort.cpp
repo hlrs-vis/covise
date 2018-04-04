@@ -53,6 +53,13 @@ struct Point
     float z;
     uint32_t rgba;
     int l;
+    uint32_t ID = 0;
+};
+
+struct ScannerPosition
+{
+    uint32_t ID;
+    osg::Vec3 point;
 };
 
 bool sortfunction(Point i, Point j) { return (i.l < j.l); };
@@ -350,10 +357,16 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 				delete[] coord;
 				delete[] icolor;
 			}
-			file.close();
+            uint32_t version;
+            file.read((char *)(version),sizeof(uint32_t));
+            uint32_t numPositions;
+            file.read((char *)(numPositions), sizeof(uint32_t));
+            for (int i=0; i!=numPositions; i++)
+            {
 
+            }
+            file.close();
 		}
-
 	}
 }
 
