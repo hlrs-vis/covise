@@ -66,7 +66,8 @@ private:
     bool intColor;
     bool polar;
     float pointSizeValue;
-    bool adaptLOD;
+    float lodScale = 1.f;
+    bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
     std::vector<ScannerPosition> positions;
 
@@ -81,7 +82,7 @@ protected:
     //coButtonMenuItem *deleteMenuItem;
     ui::Menu *pointCloudMenu = nullptr;
     ui::Menu *loadMenu = nullptr;
-    ui::Group *fileGroup = nullptr;
+    //ui::Group *fileGroup = nullptr;
     ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
@@ -91,6 +92,9 @@ protected:
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
+
+    void changeAllLOD(float lod);
+    void changeAllPointSize(float pointSize);
 
 public:
     PointCloudPlugin();
