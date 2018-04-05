@@ -760,12 +760,14 @@ void coCullVisitor::apply(osg::Drawable &drawable)
 
     if( drawable.getCullCallback() )
     {
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 2)
         osg::DrawableCullCallback* dcb = drawable.getCullCallback()->asDrawableCullCallback();
         if (dcb)
         {
             if( dcb->cull( this, &drawable, &_renderInfo ) == true ) return;
         }
         else
+#endif
         {
             drawable.getCullCallback()->run(&drawable,this);
         }
@@ -852,12 +854,14 @@ void coCullVisitor::apply(Billboard &node)
         // need to modify isCulled to handle the billboard offset.
         // if (isCulled(drawable->getBound())) continue;
 
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         if( drawable->getCullCallback() )
         {
             osg::DrawableCullCallback* dcb = drawable->getCullCallback()->asDrawableCullCallback();
             if (dcb && dcb->cull( this, drawable, &_renderInfo ) == true )
                 continue;
         }
+#endif
 
         RefMatrix* billboard_matrix = createOrReuseMatrix(modelview);
 

@@ -2422,7 +2422,7 @@ void VRViewer::renderingTraversals()
             glContextOperation(*itr);
 	    
             double beginFinish = elapsedTime();
-            glFinish();
+            //glFinish();
             double endFinish = elapsedTime();
             getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
             getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
