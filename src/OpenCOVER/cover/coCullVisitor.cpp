@@ -762,18 +762,28 @@ void coCullVisitor::apply(osg::Drawable &drawable)
     {
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 2)
         osg::DrawableCullCallback* dcb = drawable.getCullCallback()->asDrawableCullCallback();
+#else
+        osg::DrawableCullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable.getCullCallback());
+#endif
         if (dcb)
         {
             if( dcb->cull( this, &drawable, &_renderInfo ) == true ) return;
         }
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 2)
         else
-#endif
         {
             drawable.getCullCallback()->run(&drawable,this);
         }
+#endif
     }
 
-    if (drawable.isCullingActive() && isCulled(bb)) return;
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 2)
+    if (drawable.isCullingActive() && isCulled(bb))
+        return;
+#else
+    if (!getNodePath().empty() && getNodePath().back()->isCullingActive() && isCulled(bb))
+        return;
+#endif
 
 
     if (_computeNearFar && bb.valid())
@@ -854,14 +864,16 @@ void coCullVisitor::apply(Billboard &node)
         // need to modify isCulled to handle the billboard offset.
         // if (isCulled(drawable->getBound())) continue;
 
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
         if( drawable->getCullCallback() )
         {
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
             osg::DrawableCullCallback* dcb = drawable->getCullCallback()->asDrawableCullCallback();
+#else
+        osg::DrawableCullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable.getCullCallback());
+#endif
             if (dcb && dcb->cull( this, drawable, &_renderInfo ) == true )
                 continue;
         }
-#endif
 
         RefMatrix* billboard_matrix = createOrReuseMatrix(modelview);
 
