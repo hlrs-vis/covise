@@ -290,6 +290,11 @@ void TUIMainWindow::closeServer()
         TUIElement *ele = &*elements.back();
         delete ele;
     }
+
+    delete  toCOVERSG;
+    toCOVERSG = NULL;
+    sgConn = NULL;
+
     if (!tabs.empty())
     {
         std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
@@ -372,13 +377,15 @@ void TUIMainWindow::processMessages()
                 QObject::connect(clientSN, SIGNAL(activated(int)),
                                  this, SLOT(processMessages()));
 
-                // create connections for texture Thread and SceneGraph Browser Thread
-
+                // create connections for SceneGraph Browser Thread
                 sgConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
                 sgConn->listen();
+
                 covise::TokenBuffer stb;
                 stb << port;
                 send(stb);
+
+                std::cerr << "SGBrowser port: " << port << std::endl;
 
                 if (sgConn->acceptOne(60) < 0)
                 {
@@ -631,11 +638,16 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             delete ele;
         }
 
+        delete  toCOVERSG;
+        toCOVERSG = NULL;
+        sgConn = NULL;
+
 #ifdef TABLET_PLUGIN
         MEUserInterface::instance()->removeTabletUI();
 #endif
         return true; // we have been deleted, exit immediately
     }
+
     covise::TokenBuffer tb(msg);
     switch (msg->type)
     {

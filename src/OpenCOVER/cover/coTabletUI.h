@@ -871,14 +871,6 @@ public:
     virtual void sendNoTextures();
     virtual void incTextureListCount();
     virtual void sendTexture();
-    virtual void lock()
-    {
-        mutex.lock();
-    }
-    virtual void unlock()
-    {
-        mutex.unlock();
-    }
     virtual void loadFilesFlag(bool state);
     virtual void hideSimNode(bool state, char *nodePath, char *parentPath);
     virtual void setSimPair(char *nodePath, char *simPath, char *simName);
@@ -903,10 +895,7 @@ public:
     {
         return index;
     }
-    virtual int getDataLength() const
-    {
-        return dataLength;
-    }
+    virtual int getDataLength() const;
     virtual int getTextureNumber() const
     {
         return textureNumber;
@@ -927,14 +916,8 @@ public:
     {
         return alpha;
     }
-    virtual char *getData()
-    {
-        return (data);
-    }
-    virtual covise::Connection *getConnection()
-    {
-        return conn;
-    }
+    virtual char *getData();
+    virtual covise::Connection *getConnection();
     virtual osg::Node *getChangedNode()
     {
         return changedNode;
@@ -946,22 +929,29 @@ public:
 
     void send(covise::TokenBuffer &tb);
     void tryConnect();
-    void close();
     void parseTextureMessage();
 
 protected:
+    virtual void lock()
+    {
+        mutex.lock();
+    }
+    virtual void unlock()
+    {
+        mutex.unlock();
+    }
     int texturesToChange = 0;
     int height = 0;
     int width = 0;
     int depth = 0;
-    int dataLength = 0;
-    char *data = nullptr;
+    std::vector<char> data;
     int textureNumber;
 
     int index;
 
     osg::Node *changedNode = nullptr;
-    covise::Connection *conn = nullptr;
+    //covise::Connection *conn = nullptr;
+    covise::ServerConnection *sConn = nullptr;
 
     std::queue<int> _heightList;
     std::queue<int> _widthList;
@@ -986,55 +976,6 @@ protected:
     std::string changedPath;
 };
 
-class COVEREXPORT SGTextureThread : public OpenThreads::Thread
-{
-
-public:
-    SGTextureThread(coTUISGBrowserTab *tab)
-        : OpenThreads::Thread()
-    {
-        this->tab = tab;
-        running = true;
-        textureListCount = 0;
-        sendedTextures = 0;
-    }
-    virtual void run();
-    void setType(int type)
-    {
-        this->type = type;
-    }
-    void terminateTextureThread()
-    {
-        running = false;
-    }
-    void incTextureListCount()
-    {
-        textureListCount++;
-    }
-    void traversingFinished(bool state)
-    {
-        finishedTraversing = state;
-    }
-    void nodeFinished(bool state)
-    {
-        finishedNode = state;
-    }
-    void noTexturesFound(bool state)
-    {
-        noTextures = state;
-    }
-    void msleep(int msec);
-
-private:
-    coTUISGBrowserTab *tab;
-    int type;
-    int textureListCount;
-    int sendedTextures;
-    bool running;
-    bool finishedTraversing;
-    bool finishedNode;
-    bool noTextures;
-};
 
 class COVEREXPORT coTUIAnnotationTab : public coTUIElement
 {

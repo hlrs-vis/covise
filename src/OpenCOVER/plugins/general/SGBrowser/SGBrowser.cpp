@@ -720,7 +720,6 @@ void SGBrowser::tabletEvent(coTUIElement *tUIItem)
         _tb << dataLength;
 
         _tb.addBinary(sGBrowserTab->getData(), dataLength);
-        delete[] sGBrowserTab -> getData();
 
         cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTexture,
                            _tb.get_length(), _tb.get_data());

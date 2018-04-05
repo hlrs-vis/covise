@@ -36,6 +36,7 @@
 #endif
 #include <covise/covise_msg.h>
 #include <net/covise_connect.h>
+#include <net/message.h>
 #include <net/tokenbuffer.h>
 #else
 #include <wce_msg.h>
@@ -253,11 +254,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
 
-    if (openServer() == -1)
-    {
-        std::cerr << "TUISGBrowserTab: openServer() failed!" << std::endl;
-        exit(3);
-    }
+
     receivingTextures = true;
     thread = new SGTextureThread(this);
     thread->start();
@@ -271,6 +268,9 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
 TUISGBrowserTab::~TUISGBrowserTab()
 {
+    receivingTextures = false;
+    thread->terminateTextureThread();
+
     simu.clear();
     // Remove all Files from temp directory
     QDir temp(texturePluginTempDir);
@@ -281,19 +281,15 @@ TUISGBrowserTab::~TUISGBrowserTab()
         QFile::remove(texturePluginTempDir + *it);
     }
 
-    receivingTextures = false;
-    thread->terminateTextureThread();
     int count = 0;
-    while (!thread->isFinished() && count < 20)
+    while (!thread->isFinished())
     {
         count++;
 #ifndef _WIN32_WCE
         usleep(5);
 #endif
     }
-    thread->quit();
-    closeServer();
-    delete msg;
+    delete thread;
 
     delete propertyDialog;
     delete restraint;
@@ -662,12 +658,12 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         QString fileName = texturePluginTempDir + "texture" + dateTime + ".png";
         if (image.save(fileName, "PNG"))
         {
-            m_mutex.lock();
+            thread->lock();
             buttonList.append(fileName);
             indexList.push_back(index);
             numItems++;
             //std::cerr << "Button saved : " << fileName << "\n";
-            m_mutex.unlock();
+            thread->unlock();
         }
         delete[] sendData;
     }
@@ -1225,7 +1221,7 @@ void TUISGBrowserTab::updateTextureButtons()
     if (receivedTextures > 0)
     {
         //std::cerr << "timeout & receiving\n";
-        m_mutex.lock();
+        thread->lock();
         QStringList::Iterator it;
         for (it = buttonList.begin(); it != buttonList.end(); ++it)
         {
@@ -1244,7 +1240,7 @@ void TUISGBrowserTab::updateTextureButtons()
         //std::cerr << "\n";
         buttonList.clear();
         indexList.clear();
-        m_mutex.unlock();
+        thread->unlock();
     }
     if (!thread->isSending() && receivedTextures == 0)
     {
@@ -1292,37 +1288,24 @@ void TUISGBrowserTab::loadTexture()
     }
 }
 
-int TUISGBrowserTab::openServer()
-{
-    sConn = TUIMainWindow::getInstance()->toCOVERSG;
-    msg = new covise::Message;
-    return 0;
-}
-
-void TUISGBrowserTab::closeServer()
-{
-    delete sConn;
-    sConn = NULL;
-}
-
 void TUISGBrowserTab::closeEvent(QCloseEvent *ce)
 {
     (void)ce;
     // closing the connection in the destructor should be enough, right?
-    //closeServer();
     //ce->accept();
 }
 
 void TUISGBrowserTab::send(covise::TokenBuffer &tb)
 {
-    if (sConn == NULL)
+    if (!getClient())
         return;
+
     covise::Message m(tb);
     m.type = covise::COVISE_MESSAGE_TABLET_UI;
-    sConn->send_msg(&m);
+    getClient()->send_msg(&m);
 }
 
-void TUISGBrowserTab::handleClient(covise::Message *msg)
+void TUISGBrowserTab::handleClient(const covise::Message *msg)
 {
     covise::TokenBuffer tb(msg);
     switch (msg->type)
@@ -1330,10 +1313,7 @@ void TUISGBrowserTab::handleClient(covise::Message *msg)
     case covise::COVISE_MESSAGE_SOCKET_CLOSED:
     case covise::COVISE_MESSAGE_CLOSE_SOCKET:
     {
-        /* delete msg->conn;
-          msg->conn=NULL;
-          delete sConn;
-          sConn=NULL;*/
+        std::cerr << "TUISGBrowserTab: socket closed: ignored" << std::endl;
     }
     break;
     case covise::COVISE_MESSAGE_TABLET_UI:
@@ -1456,6 +1436,16 @@ void TUISGBrowserTab::changeTexture(int listindex, std::string geode)
         send(tb);
         tb.delete_data();
     }
+}
+
+covise::Connection *TUISGBrowserTab::getClient()
+{
+    return TUIMainWindow::getInstance()->toCOVERSG;
+}
+
+covise::Connection *TUISGBrowserTab::getServer()
+{
+    return TUIMainWindow::getInstance()->toCOVERSG;
 }
 
 void TUISGBrowserTab::updateTextures()
@@ -1598,7 +1588,7 @@ void TUISGBrowserTab::updateExpand(QTreeWidgetItem *item)
         tb << path;
         TUIMainWindow::getInstance()->send(tb);
 
-        item->setText(7, "epanded");
+        item->setText(7, "expanded");
     }
 }
 
@@ -2611,56 +2601,89 @@ QList<QTreeWidgetItem *> nodeTree::searchString(QTreeWidgetItem *item, QString s
 
 SGTextureThread::SGTextureThread(TUISGBrowserTab *tab)
 {
-    isRunning = true;
+    running = true;
     this->tab = tab;
 }
 
 void SGTextureThread::run()
 {
 
-    while (isRunning)
+    for (;;)
     {
+        lock();
+        bool r = running;
+        unlock();
+        if (!r)
+            break;
+
         //std::cerr << "thread runs \n " ;
 
+        if (isSending())
         {
-            if (!buttonQueue.empty())
+            //std::cerr << "sending texture \n" ;
+            lock();
+            int index = buttonQueue.front();
+            std::string geode = geodeQueue.front();
+            buttonQueue.pop();
+            geodeQueue.pop();
+            unlock();
+            tab->changeTexture(index, geode);
+        }
+        else if (tab->getClient()->check_for_input())
+        {
+            covise::Message msg;
+            if (tab->getClient()->recv_msg(&msg))
             {
-                //std::cerr << "sending texture \n" ;
-                tab->lock();
-                tab->changeTexture(buttonQueue.front(), geodeQueue.front());
-                buttonQueue.pop();
-                geodeQueue.pop();
-                tab->unlock();
-            }
-            else if (isRunning && tab->isReceivingTextures())
-            {
-                //std::cerr << "receiving texture \n" ;
-                if (isRunning && tab->getClient()->check_for_input(1))
-                {
-                    if (isRunning && tab->getClient()->recv_msg(tab->getMessage()))
-                    {
-                        if (isRunning && tab->getMessage())
-                        {
-                            //std::cerr << "get message texture \n" ;
-                            if (isRunning)
-                                tab->handleClient(tab->getMessage());
-                        }
-                    }
-                }
-            }
-            else
-            {
-                //std::cerr << "sleep \n" ;
-                usleep(25000);
+                if (tab->isReceivingTextures())
+                    tab->handleClient(&msg);
+                else
+                    std::cerr << "SGTextureThread: received unexpected message" << std::endl;
             }
         }
+        else
+        {
+            //std::cerr << "sleep \n" ;
+            usleep(25000);
+        }
     }
+
+    std::cerr << "SGTextureThread: finishd" << std::endl;
 }
 
 void SGTextureThread::enqueueGeode(int number, std::string geode)
 {
-    tab->lock();
+    lock();
     buttonQueue.push(number);
     geodeQueue.push(geode);
-    tab->unlock();
+    unlock();
+}
+
+void SGTextureThread::setButtonNumber(int number)
+{
+    buttonNumber = number;
+}
+
+bool SGTextureThread::isSending()
+{
+    lock();
+    bool ret = !buttonQueue.empty();
+    unlock();
+    return ret;
+}
+
+void SGTextureThread::terminateTextureThread()
+{
+    lock();
+    running = false;
+    unlock();
+}
+
+void SGTextureThread::lock()
+{
+    m_mutex.lock();
+}
+
+void SGTextureThread::unlock()
+{
+    m_mutex.unlock();
 }

@@ -138,6 +138,7 @@ SET(COVER_SOURCES
   coHud.cpp
   coOnscreenDebug.cpp
   coTabletUI.cpp
+  coTUISGBrowserTab.cpp
   coTUIListener.cpp
   RenderObject.cpp
   coVRNavigationManager.cpp
