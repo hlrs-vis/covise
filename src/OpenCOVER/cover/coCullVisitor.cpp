@@ -763,7 +763,7 @@ void coCullVisitor::apply(osg::Drawable &drawable)
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 2)
         osg::DrawableCullCallback* dcb = drawable.getCullCallback()->asDrawableCullCallback();
 #else
-        osg::DrawableCullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable.getCullCallback());
+        osg::Drawable::CullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable->getCullCallback());
 #endif
         if (dcb)
         {
@@ -869,7 +869,7 @@ void coCullVisitor::apply(Billboard &node)
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
             osg::DrawableCullCallback* dcb = drawable->getCullCallback()->asDrawableCullCallback();
 #else
-        osg::DrawableCullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable.getCullCallback());
+            osg::Drawable::CullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable->getCullCallback());
 #endif
             if (dcb && dcb->cull( this, drawable, &_renderInfo ) == true )
                 continue;
