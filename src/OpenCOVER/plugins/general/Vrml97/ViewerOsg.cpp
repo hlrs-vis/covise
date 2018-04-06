@@ -2174,7 +2174,7 @@ ViewerOsg::insertShell(unsigned int mask,
         {
             splitGeometry(geode,SubdivideThreshold);
             if (cover->debugLevel(2))
-                cerr << "-" << nfaces  << "/" << geode->getNumChildren() << ":";
+                cerr << "-" << nfaces  << "/" << geode->getNumDrawables() << ":";
         }
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
