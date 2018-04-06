@@ -5373,8 +5373,11 @@ int coTabletUI::getID()
 
 void coTabletUI::send(TokenBuffer &tb)
 {
-    if (conn == NULL)
+    if (!connectedHost)
+    {
         return;
+    }
+    assert(conn);
     Message m(tb);
     m.type = COVISE_MESSAGE_TABLET_UI;
     conn->send_msg(&m);
