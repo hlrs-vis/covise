@@ -518,30 +518,35 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             Act* act = ((Act*)(*it));// these are not oscAct instances any more but our own Act
 
             list<Entity*> activeEntityList_temp;
-            for (oscActorsArrayMember::iterator it = act->Sequence->Actors->Entity.begin(); it != act->Sequence->Actors->Entity.end(); it++)
+            for(oscActorsArrayMember::iterator it = act->Sequence.begin(); it != act->Sequence.end(); it++)
             {
-                oscEntity* namedEntity = ((oscEntity*)(*it));
-                if (namedEntity->name.getValue() != "$owner")
+                oscSequence* currentSeq = ((oscSequence*)(*it));
+                for (oscActorsArrayMember::iterator it = currentSeq->Actors->Entity.begin(); it != currentSeq->Actors->Entity.end(); it++)
                 {
-                    activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
+                    oscEntity* namedEntity = ((oscEntity*)(*it));
+                    if (namedEntity->name.getValue() != "$owner")
+                    {
+                        activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
+                    }
+                    else{activeEntityList_temp.push_back(scenarioManager->getEntityByName(story->owner.getValue()));
+                    }
+                    cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
                 }
-                else{activeEntityList_temp.push_back(scenarioManager->getEntityByName(story->owner.getValue()));
+                list<Maneuver*> maneuverList_temp;
+                for (oscManeuverArrayMember::iterator it = currentSeq->Maneuver.begin(); it != currentSeq->Maneuver.end(); it++)
+                {
+                    Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
+                    maneuver->initialize(activeEntityList_temp.size());
+                    maneuverList_temp.push_back(maneuver);
+                    cout << "Manuever: " << maneuver->getName() << " created" << endl;
                 }
-                cout << "Entity: " << story->owner.getValue() << " allocated to " << act->getName() << endl;
+                act->initialize(currentSeq->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp);
+                scenarioManager->actList.push_back(act);
+                cout << "Act: " <<  act->getName() << " initialized" << endl;
+                maneuverList_temp.clear();
+                activeEntityList_temp.clear();
             }
-            list<Maneuver*> maneuverList_temp;
-            for (oscManeuverArrayMember::iterator it = act->Sequence->Maneuver.begin(); it != act->Sequence->Maneuver.end(); it++)
-            {
-                Maneuver* maneuver = ((Maneuver*)(*it)); // these are not oscManeuver instances any more but our own Maneuver
-                maneuver->initialize(activeEntityList_temp.size());
-                maneuverList_temp.push_back(maneuver);
-                cout << "Manuever: " << maneuver->getName() << " created" << endl;
-            }
-            act->initialize(act->Sequence->numberOfExecutions.getValue(), maneuverList_temp, activeEntityList_temp);
-            scenarioManager->actList.push_back(act);
-            cout << "Act: " <<  act->getName() << " initialized" << endl;
-            maneuverList_temp.clear();
-            activeEntityList_temp.clear();
+
         }
     }
 
