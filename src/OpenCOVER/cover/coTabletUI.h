@@ -116,6 +116,7 @@ public:
 
 protected:
     void init();
+    void resendAll();
     std::vector<coTUIElement *> elements;
     std::vector<coTUIElement *> newElements;
     covise::ServerConnection *serverConn = nullptr;
@@ -230,7 +231,6 @@ public:
     coTUIBitmapButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIBitmapButton(QObject *, const std::string &, int pID = 1);
     virtual ~coTUIBitmapButton();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -254,7 +254,6 @@ public:
     coTUIButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIButton(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIButton();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -677,7 +676,6 @@ public:
     coTUITab(coTabletUI *tui, const std::string &, int pID);
     coTUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUITab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -702,7 +700,6 @@ public:
     coTUIUITab(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUIUITab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
     bool loadUIFile(const std::string &filename);
@@ -733,7 +730,6 @@ public:
     coTUITabFolder(coTabletUI *tui, const std::string &, int pID = 1);
     coTUITabFolder(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUITabFolder();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -1045,7 +1041,6 @@ class COVEREXPORT coTUIAnnotationTab : public coTUIElement
 public:
     coTUIAnnotationTab(const char *, int pID = 1);
     virtual ~coTUIAnnotationTab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
     void setNewButtonState(bool state);
@@ -1063,7 +1058,6 @@ private:
 public:
     coTUINav(const char *, int pID = 1);
     virtual ~coTUINav();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     bool down;
     int x;
@@ -1201,7 +1195,6 @@ public:
     coTUIGroupBox(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIGroupBox(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIGroupBox();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 public slots:
@@ -1287,7 +1280,6 @@ public:
     coTUIMessageBox(const std::string &, int pID = 1);
     coTUIMessageBox(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIMessageBox();
-    virtual void resend(bool create) override;
 
 protected:
 };

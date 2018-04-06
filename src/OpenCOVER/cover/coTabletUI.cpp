@@ -87,11 +87,6 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUIButton::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
 //TABLET_FILEBROWSER_BUTTON
 coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     : coTUIElement(n, pID, TABLET_FILEBROWSER_BUTTON)
@@ -1136,11 +1131,6 @@ void coTUINav::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUINav::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -1191,11 +1181,6 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     {
         cerr << "unknown event " << i << endl;
     }
-}
-
-void coTUIBitmapButton::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -1281,12 +1266,6 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUITabFolder::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
-
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -1365,11 +1344,6 @@ void coTUIUITab::sendEvent(const QString &source, const QString &event)
     tb.addBinary((const char *)event.utf16(), (event.size() + 1) * 2);
 
     tui()->send(tb);
-}
-
-void coTUIUITab::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 bool coTUIUITab::loadUIFile(const std::string &filename)
@@ -1462,11 +1436,6 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     {
         cerr << "unknown event " << i << endl;
     }
-}
-
-void coTUITab::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -2387,12 +2356,6 @@ coTUIAnnotationTab::coTUIAnnotationTab(const char *n, int pID)
 
 coTUIAnnotationTab::~coTUIAnnotationTab()
 {
-}
-
-void coTUIAnnotationTab::resend(bool create)
-{
-    //std::cout << "coTUIAnnotationTab::resend()" << std::endl;
-    coTUIElement::resend(create);
 }
 
 void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
@@ -3320,11 +3283,6 @@ coTUIMessageBox::coTUIMessageBox(QObject *parent, const std::string &n, int pID)
 
 coTUIMessageBox::~coTUIMessageBox()
 {
-}
-
-void coTUIMessageBox::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -5031,6 +4989,15 @@ void coTabletUI::init()
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
 }
 
+// resend all ui Elements to the TabletPC
+void coTabletUI::resendAll()
+{
+    for (auto el: elements)
+    {
+        el->resend(true);
+    }
+}
+
 bool coTabletUI::isConnected() const
 {
     return connectedHost != nullptr;
@@ -5236,10 +5203,7 @@ bool coTabletUI::update()
 
                         sgConn = cconn;
                         // resend all ui Elements to the TabletPC
-                        for (auto el: elements)
-                        {
-                            el->resend(true);
-                        }
+                        resendAll();
                     }
                 }
             }
@@ -5264,11 +5228,8 @@ bool coTabletUI::update()
             char *hostName;
             tb >> hostName;
             serverHost = new Host(hostName);
-            // resend all ui Elements to the TabletPC
-            for (auto el: elements)
-            {
-                el->resend(true);
-            }
+
+            resendAll();
         }
     }
 
@@ -5404,11 +5365,6 @@ coTUIGroupBox::coTUIGroupBox(QObject *parent, const std::string &n, int pID)
 coTUIGroupBox::~coTUIGroupBox()
 {
 
-}
-
-void coTUIGroupBox::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 void coTUIGroupBox::parseMessage(TokenBuffer &tb)
