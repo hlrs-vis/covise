@@ -31,7 +31,6 @@ SET(TUI_SOURCES
   # TUITextSpinEdit.cpp
   TUIApplication.cpp
   TUINavElement.cpp
-  TUITextureTab.cpp
   TUISGBrowserTab.cpp
   TUIColorTab.cpp
   TUIMap.cpp
@@ -65,7 +64,6 @@ SET(TUI_MOC_HEADERS
   qtpropertyDialog.h
   TUIColorTriangle.h
   TUIColorButton.h
-  TUITextureTab.h
   TUISGBrowserTab.h
   TUIColorTab.h
   TUIButton.h

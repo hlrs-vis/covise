@@ -52,7 +52,6 @@
 
 #include "TUIApplication.h"
 #include "TUITab.h"
-#include "TUITextureTab.h"
 #include "TUISGBrowserTab.h"
 #include "TUIAnnotationTab.h"
 #ifndef WITHOUT_VIRVO
@@ -547,8 +546,6 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         tab->setNumberOfColumns(numberOfColumns);
         return tab;
     }
-    case TABLET_TEXTURE_TAB:
-        return new TUITextureTab(id, type, w, parent, name);
     case TABLET_BROWSER_TAB:
         return new TUISGBrowserTab(id, type, w, parent, name);
     case TABLET_ANNOTATION_TAB:
