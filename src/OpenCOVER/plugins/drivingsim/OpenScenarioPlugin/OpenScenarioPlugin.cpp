@@ -568,15 +568,19 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     {
         Act* currentAct = (*act_iter);
         //Act Start Condition
-        for (oscConditionArrayMember::iterator it = currentAct->Conditions->Start->ConditionGroup->Condition.begin(); it != currentAct->Conditions->Start->ConditionGroup->Condition.end(); it++)
+        for (oscConditionArrayMember::iterator it = currentAct->Conditions->Start->ConditionGroup.begin(); it != currentAct->Conditions->Start->ConditionGroup.end(); it++)
         {
-            oscCondition* condition = ((oscCondition*)(*it));
-            if(condition->ByValue.exists())
+            oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
+            for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
             {
+                oscCondition* condition = ((oscCondition*)(*it));
+                if(condition->ByValue.exists())
+                {
 
-                (*act_iter)->startConditionType = "time";
-                (*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+                    (*act_iter)->startConditionType = "time";
+                    (*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
 
+                }
             }
         }
         //Act End Condition
