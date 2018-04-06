@@ -77,7 +77,7 @@ private:
 
 struct TriangleCompare
 {
-    bool operator()(const Triangle *a, const Triangle *b)
+    bool operator()(const Triangle *a, const Triangle *b) const
     {
         return (*a) < (*b);
     }

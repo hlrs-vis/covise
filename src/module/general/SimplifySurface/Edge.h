@@ -94,7 +94,7 @@ private:
 
 struct EdgeCompare
 {
-    bool operator()(const Edge *a, const Edge *b)
+    bool operator()(const Edge *a, const Edge *b) const
     {
         return (*a) < (*b);
     }
