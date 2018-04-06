@@ -5027,7 +5027,6 @@ coTabletUI::coTabletUI(const std::string &host, int port)
 void coTabletUI::init()
 {
     debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
-    elements.setNoDelete();
 
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
 }
@@ -5237,12 +5236,9 @@ bool coTabletUI::update()
 
                         sgConn = cconn;
                         // resend all ui Elements to the TabletPC
-                        coDLListIter<coTUIElement *> iter;
-                        iter = elements.first();
-                        while (iter)
+                        for (auto el: elements)
                         {
-                            iter->resend(true);
-                            iter++;
+                            el->resend(true);
                         }
                     }
                 }
@@ -5269,12 +5265,9 @@ bool coTabletUI::update()
             tb >> hostName;
             serverHost = new Host(hostName);
             // resend all ui Elements to the TabletPC
-            coDLListIter<coTUIElement *> iter;
-            iter = elements.first();
-            while (iter)
+            for (auto el: elements)
             {
-                iter->resend(true);
-                iter++;
+                el->resend(true);
             }
         }
     }
@@ -5346,22 +5339,13 @@ bool coTabletUI::update()
                 tb >> ID;
                 if (ID >= 0)
                 {
-                    //coDLListSafeIter<coTUIElement*> iter;
-
-                    coDLListIter<coTUIElement *> iter;
-                    iter = elements.first();
-                    while (iter)
+                    for (auto el: elements)
                     {
-                        if (*iter)
+                        if (el && el->getID() == ID)
                         {
-
-                            if (iter->getID() == ID)
-                            {
-                                iter->parseMessage(tb);
-                                break;
-                            }
+                            el->parseMessage(tb);
+                            break;
                         }
-                        iter++;
                     }
                 }
             }
@@ -5380,19 +5364,22 @@ bool coTabletUI::update()
 
 void coTabletUI::addElement(coTUIElement *e)
 {
-    elements.append(e);
+    elements.push_back(e);
     newElements.push_back(e);
 }
 
 void coTabletUI::removeElement(coTUIElement *e)
 {
-    auto it = std::find(newElements.begin(), newElements.end(), e);
-    if (it != newElements.end())
-        newElements.erase(it);
-    coDLListIter<coTUIElement *> iter;
-    iter = elements.findElem(e);
-    if (iter)
-        iter.remove();
+    {
+        auto it = std::find(newElements.begin(), newElements.end(), e);
+        if (it != newElements.end())
+            newElements.erase(it);
+    }
+    {
+        auto it = std::find(elements.begin(), elements.end(), e);
+        if (it != elements.end())
+            elements.erase(it);
+    }
 }
 
 

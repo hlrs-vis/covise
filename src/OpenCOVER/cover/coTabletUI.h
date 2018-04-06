@@ -116,7 +116,7 @@ public:
 
 protected:
     void init();
-    covise::coDLPtrList<coTUIElement *> elements;
+    std::vector<coTUIElement *> elements;
     std::vector<coTUIElement *> newElements;
     covise::ServerConnection *serverConn = nullptr;
     covise::Host *serverHost = nullptr;
