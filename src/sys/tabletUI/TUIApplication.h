@@ -102,7 +102,6 @@ private:
 
     int smsg;
     int port;
-    int lastID;
 
     QSocketNotifier *serverSN = nullptr, *clientSN = nullptr;
     QTimer *timer = nullptr;
@@ -112,7 +111,6 @@ private:
     covise::Connection *clientConn = nullptr;
     covise::ConnectionList *connections = nullptr;
     covise::Message *msg = nullptr;
-    TUIElement *lastElement = nullptr;
     QTimer *m_periodictimer = nullptr;
 
     covise::ServerConnection *sgConn = nullptr;

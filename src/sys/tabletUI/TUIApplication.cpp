@@ -128,12 +128,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QFrame(parent)
     , mainFolder(mainFolder)
     , port(31803)
-    , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
     , sConn(NULL)
     , clientConn(NULL)
-    , lastElement(NULL)
 {
 
     setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -172,12 +170,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QMainWindow(parent)
     , mainFolder(mainFolder)
     , port(31802)
-    , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
     , sConn(NULL)
     , clientConn(NULL)
-    , lastElement(NULL)
 {
     // init some values
     appwin = this;
@@ -600,7 +596,7 @@ TUIElement *TUIMainWindow::getElement(int ID)
     {
         if ((*iter)->getID() == ID)
             return *iter;
-        std::cerr << "TUIMainWindow: expected ID=" << ID << ", got " << (*iter)->getID() << std::endl;
+        std::cerr << "TUIMainWindow::getElement(ID=" << ID << "), got " << (*iter)->getID() << std::endl;
     }
     return nullptr;
 }
@@ -611,6 +607,7 @@ QWidget *TUIMainWindow::getWidget(int ID)
 {
     if (auto el = getElement(ID))
         return el->getWidget();
+    std::cerr << "TUIMainWindow::getWidget(ID=" << ID << "): mainFrame" << std::endl;
     return mainFrame;
 }
 
@@ -626,8 +623,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         delete msg->conn;
         msg->conn = NULL;
         clientConn = NULL;
-        lastElement = NULL;
-        lastID = -10;
 
         //remove all UI Elements
         while (!elements.empty())
@@ -676,10 +671,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             TUIElement *newElement = createElement(ID, elementType, parentWidget, parent, name);
             if (newElement)
             {
-                lastElement = newElement;
                 if (parentElem)
-                    parentElem->addElement(lastElement);
-                lastID = ID;
+                    parentElem->addElement(newElement);
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
@@ -724,35 +717,20 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             tb >> ID;
             auto type = static_cast<TabletValue>(typeInt);
             //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
-            if (ID == lastID && (lastElement))
+            TUIElement *ele = getElement(ID);
+            if (ele)
             {
-                lastElement->setValue(type, tb);
+                ele->setValue(type, tb);
             }
             else
             {
-                TUIElement *ele = getElement(ID);
-                if (ele)
-                {
-                    lastElement = ele;
-                    lastID = ID;
-                    ele->setValue(type, tb);
-                }
-                else
-                {
-                    std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID << std::endl;
-                }
+                std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID << std::endl;
             }
         }
         break;
         case TABLET_REMOVE:
         {
             tb >> ID;
-            if (ID == lastID)
-            {
-                lastElement = NULL;
-                lastID = -10;
-            }
-
             TUIElement *ele = getElement(ID);
             if (ele)
             {
