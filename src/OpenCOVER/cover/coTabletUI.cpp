@@ -5215,33 +5215,11 @@ bool coTabletUI::update()
                     }
                     else
                     {
-                        TokenBuffer tb(msg);
-                        int tPort;
-                        tb >> tPort;
-
-                        ClientConnection *cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
-                        if (!cconn->is_connected()) // could not open server port
-                        {
-#ifndef _WIN32
-                            if (errno != ECONNREFUSED)
-                            {
-                                fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                        connectedHost->getName(), tPort, strerror(errno));
-                            }
-#else
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
-#endif
-                            delete cconn;
-                            cconn = NULL;
-                        }
-                        textureConn = cconn;
-
-                        conn->recv_msg(msg);
                         TokenBuffer stb(msg);
-
+                        int tPort = 0;
                         stb >> tPort;
 
-                        cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
+                        ClientConnection *cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
                         if (!cconn->is_connected()) // could not open server port
                         {
 #ifndef _WIN32

@@ -72,7 +72,6 @@ public:
     TUIElement *getElement(int ID);
     QWidget *getWidget(int ID);
 
-    covise::Connection *toCOVERTexture = nullptr;
     covise::Connection *toCOVERSG = nullptr;
 
 protected:
@@ -116,7 +115,6 @@ private:
     TUIElement *lastElement = nullptr;
     QTimer *m_periodictimer = nullptr;
 
-    covise::ServerConnection *texConn = nullptr;
     covise::ServerConnection *sgConn = nullptr;
     int numberOfColumns = 5;
 };

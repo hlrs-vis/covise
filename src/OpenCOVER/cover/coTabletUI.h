@@ -112,7 +112,6 @@ public:
     covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
-    covise::Connection *textureConn = nullptr;
     covise::Connection *sgConn = nullptr;
 
 protected:

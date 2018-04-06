@@ -378,42 +378,6 @@ void TUIMainWindow::processMessages()
 
                 // create connections for texture Thread and SceneGraph Browser Thread
 
-                //qDebug() << "open texConn";
-                texConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
-                texConn->listen();
-                covise::TokenBuffer tb;
-                tb << port;
-                send(tb);
-
-                //qDebug() << "sent port" << port;
-
-                if (texConn->acceptOne(60) < 0)
-                {
-                    qDebug() << "Could not open server port" << port;
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-                if (!texConn->getSocket())
-                {
-                    qDebug() << "Could not get Socket" << port;
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-
-                linger.l_onoff = 0;
-                linger.l_linger = 0;
-                setsockopt(texConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-                if (!texConn->is_connected()) // could not open server port
-                {
-                    fprintf(stderr, "Could not open server port %d\n", port);
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-
                 sgConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
                 sgConn->listen();
                 covise::TokenBuffer stb;
@@ -447,7 +411,6 @@ void TUIMainWindow::processMessages()
                     return;
                 }
 
-                toCOVERTexture = texConn;
                 toCOVERSG = sgConn;
 
                 connections->add(clientConn); //add new connection;
