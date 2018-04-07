@@ -435,6 +435,7 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
 
 bool OpenScenarioBase::saveFile(const std::string &fileName, bool catalogs, bool overwrite/* default false */)
 {
+	XMLCh *t1 = NULL;
     xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
     //oscSourceFile for OpenScenarioBase
     oscSourceFile *osbSourceFile;
@@ -465,14 +466,14 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool catalogs, bool
 
 			if (!srcFileVec[i]->getXmlDoc())
 			{
-				xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
+				xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, t1 = srcFileVec[i]->getRootElementNameAsXmlCh(), 0);  xercesc::XMLString::release(&t1);
 				srcFileVec[i]->setXmlDoc(xmlSrcDoc);
 			}
         }
 		
         else if (catalogs && !srcFileVec[i]->getXmlDoc())
         {
-            xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
+            xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, t1 = srcFileVec[i]->getRootElementNameAsXmlCh(), 0); xercesc::XMLString::release(&t1);
             srcFileVec[i]->setXmlDoc(xmlSrcDoc);
         }
     }
@@ -606,7 +607,8 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     if (tmpXmlDoc)
     {
         tmpRootElem = tmpXmlDoc->getDocumentElement();
-        tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
+		char *cs;
+        tmpRootElemName = cs = xercesc::XMLString::transcode(tmpRootElem->getNodeName()); xercesc::XMLString::release(&cs);
 		if (fileName.find("Catalog") != std::string::npos)
 		{
 			tmpRootElemName = "CatalogObject";
@@ -677,10 +679,11 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         //raw buffer, length and fake id for memory input source
         const XMLByte *tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
         XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
-        const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
+        XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
 
         //new input source from memory for parser
         xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
+		xercesc::XMLString::release(&bufId);
 
         //parse memory buffer
         try
@@ -790,8 +793,9 @@ xercesc::DOMElement *OpenScenarioBase::getDefaultXML(const std::string &fileType
 //
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
-	std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
-	createSource(fileNamePathStr, xercesc::XMLString::transcode(rootElement->getNodeName()));
+	char *cs;
+	std::string fileNamePathStr = cs = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI()); xercesc::XMLString::release(&cs);
+	createSource(fileNamePathStr, cs = xercesc::XMLString::transcode(rootElement->getNodeName())); xercesc::XMLString::release(&cs);
 
     return oscObjectBase::parseFromXML(rootElement, source);
 }

@@ -529,10 +529,14 @@ void PedestrianFactory::parseElementForSettings(xercesc::DOMElement *element, Pe
  */
 bool PedestrianFactory::hasAttr(xercesc::DOMElement *element, const char *attr)
 {
-    if (element->hasAttribute(xercesc::XMLString::transcode(attr)))
-        return true;
-    else
-        return false;
+	XMLCh *t1 = NULL;
+	if (element->hasAttribute(t1 = xercesc::XMLString::transcode(attr)))
+	{
+		xercesc::XMLString::release(&t1);
+		return true;
+	}
+	xercesc::XMLString::release(&t1);
+	return false;
 }
 
 /**
@@ -540,10 +544,15 @@ bool PedestrianFactory::hasAttr(xercesc::DOMElement *element, const char *attr)
  */
 bool PedestrianFactory::tagsMatch(xercesc::DOMElement *element, const char *tag)
 {
-    if (element && xercesc::XMLString::compareIString(element->getTagName(), xercesc::XMLString::transcode(tag)) == 0)
-        return true;
-    else
-        return false;
+
+	XMLCh *t1 = NULL;
+	if (element && xercesc::XMLString::compareIString(element->getTagName(), t1 = xercesc::XMLString::transcode(tag)) == 0)
+	{
+		xercesc::XMLString::release(&t1);
+		return true;
+	}
+	xercesc::XMLString::release(&t1);
+	return false;
 }
 
 /**
@@ -551,5 +560,10 @@ bool PedestrianFactory::tagsMatch(xercesc::DOMElement *element, const char *tag)
  */
 std::string PedestrianFactory::getValOfAttr(xercesc::DOMElement *element, const char *attr)
 {
-    return std::string(xercesc::XMLString::transcode(element->getAttribute(xercesc::XMLString::transcode(attr))));
+	XMLCh *t1 = NULL;
+	char *ch;
+    std::string s(ch = xercesc::XMLString::transcode(element->getAttribute(t1 = xercesc::XMLString::transcode(attr))));
+	xercesc::XMLString::release(&t1);
+	xercesc::XMLString::release(&ch);
+	return s;
 }

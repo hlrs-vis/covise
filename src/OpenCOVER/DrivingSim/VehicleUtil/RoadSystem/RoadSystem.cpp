@@ -231,6 +231,8 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 {
     if (rootElement)
     {
+		XMLCh *t1=NULL, *t2=NULL, *t3=NULL, *t4=NULL, *t5=NULL, *t6=NULL, *t7=NULL, *t8=NULL, *t9=NULL, *t10=NULL, *t11=NULL, *t12=NULL, *t13=NULL, *t14 = NULL, *t15 = NULL, *t16 = NULL, *t17 = NULL, *t18=NULL;
+		char *cs;
         Road *road;
         std::map<Road *, xercesc::DOMElement *> roadDOMMap;
         xercesc::DOMNodeList *documentChildrenList = rootElement->getChildNodes();
@@ -239,15 +241,15 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
 
-            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("road")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t1 = xercesc::XMLString::transcode("road")) == 0)
             {
-                std::string roadIdString = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id")));
+                std::string roadIdString = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t2 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&t2); xercesc::XMLString::release(&cs);
                 if (roadIdString.empty())
                 {
-                    std::string roadIdString = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("ID")));
+                    std::string roadIdString = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t2 = xercesc::XMLString::transcode("ID"))); xercesc::XMLString::release(&t2); xercesc::XMLString::release(&cs);
                 }
-                std::string roadNameString = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name")));
-                double roadLength = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                std::string roadNameString = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t2 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t2); xercesc::XMLString::release(&cs);
+                double roadLength = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t2= xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t2); xercesc::XMLString::release(&cs);
                 road = new Road(roadIdString, roadNameString, roadLength);
                 addRoad(road);
                 roadDOMMap[road] = documentChildElement;
@@ -262,27 +264,27 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         //std::cerr << "A not-an-element in road tag";
                         //std::cerr << ", type of node: " << xercesc::XMLString::transcode(roadChildElement->getNodeName()) << std::endl;
                     }
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("type")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t2 = xercesc::XMLString::transcode("type")) == 0)
                     {
                         double typeStart;
                         std::string typeName;
 
-                        typeStart = atof(xercesc::XMLString::transcode(roadChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                        typeName = xercesc::XMLString::transcode(roadChildElement->getAttribute(xercesc::XMLString::transcode("type")));
+                        typeStart = atof(cs = xercesc::XMLString::transcode(roadChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        typeName = cs = xercesc::XMLString::transcode(roadChildElement->getAttribute(t12 = xercesc::XMLString::transcode("type"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         road->addRoadType(typeStart, typeName);
                         // Neu Andreas 27-11-2012: No speedlimit in .xodr defined, then get standard values
                         road->addSpeedLimit(typeStart, typeName);
                     }
                     // Neu Andreas 27-11-2012: Speedlimit defined in .xodr
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("speedlimit")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t3 = xercesc::XMLString::transcode("speedlimit")) == 0)
                     {
                         double speedLimitStart;
                         double speedLimitNum;
-                        speedLimitStart = atof(xercesc::XMLString::transcode(roadChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                        speedLimitNum = atof(xercesc::XMLString::transcode(roadChildElement->getAttribute(xercesc::XMLString::transcode("max"))));
+                        speedLimitStart = atof(cs = xercesc::XMLString::transcode(roadChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        speedLimitNum = atof(cs = xercesc::XMLString::transcode(roadChildElement->getAttribute(t12 = xercesc::XMLString::transcode("max")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         road->addSpeedLimit(speedLimitStart, speedLimitNum);
                     }
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("planView")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t4 = xercesc::XMLString::transcode("planView")) == 0)
                     {
                         double geometryStart;
                         double geometryX;
@@ -296,11 +298,11 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             planViewChildElement = dynamic_cast<xercesc::DOMElement *>(planViewChildrenList->item(childIndex));
                             if (planViewChildElement && xercesc::XMLString::compareIString(planViewChildElement->getTagName(), xercesc::XMLString::transcode("geometry")) == 0)
                             {
-                                geometryStart = atof(xercesc::XMLString::transcode(planViewChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                geometryX = atof(xercesc::XMLString::transcode(planViewChildElement->getAttribute(xercesc::XMLString::transcode("x"))));
-                                geometryY = atof(xercesc::XMLString::transcode(planViewChildElement->getAttribute(xercesc::XMLString::transcode("y"))));
-                                geometryHdg = atof(xercesc::XMLString::transcode(planViewChildElement->getAttribute(xercesc::XMLString::transcode("hdg"))));
-                                geometryLength = atof(xercesc::XMLString::transcode(planViewChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                                geometryStart = atof(cs = xercesc::XMLString::transcode(planViewChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                geometryX = atof(cs = xercesc::XMLString::transcode(planViewChildElement->getAttribute(t12 = xercesc::XMLString::transcode("x")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                geometryY = atof(cs = xercesc::XMLString::transcode(planViewChildElement->getAttribute(t12 = xercesc::XMLString::transcode("y")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                geometryHdg = atof(cs = xercesc::XMLString::transcode(planViewChildElement->getAttribute(t12 = xercesc::XMLString::transcode("hdg")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                geometryLength = atof(cs = xercesc::XMLString::transcode(planViewChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 xercesc::DOMNodeList *curveList = planViewChildElement->getChildNodes();
                                 xercesc::DOMElement *curveElement;
                                 for (unsigned int curveIndex = 0; curveIndex < curveList->getLength(); ++curveIndex)
@@ -312,120 +314,129 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                         //std::cerr << ", type of node: " << xercesc::XMLString::transcode(curveElement->getNodeName()) << std::endl;
                                         //std::cerr << "Content of node: " << xercesc::XMLString::transcode(curveElement->getTextContent()) << std::endl;
                                     }
-                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("line")) == 0)
+                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), t5 = xercesc::XMLString::transcode("line")) == 0)
                                     {
                                         //std::cerr << "Added line geometry at s: " << geometryStart << std::endl;
                                         road->addPlanViewGeometryLine(geometryStart, geometryLength, geometryX, geometryY, geometryHdg);
                                     }
-                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("spiral")) == 0)
+                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), t6 = xercesc::XMLString::transcode("spiral")) == 0)
                                     {
-                                        double curveCurvStart = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("curvStart"))));
-                                        double curveCurvEnd = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("curvEnd"))));
+                                        double curveCurvStart = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("curvStart")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                        double curveCurvEnd = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("curvEnd")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                         road->addPlanViewGeometrySpiral(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveCurvStart, curveCurvEnd);
                                     }
-                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("arc")) == 0)
+                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), t7 = xercesc::XMLString::transcode("arc")) == 0)
                                     {
-                                        double curveCurvature = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("curvature"))));
+                                        double curveCurvature = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("curvature")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                         road->addPlanViewGeometryArc(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveCurvature);
                                     }
-                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("poly3")) == 0)
+                                    else if (xercesc::XMLString::compareIString(curveElement->getTagName(), t8 = xercesc::XMLString::transcode("poly3")) == 0)
                                     {
-                                        double curveA = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                        double curveB = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("b"))));
-                                        double curveC = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("c"))));
-                                        double curveD = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("d"))));
+                                        double curveA = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                        double curveB = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                        double curveC = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                        double curveD = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                         road->addPlanViewGeometryPolynom(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveA, curveB, curveC, curveD);
                                     }
-									else if (xercesc::XMLString::compareIString(curveElement->getTagName(), xercesc::XMLString::transcode("paramPoly3")) == 0)
+									else if (xercesc::XMLString::compareIString(curveElement->getTagName(), t9 = xercesc::XMLString::transcode("paramPoly3")) == 0)
 									{
-										double curveAU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("aU"))));
-										double curveBU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("bU"))));
-										double curveCU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("cU"))));
-										double curveDU = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("dU"))));
-										double curveAV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("aV"))));
-										double curveBV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("bV"))));
-										double curveCV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("cV"))));
-										double curveDV = atof(xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("dV"))));
+										double curveAU = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("aU")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveBU = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("bU")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveCU = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("cU")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveDU = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("dU")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveAV = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("aV")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveBV = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("bV")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveCV = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("cV")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+										double curveDV = atof(cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("dV")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 										bool normalized = true;
 										if(curveElement->getAttribute(xercesc::XMLString::transcode("pRange")))
 										{
-										    std::string pRange = xercesc::XMLString::transcode(curveElement->getAttribute(xercesc::XMLString::transcode("pRange")));
+										    std::string pRange = cs = xercesc::XMLString::transcode(curveElement->getAttribute(t12 = xercesc::XMLString::transcode("pRange"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 											if (pRange == "arcLength")
 												normalized = false;
 										}
 										road->addPlanViewGeometryPolynom(geometryStart, geometryLength, geometryX, geometryY, geometryHdg, curveAU, curveBU, curveCU, curveDU, curveAV, curveBV, curveCV, curveDV,normalized);
 									}
+									xercesc::XMLString::release(&t5);
+									xercesc::XMLString::release(&t6);
+									xercesc::XMLString::release(&t7);
+									xercesc::XMLString::release(&t8);
+									xercesc::XMLString::release(&t9);
                                 }
                             }
                         }
                     }
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("elevationProfile")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t5 = xercesc::XMLString::transcode("elevationProfile")) == 0)
                     {
                         xercesc::DOMNodeList *elevationProfileChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *elevationProfileChildElement;
                         for (unsigned int childIndex = 0; childIndex < elevationProfileChildrenList->getLength(); ++childIndex)
                         {
                             elevationProfileChildElement = dynamic_cast<xercesc::DOMElement *>(elevationProfileChildrenList->item(childIndex));
-                            if (elevationProfileChildElement && xercesc::XMLString::compareIString(elevationProfileChildElement->getTagName(), xercesc::XMLString::transcode("elevation")) == 0)
+                            if (elevationProfileChildElement && xercesc::XMLString::compareIString(elevationProfileChildElement->getTagName(), t6 = xercesc::XMLString::transcode("elevation")) == 0)
                             {
-                                double elevationStart = atof(xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                double elevationA = atof(xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                double elevationB = atof(xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-                                double elevationC = atof(xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-                                double elevationD = atof(xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+                                double elevationStart = atof(cs = xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double elevationA = atof(cs = xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double elevationB = atof(cs = xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double elevationC = atof(cs = xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double elevationD = atof(cs = xercesc::XMLString::transcode(elevationProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 road->addElevationPolynom(elevationStart, elevationA, elevationB, elevationC, elevationD);
                             }
+							xercesc::XMLString::release(&t6);
                         }
                     }
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("lateralProfile")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t6 = xercesc::XMLString::transcode("lateralProfile")) == 0)
                     {
                         xercesc::DOMNodeList *lateralProfileChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *lateralProfileChildElement;
                         for (unsigned int childIndex = 0; childIndex < lateralProfileChildrenList->getLength(); ++childIndex)
                         {
                             lateralProfileChildElement = dynamic_cast<xercesc::DOMElement *>(lateralProfileChildrenList->item(childIndex));
-                            if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("superelevation")) == 0)
+                            if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), t7 = xercesc::XMLString::transcode("superelevation")) == 0)
                             {
-                                double superelevationStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                double superelevationA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                double superelevationB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-                                double superelevationC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-                                double superelevationD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+                                double superelevationStart = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double superelevationA = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double superelevationB = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double superelevationC = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double superelevationD = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 road->addSuperelevationPolynom(superelevationStart, superelevationA, superelevationB, superelevationC, superelevationD);
                             }
-                            else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("crossfall")) == 0)
+                            else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), t8 = xercesc::XMLString::transcode("crossfall")) == 0)
                             {
-                                double crossfallStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                double crossfallA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-                                double crossfallB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-                                double crossfallC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-                                double crossfallD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
-                                std::string crossfallSide(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("side"))));
+                                double crossfallStart = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double crossfallA = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double crossfallB = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double crossfallC = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double crossfallD = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string crossfallSide(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("side")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 road->addCrossfallPolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallSide);
                             }
-							else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+							else if (lateralProfileChildElement && xercesc::XMLString::compareIString(lateralProfileChildElement->getTagName(), t9 = xercesc::XMLString::transcode("shape")) == 0)
 							{
-								double crossfallStart = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-								double crossfallA = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-								double crossfallB = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-								double crossfallC = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-								double crossfallD = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
-								double crossfallT = atof(xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(xercesc::XMLString::transcode("t"))));
+								double crossfallStart = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double crossfallA = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double crossfallB = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double crossfallC = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double crossfallD = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double crossfallT = atof(cs = xercesc::XMLString::transcode(lateralProfileChildElement->getAttribute(t12 = xercesc::XMLString::transcode("t")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 								road->addShapePolynom(crossfallStart, crossfallA, crossfallB, crossfallC, crossfallD, crossfallT);
 							}
+							xercesc::XMLString::release(&t7);
+							xercesc::XMLString::release(&t8);
+							xercesc::XMLString::release(&t9);
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("lanes")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t7 = xercesc::XMLString::transcode("lanes")) == 0)
                     {
                         xercesc::DOMNodeList *lanesChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *lanesChildElement;
                         for (unsigned int childIndex = 0; childIndex < lanesChildrenList->getLength(); ++childIndex)
                         {
                             lanesChildElement = dynamic_cast<xercesc::DOMElement *>(lanesChildrenList->item(childIndex));
-							if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), xercesc::XMLString::transcode("laneSection")) == 0)
+							if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(),t8 =  xercesc::XMLString::transcode("laneSection")) == 0)
 							{
-								double laneSectionStart = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
+								double laneSectionStart = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 								LaneSection *section = new LaneSection(road, laneSectionStart);
 								road->addLaneSection(section);
 								xercesc::DOMNodeList *laneSectionChildrenList = lanesChildElement->getChildNodes();
@@ -433,20 +444,20 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 								for (unsigned int childIndex = 0; childIndex < laneSectionChildrenList->getLength(); ++childIndex)
 								{
 									laneSectionChildElement = dynamic_cast<xercesc::DOMElement *>(laneSectionChildrenList->item(childIndex));
-									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
-										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("center")) == 0
-										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
+									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), t9 = xercesc::XMLString::transcode("left")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), t10 = xercesc::XMLString::transcode("center")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), t11 = xercesc::XMLString::transcode("right")) == 0))
 									{
 										xercesc::DOMNodeList *laneList = laneSectionChildElement->getChildNodes();
 										xercesc::DOMElement *laneElement;
 										for (unsigned int childIndex = 0; childIndex < laneList->getLength(); ++childIndex)
 										{
 											laneElement = dynamic_cast<xercesc::DOMElement *>(laneList->item(childIndex));
-											if (laneElement && xercesc::XMLString::compareIString(laneElement->getTagName(), xercesc::XMLString::transcode("lane")) == 0)
+											if (laneElement && xercesc::XMLString::compareIString(laneElement->getTagName(), t13 = xercesc::XMLString::transcode("lane")) == 0)
 											{
-												int laneId = atoi(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("id"))));
-												std::string laneType(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("type"))));
-												std::string laneLevel(xercesc::XMLString::transcode(laneElement->getAttribute(xercesc::XMLString::transcode("level"))));
+												int laneId = atoi(cs = xercesc::XMLString::transcode(laneElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+												std::string laneType(cs = xercesc::XMLString::transcode(laneElement->getAttribute(t12 = xercesc::XMLString::transcode("type")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+												std::string laneLevel(cs = xercesc::XMLString::transcode(laneElement->getAttribute(t12 = xercesc::XMLString::transcode("level")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 												Lane *lane = new Lane(laneId, laneType, laneLevel);
 												section->addLane(lane);
 												xercesc::DOMNodeList *laneChildrenList = laneElement->getChildNodes();
@@ -458,7 +469,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 													{
 													}
 
-													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("link")) == 0)
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), t14 = xercesc::XMLString::transcode("link")) == 0)
 													{
 														xercesc::DOMNodeList *linkChildrenList = laneChildElement->getChildNodes();
 														xercesc::DOMElement *linkChildElement;
@@ -468,78 +479,90 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 															if (!linkChildElement)
 															{
 															}
-															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("predecessor")) == 0)
+															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), t15 = xercesc::XMLString::transcode("predecessor")) == 0)
 															{
-																int predecessorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+																int predecessorId = atoi(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 																lane->setPredecessor(predecessorId);
 															}
-															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("successor")) == 0)
+															else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), t16 = xercesc::XMLString::transcode("successor")) == 0)
 															{
-																int successorId = atoi(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
+																int successorId = atoi(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 																lane->setSuccessor(successorId);
 															}
+															xercesc::XMLString::release(&t15); xercesc::XMLString::release(&t16);
 														}
 													}
-													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), t15 = xercesc::XMLString::transcode("width")) == 0)
 													{
-														double widthStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double widthA = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-														double widthB = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-														double widthC = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-														double widthD = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+														double widthStart = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthA = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthB = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthC = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthD = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 														lane->addWidth(widthStart, widthA, widthB, widthC, widthD);
 													}
 
-													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("roadMark")) == 0)
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), t16 = xercesc::XMLString::transcode("roadMark")) == 0)
 													{
-														double roadMarkStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double roadMarkWidth = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("width"))));
-														std::string roadMarkType(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("type"))));
-														std::string roadMarkWeight(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("weight"))));
-														std::string roadMarkColor(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("color"))));
-														std::string roadMarkLaneChange(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("laneChange"))));
+														double roadMarkStart = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double roadMarkWidth = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("width")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														std::string roadMarkType(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("type")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														std::string roadMarkWeight(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("weight")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														std::string roadMarkColor(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("color")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														std::string roadMarkLaneChange(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("laneChange")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 														lane->addRoadMark(new RoadMark(roadMarkStart, roadMarkWidth, roadMarkType, roadMarkWeight, roadMarkColor, roadMarkLaneChange));
 													}
 													// Neu Andreas 27-11-2012
-													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("speed")) == 0)
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), t17 = xercesc::XMLString::transcode("speed")) == 0)
 													{
-														double speedLimitStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double speedLimitNum = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("max"))));
+														double speedLimitStart = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double speedLimitNum = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("max")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 														double factor = 1.0;
-														if (laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")))
+														if (laneChildElement->getAttribute(t18 = xercesc::XMLString::transcode("unit")))
 														{
-															std::string speedUnit = xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("unit")));
+															std::string speedUnit = cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("unit"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 															if (speedUnit == "mph")
 																factor = 0.44704;
 															if (speedUnit == "km/h")
 																factor = 0.277778;
 														}
 														lane->addSpeedLimit(speedLimitStart, speedLimitNum*factor);
+														xercesc::XMLString::release(&t18);
 													}
-													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(), xercesc::XMLString::transcode("height")) == 0)
+													else if (xercesc::XMLString::compareIString(laneChildElement->getTagName(),t18 =  xercesc::XMLString::transcode("height")) == 0)
 													{
-														double heightStart = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double inner = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("inner"))));
-														double outer = atof(xercesc::XMLString::transcode(laneChildElement->getAttribute(xercesc::XMLString::transcode("outer"))));
+														double heightStart = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double inner = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("inner")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double outer = atof(cs = xercesc::XMLString::transcode(laneChildElement->getAttribute(t12 = xercesc::XMLString::transcode("outer")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
 														lane->addHeight(heightStart, inner, outer);
 													}
+													xercesc::XMLString::release(&t13);
+													xercesc::XMLString::release(&t14);
+													xercesc::XMLString::release(&t15);
+													xercesc::XMLString::release(&t16);
+													xercesc::XMLString::release(&t17);
+													xercesc::XMLString::release(&t18);
 												}
 											}
+											xercesc::XMLString::release(&t13);
 										}
 									}
-									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("left")) == 0
-										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), xercesc::XMLString::transcode("right")) == 0))
+									xercesc::XMLString::release(&t9);
+									xercesc::XMLString::release(&t10);
+									xercesc::XMLString::release(&t11);
+									if (laneSectionChildElement && (xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), t9 = xercesc::XMLString::transcode("left")) == 0
+										|| xercesc::XMLString::compareIString(laneSectionChildElement->getTagName(), t10 = xercesc::XMLString::transcode("right")) == 0))
 									{
 										xercesc::DOMNodeList *batterList = laneSectionChildElement->getChildNodes();
 										xercesc::DOMElement *batterElement;
 										for (unsigned int childIndex = 0; childIndex < batterList->getLength(); ++childIndex)
 										{
 											batterElement = dynamic_cast<xercesc::DOMElement *>(batterList->item(childIndex));
-											if (batterElement && xercesc::XMLString::compareIString(batterElement->getTagName(), xercesc::XMLString::transcode("batter")) == 0)
+											if (batterElement && xercesc::XMLString::compareIString(batterElement->getTagName(), t11 = xercesc::XMLString::transcode("batter")) == 0)
 											{
-												int batterId = atoi(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("id"))));
-												std::string tessellateString(xercesc::XMLString::transcode(batterElement->getAttribute(xercesc::XMLString::transcode("tessellate"))));
+												int batterId = atoi(cs = xercesc::XMLString::transcode(batterElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+												std::string tessellateString(cs = xercesc::XMLString::transcode(batterElement->getAttribute(t12 = xercesc::XMLString::transcode("tessellate")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 												bool tessellate = !(tessellateString == "no" || tessellateString == "false");
 												std::cout << "batter id: " << batterId << std::endl;
 												Batter *batter = new Batter(batterId, tessellate);
@@ -552,62 +575,69 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 													if (!batterChildElement)
 													{
 													}
-													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("width")) == 0)
+													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), t13 = xercesc::XMLString::transcode("width")) == 0)
 													{
-														double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+														double widthStart = atof(cs = xercesc::XMLString::transcode(batterChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthA = atof(cs = xercesc::XMLString::transcode(batterChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 														batter->addBatterWidth(widthStart, widthA);
 													}
 
-													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), xercesc::XMLString::transcode("fall")) == 0)
+													else if (xercesc::XMLString::compareIString(batterChildElement->getTagName(), t14 = xercesc::XMLString::transcode("fall")) == 0)
 													{
 
-														double widthStart = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-														double widthA = atof(xercesc::XMLString::transcode(batterChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
+														double widthStart = atof(cs = xercesc::XMLString::transcode(batterChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+														double widthA = atof(cs = xercesc::XMLString::transcode(batterChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 														batter->addBatterFall(widthStart, widthA);
 													}
+													xercesc::XMLString::release(&t13);
+													xercesc::XMLString::release(&t14);
 												}
 											}
+											xercesc::XMLString::release(&t11);
 										}
 									}
+									xercesc::XMLString::release(&t9);
+									xercesc::XMLString::release(&t10);
 								}
 							}
 
-							else if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), xercesc::XMLString::transcode("laneOffset")) == 0)
+							else if (lanesChildElement && xercesc::XMLString::compareIString(lanesChildElement->getTagName(), t9 = xercesc::XMLString::transcode("laneOffset")) == 0)
 							{
-								double widthStart = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-								double widthA = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("a"))));
-								double widthB = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("b"))));
-								double widthC = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("c"))));
-								double widthD = atof(xercesc::XMLString::transcode(lanesChildElement->getAttribute(xercesc::XMLString::transcode("d"))));
+								double widthStart = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double widthA = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("a")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double widthB = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("b")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double widthC = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("c")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double widthD = atof(cs = xercesc::XMLString::transcode(lanesChildElement->getAttribute(t12 = xercesc::XMLString::transcode("d")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 								road->addLaneOffset(widthStart, widthA, widthB, widthC, widthD);
 							}
+							xercesc::XMLString::release(&t8);
+							xercesc::XMLString::release(&t9);
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("objects")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t8 = xercesc::XMLString::transcode("objects")) == 0)
                     {
                         xercesc::DOMNodeList *objectsChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *objectElement;
                         for (unsigned int childIndex = 0; childIndex < objectsChildrenList->getLength(); ++childIndex)
                         {
                             objectElement = dynamic_cast<xercesc::DOMElement *>(objectsChildrenList->item(childIndex));
-                            if (objectElement && xercesc::XMLString::compareIString(objectElement->getTagName(), xercesc::XMLString::transcode("object")) == 0)
+                            if (objectElement && xercesc::XMLString::compareIString(objectElement->getTagName(), t9 = xercesc::XMLString::transcode("object")) == 0)
                             {
-                                std::string type(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("type"))));
+                                std::string type(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("type")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 if (type != "simplePole")
                                 {
-                                    std::string name(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("name"))));
-                                    std::string id(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                    std::string file(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("modelFile"))));
-                                    std::string textureFile(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("textureFile"))));
+                                    std::string name(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    std::string id(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    std::string file(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("modelFile")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    std::string textureFile(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("textureFile")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
-                                    double s = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                    double t = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("t"))));
-                                    double zOffset = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("zOffset"))));
-                                    double validLength = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("validLength"))));
+                                    double s = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double t = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("t")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double zOffset = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("zOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double validLength = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("validLength")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
-                                    std::string orientationString(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("orientation"))));
+                                    std::string orientationString(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("orientation")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                     RoadObject::OrientationType orientation = RoadObject::BOTH_DIRECTIONS;
                                     if (orientationString == "+")
                                     {
@@ -618,13 +648,13 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                         orientation = RoadObject::NEGATIVE_TRACK_DIRECTION;
                                     }
 
-                                    double length = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                    double width = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("width"))));
-                                    double radius = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("radius"))));
-                                    double height = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("height"))));
-                                    double hdg = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("hdg"))));
-                                    double pitch = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
-                                    double roll = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("roll"))));
+                                    double length = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double width = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("width")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double radius = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("radius")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double height = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("height")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double hdg = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("hdg")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double pitch = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("pitch")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double roll = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("roll")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                     RoadObject *roadObject = new RoadObject(id, file,textureFile, name, type, s, t, zOffset, validLength, orientation,
                                         length, width, radius, height, hdg, pitch, roll, road);
@@ -637,14 +667,14 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                         objectChildElement = dynamic_cast<xercesc::DOMElement *>(objectChildrenList->item(childIndex));
                                         if (objectChildElement)
                                         {
-                                            if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("repeat")) == 0)
+                                            if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), t10 = xercesc::XMLString::transcode("repeat")) == 0)
                                             {
-                                                double repeatS = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                                double repeatLength = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                                double repeatDistance = atof(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("distance"))));
+                                                double repeatS = atof(cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                double repeatLength = atof(cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                double repeatDistance = atof(cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("distance")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 roadObject->setObjectRepeat(repeatS, repeatLength, repeatDistance);
                                             }
-                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("outline")) == 0)
+                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), t11 = xercesc::XMLString::transcode("outline")) == 0)
                                             {
                                                 xercesc::DOMNodeList *outlineChildrenList = objectChildElement->getChildNodes();
                                                 xercesc::DOMElement *outlineChildElement;
@@ -655,34 +685,36 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                                     if (outlineChildElement)
                                                     {
                                                         float height, u, v, z;
-                                                        height = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("height"))));
-                                                        u = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("u"))));
-                                                        v = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("v"))));
-                                                        z = atof(xercesc::XMLString::transcode(outlineChildElement->getAttribute(xercesc::XMLString::transcode("z"))));
+                                                        height = atof(cs = xercesc::XMLString::transcode(outlineChildElement->getAttribute(t12 = xercesc::XMLString::transcode("height")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                        u = atof(cs = xercesc::XMLString::transcode(outlineChildElement->getAttribute(t12 = xercesc::XMLString::transcode("u")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                        v = atof(cs = xercesc::XMLString::transcode(outlineChildElement->getAttribute(t12 = xercesc::XMLString::transcode("v")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                        z = atof(cs = xercesc::XMLString::transcode(outlineChildElement->getAttribute(t12 = xercesc::XMLString::transcode("z")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                         ro->push_back(RoadCornerLocal(height, u, v, z));
                                                     }
                                                 }
                                                 roadObject->setOutline(ro);
                                             }
-                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
+                                            else if (xercesc::XMLString::compareIString(objectChildElement->getTagName(), t13 = xercesc::XMLString::transcode("userData")) == 0)
                                             {
-                                                std::string code = xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
+                                                std::string code = cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("code")));  xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 if (code == "modelFile")
                                                 {
-                                                    roadObject->setFileName(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                    roadObject->setFileName(cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 }
                                                 else
                                                 {
-                                                    roadObject->setTexture(xercesc::XMLString::transcode(objectChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                    roadObject->setTexture(cs = xercesc::XMLString::transcode(objectChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 }
                                             }
+											xercesc::XMLString::release(&t10); xercesc::XMLString::release(&t11);
+											xercesc::XMLString::release(&t13);
                                         }
                                     }
                                 }
                             }
                             // Parse crosswalk
                             // <OpenDRIVE><road><objects><crosswalk> (optional, unlimited)
-                            else if (objectElement && xercesc::XMLString::compareIString(objectElement->getTagName(), xercesc::XMLString::transcode("crosswalk")) == 0)
+                            else if (objectElement && xercesc::XMLString::compareIString(objectElement->getTagName(), t10 = xercesc::XMLString::transcode("crosswalk")) == 0)
                             {
                                 std::string id = ""; // required
                                 std::string name = ""; // required
@@ -695,20 +727,20 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 
                                 // Get attributes
                                 std::string tmp = "";
-                                id = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("id")));
-                                name = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("name")));
-                                s = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                length = atof(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                tmp = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("crossProb")));
+                                id = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                name = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                s = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                length = atof(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                tmp = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("crossProb"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 if (tmp.length() > 0)
                                     crossProb = atof(tmp.c_str());
-                                tmp = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("resetTime")));
+                                tmp = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("resetTime"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 if (tmp.length() > 0)
                                     resetTime = atof(tmp.c_str());
-                                tmp = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("type")));
+                                tmp = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("type"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 if (tmp.length() > 0)
                                     type = std::string(tmp);
-                                tmp = xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("debugLvl")));
+                                tmp = cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("debugLvl"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 if (tmp.length() > 0)
                                     debug = atoi(tmp.c_str());
 
@@ -723,41 +755,43 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 for (unsigned int childIndex = 0; childIndex < crosswChildrenList->getLength(); ++childIndex)
                                 {
                                     crosswChildElement = dynamic_cast<xercesc::DOMElement *>(crosswChildrenList->item(childIndex));
-                                    if (crosswChildElement && xercesc::XMLString::compareIString(crosswChildElement->getTagName(), xercesc::XMLString::transcode("validity")) == 0)
+                                    if (crosswChildElement && xercesc::XMLString::compareIString(crosswChildElement->getTagName(), t11 = xercesc::XMLString::transcode("validity")) == 0)
                                     {
                                         // Restrict crosswalk's span to a specific lane range (default is entire lane cross-section)
                                         int fromLane = INT_MIN;
                                         int toLane = INT_MAX;
 
                                         // Get attributes
-                                        fromLane = atoi(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("fromLane"))));
-                                        toLane = atoi(xercesc::XMLString::transcode(objectElement->getAttribute(xercesc::XMLString::transcode("toLane"))));
+                                        fromLane = atoi(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("fromLane")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                        toLane = atoi(cs = xercesc::XMLString::transcode(objectElement->getAttribute(t12 = xercesc::XMLString::transcode("toLane")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                         // Apply validity info to crosswalk
                                         crosswalk->setValidity(fromLane, toLane);
                                     }
+									xercesc::XMLString::release(&t11);
                                 }
                             }
+							xercesc::XMLString::release(&t9); xercesc::XMLString::release(&t10);
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("signals")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t9 = xercesc::XMLString::transcode("signals")) == 0)
                     {
                         xercesc::DOMNodeList *signalsChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *signalElement;
                         for (unsigned int childIndex = 0; childIndex < signalsChildrenList->getLength(); ++childIndex)
                         {
                             signalElement = dynamic_cast<xercesc::DOMElement *>(signalsChildrenList->item(childIndex));
-                            if (signalElement && xercesc::XMLString::compareIString(signalElement->getTagName(), xercesc::XMLString::transcode("signal")) == 0)
+                            if (signalElement && xercesc::XMLString::compareIString(signalElement->getTagName(), t10 = xercesc::XMLString::transcode("signal")) == 0)
                             {
-                                std::string id(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                std::string name(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                                std::string id(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string name(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
-                                double s = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("s"))));
-                                double t = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("t"))));
-                                double size = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("size"))));
+                                double s = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double t = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("t")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double size = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("size")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
-                                std::string dynamicString(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("dynamic"))));
+                                std::string dynamicString(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("dynamic")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 bool dynamic = false;
                                 if (dynamicString == "yes")
                                 {
@@ -768,7 +802,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                     dynamic = false;
                                 }
 
-                                std::string orientationString(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("orientation"))));
+                                std::string orientationString(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("orientation")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 RoadSignal::OrientationType orientation = RoadSignal::BOTH_DIRECTIONS;
                                 if (orientationString == "+")
                                 {
@@ -779,19 +813,19 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                     orientation = RoadSignal::NEGATIVE_TRACK_DIRECTION;
                                 }
 
-                                double zOffset = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("zOffset"))));
-                                std::string country(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("country"))));
-                                int type = atoi(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("type"))));
-                                int subtype = atoi(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("subtype"))));
-                                std::string subclass(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("subclass"))));
-                                double value = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("value"))));
-                                double hdg = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("hOffset"))));
-                                double pitch = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("pitch"))));
-                                double roll = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("roll"))));
-								std::string unit(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("unit"))));
-								std::string text(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("text"))));
-								double width = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("width"))));
-								double height = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("height"))));
+                                double zOffset = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("zOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string country(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("country")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                int type = atoi(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("type")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                int subtype = atoi(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("subtype")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string subclass(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("subclass")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double value = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("value")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double hdg = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("hOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double pitch = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("pitch")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double roll = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("roll")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								std::string unit(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("unit")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								std::string text(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("text")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double width = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("width")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+								double height = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("height")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                 xercesc::DOMNodeList *signalChildrenList = signalElement->getChildNodes();
                                 xercesc::DOMElement *signalChildElement;
@@ -800,18 +834,19 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                     signalChildElement = dynamic_cast<xercesc::DOMElement *>(signalChildrenList->item(childIndex));
                                     if (signalChildElement)
                                     {
-                                        if (xercesc::XMLString::compareIString(signalChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
+                                        if (xercesc::XMLString::compareIString(signalChildElement->getTagName(), t10 = xercesc::XMLString::transcode("userData")) == 0)
                                         {
-                                            std::string code = xercesc::XMLString::transcode(signalChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
+                                            std::string code = cs = xercesc::XMLString::transcode(signalChildElement->getAttribute(t12 = xercesc::XMLString::transcode("code")));  xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                             if (code == "size")
                                             {
-                                                size = atof(xercesc::XMLString::transcode(signalChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                                                size = atof(cs = xercesc::XMLString::transcode(signalChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                             }
                                             else if (code == "subclass")
                                             {
-                                                subclass = xercesc::XMLString::transcode(signalChildElement->getAttribute(xercesc::XMLString::transcode("value")));
+                                                subclass = cs = xercesc::XMLString::transcode(signalChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                             } 
                                         }
+										xercesc::XMLString::release(&t10);
                                     }
                                 }
 
@@ -873,53 +908,55 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
 
                                 addRoadSignal(roadSignal);
                             }
+							xercesc::XMLString::release(&t10);
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("sensors")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t10 = xercesc::XMLString::transcode("sensors")) == 0)
                     {
                         xercesc::DOMNodeList *signalsChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *signalElement;
                         for (unsigned int childIndex = 0; childIndex < signalsChildrenList->getLength(); ++childIndex)
                         {
                             signalElement = dynamic_cast<xercesc::DOMElement *>(signalsChildrenList->item(childIndex));
-                            if (signalElement && xercesc::XMLString::compareIString(signalElement->getTagName(), xercesc::XMLString::transcode("sensor")) == 0)
+                            if (signalElement && xercesc::XMLString::compareIString(signalElement->getTagName(), t11 = xercesc::XMLString::transcode("sensor")) == 0)
                             {
-                                std::string id(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("id"))));
+                                std::string id(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
-                                double s = atof(xercesc::XMLString::transcode(signalElement->getAttribute(xercesc::XMLString::transcode("s"))));
+                                double s = atof(cs = xercesc::XMLString::transcode(signalElement->getAttribute(t12 = xercesc::XMLString::transcode("s")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                 RoadSensor *roadSensor = new RoadSensor(id, s);
                                 road->addRoadSensor(roadSensor);
                                 addRoadSensor(roadSensor);
                             }
+							xercesc::XMLString::release(&t11);
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("surface")) == 0)
+                    else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t11 = xercesc::XMLString::transcode("surface")) == 0)
                     {
                         xercesc::DOMNodeList *surfaceChildrenList = roadChildElement->getChildNodes();
                         xercesc::DOMElement *surfaceChildElement;
                         for (unsigned int childIndex = 0; childIndex < surfaceChildrenList->getLength(); ++childIndex)
                         {
                             surfaceChildElement = dynamic_cast<xercesc::DOMElement *>(surfaceChildrenList->item(childIndex));
-                            if (surfaceChildElement && xercesc::XMLString::compareIString(surfaceChildElement->getTagName(), xercesc::XMLString::transcode("CRG")) == 0)
+                            if (surfaceChildElement && xercesc::XMLString::compareIString(surfaceChildElement->getTagName(), t13 = xercesc::XMLString::transcode("CRG")) == 0)
                             {
-                                std::string file(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("file"))));
-                                double sStart = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("sStart"))));
-                                double sEnd = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("sEnd"))));
-                                std::string orientString(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("orientation"))));
+                                std::string file(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("file")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double sStart = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sStart")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double sEnd = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sEnd")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string orientString(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("orientation")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 OpenCRGSurface::SurfaceOrientation orientation = (orientString == "opposite") ? OpenCRGSurface::OPPOSITE : OpenCRGSurface::SAME;
-                                double sOffset = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("sOffset"))));
-                                double tOffset = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("tOffset"))));
-                                double zOffset = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("zOffset"))));
-                                std::string zScaleString(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("zScale"))));
+                                double sOffset = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double tOffset = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("tOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double zOffset = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("zOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string zScaleString(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("zScale")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 double zScale = 1.0;
                                 if (!zScaleString.empty())
                                 {
                                     zScale = atof(zScaleString.c_str());
                                 }
-                                double hOffset = atof(xercesc::XMLString::transcode(surfaceChildElement->getAttribute(xercesc::XMLString::transcode("hOffset"))));
+                                double hOffset = atof(cs = xercesc::XMLString::transcode(surfaceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("hOffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                 //crgSurface *surface = new crgSurface(file, sStart, sEnd, orientation, sOffset, tOffset, zOffset, zScale);
                                 OpenCRGSurface *surface = new OpenCRGSurface(file, sStart, sEnd, orientation, sOffset, tOffset, zOffset, zScale, hOffset);
@@ -927,34 +964,46 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             }
                         }
                     }
+					xercesc::XMLString::release(&t2);
+					xercesc::XMLString::release(&t3);
+					xercesc::XMLString::release(&t4);
+					xercesc::XMLString::release(&t5);
+					xercesc::XMLString::release(&t6);
+					xercesc::XMLString::release(&t7);
+					xercesc::XMLString::release(&t8);
+					xercesc::XMLString::release(&t9);
+					xercesc::XMLString::release(&t10);
+					xercesc::XMLString::release(&t11);
                 }
             }
 
-            else if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("header")) == 0)
+            else if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t2 = xercesc::XMLString::transcode("header")) == 0)
             {
-                header.date = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("date")));
-                header.name = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name")));
-                header.north = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("north"))));
-                header.east = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("east"))));
-                header.south = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("south"))));
-                header.west = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("west"))));
-                header.revMajor = atoi(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("atoi"))));
-                header.revMinor = atoi(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("atoi"))));
-                header.version = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("version"))));
-                header.xoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("xoffset"))));
-                header.yoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("yoffset"))));
-                header.zoffset = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("zoffset"))));
+                header.date = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("date"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.name = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.north = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("north")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.east = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("east")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.south = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("south")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.west = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("west")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.revMajor = atoi(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("atoi")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.revMinor = atoi(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("atoi")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.version = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("version")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.xoffset = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("xoffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.yoffset = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("yoffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                header.zoffset = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t3 = xercesc::XMLString::transcode("zoffset")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
             }
+			xercesc::XMLString::release(&t1);
+			xercesc::XMLString::release(&t2);
         }
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("controller")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t3 = xercesc::XMLString::transcode("controller")) == 0)
             {
-                std::string controllerIdString = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id")));
-                std::string controllerNameString = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name")));
-                std::string script = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("script")));
-                double cycleTime = atof(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("cycleTime"))));
+                std::string controllerIdString = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string controllerNameString = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string script = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("script"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                double cycleTime = atof(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("cycleTime")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                 Controller *controller = new Controller(controllerIdString, controllerNameString, script, cycleTime);
                 
@@ -965,12 +1014,12 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                 {
                     controllerChildElement = dynamic_cast<xercesc::DOMElement *>(controllerChildrenList->item(childIndex));
 
-                    if (controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0)
+                    if (controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), t4 = xercesc::XMLString::transcode("userData")) == 0)
                     {
-                        std::string code = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("code"))); 
+                        std::string code = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("code")));  xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (code == "cycleTime")
                         {
-                            cycleTime = atof(xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("value"))));
+                            cycleTime = atof(cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                             if (script != "")
                             {
                                 controller->setScriptParams(script, cycleTime);
@@ -978,14 +1027,14 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         }
                         else
                         {
-                            script = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("value")));
+                            script = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         }
                     }
 
-                    else if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("control")) == 0)
+                    else if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), t5 = xercesc::XMLString::transcode("control")) == 0)
                     {
-                        std::string signalId = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("signalId")));
-                        std::string type = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("type")));
+                        std::string signalId = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("signalId"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string type = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("type"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                         std::map<std::string, RoadSignal *>::iterator signalIt = signalIdMap.find(signalId);
                         if (signalIt != signalIdMap.end())
@@ -1007,10 +1056,10 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             std::cout << "Parse OpenDRIVE: Could not find signal with id=" << signalId << std::endl;
                         }
                     }
-                    if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), xercesc::XMLString::transcode("trigger")) == 0)
+                    if (controller->isScriptInitialized() && controllerChildElement && xercesc::XMLString::compareIString(controllerChildElement->getTagName(), t6 = xercesc::XMLString::transcode("trigger")) == 0)
                     {
-                        std::string sensorId = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("sensorId")));
-                        std::string function = xercesc::XMLString::transcode(controllerChildElement->getAttribute(xercesc::XMLString::transcode("function")));
+                        std::string sensorId = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sensorId"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string function = cs = xercesc::XMLString::transcode(controllerChildElement->getAttribute(t12 = xercesc::XMLString::transcode("function"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         std::map<std::string, RoadSensor *>::iterator sensorIt = sensorIdMap.find(sensorId);
                         if (sensorIt != sensorIdMap.end())
                         {
@@ -1021,6 +1070,9 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             std::cout << "Parse OpenDRIVE: Could not find sensor with id=" << sensorId << std::endl;
                         }
                     }
+					xercesc::XMLString::release(&t4);
+					xercesc::XMLString::release(&t5);
+					xercesc::XMLString::release(&t6);
                 }
                 if (controller->isScriptInitialized())
                 {
@@ -1029,14 +1081,15 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                 }
 
             }
+			xercesc::XMLString::release(&t3);
         }
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("junction")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t3 = xercesc::XMLString::transcode("junction")) == 0)
             {
-                std::string junctionId(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                std::string junctionName(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                std::string junctionId(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string junctionName(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 Junction *junction = new Junction(junctionId, junctionName);
                 addJunction(junction);
 
@@ -1048,22 +1101,23 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                     if (!junctionChildElement)
                     {
                     }
-                    else if (xercesc::XMLString::compareIString(junctionChildElement->getTagName(), xercesc::XMLString::transcode("connection")) == 0)
+                    else if (xercesc::XMLString::compareIString(junctionChildElement->getTagName(), t4 = xercesc::XMLString::transcode("connection")) == 0)
                     {
-                        std::string connectionId(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                        std::string inRoadString(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("incomingRoad"))));
-                        std::string connPathString(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("connectingRoad"))));
-                        std::string contactPoint(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("contactPoint"))));
-                        std::string numeratorString(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+                        std::string connectionId(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string inRoadString(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("incomingRoad")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string connPathString(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("connectingRoad")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string contactPoint(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("contactPoint")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string numeratorString(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("numerator")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         xercesc::DOMNodeList *childrenList = junctionChildElement->getChildNodes();
                         xercesc::DOMElement *childElement;
                         for (unsigned int childIndex = 0; childIndex < childrenList->getLength(); ++childIndex)
                         {
                             childElement = dynamic_cast<xercesc::DOMElement *>(childrenList->item(childIndex));
-                            if (childElement && (xercesc::XMLString::compareIString(childElement->getTagName(), xercesc::XMLString::transcode("userData")) == 0))
+                            if (childElement && (xercesc::XMLString::compareIString(childElement->getTagName(), t5 = xercesc::XMLString::transcode("userData")) == 0))
                             {
-                                numeratorString = xercesc::XMLString::transcode(childElement->getAttribute(xercesc::XMLString::transcode("value"))); 
+                                numeratorString = cs = xercesc::XMLString::transcode(childElement->getAttribute(t12 = xercesc::XMLString::transcode("value")));  xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                             }
+							xercesc::XMLString::release(&t5);
                         }
                         double numerator;
                         if (numeratorString.empty())
@@ -1128,22 +1182,23 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                             if (!connectionChildElement)
                                             {
                                             }
-                                            else if (xercesc::XMLString::compareIString(connectionChildElement->getTagName(), xercesc::XMLString::transcode("laneLink")) == 0)
+                                            else if (xercesc::XMLString::compareIString(connectionChildElement->getTagName(), t5 = xercesc::XMLString::transcode("laneLink")) == 0)
                                             {
-                                                int from = atoi(xercesc::XMLString::transcode(connectionChildElement->getAttribute(xercesc::XMLString::transcode("from"))));
-                                                int to = atoi(xercesc::XMLString::transcode(connectionChildElement->getAttribute(xercesc::XMLString::transcode("to"))));
+                                                int from = atoi(cs = xercesc::XMLString::transcode(connectionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("from")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                                int to = atoi(cs = xercesc::XMLString::transcode(connectionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("to")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 conn->addLaneLink(from, to);
                                             }
+											xercesc::XMLString::release(&t5);
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    else if (xercesc::XMLString::compareIString(junctionChildElement->getTagName(), xercesc::XMLString::transcode("controller")) == 0)
+                    else if (xercesc::XMLString::compareIString(junctionChildElement->getTagName(), t5 = xercesc::XMLString::transcode("controller")) == 0)
                     {
-                        std::string controllerId(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                        std::string controlType(xercesc::XMLString::transcode(junctionChildElement->getAttribute(xercesc::XMLString::transcode("type"))));
+                        std::string controllerId(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string controlType(cs = xercesc::XMLString::transcode(junctionChildElement->getAttribute(t12 = xercesc::XMLString::transcode("type")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                         std::map<std::string, Controller *>::iterator controllerIt = controllerIdMap.find(controllerId);
                         if (controllerIt != controllerIdMap.end())
@@ -1151,16 +1206,19 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                             junction->addJunctionController(controllerIt->second, controlType);
                         }
                     }
+					xercesc::XMLString::release(&t4);
+					xercesc::XMLString::release(&t5);
                 }
             }
+			xercesc::XMLString::release(&t3);
         }
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("fiddleyard")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t3 = xercesc::XMLString::transcode("fiddleyard")) == 0)
             {
-                std::string fiddleyardId(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                std::string fiddleyardName(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                std::string fiddleyardId(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string fiddleyardName(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 Fiddleyard *fiddleyard = new Fiddleyard(fiddleyardId, fiddleyardName);
                 addFiddleyard(fiddleyard);
 
@@ -1172,11 +1230,11 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                     if (!fiddleyardChildElement)
                     {
                     }
-                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), xercesc::XMLString::transcode("link")) == 0)
+                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), t4 = xercesc::XMLString::transcode("link")) == 0)
                     {
-                        std::string type(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("elementType"))));
-                        std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("elementId"))));
-                        std::string contactPoint(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("contactPoint"))));
+                        std::string type(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementType")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string id(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementId")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string contactPoint(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("contactPoint")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                         Tarmac *tarmac = NULL;
                         if (type == "road")
@@ -1226,14 +1284,14 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         }
                     }
 
-                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), xercesc::XMLString::transcode("source")) == 0)
+                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), t5 = xercesc::XMLString::transcode("source")) == 0)
                     {
-                        std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                        int lane = atoi(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane"))));
-                        double starttime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("startTime"))));
-                        double repeattime = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
-                        double vel = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
-                        double velDev = atof(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
+                        std::string id(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        int lane = atoi(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("lane")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double starttime = atof(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("startTime")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double repeattime = atof(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("repeatTime")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double vel = atof(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocity")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double velDev = atof(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocityDeviance")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         VehicleSource *source = new VehicleSource(id, lane, starttime, repeattime, vel, velDev);
                         fiddleyard->addVehicleSource(source);
 
@@ -1242,31 +1300,36 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         for (unsigned int childIndex = 0; childIndex < sourceChildrenList->getLength(); ++childIndex)
                         {
                             sourceChildElement = dynamic_cast<xercesc::DOMElement *>(sourceChildrenList->item(childIndex));
-                            if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), xercesc::XMLString::transcode("vehicle")) == 0)
+                            if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), t6 = xercesc::XMLString::transcode("vehicle")) == 0)
                             {
-                                std::string id(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                double numerator = atof(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+                                std::string id(cs = xercesc::XMLString::transcode(sourceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double numerator = atof(cs = xercesc::XMLString::transcode(sourceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("numerator")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 source->addVehicleRatio(id, numerator);
                             }
+							xercesc::XMLString::release(&t6);
                         }
                     }
-                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), xercesc::XMLString::transcode("sink")) == 0)
+                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), t6 = xercesc::XMLString::transcode("sink")) == 0)
                     {
-                        std::string id(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                        int lane = atoi(xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane"))));
+                        std::string id(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        int lane = atoi(cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("lane")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         fiddleyard->addVehicleSink(new VehicleSink(id, lane));
                     }
+					xercesc::XMLString::release(&t4);
+					xercesc::XMLString::release(&t5);
+					xercesc::XMLString::release(&t6);
                 }
             }
+			xercesc::XMLString::release(&t3);
         }
         // CarPool
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-            if (documentChildElement && xercesc::XMLString::compareString(documentChildElement->getTagName(), xercesc::XMLString::transcode("carpool")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareString(documentChildElement->getTagName(), t3 = xercesc::XMLString::transcode("carpool")) == 0)
             {
                 //std::string carpoolId(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                std::string carpoolName(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                std::string carpoolName(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 Carpool *carpool = Carpool::Instance();
                 //addFiddleyard(fiddleyard);
                 xercesc::DOMNodeList *carpoolChildrenList = documentChildElement->getChildNodes();
@@ -1278,14 +1341,14 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                     if (!carpoolChildElement)
                     {
                     }
-                    else if (xercesc::XMLString::compareString(carpoolChildElement->getTagName(), xercesc::XMLString::transcode("pool")) == 0)
+                    else if (xercesc::XMLString::compareString(carpoolChildElement->getTagName(), t4 = xercesc::XMLString::transcode("pool")) == 0)
                     {
-                        std::string poolId(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                        std::string poolName(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("name"))));
-                        //double repeattime = atof(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime"))));
-                        double vel = atof(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("velocity"))));
-                        double velDev = atof(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance"))));
-                        double poolNumerator = atof(xercesc::XMLString::transcode(carpoolChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+                        std::string poolId(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        std::string poolName(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        //double repeattime = atof(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("repeatTime")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double vel = atof(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocity")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double velDev = atof(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocityDeviance")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                        double poolNumerator = atof(cs = xercesc::XMLString::transcode(carpoolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("numerator")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         Pool *pool = new Pool(poolId, poolName, vel, velDev, dir, poolNumerator);
                         dir *= -1;
 
@@ -1294,20 +1357,23 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         for (unsigned int childIndex = 0; childIndex < poolChildrenList->getLength(); ++childIndex)
                         {
                             poolChildElement = dynamic_cast<xercesc::DOMElement *>(poolChildrenList->item(childIndex));
-                            if (poolChildElement && xercesc::XMLString::compareString(poolChildElement->getTagName(), xercesc::XMLString::transcode("vehicle")) == 0)
+                            if (poolChildElement && xercesc::XMLString::compareString(poolChildElement->getTagName(), t5 = xercesc::XMLString::transcode("vehicle")) == 0)
                             {
-                                std::string id(xercesc::XMLString::transcode(poolChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                                double numerator = atof(xercesc::XMLString::transcode(poolChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+                                std::string id(cs = xercesc::XMLString::transcode(poolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                double numerator = atof(cs = xercesc::XMLString::transcode(poolChildElement->getAttribute(t12 = xercesc::XMLString::transcode("numerator")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 //std::cout << "ROADSYSTEM -- id: " << id << " numerator: " << numerator << std::endl;
                                 pool->addVehicle(id, numerator);
                             }
+							xercesc::XMLString::release(&t5);
                         }
 
                         carpool->addPool(pool);
                         carpool->addPoolRatio(poolId, poolNumerator);
                     }
+					xercesc::XMLString::release(&t4);
                 }
             }
+			xercesc::XMLString::release(&t3);
         }
         //
 
@@ -1315,12 +1381,12 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
         for (unsigned int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
         {
             documentChildElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), xercesc::XMLString::transcode("pedFiddleyard")) == 0)
+            if (documentChildElement && xercesc::XMLString::compareIString(documentChildElement->getTagName(), t3 = xercesc::XMLString::transcode("pedFiddleyard")) == 0)
             {
-                std::string fiddleyardId(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("id"))));
-                std::string fiddleyardName(xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("name"))));
+                std::string fiddleyardId(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string fiddleyardName(cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 std::string roadId = "road";
-                std::string tmp = xercesc::XMLString::transcode(documentChildElement->getAttribute(xercesc::XMLString::transcode("roadId")));
+                std::string tmp = cs = xercesc::XMLString::transcode(documentChildElement->getAttribute(t12 = xercesc::XMLString::transcode("roadId"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 if (tmp.length() > 0)
                     roadId = std::string(tmp);
                 PedFiddleyard *fiddleyard = new PedFiddleyard(fiddleyardId, fiddleyardName, roadId);
@@ -1334,88 +1400,88 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                     if (!fiddleyardChildElement)
                     {
                     }
-                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), xercesc::XMLString::transcode("source")) == 0)
+                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), t4 = xercesc::XMLString::transcode("source")) == 0)
                     {
                         // Get attributes of this source, provide defaults for any that aren't provided
                         std::string tmp = "";
 
                         std::string id;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             id = std::string(tmp);
 
                         double starttime;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("startTime")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("startTime"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             starttime = atof(tmp.c_str());
                         else
                             starttime = 0;
 
                         double repeattime;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("repeatTime")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("repeatTime"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             repeattime = atof(tmp.c_str());
                         else
                             repeattime = 60;
 
                         double timedev;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("timeDeviance")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("timeDeviance"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             timedev = atof(tmp.c_str());
                         else
                             timedev = 0.0;
 
                         int lane;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("lane"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             lane = atoi(tmp.c_str());
                         else
                             lane = 0;
 
                         int dir;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("direction")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("direction"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             dir = atoi(tmp.c_str());
                         else
                             dir = 0;
 
                         double sOff;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("sOffset")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             sOff = atof(tmp.c_str());
                         else
                             sOff = 0;
 
                         double vOff;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("vOffset")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("vOffset"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             vOff = atof(tmp.c_str());
                         else
                             vOff = 0;
 
                         double vel;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocity")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocity"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             vel = atof(tmp.c_str());
                         else
                             vel = 1;
 
                         double velDev;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("velocityDeviance")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("velocityDeviance"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             velDev = atof(tmp.c_str());
                         else
                             velDev = 0;
 
                         double acc;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("acceleration")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("acceleration"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             acc = atof(tmp.c_str());
                         else
                             acc = vel / 2;
 
                         double accDev;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("accelerationDeviance")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("accelerationDeviance"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             accDev = atof(tmp.c_str());
                         else
@@ -1429,57 +1495,58 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         for (unsigned int childIndex = 0; childIndex < sourceChildrenList->getLength(); ++childIndex)
                         {
                             sourceChildElement = dynamic_cast<xercesc::DOMElement *>(sourceChildrenList->item(childIndex));
-                            if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), xercesc::XMLString::transcode("ped")) == 0)
+                            if (sourceChildElement && xercesc::XMLString::compareIString(sourceChildElement->getTagName(), t5 = xercesc::XMLString::transcode("ped")) == 0)
                             {
-                                std::string id(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("templateId"))));
-                                std::string num(xercesc::XMLString::transcode(sourceChildElement->getAttribute(xercesc::XMLString::transcode("numerator"))));
+                                std::string id(cs = xercesc::XMLString::transcode(sourceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("templateId")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                std::string num(cs = xercesc::XMLString::transcode(sourceChildElement->getAttribute(t12 = xercesc::XMLString::transcode("numerator")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                 double numerator = (num.length() > 0) ? atof(num.c_str()) : 1;
                                 source->addPedRatio(id, numerator);
                             }
+							xercesc::XMLString::release(&t5);
                         }
                     }
-                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), xercesc::XMLString::transcode("sink")) == 0)
+                    else if (xercesc::XMLString::compareIString(fiddleyardChildElement->getTagName(), t5 = xercesc::XMLString::transcode("sink")) == 0)
                     {
                         // Get attributes of this source, provide defaults for any that aren't provided
                         std::string tmp = "";
 
                         std::string id;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("id")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("id"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             id = std::string(tmp);
                         else
                             id = "0";
 
                         double prob;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("sinkProb")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sinkProb"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             prob = atof(tmp.c_str());
                         else
                             prob = 1.0;
 
                         int lane;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("lane")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("lane"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             lane = atoi(tmp.c_str());
                         else
                             lane = 0;
 
                         int dir;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("direction")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("direction"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             dir = atoi(tmp.c_str());
                         else
                             dir = 0;
 
                         double sOff;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("sOffset")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("sOffset"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             sOff = atof(tmp.c_str());
                         else
                             sOff = 0;
 
                         double vOff;
-                        tmp = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(xercesc::XMLString::transcode("vOffset")));
+                        tmp = cs = xercesc::XMLString::transcode(fiddleyardChildElement->getAttribute(t12 = xercesc::XMLString::transcode("vOffset"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                         if (tmp.length() > 0)
                             vOff = atof(tmp.c_str());
                         else
@@ -1488,14 +1555,17 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         PedSink *sink = new PedSink(fiddleyard, id, prob, lane, dir, sOff, vOff);
                         fiddleyard->addSink(sink);
                     }
+					xercesc::XMLString::release(&t4);
+					xercesc::XMLString::release(&t5);
                 }
             }
+			xercesc::XMLString::release(&t3);
         }
 
         for (unsigned int roadIndex = 0; roadIndex < roadVector.size(); ++roadIndex)
         {
             Road *road = roadVector[roadIndex];
-            std::string junctionId(xercesc::XMLString::transcode(roadDOMMap[road]->getAttribute(xercesc::XMLString::transcode("junction"))));
+            std::string junctionId(cs = xercesc::XMLString::transcode(roadDOMMap[road]->getAttribute(t12 = xercesc::XMLString::transcode("junction")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
             std::map<std::string, Junction *>::iterator junctionIt = junctionIdMap.find(junctionId);
             if (junctionId == "-1")
             {
@@ -1528,7 +1598,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                 if (!roadChildElement)
                 {
                 }
-                else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), xercesc::XMLString::transcode("link")) == 0)
+                else if (xercesc::XMLString::compareIString(roadChildElement->getTagName(), t3 = xercesc::XMLString::transcode("link")) == 0)
                 {
                     xercesc::DOMNodeList *linkChildrenList = roadChildElement->getChildNodes();
                     xercesc::DOMElement *linkChildElement;
@@ -1538,11 +1608,11 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                         if (!linkChildElement)
                         {
                         }
-                        else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("predecessor")) == 0)
+                        else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), t4 = xercesc::XMLString::transcode("predecessor")) == 0)
                         {
-                            std::string type(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("elementType"))));
-                            std::string id(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("elementId"))));
-                            std::string contactPoint(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("contactPoint"))));
+                            std::string type(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementType")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                            std::string id(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementId")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                            std::string contactPoint(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("contactPoint")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                             Tarmac *tarmac = NULL;
                             if (type == "road")
@@ -1603,11 +1673,11 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 road->setPredecessorConnection(new TarmacConnection(tarmac, direction));
                             }
                         }
-                        else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), xercesc::XMLString::transcode("successor")) == 0)
+                        else if (xercesc::XMLString::compareIString(linkChildElement->getTagName(), t5 = xercesc::XMLString::transcode("successor")) == 0)
                         {
-                            std::string type(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("elementType"))));
-                            std::string id(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("elementId"))));
-                            std::string contactPoint(xercesc::XMLString::transcode(linkChildElement->getAttribute(xercesc::XMLString::transcode("contactPoint"))));
+                            std::string type(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementType")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                            std::string id(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("elementId")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                            std::string contactPoint(cs = xercesc::XMLString::transcode(linkChildElement->getAttribute(t12 = xercesc::XMLString::transcode("contactPoint")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                             Tarmac *tarmac = NULL;
                             if (type == "road")
                             {
@@ -1667,8 +1737,11 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 road->setSuccessorConnection(new TarmacConnection(tarmac, direction));
                             }
                         }
+						xercesc::XMLString::release(&t4);
+						xercesc::XMLString::release(&t5);
                     }
                 }
+				xercesc::XMLString::release(&t3);
             }
         }
     }
@@ -1799,6 +1872,8 @@ std::ostream &operator<<(std::ostream &os, RoadSystem *system)
 
 void RoadSystem::parseCinema4dXml(std::string filename)
 {
+	XMLCh *t1 = NULL, *t2 = NULL, *t12 = NULL;
+	char *cs=NULL;
     try
     {
         xercesc::XMLPlatformUtils::Initialize();
@@ -1843,7 +1918,7 @@ void RoadSystem::parseCinema4dXml(std::string filename)
         std::map<Road *, int> successorDirMap;
         std::map<std::string, std::vector<Road *> > junctionRoadVectorMap;
 
-        xercesc::DOMNodeList *splineList = rootElement->getElementsByTagName(xercesc::XMLString::transcode("obj_spline"));
+        xercesc::DOMNodeList *splineList = rootElement->getElementsByTagName(t1 = xercesc::XMLString::transcode("obj_spline")); xercesc::XMLString::release(&t1);
         for (unsigned int splineIt = 0; splineIt < splineList->getLength(); ++splineIt)
         {
             xercesc::DOMElement *splineElement = dynamic_cast<xercesc::DOMElement *>(splineList->item(splineIt));
@@ -1859,12 +1934,12 @@ void RoadSystem::parseCinema4dXml(std::string filename)
             int predecessorDir = 0;
             int successorDir = 0;
 
-            xercesc::DOMNodeList *stringList = splineElement->getElementsByTagName(xercesc::XMLString::transcode("string"));
+            xercesc::DOMNodeList *stringList = splineElement->getElementsByTagName(t2 = xercesc::XMLString::transcode("string")); xercesc::XMLString::release(&t2);
             std::string stringVar;
             for (unsigned int stringIt = 0; stringIt < stringList->getLength(); ++stringIt)
             {
                 xercesc::DOMElement *stringElement = dynamic_cast<xercesc::DOMElement *>(stringList->item(stringIt));
-                stringVar = xercesc::XMLString::transcode(stringElement->getAttribute(xercesc::XMLString::transcode("v")));
+                stringVar = cs = xercesc::XMLString::transcode(stringElement->getAttribute(t12 = xercesc::XMLString::transcode("v"))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 if (stringVar.find("road") == 0)
                 {
                     stringVar.erase(0, 4);
@@ -1968,19 +2043,19 @@ void RoadSystem::parseCinema4dXml(std::string filename)
          */
             std::vector<std::vector<double> > geometryMatrix;
 
-            xercesc::DOMNodeList *vectorArrayList = splineElement->getElementsByTagName(xercesc::XMLString::transcode("vectorarray"));
+            xercesc::DOMNodeList *vectorArrayList = splineElement->getElementsByTagName(t2 = xercesc::XMLString::transcode("vectorarray")); xercesc::XMLString::release(&t2);
             for (unsigned int vectorArrayIt = 0; vectorArrayIt < vectorArrayList->getLength(); ++vectorArrayIt)
             {
                 xercesc::DOMElement *vectorArrayElement = dynamic_cast<xercesc::DOMElement *>(vectorArrayList->item(vectorArrayIt));
-                //int vectorArraySize = atoi(xercesc::XMLString::transcode(vectorArrayElement->getAttribute(xercesc::XMLString::transcode("size"))));
-                xercesc::DOMNodeList *vectorList = vectorArrayElement->getElementsByTagName(xercesc::XMLString::transcode("vector"));
+                //int vectorArraySize = atoi(cs = xercesc::XMLString::transcode(vectorArrayElement->getAttribute(t12 = xercesc::XMLString::transcode("size")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                xercesc::DOMNodeList *vectorList = vectorArrayElement->getElementsByTagName(t1 = xercesc::XMLString::transcode("vector")); xercesc::XMLString::release(&t1);
                 for (unsigned int vectorIt = 0; vectorIt < vectorList->getLength(); ++vectorIt)
                 {
                     xercesc::DOMElement *vectorElement = dynamic_cast<xercesc::DOMElement *>(vectorList->item(vectorIt));
                     std::vector<double> point;
-                    point.push_back(atof(xercesc::XMLString::transcode(vectorElement->getAttribute(xercesc::XMLString::transcode("z")))));
-                    point.push_back(-atof(xercesc::XMLString::transcode(vectorElement->getAttribute(xercesc::XMLString::transcode("x")))));
-                    point.push_back(atof(xercesc::XMLString::transcode(vectorElement->getAttribute(xercesc::XMLString::transcode("y")))));
+                    point.push_back(atof(cs = xercesc::XMLString::transcode(vectorElement->getAttribute(t12 = xercesc::XMLString::transcode("z"))))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                    point.push_back(-atof(cs = xercesc::XMLString::transcode(vectorElement->getAttribute(t12 = xercesc::XMLString::transcode("x"))))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                    point.push_back(atof(cs = xercesc::XMLString::transcode(vectorElement->getAttribute(t12 = xercesc::XMLString::transcode("y"))))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                     geometryMatrix.push_back(point);
                 }
             }
@@ -2187,6 +2262,8 @@ void RoadSystem::parseCinema4dXml(std::string filename)
 
 void RoadSystem::parseLandXml(std::string filename)
 {
+	XMLCh *t1 = NULL, *t2 = NULL, *t3 = NULL, *t4 = NULL, *t5 = NULL, *t12 = NULL;
+	char *cs = NULL;
     try
     {
         xercesc::XMLPlatformUtils::Initialize();
@@ -2220,18 +2297,18 @@ void RoadSystem::parseLandXml(std::string filename)
 
     if (rootElement)
     {
-        xercesc::DOMNodeList *RoadwayList = rootElement->getElementsByTagName(xercesc::XMLString::transcode("Roadway"));
-        xercesc::DOMNodeList *AlignmentList = rootElement->getElementsByTagName(xercesc::XMLString::transcode("Alignment"));
+        xercesc::DOMNodeList *RoadwayList = rootElement->getElementsByTagName(t1 = xercesc::XMLString::transcode("Roadway")); xercesc::XMLString::release(&t1);
+        xercesc::DOMNodeList *AlignmentList = rootElement->getElementsByTagName(t1 = xercesc::XMLString::transcode("Alignment")); xercesc::XMLString::release(&t1);
 
         for (unsigned int roadwayIt = 0; roadwayIt < RoadwayList->getLength(); ++roadwayIt)
         {
             xercesc::DOMElement *roadwayElement = dynamic_cast<xercesc::DOMElement *>(RoadwayList->item(roadwayIt));
             if (roadwayElement)
             {
-                std::string name(xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("name"))));
-                std::string alignmentRefs(xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("alignmentRefs"))));
-                double staStart = atof(xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("staStart"))));
-                double staEnd = atof(xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("staEnd"))));
+                std::string name(cs = xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("name")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                std::string alignmentRefs(cs = xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("alignmentRefs")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                double staStart = atof(cs = xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("staStart")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                double staEnd = atof(cs = xercesc::XMLString::transcode(roadwayElement->getAttribute(xercesc::XMLString::transcode("staEnd")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                 Road *road = new Road(name, name, staStart + staEnd);
                 addRoad(road);
                 LaneSection *laneSection = new LaneSection(road,0.0);
@@ -2242,9 +2319,10 @@ void RoadSystem::parseLandXml(std::string filename)
                 for (unsigned int alignmentIt = 0; alignmentIt < AlignmentList->getLength(); ++alignmentIt)
                 {
                     xercesc::DOMElement *alignmentElement = dynamic_cast<xercesc::DOMElement *>(AlignmentList->item(alignmentIt));
-                    if (alignmentElement && std::string(xercesc::XMLString::transcode(alignmentElement->getAttribute(xercesc::XMLString::transcode("name")))) == alignmentRefs)
+					char *align;
+                    if (alignmentElement && std::string(align = xercesc::XMLString::transcode(alignmentElement->getAttribute(t1 = xercesc::XMLString::transcode("name")))) == alignmentRefs)
                     {
-                        xercesc::DOMNodeList *CoordGeomList = alignmentElement->getElementsByTagName(xercesc::XMLString::transcode("CoordGeom"));
+                        xercesc::DOMNodeList *CoordGeomList = alignmentElement->getElementsByTagName(t2 = xercesc::XMLString::transcode("CoordGeom")); xercesc::XMLString::release(&t2);
                         for (unsigned int coordGeomIt = 0; coordGeomIt < CoordGeomList->getLength(); ++coordGeomIt)
                         {
                             xercesc::DOMElement *coordGeomElement = dynamic_cast<xercesc::DOMElement *>(CoordGeomList->item(coordGeomIt));
@@ -2258,16 +2336,16 @@ void RoadSystem::parseLandXml(std::string filename)
                                 {
                                 }
 
-                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), xercesc::XMLString::transcode("Line")) == 0)
+                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), t2 = xercesc::XMLString::transcode("Line")) == 0)
                                 {
-                                    dir = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("dir"))));
-                                    double length = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                                    dir = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("dir")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double length = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
 
                                     xercesc::DOMNodeList *LineChildrenList = coordGeomChildElement->getChildNodes();
                                     for (unsigned int lineChildIt = 0; lineChildIt < LineChildrenList->getLength(); ++lineChildIt)
                                     {
                                         xercesc::DOMElement *lineChildElement = dynamic_cast<xercesc::DOMElement *>(LineChildrenList->item(lineChildIt));
-                                        if (lineChildElement && xercesc::XMLString::compareIString(lineChildElement->getTagName(), xercesc::XMLString::transcode("Start")) == 0)
+                                        if (lineChildElement && xercesc::XMLString::compareIString(lineChildElement->getTagName(), t3 = xercesc::XMLString::transcode("Start")) == 0)
                                         {
                                             xercesc::DOMNodeList *StartChildrenList = lineChildElement->getChildNodes();
                                             for (unsigned int startChildIt = 0; startChildIt < StartChildrenList->getLength(); ++startChildIt)
@@ -2276,30 +2354,31 @@ void RoadSystem::parseLandXml(std::string filename)
                                                 if (startCharacterData)
                                                 {
                                                     xercesc::BaseRefVectorOf<XMLCh> *stringVector = xercesc::XMLString::tokenizeString(startCharacterData->getData());
-                                                    double x = atof(xercesc::XMLString::transcode(stringVector->elementAt(1)));
-                                                    double y = atof(xercesc::XMLString::transcode(stringVector->elementAt(0)));
+                                                    double x = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(1))); xercesc::XMLString::release(&cs);
+                                                    double y = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(0))); xercesc::XMLString::release(&cs);
 
                                                     road->addPlanViewGeometryLine(start, length, x, y, 2 * M_PI / 360.0 * dir);
                                                     std::cout << "Line start: x: " << x << ", y: " << y << std::endl;
                                                 }
                                             }
                                         }
+										xercesc::XMLString::release(&t3);
                                     }
                                     start += length;
                                 }
-                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), xercesc::XMLString::transcode("Spiral")) == 0)
+                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), t3 = xercesc::XMLString::transcode("Spiral")) == 0)
                                 {
-                                    double length = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                    double radiusStart = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("radiusStart"))));
-                                    double radiusEnd = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("radiusEnd"))));
-                                    std::string rot(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("rot"))));
+                                    double length = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double radiusStart = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("radiusStart")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double radiusEnd = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("radiusEnd")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    std::string rot(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("rot")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                     double curvSign = (rot == "cw") ? -1 : 1;
 
                                     xercesc::DOMNodeList *SpiralChildrenList = coordGeomChildElement->getChildNodes();
                                     for (unsigned int spiralChildIt = 0; spiralChildIt < SpiralChildrenList->getLength(); ++spiralChildIt)
                                     {
                                         xercesc::DOMElement *spiralChildElement = dynamic_cast<xercesc::DOMElement *>(SpiralChildrenList->item(spiralChildIt));
-                                        if (spiralChildElement && xercesc::XMLString::compareIString(spiralChildElement->getTagName(), xercesc::XMLString::transcode("Start")) == 0)
+                                        if (spiralChildElement && xercesc::XMLString::compareIString(spiralChildElement->getTagName(), t4 = xercesc::XMLString::transcode("Start")) == 0)
                                         {
                                             xercesc::DOMNodeList *StartChildrenList = spiralChildElement->getChildNodes();
                                             for (unsigned int startChildIt = 0; startChildIt < StartChildrenList->getLength(); ++startChildIt)
@@ -2308,31 +2387,32 @@ void RoadSystem::parseLandXml(std::string filename)
                                                 if (startCharacterData)
                                                 {
                                                     xercesc::BaseRefVectorOf<XMLCh> *stringVector = xercesc::XMLString::tokenizeString(startCharacterData->getData());
-                                                    double x = atof(xercesc::XMLString::transcode(stringVector->elementAt(1)));
-                                                    double y = atof(xercesc::XMLString::transcode(stringVector->elementAt(0)));
+                                                    double x = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(1))); xercesc::XMLString::release(&cs);
+                                                    double y = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(0))); xercesc::XMLString::release(&cs);
 
                                                     road->addPlanViewGeometrySpiral(start, length, x, y, 2 * M_PI / 360.0 * dir, curvSign / radiusStart, curvSign / radiusEnd);
                                                     std::cout << "Spiral start: x: " << x << ", y: " << y << std::endl;
                                                 }
                                             }
                                         }
+										xercesc::XMLString::release(&t4);
                                     }
                                     start += length;
                                 }
-                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), xercesc::XMLString::transcode("Curve")) == 0)
+                                else if (xercesc::XMLString::compareIString(coordGeomChildElement->getTagName(), t4 = xercesc::XMLString::transcode("Curve")) == 0)
                                 {
-                                    double length = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
-                                    double dirStart = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("dirStart"))));
-                                    double dirEnd = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("dirEnd"))));
-                                    double radius = atof(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("radius"))));
-                                    std::string rot(xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(xercesc::XMLString::transcode("rot"))));
+                                    double length = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double dirStart = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("dirStart")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double dirEnd = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("dirEnd")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    double radius = atof(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("radius")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
+                                    std::string rot(cs = xercesc::XMLString::transcode(coordGeomChildElement->getAttribute(t12 = xercesc::XMLString::transcode("rot")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                     double curvSign = (rot == "cw") ? -1 : 1;
 
                                     xercesc::DOMNodeList *CurveChildrenList = coordGeomChildElement->getChildNodes();
                                     for (unsigned int curveChildIt = 0; curveChildIt < CurveChildrenList->getLength(); ++curveChildIt)
                                     {
                                         xercesc::DOMElement *curveChildElement = dynamic_cast<xercesc::DOMElement *>(CurveChildrenList->item(curveChildIt));
-                                        if (curveChildElement && xercesc::XMLString::compareIString(curveChildElement->getTagName(), xercesc::XMLString::transcode("Start")) == 0)
+                                        if (curveChildElement && xercesc::XMLString::compareIString(curveChildElement->getTagName(), t5 = xercesc::XMLString::transcode("Start")) == 0)
                                         {
                                             xercesc::DOMNodeList *StartChildrenList = curveChildElement->getChildNodes();
                                             for (unsigned int startChildIt = 0; startChildIt < StartChildrenList->getLength(); ++startChildIt)
@@ -2341,8 +2421,8 @@ void RoadSystem::parseLandXml(std::string filename)
                                                 if (startCharacterData)
                                                 {
                                                     xercesc::BaseRefVectorOf<XMLCh> *stringVector = xercesc::XMLString::tokenizeString(startCharacterData->getData());
-                                                    double x = atof(xercesc::XMLString::transcode(stringVector->elementAt(1)));
-                                                    double y = atof(xercesc::XMLString::transcode(stringVector->elementAt(0)));
+                                                    double x = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(1))); xercesc::XMLString::release(&cs);
+                                                    double y = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(0))); xercesc::XMLString::release(&cs);
 
                                                     road->addPlanViewGeometryArc(start, length, x, y, 2 * M_PI / 360.0 * dirStart, curvSign / radius);
                                                     std::cout << "Curve start: x: " << x << ", y: " << y << std::endl;
@@ -2353,15 +2433,18 @@ void RoadSystem::parseLandXml(std::string filename)
                                     start += length;
                                     dir = dirEnd;
                                 }
+								xercesc::XMLString::release(&t2);
+								xercesc::XMLString::release(&t3);
+								xercesc::XMLString::release(&t4);
                             }
                         }
-                        xercesc::DOMNodeList *ProfileList = alignmentElement->getElementsByTagName(xercesc::XMLString::transcode("Profile"));
+                        xercesc::DOMNodeList *ProfileList = alignmentElement->getElementsByTagName(t2 = xercesc::XMLString::transcode("Profile")); xercesc::XMLString::release(&t2);
                         for (unsigned int profileIt = 0; profileIt < ProfileList->getLength(); ++profileIt)
                         {
                             xercesc::DOMElement *profileElement = dynamic_cast<xercesc::DOMElement *>(ProfileList->item(profileIt));
                             if (profileElement)
                             {
-                                xercesc::DOMNodeList *ProfAlignList = profileElement->getElementsByTagName(xercesc::XMLString::transcode("ProfAlign"));
+                                xercesc::DOMNodeList *ProfAlignList = profileElement->getElementsByTagName(t3 = xercesc::XMLString::transcode("ProfAlign")); xercesc::XMLString::release(&t3);
                                 for (unsigned int profAlignIt = 0; profAlignIt < ProfAlignList->getLength(); ++profAlignIt)
                                 {
                                     xercesc::DOMElement *profAlignElement = dynamic_cast<xercesc::DOMElement *>(ProfAlignList->item(profAlignIt));
@@ -2378,7 +2461,7 @@ void RoadSystem::parseLandXml(std::string filename)
                                             if (!profAlignChildElement)
                                             {
                                             }
-                                            else if (xercesc::XMLString::compareIString(profAlignChildElement->getTagName(), xercesc::XMLString::transcode("PVI")) == 0)
+                                            else if (xercesc::XMLString::compareIString(profAlignChildElement->getTagName(), t2 = xercesc::XMLString::transcode("PVI")) == 0)
                                             {
                                                 lVec.push_back(0.0);
 
@@ -2389,8 +2472,8 @@ void RoadSystem::parseLandXml(std::string filename)
                                                     if (pviCharacterData)
                                                     {
                                                         xercesc::BaseRefVectorOf<XMLCh> *stringVector = xercesc::XMLString::tokenizeString(pviCharacterData->getData());
-                                                        double h = atof(xercesc::XMLString::transcode(stringVector->elementAt(1)));
-                                                        double s = atof(xercesc::XMLString::transcode(stringVector->elementAt(0)));
+                                                        double h = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(1))); xercesc::XMLString::release(&cs);
+                                                        double s = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(0))); xercesc::XMLString::release(&cs);
                                                         hVec.push_back(h);
                                                         sVec.push_back(s);
 
@@ -2399,9 +2482,9 @@ void RoadSystem::parseLandXml(std::string filename)
                                                     }
                                                 }
                                             }
-                                            else if (xercesc::XMLString::compareIString(profAlignChildElement->getTagName(), xercesc::XMLString::transcode("ParaCurve")) == 0)
+                                            else if (xercesc::XMLString::compareIString(profAlignChildElement->getTagName(), t3 = xercesc::XMLString::transcode("ParaCurve")) == 0)
                                             {
-                                                double length = atof(xercesc::XMLString::transcode(profAlignChildElement->getAttribute(xercesc::XMLString::transcode("length"))));
+                                                double length = atof(cs = xercesc::XMLString::transcode(profAlignChildElement->getAttribute(t12 = xercesc::XMLString::transcode("length")))); xercesc::XMLString::release(&t12); xercesc::XMLString::release(&cs);
                                                 lVec.push_back(length);
 
                                                 xercesc::DOMNodeList *ParaCurveChildrenList = profAlignChildElement->getChildNodes();
@@ -2411,8 +2494,8 @@ void RoadSystem::parseLandXml(std::string filename)
                                                     if (paraCurveCharacterData)
                                                     {
                                                         xercesc::BaseRefVectorOf<XMLCh> *stringVector = xercesc::XMLString::tokenizeString(paraCurveCharacterData->getData());
-                                                        double h = atof(xercesc::XMLString::transcode(stringVector->elementAt(1)));
-                                                        double s = atof(xercesc::XMLString::transcode(stringVector->elementAt(0)));
+                                                        double h = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(1))); xercesc::XMLString::release(&cs);
+                                                        double s = atof(cs = xercesc::XMLString::transcode(stringVector->elementAt(0))); xercesc::XMLString::release(&cs);
                                                         hVec.push_back(h);
                                                         sVec.push_back(s);
 
@@ -2421,6 +2504,8 @@ void RoadSystem::parseLandXml(std::string filename)
                                                     }
                                                 }
                                             }
+											xercesc::XMLString::release(&t2);
+											xercesc::XMLString::release(&t3);
                                         }
                                         double s = 0.0;
                                         double h = 0.0;
@@ -2467,6 +2552,7 @@ void RoadSystem::parseLandXml(std::string filename)
                             }
                         }
                     }
+					xercesc::XMLString::release(&align); xercesc::XMLString::release(&t1);
                 }
             }
         }

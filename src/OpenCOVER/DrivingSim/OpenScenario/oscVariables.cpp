@@ -84,7 +84,13 @@ OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute)
 {
     try
     {
-        value = std::stol(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0]=='$')
+		{
+
+		}
+        value = std::stol(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {

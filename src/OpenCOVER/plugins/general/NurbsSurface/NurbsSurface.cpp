@@ -176,8 +176,7 @@ void NurbsSurface::computeSurface()
         if (jstat < 0) {
             throw runtime_error("Error occured inside call to SISL routine s1537.");
         } else if (jstat > 0) {
-            cerr << "WARNING: warning occured inside call to SISL routine s1537. \n"
-                << endl;
+            cerr << "WARNING: warning occured inside call to SISL routine s1537. \n";
         }
 
         int ref=DEFAULT_REF; // Number of new knots between old ones.
@@ -343,7 +342,7 @@ alglib::barycentricinterpolant NurbsSurface::edge(vector<osg::Vec3> all_points, 
     ae_int_t info;
     barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
     polynomialfitreport repo;
-    double test;
+    //double test;
 
     //initialize spline curve
     barycentricinterpolant curve;
