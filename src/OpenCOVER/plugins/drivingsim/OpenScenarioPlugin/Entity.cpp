@@ -1,7 +1,7 @@
 #include "Entity.h"
 #include "ReferencePosition.h"
 #include "Action.h"
-#include "Maneuver.h"
+#include "Event.h"
 using namespace std;
 
 Entity::Entity(string entityName, string catalogReferenceName):
@@ -151,7 +151,7 @@ void Entity::setTrajectoryDirectionOnRoad()
 
 }
 
-void Entity::followTrajectoryOnRoad(Maneuver* maneuver, int verticesCounter)
+void Entity::followTrajectory(Event* event, int verticesCounter)
 {
 
     float step_distance = opencover::cover->frameDuration()*speed;
@@ -181,14 +181,14 @@ void Entity::followTrajectoryOnRoad(Maneuver* maneuver, int verticesCounter)
         {
             visitedVertices = 0;
             ++actionCounter;
-            maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
+            event->finishedEntityActions = event->finishedEntityActions+1;
 
             refPos->update();
         }
     }
 }
 
-void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed, int shape)
+void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int shape)
 {
     float targetSpeed = (float) init_targetSpeed;
 
@@ -226,7 +226,7 @@ void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed
         speed = targetSpeed;
         dt = 0.0;
         ++actionCounter;
-        maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
+        event->finishedEntityActions = event->finishedEntityActions+1;
 
     }
     else

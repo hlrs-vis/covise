@@ -9,7 +9,7 @@ using namespace std;
 #include<string>
 #include <list>
 #include <OpenScenario/schema/oscAct.h>
-
+class Sequence;
 class Act : public OpenScenario::oscAct
 {
 
@@ -17,6 +17,7 @@ class Act : public OpenScenario::oscAct
 	string name;
 	list<Entity*> activeEntityList;
 	list<Maneuver*> maneuverList;
+    list<::Sequence*> sequenceList;
 	int numberOfExecutions;
 
 	//conditions
@@ -30,7 +31,7 @@ class Act : public OpenScenario::oscAct
 	Act();
 	~Act();
 	virtual void finishedParsing();
-	void initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp);
+    void initialize(::Sequence *sequence_temp);
 	string getName();
 	int getNumberOfExecutions();
 

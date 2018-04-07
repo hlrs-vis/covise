@@ -8,21 +8,20 @@
 using namespace std;
 
 Maneuver::Maneuver():
-	maneuverCondition(false),
 	maneuverFinished(false),
     trajectoryCatalogReference(""),
 	startAfterManeuver(""),
 	startConditionType("termination"),
     targetSpeed(0),
-    finishedEntityActions(0)
+    finishedEvents(0)
 {
 }
 Maneuver::~Maneuver()
 {
 }
-void Maneuver::initialize(int numEntites)
+void Maneuver::initialize(::Event* event_temp)
 {
-    activeEntites = numEntites;
+    eventList.push_back(event_temp);
 }
 
 

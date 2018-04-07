@@ -1,6 +1,10 @@
 #include "ScenarioManager.h"
 #include <vector>
 #include "ReferencePosition.h"
+#include "Act.h"
+#include "Sequence.h"
+#include "Maneuver.h"
+#include "Event.h"
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
@@ -32,10 +36,19 @@ void ScenarioManager::conditionManager(){
         {
             if(conditionControl((*act_iter)))
             {
-                anyActTrue = true;
-                for(list<Maneuver*>::iterator maneuver_iter = (*act_iter)->maneuverList.begin(); maneuver_iter != (*act_iter)->maneuverList.end(); maneuver_iter++)
+                for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
                 {
-                    conditionControl(*maneuver_iter);
+                    anyActTrue = true;
+                    for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
+                    {
+                        for(list<Event*>::iterator event_iter = (*maneuver_iter)->eventList.begin(); event_iter != (*maneuver_iter)->eventList.end(); event_iter++)
+                        {
+                            if(conditionControl((*event_iter),(*maneuver_iter)))
+                            {
+                                (*sequence_iter)->activeEvent = (*event_iter);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -84,58 +97,65 @@ bool ScenarioManager::conditionControl(Act* act)
     return false;
 }
 
-bool ScenarioManager::conditionControl(Maneuver* maneuver)
+bool ScenarioManager::conditionControl(Event* event,Maneuver* maneuver)
 {
-    if ((maneuver->finishedEntityActions) == (maneuver->activeEntites*maneuver->actionVector.size()))
+    if (!event->eventFinished && ((event->finishedEntityActions) == (event->activeEntites*event->actionVector.size())))
     {
         for(list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
         {
             (*entity_iter)->resetActionAttributes();
         }
-        maneuver->maneuverFinished = true;
-        maneuver->maneuverCondition = false;
-        return maneuver->maneuverCondition;
+        event->eventFinished = true;
+        event->eventCondition = false;
+        maneuver->finishedEvents = maneuver->finishedEvents+1;
+        if(maneuver->finishedEvents == maneuver->eventList.size())
+        {
+            maneuver->maneuverFinished = true;
+        }
+
+        return event->eventCondition;
     }
-	if (maneuver->startConditionType=="time")
+    if (event->startConditionType=="time")
 	{
-		if(maneuver->startTime<simulationTime && maneuver->maneuverFinished != true)
+        if(event->startTime<simulationTime && event->eventFinished != true)
 		{
-			maneuver->maneuverCondition = true;
-            return maneuver->maneuverCondition;
+            event->eventCondition = true;
+            return event->eventCondition;
 		}
 		else
 		{
-			maneuver->maneuverCondition = false;
-            return maneuver->maneuverCondition;
+            event->eventCondition = false;
+            return event->eventCondition;
 		}
 	}
-	if (maneuver->startConditionType=="distance")
+    if (event->startConditionType=="distance")
 	{
-		auto activeCar = getEntityByName(maneuver->activeCarName);
-		auto passiveCar = getEntityByName(maneuver->passiveCarName);
-        if (activeCar->refPos->s-passiveCar->refPos->s >= maneuver->relativeDistance && maneuver->maneuverFinished == false)
+        auto activeCar = getEntityByName(event->activeCarName);
+        auto passiveCar = getEntityByName(event->passiveCarName);
+        if (activeCar->refPos->s-passiveCar->refPos->s >= event->relativeDistance && event->eventFinished == false)
 		{
-			maneuver->maneuverCondition = true;
-            return maneuver->maneuverCondition;
-
+            event->eventCondition = true;
+            return event->eventCondition;
 		}
 
-	}
-	if (maneuver->startConditionType=="termination")
-	{
-		for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
-		{
-			for(list<Maneuver*>::iterator terminatedManeuver = (*act_iter)->maneuverList.begin(); terminatedManeuver != (*act_iter)->maneuverList.end(); terminatedManeuver++)
-			{
-				if ((*terminatedManeuver)->maneuverFinished == true && maneuver->maneuverFinished == false && (*terminatedManeuver)->getName() == maneuver->startAfterManeuver)
-				{
-					maneuver->maneuverCondition = true;
-                    return maneuver->maneuverCondition;
-
-				}
-			}
-		}
-	}
+    }
+    if (event->startConditionType=="termination")
+    {
+        for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+        {
+            for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+            {
+                for(list<Maneuver*>::iterator terminatedManeuver = (*sequence_iter)->maneuverList.begin(); terminatedManeuver != (*sequence_iter)->maneuverList.end(); terminatedManeuver++)
+                {
+                    if ((*terminatedManeuver)->maneuverFinished == true && maneuver->maneuverFinished == false && (*terminatedManeuver)->getName() == event->startAfterManeuver)
+                    {
+                        event->eventCondition = true;
+                        return event->eventCondition;
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 

@@ -27,7 +27,7 @@ public:
 	Entity* getEntityByName(string entityName);
     bool conditionControl();
     bool conditionControl(Act* act);
-    bool conditionControl(Maneuver* maneuver);
+    bool conditionControl(Event* event, Maneuver *maneuver);
     void conditionManager();
 
 };

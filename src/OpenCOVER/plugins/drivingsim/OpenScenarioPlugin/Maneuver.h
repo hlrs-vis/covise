@@ -9,20 +9,18 @@
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscManeuver.h>
 class Action;
+class Event;
 class Maneuver: public OpenScenario::oscManeuver
 {
 
 
 public:
-    std::vector<Action*> actionVector;
-    std::list<Entity*> activeEntityList;
-    int finishedEntityActions;
-    int activeEntites;
     std::string name;
     std::string maneuverType;
     std::string routeCatalogReference;
     std::string trajectoryCatalogReference;
     //conditions
+    int finishedEvents;
     bool maneuverCondition;
     bool maneuverFinished;
     float startTime;
@@ -34,7 +32,7 @@ public:
     float relativeDistance;
     float targetSpeed;
 
-    std::list<Trajectory*> trajectoryList;
+    std::list<::Event*> eventList;
 
     Maneuver();
     ~Maneuver();
@@ -45,7 +43,7 @@ public:
 
     std::string &getName();
     void changeSpeedOfEntity(Entity *aktivCar, float dt, std::list<Entity *> *activeEntityList);
-    void initialize(int numEntities);
+    void initialize(::Event* event_temp);
 
 };
 

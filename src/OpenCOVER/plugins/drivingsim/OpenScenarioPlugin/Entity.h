@@ -9,7 +9,7 @@
 class Spline;
 class ReferencePosition;
 class Action;
-class Maneuver;
+class Event;
 class Entity {
 
 public:
@@ -38,7 +38,7 @@ public:
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
-    void longitudinalSpeedAction(Maneuver *maneuver, double init_targetSpeed, int shape);
+    void longitudinalSpeedAction(Event *event, double init_targetSpeed, int shape);
     void resetActionAttributes();
 
     float &getSpeed();
@@ -59,7 +59,7 @@ public:
     // follow Trajectories functions
     void setTrajectoryDirection();
     void setTrajSpeed(float deltat);
-    void followTrajectoryOnRoad(Maneuver *maneuver, int verticesCounter);
+    void followTrajectory(Event *event, int verticesCounter);
     void setTrajectoryDirectionOnRoad();
 
     //Longitudinal attributes

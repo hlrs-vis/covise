@@ -15,11 +15,10 @@ void Act::finishedParsing()
 	name = oscAct::name.getValue();
 }
 
-void Act::initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp)
+void Act::initialize(::Sequence *sequence_temp)
 {
-	numberOfExecutions = noe;
-	maneuverList = maneuverList_temp;
-	activeEntityList = activeEntityList_temp;
+    numberOfExecutions = 1;
+    sequenceList.push_back(sequence_temp);
 	//executionCounter = 0;
 	actCondition = false;
 	actFinished = false;
