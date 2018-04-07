@@ -6,7 +6,11 @@ ReferencePosition::ReferencePosition():
     road(NULL),
     s(0.0),
     t(0.0),
-	hdg(0.0)
+    hdg(0.0),
+    laneId(0),
+    roadLength(0.0),
+    LS(NULL),
+    roadId("")
 {
 }
 

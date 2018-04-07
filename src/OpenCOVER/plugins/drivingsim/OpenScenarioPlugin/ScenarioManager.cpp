@@ -39,6 +39,7 @@ void ScenarioManager::conditionManager(){
                 for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
                 {
                     anyActTrue = true;
+                    bool anyEvent = false;
                     for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
                     {
                         for(list<Event*>::iterator event_iter = (*maneuver_iter)->eventList.begin(); event_iter != (*maneuver_iter)->eventList.end(); event_iter++)
@@ -46,6 +47,11 @@ void ScenarioManager::conditionManager(){
                             if(conditionControl((*event_iter),(*maneuver_iter)))
                             {
                                 (*sequence_iter)->activeEvent = (*event_iter);
+                                anyEvent = true;
+                            }
+                            if(!anyEvent)
+                            {
+                                (*sequence_iter)->activeEvent = NULL;
                             }
                         }
                     }
@@ -99,7 +105,11 @@ bool ScenarioManager::conditionControl(Act* act)
 
 bool ScenarioManager::conditionControl(Event* event,Maneuver* maneuver)
 {
-    if (!event->eventFinished && ((event->finishedEntityActions) == (event->activeEntites*event->actionVector.size())))
+    if(event->eventFinished)
+    {
+        return false;
+    }
+    if ((event->finishedEntityActions) == (event->activeEntites*event->actionVector.size()))
     {
         for(list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
         {

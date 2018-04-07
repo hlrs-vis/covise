@@ -62,7 +62,7 @@ void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 
 void Entity::moveLongitudinal()
 {
-    if(refPos->road != NULL)
+    if(refPos->road != NULL && speed > 0)
     {
         float step_distance = speed*opencover::cover->frameDuration();
         double ds = 1.0;
@@ -167,8 +167,6 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
     directionVector.normalize();
     refPos->move(directionVector,step_distance);
     osg::Vec3 pos = refPos->getPosition();
-    //directionVector[0] = directionVector[0]*cos(refPos->hdg);
-    //directionVector[1] = directionVector[1]*sin(refPos->hdg);
 
     entityGeometry->setPosition(pos, directionVector);
 
@@ -179,6 +177,10 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
         totalDistance = 0;
         if(visitedVertices == verticesCounter)
         {
+            if(totaldirectionVectorLength<0.01)
+            {
+                speed = 0;
+            }
             visitedVertices = 0;
             ++actionCounter;
             event->finishedEntityActions = event->finishedEntityActions+1;
