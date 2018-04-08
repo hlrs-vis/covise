@@ -443,7 +443,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                                 }
                             }
 
-                            bool initializeSuccess = v->initialize(attribute);
+                            bool initializeSuccess = v->initialize(attribute, base);
                             if (initializeSuccess)
                             {
                                 m->setValue(v);

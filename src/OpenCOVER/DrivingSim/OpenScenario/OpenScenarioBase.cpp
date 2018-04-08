@@ -323,6 +323,82 @@ std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
     return srcFileVec;
 }
 
+void OpenScenario::OpenScenarioBase::addParameter(const std::string & paramName, oscMemberValue *m)
+{
+	auto param = parameters[paramName];
+	if (param == NULL)
+	{
+		param = new parameterDescription(m);
+		parameters[paramName] = param;
+	}
+	else
+	{
+		param->member = m;
+		if (param->parameter)
+		{
+			if (m->getType() == oscMemberValue::INT)
+			{
+				int val = std::stol(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::UINT)
+			{
+				unsigned int val = std::stol(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::FLOAT)
+			{
+				float val = std::stof(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::DOUBLE)
+			{
+				double val = std::stod(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::STRING)
+			{
+				m->setValue(param->parameter->value);
+			}
+		}
+	}
+}
+
+
+void OpenScenario::OpenScenarioBase::setParameterValue(const std::string & paramName, const std::string &value)
+{
+	auto param = parameters[paramName];
+	if (param != NULL)
+	{
+		if (param->member)
+		{
+			if (param->member->getType() == oscMemberValue::INT)
+			{
+				int val = std::stol(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::UINT)
+			{
+				unsigned int val = std::stol(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::FLOAT)
+			{
+				float val = std::stof(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::DOUBLE)
+			{
+				double val = std::stod(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::STRING)
+			{
+				param->member->setValue(value);
+			}
+		}
+	}
+}
 
 //
 void OpenScenarioBase::setValidation(const bool validate)
@@ -811,6 +887,14 @@ oscSourceFile *OpenScenarioBase::createSource(const std::string &fileName, const
 	return source;
 }
 
+OpenScenario::parameterDescription::parameterDescription(oscMemberValue * m, oscParameter * p)
+{
+	parameter = p;
+	member = m;
+	//m->setParameter(this);
+}
 
-
-
+OpenScenario::parameterDescription::~parameterDescription()
+{
+	//m->setParameter(NULL);
+}

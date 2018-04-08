@@ -44,7 +44,7 @@ public:
         value = t;
     };
 
-    virtual bool initialize(xercesc::DOMAttr *);
+    virtual bool initialize(xercesc::DOMAttr *, OpenScenarioBase *base);
 
     virtual oscValue<T>& operator=(T t)
     {
@@ -202,7 +202,7 @@ class OPENSCENARIOEXPORT oscEnumValue: public oscValue<int>
 {
 public:
     oscEnumType *enumType;
-    virtual bool initialize(xercesc::DOMAttr *);
+    virtual bool initialize(xercesc::DOMAttr *, OpenScenarioBase *base);
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name);
 };
 

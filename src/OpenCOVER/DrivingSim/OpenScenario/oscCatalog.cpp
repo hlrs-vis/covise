@@ -733,7 +733,7 @@ oscCatalog::SuccessIntVar oscCatalog::getIntFromIntAttribute(xercesc::DOMAttr *a
     SuccessIntVar successIntVar = std::make_pair(false, -1);
     oscMemberValue::MemberTypes memberTypeInt = oscMemberValue::INT;
     oscMemberValue *memberValInt = oscFactories::instance()->valueFactory->create(memberTypeInt);
-    bool initializeSuccess = memberValInt->initialize(attribute);
+    bool initializeSuccess = memberValInt->initialize(attribute, this->base);
     if (initializeSuccess)
     {
         oscIntValue *objIntVal = dynamic_cast<oscIntValue *>(memberValInt);
