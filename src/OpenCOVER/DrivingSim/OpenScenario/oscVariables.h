@@ -145,7 +145,7 @@ public:
         return true;
     };
 
-    virtual oscMemberValue::MemberTypes getValueType();
+    virtual oscMemberValue::MemberTypes getValueType() const;
 };
 
 //
@@ -165,6 +165,24 @@ public:
     };
 };
 
+template<>
+inline oscMemberValue::MemberTypes oscVariable<int>::getValueType() const {return oscMemberValue::INT;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<unsigned int>::getValueType() const {return oscMemberValue::UINT;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<short>::getValueType() const {return oscMemberValue::SHORT;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<unsigned short>::getValueType() const {return oscMemberValue::USHORT;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<std::string>::getValueType() const {return oscMemberValue::STRING;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<double>::getValueType() const {return oscMemberValue::DOUBLE;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<time_t>::getValueType() const {return oscMemberValue::DATE_TIME;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<bool>::getValueType() const {return oscMemberValue::BOOL;};
+template<>
+inline oscMemberValue::MemberTypes oscVariable<float>::getValueType() const {return oscMemberValue::FLOAT;};
 
 //
 typedef oscVariable<std::string> oscString;
@@ -181,7 +199,7 @@ class OPENSCENARIOEXPORT oscEnum: public oscVariable<int>
 {
 public:
     oscEnumType *enumType;
-    virtual oscMemberValue::MemberTypes getValueType();
+    virtual oscMemberValue::MemberTypes getValueType() const;
     void setValueWStr(const std::string &strVal); ///<set the value with the string of the value
     std::string getValueAsStr(const int val) const; ///<get the value as a string
 };

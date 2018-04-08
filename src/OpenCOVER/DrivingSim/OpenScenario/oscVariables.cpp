@@ -34,26 +34,8 @@ template class  oscVariable<time_t>;
 template class  oscVariable<bool>;
 template class  oscVariable<float>;
 
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType() {return oscMemberValue::INT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned int>::getValueType() {return oscMemberValue::UINT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<short>::getValueType() {return oscMemberValue::SHORT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned short>::getValueType() {return oscMemberValue::USHORT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<std::string>::getValueType() {return oscMemberValue::STRING;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<double>::getValueType() {return oscMemberValue::DOUBLE;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<time_t>::getValueType() {return oscMemberValue::DATE_TIME;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<bool>::getValueType() {return oscMemberValue::BOOL;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType() {return oscMemberValue::FLOAT;};
 
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType() {return oscMemberValue::ENUM;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType() const {return oscMemberValue::ENUM;};
 
 
 //oscEnum
