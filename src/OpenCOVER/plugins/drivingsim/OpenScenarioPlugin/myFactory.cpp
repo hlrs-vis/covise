@@ -7,6 +7,8 @@
 #include "FollowTrajectory.h"
 #include "Position.h"
 #include "Action.h"
+#include "StartConditions.h"
+#include "EndConditions.h"
 #include <DrivingSim/OpenScenario/oscFactories.h>
 
 myFactory::myFactory(){}
@@ -45,6 +47,14 @@ OpenScenario::oscObjectBase *myFactory::create(const std::string &name)
     if (name == "oscAction")
     {
         return new Action();
+    }
+    if (name == "oscStartConditions")
+    {
+        return new StartConditions();
+    }
+    if (name == "oscEndConditions")
+    {
+        return new EndConditions();
     }
 	return OpenScenario::oscFactories::staticObjectFactory.create(name);
 }
