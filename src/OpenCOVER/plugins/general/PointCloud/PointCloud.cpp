@@ -29,6 +29,7 @@
 
 #include <OpenVRUI/coButtonInteraction.h>
 #include <cover/coVRShader.h>
+#include <PluginUtil/PluginMessageTypes.h>
 
 // OSG:
 #include <osg/Node>
@@ -985,6 +986,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 for (int i=0; i!=numPositions; i++)
                 {
                     ScannerPosition pos;
+                    pos.type = 0;
                     file.read((char *)&pos.ID, sizeof(uint32_t));
                     file.read((char *)&pos.point._v, sizeof(float) * 3);
                     positions.push_back(pos);
@@ -1177,4 +1179,12 @@ void PointCloudPlugin::preFrame()
 /// Called after each frame
 void PointCloudPlugin::postFrame()
 {
+}
+
+void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
+{
+    if (type == PluginMessageTypes::PointCloudSurfaceMsg)
+    {
+
+    }
 }
