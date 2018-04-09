@@ -973,13 +973,15 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     fi.nodes.push_back(ni);
                 }
             }
-
-            bool readScannerPositions= true;
+            uint32_t version;
+            file.read((char *)&version,sizeof(uint32_t));
+            bool readScannerPositions = false;
+            if (file.good() && !file.eof())
+                readScannerPositions= true;
             if (readScannerPositions)
             {
                 //read Scanner positions
-                uint32_t version;
-                file.read((char *)&version,sizeof(uint32_t));
+
                 cerr << "Version " << (version) << endl;
                 uint32_t numPositions;
                 file.read((char *)&numPositions, sizeof(uint32_t));
