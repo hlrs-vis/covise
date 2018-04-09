@@ -5335,6 +5335,7 @@ bool coTabletUI::isConnected() const
 
 void coTabletUI::close()
 {
+    connectedHost = NULL;
     delete conn;
     conn = NULL;
 
@@ -5390,6 +5391,7 @@ bool coTabletUI::update()
 
     if (connectedHost)
     {
+        assert(conn);
     }
     else if (coVRMSController::instance()->isMaster() && serverMode)
     {
@@ -5571,6 +5573,7 @@ bool coTabletUI::update()
     {
         if (conn)
         {
+            connectedHost = NULL;
             delete conn;
             conn = NULL;
         }
@@ -5649,6 +5652,7 @@ bool coTabletUI::update()
             case COVISE_MESSAGE_SOCKET_CLOSED:
             case COVISE_MESSAGE_CLOSE_SOCKET:
             {
+                connectedHost = NULL;
                 delete conn;
                 conn = NULL;
             }
