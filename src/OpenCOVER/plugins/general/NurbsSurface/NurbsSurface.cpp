@@ -786,7 +786,7 @@ void NurbsSurface::resize()
 void NurbsSurface::updateMessage()
 {
     //send message to PointCloudPlugin
-    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(points), &points);
+    //cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(points), &points);
 }
 
 

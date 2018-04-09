@@ -125,6 +125,7 @@ private:
         void updateSurface();
         bool curveCurveIntersection(SISLCurve* c1, double& c1Param, SISLCurve* c2, double& c2Param);
         double sphereSize = 10.0;
+        void updateMessage();
 
 
 
