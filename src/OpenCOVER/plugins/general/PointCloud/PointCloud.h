@@ -20,22 +20,10 @@
 #include "PointCloudGeometry.h"
 #include "PointCloudInteractor.h"
 
+#include "FileInfo.h"
+
 using namespace opencover;
 
-class nodeInfo
-{
-public:
-    osg::Node *node;
-};
-
-class fileInfo
-{
-public:
-    std::string filename;
-    std::vector<nodeInfo> nodes;
-    int pointSetSize;
-    PointSet *pointSet;
-};
 
 /** Plugin
   @author 
@@ -61,7 +49,7 @@ class PointCloudPlugin : public coVRPlugin, public ui::Owner
     };
 
 private:
-    std::vector<fileInfo> files;
+    std::vector<FileInfo> files;
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;

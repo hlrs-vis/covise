@@ -513,7 +513,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 }
             }
 
-            fileInfo fi;
+            FileInfo fi;
             fi.pointSetSize = pointSetSize;
             fi.pointSet = pointSet;
 
@@ -526,7 +526,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                 currentGeode->addDrawable(drawable);
                 currentGeode->setName(filename);
                 parent->addChild(currentGeode);
-                nodeInfo ni;
+                NodeInfo ni;
                 ni.node = currentGeode;
                 fi.nodes.push_back(ni);
                 if (pointShader)
@@ -554,7 +554,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         {
             cerr << "Total num of sets is " << pointSetSize << endl;
             pointSet = new PointSet[pointSetSize];
-            fileInfo fi;
+            FileInfo fi;
             fi.pointSetSize = pointSetSize;
             fi.pointSet = pointSet;
             for (int i = 0; i < pointSetSize; i++)
@@ -588,7 +588,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     currentGeode->addDrawable(drawable);
                     currentGeode->setName(filename);
                     parent->addChild(currentGeode);
-                    nodeInfo ni;
+                    NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
                 }
@@ -622,7 +622,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 			e57::Data3D		scanHeader;
 			cerr << "Total num of sets is " << data3DCount << endl;
 			pointSet = new PointSet[data3DCount];
-			fileInfo fi;
+			FileInfo fi;
 			fi.pointSetSize = data3DCount;
 			fi.pointSet = pointSet;
 			for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
@@ -827,7 +827,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 					currentGeode->addDrawable(drawable);
 					currentGeode->setName(filename);
 					parent->addChild(currentGeode);
-					nodeInfo ni;
+					NodeInfo ni;
 					ni.node = currentGeode;
 					fi.nodes.push_back(ni);
 				}
@@ -867,7 +867,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             file.read((char *)&pointSetSize, sizeof(int));
             cerr << "Total num of sets is " << pointSetSize << endl;
             pointSet = new PointSet[pointSetSize];
-            fileInfo fi;
+            FileInfo fi;
             fi.pointSetSize = pointSetSize;
             fi.pointSet = pointSet;
             for (int i = 0; i < pointSetSize; i++)
@@ -929,7 +929,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     currentGeode->addDrawable(drawable);
                     currentGeode->setName(filename);
                     parent->addChild(currentGeode);
-                    nodeInfo ni;
+                    NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
                 }
@@ -979,11 +979,11 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 }
 int PointCloudPlugin::unloadFile(std::string filename)
 {
-    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         if (fit->filename == filename)
         {
-            for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+            for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
             {
                 if (nit->node->getNumParents() > 0)
                     nit->node->getParent(0)->removeChild(nit->node);
@@ -1016,9 +1016,9 @@ int PointCloudPlugin::unloadPTS(const char *filename, const char *)
 //remove currently loaded data and free up any memory that has been allocated
 void PointCloudPlugin::clearData()
 {
-    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
-        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             if (nit->node->getNumParents() > 0)
                 nit->node->getParent(0)->removeChild(nit->node);
@@ -1079,10 +1079,10 @@ void PointCloudPlugin::preFrame()
     // level of detail
     float levelOfDetail = 0.4;
 
-    for (std::vector<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         //TODO calc distance correctly
-        for (std::vector<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             osg::Matrix tr;
             tr.makeIdentity();

@@ -8,7 +8,7 @@
 #ifndef _POINTS_H_
 #define _POINTS_H_
 
-class fileInfo;
+class FileInfo;
 
 struct Point
 {
@@ -40,7 +40,7 @@ struct PointSet
 
 struct pointSelection
 {
-    const fileInfo *file;
+    const FileInfo *file;
     int pointSetIndex;
     int pointIndex;
     osg::MatrixTransform *transformationMatrix;

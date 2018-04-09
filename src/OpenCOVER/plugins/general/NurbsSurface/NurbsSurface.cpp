@@ -73,7 +73,7 @@
 #include <string>
 
 #include "../PointCloud/Points.h"
-#include "../PointCloud/fileInfo.h"
+#include "../PointCloud/FileInfo.h"
 
 #include <boost/algorithm/string.hpp>
 #include "sisl.h"
