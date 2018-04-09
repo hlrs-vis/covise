@@ -22,6 +22,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <net/covise_connect.h>
 
 #include <TrafficSimulation/VehicleManager.h>
 #include <TrafficSimulation/VehicleFactory.h>
@@ -63,6 +64,10 @@ public:
 	// return if rendering is required
 	bool update();
 
+	void handleMessage(const char *buf);
+
+	bool readTCPData(void * buf, unsigned int numBytes);
+
 	void addSource(Source *s) { sources.push_back(s); };
 
 	ScenarioManager *scenarioManager;
@@ -86,6 +91,11 @@ private:
 	PedestrianManager *pedestrianManager;
     VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
+
+
+	covise::ServerConnection *serverConn;
+	covise::SimpleServerConnection *toClientConn;
+	int port;
 
 
 	bool tessellateRoads;

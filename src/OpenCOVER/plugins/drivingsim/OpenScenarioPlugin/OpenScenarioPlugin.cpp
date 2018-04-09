@@ -20,6 +20,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 \****************************************************************************/
 
 #include <OpenVRUI/osg/mathUtils.h>
+#include <config/CoviseConfig.h>
+#include <net/covise_connect.h>
+#include <net/covise_socket.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/RenderObject.h>
@@ -84,6 +87,39 @@ OpenScenarioPlugin::OpenScenarioPlugin()
     // set our own object factory so that our own classes are created and not the bas osc* classes
     OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
     osdb->setFullReadCatalogs(true);
+
+	port = covise::coCoviseConfig::getInt("port", "COVER.Plugin.OpenScenario.Server", 1021);
+	toClientConn = NULL;
+	serverConn = NULL;
+	if (coVRMSController::instance()->isMaster())
+	{
+		serverConn = new covise::ServerConnection(port, 1234, 0);
+		if (!serverConn->getSocket())
+		{
+			cout << "tried to open server Port " << port << endl;
+			cout << "Creation of server failed!" << endl;
+			cout << "Port-Binding failed! Port already bound?" << endl;
+			delete serverConn;
+			serverConn = NULL;
+		}
+
+		struct linger linger;
+		linger.l_onoff = 0;
+		linger.l_linger = 0;
+		if (serverConn)
+		{
+			setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+			cout << "Set server to listen mode..." << endl;
+			serverConn->listen();
+			if (!serverConn->is_connected()) // could not open server port
+			{
+				fprintf(stderr, "Could not open server port %d\n", port);
+				delete serverConn;
+				serverConn = NULL;
+			}
+		}
+	}
     //todo coTrafficSimulation::useInstance();
     fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
@@ -101,8 +137,84 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 
 bool OpenScenarioPlugin::update()
 {
+	if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
+	{
+		toClientConn = serverConn->spawnSimpleConnection();
+		if(toClientConn)
+		{
+			if (toClientConn->is_connected())
+			{
+
+			}
+			else
+			{
+				delete toClientConn;
+				toClientConn = NULL;
+			}
+		}
+	}
+
+	int size = 0;
+	if (coVRMSController::instance()->isMaster())
+	{
+		while (toClientConn && toClientConn->check_for_input())
+		{
+			readTCPData(&size, sizeof(int));
+			if (size>0)
+			{
+				char *buf = new char[size];
+				readTCPData(buf, size);
+				coVRMSController::instance()->sendSlaves(&size, sizeof(size));
+				coVRMSController::instance()->sendSlaves(buf,size);
+				handleMessage(buf);
+				delete[] buf;
+			}
+			size = 0;
+		}
+		coVRMSController::instance()->sendSlaves(&size, sizeof(size));
+	}
+	else
+	{
+		do {
+			coVRMSController::instance()->readMaster(&size, sizeof(size));
+			if (size > 0)
+			{
+				char *buf = new char[size];
+				coVRMSController::instance()->readMaster(&buf, size);
+				handleMessage(buf);
+				delete[] buf;
+			}
+		} while (size > 0);
+	}
     return true;
 }
+
+void
+OpenScenarioPlugin::handleMessage(const char *buf)
+{
+	
+}
+
+bool
+OpenScenarioPlugin::readTCPData(void *buf, unsigned int numBytes)
+{
+	unsigned int stillToRead = numBytes;
+	unsigned int alreadyRead = 0;
+	int readBytes = 0;
+	while (alreadyRead < numBytes)
+	{
+		readBytes = toClientConn->getSocket()->Read(((unsigned char *)buf) + alreadyRead, stillToRead);
+		if (readBytes < 0)
+		{
+			std::cerr << "Error error while reading data from socket in OpenScenarioPlugin::readTCPData" << std::endl;
+			return false;
+		}
+		alreadyRead += readBytes;
+		stillToRead = numBytes - alreadyRead;
+	}
+	return true;
+}
+
 void OpenScenarioPlugin::preFrame()
 {
     scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
