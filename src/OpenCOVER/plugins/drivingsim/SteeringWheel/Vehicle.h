@@ -19,23 +19,6 @@
 #include <commctrl.h>
 #include <basetsd.h>
 #include <dinput.h>
-#define SAFE_DELETE(p)  \
-    {                   \
-        if (p)          \
-        {               \
-            delete (p); \
-            (p) = NULL; \
-        }               \
-    }
-#define SAFE_RELEASE(p)     \
-    {                       \
-        if (p)              \
-        {                   \
-            (p)->Release(); \
-            (p) = NULL;     \
-        }                   \
-    }
-#else
 #endif
 
 #include <math.h>

@@ -8,6 +8,7 @@
 #ifndef __FourWheelDynamicsRealtime_h
 #define __FourWheelDynamicsRealtime_h
 
+#include <cover/coTabletUI.h>
 #include <VehicleUtil/gealg/CarDynamics.h>
 //#include "../../../VehicleUtil/gealg/CarDynamicsPA2004.h"
 
@@ -24,7 +25,6 @@
 #endif
 
 
-#include <cover/coVRTui.h>
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
