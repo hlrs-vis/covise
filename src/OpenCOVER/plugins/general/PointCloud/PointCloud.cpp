@@ -901,7 +901,6 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     {
                         for (int k=1; k<pointSet[i].size; k++)
                         {
-
                             if(pointSet[i].points[k].x<pointSet[i].xmin)
                                 pointSet[i].xmin= pointSet[i].points[k].x;
                             else if (pointSet[i].points[k].x>pointSet[i].xmax)
@@ -935,10 +934,43 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     fi.nodes.push_back(ni);
                 }
             }
-            files.push_back(fi);
-            cerr << "closing the file" << endl;
-            file.close();
-            s_pointCloudInteractor->updatePoints(&files);
+
+            bool readScannerPositions= true;
+            if (readScannerPositions)
+            {
+                //read Scanner positions
+                uint32_t version;
+                file.read((char *)&version,sizeof(uint32_t));
+                cerr << "Version " << (version) << endl;
+                uint32_t numPositions;
+                file.read((char *)&numPositions, sizeof(uint32_t));
+                for (int i=0; i!=numPositions; i++)
+                {
+                    ScannerPosition pos;
+                    file.read((char *)&pos.ID, sizeof(uint32_t));
+                    file.read((char *)&pos.point._v, sizeof(float) * 3);
+                    positions.push_back(pos);
+                    cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
+                }
+
+                uint32_t size;
+                file.read((char *)&size, sizeof(uint32_t));
+                cerr << "Total num of sets with scanner position is " << (size) << endl;
+                for (uint32_t i = 0; i < size; i++)
+                {
+                    unsigned int psize;
+                    file.read((char *)&psize, sizeof(psize));
+                    printf("Size of set %d is %d\n", i, psize);
+                    // read position ID data
+                    size_t numP = psize;
+                    pointSet[i].IDs = new uint32_t[psize];
+                    file.read((char *)(pointSet[i].IDs), (sizeof(uint32_t) * psize));
+                }
+                files.push_back(fi);
+                cerr << "closing the file" << endl;
+                file.close();
+                s_pointCloudInteractor->updatePoints(&files);
+            }
             return;
         }
         cout << "Error opening file" << endl;

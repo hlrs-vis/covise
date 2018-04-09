@@ -54,8 +54,8 @@ struct Point
 struct ScannerPosition
 {
     uint32_t ID;
-    std::vector<Point>::const_iterator begin;
-    std::vector<Point>::const_iterator end;
+    int begin;
+    int end;//std::vector<Point>::const_iterator end;
     osg::Vec3 point;
 };
 
@@ -600,6 +600,7 @@ void WriteData(char *filename, std::vector<Point> &vec, std::vector<ScannerPosit
         if (readScannerPosition)
         {
             file.write((char *)&(fileVersion), sizeof(uint32_t));
+            cerr << "Version " << (fileVersion) << endl;
             uint32_t numPositions= scanPositions.size();
             file.write((char *)&(numPositions), sizeof(uint32_t));
             for (std::vector<ScannerPosition>::const_iterator posIter = scanPositions.begin(); posIter!=scanPositions.end(); posIter++)
@@ -607,13 +608,15 @@ void WriteData(char *filename, std::vector<Point> &vec, std::vector<ScannerPosit
                 file.write((char *)&(posIter->ID), sizeof(uint32_t));
                 file.write((char *)&(posIter->point._v), sizeof(float) * 3);
             }
-
-            for (std::vector<Point>::const_iterator iter = vec.begin(); iter!= vec.end(); iter++)
+            file.write((char *)&(number_of_sets), sizeof(int));
+            file.write((char *)&(numPoints), sizeof(uint32_t));
+            //for (std::vector<Point>::const_iterator iter = vec.begin(); iter!= vec.end(); iter++)
+            for (int j=0; j<vec.size(); j++)
             {
                 uint32_t scanID = 0;
                 for (std::vector<ScannerPosition>::const_iterator posIter = scanPositions.begin(); posIter!=scanPositions.end(); posIter++)
                 {
-                    if (iter >=posIter->begin && iter < posIter->end)
+                    if (j >=posIter->begin && j < posIter->end)
                         scanID=posIter->ID;
                 }
                 file.write((char *)&scanID, sizeof(uint32_t));
@@ -672,9 +675,9 @@ int main(int argc, char **argv)
 				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
 				{
                     ScannerPosition pos;
-                    pos.begin = vec.end();
+                    pos.begin = vec.size();
                     ReadPTX(argv[i], vec, pos.point);
-                    pos.end = vec.end();
+                    pos.end = vec.size();
                     pos.ID = nread;
                     scanPositions.push_back(pos);
 				}

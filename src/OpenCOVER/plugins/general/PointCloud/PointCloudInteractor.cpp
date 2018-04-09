@@ -168,6 +168,7 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
     Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
+    //fprintf(stderr,"Selected point has ID %d", selectedPoint.file->pointSet[selectedPoint.pointSetIndex].IDs[selectedPoint.pointIndex]);
     osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
     sphereTransformationMatrix->makeTranslate(newSelectedPoint);
 

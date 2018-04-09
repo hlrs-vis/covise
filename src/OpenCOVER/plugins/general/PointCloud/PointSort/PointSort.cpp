@@ -35,6 +35,8 @@ namespace alg = std;
 
 using namespace std;
 bool intensityOnly;
+bool readScannerPositions = false;
+uint32_t fileVersion=1;
 
 float min_x, min_y, min_z;
 float max_x, max_y, max_z;
@@ -64,7 +66,7 @@ struct ScannerPosition
 
 bool sortfunction(Point i, Point j) { return (i.l < j.l); };
 
-void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
+void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::vector<ScannerPosition> &posVec)
 {
 
 	cout << "Input Data: " << filename << endl;
@@ -311,6 +313,7 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 		int count = 0;
 		if (file.is_open())
 		{
+            size_t vecBegin = vec.size();
 			uint32_t size;
 			file.read((char *)&size, sizeof(uint32_t));
 			cerr << "Total num of sets is " << (size) << endl;
@@ -357,13 +360,44 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 				delete[] coord;
 				delete[] icolor;
 			}
-            uint32_t version;
-            file.read((char *)(version),sizeof(uint32_t));
-            uint32_t numPositions;
-            file.read((char *)(numPositions), sizeof(uint32_t));
-            for (int i=0; i!=numPositions; i++)
+            if (readScannerPositions)
             {
+                //read Scanner positions
+                uint32_t version;
+                file.read((char *)&version,sizeof(uint32_t));
+                cerr << "Version " << (version) << endl;
+                uint32_t numPositions;
+                file.read((char *)&numPositions, sizeof(uint32_t));
+                for (int i=0; i!=numPositions; i++)
+                {
+                    ScannerPosition pos;
+                    file.read((char *)&pos.ID, sizeof(uint32_t));
+                    file.read((char *)&pos.point._v, sizeof(float) * 3);
+                    posVec.push_back(pos);
+                    cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
+                }
 
+                //uint32_t size;
+                file.read((char *)&size, sizeof(uint32_t));
+                cerr << "Total num of sets with scanner position is " << (size) << endl;
+                for (uint32_t i = 0; i < size; i++)
+                {
+                    unsigned int psize;
+                    file.read((char *)&psize, sizeof(psize));
+                    printf("Size of set %d is %d\n", i, psize);
+                    // read position ID data
+                    size_t numP = psize;
+
+                    uint32_t *IDs = new uint32_t[numP];
+
+                    file.read((char *)(IDs), (sizeof(uint32_t) * psize));
+
+                    for (size_t j = 0; j < psize; j++)
+                    {
+                        vec.at(j+vecBegin).ID = IDs[j];
+                    }
+                    delete[] IDs;
+                }
             }
             file.close();
 		}
@@ -454,7 +488,7 @@ void LabelData(int grid, std::vector<Point> &vec, std::map<int, int> &lookUp)
     alg::sort(vec.begin(), vec.end(), sortfunction);
 }
 
-void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp, int maxPointsPerCube)
+void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &lookUp, int maxPointsPerCube, std::vector<ScannerPosition> scanPositions)
 {
     cout << "Output Data: " << filename << endl;
 
@@ -510,6 +544,58 @@ void WriteData(char *filename, std::vector<Point> &vec, std::map<int, int> &look
                 index = index + numPoints;
             }
         }
+        if (readScannerPositions)
+        {
+            //  Do the same thing for scanner positions
+            file.write((char *)&(fileVersion), sizeof(uint32_t));
+            uint32_t numPositions= scanPositions.size();
+            file.write((char *)&(numPositions), sizeof(uint32_t));
+            for (std::vector<ScannerPosition>::const_iterator posIter = scanPositions.begin(); posIter!=scanPositions.end(); posIter++)
+            {
+                file.write((char *)&(posIter->ID), sizeof(uint32_t));
+                file.write((char *)&(posIter->point._v), sizeof(float) * 3);
+            }
+
+            index = 0;
+
+            // write the number of sets
+            file.write((char *)&(number_of_sets), sizeof(int));
+
+            for (int i = 0; i < number_of_sets; i++)
+            {
+                // get first in set to find set number
+                Point first = vec.at(index);
+
+                std::map<int, int>::iterator it;
+                it = lookUp.find(first.l);
+                if (it != lookUp.end())
+                {
+                    int numPoints = (*it).second;
+                    //printf("Number of points in set is %d\n", numPoints);
+
+                    // restrict number of points written
+                    if (maxPointsPerCube != -1 && maxPointsPerCube < numPoints)
+                    {
+                        numPointsToWrite = maxPointsPerCube;
+                    }
+                    else
+                    {
+                        numPointsToWrite = numPoints;
+                    }
+
+                    // write size
+                    file.write((char *)&(numPointsToWrite), sizeof(int));
+
+                    // write position ID
+                    for (int j = index; j < numPointsToWrite + index; j++)
+                    {
+                        file.write((char *)&(vec.at(j).ID), sizeof(uint32_t));
+                    }
+                    // increment offset
+                    index = index + numPoints;
+                }
+            }
+        }
     }
     file.close();
 
@@ -525,6 +611,7 @@ int main(int argc, char **argv)
     formatTypes format = FORMAT_IRGB;
     std::vector<Point> vec;
     std::map<int, int> lookUp;
+    std::vector<ScannerPosition> positions;
 
     min_x = min_y = min_z = FLT_MAX;
     max_x = max_y = max_z = FLT_MIN;
@@ -579,12 +666,17 @@ int main(int argc, char **argv)
                         maxPointsPerCube = 100000000;
                     }
                 }
+                if(argv[i][1] == 's')
+                {
+                    readScannerPositions=true;
+                }
+
             }
             else
             {
                 ++nread;
                 printf("Reading %s\n", argv[i]);
-                ReadData(argv[i], vec, format);
+                ReadData(argv[i], vec, format, positions);
 
 				printf("min %f %f %f\n", min_x, min_y, min_z);
 				printf("max %f %f %f\n", max_x, max_y, max_z);
@@ -595,7 +687,7 @@ int main(int argc, char **argv)
             printf("Sorting data\n");
             LabelData(divisionSize, vec, lookUp);
             printf("Persisting data\n");
-            WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube);
+            WriteData(argv[argc - 1], vec, lookUp, maxPointsPerCube, positions);
         }
         else
         {

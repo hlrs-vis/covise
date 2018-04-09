@@ -35,6 +35,7 @@ struct PointSet
     float zmax;
     Point *points;
     Color *colors;
+    uint32_t *IDs;
 };
 
 struct pointSelection
@@ -43,6 +44,12 @@ struct pointSelection
     int pointSetIndex;
     int pointIndex;
     osg::MatrixTransform *transformationMatrix;
+};
+
+struct ScannerPosition
+{
+    uint32_t ID;
+    osg::Vec3 point;
 };
 
 #endif

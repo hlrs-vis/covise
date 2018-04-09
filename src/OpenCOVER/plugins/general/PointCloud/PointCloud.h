@@ -80,6 +80,7 @@ private:
     float pointSizeValue;
     bool adaptLOD;
     static PointCloudInteractor *s_pointCloudInteractor;
+    std::vector<ScannerPosition> positions;
 
 protected:
     osg::MatrixTransform *planetTrans;
