@@ -866,7 +866,7 @@ void coCullVisitor::apply(Billboard &node)
 
         if( drawable->getCullCallback() )
         {
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 0)
             osg::DrawableCullCallback* dcb = drawable->getCullCallback()->asDrawableCullCallback();
 #else
             osg::Drawable::CullCallback* dcb = dynamic_cast<osg::Drawable::CullCallback *>(drawable->getCullCallback());
