@@ -12,8 +12,8 @@
 #include <osg/MatrixTransform>
 #include <osgUtil/IntersectVisitor>
 
-#include "Vehicle.h"
 #include "SteeringWheel.h"
+#include "Vehicle.h"
 //#include "ITM.h"
 //#include "FKFSDynamics.h"
 //#include "EinspurDynamik.h"

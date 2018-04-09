@@ -48,6 +48,7 @@ struct pointSelection
 
 struct ScannerPosition
 {
+    int type = 0; // 0: original imported, 1: moved, 2: copy
     uint32_t ID;
     osg::Vec3 point;
 };

@@ -266,6 +266,9 @@ void NurbsSurface::computeSurface(double* points)
         // add the points geomtry to the geode.
         cover->getObjectsRoot()->addChild(geode.get());
 
+        // send back surface to PointCloudPlugin for intersection testing and pointcloud manipulation
+
+
         freeSurf(result_surf);
     }
 }
@@ -308,12 +311,6 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
                 fprintf(stderr, "Points received %i\n", receivedPoints.size());
                 updateSurface();
     }
-    /*{
-        osg::Vec3 *selectedPoint = (osg::Vec3 *)buf;
-        receivedPoints.push_back(*selectedPoint);
-        fprintf(stderr, "Point received %i %f %f %f\n", receivedPoints.size(), selectedPoint->x(), selectedPoint->y(), selectedPoint->z());
-        updateSurface();
-    }*/
 }
 
 void NurbsSurface::updateSurface()
@@ -784,6 +781,12 @@ void NurbsSurface::resize()
         sphereMatrix.setTrans(translation);
         (*iter)->setMatrix(sphereMatrix);
     }
+}
+
+void NurbsSurface::updateMessage()
+{
+    //send message to PointCloudPlugin
+    //cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(points), &points);
 }
 
 
