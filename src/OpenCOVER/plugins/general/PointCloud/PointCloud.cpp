@@ -988,7 +988,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     file.read((char *)&pos.ID, sizeof(uint32_t));
                     file.read((char *)&pos.point._v, sizeof(float) * 3);
                     positions.push_back(pos);
-                    cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
+                    //cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
                 }
 
                 uint32_t size;
