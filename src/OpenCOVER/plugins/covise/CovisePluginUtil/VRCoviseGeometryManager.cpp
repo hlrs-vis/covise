@@ -2373,8 +2373,11 @@ static const char *shaderVertSource = {
     "    gl_FrontColor = color;\n"
     " }\n"
 };
-
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 7, 0)
+class ShaderCallback : public osg::UniformCallback
+#else
 class ShaderCallback : public osg::Uniform::Callback
+#endif
 {
     virtual void operator()(osg::Uniform *LightNumUniform, osg::NodeVisitor *)
     {

@@ -141,10 +141,12 @@ void parseChoice(xercesc::DOMElement *elem);
 
 void parseElement(xercesc::DOMElement *elem, int choice)
 {
-	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	char *ch;
+	xercesc::DOMAttr *attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("name")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		elementName = xercesc::XMLString::transcode(attribute->getValue());
+		elementName = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 
 		currentMember = new oscMember(elementName);
 		if (currentClass)
@@ -155,10 +157,10 @@ void parseElement(xercesc::DOMElement *elem, int choice)
 		std::cerr << "element without name attribute" << std::endl;
 	}
 
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("type"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("type")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		std::string tn = xercesc::XMLString::transcode(attribute->getValue());
+		std::string tn = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		if (tn == "xsd:string")
 		{
 			currentMember->type = makeTypeName(std::string("StringElement"));
@@ -168,16 +170,16 @@ void parseElement(xercesc::DOMElement *elem, int choice)
 			currentMember->type = makeTypeName(tn);
 		}
 	}
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("maxOccurs"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("maxOccurs")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
 		currentMember->array = true;
 	}
 	std::string minOccurs;
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("minOccurs"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("minOccurs")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		minOccurs = xercesc::XMLString::transcode(attribute->getValue());
+		minOccurs = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		if (minOccurs == "0")
 		{
 			currentMember->optional = true;
@@ -197,10 +199,12 @@ void parseChoice(xercesc::DOMElement *elem, int choice)
 
 void parseAttribute(xercesc::DOMElement *elem, int choice)
 {
-	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
+	XMLCh *t1 = NULL;
+	char *ch;
+	xercesc::DOMAttr *attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("name")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		elementName = xercesc::XMLString::transcode(attribute->getValue());
+		elementName = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 
 		currentMember = new oscMember(elementName);
 
@@ -212,32 +216,32 @@ void parseAttribute(xercesc::DOMElement *elem, int choice)
 		std::cerr << "element without name attribute" << std::endl;
 	}
 
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("type"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("type")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		std::string tn = xercesc::XMLString::transcode(attribute->getValue());
+		std::string tn = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		currentMember->type = makeTypeName(tn);
 	}
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("maxOccurs"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("maxOccurs")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
 		currentMember->array = true;
 	}
 	std::string minOccurs;
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("minOccurs"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("minOccurs")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		minOccurs = xercesc::XMLString::transcode(attribute->getValue());
+		minOccurs = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		if (minOccurs == "0")
 		{
 			currentMember->optional = true;
 		}
 	}
 	std::string use;
-	attribute = elem->getAttributeNode(xercesc::XMLString::transcode("use"));
+	attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("use")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		use = xercesc::XMLString::transcode(attribute->getValue());
+		use = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		if (use == "optional")
 		{
 			currentMember->optional = true;
@@ -254,11 +258,13 @@ void parseAttribute(xercesc::DOMElement *elem, int choice)
 }
 void parseComplexType(xercesc::DOMElement *elem, int choice)
 {
+	XMLCh *t1 = NULL;
+	char *ch;
 	std::string name;
-	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
+	xercesc::DOMAttr *attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("name")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		name = xercesc::XMLString::transcode(attribute->getValue());
+		name = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 	}
 	else
 	{
@@ -274,11 +280,13 @@ void parseComplexType(xercesc::DOMElement *elem, int choice)
 
 void parseSimpleType(xercesc::DOMElement *elem, int choice)
 {
+	XMLCh *t1 = NULL;
+	char *ch;
 	std::string name;
-	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("name"));
+	xercesc::DOMAttr *attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("name")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		name = xercesc::XMLString::transcode(attribute->getValue());
+		name = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 	}
 	else
 	{
@@ -289,11 +297,13 @@ void parseSimpleType(xercesc::DOMElement *elem, int choice)
 }
 void parseEnum(xercesc::DOMElement *elem)
 {
+	XMLCh *t1 = NULL;
+	char *ch;
 	std::string value;
-	xercesc::DOMAttr *attribute = elem->getAttributeNode(xercesc::XMLString::transcode("value"));
+	xercesc::DOMAttr *attribute = elem->getAttributeNode(t1 = xercesc::XMLString::transcode("value")); xercesc::XMLString::release(&t1);
 	if (attribute)
 	{
-		value = xercesc::XMLString::transcode(attribute->getValue());
+		value = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 		std::string tn = OpenScenario::nameMapping::instance()->getEnumName(value);
 /*		for (std::list<epair>::iterator it = enumRename.begin(); it != enumRename.end(); it++)
 		{
@@ -313,7 +323,8 @@ void parseGeneric(xercesc::DOMElement *elem, int choice)
 {
 
 	std::string name;
-	name = xercesc::XMLString::transcode(elem->getNodeName());
+	char *ch;
+	name = ch = xercesc::XMLString::transcode(elem->getNodeName()); xercesc::XMLString::release(&ch);
 	xercesc::DOMNodeList *elementList = elem->getChildNodes();
 	std::string myParentName = parentName;
 
@@ -324,7 +335,7 @@ void parseGeneric(xercesc::DOMElement *elem, int choice)
 		if (element)
 		{
 			std::string name;
-			name = xercesc::XMLString::transcode(element->getNodeName());
+			name = ch = xercesc::XMLString::transcode(element->getNodeName()); xercesc::XMLString::release(&ch);
 
 			parentName = myParentName;
 
@@ -371,7 +382,8 @@ void parseSchema(xercesc::DOMElement *elem)
 {
 
 	std::string name;
-	name = xercesc::XMLString::transcode(elem->getNodeName());
+	char *ch;
+	name = ch = xercesc::XMLString::transcode(elem->getNodeName()); xercesc::XMLString::release(&ch);
 	std::cerr << "" << name;
 
 
@@ -380,6 +392,7 @@ void parseSchema(xercesc::DOMElement *elem)
 
 int main(int argc, char **argv)
 {
+	char *ch;
 	enumRename.push_back(std::pair<std::string, std::string>("greater-than", "greater_than"));
 	enumRename.push_back(std::pair<std::string, std::string>("equal-to", "equal_to"));
 	enumRename.push_back(std::pair<std::string, std::string>("less-than", "less_than"));
@@ -451,7 +464,7 @@ int main(int argc, char **argv)
 			{
 
 				std::string name;
-				name = xercesc::XMLString::transcode(element->getNodeName());
+				name = ch = xercesc::XMLString::transcode(element->getNodeName()); xercesc::XMLString::release(&ch);
 				if (name == "xsd:schema")
 				{
 					parseSchema(element);

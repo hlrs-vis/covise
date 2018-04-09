@@ -1839,8 +1839,7 @@ VrmlNodePorscheVFP::readTCPData(void *buf, unsigned int numBytes)
     int readBytes = 0;
     while (alreadyRead < numBytes)
     {
-        readBytes = clientConn_->getSocket()->Read(((unsigned char *)buf) + readBytes, stillToRead);
-        //		readBytes = clientConn_->receive(((unsigned char *)buf) + readBytes, stillToRead);
+        readBytes = clientConn_->getSocket()->Read(((unsigned char *)buf) + alreadyRead, stillToRead);
         if (readBytes < 0)
         {
             std::cout << "Error 1003031335: KMS: error reading data from socket" << std::endl;

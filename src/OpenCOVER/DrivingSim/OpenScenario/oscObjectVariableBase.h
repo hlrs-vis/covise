@@ -103,7 +103,8 @@ public:
     {
         if(valueT != NULL)
         {
-            xercesc::DOMElement *memberElement = document->createElement(xercesc::XMLString::transcode(TBase::name.c_str()));
+			XMLCh *t1=NULL;
+            xercesc::DOMElement *memberElement = document->createElement(t1 = xercesc::XMLString::transcode(TBase::name.c_str())); xercesc::XMLString::release(&t1);
             currentElement->appendChild(memberElement);
             valueT->writeToDOM(memberElement,document,writeInclude);
             return true;

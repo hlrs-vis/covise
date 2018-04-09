@@ -173,8 +173,15 @@ BoundingBox PointCloudGeometry::computeBound() const
 // need to recode in a better way to automatically adjust primitives based on depth  //TODO
 void PointCloudGeometry::changeLod(float sampleNum)
 {
-    if (sampleNum < 0 && sampleNum > 1.0)
+    if (sampleNum < 0)
+        sampleNum = 0.;
+    if (sampleNum > 1.)
+        sampleNum = 1.;
+
+    if (subsample == sampleNum)
         return;
+
+    subsample = sampleNum;
 
     if (getNumPrimitiveSets() == 0)
     {
@@ -187,6 +194,11 @@ void PointCloudGeometry::changeLod(float sampleNum)
         arr->setCount(pointSet->size * sampleNum);
     }
 
-    pointstate->setSize(PointCloudPlugin::plugin->pointSize() / ((sampleNum / 4.0) + (3.0 / 4.0)));
-    subsample = sampleNum;
+    setPointSize(pointSize);
+}
+
+void PointCloudGeometry::setPointSize(float psize)
+{
+    pointSize = psize;
+    pointstate->setSize(pointSize / ((subsample / 4.0) + (3.0 / 4.0)));
 }

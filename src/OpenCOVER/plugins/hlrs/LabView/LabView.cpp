@@ -221,8 +221,8 @@ bool LabViewPlugin::readVal(void *buf, unsigned int numBytes)
     return true;
 }
 
-void
-LabViewPlugin::preFrame()
+bool
+LabViewPlugin::update()
 {
     if (conn)
     {
@@ -376,6 +376,7 @@ LabViewPlugin::preFrame()
             coVRMSController::instance()->readMaster((char *)intValues, numInts * sizeof(int));
         }
     }
+	return true;
 }
 
 COVERPLUGIN(LabViewPlugin)

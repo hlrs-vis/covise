@@ -55,6 +55,7 @@ public:
         return "PointModeGeometry";
     }
     void changeLod(float sampleNum); // adjust point density
+    void setPointSize(float pointSize); // adjust point size
 
 protected:
     PointCloudGeometry(); // hide default constructor
@@ -72,7 +73,8 @@ protected:
 
 private:
     PointSet *pointSet;
-    float subsample;
+    float subsample = 1.;
+    float pointSize = 1.;
     float maxPointSize;
     osg::Point *pointstate;
     osg::StateSet *stateset;

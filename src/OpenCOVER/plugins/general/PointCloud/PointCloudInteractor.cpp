@@ -103,7 +103,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 
         double smallestDistance = FLT_MAX;
 
-        for (std::vector<fileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
+        for (std::vector<FileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
             if (fit->pointSet)
             {
@@ -168,6 +168,7 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
     Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
                                  selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
+    //fprintf(stderr,"Selected point has ID %d", selectedPoint.file->pointSet[selectedPoint.pointSetIndex].IDs[selectedPoint.pointIndex]);
     osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
     sphereTransformationMatrix->makeTranslate(newSelectedPoint);
 
@@ -207,8 +208,9 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
         selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
-        addSelectedPoint(newSelectedPoint);
+        //addSelectedPoint(newSelectedPoint);
         selectedPoints.push_back(selectedPoint);
+        updateMessage(selectedPoints);
     }
     stateSet->setAttribute(selMaterial);
     selectedSphereDrawable->setStateSet(stateSet);
@@ -220,6 +222,12 @@ PointCloudInteractor::addSelectedPoint(Vec3 selectedPoint)
 {
 //send message to NurbsSurfacePlugin
 cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(selectedPoint), &selectedPoint);
+}
+
+void PointCloudInteractor::updateMessage(vector<pointSelection> points)
+{
+    //send message to NurbsSurfacePlugin
+    cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(points), &points);
 }
 
 double

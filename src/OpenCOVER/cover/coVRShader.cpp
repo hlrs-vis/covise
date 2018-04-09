@@ -480,22 +480,27 @@ void coVRShader::loadMaterial()
     {
         rootElement = xmlDoc->getDocumentElement();
     }
+	XMLCh *t1 = NULL;
 
     if (rootElement)
     {
-        const char *transp = xercesc::XMLString::transcode(rootElement->getAttribute(xercesc::XMLString::transcode("transparent")));
+        char *transp = xercesc::XMLString::transcode(rootElement->getAttribute(t1 = xercesc::XMLString::transcode("transparent")));
         if (transp && strcasecmp(transp, "true") == 0)
         {
             transparent = true;
         }
+		xercesc::XMLString::release(&transp);
+		xercesc::XMLString::release(&t1);
 
-        const char *op = xercesc::XMLString::transcode(rootElement->getAttribute(xercesc::XMLString::transcode("opaque")));
+        char *op = xercesc::XMLString::transcode(rootElement->getAttribute(t1 = xercesc::XMLString::transcode("opaque")));
         if (op && strcasecmp(op, "true") == 0)
         {
             opaque = true;
         }
+		xercesc::XMLString::release(&op);
+		xercesc::XMLString::release(&t1);
 
-        const char *cullString = xercesc::XMLString::transcode(rootElement->getAttribute(xercesc::XMLString::transcode("cullFace")));
+        char *cullString = xercesc::XMLString::transcode(rootElement->getAttribute(t1 = xercesc::XMLString::transcode("cullFace")));
         if (cullString)
         {
             if (strcasecmp(cullString, "true") == 0)
@@ -519,35 +524,42 @@ void coVRShader::loadMaterial()
                 cullFace = 0;
             }
         }
+		xercesc::XMLString::release(&cullString);
+		xercesc::XMLString::release(&t1);
+
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
         for (size_t i = 0; i < nodeList->getLength(); ++i)
         {
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
             if (!node)
                 continue;
-            const char *tagName = xercesc::XMLString::transcode(node->getTagName());
+            char *tagName = xercesc::XMLString::transcode(node->getTagName());
             if (tagName)
             {
                 if (strcmp(tagName, "attribute") == 0)
                 {
-                    const char *type = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("type")));
-                    const char *value = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("value")));
-                    const char *attributeName = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("name")));
+                    char *type = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("type"))); xercesc::XMLString::release(&t1);
+                    char *value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t1);
+                    char *attributeName = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t1);
                     if (type != NULL && value != NULL && attributeName != NULL)
                         attributes.push_back(new coVRAttribute(attributeName, type, value));
+
+					xercesc::XMLString::release(&type);
+					xercesc::XMLString::release(&value);
+					xercesc::XMLString::release(&attributeName);
                 }
                 else if (strcmp(tagName, "uniform") == 0)
                 {
-                    const char *type = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("type")));
-                    const char *value = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("value")));
-                    const char *uniformName = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("name")));
-                    const char *minValue = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("min")));
-                    const char *maxValue = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("max")));
-                    const char *textureName = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("texture")));
-                    const char *texture1Name = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("texture1")));
-                    const char *overwrite = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("overwrite")));
-                    const char *unique = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("unique")));
-                    const char *wm = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("wrapMode")));
+                    char *type = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("type"))); xercesc::XMLString::release(&t1);
+                    char *value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t1);
+                    char *uniformName = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t1);
+                    char *minValue = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("min"))); xercesc::XMLString::release(&t1);
+                    char *maxValue = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("max"))); xercesc::XMLString::release(&t1);
+                    char *textureName = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("texture"))); xercesc::XMLString::release(&t1);
+                    char *texture1Name = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("texture1"))); xercesc::XMLString::release(&t1);
+                    char *overwrite = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("overwrite"))); xercesc::XMLString::release(&t1);
+                    char *unique = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("unique"))); xercesc::XMLString::release(&t1);
+                    char *wm = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("wrapMode"))); xercesc::XMLString::release(&t1);
                     if (type != NULL && value != NULL && uniformName != NULL)
                     {
                         coVRUniform *u = new coVRUniform(this, uniformName, type, value);
@@ -572,16 +584,28 @@ void coVRShader::loadMaterial()
                             {
                                 char attrName[100];
                                 sprintf(attrName, "texture%d", i + 1);
-                                const char *textureName = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode(attrName)));
+                                char *textureName = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode(attrName))); xercesc::XMLString::release(&t1);
                                 u->setTexture(textureName, i);
+								xercesc::XMLString::release(&textureName);
                             }
                         }
                     }
+
+					xercesc::XMLString::release(&type);
+					xercesc::XMLString::release(&value);
+					xercesc::XMLString::release(&uniformName);
+					xercesc::XMLString::release(&minValue);
+					xercesc::XMLString::release(&maxValue);
+					xercesc::XMLString::release(&textureName);
+					xercesc::XMLString::release(&texture1Name);
+					xercesc::XMLString::release(&overwrite);
+					xercesc::XMLString::release(&unique);
+					xercesc::XMLString::release(&wm);
                 }
                 else if (strcmp(tagName, "fragmentProgram") == 0)
                 {
                     std::string code = "";
-                    const char *value = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("value")));
+                    char *value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t1);
                     if (value && value[0] != '\0')
                     {
                         std::string filename = findAsset(value);
@@ -593,11 +617,14 @@ void coVRShader::loadMaterial()
                             code = buffer.str();
                         }
                     }
+					xercesc::XMLString::release(&value);
                     if (code == "")
                     {
-                        const char *c = xercesc::XMLString::transcode(node->getTextContent());
+                        char *c = xercesc::XMLString::transcode(node->getTextContent());
                         if (c && c[0] != '\0')
                             code = c;
+
+						xercesc::XMLString::release(&c);
                     }
                     if (code != "")
                     {
@@ -607,14 +634,14 @@ void coVRShader::loadMaterial()
                 }
                 else if (strcmp(tagName, "geometryProgram") == 0)
                 {
-                    const char *numVertices = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("numVertices")));
+                    char *numVertices = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("numVertices"))); xercesc::XMLString::release(&t1);
                     geomParams[0] = atoi(numVertices);
                     //FIXME glGetIntegerv requires a valid OpenGL context, otherwise: crash
                     //if (geomParams[0] != 0) glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT,&geomParams[0]);
                     if (geomParams[0] != 0)
                         geomParams[0] = 1024;
 
-                    const char *inputType = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("inputType")));
+                    char *inputType = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("inputType"))); xercesc::XMLString::release(&t1);
                     if (strcmp(inputType, "POINTS") == 0)
                         geomParams[1] = GL_POINTS;
                     else if (strcmp(inputType, "LINES") == 0)
@@ -626,7 +653,7 @@ void coVRShader::loadMaterial()
                     else
                         geomParams[1] = GL_TRIANGLES;
 
-                    const char *outputType = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("outputType")));
+                    char *outputType = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("outputType"))); xercesc::XMLString::release(&t1);
                     if (strcmp(outputType, "POINTS") == 0)
                         geomParams[2] = GL_POINTS;
                     else if (strcmp(outputType, "LINE_STRIP") == 0)
@@ -634,14 +661,19 @@ void coVRShader::loadMaterial()
                     else
                         geomParams[2] = GL_TRIANGLE_STRIP;
 
-                    const char *code = xercesc::XMLString::transcode(node->getTextContent());
+                    char *code = xercesc::XMLString::transcode(node->getTextContent());
                     if (code && code[0] != '\0')
                         geometryShader = new osg::Shader(osg::Shader::GEOMETRY, code);
+					
+					xercesc::XMLString::release(&numVertices);
+					xercesc::XMLString::release(&inputType);
+					xercesc::XMLString::release(&outputType);
+					xercesc::XMLString::release(&code);
                 }
                 else if (strcmp(tagName, "vertexProgram") == 0)
                 {
                     std::string code = "";
-                    const char *value = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("value")));
+                    char *value = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("value"))); xercesc::XMLString::release(&t1);
                     if (value && value[0] != '\0')
                     {
                         std::string filename = findAsset(value);
@@ -655,29 +687,36 @@ void coVRShader::loadMaterial()
                     }
                     if (code == "")
                     {
-                        const char *c = xercesc::XMLString::transcode(node->getTextContent());
+                        char *c = xercesc::XMLString::transcode(node->getTextContent());
                         if (c && c[0] != '\0')
                             code = c;
+						xercesc::XMLString::release(&c);
                     }
                     if (code != "")
                     {
                         vertexShader = new osg::Shader(osg::Shader::VERTEX, code);
                         vertexShader->setName(name);
                     }
+
+					xercesc::XMLString::release(&value);
                 }
                 else if (strcmp(tagName, "tessControlProgram") == 0)
                 {
-                    const char *code = xercesc::XMLString::transcode(node->getTextContent());
+                    char *code = xercesc::XMLString::transcode(node->getTextContent());
                     if (code && code[0] != '\0')
                         tessControlShader = new osg::Shader(osg::Shader::TESSCONTROL, code);
+					xercesc::XMLString::release(&code);
                 }
                 else if (strcmp(tagName, "tessEvalProgram") == 0)
                 {
-                    const char *code = xercesc::XMLString::transcode(node->getTextContent());
+                    char *code = xercesc::XMLString::transcode(node->getTextContent());
                     if (code && code[0] != '\0')
                         tessEvalShader = new osg::Shader(osg::Shader::TESSEVALUATION, code);
+					xercesc::XMLString::release(&code);
                 }
             }
+
+			xercesc::XMLString::release(&tagName);
         }
     }
 }
@@ -873,7 +912,9 @@ void coVRShader::setData(TokenBuffer &tb)
 void coVRShader::storeMaterial()
 {
     xercesc::DOMImplementation *impl;
-    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+	XMLCh *t1=NULL;
+	XMLCh *t2=NULL;
+    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(t1 = xercesc::XMLString::transcode("Core")); xercesc::XMLString::release(&t1);
 
     std::string ShaderName = name;
 
@@ -898,32 +939,66 @@ void coVRShader::storeMaterial()
         xercesc::XMLString::release(&msg);
         return;
     }
-
     xercesc::DOMElement *rootElement = document->getDocumentElement();
-    if (transparent)
-        rootElement->setAttribute(xercesc::XMLString::transcode("transparent"), xercesc::XMLString::transcode("true"));
+	if (transparent)
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("transparent"), t2 = xercesc::XMLString::transcode("true"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
     if (opaque)
-        rootElement->setAttribute(xercesc::XMLString::transcode("opaque"), xercesc::XMLString::transcode("true"));
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("opaque"), t2 = xercesc::XMLString::transcode("true"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
     if (cullFace == osg::CullFace::BACK)
-        rootElement->setAttribute(xercesc::XMLString::transcode("cullFace"), xercesc::XMLString::transcode("back"));
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("back"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
     if (cullFace == osg::CullFace::FRONT)
-        rootElement->setAttribute(xercesc::XMLString::transcode("cullFace"), xercesc::XMLString::transcode("front"));
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("front"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
     if (cullFace == osg::CullFace::FRONT_AND_BACK)
-        rootElement->setAttribute(xercesc::XMLString::transcode("cullFace"), xercesc::XMLString::transcode("front_and_back"));
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("front_and_back"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
     if (cullFace == 0)
-        rootElement->setAttribute(xercesc::XMLString::transcode("cullFace"), xercesc::XMLString::transcode("off"));
+	{
+		rootElement->setAttribute(t1 = xercesc::XMLString::transcode("cullFace"), t2 = xercesc::XMLString::transcode("off"));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+	}
 
     for (std::list<coVRUniform *>::iterator it = uniforms.begin(); it != uniforms.end(); ++it)
     {
-        xercesc::DOMElement *uniform = document->createElement(xercesc::XMLString::transcode("uniform"));
-        uniform->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode((*it)->getName().c_str()));
-        uniform->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode((*it)->getType().c_str()));
-        uniform->setAttribute(xercesc::XMLString::transcode("value"), xercesc::XMLString::transcode((*it)->getValue().c_str()));
+        xercesc::DOMElement *uniform = document->createElement(t1 = xercesc::XMLString::transcode("uniform"));
+		xercesc::XMLString::release(&t1);
+        uniform->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode((*it)->getName().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+        uniform->setAttribute(t1 = xercesc::XMLString::transcode("type"), t2 = xercesc::XMLString::transcode((*it)->getType().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+        uniform->setAttribute(t1 = xercesc::XMLString::transcode("value"), t2 = xercesc::XMLString::transcode((*it)->getValue().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
         const std::string *fn = (*it)->getCubeMapFiles();
         if (fn[0].empty())
         {
             if (!(*it)->getTextureFileName().empty())
-                uniform->setAttribute(xercesc::XMLString::transcode("texture"), xercesc::XMLString::transcode((*it)->getTextureFileName().c_str()));
+			{
+                uniform->setAttribute(t1 = xercesc::XMLString::transcode("texture"), t2 = xercesc::XMLString::transcode((*it)->getTextureFileName().c_str()));
+				xercesc::XMLString::release(&t1);
+				xercesc::XMLString::release(&t2);
+			}
         }
         else
         {
@@ -931,58 +1006,84 @@ void coVRShader::storeMaterial()
             {
                 char attrName[100];
                 sprintf(attrName, "texture%d", i + 1);
-                uniform->setAttribute(xercesc::XMLString::transcode(attrName), xercesc::XMLString::transcode(fn[i].c_str()));
+                uniform->setAttribute(t1 = xercesc::XMLString::transcode(attrName), t2 = xercesc::XMLString::transcode(fn[i].c_str()));
+				xercesc::XMLString::release(&t1);
+				xercesc::XMLString::release(&t2);
             }
         }
 
         if (!(*it)->getMin().empty())
         {
-            uniform->setAttribute(xercesc::XMLString::transcode("min"), xercesc::XMLString::transcode((*it)->getMin().c_str()));
-            uniform->setAttribute(xercesc::XMLString::transcode("max"), xercesc::XMLString::transcode((*it)->getMax().c_str()));
+            uniform->setAttribute(t1 = xercesc::XMLString::transcode("min"), t2 = xercesc::XMLString::transcode((*it)->getMin().c_str()));
+			xercesc::XMLString::release(&t1);
+			xercesc::XMLString::release(&t2);
+            uniform->setAttribute(t1 = xercesc::XMLString::transcode("max"), t2 = xercesc::XMLString::transcode((*it)->getMax().c_str()));
+			xercesc::XMLString::release(&t1);
+			xercesc::XMLString::release(&t2);
         }
         if ((*it)->isUnique())
         {
-            uniform->setAttribute(xercesc::XMLString::transcode("unique"), xercesc::XMLString::transcode("true"));
+            uniform->setAttribute(t1 = xercesc::XMLString::transcode("unique"), t2 = xercesc::XMLString::transcode("true"));
+			xercesc::XMLString::release(&t1);
+			xercesc::XMLString::release(&t2);
         }
         if ((*it)->doOverwrite())
         {
-            uniform->setAttribute(xercesc::XMLString::transcode("overwrite"), xercesc::XMLString::transcode("true"));
+            uniform->setAttribute(t1 = xercesc::XMLString::transcode("overwrite"), t2 = xercesc::XMLString::transcode("true"));
+			xercesc::XMLString::release(&t1);
+			xercesc::XMLString::release(&t2);
         }
         rootElement->appendChild(uniform);
     }
 
     for (std::list<coVRAttribute *>::iterator it = attributes.begin(); it != attributes.end(); ++it)
     {
-        xercesc::DOMElement *attrib = document->createElement(xercesc::XMLString::transcode("attribute"));
-        attrib->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode((*it)->getName().c_str()));
-        attrib->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode((*it)->getType().c_str()));
-        attrib->setAttribute(xercesc::XMLString::transcode("value"), xercesc::XMLString::transcode((*it)->getValue().c_str()));
+        xercesc::DOMElement *attrib = document->createElement(t1 = xercesc::XMLString::transcode("attribute"));
+		xercesc::XMLString::release(&t1);
+        attrib->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode((*it)->getName().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+        attrib->setAttribute(t1 = xercesc::XMLString::transcode("type"), t2 = xercesc::XMLString::transcode((*it)->getType().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+        attrib->setAttribute(t1 = xercesc::XMLString::transcode("value"), t2 = xercesc::XMLString::transcode((*it)->getValue().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
         rootElement->appendChild(attrib);
     }
     if (vertexShader.get() != NULL)
     {
-        xercesc::DOMElement *vertexProgram = document->createElement(xercesc::XMLString::transcode("vertexProgram"));
-        vertexProgram->setTextContent(xercesc::XMLString::transcode(vertexShader->getShaderSource().c_str()));
+        xercesc::DOMElement *vertexProgram = document->createElement(t1 = xercesc::XMLString::transcode("vertexProgram"));
+        vertexProgram->setTextContent(t2 = xercesc::XMLString::transcode(vertexShader->getShaderSource().c_str()));
         rootElement->appendChild(vertexProgram);
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
     }
     if (tessControlShader.get() != NULL)
     {
-        xercesc::DOMElement *vertexProgram = document->createElement(xercesc::XMLString::transcode("tessControlProgram"));
-        vertexProgram->setTextContent(xercesc::XMLString::transcode(tessControlShader->getShaderSource().c_str()));
+        xercesc::DOMElement *vertexProgram = document->createElement(t1 = xercesc::XMLString::transcode("tessControlProgram"));
+        vertexProgram->setTextContent(t2 = xercesc::XMLString::transcode(tessControlShader->getShaderSource().c_str()));
         rootElement->appendChild(vertexProgram);
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
     }
     if (tessEvalShader.get() != NULL)
     {
-        xercesc::DOMElement *vertexProgram = document->createElement(xercesc::XMLString::transcode("tessEvalProgram"));
-        vertexProgram->setTextContent(xercesc::XMLString::transcode(tessEvalShader->getShaderSource().c_str()));
+        xercesc::DOMElement *vertexProgram = document->createElement(t1 = xercesc::XMLString::transcode("tessEvalProgram"));
+        vertexProgram->setTextContent(t2 = xercesc::XMLString::transcode(tessEvalShader->getShaderSource().c_str()));
         rootElement->appendChild(vertexProgram);
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
     }
     if (geometryShader.get() != NULL)
     {
-        xercesc::DOMElement *geometryProgram = document->createElement(xercesc::XMLString::transcode("geometryProgram"));
+        xercesc::DOMElement *geometryProgram = document->createElement(t1 = xercesc::XMLString::transcode("geometryProgram"));
         char numVertices[100]; // no idea what that ment: GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT
         snprintf(numVertices,100, "%d", geomParams[0]);
-        geometryProgram->setAttribute(xercesc::XMLString::transcode("numVertices"), xercesc::XMLString::transcode(numVertices));
+		xercesc::XMLString::release(&t1);
+        geometryProgram->setAttribute(t1 = xercesc::XMLString::transcode("numVertices"), t2 = xercesc::XMLString::transcode(numVertices));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
         //    GLint geometryProgram->getParamenter(GL_GEOMETRY_INPUT_TYPE_EXT);
 
         std::string inputType;
@@ -1005,7 +1106,9 @@ void coVRShader::storeMaterial()
             break;
         }
 
-        geometryProgram->setAttribute(xercesc::XMLString::transcode("inputType"), xercesc::XMLString::transcode(inputType.c_str()));
+        geometryProgram->setAttribute(t1 = xercesc::XMLString::transcode("inputType"), t2 = xercesc::XMLString::transcode(inputType.c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
 
         std::string outputType;
         switch (geomParams[2])
@@ -1024,14 +1127,19 @@ void coVRShader::storeMaterial()
             break;
         }
 
-        geometryProgram->setAttribute(xercesc::XMLString::transcode("outputType"), xercesc::XMLString::transcode(outputType.c_str()));
-        geometryProgram->setTextContent(xercesc::XMLString::transcode(geometryShader->getShaderSource().c_str()));
+        geometryProgram->setAttribute(t1 = xercesc::XMLString::transcode("outputType"), t2 = xercesc::XMLString::transcode(outputType.c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
+        geometryProgram->setTextContent(t1 = xercesc::XMLString::transcode(geometryShader->getShaderSource().c_str()));
+		xercesc::XMLString::release(&t1);
         rootElement->appendChild(geometryProgram);
     }
     if (fragmentShader.get() != NULL)
     {
-        xercesc::DOMElement *fragmentProgram = document->createElement(xercesc::XMLString::transcode("fragmentProgram"));
-        fragmentProgram->setTextContent(xercesc::XMLString::transcode(fragmentShader->getShaderSource().c_str()));
+        xercesc::DOMElement *fragmentProgram = document->createElement(t1 = xercesc::XMLString::transcode("fragmentProgram"));
+        fragmentProgram->setTextContent(t2 = xercesc::XMLString::transcode(fragmentShader->getShaderSource().c_str()));
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
         rootElement->appendChild(fragmentProgram);
     }
 
@@ -1056,11 +1164,13 @@ void coVRShader::storeMaterial()
     //dc->setParameter(xercesc::XMLUni::fgDOMWRTDiscardDefaultContent,true);
 
     xercesc::DOMLSOutput *theOutput = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    theOutput->setEncoding(xercesc::XMLString::transcode("utf8"));
+    theOutput->setEncoding(t1 = xercesc::XMLString::transcode("utf8"));
 
-    bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode(fileName.c_str()));
+    bool written = writer->writeToURI(rootElement, t2 = xercesc::XMLString::transcode(fileName.c_str()));
     if (!written)
         fprintf(stderr, "Material::save info: Could not open file for writing %s!\n", fileName.c_str());
+	xercesc::XMLString::release(&t1);
+	xercesc::XMLString::release(&t2);
     delete writer;
 
 #endif

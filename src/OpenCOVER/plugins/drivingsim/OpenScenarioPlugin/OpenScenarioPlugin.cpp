@@ -20,6 +20,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 \****************************************************************************/
 
 #include <OpenVRUI/osg/mathUtils.h>
+#include <config/CoviseConfig.h>
+#include <net/covise_connect.h>
+#include <net/covise_socket.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/RenderObject.h>
@@ -86,6 +89,39 @@ OpenScenarioPlugin::OpenScenarioPlugin()
     // set our own object factory so that our own classes are created and not the bas osc* classes
     OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
     osdb->setFullReadCatalogs(true);
+
+	port = covise::coCoviseConfig::getInt("port", "COVER.Plugin.OpenScenario.Server", 1021);
+	toClientConn = NULL;
+	serverConn = NULL;
+	if (coVRMSController::instance()->isMaster())
+	{
+		serverConn = new covise::ServerConnection(port, 1234, 0);
+		if (!serverConn->getSocket())
+		{
+			cout << "tried to open server Port " << port << endl;
+			cout << "Creation of server failed!" << endl;
+			cout << "Port-Binding failed! Port already bound?" << endl;
+			delete serverConn;
+			serverConn = NULL;
+		}
+
+		struct linger linger;
+		linger.l_onoff = 0;
+		linger.l_linger = 0;
+		if (serverConn)
+		{
+			setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+			cout << "Set server to listen mode..." << endl;
+			serverConn->listen();
+			if (!serverConn->is_connected()) // could not open server port
+			{
+				fprintf(stderr, "Could not open server port %d\n", port);
+				delete serverConn;
+				serverConn = NULL;
+			}
+		}
+	}
     //todo coTrafficSimulation::useInstance();
     fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
@@ -103,8 +139,84 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 
 bool OpenScenarioPlugin::update()
 {
+	if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
+	{
+		toClientConn = serverConn->spawnSimpleConnection();
+		if(toClientConn)
+		{
+			if (toClientConn->is_connected())
+			{
+
+			}
+			else
+			{
+				delete toClientConn;
+				toClientConn = NULL;
+			}
+		}
+	}
+
+	int size = 0;
+	if (coVRMSController::instance()->isMaster())
+	{
+		while (toClientConn && toClientConn->check_for_input())
+		{
+			readTCPData(&size, sizeof(int));
+			if (size>0)
+			{
+				char *buf = new char[size];
+				readTCPData(buf, size);
+				coVRMSController::instance()->sendSlaves(&size, sizeof(size));
+				coVRMSController::instance()->sendSlaves(buf,size);
+				handleMessage(buf);
+				delete[] buf;
+			}
+			size = 0;
+		}
+		coVRMSController::instance()->sendSlaves(&size, sizeof(size));
+	}
+	else
+	{
+		do {
+			coVRMSController::instance()->readMaster(&size, sizeof(size));
+			if (size > 0)
+			{
+				char *buf = new char[size];
+				coVRMSController::instance()->readMaster(&buf, size);
+				handleMessage(buf);
+				delete[] buf;
+			}
+		} while (size > 0);
+	}
     return true;
 }
+
+void
+OpenScenarioPlugin::handleMessage(const char *buf)
+{
+	
+}
+
+bool
+OpenScenarioPlugin::readTCPData(void *buf, unsigned int numBytes)
+{
+	unsigned int stillToRead = numBytes;
+	unsigned int alreadyRead = 0;
+	int readBytes = 0;
+	while (alreadyRead < numBytes)
+	{
+		readBytes = toClientConn->getSocket()->Read(((unsigned char *)buf) + alreadyRead, stillToRead);
+		if (readBytes < 0)
+		{
+			std::cerr << "Error error while reading data from socket in OpenScenarioPlugin::readTCPData" << std::endl;
+			return false;
+		}
+		alreadyRead += readBytes;
+		stillToRead = numBytes - alreadyRead;
+	}
+	return true;
+}
+
 void OpenScenarioPlugin::preFrame()
 {
     scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
@@ -922,15 +1034,17 @@ xercesc::DOMElement *OpenScenarioPlugin::getOpenDriveRootElement(std::string fil
 
 void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
 {
+	XMLCh *t1=NULL, *t2=NULL, *t3=NULL, *t4=NULL, *t5=NULL;
+	char *cs=NULL;
     xercesc::DOMNodeList *documentChildrenList = rootElement->getChildNodes();
 
     for (int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
     {
         xercesc::DOMElement *sceneryElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("scenery")) == 0)
+        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t1 = xercesc::XMLString::transcode("scenery")) == 0) 
         {
-            std::string fileString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("file")));
-            std::string vpbString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("vpb")));
+            std::string fileString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("file"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
+            std::string vpbString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("vpb"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
 
             std::vector<BoundingArea> voidBoundingAreaVector;
             std::vector<std::string> shapeFileNameVector;
@@ -943,21 +1057,22 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 if (!sceneryChildElement)
                     continue;
 
-                if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), xercesc::XMLString::transcode("void")) == 0)
+                if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), t3 = xercesc::XMLString::transcode("void")) == 0)
                 {
-                    double xMin = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("xMin"))));
-                    double yMin = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("yMin"))));
-                    double xMax = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("xMax"))));
-                    double yMax = atof(xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("yMax"))));
+                    double xMin = atof(cs = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t4 = xercesc::XMLString::transcode("xMin")))); xercesc::XMLString::release(&t4); xercesc::XMLString::release(&cs);
+                    double yMin = atof(cs = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t4 = xercesc::XMLString::transcode("yMin")))); xercesc::XMLString::release(&t4); xercesc::XMLString::release(&cs);
+                    double xMax = atof(cs = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t4 = xercesc::XMLString::transcode("xMax")))); xercesc::XMLString::release(&t4); xercesc::XMLString::release(&cs);
+                    double yMax = atof(cs = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t4 = xercesc::XMLString::transcode("yMax")))); xercesc::XMLString::release(&t4); xercesc::XMLString::release(&cs);
 
                     voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(xMin, yMin), osg::Vec2(xMax, yMax)));
                     //voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(506426.839,5398055.357),osg::Vec2(508461.865,5399852.0)));
                 }
-                else if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+                else if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), t4 = xercesc::XMLString::transcode("shape")) == 0)
                 {
-                    std::string fileString = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("file")));
+                    std::string fileString = cs = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t5 = xercesc::XMLString::transcode("file"))); xercesc::XMLString::release(&t5); xercesc::XMLString::release(&cs);
                     shapeFileNameVector.push_back(fileString);
                 }
+				xercesc::XMLString::release(&t3); xercesc::XMLString::release(&t4);
             }
 
             if (!fileString.empty())
@@ -982,9 +1097,9 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 }
             }
         }
-        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("environment")) == 0)
+        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t2 = xercesc::XMLString::transcode("environment")) == 0)
         {
-            std::string tessellateRoadsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateRoads")));
+            std::string tessellateRoadsString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateRoads"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
             if (tessellateRoadsString == "false" || tessellateRoadsString == "0")
             {
                 tessellateRoads = false;
@@ -994,7 +1109,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateRoads = true;
             }
 
-            std::string tessellatePathsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellatePaths")));
+            std::string tessellatePathsString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellatePaths"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
             if (tessellatePathsString == "false" || tessellatePathsString == "0")
             {
                 tessellatePaths = false;
@@ -1004,7 +1119,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellatePaths = true;
             }
 
-            std::string tessellateBattersString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateBatters")));
+            std::string tessellateBattersString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateBatters"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
             if (tessellateBattersString == "true")
             {
                 tessellateBatters = true;
@@ -1014,7 +1129,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateBatters = false;
             }
 
-            std::string tessellateObjectsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateObjects")));
+            std::string tessellateObjectsString = cs = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateObjects"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&cs);
             if (tessellateObjectsString == "true")
             {
                 tessellateObjects = true;
@@ -1024,5 +1139,7 @@ void OpenScenarioPlugin::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateObjects = false;
             }
         }
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
     }
 }

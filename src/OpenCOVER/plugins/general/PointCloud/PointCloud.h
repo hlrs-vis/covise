@@ -20,22 +20,10 @@
 #include "PointCloudGeometry.h"
 #include "PointCloudInteractor.h"
 
+#include "FileInfo.h"
+
 using namespace opencover;
 
-class nodeInfo
-{
-public:
-    osg::Node *node;
-};
-
-class fileInfo
-{
-public:
-    std::string filename;
-    std::vector<nodeInfo> nodes;
-    int pointSetSize;
-    PointSet *pointSet;
-};
 
 /** Plugin
   @author 
@@ -61,7 +49,7 @@ class PointCloudPlugin : public coVRPlugin, public ui::Owner
     };
 
 private:
-    std::vector<fileInfo> files;
+    std::vector<FileInfo> files;
     int num_points;
     float min_x, min_y, min_z;
     float max_x, max_y, max_z;
@@ -78,8 +66,10 @@ private:
     bool intColor;
     bool polar;
     float pointSizeValue;
-    bool adaptLOD;
+    float lodScale = 1.f;
+    bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
+    std::vector<ScannerPosition> positions;
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -92,7 +82,7 @@ protected:
     //coButtonMenuItem *deleteMenuItem;
     ui::Menu *pointCloudMenu = nullptr;
     ui::Menu *loadMenu = nullptr;
-    ui::Group *fileGroup = nullptr;
+    //ui::Group *fileGroup = nullptr;
     ui::Group *loadGroup = nullptr;
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
@@ -102,6 +92,9 @@ protected:
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
+
+    void changeAllLOD(float lod);
+    void changeAllPointSize(float pointSize);
 
 public:
     PointCloudPlugin();
