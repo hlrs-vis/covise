@@ -308,7 +308,7 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
                                      iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
         receivedPoints.push_back(newSelectedPoint);
         }
-                fprintf(stderr, "Points received %i\n", receivedPoints.size());
+                fprintf(stderr, "Points received %zi\n", receivedPoints.size());
                 updateSurface();
     }
 }
@@ -326,7 +326,7 @@ void NurbsSurface::updateSurface()
         updateModel();
         resize();
         int pointsNewSize=num_points_u*num_points_v*3;
-        double pointsNew[pointsNewSize];//num_points_u*num_points_v*3];
+        double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
         vector<double> pointTempUpper(2);
         vector<double> pointTempLower(2);
         vector<double> pointTempRight(2);
@@ -384,6 +384,7 @@ void NurbsSurface::updateSurface()
         }
         destroy();
         computeSurface(pointsNew);
+		delete[] pointsNew;
     }
 }
 
@@ -450,8 +451,7 @@ bool NurbsSurface::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCu
     if (jstat < 0) {
         throw runtime_error("Error occured inside call to SISL routine s1857.");
     } else if (jstat > 0) {
-        cerr << "WARNING: warning occured inside call to SISL routine s1857. \n"
-             << endl;
+        std::cerr << "WARNING: warning occured inside call to SISL routine s1857. \n" << std::endl;
     }
     fprintf(stderr,"Number of intersection points detected: %i\n", num_int_points);
     if (num_int_points>0)
@@ -478,8 +478,7 @@ bool NurbsSurface::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCu
         if (jstat < 0) {
         throw runtime_error("Error occured inside call to SISL routine s1227.");
         } else if (jstat > 0) {
-        cerr << "WARNING: warning occured inside call to SISL routine s1227. \n"
-             << endl;
+        std::cerr << "WARNING: warning occured inside call to SISL routine s1227. \n" << std::endl;
         }
     }
     return true;
@@ -638,9 +637,9 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
 
         //Also build a SISL-curve from this data for intersection calculation
         //using transformed global coordinates
-        const int num_points = numberOfQuadrants;
-        double pointsSISLCurve[2*num_points];
-        int type[num_points];
+        int num_points = numberOfQuadrants;
+        double *pointsSISLCurve = new double[2*num_points];
+        int *type= new int[num_points];
         for (int i=0; i!=num_points; i++)
         {
             double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
@@ -679,8 +678,10 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
          if (jstat < 0) {
              throw runtime_error("Error occured inside call to SISL routine.");
          } else if (jstat > 0) {
-             cerr << "WARNING: warning occured inside call to SISL routine. \n" << endl;
+             std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
          }
+		 delete []pointsSISLCurve;
+		 delete[] type;
          resultCurveInfo.curve = result_curve;
          resultCurveInfo.startPar = cstartpar;
          resultCurveInfo.endPar = cendpar;
@@ -690,7 +691,7 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
          //freeCurve(result_curve);
          free(gpar);
         } catch (exception& e) {
-            cerr << "Exception thrown: " << e.what() << endl;
+			std::cerr << "Exception thrown: " << e.what() << std::endl;
             return -1;
             }
     }
