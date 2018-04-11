@@ -90,7 +90,7 @@ OpenScenarioPlugin::OpenScenarioPlugin()
     OpenScenario::oscFactories::instance()->setObjectFactory(new myFactory());
     osdb->setFullReadCatalogs(true);
 
-	port = covise::coCoviseConfig::getInt("port", "COVER.Plugin.OpenScenario.Server", 1021);
+	port = covise::coCoviseConfig::getInt("port", "COVER.Plugin.OpenScenario.Server", 11021);
 	toClientConn = NULL;
 	serverConn = NULL;
 	if (coVRMSController::instance()->isMaster())
