@@ -150,9 +150,9 @@ void oscCatalog::fastReadCatalogObjects()
 
         if (rootElem)
         {
-			char *cs;
+			char *cs = NULL;
 			XMLCh *t1 = NULL;
-			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
+			std::string rootElemName = cs = xercesc::XMLString::transcode(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
 
 			/*           if (rootElemName == m_catalogName)
 			{ */
