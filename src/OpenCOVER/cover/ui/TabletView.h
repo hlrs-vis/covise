@@ -35,7 +35,7 @@ class COVER_UI_EXPORT TabletView: public View
 {
  public:
    TabletView(const std::string &name, coTabletUI *tui);
-   TabletView(coTUITabFolder *root);
+   TabletView(const std::string &name, coTUITabFolder *root);
    ~TabletView();
    ViewType typeBit() const override;
 

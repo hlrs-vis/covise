@@ -765,6 +765,7 @@ public:
     bool loadFile;
 
     coTUISGBrowserTab(const char *, int pID = 1);
+    coTUISGBrowserTab(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUISGBrowserTab();
     virtual void resend(bool create) override;
 

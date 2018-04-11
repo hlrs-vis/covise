@@ -34,8 +34,8 @@ TabletView::TabletView(const std::string &name, coTabletUI *tui)
 
 }
 
-TabletView::TabletView(coTUITabFolder *root)
-: View("tabletUI")
+TabletView::TabletView(const std::string &name, coTUITabFolder *root)
+: View(name)
 {
     assert(root);
 

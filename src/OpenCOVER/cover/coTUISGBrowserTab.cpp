@@ -104,6 +104,27 @@ coTUISGBrowserTab::coTUISGBrowserTab(const char *n, int pID)
     thread->start();
 }
 
+coTUISGBrowserTab::coTUISGBrowserTab(coTabletUI *tui, const char *n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_BROWSER_TAB)
+{
+    currentNode = 0;
+    changedNode = 0;
+    texturesToChange = 0;
+
+    texturePort = 0;
+    // next port is for Texture communication
+
+    currentPath = "";
+    loadFile = false; //gottlieb
+
+    thread = new SGTextureThread(this);
+    thread->setType(THREAD_NOTHING_TO_DO);
+    thread->traversingFinished(false);
+    thread->nodeFinished(false);
+    thread->noTexturesFound(false);
+    thread->start();
+}
+
 int coTUISGBrowserTab::openServer()
 {
     delete sConn;

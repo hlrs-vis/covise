@@ -705,11 +705,6 @@ bool OpenCOVER::init()
 
     coVRLighting::instance()->initMenu();
 
-    hud->setText2("initialising plugins");
-    hud->redraw();
-
-    coVRPluginList::instance()->init();
-
     ARToolKit::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
@@ -765,19 +760,25 @@ bool OpenCOVER::init()
     cover->vruiView = new ui::VruiView;
     cover->ui->addView(cover->vruiView);
 
-    cover->ui->addView(new ui::TabletView(coVRTui::instance()->mainFolder));
+    auto tab = coVRTui::instance()->mainFolder;
+    cover->ui->addView(new ui::TabletView("mainTui", tab));
     tabletUIs.push_back(coTabletUI::instance());
+    tabletTabs.push_back(tab);
 
     auto mapeditorTui = new coTabletUI("localhost", 31803);
-    cover->ui->addView(new ui::TabletView("mapeditor", mapeditorTui));
+    tab = new coTUITabFolder(mapeditorTui, "root");
+    cover->ui->addView(new ui::TabletView("mapeditor", tab));
     tabletUIs.push_back(mapeditorTui);
+    tabletTabs.push_back(tab);
     for (auto tui: tabletUIs)
     {
         tui->tryConnect();
         tui->update();
     }
+    hud->setText2("initialising plugins");
+    hud->redraw();
 
-    frame();
+    coVRPluginList::instance()->init();
 
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
@@ -1344,4 +1345,26 @@ OpenCOVER::visPlugin() const
 {
 
     return m_visPlugin;
+}
+
+size_t OpenCOVER::numTuis() const
+{
+    return tabletUIs.size();
+}
+
+coTabletUI *OpenCOVER::tui(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletUIs.size())
+        return nullptr;
+    return tabletUIs[idx];
+}
+
+coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletTabs.size())
+        return nullptr;
+
+    return tabletTabs[idx];
 }
