@@ -137,6 +137,7 @@ public:
     virtual std::string getConfigEntry(const char *key);
     virtual bool getConfigState(const char *key, bool defaultVal);
 
+    virtual std::string getCacheName(const char *url, const char *pathname) const;
     virtual void storeInline(const char *name, const Viewer::Object d_viewerObject);
     virtual Viewer::Object getInline(const char *name);
     virtual void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject);

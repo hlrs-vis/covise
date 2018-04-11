@@ -145,7 +145,7 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (strncmp(name(), "Cached", 6) == 0)
+            if (strstr(name(), "Cached") != NULL)
             {
                 if (d_viewerObject)
                 {
@@ -199,7 +199,7 @@ void VrmlNodeInline::load(const char *relativeUrl)
         sgObject = 0L;
         if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
-            if (strncmp(name(), "Cached", 6) == 0)
+            if (strstr(name(), "Cached") != NULL)
             {
                 setModified();
                 sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache

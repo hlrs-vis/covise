@@ -213,6 +213,12 @@ public:
         return correctSpatializedAudio;
     }
 
+    virtual std::string getCacheName(const char *url, const char *pathname) const
+    {
+        (void)url;
+        (void)pathname;
+        return std::string();
+    }
     virtual void storeInline(const char *nameBase, const Viewer::Object d_viewerObject)
     {
         (void)nameBase;

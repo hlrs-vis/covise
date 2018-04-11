@@ -20,6 +20,8 @@
 #include <Windows.h>
 #endif
 
+#include <boost/filesystem.hpp>
+
 #include <util/common.h>
 #include <fcntl.h>
 #include <vrml97/vrml/config.h>
@@ -1042,6 +1044,44 @@ bool SystemCover::getConfigState(const char *key, bool defaultVal)
     return coCoviseConfig::isOn(key, defaultVal);
 }
 
+std::string SystemCover::getCacheName(const char *url, const char *pathname) const
+{
+    namespace fs = boost::filesystem;
+
+    (void)url;
+
+    if (!pathname)
+        return std::string();
+
+    fs::path p(pathname);
+    fs::path name = p.filename();
+    fs::path dir = p.remove_filename();
+
+    fs::path cache = dir;
+    cache /= ".covercache";
+    auto stat = status(cache);
+    if (!fs::exists(stat))
+    {
+        try
+        {
+            if (fs::create_directory(cache))
+                stat = status(cache);
+        }
+        catch (fs::filesystem_error)
+        {
+            std::cerr << "Vrml: SystemCover:getCacheName: could not create cache directory " << cache.string() << std::endl;
+        }
+    }
+    if (!fs::is_directory(stat))
+    {
+        std::cerr << "Vrml: SystemCover::getCacheName(pathname=" << pathname << "): not a directory" << std::endl;
+    }
+    cache /= name;
+    cache += cacheExt;
+
+    return cache.string();
+}
+
 void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObject)
 {
     if (d_viewerObject)
@@ -1054,7 +1094,6 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
             osgUtil::Optimizer optimzer;
             optimzer.optimize(osgNode);
             std::string n(name);
-            n += cacheExt;
             if (coVRMSController::instance()->isMaster())
                 osgDB::writeNodeFile(*osgNode, n.c_str());
         }
@@ -1065,7 +1104,7 @@ Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::ref_ptr<osg::Group> g = new osg::Group;
     std::string n(name);
-    std::string cached = n + cacheExt;
+    std::string cached = n;
 
     coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
     if (g->getNumChildren() <= 0)
