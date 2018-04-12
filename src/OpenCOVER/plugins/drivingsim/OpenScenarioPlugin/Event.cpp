@@ -1,7 +1,8 @@
 #include "Event.h"
 
 Event::Event():
-finishedEntityActions(0)
+    finishedEntityActions(0),
+    eventFinished(false)
 {
 
 }

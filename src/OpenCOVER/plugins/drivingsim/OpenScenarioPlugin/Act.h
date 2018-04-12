@@ -10,6 +10,8 @@ using namespace std;
 #include <list>
 #include <OpenScenario/schema/oscAct.h>
 class Sequence;
+class Condition;
+
 class Act : public OpenScenario::oscAct
 {
 
@@ -34,6 +36,9 @@ class Act : public OpenScenario::oscAct
     void initialize(::Sequence *sequence_temp);
 	string getName();
 	int getNumberOfExecutions();
+
+    list<Condition*> startConditionList;
+    list<Condition*> endConditionList;
 
 };
 

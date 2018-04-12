@@ -8,7 +8,7 @@ using namespace std;
 #include<string>
 #include <list>
 
-
+class Condition;
 class ScenarioManager {
 
 public:
@@ -29,6 +29,8 @@ public:
     bool conditionControl(Act* act);
     bool conditionControl(Event* event, Maneuver *maneuver);
     void conditionManager();
+
+    list<Condition*> endConditionList;
 
 };
 

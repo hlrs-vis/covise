@@ -109,22 +109,6 @@ bool ScenarioManager::conditionControl(Event* event,Maneuver* maneuver)
     {
         return false;
     }
-    if ((event->finishedEntityActions) == (event->activeEntites*event->actionVector.size()))
-    {
-        for(list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
-        {
-            (*entity_iter)->resetActionAttributes();
-        }
-        event->eventFinished = true;
-        event->eventCondition = false;
-        maneuver->finishedEvents = maneuver->finishedEvents+1;
-        if(maneuver->finishedEvents == maneuver->eventList.size())
-        {
-            maneuver->maneuverFinished = true;
-        }
-
-        return event->eventCondition;
-    }
     if (event->startConditionType=="time")
 	{
         if(event->startTime<simulationTime && event->eventFinished != true)

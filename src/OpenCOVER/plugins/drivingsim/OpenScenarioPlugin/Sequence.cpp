@@ -1,7 +1,8 @@
 #include "Sequence.h"
 
 Sequence::Sequence():
-    activeEvent(NULL)
+    activeEvent(NULL),
+    executions(0)
 {
 
 }

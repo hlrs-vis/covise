@@ -7,12 +7,13 @@
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscEvent.h>
 class Action;
+class Condition;
 class Event : public::OpenScenario::oscEvent
 {
 public:
     Event();
 
-    std::vector<::Action*> actionVector;
+    std::list<::Action*> actionList;
     int finishedEntityActions;
     int activeEntites;
     std::string name;
@@ -29,6 +30,8 @@ public:
 
     std::string &getName();
     void initialize(int numEntites);
+
+    std::list<Condition*> startConditionList;
 };
 
 #endif // EVENT_H
