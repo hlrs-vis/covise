@@ -9,6 +9,7 @@
 #include "schema/oscDirectory.h"
 #include "schema/oscCatalogs.h"
 #include "schema/oscVehicleCatalog.h"
+#include "schema/oscVehicle.h"
 #include "schema/oscDriverCatalog.h"
 #include "schema/oscPedestrianCatalog.h"
 #include "schema/oscPedestrianControllerCatalog.h"

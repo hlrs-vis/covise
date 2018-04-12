@@ -162,7 +162,7 @@
                 <Private>
                   <Longitudinal>
                     <Speed>
-                      <Dynamics distance="0.000000" rate="0.000000" shape="step" time="0.000000"/>
+                      <Dynamics distance="0.000000" rate="0.000000" shape="linear" time="0.000000"/>
                       <Target>
                         <Absolute value="8.300000"/>
                       </Target>

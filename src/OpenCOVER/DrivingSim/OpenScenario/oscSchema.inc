@@ -9,6 +9,7 @@ schema/oscParameter.h
 schema/oscFile.h
 schema/oscDirectory.h
 schema/oscCatalogs.h
+schema/oscVehicle.h
 schema/oscVehicleCatalog.h
 schema/oscDriverCatalog.h
 schema/oscPedestrianCatalog.h

@@ -9,6 +9,7 @@ staticObjectFactory.registerType<oscFile>("oscFile");
 staticObjectFactory.registerType<oscDirectory>("oscDirectory");
 staticObjectFactory.registerType<oscCatalogs>("oscCatalogs");
 staticObjectFactory.registerType<oscVehicleCatalog>("oscVehicleCatalog");
+staticObjectFactory.registerType<oscVehicle>("oscVehicle");
 staticObjectFactory.registerType<oscDriverCatalog>("oscDriverCatalog");
 staticObjectFactory.registerType<oscPedestrianCatalog>("oscPedestrianCatalog");
 staticObjectFactory.registerType<oscPedestrianControllerCatalog>("oscPedestrianControllerCatalog");

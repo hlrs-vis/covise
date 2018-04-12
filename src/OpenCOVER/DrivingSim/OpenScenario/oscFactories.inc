@@ -25,6 +25,7 @@ staticObjectFactory.registerType<oscUserDataList>("oscUserDataList");
 staticObjectFactory.registerType<oscUserData>("oscUserData");
 staticObjectFactory.registerType<oscFileHeader>("oscFileHeader");
 staticObjectFactory.registerType<oscPedestrian>("oscPedestrian");
+staticObjectFactory.registerType<oscVehicle>("oscVehicle");
 staticObjectFactory.registerType<oscPerformance>("oscPerformance");
 staticObjectFactory.registerType<oscAxles>("oscAxles");
 staticObjectFactory.registerType<oscAxle>("oscAxle");

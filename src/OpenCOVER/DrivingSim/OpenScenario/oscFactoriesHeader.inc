@@ -7,6 +7,7 @@
 #include "oscParameter"
 #include "oscFile"
 #include "oscDirectory"
+#include "oscVehicle"
 #include "oscCatalogs"
 #include "oscVehicleCatalog"
 #include "oscDriverCatalog"
