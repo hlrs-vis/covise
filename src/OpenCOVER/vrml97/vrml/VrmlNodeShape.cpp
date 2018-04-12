@@ -229,3 +229,27 @@ const VrmlField *VrmlNodeShape::getField(const char *fieldName) const
 
     return VrmlNodeChild::getField(fieldName);
 }
+
+bool VrmlNodeShape::isOnlyGeometry() const
+{
+    if (!VrmlNodeChild::isOnlyGeometry())
+        return false;
+
+    if (d_appearance.get() && !d_appearance.get()->isOnlyGeometry())
+    {
+        std::cerr << "Nsa" << std::flush;
+        return false;
+    }
+    if (d_geometry.get() && !d_geometry.get()->isOnlyGeometry())
+    {
+        std::cerr << "Nga" << std::flush;
+        return false;
+    }
+    if (d_effect.get() && !d_effect.get()->isOnlyGeometry())
+    {
+        std::cerr << "Nea" << std::flush;
+        return false;
+    }
+
+    return true;
+}

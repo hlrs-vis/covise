@@ -185,6 +185,24 @@ void VrmlNodeGroup::copyRoutes(VrmlNamespace *ns)
 
 VrmlNode *VrmlNodeGroup::getParentTransform() { return d_parentTransform; }
 
+bool VrmlNodeGroup::isOnlyGeometry() const
+{
+    if (!VrmlNode::isOnlyGeometry())
+        return false;
+
+    int n = d_children.size();
+    for (int i=0; i<n; ++i)
+    {
+        if (!d_children[i]->isOnlyGeometry())
+        {
+            std::cerr << "Nc" << i << std::flush;
+            return false;
+        }
+    }
+
+    return true;
+}
+
 std::ostream &VrmlNodeGroup::printFields(std::ostream &os, int indent)
 {
     if (d_bboxCenter.x() != 0.0 || d_bboxCenter.z() != 0.0 || d_bboxCenter.y() != 0.0)

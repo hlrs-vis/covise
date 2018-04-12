@@ -145,7 +145,7 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (strstr(name(), "Cached") != NULL)
+            if (strstr(name(), "Cached") != NULL || isOnlyGeometry())
             {
                 if (d_viewerObject)
                 {
@@ -199,11 +199,19 @@ void VrmlNodeInline::load(const char *relativeUrl)
         sgObject = 0L;
         if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
+#if 1
+            sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+            if (sgObject)
+            {
+                setModified();
+            }
+#else
             if (strstr(name(), "Cached") != NULL)
             {
                 setModified();
                 sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
             }
+#endif
             int slen = (int)strlen(url.url());
             const char *end = url.url() + slen;
             if ((sgObject == 0L) && !((slen > 4) && (strncmp(end - 4, ".wrl", 4) == 0 || strncmp(end - 4, ".wrz", 4) == 0 || strncmp(end - 4, ".WRL", 4) == 0 || strncmp(end - 4, ".WRZ", 4) == 0 || (slen > 5 && strncmp(end - 5, ".VRML", 5) == 0) || (slen > 5 && strncmp(end - 5, ".vrml", 5) == 0) || (slen > 7 && strncmp(end - 7, ".wrl.gz", 7) == 0) || (slen > 5 && strncmp(end - 5, ".x3dv", 5) == 0) || (slen > 8 && strncmp(end - 8, ".x3dv.gz", 8) == 0) || (slen > 6 && strncmp(end - 6, ".x3dvz", 6) == 0))))
