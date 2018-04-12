@@ -141,17 +141,18 @@ void VrmlNodeInline::render(Viewer *viewer)
     {
         if (sgObject) // we have a cached Object, so add it to the viewer
         {
-            d_wasCached = true;
+            d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
             d_viewerObject = viewer->beginObject(name(), 0, this);
             System::the->insertObject(d_viewerObject, sgObject);
             viewer->endObject();
+            clearModified();
         }
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
             if (d_viewerObject && (strstr(name(), "Cached") != NULL || isOnlyGeometry()))
             {
-                d_wasCached = true;
+                d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
                 Doc url;
                 const char *pathname = NULL;
                 if (d_relative.get())
@@ -163,7 +164,6 @@ void VrmlNodeInline::render(Viewer *viewer)
                 d_scene->storeCachedInline(d_url.get(0), pathname, d_viewerObject);
             }
         }
-        clearModified();
     }
     else
     {

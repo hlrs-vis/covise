@@ -137,6 +137,7 @@ public:
     virtual std::string getConfigEntry(const char *key);
     virtual bool getConfigState(const char *key, bool defaultVal);
 
+    virtual CacheMode getCacheMode() const;
     virtual std::string getCacheName(const char *url, const char *pathname) const;
     virtual void storeInline(const char *name, const Viewer::Object d_viewerObject);
     virtual Viewer::Object getInline(const char *name);
@@ -180,5 +181,6 @@ protected:
     bool record;
     bool doRemoteFetch;
     int viewPointCount = 0;
+    CacheMode cacheMode = CACHE_CREATE;
 };
 #endif // SYSTEM_COVER_H

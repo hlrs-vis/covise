@@ -131,7 +131,41 @@ SystemCover::SystemCover()
     record = false;
     fileNumber = 0;
     doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
+
+    if (const char *cache = getenv("COCACHE"))
+    {
+        if (strcasecmp(cache, "disable")==0)
+            cacheMode = CACHE_DISABLE;
+        else if (strcasecmp(cache, "write")==0 || strcasecmp(cache, "rewrite")==0)
+            cacheMode = CACHE_REWRITE;
+        else if (strcasecmp(cache, "use")==0)
+            cacheMode = CACHE_USE;
+        else if (strcasecmp(cache, "useold")==0)
+            cacheMode = CACHE_USEOLD;
+
+        std::cerr << "Vrml97 Inline cache (disable|rewrite|create|use|useold): ";
+        switch(cacheMode)
+        {
+        case CACHE_DISABLE:
+            std::cerr << "disable";
+            break;
+        case CACHE_REWRITE:
+            std::cerr << "forcing rewrite";
+            break;
+        case CACHE_CREATE:
+            std::cerr << "use or create";
+            break;
+        case CACHE_USE:
+            std::cerr << "use only";
+            break;
+        case CACHE_USEOLD:
+            std::cerr << "use only, even if outdated";
+            break;
+        }
+        std::cerr << std::endl;
+    }
 }
+
 bool SystemCover::loadUrl(const char *url, int np, char **parameters)
 {
     if (!url)
@@ -1042,6 +1076,11 @@ std::string SystemCover::getConfigEntry(const char *key)
 bool SystemCover::getConfigState(const char *key, bool defaultVal)
 {
     return coCoviseConfig::isOn(key, defaultVal);
+}
+
+System::CacheMode SystemCover::getCacheMode() const
+{
+    return cacheMode;
 }
 
 std::string SystemCover::getCacheName(const char *url, const char *pathname) const
