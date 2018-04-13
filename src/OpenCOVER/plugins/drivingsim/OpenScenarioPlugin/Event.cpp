@@ -1,7 +1,9 @@
 #include "Event.h"
 #include "Condition.h"
+#include "StoryElement.h"
 
 Event::Event():
+    StoryElement(),
     finishedEntityActions(0),
     eventFinished(false),
     eventCondition(false)

@@ -628,9 +628,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 for (oscActorsArrayMember::iterator it = currentSeq->Actors->Entity.begin(); it != currentSeq->Actors->Entity.end(); it++)
                 {
                     oscEntity* namedEntity = ((oscEntity*)(*it));
-                    std::string namedEntityName = namedEntity->name.getValue();
-                    std::string actor = "$owner"; //only temporary while sequence is broken (?)
-                    if (actor != "$owner")
+                    if (namedEntity->name.getValue() != "$owner")
                     {
                         activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
                     }

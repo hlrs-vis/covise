@@ -70,51 +70,64 @@ void ScenarioManager::conditionManager(){
             {
                 Act* currentAct = (*act_iter);
                 // endconditions
-                for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
+                if(currentAct->StoryElement::state == StoryElement::running)
                 {
-                    Condition* actEndCondition = (*condition_iter);
-                    if(conditionControl(actEndCondition))
+                    for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
                     {
-                        currentAct->actCondition = false;
-                        continue;
+                        Condition* actEndCondition = (*condition_iter);
+                        if(conditionControl(actEndCondition))
+                        {
+                            currentAct->StoryElement::stop();
+                        }
                     }
                 }
-                for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
+                else if(currentAct->StoryElement::state == StoryElement::stopped)
                 {
-                    Condition* actStartCondition = (*condition_iter);
-                    if(conditionControl((actStartCondition)))
+                    for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
                     {
-                        currentAct->actCondition = true;
-                        for(std::list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+                        Condition* actStartCondition = (*condition_iter);
+                        if(conditionControl((actStartCondition)))
                         {
-                            Sequence* currentSequence = (*sequence_iter);
-                            for(std::list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
+                            currentAct->StoryElement::start();
+                        }
+                    }
+                }
+                int finishedSequences = 0;
+                bool sequenceRunning = false;
+                for(std::list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+                {
+                    int finishedManeuvers = 0;
+                    bool maneuverRunning = false;
+                    Sequence* currentSequence = (*sequence_iter);
+                    for(std::list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
+                    {
+                        int finishedEvents = 0;
+                        bool eventRunning = false;
+                        Maneuver* currentManeuver = (*maneuver_iter);
+                        for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+                        {
+                            Event* currentEvent = (*event_iter);
+                            for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
                             {
-                                Maneuver* currentManeuver = (*maneuver_iter);
-                                for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+                                Condition* eventCondition = (*condition_iter);
+                                if(conditionControl(eventCondition))
                                 {
-                                    Event* currentEvent = (*event_iter);
-                                    for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
+                                    if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
                                     {
-                                        Condition* eventCondition = (*condition_iter);
-                                        if(conditionControl(eventCondition))
-                                        {
-                                            if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
-                                            {
-                                                currentEvent->eventFinished = true;
-                                                currentManeuver->maneuverFinished = true;
-                                            }
-                                            else
-                                            {
-                                                currentEvent->eventCondition = true;
-                                                currentSequence->activeEvent = currentEvent;
-                                            }
-                                        }
+                                        // lieber running actions und dann abziehen
+                                        currentEvent->StoryElement::finish();
+                                        finishedEvents++;
+                                    }
+                                    else
+                                    {
+                                        currentEvent->StoryElement::start();
+                                        eventRunning = true;
                                     }
                                 }
                             }
                         }
                     }
+
                 }
             }
         }
@@ -123,10 +136,6 @@ void ScenarioManager::conditionManager(){
 
 bool ScenarioManager::conditionControl(Condition* condition)
 {
-    if(condition->isTrue)
-    {
-        return true;
-    }
     if(condition->ByValue.exists())
     {
         if (condition->ByValue->SimulationTime->value.getValue()<simulationTime)

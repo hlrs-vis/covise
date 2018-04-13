@@ -1,6 +1,8 @@
 #include "Sequence.h"
+#include "StoryElement.h"
 
 Sequence::Sequence():
+    StoryElement(),
     activeEvent(NULL),
     executions(0)
 {

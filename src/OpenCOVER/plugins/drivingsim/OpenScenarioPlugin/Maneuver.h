@@ -4,13 +4,14 @@
 #include<string>
 #include "Trajectory.h"
 #include "Entity.h"
+#include "StoryElement.h"
 #include <vector>
 #include <list>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscManeuver.h>
 class Action;
 class Event;
-class Maneuver: public OpenScenario::oscManeuver
+class Maneuver: public OpenScenario::oscManeuver, public StoryElement
 {
 
 

@@ -29,6 +29,7 @@ set(HEADERS
   EndConditions.h
   Event.h
   Sequence.h
+  StoryElement.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -48,7 +49,8 @@ set(SOURCES
   StartConditions.cpp
   EndConditions.cpp
   Event.cpp
-  Sequence.cpp  
+  Sequence.cpp
+  StoryElement.cpp  
 )
 
 

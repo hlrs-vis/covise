@@ -3,7 +3,7 @@
 
 #include "Entity.h"
 #include "Maneuver.h"
-
+#include "StoryElement.h"
 using namespace std;
 #include<iostream>
 #include<string>
@@ -11,9 +11,8 @@ using namespace std;
 #include <OpenScenario/schema/oscAct.h>
 class Sequence;
 class Condition;
-class Condition;
 
-class Act : public OpenScenario::oscAct
+class Act : public OpenScenario::oscAct, public StoryElement
 {
 
  public:
@@ -30,6 +29,14 @@ class Act : public OpenScenario::oscAct
 	float startTime;
 	string endConditionType;
 	float endTime;
+
+    enum State
+    {
+        finished,
+        running,
+        stopped
+    };
+    State state;
 
 	Act();
 	~Act();
