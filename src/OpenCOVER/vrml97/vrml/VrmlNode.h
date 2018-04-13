@@ -337,6 +337,8 @@ public:
         return d_scene;
     }
 
+    virtual bool isOnlyGeometry() const;
+
 protected:
     enum
     {

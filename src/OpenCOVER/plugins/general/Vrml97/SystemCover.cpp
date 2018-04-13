@@ -20,6 +20,8 @@
 #include <Windows.h>
 #endif
 
+#include <boost/filesystem.hpp>
+
 #include <util/common.h>
 #include <fcntl.h>
 #include <vrml97/vrml/config.h>
@@ -129,7 +131,41 @@ SystemCover::SystemCover()
     record = false;
     fileNumber = 0;
     doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
+
+    if (const char *cache = getenv("COCACHE"))
+    {
+        if (strcasecmp(cache, "disable")==0)
+            cacheMode = CACHE_DISABLE;
+        else if (strcasecmp(cache, "write")==0 || strcasecmp(cache, "rewrite")==0)
+            cacheMode = CACHE_REWRITE;
+        else if (strcasecmp(cache, "use")==0)
+            cacheMode = CACHE_USE;
+        else if (strcasecmp(cache, "useold")==0)
+            cacheMode = CACHE_USEOLD;
+
+        std::cerr << "Vrml97 Inline cache (disable|rewrite|create|use|useold): ";
+        switch(cacheMode)
+        {
+        case CACHE_DISABLE:
+            std::cerr << "disable";
+            break;
+        case CACHE_REWRITE:
+            std::cerr << "forcing rewrite";
+            break;
+        case CACHE_CREATE:
+            std::cerr << "use or create";
+            break;
+        case CACHE_USE:
+            std::cerr << "use only";
+            break;
+        case CACHE_USEOLD:
+            std::cerr << "use only, even if outdated";
+            break;
+        }
+        std::cerr << std::endl;
+    }
 }
+
 bool SystemCover::loadUrl(const char *url, int np, char **parameters)
 {
     if (!url)
@@ -1042,6 +1078,49 @@ bool SystemCover::getConfigState(const char *key, bool defaultVal)
     return coCoviseConfig::isOn(key, defaultVal);
 }
 
+System::CacheMode SystemCover::getCacheMode() const
+{
+    return cacheMode;
+}
+
+std::string SystemCover::getCacheName(const char *url, const char *pathname) const
+{
+    namespace fs = boost::filesystem;
+
+    (void)url;
+
+    if (!pathname)
+        return std::string();
+
+    fs::path p(pathname);
+    fs::path name = p.filename();
+    fs::path dir = p.remove_filename();
+
+    fs::path cache = dir;
+    cache /= ".covercache";
+    auto stat = status(cache);
+    if (!fs::exists(stat))
+    {
+        try
+        {
+            if (fs::create_directory(cache))
+                stat = status(cache);
+        }
+        catch (fs::filesystem_error)
+        {
+            std::cerr << "Vrml: SystemCover:getCacheName: could not create cache directory " << cache.string() << std::endl;
+        }
+    }
+    if (!fs::is_directory(stat))
+    {
+        std::cerr << "Vrml: SystemCover::getCacheName(pathname=" << pathname << "): not a directory" << std::endl;
+    }
+    cache /= name;
+    cache += cacheExt;
+
+    return cache.string();
+}
+
 void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObject)
 {
     if (d_viewerObject)
@@ -1054,7 +1133,6 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
             osgUtil::Optimizer optimzer;
             optimzer.optimize(osgNode);
             std::string n(name);
-            n += cacheExt;
             if (coVRMSController::instance()->isMaster())
                 osgDB::writeNodeFile(*osgNode, n.c_str());
         }
@@ -1065,7 +1143,7 @@ Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::ref_ptr<osg::Group> g = new osg::Group;
     std::string n(name);
-    std::string cached = n + cacheExt;
+    std::string cached = n;
 
     coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
     if (g->getNumChildren() <= 0)

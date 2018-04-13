@@ -29,30 +29,30 @@ class VRMLEXPORT VrmlNodeShape : public VrmlNodeChild
 public:
     // Define the fields of Shape nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    virtual VrmlNodeType *nodeType() const override;
 
     VrmlNodeShape(VrmlScene *);
     virtual ~VrmlNodeShape();
 
-    virtual VrmlNode *cloneMe() const;
-    virtual void cloneChildren(VrmlNamespace *);
+    virtual VrmlNode *cloneMe() const override;
+    virtual void cloneChildren(VrmlNamespace *) override;
 
-    virtual bool isModified() const;
+    virtual bool isModified() const override;
 
-    virtual void clearFlags();
+    virtual void clearFlags() override;
 
-    virtual VrmlNodeShape *toShape() const;
+    virtual VrmlNodeShape *toShape() const override;
 
-    virtual void addToScene(VrmlScene *s, const char *relUrl);
+    virtual void addToScene(VrmlScene *s, const char *relUrl) override;
 
-    virtual void copyRoutes(VrmlNamespace *ns);
+    virtual void copyRoutes(VrmlNamespace *ns) override;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
-    virtual void render(Viewer *);
+    virtual void render(Viewer *) override;
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
+    const VrmlField *getField(const char *fieldName) const override;
 
     virtual VrmlNode *getAppearance()
     {
@@ -70,6 +70,8 @@ public:
     {
         return d_viewerObject;
     };
+
+    bool isOnlyGeometry() const override;
 
 private:
     VrmlSFNode d_appearance;

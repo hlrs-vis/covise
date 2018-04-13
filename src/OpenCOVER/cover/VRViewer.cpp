@@ -2569,17 +2569,20 @@ void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
         ctx->makeCurrent();
     } // OpenCOVER end
 
+    if (GLEW_NVX_gpu_memory_info)
+    {
 #ifdef GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
-    osg::FrameStamp *frameStamp = getViewerFrameStamp();
+        osg::FrameStamp *frameStamp = getViewerFrameStamp();
 
-    GLint mem=0, obj=0, avail=0;
-    glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &obj);
-    glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &mem);
-    glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &avail);
-    //std::cerr << "AVAIL=" << avail << ", EVICTED " << windowNumber << ": obj=" << obj << ", mem=" << mem << std::endl;
+        GLint mem=0, obj=0, avail=0;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &obj);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &mem);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &avail);
+        //std::cerr << "AVAIL=" << avail << ", EVICTED " << windowNumber << ": obj=" << obj << ", mem=" << mem << std::endl;
 
-    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "GPU mem free", avail);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "GPU mem free", avail);
 #endif
+    }
 }
 
 template <typename Cameras, typename F>

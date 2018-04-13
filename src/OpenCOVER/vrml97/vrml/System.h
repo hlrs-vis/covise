@@ -213,6 +213,26 @@ public:
         return correctSpatializedAudio;
     }
 
+    enum CacheMode
+    {
+        CACHE_DISABLE, //< do not use, do not write
+        CACHE_USE, //< use what is there, do not write
+        CACHE_USEOLD, //< use what is there, even if outdated
+        CACHE_CREATE, //< use what is there or create
+        CACHE_REWRITE, //< force recreation of cache
+    };
+
+    virtual CacheMode getCacheMode() const
+    {
+        return CACHE_CREATE;
+    }
+
+    virtual std::string getCacheName(const char *url, const char *pathname) const
+    {
+        (void)url;
+        (void)pathname;
+        return std::string();
+    }
     virtual void storeInline(const char *nameBase, const Viewer::Object d_viewerObject)
     {
         (void)nameBase;

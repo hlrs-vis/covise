@@ -1707,6 +1707,17 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
 
 void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
+#if 1
+    if (System::the->getCacheMode() != System::CACHE_CREATE
+            && System::the->getCacheMode() != System::CACHE_REWRITE)
+        return;
+
+    std::string cachefile = System::the->getCacheName(url, pathname);
+    if (cachefile.empty())
+        return;
+    std::cerr << "Cache store: " << pathname << " -> " << cachefile << std::endl;
+    System::the->storeInline(cachefile.c_str(), d_viewerObject);
+#else
     if (cache)
     {
         char *fileName = NULL;
@@ -1742,10 +1753,64 @@ void VrmlScene::storeCachedInline(const char *url, const char *pathname, const V
         cache->modified = true;
         System::the->storeInline(str.str().c_str(), d_viewerObject);
     }
+#endif
 }
 
 Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 {
+    if (System::the->getCacheMode() == System::CACHE_DISABLE
+            || System::the->getCacheMode() == System::CACHE_REWRITE)
+        return 0L;
+
+#if 1
+    std::string cachefile = System::the->getCacheName(url, pathname);
+    if (cachefile.empty())
+    {
+        std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+        return 0L;
+    }
+
+#ifdef _WIN32
+    struct _stat sbufInline, sbufCached;
+    int ret = _stat(cachefile.c_str(), &sbufCached);
+#else
+    struct stat sbufInline, sbufCached;
+    int ret = stat(cachefile.c_str(), &sbufCached);
+#endif
+    if (ret != 0)
+    {
+        std::cerr << "Cache reject: failed to stat cache: " << pathname << " -> " << cachefile << std::endl;
+        return 0L;
+    }
+
+    if (System::the->getCacheMode() != System::CACHE_USEOLD)
+    {
+#ifdef _WIN32
+        ret = _stat(pathname, &sbufInline);
+#else
+        ret = stat(pathname, &sbufInline);
+#endif
+        if (ret != 0)
+        {
+            std::cerr << "Cache reject: failed to stat Inline: " << pathname << " -> " << cachefile << std::endl;
+            return 0L;
+        }
+
+#ifdef __APPLE__
+#define st_mtim st_mtimespec
+#endif
+
+        if (sbufInline.st_mtim.tv_sec > sbufCached.st_mtim.tv_sec
+                || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
+        {
+            std::cerr << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
+            return 0L;
+        }
+    }
+
+    std::cerr << "Cache load: " << pathname << " -> " << cachefile << std::endl;
+    return System::the->getInline(cachefile.c_str());
+#else
     //std::cerr << "VrmlScene::getCachedInline(url=" << url << ", local=" << (pathname?pathname:"<null>") << std::endl;
     if (cache)
     {
@@ -1772,6 +1837,7 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
             return System::the->getInline(str.str().c_str());
         }
     }
+#endif
     return 0L;
 }
 
