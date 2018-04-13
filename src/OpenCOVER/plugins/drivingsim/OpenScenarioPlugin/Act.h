@@ -11,6 +11,7 @@ using namespace std;
 #include <OpenScenario/schema/oscAct.h>
 class Sequence;
 class Condition;
+class Condition;
 
 class Act : public OpenScenario::oscAct
 {
@@ -37,8 +38,10 @@ class Act : public OpenScenario::oscAct
 	string getName();
 	int getNumberOfExecutions();
 
-    list<Condition*> startConditionList;
-    list<Condition*> endConditionList;
+    std::list<Condition*> startConditionList;
+    std::list<Condition*> endConditionList;
+    void addEndCondition(Condition* condition);
+    void addStartCondition(Condition* condition);
 
 };
 

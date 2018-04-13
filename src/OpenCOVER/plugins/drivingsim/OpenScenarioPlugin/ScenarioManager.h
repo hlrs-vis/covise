@@ -9,10 +9,11 @@ using namespace std;
 #include <list>
 
 class Condition;
+class Maneuver;
 class ScenarioManager {
 
 public:
-	list<Act*> actList;
+    std::list<Act*> actList;
 	list<Entity*> entityList;
 	float simulationTime;
 
@@ -25,13 +26,14 @@ public:
 	ScenarioManager();
 	~ScenarioManager();
 	Entity* getEntityByName(string entityName);
-    bool conditionControl();
+    Maneuver* getManeuverByName(string maneuverName);
+    bool conditionControl(Condition* condition);
     bool conditionControl(Act* act);
     bool conditionControl(Event* event, Maneuver *maneuver);
     void conditionManager();
 
     void addCondition(Condition* condition);
-    list<Condition*> endConditionList;
+    std::list<Condition*> endConditionList;
 
 };
 

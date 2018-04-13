@@ -32,6 +32,8 @@ public:
     void initialize(int numEntites);
 
     std::list<Condition*> startConditionList;
+    void addCondition(Condition* condition);
+
 };
 
 #endif // EVENT_H

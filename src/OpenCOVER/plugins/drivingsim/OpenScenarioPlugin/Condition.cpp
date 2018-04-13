@@ -1,13 +1,13 @@
 #include "Condition.h"
-#include <OpenScenario/schema/oscByEntity.h>
+#include "Entity.h"
 
 using namespace std;
 
 Condition::Condition():
     oscCondition(),
     isTrue(false),
-    activeCar(NULL),
-    passiveCar(NULL),
+    delayTimer(0.0),
+    passiveEntity(NULL),
     checkedAct(NULL),
     checkedEvent(NULL),
     checkedManeuver(NULL),
@@ -15,8 +15,22 @@ Condition::Condition():
 {}
 Condition::~Condition(){}
 
-void Condition::initalize(oscByEntity *condition)
+void Condition::addActiveEntity(Entity* entity)
 {
+    activeEntityList.push_back(entity);
+}
 
+void Condition::setPassiveEntity(Entity* entity)
+{
+    passiveEntity = entity;
+}
 
+void Condition::setManeuver(Maneuver* maneuver)
+{
+    checkedManeuver = maneuver;
+}
+
+void Condition::set(bool state)
+{
+    isTrue = state;
 }

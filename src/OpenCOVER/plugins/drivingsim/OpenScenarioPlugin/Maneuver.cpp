@@ -27,7 +27,7 @@ void Maneuver::initialize(::Event* event_temp)
 
 void Maneuver::finishedParsing()
 {
-	name = oscManeuver::name.getValue();
+    maneuverName = oscManeuver::name.getValue();
 }
 
 void Maneuver::checkConditions()
@@ -70,7 +70,7 @@ void Maneuver::checkConditions()
 
 string &Maneuver::getName()
 {
-	return name;
+    return maneuverName;
 }
 
 void Maneuver::changeSpeedOfEntity(Entity *aktivCar, float dt,std::list<Entity*> *activeEntityList)

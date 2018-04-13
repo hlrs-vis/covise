@@ -5,6 +5,7 @@
 #include "Sequence.h"
 #include "Maneuver.h"
 #include "Event.h"
+#include "Condition.h"
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
@@ -30,28 +31,87 @@ Entity* ScenarioManager::getEntityByName(string entityName)
 return 0;
 }
 
-void ScenarioManager::conditionManager(){
-    if(conditionControl()){
-        for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+Maneuver* ScenarioManager::getManeuverByName(string maneuverName)
+{
+    for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+    {
+
+        for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
         {
-            if(conditionControl((*act_iter)))
+            for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
             {
-                for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+                if((*maneuver_iter)->name.getValue() == maneuverName)
                 {
-                    anyActTrue = true;
-                    bool anyEvent = false;
-                    for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
+                    Maneuver* maneuver = (*maneuver_iter);
+                    return maneuver;
+                }
+            }
+
+
+        }
+    }
+
+}
+
+void ScenarioManager::conditionManager(){
+    // check Story end condition
+    for(std::list<Condition*>::iterator condition_iter = endConditionList.begin(); condition_iter != endConditionList.end(); condition_iter++)
+    {
+        Condition* storyCondition = (*condition_iter);
+        if(conditionControl(storyCondition)) // if endcondition is false, story is true
+        {
+            scenarioCondition = false;
+        }
+        else
+        {
+            scenarioCondition = true;
+            //check Act conditions
+            for(std::list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+            {
+                Act* currentAct = (*act_iter);
+                // endconditions
+                for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
+                {
+                    Condition* actEndCondition = (*condition_iter);
+                    if(conditionControl(actEndCondition))
                     {
-                        for(list<Event*>::iterator event_iter = (*maneuver_iter)->eventList.begin(); event_iter != (*maneuver_iter)->eventList.end(); event_iter++)
+                        currentAct->actCondition = false;
+                        continue;
+                    }
+                }
+                for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
+                {
+                    Condition* actStartCondition = (*condition_iter);
+                    if(conditionControl((actStartCondition)))
+                    {
+                        currentAct->actCondition = true;
+                        for(std::list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
                         {
-                            if(conditionControl((*event_iter),(*maneuver_iter)))
+                            Sequence* currentSequence = (*sequence_iter);
+                            for(std::list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
                             {
-                                (*sequence_iter)->activeEvent = (*event_iter);
-                                anyEvent = true;
-                            }
-                            if(!anyEvent)
-                            {
-                                (*sequence_iter)->activeEvent = NULL;
+                                Maneuver* currentManeuver = (*maneuver_iter);
+                                for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+                                {
+                                    Event* currentEvent = (*event_iter);
+                                    for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
+                                    {
+                                        Condition* eventCondition = (*condition_iter);
+                                        if(conditionControl(eventCondition))
+                                        {
+                                            if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
+                                            {
+                                                currentEvent->eventFinished = true;
+                                                currentManeuver->maneuverFinished = true;
+                                            }
+                                            else
+                                            {
+                                                currentEvent->eventCondition = true;
+                                                currentSequence->activeEvent = currentEvent;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -61,14 +121,47 @@ void ScenarioManager::conditionManager(){
     }
 }
 
-bool ScenarioManager::conditionControl()
+bool ScenarioManager::conditionControl(Condition* condition)
 {
-	if (endTime<simulationTime)
-		{
-			scenarioCondition = false;
-            return false;
-		}
-    return true;
+    if(condition->isTrue)
+    {
+        return true;
+    }
+    if(condition->ByValue.exists())
+    {
+        if (condition->ByValue->SimulationTime->value.getValue()<simulationTime)
+        {
+            condition->set(true);
+            return true;
+        }
+    }
+    if(condition->ByState.exists())
+    {
+        if(condition->checkedManeuver != NULL)
+        {
+            if(condition->checkedManeuver->maneuverFinished == true)
+            {
+                condition->set(true);
+                return true;
+            }
+        }
+    }
+    if(condition->ByEntity.exists())
+    {
+        Entity* pasiveEntity = condition->passiveEntity;
+        float relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
+        for(std::list<Entity*>::iterator entity_iter = condition->activeEntityList.begin(); entity_iter != condition->activeEntityList.end(); entity_iter++)
+        {
+            Entity* activeEntity = (*entity_iter);
+            if (activeEntity->refPos->s-pasiveEntity->refPos->s >= relativeDistance)
+            {
+                condition->set(true);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool ScenarioManager::conditionControl(Act* act)

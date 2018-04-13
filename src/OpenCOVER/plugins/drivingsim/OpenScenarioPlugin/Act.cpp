@@ -1,5 +1,6 @@
 #include "Act.h"
 #include "ScenarioManager.h"
+#include "Condition.h"
 
 Act::Act() :
 	oscAct()
@@ -35,4 +36,14 @@ string Act::getName()
 	return name;
 }
 
+void Act::addEndCondition(Condition *condition)
+{
+    endConditionList.push_back(condition);
 
+}
+
+void Act::addStartCondition(Condition *condition)
+{
+    startConditionList.push_back(condition);
+
+}

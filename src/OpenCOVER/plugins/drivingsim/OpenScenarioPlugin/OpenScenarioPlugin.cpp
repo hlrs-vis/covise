@@ -300,20 +300,18 @@ void OpenScenarioPlugin::preFrame()
                                 }
                             }
                         }
-
                     }
                 }
             }
         }
-        if(scenarioManager->anyActTrue)
+
+        for(list<Entity*>::iterator activeEntity = unusedEntity.begin(); activeEntity != unusedEntity.end(); activeEntity++)
         {
-            for(list<Entity*>::iterator activeEntity = unusedEntity.begin(); activeEntity != unusedEntity.end(); activeEntity++)
-            {
-                Entity* currentEntity = (*activeEntity);
-                currentEntity->moveLongitudinal();
-            }
-            usedEntity.clear();
+            Entity* currentEntity = (*activeEntity);
+            currentEntity->moveLongitudinal();
         }
+        usedEntity.clear();
+
     }
     else
     {
@@ -630,6 +628,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 for (oscActorsArrayMember::iterator it = currentSeq->Actors->Entity.begin(); it != currentSeq->Actors->Entity.end(); it++)
                 {
                     oscEntity* namedEntity = ((oscEntity*)(*it));
+                    std::string namedEntityName = namedEntity->name.getValue();
                     std::string actor = "$owner"; //only temporary while sequence is broken (?)
                     if (actor != "$owner")
                     {
@@ -672,7 +671,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             Condition* condition = ((Condition*)(*it));
             if(condition->ByValue.exists())
             {
-
                 scenarioManager->endConditionType = "time";
                 scenarioManager->endTime = condition->ByValue->SimulationTime->value.getValue();
                 if(condition->delay.exists())
@@ -692,17 +690,17 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
             for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
             {
-                oscCondition* condition = ((oscCondition*)(*it));
+                Condition* condition = ((Condition*)(*it));
                 if(condition->ByValue.exists())
                 {
 
-                    (*act_iter)->startConditionType = "time";
-                    (*act_iter)->startTime = condition->ByValue->SimulationTime->value.getValue();
+                    (currentAct)->startConditionType = "time";
+                    (currentAct)->startTime = condition->ByValue->SimulationTime->value.getValue();
                     if(condition->delay.exists())
                     {
-                        (*act_iter)->startTime = (*act_iter)->startTime + condition->delay.getValue();
+                        (currentAct)->startTime = (currentAct)->startTime + condition->delay.getValue();
                     }
-
+                    currentAct->addStartCondition(condition);
                 }
             }
         }
@@ -712,7 +710,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
             for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
             {
-                oscCondition* condition = ((oscCondition*)(*it));
+                Condition* condition = ((Condition*)(*it));
                 if(condition->ByValue.exists())
                 {
                     (*act_iter)->endConditionType = "time";
@@ -721,6 +719,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     {
                         (*act_iter)->endTime = (*act_iter)->endTime + condition->delay.getValue();
                     }
+                    currentAct->addEndCondition(condition);
                 }
             }
         }
@@ -741,10 +740,9 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                         oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
                         for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
                         {
-                            oscCondition* condition = ((oscCondition*)(*it));
+                            Condition* condition = ((Condition*)(*it));
                             if(condition->ByValue.exists())
                             {
-
                                 currentEvent->startConditionType="time";
                                 currentEvent->startTime = condition->ByValue->SimulationTime->value.getValue();
                                 if(condition->delay.exists())
@@ -756,21 +754,24 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                             if(condition->ByState.exists())
                             {
                                 currentEvent->startConditionType="termination";
-                                currentEvent->startAfterManeuver = condition->ByState->AfterTermination->name.getValue();
+                                std::string maneuverName = condition->ByState->AfterTermination->name.getValue();
+                                condition->setManeuver(scenarioManager->getManeuverByName(maneuverName));
                             }
                             if(condition->ByEntity.exists())
                             {
 
                                 currentEvent->startConditionType="distance";
-                                currentEvent->passiveCarName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
-                                currentEvent->relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
+                                std::string passiveEntityName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+                                condition->setPassiveEntity(scenarioManager->getEntityByName(passiveEntityName));
 
                                 for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
                                 {
                                     oscEntity* entity = ((oscEntity*)(*it));
-                                    currentEvent->activeCarName = entity->name.getValue();
+                                    std::string activeEntityName = entity->name.getValue();
+                                    condition->addActiveEntity(scenarioManager->getEntityByName(activeEntityName));
                                 }
                             }
+                            currentEvent->addCondition(condition);
                         }
                     }
                     //get trajectoryCatalogReference

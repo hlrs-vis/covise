@@ -182,7 +182,6 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
                 speed = 0;
             }
             visitedVertices = 0;
-            ++actionCounter;
             event->finishedEntityActions = event->finishedEntityActions+1;
 
             refPos->update();

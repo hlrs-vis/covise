@@ -5,13 +5,15 @@
 #include<vector>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscCondition.h>
+#include<list>
+
 class Entity;
 class Event;
 class Maneuver;
 class Act;
 class Sequence;
+class ScenarioManager;
 
-class oscByEntity;
 class Condition : public OpenScenario::oscCondition
 {
 
@@ -23,10 +25,10 @@ public:
 	~Condition();
 
     bool isTrue;
-
+    float delayTimer;
     // (longitudinal) distance
-    Entity* passiveCar;
-    Entity* activeCar;
+    Entity* passiveEntity;
+    std::list<Entity*> activeEntityList;
 
     //termination start
     Maneuver* checkedManeuver;
@@ -34,8 +36,10 @@ public:
     Act* checkedAct;
     Sequence* checkedSequence;
 
-    void initalize(oscByEntity* condition);
-
+    void addActiveEntity(Entity* entity);
+    void setPassiveEntity(Entity* entity);
+    void setManeuver(Maneuver* maneuver);
+    void set(bool state);
 };
 
 #endif // Condition_H
