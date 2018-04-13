@@ -30,6 +30,7 @@ public:
     bool conditionControl(Event* event, Maneuver *maneuver);
     void conditionManager();
 
+    void addCondition(Condition* condition);
     list<Condition*> endConditionList;
 
 };

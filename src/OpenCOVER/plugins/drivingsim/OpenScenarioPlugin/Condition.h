@@ -11,6 +11,7 @@ class Maneuver;
 class Act;
 class Sequence;
 
+class oscByEntity;
 class Condition : public OpenScenario::oscCondition
 {
 
@@ -21,23 +22,19 @@ public:
 	Condition();
 	~Condition();
 
-    std::string type;
+    bool isTrue;
 
-    // time
-    float time;
-
-    // distance
+    // (longitudinal) distance
     Entity* passiveCar;
     Entity* activeCar;
-    float relativeDistance;
 
     //termination start
-    bool rule;
-
     Maneuver* checkedManeuver;
     Event* checkedEvent;
     Act* checkedAct;
     Sequence* checkedSequence;
+
+    void initalize(oscByEntity* condition);
 
 };
 

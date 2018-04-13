@@ -53,6 +53,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Action.h"
 #include "Sequence.h"
 #include "Event.h"
+#include "Condition.h"
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -668,9 +669,10 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
         oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
         for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
         {
-            oscCondition* condition = ((oscCondition*)(*it));
+            Condition* condition = ((Condition*)(*it));
             if(condition->ByValue.exists())
             {
+
                 scenarioManager->endConditionType = "time";
                 scenarioManager->endTime = condition->ByValue->SimulationTime->value.getValue();
                 if(condition->delay.exists())
@@ -678,6 +680,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                     scenarioManager->endTime = scenarioManager->endTime + condition->delay.getValue();
                 }
             }
+            scenarioManager->addCondition(condition);
         }
     }
     for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)

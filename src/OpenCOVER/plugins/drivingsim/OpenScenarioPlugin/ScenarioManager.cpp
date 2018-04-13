@@ -153,6 +153,10 @@ bool ScenarioManager::conditionControl(Event* event,Maneuver* maneuver)
     return false;
 }
 
+void ScenarioManager::addCondition(Condition *condition)
+{
+    endConditionList.push_back(condition);
+}
 
 
 
