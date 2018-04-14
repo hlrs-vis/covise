@@ -18,7 +18,6 @@ public:
     std::list<::Action*> actionList;
     int finishedEntityActions;
     int activeEntites;
-    std::string name;
 
     //conditions
 

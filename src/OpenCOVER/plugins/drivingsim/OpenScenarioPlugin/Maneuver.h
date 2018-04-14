@@ -34,6 +34,7 @@ public:
     float targetSpeed;
 
     std::list<::Event*> eventList;
+    ::Event* activeEvent;
 
     Maneuver();
     ~Maneuver();

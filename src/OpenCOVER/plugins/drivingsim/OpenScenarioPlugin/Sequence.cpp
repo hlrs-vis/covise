@@ -3,7 +3,7 @@
 
 Sequence::Sequence():
     StoryElement(),
-    activeEvent(NULL),
+    activeManeuver(NULL),
     executions(0)
 {
 

@@ -23,8 +23,6 @@ public:
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
-    int actionCounter;
-
 
     ReferencePosition* refPos;
     ReferencePosition* newRefPos;
@@ -57,10 +55,9 @@ public:
     float totaldirectionVectorLength;
 
     // follow Trajectories functions
-    void setTrajectoryDirection();
     void setTrajSpeed(float deltat);
     void followTrajectory(Event *event, int verticesCounter);
-    void setTrajectoryDirectionOnRoad();
+    void setTrajectoryDirection();
 
     //Longitudinal attributes
     float dt;

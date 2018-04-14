@@ -6,6 +6,7 @@ using namespace std;
 Condition::Condition():
     oscCondition(),
     isTrue(false),
+    waitForDelay(false),
     delayTimer(0.0),
     passiveEntity(NULL),
     checkedAct(NULL),
@@ -30,7 +31,28 @@ void Condition::setManeuver(Maneuver* maneuver)
     checkedManeuver = maneuver;
 }
 
+void Condition::setEvent(Event* event)
+{
+    checkedEvent = event;
+}
 void Condition::set(bool state)
 {
     isTrue = state;
+}
+
+void Condition::increaseTimer()
+{
+    delayTimer = delayTimer + opencover::cover->frameDuration();
+}
+
+bool Condition::delayReached()
+{
+    if(delayTimer >= delay.getValue())
+    {
+        delayTimer = 0.0;
+        waitForDelay = false;
+        return true;
+    }
+    increaseTimer();
+    return false;
 }

@@ -2,6 +2,7 @@
 #define SCENARIOMANAGER_H
 
 #include "Act.h"
+#include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
 
 using namespace std;
 #include<iostream>
@@ -10,6 +11,9 @@ using namespace std;
 
 class Condition;
 class Maneuver;
+class Event;
+using namespace OpenScenario;
+
 class ScenarioManager {
 
 public:
@@ -25,14 +29,17 @@ public:
 
 	ScenarioManager();
 	~ScenarioManager();
-	Entity* getEntityByName(string entityName);
-    Maneuver* getManeuverByName(string maneuverName);
+    Entity* getEntityByName(std::string entityName);
+    Maneuver* getManeuverByName(std::string maneuverName);
+    Event* getEventByName(std::string eventName);
     bool conditionControl(Condition* condition);
-    bool conditionControl(Act* act);
-    bool conditionControl(Event* event, Maneuver *maneuver);
+
     void conditionManager();
+    void actConditionManager();
+    void eventConditionManager(Act *currentAct);
 
     void addCondition(Condition* condition);
+    void initializeCondition(Condition* condition);
     std::list<Condition*> endConditionList;
 
 };

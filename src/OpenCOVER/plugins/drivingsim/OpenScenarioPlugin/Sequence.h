@@ -10,7 +10,7 @@
 
 class Maneuver;
 class Entity;
-class Event;
+
 class Sequence : public::OpenScenario::oscSequence, public StoryElement
 {
 public:
@@ -19,7 +19,7 @@ public:
     std::list<Entity*> actorList;
     int executions;
     std::string name;
-    Event* activeEvent;
+    ::Maneuver* activeManeuver;
 
 
     void initialize(std::list<Entity*> actorList_temp, std::list<::Maneuver *> maneuverList_temp);

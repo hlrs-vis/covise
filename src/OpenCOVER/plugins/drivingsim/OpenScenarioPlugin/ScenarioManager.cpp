@@ -6,6 +6,7 @@
 #include "Maneuver.h"
 #include "Event.h"
 #include "Condition.h"
+#include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
@@ -14,7 +15,7 @@ ScenarioManager::ScenarioManager():
 {
 }
 
-Entity* ScenarioManager::getEntityByName(string entityName)
+Entity* ScenarioManager::getEntityByName(std::string entityName)
 {
 	for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
 	{
@@ -31,26 +32,44 @@ Entity* ScenarioManager::getEntityByName(string entityName)
 return 0;
 }
 
-Maneuver* ScenarioManager::getManeuverByName(string maneuverName)
+Maneuver* ScenarioManager::getManeuverByName(std::string maneuverName)
 {
     for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
     {
-
         for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
         {
             for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
             {
-                if((*maneuver_iter)->name.getValue() == maneuverName)
+                Maneuver* maneuver = (*maneuver_iter);
+                if(maneuver->name.getValue() == maneuverName)
                 {
-                    Maneuver* maneuver = (*maneuver_iter);
                     return maneuver;
                 }
             }
-
-
         }
     }
-
+    return NULL;
+}
+Event* ScenarioManager::getEventByName(std::string eventName)
+{
+    for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+    {
+        for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+        {
+            for(list<Maneuver*>::iterator maneuver_iter = (*sequence_iter)->maneuverList.begin(); maneuver_iter != (*sequence_iter)->maneuverList.end(); maneuver_iter++)
+            {
+                for(list<Event*>::iterator event_iter = (*maneuver_iter)->eventList.begin(); event_iter != (*maneuver_iter)->eventList.end(); event_iter++)
+                {
+                    Event* event = (*event_iter);
+                    if(event->name.getValue() == eventName)
+                    {
+                        return event;
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 void ScenarioManager::conditionManager(){
@@ -65,93 +84,160 @@ void ScenarioManager::conditionManager(){
         else
         {
             scenarioCondition = true;
-            //check Act conditions
-            for(std::list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+            actConditionManager();
+        }
+    }
+}
+void ScenarioManager::actConditionManager()
+{
+    //check Act conditions
+    for(std::list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+    {
+        Act* currentAct = (*act_iter);
+        // endconditions
+        if(currentAct->StoryElement::isRunning())
+        {
+            for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
             {
-                Act* currentAct = (*act_iter);
-                // endconditions
-                if(currentAct->StoryElement::state == StoryElement::running)
+                Condition* actEndCondition = (*condition_iter);
+                if(conditionControl(actEndCondition))
                 {
-                    for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
-                    {
-                        Condition* actEndCondition = (*condition_iter);
-                        if(conditionControl(actEndCondition))
-                        {
-                            currentAct->StoryElement::stop();
-                        }
-                    }
+                    currentAct->StoryElement::stop();
                 }
-                else if(currentAct->StoryElement::state == StoryElement::stopped)
+                else
                 {
-                    for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
-                    {
-                        Condition* actStartCondition = (*condition_iter);
-                        if(conditionControl((actStartCondition)))
-                        {
-                            currentAct->StoryElement::start();
-                        }
-                    }
+                    eventConditionManager(currentAct);
                 }
-                int finishedSequences = 0;
-                bool sequenceRunning = false;
-                for(std::list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
+            }
+        }
+        else if(currentAct->StoryElement::isStopped())
+        {
+            for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
+            {
+                Condition* actStartCondition = (*condition_iter);
+                if(conditionControl((actStartCondition)))
                 {
-                    int finishedManeuvers = 0;
-                    bool maneuverRunning = false;
-                    Sequence* currentSequence = (*sequence_iter);
-                    for(std::list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
-                    {
-                        int finishedEvents = 0;
-                        bool eventRunning = false;
-                        Maneuver* currentManeuver = (*maneuver_iter);
-                        for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
-                        {
-                            Event* currentEvent = (*event_iter);
-                            for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
-                            {
-                                Condition* eventCondition = (*condition_iter);
-                                if(conditionControl(eventCondition))
-                                {
-                                    if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
-                                    {
-                                        // lieber running actions und dann abziehen
-                                        currentEvent->StoryElement::finish();
-                                        finishedEvents++;
-                                    }
-                                    else
-                                    {
-                                        currentEvent->StoryElement::start();
-                                        eventRunning = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
+                    currentAct->StoryElement::start();
+                    eventConditionManager(currentAct);
                 }
             }
         }
     }
 }
 
+void ScenarioManager::eventConditionManager(Act* currentAct)
+{
+    int finishedSequences = 0;
+    for(std::list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
+    {
+        int finishedManeuvers = 0;
+        Sequence* currentSequence = (*sequence_iter);
+        currentSequence->activeManeuver = NULL;
+        currentSequence->start();
+        for(std::list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
+        {
+            int finishedEvents = 0;
+            Maneuver* currentManeuver = (*maneuver_iter);
+            currentManeuver->activeEvent = NULL;
+            currentManeuver->start();
+            for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+            {
+                Event* currentEvent = (*event_iter);
+                if(currentEvent->StoryElement::isStopped())
+                {
+                    for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
+                    {
+                        Condition* eventCondition = (*condition_iter);
+
+                        if(conditionControl(eventCondition))
+                        {
+                            currentEvent->StoryElement::start();
+                            currentManeuver->activeEvent = currentEvent;
+                            break;
+                        }
+                    }
+                }
+                if(currentEvent->StoryElement::isRunning())
+                {
+                    if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
+                    {
+                        // lieber running actions und dann abziehen
+                        currentEvent->StoryElement::finish();
+                        finishedEvents++;
+                    }
+                    else
+                    {
+                        if(currentManeuver->activeEvent == NULL)
+                        {
+                            currentManeuver->activeEvent = currentEvent;
+                        }
+                    }
+                }
+            }
+            if(finishedEvents == currentManeuver->eventList.size())
+            {
+                currentManeuver->StoryElement::finish();
+                finishedManeuvers++;
+            }
+            else if(currentManeuver->activeEvent == NULL)
+            {
+                currentManeuver->StoryElement::stop();
+            }
+            else
+            {
+                currentSequence->activeManeuver = currentManeuver;
+                break;
+            }
+        }
+        if(finishedManeuvers == currentSequence->maneuverList.size())
+        {
+            currentSequence->StoryElement::finish();
+            finishedSequences++;
+        }
+        else if(currentSequence->activeManeuver == NULL)
+        {
+            currentSequence->StoryElement::stop();
+        }
+    }
+    if(finishedSequences == currentAct->sequenceList.size())
+    {
+        currentAct->StoryElement::finish();
+    }
+}
+
 bool ScenarioManager::conditionControl(Condition* condition)
 {
+    if(condition->waitForDelay)
+    {
+        return condition->delayReached();
+    }
     if(condition->ByValue.exists())
     {
         if (condition->ByValue->SimulationTime->value.getValue()<simulationTime)
         {
             condition->set(true);
-            return true;
+            condition->waitForDelay = true;
+            return condition->delayReached();
         }
     }
     if(condition->ByState.exists())
     {
         if(condition->checkedManeuver != NULL)
         {
-            if(condition->checkedManeuver->maneuverFinished == true)
+            if(condition->checkedManeuver->StoryElement::state == StoryElement::finished)
             {
                 condition->set(true);
-                return true;
+                condition->waitForDelay = true;
+                return condition->delayReached();
+            }
+        }
+        else if(condition->checkedEvent != NULL)
+        {
+            if(condition->checkedEvent->StoryElement::state == StoryElement::finished)
+            {
+                condition->set(true);
+                condition->waitForDelay = true;
+                return condition->delayReached();
             }
         }
     }
@@ -165,93 +251,12 @@ bool ScenarioManager::conditionControl(Condition* condition)
             if (activeEntity->refPos->s-pasiveEntity->refPos->s >= relativeDistance)
             {
                 condition->set(true);
-                return true;
+                condition->waitForDelay = true;
+                return condition->delayReached();
             }
         }
     }
 
-    return false;
-}
-
-bool ScenarioManager::conditionControl(Act* act)
-{
-	if (act->startConditionType=="time")
-	{
-		if(act->startTime<simulationTime && act->actFinished==false)
-		{
-            act->actCondition = true;
-            return act->actCondition;
-		}
-		else
-		{
-			act->actCondition = false;
-            return act->actCondition;
-		}
-
-		if (endTime != 0)
-		{
-			if(act->startTime<simulationTime && endTime>simulationTime && act->actFinished==false)
-			{
-				act->actCondition = true;
-                return act->actCondition;
-			}
-			else
-			{
-				act->actCondition = false;
-                return act->actCondition;
-			}
-		}
-	}
-    return false;
-}
-
-bool ScenarioManager::conditionControl(Event* event,Maneuver* maneuver)
-{
-    if(event->eventFinished)
-    {
-        return false;
-    }
-    if (event->startConditionType=="time")
-	{
-        if(event->startTime<simulationTime && event->eventFinished != true)
-		{
-            event->eventCondition = true;
-            return event->eventCondition;
-		}
-		else
-		{
-            event->eventCondition = false;
-            return event->eventCondition;
-		}
-	}
-    if (event->startConditionType=="distance")
-	{
-        auto activeCar = getEntityByName(event->activeCarName);
-        auto passiveCar = getEntityByName(event->passiveCarName);
-        if (activeCar->refPos->s-passiveCar->refPos->s >= event->relativeDistance && event->eventFinished == false)
-		{
-            event->eventCondition = true;
-            return event->eventCondition;
-		}
-
-    }
-    if (event->startConditionType=="termination")
-    {
-        for(list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
-        {
-            for(list<Sequence*>::iterator sequence_iter = (*act_iter)->sequenceList.begin(); sequence_iter != (*act_iter)->sequenceList.end(); sequence_iter++)
-            {
-                for(list<Maneuver*>::iterator terminatedManeuver = (*sequence_iter)->maneuverList.begin(); terminatedManeuver != (*sequence_iter)->maneuverList.end(); terminatedManeuver++)
-                {
-                    if ((*terminatedManeuver)->maneuverFinished == true && maneuver->maneuverFinished == false && (*terminatedManeuver)->getName() == event->startAfterManeuver)
-                    {
-                        event->eventCondition = true;
-                        return event->eventCondition;
-                    }
-                }
-            }
-        }
-    }
     return false;
 }
 
@@ -260,5 +265,36 @@ void ScenarioManager::addCondition(Condition *condition)
     endConditionList.push_back(condition);
 }
 
+void ScenarioManager::initializeCondition(Condition *condition)
+{
+    if(condition->ByValue.exists())
+    {
+        // nothing to initialize. everything is alsready stored in oscCondition
+    }
+    if(condition->ByState.exists())
+    {
+        int type = condition->ByState->AfterTermination->type.getValue();
+        if(type == 2) // if type is a maneuver
+        {
+            std::string maneuverName = condition->ByState->AfterTermination->name.getValue();
+            condition->setManeuver(getManeuverByName(maneuverName));
+        }
+        else if(type == 3) // if type is an event
+        {
+            std::string eventName = condition->ByState->AfterTermination->name.getValue();
+            condition->setEvent(getEventByName(eventName));
+        }
+    }
+    if(condition->ByEntity.exists())
+    {
+        std::string passiveEntityName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
+        condition->setPassiveEntity(getEntityByName(passiveEntityName));
 
-
+        for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
+        {
+            oscEntity* entity = ((oscEntity*)(*it));
+            std::string activeEntityName = entity->name.getValue();
+            condition->addActiveEntity(getEntityByName(activeEntityName));
+        }
+    }
+}

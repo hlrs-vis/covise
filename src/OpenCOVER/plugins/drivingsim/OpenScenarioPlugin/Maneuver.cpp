@@ -10,6 +10,7 @@ using namespace std;
 
 Maneuver::Maneuver():
     StoryElement(),
+    activeEvent(NULL),
 	maneuverFinished(false),
     trajectoryCatalogReference(""),
 	startAfterManeuver(""),

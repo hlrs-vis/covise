@@ -17,6 +17,10 @@ public:
     void stop();
     void start();
     void finish();
+
+    bool isRunning();
+    bool isStopped();
+    bool isFinished();
 };
 
 #endif // STORYELEMENT_H
