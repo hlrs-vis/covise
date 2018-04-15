@@ -2,11 +2,16 @@
 #include "ReferencePosition.h"
 #include "Action.h"
 #include "Event.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscEntity.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include "OpenScenarioPlugin.h"
 using namespace std;
+using namespace OpenScenario;
 
-Entity::Entity(string entityName, string catalogReferenceName):
-	name(entityName),
-    catalogReferenceName(catalogReferenceName),
+Entity::Entity(oscObject *obj):
+	object(obj),
+	name(obj->name),
     totalDistance(0),
     visitedVertices(0),
     refPos(NULL),
@@ -15,47 +20,48 @@ Entity::Entity(string entityName, string catalogReferenceName):
     actionCounter(0)
 {
 	directionVector.set(1, 0, 0);
+
+	std::string catalogReferenceName= object->CatalogReference->entryName;
+	vehicle = ((oscVehicle*)(OpenScenarioPlugin::instance()->osdb->getCatalogObjectByCatalogReference("VehicleCatalog", catalogReferenceName)));
+
+	std::string geometryFileName;
+	for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it != vehicle->Properties->File.end(); it++)
+	{
+		oscFile* file = ((oscFile*)(*it));
+		geometryFileName = file->filepath.getValue();
+		break;
+	}
+
+	agentVehicle = new AgentVehicle(name, new CarGeometry(name, geometryFileName, true));
 }
 
-void Entity::setInitEntityPosition(osg::Vec3 initPos)
+Entity::~Entity()
 {
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
-	entityGeometry->setPosition(initPos, directionVector);
-}
-
-void Entity::setInitEntityPosition(Road *r)
-{
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
-    // Road r; s inits;
-	auto vtrans = entityGeometry->getVehicleTransform();
-	osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-	entityPosition = pos;
-	entityGeometry->setPosition(pos, directionVector);
 }
 
 void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 {
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+    //entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
 
-    if(init_refPos->road != NULL)
+    /*if(init_refPos->road != NULL)
     {
-        auto vtrans = entityGeometry->getVehicleTransform();
+        auto vtrans = agentVehicle->getVehicleTransform();
         osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
         entityPosition = pos;
-        entityGeometry->setTransform(vtrans,init_refPos->hdg);
+		agentVehicle->setTransform(vtrans,init_refPos->hdg);
 
     }
     else
-    {
+    {*/
         entityPosition = init_refPos->xyz;
 
         directionVector[0] = cos(init_refPos->hdg);
         directionVector[1] = sin(init_refPos->hdg);
 
 
-        entityGeometry->setPosition(entityPosition, directionVector);
+		agentVehicle->setPosition(entityPosition, directionVector);
 
-    }
+   // }
 
 }
 
@@ -71,12 +77,12 @@ void Entity::moveLongitudinal()
         refPos->move(ds,dt,step_distance);
 
         Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+		agentVehicle->setTransform(vehicleTransform,refPos->hdg);
         //cout << name << " is driving on Road: " << refPos->roadId << endl;
     }
     else
     {
-        entityGeometry->setPosition(refPos->xyz, directionVector);
+		agentVehicle->setPosition(refPos->xyz, directionVector);
     }
 
 }
@@ -89,7 +95,7 @@ osg::Vec3 Entity::getPosition()
 void Entity::setPosition(osg::Vec3 &newPosition)
 {
 	entityPosition = newPosition;
-	entityGeometry->setPosition(newPosition, directionVector);
+	agentVehicle->setPosition(newPosition, directionVector);
 }
 
 string &Entity::getName()
@@ -168,7 +174,7 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
     refPos->move(directionVector,step_distance);
     osg::Vec3 pos = refPos->getPosition();
 
-    entityGeometry->setPosition(pos, directionVector);
+	agentVehicle->setPosition(pos, directionVector);
 
     if(totalDistance <= 0)
     {

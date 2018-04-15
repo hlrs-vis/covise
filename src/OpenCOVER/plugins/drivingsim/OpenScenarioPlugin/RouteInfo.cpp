@@ -46,7 +46,6 @@ EntityInfo::EntityInfo(Entity *e)
 	currentLane = NULL;
 	osg::Vec3 pos = e->getPosition();
 	Vector3D p(pos.x(), pos.y(), pos.z());
-	double longPosition;
 	Vector2D st = RoadSystem::Instance()->searchPosition(p, currentRoad, longPos);
 	s = st[0];
 	t = st[1];

@@ -24,9 +24,11 @@ public:
     float endTime;
 
 	ScenarioManager();
+	void restart();
 	~ScenarioManager();
 	Entity* getEntityByName(string entityName);
     Maneuver* getManeuverByName(string maneuverName);
+	void initializeEntities();
     bool conditionControl(Condition* condition);
     bool conditionControl(Act* act);
     bool conditionControl(Event* event, Maneuver *maneuver);

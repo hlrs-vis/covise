@@ -71,9 +71,10 @@ public:
 	void addSource(Source *s) { sources.push_back(s); };
 
 	ScenarioManager *scenarioManager;
+	OpenScenario::OpenScenarioBase *osdb;
+	RoadSystem *getRoadSystem() { return system; };
 
 private:
-	OpenScenario::OpenScenarioBase *osdb;
 
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);

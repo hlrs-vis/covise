@@ -10,17 +10,20 @@ class Spline;
 class ReferencePosition;
 class Action;
 class Event;
+namespace OpenScenario
+{
+	class oscObject;
+	class oscVehicle;
+}
 class Entity {
 
 public:
     std::string name;
-    std::string catalogReferenceName;
-    std::string filepath;
     float speed;
     std::string roadId;
     int laneId;
     float inits;
-    AgentVehicle *entityGeometry;
+    AgentVehicle *agentVehicle;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
     int actionCounter;
@@ -30,10 +33,8 @@ public:
     ReferencePosition* newRefPos;
     //void updateRefPos();
 
-    Entity(std::string entityName, std::string catalogReferenceName);
+    Entity(OpenScenario::oscObject *object);
     ~Entity();
-    void setInitEntityPosition(osg::Vec3 init);
-    void setInitEntityPosition(Road *r);
     void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
@@ -66,6 +67,12 @@ public:
     float dt;
     float old_speed;
     float acceleration;
+	OpenScenario::oscVehicle *getVehicle() { return vehicle; };
+
+private:
+
+	OpenScenario::oscVehicle * vehicle;
+	OpenScenario::oscObject *object;
 
 
 

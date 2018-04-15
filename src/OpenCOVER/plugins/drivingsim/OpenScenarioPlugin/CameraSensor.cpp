@@ -19,7 +19,7 @@ CameraSensor::~CameraSensor()
 void CameraSensor::updateView()
 {
 	
-	osg::Matrix vehicleMat = myEntity->entityGeometry->getCarGeometry()->getVehicleTransformMatrix();
+	osg::Matrix vehicleMat = myEntity->agentVehicle->getCarGeometry()->getVehicleTransformMatrix();
 
 	osg::Matrix scMat = opencover::cover->getObjectsScale()->getMatrix();
 	osg::Matrix iscMat;

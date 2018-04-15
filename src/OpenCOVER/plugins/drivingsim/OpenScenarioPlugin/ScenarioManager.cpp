@@ -6,12 +6,21 @@
 #include "Maneuver.h"
 #include "Event.h"
 #include "Condition.h"
+#include "OpenScenarioPlugin.h"
+#include <OpenScenario/schema/oscPrivate.h>
+#include <OpenScenario/OpenScenarioBase.h>
+using namespace OpenScenario;
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
     scenarioCondition(true),
     anyActTrue(false)
 {
+}
+void ScenarioManager::restart()
+{
+	simulationTime = 0;
+	initializeEntities();
 }
 
 Entity* ScenarioManager::getEntityByName(string entityName)
@@ -50,7 +59,63 @@ Maneuver* ScenarioManager::getManeuverByName(string maneuverName)
 
         }
     }
+	return NULL;
+}
 
+void ScenarioManager::initializeEntities()
+{
+
+	//get initial position and speed of entities
+	for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
+	{
+		Entity *currentTentity = (*entity_iter);
+
+		for (oscPrivateArrayMember::iterator it = OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.begin(); it != OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.end(); it++)
+		{
+			oscPrivate* actions_private = ((oscPrivate*)(*it));
+			if (currentTentity->getName() == actions_private->object.getValue())
+			{
+				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
+				{
+					oscPrivateAction* action = ((oscPrivateAction*)(*it2));
+					if (action->Longitudinal.exists())
+					{
+						currentTentity->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
+					}
+					if (action->Position.exists())
+					{
+						Position* initPos = (Position*)(action->Position.getObject());
+						if (initPos->Lane.exists())
+						{
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPos->Lane->roadId.getValue(), initPos->Lane->laneId.getValue(), initPos->Lane->s.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
+							currentTentity->setInitEntityPosition(refPos);
+							currentTentity->refPos = refPos;
+						}
+						else if (initPos->World.exists())
+						{
+							osg::Vec3 initPosition = initPos->getAbsoluteWorld();
+							double hdg = initPos->getHdg();
+
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPosition, hdg, OpenScenarioPlugin::instance()->getRoadSystem());
+							currentTentity->setInitEntityPosition(refPos);
+							currentTentity->refPos = refPos;
+						}
+						else if (initPos->Road.exists())
+						{
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPos->Road->roadId.getValue(), initPos->Road->s.getValue(), initPos->Road->t.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
+							currentTentity->setInitEntityPosition(refPos);
+							currentTentity->refPos = refPos;
+						}
+					}
+				}
+
+			}
+		}
+
+	}
 }
 
 void ScenarioManager::conditionManager(){
