@@ -248,69 +248,73 @@ void OpenScenarioPlugin::preFrame()
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
-            Act* currrentAct = (*act_iter);
+            Act* currentAct = (*act_iter);
             //check act start conditions
-            if ((*act_iter)->actCondition)
+            if (currentAct->StoryElement::isRunning())
             {
-                for(list<Sequence*>::iterator sequence_iter = currrentAct->sequenceList.begin(); sequence_iter != currrentAct->sequenceList.end(); sequence_iter++)
+                for(list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
                 {
                     Sequence* currentSequence = (*sequence_iter);
-                    for(list<Entity*>::iterator activeEntity = currentSequence->actorList.begin(); activeEntity != currentSequence->actorList.end(); activeEntity++)
+                    Maneuver* currentManeuver = currentSequence->activeManeuver;
+                    if(currentManeuver != NULL)
                     {
-                        Event* activeEvent = currentSequence->activeEvent;
-                        Entity* currentEntity = (*activeEntity);
-                        if (currentSequence->activeEvent != NULL)
+                        Event* currentEvent = currentManeuver->activeEvent;
+                        if(currentEvent != NULL)
                         {
-                            for(list<Action*>::iterator action_iter = activeEvent->actionList.begin(); action_iter != activeEvent->actionList.end(); action_iter++)
+                            for(list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
                             {
-                                Action* currentAction = (*action_iter);
-                                cout << "Entity Action: " << currentAction->name.getValue() << endl;
-                                if(currentAction->Private.exists())
+                                Entity* currentEntity = (*entity_iter);
+                                for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
                                 {
-                                    if (currentAction->Private->Routing.exists())
+                                    Action* currentAction = (*action_iter);
+                                    cout << "Entity Action: " << currentAction->name.getValue() << endl;
+                                    if(currentAction->Private.exists())
                                     {
                                         if (currentAction->Private->Routing.exists())
                                         {
-                                            if(currentAction->Private->Routing->FollowTrajectory.exists())
+                                            if (currentAction->Private->Routing.exists())
                                             {
-                                                Trajectory* currentTrajectory = currentAction->actionTrajectory;
-
-                                                Position* currentPos;
-                                                // check if Trajectory is about to start or Entity arrived at vertice
-                                                if(currentEntity->totalDistance == 0)
+                                                if(currentAction->Private->Routing->FollowTrajectory.exists())
                                                 {
-                                                    currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
+                                                    Trajectory* currentTrajectory = currentAction->actionTrajectory;
 
-                                                    currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
-                                                    cout << "Entity next target: " << currentEntity->newRefPos->xyz[0] << ", " << currentEntity->newRefPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
-
-                                                    currentEntity->setTrajectoryDirectionOnRoad();
-                                                    if(currentTrajectory->domain.getValue() == 0)
+                                                    Position* currentPos;
+                                                    // check if Trajectory is about to start or Entity arrived at vertice
+                                                    if(currentEntity->totalDistance == 0)
                                                     {
-                                                        // calculate speed from trajectory vertices
-                                                        currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
+                                                        currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
+
+                                                        currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
+                                                        cout << "Entity next target: " << currentEntity->newRefPos->xyz[0] << ", " << currentEntity->newRefPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
+
+                                                        currentEntity->setTrajectoryDirection();
+                                                        if(currentTrajectory->domain.getValue() == 0)
+                                                        {
+                                                            // calculate speed from trajectory vertices
+                                                            currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
+                                                        }
                                                     }
+
+                                                    currentEntity->followTrajectory(currentEvent,currentTrajectory->verticesCounter);
+                                                    cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
+
+                                                    unusedEntity.remove(currentEntity);
+                                                    usedEntity.push_back(currentEntity);
+                                                    usedEntity.sort();usedEntity.unique();
                                                 }
-
-                                                currentEntity->followTrajectory(activeEvent,currentTrajectory->verticesCounter);
-                                                cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
-
-                                                unusedEntity.remove(currentEntity);
-                                                usedEntity.push_back(currentEntity);
-                                                usedEntity.sort();usedEntity.unique();
                                             }
                                         }
-                                    }
-                                    else if(currentAction->Private->Longitudinal.exists())
-                                    {
-                                        if(currentAction->Private->Longitudinal->Speed.exists())
+                                        else if(currentAction->Private->Longitudinal.exists())
                                         {
-                                            double targetspeed = currentAction->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
-                                            int shape = currentAction->Private->Longitudinal->Speed->Dynamics->shape.getValue();
+                                            if(currentAction->Private->Longitudinal->Speed.exists())
+                                            {
+                                                double targetspeed = currentAction->Private->Longitudinal->Speed->Target->Absolute->value.getValue();
+                                                int shape = currentAction->Private->Longitudinal->Speed->Dynamics->shape.getValue();
 
-                                            currentEntity->longitudinalSpeedAction(activeEvent,targetspeed,shape);
+                                                currentEntity->longitudinalSpeedAction(currentEvent,targetspeed,shape);
 
 
+                                            }
                                         }
                                     }
                                 }
@@ -320,6 +324,8 @@ void OpenScenarioPlugin::preFrame()
                 }
             }
         }
+
+
 
         for(list<Entity*>::iterator activeEntity = unusedEntity.begin(); activeEntity != unusedEntity.end(); activeEntity++)
         {
@@ -595,9 +601,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 for (oscActorsArrayMember::iterator it = currentSeq->Actors->Entity.begin(); it != currentSeq->Actors->Entity.end(); it++)
                 {
                     oscEntity* namedEntity = ((oscEntity*)(*it));
-                    std::string namedEntityName = namedEntity->name.getValue();
-                    std::string actor = "$owner"; //only temporary while sequence is broken (?)
-                    if (actor != "$owner")
+                    if (namedEntity->name.getValue() != "$owner")
                     {
                         activeEntityList_temp.push_back(scenarioManager->getEntityByName(namedEntity->name.getValue()));
                     }
@@ -636,15 +640,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
         for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
         {
             Condition* condition = ((Condition*)(*it));
-            if(condition->ByValue.exists())
-            {
-                scenarioManager->endConditionType = "time";
-                scenarioManager->endTime = condition->ByValue->SimulationTime->value.getValue();
-                if(condition->delay.exists())
-                {
-                    scenarioManager->endTime = scenarioManager->endTime + condition->delay.getValue();
-                }
-            }
+            scenarioManager->initializeCondition(condition);
             scenarioManager->addCondition(condition);
         }
     }
@@ -658,17 +654,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
             {
                 Condition* condition = ((Condition*)(*it));
-                if(condition->ByValue.exists())
-                {
-
-                    (currentAct)->startConditionType = "time";
-                    (currentAct)->startTime = condition->ByValue->SimulationTime->value.getValue();
-                    if(condition->delay.exists())
-                    {
-                        (currentAct)->startTime = (currentAct)->startTime + condition->delay.getValue();
-                    }
-                    currentAct->addStartCondition(condition);
-                }
+                scenarioManager->initializeCondition(condition);
+                currentAct->addStartCondition(condition);
             }
         }
         //Act End Condition
@@ -678,16 +665,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
             {
                 Condition* condition = ((Condition*)(*it));
-                if(condition->ByValue.exists())
-                {
-                    (*act_iter)->endConditionType = "time";
-                    (*act_iter)->endTime = condition->ByValue->SimulationTime->value.getValue();
-                    if(condition->delay.exists())
-                    {
-                        (*act_iter)->endTime = (*act_iter)->endTime + condition->delay.getValue();
-                    }
-                    currentAct->addEndCondition(condition);
-                }
+                scenarioManager->initializeCondition(condition);
+                currentAct->addEndCondition(condition);
             }
         }
 
@@ -708,36 +687,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                         for (oscConditionArrayMember::iterator it = conditionGroup->Condition.begin(); it != conditionGroup->Condition.end(); it++)
                         {
                             Condition* condition = ((Condition*)(*it));
-                            if(condition->ByValue.exists())
-                            {
-                                currentEvent->startConditionType="time";
-                                currentEvent->startTime = condition->ByValue->SimulationTime->value.getValue();
-                                if(condition->delay.exists())
-                                {
-                                    currentEvent->startTime = currentEvent->startTime + condition->delay.getValue();
-                                }
-
-                            }
-                            if(condition->ByState.exists())
-                            {
-                                currentEvent->startConditionType="termination";
-                                std::string maneuverName = condition->ByState->AfterTermination->name.getValue();
-                                condition->setManeuver(scenarioManager->getManeuverByName(maneuverName));
-                            }
-                            if(condition->ByEntity.exists())
-                            {
-
-                                currentEvent->startConditionType="distance";
-                                std::string passiveEntityName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
-                                condition->setPassiveEntity(scenarioManager->getEntityByName(passiveEntityName));
-
-                                for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
-                                {
-                                    oscEntity* entity = ((oscEntity*)(*it));
-                                    std::string activeEntityName = entity->name.getValue();
-                                    condition->addActiveEntity(scenarioManager->getEntityByName(activeEntityName));
-                                }
-                            }
+                            scenarioManager->initializeCondition(condition);
                             currentEvent->addCondition(condition);
                         }
                     }

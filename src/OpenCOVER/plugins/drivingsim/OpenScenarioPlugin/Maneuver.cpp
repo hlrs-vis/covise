@@ -4,10 +4,13 @@
 #include <math.h>
 #include "OpenScenarioPlugin.h"
 #include "Act.h"
+#include "StoryElement.h"
 
 using namespace std;
 
 Maneuver::Maneuver():
+    StoryElement(),
+    activeEvent(NULL),
 	maneuverFinished(false),
     trajectoryCatalogReference(""),
 	startAfterManeuver(""),

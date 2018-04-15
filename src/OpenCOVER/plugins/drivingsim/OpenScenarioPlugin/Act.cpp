@@ -1,9 +1,11 @@
 #include "Act.h"
 #include "ScenarioManager.h"
 #include "Condition.h"
+#include "StoryElement.h"
 
 Act::Act() :
-	oscAct()
+    oscAct(),
+    StoryElement()
 {
 }
 

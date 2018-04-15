@@ -16,8 +16,7 @@ Entity::Entity(oscObject *obj):
     visitedVertices(0),
     refPos(NULL),
     newRefPos(NULL),
-    dt(0.0),
-    actionCounter(0)
+    dt(0.0)
 {
 	directionVector.set(1, 0, 0);
 
@@ -121,19 +120,6 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
-void Entity::setTrajectoryDirection()
-{
-    // entity is heading to targetPosition
-    targetPosition = newRefPos->getPosition();
-    totaldirectionVector = targetPosition - refPos->getPosition();
-    totaldirectionVectorLength = totaldirectionVector.length();
-
-    directionVector = totaldirectionVector;
-    directionVector.normalize();
-
-}
-
-
 void Entity::setTrajSpeed(float deltat)
 {
 
@@ -144,7 +130,7 @@ void Entity::setTrajSpeed(float deltat)
 
 }
 
-void Entity::setTrajectoryDirectionOnRoad()
+void Entity::setTrajectoryDirection()
 {
     targetPosition = newRefPos->getPosition();
     totaldirectionVector = targetPosition - refPos->getPosition();
@@ -152,8 +138,6 @@ void Entity::setTrajectoryDirectionOnRoad()
 
     directionVector = totaldirectionVector;
     directionVector.normalize();
-
-
 
 }
 
@@ -232,7 +216,6 @@ void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int 
     {
         speed = targetSpeed;
         dt = 0.0;
-        ++actionCounter;
         event->finishedEntityActions = event->finishedEntityActions+1;
 
     }
@@ -250,5 +233,4 @@ void Entity::resetActionAttributes()
     visitedVertices = 0;
 
     dt = 0.0;
-    actionCounter = 0;
 }

@@ -26,6 +26,7 @@ public:
 
     bool isTrue;
     float delayTimer;
+    bool waitForDelay;
     // (longitudinal) distance
     Entity* passiveEntity;
     std::list<Entity*> activeEntityList;
@@ -39,7 +40,10 @@ public:
     void addActiveEntity(Entity* entity);
     void setPassiveEntity(Entity* entity);
     void setManeuver(Maneuver* maneuver);
+    void setEvent(Event* event);
     void set(bool state);
+    void increaseTimer();
+    bool delayReached();
 };
 
 #endif // Condition_H

@@ -175,12 +175,21 @@ template<>
 OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
 	char * val = xercesc::XMLString::transcode(attribute->getValue());
-	if (val[0] == '$')
+	if (strcmp(val,"$owner")==0)
 	{
-		base->addParameter(val + 1, this);
+		value = val;
 	}
 	else
-		value = val;
+	{
+	  if (val[0] == '$')
+	  {
+		base->addParameter(val + 1, this);
+	  }
+	  else
+	  {
+	    value = val;
+	  }
+	}
 	xercesc::XMLString::release(&val);
     return true;
 };

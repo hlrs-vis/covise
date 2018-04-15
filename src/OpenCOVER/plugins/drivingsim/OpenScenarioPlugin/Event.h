@@ -6,9 +6,11 @@
 #include <list>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscEvent.h>
+#include "StoryElement.h"
+
 class Action;
 class Condition;
-class Event : public::OpenScenario::oscEvent
+class Event : public::OpenScenario::oscEvent, public StoryElement
 {
 public:
     Event();
@@ -16,9 +18,9 @@ public:
     std::list<::Action*> actionList;
     int finishedEntityActions;
     int activeEntites;
-    std::string name;
 
     //conditions
+
     bool eventCondition;
     bool eventFinished;
     float startTime;
