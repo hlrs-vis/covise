@@ -80,7 +80,7 @@
           </Manager>
       </UI>
       <!--GLVersion value="3.0" /-->
-      <!--GLDebug value="true" /-->
+      <!--GLDebug value="true" level="2" /-->
       <Snap value="ON" />
       <DebugTUI value="OFF" />
 	  
@@ -95,8 +95,9 @@
          <Server value="127.0.0.1"/>
        </TabletPC>
    <CheckForOpenGLErrors value="true" />
-   <UseVertexBufferObjects value="false" />
-   <UseDisplayLists value="true" />
+   <!--ContinuousRendering value="true" /-->
+   <!--UseVertexBufferObjects value="false" /-->
+   <!--UseDisplayLists value="true" /-->
    <NavigationMode value="XForm" />
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
