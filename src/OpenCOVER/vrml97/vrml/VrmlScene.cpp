@@ -1800,8 +1800,12 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 #define st_mtim st_mtimespec
 #endif
 
+#ifdef WIN32
+		if (sbufInline.st_mtime > sbufCached.st_mtime)
+#else
         if (sbufInline.st_mtim.tv_sec > sbufCached.st_mtim.tv_sec
                 || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
+#endif
         {
             std::cerr << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
             return 0L;
