@@ -207,9 +207,24 @@ OpenScenarioPlugin::handleMessage(const char *buf)
 	{
 		scenarioManager->restart();
 	}
-	if (strcmp(buf, "stop") == 0)
+	if (strncmp(buf, "set ",4) == 0)
 	{
+		std::string assignment = buf + 4;
+		std::string variable,value;
+		std::string::size_type  pos = 0;
 
+		if((pos = assignment.find('=', 0)) != std::string::npos)
+		{
+			variable = assignment.substr(0, pos);
+			value = assignment.substr(pos+1, std::string::npos);
+			osdb->setParameterValue(variable, value);
+		}
+
+	}
+	if (strcmp(buf, "exit") == 0)
+	{
+			OpenCOVER::instance()->setExitFlag(true);
+			coVRPluginList::instance()->requestQuit(true);
 	}
 }
 

@@ -350,12 +350,12 @@ bool ScenarioManager::conditionControl(Condition* condition)
     }
     if(condition->ByEntity.exists())
     {
-        Entity* pasiveEntity = condition->passiveEntity;
+        Entity* passiveEntity = condition->passiveEntity;
         float relativeDistance = condition->ByEntity->EntityCondition->RelativeDistance->value.getValue();
         for(std::list<Entity*>::iterator entity_iter = condition->activeEntityList.begin(); entity_iter != condition->activeEntityList.end(); entity_iter++)
         {
             Entity* activeEntity = (*entity_iter);
-            if (activeEntity->refPos->s-pasiveEntity->refPos->s >= relativeDistance)
+            if((activeEntity->refPos->roadId == passiveEntity->refPos->roadId) && (activeEntity->refPos->s- passiveEntity->refPos->s >= relativeDistance)) // todo entities might be on different roads
             {
                 condition->set(true);
                 condition->waitForDelay = true;

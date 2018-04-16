@@ -34,10 +34,7 @@ protected:
     T value;
 
 public:
-    oscValue() ///< constructor
-    {
-
-    };
+	oscValue(); ///< constructor
 
     oscValue(T &t) ///< constructor
     {

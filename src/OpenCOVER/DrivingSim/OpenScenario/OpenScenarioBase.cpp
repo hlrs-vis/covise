@@ -505,7 +505,21 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     }
     else
     {
-        return parseFromXML(rootElement);
+		if (parseFromXML(rootElement))
+		{
+			if (this->ParameterDeclaration.exists()) // set default values
+			{
+				for (auto it = this->ParameterDeclaration->Parameter.begin(); it != this->ParameterDeclaration->Parameter.end(); it++)
+				{
+					oscParameter *p = (oscParameter *)*it;
+					setParameterValue(p->name, p->value);
+
+				}
+			}
+			return true;
+		}
+		else
+			return false;
     }
 }
 

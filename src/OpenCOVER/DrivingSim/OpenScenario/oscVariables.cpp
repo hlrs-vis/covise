@@ -60,6 +60,57 @@ std::string oscEnum::getValueAsStr(const int val) const
     return strVal;
 }
 
+template<>
+OPENSCENARIOEXPORT oscValue<double>::oscValue()
+{
+	type = DOUBLE;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<float>::oscValue()
+{
+	type = FLOAT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<bool>::oscValue()
+{
+	type = BOOL;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<std::string>::oscValue()
+{
+	type = STRING;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<int>::oscValue()
+{
+	type = INT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<unsigned int>::oscValue()
+{
+	type = UINT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<short>::oscValue()
+{
+	type = SHORT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<unsigned short>::oscValue()
+{
+	type = USHORT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<time_t>::oscValue()
+{
+	type = DATE_TIME;
+}
+/*
+template<>
+OPENSCENARIOEXPORT oscValue<oscObjectBase *>::oscValue()
+{
+	type = OBJECT;
+}*/
 
 //oscValue.initialize()
 //
