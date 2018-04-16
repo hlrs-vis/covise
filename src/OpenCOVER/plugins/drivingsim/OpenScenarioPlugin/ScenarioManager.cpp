@@ -253,6 +253,7 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
 
                         if(conditionControl(eventCondition))
                         {
+							currentEvent->initialize(currentSequence->actorList.size());
                             currentEvent->start();
 							fprintf(stderr, "starting event %s\n", currentEvent->name.getValue().c_str());
                             currentManeuver->activeEvent = currentEvent;

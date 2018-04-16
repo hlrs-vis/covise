@@ -206,7 +206,6 @@ OpenScenarioPlugin::handleMessage(const char *buf)
 	if (strcmp(buf, "restart") == 0)
 	{
 		scenarioManager->restart();
-
 	}
 	if (strcmp(buf, "stop") == 0)
 	{
@@ -267,7 +266,7 @@ void OpenScenarioPlugin::preFrame()
                                 for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
                                 {
                                     Action* currentAction = (*action_iter);
-                                    //cout << "Entity Action: " << currentAction->name.getValue() << endl;
+                                    cout << "Entity Action: " << currentAction->name.getValue() << endl;
                                     if(currentAction->Private.exists())
                                     {
                                         if (currentAction->Private->Routing.exists())
