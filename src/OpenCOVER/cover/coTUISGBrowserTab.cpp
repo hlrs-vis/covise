@@ -220,7 +220,10 @@ char *coTUISGBrowserTab::getData()
 
 Connection *coTUISGBrowserTab::getConnection()
 {
-    return tui()->sgConn;
+    if (tui()->connectedHost)
+        return tui()->sgConn;
+
+    return nullptr;
 }
 
 //>gottlieb
