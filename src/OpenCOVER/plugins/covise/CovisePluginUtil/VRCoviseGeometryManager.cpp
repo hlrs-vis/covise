@@ -2878,16 +2878,16 @@ GeometryManager::addSphere(const char *object_name, int no_of_points,
     sphere->setCoords(no_of_points, x_c, y_c, z_c, radii_c);
     if ((colorbinding == Bind::OverAll || colorbinding == Bind::None) && material != NULL)
     {
-        sphere->updateColors(&material->diffuseColor[0], &material->diffuseColor[1], &material->diffuseColor[2]);
         sphere->setColorBinding(Bind::OverAll);
+        sphere->updateColors(&material->diffuseColor[0], &material->diffuseColor[1], &material->diffuseColor[2]);
     }
     else
     {
+        sphere->setColorBinding(colorbinding);
         if (pc)
             sphere->updateColors(pc);
         else
             sphere->updateColors(rgbR_c, rgbG_c, rgbB_c);
-        sphere->setColorBinding(colorbinding);
     }
     if (no_of_normals >= no_of_points && nx && ny && nz)
         sphere->updateNormals(nx, ny, nz);
