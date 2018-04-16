@@ -49,13 +49,24 @@ void Entity::moveLongitudinal()
     if(refPos->road != NULL && speed > 0)
     {
         float step_distance = speed*opencover::cover->frameDuration();
-        double ds = 1.0;
+        double ds;
+        double hdg;
+        if(refPos->laneId>0)
+        {
+            ds = -1.0;
+            hdg = refPos->hdg + 3.14159;
+        }
+        else
+        {
+            ds = 1.0;
+            hdg = refPos->hdg;
+        }
         double dt = 0.0;
 
         refPos->move(ds,dt,step_distance);
 
         Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+        entityGeometry->setTransform(vehicleTransform,hdg);
         //cout << name << " is driving on Road: " << refPos->roadId << endl;
     }
     else
@@ -150,6 +161,7 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
                 speed = 0;
             }
             visitedVertices = 0;
+            newRefPos = NULL;
             event->finishedEntityActions = event->finishedEntityActions+1;
 
             refPos->update();
