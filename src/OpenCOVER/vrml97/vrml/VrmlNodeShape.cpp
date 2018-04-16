@@ -237,17 +237,17 @@ bool VrmlNodeShape::isOnlyGeometry() const
 
     if (d_appearance.get() && !d_appearance.get()->isOnlyGeometry())
     {
-        std::cerr << "Nsa" << std::flush;
+        //std::cerr << "Nsa" << std::flush;
         return false;
     }
     if (d_geometry.get() && !d_geometry.get()->isOnlyGeometry())
     {
-        std::cerr << "Nga" << std::flush;
+        //std::cerr << "Nga" << std::flush;
         return false;
     }
     if (d_effect.get() && !d_effect.get()->isOnlyGeometry())
     {
-        std::cerr << "Nea" << std::flush;
+        //std::cerr << "Nea" << std::flush;
         return false;
     }
 

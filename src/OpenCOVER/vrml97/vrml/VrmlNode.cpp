@@ -713,18 +713,18 @@ bool VrmlNode::isOnlyGeometry() const
 {
     if (d_routes)
     {
-        std::cerr << "Nr" << std::flush;
+        //std::cerr << "Nr" << std::flush;
         return false;
     }
     if (d_incomingRoutes)
     {
-        std::cerr << "Ni" << std::flush;
+        //std::cerr << "Ni" << std::flush;
         return false;
     }
 
     if (strstr(name(), "NoCache") != NULL)
     {
-        std::cerr << "Nn" << std::flush;
+        //std::cerr << "Nn" << std::flush;
         return false;
     }
 

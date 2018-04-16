@@ -195,7 +195,7 @@ bool VrmlNodeGroup::isOnlyGeometry() const
     {
         if (!d_children[i]->isOnlyGeometry())
         {
-            std::cerr << "Nc" << i << std::flush;
+            //std::cerr << "Nc" << i << std::flush;
             return false;
         }
     }
