@@ -752,30 +752,87 @@ GeometryManager::addPolygon(const char *object_name,
         return g;
     }
 
+    bool indexed = true;
+    if (no_of_colors>0 && (colorbinding != Bind::PerVertex || no_of_colors != no_of_coords) && (colorbinding != Bind::OverAll || no_of_colors!=1))
+    {
+        //std::cerr << object_name << " not indexing b/c color: #color=" << no_of_colors << ", #coords=" << no_of_coords  << std::endl;
+        indexed = false;
+    }
+    if (no_of_normals>0 && (normalbinding != Bind::PerVertex || no_of_normals != no_of_coords) && (normalbinding != Bind::OverAll || no_of_normals!=1))
+    {
+        //std::cerr << object_name << " not indexing b/c normals" << std::endl;
+        indexed = false;
+    }
+    if (no_of_texCoords>1 && no_of_texCoords != no_of_coords)
+    {
+        //std::cerr << object_name << " not indexing b/c texcoords" << std::endl;
+        indexed = false;
+    }
+    if (no_of_vertexAttributes>1 && no_of_vertexAttributes != no_of_coords)
+    {
+        //std::cerr << object_name << " not indexing b/c attribs" << std::endl;
+        indexed = false;
+    }
+
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
     cover->setRenderStrategy(geom);
 
     // set up geometry
-    int numv;
     osg::Vec3Array *vert = new osg::Vec3Array;
-    osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::POLYGON);
-    for (int i = 0; i < no_of_polygons; i++)
+    if (indexed)
     {
-        if (i == no_of_polygons - 1)
-            numv = no_of_vertices - i_l[i];
-        else
-            numv = i_l[i + 1] - i_l[i];
-        primitives->push_back(numv);
-        for (int n = 0; n < numv; n++)
+        for (int i=0; i<no_of_coords; ++i)
         {
-            int v = v_l[i_l[i] + n];
-            vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+            vert->push_back(osg::Vec3(x_c[i], y_c[i], z_c[i]));
         }
+
+        osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
+        for (int i = 0; i < no_of_polygons; i++)
+        {
+            int numv;
+            int base = i_l[i];
+            if (i == no_of_polygons - 1)
+                numv = no_of_vertices - base;
+            else
+                numv = i_l[i + 1] - base;
+
+            if (numv < 3)
+                continue;
+
+            int vbase = v_l[base];
+            for (int t=0; t<=numv-3; ++t)
+            {
+                primitives->push_back(vbase);
+                for (int n = 1; n < 3; n++)
+                {
+                    primitives->push_back(v_l[base + n + t]);
+                }
+            }
+        }
+        geom->addPrimitiveSet(primitives);
+    }
+    else
+    {
+        osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::POLYGON);
+        for (int i = 0; i < no_of_polygons; i++)
+        {
+            int numv;
+            if (i == no_of_polygons - 1)
+                numv = no_of_vertices - i_l[i];
+            else
+                numv = i_l[i + 1] - i_l[i];
+            primitives->push_back(numv);
+            for (int n = 0; n < numv; n++)
+            {
+                int v = v_l[i_l[i] + n];
+                vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+            }
+        }
+        geom->addPrimitiveSet(primitives);
     }
     geom->setVertexArray(vert);
-    geom->addPrimitiveSet(primitives);
 
     // associate colors
     bool transparent = false;
@@ -790,19 +847,14 @@ GeometryManager::addPolygon(const char *object_name,
 
             osg::Vec4Array *colArr = new osg::Vec4Array();
 
-            for (int i = 0; i < no_of_polygons; i++)
+            if (indexed)
             {
-                if (i == no_of_polygons - 1)
-                    numv = no_of_vertices - i_l[i];
-                else
-                    numv = i_l[i + 1] - i_l[i];
-                for (int n = 0; n < numv; n++)
+                for (int i=0; i<no_of_colors; ++i)
                 {
-                    int v = v_l[i_l[i] + n];
                     if (colorpacking == Pack::RGBA)
                     {
                         float r, g, b, a;
-                        unpackRGBA(pc, v, &r, &g, &b, &a);
+                        unpackRGBA(pc, i, &r, &g, &b, &a);
                         if (a < 1.0)
                         {
                             transparent = true;
@@ -813,7 +865,38 @@ GeometryManager::addPolygon(const char *object_name,
                     {
                         if (transparency > 0.f)
                             transparent = true;
-                        colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
+                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < no_of_polygons; i++)
+                {
+                    int numv;
+                    if (i == no_of_polygons - 1)
+                        numv = no_of_vertices - i_l[i];
+                    else
+                        numv = i_l[i + 1] - i_l[i];
+                    for (int n = 0; n < numv; n++)
+                    {
+                        int v = v_l[i_l[i] + n];
+                        if (colorpacking == Pack::RGBA)
+                        {
+                            float r, g, b, a;
+                            unpackRGBA(pc, v, &r, &g, &b, &a);
+                            if (a < 1.0)
+                            {
+                                transparent = true;
+                            }
+                            colArr->push_back(osg::Vec4(r, g, b, a));
+                        }
+                        else
+                        {
+                            if (transparency > 0.f)
+                                transparent = true;
+                            colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
+                        }
                     }
                 }
             }
@@ -919,18 +1002,31 @@ GeometryManager::addPolygon(const char *object_name,
 
             osg::Vec3Array *normalArray = new osg::Vec3Array();
 
-            for (int i = 0; i < no_of_polygons; i++)
+            if (indexed)
             {
-                if (i == no_of_polygons - 1)
-                    numv = no_of_vertices - i_l[i];
-                else
-                    numv = i_l[i + 1] - i_l[i];
-                for (int n = 0; n < numv; n++)
+                for (int i = 0; i < no_of_normals; ++i)
                 {
-                    int v = v_l[i_l[i] + n];
-                    osg::Vec3 norm = osg::Vec3(nx[v], ny[v], nz[v]);
+                    osg::Vec3 norm = osg::Vec3(nx[i], ny[i], nz[i]);
                     norm.normalize();
                     normalArray->push_back(norm);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < no_of_polygons; i++)
+                {
+                    int numv;
+                    if (i == no_of_polygons - 1)
+                        numv = no_of_vertices - i_l[i];
+                    else
+                        numv = i_l[i + 1] - i_l[i];
+                    for (int n = 0; n < numv; n++)
+                    {
+                        int v = v_l[i_l[i] + n];
+                        osg::Vec3 norm = osg::Vec3(nx[v], ny[v], nz[v]);
+                        norm.normalize();
+                        normalArray->push_back(norm);
+                    }
                 }
             }
             geom->setNormalArray(normalArray);
@@ -958,6 +1054,7 @@ GeometryManager::addPolygon(const char *object_name,
                 osg::Vec3 n = osg::Vec3(nx[i], ny[i], nz[i]);
                 n.normalize();
 
+                int numv;
                 if (i == no_of_polygons - 1)
                     numv = no_of_vertices - i_l[i];
                 else
@@ -976,34 +1073,40 @@ GeometryManager::addPolygon(const char *object_name,
     else
     {
         osg::Vec3Array *normalArray = new osg::Vec3Array();
+        if (indexed)
+        {
+            normalArray->resize(no_of_coords);
+        }
 
         // create one normal per polygon and use it for all vertices
         for (int i = 0; i < no_of_polygons; i++)
         {
+            int base = i_l[i];
+            int numv;
             if (i == no_of_polygons - 1)
-                numv = no_of_vertices - i_l[i];
+                numv = no_of_vertices - base;
             else
-                numv = i_l[i + 1] - i_l[i];
+                numv = i_l[i + 1] - base;
 
-            int v = v_l[i_l[i] + 0];
+            int v = v_l[base + 0];
             osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[i_l[i] + 1];
+            v = v_l[base + 1];
             osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
             osg::Vec3 v1 = p1 - p0;
             int vert = 2;
             while (v1.length2() < 1E-16 && vert < numv - 1)
             {
-                v = v_l[i_l[i] + vert];
+                v = v_l[base + vert];
                 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
                 v1 = p1 - p0;
                 vert++;
             }
-            v = v_l[i_l[i] + vert];
+            v = v_l[base + vert];
             osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
             osg::Vec3 v2 = p2 - p0;
             while (v2.length2() < 1E-16 && vert < numv)
             {
-                v = v_l[i_l[i] + vert];
+                v = v_l[base + vert];
                 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
                 v2 = p2 - p0;
                 vert++;
@@ -1013,7 +1116,7 @@ GeometryManager::addPolygon(const char *object_name,
             osg::Vec3 vn = v1 ^ v2;
             while (vn.length2() < 1E-2 && vert < numv)
             {
-                v = v_l[i_l[i] + vert];
+                v = v_l[base + vert];
                 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
                 v2 = p2 - p0;
                 vert++;
@@ -1025,10 +1128,26 @@ GeometryManager::addPolygon(const char *object_name,
                 vn = v1 ^ v2;
             }
             vn.normalize();
-            for (int n = 0; n < numv; n++)
+
+            if (indexed)
             {
-                normalArray->push_back(vn);
+                for (int n=0; n<numv; ++n)
+                {
+                    (*normalArray)[v_l[base+n]] += vn;
+                }
             }
+            else
+            {
+                for (int n = 0; n < numv; n++)
+                {
+                normalArray->push_back(vn);
+                }
+            }
+        }
+        if (indexed)
+        {
+            for (int i=0; i<no_of_coords; ++i)
+                (*normalArray)[i].normalize();
         }
 
         geom->setNormalArray(normalArray);
@@ -1039,16 +1158,27 @@ GeometryManager::addPolygon(const char *object_name,
     {
         osg::Vec2Array *tcArray = new osg::Vec2Array();
 
-        for (int i = 0; i < no_of_polygons; i++)
+        if (indexed)
         {
-            if (i == no_of_polygons - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            for (int n = 0; n < numv; n++)
+            for (int i=0; i<no_of_texCoords; ++i)
             {
-                int v = v_l[i_l[i] + n];
-                tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                tcArray->push_back(osg::Vec2(tx[i], ty[i]));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < no_of_polygons; i++)
+            {
+                int numv;
+                if (i == no_of_polygons - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+                for (int n = 0; n < numv; n++)
+                {
+                    int v = v_l[i_l[i] + n];
+                    tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                }
             }
         }
         geom->setTexCoordArray(0, tcArray);
@@ -1059,16 +1189,27 @@ GeometryManager::addPolygon(const char *object_name,
     if (no_of_vertexAttributes > 0)
     {
         osg::Vec3Array *vertArray = new osg::Vec3Array;
-        for (int i = 0; i < no_of_polygons; i++)
+        if (indexed)
         {
-            if (i == no_of_polygons - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            for (int n = 0; n < numv; n++)
+            for (int i=0; i<no_of_vertexAttributes; ++i)
             {
-                int v = v_l[i_l[i] + n];
-                vertArray->push_back(osg::Vec3(vax[v], vay[v], vaz[v]));
+                vertArray->push_back(osg::Vec3(vax[i], vay[i], vaz[i]));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < no_of_polygons; i++)
+            {
+                int numv;
+                if (i == no_of_polygons - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+                for (int n = 0; n < numv; n++)
+                {
+                    int v = v_l[i_l[i] + n];
+                    vertArray->push_back(osg::Vec3(vax[v], vay[v], vaz[v]));
+                }
             }
         }
         geom->setVertexAttribArray(6, vertArray);
