@@ -6,21 +6,24 @@ class StoryElement
 {
 public:
     StoryElement();
+	virtual ~StoryElement() {};
     enum State
     {
         finished,
         running,
         stopped
     };
-    State state;
 
-    void stop();
-    void start();
-    void finish();
+    virtual void stop();
+    virtual void start();
+    virtual void finish();
 
     bool isRunning();
     bool isStopped();
     bool isFinished();
+private:
+
+	State state;
 };
 
 #endif // STORYELEMENT_H

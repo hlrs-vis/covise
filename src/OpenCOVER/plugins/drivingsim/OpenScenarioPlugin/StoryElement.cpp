@@ -20,34 +20,13 @@ void StoryElement::stop()
 }
 bool StoryElement::isRunning()
 {
-    if(state == running)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	return state == running;
 }
 bool StoryElement::isStopped()
 {
-    if(state == stopped)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	return state == stopped;
 }
 bool StoryElement::isFinished()
 {
-    if(state == finished)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	return state == finished;
 }

@@ -11,6 +11,13 @@ Event::Event():
 
 }
 
+void Event::stop()
+{
+	finishedEntityActions=0;
+	activeEntites=0;
+	StoryElement::stop();
+}
+
 void Event::initialize(int numEntites)
 {
     activeEntites = numEntites;

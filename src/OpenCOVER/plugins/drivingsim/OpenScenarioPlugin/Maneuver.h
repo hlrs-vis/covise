@@ -22,8 +22,6 @@ public:
     std::string trajectoryCatalogReference;
     //conditions
     int finishedEvents;
-    bool maneuverCondition;
-    bool maneuverFinished;
     float startTime;
     std::string startConditionType;
     std::string startAfterManeuver;
@@ -38,13 +36,12 @@ public:
 
     Maneuver();
     ~Maneuver();
+	virtual void stop();
 
-    void checkConditions();
 
     virtual void finishedParsing();
 
     std::string &getName();
-    void changeSpeedOfEntity(Entity *aktivCar, float dt, std::list<Entity *> *activeEntityList);
     void initialize(::Event* event_temp);
 
 };

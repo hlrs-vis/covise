@@ -250,7 +250,7 @@ void OpenScenarioPlugin::preFrame()
         {
             Act* currentAct = (*act_iter);
             //check act start conditions
-            if (currentAct->StoryElement::isRunning())
+            if (currentAct->isRunning())
             {
                 for(list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
                 {
@@ -267,7 +267,7 @@ void OpenScenarioPlugin::preFrame()
                                 for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
                                 {
                                     Action* currentAction = (*action_iter);
-                                    cout << "Entity Action: " << currentAction->name.getValue() << endl;
+                                    //cout << "Entity Action: " << currentAction->name.getValue() << endl;
                                     if(currentAction->Private.exists())
                                     {
                                         if (currentAction->Private->Routing.exists())
@@ -296,7 +296,7 @@ void OpenScenarioPlugin::preFrame()
                                                     }
 
                                                     currentEntity->followTrajectory(currentEvent,currentTrajectory->verticesCounter);
-                                                    cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
+                                                    //cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
                                                     unusedEntity.remove(currentEntity);
                                                     usedEntity.push_back(currentEntity);

@@ -172,7 +172,7 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
                 speed = 0;
             }
             visitedVertices = 0;
-            event->finishedEntityActions = event->finishedEntityActions+1;
+            event->finishedEntityActions++;
 
             refPos->update();
         }
@@ -216,7 +216,7 @@ void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int 
     {
         speed = targetSpeed;
         dt = 0.0;
-        event->finishedEntityActions = event->finishedEntityActions+1;
+        event->finishedEntityActions++;
 
     }
     else
