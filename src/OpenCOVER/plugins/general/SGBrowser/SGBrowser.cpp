@@ -775,7 +775,7 @@ void SGBrowser::tabletEvent(coTUIElement *tUIItem)
             _tb << sGBrowserTab->getTextureMode();
             _tb << sGBrowserTab->getTextureTexGenMode();
             _tb << sGBrowserTab->hasAlpha();
-            int dataLength = sGBrowserTab->getDataLength();
+            int dataLength = (int)sGBrowserTab->getDataLength();
             _tb << dataLength;
 
             _tb.addBinary(sGBrowserTab->getData(), dataLength);

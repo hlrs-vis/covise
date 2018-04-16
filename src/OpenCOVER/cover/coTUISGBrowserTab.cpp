@@ -8,6 +8,7 @@
 #include <net/message_types.h>
 #include <iostream>
 #include <unistd.h>
+#include <util/unixcompat.h>
 
 namespace opencover {
 
@@ -229,7 +230,7 @@ void coTUISGBrowserTab::setSimPair(char *nodePath, char *simPath, char *simName)
     setVal(TABLET_SIM_SETSIMPAIR, nodePath, simPath, simName);
 }
 
-int coTUISGBrowserTab::getDataLength() const
+size_t coTUISGBrowserTab::getDataLength() const
 {
     return data.size();
 }

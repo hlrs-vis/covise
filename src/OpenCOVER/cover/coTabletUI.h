@@ -896,7 +896,7 @@ public:
     {
         return index;
     }
-    virtual int getDataLength() const;
+    virtual size_t getDataLength() const;
     virtual int getTextureNumber() const
     {
         return textureNumber;
