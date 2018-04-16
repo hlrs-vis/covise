@@ -22,10 +22,7 @@ public:
 	float simulationTime;
 
 	//conditions
-    bool anyActTrue;
 	bool scenarioCondition;
-	string endConditionType;
-    float endTime;
 
 	ScenarioManager();
 	void restart();
@@ -43,6 +40,8 @@ public:
     void addCondition(Condition* condition);
     void initializeCondition(Condition* condition);
     std::list<Condition*> endConditionList;
+
+    void resetReferencePositionStatus();
 
 };
 

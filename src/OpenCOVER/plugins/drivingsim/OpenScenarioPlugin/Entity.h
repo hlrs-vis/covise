@@ -20,16 +20,13 @@ class Entity {
 public:
     std::string name;
     float speed;
-    std::string roadId;
-    int laneId;
-    float inits;
     AgentVehicle *agentVehicle;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
 
     ReferencePosition* refPos;
     ReferencePosition* newRefPos;
-    //void updateRefPos();
+    Entity* refObject;
 
     Entity(OpenScenario::oscObject *object);
     ~Entity();
@@ -42,14 +39,11 @@ public:
 
     float &getSpeed();
     osg::Vec3 getPosition();
-    void setPosition(osg::Vec3 &newPosition);
     void setDirection(osg::Vec3 &newDirection);
 
     // follow Trajectory attributes
     osg::Vec3 targetPosition;
     osg::Vec3 totaldirectionVector;
-    osg::Vec3 newPosition;
-    osg::Vec3 referencePosition;
 
     int visitedVertices;
     float totalDistance;

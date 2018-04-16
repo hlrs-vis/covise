@@ -19,6 +19,7 @@ public:
     ReferencePosition(const ReferencePosition *oldRefPos); // copy constructor
     ~ReferencePosition();
 
+    bool isUp2Date;
     // Road
     std::string roadId;
     Road* road;
@@ -46,16 +47,14 @@ public:
 
     osg::Vec3 getPosition();
     void update(std::string init_roadId, double init_s, int init_laneId);
-    void update(int init_dLane, double init_ds);
     void update(std::string init_roadId, double init_s, double init_t);
-    void update(double init_ds, double init_dt);
     void update(double x, double y, double z, double init_hdg);
-    void update(double dx, double dy, double dz);
     void update();
-    void move(osg::Vec3 newPos);
 
     void getSuccessor();
     void getPredecessor();
+
+    void resetStatus();
 };
 
 #endif // SPLINE_H

@@ -15,8 +15,7 @@ using namespace OpenScenario;
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
-    scenarioCondition(true),
-    anyActTrue(false)
+    scenarioCondition(true)
 {
 }
 void ScenarioManager::restart()
@@ -403,5 +402,14 @@ void ScenarioManager::initializeCondition(Condition *condition)
             std::string activeEntityName = entity->name.getValue();
             condition->addActiveEntity(getEntityByName(activeEntityName));
         }
+    }
+}
+
+void ScenarioManager::resetReferencePositionStatus()
+{
+    for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
+    {
+        Entity* currentEntity = (*entity_iter);
+        currentEntity->refPos->resetStatus();
     }
 }

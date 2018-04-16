@@ -9,7 +9,7 @@ Position::~Position()
 {}
 
 
-ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList)
+ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, std::list<Entity*> entityList)
 {
     referencePosition = currentEntity->refPos;
     if(currentEntity->newRefPos == NULL)
@@ -26,11 +26,6 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         offset = Lane->offset.getValue();
         s = Lane->s.getValue();
 
-        // access road
-        ::Road *road = system->getRoad(roadId);
-
-        absPosition = getAbsoluteFromRoad(road, s, laneId);
-
         currentEntity->newRefPos->update(roadId, s, laneId);
         return currentEntity->newRefPos;
 
@@ -40,32 +35,26 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         // relative lane coordinates
         int dlaneId = RelativeLane->dLane.getValue();
         double ds = RelativeLane->ds.getValue();
+        std::string refObjectName = RelativeLane->object.getValue();
 
-        currentEntity->newRefPos->update();
+        ReferencePosition* refObject = getRelObjectPos(refObjectName, currentEntity, entityList);
 
-        currentEntity->newRefPos->update(dlaneId, ds);
+        refObject->update();
+        currentEntity->newRefPos->update(refObject->roadId, refObject->s+ds, refObject->laneId+dlaneId);
+
         return currentEntity->newRefPos;
-    }
-    else if(RelativeObject.exists())
-    {
-        dx = RelativeObject->dx.getValue();
-        dy = RelativeObject->dy.getValue();
-        dz = RelativeObject->dz.getValue();
-        relObject = RelativeObject->object.getValue();
-
-        osg::Vec3 referenceObjectPosition = getRelObjectPos(relObject, currentEntity, system, entityList);
-
-        return NULL;
-
     }
     else if(RelativeRoad.exists())
     {
         // relative road coordinates
         double ds = RelativeRoad->ds.getValue();
         double dt = RelativeRoad->dt.getValue();
+        std::string relObject = RelativeRoad->object.getValue();
 
-        currentEntity->newRefPos->update();
-        currentEntity->newRefPos->update(ds,dt);
+        ReferencePosition* refObject = getRelObjectPos(relObject, currentEntity, entityList);
+
+        refObject->update();
+        currentEntity->newRefPos->update(refObject->roadId,refObject->s+ds,refObject->t+dt);
 
         return currentEntity->newRefPos;
 
@@ -104,10 +93,19 @@ ReferencePosition* Position::getAbsolutePosition(Entity* currentEntity, RoadSyst
         dx = RelativeWorld->dx.getValue();
         dy = RelativeWorld->dy.getValue();
         dz = RelativeWorld->dz.getValue();
+        std::string relObject = RelativeWorld->object.getValue();
 
-        currentEntity->newRefPos->update(dx,dy,dz);
+        ReferencePosition* refObject = getRelObjectPos(relObject, currentEntity, entityList);
+
+        currentEntity->newRefPos->update(refObject->xyz[0]+dx,refObject->xyz[1]+dy,refObject->xyz[2]+dz,0.0);
         return currentEntity->newRefPos;
 
+
+    }
+    else if(RelativeObject.exists())
+    {
+        // is not implemented yet
+        return NULL;
 
     }
 
@@ -135,41 +133,30 @@ osg::Vec3 Position::getAbsoluteFromRoad(::Road* road, double s, double t)
     return pos;
 }
 
-osg::Vec3 Position::getRelObjectPos(std::string relObject, Entity* currentEntity, RoadSystem* system, std::list<Entity*> entityList)
+ReferencePosition* Position::getRelObjectPos(std::string refObjectName, Entity* currentEntity, std::list<Entity*> entityList)
 {
-    // check if relative Object is the Entity itself
-    if(relObject == "self")
+    if(refObjectName == "")
     {
-        return currentEntity->referencePosition;
+        currentEntity->refObject = currentEntity;
+        return currentEntity->refPos;
     }
-
-    // check if relative Object is another Entity
+    if(currentEntity->refObject != NULL)
+    {
+        if(refObjectName == currentEntity->refObject->name)
+        {
+            return currentEntity->refObject->refPos;
+        }
+    }
     for(std::list<Entity*>::iterator refEntity = entityList.begin(); refEntity != entityList.end(); refEntity++)
     {
-        if(relObject == (*refEntity)->name){
-            return (*refEntity)->entityPosition;
-        }
-    }
-
-    // check if road system object is relObject
-    int numRoads = system->getNumRoads();
-    for (int i = 0; i < numRoads; ++i)
-    {
-        ::Road *road = system->getRoad(i);
-        int numSignals = road->getNumRoadSignals();
-        for (int ii = 0; ii < numSignals; ++ii)
+        if(refObjectName == (*refEntity)->name)
         {
-            RoadSignal* refSignal = road->getRoadSignal(ii);
-            if(relObject == refSignal->getName())
-            {
-                const Transform signalTransf =  refSignal->getTransform();
-                osg::Vec3 refPos(signalTransf.v().x(), signalTransf.v().y(), signalTransf.v().z());
-                return refPos;
-            }
+            currentEntity->refObject = (*refEntity);
+            return (*refEntity)->refPos;
         }
-    }
-    return osg::Vec3(0.0, 0.0, 0.0);
 
+    }
+    return currentEntity->refPos;
 }
 
 double Position::getHdg()

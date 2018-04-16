@@ -20,17 +20,6 @@ public:
     int finishedEntityActions;
     int activeEntites;
 
-    //conditions
-
-    bool eventCondition;
-    bool eventFinished;
-    float startTime;
-    std::string startConditionType;
-    std::string startAfterManeuver;
-    std::string passiveCarName;
-    std::string activeCarName;
-    float relativeDistance;
-
     std::string &getName();
     void initialize(int numEntites);
 

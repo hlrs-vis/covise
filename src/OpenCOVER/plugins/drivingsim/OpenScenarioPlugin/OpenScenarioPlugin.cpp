@@ -284,7 +284,7 @@ void OpenScenarioPlugin::preFrame()
                                                     {
                                                         currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
 
-                                                        currentPos->getAbsolutePosition(currentEntity,system, scenarioManager->entityList);
+                                                        currentPos->getAbsolutePosition(currentEntity, scenarioManager->entityList);
                                                         cout << "Entity next target: " << currentEntity->newRefPos->xyz[0] << ", " << currentEntity->newRefPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
                                                         currentEntity->setTrajectoryDirection();
@@ -333,6 +333,7 @@ void OpenScenarioPlugin::preFrame()
             currentEntity->moveLongitudinal();
         }
         usedEntity.clear();
+        scenarioManager->resetReferencePositionStatus();
 
     }
     else

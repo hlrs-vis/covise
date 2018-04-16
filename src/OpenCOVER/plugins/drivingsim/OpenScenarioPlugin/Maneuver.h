@@ -21,15 +21,6 @@ public:
     std::string routeCatalogReference;
     std::string trajectoryCatalogReference;
     //conditions
-    int finishedEvents;
-    float startTime;
-    std::string startConditionType;
-    std::string startAfterManeuver;
-    std::string passiveCarName;
-    std::string activeCarName;
-    int numberOfActiveEntities;
-    float relativeDistance;
-    float targetSpeed;
 
     std::list<::Event*> eventList;
     ::Event* activeEvent;
