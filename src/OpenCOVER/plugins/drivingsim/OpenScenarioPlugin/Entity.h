@@ -26,7 +26,7 @@ public:
 
     ReferencePosition* refPos;
     ReferencePosition* newRefPos;
-    //void updateRefPos();
+    Entity* refObject;
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();

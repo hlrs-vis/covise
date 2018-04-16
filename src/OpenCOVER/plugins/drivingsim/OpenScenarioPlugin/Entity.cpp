@@ -11,7 +11,8 @@ Entity::Entity(string entityName, string catalogReferenceName):
     visitedVertices(0),
     refPos(NULL),
     newRefPos(NULL),
-    dt(0.0)
+    dt(0.0),
+    refObject(NULL)
 {
 	directionVector.set(1, 0, 0);
 }

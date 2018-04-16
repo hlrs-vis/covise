@@ -298,3 +298,12 @@ void ScenarioManager::initializeCondition(Condition *condition)
         }
     }
 }
+
+void ScenarioManager::resetReferencePositionStatus()
+{
+    for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
+    {
+        Entity* currentEntity = (*entity_iter);
+        currentEntity->refPos->resetStatus();
+    }
+}

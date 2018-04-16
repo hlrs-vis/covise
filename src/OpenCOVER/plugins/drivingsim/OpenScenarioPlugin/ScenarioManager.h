@@ -42,6 +42,8 @@ public:
     void initializeCondition(Condition* condition);
     std::list<Condition*> endConditionList;
 
+    void resetReferencePositionStatus();
+
 };
 
 #endif // SCENARIOMANAGER_H
