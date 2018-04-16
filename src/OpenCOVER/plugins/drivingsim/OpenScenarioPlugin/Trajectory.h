@@ -21,7 +21,6 @@ public:
 	~Trajectory();
 	virtual void finishedParsing();
     void initialize(int verticesCounter);
-    osg::Vec3 getAbsolute(Entity* currentEntity);
     float getReference(int visitedVertices);
     double t0;
     double t1;

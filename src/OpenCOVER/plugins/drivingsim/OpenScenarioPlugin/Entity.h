@@ -17,9 +17,6 @@ public:
     std::string catalogReferenceName;
     std::string filepath;
     float speed;
-    std::string roadId;
-    int laneId;
-    float inits;
     AgentVehicle *entityGeometry;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
@@ -30,8 +27,6 @@ public:
 
     Entity(std::string entityName, std::string catalogReferenceName);
     ~Entity();
-    void setInitEntityPosition(osg::Vec3 init);
-    void setInitEntityPosition(Road *r);
     void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
@@ -41,14 +36,11 @@ public:
 
     float &getSpeed();
     osg::Vec3 getPosition();
-    void setPosition(osg::Vec3 &newPosition);
     void setDirection(osg::Vec3 &newDirection);
 
     // follow Trajectory attributes
     osg::Vec3 targetPosition;
     osg::Vec3 totaldirectionVector;
-    osg::Vec3 newPosition;
-    osg::Vec3 referencePosition;
 
     int visitedVertices;
     float totalDistance;
