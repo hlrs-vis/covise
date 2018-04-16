@@ -91,12 +91,6 @@ osg::Vec3 Entity::getPosition()
     return refPos->getPosition();
 }
 
-void Entity::setPosition(osg::Vec3 &newPosition)
-{
-	entityPosition = newPosition;
-	agentVehicle->setPosition(newPosition, directionVector);
-}
-
 string &Entity::getName()
 {
 	return name;
