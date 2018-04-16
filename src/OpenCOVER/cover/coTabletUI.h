@@ -124,7 +124,7 @@ protected:
     covise::Host *localHost = nullptr;
     int port = 31802;
     int ID = 3;
-    float timeout = 0.f;
+    float timeout = 1.f;
     bool debugTUIState = false;
     double oldTime = 0.0;
     bool firstConnection = true;
@@ -968,7 +968,6 @@ protected:
     covise::Host *serverHost = nullptr;
     covise::Host *localHost = nullptr;
     int texturePort;
-    float timeout;
     SGTextureThread *thread = nullptr;
     OpenThreads::Mutex mutex;
 
