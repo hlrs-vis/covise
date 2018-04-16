@@ -162,11 +162,17 @@ bool OpenScenarioPlugin::update()
 	{
 		while (toClientConn && toClientConn->check_for_input())
 		{
-			readTCPData(&size, sizeof(int));
+			if (readTCPData(&size, sizeof(int)) == false)
+			{
+				delete toClientConn;
+				toClientConn = NULL;
+			}
+			byteSwap(size);
 			if (size>0)
 			{
-				char *buf = new char[size];
+				char *buf = new char[size+1];
 				readTCPData(buf, size);
+				buf[size] = '\0';
 				coVRMSController::instance()->sendSlaves(&size, sizeof(size));
 				coVRMSController::instance()->sendSlaves(buf,size);
 				handleMessage(buf);
@@ -182,8 +188,9 @@ bool OpenScenarioPlugin::update()
 			coVRMSController::instance()->readMaster(&size, sizeof(size));
 			if (size > 0)
 			{
-				char *buf = new char[size];
+				char *buf = new char[size+1];
 				coVRMSController::instance()->readMaster(&buf, size);
+				buf[size] = '\0';
 				handleMessage(buf);
 				delete[] buf;
 			}
@@ -195,7 +202,16 @@ bool OpenScenarioPlugin::update()
 void
 OpenScenarioPlugin::handleMessage(const char *buf)
 {
-	
+	fprintf(stderr, "%s\n", buf);
+	if (strcmp(buf, "restart") == 0)
+	{
+		scenarioManager->restart();
+
+	}
+	if (strcmp(buf, "stop") == 0)
+	{
+
+	}
 }
 
 bool
@@ -234,7 +250,7 @@ void OpenScenarioPlugin::preFrame()
         {
             Act* currentAct = (*act_iter);
             //check act start conditions
-            if (currentAct->StoryElement::isRunning())
+            if (currentAct->isRunning())
             {
                 for(list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
                 {
@@ -251,7 +267,7 @@ void OpenScenarioPlugin::preFrame()
                                 for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
                                 {
                                     Action* currentAction = (*action_iter);
-                                    cout << "Entity Action: " << currentAction->name.getValue() << endl;
+                                    //cout << "Entity Action: " << currentAction->name.getValue() << endl;
                                     if(currentAction->Private.exists())
                                     {
                                         if (currentAction->Private->Routing.exists())
@@ -280,7 +296,7 @@ void OpenScenarioPlugin::preFrame()
                                                     }
 
                                                     currentEntity->followTrajectory(currentEvent,currentTrajectory->verticesCounter);
-                                                    cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
+                                                    //cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
                                                     unusedEntity.remove(currentEntity);
                                                     usedEntity.push_back(currentEntity);
@@ -500,124 +516,75 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
     for (oscObjectArrayMember::iterator it = osdb->Entities->Object.begin(); it != osdb->Entities->Object.end(); it++)
     {
         oscObject* entity = ((oscObject*)(*it));
-        scenarioManager->entityList.push_back(new Entity(entity->name.getValue(), entity->CatalogReference->entryName.getValue()));
+        scenarioManager->entityList.push_back(new Entity(entity));
         cout << "Entity: " <<  entity->name.getValue() << " initialized" << endl;
     }
 
-    //get initial position and speed of entities
-    for (list<Entity*>::iterator entity_iter = scenarioManager->entityList.begin(); entity_iter != scenarioManager->entityList.end(); entity_iter++)
-    {
-        Entity *currentTentity = (*entity_iter);
-        oscObjectBase *vehicleCatalog = osdb->getCatalogObjectByCatalogReference("VehicleCatalog", (*entity_iter)->catalogReferenceName);
-        oscVehicle* vehicle = ((oscVehicle*)(vehicleCatalog));
-        for(int i=0;i<vehicle->ParameterDeclaration->Parameter.size();i++)
-        {
-            if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
-            {
-                double X=0.0, Y=0.0, Z=0.0, H=0.0, P=0.0, R=0.0, FOV=0.0;
-                for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
-                {
-                    if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
-                    {
-                        X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
-                    {
-                        Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
-                    {
-                        Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
-                    {
-                        H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
-                    {
-                        P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
-                    {
-                        R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                    else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
-                    {
-                        FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-                    }
-                }
-                coCoord coord;
-                coord.hpr[0] = H;
-                coord.hpr[1] = P;
-                coord.hpr[2] = R;
-                coord.xyz[0] = X;
-                coord.xyz[1] = Y;
-                coord.xyz[2] = Z;
-                osg::Matrix cameraMat;
-                coord.makeMat(cameraMat);
+	//create Cameras
+	for (list<Entity*>::iterator entity_iter = scenarioManager->entityList.begin(); entity_iter != scenarioManager->entityList.end(); entity_iter++)
+	{
+		Entity *currentEntity = (*entity_iter);
+		oscVehicle* vehicle = currentEntity->getVehicle();
+		for (int i = 0; i < vehicle->ParameterDeclaration->Parameter.size(); i++)
+		{
+			if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
+			{
+				double X = 0.0, Y = 0.0, Z = 0.0, H = 0.0, P = 0.0, R = 0.0, FOV = 0.0;
+				for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
+				{
+					if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
+					{
+						X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
+					{
+						Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
+					{
+						Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
+					{
+						H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
+					{
+						P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
+					{
+						R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
+					{
+						FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+					}
+				}
+				coCoord coord;
+				coord.hpr[0] = H;
+				coord.hpr[1] = P;
+				coord.hpr[2] = R;
+				coord.xyz[0] = X;
+				coord.xyz[1] = Y;
+				coord.xyz[2] = Z;
+				osg::Matrix cameraMat;
+				coord.makeMat(cameraMat);
 
-                osg::Matrix rotMat;
-                rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
+				osg::Matrix rotMat;
+				rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
 
-                CameraSensor *camera = new CameraSensor(currentTentity, vehicle, rotMat*cameraMat, FOV);
-                cameras.push_back(camera);
-                if (currentCamera == NULL)
-                    currentCamera = camera;
-                break;
-            }
-        }
+				CameraSensor *camera = new CameraSensor(currentEntity, vehicle, rotMat*cameraMat, FOV);
+				cameras.push_back(camera);
+				if (currentCamera == NULL)
+					currentCamera = camera;
+				break;
+			}
+		}
+	}
 
-        for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it !=  vehicle->Properties->File.end(); it++)
-        {
-            oscFile* file = ((oscFile*)(*it));
-            currentTentity->filepath = file->filepath.getValue();
-        }
-        for (oscPrivateArrayMember::iterator it = osdb->Storyboard->Init->Actions->Private.begin(); it != osdb->Storyboard->Init->Actions->Private.end(); it++)
-        {
-            oscPrivate* actions_private = ((oscPrivate*)(*it));
-            if(currentTentity->getName() == actions_private->object.getValue())
-            {
-                for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
-                {
-                    oscPrivateAction* action = ((oscPrivateAction*)(*it2));
-                    if(action->Longitudinal.exists())
-                    {
-                        currentTentity->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
-                    }
-                    if(action->Position.exists())
-                    {
-                        Position* initPos = (Position*)(action->Position.getObject());
-                        if (initPos->Lane.exists())
-                        {
-                            ReferencePosition* refPos = new ReferencePosition();
-                            refPos->init(initPos->Lane->roadId.getValue(),initPos->Lane->laneId.getValue(),initPos->Lane->s.getValue(),system);
-                            currentTentity->setInitEntityPosition(refPos);
-                            currentTentity->refPos = refPos;
-                        }
-                        else if(initPos->World.exists())
-                        {
-                            osg::Vec3 initPosition = initPos->getAbsoluteWorld();
-                            double hdg = initPos->getHdg();
+	scenarioManager->initializeEntities();
 
-                            ReferencePosition* refPos = new ReferencePosition();
-                            refPos->init(initPosition,hdg,system);
-                            currentTentity->setInitEntityPosition(refPos);
-                            currentTentity->refPos = refPos;
-                        }
-                        else if(initPos->Road.exists())
-                        {
-                            ReferencePosition* refPos = new ReferencePosition();
-                            refPos->init(initPos->Road->roadId.getValue(),initPos->Road->s.getValue(),initPos->Road->t.getValue(),system);
-                            currentTentity->setInitEntityPosition(refPos);
-                            currentTentity->refPos = refPos;
-                        }
-                    }
-                }
-
-            }
-        }
-
-    }
 
     //initialize acts
     for (oscStoryArrayMember::iterator it = osdb->Storyboard->Story.begin(); it != osdb->Storyboard->Story.end(); it++)

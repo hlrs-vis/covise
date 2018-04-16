@@ -15,6 +15,7 @@ class Sequence : public::OpenScenario::oscSequence, public StoryElement
 {
 public:
     Sequence();
+	virtual void stop();
     std::list<::Maneuver*> maneuverList;
     std::list<Entity*> actorList;
     int executions;

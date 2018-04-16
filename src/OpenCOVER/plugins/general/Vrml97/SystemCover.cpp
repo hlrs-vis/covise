@@ -23,6 +23,7 @@
 #include <boost/filesystem.hpp>
 
 #include <util/common.h>
+#include <util/unixcompat.h>
 #include <fcntl.h>
 #include <vrml97/vrml/config.h>
 #include <vrml97/vrml/System.h>

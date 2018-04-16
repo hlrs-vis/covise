@@ -16,6 +16,7 @@ public:
     Event();
 
     std::list<::Action*> actionList;
+	void stop();
     int finishedEntityActions;
     int activeEntites;
 

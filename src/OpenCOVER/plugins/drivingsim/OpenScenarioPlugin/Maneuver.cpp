@@ -16,6 +16,11 @@ Maneuver::Maneuver():
 Maneuver::~Maneuver()
 {
 }
+void Maneuver::stop()
+{
+	activeEvent = NULL;
+	StoryElement::stop();
+}
 void Maneuver::initialize(::Event* event_temp)
 {
     eventList.push_back(event_temp);

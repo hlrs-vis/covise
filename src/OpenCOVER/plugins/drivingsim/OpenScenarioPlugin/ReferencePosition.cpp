@@ -303,14 +303,14 @@ void ReferencePosition::getSuccessor()
     TarmacConnection* connection;
 
     connection = road->getSuccessorConnection();
-    if(connection != NULL)
-    {
-        road = dynamic_cast<Road *>(connection->getConnectingTarmac());
+	if (connection)
+	{
+		road = dynamic_cast<Road *>(connection->getConnectingTarmac());
 
-        s = s-roadLength;
-        roadId = system->getRoadId(road);
-        roadLength = road->getLength();
-    }
+		s = s - roadLength;
+		roadId = system->getRoadId(road);
+		roadLength = road->getLength();
+	}
 }
 
 void ReferencePosition::getPredecessor()
@@ -318,7 +318,7 @@ void ReferencePosition::getPredecessor()
     TarmacConnection* connection;
 
     connection = road->getPredecessorConnection();
-    if(connection != NULL)
+    if(connection)
     {
         road = dynamic_cast<Road *>(connection->getConnectingTarmac());
         roadId = system->getRoadId(road);

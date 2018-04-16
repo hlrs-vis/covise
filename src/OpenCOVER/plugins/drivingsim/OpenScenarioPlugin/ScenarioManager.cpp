@@ -2,16 +2,58 @@
 #include <vector>
 #include "ReferencePosition.h"
 #include "Act.h"
+#include "Action.h"
 #include "Sequence.h"
 #include "Maneuver.h"
 #include "Event.h"
 #include "Condition.h"
 #include "../../../DrivingSim/OpenScenario/schema/oscEntity.h"
+#include "OpenScenarioPlugin.h"
+#include <OpenScenario/schema/oscPrivate.h>
+#include <OpenScenario/OpenScenarioBase.h>
+using namespace OpenScenario;
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
     scenarioCondition(true)
 {
+}
+void ScenarioManager::restart()
+{
+	simulationTime = 0;
+	initializeEntities();
+	for (list<Act*>::iterator act_iter = actList.begin(); act_iter != actList.end(); act_iter++)
+	{
+		Act* currentAct = (*act_iter);
+		currentAct->stop();
+		for (list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
+		{
+			Sequence* currentSequence = (*sequence_iter);
+			currentSequence->stop();
+			for (list<Maneuver*>::iterator maneuver_iter = currentSequence->maneuverList.begin(); maneuver_iter != currentSequence->maneuverList.end(); maneuver_iter++)
+			{
+				Maneuver* currentManeuver = (*maneuver_iter);
+				currentManeuver->stop();
+				for (list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
+				{
+					Event* currentEvent = *event_iter;
+					currentEvent->stop();
+					if (currentEvent != NULL)
+					{
+						for (list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
+						{
+							Entity* currentEntity = (*entity_iter);
+							for (list<Action*>::iterator currentAction = currentEvent->actionList.begin(); currentAction != currentEvent->actionList.end(); currentAction++)
+							{
+								(*currentAction)->stop();
+							}
+						}
+
+					}
+				}
+			}
+		}
+	}
 }
 
 Entity* ScenarioManager::getEntityByName(std::string entityName)
@@ -47,7 +89,66 @@ Maneuver* ScenarioManager::getManeuverByName(std::string maneuverName)
             }
         }
     }
-    return NULL;
+	return NULL;
+}
+
+void ScenarioManager::initializeEntities()
+{
+
+	//get initial position and speed of entities
+	for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
+	{
+		Entity *currentEntity = (*entity_iter);
+		currentEntity->totalDistance = 0;
+		currentEntity->visitedVertices = 0;
+		currentEntity->dt = 0.0;
+
+		for (oscPrivateArrayMember::iterator it = OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.begin(); it != OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.end(); it++)
+		{
+			oscPrivate* actions_private = ((oscPrivate*)(*it));
+			if (currentEntity->getName() == actions_private->object.getValue())
+			{
+				for (oscPrivateActionArrayMember::iterator it2 = actions_private->Action.begin(); it2 != actions_private->Action.end(); it2++)
+				{
+					oscPrivateAction* action = ((oscPrivateAction*)(*it2));
+					if (action->Longitudinal.exists())
+					{
+						currentEntity->setSpeed(action->Longitudinal->Speed->Target->Absolute->value.getValue());
+					}
+					if (action->Position.exists())
+					{
+						Position* initPos = (Position*)(action->Position.getObject());
+						if (initPos->Lane.exists())
+						{
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPos->Lane->roadId.getValue(), initPos->Lane->laneId.getValue(), initPos->Lane->s.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
+							currentEntity->setInitEntityPosition(refPos);
+							currentEntity->refPos = refPos;
+						}
+						else if (initPos->World.exists())
+						{
+							osg::Vec3 initPosition = initPos->getAbsoluteWorld();
+							double hdg = initPos->getHdg();
+
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPosition, hdg, OpenScenarioPlugin::instance()->getRoadSystem());
+							currentEntity->setInitEntityPosition(refPos);
+							currentEntity->refPos = refPos;
+						}
+						else if (initPos->Road.exists())
+						{
+							ReferencePosition* refPos = new ReferencePosition();
+							refPos->init(initPos->Road->roadId.getValue(), initPos->Road->s.getValue(), initPos->Road->t.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
+							currentEntity->setInitEntityPosition(refPos);
+							currentEntity->refPos = refPos;
+						}
+					}
+				}
+
+			}
+		}
+
+	}
 }
 Event* ScenarioManager::getEventByName(std::string eventName)
 {
@@ -94,14 +195,15 @@ void ScenarioManager::actConditionManager()
     {
         Act* currentAct = (*act_iter);
         // endconditions
-        if(currentAct->StoryElement::isRunning())
+        if(currentAct->isRunning())
         {
             for(std::list<Condition*>::iterator condition_iter = currentAct->endConditionList.begin(); condition_iter != currentAct->endConditionList.end(); condition_iter++)
             {
                 Condition* actEndCondition = (*condition_iter);
                 if(conditionControl(actEndCondition))
                 {
-                    currentAct->StoryElement::stop();
+					currentAct->stop();
+					fprintf(stderr, "stopping act %s", currentAct->name.c_str());
                 }
                 else
                 {
@@ -109,14 +211,15 @@ void ScenarioManager::actConditionManager()
                 }
             }
         }
-        else if(currentAct->StoryElement::isStopped())
+        else if(currentAct->isStopped())
         {
             for(std::list<Condition*>::iterator condition_iter = currentAct->startConditionList.begin(); condition_iter != currentAct->startConditionList.end(); condition_iter++)
             {
                 Condition* actStartCondition = (*condition_iter);
                 if(conditionControl((actStartCondition)))
                 {
-                    currentAct->StoryElement::start();
+                    currentAct->start();
+					fprintf(stderr, "starting act %s", currentAct->name.c_str());
                     eventConditionManager(currentAct);
                 }
             }
@@ -142,7 +245,7 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
             for(std::list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
             {
                 Event* currentEvent = (*event_iter);
-                if(currentEvent->StoryElement::isStopped())
+                if(currentEvent->isStopped())
                 {
                     for(std::list<Condition*>::iterator condition_iter = currentEvent->startConditionList.begin(); condition_iter != currentEvent->startConditionList.end(); condition_iter++)
                     {
@@ -150,18 +253,20 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
 
                         if(conditionControl(eventCondition))
                         {
-                            currentEvent->StoryElement::start();
+                            currentEvent->start();
+							fprintf(stderr, "starting event %s\n", currentEvent->name.getValue().c_str());
                             currentManeuver->activeEvent = currentEvent;
                             break;
                         }
                     }
                 }
-                if(currentEvent->StoryElement::isRunning())
+                if(currentEvent->isRunning())
                 {
                     if(currentEvent->activeEntites*currentEvent->actionList.size() == currentEvent->finishedEntityActions)
                     {
                         // lieber running actions und dann abziehen
-                        currentEvent->StoryElement::finish();
+                        currentEvent->finish();
+						fprintf(stderr, "finishing event %s\n", currentEvent->name.getValue().c_str());
                         finishedEvents++;
                     }
                     else
@@ -175,12 +280,14 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
             }
             if(finishedEvents == currentManeuver->eventList.size())
             {
-                currentManeuver->StoryElement::finish();
+                currentManeuver->finish();
+
+				fprintf(stderr, "finishing maneuver %s", currentManeuver->name.getValue().c_str());
                 finishedManeuvers++;
             }
             else if(currentManeuver->activeEvent == NULL)
             {
-                currentManeuver->StoryElement::stop();
+                currentManeuver->stop();
             }
             else
             {
@@ -190,17 +297,17 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
         }
         if(finishedManeuvers == currentSequence->maneuverList.size())
         {
-            currentSequence->StoryElement::finish();
+            currentSequence->finish();
             finishedSequences++;
         }
         else if(currentSequence->activeManeuver == NULL)
         {
-            currentSequence->StoryElement::stop();
+            currentSequence->stop();
         }
     }
     if(finishedSequences == currentAct->sequenceList.size())
     {
-        currentAct->StoryElement::finish();
+        currentAct->finish();
     }
 }
 
@@ -223,7 +330,7 @@ bool ScenarioManager::conditionControl(Condition* condition)
     {
         if(condition->checkedManeuver != NULL)
         {
-            if(condition->checkedManeuver->StoryElement::state == StoryElement::finished)
+            if(condition->checkedManeuver->isFinished())
             {
                 condition->set(true);
                 condition->waitForDelay = true;
@@ -232,7 +339,7 @@ bool ScenarioManager::conditionControl(Condition* condition)
         }
         else if(condition->checkedEvent != NULL)
         {
-            if(condition->checkedEvent->StoryElement::state == StoryElement::finished)
+            if(condition->checkedEvent->isFinished())
             {
                 condition->set(true);
                 condition->waitForDelay = true;

@@ -2,44 +2,65 @@
 #include "ReferencePosition.h"
 #include "Action.h"
 #include "Event.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscEntity.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include "OpenScenarioPlugin.h"
 using namespace std;
+using namespace OpenScenario;
 
-Entity::Entity(string entityName, string catalogReferenceName):
-	name(entityName),
-    catalogReferenceName(catalogReferenceName),
+Entity::Entity(oscObject *obj):
+	object(obj),
+	name(obj->name),
     totalDistance(0),
     visitedVertices(0),
     refPos(NULL),
     newRefPos(NULL),
-    dt(0.0),
-    refObject(NULL)
+    dt(0.0)
 {
 	directionVector.set(1, 0, 0);
+
+	std::string catalogReferenceName= object->CatalogReference->entryName;
+	vehicle = ((oscVehicle*)(OpenScenarioPlugin::instance()->osdb->getCatalogObjectByCatalogReference("VehicleCatalog", catalogReferenceName)));
+
+	std::string geometryFileName;
+	for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it != vehicle->Properties->File.end(); it++)
+	{
+		oscFile* file = ((oscFile*)(*it));
+		geometryFileName = file->filepath.getValue();
+		break;
+	}
+
+	agentVehicle = new AgentVehicle(name, new CarGeometry(name, geometryFileName, true));
+}
+
+Entity::~Entity()
+{
 }
 
 void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 {
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+    //entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
 
-    if(init_refPos->road != NULL)
+    /*if(init_refPos->road != NULL)
     {
-        auto vtrans = entityGeometry->getVehicleTransform();
+        auto vtrans = agentVehicle->getVehicleTransform();
         osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
         entityPosition = pos;
-        entityGeometry->setTransform(vtrans,init_refPos->hdg);
+		agentVehicle->setTransform(vtrans,init_refPos->hdg);
 
     }
     else
-    {
+    {*/
         entityPosition = init_refPos->xyz;
 
         directionVector[0] = cos(init_refPos->hdg);
         directionVector[1] = sin(init_refPos->hdg);
 
 
-        entityGeometry->setPosition(entityPosition, directionVector);
+		agentVehicle->setPosition(entityPosition, directionVector);
 
-    }
+   // }
 
 }
 
@@ -66,29 +87,30 @@ void Entity::moveLongitudinal()
         refPos->move(ds,dt,step_distance);
 
         Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,hdg);
+        agentVehicle->setTransform(vehicleTransform,hdg);
         //cout << name << " is driving on Road: " << refPos->roadId << endl;
     }
     else
     {
-        entityGeometry->setPosition(refPos->xyz, directionVector);
+		agentVehicle->setPosition(refPos->xyz, directionVector);
     }
 
 }
+
+osg::Vec3 Entity::getPosition()
+{
+    return refPos->getPosition();
+}
+
+void Entity::setPosition(osg::Vec3 &newPosition)
+{
+	entityPosition = newPosition;
+	agentVehicle->setPosition(newPosition, directionVector);
+}
+
 string &Entity::getName()
 {
 	return name;
-}
-osg::Vec3 Entity::getPosition()
-{
-    if(refPos != NULL)
-    {
-        return refPos->getPosition();
-    }
-    else
-    {
-        return osg::Vec3(0.0,0.0,0.0);
-    }
 }
 
 void Entity::setSpeed(float speed_temp)
@@ -147,7 +169,7 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
     refPos->move(directionVector,step_distance);
     osg::Vec3 pos = refPos->getPosition();
 
-    entityGeometry->setPosition(pos, directionVector);
+	agentVehicle->setPosition(pos, directionVector);
 
     if(totalDistance <= 0)
     {
@@ -162,7 +184,7 @@ void Entity::followTrajectory(Event* event, int verticesCounter)
             }
             visitedVertices = 0;
             newRefPos = NULL;
-            event->finishedEntityActions = event->finishedEntityActions+1;
+            event->finishedEntityActions++;
 
             refPos->update();
         }
@@ -206,7 +228,7 @@ void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int 
     {
         speed = targetSpeed;
         dt = 0.0;
-        event->finishedEntityActions = event->finishedEntityActions+1;
+        event->finishedEntityActions++;
 
     }
     else

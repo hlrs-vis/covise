@@ -8,6 +8,10 @@ Sequence::Sequence():
 {
 
 }
+void Sequence::stop()
+{
+	activeManeuver = NULL;
+}
 
 void Sequence::initialize(std::list<Entity*> actorList_temp, std::list<::Maneuver*> maneuverList_temp)
 {

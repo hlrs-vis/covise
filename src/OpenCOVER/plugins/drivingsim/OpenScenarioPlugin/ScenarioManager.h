@@ -25,10 +25,12 @@ public:
 	bool scenarioCondition;
 
 	ScenarioManager();
+	void restart();
 	~ScenarioManager();
     Entity* getEntityByName(std::string entityName);
     Maneuver* getManeuverByName(std::string maneuverName);
     Event* getEventByName(std::string eventName);
+	void initializeEntities();
     bool conditionControl(Condition* condition);
 
     void conditionManager();
