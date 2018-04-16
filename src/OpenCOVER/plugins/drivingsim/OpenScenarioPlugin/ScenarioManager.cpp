@@ -10,8 +10,7 @@
 
 ScenarioManager::ScenarioManager():
 	simulationTime(0),
-    scenarioCondition(true),
-    anyActTrue(false)
+    scenarioCondition(true)
 {
 }
 

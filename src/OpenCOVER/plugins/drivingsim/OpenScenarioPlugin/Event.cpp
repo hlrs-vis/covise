@@ -4,9 +4,7 @@
 
 Event::Event():
     StoryElement(),
-    finishedEntityActions(0),
-    eventFinished(false),
-    eventCondition(false)
+    finishedEntityActions(0)
 {
 
 }
