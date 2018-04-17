@@ -4183,6 +4183,7 @@ bool coTabletUI::update()
                 connFuture = std::async(std::launch::async, [this]() -> covise::Host *
                 {
                     ClientConnection *nconn = nullptr;
+                    Host *host = nullptr;
                     if (serverHost)
                     {
                         if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
@@ -4195,26 +4196,26 @@ bool coTabletUI::update()
                     if (nconn && nconn->is_connected())
                     {
                         conn = nconn;
-                        return serverHost;
+                        host = serverHost;
                     }
                     else if (nconn) // could not open server port
                     {
-        #ifndef _WIN32
+#ifndef _WIN32
                         if (errno != ECONNREFUSED)
                         {
                             fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
                             serverHost->getName(), port, strerror(errno));
                         }
-        #else
+#else
                         fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
                         delete serverHost;
                         serverHost = NULL;
-        #endif
+#endif
                         delete nconn;
                         nconn = NULL;
                     }
 
-                    if (localHost)
+                    if (!conn && localHost)
                     {
                         if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
                         std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
@@ -4226,24 +4227,77 @@ bool coTabletUI::update()
                         if (nconn->is_connected())
                         {
                             conn = nconn;
-                            return localHost;
+                            host = localHost;
                         }
-
-                        // could not open server port
-                        delete nconn;
-                        nconn = NULL;
-        #ifndef _WIN32
-                        if (errno != ECONNREFUSED)
+                        else
                         {
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                            localHost->getName(), port, strerror(errno));
+                            // could not open server port
+                            delete nconn;
+                            nconn = NULL;
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                                localHost->getName(), port, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
+#endif
                         }
-        #else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-        #endif
                     }
 
-                    return nullptr;
+
+                    if (!conn || !host)
+                    {
+                        return nullptr;
+                    }
+
+                    // create Texture and SGBrowser Connections
+                    Message *msg = new covise::Message();
+                    conn->recv_msg(msg);
+                    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+                    {
+                        delete msg;
+
+                        delete conn;
+                        conn = NULL;
+
+                        delete sgConn;
+                        sgConn = NULL;
+
+                        return nullptr;
+                    }
+
+                    {
+                        TokenBuffer stb(msg);
+                        int sgPort = 0;
+                        stb >> sgPort;
+                        delete msg;
+
+                        ClientConnection *cconn = new ClientConnection(host, sgPort, 0, (sender_type)0, 2, 1);
+                        if (!cconn->is_connected()) // could not open server port
+                        {
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC SGBrowser %s; port %d: %s\n",
+                                        host->getName(), sgPort, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), sgPort);
+#endif
+                            delete conn;
+                            conn = NULL;
+
+                            delete cconn;
+                            cconn = NULL;
+
+                            return nullptr;
+                        }
+                        sgConn = cconn;
+                    }
+
+                    return host;
                 });
             }
             unlock();
@@ -4267,44 +4321,11 @@ bool coTabletUI::update()
                 }
                 else
                 {
-                    // create Texture and SGBrowser Connections
-                    Message *msg = new covise::Message();
-                    conn->recv_msg(msg);
-                    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-                    {
-                        connectedHost = NULL;
-                        delete conn;
-                        conn = NULL;
+                    assert(conn);
+                    assert(sgConn);
 
-                        delete sgConn;
-                        sgConn = NULL;
-                    }
-                    else
-                    {
-                        TokenBuffer stb(msg);
-                        int sgPort = 0;
-                        stb >> sgPort;
-
-                        ClientConnection *cconn = new ClientConnection(connectedHost, sgPort, 0, (sender_type)0, 2, 1);
-                        if (!cconn->is_connected()) // could not open server port
-                        {
-#ifndef _WIN32
-                            if (errno != ECONNREFUSED)
-                            {
-                                fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                        connectedHost->getName(), sgPort, strerror(errno));
-                            }
-#else
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), sgPort);
-#endif
-                            delete cconn;
-                            cconn = NULL;
-                        }
-                        sgConn = cconn;
-
-                        // resend all ui Elements to the TabletPC
-                        resendAll();
-                    }
+                    // resend all ui Elements to the TabletPC
+                    resendAll();
                 }
             }
             unlock();
