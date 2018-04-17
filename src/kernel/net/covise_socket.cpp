@@ -348,7 +348,7 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
                     }
                     else
                     {
-                        fprintf(stderr, "connect to %s:%d failed according to getsockopt: %s\n", host->getAddress(), p, coStrerror(errno));
+                        fprintf(stderr, "connect to %s:%d failed according to getsockopt: %s\n", host->getAddress(), p, coStrerror(optval));
                     }
                 }
             }
