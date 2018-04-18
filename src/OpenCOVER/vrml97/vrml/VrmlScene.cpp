@@ -1766,7 +1766,10 @@ Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
     std::string cachefile = System::the->getCacheName(url, pathname);
     if (cachefile.empty())
     {
-        std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+		if (pathname != NULL)
+		{
+			std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+		}
         return 0L;
     }
 
