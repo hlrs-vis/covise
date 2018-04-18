@@ -14,7 +14,6 @@
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
 #include <osgText/Font>
-#include <osgUtil/Optimizer>
 #include <util/unixcompat.h>
 #include <util/coFileUtil.h>
 #include <util/coHashIter.h>
@@ -391,8 +390,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             {
                 node->setName(fileName);
             }
-            osgUtil::Optimizer optimizer;
-            optimizer.optimize(node);
             parent->addChild(node);
             coVRCommunication::instance()->setCurrentFile(adjustedFileName);
             VRRegisterSceneGraph::instance()->registerNode(node, parent->getName());

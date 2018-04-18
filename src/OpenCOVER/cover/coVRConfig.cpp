@@ -188,8 +188,8 @@ coVRConfig::coVRConfig()
     pipes.resize(numPipes);
 
     glVersion = coCoviseConfig::getEntry("COVER.GLVersion");
-    m_stencil = coCoviseConfig::isOn("COVER.Stencil", false);
-    m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 0);
+    m_stencil = coCoviseConfig::isOn("COVER.Stencil", true);
+    m_stencilBits = coCoviseConfig::getInt("COVER.StencilBits", 1);
     m_stereoSeparation = 64.0f;
     string line = coCoviseConfig::getEntry("separation", "COVER.Stereo");
     if (!line.empty())

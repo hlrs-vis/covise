@@ -424,7 +424,6 @@ VRWindow::createWin(int i)
         }
         //traits->alpha = 8;
         traits->stencil = coVRConfig::instance()->numStencilBits();
-        traits->stencil = 0;
         traits->doubleBuffer = true;
         traits->quadBufferStereo = coVRConfig::instance()->windows[i].stereo;
 
