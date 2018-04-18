@@ -246,7 +246,7 @@ private:
 
     osg::Matrix invBaseMatrix;
     osg::Matrix oldInvBaseMatrix;
-	osg::Node *oldFloorNode;
+    osg::Node *oldFloorNode = nullptr;
 	osg::Matrix oldFloorMatrix;
 	osg::NodePath oldNodePath;
 
