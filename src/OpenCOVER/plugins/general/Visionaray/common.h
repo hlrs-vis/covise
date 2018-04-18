@@ -35,6 +35,7 @@ using normal_list = visionaray::aligned_vector<visionaray::vec3>;
 using tex_coord_list = visionaray::aligned_vector<visionaray::vec2>;
 using material_type = visionaray::generic_material<visionaray::matte<float>,
                                                    visionaray::plastic<float>,
+                                                   visionaray::glass<float>,
                                                    visionaray::emissive<float> >;
 using material_list = visionaray::aligned_vector<material_type>;
 using vertex_color_type = visionaray::vector<3, float>;
@@ -120,7 +121,19 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
     auto cs = mat->getSpecular(osg::Material::Face::FRONT);
     auto ce = mat->getEmission(osg::Material::Face::FRONT);
 
-    if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
+    auto alpha = std::min(ca.a(), std::min(cd.a(), std::min(cs.a(), 1.0f)));
+
+    if (alpha < 1.0f)
+    {
+        glass<float> vsnray_mat;
+        vsnray_mat.ct() = from_rgb(osg_cast(cd).xyz());
+        vsnray_mat.cr() = from_rgb(osg_cast(cs).xyz());
+        vsnray_mat.kt() = 1.0f;
+        vsnray_mat.kr() = 1.0f;
+        vsnray_mat.ior() = spectrum<float>(1.3f); // TODO
+        return material_type(vsnray_mat);
+    }
+    else if (ce[0] > 0.0f || ce[1] > 0.0f || ce[2] > 0.0f)
     {
         emissive<float> vsnray_mat;
         vsnray_mat.ce() = from_rgb(osg_cast(ce).xyz());

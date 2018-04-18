@@ -172,7 +172,7 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
     node->setName(name + "_Geom");
     dcs->setName(name);
     // disable intersection with ray
-    node->setNodeMask(node->getNodeMask() & (~Isect::Intersection));
+    node->setNodeMask(node->getNodeMask() & (~Isect::Intersection) & (~Isect::Update));
 
     m_addedNodeList[dcs->getName()] = node;
 

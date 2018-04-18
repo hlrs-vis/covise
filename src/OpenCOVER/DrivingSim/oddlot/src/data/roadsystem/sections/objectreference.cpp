@@ -24,7 +24,7 @@
 // Constructors       //
 //####################//
 
-ObjectReference::ObjectReference(const QString &id, Object *object, const QString &refId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity)
+ObjectReference::ObjectReference(const odrID &id, Object *object, const odrID &refId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity)
     : RoadSection(s)
 	, id_(id)
 	, refId_(refId)

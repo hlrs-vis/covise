@@ -15,6 +15,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/util/XMLString.hpp>
+#include "oscObjectBase.h"
+#include "OpenScenarioBase.h"
 
 
 namespace OpenScenario
@@ -32,26 +34,8 @@ template class  oscVariable<time_t>;
 template class  oscVariable<bool>;
 template class  oscVariable<float>;
 
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<int>::getValueType() {return oscMemberValue::INT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned int>::getValueType() {return oscMemberValue::UINT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<short>::getValueType() {return oscMemberValue::SHORT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<unsigned short>::getValueType() {return oscMemberValue::USHORT;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<std::string>::getValueType() {return oscMemberValue::STRING;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<double>::getValueType() {return oscMemberValue::DOUBLE;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<time_t>::getValueType() {return oscMemberValue::DATE_TIME;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<bool>::getValueType() {return oscMemberValue::BOOL;};
-template<>
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscVariable<float>::getValueType() {return oscMemberValue::FLOAT;};
 
-OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType() {return oscMemberValue::ENUM;};
+OPENSCENARIOEXPORT oscMemberValue::MemberTypes oscEnum::getValueType() const {return oscMemberValue::ENUM;};
 
 
 //oscEnum
@@ -76,15 +60,73 @@ std::string oscEnum::getValueAsStr(const int val) const
     return strVal;
 }
 
+template<>
+OPENSCENARIOEXPORT oscValue<double>::oscValue()
+{
+	type = DOUBLE;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<float>::oscValue()
+{
+	type = FLOAT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<bool>::oscValue()
+{
+	type = BOOL;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<std::string>::oscValue()
+{
+	type = STRING;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<int>::oscValue()
+{
+	type = INT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<unsigned int>::oscValue()
+{
+	type = UINT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<short>::oscValue()
+{
+	type = SHORT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<unsigned short>::oscValue()
+{
+	type = USHORT;
+}
+template<>
+OPENSCENARIOEXPORT oscValue<time_t>::oscValue()
+{
+	type = DATE_TIME;
+}
+/*
+template<>
+OPENSCENARIOEXPORT oscValue<oscObjectBase *>::oscValue()
+{
+	type = OBJECT;
+}*/
 
 //oscValue.initialize()
 //
 template<>
-OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
     try
     {
-        value = std::stol(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+            value = std::stol(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -100,11 +142,18 @@ OPENSCENARIOEXPORT bool oscValue<int>::initialize(xercesc::DOMAttr *attribute)
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
     try
     {
-        value = std::stoul(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+			value = std::stoul(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -120,11 +169,18 @@ OPENSCENARIOEXPORT bool oscValue<unsigned int>::initialize(xercesc::DOMAttr *att
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
     try
     {
-        value = (short)std::stol(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+			value = (short)std::stol(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -140,11 +196,18 @@ OPENSCENARIOEXPORT bool oscValue<short>::initialize(xercesc::DOMAttr *attribute)
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
     try
     {
-        value = (unsigned short)std::stoul(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+			value = (unsigned short)std::stoul(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -160,17 +223,40 @@ OPENSCENARIOEXPORT bool oscValue<unsigned short>::initialize(xercesc::DOMAttr *a
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<std::string>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
-    value = xercesc::XMLString::transcode(attribute->getValue());
+	char * val = xercesc::XMLString::transcode(attribute->getValue());
+	if (strcmp(val,"$owner")==0)
+	{
+		value = val;
+	}
+	else
+	{
+	  if (val[0] == '$')
+	  {
+		base->addParameter(val + 1, this);
+	  }
+	  else
+	  {
+	    value = val;
+	  }
+	}
+	xercesc::XMLString::release(&val);
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
     try
     {
-        value = std::stod(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+			value = std::stod(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -186,61 +272,83 @@ OPENSCENARIOEXPORT bool oscValue<double>::initialize(xercesc::DOMAttr *attribute
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<time_t>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
-
-	std::string valueStr = xercesc::XMLString::transcode(attribute->getValue());
-	struct tm t = {};
-	//strptime(valueStr.c_str(),"%FT%TZ", gmtime(&value));
-	int ns = sscanf(valueStr.c_str(), "%d-%d-%dT%d:%d:%d", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
-	t.tm_year -= 1900;
-	t.tm_mon -= 1;
-	t.tm_isdst = -1;
-	if (ns < 6) {
-		std::cerr << "Error! Trying to initialize a time_t value." << std::endl;
-		return false;
-	}
-	else {
-		value = std::mktime(&t);
+	char *ch;
+	std::string valueStr = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
+	if (valueStr[0] == '$')
+	{
+		base->addParameter(valueStr.c_str() + 1, this);
 		return true;
+	}
+	else
+	{
+		struct tm t = {};
+		//strptime(valueStr.c_str(),"%FT%TZ", gmtime(&value));
+		int ns = sscanf(valueStr.c_str(), "%d-%d-%dT%d:%d:%d", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
+		t.tm_year -= 1900;
+		t.tm_mon -= 1;
+		t.tm_isdst = -1;
+		if (ns < 6) {
+			std::cerr << "Error! Trying to initialize a time_t value." << std::endl;
+			return false;
+		}
+		else {
+			value = std::mktime(&t);
+			return true;
+		}
 	}
     return false;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<bool>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
-    std::string valueStr = xercesc::XMLString::transcode(attribute->getValue());
-	
-    //conversion of 'true' to '1' and 'false' to '0'
-    if (valueStr == "true")
-    {
-        valueStr = "1";
-    }
-    else if (valueStr == "false")
-    {
-        valueStr = "0";
-    }
+	char *ch;
+    std::string valueStr = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
+	if (valueStr[0] == '$')
+	{
+		base->addParameter(valueStr.c_str() + 1, this);
+	}
+	else
+	{
+		//conversion of 'true' to '1' and 'false' to '0'
+		if (valueStr == "true")
+		{
+			valueStr = "1";
+		}
+		else if (valueStr == "false")
+		{
+			valueStr = "0";
+		}
 
-    try
-    {
-        value = (std::stol(valueStr) != 0);
-    }
-    catch (...)
-    {
-        std::cerr << " Error during conversion of string value \"" << valueStr << "\" to boolean." << std::endl;
-        std::cerr << " Known values are: 'true', 'false', '1', '0'" << std::endl;
-        return false;
-    }
+		try
+		{
+			value = (std::stol(valueStr) != 0);
+		}
+		catch (...)
+		{
+			std::cerr << " Error during conversion of string value \"" << valueStr << "\" to boolean." << std::endl;
+			std::cerr << " Known values are: 'true', 'false', '1', '0'" << std::endl;
+			return false;
+		}
+	}
 
     return true;
 };
 template<>
-OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
 
     try
     {
-        value = std::stof(xercesc::XMLString::transcode(attribute->getValue()));
+		char * val = xercesc::XMLString::transcode(attribute->getValue());
+		if (val[0] == '$')
+		{
+			base->addParameter(val + 1, this);
+		}
+		else
+			value = std::stof(val);
+		xercesc::XMLString::release(&val);
     }
     catch (const std::invalid_argument &ia)
     {
@@ -258,9 +366,10 @@ OPENSCENARIOEXPORT bool oscValue<float>::initialize(xercesc::DOMAttr *attribute)
 
 //oscEnumValue.initialize()
 //
-OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute)
+OPENSCENARIOEXPORT bool oscEnumValue::initialize(xercesc::DOMAttr *attribute, OpenScenarioBase *base)
 {
-    std::string valstr = xercesc::XMLString::transcode(attribute->getValue()); 
+	char *ch;
+    std::string valstr = ch = xercesc::XMLString::transcode(attribute->getValue()); xercesc::XMLString::release(&ch);
 	std::string enumName = nameMapping::instance()->getEnumName(valstr);
     value = enumType->getEnum(enumName);
     return true;
@@ -274,7 +383,8 @@ OPENSCENARIOEXPORT bool oscValue<int>::writeToDOM(xercesc::DOMElement *currentEl
 {
     char buf[100];
     sprintf(buf, "%d", value);
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
+	XMLCh *t1 = NULL, *t2 = NULL;
+    currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
@@ -282,7 +392,8 @@ OPENSCENARIOEXPORT bool oscValue<unsigned int>::writeToDOM(xercesc::DOMElement *
 {
     char buf[100];
     sprintf(buf, "%u", value);
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
@@ -290,7 +401,8 @@ OPENSCENARIOEXPORT bool oscValue<short>::writeToDOM(xercesc::DOMElement *current
 {
     char buf[100];
     sprintf(buf, "%hd",value);
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
@@ -298,13 +410,15 @@ OPENSCENARIOEXPORT bool oscValue<unsigned short>::writeToDOM(xercesc::DOMElement
 {
     char buf[100];
     sprintf(buf, "%hu", value);
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
 OPENSCENARIOEXPORT bool oscValue<std::string>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(value.c_str()));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(value.c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
@@ -320,26 +434,29 @@ OPENSCENARIOEXPORT bool oscValue<time_t>::writeToDOM(xercesc::DOMElement *curren
 	if (value <= 0)
 		value = time(NULL);
 	strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%S", localtime(&value));
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(buf));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(buf)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 template<>
 OPENSCENARIOEXPORT bool oscValue<bool>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
+	XMLCh *t1 = NULL, *t2 = NULL;
     if(value)
     {
-        currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("true"));
+		currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode("true")); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     }
     else
     {
-        currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode("false"));
+		currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode("false")); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     }
     return true;
 };
 template<>
 OPENSCENARIOEXPORT bool oscValue<float>::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *, const char *name)
 {
-    currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(std::to_string(value).c_str()));
+	XMLCh *t1 = NULL, *t2 = NULL;
+	currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(std::to_string(value).c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     return true;
 };
 
@@ -353,7 +470,8 @@ OPENSCENARIOEXPORT bool oscEnumValue::writeToDOM(xercesc::DOMElement *currentEle
         {
 			std::string s = it->first.c_str();
 			std::string schemaEnumName = nameMapping::instance()->getSchemaEnumName(s);
-            currentElement->setAttribute(xercesc::XMLString::transcode(name), xercesc::XMLString::transcode(schemaEnumName.c_str()));
+			XMLCh *t1 = NULL, *t2 = NULL;
+			currentElement->setAttribute(t1 = xercesc::XMLString::transcode(name), t2 = xercesc::XMLString::transcode(schemaEnumName.c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         }
     }
     return true;

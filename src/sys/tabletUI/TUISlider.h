@@ -14,6 +14,7 @@
 
 class QLineEdit;
 class QSlider;
+class QLabel;
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -28,27 +29,25 @@ class TUISlider : public QObject, public TUIElement
 public:
     TUISlider(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUISlider();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
+    virtual void setLabel(QString textl) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
+    virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
-    void setPos(int x, int y);
-    QLineEdit *string;
-    QSlider *slider;
-    int min;
-    int max;
-    int value;
+    void setPos(int x, int y) override;
 
 public slots:
-
     void sliderChanged(int index);
     void pressed();
     void released();
 
 protected:
+    QLineEdit *string = nullptr;
+    QSlider *slider = nullptr;
+    QLabel *label = nullptr;
+    int min;
+    int max;
+    int value;
 };
 #endif

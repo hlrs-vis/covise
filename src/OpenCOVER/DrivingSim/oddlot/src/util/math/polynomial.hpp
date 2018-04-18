@@ -16,6 +16,8 @@
 #ifndef POLYNOMIAL_HPP
 #define POLYNOMIAL_HPP
 
+#include <QPointF>
+
 class Polynomial
 {
 public:
@@ -62,6 +64,13 @@ public:
 
     double getCurveLength(double fromX, double toX);
 
+	double getX(double y, double l, double xApprox);
+	double getT(double y, double xApprox) const;
+
+	bool getPolynomialControlPoints(double length,QPointF &p0, QPointF &p1, QPointF &p2, QPointF &p3);
+	void setParametersFromControlPoints(QPointF p0, QPointF p1, QPointF p2, QPointF p3);
+	void setParameters(double a, double b, double c, double d);
+
 protected:
     // four doubles = 0 is the same Polynomial(); /* not allowed */
     Polynomial &operator=(const Polynomial &); /* not allowed */
@@ -78,6 +87,11 @@ protected:
     double b_;
     double c_;
     double d_;
+
+	double ax_;
+	double bx_;
+	double cx_;
+	double dx_;
 
     int degree_;
 };

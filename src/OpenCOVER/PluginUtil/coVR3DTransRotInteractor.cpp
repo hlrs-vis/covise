@@ -14,6 +14,9 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
+#include <osg/io_utils>
+
+const float ArrowLength = 5.0f;
 
 using namespace opencover;
 
@@ -25,12 +28,9 @@ coVR3DTransRotInteractor::coVR3DTransRotInteractor(osg::Matrix m, float s, coInt
         fprintf(stderr, "new coVR3DTransRotInteractor(%s)\n", interactorName);
     }
 
-    _interMat_o = m;
-    ////interMat_o.print(0, 1,"interMat_o :", stderr);
-
-    moveTransform->setMatrix(_interMat_o);
-
     createGeometry();
+
+    coVR3DTransRotInteractor::updateTransform(m);
 }
 
 coVR3DTransRotInteractor::~coVR3DTransRotInteractor()
@@ -45,17 +45,56 @@ coVR3DTransRotInteractor::createGeometry()
     if (cover->debugLevel(4))
         fprintf(stderr, "\ncoVR3DTransRotInteractor::createGeometry\n");
 
+    bool restrictedInteraction = true;
+
     osg::ShapeDrawable *xlConeDrawable, *xrConeDrawable, *ylConeDrawable, *yrConeDrawable, *zlConeDrawable, *zrConeDrawable, *sphereDrawable;
     //osg::Geometry *xaxisDrawable, *yaxisDrawable, *zaxisDrawable;
 
     osg::Vec3 origin(0, 0, 0), px(1, 0, 0), py(0, 1, 0), pz(0, 0, 1);
+    osg::Vec3 yaxis(0, 1, 0);
+    osg::Vec3 normal(0, -ArrowLength, 0);
     osg::Vec4 red(1, 0, 0, 1), green(0, 1, 0, 1), blue(0, 0, 1, 1), color(0.5, 0.5, 0.5, 1);
+    red.set(0.5, 0.2, 0.2, 1.0);
+    green.set(0.2, 0.5, 0.2, 1.0);
+    blue.set(0.2, 0.2, 0.5, 1.0);
+
+    axisTransform = new osg::MatrixTransform();
+    axisTransform->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE));
+    geometryNode = axisTransform.get();
+    scaleTransform->addChild(geometryNode.get());
 
     osg::Sphere *mySphere = new osg::Sphere(origin, 0.5);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     sphereDrawable = new osg::ShapeDrawable(mySphere, hint);
+    sphereDrawable->setColor(color);
     sphereGeode = new osg::Geode();
+    sphereGeode->addDrawable(sphereDrawable);
+    axisTransform->addChild(sphereGeode.get());
+
+    if (restrictedInteraction)
+    {
+        auto myNormalShape = new osg::Cone(origin, 0.5, 2.0);
+        osg::ShapeDrawable *normalSphereDrawable = new osg::ShapeDrawable(myNormalShape, hint);
+        normalSphereDrawable->setColor(green);
+        rotateGeode = new osg::Geode();
+        rotateGeode->addDrawable(normalSphereDrawable);
+        auto rotateTransform = new osg::MatrixTransform;
+        rotateTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.), 1, 0, 0)*osg::Matrix::translate(normal));
+        rotateTransform->addChild(rotateGeode);
+
+        auto cyl = new osg::Cylinder(origin, 0.15, ArrowLength);
+        auto cylDrawable = new osg::ShapeDrawable(cyl, hint);
+        cylDrawable->setColor(color);
+        translateGeode = new osg::Geode;
+        translateGeode->addDrawable(cylDrawable);
+        auto translateTransform = new osg::MatrixTransform;
+        translateTransform->setMatrix(osg::Matrix::rotate(osg::inDegrees(90.), 1, 0, 0)*osg::Matrix::translate(normal*0.5));
+        translateTransform->addChild(translateGeode);
+
+        axisTransform->addChild(rotateTransform);
+        axisTransform->addChild(translateTransform);
+    }
 
     // old code
     //xaxisDrawable = createLine(origin, px, red);
@@ -95,17 +134,12 @@ coVR3DTransRotInteractor::createGeometry()
     zlTransform = new osg::MatrixTransform();
     zlTransform->setMatrix(m * m2);
 
-    red.set(0.5, 0.2, 0.2, 1.0);
-    green.set(0.2, 0.5, 0.2, 1.0);
-    blue.set(0.2, 0.2, 0.5, 1.0);
-
     xlConeDrawable->setColor(red);
     xrConeDrawable->setColor(red);
     ylConeDrawable->setColor(green);
     yrConeDrawable->setColor(green);
     zlConeDrawable->setColor(blue);
     zrConeDrawable->setColor(blue);
-    sphereDrawable->setColor(color);
 
     osg::Geode *tmpGeode;
     tmpGeode = new osg::Geode();
@@ -126,20 +160,15 @@ coVR3DTransRotInteractor::createGeometry()
     tmpGeode = new osg::Geode();
     tmpGeode->addDrawable(zlConeDrawable);
     zlTransform->addChild(tmpGeode);
-    axisTransform = new osg::MatrixTransform();
+
+
     axisTransform->addChild(xrTransform.get());
     axisTransform->addChild(xlTransform.get());
-    axisTransform->addChild(yrTransform.get());
+    if (!restrictedInteraction)
+        axisTransform->addChild(yrTransform.get());
     axisTransform->addChild(ylTransform.get());
     axisTransform->addChild(zrTransform.get());
     axisTransform->addChild(zlTransform.get());
-
-    sphereGeode->addDrawable(sphereDrawable);
-    axisTransform->addChild(sphereGeode.get());
-
-    axisTransform->setStateSet(VRSceneGraph::instance()->loadDefaultGeostate());
-    geometryNode = axisTransform.get();
-    scaleTransform->addChild(geometryNode.get());
 
     //_interPos = scaleTransform.getBound().center();
     //fprintf("coVR3DTransRotInteractor _interPos (%f %f %f) ", _interPos.x(), _interPos.y(), _interPos.z());///
@@ -168,25 +197,32 @@ coVR3DTransRotInteractor::createLine(osg::Vec3 pos1, osg::Vec3 pos2, osg::Vec4 c
 void
 coVR3DTransRotInteractor::startInteraction()
 {
-    osg::Matrix hm, hm_o, w_to_o, o_to_w, interMat; // hand matrix
-
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DTransRotInteractor::startInteraction\n");
 
-    w_to_o = cover->getInvBaseMat();
+    osg::Matrix w_to_o = cover->getInvBaseMat();
+    osg::Matrix o_to_w = cover->getBaseMat();
 
-    hm = getPointerMat(); // hand matrix weltcoord
-    hm_o = hm * w_to_o; // hand matrix objekt coord
+    osg::Matrix hm = getPointerMat(); // hand matrix weltcoord
+    osg::Matrix hm_o = hm * w_to_o; // hand matrix objekt coord
     _oldHandMat = hm;
-    _oldHandMat_o = hm_o;
     _invOldHandMat_o.invert(hm_o); // store the inv hand matrix
-    _invOldHandMat.invert(hm);
 
-    o_to_w = cover->getBaseMat();
-    interMat = _interMat_o * o_to_w;
+    osg::Matrix interMat = _interMat_o * o_to_w;
 
-    _oldInteractorXformMat = interMat;
     _oldInteractorXformMat_o = _interMat_o;
+
+    osg::Vec3 interPos = getMatrix().getTrans();
+    // get diff between intersection point and sphere center
+    _diff = interPos - _hitPos;
+    _distance = (_hitPos - hm_o.getTrans()).length();
+
+    _rotateOnly = _hitNode==rotateGeode;
+    _translateOnly = _hitNode==translateGeode;
+    if (!_rotateOnly && !_translateOnly)
+    {
+        _translateOnly = is2D();
+    }
 
     coVRIntersectionInteractor::startInteraction();
 }
@@ -197,9 +233,10 @@ coVR3DTransRotInteractor::doInteraction()
     if (cover->debugLevel(5))
         fprintf(stderr, "\ncoVR3DTransRotInteractor::move\n");
 
-    osg::Matrix currHandMat, currHandMat_o, relHandMoveMat, relHandMoveMat_o, interactorXformMat, interactorXformMat_o, w_to_o, o_to_w;
+    osg::Vec3 origin(0, 0, 0);
+    osg::Vec3 yaxis(0, 1, 0);
 
-    currHandMat = getPointerMat();
+    osg::Matrix currHandMat = getPointerMat();
     // forbid translation in y-direction if traverseInteractors is on
     if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors && coVRConfig::instance()->useWiiNavigationVisenso())
     {
@@ -208,33 +245,112 @@ coVR3DTransRotInteractor::doInteraction()
         currHandMat.setTrans(trans);
     }
 
+    osg::Matrix o_to_w = cover->getBaseMat();
     // get hand mat in object coords
-    w_to_o = cover->getInvBaseMat();
-    currHandMat_o = currHandMat * w_to_o;
+    osg::Matrix w_to_o = cover->getInvBaseMat();
+    osg::Matrix currHandMat_o = currHandMat * w_to_o;
 
     // translate from interactor to hand and back
-    osg::Matrix transToHand_w, revTransToHand_w, transToHand_o, revTransToHand_o;
+    osg::Matrix transToHand_o, revTransToHand_o;
 
-    transToHand_w.makeTranslate(currHandMat.getTrans() - _oldInteractorXformMat.getTrans());
     transToHand_o.makeTranslate(currHandMat_o.getTrans() - _oldInteractorXformMat_o.getTrans());
-    revTransToHand_w.makeTranslate(_oldInteractorXformMat.getTrans() - currHandMat.getTrans());
     revTransToHand_o.makeTranslate(_oldInteractorXformMat_o.getTrans() - currHandMat_o.getTrans());
 
-    relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
-    relHandMoveMat = _invOldHandMat * currHandMat;
+    osg::Matrix relHandMoveMat_o = _invOldHandMat_o * currHandMat_o;
 
-    if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
+    osg::Matrix interactorXformMat_o = _oldInteractorXformMat_o;
+    if (_rotateOnly)
+    {
+        osg::Matrix i_to_o = scaleTransform->getMatrix()*moveTransform->getMatrix();
+        osg::Matrix o_to_i = osg::Matrix::inverse(i_to_o);
+        osg::Vec3 hand_i = origin * currHandMat * w_to_o * o_to_i;
+        osg::Vec3 pos = hand_i;
+        osg::Vec3 dir = yaxis * currHandMat * w_to_o * o_to_i;
+        dir -= pos;
+        dir.normalize();
+        //std::cerr << "pos: " << pos << ", dir: " << dir << std::endl;
+        double R = _diff.length() / getScale();
+        double a = dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2];
+        double b = 2.*(dir[0]*pos[0] + dir[1]*pos[1] + dir[2]*pos[2]);
+        double c = pos[0]*pos[0] + pos[1]*pos[1] + pos[2]*pos[2] - R*R;
+        double D = b*b-4*a*c;
+        //std::cerr << "scale=" << getScale() << ", a=" << a << ", b=" << b << ", c=" << c << ", disc=" << D << std::endl;
+        double t = -1.;
+        if (D >= 0)
+        {
+            double t1 = 0.5*(-b-sqrt(D))/a;
+            double t2 = 0.5*(-b+sqrt(D))/a;
+            if (t1 < 0)
+            {
+                t = t2;
+            }
+            else if (is2D())
+            {
+                t = t1;
+            }
+            else
+            {
+                double old = _distance / getScale();
+                if (std::abs(old-t1) < std::abs(old-t2))
+                    t = t1;
+                else
+                    t = t2;
+            }
+            //std::cerr << "solution: t1=" << t1 << ", t2=" << t2 << ", t=" << t << std::endl;
+            //osg::Vec3 v1 = pos+dir*t1;
+            //osg::Vec3 v2 = pos+dir*t2;
+            //std::cerr << "    v1: " << v1 << ", v2: " << v2 << std::endl;
+        }
+        if (t < 0)
+        {
+            t = -dir * pos;
+        }
+        if (t >= 0)
+        {
+            _distance = t * getScale();
+            osg::Vec3 isect = pos+dir*t;
+            //std::cerr << "valid intersection: t=" << t << ", p=" << isect << ", dist=" << isect.length() << std::endl;
+            osg::Matrix rot;
+            rot.makeRotate(osg::Vec3(0,-1,0), isect);
+
+            interactorXformMat_o = rot * getMatrix();
+        }
+        else
+        {
+            _distance = 0;
+        }
+    }
+    else if (_translateOnly)
+    {
+        auto lp1_o = origin * currHandMat_o;
+        auto lp2_o = yaxis * currHandMat_o;
+
+        auto pointerDir_o = lp2_o - lp1_o;
+        pointerDir_o.normalize();
+
+        // get hand pos in object coords
+        auto currHandPos_o = currHandMat_o.getTrans();
+
+        auto interPos = currHandPos_o + pointerDir_o * _distance + _diff;
+        interactorXformMat_o.setTrans(interPos);
+    }
+    else if (coVRNavigationManager::instance()->getMode() == coVRNavigationManager::TraverseInteractors)
     {
         // move old mat to hand position, apply rel hand movement and move it back to
         interactorXformMat_o = _oldInteractorXformMat_o * transToHand_o * relHandMoveMat_o * revTransToHand_o;
-        interactorXformMat = _oldInteractorXformMat * transToHand_w * relHandMoveMat * revTransToHand_w;
     }
     else
     {
         // apply rel hand movement
         interactorXformMat_o = _oldInteractorXformMat_o * relHandMoveMat_o;
-        interactorXformMat = _oldInteractorXformMat * relHandMoveMat;
     }
+
+    // save old transformation
+    _oldInteractorXformMat_o = interactorXformMat_o;
+
+    _oldHandMat = currHandMat; // save current hand for rotation start
+    _invOldHandMat_o.invert(currHandMat_o);
+
     if (cover->restrictOn())
     {
         // restrict to visible scene
@@ -242,34 +358,22 @@ coVR3DTransRotInteractor::doInteraction()
         pos_o = interactorXformMat_o.getTrans();
         restrictedPos_o = restrictToVisibleScene(pos_o);
         interactorXformMat_o.setTrans(restrictedPos_o);
-
-        o_to_w = cover->getBaseMat();
-        interactorXformMat = interactorXformMat_o * o_to_w;
     }
 
-    // save old transformation
-    _oldInteractorXformMat = interactorXformMat;
-    _oldInteractorXformMat_o = interactorXformMat_o;
-
-    _oldHandMat = currHandMat; // save current hand for rotation start
-    _oldHandMat_o = currHandMat_o;
-    _invOldHandMat.invert(currHandMat);
-    _invOldHandMat_o.invert(currHandMat_o);
-
-    if (coVRNavigationManager::instance()->isSnapping() && !coVRNavigationManager::instance()->isDegreeSnapping())
+    if (coVRNavigationManager::instance()->isSnapping())
     {
-        // snap orientation to 45 degree
-        snapTo45Degrees(&interactorXformMat_o);
-        o_to_w = cover->getBaseMat();
-        interactorXformMat = interactorXformMat_o * o_to_w;
+        if (coVRNavigationManager::instance()->isDegreeSnapping())
+        {
+            // snap orientation
+            snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &interactorXformMat_o);
+        }
+        else
+        {
+            // snap orientation to 45 degree
+            snapTo45Degrees(&interactorXformMat_o);
+        }
     }
-    else if (coVRNavigationManager::instance()->isSnapping() && coVRNavigationManager::instance()->isDegreeSnapping())
-    {
-        // snap orientation
-        snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &interactorXformMat_o);
-        o_to_w = cover->getBaseMat();
-        interactorXformMat = interactorXformMat_o * o_to_w;
-    }
+
 
     // and now we apply it
     updateTransform(interactorXformMat_o);

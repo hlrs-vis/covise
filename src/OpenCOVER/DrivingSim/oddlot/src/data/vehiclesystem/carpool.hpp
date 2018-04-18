@@ -17,6 +17,7 @@
 #define CARPOOL_HPP
 
 #include "src/data/dataelement.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class VehicleSystem;
 class Pool;
@@ -88,7 +89,7 @@ private:
 
     // Pools //
     //
-    QMap<QString, Pool *> pools_; // owned
+    QMap<odrID, Pool *> pools_; // owned
 };
 
 #endif // CARPOOL_HPP

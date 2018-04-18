@@ -1,24 +1,23 @@
 /****************************************************************************/
+// Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
+// Copyright (C) 2001-2017 German Aerospace Center (DLR) and others.
+/****************************************************************************/
+//
+//   This program and the accompanying materials
+//   are made available under the terms of the Eclipse Public License v2.0
+//   which accompanies this distribution, and is available at
+//   http://www.eclipse.org/legal/epl-v20.html
+//
+/****************************************************************************/
 /// @file    UtilExceptions.h
 /// @author  Daniel Krajzewicz
 /// @author  Christian Roessel
 /// @author  Michael Behrisch
 /// @author  Felix Brack
 /// @date    Mon, 17 Dec 2001
-/// @version $Id: UtilExceptions.h 22608 2017-01-17 06:28:54Z behrisch $
+/// @version $Id$
 ///
 // Exceptions for used by some utility classes
-/****************************************************************************/
-// SUMO, Simulation of Urban MObility; see http://sumo.dlr.de/
-// Copyright (C) 2001-2017 DLR (http://www.dlr.de/) and contributors
-/****************************************************************************/
-//
-//   This file is part of SUMO.
-//   SUMO is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
 /****************************************************************************/
 #ifndef UtilExceptions_h
 #define UtilExceptions_h

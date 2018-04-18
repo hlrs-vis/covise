@@ -587,8 +587,10 @@ public:
     {
         std::cout << pre << "Q" << std::endl;
         _AMatrix.print(pre + " ");
-        std::cout << pre << " BVector " << _BVector[0] << " " << _BVector[1] << " " << _BVector[2] << " " << _BVector[3] << std::endl;
-        ;
+        std::cout << pre << " BVector";
+        for (int i=0; i<dimension+3; ++i)
+            std::cout << " " << _BVector[i];
+        std::cout << std::endl;
         std::cout << pre << " CNumber " << _Cnumber << std::endl;
     }
 

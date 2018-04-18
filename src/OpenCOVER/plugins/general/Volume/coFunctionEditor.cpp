@@ -111,6 +111,11 @@ void coFunctionEditor::hide()
     dropHandle->setVisible(false);
 }
 
+bool coFunctionEditor::isVisible()
+{
+    return dropHandle->isVisible();
+}
+
 coPin *coFunctionEditor::getCurrentPin()
 {
     return NULL;

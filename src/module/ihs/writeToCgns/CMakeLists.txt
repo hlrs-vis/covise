@@ -16,3 +16,4 @@ SET(SOURCES
 )
 covise_add_module(IO writeToCgns ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(writeToCgns coApi coAppl coCore ${EXTRA_LIBS})
+covise_install_target(writeToCgns)

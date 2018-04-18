@@ -75,6 +75,10 @@ TrackComponentTreeItem::init()
     {
         setText(0, tr("spiral-arc-spiral"));
     }
+	else if (type == TrackComponent::DTT_CUBICCURVE)
+	{
+		setText(0, tr("param poly3"));
+	}
     else
     {
         setText(0, tr("unknown type"));

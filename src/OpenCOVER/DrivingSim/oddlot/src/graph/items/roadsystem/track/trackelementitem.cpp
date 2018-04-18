@@ -285,10 +285,14 @@ TrackElementItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         {
             return; // does nothing
         }
-        else if (tool == ODD::TTE_ROAD_SPLIT)
-        {
-            return; // does nothing
-        }
+		else if (tool == ODD::TTE_ROAD_SPLIT)
+		{
+			return; // does nothing
+		}
+		else if (tool == ODD::TTE_ROAD_CIRCLE)
+		{
+			return; // does nothing
+		}
         else if (tool == ODD::TTE_TRACK_ROAD_SPLIT)
         {
             return; // does nothing

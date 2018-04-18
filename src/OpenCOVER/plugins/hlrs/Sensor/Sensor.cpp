@@ -15,7 +15,6 @@
 #include <cover/coVRCommunication.h>
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 //#define USE_X11
@@ -387,13 +386,6 @@ int SensorPlugin::initUI()
 {
     VrmlNamespace::addBuiltIn(VrmlNodeSensor::defineType());
     return 1;
-}
-
-// this function is called if a message arrives
-void SensorPlugin::message(int /*type*/, int /*length*/, const void * /*data*/)
-{
-    {
-    }
 }
 
 void

@@ -64,7 +64,8 @@ public:
     void addElevationPolynom(double, double, double, double, double);
 
     void addSuperelevationPolynom(double, double, double, double, double);
-    void addCrossfallPolynom(double, double, double, double, double, std::string);
+	void addCrossfallPolynom(double, double, double, double, double, std::string);
+	void addShapePolynom(double, double, double, double, double, double);
 
     void addRoadType(double, RoadType);
     void addRoadType(double, std::string);
@@ -156,7 +157,7 @@ public:
     std::map<double, PlaneCurve *> getPlaneCurveMap();
     std::map<double, Polynom *> getElevationMap();
     std::map<double, LateralProfile *> getLateralMap();
-    std::map<double, LaneSection *> getLaneSectionMap();
+	std::map<double, LaneSection *> getLaneSectionMap();
 
     TarmacConnection *getPredecessorConnection();
     TarmacConnection *getSuccessorConnection();
@@ -186,9 +187,16 @@ public:
         priority = p;
     };
 
+	void addLaneOffset(double, double, double, double, double);
+	double getLaneOffset(double);
+	double getLaneOffsetSlope(double s);
+	std::map<double, Polynom *> getLaneOffsetMap();
+
 protected:
     osg::Group *createRoadGroup(bool, bool);
     osg::Geode *createGuardRailGeode(std::map<double, LaneSection *>::iterator lsIt);
+
+	std::map<double, Polynom *> laneOffsetMap;
 
     TarmacConnection *predecessor;
     TarmacConnection *successor;
@@ -224,6 +232,8 @@ protected:
     std::map<double, RoadSensor *> roadSensorMap;
 
     std::map<Road *, double> crossingRoadPositionMap;
+
+	roadShapeSections *shapeSections;
 
     osg::Geode *roadGeode;
     osg::Geode *batterGeode;

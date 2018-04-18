@@ -26,9 +26,7 @@ public:
         this->element = element;
     }
 
-    virtual ~vruiButtonProvider()
-    {
-    }
+    virtual ~vruiButtonProvider();
 
     virtual void switchGeometry(coButtonGeometry::ActiveGeometry active) = 0;
 

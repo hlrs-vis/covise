@@ -56,11 +56,6 @@ public:
     virtual void potiPressed(coValuePoti *, int context = -1);
     virtual void potiReleased(coValuePoti *, int context = -1);
 
-    virtual bool updateContentRange(float min, float max, float value, bool isInteger, float step);
-    virtual bool updateContentFloat(float value);
-    bool updateContentPressed();
-    bool updateContentReleased();
-
     /// get the Element's classname
     virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname

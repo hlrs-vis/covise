@@ -118,12 +118,15 @@ Slider::ValueType Slider::value() const
 
 void Slider::setValue(Slider::ValueType val)
 {
-    m_value = val;
     if (m_integral)
     {
-        m_value = std::round(m_value);
+        val = std::round(val);
     }
-    manager()->queueUpdate(this, UpdateValue);
+    if (m_value != val)
+    {
+        m_value = val;
+        manager()->queueUpdate(this, UpdateValue);
+    }
 }
 
 void Slider::setLinValue(Slider::ValueType val)

@@ -263,6 +263,7 @@ coSphere::coSphere()
 #else
     m_renderMethod = RENDER_METHOD_CPU_BILLBOARDS;
 #endif
+    m_renderMethod = RENDER_METHOD_ARB_POINT_SPRITES;
 
     if (!s_pointSpritesChecked && !s_glPointParameterfvARB && !s_glPointParameterfARB)
     {
@@ -596,8 +597,10 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     mutex()->unlock();
 
     glPushMatrix();
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glPushAttrib(GL_ENABLE_BIT);
     glPushAttrib(GL_COLOR_BUFFER_BIT);
+    glPushAttrib(GL_POINT_BIT);
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_NORMALIZE);
@@ -797,31 +800,56 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             glEnable(GL_POINT_SPRITE_ARB);
             float minRad = m_maxRadius * 0.0001; // avoid opengl errors
 
-            for (int j = 0; j <= m_maxPointSize; ++j)
+            bool array = true;
+
+            if (array)
             {
+                glEnableClientState(GL_COLOR_ARRAY);
+                glColorPointer(4, GL_FLOAT, 0, m_color);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glVertexPointer(3, GL_FLOAT, 0, m_coord);
 
-                // setting pointSize once per bucket
-                float radius = (j * m_maxRadius) / m_maxPointSize;
-                glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
-
-                glBegin(GL_POINTS);
-                for (std::vector<int>::iterator index = m_sortedRadiusIndices[j].begin();
-                     index != m_sortedRadiusIndices[j].end(); ++index)
+                for (int j = 0; j <= m_maxPointSize; ++j)
                 {
-                    int i = *index;
-                    glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
-                    glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
+                    // setting pointSize once per bucket
+                    float radius = (j * m_maxRadius) / m_maxPointSize;
+                    glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
+                    //std::cerr << "bucket " << j << "#=" << m_sortedRadiusIndices[j].size() << ": rad=" << radius << "/" << fmax(minRad, 2*radius/m_maxRadius) << std::endl;
+
+                    glDrawElements(GL_POINTS, m_sortedRadiusIndices[j].size(), GL_UNSIGNED_INT, m_sortedRadiusIndices[j].data());
                 }
-                glEnd();
+
+                glDisableClientState(GL_VERTEX_ARRAY);
+                glDisableClientState(GL_COLOR_ARRAY);
             }
+            else
+            {
+                for (int j = 0; j <= m_maxPointSize; ++j)
+                {
+                    // setting pointSize once per bucket
+                    float radius = (j * m_maxRadius) / m_maxPointSize;
+                    glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
+
+                    glBegin(GL_POINTS);
+                    for (std::vector<int>::iterator index = m_sortedRadiusIndices[j].begin();
+                         index != m_sortedRadiusIndices[j].end(); ++index)
+                    {
+                        int i = *index;
+                        glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
+                        glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
+                    }
+                    glEnd();
+                }
+            }
+
             for (int i = 0; i < m_numSpheres; i++)
             {
                 // adapting size of point to radius
                 // using window resolution in pixel and
                 // window resolution in millimeter
             }
+
             glDisable(GL_POINT_SPRITE_ARB);
-            
         }
         else
         {
@@ -908,6 +936,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     //
     // Reset OpenGL states...
     //
+    glPopClientAttrib(); // GL_CLIENT_VERTEX_ARRAY_BIT
+    glPopAttrib(); // GL_POINT_BIT
     glPopAttrib(); // GL_COLOR_BUFFER_BIT
     glPopAttrib(); // GL_ENABLE_BIT
     glPopMatrix();

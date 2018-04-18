@@ -34,9 +34,13 @@
             <Size value="1" />
          </Menu>
 
+          <UI>
+              <VRUI toolbar="true" />
+          </UI>
+
          <Plugin>
 
-            <AKToolbar value="on">
+            <AKToolbar value="off">
                <Scale value="1.0" />
                <Position x="-1200" y="0" z="-980" />
             </AKToolbar>

@@ -240,16 +240,15 @@ void SoVolume::init(int xsize, int ysize, int zsize,
     vd->pos[1] = (ymax + ymin) / 2.;
     vd->pos[2] = (zmax + zmin) / 2.;
 
-    vd->dist[0] = (xmax - xmin) / xsize;
-    vd->dist[1] = (ymax - ymin) / ysize;
-    vd->dist[2] = (zmax - zmin) / zsize;
+    vd->setDist((xmax - xmin) / xsize, (ymax - ymin) / ysize, (zmax - zmin) / zsize);
+    auto dist = vd->getDist();
 
     std::cerr << "voldesc: vox=(" << vd->vox[0] << " " << vd->vox[1] << " " << vd->vox[2]
-              << "), dist=(" << vd->dist[0] << " " << vd->dist[1] << " " << vd->dist[2] << ")" << std::endl;
+              << "), dist=(" << dist[0] << " " << dist[1] << " " << dist[2] << ")" << std::endl;
 
-    width.setValue(vd->vox[0] * vd->dist[0]);
-    height.setValue(vd->vox[1] * vd->dist[1]);
-    depth.setValue(vd->vox[2] * vd->dist[2]);
+    width.setValue(vd->vox[0] * dist[0]);
+    height.setValue(vd->vox[1] * dist[1]);
+    depth.setValue(vd->vox[2] * dist[2]);
 
     vvDebugMsg::msg(1, "Byte per voxel: ", static_cast<int>(vd->getBPV()));
 

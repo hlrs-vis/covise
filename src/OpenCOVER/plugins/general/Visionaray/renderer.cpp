@@ -32,7 +32,6 @@
 #include <cover/VRViewer.h>
 
 #include <visionaray/gl/bvh_outline_renderer.h>
-#include <visionaray/array.h>
 #include <visionaray/kernels.h>
 
 #include "kernels/bvh_costs_kernel.h"
@@ -1503,6 +1502,7 @@ namespace visionaray
             auto stateset = scene_view->getGlobalStateSet();
             auto light_model = dynamic_cast<osg::LightModel *>(stateset->getAttribute(osg::StateAttribute::LIGHTMODEL));
             auto ambient = osg_cast(light_model->getAmbientIntensity());
+            auto clear_color = osg_cast(opencover::coVRConfig::instance()->channels[cur_channel_].camera->getClearColor());
 
             auto &vparams = impl_->channel_viewing_params[cur_channel_];
             if (vparams.need_clear_frame)
@@ -1553,7 +1553,7 @@ namespace visionaray
                     thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
                     bounces,
                     epsilon,
-                    vec4(0.0f),
+                    clear_color,
                     impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
                 impl_->device_intersector.tex_coords = kparams.tex_coords;
@@ -1602,7 +1602,7 @@ namespace visionaray
                     lights.data() + lights.size(),
                     bounces,
                     epsilon,
-                    vec4(0.0f),
+                    clear_color,
                     impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
 
                 impl_->host_intersector.tex_coords = kparams.tex_coords;

@@ -541,11 +541,7 @@ void Tracer::addPoints(const coDistributedObject *obj)
     if (obj->isType("UNSGRD"))
     {
         ((coDoUnstructuredGrid *)obj)->getAddresses(&dummy, &dummy, &x, &y, &z);
-#ifndef YAC
         ((coDoUnstructuredGrid *)obj)->getGridSize(&nn, &nn, &num_points);
-#else
-        ((coDoUnstructuredGrid *)obj)->getGridSize(&nn, &nn, &num_points);
-#endif
     }
     else if (obj->isType("LINES"))
     {

@@ -413,7 +413,7 @@ UDPComm::getIP(const char *hostname)
 
 			char address[1000];
 			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
-			memcpy(cPtr, &saddr->sin_addr, sizeof(cPtr));
+			memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
 			if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
 			{
 				std::cerr << "could not convert address of " << hostname << " to printable format: " << strerror(errno) << std::endl;
@@ -421,7 +421,8 @@ UDPComm::getIP(const char *hostname)
 			}
 			else
 			{
-				memcpy(cPtr, &saddr->sin_addr, sizeof(cPtr));
+				memcpy(cPtr, &saddr->sin_addr, sizeof(v4.s_addr));
+                freeaddrinfo(result);           /* No longer needed */
 				return v4.s_addr;
 			}
 		}

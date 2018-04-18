@@ -669,7 +669,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_selectMode = false;
     UseFieldOfViewForScaling = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseFieldOfViewForScaling", false);
-    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold",10000);
+    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold", 10000);
 
     currentTransform.makeIdentity();
 
@@ -844,6 +844,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
     tmpMat.makeRotate(M_PI / 2.0, 1.0, 0.0, 0.0);
     //tmpMat.scale(Vec3(1000.f, 1000.f, 1000.f));
     VRMLRoot->setMatrix(tmpMat);
+	VRMLRoot->setNodeMask(~Isect::Update);
     VRMLCaveRoot = new MatrixTransform();
     VRMLCaveRoot->setName("VRMLCaveRoot");
     VRMLCaveRoot->setMatrix(tmpMat);
@@ -1472,8 +1473,7 @@ Viewer::Object ViewerOsg::insertLineSet(int npoints,
         Geode *geode = new Geode();
 
         Geometry *geom = new Geometry();
-        geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-        geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+        cover->setRenderStrategy(geom);
         geode->addDrawable(geom);
         StateSet *geoState = geode->getOrCreateStateSet();
         geoState->setNestRenderBins(false);
@@ -1577,8 +1577,7 @@ Viewer::Object ViewerOsg::insertPointSet(int npoints,
     Geode *geode = new Geode();
 
     Geometry *geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
     geode->addDrawable(geom);
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -1867,6 +1866,25 @@ ViewerOsg::insertShell(unsigned int mask,
         // save old Mask if object already exists
         nodeMask = d_currentObject->pNode->getNodeMask();
 
+        if (auto geode = d_currentObject->pNode->asGeode())
+        {
+            for (unsigned i=0; i<geode->getNumDrawables(); ++i)
+            {
+                if (auto geom = geode->getDrawable(i)->asGeometry())
+                {
+                    auto vert = geom->getVertexArray();
+                    if (vert)
+                        numVert -= vert->getNumElements();
+                    for (unsigned j=0; j<geom->getNumPrimitiveSets(); ++j)
+                    {
+                        auto prim = geom->getPrimitiveSet(j);
+                        if (prim)
+                            numPoly -= prim->getNumPrimitives();
+                    }
+                }
+            }
+        }
+
         while (d_currentObject->pNode->getNumParents())
         {
             Group *parentNode = d_currentObject->pNode->getParent(0);
@@ -1882,8 +1900,7 @@ ViewerOsg::insertShell(unsigned int mask,
     //geode->setName(objName);
 
     ref_ptr<Geometry> geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -1897,8 +1914,79 @@ ViewerOsg::insertShell(unsigned int mask,
 
     geode->setStateSet(geoState);
 
+    bool indexed = true, tris = true, quads = true;
+    std::vector<int *> indices;
+    int numInd = 0;
+    if (nni > 0)
+    {
+        numInd = nni;
+        indices.push_back(ni);
+    }
+    if (nci > 0)
+    {
+        if (numInd == 0)
+            numInd = nci;
+        else if (numInd != nci)
+            indexed = false;
+        indices.push_back(ci);
+    }
+    for (int i=0; i<numTextures; ++i)
+    {
+        if (ntci[i] > 0)
+        {
+            if (numInd == 0)
+                numInd = ntci[i];
+            else if (numInd != ntci[i])
+                indexed = false;
+            indices.push_back(tci[i]);
+        }
+    }
+    int nverts = 0;
+    int n = 0;
+    int numFaces = 0;
+    for (int i=0; i<nfaces; ++i)
+    {
+        if (faces[i] == -1 && nverts > 0)
+        {
+            ++numFaces;
+            if (nverts != 3)
+                tris = false;
+            if (nverts != 4)
+                quads = false;
+            nverts = 0;
+        }
+        else
+        {
+            if (indexed)
+            {
+                int idx = faces[i];
+                for (auto i: indices)
+                {
+                    if (i[n] != idx)
+                    {
+                        indexed = false;
+                        break;
+                    }
+                }
+            }
+
+            ++nverts;
+            ++n;
+        }
+
+        if (!indexed && !tris && !quads)
+            break;
+    }
+
     // set up geometry
-    DrawArrayLengths *primitives = new DrawArrayLengths(PrimitiveSet::POLYGON);
+    DrawArrayLengths *polygons = nullptr;
+    DrawArrays *primitives = nullptr;
+    if (tris)
+        primitives = new DrawArrays(PrimitiveSet::TRIANGLES, 0, numFaces*3);
+    else if (quads)
+        primitives = new DrawArrays(PrimitiveSet::QUADS, 0, numFaces*4);
+    else
+        polygons = new DrawArrayLengths(PrimitiveSet::POLYGON);
     Vec3Array *vert = new Vec3Array;
     int polyStart = 0;
     if (mask & MASK_CCW)
@@ -1913,7 +2001,8 @@ ViewerOsg::insertShell(unsigned int mask,
             }
             else
             {
-                primitives->push_back(i - polyStart);
+                if (polygons)
+                    polygons->push_back(i - polyStart);
                 polyStart = i + 1;
                 numPoly++;
             }
@@ -1931,7 +2020,8 @@ ViewerOsg::insertShell(unsigned int mask,
                 i++;
             }
             polyEnd = i;
-            primitives->push_back(i - polyStart);
+            if (polygons)
+                polygons->push_back(i - polyStart);
             numPoly++;
             while (i > polyStart)
             {
@@ -1944,7 +2034,10 @@ ViewerOsg::insertShell(unsigned int mask,
         }
     }
     geom->setVertexArray(vert);
-    geom->addPrimitiveSet(primitives);
+    if (polygons)
+        geom->addPrimitiveSet(polygons);
+    else
+        geom->addPrimitiveSet(primitives);
 
     // associate colors
     if (ci && nci>1)
@@ -2102,7 +2195,8 @@ ViewerOsg::insertShell(unsigned int mask,
 
         if (ntcoords > 0)
         {
-            Vec2Array *tcArray = new Vec2Array(ntci[unit]);
+            Vec2Array *tcArray = new Vec2Array();
+			tcArray->reserve(ntci[unit]);
             int j = 0;
             if (mask & MASK_CCW)
             {
@@ -2110,7 +2204,7 @@ ViewerOsg::insertShell(unsigned int mask,
                 {
                     if (faces[i] != -1)
                     {
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+                        tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                 }
@@ -2129,7 +2223,7 @@ ViewerOsg::insertShell(unsigned int mask,
                     while (i > startPoly)
                     {
                         i--;
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+						tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                     i = endPoly + 1;
@@ -2155,6 +2249,8 @@ ViewerOsg::insertShell(unsigned int mask,
         if(((unsigned int)nfaces > SubdivideThreshold) && !((d_currentObject->pNode.get() && (mask & MASK_CONVEX) && !strncmp(objName, "Animated", 8))))
         {
             splitGeometry(geode,SubdivideThreshold);
+            if (cover->debugLevel(2))
+                cerr << "-" << nfaces  << "/" << geode->getNumDrawables() << ":";
         }
         // if enabled, generate tri strips, but not for animated objects
         if (genStrips)
@@ -2174,6 +2270,12 @@ ViewerOsg::insertShell(unsigned int mask,
         }
         else if (cover->debugLevel(1))
             cerr << "P";
+        if (tris)
+            cerr << "t";
+        if (quads)
+            cerr << "q";
+        if (indexed)
+            cerr << "i";
     }
     else
     {
@@ -2213,6 +2315,7 @@ ViewerOsg::insertShell(unsigned int mask,
 
     return (Object)d_currentObject;
 }
+
 void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
 {
     bool didSplit=true;
@@ -2221,8 +2324,8 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
     {
         didSplit = false;
         numLevels++;
-        std::list<osg::Geometry *> newDrawables;
-        std::list<osg::Drawable *> oldDrawables;
+        std::vector<osg::ref_ptr<osg::Geometry>> newDrawables;
+        std::vector<osg::Drawable *> oldDrawables;
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Drawable *d = geode->getDrawable(i);
@@ -2230,10 +2333,10 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
             if(geom!=NULL)
             {
                 osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
-                osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
-                if(polygons!=NULL)
+                ps->getNumPrimitives();
+                if(ps!=NULL)
                 {
-                    if(polygons->getNumPrimitives()>threshold)
+                    if(ps->getNumPrimitives()>threshold)
                     {
                         didSplit=true;
                         osg::Geometry *geometries[2];
@@ -2251,27 +2354,29 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
             }
         }
         
-        for(std::list<osg::Drawable *>::iterator it = oldDrawables.begin(); it != oldDrawables.end();it++)
+        for(auto it = oldDrawables.begin(); it != oldDrawables.end();it++)
         {
             geode->removeDrawable(*it);
         }
-        for(std::list<osg::Geometry *>::iterator it = newDrawables.begin(); it != newDrawables.end();it++)
+        for(auto it = newDrawables.begin(); it != newDrawables.end();it++)
         {
             geode->addDrawable(*it);
         }
         newDrawables.clear();
     }
 }
+
 void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geom)
 {
     osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
     osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
+    osg::DrawArrays *drawarray = dynamic_cast<osg::DrawArrays *>(ps);
 
     Vec3Array *vertexArray = dynamic_cast<Vec3Array *>(geom->getVertexArray());
     Vec3Array *normalArray = dynamic_cast<Vec3Array *>(geom->getNormalArray());
     Vec4Array *colorArray = dynamic_cast<Vec4Array *>(geom->getColorArray());
     int numTexCoords = geom->getNumTexCoordArrays();
-    Vec2Array **tcArray =new Vec2Array *[numTexCoords];
+    Vec2Array **tcArray = new Vec2Array *[numTexCoords];
     for(int i=0;i<numTexCoords;i++)
     {
         tcArray[i] = dynamic_cast<Vec2Array *>(geom->getTexCoordArray(i));
@@ -2302,16 +2407,28 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         splitAt = zm;
     }
 
-    if(polygons!=NULL)
+    osg::DrawArrayLengths *polygonsMin = nullptr, *polygonsMax = nullptr;
+    osg::DrawArrays *primitivesMin = nullptr, *primitivesMax = nullptr;
+    if(polygons || drawarray)
     {
         // count new num vertices and polygons
         int nv=0;
         int np=0;
-        int vertNum=0;
-        int v;
-        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        int vpf = 1;
+        if (drawarray)
         {
-            v = (*polygons)[i];
+            if (drawarray->getMode() == osg::PrimitiveSet::TRIANGLES)
+                vpf = 3;
+            if (drawarray->getMode() == osg::PrimitiveSet::QUADS)
+                vpf = 4;
+        }
+
+        //std::cerr << "S" << vpf;
+
+        int vertNum = drawarray ? drawarray->getFirst() : 0;
+        for(unsigned int i=0;i<ps->getNumPrimitives();i++)
+        {
+            int v = polygons ? (*polygons)[i] : vpf;
             if((*vertexArray)[vertNum][index] < splitAt)
             {
                 nv +=v;
@@ -2320,10 +2437,18 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             vertNum += v;
         }
 
-        osg::DrawArrayLengths *polygonsMin = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
-        osg::DrawArrayLengths *polygonsMax = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
-        polygonsMin->reserve(np);
-        polygonsMax->reserve(polygons->getNumPrimitives() - np);
+        if (polygons)
+        {
+            polygonsMin = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+            polygonsMax = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+            polygonsMin->reserve(np);
+            polygonsMax->reserve(polygons->getNumPrimitives() - np);
+        }
+        else if (drawarray)
+        {
+            primitivesMin = new osg::DrawArrays(drawarray->getMode(), 0, nv);
+            primitivesMax = new osg::DrawArrays(drawarray->getMode(), 0, drawarray->getCount()-nv);
+        }
 
         Vec3Array *vertexArrayMin = new Vec3Array();
         Vec3Array *vertexArrayMax = new Vec3Array();
@@ -2361,13 +2486,14 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
         }
         nv=0;
-        vertNum=0;
-        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        vertNum = drawarray ? drawarray->getFirst() : 0;
+        for(unsigned int i=0;i<ps->getNumPrimitives();i++)
         {
-            v = (*polygons)[i];
+            int v = polygons ? (*polygons)[i] : vpf;
             if((*vertexArray)[vertNum][index] < splitAt)
             {
-                polygonsMin->push_back(v);
+                if (polygonsMin)
+                    polygonsMin->push_back(v);
                 for(int n=0;n<v;n++)
                 {
                     vertexArrayMin->push_back((*vertexArray)[nv]);
@@ -2389,7 +2515,8 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             }
             else
             {
-                polygonsMax->push_back(v);
+                if (polygonsMax)
+                    polygonsMax->push_back(v);
                 for(int n=0;n<v;n++)
                 {
                     vertexArrayMax->push_back((*vertexArray)[nv]);
@@ -2415,8 +2542,16 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         geometries[1] = new osg::Geometry;
         geometries[0]->setStateSet(geom->getStateSet());
         geometries[1]->setStateSet(geom->getStateSet());
-        geometries[0]->addPrimitiveSet(polygonsMin);
-        geometries[1]->addPrimitiveSet(polygonsMax);
+        if (polygons)
+        {
+            geometries[0]->addPrimitiveSet(polygonsMin);
+            geometries[1]->addPrimitiveSet(polygonsMax);
+        }
+        else
+        {
+            geometries[0]->addPrimitiveSet(primitivesMin);
+            geometries[1]->addPrimitiveSet(primitivesMax);
+        }
         geometries[0]->setVertexArray(vertexArrayMin);
         geometries[1]->setVertexArray(vertexArrayMax);
         if(normalArrayMin!=NULL)
@@ -3261,10 +3396,7 @@ void ViewerOsg::setModesByName(const char *objectName)
                 osg::Drawable *drawable = pGeode->getDrawable(i);
                 if (drawable)
                 {
-                    if (animated)
-                    {
-                        drawable->setUseDisplayList(false);
-                    }
+                    cover->setRenderStrategy(drawable, false);
 
                     StateSet *stateset = drawable->getOrCreateStateSet();
                     stateset->setNestRenderBins(false);

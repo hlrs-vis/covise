@@ -55,6 +55,8 @@ public:
         VolumeLoadFile = 250,
         VolumeROIMsg = 251,
         VolumeClipMsg = 252,
+        NurbsSurfacePointMsg = 260,
+        PointCloudSurfaceMsg = 261,
 
         //COVERScript
         COVERScriptEvaluate = 300,

@@ -32,6 +32,7 @@
 #include "sections/crossfallsection.hpp"
 #include "sections/shapesection.hpp"
 #include "sections/lanesection.hpp"
+#include "sections/laneoffset.hpp"
 #include "sections/lane.hpp"
 #include "sections/objectobject.hpp"
 #include "sections/objectreference.hpp"
@@ -53,7 +54,7 @@
 /** CONSTRUCTOR.
 *	The length will be defined by its child tracks.
 */
-RSystemElementRoad::RSystemElementRoad(const QString &name, const QString &id, const QString &junction)
+RSystemElementRoad::RSystemElementRoad(const QString &name, const odrID &id, const odrID &junction)
     : RSystemElement(name, id, RSystemElement::DRE_Road)
     , roadChanges_(0x0)
     , junction_(junction)
@@ -96,6 +97,7 @@ RSystemElementRoad::~RSystemElementRoad()
     foreach (CrossfallSection *child, crossfallSections_)
         delete child;
 
+
     foreach (LaneSection *child, laneSections_)
         delete child;
 
@@ -103,16 +105,14 @@ RSystemElementRoad::~RSystemElementRoad()
         delete child;
 
 	foreach(ShapeSection *child, shapeSections_)
-	{
 		delete child;
-	}
 }
 
 /*! \brief Set the Id of the junction. If the Id is "-1" the road is not a path of any junction.
 *
 */
 void
-RSystemElementRoad::setJunction(const QString &junctionId)
+RSystemElementRoad::setJunction(const odrID &junctionId)
 {
     junction_ = junctionId;
     addRoadChanges(RSystemElementRoad::CRD_JunctionChange);
@@ -224,6 +224,10 @@ RSystemElementRoad::moveRoadSection(RoadSection *section, double newS, RSystemEl
     {
         success = moveCrossfallSection(section->getSStart(), newS);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		success = moveShapeSection(section->getSStart(), newS);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         success = moveLaneSection(section->getSStart(), newS);
@@ -273,6 +277,10 @@ RSystemElementRoad::getRoadSectionBefore(double s, RSystemElementRoad::DRoadSect
     {
         return getCrossfallSectionBefore(s);
     }
+	else if (sectionType == RSystemElementRoad::DRS_ShapeSection)
+	{
+		return getShapeSectionBefore(s);
+	}
     else if (sectionType == RSystemElementRoad::DRS_LaneSection)
     {
         return getLaneSectionBefore(s);
@@ -673,7 +681,7 @@ double
 RSystemElementRoad::getTFromGlobalPoint(const QPointF &globalPos, double s)
 {
     LaneSection *laneSection = getLaneSection(s);
-    double t = 0.0;
+    double t = getLaneOffset(s);
     double sSection = s - laneSection->getSStart();
     int i = 0;
     QVector2D normal = getGlobalNormal(s);
@@ -1897,6 +1905,185 @@ RSystemElementRoad::setLaneSections(QMap<double, LaneSection *> newSections)
     addRoadChanges(RSystemElementRoad::CRD_LaneSectionChange);
 }
 
+//###################//
+// road:laneOffset  //
+//###################//
+
+/** \brief Adds a lane section to this road.
+*
+*/
+void
+RSystemElementRoad::addLaneOffset(LaneOffset *section)
+{
+	// Notify section //
+	//
+	section->setParentRoad(this);
+
+	
+
+	// Insert and Notify //
+	//
+	laneOffsets_.insert(section->getSStart(), section);
+	addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+}
+
+bool
+RSystemElementRoad::delLaneOffset(LaneOffset *section)
+{
+	double s = section->getSStart();
+
+	// Delete section //
+	//
+	bool success = delLaneOffset(s);
+	if (success)
+	{
+		
+	}
+	else
+	{
+		qDebug("WARNING 1007151040! Could not delete LaneOffset.");
+	}
+
+	return success;
+}
+
+bool
+RSystemElementRoad::delLaneOffset(double s)
+{
+	LaneOffset *section = laneOffsets_.value(s, NULL);
+	if (!section)
+	{
+		qDebug("WARNING 1006101713! Tried to delete a road LaneOffset that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		section->setParentRoad(NULL);
+
+		// Delete and Notify //
+		//
+		laneOffsets_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+
+		return true;
+	}
+}
+
+/** \brief Returns the laneOffset containing s.
+*
+* If s is out of bounds, a NULL pointer will be returned.
+* Road coordinates [m].
+*/
+LaneOffset *
+RSystemElementRoad::getLaneOffsetObject(double s) const
+{
+		QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s);
+		if (i == laneOffsets_.constBegin())
+		{
+			//		qDebug("WARNING 1003121649! Trying to get laneOffset but coordinate is out of bounds!");
+			return NULL;
+		}
+		else
+		{
+			--i;
+			return i.value();
+		}
+}
+
+double RSystemElementRoad::getLaneOffset(double s) const
+{
+	LaneOffset *lo = getLaneOffsetObject(s);
+	if (lo)
+		return lo->getOffset(s);
+	return 0.0;
+}
+
+LaneOffset *
+RSystemElementRoad::getLaneOffsetBefore(double s) const
+{
+	QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s); // the second one after the one we want
+	if (i == laneOffsets_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	if (i == laneOffsets_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+LaneOffset *
+RSystemElementRoad::getLaneOffsetNext(double s) const
+{
+	QMap<double, LaneOffset *>::const_iterator i = laneOffsets_.upperBound(s);
+	if (i == laneOffsets_.constEnd())
+	{
+		return NULL;
+	}
+
+	return i.value();
+}
+
+
+bool
+RSystemElementRoad::moveLaneOffset(double oldS, double newS)
+{
+	// Section //
+	//
+	LaneOffset *section = laneOffsets_.value(oldS, NULL);
+	if (!section)
+	{
+		return false;
+	}
+
+	// Previous section //
+	//
+	double previousS = 0.0;
+	if (newS > section->getSStart())
+	{
+		// Expand previous section //
+		//
+		previousS = section->getSStart() - 0.001;
+	}
+	else
+	{
+		// Shrink previous section //
+		//
+		previousS = newS;
+	}
+
+	// Set and insert //
+	//
+	section->setSOffset(newS);
+	laneOffsets_.remove(oldS);
+	laneOffsets_.insert(newS, section);
+
+	return true;
+}
+
+void
+RSystemElementRoad::setLaneOffsets(QMap<double, LaneOffset *> newSections)
+{
+	foreach(LaneOffset *section, laneOffsets_)
+	{
+		section->setParentRoad(NULL);
+	}
+
+	foreach(LaneOffset *section, newSections)
+	{
+		section->setParentRoad(this);
+	}
+
+	laneOffsets_ = newSections;
+	addRoadChanges(RSystemElementRoad::CRD_LaneOffsetChange);
+}
 //#############################//
 // road:laneSection:lane:width //
 //#############################//
@@ -1921,7 +2108,7 @@ RSystemElementRoad::getMaxWidth(double s) const
     }
     else
     {
-        return laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), s);
+        return laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), s)+getLaneOffset(s);
     }
 }
 
@@ -1945,7 +2132,7 @@ RSystemElementRoad::getMinWidth(double s) const
     }
     else
     {
-        return -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), s);
+        return -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), s) + getLaneOffset(s);
     }
 }
 
@@ -2002,17 +2189,7 @@ RSystemElementRoad::addObject(Object *object)
 
     // Id //
     //
-    QString name = object->getName();
-
-    QString id = getRoadSystem()->getUniqueId(object->getId(), name);
-    if (id != object->getId())
-    {
-        object->setId(id);
-        if (name != object->getName())
-        {
-            object->setName(name);
-        }
-    }
+	object->setId(getRoadSystem()->getID(object->getName(),odrID::ID_Object));
 
     // Insert and Notify //
     //
@@ -2068,7 +2245,7 @@ RSystemElementRoad::moveObject(RoadSection *section, double newS)
 }
 
 Object *
-RSystemElementRoad::getObject(const QString &id)
+RSystemElementRoad::getObject(const odrID &id)
 {
 	QMap<double, Object *>::ConstIterator iter = objects_.constBegin();
 
@@ -2111,11 +2288,7 @@ RSystemElementRoad::addObjectReference(ObjectReference *objectReference)
 		name = object->getName();
 	}
 
-	QString id = getRoadSystem()->getUniqueId(objectReference->getId(), name);
-	if (id != objectReference->getId())
-	{
-		objectReference->setId(id);
-	}
+	objectReference->setId(getRoadSystem()->getID(name, odrID::ID_Road));
 
 	// Insert and Notify //
 	//
@@ -2173,7 +2346,7 @@ RSystemElementRoad::moveObjectReference(RoadSection *section, double newS)
 
 
 ObjectReference *
-RSystemElementRoad::getObjectReference(const QString &id)
+RSystemElementRoad::getObjectReference(const odrID &id)
 {
 	QMap<double, ObjectReference *>::ConstIterator iter = objectReferences_.constBegin();
 
@@ -2210,15 +2383,7 @@ RSystemElementRoad::addBridge(Bridge *bridge)
     //
     QString name = bridge->getName();
 
-    QString id = getRoadSystem()->getUniqueId(bridge->getId(), name);
-    if (id != bridge->getId())
-    {
-        bridge->setId(id);
-        if (name != bridge->getName())
-        {
-            bridge->setName(name);
-        }
-    }
+    bridge->setId(getRoadSystem()->getID(name, odrID::ID_Bridge));
 
     // Insert and Notify //
     //
@@ -2368,15 +2533,12 @@ RSystemElementRoad::addSignal(Signal *signal)
     //
     QString name = signal->getName();
 
-    QString id = getRoadSystem()->getUniqueId(signal->getId(), name);
-    if (id != signal->getId())
-    {
+    odrID id = getRoadSystem()->getID(name,  odrID::ID_Object);
         signal->setId(id);
         if (name != signal->getName())
         {
             signal->setName(name);
         }
-    }
 
     // Insert and Notify //
     //
@@ -2450,7 +2612,7 @@ RSystemElementRoad::getValidLane(double s, double t)
 }
 
 Signal *
-RSystemElementRoad::getSignal(const QString &id)
+RSystemElementRoad::getSignal(const odrID &id)
 {
     QMap<double, Signal *>::ConstIterator iter = signals_.constBegin();
 
@@ -2493,11 +2655,8 @@ RSystemElementRoad::addSignalReference(SignalReference *signalReference)
 		name = signal->getName();
 	}
 
-	QString id = getRoadSystem()->getUniqueId(signalReference->getId(), name);
-	if (id != signalReference->getId())
-	{
-		signalReference->setId(id);
-	}
+	odrID id = getRoadSystem()->getID(name, odrID::ID_Object);
+	signalReference->setId(id);
 
 	// Insert and Notify //
 	//
@@ -2555,7 +2714,7 @@ RSystemElementRoad::moveSignalReference(RoadSection *section, double newS)
 
 
 SignalReference *
-RSystemElementRoad::getSignalReference(const QString &id)
+RSystemElementRoad::getSignalReference(const odrID &id)
 {
 	QMap<double, SignalReference *>::ConstIterator iter = signalReferences_.constBegin();
 
@@ -2602,102 +2761,38 @@ RSystemElementRoad::delSensor(Sensor *sensor)
     // Delete section //
     //
     bool success = delSensor(s);
-    if (!success)
-    {
-        qDebug("WARNING 1006231544! Could not delete sensor.");
-    }
+if (!success)
+{
+	qDebug("WARNING 1006231544! Could not delete sensor.");
+}
 
-    return success;
+return success;
 }
 
 bool
 RSystemElementRoad::delSensor(double s)
 {
-    Sensor *sensor = sensors_.value(s, NULL);
-    if (!sensor)
-    {
-        qDebug("WARNING 1003221758! Tried to delete a sensor that wasn't there.");
-        return false;
-    }
-    else
-    {
-        // Notify section //
-        //
-        sensor->setParentRoad(NULL);
+	Sensor *sensor = sensors_.value(s, NULL);
+	if (!sensor)
+	{
+		qDebug("WARNING 1003221758! Tried to delete a sensor that wasn't there.");
+		return false;
+	}
+	else
+	{
+		// Notify section //
+		//
+		sensor->setParentRoad(NULL);
 
-        // Delete and Notify //
-        //
-        sensors_.remove(s);
-        addRoadChanges(RSystemElementRoad::CRD_SensorChange);
+		// Delete and Notify //
+		//
+		sensors_.remove(s);
+		addRoadChanges(RSystemElementRoad::CRD_SensorChange);
 
-        return true;
-    }
+		return true;
+	}
 }
 
-//##################//
-// IDs              //
-//##################//
-
-const QString
-RSystemElementRoad::getUniqueId(const QString &suggestion, RSystemElement::DRoadSystemElementType elementType)
-{
-    if (elementType == RSystemElement::DRE_Signal)
-    {
-        // Try suggestion //
-        //
-        if (!suggestion.isNull())
-        {
-            if (!signalIds_.contains(suggestion))
-            {
-                signalIds_.append(suggestion);
-                return suggestion;
-            }
-        }
-
-        // Create new one //
-        //
-
-        QString id = QString("signal%1").arg(signalIdCount_);
-        while (signalIds_.contains(id))
-        {
-            id = QString("signal%1").arg(signalIdCount_);
-            ++signalIdCount_;
-        }
-        ++signalIdCount_;
-        signalIds_.append(id);
-        return id;
-    }
-    else if (elementType == RSystemElement::DRE_Object)
-    {
-        // Try suggestion //
-        //
-        if (!suggestion.isNull())
-        {
-            if (!objectIds_.contains(suggestion))
-            {
-                objectIds_.append(suggestion);
-                return suggestion;
-            }
-        }
-
-        // Create new one //
-        //
-
-        QString id = QString("object%1").arg(objectIdCount_);
-        while (objectIds_.contains(id))
-        {
-            id = QString("object%1").arg(objectIdCount_);
-            ++objectIdCount_;
-        }
-        ++objectIdCount_;
-        objectIds_.append(id);
-        return id;
-    }
-    else
-    {
-        return suggestion;
-    }
-}
 
 //###################//
 // Prototype Pattern //
@@ -2710,53 +2805,77 @@ RSystemElementRoad::getUniqueId(const QString &suggestion, RSystemElement::DRoad
 void
 RSystemElementRoad::superposePrototype(const RSystemElementRoad *prototypeRoad)
 {
-    if (!prototypeRoad->trackSections_.empty() && trackSections_.empty())
-    {
-        foreach (TrackComponent *track, prototypeRoad->trackSections_)
-        {
-            addTrackComponent(track->getClone());
-        }
-    }
+	if (!prototypeRoad->trackSections_.empty() && trackSections_.empty())
+	{
+		foreach(TrackComponent *track, prototypeRoad->trackSections_)
+		{
+			addTrackComponent(track->getClone());
+		}
+	}
 
-    if (!prototypeRoad->typeSections_.empty() && typeSections_.empty())
-    {
-        foreach (TypeSection *section, prototypeRoad->typeSections_)
-        {
-            addTypeSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->typeSections_.empty() && typeSections_.empty())
+	{
+		foreach(TypeSection *section, prototypeRoad->typeSections_)
+		{
+			addTypeSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->elevationSections_.empty() && elevationSections_.empty())
-    {
-        foreach (ElevationSection *section, prototypeRoad->elevationSections_)
-        {
-            addElevationSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->elevationSections_.empty() && elevationSections_.empty())
+	{
+		foreach(ElevationSection *section, prototypeRoad->elevationSections_)
+		{
+			addElevationSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->superelevationSections_.empty() && superelevationSections_.empty())
-    {
-        foreach (SuperelevationSection *section, prototypeRoad->superelevationSections_)
-        {
-            addSuperelevationSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->superelevationSections_.empty() && superelevationSections_.empty())
+	{
+		foreach(SuperelevationSection *section, prototypeRoad->superelevationSections_)
+		{
+			addSuperelevationSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->crossfallSections_.empty() && crossfallSections_.empty())
-    {
-        foreach (CrossfallSection *section, prototypeRoad->crossfallSections_)
-        {
-            addCrossfallSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->crossfallSections_.empty() && crossfallSections_.empty())
+	{
+		foreach(CrossfallSection *section, prototypeRoad->crossfallSections_)
+		{
+			addCrossfallSection(section->getClone());
+		}
+	}
 
-    if (!prototypeRoad->laneSections_.empty() && laneSections_.empty())
-    {
-        foreach (LaneSection *section, prototypeRoad->laneSections_)
-        {
-            addLaneSection(section->getClone());
-        }
-    }
+	if (!prototypeRoad->laneSections_.empty() && laneSections_.empty())
+	{
+		foreach(LaneSection *section, prototypeRoad->laneSections_)
+		{
+			addLaneSection(section->getClone());
+		}
+	}
+
+	if (!prototypeRoad->shapeSections_.empty() && shapeSections_.empty())
+	{
+		foreach(ShapeSection *section, prototypeRoad->shapeSections_)
+		{
+			ShapeSection *clone = section->getClone();
+			addShapeSection(clone);
+
+			if (prototypeRoad->getLaneSections().isEmpty())
+			{
+				double width = getMinWidth(clone->getSStart());
+				foreach(PolynomialLateralSection *poly, clone->getShapes())
+				{
+					clone->moveLateralSection(poly, poly->getTStart() + width);
+				}
+			}
+
+/*			if (!laneSections_.isEmpty())
+			{
+				double s = section->getSStart();
+				clone->moveLateralSection(clone->getFirstPolynomialLateralSection(), getMinWidth(s));
+			} */
+		}
+	}
 }
 
 ///*! \brief Adds some road sections from a prototype at the back or front.
@@ -2844,6 +2963,9 @@ RSystemElementRoad::getClone() const
     foreach (CrossfallSection *child, crossfallSections_)
         clonedRoad->addCrossfallSection(child->getClone());
 
+	foreach(ShapeSection *child, shapeSections_)
+		clonedRoad->addShapeSection(child->getClone());
+
     foreach (LaneSection *child, laneSections_)
         clonedRoad->addLaneSection(child->getClone());
 
@@ -2930,7 +3052,8 @@ RSystemElementRoad::acceptForChildNodes(Visitor *visitor)
     acceptForSensors(visitor);
     acceptForObjects(visitor);
 	acceptForObjectReferences(visitor);
-    acceptForBridges(visitor);
+	acceptForBridges(visitor);
+	acceptForLaneOffsets(visitor);
 }
 
 /*!
@@ -3027,6 +3150,17 @@ RSystemElementRoad::acceptForLaneSections(Visitor *visitor)
 {
     foreach (LaneSection *child, laneSections_)
         child->accept(visitor);
+}
+
+
+/*!
+* Accepts a visitor and passes it to the lane sections.
+*/
+void
+RSystemElementRoad::acceptForLaneOffsets(Visitor *visitor)
+{
+	foreach(LaneOffset *child, laneOffsets_)
+		child->accept(visitor);
 }
 
 /*!

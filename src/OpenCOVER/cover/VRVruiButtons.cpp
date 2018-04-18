@@ -14,8 +14,8 @@
 using namespace opencover;
 using namespace covise;
 
-VRVruiButtons::VRVruiButtons(coPointerButton *button)
-: m_button(button)
+VRVruiButtons::VRVruiButtons(ButtonsType type)
+: m_type(type)
 {
 }
 
@@ -25,32 +25,58 @@ VRVruiButtons::~VRVruiButtons()
 
 coPointerButton *VRVruiButtons::button() const
 {
-    if (m_button)
-        return m_button;
+    switch (m_type)
+    {
+    case Pointer:
+        return cover->getPointerButton();
+        break;
+    case Mouse:
+        return cover->getMouseButton();
+        break;
+    case Relative:
+        return cover->getRelativeButton();
+        break;
+    }
+
     return cover->getPointerButton();
 }
 
 unsigned int VRVruiButtons::wasPressed(unsigned int buttons) const
 {
+    if (!button())
+        return 0;
+
     return button()->wasPressed(buttons);
 }
 
 unsigned int VRVruiButtons::wasReleased(unsigned int buttons) const
 {
+    if (!button())
+        return 0;
+
     return button()->wasReleased(buttons);
 }
 
 unsigned int VRVruiButtons::getStatus() const
 {
+    if (!button())
+        return 0;
+
     return button()->getState();
 }
 
 unsigned int VRVruiButtons::getOldStatus() const
 {
+    if (!button())
+        return 0;
+
     return button()->oldState();
 }
 
-int VRVruiButtons::getWheelCount() const
+int VRVruiButtons::getWheelCount(size_t idx) const
 {
-    return button()->getWheel();
+    if (!button())
+        return 0;
+
+    return button()->getWheel(idx);
 }

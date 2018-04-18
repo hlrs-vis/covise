@@ -63,48 +63,12 @@ void TUIFloatEdit::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIFloatEdit::setEnabled(bool en)
+const char *TUIFloatEdit::getClassName() const
 {
-    TUIElement::setEnabled(en);
+    return "TUIFloatEdit";
 }
 
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIFloatEdit::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUIFloatEdit::getClassName()
-{
-    return (char *)"TUIFloatEdit";
-}
-
-bool TUIFloatEdit::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}
-
-void TUIFloatEdit::setValue(int type, covise::TokenBuffer &tb)
+void TUIFloatEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "setValue " << type << endl;
     if (type == TABLET_MIN)

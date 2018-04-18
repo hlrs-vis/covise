@@ -255,7 +255,7 @@ bool DTrackDriver::poll()
         m_numFlySticks = dt->getNumFlyStick();
         m_numBodies = dt->getNumBody();
         m_bodyBase = m_numFlySticks;
-	initArrays();
+        initArrays();
 
         m_numHands = dt->getNumHand();
         m_handBase = m_bodyBase + m_numBodies;
@@ -287,10 +287,13 @@ bool DTrackDriver::poll()
         m_mutex.unlock();
     }
 
+    bool valid = false;
     m_mutex.lock();
     for (int i = 0; i < dt->getNumFlyStick(); ++i)
     {
         m_bodyMatricesValid[i] = updateFlyStick(i);
+        if (m_bodyMatricesValid[i])
+            valid = true;
     }
     m_mutex.unlock();
 
@@ -298,6 +301,8 @@ bool DTrackDriver::poll()
     for (int i = 0; i < dt->getNumBody(); ++i)
     {
         m_bodyMatricesValid[m_bodyBase+i] = updateBodyMatrix(i);
+        if (m_bodyMatricesValid[m_bodyBase+i])
+            valid = true;
     }
     m_mutex.unlock();
 
@@ -307,8 +312,11 @@ bool DTrackDriver::poll()
 	for (int i = 0; i < dt->getNumHand(); ++i)
 	{
 		m_bodyMatricesValid[m_handBase+i] = updateHand(i);
-	}
-	m_mutex.unlock();
+        if (m_bodyMatricesValid[m_handBase+i])
+            valid = true;
+    }
+    m_valid = valid;
+    m_mutex.unlock();
 
     return true;
 }

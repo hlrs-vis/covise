@@ -52,7 +52,7 @@ int CoviseBase::port_required[CoviseBase::MAX_PORTS];
 enum appl_port_type CoviseBase::port_type[CoviseBase::MAX_PORTS];
 int CoviseBase::init_flag = 0;
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
 XtAppContext CoviseBase::appContext = NULL;
 XtInputId CoviseBase::X_id = (XtInputId)0;
 #endif
@@ -120,7 +120,7 @@ void CoviseBase::init_emergency_message(void)
 //=====================================================================
 void CoviseBase::remove_socket(int)
 {
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
     XtRemoveInput(CoviseBase::X_id);
 #else
 // should be done by application module itself

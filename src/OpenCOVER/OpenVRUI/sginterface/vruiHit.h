@@ -25,9 +25,7 @@ public:
     {
     }
 
-    virtual ~vruiHit()
-    {
-    }
+    virtual ~vruiHit();
 
     virtual coVector &getLocalIntersectionPoint() const = 0;
     virtual coVector &getWorldIntersectionPoint() const = 0;

@@ -149,7 +149,7 @@ SignalItem::updateCategory()
     }
     else
     {
-        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
+        SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getCountry(), signal_->getType(), signal_->getTypeSubclass(), signal_->getSubtype());
 		if (signalContainer)
 		{
 			QString category = signalContainer->getSignalCategory();
@@ -267,22 +267,22 @@ SignalItem::createPath()
 
         if (signal_->getValidFromLane() >= 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.moveTo(pos - width * normal);
 		}
 		else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
 			path.moveTo(pos + width * normal);
 		}
 		if (signal_->getValidToLane() > 0)
 		{
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.lineTo(pos - width * normal);
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
 			path.lineTo(pos + width * normal);
         }
     }
@@ -297,10 +297,10 @@ SignalItem::createPath()
 
         if (signal_->getValidFromLane() > 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             if (signal_->getValidToLane() >= 0)
             {
-                while (width >= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+                while (width >= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart())))
                 {
 					QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
@@ -310,7 +310,7 @@ SignalItem::createPath()
             }
             else
             {
-                while (width >= -laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+                while (width >= (-laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart())) + road_->getLaneOffset(signal_->getSStart()))
                 {
 					QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
@@ -321,8 +321,8 @@ SignalItem::createPath()
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
-            while (width <= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
+            while (width <= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart())) + road_->getLaneOffset(signal_->getSStart()))
             {
 				QPointF newPos = pos + width * normal;
                 path.moveTo(newPos);

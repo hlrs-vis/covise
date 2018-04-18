@@ -29,7 +29,8 @@
 		    <Marker name="ObjectMarker2" >
                         <Pattern value="7" />
                         <Size value="62" />
-                        <Offset x="0" y="-70" z="0" h="0" p="0" r="0" />
+                        <!--Offset x="0" y="-70" z="0" h="0" p="0" r="0" /-->
+                        <Offset x="73" y="0" z="0" h="90" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Science Pub Bierglas kleiner Marker -->
@@ -266,7 +267,7 @@
                 <ALVAR value="OFF">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->

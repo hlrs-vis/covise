@@ -72,6 +72,7 @@ ProjectData::ProjectData(ProjectWidget *projectWidget, QUndoStack *undoStack, Ch
 	, oscBase_(NULL)
     , undoStack_(undoStack)
     , changeManager_(changeManager)
+	, geoReferenceParams_(NULL)
 {
     linkToProject(this); // link to itself
 }

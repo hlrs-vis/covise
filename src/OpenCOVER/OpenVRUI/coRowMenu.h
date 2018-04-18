@@ -42,7 +42,7 @@ protected:
     coGenericSubMenuItem *myMenuItem; ///< parent submenu, NULL if this is the topmost menu
 
 public:
-    coRowMenu(const char *title, coMenu * = 0, int maxItems = 0, bool inScene = false);
+    coRowMenu(const char *title, coMenu *parent = 0, int maxItems = 0, bool inScene = false);
     virtual ~coRowMenu();
     virtual void add(coMenuItem *item);
     virtual void insert(coMenuItem *item, int position);

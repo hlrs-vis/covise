@@ -6,3 +6,4 @@ set(SOURCES
 )
 
 covise_add_module(Mapper PointsToLine ${HEADERS} ${SOURCES})
+covise_install_target(PointsToLine)

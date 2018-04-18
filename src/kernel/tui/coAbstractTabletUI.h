@@ -61,7 +61,7 @@ public:
     virtual ~coAbstractTabletUI()
     {
     }
-    virtual void update() = 0;
+    virtual bool update() = 0;
 };
 
 /**
@@ -74,7 +74,7 @@ public:
     {
     }
     virtual void parseMessage(TokenBuffer &tb) = 0;
-    virtual void resend() = 0;
+    virtual void resend(bool create) = 0;
     virtual void setPos(int, int) = 0;
     virtual void setSize(int, int) = 0;
     virtual void setLabel(const char *l) = 0;
@@ -99,7 +99,7 @@ public:
     virtual void setFileList(Message &ms) = 0;
     virtual void setCurDir(Message &msg) = 0;
     virtual void setCurDir(const char *dir) = 0;
-    virtual void resend() = 0;
+    virtual void resend(bool create) = 0;
     virtual void parseMessage(TokenBuffer &tb) = 0;
     virtual void setDrives(Message &ms) = 0;
     virtual void setClientList(Message &msg) = 0;

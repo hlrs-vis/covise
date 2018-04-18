@@ -486,7 +486,7 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       cd.reprojGeo->setNormalArray(normal);
       cd.reprojGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
       // required for instanced rendering and also for SingleScreenCB
-      cd.reprojGeo->setUseDisplayList( false );
+      cd.reprojGeo->setSupportsDisplayList( false );
       cd.reprojGeo->setUseVertexBufferObjects( true );
 
       osg::StateSet *stateSet = cd.reprojGeo->getOrCreateStateSet();
@@ -787,12 +787,13 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 #endif
         cd.size->set(osg::Vec2(w, h));
         cd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
+
+        cd.depthFormat = depthFormat;
     }
 
     cd.width = w;
     cd.height = h;
 
-    cd.depthFormat = depthFormat;
     cd.colorFormat = colorFormat;
 }
 

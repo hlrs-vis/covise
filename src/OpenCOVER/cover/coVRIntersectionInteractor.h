@@ -69,8 +69,8 @@ protected:
     bool _justHit;
     bool _wasHit;
     bool _standardHL;
+    osg::ref_ptr<osg::Node> _hitNode;
     osg::Vec3 _hitPos;
-    osg::Vec3 _interPos; // position in object coordinates
     vrui::OSGVruiNode *vNode;
 
     osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
@@ -78,12 +78,14 @@ protected:
     coVRLabel *label_;
 
     float _interSize; // size in mm in world coordinates
+    float _scale = 1.; // scale factor for retaining screen size of interactor
 
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
     // scale sphere to keep the size when the world scaling changes
     virtual void keepSize();
+    float getScale() const;
 
     osg::Vec3 restrictToVisibleScene(osg::Vec3);
 
@@ -133,25 +135,29 @@ public:
 
     virtual void addIcon(); // highlight and add
 
-    virtual void removeIcon(); // un-highlight and remove
+    virtual void removeIcon(); // remove
+
+    virtual void resetState(); // un-highlight
 
     // return the intersected state
     int isIntersected()
     {
         return _hit;
-    };
+    }
 
     // return true if just intesected
     bool wasHit()
     {
         return _wasHit;
-    };
+    }
 
     // return hit positon
     osg::Vec3 getHitPos()
     {
         return _hitPos;
-    };
+    }
+
+    osg::Node *getHitNode();
 
     // called in preframe, does the interaction
     virtual void preFrame();
@@ -160,7 +166,7 @@ public:
     char *getInteractorName()
     {
         return _interactorName;
-    };
+    }
 
     ///< class methods for traversing children
     //static vector<coVRIntersectionInteractor*> *interactors; ///< class variable for storing references of children
@@ -176,7 +182,7 @@ public:
     osg::Matrix getMatrix()
     {
         return moveTransform->getMatrix();
-    };
+    }
 
     void setCaseTransform(osg::MatrixTransform *);
 };

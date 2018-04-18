@@ -1,0 +1,58 @@
+#include "Condition.h"
+#include "Entity.h"
+
+using namespace std;
+
+Condition::Condition():
+    oscCondition(),
+    isTrue(false),
+    waitForDelay(false),
+    delayTimer(0.0),
+    passiveEntity(NULL),
+    checkedAct(NULL),
+    checkedEvent(NULL),
+    checkedManeuver(NULL),
+    checkedSequence(NULL)
+{}
+Condition::~Condition(){}
+
+void Condition::addActiveEntity(Entity* entity)
+{
+    activeEntityList.push_back(entity);
+}
+
+void Condition::setPassiveEntity(Entity* entity)
+{
+    passiveEntity = entity;
+}
+
+void Condition::setManeuver(Maneuver* maneuver)
+{
+    checkedManeuver = maneuver;
+}
+
+void Condition::setEvent(Event* event)
+{
+    checkedEvent = event;
+}
+void Condition::set(bool state)
+{
+    isTrue = state;
+}
+
+void Condition::increaseTimer()
+{
+    delayTimer = delayTimer + opencover::cover->frameDuration();
+}
+
+bool Condition::delayReached()
+{
+    if(delayTimer >= delay.getValue())
+    {
+        delayTimer = 0.0;
+        waitForDelay = false;
+        return true;
+    }
+    increaseTimer();
+    return false;
+}

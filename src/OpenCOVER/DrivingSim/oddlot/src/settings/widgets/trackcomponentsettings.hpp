@@ -67,7 +67,8 @@ private:
     TrackElementLine *line_;
     TrackElementArc *arc_;
     TrackElementSpiral *spiral_;
-    TrackElementPoly3 *poly3_;
+	TrackElementPoly3 *poly3_;
+	TrackElementCubicCurve *c_curve_;
 
     TrackSpiralArcSpiral *sparcs_;
 };

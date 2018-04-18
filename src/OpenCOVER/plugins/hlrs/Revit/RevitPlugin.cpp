@@ -591,7 +591,7 @@ void RevitPlugin::sendMessage(Message &m)
 }
 
 
-void RevitPlugin::message(int type, int len, const void *buf)
+void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 {
 	if (type == PluginMessageTypes::MoveAddMoveNode)
 	{
@@ -1368,8 +1368,7 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geode *geode = new osg::Geode();
 			geode->setName(name);
 			osg::Geometry *geom = new osg::Geometry();
-			geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-			geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+            cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
 
 			// set up geometry

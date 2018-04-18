@@ -42,7 +42,7 @@ ProfileGraph::ProfileGraph(ProjectWidget *projectWidget, ProjectData *projectDat
     //	scene_ = new ProfileGraphScene(projectData_->getRoadSystem()->getRectF(), this);
     // may be not ready yet
 
-    //	connect(scene_, SIGNAL(mouseActionSignal(MouseAction*)), this, SIGNAL(mouseActionSignal(MouseAction*)));
+    connect(scene_, SIGNAL(mouseActionSignal(MouseAction*)), this, SIGNAL(mouseActionSignal(MouseAction*)));
     //	connect(scene_, SIGNAL(keyActionSignal(KeyAction*)), this, SIGNAL(keyActionSignal(KeyAction*)));
 
     // Qt View //
@@ -176,9 +176,9 @@ ProfileGraph::toolAction(ToolAction *toolAction)
 }
 
 void
-ProfileGraph::mouseAction(MouseAction * /*mouseAction*/)
+ProfileGraph::mouseAction(MouseAction * mouseAction)
 {
-    //	graphScene_->mouseAction(mouseAction);
+//    scene_->mouseAction(mouseAction);
 }
 
 void

@@ -13,7 +13,6 @@
 #include "Body.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -23,7 +22,7 @@ Joint::Joint()
 {
 }
 
-Joint::Joint(std::tr1::shared_ptr<BodyJointDesc> bodyA, std::tr1::shared_ptr<BodyJointDesc> bodyB)
+Joint::Joint(std::shared_ptr<BodyJointDesc> bodyA, std::shared_ptr<BodyJointDesc> bodyB)
     : m_BodyA(bodyA)
     , m_BodyB(bodyB)
 {
@@ -59,18 +58,18 @@ boost::optional<float> Joint::GetInitialAngle() const
     return m_InitialAngle;
 }
 
-void Joint::SetBodyJointDescA(std::tr1::shared_ptr<BodyJointDesc> bodyA)
+void Joint::SetBodyJointDescA(std::shared_ptr<BodyJointDesc> bodyA)
 {
     m_BodyA = bodyA;
     m_BodyA->GetBody()->AddConnectedJoint(shared_from_this());
 }
 
-std::tr1::shared_ptr<BodyJointDesc> Joint::GetBodyA() const
+std::shared_ptr<BodyJointDesc> Joint::GetBodyA() const
 {
     return m_BodyA;
 }
 
-void Joint::SetBodyJointDescB(std::tr1::shared_ptr<BodyJointDesc> bodyB)
+void Joint::SetBodyJointDescB(std::shared_ptr<BodyJointDesc> bodyB)
 {
     m_BodyB = bodyB;
     m_BodyB->GetBody()->AddConnectedJoint(shared_from_this());
@@ -110,7 +109,7 @@ Joint::Axis Joint::GetAxis() const
     return m_Axis;
 }
 
-std::tr1::shared_ptr<BodyJointDesc> Joint::GetBodyB() const
+std::shared_ptr<BodyJointDesc> Joint::GetBodyB() const
 {
     return m_BodyB;
 }

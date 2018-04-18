@@ -10,7 +10,6 @@
 #include <OpenVRUI/coGenericSubMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coSubMenuToolboxItem.h>
-#include <OpenVRUI/coMenuChangeListener.h>
 #include <OpenVRUI/coCombinedButtonInteraction.h>
 #include <OpenVRUI/coUIContainer.h>
 
@@ -49,12 +48,11 @@ coMenu::coMenu(coMenu *parentMenu, const std::string &namePtr)
     myMenuItem = 0;
     showMode = MENU_SLIDE;
     listener = 0;
-    changeListener = 0;
 
     // remember menu's name - better in base class for debugging
     interaction = new coCombinedButtonInteraction(coInteraction::ButtonA, "Menu", coInteraction::Menu);
     moveInteraction = new coCombinedButtonInteraction(coInteraction::ButtonC, "Menu", coInteraction::Medium);
-    wheelInteraction = new coCombinedButtonInteraction(coInteraction::Wheel, "Menu", coInteraction::Medium);
+    wheelInteraction = new coCombinedButtonInteraction(coInteraction::WheelVertical, "Menu", coInteraction::Medium);
 }
 
 /// Destructor.
@@ -64,10 +62,6 @@ coMenu::~coMenu()
 
     if (vruiRendererInterface::the()->getJoystickManager())
         vruiRendererInterface::the()->getJoystickManager()->unregisterMenu(this);
-    // if our parent menu is monitored, we our parent tells his listener
-    // about a deleted submenu
-    if (parent && parent->changeListener)
-        parent->changeListener->subMenuDeleted(this);
 
     removeAll();
     if (myMenuItem)
@@ -90,8 +84,6 @@ coGenericSubMenuItem *coMenu::getSubMenuItem()
 void coMenu::setSubMenuItem(coGenericSubMenuItem *m)
 {
     myMenuItem = m;
-    if (parent && parent->changeListener)
-        parent->changeListener->subMenuAdded(this, m);
 }
 
 /** Add a new menu item to this menu. The menu item is appended
@@ -108,8 +100,6 @@ void coMenu::add(coMenuItem *item)
 
     items.push_back(item);
     item->setParentMenu(this);
-    if (changeListener)
-        changeListener->itemAdded(this, item, -1);
 }
 
 /** Insert a menu item into the linked menu item list.
@@ -133,8 +123,6 @@ void coMenu::insert(coMenuItem *item, int pos)
         i++;
     items.insert(i, item);
     item->setParentMenu(this);
-    if (changeListener)
-        changeListener->itemAdded(this, item, pos);
 }
 
 /// Remove a menu item from the linked list.
@@ -147,8 +135,6 @@ void coMenu::remove(coMenuItem *item)
 
     if (dynamic_cast<coGenericSubMenuItem *>(item))
         (dynamic_cast<coGenericSubMenuItem *>(item))->closeSubmenu();
-    if (changeListener)
-        changeListener->itemRemoved(this, item);
     if (item->getParentMenu() != NULL)
     {
         item->setParentMenu(0);
@@ -162,9 +148,6 @@ void coMenu::removeAll()
     {
         coMenuItem *item = items.front();
         item->selected(false);
-
-        if (changeListener)
-            changeListener->itemRemoved(this, item);
 
         item->setParentMenu(0);
         coUIElement *uie = item->getUIElement();
@@ -210,12 +193,6 @@ int coMenu::getShowMode() const
 void coMenu::setMenuListener(coMenuFocusListener *ml)
 {
     listener = ml;
-}
-
-/// Set a new menu listener to receive menu item events.
-void coMenu::setMenuChangeListener(coMenuChangeListener *ml)
-{
-    changeListener = ml;
 }
 
 /** Hit is called whenever the menu is intersected
@@ -427,13 +404,6 @@ bool coMenu::isVisible() const
     return visible;
 }
 
-/// this menu item changed - if it's one of mine, alert the menuChangeListener
-void coMenu::itemRenamed(coMenuItem *item)
-{
-    if (changeListener && std::find(items.begin(), items.end(), item) != items.end())
-        changeListener->itemRenamed(this, item);
-}
-
 coMenuItemVector coMenu::getAllItems()
 {
     coMenuItemVector res(items.begin(), items.end());
@@ -514,4 +484,15 @@ void coMenu::setAttachment(int attachment)
         }
     }
 }
+
+bool coMenu::wasMoved() const
+{
+    return wasMoved_;
+}
+
+void coMenu::setMoved(bool flag)
+{
+    wasMoved_ = flag;
+}
+
 }

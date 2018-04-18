@@ -155,7 +155,7 @@ public:
     virtual ~Measure();
     bool init();
     void preFrame();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void setCurrentMeasure(Mark *m);
 };
 

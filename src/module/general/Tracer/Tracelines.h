@@ -39,11 +39,7 @@ public:
        */
     Tracelines(
         const coModule *mod,
-#ifndef YAC
         const char *name_line, const char *name_magnitude,
-#else
-        coObjInfo name_line, coObjInfo name_magnitude,
-#endif
         const coDistributedObject *grid, const coDistributedObject *velo, const coDistributedObject *ini_p,
         int number_per_tstep, real *x_ini, real *y_ini, real *z_ini,
         const coDistributedObject *sfield = NULL);
@@ -56,11 +52,7 @@ public:
     }
 /** Gather results from all PTasks after a time step.
        */
-#ifndef YAC
     virtual void gatherTimeStep();
-#else
-    virtual void gatherTimeStep(coOutputPort *port);
-#endif
     /** Gather results from all all time steps.
        * @param    p_line   pointer to line output port.
        * @param    p_mag    pointer to magnitude output port.
@@ -80,17 +72,9 @@ protected:
     // it creates an array as long as required by the longest line
     int *cornerList();
 // makes lines for a time (used in gatherTimeStep)
-#ifndef YAC
     void linesForATime();
-#else
-    void linesForATime(coOutputPort *port);
-#endif
 // makes magnitude objects for a time (used in gatherTimeStep)
-#ifndef YAC
     void magForATime();
-#else
-    void magForATime(coOutputPort *port);
-#endif
     // displacement for all point according to constant vector shift
     void Verschieben(const float *shift, int no_p,
                      float *x, float *y, float *z);

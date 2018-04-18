@@ -851,7 +851,11 @@ void AgentVehicle::move(double dt)
    }*/
     //std::cout << "Vehicle " << name << ": pos: " << u << ", lane: " << currentLane << std::endl;
 } // T 18.0
-
+void AgentVehicle::setTransform(Transform vehicleTransform, double hdg)
+// neue Funktion von Christoph Kirsch um mit Straßenkoordinaten die neue Position des Fahrzeugs zu bestimmten
+{
+	geometry->setTransform(vehicleTransform, hdg);
+}
 void AgentVehicle::setPosition(osg::Vec3 &pos, osg::Vec3 &vec)
 {
 geometry->setTransformByCoordinates(pos, vec);

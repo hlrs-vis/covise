@@ -130,11 +130,7 @@ Streamlines::~Streamlines()
 
 // see header
 Streamlines::Streamlines(const coModule *mod,
-#ifndef YAC
                          const char *name_line, const char *name_magnitude,
-#else
-                         coObjInfo name_line, coObjInfo name_magnitude,
-#endif
                          const coDistributedObject *grid,
                          const coDistributedObject *velo,
                          const coDistributedObject *ini_p,

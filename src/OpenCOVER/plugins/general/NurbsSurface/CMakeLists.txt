@@ -1,0 +1,39 @@
+USING(SISL)
+SET(HEADERS
+  NurbsSurface.h
+  sisl_aux/aux2.h
+  sisl_aux/sisl_aux.h
+  sisl_aux/jonvec.h
+  alglib/alglibinternal.h
+  alglib/diffequations.h
+  alglib/linalg.h
+  alglib/statistics.h
+  alglib/alglibmisc.h
+  alglib/fasttransforms.h
+  alglib/optimization.h
+  alglib/stdafx.h
+  alglib/ap.h
+  alglib/integration.h
+  alglib/solvers.h
+  alglib/dataanalysis.h
+  alglib/interpolation.h
+  alglib/specialfunctions.h
+)
+SET(SOURCES
+  sisl_aux/sisl_aux.cpp
+  NurbsSurface.cpp
+  alglib/alglibinternal.cpp
+  alglib/diffequations.cpp
+  alglib/linalg.cpp
+  alglib/statistics.cpp
+  alglib/alglibmisc.cpp
+  alglib/fasttransforms.cpp
+  alglib/optimization.cpp
+  alglib/ap.cpp
+  alglib/integration.cpp
+  alglib/solvers.cpp
+  alglib/dataanalysis.cpp
+  alglib/interpolation.cpp
+  alglib/specialfunctions.cpp
+)
+cover_add_plugin(NurbsSurface ${HEADERS} ${SOURCES})

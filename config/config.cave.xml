@@ -3,6 +3,7 @@
 <COCONFIG version="1" >
 
  <GLOBAL>
+ 
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
@@ -10,13 +11,10 @@
  </GLOBAL>
 
  <CLUSTER MASTER="viscluster50">
-   <Bicycle>
-        <udp value="on"/>
-        <serverHost value="141.58.8.173" /> <!-- medialab14 -->
-   </Bicycle>
+
    <COVER>
      
-     <DebugTUI value="false" />
+     <DebugTUI value="true" />
      <!--Background r="1" g="1" b="1" /-->
      <Console ARCH="windows" value="true" file="c:\OpenCOVER" />
      <MenuMode value="false" />
@@ -203,6 +201,9 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
+    <Revit value="on">
+      <textures value="/data/revit/Textures" />
+    </Revit>
     <TrackObjects value="on">
 	    <Objects>
            <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
@@ -396,7 +397,7 @@
     <Channel comment="MAIN" channel="0" stereoMode="LEFT" windowIndex="0" viewportIndex="0" name="0"/>
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1920" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
+    <Viewport width="1" left="0" windowIndex="0" bottom="0" name="0" height="1" />
    </ViewportConfig>
    <WindowConfig>
    <Window ARCH="x11" type="Qt" width="1600" comment="MAIN" window="0" pipeIndex="0" height="1000" left="100" top="50" name="0" decoration="true" />
@@ -546,6 +547,7 @@
    <Bicycle>
    <LenkMaus value="/dev/input/mouse3"/>
    <PedalMaus value="/dev/input/mouse4"/>
+   <isBike value="true"/>
    </Bicycle>
    <SteeringWheel>
 

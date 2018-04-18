@@ -17,3 +17,4 @@ ADD_DEFINITIONS(-DGATE -DCONTOURS)
 
 covise_add_module(VISiT Gate ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(Gate coApi coAppl coCore visit_gate visit_general visit_bspline)
+covise_install_target(Gate)

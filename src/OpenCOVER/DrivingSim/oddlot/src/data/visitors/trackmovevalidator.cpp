@@ -341,6 +341,7 @@ TrackMoveValidator::visit(TrackElementPoly3 *poly3)
         // Create Polynomial //
         //
         l = endPoint.x();
+
         double h0 = poly3->getA();
         double dh0 = poly3->getB();
         h1 = endPoint.y();
@@ -358,32 +359,44 @@ TrackMoveValidator::visit(TrackElementPoly3 *poly3)
     {
         isValid_ = false;
         //		qDebug("d");
+
+		delete newPoly;
+		return;
     }
 
     // No overshooting //
     //
     if (newPoly->ddf(0.0) > 0.0) // left turn
     {
-        if (dh1 < -1.0) // max 45°
+ //       if (dh1 < -1.0) // max 45°
+		if (dh1 < -6.0) // max 80°
         {
             isValid_ = false;
             //			qDebug("a");
+
+			delete newPoly;
+			return;
         }
     }
 
     if (newPoly->ddf(0.0) < 0.0) // right turn
     {
-        if (dh1 > 1.0) // max 45°
+ //       if (dh1 > 1.0) // max 45°
+		if (dh1 > 6.0) // max 80°
         {
             isValid_ = false;
-            //			qDebug("b");
+            //	
+		//	qDebug("b");
+
+			delete newPoly;
+			return;
         }
     }
 
     // No sharp corners //
     //
-    if ((fabs(newPoly->k(0.0)) > 0.25)
-        || (fabs(newPoly->k(l)) > 0.25))
+    if ((fabs(newPoly->k(0.0)) > 0.5)  // old: 0.25
+        || (fabs(newPoly->k(l)) > 0.5))
     {
         isValid_ = false;
         //		qDebug("c");

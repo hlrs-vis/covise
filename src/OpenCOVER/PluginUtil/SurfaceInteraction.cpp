@@ -49,7 +49,7 @@ SurfaceInteraction::SurfaceInteraction(coInteractor *inter,
         _deleteModule = NULL;
     }
 
-    if (!coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
+    if (!coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         _Execute = new coButtonMenuItem("Execute");
         _Execute->setMenuListener(this);

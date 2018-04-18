@@ -255,7 +255,7 @@ LaneItem::createPath()
     for (int i = 0; i < pointCount; ++i)
     {
         double s = sStart + i * segmentLength; // [sStart, sEnd]
-        points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s));
+        points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s) + road->getLaneOffset(s));
     }
 
     // Left side //
@@ -265,12 +265,12 @@ LaneItem::createPath()
         double s = sEnd - i * segmentLength; // [sEnd, sStart]
         if (s < 0.0)
             s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
-        points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s));
+        points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + road->getLaneOffset(s));
     }
 
     // End point //
     //
-    points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart));
+    points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + road->getLaneOffset(sStart));
 
     // Psycho-Path //
     //
@@ -333,7 +333,7 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 
     ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
-    if (tool == ODD::TLE_ADD_WIDTH && (event->button() == Qt::LeftButton))
+    if ((tool == ODD::TLE_ADD_WIDTH) && (event->button() == Qt::LeftButton))
     {
         RSystemElementRoad *road = parentLaneSection_->getParentRoad();
         double s = road->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());

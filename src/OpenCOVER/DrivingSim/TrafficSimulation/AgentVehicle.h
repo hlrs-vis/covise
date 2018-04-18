@@ -94,6 +94,7 @@ public:
     void move(double dt);
 	void setPosition(osg::Vec3 &pos, osg::Vec3 &vec);
 	void setTransform(osg::Matrix m);
+	void setTransform(Transform vehicleTransform, double hdg);
     void makeDecision();
 
     void checkForCrosswalk(double dt);

@@ -19,7 +19,7 @@
 
 /** CONSTRUCTOR.
 */
-RSystemElementController::RSystemElementController(const QString &name, const QString &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries)
+RSystemElementController::RSystemElementController(const QString &name, const odrID &id, int sequence, const QString &script, double cycleTime, const QList<ControlEntry *> &controlEntries)
     : RSystemElement(name, id, RSystemElement::DRE_Controller)
     , sequence_(sequence)
     , controlEntries_(controlEntries) /*,
@@ -29,7 +29,7 @@ RSystemElementController::RSystemElementController(const QString &name, const QS
     controllerUserData_.cycleTime = cycleTime;
 }
 
-RSystemElementController::RSystemElementController(const QString &name, const QString &id, int sequence, ControllerUserData &controllerUserData, const QList<ControlEntry *> &controlEntries)
+RSystemElementController::RSystemElementController(const QString &name, const odrID &id, int sequence, ControllerUserData &controllerUserData, const QList<ControlEntry *> &controlEntries)
     : RSystemElement(name, id, RSystemElement::DRE_Controller)
     , sequence_(sequence)
     , controllerUserData_(controllerUserData)
@@ -109,7 +109,7 @@ RSystemElementController::updateObserver()
 {
 
     bool entryChanged = false;
-    QMap<QString, Signal *>::const_iterator iter = signals_.constBegin();
+    auto iter = signals_.constBegin();
     while (iter != signals_.constEnd())
     {
         Signal * signal = iter.value();

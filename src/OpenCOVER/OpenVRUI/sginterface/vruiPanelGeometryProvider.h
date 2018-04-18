@@ -23,9 +23,7 @@ public:
     {
         this->geometry = geometry;
     }
-    virtual ~vruiPanelGeometryProvider()
-    {
-    }
+    virtual ~vruiPanelGeometryProvider();
     virtual void attachGeode(vruiTransformNode *node) = 0;
     virtual float getWidth() const = 0;
     virtual float getHeight() const = 0;

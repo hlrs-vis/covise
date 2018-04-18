@@ -29,6 +29,7 @@
 #include "elevationeditortool.hpp"
 #include "superelevationeditortool.hpp"
 #include "crossfalleditortool.hpp"
+#include "shapeeditortool.hpp"
 #include "laneeditortool.hpp"
 #include "junctioneditortool.hpp"
 #include "signaleditortool.hpp"
@@ -126,6 +127,10 @@ ToolManager::initTools()
     // CrossfallEditor //
     //
     new CrossfallEditorTool(this);
+
+	// RoadShapeEditor //
+	//
+	new ShapeEditorTool(this);
 
     // LaneEditor //
     //

@@ -28,12 +28,12 @@ TUIUITab::~TUIUITab()
     std::cerr << "TUIUITab::<dest> info: destroying..." << std::endl;
 }
 
-char *TUIUITab::getClassName()
+const char *TUIUITab::getClassName() const
 {
-    return (char *)"TUIUITab";
+    return "TUIUITab";
 }
 
-void TUIUITab::setValue(int type, covise::TokenBuffer &tb)
+void TUIUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_UI_USE_DESCRIPTION)
     {

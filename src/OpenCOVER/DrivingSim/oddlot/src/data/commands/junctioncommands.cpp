@@ -117,7 +117,7 @@ RemoveJunctionCommand::redo()
         RSystemElementRoad *road = roadSystem_->getRoad(conn->getConnectingRoad());
         if (road)
         {
-            road->setJunction("-1");
+            road->setJunction(odrID::invalidID());
         }
     }
 

@@ -7,6 +7,7 @@
 
 #include "CANProviderTasks.h"
 #include <cmath>
+#include <cstdlib>
 #include <unistd.h>
 
 //SendTask////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ SendTask::SendTask(CANProvider *provider)
         // calculate least common multiple (lcm) to determine when the
         // counter in run method is reset so no message gets simulated
         // with the wrong cycle time
-        countMax = (std::abs(countMax * it1->first)) / gcd(countMax, it1->first);
+        countMax = (countMax * it1->first) / gcd(countMax, it1->first);
     }
 
     // calculate gcd and lcm of CAN Komfort in relation to result of
@@ -42,7 +43,7 @@ SendTask::SendTask(CANProvider *provider)
     for (CANProvider::CANSimMap::const_iterator it1 = p_CANProv->CANKSimMap.begin(); it1 != p_CANProv->CANKSimMap.end(); ++it1)
     {
         taskPeriod = gcd(taskPeriod, it1->first);
-        countMax = (std::abs(countMax * it1->first)) / gcd(countMax, it1->first);
+        countMax = (countMax * it1->first) / gcd(countMax, it1->first);
     }
 
     if (taskPeriod != 0)

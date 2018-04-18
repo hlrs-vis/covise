@@ -147,6 +147,7 @@ struct windowStruct
     bool stereo;
     bool embedded;
     bool pbuffer;
+    bool doublebuffer;
     int swapGroup;
     int swapBarrier;
     std::string type;
@@ -166,6 +167,7 @@ struct windowStruct
     , stereo(false)
     , embedded(false)
     , pbuffer(false)
+    , doublebuffer(true)
     , swapGroup(-1)
     , swapBarrier(-1)
     , windowPlugin(NULL)
@@ -428,11 +430,6 @@ public:
         return m_useVirtualGL;
     }
 
-    bool restrictOn() const
-    {
-        return m_restrict;
-    }
-
     void setNearFar(float nearC, float farC)
     {
         if (nearC > 0 && farC > 0)
@@ -488,7 +485,7 @@ private:
 
     bool trackedHMD;
 
-    bool drawStatistics;
+    int drawStatistics;
 
     // multi-sampling
     int multisampleSamples;
@@ -509,8 +506,6 @@ private:
     bool constantFrameRate;
     float constFrameTime;
     bool m_continuousRendering;
-
-    bool m_restrict;
 
     int m_language;
 

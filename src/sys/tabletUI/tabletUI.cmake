@@ -15,6 +15,7 @@ SET(TUI_SOURCES
   TUIToggleButton.cpp
   TUIToggleBitmapButton.cpp
   TUIFrame.cpp
+  TUIGroupBox.cpp
   TUIScrollArea.cpp
   TUISplitter.cpp
   TUIComboBox.cpp
@@ -30,7 +31,6 @@ SET(TUI_SOURCES
   # TUITextSpinEdit.cpp
   TUIApplication.cpp
   TUINavElement.cpp
-  TUITextureTab.cpp
   TUISGBrowserTab.cpp
   TUIColorTab.cpp
   TUIMap.cpp
@@ -51,6 +51,7 @@ SET(TUI_HEADERS
   TUIContainer.h
   TUIElement.h
   TUIFrame.h
+  TUIGroupBox.h
   TUILabel.h
   TUINavElement.h
   TUISplitter.h
@@ -63,7 +64,6 @@ SET(TUI_MOC_HEADERS
   qtpropertyDialog.h
   TUIColorTriangle.h
   TUIColorButton.h
-  TUITextureTab.h
   TUISGBrowserTab.h
   TUIColorTab.h
   TUIButton.h

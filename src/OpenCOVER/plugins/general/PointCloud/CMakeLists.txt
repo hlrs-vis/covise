@@ -1,15 +1,16 @@
 #OpenCOVER plugins calit2 PointCloud
 USING(E57 optional)
-USING(XercesC optional)
 
 SET(HEADERS
   PointCloud.h
   PointCloudGeometry.h
+  PointCloudInteractor.h
 )
 
 SET(SOURCES
   PointCloud.cpp
   PointCloudGeometry.cpp
+  PointCloudInteractor.cpp
 )
 
 cover_add_plugin(PointCloud)

@@ -28,11 +28,10 @@
  *									*
  ************************************************************************/
 
-#if !defined(_WIN32) && !defined(__APPLE__)
-//#define USE_X11
 #include <GL/glew.h>
-//#include <GL/glxew.h>
-//#include <osgViewer/api/X11/GraphicsWindowX11>
+#ifdef USE_X11
+#include <GL/glxew.h>
+#include <osgViewer/api/X11/GraphicsWindowX11>
 #undef Status
 #endif
 
@@ -107,6 +106,14 @@
 #include <pthread.h>
 #endif
 
+#ifndef GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#endif
+
 using namespace opencover;
 using namespace covise;
 
@@ -114,15 +121,18 @@ static void clearGlWindow(bool doubleBuffer)
 {
     if (doubleBuffer)
     {
-        glDrawBuffer(GL_BACK);
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
         glDrawBuffer(GL_FRONT);
     }
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (doubleBuffer)
+    {
+        glDrawBuffer(GL_BACK);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 }
 
 int VRViewer::unsyncedFrames = 0;
@@ -244,18 +254,8 @@ struct ViewerRunOperations : public osg::Operation
             return;
         // OpenCOVER begin
         // clear the whole window, if channels are smaller than window
-        if (VRViewer::instance()->clearWindow || numClears > 0)
-        {
-            VRViewer::instance()->clearWindow = false;
-            if (numClears == 0)
-            {
-                numClears = coVRConfig::instance()->numWindows() * 2;
-            }
-            numClears--;
-            auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(context);
-            clearGlWindow(!emb);
-            context->makeCurrent();
-        } // OpenCOVER end
+        VRViewer::instance()->glContextOperation(context);
+        // OpenCOVER end
 
         context->runOperations();
     }
@@ -596,7 +596,7 @@ void VRViewer::createViewportCameras(int i)
                 osg::UShortArray *indexArray = new osg::UShortArray;
                 osg::ref_ptr<osg::DrawElementsUShort> drawElement;
                 geometry = new osg::Geometry;
-                geometry->setUseDisplayList(false);
+                geometry->setSupportsDisplayList(false);
                 geometry->setUseVertexBufferObjects(true);
                 positionArray->push_back(osg::Vec3f(0,0,0));
                 positionArray->push_back(osg::Vec3f(1,0,0));
@@ -803,7 +803,7 @@ osg::Geometry *VRViewer::distortionMesh(const char *fileName)
     // Get triangle indicies
 
     osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-    geometry->setUseDisplayList(false);
+    geometry->setSupportsDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
 
     FILE *fp = NULL;
@@ -1023,6 +1023,7 @@ VRViewer::config()
         setFrustumAndView(i);
     }
     assignSceneDataToCameras();
+	getUpdateVisitor()->setTraversalMask(Isect::Update);
 }
 
 //OpenCOVER
@@ -1239,7 +1240,7 @@ VRViewer::createChannels(int i)
         else
         {
             cam->setDrawBuffer(GL_NONE);
-            cam->setReadBuffer(GL_NONE);
+            //cam->setReadBuffer(GL_NONE);
             cam->setInheritanceMask(cam->getInheritanceMask() | osg::CullSettings::NO_VARIABLES | osg::CullSettings::DRAW_BUFFER);
         }
         cam->setCullMask(~0 & ~(Isect::Collision|Isect::Intersection|Isect::NoMirror|Isect::Pick|Isect::Walk|Isect::Touch)); // cull everything that is visible
@@ -1305,6 +1306,7 @@ void VRViewer::forceCompile()
         }
     }
 }
+
 void
 VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool once)
 {
@@ -2416,20 +2418,8 @@ void VRViewer::renderingTraversals()
 
             doneMakeCurrentInThisThread = true;
             makeCurrent(*itr);
-            static int numClears = 0;
-            if (VRViewer::instance()->clearWindow || numClears > 0)
-            {
-                VRViewer::instance()->clearWindow = false;
-                if (numClears == 0)
-                {
-                    numClears = coVRConfig::instance()->numWindows() * 2;
-                }
-                numClears--;
-                auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(*itr);
-                clearGlWindow(!emb);
-                makeCurrent(*itr);
-            }
-            //cerr << "finish" << endl;
+
+            glContextOperation(*itr);
 	    
             double beginFinish = elapsedTime();
             glFinish();
@@ -2562,6 +2552,37 @@ void VRViewer::toggleStatistics()
     ea->setEventType(osgGA::GUIEventAdapter::KEYDOWN);
     ea->setKey(statsHandler->getKeyEventTogglesOnScreenStats());
     statsHandler->handle(*ea, *this);
+}
+
+void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
+{
+    if (clearWindow || numClears > 0)
+    {
+        clearWindow = false;
+        if (numClears == 0)
+        {
+            numClears = coVRConfig::instance()->numWindows() * 2;
+        }
+        --numClears;
+        auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(ctx);
+        clearGlWindow(!emb);
+        ctx->makeCurrent();
+    } // OpenCOVER end
+
+    if (GLEW_NVX_gpu_memory_info)
+    {
+#ifdef GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
+        osg::FrameStamp *frameStamp = getViewerFrameStamp();
+
+        GLint mem=0, obj=0, avail=0;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &obj);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &mem);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &avail);
+        //std::cerr << "AVAIL=" << avail << ", EVICTED " << windowNumber << ": obj=" << obj << ", mem=" << mem << std::endl;
+
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "GPU mem free", avail);
+#endif
+    }
 }
 
 template <typename Cameras, typename F>

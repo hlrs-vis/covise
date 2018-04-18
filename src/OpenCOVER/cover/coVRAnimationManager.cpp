@@ -10,7 +10,6 @@
 
 #include <config/CoviseConfig.h>
 #include "coVRAnimationManager.h"
-#include <OpenVRUI/coTrackerButtonInteraction.h>
 #include "ui/Menu.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -55,7 +54,6 @@ coVRAnimationManager::coVRAnimationManager()
 
     initAnimMenu();
     showAnimMenu(false);
-    animWheelInteraction = new vrui::coTrackerButtonInteraction(vrui::coInteraction::Wheel, "Animation", vrui::coInteraction::Low);
 }
 
 coVRAnimationManager::~coVRAnimationManager()
@@ -96,6 +94,7 @@ void coVRAnimationManager::initAnimMenu()
 
     animToggleItem = new ui::Button(animRowMenu, "Animate");
     animToggleItem->setShortcut("a");
+    animToggleItem->addShortcut(" ");
     animToggleItem->setCallback([this](bool flag){
         if (animRunning != flag)
             enableAnimation(flag);
@@ -104,7 +103,10 @@ void coVRAnimationManager::initAnimMenu()
     animToggleItem->setPriority(ui::Element::Toolbar);
     animToggleItem->setIcon("media-playback-start");
 
-    animFrameItem = new ui::Slider(animRowMenu, "Timestep");
+    animStepGroup = new ui::Group(animRowMenu, "TimestepGroup");
+    animStepGroup->setText("");
+
+    animFrameItem = new ui::Slider(animStepGroup, "Timestep");
     animFrameItem->setText(timestepUnit);
     animFrameItem->setIntegral(true);
     animFrameItem->setBounds(timestepBase, timestepBase);
@@ -116,10 +118,11 @@ void coVRAnimationManager::initAnimMenu()
     });
     animFrameItem->setPriority(ui::Element::Toolbar);
 
-    animBackItem = new ui::Action(animRowMenu, "StepBackward");
+    animBackItem = new ui::Action(animStepGroup, "StepBackward");
     animBackItem->setText("Step backward");
     animBackItem->setShortcut(",");
-    animBackItem->addShortcut("Alt+Button:WheelDown");
+    animBackItem->addShortcut("Shift+Button:WheelDown");
+    animBackItem->addShortcut("Button:WheelLeft");
     animBackItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -128,10 +131,11 @@ void coVRAnimationManager::initAnimMenu()
     animBackItem->setPriority(ui::Element::Toolbar);
     animBackItem->setIcon("media-seek-backward");
 
-    animForwardItem = new ui::Action(animRowMenu, "StepForward");
+    animForwardItem = new ui::Action(animStepGroup, "StepForward");
     animForwardItem->setText("Step forward");
     animForwardItem->setShortcut(".");
-    animForwardItem->addShortcut("Alt+Button:WheelUp");
+    animForwardItem->addShortcut("Shift+Button:WheelUp");
+    animForwardItem->addShortcut("Button:WheelRight");
     animForwardItem->setCallback([this](){
         if (animationRunning())
             enableAnimation(false);
@@ -152,6 +156,31 @@ void coVRAnimationManager::initAnimMenu()
     animSpeedItem->setCallback([this](ui::Slider::ValueType val, bool released){
         setAnimationSpeed(val);
     });
+
+    animLimitGroup = new ui::Group(animRowMenu, "LimitGroup");
+    animLimitGroup->setText("");
+
+    animStartItem = new ui::Slider(animLimitGroup, "StartTimestep");
+    animStartItem->setText("Start timestep");
+    animStartItem->setIntegral(true);
+    animStartItem->setBounds(timestepBase, timestepBase);
+    animStartItem->setValue(timestepBase);
+    animStartItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        if (released)
+            setStartFrame(val);
+    });
+    animStartItem->setPriority(ui::Element::Low);
+
+    animStopItem = new ui::Slider(animLimitGroup, "StopTimestep");
+    animStopItem->setText("Stop timestep");
+    animStopItem->setIntegral(true);
+    animStopItem->setBounds(timestepBase, timestepBase);
+    animStopItem->setValue(timestepBase);
+    animStopItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        if (released)
+            setStopFrame(val);
+    });
+    animStopItem->setPriority(ui::Element::Low);
 }
 
 void coVRAnimationManager::setOscillate(bool state)
@@ -364,20 +393,8 @@ coVRAnimationManager::enableAnimation(bool state)
 bool
 coVRAnimationManager::update()
 {
-
-    if (animWheelInteraction->wasStarted() || animWheelInteraction->isRunning())
-    {
-        if (animationRunning())
-            enableAnimation(false);
-
-        requestAnimationFrame(getAnimationFrame() + animWheelInteraction->getWheelCount());
-        return true;
-    }
-    else
-    {
-        // Set selected animation frame:
-        return updateAnimationFrame();
-    }
+    // Set selected animation frame:
+    return updateAnimationFrame();
 
 #if 0
    // rotate world menu button is checked
@@ -416,26 +433,15 @@ void coVRAnimationManager::setNumTimesteps(int t)
     {
         animFrameItem->setBounds(timestepBase, timestepBase + (numFrames - 1) * timestepScale);
         //animFrameItem->setNumTicks(numFrames - 1);
+        animStartItem->setBounds(timestepBase, timestepBase + (numFrames - 1) * timestepScale);
+        animStopItem->setBounds(timestepBase, timestepBase + (numFrames - 1) * timestepScale);
     }
 
     if (startFrame >= numFrames)
         startFrame = 0;
+    animStartItem->setValue(startFrame);
     stopFrame = numFrames - 1;
-
-    if (numFrames > 1)
-    {
-        if (!animWheelInteraction->isRegistered())
-        {
-            vrui::coInteractionManager::the()->registerInteraction(animWheelInteraction);
-        }
-    }
-    else
-    {
-        if (animWheelInteraction->isRegistered())
-        {
-            vrui::coInteractionManager::the()->unregisterInteraction(animWheelInteraction);
-        }
-    }
+    animStopItem->setValue(startFrame);
 }
 
 void coVRAnimationManager::showAnimMenu(bool visible)
@@ -446,6 +452,8 @@ void coVRAnimationManager::showAnimMenu(bool visible)
     animForwardItem->setEnabled(visible);
     animBackItem->setEnabled(visible);
     animFrameItem->setEnabled(visible);
+    animStartItem->setEnabled(visible);
+    animStopItem->setEnabled(visible);
 }
 
 void
@@ -509,6 +517,10 @@ void coVRAnimationManager::setStartFrame(int frame)
         startFrame = 0;
     if (startFrame > stopFrame)
         stopFrame = startFrame;
+    if (animStartItem->value() != startFrame)
+        animStartItem->setValue(startFrame);
+    if (animStopItem->value() != stopFrame)
+        animStopItem->setValue(stopFrame);
 }
 
 int coVRAnimationManager::getStartFrame() const
@@ -525,6 +537,10 @@ void coVRAnimationManager::setStopFrame(int frame)
         stopFrame = 0;
     if (startFrame > stopFrame)
         startFrame = stopFrame;
+    if (animStartItem->value() != startFrame)
+        animStartItem->setValue(startFrame);
+    if (animStopItem->value() != stopFrame)
+        animStopItem->setValue(stopFrame);
 }
 
 int coVRAnimationManager::getStopFrame() const
@@ -618,7 +634,11 @@ void coVRAnimationManager::setTimestepBase(double base)
     bool integer = (timestepBase == static_cast<int>(timestepBase))
                    && (timestepScale == static_cast<int>(timestepScale));
     animFrameItem->setIntegral(integer);
+    animStartItem->setIntegral(integer);
+    animStopItem->setIntegral(integer);
     animFrameItem->setBounds(timestepBase, timestepBase + (getNumTimesteps() - 1) * timestepScale);
+    animStartItem->setBounds(timestepBase, timestepBase + (getNumTimesteps() - 1) * timestepScale);
+    animStopItem->setBounds(timestepBase, timestepBase + (getNumTimesteps() - 1) * timestepScale);
 }
 
 void coVRAnimationManager::setTimestepScale(double scale)
@@ -627,7 +647,11 @@ void coVRAnimationManager::setTimestepScale(double scale)
     bool integer = (timestepBase == static_cast<int>(timestepBase))
                    && (timestepScale == static_cast<int>(timestepScale));
     animFrameItem->setIntegral(integer);
+    animStartItem->setIntegral(integer);
+    animStopItem->setIntegral(integer);
     animFrameItem->setBounds(1, timestepBase + (getNumTimesteps() - 1) * timestepScale);
+    animStartItem->setBounds(1, timestepBase + (getNumTimesteps() - 1) * timestepScale);
+    animStopItem->setBounds(1, timestepBase + (getNumTimesteps() - 1) * timestepScale);
 }
 
 std::string coVRAnimationManager::getTimestepUnit() const

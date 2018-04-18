@@ -662,7 +662,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         if (p_kombi->getButtonState() & KI::Button_Sport && !(oldButtonState & KI::Button_Sport))
         {
             sharedState.SportMode = (!sharedState.SportMode);
-			//std::cout << "sport mode" << sharedState.SportMode << std::endl;
+			std::cout << "sport mode" << sharedState.SportMode << std::endl;
         }
         if (p_kombi->getButtonState() & KI::Button_PSM && !(oldButtonState & KI::Button_PSM))
         {
@@ -677,7 +677,7 @@ p_klsm->p_CANProv->GW_SVB_D.values.canmsg.cansignals.SVB_GRA_D = 0;
         if (p_kombi->getButtonState() & KI::Button_Damper && !(oldButtonState & KI::Button_Damper))
         {
             sharedState.DamperState = (!sharedState.DamperState);
-			//std::cout << "damper" << sharedState.DamperState << std::endl;
+			std::cout << "damper" << sharedState.DamperState << std::endl;
             if (vehicleDynamics)
             {
                 vehicleDynamics->setSportDamper(sharedState.DamperState);

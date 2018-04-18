@@ -5,9 +5,9 @@
 
  * License: LGPL 2+ */
 
+#include "SteeringWheel.h"
 #include "InputDevice.h"
 
-#include "SteeringWheel.h"
 #include "CAN.h"
 #include "Keyboard.h"
 #include "PorscheController.h"
@@ -15,6 +15,12 @@
 #include "EinspurDynamik.h"
 #include "HLRSRealtimeDynamics.h"
 #ifdef __XENO__
+#include <VehicleUtil/GasPedal.h>
+#include <VehicleUtil/KI.h>
+#include <VehicleUtil/KLSM.h>
+#include <VehicleUtil/Klima.h>
+#include <VehicleUtil/Beckhoff.h>
+#include <VehicleUtil/IgnitionLock.h>
 #ifdef HAVE_CARDYNAMICSCGA
 #include "CarDynamicsCGARealtime.h"
 #endif

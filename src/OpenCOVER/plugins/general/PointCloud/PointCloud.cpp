@@ -23,6 +23,14 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
+
+#include <OpenVRUI/coButtonInteraction.h>
+#include <cover/coVRShader.h>
+#include <PluginUtil/PluginMessageTypes.h>
+
 // OSG:
 #include <osg/Node>
 #include <osg/Group>
@@ -43,15 +51,19 @@
 using namespace osg;
 using namespace std;
 using covise::coCoviseConfig;
+using vrui::coInteraction;
 
 const int MAX_POINTS = 30000000;
 
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
+PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
+
 
 COVERPLUGIN(PointCloudPlugin)
 
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
+: ui::Owner("PointCloud",cover->ui)
 {
 }
 
@@ -103,6 +115,56 @@ bool PointCloudPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[3]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[4]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[5]);
+
+    //Create main menu button
+    pointCloudMenu = new ui::Menu("PointCloudMenu",this);
+    pointCloudMenu->setText("Point cloud");
+
+    // Create menu
+    char name[100];
+#if 0
+    sprintf(name, "PointCloudFiles");
+    fileGroup = new ui::Group(pointCloudMenu, name);
+    sprintf(name, "Files");
+    fileGroup->setText(name);
+#endif
+
+    loadMenu = new ui::Menu(pointCloudMenu,"Load");
+    //loadGroup = new ui::Group("Load", loadMenu);
+    //deleteButton = new ui::Button(fileGroup,"Delete");
+    selectionGroup = new ui::Group(pointCloudMenu,"Selection");
+    selectionButtonGroup = new ui::ButtonGroup(selectionGroup, "SelectionGroup");
+    selectionButtonGroup->enableDeselect(true);
+    singleSelectButton = new ui::Button(selectionGroup, "SelectPoints", selectionButtonGroup);
+    singleSelectButton->setText("Select Points");
+    singleSelectButton->setCallback([this](bool state){
+        if (state)
+        {
+            //enable interaction
+            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+        }
+        else
+        {
+            vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+        } 
+    });
+    deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
+    deselectButton->setText("Deselect Points");
+    deselectButton->setCallback([this](bool state){
+        if (state)
+        {
+        //enable interaction
+        vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+        s_pointCloudInteractor->setDeselection(true);
+        }
+        else
+        {
+        vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+        s_pointCloudInteractor->setDeselection(false);
+        }
+    });
+
+/*
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");
     imanPluginInstanceMenuItem->setMenuListener(this);
@@ -125,17 +187,17 @@ bool PointCloudPlugin::init()
     deleteMenuItem = new coButtonMenuItem("Delete");
     imanPluginInstanceMenu->add(deleteMenuItem);
     deleteMenuItem->setMenuListener(this);
-
+*/
     //imanPluginInstanceDrawable = NULL;
     //imanPluginInstanceNode = NULL;
     planetTrans = new MatrixTransform();
     osg::Matrix mat;
     mat.makeIdentity();
-    float scale = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.Scale", 1000);
+    float scale = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.Scale", 1);
     float x = coCoviseConfig::getFloat("x", "COVER.Plugin.PointCloud.Translation", 0);
     float y = coCoviseConfig::getFloat("y", "COVER.Plugin.PointCloud.Translation", 0);
-    float z = coCoviseConfig::getFloat("z", "COVER.Plugin.PointCloud.Translation", -1840);
-    adaptLOD = coCoviseConfig::isOn("COVER.Plugin.PointCloud.AdaptLOD", true);
+    float z = coCoviseConfig::getFloat("z", "COVER.Plugin.PointCloud.Translation", 0);
+    adaptLOD = coCoviseConfig::isOn("COVER.Plugin.PointCloud.AdaptLOD", adaptLOD);
     mat.makeScale(scale, scale, scale);
     mat.setTrans(Vec3(x, y, z));
     planetTrans->setMatrix(mat);
@@ -147,11 +209,47 @@ bool PointCloudPlugin::init()
     pointSet = NULL;
 
     //read in menu data
-    readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, *loadMenu);
+    readMenuConfigData("COVER.Plugin.PointCloud.Files", pointVec, loadMenu);
 
-    PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
-    PCTab->setPos(0, 0);
 
+    //PCTab = new coTUITab("PointCloud", coVRTui::instance()->mainFolder->getID());
+    //PCTab->setPos(0, 0);
+
+    //viewGroup = new ui::Group(pointCloudMenu,"PCView");
+    adaptLODButton = new ui::Button(pointCloudMenu,"adaptLOD");
+    adaptLODButton->setState(adaptLOD);
+    adaptLODButton->setText("Adapt level of detail");
+    adaptLODButton->setCallback([this](bool state){
+        adaptLOD = state;
+        if (!adaptLOD)
+        {
+            changeAllLOD(lodScale);
+        }
+    });
+
+    pointSizeSlider = new ui::Slider(pointCloudMenu, "pointSize");
+    pointSizeSlider->setText("Point size");
+    pointSizeSlider->setBounds(1.0,10.0);
+    pointSizeSlider->setValue(pointSizeValue);
+    pointSizeSlider->setCallback([this](double value, bool released){
+        pointSizeValue = value;
+        changeAllPointSize(pointSizeValue);
+    });
+
+    auto lodScaleSlider = new ui::Slider(pointCloudMenu, "lodScale");
+    lodScaleSlider->setText("LOD scale");
+    lodScaleSlider->setBounds(0.01, 100.);
+    lodScaleSlider->setValue(1.);
+    lodScaleSlider->setScale(ui::Slider::Logarithmic);
+    lodScaleSlider->setCallback([this](double value, bool released){
+        lodScale = value;
+        if (!adaptLOD)
+        {
+            changeAllLOD(lodScale);
+        }
+    });
+
+/*
     adaptLODTui = new coTUIToggleButton("adaptLOD", PCTab->getID());
     adaptLODTui->setEventListener(this);
     adaptLODTui->setState(adaptLOD);
@@ -167,6 +265,9 @@ bool PointCloudPlugin::init()
     adaptLODTui->setPos(0, 0);
     pointSizeLabel->setPos(0, 1);
     pointSizeTui->setPos(1, 1);
+    */
+
+    PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
 
     return true;
 }
@@ -174,7 +275,6 @@ bool PointCloudPlugin::init()
 /// Destructor
 PointCloudPlugin::~PointCloudPlugin()
 {
-
 
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
 	coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
@@ -190,46 +290,24 @@ PointCloudPlugin::~PointCloudPlugin()
         cover->getObjectsRoot()->removeChild(planetTrans);
     planetTrans = NULL;
 
-    delete imanPluginInstanceMenuItem;
+/*    delete imanPluginInstanceMenuItem;
     delete imanPluginInstanceMenu;
     delete loadMenuItem;
     delete loadMenu;
+*/
     //clean up TUI
-    delete PCTab;
-    delete adaptLODTui;
-
+    //delete PCTab;
+    //delete adaptLODTui;
+    
+    delete PointCloudPlugin::s_pointCloudInteractor;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
         delete itEntry->fileMenuItem;
     }
-    delete deleteMenuItem;
+    //delete deleteMenuItem;
 }
 
-void PointCloudPlugin::tabletEvent(coTUIElement *tUIItem)
-{
-    if (tUIItem == adaptLODTui)
-    {
-        adaptLOD = adaptLODTui->getState();
-	for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
-    {
-        //TODO calc distance correctly
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
-        {
-
-            if (!adaptLOD)
-            {
-                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(1.0);
-            }
-        }
-    }
-    }
-    if (tUIItem == pointSizeTui)
-    {
-        pointSizeValue = pointSizeTui->getValue();
-    }
-    
-}
 int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, const char *)
 {
     std::string filen;
@@ -242,21 +320,9 @@ int PointCloudPlugin::loadPTS(const char *filename, osg::Group *loadParent, cons
     return 1;
 }
 
-void PointCloudPlugin::menuEvent(coMenuItem *menuItem)
-{
-    if (menuItem == deleteMenuItem)
-    {
-        clearData();
-    }
-    else
-    {
-        // see if a menu item was selected
-        selectedMenuButton(menuItem);
-    }
-}
 
 // read in and store the menu data from the configuration file
-void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, coRowMenu &subMenu)
+void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntry> &menulist, ui::Group *subMenu)
 {
     coCoviseConfig::ScopeEntries e = coCoviseConfig::getScopeEntries(menu);
     const char **entries = e.getValue();
@@ -270,18 +336,45 @@ void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntr
             entries++;
             if (fileName && menuName)
             {
+                std::string filename= fileName;
                 //create button and append it to the submenu
-                coButtonMenuItem *temp = new coButtonMenuItem(menuName);
-                subMenu.add(temp);
-                temp->setMenuListener(this);
-                menulist.push_back(ImageFileEntry(menuName, fileName, (coMenuItem *)temp));
+                ui::Button *temp = new ui::Button(subMenu, fileName);
+                temp->setCallback([this, filename](bool state){
+                    if (state)
+                        createGeodes(planetTrans, filename);
+                });
+                menulist.push_back(ImageFileEntry(menuName, fileName, (ui::Element *)temp));
             }
         }
     }
 }
 
+void PointCloudPlugin::changeAllLOD(float lod)
+{
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    {
+        //TODO calc distance correctly
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        {
+            ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(lod);
+        }
+    }
+}
+
+void PointCloudPlugin::changeAllPointSize(float pointSize)
+{
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    {
+        //TODO calc distance correctly
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        {
+            ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->setPointSize(pointSize);
+        }
+    }
+}
+
 // create and add geodes to the scene  //DEFAULT JUST LOADS New_10x10x10.xyz  //UPDATE will be using the menu
-void PointCloudPlugin::createGeodes(Group *parent, string &filename)
+void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 {
     opencover::coVRShader *pointShader = opencover::coVRShaderList::instance()->get("Points");
     const char *cfile = filename.c_str();
@@ -296,72 +389,75 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
         pointSetSize = 0;
         intensityScale = 10;
         char buf[1000];
-        if (fp)
+        if (!fp)
         {
+            cout << "Error opening file" << endl;
+            return;
+        }
 
-            int psize = 0;
-            int numHeaderLines = 0;
-            while (!feof(fp))
+        int psize = 0;
+        int numHeaderLines = 0;
+        while (!feof(fp))
+        {
+            if (!fgets(buf, 1000, fp))
             {
-                if (!fgets(buf, 1000, fp))
-                {
-                    fprintf(stderr, "failed to get line\n");
-                }
-                if (buf[0] == '#')
-                {
-                    if (strstr(buf, "intensityOnly") != NULL)
-                    {
-                        intensityOnly = true;
-                        fprintf(stderr, "intensityOnly\n");
-                    }
-                    const char *intensityString;
-                    if ((intensityString = strstr(buf, "intensityScale")) != NULL)
-                    {
-                        sscanf(intensityString+14,"%f",&intensityScale);
-                        fprintf(stderr, "intensityScale %f\n",intensityScale);
-                    }
-                    if (strstr(buf, "intColor") != NULL)
-                    {
-                        intColor = true;
-                        fprintf(stderr, "intColor\n");
-                    }
-                    if (strstr(buf, "polar") != NULL)
-                    {
-                        polar = true;
-                        fprintf(stderr, "polar\n");
-                    }
-                    if (strstr(buf, "commaSeparated") != NULL)
-                    {
-                        commaSeparated = true;
-                        fprintf(stderr, "commaSeparated\n");
-                    }
-                    numHeaderLines++;
-                }
-                else if (strstr(buf, "Lattice=") == buf)
-                {
-                    imwfLattice = true;
-                    fprintf(stderr, "IMWF lattice - rename file to .indent and use Particles plug-in\n");
-                    numHeaderLines = 2;
-                }
-                else
-                    psize++;
+                fprintf(stderr, "failed to get line\n");
             }
-            fseek(fp, 0, SEEK_SET);
-            for (int i = 0; i < numHeaderLines; i++)
+            if (buf[0] == '#')
             {
-                if (!fgets(buf, 1000, fp))
+                if (strstr(buf, "intensityOnly") != NULL)
                 {
-                    fprintf(stderr, "failed to get header line %d\n", i);
+                    intensityOnly = true;
+                    fprintf(stderr, "intensityOnly\n");
                 }
+                const char *intensityString;
+                if ((intensityString = strstr(buf, "intensityScale")) != NULL)
+                {
+                    sscanf(intensityString+14,"%f",&intensityScale);
+                    fprintf(stderr, "intensityScale %f\n",intensityScale);
+                }
+                if (strstr(buf, "intColor") != NULL)
+                {
+                    intColor = true;
+                    fprintf(stderr, "intColor\n");
+                }
+                if (strstr(buf, "polar") != NULL)
+                {
+                    polar = true;
+                    fprintf(stderr, "polar\n");
+                }
+                if (strstr(buf, "commaSeparated") != NULL)
+                {
+                    commaSeparated = true;
+                    fprintf(stderr, "commaSeparated\n");
+                }
+                numHeaderLines++;
             }
+            else if (strstr(buf, "Lattice=") == buf)
+            {
+                imwfLattice = true;
+                fprintf(stderr, "IMWF lattice - rename file to .indent and use Particles plug-in\n");
+                numHeaderLines = 2;
+            }
+            else
+                psize++;
+        }
+        fseek(fp, 0, SEEK_SET);
+        for (int i = 0; i < numHeaderLines; i++)
+        {
+            if (!fgets(buf, 1000, fp))
+            {
+                fprintf(stderr, "failed to get header line %d\n", i);
+            }
+        }
 
-            cerr << "Total num of points is " << psize << endl;
-            pointSet = new PointSet[1];
+        cerr << "Total num of points is " << psize << endl;
+        pointSet = new PointSet[1];
 
-            pointSet[0].colors = new Color[psize];
-            pointSet[0].points = new ::Point[psize];
-            pointSet[0].size = psize;
-            /*int partSize = psize/64;
+        pointSet[0].colors = new Color[psize];
+        pointSet[0].points = new ::Point[psize];
+        pointSet[0].size = psize;
+        /*int partSize = psize/64;
          int i=0;
          int n=0;
          int s=0;
@@ -377,109 +473,107 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                n=s;
             }
          }*/
-            int i = 0;
-            while (!feof(fp))
+        int i = 0;
+        while (!feof(fp))
+        {
+            if (!fgets(buf, 1000, fp))
             {
-                if (!fgets(buf, 1000, fp))
+                fprintf(stderr, "failed 2 to get line\n");
+            }
+            if (imwfLattice)
+            {
+                int id=0;
+                char type[1000];
+                float dummy=0.f;
+                int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
+                pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
+            }
+            else if (commaSeparated)
+            {
+                int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r);
+                if (numValues == 4)
                 {
-                    fprintf(stderr, "failed 2 to get line\n");
-                }
-                if (imwfLattice)
-                {
-                    int id=0;
-                    char type[1000];
-                    float dummy=0.f;
-                    int numValues = sscanf(buf, "%d %s %f %f %f %f", &id, type, &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &dummy);
-                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
-                }
-                else if (commaSeparated)
-                {
-                    int numValues = sscanf(buf, "%f,%f,%f,%f", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r);
-                    if (numValues == 4)
-                    {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
-                    }
-                    else
-                    {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
-                    }
-                }
-                else if (intensityOnly)
-                {
-                    float intensity;
-                    int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
-                    if (numValues == 7)
-                    {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
-                    }
-                    else
-                    {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * intensityScale;
-                    }
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
                 }
                 else
                 {
-                    int numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
-                    if (numValues < 6)
-                    {
-                        pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
-                    }
-                    if (intColor)
-                    {
-                        pointSet[0].colors[i].g /= 255;
-                        pointSet[0].colors[i].b /= 255;
-                        pointSet[0].colors[i].r /= 255;
-                    }
-
-                    if (numValues < 3) // invalid coordinate
-                        i--;
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = 1.0;
                 }
-
-                i++;
             }
-            psize = i;
-            pointSet[0].size = psize;
-            cerr << "Total num of valid points is " << psize << endl;
-
-            if (polar)
+            else if (intensityOnly)
             {
-                for (int i = 0; i < psize; i++)
+                float intensity;
+                int numValues = sscanf(buf, "%f %f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b, &intensity);
+                if (numValues == 7)
                 {
-                    // convert to cartesian
-                    float vx = sin(pointSet[0].points[i].x) * cos(pointSet[0].points[i].y);
-                    float vy = sin(pointSet[0].points[i].x) * sin(pointSet[0].points[i].y);
-                    float vz = cos(pointSet[0].points[i].x);
-                    pointSet[0].points[i].x = vx * pointSet[0].points[i].z;
-                    pointSet[0].points[i].y = vy * pointSet[0].points[i].z;
-                    pointSet[0].points[i].z = vz * pointSet[0].points[i].z;
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r = intensity * intensityScale;
+                }
+                else
+                {
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r * intensityScale;
                 }
             }
-
-            fileInfo fi;
-            fi.pointSetSize = pointSetSize;
-            fi.pointSet = pointSet;
-
-            //create drawable and geode and add to the scene (make sure the cube is not empty)
-            if (pointSet[0].size != 0)
+            else
             {
-                PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[0]);
-                drawable->changeLod(1.0);
-                Geode *currentGeode = new Geode();
-                currentGeode->addDrawable(drawable);
-                currentGeode->setName(filename);
-                parent->addChild(currentGeode);
-                nodeInfo ni;
-                ni.node = currentGeode;
-                fi.nodes.push_back(ni);
-                if (pointShader)
-                    pointShader->apply(currentGeode, drawable);
+                int numValues = sscanf(buf, "%f %f %f %f %f %f,", &pointSet[0].points[i].x, &pointSet[0].points[i].y, &pointSet[0].points[i].z, &pointSet[0].colors[i].r, &pointSet[0].colors[i].g, &pointSet[0].colors[i].b);
+                if (numValues < 6)
+                {
+                    pointSet[0].colors[i].g = pointSet[0].colors[i].b = pointSet[0].colors[i].r;
+                }
+                if (intColor)
+                {
+                    pointSet[0].colors[i].g /= 255;
+                    pointSet[0].colors[i].b /= 255;
+                    pointSet[0].colors[i].r /= 255;
+                }
+
+                if (numValues < 3) // invalid coordinate
+                    i--;
             }
-            files.push_back(fi);
-            cerr << "closing the file" << endl;
-            fclose(fp);
-            return;
+
+            i++;
         }
-        cout << "Error opening file" << endl;
+        psize = i;
+        pointSet[0].size = psize;
+        cerr << "Total num of valid points is " << psize << endl;
+
+        if (polar)
+        {
+            for (int i = 0; i < psize; i++)
+            {
+                // convert to cartesian
+                float vx = sin(pointSet[0].points[i].x) * cos(pointSet[0].points[i].y);
+                float vy = sin(pointSet[0].points[i].x) * sin(pointSet[0].points[i].y);
+                float vz = cos(pointSet[0].points[i].x);
+                pointSet[0].points[i].x = vx * pointSet[0].points[i].z;
+                pointSet[0].points[i].y = vy * pointSet[0].points[i].z;
+                pointSet[0].points[i].z = vz * pointSet[0].points[i].z;
+            }
+        }
+
+        FileInfo fi;
+        fi.pointSetSize = pointSetSize;
+        fi.pointSet = pointSet;
+
+        //create drawable and geode and add to the scene (make sure the cube is not empty)
+        if (pointSet[0].size != 0)
+        {
+            PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[0]);
+            drawable->changeLod(lodScale);
+            drawable->setPointSize(pointSizeValue);
+            Geode *currentGeode = new Geode();
+            currentGeode->addDrawable(drawable);
+            currentGeode->setName(filename);
+            parent->addChild(currentGeode);
+            NodeInfo ni;
+            ni.node = currentGeode;
+            fi.nodes.push_back(ni);
+            if (pointShader)
+                pointShader->apply(currentGeode, drawable);
+        }
+        files.push_back(fi);
+        cerr << "closing the file" << endl;
+        fclose(fp);
         return;
     }
     else if (strcasecmp(cfile + strlen(cfile) - 3, "c2m") == 0)
@@ -496,7 +590,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
         {
             cerr << "Total num of sets is " << pointSetSize << endl;
             pointSet = new PointSet[pointSetSize];
-            fileInfo fi;
+            FileInfo fi;
             fi.pointSetSize = pointSetSize;
             fi.pointSet = pointSet;
             for (int i = 0; i < pointSetSize; i++)
@@ -525,12 +619,13 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
                 if (pointSet[i].size != 0)
                 {
                     PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[i]);
-                    drawable->changeLod(1.0);
+                    drawable->changeLod(lodScale);
+                    drawable->setPointSize(pointSizeValue);
                     Geode *currentGeode = new Geode();
                     currentGeode->addDrawable(drawable);
                     currentGeode->setName(filename);
                     parent->addChild(currentGeode);
-                    nodeInfo ni;
+                    NodeInfo ni;
                     ni.node = currentGeode;
                     fi.nodes.push_back(ni);
                 }
@@ -564,7 +659,7 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
 			e57::Data3D		scanHeader;
 			cerr << "Total num of sets is " << data3DCount << endl;
 			pointSet = new PointSet[data3DCount];
-			fileInfo fi;
+			FileInfo fi;
 			fi.pointSetSize = data3DCount;
 			fi.pointSet = pointSet;
 			for (int scanIndex = 0; scanIndex < data3DCount; scanIndex++)
@@ -764,12 +859,13 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
 				if (pointSet[scanIndex].size != 0)
 				{
 					PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[scanIndex]);
-					drawable->changeLod(1.0);
-					Geode *currentGeode = new Geode();
+                    drawable->changeLod(lodScale);
+                    drawable->setPointSize(pointSizeValue);
+                    Geode *currentGeode = new Geode();
 					currentGeode->addDrawable(drawable);
 					currentGeode->setName(filename);
 					parent->addChild(currentGeode);
-					nodeInfo ni;
+					NodeInfo ni;
 					ni.node = currentGeode;
 					fi.nodes.push_back(ni);
 				}
@@ -804,66 +900,133 @@ void PointCloudPlugin::createGeodes(Group *parent, string &filename)
 
         pointSetSize = 0;
 
-        if (file.is_open())
+        if (!file.is_open())
         {
-            file.read((char *)&pointSetSize, sizeof(int));
-            cerr << "Total num of sets is " << pointSetSize << endl;
-            pointSet = new PointSet[pointSetSize];
-            fileInfo fi;
-            fi.pointSetSize = pointSetSize;
-            fi.pointSet = pointSet;
-            for (int i = 0; i < pointSetSize; i++)
-            {
-                int psize;
-                file.read((char *)&psize, sizeof(psize));
-                pointSet[i].colors = new Color[psize];
-                pointSet[i].points = new ::Point[psize];
-                pointSet[i].size = psize;
-
-                // read point data
-                file.read((char *)(pointSet[i].points), (sizeof(::Point) * psize));
-                //read color data
-                uint32_t *pc = new uint32_t[psize];
-                file.read((char *)(pc), (sizeof(uint32_t) * psize));
-                for (int n = 0; n < psize; n++)
-                {
-                    pointSet[i].colors[n].r = (pc[n] & 0xff) / 255.0;
-                    pointSet[i].colors[n].g = ((pc[n] >> 8) & 0xff) / 255.0;
-                    pointSet[i].colors[n].b = ((pc[n] >> 16) & 0xff) / 255.0;
-                }
-                delete[] pc;
-
-                //create drawable and geode and add to the scene (make sure the cube is not empty)
-
-                if (pointSet[i].size != 0)
-                {
-                    PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[i]);
-                    drawable->changeLod(1.0);
-                    Geode *currentGeode = new Geode();
-                    currentGeode->addDrawable(drawable);
-                    currentGeode->setName(filename);
-                    parent->addChild(currentGeode);
-                    nodeInfo ni;
-                    ni.node = currentGeode;
-                    fi.nodes.push_back(ni);
-                }
-            }
-            files.push_back(fi);
-            cerr << "closing the file" << endl;
-            file.close();
+            cerr << "Error opening file" << endl;
             return;
         }
-        cout << "Error opening file" << endl;
+
+        file.read((char *)&pointSetSize, sizeof(int));
+        cerr << "Total num of sets is " << pointSetSize << endl;
+        pointSet = new PointSet[pointSetSize];
+        FileInfo fi;
+        fi.pointSetSize = pointSetSize;
+        fi.pointSet = pointSet;
+        for (int i = 0; i < pointSetSize; i++)
+        {
+            int psize;
+            file.read((char *)&psize, sizeof(psize));
+            pointSet[i].colors = new Color[psize];
+            pointSet[i].points = new ::Point[psize];
+            pointSet[i].size = psize;
+
+            // read point data
+            file.read((char *)(pointSet[i].points), (sizeof(::Point) * psize));
+            //read color data
+            uint32_t *pc = new uint32_t[psize];
+            file.read((char *)(pc), (sizeof(uint32_t) * psize));
+            for (int n = 0; n < psize; n++)
+            {
+                pointSet[i].colors[n].r = (pc[n] & 0xff) / 255.0;
+                pointSet[i].colors[n].g = ((pc[n] >> 8) & 0xff) / 255.0;
+                pointSet[i].colors[n].b = ((pc[n] >> 16) & 0xff) / 255.0;
+            }
+            delete[] pc;
+
+            if (pointSet[i].size >0)
+            {
+                pointSet[i].xmax = pointSet[i].xmin = pointSet[i].points[0].x;
+                pointSet[i].ymax = pointSet[i].ymin = pointSet[i].points[0].y;
+                pointSet[i].zmax = pointSet[i].zmin = pointSet[i].points[0].z;
+
+                if (pointSet[i].size >1)
+                {
+                    for (int k=1; k<pointSet[i].size; k++)
+                    {
+                        if(pointSet[i].points[k].x<pointSet[i].xmin)
+                            pointSet[i].xmin= pointSet[i].points[k].x;
+                        else if (pointSet[i].points[k].x>pointSet[i].xmax)
+                            pointSet[i].xmax= pointSet[i].points[k].x;
+
+                        if(pointSet[i].points[k].y<pointSet[i].ymin)
+                            pointSet[i].ymin= pointSet[i].points[k].y;
+                        else if (pointSet[i].points[k].y>pointSet[i].ymax)
+                            pointSet[i].ymax= pointSet[i].points[k].y;
+
+                        if(pointSet[i].points[k].z<pointSet[i].zmin)
+                            pointSet[i].zmin= pointSet[i].points[k].z;
+                        else if (pointSet[i].points[k].z> pointSet[i].zmax)
+                            pointSet[i].zmax= pointSet[i].points[k].z;
+                    }
+                }
+            }
+
+            //create drawable and geode and add to the scene (make sure the cube is not empty)
+
+            if (pointSet[i].size != 0)
+            {
+                PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[i]);
+                drawable->changeLod(lodScale);
+                drawable->setPointSize(pointSizeValue);
+                Geode *currentGeode = new Geode();
+                currentGeode->addDrawable(drawable);
+                currentGeode->setName(filename);
+                parent->addChild(currentGeode);
+                NodeInfo ni;
+                ni.node = currentGeode;
+                fi.nodes.push_back(ni);
+            }
+        }
+        uint32_t version;
+        file.read((char *)&version,sizeof(uint32_t));
+        bool readScannerPositions = false;
+        if (file.good() && !file.eof())
+            readScannerPositions= true;
+        if (readScannerPositions)
+        {
+            //read Scanner positions
+
+            cerr << "Version " << (version) << endl;
+            uint32_t numPositions;
+            file.read((char *)&numPositions, sizeof(uint32_t));
+            for (int i=0; i!=numPositions; i++)
+            {
+                ScannerPosition pos;
+                pos.type = 0;
+                file.read((char *)&pos.ID, sizeof(uint32_t));
+                file.read((char *)&pos.point._v, sizeof(float) * 3);
+                positions.push_back(pos);
+                //cerr << "Scannerposition " << pos.ID << " x: " << pos.point.x() << " y: " << pos.point.y() << " z: " << pos.point.z() << endl;
+            }
+
+            uint32_t size;
+            file.read((char *)&size, sizeof(uint32_t));
+            cerr << "Total num of sets with scanner position is " << (size) << endl;
+            for (uint32_t i = 0; i < size; i++)
+            {
+                unsigned int psize;
+                file.read((char *)&psize, sizeof(psize));
+                printf("Size of set %d is %d\n", i, psize);
+                // read position ID data
+                size_t numP = psize;
+                pointSet[i].IDs = new uint32_t[psize];
+                file.read((char *)(pointSet[i].IDs), (sizeof(uint32_t) * psize));
+            }
+        }
+        files.push_back(fi);
+        cerr << "closing the file" << endl;
+        file.close();
+        s_pointCloudInteractor->updatePoints(&files);
         return;
     }
 }
 int PointCloudPlugin::unloadFile(std::string filename)
 {
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         if (fit->filename == filename)
         {
-            for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+            for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
             {
                 if (nit->node->getNumParents() > 0)
                     nit->node->getParent(0)->removeChild(nit->node);
@@ -896,9 +1059,9 @@ int PointCloudPlugin::unloadPTS(const char *filename, const char *)
 //remove currently loaded data and free up any memory that has been allocated
 void PointCloudPlugin::clearData()
 {
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             if (nit->node->getNumParents() > 0)
                 nit->node->getParent(0)->removeChild(nit->node);
@@ -920,7 +1083,7 @@ void PointCloudPlugin::clearData()
 }
 
 //used to handle new menu items in pointset lists
-void PointCloudPlugin::selectedMenuButton(coMenuItem *menuItem)
+void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
 {
     string filename;
 
@@ -939,14 +1102,14 @@ void PointCloudPlugin::selectedMenuButton(coMenuItem *menuItem)
     }
 }
 
-// need to define because abstract
-void PointCloudPlugin::potiValueChanged(float, float, coValuePoti *, int)
-{
-}
-
 /// Called before each frame
 void PointCloudPlugin::preFrame()
 {
+    //resize the speheres of selected and preview points
+    s_pointCloudInteractor->resize();
+
+    if (!adaptLOD)
+        return;
 
     //translate viewer position into object space
     //vecBase = (cover->getViewerMat() * Matrix::inverse(CUI::computeLocal2Root(cover->getObjectsRoot()))).getTrans();
@@ -959,10 +1122,10 @@ void PointCloudPlugin::preFrame()
     // level of detail
     float levelOfDetail = 0.4;
 
-    for (std::list<fileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
+    for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
     {
         //TODO calc distance correctly
-        for (std::list<nodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
+        for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
             osg::Matrix tr;
             tr.makeIdentity();
@@ -1010,7 +1173,7 @@ void PointCloudPlugin::preFrame()
 
             if (adaptLOD)
             {
-                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(levelOfDetail);
+                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(levelOfDetail * lodScale);
             }
         }
     }
@@ -1019,4 +1182,12 @@ void PointCloudPlugin::preFrame()
 /// Called after each frame
 void PointCloudPlugin::postFrame()
 {
+}
+
+void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
+{
+    if (type == PluginMessageTypes::PointCloudSurfaceMsg)
+    {
+
+    }
 }

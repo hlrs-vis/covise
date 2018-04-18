@@ -153,16 +153,17 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *)
 {
     //fprintf(stderr, "----Vrml97Plugin::loadVrml %s\n", filename);
-    fprintf(stderr, "Loding VRML %s\n", filename);
+    fprintf(stderr, "Loading VRML %s\n", filename);
     if (plugin->vrmlScene)
     {
-        VrmlMFString url((char *)filename);
+        VrmlMFString url(filename);
         if (group)
             plugin->viewer->setRootNode(group);
         else
             plugin->viewer->setRootNode(cover->getObjectsRoot());
         plugin->vrmlScene->clearRelativeURL();
         plugin->vrmlScene->loadUrl(&url, NULL, false);
+
 
         //allow plugin to unregister
         VRRegisterSceneGraph::instance()->unregisterNode(getRegistrationRoot(), "root");
@@ -171,7 +172,12 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
     }
     else
     {
-        plugin->vrmlScene = new VrmlScene(filename, filename);
+        const char *local = NULL;
+        Doc url(filename);
+        std::string proto = url.urlProtocol();
+        if (proto.empty() || proto=="file")
+            local = filename;
+        plugin->vrmlScene = new VrmlScene(filename, local);
         if (group)
             plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
         else
@@ -667,23 +673,18 @@ Vrml97Plugin::key(int type, int keySym, int mod)
     }
 }
 
-void Vrml97Plugin::message(int type, int len, const void *buf)
+void Vrml97Plugin::message(int toWhom, int type, int len, const void *buf)
 {
-    int headerSize = 2 * sizeof(int);
-    const char *header = (const char *)buf;
-    header -= headerSize;
-    int toWhom = *((int *)header);
-#ifdef BYTESWAP
-    byteSwap(toWhom);
-#endif
-
-    if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+    if (len >= strlen("activateTouchSensor0"))
     {
-        activateTouchSensor(0);
-    }
-    else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
-    {
-        activateTouchSensor(1);
+        if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+        {
+            activateTouchSensor(0);
+        }
+        else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
+        {
+            activateTouchSensor(1);
+        }
     }
 
     if (toWhom != coVRPluginSupport::VRML_EVENT)

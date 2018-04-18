@@ -13,7 +13,9 @@ class ButtonGroup;
 
 //! a graphical item showing a text label that can be pressed to toggle between two states
 
-/** \note QToggleButton */
+/** \note QToggleButton
+    \note vrui::coCheckboxMenuItem
+    \note coTUIToggleButton */
 class COVER_UI_EXPORT Button: public Element {
    friend class ButtonGroup;
  public:

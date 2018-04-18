@@ -55,7 +55,7 @@ JunctionTreeItem::init()
 void
 JunctionTreeItem::updateName()
 {
-    QString text = junction_->getID();
+    QString text = junction_->getID().speakingName();
     if (!junction_->getName().isEmpty())
     {
         text.append(" (");

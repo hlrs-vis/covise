@@ -14,9 +14,6 @@
 
 #pragma once
 
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 
 namespace KardanikXML
@@ -29,13 +26,13 @@ class Line
 private:
 public:
     Line();
-    Line(std::tr1::shared_ptr<Point> pointA, std::tr1::shared_ptr<Point> pointB);
+    Line(std::shared_ptr<Point> pointA, std::shared_ptr<Point> pointB);
 
-    void SetPointA(std::tr1::shared_ptr<Point> pointA);
-    std::tr1::shared_ptr<Point> GetPointA() const;
+    void SetPointA(std::shared_ptr<Point> pointA);
+    std::shared_ptr<Point> GetPointA() const;
 
-    void SetPointB(std::tr1::shared_ptr<Point> pointB);
-    std::tr1::shared_ptr<Point> GetPointB() const;
+    void SetPointB(std::shared_ptr<Point> pointB);
+    std::shared_ptr<Point> GetPointB() const;
 
     float GetRadius() const;
     void SetRadius(float radius);
@@ -43,7 +40,7 @@ public:
 private:
     float m_Radius;
 
-    std::tr1::shared_ptr<Point> m_PointA;
-    std::tr1::shared_ptr<Point> m_PointB;
+    std::shared_ptr<Point> m_PointA;
+    std::shared_ptr<Point> m_PointB;
 };
 }

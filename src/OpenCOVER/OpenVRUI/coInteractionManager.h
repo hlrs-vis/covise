@@ -24,6 +24,7 @@ public:
     void registerInteraction(coInteraction *);
     void unregisterInteraction(coInteraction *);
     bool isOneActive(coInteraction::InteractionType type);
+    bool isOneActive(coInteraction::InteractionGroup group);
 
     static coInteractionManager *the();
 

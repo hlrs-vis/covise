@@ -73,7 +73,6 @@
 #include "VRSceneGraph.h"
 #include "coVRLighting.h"
 #include "ARToolKit.h"
-#include "VRVruiRenderInterface.h"
 #include "coHud.h"
 #include "coVRShader.h"
 #include "coOnscreenDebug.h"
@@ -85,6 +84,7 @@
 #include <input/coMousePointer.h>
 
 #include "ui/VruiView.h"
+#include "ui/TabletView.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
@@ -267,15 +267,6 @@ bool OpenCOVER::run()
 
     if (init())
     {
-        if (!coVRConfig::instance()->continuousRendering())
-        {
-            if (dl >= 1)
-            {
-                fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
-            }
-            VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
-        }
-
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
 
@@ -564,9 +555,8 @@ bool OpenCOVER::init()
 
     coVRPluginList::instance();
 
-	coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
-
 	Input::instance()->init();
+
     coVRTui::instance();
 
     ARToolKit::instance();
@@ -580,8 +570,6 @@ bool OpenCOVER::init()
 
     // init channels and view
     VRViewer::instance();
-
-    new VRVruiRenderInterface();
 
     coVRAnimationManager::instance();
     coVRShaderList::instance()->update();
@@ -666,6 +654,11 @@ bool OpenCOVER::init()
 
     VRViewer::instance()->config();
 
+    hud->setText2("loading plugins");
+    hud->redraw();
+
+    coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
+
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
     hud->setText1(welcomeMessage.c_str());
 
@@ -703,10 +696,6 @@ bool OpenCOVER::init()
 
     coVRLighting::instance()->initMenu();
 
-    hud->setText2("loading plugin");
-
-    coVRPluginList::instance()->init();
-
     ARToolKit::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
@@ -738,6 +727,54 @@ bool OpenCOVER::init()
 
     coVRShaderList::instance()->init();
 
+    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+    m_quitGroup->setText("");
+    m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setShortcut("q");
+    m_quit->addShortcut("Q");
+    m_quit->addShortcut("Esc");
+    m_quit->setCallback([this](){
+#if 1
+        requestQuit();
+#else
+        auto qd = new QuitDialog;
+        qd->show();
+#endif
+    });
+    m_quit->setIcon("application-exit");
+    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    {
+        m_quit->setEnabled(false);
+        m_quit->setVisible(false);
+    }
+
+    cover->vruiView = new ui::VruiView;
+    cover->ui->addView(cover->vruiView);
+
+    auto tab = coVRTui::instance()->mainFolder;
+    cover->ui->addView(new ui::TabletView("mainTui", tab));
+    tabletUIs.push_back(coTabletUI::instance());
+    tabletTabs.push_back(tab);
+
+    auto mapeditorTui = new coTabletUI("localhost", 31803);
+    tab = new coTUITabFolder(mapeditorTui, "root");
+    cover->ui->addView(new ui::TabletView("mapeditor", tab));
+    tabletUIs.push_back(mapeditorTui);
+    tabletTabs.push_back(tab);
+    for (auto tui: tabletUIs)
+    {
+        tui->tryConnect();
+        tui->update();
+    }
+
+    hud->setText2("initialising plugins");
+    hud->redraw();
+
+    coVRPluginList::instance()->init();
+
+    hud->redraw();
+
+    double loadStart = cover->currentTime();
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
     {
@@ -768,33 +805,32 @@ bool OpenCOVER::init()
         for (int i = 0; i < num; i++)
             coVRMSController::instance()->loadFile(NULL);
     }
-    hud->hideLater();
+    double loadEnd = cover->currentTime();
+
+    coVRPluginList::instance()->init2();
+    double init2End = cover->currentTime();
+
+    if (!coVRConfig::instance()->continuousRendering())
+    {
+        if (cover->debugLevel(1))
+        {
+            fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
+        }
+        VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+    }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
-    
-    coVRPluginList::instance()->init2();
+    frame();
+    double frameEnd = cover->currentTime();
+    hud->hideLater();
 
-    cover->vruiView = new ui::VruiView;
-    cover->ui->addView(cover->vruiView);
-
-    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
-    m_quit = new ui::Action(m_quitGroup, "Quit");
-    m_quit->setShortcut("q");
-    m_quit->addShortcut("Q");
-    m_quit->addShortcut("Esc");
-    m_quit->setCallback([this](){
-#if 1
-        requestQuit();
-#else
-        auto qd = new QuitDialog;
-        qd->show();
-#endif
-    });
-    m_quit->setIcon("application-exit");
-    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    if (cover->debugLevel(1))
     {
-        m_quit->setEnabled(false);
-        m_quit->setVisible(false);
+        std::cerr << std::endl << "INIT TIMES:"
+                  << " load " << loadEnd-loadStart << "s"
+                  << ", init2 " << init2End-loadEnd << "s"
+                  << ", 1st frame " << frameEnd-init2End << "s"
+                  << std::endl;
     }
 
     m_initialized = true;
@@ -883,7 +919,8 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                 case 'T':
                 case 't':
                     cerr << "calling: coTabletUI::instance()->close()" << endl;
-                    coTabletUI::instance()->close();
+                    for (auto tui: tabletUIs)
+                        tui->close();
                     break;
                 }
             }
@@ -925,7 +962,8 @@ void OpenCOVER::handleEvents(int type, int state, int code)
                     break;
                 case 't':
                     cerr << "calling: coTabletUI::instance()->tryConnect()" << endl;
-                    coTabletUI::instance()->tryConnect();
+                    for (auto tui: tabletUIs)
+                        tui->tryConnect();
                     break;
                 case 'x':
                     coVRConfig::instance()->m_worldAngle -= 1;
@@ -983,11 +1021,28 @@ bool OpenCOVER::frame()
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of mouse input" << std::endl;
         // handle e.g. mouse events
         render = true;
         m_renderNext = true; // for possible delayed button release
     }
-    Input::instance()->update(); //update all hardware devices
+    if (Input::instance()->update())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of input" << std::endl;
+        render = true;
+    }
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        const auto &mat = Input::instance()->getRelativeMat();
+        if (!mat.isIdentity())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of active relative input" << std::endl;
+            render = true;
+        }
+    }
 
     // wait for all cull and draw threads to complete.
     //
@@ -995,6 +1050,8 @@ bool OpenCOVER::frame()
 
     if (coVRAnimationManager::instance()->update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of animation" << std::endl;
         render = true;
     }
     // update transformations node according to interaction
@@ -1005,11 +1062,15 @@ bool OpenCOVER::frame()
     // update viewer position and channels
     if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
         render = true;
         VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
     }
     if (VRViewer::instance()->update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of VRViewer" << std::endl;
         render = true;
     }
 
@@ -1017,6 +1078,15 @@ bool OpenCOVER::frame()
     // pointer ray intersection test
     // update update manager =:-|
     cover->update();
+    for (auto tui: tabletUIs)
+    {
+        if (tui->update())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of tabletUI on " << tui->connectedHost << std::endl;
+            render = true;
+        }
+    }
 
     //Remote AR update (send picture if required)
     if (ARToolKit::instance()->remoteAR)
@@ -1024,17 +1094,32 @@ bool OpenCOVER::frame()
 
     if (interactionManager.update())
     {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of interactionManager" << std::endl;
         render = true;
     }
     if (cover->ui->update())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of ui update" << std::endl;
         render = true;
+    }
     if (cover->ui->sync())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of ui sync" << std::endl;
         render = true;
+    }
 
+	double beginPluginTime = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
     {
         if (coVRPluginList::instance()->update())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of plugins" << std::endl;
             render = true;
+        }
     }
     else
     {
@@ -1053,13 +1138,24 @@ bool OpenCOVER::frame()
                     return false;
                 }
                 m_renderNext = false;
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
             }
+            else
+            {
+                if (cover->debugLevel(4))
+                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+            }
+        }
+        else
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
         }
     }
 
     if (frameNum > 2)
     {
-        double beginTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1068,9 +1164,9 @@ bool OpenCOVER::frame()
         {
             int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
             double endTime = VRViewer::instance()->elapsedTime();
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
-            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1167,6 +1263,7 @@ OpenCOVER::~OpenCOVER()
     delete coVRAnimationManager::instance();
     delete coVRNavigationManager::instance();
     delete coVRCommunication::instance();
+    delete ARToolKit::instance();
     delete coVRTui::instance();
 
     cover->intersectedNode = NULL;
@@ -1174,16 +1271,17 @@ OpenCOVER::~OpenCOVER()
     delete coVRShaderList::instance();
     delete coVRLighting::instance();
     delete VRViewer::instance();
-    delete VRVruiRenderInterface::theInterface;
     delete coVRConfig::instance();
     delete VRWindow::instance();
 
     delete coVRPluginList::instance();
 
-    delete ARToolKit::instance();
-
     coShutDownHandlerList::instance()->shutAllDown();
     delete coShutDownHandlerList::instance();
+
+    for (auto tui: tabletUIs)
+        delete tui;
+    tabletUIs.clear();
 
     if (cover->debugLevel(2))
     {
@@ -1264,4 +1362,26 @@ OpenCOVER::visPlugin() const
 {
 
     return m_visPlugin;
+}
+
+size_t OpenCOVER::numTuis() const
+{
+    return tabletUIs.size();
+}
+
+coTabletUI *OpenCOVER::tui(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletUIs.size())
+        return nullptr;
+    return tabletUIs[idx];
+}
+
+coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletTabs.size())
+        return nullptr;
+
+    return tabletTabs[idx];
 }

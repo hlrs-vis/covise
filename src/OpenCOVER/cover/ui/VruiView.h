@@ -12,6 +12,8 @@ class coMenuItem;
 class coMenu;
 class coCheckboxGroup;
 
+class coToolboxMenuItem;
+
 }
 
 namespace opencover {
@@ -28,19 +30,41 @@ struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
    vrui::coMenu *m_menu = nullptr;
    vrui::coCheckboxGroup *m_group = nullptr;
 
+   vrui::coToolboxMenuItem *m_toolboxItem = nullptr;
+   bool m_mappableToToolbar = false;
+
    void menuEvent(vrui::coMenuItem *menuItem) override;
    void menuReleaseEvent(vrui::coMenuItem *menuItem) override;
+
+   void updateSlider(const vrui::coMenuItem *item, bool moving);
+
+   VruiViewElement *root() const;
+   void hideOthers();
+   void showMenu(bool state);
+   bool isRoot() const;
+   bool isInStack() const;
+   bool isTopOfStack() const;
+   void addToStack();
+   void popStack();
+   void clearStackToTop();
 };
 
 //! concrete implementation of View for showing user interface \ref Element "elements" in VR based on the OpenVRUI framework
 class VruiView: public View
 {
+    friend struct VruiViewElement;
+
  public:
    VruiView();
    ~VruiView();
 
+   bool update() override;
+
+   ViewType typeBit() const override;
+
    COVER_UI_EXPORT vrui::coMenu *getMenu(const Element *elem) const;
    COVER_UI_EXPORT vrui::coMenuItem *getItem(const Element *elem) const;
+
 
  private:
    VruiViewElement *vruiElement(const std::string &path) const;
@@ -60,6 +84,7 @@ class VruiView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
+   void updateValue(const EditField *input) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
    VruiViewElement *elementFactoryImplementation(Group *group) override;
@@ -68,9 +93,17 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(Button *button) override;
    VruiViewElement *elementFactoryImplementation(Slider *slider) override;
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
+   VruiViewElement *elementFactoryImplementation(EditField *input) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;
+
+   bool m_useToolbar = false;
+   bool useToolbar() const;
+   bool m_allowTearOff = false;
+   bool allowTearOff() const;
+   bool isInToolbar(const Element *elem) const;
+   std::vector<VruiViewElement *> m_toolbarStack;
 };
 
 }

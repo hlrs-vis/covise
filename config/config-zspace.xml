@@ -80,7 +80,15 @@
                 <Orientation h="0" p="0" r="0" />
                 <Position x="200" y="0" z="0" />
             </Menu>
-
+            <VRUI>
+                <!-- position of transfer editor menu /-->
+                <TFE>
+                    <Menu>
+                        <Size value="0.15" />
+                        <Position x="-250" y="0" z="80" />
+                    </Menu>
+                </TFE>
+            </VRUI>
         </COVER>
     </LOCAL>
 </COCONFIG>

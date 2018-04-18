@@ -15,9 +15,12 @@
 
 #include "tilesystem.hpp"
 
+#include "QDomDocument"
+
 // Data //
 //
 #include "src/data/projectdata.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
 #include "tile.hpp"
 
 /*! \brief CONSTRUCTOR.
@@ -43,30 +46,22 @@ TileSystem::~TileSystem()
 //##################//
 
 Tile *
-TileSystem::getTile(const QString &id) const
+TileSystem::getTile(const odrID &id) const
 {
     return tiles_.value(id, NULL);
+}
+
+Tile *
+TileSystem::getTile(int tid) const
+{
+	odrID ID;
+	ID.setID(tid);
+	return tiles_.value(ID, NULL);
 }
 
 void
 TileSystem::addTile(Tile *tile)
 {
-    if (getProjectData())
-    {
-        // Id //
-        //
-        QString name = tile->getName();
-        QString id = getUniqueId(tile->getID(), name);
-        if (id != tile->getID())
-        {
-            tile->setID(id);
-            if (name != tile->getName())
-            {
-                tile->setName(name);
-            }
-        }
-    }
-
     // Insert //
     //
     tile->setTileSystem(this);
@@ -86,7 +81,7 @@ TileSystem::delTile(Tile *tile)
         return false;
     }
 
-    if (tiles_.remove(tile->getID()) && tileIds_.removeOne(tile->getID()))
+    if (tiles_.remove(tile->getID()))
     {
         addTileSystemChanges(TileSystem::CTS_TileChange);
 
@@ -110,6 +105,31 @@ TileSystem::delTile(Tile *tile)
     }
 }
 
+void TileSystem::write(QDomDocument *doc_, QDomElement &root)
+{
+	foreach(Tile *tile, tiles_)
+	{
+		QDomElement userData = doc_->createElement("userData");
+
+		userData.setAttribute("code", "tile");
+		userData.setAttribute("value", QString::number(tile->getID().getID()) + " " + tile->getID().getName());
+		root.appendChild(userData);
+	}
+
+}
+
+void TileSystem::addTileIfNecessary(const odrID &elementID)
+{
+	odrID tid;
+	tid.setID(elementID.getTileID());
+	tid.setType(odrID::ID_Tile);
+	Tile *t = getTile(tid);
+	if (t == NULL)
+	{
+		addTile(new Tile(tid));
+	}
+}
+
 void
 TileSystem::setCurrentTile(Tile *tile)
 {
@@ -122,39 +142,6 @@ TileSystem::setCurrentTile(Tile *tile)
 		currentTile_ = tile;
 		tile->setElementSelected(true);
 	}
-}
-
-//##################//
-// IDs              //
-//##################//
-
-const QString
-TileSystem::getUniqueId(const QString &suggestion, QString &name)
-{
-    // Try suggestion //
-    //
-    if (!suggestion.isNull() && !suggestion.isEmpty())
-    {
-        if (!tileIds_.contains(suggestion))
-        {
-            tileIds_.append(suggestion);
-            return suggestion;
-        }
-    }
-
-    // Create new one //
-    //
-
-    int index = 0;
-    while ((index < tileIds_.size()) && tileIds_.contains(QString("%1").arg(index)))
-    {
-        index++;
-    }
-
-    QString id = QString("%1").arg(index);
-    name = "Tile" + id;
-    tileIds_.append(id);
-    return id;
 }
 
 //##################//

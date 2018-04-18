@@ -20,6 +20,10 @@
 #include "graphviewitems/graphviewshapeitem.hpp"
 #include "src/cover/coverconnection.hpp"
 
+#include <QtWidgets>
+#include <QtNetwork>
+#include <QUrl>
+
 //MainWindow //
 //
 #include "src/mainwindow.hpp"
@@ -63,6 +67,7 @@
 #include <QDialog>
 #include <QFormLayout>
 #include <QDialogButtonBox>
+#include <QMimeData>
 
 
 // Utils //
@@ -115,6 +120,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
     QPixmap pixmap("d:\\Pictures\\snapshot2.png");
     backgroundItem = new QGraphicsPixmapItem(pixmap);
     graphScene->addItem(backgroundItem);
+	wgetInit();
 }
 
 GraphView::~GraphView()
@@ -587,9 +593,10 @@ GraphView::loadGoogleMap()
     if(!mapRejected){
 
         //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
-        QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+        //QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
 
-        system(qPrintable(XMLlocationCommand));
+        //system(qPrintable(XMLlocationCommand));
+		downloadFile("location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
         QString lat;
         QString lon;
@@ -657,9 +664,9 @@ GraphView::loadGoogleMap()
 
         QString zoom = "19";
         QString style = "&style=feature:all|element:labels|visibility:off";
-        QString uploadPrefix = "wget -O ";
-        QString uploadPrefix2 ="'https://maps.googleapis.com/maps/api/staticmap?center=";
-        QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+        //QString uploadPrefix = "wget -O ";
+        QString uploadPrefix2 ="https://maps.googleapis.com/maps/api/staticmap?center=";
+        QString uploadPostfix = "&zoom=" + zoom + "&maptype=" + maptype + style + "&size=1200x1200&scale=2&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc";
 
 
         //this equation was calculated by calibrating the latitude offset to a variety of locations. this is the equation of the line of best fit.
@@ -694,11 +701,13 @@ GraphView::loadGoogleMap()
                 newLat = dlat + -latIterator*xOffset;
                 newLon = dlon + lonIterator*yOffset;
                 newLoc = QString::number(newLat, 'f', 7)+ "," + QString::number(newLon, 'f', 7);
-                system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+                //system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 progress--;
                 QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".png");
-                QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
-                system(qPrintable(command));
+                //QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
+                //system(qPrintable(command));
+
+				downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
 
                 double yPosition = (newLat) * DEG_TO_RAD;
                 double xPosition = (newLon) * DEG_TO_RAD;
@@ -711,9 +720,9 @@ GraphView::loadGoogleMap()
         }      
 
         xmlFile.remove();
-        system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 7)));
-        system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 7)));
-        system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 7)));
+        //system(qPrintable("echo Offset used: " + QString::number(xOffset, 'f', 7)));
+        //system(qPrintable("echo Latitude used: " + QString::number(dlat, 'f', 7)));
+        //system(qPrintable("echo Longitude used: " + QString::number(dlon, 'f', 7)));
         directoryOperator.setCurrent("..");
         directoryOperator.setCurrent("..");
     }
@@ -778,9 +787,11 @@ GraphView::loadBingMap()
 
         //This wget will download an XML file of the location entered by the user, including the latitude and longitude.
         //Bing's API to turn a location into a set of coordinates isn't as flexible as Google's, so we'll keep using Google's system for this part.
-        QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
+       // QString XMLlocationCommand = "wget -O location.xml 'https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc'";
 
-        system(qPrintable(XMLlocationCommand));
+       // system(qPrintable(XMLlocationCommand));
+
+		downloadFile("location.xml", "https://maps.google.com/maps/api/geocode/xml?address=" + location + "&key=AIzaSyCvZVXlu-UfJdPUb6_66YHjyPj4qHKc_Wc");
 
         QString lat;
         QString lon;
@@ -843,9 +854,12 @@ GraphView::loadBingMap()
         //example format:
         //wget -O 'http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial?mapArea=48.737,9.097,48.742,9.098&ms=2500,2500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'
 
-        QString XMLlocationCommandBing = "wget -O locationBing.xml 'http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'";
+        //QString XMLlocationCommandBing = "wget -O locationBing.xml 'http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'";
 
-        system(qPrintable(XMLlocationCommandBing));
+        //system(qPrintable(XMLlocationCommandBing));
+
+		downloadFile("locationBing.xml", "http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/" + lat + "," + lon + "/19?mapSize=1500,1500&mapMetadata=1&o=xml&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm");
+
 
 
         //Here, we parse the XML file Bing's API gives us to find the bounding coordinates of the tile, so we can get the centers of our other tiles.
@@ -949,8 +963,8 @@ GraphView::loadBingMap()
         double WestEastSize   = boundingEastNum  - boundingWestNum;
 
         QString uploadPrefix = "wget -O ";
-        QString uploadPrefix2 ="'http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
-        QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm'";
+        QString uploadPrefix2 ="http://dev.virtualearth.net/REST/V1/Imagery/Map/Aerial/";
+        QString uploadPostfix = "/19?mapSize=1500,1500&key=AlG2vgS1nf8uEEiq4ypPUu3Be-Mr1QOWiTj_lY55b8RAVNl7h3v1Bx0nTqavOJDm";
 
 
 
@@ -982,12 +996,14 @@ GraphView::loadBingMap()
                 double lonIterator = double(i);
                 newLat = lat.toDouble() + -latIterator*NorthSouthSize;
                 newLon = lon.toDouble() + lonIterator*WestEastSize;
-                system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
+                //system(qPrintable(QString("echo Progress: " + QString::number(progress) + " images left.")));
                 newLoc = QString::number(newLat, 'f', 10)+ "," + QString::number(newLon, 'f', 10);
                 progress--;
                 QString newFilename = QString(QDir().absolutePath() + "/image" + QString::number(i) + QString::number(j) + ".jpg");
                 QString command = uploadPrefix + newFilename + " " + uploadPrefix2 + newLoc + uploadPostfix;
-                system(qPrintable(command));
+                //system(qPrintable(command));
+				downloadFile(newFilename, uploadPrefix2 + newLoc + uploadPostfix);
+
 
                 double yPosition = (newLat-NorthSouthSize/2) * DEG_TO_RAD;
                 double xPosition = (newLon-WestEastSize/2) * DEG_TO_RAD;
@@ -1466,6 +1482,26 @@ GraphView::keyReleaseEvent(QKeyEvent *event)
 }
 
 void
+GraphView::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->acceptProposedAction();
+	
+}
+
+void
+GraphView::dragMoveEvent(QDragMoveEvent *event)
+{
+	event->acceptProposedAction();
+}
+
+void
+GraphView::dropEvent(QDropEvent *event)
+{
+	event->acceptProposedAction();
+	QGraphicsView::dropEvent(event);
+}
+
+void
 GraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     if (doShapeEdit_)
@@ -1491,3 +1527,166 @@ void
 	}
 }
 
+
+void GraphView::wgetInit()
+{
+	connect(&qnam, &QNetworkAccessManager::authenticationRequired,
+		this, &GraphView::slotAuthenticationRequired);
+#ifndef QT_NO_SSL
+	connect(&qnam, &QNetworkAccessManager::sslErrors,
+		this, &GraphView::sslErrors);
+#endif
+}
+
+void GraphView::startRequest(const QUrl &requestedUrl)
+{
+	url = requestedUrl;
+	httpRequestAborted = false;
+
+	reply = qnam.get(QNetworkRequest(url));
+	connect(reply, &QNetworkReply::finished, this, &GraphView::httpFinished);
+	connect(reply, &QIODevice::readyRead, this, &GraphView::httpReadyRead);
+}
+
+void GraphView::downloadFile(const QString &fn, const QString &url)
+{
+	QUrl requestedUrl(url);
+	QString fileName=fn;
+	/*QString downloadDirectory = QDir::cleanPath("c:/tmp");
+	bool useDirectory = !downloadDirectory.isEmpty() && QFileInfo(downloadDirectory).isDir();
+	if (useDirectory)
+		fileName.prepend(downloadDirectory + '/');*/
+	if (QFile::exists(fileName))
+	{
+		QFile::remove(fileName);
+	}
+
+	file = openFileForWrite(fileName);
+	if (!file)
+		return;
+
+	// schedule the request
+	startRequest(requestedUrl);
+
+	QTimer timeoutTimer;
+	QEventLoop loop;
+	//connect(reply, &QNetworkReply::finished, &loop, SLOT(quit()));
+	connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+	connect(&timeoutTimer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	// wait for file to be downloaded
+	timeoutTimer.start(100000);
+	loop.exec(); //blocks untill either theSignalToWaitFor or timeout was fired
+}
+
+QFile *GraphView::openFileForWrite(const QString &fileName)
+{
+	QScopedPointer<QFile> file(new QFile(fileName));
+	if (!file->open(QIODevice::WriteOnly)) {
+		QMessageBox::information(this, tr("Error"),
+			tr("Unable to save the file %1: %2.")
+			.arg(QDir::toNativeSeparators(fileName),
+				file->errorString()));
+		return nullptr;
+	}
+	return file.take();
+}
+
+void GraphView::cancelDownload()
+{
+	httpRequestAborted = true;
+	reply->abort();
+}
+
+void GraphView::httpFinished()
+{
+	QFileInfo fi;
+	if (file) {
+		fi.setFile(file->fileName());
+		file->close();
+		delete file;
+		file = nullptr;
+	}
+
+	if (httpRequestAborted) {
+		reply->deleteLater();
+		reply = nullptr;
+		return;
+	}
+
+	if (reply->error()) {
+		QFile::remove(fi.absoluteFilePath());
+		reply->deleteLater();
+		reply = nullptr;
+		return;
+	}
+
+	const QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+
+	reply->deleteLater();
+	reply = nullptr;
+
+	if (!redirectionTarget.isNull()) {
+		const QUrl redirectedUrl = url.resolved(redirectionTarget.toUrl());
+		if (QMessageBox::question(this, tr("Redirect"),
+			tr("Redirect to %1 ?").arg(redirectedUrl.toString()),
+			QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+			QFile::remove(fi.absoluteFilePath());
+			return;
+		}
+		file = openFileForWrite(fi.absoluteFilePath());
+		if (!file) {
+			return;
+		}
+		startRequest(redirectedUrl);
+		return;
+	}
+
+}
+
+void GraphView::httpReadyRead()
+{
+	// this slot gets called every time the QNetworkReply has new data.
+	// We read all of its new data and write it into the file.
+	// That way we use less RAM than when reading it at the finished()
+	// signal of the QNetworkReply
+	if (file)
+		file->write(reply->readAll());
+}
+
+void GraphView::slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator)
+{
+	/*QDialog authenticationDialog;
+	Ui::Dialog ui;
+	ui.setupUi(&authenticationDialog);
+	authenticationDialog.adjustSize();
+	ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm(), url.host()));*/
+
+	// Did the URL have information? Fill the UI
+	// This is only relevant if the URL-supplied credentials were wrong
+	/*ui.userEdit->setText(url.userName());
+	ui.passwordEdit->setText(url.password());
+
+	if (authenticationDialog.exec() == QDialog::Accepted) {
+		authenticator->setUser(ui.userEdit->text());
+		authenticator->setPassword(ui.passwordEdit->text());
+	}*/
+}
+
+#ifndef QT_NO_SSL
+void GraphView::sslErrors(QNetworkReply *, const QList<QSslError> &errors)
+{
+	QString errorString;
+	foreach(const QSslError &error, errors) {
+		if (!errorString.isEmpty())
+			errorString += '\n';
+		errorString += error.errorString();
+	}
+
+	if (QMessageBox::warning(this, tr("SSL Errors"),
+		tr("One or more SSL errors has occurred:\n%1").arg(errorString),
+		QMessageBox::Ignore | QMessageBox::Abort) == QMessageBox::Ignore) {
+		reply->ignoreSslErrors();
+	}
+}
+#endif

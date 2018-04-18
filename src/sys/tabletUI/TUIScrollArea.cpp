@@ -71,32 +71,12 @@ void TUIScrollArea::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUIScrollArea::getClassName()
+const char *TUIScrollArea::getClassName() const
 {
-    return (char *)"TUIScrollArea";
+    return "TUIScrollArea";
 }
 
-bool TUIScrollArea::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}
-
-void TUIScrollArea::setValue(int type, covise::TokenBuffer &tb)
+void TUIScrollArea::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     QFrame *frame = (QFrame *)widget;
     if (type == TABLET_TYPE)

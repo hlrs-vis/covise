@@ -217,6 +217,7 @@ void Host::HostNumeric(const char *n)
 
 void Host::HostSymbolic(const char *n)
 {
+    //std::cerr << "HostSymbolic: n=" << (n?n:"(null)") << std::endl;
     //The address is not numeric
     //and we try to convert the
     //symbolic address into a numeric one
@@ -234,7 +235,17 @@ void Host::HostSymbolic(const char *n)
 
     struct in_addr v4;
     int err = inet_pton(AF_INET, n, &v4);
-    memcpy(char_address, &v4, sizeof(char_address));
+    if (err == 1)
+    {
+        memcpy(char_address, &v4, sizeof(char_address));
+        setAddress(n);
+        auto name = lookupHostname(n);
+        if (name.empty())
+            setName(n);
+        else
+            setName(name.c_str());
+        return;
+    }
     if (err == 0)
     {
         struct in6_addr v6;
@@ -243,11 +254,14 @@ void Host::HostSymbolic(const char *n)
     if (err == 1)
     {
         setAddress(n);
-        setName(lookupHostname(n).c_str());
+        auto name = lookupHostname(n);
+        if (name.empty())
+            setName(n);
+        else
+            setName(name.c_str());
         return;
     }
     memset(char_address, 0, sizeof(char_address));
-
 
 #if 0
     struct hostent *hent = gethostbyname(n);
@@ -286,9 +300,12 @@ void Host::HostSymbolic(const char *n)
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_protocol = 0;          /* Any protocol */
 
+    //std::cerr << "HostSymbolic: calling getaddrinfo for n=" << n << std::endl;
     int s = getaddrinfo(n, NULL /* service */, &hints, &result);
+    //std::cerr << "HostSymbolic: after calling getaddrinfo for n=" << n << std::endl;
     if (s != 0)
     {
+        //std::cerr << "Host::HostSymbolic: getaddrinfo failed for " << n << ": " << s << " " << gai_strerror(s) << std::endl;
         fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
         return;
     }
@@ -328,6 +345,7 @@ void Host::HostSymbolic(const char *n)
 
 Host::Host(const char *n, bool numeric)
 {
+    //std::cerr << "Host: n=" << (n?n:"(null)") << ", numeric=" << numeric << std::endl;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -638,6 +656,7 @@ bool Host::hasRoutableAddress() const
 
 Host::Host()
 {
+    //std::cerr << "Host()" << std::endl;
     m_addressValid = false;
     m_nameValid = false;
 

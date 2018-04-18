@@ -26,13 +26,11 @@ private:
 public:
     TUINavElement(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUINavElement();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
+    virtual void setEnabled(bool en) override;
+    virtual void setHighlighted(bool hl) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 protected:
 };

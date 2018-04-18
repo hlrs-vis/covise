@@ -177,10 +177,30 @@ QOpenGLWidget *QtGraphicsWindow::widget() const
     return m_glWidget;
 }
 
+bool QtGraphicsWindow::realizeImplementation()
+{
+    if (m_glWidget)
+    {
+        m_glWidget->makeCurrent();
+        if (qApp)
+        {
+            qApp->sendPostedEvents();
+            qApp->processEvents();
+        }
+    }
+    else
+    {
+        std::cerr << "QtGraphicsWindow: realizing without GL widget" << std::endl;
+    }
+    return true;
+}
+
 bool QtGraphicsWindow::makeCurrentImplementation()
 {
     if (m_glWidget)
         m_glWidget->makeCurrent();
+    else
+        std::cerr << "QtGraphicsWindow: making context current without GL widget" << std::endl;
     return true;
 }
 
@@ -286,9 +306,34 @@ osgViewer::GraphicsWindowEmbedded *QtOsgWidget::graphicsWindow() const
     return m_graphicsWindow.get();
 }
 
+void QtOsgWidget::focusWasLost()
+{
+    //std::cerr << "QtOsgWidget: focus lost: releasing all keys" << std::endl;
+    for (auto &key: m_pressedKeys)
+    {
+        if (key.second)
+            getEventQueue()->keyRelease(key.first);
+        key.second = false;
+    }
+    m_pressedKeys.clear();
+
+    m_modifierMask = 0;
+    getEventQueue()->getCurrentEventState()->setModKeyMask(0);
+}
+
+void QtOsgWidget::focusOutEvent(QFocusEvent *event)
+{
+    focusWasLost();
+    event->accept();
+}
+
 void QtOsgWidget::paintEvent(QPaintEvent *paintEvent)
 {
     //opencover::VRViewer::instance()->requestRedraw();
+}
+
+void QtOsgWidget::initializeGL()
+{
 }
 
 void QtOsgWidget::paintGL()
@@ -315,6 +360,7 @@ void QtOsgWidget::setKeyboardModifiers(QInputEvent *event)
 #endif
     if (modkey & Qt::ShiftModifier) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
     if (modkey & Qt::AltModifier) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    m_modifierMask = mask;
     getEventQueue()->getCurrentEventState()->setModKeyMask(mask);
 }
 
@@ -323,10 +369,12 @@ void QtOsgWidget::keyPressEvent(QKeyEvent *event)
     setKeyboardModifiers(event);
     int value = s_QtKeyboardMap.remapKey(event);
     getEventQueue()->keyPress(value);
+    m_pressedKeys[value] = true;
 }
 
 void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 {
+    setKeyboardModifiers(event);
 #if 0
     if( event->isAutoRepeat() )
     {
@@ -335,20 +383,22 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
     else
 #endif
     {
-        setKeyboardModifiers(event);
         int value = s_QtKeyboardMap.remapKey(event);
         getEventQueue()->keyRelease(value);
+        m_pressedKeys[value] = false;
     }
 }
 
 void QtOsgWidget::mouseMoveEvent(QMouseEvent *event )
 {
+    setKeyboardModifiers(event);
     auto pr = devicePixelRatio();
     getEventQueue()->mouseMotion(event->x()*pr, event->y()*pr);
 }
 
 void QtOsgWidget::mousePressEvent(QMouseEvent *event)
 {
+    setKeyboardModifiers(event);
     unsigned int button = 0;
     switch(event->button())
     {
@@ -374,6 +424,7 @@ void QtOsgWidget::mousePressEvent(QMouseEvent *event)
 
 void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
 {
+    setKeyboardModifiers(event);
     unsigned int button = 0;
     switch( event->button() )
     {
@@ -399,11 +450,14 @@ void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void QtOsgWidget::wheelEvent(QWheelEvent *event)
 {
+    setKeyboardModifiers(event);
     event->accept();
     int delta = event->delta();
 
     osgGA::GUIEventAdapter::ScrollingMotion motion =
             delta>0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN;
+    if (event->orientation() == Qt::Horizontal)
+            motion = delta>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT;
     getEventQueue()->mouseScroll(motion);
 }
 

@@ -165,6 +165,11 @@ TrackEditorTool::initToolWidget()
     toolLayout->addWidget(toolButton, row, 1);
     toolGroup->addButton(toolButton, ODD::TTE_ROAD_SNAP); // button, id
 
+	toolButton = new QPushButton("New Circle");
+	toolButton->setCheckable(true);
+	toolLayout->addWidget(toolButton, ++row, 0, 1, ColumnCount);
+	toolGroup->addButton(toolButton, ODD::TTE_ROAD_CIRCLE); // button, id
+
     line = new QFrame();
     line->setFrameStyle(QFrame::HLine | QFrame::Sunken);
     line->setLineWidth(1);
@@ -318,6 +323,21 @@ TrackEditorTool::initToolWidget()
     groupBoxLayout->addWidget(label, groupBoxLayoutRow++, 0);
     groupBoxLayout->addWidget(comboBox, groupBoxLayoutRow++, 0);
 
+	// RoadShape Prototype //
+	//
+	label = new QLabel(tr("RoadShape Prototype"));
+	comboBox = new QComboBox;
+	foreach(const PrototypeContainer<RSystemElementRoad *> *container, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype))
+	{
+		comboBox->addItem(container->getPrototypeIcon(), container->getPrototypeName());
+	}
+	comboBox->setIconSize(QSize(16, 16));
+	connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleShapeSelection(int)));
+	comboBox->setCurrentIndex(0);
+	handleShapeSelection(0);
+	groupBoxLayout->addWidget(label, groupBoxLayoutRow++, 0);
+	groupBoxLayout->addWidget(comboBox, groupBoxLayoutRow++, 0);
+
     // RoadSystem Prototypes //
     //
     //
@@ -363,6 +383,7 @@ TrackEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
     ribbonToolGroup->addButton(ui->trackNewLine, ODD::TTE_ADD_LINE);
     ribbonToolGroup->addButton(ui->trackNewCurve, ODD::TTE_ADD_CURVE);
+	ribbonToolGroup->addButton(ui->trackNewPoly, ODD::TTE_ADD_POLY);
     ribbonToolGroup->addButton(ui->trackAddPrototype, ODD::TTE_ADD);
     ribbonToolGroup->addButton(ui->trackDelete, ODD::TTE_DELETE);
     ribbonToolGroup->addButton(ui->trackSplit, ODD::TTE_TRACK_SPLIT);
@@ -374,7 +395,8 @@ TrackEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->roadSplit, ODD::TTE_ROAD_SPLIT);
     ribbonToolGroup->addButton(ui->roadMerge, ODD::TTE_ROAD_MERGE);
     ribbonToolGroup->addButton(ui->roadSnap, ODD::TTE_ROAD_SNAP);
-    ribbonToolGroup->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+	ribbonToolGroup->addButton(ui->roadCut, ODD::TTE_TRACK_ROAD_SPLIT);
+	ribbonToolGroup->addButton(ui->roadCircle, ODD::TTE_ROAD_CIRCLE);
     
     ribbonToolGroup->addButton(ui->tileMove, ODD::TTE_TILE_MOVE);
     ribbonToolGroup->addButton(ui->tileNew, ODD::TTE_TILE_NEW);
@@ -463,6 +485,11 @@ TrackEditorTool::handleToolClick(int id)
         sectionPrototypesGroupBox_->setVisible(true);
         sectionPrototypesGroupBox_->setEnabled(true);
     }
+	else if (toolId_ == ODD::TTE_ADD_POLY)
+	{
+		sectionPrototypesGroupBox_->setVisible(true);
+		sectionPrototypesGroupBox_->setEnabled(true);
+	}
     else if (toolId_ == ODD::TTE_ROADSYSTEM_ADD)
     {
         roadSystemPrototypesGroupBox_->setVisible(true);
@@ -522,6 +549,16 @@ TrackEditorTool::handleCrossfallSelection(int id)
 {
     currentPrototypes_.insert(PrototypeManager::PTP_CrossfallPrototype, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype).at(id)->getPrototype());
     sendToolAction();
+}
+
+/*! \brief Gets called when a prototype has been selected.
+*
+*/
+void
+TrackEditorTool::handleShapeSelection(int id)
+{
+	currentPrototypes_.insert(PrototypeManager::PTP_RoadShapePrototype, prototypeManager_->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype).at(id)->getPrototype());
+	sendToolAction();
 }
 
 /*! \brief Gets called when a prototype has been selected.

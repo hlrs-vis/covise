@@ -66,7 +66,8 @@ public:
         Disabled,
         Enabled,
         HiddenLineBlack,
-        HiddenLineWhite
+        HiddenLineWhite,
+        Points,
     };
     VRSceneGraph();
     virtual ~VRSceneGraph();
@@ -94,12 +95,6 @@ public:
     void toggleHeadTracking(bool state);
     void setObjects(bool state);
 
-    // rotate world
-    int numFrames;
-    float frameAngle;
-    osg::Vec3 rotationAxis;
-    osg::Vec3 rotationPoint;
-
     // process key events
     bool keyEvent(int type, int keySym, int mod);
     osg::Group *getScene()
@@ -116,19 +111,19 @@ public:
     void init();
     void update();
 
-    osg::MatrixTransform *getTransform()
+    osg::MatrixTransform *getTransform() const
     {
         return m_objectsTransform.get();
     }
-    osg::MatrixTransform *getScaleTransform()
+    osg::MatrixTransform *getScaleTransform() const
     {
         return (m_scaleTransform);
     }
-    osg::MatrixTransform *getHandTransform()
+    osg::MatrixTransform *getHandTransform() const
     {
         return (m_handTransform.get());
     }
-    osg::Vec3 getWorldPointOfInterest();
+    osg::Vec3 getWorldPointOfInterest() const;
     void getHandWorldPosition(float *, float *, float *);
     void addPointerIcon(osg::Node *node);
     void removePointerIcon(osg::Node *node);
@@ -214,14 +209,6 @@ public:
     void toggleAxis(bool state);
     void toggleHighQuality(bool state);
     void viewAll(bool resetView = false);
-    float &joyStickX()
-    {
-        return m_joyStickX;
-    }
-    float &joyStickY()
-    {
-        return m_joyStickY;
-    }
     float floorHeight()
     {
         return m_floorHeight;
@@ -258,8 +245,6 @@ public:
     void protectScenegraph();
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
-
-    bool KeyButton[4];
 
     bool isHighQuality() const;
 
@@ -304,23 +289,19 @@ private:
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;
-    bool m_handLocked; /* =true: no hand input is accepted until button is released */
     WireframeMode m_wireframe;
-    bool m_textured; /* =true: textures are drawn as intended */
-    bool m_coordAxis; /* =true: coord Axis will be drawn */
-    bool m_showMenu;
-    bool m_showObjects;
+    bool m_textured = true; /* =true: textures are drawn as intended */
+    bool m_shaders = true; /* =true: shaders are applied */
+    bool m_coordAxis = false; /* =true: coord Axis will be drawn */
+    bool m_showMenu = true;
+    bool m_showObjects = true;
+    bool m_firstTime = true;
+    bool m_pointerVisible = false;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
 
     int m_pointerType;
-    float m_joyStickX, m_joyStickY; //philip: allow access to anology x and y movement
-
-    // do we use one input device only for world transformation?
-    bool m_worldTransformer;
-    // is transforming the world enabled?
-    bool m_worldTransformerEnabled;
 
     // attribute SCALE attached to PerformerScene objects:
     // SCALE viewAll                        : scaleMode=1.0
@@ -350,9 +331,6 @@ private:
     bool menusAreHidden;
     osg::ref_ptr<osg::Program> emptyProgram_;
 
-    osg::Vec3 transTraversingInteractors;
-    bool isFirstTraversal;
-
     bool isScenegraphProtected_;
 
     typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material> > StoredMaterialsMap;
@@ -364,9 +342,10 @@ private:
     ui::Menu *m_miscMenu=nullptr;
     ui::SelectionList *m_drawStyle=nullptr;
     ui::Button *m_trackHead=nullptr;
-    ui::Button *m_showStats=nullptr;
+    ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
     ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
+    ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
 };
 }
 #endif

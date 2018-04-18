@@ -110,7 +110,7 @@ private:
 
 struct VertexCompare
 {
-    bool operator()(const Vertex *a, const Vertex *b)
+    bool operator()(const Vertex *a, const Vertex *b) const
     {
         return (*a) < (*b);
     }

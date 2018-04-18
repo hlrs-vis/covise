@@ -56,8 +56,11 @@
          <MouseNav value="ON" />
       </Input>
         
+      <UI>
+          <VRUI toolbar="true" />
+      </UI>
       <Plugin> 
-         <AKToolbar value="on">
+         <AKToolbar value="off">
                <ShortCut value="scale" name="scale" />
          </AKToolbar>
       </Plugin>

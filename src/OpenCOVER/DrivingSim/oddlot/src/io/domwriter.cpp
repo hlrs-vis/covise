@@ -20,6 +20,8 @@
 #include "QFileInfo"
 
 #include "src/data/projectdata.hpp"
+#include "src/data/tilesystem/tilesystem.hpp"
+#include "src/data/tilesystem/tile.hpp"
 
 // RoadSystem //
 //
@@ -53,6 +55,7 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneoffset.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
@@ -102,6 +105,8 @@
 //
 #include "src/gui/projectwidget.hpp"
 
+#include "src/gui/exportsettings.hpp"
+
 // MainWindow //
 //
 #include "src/mainwindow.hpp"
@@ -113,6 +118,8 @@
 DomWriter::DomWriter(ProjectData *projectData)
     : projectData_(projectData)
 {
+
+	tileSystem_ = projectData_->getTileSystem();
     doc_ = new QDomDocument();
 }
 
@@ -123,6 +130,7 @@ DomWriter::runToTheHills()
 {
     // <?xml?> //
     //
+	exportIDvar = ExportSettings::instance()->ExportIDVariant();
     setlocale(LC_NUMERIC, "C");
     QDomNode xml = doc_->createProcessingInstruction("xml", "version=\"1.0\"");
     doc_->appendChild(xml);
@@ -145,12 +153,15 @@ DomWriter::runToTheHills()
 	header_.setAttribute("east", projectData_->getEast());
 	header_.setAttribute("west", projectData_->getWest());
 
+	root_.appendChild(header_);
+	tileSystem_->write(doc_,root_);
+
 	GeoReference *geoReferenceParams = projectData_->getGeoReference();
 	if (geoReferenceParams)
 	{
 		geoReferenceParams->accept(this);
 	}
-    root_.appendChild(header_);
+
 
     // Run for your life //
     //
@@ -168,6 +179,87 @@ DomWriter::visit(RoadSystem *roadSystem)
     roadSystem->acceptForChildNodes(this);
 }
 
+QString DomWriter::getIDString(const odrID &ID, const QString &name)
+{
+	// check if this ID has already been written
+	QString IDS = writtenIDs[ID.getType()].value(ID, "");
+	if (IDS != "")
+	{
+		return IDS;
+	}
+	if (ID.getID() == -1)
+		return("-1");
+	
+	if(exportIDvar == ExportSettings::EXPORT_ORIGINAL)
+	{
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = ID.getName();
+		if (IDS == "")
+		{
+			IDS = name;
+		}
+		QString TileID;
+		if (ID.getTileID() > 0)
+		{
+			TileID = "_" + QString::number(ID.getTileID());
+		}
+		TileID += "_" + QString::number(ID.getID());
+		int counter = 0;
+		while (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			if (counter == 0)
+				IDS = ID.getName() + TileID;
+			else
+				IDS = ID.getName() + TileID + "_" + QString::number(counter);
+			counter++;
+		}
+	}
+	else if (exportIDvar == ExportSettings::EXPORT_NUMERICAL)
+	{
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = QString::number(ID.getID());
+
+		if (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			IDS = QString::number(ID.getTileID()*1000.0 + ID.getID());
+			int counter = 0;
+			while (writtenIDStrings[ID.getType()].contains(IDS))
+			{
+
+				IDS = QString::number(ID.getTileID()*counter*(1000.0) + ID.getID());
+				counter++;
+			}
+		}
+	}
+	else if (exportIDvar == ExportSettings::EXPORT_TILE_ID)
+	{
+		//write original ID if possible, otherwise create a unique ID based on the original one
+		IDS = ID.getName();
+		if (IDS == "")
+		{
+			IDS = name;
+		}
+		QString TileID;
+		if (ID.getTileID() > 0)
+		{
+			TileID = "_" + QString::number(ID.getTileID());
+		}
+		TileID += "_" + QString::number(ID.getID());
+		int counter = 0;
+		while (writtenIDStrings[ID.getType()].contains(IDS))
+		{
+			if (counter == 0)
+				IDS = ID.getName() + TileID;
+			else
+				IDS = ID.getName() + TileID + "_" + QString::number(counter);
+			counter++;
+		}
+	}
+	writtenIDs[ID.getType()].insert(ID,IDS);
+	writtenIDStrings[ID.getType()].insert(IDS);
+	return IDS;
+}
+
 void
 DomWriter::visit(RSystemElementRoad *road)
 {
@@ -176,8 +268,9 @@ DomWriter::visit(RSystemElementRoad *road)
     currentRoad_ = doc_->createElement("road");
     currentRoad_.setAttribute("name", road->getName());
     currentRoad_.setAttribute("length", road->getLength());
-    currentRoad_.setAttribute("id", road->getID());
-    currentRoad_.setAttribute("junction", road->getJunction());
+    currentRoad_.setAttribute("id", getIDString(road->getID(),road->getName()));
+    currentRoad_.setAttribute("junction", getIDString(road->getJunction(), ""));
+	addTileInfo(currentRoad_, road->getID().getTileID());
     root_.appendChild(currentRoad_);
 
     // <road><link><predecessor/successor> //
@@ -193,8 +286,11 @@ DomWriter::visit(RSystemElementRoad *road)
         {
             QDomElement predElement = doc_->createElement("predecessor");
             predElement.setAttribute("elementType", pred->getElementType());
-            predElement.setAttribute("elementId", pred->getElementId());
-            predElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(pred->getContactPoint()));
+            predElement.setAttribute("elementId", getIDString(pred->getElementId(), ""));
+			if (pred->getElementType() != "junction")
+			{
+				predElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(pred->getContactPoint()));
+			}
             linkElement.appendChild(predElement);
         }
 
@@ -202,8 +298,11 @@ DomWriter::visit(RSystemElementRoad *road)
         {
             QDomElement succElement = doc_->createElement("successor");
             succElement.setAttribute("elementType", succ->getElementType());
-            succElement.setAttribute("elementId", succ->getElementId());
-            succElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(succ->getContactPoint()));
+            succElement.setAttribute("elementId", getIDString(succ->getElementId(), ""));
+			if(succ->getElementType()!="junction")
+			{
+				succElement.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(succ->getContactPoint()));
+			}
             linkElement.appendChild(succElement);
         }
     }
@@ -323,7 +422,7 @@ DomWriter::visit(Object *object)
             }
 
             QString name = object->getName();
-            QString id = roadSystem->getUniqueId(object->getId(), name);
+            odrID id = roadSystem->getID(name,odrID::ID_Object);
 
             Signal * signal = new Signal(id, "", s, object->getT(), false, (Signal::OrientationType)orientation, object->getzOffset(), "Germany", type, subclass, subtype, 0.0, object->getHeading(), object->getPitch(), object->getRoll(), "km/h", "", object->getWidth(), object->getHeight(), object->getPole(), 2, fromLane, toLane, 0, 0);
             
@@ -344,6 +443,9 @@ DomWriter::visit(Object *object)
     else if (object->getType() != "")
     {
         QDomElement objectElement = doc_->createElement("object");
+
+		addTileInfo(objectElement, object->getId().getTileID());
+
         if (object->getRepeatLength() > NUMERICAL_ZERO3)
 		{
             QDomElement repeatElement = doc_->createElement("repeat");
@@ -395,7 +497,7 @@ DomWriter::visit(Object *object)
         }
 
         // Set mandatory attributes
-        objectElement.setAttribute("id", object->getId());
+        objectElement.setAttribute("id", getIDString(object->getId(), object->getName()));
         //Texture and model file are ancillary data
         //
         QDomElement userData;
@@ -546,10 +648,12 @@ DomWriter::visit(ObjectReference *objectReference)
 
 	objectReferenceElement.setAttribute("s", objectReference->getSStart());
 	objectReferenceElement.setAttribute("t", objectReference->getReferenceT());
-	objectReferenceElement.setAttribute("id", objectReference->getReferenceId());
+	objectReferenceElement.setAttribute("id", getIDString(objectReference->getReferenceId(), ""));
 	objectReferenceElement.setAttribute("zOffset", objectReference->getReferenceZOffset());
 	objectReferenceElement.setAttribute("validLength", objectReference->getReferenceValidLength());
 	objectReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(objectReference->getReferenceOrientation()));
+
+	addTileInfo(objectReferenceElement, objectReference->getId().getTileID());
 
 	foreach(Signal::Validity validity, objectReference->getValidityList())
 	{
@@ -578,7 +682,9 @@ DomWriter::visit(Bridge *bridge)
     bridgeElement = doc_->createElement("bridge");
 
     // Set mandatory attributes
-    bridgeElement.setAttribute("id", bridge->getId());
+    bridgeElement.setAttribute("id", getIDString(bridge->getId(), bridge->getName()));
+
+	addTileInfo(bridgeElement, bridge->getId().getTileID());
 
     QString bridgeName;
 
@@ -641,7 +747,7 @@ DomWriter::visit(Tunnel *tunnel)
         tunnelElement = doc_->createElement("tunnel");
 
         // Set mandatory attributes
-        tunnelElement.setAttribute("id", tunnel->getId());
+        tunnelElement.setAttribute("id", getIDString(tunnel->getId(), tunnel->getName()));
 
         tunnelElement.setAttribute("name", tunnel->getName());
 
@@ -652,6 +758,7 @@ DomWriter::visit(Tunnel *tunnel)
 		tunnelElement.setAttribute("daylight", tunnel->getDaylight());
         tunnelElement.setAttribute("type", Tunnel::parseTunnelTypeBack(tunnel->getType()));
 
+		addTileInfo(tunnelElement, tunnel->getId().getTileID());
     // model file are ancillary data
     //
     if (tunnel->getFileName() != "")
@@ -685,10 +792,12 @@ DomWriter::visit(Crosswalk *crosswalk)
     QDomElement crosswalkElement = doc_->createElement("crosswalk");
 
     // Set mandatory attributes
-    crosswalkElement.setAttribute("id", crosswalk->getId());
+    crosswalkElement.setAttribute("id", getIDString(crosswalk->getId(), crosswalk->getName()));
     crosswalkElement.setAttribute("name", crosswalk->getName());
     crosswalkElement.setAttribute("s", crosswalk->getS());
     crosswalkElement.setAttribute("length", crosswalk->getLength());
+
+	addTileInfo(crosswalkElement, crosswalk->getId().getTileID());
 
     // Set optional attributes, if they were provided
     if (crosswalk->hasCrossProb())
@@ -769,7 +878,9 @@ DomWriter::visit(Signal *signal)
     }
 
     // Set mandatory attributes
-    signalElement.setAttribute("id", signal->getId());
+    signalElement.setAttribute("id", getIDString(signal->getId(), signal->getName()));
+
+	addTileInfo(signalElement, signal->getId().getTileID());
     QString signalName; // The name has the format: type.typeSubclass-subtype_name_p
 
     QString type = signal->getType();
@@ -996,9 +1107,10 @@ DomWriter::visit(SignalReference *signalReference)
 
 	signalReferenceElement.setAttribute("s", signalReference->getSStart());
 	signalReferenceElement.setAttribute("t", signalReference->getReferenceT());
-	signalReferenceElement.setAttribute("id", signalReference->getReferenceId());
+	signalReferenceElement.setAttribute("id", getIDString(signalReference->getReferenceId(), ""));
 	signalReferenceElement.setAttribute("orientation", Signal::parseOrientationTypeBack(signalReference->getReferenceOrientation()));
 
+	addTileInfo(signalReferenceElement, signalReference->getReferenceId().getTileID());
 	foreach (Signal::Validity validity, signalReference->getValidityList())
 	{
 		QDomElement validityElement = doc_->createElement("validity");
@@ -1058,8 +1170,8 @@ DomWriter::visit(TypeSection *section)
         }
 		speedElement.setAttribute("unit", section->getSpeedRecord()->maxUnit);
         element.appendChild(speedElement);
-    }
-    currentRoad_.appendChild(element);
+	}
+	currentRoad_.appendChild(element);
 }
 
 //#################//
@@ -1068,37 +1180,37 @@ DomWriter::visit(TypeSection *section)
 void
 DomWriter::visit(SurfaceSection *section)
 {
-    QDomElement element = doc_->createElement("surface");
-    for (int i = 0; i < section->getNumCRG(); i++)
-    {
-        QDomElement crgElement = doc_->createElement("CRG");
+	QDomElement element = doc_->createElement("surface");
+	for (int i = 0; i < section->getNumCRG(); i++)
+	{
+		QDomElement crgElement = doc_->createElement("CRG");
 
-        if (section->getFile(i).length() > 0)
-            crgElement.setAttribute("file", section->getFile(i));
-        if (section->getSStart(i).length() > 0)
-            crgElement.setAttribute("sStart", section->getSStart(i));
-        if (section->getSEnd(i).length() > 0)
-            crgElement.setAttribute("sEnd", section->getSEnd(i));
-        if (section->getOrientation(i).length() > 0)
-            crgElement.setAttribute("orientation", section->getOrientation(i));
-        if (section->getMode(i).length() > 0)
-            crgElement.setAttribute("mode", section->getMode(i));
+		if (section->getFile(i).length() > 0)
+			crgElement.setAttribute("file", section->getFile(i));
+		if (section->getSStart(i).length() > 0)
+			crgElement.setAttribute("sStart", section->getSStart(i));
+		if (section->getSEnd(i).length() > 0)
+			crgElement.setAttribute("sEnd", section->getSEnd(i));
+		if (section->getOrientation(i).length() > 0)
+			crgElement.setAttribute("orientation", section->getOrientation(i));
+		if (section->getMode(i).length() > 0)
+			crgElement.setAttribute("mode", section->getMode(i));
 		if (section->getPurpose(i).length() > 0)
 			crgElement.setAttribute("purpose", section->getPurpose(i));
-        if (section->getSOffset(i).length() > 0)
-            crgElement.setAttribute("sOffset", section->getSOffset(i));
-        if (section->getTOffset(i).length() > 0)
-            crgElement.setAttribute("tOffset", section->getTOffset(i));
-        if (section->getZOffset(i).length() > 0)
-            crgElement.setAttribute("zOffset", section->getZOffset(i));
-        if (section->getZScale(i).length() > 0)
-            crgElement.setAttribute("zScale", section->getZScale(i));
-        if (section->getHOffset(i).length() > 0)
-            crgElement.setAttribute("hOffset", section->getHOffset(i));
+		if (section->getSOffset(i).length() > 0)
+			crgElement.setAttribute("sOffset", section->getSOffset(i));
+		if (section->getTOffset(i).length() > 0)
+			crgElement.setAttribute("tOffset", section->getTOffset(i));
+		if (section->getZOffset(i).length() > 0)
+			crgElement.setAttribute("zOffset", section->getZOffset(i));
+		if (section->getZScale(i).length() > 0)
+			crgElement.setAttribute("zScale", section->getZScale(i));
+		if (section->getHOffset(i).length() > 0)
+			crgElement.setAttribute("hOffset", section->getHOffset(i));
 
-        element.appendChild(crgElement);
-    }
-    currentRoad_.appendChild(element);
+		element.appendChild(crgElement);
+	}
+	currentRoad_.appendChild(element);
 }
 
 //###################//
@@ -1108,13 +1220,13 @@ DomWriter::visit(SurfaceSection *section)
 void
 DomWriter::visit(ElevationSection *section)
 {
-    QDomElement element = doc_->createElement("elevation");
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA());
-    element.setAttribute("b", section->getB());
-    element.setAttribute("c", section->getC());
-    element.setAttribute("d", section->getD());
-    currentElevationProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("elevation");
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA());
+	element.setAttribute("b", section->getB());
+	element.setAttribute("c", section->getC());
+	element.setAttribute("d", section->getD());
+	currentElevationProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1124,13 +1236,13 @@ DomWriter::visit(ElevationSection *section)
 void
 DomWriter::visit(SuperelevationSection *section)
 {
-    QDomElement element = doc_->createElement("superelevation");
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * M_PI / 180.0);
-    element.setAttribute("b", section->getB() * M_PI / 180.0);
-    element.setAttribute("c", section->getC() * M_PI / 180.0);
-    element.setAttribute("d", section->getD() * M_PI / 180.0);
-    currentLateralProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("superelevation");
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA() * M_PI / 180.0);
+	element.setAttribute("b", section->getB() * M_PI / 180.0);
+	element.setAttribute("c", section->getC() * M_PI / 180.0);
+	element.setAttribute("d", section->getD() * M_PI / 180.0);
+	currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1140,14 +1252,14 @@ DomWriter::visit(SuperelevationSection *section)
 void
 DomWriter::visit(CrossfallSection *section)
 {
-    QDomElement element = doc_->createElement("crossfall");
-    element.setAttribute("side", CrossfallSection::parseCrossfallSideBack(section->getSide()));
-    element.setAttribute("s", section->getSStart());
-    element.setAttribute("a", section->getA() * M_PI / 180.0);
-    element.setAttribute("b", section->getB() * M_PI / 180.0);
-    element.setAttribute("c", section->getC() * M_PI / 180.0);
-    element.setAttribute("d", section->getD() * M_PI / 180.0);
-    currentLateralProfileElement_.appendChild(element);
+	QDomElement element = doc_->createElement("crossfall");
+	element.setAttribute("side", CrossfallSection::parseCrossfallSideBack(section->getSide()));
+	element.setAttribute("s", section->getSStart());
+	element.setAttribute("a", section->getA() * M_PI / 180.0);
+	element.setAttribute("b", section->getB() * M_PI / 180.0);
+	element.setAttribute("c", section->getC() * M_PI / 180.0);
+	element.setAttribute("d", section->getD() * M_PI / 180.0);
+	currentLateralProfileElement_.appendChild(element);
 }
 
 //################//
@@ -1157,14 +1269,21 @@ DomWriter::visit(CrossfallSection *section)
 void
 DomWriter::visit(ShapeSection *section)
 {
+	if (section->getShapes().size() == 1)		// Do not write section, if there was no editing
+	{
+		if (section->getFirstPolynomialLateralSection()->getDegree() == -1)
+		{
+			return;
+		}
+	}
 
-	QMap<double, Polynomial *>::const_iterator iter = section->getShapes().constBegin();
+	QMap<double, PolynomialLateralSection *>::const_iterator iter = section->getShapes().constBegin();
 	while (iter != section->getShapes().constEnd())
 	{
 		QDomElement element = doc_->createElement("shape");
 		element.setAttribute("s", section->getSStart());
 		element.setAttribute("t", iter.key());
-		Polynomial *poly = iter.value();
+		PolynomialLateralSection *poly = iter.value();
 		element.setAttribute("a", poly->getA());
 		element.setAttribute("b", poly->getB());
 		element.setAttribute("c", poly->getC());
@@ -1367,6 +1486,18 @@ DomWriter::visit(LaneWidth *laneWidth)
 }
 
 void
+DomWriter::visit(LaneOffset *laneOffset)
+{
+	QDomElement element = doc_->createElement("laneOffset");
+	element.setAttribute("s", laneOffset->getSOffset());
+	element.setAttribute("a", laneOffset->getA());
+	element.setAttribute("b", laneOffset->getB());
+	element.setAttribute("c", laneOffset->getC());
+	element.setAttribute("d", laneOffset->getD());
+	currentLanesElement_.appendChild(element);
+}
+
+void
 DomWriter::visit(LaneBorder *laneBorder)
 {
 	QDomElement element = doc_->createElement("border");
@@ -1460,6 +1591,16 @@ DomWriter::visit(LaneAccess *laneAccess)
 	currentLaneElement_.appendChild(element);
 }
 
+void DomWriter::addTileInfo(QDomElement element, uint32_t tileID)
+{
+	if (tileID > 0)
+	{
+		QDomElement userData = doc_->createElement("userData");
+
+		userData.setAttribute("code", "tile");
+		userData.setAttribute("value", QString::number(tileID));
+	}
+}
 //################//
 // CONTROLLER     //
 //################//
@@ -1468,6 +1609,7 @@ void
 DomWriter::visit(RSystemElementController *controller)
 {
     QDomElement controllerElement = doc_->createElement("controller");
+	addTileInfo(controllerElement,controller->getID().getTileID());
 
     QDomElement userData = doc_->createElement("userData");
 
@@ -1475,8 +1617,7 @@ DomWriter::visit(RSystemElementController *controller)
     double cycleTime = controller->getCycleTime();
     if (script == "")
     {
-        QStringList parts = controller->getID().split("_");
-        script = QString("%1_%2.qs").arg("lights").arg(parts[1]);
+        script = QString("%1_%2.qs").arg("lights").arg(controller->getID().writeString());
         cycleTime = 40.0;
     }
     userData.setAttribute("code", "script");
@@ -1498,7 +1639,7 @@ DomWriter::visit(RSystemElementController *controller)
             QDomElement controlElement = doc_->createElement("control");
             ControlEntry *control = controller->getControlEntries().at(i);
 
-            controlElement.setAttribute("signalId", control->getSignalId());
+            controlElement.setAttribute("signalId", control->getSignalId().writeString());
             controlElement.setAttribute("type", control->getType());
 
             controllerElement.appendChild(controlElement);
@@ -1506,7 +1647,7 @@ DomWriter::visit(RSystemElementController *controller)
     }
 
     // Set mandatory attributes
-    controllerElement.setAttribute("id", controller->getID());
+    controllerElement.setAttribute("id", getIDString(controller->getID(), controller->getName()));
     controllerElement.setAttribute("name", controller->getName());
     controllerElement.setAttribute("sequence", controller->getSequence());
 
@@ -1519,8 +1660,7 @@ DomWriter::visit(RSystemElementController *controller)
         for (int i = 0; i < controller->getControlEntries().size(); i++)
         {
             ControlEntry *control = controller->getControlEntries().at(i);
-            const QString id = control->getSignalId();
-            Signal * signal = controller->getSignal(id);
+            Signal * signal = controller->getSignal(control->getSignalId());
 
             if (signal)
             {
@@ -1540,13 +1680,13 @@ DomWriter::visit(RSystemElementController *controller)
             ControlEntry *control = controller->getControlEntries().at(i);
             if (signalsType.at(i) == "3")
             {
-                out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".yellow=1;\n";
             }
             else if (signalsType.at(i) == "2")
             {
-                out << "      signal_" << control->getSignalId() << ".green=1;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".green=1;\n";
             }
-            out << "      signal_" << control->getSignalId() << ".red=0;\n";
+            out << "      signal_" << control->getSignalId().writeString() << ".red=0;\n";
         }
         out << "   }\n";
 
@@ -1556,8 +1696,8 @@ DomWriter::visit(RSystemElementController *controller)
             ControlEntry *control = controller->getControlEntries().at(i);
             if (signalsType.at(i) == "3")
             {
-                out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
-                out << "      signal_" << control->getSignalId() << ".green=1;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".yellow=0;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".green=1;\n";
             }
         }
         out << "   }\n";
@@ -1568,8 +1708,8 @@ DomWriter::visit(RSystemElementController *controller)
             ControlEntry *control = controller->getControlEntries().at(i);
             if (signalsType.at(i) == "3")
             {
-                out << "      signal_" << control->getSignalId() << ".yellow=1;\n";
-                out << "      signal_" << control->getSignalId() << ".green=0;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".yellow=1;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".green=0;\n";
             }
         }
         out << "   }\n";
@@ -1580,13 +1720,13 @@ DomWriter::visit(RSystemElementController *controller)
             ControlEntry *control = controller->getControlEntries().at(i);
             if (signalsType.at(i) == "3")
             {
-                out << "      signal_" << control->getSignalId() << ".yellow=0;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".yellow=0;\n";
             }
             else if (signalsType.at(i) == "2")
             {
-                out << "      signal_" << control->getSignalId() << ".green=0;\n";
+                out << "      signal_" << control->getSignalId().writeString() << ".green=0;\n";
             }
-            out << "      signal_" << control->getSignalId() << ".red=1;\n";
+            out << "      signal_" << control->getSignalId().writeString() << ".red=1;\n";
         }
         out << "   }\n";
         out << "}\n";
@@ -1606,7 +1746,9 @@ DomWriter::visit(RSystemElementJunction *junction)
     //
     currentJunctionElement_ = doc_->createElement("junction");
     currentJunctionElement_.setAttribute("name", junction->getName());
-    currentJunctionElement_.setAttribute("id", junction->getID());
+    currentJunctionElement_.setAttribute("id", getIDString(junction->getID(), junction->getName()));
+
+	addTileInfo(currentJunctionElement_, junction->getID().getTileID());
     root_.appendChild(currentJunctionElement_);
 
 
@@ -1618,8 +1760,8 @@ DomWriter::visit(JunctionConnection *connection)
 {
     QDomElement element = doc_->createElement("connection");
     element.setAttribute("id", connection->getId());
-    element.setAttribute("incomingRoad", connection->getIncomingRoad());
-    element.setAttribute("connectingRoad", connection->getConnectingRoad());
+    element.setAttribute("incomingRoad", getIDString(connection->getIncomingRoad(), ""));
+    element.setAttribute("connectingRoad", getIDString(connection->getConnectingRoad(), ""));
     element.setAttribute("contactPoint", JunctionConnection::parseContactPointBack(connection->getContactPoint()));
 
     QDomElement userData = doc_->createElement("userData");
@@ -1653,8 +1795,10 @@ DomWriter::visit(RSystemElementJunctionGroup *junctionGroup)
 	//
 	QDomElement currentJunctionGroupElement = doc_->createElement("junctionGroup");
 	currentJunctionGroupElement.setAttribute("name", junctionGroup->getName());
-	currentJunctionGroupElement.setAttribute("id", junctionGroup->getID());
+	currentJunctionGroupElement.setAttribute("id", getIDString(junctionGroup->getID(), junctionGroup->getName()));
 	currentJunctionGroupElement.setAttribute("type", junctionGroup->getType());
+
+	addTileInfo(currentJunctionGroupElement, junctionGroup->getID().getTileID());
 
 	foreach(QString reference, junctionGroup->getJunctionReferences())
 	{
@@ -1676,15 +1820,17 @@ DomWriter::visit(RSystemElementFiddleyard *fiddleyard)
     // <fiddleyard> //
     //
     currentFiddleyardElement_ = doc_->createElement("fiddleyard");
-    currentFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentFiddleyardElement_.setAttribute("id", getIDString(fiddleyard->getID(), fiddleyard->getName()));
     currentFiddleyardElement_.setAttribute("name", fiddleyard->getName());
+
+	addTileInfo(currentFiddleyardElement_, fiddleyard->getID().getTileID());
     root_.appendChild(currentFiddleyardElement_);
 
     // <fiddleyard><link> //
     //
     QDomElement linkElement = doc_->createElement("link");
     linkElement.setAttribute("elementType", fiddleyard->getElementType());
-    linkElement.setAttribute("elementId", fiddleyard->getElementId());
+    linkElement.setAttribute("elementId", fiddleyard->getElementId().getID());
     linkElement.setAttribute("contactPoint", fiddleyard->getContactPoint());
     currentFiddleyardElement_.appendChild(linkElement);
 
@@ -1703,24 +1849,27 @@ DomWriter::visit(FiddleyardSource *source)
     // <fiddleyard><source> //
     //
     QDomElement sourceElement = doc_->createElement("source");
-    sourceElement.setAttribute("id", source->getId());
+    sourceElement.setAttribute("id", getIDString(source->getId(), ""));
     sourceElement.setAttribute("lane", source->getLane());
     sourceElement.setAttribute("startTime", source->getStartTime());
     sourceElement.setAttribute("repeatTime", source->getRepeatTime());
     sourceElement.setAttribute("velocity", source->getVelocity());
     sourceElement.setAttribute("velocityDeviance", source->getVelocityDeviance());
+	addTileInfo(sourceElement, source->getId().getTileID());
     currentFiddleyardElement_.appendChild(sourceElement);
 
     // <fiddleyard><source><vehicle> //
     //
-    QMap<QString, double> vehicles = source->getVehicles();
-    QMap<QString, double>::const_iterator i = vehicles.constBegin();
+    QMap<odrID, double> vehicles = source->getVehicles();
+    QMap<odrID, double>::const_iterator i = vehicles.constBegin();
     while (i != vehicles.constEnd())
     {
         QDomElement child = doc_->createElement("vehicle");
-        child.setAttribute("id", i.key());
+        child.setAttribute("id", getIDString(i.key(), ""));
         child.setAttribute("numerator", i.value());
         ++i;
+
+		//addTileInfo(child, vehicle->getID().getTileID());
         sourceElement.appendChild(child);
     }
 }
@@ -1731,7 +1880,7 @@ DomWriter::visit(FiddleyardSink *sink)
     // <fiddleyard><sink> //
     //
     QDomElement sinkElement = doc_->createElement("sink");
-    sinkElement.setAttribute("id", sink->getId());
+    sinkElement.setAttribute("id", getIDString(sink->getId(), ""));
     sinkElement.setAttribute("lane", sink->getLane());
     currentFiddleyardElement_.appendChild(sinkElement);
 }
@@ -1746,9 +1895,10 @@ DomWriter::visit(RSystemElementPedFiddleyard *fiddleyard)
     // <pedFiddleyard> //
     //
     currentPedFiddleyardElement_ = doc_->createElement("pedFiddleyard");
-    currentPedFiddleyardElement_.setAttribute("id", fiddleyard->getID());
+    currentPedFiddleyardElement_.setAttribute("id", getIDString(fiddleyard->getID(), fiddleyard->getName()));
     currentPedFiddleyardElement_.setAttribute("name", fiddleyard->getName());
-    currentPedFiddleyardElement_.setAttribute("roadId", fiddleyard->getRoadId());
+    currentPedFiddleyardElement_.setAttribute("roadId", fiddleyard->getRoadId().getID());
+	addTileInfo(currentPedFiddleyardElement_, fiddleyard->getID().getTileID());
     root_.appendChild(currentPedFiddleyardElement_);
 
     // <pedFiddleyard><source> //
@@ -1768,9 +1918,10 @@ DomWriter::visit(PedFiddleyardSource *source)
     QDomElement sourceElement = doc_->createElement("source");
 
     // Set mandatory attributes
-    sourceElement.setAttribute("id", source->getId());
+    sourceElement.setAttribute("id", getIDString(source->getId(), ""));
     sourceElement.setAttribute("lane", source->getLane());
     sourceElement.setAttribute("velocity", source->getVelocity());
+	addTileInfo(sourceElement, source->getId().getTileID());
 
     // Set optional attributes
     if (source->hasStartTime())
@@ -1817,8 +1968,10 @@ DomWriter::visit(PedFiddleyardSink *sink)
     QDomElement sinkElement = doc_->createElement("sink");
 
     // Set mandatory attributes
-    sinkElement.setAttribute("id", sink->getId());
+    sinkElement.setAttribute("id", getIDString(sink->getId(), ""));
     sinkElement.setAttribute("lane", sink->getLane());
+
+	addTileInfo(sinkElement, sink->getId().getTileID());
 
     // Set optional attributes
     if (sink->hasSinkProb())
@@ -1858,11 +2011,12 @@ DomWriter::visit(Pool *pool)
     QDomElement poolElement = doc_->createElement("pool");
     currentCarPoolElement_.appendChild(poolElement);
 
-    poolElement.setAttribute("id", pool->getID());
+    poolElement.setAttribute("id", getIDString(pool->getID(), pool->getName()));
     poolElement.setAttribute("name", pool->getName());
     poolElement.setAttribute("velocity", pool->getVelocity());
     poolElement.setAttribute("velocityDeviance", pool->getVelocityDeviance());
     poolElement.setAttribute("numerator", pool->getNumerator());
+	addTileInfo(poolElement, pool->getID().getTileID());
 
     QList<PoolVehicle *> vehicles = pool->getVehicles();
     QList<PoolVehicle *>::const_iterator i = vehicles.constBegin();

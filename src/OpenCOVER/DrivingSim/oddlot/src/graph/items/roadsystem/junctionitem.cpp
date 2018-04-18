@@ -70,7 +70,7 @@ JunctionItem::init()
 
     // Text //
     //
-    textHandle_ = new TextHandle(junction_->getID(), this);
+    textHandle_ = new TextHandle(junction_->getID().speakingName(), this);
     textHandle_->setBrush(QBrush(ODD::instance()->colors()->brightGrey()));
     textHandle_->setPen(QPen(ODD::instance()->colors()->darkGrey()));
     textHandle_->setFlag(QGraphicsItem::ItemIgnoresParentOpacity, false); // use highlighting of the road
@@ -204,14 +204,10 @@ JunctionItem::removeJunction()
 void
 JunctionItem::addToCurrentTile()
 {
-    QStringList parts = junction_->getID().split("_");
-    if (parts.at(0) != getProjectData()->getTileSystem()->getCurrentTile()->getID())
-    {
-        QString name = junction_->getName();
-        QString newId = junction_->getRoadSystem()->getUniqueId("", name);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, NULL);
-        getProjectGraph()->executeCommand(command);
-    }
+	odrID newId = junction_->getID();
+	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, NULL);
+	getProjectGraph()->executeCommand(command);
 }
 
 //##################//

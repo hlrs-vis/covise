@@ -81,16 +81,7 @@ int coIconToggleButtonToolboxItem::hit(vruiHit *hit)
     if (pressed && buttons->wasReleased())
     {
         pressed = false;
-
-        // perform own action (if existent) as secondary
-        if (listener)
-            listener->menuEvent(this);
-
-        // feed state to twin
-        if (myTwin)
-        {
-            myTwin->updateContentBool(getState());
-        }
+        setState(!getState(), true /* generate event */);
     }
 
     return ACTION_CALL_ON_MISS;
@@ -122,25 +113,6 @@ void coIconToggleButtonToolboxItem::doActionRelease()
     // perform own action (if existent) as secondary
     if (listener)
         listener->menuEvent(this);
-
-    // feed state to twin
-    if (myTwin)
-    {
-        myTwin->updateContentBool(getState());
-    }
-}
-
-bool coIconToggleButtonToolboxItem::updateContentBool(bool newState)
-{
-    if (newState != getState())
-    {
-        myButton->setState(newState);
-    }
-
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
 }
 
 const char *coIconToggleButtonToolboxItem::getClassName() const
@@ -174,15 +146,15 @@ bool coIconToggleButtonToolboxItem::isOfClassName(const char *classname) const
 */
 void coIconToggleButtonToolboxItem::setState(bool newState, bool generateEvent)
 {
-    if (generateEvent && myButton->getState() != newState)
-    {
-        //myButton->setState(newState);
-        if (listener)
-            listener->menuEvent(this);
-    }
-    else
+    if (myButton->getState() != newState)
     {
         myButton->setState(newState);
+    }
+
+    if (generateEvent)
+    {
+        if (listener)
+            listener->menuEvent(this);
     }
 }
 

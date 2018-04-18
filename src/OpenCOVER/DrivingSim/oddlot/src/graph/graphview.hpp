@@ -18,6 +18,8 @@
 
 #include <QGraphicsView>
 #include <QRubberBand>
+#include <QNetworkAccessManager>
+#include <QUrl>
 
 class TopviewGraph;
 class GraphScene;
@@ -26,6 +28,12 @@ class ZoomTool;
 class Ruler;
 class ScenerySystemItem;
 class GraphViewShapeItem;
+
+
+class QFile;
+class QSslError;
+class QAuthenticator;
+class QNetworkReply;
 
 class ToolAction;
 
@@ -79,6 +87,11 @@ public:
     virtual void keyReleaseEvent(QKeyEvent *event);
 
     virtual void contextMenuEvent(QContextMenuEvent *e);
+
+protected:
+	virtual void dragEnterEvent(QDragEnterEvent *event);
+	virtual void dragMoveEvent(QDragMoveEvent *event);
+	virtual void dropEvent(QDropEvent *event);
 
     //################//
     // SLOTS          //
@@ -185,6 +198,27 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
+
+	/// http wget
+	void startRequest(const QUrl &requestedUrl);
+
+	private slots:
+	void downloadFile(const QString &fn, const QString &url);
+	void cancelDownload();
+	void httpFinished();
+	void httpReadyRead();
+	void slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator);
+#ifndef QT_NO_SSL
+	void sslErrors(QNetworkReply *, const QList<QSslError> &errors);
+#endif
+	private:
+		QUrl url;
+		QNetworkAccessManager qnam;
+		QNetworkReply *reply;
+		QFile *file;
+		bool httpRequestAborted;
+		void wgetInit();
+		QFile *openFileForWrite(const QString &fileName);
 
 };
 

@@ -60,14 +60,14 @@ public:
     void setXmlDoc(xercesc::DOMDocument *xmlDoc);
 
     std::string getSrcFileHrefAsStr() const;
-    const XMLCh *getSrcFileHrefAsXmlCh() const;
+    XMLCh *getSrcFileHrefAsXmlCh() const;
     bf::path getSrcFileHref() const;
     bf::path getSrcFileName() const;
     bf::path getPathFromCurrentDirToMainDir() const;
     bf::path getAbsPathToMainDir() const;
     bf::path getRelPathFromMainDir() const;
     std::string getRootElementNameAsStr() const;
-    const XMLCh *getRootElementNameAsXmlCh() const;
+    XMLCh *getRootElementNameAsXmlCh() const;
     xercesc::DOMDocument *getXmlDoc() const;
 	xercesc::DOMDocument *getOrCreateXmlDoc();
 	xercesc::DOMDocument *getXmlDoc() { return m_xmlDoc;};

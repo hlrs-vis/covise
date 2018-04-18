@@ -15,9 +15,6 @@
 #pragma once
 
 #include <string>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 #include <boost/optional.hpp>
 
@@ -26,12 +23,12 @@ namespace KardanikXML
 
 class BodyJointDesc;
 
-class Joint : public std::tr1::enable_shared_from_this<Joint>
+class Joint : public std::enable_shared_from_this<Joint>
 {
 private:
 public:
     Joint();
-    Joint(std::tr1::shared_ptr<BodyJointDesc> bodyA, std::tr1::shared_ptr<BodyJointDesc> bodyB);
+    Joint(std::shared_ptr<BodyJointDesc> bodyA, std::shared_ptr<BodyJointDesc> bodyB);
 
     enum Axis
     {
@@ -54,15 +51,15 @@ public:
     void SetInitialAngle(float angle);
     boost::optional<float> GetInitialAngle() const;
 
-    void SetBodyJointDescA(std::tr1::shared_ptr<BodyJointDesc> bodyA);
-    std::tr1::shared_ptr<BodyJointDesc> GetBodyA() const;
+    void SetBodyJointDescA(std::shared_ptr<BodyJointDesc> bodyA);
+    std::shared_ptr<BodyJointDesc> GetBodyA() const;
 
-    void SetBodyJointDescB(std::tr1::shared_ptr<BodyJointDesc> bodyB);
-    std::tr1::shared_ptr<BodyJointDesc> GetBodyB() const;
+    void SetBodyJointDescB(std::shared_ptr<BodyJointDesc> bodyB);
+    std::shared_ptr<BodyJointDesc> GetBodyB() const;
 
 private:
-    std::tr1::shared_ptr<BodyJointDesc> m_BodyA;
-    std::tr1::shared_ptr<BodyJointDesc> m_BodyB;
+    std::shared_ptr<BodyJointDesc> m_BodyA;
+    std::shared_ptr<BodyJointDesc> m_BodyB;
 
     boost::optional<float> m_UpperLimit;
     boost::optional<float> m_LowerLimit;

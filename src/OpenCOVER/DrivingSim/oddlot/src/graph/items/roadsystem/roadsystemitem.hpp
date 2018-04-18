@@ -17,6 +17,7 @@
 #define ROADSYSTEMITEM_HPP
 
 #include "src/graph/items/graphelement.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class RoadSystem;
 
@@ -51,11 +52,11 @@ public:
     //
     void appendRoadItem(RoadItem *roadItem);
     bool removeRoadItem(RoadItem *roadItem);
-    RoadItem *getRoadItem(const QString &id) const
+    RoadItem *getRoadItem(const odrID &id) const
     {
-        return roadItems_.value(id, NULL);
+        return roadItems_.value(id.getID(), NULL);
     }
-    QMap<QString, RoadItem *> getRoadItems() const
+    QMap<int32_t, RoadItem *> getRoadItems() const
     {
         return roadItems_;
     }
@@ -101,7 +102,7 @@ private:
 
     // Roads //
     //
-    QMap<QString, RoadItem *> roadItems_;
+    QMap<int32_t, RoadItem *> roadItems_;
 };
 
 #endif // ROADSYSTEMITEM_HPP

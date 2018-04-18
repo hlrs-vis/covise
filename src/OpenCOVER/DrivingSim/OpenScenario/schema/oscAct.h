@@ -31,7 +31,7 @@ oscAct()
     };
         const char *getScope(){return "/OpenSCENARIO/Storyboard/Story";};
     oscString name;
-    oscSequenceMember Sequence;
+    oscSequenceArrayMember Sequence;
     oscActConditionsMember Conditions;
 
 };

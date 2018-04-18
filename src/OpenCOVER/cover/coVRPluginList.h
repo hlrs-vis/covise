@@ -125,7 +125,7 @@ public:
     //! call setTimestep method of all plugins
     void setTimestep(int timestep) const;
     //! send a message to all plugins
-    void message(int t, int l, const void *b) const;
+    void message(int toWhom, int t, int l, const void *b) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
     void forwardMessage(int len, const void *buf) const;
@@ -162,7 +162,7 @@ private:
     void unmanage(coVRPlugin *plug);
 
     //! try to load a plugin
-    coVRPlugin *loadPlugin(const char *name);
+    coVRPlugin *loadPlugin(const char *name, bool showErrors = true);
 
     void grabKeyboard(coVRPlugin *);
     coVRPlugin *keyboardGrabber() const

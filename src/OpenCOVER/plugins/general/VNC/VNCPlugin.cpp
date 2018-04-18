@@ -385,7 +385,7 @@ void VNCPlugin::menuEvent(coMenuItem *menuItem)
     (void)menuItem;
 }
 
-void VNCPlugin::message(int type, int len, const void *buf)
+void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     switch (type)
     {

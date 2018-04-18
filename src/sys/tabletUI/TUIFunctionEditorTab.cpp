@@ -126,7 +126,7 @@ void TUIFunctionEditorTab::histogramMessage(covise::TokenBuffer &tb)
 
 // receive a list of colors, rgba, and uses them to update the
 // color map for the transfer function
-void TUIFunctionEditorTab::setValue(int type, covise::TokenBuffer &tb)
+void TUIFunctionEditorTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     switch (type)
     {
@@ -136,6 +136,8 @@ void TUIFunctionEditorTab::setValue(int type, covise::TokenBuffer &tb)
 
     case TABLET_TF_HISTOGRAM:
         histogramMessage(tb);
+        break;
+    default:
         break;
     }
 
@@ -155,9 +157,9 @@ void TUIFunctionEditorTab::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-char *TUIFunctionEditorTab::getClassName()
+const char *TUIFunctionEditorTab::getClassName() const
 {
-    return (char *)"TUIFunctionEditorTab";
+    return "TUIFunctionEditorTab";
 }
 
 void TUIFunctionEditorTab::make1DEditor()
@@ -399,7 +401,8 @@ void TUIFunctionEditorTab::makeEditor()
     connect(chooser, SIGNAL(changedColor(QColor)), this, SLOT(showNewColor(QColor)));
     mainLayout->addWidget(chooser, 0);
 
-    layout->addLayout(mainLayout, 0, 0);
+    if (auto gl = gridLayout())
+        gl->addLayout(mainLayout, 0, 0);
     gb = NULL;
     functionEditor = NULL;
     chkOwnColor = NULL;

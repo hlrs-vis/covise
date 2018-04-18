@@ -134,10 +134,14 @@ void VrmlNodeInline::render(Viewer *viewer)
     if (!haveToRender())
         return;
 
+    if (d_wasCached)
+        return;
+
     if (isModified())
     {
         if (sgObject) // we have a cached Object, so add it to the viewer
         {
+            d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
             d_viewerObject = viewer->beginObject(name(), 0, this);
             System::the->insertObject(d_viewerObject, sgObject);
             viewer->endObject();
@@ -146,12 +150,18 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (strncmp(name(), "Cached", 6) == 0)
+            if (d_viewerObject && (strstr(name(), "Cached") != NULL || isOnlyGeometry()))
             {
-                if (d_viewerObject)
+                d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
+                Doc url;
+                const char *pathname = NULL;
+                if (d_relative.get())
                 {
-                    d_scene->storeCachedInline(d_url.get(0), d_viewerObject);
+                    Doc relDoc(d_relative.get());
+                    url.seturl(d_url.get(0), &relDoc);
+                    pathname = url.localName();
                 }
+                d_scene->storeCachedInline(d_url.get(0), pathname, d_viewerObject);
             }
         }
     }
@@ -183,22 +193,34 @@ void VrmlNodeInline::load(const char *relativeUrl)
         //std::cerr << "url: " << d_url.get(0) << std::endl;
 
         Doc url;
-        Doc relDoc(relativeUrl);
+        const Doc relDoc(relativeUrl);
         System::the->debug("Trying to read url '%s' (relative %s)\n",
                            d_url.get(0), d_relative.get() ? d_relative.get() : "<null>");
         url.seturl(d_url.get(0), &relDoc);
 
-        if (strncmp(name(), "Cached", 6) == 0)
+        sgObject = 0L;
+        if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
-            setModified();
-            sgObject = d_scene->getCachedInline(d_url.get(0)); // relative files in cache
-        }
-        int slen = (int)strlen(url.url());
-        const char *end = url.url() + slen;
-        if ((sgObject == 0L) && !((slen > 4) && (strncmp(end - 4, ".wrl", 4) == 0 || strncmp(end - 4, ".wrz", 4) == 0 || strncmp(end - 4, ".WRL", 4) == 0 || strncmp(end - 4, ".WRZ", 4) == 0 || (slen > 5 && strncmp(end - 5, ".VRML", 5) == 0) || (slen > 5 && strncmp(end - 5, ".vrml", 5) == 0) || (slen > 7 && strncmp(end - 7, ".wrl.gz", 7) == 0) || (slen > 5 && strncmp(end - 5, ".x3dv", 5) == 0) || (slen > 8 && strncmp(end - 8, ".x3dv.gz", 8) == 0) || (slen > 6 && strncmp(end - 6, ".x3dvz", 6) == 0))))
-        {
-            sgObject = System::the->getInline(url.url());
-            setModified();
+#if 1
+            sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+            if (sgObject)
+            {
+                setModified();
+            }
+#else
+            if (strstr(name(), "Cached") != NULL)
+            {
+                setModified();
+                sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+            }
+#endif
+            int slen = (int)strlen(url.url());
+            const char *end = url.url() + slen;
+            if ((sgObject == 0L) && !((slen > 4) && (strncmp(end - 4, ".wrl", 4) == 0 || strncmp(end - 4, ".wrz", 4) == 0 || strncmp(end - 4, ".WRL", 4) == 0 || strncmp(end - 4, ".WRZ", 4) == 0 || (slen > 5 && strncmp(end - 5, ".VRML", 5) == 0) || (slen > 5 && strncmp(end - 5, ".vrml", 5) == 0) || (slen > 7 && strncmp(end - 7, ".wrl.gz", 7) == 0) || (slen > 5 && strncmp(end - 5, ".x3dv", 5) == 0) || (slen > 8 && strncmp(end - 8, ".x3dv.gz", 8) == 0) || (slen > 6 && strncmp(end - 6, ".x3dvz", 6) == 0))))
+            {
+                sgObject = System::the->getInline(url.url());
+                setModified();
+            }
         }
         if (sgObject == 0L)
         {
@@ -208,7 +230,8 @@ void VrmlNodeInline::load(const char *relativeUrl)
             int i, n = d_url.size();
             for (i = 0; i < n; ++i)
             {
-                Doc relDoc(relativeUrl);
+                if (!d_url.get(i) || strlen(d_url.get(i))==0)
+                    continue;
                 System::the->debug("Trying to read url '%s' (relative %s)\n",
                                    d_url.get(i), d_relative.get() ? d_relative.get() : "<null>");
                 url.seturl(d_url.get(i), &relDoc);

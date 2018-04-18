@@ -21,6 +21,8 @@
 #include <osg/ShapeDrawable>
 
 #include <OpenVRUI/sginterface/vruiHit.h>
+#include <OpenVRUI/osg/OSGVruiHit.h>
+#include <OpenVRUI/osg/OSGVruiNode.h>
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -62,6 +64,7 @@ coVRIntersectionInteractor::coVRIntersectionInteractor(float s, coInteraction::I
     scaleTransform = new osg::MatrixTransform();
     sprintf(nodeName, "coVRIntersectionInteractor-scaleTransform-%s)", interactorName);
     m.makeScale(interScale, interScale, interScale);
+    _scale = interScale;
     scaleTransform->setMatrix(m);
 
     parent = cover->getObjectsScale();
@@ -205,9 +208,8 @@ void coVRIntersectionInteractor::disableIntersection()
         vruiIntersection::getIntersectorForAction("coAction")->remove(vNode);
         coVRIntersectionInteractorManager::the()->remove(this);
     }
-    //resetState();
-    _oldHl = NULL;
-    moveTransform->setStateSet(NULL);
+
+    resetState();
 }
 
 const osg::Matrix &coVRIntersectionInteractor::getPointerMat() const
@@ -252,13 +254,20 @@ int coVRIntersectionInteractor::hit(vruiHit *hit)
         coVector v = hit->getWorldIntersectionPoint();
         osg::Vec3 wp(v[0], v[1], v[2]);
         _hitPos = wp * cover->getInvBaseMat();
+        auto osgvruinode = dynamic_cast<OSGVruiNode *>(hit->getNode());
+        if (osgvruinode)
+        {
+            _hitNode = osgvruinode->getNodePtr();
+        }
+        else
+        {
+            _hitNode = nullptr;
+        }
     }
     else
     {
-        //fprintf(stderr,"coVRIntersectionInteractor: Hit from extern (%f %f %f)\n", _interPos.x(), _interPos.y(), _interPos.z());
-        if (_interPos == osg::Vec3(0.0, 0.0, 0.0))
-            _interPos.set(0.0, 0.0, 0.00001);
-        _hitPos = _interPos;
+        _hitPos = getMatrix().getTrans();
+        _hitNode = nullptr;
     }
 
     _justHit = false;
@@ -361,7 +370,10 @@ void coVRIntersectionInteractor::removeIcon()
 {
     //fprintf(stderr,"coVRIntersectionInteractor(%s)::removeIcon and set hl off\n", _interactorName);
     coInteraction::removeIcon();
+}
 
+void coVRIntersectionInteractor::resetState()
+{
     _oldHl = NULL;
     moveTransform->setStateSet(NULL);
 }
@@ -427,6 +439,8 @@ void coVRIntersectionInteractor::stopInteraction()
     // we have to unregister
 
     moveTransform->setStateSet(_oldHl.get());
+
+    resetState();
 }
 
 void coVRIntersectionInteractor::doInteraction()
@@ -467,7 +481,13 @@ void coVRIntersectionInteractor::keepSize()
         }
         interScale = _interSize / (cover->getScale() * iconSize_);
     }
+    _scale = interScale;
     scaleTransform->setMatrix(osg::Matrix::scale(interScale, interScale, interScale));
+}
+
+float coVRIntersectionInteractor::getScale() const
+{
+    return _scale;
 }
 
 void coVRIntersectionInteractor::preFrame()

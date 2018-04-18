@@ -54,7 +54,8 @@ public:
 public slots:
     void runElevationWizard();
     void runSuperelevationWizard();
-    void runFlatJunctionsWizard();
+	void runFlatJunctionsWizard();
+	void runCircleWizard();
     void runRoadLinkWizard();
 
     //################//

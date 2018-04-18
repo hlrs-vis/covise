@@ -148,7 +148,7 @@ ObjectSettings::updateProperties()
     if (object_)
     {
         ui->nameBox->setText(object_->getModelFileName());
-        ui->idLabel->setText(object_->getId());
+        ui->idLabel->setText(object_->getId().speakingName());
         ui->sSpinBox->setValue(object_->getSStart());
         ui->tSpinBox->setValue(object_->getT());
         ui->zOffsetSpinBox->setValue(object_->getzOffset());
@@ -191,11 +191,11 @@ double ObjectSettings::
 
     if (t >= 0)
     {
-        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance;
+        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) + roadDistance;
     }
     else
     {
-        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance;
+        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) - roadDistance;
     }
 
     return dist;
@@ -238,22 +238,10 @@ ObjectSettings::onEditingFinished()
 {
     if (valueChanged_)
     {
-        QString filename = ui->nameBox->text();
-        QString newId = object_->getId();
+        QString name = ui->nameBox->text();
+        odrID newId = object_->getId();
         RSystemElementRoad * road = object_->getParentRoad();
-        if (filename != object_->getName())
-        {
-            QStringList parts = object_->getId().split("_");
-
-            if (parts.size() > 2)
-            {
-                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-            }
-            else
-            {
-                newId = road->getRoadSystem()->getUniqueId(object_->getId(), filename);
-            }
-        }
+		newId.setName(name);
 
         double repeatLength = ui->repeatLengthSpinBox->value();
         if (repeatLength > road->getLength() - ui->repeatSSpinBox->value())
@@ -268,7 +256,7 @@ ObjectSettings::onEditingFinished()
 			ui->repeatWidthStartSpinBox->value(), ui->repeatWidthEndSpinBox->value(), ui->repeatHeightStartSpinBox->value(), ui->repeatHeightEndSpinBox->value(),
 			ui->repeatZOffsetStartSpinBox->value(), ui->repeatZOffsetEndSpinBox->value() };
 
-		SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, filename, objectProps, repeatProps, ui->textureLineEdit->text());
+		SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, name, objectProps, repeatProps, ui->textureLineEdit->text());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;

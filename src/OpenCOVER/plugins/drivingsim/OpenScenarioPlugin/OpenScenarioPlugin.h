@@ -22,6 +22,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <net/covise_connect.h>
 
 #include <TrafficSimulation/VehicleManager.h>
 #include <TrafficSimulation/VehicleFactory.h>
@@ -31,6 +32,7 @@
 #include <TrafficSimulation/UDPBroadcast.h>
 #include <TrafficSimulation/Vehicle.h>
 #include "myFactory.h"
+#include "ScenarioManager.h"
 
 
 namespace OpenScenario
@@ -62,10 +64,17 @@ public:
 	// return if rendering is required
 	bool update();
 
+	void handleMessage(const char *buf);
+
+	bool readTCPData(void * buf, unsigned int numBytes);
+
 	void addSource(Source *s) { sources.push_back(s); };
 
-private:
+	ScenarioManager *scenarioManager;
 	OpenScenario::OpenScenarioBase *osdb;
+	RoadSystem *getRoadSystem() { return system; };
+
+private:
 
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
@@ -75,6 +84,7 @@ private:
 	void parseOpenDrive(xercesc::DOMElement *);
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
+	osg::Group *trafficSignalGroup;
 	RoadSystem *system;
 	std::list<Source *> sources;
 
@@ -82,6 +92,12 @@ private:
 	PedestrianManager *pedestrianManager;
     VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
+
+
+	covise::ServerConnection *serverConn;
+	covise::SimpleServerConnection *toClientConn;
+	int port;
+
 
 	bool tessellateRoads;
 	bool tessellatePaths;

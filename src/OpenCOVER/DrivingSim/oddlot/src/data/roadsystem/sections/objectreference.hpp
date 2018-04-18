@@ -19,6 +19,7 @@
 #include "src/data/roadsystem/sections/roadsection.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
 #include "src/data/roadsystem/sections/objectobject.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class ObjectReference : public RoadSection
 {
@@ -40,27 +41,27 @@ public:
     //################//
 
 public:
-	explicit ObjectReference(const QString &id, Object *object, const QString &referenceId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity);
+	explicit ObjectReference(const odrID &id, Object *object, const odrID &referenceId, double s, double t, double zOffset, double validLength, Signal::OrientationType orientation, QList<Signal::Validity> validity);
     virtual ~ObjectReference()
     { /* does nothing */
     }
 
-	QString getId()
+	odrID getId()
 	{
 		return id_;
 	}
-	void setId(const QString &id)
+	void setId(const odrID &id)
 	{
 		id_ = id;
 	}
 
     // ObjectReference //
     //
-	QString getReferenceId() const
+	odrID getReferenceId() const
 	{
 		return refId_;
 	}
-	void setReferenceId(const QString &refId)
+	void setReferenceId(const odrID &refId)
 	{
 		refId_ = refId;
 	}
@@ -142,9 +143,9 @@ private:
 private:
     // ObjectReference //
     //
-	QString id_;
+	odrID id_;
 
-	QString refId_;
+	odrID refId_;
     double refT_;
 	double refZOffset_;
 	double refValidLength_;

@@ -451,16 +451,16 @@ int coReadVolume::compute(const char *)
             }
             else
             {
-                width = vdread->vox[0] * vdread->dist[0];
-                height = vdread->vox[1] * vdread->dist[1];
+                width = vdread->vox[0] * vdread->getDist()[0];
+                height = vdread->vox[1] * vdread->getDist()[1];
 
                 if (folder_util.slice_format() && !merge)
                 {
-                    depth = numFiles * vdread->dist[2];
+                    depth = numFiles * vdread->getDist()[2];
                 }
                 else
                 {
-                    depth = vdread->vox[2] * vdread->dist[2];
+                    depth = vdread->vox[2] * vdread->getDist()[2];
                 }
             }
         }
@@ -499,9 +499,9 @@ int coReadVolume::compute(const char *)
         // Create time steps:
         for (t = 0; t < vd->frames; ++t)
         {
-            float posX = vd->pos[0] * vd->dist[0];
-            float posY = vd->pos[1] * vd->dist[1];
-            float posZ = vd->pos[2] * vd->dist[2];
+            float posX = vd->pos[0] * vd->getDist()[0];
+            float posY = vd->pos[1] * vd->getDist()[1];
+            float posZ = vd->pos[2] * vd->getDist()[2];
             float maxX = posX + 0.5f * width;
             float maxY = posY + 0.5f * height;
             float maxZ = posZ + 0.5f * depth;
@@ -549,7 +549,7 @@ int coReadVolume::compute(const char *)
             // Copy raw volume data to shared memory:
             numVoxels = vd->getFrameVoxels();
 
-            for (int c = 0; c < vd->chan && c < MAX_CHANNELS; c++)
+            for (int c = 0; c < vd->getChan() && c < MAX_CHANNELS; c++)
             {
                 std::vector<coDistributedObject *> timesteps;
                 for (t = 0; t < vd->frames; ++t)
@@ -594,12 +594,12 @@ int coReadVolume::compute(const char *)
                             if (fdata)
                             {
                                 for (size_t i = 0; i < numVoxels; ++i)
-                                    fdata[i] = float(rawData[i * vd->chan + c]) / 255.0f;
+                                    fdata[i] = float(rawData[i * vd->getChan() + c]) / 255.0f;
                             }
                             else
                             {
                                 for (size_t i = 0; i < numVoxels; ++i)
-                                    bdata[i] = rawData[i * vd->chan + c];
+                                    bdata[i] = rawData[i * vd->getChan() + c];
                             }
                         }
                         else if (vd->bpc == 2)
@@ -609,8 +609,8 @@ int coReadVolume::compute(const char *)
                                 //low
                                 for (size_t i = 0; i < numVoxels; ++i)
                                 {
-                                    fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2]))
-                                                 + ((float)rawData[(vd->chan * i + c) * 2 + 1]))
+                                    fdata[i] = (((256.0f * ((float)rawData[(vd->getChan() * i + c) * 2]))
+                                                 + ((float)rawData[(vd->getChan() * i + c) * 2 + 1]))
                                                 - minV) / range;
                                     fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
                                 }
@@ -620,8 +620,8 @@ int coReadVolume::compute(const char *)
                                 for (size_t i = 0; i < numVoxels; ++i)
                                 {
                                     //high
-                                    fdata[i] = (((256.0f * ((float)rawData[(vd->chan * i + c) * 2 + 1]))
-                                                 + ((float)rawData[(vd->chan * i + c) * 2]))
+                                    fdata[i] = (((256.0f * ((float)rawData[(vd->getChan() * i + c) * 2 + 1]))
+                                                 + ((float)rawData[(vd->getChan() * i + c) * 2]))
                                                 - minV) / range;
                                     fdata[i] = ts_clamp(fdata[i], 0.f, 1.f);
                                 }
@@ -633,7 +633,7 @@ int coReadVolume::compute(const char *)
                             {
                                 for (size_t i = 0; i < numVoxels; ++i)
                                 {
-                                    uint32_t d = *(uint32_t *)&rawData[(vd->chan * i + c) * 4];
+                                    uint32_t d = *(uint32_t *)&rawData[(vd->getChan() * i + c) * 4];
                                     byteSwap(d);
                                     fdata[i] = *(float *)&d;
                                 }
@@ -642,7 +642,7 @@ int coReadVolume::compute(const char *)
                             {
                                 for (size_t i = 0; i < numVoxels; ++i)
                                 {
-                                    fdata[i] = *(float *)&rawData[(vd->chan * i + c) * 4];
+                                    fdata[i] = *(float *)&rawData[(vd->getChan() * i + c) * 4];
                                 }
                             }
                         }
@@ -690,7 +690,7 @@ int coReadVolume::compute(const char *)
             }
             sendInfo("Volume data loaded: %d x %d x %d voxels, %d channels, %d bytes per channel, %d time %s.",
                      static_cast<int>(vd->vox[0]), static_cast<int>(vd->vox[1]), static_cast<int>(vd->vox[2]),
-                     static_cast<int>(vd->chan), static_cast<int>(vd->bpc),
+                     vd->getChan(), static_cast<int>(vd->bpc),
                      static_cast<int>(vd->frames), ((vd->frames == 1) ? "step (no set)" : "steps"));
         }
         else

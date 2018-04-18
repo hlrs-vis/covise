@@ -14,10 +14,6 @@
 #include "KardanikXML/KardanikConstructor.h"
 #include <PluginUtil/coPlane.h>
 
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#include <boost/tr1/tuple.hpp>
-#endif
 #include <memory>
 #include <tuple>
 #include <osg/Material>
@@ -72,19 +68,19 @@ public:
 
 protected:
     // from KardanikXML::MotionStateFactory
-    KardanikXML::MotionState *CreateMotionStateForBody(std::tr1::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass);
+    KardanikXML::MotionState *CreateMotionStateForBody(std::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass);
 
 private:
     typedef std::map<std::string, osg::Node *> CollectedNodes;
 
-    void AttachConstraintToBody(std::tr1::shared_ptr<KardanikXML::Body> body, const osg::Vec3f &worldPositionAttach);
+    void AttachConstraintToBody(std::shared_ptr<KardanikXML::Body> body, const osg::Vec3f &worldPositionAttach);
     void MoveConstraintOpposite(const osg::Vec3f &oppositePoint);
     void RemoveConstraintFromBody();
-    std::tr1::shared_ptr<KardanikXML::Body> GetBodyFromNodePath(const osg::NodePathList &nodePathList) const;
-    std::tr1::tuple<std::tr1::shared_ptr<KardanikXML::Body>, osg::Vec3f> GetBodyAndPickPosition() const;
+    std::shared_ptr<KardanikXML::Body> GetBodyFromNodePath(const osg::NodePathList &nodePathList) const;
+    std::tuple<std::shared_ptr<KardanikXML::Body>, osg::Vec3f> GetBodyAndPickPosition() const;
 
-    CollectedNodes CollectAnchorNodes(osg::Node *node, std::tr1::shared_ptr<KardanikXML::ConstructionParser> parser);
-    void CollectAnchorNodesSubtree(osg::Node *node, CollectedNodes &collectedNodes, std::tr1::shared_ptr<KardanikXML::ConstructionParser> parse);
+    CollectedNodes CollectAnchorNodes(osg::Node *node, std::shared_ptr<KardanikXML::ConstructionParser> parser);
+    void CollectAnchorNodesSubtree(osg::Node *node, CollectedNodes &collectedNodes, std::shared_ptr<KardanikXML::ConstructionParser> parse);
     void CreateDynamicsWorld();
     void DestroyDynamicsWorld();
     float getDeltaTimeMicroseconds() const;
@@ -96,14 +92,14 @@ private:
     void initPhysicsSimulation();
     void initTransformsFromState(const std::string &state);
 
-    std::tr1::shared_ptr<KardanikXML::Body> LookupBodyByNamespace(std::string theNamespace, std::string theID);
-    std::tr1::shared_ptr<KardanikXML::Point> LookupPointByNamespace(std::string theNamespace, std::string theID);
+    std::shared_ptr<KardanikXML::Body> LookupBodyByNamespace(std::string theNamespace, std::string theID);
+    std::shared_ptr<KardanikXML::Point> LookupPointByNamespace(std::string theNamespace, std::string theID);
 
     typedef std::map<std::string, osg::MatrixTransform *> AnchorNodesMap;
 
     struct ConstructionInfo
     {
-        std::tr1::shared_ptr<KardanikXML::ConstructionParser> parser;
+        std::shared_ptr<KardanikXML::ConstructionParser> parser;
         AnchorNodesMap anchorNodesMap;
     };
 
@@ -116,19 +112,19 @@ private:
     ConstructionInfos m_ConstructionInfos;
 
     btDynamicsWorld *m_DynamicsWorld;
-    std::tr1::shared_ptr<KardanikConstructor> m_KardanikConstructor;
+    std::shared_ptr<KardanikConstructor> m_KardanikConstructor;
     btDefaultCollisionConfiguration *m_collisionConfiguration;
     btCollisionDispatcher *m_dispatcher;
     btDbvtBroadphase *m_overlappingPairCache;
     btSequentialImpulseConstraintSolver *m_constraintSolver;
-    std::tr1::shared_ptr<btClock> m_Clock;
+    std::shared_ptr<btClock> m_Clock;
     bool m_ClockInitialized;
 
     osg::Vec3 m_startPickPos;
-    std::tr1::shared_ptr<opencover::coPlane> m_DragPlane;
+    std::shared_ptr<opencover::coPlane> m_DragPlane;
 
     btPoint2PointConstraint *m_PickConstraint;
-    std::tr1::shared_ptr<KardanikXML::Body> m_PickedBody;
+    std::shared_ptr<KardanikXML::Body> m_PickedBody;
 
     osg::NodePath m_PickedNodePath;
     osg::Node *m_PickedNode;
@@ -140,7 +136,7 @@ private:
 public:
     void SetWorldTransformOfAnchor(osg::MatrixTransform *anchorNode, const osg::Matrixf &anchorWorldTransform);
     osg::Matrixf GetWorldTransformOfAnchor(osg::MatrixTransform *anchorNode);
-    osg::MatrixTransform *GetAnchorNodeByName(const std::string &nodeName, std::tr1::shared_ptr<KardanikXML::Construction> construction) const;
+    osg::MatrixTransform *GetAnchorNodeByName(const std::string &nodeName, std::shared_ptr<KardanikXML::Construction> construction) const;
 };
 
 #endif

@@ -340,7 +340,7 @@ void LaneSection::checkAndFixLanes()
 //
 double LaneSection::getTValue(Lane * lane, double s, double laneWidth)
 {
-    double t = 0.0;
+    double t =  getParentRoad()->getLaneOffset(s);
 
     if (lane->getId() < 0)
     {

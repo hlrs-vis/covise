@@ -24,10 +24,10 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRFileManager.h>
 #include <config/CoviseConfig.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
 #include <net/message_types.h>
 #include <net/message.h>
 #include <util/unixcompat.h>
@@ -51,7 +51,6 @@
 #include <osg/ClipNode>
 
 using namespace osg;
-using namespace vrui;
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;
@@ -73,6 +72,7 @@ Interpolator::RotationMode ViewPoints::curr_rotationMode = Interpolator::QUATERN
 SharedActiveVPData *ViewPoints::actSharedVPData = 0;
 
 ViewPoints::ViewPoints()
+: ui::Owner("ViewPoints", cover->ui)
 {
 }
 
@@ -94,7 +94,7 @@ bool ViewPoints::init()
     actSharedVPData->index = -1;
     actSharedVPData->isEnabled = 0;
 
-    flyingStatus = 0;
+    flyingStatus = false;
     fileNumber = 0;
     record = false;
     videoBeingCaptured = false;
@@ -116,6 +116,9 @@ bool ViewPoints::init()
     eyepoint[2] = coCoviseConfig::getFloat("z", "COVER.ViewerPosition", 0.0f);
 
     flyingMode = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.FlyingMode", true);
+
+    loopMode = coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", loopMode);
+
     // send flyingMode to Gui
     sendFlyingModeToGui();
 
@@ -136,111 +139,256 @@ bool ViewPoints::init()
     vp_index = 0;
 
     // create the menu
-    viewPointMenu_ = new coRowMenu("ViewPoints", cover->getMenu());
-    viewPointButton_ = new coSubMenuItem("ViewPoints...");
-    viewPointButton_->setMenu(viewPointMenu_);
-    cover->getMenu()->add(viewPointButton_);
+    viewPointMenu_ = new ui::Menu("ViewPoints", this);
+    viewPointMenu_->setText("Viewpoints");
 
-    saveButton_ = new coButtonMenuItem("Create Viewpoint");
-    saveButton_->setMenuListener(this);
-    viewPointMenu_->add(saveButton_);
+    saveButton_ = new ui::Action(viewPointMenu_, "CreateViewpoint");
+    saveButton_->setText("Create viewpoint");
+    saveButton_->setCallback([this](){
+        saveViewPoint();
+    });
 
-    useClipPlanesCheck_ = new coCheckboxMenuItem("Set ClipPlanes", false);
-    useClipPlanesCheck_->setMenuListener(this);
-    viewPointMenu_->add(useClipPlanesCheck_);
+    useClipPlanesCheck_ = new ui::Button(viewPointMenu_, "SetClipPlanes");
+    useClipPlanesCheck_->setText("Set clip planes");
+    useClipPlanesCheck_->setState(false);
+    useClipPlanesCheck_->setCallback([this](bool state){
+        //sendClipplaneModeToGui();
+    });
 
-    flyingModeCheck_ = new coCheckboxMenuItem("Flying mode", flyingMode);
-    flyingModeCheck_->setMenuListener(this);
-    viewPointMenu_->add(flyingModeCheck_);
+    flyingModeCheck_ = new ui::Button(viewPointMenu_, "FlyingMode");
+    flyingModeCheck_->setText("Flying mode");
+    flyingModeCheck_->setState(flyingMode);
+    flyingModeCheck_->setCallback([this](bool state){
+        flyingMode = state;
+        // send to gui
+        sendFlyingModeToGui();
+        if (!flyingMode)
+        {
+            showCameraCheck_->setState(false);
+            showCamera = false;
+        }
+    });
 
-    startStopRecButton_ = new coButtonMenuItem("Start Record");
-    startStopRecButton_->setMenuListener(this);
-    viewPointMenu_->add(startStopRecButton_);
+    startStopRecButton_ = new ui::Action(viewPointMenu_, "StartRecord");
+    startStopRecButton_->setText("Start record");
+    startStopRecButton_->setCallback([this](){
+        startStopRec();
+    });
 
-    turnTableStepButton_ = new coButtonMenuItem("Turntable Step");
-    turnTableStepButton_->setMenuListener(this);
-    viewPointMenu_->add(turnTableStepButton_);
+    turnTableStepButton_ = new ui::Action(viewPointMenu_, "TurntableStep");
+    turnTableStepButton_->setText("Turntable step");
+    turnTableStepButton_->setCallback([this](){
+        turnTableStep();
+    });
 
-    turnTableAnimationCheck_ = new coCheckboxMenuItem("Start Turntable Animation", false);
-    turnTableAnimationCheck_->setMenuListener(this);
-    viewPointMenu_->add(turnTableAnimationCheck_);
+    turnTableAnimationCheck_ = new ui::Button(viewPointMenu_, "StartTurntableAnimation");
+    turnTableAnimationCheck_->setText("Start turntable animation");
+    turnTableAnimationCheck_->setState(false);
+    turnTableAnimationCheck_->setCallback([this](bool state){
+        startTurnTableAnimation(20.0);
+    });
 
     // create the "flight" menu
-    flightMenu_ = new coRowMenu("Flight Config", viewPointMenu_);
-    flightMenuButton_ = new coSubMenuItem("Flight Config");
-    flightMenuButton_->setMenu(flightMenu_);
+    flightMenu_ = new ui::Menu(viewPointMenu_, "FlightConfig");
+    flightMenu_->setText("Flight configuration");
 
-    viewPointMenu_->add(flightMenuButton_);
 
-    runButton_ = new coButtonMenuItem("Run Flight");
-    runButton_->setMenuListener(this);
-    viewPointMenu_->add(runButton_);
+    runMenu_ = new ui::Menu(viewPointMenu_, "run");
+    runMenu_->setText("run flight");
+
+
+    runButton = new ui::Button(runMenu_, "RunFlight");
+    runButton->setText("Run flight");
+    runButton->setCallback([this](bool state){
+        completeFlight(state);
+    });
+    
+    pauseButton = new ui::Button(runMenu_, "Pause");
+    pauseButton->setText("Pause flight");
+    pauseButton->setState(false);
+    pauseButton->setCallback([this](bool state){
+        pauseFlight(state);
+    });
+    
+    speedSlider = new ui::Slider(runMenu_, "animSpeed");
+    speedSlider->setBounds(0., 30.);
+    speedSlider->setValue(flightTime);
+    speedSlider->setIntegral(false);
+    speedSlider->setText("flight speed");
+    speedSlider->setPresentation(ui::Slider::AsDial);
+    speedSlider->setCallback([this](double value, bool released){
+        flightTime = value;
+    });
+    animPositionSlider = new ui::Slider(runMenu_, "animPosition");
+    animPositionSlider->setBounds(0., 100.);
+    animPositionSlider->setValue(0.0);
+    animPositionSlider->setIntegral(false);
+    animPositionSlider->setText("flight time");
+    //animPositionSlider->setPresentation(ui::Slider::AsSilder);
+    animPositionSlider->setCallback([this](double value, bool released){
+        flightTime = value;
+	float delta = 100.0/(viewpoints.size()-1);
+	flight_index = value/delta;
+	float lambda = (value - flight_index * delta)/delta * flightTime;
+	initTime = -((lambda * flightTime) - cover->frameTime());
+    });
+    
 
     // Edit VP menu
 
-    editVPMenu_ = new coRowMenu("Edit Viewpoints", viewPointMenu_);
-    editVPMenuButton_ = new coSubMenuItem("Edit Viewpoints...");
-    editVPMenuButton_->setMenu(editVPMenu_);
+    editVPMenu_ = new ui::Menu(viewPointMenu_, "EditViewpoints");
+    editVPMenu_->setText("Edit viewpoints");
 
-    showFlightpathCheck_ = new coCheckboxMenuItem("Visualize Flightpath", showFlightpath);
-    showFlightpathCheck_->setMenuListener(this);
-    editVPMenu_->add(showFlightpathCheck_);
+    showFlightpathCheck_ = new ui::Button(editVPMenu_, "VisualizeFlightpath");
+    showFlightpathCheck_->setText("Visualize flight path");
+    showFlightpathCheck_->setState(showFlightpath);
+    showFlightpathCheck_->setCallback([this](bool state){
+        showFlightpath = state;
+        flightPathVisualizer->showFlightpath(showFlightpath);
+    });
 
-    shiftFlightpathCheck_ = new coCheckboxMenuItem("Shift Flightpath", shiftFlightpathToEyePoint);
-    shiftFlightpathCheck_->setMenuListener(this);
-    editVPMenu_->add(shiftFlightpathCheck_);
+    shiftFlightpathCheck_ = new ui::Button(editVPMenu_, "ShiftFlightpath");
+    shiftFlightpathCheck_->setText("Shift flightpath");
+    shiftFlightpathCheck_->setState(shiftFlightpathToEyePoint);
+    shiftFlightpathCheck_->setCallback([this](bool state){
+        shiftFlightpathToEyePoint = state;
 
-    showCameraCheck_ = new coCheckboxMenuItem("Visualize Camera", showCamera);
-    showCameraCheck_->setMenuListener(this);
-    editVPMenu_->add(showCameraCheck_);
+        ViewDesc *currentPoint;
+        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+        {
+            currentPoint = (*it);
+            currentPoint->shiftFlightpath(shiftFlightpathToEyePoint);
+        }
 
-    showViewpointsCheck_ = new coCheckboxMenuItem("Show/Hide all Viewpoints", showViewpoints);
-    showViewpointsCheck_->setMenuListener(this);
-    editVPMenu_->add(showViewpointsCheck_);
+        flightPathVisualizer->shiftFlightpath(shiftFlightpathToEyePoint);
+        flightPathVisualizer->updateDrawnCurve();
+        flightPathVisualizer->showFlightpath(showFlightpath);
+    });
 
-    showInteractorsCheck_ = new coCheckboxMenuItem("Show/Hide all Interactors", showInteractors);
-    showInteractorsCheck_->setMenuListener(this);
-    editVPMenu_->add(showInteractorsCheck_);
+    showCameraCheck_ = new ui::Button(editVPMenu_, "VisualizeCamera");
+    showCameraCheck_->setText("Visualize camera");
+    showCameraCheck_->setState(showCamera);
+    showCameraCheck_->setCallback([this](bool state){
+        showCamera = state;
+        if ((flightPathVisualizer->getCameraDCS() == NULL) && (ssize_t(viewpoints.size()) > numberOfDefaultVP))
+        {
+            if (showCamera)
+                flyingMode = 1;
+            flyingModeCheck_->setState(showCamera);
 
-    vpSaveButton_ = new coButtonMenuItem("Save Viewpoints");
-    vpSaveButton_->setMenuListener(this);
-    editVPMenu_->add(vpSaveButton_);
+            if (lastVP != NULL)
+                flightPathVisualizer->createCameraGeometry(lastVP);
+            else
+                flightPathVisualizer->createCameraGeometry(viewpoints[numberOfDefaultVP]);
+        }
+        else
+        {
+            if (flightPathVisualizer->getCameraDCS() != NULL)
+                flightPathVisualizer->deleteCameraGeometry();
+        }
+    });
 
-    vpReloadButton_ = new coButtonMenuItem("Reload Viewpoints");
-    vpReloadButton_->setMenuListener(this);
-    editVPMenu_->add(vpReloadButton_);
+    showViewpointsCheck_ = new ui::Button(editVPMenu_, "ShowHideViewpoints");
+    showViewpointsCheck_->setText("Show/hide all viewpoints");
+    showViewpointsCheck_->setState(showViewpoints);
+    showViewpointsCheck_->setCallback([this](bool state){
+        showViewpoints = state;
+        ViewDesc *currentPoint;
+        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+        {
+            currentPoint = (*it);
+            if (showViewpoints == false)
+            {
+                currentPoint->showMoveInteractors(false);
+                currentPoint->showTangentInteractors(false);
+                showInteractorsCheck_->setState(false);
+            }
+            currentPoint->showGeometry(showViewpoints);
+            currentPoint->showTangent(showViewpoints);
+        }
+    });
 
-    viewPointMenu_->add(editVPMenuButton_);
+    showInteractorsCheck_ = new ui::Button(editVPMenu_, "ShowHideInteractors");
+    showInteractorsCheck_->setText("Show/hide all interactors");
+    showInteractorsCheck_->setState(showInteractors);
+    showInteractorsCheck_->setCallback([this](bool state){
+        showInteractors = state;
+        ViewDesc *currentPoint;
+        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+        {
+            currentPoint = (*it);
+            if (showInteractors)
+            {
+                currentPoint->showGeometry(true);
+                currentPoint->showTangent(true);
+                showViewpointsCheck_->setState(true);
+            }
+            currentPoint->showMoveInteractors(showInteractors);
+            currentPoint->showTangentInteractors(showInteractors);
+        }
+    });
+
+    vpSaveButton_ = new ui::Action(editVPMenu_, "SaveViewpoints");
+    vpSaveButton_->setText("Save viewpoints");
+    vpSaveButton_->setCallback([this](){
+        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
+        {
+            ViewDesc *curr = (*it);
+            if (curr != NULL)
+            {
+                if (curr->hasMatrix())
+                {
+                    changeViewDesc(curr->getMatrix(), curr->getScale(), curr->getTangentIn(), curr->getTangentOut(), curr->getId(), curr->getName(), curr);
+                    if (cover->debugLevel(3))
+                        fprintf(stderr, "\n Viewpoint [%i] changed and saved\n", curr->getId());
+                }
+            }
+        }
+    });
+
+    vpReloadButton_ = new ui::Action(editVPMenu_, "ReloadViewpoints");
+    vpReloadButton_->setText("Reload viewpoints");
+    vpReloadButton_->setCallback([this](){
+    });
 
     // Align Menu
     //========================================================================================
-    alignMenu_ = new coRowMenu("Align Viewpoints", viewPointMenu_);
-    alignMenuButton_ = new coSubMenuItem("Align Viewpoints...");
-    alignMenuButton_->setMenu(alignMenu_);
+    alignMenu_ = new ui::Menu(editVPMenu_, "AlignViewpoints");
+    alignMenu_->setText("Align viewpoints");
 
-    setCatmullRomButton_ = new coButtonMenuItem("Set Catmull-Rom Tangents");
-    setCatmullRomButton_->setMenuListener(this);
-    alignMenu_->add(setCatmullRomButton_);
+    setCatmullRomButton_ = new ui::Action(alignMenu_, "SetCatmullRomTangents");
+    setCatmullRomButton_->setText("Set Catmull-Rom tangents");
+    setCatmullRomButton_->setCallback([this](){
+        setCatmullRomTangents();
+    });
 
-    setStraightButton_ = new coButtonMenuItem("Set Tangents to direction of viewpoint");
-    setStraightButton_->setMenuListener(this);
-    alignMenu_->add(setStraightButton_);
+    setStraightButton_ = new ui::Action(alignMenu_, "SetTangentsToViewpoint");
+    setStraightButton_->setText("Set tangents to direction of viewpoint");
+    setStraightButton_->setCallback([this](){
+        setStraightTangents();
+    });
 
-    setEqualTangentsButton_ = new coButtonMenuItem("Set Equal Tangents (C1)");
-    setEqualTangentsButton_->setMenuListener(this);
-    alignMenu_->add(setEqualTangentsButton_);
+    setEqualTangentsButton_ = new ui::Action(alignMenu_, "SetEqualTangents");
+    setEqualTangentsButton_->setText("Set equal tangents (C1)");
+    setEqualTangentsButton_->setCallback([this](){
+        setEqualTangents();
+    });
 
-    alignZButton_ = new coButtonMenuItem("Align Z");
-    alignZButton_->setMenuListener(this);
-    alignMenu_->add(alignZButton_);
-    alignXButton_ = new coButtonMenuItem("Align X");
-    alignXButton_->setMenuListener(this);
-    alignMenu_->add(alignXButton_);
-    alignYButton_ = new coButtonMenuItem("Align Y");
-    alignYButton_->setMenuListener(this);
-    alignMenu_->add(alignYButton_);
-
-    editVPMenu_->add(alignMenuButton_);
+    alignXButton_ = new ui::Action(alignMenu_, "AlignX");
+    alignXButton_->setText("Align X");
+    alignXButton_->setCallback([this](){
+        alignViewpoints('x');
+    });
+    alignYButton_ = new ui::Action(alignMenu_, "AlignY");
+    alignYButton_->setText("Align Y");
+    alignYButton_->setCallback([this](){
+        alignViewpoints('y');
+    });
+    alignZButton_ = new ui::Action(alignMenu_, "AlignZ");
+    alignZButton_->setText("Align Z");
+    alignZButton_->setCallback([this](){
+        alignViewpoints('z');
+    });
 
     // the slave and the master have to read the default viewpoints from config
 
@@ -514,34 +662,24 @@ bool ViewPoints::init2()
         readFromDom();
 
     updateSHMData();
-    if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
-        completeFlight();
+    if (loopMode)
+        completeFlight(true);
 
     return true;
 }
 ViewPoints::~ViewPoints()
 {
+    while (!viewpoints.empty())
+    {
+        viewpoints.back()->deleteGeometry();
+        delete viewpoints.back();
+        viewpoints.pop_back();
+    }
 
-    viewpoints.clear();
-
-    delete viewPointButton_;
-    delete saveButton_;
-    delete flyingModeCheck_;
-    delete startStopRecButton_;
-    delete flightMenuButton_;
-    delete runButton_;
-    delete useClipPlanesCheck_;
-    delete editVPMenu_;
-    delete editVPMenuButton_;
-    delete alignMenu_;
-    delete alignMenuButton_;
     //delete flightmanager;
     delete vpInterpolator;
     delete flightPathVisualizer;
 
-    delete flightMenu_;
-
-    delete viewPointMenu_;
 	if (qnNode)
 	{
 		while (qnNode->getNumParents())
@@ -693,7 +831,7 @@ void ViewPoints::readFromDom()
                     // if this is the first time we read a corect viewpoint, we activate it
                     if (!activated_)
                     {
-                        newVP->activate(useClipPlanesCheck_->getState());
+                        newVP->activate(useClipPlanesCheck_->state());
                         activated_ = true;
                     }
                 }
@@ -751,7 +889,7 @@ void ViewPoints::addNode(Node *n, const RenderObject *)
     }
 }
 
-void ViewPoints::message(int, int, const void *data)
+void ViewPoints::message(int, int, int, const void *data)
 {
     const char *chbuf = (const char *)data;
     if (strncmp(chbuf, "SnapshotPlugin", strlen("SnapshotPlugin")) == 0)
@@ -779,7 +917,7 @@ void ViewPoints::message(int, int, const void *data)
     if (strncmp(chbuf, "completeFlight", strlen("completeFlight")) == 0)
     {
         //cerr << "calling completeFlight" << endl;
-        completeFlight();
+        completeFlight(true);
     }
 
     if (strncmp(chbuf, "loadViewpoint", strlen("loadViewpoint")) == 0)
@@ -940,15 +1078,14 @@ void ViewPoints::key(int type, int keySym, int mod)
                 curr_coord = m;
                 curr_scale = cover->getScale();
 
-                struct timeval tp;
-                gettimeofday(&tp, NULL);
-                initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+                double initTime = cover->frameTime();
 
-                flyingStatus = 1;
+                flyingStatus = true;
+	        runButton->setState(flyingStatus);
             }
             else
             {
-                viewpoints[keySym - osgGA::GUIEventAdapter::KEY_F1]->activate(useClipPlanesCheck_->getState());
+                viewpoints[keySym - osgGA::GUIEventAdapter::KEY_F1]->activate(useClipPlanesCheck_->state());
             }
             sendLoadViewpointMsgToGui(keySym - osgGA::GUIEventAdapter::KEY_F1);
             activeVP = viewpoints[keySym - osgGA::GUIEventAdapter::KEY_F1];
@@ -969,7 +1106,7 @@ void ViewPoints::key(int type, int keySym, int mod)
     }
     if (keySym == osgGA::GUIEventAdapter::KEY_KP_9)
     {
-        completeFlight();
+        completeFlight(true);
     }
 //#ifndef _WIN32
     // QuickNav
@@ -1044,6 +1181,7 @@ void ViewPoints::createViewPoint(const char *name, int guiId, const char *desc, 
             //sendChangeIdMsgToGui(guiId, viewpoints.current()->getId());
             viewpoints.erase(it);
             (*it)->deleteGeometry();
+            delete (*it);
             //fprintf(stderr,"---- ViewPoints::createViewPoint() erase %s\n" , (*it)->getName());
             break;
         }
@@ -1104,6 +1242,7 @@ void ViewPoints::deleteViewPoint(int id)
             flightPathVisualizer->removeViewpoint(currentPoint);
             viewpoints.erase(it);
             currentPoint->deleteGeometry();
+            delete currentPoint;
             break;
         }
     }
@@ -1182,7 +1321,7 @@ void ViewPoints::saveViewPoint(const char *suggestedName)
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
-    if (useClipPlanesCheck_->getState())
+    if (useClipPlanesCheck_->state())
     {
 
         for (unsigned int i = 0; i < clipNode->getNumClipPlanes() /*6*/; i++)
@@ -1494,7 +1633,7 @@ void ViewPoints::changeViewDesc(ViewDesc *viewDesc)
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
-    if (useClipPlanesCheck_->getState())
+    if (useClipPlanesCheck_->state())
     {
         for (unsigned int i = 0; i < clipNode->getNumClipPlanes() /*6*/; i++)
         {
@@ -1556,7 +1695,7 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
 
     ref_ptr<ClipNode> clipNode = cover->getObjectsRoot();
     ssplanes_final << clipNode->getNumClipPlanes() << " ";
-    if (useClipPlanesCheck_->getState())
+    if (useClipPlanesCheck_->state())
     {
         for (unsigned int i = 0; i < clipNode->getNumClipPlanes() /*6*/; i++)
         {
@@ -1600,6 +1739,28 @@ void ViewPoints::changeViewDesc(Matrix newMatrix, float newScale, Vec3 newTanIn,
     sendViewpointChangedMsgToGui(n.c_str(), id, guiString, ssplanes_final.str().c_str());
     
     saveAllViewPoints();
+}
+
+bool ViewPoints::update()
+{
+    if (dataChanged)
+        return true;
+    if (record)
+        return true;
+    if (!activeVP && loopMode)
+        return true;
+    if (flyingStatus)
+        return true;
+    if (activeVP && activeVP->isActivated())
+        return true;
+    if (turnTableAnimation_)
+        return true;
+    if (turnTableStep_)
+        return true;
+    if (sendActivatedViewpointMsg)
+        return true;
+
+    return false;
 }
 
 #define INTERVAL 0.5
@@ -1684,21 +1845,23 @@ void ViewPoints::preFrame()
 
     if (!activeVP)
     {
-        if (coCoviseConfig::isOn("COVER.Plugin.ViewPoint.Loop", false))
-            completeFlight();
+        if (loopMode)
+            completeFlight(true);
     }
 
     if (flyingStatus)
     {
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        double thisTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double thisTime = cover->frameTime();
 
         float lambda = (thisTime - initTime) / flightTime;
         //fprintf(stderr,"flyingStatus thisTime=%f initTime=%f lambda=%f\n", thisTime,initTime,lambda);
         if (lambda < 0)
             lambda = 0;
+	    
+	float delta = 100.0/(viewpoints.size()-1);
+	
+        animPositionSlider->setValue((flight_index + lambda)* delta);
 
         Matrix rotMat, initialMat, destMat;
 
@@ -1849,7 +2012,8 @@ void ViewPoints::preFrame()
                 // prescale scales translation
                 m.preMultScale(Vec3(curr_scale, curr_scale, curr_scale));
                 flightPathVisualizer->updateCamera(m);
-                flyingStatus = 0;
+                flyingStatus = false;
+	        runButton->setState(flyingStatus);
             }
             else
             {
@@ -1858,7 +2022,7 @@ void ViewPoints::preFrame()
 
                 if ((curr_coord.hpr[0] < 360.0) && (curr_coord.hpr[0] > -360.0))
                 {
-                    activeVP->activate(useClipPlanesCheck_->getState()); //useClipPlanesCheck_->getState() als test gesetzt
+                    activeVP->activate(useClipPlanesCheck_->state()); //useClipPlanesCheck_->state() als test gesetzt
                 }
             }
 
@@ -1866,7 +2030,7 @@ void ViewPoints::preFrame()
             //===================================================
             if (flight_index > 0)
             {
-                flyingStatus = 1;
+                flyingStatus = true;
                 while (flight_index > 0 && !viewpoints[viewpoints.size() - flight_index]->getFlightState())
                 {
                     flight_index--;
@@ -1877,14 +2041,16 @@ void ViewPoints::preFrame()
                     flight_index--;
                 }
                 else
-                    flyingStatus = 0;
+                    flyingStatus = false;
+	        runButton->setState(flyingStatus);
             }
             else //set the destination viewpoint
             {
                 updateViewPointIndex();
-                flyingStatus = 0;
-                if (coCoviseConfig::isOn("VRViewpoints.LOOP", false))
-                    completeFlight();
+                flyingStatus = false;
+	        runButton->setState(flyingStatus);
+                if (loopMode)
+                    completeFlight(true);
             }
         } // end else lambda
     } //end flying status
@@ -1899,7 +2065,6 @@ void ViewPoints::preFrame()
 
     // if viewpoint is activated (flight finished) send corresponding msg in next preFrame
     // because the view will change a last time in this preFrame
-    static bool sendActivatedViewpointMsg = false;
     if (sendActivatedViewpointMsg)
     {
         sendActivatedViewpointMsg = false;
@@ -1958,9 +2123,7 @@ void ViewPoints::preFrame()
     }
     if (turnTableStep_)
     {
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        double thisTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double thisTime = cover->frameTime();;
 
         float lambda = (thisTime - turnTableStepInitTime_) / flightTime;
         if (lambda < 0)
@@ -2102,8 +2265,10 @@ void ViewPoints::startRecord()
         perror("Animation.wrl");
 }
 
-void ViewPoints::completeFlight()
+void ViewPoints::completeFlight(bool state)
 {
+    if(state)
+    {
     tangentIn = tangentOut = Vec3(0, 0, 0);
     int num = viewpoints.size() - 1;
     flight_index = num;
@@ -2120,7 +2285,7 @@ void ViewPoints::completeFlight()
         //--------------------------------------------------
 
         Matrix m = cover->getObjectsXform()->getMatrix();
-        viewpoints[num - flight_index]->activate(useClipPlanesCheck_->getState());
+        viewpoints[num - flight_index]->activate(useClipPlanesCheck_->state());
         sendLoadViewpointMsgToGui(num - flight_index);
     }
 
@@ -2137,14 +2302,32 @@ void ViewPoints::completeFlight()
         curr_coord = m;
         curr_scale = cover->getScale();
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        initTime = cover->frameTime();
 
-        flyingStatus = 1;
+        flyingStatus = true;
         activeVP = viewpoints[num - flight_index];
         updateViewPointIndex();
     }
+    }
+    else
+    {
+        flyingStatus = false;
+    }
+    runButton->setState(flyingStatus);
+}
+
+void ViewPoints::pauseFlight(bool state)
+{
+	static double pauseTime = 0.0;
+        flyingStatus = state;
+	if(state)
+	{
+	   pauseTime = cover->frameTime();
+	}
+	else
+	{
+	   initTime += cover->frameTime()-pauseTime;
+	}
 }
 
 // this methods is called also from gui msg to cover here we should not send back a msg
@@ -2193,6 +2376,15 @@ void ViewPoints::loadViewpoint(const char *name)
     }
 }
 
+void ViewPoints::activateViewpoint(ViewDesc *viewDesc)
+{
+    loadViewpoint(viewDesc);
+    sendLoadViewpointMsgToGui(viewDesc->getId());
+    activeVP = viewDesc;
+    updateViewPointIndex();
+    flight_index = -1;
+}
+
 void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
 {
     Matrix m = cover->getObjectsXform()->getMatrix();
@@ -2201,14 +2393,14 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
     if (viewDesc->equalVP(m))
     {
         //fprintf(stderr, "Der zu ladende Viewpoint stimmt mit der aktuellen Ansicht ueberein -> VP wird ignoriert\n");
-        viewDesc->activate(useClipPlanesCheck_->getState());
+        viewDesc->activate(useClipPlanesCheck_->state());
         return;
     }
     if (viewDesc->nearVP(m))
     {
         fprintf(stderr, "Kurze Entfernung zum Viewpoint -> lineare Interpolation\n");
         ViewPoints::curr_translationMode = Interpolator::LINEAR_TRANSLATION;
-        //viewDesc->activate(useClipPlanesCheck_->getState());
+        //viewDesc->activate(useClipPlanesCheck_->state());
     }
     else
     {
@@ -2235,9 +2427,8 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
             lastVP = viewpoints[numberOfDefaultVP];
         }
 
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
-        initTime = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+	
+        initTime = cover->frameTime();
         // add time offset if we have an active Flight
         // if (lastVP != NULL && lastVP->equalVP(m) && flightmanager->activeFlight)
         // {
@@ -2264,11 +2455,12 @@ void ViewPoints::loadViewpoint(ViewDesc *viewDesc)
         //    curr_rotationMode = Interpolator::QUATERNION;
         // }
 
-        flyingStatus = 1;
+        flyingStatus = true;
+	runButton->setState(flyingStatus);
     }
     else
     {
-        viewDesc->activate(useClipPlanesCheck_->getState());
+        viewDesc->activate(useClipPlanesCheck_->state());
     }
 
     // update tangents:
@@ -2316,194 +2508,13 @@ void ViewPoints::startStopRec()
 {
     if (record)
     {
-        startStopRecButton_->setName("Start Record");
+        startStopRecButton_->setText("Start Record");
         stopRecord();
     }
     else
     {
-        startStopRecButton_->setName("Stop Record");
+        startStopRecButton_->setText("Stop Record");
         startRecord();
-    }
-}
-
-void ViewPoints::menuEvent(coMenuItem *menuItem)
-{
-    //fprintf(stderr, "ViewPoints::menuEvent\n");
-    if (menuItem == saveButton_)
-        saveViewPoint();
-    else if (menuItem == startStopRecButton_)
-        startStopRec();
-    else if (menuItem == runButton_)
-        completeFlight();
-    else if (menuItem == turnTableAnimationCheck_)
-    {
-        startTurnTableAnimation(20.0);
-    }
-    else if (menuItem == turnTableStepButton_)
-    {
-        turnTableStep();
-    }
-    else if (menuItem == flyingModeCheck_)
-    {
-        flyingMode = flyingModeCheck_->getState();
-        // send to gui
-        sendFlyingModeToGui();
-        if (!flyingMode)
-        {
-            showCameraCheck_->setState(false);
-            showCamera = false;
-        }
-    }
-
-    else if (menuItem == showViewpointsCheck_) // Button "Show/hide all Viewpoints"
-    {
-        showViewpoints = showViewpointsCheck_->getState();
-        ViewDesc *currentPoint;
-        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        {
-            currentPoint = (*it);
-            if (showViewpoints == false)
-            {
-                currentPoint->showMoveInteractors(false);
-                currentPoint->showTangentInteractors(false);
-                showInteractorsCheck_->setState(false);
-            }
-            currentPoint->showGeometry(showViewpoints);
-            currentPoint->showTangent(showViewpoints);
-        }
-    }
-    else if (menuItem == showInteractorsCheck_) // Button "Show/hide all Interactors"
-    {
-        showInteractors = showInteractorsCheck_->getState();
-        ViewDesc *currentPoint;
-        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        {
-            currentPoint = (*it);
-            if (showInteractors)
-            {
-                currentPoint->showGeometry(true);
-                currentPoint->showTangent(true);
-                showViewpointsCheck_->setState(true);
-            }
-            currentPoint->showMoveInteractors(showInteractors);
-            currentPoint->showTangentInteractors(showInteractors);
-        }
-    }
-
-    else if (menuItem == showFlightpathCheck_)
-    {
-        showFlightpath = showFlightpathCheck_->getState();
-        flightPathVisualizer->showFlightpath(showFlightpath);
-    }
-
-    else if (menuItem == shiftFlightpathCheck_) // Button "Shift Flightpath"
-    {
-        shiftFlightpathToEyePoint = shiftFlightpathCheck_->getState();
-
-        ViewDesc *currentPoint;
-        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        {
-            currentPoint = (*it);
-            currentPoint->shiftFlightpath(shiftFlightpathToEyePoint);
-        }
-
-        flightPathVisualizer->shiftFlightpath(shiftFlightpathToEyePoint);
-        flightPathVisualizer->updateDrawnCurve();
-        flightPathVisualizer->showFlightpath(showFlightpath);
-    }
-
-    else if (menuItem == showCameraCheck_)
-    {
-        showCamera = showCameraCheck_->getState();
-        if ((flightPathVisualizer->getCameraDCS() == NULL) && (ssize_t(viewpoints.size()) > numberOfDefaultVP))
-        {
-            if (showCamera)
-                flyingMode = 1;
-            flyingModeCheck_->setState(showCamera);
-
-            if (lastVP != NULL)
-                flightPathVisualizer->createCameraGeometry(lastVP);
-            else
-                flightPathVisualizer->createCameraGeometry(viewpoints[numberOfDefaultVP]);
-        }
-        else
-        {
-            if (flightPathVisualizer->getCameraDCS() != NULL)
-                flightPathVisualizer->deleteCameraGeometry();
-        }
-    }
-
-    else if (menuItem == setCatmullRomButton_)
-    {
-        setCatmullRomTangents();
-    }
-    else if (menuItem == setStraightButton_)
-    {
-        setStraightTangents();
-    }
-    else if (menuItem == setEqualTangentsButton_)
-    {
-        setEqualTangents();
-    }
-    else if (menuItem == alignZButton_)
-    {
-        alignViewpoints('z');
-    }
-    else if (menuItem == alignXButton_)
-    {
-        alignViewpoints('x');
-    }
-    else if (menuItem == alignYButton_)
-    {
-        alignViewpoints('y');
-    }
-    else if (menuItem == vpSaveButton_)
-    {
-        ViewDesc *curr;
-        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        {
-            curr = (*it);
-            if (curr != NULL)
-            {
-                if (curr->hasMatrix())
-                {
-                    changeViewDesc(curr->getMatrix(), curr->getScale(), curr->getTangentIn(), curr->getTangentOut(), curr->getId(), curr->getName(), curr);
-                    if (cover->debugLevel(3))
-                        fprintf(stderr, "\n Viewpoint [%i] changed and saved\n", curr->getId());
-                }
-            }
-        }
-    }
-
-    /*   else if (menuItem==useClipPlanesCheck_)
-    {
-    sendClipplaneModeToGui();
-    }*/
-    else // Somebody clicked on buttons of Viewpoints ?
-    {
-        //fprintf(stderr,"ViewPoints::menuEvent %s\n", menuItem->getName());
-        ViewDesc *currentPoint;
-        int index = 0;
-        // see if menu event is triggert from one of the ViewDesc buttons
-        for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
-        {
-            currentPoint = (*it);
-            if (currentPoint->isMyButton(menuItem))
-            {
-                loadViewpoint(currentPoint);
-                sendLoadViewpointMsgToGui((*it)->getId());
-                activeVP = currentPoint;
-                updateViewPointIndex();
-                flight_index = -1;
-                return;
-            }
-            else if (currentPoint->isMyChangeButton(menuItem))
-            {
-                changeViewDesc(currentPoint);
-                return;
-            }
-            index++;
-        }
     }
 }
 
@@ -2552,6 +2563,11 @@ void ViewPoints::enableHUD()
 void ViewPoints::disableHUD()
 {
     actSharedVPData->isEnabled = 0;
+}
+
+bool ViewPoints::isClipPlaneChecked()
+{
+    return useClipPlanesCheck_->state();
 }
 
 bool ViewPoints::isOn(const char *vp)
@@ -2711,7 +2727,7 @@ void ViewPoints::sendDefaultViewPoint()
     }
 }
 
-coMenuItem *ViewPoints::getMenuButton(const std::string &buttonName)
+ui::Action *ViewPoints::getMenuButton(const std::string &buttonName)
 {
     for (vector<ViewDesc *>::iterator it = viewpoints.begin(); it < viewpoints.end(); it++)
     {
@@ -2964,9 +2980,7 @@ void ViewPoints::turnTableStep()
         turnTableAnimation_ = false;
     }
 
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    turnTableStepInitTime_ = tp.tv_sec + ((float)tp.tv_usec) / 1000000.0;
+        double turnTableStepInitTime_ = cover->frameTime();
     osg::Matrix m1, m2, m;
     turnTableStep_ = true;
     VRSceneGraph::instance()->scaleAllObjects();

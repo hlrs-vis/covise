@@ -368,12 +368,12 @@ void TUIMap::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIMap::getClassName()
+const char *TUIMap::getClassName() const
 {
-    return (char *)"TUIMap";
+    return "TUIMap";
 }
 
-bool TUIMap::isOfClassName(char *classname)
+bool TUIMap::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())
@@ -687,7 +687,7 @@ void CamItem::moveBy(double dx, double dy)
 }
 
 CamItem::CamItem(NodeItem *f, NodeItem *t, QGraphicsScene *canvas)
-    : QGraphicsPolygonItem(0)
+    : QGraphicsPolygonItem(0), pa(8), pao(8)
 {
     from = f;
     to = t;

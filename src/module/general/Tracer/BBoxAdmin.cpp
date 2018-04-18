@@ -6,9 +6,7 @@
  * License: LGPL 2+ */
 
 #include "BBoxAdmin.h"
-#ifndef YAC
 #include <appl/ApplInterface.h>
-#endif
 
 #include <do/coDoOctTree.h>
 #include <do/coDoPolygons.h>
@@ -26,14 +24,12 @@ BBoxAdmin::BBoxAdmin()
 void
 BBoxAdmin::setSurname()
 {
-#ifndef YAC
     // fixme
     octSurname_ = Covise::get_module();
     octSurname_ += "_";
     octSurname_ += Covise::get_instance();
     octSurname_ += "_";
     octSurname_ += Covise::get_host();
-#endif
     /*
       strcpy(globalOctSurname,Covise::get_module());
       strcat(globalOctSurname,"_");
@@ -165,11 +161,7 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
     {
         // octtree available as input
         const coDoUnstructuredGrid *unsgrd = dynamic_cast<const coDoUnstructuredGrid *>(grid);
-#ifndef YAC
         unsgrd->GetOctTree(otree, NULL);
-#else
-        unsgrd->GetOctTree(otree, coObjID(), 0);
-#endif
         iaOctTrees_.push_back(otree);
         iaUnsGrids_.push_back(grid);
         namesToOctTrees_[string(grid->getName())] = otree;
@@ -185,23 +177,14 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
         const coDistributedObject *usedOctTree = getUsedOctTree(unsgrd);
         if (usedOctTree == NULL)
         {
-#ifndef YAC
             const coDistributedObject *octTree = unsgrd->GetOctTree(NULL, effectiveSurname_.c_str());
-#else
-            //fixme
-            const coDistributedObject *octTree = unsgrd->GetOctTree(NULL, coObjID(), 0);
-#endif
             iaOctTrees_.push_back(octTree);
             iaUnsGrids_.push_back(grid);
             namesToOctTrees_[string(grid->getName())] = octTree;
         }
         else
         {
-#ifndef YAC
             unsgrd->GetOctTree((coDoOctTree *)usedOctTree, NULL);
-#else
-            unsgrd->GetOctTree((coDoOctTree *)usedOctTree, coObjID(), 0);
-#endif
             iaOctTrees_.push_back(usedOctTree);
             iaUnsGrids_.push_back(grid);
             namesToOctTrees_[string(grid->getName())] = usedOctTree;
@@ -211,11 +194,7 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
     {
         // octtree available as input
         const coDoPolygons *polgrd = dynamic_cast<const coDoPolygons *>(grid);
-#ifndef YAC
         polgrd->GetOctTree(otree, NULL);
-#else
-        polgrd->GetOctTree(otree, coObjID(), 0);
-#endif
         iaOctTrees_.push_back(otree);
         iaUnsGrids_.push_back(grid);
         namesToOctTrees_[string(grid->getName())] = otree;
@@ -231,24 +210,14 @@ BBoxAdmin::pload(const coDistributedObject *grid, const coDistributedObject *otr
         const coDistributedObject *usedOctTree = getUsedOctTree(polgrd);
         if (usedOctTree == NULL)
         {
-#ifndef YAC
             const coDistributedObject *octTree = polgrd->GetOctTree(NULL, effectiveSurname_.c_str());
-#else
-            // fixme
-            const coDistributedObject *octTree = polgrd->GetOctTree(NULL,
-                                                                    coObjID(), 0);
-#endif
             iaOctTrees_.push_back(octTree);
             iaUnsGrids_.push_back(grid);
             namesToOctTrees_[string(grid->getName())] = octTree;
         }
         else
         {
-#ifndef YAC
             polgrd->GetOctTree(usedOctTree, NULL);
-#else
-            polgrd->GetOctTree(usedOctTree, coObjID(), 0);
-#endif
             iaOctTrees_.push_back(usedOctTree);
             iaUnsGrids_.push_back(grid);
             namesToOctTrees_[string(grid->getName())] = usedOctTree;
@@ -267,21 +236,11 @@ BBoxAdmin::getUsedOctTree(const coDistributedObject *grd)
         {
             if (grd->isType("UNSGRD"))
             {
-#ifndef YAC
                 ret = ((const coDoUnstructuredGrid *)iaUnsGrids_[grid])->GetOctTree(NULL, NULL);
-#else
-                //fixme
-                ret = ((const coDoUnstructuredGrid *)iaUnsGrids_[grid])->GetOctTree(NULL, coObjID(), 0);
-#endif
             }
             else if (grd->isType("POLYGN"))
             {
-#ifndef YAC
                 ret = ((const coDoPolygons *)iaUnsGrids_[grid])->GetOctTree(NULL, NULL);
-#else
-                //fixme
-                ret = ((const coDoPolygons *)iaUnsGrids_[grid])->GetOctTree(NULL, coObjID(), 0);
-#endif
             }
             break;
         }
@@ -344,11 +303,7 @@ BBoxAdmin::preload(const coDistributedObject *grid, const coDistributedObject *o
     {
         // octtree available as input
         const coDoUnstructuredGrid *unsgrd = dynamic_cast<const coDoUnstructuredGrid *>(grid);
-#ifndef YAC
         unsgrd->GetOctTree(otree, NULL);
-#else
-        unsgrd->GetOctTree(otree, coObjID(), 0);
-#endif
         iaOctTrees_.push_back(otree);
         iaUnsGrids_.push_back(unsgrd);
         namesToOctTrees_[string(grid->getName())] = otree;
@@ -357,22 +312,14 @@ BBoxAdmin::preload(const coDistributedObject *grid, const coDistributedObject *o
     {
         // octtree not available as input
         const coDoUnstructuredGrid *unsgrd = dynamic_cast<const coDoUnstructuredGrid *>(grid);
-#ifndef YAC
         unsgrd->GetOctTree(iaOctTrees_[gridSeq_], NULL);
-#else
-        unsgrd->GetOctTree(iaOctTrees_[gridSeq_], coObjID(), 0);
-#endif
         ++gridSeq_;
     }
     else if (grid->isType("POLYGN") && otree != NULL && otree->isType("OCTREP"))
     {
         // octtree available as input
         const coDoPolygons *polgrd = dynamic_cast<const coDoPolygons *>(grid);
-#ifndef YAC
         polgrd->GetOctTree(otree, NULL);
-#else
-        polgrd->GetOctTree(otree, coObjID(), 0);
-#endif
         iaOctTrees_.push_back(otree);
         iaUnsGrids_.push_back(grid);
         namesToOctTrees_[string(grid->getName())] = otree;
@@ -381,11 +328,7 @@ BBoxAdmin::preload(const coDistributedObject *grid, const coDistributedObject *o
     {
         // octtree not available as input
         const coDoPolygons *polgrd = dynamic_cast<const coDoPolygons *>(grid);
-#ifndef YAC
         polgrd->GetOctTree(iaOctTrees_[gridSeq_], NULL);
-#else
-        polgrd->GetOctTree(iaOctTrees_[gridSeq_], coObjID(), 0);
-#endif
         ++gridSeq_;
     }
 }
@@ -406,20 +349,12 @@ BBoxAdmin::assignOctTrees(std::vector<std::vector<const coDistributedObject *> >
                 if (grid->isType("UNSGRD"))
                 {
                     coDoUnstructuredGrid *uns_grid = (coDoUnstructuredGrid *)grid;
-#ifndef YAC
                     uns_grid->GetOctTree(otree, NULL);
-#else
-                    uns_grid->GetOctTree(otree, coObjID(), 0);
-#endif
                 }
                 else if (grid->isType("POLYGN"))
                 {
                     coDoPolygons *pol_grid = (coDoPolygons *)grid;
-#ifndef YAC
                     pol_grid->GetOctTree(otree, NULL);
-#else
-                    pol_grid->GetOctTree(otree, coObjID(), 0);
-#endif
                 }
             }
         }

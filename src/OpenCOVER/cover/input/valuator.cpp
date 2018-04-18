@@ -56,6 +56,7 @@ void Valuator::setRange(const double min, const double max)
 
 void Valuator::update()
 {
+    InputSource::update();
 
     m_value = device()->getValuatorValue(m_idx);
     std::pair<double, double> range = device()->getValuatorRange(m_idx);

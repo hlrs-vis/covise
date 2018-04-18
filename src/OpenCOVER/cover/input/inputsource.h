@@ -28,15 +28,20 @@ class COVEREXPORT InputSource
 public:
     InputSource(const std::string &name, const std::string &kind);
     virtual ~InputSource();
+    bool isValid() const;
     virtual void update() = 0;
     const std::string &name() const;
     const std::string &config() const;
     InputDevice *device() const;
 
+protected:
+    void setValid(bool);
+    bool m_valid = false, m_oldValid = false;
+
 private:
     const std::string m_name;
     const std::string m_conf;
-    InputDevice *m_dev;
+    InputDevice *m_dev = nullptr;
 };
 
 }

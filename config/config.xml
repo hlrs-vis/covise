@@ -64,10 +64,12 @@
               <Navigation>
                   <!--MoveWorld parent="" /-->
                   <ViewAll parent="" />
-                  <Scale parent="" />
-                  <SelectInteract parent="" />
                   <Snap parent="" />
-                  <!--Drive parent="" /-->
+                  <Modes>
+                      <Scale parent="" />
+                      <SelectInteract parent="" />
+                      <!--Drive parent="" /-->
+                  </Modes>
               </Navigation>
           </NavigationManager>
           <Manager>
@@ -78,7 +80,7 @@
           </Manager>
       </UI>
       <!--GLVersion value="3.0" /-->
-      <!--GLDebug value="true" /-->
+      <!--GLDebug value="true" level="2" /-->
       <Snap value="ON" />
       <DebugTUI value="OFF" />
 	  
@@ -93,15 +95,31 @@
          <Server value="127.0.0.1"/>
        </TabletPC>
    <CheckForOpenGLErrors value="true" />
-   <UseVertexBufferObjects value="false" />
-   <UseDisplayLists value="true" />
+   <!--ContinuousRendering value="true" /-->
+   <!--UseVertexBufferObjects value="false" /-->
+   <!--UseDisplayLists value="true" /-->
    <NavigationMode value="XForm" />
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
+   <FramebufferSRGB value="false" />
    <StencilBits value="8" />
    <Stencil value="true" />
 
    <VRUI>
+       <!-- position of transfer editor menu /-->
+       <!--TFE>
+           <Menu>
+               <Size value="0.15" />
+               <Position x="-200" y="0" z="80" />
+           </Menu>
+       </TFE-->
+       <!--position of error message window (PDBplugin) /-->
+      <!--Messages>
+         <Menu>
+         <Size value="0.15" />
+         <Position x="100" y="0" z="120" />
+         </Menu>
+      </Messages-->
      <VNC>
        <Menu>
          <Orientation h="-90" p="0" r="0" />
@@ -112,7 +130,6 @@
 
    <Input>
     <MouseNav value="ON" />
-    <TrackingSystem value="MOUSE" />
     <!--Keyboard terminal="on" evdev="/dev/input/coverkeys" /-->
    </Input>
 
@@ -199,7 +216,7 @@
      </Animations>
     </PDB>
 
-    <AKToolbar value="false" menu="true">
+    <AKToolbar value="false" menu="false">
      <Attachment value="TOP" />
      <Scale value=".8" />
      <MinClickTime value="0.2" />
@@ -260,19 +277,7 @@
    </ViewportConfig>
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
-
-
-  <!-- position of transfer editor menu>
-
-      <TFE>
-         <MenuPosition value="-200 0 80" >
-         <MenuSize value="0.15" >
-      </TFE--><!--position of error message window (PDBplugin)>
-
-      <Messages>
-         <MenuPosition value="100 0 120" />
-         <MenuSize value="0.15" />
-      </Messages--> </GLOBAL>
+ </GLOBAL>
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>

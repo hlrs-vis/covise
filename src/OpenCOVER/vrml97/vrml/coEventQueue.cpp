@@ -51,7 +51,7 @@ void coEventSourceData::setName(const char *name)
 
 void coEventSourceData::addToMsg(VrmlMessage *msg)
 {
-    msg->append((char *)&node, sizeof(long));
+    msg->append((char *)&node, sizeof(uint64_t));
     msg->append(namespaceNum);
     msg->append(nodeName, strlen(nodeName) + 1);
     char dummy[8 + 8];
@@ -64,8 +64,8 @@ VrmlNode *coEventSourceData::lastNode = NULL;
 char *coEventSourceData::readFromBuf(char *buf)
 {
     node = NULL;
-    remoteNode = (VrmlNode *)(*((long *)buf));
-    buf += sizeof(long);
+    remoteNode = (VrmlNode *)(*((uint64_t *)buf));
+    buf += sizeof(uint64_t);
     namespaceNum = *((int *)buf);
 #ifdef BYTESWAP
     byteSwap(namespaceNum);
@@ -108,7 +108,7 @@ char *coEventSourceData::readFromBuf(char *buf)
 
 void coEventData::addToMsg(VrmlMessage *msg)
 {
-    msg->append((char *)&node, sizeof(long));
+    msg->append((char *)&node, sizeof(uint64_t));
     msg->append(timeStamp);
     for (int i = 0; i < 4; i++)
         msg->append(point[i]);
@@ -123,8 +123,8 @@ void coEventData::addToMsg(VrmlMessage *msg)
 char *coEventData::readFromBuf(char *buf)
 {
 
-    memcpy(&node, buf, sizeof(long));
-    buf += sizeof(long);
+    memcpy(&node, buf, sizeof(uint64_t));
+    buf += sizeof(uint64_t);
     memcpy(&timeStamp, buf, sizeof(double));
     buf += sizeof(double);
     memcpy(&point[0], buf, sizeof(float));

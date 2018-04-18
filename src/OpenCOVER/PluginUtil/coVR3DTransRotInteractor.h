@@ -17,9 +17,10 @@ class PLUGIN_UTILEXPORT coVR3DTransRotInteractor : public coVRIntersectionIntera
 {
 
 private:
-    osg::Matrix _interMat_o, _oldHandMat, _oldHandMat_o;
-    osg::Matrix _invOldHandMat, _invOldHandMat_o;
-    osg::Matrix _oldInteractorXformMat, _oldInteractorXformMat_o;
+    bool _rotateOnly = false, _translateOnly = false;
+    osg::Matrix _interMat_o, _oldHandMat;
+    osg::Matrix _invOldHandMat_o;
+    osg::Matrix _oldInteractorXformMat_o;
 
     osg::Geometry *createLine(osg::Vec3 pos1, osg::Vec3 pos2, osg::Vec4 c);
     osg::ref_ptr<osg::MatrixTransform> axisTransform; ///< all the Geometry
@@ -30,9 +31,14 @@ private:
     osg::ref_ptr<osg::MatrixTransform> ylTransform;
     osg::ref_ptr<osg::MatrixTransform> zlTransform;
     osg::ref_ptr<osg::Geode> sphereGeode;
+    osg::ref_ptr<osg::Geode> rotateGeode;
+    osg::ref_ptr<osg::Geode> translateGeode;
+
+    float _distance = 0;
+    osg::Vec3 _diff;
 
 protected:
-    virtual void createGeometry();
+    virtual void createGeometry() override;
 
 public:
     coVR3DTransRotInteractor(osg::Matrix m, float s, coInteraction::InteractionType type, const char *iconName, const char *interactorName, coInteraction::InteractionPriority priority);
@@ -41,15 +47,15 @@ public:
     virtual ~coVR3DTransRotInteractor();
 
     // start the interaction (grab pointer, set selected hl, store dcsmat)
-    virtual void startInteraction();
-    virtual void doInteraction();
+    virtual void startInteraction() override;
+    virtual void doInteraction() override;
 
     virtual void updateTransform(osg::Matrix m);
 
-    osg::Matrix getMatrix()
+    const osg::Matrix &getMatrix() const
     {
         return _interMat_o;
-    };
+    }
 };
 }
 #endif

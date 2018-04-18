@@ -17,7 +17,6 @@
 #include "Body.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -28,7 +27,7 @@ OperatingRange::OperatingRange()
 {
 }
 
-std::tr1::shared_ptr<Point> OperatingRange::GetCenterPoint() const
+std::shared_ptr<Point> OperatingRange::GetCenterPoint() const
 {
     return m_CenterPoint;
 }
@@ -63,7 +62,7 @@ OperatingRange::Axis OperatingRange::GetAxis() const
     return m_Axis;
 }
 
-void OperatingRange::SetCenterPoint(std::tr1::shared_ptr<Point> point)
+void OperatingRange::SetCenterPoint(std::shared_ptr<Point> point)
 {
     m_CenterPoint = point;
 }

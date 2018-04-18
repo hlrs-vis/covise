@@ -55,6 +55,7 @@ TUIFrame::TUIFrame(int id, int type, QWidget *w, int parent, QString name)
 #else
     frame->setContentsMargins(5, 5, 5, 5);
 #endif
+    frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
     layout = new QGridLayout(frame);
     widget = frame;
@@ -90,32 +91,12 @@ void TUIFrame::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-char *TUIFrame::getClassName()
+const char *TUIFrame::getClassName() const
 {
-    return (char *)"TUIFrame";
+    return "TUIFrame";
 }
 
-bool TUIFrame::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}
-
-void TUIFrame::setValue(int type, covise::TokenBuffer &tb)
+void TUIFrame::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     QFrame *frame = (QFrame *)widget;
     if (type == TABLET_SHAPE)

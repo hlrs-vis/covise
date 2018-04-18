@@ -323,6 +323,82 @@ std::vector<oscSourceFile *> OpenScenarioBase::getSrcFileVec() const
     return srcFileVec;
 }
 
+void OpenScenario::OpenScenarioBase::addParameter(const std::string & paramName, oscMemberValue *m)
+{
+	auto param = parameters[paramName];
+	if (param == NULL)
+	{
+		param = new parameterDescription(m);
+		parameters[paramName] = param;
+	}
+	else
+	{
+		param->member = m;
+		if (param->parameter)
+		{
+			if (m->getType() == oscMemberValue::INT)
+			{
+				int val = std::stol(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::UINT)
+			{
+				unsigned int val = std::stol(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::FLOAT)
+			{
+				float val = std::stof(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::DOUBLE)
+			{
+				double val = std::stod(param->parameter->value);
+				m->setValue(val);
+			}
+			else if (m->getType() == oscMemberValue::STRING)
+			{
+				m->setValue(param->parameter->value);
+			}
+		}
+	}
+}
+
+
+void OpenScenario::OpenScenarioBase::setParameterValue(const std::string & paramName, const std::string &value)
+{
+	auto param = parameters[paramName];
+	if (param != NULL)
+	{
+		if (param->member)
+		{
+			if (param->member->getType() == oscMemberValue::INT)
+			{
+				int val = std::stol(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::UINT)
+			{
+				unsigned int val = std::stol(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::FLOAT)
+			{
+				float val = std::stof(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::DOUBLE)
+			{
+				double val = std::stod(value);
+				param->member->setValue(val);
+			}
+			else if (param->member->getType() == oscMemberValue::STRING)
+			{
+				param->member->setValue(value);
+			}
+		}
+	}
+}
 
 //
 void OpenScenarioBase::setValidation(const bool validate)
@@ -429,12 +505,27 @@ bool OpenScenarioBase::loadFile(const std::string &fileName, const std::string &
     }
     else
     {
-        return parseFromXML(rootElement);
+		if (parseFromXML(rootElement))
+		{
+			if (this->ParameterDeclaration.exists()) // set default values
+			{
+				for (auto it = this->ParameterDeclaration->Parameter.begin(); it != this->ParameterDeclaration->Parameter.end(); it++)
+				{
+					oscParameter *p = (oscParameter *)*it;
+					setParameterValue(p->name, p->value);
+
+				}
+			}
+			return true;
+		}
+		else
+			return false;
     }
 }
 
-bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* default false */)
+bool OpenScenarioBase::saveFile(const std::string &fileName, bool catalogs, bool overwrite/* default false */)
 {
+	XMLCh *t1 = NULL;
     xercesc::DOMImplementation *impl = xercesc::DOMImplementation::getImplementation();
     //oscSourceFile for OpenScenarioBase
     oscSourceFile *osbSourceFile;
@@ -448,8 +539,8 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
         //set filename for main xosc file with root element "OpenSCENARIO" to fileName
 		bf::path fnPath = srcFileVec[i]->getFileNamePath(fileName);
 //        if (srcFileRootElement == "OpenSCENARIO")
-		std::string relPath = srcFileVec[i]->getRelPathFromMainDir().string();
-		if (relPath.find("Catalog") == std::string::npos)
+		std::string absPath = srcFileVec[i]->getAbsPathToMainDir().string();
+		if (absPath.find("Catalog") == std::string::npos)
         {
 			if ((fnPath == "") || (fnPath.parent_path() == srcFileVec[i]->getAbsPathToMainDir()))
 			{
@@ -462,11 +553,17 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
 				srcFileVec[i] = source;
 			}
 			osbSourceFile = srcFileVec[i];
+
+			if (!srcFileVec[i]->getXmlDoc())
+			{
+				xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, t1 = srcFileVec[i]->getRootElementNameAsXmlCh(), 0);  xercesc::XMLString::release(&t1);
+				srcFileVec[i]->setXmlDoc(xmlSrcDoc);
+			}
         }
 		
-        if (!srcFileVec[i]->getXmlDoc())
+        else if (catalogs && !srcFileVec[i]->getXmlDoc())
         {
-            xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, srcFileVec[i]->getRootElementNameAsXmlCh(), 0);
+            xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, t1 = srcFileVec[i]->getRootElementNameAsXmlCh(), 0); xercesc::XMLString::release(&t1);
             srcFileVec[i]->setXmlDoc(xmlSrcDoc);
         }
     }
@@ -480,20 +577,24 @@ bool OpenScenarioBase::saveFile(const std::string &fileName, bool overwrite/* de
     //
     for (int i = 0; i < srcFileVec.size(); i++)
     {
-        //get the file name to write
-        bf::path srcFileName = srcFileVec[i]->getSrcFileName();
+		std::string absPath = srcFileVec[i]->getAbsPathToMainDir().string();
+		if (catalogs || (absPath.find("Catalog") == std::string::npos))
+		{
+			//get the file name to write
+			bf::path srcFileName = srcFileVec[i]->getSrcFileName();
 
-        //////
-        //for testing: generate a new filename
-        //
-        if (srcFileName != fileName)
-        {
-            srcFileName += "_out.xml";
-        }
-        //
-        //////
+			//////
+			//for testing: generate a new filename
+			//
+			if (srcFileName != fileName)
+			{
+				srcFileName += "_out.xml";
+			}
+			//
+			//////
 
-		srcFileVec[i]->writeFileToDisk();
+			srcFileVec[i]->writeFileToDisk();
+		}
     }
 
     return true;
@@ -596,7 +697,8 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
     if (tmpXmlDoc)
     {
         tmpRootElem = tmpXmlDoc->getDocumentElement();
-        tmpRootElemName = xercesc::XMLString::transcode(tmpRootElem->getNodeName());
+		char *cs;
+        tmpRootElemName = cs = xercesc::XMLString::transcode(tmpRootElem->getNodeName()); xercesc::XMLString::release(&cs);
 		if (fileName.find("Catalog") != std::string::npos)
 		{
 			tmpRootElemName = "CatalogObject";
@@ -667,10 +769,11 @@ xercesc::DOMElement *OpenScenarioBase::getRootElement(const std::string &fileNam
         //raw buffer, length and fake id for memory input source
         const XMLByte *tmpRawBuffer = tmpXmlMemBufFormat->getRawBuffer();
         XMLSize_t tmpRawBufferLength = tmpXmlMemBufFormat->getLen();
-        const XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
+        XMLCh *bufId = xercesc::XMLString::transcode("memBuf");
 
         //new input source from memory for parser
         xercesc::InputSource *tmpInputSrc = new xercesc::MemBufInputSource(tmpRawBuffer, tmpRawBufferLength, bufId);
+		xercesc::XMLString::release(&bufId);
 
         //parse memory buffer
         try
@@ -780,8 +883,9 @@ xercesc::DOMElement *OpenScenarioBase::getDefaultXML(const std::string &fileType
 //
 bool OpenScenarioBase::parseFromXML(xercesc::DOMElement *rootElement)
 {
-	std::string fileNamePathStr = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI());
-	createSource(fileNamePathStr, xercesc::XMLString::transcode(rootElement->getNodeName()));
+	char *cs;
+	std::string fileNamePathStr = cs = xercesc::XMLString::transcode(dynamic_cast<xercesc::DOMNode *>(rootElement)->getBaseURI()); xercesc::XMLString::release(&cs);
+	createSource(fileNamePathStr, cs = xercesc::XMLString::transcode(rootElement->getNodeName())); xercesc::XMLString::release(&cs);
 
     return oscObjectBase::parseFromXML(rootElement, source);
 }
@@ -797,6 +901,14 @@ oscSourceFile *OpenScenarioBase::createSource(const std::string &fileName, const
 	return source;
 }
 
+OpenScenario::parameterDescription::parameterDescription(oscMemberValue * m, oscParameter * p)
+{
+	parameter = p;
+	member = m;
+	//m->setParameter(this);
+}
 
-
-
+OpenScenario::parameterDescription::~parameterDescription()
+{
+	//m->setParameter(NULL);
+}

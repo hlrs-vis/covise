@@ -7,6 +7,7 @@
 
 #include "FourWheelDynamicsRealtime.h"
 #include <VehicleUtil/VehicleUtil.h>
+#include <cover/coVRTui.h>
 
 
 #include <osg/Shape>

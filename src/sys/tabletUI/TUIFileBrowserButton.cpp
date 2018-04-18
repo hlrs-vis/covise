@@ -124,45 +124,9 @@ void TUIFileBrowserButton::onPressed()
 //
 //}
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIFileBrowserButton::setEnabled(bool en)
+const char *TUIFileBrowserButton::getClassName() const
 {
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIFileBrowserButton::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUIFileBrowserButton::getClassName()
-{
-    return (char *)"TUIFileBrowserButton";
-}
-
-bool TUIFileBrowserButton::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUIFileBrowserButton";
 }
 
 void TUIFileBrowserButton::sendSelectedFile(QString file, QString dir, bool loadAll)
@@ -181,7 +145,7 @@ void TUIFileBrowserButton::sendSelectedFile(QString file, QString dir, bool load
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIFileBrowserButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIFileBrowserButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     int size;
     char *entry;

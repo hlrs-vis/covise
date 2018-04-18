@@ -40,7 +40,6 @@ coMenuItem::coMenuItem(const string &name)
     myMenu = 0;
     listener = 0;
     visible = true;
-    myTwin = 0;
     active_ = true;
 }
 
@@ -50,10 +49,6 @@ coMenuItem::~coMenuItem()
     // say bye to our menu
     if (myMenu)
         myMenu->remove(this);
-
-    // say bye to our twin
-    if (myTwin)
-        myTwin->myTwin = 0;
 }
 
 /// Set a new menu listener to receive menu item events.
@@ -91,18 +86,11 @@ void coMenuItem::setName(const string &newName, bool updateTwins)
 {
     myName = newName;
     setLabel(newName);
-    if (myTwin && updateTwins)
-        myTwin->setName(newName, false);
 }
 
 /// this function may be overloaded - it is called by setName()
 void coMenuItem::setLabel(const string & /*newName*/)
 {
-}
-
-coMenuItem *coMenuItem::getTwin()
-{
-    return myTwin;
 }
 
 /** show or hide this menu item., just removes it from the scenegraph in the default implementation,
@@ -130,78 +118,6 @@ void coMenuItem::setVisible(bool v)
 bool coMenuItem::isVisible() const
 {
     return visible;
-}
-
-void coMenuItem::setTwin(coMenuItem *newTwin)
-{
-    // check if already 'twinned'
-    // if yes, release link and leave old twin lonesome out there
-    if (myTwin != 0)
-    {
-        // release link at twin's side
-        myTwin->myTwin = 0;
-
-        // release own link (paranoia ;) )
-        myTwin = 0;
-    }
-
-    // set new twin (don't check if it exists)
-    myTwin = newTwin;
-    // and link myself back
-    myTwin->myTwin = this;
-
-    //fprintf(stderr,"coMenuItem::setTwin(%s) into %s\n",
-    //	  newTwin->myName,
-    //	  myName);
-    // do NOT touch MenuListener!!
-}
-
-// for boolean state transfers
-bool coMenuItem::updateContentPressed()
-{
-    // by default reject every update
-    return false;
-}
-
-// for boolean state transfers
-bool coMenuItem::updateContentReleased()
-{
-    // by default reject every update
-    return false;
-}
-
-// for boolean state transfers
-bool coMenuItem::updateContentBool(bool)
-{
-    // by default reject every update
-    return false;
-}
-
-// for discrete state transfers
-bool coMenuItem::updateContentInt(int)
-{
-    // by default reject every update
-    return false;
-}
-
-// for floating point state transfers
-bool coMenuItem::updateContentFloat(float)
-{
-    // by default reject every update
-    return false;
-}
-
-bool coMenuItem::updateContentRange(float /*min*/, float /*max*/, float,
-                                    bool /*isInteger*/, float /*step*/) // for floating point state transfers between fixed boundaries
-{
-    return false;
-}
-
-// for custom data state transfers. The interpretation is up to the receiving item.
-bool coMenuItem::updateContentPointer(void *)
-{
-    // by default reject every update
-    return false;
 }
 
 const char *coMenuItem::getClassName() const

@@ -267,6 +267,7 @@ RemoveOSCCatalogObjectCommand::redo()
 		oscBase_->delOSCElement(element_);
 	}
 
+	catalog_->removeObjFromObjectsMap(name_);
 	//catalog_->removeCatalogObject(name_);
 
     setRedone();
@@ -314,7 +315,7 @@ AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember 
         setText(QObject::tr("AddOSCArrayMember"));
     }
 
-	if (object_)
+	if (object_ && !object_->getOwnMember())
 	{
 		ownMember_ = arrayMember_->getObjectBase()->getMember(typeName_);
 	}
@@ -357,7 +358,10 @@ AddOSCArrayMemberCommand::redo()
             oscBase_->addOSCElement(oscElement_);
         }
 
-		object_->setOwnMember(ownMember_);
+		if (ownMember_)
+		{
+			object_->setOwnMember(ownMember_);
+		}
 		arrayMember_->push_back(object_);
 	}
 	

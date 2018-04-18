@@ -355,8 +355,36 @@ TrackRotateHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 }
 
 void
+TrackRotateHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	if (highSlot_)
+	{
+		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+	}
+	else if (lowSlot_)
+	{
+		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::NoCache);
+	}
+	QGraphicsPathItem::mousePressEvent(event);
+} 
+
+void
 TrackRotateHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     mousePos_ = event->scenePos();
     QGraphicsPathItem::mouseMoveEvent(event); // pass to baseclass
 }
+
+void
+TrackRotateHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	if (highSlot_)
+	{
+		trackEditor_->setCacheMode(highSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+	}
+	else if (lowSlot_)
+	{
+		trackEditor_->setCacheMode(lowSlot_->getParentRoad(), TrackEditor::CacheMode::DeviceCache);
+	}
+	QGraphicsPathItem::mouseReleaseEvent(event);
+} 

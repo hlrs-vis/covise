@@ -105,6 +105,7 @@ public:
         EEL, /*!< ElevationEditor */
         ESE, /*!< SuperelevationEditor */
         ECF, /*!< CrossfallEditor */
+		ERS, /*!< RoadShapeEditor */
         EJE, /*!< JunctionEditor */
         ESG, /*!< SignalEditor */
 		EOS, /*!< OpenScenatioEditor */
@@ -136,6 +137,7 @@ public:
         TTE_ADD,
         TTE_ADD_LINE,
         TTE_ADD_CURVE,
+		TTE_ADD_POLY,
         TTE_DELETE,
         TTE_TRACK_SPLIT,
         TTE_ROAD_NEW,
@@ -143,8 +145,9 @@ public:
         TTE_ROAD_DELETE,
         TTE_ROAD_SPLIT,
         TTE_ROAD_MERGE,
-        TTE_ROAD_SNAP,
-        TTE_TRACK_ROAD_SPLIT,
+		TTE_ROAD_SNAP,
+		TTE_ROAD_CIRCLE,
+		TTE_TRACK_ROAD_SPLIT,
         TTE_ROADSYSTEM_ADD,
         TTE_TILE_NEW,
         TTE_TILE_MOVE,
@@ -171,6 +174,11 @@ public:
 
         // Crossfall Editor
         TLN_SELECT,
+
+		// RoadShape Editor
+		TRS_SELECT,
+		TRS_ADD,
+		TRS_DEL,
 
         // Lane Editor
         TLE_SELECT,

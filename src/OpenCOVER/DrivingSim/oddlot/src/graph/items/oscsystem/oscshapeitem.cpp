@@ -60,10 +60,10 @@
 #include <QVector>
 #include <QPainterPath>
 
-OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscTrajectory *trajectory)
-    : GraphElement(oscBaseItem, element)
+OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseShapeItem *oscBaseShapeItem, OpenScenario::oscTrajectory *trajectory)
+    : GraphElement(oscBaseShapeItem, element)
 	, element_(element)
-	, oscBaseItem_(oscBaseItem)
+	, oscBaseShapeItem_(oscBaseShapeItem)
     , trajectory_(trajectory)
 	, path_(NULL)
 {
@@ -131,7 +131,6 @@ OSCShapeItem::createPath()
             path_->addPath(pathCubic);
         }
 
-
         //  view_->setSplineControlPoints(controlPoints_);
     }
 
@@ -140,7 +139,7 @@ OSCShapeItem::createPath()
 void
 OSCShapeItem::init()
 {
-	oscBaseItem_->appendOSCShapeItem(this);
+	oscBaseShapeItem_->appendOSCShapeItem(this);
 	
     // Hover Events //
     //
@@ -173,6 +172,11 @@ OSCShapeItem::init()
     copyPan_ = false;
 
     createControlPoints();
+	if (element_->isElementSelected())
+	{
+		setSelected(true);
+		getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_);
+	}
     createPath();
     updatePosition();
 }
@@ -215,9 +219,9 @@ OSCShapeItem::createControlPoints()
         if (controlPoint1)
         {
 			std::string s = controlPoint1->status.getValue();
-            int x, y;
-            sscanf(s.c_str(), "%d %d", &x, &y);
-            QPointF p1(x, y);
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
 
             controlPoints_.push_back(p1);
         }
@@ -228,9 +232,9 @@ OSCShapeItem::createControlPoints()
         if (controlPoint2)
         {
             std::string s = controlPoint2->status.getValue();
-            int x, y;
-            sscanf(s.c_str(), "%d %d", &x, &y);
-            QPointF p1(x, y);
+            double x, y;
+            sscanf(s.c_str(), "%lf %lf", &x, &y);
+            QPointF p1(p0.x() + x, p0.y() + y);
 
             controlPoints_.push_back(p1);
         }

@@ -124,7 +124,8 @@ TrackComponentItem::init()
 
     // ContextMenu //
     //
-    if (!((trackComponent_->getTrackType() == TrackComponent::DTT_POLY3) && !parentTrackRoadItem_)) // if poly3 and no parent: no morphing
+ //   if (!((trackComponent_->getTrackType() == TrackComponent::DTT_POLY3) && !parentTrackRoadItem_)) // if poly3 and no parent: no morphing
+	if (!(trackComponent_->getTrackType() == TrackComponent::DTT_POLY3)) // if poly3: no morphing
     {
         QAction *action = getContextMenu()->addAction("Morph into poly3");
         connect(action, SIGNAL(triggered()), this, SLOT(morphIntoPoly3()));
@@ -260,14 +261,10 @@ void
 TrackComponentItem::addToCurrentTile()
 {
     RSystemElementRoad *road = getParentTrackRoadItem()->getRoad();
-    QStringList parts = road->getID().split("_");
-    if (parts.at(0) != getProjectData()->getTileSystem()->getCurrentTile()->getID())
-    {
-        QString name = road->getName();
-        QString newId = road->getRoadSystem()->getUniqueId("", name);
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
-        getProjectGraph()->executeCommand(command);
-    }
+	odrID newId = road->getID();
+	newId.setTileID(getProjectData()->getTileSystem()->getCurrentTile()->getID());
+	SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(road->getRoadSystem(), road, newId, NULL);
+	getProjectGraph()->executeCommand(command);
 }
 
 //*************//

@@ -452,6 +452,7 @@ VRWindow::createWin(int i)
                 }
             }
         }
+        coVRConfig::instance()->windows[i].doublebuffer = traits->doubleBuffer;
     }
 
     if (!coVRConfig::instance()->windows[i].context)

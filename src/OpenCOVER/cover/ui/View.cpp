@@ -8,6 +8,7 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SelectionList.h"
+#include "EditField.h"
 
 #include <iostream>
 #include <cassert>
@@ -34,6 +35,12 @@ const std::string &View::name() const
 Manager *View::manager() const
 {
     return m_manager;
+}
+
+bool View::update()
+{
+    // don't request a re-render
+    return false;
 }
 
 View::ViewElement *View::elementFactory(Element *elem)
@@ -68,6 +75,10 @@ View::ViewElement *View::elementFactory(Element *elem)
     else if (auto sl = dynamic_cast<SelectionList *>(elem))
     {
         ve = elementFactoryImplementation(sl);
+    }
+    else if (auto input = dynamic_cast<EditField *>(elem))
+    {
+        ve = elementFactoryImplementation(input);
     }
 
     if (ve)

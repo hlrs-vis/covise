@@ -488,6 +488,7 @@ Vector3D PlaneParamPolynom::getPoint(double s)
 	double v = (aV + bV * t + cV * t * t + dV * t * t * t);
 
 	Vector2D cm(u, v);
+
 	return Vector3D(A * cm + cs, atan((3 * dV * t * t + 2 * cV * t + bV) / (3 * dU * t * t + 2 * cU * t + bU)) + hdgs);
 }
 
@@ -541,7 +542,7 @@ double PlaneParamPolynom::getT(double s)
 	{ 
 
 		//Cut taylor series approximation (1-degree) of arc length integral, solved with Newton-Raphson for t with respect to s
-		double t = s;
+		double t = 0.5;
 		for (int i = 0; i < 5; ++i)
 		{
 			//       double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
@@ -626,7 +627,7 @@ CrossfallPolynom::CrossfallPolynom(double s, double a, double b, double c, doubl
 double CrossfallPolynom::getAngle(double s, double t)
 {
     s -= start;
-    double absval = a + b * s + c * s * s + d * s * s * s;
+    double absval = a + b * t + c * t * t + d * t * t * t;
     return (t < 0) ? rightFactor * absval : leftFactor * absval;
 }
 
@@ -651,6 +652,125 @@ void CrossfallPolynom::getCoefficients(double &a, double &b, double &c, double &
 void CrossfallPolynom::accept(XodrWriteRoadSystemVisitor *visitor)
 {
     visitor->visit(this);
+}
+
+
+ShapePolynom::ShapePolynom(double s, double a, double b, double c, double d, double t)
+{
+	this->a = a, this->b = b, this->c = c, this->d = d;
+	this->s = s; tStart = t;
+}
+
+double ShapePolynom::getHeight(double tAbs)
+{
+	double t = tAbs-tStart;
+	return a + b * t + c * t * t + d * t * t * t;
+}
+
+double ShapePolynom::getSlope(double tAbs)
+{
+	double t = tAbs - tStart;
+	return b  + 2 * c * t + 3 * d * t * t;
+}
+
+void ShapePolynom::getCoefficients(double &a, double &b, double &c, double &d)
+{
+	a = this->a;
+	b = this->b;
+	c = this->c;
+	d = this->d;
+}
+
+void ShapePolynom::accept(XodrWriteRoadSystemVisitor *visitor)
+{
+	visitor->visit(this);
+}
+
+roadShapePolynoms::roadShapePolynoms(double sSection)
+{
+	s = sSection;
+}
+void roadShapePolynoms::addPolynom(ShapePolynom *sp)
+{
+	shapes[sp->getTStart()] = sp;
+}
+
+double roadShapePolynoms::getHeight(double t)
+{
+	auto it = shapes.upper_bound(t);
+	if (it != shapes.begin())
+	{
+		it--;
+	}
+	if (it != shapes.end())
+	{
+		return it->second->getHeight(t);
+	}
+	return 0.0;
+}
+
+roadShapeSections::roadShapeSections()
+{
+}
+
+void roadShapePolynoms::accept(XodrWriteRoadSystemVisitor *visitor)
+{
+	for (auto it = shapes.begin(); it != shapes.end(); it++)
+	{
+		visitor->visit(it->second);
+	}
+}
+
+double roadShapeSections::getHeight(double s, double t)
+{
+	auto it2 = shapesSections.upper_bound(s); // greater than s
+	if (it2 == shapesSections.end())
+	{
+		if (it2 != shapesSections.begin())
+		{
+			it2--;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	auto it = it2;
+	if (it != shapesSections.begin())
+	{
+		it--;
+	}
+	if (it == shapesSections.end())
+	{
+		// we have only one profile
+		return it2->second->getHeight(t);
+	}
+	//we have two profiles, interpoate linearly
+	roadShapePolynoms *sp1 = it->second;
+	roadShapePolynoms *sp2 = it2->second;
+	double s1 = sp1->getS();
+	double s2 = sp2->getS();
+	double h1 = sp1->getHeight(t);
+	double h2 = sp2->getHeight(t);
+	if (s2 - s1 < 0.000001)
+	{
+		return it->second->getHeight(t);
+	}
+	double f = (s - s1) / (s2 - s1);
+	return h1 + ((h2 - h1)*f);
+}
+
+void roadShapeSections::addPolynom(ShapePolynom *sp)
+{
+	auto it = shapesSections.find(sp->getS());
+	if ( it == shapesSections.end()) {
+		// not found
+		shapesSections[sp->getS()] = new roadShapePolynoms(sp->getS());
+	}
+	else {
+		// found
+		it->second->addPolynom(sp);
+	}
 }
 
 std::ostream &operator<<(std::ostream &os, const Vector3D &vec)

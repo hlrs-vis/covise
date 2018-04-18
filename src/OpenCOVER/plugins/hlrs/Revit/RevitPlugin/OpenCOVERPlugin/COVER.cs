@@ -623,7 +623,18 @@ namespace OpenCOVERPlugin
                         if (ap.Name.Substring(ap.Name.Length - 12) == "_bump_amount")
                         {
                             AssetPropertyDouble val = ap as AssetPropertyDouble;
-                            ti.amount = val.Value;
+                            if (val != null)
+                            {
+                                ti.amount = val.Value;
+                            }
+                            else
+                            {
+                                AssetPropertyFloat valf = ap as AssetPropertyFloat;
+                                if (valf != null)
+                                {
+                                    ti.amount = valf.Value;
+                                }
+                            }
 
                         }
                     }
@@ -828,6 +839,8 @@ namespace OpenCOVERPlugin
             bbR.Min = new XYZ(100000, 100000, 100000);
             bbR.Max = new XYZ(-100000, -100000, -100000);
             bool hasStyle = false;
+            if(elem.Category!=null)
+            { 
             if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Stairs)
             {
                 hasStyle = false;
@@ -838,6 +851,7 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
                 if (graphicsStyle != null)
                     hasStyle = true;
+            }
             }
 
 
@@ -855,7 +869,7 @@ namespace OpenCOVERPlugin
                     Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle; 
                     if(graphicsStyle!=null)
                     {
-                        if (graphicsStyle.Name == "Frame/Mullion")
+                        if (graphicsStyle.Name == "Frame/Mullion" || graphicsStyle.Name == "Rahmen/Pfosten")
                         {
                             sendGeomElement(elem, num, geomObject,false);
                         }
@@ -1059,7 +1073,7 @@ namespace OpenCOVERPlugin
                 Autodesk.Revit.DB.GraphicsStyle graphicsStyle = elem.Document.GetElement(geomObject.GraphicsStyleId) as Autodesk.Revit.DB.GraphicsStyle;
                 if (graphicsStyle != null)
                 {
-                    if (graphicsStyle.Name != "Frame/Mullion")
+                    if (graphicsStyle.Name != "Frame/Mullion" && graphicsStyle.Name != "Rahmen/Pfosten")
                     {
                         if (namelen == 0 || (graphicsStyle.Name.Length > namelen && graphicsStyle.Name.Substring(graphicsStyle.Name.Length - namelen) == name))
                         {

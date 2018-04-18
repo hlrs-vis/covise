@@ -25,7 +25,6 @@ coVRShadowManager::coVRShadowManager()
     standardSM = new osgShadow::StandardShadowMap;
     softSM = new osgShadow::SoftShadowMap;
     st = new osgShadow::ShadowTexture;
-    sv = new osgShadow::ShadowVolume;
 }
 
 coVRShadowManager::~coVRShadowManager()
@@ -102,18 +101,7 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     bool haveTechnique = shadowedScene->getShadowTechnique() != nullptr;
 
     technique = tech;
-    if (technique=="ShadowVolume")
-    {
-        if(sv.get()==NULL)
-        {
-            sv = new osgShadow::ShadowVolume;
-        }
-        sv->setDynamicShadowVolumes(false);
-        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
-        //sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
-        shadowedScene->setShadowTechnique(sv.get());
-    }
-    else if (technique=="ShadowTexture")
+    if (technique=="ShadowTexture")
     {
         if(st.get()==NULL)
         {

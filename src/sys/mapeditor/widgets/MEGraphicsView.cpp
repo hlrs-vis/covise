@@ -21,10 +21,6 @@
 #include <QMimeData>
 
 #include <covise/covise_msg.h>
-#ifdef YAC
-#include "yac/coQTSendBuffer.h"
-using covise::coErr;
-#endif
 
 #include "MEGraphicsView.h"
 #include "MEUserInterface.h"
@@ -1224,7 +1220,6 @@ void MEGraphicsView::contextMenuEvent(QContextMenuEvent *e)
 //!
 void MEGraphicsView::copy()
 {
-#ifndef YAC
     QList<QGraphicsItem *> copyList = scene()->selectedItems();
     if (copyList.isEmpty())
         return;
@@ -1243,7 +1238,6 @@ void MEGraphicsView::copy()
     QString data = buffer.join("\n");
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
-#endif
 }
 
 //!
@@ -1260,7 +1254,6 @@ void MEGraphicsView::cut()
 //!
 void MEGraphicsView::paste()
 {
-#ifndef YAC
     QByteArray stream = QApplication::clipboard()->mimeData()->data("covise/clipboard");
     QString text(stream);
     if (text.startsWith("SETCLIPBOARD"))
@@ -1268,7 +1261,6 @@ void MEGraphicsView::paste()
         text.replace(0, 1, "G");
         MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, text);
     }
-#endif
 }
 
 //!
@@ -1288,20 +1280,6 @@ void MEGraphicsView::deleteNodesCB()
     // get list of selected items
     QList<QGraphicsItem *> list = scene()->selectedItems();
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    sb << list.count();
-    foreach (QGraphicsItem *item, list)
-    {
-        MENode *node = qgraphicsitem_cast<MENode *>(item);
-        if (node)
-            sb << node->getNodeID();
-    }
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_NODE_DELETE, sb);
-
-#else
-
     QStringList buffer;
     buffer << "DEL" << QString::number(list.count());
     foreach (QGraphicsItem *item, list)
@@ -1314,7 +1292,6 @@ void MEGraphicsView::deleteNodesCB()
     QString data = buffer.join("\n");
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
-#endif
 
     MEMainHandler::instance()->mapWasChanged("DEL");
 }
@@ -1420,11 +1397,9 @@ void MEGraphicsView::replaceModulesCB()
     buffer << QString::number(xx) << QString::number(yy);
     buffer << m_popupNode->getName() << m_popupNode->getNumber() << m_popupNode->getHostname();
 
-#ifndef YAC
     QString data = buffer.join("\n");
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
-#endif
 }
 
 //!
@@ -1519,18 +1494,7 @@ void MEGraphicsView::decodeMessage(QDropEvent *event, QString text)
     emit usingNode(category + ":" + modulename);
 
 // send message to controller to start the module
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-    int id = hostname.toInt();
-    sb << id << category << modulename << int(x) << int(y);
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_START_MODULE, sb);
-    MEMainHandler::instance()->mapWasChanged("UI_START_MODULE");
-
-#else
-
     MEMainHandler::instance()->requestNode(modulename, hostname, int(x), int(y), NULL, MEMainHandler::NORMAL);
-#endif
 }
 
 //!
@@ -1588,25 +1552,6 @@ void MEGraphicsView::highlightMatchingPorts(MEPortSelectionHandler::Type type, M
 //!
 void MEGraphicsView::sendLine(MEPort *from, MEPort *to)
 {
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-
-    if (from == NULL || to == NULL)
-    {
-        LOGWARNING("NULL -- watch out!");
-        return;
-    }
-
-    if (from->getPortType() == MEPort::DIN || from->getPortType() == MEPort::MULTY_IN || from->getPortType() == MEPort::PIN)
-        sb << to->getNode()->getNodeID() << to->getName() << from->getNode()->getNodeID() << from->getName();
-    else
-        sb << from->getNode()->getNodeID() << from->getName() << to->getNode()->getNodeID() << to->getName();
-
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_PORT_CONNECT, sb);
-    MEMainHandler::instance()->mapWasChanged("UI_PORT_CONNECT");
-
-#else
     QStringList buffer;
     QString data;
     MEPort *port1, *port2;
@@ -1670,7 +1615,6 @@ void MEGraphicsView::sendLine(MEPort *from, MEPort *to)
          }
       }*/
     }
-#endif
 
     clearPortSelections(MEPortSelectionHandler::Connectable);
     clearPortSelections(MEPortSelectionHandler::Clicked);
@@ -1708,34 +1652,6 @@ void MEGraphicsView::sendMoveMessage()
 {
     const int gs = MEMainHandler::instance()->getGridSize();
 
-#ifdef YAC
-
-    covise::coSendBuffer sb;
-
-    sb << movedItemList.count();
-
-    foreach (QGraphicsItem *item, movedItemList)
-    {
-        MENode *node = qgraphicsitem_cast<MENode *>(item);
-        if (node)
-        {
-            int x = (int)node->x();
-            int y = (int)node->y();
-            x = (int)(x / positionScaleX());
-            y = (int)(y / positionScaleY());
-            if (gs != 0)
-            {
-                x = ((int)((((float)x) / (float)gs) + (sign(x) * 0.5f))) * gs;
-                y = ((int)((((float)y) / (float)gs) + (sign(y) * 0.5f))) * gs;
-            }
-            sb << node->getNodeID() << x << y;
-            MELinkListHandler::instance()->resetLinks(node);
-        }
-    }
-    MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_NODE_MOVE, sb);
-
-#else
-
     // snap position to grid
 
     QStringList buffer;
@@ -1762,8 +1678,6 @@ void MEGraphicsView::sendMoveMessage()
     QString data = buffer.join("\n");
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
-
-#endif
 }
 
 //!
@@ -1784,44 +1698,6 @@ void MEGraphicsView::removeHost(MEHost *host)
     m_copyMovePopup->addAction(host->getCopyMoveAction());
 }
 
-#ifdef YAC
-
-//!
-//! send a list of nodes that have to be copied/moved to the controller
-//!
-void MEGraphicsView::sendCopyList(MEHost *host, int mode)
-{
-
-    covise::coSendBuffer sb;
-
-    // host id
-    if (host)
-        sb << host->getID();
-    else
-        sb << 0;
-
-    // get selected list
-    QList<QGraphicsItem *> copyList = scene()->selectedItems();
-
-    // no. of nodes
-    sb << (int)copyList.count();
-
-    // list of node ids
-    foreach (QGraphicsItem *item, copyList)
-    {
-
-        MENode *node = qgraphicsitem_cast<MENode *>(item);
-        if (node)
-            sb << node->getNodeID();
-    }
-
-    if (mode == MEMainHandler::COPY)
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_COPY, sb);
-    else
-        MEMessageHandler::instance()->sendMessage(covise::coUIMsg::UI_MOVE, sb);
-}
-
-#else
 
 //!
 //! send a list of nodes that have to be copied/moved to the controller
@@ -1873,7 +1749,6 @@ void MEGraphicsView::sendCopyList(MEHost *host, int mode)
     MEMessageHandler::instance()->sendMessage(covise::COVISE_MESSAGE_UI, data);
     buffer.clear();
 }
-#endif
 
 float MEGraphicsView::positionScaleX() const
 {

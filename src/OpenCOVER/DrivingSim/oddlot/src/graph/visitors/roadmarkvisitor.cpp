@@ -137,7 +137,7 @@ RoadMarkVisitor::visit(LaneRoadMark *mark)
         for (int i = 0; i < pointCount; ++i)
         {
             double s = sStart + i * segmentLength; // [sStart, sEnd]
-            points[i] = currentRoad_->getGlobalPoint(s, -currentLaneSection_->getLaneSpanWidth(0, id, s));
+            points[i] = currentRoad_->getGlobalPoint(s, -currentLaneSection_->getLaneSpanWidth(0, id, s) + currentRoad_->getLaneOffset(s));
         }
     }
     else
@@ -145,7 +145,7 @@ RoadMarkVisitor::visit(LaneRoadMark *mark)
         for (int i = 0; i < pointCount; ++i)
         {
             double s = sStart + i * segmentLength; // [sStart, sEnd]
-            points[i] = currentRoad_->getGlobalPoint(s, currentLaneSection_->getLaneSpanWidth(0, id, s));
+            points[i] = currentRoad_->getGlobalPoint(s, currentLaneSection_->getLaneSpanWidth(0, id, s) + currentRoad_->getLaneOffset(s));
         }
     }
 

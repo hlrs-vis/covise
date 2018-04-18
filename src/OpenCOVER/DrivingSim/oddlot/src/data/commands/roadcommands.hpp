@@ -33,6 +33,7 @@ class TypeSection;
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 class LaneSection;
 class SplitTrackComponentCommand;
 
@@ -83,6 +84,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -135,6 +139,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -188,6 +195,9 @@ private:
 
     QMap<double, LaneSection *> newLaneSections_;
     QMap<double, LaneSection *> oldLaneSections_;
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
 };
 
 //#########################//
@@ -346,6 +356,37 @@ private:
 };
 
 //#########################//
+// ChangeShapePrototypeCommand //
+//#########################//
+
+class ChangeShapePrototypeCommand : public DataCommand
+{
+public:
+	explicit ChangeShapePrototypeCommand(RSystemElementRoad *road, RSystemElementRoad *prototype, DataCommand *parent = NULL);
+	virtual ~ChangeShapePrototypeCommand();
+
+	virtual int id() const
+	{
+		return 0x1001;
+	}
+
+	virtual void undo();
+	virtual void redo();
+
+private:
+	ChangeShapePrototypeCommand(); /* not allowed */
+	ChangeShapePrototypeCommand(const ChangeShapePrototypeCommand &); /* not allowed */
+	ChangeShapePrototypeCommand &operator=(const ChangeShapePrototypeCommand &); /* not allowed */
+
+private:
+	RSystemElementRoad *road_; // linked
+	RSystemElementRoad *prototype_; // now owned
+
+	QMap<double, ShapeSection *> newShapeSections_;
+	QMap<double, ShapeSection *> oldShapeSections_;
+};
+
+//#########################//
 // RemoveTrackCommand //
 //#########################//
 
@@ -382,6 +423,7 @@ private:
     QMap<double, SuperelevationSection *> superelevationSections_;
     QMap<double, CrossfallSection *> crossfallSections_;
     QMap<double, LaneSection *> laneSections_;
+	QMap<double, ShapeSection *> shapeSections_;
 };
 
 //#########################//
@@ -723,8 +765,8 @@ private:
     RoadLink *successorLink_;
     RSystemElementJunction *junction_;
     QList<JunctionConnection *> junctionConnections_;
-    QMap<QString, QMap<int,int>> laneLinksRoadStart_;
-    QMap<QString, QMap<int,int>> laneLinksRoadEnd_;
+    QMap<odrID, QMap<int,int>> laneLinksRoadStart_;
+    QMap<odrID, QMap<int,int>> laneLinksRoadEnd_;
 };
 
 
@@ -800,10 +842,10 @@ private:
     RSystemElementJunction *junction_;
     JunctionConnection *junctionPredecessorConnection_;
     JunctionConnection *junctionSuccessorConnection_;
-    QMultiMap<QString, LaneLinkPair> newSuccessorLaneLinks_;
-    QMultiMap<QString, LaneLinkPair> oldSuccessorLaneLinks_;
-    QMultiMap<QString, LaneLinkPair> newPredecessorLaneLinks_;
-    QMultiMap<QString, LaneLinkPair> oldPredecessorLaneLinks_;
+    QMultiMap<odrID, LaneLinkPair> newSuccessorLaneLinks_;
+    QMultiMap<odrID, LaneLinkPair> oldSuccessorLaneLinks_;
+    QMultiMap<odrID, LaneLinkPair> newPredecessorLaneLinks_;
+    QMultiMap<odrID, LaneLinkPair> oldPredecessorLaneLinks_;
 };
 
 //#########################//

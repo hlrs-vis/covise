@@ -41,6 +41,11 @@ void oscSourceFile::setNameAndPath(const std::string &fileName, const std::strin
 {
 	setSrcFileHref(bf::path());
     bf::path fnPath = getFileNamePath(fileName);
+	if (fileName.find(pathFromCurrentDirToDoc.string()) == std::string::npos)
+	{
+		fnPath = pathFromCurrentDirToDoc.string();
+		fnPath /= fileName;
+	}
     setSrcFileName(fnPath.filename());
     setPathFromCurrentDirToMainDir(pathFromCurrentDirToDoc);
     setAbsPathToMainDir(fnPath.parent_path());
@@ -60,7 +65,8 @@ void oscSourceFile::setSrcFileHref(const std::string &srcFileHref)
 
 void oscSourceFile::setSrcFileHref(const XMLCh *srcFileHref)
 {
-    std::string tmpSrcFileHref = xercesc::XMLString::transcode(srcFileHref);
+	char *cs;
+    std::string tmpSrcFileHref = cs = xercesc::XMLString::transcode(srcFileHref); xercesc::XMLString::release(&cs);
     m_srcFileHref = convertToGenericFormat(tmpSrcFileHref);
 }
 
@@ -111,7 +117,8 @@ void oscSourceFile::setRootElementName(const std::string &rootElementName)
 
 void oscSourceFile::setRootElementName(const XMLCh *rootElementName)
 {
-    m_rootElementName = xercesc::XMLString::transcode(rootElementName);
+	char *cs;
+    m_rootElementName = cs = xercesc::XMLString::transcode(rootElementName); xercesc::XMLString::release(&cs);
 }
 
 void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xmlDoc)
@@ -126,7 +133,7 @@ std::string oscSourceFile::getSrcFileHrefAsStr() const
     return m_srcFileHref.generic_string();
 }
 
-const XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const
+XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const /// please release the XMLCh after usage
 {
     return xercesc::XMLString::transcode(m_srcFileHref.generic_string().c_str());
 }
@@ -161,7 +168,7 @@ std::string oscSourceFile::getRootElementNameAsStr() const
     return m_rootElementName;
 }
 
-const XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const
+XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const /// do not forget to release the XMLCh
 {
     return xercesc::XMLString::transcode(m_rootElementName.c_str());
 }

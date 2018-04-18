@@ -22,7 +22,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "oscRelativeRoad.h"
 #include "oscLane.h"
 #include "oscRelativeLane.h"
-#include "oscRoute.h"
+#include "oscPositionRoute.h"
 
 namespace OpenScenario
 {
@@ -38,7 +38,7 @@ oscPosition()
         OSC_OBJECT_ADD_MEMBER(RelativeRoad, "oscRelativeRoad", 1);
         OSC_OBJECT_ADD_MEMBER(Lane, "oscLane", 1);
         OSC_OBJECT_ADD_MEMBER(RelativeLane, "oscRelativeLane", 1);
-        OSC_OBJECT_ADD_MEMBER(Route, "oscRoute", 1);
+        OSC_OBJECT_ADD_MEMBER(Route, "oscPositionRoute", 1);
     };
         const char *getScope(){return "";};
     oscWorldMember World;
@@ -48,7 +48,7 @@ oscPosition()
     oscRelativeRoadMember RelativeRoad;
     oscLaneMember Lane;
     oscRelativeLaneMember RelativeLane;
-    oscRouteMember Route;
+    oscPositionRouteMember Route;
 
 };
 

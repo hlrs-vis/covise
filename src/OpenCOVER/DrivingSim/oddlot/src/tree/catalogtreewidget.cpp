@@ -60,6 +60,9 @@
 
 #include <QWidget>
 #include <QDockWidget>
+#include <QMouseEvent>
+#include <QDrag>
+#include <QMimeData>
 
 using namespace OpenScenario;
 
@@ -85,6 +88,11 @@ CatalogTreeWidget::~CatalogTreeWidget()
 	{
 		oscElement_->detachObserver(this);
 	}
+
+	if (base_)
+	{
+		base_->detachObserver(this);
+	}
 }
 
 //################//
@@ -94,6 +102,7 @@ CatalogTreeWidget::~CatalogTreeWidget()
 void
 CatalogTreeWidget::init()
 {
+
 	// Connect to DockWidget to receive raise signal//
 	//
 
@@ -103,6 +112,7 @@ CatalogTreeWidget::init()
 	// OpenScenario Element base //
 	//
 	base_ = projectData_->getOSCBase();
+	base_->attachObserver(this);
 	openScenarioBase_ = catalog_->getBase();
 	directoryPath_ = QString::fromStdString(catalog_->Directory->path.getValue());
 		
@@ -114,8 +124,7 @@ CatalogTreeWidget::init()
 		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
-    setSelectionMode(QAbstractItemView::ExtendedSelection);
-	setDragEnabled(true);
+ //   setSelectionMode(QAbstractItemView::ExtendedSelection);
     setUniformRowHeights(true);
 	setIndentation(6);
 
@@ -126,7 +135,6 @@ CatalogTreeWidget::init()
 	setColumnWidth(1, 30);
 
 	setHeaderHidden(true);
-	QList<QTreeWidgetItem *> rootList;
 
 	catalogName_ = catalog_->getCatalogName();
 	catalogType_ = "osc" + catalogName_;
@@ -139,8 +147,16 @@ CatalogTreeWidget::init()
 		catalog_->fastReadCatalogObjects();
 	}
 
+	connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onItemClicked(QTreeWidgetItem *, int)));
+	setDragEnabled(true);
 	createTree();
 }
+
+struct TreeDataTyoe {
+	QString str;
+	OpenScenario::oscObjectBase *obj;
+};
+Q_DECLARE_METATYPE(TreeDataTyoe);
 
 void
 CatalogTreeWidget::createTree()
@@ -182,8 +198,13 @@ CatalogTreeWidget::createTree()
 				}
 
 				QTreeWidgetItem *item = new QTreeWidgetItem();
+/*				TreeDataTyoe td;
+				td.str = elementName;
+				td.obj = obj;
+				item->setData(0, Qt::UserRole, qVariantFromValue<TreeDataTyoe>(td));  */
 				item->setText(0,elementName);
 				item->setFlags(Qt::ItemIsDragEnabled|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+				
 
 				rootList.append(item);
 			}
@@ -204,6 +225,29 @@ QTreeWidgetItem *CatalogTreeWidget::getItem(const QString &name)
 	return NULL;
 }
 
+QTreeWidgetItem *CatalogTreeWidget::getItem(OpenScenario::oscObjectBase *obj)
+{
+/*	QTreeWidgetItemIterator it(this);
+	while (*it)
+	{
+		if ((*it)->data(0, Qt::UserRole).value<TreeDataTyoe>().obj == obj)
+		{
+			return (*it);
+		}
+		++it;
+	} */
+
+	const OpenScenario::oscCatalog::ObjectsMap objects = catalog_->getObjectsMap();
+	for (OpenScenario::oscCatalog::ObjectsMap::const_iterator it = objects.begin(); it != objects.end(); it++)
+	{
+		if (it->second.object == obj)
+		{
+			return getItem(QString::fromStdString(it->first));
+		}
+	}
+
+	return NULL;
+}
 
 void 
 CatalogTreeWidget::setOpenScenarioEditor(OpenScenarioEditor *oscEditor)
@@ -221,16 +265,16 @@ CatalogTreeWidget::setOpenScenarioEditor(OpenScenarioEditor *oscEditor)
 // EVENTS         //
 //################//
 void
-CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+CatalogTreeWidget::onItemClicked(QTreeWidgetItem *item, int column)
 {
 //	if (oscEditor_)
 	{
 		oscEditor_->enableSplineEditing(false);  
-		if (selectedItems().count() > 0)
+		if (item)
 		{
 			toolManager_->activateOSCObjectSelection(false);
 
-			const QString text = selectedItems().at(0)->text(0);
+			const QString text = item->text(0);
 			currentTool_ = ODD::TOS_ELEMENT;
 
 			if (text == "New Element")
@@ -294,7 +338,8 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 							SetOSCValuePropertiesCommand<std::string> *setPropertyCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement_, obj, name, text.toStdString());
 							projectWidget_->getTopviewGraph()->executeCommand(setPropertyCommand); */
 
-							obj->writeToDisk();
+//							catalog_->writeToDisk();
+//							obj->writeToDisk();
 						}
 					}
 				}
@@ -357,7 +402,7 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 		}
 
 
-		QTreeWidget::selectionChanged(selected, deselected);
+//		QTreeWidget::selectionChanged(selected, deselected);
 	}
 /*	else
 	{
@@ -367,7 +412,39 @@ CatalogTreeWidget::selectionChanged(const QItemSelection &selected, const QItemS
 
 }
 
+void CatalogTreeWidget::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+		dragStartPosition_ = event->pos();
+	
+	QTreeWidget::mousePressEvent(event);
 
+	onItemClicked(itemAt(event->pos()), 0);
+}
+
+void CatalogTreeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+	QTreeWidget::mouseMoveEvent(event);
+
+	if (!(event->buttons() & Qt::LeftButton))
+		return;
+	if ((event->pos() - dragStartPosition_).manhattanLength() < QApplication::startDragDistance())
+		return;
+
+	//if(oscElement_.is)
+	QDrag *drag = new QDrag(this);
+	QMimeData *mimeData = new QMimeData;
+
+	OpenScenario::oscMember *nameMember = oscElement_->getObject()->getMember("name");
+	OpenScenario::oscStringValue *nameMemberValue = dynamic_cast<oscStringValue*> (nameMember->getValue());
+	std::string entryName = nameMemberValue->getValue();
+
+	mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
+	drag->setMimeData(mimeData);
+
+	Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+
+}
 //################//
 // SLOTS          //
 //################//
@@ -404,6 +481,18 @@ CatalogTreeWidget::updateObserver()
         return; // will be deleted anyway
     }*/
 
+/*	int changes = base_->getOSCBaseChanges();
+	if ((changes & OSCBase::COSC_ElementChange) && !oscElement_->getOSCBase())
+	{
+		createTree();
+		return;
+	} */
+
+	if (!oscElement_)
+	{
+		return;
+	}
+
     // Object name //
     //
     int changes = oscElement_->getOSCElementChanges();
@@ -417,13 +506,16 @@ CatalogTreeWidget::updateObserver()
 		{
 			oscStringValue *sv = dynamic_cast<oscStringValue *>(member->getOrCreateValue());
 			QString text = QString::fromStdString(sv->getValue());
+			QTreeWidgetItem *currentEditedItem = getItem(oscElement_->getObject());
 
-			if (selectedItems().size() > 0)
+			if (currentEditedItem != NULL)
 			{
-				QTreeWidgetItem *currentEditedItem = selectedItems().at(0);
-				if (currentEditedItem && (text != currentEditedItem->text(0)))
+				QString elementName = "Loaded(" + text + ")";
+				if (currentEditedItem && (elementName != currentEditedItem->text(0)))
 				{
-					currentEditedItem->setText(0, text);
+					//OpenScenario::oscObjectBase *oscObject = catalog_->getCatalogObject(currentEditedItem->text(0));
+					catalog_->renameCatalogObject(obj, text.toStdString());
+					currentEditedItem->setText(0, elementName);
 
 					// Update Editor //
 					//
@@ -434,10 +526,7 @@ CatalogTreeWidget::updateObserver()
 			}
 		}
 	}
-	else if (changes & OSCBase::COSC_ElementChange)
-	{
-		createTree();
-	}
+
 
 	changes = oscElement_->getDataElementChanges();
 	if ((changes & DataElement::CDE_DataElementAdded) || (changes & DataElement::CDE_DataElementRemoved))

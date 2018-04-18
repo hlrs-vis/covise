@@ -25,9 +25,9 @@ Group::~Group()
     clearChildren();
 }
 
-bool Group::add(Element *elem)
+bool Group::add(Element *elem, int where)
 {
-    if (Container::add(elem))
+    if (Container::add(elem, where))
     {
         if (elem->parent() != this)
         {

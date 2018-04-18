@@ -4,46 +4,37 @@
 #include<string>
 #include "Trajectory.h"
 #include "Entity.h"
+#include "StoryElement.h"
 #include <vector>
 #include <list>
 #include <osg/Vec3>
 #include <OpenScenario/schema/oscManeuver.h>
-
-
-class Maneuver: public OpenScenario::oscManeuver
+class Action;
+class Event;
+class Maneuver: public OpenScenario::oscManeuver, public StoryElement
 {
 
- public:
-   std::string name;
-   std::string maneuverType;
-   std::string trajectoryCatalogReference;
 
-	//conditions
-	bool maneuverCondition;
-	bool maneuverFinished;
-	float startTime;
-    std::string startConditionType;
-    std::string startAfterManeuver;
-    std::string passiveCar;
-    std::string activeCar;
-	float relativeDistance;
-	float targetSpeed;
+public:
+    std::string maneuverName;
+    std::string maneuverType;
+    std::string routeCatalogReference;
+    std::string trajectoryCatalogReference;
+    //conditions
 
-	//followTrajectory
-	float totalDistance;
-	osg::Vec3 directionVector;
-    std::list<Trajectory*> trajectoryList;
-	int visitedVertices;
-	bool arriveAtVertex;
-	osg::Vec3 targetPosition;
-	osg::Vec3 newPosition;
+    std::list<::Event*> eventList;
+    ::Event* activeEvent;
 
-	Maneuver();
-	~Maneuver();
-	virtual void finishedParsing();
+    Maneuver();
+    ~Maneuver();
+	virtual void stop();
+
+
+    virtual void finishedParsing();
+
     std::string &getName();
-    osg::Vec3 &followTrajectory(osg::Vec3 currentPos, std::vector<osg::Vec3> polylineVertices, float speed);
-	void changeSpeedOfEntity(Entity *aktivCar, float dt);
+    void initialize(::Event* event_temp);
+
 };
 
 #endif // MANEUVER_H

@@ -28,9 +28,7 @@ public:
         this->element = element;
     }
 
-    virtual ~vruiUIElementProvider()
-    {
-    }
+    virtual ~vruiUIElementProvider();
 
     virtual void createGeometry() = 0;
     virtual vruiTransformNode *getDCS() = 0;

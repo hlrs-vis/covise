@@ -17,13 +17,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
 #include <cover/VRSceneGraph.h>
-#include <cover/OpenCOVER.h>
 #include <cover/coVRMSController.h>
-
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
 
 #include <util/coExport.h>
 
@@ -63,8 +57,7 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
     : ui::Owner(std::string("ModuleFeedbackManager")+pluginName, cover->ui)
     , inter_(inter)
 {
-    if (inter_)
-        inter_->incRefCount();
+    inter_->incRefCount();
 
     if (cover->debugLevel(3))
     {
@@ -73,7 +66,6 @@ ModuleFeedbackManager::ModuleFeedbackManager(const RenderObject *containerObject
         else
             fprintf(stderr, "ModuleFeedbackManager::ModuleFeedbackManager1(containerObject =NULL geomObject=%s)\n", inter->getObject()->getName());
     }
-    inter_->incRefCount();
 
     pName_ = string(pluginName, strlen(pluginName));
     //pName_ = new char[strlen(pluginName)+1];
@@ -223,35 +215,51 @@ void ModuleFeedbackManager::createMenu()
     else
         visMenuName_ = moduleName_;
 
-    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
     menu_ = new ui::Menu(visMenuName_, this);
+    bool covise = false;
     if (cover->visMenu)
+    {
+        covise = cover->visMenu->text() == "COVISE";
         cover->visMenu->add(menu_);
+    }
     hideCheckbox_ = new ui::Button(menu_, "Hide");
     hideCheckbox_->setState(false);
     hideCheckbox_->setCallback([this](bool state){
         triggerHide(state);
     });
     syncCheckbox_ = new ui::Button(menu_, "Sync");
-    syncCheckbox_->setState(true);
+    syncCheckbox_->setVisible(covise);
+    syncCheckbox_->setState(covise);
     syncCheckbox_->setCallback([this](bool state){
     });
 
-    int len = strlen(moduleName_.c_str());
-    if (len >= 4 && !cfdgui && string("Comp") == moduleName_.c_str() + len - 4)
+#if 0
+    std::vector<std::string> complexModules;
+    complexModules.push_back("TracerComp");
+    complexModules.push_back("CuttingSurfaceComp");
+    complexModules.push_back("IsoSurfaceComp");
+    bool complex = false;
+    for (auto mod: complexModules)
+    {
+        if (moduleName_.substr(0, mod.length()) == mod)
+            complex = true;
+    }
+    bool cfdgui = covise::coCoviseConfig::isOn("COVER.Plugin.CfdGui", false);
+    if (!cfdgui && complex)
     {
         newButton_ = new ui::Action(menu_, "New");
         newButton_->setCallback([this](){
             // copy this module and execute it
             inter_->copyModuleExec();
         });
-        deleteButton_ = new ui::Action(menu_, "New");
+        deleteButton_ = new ui::Action(menu_, "Delete");
         deleteButton_->setCallback([this](){
             // delete this module
             inter_->deleteModule();
         });
     }
-    if (!covise::coCoviseConfig::isOn("COVERConfig.ExecuteOnChange", true))
+#endif
+    if (!covise::coCoviseConfig::isOn("COVER.ExecuteOnChange", true))
     {
         executeCheckbox_ = new ui::Button(menu_, "Execute");
         executeCheckbox_->setCallback([this](bool){
@@ -270,19 +278,6 @@ void ModuleFeedbackManager::createMenu()
 
     // colors submenu
     colorBar_ = NULL;
-#endif
-
-#ifdef VRUI
-    // append the items to the menu
-    menu_->add(hideCheckbox_);
-    menu_->add(syncCheckbox_);
-    if (newButton_)
-        menu_->add(newButton_);
-    if (deleteButton_)
-        menu_->add(deleteButton_);
-    if (executeCheckbox_)
-        menu_->add(executeCheckbox_);
-    menu_->add(colorsButton_);
 #endif
 }
 
@@ -407,7 +402,7 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor 
     else
         attrPartName_ = "";
 
-    //updateMenuNames();
+    updateMenuNames();
     updateColorBar(containerObject);
 }
 
@@ -445,7 +440,7 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, const RenderO
     else
         attrPartName_ = "";
 
-    //updateMenuNames();
+    updateMenuNames();
     updateColorBar(containerObject);
 }
 
@@ -468,18 +463,7 @@ ModuleFeedbackManager::updateMenuNames()
     else
         visMenuName_ = moduleName_;
 
-#ifdef VRUI
-    visItemName_ = visMenuName_;
-    visItemName_ += "...";
-
-    // update the label of the submenu item
-    menuItem_->setName(visItemName_.c_str());
-
-    // update the submenu title
-    menu_->updateTitle(visMenuName_.c_str());
-#else
     menu_->setText(visMenuName_);
-#endif
 
     if (inExecute_)
     {
@@ -826,11 +810,7 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
     // first time we have to create the menu item and the menu
     if (parentMenu_ == coviseMenu_)
     {
-#ifdef VRUI
-        coviseMenu_->remove(menuItem_);
-#else
         coviseMenu_->remove(menu_);
-#endif
 
         // the we have to create a new case submenu item in the main pinboard and a case submenu
         string caseMenuName = casename;
@@ -839,47 +819,13 @@ ModuleFeedbackManager::setCaseFromGui(const char *casename)
 
         // do we already have this case in the main menu?
         bool found = false;
-#ifdef VRUI
-        coMenuItemVector allItems = cover->getMenu()->getAllItems();
-        size_t i = 0;
-        while (i < allItems.size())
-        {
-            //fprintf(stderr,"checking item %s\n", allItems[i]->getName());
-            // remove the item from the Covise Menu
-            if (strcmp(allItems[i]->getName(), caseMenuItemName.c_str()) == 0)
-            {
-                //fprintf(stderr,"found case %s\n", allItems[i]->getName());
-                caseMenuItem_ = (coSubMenuItem *)allItems[i];
-                caseMenu_ = (coRowMenu *)caseMenuItem_->getMenu();
-                parentMenu_ = caseMenu_;
-                found = true;
-                break;
-            }
-            i++;
-        }
-#endif
         if (!found)
         {
-#ifdef VRUI
-            caseMenuItem_ = new coSubMenuItem(caseMenuItemName.c_str()); //"Modellkabine..."
-            //caseMenu_= new coRowMenu(caseMenuName.c_str(), cover->getMenu(), cover->getMaxMenuItems());        // "Modellkabine"
-            caseMenu_ = new coRowMenu(caseMenuName.c_str(), cover->getMenu()); // "Modellkabine"
-            caseMenuItem_->setMenu(caseMenu_);
-            parentMenu_ = caseMenu_;
-            cover->getMenu()->add(caseMenuItem_);
-            //fprintf(stderr,"ModuleFeedbackManager::setCase added item %s to main menu\n", caseMenuItem_->getName());
-#else
             caseMenu_ = new ui::Menu(caseMenuName, this);
             parentMenu_ = caseMenu_;
-#endif
         }
 
-#ifdef VRUI
-        caseMenu_->add(menuItem_); // add "Tracer_1..." to "Modellkabine"
-        menu_->setParent(caseMenu_);
-#else
         caseMenu_->add(menu_);
-#endif
 
         geometryCaseDCS_ = VRSceneGraph::instance()->findFirstNode<osg::MatrixTransform>(casename);
         if (geometryCaseDCS_ == NULL)
@@ -933,17 +879,7 @@ ModuleFeedbackManager::setNameFromGui(const char *newName)
 
     visMenuName_ = newName;
     visItemName_ = visMenuName_;
-#ifdef VRUI
-    visItemName_ += "...";
-
-    // update the label of the submenu item
-    menuItem_->setName(visItemName_.c_str());
-
-    // update the submenu title
-    menu_->updateTitle(visMenuName_.c_str());
-#else
     menu_->setText(visMenuName_);
-#endif
 
     std::vector<osg::Geode *> geodes = findMyGeode();
     if (geodes.size() > 0)
@@ -1124,9 +1060,5 @@ ModuleFeedbackManager::addNodeToCase(osg::Node *node)
 }
 
 bool ModuleFeedbackManager::getSyncState() {
-#ifdef VRUI
-    return syncCheckbox_->getState();
-#else
     return syncCheckbox_->state();
-#endif
 }

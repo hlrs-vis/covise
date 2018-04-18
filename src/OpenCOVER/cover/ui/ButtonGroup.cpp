@@ -98,11 +98,11 @@ void ButtonGroup::setActiveButton(Button *button)
     }
 }
 
-bool ButtonGroup::add(Element *elem)
+bool ButtonGroup::add(Element *elem, int where)
 {
     auto rb = dynamic_cast<Button *>(elem);
     assert(rb);
-    if (Container::add(elem))
+    if (Container::add(elem, where))
     {
         bool prevState = rb->state();
         // ensure that exactly one button is set
@@ -173,13 +173,12 @@ void ButtonGroup::toggle(const Button *b)
             bset->radioTrigger();
         }
     }
-    else if (!bthis->state())
+    else if (!bthis->state() && !m_allowDeselect)
     {
         change = true;
         bthis->setState(true, false);
         bthis->radioTrigger();
     }
-
     if (change)
         trigger();
 }

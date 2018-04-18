@@ -85,6 +85,7 @@ protected:
     osg::ref_ptr<osgText::Text> _threadingModelText;
 
     unsigned int _frameRateChildNum;
+    unsigned int _gpuMemChildNum;
     unsigned int _viewerChildNum;
     unsigned int _cameraSceneChildNum;
     unsigned int _viewerSceneChildNum;

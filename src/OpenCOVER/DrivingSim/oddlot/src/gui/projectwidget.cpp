@@ -15,8 +15,6 @@
 
 #include "projectwidget.hpp"
 
-#include "src/globalDefines.hpp"
-
 #include "src/mainwindow.hpp"
 
 #include "src/util/odd.hpp"
@@ -59,6 +57,7 @@
 #include "src/graph/editors/elevationeditor.hpp"
 #include "src/graph/editors/superelevationeditor.hpp"
 #include "src/graph/editors/crossfalleditor.hpp"
+#include "src/graph/editors/shapeeditor.hpp"
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/editors/junctioneditor.hpp"
 #include "src/graph/editors/signaleditor.hpp"
@@ -197,6 +196,9 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     splitter->addWidget(profileGraph_);
     splitter->setStretchFactor(1, 1);
 
+	// Routes the tool, mouse and key events to the project widget.
+	connect(profileGraph_, SIGNAL(mouseActionSignal(MouseAction *)), this, SLOT(mouseAction(MouseAction *)));
+
     // The ChangeManager triggers the view's garbage disposal.
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), profileGraph_, SLOT(garbageDisposal()));
 
@@ -219,6 +221,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::EEL, new ElevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ESE, new SuperelevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ECF, new CrossfallEditor(this, projectData_, topviewGraph_, profileGraph_));
+	editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
@@ -246,23 +249,26 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 	connect(oscSettings, SIGNAL(readValidationChanged(bool)), projectData_, SLOT(changeOSCValidation(bool)));
 	connect(oscSettings, SIGNAL(directoryChanged()), oscEditor, SLOT(changeDirectories()));
 
-    currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+    currentRoadPrototype_ = new RSystemElementRoad("prototype");
 
     QList<PrototypeContainer<RSystemElementRoad *> *> roadTypePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadTypePrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> laneSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_LaneSectionPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> superelevationPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
     QList<PrototypeContainer<RSystemElementRoad *> *> crossfallPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
+	QList<PrototypeContainer<RSystemElementRoad *> *> shapePrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
     currentRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(laneSectionPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     currentRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	currentRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 
-    testRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+	testRoadPrototype_ = new RSystemElementRoad("prototype");
 
     testRoadPrototype_->superposePrototype(roadTypePrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(laneSectionPrototypes.at(3)->getPrototype());
     testRoadPrototype_->superposePrototype(superelevationPrototypes.first()->getPrototype());
     testRoadPrototype_->superposePrototype(crossfallPrototypes.first()->getPrototype());
+	testRoadPrototype_->superposePrototype(shapePrototypes.first()->getPrototype());
 }
 
 /*!
@@ -327,7 +333,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // ProfileGraph //
         //
-        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF)
+        if (id == ODD::EEL || id == ODD::ESE || id == ODD::ECF || id == ODD::ERS)
         {
             profileGraph_->show();
         }
@@ -389,16 +395,16 @@ ProjectWidget::newFile()
     // Create a unique name by counting up numbers.
     static int documentNumber = 0;
     ++documentNumber;
-    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXODR);
+    fileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xodr");
     strippedFileName_ = fileName_;
-	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg(FILEEXTENSIONXOSC);
+	oscFileName_ = tr("untitled%1.%2").arg(documentNumber).arg("xosc");
 
     // Set name in window title and project menu.
     setWindowTitle(strippedFileName_ + "[*]"); // [*] is the place for unsaved-marker
     projectMenuAction_->setText(strippedFileName_);
 
     // Create a Tile
-    Tile *tile = new Tile("Tile0", "0");
+    Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
     projectData_->getTileSystem()->addTile(tile);
     projectData_->getTileSystem()->setCurrentTile(tile);
 
@@ -489,7 +495,7 @@ ProjectWidget::loadFile(const QString &fileName, FileType type)
 		// Create a Tile
 		if (!projectData_->getTileSystem()->getCurrentTile())
 		{
-			Tile *tile = new Tile("Tile0", "0");
+			Tile *tile = new Tile(projectData_->getRoadSystem()->getID(odrID::ID_Tile));
 			projectData_->getTileSystem()->addTile(tile);
 			projectData_->getTileSystem()->setCurrentTile(tile); 
 		}
@@ -651,7 +657,7 @@ size_t ProjectWidget::getMaxLinearLength(size_t start)
 float ProjectWidget::getArcError(size_t start, size_t len, TrackSpiralArcSpiral *curve)
 {
     float maxDist = 0;
-    RSystemElementRoad *tmpRoad = new RSystemElementRoad("testRoad", "rID_test", "");
+    RSystemElementRoad *tmpRoad = new RSystemElementRoad("testRoad");
     tmpRoad->addTrackComponent(curve);
     double clen = curve->getLength();
     for (size_t i = start + 1; i < start + len - 1; i++) // do not need to check the first and last point both distances are 0
@@ -782,7 +788,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     roadSystem = projectData_->getRoadSystem();
     QString number = QString::number(numLineStrips);
 
-    RSystemElementRoad *road = new RSystemElementRoad(name,"",  "-1");
+    RSystemElementRoad *road = new RSystemElementRoad(name);
 
     SVector.reserve(XVector.size());
     SVector.resize(XVector.size());
@@ -1046,11 +1052,12 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
     road->setElevationSections(newSections);
     QString typeName="osm:"+osmWay::getTypeName(type)+":"+QString::number(numLanes);
 
-    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+    RSystemElementRoad *osmPrototype = new RSystemElementRoad("prototype");
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadTypePrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_LaneSectionPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_SuperelevationPrototype,typeName));
     osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_CrossfallPrototype,typeName));
+	osmPrototype->superposePrototype(ODD::mainWindow()->getPrototypeManager()->getRoadPrototype(PrototypeManager::PTP_RoadShapePrototype, typeName));
 
     road->superposePrototype(osmPrototype);
     if(maxspeed>=0)
@@ -1092,7 +1099,7 @@ RSystemElementRoad *ProjectWidget::addLineStrip(QString name,int maxspeed, bool 
 
     if(bridge)
     {
-        Bridge *bridge = new Bridge("osmBridge","","",Bridge::BT_CONCRETE,0.0,road->getLength());
+        Bridge *bridge = new Bridge(odrID::invalidID(),"","osmBridge",Bridge::BT_CONCRETE,0.0,road->getLength());
         road->addBridge(bridge);
     }
 
@@ -1362,7 +1369,7 @@ bool
 					RSystemElementRoad *road = roadSystem->findClosestRoad(coordPoint, s, t, vec); // check what happens
 					if (road) // addSignal
 					{
-						Signal *trafficSign = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
+						Signal *trafficSign = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, typeSubclass, subtype, 0.0, 0.0, 0.0, 0.0,"km/h", "", 0.0,0.0, true, 2, 1, 0, 0.0, 0.0);
 						road->addSignal(trafficSign);
 					}
 				}
@@ -1605,7 +1612,7 @@ ProjectWidget::importCarMakerFile(const QString &fileName)
                         {
                             dir = Signal::POSITIVE_TRACK_DIRECTION;
                         }
-                        Signal *newSignal = new Signal("signal", "", s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
+                        Signal *newSignal = new Signal(odrID::invalidID(), "signal",  s, t, false, dir, 0.0, "Germany", type, "", subType, speed, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, true, 2, 0, 1/*toLane*/);
                         AddSignalCommand *command = new AddSignalCommand(newSignal, road, NULL);
                         topviewGraph_->executeCommand(command);
                     }
@@ -1740,7 +1747,26 @@ ProjectWidget::saveFile(const QString &fileName, FileType type)
 		// OpenSCENARIO //
 		//
 		OpenScenario::OpenScenarioBase *openScenarioBase = projectData_->getOSCBase()->getOpenScenarioBase();
-		openScenarioBase->saveFile(xoscFileName.toStdString());
+	
+		QMessageBox msgBox;
+		msgBox.setText("Do you want to save the catalogs?");
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
+		msgBox.setDefaultButton(QMessageBox::Discard);
+		int ret = msgBox.exec();
+
+		if (ret == QMessageBox::Save)
+		{
+			foreach(CatalogWidget *catalogWidget, catalogWidgets_)
+			{
+				OpenScenario::oscCatalog *catalog = catalogWidget->getCatalog();
+				catalog->addCatalogObjects();
+				catalog->writeCatalogsToDisk();
+			}
+		}
+
+		openScenarioBase->saveFile(xoscFileName.toStdString(), false);
+
+
 		openScenarioBase->clearDOM();
 	}
 
@@ -1853,14 +1879,16 @@ void
 ProjectWidget::toolAction(ToolAction *toolAction)
 {
 	static ODD::EditorId lastId = ODD::ENO_EDITOR;
+	static ProjectData* lastProjectData = NULL;
 
     // Change Editor if necessary //
     //
     ODD::EditorId id = toolAction->getEditorId();
-    if ((id != lastId) && (id != ODD::ENO_EDITOR))
+    if ((id != lastId || projectData_ != lastProjectData) && (id != ODD::ENO_EDITOR))
     {
         setEditor(id);
 		lastId = id;
+		lastProjectData = projectData_;
     }
 
     // Pass to Editor/Graph //

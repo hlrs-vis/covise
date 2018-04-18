@@ -11,6 +11,7 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coLabelMenuItem.h>
+#include <cassert>
 
 using namespace opencover;
 using namespace vrui;

@@ -30,7 +30,14 @@ class coPointerButton;
 class COVEREXPORT VRVruiButtons : public vrui::vruiButtons
 {
 public:
-    VRVruiButtons(coPointerButton *button = NULL);
+    enum ButtonsType
+    {
+        Pointer,
+        Mouse,
+        Relative,
+    };
+
+    VRVruiButtons(ButtonsType type=Pointer);
     virtual ~VRVruiButtons();
 
     virtual unsigned int wasPressed(unsigned int buttons) const;
@@ -39,11 +46,11 @@ public:
     virtual unsigned int getStatus() const;
     virtual unsigned int getOldStatus() const;
 
-    virtual int getWheelCount() const;
+    virtual int getWheelCount(size_t idx=0) const;
 
 private:
+    ButtonsType m_type = Pointer;
     coPointerButton *button() const;
-    coPointerButton *m_button;
 };
 }
 #endif

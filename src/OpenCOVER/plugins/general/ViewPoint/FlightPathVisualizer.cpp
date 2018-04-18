@@ -11,6 +11,7 @@
 
 using namespace osg;
 using covise::coCoviseConfig;
+using namespace opencover;
 
 BezierCurveVisualizer::Computation computation = BezierCurveVisualizer::CUBIC_APROXIMATION;
 

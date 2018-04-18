@@ -12,6 +12,8 @@
 
 #include <osgEarth/Map>
 #include <osgEarth/Layer>
+#include <osgEarth/ImageLayer>
+#include <osgEarth/ModelLayer>
 
 using namespace osgEarth;
 using namespace opencover;

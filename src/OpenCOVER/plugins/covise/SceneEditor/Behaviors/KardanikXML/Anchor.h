@@ -17,9 +17,6 @@
 
 #include <string>
 #include <vector>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 namespace KardanikXML
 {
@@ -35,16 +32,16 @@ public:
     std::string GetAnchorNodeName() const;
     void SetAnchorNodeName(std::string name);
 
-    std::tr1::shared_ptr<Point> GetAnchorPoint() const;
-    void SetAnchorPoint(std::tr1::shared_ptr<Point> point);
+    std::shared_ptr<Point> GetAnchorPoint() const;
+    void SetAnchorPoint(std::shared_ptr<Point> point);
 
-    std::tr1::weak_ptr<Body> GetParentBody() const;
-    void SetParentBody(std::tr1::weak_ptr<Body> parent);
+    std::weak_ptr<Body> GetParentBody() const;
+    void SetParentBody(std::weak_ptr<Body> parent);
 
 private:
     std::string m_AnchorNodeName;
-    std::tr1::shared_ptr<Point> m_AnchorPoint;
-    std::tr1::weak_ptr<Body> m_ParentBody;
+    std::shared_ptr<Point> m_AnchorPoint;
+    std::weak_ptr<Body> m_ParentBody;
 };
 }
 

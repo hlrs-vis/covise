@@ -24,6 +24,7 @@ private:
     static VRRegisterSceneGraph *s_instance;
     int registerId;
     bool blocked;
+	bool active;
     std::string whole_message;
     std::string transparency_message;
     std::string sceneGraphAppendixIdString;
@@ -53,6 +54,10 @@ public:
     {
         blocked = true;
     };
+	void activate()
+	{
+		active = true;
+	};
     void unblock()
     {
         blocked = false;

@@ -25,6 +25,7 @@
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 
 // Qt //
@@ -82,6 +83,11 @@ TrackComponentSettings::TrackComponentSettings(ProjectSettings *projectSettings,
         ui->groupBox->setTitle(tr("spiral-arc-spiral"));
         sparcs_ = dynamic_cast<TrackSpiralArcSpiral *>(trackComponent_);
     }
+	else if (type == TrackComponent::DTT_CUBICCURVE)
+	{
+		ui->groupBox->setTitle(tr("cubic-curve"));
+		c_curve_ = dynamic_cast<TrackElementCubicCurve *>(trackComponent_);
+	}
     else
     {
         ui->groupBox->setTitle(tr("unknown type"));

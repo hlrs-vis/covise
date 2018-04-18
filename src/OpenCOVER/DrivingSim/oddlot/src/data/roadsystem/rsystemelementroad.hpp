@@ -35,6 +35,7 @@ class SuperelevationSection;
 class CrossfallSection;
 class ShapeSection;
 class LaneSection;
+class LaneOffset;
 class Object;
 class ObjectReference;
 class Crosswalk;
@@ -57,12 +58,13 @@ public:
         DRS_TypeSection = 0x1,
         DRS_TrackSection = 0x2,
         DRS_ElevationSection = 0x4,
+		DRS_ShapeSection = 0x8,
         DRS_SuperelevationSection = 0x10,
         DRS_CrossfallSection = 0x20,
         DRS_LaneSection = 0x40,
-        DRS_SignalSection = 0x50,
-        DRS_ObjectSection = 0x60,
-        DRS_BridgeSection = 0x70
+        DRS_SignalSection = 0x80,
+        DRS_ObjectSection = 0x100,
+        DRS_BridgeSection = 0x200
     };
 
     enum DRoadObjectType
@@ -103,7 +105,8 @@ public:
         CRD_SurfaceChange = 0x20000,
         CRD_BridgeChange = 0x40000,
 		CRD_TunnelChange = 0x80000,
-		CRD_ObjectReferenceChange = 0x100000
+		CRD_ObjectReferenceChange = 0x100000,
+		CRD_LaneOffsetChange = 0x200000
     };
 
     //################//
@@ -111,16 +114,16 @@ public:
     //################//
 
 public:
-    explicit RSystemElementRoad(const QString &name, const QString &id, const QString &junction);
+    explicit RSystemElementRoad(const QString &name, const odrID &id = odrID::invalidID(), const odrID &junction=odrID::invalidID());
     virtual ~RSystemElementRoad();
 
     // road //
     //
-    QString getJunction() const
+	const odrID &getJunction() const
     {
         return junction_;
     }
-    void setJunction(const QString &junctionId);
+    void setJunction(const odrID &junctionId);
 
     double getLength() const
     {
@@ -263,6 +266,8 @@ public:
     bool moveLaneSection(double oldS, double newS);
     void setLaneSections(QMap<double, LaneSection *> newSections);
 
+
+
     LaneSection *getLaneSection(double s) const;
     LaneSection *getLaneSectionBefore(double s) const;
     LaneSection *getLaneSectionNext(double s) const;
@@ -272,10 +277,26 @@ public:
         return laneSections_;
     }
 
+
+	// road:laneOffset //
+	//
+	void addLaneOffset(LaneOffset *laneOffset);
+	bool delLaneOffset(LaneOffset *laneOffset);
+	bool moveLaneOffset(double oldS, double newS);
+	bool delLaneOffset(double s);
+	void setLaneOffsets(QMap<double, LaneOffset *> newOffsets);
+
+	LaneOffset *getLaneOffsetObject(double s) const;
+	double getLaneOffset(double s) const;
+	LaneOffset *getLaneOffsetBefore(double s) const;
+	LaneOffset *getLaneOffsetNext(double s) const;
+
+
     // road:laneSection:lane:width //
     //
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
+
 
     // check if the lanes are linked at their ends
     //
@@ -299,7 +320,7 @@ public:
     }
     bool delObject(Object *object);
     bool moveObject(RoadSection *section, double newS);
-	Object *getObject(const QString &id);
+	Object *getObject(const odrID &id);
 
 	// road:objectreference //
 	//
@@ -308,7 +329,7 @@ public:
 	{
 		return objectReferences_;
 	}
-	ObjectReference *getObjectReference(const QString &id);
+	ObjectReference *getObjectReference(const odrID &id);
 	bool delObjectReference(ObjectReference *objectReference);
 	bool moveObjectReference(RoadSection *section, double newS);
 
@@ -332,7 +353,7 @@ public:
     bool delSignal(Signal *signal);
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
-    Signal * getSignal(const QString &id);
+    Signal * getSignal(const odrID &id);
 
 	// road:signalreference //
 	//
@@ -341,7 +362,7 @@ public:
 	{
 		return signalReferences_;
 	}
-	SignalReference *getSignalReference(const QString &id);
+	SignalReference *getSignalReference(const odrID &id);
 	bool delSignalReference(SignalReference *signalReference);
 	bool moveSignalReference(RoadSection *section, double newS);
 
@@ -391,6 +412,7 @@ public:
     virtual void acceptForSignals(Visitor *visitor);
 	virtual void acceptForSignalReferences(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
+	virtual void acceptForLaneOffsets(Visitor *visitor);
     
     double updateLength();
 
@@ -400,9 +422,6 @@ private:
     RSystemElementRoad &operator=(const RSystemElementRoad &); /* not allowed */
 
 
-    // IDs //
-    //
-    const QString getUniqueId(const QString &suggestion, RSystemElement::DRoadSystemElementType elementType);
 
     bool delTypeSection(double s);
     bool delTrackComponent(double s);
@@ -429,7 +448,7 @@ private:
 
     // road //
     //
-    QString junction_; // ID of the junction (if road is a path), otherwise -1
+	odrID junction_; // ID of the junction (if road is a path), otherwise -1
     double cachedLength_; // total length of the road (xy-plane)
 
     // link //
@@ -463,11 +482,14 @@ private:
     // lanes //
     QMap<double, LaneSection *> laneSections_; // owned
 
+	// laneOffsets //
+	QMap<double, LaneOffset *> laneOffsets_; // owned
+
     // objects //
     QMap<double, Crosswalk *> crosswalks_; // owned
 
     QMultiMap<double, Object *> objects_; // owned
-    QStringList objectIds_;
+    QList<odrID> objectIds_;
 	int objectIdCount_;
 	QMultiMap<double, ObjectReference *> objectReferences_;
 

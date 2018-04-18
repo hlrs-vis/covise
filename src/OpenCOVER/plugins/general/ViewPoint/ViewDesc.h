@@ -14,11 +14,6 @@
 //========================================================================================
 //========================================================================================
 
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
 #include <osg/ClipNode>
@@ -31,42 +26,30 @@
 #include <osg/LineWidth>
 #include <osg/Material>
 
-/*#include <vrui/coButtonMenuItem.h>
-#include <vrui/coCheckboxMenuItem.h>
-#include <vrui/coMenu.h>
-#include <vrui/coRowMenu.h>
-#include <vrui/coSubMenuItem.h>
-#include <vrui/coCheckboxMenuItem.h>
-
-*/
-//#include <cover/coVRLabel.h>
-
 #include <PluginUtil/coVR3DTransInteractor.h>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coInteractor.h>
 
-//#include <cover/coVRModuleSupport.h>
-//#include <cover/coVRModuleList.h>
 #include <cover/coVRMSController.h>
-
-//#include <grmsg/coGRUpdateViewpointMsg.h>
 #include <grmsg/coGRActivatedViewpointMsg.h>
+#include <cover/ui/Owner.h>
 
 //========================================================================================
 //========================================================================================
 //========================================================================================
 using namespace osg;
 
-namespace vrui
-{
-class coButtonMenuItem;
-class coCheckboxMenuItem;
-class coMenu;
+namespace opencover {
+namespace ui {
+class Action;
+class Button;
+class Menu;
+class EditField;
 }
-class FlightPathVisualizer;
+}
 
-using namespace vrui;
-using namespace opencover;
+class FlightPathVisualizer;
+class ViewPoints;
 
     struct clipPlaneEntry
     {
@@ -84,43 +67,43 @@ using namespace opencover;
     };
 
 
-class ViewDesc : public coMenuListener
+class ViewDesc: public opencover::ui::Owner
 {
 private:
-    char *name; //< name of the point
+    std::string name; //< name of the point
     int id_;
     float scale_;
-    char *vp_line; //< viewpoint line for covise.config
+    std::string vp_line; //< viewpoint line for covise.config
     bool flightState_; //<  point included in flight?
-    coButtonMenuItem *button_; //< button in Viepoints menu
-    coButtonMenuItem *changeButton_; //< button for change in Viepoints menu
-    coCheckboxMenuItem *flightButton_; // button in flight menu
+    opencover::ui::Action *button_; //< button in Viepoints menu
+    opencover::ui::Action *changeButton_; //< button for change in Viepoints menu
+    opencover::ui::Button *flightButton_; // button in flight menu
     bool hasScale_;
     bool isViewAll_;
     bool hasPosition_;
     bool hasOrientation_;
     bool hasMatrix_;
     bool activated_; // flag if flight is finished and viewpoint is reached
-    bool isChangeable_;
-    bool isChangeableFromCover_;
+    bool isChangeable_ = true;
+    bool isChangeableFromCover_ = false;
     osg::Matrix xformMat_;
     // common functionality of C'tors
     void createButtons(const char *name,
-                       coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-                       coMenuListener *master);
+                       opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+                       ViewPoints *master);
 
 
     //========================================================================================
     //========================================================================================
     //========================================================================================
-    coRowMenu *editVPMenu_; //< Edit Viewpoint- menu
-    coSubMenuItem *editVPMenuButton_; //< Edit Button
+    opencover::ui::Menu *editVPMenu_; //< Edit Viewpoint- menu
 
-    coCheckboxMenuItem *showViewpointCheck_;
-    coCheckboxMenuItem *showTangentCheck_;
-    coCheckboxMenuItem *showMoveInteractorsCheck_;
-    coCheckboxMenuItem *showTangentInteractorsCheck_;
-    coButtonMenuItem *updateViewButton;
+    opencover::ui::EditField *editNameInput_;
+    opencover::ui::Button *showViewpointCheck_;
+    opencover::ui::Button *showTangentCheck_;
+    opencover::ui::Button *showMoveInteractorsCheck_;
+    opencover::ui::Button *showTangentInteractorsCheck_;
+    opencover::ui::Action *updateViewButton;
 
     bool flightPathActivated;
     bool viewpointVisible;
@@ -173,11 +156,11 @@ private:
     //     coCoord coord;           //< pos + orientation
     float stoptime; //< stoptime of flight in this viewpoint
 
-    coVR3DTransInteractor *tanOutInteractor;
-    coVR3DTransInteractor *tanInInteractor;
-    coVR3DTransInteractor *scaleInteractor;
+    opencover::coVR3DTransInteractor *tanOutInteractor;
+    opencover::coVR3DTransInteractor *tanInInteractor;
+    opencover::coVR3DTransInteractor *scaleInteractor;
 
-    coVR3DTransRotInteractor *viewpointInteractor; // Angriffspunkt in Mitte
+    opencover::coVR3DTransRotInteractor *viewpointInteractor; // Angriffspunkt in Mitte
 
     //      coVRLabel *myLabel;
 
@@ -191,34 +174,31 @@ public:
 
     // constructor with covise.config_entry
     ViewDesc(const char *name, int id, const char *line,
-             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-             coMenuListener *master, bool isChangeable = false);
+             opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+             ViewPoints *master, bool isChangeable = true);
     // S%f=X%f=Y%f=Z%f=H%f=P%f=R%f
 
     // constructor with matrix
     ViewDesc(const char *name, int id, float scale, osg::Matrix m,
-             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-             coMenuListener *master, bool isChangeable = false);
+             opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+             ViewPoints *master, bool isChangeable = true);
 
     // construct empty point with name only
     ViewDesc(const char *name, int id,
-             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-             coMenuListener *master, bool isChangeable = false);
+             opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+             ViewPoints *master, bool isChangeable = true);
 
     // constructor with only scale
     ViewDesc(const char *name, int id, float scale,
-             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-             coMenuListener *master, bool isChangeable = false);
+             opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+             ViewPoints *master, bool isChangeable = true);
 
     // constructor with only orientation
     ViewDesc(const char *name, int id, osg::Vec3 hpr,
-             coMenu *menu, coMenu *flightMenu, coMenu *editMenu,
-             coMenuListener *master, bool isChangeable = false);
+             opencover::ui::Menu *menu, opencover::ui::Menu *flightMenu, opencover::ui::Menu *editMenu,
+             ViewPoints *master, bool isChangeable = true);
 
     virtual ~ViewDesc();
-
-    // called when pressing the button in the menu
-    virtual void menuEvent(coMenuItem *menuItem);
 
     // change the viewpoints scale and xFormMatrix
     void changeViewDesc(float scale, osg::Matrix m);
@@ -236,7 +216,7 @@ public:
 
     const char *getName()
     {
-        return name;
+        return name.c_str();
     }
     void setName(const char *n);
     osg::Matrix getMatrix()
@@ -245,7 +225,7 @@ public:
     }
     const char *getLine()
     {
-        return vp_line;
+        return vp_line.c_str();
     }
     const char *getClipPlane(int i);
     bool getFlightState()
@@ -261,16 +241,6 @@ public:
         return scale_;
     }
     void activate(bool clipplane);
-
-    bool isMyButton(coMenuItem *menuItem)
-    {
-        return (menuItem == (coMenuItem *)button_);
-    };
-
-    bool isMyChangeButton(coMenuItem *menuItem)
-    {
-        return (menuItem == (coMenuItem *)changeButton_);
-    };
 
     bool hasScale()
     {
@@ -310,14 +280,14 @@ public:
     };
     bool isClipPlaneEnabled(int plane);
 
-    static bool string2ViewDesc(const char *line,
+    static bool string2ViewDesc(const std::string &line,
                                 float *scale,
                                 float *x, float *y, float *z,
                                 float *h, float *p, float *r,
                                 float *tanInX, float *tanInY, float *tanInZ,
                                 float *tanOutX, float *tanOutY, float *tanOutZ);
 
-    static bool string2ViewDesc(const char *line,
+    static bool string2ViewDesc(const std::string &line,
                                 float *scale,
                                 double *m00, double *m01, double *m02, double *m03,
                                 double *m10, double *m11, double *m12, double *m13,
@@ -360,7 +330,7 @@ public:
     }
     void setFlightPathActivated(bool);
 
-    coButtonMenuItem *getButton()
+    opencover::ui::Action *getButton()
     {
         return button_;
     };

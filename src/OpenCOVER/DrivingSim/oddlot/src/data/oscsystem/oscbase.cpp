@@ -136,7 +136,12 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 {
 	QStringList parts = oscElement->getID().split("_");
 
-    if (oscElements_.remove(oscElement->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+	bool number = false;
+	int tn = parts.at(1).toInt(&number);
+	odrID tid;
+	tid.setID(tn);
+	getProjectData()->getTileSystem()->getTile(tid)->removeOSCID(oscElement->getID());
+    if (oscElements_.remove(oscElement->getID()))
     {
         oscElement->setOSCBase(NULL);
 
@@ -154,59 +159,13 @@ OSCBase::delOSCElement(OSCElement *oscElement)
 //##################//
 // IDs              //
 //##################//
+
 const QString
-OSCBase::getUniqueId(const QString &suggestion, QString &name)
+OSCBase::getUniqueId(const QString &suggestion, const QString &name)
 {
-    QString tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
-    QList<int> currentTileElementIds_ = elementIds_.values(tileId);
+	// oscIDs should be unique within a tile so ask the tile for a new ID
+    return  getProjectData()->getTileSystem()->getCurrentTile()->getUniqueOSCID(suggestion,name);
 
-    // Try suggestion //
-    //
-    if (!suggestion.isNull() && !suggestion.isEmpty() && !name.isEmpty())
-    {
-        bool number = false;
-        QStringList parts = suggestion.split("_");
-
-        if (parts.size() > 2)
-        {
-            parts.at(0).toInt(&number);
-            if (tileId == parts.at(0))
-            {
-                int nr = parts.at(1).toInt(&number);
-
-                if (number && !currentTileElementIds_.contains(nr))
-                {
-                    elementIds_.insert(tileId, nr);
-                    return suggestion;
-                }
-            }
-        }
-    }
-
-    // Create new one //
-    //
-
-    if (name.isEmpty())
-    {
-        name = "unnamed";
-    }
-    /*	else if (name.contains("_"))       // get rid of old name concatention
-	{
-		int index = name.indexOf("_");
-		name = name.left(index-1);
-	}*/
-
-    QString id;
-
-    int index = 0;
-    while ((index < currentTileElementIds_.size()) && currentTileElementIds_.contains(index))
-    {
-        index++;
-    }
-
-    id = QString("%1_%2_%3").arg(tileId).arg(index).arg(name);
-    elementIds_.insert(tileId, index);
-    return id;
 }
 
 /*! \brief Accepts a visitor.

@@ -36,6 +36,7 @@
 #include <math.h>
 #include "VrmlNodeOffice.h"
 #include "OfficePlugin.h"
+#include <net/tokenbuffer.h>
 
 list<VrmlNodeOffice *> VrmlNodeOffice::allOffice;
 
@@ -191,7 +192,7 @@ void VrmlNodeOffice::setField(const char *fieldName,
         }
         if(officeConnection!=NULL)
         {
-            TokenBuffer stb;
+            covise::TokenBuffer stb;
             stb << fieldValue.toSFString()->get();
 
             Message message(stb);

@@ -63,13 +63,13 @@ public:
     osg::Vec3 getPos()
     {
         return _interPos;
-    };
+    }
 
     // return the current rotation point
     osg::Vec3 getRotationPoint()
     {
         return _rotationPoint;
-    };
+    }
 };
 }
 #endif

@@ -38,6 +38,9 @@
 
 
   <COVER>
+      <UI>
+          <VRUI toolbar="true" />
+      </UI>
 
    <Plugin>
     <JTOpen value="false" />
@@ -59,7 +62,7 @@
      <DataDir value="/home/cave/data/data/itt" />
     </Molecules>
 
-    <AKToolbar>
+    <AKToolbar value="false" >
      <Scale value="2" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="xform" name="xform" />

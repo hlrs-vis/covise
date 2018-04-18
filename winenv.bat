@@ -161,15 +161,27 @@ if defined VS110COMNTOOLS  (
 )
 
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
+    if "%VCPKG_ROOT%" EQU "" (
+        set "VCPKG_ROOT=C:\vcpkg"
+    )
+)
+
+if "%BASEARCHSUFFIX%" EQU "vcpkg" (
+    if NOT EXIST "%VCPKG_ROOT%\.vcpkg-root" (
+        VCPKG_ROOT has to be set to the root directory of your vcpkg installation
+        set VCPKG_ROOT=
+    )
+)
+
+if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     if "%VCPKG_ROOT%" NEQ "" (
         set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
+        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.5.6"
     )
-    set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.5.6"
 )
+
 if "%ARCHSUFFIX%" EQU "vcpkg" (
-    if "%VCPKG_ROOT%" NEQ "" (
-        set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
-    )
+    set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
 )
 
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
@@ -328,7 +340,6 @@ if "%ARCHSUFFIX%" EQU "vcpkg"  set COVISE_DEVELOPMENT=YES
 if "%ARCHSUFFIX%" EQU "mingw"  set COVISE_DEVELOPMENT=YES
 
 set COMMON_ACTIVE=1
-
 :END
 
 

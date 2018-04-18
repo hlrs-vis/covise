@@ -114,6 +114,7 @@ struct Isect
         Right = 256,
         CastShadow = 512,
         ReceiveShadow = 1024,
+		Update = 2048,
         OsgEarthSecondary = 0x80000000,
     };
 
@@ -145,20 +146,20 @@ public:
     ~coPointerButton();
     //! button state
     //! @return button press mask
-    unsigned int getState();
+    unsigned int getState() const;
     //! previous button state
     //! @return old button state
-    unsigned int oldState();
+    unsigned int oldState() const;
     //! buttons pressed since last frame
-    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasPressed(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! buttons released since last frame
-    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS);
+    unsigned int wasReleased(unsigned int buttonMask=vrui::vruiButtons::ALL_BUTTONS) const;
     //! is no button pressed
-    bool notPressed();
+    bool notPressed() const;
     //! accumulated number of wheel events
-    int getWheel();
+    int getWheel(size_t idx=0) const;
     //! set number wheel events
-    void setWheel(int);
+    void setWheel(size_t idx, int count);
     //! button name
     const std::string &name() const;
 
@@ -166,9 +167,9 @@ private:
     //! set button state
     void setState(unsigned int);
 
-    unsigned int buttonStatus;
-    unsigned int lastStatus;
-    int wheelCount;
+    unsigned int buttonStatus = 0;
+    unsigned int lastStatus = 0;
+    int wheelCount[2]={0,0};
     std::string m_name;
 };
 
@@ -218,6 +219,8 @@ public:
         return clipPlanes[num].get();
     }
 
+	void preparePluginUnload();
+
     //! returns true if clipping is on
     bool isClippingOn() const;
 
@@ -246,6 +249,9 @@ public:
     //! get matrix of current 2D mouse matrix
     //! (the same as getPointerMat for MOUSE tracking)
     const osg::Matrix &getMouseMat() const;
+
+    //! get matrix for relative input (identity if no input)
+    const osg::Matrix &getRelativeMat() const;
 
     //! get the MatrixTransform for objects translation and rotation
     osg::MatrixTransform *getObjectsXform() const;
@@ -303,6 +309,9 @@ public:
     //! returns a pointer to a coPointerButton object representing the mouse buttons state
     coPointerButton *getMouseButton() const;
 
+    //! returns a pointer to a coPointerButton object representing the buttons state on the relative input device
+    coPointerButton *getRelativeButton() const;
+
     //! returns the COVER Menu (Pinboard)
     vrui::coMenu *getMenu();
 
@@ -349,151 +358,7 @@ public:
     //! check if keyboard is grabbed
     bool isKeyboardGrabbed();
 
-
-#if 0
-    //! returns a new unique button group id
-    /*! if you want to create a new button group you need this id */
-    int createUniqueButtonGroupId();
-
-    // add Buttons to Pinboard
-
-    //! append a button to a menu which opens a submenu if switched on
-    //! @param buttonName text on the button
-    //! @param  parentMenuName to which menu it will be appended, NULL = main menu
-    //! @param  subMenuName header of the submenu
-    //! @param  state false=off, true=on
-    //! @param  callback function which is called on press/release
-    //! @param  groupId if a button is in the same group with others it is automatically
-    //!         switched off if another button is pressed
-    //! @param  classPtr ptr to the class which calls the callback
-    void addSubmenuButton(const char *buttonName, const char *parentMenuName,
-                          const char *subMenuName, int state, ButtonCallback callback, int groupId,
-                          void *classPtr);
-
-    //! append a toggle button to a menu
-    //! @param buttonName text on the button
-    //! @param parentMenuName to which menu it will be appended, NULL = main menu
-    //! @param state false=off, true=on
-    //! @param callback function which is called on press/release
-    //! @param classPtr ptr to the class which calls the callback
-    //! @param userData ptr to data to pass to callback
-    void addToggleButton(const char *buttonName, const char *parentMenuName,
-                         int state, ButtonCallback callback, void *classPtr, void *userData = NULL);
-
-    //! append a group button to a menu
-    //! @param buttonName text on the button
-    //! @param parentMenuName to which menu it will be appended, NULL = main menu
-    //! @param state false=off, true=on
-    //! @param callback function which is called on press/release
-    //! @param groupId if a button is in the same group with others it is automatically
-    //          switched off if another button is pressed
-    //! @param classPtr ptr to the class which calls the callback
-    //! @param userData ptr to data to pass to callback
-    void addGroupButton(const char *buttonName, const char *parentMenuName,
-                        int state, ButtonCallback callback, int groupId, void *classPtr, void *userData = NULL);
-
-    //! add a function button, a function button just calls the callback
-    //! @param buttonName text on the button
-    //! @param parentMenuName to which menu it will be appended, NULL = main menu
-    //! @param callback function which is called on press/release
-    //! @param classPtr ptr to the class which calls the callback
-    //! @param userData ptr to data to pass to callback
-    void addFunctionButton(const char *buttonName, const char *parentMenuName,
-                           ButtonCallback callback, void *classPtr, void *userData = NULL);
-
-    //! add a slider to a menu
-    //! @param buttonName text on the slider
-    //! @param parentMenuName to which menu it will be appended, NULL = main menu
-    //! @param min minimum slider value
-    //! @param max maximum slider value
-    //! @param value initial slider value
-    //! @param callback function which is called on press/release
-    //! @param classPtr ptr to the class which calls the callback
-    //! @param userData ptr to data to pass to callback
-    void addSliderButton(const char *buttonName, const char *parentMenuName,
-                         float min, float max, float value, ButtonCallback callback, void *classPtr, void *userData = NULL);
-
-    //! set slider value
-    //! @param buttonName text on the slider
-    //! @param value new slider value
-    bool setSliderValue(const char *buttonName, float value);
-
-    //! set the state of a button, this doesn't call the callback,
-    //! set the state of a group, toggle or submenu button
-    //! @param buttonName text on the button
-    //! @param state new button state
-    bool setButtonState(const char *buttonName, int state);
-
-    //! get the current state of a button
-    //! @param buttonName text on the button
-    //! @param menuName name of the button's menu
-    //! @return current button state
-    int getButtonState(const char *buttonName, const char *menuName);
-
-    //! get the current value of a slider
-    //! @param buttonName text on the slider
-    //! @param menuName name of the slider's menu
-    //! @return current slider value
-    float getSliderValue(const char *buttonName, const char *menuName);
-
-    //! remove a button
-    //! @buttonName name of the button to remove
-    //! @parentMenuName name of submenu, if NULL remove from main menu
-    void removeButton(const char *buttonName, const char *parentMenuName);
-
-    // COVER functions
-
-    //! check if a function is visible in pinboard
-    //! @return true if this function is built-in and in pinboard
-    int isBuiltInFunctionInPinboard(const char *functionName);
-
-    // set the state of a the menu button/slider and the function
-    // same as setButtonState but with the functionName as parameter
-    // for built in functions the button names are configurable thus we
-    // don't know the names any more
-    // functionName = {"XFORM", "SCALE", ...}
-    // this sets only the appearance of the button, it doesn't call teh callback
-    // for group and toggle buttons
-    void setBuiltInFunctionState(const char *functionName, int state);
-    // for slider buttons
-    void setBuiltInFunctionValue(const char *functionName, float val);
-
-    int getBuiltInFunctionState(const char *functionName, int *state);
-    int getBuiltInFunctionValue(const char *functionName, float *val);
-
-    // this sets the state/value and calls the callback
-    void callBuiltInFunctionCallback(const char *functionName);
-
-    vrui::coMenuItem *getBuiltInFunctionMenuItem(const char *functionName);
-
-    // enable navigation and disable navigation
-    // now obsolete, use cover.setBuiltInFunctionState(functionName,state)
-    void enableNavigation(const char *navigationName);
-
-    // deactivate 3D menu functions
-    void disableNavigation(const char *navigationName);
-
-    // "DriveSpeed"         set drive speed
-    void setNavigationValue(const char *navigationName, float value);
-
-    // make a configurable button
-
-    // looks in covise.config scope PinboardConfig
-    // if available custom buttonlabels and menulabelare used,
-    // else the default labels
-    //
-    // example:
-    //
-    // PinboardConfig
-    // {
-    //    XFORM "move world"
-    //    WALK  "move wolrd" "navigation"
-    //    MYFUNCTION "mylabel" "mymenu"
-    // }
-    //
-    void addConfigurableButton(const char *functionName, const char *defButtonName, const char *defMenuName, int type, void *callback, void *inst, int groupId = -1, void *userData = NULL);
-#endif
-
+    //! forbid saving of scenegraph
     void protectScenegraph();
 
     //! returns the time in seconds since Jan. 1, 1970 at the beginning of this frame,
@@ -514,7 +379,7 @@ public:
     //! returns the current time in seconds since Jan. 1, 1970,
     //! if possible, use frameTime() as it does not require a system call
     //! @return number of seconds since Jan. 1, 1970
-    double currentTime() const;
+    static double currentTime();
 
     //! get the number of the active cursor shape
     osgViewer::GraphicsWindow::MouseCursor getCurrentCursor() const;
@@ -538,6 +403,9 @@ public:
     //! get normal of intersection hit
     const osg::Vec3 &getIntersectionHitPointWorldNormal() const;
 
+    //! update matrix of an interactor, honouring snapping, ...
+    osg::Matrix updateInteractorTransform(osg::Matrix mat, bool usePointer) const;
+
     /*********************************************************************/
     // do not use anything beyond this line
 
@@ -545,10 +413,6 @@ public:
     // deprecated, use coInteraction with high priority instead
     // returns true if another plugin locked the pointer
     int isPointerLocked();
-
-    // deprecated, use coInteraction instead
-    // returns true if USER is currently navigating
-    bool isNavigating();
 
     // old COVISE Messages
     int sendBinMessage(const char *keyword, const char *data, int len);
@@ -607,13 +471,10 @@ public:
     float getViewerScreenDistance();
 
     //! compute the box of all visible nodes above and included node
-    osg::BoundingBox getBBox(osg::Node *node);
+    osg::BoundingBox getBBox(osg::Node *node) const;
 
-    //restrict interactors to visible scne
-    bool restrictOn()
-    {
-        return resOn;
-    };
+    //restrict interactors to visible scene
+    bool restrictOn() const;
 
     /// @endcond INTERNAL
 
@@ -629,21 +490,15 @@ public:
     };
     /// @endcond INTERNAL
 
-    vrui::coToolboxMenu *getToolBar()
-    {
-        return toolBar;
-    };
-    void setToolBar(vrui::coToolboxMenu *tb)
-    {
-        toolBar = tb;
-    };
+    vrui::coToolboxMenu *getToolBar(bool create = false);
+    void setToolBar(vrui::coToolboxMenu *tb);
 
     //! use only during coVRPlugin::update()
     void setFrameTime(double ft);
 
-private:
-    bool resOn; // flag for restrict interactors to visible scene
+    void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
 
+private:
     void setFrameRealTime(double ft);
 
     //! calls the callback
@@ -660,9 +515,10 @@ private:
     mutable vrui::coUpdateManager *updateManager;
 
     mutable int invCalculated;
+    osg::Matrix handMat;
+    bool wasHandValid = false;
     osg::Matrix baseMatrix;
     mutable osg::Matrix invBaseMatrix;
-    int buttonGroup;
     double lastFrameStartTime;
     double frameStartTime, frameStartRealTime;
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
@@ -684,8 +540,10 @@ private:
 
     mutable coPointerButton *pointerButton = nullptr;
     mutable coPointerButton *mouseButton = nullptr;
-    vrui::coToolboxMenu *toolBar = nullptr;
-    vrui::coRowMenu *m_vruiMenu = nullptr;
+    mutable coPointerButton *relativeButton = nullptr;
+    vrui::coToolboxMenu *m_toolBar = nullptr;
+    vrui::coMenu *m_vruiMenu = nullptr;
+    double interactorScale = 1.;
 
     int numClipPlanes;
 

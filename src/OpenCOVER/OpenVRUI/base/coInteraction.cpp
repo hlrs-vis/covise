@@ -45,6 +45,11 @@ coInteraction::~coInteraction()
     coInteractionManager::the()->unregisterInteraction(this);
 }
 
+void coInteraction::setGroup(coInteraction::InteractionGroup group)
+{
+    this->group = group;
+}
+
 void coInteraction::pause()
 {
     //fprintf(stderr,"coInteraction::paus \n");
@@ -161,6 +166,10 @@ bool coInteraction::activate()
             return true;
         }
         else if (coInteractionManager::the()->isOneActive(type))
+        {
+            return false;
+        }
+        else if (group != GroupNonexclusive && coInteractionManager::the()->isOneActive(group))
         {
             return false;
         }

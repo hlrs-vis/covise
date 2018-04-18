@@ -67,6 +67,8 @@ public:
     static coIntersection *instance();
     virtual ~coIntersection();
 
+    coIntersector *newIntersector(const osg::Vec3 &start, const osg::Vec3 &end);
+
     void addHandler(osg::ref_ptr<IntersectionHandler> handler);
 
     virtual const char *getClassName() const;

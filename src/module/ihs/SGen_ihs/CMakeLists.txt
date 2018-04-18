@@ -17,3 +17,4 @@ SET(SOURCES
 covise_add_module(IO SGen_ihs ${SOURCES} ${HEADERS})
 covise_wnoerror(SGen_ihs)
 target_link_libraries(SGen_ihs coApi coAppl coCore)
+covise_install_target(SGen_ihs)

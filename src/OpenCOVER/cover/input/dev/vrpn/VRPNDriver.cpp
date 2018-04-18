@@ -108,6 +108,9 @@ bool VRPNDriver::poll()
     if (vrpnButton)
         vrpnButton->mainloop();
     vrpnMutex.unlock();
+    m_mutex.lock();
+    m_valid = true;
+    m_mutex.unlock();
     return true;
 }
 

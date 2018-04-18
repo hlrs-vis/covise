@@ -43,7 +43,18 @@ XERCES_CPP_NAMESPACE_END
 namespace OpenScenario
 {
 
-class oscSourceFile;
+	class oscSourceFile;
+	class oscMemberValue;
+	class oscParameter;
+
+class OPENSCENARIOEXPORT parameterDescription
+{
+public:
+	parameterDescription(oscMemberValue *m=NULL, oscParameter *p=NULL);
+	~parameterDescription();
+	oscMemberValue *member;
+	oscParameter *parameter;
+};
 
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
@@ -82,6 +93,9 @@ public:
     //
     void addToSrcFileVec(oscSourceFile *src);
     std::vector<oscSourceFile *> getSrcFileVec() const;
+	void addParameter(const std::string &paramName, oscMemberValue *);
+	void setParameterValue(const std::string & paramName, const std::string & value);
+	std::map<std::string, parameterDescription *> parameters;
 
     //
     void setValidation(const bool validate); ///< turn on/off validation
@@ -100,7 +114,7 @@ public:
                                                                                  \param fileName file to load.
                                                                                  \param fileType type of the imported file.
                                                                                  \return false if loading the file failed.*/
-    bool saveFile(const std::string &fileName, bool overwrite = false);/*!< store an OpenScenario database to a file in xml format
+    bool saveFile(const std::string &fileName, bool catalogs = true, bool overwrite = false);/*!< store an OpenScenario database to a file in xml format
                                                                       \param fileName file to save to.
                                                                       \param overwrite if set to true, an existing file with the same name is overwritten, otherwise false is returned if a file with that name already exists.
                                                                       \return false if writing to the file failed.*/

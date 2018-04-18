@@ -104,10 +104,9 @@ else()
   set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
 message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-IF("${BASEARCHSUFFIX}" STREQUAL "cray64")
-    message("NO X11")
-    remove_definitions(-DUSE_X11)
-ENDIF("${BASEARCHSUFFIX}" STREQUAL "cray64")
+if(COVISE_USE_X11)
+    add_definitions(-DUSE_X11)
+endif()
 
 
 # find dependencies for coVRML library

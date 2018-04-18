@@ -10,7 +10,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 using namespace OpenScenario;
 Enum_cloudStateType::Enum_cloudStateType()
 {
-addEnum("sky_off", oscWeather::sky_off);
+addEnum("skyOff", oscWeather::skyOff);
 addEnum("free", oscWeather::free);
 addEnum("cloudy", oscWeather::cloudy);
 addEnum("overcast", oscWeather::overcast);

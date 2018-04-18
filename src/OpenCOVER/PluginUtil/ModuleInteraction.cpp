@@ -6,15 +6,9 @@
  * License: LGPL 2+ */
 
 #include "ModuleInteraction.h"
-#ifdef VRUI
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
-#else
 #include <cover/coVRPluginSupport.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
-#endif
 #include <cover/coVRConfig.h>
 #include "FeedbackManager.h"
 
@@ -29,13 +23,6 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
 {
     FeedbackManager::instance()->registerFeedback(this, inter);
 
-#ifdef VRUI
-    int menuItemCounter = 0;
-    showPickInteractorCheckbox_ = new coCheckboxMenuItem("Pick Interactor", false);
-    showPickInteractorCheckbox_->setMenuListener(this);
-    menu_->insert(showPickInteractorCheckbox_, menuItemCounter);
-    menuItemCounter++;
-#else
     showPickInteractorCheckbox_ = new ui::Button(menu_, "PickInteractor");
     showPickInteractorCheckbox_->setText("Pick interactor");
     showPickInteractorCheckbox_->setState(showPickInteractor_);
@@ -43,22 +30,9 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
         showPickInteractor_ = state;
         updatePickInteractors(state);
     });
-#endif
-
-#ifdef VRUI
-    coSubMenuItem *parent = dynamic_cast<coSubMenuItem *>(menu_->getSubMenuItem());
-    if (parent)
-        parent->setSecondaryItem(showPickInteractorCheckbox_);
-#endif
 
     if (coVRConfig::instance()->has6DoFInput())
     {
-#ifdef VRUI
-        showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
-        showDirectInteractorCheckbox_->setMenuListener(this);
-        menu_->insert(showDirectInteractorCheckbox_, menuItemCounter);
-        menuItemCounter++;
-#else
         showDirectInteractorCheckbox_ = new ui::Button(menu_, "DirectInteractor");
         showDirectInteractorCheckbox_->setText("Direct interactor");
         showDirectInteractorCheckbox_->setState(showDirectInteractor_);
@@ -67,7 +41,6 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
             showDirectInteractor_ = state;
             updateDirectInteractors(state);
         });
-#endif
 #ifdef VRUI
         if (parent)
             parent->setSecondaryItem(showDirectInteractorCheckbox_);
@@ -78,11 +51,6 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
 ModuleInteraction::~ModuleInteraction()
 {
     FeedbackManager::instance()->unregisterFeedback(this);
-
-#ifdef VRUI
-    delete showPickInteractorCheckbox_;
-    delete showDirectInteractorCheckbox_;
-#endif
 }
 
 void
@@ -100,39 +68,6 @@ ModuleInteraction::preFrame()
 {
     //fprintf(stderr,"ModuleFeedbackManager::preFrame for object=%s plugin=%s\n", initialObjectName_.c_str(), pName_.c_str());
 }
-
-#ifdef VRUI
-void
-ModuleInteraction::menuEvent(coMenuItem *item)
-{
-
-    //fprintf(stderr,"ModuleInteraction::menuEvent %s\n", item->getName());
-    ModuleFeedbackManager::menuEvent(item);
-
-    if (item == showPickInteractorCheckbox_)
-    {
-        showPickInteractor_ = showPickInteractorCheckbox_->getState();
-        updatePickInteractors(showPickInteractor_);
-    }
-    else if (item == showDirectInteractorCheckbox_)
-    {
-        showDirectInteractor_ = showDirectInteractorCheckbox_->getState();
-        updateDirectInteractors(showDirectInteractor_);
-    }
-    else if (item == hideCheckbox_)
-    {
-        if (!hideCheckbox_->getState() && showPickInteractor_)
-            updatePickInteractors(true);
-        else
-            updatePickInteractors(false);
-
-        if (!hideCheckbox_->getState() && showDirectInteractor_)
-            updateDirectInteractors(true);
-        else
-            updateDirectInteractors(false);
-    }
-}
-#endif
 
 void
 ModuleInteraction::setShowInteractorFromGui(bool state)

@@ -183,7 +183,7 @@ LaneLinkItem::createPath()
 
     int laneId = lane_->getId();
 
-    double d = laneSection_->getLaneSpanWidth(0, laneId, s) - 0.5 * laneSection_->getLaneWidth(laneId, s);
+    double d = laneSection_->getLaneSpanWidth(0, laneId, s) + road_->getLaneOffset(s) - 0.5 * laneSection_->getLaneWidth(laneId, s);
 
     QPointF pos = road_->getGlobalPoint(s, d);
 

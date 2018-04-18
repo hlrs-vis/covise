@@ -123,7 +123,8 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
             else if ((track->getTrackType() == TrackComponent::DTT_LINE)
                      || (track->getTrackType() == TrackComponent::DTT_ARC)
                      || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
-                     || (track->getTrackType() == TrackComponent::DTT_POLY3))
+				     || (track->getTrackType() == TrackComponent::DTT_POLY3)
+				     || (track->getTrackType() == TrackComponent::DTT_CUBICCURVE))
             {
                 TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
                 new TrackElementItem(this, trackElement);
@@ -138,7 +139,8 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
         //
         if ((trackEditor_->isCurrentTool(ODD::TTE_ADD))
             || (trackEditor_->isCurrentTool(ODD::TTE_ADD_CURVE))
-            || (trackEditor_->isCurrentTool(ODD::TTE_ADD_LINE)))
+            || (trackEditor_->isCurrentTool(ODD::TTE_ADD_LINE))
+			|| (trackEditor_->isCurrentTool(ODD::TTE_ADD_POLY)))
         {
             if (fullRebuild) // the handles need not be rebuilt every time since they adjust their position automatically
             {

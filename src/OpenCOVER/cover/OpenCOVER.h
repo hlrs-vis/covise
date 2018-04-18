@@ -44,6 +44,8 @@ class Group;
 class coHud;
 class buttonSpecCell;
 class coVRPlugin;
+class coTabletUI;
+class coTUITabFolder;
 
 extern COVEREXPORT covise::VRBClient *vrbc;
 
@@ -112,12 +114,19 @@ public:
 
     void requestQuit();
     coVRPlugin *visPlugin() const;
+
+    size_t numTuis() const;
+    coTabletUI *tui(size_t idx) const;
+    coTUITabFolder *tuiTab(size_t idx) const;
 private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
 #endif
     bool m_renderNext;
     bool m_initialized = false;
+
+    std::vector<coTabletUI *> tabletUIs;
+    std::vector<coTUITabFolder *> tabletTabs;
 };
 }
 #endif

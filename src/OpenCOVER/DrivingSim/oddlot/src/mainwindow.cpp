@@ -92,7 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
 	
 
     projectionSettings = new ProjectionSettings();
-    importSettings = new ImportSettings();
+	importSettings = new ImportSettings();
+	exportSettings = new ExportSettings();
     lodSettings = new LODSettings();
 	oscSettings = new OSCSettings(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/");
 
@@ -242,6 +243,10 @@ MainWindow::createActions()
     connect(importSettingsAction, SIGNAL(triggered()), this, SLOT(changeImportSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), importSettingsAction, SLOT(setEnabled(bool)));
 
+	QAction *exportSettingsAction = new QAction(tr("Export Settings"), fileMenu_);
+	connect(exportSettingsAction, SIGNAL(triggered()), this, SLOT(changeExportSettings()));
+	connect(this, SIGNAL(hasActiveProject(bool)), exportSettingsAction, SLOT(setEnabled(bool)));
+
     QMenu *exportMenu = new QMenu("E&xport", fileMenu_);
     QAction *exportSplineAction = new QAction(tr("Export &Spline"), exportMenu);
     exportMenu->addAction(exportSplineAction);
@@ -292,7 +297,8 @@ MainWindow::createActions()
     fileMenu_->addSeparator();
     fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
-    fileMenu_->addAction(importSettingsAction);
+	fileMenu_->addAction(importSettingsAction);
+	fileMenu_->addAction(exportSettingsAction);
 	fileMenu_->addAction(OSCSettingsAction);
     fileMenu_->addMenu(importMenu);
     fileMenu_->addMenu(exportMenu);
@@ -992,6 +998,16 @@ MainWindow::changeImportSettings()
 }
 
 void
+MainWindow::changeExportSettings()
+{
+	if (getActiveProject())
+	{
+		exportSettings->show();
+	}
+	return;
+}
+
+void
 MainWindow::changeLODSettings()
 {
     if (getActiveProject())
@@ -1156,7 +1172,7 @@ MainWindow::importOSMRoad()
 void
 MainWindow::about()
 {
-    QMessageBox::about(this, tr("About ODDLOT"), tr("The <b>oddlot: OpenDRIVE Designer</b> was initially created by Frank Naegele and is now further developed by the HLRS, University of Stuttgart.<br> Main contributors are Jutta Sauer, Uwe W&ouml;ssner<br> Since 2015, oddlot is now open source (LGPL2+) and available as part of the COVISE/OpenCOVER package on GitHub."));
+    QMessageBox::about(this, tr("About ODDLOT"), tr("The <b>oddlot: OpenDRIVE Designer</b> was initially created by Frank Naegele and is now further developed by the HLRS, University of Stuttgart.<br> Main contributors are Jutta Sauer, Uwe W&ouml;ssner<br> Since 2015, oddlot is now open source (LGPL2+) and available as part of the COVISE/OpenCOVER package on GitHub.<br> Credits: Train icon by Hannah Strobel from thenounproject.com<br> Tram icon by Arthur Lacote from thenounproject.com<br> Truck icon by Simon Child from thenounproject.com<br> RV icon by Yi Chen from thenounproject.com"));
     return;
 }
 

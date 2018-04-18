@@ -111,6 +111,10 @@ SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, st
 {
     name = n;
     country = c;
+	if (c == "DEU")
+		country = "Germany";
+	if (c == "OpenDRIVE")
+		country = "Germany";
     std::string fn = "share/covise/signals/" + country + "/" + n + ".osg";
     type = t;
     subtype = st;

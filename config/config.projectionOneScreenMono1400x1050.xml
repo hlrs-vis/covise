@@ -52,9 +52,13 @@
             <Position x="-100" y="-100" z="0" />
          </QuitMenu>
 
+          <UI>
+              <VRUI toolbar="true" />
+          </UI>
+
          <Plugin>
 
-            <AKToolbar value="on">
+            <AKToolbar value="off">
                <Scale value=".7" />
                <Position x="-850" y="0" z="-550" />
             </AKToolbar>

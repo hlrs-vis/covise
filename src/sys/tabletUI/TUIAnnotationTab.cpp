@@ -208,12 +208,12 @@ TUIAnnotationTab::~TUIAnnotationTab()
 //*************************************************************
 //*****                 Virtual Funtions                  *****
 //*************************************************************
-char *TUIAnnotationTab::getClassName()
+const char *TUIAnnotationTab::getClassName()
 {
-    return (char *)"TUIAnnotationTab";
+    return "TUIAnnotationTab";
 }
 
-void TUIAnnotationTab::setValue(int type, covise::TokenBuffer &tb)
+void TUIAnnotationTab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_ANNOTATION_CHANGE_NEW_BUTTON_STATE)
     {

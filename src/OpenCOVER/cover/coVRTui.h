@@ -32,20 +32,6 @@
 
 namespace opencover
 {
-class coPluginEntry : public coTUIListener
-{
-public:
-    coPluginEntry(const char *libName, coTUITab *, int n);
-    virtual ~coPluginEntry();
-    char *name;
-    coTUIToggleButton *tuiEntry;
-
-private:
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual void tabletReleaseEvent(coTUIElement *tUIItem);
-};
-
 class coInputTUI: public coTUIListener
 {
 public:
@@ -96,17 +82,6 @@ private:
 
 	int calibrationStep;
 	osg::Vec3 calibrationPositions[3];
-};
-
-class coPluginEntryList : public covise::DLinkList<coPluginEntry *>
-{
-public:
-    coPluginEntryList(coTUITab *);
-    virtual ~coPluginEntryList();
-    void updateState();
-
-private:
-    coTUITab *myTab;
 };
 
 class DontDrawBin : public osgUtil::RenderBin::DrawCallback
@@ -190,34 +165,18 @@ public:
 private:
     static coVRTui *tui;
 
-    coPluginEntryList *availablePlugins;
-    coTUITab *pluginTab;
     coTUITab *coverTab;
     coTUIFrame *topContainer;
     coTUIFrame *bottomContainer;
     coTUIFrame *rightContainer;
-    coTUITab *animTab;
-    coTUIToggleButton *Animate;
-    coTUIFloatSlider *AnimSpeed;
-    coTUILabel *AnimSpeedLabel;
-    coTUIButton *AnimForward;
-    coTUIButton *AnimBack;
-    coTUIToggleButton *AnimRotate;
-    coTUISlider *AnimTimestep;
-    coTUILabel *AnimTimestepLabel;
-    coTUISlider *AnimStartStep;
-    coTUILabel *AnimStartStepLabel;
-    coTUISlider *AnimStopStep;
-    coTUILabel *AnimStopStepLabel;
-    coTUILabel *PresentationLabel;
-    coTUIButton *PresentationForward;
-    coTUIButton *PresentationBack;
-    coTUIEditIntField *PresentationStep;
-    coTUIToggleButton *AnimOscillate;
+    coTUITab *presentationTab = nullptr;
+    coTUILabel *PresentationLabel = nullptr;
+    coTUIButton *PresentationForward = nullptr;
+    coTUIButton *PresentationBack = nullptr;
+    coTUIEditIntField *PresentationStep = nullptr;
     coTUIToggleButton *Walk;
     coTUIToggleButton *DebugBins;
     coTUIToggleButton *FlipStereo;
-    coTUIComboBox *ShadowChoice;
     coTUIToggleButton *Drive;
     coTUIToggleButton *Fly;
     coTUIToggleButton *XForm;
@@ -293,13 +252,6 @@ private:
     float driveSpeed;
     float ScaleValue;
     float widthX, widthY, originX, originY;
-    int numTimesteps;
-    int animationCurrentFrame;
-    float animationSpeed;
-    float animationSliderMin, animationSliderMax;
-    bool animationEnabled;
-    bool animationRotate;
-    bool animationOscillate;
     double lastUpdateTime;
     coInputTUI *inputTUI;
 };

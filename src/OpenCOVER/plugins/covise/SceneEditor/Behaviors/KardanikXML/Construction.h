@@ -16,9 +16,6 @@
 
 #include <string>
 #include <vector>
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 
 namespace KardanikXML
@@ -27,22 +24,22 @@ namespace KardanikXML
 class Body;
 class Joint;
 
-class Construction : public std::tr1::enable_shared_from_this<Construction>
+class Construction : public std::enable_shared_from_this<Construction>
 {
 private:
-    typedef std::vector<std::tr1::shared_ptr<Body> > Bodies;
-    typedef std::vector<std::tr1::shared_ptr<Joint> > Joints;
+    typedef std::vector<std::shared_ptr<Body> > Bodies;
+    typedef std::vector<std::shared_ptr<Joint> > Joints;
 
 public:
     Construction();
 
     const Bodies &GetBodies() const;
-    void AddBody(std::tr1::shared_ptr<Body> body);
+    void AddBody(std::shared_ptr<Body> body);
 
     const Joints &GetJoints() const;
-    void AddJoint(std::tr1::shared_ptr<Joint> joint);
+    void AddJoint(std::shared_ptr<Joint> joint);
 
-    std::tr1::shared_ptr<Body> GetBodyByName(const std::string &name) const;
+    std::shared_ptr<Body> GetBodyByName(const std::string &name) const;
 
     void SetNamespace(const std::string &theNamespace);
     const std::string &GetNamespace() const;

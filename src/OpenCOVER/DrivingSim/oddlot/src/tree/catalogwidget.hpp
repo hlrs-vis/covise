@@ -63,6 +63,11 @@ public:
 		return catalogTreeWidget_;
 	}
 
+	OpenScenario::oscCatalog *getCatalog()
+	{
+		return catalog_;
+	}
+
 	void onDeleteCatalogItem();
 
 protected:

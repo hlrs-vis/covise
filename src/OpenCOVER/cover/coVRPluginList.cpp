@@ -52,7 +52,7 @@ typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
         }                                                                                                  \
     }
 
-coVRPlugin *coVRPluginList::loadPlugin(const char *name)
+coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
 {
     if (cover->debugLevel(3))
     {
@@ -63,24 +63,27 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name)
     }
 
     std::string libName = coVRDynLib::libName(name);
-    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName);
+    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName, showErrors);
     if (handle == NULL)
     {
-        cerr << "ERROR: could not load shared Library " << libName << endl;
+        if (showErrors)
+            cerr << "ERROR: could not load shared Library " << libName << endl;
         return NULL;
     }
     coVRPluginInitFunc *initFunc = (coVRPluginInitFunc *)coVRDynLib::dlsym(handle, "coVRPluginInit");
     if (initFunc == NULL)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
+        if (showErrors)
+            cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
         return NULL;
     }
     coVRPlugin *plugin = initFunc();
     if (!plugin)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
+        if (showErrors)
+            cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
         return NULL;
     }
 
@@ -133,6 +136,8 @@ void coVRPluginList::unloadAllPlugins(PluginDomain domain)
                 cerr << " " << plug->getName();
             m_unloadQueue.push_back(plug->handle);
             plug->destroy();
+
+			cover->preparePluginUnload();
         }
         unmanage(plug);
         delete plug;
@@ -246,6 +251,7 @@ void coVRPluginList::unload(coVRPlugin *plugin)
     if (plugin->destroy())
     {
         m_unloadQueue.push_back(plugin->handle);
+		cover->preparePluginUnload();
         unmanage(plugin);
         delete plugin;
         updateState();
@@ -496,9 +502,9 @@ void coVRPluginList::init2()
     DOALL(plugin->init2());
 }
 
-void coVRPluginList::message(int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
 {
-    DOALL(plugin->message(t, l, b));
+    DOALL(plugin->message(toWhom, t, l, b));
 }
 
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
@@ -522,7 +528,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {
-        m = loadPlugin(name);
+        m = loadPlugin(name, domain == Default);
         if (m && m->init())
         {
             manage(m, domain);
@@ -531,7 +537,8 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
         }
         else
         {
-            cerr << "plugin " << name << " failed to initialise" << endl;
+            if (domain == Default)
+                cerr << "plugin " << name << " failed to initialise" << endl;
             delete m;
             m = NULL;
         }
@@ -559,7 +566,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         || (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
         || (toWhom == coVRPluginSupport::VRML_EVENT))
     {
-        message(type, len - headerSize, ((const char *)buf) + headerSize);
+        message(toWhom, type, len - headerSize, ((const char *)buf) + headerSize);
     }
     else
     {
@@ -568,7 +575,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         if (mod)
         {
             int ssize = strlen(name) + 1 + (8 - ((strlen(name) + 1) % 8));
-            mod->message(type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
+            mod->message(toWhom, type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
         }
     }
 }

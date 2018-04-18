@@ -1,23 +1,22 @@
 /****************************************************************************/
+// Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
+// Copyright (C) 2005-2017 German Aerospace Center (DLR) and others.
+/****************************************************************************/
+//
+//   This program and the accompanying materials
+//   are made available under the terms of the Eclipse Public License v2.0
+//   which accompanies this distribution, and is available at
+//   http://www.eclipse.org/legal/epl-v20.html
+//
+/****************************************************************************/
 /// @file    StdDefs.h
 /// @author  Daniel Krajzewicz
 /// @author  Laura Bieker
 /// @author  Michael Behrisch
 /// @author  Jakob Erdmann
 /// @date    Fri, 29.04.2005
-/// @version $Id: StdDefs.h 23150 2017-02-27 12:08:30Z behrisch $
+/// @version $Id$
 ///
-//
-/****************************************************************************/
-// SUMO, Simulation of Urban MObility; see http://sumo.dlr.de/
-// Copyright (C) 2005-2017 DLR (http://www.dlr.de/) and contributors
-/****************************************************************************/
-//
-//   This file is part of SUMO.
-//   SUMO is free software: you can redistribute it and/or modify
-//   it under the terms of the GNU General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
 //
 /****************************************************************************/
 #ifndef StdDefs_h
@@ -33,6 +32,8 @@
 #include <config.h>
 #endif
 #include <string>
+#include <cmath>
+#include <limits>
 
 /* avoiding compiler warning unreferenced parameter */
 #define UNUSED_PARAMETER(x)  ((void)(x))
@@ -54,6 +55,8 @@ const double SUMO_const_halfLaneAndOffset = (double)(3.2 / 2. + .1);
 
 /// @brief the speed threshold at which vehicles are considered as halting
 const double SUMO_const_haltingSpeed = (double) 0.1;
+
+const double INVALID_DOUBLE = std::numeric_limits<double>::max();
 
 
 /* -------------------------------------------------------------------------
@@ -119,7 +122,11 @@ extern bool gDebugFlag2;
 extern bool gDebugFlag3;
 extern bool gDebugFlag4;
 
-extern std::string gDebugSelectedVehicle;
+/// @brief discrds mantissa bits beyond the given number
+double truncate(double x, int fractionBits);
+
+/// @brief round to the given number of mantissa bits beyond the given number
+double roundBits(double x, int fractionBits);
 
 #endif
 

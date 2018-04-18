@@ -90,7 +90,7 @@ void TUIColorButton::releaseColor(const QColor &col)
     TUIMainWindow::getInstance()->send(tb);
 }
 
-void TUIColorButton::setValue(int type, covise::TokenBuffer &tb)
+void TUIColorButton::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
 
     if (type == TABLET_RGBA)
@@ -99,55 +99,19 @@ void TUIColorButton::setValue(int type, covise::TokenBuffer &tb)
         tb >> green;
         tb >> blue;
         tb >> alpha;
-    }
-    int r = (int)(red * 255);
-    int g = (int)(green * 255);
-    int b = (int)(blue * 255);
-    int a = (int)(alpha * 255);
+        int r = (int)(red * 255);
+        int g = (int)(green * 255);
+        int b = (int)(blue * 255);
+        int a = (int)(alpha * 255);
 
-    QColor col(r, g, b, a);
-    colorButton->setPalette(QPalette(col));
+        QColor col(r, g, b, a);
+        colorButton->setPalette(QPalette(col));
+    }
 
     TUIElement::setValue(type, tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIColorButton::setEnabled(bool en)
+const char *TUIColorButton::getClassName() const
 {
-    TUIElement::setEnabled(en);
-}
-
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIColorButton::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUIColorButton::getClassName()
-{
-    return (char *)"TUIColorButton";
-}
-
-bool TUIColorButton::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
+    return "TUIColorButton";
 }

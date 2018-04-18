@@ -55,12 +55,8 @@ public:
        *  @retval magn  address of pointer to new magnitude object
        */
 
-#ifndef YAC
     virtual void pathUpToTime(const char *line_name_time_traj,
                               const char *mag_name_time_traj,
-#else
-    virtual void pathUpToTime(coOutputPort *port,
-#endif
                               int tick,
                               std::vector<int> &interpolation,
                               coDistributedObject **line,

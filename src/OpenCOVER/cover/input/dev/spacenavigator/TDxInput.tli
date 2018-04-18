@@ -1,0 +1,297 @@
+﻿// Created by Microsoft (R) C/C++ Compiler Version 14.00.50727.42 (3c5f7f19).
+//
+// c:\src\covise\src\renderer\opencover\plugins\general\spacenavigator\objects_vista\TDxInput.tli
+//
+// Wrapper implementations for Win32 type library TDxInput.Device.1
+// compiler-generated file created 06/05/08 at 10:05:28 - DO NOT EDIT!
+
+#pragma once
+
+//
+// interface IAngleAxis wrapper method implementations
+//
+
+inline double IAngleAxis::GetX ( ) {
+    double _result = 0;
+    HRESULT _hr = get_X(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IAngleAxis::PutX ( double pVal ) {
+    HRESULT _hr = put_X(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IAngleAxis::GetY ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Y(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IAngleAxis::PutY ( double pVal ) {
+    HRESULT _hr = put_Y(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IAngleAxis::GetZ ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Z(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IAngleAxis::PutZ ( double pVal ) {
+    HRESULT _hr = put_Z(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IAngleAxis::GetAngle ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Angle(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IAngleAxis::PutAngle ( double pVal ) {
+    HRESULT _hr = put_Angle(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+//
+// interface IVector3D wrapper method implementations
+//
+
+inline double IVector3D::GetX ( ) {
+    double _result = 0;
+    HRESULT _hr = get_X(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IVector3D::PutX ( double pVal ) {
+    HRESULT _hr = put_X(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IVector3D::GetY ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Y(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IVector3D::PutY ( double pVal ) {
+    HRESULT _hr = put_Y(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IVector3D::GetZ ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Z(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IVector3D::PutZ ( double pVal ) {
+    HRESULT _hr = put_Z(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+inline double IVector3D::GetLength ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Length(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline void IVector3D::PutLength ( double pVal ) {
+    HRESULT _hr = put_Length(pVal);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+}
+
+//
+// dispinterface _ISensorEvents wrapper method implementations
+//
+
+inline HRESULT _ISensorEvents::SensorInput ( ) {
+    HRESULT _result = 0;
+    _com_dispatch_method(this, 0x1, DISPATCH_METHOD, VT_ERROR, (void*)&_result, NULL);
+    return _result;
+}
+
+//
+// interface ISensor wrapper method implementations
+//
+
+inline IVector3DPtr ISensor::GetTranslation ( ) {
+    struct IVector3D * _result = 0;
+    HRESULT _hr = get_Translation(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return IVector3DPtr(_result, false);
+}
+
+inline IAngleAxisPtr ISensor::GetRotation ( ) {
+    struct IAngleAxis * _result = 0;
+    HRESULT _hr = get_Rotation(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return IAngleAxisPtr(_result, false);
+}
+
+inline IDispatchPtr ISensor::GetDevice ( ) {
+    IDispatch * _result = 0;
+    HRESULT _hr = get_Device(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return IDispatchPtr(_result, false);
+}
+
+inline double ISensor::GetPeriod ( ) {
+    double _result = 0;
+    HRESULT _hr = get_Period(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+//
+// dispinterface _IKeyboardEvents wrapper method implementations
+//
+
+inline HRESULT _IKeyboardEvents::KeyDown ( int keyCode ) {
+    HRESULT _result = 0;
+    _com_dispatch_method(this, 0x1, DISPATCH_METHOD, VT_ERROR, (void*)&_result, 
+        L"\x0003", keyCode);
+    return _result;
+}
+
+inline HRESULT _IKeyboardEvents::KeyUp ( int keyCode ) {
+    HRESULT _result = 0;
+    _com_dispatch_method(this, 0x2, DISPATCH_METHOD, VT_ERROR, (void*)&_result, 
+        L"\x0003", keyCode);
+    return _result;
+}
+
+//
+// interface IKeyboard wrapper method implementations
+//
+
+inline long IKeyboard::GetKeys ( ) {
+    long _result = 0;
+    HRESULT _hr = get_Keys(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline long IKeyboard::GetProgrammableKeys ( ) {
+    long _result = 0;
+    HRESULT _hr = get_ProgrammableKeys(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline _bstr_t IKeyboard::GetKeyLabel ( long key ) {
+    BSTR _result = 0;
+    HRESULT _hr = raw_GetKeyLabel(key, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _bstr_t(_result, false);
+}
+
+inline _bstr_t IKeyboard::GetKeyName ( long key ) {
+    BSTR _result = 0;
+    HRESULT _hr = raw_GetKeyName(key, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _bstr_t(_result, false);
+}
+
+inline IDispatchPtr IKeyboard::GetDevice ( ) {
+    IDispatch * _result = 0;
+    HRESULT _hr = get_Device(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return IDispatchPtr(_result, false);
+}
+
+inline VARIANT_BOOL IKeyboard::IsKeyDown ( long key ) {
+    VARIANT_BOOL _result = 0;
+    HRESULT _hr = raw_IsKeyDown(key, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline VARIANT_BOOL IKeyboard::IsKeyUp ( long key ) {
+    VARIANT_BOOL _result = 0;
+    HRESULT _hr = raw_IsKeyUp(key, &_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+//
+// dispinterface _ISimpleDeviceEvents wrapper method implementations
+//
+
+inline HRESULT _ISimpleDeviceEvents::DeviceChange ( long reserved ) {
+    HRESULT _result = 0;
+    _com_dispatch_method(this, 0x1, DISPATCH_METHOD, VT_ERROR, (void*)&_result, 
+        L"\x0003", reserved);
+    return _result;
+}
+
+//
+// interface ISimpleDevice wrapper method implementations
+//
+
+inline HRESULT ISimpleDevice::Connect ( ) {
+    HRESULT _hr = raw_Connect();
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline HRESULT ISimpleDevice::Disconnect ( ) {
+    HRESULT _hr = raw_Disconnect();
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+inline ISensorPtr ISimpleDevice::GetSensor ( ) {
+    struct ISensor * _result = 0;
+    HRESULT _hr = get_Sensor(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return ISensorPtr(_result, false);
+}
+
+inline IKeyboardPtr ISimpleDevice::GetKeyboard ( ) {
+    struct IKeyboard * _result = 0;
+    HRESULT _hr = get_Keyboard(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return IKeyboardPtr(_result, false);
+}
+
+inline long ISimpleDevice::GetType ( ) {
+    long _result = 0;
+    HRESULT _hr = get_Type(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline VARIANT_BOOL ISimpleDevice::GetIsConnected ( ) {
+    VARIANT_BOOL _result = 0;
+    HRESULT _hr = get_IsConnected(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _result;
+}
+
+inline HRESULT ISimpleDevice::LoadPreferences ( _bstr_t PreferencesName ) {
+    HRESULT _hr = raw_LoadPreferences(PreferencesName);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _hr;
+}
+
+//
+// interface ITDxInfo wrapper method implementations
+//
+
+inline _bstr_t ITDxInfo::RevisionNumber ( ) {
+    BSTR _result = 0;
+    HRESULT _hr = raw_RevisionNumber(&_result);
+    if (FAILED(_hr)) _com_issue_errorex(_hr, this, __uuidof(this));
+    return _bstr_t(_result, false);
+}

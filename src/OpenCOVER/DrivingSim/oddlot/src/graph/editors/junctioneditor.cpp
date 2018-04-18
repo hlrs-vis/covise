@@ -131,6 +131,17 @@ JunctionEditor::toolAction(ToolAction *toolAction)
     //
     ODD::ToolId lastTool = getCurrentTool();
     ProjectEditor::toolAction(toolAction);
+	if (getCurrentTool() == ODD::TJE_CIRCLE)
+	{
+		JunctionEditorToolAction *action = dynamic_cast<JunctionEditorToolAction *>(toolAction);
+		if (action)
+		{
+			
+		}
+	}
+	else
+	{
+	}
 
     if (getCurrentTool() == ODD::TJE_ADD_TO_JUNCTION)
     {
@@ -284,7 +295,9 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 
             // Create new Junction Element //
             //
-            RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+			odrID ID;
+			ID.setType(odrID::ID_Junction);
+            RSystemElementJunction *newJunction = new RSystemElementJunction("junction");
 
             NewJunctionCommand *command = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
             if (command->isValid())
@@ -401,7 +414,7 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 		if(isCurrentTool(ODD::TJE_CREATE_JUNCTION))
 		{
 
-			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", "prototype", "-1");
+			RSystemElementRoad * currentRoadPrototype_ = new RSystemElementRoad("prototype", odrID::invalidID(), odrID::invalidID());
 
 			// Superpose user prototypes //
 			//
@@ -415,9 +428,9 @@ JunctionEditor::toolAction(ToolAction *toolAction)
 // Calculates the offset of a lane from the center of the road.
 //
 double
-JunctionEditor::widthOffset(Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth)
+JunctionEditor::widthOffset(RSystemElementRoad *road, Lane *lane, LaneSection *laneSection, double s, bool addOwnLaneWidth)
 {
-    double offset = 0.0;
+    double offset = road->getLaneOffset(s);
     Lane *nextLane;
 
     double sSection = s - laneSection->getSStart();
@@ -509,8 +522,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, true, offset1, offset2);
 
         if (!spiralPrototype)
@@ -530,8 +543,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, false, offset1, offset2);
 
         if (!spiralPrototype)
@@ -552,8 +565,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(road1->getLength());
         laneSection2 = road2->getLaneSection(0.0);
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSEnd(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSEnd(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSStart(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, false, true, offset1, offset2);
 
         if (!spiralPrototype)
@@ -576,8 +589,8 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
         laneSection1 = road1->getLaneSection(0.0);
         laneSection2 = road2->getLaneSection(road2->getLength());
         // Calculate the width of the adjacent lanes for the offset of the spline
-        double offset1 = widthOffset(lane1, laneSection1, laneSection1->getSStart(), false);
-        double offset2 = widthOffset(lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
+        double offset1 = widthOffset(road1, lane1, laneSection1, laneSection1->getSStart(), false);
+        double offset2 = widthOffset(road2, lane2, laneSection2, laneSection2->getSEnd(), addOwnLaneWidth);
         spiralPrototype = createSpiral(road1, road2, true, false, offset1, offset2);
 
         if (!spiralPrototype)
@@ -927,7 +940,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+        spiralPrototype = new RSystemElementRoad("prototype");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -986,7 +999,7 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
             }
         }
 
-        spiralPrototype = new RSystemElementRoad("prototype", "prototype", "-1");
+        spiralPrototype = new RSystemElementRoad("prototype");
         spiralPrototype->addTrackComponent(spiral);
 
         // Transform the spiralprototype to endPoint //
@@ -1065,6 +1078,33 @@ JunctionEditor::createSpiral(RSystemElementRoad *road1, RSystemElementRoad *road
         }
         delete command;
     }
+
+	// Superpose planar SuperelevationSection //
+	//
+	QList<PrototypeContainer<RSystemElementRoad *> *> superelevationSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_SuperelevationPrototype);
+
+	for (int i = 0; i < superelevationSectionPrototypes.size(); i++)
+	{
+		if (superelevationSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+		{
+			spiralPrototype->superposePrototype(superelevationSectionPrototypes.at(i)->getPrototype());
+			break;
+		}
+	}
+
+	// Superpose planar CrossfallSection //
+	//
+	QList<PrototypeContainer<RSystemElementRoad *> *> crossfallSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_CrossfallPrototype);
+
+	for (int i = 0; i < crossfallSectionPrototypes.size(); i++)
+	{
+		if (crossfallSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+		{
+			spiralPrototype->superposePrototype(crossfallSectionPrototypes.at(i)->getPrototype());
+			break;
+		}
+	}
+
 
     return spiralPrototype;
 }
@@ -1146,7 +1186,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
                     {
                         // Road //
                         //
-                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed", "road", "-1");
+                        /*		RSystemElementRoad * newRoad = new RSystemElementRoad("unnamed");
 
 						// Track //
 						//
@@ -1176,7 +1216,6 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
             }
         }
     }
-
     else if (getCurrentTool() == ODD::TJE_SELECT_JUNCTION)
     {
         if (mouseAction->getMouseActionType() == MouseAction::ATM_RELEASE)
@@ -1255,7 +1294,7 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                     // Create new Junction Element //
                     //
-                    RSystemElementJunction *newJunction = new RSystemElementJunction("unnamed", "junction");
+                    RSystemElementJunction *newJunction = new RSystemElementJunction("junction",getProjectData()->getRoadSystem()->getID(odrID::ID_Junction));
 
                     NewJunctionCommand *junctionCommand = new NewJunctionCommand(newJunction, getProjectData()->getRoadSystem(), NULL);
                     if (junctionCommand->isValid())
@@ -1963,6 +2002,19 @@ JunctionEditor::mouseAction(MouseAction *mouseAction)
 
                                     startLanesIterator++;
                                 }*/
+
+								// Superpose planar ShapeSection //
+								//
+								QList<PrototypeContainer<RSystemElementRoad *> *> shapeSectionPrototypes = ODD::mainWindow()->getPrototypeManager()->getRoadPrototypes(PrototypeManager::PTP_RoadShapePrototype);
+
+								for (int i = 0; i < shapeSectionPrototypes.size(); i++)
+								{
+									if (shapeSectionPrototypes.at(i)->getPrototypeName() == "Planar 0.0")
+									{
+										spiralPrototype->superposePrototype(shapeSectionPrototypes.at(i)->getPrototype());
+										break;
+									}
+								}
 
                                 NewRoadCommand *command = new NewRoadCommand(spiralPrototype, getProjectData()->getRoadSystem(), NULL);
                                 getProjectGraph()->executeCommand(command);
