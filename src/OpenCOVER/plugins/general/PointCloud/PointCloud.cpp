@@ -267,7 +267,8 @@ bool PointCloudPlugin::init()
     pointSizeTui->setPos(1, 1);
     */
 
-    PointCloudPlugin:s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
+    assert(!s_pointCloudInteractor);
+    s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
 
     return true;
 }
@@ -299,7 +300,8 @@ PointCloudPlugin::~PointCloudPlugin()
     //delete PCTab;
     //delete adaptLODTui;
     
-    delete PointCloudPlugin::s_pointCloudInteractor;
+    delete s_pointCloudInteractor;
+    s_pointCloudInteractor = nullptr;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
