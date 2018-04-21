@@ -539,60 +539,63 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 	{
 		Entity *currentEntity = (*entity_iter);
 		oscVehicle* vehicle = currentEntity->getVehicle();
-		for (int i = 0; i < vehicle->ParameterDeclaration->Parameter.size(); i++)
+		if(vehicle->ParameterDeclaration.exists())
 		{
-			if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
+			for (int i = 0; i < vehicle->ParameterDeclaration->Parameter.size(); i++)
 			{
-				double X = 0.0, Y = 0.0, Z = 0.0, H = 0.0, P = 0.0, R = 0.0, FOV = 0.0;
-				for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
+				if (vehicle->ParameterDeclaration->Parameter[i]->name.getValue() == "CameraX")
 				{
-					if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
+					double X = 0.0, Y = 0.0, Z = 0.0, H = 0.0, P = 0.0, R = 0.0, FOV = 0.0;
+					for (int n = i; n < vehicle->ParameterDeclaration->Parameter.size(); n++)
 					{
-						X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraX")
+						{
+							X = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
+						{
+							Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
+						{
+							Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
+						{
+							H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
+						{
+							P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
+						{
+							R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
+						else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
+						{
+							FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
+						}
 					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraY")
-					{
-						Y = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraZ")
-					{
-						Z = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraH")
-					{
-						H = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraP")
-					{
-						P = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraR")
-					{
-						R = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
-					else if (vehicle->ParameterDeclaration->Parameter[n]->name.getValue() == "CameraFOV")
-					{
-						FOV = atof(vehicle->ParameterDeclaration->Parameter[n]->value.getValue().c_str());
-					}
+					coCoord coord;
+					coord.hpr[0] = H;
+					coord.hpr[1] = P;
+					coord.hpr[2] = R;
+					coord.xyz[0] = X;
+					coord.xyz[1] = Y;
+					coord.xyz[2] = Z;
+					osg::Matrix cameraMat;
+					coord.makeMat(cameraMat);
+
+					osg::Matrix rotMat;
+					rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
+
+					CameraSensor *camera = new CameraSensor(currentEntity, vehicle, rotMat*cameraMat, FOV);
+					cameras.push_back(camera);
+					if (currentCamera == NULL)
+						currentCamera = camera;
+					break;
 				}
-				coCoord coord;
-				coord.hpr[0] = H;
-				coord.hpr[1] = P;
-				coord.hpr[2] = R;
-				coord.xyz[0] = X;
-				coord.xyz[1] = Y;
-				coord.xyz[2] = Z;
-				osg::Matrix cameraMat;
-				coord.makeMat(cameraMat);
-
-				osg::Matrix rotMat;
-				rotMat.makeRotate(M_PI / 2.0, 0.0, 0.0, 1.0);
-
-				CameraSensor *camera = new CameraSensor(currentEntity, vehicle, rotMat*cameraMat, FOV);
-				cameras.push_back(camera);
-				if (currentCamera == NULL)
-					currentCamera = camera;
-				break;
 			}
 		}
 	}

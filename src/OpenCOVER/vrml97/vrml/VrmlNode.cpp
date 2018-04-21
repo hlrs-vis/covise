@@ -728,6 +728,11 @@ bool VrmlNode::isOnlyGeometry() const
         return false;
     }
 
+	if (strstr(name(), "coMirror") != NULL)
+	{
+		//std::cerr << "Nn" << std::flush;
+		return false;
+	}
     //std::cerr << "N(" << nodeType()->getName() << ")" << std::flush;
     return true;
 }

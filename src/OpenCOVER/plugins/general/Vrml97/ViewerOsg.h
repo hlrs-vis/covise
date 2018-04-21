@@ -373,6 +373,9 @@ public:
     // Update the model.
     bool update(double time = 0.0);
 
+	// Update the model once per frame.
+	void preFrame();
+
     // Redraw the screen.
     virtual void redraw();
 
