@@ -58,6 +58,10 @@ typedef PixelFormat AVPixelFormat;
 #define av_frame_alloc avcodec_alloc_frame
 #endif
 
+#ifndef AV_CODEC_FLAG_GLOBAL_HEADER
+#define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
+#endif
+
 #include "Video.h"
 
 //#define USE_CODECPAR

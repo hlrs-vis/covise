@@ -201,7 +201,7 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
 
     if (oc->oformat->flags & AVFMT_GLOBALHEADER)
     {
-        codecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        codecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }
 
     return true;
