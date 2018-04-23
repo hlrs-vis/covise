@@ -32,6 +32,7 @@
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/elevationsection.hpp"
 #include "src/data/roadsystem/junctionconnection.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
@@ -641,6 +642,7 @@ JunctionEditor::createRoad(QList<Lane *> lanes)
 
         LaneWidth *width = new LaneWidth(0.0, a, b, 0.0, 0.0);
         newLane->addWidthEntry(width);
+		newLane->addRoadMarkEntry(new LaneRoadMark(0.0, LaneRoadMark::RMT_SOLID, LaneRoadMark::RMW_STANDARD, LaneRoadMark::RMC_STANDARD, 0.12));
         newLaneSection->addLane(newLane);
     }
 
