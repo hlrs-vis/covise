@@ -444,32 +444,22 @@ Vrml97Plugin::preFrame()
 {
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
-    if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
-    {
-        plugin->isNewVRML = false;
-        coSensiveSensor::modified = false;
+    if (plugin->viewer)
+	{
+		if (plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
+		{
+			plugin->isNewVRML = false;
+			coSensiveSensor::modified = false;
 
-        for (int i = 0; i < plugin->viewer->sensors.size(); i++)
-        {
-            coSensiveSensor *s = plugin->viewer->sensors[i];
-            osg::Node *n = s->getNode();
-            cover->setNodesIsectable(n, true);
-        }
-        /*
-       VRRegisterSceneGraph::instance()->registerNode(getRegistrationRoot(), "root"); 
-       
-       for (int i=0; i<plugin->viewer->sensors.size(); i++)
-       {
-            // send sensors to GUI (a message for each sensor)
-            coGRObjSensorMsg sensorMsg(coGRMsg::SENSOR, vrmlFilename.c_str(), i);
-            Message grmsg;
-            grmsg.type = COVISE_MESSAGE_UI;
-            grmsg.data = (char *)(sensorMsg.c_str());
-            grmsg.length = strlen(grmsg.data)+1;
-            cover->sendVrbMessage(&grmsg);
-       }
-       // in case loading multiple VRMLs should ever work correctly, dont register the overall root but the per-file-root
-      */
+			for (int i = 0; i < plugin->viewer->sensors.size(); i++)
+			{
+				coSensiveSensor *s = plugin->viewer->sensors[i];
+				osg::Node *n = s->getNode();
+				cover->setNodesIsectable(n, true);
+			}
+		}
+
+		viewer->preFrame();
     }
 }
 

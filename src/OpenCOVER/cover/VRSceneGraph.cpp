@@ -374,9 +374,13 @@ void VRSceneGraph::initSceneGraph()
     // add it to the scene graph as the first child
     //                                  -----
     m_handTransform = new osg::MatrixTransform();
+	m_handTransform->setName("m_handTransform");
     m_handIconScaleTransform = new osg::MatrixTransform();
+	m_handIconScaleTransform->setName("m_handIconScaleTransform");
     m_handAxisScaleTransform = new osg::MatrixTransform();
+	m_handAxisScaleTransform->setName("m_handAxisScaleTransform");
     m_pointerDepthTransform = new osg::MatrixTransform();
+	m_pointerDepthTransform->setName("m_pointerDepthTransform");
     m_handTransform->addChild(m_pointerDepthTransform.get());
     m_handTransform->addChild(m_handAxisScaleTransform);
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
@@ -404,10 +408,12 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
+	m_objectsTransform->setName("m_objectsTransform");
     m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
+	m_scaleTransform->setName("m_scaleTransform");
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
@@ -436,6 +442,7 @@ void VRSceneGraph::initAxis()
     m_viewerAxis = loadAxisGeode(4);
     m_objectAxis = loadAxisGeode(0.01f);
     m_viewerAxisTransform = new osg::MatrixTransform();
+	m_viewerAxisTransform->setName("m_viewerAxisTransform");
     m_scene->addChild(m_viewerAxisTransform.get());
 
     showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
@@ -451,6 +458,7 @@ void VRSceneGraph::initAxis()
         m_smallSceneAxis = loadAxisGeode(0.01 * sx);
         m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
         m_smallSceneAxisTransform = new osg::MatrixTransform();
+		m_smallSceneAxisTransform->setName("m_smallSceneAxisTransform");
         m_smallSceneAxisTransform->setMatrix(osg::Matrix::translate(xp, yp, zp));
         m_scene->addChild(m_smallSceneAxisTransform.get());
 
@@ -1305,6 +1313,7 @@ VRSceneGraph::loadAxisGeode(float s)
         fprintf(stderr, "VRSceneGraph::loadAxisGeode\n");
 
     osg::MatrixTransform *mt = new osg::MatrixTransform;
+	mt->setName("AxisGeodeMatrixTransform");
     mt->addChild(coVRFileManager::instance()->loadIcon("Axis"));
     mt->setMatrix(osg::Matrix::scale(s, s, s));
 
@@ -1348,6 +1357,7 @@ VRSceneGraph::loadHandLine()
             float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
 
             osg::MatrixTransform *m = new osg::MatrixTransform;
+			m->setName("HandLineMatrixTransform");
             m->setMatrix(osg::Matrix::scale(width / sx, length / sy, width / sx));
             m->addChild(n);
             result = m;

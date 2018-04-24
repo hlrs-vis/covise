@@ -71,6 +71,11 @@ typedef PixelFormat AVPixelFormat;
 #define av_frame_alloc avcodec_alloc_frame
 #endif
 
+#ifndef AV_CODEC_CAP_TRUNCATED
+#define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
+#define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
+#endif
+
 class StereoVideoPlayerPlugin;
 
 #ifdef HAVE_SDL

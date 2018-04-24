@@ -150,7 +150,7 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (d_viewerObject && (strstr(name(), "Cached") != NULL || isOnlyGeometry()))
+            if (d_viewerObject && (strstr(name(), "NotCached") == NULL) && isOnlyGeometry())
             {
                 d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
                 Doc url;

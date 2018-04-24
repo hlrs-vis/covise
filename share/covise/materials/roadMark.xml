@@ -49,7 +49,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 	   priority=0.0;
 	   if(markTypeOut &gt;= 100.0)
        {
-		    priority = ((markTypeOut+0.5)/100.0);
+		    priority = float(int(((markTypeOut+0.5)/100.0)));
 			markTypeOut -= priority*100.0;
 			priority = 10.0 - priority;
        }	

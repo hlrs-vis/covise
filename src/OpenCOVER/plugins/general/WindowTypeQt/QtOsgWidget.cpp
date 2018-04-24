@@ -187,6 +187,7 @@ bool QtGraphicsWindow::realizeImplementation()
             qApp->sendPostedEvents();
             qApp->processEvents();
         }
+		setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
     }
     else
     {
