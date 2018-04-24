@@ -577,10 +577,12 @@ void coSphere::setScale(float scale)
 //=====================================================
 void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
 {
+    mutex()->lock();
     if (s_maxcontext < 0)
     {
         s_maxcontext = renderInfo.getState()->getGraphicsContext()->getMaxContextID();
     }
+    mutex()->unlock();
     int thiscontext = renderInfo.getContextID();
     /*texture stuff*/
     if (s_textureID == NULL)
