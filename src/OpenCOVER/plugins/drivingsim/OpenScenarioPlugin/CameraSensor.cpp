@@ -37,5 +37,7 @@ void CameraSensor::updateView()
 	//osg::Matrix viewerTrans;
 	//viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
 	//mat.postMult(viewerTrans);
+	if(opencover::cover->getScale()!=1000.0)
+		opencover::cover->setScale(1000); // OpenScenario unit is [m]
 	opencover::cover->setXformMat(itrans);
 }

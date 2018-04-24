@@ -10,18 +10,20 @@
         <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
-        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
-        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
       </Axles>
       <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
       <BoundingBox>
-        <Dimension width="1" length="1" height="1" />
+        <Dimension width="2" length="2" height="2" />
         <Center x="1" y="1" z="1" />
       </BoundingBox>
-      <ParameterDeclaration>
-        <Parameter name="name1" type="int" value="value1" />
-        <Parameter name="name2" type="double" value="value2" />
-        <Parameter name="name3" type="string" value="value3" />
+	  <ParameterDeclaration>
+        <Parameter name="CameraX" type="double" value="3.0" />
+        <Parameter name="CameraY" type="double" value="0.0" />
+        <Parameter name="CameraZ" type="double" value="1.0" />
+        <Parameter name="CameraH" type="double" value="180" />
+        <Parameter name="CameraP" type="double" value="0.0" />
+        <Parameter name="CameraR" type="double" value="0.0" />
+        <Parameter name="CameraFOV" type="double" value="60.0" />
       </ParameterDeclaration>
     </Vehicle>
     <Vehicle name="golf" category="car">
@@ -32,19 +34,12 @@
         <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
-        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
-        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
       </Axles>
       <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
       <BoundingBox>
         <Dimension width="1" length="1" height="1" />
         <Center x="1" y="1" z="1" />
       </BoundingBox>
-      <ParameterDeclaration>
-        <Parameter name="name1" type="int" value="value1" />
-        <Parameter name="name2" type="double" value="value2" />
-        <Parameter name="name3" type="string" value="value3" />
-      </ParameterDeclaration>
     </Vehicle>
     <Vehicle name="seat" category="car">
       <Properties>
@@ -54,19 +49,12 @@
         <Front maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Rear maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
         <Additional maxSteering="1" wheelDiameter="1" trackWidth="1" positionX="1" positionZ="1" />
-        <Additional maxSteering="-1.7976931348623157E+308" wheelDiameter="-1.7976931348623157E+308" trackWidth="-1.7976931348623157E+308" positionX="-1.7976931348623157E+308" positionZ="-1.7976931348623157E+308" />
-        <Additional maxSteering="1.7976931348623157E+308" wheelDiameter="1.7976931348623157E+308" trackWidth="1.7976931348623157E+308" positionX="1.7976931348623157E+308" positionZ="1.7976931348623157E+308" />
       </Axles>
       <Performance maxSpeed="1" maxDeceleration="1" mass="1" />
       <BoundingBox>
         <Dimension width="1" length="1" height="1" />
         <Center x="1" y="1" z="1" />
       </BoundingBox>
-      <ParameterDeclaration>
-        <Parameter name="name1" type="int" value="value1" />
-        <Parameter name="name2" type="double" value="value2" />
-        <Parameter name="name3" type="string" value="value3" />
-      </ParameterDeclaration>
     </Vehicle>
   </Catalog>
 </OpenSCENARIO>

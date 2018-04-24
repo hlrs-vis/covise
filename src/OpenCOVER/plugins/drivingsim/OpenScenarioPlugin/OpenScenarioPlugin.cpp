@@ -727,6 +727,10 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 
                                 oscObjectBase *trajectoryClass = osdb->getCatalogObjectByCatalogReference("TrajectoryCatalog", currentAction->trajectoryCatalogReference);
                                 Trajectory* traj = ((Trajectory*)(trajectoryClass));
+								if (traj == NULL)
+								{
+									fprintf(stderr, "Trajectory %s not found in TrajectoryCatalog\n", currentAction->trajectoryCatalogReference.c_str());
+								}
                                 currentAction->setTrajectory(traj);
 
                                 int verticesCounter = traj->Vertex.size();
