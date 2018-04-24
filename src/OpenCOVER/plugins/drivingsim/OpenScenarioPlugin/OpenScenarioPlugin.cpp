@@ -649,6 +649,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
         }
     }
     //get Conditions
+    if(osdb->Storyboard->EndConditions.exists())
+    {
     for (oscConditionArrayMember::iterator it = osdb->Storyboard->EndConditions->ConditionGroup.begin(); it != osdb->Storyboard->EndConditions->ConditionGroup.end(); it++)
     {
         oscConditionGroup* conditionGroup = ((oscConditionGroup*)(*it));
@@ -658,6 +660,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             scenarioManager->initializeCondition(condition);
             scenarioManager->addCondition(condition);
         }
+    }
     }
     for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
     {
@@ -696,6 +699,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                 {
                     Event* currentEvent = (*event_iter);
                     currentEvent->initialize(currentSequence->actorList.size());
+                    if(currentEvent->StartConditions.exists())
+                    {
                     for(oscStartConditionsArrayMember::iterator it = currentEvent->StartConditions->ConditionGroup.begin(); it != currentEvent->StartConditions->ConditionGroup.end(); it++)
                     {
                         oscConditionGroup* conditionGroup = (oscConditionGroup*)(*it);
@@ -705,6 +710,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
                             scenarioManager->initializeCondition(condition);
                             currentEvent->addCondition(condition);
                         }
+                    }
                     }
                     //get trajectoryCatalogReference
                     for (oscActionArrayMember::iterator it = currentEvent->Action.begin(); it != currentEvent->Action.end(); it++)
