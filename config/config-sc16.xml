@@ -154,9 +154,6 @@
    <Vrml97>
      <MaybeGC value="ON" />
   
-
-     <!-- nicht ausschalten, sonst funktionieren die shader nicht die Binormalen brauchen GenerateTriangleStrips value="false" /-->
-
      <Audio value="AServer" >
 	 <!--Host value="192.168.0.10" /-->
      </Audio>

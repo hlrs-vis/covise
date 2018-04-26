@@ -50,7 +50,6 @@
 #include <osg/AlphaFunc>
 #include <osg/ColorMask>
 #include <osg/PolygonOffset>
-#include <osgUtil/TriStripVisitor>
 #include <cover/coVRFileManager.h>
 #include "VRCoviseGeometryManager.h"
 #include <cover/coVRLighting.h>
@@ -83,9 +82,6 @@ GeometryManager *GeometryManager::instance()
 GeometryManager::GeometryManager()
 {
     backfaceCulling = coCoviseConfig::isOn("COVER.BackfaceCulling", false);
-
-    d_stripper = new osgUtil::TriStripVisitor;
-    genStrips = coCoviseConfig::isOn("COVER.GenStrips", false);
 
     d_kdtreeBuilder = new osg::KdTreeBuilder;
 
@@ -1243,10 +1239,6 @@ GeometryManager::addPolygon(const char *object_name,
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
-    {
-        d_stripper->stripify(*geom);
-    }
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif
@@ -1563,10 +1555,6 @@ GeometryManager::addTriangles(const char *object_name,
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
-    {
-        d_stripper->stripify(*geom);
-    }
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif
@@ -1889,10 +1877,6 @@ GeometryManager::addQuads(const char *object_name,
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
-    {
-        d_stripper->stripify(*geom);
-    }
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif

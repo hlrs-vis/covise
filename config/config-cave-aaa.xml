@@ -79,8 +79,6 @@
     <animator value="off" />
 
     <Vrml97>
-      <GenerateTriangleStrips value="false" />
-
       <Audio value="AServer" >
         <Host value="10.3.0.105" />
       </Audio>
@@ -282,7 +280,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="ON" value="ON" />
    <ViewerPosition x="0" y="-500" z="500" />
    <FloorHeight value="-1250" />

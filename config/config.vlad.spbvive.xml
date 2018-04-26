@@ -184,7 +184,6 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-	  <GenerateTriangleStrips value = "false"/>
      <Audio value="Aserver" />
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>

@@ -70,7 +70,6 @@
 
 			<Vrml97>
                                <ViewpointType value="cave" />
-				<GenerateTriangleStrips value="false" />
 
 				<Audio value="AServer" >
 					<Host value="192.168.2.20" />
@@ -190,7 +189,6 @@
 		<TwoSide value="ON" />
 		<Near value="10" />
 		<Far value="50000000" />
-		<GenStrips value="OFF" />
 		<!--Stereo enable="ON" separation="45" value="ON" /-->
 		<Stereo enable="ON" separation="60" value="ON" />
 		<ViewerPosition x="-300" y="-500" z="-120" />
