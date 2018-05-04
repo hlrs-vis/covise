@@ -33,7 +33,6 @@ MapDrape::MapDrape(int argc, char *argv[])
 	p_mapping_to_ = addStringParam("to",
 		"proj4 mapping to");
 
-	p_mapping_to_->setValue((std::string("+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=") + dir + std::string("BETA2007.gsb")).c_str());
 	p_offset_ = addFloatVectorParam("offset",
 		"offset");
 	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
@@ -58,6 +57,9 @@ MapDrape::MapDrape(int argc, char *argv[])
 	std::string covisedir = pValue;
 #endif
 	dir = covisedir + "/share/covise/";
+
+	std::string proj = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=" + dir + std::string("BETA2007.gsb");
+	p_mapping_to_->setValue(proj.c_str());
 	// setup GDAL
 	GDALAllRegister();
 }
@@ -73,7 +75,7 @@ MapDrape::compute(const char *)
 		std::string name = imageName;
 		openImage(name);
 	}
-
+	p_offset_->getValue(Offset[0], Offset[1], Offset[2]);
 
 	if (!(pj_from = pj_init_plus(p_mapping_from_->getValue())))
 	{
@@ -310,9 +312,9 @@ void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float
 			z = getAlt(xIn[i], yIn[i]);
 		pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
 
-		xOut[i] = x;
-		yOut[i] = y;
-		zOut[i] = z;
+		xOut[i] = x + Offset[0];
+		yOut[i] = y + Offset[1];
+		zOut[i] = z + Offset[2];
 	}
 }
 
@@ -354,7 +356,7 @@ void MapDrape::openImage(std::string &name)
 	}
 }
 
-float MapDrape::getAlt(int x, int y)
+float MapDrape::getAlt(double x, double y)
 {
 	float *pafScanline;
 	int   nXSize = heightBand->GetXSize();

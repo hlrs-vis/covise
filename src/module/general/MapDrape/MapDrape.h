@@ -44,10 +44,11 @@ private:
 
 	void openImage(std::string & name);
 
-	float getAlt(int x, int y);
+	float getAlt(double x, double y);
 
 
 protected:
+	float Offset[3];
 
 	projPJ pj_from, pj_to;
 	std::string dir;
