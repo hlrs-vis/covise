@@ -1108,7 +1108,6 @@ SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//
-#if 0
 	TrackComponentHeadingCommand
 	::TrackComponentHeadingCommand(TrackComponent * track, double newHeading, DataCommand * parent)
 	:	DataCommand(parent),
@@ -1176,12 +1175,10 @@ void
 	track_->setLocalRotation(oldHeading_);
 	setUndone();
 }
-#endif
 
 //##################//
 // ArcCurvatureCommand //
 //##################//
-#if 0
 	ArcCurvatureCommand
 	::ArcCurvatureCommand(TrackElementArc * arc, double newCurvature, DataCommand * parent)
 	:	DataCommand(parent),
@@ -1249,7 +1246,6 @@ void
 	arc_->setCurvature(oldCurvature_);
 	setUndone();
 }
-#endif
 
 //##########################//
 // MoveTrackCommand //

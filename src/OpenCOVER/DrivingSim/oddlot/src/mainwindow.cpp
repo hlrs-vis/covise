@@ -564,7 +564,7 @@ MainWindow::createSettings()
     settingsDock_ = new QDockWidget(tr("Settings View"), this);
     settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	
-	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 	settingsDock_->setFixedWidth(200);
 	settingsDock_->setMinimumHeight(152);
 

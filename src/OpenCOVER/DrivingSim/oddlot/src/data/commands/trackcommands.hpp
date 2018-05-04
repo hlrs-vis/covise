@@ -327,7 +327,6 @@ private:
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//
-#if 0
 class TrackComponentHeadingCommand : public DataCommand
 {
 public:
@@ -352,12 +351,11 @@ private:
 	double					newHeading_;
 
 };
-#endif
 
 //#########################//
 // ArcCurvatureCommand        //
 //#########################//
-#if 0
+
 class ArcCurvatureCommand : public DataCommand
 {
 public:
@@ -382,7 +380,6 @@ private:
 	double					newCurvature_;
 
 };
-#endif
 
 //##########################//
 // MoveTrackCommand //
