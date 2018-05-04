@@ -74,6 +74,8 @@ public:
 	OpenScenario::OpenScenarioBase *osdb;
 	RoadSystem *getRoadSystem() { return system; };
 
+	void preSwapBuffers(int windowNumber);
+
 private:
 
 	//benoetigt fuer loadRoadSystem
@@ -103,6 +105,14 @@ private:
 	bool tessellatePaths;
     bool tessellateBatters;
     bool tessellateObjects;
+
+	int frameCounter;
+	int frameRate;
+	int writeRate;
+
+	osg::ref_ptr<osg::Image> image;
+	GLenum GL_fmt;
+
 };
 
 #endif //OPENSCENARIO_PLUGIN_H

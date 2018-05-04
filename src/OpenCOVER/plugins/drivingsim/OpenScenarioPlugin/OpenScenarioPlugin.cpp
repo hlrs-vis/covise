@@ -31,6 +31,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginList.h>
+#include <cover/coVRConfig.h>
 
 #include "../RoadTerrain/RoadTerrainPlugin.h"
 #include "ScenarioManager.h"
@@ -54,6 +55,9 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "Sequence.h"
 #include "Event.h"
 #include "Condition.h"
+#include <config/CoviseConfig.h>
+#include <cover/coVRConfig.h>
+#include <osgDB/WriteFile>
 
 using namespace OpenScenario; 
 using namespace opencover;
@@ -83,6 +87,17 @@ OpenScenarioPlugin::OpenScenarioPlugin()
     tessellatePaths=true;
     tessellateBatters=false;
     tessellateObjects=true;
+
+	frameCounter = 0;
+
+#ifdef _MSC_VER
+	GL_fmt = GL_BGR_EXT;
+#else
+	GL_fmt = GL_BGRA;
+#endif
+	frameRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.FrameRate", 1);
+	writeRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.WriteRate", 0);
+	coVRConfig::instance()->setFrameRate(frameRate);
 
     scenarioManager = new ScenarioManager();
 
@@ -181,6 +196,7 @@ bool OpenScenarioPlugin::update()
 			size = 0;
 		}
 		coVRMSController::instance()->sendSlaves(&size, sizeof(size));
+
 	}
 	else
 	{
@@ -199,6 +215,47 @@ bool OpenScenarioPlugin::update()
     return true;
 }
 
+
+void OpenScenarioPlugin::preSwapBuffers(int windowNumber)
+{
+
+	auto &coco = *coVRConfig::instance();
+
+
+	if (writeRate > 0 && coVRMSController::instance()->isMaster())
+	{
+		if ((frameCounter % writeRate) == 0)
+		{
+			// fprintf(stderr,"glRead...\n");
+			glPixelStorei(GL_PACK_ALIGNMENT, 1);
+			if (coco.windows[windowNumber].doublebuffer)
+				glReadBuffer(GL_BACK);
+			// for depth to work, it might be necessary to read from GL_FRONT (chang this, if it does not work like
+			// this)
+			if (image.get() == NULL)
+			{
+
+				image = new osg::Image();
+
+				image.get()->allocateImage(coco.windows[windowNumber].sx, coco.windows[windowNumber].sy, 1, GL_fmt, GL_UNSIGNED_BYTE);
+			}
+			glReadPixels(0, 0, coco.windows[windowNumber].sx, coco.windows[windowNumber].sy, GL_fmt, GL_UNSIGNED_BYTE,	image->data());
+
+			char filename[100];
+			sprintf(filename, "test%d.png", frameCounter);
+
+
+			if (osgDB::writeImageFile(*(image.get()), filename))
+			{
+			}
+			else
+			{
+			}
+		}
+	}
+
+	frameCounter++;
+}
 void
 OpenScenarioPlugin::handleMessage(const char *buf)
 {
