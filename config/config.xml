@@ -60,6 +60,7 @@
 
   <COVER>
       <UI>
+          <VRUI toolbar="false" />
           <NavigationManager>
               <Navigation>
                   <!--MoveWorld parent="" /-->
@@ -218,9 +219,9 @@
 
     <AKToolbar value="false" menu="false">
      <Attachment value="TOP" />
-     <Scale value=".8" />
+     <Scale value=".7" />
      <MinClickTime value="0.2" />
-     <Position x="-980" y="0" z="630" />
+     <Position x="-900" y="0" z="360" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="scale" name="scale" />
      <ShortCut value="xform" name="xform" />

@@ -41,7 +41,7 @@ MapDrape::MapDrape(int argc, char *argv[])
 	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
 	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
 #ifdef WIN32
-	char *pValue;
+	const char *pValue;
 	size_t len;
 	errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
 	if (err || pValue == NULL || strlen(pValue) == 0)
@@ -51,9 +51,11 @@ MapDrape::MapDrape(int argc, char *argv[])
 	std::string covisedir = pValue;
 #else
 
-	char *pValue; = getenv("ODDLOTDIR");
-	if (pValue[0] == '\0')
+	const char *pValue = getenv("ODDLOTDIR");
+	if (!pValue || pValue[0] == '\0')
 		pValue = getenv("COVISEDIR");
+    if (!pValue)
+        pValue = "";
 	std::string covisedir = pValue;
 #endif
 	dir = covisedir + "/share/covise/";
@@ -62,6 +64,19 @@ MapDrape::MapDrape(int argc, char *argv[])
 	p_mapping_to_->setValue(proj.c_str());
 	// setup GDAL
 	GDALAllRegister();
+
+	p_mapping_from_ = addStringParam("from", "proj4 mapping from");
+	p_mapping_from_->setValue("+proj=latlong +datum=WGS84");
+
+	p_mapping_to_ = addStringParam("to", "proj4 mapping to");
+
+	p_mapping_to_->setValue((std::string("+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=") + dir + std::string("BETA2007.gsb")).c_str());
+	p_offset_ = addFloatVectorParam("offset", "offset");
+	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
+	p_heightfield_->setValue("/tmp/foo.tif", "*.tif");
+
+	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
+	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
 }
 
 
@@ -362,11 +377,17 @@ float MapDrape::getAlt(double x, double y)
 	int   nXSize = heightBand->GetXSize();
 
 	pafScanline = new float[nXSize];
-	heightBand->RasterIO(GF_Read, x, y, 1, 1,
+	auto err = heightBand->RasterIO(GF_Read, x, y, 1, 1,
 		pafScanline, nXSize, 1, GDT_Float32,
 		0, 0);
 	float height = pafScanline[0];
 	delete[] pafScanline;
+
+    if (err != CE_None)
+    {
+        std::cerr << "MapDrape::getAlt: error" << std::endl;
+        return 0.f;
+    }
 
 	return height;
 }

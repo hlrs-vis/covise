@@ -142,7 +142,7 @@ if not defined PYTHONHOME  (
    rem several different paths
    rem set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python"
    set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python;%COVISEDIR%\PYTHON\bin;%COVISEDIR%\PYTHON\bin\vr-prepare;%COVISEDIR%\PYTHON\bin\vr-prepare\converters;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator\import;%EXTERNLIBS%\pyqt\modules;%EXTERNLIBS%\sip\modules"
-   set "PATH=%PATH%;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin"
+   set "PATH=%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin;%PATH%"
 )
 
 if not defined ALL_EXTLIBS ( 

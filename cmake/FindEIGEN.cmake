@@ -16,6 +16,7 @@ FIND_PATH(EIGEN_INCLUDE_DIR "Eigen/Eigen"
   $ENV{EXTERNLIBS}/eigen/include
   ~/Library/Frameworks
   /Library/Frameworks
+  /usr/include/eigen3
   /usr/local
   /usr
   /sw # Fink
