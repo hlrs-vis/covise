@@ -39,6 +39,7 @@ typedef int ssize_t;
 
 #define COV_READ(fd, data, size)                                       \
     {                                                                  \
+    if(size > 0){ \
     ssize_t bytesRead=0;                                                    \
     do                                                                 \
     {                                                                  \
@@ -54,7 +55,7 @@ typedef int ssize_t;
         if (bytesRead < size)                                                \
             fprintf(stderr, "COV_READ performance warning incomplete read: %ld %ld\n", (long)(retval), (long)(size)); \
     } while (bytesRead < size) ;                                             \
-    }
+    }}
 
 #define COV_READ_INT(fd, data, size)   COV_READ(fd, data, (size) * sizeof(int))
 #define COV_READ_FLOAT(fd, data, size)   COV_READ(fd, data, (size) * sizeof(float))
