@@ -110,8 +110,10 @@ coVRPluginList::~coVRPluginList()
 
 void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 {
+#if 0
     if (domain == Window)
         return;
+#endif
 
     bool wasThreading = false;
     bool havePlugins = !m_loadedPlugins[domain].empty();

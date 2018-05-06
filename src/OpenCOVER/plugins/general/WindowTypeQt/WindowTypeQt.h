@@ -49,5 +49,6 @@ private:
     std::map<int, WindowData> m_windows;
     bool m_update = true;
     QDialog *m_keyboardHelp = nullptr;
+    bool m_deleteQApp = false;
 };
 #endif

@@ -97,6 +97,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto &conf = *coVRConfig::instance();
     if (!qApp)
     {
+        m_deleteQApp = true;
 #ifdef USE_X11
         IceSetIOErrorHandler(&iceIOErrorHandler);
 #endif
@@ -290,6 +291,7 @@ void WindowTypeQtPlugin::windowUpdateContents(int num)
 
 void WindowTypeQtPlugin::windowDestroy(int num)
 {
+    //std::cerr << "WindowTypeQt: destroying window " << num << std::endl;
     auto it = m_windows.find(num);
     if (it == m_windows.end())
     {
@@ -313,7 +315,7 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     delete win.window;
     m_windows.erase(it);
 
-    if (m_windows.empty())
+    if (m_deleteQApp && m_windows.empty())
     {
         qApp->quit();
         qApp->sendPostedEvents();
