@@ -99,8 +99,9 @@ int AmberPlugin::removeAmber(const char *name)
 int AmberPlugin::loadAmber(const char *filename, osg::Group *parent, const char *)
 {
 
-    char *top = (char *)calloc(256, sizeof(char));
-    char trj[256];
+    char top[256], trj[256];
+    memset(top, 0, sizeof(top));
+    memset(trj, 0, sizeof(trj));
 
     if (filename)
     {
@@ -108,8 +109,8 @@ int AmberPlugin::loadAmber(const char *filename, osg::Group *parent, const char 
 
         if (len > 4 && len < 251)
         {
-            strncpy(top, filename, len - 4);
-            strncpy(trj, filename, len - 4);
+            memcpy(top, filename, len - 4);
+            memcpy(trj, filename, len - 4);
 
             removeAmber(top);
 
@@ -566,7 +567,7 @@ int AmberPlugin::unloadAmber(const char *filename, const char *)
 
         if (len > 4 && len < 260)
         {
-            strncpy(buf, filename, len - 4);
+            memcpy(buf, filename, len - 4);
             removeAmber(buf);
         }
     }

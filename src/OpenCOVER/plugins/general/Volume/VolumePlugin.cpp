@@ -1218,15 +1218,12 @@ void VolumePlugin::saveDefaultTransferFunction(void *userData)
                 --ite;
             }
             filenumberStr[digits] = '\0';
-            const char *filename = "cover-transferfunction_(";
-            const char *suffix = ").xvf";
-            const size_t len = strlen(filename) + strlen(suffix) + digits + 1;
-            char *dest = (char *)calloc(len, sizeof(char));
-            strncat(dest, filename, strlen(filename));
-            strncat(dest, filenumberStr, digits);
-            strncat(dest, suffix, strlen(suffix));
-            dest[len - 1] = '\0';
-            vd->setFilename(dest);
+            std::stringstream str;
+            str << "cover->transferfunction_(";
+            str << filenumberStr;
+            str << ".xvf";
+            delete filenumberStr;
+            vd->setFilename(str.str().c_str());
             err = fio.saveVolumeData(vd, false, vvFileIO::TRANSFER);
         }
 
