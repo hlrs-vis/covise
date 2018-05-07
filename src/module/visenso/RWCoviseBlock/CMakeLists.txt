@@ -21,7 +21,7 @@ set(EXTRASOURCES
    SetObject.h
 )
 
-add_covise_module(Converter RWCoviseBlock ${EXTRASOURCES} )
+add_covise_module(IO RWCoviseBlock ${EXTRASOURCES} )
 covise_wnoerror(RWCoviseBlock)
 target_link_libraries(RWCoviseBlock  coApi coAppl coCore )
 covise_install_target(RWCoviseBlock)

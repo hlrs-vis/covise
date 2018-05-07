@@ -20,7 +20,7 @@ SET(EXTRASOURCES
 )
 
 
-ADD_COVISE_MODULE(Filter CuttingSurfaceComp ${EXTRASOURCES} )
+ADD_COVISE_MODULE(Mapper CuttingSurfaceComp ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(CuttingSurfaceComp  coAlg coApi coAppl coCore )
 
 COVISE_INSTALL_TARGET(CuttingSurfaceComp)
