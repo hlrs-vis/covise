@@ -647,11 +647,14 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
                 tb >> sendData[i + 2];
         }
         QImage image;
-        if (depth == 32)
-            image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_RGB32);
-        else
-            image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_ARGB32);
-        image = image.mirrored();
+        if (dataLength > 0)
+        {
+            if (depth == 32)
+                image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_RGB32);
+            else
+                image = QImage(reinterpret_cast<unsigned char *>(sendData), width, height, QImage::Format_ARGB32);
+            image = image.mirrored();
+        }
         int num = numItems;
         QString dateTime = QString("%1_%2").arg(QDateTime::currentDateTime().toTime_t()).arg(num);
 
