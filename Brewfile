@@ -33,6 +33,7 @@ brew 'audiofile'
 brew 'freealut'
 brew 'proj'
 brew 'gdal'
+brew 'eigen'
 
 #brew 'tbb'
 #brew 'homebrew/science/hdf5', args: ['with-mpi']
