@@ -15,7 +15,7 @@
 #include <map>
 #include <limits>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // this header should contain typedefs for index_t and scalar_t
 #include "foamtypes.h"
@@ -167,11 +167,11 @@ public:
     std::vector<Boundary> procboundaries;
 };
 
-CaseInfo getCaseInfo(const std::string &casedir, bool exact = false);
+CaseInfo getCaseInfo(const std::string &casedir, bool exact = false, bool verbose = false);
 bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time);
 bool checkPolyMeshDirContent(CaseInfo &info);
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename);
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename);
+std::shared_ptr<std::istream> getStreamForFile(const std::string &filename);
+std::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename);
 HeaderInfo readFoamHeader(std::istream &stream);
 DimensionInfo parseDimensions(std::string header);
 
