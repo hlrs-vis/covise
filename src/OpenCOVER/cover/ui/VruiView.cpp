@@ -754,6 +754,8 @@ VruiViewElement::~VruiViewElement()
     delete m_toolboxItem;
     m_toolboxItem = nullptr;
 
+    m_menu->setSubMenuItem(nullptr);
+
     delete m_menuItem;
     m_menuItem = nullptr;
 
