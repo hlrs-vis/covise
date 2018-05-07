@@ -11,18 +11,14 @@ ENDIF(EIGEN_INCLUDE_DIR)
 
 FIND_PATH(EIGEN_INCLUDE_DIR "Eigen/Eigen"
   PATHS
-  $ENV{EIGEN_HOME}/include
-  $ENV{EXTERNLIBS}/eigen3/include
-  $ENV{EXTERNLIBS}/eigen/include
   ~/Library/Frameworks
   /Library/Frameworks
+  /usr/local/include/eigen3
+  /usr/local/include/eigen
+  /usr/local/include
   /usr/include/eigen3
-  /usr/local
-  /usr
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/csw # Blastwave
-  /opt
+  /usr/include/eigen
+  /usr/include
   DOC "EIGEN - Headers"
 )
 
