@@ -21,6 +21,8 @@
 #include "src/data/projectdata.hpp"
 #include "src/data/changemanager.hpp"
 
+#include <cmath>
+
 
 
 
@@ -60,7 +62,7 @@ PolynomialLateralSection::getControlPointsFromParameters(bool markZeroLengthSect
 	QPointF T(getTStart(), 0);
 	double l = getLength();
 
-	if (markZeroLengthSection && (abs(l) < NUMERICAL_ZERO6))
+	if (markZeroLengthSection && (std::abs(l) < NUMERICAL_ZERO6))
 	{
 		realPointLow_ = realPointHigh_ = NULL;
 	}

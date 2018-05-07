@@ -211,7 +211,7 @@ ShapeEditor::translateMoveHandles(const QPointF &mousePos, SplineControlPoint *c
 	{
 		return;
 	}
-	if (!nextLateralSection && (corner->isLow() && (mousePos.x() >= lateralSection->getRealPointHigh()->getPoint().x())) || (!corner->isLow() && (mousePos.x()) <= lateralSection->getTStart()))
+	if ((!nextLateralSection && corner->isLow() && (mousePos.x() >= lateralSection->getRealPointHigh()->getPoint().x())) || (!corner->isLow() && (mousePos.x()) <= lateralSection->getTStart()))
 	{
 		return;
 	}

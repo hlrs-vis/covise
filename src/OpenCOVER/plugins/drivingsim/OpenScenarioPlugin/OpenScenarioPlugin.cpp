@@ -95,6 +95,7 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 #else
 	GL_fmt = GL_BGRA;
 #endif
+	GL_fmt = GL_RGBA;
 	frameRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.FrameRate", 1);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.WriteRate", 0);
 	coVRConfig::instance()->setFrameRate(frameRate);

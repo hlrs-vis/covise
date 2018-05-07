@@ -113,7 +113,8 @@
 
 // Utils //
 //
-#include "math.h"
+#include <cmath>
+#include <locale.h>
 
 DomWriter::DomWriter(ProjectData *projectData)
     : projectData_(projectData)
