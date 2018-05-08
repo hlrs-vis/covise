@@ -744,7 +744,11 @@ VruiViewElement::VruiViewElement(Element *elem)
 VruiViewElement::~VruiViewElement()
 {
     if (m_menu)
+    {
         m_menu->closeMenu();
+        m_menu->setSubMenuItem(nullptr);
+    }
+
 
     if (auto tmi = dynamic_cast<coGenericSubMenuItem *>(m_toolboxItem))
     {
@@ -753,8 +757,6 @@ VruiViewElement::~VruiViewElement()
 
     delete m_toolboxItem;
     m_toolboxItem = nullptr;
-
-    m_menu->setSubMenuItem(nullptr);
 
     delete m_menuItem;
     m_menuItem = nullptr;
