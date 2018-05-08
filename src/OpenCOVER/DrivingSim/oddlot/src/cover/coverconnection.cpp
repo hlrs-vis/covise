@@ -99,7 +99,10 @@ void COVERConnection::processMessages()
     {
         if(LODSettings::instance()->doConnect())
         {
-            covise::Host *h = new covise::Host(LODSettings::instance()->hostname.toUtf8().constData());
+            std::string hostname = LODSettings::instance()->hostname.toStdString();
+            if (hostname.empty())
+                hostname = "localhost";
+            covise::Host *h = new covise::Host(hostname.c_str());
             toCOVER = new covise::ClientConnection(h ,LODSettings::instance()->getPort(),0,0,0,0.0000000001);
             if(toCOVER->is_connected())
             {
