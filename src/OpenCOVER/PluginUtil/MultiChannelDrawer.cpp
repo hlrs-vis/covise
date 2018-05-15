@@ -786,7 +786,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         } else {
             geo->addPrimitiveSet(arr);
         }
-        geo->dirtyGLObjects();
+        geo->dirtyDisplayList();
 #endif
         cd.size->set(osg::Vec2(w, h));
         cd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
