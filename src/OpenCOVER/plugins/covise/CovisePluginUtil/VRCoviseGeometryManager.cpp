@@ -50,6 +50,7 @@
 #include <osg/AlphaFunc>
 #include <osg/ColorMask>
 #include <osg/PolygonOffset>
+#include <osgUtil/SmoothingVisitor>
 #include <cover/coVRFileManager.h>
 #include "VRCoviseGeometryManager.h"
 #include <cover/coVRLighting.h>
@@ -67,6 +68,7 @@
 #include <osg/Uniform>
 
 static double AlphaThreshold = 0.01;
+static float CreaseAngle = M_PI*0.25;
 
 using namespace opencover;
 using namespace covise;
@@ -1072,89 +1074,6 @@ GeometryManager::addPolygon(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        if (indexed)
-        {
-            normalArray->resize(no_of_coords);
-        }
-
-        // create one normal per polygon and use it for all vertices
-        for (int i = 0; i < no_of_polygons; i++)
-        {
-            int base = i_l[i];
-            int numv;
-            if (i == no_of_polygons - 1)
-                numv = no_of_vertices - base;
-            else
-                numv = i_l[i + 1] - base;
-
-            int v = v_l[base + 0];
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[base + 1];
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            int vert = 2;
-            while (v1.length2() < 1E-16 && vert < numv - 1)
-            {
-                v = v_l[base + vert];
-                p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v1 = p1 - p0;
-                vert++;
-            }
-            v = v_l[base + vert];
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v2 = p2 - p0;
-            while (v2.length2() < 1E-16 && vert < numv)
-            {
-                v = v_l[base + vert];
-                p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v2 = p2 - p0;
-                vert++;
-            }
-            v1.normalize();
-            v2.normalize();
-            osg::Vec3 vn = v1 ^ v2;
-            while (vn.length2() < 1E-2 && vert < numv)
-            {
-                v = v_l[base + vert];
-                p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v2 = p2 - p0;
-                vert++;
-                if (v2.length2() < 1E-16 && vert < numv)
-                {
-                    continue;
-                }
-                v2.normalize();
-                vn = v1 ^ v2;
-            }
-            vn.normalize();
-
-            if (indexed)
-            {
-                for (int n=0; n<numv; ++n)
-                {
-                    (*normalArray)[v_l[base+n]] += vn;
-                }
-            }
-            else
-            {
-                for (int n = 0; n < numv; n++)
-                {
-                normalArray->push_back(vn);
-                }
-            }
-        }
-        if (indexed)
-        {
-            for (int i=0; i<no_of_coords; ++i)
-                (*normalArray)[i].normalize();
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1244,6 +1163,11 @@ GeometryManager::addPolygon(const char *object_name,
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
+
+    if (no_of_normals == 0)
+    {
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
 
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
@@ -1475,31 +1399,6 @@ GeometryManager::addTriangles(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        vn = 0;
-        for (int i = 0; i < no_of_triangles; i++)
-        {
-            int v = v_l[vn];
-            vn++;
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            osg::Vec3 v2 = p2 - p1;
-            osg::Vec3 vn = v1 ^ v2;
-            vn.normalize();
-            for (int j = 0; j < 3; ++j)
-                normalArray->push_back(vn);
-        }
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1560,6 +1459,11 @@ GeometryManager::addTriangles(const char *object_name,
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
+
+    if (no_of_normals == 0)
+    {
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
 
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
@@ -1795,33 +1699,6 @@ GeometryManager::addQuads(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        vn = 0;
-        // create one normal per polygon and use it for all vertices
-        for (int i = 0; i < no_of_quads; i++)
-        {
-            int v = v_l[vn];
-            vn++;
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            osg::Vec3 v2 = p2 - p1;
-            osg::Vec3 vn = v1 ^ v2;
-            vn.normalize();
-            for (int j = 0; j < 4; ++j)
-                normalArray->push_back(vn);
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1882,6 +1759,11 @@ GeometryManager::addQuads(const char *object_name,
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
+
+    if (no_of_normals == 0)
+    {
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
 
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
@@ -2203,73 +2085,6 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
         break;
         }
     }
-    else
-    {
-        std::vector<int> num_tri(no_of_vertices);
-        std::vector<osg::Vec3> norm(no_of_vertices);
-
-        // create one normal per strip and use it for all vertices
-        for (int i = 0; i < no_of_strips; i++)
-        {
-            int begin = i_l[i], end = no_of_vertices;
-            if (i < no_of_strips-1)
-                end = i_l[i+1];
-            int numv = end - begin;
-
-            int v0 = v_l[begin + 0];
-            int v1 = v_l[begin + 1];
-
-            for (int n=2; n<numv; ++n)
-            {
-                int v2 = v_l[begin + n];
-
-                osg::Vec3 p0 = osg::Vec3(x_c[v0], y_c[v0], z_c[v0]);
-                osg::Vec3 p1 = osg::Vec3(x_c[v1], y_c[v1], z_c[v1]);
-                osg::Vec3 p2 = osg::Vec3(x_c[v2], y_c[v2], z_c[v2]);
-                osg::Vec3 e1 = p1 - p0;
-                osg::Vec3 e2 = p2 - p1;
-                osg::Vec3 vn = e1 ^ e2;
-                if (n%2)
-                    vn = -vn;
-                vn.normalize();
-
-                ++num_tri[v0];
-                norm[v0] += vn;
-                ++num_tri[v1];
-                norm[v1] += vn;
-                ++num_tri[v2];
-                norm[v2] += vn;
-
-                v0 = v1;
-                v1 = v2;
-            }
-        }
-
-        for (int i=0; i<no_of_vertices; ++i)
-        {
-            if (num_tri[i] > 0)
-                norm[i] /= num_tri[i];
-        }
-
-        osg::Vec3Array *normalArray = new osg::Vec3Array;
-        for (int i = 0; i < no_of_strips; i++)
-        {
-            int numv;
-            if (i == no_of_strips - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            for (int n = 0; n < numv; n++)
-            {
-                int v = v_l[i_l[i] + n];
-
-                normalArray->push_back(norm[v]);
-            }
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -2336,6 +2151,15 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
     geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
+
+    if (no_of_normals == 0)
+    {
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
+
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+    d_kdtreeBuilder->apply(*geom);
+#endif
 
     geode->setStateSet(geoState);
 
