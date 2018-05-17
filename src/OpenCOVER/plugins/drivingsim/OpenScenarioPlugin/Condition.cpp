@@ -1,5 +1,6 @@
 #include "Condition.h"
 #include "Entity.h"
+#include "OpenScenarioPlugin.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ void Condition::set(bool state)
 
 void Condition::increaseTimer()
 {
-    delayTimer = delayTimer + opencover::cover->frameDuration();
+    delayTimer = delayTimer + OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
 }
 
 bool Condition::delayReached()

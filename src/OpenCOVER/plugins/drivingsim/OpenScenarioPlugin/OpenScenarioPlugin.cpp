@@ -98,6 +98,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	GL_fmt = GL_RGBA;
 	frameRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.FrameRate", 1);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugins.OpenScenario.WriteRate", 0);
+    minSimulationStep = covise::coCoviseConfig::getFloat("COVER.Plugins.OpenScenario.MinSimulationStep", minSimulationStep);
+
 	coVRConfig::instance()->setFrameRate(frameRate);
 
     scenarioManager = new ScenarioManager();
@@ -306,9 +308,10 @@ OpenScenarioPlugin::readTCPData(void *buf, unsigned int numBytes)
 	return true;
 }
 
-void OpenScenarioPlugin::preFrame()
+bool OpenScenarioPlugin::advanceTime(double step)
 {
-    scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
+    scenarioManager->simulationStep = step;
+    scenarioManager->simulationTime += step;
     //cout << "TIME: " << scenarioManager->simulationTime << endl;
     list<Entity*> usedEntity;
     list<Entity*> unusedEntity = scenarioManager->entityList;
@@ -316,7 +319,9 @@ void OpenScenarioPlugin::preFrame()
     entityList_temp.sort();unusedEntity.sort();
     scenarioManager->conditionManager();
 
-    if (scenarioManager->scenarioCondition)
+    if (!scenarioManager->scenarioCondition)
+        return false;
+
     {
         for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
         {
@@ -408,17 +413,37 @@ void OpenScenarioPlugin::preFrame()
         scenarioManager->resetReferencePositionStatus();
 
     }
-    else
-    {
-        // Scenario end
 
-        bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
-        if (doExit)
+    return true;
+}
+
+
+void OpenScenarioPlugin::preFrame()
+{
+    double step = cover->frameDuration();
+    int nsteps = 1;
+    if (minSimulationStep > 0)
+        nsteps = step/minSimulationStep;
+    if (nsteps < 1)
+        nsteps = 1;
+
+    double s = step/nsteps;
+    for (int i=0; i<nsteps; ++i)
+    {
+        if (!advanceTime(s))
         {
-            OpenCOVER::instance()->setExitFlag(true);
-            coVRPluginList::instance()->requestQuit(true);
+            // Scenario end
+
+            bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
+            if (doExit)
+            {
+                OpenCOVER::instance()->setExitFlag(true);
+                coVRPluginList::instance()->requestQuit(true);
+            }
+            //fprintf(stderr, "END\n");
+
+            break;
         }
-        //fprintf(stderr, "END\n");
     }
 
     if (currentCamera != NULL)
