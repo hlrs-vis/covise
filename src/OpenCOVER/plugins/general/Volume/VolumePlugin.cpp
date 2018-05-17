@@ -1222,7 +1222,7 @@ void VolumePlugin::saveDefaultTransferFunction(void *userData)
             str << "cover->transferfunction_(";
             str << filenumberStr;
             str << ".xvf";
-            delete filenumberStr;
+            delete[] filenumberStr;
             vd->setFilename(str.str().c_str());
             err = fio.saveVolumeData(vd, false, vvFileIO::TRANSFER);
         }
