@@ -60,6 +60,7 @@
 #include <cover/coVRConfig.h>
 #include <PluginUtil/coSphere.h>
 #include <PluginUtil/StaticSequence.h>
+#include <PluginUtil/Tipsify.h>
 #include <cover/RenderObject.h>
 #include <do/coDoData.h>
 
@@ -1167,6 +1168,14 @@ GeometryManager::addPolygon(const char *object_name,
     if (no_of_normals == 0)
     {
         osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
+
+    for (auto &ps: geom->getPrimitiveSetList())
+    {
+        if (auto de = dynamic_cast<osg::DrawElementsUInt *>(ps.get()))
+        {
+            tipsify(&(*de)[0], de->size());
+        }
     }
 
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))

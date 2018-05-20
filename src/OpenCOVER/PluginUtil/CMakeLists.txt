@@ -52,6 +52,7 @@ SET(PLUGINUTIL_HEADERS
   StaticSequence.h
   CudaGraphicsResource.h
   CudaTextureRectangle.h
+  Tipsify.h
 )
 
 SET(SOURCES
