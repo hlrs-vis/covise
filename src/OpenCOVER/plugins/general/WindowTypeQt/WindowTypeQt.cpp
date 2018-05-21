@@ -102,6 +102,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         IceSetIOErrorHandler(&iceIOErrorHandler);
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
+        qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
     }
 
     auto it = m_windows.find(i);
@@ -117,6 +118,11 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto window = new QtMainWindow();
     win.window = window;
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
+    if (i > 0)
+        win.window->setWindowTitle(("COVER"+std::to_string(i)).c_str());
+    else
+        win.window->setWindowTitle("COVER");
+    win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
     win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this, i](){
         OpenCOVER::instance()->requestQuit();
