@@ -82,6 +82,8 @@ public:
     /// check if the Element or any ancestor is this classname
     virtual bool isOfClassName(const char *) const;
 
+	void setValue(TabletValue type, covise::TokenBuffer &tb);
+
     bool doZoom;
     bool doPan;
     bool doCam;

@@ -77,7 +77,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osgDB/Registry>
 
 #include <osgUtil/Tessellator>
-#include <osgUtil/TriStripVisitor>
 #include <osg/KdTree>
 #include <osgUtil/TangentSpaceGenerator>
 
@@ -537,7 +536,6 @@ int Blended = 0;
 int AlphaTest = 0;
 static int Crease = 0;
 static bool backFaceCulling = true;
-static bool genStrips = false;
 static bool reTesselate = true;
 static bool countTextures = true;
 static int texSize = 0;
@@ -903,8 +901,6 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);
     enableLights = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Lights", true);
-    genStrips = coCoviseConfig::isOn("COVER.GenStrips", genStrips);
-    genStrips = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GenerateTriangleStrips", genStrips);
     reTesselate = coCoviseConfig::isOn("COVER.Plugin.Vrml97.ReTesselate", false);
     countTextures = coCoviseConfig::isOn("counter", "COVER.Plugin.Vrml97.Texture", true);
     countGeometry = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GeometryCounter", true);
@@ -2253,30 +2249,16 @@ ViewerOsg::insertShell(unsigned int mask,
             if (cover->debugLevel(2))
                 cerr << "-" << nfaces  << "/" << geode->getNumDrawables() << ":";
         }
-        // if enabled, generate tri strips, but not for animated objects
-        if (genStrips)
+        if (cover->debugLevel(1))
         {
-            for(unsigned int i=0;i<geode->getNumDrawables();i++)
-            {
-                osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
-                /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
-                osgUtil::TriStripVisitor tsv;
-                tsv.stripify(*geo);
-            }
-
-            if (cover->debugLevel(3))
-                cerr << objName << " ";
-            if (cover->debugLevel(1))
-                cerr << "TS";
-        }
-        else if (cover->debugLevel(1))
             cerr << "P";
-        if (tris)
-            cerr << "t";
-        if (quads)
-            cerr << "q";
-        if (indexed)
-            cerr << "i";
+            if (tris)
+                cerr << "t";
+            if (quads)
+                cerr << "q";
+            if (indexed)
+                cerr << "i";
+        }
     }
     else
     {

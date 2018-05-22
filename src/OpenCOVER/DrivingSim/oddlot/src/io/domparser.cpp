@@ -1715,7 +1715,6 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
 		}
 
-		ID;
 		StringToID(id, ID, odrID::ID_Object,tileID);
 		// Construct signal object
 		Signal *signal = new Signal(ID, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());

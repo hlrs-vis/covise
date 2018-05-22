@@ -78,6 +78,8 @@ public:
 
 private:
 
+    bool advanceTime(double step);
+
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
 	std::string xodrDirectory;
@@ -109,6 +111,7 @@ private:
 	int frameCounter;
 	int frameRate;
 	int writeRate;
+    double minSimulationStep = -1.; // negative: once per frame
 
 	osg::ref_ptr<osg::Image> image;
 	GLenum GL_fmt;

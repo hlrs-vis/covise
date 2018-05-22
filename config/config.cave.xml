@@ -472,7 +472,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="ON" value="ON" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->

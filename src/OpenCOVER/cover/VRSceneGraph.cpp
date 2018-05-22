@@ -1878,7 +1878,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     material->setAlpha(osg::Material::FRONT_AND_BACK, 0.5f);
 
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, 0.0);
 
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
@@ -1894,7 +1894,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     stateTransp->setNestRenderBins(false);
     stateTransp->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateTransp->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
 

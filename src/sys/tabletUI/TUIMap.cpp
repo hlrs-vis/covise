@@ -778,3 +778,15 @@ NodeItem::NodeItem(QGraphicsScene *canvas)
     setBrush(*tb);
     setZValue(128);
 }
+
+
+void TUIMap::setValue(TabletValue type, covise::TokenBuffer &tb)
+{
+	//cerr << "setValue " << type << endl;
+	if (type == TABLET_ADD_MAP)
+	{
+		//char *en;
+		//tb >> en;
+	}
+	TUIElement::setValue(type, tb);
+}

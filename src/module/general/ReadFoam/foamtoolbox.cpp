@@ -109,14 +109,14 @@ public:
     std::ifstream *stream;
 };
 
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename)
+std::shared_ptr<std::istream> getStreamForFile(const std::string &filename)
 {
 
     std::ifstream *s = new std::ifstream(filename.c_str(), std::ios_base::in | std::ios_base::binary);
     if (!s->is_open())
     {
         std::cerr << "failed to open " << filename << std::endl;
-        return boost::shared_ptr<std::istream>();
+        return std::shared_ptr<std::istream>();
     }
 
     bi::filtering_istream *fi = new bi::filtering_istream;
@@ -126,10 +126,10 @@ boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename)
         fi->push(bi::gzip_decompressor());
     }
     fi->push(*s);
-    return boost::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s));
+    return std::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s));
 }
 
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename)
+std::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename)
 {
 
     bf::path zipped(dir + "/" + basename + ".gz");
@@ -307,12 +307,12 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
     bf::path dir(timedir);
     if (!bf::exists(dir))
     {
-        std::cerr << "timestep directory " << timedir << " does not exist" << std::endl;
+        std::cerr << (time?"timestep":"constant") << " directory " << timedir << " does not exist" << std::endl;
         return false;
     }
     if (!::is_directory(timedir))
     {
-        std::cerr << "timestep directory " << timedir << " is not a directory" << std::endl;
+        std::cerr << (time?"timestep":"constant") << " directory " << timedir << " is not a directory" << std::endl;
         return false;
     }
 
@@ -359,11 +359,10 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 bool checkPolyMeshDirContent(CaseInfo &info)
 {
 	// start out with 
-	std::stringstream s;
-    if (info.numblocks>0)
-		s << "/processor0" << "/";
     std::string basedir = info.casedir;
-	basedir += s.str(); 
+    if (info.numblocks>0)
+        basedir += "/processor0";
+    basedir += "/";
 	std::string fullMeshDir = info.constantdir;
 
 	for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
@@ -383,9 +382,8 @@ bool checkPolyMeshDirContent(CaseInfo &info)
 
 
 
-bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, bool exact)
+bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, bool exact, bool verbose)
 {
-
     std::cerr << "reading casedir: " << casedir << std::endl;
 
     bf::path dir(casedir);
@@ -419,13 +417,14 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
 
     if (compare && num_processors > 0)
     {
-        std::cerr << "found processor subdirectory in processor directory" << std::endl;
+        if (verbose)
+            std::cerr << "found processor subdirectory in processor directory" << std::endl;
         return false;
     }
 
     if (num_processors > 0)
     {
-        bool result = checkCaseDirectory(info, casedir + "/processor0", false, exact);
+        bool result = checkCaseDirectory(info, casedir + "/processor0", false, exact, verbose);
         if (!result)
         {
             std::cerr << "failed to read case directory for processor 0" << std::endl;
@@ -438,7 +437,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             {
                 std::stringstream s;
                 s << casedir << "/processor" << i;
-                bool result = checkCaseDirectory(info, s.str(), true, exact);
+                bool result = checkCaseDirectory(info, s.str(), true, exact, verbose);
                 if (!result)
                     return false;
             }
@@ -554,34 +553,40 @@ bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
     return !ignored;
 }
 
-CaseInfo getCaseInfo(const std::string &casedir, bool exact)
+CaseInfo getCaseInfo(const std::string &casedir, bool exact, bool verbose)
 {
 
     CaseInfo info;
     info.casedir = casedir;
-    info.valid = checkCaseDirectory(info, casedir, false, exact);
+    info.valid = checkCaseDirectory(info, casedir, false, exact, verbose);
 
-    std::cerr << " "
-              << "casedir: " << casedir << " " << std::endl
-              << "Number of processors: " << info.numblocks << std::endl
-              << "Number of time directories found: " << info.timedirs.size() << std::endl
-              << "Number of fields: " << info.constantFields.size() + info.varyingFields.size() << std::endl;
+    if (verbose) {
+        std::cerr << " "
+                  << "casedir: " << casedir << " " << std::endl
+                  << "Number of processors: " << info.numblocks << std::endl
+                  << "Number of time directories found: " << info.timedirs.size() << std::endl
+                  << "Number of fields: " << info.constantFields.size() + info.varyingFields.size() << std::endl;
+    }
 
     int np = info.numblocks > 0 ? info.numblocks : 1;
-    std::cerr << "  constant:";
+    if (verbose)
+        std::cerr << "  constant:";
     checkFields(info.constantFields, np, exact);
 
-    std::cerr << "  varying: ";
+    if (verbose)
+        std::cerr << "  varying: ";
     checkFields(info.varyingFields, np * int(info.timedirs.size()), exact);
 
     if (info.hasParticles)
     {
-        std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
+        if (verbose)
+            std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
         checkFields(info.particleFields, np * int(info.timedirs.size()), exact);
     }
     else
     {
-        std::cerr << "  no lagrangian data" << std::endl;
+        if (verbose)
+            std::cerr << "  no lagrangian data" << std::endl;
     }
 
     return info;
@@ -854,7 +859,7 @@ Boundaries loadBoundary(const std::string &meshdir)
 {
 
     Boundaries bounds;
-    boost::shared_ptr<std::istream> stream = getStreamForFile(meshdir, "boundary");
+    std::shared_ptr<std::istream> stream = getStreamForFile(meshdir, "boundary");
     if (!stream)
         return bounds;
 

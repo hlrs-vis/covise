@@ -890,42 +890,70 @@ void PropertyDialog::updateIcons()
 {
     QColor color;
 
-    color.setRedF(_diffuse[0]);
-    color.setGreenF(_diffuse[1]);
-    color.setBlueF(_diffuse[2]);
-    color.setAlphaF(_diffuse[3]);
+    bool valid = true;
+    for (int i=0; i<4; ++i)
+        if (_diffuse[i] < 0)
+            valid = false;
 
-    if (color.isValid())
+    if (valid)
+    {
+        color.setRedF(_diffuse[0]);
+        color.setGreenF(_diffuse[1]);
+        color.setBlueF(_diffuse[2]);
+        color.setAlphaF(_diffuse[3]);
+    }
+
+    if (valid && color.isValid())
     {
         diffuseP->fill(color);
         diffuseL->setPixmap(*diffuseP);
     }
 
-    color.setRedF(_specular[0]);
-    color.setGreenF(_specular[1]);
-    color.setBlueF(_specular[2]);
-    color.setAlphaF(_specular[3]);
-    if (color.isValid())
+    valid = true;
+    for (int i=0; i<4; ++i)
+        if (_specular[i] < 0)
+            valid = false;
+    if (valid) {
+        color.setRedF(_specular[0]);
+        color.setGreenF(_specular[1]);
+        color.setBlueF(_specular[2]);
+        color.setAlphaF(_specular[3]);
+    }
+    if (valid && color.isValid())
     {
         specularP->fill(color);
         specularL->setPixmap(*specularP);
     }
 
-    color.setRedF(_ambient[0]);
-    color.setGreenF(_ambient[1]);
-    color.setBlueF(_ambient[2]);
-    color.setAlphaF(_ambient[3]);
-    if (color.isValid())
+    valid = true;
+    for (int i=0; i<4; ++i)
+        if (_ambient[i] < 0)
+            valid = false;
+    if (valid)
+    {
+        color.setRedF(_ambient[0]);
+        color.setGreenF(_ambient[1]);
+        color.setBlueF(_ambient[2]);
+        color.setAlphaF(_ambient[3]);
+    }
+    if (valid && color.isValid())
     {
         ambientP->fill(color);
         ambientL->setPixmap(*ambientP);
     }
 
-    color.setRedF(_emissive[0]);
-    color.setGreenF(_emissive[1]);
-    color.setBlueF(_emissive[2]);
-    color.setAlphaF(_emissive[3]);
-    if (color.isValid())
+    valid = true;
+    for (int i=0; i<4; ++i)
+        if (_emissive[i] < 0)
+            valid = false;
+    if (valid)
+    {
+        color.setRedF(_emissive[0]);
+        color.setGreenF(_emissive[1]);
+        color.setBlueF(_emissive[2]);
+        color.setAlphaF(_emissive[3]);
+    }
+    if (valid && color.isValid())
     {
         emissiveP->fill(color);
         emissiveL->setPixmap(*emissiveP);

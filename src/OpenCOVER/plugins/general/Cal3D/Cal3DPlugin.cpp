@@ -247,6 +247,7 @@ Cal3dNode::Cal3dNode(VrmlScene *scene)
     myTransform = new osg::MatrixTransform;
     myTransform->setMatrix(osg::Matrix::rotate(-M_PI / 2.0, 1, 0, 0));
     myTransform->addChild(model);
+	model->setAutoUpdate(false); // update callbacks are disabled for performance reasons in VRML loaded scenes 
     d_materialSet = 0;
     d_animationId = -1;
     d_executeAction = -1;
@@ -257,6 +258,7 @@ Cal3dNode::Cal3dNode(VrmlScene *scene)
     d_fadeOutTime = 1.0;
     d_viewerObject = 0;
     currentAnimation = -1;
+	Cal3DPlugin::instance()->nodes.push_back(this);
 }
 
 Cal3dNode::~Cal3dNode()
@@ -400,6 +402,7 @@ Cal3DPlugin::Cal3DPlugin()
 {
     fprintf(stderr, "Cal3DPlugin::Cal3DPlugin\n");
     plugin = this;
+	oldT = cover->frameTime();
 }
 /*
 void Cal3DPlugin::tabletEvent(coTUIElement* tUIItem)
@@ -409,6 +412,15 @@ void Cal3DPlugin::tabletEvent(coTUIElement* tUIItem)
 void Cal3DPlugin::tabletPressEvent(coTUIElement* )
 {
 }*/
+bool
+Cal3DPlugin::update()
+{
+	for (auto it = nodes.begin(); it != nodes.end(); it++)
+	{
+		(*it)->update(cover->frameDuration());
+	}
+	return true;
+}
 
 // this is called if the plugin is removed at runtime
 Cal3DPlugin::~Cal3DPlugin()

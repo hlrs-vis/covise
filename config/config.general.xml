@@ -19,7 +19,6 @@
       <ScaleAll value="OFF" />
       <CoordAxis value="off" />
       <Freeze value="on" />
-      <GenStrips value="off" />
       <DebugLevel value="0" /> 
       <FPS value="off" />
       <ConstantInteractorSize value="Off"/>

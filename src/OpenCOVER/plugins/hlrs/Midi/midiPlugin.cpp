@@ -92,6 +92,8 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		md.mParam2 = (UCHAR)((dwParam1 >> 16) & 0xFF);
 		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
 		MidiPlugin::plugin->addEvent(me);
+		if(MidiPlugin::plugin->hMidiDeviceOut!=NULL)
+			midiOutMessage(MidiPlugin::plugin->hMidiDeviceOut,wMsg,dwParam1,dwParam2);
 	}
 		break;
 	case MIM_LONGDATA:
@@ -462,18 +464,32 @@ currentTrack = 0;
 		}
 		else
 		{
-		MMRESULT rv;
-		HMIDIIN hMidiDevice = NULL;
-		DWORD nMidiPort = 0;
-		rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
-		if (rv != MMSYSERR_NOERROR) {
-			fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
-			//return -1;
-		}
-		else
-		{
-			midiInStart(hMidiDevice);
-		}
+			MMRESULT rv;
+			HMIDIIN hMidiDevice = NULL;
+
+			DWORD nMidiPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi", 0);
+			rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
+			if (rv != MMSYSERR_NOERROR) {
+				fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
+				//return -1;
+			}
+			else
+			{
+				midiInStart(hMidiDevice);
+
+				MMRESULT rv;
+				DWORD MidiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
+				rv = midiOutOpen(&hMidiDeviceOut, MidiPortOut, 0, 0, CALLBACK_NULL);
+				if (rv != MMSYSERR_NOERROR) {
+					fprintf(stderr, "midiOutOpen() failed...rv=%d", rv);
+					//return -1;
+				}
+				else
+				{
+					midiInStart(hMidiDevice);
+				}
+			}
+
 		}
 
 #endif

@@ -193,13 +193,25 @@ int ReadFamu::compute(const char * /*port*/)
         //load and transform the block file
         float blockMoveVec3[3] = { moveIsol->getValue(0), moveIsol->getValue(1), moveIsol->getValue(2) };
         float blockScaleVec3[3] = { scaleIsol->getValue(0), scaleIsol->getValue(1), scaleIsol->getValue(2) };
-        const char *thirdFile;
-        thirdFile = _in_ThirdFile->getValue();
+        const char *thirdFile = _in_ThirdFile->getValue();
         char tempFile[256];
         if (FileExists(thirdFile) && _startSim->getValue())
         {
-            strncpy_s(tempFile, 256, thirdFile, strlen(thirdFile) - 10);
-            strncat_s((char *)tempFile, 256, "tempBlock.hmo", 13);
+            size_t len = strlen(thirdFile);
+            if (len >= 10)
+            {
+                if (len > 255)
+                    len = 255;
+                memcpy(tempFile, thirdFile, len-10);
+                tempFile[len] = '\0';
+            }
+            else
+            {
+                len = 0;
+                strcpy(tempFile, "");
+            }
+            if (len < 255)
+                strncpy(tempFile+len, "tempBlock.hmo", 256-len);
 
             transformBlock(thirdFile, tempFile, blockMoveVec3, blockScaleVec3);
         }

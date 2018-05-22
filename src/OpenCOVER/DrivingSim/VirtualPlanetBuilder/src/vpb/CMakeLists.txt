@@ -81,6 +81,7 @@ INCLUDE_DIRECTORIES(../../include ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ADD_COVISE_LIBRARY(coVPB SHARED ${VPB_SOURCES} ${VPB_HEADERS})
 if(NOT MSVC)
     add_covise_compile_flags(coVPB "-Wno-error=unused-result")
+    add_covise_compile_flags(coVPB "-Wno-error=deprecated-declarations")
 endif()
 TARGET_LINK_LIBRARIES(coVPB ${OPENSCENEGRAPH_LIBRARIES} ${EXTRA_LIBS})
 

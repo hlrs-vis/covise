@@ -412,12 +412,13 @@
  
 
   <COVER>
+   <SyncToVBlank value="ON" device="DFP-0"/>
 
    <ChannelConfig>
     <Channel comment="MAIN" channel="0" width="1920" stereoMode="HORIZONTAL_SPLIT" left="0" windowIndex="0" bottom="0" name="0" height="1080" />
    </ChannelConfig>
    <WindowConfig>
-    <Window ARCH="x11"     width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" VisualID="0x23" />
+    <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" />
    </WindowConfig>
 
   </COVER>
@@ -426,14 +427,15 @@
  </LOCAL>
 
 
- <LOCAL HOST="viscluster70," >
+ <LOCAL HOST="viscluster70" >
   <COVER>
+   <SyncToVBlank value="OFF" device="DFP-0"/>
 
    <ChannelConfig>
     <Channel comment="MAIN" channel="0" width="1" stereoMode="LEFT" left="0" windowIndex="0" bottom="0" name="0" height="1" />
    </ChannelConfig>
    <WindowConfig>
-   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" VisualID="0x23" />
+   <Window ARCH="x11"     width="1280" comment="MAIN" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" />
    </WindowConfig>
 
   </COVER>
@@ -441,21 +443,14 @@
 
  </LOCAL>
 
-
-
- <LOCAL HOST="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >
-
-
-
+ <LOCAL HOST="viscluster70,viscluster71,viscluster72,viscluster73,viscluster74,viscluster75,viscluster76,viscluster77,viscluster78,viscluster79" >  
   <COVER>
    <Snap value="OFF" />
    <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
-   <SyncToVBlank value="ON" device="DFP-0"/>
    <WriteVrmlViewpoint value="ON" />
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="ON" value="ON" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->

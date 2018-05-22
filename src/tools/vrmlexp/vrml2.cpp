@@ -4671,10 +4671,11 @@ VRML2Export::VrmlOutCal3D(Cal3DObject *obj, int level)
    MSTREAMPRINTF  ("Cal3DNode {\n"));
    if (Cal3DCoreHelper *core = obj->getCoreHelper())
    {
+	   std::wstring ws = core->getVRMLName();
        if (core->wasWritten())
        {
            Indent(level + 1);
-         MSTREAMPRINTF  ("core USE %s\n"), core->getVRMLName().c_str());
+         MSTREAMPRINTF  ("core USE %s\n"), ws.c_str());
        }
        else
        {
@@ -4683,7 +4684,10 @@ VRML2Export::VrmlOutCal3D(Cal3DObject *obj, int level)
          Indent(level + 1);
          MSTREAMPRINTF  ("{\n"));
          Indent(level + 2);
-         MSTREAMPRINTF  ("modelName \"%s\"\n"), core->getName().c_str());
+		 std::wstring ws;
+		 std::string s = core->getName();
+		 ws.assign(s.begin(), s.end());
+         MSTREAMPRINTF  ("modelName \"%s\"\n"), ws.c_str());
          Indent(level + 2);
          MSTREAMPRINTF  ("scale %s\n"), floatVal(obj->GetSize()));
          Indent(level + 1);

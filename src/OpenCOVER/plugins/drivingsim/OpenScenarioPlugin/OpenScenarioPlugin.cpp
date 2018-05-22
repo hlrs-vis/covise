@@ -97,6 +97,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 #endif
 	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 1);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.WriteRate", 0);
+    minSimulationStep = covise::coCoviseConfig::getFloat("COVER.Plugin.OpenScenario.MinSimulationStep", minSimulationStep);
+
 	coVRConfig::instance()->setFrameRate(frameRate);
 
 	scenarioManager = new ScenarioManager();
@@ -305,49 +307,52 @@ OpenScenarioPlugin::readTCPData(void *buf, unsigned int numBytes)
 	return true;
 }
 
-void OpenScenarioPlugin::preFrame()
+bool OpenScenarioPlugin::advanceTime(double step)
 {
-	scenarioManager->simulationTime = scenarioManager->simulationTime + opencover::cover->frameDuration();
-	//cout << "TIME: " << scenarioManager->simulationTime << endl;
-	list<Entity*> usedEntity;
-	list<Entity*> unusedEntity = scenarioManager->entityList;
-	list<Entity*> entityList_temp = scenarioManager->entityList;
-	entityList_temp.sort(); unusedEntity.sort();
-	scenarioManager->conditionManager();
+    scenarioManager->simulationStep = step;
+    scenarioManager->simulationTime += step;
+    //cout << "TIME: " << scenarioManager->simulationTime << endl;
+    list<Entity*> usedEntity;
+    list<Entity*> unusedEntity = scenarioManager->entityList;
+    list<Entity*> entityList_temp = scenarioManager->entityList;
+    entityList_temp.sort();unusedEntity.sort();
+    scenarioManager->conditionManager();
 
-	if (scenarioManager->scenarioCondition)
-	{
-		for (list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
-		{
-			Act* currentAct = (*act_iter);
-			//check act start conditions
-			if (currentAct->isRunning())
-			{
-				for (list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
-				{
-					Sequence* currentSequence = (*sequence_iter);
-					Maneuver* currentManeuver = currentSequence->activeManeuver;
-					if (currentManeuver != NULL)
-					{
-						Event* currentEvent = currentManeuver->activeEvent;
-						if (currentEvent != NULL)
-						{
-							for (list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
-							{
-								Entity* currentEntity = (*entity_iter);
-								for (list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
-								{
-									Action* currentAction = (*action_iter);
-									cout << "Entity Action: " << currentAction->name.getValue() << endl;
-									if (currentAction->Private.exists())
-									{
-										if (currentAction->Private->Routing.exists())
-										{
-											if (currentAction->Private->Routing.exists())
-											{
-												if (currentAction->Private->Routing->FollowTrajectory.exists())
-												{
-													Trajectory* currentTrajectory = currentAction->actionTrajectory;
+    if (!scenarioManager->scenarioCondition)
+        return false;
+
+    {
+        for(list<Act*>::iterator act_iter = scenarioManager->actList.begin(); act_iter != scenarioManager->actList.end(); act_iter++)
+        {
+            Act* currentAct = (*act_iter);
+            //check act start conditions
+            if (currentAct->isRunning())
+            {
+                for(list<Sequence*>::iterator sequence_iter = currentAct->sequenceList.begin(); sequence_iter != currentAct->sequenceList.end(); sequence_iter++)
+                {
+                    Sequence* currentSequence = (*sequence_iter);
+                    Maneuver* currentManeuver = currentSequence->activeManeuver;
+                    if(currentManeuver != NULL)
+                    {
+                        Event* currentEvent = currentManeuver->activeEvent;
+                        if(currentEvent != NULL)
+                        {
+                            for(list<Entity*>::iterator entity_iter = currentSequence->actorList.begin(); entity_iter != currentSequence->actorList.end(); entity_iter++)
+                            {
+                                Entity* currentEntity = (*entity_iter);
+                                for(list<Action*>::iterator action_iter = currentEvent->actionList.begin(); action_iter != currentEvent->actionList.end(); action_iter++)
+                                {
+                                    Action* currentAction = (*action_iter);
+                                    cout << "Entity Action: " << currentAction->name.getValue() << endl;
+                                    if(currentAction->Private.exists())
+                                    {
+                                        if (currentAction->Private->Routing.exists())
+                                        {
+                                            if (currentAction->Private->Routing.exists())
+                                            {
+                                                if(currentAction->Private->Routing->FollowTrajectory.exists())
+                                                {
+                                                    Trajectory* currentTrajectory = currentAction->actionTrajectory;
 
 													Position* currentPos;
 													// check if Trajectory is about to start or Entity arrived at vertice
@@ -406,19 +411,39 @@ void OpenScenarioPlugin::preFrame()
 		usedEntity.clear();
 		scenarioManager->resetReferencePositionStatus();
 
-	}
-	else
-	{
-		// Scenario end
+    }
 
-		bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
-		if (doExit)
-		{
-			OpenCOVER::instance()->setExitFlag(true);
-			coVRPluginList::instance()->requestQuit(true);
-		}
-		//fprintf(stderr, "END\n");
-	}
+    return true;
+}
+
+
+void OpenScenarioPlugin::preFrame()
+{
+    double step = cover->frameDuration();
+    int nsteps = 1;
+    if (minSimulationStep > 0)
+        nsteps = step/minSimulationStep;
+    if (nsteps < 1)
+        nsteps = 1;
+
+    double s = step/nsteps;
+    for (int i=0; i<nsteps; ++i)
+    {
+        if (!advanceTime(s))
+        {
+            // Scenario end
+
+            bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
+            if (doExit)
+            {
+                OpenCOVER::instance()->setExitFlag(true);
+                coVRPluginList::instance()->requestQuit(true);
+            }
+            //fprintf(stderr, "END\n");
+
+            break;
+        }
+    }
 
 	if (currentCamera != NULL)
 		currentCamera->updateView();

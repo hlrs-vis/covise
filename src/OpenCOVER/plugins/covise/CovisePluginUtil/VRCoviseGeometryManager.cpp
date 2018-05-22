@@ -50,7 +50,7 @@
 #include <osg/AlphaFunc>
 #include <osg/ColorMask>
 #include <osg/PolygonOffset>
-#include <osgUtil/TriStripVisitor>
+#include <osgUtil/SmoothingVisitor>
 #include <cover/coVRFileManager.h>
 #include "VRCoviseGeometryManager.h"
 #include <cover/coVRLighting.h>
@@ -60,6 +60,7 @@
 #include <cover/coVRConfig.h>
 #include <PluginUtil/coSphere.h>
 #include <PluginUtil/StaticSequence.h>
+#include <PluginUtil/Tipsify.h>
 #include <cover/RenderObject.h>
 #include <do/coDoData.h>
 
@@ -67,10 +68,35 @@
 #include <osg/Shader>
 #include <osg/Uniform>
 
+static double AlphaThreshold = 0.01;
+static float CreaseAngle = M_PI*0.25;
+
 using namespace opencover;
 using namespace covise;
 void createXYPlane(int xmin, int xmax, int ymin, int ymax, int zmin, int xsize, int ysize,
                    osg::Vec3 *coordArray);
+
+inline osg::Vec4 getColor(bool *transparent, int idx, int colorpacking, const int *pc, const float *r=nullptr, const float *g=nullptr, const float *b=nullptr, float transparency=0.f)
+{
+    assert(colorpacking != Pack::Float);
+
+    if (colorpacking == Pack::RGBA)
+    {
+        float r, g, b, a;
+        unpackRGBA(pc, idx, &r, &g, &b, &a);
+        if (a < 1.0 && a > 0.0 && transparent)
+        {
+            *transparent = true;
+        }
+        return osg::Vec4(r, g, b, a);
+    }
+    else
+    {
+        if (transparency > 0.f && transparency < 1.f && transparent)
+            *transparent = true;
+        return osg::Vec4(r[idx], g ? g[idx] : r[idx], b ? b[idx] : r[idx], 1.0f - transparency);
+    }
+}
 
 GeometryManager *GeometryManager::instance()
 {
@@ -83,9 +109,6 @@ GeometryManager *GeometryManager::instance()
 GeometryManager::GeometryManager()
 {
     backfaceCulling = coCoviseConfig::isOn("COVER.BackfaceCulling", false);
-
-    d_stripper = new osgUtil::TriStripVisitor;
-    genStrips = coCoviseConfig::isOn("COVER.GenStrips", false);
 
     d_kdtreeBuilder = new osg::KdTreeBuilder;
 
@@ -267,7 +290,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                         {
                             float r, g, b, a;
                             unpackRGBA(pc, idx, &r, &g, &b, &a);
-                            if (a < 1.0f)
+                            if (a < 1.0f && a > 0.0f)
                             {
                                 transparent = true;
                             }
@@ -282,7 +305,7 @@ osg::Node *GeometryManager::addUGrid(const char *object,
                         }
                         else if (rc && gc && bc)
                         {
-                            if (transparency > 0.f)
+                            if (transparency > 0.f && transparency < 1.f)
                                 transparent = true;
                             rgba[0] = rc[idx]*255.99f;
                             rgba[1] = gc[idx]*255.99f;
@@ -718,6 +741,10 @@ void GeometryManager::setDefaultMaterial(osg::StateSet *geoState, bool transpare
     }
     geoState->setNestRenderBins(false);
 
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+
     if (isLightingOn)
     {
         geoState->setMode(GL_LIGHTING, osg::StateAttribute::ON);
@@ -838,142 +865,114 @@ GeometryManager::addPolygon(const char *object_name,
     bool transparent = false;
     if (no_of_colors && material == NULL && image == NULL) // material should overwrite object colors, so ignore them if a material is present
     {
-
-        switch (colorbinding)
+        if (colorpacking == Pack::Float)
         {
-        case Bind::PerVertex:
-        {
-            //fprintf(stderr,"COVER INFO: colorbinding per vertex\n");
-
-            osg::Vec4Array *colArr = new osg::Vec4Array();
-
-            if (indexed)
+            int attribIdx = 0;
+            osg::FloatArray *dataArr = new osg::FloatArray();
+            geom->setVertexAttribArray(attribIdx, dataArr);
+            switch (colorbinding)
             {
-                for (int i=0; i<no_of_colors; ++i)
+            case Bind::PerVertex:
+                geom->setVertexAttribBinding(attribIdx, osg::Geometry::BIND_PER_VERTEX);
+                if (indexed)
                 {
-                    if (colorpacking == Pack::RGBA)
+                    for (int i=0; i<no_of_coords; ++i)
                     {
-                        float r, g, b, a;
-                        unpackRGBA(pc, i, &r, &g, &b, &a);
-                        if (a < 1.0)
-                        {
-                            transparent = true;
-                        }
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                    }
-                    else
-                    {
-                        if (transparency > 0.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
+                        dataArr->push_back(r[i]);
                     }
                 }
-            }
-            else
-            {
-                for (int i = 0; i < no_of_polygons; i++)
+                else
                 {
-                    int numv;
-                    if (i == no_of_polygons - 1)
-                        numv = no_of_vertices - i_l[i];
-                    else
-                        numv = i_l[i + 1] - i_l[i];
-                    for (int n = 0; n < numv; n++)
+                    for (int i = 0; i < no_of_polygons; i++)
                     {
-                        int v = v_l[i_l[i] + n];
-                        if (colorpacking == Pack::RGBA)
-                        {
-                            float r, g, b, a;
-                            unpackRGBA(pc, v, &r, &g, &b, &a);
-                            if (a < 1.0)
-                            {
-                                transparent = true;
-                            }
-                            colArr->push_back(osg::Vec4(r, g, b, a));
-                        }
+                        int numv;
+                        if (i == no_of_polygons - 1)
+                            numv = no_of_vertices - i_l[i];
                         else
+                            numv = i_l[i + 1] - i_l[i];
+                        for (int n = 0; n < numv; n++)
                         {
-                            if (transparency > 0.f)
-                                transparent = true;
-                            colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
+                            int v = v_l[i_l[i] + n];
+                            dataArr->push_back(r[v]);
                         }
                     }
                 }
+                break;
+            case Bind::PerFace:
+                geom->setVertexAttribBinding(attribIdx, osg::Geometry::BIND_PER_VERTEX);
+                break;
+            case Bind::OverAll:
+                geom->setVertexAttribBinding(attribIdx, osg::Geometry::BIND_OVERALL);
+                break;
             }
-            geom->setColorArray(colArr);
-            geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
         }
-        break;
-
-        case Bind::OverAll:
+        else
         {
-            if (colorpacking == Pack::RGBA)
+            switch (colorbinding)
             {
-                osg::Vec4Array *colArr = new osg::Vec4Array();
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
-                {
-                    transparent = true;
-                }
-                colArr->push_back(osg::Vec4(r, g, b, a));
+            case Bind::PerVertex:
+            {
+                //fprintf(stderr,"COVER INFO: colorbinding per vertex\n");
 
-                geom->setColorArray(colArr);
-            }
-            else
-            {
                 osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
-                geom->setColorArray(colArr);
-            }
-            geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-        }
-        break;
 
-        case Bind::PerFace:
-        {
-            osg::Vec4Array *colArr = new osg::Vec4Array();
-            if (colorpacking == Pack::RGBA)
-            {
-                for (int i = 0; i < no_of_polygons; i++)
+                if (indexed)
                 {
-                    float r, g, b, a;
-                    unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
+                    for (int i=0; i<no_of_colors; ++i)
                     {
-                        transparent = true;
+                        colArr->push_back(getColor(&transparent, i, colorpacking, pc, r, g, b, transparency));
                     }
-                    int numv;
-                    if (i == no_of_polygons - 1)
-                        numv = no_of_vertices - i_l[i];
-                    else
-                        numv = i_l[i + 1] - i_l[i];
-                    for (int j = 0; j < numv; ++j)
-                        colArr->push_back(osg::Vec4(r, g, b, a));
                 }
+                else
+                {
+                    for (int i = 0; i < no_of_polygons; i++)
+                    {
+                        int numv;
+                        if (i == no_of_polygons - 1)
+                            numv = no_of_vertices - i_l[i];
+                        else
+                            numv = i_l[i + 1] - i_l[i];
+                        for (int n = 0; n < numv; n++)
+                        {
+                            int v = v_l[i_l[i] + n];
+                            auto c = getColor(&transparent, v, colorpacking, pc, r, g, b, transparency);
+                            colArr->push_back(c);
+                        }
+                    }
+                }
+                geom->setColorArray(colArr);
+                geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
             }
-            else
+                break;
+
+            case Bind::OverAll:
             {
+                osg::Vec4Array *colArr = new osg::Vec4Array();
+                colArr->push_back(getColor(&transparent, 0, colorpacking, pc, r, g, b, transparency));
+                geom->setColorArray(colArr);
+                geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+                break;
+            }
+
+            case Bind::PerFace:
+            {
+                osg::Vec4Array *colArr = new osg::Vec4Array();
                 for (int i = 0; i < no_of_polygons; i++)
                 {
-                    if (transparency > 0.f)
-                        transparent = true;
-
+                    auto c = getColor(&transparent, i, colorpacking, pc, r, g, b, transparency);
                     int numv;
                     if (i == no_of_polygons - 1)
                         numv = no_of_vertices - i_l[i];
                     else
                         numv = i_l[i + 1] - i_l[i];
                     for (int j = 0; j < numv; ++j)
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
+                        colArr->push_back(c);
                 }
+                geom->setColorArray(colArr);
+                geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+                break;
             }
-            geom->setColorArray(colArr);
-            geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-        }
-        break;
+            }
         }
     }
     else
@@ -1070,89 +1069,6 @@ GeometryManager::addPolygon(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        if (indexed)
-        {
-            normalArray->resize(no_of_coords);
-        }
-
-        // create one normal per polygon and use it for all vertices
-        for (int i = 0; i < no_of_polygons; i++)
-        {
-            int base = i_l[i];
-            int numv;
-            if (i == no_of_polygons - 1)
-                numv = no_of_vertices - base;
-            else
-                numv = i_l[i + 1] - base;
-
-            int v = v_l[base + 0];
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[base + 1];
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            int vert = 2;
-            while (v1.length2() < 1E-16 && vert < numv - 1)
-            {
-                v = v_l[base + vert];
-                p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v1 = p1 - p0;
-                vert++;
-            }
-            v = v_l[base + vert];
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v2 = p2 - p0;
-            while (v2.length2() < 1E-16 && vert < numv)
-            {
-                v = v_l[base + vert];
-                p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v2 = p2 - p0;
-                vert++;
-            }
-            v1.normalize();
-            v2.normalize();
-            osg::Vec3 vn = v1 ^ v2;
-            while (vn.length2() < 1E-2 && vert < numv)
-            {
-                v = v_l[base + vert];
-                p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-                v2 = p2 - p0;
-                vert++;
-                if (v2.length2() < 1E-16 && vert < numv)
-                {
-                    continue;
-                }
-                v2.normalize();
-                vn = v1 ^ v2;
-            }
-            vn.normalize();
-
-            if (indexed)
-            {
-                for (int n=0; n<numv; ++n)
-                {
-                    (*normalArray)[v_l[base+n]] += vn;
-                }
-            }
-            else
-            {
-                for (int n = 0; n < numv; n++)
-                {
-                normalArray->push_back(vn);
-                }
-            }
-        }
-        if (indexed)
-        {
-            for (int i=0; i<no_of_coords; ++i)
-                (*normalArray)[i].normalize();
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1235,18 +1151,27 @@ GeometryManager::addPolygon(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
+    if (no_of_normals == 0)
     {
-        d_stripper->stripify(*geom);
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
     }
+
+    for (auto &ps: geom->getPrimitiveSetList())
+    {
+        if (auto de = dynamic_cast<osg::DrawElementsUInt *>(ps.get()))
+        {
+            tipsify(&(*de)[0], de->size());
+        }
+    }
+
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif
@@ -1307,7 +1232,6 @@ GeometryManager::addTriangles(const char *object_name,
     bool transparent = false;
     if (no_of_colors && material == NULL && image == NULL) // material should overwrite object colors, so ignore them if a material is present
     {
-
         switch (colorbinding)
         {
         case Bind::PerVertex:
@@ -1322,88 +1246,38 @@ GeometryManager::addTriangles(const char *object_name,
                 {
                     int v = v_l[vn];
                     vn++;
-                    if (colorpacking == Pack::RGBA)
-                    {
-                        float r, g, b, a;
-                        unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
-                        {
-                            transparent = true;
-                        }
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                    }
-                    else
-                    {
-                        if (transparency > 0.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
-                    }
+                    auto c = getColor(&transparent, v, colorpacking, pc, r, g, b, transparency);
+                    colArr->push_back(c);
                 }
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
 
         case Bind::OverAll:
         {
-            if (colorpacking == Pack::RGBA)
-            {
-                osg::Vec4Array *colArr = new osg::Vec4Array();
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
-                {
-                    transparent = true;
-                }
-                colArr->push_back(osg::Vec4(r, g, b, a));
-
-                geom->setColorArray(colArr);
-            }
-            else
-            {
-                osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
-                geom->setColorArray(colArr);
-            }
+            osg::Vec4Array *colArr = new osg::Vec4Array();
+            auto c = getColor(&transparent, 0, colorpacking, pc, r, g, b, transparency);
+            colArr->push_back(c);
+            geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+            break;
         }
-        break;
 
         case Bind::PerFace:
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            if (colorpacking == Pack::RGBA)
+            for (int i = 0; i < no_of_triangles; i++)
             {
-                for (int i = 0; i < no_of_triangles; i++)
-                {
-                    float r, g, b, a;
-                    unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
-                    {
-                        transparent = true;
-                    }
-                    for (int j = 0; j < 3; ++j)
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                }
-            }
-            else
-            {
-                for (int i = 0; i < no_of_triangles; i++)
-                {
-                    if (transparency > 0.f)
-                        transparent = true;
-
-                    for (int j = 0; j < 3; ++j)
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
-                }
+                auto c = getColor(&transparent, i, colorpacking, pc, r, g, b, transparency);
+                for (int j = 0; j < 3; ++j)
+                    colArr->push_back(c);
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
         }
     }
     else
@@ -1477,31 +1351,6 @@ GeometryManager::addTriangles(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        vn = 0;
-        for (int i = 0; i < no_of_triangles; i++)
-        {
-            int v = v_l[vn];
-            vn++;
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            osg::Vec3 v2 = p2 - p1;
-            osg::Vec3 vn = v1 ^ v2;
-            vn.normalize();
-            for (int j = 0; j < 3; ++j)
-                normalArray->push_back(vn);
-        }
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1555,18 +1404,19 @@ GeometryManager::addTriangles(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
+    if (no_of_normals == 0)
     {
-        d_stripper->stripify(*geom);
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
     }
+
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif
@@ -1642,22 +1492,8 @@ GeometryManager::addQuads(const char *object_name,
                 {
                     int v = v_l[vn];
                     vn++;
-                    if (colorpacking == Pack::RGBA)
-                    {
-                        float r, g, b, a;
-                        unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
-                        {
-                            transparent = true;
-                        }
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                    }
-                    else
-                    {
-                        if (transparency > 0.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
-                    }
+                    auto c = getColor(&transparent, v, colorpacking, pc, r, g, b, transparency);
+                    colArr->push_back(c);
                 }
             }
             geom->setColorArray(colArr);
@@ -1669,65 +1505,29 @@ GeometryManager::addQuads(const char *object_name,
         {
             //fprintf(stderr,"COVER INFO: colorbinding over all\n");
 
-            if (colorpacking == Pack::RGBA)
-            {
-                osg::Vec4Array *colArr = new osg::Vec4Array();
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
-                {
-                    transparent = true;
-                }
-                colArr->push_back(osg::Vec4(r, g, b, a));
-
-                geom->setColorArray(colArr);
-            }
-            else
-            {
-                osg::Vec4Array *colArr = new osg::Vec4Array();
-                if (transparency > 0.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
-                geom->setColorArray(colArr);
-            }
+            auto c = getColor(&transparent, 0, colorpacking, pc, r, g, b, transparency);
+            osg::Vec4Array *colArr = new osg::Vec4Array();
+            colArr->push_back(c);
+            geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+            break;
         }
-        break;
 
         case Bind::PerFace:
         {
             //fprintf(stderr,"COVER INFO: colorbinding per face\n");
 
             osg::Vec4Array *colArr = new osg::Vec4Array();
-            if (colorpacking == Pack::RGBA)
+            for (int i = 0; i < no_of_quads; i++)
             {
-                for (int i = 0; i < no_of_quads; i++)
-                {
-                    float r, g, b, a;
-                    unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.0)
-                    {
-                        transparent = true;
-                    }
-                    for (int j = 0; j < 4; ++j)
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                }
-            }
-            else
-            {
-                for (int i = 0; i < no_of_quads; i++)
-                {
-                    if (transparency > 0.f)
-                        transparent = true;
-
-                    for (int j = 0; j < 4; ++j)
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
-                }
+                auto c = getColor(&transparent, i, colorpacking, pc, r, g, b, transparency);
+                for (int j = 0; j < 4; ++j)
+                    colArr->push_back(c);
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
         }
     }
     else
@@ -1801,33 +1601,6 @@ GeometryManager::addQuads(const char *object_name,
         break;
         }
     }
-    else
-    {
-        osg::Vec3Array *normalArray = new osg::Vec3Array();
-        vn = 0;
-        // create one normal per polygon and use it for all vertices
-        for (int i = 0; i < no_of_quads; i++)
-        {
-            int v = v_l[vn];
-            vn++;
-            osg::Vec3 p0 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p1 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            v = v_l[vn];
-            vn++;
-            osg::Vec3 p2 = osg::Vec3(x_c[v], y_c[v], z_c[v]);
-            osg::Vec3 v1 = p1 - p0;
-            osg::Vec3 v2 = p2 - p1;
-            osg::Vec3 vn = v1 ^ v2;
-            vn.normalize();
-            for (int j = 0; j < 4; ++j)
-                normalArray->push_back(vn);
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -1881,18 +1654,19 @@ GeometryManager::addQuads(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
 
     geode->setStateSet(geoState);
 
-    if (genStrips)
+    if (no_of_normals == 0)
     {
-        d_stripper->stripify(*geom);
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
     }
+
 #if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
     d_kdtreeBuilder->apply(*geom);
 #endif
@@ -2059,51 +1833,24 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
                 for (int n = 0; n < numv; n++)
                 {
                     int v = v_l[i_l[i] + n];
-                    if (colorpacking == Pack::RGBA)
-                    {
-                        float r, g, b, a;
-                        unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.0)
-                        {
-                            transparent = true;
-                        }
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                    }
-                    else
-                    {
-                        if (transparency > 0.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f - transparency));
-                    }
+                    auto c = getColor(&transparent, v, colorpacking, pc, r, g, b, transparency);
+                    colArr->push_back(c);
                 }
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
 
         case Bind::OverAll:
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-
-            if (colorpacking == Pack::RGBA)
-            {
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.0)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r, g, b, a));
-            }
-            else
-            {
-                if (transparency > 0.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f - transparency));
-            }
+            auto c = getColor(&transparent, 0, colorpacking, pc, r, g, b, transparency);
+            colArr->push_back(c);
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+            break;
         }
-        break;
 
         case Bind::PerFace:
         {
@@ -2117,20 +1864,8 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
                     numv = i_l[i + 1] - i_l[i];
                 for (int n = 0; n < numv; n++)
                 {
-                    if (colorpacking == Pack::RGBA)
-                    {
-                        float r, g, b, a;
-                        unpackRGBA(pc, i, &r, &g, &b, &a);
-                        if (a < 1.0)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                    }
-                    else
-                    {
-                        if (transparency > 0.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f - transparency));
-                    }
+                    auto c = getColor(&transparent, i, colorpacking, pc, r, g, b, transparency);
+                    colArr->push_back(c);
                 }
             }
             geom->setColorArray(colArr);
@@ -2213,73 +1948,6 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
         break;
         }
     }
-    else
-    {
-        std::vector<int> num_tri(no_of_vertices);
-        std::vector<osg::Vec3> norm(no_of_vertices);
-
-        // create one normal per strip and use it for all vertices
-        for (int i = 0; i < no_of_strips; i++)
-        {
-            int begin = i_l[i], end = no_of_vertices;
-            if (i < no_of_strips-1)
-                end = i_l[i+1];
-            int numv = end - begin;
-
-            int v0 = v_l[begin + 0];
-            int v1 = v_l[begin + 1];
-
-            for (int n=2; n<numv; ++n)
-            {
-                int v2 = v_l[begin + n];
-
-                osg::Vec3 p0 = osg::Vec3(x_c[v0], y_c[v0], z_c[v0]);
-                osg::Vec3 p1 = osg::Vec3(x_c[v1], y_c[v1], z_c[v1]);
-                osg::Vec3 p2 = osg::Vec3(x_c[v2], y_c[v2], z_c[v2]);
-                osg::Vec3 e1 = p1 - p0;
-                osg::Vec3 e2 = p2 - p1;
-                osg::Vec3 vn = e1 ^ e2;
-                if (n%2)
-                    vn = -vn;
-                vn.normalize();
-
-                ++num_tri[v0];
-                norm[v0] += vn;
-                ++num_tri[v1];
-                norm[v1] += vn;
-                ++num_tri[v2];
-                norm[v2] += vn;
-
-                v0 = v1;
-                v1 = v2;
-            }
-        }
-
-        for (int i=0; i<no_of_vertices; ++i)
-        {
-            if (num_tri[i] > 0)
-                norm[i] /= num_tri[i];
-        }
-
-        osg::Vec3Array *normalArray = new osg::Vec3Array;
-        for (int i = 0; i < no_of_strips; i++)
-        {
-            int numv;
-            if (i == no_of_strips - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            for (int n = 0; n < numv; n++)
-            {
-                int v = v_l[i_l[i] + n];
-
-                normalArray->push_back(norm[v]);
-            }
-        }
-
-        geom->setNormalArray(normalArray);
-        geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
 
     if (no_of_texCoords)
     {
@@ -2341,11 +2009,20 @@ osg::Node *GeometryManager::addTriangleStrip(const char *object_name,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     setTexture(image, pixelSize, texWidth, texHeight, geoState, wm, minfm, magfm);
+
+    if (no_of_normals == 0)
+    {
+        osgUtil::SmoothingVisitor::smooth(*geom, CreaseAngle);
+    }
+
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+    d_kdtreeBuilder->apply(*geom);
+#endif
 
     geode->setStateSet(geoState);
 
@@ -2563,36 +2240,97 @@ osg::Node *GeometryManager::addLine(const char *object_name,
         return g;
     }
 
+    bool linestrips = true;
+    bool indexed = true;
+    if (no_of_colors>0 && (colorbinding != Bind::PerVertex || no_of_colors != no_of_coords) && (colorbinding != Bind::OverAll || no_of_colors!=1))
+    {
+        //std::cerr << object_name << " not indexing b/c color: #color=" << no_of_colors << ", #coords=" << no_of_coords  << std::endl;
+        indexed = false;
+    }
+    if (no_of_colors>0 && (colorbinding == Bind::PerFace))
+        linestrips = false;
+
+    if (no_of_normals>0 && (normalbinding != Bind::PerVertex || no_of_normals != no_of_coords) && (normalbinding != Bind::OverAll || no_of_normals!=1))
+    {
+        //std::cerr << object_name << " not indexing b/c normals" << std::endl;
+        indexed = false;
+    }
+    if (no_of_normals>0 && (normalbinding == Bind::PerFace))
+        linestrips = false;
+
+    if (no_of_texCoords>1 && no_of_texCoords != no_of_coords)
+    {
+        //std::cerr << object_name << " not indexing b/c texcoords" << std::endl;
+        indexed = false;
+    }
+    if (no_of_texCoords>1 && no_of_texCoords == no_of_lines)
+        linestrips = false;
+
+    if (linestrips == false)
+        indexed = false;
+
     osg::Geode *geode = new osg::Geode();
     geode->setName(object_name);
     osg::Geometry *geom = new osg::Geometry();
     cover->setRenderStrategy(geom);
 
+    int no_of_line_segments = 0;
+
     // set up geometry
     osg::Vec3Array *vert = new osg::Vec3Array;
-    osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
-    for (int i = 0; i < no_of_lines; i++)
+    if (linestrips)
     {
-        int numv;
-        if (i == no_of_lines - 1)
-            numv = no_of_vertices - i_l[i];
-        else
-            numv = i_l[i + 1] - i_l[i];
-        primitives->push_back(numv);
-        for (int n = 0; n < numv; n++)
+        osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
+        for (int i = 0; i < no_of_lines; i++)
         {
-            int v = v_l[i_l[i] + n];
-            vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+            int numv;
+            if (i == no_of_lines - 1)
+                numv = no_of_vertices - i_l[i];
+            else
+                numv = i_l[i + 1] - i_l[i];
+            primitives->push_back(numv);
+            for (int n = 0; n < numv; n++)
+            {
+                int v = v_l[i_l[i] + n];
+                vert->push_back(osg::Vec3(x_c[v], y_c[v], z_c[v]));
+            }
         }
+        geom->addPrimitiveSet(primitives);
+    }
+    else
+    {
+        for (int i = 0; i < no_of_lines; i++)
+        {
+            int numv;
+            if (i == no_of_lines - 1)
+                numv = no_of_vertices - i_l[i];
+            else
+                numv = i_l[i + 1] - i_l[i];
+            if (numv >= 2)
+                no_of_line_segments += numv-1;
+            osg::Vec3 prev;
+            for (int n = 0; n < numv; n++)
+            {
+                int v = v_l[i_l[i] + n];
+                osg::Vec3 vec(x_c[v], y_c[v], z_c[v]);
+
+                if (n > 0)
+                {
+                    vert->push_back(vec);
+                    vert->push_back(prev);
+                }
+                prev = vec;
+            }
+        }
+        osg::DrawArrays *primitives = new osg::DrawArrays(osg::PrimitiveSet::LINES, 0, no_of_line_segments);
+        geom->addPrimitiveSet(primitives);
     }
     geom->setVertexArray(vert);
-    geom->addPrimitiveSet(primitives);
 
     // associate colors
     bool transparent = false;
     if (no_of_colors && material == NULL && image == NULL) // material should overwrite object colors, so ignore them if a material is present
     {
-
         switch (colorbinding)
         {
         case Bind::PerVertex:
@@ -2601,55 +2339,76 @@ osg::Node *GeometryManager::addLine(const char *object_name,
 
             osg::Vec4Array *colArr = new osg::Vec4Array();
 
-            for (int i = 0; i < no_of_lines; i++)
+            if (linestrips)
             {
-                int numv;
-                if (i == no_of_lines - 1)
-                    numv = no_of_vertices - i_l[i];
-                else
-                    numv = i_l[i + 1] - i_l[i];
-                for (int n = 0; n < numv; n++)
+                if (indexed)
                 {
-                    int v = v_l[i_l[i] + n];
-                    if (colorpacking == Pack::RGBA)
+                    for (int i=0; i<no_of_colors; ++i)
                     {
-                        float r, g, b, a;
-                        unpackRGBA(pc, v, &r, &g, &b, &a);
-                        if (a < 1.f)
-                            transparent = true;
-                        colArr->push_back(osg::Vec4(r, g, b, a));
+                        auto c = getColor(&transparent, i, colorpacking, pc, r, g, b);
+                        colArr->push_back(c);
                     }
+                }
+                else
+                {
+                    for (int i = 0; i < no_of_lines; i++)
+                    {
+                        int numv;
+                        if (i == no_of_lines - 1)
+                            numv = no_of_vertices - i_l[i];
+                        else
+                            numv = i_l[i + 1] - i_l[i];
+                        for (int n = 0; n < numv; n++)
+                        {
+                            int v = v_l[i_l[i] + n];
+                            auto c = getColor(&transparent, v, colorpacking, pc, r, g, b);
+                            colArr->push_back(c);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < no_of_lines; i++)
+                {
+                    int numv;
+                    if (i == no_of_lines - 1)
+                        numv = no_of_vertices - i_l[i];
                     else
-                        colArr->push_back(osg::Vec4(r[v], g ? g[v] : r[v], b ? b[v] : r[v], 1.0f));
+                        numv = i_l[i + 1] - i_l[i];
+                    if (numv < 2)
+                        continue;
+
+                    int v = v_l[i_l[i]];
+                    auto c = getColor(&transparent, v, colorpacking, pc, r, g, b);
+                    for (int n = 1; n < numv; n++)
+                    {
+                        colArr->push_back(c);
+                        v = v_l[i_l[i] + n];
+                        c = getColor(&transparent, v, colorpacking, pc, r, g, b);
+                        colArr->push_back(c);
+                    }
                 }
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
 
         case Bind::OverAll:
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-
-            if (colorpacking == Pack::RGBA)
-            {
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r, g, b, a));
-            }
-            else
-                colArr->push_back(osg::Vec4(r[0], g[0], b[0], 1.0f));
+            auto c = getColor(&transparent, 0, colorpacking, pc, r, g, b);
+            colArr->push_back(c);
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+            break;
         }
-        break;
-
         case Bind::PerFace:
         {
+            assert(!linestrips);
             osg::Vec4Array *colArr = new osg::Vec4Array();
+            int idx = 0;
             for (int i = 0; i < no_of_lines; i++)
             {
                 int numv;
@@ -2657,25 +2416,20 @@ osg::Node *GeometryManager::addLine(const char *object_name,
                     numv = no_of_vertices - i_l[i];
                 else
                     numv = i_l[i + 1] - i_l[i];
-                if (colorpacking == Pack::RGBA)
+                if (numv < 2)
+                    continue;
+                for (int n = 0; n < numv-1; n++)
                 {
-                    float r, g, b, a;
-                    unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.f)
-                        transparent = true;
-                    for (int n = 0; n < numv; n++)
-                        colArr->push_back(osg::Vec4(r, g, b, a));
-                }
-                else
-                {
-                    for (int n = 0; n < numv; n++)
-                        colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f));
+                    auto c = getColor(&transparent, idx, colorpacking, pc, r, g, b);
+                    colArr->push_back(c);
+                    colArr->push_back(c);
+                    ++idx;
                 }
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+            break;
         }
-        break;
         }
     }
     else
@@ -2783,19 +2537,74 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     {
         osg::Vec2Array *tcArray = new osg::Vec2Array();
 
-        for (int i = 0; i < no_of_lines; i++)
+        if (no_of_texCoords == 1)
         {
-            int numv;
-            if (i == no_of_lines - 1)
-                numv = no_of_vertices - i_l[i];
-            else
-                numv = i_l[i + 1] - i_l[i];
-            for (int n = 0; n < numv; n++)
+            tcArray->push_back(osg::Vec2(tx[0], ty[0]));
+            tcArray->setBinding(osg::Array::BIND_OVERALL);
+        }
+        else if (no_of_texCoords == no_of_coords)
+        {
+            if (indexed)
             {
-                int v = v_l[i_l[i] + n];
-                tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                for (int i=0; i<no_of_texCoords; ++i)
+                    tcArray->push_back(osg::Vec2(tx[i], ty[i]));
+            }
+            else
+            {
+                for (int i = 0; i < no_of_lines; i++)
+                {
+                    int numv;
+                    if (i == no_of_lines - 1)
+                        numv = no_of_vertices - i_l[i];
+                    else
+                        numv = i_l[i + 1] - i_l[i];
+                    for (int n = 0; n < numv; n++)
+                    {
+                        int v = v_l[i_l[i] + n];
+                        tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                    }
+
+                }
             }
         }
+        else if (no_of_texCoords == no_of_lines)
+        {
+            int idx = 0;
+            for (int i = 0; i < no_of_lines; i++)
+            {
+                int numv;
+                if (i == no_of_lines - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+                for (int n = 0; n < numv; n++)
+                {
+                    tcArray->push_back(osg::Vec2(tx[idx], ty[idx]));
+                }
+                ++idx;
+            }
+        }
+        else if (no_of_texCoords == no_of_line_segments)
+        {
+            for (int i = 0; i < no_of_lines; i++)
+            {
+                int numv;
+                if (i == no_of_lines - 1)
+                    numv = no_of_vertices - i_l[i];
+                else
+                    numv = i_l[i + 1] - i_l[i];
+                if (numv < 2)
+                    continue;
+                int v = v_l[i_l[i]];
+                for (int n = 1; n < numv; n++)
+                {
+                    tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                    v = v_l[i_l[i]+n];
+                    tcArray->push_back(osg::Vec2(tx[v], ty[v]));
+                }
+            }
+        }
+
         geom->setTexCoordArray(0, tcArray);
     }
 
@@ -2805,10 +2614,10 @@ osg::Node *GeometryManager::addLine(const char *object_name,
     geoState->setAttributeAndModes(blendFunc,
                                    osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
 
     geoState->setAttributeAndModes(alphaFunc,
-                                   osg::StateAttribute::OFF);
+                                   osg::StateAttribute::ON);
 
     osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
     geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
@@ -2870,16 +2679,8 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
 
             for (int i = 0; i < no_of_points; i++)
             {
-                if (colorpacking == Pack::RGBA)
-                {
-                    float r, g, b, a;
-                    unpackRGBA(pc, i, &r, &g, &b, &a);
-                    if (a < 1.f)
-                        transparent = true;
-                    colArr->push_back(osg::Vec4(r, g, b, a));
-                }
-                else
-                    colArr->push_back(osg::Vec4(r[i], g ? g[i] : r[i], b ? b[i] : r[i], 1.0f));
+                auto c = getColor(&transparent, i, colorpacking, pc, r, g, b);
+                colArr->push_back(c);
             }
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
@@ -2889,21 +2690,12 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
         case Bind::OverAll:
         {
             osg::Vec4Array *colArr = new osg::Vec4Array();
-
-            if (colorpacking == Pack::RGBA)
-            {
-                float r, g, b, a;
-                unpackRGBA(pc, 0, &r, &g, &b, &a);
-                if (a < 1.f)
-                    transparent = true;
-                colArr->push_back(osg::Vec4(r, g, b, a));
-            }
-            else
-                colArr->push_back(osg::Vec4(r[0], g ? g[0] : r[0], b ? b[0] : r[0], 1.0f));
+            auto c = getColor(&transparent, 0, colorpacking, pc, r, g, b);
+            colArr->push_back(c);
             geom->setColorArray(colArr);
             geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-        }
             break;
+        }
 
         default:
         {
@@ -2942,9 +2734,9 @@ GeometryManager::addPoint(const char *object_name, int no_of_points,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
     osg::Point *point = new osg::Point();
     point->setSize(pointsize);
@@ -2995,9 +2787,9 @@ GeometryManager::addSphere(const char *object_name, int no_of_points,
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
     geoState->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, AlphaThreshold);
     //blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
-    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     if (iRenderMethod == coSphere::RENDER_METHOD_TEXTURE)
     {
         osg::Texture2D *tex = coVRFileManager::instance()->loadTexture("share/covise/materials/textures/Sphere.tiff");

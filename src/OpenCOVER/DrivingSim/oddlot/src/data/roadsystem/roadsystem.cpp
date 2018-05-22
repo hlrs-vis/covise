@@ -36,6 +36,8 @@
 
 #include "src/data/tilesystem/tilesystem.hpp"
 
+#include <cmath>
+
 // Qt //
 //
 #include <QVector2D>
@@ -908,7 +910,7 @@ RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &
 	QVector2D normal = road->getGlobalNormal(s);
 
 	double skalar = QVector2D::dotProduct(normal.normalized(), vec.normalized());
-	if (abs(skalar) < 1.0 - NUMERICAL_ZERO3) 
+	if (std::abs(skalar) < 1.0 - NUMERICAL_ZERO3) 
 	{
 		t = 0;
 	}

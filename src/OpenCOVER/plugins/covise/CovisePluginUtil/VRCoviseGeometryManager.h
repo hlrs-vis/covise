@@ -27,7 +27,6 @@ using covise::coMaterial;
 #include <osg/Texture>
 #include <osg/Material>
 #include <osg/ref_ptr>
-#include <osgUtil/TriStripVisitor>
 #include <osg/KdTree>
 
 namespace osg
@@ -47,8 +46,6 @@ class COVISEPLUGINEXPORT GeometryManager
 {
 private:
     bool backfaceCulling;
-    bool genStrips;
-    osg::ref_ptr<osgUtil::TriStripVisitor> d_stripper;
     osg::ref_ptr<osg::KdTreeBuilder> d_kdtreeBuilder;
 
     int sequential;

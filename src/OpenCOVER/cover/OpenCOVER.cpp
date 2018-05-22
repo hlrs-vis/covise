@@ -353,17 +353,19 @@ bool OpenCOVER::init()
         {
             std::cerr << "Optional Argument: " << optarg << std::endl;
 
-            const char *sepChar = ":";
-            char *sep = strstr(optarg, (const char *)sepChar);
-            vrbHost = new char[strlen(optarg) - strlen(sep) + 1];
-            char *tmpPort = new char[strlen(sep) + 1];
-            strncpy(vrbHost, optarg, strlen(optarg) - strlen(sep));
-            vrbHost[strlen(optarg) - strlen(sep)] = '\0';
-            sep++;
-            strncpy(tmpPort, sep, strlen(sep));
-            tmpPort[strlen(sep)] = '\0';
-            vrbPort = atoi(tmpPort);
-            delete[] tmpPort;
+            vrbHost = new char[strlen(optarg) + 1];
+            strcpy(vrbHost, optarg);
+            char *sep = strchr(vrbHost, ':');
+            if (sep)
+            {
+                *sep = '\0';
+                ++sep;
+                vrbPort = atoi(sep);
+            }
+            else
+            {
+                vrbPort = 0;
+            }
             break;
         }
         case 'h':

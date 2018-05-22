@@ -97,10 +97,12 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto &conf = *coVRConfig::instance();
     if (!qApp)
     {
+        m_deleteQApp = true;
 #ifdef USE_X11
         IceSetIOErrorHandler(&iceIOErrorHandler);
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
+        qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
     }
 
     auto it = m_windows.find(i);
@@ -116,6 +118,11 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     auto window = new QtMainWindow();
     win.window = window;
     win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
+    if (i > 0)
+        win.window->setWindowTitle(("COVER"+std::to_string(i)).c_str());
+    else
+        win.window->setWindowTitle("COVER");
+    win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
     win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this, i](){
         OpenCOVER::instance()->requestQuit();
@@ -290,6 +297,7 @@ void WindowTypeQtPlugin::windowUpdateContents(int num)
 
 void WindowTypeQtPlugin::windowDestroy(int num)
 {
+    //std::cerr << "WindowTypeQt: destroying window " << num << std::endl;
     auto it = m_windows.find(num);
     if (it == m_windows.end())
     {
@@ -313,7 +321,7 @@ void WindowTypeQtPlugin::windowDestroy(int num)
     delete win.window;
     m_windows.erase(it);
 
-    if (m_windows.empty())
+    if (m_deleteQApp && m_windows.empty())
     {
         qApp->quit();
         qApp->sendPostedEvents();

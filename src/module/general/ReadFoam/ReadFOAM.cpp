@@ -38,11 +38,11 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <boost/shared_ptr.hpp>
 
 ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
     : coModule(argc, argv, "Read OpenFOAM Data") // description in the module setup window
@@ -428,7 +428,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
     if (Processor == -1)
     {
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -436,7 +436,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         {
             int num_points = pointsH.lines;
             //std::cerr << std::time(0) << " reading Faces" << std::endl;
-            boost::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+            std::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
             if (!facesIn)
                 return NULL;
             HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -444,7 +444,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexListArray(facesH, *facesIn, faces.data(), faces.size());
 
             //std::cerr << std::time(0) << " reading Owners" << std::endl;
-            boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+            std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
             if (!ownersIn)
                 return NULL;
             HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -453,7 +453,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
             //std::cerr << std::time(0) << " reading neighbours" << std::endl;
-            boost::shared_ptr<std::istream> neighborsIn = getStreamForFile(meshdir, "neighbour");
+            std::shared_ptr<std::istream> neighborsIn = getStreamForFile(meshdir, "neighbour");
             if (!neighborsIn)
                 return NULL;
             HeaderInfo neighbourH = readFoamHeader(*neighborsIn);
@@ -701,7 +701,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         oldMesh->getTypeList(&oldtl);
 
         //std::cerr << std::time(0) << " Reading points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -747,7 +747,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
     if (Processor == -1)
     { //when Processor = -1, the boundary will be read completely
         std::cerr << std::time(0) << " Reading boundary from:             " << meshdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+        std::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
         if (!facesIn)
             return NULL;
         HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -820,7 +820,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
         }
         std::vector<std::vector<index_t> >().swap(faces); //Deallocate the memory
 
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -870,7 +870,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
         // save coordinates to coordinate lists
         std::cerr << std::time(0) << " copying Boundary Polygons and reading new points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -897,7 +897,7 @@ coDoPoints *ReadFOAM::loadParticles(const std::string &datadir, const std::strin
     *cellIdsPointer = NULL;
     std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
 
-    boost::shared_ptr<std::istream> posIn = getStreamForFile(lagdir, "positions");
+    std::shared_ptr<std::istream> posIn = getStreamForFile(lagdir, "positions");
     if (!posIn)
         return NULL;
     HeaderInfo posH = readFoamHeader(*posIn);
@@ -935,14 +935,14 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
                                      const std::string &vecObjName,
                                      const std::string &meshdir)
 {
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
     size_t numberCells = header.lines;
     if (numberCells == 0)
     {
-        boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+        std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
         HeaderInfo ownerH = readFoamHeader(*ownersIn);
         DimensionInfo dim = parseDimensions(ownerH.header);
         numberCells = dim.cells;
@@ -1025,7 +1025,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
                                             const std::string &selection)
 {
 
-    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+    std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
     if (!ownersIn)
         return NULL;
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -1037,7 +1037,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
     Boundaries boundaries = loadBoundary(meshdir);
     std::vector<index_t> dataMapping;
     int numBoundaryFaces =0;
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
@@ -1316,7 +1316,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 std::string dataFilename = portChoice[nPort]->getLabel(portchoice);
                                 if (portchoice == 1)
                                 {
-                                    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+                                    std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
                                     HeaderInfo ownerH = readFoamHeader(*ownersIn);
                                     DimensionInfo dim = parseDimensions(ownerH.header);
                                     std::string portObjName = outPorts[nPort]->getObjName();

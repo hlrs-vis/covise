@@ -19,7 +19,8 @@ class ScenarioManager {
 public:
     std::list<Act*> actList;
 	list<Entity*> entityList;
-	float simulationTime;
+	double simulationTime;
+    double simulationStep;
 
 	//conditions
 	bool scenarioCondition;

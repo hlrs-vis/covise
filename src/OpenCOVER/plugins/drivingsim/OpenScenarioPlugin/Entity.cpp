@@ -69,7 +69,7 @@ void Entity::moveLongitudinal()
 {
     if(refPos->road != NULL && speed > 0)
     {
-        float step_distance = speed*opencover::cover->frameDuration();
+        float step_distance = speed*OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
         double ds;
         double hdg;
         if(refPos->laneId>0)
@@ -149,7 +149,7 @@ void Entity::setTrajectoryDirection()
 void Entity::followTrajectory(Event* event, int verticesCounter)
 {
 
-    float step_distance = opencover::cover->frameDuration()*speed;
+    float step_distance = speed*OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
 
     if(totalDistance == 0)
     {
@@ -213,8 +213,7 @@ void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int 
         acceleration = 1000;
     }
 
-    float frametime = opencover::cover->frameDuration();
-    dt += frametime;
+    dt += OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
 
     cout << getName() << " is breaking! New speed: " << speed << endl;
     float t_end = (targetSpeed-old_speed)/acceleration;

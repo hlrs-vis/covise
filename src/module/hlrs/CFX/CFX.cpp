@@ -1320,7 +1320,8 @@ int CFX::PrepareSimStart()
     while (onehost != NULL)
     {
         // 		fprintf(stderr, "onehost is \"%s\"\n", onehost );
-        if (!strchr(onehost, '*'))
+        const char *asterisk = strchr(onehost, '*');
+        if (!asterisk)
         {
             if ((numProc - numParts) > 0)
             {
@@ -1332,7 +1333,7 @@ int CFX::PrepareSimStart()
         }
         else
         {
-            anzahl = atoi(strchr(onehost, '*') + 1);
+            anzahl = atoi(asterisk + 1);
 
             if (numProc - numParts >= anzahl)
             {
@@ -1341,9 +1342,12 @@ int CFX::PrepareSimStart()
             }
             else
             {
-                strncat(newhosts, onehost, strlen(onehost) - strlen(strchr(onehost, '*')));
+                size_t len = strlen(onehost)-strlen(asterisk);
+                size_t pos = strlen(newhosts);
+                if (len+pos > sizeof(newhosts))
+                    len = sizeof(newhosts)-pos;
+                memcpy(newhosts+pos, onehost, len);
                 sprintf(newhosts, "%s*%d,", newhosts, numProc - numParts);
-                strcat(newhosts, "\0");
             }
             numParts = numParts + anzahl;
             // 			fprintf(stderr,"numParts: %d\n",numParts);

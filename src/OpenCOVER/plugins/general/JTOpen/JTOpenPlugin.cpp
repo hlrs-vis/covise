@@ -59,7 +59,6 @@
 #include <osg/ColorMask>
 #include <osgDB/ReadFile>
 
-#include <osgUtil/TriStripVisitor>
 #include <osgUtil/SmoothingVisitor>
 
 #ifdef HAVE_OSGNV
@@ -348,11 +347,6 @@ osg::Node *JTOpenPlugin::createShape(JtkShape *partShape, const char *objName)
          //delete[] tess;
          }*/
 
-            // if enabled, generate tri strips, but not for animated objects
-            // if(genStrips && strncmp(objName, "Animated", 8))
-            {
-                //      d_stripper->stripify(*geom);
-            }
         }
         geom->setVertexArray(vert);
         geom->addPrimitiveSet(primitives);

@@ -95,7 +95,6 @@ private:
     
 
 
-
 public:
     
     double  tempo;
@@ -140,6 +139,10 @@ public:
     
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
+
+#ifdef WIN32
+	HMIDIOUT hMidiDeviceOut = NULL;
+#endif
     
 
     bool init();
