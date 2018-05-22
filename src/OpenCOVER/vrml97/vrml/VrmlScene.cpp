@@ -13,6 +13,8 @@
 //
 
 #include <vector>
+#include <algorithm>
+#include <cctype>
 
 #include <errno.h>
 #ifndef WIN32
@@ -217,7 +219,7 @@ bool VrmlScene::loadUrl(VrmlMFString *url, VrmlMFString *parameters, bool replac
             char *mod = strchr(tail, '#');
             if (!mod)
                 mod = urls[i] + strlen(urls[i]);
-            if (mod - tail > 4 && (strncmp(mod - 4, ".wrl", 4) == 0 || strncmp(mod - 4, ".wrz", 4) == 0 || strncmp(mod - 4, ".WRL", 4) == 0 || strncmp(mod - 4, ".WRZ", 4) == 0 || (mod - tail > 5 && strncmp(mod - 7, ".VRML", 5) == 0) || (mod - tail > 5 && strncmp(mod - 7, ".vrml", 5) == 0) || (mod - tail > 7 && strncmp(mod - 7, ".wrl.gz", 7) == 0)))
+            if (isWrl(urls[i]))
             {
                 if (load(urls[i], NULL, replace))
                     break;
@@ -445,6 +447,21 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
 
 // Read a VRML file from one of the urls.
 
+bool VrmlScene::isWrl(const std::string &filename)
+{
+    for (std::string ending: {".wrl", ".wrz", ".vrml", ".vrml.gz", ".wrl.gz", ".x3dv", ".x3dv.gz", ".x3dvz"})
+    {
+        auto len = ending.length();
+        if (filename.length() < len)
+            continue;
+        std::string tail = filename.substr(filename.length()-ending.length());
+        std::transform(tail.begin(), tail.end(), tail.begin(), ::tolower);
+        if (tail == ending)
+            return true;
+    }
+    return false;
+}
+
 VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
                                VrmlNamespace *ns, bool *encrypted)
 {
@@ -462,7 +479,7 @@ VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
                               urls->get(i), strerror(errno));
     }
 
-    return 0;
+    return nullptr;
 }
 
 // yacc globals

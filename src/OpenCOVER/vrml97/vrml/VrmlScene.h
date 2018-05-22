@@ -91,6 +91,7 @@ class VrmlScene
 
 public:
     // These are available without a scene object
+    static bool isWrl(const std::string &filename);
     static VrmlMFNode *readWrl(VrmlMFString *url, Doc *relative, VrmlNamespace *ns, bool *encrypted = NULL);
     static VrmlMFNode *readWrl(Doc *url, VrmlNamespace *ns, bool *encrypted = NULL);
     static VrmlMFNode *readString(const char *vrmlString, VrmlNamespace *ns, Doc *relative = NULL);
