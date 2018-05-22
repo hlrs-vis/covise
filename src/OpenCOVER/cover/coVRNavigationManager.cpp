@@ -523,7 +523,13 @@ Vec3 coVRNavigationManager::getCenter() const
     if (bsphere.radius() == 0.f)
         bsphere.radius() = 1.f;
     osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
-    return originInWorld;
+
+    if (originInWorld.length() < cover->getSceneSize())
+    {
+        return originInWorld;
+    }
+
+    return osg::Vec3(0,0,0);
 }
 
 // process key events
