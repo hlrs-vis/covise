@@ -76,6 +76,10 @@ public:
 
 	void preSwapBuffers(int windowNumber);
 
+	void checkAndHandleMessages(bool blocking=false);
+
+	void writeString(const std::string &msg);
+
 private:
 
     bool advanceTime(double step);
@@ -111,6 +115,9 @@ private:
 	int frameCounter;
 	int frameRate;
 	int writeRate;
+	bool doExit;
+	bool doWait;
+	bool blockingWait;
     double minSimulationStep = -1.; // negative: once per frame
 
 	osg::ref_ptr<osg::Image> image;

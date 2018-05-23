@@ -58,6 +58,8 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <config/CoviseConfig.h>
 #include <cover/coVRConfig.h>
 #include <osgDB/WriteFile>
+#include <chrono>
+#include <thread>
 
 using namespace OpenScenario;
 using namespace opencover;
@@ -95,9 +97,11 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 #else
 	GL_fmt = GL_BGRA;
 #endif
+	doWait = false;
 	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 1);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.WriteRate", 0);
     minSimulationStep = covise::coCoviseConfig::getFloat("COVER.Plugin.OpenScenario.MinSimulationStep", minSimulationStep);
+	doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", false);
 
 	coVRConfig::instance()->setFrameRate(frameRate);
 
@@ -111,35 +115,7 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	port = covise::coCoviseConfig::getInt("port", "COVER.Plugin.OpenScenario.Server", 11021);
 	toClientConn = NULL;
 	serverConn = NULL;
-	if (coVRMSController::instance()->isMaster())
-	{
-		serverConn = new covise::ServerConnection(port, 1234, 0);
-		if (!serverConn->getSocket())
-		{
-			cout << "tried to open server Port " << port << endl;
-			cout << "Creation of server failed!" << endl;
-			cout << "Port-Binding failed! Port already bound?" << endl;
-			delete serverConn;
-			serverConn = NULL;
-		}
-
-		struct linger linger;
-		linger.l_onoff = 0;
-		linger.l_linger = 0;
-		if (serverConn)
-		{
-			setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-			cout << "Set server to listen mode..." << endl;
-			serverConn->listen();
-			if (!serverConn->is_connected()) // could not open server port
-			{
-				fprintf(stderr, "Could not open server port %d\n", port);
-				delete serverConn;
-				serverConn = NULL;
-			}
-		}
-	}
+	
 	//todo coTrafficSimulation::useInstance();
 	fprintf(stderr, "OpenScenario::OpenScenario\n");
 }
@@ -154,8 +130,7 @@ OpenScenarioPlugin::~OpenScenarioPlugin()
 	cover->getObjectsRoot()->removeChild(trafficSignalGroup);
 	cover->getObjectsRoot()->removeChild(roadGroup);
 }
-
-bool OpenScenarioPlugin::update()
+void OpenScenarioPlugin::checkAndHandleMessages(bool blocking)
 {
 	if (serverConn && serverConn->is_connected() && serverConn->check_for_input()) // we have a server and received a connect
 	{
@@ -177,8 +152,9 @@ bool OpenScenarioPlugin::update()
 	int size = 0;
 	if (coVRMSController::instance()->isMaster())
 	{
-		while (toClientConn && toClientConn->check_for_input())
+		while (toClientConn && (blocking || toClientConn->check_for_input()))
 		{
+			blocking = false;
 			if (readTCPData(&size, sizeof(int)) == false)
 			{
 				delete toClientConn;
@@ -214,6 +190,11 @@ bool OpenScenarioPlugin::update()
 			}
 		} while (size > 0);
 	}
+}
+
+bool OpenScenarioPlugin::update()
+{
+	checkAndHandleMessages();
 	return true;
 }
 
@@ -264,6 +245,7 @@ OpenScenarioPlugin::handleMessage(const char *buf)
 	fprintf(stderr, "%s\n", buf);
 	if (strcmp(buf, "restart") == 0)
 	{
+		blockingWait = false;
 		scenarioManager->restart();
 	}
 	if (strncmp(buf, "set ", 4) == 0)
@@ -282,6 +264,7 @@ OpenScenarioPlugin::handleMessage(const char *buf)
 	}
 	if (strcmp(buf, "exit") == 0)
 	{
+		blockingWait = false;
 		OpenCOVER::instance()->setExitFlag(true);
 		coVRPluginList::instance()->requestQuit(true);
 	}
@@ -415,7 +398,14 @@ bool OpenScenarioPlugin::advanceTime(double step)
 
     return true;
 }
+void OpenScenarioPlugin::writeString(const std::string &msg)
+{
+	int len = msg.length();
 
+	byteSwap(len);
+	toClientConn->send(&len, sizeof(int));
+	toClientConn->send(msg.c_str(), msg.length());
+}
 
 void OpenScenarioPlugin::preFrame()
 {
@@ -433,12 +423,28 @@ void OpenScenarioPlugin::preFrame()
         {
             // Scenario end
 
-            bool doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", true);
             if (doExit)
             {
                 OpenCOVER::instance()->setExitFlag(true);
                 coVRPluginList::instance()->requestQuit(true);
             }
+			else
+			{
+				if (toClientConn != NULL)
+				{
+					writeString("szenarioEnd\n");
+					if (doWait)
+					{
+						blockingWait = true;
+						while (blockingWait)
+						{
+							checkAndHandleMessages(true);
+						}
+					}
+				}
+				else
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
             //fprintf(stderr, "END\n");
 
             break;
@@ -499,6 +505,68 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 		}
 		//neu
 		return -1;
+	}
+	if (osdb->FileHeader.exists())
+	{
+		for (auto it = osdb->FileHeader->UserData.begin(); it != osdb->FileHeader->UserData.end(); it++)
+		{
+
+			oscUserData* userdata = ((oscUserData*)(*it));
+			if (userdata->code.getValue() == "FrameRate")
+			{
+				frameRate = std::stoi(userdata->value.getValue());
+				coVRConfig::instance()->setFrameRate(frameRate);
+			}
+			else if (userdata->code.getValue() == "WriteRate")
+			{
+				writeRate = std::stoi(userdata->value.getValue());
+			}
+			else if (userdata->code.getValue() == "MinSimulationStep")
+			{
+				minSimulationStep = std::stoi(userdata->value.getValue());
+			}
+			else if (userdata->code.getValue() == "ScenarioEnd")
+			{
+				if (userdata->value.getValue() == "Exit")
+					doExit = true;
+				if (userdata->value.getValue() == "Wait")
+					doWait = true;
+			}
+			else if (userdata->code.getValue() == "Port")
+			{
+				port = std::stoi(userdata->value.getValue());
+			}
+		}
+	}
+	// open controll socket
+	if (coVRMSController::instance()->isMaster())
+	{
+		serverConn = new covise::ServerConnection(port, 1234, 0);
+		if (!serverConn->getSocket())
+		{
+			cout << "tried to open server Port " << port << endl;
+			cout << "Creation of server failed!" << endl;
+			cout << "Port-Binding failed! Port already bound?" << endl;
+			delete serverConn;
+			serverConn = NULL;
+		}
+
+		struct linger linger;
+		linger.l_onoff = 0;
+		linger.l_linger = 0;
+		if (serverConn)
+		{
+			setsockopt(serverConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+			cout << "Set server to listen mode..." << endl;
+			serverConn->listen();
+			if (!serverConn->is_connected()) // could not open server port
+			{
+				fprintf(stderr, "Could not open server port %d\n", port);
+				delete serverConn;
+				serverConn = NULL;
+			}
+		}
 	}
 
 	//load xodr
