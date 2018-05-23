@@ -15,7 +15,7 @@ SET(SOURCES
    ../oscNameMapping.cpp
 )
 add_definitions(-DcoOpenScenario_EXPORTS)
-add_covise_executable(oscGenerateParser MACOSX_BUNDLE ${SOURCES} ${HEADERS})
+add_covise_executable(oscGenerateParser ${SOURCES} ${HEADERS})
 
 covise_install_target(oscGenerateParser)
 

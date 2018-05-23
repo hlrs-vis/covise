@@ -1519,7 +1519,7 @@ VRSceneGraph::getBoundingSphere()
 void VRSceneGraph::scaleAllObjects(bool resetView)
 {
     osg::BoundingSphere bsphere = getBoundingSphere();
-    if (bsphere.radius() == 0.f)
+    if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
     // scale and translate but keep current orientation
@@ -1578,8 +1578,8 @@ void VRSceneGraph::dirtySpecialBounds()
 void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
                                             bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const
 {
-    scaleFactor[0] = cover->getSceneSize() / 2.f / boundingSphere.radius();
-    currentMatrix->makeTranslate(-(boundingSphere.center() * scaleFactor[0]));
+    *scaleFactor = std::abs(cover->getSceneSize() / 2.f / boundingSphere.radius());
+    currentMatrix->makeTranslate(-(boundingSphere.center() * *scaleFactor));
     if (!resetView)
     {
         osg::Quat rotation = m_objectsTransform->getMatrix().getRotate();

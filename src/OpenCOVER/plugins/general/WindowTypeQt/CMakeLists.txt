@@ -24,10 +24,10 @@ set(SOURCES
     AboutDialog.ui
 )
 
-qt5_add_resources(QRC_SOURCES about.qrc icons.qrc)
-qt5_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
+qt_add_resources(QRC_SOURCES about.qrc icons.qrc)
+qt_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
 cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES})
-qt5_use_modules(WindowTypeQt Core Widgets OpenGL)
+qt_use_modules(WindowTypeQt Core Widgets OpenGL)
 
 if (X11_ICE_FOUND)
     target_link_libraries(WindowTypeQt ${X11_ICE_LIB})
