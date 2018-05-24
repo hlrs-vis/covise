@@ -139,6 +139,14 @@
         <xsd:attribute name="date"          type="xsd:dateTime" use="required"/>
         <xsd:attribute name="description"   type="xsd:string" use="required"/>
         <xsd:attribute name="author"        type="xsd:string" use="required"/>
+        <xsd:sequence>
+            <xsd:element name="UserData" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:attribute name="code"  type="xsd:string" use="required"/>
+                    <xsd:attribute name="value" type="xsd:string" use="required"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
     </xsd:complexType>
     
     <xsd:complexType name="OSCPedestrian">
