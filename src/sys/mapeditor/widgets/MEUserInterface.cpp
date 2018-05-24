@@ -1822,12 +1822,10 @@ void MEFilterLineEdit::keyPressEvent(QKeyEvent *ev)
         clear();
         ev->accept();
     }
-    else if (!ev->text().isEmpty())
+    else
     {
         QLineEdit::keyPressEvent(ev);
     }
-    else
-        ev->ignore();
 }
 
 METoolBar::METoolBar(QWidget *parent)

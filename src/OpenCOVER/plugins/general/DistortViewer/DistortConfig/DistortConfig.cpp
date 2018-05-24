@@ -50,6 +50,7 @@ bool DistortConfig::init()
     char *argv[1];
     argv[0] = (char *)"";
     QApplication app(argc, argv);
+    app.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     MainWindow w;
     w.show();
 

@@ -145,6 +145,7 @@ int main(int argc, char **argv)
     // start user interface process
     MEApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/icons/covise.png"));
+    a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     // this works around problems with messed layouts after settings fonts with qtconfig
     QApplication::setFont(QFont(QApplication::font().family(), QApplication::font().pointSize()));
 
