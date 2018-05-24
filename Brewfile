@@ -34,6 +34,8 @@ brew 'freealut'
 brew 'proj'
 brew 'gdal'
 brew 'eigen'
+brew 'hlrs-vis/tap/osgcal'
+brew 'hlrs-vis/tap/opencrg'
 
 #brew 'tbb'
 #brew 'homebrew/science/hdf5', args: ['with-mpi']
