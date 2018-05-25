@@ -236,7 +236,6 @@ void OpenScenarioPlugin::preSwapBuffers(int windowNumber)
 			}
 		}
 	}
-
 	frameCounter++;
 }
 void
@@ -246,6 +245,7 @@ OpenScenarioPlugin::handleMessage(const char *buf)
 	if (strcmp(buf, "restart") == 0)
 	{
 		blockingWait = false;
+        frameCounter = 0;
 		scenarioManager->restart();
 	}
 	if (strncmp(buf, "set ", 4) == 0)
