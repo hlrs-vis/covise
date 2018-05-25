@@ -92,6 +92,8 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 
 	frameCounter = 0;
 
+    waitOnStart = false;
+
 #ifdef _MSC_VER
 	GL_fmt = GL_BGR_EXT;
 #else
@@ -431,7 +433,10 @@ void OpenScenarioPlugin::preFrame()
 			else
 			{
                 blockingWait = true;
-                writeString("szenarioEnd\n");
+                if (toClientConn != NULL)
+                {
+                    writeString("szenarioEnd\n");
+                }
                 while (blockingWait)
                 {
                     if (toClientConn != NULL)
@@ -525,19 +530,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
             {
                 if (userdata->value.getValue() == "True")
                 {
-                    blockingWait = true;
-                    while (blockingWait)
-                    {
-                        if (toClientConn != NULL)
-                        {
-                            checkAndHandleMessages(true);
-                        }
-                        else
-                        {
-                            checkAndHandleMessages(false);
-                            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                        }
-                    }
+                    waitOnStart = true;
                 }
             }
 			else if (userdata->code.getValue() == "MinSimulationStep")
@@ -587,6 +580,22 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			}
 		}
 	}
+    if(waitOnStart)
+    {
+        blockingWait = true;
+        while (blockingWait)
+        {
+            if (toClientConn != NULL)
+            {
+                checkAndHandleMessages(true);
+            }
+            else
+            {
+                checkAndHandleMessages(false);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+    }
 
 	//load xodr
 	if (osdb->RoadNetwork.getObject() != NULL)

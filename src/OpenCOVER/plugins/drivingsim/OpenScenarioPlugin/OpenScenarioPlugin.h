@@ -117,7 +117,8 @@ private:
 	int writeRate;
 	bool doExit;
 	bool doWait;
-	bool blockingWait;
+    bool blockingWait;
+    bool waitOnStart;
     double minSimulationStep = -1.; // negative: once per frame
 
 	osg::ref_ptr<osg::Image> image;
