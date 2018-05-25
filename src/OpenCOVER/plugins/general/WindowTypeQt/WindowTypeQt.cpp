@@ -34,7 +34,6 @@
 #include <QToolBar>
 #include <QApplication>
 #include <QOpenGLWidget>
-#include <QApplication>
 #include <QLayout>
 #include <QMessageBox>
 #include <QDialog>
@@ -103,6 +102,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
+        qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     }
 
     auto it = m_windows.find(i);

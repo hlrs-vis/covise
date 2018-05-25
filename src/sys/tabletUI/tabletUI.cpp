@@ -62,6 +62,7 @@ int main(int argc, char **argv)
 #endif
 
     QApplication a(argc, argv);
+    a.setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     qaw = TUIMainWindow::getInstance();
     qaw->show();
 

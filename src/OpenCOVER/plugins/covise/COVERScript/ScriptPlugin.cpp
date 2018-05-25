@@ -70,6 +70,7 @@ ScriptPlugin::ScriptPlugin()
     if (qApp == 0)
     {
         app = new QApplication(argc, argv);
+        app->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     }
     else
     {
