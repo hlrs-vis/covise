@@ -430,20 +430,20 @@ void OpenScenarioPlugin::preFrame()
             }
 			else
 			{
-				if (toClientConn != NULL)
-				{
-					writeString("szenarioEnd\n");
-					if (doWait)
-					{
-						blockingWait = true;
-						while (blockingWait)
-						{
-							checkAndHandleMessages(true);
-						}
-					}
-				}
-				else
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                blockingWait = true;
+                writeString("szenarioEnd\n");
+                while (blockingWait)
+                {
+                    if (toClientConn != NULL)
+                    {
+                        checkAndHandleMessages(true);
+                    }
+                    else
+                    {
+                        checkAndHandleMessages(false);
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    }
+                }
 			}
             //fprintf(stderr, "END\n");
 
@@ -521,6 +521,25 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			{
 				writeRate = std::stoi(userdata->value.getValue());
 			}
+            else if (userdata->code.getValue() == "WaitOnStart")
+            {
+                if (userdata->value.getValue() == "True")
+                {
+                    blockingWait = true;
+                    while (blockingWait)
+                    {
+                        if (toClientConn != NULL)
+                        {
+                            checkAndHandleMessages(true);
+                        }
+                        else
+                        {
+                            checkAndHandleMessages(false);
+                            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                        }
+                    }
+                }
+            }
 			else if (userdata->code.getValue() == "MinSimulationStep")
 			{
 				minSimulationStep = std::stoi(userdata->value.getValue());
