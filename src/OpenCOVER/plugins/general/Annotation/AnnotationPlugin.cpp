@@ -148,7 +148,7 @@ bool AnnotationPlugin::init()
     annotationLabel->setFontSize(labelSize);
     annotationHandle->addElement(annotationFrame);
     annotationDeleteButton
-        = new coPushButton(new coRectButtonGeometry(buttonSize[0], buttonSize[1], "Annotaion/delete"), this);
+        = new coPushButton(new coRectButtonGeometry(buttonSize[0], buttonSize[1], "Annotation/delete"), this);
     colorPoti = new coValuePoti("Color", this, "Volume/valuepoti-bg");
     annotationDeleteButton->setSize(40);
     annotationDeleteButton->setPos(x[0], y[1], z);
