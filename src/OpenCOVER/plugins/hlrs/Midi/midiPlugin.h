@@ -22,6 +22,12 @@
 #include <osg/ShapeDrawable>
 #include <osg/ShadeModel>
 #include <vrml97/vrml/Player.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/SelectionList.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Owner.h>
 
 using namespace opencover;
 using namespace covise;
@@ -89,7 +95,7 @@ class NoteInfo
     int noteNumber;
 };
 
-class MidiPlugin : public coVRPlugin, public coTUIListener
+class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
     
@@ -98,11 +104,6 @@ private:
 public:
     
     double  tempo;
-    //tabletUI
-    coTUITab *MIDITab;
-    coTUILabel *infoLabel;
-    coTUIEditIntField *trackNumber;
-    coTUIButton *reset;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
 	std::list<MidiEvent> eventqueue;
@@ -142,8 +143,11 @@ public:
 
 #ifdef WIN32
 	HMIDIOUT hMidiDeviceOut = NULL;
+    HMIDIIN hMidiDevice = NULL;
 #endif
-    
+
+    bool openMidiIn(int device);
+    bool openMidiOut(int device);
 
     bool init();
     bool destroy();
@@ -155,12 +159,17 @@ public:
 
     void key(int type, int keySym, int mod);
 
-    //tabletUI
     void MIDItab_create();
     void MIDItab_delete();
+
+
+    ui::Menu *MIDITab = nullptr;
+    ui::Button *reset = nullptr;
+    ui::EditField *trackNumber = nullptr;
+    ui::SelectionList *inputDevice = nullptr;
+    ui::SelectionList *outputDevice = nullptr;
+    ui::Label *infoLabel = nullptr;
     
-    //tabletUI
-    void tabletEvent(coTUIElement *);
 
 };
 #endif

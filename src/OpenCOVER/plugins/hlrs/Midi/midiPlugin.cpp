@@ -164,7 +164,7 @@ int MidiPlugin::loadFile(const char *filename, osg::Group *parent)
    cout << "TPQ: " << midifile.getTicksPerQuarterNote() << endl;
       char text[1000];
       snprintf(text,1000,"numTracks = %d",numTracks);
-      infoLabel->setLabel(text);
+      infoLabel->setText(text);
    if (numTracks > 1) {
    for (int i=0; i<midifile.getNumEvents(0); i++) {
 
@@ -224,6 +224,7 @@ void MidiPlugin::key(int type, int keySym, int mod)
 
 //-----------------------------------------------------------------------------
 MidiPlugin::MidiPlugin()
+    : ui::Owner("MidiPlugin", cover->ui)
 {
     plugin = this;
     player = NULL;
@@ -452,47 +453,12 @@ currentTrack = 0;
     midi1fd = -1;
     if(coVRMSController::instance()->isMaster())
     {
-#ifndef WIN32
-        midi1fd = open("/dev/midi1",O_RDONLY | O_NONBLOCK);
-        fprintf(stderr,"open /dev/midi1 %d",midi1fd);
-#else
-		UINT nMidiDeviceNum;
-		nMidiDeviceNum = midiInGetNumDevs();
-		if (nMidiDeviceNum == 0) {
-			fprintf(stderr, "midiInGetNumDevs() return 0...");
-			//return -1;
-		}
-		else
-		{
-			MMRESULT rv;
-			HMIDIIN hMidiDevice = NULL;
-
-			DWORD nMidiPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi", 0);
-			rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
-			if (rv != MMSYSERR_NOERROR) {
-				fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
-				//return -1;
-			}
-			else
-			{
-				midiInStart(hMidiDevice);
-
-				MMRESULT rv;
-				DWORD MidiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
-				rv = midiOutOpen(&hMidiDeviceOut, MidiPortOut, 0, 0, CALLBACK_NULL);
-				if (rv != MMSYSERR_NOERROR) {
-					fprintf(stderr, "midiOutOpen() failed...rv=%d", rv);
-					//return -1;
-				}
-				else
-				{
-					midiInStart(hMidiDevice);
-				}
-			}
-
-		}
-
-#endif
+        int midiPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi", 0);
+        int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
+        if (openMidiIn(midiPort))
+        {
+            openMidiOut(midiPortOut);
+        }
     }
     lTrack = NULL;
     lTrack = new Track(tracks.size());
@@ -500,6 +466,75 @@ currentTrack = 0;
     MIDItab_create();
     return true;
 }
+
+bool MidiPlugin::openMidiIn(int device)
+{
+#ifndef WIN32
+    char devName[100];
+    sprintf(devName, "-/dev/midi%d", device + 1);
+    midi1fd = open(devName, O_RDONLY | O_NONBLOCK);
+    fprintf(stderr, "open /dev/midi%d %d", device+1, midi1fd);
+    if (midi1fd == NULL)
+        return false;
+#else
+    UINT nMidiDeviceNum;
+    nMidiDeviceNum = midiInGetNumDevs();
+    if (nMidiDeviceNum == 0) {
+        fprintf(stderr, "midiInGetNumDevs() return 0...");
+        return false;
+    }
+    else
+    {
+        MMRESULT rv;
+        UINT nMidiPort = (uint)device;
+
+        rv = midiInOpen(&hMidiDevice, nMidiPort, (DWORD_PTR)MidiInProc, 0, CALLBACK_FUNCTION);
+        if (rv != MMSYSERR_NOERROR) {
+            fprintf(stderr, "midiInOpen() failed...rv=%d", rv);
+            return false;
+        }
+        else
+        {
+            midiInStart(hMidiDevice);
+        }
+
+    }
+
+#endif
+}
+
+bool MidiPlugin::openMidiOut(int device)
+{
+#ifndef WIN32
+    char devName[100];
+    sprintf(devName, "-/dev/midi%d", device + 1);
+    midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
+    fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
+    if (midiOutfd == NULL)
+        return false;
+#else
+    UINT nMidiDeviceNum;
+    nMidiDeviceNum = midiInGetNumDevs();
+    if (nMidiDeviceNum == 0) {
+        fprintf(stderr, "midiInGetNumDevs() return 0...");
+        return false;
+    }
+    else
+    {
+        MMRESULT rv;
+        UINT nMidiPort = (uint)device;
+
+        rv = midiOutOpen(&hMidiDeviceOut, nMidiPort, 0, 0, CALLBACK_NULL);
+        if (rv != MMSYSERR_NOERROR) {
+            fprintf(stderr, "midiOutOpen() failed...rv=%d", rv);
+            return false;
+        }
+
+    }
+
+#endif
+}
+
 
 //------------------------------------------------------------------------------
 MidiPlugin::~MidiPlugin()
@@ -554,53 +589,6 @@ void MidiPlugin::preFrame()
         tracks[currentTrack]->update();
     }
 }
-
-void MidiPlugin::tabletEvent(coTUIElement *elem)
-{
-    if(elem == trackNumber)
-    {
-    
-            tracks[currentTrack]->setVisible(false);
-	    
-        currentTrack = trackNumber->getValue()-1;
-	if(currentTrack>=0)
-	{
-            tracks[currentTrack]->reset();
-            startTime = cover->frameTime();
-            tracks[currentTrack]->setVisible(true);
-	    }
-	    else
-	    {
-	    currentTrack=0;
-	    }
-    }
-    else if(elem == reset)
-    {
-        lTrack->reset();
-    }
-}
-
-void MidiPlugin::setTempo(int index) {
-   double newtempo = 0.0;
-   static int count = 0;
-   count++;
-
-   MidiEvent& mididata = midifile[0][index];
-
-   int microseconds = 0;
-   microseconds = microseconds | (mididata[3] << 16);
-   microseconds = microseconds | (mididata[4] << 8);
-   microseconds = microseconds | (mididata[5] << 0);
-
-   newtempo = 60.0 / microseconds * 1000000.0;
-   if (count <= 1) {
-      tempo = newtempo;
-   } else if (tempo != newtempo) {
-      cout << "; WARNING: change of tempo from " << tempo
-           << " to " << newtempo << " ignored" << endl;
-   }
-}
-
 //------------------------------------------------------------------------------
 void MidiPlugin::postFrame()
 {
@@ -648,21 +636,97 @@ void MidiPlugin::setTimestep(int t)
 //--------------------------------------------------------------------
 void MidiPlugin::MIDItab_create(void)
 {
-    MIDITab = new coTUITab("MIDI", coVRTui::instance()->mainFolder->getID());
-    MIDITab->setPos(0, 0);
 
-    infoLabel = new coTUILabel("MIDI Version 1.0", MIDITab->getID());
-    infoLabel->setPos(0, 0);
+    MIDITab = new ui::Menu("Midi", this);
+    reset = new ui::Button(MIDITab, "Reset");
+    reset->setText("Reset");
+    reset->setCallback([this](bool) {
+        lTrack->reset();
+    });
+   trackNumber = new  ui::EditField(MIDITab, "trackNumber");
+   trackNumber->setValue(0);
+   trackNumber->setCallback([this](std::string newVal) {
+       currentTrack = std::stoi(newVal);
+       tracks[currentTrack]->setVisible(false);
+
+       if (currentTrack >= 0)
+       {
+           tracks[currentTrack]->reset();
+           startTime = cover->frameTime();
+           tracks[currentTrack]->setVisible(true);
+       }
+       else
+       {
+           currentTrack = 0;
+       }
+   });
+   inputDevice = new ui::SelectionList(MIDITab, "inputDevices");
+   outputDevice = new ui::SelectionList(MIDITab, "outputDevices");
+
+#ifdef WIN32
+    const UINT_PTR nMidiIn = midiInGetNumDevs();
+    for (UINT_PTR iMidiIn = 0; iMidiIn < nMidiIn; ++iMidiIn) {
+        MIDIINCAPS mic{};
+        midiInGetDevCaps(iMidiIn, &mic, sizeof(mic));
+        wprintf(L"MIDI Inp#%2d [%s]\n", iMidiIn, mic.szPname);
+        inputDevice->append(mic.szPname);
+    }
+    const UINT_PTR nMidiOut = midiOutGetNumDevs();
+    for (UINT_PTR iMidiOut = 0; iMidiOut < nMidiOut; ++iMidiOut) {
+        MIDIOUTCAPS moc{};
+        midiOutGetDevCaps(iMidiOut, &moc, sizeof(moc));
+        wprintf(L"MIDI Outp#%2d [%s]\n", iMidiOut, moc.szPname);
+        outputDevice->append(moc.szPname);
+    }
+#else
+
+   inputDevice->append("0");
+   outputDevice->append("0");
+
+#endif
+   inputDevice->setCallback([this](int newInDev) {
+       if (hMidiDevice)
+           midiInClose(hMidiDevice);
+       openMidiIn(newInDev);
+   });
+   outputDevice->setCallback([this](int newOutDev) {
+       if (hMidiDeviceOut)
+           midiOutClose(hMidiDeviceOut);
+       openMidiOut(newOutDev);
+
+   });
+    ui::SelectionList *outputDevice = nullptr;
+    ui::Label *infoLabel = nullptr;
+
+
+    infoLabel = new ui::Label(MIDITab, "MIDI Version 1.0");
     
-    trackNumber = new coTUIEditIntField("trackNumber", MIDITab->getID());
-    trackNumber->setPos(0, 1);
-    trackNumber->setValue(currentTrack);
-    trackNumber->setEventListener(this);
-    
-    reset = new coTUIButton("Reset", MIDITab->getID());
-    reset->setPos(1, 0);
-    reset->setEventListener(this);
+
 }
+
+void MidiPlugin::setTempo(int index) {
+    double newtempo = 0.0;
+    static int count = 0;
+    count++;
+
+    MidiEvent& mididata = midifile[0][index];
+
+    int microseconds = 0;
+    microseconds = microseconds | (mididata[3] << 16);
+    microseconds = microseconds | (mididata[4] << 8);
+    microseconds = microseconds | (mididata[5] << 0);
+
+    newtempo = 60.0 / microseconds * 1000000.0;
+    if (count <= 1) {
+        tempo = newtempo;
+    }
+    else if (tempo != newtempo) {
+        cout << "; WARNING: change of tempo from " << tempo
+            << " to " << newtempo << " ignored" << endl;
+    }
+}
+
+
 
 //--------------------------------------------------------------------
 void MidiPlugin::MIDItab_delete(void)
