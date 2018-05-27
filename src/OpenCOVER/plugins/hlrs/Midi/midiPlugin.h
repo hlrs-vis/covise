@@ -34,12 +34,12 @@ using namespace covise;
 
 namespace covise
 {
-class coSubMenuItem;
-class coRowMenu;
-class coCheckboxMenuItem;
-class coCheckboxGroup;
-class coButtonMenuItem;
-class coSliderMenuItem;
+    class coSubMenuItem;
+    class coRowMenu;
+    class coCheckboxMenuItem;
+    class coCheckboxGroup;
+    class coButtonMenuItem;
+    class coSliderMenuItem;
 }
 class Track;
 class Note
@@ -57,37 +57,39 @@ class Track
 {
 public:
     int eventNumber;
-     Track(int tn);
-     ~Track();
-     std::list<Note *> notes;
-     //std::list<Note *>::iterator lastNoteIt;
-     
-     osg::ref_ptr<osg::Group> TrackRoot;
-     void update();
-     void reset();
-     void setVisible(bool state);
-     int trackNumber;
-     void addNote(Note*);
-     vrml::Player::Source *trackSource;
-     vrml::Audio *trackAudio;
-     osg::Geode *createLinesGeometry();
-     
-     osg::ref_ptr<osg::Geode> geometryLines;
-     osg::Vec3Array *lineVert = new osg::Vec3Array;
-     osg::Vec4Array *lineColor = new osg::Vec4Array;
-     osg::DrawArrayLengths *linePrimitives;
-     private:
-     int lastNum;
-     int lastPrimitive;
-    double oldTime=0.0;
+    Track(int tn,bool life=false);
+    ~Track();
+    std::list<Note *> notes;
+    //std::list<Note *>::iterator lastNoteIt;
+
+    osg::ref_ptr<osg::Group> TrackRoot;
+    void update();
+    void reset();
+    void setVisible(bool state);
+    int trackNumber;
+    void addNote(Note*);
+    vrml::Player::Source *trackSource;
+    vrml::Audio *trackAudio;
+    osg::Geode *createLinesGeometry();
+
+    osg::ref_ptr<osg::Geode> geometryLines;
+    osg::Vec3Array *lineVert = new osg::Vec3Array;
+    osg::Vec4Array *lineColor = new osg::Vec4Array;
+    osg::DrawArrayLengths *linePrimitives;
+private:
+    bool life;
+    int lastNum;
+    int lastPrimitive;
+    double oldTime = 0.0;
+    int streamNum;
 };
 
 class NoteInfo
 {
-    public:
-        NoteInfo(int nN);
-        ~NoteInfo();
-	void createGeom();
+public:
+    NoteInfo(int nN);
+    ~NoteInfo();
+    void createGeom();
     osg::ref_ptr<osg::Geode> geometry;
     osg::Vec3 initialPosition;
     osg::Vec3 initialVelocity;
@@ -98,19 +100,20 @@ class NoteInfo
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
-    
+
 
 
 public:
-    
+    static const size_t NUMMidiStreams = 2;
     double  tempo;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
-	std::list<MidiEvent> eventqueue;
-    static MidiPlugin *plugin;
+    std::list<MidiEvent> eventqueue[NUMMidiStreams];
+    static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
     osg::ref_ptr<osg::Group> MIDIRoot;
+    osg::ref_ptr<osg::MatrixTransform> MIDITrans[NUMMidiStreams];
     std::vector<NoteInfo *> nIs;
     MidiFile midifile;
     double startTime;
@@ -123,10 +126,9 @@ public:
     void setTempo(int index);
 
     void setTimestep(int t);
-    int midi1fd;
-    Track *lTrack;
+    Track *lTrack[NUMMidiStreams];
 
-	void addEvent(MidiEvent &me);
+    void addEvent(MidiEvent &me, int MidiStream);
 
     // constructor
     MidiPlugin();
@@ -137,16 +139,18 @@ public:
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
     osg::ref_ptr<osg::StateSet> lineStateSet;
-    
+
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
 
 #ifdef WIN32
-	HMIDIOUT hMidiDeviceOut = NULL;
-    HMIDIIN hMidiDevice = NULL;
+    HMIDIOUT hMidiDeviceOut = NULL;
+    HMIDIIN hMidiDevice[NUMMidiStreams];
+#else
 #endif
+    int midifd[NUMMidiStreams];
 
-    bool openMidiIn(int device);
+    bool openMidiIn(int streamNum, int device);
     bool openMidiOut(int device);
 
     bool init();
@@ -166,10 +170,13 @@ public:
     ui::Menu *MIDITab = nullptr;
     ui::Button *reset = nullptr;
     ui::EditField *trackNumber = nullptr;
-    ui::SelectionList *inputDevice = nullptr;
+    ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
     ui::Label *infoLabel = nullptr;
-    
+private:
+
+    static MidiPlugin *plugin;
+
 
 };
 #endif
