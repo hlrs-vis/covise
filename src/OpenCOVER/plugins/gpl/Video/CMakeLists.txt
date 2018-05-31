@@ -5,7 +5,7 @@ covise_find_package(WMFSDK)
 SET(HEADERS Video.h)
 SET(SOURCES Video.cpp)
 
-IF(WMFSDK_FOUND)
+IF(WMFSDK_FOUND AND NOT FFMPEG_FOUND)
   ADD_DEFINITIONS(-DHAVE_WMFSDK)
 
   SET(HEADERS ${HEADERS} WINAVIVideo.h rgb2rgb.h swscale.h swscale_internal.h)
