@@ -499,8 +499,8 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
     char devName[100];
     sprintf(devName, "-/dev/midi%d", device + 1);
     midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
-    fprintf(stderr, "open /dev/midi%d %d", device + 1, midi1fd);
-    if (midifd[streamNum] == NULL)
+    fprintf(stderr, "open /dev/midi%d %d", device + 1, midifd[streamNum]);
+    if (midifd[streamNum] <= 0)
         return false;
 #else
     UINT nMidiDeviceNum;
@@ -538,7 +538,7 @@ bool MidiPlugin::openMidiOut(int device)
     sprintf(devName, "-/dev/midi%d", device + 1);
     midiOutfd = open(devName, O_WRONLY | O_NONBLOCK);
     fprintf(stderr, "open /dev/midi%d %d", device + 1, midiOutfd);
-    if (midiOutfd == NULL)
+    if (midiOutfd <= 0)
         return false;
 #else
     UINT nMidiDeviceNum;
@@ -735,7 +735,7 @@ void MidiPlugin::MIDItab_create(void)
             if (hMidiDevice)
                 midiInClose(hMidiDevice[i]);
 #else
-            close(midifd[i];
+            close(midifd[i]);
 #endif
             openMidiIn(i, newInDev);
         });

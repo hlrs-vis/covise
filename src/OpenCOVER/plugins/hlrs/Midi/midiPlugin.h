@@ -149,6 +149,7 @@ public:
 #else
 #endif
     int midifd[NUMMidiStreams];
+    int midiOutfd;
 
     bool openMidiIn(int streamNum, int device);
     bool openMidiOut(int device);
