@@ -100,11 +100,11 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	GL_fmt = GL_BGRA;
 #endif
 	doWait = false;
-	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 1);
+	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 0);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.WriteRate", 0);
     minSimulationStep = covise::coCoviseConfig::getFloat("COVER.Plugin.OpenScenario.MinSimulationStep", minSimulationStep);
 	doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", false);
-
+    if(frameRate > 0)
 	coVRConfig::instance()->setFrameRate(frameRate);
 
 	scenarioManager = new ScenarioManager();
@@ -520,7 +520,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			if (userdata->code.getValue() == "FrameRate")
 			{
 				frameRate = std::stoi(userdata->value.getValue());
-				coVRConfig::instance()->setFrameRate(frameRate);
+                if (frameRate > 0)
+                    coVRConfig::instance()->setFrameRate(frameRate);
 			}
 			else if (userdata->code.getValue() == "WriteRate")
 			{

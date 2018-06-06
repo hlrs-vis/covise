@@ -7,6 +7,7 @@
   <COVER>
   
             <Plugin>
+                <Midi value="Off" InPort="0" OutPort="2"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->

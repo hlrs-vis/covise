@@ -4,6 +4,7 @@ if defined COMMON_ACTIVE (
    goto END
 )
 
+set VCPKG_DEFAULT_TRIPLET=x64-windows
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
    echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
