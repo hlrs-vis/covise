@@ -4027,9 +4027,9 @@ coTabletUI::coTabletUI()
     init();
 
     std::string line;
-    if (getenv("COVER_TABLETPC"))
+    if (getenv("COVER_TABLETUI"))
     {
-        std::string env(getenv("COVER_TABLETPC"));
+        std::string env(getenv("COVER_TABLETUI"));
         std::string::size_type p = env.find(':');
         if (p != std::string::npos)
         {
@@ -4037,14 +4037,14 @@ coTabletUI::coTabletUI()
             env = env.substr(0, p);
         }
         line = env;
-        std::cerr << "getting TabletPC configuration from $COVER_TABLETPC: " << line << ":" << port << std::endl;
+        std::cerr << "getting TabletPC configuration from $COVER_TABLETUI: " << line << ":" << port << std::endl;
         serverMode = false;
     }
     else
     {
-        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", port);
-        line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
-        serverMode = coCoviseConfig::isOn("COVER.TabletPC.ServerMode", false);
+        port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
+        line = coCoviseConfig::getEntry("host","COVER.TabletUI");
+        serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
     }
 
     if (!line.empty())
