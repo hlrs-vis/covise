@@ -380,6 +380,7 @@ VRViewer::VRViewer()
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
+    setUseConfigureAffinity(false); // tell OpenSceneGraph not to set affinity (good if you want to run multiple instances on one machine)
 
     setRealizeOperation(new InitGLOperation());
 
