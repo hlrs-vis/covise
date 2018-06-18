@@ -99,9 +99,7 @@ void ScenarioManager::initializeEntities()
 	for (list<Entity*>::iterator entity_iter = entityList.begin(); entity_iter != entityList.end(); entity_iter++)
 	{
 		Entity *currentEntity = (*entity_iter);
-		currentEntity->totalDistance = 0;
-		currentEntity->visitedVertices = 0;
-		currentEntity->dt = 0.0;
+        currentEntity->setSpeed(0.0);
 
 		for (oscPrivateArrayMember::iterator it = OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.begin(); it != OpenScenarioPlugin::instance()->osdb->Storyboard->Init->Actions->Private.end(); it++)
 		{
@@ -123,7 +121,6 @@ void ScenarioManager::initializeEntities()
 							ReferencePosition* refPos = new ReferencePosition();
 							refPos->init(initPos->Lane->roadId.getValue(), initPos->Lane->laneId.getValue(), initPos->Lane->s.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
 							currentEntity->setInitEntityPosition(refPos);
-							currentEntity->refPos = refPos;
 						}
 						else if (initPos->World.exists())
 						{
@@ -133,14 +130,12 @@ void ScenarioManager::initializeEntities()
 							ReferencePosition* refPos = new ReferencePosition();
 							refPos->init(initPosition, hdg, OpenScenarioPlugin::instance()->getRoadSystem());
 							currentEntity->setInitEntityPosition(refPos);
-							currentEntity->refPos = refPos;
 						}
 						else if (initPos->Road.exists())
 						{
 							ReferencePosition* refPos = new ReferencePosition();
 							refPos->init(initPos->Road->roadId.getValue(), initPos->Road->s.getValue(), initPos->Road->t.getValue(), OpenScenarioPlugin::instance()->getRoadSystem());
 							currentEntity->setInitEntityPosition(refPos);
-							currentEntity->refPos = refPos;
 						}
 					}
 				}
@@ -185,6 +180,11 @@ void ScenarioManager::conditionManager(){
         {
             scenarioCondition = true;
             actConditionManager();
+            // scenario might be finished by now, check again.
+            if (conditionControl(storyCondition)) // if endcondition is true, story is false(finished)
+            {
+                scenarioCondition = false;
+            }
         }
     }
 }
@@ -253,8 +253,7 @@ void ScenarioManager::eventConditionManager(Act* currentAct)
 
                         if(conditionControl(eventCondition))
                         {
-							currentEvent->initialize(currentSequence->actorList.size());
-                            currentEvent->start();
+							currentEvent->start(currentSequence);
 							fprintf(stderr, "starting event %s\n", currentEvent->name.getValue().c_str());
                             currentManeuver->activeEvent = currentEvent;
                             break;

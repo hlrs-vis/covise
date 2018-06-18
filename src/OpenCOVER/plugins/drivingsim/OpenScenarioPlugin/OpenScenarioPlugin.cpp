@@ -339,24 +339,7 @@ bool OpenScenarioPlugin::advanceTime(double step)
                                                 {
                                                     Trajectory* currentTrajectory = currentAction->actionTrajectory;
 
-													Position* currentPos;
-													// check if Trajectory is about to start or Entity arrived at vertice
-													if (currentEntity->totalDistance == 0)
-													{
-														currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
-
-														currentPos->getAbsolutePosition(currentEntity, scenarioManager->entityList);
-														cout << "Entity next target: " << currentEntity->newRefPos->xyz[0] << ", " << currentEntity->newRefPos->xyz[1] << ", " << currentEntity->refPos->xyz[2] << endl;
-
-														currentEntity->setTrajectoryDirection();
-														if (currentTrajectory->domain.getValue() == 0)
-														{
-															// calculate speed from trajectory vertices
-															currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
-														}
-													}
-
-													currentEntity->followTrajectory(currentEvent, currentTrajectory->verticesCounter);
+													currentEntity->followTrajectory(currentEvent);
 													//cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
 													unusedEntity.remove(currentEntity);
@@ -887,7 +870,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 					for (list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
 					{
 						Event* currentEvent = (*event_iter);
-						currentEvent->initialize(currentSequence->actorList.size());
+						//currentEvent->initialize();
 						if (currentEvent->StartConditions.exists())
 						{
 							for (oscStartConditionsArrayMember::iterator it = currentEvent->StartConditions->ConditionGroup.begin(); it != currentEvent->StartConditions->ConditionGroup.end(); it++)
@@ -919,8 +902,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 									}
 									currentAction->setTrajectory(traj);
 
-									int verticesCounter = traj->Vertex.size();
-									traj->initialize(verticesCounter);
 
 									currentEvent->actionList.push_back(currentAction);
 								}

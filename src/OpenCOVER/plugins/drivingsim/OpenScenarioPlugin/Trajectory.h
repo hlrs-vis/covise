@@ -20,12 +20,10 @@ public:
     Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-    void initialize(int verticesCounter);
     float getReference(int visitedVertices);
     double t0;
     double t1;
     double dt;
-    int verticesCounter;
 
 };
 
