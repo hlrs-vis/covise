@@ -4,6 +4,37 @@
 #
 ################################################
 
+function cmake_version() {
+    ${COVISE_CMAKE} --version|head -n 1|sed -e 's/^.*version[^0-9]//'
+}
+
+function is_cmake3() {
+case $(cmake_version) in
+    3.*)
+        return 0
+        ;;
+    *)
+        return 1
+        ;;
+esac
+}
+
+function find_cmake3() {
+    if [ -z "$COVISE_CMAKE" ]; then
+        COVISE_CMAKE=cmake
+        which cmake3 2>&1 >/dev/null && COVISE_CMAKE=cmake3
+        if ! is_cmake3; then
+            COVISE_CMAKE=cmake
+        fi
+    fi
+    if ! is_cmake3; then
+        echo "Did not find CMake3: try setting COVISE_CMAKE"
+        return 1
+    fi
+    export COVISE_CMAKE
+    return 0
+}
+
 #
 # COVISE Installation Directory
 #
@@ -45,6 +76,10 @@ fi
 #
 
 guess_archsuffix
+
+if ! find_cmake3 ; then
+    return 1
+fi
 
 # PATH
 #
