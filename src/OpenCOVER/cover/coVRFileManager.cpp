@@ -8,8 +8,9 @@
 #include "coVRFileManager.h"
 #include <config/CoviseConfig.h>
 #include "coHud.h"
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
+#include <cctype>
 
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
@@ -30,7 +31,8 @@
 #include "coVRConfig.h"
 #include "coVRRenderer.h"
 #include <util/string_util.h>
-#include <cctype>
+#include "ui/Button.h"
+#include "ui/Group.h"
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -48,7 +50,8 @@
 #endif
 
 using namespace covise;
-using namespace opencover;
+namespace opencover
+{
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
 
@@ -258,6 +261,35 @@ std::ostream &operator<<(std::ostream &os, const Url &url)
     return os;
 }
 
+std::string shortenUrl(const Url &url, size_t length=20)
+{
+    return url.str();
+}
+
+struct FileEntry: public ui::Button {
+
+    FileEntry(ui::Group *group, int id, const Url &url)
+    : ui::Button(group, std::string("File"+std::to_string(id)))
+    , url(url)
+    {
+        setText(shortenUrl(url));
+        setState(true);
+        setCallback([this](bool state){
+            if (state)
+            {
+                coVRFileManager::instance()->loadFile(this->url.str().c_str());
+            }
+            else
+            {
+                coVRFileManager::instance()->unloadFile(this->url.str().c_str());
+                delete this;
+            }
+        });
+    }
+
+    Url url;
+};
+
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
 // returns NULL, if nothing found
 osg::Node *coVRFileManager::loadIcon(const char *filename)
@@ -456,6 +488,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             viewPointFile+=".vwp";
         }
     }
+
+    new FileEntry(m_fileGroup, m_loadCount++, url);
 
     const FileHandler *handler = findFileHandler(url.path().c_str());
     if (!handler && !fileTypeString.empty())
@@ -866,21 +900,25 @@ void coVRFileManager::reloadFile()
 
 void coVRFileManager::unloadFile(const char *file)
 {
+    bool lastFile = false;
     if (!file)
+    {
         file = lastFileName.c_str();
+        lastFile = true;
+    }
     START("coVRFileManager::unloadFile");
-    if (file && lastCovise_key)
+    if (file)
     {
         const FileHandler *handler = findFileHandler(file);
         if (handler && handler->unloadFile)
-            handler->unloadFile(file, lastCovise_key);
+            handler->unloadFile(file, lastFile ? lastCovise_key : nullptr);
 
-        if (file == lastFileName.c_str())
+        if (lastFile)
         {
             lastFileName.clear();
+            delete[] lastCovise_key;
+            lastCovise_key = nullptr;
         }
-        delete[] lastCovise_key;
-        lastCovise_key = NULL;
     }
 }
 
@@ -892,9 +930,14 @@ coVRFileManager *coVRFileManager::instance()
 }
 
 coVRFileManager::coVRFileManager()
-    : fileHandlerList()
+    : ui::Owner("FileManager", cover->ui)
+    , fileHandlerList()
 {
     assert(!s_instance);
+
+    m_fileGroup = new ui::Group("LoadedFiles", this);
+    m_fileGroup->setText("Loaded files");
+    cover->fileMenu->add(m_fileGroup);
 
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -1313,4 +1356,6 @@ bool coVRFileManager::update()
         }
     }
     return true;
+}
+
 }

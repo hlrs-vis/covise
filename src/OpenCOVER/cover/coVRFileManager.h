@@ -28,6 +28,7 @@
 #include <osg/Texture2D>
 
 #include <OpenVRUI/coUpdateManager.h>
+#include "ui/Owner.h"
 
 namespace osg
 {
@@ -43,6 +44,11 @@ class Font;
 
 namespace opencover
 {
+
+namespace ui
+{
+class Group;
+};
 
 class coTUIFileBrowserButton;
 class coVRIOReader;
@@ -94,7 +100,7 @@ typedef struct
     const char *extension;
 } FileHandler;
 
-class COVEREXPORT coVRFileManager : public vrui::coUpdateable
+class COVEREXPORT coVRFileManager : public vrui::coUpdateable, public ui::Owner
 {
     static coVRFileManager *s_instance;
 
@@ -180,6 +186,8 @@ private:
     char *lastCovise_key;
     std::string viewPointFile;
     osg::Node *lastNode;
+    int m_loadCount = 0;
+    ui::Group *m_fileGroup = nullptr;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;

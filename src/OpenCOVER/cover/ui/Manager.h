@@ -30,6 +30,7 @@ class View;
 class COVER_UI_EXPORT Manager: public Owner {
  public:
    Manager();
+   void init();
 
    //! attach a view (creating a graphical representation) of the user interface
    bool addView(View *view);

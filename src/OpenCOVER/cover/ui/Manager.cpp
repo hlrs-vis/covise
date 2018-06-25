@@ -41,7 +41,10 @@ Manager::Manager()
         m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
         m_buttonInteraction.push_back(new vrui::coRelativeButtonInteraction(t, "RelativeButton", vrui::coInteraction::Low));
     }
+}
 
+void Manager::init()
+{
     for (auto &i: m_buttonInteraction)
         vrui::coInteractionManager::the()->registerInteraction(i);
 }
