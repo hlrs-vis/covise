@@ -321,6 +321,11 @@ FileHandler fileHandler[] = {
       VolumePlugin::loadVolume,
       VolumePlugin::unloadVolume,
       "nii.gz" },
+    { NULL,
+      VolumePlugin::loadVolume,
+      VolumePlugin::loadVolume,
+      VolumePlugin::unloadVolume,
+      "dicomdir" },
 };
 
 /// Constructor
