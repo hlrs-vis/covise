@@ -122,11 +122,11 @@ Url::Url(const std::string &url)
     auto authorityBegin = it;
     for ( ; it != url.end(); ++it)
     {
+        if (numSlash >= 2)
+            break;
         if (*it != '/')
             break;
         ++numSlash;
-        if (numSlash >= 2)
-            break;
     }
     if (numSlash >= 2)
     {
@@ -134,6 +134,9 @@ Url::Url(const std::string &url)
         auto slash = std::find(it, url.end(), '/');
         auto question = std::find(it, url.end(), '?');
         auto hash = std::find(it, url.end(), '#');
+        std::cerr << "/: " << std::string(it, slash) << std::endl;
+        std::cerr << "?: " << std::string(it, question) << std::endl;
+        std::cerr << "#: " << std::string(it, hash) << std::endl;
         auto end = slash;
         if (hash < end)
             end = hash;
@@ -214,7 +217,10 @@ std::string Url::str() const
     std::string str = scheme;
     str += ":";
     if (haveAuthority)
+    {
         str += "//";
+        str += authority;
+    }
     str += path;
     if (!query.empty())
     {
@@ -410,9 +416,21 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     Url url = Url::fromFileOrUrl(fileName);
     std::cerr << "URL: " << url << std::endl;
     if (!url.valid)
+    {
+        std::cerr << "failed to parse URL " << fileName << std::endl;
         return  nullptr;
+    }
 
-    if (url.scheme == "file")
+    if (url.scheme == "cover")
+    {
+        std::cerr << "authority=" << url.authority << std::endl;
+        if (url.authority == "plugin")
+        {
+            coVRPluginList::instance()->addPlugin(url.path.c_str());
+        }
+        return nullptr;
+    }
+    else if (url.scheme == "file")
     {
         adjustedFileName = url.path;
         if (cover->debugLevel(3))
