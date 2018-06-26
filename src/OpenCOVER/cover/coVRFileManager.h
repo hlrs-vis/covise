@@ -54,6 +54,8 @@ class FileBrowser;
 class coTUIFileBrowserButton;
 class coVRIOReader;
 
+struct LoadedFile;
+
 class Url
 {
 public:
@@ -103,6 +105,7 @@ typedef struct
 
 class COVEREXPORT coVRFileManager : public vrui::coUpdateable, public ui::Owner
 {
+    friend struct LoadedFile;
     static coVRFileManager *s_instance;
 
 public:
@@ -183,10 +186,7 @@ private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
 
-    std::string lastFileName;
-    char *lastCovise_key;
     std::string viewPointFile;
-    osg::Node *lastNode;
     int m_loadCount = 0;
     ui::Group *m_fileGroup = nullptr;
     ui::FileBrowser *m_fileOpen = nullptr;
@@ -219,6 +219,9 @@ private:
     ReadOperations readOperations;
 
     coVRFileManager();
+    LoadedFile *m_lastFile = nullptr;
+    LoadedFile *m_loadingFile = nullptr;
+    std::map<std::string, LoadedFile *> m_files;
 };
 }
 #endif
