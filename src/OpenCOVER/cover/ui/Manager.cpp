@@ -341,6 +341,14 @@ void Manager::updateValue(const EditField *input) const
     }
 }
 
+void Manager::updateValue(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateValue(fb);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;

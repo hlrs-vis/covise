@@ -10,6 +10,7 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
+#include <cover/ui/FileBrowser.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -21,6 +22,7 @@
 #include <QVBoxLayout>
 #include <QTextStream>
 #include <QFontMetrics>
+#include <QFileDialog>
 
 #include <cassert>
 #include <iostream>
@@ -342,6 +344,29 @@ QtViewElement *QtView::elementFactoryImplementation(EditField *input)
 
 }
 
+QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
+{
+    auto parent = qtViewParent(fb);
+
+    auto a = new QAction(qtObject(parent));
+    a->setShortcutContext(Qt::WidgetShortcut);
+    a->setCheckable(false);
+    if (!fb->iconName().empty())
+    {
+        a->setIcon(QIcon::fromTheme(QString::fromStdString(fb->iconName())));
+    }
+    auto ve = new QtViewElement(fb, a);
+    ve->action = a;
+    add(ve);
+    ve->markForDeletion(a);
+    connect(a, &QAction::triggered, [fb](bool){
+        QString file = QFileDialog::getOpenFileName(nullptr, "Open...");
+        fb->setValue(file.toStdString());
+        fb->trigger();
+    });
+    return ve;
+}
+
 void QtView::updateContainer(const Element *elem)
 {
     if (!elem)
@@ -435,6 +460,10 @@ void QtView::updateText(const Element *elem)
     {
         t += ": ";
         t += QString::fromStdString(i->value());
+    }
+    if (auto fb = dynamic_cast<const FileBrowser *>(elem))
+    {
+        t += "...";
     }
     //std::cerr << "updateText(" << elem->path() << "): " << t.toStdString() << std::endl;
     if (auto sa = dynamic_cast<QtSliderAction *>(o))
@@ -605,6 +634,11 @@ void QtView::updateBounds(const Slider *slider)
 void QtView::updateValue(const EditField *input)
 {
     updateText(input);
+}
+
+void QtView::updateValue(const FileBrowser *fb)
+{
+    updateText(fb);
 }
 
 QtViewElement::QtViewElement(Element *elem, QObject *obj)

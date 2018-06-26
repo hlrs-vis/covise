@@ -48,6 +48,7 @@ protected:
 };
 
 
+
 //! q Qt widget for showing a slider with a label showing its value
 class QtSliderWidget: public QWidget
 {
@@ -149,6 +150,7 @@ class QtView: public QObject, public View
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
    void updateValue(const EditField *input) override;
+   void updateValue(const FileBrowser *fb) override;
 
    QtViewElement *elementFactoryImplementation(Menu *menu) override;
    QtViewElement *elementFactoryImplementation(Group *group) override;
@@ -158,6 +160,7 @@ class QtView: public QObject, public View
    QtViewElement *elementFactoryImplementation(Slider *slider) override;
    QtViewElement *elementFactoryImplementation(SelectionList *sl) override;
    QtViewElement *elementFactoryImplementation(EditField *input) override;
+   QtViewElement *elementFactoryImplementation(FileBrowser *fb) override;
 
    void updateContainer(const Element *elem);
    void updateMenu(const Menu *menu, const Group *subGroup);

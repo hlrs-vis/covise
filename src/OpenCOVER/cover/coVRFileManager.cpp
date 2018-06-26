@@ -33,6 +33,7 @@
 #include <util/string_util.h>
 #include "ui/Button.h"
 #include "ui/Group.h"
+#include "ui/FileBrowser.h"
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -934,6 +935,10 @@ coVRFileManager::coVRFileManager()
     , fileHandlerList()
 {
     assert(!s_instance);
+
+    m_fileOpen = new ui::FileBrowser("OpenFile", this);
+    m_fileOpen->setText("Open");
+    cover->fileMenu->add(m_fileOpen);
 
     m_fileGroup = new ui::Group("LoadedFiles", this);
     m_fileGroup->setText("Loaded files");

@@ -48,6 +48,7 @@ namespace opencover
 namespace ui
 {
 class Group;
+class FileBrowser;
 };
 
 class coTUIFileBrowserButton;
@@ -188,6 +189,7 @@ private:
     osg::Node *lastNode;
     int m_loadCount = 0;
     ui::Group *m_fileGroup = nullptr;
+    ui::FileBrowser *m_fileOpen = nullptr;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
