@@ -27,6 +27,7 @@ public:
 
     /// get the Element's classname
     virtual const char *getClassName() const override;
+    void setLabel(QString textl) override;
 
 signals:
     void dirUpdate(QStringList list);
