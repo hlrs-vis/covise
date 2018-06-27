@@ -265,6 +265,37 @@ FileEntry::~FileEntry()
 }
 
 int
+VolumePlugin::loadUrl(const Url &url, Group *parent, const char *ck)
+{
+    if (url.scheme() != "file" && url.scheme() != "dicom")
+        return -1;
+
+    const char *filename = url.path().c_str();
+    vvVolDesc vd(filename);
+
+    if (url.scheme() == "dicom") {
+        auto q = url.query();
+        auto pos = q.find("entry");
+        if (pos != std::string::npos)
+        {
+            auto entry = q.substr(pos);
+            auto valpos = entry.find('=');
+            if (valpos != std::string::npos)
+            {
+                auto valstr = entry.substr(valpos+1);
+                int ent;
+                std::stringstream str(valstr);
+                str >> ent;
+                vd.setEntry(ent);
+            }
+        }
+    }
+
+    int result = plugin->loadFile(filename, parent, &vd);
+    return (result == 0) ? -1 : 0;
+}
+
+int
 VolumePlugin::loadVolume(const char *filename, osg::Group *parent, const char *)
 {
 #ifdef VERBOSE
@@ -321,7 +352,7 @@ FileHandler fileHandler[] = {
       VolumePlugin::loadVolume,
       VolumePlugin::unloadVolume,
       "nii.gz" },
-    { NULL,
+    { VolumePlugin::loadUrl,
       VolumePlugin::loadVolume,
       VolumePlugin::loadVolume,
       VolumePlugin::unloadVolume,
@@ -1243,7 +1274,7 @@ void VolumePlugin::saveDefaultTransferFunction(void *userData)
     }
 }
 
-int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
+int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDesc *params)
 {
     (void)parent;
     vvDebugMsg::msg(1, "VolumePlugin::loadFile()");
@@ -1260,7 +1291,17 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent)
     cerr << "Loading volume file: " << fileName << endl;
 #endif
 
-    vvVolDesc *vd = new vvVolDesc(fileName.c_str());
+    vvVolDesc *vd = nullptr;
+    if (params)
+    {
+        vd = new vvVolDesc(params);
+        vd->setFilename(fileName.c_str());
+    }
+    else
+    {
+        vd =  new vvVolDesc(fileName.c_str());
+    }
+
     vvFileIO fio;
     if (fio.loadVolumeData(vd) != vvFileIO::OK)
     {
