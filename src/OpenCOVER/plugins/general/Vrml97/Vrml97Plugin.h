@@ -60,6 +60,7 @@ public:
     static Vrml97Plugin *plugin;
 
     static osg::Node *getRegistrationRoot();
+    static int loadUrl(const Url &url, osg::Group *group, const char *ck = "");
     static int loadVrml(const char *filename, osg::Group *group, const char *ck = "");
     static int replaceVrml(const char *filename, osg::Group *group, const char *ck = "");
     static int unloadVrml(const char *filename, const char *ck = "");

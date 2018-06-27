@@ -52,35 +52,6 @@ using namespace opencover;
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
 
-namespace {
-
-struct Url
-{
-    Url(const std::string &url);
-    static Url fromFileOrUrl(const std::string &furl);
-    static std::string decode(const std::string &str, bool path=false);
-
-    std::string str() const;
-    operator std::string() const;
-
-    bool valid = false;
-
-    std::string scheme;
-    std::string authority;
-    bool haveAuthority = false;
-        std::string userinfo;
-        std::string host;
-        std::string port;
-    std::string path;
-    std::string query;
-    std::string fragment;
-
-    std::string extension() const;
-
-private:
-    Url();
-};
-
 Url::Url(const std::string &url)
 {
     if (url.empty())
@@ -109,7 +80,7 @@ Url::Url(const std::string &url)
     }
     if (it == url.end())
         return;
-    scheme = std::string(url.begin(), it);
+    m_scheme = std::string(url.begin(), it);
     ++it;
 
 #ifdef WIN32
@@ -130,7 +101,7 @@ Url::Url(const std::string &url)
     }
     if (numSlash >= 2)
     {
-        haveAuthority = true;
+        m_haveAuthority = true;
         auto slash = std::find(it, url.end(), '/');
         auto question = std::find(it, url.end(), '?');
         auto hash = std::find(it, url.end(), '#');
@@ -142,7 +113,7 @@ Url::Url(const std::string &url)
             end = hash;
         if (question < end)
             end = question;
-        authority = std::string(it, end);
+        m_authority = decode(std::string(it, end));
         it = end;
         if (it != url.end())
             ++it;
@@ -153,11 +124,10 @@ Url::Url(const std::string &url)
         it = authorityBegin;
     }
 
-    if (scheme == "file")
+    if (m_scheme == "file")
     {
-        path = std::string(it, url.end());
-        path = decode(path);
-        valid = true;
+        m_path = decode(std::string(it, url.end()), true);
+        m_valid = true;
         return;
     }
 
@@ -165,39 +135,34 @@ Url::Url(const std::string &url)
     auto hash = std::find(it, url.end(), '#');
     if (question == url.end())
     {
-        path = std::string(it, hash);
+        m_path = decode(std::string(it, hash), true);
     }
     else
     {
-        path = std::string(it, question);
+        m_path = decode(std::string(it, question), true);
         it = question;
         ++it;
         hash = std::find(it, url.end(), '#');
-        query = std::string(it, hash);
+        m_query = decode(std::string(it, hash));
     }
     it = hash;
     if (it != url.end())
         ++it;
-    fragment = std::string(it, url.end());
+    m_fragment = decode(std::string(it, url.end()));
 
-    authority = decode(authority);
-    path = decode(path, true);
-    query = decode(query);
-    fragment = decode(fragment);
-
-    valid = true;
+    m_valid = true;
 }
 
 Url Url::fromFileOrUrl(const std::string &furl)
 {
     Url url(furl);
-    if (url.valid)
+    if (url.valid())
         return url;
 
     Url file;
-    file.scheme = "file";
-    file.path = furl;
-    file.valid = true;
+    file.m_scheme = "file";
+    file.m_path = furl;
+    file.m_valid = true;
     return file;
 }
 
@@ -208,29 +173,29 @@ std::string Url::decode(const std::string &str, bool path)
 
 std::string Url::str() const
 {
-    if (!valid)
+    if (!valid())
         return "(invalid)";
 
-    if (scheme == "file")
-        return path;
+    if (scheme() == "file")
+        return path();
 
-    std::string str = scheme;
+    std::string str = scheme();
     str += ":";
-    if (haveAuthority)
+    if (m_haveAuthority)
     {
         str += "//";
-        str += authority;
+        str += authority();
     }
-    str += path;
-    if (!query.empty())
+    str += path();
+    if (!m_query.empty())
     {
         str += "?";
-        str += query;
+        str += m_query;
     }
-    if (!fragment.empty())
+    if (!m_fragment.empty())
     {
         str += "#";
-        str += fragment;
+        str += m_fragment;
     }
 
     return str;
@@ -238,32 +203,59 @@ std::string Url::str() const
 
 std::string Url::extension() const
 {
-    if (!valid)
+    if (!m_valid)
         return std::string();
-    if (path.empty())
+    if (m_path.empty())
         return std::string();
-    auto pos = path.find_last_of('.');
+    auto pos = m_path.find_last_of('.');
     if (pos == std::string::npos)
         return std::string();
-    return path.substr(pos);
+    return m_path.substr(pos);
+}
+
+bool Url::valid() const
+{
+    return m_valid;
+}
+
+bool Url::isLocal() const
+{
+    return scheme() == "file";
+}
+
+const std::string &Url::scheme() const
+{
+    return m_scheme;
+}
+
+const std::string &Url::authority() const
+{
+    return m_authority;
+}
+
+const std::string &Url::path() const
+{
+    return m_path;
+}
+
+const std::string &Url::query() const
+{
+    return m_query;
+}
+
+const std::string &Url::fragment() const
+{
+    return m_fragment;
 }
 
 Url::Url()
 {
 }
 
-bool isUrl(const std::string &str)
-{
-    Url url(str);
-    return url.valid;
-}
-
 std::ostream &operator<<(std::ostream &os, const Url &url)
 {
     os << url.str();
     return os;
-}
-
 }
 
 // load an icon file looks in covise/share/covise/icons/$LookAndFeel or covise/share/covise/icons
@@ -414,25 +406,24 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
 
     Url url = Url::fromFileOrUrl(fileName);
-    std::cerr << "URL: " << url << std::endl;
-    if (!url.valid)
+    if (!url.valid())
     {
         std::cerr << "failed to parse URL " << fileName << std::endl;
         return  nullptr;
     }
+    std::cerr << "Loading " << url.str() << std::endl;
 
-    if (url.scheme == "cover")
+    if (url.scheme() == "cover")
     {
-        std::cerr << "authority=" << url.authority << std::endl;
-        if (url.authority == "plugin")
+        if (url.authority() == "plugin")
         {
-            coVRPluginList::instance()->addPlugin(url.path.c_str());
+            coVRPluginList::instance()->addPlugin(url.path().c_str());
         }
         return nullptr;
     }
-    else if (url.scheme == "file")
+    else if (url.scheme() == "file")
     {
-        adjustedFileName = url.path;
+        adjustedFileName = url.path();
         if (cover->debugLevel(3))
             std::cerr << " New filename: " << adjustedFileName << std::endl;
     }
@@ -440,39 +431,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         adjustedFileName = url.str();
     }
-
-#if 0
-    if (strncmp(fileName, "file://", 7) == 0)
-    {
-    }
-    else
-    {
-        std::string tempFN = fileName;
-        std::string::size_type pos = tempFN.find("://", 0);
-        if (pos != std::string::npos)
-        {
-            pos += 3;
-            std::string::size_type end = tempFN.find("/", pos);
-            std::string strIP = tempFN.substr(pos, end - pos);
-            NetHelp net;
-            if (strIP.compare(net.getLocalIP().toStdString()) == 0)
-            {
-                std::string fileLocation = tempFN.substr(end + 1, tempFN.size() - end);
-                adjustedFileName = new char[sizeof(char) * (fileLocation.size() + 1)];
-                strncpy(adjustedFileName, fileLocation.c_str(), fileLocation.size());
-                adjustedFileName[fileLocation.size()] = '\0';
-            }
-            else
-            {
-                adjustedFileName = (char *)fileName;
-            }
-        }
-        else
-        {
-            adjustedFileName = (char *)fileName;
-        }
-    }
-#endif
 
     if (!parent)
         parent = cover->getObjectsRoot();
@@ -486,12 +444,10 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     OpenCOVER::instance()->hud->setText3(fileName);
     OpenCOVER::instance()->hud->redraw();
     /// read the 1st line of file and try to guess the type
-    char fileTypeBuf[10] = "";
-    const char *fileTypeString = findFileExt(adjustedFileName.c_str());
-    if(viewPointFile == "")
+    std::string fileTypeString = findFileExt(url);
+    if(viewPointFile == "" && url.isLocal())
     {
-        
-        const char *ext = strchr(adjustedFileName.c_str(), '.');
+        const char *ext = strchr(url.path().c_str(), '.');
         if(ext)
         {
             viewPointFile = fileName;
@@ -499,32 +455,11 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             viewPointFile = viewPointFile.substr(0,pos);
             viewPointFile+=".vwp";
         }
-
-    }
-    if (!strcmp(fileTypeString, adjustedFileName.c_str()))
-    {
-        if (!strncmp(adjustedFileName.c_str(), "http://", 7) || !strncmp(adjustedFileName.c_str(), "file://", 7))
-        {
-            char *url = new char[strlen(fileName) + 1];
-            strcpy(url, fileName);
-            char *p = strchr(url, '?');
-            if (p)
-            {
-                *p = '\0';
-                p++;
-            }
-            p = strrchr(url, '.');
-            if (p)
-            {
-                strncpy(fileTypeBuf, p + 1, sizeof(fileTypeBuf));
-                fileTypeBuf[sizeof(fileTypeBuf) - 1] = '\0';
-                fileTypeString = fileTypeBuf;
-            }
-            delete[] url;
-        }
     }
 
-    const FileHandler *handler = findFileHandler(adjustedFileName.c_str());
+    const FileHandler *handler = findFileHandler(url.path().c_str());
+    if (!handler && !fileTypeString.empty())
+        handler = findFileHandler(fileTypeString.c_str());
     coVRIOReader *reader = findIOHandler(adjustedFileName.c_str());
 
     delete[] lastCovise_key;
@@ -537,7 +472,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", fileName);
         if (handler->loadUrl)
         {
-            handler->loadUrl(adjustedFileName.c_str(), fakeParent, covise_key);
+            handler->loadUrl(url, fakeParent, covise_key);
         }
         else
         {
@@ -679,12 +614,15 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
     }
 
     Url url = Url::fromFileOrUrl(fileName);
-    if (!url.valid)
-        return nullptr;
-
-    if (url.scheme == "file")
+    if (!url.valid())
     {
-        adjustedFileName = url.path;
+        std::cerr << "coVRFileManager::replaceFile: failed to parse URL " << fileName << std::endl;
+        return nullptr;
+    }
+
+    if (url.scheme() == "file")
+    {
+        adjustedFileName = url.path();
         if (cover->debugLevel(3))
             std::cerr << " New filename: " << adjustedFileName << std::endl;
     }
@@ -692,36 +630,6 @@ osg::Node *coVRFileManager::replaceFile(const char *fileName, coTUIFileBrowserBu
     {
         adjustedFileName = url.str();
     }
-
-#if 0
-    {
-        std::string tempFN = fileName;
-        std::string::size_type pos = tempFN.find("://", 0);
-        if (pos != std::string::npos)
-        {
-            pos += 3;
-            std::string::size_type end = tempFN.find("/", pos);
-            std::string strIP = tempFN.substr(pos, end - pos);
-            NetHelp net;
-            if (strIP.compare(net.getLocalIP().toStdString()) == 0)
-            {
-                std::string fileLocation = tempFN.substr(end + 1, tempFN.size() - end);
-                adjustedFileName = new char[sizeof(char) * (fileLocation.size() + 1)];
-                strncpy(adjustedFileName, fileLocation.c_str(), fileLocation.size());
-                adjustedFileName[fileLocation.size()] = '\0';
-                allocated = true;
-            }
-            else
-            {
-                adjustedFileName = (char *)fileName;
-            }
-        }
-        else
-        {
-            adjustedFileName = (char *)fileName;
-        }
-    }
-#endif
 
     const FileHandler *oldHandler = NULL;
     if (!lastFileName.empty())
@@ -825,60 +733,65 @@ static Magic magic[numMagic] = {
     { "#X3D V3", "wrl" }
 };
 
-const char *coVRFileManager::findFileExt(const char *filename)
+std::string coVRFileManager::findFileExt(const Url &url)
 {
-    FILE *infile = fopen(filename, "r");
-    if (infile)
+    if (url.scheme() == "file")
     {
-
-        char inbuffer[128], upcase[128];
-        if (fgets(inbuffer, 128, infile) == NULL)
+        const char *filename = url.path().c_str();
+        FILE *infile = fopen(filename, "r");
+        if (infile)
         {
-            if (cover->debugLevel(3))
-                cerr << "coVRFileManager::findFileExt: fgets failed" << endl;
-        }
 
-        fclose(infile);
-
-#ifdef VERBOSE
-        cerr << " #### filename='" << filename
-             << "'   header='" << inbuffer
-             << "'" << endl;
-#endif
-
-        inbuffer[127] = '\0';
-        char *iPtr = inbuffer;
-        char *oPtr = upcase;
-
-        while (*iPtr)
-        {
-            if (*iPtr >= 'a' && *iPtr <= 'z')
-                *oPtr = *iPtr - 'a' + 'A';
-            else
-                *oPtr = *iPtr;
-            iPtr++;
-            oPtr++;
-        }
-        *oPtr = '\0';
-        //cerr << upcase << endl;
-
-        for (int i = 0; i < numMagic; i++)
-        {
-            if (strstr(upcase, magic[i].text))
+            char inbuffer[128], upcase[128];
+            if (fgets(inbuffer, 128, infile) == NULL)
             {
+                if (cover->debugLevel(3))
+                    cerr << "coVRFileManager::findFileExt: fgets failed" << endl;
+            }
+
+            fclose(infile);
+
 #ifdef VERBOSE
-                cerr << "Identified file " << filename
-                     << " as " << magic[i].format << endl;
+            cerr << " #### filename='" << filename
+                 << "'   header='" << inbuffer
+                 << "'" << endl;
 #endif
-                return magic[i].format;
+
+            inbuffer[127] = '\0';
+            char *iPtr = inbuffer;
+            char *oPtr = upcase;
+
+            while (*iPtr)
+            {
+                if (*iPtr >= 'a' && *iPtr <= 'z')
+                    *oPtr = *iPtr - 'a' + 'A';
+                else
+                    *oPtr = *iPtr;
+                iPtr++;
+                oPtr++;
+            }
+            *oPtr = '\0';
+            //cerr << upcase << endl;
+
+            for (int i = 0; i < numMagic; i++)
+            {
+                if (strstr(upcase, magic[i].text))
+                {
+#ifdef VERBOSE
+                    cerr << "Identified file " << filename
+                         << " as " << magic[i].format << endl;
+#endif
+                    return magic[i].format;
+                }
             }
         }
     }
+    const auto &path = url.path();
     /* look for final "." in filename */
-    const char *ext = strchr(filename, '.');
+    const char *ext = strchr(path.c_str(), '.');
     /* no dot, assume it's just the extension */
     if (ext == NULL)
-        return filename;
+        return std::string();
     else
         /* advance "ext" past the period character */
         ++ext;
@@ -1167,11 +1080,24 @@ const FileHandler *coVRFileManager::getFileHandler(const char *extension)
 
 const FileHandler *coVRFileManager::findFileHandler(const char *pathname)
 {
+    std::vector<const char *> extensions;
+    if (const char *p = strrchr(pathname, '/'))
+    {
+        extensions.push_back(p+1);
+    }
+    else
+    {
+        extensions.push_back(pathname);
+    }
     for (const char *p = strchr(pathname, '.'); p; p = strchr(p, '.'))
     {
         ++p;
         const char *extension = p;
+        extensions.push_back(extension);
+    }
 
+    for (auto extension: extensions)
+    {
         for (FileHandlerList::iterator it = fileHandlerList.begin();
                 it != fileHandlerList.end();
                 ++it)

@@ -37,6 +37,7 @@ public:
     virtual void guiToRenderMsg(const char *msg);
     //    virtual void message(int toWhom, int type, int length, const void *data);
 
+    static int loadCoxmlUrl(const opencover::Url &url, osg::Group *group, const char *ck = "");
     static int loadCoxml(const char *filename, osg::Group *group, const char *ck = "");
     static int replaceCoxml(const char *filename, osg::Group *group, const char *ck = "");
     static int unloadCoxml(const char *filename, const char *ck = "");
