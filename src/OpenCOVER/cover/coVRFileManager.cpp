@@ -633,7 +633,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         if (url.authority() == "plugin")
         {
-            coVRPluginList::instance()->addPlugin(url.path().c_str());
+            coVRPluginList::instance()->addPlugin(url.path().c_str()+1);
         }
         return nullptr;
     }
