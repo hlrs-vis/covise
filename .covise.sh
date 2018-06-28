@@ -22,7 +22,7 @@ esac
 function find_cmake3() {
     if [ -z "$COVISE_CMAKE" ]; then
         COVISE_CMAKE=cmake
-        which cmake3 2>&1 >/dev/null && COVISE_CMAKE=cmake3
+        which cmake3 >/dev/null 2>&1 && COVISE_CMAKE=cmake3
         if ! is_cmake3; then
             COVISE_CMAKE=cmake
         fi
