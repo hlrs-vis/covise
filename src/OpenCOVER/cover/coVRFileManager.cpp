@@ -89,7 +89,7 @@ Url::Url(const std::string &url)
 
 #ifdef WIN32
     // probably just a drive letter, not a URL scheme
-    if (it - str.begin() <= 1)
+    if (it - url.begin() <= 1)
         return;
 #endif
 

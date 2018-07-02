@@ -56,7 +56,7 @@ class coVRIOReader;
 
 struct LoadedFile;
 
-class Url
+class COVEREXPORT Url
 {
 public:
     Url(const std::string &url);
