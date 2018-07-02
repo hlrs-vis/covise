@@ -177,7 +177,7 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     if "%VCPKG_ROOT%" NEQ "" (
         set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
-        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.5.6"
+        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.6.2"
     )
 )
 
