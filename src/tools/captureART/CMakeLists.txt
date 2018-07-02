@@ -7,16 +7,18 @@ IF(WIN32)
   SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../../../cmakemodules/windows;${CMAKE_MODULE_PATH}")
 ENDIF()
 
+include_directories(../../OpenCOVER/cover/input/dev/dtrack)
 
-
-ADD_COVISE_EXECUTABLE(captureART captureART.cpp captureART.h DTrackSDK.cpp  DTrackSDK.hpp
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackNet.cpp 
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackNet.h
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackParse.cpp
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackParse.hpp
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackParser.cpp
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackParser.hpp
-../../OpenCOVER/cover/input/dev/dtrack/Lib/DTrackDataTypes.h
+ADD_COVISE_EXECUTABLE(captureART captureART.cpp captureART.h
+../../OpenCOVER/cover/input/dev/dtrack/DTrackSDK.cpp 
+../../OpenCOVER/cover/input/dev/dtrack/DTrackSDK.hpp
+../../OpenCOVER/cover/input/dev/dtrack/DTrackNet.cpp 
+../../OpenCOVER/cover/input/dev/dtrack/DTrackNet.h
+../../OpenCOVER/cover/input/dev/dtrack/DTrackParse.cpp
+../../OpenCOVER/cover/input/dev/dtrack/DTrackParse.hpp
+../../OpenCOVER/cover/input/dev/dtrack/DTrackParser.cpp
+../../OpenCOVER/cover/input/dev/dtrack/DTrackParser.hpp
+../../OpenCOVER/cover/input/dev/dtrack/DTrackDataTypes.h
 )
 
 if (WIN32)

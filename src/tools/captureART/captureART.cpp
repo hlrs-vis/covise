@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 		for (int i = 0; i < dt->getNumBody(); i++)
 		{
 			ftime(&frameTime);
-			DTrack_Body_Type_d *b = dt->getBody(i);
+			const DTrack_Body_Type_d *b = dt->getBody(i);
 			fprintf(fp, "body %ld; %ld, %d: %f %f %f %f %f %f %f %f %f %f %f %f\n", (long)frameTime.time, (long)frameTime.millitm, i, b->loc[0], b->loc[1], b->loc[2], b->rot[0], b->rot[1], b->rot[2], b->rot[3], b->rot[4], b->rot[5], b->rot[6], b->rot[7], b->rot[8]);
 		}
 	}
