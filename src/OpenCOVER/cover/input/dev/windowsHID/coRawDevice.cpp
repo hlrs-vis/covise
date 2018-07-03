@@ -20,7 +20,6 @@ coRawDevice::coRawDevice(const char *deviceName)
     buttonNumber = 0;
     if (deviceName == NULL)
         return;
-    int i;
     /*char *devName = new char[strlen(deviceName) + 1];
     strcpy(devName, deviceName);
     for (i = 0; i < strlen(devName); i++)
@@ -28,9 +27,9 @@ coRawDevice::coRawDevice(const char *deviceName)
         if (devName[i] == '\\')
             devName[i] = '#';
     }*/
-    for (i = 0; i < coRawDeviceManager::instance()->numDevices(); i++)
+    fprintf(stderr, "looking for:%s\n", deviceName);
+    for (int i = 0; i < coRawDeviceManager::instance()->numDevices(); i++)
     {
-        fprintf(stderr, "looking for:%s\n", deviceName);
         if(strlen(coRawDeviceManager::instance()->rawDevices[i].deviceName)>4)
         {
             fprintf(stderr, "try        :%s\n", coRawDeviceManager::instance()->rawDevices[i].deviceName + 4);
@@ -39,6 +38,7 @@ coRawDevice::coRawDevice(const char *deviceName)
                 // currently only one button device works TODO fix itbuttonNumber = i;
 
                 fprintf(stderr, "found:%d\n", i);
+                buttonNumber = i;
                 break;
             }
         }
