@@ -129,6 +129,12 @@ const char *TUIFileBrowserButton::getClassName() const
     return "TUIFileBrowserButton";
 }
 
+void TUIFileBrowserButton::setLabel(QString textl)
+{
+    if (auto b = qobject_cast<QPushButton *>(widget))
+        b->setText(textl);
+}
+
 void TUIFileBrowserButton::sendSelectedFile(QString file, QString dir, bool loadAll)
 {
     covise::TokenBuffer tb;

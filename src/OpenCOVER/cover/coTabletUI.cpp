@@ -133,6 +133,51 @@ coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     tui()->send(tb);
 }
 
+coTUIFileBrowserButton::coTUIFileBrowserButton(coTabletUI *tui, const char *n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_FILEBROWSER_BUTTON)
+{
+    VRBData *locData = new VRBData(this);
+    mLocalData = new LocalData(this);
+    mData = NULL;
+    this->mVRBCId = 0;
+    mAGData = NULL;
+    mMode = coTUIFileBrowserButton::OPEN;
+
+#ifdef FB_USE_AG
+    AGData *locAGData = new AGData(this);
+    mAGData = locAGData;
+#endif
+
+    std::string locCurDir = mLocalData->resolveToAbsolute(std::string("."));
+    locData->setLocation("127.0.0.1");
+    locData->setCurrentPath(locCurDir);
+    mLocalData->setCurrentPath(locCurDir);
+    Host host;
+    std::string shost(host.getAddress());
+    this->mId = ID;
+    locData->setId(this->mId);
+    mLocation = shost;
+    mLocalIP = shost;
+    mLocalData->setLocation(shost);
+    this->mDataObj = locData;
+    this->mDataObj->setLocation(shost);
+
+    this->mDataRepo.insert(Data_Pair("vrb", mDataObj));
+    this->mDataRepo.insert(Data_Pair("file", mLocalData));
+#ifdef FB_USE_AG
+    this->mDataRepo.insert(Data_Pair("agtk", mAGData));
+#endif
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_CURDIR;
+    tb << ID;
+    std::string path = mDataObj->getCurrentPath();
+    tb << path.c_str();
+
+    tui->send(tb);
+}
+
 coTUIFileBrowserButton::~coTUIFileBrowserButton()
 {
     this->mFileList.clear();

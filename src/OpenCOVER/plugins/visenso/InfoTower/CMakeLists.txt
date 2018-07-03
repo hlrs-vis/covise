@@ -1,3 +1,5 @@
+USING(BOOST)
+
 SET(HEADERS
 InfoTower.h
 SharedMemoryImageBuffer.h

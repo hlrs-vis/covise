@@ -58,7 +58,7 @@ Build Requirements
   GCC 4.8 and newer should work.
 
 - **CMake**:
-  2.8.10 or newer should work, but currently we suggest CMake 3.7
+  3.1 or newer is required, but currently we suggest CMake 3.7
 - **XercesC**:
 - **Qt**:
   Qt 5 is required by the graphical user interface.

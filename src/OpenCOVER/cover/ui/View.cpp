@@ -9,6 +9,7 @@
 #include "Slider.h"
 #include "SelectionList.h"
 #include "EditField.h"
+#include "FileBrowser.h"
 
 #include <iostream>
 #include <cassert>
@@ -79,6 +80,10 @@ View::ViewElement *View::elementFactory(Element *elem)
     else if (auto input = dynamic_cast<EditField *>(elem))
     {
         ve = elementFactoryImplementation(input);
+    }
+    else if (auto fb = dynamic_cast<FileBrowser *>(elem))
+    {
+        ve = elementFactoryImplementation(fb);
     }
 
     if (ve)

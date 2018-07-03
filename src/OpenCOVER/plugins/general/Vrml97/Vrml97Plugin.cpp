@@ -97,27 +97,27 @@ using namespace grmsg;
 Vrml97Plugin *Vrml97Plugin::plugin = NULL;
 
 static FileHandler handlers[] = {
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl.gz" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrz" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
 	  "x3d" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
@@ -148,6 +148,11 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
         g = dynamic_cast<osg::Group *>(g->getChild(0));
     }
     return plugin->viewer->VRMLRoot;
+}
+
+int Vrml97Plugin::loadUrl(const Url &url, osg::Group *group, const char *ck)
+{
+    return loadVrml(url.str().c_str(), group, ck);
 }
 
 int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *)

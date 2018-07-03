@@ -351,6 +351,7 @@ void PointCloudPlugin::readMenuConfigData(const char *menu, vector<ImageFileEntr
     }
 }
 
+
 void PointCloudPlugin::changeAllLOD(float lod)
 {
     for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
@@ -358,7 +359,9 @@ void PointCloudPlugin::changeAllLOD(float lod)
         //TODO calc distance correctly
         for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
-            ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(lod);
+            auto geo = dynamic_cast<PointCloudGeometry *>(nit->node->getDrawable(0));
+            if (geo)
+                geo->changeLod(lod);
         }
     }
 }
@@ -370,7 +373,9 @@ void PointCloudPlugin::changeAllPointSize(float pointSize)
         //TODO calc distance correctly
         for (std::vector<NodeInfo>::iterator nit = fit->nodes.begin(); nit != fit->nodes.end(); nit++)
         {
-            ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->setPointSize(pointSize);
+            auto geo = dynamic_cast<PointCloudGeometry *>(nit->node->getDrawable(0));
+            if (geo)
+                geo->setPointSize(pointSize);
         }
     }
 }
@@ -1046,11 +1051,11 @@ int PointCloudPlugin::unloadFile(std::string filename)
             }
             pointSet = NULL;
             files.erase(fit);
-            return 1;
+            return 0;
         }
     }
-    files.clear();
-    return 0;
+    files.clear(); // FIXME: really?
+    return -1;
 }
 
 int PointCloudPlugin::unloadPTS(const char *filename, const char *)
@@ -1131,7 +1136,9 @@ void PointCloudPlugin::preFrame()
         {
             osg::Matrix tr;
             tr.makeIdentity();
-            osg::Group *parent = nit->node->getParent(0);
+            osg::Group *parent = nullptr;
+            if (nit->node->getNumParents() > 0)
+                parent = nit->node->getParent(0);
             while (parent != NULL)
             {
                 if (dynamic_cast<osg::MatrixTransform *>(parent))
@@ -1144,7 +1151,7 @@ void PointCloudPlugin::preFrame()
                 else
                     parent = NULL;
             }
-            osg::Vec3 nodeCenter = ((Geode *)nit->node)->getBound().center();
+            osg::Vec3 nodeCenter = nit->node->getBound().center();
             osg::Vec3 nodeCenterWorld = tr.preMult(nodeCenter);
 
             double distance = (vecBase - nodeCenterWorld).length2();
@@ -1175,7 +1182,7 @@ void PointCloudPlugin::preFrame()
 
             if (adaptLOD)
             {
-                ((PointCloudGeometry *)((osg::Geode *)nit->node)->getDrawable(0))->changeLod(levelOfDetail * lodScale);
+                ((PointCloudGeometry *)nit->node->getDrawable(0))->changeLod(levelOfDetail * lodScale);
             }
         }
     }
