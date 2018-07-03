@@ -244,6 +244,7 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
             }
             else if(rawDevices[i].type == RIM_TYPEKEYBOARD)
             {
+#if 0
                 fprintf(stderr,"KeyboardMessage %d \n",i);
                 fprintf(stderr,"Kbd: make=%04x Flags:%04x Reserved:%04x ExtraInformation:%08x, msg=%04x VK=%04x i=%d\n", 
     raw->data.keyboard.MakeCode, 
@@ -253,6 +254,7 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
     raw->data.keyboard.Message, 
     raw->data.keyboard.VKey,
 					i);
+#endif
                 int value=0;
                 if(raw->data.keyboard.Message == 0x100) // key press
                 {
