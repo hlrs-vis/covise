@@ -74,8 +74,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
     m_is6Dof = true;
 
     cout << "Initializing DTrack:" << configPath() << endl;
-    int dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
-    dt = new DTrackSDK(dtrack_port);
+    m_dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
+    dt = new DTrackSDK(m_dtrack_port);
 
     if (!dt->isLocalDataPortValid())
         cout << "Cannot initialize DTrack!" << endl;
@@ -235,7 +235,7 @@ bool DTrackDriver::poll()
 
         if (dt->getLastDataError() == DTrackSDK::ERR_NET)
         {
-            cout << "--- error while receiving tracking data" << endl;
+            fprintf(stderr, "DTrack Driver error: local UDP port %d already in use\n", m_dtrack_port);
             //return -1;
         }
 
