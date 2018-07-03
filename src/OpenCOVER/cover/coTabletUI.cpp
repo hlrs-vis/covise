@@ -133,6 +133,51 @@ coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     tui()->send(tb);
 }
 
+coTUIFileBrowserButton::coTUIFileBrowserButton(coTabletUI *tui, const char *n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_FILEBROWSER_BUTTON)
+{
+    VRBData *locData = new VRBData(this);
+    mLocalData = new LocalData(this);
+    mData = NULL;
+    this->mVRBCId = 0;
+    mAGData = NULL;
+    mMode = coTUIFileBrowserButton::OPEN;
+
+#ifdef FB_USE_AG
+    AGData *locAGData = new AGData(this);
+    mAGData = locAGData;
+#endif
+
+    std::string locCurDir = mLocalData->resolveToAbsolute(std::string("."));
+    locData->setLocation("127.0.0.1");
+    locData->setCurrentPath(locCurDir);
+    mLocalData->setCurrentPath(locCurDir);
+    Host host;
+    std::string shost(host.getAddress());
+    this->mId = ID;
+    locData->setId(this->mId);
+    mLocation = shost;
+    mLocalIP = shost;
+    mLocalData->setLocation(shost);
+    this->mDataObj = locData;
+    this->mDataObj->setLocation(shost);
+
+    this->mDataRepo.insert(Data_Pair("vrb", mDataObj));
+    this->mDataRepo.insert(Data_Pair("file", mLocalData));
+#ifdef FB_USE_AG
+    this->mDataRepo.insert(Data_Pair("agtk", mAGData));
+#endif
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_CURDIR;
+    tb << ID;
+    std::string path = mDataObj->getCurrentPath();
+    tb << path.c_str();
+
+    tui->send(tb);
+}
+
 coTUIFileBrowserButton::~coTUIFileBrowserButton()
 {
     this->mFileList.clear();
@@ -4027,9 +4072,9 @@ coTabletUI::coTabletUI()
     init();
 
     std::string line;
-    if (getenv("COVER_TABLETPC"))
+    if (getenv("COVER_TABLETUI"))
     {
-        std::string env(getenv("COVER_TABLETPC"));
+        std::string env(getenv("COVER_TABLETUI"));
         std::string::size_type p = env.find(':');
         if (p != std::string::npos)
         {
@@ -4037,14 +4082,14 @@ coTabletUI::coTabletUI()
             env = env.substr(0, p);
         }
         line = env;
-        std::cerr << "getting TabletPC configuration from $COVER_TABLETPC: " << line << ":" << port << std::endl;
+        std::cerr << "getting TabletPC configuration from $COVER_TABLETUI: " << line << ":" << port << std::endl;
         serverMode = false;
     }
     else
     {
-        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", port);
-        line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
-        serverMode = coCoviseConfig::isOn("COVER.TabletPC.ServerMode", false);
+        port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
+        line = coCoviseConfig::getEntry("host","COVER.TabletUI");
+        serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
     }
 
     if (!line.empty())

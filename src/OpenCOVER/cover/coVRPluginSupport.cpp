@@ -820,6 +820,7 @@ coVRPluginSupport::coVRPluginSupport()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
+    ui->init();
 
     auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
     interactorScaleSlider->setText("Interactor scale");

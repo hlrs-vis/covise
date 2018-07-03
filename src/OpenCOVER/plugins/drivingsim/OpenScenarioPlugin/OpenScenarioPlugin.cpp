@@ -100,11 +100,11 @@ OpenScenarioPlugin::OpenScenarioPlugin()
 	GL_fmt = GL_BGRA;
 #endif
 	doWait = false;
-	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 1);
+	frameRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.FrameRate", 0);
 	writeRate = covise::coCoviseConfig::getInt("COVER.Plugin.OpenScenario.WriteRate", 0);
     minSimulationStep = covise::coCoviseConfig::getFloat("COVER.Plugin.OpenScenario.MinSimulationStep", minSimulationStep);
 	doExit = covise::coCoviseConfig::isOn("COVER.Plugin.OpenScenario.ExitOnScenarioEnd", false);
-
+    if(frameRate > 0)
 	coVRConfig::instance()->setFrameRate(frameRate);
 
 	scenarioManager = new ScenarioManager();
@@ -339,24 +339,7 @@ bool OpenScenarioPlugin::advanceTime(double step)
                                                 {
                                                     Trajectory* currentTrajectory = currentAction->actionTrajectory;
 
-													Position* currentPos;
-													// check if Trajectory is about to start or Entity arrived at vertice
-													if (currentEntity->totalDistance == 0)
-													{
-														currentPos = ((Position*)(currentTrajectory->Vertex[currentEntity->visitedVertices]->Position.getObject()));
-
-														currentPos->getAbsolutePosition(currentEntity, scenarioManager->entityList);
-														cout << "Entity next target: " << currentEntity->newRefPos->xyz[0] << ", " << currentEntity->newRefPos->xyz[1] << ", " << currentEntity->refPos->xyz[2] << endl;
-
-														currentEntity->setTrajectoryDirection();
-														if (currentTrajectory->domain.getValue() == 0)
-														{
-															// calculate speed from trajectory vertices
-															currentEntity->setTrajSpeed(currentTrajectory->getReference(currentEntity->visitedVertices));
-														}
-													}
-
-													currentEntity->followTrajectory(currentEvent, currentTrajectory->verticesCounter);
+													currentEntity->followTrajectory(currentEvent);
 													//cout << "Entity new Position: " << currentEntity->refPos->xyz[0] << ", " << currentEntity->refPos->xyz[1] << ", "<< currentEntity->refPos->xyz[2] << endl;
 
 													unusedEntity.remove(currentEntity);
@@ -520,7 +503,8 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			if (userdata->code.getValue() == "FrameRate")
 			{
 				frameRate = std::stoi(userdata->value.getValue());
-				coVRConfig::instance()->setFrameRate(frameRate);
+                if (frameRate > 0)
+                    coVRConfig::instance()->setFrameRate(frameRate);
 			}
 			else if (userdata->code.getValue() == "WriteRate")
 			{
@@ -886,7 +870,7 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 					for (list<Event*>::iterator event_iter = currentManeuver->eventList.begin(); event_iter != currentManeuver->eventList.end(); event_iter++)
 					{
 						Event* currentEvent = (*event_iter);
-						currentEvent->initialize(currentSequence->actorList.size());
+						//currentEvent->initialize();
 						if (currentEvent->StartConditions.exists())
 						{
 							for (oscStartConditionsArrayMember::iterator it = currentEvent->StartConditions->ConditionGroup.begin(); it != currentEvent->StartConditions->ConditionGroup.end(); it++)
@@ -918,8 +902,6 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 									}
 									currentAction->setTrajectory(traj);
 
-									int verticesCounter = traj->Vertex.size();
-									traj->initialize(verticesCounter);
 
 									currentEvent->actionList.push_back(currentAction);
 								}

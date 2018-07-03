@@ -102,3 +102,44 @@ std::string toLower(const std::string &str)
         lower.push_back((unsigned char)tolower(str[ch]));
     return lower;
 }
+
+std::string url_decode(const std::string &str, bool in_path)
+{
+    std::string decoded;
+    decoded.reserve(str.size());
+    for (std::size_t i = 0; i < str.size(); ++i)
+    {
+        if (str[i] == '%')
+        {
+            if (i + 3 <= str.size())
+            {
+                int value = 0;
+                std::istringstream is(str.substr(i + 1, 2));
+                if (is >> std::hex >> value)
+                {
+                    decoded += static_cast<char>(value);
+                    i += 2;
+                }
+                else
+                {
+                    decoded.clear();
+                    break;
+                }
+            }
+            else
+            {
+                decoded.clear();
+                break;
+            }
+        }
+        else if (in_path && str[i] == '+')
+        {
+            decoded += ' ';
+        }
+        else
+        {
+            decoded += str[i];
+        }
+    }
+    return decoded;
+}

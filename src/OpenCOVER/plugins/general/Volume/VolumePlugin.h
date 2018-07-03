@@ -114,6 +114,7 @@ public:
     void tabletEvent(coTUIElement *tUIItem) override;
     //void tabletDataEvent(coTUIElement* tUIItem, TokenBuffer &tb);
 
+    static int loadUrl(const Url &url, osg::Group *parent, const char *ck = "");
     static int loadVolume(const char *, osg::Group *parent, const char *ck = "");
     static int unloadVolume(const char *, const char *ck = "");
 
@@ -219,7 +220,7 @@ private:
     static void changeChannelFunction(int oldChan, int newChan, void *userData);
     bool pointerInROI(bool *wasMousePointer);
     bool roiVisible();
-    int loadFile(const char *, osg::Group *parent);
+    int loadFile(const char *, osg::Group *parent, const vvVolDesc *params = nullptr);
     void sendROIMessage(osg::Vec3, float);
 
     void setROIMode(bool);

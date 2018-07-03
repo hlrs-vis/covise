@@ -1,14 +1,14 @@
 SET(HEADERS
-   Lib/DTrackDataTypes.h
-   Lib/DTrackNet.h
+   DTrackDataTypes.h
+   DTrackNet.h
    DTrackSDK.hpp
    DTrackDriver.h
 )
 
 SET(SOURCES
-   Lib/DTrackNet.cpp
-   Lib/DTrackParse.cpp
-   Lib/DTrackParser.cpp
+   DTrackNet.cpp
+   DTrackParse.cpp
+   DTrackParser.cpp
    DTrackSDK.cpp
    DTrackDriver.cpp
 )

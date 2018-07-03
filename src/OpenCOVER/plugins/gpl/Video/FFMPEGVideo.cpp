@@ -526,7 +526,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
     if (oc)
     {
         /* free the streams */
-        for (int i = 0; i < oc->nb_streams; i++)
+        for (unsigned int i = 0; i < oc->nb_streams; i++)
         {
             av_freep(&oc->streams[i]);
         }
@@ -562,10 +562,7 @@ void FFMPEGPlugin::init_GLbuffers()
 bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBFormat)
 {
 
-#ifdef WIN32
-       myPlugin->GL_fmt = GL_BGR_EXT;
-       capture_fmt = AV_PIX_FMT_RGB24;
-#else
+
     if (RGBFormat == 1)
     {
        myPlugin->GL_fmt = GL_BGRA;
@@ -584,7 +581,6 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
         capture_fmt = AV_PIX_FMT_BGR32;
 #endif
     }
-#endif
     linesize = myPlugin->inWidth * 4;
 
     if (!FFMPEGInit(NULL, NULL, filename, false))

@@ -148,8 +148,8 @@ LoadBookmarks(Interface *ip, TCHAR *filename, HWND hlist)
         //Load from the ini file.
         TCHAR bm[BM_SIZE], *pbm;
 
-        int rc = GetPrivateProfileSection(BOOKMARK_SECTION, bm, BM_SIZE,
-                                          ExportIniFilename(ip));
+        int rc = MaxSDK::Util::GetPrivateProfileSection(BOOKMARK_SECTION, (LPWSTR)bm, BM_SIZE,
+                                         (LPCWSTR) ExportIniFilename(ip));
         // Clean out the old list if it exists
         for (int i = bookmarks.Count() - 1; i >= 0; i--)
         {
@@ -190,10 +190,10 @@ SaveBookmarks(Interface *ip)
 {
     //Load from the ini file.
     // First Nuke the old ones
-    WritePrivateProfileSection(BOOKMARK_SECTION, _T("\0\0"),
+    MaxSDK::Util::WritePrivateProfileSection(BOOKMARK_SECTION, _T("\0\0"),
                                ExportIniFilename(ip));
     for (int i = 0; i < bookmarks.Count(); i++)
-        WritePrivateProfileString(BOOKMARK_SECTION,
+        MaxSDK::Util::WritePrivateProfileString(BOOKMARK_SECTION,
                                   bookmarks[i]->url, bookmarks[i]->desc,
                                   ExportIniFilename(ip));
 }

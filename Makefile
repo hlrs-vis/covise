@@ -36,7 +36,7 @@ addons:
 		export BUILDDIR=$${COVISEDIR}/$${ARCHSUFFIX}/build.addon-$$(basename $${dir}); \
 		mkdir -p $${BUILDDIR} && \
 		cd $${BUILDDIR} && \
-		cmake $${COVISE_CMAKE_OPTIONS} $${dir} && \
+		$(COVISE_CMAKE) $${COVISE_CMAKE_OPTIONS} $${dir} && \
 		make; \
 	done
 

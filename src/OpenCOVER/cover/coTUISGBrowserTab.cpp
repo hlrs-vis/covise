@@ -7,7 +7,6 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <iostream>
-#include <unistd.h>
 #include <util/unixcompat.h>
 
 namespace opencover {

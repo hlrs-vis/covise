@@ -341,6 +341,26 @@ bool Doc::filename(char *fn, int nfn)
     {
         // we have a local file now but does this exist?
         // if not, the try to fetch it from a remote site if possible
+#ifdef WIN32
+        struct _stat64 sbuf;
+        if (_stat64(s, &sbuf))
+        {
+            cerr << "file " << s << " not local, try to get it from remote " << endl;
+
+            if (d_tmpfile) // Already fetched it
+            {
+                s = d_tmpfile;
+            }
+            else if ((s = (char *)System::the->remoteFetch(s)))
+            {
+                d_tmpfile = new char[strlen(s) + 1 + endLength];
+                strcpy(d_tmpfile, s);
+                // XXX: there is a problem here: freeing sth not malloced...
+                //free(const_cast<char *>(s));        // assumes tempnam or equiv...
+                s = d_tmpfile;
+            }
+        }
+#else
         struct stat sbuf;
         if (stat(s, &sbuf))
         {
@@ -359,6 +379,7 @@ bool Doc::filename(char *fn, int nfn)
                 s = d_tmpfile;
             }
         }
+#endif
         if (s)
         {
             strncpy(fn, s, nfn - 1);
