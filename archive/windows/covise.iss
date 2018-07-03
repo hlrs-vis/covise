@@ -340,6 +340,7 @@ Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Compone
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
+Source: {#COVISEDIR}\src\3rdparty\deskvox\virvo\shader\*; DestDir: {app}\share\covise\shaders; Excludes: .svn\*; Flags: recursesubdirs; Components: core
 #if VERSION ==  "HLRS"
 ;Source: {#EXTERNLIBS}\sed\*.exe; DestDir: {#DBIN}; Components: core
 ;Source: {#EXTERNLIBS}\sed\*.dll; DestDir: {#DBIN}; Components: core
