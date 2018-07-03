@@ -15,14 +15,15 @@ set "generator=Visual Studio 15 2017 Win64"
 
 set EXTERNLIBS=
 set ARCHSUFFIX=vcpkgopt
-set cfg=RelWithDebInfo
 set "vc=%vcdir%\vcpkg"
 set "COVISEDIR=%CD%"
 set "COVISEDESTDIR=%CD%"
 
+set cfg=RelWithDebInfo
 if "%ARCHSUFFIX%" == "vcpkg" (
     set cfg=Debug
 )
+set ARCHSUFFIX=vcpkg
 
 set "verb=/consoleloggerparameters:Summary;Verbosity=minimal;ForceNoAlign;ShowTimestamp"
 set "par=/m"
@@ -40,15 +41,12 @@ REM choco -y install git swig winflexbison
 "%vc%" install qt5-tools qt5-base qt5-svg
 "%vc%" install openvr
 "%vc%" install pcl
-REM "%vc%" install qt5
 
 %vc% list
 REM %vc% integrate project
 
 mkdir vcpkg
 cd vcpkg
-
-goto COVER
 
 :COVISE
 mkdir build.covise
