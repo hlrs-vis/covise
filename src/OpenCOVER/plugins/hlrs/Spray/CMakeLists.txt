@@ -1,4 +1,7 @@
 covise_find_package(embree 3.0.0)
+if (NOT EMBREE_FOUND)
+    return()
+endif()
 
 include_directories(${EMBREE_INCLUDE_DIRS})
 
