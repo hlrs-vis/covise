@@ -276,15 +276,15 @@ BOOL coRawDeviceManager::read_raw_input(PRAWINPUT raw)
                     }
                     if(raw->data.keyboard.MakeCode == 0x34)// .
                     {
-                        rawDevices[i].buttonpressed[2] = value;
+                        rawDevices[i].buttonpressed[3] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x3f)// F5
                     {
-                        rawDevices[i].buttonpressed[3] = value;
+                        rawDevices[i].buttonpressed[2] = value;
                     }
                     if(raw->data.keyboard.MakeCode == 0x3f)// Escape
                     {
-                        rawDevices[i].buttonpressed[3] = value;
+                        rawDevices[i].buttonpressed[2] = value;
                     }
             }
             else if(rawDevices[i].type == RIM_TYPEHID)
