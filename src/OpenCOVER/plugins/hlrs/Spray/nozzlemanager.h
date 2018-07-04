@@ -66,13 +66,13 @@ public:
 
     void init();
 
-    nozzle *createNozzle(std::__cxx11::string nozzleName);
-    nozzle *createImageNozzle(std::__cxx11::string nozzleName, std::string pathName, std::string fileName);
-    nozzle *createStandardNozzle(std::string nozzleName, float sprayAngle, std::__cxx11::string decoy);
+    nozzle *createNozzle(std::string nozzleName);
+    nozzle *createImageNozzle(std::string nozzleName, std::string pathName, std::string fileName);
+    nozzle *createStandardNozzle(std::string nozzleName, float sprayAngle, std::string decoy);
 
     int removeNozzle(int index);
-    void saveNozzle(std::__cxx11::string pathName, std::__cxx11::string fileName);
-    void loadNozzle(std::__cxx11::string pathName, std::__cxx11::string fileName);
+    void saveNozzle(std::string pathName, std::string fileName);
+    void loadNozzle(std::string pathName, std::string fileName);
 
     void update();
     void remove_all();

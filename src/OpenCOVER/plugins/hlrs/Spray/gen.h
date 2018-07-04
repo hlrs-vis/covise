@@ -1,29 +1,29 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include "../../../PluginUtil/coSphere.h"
-#include "../../../../../../../../usr/include/osg/MatrixTransform"
-#include "../../../../../../../../usr/include/osg/Matrix"
-#include "../../../../../../../../usr/include/osg/ShapeDrawable"
-#include "../../../../../../../../usr/include/osg/Shape"
-#include "../../../../../../../../usr/include/osg/Quat"
-#include "../../../../../../../../usr/include/osg/Vec3f"
-
-#include "../../../../kernel/config/CoviseConfig.h"
-using namespace covise;
-
-#include "../../../../OpenCOVER/cover/coVRPluginSupport.h"
-#include "../../../../OpenCOVER/cover/coVRFileManager.h"
-#include "../../../../OpenCOVER/cover/coVRPlugin.h"
-#include "../../../../OpenCOVER/cover/coVRTui.h"
-#include "../../../../OpenCOVER/PluginUtil/coSphere.h"
-#include "../../../../OpenCOVER/PluginUtil/coVR3DTransRotInteractor.h"
 #include "types.h"
 #include "nozzle.h"
-#include "math.h"
-
 #include "parser.h"
 #include "raytracer.h"
+
+#include <PluginUtil/coSphere.h>
+#include <osg/MatrixTransform>
+#include <osg/Matrix>
+#include <osg/ShapeDrawable>
+#include <osg/Shape>
+#include <osg/Quat>
+#include <osg/Vec3>
+
+#include <config/CoviseConfig.h>
+
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRPlugin.h>
+#include <cover/coVRTui.h>
+#include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <cmath>
+
+using namespace covise;
 using namespace opencover;
 
 const float g = 9.81;

@@ -1,36 +1,35 @@
 #ifndef SPRAY_H
 #define SPRAY_H
 
-#include "../../../../../../../../usr/include/osg/MatrixTransform"
-#include "../../../../../../../../usr/include/osg/Matrix"
-#include "../../../../../../../../usr/include/osg/ShapeDrawable"
-#include "../../../../../../../../usr/include/osg/Shape"
-#include "../../../../../../../../usr/include/osg/Quat"
-#include "../../../../../../../../usr/include/osg/Vec3f"
+#include <osg/MatrixTransform>
+#include <osg/Matrix>
+#include <osg/ShapeDrawable>
+#include <osg/Shape>
+#include <osg/Quat>
+#include <osg/Vec3f>
 
-#include "../../../../kernel/config/CoviseConfig.h"
+#include <config/CoviseConfig.h>
 using namespace covise;
 
-#include "../../../../OpenCOVER/cover/coVRPluginSupport.h"
-#include "../../../../OpenCOVER/cover/coVRFileManager.h"
-#include "../../../../OpenCOVER/cover/coVRPlugin.h"
-#include "../../../../OpenCOVER/cover/coVRTui.h"
-#include "../../../../OpenCOVER/PluginUtil/coSphere.h"
-#include "../../../../OpenCOVER/PluginUtil/coVR3DTransRotInteractor.h"
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
+#include <cover/coVRPlugin.h>
+#include <cover/coVRTui.h>
+#include <PluginUtil/coSphere.h>
+#include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
-#include "../../../../OpenCOVER/cover/ui/Button.h"
-#include "../../../../OpenCOVER/cover/ui/Slider.h"
-#include "../../../../OpenCOVER/cover/ui/Label.h"
+#include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/Label.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 using namespace opencover;
 
 #include "string.h"
-#include <stdio.h>
 
 #include "nodevisitorvertex.h"
 

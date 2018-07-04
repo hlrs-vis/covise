@@ -9,8 +9,8 @@ using namespace opencover;
 
 #include <string>
 #include <PluginUtil/coVR3DTransRotInteractor.h>
-#include "../../../../OpenCOVER/cover/coVRTui.h"
-#include "../../../../../../../../usr/include/osgDB/ReadFile"
+#include <cover/coVRTui.h>
+#include <osgDB/ReadFile>
 #include <osg/Matrix>
 #include <osg/Node>
 #include <osg/ShapeDrawable>
@@ -150,7 +150,7 @@ private:
     const char* decoy_;
 public:
     const char* type = "standard";
-    standardNozzle(float sprayAngle, std::__cxx11::string decoy, osg::Matrix initialMat, float size, std::string nozzleName);
+    standardNozzle(float sprayAngle, std::string decoy, osg::Matrix initialMat, float size, std::string nozzleName);
 
     void createGen();
     void save(std::string pathName, std::string fileName);
