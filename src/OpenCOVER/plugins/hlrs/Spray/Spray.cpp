@@ -166,9 +166,9 @@ bool SprayPlugin::init()
                     nozzleEditMenu_->remove(green_);
                     nozzleEditMenu_->remove(alpha_);
                     nozzleEditMenu_->remove(pressureSlider_);
-                    delete nozzleEditMenu_;
                     editing = false;
                     std::cout << "Editing done" << std::endl;
+                    delete nozzleEditMenu_;
 
                 });
 

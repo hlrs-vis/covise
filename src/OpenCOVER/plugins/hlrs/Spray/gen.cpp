@@ -104,7 +104,7 @@ void gen::setCoSphere(){
     float* rVis = new float[particleCount_];
     for(int i = 0; i<particleCount_;i++)rVis[i] = r[i]*100000;
     coSphere_->setMaxRadius(100);
-    coSphere_->setRenderMethod(coSphere::RENDER_METHOD_CPU_BILLBOARDS);
+    coSphere_->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
     coSphere_->setCoords(particleCount_,
                             x,
                             y,
