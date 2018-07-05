@@ -243,13 +243,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <!--Server value="localhost" /-->
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <Server value="141.58.8.187" />
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+   <TabletUI host="141.58.8.187" />
 
    <MultiPC>
     <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>

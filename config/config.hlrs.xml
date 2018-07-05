@@ -216,11 +216,7 @@
     </SteeringWheel-->
    </Plugin>
 
-   <TabletPC>
-    <!-- Server value="localhost" /-->
-    <!--Server value="141.58.8.187" /-->
-   </TabletPC>
-   <Input>
+   <!--TabletUI host="localhost" /-->
     
     <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
    </Input>

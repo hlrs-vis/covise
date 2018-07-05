@@ -103,9 +103,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <Server value="localhost" />
-   </TabletPC>
+   <TabletUI host="localhost" />
 
    <MultiPC>
     <SyncMode value="TCP" />

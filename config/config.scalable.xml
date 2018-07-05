@@ -63,13 +63,7 @@
 
    <HMD value="true" tracked ="true" HMDDistance="1000" angle="110"/>
     <CudaNumThreads value="128" />    
-   <TabletPC>
-   <Server value="localhost" />
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <!--Server value="192.168.43.1" /-->
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+    <TabletUI host="localhost />
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />

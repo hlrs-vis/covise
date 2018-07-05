@@ -79,11 +79,7 @@
 
 		</Plugin>
 
-		<TabletPC>
-			<!--			<Server value="10.139.32.204" port="80"/> -->
-			<Server value="192.168.1.4" />
-<!--			<Server value="localhost" />-->
-		</TabletPC>
+        <TabletUI host="192.168.1.4" />
 
 		<MultiPC>
 			<SyncMode value="TCP" />

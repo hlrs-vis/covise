@@ -71,9 +71,7 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-     <TabletPC>
-         <Server value="localhost"/>
-       </TabletPC>
+    <TabletUI host="localhost" />
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
