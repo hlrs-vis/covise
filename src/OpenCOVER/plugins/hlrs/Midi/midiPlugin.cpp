@@ -278,7 +278,6 @@ bool MidiPlugin::init()
         lTrack[i] = NULL;
         lTrack[i] = new Track(tracks.size(),true);
     }
-    MIDITrans[1]->setMatrix(osg::Matrix::rotate(180,osg::Vec3(0,0,1)));
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     //----------------------------------------------------------------------------
@@ -307,6 +306,7 @@ bool MidiPlugin::init()
         name += std::to_string(i);
         MIDITrans[i]->setName(name);
         MIDIRoot->addChild(MIDITrans[i].get());
+        //MIDITrans[i]->setMatrix(osg::Matrix::rotate(180,osg::Vec3(0,0,1)));
     }
 
     globalmtl = new osg::Material;
@@ -497,7 +497,7 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 {
 #ifndef WIN32
     char devName[100];
-    sprintf(devName, "-/dev/midi%d", device + 1);
+    sprintf(devName, "/dev/midi%d", device + 1);
     midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
     fprintf(stderr, "open /dev/midi%d %d", device + 1, midifd[streamNum]);
     if (midifd[streamNum] <= 0)
