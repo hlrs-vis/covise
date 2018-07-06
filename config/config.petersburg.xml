@@ -162,9 +162,7 @@
 
    </Plugin>
 
-   <TabletPC>
-    <Server value="localhost" />
-   </TabletPC>
+   <TabletUI host="localhost" />
 
   </COVER>
 

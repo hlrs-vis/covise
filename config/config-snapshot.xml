@@ -20,9 +20,7 @@
             <TrackingSystem value="MOUSE" />
          </Input>
 
-         <TabletPC>
-            <Server value="141.58.8.187" />
-         </TabletPC>
+         <TabletUI host="141.58.8.187" />
 
          <MultiPC>
             <SyncMode value="TCP" />

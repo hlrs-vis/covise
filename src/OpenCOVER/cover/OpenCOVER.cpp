@@ -736,7 +736,6 @@ bool OpenCOVER::init()
     m_quit = new ui::Action(m_quitGroup, "Quit");
     m_quit->setShortcut("q");
     m_quit->addShortcut("Q");
-    m_quit->addShortcut("Esc");
     m_quit->setCallback([this](){
 #if 1
         requestQuit();

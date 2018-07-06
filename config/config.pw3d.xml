@@ -205,13 +205,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <Server value="localhost" />
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <!--Server value="141.58.8.187" /-->
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+   <TabletUI host="localhost" />
 
    <MultiPC>
     <SyncMode value="TCP" />
