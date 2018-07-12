@@ -92,16 +92,6 @@ public:
     };
 };
 
-class PLUGIN_UTILEXPORT coTouchSensor : public coSensor
-{
-public:
-    coTouchSensor(osg::Node *n)
-        : coSensor(n){};
-    virtual ~coTouchSensor(){};
-    virtual void calcDistance();
-    virtual int getType();
-};
-
 class PLUGIN_UTILEXPORT coPickSensor : public coSensor, public vrui::coAction
 {
 public:
@@ -115,42 +105,6 @@ public:
     coPickSensor(osg::Node *n);
     virtual ~coPickSensor();
     virtual void update();
-    virtual int getType();
-};
-
-class PLUGIN_UTILEXPORT coHandSensor : public coSensor
-{
-public:
-    osg::Vec3 hitPoint; // last hitPoint in world coordinates
-    coHandSensor(osg::Node *n);
-    virtual ~coHandSensor(){};
-    virtual void update();
-    virtual int getType();
-};
-
-class PLUGIN_UTILEXPORT coIsectSensor : public coSensor
-{
-public:
-    coIsectSensor(osg::Node *n);
-    virtual ~coIsectSensor(){};
-    virtual int getType();
-    virtual void calcDistance();
-    //virtual void update();
-protected:
-    osg::MatrixTransform *pointer;
-    osg::Vec3 p0, p1;
-    //pfSegSet	segSet;
-    //pfHit **hits[32];
-    osg::BoundingSphere bsphere;
-};
-
-class PLUGIN_UTILEXPORT coProximitySensor : public coSensor
-{
-public:
-    coProximitySensor(osg::Node *n)
-        : coSensor(n){};
-    virtual ~coProximitySensor(){};
-    virtual void calcDistance();
     virtual int getType();
 };
 
