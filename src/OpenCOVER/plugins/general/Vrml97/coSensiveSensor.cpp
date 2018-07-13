@@ -115,7 +115,7 @@ void coSensiveSensor::disactivate()
     ViewerOsg::matToVrml(M, pmat);
     d_scene->sensitiveEvent(vrmlObject,
                             timeNow,
-                            false, false, // isOver, isActive
+                            hitActive, false, // isOver, isActive
                             hitCoord, M);
     d_scene->update(timeNow);
     wasReleased = 1;
@@ -219,7 +219,7 @@ void coSensiveSensor::update()
                 ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
-                                        true, true, // isOver, isActive
+                                        hitActive, true, // isOver, isActive
                                         hitCoord, M);
             }
         }
@@ -265,7 +265,7 @@ void coSensiveSensor::update()
                 ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
-                                        true, true, // isOver, isActive
+                                        hitActive, true, // isOver, isActive
                                         hitCoord, M);
             }
             wasReleased = 0;
@@ -306,7 +306,7 @@ void coSensiveSensor::update()
                 ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
-                                        true, false, // isOver, isActive
+                                        hitActive, false, // isOver, isActive
                                         hitCoord, M);
             }
         }
@@ -361,7 +361,7 @@ void coSensiveSensor::update()
                 ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
-                                        true, false, // isOver, isActive
+                                        hitActive, false, // isOver, isActive
                                         hitCoord, M);
             }
         }
