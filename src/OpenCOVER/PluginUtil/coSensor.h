@@ -28,6 +28,7 @@
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <OpenVRUI/sginterface/vruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
+#include <OpenVRUI/coCombinedButtonInteraction.h>
 
 namespace osg
 {
@@ -39,13 +40,12 @@ class PLUGIN_UTILEXPORT coSensor
 {
 protected:
     osg::Node *node;
-    osg::MatrixTransform **path;
-    int pathLength;
     int active; // status of the sensor, active = 1 as long as pointer intersects node
     float threshold;
     float sqrDistance;
     int buttonSensitive;
     int enabled;
+    vrui::coCombinedButtonInteraction *interaction = nullptr;
 
 public:
     enum
@@ -57,7 +57,7 @@ public:
         PICK,
         HAND
     };
-    coSensor(osg::Node *n);
+    coSensor(osg::Node *n, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
     virtual ~coSensor();
 
     // this method is called if intersection just started
@@ -83,7 +83,6 @@ public:
     {
         threshold = d * d;
     };
-    void addToPath(osg::Node *n);
     virtual void update();
     virtual void setButtonSensitive(int s);
     osg::Node *getNode()
@@ -102,7 +101,7 @@ public:
 
     virtual int hit(vrui::vruiHit *hit);
     virtual void miss();
-    coPickSensor(osg::Node *n);
+    coPickSensor(osg::Node *n, vrui::coInteraction::InteractionType type=vrui::coInteraction::ButtonA, vrui::coInteraction::InteractionPriority priority=vrui::coInteraction::Medium);
     virtual ~coPickSensor();
     virtual void update();
     virtual int getType();

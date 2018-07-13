@@ -62,11 +62,9 @@ using namespace opencover;
 
 static const unsigned ButtonMask = vruiButtons::ACTION_BUTTON | vruiButtons::DRIVE_BUTTON | vruiButtons::XFORM_BUTTON;
 
-coSensor::coSensor(osg::Node *n)
+coSensor::coSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
 {
     START("coSensor::coSensor");
-    pathLength = 0;
-    path = NULL;
     node = n;
     active = 0;
     osg::BoundingSphere bsphere;
@@ -76,6 +74,18 @@ coSensor::coSensor(osg::Node *n)
     sqrDistance = 0;
     buttonSensitive = 0;
     enabled = 1;
+
+    std::string name = "NoNodeSensor";
+    if (node)
+    {
+        name = node->getName();
+        if (name.empty())
+        {
+            name = "coSensor";
+        }
+    }
+
+    interaction = new coCombinedButtonInteraction(type, name, priority);
 }
 
 void coSensor::setButtonSensitive(int s)
@@ -90,8 +100,8 @@ int coSensor::getType()
     return (NONE);
 }
 
-coPickSensor::coPickSensor(osg::Node *n)
-    : coSensor(n)
+coPickSensor::coPickSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
+    : coSensor(n, type, priority)
 {
     START("coPickSensor::coPickSensor");
     vNode = new OSGVruiNode(n);
@@ -143,6 +153,7 @@ void coPickSensor::update()
             disactivate();
             active = 0;
         }
+        if (coIi`)
     }
 
     if (hitActive)
@@ -184,27 +195,6 @@ void coSensor::update()
     }
 }
 
-void coSensor::addToPath(osg::Node *n)
-{
-    START("coSensor::addToPath");
-    if ((n->asTransform()) && (n->asTransform()->asMatrixTransform()))
-    {
-        if (pathLength % 10 == 0)
-        {
-            osg::MatrixTransform **newPath;
-            newPath = new osg::MatrixTransform *[pathLength + 10];
-            for (int i = 0; i < pathLength; i++)
-            {
-                newPath[i] = path[i];
-            }
-            delete[] path;
-            path = newPath;
-        }
-        path[pathLength] = n->asTransform()->asMatrixTransform();
-        pathLength++;
-    }
-}
-
 void coSensor::activate()
 {
     START("coSensor::activate");
@@ -234,7 +224,11 @@ coSensor::~coSensor()
     START("coSensor::~coSensor");
     if (active)
         disactivate();
-    delete[] path;
+    if (interaction && interaction->isRegistered())
+    {
+        vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+    }
+    delete interaction;
 }
 
 coSensorList::coSensorList()
