@@ -89,6 +89,7 @@ public:
     };
 
 protected:
+    osg::Matrix getPointerMat() const;
     osg::Vec3 firstHitPoint;
     osg::Matrix firstInvPointerMat;
     int pointerGrabbed;
