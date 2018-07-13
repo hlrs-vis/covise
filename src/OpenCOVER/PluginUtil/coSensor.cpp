@@ -60,8 +60,6 @@
 using namespace vrui;
 using namespace opencover;
 
-static const unsigned ButtonMask = vruiButtons::ACTION_BUTTON | vruiButtons::DRIVE_BUTTON | vruiButtons::XFORM_BUTTON;
-
 coSensor::coSensor(osg::Node *n, vrui::coInteraction::InteractionType type, vrui::coInteraction::InteractionPriority priority)
 {
     START("coSensor::coSensor");
@@ -122,16 +120,20 @@ otherwise ACTION_DONE is returned
 */
 int coPickSensor::hit(vruiHit *hit)
 {
-
     hitActive = true;
     coVector v = hit->getWorldIntersectionPoint();
     hitPoint.set(v[0], v[1], v[2]);
+    if (!interaction->isRegistered())
+        vrui::coInteractionManager::the()->registerInteraction(interaction);
+    interaction->setHitByMouse(hit->isMouseHit());
     return ACTION_CALL_ON_MISS;
 }
 
 /// Miss is called once after a hit, if the button is not intersected anymore.
 void coPickSensor::miss()
 {
+    if (interaction->isRegistered())
+        vrui::coInteractionManager::the()->unregisterInteraction(interaction);
     hitActive = false;
 }
 
@@ -144,67 +146,58 @@ int coPickSensor::getType()
 void coPickSensor::update()
 {
     //START("coPickSensor::update");
-    int newActiveFlag;
-
-    if (!enabled)
+    if (interaction->wasStarted())
     {
-        if (active)
-        {
-            disactivate();
-            active = 0;
-        }
-        if (coIi`)
+        assert(enabled);
+        active = 1;
+        activate();
     }
-
-    if (hitActive)
-        newActiveFlag = 1;
-    else
-        newActiveFlag = 0;
-
-    if (newActiveFlag != active)
+    if (interaction->wasStopped())
     {
-        if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))
-        {
-            return; // do not change state, if any button is currently pressed
-        }
-        active = newActiveFlag;
-        if (active)
-            activate();
-        else
-            disactivate();
+        active = 0;
+        disactivate();
     }
 }
 
 void coSensor::update()
 {
     //START("coSensor::update");
-    int newActiveFlag;
     calcDistance();
-    newActiveFlag = sqrDistance <= threshold;
-    if (newActiveFlag != active)
+    bool newActiveFlag = sqrDistance <= threshold;
+    if (newActiveFlag)
     {
-        if (buttonSensitive && (cover->getPointerButton()->getState() & ButtonMask))
-        {
-            return; // do not change state, if any button is currently pressed
-        }
-        active = newActiveFlag;
-        if (active)
-            activate();
-        else
-            disactivate();
+        if (enabled && !interaction->isRegistered())
+            vrui::coInteractionManager::the()->registerInteraction(interaction);
+    }
+    else
+    {
+        if (interaction->isRegistered())
+            vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+    }
+
+    if (interaction->wasStarted())
+    {
+        assert(enabled);
+        active = 1;
+        activate();
+    }
+    if (interaction->wasStopped())
+    {
+        active = 0;
+        disactivate();
     }
 }
 
 void coSensor::activate()
 {
     START("coSensor::activate");
-    active = 1;
+    assert(active == 1);
 }
 
 void coSensor::disactivate()
 {
     START("coSensor::disactivate")
-    active = 0;
+    assert(active == 0);
 }
 
 void coSensor::enable()
@@ -217,17 +210,20 @@ void coSensor::disable()
 {
     START("coSensor::disable");
     enabled = 0;
+    if (interaction->isRegistered())
+        vrui::coInteractionManager::the()->unregisterInteraction(interaction);
 }
 
 coSensor::~coSensor()
 {
     START("coSensor::~coSensor");
     if (active)
-        disactivate();
-    if (interaction && interaction->isRegistered())
     {
-        vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+        active = 0;
+        disactivate();
     }
+    if (interaction->isRegistered())
+        vrui::coInteractionManager::the()->unregisterInteraction(interaction);
     delete interaction;
 }
 

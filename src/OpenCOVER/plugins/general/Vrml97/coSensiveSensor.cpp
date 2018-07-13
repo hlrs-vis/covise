@@ -52,7 +52,6 @@ coSensiveSensor::~coSensiveSensor()
 {
     ViewerOsg::viewer->removeSensor(this);
     //delete tt;
-    delete VrmlInteraction;
 }
 
 coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, VrmlScene *s, MatrixTransform *VRoot)
@@ -77,7 +76,6 @@ coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, V
             break;
         }
     }
-    VrmlInteraction = new vrui::coTrackerButtonInteraction(vrui::coInteraction::ButtonA, "Vrml", vrui::coInteraction::Medium);
 
     //tt = new PointerTooltip(n,"*",0.5);
     //tt = NULL;
@@ -183,9 +181,9 @@ void coSensiveSensor::update()
     {
         if (!childActive)
         {
-            if (!VrmlInteraction->isRegistered())
+            if (!interaction->isRegistered())
             {
-                vrui::coInteractionManager::the()->registerInteraction(VrmlInteraction);
+                vrui::coInteractionManager::the()->registerInteraction(interaction);
             }
 
             if (parentSensor)
@@ -196,7 +194,7 @@ void coSensiveSensor::update()
         pposition = cover->getPointerMat().getTrans();
         Matrix objToVRML;
         objToVRML.makeRotate(-M_PI_2, 1.0, 0.0, 0.0);
-        if (VrmlInteraction->isRunning())
+        if (interaction->isRunning())
         {
             Matrix relMat;
             relMat.mult(firstInvPointerMat, cover->getPointerMat());
@@ -225,7 +223,7 @@ void coSensiveSensor::update()
                                         hitCoord, M);
             }
         }
-        if (VrmlInteraction->wasStarted())
+        if (interaction->wasStarted())
         {
             Matrix tr; //@@@ = viewerObj->parentTransform;
             tr.makeIdentity();
@@ -273,7 +271,7 @@ void coSensiveSensor::update()
             wasReleased = 0;
         }
 
-        if (VrmlInteraction->wasStopped())
+        if (interaction->wasStopped())
         {
             Matrix tr; //@@@ = viewerObj->parentTransform;
             tr.makeIdentity();
@@ -313,7 +311,7 @@ void coSensiveSensor::update()
             }
         }
 
-        if (VrmlInteraction->getState() == vrui::coInteraction::Idle)
+        if (interaction->getState() == vrui::coInteraction::Idle)
         {
             Matrix relMat;
             relMat.mult(firstInvPointerMat, cover->getPointerMat());
@@ -373,9 +371,9 @@ void coSensiveSensor::update()
     }
     else
     {
-        if (VrmlInteraction->isRegistered() && (VrmlInteraction->getState() != vrui::coInteraction::Active))
+        if (interaction->isRegistered() && (interaction->getState() != vrui::coInteraction::Active))
         {
-            vrui::coInteractionManager::the()->unregisterInteraction(VrmlInteraction);
+            vrui::coInteractionManager::the()->unregisterInteraction(interaction);
         }
     }
 }

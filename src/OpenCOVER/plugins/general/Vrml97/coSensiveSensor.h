@@ -102,7 +102,6 @@ protected:
     void resetChildActive();
     void setChildActive();
     //PointerTooltip *tt;
-    vrui::coTrackerButtonInteraction *VrmlInteraction;
     ui::Action *button = nullptr;
 };
 #endif
