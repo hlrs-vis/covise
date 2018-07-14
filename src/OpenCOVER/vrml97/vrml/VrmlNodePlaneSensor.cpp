@@ -123,15 +123,16 @@ void VrmlNodePlaneSensor::activate(double timeStamp,
                                    bool isActive,
                                    double *p)
 {
+    float V[3] = { (float)p[0], (float)p[1], (float)p[2] };
+    double M[16];
+    inverseTransform(M);
+    VM(V, M, V);
+
     // Become active
     if (isActive && !d_isActive.get())
     {
         d_isActive.set(isActive);
 
-        float V[3] = { (float)p[0], (float)p[1], (float)p[2] };
-        double M[16];
-        inverseTransform(M);
-        VM(V, M, V);
         d_activationPoint.set(V[0], V[1], V[2]);
 #if 0
       System::the->warn(" planesensor: activate at (%g %g %g)\n",
@@ -160,12 +161,8 @@ void VrmlNodePlaneSensor::activate(double timeStamp,
     }
 
     // Tracking
-    else if (isActive)
+    if (isActive)
     {
-        float V[3] = { (float)p[0], (float)p[1], (float)p[2] };
-        double M[16];
-        inverseTransform(M);
-        VM(V, M, V);
 #if 0
       System::the->warn(" planesensor: track at (%g %g %g)\n",
          p[0],p[1],p[2]);
@@ -179,25 +176,6 @@ void VrmlNodePlaneSensor::activate(double timeStamp,
             t[1] = V[1];
             t[2] = 0.0;
 
-            if (d_minPosition.x() == d_maxPosition.x())
-                t[0] = d_minPosition.x();
-            else if (d_minPosition.x() < d_maxPosition.x())
-            {
-                if (t[0] < d_minPosition.x())
-                    t[0] = d_minPosition.x();
-                else if (t[0] > d_maxPosition.x())
-                    t[0] = d_maxPosition.x();
-            }
-
-            if (d_minPosition.y() == d_maxPosition.y())
-                t[1] = d_minPosition.y();
-            else if (d_minPosition.y() < d_maxPosition.y())
-            {
-                if (t[1] < d_minPosition.y())
-                    t[1] = d_minPosition.y();
-                else if (t[1] > d_maxPosition.y())
-                    t[1] = d_maxPosition.y();
-            }
             d_trackPoint.set(t[0], t[1], t[2]);
         }
         eventOut(timeStamp, "trackPoint_changed", d_trackPoint);
