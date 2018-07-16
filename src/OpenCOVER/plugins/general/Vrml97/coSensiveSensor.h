@@ -96,8 +96,6 @@ protected:
     void *vrmlObject;
     VrmlScene *d_scene;
     osgViewerObject *viewerObj;
-    int wasReleased;
-    float distance;
     bool childActive;
     coSensiveSensor *parentSensor;
     void resetChildActive();

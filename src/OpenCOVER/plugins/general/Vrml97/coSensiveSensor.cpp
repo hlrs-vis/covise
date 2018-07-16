@@ -64,7 +64,6 @@ coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, V
     viewerObj = vObj;
     pointerGrabbed = 0;
     d_scene = s;
-    wasReleased = 1;
     parentSensor = NULL;
     childActive = false;
     osgViewerObject *parentVObj = vObj;
@@ -79,7 +78,6 @@ coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, V
 
     //tt = new PointerTooltip(n,"*",0.5);
     //tt = NULL;
-    distance = -1;
 #if 0
     button = new ui::Action(n->getName(), this);
 #endif
@@ -118,7 +116,6 @@ void coSensiveSensor::disactivate()
                             hitActive, false, // isOver, isActive
                             hitCoord, M);
     d_scene->update(timeNow);
-    wasReleased = 1;
     resetChildActive();
 }
 
@@ -151,16 +148,15 @@ LocalToVRML(const Vec3 &hitPoint, const MatrixTransform *VRMLRoot, const Node *n
     tr.makeIdentity();
     //cerr << "LocalToVRML: hitPoint: "<<hitPoint[0]<<' '<<hitPoint[1]<<' '<<hitPoint[2]<<endl;
     const Node *parent = nullptr;
-    if (parent->getNumParents())
-        node->getParent(0);
+    if (node->getNumParents())
+        parent = node->getParent(0);
     while (parent != NULL && parent != VRMLRoot)
     {
-        Matrix dcsMat;
         const MatrixTransform *mtParent = dynamic_cast<const MatrixTransform *>(parent);
         //if (pfIsOfType(parent,MatrixTransform::getClassType()))
         if (mtParent)
         {
-            dcsMat = mtParent->getMatrix();
+            Matrix dcsMat = mtParent->getMatrix();
             tr.postMult(dcsMat);
         }
 #if 0
@@ -186,7 +182,6 @@ void coSensiveSensor::update()
 {
     double timeNow = System::the->time();
     coPickSensor::update();
-    double hitCoord[3];
     if (active)
     {
         if (!childActive)
@@ -199,40 +194,19 @@ void coSensiveSensor::update()
             if (parentSensor)
                 parentSensor->setChildActive();
         }
-        Vec3 position;
-        Vec3 pposition;
-        pposition = getPointerMat().getTrans();
+        //Vec3 pposition = getPointerMat().getTrans();
         Matrix objToVRML;
         objToVRML.makeRotate(-M_PI_2, 1.0, 0.0, 0.0);
-        if (interaction->isRunning())
+        double M[16];
         {
-            Matrix relMat;
-            relMat.mult(firstInvPointerMat, getPointerMat());
-            position = relMat.preMult(firstHitPoint);
-
-            distance = (pposition - position).length();
-            //cerr << "Dist: " << distance << endl;
+            Matrix pmat;
             if (viewerObj->rootNode == NULL)
-                position = cover->getInvBaseMat().preMult(position);
-            position = objToVRML.preMult(position);
-            hitCoord[0] = position[0];
-            hitCoord[1] = position[1];
-            hitCoord[2] = position[2];
-            if (!childActive)
-            {
-                Matrix pmat;
-                if (viewerObj->rootNode == NULL)
-                    pmat = (getPointerMat()) * objToVRML;
-                else
-                    pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
-                double M[16];
-                ViewerOsg::matToVrml(M, pmat);
-                d_scene->sensitiveEvent(vrmlObject,
-                                        timeNow,
-                                        hitActive, true, // isOver, isActive
-                                        hitCoord, M);
-            }
+                pmat = (getPointerMat()) * objToVRML;
+            else
+                pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
+            ViewerOsg::matToVrml(M, pmat);
         }
+
         if (interaction->wasStarted())
         {
             Matrix tr; //@@@ = viewerObj->parentTransform;
@@ -242,8 +216,7 @@ void coSensiveSensor::update()
                 vrmlBaseMat = cover->getBaseMat();
             else
                 vrmlBaseMat.makeIdentity();
-            Matrix dcsMat;
-            dcsMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
+            Matrix dcsMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
             vrmlBaseMat.preMult(dcsMat);
             tr.postMult(vrmlBaseMat);
             // firstHitPoint should be in world coordinates
@@ -255,30 +228,37 @@ void coSensiveSensor::update()
             //                cerr << "firstHitPoint wasStarted: " << firstHitPoint[0] <<":"<< firstHitPoint[1] <<":" << firstHitPoint[2] << endl;
             //cerr << "hitPoint " << hitPoint[0] <<":"<< hitPoint[1] <<":" << hitPoint[2] << endl;
             firstInvPointerMat.invert(getPointerMat());
-            position = firstHitPoint;
-            distance = (pposition - position).length();
-            //cerr << "HitDist: " << distance << endl;
-            if (viewerObj->rootNode == NULL)
-                position = cover->getInvBaseMat().preMult(position);
-            position = objToVRML.preMult(position);
+            double hitCoord[3];
             hitCoord[0] = hitPointVRML[0];
             hitCoord[1] = hitPointVRML[1];
             hitCoord[2] = hitPointVRML[2];
             if (!childActive)
             {
-                Matrix pmat;
-                if (viewerObj->rootNode == NULL)
-                    pmat = (getPointerMat()) * objToVRML;
-                else
-                    pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
-                double M[16];
-                ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
                                         hitActive, true, // isOver, isActive
                                         hitCoord, M);
             }
-            wasReleased = 0;
+        }
+
+        if (interaction->isRunning() && !childActive)
+        {
+            Matrix relMat;
+            relMat.mult(firstInvPointerMat, getPointerMat());
+            Vec3 position = relMat.preMult(firstHitPoint);
+
+            if (viewerObj->rootNode == NULL)
+                position = cover->getInvBaseMat().preMult(position);
+            position = objToVRML.preMult(position);
+            double hitCoord[3];
+            hitCoord[0] = position[0];
+            hitCoord[1] = position[1];
+            hitCoord[2] = position[2];
+
+            d_scene->sensitiveEvent(vrmlObject,
+                                    timeNow,
+                                    hitActive, true, // isOver, isActive
+                                    hitCoord, M);
         }
 
         if (interaction->wasStopped())
@@ -290,30 +270,18 @@ void coSensiveSensor::update()
                 vrmlBaseMat = cover->getBaseMat();
             else
                 vrmlBaseMat.makeIdentity();
-            Matrix dcsMat;
-            dcsMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
+            Matrix dcsMat = ViewerOsg::viewer->VRMLRoot->getMatrix();
             vrmlBaseMat.preMult(dcsMat);
             tr.postMult(vrmlBaseMat);
             Vec3 hitPointVRML = LocalToVRML(hitPoint, ViewerOsg::viewer->VRMLRoot, node);
             firstHitPoint = tr.preMult(hitPointVRML);
             firstInvPointerMat.invert(getPointerMat());
-            position = firstHitPoint;
-            distance = (pposition - position).length();
-            if (viewerObj->rootNode == NULL)
-                position = cover->getInvBaseMat().preMult(position);
-            position = objToVRML.preMult(position);
+            double hitCoord[3];
             hitCoord[0] = hitPointVRML[0];
             hitCoord[1] = hitPointVRML[1];
             hitCoord[2] = hitPointVRML[2];
             if (!childActive)
             {
-                Matrix pmat;
-                if (viewerObj->rootNode == NULL)
-                    pmat = (getPointerMat()) * objToVRML;
-                else
-                    pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
-                double M[16];
-                ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
                                         hitActive, false, // isOver, isActive
@@ -323,13 +291,13 @@ void coSensiveSensor::update()
 
         if (interaction->getState() == vrui::coInteraction::Idle)
         {
-            Matrix relMat;
-            relMat.mult(firstInvPointerMat, getPointerMat());
+            //Matrix relMat;
+            //relMat.mult(firstInvPointerMat, getPointerMat());
             //cerr << "Idle; hitPoint "<<hitPoint[0] << ' '<<
             //             hitPoint[1] << ' '<<hitPoint[2] << endl;
             //cerr << "Idle; firstHitPoint "<<firstHitPoint[0] << ' '<<
             //             firstHitPoint[1] << ' '<<firstHitPoint[2] << endl;
-            position = relMat.preMult(firstHitPoint);
+            //Vec3 position = relMat.preMult(firstHitPoint);
             //cerr << "Idle; position "<<position[0] << ' '<<
             //             position[1] << ' '<<position[2] << endl;
 
@@ -343,32 +311,23 @@ void coSensiveSensor::update()
           {
               position = pposition + v * (a/b);
           }*/
-            Vec3 hitPointVRML = LocalToVRML(hitPoint, ViewerOsg::viewer->VRMLRoot, node);
-
-            distance = (pposition - position).length();
-            //cerr << "Dist: " << distance << endl;
+            /*
             if (viewerObj->rootNode == NULL)
                 position = cover->getInvBaseMat().preMult(position);
             position = objToVRML.preMult(position);
+            */
             /*
                          hitCoord[0]=position[0];
                          hitCoord[1]=position[1];
                          hitCoord[2]=position[2];
          */
+            Vec3 hitPointVRML = LocalToVRML(hitPoint, ViewerOsg::viewer->VRMLRoot, node);
+            double hitCoord[3];
             hitCoord[0] = hitPointVRML[0];
             hitCoord[1] = hitPointVRML[1];
             hitCoord[2] = hitPointVRML[2];
             if (!childActive)
             {
-                Matrix pmat;
-                if (viewerObj->rootNode == NULL)
-                    pmat = (getPointerMat()) * objToVRML;
-                else
-                    pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
-                //cerr << "coSensiveSensor::idle "<<hitCoord[0]<<' '<<
-                //                                         hitCoord[1]<<' '<<hitCoord[2]<<' '<<endl;
-                double M[16];
-                ViewerOsg::matToVrml(M, pmat);
                 d_scene->sensitiveEvent(vrmlObject,
                                         timeNow,
                                         hitActive, false, // isOver, isActive
