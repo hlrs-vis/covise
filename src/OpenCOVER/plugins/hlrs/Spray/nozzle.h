@@ -41,7 +41,7 @@ private:
     //osg::ref_ptr<osg::Geode*> geode_;
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
-    osg::Vec3 boundingBox_ = osg::Vec3(2000,2000,2000);
+    osg::Vec3 boundingBox_ = osg::Vec3(20000,20000,20000);
     osg::Cylinder* cylinder_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
@@ -105,10 +105,9 @@ public:
 
     }
 
-    ui::Label* registerLabel()
+    void registerLabel()
     {
         labelRegistered = true;
-        return nozzleLabel_;
     }
 
     bool isRegistered()

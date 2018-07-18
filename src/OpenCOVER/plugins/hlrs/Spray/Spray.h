@@ -1,6 +1,14 @@
 #ifndef SPRAY_H
 #define SPRAY_H
 
+#include "nodevisitorvertex.h"
+
+#include "nozzlemanager.h"
+
+#include "parser.h"
+
+#include "raytracer.h"
+
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
 #include <osg/ShapeDrawable>
@@ -9,7 +17,7 @@
 #include <osg/Vec3f>
 
 #include <config/CoviseConfig.h>
-using namespace covise;
+
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
@@ -24,20 +32,19 @@ using namespace covise;
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Label.h>
-#include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/SelectionList.h>
+#include "../../../cover/ui/SelectionList.h"
+#include "../../../cover/coVRPluginSupport.h"
+
+using namespace covise;
 using namespace opencover;
+
 
 #include "string.h"
 
-#include "nodevisitorvertex.h"
 
-#include "nozzlemanager.h"
-
-#include "parser.h"
-
-#include "raytracer.h"
 
 nozzleManager* nozzleManager::_instance = 0;
 raytracer* raytracer::_instance = 0;
@@ -53,14 +60,17 @@ private:
 
     class nozzle* editNozzle;
 
-    int nozzleID = 0;
+    int nozzleID = -1;
     int currentNozzleID = -1;
     std::list<int> idGeo;
 
     osg::Vec4 newColor = osg::Vec4(1,1,1,1);
+    osg::Vec3 newBoundingBox = osg::Vec3(2000,2000,2000);
 
     ui::Menu* sprayMenu_ = nullptr;
-    ui::Menu* tempMenu = nullptr;
+    ui::Menu* nozzleCreateMenu = nullptr;
+    ui::Menu* nozzleCreateMenuStandard = nullptr;
+    ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
     ui::EditField* currentNozzle_ = nullptr;
     ui::Button* sprayStart_ = nullptr;
@@ -87,6 +97,8 @@ private:
     ui::Slider* pressureSlider_ = nullptr;
     float scaleValue_ = 1;
     ui::Action* acceptEdit_ = nullptr;
+
+    ui::SelectionList* nozzleIDL = nullptr;
 
     bool sprayStart = false;
     bool creating = false;

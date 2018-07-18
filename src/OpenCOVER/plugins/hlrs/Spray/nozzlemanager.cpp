@@ -28,6 +28,8 @@ nozzle* nozzleManager::createNozzle(std::string nozzleName)
 
     newNozzle->enableIntersection();
 
+    newNozzle->resizeBoundingBox(currentBoundingBox);
+
     nozzleList.push_back(newNozzle);
 
     nozzleCount++;
@@ -391,5 +393,19 @@ nozzle* nozzleManager::checkAll()
         }
     }
     return 0;
+}
+
+void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
+{
+    //printf("%f %f %f %f %f %f \n", currentBoundingBox.x(), currentBoundingBox.y(),currentBoundingBox.z(), newBoundingBox.x(), newBoundingBox.y(), newBoundingBox.z());
+    currentBoundingBox = newBoundingBox;
+    if(!nozzleList.empty()){
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+            class nozzle* current = *i;
+            current->resizeBoundingBox(newBoundingBox);
+        }
+    }
+    else
+        printf("List empty\n");
 }
 

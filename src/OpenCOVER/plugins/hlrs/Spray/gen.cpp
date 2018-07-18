@@ -69,11 +69,15 @@ void gen::init(){
     vz = new float[particleCount_];
     r = new float[particleCount_];
     m = new float[particleCount_];
+
     particleOutOfBound = new bool[particleCount_];
     firstHit = new bool[particleCount_];
+
+    prevHitDis = new float[particleCount_];
     for(int i = 0; i< particleCount_;i++){
         firstHit[i] = false;
         particleOutOfBound[i] = false;
+        prevHitDis[i] = 0;
     }
 }
 
@@ -104,7 +108,7 @@ void gen::setCoSphere(){
     float* rVis = new float[particleCount_];
     for(int i = 0; i<particleCount_;i++)rVis[i] = r[i]*100000;
     coSphere_->setMaxRadius(100);
-    coSphere_->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);
+    coSphere_->setRenderMethod(coSphere::RENDER_METHOD_CG_SHADER);
     coSphere_->setCoords(particleCount_,
                             x,
                             y,
@@ -151,13 +155,13 @@ void gen::updatePos(osg::Vec3 boundingBox){
         y[i] += vy[i]*tCur*1000;
         z[i] += vz[i]*tCur*1000;
 
-#if 1        //reynolds
+#if 1
+        //reynolds
         vx[i] -= tCur/m[i]*(sgn(vx[i])*0.5*cwTemp*vx[i]*vx[i]*1.18*pow(r[i],2)*Pi+gravity.x()*m[i]);
-        //if(vx[i] < 0) vx[i] = 0;
+
         vy[i] -= tCur/m[i]*(sgn(vy[i])*0.5*cwTemp*vy[i]*vy[i]*1.18*pow(r[i],2)*Pi+gravity.y()*m[i]);
-        //if(vy[i] < 0) vy[i] = 0;
+
         vz[i] -= tCur/m[i]*(sgn(vz[i])*0.5*cwTemp*vz[i]*vz[i]*1.18*pow(r[i],2)*Pi+gravity.z()*m[i]);
-        //if(vzTemp/vz[i] < 0) vz[i] = 0;
 
 #endif
 
@@ -189,8 +193,8 @@ void gen::updatePos(osg::Vec3 boundingBox){
                 //sphereHitCounter++;
             }
         }
-        if(x[i] > boundingBox.x() || y[i] > boundingBox.y() || z[i] > boundingBox.z() ||
-                x[i]<(-boundingBox.x()) || y[i] < (-boundingBox.y()) || z[i] < (-boundingBox.z()) )particleOutOfBound[i] = true;
+        if(abs(x[i]) > boundingBox.x() || abs(y[i]) > boundingBox.y() || abs(z[i]) > boundingBox.z() ||
+                x[i]<(-boundingBox.x()) || /*y[i] < (-boundingBox.y()) ||*/ z[i] < (-boundingBox.z()) )particleOutOfBound[i] = true;
 
 
         p.x = x[i];
@@ -203,13 +207,20 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
         p = raytracer::instance()->handleParticleData(p);
 
-        if(p.hit != 0 && abs(p.z) < abs(y[i]))
+        //if(p.hit != 0 && ( abs(y[i]) > abs(p.z) ) )
+        if(p.hit != 0)
         {
-            particleOutOfBound[i] = true;
-            coSphere_->setColor(i,0,0,1,1);
-
-            //vx[i] = vy[i] = vz[i] = 0;
+            prevHitDis[i] = p.z;
+            if(abs(y[i]>abs(p.z)))
+            {
+                particleOutOfBound[i] = true;
+                coSphere_->setColor(i,0,0,1,1);
+            }
         }
+        else if(prevHitDis[i] != 0)
+            particleOutOfBound[i] = true;
+
+
     }
 
     updateCoSphere();

@@ -55,7 +55,7 @@ public:
 
     void init()
     {
-        std::cout << "hello, the parser is active" << std::endl;
+        //std::cout << "hello, the parser is active" << std::endl;
 
         std::ifstream mystream(configFileName);
         std::string line;

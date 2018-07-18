@@ -53,6 +53,8 @@ private:
 
     bool* particleOutOfBound;
     bool* firstHit;
+    float* prevHitDis;
+
     int outOfBoundCounter = 0;
 
     int sphereHitCounter = 0;
