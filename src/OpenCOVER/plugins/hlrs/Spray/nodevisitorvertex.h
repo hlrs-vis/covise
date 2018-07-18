@@ -55,7 +55,7 @@ struct nodeVisitTriangle
 private:
     osg::Geode *localGeodeTriangle_;
 public:
-    void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const;
+    void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setLocalGeode(osg::Geode* localGeodeTriangle)
     {
         localGeodeTriangle_ = localGeodeTriangle;
