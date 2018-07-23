@@ -89,20 +89,18 @@ public:
     };
 
 protected:
+    osg::Matrix getPointerMat() const;
     osg::Vec3 firstHitPoint;
     osg::Matrix firstInvPointerMat;
     int pointerGrabbed;
     void *vrmlObject;
     VrmlScene *d_scene;
     osgViewerObject *viewerObj;
-    int wasReleased;
-    float distance;
     bool childActive;
     coSensiveSensor *parentSensor;
     void resetChildActive();
     void setChildActive();
     //PointerTooltip *tt;
-    vrui::coTrackerButtonInteraction *VrmlInteraction;
     ui::Action *button = nullptr;
 };
 #endif
