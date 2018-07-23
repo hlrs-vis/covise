@@ -129,6 +129,7 @@ do
     echo -e "${MENU} ${OPT} 102)  ${MENU} Receiver: Volume Down	   "
     echo -e "${MENU} ${OPT} 103)  ${MENU} Receiver: Input: Video 1 "
     echo -e "${MENU} ${OPT} 104)  ${MENU} Receiver: Input: Aux	   "
+    echo -e "${MENU} ${OPT} 110)  ${MENU} Glider	   "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -170,7 +171,7 @@ do
 	    ;;
 	12)
 	    echo -e "starting Forbach";
-            covise -e /data/enbw/Comsol/ComsolForbach.net
+            covise -e /data/2015/out/LaermFinal.net
 	    ;;
 	13)
 	    echo -e "starting Kiebingen";
@@ -544,6 +545,12 @@ do
 	echo -e "Receiver: Switch Input: Aux"
 	sasuctrl kenwoodAux
 	;;
+   110)
+    echo -e "Starting Paraglider Flightsim Ctrl-P Ctrl-U in flightgear Ctrl-r in Opencover"
+    export COCONFIG=config.flightgear.hlrs
+    opencover /data/paraglider/FlightGearParaglider2.wrl
+    ;;
+
 
 # MENU
 
