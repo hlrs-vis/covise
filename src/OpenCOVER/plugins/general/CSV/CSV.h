@@ -40,10 +40,22 @@
 #include <vrml97/vrml/VrmlMFInt.h>
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
+#include <cover/ui/Owner.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Label.h>
 
 using namespace vrml;
 using namespace opencover;
 using namespace covise;
+class PLUGINEXPORT LabelInfo
+{
+public:
+    LabelInfo(const std::string &l, int64_t sta, int64_t sto) { label = l; start = sta; stop = sto; };
+    std::string label;
+    int64_t start;
+    int64_t stop;
+};
+
 
 class PLUGINEXPORT VrmlNodeCSV : public VrmlNodeChild
 {
@@ -84,24 +96,35 @@ private:
     VrmlSFInt d_numRows;
     VrmlSFInt d_row;
     VrmlSFString d_fileName;
+    VrmlSFString d_labelFileName;
 
     // eventOuts
     VrmlMFFloat d_floats;
     std::vector<float *> rows;
     bool loadFile(const std::string &fileName);
+    bool loadLabelFile(const std::string &fileName);
     bool changedFile;
+    bool changedLabelFile;
+    std::string MenuLabel;
 
     int numColumns = -1;
     int RowCount = 0;
 };
 
-class CSVPlugin : public coVRPlugin
+class CSVPlugin : public coVRPlugin, public opencover::ui::Owner
 {
 public:
     CSVPlugin();
     ~CSVPlugin();
     bool init();
     static CSVPlugin *plugin;
+    void createMenu(const std::string &label);
+    ui::Menu *labelMenu;
+    ui::Label *currentLabel;
+    int64_t currentLabelNumber;
+    void updateLabel(int64_t ts);
+    std::vector<LabelInfo> labels;
+    virtual void setTimestep(int t);
 
     bool update();
 

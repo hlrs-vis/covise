@@ -89,6 +89,7 @@ public:
 
     // set number of timesteps
     void setNumTimesteps(int, const void *who);
+    void setMaxFrameRate(int);
 
     // remove source of timesteps
     void removeTimestepProvider(const void *who);

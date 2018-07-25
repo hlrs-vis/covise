@@ -29,8 +29,8 @@
 		    <Marker name="ObjectMarker2" >
                         <Pattern value="7" />
                         <Size value="62" />
-                        <!--Offset x="0" y="-70" z="0" h="0" p="0" r="0" /-->
-                        <Offset x="73" y="0" z="0" h="-90" p="0" r="0" />
+                        <Offset x="0" y="-70" z="0" h="0" p="0" r="0" />
+                        <!--Offset x="73" y="0" z="0" h="-90" p="0" r="0" /-->
                         <VrmlToPf value="TRUE" />
                     </Marker>
 		    <!--  Science Pub Bierglas kleiner Marker -->
@@ -48,7 +48,28 @@
                         <VrmlToPf value="TRUE" />
                     </Marker>
 					
-		    <!--  Lino-Line -->
+		    <!--  DraegerOP -->
+		    <Marker name="ObjectMarker5" >
+                        <Pattern value="76" />
+                        <Size value="300" />
+                        <Offset x="200" y="100" z="610" h="90" p="-90" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+					
+		    <Marker name="ObjectMarker6" >
+                        <Pattern value="74" />
+                        <Size value="200" />
+                        <Offset x="-450" y="-130" z="855" h="0" p="0" r="0" />
+                        <VrmlToPf value="TRUE" />
+                    </Marker>	
+		    <Marker name="ObjectMarker7" >
+                        <Pattern value="73" />
+                        <Size value="300" />
+                        <Offset x="1040" y="890" z="200" h="180" p="-2" r="-0.4" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
+			
+<!--  Lino-Line 
 		    <Marker name="ObjectMarker5" >
                         <Pattern value="35" />
                         <Size value="300" />
@@ -86,7 +107,7 @@
                         <Offset x="4110" y="0" z="830" h="90" p="-74" r="0" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
-					
+				-->		
 		    <!--  Beetle Motorhaube -->
                     <Marker name="ObjectMarker11" >
                         <Pattern value="84" />
@@ -197,19 +218,19 @@
                     </Marker>
 -->
                     <Marker name="Tracer1" >
-                        <Pattern value="73" />
+                        <Pattern value="77" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
                     <Marker name="Tracer2" >
-                        <Pattern value="73" />
+                        <Pattern value="77" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
                     <Marker name="Tracer3" >
-                        <Pattern value="73" />
+                        <Pattern value="77" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
@@ -267,7 +288,7 @@
                 <ALVAR value="OFF">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="0" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->

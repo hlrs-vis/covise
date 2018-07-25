@@ -77,6 +77,7 @@ VrmlNodeType *VrmlNodeTimesteps::defineType(VrmlNodeType *t)
     t->addExposedField("numTimesteps", VrmlField::SFINT32);
     t->addExposedField("enabled", VrmlField::SFBOOL);
     t->addExposedField("loop", VrmlField::SFBOOL);
+    t->addExposedField("maxFrameRate", VrmlField::SFINT32);
     t->addEventOut("fraction_changed", VrmlField::SFFLOAT);
     t->addEventIn("timestep", VrmlField::SFINT32);
 
@@ -94,6 +95,7 @@ VrmlNodeTimesteps::VrmlNodeTimesteps(VrmlScene *scene)
     , d_fraction_changed(0.0)
     , d_enabled(true)
     , d_loop(true)
+    , d_maxFrameRate(0)
 {
     coVRAnimationManager::instance()->showAnimMenu(true);
     setModified();
@@ -121,6 +123,7 @@ VrmlNodeTimesteps::VrmlNodeTimesteps(const VrmlNodeTimesteps &n)
     , d_fraction_changed(n.d_fraction_changed)
     , d_enabled(n.d_enabled)
     , d_loop(n.d_loop)
+    , d_maxFrameRate(n.d_maxFrameRate)
 {
     coVRAnimationManager::instance()->showAnimMenu(true);
     setModified();
@@ -177,6 +180,8 @@ ostream &VrmlNodeTimesteps::printFields(ostream &os, int indent)
         PRINT_FIELD(enabled);
     if (!d_loop.get())
         PRINT_FIELD(loop);
+    if (!d_maxFrameRate.get())
+        PRINT_FIELD(maxFrameRate);
     if (!d_fraction_changed.get())
         PRINT_FIELD(fraction_changed);
 
@@ -195,6 +200,8 @@ void VrmlNodeTimesteps::setField(const char *fieldName,
     else if
         TRY_FIELD(loop, SFBool)
     else if
+        TRY_FIELD(maxFrameRate, SFInt)
+    else if
         TRY_FIELD(fraction_changed, SFFloat)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
@@ -202,6 +209,10 @@ void VrmlNodeTimesteps::setField(const char *fieldName,
     if (strcmp(fieldName, "numTimesteps") == 0)
     {
         coVRAnimationManager::instance()->setNumTimesteps(d_numTimesteps.get(), this);
+    }
+    if (strcmp(fieldName, "maxFrameRate") == 0)
+    {
+        coVRAnimationManager::instance()->setMaxFrameRate(d_maxFrameRate.get());
     }
     if (strcmp(fieldName, "timestep") == 0)
     {
@@ -218,6 +229,8 @@ const VrmlField *VrmlNodeTimesteps::getField(const char *fieldName) const
         return &d_enabled;
     else if (strcmp(fieldName, "loop") == 0)
         return &d_loop;
+    else if (strcmp(fieldName, "maxFrameRate") == 0)
+        return &d_maxFrameRate;
     else if (strcmp(fieldName, "fraction_changed") == 0)
         return &d_fraction_changed;
     else

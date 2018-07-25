@@ -11,6 +11,8 @@
 #include "CSV.h"
 
 #include <util/unixcompat.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Label.h>
 
 CSVPlugin *CSVPlugin::plugin = NULL;
 
@@ -39,6 +41,7 @@ VrmlNodeType *VrmlNodeCSV::defineType(VrmlNodeType *t)
     t->addEventOut("numColumns", VrmlField::SFINT32);
     t->addExposedField("row", VrmlField::SFINT32);
     t->addExposedField("fileName", VrmlField::SFSTRING);
+    t->addExposedField("labelFileName", VrmlField::SFSTRING);
 
     return t;
 }
@@ -97,11 +100,17 @@ void VrmlNodeCSV::setField(const char *fieldName,
         TRY_FIELD(row, SFInt)
     else if
         TRY_FIELD(fileName, SFString)
+    else if
+        TRY_FIELD(labelFileName, SFString)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
     if (strcmp(fieldName, "fileName") == 0)
     {
         loadFile(fieldValue.toSFString()->get());
+    }
+    if (strcmp(fieldName, "labelFileName") == 0)
+    {
+        loadLabelFile(fieldValue.toSFString()->get());
     }
     else if (strcmp(fieldName, "row") == 0)
     {
@@ -254,10 +263,84 @@ bool VrmlNodeCSV::loadFile(const std::string &fileName)
 }
 
 
+bool VrmlNodeCSV::loadLabelFile(const std::string &fileName)
+{
+    FILE *fp = fopen(fileName.c_str(), "r");
+    if (fp == NULL)
+        return false;
+    const int lineSize = 1000;
+    char buf[lineSize];
+    fgets(buf, lineSize, fp);
+    MenuLabel = buf;
+    int RowCount = 1;
+    while(!feof(fp))
+    {
+        char *cbuf=NULL;
+        fgets(buf, lineSize, fp);
+        int64_t startTime;
+        int64_t stopTime;
+        std::string label;
+        if ((cbuf = strtok(buf, "\t;")) != NULL)
+        {
+            label = cbuf;
+        }
+        else
+        {
+            fprintf(stderr, "Error parsing line %d", RowCount);
+        }
+        if ((cbuf = strtok(NULL, "\t;")) != NULL)
+        {
+            startTime = strtoll(cbuf, NULL, 10);
+        }
+        else
+        {
+            fprintf(stderr, "Error parsing line %d", RowCount);
+        }
+        if ((cbuf = strtok(NULL, "\t;")) != NULL)
+        {
+            stopTime = strtoll(cbuf, NULL, 10);
+        }
+        else
+        {
+            fprintf(stderr, "Error parsing line %d", RowCount);
+        }
+        CSVPlugin::plugin->labels.push_back(LabelInfo(label, startTime, stopTime));
+        RowCount++;
+    }
+    changedLabelFile = true;
+    CSVPlugin::plugin->createMenu(MenuLabel);
+    return true;
+}
+
+
+void CSVPlugin::createMenu(const std::string &label)
+{
+    labelMenu = new ui::Menu(label, CSVPlugin::plugin);
+    if (labels.size() > 0)
+        currentLabel = new ui::Label(labelMenu, labels[0].label);
+    currentLabelNumber = 0;
+}
+void CSVPlugin::updateLabel(int64_t ts)
+{
+    int64_t seconds = ts / 60;
+    if (labels[currentLabelNumber].start < seconds && labels[currentLabelNumber].stop > seconds)
+        return;
+    for (int i = 0; i < labels.size(); i++)
+    {
+        if (labels[i].start < seconds && labels[i].stop > seconds)
+        {
+            currentLabelNumber = i;
+            currentLabel->setText(labels[i].label);
+        }
+    }
+}
+
 CSVPlugin::CSVPlugin()
+    : ui::Owner("CSVPlugin", cover->ui)
 {
     fprintf(stderr, "CSVPlugin::CSVPlugin\n");
     plugin = this;
+    currentLabelNumber=0;
 
 }
 
@@ -279,6 +362,11 @@ bool
 CSVPlugin::update()
 {
 	return false;
+}
+
+void CSVPlugin::setTimestep(int t)
+{
+    updateLabel(t);
 }
 
 COVERPLUGIN(CSVPlugin)
