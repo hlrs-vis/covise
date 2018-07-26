@@ -33,46 +33,21 @@
 #include <do/coDoUnstructuredGrid.h>
 #include "ShowUsg.h"
 
-int main(int argc, char *argv[])
+ShowUSG::ShowUSG(int argc, char *argv[])
+: coModule(argc, argv, "Show each element of an unstructured grid")
 {
-
-    Application *application = new Application(argc, argv);
-
-    application->run();
+    pin_mesh = addInputPort("meshIn", "UnstructuredGrid", "input mesh");
+    pin_colors = addInputPort("colors", "Vec3|RGBA", "colors");
+    //p_group = addInputPort(group","Byte_Array","Group index");
+    pout_geo = addOutputPort("geometry", "Geometry", "Geometry");
+    //		     Covise::add_port(PARIN,"gennormals","Boolean","Supply normals");
+    //		     Covise::set_port_default("gennormals","FALSE");
+    pin_colors->setRequired(false);
+    //p_group->setRequired(false);
 }
 
-//
-// static stub callback functions calling the real class
-// member functions
-//
-
-void Application::quitCallback(void *userData, void *callbackData)
+ShowUSG::~ShowUSG()
 {
-    Application *thisApp = (Application *)userData;
-    thisApp->quit(callbackData);
-}
-
-void Application::computeCallback(void *userData, void *callbackData)
-{
-    Application *thisApp = (Application *)userData;
-    thisApp->compute(callbackData);
-}
-
-//
-//
-//..........................................................................
-//
-//
-
-//======================================================================
-// Called before module exits
-//======================================================================
-void Application::quit(void *)
-{
-    //
-    // ...... delete your data here .....
-    //
-    Covise::log_message(__LINE__, __FILE__, "Quitting now");
 }
 
 const char *ColorIn = NULL, *colorn, *type;
@@ -115,7 +90,7 @@ float transparency;
 //======================================================================
 // Computation routine (called when START message arrrives)
 //======================================================================
-void Application::compute(void *)
+int ShowUSG::compute(const char *)
 {
     const coDistributedObject *data_obj = NULL, *color_obj = NULL, *tmp_obj = NULL, *tmp_obj2 = NULL, *tmp_obj3 = NULL, *const *data_objs = NULL;
     const coDistributedObject *const *t_data_objs = NULL, *const *t_color_objs = NULL;
@@ -164,7 +139,7 @@ void Application::compute(void *)
     if (GridIn == NULL)
     {
         Covise::sendError("ERROR: Object name not correct for 'meshIn'");
-        return;
+        return STOP_PIPELINE;
     }
     data_obj = coDistributedObject::createFromShm(GridIn);
     num_set_elem = 0;
@@ -203,20 +178,20 @@ void Application::compute(void *)
             if (num_set_elem == 0)
             {
                 Covise::sendError("ERROR: Set is empty");
-                return;
+                return STOP_PIPELINE;
             }
         }
 
         else
         {
             Covise::sendError("ERROR: Data object 'meshIn' has wrong data type");
-            return;
+            return STOP_PIPELINE;
         }
     }
     else
     {
         Covise::sendError("ERROR: Data object 'meshIn' can't be accessed in shared memory");
-        return;
+        return STOP_PIPELINE;
     }
     if (ColorIn != 0L)
     {
@@ -270,7 +245,7 @@ void Application::compute(void *)
                 if (c_num_set_elem != num_set_elem)
                 {
                     Covise::sendError("ERROR: Color Set has wrong number of elements");
-                    return;
+                    return STOP_PIPELINE;
                 }
             }
         }
@@ -295,28 +270,28 @@ void Application::compute(void *)
             else if (strcmp(gtype, "SETELE") == 0)
             {
                 Covise::sendError("ERROR: Sorry, Sets are not jet supported");
-                return;
+                return STOP_PIPELINE;
             }
             else
             {
                 Covise::sendError("ERROR: Data object 'group' has wrong data type");
-                return;
+                return STOP_PIPELINE;
             }
         }
         else
         {
             Covise::sendError("ERROR: Data object 'group' can't be accessed in shared memory");
-            return;
+            return STOP_PIPELINE;
         }
         if (GeometryN == NULL)
         {
             Covise::sendError("ERROR: Object name not correct for 'geometry'");
-            return;
+            return STOP_PIPELINE;
         }
         if (num_elem != numelem)
         {
             Covise::sendError("ERROR: Size of unstructured grid does not match array");
-            return;
+            return STOP_PIPELINE;
         }
     }
     if (num_set_elem == 0)
@@ -373,7 +348,7 @@ void Application::compute(void *)
         if (!Geometry->objectOk())
         {
             Covise::sendError("ERROR: creation of data object 'geometry' failed");
-            return;
+            return STOP_PIPELINE;
         }
         delete uns_grid_in;
         if (group != NULL)
@@ -579,7 +554,7 @@ void Application::compute(void *)
             else
             {
                 Covise::sendError("ERROR: creation of data object 'geometry' failed");
-                return;
+                return STOP_PIPELINE;
             }
             delete Geometry;
         }
@@ -718,7 +693,7 @@ void Application::compute(void *)
             else
             {
                 Covise::sendError("ERROR: creation of data object 'geometry' failed");
-                return;
+                return STOP_PIPELINE;
             }
             delete Geometry_set_set;
             delete Geometry;
@@ -729,12 +704,14 @@ void Application::compute(void *)
     if (tmp_obj3)
         delete tmp_obj3;
     fclose(fp);
+
+    return CONTINUE_PIPELINE;
 }
 
 //======================================================================
 // get rgb-triple for named color
 //======================================================================
-int Application::get_color_rgb(float *r, float *g, float *b, const char *color)
+int ShowUSG::get_color_rgb(float *r, float *g, float *b, const char *color)
 {
     char line[80];
     char *tp, *token[15];
@@ -770,7 +747,7 @@ int Application::get_color_rgb(float *r, float *g, float *b, const char *color)
     return (1);
 }
 
-void Application::genpolygons(char *GeometryN)
+void ShowUSG::genpolygons(char *GeometryN)
 {
     int numlines, numpoints, numtriangles, numstrips;
     int linecoords, pointcoords, trianglecoords;
@@ -1520,3 +1497,5 @@ void Application::genpolygons(char *GeometryN)
         delete Geometrys[i];
     delete[] Geometrys;
 }
+
+MODULE_MAIN(Tools, ShowUSG)
