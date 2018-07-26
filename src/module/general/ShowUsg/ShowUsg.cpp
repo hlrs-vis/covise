@@ -44,6 +44,11 @@ ShowUSG::ShowUSG(int argc, char *argv[])
     //		     Covise::set_port_default("gennormals","FALSE");
     pin_colors->setRequired(false);
     //p_group->setRequired(false);
+
+    p_varName = addStringParam("varName", "name of variant");
+    p_varName->setValue("");
+    p_varVisible = addBooleanParam("varVisible", "whether variant should be visible initially");
+    p_varVisible->setValue(true);
 }
 
 ShowUSG::~ShowUSG()
@@ -350,6 +355,20 @@ int ShowUSG::compute(const char *)
             Covise::sendError("ERROR: creation of data object 'geometry' failed");
             return STOP_PIPELINE;
         }
+        std::string variant = p_varName->getValue();
+        if (!variant.empty()) {
+            if (p_varVisible->getValue())
+            {
+                Geometry->addAttribute("VARIANT_VISIBLE", "on");
+            }
+            else
+            {
+                Geometry->addAttribute("VARIANT_VISIBLE", "off");
+            }
+            Geometry->addAttribute("VARIANT", p_varName->getValue());
+            Geometry->addAttribute("MODULE", "Variant");
+        }
+
         delete uns_grid_in;
         if (group != NULL)
         {
@@ -550,6 +569,20 @@ int ShowUSG::compute(const char *)
                 // }
                 //  else
                 //  delete Color_set_set; // WICHTIG!!! ganz loeschen nicht vergessen
+
+                std::string variant = p_varName->getValue();
+                if (!variant.empty()) {
+                    if (p_varVisible->getValue())
+                    {
+                        Geometry->addAttribute("VARIANT_VISIBLE", "on");
+                    }
+                    else
+                    {
+                        Geometry->addAttribute("VARIANT_VISIBLE", "off");
+                    }
+                    Geometry->addAttribute("VARIANT", p_varName->getValue());
+                    Geometry->addAttribute("MODULE", "Variant");
+                }
             }
             else
             {
@@ -689,6 +722,20 @@ int ShowUSG::compute(const char *)
                 }
                 else
                     delete color_set; // WICHTIG!!! ganz loeschen nicht vergessen
+
+                std::string variant = p_varName->getValue();
+                if (!variant.empty()) {
+                    if (p_varVisible->getValue())
+                    {
+                        Geometry->addAttribute("VARIANT_VISIBLE", "on");
+                    }
+                    else
+                    {
+                        Geometry->addAttribute("VARIANT_VISIBLE", "off");
+                    }
+                    Geometry->addAttribute("VARIANT", p_varName->getValue());
+                    Geometry->addAttribute("MODULE", "Variant");
+                }
             }
             else
             {

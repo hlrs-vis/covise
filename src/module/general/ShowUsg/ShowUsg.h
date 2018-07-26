@@ -44,6 +44,9 @@ private:
     coInputPort *pin_mesh, *pin_colors;
     coOutputPort *pout_geo;
 
+    coStringParam *p_varName;
+    coBooleanParam *p_varVisible;
+
 public:
     ShowUSG(int argc, char *argv[]);
     ~ShowUSG();
