@@ -40,6 +40,8 @@ int genCommand(unsigned char c1, unsigned char c2, unsigned char c3)
             commandBuffer[7] = c3; // data byte (0x01 = switch lamps on)
             commandBuffer[8] = generateChecksum(commandBuffer,8);
             commandBuffer[9] = 0xFF;
+
+            return 10;
 }
 int main(int argc, char **argv)
 {
