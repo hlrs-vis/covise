@@ -3590,6 +3590,58 @@ void coTUIMap::resend(bool create)
     }
 }
 
+
+
+coTUIEarthMap::coTUIEarthMap(const char *n, int pID)
+    : coTUIElement(n, pID, TABLET_EARTHMAP)
+{
+}
+
+coTUIEarthMap::~coTUIEarthMap()
+{
+    
+}
+
+void coTUIEarthMap::parseMessage(TokenBuffer &tb)
+{
+    tb >> latitude;
+    tb >> longitude;
+    tb >> altitude;
+
+    if (listener)
+        listener->tabletEvent(this);
+}
+
+void coTUIEarthMap::setPosition(float lat, float longi, float alt)
+{
+    latitude = lat;
+    longitude = longi;
+    altitude = alt;
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_FLOAT;
+    tb << ID;
+    tb << latitude;
+    tb << longitude;
+    tb << altitude;
+    tui()->send(tb);
+}
+
+void coTUIEarthMap::resend(bool create)
+{
+    coTUIElement::resend(create);
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_FLOAT;
+    tb << ID;
+    tb << latitude;
+    tb << longitude;
+    tb << altitude;
+    tui()->send(tb);
+}
+
 //----------------------------------------------------------
 //----------------------------------------------------------
 //##########################################################

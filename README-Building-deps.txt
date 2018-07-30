@@ -110,11 +110,11 @@ edit ntdebugdll.mak and add D to dll names
 nmake -f ms\ntdll.mak
 
 #qt
-configure -prefix c:/src/externlibs/zebu/qt5 -opensource -debug-and-release -nomake tests -make libs -make tools -nomake examples -nomake tests -confirm-license -openssl -I c:/src/externlibs/zebu/OpenSSL/include  -icu -I c:/src/externlibs/zebu/icu/include -L c:/src/externlibs/zebu/icu/lib -openssl-linked  -L C:/src/externlibs/zebu/OpenSSL/lib -openssl -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32" OPENSSL_LIBS_DEBUG="-lssleay32D -llibeay32D" OPENSSL_LIBS_RELEASE="-lssleay32 -llibeay32" -platform win32-msvc2015 -mp -opengl desktop
-nmake
-nmake install
 set PATH=c:\src\externlibs\zebu\Python2\bin;%PATH%
 set PYTHONHOME=c:\src\externlibs\zebu\..\shared\Python2;c:\src\externlibs\zebu\Python2
+configure -prefix c:/src/externlibs/zebu/qt5 -opensource -debug-and-release -nomake tests -make libs -make tools -nomake examples -nomake tests -confirm-license -openssl -I c:/src/externlibs/zebu/OpenSSL/include  -icu -I c:/src/externlibs/zebu/icu/include -L c:/src/externlibs/zebu/icu/lib -openssl-linked  -L C:/src/externlibs/zebu/OpenSSL/lib -openssl -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32" OPENSSL_LIBS_DEBUG="-lssleay32D -llibeay32D" OPENSSL_LIBS_RELEASE="-lssleay32 -llibeay32" -platform win32-msvc2015 -mp -opengl dynamic -angle
+nmake
+nmake install
 
 #SoQT
 get old soqt Version 1.4.1

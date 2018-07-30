@@ -81,6 +81,7 @@
 #include "TUISplitter.h"
 #include "TUIFileBrowserButton.h"
 #include "TUIMap.h"
+#include "TUIEarthMap.h"
 //#include "TUITextSpinEdit.h"
 #include "TUILineEdit.h"
 #include "TUITextEdit.h"
@@ -559,6 +560,8 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         return new TUITabFolder(id, type, w, parent, name);
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
+    case TABLET_EARTHMAP:
+        return new TUIEarthMap(id, type, w, parent, name);
     case TABLET_PROGRESS_BAR:
         return new TUIProgressBar(id, type, w, parent, name);
     case TABLET_NAV_ELEMENT:

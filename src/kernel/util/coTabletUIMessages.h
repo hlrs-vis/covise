@@ -53,6 +53,7 @@ enum TabletObjectType
     TABLET_POPUP,
     TABLET_UI_TAB,
     TABLET_GROUPBOX,
+    TABLET_EARTHMAP,
 };
 
 ////////////////////////////////////////////////////////////

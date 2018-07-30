@@ -10,7 +10,9 @@
 #include <net/covise_host.h>
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 using namespace std;
 using namespace covise;
 
@@ -81,7 +83,7 @@ int main(int argc, char **argv)
                         {
                             errno = 0;
 #ifdef _WIN32
-                            numRead = ::recv(projector->getSocket()->get_id(), replyBuffer, 1000, 0);
+                            numRead = ::recv(projector->getSocket()->get_id(), (char *)replyBuffer, 1000, 0);
                         } while (((projector->getSocket()->getErrno() == WSAEINPROGRESS) || (projector->getSocket()->getErrno() == WSAEINTR)));
 #else
                             numRead = ::read(projector->getSocket()->get_id(), replyBuffer, 1000);

@@ -272,6 +272,7 @@ bool VrmlNodeCSV::loadLabelFile(const std::string &fileName)
     char buf[lineSize];
     fgets(buf, lineSize, fp);
     MenuLabel = buf;
+    MenuLabel.erase(MenuLabel.find_last_not_of(" \n\r\t") + 1);
     int RowCount = 1;
     while(!feof(fp))
     {

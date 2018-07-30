@@ -211,9 +211,9 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
     connect(zoomInButton, SIGNAL(pressed()), this, SLOT(zoomIn()));
     connect(zoomOutButton, SIGNAL(pressed()), this, SLOT(zoomOut()));
     connect(viewAllButton, SIGNAL(pressed()), this, SLOT(viewAll()));
-    connect(zoomFrameButton, SIGNAL(toogled(bool)), this, SLOT(zoomFrame(bool)));
     connect(panButton, SIGNAL(toggled(bool)), this, SLOT(pan(bool)));
     connect(camButton, SIGNAL(toggled(bool)), this, SLOT(cam(bool)));
+    connect(zoomFrameButton, SIGNAL(toogled(bool)), this, SLOT(zoomFrame(bool)));
 
     buttonsLayout->addWidget(zoomInButton, 0, 0);
     buttonsLayout->addWidget(zoomOutButton, 1, 0);
