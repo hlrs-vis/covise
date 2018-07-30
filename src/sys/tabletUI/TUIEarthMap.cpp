@@ -24,9 +24,10 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QQuickView>
-#include <QStringLiteral>
 #include <QQmlEngine>
 #include <QQuickItem>
+#include <QQmlContext>
+#include <QGeoPath>
 
 #include "TUIEarthMap.h"
 #include "TUIApplication.h"
@@ -54,41 +55,29 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     container->setMaximumSize(500, 700);
     container->setFocusPolicy(Qt::TabFocus);
     widget = container;
-    QVariantMap parameters;
-    QStringList args;
+    
+    int size = 3;
 
-    // Fetch tokens from the environment, if present
-    const QByteArray mapboxMapID = qgetenv("MAPBOX_MAP_ID");
-    const QByteArray mapboxAccessToken = qgetenv("MAPBOX_ACCESS_TOKEN");
-    const QByteArray hereAppID = qgetenv("HERE_APP_ID");
-    const QByteArray hereToken = qgetenv("HERE_TOKEN");
-    const QByteArray esriToken = qgetenv("ESRI_TOKEN");
+    QGeoPath geopath;
+    geopath.addCoordinate(QGeoCoordinate(50.9, 6.5));
+    geopath.addCoordinate(QGeoCoordinate(50.8, 6.5));
+    geopath.addCoordinate(QGeoCoordinate(50.8, 6.6));
 
-    if (!mapboxMapID.isEmpty())
-        parameters["mapbox.map_id"] = QString::fromLocal8Bit(mapboxMapID);
-    if (!mapboxAccessToken.isEmpty()) {
-        parameters["mapbox.access_token"] = QString::fromLocal8Bit(mapboxAccessToken);
-        parameters["mapboxgl.access_token"] = QString::fromLocal8Bit(mapboxAccessToken);
-    }
-    if (!hereAppID.isEmpty())
-        parameters["here.app_id"] = QString::fromLocal8Bit(hereAppID);
-    if (!hereToken.isEmpty())
-        parameters["here.token"] = QString::fromLocal8Bit(hereToken);
-    if (!esriToken.isEmpty())
-        parameters["esri.token"] = QString::fromLocal8Bit(esriToken);
+    quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
+    size = geopath.path().size();
+    quickView->engine()->rootContext()->setContextProperty("size", size);
 
-    if (!args.contains(QStringLiteral("osm.useragent")))
-        parameters[QStringLiteral("osm.useragent")] = QStringLiteral("QtLocation Mapviewer example");
+    quickView->engine()->addImportPath(QString(":/imports"));
+    quickView->setSource(QUrl("mapviewer.qml"));
 
-    quickView->engine()->addImportPath(QStringLiteral(":/imports"));
-    //engine.load(QUrl(QStringLiteral("qrc:///mapviewer.qml")));
-    quickView->setSource(QUrl(QStringLiteral("qrc:///mapviewer.qml")));
-
+    quickView->setWidth(640);
+    quickView->setHeight(640);
+    quickView->show();
     QObject *item = quickView->rootObject();
     Q_ASSERT(item);
 
-    QMetaObject::invokeMethod(item, "initializeProviders",
-        Q_ARG(QVariant, QVariant::fromValue(parameters)));
+   // QMetaObject::invokeMethod(item, "initializeProviders",
+    //    Q_ARG(QVariant, QVariant::fromValue(parameters)));
 
     
 
@@ -151,6 +140,15 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> latitude;
         tb >> longitude;
         tb >> altitude;
+	
+        QVariant returnedValue;
+	QMetaObject::invokeMethod(quickView->rootObject(), "setMarker",
+        Q_RETURN_ARG(QVariant, returnedValue),
+        Q_ARG(QVariant, QVariant::fromValue(QString("Helicopter"))),
+        Q_ARG(QVariant, QVariant::fromValue(latitude)),
+        Q_ARG(QVariant, QVariant::fromValue(longitude)),
+        Q_ARG(QVariant, QVariant::fromValue(altitude)));
+
 	}
 	TUIElement::setValue(type, tb);
 }
