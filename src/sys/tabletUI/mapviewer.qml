@@ -47,8 +47,6 @@ import QtLocation 5.6
 Rectangle {
     width: 500
     height: 500
-    color: red
-    /*
     anchors.fill: parent
     //! [Initialize Plugin]
     Plugin {
@@ -142,7 +140,6 @@ Rectangle {
 //                console.log(searchModel.errorString());
 //        }
 //    }
-*/
     function setMarker(name, latitude, longitude, altitude)
     {
             locationHeli = QtPositioning.coordinate( latitude, longitude);
