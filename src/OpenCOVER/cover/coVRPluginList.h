@@ -123,7 +123,7 @@ public:
     //! call requestTimestep method of all plugins
     void requestTimestep(int timestep);
     //! call setTimestep method of all plugins
-    void setTimestep(int timestep) const;
+    void setTimestep(int timestep);
     //! send a message to all plugins
     void message(int toWhom, int t, int l, const void *b) const;
     //! add new plugins, if not already loaded
@@ -180,8 +180,9 @@ private:
 
     typedef std::vector<CO_SHLIB_HANDLE> HandleList;
     HandleList m_unloadNext, m_unloadQueue;
-    int m_numOutstandingTimestepPlugins;
-    int m_requestedTimestep;
+    int m_numOutstandingTimestepPlugins = 0;
+    int m_requestedTimestep = -1;
+    int m_currentTimestep = 0;
 };
 }
 #endif

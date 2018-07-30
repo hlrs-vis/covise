@@ -44,7 +44,7 @@ coVRAnimationManager::coVRAnimationManager()
     , oldFrame(-1)
     , animRunning(true)
     , lastAnimationUpdate(0.0)
-    , currentAnimationFrame(0)
+    , currentAnimationFrame(-1)
     , requestedAnimationFrame(-1)
     , timestepScale(1.0)
     , timestepBase(0.0)
@@ -54,6 +54,7 @@ coVRAnimationManager::coVRAnimationManager()
 
     initAnimMenu();
     showAnimMenu(false);
+    setAnimationFrame(0);
 }
 
 coVRAnimationManager::~coVRAnimationManager()
