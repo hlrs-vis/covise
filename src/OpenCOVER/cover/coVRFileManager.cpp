@@ -21,6 +21,7 @@
 #include "OpenCOVER.h"
 #include "VRSceneGraph.h"
 #include "VRViewer.h"
+#include "coVRMSController.h"
 #include "coVRPluginSupport.h"
 #include "coVRPluginList.h"
 #include "coVRCommunication.h"
@@ -31,6 +32,7 @@
 #include "coVRConfig.h"
 #include "coVRRenderer.h"
 #include <util/string_util.h>
+#include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/FileBrowser.h"
@@ -858,7 +860,10 @@ void coVRFileManager::reloadFile()
 {
     START("coVRFileManager::reloadFile");
     if (m_lastFile)
+    {
+        std::cerr << "reloading " << m_lastFile->url << std::endl;
         m_lastFile->reload();
+    }
 }
 
 void coVRFileManager::unloadFile(const char *file)
@@ -897,16 +902,33 @@ coVRFileManager::coVRFileManager()
 {
     assert(!s_instance);
 
-    m_fileOpen = new ui::FileBrowser("OpenFile", this);
-    m_fileOpen->setText("Open");
-    cover->fileMenu->add(m_fileOpen);
-    m_fileOpen->setCallback([this](const std::string &file){
+    auto fileOpen = new ui::FileBrowser("OpenFile", this);
+    fileOpen->setText("Open");
+    fileOpen->setFilter(getFilterList());
+    cover->fileMenu->add(fileOpen);
+    fileOpen->setCallback([this](const std::string &file){
         loadFile(file.c_str());
     });
 
     m_fileGroup = new ui::Group("LoadedFiles", this);
     m_fileGroup->setText("Files");
     cover->fileMenu->add(m_fileGroup);
+
+    auto fileReload = new ui::Action("ReloadFile", this);
+    cover->fileMenu->add(fileReload);
+    fileReload->setText("Reload file");
+    fileReload->setCallback([this](){
+        reloadFile();
+    });
+
+    auto fileSave = new ui::FileBrowser("SaveFile", this, true);
+    fileSave->setText("Save");
+    fileSave->setFilter(getWriteFilterList());
+    cover->fileMenu->add(fileSave);
+    fileSave->setCallback([this](const std::string &file){
+        if (coVRMSController::instance()->isMaster())
+            VRSceneGraph::instance()->saveScenegraph(file);
+    });
 
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -1062,26 +1084,41 @@ std::string coVRFileManager::getFilterList()
         extensions += (*it)->extension;
         extensions += ";";
     }
-    extensions += "*.osg;";
-    extensions += "*.osgt;";
-    extensions += "*.osgb;";
-    extensions += "*.osgx;";
+    extensions += "*.osg *.ive;";
+    extensions += "*.osgb *.osgt *.osgx;";
     extensions += "*.obj;";
     extensions += "*.stl;";
     extensions += "*.ply;";
-    extensions += "*.ive;";
     extensions += "*.iv;";
     extensions += "*.dxf;";
     extensions += "*.3ds;";
     extensions += "*.flt;";
     extensions += "*.dae;";
-    extensions += "*.stl;";
     extensions += "*.md2;";
     extensions += "*.geo;";
     extensions += "*";
 
     return extensions;
 }
+
+std::string coVRFileManager::getWriteFilterList()
+{
+    std::string extensions;
+    extensions += "*.osg;";
+    extensions += "*.ive;";
+    extensions += "*.osgb;";
+    extensions += "*.osgt;";
+    extensions += "*.osgx;";
+    extensions += "*.obj;";
+    extensions += "*.stl;";
+    extensions += "*.3ds;";
+    extensions += "*.iv;";
+    extensions += "*.dae;";
+    extensions += "*";
+
+    return extensions;
+}
+
 
 const FileHandler *coVRFileManager::getFileHandler(const char *extension)
 {
@@ -1332,5 +1369,6 @@ bool coVRFileManager::update()
     }
     return true;
 }
+
 
 }

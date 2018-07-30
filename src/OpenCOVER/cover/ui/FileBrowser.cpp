@@ -8,13 +8,15 @@
 namespace opencover {
 namespace ui {
 
-FileBrowser::FileBrowser(Group *parent, const std::string &name)
+FileBrowser::FileBrowser(Group *parent, const std::string &name, bool save)
 : Element(parent, name)
+, m_save(save)
 {
 }
 
-FileBrowser::FileBrowser(const std::string &name, Owner *owner)
+FileBrowser::FileBrowser(const std::string &name, Owner *owner, bool save)
 : Element(name, owner)
+, m_save(save)
 {
 }
 
@@ -32,26 +34,28 @@ void opencover::ui::FileBrowser::setValue(const std::string &text)
     }
 }
 
-void FileBrowser::setValue(double num)
-{
-    std::stringstream str;
-    str << num;
-
-    if (m_value != str.str())
-    {
-        m_value = str.str();
-        manager()->queueUpdate(this, UpdateValue);
-    }
-}
-
-double FileBrowser::number() const
-{
-    return atof(m_value.c_str());
-}
-
 std::string FileBrowser::value() const
 {
     return m_value;
+}
+
+void FileBrowser::setFilter(const std::string &filter)
+{
+    if (m_filter != filter)
+    {
+        m_filter = filter;
+        manager()->queueUpdate(this, UpdateFilter);
+    }
+}
+
+std::string FileBrowser::filter() const
+{
+    return m_filter;
+}
+
+bool FileBrowser::forSaving() const
+{
+    return m_save;
 }
 
 void FileBrowser::setCallback(const std::function<void (const std::string &)> &f)
@@ -75,6 +79,8 @@ void FileBrowser::update(Element::UpdateMaskType mask) const
     Element::update(mask);
     if (mask & UpdateValue)
         manager()->updateValue(this);
+    if (mask & UpdateFilter)
+        manager()->updateFilter(this);
 }
 
 void FileBrowser::save(covise::TokenBuffer &buf) const

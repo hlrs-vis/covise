@@ -563,6 +563,10 @@ void VruiView::updateValue(const FileBrowser *fb)
     updateText(fb);
 }
 
+void VruiView::updateFilter(const FileBrowser *fb)
+{
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Label *label)
 {
     auto ve = new VruiViewElement(label);

@@ -360,7 +360,27 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
     add(ve);
     ve->markForDeletion(a);
     connect(a, &QAction::triggered, [fb](bool){
-        QString file = QFileDialog::getOpenFileName(nullptr, "Open...");
+        QString filters = QString::fromStdString(fb->filter());
+        filters.replace(";", ";;");
+        QString dir = QString::fromStdString(fb->value());
+        QString selectedFilter;
+        QString file = fb->forSaving()
+                ? QFileDialog::getSaveFileName(nullptr, "Save...", dir, filters, &selectedFilter)
+                : QFileDialog::getOpenFileName(nullptr, "Open...", dir, filters, &selectedFilter);
+        if (fb->forSaving()) {
+            QString extension;
+            if (selectedFilter.startsWith("*"))
+                extension = selectedFilter.mid(1);
+#ifdef WIN32
+            file.replace("\\", "/");
+#endif
+            QString filename = file.section("/", -1);
+            if (!filename.isEmpty())
+            {
+                if (!filename.contains("."))
+                    file.append(extension);
+            }
+        }
         fb->setValue(file.toStdString());
         fb->trigger();
     });
@@ -639,6 +659,12 @@ void QtView::updateValue(const EditField *input)
 void QtView::updateValue(const FileBrowser *fb)
 {
     updateText(fb);
+}
+
+void QtView::updateFilter(const FileBrowser *fb)
+{
+    QString filter = QString::fromStdString(fb->filter());
+
 }
 
 QtViewElement::QtViewElement(Element *elem, QObject *obj)

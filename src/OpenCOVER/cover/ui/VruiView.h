@@ -86,6 +86,7 @@ class VruiView: public View
    void updateBounds(const Slider *slider) override;
    void updateValue(const EditField *input) override;
    void updateValue(const FileBrowser *fb) override;
+   void updateFilter(const FileBrowser *fb) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
    VruiViewElement *elementFactoryImplementation(Group *group) override;

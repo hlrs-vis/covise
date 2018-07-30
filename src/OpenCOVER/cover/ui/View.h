@@ -87,6 +87,8 @@ class COVER_UI_EXPORT View {
     virtual void updateValue(const EditField *input) = 0;
     //! reflect change of selected file in graphical representation
     virtual void updateValue(const FileBrowser *fb) = 0;
+    //! reflect change of file filetr in graphical representation
+    virtual void updateFilter(const FileBrowser *fb) = 0;
 
     //! remove elem from View and delete associated data
     bool removeElement(Element *elem);

@@ -167,6 +167,9 @@ public:
     // get list of extensioins as required by a filebrowser
     std::string getFilterList();
 
+    // get list of extensioins for saving as required by a filebrowser
+    std::string getWriteFilterList();
+
     // get a loader for a file type, if available
     const FileHandler *getFileHandler(const char *extension);
     coVRIOReader *findIOHandler(const char *extension);
@@ -189,7 +192,6 @@ private:
     std::string viewPointFile;
     int m_loadCount = 0;
     ui::Group *m_fileGroup = nullptr;
-    ui::FileBrowser *m_fileOpen = nullptr;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;

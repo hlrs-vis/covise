@@ -18,17 +18,18 @@ class COVER_UI_EXPORT FileBrowser: public Element {
    enum UpdateMask: UpdateMaskType
    {
        UpdateValue = 0x100,
+       UpdateFilter = 0x200,
    };
 
-   FileBrowser(Group *parent, const std::string &name);
-   FileBrowser(const std::string &name, Owner *owner);
+   FileBrowser(Group *parent, const std::string &name, bool save=false);
+   FileBrowser(const std::string &name, Owner *owner, bool save=false);
    virtual ~FileBrowser();
 
    void setValue(const std::string &text);
-   void setValue(double num);
-
-   double number() const;
    std::string value() const;
+
+   void setFilter(const std::string &filter);
+   std::string filter() const;
 
    void setCallback(const std::function<void(const std::string &text)> &f);
    std::function<void(const std::string &)> callback() const;
@@ -40,9 +41,13 @@ class COVER_UI_EXPORT FileBrowser: public Element {
     void save(covise::TokenBuffer &buf) const override;
     void load(covise::TokenBuffer &buf) override;
 
+    bool forSaving() const;
+
  protected:
     std::function<void(const std::string &text)> m_callback;
     std::string m_value;
+    std::string m_filter;
+    bool m_save = false;
 };
 
 }

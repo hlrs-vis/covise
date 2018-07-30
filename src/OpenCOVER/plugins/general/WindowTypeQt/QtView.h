@@ -151,6 +151,7 @@ class QtView: public QObject, public View
    void updateBounds(const Slider *slider) override;
    void updateValue(const EditField *input) override;
    void updateValue(const FileBrowser *fb) override;
+   void updateFilter(const FileBrowser *fb) override;
 
    QtViewElement *elementFactoryImplementation(Menu *menu) override;
    QtViewElement *elementFactoryImplementation(Group *group) override;

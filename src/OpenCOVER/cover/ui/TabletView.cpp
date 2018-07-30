@@ -365,6 +365,17 @@ void TabletView::updateValue(const FileBrowser *fb)
     }
 }
 
+void TabletView::updateFilter(const FileBrowser *fb)
+{
+    auto ve = tuiElement(fb);
+    if (!ve)
+        return;
+    if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
+    {
+        te->setFilterList(fb->filter());
+    }
+}
+
 TabletViewElement *TabletView::elementFactoryImplementation(Label *label)
 {
     auto parent = tuiContainer(label);
@@ -463,7 +474,10 @@ TabletViewElement *TabletView::elementFactoryImplementation(FileBrowser *fb)
 
     auto te = new coTUIFileBrowserButton(m_tui, fb->path().c_str(), tuiContainerId(fb));
     ve->m_elem = te;
-    te->setMode(coTUIFileBrowserButton::OPEN);
+    if (fb->forSaving())
+        te->setMode(coTUIFileBrowserButton::SAVE);
+    else
+        te->setMode(coTUIFileBrowserButton::OPEN);
 
     ve->m_elem->setLabel(fb->text());
 

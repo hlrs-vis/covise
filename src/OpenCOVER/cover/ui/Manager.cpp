@@ -349,6 +349,14 @@ void Manager::updateValue(const FileBrowser *fb) const
     }
 }
 
+void Manager::updateFilter(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateFilter(fb);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;
