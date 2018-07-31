@@ -13,6 +13,13 @@
 #include <util/unixcompat.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Label.h>
+#include <cover/coVRTui.h>
+#include <iostream>
+#include <string>
+#include <boost/tokenizer.hpp>
+
+using namespace std;
+using namespace boost;
 
 CSVPlugin *CSVPlugin::plugin = NULL;
 
@@ -42,6 +49,7 @@ VrmlNodeType *VrmlNodeCSV::defineType(VrmlNodeType *t)
     t->addExposedField("row", VrmlField::SFINT32);
     t->addExposedField("fileName", VrmlField::SFSTRING);
     t->addExposedField("labelFileName", VrmlField::SFSTRING);
+    t->addExposedField("gpsFileName", VrmlField::SFSTRING);
 
     return t;
 }
@@ -57,6 +65,7 @@ VrmlNodeCSV::VrmlNodeCSV(VrmlScene *scene)
 {
     changedFile = false;
     setModified();
+    CSVPlugin::plugin->CSVNode = this;
 }
 
 VrmlNodeCSV::VrmlNodeCSV(const VrmlNodeCSV &n)
@@ -65,6 +74,7 @@ VrmlNodeCSV::VrmlNodeCSV(const VrmlNodeCSV &n)
 {
     changedFile = false;
     setModified();
+    CSVPlugin::plugin->CSVNode = this;
 }
 
 VrmlNodeCSV::~VrmlNodeCSV()
@@ -102,15 +112,21 @@ void VrmlNodeCSV::setField(const char *fieldName,
         TRY_FIELD(fileName, SFString)
     else if
         TRY_FIELD(labelFileName, SFString)
+    else if
+        TRY_FIELD(gpsFileName, SFString)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
     if (strcmp(fieldName, "fileName") == 0)
     {
         loadFile(fieldValue.toSFString()->get());
     }
-    if (strcmp(fieldName, "labelFileName") == 0)
+    else if (strcmp(fieldName, "labelFileName") == 0)
     {
         loadLabelFile(fieldValue.toSFString()->get());
+    }
+    else if (strcmp(fieldName, "gpsFileName") == 0)
+    {
+        loadGPSFile(fieldValue.toSFString()->get());
     }
     else if (strcmp(fieldName, "row") == 0)
     {
@@ -314,6 +330,43 @@ bool VrmlNodeCSV::loadLabelFile(const std::string &fileName)
 }
 
 
+bool VrmlNodeCSV::loadGPSFile(const std::string &fileName)
+{
+    FILE *fp = fopen(fileName.c_str(), "r");
+    if (fp == NULL)
+        return false;
+    const int lineSize = 1000;
+    char buf[lineSize];
+    int RowCount = 1;
+    while (!feof(fp))
+    {
+        char *cbuf = NULL;
+        fgets(buf, lineSize, fp);
+        std::string line(buf);
+        std::replace(line.begin(), line.end(), ',', '.'); // replace all 'x' to 'y'
+        gpsData gpsd;
+        char_separator<char> sep(";");
+        tokenizer<char_separator<char>> tokens(line, sep);
+        auto tok = tokens.begin();
+        gpsd.timestamp = std::strtoull(tok->c_str(),NULL,10);
+        tok++;
+        gpsd.lat = std::strtof(tok->c_str(), NULL);
+        tok++;
+        gpsd.lon = std::strtof(tok->c_str(), NULL);
+        tok++;
+        gpsd.alt = std::strtof(tok->c_str(), NULL);
+        tok++;
+        gpsd.velocity = std::strtof(tok->c_str(), NULL);
+        path.push_back(gpsd);
+    }
+    for (auto gpsd = path.begin(); gpsd != path.end();gpsd++)
+    {
+        CSVPlugin::plugin->tuiEarthMap->addPathNode(gpsd->lat, gpsd->lon);
+    }
+    CSVPlugin::plugin->tuiEarthMap->updatePath();
+    return true;
+}
+
 void CSVPlugin::createMenu(const std::string &label)
 {
     labelMenu = new ui::Menu(label, CSVPlugin::plugin);
@@ -323,7 +376,7 @@ void CSVPlugin::createMenu(const std::string &label)
 }
 void CSVPlugin::updateLabel(int64_t ts)
 {
-    int64_t seconds = ts / 60;
+    double seconds = ts / 60.0;
     if (labels[currentLabelNumber].start < seconds && labels[currentLabelNumber].stop > seconds)
         return;
     for (int i = 0; i < labels.size(); i++)
@@ -332,6 +385,15 @@ void CSVPlugin::updateLabel(int64_t ts)
         {
             currentLabelNumber = i;
             currentLabel->setText(labels[i].label);
+            break;
+        }
+    }
+    for (int i = 0; i < CSVNode->path.size(); i++)
+    {
+        if (CSVNode->path[i].timestamp < seconds*10000.0)
+        {
+            tuiEarthMap->setPosition(CSVNode->path[i].lat, CSVNode->path[i].lon, CSVNode->path[i].alt);
+            break;
         }
     }
 }
@@ -342,6 +404,13 @@ CSVPlugin::CSVPlugin()
     fprintf(stderr, "CSVPlugin::CSVPlugin\n");
     plugin = this;
     currentLabelNumber=0;
+    CSVNode = NULL;
+
+
+    CSVTab = new coTUITab("CSV", coVRTui::instance()->mainFolder->getID());
+    CSVTab->setPos(0, 0);
+    tuiEarthMap = new coTUIEarthMap("earthtest", CSVTab->getID());
+    tuiEarthMap->setPos(4, 0);
 
 }
 
