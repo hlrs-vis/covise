@@ -3647,6 +3647,18 @@ void coTUIEarthMap::updatePath()
     }
     tui()->send(tb);
 }
+void coTUIEarthMap::setMinMax(float minH, float maxH)
+{
+    minHeight = minH;
+    maxHeight = maxH;
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_MIN_MAX;
+    tb << ID;
+    tb << minHeight;
+    tb << maxHeight;
+    tui()->send(tb);
+}
 
 void coTUIEarthMap::resend(bool create)
 {
@@ -3660,6 +3672,7 @@ void coTUIEarthMap::resend(bool create)
     tb << longitude;
     tb << altitude;
     tui()->send(tb);
+    setMinMax(minHeight,maxHeight);
     updatePath();
 }
 

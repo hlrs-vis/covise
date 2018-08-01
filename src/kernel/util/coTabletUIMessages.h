@@ -116,6 +116,7 @@ enum TabletValue {
     TABLET_SET_ENABLED,
     TABLET_SLIDER_SCALE,
     TABLET_GEO_PATH,
+    TABLET_MIN_MAX,
 
     ////////////////////////////////////////////////////////////
     // VALUES from SGBrowser (100)

@@ -1786,14 +1786,18 @@ public:
     virtual void setPosition(float latitude, float longitude, float altitude);
     virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
+    
 
     float latitude;
     float longitude;
     float altitude;
+    float minHeight;
+    float maxHeight;
 
     void addPathNode(float latitude, float longitude);
     std::list<std::pair<float, float>> path;
     void updatePath();
+    void setMinMax(float minH, float maxH);
 
 
 protected:

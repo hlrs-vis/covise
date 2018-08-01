@@ -60,6 +60,8 @@ Rectangle {
 
     property variant locationHeli: QtPositioning.coordinate( 50.9, 6.5)
     property string markerName: "testName"
+    property int minHeight: 0
+    property int maxHeight: 0
 
     //! [Places MapItemView]
     Map {
@@ -99,19 +101,30 @@ Rectangle {
     }
     //! [Places MapItemView]
 
-    //this widget displays the altitude of the helicopter
-    Image{
-        x: 10
-        y: 210
-        source: "scale.png"
+    //Image{
+     //   x: 10
+     //   y: 210
+      //  source: "scale.png"
+    //}
+    
+    Text{
+        id: scaleName
+        x: 15
+        y: 590 -  (maxHeight - minHeight)*0.6
+        z: 2
+        color: "black"
+        font.pointSize: 13
+        text: "Altitude (ft)"
     }
     
-    Rectangle {
+    
+    //the pointer indicating current altitude
+    Rectangle{
         id: pointer
-        width: 20
-        height: 20
-        x: 68.5
-        y: 617
+        width: 15
+        height: 15
+        x: 43
+        y: 624
         z: 1
         color: "white"
         border.color: "black"
@@ -119,34 +132,90 @@ Rectangle {
         radius: 10
     }
     
+    //current altitude
     Text{
         id: pText
-        x: 110
-        y: 617
-        z: 1
+        x: 80
+        y: 800
+        z: 2
         color: "black"
-	font.pointSize: 16
+        font.pointSize: 13
         text: "500"
     }
+
+    //the scale
+    Repeater {
+        id: scaleThick;
+        model: 10; // just define the number you want, can be a variable too
+
+        delegate: Rectangle {
+            width: 35;
+            height: 3;
+            color: "black";
+            x: 43
+            y: 630 - index * 60;
+            radius: 3;
+        }
+    }
+
+    Repeater {
+        id: scaleText;
+        model: 10; // just define the number you want, can be a variable too
+
+        delegate: Text {
+            text: minHeight + index * 100
+            color: "black";
+            x: 10
+            y: 622 - index * 60;
+        }
+    }
+
+    Repeater {
+        id: scaleThin;
+        model: 10; // just define the number you want, can be a variable too
+
+        delegate: Rectangle {
+            width: 20;
+            height: 1.5;
+            color: "black";
+            x: 43
+            y: 630 - index * 12;
+            radius: 3;
+        }
+    }
+
 
     function updatePath()
     {
             console.error("bb");
 	        var lines = []
-			console.Error(geopath.path.size);
-			console.Error(size);
-			console.Error(geopath);
-            for(var i=0; i < geopath.path.size; i++){
+			console.error(size);
+			//console.error(geopath.path[0]);
+            for(var i=0; i < size; i++){
                 lines[i] = geopath.coordinateAt(i);
+		if(i<20)
+		    console.error(lines[i]);
             }
             polyline.path = lines
      }
+     
+     
+    function updateHeightMinMax(min, max)
+    {
+            scaleText.model = (max - min)/100 +1
+            scaleThick.model = (max - min)/100 +1
+            scaleThin.model = (max - min)/20
+            minHeight = min
+	    maxHeight = max
+    }
+     
+     
     function setMarker(name, latitude, longitude, altitude)
     {
             locationHeli = QtPositioning.coordinate( latitude, longitude);
             markerName = name;
-	    pointer.y = 617 - 0.85*(altitude - 500);
-	    pText.y = 617 - 0.85*(altitude - 500);
+            pointer.y = 624 - 0.6*(altitude - minHeight);
+            pText.y = 624 - 0.6*(altitude - minHeight);
 	    pText.text = altitude;
 	    
      }

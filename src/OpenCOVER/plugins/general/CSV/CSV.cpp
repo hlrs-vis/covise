@@ -359,10 +359,18 @@ bool VrmlNodeCSV::loadGPSFile(const std::string &fileName)
         gpsd.velocity = std::strtof(tok->c_str(), NULL);
         path.push_back(gpsd);
     }
+    float minHeight = 10000000;
+    float maxHeight = -10000000;
     for (auto gpsd = path.begin(); gpsd != path.end();gpsd++)
     {
         CSVPlugin::plugin->tuiEarthMap->addPathNode(gpsd->lat, gpsd->lon);
+	if(gpsd->alt > maxHeight)
+	    maxHeight = gpsd->alt;
+	if(gpsd->alt < minHeight)
+	    minHeight = gpsd->alt;
     }
+    
+    CSVPlugin::plugin->tuiEarthMap->setMinMax(minHeight,maxHeight);
     CSVPlugin::plugin->tuiEarthMap->updatePath();
     return true;
 }
