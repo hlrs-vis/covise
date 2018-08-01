@@ -45,8 +45,6 @@ import QtLocation 5.6
 //! [Imports]
 
 Rectangle {
-    width: 500
-    height: 500
     anchors.fill: parent
     //! [Initialize Plugin]
     Plugin {
@@ -59,41 +57,9 @@ Rectangle {
     }
     //! [Initialize Plugin]
 
-    //! [Current Location]
-//    PositionSource {
-//        id: positionSource
-//        property variant lastSearchPosition: locationHeli
-//        active: true
-//        updateInterval: 120000 // 2 mins
-//        onPositionChanged:  {
-//            var currentPosition = positionSource.position.coordinate
-//            map.center = currentPosition
-//            var distance = currentPosition.distanceTo(lastSearchPosition)
-//            if (distance > 500) {
-//                // 500m from last performed pizza search
-//                lastSearchPosition = currentPosition
-//                searchModel.searchArea = QtPositioning.circle(currentPosition)
-//                searchModel.update()
-//            }
-//        }
-//    }
-    //! [Current Location]
 
-    //! [PlaceSearchModel]
     property variant locationHeli: QtPositioning.coordinate( 50.9, 6.5)
     property string markerName: "testName"
-
-//    PlaceSearchModel {
-//        id: searchModel
-
-//        plugin: myPlugin
-
-//        searchTerm: "Pizza"
-//        searchArea: QtPositioning.circle(locationHeli)
-
-//        Component.onCompleted: update()
-//    }
-    //! [PlaceSearchModel]
 
     //! [Places MapItemView]
     Map {
@@ -133,17 +99,44 @@ Rectangle {
     }
     //! [Places MapItemView]
 
-//    Connections {
-//        target: searchModel
-//        onStatusChanged: {
-//            if (searchModel.status == PlaceSearchModel.Error)
-//                console.log(searchModel.errorString());
-//        }
-//    }
+    //this widget displays the altitude of the helicopter
+    Image{
+        x: 10
+        y: 210
+        source: "scale.png"
+    }
+    
+    Rectangle {
+        id: pointer
+        width: 20
+        height: 20
+        x: 68.5
+        y: 617
+        z: 1
+        color: "white"
+        border.color: "black"
+        border.width: 3
+        radius: 10
+    }
+    
+    Text{
+        id: pText
+        x: 110
+        y: 617
+        z: 1
+        color: "black"
+	font.pointSize: 16
+        text: "500"
+    }
+
     function setMarker(name, latitude, longitude, altitude)
     {
             locationHeli = QtPositioning.coordinate( latitude, longitude);
             markerName = name;
+	    pointer.y = 617 - 0.85*(altitude - 500);
+	    pText.y = 617 - 0.85*(altitude - 500);
+	    pText.text = altitude;
+	    
      }
     function center(latitude, longitude)
     {

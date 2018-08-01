@@ -56,7 +56,6 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     container->setFocusPolicy(Qt::TabFocus);
     widget = container;
     
-    int size = 3;
 
     QGeoPath geopath;
     geopath.addCoordinate(QGeoCoordinate(50.9, 6.5));
@@ -64,14 +63,12 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     geopath.addCoordinate(QGeoCoordinate(50.8, 6.6));
 
     quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
-    size = geopath.path().size();
-    quickView->engine()->rootContext()->setContextProperty("size", size);
+    quickView->engine()->rootContext()->setContextProperty("size", geopath.path().size());
 
     quickView->engine()->addImportPath(QString(":/imports"));
     quickView->setSource(QUrl(QString("qrc:///mapviewer.qml")));
+    
 
-    quickView->setWidth(640);
-    quickView->setHeight(640);
     quickView->show();
     QObject *item = quickView->rootObject();
     Q_ASSERT(item);

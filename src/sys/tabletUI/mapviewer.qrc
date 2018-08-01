@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>mapviewer.qml</file>
         <file>marker.png</file>
+	<file>scale.png</file>
     </qresource>
 </RCC>
