@@ -3628,6 +3628,26 @@ void coTUIEarthMap::setPosition(float lat, float longi, float alt)
     tui()->send(tb);
 }
 
+void coTUIEarthMap::addPathNode(float latitude, float longitude)
+{
+    path.push_back(pair<float, float>(latitude, longitude));
+}
+
+void coTUIEarthMap::updatePath()
+{
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_GEO_PATH;
+    tb << ID;
+    tb << path.size();
+    for (auto p = path.begin(); p != path.end(); p++)
+    {
+        tb << p->first;
+        tb << p->second;
+    }
+    tui()->send(tb);
+}
+
 void coTUIEarthMap::resend(bool create)
 {
     coTUIElement::resend(create);
@@ -3640,6 +3660,7 @@ void coTUIEarthMap::resend(bool create)
     tb << longitude;
     tb << altitude;
     tui()->send(tb);
+    updatePath();
 }
 
 //----------------------------------------------------------

@@ -1791,6 +1791,11 @@ public:
     float longitude;
     float altitude;
 
+    void addPathNode(float latitude, float longitude);
+    std::list<std::pair<float, float>> path;
+    void updatePath();
+
+
 protected:
 };
 /**

@@ -25,6 +25,6 @@ ENDIF(FFMPEG_FOUND)
 cover_add_plugin(Video)
 
 IF(MSVC AND NOT MSVC10)
-  ADD_COVISE_COMPILE_FLAGS(Video "/Zc:wchar_t-")
+# can't have this anymore, if you still nedd it add it for your compiler only or use a new ffmpeg if that helps ADD_COVISE_COMPILE_FLAGS(Video "/Zc:wchar_t-")
 ENDIF()
 

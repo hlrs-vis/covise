@@ -43,6 +43,7 @@
 #include <cover/ui/Owner.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Label.h>
+#include <cover/coTabletUI.h>
 
 using namespace vrml;
 using namespace opencover;
@@ -56,6 +57,15 @@ public:
     int64_t stop;
 };
 
+class PLUGINEXPORT gpsData
+{
+public:
+    uint64_t timestamp;
+    float lat;
+    float lon;
+    float alt;
+    float velocity;
+};
 
 class PLUGINEXPORT VrmlNodeCSV : public VrmlNodeChild
 {
@@ -88,6 +98,7 @@ public:
     }
     int numFloats;
     float *floatValues;
+    std::vector<gpsData> path;
 
 private:
     // Fields
@@ -97,12 +108,14 @@ private:
     VrmlSFInt d_row;
     VrmlSFString d_fileName;
     VrmlSFString d_labelFileName;
+    VrmlSFString d_gpsFileName;
 
     // eventOuts
     VrmlMFFloat d_floats;
     std::vector<float *> rows;
     bool loadFile(const std::string &fileName);
     bool loadLabelFile(const std::string &fileName);
+    bool loadGPSFile(const std::string &fileName);
     bool changedFile;
     bool changedLabelFile;
     std::string MenuLabel;
@@ -127,6 +140,10 @@ public:
     virtual void setTimestep(int t);
 
     bool update();
+
+    coTUIEarthMap *tuiEarthMap;
+    coTUITab *CSVTab;
+    VrmlNodeCSV* CSVNode;
 
 private:
 };

@@ -27,7 +27,6 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQmlContext>
-#include <QGeoPath>
 
 #include "TUIEarthMap.h"
 #include "TUIApplication.h"
@@ -56,12 +55,6 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     container->setFocusPolicy(Qt::TabFocus);
     widget = container;
     
-
-    QGeoPath geopath;
-    geopath.addCoordinate(QGeoCoordinate(50.9, 6.5));
-    geopath.addCoordinate(QGeoCoordinate(50.8, 6.5));
-    geopath.addCoordinate(QGeoCoordinate(50.8, 6.6));
-
     quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
     quickView->engine()->rootContext()->setContextProperty("size", geopath.path().size());
 
@@ -147,5 +140,32 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
         Q_ARG(QVariant, QVariant::fromValue(altitude)));
 
 	}
+    else if (type == TABLET_SIZE)
+    {
+        int xs, ys;
+        tb >> xs;
+        tb >> ys;
+        container->setMinimumSize(xs, ys);
+        container->setMaximumSize(xs, ys);
+    }
+    else if (type == TABLET_GEO_PATH)
+    {
+        int numNodes;
+        tb >> numNodes;
+        for (int i = 0; i < numNodes; i++)
+        {
+            float lo, la;
+            tb >> la;
+            tb >> lo;
+            geopath.addCoordinate(QGeoCoordinate(la, lo));
+        }
+        quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
+        int size = geopath.path().size();
+        quickView->engine()->rootContext()->setContextProperty("size", size);
+
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(quickView->rootObject(), "updatePath",
+            Q_RETURN_ARG(QVariant, returnedValue));
+    }
 	TUIElement::setValue(type, tb);
 }

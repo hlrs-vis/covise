@@ -26,6 +26,7 @@ bool TestMap::init()
 	tuiMap->addMap("c:\\tmp\\multi3.jpg", 600.0, 1620.0, 3072.0, 2048.0, 0.0); // TODO
     tuiEarthMap = new coTUIEarthMap("earthtest", testMapTab->getID());
     tuiEarthMap->setPosition(50.0, 6.4, 600.0);
+    tuiEarthMap->setPosition(50.8, 6.5, 600.0);
     tuiEarthMap->setPos(4, 0);
 
     return true;

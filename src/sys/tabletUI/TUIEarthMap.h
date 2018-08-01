@@ -16,6 +16,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPolygonItem>
+#include <QGeoPath>
 
 #include "TUIElement.h"
 
@@ -69,5 +70,6 @@ public:
 protected:
     QWidget *container;
     QQuickView *quickView;
+    QGeoPath geopath;
 };
 #endif
