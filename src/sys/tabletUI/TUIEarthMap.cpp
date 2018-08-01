@@ -161,10 +161,14 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
             tb >> la;
             tb >> lo;
             geopath.addCoordinate(QGeoCoordinate(la, lo));
-            quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
-            int size = geopath.path().size();
-            quickView->engine()->rootContext()->setContextProperty("size", size);
         }
+        quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
+        int size = geopath.path().size();
+        quickView->engine()->rootContext()->setContextProperty("size", size);
+
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(quickView->rootObject(), "updatePath",
+            Q_RETURN_ARG(QVariant, returnedValue));
     }
 	TUIElement::setValue(type, tb);
 }

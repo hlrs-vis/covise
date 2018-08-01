@@ -140,6 +140,18 @@ Rectangle {
 //                console.log(searchModel.errorString());
 //        }
 //    }
+    function updatePath()
+    {
+            console.error("bb");
+	        var lines = []
+			console.Error(geopath.path.size);
+			console.Error(size);
+			console.Error(geopath);
+            for(var i=0; i < geopath.path.size; i++){
+                lines[i] = geopath.coordinateAt(i);
+            }
+            polyline.path = lines
+     }
     function setMarker(name, latitude, longitude, altitude)
     {
             locationHeli = QtPositioning.coordinate( latitude, longitude);
