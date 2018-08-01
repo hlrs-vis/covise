@@ -385,15 +385,18 @@ void CSVPlugin::createMenu(const std::string &label)
 void CSVPlugin::updateLabel(int64_t ts)
 {
     double seconds = ts / 60.0;
-    for (int i = 0; i < CSVNode->path.size(); i++)
+    if (CSVNode)
     {
-        if (CSVNode->path[i].timestamp- CSVNode->path[0].timestamp > seconds*1000.0)
+        for (int i = 0; i < CSVNode->path.size(); i++)
         {
-            tuiEarthMap->setPosition(CSVNode->path[i].lat, CSVNode->path[i].lon, CSVNode->path[i].alt);
-            break;
+            if (CSVNode->path[i].timestamp - CSVNode->path[0].timestamp > seconds*1000.0)
+            {
+                tuiEarthMap->setPosition(CSVNode->path[i].lat, CSVNode->path[i].lon, CSVNode->path[i].alt);
+                break;
+            }
         }
     }
-    if (labels[currentLabelNumber].start < seconds && labels[currentLabelNumber].stop > seconds)
+    if (labels.size()>currentLabelNumber && labels[currentLabelNumber].start < seconds && labels[currentLabelNumber].stop > seconds)
         return;
     for (int i = 0; i < labels.size(); i++)
     {
