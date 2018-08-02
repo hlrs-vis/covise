@@ -2,6 +2,8 @@
     <qresource prefix="/">
         <file>mapviewer.qml</file>
         <file>marker.png</file>
-	<file>scale.png</file>
+	<file>AltitudeScale.qml</file>
+	<file>Settings.qml</file>
+	<file>icon-settings.png</file>
     </qresource>
 </RCC>
