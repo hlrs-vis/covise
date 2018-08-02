@@ -333,6 +333,8 @@ bool setupEnvironment(int argc, char *argv[])
     if (vv_shader_path && strcmp(vv_shader_path, getenv("VV_SHADER_PATH")))
         std::cerr << "setupEnvironment: overriding VV_SHADER_PATH from " << vv_shader_path << " to " << getenv("VV_SHADER_PATH") << std::endl;
 
+    setvar("VV_PLUGIN_PATH", covisedir + "/" + ARCHSUFFIX + "/lib");
+
     addpath("COVISE_PATH", covisedir);
 #ifdef _WIN32
     prependpath("PATH", covisedir + "\\" + ARCHSUFFIX + "\\bin");
