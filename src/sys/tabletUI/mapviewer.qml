@@ -60,8 +60,8 @@ Rectangle {
 
     property variant locationHeli: QtPositioning.coordinate( 50.9, 6.5)
     property string markerName: "testName"
-    property int minHeight: 0
-    property int maxHeight: 0
+    property bool routeVisible: true
+    property bool centerHeli: true
 
     //! [Places MapItemView]
     Map {
@@ -70,117 +70,52 @@ Rectangle {
         plugin: myPlugin;
         center: locationHeli
         zoomLevel: 13
+
         MapQuickItem {
-                        id: simpleMarker
-                        coordinate: locationHeli
+            id: simpleMarker
+            coordinate: locationHeli
+            anchorPoint.x: simage.width * 0.5
+            anchorPoint.y: simage.height
+            visible: routeVisible
 
-                        anchorPoint.x: simage.width * 0.5
-                        anchorPoint.y: simage.height
-
-                        sourceItem: Column {
-                            Image { id: simage; source: "marker.png" }
-                            Text { id: smarkerlable; text: markerName; font.bold: true }
-                        }
+            sourceItem: Column {
+                Image { id: simage; source: "marker.png" }
+                Text { id: smarkerlable; text: markerName; font.bold: true }
             }
+        }
 
 
         MapPolyline {
-                id: polyline
-                line.width: 3
-                line.color: 'green'
-            }
+            id: polyline
+            line.width: 3
+            line.color: 'green'
+            visible: routeVisible
+        }
 
         Component.onCompleted: {
             var lines = []
-            console.error("aa");
             for(var i=0; i < size; i++){
                 lines[i] = geopath.coordinateAt(i);
             }
             polyline.path = lines
         }
     }
-    //! [Places MapItemView]
-
-    //Image{
-     //   x: 10
-     //   y: 210
-      //  source: "scale.png"
-    //}
-    
-    Text{
-        id: scaleName
-        x: 15
-        y: 590 -  (maxHeight - minHeight)*0.6
-        z: 2
-        color: "black"
-        font.pointSize: 13
-        text: "Altitude (ft)"
-    }
     
     
-    //the pointer indicating current altitude
-    Rectangle{
-        id: pointer
-        width: 15
-        height: 15
-        x: 43
-        y: 624
-        z: 1
-        color: "white"
-        border.color: "black"
-        border.width: 3
-        radius: 10
-    }
-    
-    //current altitude
-    Text{
-        id: pText
-        x: 80
-        y: 800
-        z: 2
-        color: "black"
-        font.pointSize: 13
-        text: "500"
+    AltitudeScale{
+        id: scale
     }
 
-    //the scale
-    Repeater {
-        id: scaleThick;
-        model: 10; // just define the number you want, can be a variable too
-
-        delegate: Rectangle {
-            width: 35;
-            height: 3;
-            color: "black";
-            x: 43
-            y: 630 - index * 60;
-            radius: 3;
-        }
-    }
-
-    Repeater {
-        id: scaleText;
-        model: 10; // just define the number you want, can be a variable too
-
-        delegate: Text {
-            text: minHeight + index * 100
-            color: "black";
-            x: 10
-            y: 622 - index * 60;
-        }
-    }
-
-    Repeater {
-        id: scaleThin;
-        model: 10; // just define the number you want, can be a variable too
-
-        delegate: Rectangle {
-            width: 20;
-            height: 1.5;
-            color: "black";
-            x: 43
-            y: 630 - index * 12;
-            radius: 3;
+    Settings{
+        onScaleEnableClicked: scale.scaleVisible = !scale.scaleVisible
+        onRouteEnableClicked: routeVisible = !routeVisible
+        onCenterHeliClicked:{
+            centerHeli = !centerHeli
+            if(centerHeli){
+                map.center = locationHeli; //bug introduced here!
+            }else{
+                map.center = locationHeli;
+            }
         }
     }
 
@@ -202,23 +137,21 @@ Rectangle {
      
     function updateHeightMinMax(min, max)
     {
-            scaleText.model = (max - min)/100 +1
-            scaleThick.model = (max - min)/100 +1
-            scaleThin.model = (max - min)/20
-            minHeight = min
-	    maxHeight = max
+        scale.thickLineNum = (max - min)/100 +1
+        scale.thinLineNum = (max - min)/20
+        scale.minHeight = min
+        scale.maxHeight = max
     }
      
-     
-    function setMarker(name, latitude, longitude, altitude)
+     function setMarker(name, latitude, longitude, altitude)
     {
-            locationHeli = QtPositioning.coordinate( latitude, longitude);
-            markerName = name;
-            pointer.y = 624 - 0.6*(altitude - minHeight);
-            pText.y = 624 - 0.6*(altitude - minHeight);
-	    pText.text = altitude;
-	    
-     }
+        locationHeli = QtPositioning.coordinate( latitude, longitude);
+        markerName = name;
+        scale.pointerY = 624 - 0.6*(altitude - scale.minHeight);
+        scale.textY = 624 - 0.6*(altitude - scale.minHeight);
+        scale.currentHeight = altitude.toFixed(2);
+    }
+     
     function center(latitude, longitude)
     {
             map.center = QtPositioning.coordinate( latitude, longitude);

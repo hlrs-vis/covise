@@ -97,6 +97,7 @@ public:
     osg::Vec3 hitPoint; // last hitPoint in world coordinates
 
     bool hitActive;
+    bool hitWasActive;
     vrui::OSGVruiNode *vNode;
 
     virtual int hit(vrui::vruiHit *hit);

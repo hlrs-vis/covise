@@ -82,6 +82,7 @@ coSensiveSensor::coSensiveSensor(Node *n, osgViewerObject *vObj, void *object, V
     button = new ui::Action(n->getName(), this);
 #endif
     modified = true;
+    hitWasActive = true;
 }
 
 void coSensiveSensor::disactivate()
@@ -338,11 +339,51 @@ void coSensiveSensor::update()
         if (d_scene)
             d_scene->update(timeNow);
     }
+    else if(hitActive)
+    {
+        if (!childActive)
+        {
+            Matrix objToVRML;
+            objToVRML.makeRotate(-M_PI_2, 1.0, 0.0, 0.0);
+            double M[16];
+            {
+                Matrix pmat;
+                if (viewerObj->rootNode == NULL)
+                    pmat = (getPointerMat()) * objToVRML;
+                else
+                    pmat = (getPointerMat() * cover->getInvBaseMat()) * objToVRML;
+                ViewerOsg::matToVrml(M, pmat);
+            }
+            hitWasActive = true;
+            Vec3 hitPointVRML = LocalToVRML(hitPoint, ViewerOsg::viewer->VRMLRoot, node);
+            double hitCoord[3];
+            hitCoord[0] = hitPointVRML[0];
+            hitCoord[1] = hitPointVRML[1];
+            hitCoord[2] = hitPointVRML[2];
+            d_scene->sensitiveEvent(vrmlObject,
+                timeNow,
+                hitActive, false, // isOver, isActive
+                hitCoord, M);
+        }
+    }
     else
     {
+        if (hitWasActive)
+        {
+            double hitCoord[3];
+            hitCoord[0] = 0.0;
+            hitCoord[1] = 0.0;
+            hitCoord[2] = 0.0;
+            double M[16];
+            d_scene->sensitiveEvent(vrmlObject,
+                timeNow,
+                false, false, // isOver, isActive
+                hitCoord, M);
+        }
         if (interaction->isRegistered() && (interaction->getState() != vrui::coInteraction::Active))
         {
             vrui::coInteractionManager::the()->unregisterInteraction(interaction);
+            
         }
     }
 }

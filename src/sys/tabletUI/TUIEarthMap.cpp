@@ -62,7 +62,6 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     quickView->setSource(QUrl(QString("qrc:///mapviewer.qml")));
     //quickView->setSource(QUrl(QString("mapviewer.qml")));
     
-
     quickView->show();
     QObject *item = quickView->rootObject();
     Q_ASSERT(item);
@@ -155,7 +154,7 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> minHeight;
         tb >> maxHeight;
 	
-	//round up maxHeight, minHeight
+	//round up maxHeight, round down minHeight
 	int max, min;
 	int count = 0;
 	max = (int) maxHeight;
@@ -175,15 +174,18 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
 	}
 	count = 0;
 	
-	while(min >= 10){
-		min = min / 10;
-		count ++;
-	}
+	if(min < 100){
+		min = 0;
+	}else{
+		while(min >= 10){
+			min = min / 10;
+			count ++;
+		}
 	
-	for(int i = 0; i < count; i++){
-		min = min * 10;
+		for(int i = 0; i < count; i++){
+			min = min * 10;
+		}
 	}
-	
 	
 	QVariant returnedValue;
         QMetaObject::invokeMethod(quickView->rootObject(), "updateHeightMinMax",

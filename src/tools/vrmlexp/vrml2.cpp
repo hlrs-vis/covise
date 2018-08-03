@@ -5352,7 +5352,7 @@ VRML2Export::ObjIsAnimated(Object *obj)
     if (!obj)
         return FALSE;
     Interval iv = obj->ObjectValidity(mStart);
-    return (!(iv == FOREVER)) && (iv.Start() != iv.End());
+    return /*(*/!(iv == FOREVER)/*) && (iv.Start() != iv.End())*/;
 }
 
 static BOOL
