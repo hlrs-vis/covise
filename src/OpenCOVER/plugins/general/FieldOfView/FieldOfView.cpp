@@ -150,7 +150,11 @@ void FieldOfViewNode::setCoordinates()
         vert->push_back(osg::Vec3(sin(angle)*ra, ya, cos(angle)*ra));
     }
     geom->setVertexArray(vert);
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
     geom->dirtyGLObjects();
+#else
+    geom->dirtyDisplayList();
+#endif
 }
 
 FieldOfViewNode::~FieldOfViewNode()
