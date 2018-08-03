@@ -32,12 +32,18 @@
 #include <cover/VRViewer.h>
 
 #include <visionaray/gl/bvh_outline_renderer.h>
-#include <visionaray/kernels.h>
 
 #include "kernels/bvh_costs_kernel.h"
 #include "kernels/normals_kernel.h"
 #include "kernels/tex_coords_kernel.h"
 #include "common.h"
+#include "mask_intersector.h"
+#include "pathtrace_cpu.h"
+#include "render_cpu.h"
+#ifdef __CUDACC__
+#include "pathtrace_gpu.h"
+#include "render_gpu.h"
+#endif
 #include "renderer.h"
 #include "scene_monitor.h"
 #include "state.h"
@@ -806,78 +812,6 @@ namespace visionaray
     };
 
     //-------------------------------------------------------------------------------------------------
-    // TODO: use make_intersector(lambda...) instead
-    //
-
-    template <typename TexCoords, typename Texture>
-    struct mask_intersector : basic_intersector<mask_intersector<TexCoords, Texture> >
-    {
-        using basic_intersector<mask_intersector<TexCoords, Texture> >::operator();
-
-        template <typename R, typename S>
-        VSNRAY_FUNC auto operator()(R const &ray, basic_triangle<3, S> const &tri)
-            -> decltype(intersect(ray, tri))
-        {
-            auto hr = intersect(ray, tri);
-
-            if (!any(hr.hit))
-            {
-                return hr;
-            }
-
-            auto tex_color = get_tex_color(hr);
-            hr.hit &= tex_color.w >= S(0.01);
-
-            return hr;
-        }
-
-        TexCoords tex_coords;
-        Texture textures;
-
-    private:
-        template <typename HR>
-        VSNRAY_FUNC
-        vector<4, float>
-        get_tex_color(HR const &hr)
-        {
-            auto tc = get_tex_coord(tex_coords, hr);
-            auto const &tex = textures[hr.geom_id];
-            return tex.width() > 0 && tex.height() > 0
-                       ? vector<4, float>(tex2D(tex, tc))
-                       : vector<4, float>(1.0);
-        }
-
-        template <typename T,
-                  typename = typename std::enable_if<simd::is_simd_vector<T>::value>::type>
-        VSNRAY_CPU_FUNC
-        vector<4, T>
-        get_tex_color(hit_record<basic_ray<T>, primitive<unsigned> > const &hr)
-        {
-            auto tc = get_tex_coord(tex_coords, hr);
-
-            auto hrs = unpack(hr);
-            auto tcs = unpack(tc);
-
-            array<vector<4, float>, simd::num_elements<T>::value> tex_colors;
-
-            for (unsigned i = 0; i < simd::num_elements<T>::value; ++i)
-            {
-                if (!hrs[i].hit)
-                {
-                    continue;
-                }
-
-                auto const &tex = textures[hrs[i].geom_id];
-                tex_colors[i] = tex.width() > 0 && tex.height() > 0
-                                    ? vector<4, float>(tex2D(tex, tcs[i]))
-                                    : vector<4, float>(1.0);
-            }
-
-            return simd::pack(tex_colors);
-        }
-    };
-
-    //-------------------------------------------------------------------------------------------------
     // Private implementation
     //
 
@@ -905,6 +839,7 @@ namespace visionaray
         mask_intersector<
             two_array_ref<tex_coord_list>,
             two_array_ref<texture_list>>                        host_intersector;
+        aligned_vector<area_light<float, triangle_type>>        host_area_lights;
 
 #ifdef __CUDACC__
         std::vector<thrust::device_vector<vec3>>                device_normals;
@@ -918,6 +853,7 @@ namespace visionaray
         mask_intersector<
             two_array_ref<device_tex_coord_list>,
             two_array_ref<device_texture_list>>                 device_intersector;
+        thrust::device_vector<area_light<float, triangle_type>> device_area_lights;
 #endif
 
         scene::Monitor                                          scene_monitor;
@@ -1006,9 +942,6 @@ namespace visionaray
         bool scene_valid();
         void update_device_data(unsigned bits = 0xFFFFFFFF);
         void commit_state();
-
-        template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
-        void call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params);
     };
 
     void renderer::impl::update_viewing_params(int channel_index, osg::DisplaySettings::StereoMode mode)
@@ -1146,6 +1079,11 @@ namespace visionaray
                     }
                 }
             }
+
+            if (bits & scene::Monitor::UpdateAreaLights)
+            {
+                device_area_lights = host_area_lights;
+            }
         }
         catch (std::bad_alloc&)
         {
@@ -1161,6 +1099,8 @@ namespace visionaray
             device_textures.clear();
             device_texture_refs.clear();
             device_texture_refs.shrink_to_fit();
+            device_area_lights.clear();
+            device_area_lights.shrink_to_fit();
         }
 #else
         (void)bits;
@@ -1172,72 +1112,6 @@ namespace visionaray
         algo_current = state->algo;
         num_bounces = state->num_bounces;
         device = state->device;
-    }
-
-    //-------------------------------------------------------------------------------------------------
-    // Call either one of the visionaray kernels or a custom one
-    //
-
-    template <typename Scheduler, typename RenderTarget, typename Intersector, typename KParams>
-    void renderer::impl::call_kernel(int channel_index, Scheduler &sched, RenderTarget &rt, Intersector &intersector, const KParams &params)
-    {
-        auto &vparams = channel_viewing_params[channel_index];
-
-        // Simple scheduler params
-        auto sparams = make_sched_params(vparams.view_matrix, vparams.proj_matrix, rt);
-
-        // Scheduler params with intersector for mask textures
-        auto sparams_isect = make_sched_params(vparams.view_matrix, vparams.proj_matrix, rt, intersector);
-
-        // Scheduler params with intersector and jittered blend pixel sampling
-        auto sparams_isect_jittered = make_sched_params(pixel_sampler::jittered_blend_type{},
-                                                        vparams.view_matrix,
-                                                        vparams.proj_matrix,
-                                                        rt,
-                                                        intersector);
-
-
-        // debug kernels
-        if (dev_state->debug_mode && dev_state->show_bvh_costs)
-        {
-            bvh_costs_kernel<KParams> k(params);
-            sched.frame(k, sparams);
-        }
-        else if (dev_state->debug_mode && dev_state->show_geometric_normals)
-        {
-            normals_kernel<KParams> k(params, normals_kernel<KParams>::GeometricNormals);
-            sched.frame(k, sparams);
-        }
-        else if (dev_state->debug_mode && dev_state->show_shading_normals)
-        {
-            normals_kernel<KParams> k(params, normals_kernel<KParams>::ShadingNormals);
-            sched.frame(k, sparams);
-        }
-        else if (dev_state->debug_mode && dev_state->show_tex_coords)
-        {
-            tex_coords_kernel<KParams> k(params);
-            sched.frame(k, sparams);
-        }
-
-        // non-debug kernels
-        else if (state->algo == Simple)
-        {
-            simple::kernel<KParams> k;
-            k.params = params;
-            sched.frame(k, sparams_isect);
-        }
-        else if (state->algo == Whitted)
-        {
-            whitted::kernel<KParams> k;
-            k.params = params;
-            sched.frame(k, sparams_isect);
-        }
-        else if (state->algo == Pathtracing)
-        {
-            pathtracing::kernel<KParams> k;
-            k.params = params;
-            sched.frame(k, sparams_isect_jittered, ++vparams.frame_num);
-        }
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -1386,6 +1260,58 @@ namespace visionaray
                     impl_->triangles[i].size(),
                     impl_->state->data_var == Static /* consider spatial splits if scene is static */
                     );
+        }
+
+        // Loop over all triangles, check if their
+        // material is emissive, and if so, build
+        // BVHs to create area lights from.
+
+        struct range
+        {    
+            std::size_t begin;
+            std::size_t end; 
+            unsigned    geom_id;
+        };   
+
+        std::vector<range> ranges;
+
+        for (std::size_t i = 0; i < impl_->triangles[0].size(); ++i) 
+        {    
+            auto pi = impl_->triangles[0][i];
+            if (impl_->materials[0][pi.geom_id].as<emissive<float>>() != nullptr)
+            {    
+                range r;
+                r.begin = i; 
+
+                std::size_t j = i + 1; 
+                for (;j < impl_->triangles[0].size(); ++j) 
+                {    
+                    auto pii = impl_->triangles[0][j];
+                    if (impl_->materials[0][pii.geom_id].as<emissive<float>>() == nullptr
+                            || pii.geom_id != pi.geom_id)
+                    {    
+                        break;
+                    }    
+                }    
+
+                r.end = j; 
+                r.geom_id = pi.geom_id;
+                ranges.push_back(r);
+
+                i = r.end - 1; 
+            }    
+        }
+
+        for (auto r : ranges)
+        {    
+            for (std::size_t i = r.begin; i != r.end; ++i) 
+            {    
+                area_light<float, basic_triangle<3, float>> light(impl_->triangles[0][i]);
+                auto mat = *impl_->materials[0][r.geom_id].as<emissive<float>>();
+                light.set_cl(to_rgb(mat.ce()));
+                light.set_kl(mat.ls());
+                impl_->host_area_lights.push_back(light);
+            }
         }
 
         // Copy scene to GPU
@@ -1539,36 +1465,56 @@ namespace visionaray
                 two_array_ref<device_color_list>     colors = make_two_array_ref(impl_->device_colors, 0, frame, has_prims_func);
                 two_array_ref<device_texture_list>   texture_refs = make_two_array_ref(impl_->device_texture_refs, 0, frame, has_prims_func);
 
-                auto kparams = make_kernel_params(
-                    normals_per_vertex_binding{},
-                    colors_per_vertex_binding{},
-                    thrust::raw_pointer_cast(primitives.data()),
-                    thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
-                    normals,
-                    tex_coords,
-                    materials,
-                    colors,
-                    texture_refs,
-                    thrust::raw_pointer_cast(device_lights.data()),
-                    thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
-                    bounces,
-                    epsilon,
-                    clear_color,
-                    impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
-
-                impl_->device_intersector.tex_coords = kparams.tex_coords;
-                impl_->device_intersector.textures = kparams.textures;
-
-                impl_->call_kernel(cur_channel_,
-                    impl_->device_sched,
-                    *this,
-                    impl_->device_intersector,
-                    kparams);
+                auto &vparams = impl_->channel_viewing_params[cur_channel_];
+                if (impl_->state->algo == Pathtracing)
+                {
+                    pathtrace_gpu(
+                        thrust::raw_pointer_cast(primitives.data()),
+                        thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
+                        normals,
+                        tex_coords,
+                        materials,
+                        colors,
+                        texture_refs,
+                        thrust::raw_pointer_cast(impl_->device_area_lights.data()),
+                        thrust::raw_pointer_cast(impl_->device_area_lights.data()) + impl_->device_area_lights.size(),
+                        bounces,
+                        epsilon,
+                        clear_color,
+                        vec4(1.0f),
+                        impl_->device_sched,
+                        vparams.view_matrix,
+                        vparams.proj_matrix,
+                        this,
+                        vparams.frame_num);
+                }
+                else
+                {
+                    render_gpu(
+                        thrust::raw_pointer_cast(primitives.data()),
+                        thrust::raw_pointer_cast(primitives.data()) + primitives.size(),
+                        normals,
+                        tex_coords,
+                        materials,
+                        colors,
+                        texture_refs,
+                        thrust::raw_pointer_cast(device_lights.data()),
+                        thrust::raw_pointer_cast(device_lights.data()) + device_lights.size(),
+                        bounces,
+                        epsilon,
+                        clear_color,
+                        vec4(1.0f),
+                        impl_->device_sched,
+                        vparams.view_matrix,
+                        vparams.proj_matrix,
+                        this,
+                        impl_->state,
+                        impl_->dev_state);
+                }
 #endif
             }
             else if (impl_->state->device == CPU)
             {
-#ifndef __CUDA_ARCH__
                 aligned_vector<host_bvh_type::bvh_ref> primitives;
 
                 if (impl_->host_bvhs.size() > 0 && impl_->host_bvhs[0].num_primitives())
@@ -1588,32 +1534,52 @@ namespace visionaray
                 two_array_ref<color_list>     colors = make_two_array_ref(impl_->colors, 0, frame, has_prims_func);
                 two_array_ref<texture_list>   texture_refs = make_two_array_ref(impl_->texture_refs, 0, frame, has_prims_func);
 
-                auto kparams = make_kernel_params(
-                    normals_per_vertex_binding{},
-                    colors_per_vertex_binding{},
-                    primitives.data(),
-                    primitives.data() + primitives.size(),
-                    normals,
-                    tex_coords,
-                    materials,
-                    colors,
-                    texture_refs,
-                    lights.data(),
-                    lights.data() + lights.size(),
-                    bounces,
-                    epsilon,
-                    clear_color,
-                    impl_->state->algo == Pathtracing ? vec4(1.0f) : ambient);
-
-                impl_->host_intersector.tex_coords = kparams.tex_coords;
-                impl_->host_intersector.textures = kparams.textures;
-
-                impl_->call_kernel(cur_channel_,
-                    impl_->host_sched,
-                    *this,
-                    impl_->host_intersector,
-                    kparams);
-#endif
+                auto &vparams = impl_->channel_viewing_params[cur_channel_];
+                if (impl_->state->algo == Pathtracing)
+                {
+                    pathtrace_cpu(
+                        primitives.data(),
+                        primitives.data() + primitives.size(),
+                        normals,
+                        tex_coords,
+                        materials,
+                        colors,
+                        texture_refs,
+                        impl_->host_area_lights.data(),
+                        impl_->host_area_lights.data() + impl_->host_area_lights.size(),
+                        bounces,
+                        epsilon,
+                        clear_color,
+                        vec4(1.0f),
+                        impl_->host_sched,
+                        vparams.view_matrix,
+                        vparams.proj_matrix,
+                        this,
+                        vparams.frame_num);
+                }
+                else
+                {
+                    render_cpu(
+                        primitives.data(),
+                        primitives.data() + primitives.size(),
+                        normals,
+                        tex_coords,
+                        materials,
+                        colors,
+                        texture_refs,
+                        lights.data(),
+                        lights.data() + lights.size(),
+                        bounces,
+                        epsilon,
+                        clear_color,
+                        vec4(1.0f),
+                        impl_->host_sched,
+                        vparams.view_matrix,
+                        vparams.proj_matrix,
+                        this,
+                        impl_->state,
+                        impl_->dev_state);
+                }
             }
 
             if (impl_->dev_state->debug_mode && impl_->dev_state->show_bvh)

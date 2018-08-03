@@ -59,12 +59,13 @@ namespace scene
     public:
 
         // Flags that indicate what scene data changed
-        static const unsigned UpdateGeometry  =  1;
-        static const unsigned UpdateNormals   =  2;
-        static const unsigned UpdateTexCoords =  4;
-        static const unsigned UpdateColors    =  8;
-        static const unsigned UpdateMaterials = 16;
-        static const unsigned UpdateTextures  = 32;
+        static const unsigned UpdateGeometry   =  1;
+        static const unsigned UpdateNormals    =  2;
+        static const unsigned UpdateTexCoords  =  4;
+        static const unsigned UpdateColors     =  8;
+        static const unsigned UpdateMaterials  = 16;
+        static const unsigned UpdateTextures   = 32;
+        static const unsigned UpdateAreaLights = 64;
 
     public:
 
