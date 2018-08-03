@@ -59,8 +59,8 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     quickView->engine()->rootContext()->setContextProperty("size", geopath.path().size());
 
     quickView->engine()->addImportPath(QString(":/imports"));
-    //quickView->setSource(QUrl(QString("qrc:///mapviewer.qml")));
-    quickView->setSource(QUrl(QString("mapviewer.qml")));
+    quickView->setSource(QUrl(QString("qrc:///mapviewer.qml")));
+    //quickView->setSource(QUrl(QString("mapviewer.qml")));
     
 
     quickView->show();
