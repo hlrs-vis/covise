@@ -138,6 +138,8 @@ coVRIntersectionInteractor::~coVRIntersectionInteractor()
     }
     delete[] _interactorName;
 
+    delete vNode;
+
     if (cover->debugLevel(5))
         fprintf(stderr, "delete ~coVRIntersectionInteractor done\n");
 }
