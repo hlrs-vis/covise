@@ -127,7 +127,7 @@
 
             <Multisample value="ON" numSamples="4" numBuffers="2" mode="DONT_CARE" />
             <AnisotropicFiltering value="0" />
-            <Specular value="false" />
+            <Specular value="ON" />
             <SyncToVBlank value="OFF" device="DFP-3" />
             <TwoSide value="ON" />
             <Stereo enable="ON" value="ON" />
@@ -206,15 +206,15 @@
                 </PointRayTracer>
                 <Visionaray value="on" menu="on">
                     <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
-                    <Algorithm    value="pathtracing"  />                <!-- "simple" | "whitted" -->
+                    <Algorithm    value="simple"  />                <!-- "simple" | "whitted" -->
                     <Framebuffer  colorSpace="sRGB" />               <!-- colorSpace: "sRGB" | "RGB" -->
                     <NumBounces   value="2" min="1" max="10" />      <!-- value:Integer | [min:Integer|max:Integer]  -->
                     <Device       value="GPU"     />                 <!-- "CPU"    | "GPU"     -->
                     <CPUScheduler numThreads="16" />                 <!-- numThreads:Integer   -->
                 </Visionaray>
                 <Volume value="on" >
-                    <!--Renderer value="rayrendcuda" /-->
-                    <Renderer value="texrend" />
+                    <Renderer value="rayrendcuda" />
+                    <!--Renderer value="texrend" /-->
                     <Lighting value="on" />
                     <PreIntegration value="off" />
                     <ShowTFE value="on" />
