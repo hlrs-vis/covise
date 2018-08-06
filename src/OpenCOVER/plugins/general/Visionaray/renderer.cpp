@@ -444,23 +444,23 @@ namespace visionaray
                         continue;
                     }
 
-                    if (geom->getVertexArray()->getType() != osg::Array::Vec3ArrayType)
+                    auto node_vertices = static_cast<osg::Vec3Array *>(geom->getVertexArray());
+                    if (!node_vertices || node_vertices->getType() != osg::Array::Vec3ArrayType)
                     {
                         continue;
                     }
 
-                    auto node_vertices = static_cast<osg::Vec3Array *>(geom->getVertexArray());
                     if (node_vertices->size() == 0)
                     {
                         continue;
                     }
 
-                    if (geom->getNormalArray()->getType() != osg::Array::Vec3ArrayType)
+                    auto node_normals = static_cast<osg::Vec3Array *>(geom->getNormalArray());
+                    if (!node_normals || node_normals->getType() != osg::Array::Vec3ArrayType)
                     {
                         continue;
                     }
 
-                    auto node_normals = static_cast<osg::Vec3Array *>(geom->getNormalArray());
                     if (node_normals->size() == 0)
                     {
                         continue;
