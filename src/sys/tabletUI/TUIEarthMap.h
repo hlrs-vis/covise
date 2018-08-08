@@ -71,5 +71,6 @@ protected:
     QWidget *container;
     QQuickView *quickView;
     QGeoPath geopath;
+    bool centerHeli;
 };
 #endif

@@ -111,11 +111,6 @@ Rectangle {
         onRouteEnableClicked: routeVisible = !routeVisible
         onCenterHeliClicked:{
             centerHeli = !centerHeli
-            if(centerHeli){
-                map.center = locationHeli; //bug introduced here!
-            }else{
-                map.center = locationHeli;
-            }
         }
     }
 
@@ -125,7 +120,7 @@ Rectangle {
             console.error("bb");
 	        var lines = []
 			console.error(size);
-			//console.error(geopath.path[0]);
+			console.error(geopath.path[0]);
             for(var i=0; i < size; i++){
                 lines[i] = geopath.coordinateAt(i);
 		if(i<20)

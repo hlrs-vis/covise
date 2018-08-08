@@ -27,6 +27,7 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQmlContext>
+#include <QQmlProperty>
 
 #include "TUIEarthMap.h"
 #include "TUIApplication.h"
@@ -65,6 +66,8 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     quickView->show();
     QObject *item = quickView->rootObject();
     Q_ASSERT(item);
+    
+    centerHeli = true;
 
    // QMetaObject::invokeMethod(item, "initializeProviders",
     //    Q_ARG(QVariant, QVariant::fromValue(parameters)));
@@ -138,6 +141,16 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
         Q_ARG(QVariant, QVariant::fromValue(latitude)),
         Q_ARG(QVariant, QVariant::fromValue(longitude)),
         Q_ARG(QVariant, QVariant::fromValue(altitude)));
+	
+	centerHeli = QQmlProperty::read(quickView->rootObject(), "centerHeli").toBool();
+	
+	if(centerHeli){
+		QMetaObject::invokeMethod(quickView->rootObject(), "center",
+        	Q_RETURN_ARG(QVariant, returnedValue),
+        	Q_ARG(QVariant, QVariant::fromValue(latitude)),
+        	Q_ARG(QVariant, QVariant::fromValue(longitude)));
+	}
+	
 
 	}
     else if (type == TABLET_SIZE)
@@ -186,18 +199,19 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
 			min = min * 10;
 		}
 	}
-	
 	QVariant returnedValue;
         QMetaObject::invokeMethod(quickView->rootObject(), "updateHeightMinMax",
             Q_RETURN_ARG(QVariant, returnedValue),
         Q_ARG(QVariant, QVariant::fromValue(min)),
         Q_ARG(QVariant, QVariant::fromValue(max)));
+	
     }
     else if (type == TABLET_GEO_PATH)
     {
-        uint64_t numNodes;
+	unsigned numNodes;
         tb >> numNodes;
-        for (uint64_t i = 0; i < numNodes; i++)
+	std::cout << numNodes <<std::endl;
+	for (unsigned i = 0; i < numNodes; i++)
         {
             float lo, la;
             tb >> la;
@@ -206,7 +220,7 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
         }
         quickView->engine()->rootContext()->setContextProperty("geopath", QVariant::fromValue(geopath));
         quickView->engine()->rootContext()->setContextProperty("size", geopath.path().size());
-
+	
         QVariant returnedValue;
         QMetaObject::invokeMethod(quickView->rootObject(), "updatePath",
             Q_RETURN_ARG(QVariant, returnedValue));
