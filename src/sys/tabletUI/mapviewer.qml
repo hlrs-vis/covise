@@ -117,14 +117,9 @@ Rectangle {
 
     function updatePath()
     {
-            console.error("bb");
-	        var lines = []
-			console.error(size);
-			console.error(geopath.path[0]);
+	    var lines = []
             for(var i=0; i < size; i++){
                 lines[i] = geopath.coordinateAt(i);
-		if(i<20)
-		    console.error(lines[i]);
             }
             polyline.path = lines
      }

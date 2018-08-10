@@ -10,7 +10,7 @@ Item {
 
     Image{
         x: 450
-        y: 650
+        y: 630
         id: trigger
         source: "icon-settings.png"
     }
@@ -19,8 +19,8 @@ Item {
     Rectangle{
         id:bar
         visible: false
-        x: 420
-        width: 80
+        x: 440
+        width: 60
         height: 300
         opacity: 0.6
         color:"lightgrey"
@@ -28,82 +28,76 @@ Item {
     }
 
     //button to enable altitude scale
-    Rectangle{
+    Image{
         id:scaleEnable
         x: 460
-        y:30
-        width:30
-        height:30
-        color:"red"
+        y:25
         visible: false
+        source: "height.png"
     }
     Text{
         id:scaleEnableText
-        x:scaleEnable.x -100
-        y:scaleEnable.y -15
+        x:scaleEnable.x -50
+        y:scaleEnable.y -20
         visible: false
-        text:"Enable altitude scale"
+        text:"Enable scale"
     }
     Text{
         id:scaleDisableText
-        x:scaleEnable.x -100
-        y:scaleEnable.y -15
+        x:scaleEnable.x -50
+        y:scaleEnable.y -20
         visible: false
-        text:"Disable altitude scale"
+        text:"Disable scale"
     }
 
 
 
     //button to enable route and heli
-    Rectangle{
+    Image{
         id:routeEnable
         x: 460
-        y:90
-        width:30
-        height:30
-        color:"yellow"
+        y:85
         visible: false
+        source: "route.png"
     }
 
     Text{
         id:showRoute
-        x: routeEnable.x -60
-        y: routeEnable.y -15
+        x: routeEnable.x -30
+        y: routeEnable.y -20
         visible: false
         text:"Show route"
     }
     Text{
         id:hideRoute
-        x: routeEnable.x -60
-        y: routeEnable.y -15
+        x: routeEnable.x -30
+        y: routeEnable.y -20
         visible: false
         text:"Hide route"
     }
 
     //button to center heli
-    Rectangle{
+    Image{
         id:trackHeli
         x: 460
-        y:150
-        width:30
-        height:30
-        color:"green"
+        y:145
         visible: false
+        source: "center.png"
     }
 
     Text{
         id:centerHeli
-	x: trackHeli.x -100
-        y: trackHeli.y -15
+	x: trackHeli.x -50
+        y: trackHeli.y -20
         visible: false
-        text:"Center Helicopter"
+        text:"Center Heli"
     }
     Text{
         id:decenterHeli
-	x: trackHeli.x -100
-        y: trackHeli.y -15
+	x: trackHeli.x -50
+        y: trackHeli.y -20
         visible: false
-        text:"Decenter Helicopter"
+        text:"Decenter Heli"
     }
 
 

@@ -5,5 +5,8 @@
 	<file>AltitudeScale.qml</file>
 	<file>Settings.qml</file>
 	<file>icon-settings.png</file>
+        <file>route.png</file>
+	<file>center.png</file>
+ 	<file>height.png</file>
     </qresource>
 </RCC>
