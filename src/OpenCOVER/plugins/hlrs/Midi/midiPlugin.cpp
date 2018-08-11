@@ -62,6 +62,7 @@
 
 #ifdef _WINDOWS
 #include <direct.h>
+#include <mmeapi.h>
 #define GetCurrentDir _getcwd
 
 
@@ -92,12 +93,12 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		md.mParam1 = (UCHAR)((dwParam1 >> 8) & 0xFF);
 		md.mParam2 = (UCHAR)((dwParam1 >> 16) & 0xFF);
 		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
-		MidiPlugin::plugin->addEvent(me);
-		if(MidiPlugin::plugin->hMidiDeviceOut!=NULL)
+		MidiPlugin::instance()->addEvent(me, dwInstance);
+		if(MidiPlugin::instance()->hMidiDeviceOut!=NULL)
 		{
 			//midiInMessage(MidiPlugin::plugin->hMidiDeviceOut,wMsg,dwParam1,dwParam2);
 			int flag;
-			flag = midiOutShortMsg(MidiPlugin::plugin->hMidiDeviceOut, dwParam1);
+			flag = midiOutShortMsg(MidiPlugin::instance()->hMidiDeviceOut, dwParam1);
 			if (flag != MMSYSERR_NOERROR) {
 				printf("Warning: MIDI Output is not open.\n");
 			}
@@ -247,6 +248,37 @@ MidiPlugin::MidiPlugin()
 
     MIDITab = NULL;
     startTime = 0;
+
+	globalmtl = new osg::Material;
+	globalmtl->ref();
+	globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+	globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+	globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.0f, 1.0));
+	globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+	globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+	globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+	shadedStateSet = new osg::StateSet();
+	shadedStateSet->ref();
+	shadedStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+	shadedStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+	shadedStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+	//for transparency, we need a transparent bin
+	shadedStateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+	shadedStateSet->setNestRenderBins(false);
+	shadeModel = new osg::ShadeModel;
+	shadeModel->setMode(osg::ShadeModel::SMOOTH);
+	shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
+
+	lineStateSet = new osg::StateSet();
+	lineStateSet->ref();
+	lineStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
+	lineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	lineStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+	lineStateSet->setNestRenderBins(false);
+	osg::LineWidth *lineWidth = new osg::LineWidth(4);
+	lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
+
 }
 MidiPlugin * MidiPlugin::instance()
 {
@@ -322,38 +354,9 @@ bool MidiPlugin::init()
         name += std::to_string(i);
         MIDITrans[i]->setName(name);
         MIDIRoot->addChild(MIDITrans[i].get());
-        //MIDITrans[i]->setMatrix(osg::Matrix::rotate(180,osg::Vec3(0,0,1)));
+		float angle = ((M_PI*2.0) / NUMMidiStreams) * i;
+        MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle,osg::Vec3(0,0,1)));
     }
-
-    globalmtl = new osg::Material;
-    globalmtl->ref();
-    globalmtl->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-    globalmtl->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
-    globalmtl->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-    globalmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-    globalmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
-    globalmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-
-    shadedStateSet = new osg::StateSet();
-    shadedStateSet->ref();
-    shadedStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
-    shadedStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-    shadedStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
-    //for transparency, we need a transparent bin
-    shadedStateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-    shadedStateSet->setNestRenderBins(false);
-    shadeModel = new osg::ShadeModel;
-    shadeModel->setMode(osg::ShadeModel::SMOOTH);
-    shadedStateSet->setAttributeAndModes(shadeModel, osg::StateAttribute::ON);
-
-    lineStateSet = new osg::StateSet();
-    lineStateSet->ref();
-    lineStateSet->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
-    lineStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-    lineStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
-    lineStateSet->setNestRenderBins(false);
-    osg::LineWidth *lineWidth = new osg::LineWidth(4);
-    lineStateSet->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 
     noteInfos.resize(180);
 
@@ -633,7 +636,14 @@ void MidiPlugin::preFrame()
             eventqueue[i].pop_front();
             if (me.getKeyNumber() == 31) // special reset key (drumpad)
             {
-                lTrack->reset();
+				if (me.getVelocity() < 50)
+				{
+					lTrack[i]->reset();
+				}
+				else
+				{
+
+				}
             }
             else
             {
@@ -844,7 +854,7 @@ COVERPLUGIN(MidiPlugin)
 Track::Track(int tn, bool l)
 {
     life = l;
-    TrackRoot = new osg::Group();
+    TrackRoot = new osg::MatrixTransform();
     TrackRoot->setName("TrackRoot");
     trackNumber = tn;
 
@@ -914,7 +924,7 @@ void Track::addNote(Note *n)
         (*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
     }
     lineVert->push_back(n->transform->getMatrix().getTrans());
-    lineColor->push_back(osg::Vec4(0, 1, 1, 1));
+    lineColor->push_back(osg::Vec4(1,0, 0, 1));
 }
 
 osg::Geode *Track::createLinesGeometry()
@@ -1069,7 +1079,8 @@ void Track::update()
         c[1] = v[1];
         c[2] = v[2];
         c[3] = 1.0;
-        (*lineColor)[vNum++] = c;
+        (*lineColor)[vNum] = c;
+		vNum++;
     }
     lineVert->dirty();
     lineColor->dirty();

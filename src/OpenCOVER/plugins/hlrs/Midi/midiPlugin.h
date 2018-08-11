@@ -62,7 +62,7 @@ public:
     std::list<Note *> notes;
     //std::list<Note *>::iterator lastNoteIt;
 
-    osg::ref_ptr<osg::Group> TrackRoot;
+    osg::ref_ptr<osg::MatrixTransform> TrackRoot;
     void update();
     void reset();
     void setVisible(bool state);
