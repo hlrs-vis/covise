@@ -76,6 +76,7 @@ public:
     osg::Vec3Array *lineVert = new osg::Vec3Array;
     osg::Vec4Array *lineColor = new osg::Vec4Array;
     osg::DrawArrayLengths *linePrimitives;
+	void store();
 private:
     bool life;
     int lastNum;
@@ -127,6 +128,7 @@ public:
 
     void setTimestep(int t);
     Track *lTrack[NUMMidiStreams];
+	std::list<Track *>storedTracks;
 
     void addEvent(MidiEvent &me, int MidiStream);
 

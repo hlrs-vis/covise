@@ -106,9 +106,9 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 			{
 				if(wMsg == MIM_MOREDATA)
 					printf("wMsg=MIM_MOREDATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
-				else
-					printf("dwParam1=%08x\n", (dwParam1 & 0xff) == 0xfe);
-				printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+				//else
+					//printf("dwParam1=%08x\n", (dwParam1 & 0xff) == 0xfe);
+				//printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
 			}
 
 		}
@@ -642,7 +642,10 @@ void MidiPlugin::preFrame()
 				}
 				else
 				{
-
+					lTrack[i]->store();
+					lTrack[i] = new Track(tracks.size(), true);
+					lTrack[i]->reset();
+					lTrack[i]->setVisible(true);
 				}
             }
             else
@@ -911,7 +914,7 @@ void Track::addNote(Note *n)
         fprintf(stderr, "%d\n", (num - lastNum) + 1);
         fprintf(stderr, "td\n");
     }
-    fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
+    //fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
     if (num - lastNum == 1)
     {
         fprintf(stderr, "new line\n");
@@ -920,7 +923,7 @@ void Track::addNote(Note *n)
     }
     if (num - lastNum > 0)
     {
-        fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
+        //fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
         (*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
     }
     lineVert->push_back(n->transform->getMatrix().getTrans());
@@ -954,6 +957,18 @@ osg::Geode *Track::createLinesGeometry()
     geode->addDrawable(geom);
 
     return geode;
+}
+void Track::store()
+{
+	int pos = MidiPlugin::instance()->storedTracks.size();
+	MidiPlugin::instance()->storedTracks.push_back(this);
+	TrackRoot->getParent(0)->removeChild(TrackRoot);
+	cover->getObjectsRoot()->addChild(TrackRoot);
+	osg::Matrix mat;
+	int xp = pos % 6;
+	int yp = pos / 6;
+	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, 0.5*yp);
+	TrackRoot->setMatrix(mat);
 }
 void Track::reset()
 {
