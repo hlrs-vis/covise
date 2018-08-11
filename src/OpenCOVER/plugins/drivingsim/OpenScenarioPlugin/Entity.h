@@ -15,6 +15,7 @@ namespace OpenScenario
 	class oscObject;
 	class oscVehicle;
 }
+class Trajectory;
 class Entity {
 
 public:
@@ -23,8 +24,10 @@ public:
     AgentVehicle *agentVehicle;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
+    Trajectory *trajectory;
 
     ReferencePosition* refPos;
+    ReferencePosition* lastRefPos;
     ReferencePosition* newRefPos;
     Entity* refObject;
 
@@ -35,23 +38,21 @@ public:
     std::string &getName();
     void setSpeed(float speed_temp);
     void longitudinalSpeedAction(Event *event, double init_targetSpeed, int shape);
-    void resetActionAttributes();
 
     float &getSpeed();
     osg::Vec3 getPosition();
     void setDirection(osg::Vec3 &newDirection);
 
     // follow Trajectory attributes
-    osg::Vec3 targetPosition;
-    osg::Vec3 totaldirectionVector;
 
-    int visitedVertices;
-    float totalDistance;
-    float totaldirectionVectorLength;
+    int currentVertex;
+    float distanceTraveledFromLastVertex;
+    float segmentLength;
 
     // follow Trajectories functions
+    void startFollowTrajectory(Trajectory *t);
     void setTrajSpeed(float deltat);
-    void followTrajectory(Event *event, int verticesCounter);
+    void followTrajectory(Event *event);
     void setTrajectoryDirection();
 
     //Longitudinal attributes

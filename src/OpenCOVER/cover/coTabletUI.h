@@ -1775,6 +1775,34 @@ protected:
     covise::coDLListIter<MapData *> iter;
 };
 /**
+* an earth Map Widget
+*/
+class COVEREXPORT coTUIEarthMap : public coTUIElement
+{
+private:
+public:
+    coTUIEarthMap(const char *, int pID = 1);
+    virtual ~coTUIEarthMap();
+    virtual void setPosition(float latitude, float longitude, float altitude);
+    virtual void resend(bool create) override;
+    virtual void parseMessage(covise::TokenBuffer &tb) override;
+    
+
+    float latitude;
+    float longitude;
+    float altitude;
+    float minHeight;
+    float maxHeight;
+
+    void addPathNode(float latitude, float longitude);
+    std::list<std::pair<float, float>> path;
+    void updatePath();
+    void setMinMax(float minH, float maxH);
+
+
+protected:
+};
+/**
  * PopUp Window with text
  */
 class COVEREXPORT coTUIPopUp : public coTUIElement

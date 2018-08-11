@@ -33,6 +33,7 @@
 #include "Slider.h"
 #include "SelectionList.h"
 #include "EditField.h"
+#include "FileBrowser.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
@@ -557,6 +558,15 @@ void VruiView::updateValue(const EditField *input)
     updateText(input);
 }
 
+void VruiView::updateValue(const FileBrowser *fb)
+{
+    updateText(fb);
+}
+
+void VruiView::updateFilter(const FileBrowser *fb)
+{
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Label *label)
 {
     auto ve = new VruiViewElement(label);
@@ -655,6 +665,14 @@ VruiViewElement *VruiView::elementFactoryImplementation(EditField *input)
     auto ve = new VruiViewElement(input);
     ve->m_menuItem = new coLabelMenuItem(input->text());
     add(ve, input);
+    return ve;
+}
+
+VruiViewElement *VruiView::elementFactoryImplementation(FileBrowser *fb)
+{
+    auto ve = new VruiViewElement(fb);
+    //ve->m_menuItem = new coLabelMenuItem(fb->text());
+    add(ve, fb);
     return ve;
 }
 

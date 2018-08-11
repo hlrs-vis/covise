@@ -73,7 +73,7 @@ public:
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
 
-    void saveScenegraph(bool withMenu=false);
+    bool saveScenegraph(const std::string &filename, bool withMenu=false);
 #ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
@@ -255,6 +255,7 @@ private:
     void initHandDeviceGeometry();
     void initMatrices();
     void initSceneGraph();
+    bool saveScenegraph(bool withMenu);
 
 #ifdef PHANTOM_TRACKER
     int m_forceFeedbackON;
@@ -344,7 +345,6 @@ private:
     ui::Button *m_trackHead=nullptr;
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
-    ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
     ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
 };
 }

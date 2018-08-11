@@ -87,10 +87,8 @@
 
    </Plugin>
 
-   <TabletPC>
      <!-- Sensible if a tabletui is running or if COVISE is used on node01, comment out else -->
-     <Server value="node01" />
-   </TabletPC>
+<TabletUI host="node01" />
 
    <MultiPC>
     <SyncMode value="TCP" />

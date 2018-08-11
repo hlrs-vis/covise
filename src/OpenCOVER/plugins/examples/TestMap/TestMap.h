@@ -32,6 +32,7 @@ private:
     void tabletEvent(coTUIElement *);
 
     coTUIMap *tuiMap;
+    coTUIEarthMap *tuiEarthMap;
     coTUITab *testMapTab;
 };
 #endif

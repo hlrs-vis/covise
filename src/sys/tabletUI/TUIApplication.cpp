@@ -81,6 +81,7 @@
 #include "TUISplitter.h"
 #include "TUIFileBrowserButton.h"
 #include "TUIMap.h"
+#include "TUIEarthMap.h"
 //#include "TUITextSpinEdit.h"
 #include "TUILineEdit.h"
 #include "TUITextEdit.h"
@@ -149,7 +150,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     // init some values
     appwin = this;
 
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
@@ -179,7 +180,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     appwin = this;
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);
 #endif
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
@@ -559,6 +560,8 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         return new TUITabFolder(id, type, w, parent, name);
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
+    case TABLET_EARTHMAP:
+        return new TUIEarthMap(id, type, w, parent, name);
     case TABLET_PROGRESS_BAR:
         return new TUIProgressBar(id, type, w, parent, name);
     case TABLET_NAV_ELEMENT:
@@ -688,7 +691,7 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
-                std::string blacklist = "COVER.TabletPC.Blacklist:";
+                std::string blacklist = "COVER.TabletUI.Blacklist:";
                 QString qname(name);
                 qname.replace(".", "").replace(":", "");
                 blacklist += qname.toStdString();
@@ -863,7 +866,7 @@ void TUIMainWindow::createToolbar()
     QToolBar *toolbar = addToolBar("TabletUI Toolbar");
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    bool visible = covise::coCoviseConfig::isOn("toolbar", "COVER.TabletPC", true);
+    bool visible = covise::coCoviseConfig::isOn("toolbar", "COVER.TabletUI", true);
 #else
     bool visible = false;
 #endif
@@ -896,7 +899,7 @@ void TUIMainWindow::createToolbar()
     QComboBox *fontsize = new QComboBox();
 #ifndef TABLET_PLUGIN
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    std::string configFontsize = covise::coCoviseConfig::getEntry("fontsize", "COVER.TabletPC");
+    std::string configFontsize = covise::coCoviseConfig::getEntry("fontsize", "COVER.TabletUI");
 #else
     std::string configFontsize;
 #endif

@@ -45,12 +45,12 @@ FileLoaderPlugin::~FileLoaderPlugin()
     fprintf(stderr, "FileLoaderPlugin::~FileLoaderPlugin\n");
 }
 
-int FileLoaderPlugin::loadUrl(const char *filename, osg::Group *parent, const char *ck)
+int FileLoaderPlugin::loadUrl(const Url &url, osg::Group *parent, const char *ck)
 {
     /* here you should add code to transform the file data into a hierarchy
     * of OpenSceneGraph nodes and add it as a child of parent,
     * parent might be NULL */
-    fprintf(stderr, "FileLoaderPlugin::loadUrl(%s,%p,%s)\n", filename, parent, ck);
+    fprintf(stderr, "FileLoaderPlugin::loadUrl(%s,%p,%s)\n", url.str().c_str(), parent, ck);
     return 0;
 }
 

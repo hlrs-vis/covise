@@ -44,7 +44,7 @@ coVRAnimationManager::coVRAnimationManager()
     , oldFrame(-1)
     , animRunning(true)
     , lastAnimationUpdate(0.0)
-    , currentAnimationFrame(0)
+    , currentAnimationFrame(-1)
     , requestedAnimationFrame(-1)
     , timestepScale(1.0)
     , timestepBase(0.0)
@@ -54,6 +54,7 @@ coVRAnimationManager::coVRAnimationManager()
 
     initAnimMenu();
     showAnimMenu(false);
+    setAnimationFrame(0);
 }
 
 coVRAnimationManager::~coVRAnimationManager()
@@ -112,8 +113,8 @@ void coVRAnimationManager::initAnimMenu()
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
     animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        if (animationRunning())
-            enableAnimation(false);
+        // don't stop animation if (animationRunning())
+        //    enableAnimation(false);
         requestAnimationTime(val);
     });
     animFrameItem->setPriority(ui::Element::Toolbar);
@@ -571,6 +572,15 @@ void coVRAnimationManager::setNumTimesteps(int t, const void *who)
     }
     setNumTimesteps(numTimesteps);
     showAnimMenu(numTimesteps > 1);
+}
+
+// set number of timesteps
+void coVRAnimationManager::setMaxFrameRate(int t)
+{
+    if (t > animSpeedItem->max())
+    {
+        animSpeedItem->setBounds(animSpeedItem->min(),animSpeedItem->max());
+    }
 }
 
 void coVRAnimationManager::removeTimestepProvider(const void *who)

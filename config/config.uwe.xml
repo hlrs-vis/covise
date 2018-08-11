@@ -2,11 +2,20 @@
 
 <COCONFIG version="1" >
 
+ <GLOBAL>
+  <COVER>
+  
+    <AnimationSpeed max="60" />
+  </COVER>
+
+</GLOBAL>
  <INCLUDE global="1" configname="general" >config.xml </INCLUDE>
  <GLOBAL>
   <COVER>
   
+    <AnimationSpeed max="60" />
             <Plugin>
+                <Midi value="Off" InPort="0" OutPort="2"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->

@@ -380,6 +380,9 @@ VRViewer::VRViewer()
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
+    setUseConfigureAffinity(false); // tell OpenSceneGraph not to set affinity (good if you want to run multiple instances on one machine)
+#endif
 
     setRealizeOperation(new InitGLOperation());
 
@@ -1357,10 +1360,6 @@ VRViewer::setFrustumAndView(int i)
     osg::Matrix mat, trans, euler; // xform screencenter - world origin
     osg::Matrixf offsetMat;
     osg::Vec3 leftEye, rightEye, middleEye; // transformed eye position
-    float rc_dist, lc_dist, mc_dist; // dist from eye to screen for left&right chan
-    float rc_left, rc_right, rc_bottom, rc_top; // parameter of right frustum
-    float lc_left, lc_right, lc_bottom, lc_top; // parameter of left frustum
-    float mc_left, mc_right, mc_bottom, mc_top; // parameter of middle frustum
     float n_over_d; // near over dist -> Strahlensatz
     float dx, dz; // size of screen
 
@@ -1526,7 +1525,6 @@ VRViewer::setFrustumAndView(int i)
     // dist of right channel eye to screen (absolute)
     if (coco->trackedHMD)
     {
-        rc_dist = coco->HMDDistance;
         if (coco->orthographic())
         {
             currentChannel->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
@@ -1558,9 +1556,10 @@ VRViewer::setFrustumAndView(int i)
     }
     else
     {
-        rc_dist = -rightEye[1];
-        lc_dist = -leftEye[1];
-        mc_dist = -middleEye[1];
+        // dist from eye to screen for left & right channel
+        float rc_dist = -rightEye[1];
+        float lc_dist = -leftEye[1];
+        float mc_dist = -middleEye[1];
 
         // relation near plane to screen plane
         if (coco->orthographic())
@@ -1569,30 +1568,30 @@ VRViewer::setFrustumAndView(int i)
             n_over_d = coco->nearClip() / rc_dist;
 
         // parameter of right channel
-        rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
-        rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
-        rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
-        rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
+        float rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
+        float rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
+        float rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
+        float rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
 
         // compute left frustum
         if (coco->orthographic())
             n_over_d = 1.0;
         else
             n_over_d = coco->nearClip() / lc_dist;
-        lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
-        lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
-        lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
-        lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
+        float lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
+        float lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
+        float lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
+        float lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
 
         // compute left frustum
         if (coco->orthographic())
             n_over_d = 1.0;
         else
             n_over_d = coco->nearClip() / mc_dist;
-        mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
-        mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
-        mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
-        mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
+        float mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
+        float mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
+        float mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
+        float mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
 
         if (coco->orthographic())
         {

@@ -37,6 +37,7 @@ static const int NUM_TEXUNITS = 4;
 #include <vrml97/vrml/VrmlNodeNavigationInfo.h>
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeLight.h>
+#include <vrml97/vrml/VrmlNodeMovieTexture.h>
 #include <vrml97/vrml/Player.h>
 
 #include <cover/coTabletUI.h>
@@ -4203,7 +4204,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
         else
         {
             texSize += rowSize * hoehe * sizeof(char);
-            d_currentObject->texData[textureNumber].texImage = new Image();
+            d_currentObject->texData[textureNumber].texImage = new osg::Image();
         }
         if (d_currentObject->texData[textureNumber].texture.get() == NULL)
         {
@@ -4286,7 +4287,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
          texture->setFormat(PFTEX_IMAGE_FORMAT,PFTEX_RGB);
    }
 #endif
-    Image *pImage = d_currentObject->texData[textureNumber].texImage.get();
+   osg::Image *pImage = d_currentObject->texData[textureNumber].texImage.get();
     if (w != 0 || h != 0)
     {
         const unsigned char *vrmlImage = pixels;
@@ -4349,7 +4350,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
             format = GL_RGBA;
             break;
         }
-        pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+        pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
     }
     //pImage = osgDB::readImageFile("c:\\src\\uwexp\\covise\\icons\\UI\\frame.rgb");
     d_currentObject->texData[textureNumber].texture->setImage(0, pImage);
@@ -4488,25 +4489,25 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle();
                 texture->setDataVariance(osg::Object::DYNAMIC);
 
-                if (cover->debugLevel(2))
-                    cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
-
-                d_currentObject->texData[textureNumber].texImage = image;
-                moviePs.push_back(dataSet);
-                d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle(image);
-                texture->setTextureSize(image->s(), image->t());
-
-                d_currentObject->texData[textureNumber].mirror = 1;
-
-                if (image->getPixelSizeInBits() == 32)
-                {
-                    if (!d_currentObject->transparent)
-                    {
-                        d_currentObject->transparent = true;
-                        d_currentObject->updateBin();
-                    }
-                }
                 texSize += image->getTotalSizeInBytesIncludingMipmaps();
+            }
+            if (cover->debugLevel(2))
+                cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
+
+            d_currentObject->texData[textureNumber].texImage = image;
+            moviePs.push_back(dataSet);
+            d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle(image);
+            texture->setTextureSize(image->s(), image->t());
+
+            d_currentObject->texData[textureNumber].mirror = 1;
+
+            if (image->getPixelSizeInBits() == 32)
+            {
+                if (!d_currentObject->transparent)
+                {
+                    d_currentObject->transparent = true;
+                    d_currentObject->updateBin();
+                }
             }
 
             texture->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_BORDER);
@@ -4522,6 +4523,7 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texture = texture = new Texture2D();
                 texture->setDataVariance(osg::Object::DYNAMIC);
 
+            }
                 if (cover->debugLevel(2))
                     cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
 
@@ -4541,7 +4543,6 @@ ViewerOsg::insertMovieTexture(char *filename,
                     }
                 }
                 texSize += image->getTotalSizeInBytesIncludingMipmaps();
-            }
 
             if (filter)
             {
@@ -4950,21 +4951,21 @@ ViewerOsg::insertCubeTexture(int w, int h, int nc,
                 }
             }
         }
-        Image *pImage = new osg::Image();
+        osg::Image *pImage = new osg::Image();
         if (true) //3dsmax
         {
             if (n == 0 || n == 1)
             {
-                pImage->setImage(hoehe, breite, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+                pImage->setImage(hoehe, breite, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
             }
             else
             {
-                pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+                pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
             }
         }
         else
         {
-            pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+            pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
         }
         if (n == 0)
             cubemap->setImage(osg::TextureCubeMap::POSITIVE_X, pImage);
@@ -5534,11 +5535,21 @@ bool ViewerOsg::update(double timeNow)
         osg::ImageStream *imageS = movDat->imageStream.get();
         if (imageS->getStatus() != osg::ImageStream::PLAYING)
         {
-            if (movDat->movieProp->start > -2)
+            if (movDat->movieProp->playing && !(movDat->movieProp->start > 0))
+            {
+                movDat->movieProp->playing = false;
+                movDat->movieProp->mtNode->stopped();
+            }
+            if (movDat->movieProp->start > 0)
             {
                 //     	                	imageS->setReferenceTime((cover->frameTime()-startLoadTime)*movieProp->speed*1000);
+                imageS->setReferenceTime(0);
+                imageS->rewind();
                 imageS->play();
+                movDat->movieProp->playing = true;
                 imageS->setTimeMultiplier((double)fabs(movDat->movieProp->speed));
+                if(movDat->movieProp->stop <movDat->movieProp->start)
+                    movDat->movieProp->stop = -2;
                 movDat->movieProp->start = -2;
                 movDat->movieProp->speed = -movDat->movieProp->speed;
             }

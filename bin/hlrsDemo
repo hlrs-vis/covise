@@ -75,13 +75,22 @@ do
     echo -e "${MENU} ${OPT} 57)  ${MENU} City (passing through)               "
     echo -e "${MENU} ${OPT} 58)  ${MENU} City (flyover)                       "
     echo -e "${MENU} ${OPT} 59)  ${MENU} Mountain                             "
+    echo -e "${MENU} ${OPT} 60)  ${MENU} Herrenberg                           "
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
     echo -e "${MENU} ${OPT} 62)  ${MENU} knee                      "
 
+    echo -e "${MENU}-----${TYP} Art ${MENU}---------------------------------"
+
+    echo -e "${MENU} ${OPT} 64)  ${MENU} Jeremy                "    
+    echo -e "${MENU} ${OPT} 65)  ${MENU} Infinities                "  
+    echo -e "${MENU} ${OPT} 66)  ${MENU} Fendi                     "
+    echo -e "${MENU} ${OPT} 67)  ${MENU} Benjamin virtual museum   "
+    echo -e "${MENU} ${OPT} 68)  ${MENU} Gyjho Frank virtual museum   "
+    echo -e "${MENU} ${OPT} 69)  ${MENU} Gabi Bingula"
+
     echo -e "${MENU}-----${TYP} Misc. ${MENU}---------------------------------"
-    echo -e "${MENU} ${OPT} 70)  ${MENU} Infinities (KUNST!!!)     "
     echo -e "${MENU} ${OPT} 71)  ${MENU} Draeger OP                "
     echo -e "${MENU} ${OPT} 72)  ${MENU} ISS                       "
     echo -e "${MENU} ${OPT} 73)  ${MENU} Haemoglobin               "
@@ -120,6 +129,7 @@ do
     echo -e "${MENU} ${OPT} 102)  ${MENU} Receiver: Volume Down	   "
     echo -e "${MENU} ${OPT} 103)  ${MENU} Receiver: Input: Video 1 "
     echo -e "${MENU} ${OPT} 104)  ${MENU} Receiver: Input: Aux	   "
+    echo -e "${MENU} ${OPT} 110)  ${MENU} Glider	   "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -161,7 +171,7 @@ do
 	    ;;
 	12)
 	    echo -e "starting Forbach";
-            covise -e /data/enbw/Comsol/ComsolForbach.net
+            covise -e /data/2015/out/LaermFinal.net
 	    ;;
 	13)
 	    echo -e "starting Kiebingen";
@@ -242,7 +252,7 @@ do
 	39)
 	    echo -e "starting Herrenberg";
 	    bash /data/reallabor/herrenberg/sumo/startSumo.sh &
-	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseR.py
+	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseRNewFinal.net
             #opencover /data/reallabor/herrenberg/vrml/simulierteWelten.wrl
 	    ;;
 
@@ -342,12 +352,40 @@ do
 	    echo -e "starting knee";
             opencover /data/VolData/vhd/female-knee-marked3.xvf
 	    ;;
-		
-# MISC
-    70)
-        echo -e "starting Infinities";
+
+# Art
+
+        64)
+            echo -e "starting Jeremy";
+            opencover cover://plugin/Midi /data/Jeremy/spaceGridWithoutSpiral.wrl
+	    ;;
+        65)
+            echo -e "starting Infinities";
             opencover /data/Labyrinth/labSoundNew.wrl
 	    ;;
+        66)
+            echo -e "starting FENDI";
+            opencover /data/FENDI/wrl/praesentation.wrl
+	    ;;
+	    
+        67)
+            echo -e "Benjamin Spaet";
+            opencover /data/architekten/architekten/caveAEC/praesentation.wrl
+	    ;;
+	    
+        68)
+            echo -e "Gyjho";
+            opencover /data/visenso/Some_Demos_2014/Museum/museum_neu/plattform_k.WRL
+	    ;;
+	    
+        69)
+            echo -e "Gabi Bingula";
+            opencover /data/architekten/architekten/GABI/dist/praesentation.wrl
+	    ;;
+	    
+		
+		
+# MISC
 	71)
 	    echo -e "starting Draeger OP";
             opencover /data/draeger/out/op2.wrl
@@ -423,7 +461,7 @@ do
 
 	86)
 	    echo -e "starting FaSi: Town";
-	    ssh covise2@192.168.0.74 "cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/ && fasi sample03_pedestrians_crg.xodr > /dev/null 2>&1"&
+	    ssh hpcwoess@192.168.0.74 ". fasienv; module unload mpi; module load mpi/mpich-3.0-x86_64; cd /data/porsche/TrafficSimulation/maneuver/sample03Lights/ && fasi2 sample03_pedestrians_crg.xodr > /dev/null 2>&1"&
 	    ;;
 	87)
 	    echo -e "starting OpenCOVER: Town";
@@ -507,6 +545,12 @@ do
 	echo -e "Receiver: Switch Input: Aux"
 	sasuctrl kenwoodAux
 	;;
+   110)
+    echo -e "Starting Paraglider Flightsim Ctrl-P Ctrl-U in flightgear Ctrl-r in Opencover"
+    export COCONFIG=config.flightgear.hlrs
+    opencover /data/paraglider/FlightGearParaglider2.wrl
+    ;;
+
 
 # MENU
 

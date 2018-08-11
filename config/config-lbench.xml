@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+ <GLOBAL>
+  <COVER>
+   <TabletUI port="31805" />
+
+   <SceneSize value="1000" />
+
+   <NumScreens value="4" />
+   <NumWindows value="1" />
+   <NumChannels value="4" />
+   <NumViewports value="4" />
+   <Stereo value="true" />
+   <PipeConfig>
+       <Pipe name="0" useDISPLAY="true" />
+   </PipeConfig>
+
+   <ViewerPosition x="0" y="-1000" z="1000" />
+
+   <Menu>
+	   <Orientation h="0.0" p="-16.5" r="0.0" />
+	   <Position x="350" y="510" z="300" />
+   </Menu>
+   <VRUI>
+       <!-- position of transfer editor menu /-->
+       <TFE>
+           <Menu>
+               <Size value="0.40" />
+               <Position x="-500" y="450" z="280" />
+           </Menu>
+       </TFE>
+   </VRUI>
+
+   <WindowConfig>
+    <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
+    <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
+    <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
+   <Window ARCH="unix" type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="2160" left="2560" top="0" name="0" embedded="false" decoration="false" />
+   <Window ARCH="windows" type="none" width="1920" comment="FRONT" window="0" pipeIndex="0" height="2160" left="2560" top="-1080" name="0" embedded="false" decoration="false" />
+   </WindowConfig>
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen comment="FRONT" originX="0" originY="435" originZ="0" width="1210" height="680" h="0.0" p="-16.5" r="0.0" name="1" screen="1" />
+   <Screen comment="BOTTOM" originX="0" originY="0" originZ="-340" width="1210" height="680" h="0.0" p="-90" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <ChannelConfig>
+    <Channel comment="MAINL" channel="0" stereoMode="RIGHT" windowIndex="0" name="0" screenIndex="0"/>
+    <Channel comment="MAINR" channel="1" stereoMode="LEFT" windowIndex="0"  name="1" screenIndex="0"/>
+    <Channel comment="MAINL" channel="2" stereoMode="RIGHT" windowIndex="0" name="2" screenIndex="1"/>
+    <Channel comment="MAINR" channel="3" stereoMode="LEFT" windowIndex="0"  name="3" screenIndex="1"/>
+   </ChannelConfig> 
+
+   <ViewportConfig>
+      <!-- each channel needs at least one Viewport -->
+    <Viewport width="1" height="0.25" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  />
+    <Viewport width="1" height="0.25" left="0" bottom="0.25" windowIndex="0" channelIndex="1" name="1"  />
+    <Viewport width="1" height="0.25" left="0" bottom="0.75" windowIndex="0" channelIndex="2" name="2"  />
+    <Viewport width="1" height="0.25" left="0" bottom="0.5" windowIndex="0" channelIndex="3" name="3"  />
+   </ViewportConfig>
+   <Background r="0.2" g="0.2" b="0.2" a="1.0" />
+
+   <ContinuousRendering value="true" />
+   <Input>
+	   <MouseNav value="true" />
+	   <Device>
+		   <DTrack driver="dtrack" port="5000" >
+			   <Offset x="0" y="-340" z="-340" />
+			   <Orientation h="0" p="-0.0" r="0.0" />
+		   </DTrack>
+
+		   <!-- keyboard -->
+		   <PresenterButtons ARCH="windows" driver="windowsHID" device="HID#VID_046D&amp;PID_C52D&amp;MI_00" />
+           <PresenterButtons ARCH="x11" driver="mousebuttons" device="/dev/input/presenter" />
+	   </Device>
+
+	   <Body>
+		   <Hand device="DTrack" bodyIndex="0">
+			   <Offset x="-20" y="0" z="-50" />
+			   <Orientation h="0" p="0" r="-45" />
+		   </Hand>
+		   <Head device="DTrack" bodyIndex="1">
+			   <Offset x="-95" y="-25" z="-25" />
+			   <Orientation h="0" p="0" r="0" />
+		   </Head>
+		   <ConstHead>
+			   <Offset x="0" y="-1000" z="1000" />
+			   <Orientation h="0" p="0" r="0" />
+		   </ConstHead>
+	   </Body>
+
+	   <Buttons>
+		   <Presenter device="PresenterButtons">
+			   <Map name="0" value="ACTION_BUTTON" />
+			   <Map name="1" value="XFORM_BUTTON" />
+			   <Map name="2" value="MENU_BUTTON" />
+			   <Map name="3" value="DRIVE_BUTTON" />
+		   </Presenter>
+	   </Buttons>
+	   <Persons>
+		   <Person name="Tracked" head="Head" hand="Hand" buttons="Presenter" />
+		   <Person name="Fixed" head="ConstHead" hand="Hand" buttons="Presenter" />
+	   </Persons>
+   </Input>
+
+  </COVER>
+ </GLOBAL>
+
+ <INCLUDE global="1" configname="base" >config.xml </INCLUDE>
+</COCONFIG>
+

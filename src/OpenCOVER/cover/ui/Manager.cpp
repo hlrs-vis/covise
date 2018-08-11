@@ -41,7 +41,10 @@ Manager::Manager()
         m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
         m_buttonInteraction.push_back(new vrui::coRelativeButtonInteraction(t, "RelativeButton", vrui::coInteraction::Low));
     }
+}
 
+void Manager::init()
+{
     for (auto &i: m_buttonInteraction)
         vrui::coInteractionManager::the()->registerInteraction(i);
 }
@@ -335,6 +338,22 @@ void Manager::updateValue(const EditField *input) const
     for (auto v: m_views)
     {
         v.second->updateValue(input);
+    }
+}
+
+void Manager::updateValue(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateValue(fb);
+    }
+}
+
+void Manager::updateFilter(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateFilter(fb);
     }
 }
 

@@ -62,6 +62,7 @@ public:
     virtual int width();
     virtual int height();
     virtual int nFrames();
+    virtual void stopped();
     virtual unsigned char *pixels();
 
 private:

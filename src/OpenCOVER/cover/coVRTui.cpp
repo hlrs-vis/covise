@@ -285,7 +285,7 @@ void coVRTui::config()
 {
 #ifndef NOFB
     FileBrowser->setFilterList(coVRFileManager::instance()->getFilterList());
-    SaveFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
+    SaveFileFB->setFilterList(coVRFileManager::instance()->getWriteFilterList());
 #endif
 }
 
@@ -1020,7 +1020,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         std::string filename = SaveFileFB->getSelectedPath();
 
         OpenCOVER::instance()->hud->show();
-        OpenCOVER::instance()->hud->setText1("Replacing File...");
+        OpenCOVER::instance()->hud->setText1("Saving File...");
         OpenCOVER::instance()->hud->setText2(filename.c_str());
 
         cerr << "File-Path: " << SaveFileFB->getSelectedPath().c_str() << endl;

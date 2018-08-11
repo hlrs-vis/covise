@@ -10,18 +10,19 @@
 
 class Action;
 class Condition;
+class Sequence;
 class Event : public::OpenScenario::oscEvent, public StoryElement
 {
 public:
     Event();
 
     std::list<::Action*> actionList;
-	void stop();
+    void start(Sequence *currentSequence);
+    void stop();
     int finishedEntityActions;
     int activeEntites;
 
     std::string &getName();
-    void initialize(int numEntites);
 
     std::list<Condition*> startConditionList;
     void addCondition(Condition* condition);

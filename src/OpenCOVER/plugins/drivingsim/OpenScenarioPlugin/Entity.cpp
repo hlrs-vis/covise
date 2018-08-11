@@ -12,8 +12,6 @@ using namespace OpenScenario;
 Entity::Entity(oscObject *obj):
 	object(obj),
 	name(obj->name),
-    totalDistance(0),
-    visitedVertices(0),
     refPos(NULL),
     newRefPos(NULL),
     dt(0.0)
@@ -36,10 +34,17 @@ Entity::Entity(oscObject *obj):
 
 Entity::~Entity()
 {
+    delete refPos;
+    delete newRefPos;
 }
 
 void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 {
+    dt = 0.0;
+
+    refPos = init_refPos;
+    newRefPos = new ReferencePosition(refPos);
+    lastRefPos = new ReferencePosition(refPos);
     //entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
 
     /*if(init_refPos->road != NULL)
@@ -82,9 +87,8 @@ void Entity::moveLongitudinal()
             ds = 1.0;
             hdg = refPos->hdg;
         }
-        double dt = 0.0;
 
-        refPos->move(ds,dt,step_distance);
+        refPos->move(ds,0.0,step_distance);
 
         Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
         agentVehicle->setTransform(vehicleTransform,hdg);
@@ -125,64 +129,95 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
-void Entity::setTrajSpeed(float deltat)
-{
-
-    // calculate length of targetvector
-
-    speed = totaldirectionVectorLength/deltat;
-
-
-}
 
 void Entity::setTrajectoryDirection()
 {
-    targetPosition = newRefPos->getPosition();
-    totaldirectionVector = targetPosition - refPos->getPosition();
-    totaldirectionVectorLength = totaldirectionVector.length();
+    osg::Vec3 segmentVector= newRefPos->getPosition() - refPos->getPosition();
+    segmentLength = segmentVector.length();
 
-    directionVector = totaldirectionVector;
-    directionVector.normalize();
+    directionVector = segmentVector/ segmentLength;
 
 }
-
-void Entity::followTrajectory(Event* event, int verticesCounter)
+void Entity::startFollowTrajectory(Trajectory *t)
 {
-
-    float step_distance = speed*OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
-
-    if(totalDistance == 0)
+    trajectory = t;
+    currentVertex = 0;
+    distanceTraveledFromLastVertex = 0;
+    if(t->Vertex.size()>1)
     {
-        totalDistance = totaldirectionVectorLength;
-    }
-    //calculate remaining distance
-    totalDistance = totalDistance-step_distance;
-
-    directionVector = newRefPos->getPosition() - refPos->getPosition();
-    directionVector.normalize();
-    refPos->move(directionVector,step_distance);
-    osg::Vec3 pos = refPos->getPosition();
-
-	agentVehicle->setPosition(pos, directionVector);
-
-    if(totalDistance <= 0)
-    {
-        cout << "Arrived at " << visitedVertices << endl;
-        visitedVertices++;
-        totalDistance = 0;
-        if(visitedVertices == verticesCounter)
+        Position* currentPos;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        currentPos->getAbsolutePosition(refPos, newRefPos); // update newRefPos (relative to Entity position)
+        *lastRefPos = *newRefPos;
+        *refPos = lastRefPos;
+        currentVertex++;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        currentPos->getAbsolutePosition(lastRefPos, newRefPos); // update newRefPos (relative to Entity position)
+        if (t->domain.getValue() == 0) // domain == time
         {
-            if(totaldirectionVectorLength<0.01)
-            {
-                speed = 0;
-            }
-            visitedVertices = 0;
-            newRefPos = NULL;
-            event->finishedEntityActions++;
-
-            refPos->update();
+            // calculate speed from trajectory vertices
+            speed = segmentLength / trajectory->getReference(currentVertex);
         }
     }
+}
+ 
+void Entity::followTrajectory(Event* event)
+{
+
+    osg::Vec3 segmentVector = newRefPos->getPosition() - lastRefPos->getPosition();
+    segmentLength = segmentVector.length();
+    if (trajectory->domain.getValue() == 0) // domain == time
+    {
+        // calculate speed from trajectory vertices
+        speed = segmentLength / trajectory->getReference(currentVertex);
+    }
+    float stepDistance = speed * OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
+    while ((stepDistance + distanceTraveledFromLastVertex) > segmentLength)
+    {
+        currentVertex++;
+
+        if (currentVertex == trajectory->Vertex.size())
+        {
+            break;
+        }
+        if (trajectory->domain.getValue() == 0) // domain == time
+        {
+            // calculate speed from trajectory vertices
+            speed = segmentLength / trajectory->getReference(currentVertex);
+        }
+        directionVector = newRefPos->getPosition() - lastRefPos->getPosition();
+        directionVector.normalize();
+        float moveWithinSegment = segmentLength- distanceTraveledFromLastVertex;
+
+        distanceTraveledFromLastVertex += moveWithinSegment;
+        refPos->move(directionVector, moveWithinSegment);
+        distanceTraveledFromLastVertex = 0;
+
+        Position* currentPos;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        *lastRefPos = *newRefPos;
+
+        currentPos->getAbsolutePosition(lastRefPos,newRefPos); // update newRefPos (relative to last vertex) 
+
+        stepDistance -= moveWithinSegment;
+    }
+
+    if (currentVertex == trajectory->Vertex.size())
+    {
+        stepDistance = 0;
+        event->finishedEntityActions++;
+        refPos->update();
+    }
+    directionVector = newRefPos->getPosition() - lastRefPos->getPosition();
+    directionVector.normalize();
+    if (stepDistance > 0)
+    {
+        refPos->move(directionVector, stepDistance);
+    }
+    distanceTraveledFromLastVertex += stepDistance;
+    osg::Vec3 pos = refPos->getPosition();
+
+    agentVehicle->setPosition(pos, directionVector);
 }
 
 void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int shape)
@@ -232,10 +267,3 @@ void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int 
 
 }
 
-void Entity::resetActionAttributes()
-{
-    totalDistance = 0;
-    visitedVertices = 0;
-
-    dt = 0.0;
-}

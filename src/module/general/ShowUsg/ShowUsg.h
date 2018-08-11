@@ -28,49 +28,27 @@
 \**************************************************************************/
 
 #include <appl/ApplInterface.h>
-using namespace covise;
 #include <util/coviseCompat.h>
+#include <api/coModule.h>
 
-class Application
+using namespace covise;
+
+class ShowUSG: public coModule
 {
 
 private:
-    // callback stub functions
-    //
-    static void computeCallback(void *userData, void *callbackData);
-    static void quitCallback(void *userData, void *callbackData);
-
-    // private member functions
-    //
-    void compute(void *callbackData);
-    void quit(void *callbackData);
+    int compute(const char *);
     int get_color_rgb(float *r, float *g, float *b, const char *color);
     void genpolygons(char *GeometryN);
 
+    coInputPort *pin_mesh, *pin_colors;
+    coOutputPort *pout_geo;
+
+    coStringParam *p_varName;
+    coBooleanParam *p_varVisible;
+
 public:
-    Application(int argc, char *argv[])
-    {
-        Covise::set_module_description("Show each element of an unstructured Grid");
-        Covise::add_port(INPUT_PORT, "meshIn", "UnstructuredGrid", "input mesh");
-        Covise::add_port(INPUT_PORT, "colors", "Vec3|RGBA", "colors");
-        //Covise::add_port(INPUT_PORT,"group","Byte_Array","Group index");
-        Covise::add_port(OUTPUT_PORT, "geometry", "Geometry", "Geometry");
-        //		     Covise::add_port(PARIN,"gennormals","Boolean","Supply normals");
-        //		     Covise::set_port_default("gennormals","FALSE");
-        Covise::set_port_required("colors", 0);
-        //Covise::set_port_required("group",0);
-        Covise::init(argc, argv);
-        Covise::set_start_callback(Application::computeCallback, this);
-        Covise::set_quit_callback(Application::quitCallback, this);
-    }
-
-    void run()
-    {
-        Covise::main_loop();
-    }
-
-    ~Application()
-    {
-    }
+    ShowUSG(int argc, char *argv[]);
+    ~ShowUSG();
 };
 #endif // _APPLICATION_H

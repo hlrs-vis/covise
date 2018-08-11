@@ -42,6 +42,7 @@ class DTrackDriver : public opencover::InputDevice
     ssize_t m_flystickBase;
     ssize_t m_bodyBase;
     ssize_t m_handBase;
+    int m_dtrack_port;
     std::vector<size_t> m_buttonBase;   //Button base indices for flysticks
     std::vector<size_t> m_valuatorBase;
 

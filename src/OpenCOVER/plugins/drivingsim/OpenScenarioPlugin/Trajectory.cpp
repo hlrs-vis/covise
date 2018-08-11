@@ -10,13 +10,8 @@ Trajectory::~Trajectory(){}
 void Trajectory::finishedParsing()
 {
 }
-void Trajectory::initialize(int verticesCounter_temp)
-{
-    verticesCounter = verticesCounter_temp;
 
-}
-
-float Trajectory::getReference(int visitedVertices){
+float Trajectory::getReference(int vert){
     /*
     wie soll die Refernce in der Trajecotry definiert werden?
     - für jeden Agenten wieder bei 0 starten?
@@ -24,7 +19,7 @@ float Trajectory::getReference(int visitedVertices){
     */
 
 
-    if(visitedVertices==0)
+    if(vert ==0)
     {
 		if(Vertex.size()>1)
 		{
@@ -34,10 +29,10 @@ float Trajectory::getReference(int visitedVertices){
         dt = (float) t1-t0;
         return dt;
     }
-    else if(visitedVertices==verticesCounter-1)
+    else if(vert ==Vertex.size()-1)
     {
-        t1 = Vertex[visitedVertices]->reference.getValue();
-        t0 = Vertex[visitedVertices-1]->reference.getValue();
+        t1 = Vertex[vert]->reference.getValue();
+        t0 = Vertex[vert -1]->reference.getValue();
 
         dt = t1-t0;
 
@@ -46,8 +41,8 @@ float Trajectory::getReference(int visitedVertices){
     }
     else
     {
-        t0 = Vertex[visitedVertices]->reference.getValue();
-        t1 = Vertex[visitedVertices+1]->reference.getValue();
+        t0 = Vertex[vert]->reference.getValue();
+        t1 = Vertex[vert +1]->reference.getValue();
 
         dt = t1-t0;
 

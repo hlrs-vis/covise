@@ -53,7 +53,7 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                15.*|16.*|17.*)
+                15.*|16.*|17.*|18.*)
 	            export ARCHSUFFIX=macos
                     ;;
 

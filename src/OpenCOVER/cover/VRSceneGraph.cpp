@@ -217,20 +217,6 @@ void VRSceneGraph::init()
         toggleAxis(state);
     });
 
-    m_storeScenegraph = new ui::Action("StoreScenegraph", this);
-    cover->fileMenu->add(m_storeScenegraph);
-    m_storeScenegraph->setText("Store scenegraph");
-    m_storeScenegraph->setCallback([this](){
-        saveScenegraph();
-    });
-
-    m_reloadFile = new ui::Action("ReloadFile", this);
-    cover->fileMenu->add(m_reloadFile);
-    m_reloadFile->setText("Reload file");
-    m_reloadFile->setCallback([this](){
-        coVRFileManager::instance()->reloadFile();
-    });
-
     m_showStats = new ui::SelectionList("ShowStats", this);
     m_showStats->setText("Renderer statistics");
     m_showStats->setShortcut("Shift+S");
@@ -1663,14 +1649,20 @@ VRSceneGraph::isHighQuality() const
     return m_highQuality;
 }
 
-void
+bool
 VRSceneGraph::saveScenegraph(bool storeWithMenu)
 {
     std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osgb");
+    return saveScenegraph(filename, storeWithMenu);
+}
+
+bool
+VRSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
+{
     if (isScenegraphProtected_)
     {
         fprintf(stderr, "Cannot store scenegraph. Not allowed!");
-        return;
+        return false;
     }
 
     if (cover->debugLevel(3))
@@ -1681,22 +1673,23 @@ VRSceneGraph::saveScenegraph(bool storeWithMenu)
                         || !strcmp(filename.c_str() + len - 5, ".osgb")
                         || !strcmp(filename.c_str() + len - 5, ".osgx"))))
     {
-        if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
-        {
-            if (cover->debugLevel(3))
-                std::cerr << "Data written to \"" << filename << "\"." << std::endl;
-        }
-        else
-        {
-            if (cover->debugLevel(1))
-                std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
-        }
     }
     else
     {
         if (cover->debugLevel(1))
-            std::cerr << "Not writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
+            std::cerr << "Writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
+
+    if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
+    {
+        if (cover->debugLevel(3))
+            std::cerr << "Data written to \"" << filename << "\"." << std::endl;
+        return true;
+    }
+
+    if (cover->debugLevel(1))
+        std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
+    return false;
 }
 
 void

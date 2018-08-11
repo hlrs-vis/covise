@@ -1,10 +1,17 @@
 #ifndef POINTCLOUD_FILEINFO_H
 #define POINTCLOUD_FILEINFO_H
 
+#include <osg/ref_ptr>
+#include <osg/Node>
+#include <string>
+#include <vector>
+
+class PointSet;
+
 class NodeInfo
 {
 public:
-    osg::Node *node;
+    osg::ref_ptr<osg::Geode> node;
 };
 
 class FileInfo

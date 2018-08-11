@@ -278,7 +278,6 @@ coVRConfig::coVRConfig()
     HMDViewingAngle = coCoviseConfig::getFloat("angle", "COVER.HMD", 60.0f);
 
     // tracked HMD
-    HMDDistance = coCoviseConfig::getFloat("distance", "COVER.HMD", 0.0f);
     trackedHMD = coCoviseConfig::isOn("tracked", std::string("COVER.HMD"), false);
 
     if (debugLevel(2))

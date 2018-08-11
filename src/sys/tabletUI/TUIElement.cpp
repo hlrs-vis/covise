@@ -59,7 +59,7 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
         int xp, yp;
         tb >> xp;
         tb >> yp;
-        std::string remap = "COVER.TabletPC.Remap:";
+        std::string remap = "COVER.TabletUI.Remap:";
         QString qname(getName());
         qname.replace(".", "").replace(":", "");
         remap += qname.toStdString();
