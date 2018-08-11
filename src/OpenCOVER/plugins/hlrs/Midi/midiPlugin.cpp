@@ -82,6 +82,7 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 	case MIM_CLOSE:
 		printf("wMsg=MIM_CLOSE\n");
 		break;
+	case MIM_MOREDATA:
 	case MIM_DATA:
 	{
 		//printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
@@ -93,7 +94,23 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 		MidiEvent me(md.mStatus, md.mParam1, md.mParam2);
 		MidiPlugin::plugin->addEvent(me);
 		if(MidiPlugin::plugin->hMidiDeviceOut!=NULL)
-			midiOutMessage(MidiPlugin::plugin->hMidiDeviceOut,wMsg,dwParam1,dwParam2);
+		{
+			//midiInMessage(MidiPlugin::plugin->hMidiDeviceOut,wMsg,dwParam1,dwParam2);
+			int flag;
+			flag = midiOutShortMsg(MidiPlugin::plugin->hMidiDeviceOut, dwParam1);
+			if (flag != MMSYSERR_NOERROR) {
+				printf("Warning: MIDI Output is not open.\n");
+			}
+			if (!((dwParam1 & 0xff) == 0x99 || (dwParam1 & 0xff) == 0x89 || (dwParam1 & 0xff) == 0xfe || (dwParam1 & 0xff) == 0xf8))
+			{
+				if(wMsg == MIM_MOREDATA)
+					printf("wMsg=MIM_MOREDATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+				else
+					printf("dwParam1=%08x\n", (dwParam1 & 0xff) == 0xfe);
+				printf("wMsg=MIM_DATA, dwInstance=%08x, dwParam1=%08x, dwParam2=%08x\n", dwInstance, dwParam1, dwParam2);
+			}
+
+		}
 	}
 		break;
 	case MIM_LONGDATA:
@@ -105,7 +122,6 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 	case MIM_LONGERROR:
 		printf("wMsg=MIM_LONGERROR\n");
 		break;
-	case MIM_MOREDATA:
 		printf("wMsg=MIM_MOREDATA\n");
 		break;
 	default:
@@ -455,10 +471,16 @@ currentTrack = 0;
     {
         int midiPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi", 0);
         int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
+		fprintf(stderr, "OpenMidiIn %d\n", midiPort);
         if (openMidiIn(midiPort))
         {
-            openMidiOut(midiPortOut);
+			fprintf(stderr, "OpenMidiIn %d failed\n", midiPort);
         }
+		fprintf(stderr, "OpenMidiOut %d\n", midiPortOut);
+		if (openMidiOut(midiPortOut))
+		{
+			fprintf(stderr, "OpenMidiOut %d failed\n", midiPortOut);
+		}
     }
     lTrack = NULL;
     lTrack = new Track(tracks.size());
@@ -529,6 +551,7 @@ bool MidiPlugin::openMidiOut(int device)
             fprintf(stderr, "midiOutOpen() failed...rv=%d", rv);
             return false;
         }
+		fprintf(stderr, "midiOutOpen() succeded...rv=%d nMidiPort %d", rv,nMidiPort);
 
     }
 
@@ -574,8 +597,15 @@ void MidiPlugin::preFrame()
 	{
 		MidiEvent me = *eventqueue.begin();
 		eventqueue.pop_front();
+		if (me.getKeyNumber() == 31) // special reset key (drumpad)
+		{
+			lTrack->reset();
+		}
+		else
+		{
 		lTrack->addNote(new Note(me, lTrack));
 		printf("key: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+		}
 	}
     //fprintf(stderr,"tracks %d\n",tracks.size());
     if(tracks.size() > 0)
