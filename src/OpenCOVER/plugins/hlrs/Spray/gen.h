@@ -33,7 +33,7 @@ class gen
 {
 private:
     coSphere* coSphere_;
-    /*osg::ref_ptr<osg::Geode*> */osg::Geode* geode_;
+    osg::Geode* geode_;
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
     osg::ref_ptr<osg::MatrixTransform> transform_;
 
@@ -41,19 +41,23 @@ private:
     bool isHit_ = false;
 
     float t = 0;
-    float tCur = 0.001;
+    float tCur = 1;
     float initPressure_ = 2;
 
     std::string cwModelType = "STOKES";
+
     float densityOfFluid = 1.18;
     int reynoldsThreshold = 170000;
     float nu = 0.0000171;
     float cwLam = 0.45;
     float cwTurb = 0.15;
+    float minimum = 0.000025;
+    float deviation = 0.00005;
 
     bool* particleOutOfBound;
     bool* firstHit;
     float* prevHitDis;
+    int* prevHitDisCounter;
 
     int outOfBoundCounter = 0;
 
@@ -66,15 +70,17 @@ private:
 
 protected:
     float* x, *y, *z, *vx, *vy, *vz, *r, *m;
+    float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
-    void init();
+
 public:
     gen(float pInit, class nozzle *owner);
     virtual ~gen();
 
+    void init();
 
-    osg::Vec3 gravity = osg::Vec3(0,0,g*1000);
+    osg::Vec3 gravity = osg::Vec3(0,g,0);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;
@@ -111,6 +117,31 @@ public:
     {
         return initPressure_;
     }
+
+    float getTimeStep()
+    {
+        return tCur;
+    }
+
+    float getMinimum()
+    {
+        return minimum;
+    }
+
+    float getDeviation()
+    {
+        return deviation;
+    }
+
+    void setMinimum(float newMinimum)
+    {
+        minimum = newMinimum;
+    }
+
+    void setDeviation(float newDeviation)
+    {
+        deviation = newDeviation;
+    }
 };
 
 
@@ -134,10 +165,10 @@ class standardGen : public gen
 {
 private:
     float sprayAngle_ = 0;
-    const char* decoy_;
+    std::string decoy_;
 
 public:
-    standardGen(float sprayAngle, const char *decoy, float pInit, class nozzle *owner);
+    standardGen(float sprayAngle, std::string decoy, float pInit, class nozzle *owner);
 
     void seed();
 };

@@ -19,11 +19,15 @@ using namespace osg;
 
 class nodeVisitorVertex : public osg::NodeVisitor
 {
-private:
-    osg::ref_ptr<osg::Vec3Array> _local_coords;
+    friend struct nodeVisitTriangle;
+
+private:    
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
     osg::Geode *localGeodeTriangleStrip;
+    //osg::ref_ptr<osg::Vec3Array*> vertexCoords;
+    osg::Vec3Array* vertexCoords;
+    std::vector<std::string> blacklist;
 
 
     bool triFunc = true;
@@ -33,13 +37,27 @@ public:
 
         void apply(osg::Node &node);
 
-        osg::Vec3Array *getCoords()
-        {
-            return _local_coords.get();
-        }
-
         void createTestFaces(int num, osg::Vec3Array::iterator coords, int type);
         void createTestFaces(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3);
+        void createFaceSet(Vec3Array *coords, int type);
+        void fillVertexArray(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3)
+        {
+            vertexCoords->push_back(v1);
+            vertexCoords->push_back(v2);
+            vertexCoords->push_back(v3);
+        }
+
+        bool checkBlacklist(osg::Node* node)
+        {
+            for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
+            {
+                std::string compareString = *itr;
+                if(compareString.compare(node->getName()))
+                    return true;
+            }
+            return false;
+
+        }
 
         void _printPrimitiveType(osg::PrimitiveSet *pset);
 
@@ -53,13 +71,14 @@ public:
 struct nodeVisitTriangle
 {
 private:
-    osg::Geode *localGeodeTriangle_;
+    nodeVisitorVertex* nvv_;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
-    void setLocalGeode(osg::Geode* localGeodeTriangle)
+    void setNVV(nodeVisitorVertex* nvv)
     {
-        localGeodeTriangle_ = localGeodeTriangle;
+        nvv_ = nvv;
     }
+
 
 };
 

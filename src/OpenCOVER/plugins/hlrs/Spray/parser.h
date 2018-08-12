@@ -29,11 +29,17 @@ private:
     float upperPressureBound = 10;
 
     float densityOfFluid = 1.18;
+    float densityOfParticle = 1000;
     float cwTurb = 0.15;
     float nu = 0;
     int reynoldsThreshold = 170000;
+    float minimum = 0.000025;
+    float deviation = 0.00005;
+    float scaleFactor = 100000;
+    float rendertime = 1;
 
     int colorThreshold = 100;
+    int isAMD = 1;
 
     std::string cwModelType = "STOKES";
     std::string samplingType = "square";
@@ -138,6 +144,12 @@ public:
                         densityOfFluid = stof(line);
                     }
 
+                    if(line.compare("densityOfParticle ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        densityOfParticle = stof(line);
+                    }
+
                     if(line.compare("cwTurb ") == 0)
                     {
                         std::getline(ssLine,line,'\n');
@@ -154,6 +166,36 @@ public:
                     {
                         std::getline(ssLine,line,'\n');
                         colorThreshold = stof(line);
+                    }
+
+                    if(line.compare("minimum ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        minimum = stof(line);
+                    }
+
+                    if(line.compare("deviation ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        deviation = stof(line);
+                    }
+
+                    if(line.compare("scaleFactor ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        scaleFactor = stof(line);
+                    }
+
+                    if(line.compare("isAMD ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        isAMD = stof(line);
+                    }
+
+                    if(line.compare("rendertime ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        rendertime = stof(line);
                     }
 
 
@@ -239,6 +281,40 @@ public:
         return colorThreshold;
     }
 
+    float getMinimum()
+    {
+        return minimum;
+    }
+
+    float getDeviation()
+    {
+        return deviation;
+    }
+
+    float getScaleFactor()
+    {
+        return scaleFactor;
+    }
+
+    void setScaleFactor(float newScaleFactor)
+    {
+        scaleFactor = newScaleFactor;
+    }
+
+    int getIsAMD()
+    {
+        return isAMD;
+    }
+
+    float getDensityOfParticle()
+    {
+        return densityOfParticle;
+    }
+
+    float getRendertime()
+    {
+        return rendertime;
+    }
 };
 
 #endif // PARSER_H

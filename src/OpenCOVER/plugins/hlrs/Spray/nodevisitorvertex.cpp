@@ -12,15 +12,22 @@ nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
     cover->getObjectsRoot()->addChild(localScene);
     localScene->addChild(localGeodeTriangle);
     localScene->addChild(localGeodeTriangleStrip);
+
+    vertexCoords = new osg::Vec3Array;
+
+    blacklist.push_back("1.Name");
+    blacklist.push_back("2.Name");
+    blacklist.push_back("3.Name");
 }
 
 void nodeVisitorVertex::apply(osg::Node &node)
 {
+    if(checkBlacklist(&node))
+        traverse(node);
+
     if (auto geode = dynamic_cast<osg::Geode *>(&node))
     {
-        if(geode->getName().compare("nopeTriangle") == 0 || geode->getName().compare("nopeTriangleStrip") == 0)
-            printf("testGeode nope");
-        else
+        if(geode->getName().compare("nopeTriangle") == 1 || geode->getName().compare("nopeTriangleStrip") == 1)
 
 
     //std::cout << geode.getName() << std::endl;
@@ -44,9 +51,11 @@ void nodeVisitorVertex::apply(osg::Node &node)
 if(triFunc)
 {
                 osg::TriangleFunctor<nodeVisitTriangle> tfc;
-                tfc.setLocalGeode(localGeodeTriangle);
-
+                tfc.setNVV(this);
                 geom->accept(tfc);
+                raytracer::instance()->createFaceSet(vertexCoords,0);
+                createFaceSet(vertexCoords, 0);
+
 }
 else
 {
@@ -232,18 +241,11 @@ void nodeVisitorVertex::createTestFaces(int num, osg::Vec3Array::iterator coords
     if(type == 1)localGeodeTriangleStrip->addDrawable(geom);
 }
 
-void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const
+void nodeVisitorVertex::createFaceSet(Vec3Array *coords, int type)
 {
-    raytracer::instance()->createFace(v1,v2,v3,0);
     osg::Geometry *geom = new osg::Geometry;
 
-    osg::Vec3Array *vertices = new osg::Vec3Array;
-
-    vertices->push_back(v1);
-    vertices->push_back(v2);
-    vertices->push_back(v3);
-
-    geom->setVertexArray(vertices);
+    geom->setVertexArray(coords);
 
     osg::Vec4Array *colors = new osg::Vec4Array;
     colors->push_back(osg::Vec4(1,0,0,1));
@@ -255,10 +257,42 @@ void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, con
     geom->setNormalArray(normals);
     geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
-    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,3));
+    if(type == 0)geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coords->size()));
+    if(type == 1)geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS,0,coords->size()));
 
 
-    localGeodeTriangle_->addDrawable(geom);
+    localGeodeTriangle->addDrawable(geom);
+}
+
+void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const
+{
+    nvv_->fillVertexArray(v1,v2,v3);
+
+//    raytracer::instance()->createFace(v1,v2,v3,0);
+//    osg::Geometry *geom = new osg::Geometry;
+
+//    osg::Vec3Array *vertices = new osg::Vec3Array;
+
+//    vertices->push_back(v1);
+//    vertices->push_back(v2);
+//    vertices->push_back(v3);
+
+//    geom->setVertexArray(vertices);
+
+//    osg::Vec4Array *colors = new osg::Vec4Array;
+//    colors->push_back(osg::Vec4(1,0,0,1));
+//    geom->setColorArray(colors);
+//    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+//    osg::Vec3Array *normals = new osg::Vec3Array;
+//    normals->push_back(osg::Vec3(0,0,-1));
+//    geom->setNormalArray(normals);
+//    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+//    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,3));
+
+
+//    localGeodeTriangle_->addDrawable(geom);
 }
 
 void nodeVisitorVertex::_printPrimitiveType(osg::PrimitiveSet *pset)

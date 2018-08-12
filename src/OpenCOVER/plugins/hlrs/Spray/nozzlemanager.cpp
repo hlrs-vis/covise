@@ -104,7 +104,7 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
                              0,0,0,1
                             };
     initialMat.set(baseTransform);
-    class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 1, newNozzleName);
+    class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 10, newNozzleName);
 
     newNozzle->setID(nextNozzleID);
 

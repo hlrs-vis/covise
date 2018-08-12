@@ -6,7 +6,9 @@
 #include <embree3/rtcore_geometry.h>
 #include <embree3/rtcore_ray.h>
 #include <embree3/rtcore_common.h>
+#include <osg/Array>
 #include <list>
+#include <vector>
 #include "types.h"
 //using namespace embree;
 
@@ -29,20 +31,8 @@ private:
     RTCDevice gDevice = rtcNewDevice("");
     RTCScene rScene_ = nullptr;
     particleParam pP_;
-    std::list<RTCGeometry> geoList;
+    std::list<RTCGeometry> geoList;    
     bool comitted = false;
-
-    void removeAllGeometry()
-    {
-
-        if(!geoList.empty())
-        {
-            for(auto i = geoList.begin(); i != geoList.end(); i++)
-                rtcReleaseGeometry(*i);
-            geoList.clear();
-        }
-
-    }
 
 public:
     static raytracer* instance()
@@ -68,6 +58,18 @@ public:
     {
         if(comitted)comitted = false;
         rtcDetachGeometry(rScene_, geomID);
+    }
+
+    void removeAllGeometry()
+    {
+        if(comitted)comitted = false;
+        if(!geoList.empty())
+        {
+            for(auto i = geoList.begin(); i != geoList.end(); i++)
+                rtcReleaseGeometry(*i);
+            geoList.clear();
+        }
+
     }
 
     int createCube(osg::Vec3 center, osg::Vec3 scale)
@@ -130,14 +132,21 @@ public:
     {
         //printf("Creating face in embree\n");
         int numOfVertices = 0;
+        RTCGeometryType geoType;
         if(type > 2)
             return -1;
         else if(type == 0)
+        {
             numOfVertices = 3;
+            geoType = RTC_GEOMETRY_TYPE_TRIANGLE;
+        }
         else
+        {
             numOfVertices = 4;
+            geoType = RTC_GEOMETRY_TYPE_QUAD;
+        }
 
-        RTCGeometry mesh = rtcNewGeometry(gDevice, RTC_GEOMETRY_TYPE_TRIANGLE);
+        RTCGeometry mesh = rtcNewGeometry(gDevice, geoType);
 
         Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),numOfVertices);
 
@@ -209,6 +218,69 @@ public:
 
         triangles[0] = {0,1,2};
         if(type == 1) triangles[1] = {0,2,3};
+
+        rtcSetGeometryVertexAttributeCount(mesh,1);
+
+        rtcCommitGeometry(mesh);
+        if(comitted)comitted = false;
+        geoList.push_back(mesh);
+        unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
+        rtcReleaseGeometry(mesh);
+        return geomID;
+
+
+    }
+
+    int createFaceSet(osg::Vec3Array* coords, int type) //type = 0 for triangles, type = 1 for quads
+    {
+        //printf("Creating face in embree\n");
+        int numOfVertices = 0;
+        RTCGeometryType geoType;
+        if(type > 2)
+            return -1;
+        else if(type == 0)
+        {
+            numOfVertices = 3;
+            geoType = RTC_GEOMETRY_TYPE_TRIANGLE;
+        }
+        else
+        {
+            numOfVertices = 4;
+            geoType = RTC_GEOMETRY_TYPE_QUAD;
+        }
+
+        RTCGeometry mesh = rtcNewGeometry(gDevice, geoType);
+
+        Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),coords->size());
+
+        osg::Vec3Array::iterator itr = coords->begin();
+
+        for(int i = 0; i< coords->size(); i++)
+        {
+            osg::Vec3 buf = *itr;
+            vertices[i].x = buf.x();
+            vertices[i].y = buf.z();
+            vertices[i].z = buf.y();
+            itr++;
+        }
+        int numOfFaces = 0;
+        if(type == 0)
+            numOfFaces = coords->size()/3;
+        else
+            numOfFaces = coords->size()/4;
+        Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
+
+        if(type == 0)
+            for(int fItr = 0; fItr < numOfFaces; fItr++)
+            {
+                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
+            }
+        if(type == 1)
+            for(int fItr = 0; fItr < numOfFaces; fItr+=2)
+            {
+                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
+                triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
+            }
 
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
