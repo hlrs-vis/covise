@@ -23,7 +23,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
    void main( void )
    {
    vec2 tc=Texcoord;
-    if(Stereo==1) //right
+    if(Stereo==0) //right
       tc.y = tc.y/-2.0 ;
     else          //left
       tc.y = (tc.y/-2.0)+0.5 ;

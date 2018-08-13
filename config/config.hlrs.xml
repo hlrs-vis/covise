@@ -255,9 +255,9 @@
    </Network>
 -->
 
-   <!--VRB>
-    <Server value="141.58.8.5" port="31200" />
-   </VRB-->
+   <VRB>
+    <Server value="141.58.8.5" port="31251" />
+   </VRB>
    
    <RemoteDaemon>
     <Server port="31090" />

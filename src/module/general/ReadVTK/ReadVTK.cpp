@@ -418,16 +418,20 @@ void ReadVTK::setChoices(vtkDataSet *ds)
     }
 }
 
-void ReadVTK::param(const char *name, bool /*inMapLoading*/)
+void ReadVTK::param(const char *name, bool inMapLoading)
 {
     if (strcmp(name, m_pParamFile->getName()) == 0)
     {
         m_dataSet = getDataSet(m_pParamFile->getValue());
+	if(!inMapLoading)
+	{
         setChoices(m_dataSet);
+	
         if (strcmp(m_pParamFilePattern->getValue(), "") == 0)
         {
             m_pParamFilePattern->setValue(m_pParamFile->getValue());
         }
+	}
     }
     else if (strcmp(name, m_pParamFilePattern->getName()) == 0)
     {
@@ -448,12 +452,15 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
             std::cout << "Timestep Min: " << m_iTimestepMin << std::endl;
             std::cout << "Timestep Max: " << m_iTimestepMax << std::endl;
 
+	if(!inMapLoading)
+	{
             m_pTimeMin->setValue(m_iTimestepMin);
             m_pTimeMin->setMin(m_iTimestepMin);
             m_pTimeMin->setMax(m_iTimestepMax);
             m_pTimeMax->setValue(m_iTimestepMax);
             m_pTimeMax->setMin(m_iTimestepMin);
             m_pTimeMax->setMax(m_iTimestepMax);
+	 }
         }
     }
     else if (strcmp(name, m_pTimeMax->getName()) == 0)
@@ -461,19 +468,28 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
         m_iTimestepMax = m_pTimeMax->getValue();
         if (m_iTimestepMax < m_iTimestepMin)
         {
+	if(!inMapLoading)
+	{
             m_pTimeMax->setValue(m_iTimestepMin);
+	    }
             m_iTimestepMax = m_iTimestepMin;
             Covise::sendInfo("TimestepMax is not allowed to be smaller than TimestepMin. Thus, the value of TimestepMax is changed to TimestepMin.");
         }
         if (m_iTimestepMax > m_pTimeMax->getMax())
         {
+	if(!inMapLoading)
+	{
             m_pTimeMax->setValue(m_pTimeMax->getMax());
+	    }
             m_iTimestepMax = m_pTimeMax->getMax();
             Covise::sendInfo("TimestepMax changed to maximum timestep.");
         }
         if (m_iTimestepMax < m_pTimeMax->getMin())
         {
+	if(!inMapLoading)
+	{
             m_pTimeMax->setValue(m_pTimeMax->getMin());
+	    }
             m_iTimestepMax = m_pTimeMax->getMin();
             Covise::sendInfo("TimestepMax changed.");
         }
@@ -486,23 +502,35 @@ void ReadVTK::param(const char *name, bool /*inMapLoading*/)
         m_iTimestepMin = m_pTimeMin->getValue();
         if (m_iTimestepMin > m_iTimestepMax)
         {
+	if(!inMapLoading)
+	{
             m_pTimeMin->setValue(m_iTimestepMax);
+	    }
             m_iTimestepMin = m_iTimestepMax;
             Covise::sendInfo("TimestepMin is not allowed to be greater than TimestepMax. Thus, the value of TimestepMin is changed to TimestepMax.");
         }
         if (m_iTimestepMin < m_pTimeMin->getMin())
         {
+	if(!inMapLoading)
+	{
             m_pTimeMax->setValue(m_pTimeMin->getMin());
+	    }
             m_iTimestepMin = m_pTimeMin->getMin();
             Covise::sendInfo("TimestepMin changed to minimum timestep.");
         }
         if (m_iTimestepMin > m_pTimeMin->getMax())
         {
+	if(!inMapLoading)
+	{
             m_pTimeMax->setValue(m_pTimeMin->getMax());
+	    }
             m_iTimestepMin = m_pTimeMin->getMax();
             Covise::sendInfo("TimestepMin changed.");
         }
+	if(!inMapLoading)
+	{
         m_pTimeMax->setMin(m_iTimestepMin);
+	}
         std::cout << "iTimestepMin = " << m_iTimestepMin << std::endl;
     }
 }

@@ -36,12 +36,13 @@ private:
 
     int prevGenCreate = 0;
 
-    float initPressure_ = 4;
+    float initPressure_ = 2;
+    float minimum = 0.000025;
+    float deviation = 0.00005;
 
-    //osg::ref_ptr<osg::Geode*> geode_;
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
-    osg::Vec3 boundingBox_ = osg::Vec3(2000,2000,2000);
+    osg::Vec3 boundingBox_ = osg::Vec3(20000,20000,20000);
     osg::Cylinder* cylinder_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
@@ -55,6 +56,10 @@ private:
 
     ui::Label* nozzleLabel_;
 
+    std::string param1 = "none";
+    std::string param2 = "none";
+    std::string type = "none";
+
 
 protected:
     void createGeometry();
@@ -66,9 +71,11 @@ protected:
 public:
 
     nozzle(osg::Matrix initialMat, float size, std::string nozzleName);
+
     virtual ~nozzle();
 
     virtual void createGen();
+
     void updateGen();
 
     void setColor(osg::Vec4 newColor){
@@ -105,10 +112,9 @@ public:
 
     }
 
-    ui::Label* registerLabel()
+    void registerLabel()
     {
         labelRegistered = true;
-        return nozzleLabel_;
     }
 
     bool isRegistered()
@@ -132,11 +138,62 @@ public:
         return failed;
     }
 
+    float getMinimum()
+    {
+        return minimum;
+    }
+
+    float getDeviation()
+    {
+        return deviation;
+    }
+
+    void setMinimum(float newMinimum)
+    {
+        minimum = newMinimum;
+    }
+
+    void setDeviation(float newDeviation)
+    {
+        deviation = newDeviation;
+    }
+
     void keepSize();
+
 
     osg::MatrixTransform* getMatrixTransform()
     {
         return transform_->asMatrixTransform();
+    }
+
+    std::string getParam1()
+    {
+        return param1;
+    }
+
+    std::string getParam2()
+    {
+        return param2;
+    }
+
+    std::string getType()
+    {
+        return type;
+    }
+
+    void setParam1(std::string newParam1)
+    {
+        param1 = newParam1;
+    }
+
+    void setParam2(std::string newParam2)
+    {
+        param2 = newParam2;
+    }
+
+    void setType(std::string newType)
+    {
+        type = newType;
     }
 
 };
@@ -147,9 +204,8 @@ class standardNozzle : public nozzle
 {
 private:
     float sprayAngle_ = 0;
-    const char* decoy_;
+    std::string decoy_;
 public:
-    const char* type = "standard";
     standardNozzle(float sprayAngle, std::string decoy, osg::Matrix initialMat, float size, std::string nozzleName);
 
     void createGen();
@@ -159,7 +215,7 @@ public:
         return sprayAngle_;
     }
 
-    const char* getDecoy(){
+    std::string getDecoy(){
         return decoy_;
     }
 };
@@ -185,17 +241,28 @@ private:
     bool square = false;
     bool circle = true;
     bool readImage();
+
 public:
-    const char* type = "image";
 
     imageNozzle(std::string pathName, std::string fileName, osg::Matrix initialMat, float size, std::string nozzleName);
     ~imageNozzle();
 
     void createGen();
     void save(std::string pathName, std::string fileName);
+
     pImageBuffer getPImageBuffer()
     {
         return iBuf;
+    }
+
+    std::string getParam1()
+    {
+        return pathName_;
+    }
+
+    std::string getParam2()
+    {
+        return fileName_;
     }
 
 };

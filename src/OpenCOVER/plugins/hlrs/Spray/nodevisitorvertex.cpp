@@ -2,24 +2,44 @@
 
 nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 {
+    localScene = new osg::Group;
+    localGeodeTriangle = new osg::Geode;
+    localGeodeTriangleStrip = new osg::Geode;
+    localGeodeTriangle->setName("nopeTriangle");
+    localGeodeTriangleStrip->setName("nopeTriangleStrip");
 
+    localScene->setName("test");
+    cover->getObjectsRoot()->addChild(localScene);
+    localScene->addChild(localGeodeTriangle);
+    localScene->addChild(localGeodeTriangleStrip);
+
+    vertexCoords = new osg::Vec3Array;
+
+    blacklist.push_back("1.Name");
+    blacklist.push_back("2.Name");
+    blacklist.push_back("3.Name");
 }
 
 void nodeVisitorVertex::apply(osg::Node &node)
 {
+    if(checkBlacklist(&node))
+        traverse(node);
+
     if (auto geode = dynamic_cast<osg::Geode *>(&node))
     {
+        if(geode->getName().compare("nopeTriangle") == 1 || geode->getName().compare("nopeTriangleStrip") == 1)
+
 
     //std::cout << geode.getName() << std::endl;
     for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
-        {
-            //Geometry *geom = dynamic_cast<Geometry *>(geode->getDrawable(i));
+        {            
         Geometry *geom = geode->getDrawable(i)->asGeometry();
             if (geom)
             {
                 printf("Looking for Geometry in Geode: %s\n", geode->getName().c_str());
                 int numOfTriangles = 0;
                 int numOfQuads = 0;
+                int numOfTriangleStips = 0;
                 Vec3Array *coords = dynamic_cast<Vec3Array *>(geom->getVertexArray());
                 if (coords == 0L)
                 {
@@ -27,13 +47,18 @@ void nodeVisitorVertex::apply(osg::Node &node)
                     continue;
                 }
 
-//                Vec3Array *normals = dynamic_cast<Vec3Array *>(geom->getNormalArray());
-//                if (normals == 0L)
-//                {
-//                    printf("No normals\n");
-//                    continue;
-//                }
+                printf("%i\n", coords->getNumElements());
+if(triFunc)
+{
+                osg::TriangleFunctor<nodeVisitTriangle> tfc;
+                tfc.setNVV(this);
+                geom->accept(tfc);
+                raytracer::instance()->createFaceSet(vertexCoords,0);
+                createFaceSet(vertexCoords, 0);
 
+}
+else
+{
                 Geometry::AttributeBinding binding = geom->getNormalBinding();
                 if (binding == Geometry::BIND_OFF)
                 {
@@ -41,56 +66,26 @@ void nodeVisitorVertex::apply(osg::Node &node)
                     continue;
                 }
 
-                Geode *g = geode;
-//                Matrix *mat = cover->getWorldCoords(g);
-//                Matrix nmat = *mat;
-//                nmat.setTrans(Vec3(0., 0., 0.));
-
                 if (binding == Geometry::BIND_OVERALL)
                 {
-//                    Vec3 v(0, 0, 0);
-//                    Vec3 n = normals->front();
-
-//                    Vec3Array::iterator coord_index = coords->begin();
-//                    while (coord_index != coords->end())
-//                        v += *(coord_index++);
-//                    v /= (float)(coords->size());
-//                    v = v * *mat;
-
-//                    n *= _normal_scale;
-//                    n = n * nmat;
-//                    _local_coords->push_back(v);
-//                    _local_coords->push_back((v + n));
                     printf("bind overall \n");
+                    continue;
                 }
                 else // BIND_PER_PRIMTIVE_SET, BIND_PER_PRIMTITIVE, BIND_PER_VERTEX
+
                 {
                     Geometry::PrimitiveSetList &primitiveSets = geom->getPrimitiveSetList();
                     Geometry::PrimitiveSetList::iterator itr;
 
                     Vec3Array::iterator coord_index = coords->begin();
-                    //Vec3Array::iterator normals_index = normals->begin();
 
                     for (itr = primitiveSets.begin(); itr != primitiveSets.end(); ++itr)
                     {
-    #ifdef DEBUG
-                        _printPrimitiveType((*itr).get());
-    #endif
                         if (binding == Geometry::BIND_PER_PRIMITIVE_SET)
                         {
-//                            Vec3 v(0, 0, 0);
-//                            Vec3 n = *(normals_index++);
-//                            int ni = (*itr)->getNumIndices();
-//                            for (int i = 0; i < ni; i++)
-//                                v += *(coord_index++);
-//                            v /= (float)(ni);
-//                            v = v * *mat;
 
-//                            n *= _normal_scale;
-//                            n = n * nmat;
-//                            _local_coords->push_back(v);
-//                            _local_coords->push_back((v + n));
                             printf("Bind per primitive set\n");
+                            continue;
                         }
                         else
                         {
@@ -99,10 +94,7 @@ void nodeVisitorVertex::apply(osg::Node &node)
                             case (PrimitiveSet::LINES):
                                 for (unsigned int j = 0; j < (*itr)->getNumPrimitives(); j++)
                                 {
-//                                    _processPrimitive(1, coord_index,
-//                                                      normals_index, binding, *mat, nmat);
-//                                    coord_index += 1;
-//                                    normals_index += 1;
+                                    coord_index += 1;
                                     printf("lines\n");
                                 }
                                 break;
@@ -110,39 +102,41 @@ void nodeVisitorVertex::apply(osg::Node &node)
                             case (PrimitiveSet::TRIANGLES):
                                 for (unsigned int j = 0; j < (*itr)->getNumPrimitives(); j++)
                                 {
-//                                    _processPrimitive(3, coord_index,
-//                                                      normals_index, binding, *mat, nmat);
-//                                    coord_index += 3;
-//                                    normals_index += 3;
                                     if(raytracer::instance()->createFace(coord_index,0) == -1)
                                         std::cout << "An error occured during creating the embree geometry" <<std::endl;
+                                    createTestFaces(3,coord_index, 0);
 
-                                    for(int h = 0; h < 3; h++)
-                                    {
-
-                                        Vec3 t = *coord_index;
-                                        std::cout << t.x() << " " << t.y() << " " << t.z() << std::endl;
-                                        coord_index++;
-                                    }
-
+                                    coord_index +=3;
 
                                     numOfTriangles++;
-                                    printf("triangles\n");
-                                }
+                                    //printf("triangles\n");
+                                };
+                                printf("%i\n", (*itr)->getNumPrimitives());
+                                printf("%i\n", (*itr)->getNumIndices());
                                 break;
 
                             case (PrimitiveSet::TRIANGLE_STRIP):
                                 for (unsigned int j = 0; j < (*itr)->getNumIndices() - 2; j++)
                                 {
-//                                    _processPrimitive(3, coord_index,
-//                                                      normals_index, binding, *mat, nmat);
-//                                    coord_index++;
-//                                    normals_index++;
-                                    printf("triangle strips\n");
+                                    if(raytracer::instance()->createFace(coord_index,0) == -1)
+                                       std::cout << "An error occured during creating the embree geometry" <<std::endl;
+                                    createTestFaces(3,coord_index, 1);
+                                    coord_index++;
+                                    numOfTriangleStips++;
+                                    //printf("triangle strips\n");
                                 }
-//                                coord_index += 2;
-//                                if (binding == Geometry::BIND_PER_VERTEX)
-//                                    normals_index += 2;
+                                    coord_index += 2;
+//                                    printf("%i\n", (*itr)->getNumIndices());
+
+//                                    for (unsigned int j = 0; j < (*itr)->getNumPrimitives(); j++)
+//                                    {
+//                                        if(raytracer::instance()->createFace(coord_index,0) == -1)
+//                                           std::cout << "An error occured during creating the embree geometry" <<std::endl;
+//                                        createTestFaces(3,coord_index, 1);
+//                                        coord_index+=3;
+//                                        numOfTriangleStips++;
+//                                        //printf("triangle strips\n");
+//                                    };
                                 break;
 
                             case (PrimitiveSet::TRIANGLE_FAN):
@@ -152,12 +146,13 @@ void nodeVisitorVertex::apply(osg::Node &node)
                             case (PrimitiveSet::QUADS):
                                 for (unsigned int j = 0; j < (*itr)->getNumPrimitives(); j++)
                                 {
-//                                    _processPrimitive(4, coord_index,
-//                                                      normals_index, binding, *mat, nmat);
 //                                    coord_index += 4;
 //                                    normals_index += 4;
                                     if(raytracer::instance()->createFace(coord_index,1) == -1)
                                         std::cout << "An error occured during creating the embree geometry" <<std::endl;
+                                    coord_index += 4;
+
+                                    numOfQuads++;
                                     printf("quads\n");
                                 }
                                 break;
@@ -169,11 +164,8 @@ void nodeVisitorVertex::apply(osg::Node &node)
                                     break;
                                 for (unsigned int j = 0; j < (*itr)->getNumPrimitives(); j++)
                                 {
-//                                    int nv = (*draw)[j];
-//                                    _processPrimitive(nv, coord_index,
-//                                                      normals_index, binding, *mat, nmat);
-//                                    coord_index += nv;
-//                                    normals_index += nv;
+                                    int nv = (*draw)[j];
+                                    coord_index += nv;
                                     printf("polygon\n");
                                 }
                             }
@@ -181,6 +173,23 @@ void nodeVisitorVertex::apply(osg::Node &node)
                             case (PrimitiveSet::QUAD_STRIP):
                                 printf("quad strip\n");
                                 break;
+                            case (PrimitiveSet::PATCHES):
+                                printf("patches\n");
+                                break;
+                            case (PrimitiveSet::POINTS):
+                                printf("points\n");
+                                break;
+                            case (PrimitiveSet::LINES_ADJACENCY):
+                                printf("Lines adjacency\n");
+                                break;
+                            case (PrimitiveSet::LINE_LOOP):
+                                printf("Line loop\n");
+                                break;
+                            case (PrimitiveSet::LINE_STRIP_ADJACENCY):
+                                printf("Line strip adjacency\n");
+                                break;
+
+
                             default:
                                 printf("default\n");
                                 break;
@@ -189,7 +198,10 @@ void nodeVisitorVertex::apply(osg::Node &node)
                     }
                     printf("nothing found \n");
                 }
-                std::cout << numOfTriangles << std::endl;
+}
+                std::cout << "Number of triangles: " << numOfTriangles << std::endl;
+                std::cout << "Number of triangle strips: " << numOfTriangleStips << std::endl;
+                std::cout << "Number of quads: " << numOfQuads << std::endl;
             }
             else printf("Geometry not found in Geode: %s\n", geode->getName().c_str());
         }
@@ -198,48 +210,102 @@ void nodeVisitorVertex::apply(osg::Node &node)
         traverse(node);
 }
 
-//void nodeVisitorVertex::_processPrimitive(unsigned int nv,
-//                                                    Vec3Array::iterator coords,
-//                                                    Vec3Array::iterator normals,
-//                                                    Geometry::AttributeBinding binding,
-//                                                    Matrix &mat, Matrix &nmat)
-//{
 
-//    Vec3 v(0, 0, 0);
-//    Vec3 n(0, 0, 0);
-//    if (_mode == SurfaceNormals)
-//    {
-//        if (binding == Geometry::BIND_PER_VERTEX)
-//        {
-//            for (unsigned int i = 0; i < nv; i++)
-//                n += *(normals++);
-//            n /= (float)(nv);
-//        }
+void nodeVisitorVertex::createTestFaces(int num, osg::Vec3Array::iterator coords, int type)
+{
+    osg::Geometry *geom = new osg::Geometry;
 
-//        for (unsigned int i = 0; i < nv; i++)
-//            v += *(coords++);
-//        v /= (float)(nv);
-//        v = v * mat;
+    osg::Vec3Array *vertices = new osg::Vec3Array;
+    for(int it = 0; it < num; it++)
+    {
+        vertices->push_back(*coords);
+        coords++;
+    }
 
-//        n *= _normal_scale;
-//        n = n * nmat;
+    geom->setVertexArray(vertices);
 
-//        _local_coords->push_back(v);
-//        _local_coords->push_back((v + n));
-//    }
-//    else if (_mode == VertexNormals)
-//    {
-//        for (unsigned int i = 0; i < nv; i++)
-//        {
-//            v = *(coords++);
-//            v = v * mat;
+    osg::Vec4Array *colors = new osg::Vec4Array;
+    colors->push_back(osg::Vec4(1,0,0,1));
+    geom->setColorArray(colors);
+    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-//            n = *(normals++);
-//            n *= _normal_scale;
-//            n = n * nmat;
+    osg::Vec3Array *normals = new osg::Vec3Array;
+    normals->push_back(osg::Vec3(0,0,-1));
+    geom->setNormalArray(normals);
+    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
-//            _local_coords->push_back(v);
-//            _local_coords->push_back((v + n));
-//        }
-//    }
-//}
+    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,num));
+
+
+    if(type == 0)localGeodeTriangle->addDrawable(geom);
+    if(type == 1)localGeodeTriangleStrip->addDrawable(geom);
+}
+
+void nodeVisitorVertex::createFaceSet(Vec3Array *coords, int type)
+{
+    osg::Geometry *geom = new osg::Geometry;
+
+    geom->setVertexArray(coords);
+
+    osg::Vec4Array *colors = new osg::Vec4Array;
+    colors->push_back(osg::Vec4(1,0,0,1));
+    geom->setColorArray(colors);
+    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    osg::Vec3Array *normals = new osg::Vec3Array;
+    normals->push_back(osg::Vec3(0,0,-1));
+    geom->setNormalArray(normals);
+    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    if(type == 0)geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coords->size()));
+    if(type == 1)geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS,0,coords->size()));
+
+
+    localGeodeTriangle->addDrawable(geom);
+}
+
+void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const
+{
+    nvv_->fillVertexArray(v1,v2,v3);
+
+//    raytracer::instance()->createFace(v1,v2,v3,0);
+//    osg::Geometry *geom = new osg::Geometry;
+
+//    osg::Vec3Array *vertices = new osg::Vec3Array;
+
+//    vertices->push_back(v1);
+//    vertices->push_back(v2);
+//    vertices->push_back(v3);
+
+//    geom->setVertexArray(vertices);
+
+//    osg::Vec4Array *colors = new osg::Vec4Array;
+//    colors->push_back(osg::Vec4(1,0,0,1));
+//    geom->setColorArray(colors);
+//    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+//    osg::Vec3Array *normals = new osg::Vec3Array;
+//    normals->push_back(osg::Vec3(0,0,-1));
+//    geom->setNormalArray(normals);
+//    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+//    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,3));
+
+
+//    localGeodeTriangle_->addDrawable(geom);
+}
+
+void nodeVisitorVertex::_printPrimitiveType(osg::PrimitiveSet *pset)
+{
+    std::cout << (pset->getMode() == PrimitiveSet::POINTS ? "POINTS" :
+                  pset->getMode() == PrimitiveSet::LINES ? "LINES" :
+                  pset->getMode() == PrimitiveSet::LINE_STRIP ? "LINE_STRIP" :
+                  pset->getMode() == PrimitiveSet::LINE_LOOP ? "LINE_LOOP" :
+                  pset->getMode() == PrimitiveSet::TRIANGLES ? "TRIANGLES" :
+                  pset->getMode() == PrimitiveSet::TRIANGLE_STRIP ? "TRIANGLE_STRIP" :
+                  pset->getMode() == PrimitiveSet::TRIANGLE_FAN ? "TRIANGLE_FAN" :
+                  pset->getMode() == PrimitiveSet::QUADS ? "QUADS" :
+                  pset->getMode() == PrimitiveSet::QUAD_STRIP ? "QUAD_STRIP" :
+                  pset->getMode() == PrimitiveSet::POLYGON ? "POLYGON" :
+                  "Dunno") << std::endl;
+}
