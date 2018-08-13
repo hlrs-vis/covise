@@ -1,6 +1,11 @@
 #ifndef SPRAY_H
 #define SPRAY_H
 
+#include "nodevisitorvertex.h"
+#include "nozzlemanager.h"
+#include "parser.h"
+#include "raytracer.h"
+
 #include <osg/MatrixTransform>
 #include <osg/Matrix>
 #include <osg/ShapeDrawable>
@@ -9,7 +14,6 @@
 #include <osg/Vec3f>
 
 #include <config/CoviseConfig.h>
-using namespace covise;
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
@@ -24,21 +28,18 @@ using namespace covise;
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Label.h>
-#include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/SelectionList.h>
+
+using namespace covise;
 using namespace opencover;
+
 
 #include "string.h"
 
-#include "nodevisitorvertex.h"
 
-#include "nozzlemanager.h"
-
-#include "parser.h"
-
-#include "raytracer.h"
-
+//Set singletons to 0
 nozzleManager* nozzleManager::_instance = 0;
 raytracer* raytracer::_instance = 0;
 
@@ -51,68 +52,98 @@ private:
 
     osg::MatrixTransform *baseTransform;
 
-    class nozzle* editNozzle;
-
-    int nozzleID = 0;
-    int currentNozzleID = -1;
     std::list<int> idGeo;
 
-    osg::Vec4 newColor = osg::Vec4(1,1,1,1);
 
+    //All menus and submenus
     ui::Menu* sprayMenu_ = nullptr;
-    ui::Menu* tempMenu = nullptr;
+    ui::Menu* nozzleCreateMenu = nullptr;
+    ui::Menu* nozzleCreateMenuStandard = nullptr;
+    ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
-    ui::EditField* currentNozzle_ = nullptr;
-    ui::Button* sprayStart_ = nullptr;
+    ui::Menu* saveLoadMenu_ = nullptr;
+    ui::Menu* testMenu = nullptr;
+    ui::Menu* bbEditMenu = nullptr;
+
+    //Actions on main menu
     ui::Action* edit_ = nullptr;
     ui::Action* save_ = nullptr;
     ui::Action* load_ = nullptr;
     ui::Action* create_ = nullptr;
     ui::Action* remove_ = nullptr;
-    ui::Label* numField = nullptr;
-    ui::EditField* pathNameFielddyn_ = nullptr;
-    ui::EditField* fileNameFielddyn_ = nullptr;
-    ui::EditField* nozzleNameFielddyn_ = nullptr;
+
+    //Buttons on main menu
+    ui::Button* sprayStart_ = nullptr;
+
+    //EditFields on main menu
     ui::EditField* newGenCreate_ = nullptr;
-    std::string pathNameField_ = "";
-    std::string fileNameField_ = "";
-    std::string nozzleNameField_ = "";
-    float sprayAngle_ = 0;
-    std::string decoy_ = "";
+    ui::EditField* scaleFactorParticle = nullptr;
 
-    ui::EditField* red_ = nullptr;
-    ui::EditField* green_ = nullptr;
-    ui::EditField* blue_ = nullptr;
-    ui::EditField* alpha_ = nullptr;
-    ui::Slider* pressureSlider_ = nullptr;
-    float scaleValue_ = 1;
-    ui::Action* acceptEdit_ = nullptr;
+    //Selection list on main menu
+    ui::SelectionList* nozzleIDL = nullptr;
 
+    //Labels on main menu
+    ui::Label* outputField_ = nullptr;
+
+    //Variables on main menu
+    int nozzleID = 0;
+    int currentNozzleID = -1;
     bool sprayStart = false;
     bool creating = false;
     bool editing = false;
     bool TESTING = true;
+    osg::Vec3 newBoundingBox = osg::Vec3(2000,2000,2000);
+    class nozzle* editNozzle;
 
-//#if TESTING
+    /************************************************************/
 
-    ui::Menu* testMenu = nullptr;
-    osg::Matrix memMat;
-    osg::Vec3 transMat = osg::Vec3(0,0,0);
-//    ui::Action* rotXneg = nullptr;
-//    ui::Action* rotXpos = nullptr;
-//    ui::Action* rotYneg = nullptr;
-//    ui::Action* rotYpos = nullptr;
-//    ui::Action* rotZneg = nullptr;
-//    ui::Action* rotZpos = nullptr;
-    ui::Slider* rotX = nullptr;
-    ui::Slider* rotY = nullptr;
-    ui::Slider* rotZ = nullptr;
+    //Actions on edit menu
+    ui::Action* acceptEdit_ = nullptr;
+
+    //EditFields on edit menu
+    ui::EditField* red_ = nullptr;
+    ui::EditField* green_ = nullptr;
+    ui::EditField* blue_ = nullptr;
+    ui::EditField* alpha_ = nullptr;
+    ui::EditField* param1 = nullptr;
+    ui::EditField* param2 = nullptr;
+
     ui::EditField* moveX = nullptr;
     ui::EditField* moveY = nullptr;
     ui::EditField* moveZ = nullptr;
 
+    //Slider on edit menu
+    ui::Slider* pressureSlider_ = nullptr;
 
-//#endif
+    ui::Slider* rotX = nullptr;
+    ui::Slider* rotY = nullptr;
+    ui::Slider* rotZ = nullptr;
+
+    //Variables on edit menu
+    float scaleValue_ = 1;
+    float deviation = 0;
+    float minimum = 0;
+    osg::Matrix memMat;
+    osg::Vec3 transMat = osg::Vec3(0,0,0);
+    osg::Vec4 newColor = osg::Vec4(1,1,1,1);
+
+    /************************************************************/
+
+    //EditFields on create menu
+    ui::EditField* pathNameFielddyn_ = nullptr;
+    ui::EditField* fileNameFielddyn_ = nullptr;
+    ui::EditField* nozzleNameFielddyn_ = nullptr;
+
+    //Variables on create menu
+    float sprayAngle_ = 0;
+    std::string decoy_ = "";
+
+    /************************************************************/
+
+    //EditFields on save/load menu
+    std::string pathNameField_ = "";
+    std::string fileNameField_ = "";
+    std::string nozzleNameField_ = "";
 
 
 public:

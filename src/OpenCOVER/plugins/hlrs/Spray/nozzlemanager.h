@@ -51,6 +51,8 @@ private:
     int nozzleCount = 0;
     int nextNozzleID = 0;
 
+    osg::Vec3 currentBoundingBox = osg::Vec3(20000,20000,20000);
+
 
 public:
     static nozzleManager* instance()
@@ -79,6 +81,12 @@ public:
     nozzle* checkAll();
 
     nozzle* getNozzle(int index);
+
+    void setBoundingBox(osg::Vec3 newBoundingBox);
+    osg::Vec3 getBoundingBox()
+    {
+        return currentBoundingBox;
+    }
 };
 
 

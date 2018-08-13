@@ -3,12 +3,14 @@
 nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
     coVR3DTransRotInteractor(initialMat,size,coInteraction::ButtonA,"Menu",nozzleName.c_str(),coInteraction::Medium)
 {
-    //boundingBox_ = osg::Vec3(2000,2000,2000);
     nozzleName_ = nozzleName;
     geode_ = new osg::Geode;
     geode_->setName(nozzleName);
 
     prevGenCreate = parser::instance()->getNewGenCreate();
+    minimum = parser::instance()->getMinimum();
+    deviation = parser::instance()->getDeviation();
+
 
     transform_ = new osg::MatrixTransform;
 
@@ -24,7 +26,7 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
 
     particleCount_ = parser::instance()->getReqParticles();
 
-    cylinder_ = new osg::Cylinder(osg::Vec3(0,0,0),10,10);                      //diameter = lenght = 10, just for rendering purpose
+    cylinder_ = new osg::Cylinder(osg::Vec3(0,0,0),0.1,0.1);                      //diameter = lenght = 10, just for rendering purpose
     cylinder_->setRotation(osg::Quat(1,0,0,1));
     shapeDrawable_ = new osg::ShapeDrawable(cylinder_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
@@ -50,22 +52,19 @@ nozzle::~nozzle(){
 }
 
 void nozzle::createGeometry(){
-        osg::BoundingBox bb;
-        bb = cover->getBBox(geode_);
-        //transform_->addChild(scaleTransform.get());
-        scaleTransform->setName("transform");
-        scaleTransform->removeChild(0,scaleTransform->getNumChildren());
-        //cover->getObjectsRoot()->addChild(transform_.get());
-        scaleTransform->addChild(geode_);
-        //scaleTransform->addChild(transform_.get());
-//        transform_->removeChild(0,transform_->getNumChildren());
-
-//        transform_->addChild(geode_);
+    osg::BoundingBox bb;
+    bb = cover->getBBox(geode_);
+    scaleTransform->setName("transform");
+    scaleTransform->removeChild(0,scaleTransform->getNumChildren());
+    scaleTransform->addChild(geode_);
 }
 
 void nozzle::createGen(){
     class gen* newGen = new class gen(initPressure_, this);
     newGen->setColor(getColor());
+    newGen->setDeviation(deviation);
+    newGen->setMinimum(minimum);
+    newGen->init();
 
     genList.push_back(newGen);
 }
@@ -136,9 +135,9 @@ void nozzle::save(std::string pathName, std::string fileName){
     osg::Matrix nozzleMatrix = this->getMatrix();
 
     sprintf(ptr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
-                                                                          nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
-                                                                          nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
-                                                                          nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
+            nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
+            nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
+            nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
 
     fputs(ptr,saving);
     fputs("\n",saving);
@@ -170,7 +169,8 @@ int nozzle::getID()
 void nozzle::keepSize()
 {
     osg::Matrix m;
-    m.makeScale(6.0, 6.0, 6.0);
+    float size = cover->getScale();
+    m.makeScale(size, size, size);
     scaleTransform->setMatrix(m);
 }
 
@@ -189,11 +189,22 @@ standardNozzle::standardNozzle(float sprayAngle, std::string decoy, osg::Matrix 
     if(decoy.empty())
         decoy_ = "NONE";
     else decoy_ = decoy.c_str();
+
+    stringstream ss;
+    ss << sprayAngle_;
+
+    setParam1(ss.str());
+    setParam2(decoy_);
+    setType("standard");
 }
 
 void standardNozzle::createGen(){
     class standardGen* newGen = new class standardGen(sprayAngle_, decoy_,getInitPressure(), this);
-    newGen->setColor(getColor());
+    newGen->init();
+    //newGen->setColor(getColor());
+    newGen->setDeviation(getDeviation());
+    newGen->setMinimum(getMinimum());
+    newGen->seed();
 
     genList.push_back(newGen);
 }
@@ -215,9 +226,9 @@ void standardNozzle::save(std::string pathName, std::string fileName){
     osg::Matrix nozzleMatrix = this->getMatrix();
 
     sprintf(matrixPtr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
-                                                                          nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
-                                                                          nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
-                                                                          nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
+            nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
+            nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
+            nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
 
     fputs(matrixPtr,saving);
     fputs("\n",saving);
@@ -229,7 +240,7 @@ void standardNozzle::save(std::string pathName, std::string fileName){
     fputs(ptr, saving);
     fputs("\n", saving);
     fputs("decoy = ", saving);
-    fputs(decoy_,saving);
+    fputs(decoy_.c_str(),saving);
     fputs("\n",saving);
 
     fputs("\n",saving);
@@ -269,16 +280,22 @@ imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix
         delete this;
         failed = true;
     }
+
+    setParam1(pathName_);
+    setParam2(fileName_);
+    setType("image");
 }
 
 imageNozzle::~imageNozzle()
 {
-    //delete iBuf.dataBuffer;
+
 }
 
 void imageNozzle::createGen(){
     class imageGen* newGen = new class imageGen(&iBuf,getInitPressure(), this);
-    newGen->setColor(getColor());
+    newGen->init();
+    //newGen->setColor(getColor());
+    newGen->seed();
 
     genList.push_back(newGen);
 }
@@ -298,9 +315,9 @@ void imageNozzle::save(std::string pathName, std::string fileName){
     osg::Matrix nozzleMatrix = this->getMatrix();
 
     sprintf(matrixPtr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
-                                                                          nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
-                                                                          nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
-                                                                          nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
+            nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
+            nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
+            nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
 
     fputs(matrixPtr,saving);
     fputs("\n",saving);
@@ -375,137 +392,137 @@ bool imageNozzle::readImage()
 
     int point_width = 0;
     int point_height = 0;
+    int count = 0;
 
     /***********************************************************************************************/
     //Defines corner points of the read image
 
-#if square
-    std::cout << "square" << std::endl;
-    for(int i = 0; i<4;i++){
-        int random_point = 0;
-        if(i == 0){
-            random_point = center-0.4*s_int;
-            int count = 3;
-            while(image->data()[random_point]<colorThreshold_){
-                random_point = center-image->s()*0.4+count;
-                count+=3;
+    if(square)
+    {
+        std::cout << "square" << std::endl;
+        for(int i = 0; i<4;i++){
+            int random_point = 0;
+            if(i == 0){
+                random_point = center-0.4*s_int;
+                int count = 3;
+                while(image->data()[random_point]<colorThreshold_){
+                    random_point = center-image->s()*0.4+count;
+                    count+=3;
+                }
             }
-        }
-        if(i == 1){
-            random_point = center+0.4*s_int;
-            int count = 3;
-            while(image->data()[random_point]<colorThreshold_){
-                random_point = center+image->s()*0.4-count;
-                count+=3;
+            if(i == 1){
+                random_point = center+0.4*s_int;
+                int count = 3;
+                while(image->data()[random_point]<colorThreshold_){
+                    random_point = center+image->s()*0.4-count;
+                    count+=3;
+                }
             }
-        }
-        if(i == 2){
-            random_point = 1.4*s_int;
-            while(image->data()[random_point]<colorThreshold_){
-                random_point += image->s();
+            if(i == 2){
+                random_point = 1.4*s_int;
+                while(image->data()[random_point]<colorThreshold_){
+                    random_point += image->s();
+                }
             }
-        }
-        if(i == 3){
-            random_point = image->getTotalDataSize()-image->s()*1.4;
-            while(image->data()[random_point]<colorThreshold_){
-                random_point -= image->s();
+            if(i == 3){
+                random_point = image->getTotalDataSize()-image->s()*1.4;
+                while(image->data()[random_point]<colorThreshold_){
+                    random_point -= image->s();
+                }
             }
+            corner_points[i] = random_point;
+
         }
-        corner_points[i] = random_point;
 
-    }
+        int delta_1 = abs(center-corner_points[0]);
+        int delta_2 = abs(center-corner_points[1]);
+        int delta_3 = abs(center-corner_points[2]);
+        int delta_4 = abs(center-corner_points[3]);
 
-    int delta_1 = abs(center-corner_points[0]);
-    int delta_2 = abs(center-corner_points[1]);
-    int delta_3 = abs(center-corner_points[2]);
-    int delta_4 = abs(center-corner_points[3]);
+        if(delta_3>delta_4){
+            corner_points[3] = center+delta_3;
+        }
+        else corner_points[2] = center-delta_4;
 
-    if(delta_3>delta_4){
-        corner_points[3] = center+delta_3;
-    }
-    else corner_points[2] = center-delta_4;
+        if(delta_1>delta_2){
+            corner_points[0] = corner_points[2]-delta_1;
+            corner_points[1] = corner_points[2]+delta_1;
+            corner_points[2] = corner_points[3]-delta_1;
+            corner_points[3] += delta_1;
+        }
+        else{
+            corner_points[0] = corner_points[2]-delta_2;
+            corner_points[1] = corner_points[2]+delta_2;
+            corner_points[2] = corner_points[3]-delta_2;
+            corner_points[3] += delta_2;
+        }
 
-    if(delta_1>delta_2){
-        corner_points[0] = corner_points[2]-delta_1;
-        corner_points[1] = corner_points[2]+delta_1;
-        corner_points[2] = corner_points[3]-delta_1;
-        corner_points[3] += delta_1;
-    }
-    else{
-        corner_points[0] = corner_points[2]-delta_2;
-        corner_points[1] = corner_points[2]+delta_2;
-        corner_points[2] = corner_points[3]-delta_2;
-        corner_points[3] += delta_2;
-    }
-
-    delta_1 = corner_points[1]-corner_points[0];
-    delta_2 = (corner_points[2]-corner_points[0])/t_int;
-#endif
-
-    int count = 0;
+        delta_1 = corner_points[1]-corner_points[0];
+        delta_2 = (corner_points[2]-corner_points[0])/t_int;
 
     /***********************************************************************************************/
     //Based on the amount of samplings, specific points are chosen from the relevant area
 
-#if square
 
-    int ppl = samplingPoints/(delta_2);
-    int steppingPerLine = delta_1/(ppl-2+1);
+        int ppl = samplingPoints/(delta_2);
+        int steppingPerLine = delta_1/(ppl-2+1);
 
-    std::cout << ppl << " " <<steppingPerLine << std::endl;
+        std::cout << ppl << " " <<steppingPerLine << std::endl;
 
-    for(int i = 0; i<delta_2; i++){
+        for(int i = 0; i<delta_2; i++){
 
-        for(int j = 0; j < ppl;j++){
-            if(j == ppl-1) points_[count] = corner_points[0]+delta_2+s_int*i;
-            else points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
-            if(image->data()[points_[count]] > colorThreshold_)count++;
+            for(int j = 0; j < ppl;j++){
+                if(j == ppl-1) points_[count] = corner_points[0]+delta_2+s_int*i;
+                else points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
+                if(image->data()[points_[count]] > colorThreshold_)count++;
+            }
         }
+
+        samplingPoints = count;
+        std::cout << count << std::endl;
+
+        count = 0;
+
     }
 
-    samplingPoints = count;
-    std::cout << count << std::endl;
-
-    count = 0;
-
-#endif
-
-#if circle
-    std::cout << "circle" << std::endl;
-
-    int nrOfCircles = 15;
-    int samplingRadius = getMin(s_int*0.5,t_int*0.5);
-
-    float div = 0;
-    for(int i = 0;i<nrOfCircles;i++)
+    if(circle)
     {
-        div += ((float)nrOfCircles-i)/(float)nrOfCircles;
-    }
+        std::cout << "circle" << std::endl;
 
-    float nBegin = samplingPoints/div;
+        int nrOfCircles = 15;
+        int samplingRadius = getMin(s_int*0.5-3,t_int*0.5-3);
 
-    for(int j = 0; j<nrOfCircles;j++)
-    {
-        float curPoints = nBegin*(1-(float)j/(float)nrOfCircles);
-        float curRadius = samplingRadius*(1-(float)j/(float)nrOfCircles)/colorDepth;
-        float step = 360/curPoints;
-
-        for(int i = 0; i<(int)curPoints;i++)
+        float div = 0;
+        for(int i = 0;i<nrOfCircles;i++)
         {
-            int x = curRadius*cos(step*i*Pi/180);
-            int y = curRadius*sin(step*i*Pi/180);
-            points_[count] = posToCount((center_width+x),(center_height+y),s_int);
-            count++;
-
+            div += ((float)nrOfCircles-i)/(float)nrOfCircles;
         }
+
+        float nBegin = samplingPoints/div;
+
+        for(int j = 0; j<nrOfCircles;j++)
+        {
+            float curPoints = nBegin*(1-(float)j/(float)nrOfCircles);
+            float curRadius = samplingRadius*(1-(float)j/(float)nrOfCircles)/colorDepth;
+            float step = 360/curPoints;
+
+            for(int i = 0; i<(int)curPoints;i++)
+            {
+                int x = curRadius*cos(step*i*Pi/180);
+                int y = curRadius*sin(step*i*Pi/180);
+                points_[count] = posToCount((center_width+x),(center_height+y),s_int);
+                printf("%i\n", points_[count]);
+                count++;
+
+            }
+        }
+
+        printf("%i\n", count);
+        samplingPoints = count;
+
+        count = 0;
+
     }
-
-    printf("%i\n", count);
-    samplingPoints = count;
-
-    count = 0;
-
-#endif
 
     int index = 0;
 
@@ -513,18 +530,18 @@ bool imageNozzle::readImage()
     /***********************************************************************************************/
     //Angles for later purpose are defined here
 
-//    std::string newFileName;
-//    if(fileName_.empty()) newFileName = "untitled.jpg.txt";
-//    else newFileName = (pathName_+fileName_).append(".txt");
+    //    std::string newFileName;
+    //    if(fileName_.empty()) newFileName = "untitled.jpg.txt";
+    //    else newFileName = (pathName_+fileName_).append(".txt");
 
-//    std::ofstream mystream(newFileName);
+    //    std::ofstream mystream(newFileName);
 
-//    imageFilePath = newFileName;
+    //    imageFilePath = newFileName;
 
-//    mystream << "# Position X Center  Position Y Center" << std::endl;
-//    mystream << center_width << " " << center_height << std::endl;
-//    mystream << "# AngleToNozzle    AngleToPosition    PositionX    PositionY   Flow    Radius" << std::endl;
-//    mystream << std::endl;
+    //    mystream << "# Position X Center  Position Y Center" << std::endl;
+    //    mystream << center_width << " " << center_height << std::endl;
+    //    mystream << "# AngleToNozzle    AngleToPosition    PositionX    PositionY   Flow    Radius" << std::endl;
+    //    mystream << std::endl;
 
     int deltaWidth = 0;
     int deltaHeight = 0;
@@ -533,7 +550,7 @@ bool imageNozzle::readImage()
     float particleFlow = 0;
     float particleRadius = 0;
 
-    std::cout << "Starting to write image file to "<< "newFileName" <<std::endl;
+    //    std::cout << "Starting to write image file to "<< "newFileName" <<std::endl;
 
     iBuf.centerX = center_width;
     iBuf.centerY = center_height;
@@ -550,22 +567,22 @@ bool imageNozzle::readImage()
         deltaWidth = point_width-center_width;         //Particle width - center +2
         deltaHeight = point_height-center_height;       //Particle height - center +3
 
-        float hypotenuse = sqrt(pow(deltaWidth,2)+pow(deltaHeight,2));
+        float hypotenuse = sqrt(pow(deltaWidth*pixel_to_mm_,2)+pow(deltaHeight,2));
         angleToNozzle = atan2(hypotenuse,height);
 
-        if(deltaHeight == 0) angleToPosition = atan2(deltaWidth, 0.00000001);
-        else angleToPosition = atan2(deltaWidth,deltaHeight);
-                                                            //Angle between height and width of particle - center
+        angleToPosition = atan2(deltaWidth,deltaHeight);
+        //Angle between height and width of particle - center
 
+        printf("%i %i\n", index, image->getTotalDataSize());
         particleFlow = 0.25*(  image->data()[index]+
-                                image->data()[index+3]+
-                                image->data()[index+s_int]+
-                                image->data()[index+s_int+3]
-                                )*pixel_to_flow_;
-                                                            //Flow
+                               image->data()[index+3]+
+                image->data()[index+s_int]+
+                image->data()[index+s_int+3]
+                )*pixel_to_flow_;
+        //Flow
 
         particleRadius = image->data()[index]*pixel_to_radius_;
-                                                            //Radius
+        //Radius
 
         iBuf.dataBuffer[count*6] = angleToNozzle;
         iBuf.dataBuffer[count*6+1] = angleToPosition;
@@ -576,9 +593,9 @@ bool imageNozzle::readImage()
 
         //mystream << angleToNozzle << " " << angleToPosition << " " << deltaWidth << " " << deltaHeight << " " << particleFlow << " " << particleRadius << std::endl;
 
-//        frequency_[count] = 3*intensity_[count]/(4*pow(radius_[count],3)*Pi);
+        //        frequency_[count] = 3*intensity_[count]/(4*pow(radius_[count],3)*Pi);
 
-//        min_particles += frequency_[count];
+        //        min_particles += frequency_[count];
 
 
 
