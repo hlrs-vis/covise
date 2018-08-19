@@ -65,7 +65,7 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     
     quickView->show();
     QObject *item = quickView->rootObject();
-    Q_ASSERT(item);
+    //Q_ASSERT(item);
     
     centerHeli = true;
 
