@@ -1436,10 +1436,10 @@ RevitPlugin::handleMessage(Message *m)
         buf = tb.getBinary(numBytes);
         if (numBytes > 0)
         {
-#ifndef _WIN32
-            int fd = open(result, O_RDWR | O_CREAT, 0777);
-#else
+#ifdef _WIN32
             int fd = open(localTextureFile.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+#else
+            int fd = open(localTextureFile.c_str(), O_RDWR | O_CREAT, 0777);
 #endif
             if (fd != -1)
             {
