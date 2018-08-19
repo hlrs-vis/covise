@@ -649,13 +649,11 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH
 
 ; for user installation
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\renderer;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\sgplugins;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\share\covise\shaders; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
@@ -663,7 +661,6 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_BRANCH; Va
 
 ; end for user installation
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\share\covise\shaders; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()

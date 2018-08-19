@@ -3639,7 +3639,7 @@ void coTUIEarthMap::updatePath()
     tb << TABLET_SET_VALUE;
     tb << TABLET_GEO_PATH;
     tb << ID;
-    tb << (int)path.size();
+    tb << (unsigned)path.size();
     for (auto p = path.begin(); p != path.end(); p++)
     {
         tb << p->first;

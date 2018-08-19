@@ -58,6 +58,7 @@ OSGVruiToggleButtonGeometry::OSGVruiToggleButtonGeometry(coToggleButtonGeometry 
 
 OSGVruiToggleButtonGeometry::~OSGVruiToggleButtonGeometry()
 {
+    delete myDCS;
 }
 
 void OSGVruiToggleButtonGeometry::createSharedLists()

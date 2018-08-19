@@ -229,7 +229,6 @@
                     </Audio-->
                     <ViewpointType value="free" />
                     <NewMovieSupport value="true" />
-                    <UseTextureRectangle value="true" />
                     <GenerateTriangleStrips value="false" />
                     <ReTesselate value="false" />
                 </Vrml97>

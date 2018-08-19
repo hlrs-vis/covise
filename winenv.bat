@@ -319,7 +319,6 @@ set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
-if not defined VV_SHADER_PATH  set VV_SHADER_PATH=%COVISEDIR%\src\3rdparty\deskvox\virvo\shader
 if not defined COVISE_PATH (
    if "%COVISEDESTDIR%" EQU "%COVISEDIR%" (
        set "COVISE_PATH=%COVISEDIR%"

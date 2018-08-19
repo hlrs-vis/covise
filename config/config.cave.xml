@@ -227,7 +227,6 @@
     <ViewpointType value = "free"/>
 
     <NewMovieSupport value="true"/>
-    <UseTextureRectangle value="true"/>
 
 
     </Vrml97>
