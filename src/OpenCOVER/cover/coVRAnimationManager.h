@@ -161,6 +161,7 @@ private:
 
     double timestepScale, timestepBase;
     std::string timestepUnit;
+    bool m_animationPaused = false;
 };
 }
 #endif

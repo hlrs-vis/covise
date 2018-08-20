@@ -113,9 +113,12 @@ void coVRAnimationManager::initAnimMenu()
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
     animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        // don't stop animation if (animationRunning())
-        //    enableAnimation(false);
         requestAnimationTime(val);
+        if (released) {
+            m_animationPaused = false;
+        } else {
+            m_animationPaused = true;
+        }
     });
     animFrameItem->setPriority(ui::Element::Toolbar);
 
@@ -257,7 +260,7 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
 
     if ((currentFrame != oldFrame) && animSyncItem->state())
     {
-        if (animRunning)
+        if (animRunning && !m_animationPaused)
         {
             if (coVRCollaboration::instance()->isMaster()) // send update ot others if we are the Master
             {
@@ -333,7 +336,7 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
 bool
 coVRAnimationManager::updateAnimationFrame()
 {
-    if (animRunning && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
+    if (animRunning && !m_animationPaused && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
     {
         if (!animPingPongItem->state()) // normal loop mode
         {
