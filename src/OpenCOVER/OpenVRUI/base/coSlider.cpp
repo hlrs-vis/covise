@@ -398,8 +398,8 @@ bool coSlider::update()
     {
         if (myActor)
         {
-            myActor->sliderReleasedEvent(this);
             myActor->sliderEvent(this);
+            myActor->sliderReleasedEvent(this);
         }
     }
     if (unregister && !interactionA->isRunning() && !interactionA->wasStopped())
