@@ -1366,13 +1366,14 @@ bool isPointingInwards(index_t face,
     }
     else
     {
-        index_t o = owners[face];
-        index_t n = neighbors[face];
-        index_t j = o==cell ? n : o;
+        index_t owner = owners[face];
+        index_t neighbor = neighbors[face];
+        assert(owner == cell || neighbor == cell);
+        index_t other = owner==cell ? neighbor : owner;
         // cell is the index of current cell and j is index of other cell sharing the same face
         // if index of cell is higher than index of the "next door" cell
         // then normal vector points inwards else outwards
-        if (cell > j)
+        if (cell > other)
         {
             return true;
         }
