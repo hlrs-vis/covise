@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef NOZZLEMANAGER_H
 #define NOZZLEMANAGER_H
 
@@ -51,7 +58,7 @@ private:
     int nozzleCount = 0;
     int nextNozzleID = 0;
 
-    osg::Vec3 currentBoundingBox = osg::Vec3(20000,20000,20000);
+    osg::Vec3 currentBoundingBox = osg::Vec3(2000,2000,2000);
 
 
 public:

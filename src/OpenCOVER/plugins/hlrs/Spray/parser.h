@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -25,6 +32,7 @@ private:
 
     int reqParticles = 10000;
     int reqSamplings = 1000;
+    int iterations = 4;
     float lowerPressureBound = 0.1;
     float upperPressureBound = 10;
 
@@ -37,6 +45,7 @@ private:
     float deviation = 0.00005;
     float scaleFactor = 100000;
     float rendertime = 1;
+
 
     int colorThreshold = 100;
     int isAMD = 1;
@@ -198,6 +207,12 @@ public:
                         rendertime = stof(line);
                     }
 
+                    if(line.compare("iterations ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        iterations = stof(line);
+                    }
+
 
 
                 }//try
@@ -314,6 +329,11 @@ public:
     float getRendertime()
     {
         return rendertime;
+    }
+
+    int getIterations()
+    {
+        return iterations;
     }
 };
 

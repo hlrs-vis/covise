@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #include "nozzle.h"
 
 nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
@@ -67,22 +74,6 @@ void nozzle::createGen(){
     newGen->init();
 
     genList.push_back(newGen);
-}
-
-void nozzle::deleteGen(class gen* current){
-    if(current == genList.front()){
-        printf("first item removed");
-        genList.pop_front();
-    }
-    else if(current == genList.back()){
-        printf("last item removed");
-        genList.pop_back();
-
-    }
-    else{
-        printf("item removed!");
-        genList.remove(current);
-    }
 }
 
 void nozzle::updateGen(){
