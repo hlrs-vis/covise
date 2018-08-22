@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #include "gen.h"
 
 int randMax = RAND_MAX;
@@ -23,6 +30,9 @@ gen::gen(float pInit, class nozzle* owner)
     reynoldsThreshold = parser::instance()->getReynoldsThreshold();
     cwTurb = parser::instance()->getCwTurb();
     cwModelType = parser::instance()->getCwModelType();
+    iterations = parser::instance()->getIterations();
+    minimum = parser::instance()->getMinimum();
+    deviation = parser::instance()->getDeviation();
 
     //Basetransform - currently not needed
     transform_ = new osg::MatrixTransform;
@@ -70,8 +80,8 @@ void gen::init()
     vx = new float[particleCount_];
     vy = new float[particleCount_];
     vz = new float[particleCount_];
-    r = new float[particleCount_];
-    m = new float[particleCount_];
+    r = new double[particleCount_];
+    m = new double[particleCount_];
 
     particleOutOfBound = new bool[particleCount_];
     firstHit = new bool[particleCount_];
@@ -86,9 +96,9 @@ void gen::init()
     }
 }
 
-float gen::reynoldsNr(float v, float d)
+float gen::reynoldsNr(float v, double d)
 {
-    float reynolds_ = v*d*densityOfFluid/nu;
+    double reynolds_ = v*d*densityOfFluid/nu;
     if(reynolds_ >= reynoldsThreshold)
         return cwTurb;
     else
@@ -108,6 +118,12 @@ float gen::reynoldsNr(float v, float d)
             cwLam = 21.5/reynolds_ + 6.5/sqrt(reynolds_)+0.23;
             return cwLam;
         }
+
+        if(cwModelType.compare("NONE") == 0)
+        {
+            cwLam = 0;
+            return cwLam;
+        }
         return 0.45;
     }
 }
@@ -123,8 +139,6 @@ void gen::setCoSphere()
     else
         coSphere_->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
 
-    //coSphere_->setRenderMethod(coSphere::RENDER_METHOD_CG_SHADER);
-
     //Set particle parameters with radius for visualisation
     coSphere_->setCoords(particleCount_,
                             x,
@@ -136,7 +150,6 @@ void gen::setCoSphere()
 
 void gen::updateCoSphere(){
     coSphere_->updateCoords(x, y, z);
-    t += 0.001;
 
     if(outOfBoundCounter >= 0.65*particleCount_)
     {
@@ -151,7 +164,9 @@ void gen::updateCoSphere(){
 void gen::updatePos(osg::Vec3 boundingBox){  
 
     float floorHeight = VRSceneGraph::instance()->floorHeight()*0.001;
-    tCur = parser::instance()->getRendertime();
+    tCur = parser::instance()->getRendertime()/60;
+    float timesteps = tCur/iterations;
+
     for(int i = 0; i<particleCount_;i++){
 
         if(particleOutOfBound[i])
@@ -160,52 +175,42 @@ void gen::updatePos(osg::Vec3 boundingBox){
             continue;
         }
 
-        osg::Quat a = owner_->getMatrix().getRotate();
-        osg::Matrix spray_rot;
-        spray_rot.setRotate(a);
-        gravity = spray_rot*osg::Vec3f(0,0,g);
+        float vxmed = 0;
+        float vymed = 0;
+        float vzmed = 0;
 
-        float cwTemp = reynoldsNr(sqrt(pow(vx[i],2)+pow(vy[i],2)+pow(vz[i],2)), 2*r[i]);
+        for(int it = 0; it<iterations; it++)
+        {
 
-        x[i] += vx[i];
-        y[i] += vy[i];
-        z[i] += vz[i];
+            float v = sqrt(pow(vx[i],2)+pow(vy[i],2)+pow(vz[i],2));
+
+            float cwTemp = reynoldsNr(v, 2*r[i]);
+
+            x[i] += vx[i]*timesteps;
+            y[i] += vy[i]*timesteps;
+            z[i] += vz[i]*timesteps;
 
 #if 1
-        //reynolds
+            //reynolds
 
-//        float vTemp = tCur/m[i]*(sgn(vx[i])*0.5*cwTemp*vx[i]*vx[i]*1.18*pow(r[i],2)*Pi+gravity.x()*m[i]);
-//        if(abs(vTemp)>abs(vx[i]))
-//            vx[i] = 0;
-//        else
-//            vx[i] -= vTemp;
+            float k = 0.5*densityOfFluid*pow(r[i],2)*Pi*cwTemp/m[i];
 
-//        vTemp = tCur/m[i]*(sgn(vy[i])*0.5*cwTemp*vy[i]*vy[i]*1.18*pow(r[i],2)*Pi+gravity.y()*m[i]);
-//        if(abs(vTemp)>abs(vy[i]))
-//            vy[i] = 0;
-//        else
-//            vy[i] -= vTemp;
+            vx[i] -= timesteps*(k*v*vx[i]+gravity.x())/2;
+            vy[i] -= timesteps*(k*v*vy[i]+gravity.y())/2;
+            vz[i] -= timesteps*(k*v*vz[i]+gravity.z())/2;
 
-//        vTemp = tCur/m[i]*(sgn(vz[i])*0.5*cwTemp*vz[i]*vz[i]*1.18*pow(r[i],2)*Pi+gravity.z()*m[i]);
-//        if(abs(vTemp)>abs(vz[i]))
-//            vz[i] = 0;
-//        else
-//            vz[i] -= vTemp;
+            vxmed += vx[i];
+            vymed += vy[i];
+            vzmed += vz[i];
+
+        }
+
+        vxmed /= iterations;
+        vymed /= iterations;
+        vzmed /= iterations;
 
 
-//        vx[i] -= tCur/m[i]*(sgn(vx[i])*0.5*cwTemp*vx[i]*vx[i]*densityOfFluid*pow(r[i],2)*Pi+gravity.x()*m[i]);
-//        vy[i] -= tCur/m[i]*(sgn(vy[i])*0.5*cwTemp*vy[i]*vy[i]*densityOfFluid*pow(r[i],2)*Pi+gravity.y()*m[i]);
-//        vz[i] -= tCur/m[i]*(sgn(vz[i])*0.5*cwTemp*vz[i]*vz[i]*densityOfFluid*pow(r[i],2)*Pi+gravity.z()*m[i]);
 
-        //Differentialansatz mit Reynolds
-        vx[i] = 1/(0.5*densityOfFluid*pow(r[i],2)*Pi*cwTemp/m[i]*tCur+1/vx[i])-gravity.x()*tCur;
-        vy[i] = 1/(0.5*densityOfFluid*pow(r[i],2)*Pi*cwTemp/m[i]*tCur+1/vy[i])-gravity.y()*tCur;
-        vz[i] = 1/(0.5*densityOfFluid*pow(r[i],2)*Pi*cwTemp/m[i]*tCur+1/vz[i])-gravity.z()*tCur;
-
-        if(i == 20) printf("%f %f %f %i\n", vx[i], vy[i], vz[i], i);
-        if(i == 40) printf("%f %f %f %i\n", vx[i], vy[i], vz[i], i);
-        if(i == 60) printf("%f %f %f %i\n", vx[i], vy[i], vz[i], i);
-        if(i == 80) printf("%f %f %f %i\n", vx[i], vy[i], vz[i], i);
 #endif
 
 #if 0
@@ -246,9 +251,9 @@ void gen::updatePos(osg::Vec3 boundingBox){
         p.x = x[i];
         p.y = y[i];
         p.z = z[i];
-        p.vx = vx[i]*tCur;
-        p.vy = vy[i]*tCur;
-        p.vz = vz[i]*tCur;
+        p.vx = vxmed*tCur;
+        p.vy = vymed*tCur;
+        p.vz = vzmed*tCur;
         p.hit = 0;
 
         p = raytracer::instance()->handleParticleData(p);
@@ -296,7 +301,7 @@ void imageGen::seed(){
         osg::Vec3 duese = spray_pos.getTrans();
         spitze = spray_pos*spitze;
 
-        float offset = 0;                                                 //Abstand Duesenmitte zur emittierenden Seite
+        float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
 
         x[i] = duese.x()+spitze.x()*offset;
         y[i] = duese.y()+spitze.y()*offset;
@@ -307,7 +312,8 @@ void imageGen::seed(){
         //F = p*A; F = m*a
         //p*A = m*a = m*dv/t
         //v = p*A/m*t; t = 1s
-        float v = (getInitPressure()*0.1*pow(r[i],2)*Pi)/(m[i]);                           //Geschwindigkeitsgradient des Partikels
+        float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
+
         //v = 4;
         float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
         float d_angle = atan(iBuf_->dataBuffer[i*6+3]/iBuf_->dataBuffer[i*6+2]);
@@ -399,22 +405,23 @@ void standardGen::seed(){
 
         float randAngle = ((float)rand())/(float)randMax;
 
-        float offset = 0.001;                                                 //Abstand Duesenmitte zur emittierenden Seite
+        float offset = 0.001;                                                               //Needed for rotation of the nozzle (1mm)
         float sprayAngle = 0;
         if(redDegree != 0 && type.compare("RING") == 0)
             sprayAngle = (sprayAngle_-redDegree+redDegree*randAngle)*Pi/180*0.5;
         else
             sprayAngle = sprayAngle_*randAngle*Pi/180*0.5;
-        float massRand = ((float)rand())/(float)randMax;											  //random value between 0 and 1
+        float massRand = ((float)rand())/(float)randMax;									//random value between 0 and 1
 
         x[i] = duese.x()+spitze.x()*offset;
         y[i] = duese.y()+spitze.y()*offset;
         z[i] = duese.z()+spitze.z()*offset;
 
         r[i] = (getMinimum()+getDeviation()*massRand)*0.5;
+
         m[i] = 4/3*pow(r[i],3)*Pi*densityOfParticle;
 
-        float v = getInitPressure()*0.1*pow(r[i],2)*Pi/m[i];                            //Beschleunigung des Partikels
+        float v = sqrt(2*initPressure_*100000/densityOfParticle);                            //Initial speed of particle
         float d_angle = 0;
         if(type.compare("BAR") == 0)
         {
@@ -440,6 +447,8 @@ void standardGen::seed(){
         vx[i] = buffer.x();
         vy[i] = buffer.y();
         vz[i] = buffer.z();
+
+        //printf("vx %f vy %f vz %f\n", vx[i], vy[i], vz[i]);
 
     }
     setCoSphere();
