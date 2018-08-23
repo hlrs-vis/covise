@@ -32,6 +32,9 @@ typedef struct{
     float angle;
     std::string decoy;
 
+    float minimum;
+    float deviation;
+
 }nozzleParam;
 
 class nozzleManager

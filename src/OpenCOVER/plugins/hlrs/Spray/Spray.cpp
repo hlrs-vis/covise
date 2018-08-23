@@ -405,32 +405,32 @@ bool SprayPlugin::init()
     save_->setText("Save");
     save_->setCallback([this](){
         manager()->update();
-        if(saveLoadMenu_ != nullptr)
+        if(saveMenu_ != nullptr)
         {
-            saveLoadMenu_->setVisible(true);
+            saveMenu_->setVisible(true);
         }
         else
         {
-            saveLoadMenu_ = new ui::Menu(sprayMenu_, "Save or Load Nozzles");
+            saveMenu_ = new ui::Menu(sprayMenu_, "Save Nozzles");
 
-            pathNameFielddyn_ = new ui::EditField(saveLoadMenu_, "pathname");
+            pathNameFielddyn_ = new ui::EditField(saveMenu_, "pathname");
             pathNameFielddyn_->setText("Path Name");
             pathNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 pathNameField_ = cmd;
             });
 
-            fileNameFielddyn_ = new ui::EditField(saveLoadMenu_, "");
+            fileNameFielddyn_ = new ui::EditField(saveMenu_, "");
             fileNameFielddyn_->setText("File Name");
             fileNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 fileNameField_ = cmd;
             });
 
-            ui::Action* acceptSL = new ui::Action(saveLoadMenu_, "Accept");
+            ui::Action* acceptSL = new ui::Action(saveMenu_, "Accept");
             acceptSL->setCallback([this](){
                 nM->saveNozzle(pathNameField_, fileNameField_);
-                saveLoadMenu_->setVisible(false);
+                saveMenu_->setVisible(false);
             });
         }
 
@@ -440,29 +440,29 @@ bool SprayPlugin::init()
     load_ = new ui::Action(sprayMenu_, "Load");
     load_->setText("Load");
     load_->setCallback([this](){
-        if(saveLoadMenu_ != nullptr)
+        if(loadMenu_ != nullptr)
         {
-            saveLoadMenu_->setVisible(true);
+            loadMenu_->setVisible(true);
         }
         else
         {
-            saveLoadMenu_ = new ui::Menu(sprayMenu_, "Save or Load Nozzles");
+            loadMenu_ = new ui::Menu(sprayMenu_, "Load Nozzles");
 
-            pathNameFielddyn_ = new ui::EditField(sprayMenu_, "pathname");
+            pathNameFielddyn_ = new ui::EditField(loadMenu_, "pathname");
             pathNameFielddyn_->setText("Path Name");
             pathNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 pathNameField_ = cmd;
             });
 
-            fileNameFielddyn_ = new ui::EditField(sprayMenu_, "");
+            fileNameFielddyn_ = new ui::EditField(loadMenu_, "");
             fileNameFielddyn_->setText("File Name");
             fileNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 fileNameField_ = cmd;
             });
 
-            ui::Action* acceptSL = new ui::Action(saveLoadMenu_, "Accept");
+            ui::Action* acceptSL = new ui::Action(loadMenu_, "Accept");
             acceptSL->setCallback([this](){
                 nM->loadNozzle(pathNameField_.c_str(), fileNameField_.c_str());
                 while(nM->checkAll() != NULL)
@@ -474,7 +474,7 @@ bool SprayPlugin::init()
                     ss << temporary->getName() << " " << temporary->getID();
                     nozzleIDL->append(ss.str());
                 }
-                saveLoadMenu_->setVisible(false);
+                loadMenu_->setVisible(false);
             });
         }
 

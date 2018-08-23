@@ -61,27 +61,24 @@ private:
     float deviation = 0.00005;
     int iterations = 4;
 
-    bool* particleOutOfBound;
-    bool* firstHit;
     float* prevHitDis;
     int* prevHitDisCounter;
 
-    int outOfBoundCounter = 0;
-
-    particleParam p;
+    int outOfBoundCounter = 0;    
 
     void updateCoSphere();
     float reynoldsNr(float v, double d);
 
 protected:
-    float* x, *y, *z, *vx, *vy, *vz;
-    double *r, *m;
+//    float* x, *y, *z, *vx, *vy, *vz;
+//    double *r, *m;
+    std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
     float initPressure_;
 
-    void setCoSphere();
+    void setCoSphere(osg::Vec3Array *pos);
 
 public:
     gen(float pInit, class nozzle *owner);

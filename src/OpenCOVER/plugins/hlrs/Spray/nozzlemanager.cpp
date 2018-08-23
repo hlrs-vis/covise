@@ -245,6 +245,18 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName){
 
             }
 
+            if(line.compare("minimum ") == 0 || line.compare("minimum") == 0)
+            {
+                std::getline(nextss,line,'\n');
+                param.minimum = stof(line);
+            }
+
+            if(line.compare("deviation ") == 0 || line.compare("deviation") == 0)
+            {
+                std::getline(nextss,line,'\n');
+                param.deviation = stof(line);
+            }
+
             if(line.compare("type ") == 0 || line.compare("type") == 0)
             {                
                 std::getline(nextss,line,'\n');
@@ -307,6 +319,10 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName){
 
                     newNozzle->enableIntersection();
 
+                    newNozzle->setMinimum(param.minimum);
+
+                    newNozzle->setDeviation(param.deviation);
+
                     nozzleList.push_back(newNozzle);
 
                     nozzleCount++;
@@ -323,6 +339,10 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName){
                     newNozzle->setID(nextNozzleID);
 
                     newNozzle->enableIntersection();
+
+                    newNozzle->setMinimum(param.minimum);
+
+                    newNozzle->setDeviation(param.deviation);
 
                     nozzleList.push_back(newNozzle);
 

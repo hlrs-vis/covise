@@ -134,8 +134,16 @@ void nozzle::save(std::string pathName, std::string fileName){
     fputs("\n",saving);
 
     fputs("type = NULL\n", saving);
-
     fputs("\n",saving);
+
+    fputs("minimum = ", saving);
+    sprintf(ptr, "%f\n", minimum);
+
+    fputs("deviation = ", saving);
+    sprintf(ptr, "%f\n", deviation);
+    fputs(ptr,saving);
+    fputs("\n",saving);
+
     fputs("-", saving);
     fclose(saving);
 
@@ -234,6 +242,14 @@ void standardNozzle::save(std::string pathName, std::string fileName){
     fputs(decoy_.c_str(),saving);
     fputs("\n",saving);
 
+    fputs("minimum = ", saving);
+    sprintf(ptr, "%f\n", getMinimum());
+    fputs(ptr,saving);
+
+    fputs("deviation = ", saving);
+    sprintf(ptr, "%f\n", getDeviation());
+    fputs(ptr,saving);
+
     fputs("\n",saving);
     fputs("-", saving);
     fclose(saving);
@@ -294,6 +310,7 @@ void imageNozzle::createGen(){
 void imageNozzle::save(std::string pathName, std::string fileName){
     FILE* saving = new FILE;
     char matrixPtr[1000];
+    char ptr[20];
 
     saving = fopen((pathName+fileName).c_str(), "a");
     fputs("\n", saving);
@@ -320,6 +337,15 @@ void imageNozzle::save(std::string pathName, std::string fileName){
     fputs("filename = ", saving);
     fputs(fileName_.c_str(), saving);
     fputs("\n", saving);
+
+    fputs("minimum = ", saving);
+    sprintf(ptr, "%f\n", getMinimum());
+    fputs(ptr,saving);
+
+    fputs("deviation = ", saving);
+    sprintf(ptr, "%f\n", getDeviation());
+    fputs(ptr,saving);
+    fputs("\n",saving);
 
     fputs("\n",saving);
     fputs("-", saving);

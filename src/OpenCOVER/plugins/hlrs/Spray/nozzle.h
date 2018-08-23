@@ -38,6 +38,7 @@ using namespace opencover;
 class nozzle : public coVR3DTransRotInteractor
 {
 private:
+
     int counter = 0;
     int nozzleID = 0;
 
@@ -149,11 +150,17 @@ public:
 
     void setMinimum(float newMinimum)
     {
+//        stringstream p;
+//        p << newMinimum;
+//        setParam1(p.str());
         minimum = newMinimum;
     }
 
     void setDeviation(float newDeviation)
     {
+//        stringstream p;
+//        p << newDeviation;
+//        setParam2(p.str());
         deviation = newDeviation;
     }
 

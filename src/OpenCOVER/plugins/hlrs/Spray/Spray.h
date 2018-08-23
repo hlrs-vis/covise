@@ -68,7 +68,8 @@ private:
     ui::Menu* nozzleCreateMenuStandard = nullptr;
     ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
-    ui::Menu* saveLoadMenu_ = nullptr;
+    ui::Menu* saveMenu_ = nullptr;
+    ui::Menu* loadMenu_ = nullptr;
     ui::Menu* testMenu = nullptr;
     ui::Menu* bbEditMenu = nullptr;
 

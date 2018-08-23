@@ -8,6 +8,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <osg/Vec3>
+
 #define HIT_X_POS 1
 #define HIT_Y_POS 2
 #define HIT_Z_POS 3
@@ -24,14 +26,16 @@ typedef struct{
     int centerY;
 }pImageBuffer;
 
-typedef struct{
-    float x;
-    float y;
-    float z;
-    float vx;
-    float vy;
-    float vz;
-    int hit;
-}particleParam;
+class particle
+{
+public:
+    osg::Vec3 pos;
+    osg::Vec3 velocity;
+    double r;
+    double m;
+    int hit = 0;
+    bool particleOutOfBound = false;
+    bool firstHit = false;
+};
 
 #endif // TYPES_H
