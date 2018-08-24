@@ -262,8 +262,10 @@ void standardNozzle::save(std::string pathName, std::string fileName){
 imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix initialMat, float size, std::string nozzleName):
     nozzle(initialMat, size, nozzleName)
 {
-    if(fileName.empty())fileName_ = "Nozzle_1000_4_1_2.bmp";
-    else fileName_ = fileName;
+    if(fileName.empty())
+        fileName_ = "Nozzle_1000_4_1_2.bmp";
+    else
+        fileName_ = fileName;
     pathName_ = pathName;
 
     samplingPoints = particleCount_;
@@ -394,8 +396,10 @@ bool imageNozzle::readImage()
     /**********************************************************************************/
 
 
-    if(image->isDataContiguous())printf("Data is contiguous\n");
-    else printf("Data is not contiguous!\n");
+    if(image->isDataContiguous())
+        printf("Data is contiguous\n");
+    else
+        printf("Data is not contiguous!\n");
 
     int colorDepth = image->getTotalDataSize()/(image->s()*image->t());
     colorDepth_ = colorDepth;
@@ -424,26 +428,52 @@ bool imageNozzle::readImage()
                 while(image->data()[random_point]<colorThreshold_){
                     random_point = center-image->s()*0.4+count;
                     count+=3;
+                    if(random_point > center)
+                    {
+                        random_point = center-0.4*s_int;
+                        printf("Nothing found in negative x-direction!\n");
+                        break;
+                    }
                 }
             }
             if(i == 1){
                 random_point = center+0.4*s_int;
                 int count = 3;
-                while(image->data()[random_point]<colorThreshold_){
+                while(image->data()[random_point]<colorThreshold_)
+                {
                     random_point = center+image->s()*0.4-count;
                     count+=3;
+                    if(random_point < center)
+                    {
+                        random_point = center+0.4*s_int;
+                        printf("Nothing found in positive x-direction!\n");
+                        break;
+                    }
                 }
             }
             if(i == 2){
                 random_point = 1.4*s_int;
                 while(image->data()[random_point]<colorThreshold_){
                     random_point += image->s();
+                    if(random_point > center)
+                    {
+                        random_point = 1.4*s_int;
+                        printf("Nothing found in positive y-direction!\n");
+                        break;
+                    }
                 }
             }
             if(i == 3){
                 random_point = image->getTotalDataSize()-image->s()*1.4;
                 while(image->data()[random_point]<colorThreshold_){
                     random_point -= image->s();
+                    if(random_point > center)
+                    {
+                        random_point = image->getTotalDataSize()-image->s()*1.4;
+                        printf("Nothing found in negative y-direction!\n");
+                        break;
+                    }
+
                 }
             }
             corner_points[i] = random_point;
@@ -479,6 +509,8 @@ bool imageNozzle::readImage()
     /***********************************************************************************************/
     //Based on the amount of samplings, specific points are chosen from the relevant area
 
+        if(samplingPoints < 5*image->t())
+            samplingPoints = 5*image->t();                          //This is needed to get at least minimum accuracy
 
         int ppl = samplingPoints/(delta_2);
         int steppingPerLine = delta_1/(ppl-2+1);
@@ -488,9 +520,18 @@ bool imageNozzle::readImage()
         for(int i = 0; i<delta_2; i++){
 
             for(int j = 0; j < ppl;j++){
-                if(j == ppl-1) points_[count] = corner_points[0]+delta_2+s_int*i;
-                else points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
-                if(image->data()[points_[count]] > colorThreshold_)count++;
+                if(j == ppl-1)
+                    points_[count] = corner_points[0]+delta_2+s_int*i;
+                else
+                {
+                    if(image->data()[corner_points[0]+steppingPerLine*j+s_int*i] == 0)
+                            continue;
+                    else
+                    {
+                        points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
+                        count++;
+                    }
+                }
             }
         }
 
@@ -526,9 +567,14 @@ bool imageNozzle::readImage()
             {
                 int x = curRadius*cos(step*i*Pi/180);
                 int y = curRadius*sin(step*i*Pi/180);
-                points_[count] = posToCount((center_width+x),(center_height+y),s_int);
-                printf("%i\n", points_[count]);
-                count++;
+
+                if(image->data()[posToCount((center_width+x),(center_height+y),s_int)] == 0)
+                    continue;
+                else
+                {
+                    points_[count] = posToCount((center_width+x),(center_height+y),s_int);
+                    count++;
+                }
 
             }
         }
@@ -546,19 +592,6 @@ bool imageNozzle::readImage()
     /***********************************************************************************************/
     //Angles for later purpose are defined here
 
-    //    std::string newFileName;
-    //    if(fileName_.empty()) newFileName = "untitled.jpg.txt";
-    //    else newFileName = (pathName_+fileName_).append(".txt");
-
-    //    std::ofstream mystream(newFileName);
-
-    //    imageFilePath = newFileName;
-
-    //    mystream << "# Position X Center  Position Y Center" << std::endl;
-    //    mystream << center_width << " " << center_height << std::endl;
-    //    mystream << "# AngleToNozzle    AngleToPosition    PositionX    PositionY   Flow    Radius" << std::endl;
-    //    mystream << std::endl;
-
     int deltaWidth = 0;
     int deltaHeight = 0;
     float angleToNozzle = 0;
@@ -566,7 +599,6 @@ bool imageNozzle::readImage()
     float particleFlow = 0;
     float particleRadius = 0;
 
-    //    std::cout << "Starting to write image file to "<< "newFileName" <<std::endl;
 
     iBuf.centerX = center_width;
     iBuf.centerY = center_height;
@@ -575,7 +607,7 @@ bool imageNozzle::readImage()
 
     for(count; count < samplingPoints; count++){
 
-        index = points_[count];
+        index = points_[count];       
 
         point_width = (index%s_int)/colorDepth;
         point_height = (index-point_width)/t_int;
@@ -590,7 +622,7 @@ bool imageNozzle::readImage()
         angleToPosition = atan2(deltaWidth,deltaHeight);
         //Angle between height and width of particle - center
 
-        printf("%i %i\n", index, image->getTotalDataSize());
+        //printf("%i %i\n", index, image->getTotalDataSize());
         particleFlow = 0.25*(  image->data()[index]+
                                image->data()[index+3]+
                 image->data()[index+s_int]+

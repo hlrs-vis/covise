@@ -752,6 +752,9 @@ bool SprayPlugin::init()
     testBoxGeode = new osg::Geode;
     testBoxGeode->setName("testBox");
 
+    createTestBox(osg::Vec3(0,0,10), osg::Vec3(1,1,1));
+    createTestBox(osg::Vec3(0,0,10), osg::Vec3(10,10,10));
+
     //    float floorHeight = VRSceneGraph::instance()->floorHeight();
     //    osg::Box* floorBox = new osg::Box(osg::Vec3(0,0, floorHeight), 3000, 3000, 0.5);
     //    osg::TessellationHints *hint = new osg::TessellationHints();
@@ -762,7 +765,7 @@ bool SprayPlugin::init()
     //    floorGeode->setName("Floor");
     //    floorGeode->addDrawable(floorDrawable);
     //    scene->addChild(floorGeode);
-    //    scene->addChild(testBoxGeode);
+        scene->addChild(testBoxGeode);
 
     nodeVisitorVertex c;
 
@@ -811,7 +814,7 @@ bool SprayPlugin::update()
 
 void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale)
 {
-    osg::Box* testBox = new osg::Box(osg::Vec3(initPos.x(), initPos.z(), initPos.y()), scale.x(), scale.y(), scale.z());
+    osg::Box* testBox = new osg::Box(osg::Vec3(initPos.x(), initPos.z(), initPos.y()), 10);
     osg::TessellationHints *hints = new osg::TessellationHints();
     hints->setDetailRatio(0.5);
     osg::ShapeDrawable *boxDrawableTest = new osg::ShapeDrawable(testBox, hints);

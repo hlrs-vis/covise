@@ -65,12 +65,7 @@ gen::~gen()
 
 void gen::init()
 {
-    prevHitDis = new float[particleCount_];
-    prevHitDisCounter = new int[particleCount_];
-    for(int i = 0; i< particleCount_;i++){
-        prevHitDis[i] = 0;
-        prevHitDisCounter[i] = 0;
-    }
+
 }
 
 float gen::reynoldsNr(float v, double d)
@@ -128,7 +123,7 @@ void gen::updateCoSphere(){
     for(int i = 0; i< particleCount_;i++)
         coSphere_->updateCoords(i, pVec[i]->pos);
 
-    if(outOfBoundCounter >= 0.65*particleCount_)
+    if(outOfBoundCounter >= 0.9*particleCount_)
     {
         outOfBound = true;        
     }
@@ -151,6 +146,14 @@ void gen::updatePos(osg::Vec3 boundingBox){
         if(p->particleOutOfBound)
         {
             outOfBoundCounter++;
+            continue;
+        }
+
+        if(p->RTHit)
+        {
+            p->pos += p->velocity*timesteps;
+            coSphere_->setColor(i,0,0,1,1);
+            p->particleOutOfBound = true;
             continue;
         }
 
@@ -220,19 +223,24 @@ void gen::updatePos(osg::Vec3 boundingBox){
         }
 
         particle rayP = *p;
-        rayP.velocity = velMed*tCur;
+        rayP.velocity *= timesteps;
 
         rayP = raytracer::instance()->handleParticleData(rayP);
 
         if(rayP.hit != 0)
         {
-            prevHitDis[i] = rayP.pos.z();
-            prevHitDisCounter[i] = 0;
 
-            if(abs(p->velocity.y())+abs(p->pos.y()) > abs(rayP.pos.z()))
+            if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )
             {
-                p->particleOutOfBound = true;
-                coSphere_->setColor(i,0,0,1,1);
+                //printf("%f %f\n", p->velocity.y()*timesteps+p->pos.y(),rayP.pos.z() );
+//                float t_passed = (abs(p->pos.y())-abs(rayP.pos.z()))/p->velocity.y();
+//                if(t_passed <= 1)
+//                {
+//                    printf("smaller than 1s!\n");
+//                    p->pos += p->velocity*t_passed;
+//                }
+
+                p->RTHit = true;
             }
         }
 

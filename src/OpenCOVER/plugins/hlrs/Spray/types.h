@@ -36,6 +36,7 @@ public:
     int hit = 0;
     bool particleOutOfBound = false;
     bool firstHit = false;
+    bool RTHit = false;
 };
 
 #endif // TYPES_H

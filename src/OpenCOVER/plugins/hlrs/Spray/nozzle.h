@@ -150,17 +150,11 @@ public:
 
     void setMinimum(float newMinimum)
     {
-//        stringstream p;
-//        p << newMinimum;
-//        setParam1(p.str());
         minimum = newMinimum;
     }
 
     void setDeviation(float newDeviation)
     {
-//        stringstream p;
-//        p << newDeviation;
-//        setParam2(p.str());
         deviation = newDeviation;
     }
 

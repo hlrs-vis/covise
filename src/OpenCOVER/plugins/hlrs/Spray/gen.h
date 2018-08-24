@@ -61,9 +61,6 @@ private:
     float deviation = 0.00005;
     int iterations = 4;
 
-    float* prevHitDis;
-    int* prevHitDisCounter;
-
     int outOfBoundCounter = 0;    
 
     void updateCoSphere();
