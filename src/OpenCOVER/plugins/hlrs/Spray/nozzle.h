@@ -51,7 +51,7 @@ private:
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
     osg::Vec3 boundingBox_ = osg::Vec3(200,200,200);
-    osg::Cylinder* cylinder_;
+    osg::Box* box_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
     osg::Vec4 currentColor_ = osg::Vec4(1,1,0,1);

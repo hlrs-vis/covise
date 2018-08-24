@@ -33,9 +33,8 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
 
     particleCount_ = parser::instance()->getReqParticles();
 
-    cylinder_ = new osg::Cylinder(osg::Vec3(0,0,0),0.1,0.1);                      //diameter = lenght = 10, just for rendering purpose
-    cylinder_->setRotation(osg::Quat(1,0,0,1));
-    shapeDrawable_ = new osg::ShapeDrawable(cylinder_);
+    box_ = new osg::Box(osg::Vec3(0,0,0),0.1);                      //diameter = lenght = 10, just for rendering purpose
+    shapeDrawable_ = new osg::ShapeDrawable(box_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
     printf("Adding basic geometry to nozzle\n");
 
@@ -379,10 +378,10 @@ bool imageNozzle::readImage()
     std::cout << line << std::endl;
 
     std::getline(nameStream, line, '_');
-    float height = stof(line)/10;
+    float height = stof(line);
 
     std::getline(nameStream, line, '_');
-    pixel_to_mm_ = stof(line);
+    pixel_to_mm_ = stof(line)/10;
 
     std::getline(nameStream, line, '_');
     pixel_to_flow_ = stof(line);
@@ -586,6 +585,7 @@ bool imageNozzle::readImage()
 
         float hypotenuse = sqrt(pow(deltaWidth*pixel_to_mm_,2)+pow(deltaHeight,2));
         angleToNozzle = atan2(hypotenuse,height);
+        //angleToNozzle = atan2(height, hypotenuse);
 
         angleToPosition = atan2(deltaWidth,deltaHeight);
         //Angle between height and width of particle - center

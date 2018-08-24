@@ -264,21 +264,22 @@ void imageGen::seed(){
         //float winkel = Winkel*Pi/180;
         particle* p = new particle();
         osg::Vec3 spitze = osg::Vec3f(0,1,0);
-        osg::Matrix spray_pos = owner_->getMatrix();
-        osg::Vec3 duese = spray_pos.getTrans();
-        spitze = spray_pos*spitze;
+        osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
+        osg::Vec3 duese = owner_->getMatrix().getTrans();
+        spitze = spitze*sprayPos;
 
         float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
+
+        float massRand = ((float)rand())/(float)randMax;
 
         p->pos.x() = duese.x()+spitze.x()*offset;
         p->pos.y() = duese.y()+spitze.y()*offset;
         p->pos.z() = duese.z()+spitze.z()*offset;
-        p->r = iBuf_->dataBuffer[i*6+5]*0.001;
+        p->r = (getMinimum()+getDeviation()*massRand)*0.5;
         p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
 
         float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
 
-        //v = 4;
         float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
         float d_angle = atan(iBuf_->dataBuffer[i*6+3]/iBuf_->dataBuffer[i*6+2]);
 
@@ -287,14 +288,12 @@ void imageGen::seed(){
         p->velocity.z() = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]);
 
 
-        osg::Quat a = spray_pos.getRotate();
-        osg::Matrix spray_rot;
-        spray_rot.setRotate(a);
+        sprayPos.setTrans(0,0,0);
 
-        p->velocity = spray_rot*p->velocity;
-
+        p->velocity = sprayPos*p->velocity;
         pVec.push_back(p);
         pos->push_back(p->pos);
+
     }
     setCoSphere(pos);
 }
@@ -362,10 +361,11 @@ void standardGen::seed(){
     for(int i = 0; i< particleCount_; i++){
 
         particle* p = new particle();
-        osg::Vec3 spitze = osg::Vec3f(0,1,0);
-        osg::Matrix spray_pos = owner_->getMatrix();
-        osg::Vec3 duese = spray_pos.getTrans();
-        spitze = spray_pos*spitze;
+        osg::Vec3 spitze = osg::Vec3f(0,-1,0);
+        osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
+
+        osg::Vec3 duese = owner_->getMatrix().getTrans();
+        spitze = spitze*sprayPos;
 
         float randAngle = ((float)rand())/(float)randMax;
 
@@ -403,14 +403,9 @@ void standardGen::seed(){
         }
 
 
+        sprayPos.setTrans(0,0,0);
 
-
-
-        osg::Quat a = spray_pos.getRotate();
-        osg::Matrix spray_rot;
-        spray_rot.setRotate(a);
-
-        p->velocity = spray_rot*p->velocity;
+        p->velocity = sprayPos*p->velocity;
         pVec.push_back(p);
         pos->push_back(p->pos);
 

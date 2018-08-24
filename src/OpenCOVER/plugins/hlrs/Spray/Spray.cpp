@@ -242,7 +242,7 @@ bool SprayPlugin::init()
                     acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
                     acceptEdit_->setText("Accept");
                     acceptEdit_->setCallback([this](){
-                        //editNozzle->setColor(newColor);                               //Somehow crashes the rendering of spheres
+                        if(parser::instance()->getIsAMD() == 0)editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
                         editNozzle->setMinimum(minimum);
                         editNozzle->setDeviation(deviation);
@@ -263,12 +263,13 @@ bool SprayPlugin::init()
                     rotX->setBounds(-1,1);
                     rotX->setValue(editNozzle->getMatrix().getRotate().x());
                     rotX->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        //osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
                         a.x() = value;
-                        memMat.makeIdentity();
+                        //memMat.makeIdentity();
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
+                        //memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
