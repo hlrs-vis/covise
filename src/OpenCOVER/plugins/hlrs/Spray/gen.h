@@ -53,7 +53,8 @@ private:
     std::string cwModelType = "STOKES";
 
     float densityOfFluid = 1.18;
-    int reynoldsThreshold = 170000;
+    int reynoldsThreshold = 2230;
+    int reynoldsLimit = 170000;
     float nu = 0.0171;
     float cwLam = 0.45;
     float cwTurb = 0.15;
@@ -67,8 +68,6 @@ private:
     float reynoldsNr(float v, double d);
 
 protected:
-//    float* x, *y, *z, *vx, *vy, *vz;
-//    double *r, *m;
     std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;

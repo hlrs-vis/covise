@@ -29,8 +29,6 @@ void nodeVisitorVertex::apply(osg::Node &node)
     {
         if(geode->getName().compare("nopeTriangle") == 1 || geode->getName().compare("nopeTriangleStrip") == 1)
 
-
-    //std::cout << geode.getName() << std::endl;
     for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
         {            
         Geometry *geom = geode->getDrawable(i)->asGeometry();
@@ -207,7 +205,7 @@ else
         }
     }
 
-        traverse(node);
+    traverse(node);
 }
 
 
@@ -307,5 +305,5 @@ void nodeVisitorVertex::_printPrimitiveType(osg::PrimitiveSet *pset)
                   pset->getMode() == PrimitiveSet::QUADS ? "QUADS" :
                   pset->getMode() == PrimitiveSet::QUAD_STRIP ? "QUAD_STRIP" :
                   pset->getMode() == PrimitiveSet::POLYGON ? "POLYGON" :
-                  "Dunno") << std::endl;
+                  "Unknown") << std::endl;
 }

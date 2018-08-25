@@ -22,7 +22,7 @@ nozzle* nozzleManager::createNozzle(std::string nozzleName)
                              0,0,0,1
                             };
     initialMat.set(baseTransform);
-    //osg::ref_ptr<osg::Geode> g = new osg::Geode;
+
     class nozzle* newNozzle = new class nozzle(initialMat, 1 , newNozzleName);
     newNozzle->setID(nextNozzleID);
 
@@ -56,7 +56,6 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
     }
 
     osg::Matrix initialMat;
-    //initialMat.makeIdentity;
     float baseTransform[] = {1,0,0,0,
                              0,1,0,0,
                              0,0,1,0,
@@ -79,13 +78,13 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
 
     return newNozzle;
     }
-    else return NULL;
+    else
+        return NULL;
 
 }
 
 nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayAngle, std::string decoy)
 {
-
     std::string newNozzleName = nozzleName;
 
     printf("Start creating new nozzle!\n");
@@ -104,6 +103,7 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
                              0,0,0,1
                             };
     initialMat.set(baseTransform);
+
     class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 10, newNozzleName);
 
     newNozzle->setID(nextNozzleID);
@@ -121,14 +121,14 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
 
 }
 
-void nozzleManager::init(){
+void nozzleManager::init()
+{
     nozzleList.clear();
-    parser::instance()->init();
-
+    nextNozzleID = 0;
 }
 
-int nozzleManager::removeNozzle(int index){
-
+int nozzleManager::removeNozzle(int index)
+{
     if(!nozzleList.empty()){
         for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
             class nozzle* current = *i;
@@ -136,7 +136,6 @@ int nozzleManager::removeNozzle(int index){
             {
                 delete current;
                 nozzleList.erase(i);
-                //i = nozzleList.begin();
                 nozzleCount--;
                 printf("Remove completed!\n");
                 return 0;
@@ -144,12 +143,13 @@ int nozzleManager::removeNozzle(int index){
         }
 
     }
-    else printf("Remove failed!\n");
+    else
+        printf("Remove failed!\n");
     return 1;
-
 }
 
-void nozzleManager::saveNozzle(std::string pathName, std::string fileName){
+void nozzleManager::saveNozzle(std::string pathName, std::string fileName)
+{
     printf("Starting to save nozzle configuration.\n");
 
     std::string newFileName = fileName;
@@ -190,14 +190,17 @@ void nozzleManager::saveNozzle(std::string pathName, std::string fileName){
     else printf("Saving is currently impossible!\n");
 }
 
-void nozzleManager::loadNozzle(std::string pathName, std::string fileName){
+void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
+{
     printf("Starting to load nozzle configuration.\n");
 
     std::string line;
     int nozzleCount = 0;
     std::ifstream mystream(pathName+fileName);
 
-    //Currently, the parser is written for a file with name, position, spray angle, decoy, filename and pathname
+    //Currently, the parser is written for a file with name, position, spray angle, decoy, filename, pathname
+    //minimum and deviation
+
     if(mystream.is_open())
     {
         std::getline(mystream,line);
@@ -368,7 +371,8 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName){
 
 }
 
-void nozzleManager::update(){
+void nozzleManager::update()
+{
         if(!nozzleList.empty()){
             for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
                 class nozzle* current = *i;
@@ -377,7 +381,8 @@ void nozzleManager::update(){
         }
 }
 
-nozzle* nozzleManager::getNozzle(int index){
+nozzle* nozzleManager::getNozzle(int index)
+{
     if(!nozzleList.empty()){
         for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
             class nozzle* current = *i;
@@ -416,8 +421,7 @@ nozzle* nozzleManager::checkAll()
 }
 
 void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
-{
-    //printf("%f %f %f %f %f %f \n", currentBoundingBox.x(), currentBoundingBox.y(),currentBoundingBox.z(), newBoundingBox.x(), newBoundingBox.y(), newBoundingBox.z());
+{    
     currentBoundingBox = newBoundingBox;
     if(!nozzleList.empty()){
         for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
@@ -426,6 +430,6 @@ void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
         }
     }
     else
-        printf("List empty\n");
+        printf("List is empty\n");
 }
 

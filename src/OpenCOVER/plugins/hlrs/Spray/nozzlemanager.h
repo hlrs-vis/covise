@@ -20,7 +20,8 @@
 #include "parser.h"
 
 
-typedef struct{
+typedef struct
+{
     int count;
     std::string name;
     float position[15];
@@ -50,7 +51,8 @@ private:
     {
     public:
         ~nozzleManagerGuard(){
-            if(NULL != nozzleManager::_instance){
+            if(NULL != nozzleManager::_instance)
+            {
                 delete nozzleManager::_instance;
                 nozzleManager::_instance = NULL;
             }

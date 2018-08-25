@@ -66,7 +66,8 @@ bool SprayPlugin::init()
             if(0 != nM->getNozzle(currentNozzleID))
             {
                 editNozzle = nM->getNozzle(currentNozzleID);
-                //editNozzle->setColor(osg::Vec4(1,1,0,1));
+                if(parser::instance()->getIsAMD() == 0)
+                    editNozzle->setColor(osg::Vec4(1,1,0,1));
                 newColor = editNozzle->getColor();
 
                 if(nozzleEditMenu_ != nullptr)
@@ -242,7 +243,8 @@ bool SprayPlugin::init()
                     acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
                     acceptEdit_->setText("Accept");
                     acceptEdit_->setCallback([this](){
-                        if(parser::instance()->getIsAMD() == 0)editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
+                        if(parser::instance()->getIsAMD() == 0
+                                )editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
                         editNozzle->setMinimum(minimum);
                         editNozzle->setDeviation(deviation);
@@ -252,7 +254,6 @@ bool SprayPlugin::init()
 
                     });
 
-                    //#if TESTING
                     testMenu = new ui::Menu(nozzleEditMenu_, "tester");
                     testMenu->setText("Controller");
 
@@ -263,13 +264,10 @@ bool SprayPlugin::init()
                     rotX->setBounds(-1,1);
                     rotX->setValue(editNozzle->getMatrix().getRotate().x());
                     rotX->setCallback([this](float value, bool stop){
-                        //osg::Vec3 trans = editNozzle->getMatrix().getTrans();
                         memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
                         a.x() = value;
-                        //memMat.makeIdentity();
                         memMat.setRotate(a);
-                        //memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -279,12 +277,10 @@ bool SprayPlugin::init()
                     rotY->setBounds(-1,1);
                     rotY->setValue(editNozzle->getMatrix().getRotate().y());
                     rotY->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
-                        a.y() = value;;
-                        memMat.makeIdentity();
+                        a.y() = value;
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -294,12 +290,10 @@ bool SprayPlugin::init()
                     rotZ->setBounds(-1,1);
                     rotZ->setValue(editNozzle->getMatrix().getRotate().z());
                     rotZ->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
                         a.z() = value;
-                        memMat.makeIdentity();
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -309,7 +303,6 @@ bool SprayPlugin::init()
                     moveX->setText("Move X");
                     moveX->setValue(editNozzle->getMatrix().getTrans().x());
                     moveX->setCallback([this](const std::string &cmd){
-                        //manager()->update();
 
                         try
                         {
@@ -529,7 +522,6 @@ bool SprayPlugin::init()
                         accept->setCallback([this](){
                             createAndRegisterImageNozzle();
                             creating = false;
-                            //delete tempMenu;
                             nozzleCreateMenuImage->setVisible(false);
                             nozzleCreateMenu->setVisible(false);
                             outputField_->setText("Help Field");
@@ -583,7 +575,6 @@ bool SprayPlugin::init()
                         accept->setCallback([this](){
                             createAndRegisterStandardNozzle();
                             creating = false;
-                            //delete tempMenu;
                             nozzleCreateMenuStandard->setVisible(false);
                             nozzleCreateMenu->setVisible(false);
                             outputField_->setText("Help Field");
@@ -617,8 +608,6 @@ bool SprayPlugin::init()
                 outputField_->setText("Nozzle doesn't exist");
         }
     });
-
-    //numField = new ui::Label(sprayMenu_, "Save Parameters");
 
     newGenCreate_ = new ui::EditField(sprayMenu_, "newGenCreate");
     newGenCreate_->setText("Gen Creating Rate");
@@ -752,20 +741,11 @@ bool SprayPlugin::init()
     testBoxGeode = new osg::Geode;
     testBoxGeode->setName("testBox");
 
+    //Just for testing purpose
     createTestBox(osg::Vec3(0,0,10), osg::Vec3(1,1,1));
     createTestBox(osg::Vec3(0,0,10), osg::Vec3(10,10,10));
 
-    //    float floorHeight = VRSceneGraph::instance()->floorHeight();
-    //    osg::Box* floorBox = new osg::Box(osg::Vec3(0,0, floorHeight), 3000, 3000, 0.5);
-    //    osg::TessellationHints *hint = new osg::TessellationHints();
-    //    hint->setDetailRatio(0.5);
-    //    osg::ShapeDrawable *floorDrawable = new osg::ShapeDrawable(floorBox, hint);
-    //    floorDrawable->setColor(osg::Vec4(0, 0.5, 0, 1));
-    //    floorGeode = new osg::Geode();
-    //    floorGeode->setName("Floor");
-    //    floorGeode->addDrawable(floorDrawable);
-    //    scene->addChild(floorGeode);
-        scene->addChild(testBoxGeode);
+    scene->addChild(testBoxGeode);
 
     nodeVisitorVertex c;
 
@@ -790,7 +770,6 @@ bool SprayPlugin::destroy()
     cover->getObjectsRoot()->removeChild(testBoxGeode);
     nM->remove_all();
 
-    //delete editNozzle;
     delete sprayStart_;
     delete save_;
     delete load_;
@@ -799,7 +778,6 @@ bool SprayPlugin::destroy()
     delete pathNameFielddyn_;
     delete fileNameFielddyn_;
     delete nozzleNameFielddyn_;
-    //(if creating == true)delete tempMenu;
     delete sprayMenu_;
 
     return true;
@@ -820,7 +798,6 @@ void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale)
     osg::ShapeDrawable *boxDrawableTest = new osg::ShapeDrawable(testBox, hints);
     boxDrawableTest->setColor(osg::Vec4(0, 0.5, 0, 1));
     testBoxGeode->addDrawable(boxDrawableTest);
-    //cover->getObjectsRoot()->addChild(testBoxGeode);
 
     idGeo.push_back(raytracer::instance()->createCube(initPos, scale));
 }
@@ -879,9 +856,7 @@ void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale, bool manual)
 
 
     testBoxGeode->addDrawable(geom);
-    //cover->getObjectsRoot()->addChild(testBoxGeode);
 
-    //idGeo.push_back(raytracer::instance()->createCube(initPos, scale));
 }
 
 

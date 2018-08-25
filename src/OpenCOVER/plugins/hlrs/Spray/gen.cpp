@@ -28,6 +28,7 @@ gen::gen(float pInit, class nozzle* owner)
     densityOfFluid = parser::instance()->getDensityOfFluid();
     densityOfParticle = parser::instance()->getDensityOfParticle();
     reynoldsThreshold = parser::instance()->getReynoldsThreshold();
+    reynoldsLimit = parser::instance()->getReynoldsLimit();
     cwTurb = parser::instance()->getCwTurb();
     cwModelType = parser::instance()->getCwModelType();
     iterations = parser::instance()->getIterations();
@@ -65,14 +66,18 @@ gen::~gen()
 
 void gen::init()
 {
-
+    //additional parameters can be initialized here
 }
 
 float gen::reynoldsNr(float v, double d)
 {
     double reynolds_ = v*d*densityOfFluid/nu;
     if(reynolds_ >= reynoldsThreshold)
+    {
+        if(reynolds_ > reynoldsLimit)
+            printf("Drag modelling behaves correctly till %i! Currently %f\n Propagation may be incorrect!\n",reynoldsLimit, reynolds_);
         return cwTurb;
+    }
     else
     {
         if(cwModelType.compare("STOKES") == 0)
@@ -157,8 +162,6 @@ void gen::updatePos(osg::Vec3 boundingBox){
             continue;
         }
 
-        osg::Vec3 velMed = osg::Vec3(0,0,0);                                    //median speed over iterations
-
         for(int it = 0; it<iterations; it++)
         {
 
@@ -166,38 +169,14 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
             float cwTemp = reynoldsNr(v, 2*p->r);
 
-            p->pos += p->velocity*timesteps;                                      //set new positions
-
-#if 1
-            //reynolds
+            p->pos += p->velocity*timesteps;                                    //set new positions
 
             float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
 
-//            vx[i] -= timesteps*(k*v*vx[i]+gravity.x())/2;
-//            vy[i] -= timesteps*(k*v*vy[i]+gravity.y())/2;
-//            vz[i] -= timesteps*(k*v*vz[i]+gravity.z())/2;
-
-            p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;                //new velocity
-
-            velMed += p->velocity;                                              //sum of velocity over iterations
+            p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
 
         }
 
-        velMed /= iterations;                                                   //median velocity
-
-
-#endif
-
-#if 0
-        //stokes
-
-        vx[i] -= tCur/m[i]*(6*Pi*nu*vx[i]*r[i]+gravity.x()*m[i]);
-
-        vy[i] -= tCur/m[i]*(6*Pi*nu*vy[i]*r[i]+gravity.y()*m[i]);
-
-        vz[i] -= tCur/m[i]*(6*Pi*nu*vz[i]*r[i]+gravity.z()*m[i]);
-
-#endif
 
         if(p->pos.z()<floorHeight){
             if(p->firstHit == true)
@@ -215,6 +194,7 @@ void gen::updatePos(osg::Vec3 boundingBox){
                 p->firstHit = true;
             }
         }
+
         if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
                p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
         {
@@ -227,20 +207,11 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
         rayP = raytracer::instance()->handleParticleData(rayP);
 
-        if(rayP.hit != 0)
+        if(rayP.hit != 0)                                                       //hit was registered by embree
         {
-
-            if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )
+            if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )            //check if position of sphere is near hit distance
             {
-                //printf("%f %f\n", p->velocity.y()*timesteps+p->pos.y(),rayP.pos.z() );
-//                float t_passed = (abs(p->pos.y())-abs(rayP.pos.z()))/p->velocity.y();
-//                if(t_passed <= 1)
-//                {
-//                    printf("smaller than 1s!\n");
-//                    p->pos += p->velocity*t_passed;
-//                }
-
-                p->RTHit = true;
+                p->RTHit = true;                                                //particle has hit an object
             }
         }
 
@@ -269,7 +240,6 @@ void imageGen::seed(){
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
         //for(int j = 0; j<p->frequency_[i]; j++){
-        //float winkel = Winkel*Pi/180;
         particle* p = new particle();
         osg::Vec3 spitze = osg::Vec3f(0,1,0);
         osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
@@ -400,7 +370,7 @@ void standardGen::seed(){
             d_angle = -redDegree*Pi/180*0.5+(float)rand()/(float)randMax*redDegree*Pi/180;                    //BAR is only a rectangle
             p->velocity.x() = v*sin(sprayAngle);
             p->velocity.y() = v*cos(sprayAngle);
-            p->velocity.z() = v/**sin(sprayAngle)*/*sin(d_angle);
+            p->velocity.z() = v*sin(d_angle);
         }
         else
         {
