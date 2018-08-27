@@ -61,6 +61,7 @@ private:
     float minimum = 0.000025;
     float deviation = 0.00005;
     int iterations = 4;
+    float removeCount = 0.9;
 
     int outOfBoundCounter = 0;    
 
@@ -127,6 +128,11 @@ public:
     void setDeviation(float newDeviation)
     {
         deviation = newDeviation;
+    }
+
+    void setRemoveCount(float newRemoveCount)
+    {
+        removeCount = newRemoveCount;
     }
 };
 

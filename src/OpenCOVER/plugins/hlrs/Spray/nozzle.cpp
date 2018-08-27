@@ -172,6 +172,17 @@ void nozzle::keepSize()
     scaleTransform->setMatrix(m);
 }
 
+void nozzle::autoremove(bool state)
+{
+    for(auto i = genList.begin();i != genList.end(); i++){
+        class gen* current = *i;
+        if(state)
+            current->setRemoveCount(1.1);
+        else
+            current->setRemoveCount(0.9);
+    }
+}
+
 
 
 

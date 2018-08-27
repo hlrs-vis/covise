@@ -433,3 +433,15 @@ void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
         printf("List is empty\n");
 }
 
+void nozzleManager::autoremove(bool state)
+{
+    if(!nozzleList.empty()){
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+            class nozzle* current = *i;
+            current->autoremove(state);
+        }
+    }
+    else
+        printf("List is empty\n");
+}
+

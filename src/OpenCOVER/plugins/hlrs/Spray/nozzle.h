@@ -65,6 +65,8 @@ private:
     std::string param2 = "none";
     std::string type = "none";
 
+    bool intersection = true;
+
 
 protected:
     void createGeometry();
@@ -196,6 +198,17 @@ public:
         type = newType;
     }
 
+    void autoremove(bool state);
+
+    void setIntersection(bool state)
+    {
+        intersection = state;
+    }
+
+    bool getIntersection()
+    {
+        return intersection;
+    }
 };
 
 

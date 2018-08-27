@@ -82,6 +82,7 @@ private:
 
     //Buttons on main menu
     ui::Button* sprayStart_ = nullptr;
+    ui::Button* autoremove = nullptr;
 
     //EditFields on main menu
     ui::EditField* newGenCreate_ = nullptr;

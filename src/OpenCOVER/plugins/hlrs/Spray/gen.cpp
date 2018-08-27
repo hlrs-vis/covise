@@ -128,7 +128,7 @@ void gen::updateCoSphere(){
     for(int i = 0; i< particleCount_;i++)
         coSphere_->updateCoords(i, pVec[i]->pos);
 
-    if(outOfBoundCounter >= 0.9*particleCount_)
+    if(outOfBoundCounter >= removeCount*particleCount_)
     {
         outOfBound = true;        
     }

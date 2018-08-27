@@ -57,8 +57,8 @@ bool SprayPlugin::init()
     edit_->setText("Edit Nozzle");
     edit_->setCallback([this]()
     {
-        if(editing == false)
-        {
+//        if(editing == false)
+//        {
             editing = true;
             currentNozzleID = nozzleID;
             std::cout << "Editing nozzle ID: " << currentNozzleID << " started" << std::endl;
@@ -85,7 +85,9 @@ bool SprayPlugin::init()
                     moveY->setValue(editNozzle->getMatrix().getTrans().y());
                     moveZ->setValue(editNozzle->getMatrix().getTrans().z());
                     minimum = editNozzle->getMinimum()*1000000;
+                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
                     deviation = editNozzle->getDeviation()*1000000;
+                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
 
                     if(editNozzle->getType().compare("standard") == 0)
                         param1->setText("Spray Angle");
@@ -98,6 +100,8 @@ bool SprayPlugin::init()
                     if(editNozzle->getType().compare("image") == 0)
                         param2->setText("File Name");
                     param2->setValue(editNozzle->getParam2());
+
+                    interaction->setState(editNozzle->getIntersection());
 
 
                 }
@@ -243,15 +247,19 @@ bool SprayPlugin::init()
 
                     interaction = new ui::Button(nozzleEditMenu_, "InteractionNozzle");
                     interaction->setText("Interaction");
+                    interaction->setState(editNozzle->getIntersection());
                     interaction->setCallback([this](bool state){
-                        if(state == true)
+                        if(state == false)
                         {
                             editNozzle->disableIntersection();
+                            editNozzle->setIntersection(false);
                             std::cout << "Interaction deactivated" << std::endl;
                         }
-                        else if(state == false){
-                            editNozzle->enableIntersection();
-                            std::cout << "Interaction activated" << std::endl;
+                        else
+                            if(state == true){
+                                editNozzle->enableIntersection();
+                                editNozzle->setIntersection(true);
+                                std::cout << "Interaction activated" << std::endl;
                         }
 
                     });
@@ -392,8 +400,8 @@ bool SprayPlugin::init()
                 }
                 //#endif
             }
-        }
-        else editing = false;
+//        }
+//        else editing = false;
     });
 
     sprayStart_ = new ui::Button(sprayMenu_, "StartStop");
@@ -481,7 +489,7 @@ bool SprayPlugin::init()
                     temporary->registerLabel();
 
                     std::stringstream ss;
-                    ss << temporary->getName() << " " << temporary->getID();
+                    ss << temporary->getName();
                     nozzleIDL->append(ss.str());
                 }
                 loadMenu_->setVisible(false);
@@ -747,6 +755,22 @@ bool SprayPlugin::init()
         cover->getObjectsRoot()->accept(c);
     });
 
+    autoremove = new ui::Button(sprayMenu_, "autoremove");
+    autoremove->setText("Autoremove particles");
+    autoremove->setCallback([this](bool state)
+    {
+        if(state == false)
+        {
+           nM->autoremove(false);
+            std::cout << "Spraying stopped" << std::endl;
+        }
+        else
+            if(state == true){
+            nM->autoremove(true);
+            std::cout << "Spraying started" << std::endl;
+        }
+    });
+
 
 
     outputField_ = new ui::Label(sprayMenu_,"Help Field");
@@ -801,7 +825,8 @@ bool SprayPlugin::destroy()
 
 bool SprayPlugin::update()
 {
-    if(sprayStart == true)nM->update();
+    if(sprayStart == true)
+        nM->update();
 
     return true;
 }

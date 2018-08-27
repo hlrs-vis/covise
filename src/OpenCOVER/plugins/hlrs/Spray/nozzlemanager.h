@@ -95,6 +95,7 @@ public:
     nozzle* getNozzle(int index);
 
     void setBoundingBox(osg::Vec3 newBoundingBox);
+    void autoremove(bool state);
     osg::Vec3 getBoundingBox()
     {
         return currentBoundingBox;
