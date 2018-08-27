@@ -713,7 +713,8 @@ GraphView::loadGoogleMap()
                 double xPosition = (newLon) * DEG_TO_RAD;
                 double zPosition = 0.0;
 
-                ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+                topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition,yPosition,zPosition);
+                //ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
 
                 scenerySystemItem_->loadGoogleMap(newFilename, xPosition - 63 + i*1.75, yPosition - 65 + -j*1.65);
             }
@@ -1009,7 +1010,8 @@ GraphView::loadBingMap()
                 double xPosition = (newLon-WestEastSize/2) * DEG_TO_RAD;
                 double zPosition = 0.0;
 
-                ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
+                topviewGraph_->getProjectWidget()->getProjectionSettings()->transform(xPosition,yPosition,zPosition);
+                //ProjectionSettings::instance()->transform(xPosition, yPosition, zPosition);
 
                 scenerySystemItem_->loadBingMap(newFilename, xPosition, yPosition);
             }

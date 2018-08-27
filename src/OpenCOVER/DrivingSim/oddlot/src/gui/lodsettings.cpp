@@ -25,10 +25,12 @@ void LODSettings::okPressed()
     TopViewEditorPointsPerMeter = ui->LODTopViewEditorSpin->value();
     HeightEditorPointsPerMeter = ui->LODHeightEditorSpin->value();
     SignalEditorScalingLevel = ui->LODSignalEditorSpin->value();
-    port = ui->portSpinBox->value();
-    hostname = ui->hostnameEdit->text();
+    //Coverconnection
+    /*port = ui->portSpinBox->value();
+    hostname = ui->hostnameEdit->text();*/
 }
 
+/*Coverconnection
 bool LODSettings::doConnect()
 {
     return (ui->connectedState->isChecked());
@@ -40,7 +42,7 @@ void LODSettings::setConnected(bool c)
 int LODSettings::getPort()
 {
     return (ui->portSpinBox->value());
-}
+}*/
 //################//
 // CONSTRUCTOR    //
 //################//
@@ -51,7 +53,7 @@ LODSettings::LODSettings()
     inst = this;
     ui->setupUi(this);
 
-    connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
 
     ui->LODTopViewEditorSpin->setDecimals(10);
     ui->LODTopViewEditorSpin->setMaximum(100);

@@ -55,7 +55,7 @@ OSCSettings::OSCSettings(const QString &dir)
     ui->setupUi(this);
 	ui->dirLabel->setText(catalogDir_);
 
-    connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
 	connect(ui->dirPushButton, SIGNAL(pressed()), this, SLOT(dirPushButtonPressed()));
 
     inst = this;

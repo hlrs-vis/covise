@@ -30,7 +30,6 @@ public:
 		CEL_ParameterChange = 0x1
 	};
 
-
     //################//
     // FUNCTIONS      //
     //################//
@@ -50,7 +49,6 @@ public:
 	{
 		geoReferenceParams_ = geoParams;
 	}
-
 
     // Observer Pattern //
     //

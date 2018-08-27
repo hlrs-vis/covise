@@ -47,12 +47,15 @@ class SignalManager;
 class SignalTreeWidget;
 class WizardManager;
 class OsmImport;
+class COVERConnection;
 
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
 #include "src/gui/exportsettings.hpp"
 #include "src/gui/lodsettings.hpp"
 #include "src/gui/oscsettings.hpp"
+#include "src/cover/coverconnection.hpp"
+#include "src/gui/filesettings.hpp"
 
 namespace Ui
 {
@@ -148,6 +151,16 @@ public:
 		return signalTree_;
 	}
 
+    ProjectionSettings *getProjectionSettings()
+    {
+        return projectionSettings;
+    }
+
+    FileSettings *getFileSettings()
+    {
+        return fileSettings;
+    }
+
 	// ErrorMessageTree //
 	//
 	void setErrorMessageTree(QWidget *widget);
@@ -178,6 +191,12 @@ private:
 
     void createActions();
 
+
+
+    void createFileSettings();
+
+
+
     void createMdiArea();
     void createPrototypes();
     void createSignals();
@@ -189,10 +208,15 @@ private:
 	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
-	OSCSettings *oscSettings;
+
+    COVERConnection *coverConnection;
+
+    OSCSettings *oscSettings;
 	ImportSettings *importSettings;
 	ExportSettings *exportSettings;
     LODSettings *lodSettings;
+
+    FileSettings *fileSettings;
 
     // Program Settings //
     //
@@ -263,6 +287,10 @@ private slots:
     void about();
     void openRecentFile();
     void changeLODSettings();
+
+    void changeFileSettings();
+
+    void changeCOVERConnection();
 
     //################//
     // PROPERTIES     //

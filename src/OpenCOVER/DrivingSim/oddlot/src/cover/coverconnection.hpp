@@ -22,7 +22,12 @@
 #include <net/tokenbuffer.h>
 #include "../mainwindow.hpp"
 
-class COVERConnection: QObject
+namespace Ui
+{
+    class COVERConnection;
+}
+
+class COVERConnection : /*QObject,*/public QDialog
 {
     
     Q_OBJECT
@@ -32,6 +37,8 @@ class COVERConnection: QObject
     
 private slots:
     void processMessages();
+    void okPressed();
+
 public:
     explicit COVERConnection();
     virtual ~COVERConnection();
@@ -56,17 +63,24 @@ public:
     bool waitForMessage(covise::Message **m);
 
 private:
-    static COVERConnection *inst;
+    QString hostname;
+    Ui::COVERConnection *ui;
     QTimer *m_periodictimer;
     covise::ClientConnection *toCOVER;
+    covise::Message *msg;
     QSocketNotifier *toCOVERSN;
+    MainWindow *mainWindow;
+    int port;
+
+    static COVERConnection *inst;
     
     void closeConnection();
-    
-    bool handleClient(covise::Message *msg);
-    covise::Message *msg;
-    MainWindow *mainWindow;
 
+    bool doConnect();
+    void setConnected(bool c);
+    int getPort();
+
+    bool handleClient(covise::Message *msg);
 
 };
 

@@ -57,7 +57,9 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/track/trackelement.cpp
 	 src/data/roadsystem/track/trackcomposite.cpp
 	 src/data/roadsystem/track/trackelementline.cpp
-	 src/gui/projectwidget.cpp
+         src/gui/projectwidget.cpp
+         src/gui/filesettings.cpp
+
      src/gui/osmimport.cpp
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
@@ -487,6 +489,11 @@ SET(ODDLOT_MOC_HEADERS
     src/gui/osmimport.hpp
     src/gui/projectionsettings.hpp
     src/gui/projectwidget.hpp
+
+
+    src/gui/filesettings.hpp
+
+
     src/gui/tools/crossfalleditortool.hpp
     src/gui/tools/elevationeditortool.hpp
     src/gui/tools/junctioneditortool.hpp
@@ -587,6 +594,10 @@ SET(ODDLOT_FORMS
      src/gui/importsettings.ui
      src/gui/exportsettings.ui
      src/gui/projectionsettings.ui
+
+         src/cover/coverconnection.ui
+         src/gui/filesettings.ui
+
 	 src/gui/lodsettings.ui
 	 src/gui/tools/TrackRibbon.ui
 	 src/gui/tools/TypeRibbon.ui
