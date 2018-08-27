@@ -70,6 +70,7 @@ void nozzle::createGen(){
     newGen->setColor(getColor());
     newGen->setDeviation(deviation);
     newGen->setMinimum(minimum);
+    newGen->setRemoveCount(autoremoveCount);
     newGen->init();
 
     genList.push_back(newGen);
@@ -177,9 +178,15 @@ void nozzle::autoremove(bool state)
     for(auto i = genList.begin();i != genList.end(); i++){
         class gen* current = *i;
         if(state)
-            current->setRemoveCount(1.1);
+        {
+            autoremoveCount = 1.5;
+            current->setRemoveCount(autoremoveCount);
+        }
         else
+        {
+            autoremoveCount = 0.9;
             current->setRemoveCount(0.9);
+        }
     }
 }
 
@@ -213,6 +220,7 @@ void standardNozzle::createGen(){
     //newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
+    newGen->setRemoveCount(autoremoveCount);
     newGen->seed();
 
     genList.push_back(newGen);
@@ -316,6 +324,7 @@ void imageNozzle::createGen(){
     //newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
+    newGen->setRemoveCount(autoremoveCount);
     newGen->seed();
 
     genList.push_back(newGen);

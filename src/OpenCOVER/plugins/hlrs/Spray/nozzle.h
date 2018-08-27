@@ -71,6 +71,7 @@ private:
 protected:
     void createGeometry();
     int particleCount_ = 1000;
+    float autoremoveCount = 0.9;
     std::string nozzleName_;
     std::list<class gen*> genList;
 
