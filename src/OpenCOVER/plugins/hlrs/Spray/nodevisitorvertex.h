@@ -32,7 +32,6 @@ private:
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
     osg::Geode *localGeodeTriangleStrip;
-    //osg::ref_ptr<osg::Vec3Array*> vertexCoords;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
 

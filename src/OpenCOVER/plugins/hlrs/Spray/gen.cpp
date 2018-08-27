@@ -28,6 +28,7 @@ gen::gen(float pInit, class nozzle* owner)
     densityOfFluid = parser::instance()->getDensityOfFluid();
     densityOfParticle = parser::instance()->getDensityOfParticle();
     reynoldsThreshold = parser::instance()->getReynoldsThreshold();
+    reynoldsLimit = parser::instance()->getReynoldsLimit();
     cwTurb = parser::instance()->getCwTurb();
     cwModelType = parser::instance()->getCwModelType();
     iterations = parser::instance()->getIterations();
@@ -58,49 +59,25 @@ gen::gen(float pInit, class nozzle* owner)
 
 gen::~gen()
 {
-    delete x;
-    delete y;
-    delete z;
-    delete vx;
-    delete vy;
-    delete vz;
-    delete m;
-    delete r;
-    delete firstHit;
-    delete particleOutOfBound;
+    pVec.erase(pVec.begin(), pVec.end());
     cover->getObjectsRoot()->removeChild(transform_.get());
     geode_->removeDrawable(coSphere_);
 }
 
 void gen::init()
 {
-    x = new float[particleCount_];
-    y = new float[particleCount_];
-    z = new float[particleCount_];
-    vx = new float[particleCount_];
-    vy = new float[particleCount_];
-    vz = new float[particleCount_];
-    r = new double[particleCount_];
-    m = new double[particleCount_];
-
-    particleOutOfBound = new bool[particleCount_];
-    firstHit = new bool[particleCount_];
-
-    prevHitDis = new float[particleCount_];
-    prevHitDisCounter = new int[particleCount_];
-    for(int i = 0; i< particleCount_;i++){
-        firstHit[i] = false;
-        particleOutOfBound[i] = false;
-        prevHitDis[i] = 0;
-        prevHitDisCounter[i] = 0;
-    }
+    //additional parameters can be initialized here
 }
 
 float gen::reynoldsNr(float v, double d)
 {
     double reynolds_ = v*d*densityOfFluid/nu;
     if(reynolds_ >= reynoldsThreshold)
+    {
+        if(reynolds_ > reynoldsLimit)
+            printf("Drag modelling behaves correctly till Re = %i! Currently Re = %f\n Propagation may be incorrect!\n",reynoldsLimit, reynolds_);
         return cwTurb;
+    }
     else
     {
         if(cwModelType.compare("STOKES") == 0)
@@ -128,10 +105,11 @@ float gen::reynoldsNr(float v, double d)
     }
 }
 
-void gen::setCoSphere()
+void gen::setCoSphere(osg::Vec3Array* pos)
 {
+
     float* rVis = new float[particleCount_];
-    for(int i = 0; i<particleCount_;i++)rVis[i] = r[i]*parser::instance()->getScaleFactor();
+    for(int i = 0; i<particleCount_;i++)rVis[i] = pVec[i]->r*parser::instance()->getScaleFactor();
     coSphere_->setMaxRadius(100);
 
     if(parser::instance()->getIsAMD() == 1)
@@ -141,17 +119,16 @@ void gen::setCoSphere()
 
     //Set particle parameters with radius for visualisation
     coSphere_->setCoords(particleCount_,
-                            x,
-                            y,
-                            z,
+                            pos,
                             rVis);
     geode_->addDrawable(coSphere_);
 }
 
 void gen::updateCoSphere(){
-    coSphere_->updateCoords(x, y, z);
+    for(int i = 0; i< particleCount_;i++)
+        coSphere_->updateCoords(i, pVec[i]->pos);
 
-    if(outOfBoundCounter >= 0.65*particleCount_)
+    if(outOfBoundCounter >= removeCount*particleCount_)
     {
         outOfBound = true;        
     }
@@ -169,104 +146,72 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
     for(int i = 0; i<particleCount_;i++){
 
-        if(particleOutOfBound[i])
+        particle* p = pVec[i];
+
+        if(p->particleOutOfBound)
         {
             outOfBoundCounter++;
             continue;
         }
 
-        float vxmed = 0;
-        float vymed = 0;
-        float vzmed = 0;
+        if(p->RTHit)
+        {
+            p->pos += p->velocity*timesteps;
+            coSphere_->setColor(i,0,0,1,1);
+            p->particleOutOfBound = true;
+            continue;
+        }
 
         for(int it = 0; it<iterations; it++)
         {
 
-            float v = sqrt(pow(vx[i],2)+pow(vy[i],2)+pow(vz[i],2));
+            float v = p->velocity.length();                                     //get absolute velocity
 
-            float cwTemp = reynoldsNr(v, 2*r[i]);
+            float cwTemp = reynoldsNr(v, 2*p->r);
 
-            x[i] += vx[i]*timesteps;
-            y[i] += vy[i]*timesteps;
-            z[i] += vz[i]*timesteps;
+            p->pos += p->velocity*timesteps;                                    //set new positions
 
-#if 1
-            //reynolds
+            float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
 
-            float k = 0.5*densityOfFluid*pow(r[i],2)*Pi*cwTemp/m[i];
-
-            vx[i] -= timesteps*(k*v*vx[i]+gravity.x())/2;
-            vy[i] -= timesteps*(k*v*vy[i]+gravity.y())/2;
-            vz[i] -= timesteps*(k*v*vz[i]+gravity.z())/2;
-
-            vxmed += vx[i];
-            vymed += vy[i];
-            vzmed += vz[i];
+            p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
 
         }
 
-        vxmed /= iterations;
-        vymed /= iterations;
-        vzmed /= iterations;
 
-
-
-#endif
-
-#if 0
-        //stokes
-
-        vx[i] -= tCur/m[i]*(6*Pi*nu*vx[i]*r[i]+gravity.x()*m[i]);
-
-        vy[i] -= tCur/m[i]*(6*Pi*nu*vy[i]*r[i]+gravity.y()*m[i]);
-
-        vz[i] -= tCur/m[i]*(6*Pi*nu*vz[i]*r[i]+gravity.z()*m[i]);
-
-#endif
-
-        if(y[i]<floorHeight){
-            if(firstHit[i] == true)
+        if(p->pos.z()<floorHeight){
+            if(p->firstHit == true)
             {
-                particleOutOfBound[i] = true;
+                p->particleOutOfBound = true;
                 outOfBoundCounter++;
             }
             else
             {
                 if((float)rand()/(float)randMax>0.5)
                 {
-                vx[i] = vx[i]*((float)rand()/randMax-0.5)*0.5;
-                vy[i] = vy[i]*((float)rand()/randMax-0.5)*0.5;
+                p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
+                p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
                 }
-                firstHit[i] = true;
+                p->firstHit = true;
             }
         }
-        if(x[i] > boundingBox.x() || y[i] > boundingBox.y() || z[i] > boundingBox.z() ||
-                x[i]<(-boundingBox.x()) || z[i] < (-boundingBox.z()) )
+
+        if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
+               p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
         {
-            particleOutOfBound[i] = true;
+            p->particleOutOfBound = true;
             outOfBoundCounter++;
         }
 
+        particle rayP = *p;
+        rayP.velocity *= timesteps;
 
-        p.x = x[i];
-        p.y = y[i];
-        p.z = z[i];
-        p.vx = vxmed*tCur;
-        p.vy = vymed*tCur;
-        p.vz = vzmed*tCur;
-        p.hit = 0;
+        rayP = raytracer::instance()->handleParticleData(rayP);
 
-        p = raytracer::instance()->handleParticleData(p);
-
-        if(p.hit != 0)
+        if(rayP.hit != 0)                                                       //hit was registered by embree
         {
-            prevHitDis[i] = p.z;
-            prevHitDisCounter[i] = 0;
-
-            if(abs(y[i])+abs(vy[i]) > abs(p.z))
+            if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )            //check if position of sphere is near hit distance
             {
-                particleOutOfBound[i] = true;
-                coSphere_->setColor(i,0,0,1,1);
+                p->RTHit = true;                                                //particle has hit an object
             }
         }
 
@@ -291,50 +236,52 @@ imageGen::~imageGen(){
 }
 
 void imageGen::seed(){
+    int newParticleCount = 0;                                                               //Evaluated pixel != emitted pixels
+    osg::Vec3Array* pos = new osg::Vec3Array;
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
-        //for(int j = 0; j<p->frequency_[i]; j++){
-        //float winkel = Winkel*Pi/180;
+        printf("frequency %f\n", iBuf_->dataBuffer[i*6+4]);
+        for(int j = 0; j < (int)iBuf_->dataBuffer[i*6+4]; j++){
+            particle* p = new particle();
+            osg::Vec3 spitze = osg::Vec3f(0,1,0);
+            osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
+            osg::Vec3 duese = owner_->getMatrix().getTrans();
+            spitze = spitze*sprayPos;
 
-        osg::Vec3f spitze = osg::Vec3f(0,1,0);
-        osg::Matrix spray_pos = owner_->getMatrix();
-        osg::Vec3 duese = spray_pos.getTrans();
-        spitze = spray_pos*spitze;
+            float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
 
-        float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
+            float massRand = ((float)rand())/(float)randMax;
 
-        x[i] = duese.x()+spitze.x()*offset;
-        y[i] = duese.y()+spitze.y()*offset;
-        z[i] = duese.z()+spitze.z()*offset;
-        r[i] = iBuf_->dataBuffer[i*6+5]*0.001;
-        m[i] = 4/3*pow(r[i],3)*Pi*1000;
+            p->pos.x() = duese.x()+spitze.x()*offset;
+            p->pos.y() = duese.y()+spitze.y()*offset;
+            p->pos.z() = duese.z()+spitze.z()*offset;
+            p->r = (getMinimum()+getDeviation()*massRand)*0.5;
+            p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
+            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Considers distribution around center
+            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
+            printf("x %f y %f\n", xdist, ydist);
 
-        //F = p*A; F = m*a
-        //p*A = m*a = m*dv/t
-        //v = p*A/m*t; t = 1s
-        float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
+            float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
 
-        //v = 4;
-        float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
-        float d_angle = atan(iBuf_->dataBuffer[i*6+3]/iBuf_->dataBuffer[i*6+2]);
+            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
+            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
 
-        vx[i] = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]);
-        vz[i] = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]);
-        vy[i] = v*cos(iBuf_->dataBuffer[i*6]);
+            p->velocity.x() = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]) + xdist;
+            p->velocity.y() = v*cos(iBuf_->dataBuffer[i*6]);
+            p->velocity.z() = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]) + ydist;
 
-        osg::Vec3f buffer = osg::Vec3f(vx[i],vy[i],vz[i]);
 
-        osg::Quat a = spray_pos.getRotate();
-        osg::Matrix spray_rot;
-        spray_rot.setRotate(a);
+            sprayPos.setTrans(0,0,0);
 
-        buffer = spray_rot*buffer;
+            p->velocity = sprayPos*p->velocity;
+            pVec.push_back(p);
+            pos->push_back(p->pos);
+            newParticleCount++;
+        }
 
-        vx[i] = buffer.x();
-        vy[i] = buffer.y();
-        vz[i] = buffer.z();
     }
-    setCoSphere();
+    particleCount_ = newParticleCount;
+    setCoSphere(pos);
 }
 
 
@@ -395,13 +342,18 @@ void standardGen::seed(){
         }
     }
 
+    osg::Vec3Array* pos = new osg::Vec3Array;
+
+    printf("%f %f \n", getMinimum(), getDeviation());
 
     for(int i = 0; i< particleCount_; i++){
 
-        osg::Vec3f spitze = osg::Vec3f(0,1,0);
-        osg::Matrix spray_pos = owner_->getMatrix();
-        osg::Vec3 duese = spray_pos.getTrans();
-        spitze = spray_pos*spitze;
+        particle* p = new particle();
+        osg::Vec3 spitze = osg::Vec3f(0,-1,0);
+        osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
+
+        osg::Vec3 duese = owner_->getMatrix().getTrans();
+        spitze = spitze*sprayPos;
 
         float randAngle = ((float)rand())/(float)randMax;
 
@@ -410,46 +362,41 @@ void standardGen::seed(){
         if(redDegree != 0 && type.compare("RING") == 0)
             sprayAngle = (sprayAngle_-redDegree+redDegree*randAngle)*Pi/180*0.5;
         else
-            sprayAngle = sprayAngle_*randAngle*Pi/180*0.5;
+            sprayAngle = -sprayAngle_*0.5*Pi/180+sprayAngle_*randAngle*Pi/180;
         float massRand = ((float)rand())/(float)randMax;									//random value between 0 and 1
 
-        x[i] = duese.x()+spitze.x()*offset;
-        y[i] = duese.y()+spitze.y()*offset;
-        z[i] = duese.z()+spitze.z()*offset;
+        p->pos.x() = duese.x()+spitze.x()*offset;
+        p->pos.y() = duese.y()+spitze.y()*offset;
+        p->pos.z() = duese.z()+spitze.z()*offset;
 
-        r[i] = (getMinimum()+getDeviation()*massRand)*0.5;
+        p->r = (getMinimum()+getDeviation()*massRand)*0.5;
 
-        m[i] = 4/3*pow(r[i],3)*Pi*densityOfParticle;
+        p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
 
         float v = sqrt(2*initPressure_*100000/densityOfParticle);                            //Initial speed of particle
         float d_angle = 0;
         if(type.compare("BAR") == 0)
         {
-            d_angle = (float)rand()/(float)randMax*redDegree*Pi/180;                    //BAR is only a rectangle
+            d_angle = -redDegree*Pi/180*0.5+(float)rand()/(float)randMax*redDegree*Pi/180;                    //BAR is only a rectangle
+            p->velocity.x() = v*sin(sprayAngle);
+            p->velocity.y() = v*cos(sprayAngle);
+            p->velocity.z() = v*sin(d_angle);
         }
         else
+        {
             d_angle = (float)rand()/(float)randMax*2*Pi;                                //NONE and RING are still radially symmetric
+            p->velocity.x() = v*sin(sprayAngle)*cos(d_angle);
+            p->velocity.y() = v*cos(sprayAngle);
+            p->velocity.z() = v*sin(sprayAngle)*sin(d_angle);
+        }
 
 
+        sprayPos.setTrans(0,0,0);
 
-        vx[i] = v*sin(sprayAngle)*cos(d_angle);
-        vz[i] = v*sin(sprayAngle)*sin(d_angle);
-        vy[i] = v*cos(sprayAngle);
-
-        osg::Vec3f buffer = osg::Vec3f(vx[i],vy[i],vz[i]);
-
-        osg::Quat a = spray_pos.getRotate();
-        osg::Matrix spray_rot;
-        spray_rot.setRotate(a);
-
-        buffer = spray_rot*buffer;
-
-        vx[i] = buffer.x();
-        vy[i] = buffer.y();
-        vz[i] = buffer.z();
-
-        //printf("vx %f vy %f vz %f\n", vx[i], vy[i], vz[i]);
+        p->velocity = sprayPos*p->velocity;
+        pVec.push_back(p);
+        pos->push_back(p->pos);
 
     }
-    setCoSphere();
+    setCoSphere(pos);
 }
