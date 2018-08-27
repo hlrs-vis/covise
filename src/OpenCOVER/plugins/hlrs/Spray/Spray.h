@@ -115,14 +115,18 @@ private:
     ui::EditField* alpha_ = nullptr;
     ui::EditField* param1 = nullptr;
     ui::EditField* param2 = nullptr;
+    ui::EditField* rDeviation = nullptr;
+    ui::EditField* rMinimum = nullptr;
 
     ui::EditField* moveX = nullptr;
     ui::EditField* moveY = nullptr;
     ui::EditField* moveZ = nullptr;
 
+    //Buttons on edit menu
+    ui::Button* interaction = nullptr;
+
     //Slider on edit menu
     ui::Slider* pressureSlider_ = nullptr;
-
     ui::Slider* rotX = nullptr;
     ui::Slider* rotY = nullptr;
     ui::Slider* rotZ = nullptr;

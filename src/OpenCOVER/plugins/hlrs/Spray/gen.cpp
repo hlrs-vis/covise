@@ -75,7 +75,7 @@ float gen::reynoldsNr(float v, double d)
     if(reynolds_ >= reynoldsThreshold)
     {
         if(reynolds_ > reynoldsLimit)
-            printf("Drag modelling behaves correctly till %i! Currently %f\n Propagation may be incorrect!\n",reynoldsLimit, reynolds_);
+            printf("Drag modelling behaves correctly till Re = %i! Currently Re = %f\n Propagation may be incorrect!\n",reynoldsLimit, reynolds_);
         return cwTurb;
     }
     else
@@ -236,43 +236,51 @@ imageGen::~imageGen(){
 }
 
 void imageGen::seed(){
+    int newParticleCount = 0;                                                               //Evaluated pixel != emitted pixels
     osg::Vec3Array* pos = new osg::Vec3Array;
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
-        //for(int j = 0; j<p->frequency_[i]; j++){
-        particle* p = new particle();
-        osg::Vec3 spitze = osg::Vec3f(0,1,0);
-        osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
-        osg::Vec3 duese = owner_->getMatrix().getTrans();
-        spitze = spitze*sprayPos;
+        printf("frequency %f\n", iBuf_->dataBuffer[i*6+4]);
+        for(int j = 0; j < (int)iBuf_->dataBuffer[i*6+4]; j++){
+            particle* p = new particle();
+            osg::Vec3 spitze = osg::Vec3f(0,1,0);
+            osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
+            osg::Vec3 duese = owner_->getMatrix().getTrans();
+            spitze = spitze*sprayPos;
 
-        float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
+            float offset = 0.001;                                                           //Needed for rotation of the nozzle (1mm)
 
-        float massRand = ((float)rand())/(float)randMax;
+            float massRand = ((float)rand())/(float)randMax;
 
-        p->pos.x() = duese.x()+spitze.x()*offset;
-        p->pos.y() = duese.y()+spitze.y()*offset;
-        p->pos.z() = duese.z()+spitze.z()*offset;
-        p->r = (getMinimum()+getDeviation()*massRand)*0.5;
-        p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
+            p->pos.x() = duese.x()+spitze.x()*offset;
+            p->pos.y() = duese.y()+spitze.y()*offset;
+            p->pos.z() = duese.z()+spitze.z()*offset;
+            p->r = (getMinimum()+getDeviation()*massRand)*0.5;
+            p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
+            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Considers distribution around center
+            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
+            printf("x %f y %f\n", xdist, ydist);
 
-        float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
+            float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
 
-        float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
-        float d_angle = atan(iBuf_->dataBuffer[i*6+3]/iBuf_->dataBuffer[i*6+2]);
+            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
+            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
 
-        p->velocity.x() = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]);
-        p->velocity.y() = v*cos(iBuf_->dataBuffer[i*6]);
-        p->velocity.z() = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]);
+            p->velocity.x() = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]) + xdist;
+            p->velocity.y() = v*cos(iBuf_->dataBuffer[i*6]);
+            p->velocity.z() = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]) + ydist;
 
 
-        sprayPos.setTrans(0,0,0);
+            sprayPos.setTrans(0,0,0);
 
-        p->velocity = sprayPos*p->velocity;
-        pVec.push_back(p);
-        pos->push_back(p->pos);
+            p->velocity = sprayPos*p->velocity;
+            pVec.push_back(p);
+            pos->push_back(p->pos);
+            newParticleCount++;
+        }
 
     }
+    particleCount_ = newParticleCount;
     setCoSphere(pos);
 }
 
@@ -335,6 +343,8 @@ void standardGen::seed(){
     }
 
     osg::Vec3Array* pos = new osg::Vec3Array;
+
+    printf("%f %f \n", getMinimum(), getDeviation());
 
     for(int i = 0; i< particleCount_; i++){
 

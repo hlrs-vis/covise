@@ -303,6 +303,8 @@ void imageNozzle::createGen(){
     class imageGen* newGen = new class imageGen(&iBuf,getInitPressure(), this);
     newGen->init();
     //newGen->setColor(getColor());
+    newGen->setDeviation(getDeviation());
+    newGen->setMinimum(getMinimum());
     newGen->seed();
 
     genList.push_back(newGen);

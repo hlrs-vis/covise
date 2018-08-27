@@ -84,8 +84,8 @@ bool SprayPlugin::init()
                     moveX->setValue(editNozzle->getMatrix().getTrans().x());
                     moveY->setValue(editNozzle->getMatrix().getTrans().y());
                     moveZ->setValue(editNozzle->getMatrix().getTrans().z());
-                    minimum = editNozzle->getMinimum();
-                    deviation = editNozzle->getDeviation();
+                    minimum = editNozzle->getMinimum()*1000000;
+                    deviation = editNozzle->getDeviation()*1000000;
 
                     if(editNozzle->getType().compare("standard") == 0)
                         param1->setText("Spray Angle");
@@ -99,6 +99,7 @@ bool SprayPlugin::init()
                         param2->setText("File Name");
                     param2->setValue(editNozzle->getParam2());
 
+
                 }
                 else
                 {
@@ -106,8 +107,8 @@ bool SprayPlugin::init()
                     nozzleEditMenu_->setText("Spray");
 
                     //Set variables of nozzle to init values
-                    minimum = editNozzle->getMinimum();
-                    deviation = editNozzle->getDeviation();
+                    minimum = editNozzle->getMinimum()*1000000;
+                    deviation = editNozzle->getDeviation()*1000000;
 
                     red_ = new ui::EditField(nozzleEditMenu_, "redField");
                     red_->setText("Red value");
@@ -192,8 +193,8 @@ bool SprayPlugin::init()
                                                );
                     pressureSlider_->setValue(editNozzle->getInitPressure());
 
-                    ui::EditField* rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum");
-                    rMinimum->setValue(editNozzle->getMinimum());
+                    rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
+                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
                     rMinimum->setCallback([this](const std::string &cmd){
                         manager()->update();
 
@@ -209,8 +210,8 @@ bool SprayPlugin::init()
                         }//catch
                     });
 
-                    ui::EditField* rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation");
-                    rDeviation->setValue(editNozzle->getDeviation());
+                    rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation in microns");
+                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
                     rDeviation->setCallback([this](const std::string &cmd){
                         manager()->update();
 
@@ -240,14 +241,29 @@ bool SprayPlugin::init()
                         param2->setText("File Name");
                     param2->setValue(editNozzle->getParam2());
 
+                    interaction = new ui::Button(nozzleEditMenu_, "InteractionNozzle");
+                    interaction->setText("Interaction");
+                    interaction->setCallback([this](bool state){
+                        if(state == true)
+                        {
+                            editNozzle->disableIntersection();
+                            std::cout << "Interaction deactivated" << std::endl;
+                        }
+                        else if(state == false){
+                            editNozzle->enableIntersection();
+                            std::cout << "Interaction activated" << std::endl;
+                        }
+
+                    });
+
                     acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
                     acceptEdit_->setText("Accept");
                     acceptEdit_->setCallback([this](){
-                        if(parser::instance()->getIsAMD() == 0
-                                )editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
+                        if(parser::instance()->getIsAMD() == 0)
+                            editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
-                        editNozzle->setMinimum(minimum);
-                        editNozzle->setDeviation(deviation);
+                        editNozzle->setMinimum(minimum/1000000);
+                        editNozzle->setDeviation(deviation/1000000);
                         editing = false;
                         std::cout << "Editing done" << std::endl;
                         nozzleEditMenu_->setVisible(false);
