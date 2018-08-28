@@ -58,7 +58,7 @@ public:
             for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
             {
                 std::string compareString = *itr;
-                if(compareString.compare(node->getName()))
+                if(compareString.compare(node->getName()) == 0)
                     return true;
             }
             return false;
@@ -70,6 +70,11 @@ public:
         osg::Geode* returnGeode()
         {
             return localGeodeTriangle;
+        }
+
+        osg::Vec3Array* getVertexArray()
+        {
+            return vertexCoords;
         }
 
 };

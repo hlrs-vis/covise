@@ -282,10 +282,13 @@ public:
                 triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
             }
 
+        std::cout << "size " << coords->size() << std::endl;
+
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
         rtcCommitGeometry(mesh);
-        if(comitted)comitted = false;
+        if(comitted)
+            comitted = false;
         geoList.push_back(mesh);
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
         rtcReleaseGeometry(mesh);
@@ -293,6 +296,8 @@ public:
 
 
     }
+
+
 
     void finishAddGeometry()
     {

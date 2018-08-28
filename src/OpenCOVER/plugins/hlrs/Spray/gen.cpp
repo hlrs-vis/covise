@@ -187,7 +187,7 @@ void gen::updatePos(osg::Vec3 boundingBox){
         }
 
 
-        if(p->pos.z()<floorHeight){
+        if(p->pos.z()<(-boundingBox.z())){
             if(p->firstHit == true)
             {
                 p->particleOutOfBound = true;
@@ -218,6 +218,7 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
         if(rayP.hit != 0)                                                       //hit was registered by embree
         {
+            //printf("v %f y %f hit dis %f\n", p->velocity.y()*timesteps, p->pos.y(), rayP.pos.z());
             if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )            //check if position of sphere is near hit distance
             {
                 p->RTHit = true;                                                //particle has hit an object

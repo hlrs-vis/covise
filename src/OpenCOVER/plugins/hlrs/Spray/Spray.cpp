@@ -784,14 +784,15 @@ bool SprayPlugin::init()
     testBoxGeode->setName("testBox");
 
     //Just for testing purpose
-    createTestBox(osg::Vec3(0,0,10), osg::Vec3(1,1,1));
-    createTestBox(osg::Vec3(0,0,10), osg::Vec3(10,10,10));
+    createTestBox(osg::Vec3(0,0,-10), osg::Vec3(10,10,10));
+    createTestBox1(osg::Vec3(0,20,-20), osg::Vec3(10,10,10), true);
 
     scene->addChild(testBoxGeode);
 
     nodeVisitorVertex c;
 
     cover->getObjectsRoot()->accept(c);
+    raytracer::instance()->createFaceSet(c.getVertexArray(),0);
     //scene->accept(c);
 
 
@@ -869,7 +870,7 @@ void SprayPlugin::createAndRegisterStandardNozzle()
 
 }
 
-void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale, bool manual)
+void SprayPlugin::createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual)
 {
     osg::Geometry *geom = new osg::Geometry;
 

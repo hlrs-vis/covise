@@ -169,7 +169,7 @@ public:
     bool update();
 
     void createTestBox(osg::Vec3 initPos, osg::Vec3 scale);
-    void createTestBox(osg::Vec3 initPos, osg::Vec3 scale, bool manual);
+    void createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual);
 
     void createAndRegisterImageNozzle();
     void createAndRegisterStandardNozzle();
