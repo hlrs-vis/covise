@@ -62,18 +62,19 @@ private:
     float deviation = 0.00005;
     int iterations = 4;
     float removeCount = 0.9;
+    float alpha = 0.4;
+    float gaussamp = 1;
 
     int outOfBoundCounter = 0;    
 
     void updateCoSphere();
-    float reynoldsNr(float v, double d);
 
 protected:
     std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
-    float initPressure_;
+    float initPressure_ = 2;
 
     void setCoSphere(osg::Vec3Array *pos);
 
@@ -81,7 +82,10 @@ public:
     gen(float pInit, class nozzle *owner);
     virtual ~gen();
 
-    void init();    
+    void init();
+
+    float gaussian(float value);
+    float reynoldsNr(float v, double d);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;
@@ -133,6 +137,18 @@ public:
     void setRemoveCount(float newRemoveCount)
     {
         removeCount = newRemoveCount;
+    }
+
+    void setAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+        gaussamp = 1;
+        gaussamp = gaussian(0);
+    }
+
+    float getAlpha()
+    {
+        return alpha;
     }
 };
 

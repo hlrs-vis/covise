@@ -9,12 +9,18 @@
 
 int randMax = RAND_MAX;
 
+
 inline int sgn(float x)
 {
     if(x == 0)
         return 0;
     else
         return (x>0) ? 1 : -1;
+}
+
+float gen::gaussian(float value)
+{
+    return 1/(sqrt(Pi)*alpha*gaussamp)*exp((-1)*value*value/(alpha*alpha));
 }
 
 gen::gen(float pInit, class nozzle* owner)
@@ -34,6 +40,8 @@ gen::gen(float pInit, class nozzle* owner)
     iterations = parser::instance()->getIterations();
     minimum = parser::instance()->getMinimum();
     deviation = parser::instance()->getDeviation();
+    alpha = parser::instance()->getAlpha();
+    gaussamp = gaussian(0);
 
     //Basetransform - currently not needed
     transform_ = new osg::MatrixTransform;
@@ -69,7 +77,7 @@ void gen::init()
     //additional parameters can be initialized here
 }
 
-float gen::reynoldsNr(float v, double d)
+inline float gen::reynoldsNr(float v, double d)
 {
     double reynolds_ = v*d*densityOfFluid/nu;
     if(reynolds_ >= reynoldsThreshold)
@@ -109,7 +117,8 @@ void gen::setCoSphere(osg::Vec3Array* pos)
 {
 
     float* rVis = new float[particleCount_];
-    for(int i = 0; i<particleCount_;i++)rVis[i] = pVec[i]->r*parser::instance()->getScaleFactor();
+    for(int i = 0; i<particleCount_;i++)
+        rVis[i] = pVec[i]->r*parser::instance()->getScaleFactor();
     coSphere_->setMaxRadius(100);
 
     if(parser::instance()->getIsAMD() == 1)
@@ -240,8 +249,7 @@ void imageGen::seed(){
     osg::Vec3Array* pos = new osg::Vec3Array;
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
-        printf("frequency %f\n", iBuf_->dataBuffer[i*6+4]);
-        for(int j = 0; j < (int)iBuf_->dataBuffer[i*6+4]; j++){
+        for(int j = 0; j < (int)iBuf_->dataBuffer[i*6+4]+1; j++){
             particle* p = new particle();
             osg::Vec3 spitze = osg::Vec3f(0,1,0);
             osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
@@ -255,16 +263,16 @@ void imageGen::seed(){
             p->pos.x() = duese.x()+spitze.x()*offset;
             p->pos.y() = duese.y()+spitze.y()*offset;
             p->pos.z() = duese.z()+spitze.z()*offset;
-            p->r = (getMinimum()+getDeviation()*massRand)*0.5;
+            p->r = (getMinimum()+getDeviation()*gaussian(massRand))*0.5;
             p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
             float xdist = cos(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Considers distribution around center
             float ydist = sin(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
-            printf("x %f y %f\n", xdist, ydist);
+            //printf("x %f y %f\n", xdist, ydist);
 
             float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
 
-            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
-            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
+//            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
+//            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
 
             p->velocity.x() = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]) + xdist;
             p->velocity.y() = v*cos(iBuf_->dataBuffer[i*6]);
@@ -345,8 +353,6 @@ void standardGen::seed(){
 
     osg::Vec3Array* pos = new osg::Vec3Array;
 
-    printf("%f %f \n", getMinimum(), getDeviation());
-
     for(int i = 0; i< particleCount_; i++){
 
         particle* p = new particle();
@@ -370,7 +376,7 @@ void standardGen::seed(){
         p->pos.y() = duese.y()+spitze.y()*offset;
         p->pos.z() = duese.z()+spitze.z()*offset;
 
-        p->r = (getMinimum()+getDeviation()*massRand)*0.5;
+        p->r = (getMinimum()+getDeviation()*gaussian(massRand))*0.5;
 
         p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
 

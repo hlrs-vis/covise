@@ -57,351 +57,358 @@ bool SprayPlugin::init()
     edit_->setText("Edit Nozzle");
     edit_->setCallback([this]()
     {
-//        if(editing == false)
-//        {
-            editing = true;
-            currentNozzleID = nozzleID;
-            std::cout << "Editing nozzle ID: " << currentNozzleID << " started" << std::endl;
+        //        if(editing == false)
+        //        {
+        editing = true;
+        currentNozzleID = nozzleID;
+        std::cout << "Editing nozzle ID: " << currentNozzleID << " started" << std::endl;
 
-            if(0 != nM->getNozzle(currentNozzleID))
+        if(0 != nM->getNozzle(currentNozzleID))
+        {
+            editNozzle = nM->getNozzle(currentNozzleID);
+            if(parser::instance()->getIsAMD() == 0)
+                editNozzle->setColor(osg::Vec4(1,1,0,1));
+            newColor = editNozzle->getColor();
+
+            if(nozzleEditMenu_ != nullptr)
             {
-                editNozzle = nM->getNozzle(currentNozzleID);
-                if(parser::instance()->getIsAMD() == 0)
-                    editNozzle->setColor(osg::Vec4(1,1,0,1));
-                newColor = editNozzle->getColor();
+                nozzleEditMenu_->setVisible(true);
+                red_->setValue(editNozzle->getColor().x());
+                green_->setValue(editNozzle->getColor().x());
+                blue_->setValue(editNozzle->getColor().x());
+                alpha_->setValue(editNozzle->getColor().x());
+                pressureSlider_->setValue(editNozzle->getInitPressure());
+                alphaSlider_->setValue(editNozzle->getAlpha());
+                rotX->setValue(editNozzle->getMatrix().getRotate().x());
+                rotY->setValue(editNozzle->getMatrix().getRotate().y());
+                rotZ->setValue(editNozzle->getMatrix().getRotate().z());
+                moveX->setValue(editNozzle->getMatrix().getTrans().x());
+                moveY->setValue(editNozzle->getMatrix().getTrans().y());
+                moveZ->setValue(editNozzle->getMatrix().getTrans().z());
+                minimum = editNozzle->getMinimum()*1000000;
+                rMinimum->setValue(editNozzle->getMinimum()*1000000);
+                deviation = editNozzle->getDeviation()*1000000;
+                rDeviation->setValue(editNozzle->getDeviation()*1000000);
 
-                if(nozzleEditMenu_ != nullptr)
-                {
-                    nozzleEditMenu_->setVisible(true);
-                    red_->setValue(editNozzle->getColor().x());
-                    green_->setValue(editNozzle->getColor().x());
-                    blue_->setValue(editNozzle->getColor().x());
-                    alpha_->setValue(editNozzle->getColor().x());
-                    pressureSlider_->setValue(editNozzle->getInitPressure());
-                    rotX->setValue(editNozzle->getMatrix().getRotate().x());
-                    rotY->setValue(editNozzle->getMatrix().getRotate().y());
-                    rotZ->setValue(editNozzle->getMatrix().getRotate().z());
-                    moveX->setValue(editNozzle->getMatrix().getTrans().x());
-                    moveY->setValue(editNozzle->getMatrix().getTrans().y());
-                    moveZ->setValue(editNozzle->getMatrix().getTrans().z());
-                    minimum = editNozzle->getMinimum()*1000000;
-                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
-                    deviation = editNozzle->getDeviation()*1000000;
-                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
+                if(editNozzle->getType().compare("standard") == 0)
+                    param1->setText("Spray Angle");
+                if(editNozzle->getType().compare("image") == 0)
+                    param1->setText("Path Name");
+                param1->setValue(editNozzle->getParam1());
 
-                    if(editNozzle->getType().compare("standard") == 0)
-                        param1->setText("Spray Angle");
-                    if(editNozzle->getType().compare("image") == 0)
-                        param1->setText("Path Name");
-                    param1->setValue(editNozzle->getParam1());
+                if(editNozzle->getType().compare("standard") == 0)
+                    param2->setText("Decoy");
+                if(editNozzle->getType().compare("image") == 0)
+                    param2->setText("File Name");
+                param2->setValue(editNozzle->getParam2());
 
-                    if(editNozzle->getType().compare("standard") == 0)
-                        param2->setText("Decoy");
-                    if(editNozzle->getType().compare("image") == 0)
-                        param2->setText("File Name");
-                    param2->setValue(editNozzle->getParam2());
-
-                    interaction->setState(editNozzle->getIntersection());
+                interaction->setState(editNozzle->getIntersection());
 
 
-                }
-                else
-                {
-                    nozzleEditMenu_ = new ui::Menu("Spray", this);
-                    nozzleEditMenu_->setText("Spray");
-
-                    //Set variables of nozzle to init values
-                    minimum = editNozzle->getMinimum()*1000000;
-                    deviation = editNozzle->getDeviation()*1000000;
-
-                    red_ = new ui::EditField(nozzleEditMenu_, "redField");
-                    red_->setText("Red value");
-                    red_->setValue(editNozzle->getColor().x());
-                    red_->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            newColor.x() = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            newColor.x() = 1;
-                        }//catch
-                    });
-
-                    green_ = new ui::EditField(nozzleEditMenu_, "greenField");
-                    green_->setText("Green value");
-                    green_->setValue(editNozzle->getColor().y());
-                    green_->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            newColor.y() = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            newColor.y() = 1;
-                        }//catch
-                    });
-
-                    blue_ = new ui::EditField(nozzleEditMenu_, "blueField");
-                    blue_->setText("Blue value");
-                    blue_->setValue(editNozzle->getColor().z());
-                    blue_->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            newColor.z() = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            newColor.z() = 1;
-                        }//catch
-                    });
-
-                    alpha_ = new ui::EditField(nozzleEditMenu_, "alphaField");
-                    alpha_->setText("Alpha value");
-                    alpha_->setValue(editNozzle->getColor().w());
-                    alpha_->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            newColor.w() = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            newColor.w() = 1;
-                        }//catch
-                    });
-
-                    pressureSlider_ = new ui::Slider(nozzleEditMenu_, "sliderPressure");
-                    pressureSlider_->setText("Initial pressure");
-                    pressureSlider_->setBounds(parser::instance()->getLowerPressureBound(),
-                                               parser::instance()->getUpperPressureBound()
-                                               );
-                    pressureSlider_->setValue(editNozzle->getInitPressure());
-
-                    rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
-                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
-                    rMinimum->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            minimum = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                        }//catch
-                    });
-
-                    rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation in microns");
-                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
-                    rDeviation->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            deviation = stof(cmd);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                        }//catch
-                    });
-
-                    param1 = new ui::EditField(nozzleEditMenu_, "param1");
-                    if(editNozzle->getType().compare("standard") == 0)
-                        param1->setText("Spray Angle");
-                    if(editNozzle->getType().compare("image") == 0)
-                        param1->setText("Path Name");
-                    param1->setValue(editNozzle->getParam1());
-
-                    param2 = new ui::EditField(nozzleEditMenu_, "param2");
-                    if(editNozzle->getType().compare("standard") == 0)
-                        param2->setText("Decoy");
-                    if(editNozzle->getType().compare("image") == 0)
-                        param2->setText("File Name");
-                    param2->setValue(editNozzle->getParam2());
-
-                    interaction = new ui::Button(nozzleEditMenu_, "InteractionNozzle");
-                    interaction->setText("Interaction");
-                    interaction->setState(editNozzle->getIntersection());
-                    interaction->setCallback([this](bool state){
-                        if(state == false)
-                        {
-                            editNozzle->disableIntersection();
-                            editNozzle->setIntersection(false);
-                            std::cout << "Interaction deactivated" << std::endl;
-                        }
-                        else
-                            if(state == true){
-                                editNozzle->enableIntersection();
-                                editNozzle->setIntersection(true);
-                                std::cout << "Interaction activated" << std::endl;
-                        }
-
-                    });
-
-                    acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
-                    acceptEdit_->setText("Accept");
-                    acceptEdit_->setCallback([this](){
-                        if(parser::instance()->getIsAMD() == 0)
-                            editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
-                        editNozzle->setInitPressure(pressureSlider_->value());
-                        editNozzle->setMinimum(minimum/1000000);
-                        editNozzle->setDeviation(deviation/1000000);
-                        editing = false;
-                        std::cout << "Editing done" << std::endl;
-                        nozzleEditMenu_->setVisible(false);
-
-                    });
-
-                    testMenu = new ui::Menu(nozzleEditMenu_, "tester");
-                    testMenu->setText("Controller");
-
-                    memMat.makeIdentity();
-
-                    rotX = new ui::Slider(testMenu, "rotX");
-                    rotX->setText("Rotation X-Axis");
-                    rotX->setBounds(-1,1);
-                    rotX->setValue(editNozzle->getMatrix().getRotate().x());
-                    rotX->setCallback([this](float value, bool stop){
-                        memMat = editNozzle->getMatrix();
-                        osg::Quat a = editNozzle->getMatrix().getRotate();
-                        a.x() = value;
-                        memMat.setRotate(a);
-                        editNozzle->updateTransform(memMat);
-
-                    });
-
-                    rotY = new ui::Slider(testMenu, "rotY");
-                    rotY->setText("Rotation Y-Axis");
-                    rotY->setBounds(-1,1);
-                    rotY->setValue(editNozzle->getMatrix().getRotate().y());
-                    rotY->setCallback([this](float value, bool stop){
-                        memMat = editNozzle->getMatrix();
-                        osg::Quat a = editNozzle->getMatrix().getRotate();
-                        a.y() = value;
-                        memMat.setRotate(a);
-                        editNozzle->updateTransform(memMat);
-
-                    });
-
-                    rotZ = new ui::Slider(testMenu, "rotZ");
-                    rotZ->setText("Rotation Z-Axis");
-                    rotZ->setBounds(-1,1);
-                    rotZ->setValue(editNozzle->getMatrix().getRotate().z());
-                    rotZ->setCallback([this](float value, bool stop){
-                        memMat = editNozzle->getMatrix();
-                        osg::Quat a = editNozzle->getMatrix().getRotate();
-                        a.z() = value;
-                        memMat.setRotate(a);
-                        editNozzle->updateTransform(memMat);
-
-                    });
-
-
-                    moveX = new ui::EditField(testMenu, "moveXfield");
-                    moveX->setText("Move X");
-                    moveX->setValue(editNozzle->getMatrix().getTrans().x());
-                    moveX->setCallback([this](const std::string &cmd){
-
-                        try
-                        {
-                            transMat.x() = stof(cmd);
-                            memMat = editNozzle->getMatrix();
-                            memMat.setTrans(transMat);
-                            editNozzle->updateTransform(memMat);
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            outputField_->setText("Value of Move X must be an integer");
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            transMat.x() = 0;
-                        }
-                    });
-
-                    moveY = new ui::EditField(testMenu, "moveYfield");
-                    moveY->setText("Move Y");
-                    moveY->setValue(editNozzle->getMatrix().getTrans().y());
-                    moveY->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            transMat.y() = stof(cmd);
-                            memMat = editNozzle->getMatrix();
-                            memMat.setTrans(transMat);;
-                            editNozzle->updateTransform(memMat);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            outputField_->setText("Value of Move Y must be an integer");
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            transMat.y() = 0;
-                        }
-                    });
-
-                    moveZ = new ui::EditField(testMenu, "moveZfield");
-                    moveZ->setText("Move Z");
-                    moveZ->setValue(editNozzle->getMatrix().getTrans().z());
-                    moveZ->setCallback([this](const std::string &cmd){
-                        manager()->update();
-
-                        try
-                        {
-                            transMat.z() = stof(cmd);
-                            memMat = editNozzle->getMatrix();
-                            memMat.setTrans(transMat);
-                            editNozzle->updateTransform(memMat);
-
-                        }//try
-
-                        catch(const std::invalid_argument& ia)
-                        {
-                            outputField_->setText("Value of Move Z must be an integer");
-                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                            transMat.z() = 0;
-                        }
-                    });
-
-                    ui::Action* setToCurPos = new ui::Action(testMenu, "setToCurPos");
-                    setToCurPos->setText("Set to current position");
-                    setToCurPos->setCallback([this](){
-                        osg::Matrix newPos = editNozzle->getMatrix();
-                        newPos.setTrans(cover->getViewerMat().getTrans());
-                        editNozzle->updateTransform(newPos);
-                    });
-                }
-                //#endif
             }
-//        }
-//        else editing = false;
+            else
+            {
+                nozzleEditMenu_ = new ui::Menu("Spray", this);
+                nozzleEditMenu_->setText("Spray");
+
+                //Set variables of nozzle to init values
+                minimum = editNozzle->getMinimum()*1000000;
+                deviation = editNozzle->getDeviation()*1000000;
+
+                red_ = new ui::EditField(nozzleEditMenu_, "redField");
+                red_->setText("Red value");
+                red_->setValue(editNozzle->getColor().x());
+                red_->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        newColor.x() = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        newColor.x() = 1;
+                    }//catch
+                });
+
+                green_ = new ui::EditField(nozzleEditMenu_, "greenField");
+                green_->setText("Green value");
+                green_->setValue(editNozzle->getColor().y());
+                green_->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        newColor.y() = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        newColor.y() = 1;
+                    }//catch
+                });
+
+                blue_ = new ui::EditField(nozzleEditMenu_, "blueField");
+                blue_->setText("Blue value");
+                blue_->setValue(editNozzle->getColor().z());
+                blue_->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        newColor.z() = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        newColor.z() = 1;
+                    }//catch
+                });
+
+                alpha_ = new ui::EditField(nozzleEditMenu_, "alphaField");
+                alpha_->setText("Alpha value");
+                alpha_->setValue(editNozzle->getColor().w());
+                alpha_->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        newColor.w() = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        newColor.w() = 1;
+                    }//catch
+                });
+
+                pressureSlider_ = new ui::Slider(nozzleEditMenu_, "sliderPressure");
+                pressureSlider_->setText("Initial pressure");
+                pressureSlider_->setBounds(parser::instance()->getLowerPressureBound(),
+                                           parser::instance()->getUpperPressureBound()
+                                           );
+                pressureSlider_->setValue(editNozzle->getInitPressure());
+
+                alphaSlider_ = new ui::Slider(nozzleEditMenu_, "sliderAlpha");
+                alphaSlider_->setText("Gaussian Alpha Value");
+                alphaSlider_->setBounds(0.1, 1);
+                alphaSlider_->setValue(editNozzle->getAlpha());
+
+                rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
+                rMinimum->setValue(editNozzle->getMinimum()*1000000);
+                rMinimum->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        minimum = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                    }//catch
+                });
+
+                rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation in microns");
+                rDeviation->setValue(editNozzle->getDeviation()*1000000);
+                rDeviation->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        deviation = stof(cmd);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                    }//catch
+                });
+
+                param1 = new ui::EditField(nozzleEditMenu_, "param1");
+                if(editNozzle->getType().compare("standard") == 0)
+                    param1->setText("Spray Angle");
+                if(editNozzle->getType().compare("image") == 0)
+                    param1->setText("Path Name");
+                param1->setValue(editNozzle->getParam1());
+
+                param2 = new ui::EditField(nozzleEditMenu_, "param2");
+                if(editNozzle->getType().compare("standard") == 0)
+                    param2->setText("Decoy");
+                if(editNozzle->getType().compare("image") == 0)
+                    param2->setText("File Name");
+                param2->setValue(editNozzle->getParam2());
+
+                interaction = new ui::Button(nozzleEditMenu_, "InteractionNozzle");
+                interaction->setText("Interaction");
+                interaction->setState(editNozzle->getIntersection());
+                interaction->setCallback([this](bool state){
+                    if(state == false)
+                    {
+                        editNozzle->disableIntersection();
+                        editNozzle->setIntersection(false);
+                        std::cout << "Interaction deactivated" << std::endl;
+                    }
+                    else
+                        if(state == true){
+                            editNozzle->enableIntersection();
+                            editNozzle->setIntersection(true);
+                            std::cout << "Interaction activated" << std::endl;
+                        }
+
+                });
+
+                acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
+                acceptEdit_->setText("Accept");
+                acceptEdit_->setCallback([this](){
+                    if(parser::instance()->getIsAMD() == 0)
+                        editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
+                    editNozzle->setInitPressure(pressureSlider_->value());
+                    editNozzle->setAlpha(alphaSlider_->value());
+                    editNozzle->setMinimum(minimum/1000000);
+                    editNozzle->setDeviation(deviation/1000000);
+                    editing = false;
+                    std::cout << "Editing done" << std::endl;
+                    nozzleEditMenu_->setVisible(false);
+
+                });
+
+                testMenu = new ui::Menu(nozzleEditMenu_, "tester");
+                testMenu->setText("Controller");
+
+                memMat.makeIdentity();
+
+                rotX = new ui::Slider(testMenu, "rotX");
+                rotX->setText("Rotation X-Axis");
+                rotX->setBounds(-1,1);
+                rotX->setValue(editNozzle->getMatrix().getRotate().x());
+                rotX->setCallback([this](float value, bool stop){
+                    memMat = editNozzle->getMatrix();
+                    osg::Quat a = editNozzle->getMatrix().getRotate();
+                    a.x() = value;
+                    memMat.setRotate(a);
+                    editNozzle->updateTransform(memMat);
+
+                });
+
+                rotY = new ui::Slider(testMenu, "rotY");
+                rotY->setText("Rotation Y-Axis");
+                rotY->setBounds(-1,1);
+                rotY->setValue(editNozzle->getMatrix().getRotate().y());
+                rotY->setCallback([this](float value, bool stop){
+                    memMat = editNozzle->getMatrix();
+                    osg::Quat a = editNozzle->getMatrix().getRotate();
+                    a.y() = value;
+                    memMat.setRotate(a);
+                    editNozzle->updateTransform(memMat);
+
+                });
+
+                rotZ = new ui::Slider(testMenu, "rotZ");
+                rotZ->setText("Rotation Z-Axis");
+                rotZ->setBounds(-1,1);
+                rotZ->setValue(editNozzle->getMatrix().getRotate().z());
+                rotZ->setCallback([this](float value, bool stop){
+                    memMat = editNozzle->getMatrix();
+                    osg::Quat a = editNozzle->getMatrix().getRotate();
+                    a.z() = value;
+                    memMat.setRotate(a);
+                    editNozzle->updateTransform(memMat);
+
+                });
+
+
+                moveX = new ui::EditField(testMenu, "moveXfield");
+                moveX->setText("Move X");
+                moveX->setValue(editNozzle->getMatrix().getTrans().x());
+                moveX->setCallback([this](const std::string &cmd){
+
+                    try
+                    {
+                        transMat.x() = stof(cmd);
+                        memMat = editNozzle->getMatrix();
+                        memMat.setTrans(transMat);
+                        editNozzle->updateTransform(memMat);
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        outputField_->setText("Value of Move X must be an integer");
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        transMat.x() = 0;
+                    }
+                });
+
+                moveY = new ui::EditField(testMenu, "moveYfield");
+                moveY->setText("Move Y");
+                moveY->setValue(editNozzle->getMatrix().getTrans().y());
+                moveY->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        transMat.y() = stof(cmd);
+                        memMat = editNozzle->getMatrix();
+                        memMat.setTrans(transMat);;
+                        editNozzle->updateTransform(memMat);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        outputField_->setText("Value of Move Y must be an integer");
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        transMat.y() = 0;
+                    }
+                });
+
+                moveZ = new ui::EditField(testMenu, "moveZfield");
+                moveZ->setText("Move Z");
+                moveZ->setValue(editNozzle->getMatrix().getTrans().z());
+                moveZ->setCallback([this](const std::string &cmd){
+                    manager()->update();
+
+                    try
+                    {
+                        transMat.z() = stof(cmd);
+                        memMat = editNozzle->getMatrix();
+                        memMat.setTrans(transMat);
+                        editNozzle->updateTransform(memMat);
+
+                    }//try
+
+                    catch(const std::invalid_argument& ia)
+                    {
+                        outputField_->setText("Value of Move Z must be an integer");
+                        std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                        transMat.z() = 0;
+                    }
+                });
+
+                ui::Action* setToCurPos = new ui::Action(testMenu, "setToCurPos");
+                setToCurPos->setText("Set to current position");
+                setToCurPos->setCallback([this](){
+                    osg::Matrix newPos = editNozzle->getMatrix();
+                    newPos.setTrans(cover->getViewerMat().getTrans());
+                    editNozzle->updateTransform(newPos);
+                });
+            }
+            //#endif
+        }
+        //        }
+        //        else editing = false;
     });
 
     sprayStart_ = new ui::Button(sprayMenu_, "StartStop");
@@ -502,112 +509,107 @@ bool SprayPlugin::init()
     create_->setText("Create Nozzle");
     create_->setCallback([this](){
 
-        if(creating == false)
+
+        if(nozzleCreateMenu != nullptr)
+            nozzleCreateMenu->setVisible(true);
+        else
         {
-            creating = true;
+            nozzleCreateMenu = new ui::Menu(sprayMenu_, "Type of nozzle");
+            outputField_->setText("Choose your type of nozzle");
 
-            if(nozzleCreateMenu != nullptr)
-                nozzleCreateMenu->setVisible(true);
-            else
-            {
-                nozzleCreateMenu = new ui::Menu(sprayMenu_, "Type of nozzle");
-                outputField_->setText("Choose your type of nozzle");
+            ui::Action* createImage = new ui::Action(nozzleCreateMenu, "image");
+            createImage->setText("Create image nozzle");
+            createImage->setCallback([this](){
+                if(nozzleCreateMenuImage != nullptr)
+                    nozzleCreateMenuImage->setVisible(true);
+                else
+                {
+                    nozzleCreateMenuImage = new ui::Menu(nozzleCreateMenu, "Image Nozzle Parameters");
+                    outputField_->setText("Set the parameters of the image nozzle");
+                    ui::EditField* subMenuPathname_ = new ui::EditField(nozzleCreateMenuImage, "pathname_");
+                    subMenuPathname_->setText("Path Name");
+                    subMenuPathname_->setCallback([this](const std::string &cmd){
+                        manager()->update();
+                        pathNameField_ = cmd;
+                    });
+                    ui::EditField* subMenuFilename_ = new ui::EditField(nozzleCreateMenuImage, "filename_");
+                    subMenuFilename_->setText("File Name");
+                    subMenuFilename_->setCallback([this](const std::string &cmd){
+                        manager()->update();
+                        fileNameField_ = cmd;
+                    });
+                    ui::EditField* subMenuNozzlename_ = new ui::EditField(nozzleCreateMenuImage, "nozzlename_");
+                    subMenuNozzlename_->setText("Nozzle Name");
+                    subMenuNozzlename_->setCallback([this](const std::string &cmd){
+                        manager()->update();
+                        nozzleNameField_ = cmd;
+                    });
 
-                ui::Action* createImage = new ui::Action(nozzleCreateMenu, "image");
-                createImage->setText("Create image nozzle");
-                createImage->setCallback([this](){
-                    if(nozzleCreateMenuImage != nullptr)
-                        nozzleCreateMenuImage->setVisible(true);
-                    else
-                    {
-                        nozzleCreateMenuImage = new ui::Menu(nozzleCreateMenu, "Image Nozzle Parameters");
-                        outputField_->setText("Set the parameters of the image nozzle");
-                        ui::EditField* subMenuPathname_ = new ui::EditField(nozzleCreateMenuImage, "pathname_");
-                        subMenuPathname_->setText("Path Name");
-                        subMenuPathname_->setCallback([this](const std::string &cmd){
-                            manager()->update();
-                            pathNameField_ = cmd;
-                        });
-                        ui::EditField* subMenuFilename_ = new ui::EditField(nozzleCreateMenuImage, "filename_");
-                        subMenuFilename_->setText("File Name");
-                        subMenuFilename_->setCallback([this](const std::string &cmd){
-                            manager()->update();
-                            fileNameField_ = cmd;
-                        });
-                        ui::EditField* subMenuNozzlename_ = new ui::EditField(nozzleCreateMenuImage, "nozzlename_");
-                        subMenuNozzlename_->setText("Nozzle Name");
-                        subMenuNozzlename_->setCallback([this](const std::string &cmd){
-                            manager()->update();
-                            nozzleNameField_ = cmd;
-                        });
+                    ui::Action* accept = new ui::Action(nozzleCreateMenuImage, "acceptImage");
+                    accept->setText("Accept");
+                    accept->setCallback([this](){
+                        createAndRegisterImageNozzle();
+                        creating = false;
+                        nozzleCreateMenuImage->setVisible(false);
+                        nozzleCreateMenu->setVisible(false);
+                        outputField_->setText("Help Field");
+                    });
+                }
 
-                        ui::Action* accept = new ui::Action(nozzleCreateMenuImage, "acceptImage");
-                        accept->setText("Accept");
-                        accept->setCallback([this](){
-                            createAndRegisterImageNozzle();
-                            creating = false;
-                            nozzleCreateMenuImage->setVisible(false);
-                            nozzleCreateMenu->setVisible(false);
-                            outputField_->setText("Help Field");
-                        });
-                    }
+            });
 
-                });
+            ui::Action* createStandard = new ui::Action(nozzleCreateMenu, "standard");
+            createStandard->setText("Create standard nozzle");
+            createStandard->setCallback([this](){
+                if(nozzleCreateMenuStandard != nullptr)
+                    nozzleCreateMenuStandard->setVisible(true);
+                else
+                {
+                    nozzleCreateMenuStandard = new ui::Menu(nozzleCreateMenu, "Standard Nozzle Parameter");
+                    outputField_->setText("Set the parameters of the standard nozzle");
+                    ui::EditField* subMenuSprayAngle_ = new ui::EditField(nozzleCreateMenuStandard, "sprayAngle_");
+                    subMenuSprayAngle_->setText("Spray Angle");
+                    subMenuSprayAngle_->setCallback([this](const std::string &cmd){
+                        manager()->update();
 
-                ui::Action* createStandard = new ui::Action(nozzleCreateMenu, "standard");
-                createStandard->setText("Create standard nozzle");
-                createStandard->setCallback([this](){
-                    if(nozzleCreateMenuStandard != nullptr)
-                        nozzleCreateMenuStandard->setVisible(true);
-                    else
-                    {
-                        nozzleCreateMenuStandard = new ui::Menu(nozzleCreateMenu, "Standard Nozzle Parameter");
-                        outputField_->setText("Set the parameters of the standard nozzle");
-                        ui::EditField* subMenuSprayAngle_ = new ui::EditField(nozzleCreateMenuStandard, "sprayAngle_");
-                        subMenuSprayAngle_->setText("Spray Angle");
-                        subMenuSprayAngle_->setCallback([this](const std::string &cmd){
-                            manager()->update();
+                        try
+                        {
+                            sprayAngle_ = stof(cmd);
 
-                            try
-                            {
-                                sprayAngle_ = stof(cmd);
+                        }//try
 
-                            }//try
+                        catch(const std::invalid_argument& ia)
+                        {
+                            outputField_->setText("Value of Spray Angle must be an integer/a float");
+                            std::cerr << "Invalid argument: " << ia.what() << std::endl;
+                            sprayAngle_ = 0;
+                        }//catch
 
-                            catch(const std::invalid_argument& ia)
-                            {
-                                outputField_->setText("Value of Spray Angle must be an integer/a float");
-                                std::cerr << "Invalid argument: " << ia.what() << std::endl;
-                                sprayAngle_ = 0;
-                            }//catch
-
-                        });
-                        ui::EditField* subMenuDecoy_ = new ui::EditField(nozzleCreateMenuStandard, "decoy_");
-                        subMenuDecoy_->setText("Decoy");
-                        subMenuDecoy_->setCallback([this](const std::string &cmd){
-                            manager()->update();
-                            decoy_ = cmd.c_str();
-                        });
-                        ui::EditField* subMenuNozzlename_ = new ui::EditField(nozzleCreateMenuStandard, "nozzlename_");
-                        subMenuNozzlename_->setText("Nozzle Name");
-                        subMenuNozzlename_->setCallback([this](const std::string &cmd){
-                            manager()->update();
-                            nozzleNameField_ = cmd;
-                        });
-                        ui::Action* accept = new ui::Action(nozzleCreateMenuStandard, "acceptStandard");
-                        accept->setText("Accept");
-                        accept->setCallback([this](){
-                            createAndRegisterStandardNozzle();
-                            creating = false;
-                            nozzleCreateMenuStandard->setVisible(false);
-                            nozzleCreateMenu->setVisible(false);
-                            outputField_->setText("Help Field");
-                        });
-                    }
-                });
-            }
+                    });
+                    ui::EditField* subMenuDecoy_ = new ui::EditField(nozzleCreateMenuStandard, "decoy_");
+                    subMenuDecoy_->setText("Decoy");
+                    subMenuDecoy_->setCallback([this](const std::string &cmd){
+                        manager()->update();
+                        decoy_ = cmd.c_str();
+                    });
+                    ui::EditField* subMenuNozzlename_ = new ui::EditField(nozzleCreateMenuStandard, "nozzlename_");
+                    subMenuNozzlename_->setText("Nozzle Name");
+                    subMenuNozzlename_->setCallback([this](const std::string &cmd){
+                        manager()->update();
+                        nozzleNameField_ = cmd;
+                    });
+                    ui::Action* accept = new ui::Action(nozzleCreateMenuStandard, "acceptStandard");
+                    accept->setText("Accept");
+                    accept->setCallback([this](){
+                        createAndRegisterStandardNozzle();
+                        creating = false;
+                        nozzleCreateMenuStandard->setVisible(false);
+                        nozzleCreateMenu->setVisible(false);
+                        outputField_->setText("Help Field");
+                    });
+                }
+            });
         }
-        else std::cout << "Finish creating of the previous nozzle first" << std::endl;
     });
 
     remove_ = new ui::Action(sprayMenu_, "removeNozzle");
@@ -761,14 +763,14 @@ bool SprayPlugin::init()
     {
         if(state == false)
         {
-           nM->autoremove(false);
-            std::cout << "Spraying stopped" << std::endl;
+            nM->autoremove(false);
+            std::cout << "Autoremove stopped" << std::endl;
         }
         else
             if(state == true){
-            nM->autoremove(true);
-            std::cout << "Spraying started" << std::endl;
-        }
+                nM->autoremove(true);
+                std::cout << "Autoremove started" << std::endl;
+            }
     });
 
 

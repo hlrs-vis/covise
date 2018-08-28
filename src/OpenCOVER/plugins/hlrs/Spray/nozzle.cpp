@@ -33,7 +33,7 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
 
     particleCount_ = parser::instance()->getReqParticles();
 
-    box_ = new osg::Box(osg::Vec3(0,0,0),0.1);                      //diameter = lenght = 10, just for rendering purpose
+    box_ = new osg::Box(osg::Vec3(0,0,0),0.1);                      //diameter = lenght = 0.1m, just for rendering purpose
     shapeDrawable_ = new osg::ShapeDrawable(box_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
     printf("Adding basic geometry to nozzle\n");
@@ -71,6 +71,7 @@ void nozzle::createGen(){
     newGen->setDeviation(deviation);
     newGen->setMinimum(minimum);
     newGen->setRemoveCount(autoremoveCount);
+    newGen->setAlpha(alpha);
     newGen->init();
 
     genList.push_back(newGen);
@@ -217,10 +218,12 @@ standardNozzle::standardNozzle(float sprayAngle, std::string decoy, osg::Matrix 
 void standardNozzle::createGen(){
     class standardGen* newGen = new class standardGen(sprayAngle_, decoy_,getInitPressure(), this);
     newGen->init();
-    //newGen->setColor(getColor());
+    if(parser::instance()->getIsAMD() == 0)
+        newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
     newGen->setRemoveCount(autoremoveCount);
+    newGen->setAlpha(getAlpha());
     newGen->seed();
 
     genList.push_back(newGen);
@@ -282,12 +285,14 @@ imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix
     nozzle(initialMat, size, nozzleName)
 {
     if(fileName.empty())
-        fileName_ = "Nozzle_1000_4_1_2.bmp";
+        fileName_ = "Nozzle_1000_4_8_2.bmp";
     else
         fileName_ = fileName;
     pathName_ = pathName;
 
-    samplingPoints = particleCount_;
+    samplingPoints = parser::instance()->getReqSamplings();
+    particleCount_ = samplingPoints;
+
     colorThreshold_ = parser::instance()->getColorThreshold();
 
     if(parser::instance()->getSamplingType().compare("circle") == 0)
@@ -321,10 +326,12 @@ imageNozzle::~imageNozzle()
 void imageNozzle::createGen(){
     class imageGen* newGen = new class imageGen(&iBuf,getInitPressure(), this);
     newGen->init();
-    //newGen->setColor(getColor());
+    if(parser::instance()->getIsAMD() == 0)
+        newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
     newGen->setRemoveCount(autoremoveCount);
+    newGen->setAlpha(getAlpha());
     newGen->seed();
 
     genList.push_back(newGen);
@@ -388,9 +395,8 @@ bool imageNozzle::readImage()
         return false;
     }
 
-    int* points_(new int[samplingPoints]);
-
     int corner_points[] = {0,0,0,0};
+    int* points_(new int[samplingPoints]);
     /**********************************************************************************/
     //Testweise erstellt zum Einlesen von Namen
 
@@ -445,53 +451,53 @@ bool imageNozzle::readImage()
         for(int i = 0; i<4;i++){
             int random_point = 0;
             if(i == 0){
-                random_point = center-0.4*s_int;
+                random_point = center-0.5*s_int;
                 int count = 3;
                 while(image->data()[random_point]<colorThreshold_){
-                    random_point = center-image->s()*0.4+count;
+                    random_point = center-image->s()*0.5+count;
                     count+=3;
                     if(random_point > center)
                     {
-                        random_point = center-0.4*s_int;
+                        random_point = center-0.5*s_int;
                         printf("Nothing found in negative x-direction!\n");
                         break;
                     }
                 }
             }
             if(i == 1){
-                random_point = center+0.4*s_int;
+                random_point = center+0.5*s_int;
                 int count = 3;
                 while(image->data()[random_point]<colorThreshold_)
                 {
-                    random_point = center+image->s()*0.4-count;
+                    random_point = center+image->s()*0.5-count;
                     count+=3;
                     if(random_point < center)
                     {
-                        random_point = center+0.4*s_int;
+                        random_point = center+0.5*s_int;
                         printf("Nothing found in positive x-direction!\n");
                         break;
                     }
                 }
             }
             if(i == 2){
-                random_point = 1.4*s_int;
+                random_point = 1.5*s_int;
                 while(image->data()[random_point]<colorThreshold_){
                     random_point += image->s();
                     if(random_point > center)
                     {
-                        random_point = 1.4*s_int;
+                        random_point = 1.5*s_int;
                         printf("Nothing found in positive y-direction!\n");
                         break;
                     }
                 }
             }
             if(i == 3){
-                random_point = image->getTotalDataSize()-image->s()*1.4;
+                random_point = image->getTotalDataSize()-image->s()*1.5;
                 while(image->data()[random_point]<colorThreshold_){
                     random_point -= image->s();
-                    if(random_point > center)
+                    if(random_point < center)
                     {
-                        random_point = image->getTotalDataSize()-image->s()*1.4;
+                        random_point = image->getTotalDataSize()-image->s()*1.5;
                         printf("Nothing found in negative y-direction!\n");
                         break;
                     }
@@ -525,34 +531,51 @@ bool imageNozzle::readImage()
             corner_points[3] += delta_2;
         }
 
-        delta_1 = corner_points[1]-corner_points[0];
-        delta_2 = (corner_points[2]-corner_points[0])/t_int;
+        delta_1 = corner_points[1]-corner_points[0];                                //width
+        delta_2 = (corner_points[2]-corner_points[0])/s_int;                        //height
 
     /***********************************************************************************************/
     //Based on the amount of samplings, specific points are chosen from the relevant area
 
-        if(samplingPoints < 5*image->t())
-            samplingPoints = 5*image->t();                          //This is needed to get at least minimum accuracy
+        if(samplingPoints < 10*delta_2)
+            samplingPoints = 10*delta_2;                          //This is needed to get at least minimum accuracy
+        else
+            if(samplingPoints > image->getTotalDataSize())
+                samplingPoints = image->getTotalDataSize();
+        points_ = new int[samplingPoints];
 
         int ppl = samplingPoints/(delta_2);
-        int steppingPerLine = delta_1/(ppl-2+1);
+        int steppingPerLine = delta_1/(ppl-1);
+        if(steppingPerLine%3 != 0)
+            steppingPerLine -= steppingPerLine%3+3;
 
         std::cout << ppl << " " <<steppingPerLine << std::endl;
+        std::cout << delta_1 << " " << delta_2 << std::endl;
 
-        for(int i = 0; i<delta_2; i++){
+//        for(int i = 0; i < delta_2; i++)
+//        {
+//            for(int j = 0; j < ppl;j++)
+//            {
+//                if(image->data()[corner_points[0]+steppingPerLine*j+s_int*i] == 0)
+//                    continue;
+//                else
+//                {
+//                    points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
+//                    count++;
+//                }
+//            }
+//        }
 
-            for(int j = 0; j < ppl;j++){
-                if(j == ppl-1)
-                    points_[count] = corner_points[0]+delta_2+s_int*i;
+        for(int i = 0; i < delta_2; i++)
+        {
+            for(int j = 0; j< ppl; j++)
+            {
+                if(image->data()[posToCount((center_width-delta_1/2+j*steppingPerLine), (center_height-delta_2/2+i), s_int)] == 0)
+                    continue;
                 else
                 {
-                    if(image->data()[corner_points[0]+steppingPerLine*j+s_int*i] == 0)
-                            continue;
-                    else
-                    {
-                        points_[count] = corner_points[0]+steppingPerLine*j+s_int*i;
-                        count++;
-                    }
+                    points_[count] = posToCount((center_width-delta_1/2+j*steppingPerLine), (center_height-delta_2/2+i), s_int);
+                    count++;
                 }
             }
         }
@@ -644,12 +667,13 @@ bool imageNozzle::readImage()
         angleToPosition = atan2(deltaWidth,deltaHeight);
         //Angle between height and width of particle - center
 
-        //printf("%i %i\n", index, image->getTotalDataSize());
-        particleFlow = 0.25*(  image->data()[index]+
+        particleFlow = 0.20*(  image->data()[index]+
                                image->data()[index+3]+
-                image->data()[index+s_int]+
-                image->data()[index+s_int+3]
-                )*pixel_to_flow_;
+                               image->data()[index-3]+
+                               image->data()[index+s_int]+
+                               image->data()[index-s_int]
+                                )*pixel_to_flow_/255;
+        particleFlow = 1;
         //Flow
 
         particleRadius = image->data()[index]*pixel_to_radius_;
@@ -662,19 +686,7 @@ bool imageNozzle::readImage()
         iBuf.dataBuffer[count*6+4] = particleFlow;
         iBuf.dataBuffer[count*6+5] = particleRadius;
 
-        //mystream << angleToNozzle << " " << angleToPosition << " " << deltaWidth << " " << deltaHeight << " " << particleFlow << " " << particleRadius << std::endl;
-
-        //        frequency_[count] = 3*intensity_[count]/(4*pow(radius_[count],3)*Pi);
-
-        //        min_particles += frequency_[count];
-
-
-
-
     };
-
-    //mystream.close();
-
 
     std::cout << "Reading image completed!\n" << std::endl;
 

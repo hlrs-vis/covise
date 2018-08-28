@@ -47,6 +47,7 @@ private:
     float initPressure_ = 2;
     float minimum = 0.000025;
     float deviation = 0.00005;
+    float alpha = 0.4;
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
@@ -209,6 +210,16 @@ public:
     bool getIntersection()
     {
         return intersection;
+    }
+
+    void setAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+    }
+
+    float getAlpha()
+    {
+        return alpha;
     }
 };
 

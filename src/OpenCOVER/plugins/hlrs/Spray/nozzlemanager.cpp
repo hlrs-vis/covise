@@ -62,7 +62,7 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
                              0,0,0,1
                             };
     initialMat.set(baseTransform);
-    class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 1, newNozzleName);
+    class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 10, newNozzleName);
     if(!newNozzle->isFailed())
     {
 

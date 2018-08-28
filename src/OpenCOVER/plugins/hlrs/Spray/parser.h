@@ -46,6 +46,7 @@ private:
     float deviation = 0.00005;
     float scaleFactor = 100000;
     float rendertime = 1;
+    float alpha = 0.4;
 
 
     int colorThreshold = 100;
@@ -220,6 +221,12 @@ public:
                         reynoldsLimit = stof(line);
                     }
 
+                    if(line.compare("alpha ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        alpha = stof(line);
+                    }
+
 
 
                 }//try
@@ -346,6 +353,11 @@ public:
     int getReynoldsLimit()
     {
         return reynoldsLimit;
+    }
+
+    float getAlpha()
+    {
+        return alpha;
     }
 };
 
