@@ -24,19 +24,8 @@
 MapDrape::MapDrape(int argc, char *argv[])
 	: coSimpleModule(argc, argv, "map coordinates and drape to height field")
 {
-
-
-	p_mapping_from_ = addStringParam("from",
-		"proj4 mapping from");
-	p_mapping_from_->setValue("+proj=latlong +datum=WGS84");
-
-	p_mapping_to_ = addStringParam("to",
-		"proj4 mapping to");
-
-	p_offset_ = addFloatVectorParam("offset",
-		"offset");
-	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
-	p_heightfield_->setValue("/tmp/foo.tif", "*.tif");
+	// setup GDAL
+	GDALAllRegister();
 
 	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
 	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
@@ -48,35 +37,26 @@ MapDrape::MapDrape(int argc, char *argv[])
 		err = _dupenv_s(&((char *)pValue), &len, "COVISEDIR");
 	if (err)
 		pValue = "";
-	std::string covisedir = pValue;
 #else
-
 	const char *pValue = getenv("ODDLOTDIR");
 	if (!pValue || pValue[0] == '\0')
 		pValue = getenv("COVISEDIR");
     if (!pValue)
         pValue = "";
-	std::string covisedir = pValue;
 #endif
+	std::string covisedir = pValue;
 	dir = covisedir + "/share/covise/";
-
-	std::string proj = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=" + dir + std::string("BETA2007.gsb");
-	p_mapping_to_->setValue(proj.c_str());
-	// setup GDAL
-	GDALAllRegister();
 
 	p_mapping_from_ = addStringParam("from", "proj4 mapping from");
 	p_mapping_from_->setValue("+proj=latlong +datum=WGS84");
 
 	p_mapping_to_ = addStringParam("to", "proj4 mapping to");
+	std::string proj = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=" + dir + std::string("BETA2007.gsb");
+	p_mapping_to_->setValue(proj.c_str());
 
-	p_mapping_to_->setValue((std::string("+proj=tmerc +lat_0=0 +lon_0=9 +k=1.000000 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +nadgrids=") + dir + std::string("BETA2007.gsb")).c_str());
 	p_offset_ = addFloatVectorParam("offset", "offset");
 	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
 	p_heightfield_->setValue("/tmp/foo.tif", "*.tif");
-
-	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
-	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
 }
 
 
