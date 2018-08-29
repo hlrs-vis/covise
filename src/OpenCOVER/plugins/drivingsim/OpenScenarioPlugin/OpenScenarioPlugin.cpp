@@ -584,13 +584,18 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 	//load xodr
 	if (osdb->RoadNetwork.getObject() != NULL)
 	{
-		std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
-		const char * xodrName = xodrName_st.c_str();
-		loadRoadSystem(xodrName);
-
-		std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
-		//load ScenGraph
-		coVRFileManager::instance()->loadFile(geometryFile.c_str());
+        if (osdb->RoadNetwork->Logics.exists())
+        {
+            std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
+            const char * xodrName = xodrName_st.c_str();
+            loadRoadSystem(xodrName);
+        }
+        if(osdb->RoadNetwork->SceneGraph.exists())
+        {
+            std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
+            //load ScenGraph
+            coVRFileManager::instance()->loadFile(geometryFile.c_str());
+        }
 	}
 	//if(osdb->getBase()->)
 
