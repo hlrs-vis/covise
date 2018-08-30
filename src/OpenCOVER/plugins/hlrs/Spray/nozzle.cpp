@@ -29,11 +29,10 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
     osg::Matrix baseTransform;
     baseTransform.set(t);
     transform_->setMatrix(baseTransform);
-    //scaleTransform->setMatrix(baseTransform);
 
     particleCount_ = parser::instance()->getReqParticles();
 
-    box_ = new osg::Box(osg::Vec3(0,0,0),0.1);                      //diameter = lenght = 0.1m, just for rendering purpose
+    box_ = new osg::Box(osg::Vec3(0,0,0),0.1*cover->getScale());                      //diameter = lenght = 0.1m, just for rendering purpose
     shapeDrawable_ = new osg::ShapeDrawable(box_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
     printf("Adding basic geometry to nozzle\n");
@@ -169,8 +168,7 @@ int nozzle::getID()
 void nozzle::keepSize()
 {
     osg::Matrix m;
-    float size = cover->getScale();
-    m.makeScale(size, size, size);
+    m.makeScale(1, 1, 1);
     scaleTransform->setMatrix(m);
 }
 
