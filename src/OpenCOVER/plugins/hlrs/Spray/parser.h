@@ -48,6 +48,8 @@ private:
     float rendertime = 1;
     float alpha = 0.4;
 
+    float RTOffset = 0;
+
 
     int colorThreshold = 100;
     int isAMD = 1;
@@ -358,6 +360,19 @@ public:
     float getAlpha()
     {
         return alpha;
+    }
+
+    float getRTOffset()
+    {
+        return RTOffset;
+    }
+
+    void setRTOffset(float newRTOffset)
+    {
+        if(newRTOffset < 0)
+            RTOffset = (-1)*newRTOffset;
+        else
+            RTOffset = newRTOffset;
     }
 };
 

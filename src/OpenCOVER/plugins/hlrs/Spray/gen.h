@@ -39,6 +39,13 @@ const float Pi = 3.141592653;
 class gen
 {
 private:
+    enum
+    {
+        CW_STOKES,
+        CW_MOLERUS,
+        CW_MUSCHELK,
+        CW_NONE
+    };
     coSphere* coSphere_;
     osg::Geode* geode_;
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
@@ -50,7 +57,7 @@ private:
     float tCur = 1;
 
 
-    std::string cwModelType = "STOKES";
+    int cwModelType = CW_MOLERUS;
 
     float densityOfFluid = 1.18;
     int reynoldsThreshold = 2230;
@@ -64,6 +71,7 @@ private:
     float removeCount = 0.9;
     float alpha = 0.4;
     float gaussamp = 1;
+    float RTOffset = 0;
 
     int outOfBoundCounter = 0;    
 

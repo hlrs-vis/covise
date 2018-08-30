@@ -11,7 +11,6 @@
 #include <vector>
 #include "types.h"
 #include "gen.h"
-//using namespace embree;
 
 struct Vertex   { float x,y,z/*,r*/;  };        //From tutorial
 struct Triangle { int v0, v1, v2; };        //From tutorial
@@ -322,6 +321,7 @@ public:
         x.hit.instID[1] = RTC_INVALID_GEOMETRY_ID;
 
         RTCIntersectContext d;
+        d.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
         rtcInitIntersectContext(&d);
         rtcIntersect1(rScene_,&d,&x);
 

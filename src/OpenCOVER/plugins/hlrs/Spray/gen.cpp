@@ -18,6 +18,16 @@ inline int sgn(float x)
         return (x>0) ? 1 : -1;
 }
 
+inline float absf(float x)
+{
+    if(x == 0)
+        return 0;
+    if(x > 0)
+        return x;
+    else
+        return x*(-1);
+}
+
 float gen::gaussian(float value)
 {
     return 1/(sqrt(Pi)*alpha*gaussamp)*exp((-1)*value*value/(alpha*alpha));
@@ -36,12 +46,23 @@ gen::gen(float pInit, class nozzle* owner)
     reynoldsThreshold = parser::instance()->getReynoldsThreshold();
     reynoldsLimit = parser::instance()->getReynoldsLimit();
     cwTurb = parser::instance()->getCwTurb();
-    cwModelType = parser::instance()->getCwModelType();
     iterations = parser::instance()->getIterations();
     minimum = parser::instance()->getMinimum();
     deviation = parser::instance()->getDeviation();
     alpha = parser::instance()->getAlpha();
     gaussamp = gaussian(0);
+    RTOffset = parser::instance()->getRTOffset();
+
+
+    if(parser::instance()->getCwModelType().compare("STOKES") == 0)
+        cwModelType = CW_STOKES;
+    if(parser::instance()->getCwModelType().compare("MOLERUS") == 0)
+        cwModelType = CW_MOLERUS;
+    if(parser::instance()->getCwModelType().compare("MUSCHELK") == 0)
+        cwModelType = CW_MUSCHELK;
+    if(parser::instance()->getCwModelType().compare("NONE") == 0)
+        cwModelType = CW_NONE;
+
 
     //Basetransform - currently not needed
     transform_ = new osg::MatrixTransform;
@@ -88,23 +109,23 @@ inline float gen::reynoldsNr(float v, double d)
     }
     else
     {
-        if(cwModelType.compare("STOKES") == 0)
+        if(cwModelType == CW_STOKES)
         {
-            cwLam = 24/reynolds_;
+            cwLam = 24/reynolds_;            
             return cwLam;
         }
-        if(cwModelType.compare("MOLERUS") == 0)
+        if(cwModelType == CW_MOLERUS)
         {
             cwLam = 24/reynolds_ + 0.4/sqrt(reynolds_)+0.4;
             return cwLam;
         }
-        if(cwModelType.compare("MUSCHELK") == 0)
+        if(cwModelType == CW_MUSCHELK)
         {
             cwLam = 21.5/reynolds_ + 6.5/sqrt(reynolds_)+0.23;
             return cwLam;
         }
 
-        if(cwModelType.compare("NONE") == 0)
+        if(cwModelType == CW_NONE)
         {
             cwLam = 0;
             return cwLam;
@@ -147,9 +168,8 @@ void gen::updateCoSphere(){
     }
 }
 
-void gen::updatePos(osg::Vec3 boundingBox){  
-
-    float floorHeight = VRSceneGraph::instance()->floorHeight()*0.001;
+void gen::updatePos(osg::Vec3 boundingBox)
+{
     tCur = parser::instance()->getRendertime()/60;
     float timesteps = tCur/iterations;
 
@@ -167,6 +187,7 @@ void gen::updatePos(osg::Vec3 boundingBox){
         {
             p->pos += p->velocity*timesteps;
             coSphere_->setColor(i,0,0,1,1);
+            //p->pos.y() = p->hitDis;
             p->particleOutOfBound = true;
             continue;
         }
@@ -213,16 +234,18 @@ void gen::updatePos(osg::Vec3 boundingBox){
 
         particle rayP = *p;
         rayP.velocity *= timesteps;
+        rayP.pos.y() += RTOffset;
 
         rayP = raytracer::instance()->handleParticleData(rayP);
 
         if(rayP.hit != 0)                                                       //hit was registered by embree
         {
-            //printf("v %f y %f hit dis %f\n", p->velocity.y()*timesteps, p->pos.y(), rayP.pos.z());
-            if(p->velocity.y()*timesteps+p->pos.y() > rayP.pos.z() )            //check if position of sphere is near hit distance
-            {
-                p->RTHit = true;                                                //particle has hit an object
-            }
+            if(p->velocity.y()*timesteps+absf(p->pos.y()) >= rayP.pos.z())           //check if position of sphere is near hit distance
+                {
+                    p->RTHit = true;                                                //particle has hit an object
+                    p->hitDis = rayP.pos.z();
+                    printf("pos %f velocity %f hit %f\n", p->pos.y(), p->velocity.y(), rayP.pos.z());
+                }
         }
 
     }

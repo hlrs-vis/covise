@@ -789,6 +789,12 @@ bool SprayPlugin::init()
 
     scene->addChild(testBoxGeode);
 
+    //Define midpoint of boundingsphere and radius for raytracer scene offset
+    osg::Vec3 center = cover->getObjectsRoot()->getBound().center();
+    float radius1 = cover->getObjectsRoot()->getBound().radius();
+    //std::cout << center.x() << " " << center.y() << " " << center.z() << " " << radius1 << std::endl;
+    parser::instance()->setRTOffset(radius1+abs(center.y()));
+
     nodeVisitorVertex c;
 
     cover->getObjectsRoot()->accept(c);
@@ -799,6 +805,7 @@ bool SprayPlugin::init()
     std::cout << std::endl;
 
     raytracer::instance()->finishAddGeometry();
+
     printf("SprayPlugin::init() finished\n");
 
     return true;

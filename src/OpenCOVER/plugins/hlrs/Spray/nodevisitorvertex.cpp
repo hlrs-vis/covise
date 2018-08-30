@@ -53,6 +53,7 @@ void nodeVisitorVertex::apply(osg::Node &node)
                     {
                         osg::TriangleFunctor<nodeVisitTriangle> tfc;
                         tfc.setNVV(this);
+                        tfc.setOffset(osg::Vec3(0, parser::instance()->getRTOffset(), 0));
                         geom->accept(tfc);
 
                     }
@@ -268,16 +269,16 @@ void nodeVisitorVertex::createFaceSet(Vec3Array *coords, int type)
 
 void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const
 {
-    nvv_->fillVertexArray(v1,v2,v3);
+    nvv_->fillVertexArray(v1+offset,v2+offset,v3+offset);
 
         //raytracer::instance()->createFace(v1,v2,v3,0);
         osg::Geometry *geom = new osg::Geometry;
 
         osg::Vec3Array *vertices = new osg::Vec3Array;
 
-        vertices->push_back(v1);
-        vertices->push_back(v2);
-        vertices->push_back(v3);
+        vertices->push_back(v1+offset);
+        vertices->push_back(v2+offset);
+        vertices->push_back(v3+offset);
 
         geom->setVertexArray(vertices);
 

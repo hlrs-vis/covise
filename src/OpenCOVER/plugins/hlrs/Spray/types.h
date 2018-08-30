@@ -34,6 +34,8 @@ public:
     double r;
     double m;
     int hit = 0;
+    float t = 0;
+    float hitDis = 0;
     bool particleOutOfBound = false;
     bool firstHit = false;
     bool RTHit = false;
