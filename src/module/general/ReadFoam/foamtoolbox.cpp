@@ -302,7 +302,7 @@ bool checkLagrangianDirectory(CaseInfo &info, Path lagdir, bool time)
 template<class Directory, class Iterator, class Path>
 bool checkCaseDataDirectory(CaseInfo &info, const Path &timedir, bool time)
 {
-    std::cerr << "checkCaseDataDirectory: path=" << timedir.string() << std::endl;
+    //std::cerr << "checkCaseDataDirectory: path=" << timedir.string() << std::endl;
 
     if (!exists(timedir))
     {
@@ -381,7 +381,10 @@ bool checkPolyMeshDirContent(CaseInfo &info, const Path &basedir)
 template<class Directory, class Iterator, class Path>
 bool checkCaseSubDirectory(CaseInfo &info, const Path &dir, bool compare, bool exact, bool verbose)
 {
-    std::cerr << "checkCaseSubDirectory: opening " << dir.string() << std::endl;
+    if (verbose)
+    {
+        std::cerr << "checkCaseSubDirectory: opening " << dir.string() << std::endl;
+    }
 
     index_t num_timesteps = 0;
     for (Iterator it(dir); it != Iterator(); ++it)
@@ -519,7 +522,10 @@ bool checkCaseProcessorDirectories(CaseInfo &info, bool compare, bool exact, boo
 
 bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbose)
 {
-    std::cerr << "reading casedir: " << info.casedir << std::endl;
+    if (verbose)
+    {
+        std::cerr << "reading casedir: " << info.casedir << std::endl;
+    }
 
     bf::path dir(info.casedir);
     if (!bf::exists(dir))
@@ -560,19 +566,9 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
         num_processors = numProcessorArchives;
     }
 
-    std::cerr << "case directory " << info.casedir << " is " << (info.archived ? "" : "not ") << "an archive: #archives=" << numProcessorArchives << std::endl;
-
-
-    if (!compare && num_processors > 0)
+    if (verbose)
     {
-        info.numblocks = num_processors;
-    }
-
-    if (compare && num_processors > 0)
-    {
-        if (verbose)
-            std::cerr << "found processor subdirectory in processor directory" << std::endl;
-        return false;
+        std::cerr << "case directory " << info.casedir << " is " << (info.archived ? "" : "not ") << "an archive: #archives=" << numProcessorArchives << std::endl;
     }
 
     if (num_processors > 0)
@@ -584,11 +580,19 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
         return checkCaseProcessorDirectories<bf::path, bf::path, bf::directory_iterator, bf::path>(info, compare, exact, verbose);
     }
 
-    bool ret = checkPolyMeshDirContent<bf::path, bf::directory_iterator>(info, bf::path(info.casedir));
-    if (!ret) {
-        std::cerr << "failed to gather topology directories in " << info.casedir << std::endl;
+    if (!checkCaseSubDirectory<bf::path, bf::directory_iterator>(info, bf::path(info.casedir), false, exact, verbose))
+    {
+        std::cerr << "failed to read global case directory " << info.casedir << std::endl;
+        return false;
     }
-    return ret;
+
+    if (!checkPolyMeshDirContent<bf::path, bf::directory_iterator>(info, bf::path(info.casedir)))
+    {
+        std::cerr << "failed to gather topology directories in " << info.casedir << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
 bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
