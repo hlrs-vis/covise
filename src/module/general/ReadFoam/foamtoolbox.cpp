@@ -185,7 +185,7 @@ template<class Directory, class Iterator, class Path>
 bool checkMeshDirectory(CaseInfo &info, const Path &meshdir, bool time)
 {
 
-    std::cerr << "checking meshdir " << meshdir.string() << std::endl;
+    //std::cerr << "checking meshdir " << meshdir.string() << std::endl;
     if (!exists(meshdir))
     {
         std::cerr << "mesh directory " << meshdir.string() << " does not exist" << std::endl;
@@ -1569,11 +1569,14 @@ public:
     template<typename Source>
     std::streamsize read(Source& src, char_type* s, std::streamsize n)
     {
-        if (nread > maxpass) {
+        if (nread >= maxpass) {
             return -1;
         }
-        if (nread+n > maxpass)
+        if (nread+n > maxpass) {
+            //std::streamsize prev = n;
             n = maxpass-nread;
+            //std::cerr << "stream_limiter: n=" << prev << " -> " << n << " (limit=" << maxpass << ")" << std::endl;
+        }
         std::streamsize result = bi::read(src, s, n);
         if (result >= 0)
             nread += result;
@@ -1583,7 +1586,7 @@ public:
     template<typename Sink>
     std::streamsize write(Sink& snk, const char_type* s, std::streamsize n)
     {
-        if (nwritten > maxpass) {
+        if (nwritten >= maxpass) {
             return -1;
         }
         if (nwritten+n > maxpass)
@@ -1623,8 +1626,8 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
             if (file) {
                 size = file->size;
                 offset = file->offset;
-            container = root.getModel()->getContainer();
-            archive = true;
+                container = root.getModel()->getContainer();
+                archive = true;
             }
         }
     } else {
@@ -1644,6 +1647,10 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
     }
     if (offset>0)
         s->seekg(offset);
+    if (!zipped && !archive)
+    {
+        return std::shared_ptr<std::istream>(s);
+    }
 
     bi::filtering_istream *fi = new bi::filtering_istream;
     if (zipped) {
