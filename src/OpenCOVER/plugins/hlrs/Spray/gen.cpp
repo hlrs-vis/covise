@@ -282,7 +282,7 @@ void imageGen::seed(){
     }
     particleCount_ = newParticleCount;
     setCoSphere(pos);
-    delete pos;
+    pos->unref();
 }
 
 
@@ -400,5 +400,5 @@ void standardGen::seed(){
 
     }
     setCoSphere(pos);
-    delete pos;
+    pos->unref();
 }
