@@ -1209,11 +1209,6 @@ bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
     for (size_t i = 0; i < lines; ++i)
     {
         stream >> p[i];
-        if (!stream.good())
-        {
-           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
-           return false;
-        }
     }
     expect('\n');
     return stream.good();
@@ -1227,11 +1222,6 @@ bool readArrayAscii(std::istream &stream, float *p, const size_t lines)
         double val;
         stream >> val;
         p[i] = float(val);
-        if (!stream.good())
-        {
-           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
-           return false;
-        }
     }
     expect('\n');
     return stream.good();
