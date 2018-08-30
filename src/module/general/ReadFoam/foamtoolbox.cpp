@@ -565,6 +565,7 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
         info.archived = true;
         num_processors = numProcessorArchives;
     }
+    info.numblocks = num_processors;
 
     if (verbose)
     {
@@ -595,7 +596,7 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
     return true;
 }
 
-bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
+bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact, bool verbose)
 {
     bool ignored = false;
     for (std::map<std::string, int>::iterator it = fields.begin(), next;
@@ -604,15 +605,18 @@ bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
     {
         next = it;
         ++next;
-        std::cerr << "  " << it->first << ": " << it->second;
+        if (verbose)
+            std::cerr << "  " << it->first << ": " << it->second;
         if (exact && it->second != nRequired)
         {
             ignored = true;
-            std::cerr << " (ignored)";
+            if (verbose)
+                std::cerr << " (ignored)";
             fields.erase(it->first);
         }
     }
-    std::cerr << std::endl;
+    if (verbose)
+        std::cerr << std::endl;
     return !ignored;
 }
 
@@ -634,17 +638,17 @@ CaseInfo getCaseInfo(const std::string &casedir, bool exact, bool verbose)
     int np = info.numblocks > 0 ? info.numblocks : 1;
     if (verbose)
         std::cerr << "  constant:";
-    checkFields(info.constantFields, np, exact);
+    checkFields(info.constantFields, np, exact, verbose);
 
     if (verbose)
         std::cerr << "  varying: ";
-    checkFields(info.varyingFields, np * int(info.timedirs.size()), exact);
+    checkFields(info.varyingFields, np * int(info.timedirs.size()), exact, verbose);
 
     if (info.hasParticles)
     {
         if (verbose)
             std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
-        checkFields(info.particleFields, np * int(info.timedirs.size()), exact);
+        checkFields(info.particleFields, np * int(info.timedirs.size()), exact, verbose);
     }
     else
     {

@@ -1220,9 +1220,6 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     for (index_t j = 0;( j < m_case.numblocks || j==0); j++)
                     { //fill vector:tempSet with all the mesh parts of all processors even if its just one
                         //std::cerr << " processor" << j;
-                        std::string meshdir;
-                        std::string pointsdir;
-                        std::string datadir;
                         std::stringstream sMeshDir;
                         std::stringstream sPointsDir;
                         std::stringstream sDataDir;
@@ -1239,12 +1236,13 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             sDataDir << timedir;
                         }
 
-                        meshdir += sMeshDir.str();
+                        std::string meshdir = sMeshDir.str();
+                        std::string pointsdir;
                         if (m_case.varyingCoords)
-                            pointsdir += sPointsDir.str();
+                            pointsdir = sPointsDir.str();
                         else
                             pointsdir = meshdir;
-                        datadir += sDataDir.str();
+                        std::string datadir = sDataDir.str();
                         std::stringstream sm;
                         std::stringstream sb;
                         std::stringstream sd;
