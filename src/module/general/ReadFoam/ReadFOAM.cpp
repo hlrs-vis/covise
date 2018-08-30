@@ -245,15 +245,15 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         std::stringstream meshdir;
         if (m_case.numblocks > 0)
         {
-            meshdir << casedir << "/processor0/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+            meshdir << "processor0/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
         }
         else
         {
-            meshdir << casedir << "/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+            meshdir << "constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
         }
         coModule::sendInfo("%s", meshdir.str().c_str());
         coModule::sendInfo("Listing Boundary Patches!");
-        Boundaries bounds = loadBoundary(meshdir.str());
+        Boundaries bounds = m_case.loadBoundary(meshdir.str());
         for (int i = 0; i < bounds.boundaries.size(); ++i)
         {
             std::stringstream info;
@@ -428,7 +428,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
     if (Processor == -1)
     {
-        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -436,7 +436,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         {
             int num_points = pointsH.lines;
             //std::cerr << std::time(0) << " reading Faces" << std::endl;
-            std::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+            std::shared_ptr<std::istream> facesIn = m_case.getStreamForFile(meshdir, "faces");
             if (!facesIn)
                 return NULL;
             HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -444,7 +444,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexListArray(facesH, *facesIn, faces.data(), faces.size());
 
             //std::cerr << std::time(0) << " reading Owners" << std::endl;
-            std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+            std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
             if (!ownersIn)
                 return NULL;
             HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -453,7 +453,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
             //std::cerr << std::time(0) << " reading neighbours" << std::endl;
-            std::shared_ptr<std::istream> neighborsIn = getStreamForFile(meshdir, "neighbour");
+            std::shared_ptr<std::istream> neighborsIn = m_case.getStreamForFile(meshdir, "neighbour");
             if (!neighborsIn)
                 return NULL;
             HeaderInfo neighbourH = readFoamHeader(*neighborsIn);
@@ -701,7 +701,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         oldMesh->getTypeList(&oldtl);
 
         //std::cerr << std::time(0) << " Reading points from: " << pointsdir.c_str() << std::endl;
-        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -747,7 +747,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
     if (Processor == -1)
     { //when Processor = -1, the boundary will be read completely
         std::cerr << std::time(0) << " Reading boundary from:             " << meshdir.c_str() << std::endl;
-        std::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+        std::shared_ptr<std::istream> facesIn = m_case.getStreamForFile(meshdir, "faces");
         if (!facesIn)
             return NULL;
         HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -756,7 +756,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
         coRestraint res;
         res.add(selection.c_str());
-        Boundaries boundaries = loadBoundary(meshdir);
+        Boundaries boundaries = m_case.loadBoundary(meshdir);
         int num_corners = 0;
         int num_polygons = 0;
         int num_points = 0;
@@ -820,7 +820,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
         }
         std::vector<std::vector<index_t> >().swap(faces); //Deallocate the memory
 
-        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -870,7 +870,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
         // save coordinates to coordinate lists
         std::cerr << std::time(0) << " copying Boundary Polygons and reading new points from: " << pointsdir.c_str() << std::endl;
-        std::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -897,7 +897,7 @@ coDoPoints *ReadFOAM::loadParticles(const std::string &datadir, const std::strin
     *cellIdsPointer = NULL;
     std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
 
-    std::shared_ptr<std::istream> posIn = getStreamForFile(lagdir, "positions");
+    std::shared_ptr<std::istream> posIn = m_case.getStreamForFile(lagdir, "positions");
     if (!posIn)
         return NULL;
     HeaderInfo posH = readFoamHeader(*posIn);
@@ -935,14 +935,14 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
                                      const std::string &vecObjName,
                                      const std::string &meshdir)
 {
-    std::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = m_case.getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
     size_t numberCells = header.lines;
     if (numberCells == 0)
     {
-        std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+        std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
         HeaderInfo ownerH = readFoamHeader(*ownersIn);
         DimensionInfo dim = parseDimensions(ownerH.header);
         numberCells = dim.cells;
@@ -951,7 +951,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     std::cerr << std::time(0) << "Field with name " << header.object.c_str() << " has dimensions " << header.dimensions.c_str() << std::endl;
     if (header.fieldclass == "volVectorField" || header.fieldclass == "vectorField")
     {
-        std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
+        std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "/" << file.c_str() << std::endl;
         coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), int(numberCells));
         float *x, *y, *z;
         vecObj->getAddresses(&x, &y, &z);
@@ -972,7 +972,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     }
     else if (header.fieldclass == "volScalarField" || header.fieldclass == "scalarField")
     {
-        std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
+        std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "/" << file.c_str() << std::endl;
         coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), int(numberCells));
             float *x=vecObj->getAddress();
         if (header.lines==0)
@@ -1025,7 +1025,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
                                             const std::string &selection)
 {
 
-    std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+    std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
     if (!ownersIn)
         return NULL;
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -1034,10 +1034,10 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
 
     coRestraint res;
     res.add(selection.c_str());
-    Boundaries boundaries = loadBoundary(meshdir);
+    Boundaries boundaries = m_case.loadBoundary(meshdir);
     std::vector<index_t> dataMapping;
     int numBoundaryFaces =0;
-    std::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = m_case.getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
@@ -1150,7 +1150,6 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         m_case.timedirs[t] = bn;
     }
     //Mesh
-    checkPolyMeshDirContent(m_case);
     int skipfactor = skipfactorParam->getValue();
     if (skipfactor < 1)
     {
@@ -1197,6 +1196,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             ++it)
     {
         double t = it->first;
+        const std::string &timedir = it->second;
         if (t >= starttime && t <= (stoptime*(1+1e-6)))
         { 
             std::stringstream realtime_s;
@@ -1208,7 +1208,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                         || (m_case.hasParticles && (particleParam->getValue() || !cellIdPorts.empty())))
                 {
                     coModule::sendInfo("Reading mesh/boundary and data. Please wait ...");
-                    std::cerr << std::time(0) << " Reading mesh, boundary and fields for timestep: " << t << std::endl;
+                    std::cerr << std::time(0) << " Reading mesh, boundary and fields for timestep: " << t  << " (dir=" << timedir << ")" << std::endl;
                     std::string selection = patchesStringParam->getValString();
 
                     std::vector<coDistributedObject *> tempSetMesh;
@@ -1220,24 +1220,23 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     for (index_t j = 0;( j < m_case.numblocks || j==0); j++)
                     { //fill vector:tempSet with all the mesh parts of all processors even if its just one
                         //std::cerr << " processor" << j;
-                        std::string meshdir = casedir;
-                        std::string pointsdir = casedir;
-                        std::string datadir = casedir;
-                        std::string timedir = it->second;
+                        std::string meshdir;
+                        std::string pointsdir;
+                        std::string datadir;
                         std::stringstream sMeshDir;
                         std::stringstream sPointsDir;
                         std::stringstream sDataDir;
                         if (m_case.numblocks > 0)
                         {
-                            sMeshDir << "/processor" << j  << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
-                            sPointsDir << "/processor" << j  << "/" << timedir << "/polyMesh";
-                            sDataDir << "/processor" << j  << "/" << timedir;
+                            sMeshDir << "processor" << j  << "/" << m_case.completeMeshDirs[t] << "/polyMesh";
+                            sPointsDir << "processor" << j  << "/" << timedir << "/polyMesh";
+                            sDataDir << "processor" << j  << "/" << timedir;
                         }
                         else
                         {
-                            sMeshDir << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
-                            sPointsDir << "/" << timedir << "/polyMesh";
-                            sDataDir << "/" << timedir;
+                            sMeshDir << m_case.completeMeshDirs[t] << "/polyMesh";
+                            sPointsDir << timedir << "/polyMesh";
+                            sDataDir << timedir;
                         }
 
                         meshdir += sMeshDir.str();
@@ -1316,7 +1315,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 std::string dataFilename = portChoice[nPort]->getLabel(portchoice);
                                 if (portchoice == 1)
                                 {
-                                    std::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+                                    std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
                                     HeaderInfo ownerH = readFoamHeader(*ownersIn);
                                     DimensionInfo dim = parseDimensions(ownerH.header);
                                     std::string portObjName = outPorts[nPort]->getObjName();
@@ -1354,7 +1353,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 {//ToDo:Replace dim.cells with the correct number of faces
                                     coRestraint res;
                                     res.add(selection.c_str());
-                                    Boundaries boundaries = loadBoundary(meshdir);
+                                    Boundaries boundaries = m_case.loadBoundary(meshdir);
                                     int numBoundaryFaces =0;
                                     for (std::vector<Boundary>::const_iterator it = boundaries.boundaries.begin();
                                             it != boundaries.boundaries.end();

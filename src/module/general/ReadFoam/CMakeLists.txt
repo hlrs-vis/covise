@@ -1,14 +1,28 @@
-USING(BOOST)
-SET(HEADERS
+covise_find_package(LibArchive)
+if (LibArchive_FOUND)
+   include_directories(SYSTEM ${LibArchive_INCLUDE_DIRS})
+   add_definitions(-DHAVE_LIBARCHIVE)
+endif()
+
+using(BOOST)
+
+set(HEADERS
   ReadFOAM.h
 )
-SET(SOURCES
+
+set(SOURCES
   ReadFOAM.cpp
   foamtoolbox.cpp
+  archivemodel.cpp
 )
-ADD_COVISE_MODULE(IO ReadFoam ${EXTRASOURCES})
+
+add_covise_module(IO ReadFoam ${EXTRASOURCES})
 if(NOT MSVC)
     add_covise_compile_flags(ReadFoam "-Wno-error=deprecated-declarations")
 endif()
-TARGET_LINK_LIBRARIES(ReadFoam coApi coAppl coCore ${EXTRA_LIBS})
-COVISE_INSTALL_TARGET(ReadFoam)
+target_link_libraries(ReadFoam coApi coAppl coCore ${EXTRA_LIBS})
+if (LibArchive_FOUND)
+   target_link_libraries(ReadFoam ${LibArchive_LIBRARIES})
+endif()
+
+covise_install_target(ReadFoam)
