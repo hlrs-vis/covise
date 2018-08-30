@@ -521,14 +521,17 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			{
 				minSimulationStep = std::stoi(userdata->value.getValue());
 			}
-			else if (userdata->code.getValue() == "ScenarioEnd")
-			{
-				if (userdata->value.getValue() == "Exit")
-					doExit = true;
-				if (userdata->value.getValue() == "Wait")
-					doWait = true;
-			}
-			else if (userdata->code.getValue() == "Port")
+            else if (userdata->code.getValue() == "ScenarioEnd")
+            {
+                if (userdata->value.getValue() == "Exit")
+                    doExit = true;
+                if (userdata->value.getValue() == "Wait")
+                {
+                    doWait = true;
+                    doExit = false;
+                }
+            }
+            else if (userdata->code.getValue() == "Port")
 			{
 				port = std::stoi(userdata->value.getValue());
 			}

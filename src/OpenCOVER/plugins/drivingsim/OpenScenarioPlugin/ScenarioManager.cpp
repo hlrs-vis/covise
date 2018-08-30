@@ -354,12 +354,42 @@ bool ScenarioManager::conditionControl(Condition* condition)
         for(std::list<Entity*>::iterator entity_iter = condition->activeEntityList.begin(); entity_iter != condition->activeEntityList.end(); entity_iter++)
         {
             Entity* activeEntity = (*entity_iter);
-            if((activeEntity->refPos->roadId == passiveEntity->refPos->roadId) && (activeEntity->refPos->s- passiveEntity->refPos->s >= relativeDistance)) // todo entities might be on different roads
+            if(activeEntity->refPos->roadId == passiveEntity->refPos->roadId)
             {
-                condition->set(true);
-                condition->waitForDelay = true;
-                return condition->delayReached();
+                float distance = activeEntity->refPos->s - passiveEntity->refPos->s;// todo entities might be on different roads
+                if (condition->ByEntity->EntityCondition->RelativeDistance->rule == oscTimeHeadway::greater_than)
+                {
+                    if ((distance >= relativeDistance))
+                    {
+                        condition->set(true);
+                        condition->waitForDelay = true;
+                        return condition->delayReached();
+                    }
+                }
+                else if (condition->ByEntity->EntityCondition->RelativeDistance->rule == oscTimeHeadway::less_than)
+                {
+                    if (distance <= relativeDistance) // todo entities might be on different roads
+                    {
+                        condition->set(true);
+                        condition->waitForDelay = true;
+                        return condition->delayReached();
+                    }
+                }
+                else if (condition->ByEntity->EntityCondition->RelativeDistance->rule == oscTimeHeadway::equal_to)
+                {
+                    if (condition->distance != -10000000)
+                    {
+                        if ((condition->distance < distance && (distance > relativeDistance && condition->distance < relativeDistance)) || (condition->distance > distance && (distance < relativeDistance && condition->distance > relativeDistance))) // todo entities might be on different roads
+                        {
+                            condition->set(true);
+                            condition->waitForDelay = true;
+                            return condition->delayReached();
+                        }
+                    }
+                    condition->distance = distance;
+                }
             }
+
         }
     }
 
@@ -395,6 +425,8 @@ void ScenarioManager::initializeCondition(Condition *condition)
     {
         std::string passiveEntityName = condition->ByEntity->EntityCondition->RelativeDistance->entity.getValue();
         condition->setPassiveEntity(getEntityByName(passiveEntityName));
+
+        condition->distance = -10000000;
 
         for (oscEntityArrayMember::iterator it = condition->ByEntity->TriggeringEntities->Entity.begin(); it != condition->ByEntity->TriggeringEntities->Entity.end(); it++)
         {

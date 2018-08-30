@@ -401,21 +401,9 @@ CarGeometry::updateCarParts(double t, double dt, VehicleState &vehState)
 
 void CarGeometry::setTransform(Transform &roadTransform, double heading)
 {
-    Quaternion qzaaa(heading, Vector3D(0, 0, 1));
-
-    Quaternion q = roadTransform.q() * qzaaa;
-    //Quaternion q = qz;
-    //std::cout << "Gamma: " << roadTransform.gamma() << ", Quaternion: " << qz << std::endl;
-    //std::cout << "Gamma: " << roadTransform.gamma() << ", Quaternion: " ;
-    //std::cout << "(" << q.w() << ", [" << q.x() << ", " << q.y() << ", " << q.z() << "])" << std::endl;
-
-    //q=q.T();
-
     osg::Matrix m;
-    m.makeRotate(osg::Quat(q.x(), q.y(), q.z(), q.w()));
+    m.makeRotate(heading, 0, 0, 1);
     m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
-
-    //vehicleTransform->setMatrix(osg::Matrix::rotate(heading, 0,0,1)*roadMatrix);
     carTransform->setMatrix(m);
 }
 

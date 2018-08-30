@@ -139,7 +139,6 @@ void ReferencePosition::move(double ds, double dt, float step)
     t = t+dt1*step;
 
     double phi = atan(dt1/ds1);
-    hdg = phi + road->getHeading(s);
 
     if(s>roadLength)
     {
@@ -149,6 +148,11 @@ void ReferencePosition::move(double ds, double dt, float step)
     {
         this->getPredecessor();
     }
+    if (s < 0)
+    {
+        s = 0;
+    }
+    hdg = phi + road->getHeading(s);
 
     LaneSection* newLS = road->getLaneSection(s);
 
@@ -320,10 +324,14 @@ void ReferencePosition::getPredecessor()
     connection = road->getPredecessorConnection();
     if(connection)
     {
-        road = dynamic_cast<Road *>(connection->getConnectingTarmac());
-        roadId = system->getRoadId(road);
-        roadLength = road->getLength();
-        s = roadLength+s;
+        Road *newRoad = dynamic_cast<Road *>(connection->getConnectingTarmac());
+        if(newRoad !=nullptr)
+        {
+            road = newRoad;
+            roadId = system->getRoadId(road);
+            roadLength = road->getLength();
+            s = roadLength + s;
+        } // else we are on an intersection or the road ends TODO handle this case
     }
 }
 void ReferencePosition::resetStatus()

@@ -27,6 +27,7 @@ public:
     bool isTrue;
     float delayTimer;
     bool waitForDelay;
+    float distance;
     // (longitudinal) distance
     Entity* passiveEntity;
     std::list<Entity*> activeEntityList;
