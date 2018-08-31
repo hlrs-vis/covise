@@ -70,7 +70,11 @@ struct swap_bytes<T, 2> // for 16 bit
 {
     inline T operator()(T val)
     {
-        return ((((val) >> 8) & 0xff) | (((val) & 0xff) << 8));
+        #if defined(_USE_BUILTIN_BSWAPS) && defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR__ >= 3) || __GNUC__ > 4)
+            return __builtin_bswap16(val);
+        #else
+            return ((((val) >> 8) & 0xff) | (((val) & 0xff) << 8));
+        #endif
     }
 };
 

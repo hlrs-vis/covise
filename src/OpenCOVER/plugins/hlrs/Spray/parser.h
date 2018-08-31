@@ -40,7 +40,8 @@ private:
     float densityOfParticle = 1000;
     float cwTurb = 0.15;
     float nu = 0;
-    int reynoldsThreshold = 170000;
+    int reynoldsThreshold = 2230;
+    int reynoldsLimit = 170000;
     float minimum = 0.000025;
     float deviation = 0.00005;
     float scaleFactor = 100000;
@@ -213,6 +214,12 @@ public:
                         iterations = stof(line);
                     }
 
+                    if(line.compare("reynoldsLimit ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        reynoldsLimit = stof(line);
+                    }
+
 
 
                 }//try
@@ -334,6 +341,11 @@ public:
     int getIterations()
     {
         return iterations;
+    }
+
+    int getReynoldsLimit()
+    {
+        return reynoldsLimit;
     }
 };
 

@@ -20,7 +20,8 @@
 #include "parser.h"
 
 
-typedef struct{
+typedef struct
+{
     int count;
     std::string name;
     float position[15];
@@ -31,6 +32,9 @@ typedef struct{
 
     float angle;
     std::string decoy;
+
+    float minimum;
+    float deviation;
 
 }nozzleParam;
 
@@ -47,7 +51,8 @@ private:
     {
     public:
         ~nozzleManagerGuard(){
-            if(NULL != nozzleManager::_instance){
+            if(NULL != nozzleManager::_instance)
+            {
                 delete nozzleManager::_instance;
                 nozzleManager::_instance = NULL;
             }
@@ -90,6 +95,7 @@ public:
     nozzle* getNozzle(int index);
 
     void setBoundingBox(osg::Vec3 newBoundingBox);
+    void autoremove(bool state);
     osg::Vec3 getBoundingBox()
     {
         return currentBoundingBox;

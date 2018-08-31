@@ -521,14 +521,17 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 			{
 				minSimulationStep = std::stoi(userdata->value.getValue());
 			}
-			else if (userdata->code.getValue() == "ScenarioEnd")
-			{
-				if (userdata->value.getValue() == "Exit")
-					doExit = true;
-				if (userdata->value.getValue() == "Wait")
-					doWait = true;
-			}
-			else if (userdata->code.getValue() == "Port")
+            else if (userdata->code.getValue() == "ScenarioEnd")
+            {
+                if (userdata->value.getValue() == "Exit")
+                    doExit = true;
+                if (userdata->value.getValue() == "Wait")
+                {
+                    doWait = true;
+                    doExit = false;
+                }
+            }
+            else if (userdata->code.getValue() == "Port")
 			{
 				port = std::stoi(userdata->value.getValue());
 			}
@@ -584,13 +587,18 @@ int OpenScenarioPlugin::loadOSCFile(const char *file, osg::Group *, const char *
 	//load xodr
 	if (osdb->RoadNetwork.getObject() != NULL)
 	{
-		std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
-		const char * xodrName = xodrName_st.c_str();
-		loadRoadSystem(xodrName);
-
-		std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
-		//load ScenGraph
-		coVRFileManager::instance()->loadFile(geometryFile.c_str());
+        if (osdb->RoadNetwork->Logics.exists())
+        {
+            std::string xodrName_st = osdb->RoadNetwork->Logics->filepath.getValue();
+            const char * xodrName = xodrName_st.c_str();
+            loadRoadSystem(xodrName);
+        }
+        if(osdb->RoadNetwork->SceneGraph.exists())
+        {
+            std::string geometryFile = osdb->RoadNetwork->SceneGraph->filepath.getValue();
+            //load ScenGraph
+            coVRFileManager::instance()->loadFile(geometryFile.c_str());
+        }
 	}
 	//if(osdb->getBase()->)
 
@@ -999,7 +1007,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 				|| (road->isJunctionPath() && tessellatePaths == true) // junction path
 				)
 			{
-				fprintf(stderr, "1tessellateBatters %d\n", tessellateBatters);
+				//fprintf(stderr, "1tessellateBatters %d\n", tessellateBatters);
 				osg::Group *roadGroup = road->getRoadBatterGroup(tessellateBatters, tessellateObjects);
 				if (roadGroup)
 				{

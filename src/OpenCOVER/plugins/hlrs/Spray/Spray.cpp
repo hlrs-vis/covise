@@ -57,8 +57,8 @@ bool SprayPlugin::init()
     edit_->setText("Edit Nozzle");
     edit_->setCallback([this]()
     {
-        if(editing == false)
-        {
+//        if(editing == false)
+//        {
             editing = true;
             currentNozzleID = nozzleID;
             std::cout << "Editing nozzle ID: " << currentNozzleID << " started" << std::endl;
@@ -66,7 +66,8 @@ bool SprayPlugin::init()
             if(0 != nM->getNozzle(currentNozzleID))
             {
                 editNozzle = nM->getNozzle(currentNozzleID);
-                //editNozzle->setColor(osg::Vec4(1,1,0,1));
+                if(parser::instance()->getIsAMD() == 0)
+                    editNozzle->setColor(osg::Vec4(1,1,0,1));
                 newColor = editNozzle->getColor();
 
                 if(nozzleEditMenu_ != nullptr)
@@ -83,8 +84,10 @@ bool SprayPlugin::init()
                     moveX->setValue(editNozzle->getMatrix().getTrans().x());
                     moveY->setValue(editNozzle->getMatrix().getTrans().y());
                     moveZ->setValue(editNozzle->getMatrix().getTrans().z());
-                    minimum = editNozzle->getMinimum();
-                    deviation = editNozzle->getDeviation();
+                    minimum = editNozzle->getMinimum()*1000000;
+                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
+                    deviation = editNozzle->getDeviation()*1000000;
+                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
 
                     if(editNozzle->getType().compare("standard") == 0)
                         param1->setText("Spray Angle");
@@ -98,6 +101,9 @@ bool SprayPlugin::init()
                         param2->setText("File Name");
                     param2->setValue(editNozzle->getParam2());
 
+                    interaction->setState(editNozzle->getIntersection());
+
+
                 }
                 else
                 {
@@ -105,8 +111,8 @@ bool SprayPlugin::init()
                     nozzleEditMenu_->setText("Spray");
 
                     //Set variables of nozzle to init values
-                    minimum = editNozzle->getMinimum();
-                    deviation = editNozzle->getDeviation();
+                    minimum = editNozzle->getMinimum()*1000000;
+                    deviation = editNozzle->getDeviation()*1000000;
 
                     red_ = new ui::EditField(nozzleEditMenu_, "redField");
                     red_->setText("Red value");
@@ -191,8 +197,8 @@ bool SprayPlugin::init()
                                                );
                     pressureSlider_->setValue(editNozzle->getInitPressure());
 
-                    ui::EditField* rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum");
-                    rMinimum->setValue(editNozzle->getMinimum());
+                    rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
+                    rMinimum->setValue(editNozzle->getMinimum()*1000000);
                     rMinimum->setCallback([this](const std::string &cmd){
                         manager()->update();
 
@@ -208,8 +214,8 @@ bool SprayPlugin::init()
                         }//catch
                     });
 
-                    ui::EditField* rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation");
-                    rDeviation->setValue(editNozzle->getDeviation());
+                    rDeviation = new ui::EditField(nozzleEditMenu_, "Deviation in microns");
+                    rDeviation->setValue(editNozzle->getDeviation()*1000000);
                     rDeviation->setCallback([this](const std::string &cmd){
                         manager()->update();
 
@@ -239,20 +245,39 @@ bool SprayPlugin::init()
                         param2->setText("File Name");
                     param2->setValue(editNozzle->getParam2());
 
+                    interaction = new ui::Button(nozzleEditMenu_, "InteractionNozzle");
+                    interaction->setText("Interaction");
+                    interaction->setState(editNozzle->getIntersection());
+                    interaction->setCallback([this](bool state){
+                        if(state == false)
+                        {
+                            editNozzle->disableIntersection();
+                            editNozzle->setIntersection(false);
+                            std::cout << "Interaction deactivated" << std::endl;
+                        }
+                        else
+                            if(state == true){
+                                editNozzle->enableIntersection();
+                                editNozzle->setIntersection(true);
+                                std::cout << "Interaction activated" << std::endl;
+                        }
+
+                    });
+
                     acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
                     acceptEdit_->setText("Accept");
                     acceptEdit_->setCallback([this](){
-                        //editNozzle->setColor(newColor);                               //Somehow crashes the rendering of spheres
+                        if(parser::instance()->getIsAMD() == 0)
+                            editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
-                        editNozzle->setMinimum(minimum);
-                        editNozzle->setDeviation(deviation);
+                        editNozzle->setMinimum(minimum/1000000);
+                        editNozzle->setDeviation(deviation/1000000);
                         editing = false;
                         std::cout << "Editing done" << std::endl;
                         nozzleEditMenu_->setVisible(false);
 
                     });
 
-                    //#if TESTING
                     testMenu = new ui::Menu(nozzleEditMenu_, "tester");
                     testMenu->setText("Controller");
 
@@ -263,12 +288,10 @@ bool SprayPlugin::init()
                     rotX->setBounds(-1,1);
                     rotX->setValue(editNozzle->getMatrix().getRotate().x());
                     rotX->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
                         a.x() = value;
-                        memMat.makeIdentity();
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -278,12 +301,10 @@ bool SprayPlugin::init()
                     rotY->setBounds(-1,1);
                     rotY->setValue(editNozzle->getMatrix().getRotate().y());
                     rotY->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
-                        a.y() = value;;
-                        memMat.makeIdentity();
+                        a.y() = value;
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -293,12 +314,10 @@ bool SprayPlugin::init()
                     rotZ->setBounds(-1,1);
                     rotZ->setValue(editNozzle->getMatrix().getRotate().z());
                     rotZ->setCallback([this](float value, bool stop){
-                        osg::Vec3 trans = editNozzle->getMatrix().getTrans();
+                        memMat = editNozzle->getMatrix();
                         osg::Quat a = editNozzle->getMatrix().getRotate();
                         a.z() = value;
-                        memMat.makeIdentity();
                         memMat.setRotate(a);
-                        memMat.setTrans(trans);
                         editNozzle->updateTransform(memMat);
 
                     });
@@ -308,7 +327,6 @@ bool SprayPlugin::init()
                     moveX->setText("Move X");
                     moveX->setValue(editNozzle->getMatrix().getTrans().x());
                     moveX->setCallback([this](const std::string &cmd){
-                        //manager()->update();
 
                         try
                         {
@@ -382,8 +400,8 @@ bool SprayPlugin::init()
                 }
                 //#endif
             }
-        }
-        else editing = false;
+//        }
+//        else editing = false;
     });
 
     sprayStart_ = new ui::Button(sprayMenu_, "StartStop");
@@ -405,32 +423,32 @@ bool SprayPlugin::init()
     save_->setText("Save");
     save_->setCallback([this](){
         manager()->update();
-        if(saveLoadMenu_ != nullptr)
+        if(saveMenu_ != nullptr)
         {
-            saveLoadMenu_->setVisible(true);
+            saveMenu_->setVisible(true);
         }
         else
         {
-            saveLoadMenu_ = new ui::Menu(sprayMenu_, "Save or Load Nozzles");
+            saveMenu_ = new ui::Menu(sprayMenu_, "Save Nozzles");
 
-            pathNameFielddyn_ = new ui::EditField(saveLoadMenu_, "pathname");
+            pathNameFielddyn_ = new ui::EditField(saveMenu_, "pathname");
             pathNameFielddyn_->setText("Path Name");
             pathNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 pathNameField_ = cmd;
             });
 
-            fileNameFielddyn_ = new ui::EditField(saveLoadMenu_, "");
+            fileNameFielddyn_ = new ui::EditField(saveMenu_, "");
             fileNameFielddyn_->setText("File Name");
             fileNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 fileNameField_ = cmd;
             });
 
-            ui::Action* acceptSL = new ui::Action(saveLoadMenu_, "Accept");
+            ui::Action* acceptSL = new ui::Action(saveMenu_, "Accept");
             acceptSL->setCallback([this](){
                 nM->saveNozzle(pathNameField_, fileNameField_);
-                saveLoadMenu_->setVisible(false);
+                saveMenu_->setVisible(false);
             });
         }
 
@@ -440,29 +458,29 @@ bool SprayPlugin::init()
     load_ = new ui::Action(sprayMenu_, "Load");
     load_->setText("Load");
     load_->setCallback([this](){
-        if(saveLoadMenu_ != nullptr)
+        if(loadMenu_ != nullptr)
         {
-            saveLoadMenu_->setVisible(true);
+            loadMenu_->setVisible(true);
         }
         else
         {
-            saveLoadMenu_ = new ui::Menu(sprayMenu_, "Save or Load Nozzles");
+            loadMenu_ = new ui::Menu(sprayMenu_, "Load Nozzles");
 
-            pathNameFielddyn_ = new ui::EditField(sprayMenu_, "pathname");
+            pathNameFielddyn_ = new ui::EditField(loadMenu_, "pathname");
             pathNameFielddyn_->setText("Path Name");
             pathNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 pathNameField_ = cmd;
             });
 
-            fileNameFielddyn_ = new ui::EditField(sprayMenu_, "");
+            fileNameFielddyn_ = new ui::EditField(loadMenu_, "");
             fileNameFielddyn_->setText("File Name");
             fileNameFielddyn_->setCallback([this](const std::string &cmd){
                 manager()->update();
                 fileNameField_ = cmd;
             });
 
-            ui::Action* acceptSL = new ui::Action(saveLoadMenu_, "Accept");
+            ui::Action* acceptSL = new ui::Action(loadMenu_, "Accept");
             acceptSL->setCallback([this](){
                 nM->loadNozzle(pathNameField_.c_str(), fileNameField_.c_str());
                 while(nM->checkAll() != NULL)
@@ -471,10 +489,10 @@ bool SprayPlugin::init()
                     temporary->registerLabel();
 
                     std::stringstream ss;
-                    ss << temporary->getName() << " " << temporary->getID();
+                    ss << temporary->getName();
                     nozzleIDL->append(ss.str());
                 }
-                saveLoadMenu_->setVisible(false);
+                loadMenu_->setVisible(false);
             });
         }
 
@@ -528,7 +546,6 @@ bool SprayPlugin::init()
                         accept->setCallback([this](){
                             createAndRegisterImageNozzle();
                             creating = false;
-                            //delete tempMenu;
                             nozzleCreateMenuImage->setVisible(false);
                             nozzleCreateMenu->setVisible(false);
                             outputField_->setText("Help Field");
@@ -582,7 +599,6 @@ bool SprayPlugin::init()
                         accept->setCallback([this](){
                             createAndRegisterStandardNozzle();
                             creating = false;
-                            //delete tempMenu;
                             nozzleCreateMenuStandard->setVisible(false);
                             nozzleCreateMenu->setVisible(false);
                             outputField_->setText("Help Field");
@@ -616,8 +632,6 @@ bool SprayPlugin::init()
                 outputField_->setText("Nozzle doesn't exist");
         }
     });
-
-    //numField = new ui::Label(sprayMenu_, "Save Parameters");
 
     newGenCreate_ = new ui::EditField(sprayMenu_, "newGenCreate");
     newGenCreate_->setText("Gen Creating Rate");
@@ -741,6 +755,22 @@ bool SprayPlugin::init()
         cover->getObjectsRoot()->accept(c);
     });
 
+    autoremove = new ui::Button(sprayMenu_, "autoremove");
+    autoremove->setText("Autoremove particles");
+    autoremove->setCallback([this](bool state)
+    {
+        if(state == false)
+        {
+           nM->autoremove(false);
+            std::cout << "Spraying stopped" << std::endl;
+        }
+        else
+            if(state == true){
+            nM->autoremove(true);
+            std::cout << "Spraying started" << std::endl;
+        }
+    });
+
 
 
     outputField_ = new ui::Label(sprayMenu_,"Help Field");
@@ -751,17 +781,11 @@ bool SprayPlugin::init()
     testBoxGeode = new osg::Geode;
     testBoxGeode->setName("testBox");
 
-    //    float floorHeight = VRSceneGraph::instance()->floorHeight();
-    //    osg::Box* floorBox = new osg::Box(osg::Vec3(0,0, floorHeight), 3000, 3000, 0.5);
-    //    osg::TessellationHints *hint = new osg::TessellationHints();
-    //    hint->setDetailRatio(0.5);
-    //    osg::ShapeDrawable *floorDrawable = new osg::ShapeDrawable(floorBox, hint);
-    //    floorDrawable->setColor(osg::Vec4(0, 0.5, 0, 1));
-    //    floorGeode = new osg::Geode();
-    //    floorGeode->setName("Floor");
-    //    floorGeode->addDrawable(floorDrawable);
-    //    scene->addChild(floorGeode);
-    //    scene->addChild(testBoxGeode);
+    //Just for testing purpose
+    createTestBox(osg::Vec3(0,0,10), osg::Vec3(1,1,1));
+    createTestBox(osg::Vec3(0,0,10), osg::Vec3(10,10,10));
+
+    scene->addChild(testBoxGeode);
 
     nodeVisitorVertex c;
 
@@ -786,7 +810,6 @@ bool SprayPlugin::destroy()
     cover->getObjectsRoot()->removeChild(testBoxGeode);
     nM->remove_all();
 
-    //delete editNozzle;
     delete sprayStart_;
     delete save_;
     delete load_;
@@ -795,7 +818,6 @@ bool SprayPlugin::destroy()
     delete pathNameFielddyn_;
     delete fileNameFielddyn_;
     delete nozzleNameFielddyn_;
-    //(if creating == true)delete tempMenu;
     delete sprayMenu_;
 
     return true;
@@ -803,20 +825,20 @@ bool SprayPlugin::destroy()
 
 bool SprayPlugin::update()
 {
-    if(sprayStart == true)nM->update();
+    if(sprayStart == true)
+        nM->update();
 
     return true;
 }
 
 void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale)
 {
-    osg::Box* testBox = new osg::Box(osg::Vec3(initPos.x(), initPos.z(), initPos.y()), scale.x(), scale.y(), scale.z());
+    osg::Box* testBox = new osg::Box(osg::Vec3(initPos.x(), initPos.z(), initPos.y()), 10);
     osg::TessellationHints *hints = new osg::TessellationHints();
     hints->setDetailRatio(0.5);
     osg::ShapeDrawable *boxDrawableTest = new osg::ShapeDrawable(testBox, hints);
     boxDrawableTest->setColor(osg::Vec4(0, 0.5, 0, 1));
     testBoxGeode->addDrawable(boxDrawableTest);
-    //cover->getObjectsRoot()->addChild(testBoxGeode);
 
     idGeo.push_back(raytracer::instance()->createCube(initPos, scale));
 }
@@ -875,9 +897,7 @@ void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale, bool manual)
 
 
     testBoxGeode->addDrawable(geom);
-    //cover->getObjectsRoot()->addChild(testBoxGeode);
 
-    //idGeo.push_back(raytracer::instance()->createCube(initPos, scale));
 }
 
 

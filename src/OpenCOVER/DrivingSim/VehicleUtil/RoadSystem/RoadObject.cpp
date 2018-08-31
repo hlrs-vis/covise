@@ -140,7 +140,7 @@ osg::Node *RoadObject::loadObjectGeometry(std::string file)
             if (findFile[i] == '\\')
                 findFile[i] = '_';
         }
-        osg::Node *objectNode = NULL;
+        osg::Node *localObjectNode = NULL;
         osg::Group *objectGroup = new osg::Group(); //objectGroup is argument for coVRFileManager::instance()->loadFile() so that the loaded osg::Node isn't hooked to the opencover root node automatically...
 
         std::map<std::string, osg::Node *>::iterator fileId = fileMap.find(findFile);
@@ -157,22 +157,22 @@ osg::Node *RoadObject::loadObjectGeometry(std::string file)
 
             if (fileExist(file.c_str()))
             {
-                objectNode = coVRFileManager::instance()->loadFile(file.c_str(), NULL, objectGroup);
+                localObjectNode = coVRFileManager::instance()->loadFile(file.c_str(), NULL, objectGroup);
             }
             else
             {
                 std::cerr << "RoadObject::getObjectGeometry(): Couldn't load file: " << file << "..." << std::endl;
             }
 
-            if (!objectNode)
+            if (!localObjectNode)
             {
-                objectNode = objectGroup;
+                localObjectNode = objectGroup;
             }
 
-            objectNode->setName(findFile);
+            localObjectNode->setName(findFile);
 
-            fileMap[findFile] = objectNode;
-            return objectNode;
+            fileMap[findFile] = localObjectNode;
+            return localObjectNode;
         }
     }
     return NULL;

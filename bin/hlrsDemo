@@ -25,7 +25,8 @@ do
     echo -e "${MENU}-----${TYP} ReCom ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT}  1)  ${MENU} HKW2 Altbach              "
     echo -e "${MENU} ${OPT}  2)  ${MENU} Bremer Kessel             "
-    echo -e "${MENU} ${OPT}  3)  ${MENU} SWA Augsburg             "
+    echo -e "${MENU} ${OPT}  3)  ${MENU} SWA Augsburg              "
+    echo -e "${MENU} ${OPT}  4)  ${MENU} SWA Augsburg (Variante)   "
 
     echo -e "${MENU}-----${TYP} CFD ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 11)  ${MENU} Audi                      "
@@ -161,7 +162,11 @@ do
 	    cd /mnt/raid/home/recberr/StadtwerkeAugsburg/2017/Praesentation
             opencover Cavepraesentation-SWA.wrl
 	    ;;
-
+        4)
+            echo -e "starting SAW (Variante)"
+            cd /mnt/raid/home/recberr/StadtwerkeAugsburg/2017/CaveBilderMessestand
+            opencover Cavepraesentation-SWA.wrl
+            ;;
 
 # CFD
 
@@ -171,7 +176,7 @@ do
 	    ;;
 	12)
 	    echo -e "starting Forbach";
-            covise -e /data/2015/out/LaermFinal.net
+            covise -e /data/enbw/2015/out/LaermFinal.net
 	    ;;
 	13)
 	    echo -e "starting Kiebingen";

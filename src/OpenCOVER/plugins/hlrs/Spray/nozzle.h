@@ -38,6 +38,7 @@ using namespace opencover;
 class nozzle : public coVR3DTransRotInteractor
 {
 private:
+
     int counter = 0;
     int nozzleID = 0;
 
@@ -50,7 +51,7 @@ private:
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
     osg::Vec3 boundingBox_ = osg::Vec3(200,200,200);
-    osg::Cylinder* cylinder_;
+    osg::Box* box_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
     osg::Vec4 currentColor_ = osg::Vec4(1,1,0,1);
@@ -64,10 +65,13 @@ private:
     std::string param2 = "none";
     std::string type = "none";
 
+    bool intersection = true;
+
 
 protected:
     void createGeometry();
     int particleCount_ = 1000;
+    float autoremoveCount = 0.9;
     std::string nozzleName_;
     std::list<class gen*> genList;
 
@@ -195,6 +199,17 @@ public:
         type = newType;
     }
 
+    void autoremove(bool state);
+
+    void setIntersection(bool state)
+    {
+        intersection = state;
+    }
+
+    bool getIntersection()
+    {
+        return intersection;
+    }
 };
 
 

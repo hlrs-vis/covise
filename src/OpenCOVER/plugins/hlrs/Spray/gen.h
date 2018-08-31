@@ -53,35 +53,29 @@ private:
     std::string cwModelType = "STOKES";
 
     float densityOfFluid = 1.18;
-    int reynoldsThreshold = 170000;
+    int reynoldsThreshold = 2230;
+    int reynoldsLimit = 170000;
     float nu = 0.0171;
     float cwLam = 0.45;
     float cwTurb = 0.15;
     float minimum = 0.000025;
     float deviation = 0.00005;
     int iterations = 4;
+    float removeCount = 0.9;
 
-    bool* particleOutOfBound;
-    bool* firstHit;
-    float* prevHitDis;
-    int* prevHitDisCounter;
-
-    int outOfBoundCounter = 0;
-
-    particleParam p;
+    int outOfBoundCounter = 0;    
 
     void updateCoSphere();
     float reynoldsNr(float v, double d);
 
 protected:
-    float* x, *y, *z, *vx, *vy, *vz;
-    double *r, *m;
+    std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
     float initPressure_;
 
-    void setCoSphere();
+    void setCoSphere(osg::Vec3Array *pos);
 
 public:
     gen(float pInit, class nozzle *owner);
@@ -134,6 +128,11 @@ public:
     void setDeviation(float newDeviation)
     {
         deviation = newDeviation;
+    }
+
+    void setRemoveCount(float newRemoveCount)
+    {
+        removeCount = newRemoveCount;
     }
 };
 
