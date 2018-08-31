@@ -19,6 +19,8 @@
 **                                                                          **
 \****************************************************************************/
 
+//Editfield zu numeric field, neue subklasse
+//osg::Quat anschauen, wg. Rotation
 
 #include "Spray.h"
 

@@ -168,6 +168,10 @@ void gen::updateCoSphere(){
     }
 }
 
+
+//initialgeschiwndigkeit zeichnen, dann rt berechnen
+//class particle hit distance
+//handleParticleData zu checkforhit...z.b.
 void gen::updatePos(osg::Vec3 boundingBox)
 {
     tCur = parser::instance()->getRendertime()/60;

@@ -313,9 +313,9 @@ public:
         x.ray.dir_x = p.velocity.x();
         x.ray.dir_y = p.velocity.z();
         x.ray.dir_z = p.velocity.y();
-        x.ray.tfar = 1000000;
+        x.ray.tfar = 1;
         x.ray.flags = 0;
-        x.ray.tnear = -1000000;
+        x.ray.tnear = 0;
         x.hit.geomID = RTC_INVALID_GEOMETRY_ID;
         x.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
         x.hit.instID[1] = RTC_INVALID_GEOMETRY_ID;
