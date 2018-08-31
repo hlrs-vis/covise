@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 
+#include "TUIEarthMap.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <math.h>
@@ -29,7 +31,6 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 
-#include "TUIEarthMap.h"
 #include "TUIApplication.h"
 #include <net/tokenbuffer.h>
 #include <math.h>
@@ -45,6 +46,7 @@ static QPen *tp = 0;
 TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
+#ifdef HAVE_TUIEARTHMAP
     if (!tb)
         tb = new QBrush(Qt::red);
     if (!tp)
@@ -71,17 +73,18 @@ TUIEarthMap::TUIEarthMap(int id, int type, QWidget *w, int parent, QString name)
 
    // QMetaObject::invokeMethod(item, "initializeProviders",
     //    Q_ARG(QVariant, QVariant::fromValue(parameters)));
-
-    
-
+#endif
 }
 
 /// Destructor
 TUIEarthMap::~TUIEarthMap()
 {
+#ifdef HAVE_TUIEARTHMAP
     delete widget;
+#endif
 }
 
+#ifdef HAVE_TUIEARTHMAP
 /** Set activation state of this container and all its children.
   @param en true = elements enabled
 */
@@ -227,3 +230,4 @@ void TUIEarthMap::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
 	TUIElement::setValue(type, tb);
 }
+#endif
