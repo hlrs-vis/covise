@@ -72,22 +72,6 @@
  <connections>
   <connection>
    <sender>dialogButtons</sender>
-   <signal>accepted()</signal>
-   <receiver>ExportSettings</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>440</x>
-     <y>440</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dialogButtons</sender>
    <signal>rejected()</signal>
    <receiver>ExportSettings</receiver>
    <slot>reject()</slot>
@@ -98,6 +82,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dialogButtons</sender>
+   <signal>accepted()</signal>
+   <receiver>ExportSettings</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
      <y>274</y>
     </hint>
    </hints>
