@@ -1007,7 +1007,7 @@ bool OpenScenarioPlugin::loadRoadSystem(const char *filename_chars)
 				|| (road->isJunctionPath() && tessellatePaths == true) // junction path
 				)
 			{
-				fprintf(stderr, "1tessellateBatters %d\n", tessellateBatters);
+				//fprintf(stderr, "1tessellateBatters %d\n", tessellateBatters);
 				osg::Group *roadGroup = road->getRoadBatterGroup(tessellateBatters, tessellateObjects);
 				if (roadGroup)
 				{

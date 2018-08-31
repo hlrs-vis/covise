@@ -1666,7 +1666,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 {
                                     direction = -1;
                                 }
-                                else
+                                else if(type == "road")
                                 {
                                     std::cerr << "Road " << road->getName() << ": Predecessor id: " << id << ": No direction defined..." << std::endl;
                                 }
@@ -1730,7 +1730,7 @@ void RoadSystem::parseOpenDrive(xercesc::DOMElement *rootElement)
                                 {
                                     direction = -1;
                                 }
-                                else
+                                else if (type == "road")
                                 {
                                     std::cerr << "Road " << road->getName() << ": Successor id: " << id << ": No direction defined..." << std::endl;
                                 }
