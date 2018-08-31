@@ -2,10 +2,7 @@
 #include "Trajectory.h"
 
 Action::Action():
-    trajectoryCatalogReference(""),
-    routeCatalogReference(""),
-    actionTrajectory(NULL),
-    actionEntityList(NULL)
+    actionTrajectory(NULL)
 {
 
 }

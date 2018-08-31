@@ -160,7 +160,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <Audio value="OpenAL" />
+     <!--Audio value="OpenAL" /-->
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 
@@ -231,12 +231,10 @@
     <Amber value="off"/>  
 	<StereoVideoPlayer>
 	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
 	<AudioOffset value="0.0"/>
   </StereoVideoPlayer>
 
     <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 

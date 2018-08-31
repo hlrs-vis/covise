@@ -428,7 +428,8 @@ RevitPlugin::RevitPlugin()
 	plugin = this;
 	MoveFinished = true;
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
-	textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
+    textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
+    localTextureDir = coCoviseConfig::getEntry("localTextures", "COVER.Plugin.Revit", "c:/tmp");
 	toRevit = NULL;
     serverConn = NULL;
     if (coVRMSController::instance()->isMaster())
@@ -582,12 +583,14 @@ void RevitPlugin::setDefaultMaterial(osg::StateSet *geoState)
 	geoState->setAttributeAndModes(globalmtl.get(), osg::StateAttribute::ON);
 }
 
-void RevitPlugin::sendMessage(Message &m)
+bool RevitPlugin::sendMessage(Message &m)
 {
 	if (toRevit) // false on slaves
 	{
-		toRevit->send_msg(&m);
+        if (toRevit->send_msg(&m) > 0)
+            return true;
 	}
+    return false;
 }
 
 
@@ -854,6 +857,21 @@ RevitPlugin::handleMessage(Message *m)
 		}
 	}
 	break;
+    case MSG_Finished:
+    {
+        for (auto Mat = MaterialInfos.begin(); Mat != MaterialInfos.end(); Mat++)
+        {
+            if (Mat->second->diffuseTexture->requestTexture)
+            {
+                requestTexture(Mat->second->ID, Mat->second->diffuseTexture);
+            }
+            if (Mat->second->bumpTexture->requestTexture)
+            {
+                requestTexture(Mat->second->ID, Mat->second->bumpTexture);
+            }
+        }
+    }
+    break;
 	case MSG_RoomInfo:
 	{
 		TokenBuffer tb(m);
@@ -1241,99 +1259,36 @@ RevitPlugin::handleMessage(Message *m)
 		localmtl->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
 		localmtl->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
 		localmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-		int textureUnit = 0;
 
 		mi->geoState->setAttributeAndModes(localmtl, osg::StateAttribute::ON);
 		if (mi->diffuseTexture->texturePath != "")
 		{
-			std::string fileName = textureDir + "/" + mi->diffuseTexture->texturePath;
+            std::string fileName = mi->diffuseTexture->texturePath;
+            osg::ref_ptr<osg::Image> diffuseImage = readImage(fileName);
 
-			std::size_t found = fileName.find_first_of("|", 0);
-			if (found != std::string::npos)
+            if (diffuseImage.valid())
 			{
-				fileName = fileName.substr(0, found);
+                mi->updateTexture(TextureInfo::diffuse, diffuseImage.get());
 			}
-
-			osg::ref_ptr<osg::Image> diffuseImage = osgDB::readImageFile(fileName);
-			if (!diffuseImage.valid())
-			{
-				osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << std::endl;
-			}
-			else
-			{
-				osg::Texture2D *diffuseTexture = new osg::Texture2D(diffuseImage.get());
-				diffuseTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
-				diffuseTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-				diffuseTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
-				diffuseTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
-				mi->geoState->setTextureAttribute(textureUnit, diffuseTexture);
-				textureUnit++;
-
-				osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)mi->diffuseTexture->sx);
-				osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)mi->diffuseTexture->sy);
-				osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)mi->diffuseTexture->ox);
-				osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)mi->diffuseTexture->oy);
-				osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)mi->diffuseTexture->angle);
-				mi->geoState->addUniform(revitSX);
-				mi->geoState->addUniform(revitSY);
-				mi->geoState->addUniform(revitOX);
-				mi->geoState->addUniform(revitOY);
-				mi->geoState->addUniform(revitAngle);
-				mi->shader = coVRShaderList::instance()->get("RevitDiffuse");
-			}
+            else
+            {
+                mi->diffuseTexture->requestTexture = true;
+            }
 		}
 
 		if (mi->bumpTexture->texturePath != "")
 		{
-			std::string fileName = textureDir + "/" + mi->bumpTexture->texturePath;
-			std::size_t found = fileName.find_first_of("|", 0);
-			if (found != std::string::npos)
-			{
-				fileName = fileName.substr(0, found);
-			}
-
-			osg::ref_ptr<osg::Image> bumpImage = osgDB::readImageFile(fileName);
+			std::string fileName = mi->bumpTexture->texturePath;
+			osg::ref_ptr<osg::Image> bumpImage = readImage(fileName);
 			if (!bumpImage.valid())
 			{
-				osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << std::endl;
+				//osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << " couldn't get it from remote" << std::endl;
+                mi->bumpTexture->requestTexture = true;
 			}
 			else
 			{
-				osg::Texture2D *bumpTexture = new osg::Texture2D(bumpImage.get());
-				bumpTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
-				bumpTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-				bumpTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
-				bumpTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
-				mi->geoState->setTextureAttribute(textureUnit, bumpTexture);
-				textureUnit++;
 
-				osg::Image *ni = createNormalMap(bumpImage.get(), mi->bumpTexture->amount);
-				osg::Texture2D *normalTexture = new osg::Texture2D(ni);
-				normalTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
-				normalTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-				normalTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
-				normalTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
-				mi->geoState->setTextureAttribute(textureUnit, normalTexture);
-				textureUnit++;
-
-				osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)mi->bumpTexture->sx);
-				osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)mi->bumpTexture->sy);
-				osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)mi->bumpTexture->ox);
-				osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)mi->bumpTexture->oy);
-				osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)mi->bumpTexture->angle);
-				mi->geoState->addUniform(revitSX);
-				mi->geoState->addUniform(revitSY);
-				mi->geoState->addUniform(revitOX);
-				mi->geoState->addUniform(revitOY);
-				mi->geoState->addUniform(revitAngle);
-				if (mi->diffuseTexture->texturePath != "")
-				{
-					mi->shader = coVRShaderList::instance()->get("RevitDiffuseBump");
-				}
-				else
-				{
-					mi->shader = coVRShaderList::instance()->get("RevitBumpOnly");
-				}
+                mi->updateTexture(TextureInfo::bump,bumpImage.get());
 			}
 		}
 		break;
@@ -1467,7 +1422,50 @@ RevitPlugin::handleMessage(Message *m)
 
 	}
 	break;
+    case MSG_File:
+    {
+        TokenBuffer tb(msg);
+        const char *buf;
+        int numBytes;
+        std::string fileName;
+        int MatID;
+        tb >> MatID;
+        tb >> fileName;
+        localTextureFile = localTextureDir + "/" + fileName;
+        tb >> numBytes;
+        buf = tb.getBinary(numBytes);
+        if (numBytes > 0)
+        {
+#ifdef _WIN32
+            int fd = open(localTextureFile.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+#else
+            int fd = open(localTextureFile.c_str(), O_RDWR | O_CREAT, 0777);
+#endif
+            if (fd != -1)
+            {
+                if (write(fd, buf, numBytes) != numBytes)
+                {
+                    osg::notify(osg::ALWAYS) << "remoteFetch: " << localTextureFile << " write error" << std::endl;
+                }
+                close(fd);
+            }
+            else
+            {
 
+                osg::notify(osg::ALWAYS) << "remoteFetch: " << localTextureFile << " can't open File" << std::endl;;
+            }
+
+            osg::Image * image = osgDB::readImageFile(localTextureFile);
+            if (image == NULL)
+            {
+                
+                    osg::notify(osg::ALWAYS) << "Can't open image file" << fileName << " could not get it from remote" << std::endl;
+            }
+
+        }
+
+        break;
+    }
 	/*   case MSG_NewPolyMesh:
 	   {
 		   cerr << "not used anymore" << endl;
@@ -1644,6 +1642,53 @@ RevitPlugin::handleMessage(Message *m)
 			break;
 		}
 	}
+}
+
+osg::Image *RevitPlugin::readImage(std::string fileName)
+{
+
+    std::size_t found = fileName.find_first_of("|", 0);
+    if (found != std::string::npos)
+    {
+        fileName = fileName.substr(0, found);
+    }
+
+    localTextureFile = localTextureDir + "/" + fileName;
+    found = fileName.find_last_of('\\');
+    std::string fn;
+    if (found != std::string::npos)
+    {
+        fn = fileName.substr(found+1);
+    }
+    else
+    {
+        found = fileName.find_last_of('/');
+        if (found != std::string::npos)
+        {
+            fn = fileName.substr(found+1);
+        }
+    }
+    std::string localTextureFileOnly = textureDir + "/" + fn;
+    std::string texFile = textureDir + "/" + fileName;
+
+    osg::Image *diffuseImage = osgDB::readImageFile(texFile);
+    if (diffuseImage==NULL)
+    {
+        diffuseImage = osgDB::readImageFile(localTextureFile);
+        if (diffuseImage == NULL)
+        {
+            diffuseImage = osgDB::readImageFile(fileName);
+            if (diffuseImage == NULL)
+            {
+                diffuseImage = osgDB::readImageFile(localTextureFileOnly);
+                if (diffuseImage == NULL)
+                {
+                    return NULL;
+                }
+            }
+        }
+    }
+    return diffuseImage;
 }
 
 bool
@@ -1928,7 +1973,85 @@ const uint8_t map_component(double pX)
 	return (pX + 1.0) * (255.0 / 2.0);
 }
 
-osg::Image *RevitPlugin::createNormalMap(osg::Image *srcImage, double pStrength)
+void RevitPlugin::requestTexture(int matID, TextureInfo * texture)
+{
+    std::string filePathName = texture->texturePath;
+    std::size_t found = filePathName.find_first_of("|", 0);
+    if (found != std::string::npos)
+    {
+        filePathName = filePathName.substr(0, found);
+    }
+    found = filePathName.find_last_of('\\');
+    std::string fileName;
+    if (found != std::string::npos)
+    {
+        fileName = filePathName.substr(found+1);
+    }
+    else
+    {
+        found = filePathName.find_last_of('/');
+        if (found != std::string::npos)
+        {
+            fileName = filePathName.substr(found+1);
+        }
+    }
+
+    char gotMsg = '\1';
+    if (coVRMSController::instance()->isMaster())
+    {
+        TokenBuffer stb;
+        stb << matID;
+        stb << filePathName;
+        stb << fileName;
+        Message message(stb);
+        message.type = (int)RevitPlugin::MSG_File;
+        if (RevitPlugin::instance()->sendMessage(message) == false)
+        {
+            gotMsg = '\0';
+            coVRMSController::instance()->sendSlaves(msg);
+        }
+        else
+        {
+            while (toRevit)
+            {
+                toRevit->recv_msg(msg);
+                if (msg)
+                {
+                    gotMsg = '\1';
+                    coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+                    coVRMSController::instance()->sendSlaves(msg);
+                    cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->length, msg->data);
+                    handleMessage(msg);
+                    if (msg->type == MSG_File)
+                        break; // done
+                }
+                else
+                {
+                    gotMsg = '\0';
+                    cerr << "could not read message" << endl;
+                    break;
+                }
+            }
+            gotMsg = '\0';
+            coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
+        }
+    }
+    else
+    {
+        do
+        {
+            coVRMSController::instance()->readMaster(&gotMsg, sizeof(char));
+            if (gotMsg != '\0')
+            {
+                coVRMSController::instance()->readMaster(msg);
+                handleMessage(msg);
+            }
+        } while (gotMsg != '\0');
+    }
+
+}
+
+osg::Image *MaterialInfo::createNormalMap(osg::Image *srcImage, double pStrength)
 {
 	// assume square texture, not necessarily true in real code
 	osg::Image *result = new osg::Image();
@@ -2045,13 +2168,80 @@ MaterialInfo::MaterialInfo(TokenBuffer & tb)
 {
 	tb >> ID;
 	diffuseTexture = new TextureInfo(tb);
+    diffuseTexture->type = TextureInfo::diffuse;
 	bumpTexture = new TextureInfo(tb);
+    bumpTexture->type = TextureInfo::bump;
 	tb >> bumpTexture->amount;
 	r = diffuseTexture->r;
 	g = diffuseTexture->g;
 	b = diffuseTexture->b;
 	a = 255;
 	shader = NULL;
+}
+
+void MaterialInfo::updateTexture(TextureInfo::textureType type, osg::Image * image)
+{
+    int textureUnit=0;
+    if (type == TextureInfo::bump && diffuseTexture->image != NULL)
+        textureUnit = 1;
+
+    osg::Texture2D *texture = new osg::Texture2D(image);
+    texture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+    texture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+    texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+    texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+    geoState->setTextureAttribute(textureUnit, texture);
+    textureUnit++;
+
+    if (type == TextureInfo::diffuse)
+    {
+        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)diffuseTexture->sx);
+        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)diffuseTexture->sy);
+        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)diffuseTexture->ox);
+        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)diffuseTexture->oy);
+        osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)diffuseTexture->angle);
+        geoState->addUniform(revitSX);
+        geoState->addUniform(revitSY);
+        geoState->addUniform(revitOX);
+        geoState->addUniform(revitOY);
+        geoState->addUniform(revitAngle);
+        if(bumpTexture->image == NULL)
+            shader = coVRShaderList::instance()->get("RevitDiffuse");
+        diffuseTexture->image = image;
+    }
+    else if (type == TextureInfo::bump)
+    {
+
+
+        osg::Image *ni = createNormalMap(image, bumpTexture->amount);
+        osg::Texture2D *normalTexture = new osg::Texture2D(ni);
+        normalTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR);
+        normalTexture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+        normalTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+        normalTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT);
+        geoState->setTextureAttribute(textureUnit, normalTexture);
+        textureUnit++;
+
+        osg::Uniform *revitSX = new osg::Uniform("revitSX", (float)bumpTexture->sx);
+        osg::Uniform *revitSY = new osg::Uniform("revitSY", (float)bumpTexture->sy);
+        osg::Uniform *revitOX = new osg::Uniform("revitOX", (float)bumpTexture->ox);
+        osg::Uniform *revitOY = new osg::Uniform("revitOY", (float)bumpTexture->oy);
+        osg::Uniform *revitAngle = new osg::Uniform("revitAngle", (float)bumpTexture->angle);
+        geoState->addUniform(revitSX);
+        geoState->addUniform(revitSY);
+        geoState->addUniform(revitOX);
+        geoState->addUniform(revitOY);
+        geoState->addUniform(revitAngle);
+        if (diffuseTexture->image != NULL)
+        {
+            shader = coVRShaderList::instance()->get("RevitDiffuseBump");
+        }
+        else
+        {
+            shader = coVRShaderList::instance()->get("RevitBumpOnly");
+        }
+        bumpTexture->image = image;
+    }
 }
 
 

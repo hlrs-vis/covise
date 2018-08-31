@@ -33,14 +33,10 @@ class Slider;
 }
 #include "ui/Owner.h"
 
-namespace osg
-{
-class Sequence;
-};
-
 #include <util/coExport.h>
 #include <map>
 #include <vector>
+#include <osg/Sequence>
 
 namespace opencover
 {
@@ -55,13 +51,29 @@ public:
     ~coVRAnimationManager();
     static coVRAnimationManager *instance();
 
+    //! how to handle missing elements at end of animition sequence
+    enum FillMode
+    {
+        Nothing, //< nothing is shown
+        Last, //< last element is shown
+        Cycle, //< previous elements are repeated periodically
+    };
+
+    struct Sequence
+    {
+        Sequence(osg::Sequence *seq, FillMode mode=Nothing): seq(seq), fill(mode) {}
+
+        osg::ref_ptr<osg::Sequence> seq;
+        FillMode fill = Nothing;
+    };
+
     void setNumTimesteps(int);
     void showAnimMenu(bool visible);
 
-    void addSequence(osg::Sequence *seq);
+    void addSequence(osg::Sequence *seq, FillMode mode=Nothing);
     void removeSequence(osg::Sequence *seq);
 
-    const std::vector<osg::Sequence *> &getSequences() const;
+    const std::vector<Sequence> &getSequences() const;
 
     int getAnimationFrame()
     {
@@ -106,7 +118,8 @@ public:
 private:
     void setAnimationFrame(int currentFrame);
 
-    std::vector<osg::Sequence *> listOfSeq;
+    void updateSequence(Sequence &seq, int currentFrame);
+    std::vector<Sequence> listOfSeq;
     float AnimSliderMin, AnimSliderMax;
     float timeState;
 
@@ -148,6 +161,7 @@ private:
 
     double timestepScale, timestepBase;
     std::string timestepUnit;
+    bool m_animationPaused = false;
 };
 }
 #endif

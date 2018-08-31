@@ -23,6 +23,8 @@
 #include <QTextStream>
 #include <QFontMetrics>
 #include <QFileDialog>
+#include <QStyle>
+#include <QApplication>
 
 #include <cassert>
 #include <iostream>
@@ -48,7 +50,12 @@ QString sliderText(const Slider *slider)
 QString sliderWidthText(const Slider *slider)
 {
     int digits = std::max(QString::number(slider->min()).size(), QString::number(slider->max()).size());
-    return sliderText(slider, 0.0, digits);
+    double value = 0;
+    for (int d=0; d<digits; ++d) {
+        value *= 10;
+        value += 8;
+    }
+    return sliderText(slider, value, digits);
 }
 
 }
@@ -196,6 +203,34 @@ QWidget *QtView::qtContainerWidget(const Element *elem) const
     return m_toolbar;
 }
 
+void applyIcon(const Element *elem, QAction *a)
+{
+    if (elem->iconName().empty())
+        return;
+
+    static std::map<QString, QStyle::StandardPixmap> iconMap;
+    if (iconMap.empty()) {
+        iconMap.emplace("view-refresh", QStyle::SP_BrowserReload);
+        iconMap.emplace("media-playback-start", QStyle::SP_MediaPlay);
+        iconMap.emplace("media-seek-backward", QStyle::SP_MediaSeekBackward);
+        iconMap.emplace("media-seek-forward", QStyle::SP_MediaSeekForward);
+        //iconMap.emplace("zoom-fit-best", QStyle::SP_FileDialogContentsView);
+        //iconMap.emplace("zoom-original", QStyle::);
+        iconMap.emplace("application-exit", QStyle::SP_TitleBarCloseButton);
+    }
+
+    const auto name = QString::fromStdString(elem->iconName());
+    auto it = iconMap.find(name);
+    if (it == iconMap.end())
+    {
+        a->setIcon(QIcon::fromTheme(name));
+    }
+    else
+    {
+        a->setIcon(QIcon::fromTheme(name, qApp->style()->standardIcon(it->second)));
+    }
+}
+
 QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 {
     auto parent = qtContainerWidget(menu);
@@ -244,10 +279,7 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(false);
-    if (!action->iconName().empty())
-    {
-        a->setIcon(QIcon::fromTheme(QString::fromStdString(action->iconName())));
-    }
+    applyIcon(action, a);
     auto ve = new QtViewElement(action, a);
     ve->action = a;
     add(ve);
@@ -267,10 +299,7 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(true);
-    if (!button->iconName().empty())
-    {
-        a->setIcon(QIcon::fromTheme(QString::fromStdString(button->iconName())));
-    }
+    applyIcon(button, a);
     auto ve = new QtViewElement(button, a);
     ve->action = a;
     add(ve);
@@ -351,10 +380,7 @@ QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(false);
-    if (!fb->iconName().empty())
-    {
-        a->setIcon(QIcon::fromTheme(QString::fromStdString(fb->iconName())));
-    }
+    applyIcon(fb, a);
     auto ve = new QtViewElement(fb, a);
     ve->action = a;
     add(ve);

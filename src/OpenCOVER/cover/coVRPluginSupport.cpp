@@ -316,7 +316,7 @@ coMenu *coVRPluginSupport::getMenu()
         float h = 0, p = 0, r = 0;
         float size = 1;
         m_vruiMenu = new coRowMenu("COVER");
-        m_vruiMenu->setVisible(true);
+        m_vruiMenu->setVisible(coCoviseConfig::isOn("COVER.Menu.Visible", true));
 
         xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
         yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);

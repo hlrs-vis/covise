@@ -2108,6 +2108,19 @@ BOOL VRML2Export::processTexture(TSTR bitmapFile, TSTR &fileName, TSTR &url)
     if (l < 0)
         return FALSE;
 
+    TSTR movieFile = bitmapFile;
+    if (movieFile.Replace(_T(".jpg"), _T(".mp4"), true, 0) > 0)
+    {
+        FILE *fp;
+        fp = fopen(movieFile.ToCStr(), "r");
+        if (fp != NULL)
+        {
+            fclose(fp);
+            bitmapFile = movieFile;
+        }
+    }
+
+
     TSTR path;
     SplitPathFile(bitmapFile, &path, &fileName);
 
@@ -2878,7 +2891,17 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                    Indent(level + 1);
                MSTREAMPRINTF  ("speed %s\n"),floatVal(textureDescs[texNum]->tex->GetPlaybackRate()));
                Indent(level + 1);
-			   MSTREAMPRINTFNOSTRINGS("startTime %d\n"),textureDescs[texNum]->tex->GetStartTime()/160.0);
+               TimeValue ts = textureDescs[texNum]->tex->GetStartTime();
+               if (ts == 0.0 && _tcsstr(texString->textureName, _T("start")) != NULL)
+               {
+                   MSTREAMPRINTFNOSTRINGS("startTime 1\n"));
+               }
+               else
+               {
+                   //MSTREAMPRINTFNOSTRINGS("startTime %f\n"), textureDescs[texNum]->tex->GetStartTime());
+                   float seconds = TicksToSec(ts);
+                   MSTREAMPRINTF("startTime %s\n"), floatVal(seconds));
+               }
                Indent(level + 1);
 			   MSTREAMPRINTFNOSTRINGS("stopTime -1\n"));
                if (textureDescs[texNum]->tex->GetEndCondition() == END_LOOP)
@@ -5989,14 +6012,17 @@ TCHAR *VRML2Export::isMovie(const TCHAR *url)
         _tcscpy(name, url);
         return (name);
     }
-    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
+    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mp4")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
     {
         suffix = _tcsrchr(url, '.');
         _tcsncpy(name, url, suffix - url);
         name[suffix - url] = '\0';
+
     }
     else
+    {
         return NULL;
+    }
 
     const TCHAR *dir = _tcsrchr(name, '/');
     if (dir != NULL)

@@ -149,11 +149,7 @@ void coCheckboxMenuItem::doActionRelease()
 void coCheckboxMenuItem::buttonEvent(coButton *button)
 {
     (void)button;
-
-    myState = !myState;
-
-    if (listener)
-        listener->menuEvent(this);
+    doActionRelease();
 }
 
 /** Set new checkbox state.

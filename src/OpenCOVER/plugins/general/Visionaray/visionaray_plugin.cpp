@@ -691,7 +691,13 @@ namespace visionaray
         if (impl_->state->rebuild && opencover::OpenCOVER::instance()->initDone())
         {
             auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
-            impl_->rend.acquire_scene_data(seqs);
+            std::vector<osg::Sequence *> osg_seqs;
+            osg_seqs.reserve(seqs.size());
+            for (const auto &s: seqs)
+            {
+                osg_seqs.emplace_back(s.seq.get());
+            }
+            impl_->rend.acquire_scene_data(osg_seqs);
             impl_->state->rebuild = false;
         }
 

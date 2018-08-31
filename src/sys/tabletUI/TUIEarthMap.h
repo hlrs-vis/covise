@@ -8,6 +8,11 @@
 #ifndef CO_TUI_EARTHMAP_H
 #define CO_TUI_EARTHMAP_H
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050900
+#define HAVE_TUIEARTHMAP
+#endif
+
 #include <QObject>
 #include <QMatrix>
 #include <QPolygon>
@@ -16,7 +21,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPolygonItem>
+#ifdef HAVE_TUIEARTHMAP
 #include <QGeoPath>
+#endif
+
 
 #include "TUIElement.h"
 
@@ -54,6 +62,7 @@ class TUIEarthMap : public QObject, public TUIElement
 public:
     TUIEarthMap(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIEarthMap();
+#ifdef HAVE_TUIEARTHMAP
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
 
@@ -72,5 +81,6 @@ protected:
     QQuickView *quickView;
     QGeoPath geopath;
     bool centerHeli;
+#endif
 };
 #endif

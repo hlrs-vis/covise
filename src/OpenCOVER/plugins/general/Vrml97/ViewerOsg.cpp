@@ -54,7 +54,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osg/TexEnv>
 #include <osg/Texture>
 #include <osg/TextureCubeMap>
-#include <osg/TextureRectangle>
 #include <osg/Texture2D>
 #include <osg/Texture3D>
 #include <osg/Geode>
@@ -3450,7 +3449,6 @@ void ViewerOsg::setModesByName(const char *objectName)
                             else
                                 d_currentObject->updateTexData(textureNumber + 1);
                         }
-                        //bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle",false);
                         int tex_width = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 512);
                         int tex_height = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 256);
 
@@ -3480,33 +3478,6 @@ void ViewerOsg::setModesByName(const char *objectName)
 
                         osg::Texture *texture = NULL;
                         osg::Texture *texture2 = NULL;
-                        /*if (useTextureRectangle) // UV coords would need to be adjusted for this to work
-                  {
-                     if(cover->debugLevel(2))
-                        fprintf(stderr,"TextureRectangle enabled\n");
-                     osg::TextureRectangle* textureRect = new osg::TextureRectangle;
-                     textureRect->setTextureSize(tex_width, tex_height);
-                     textureRect->setInternalFormat(GL_RGBA);
-                     textureRect->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
-                     textureRect->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-
-                     texture = textureRect; 
-                     if(shader)
-                     {
-                        fprintf(stderr,"TextureRectangle enabled\n");
-                        osg::TextureRectangle* textureRect = new osg::TextureRectangle;
-                        textureRect->setTextureSize(tex_width, tex_height);
-                        textureRect->setInternalFormat(GL_DEPTH_COMPONENT);
-                        textureRect->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
-                        textureRect->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST);
-
-                        textureRect->setSourceType(GL_UNSIGNED_SHORT);
-                        texture2 = textureRect; 
-                     }
-
-
-                  }
-                  else*/
                         {
                             osg::Texture2D *texture2D = new osg::Texture2D;
                             texture2D->setTextureSize(tex_width, tex_height);
@@ -4449,19 +4420,6 @@ osg::Image *openMovie(char *filename, movieImageData *movDat)
     return (image);
 }
 
-bool checkPower2(int v)
-{
-    int v1 = 1;
-    while ((v1 <<= 1) < v)
-    {
-    }
-
-    if (v1 == v)
-        return (true);
-    else
-        return (false);
-}
-
 Viewer::TextureObject
 ViewerOsg::insertMovieTexture(char *filename,
                               movieProperties *movProp, int nc,
@@ -4470,7 +4428,6 @@ ViewerOsg::insertMovieTexture(char *filename,
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::insertMovieTexture" << endl;
-    static bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
     Texture *tex = NULL;
     movieImageData *dataSet = new movieImageData();
@@ -4481,41 +4438,6 @@ ViewerOsg::insertMovieTexture(char *filename,
 
     if (image)
     {
-        if (useTextureRectangle && !(checkPower2(image->s()) && checkPower2(image->t())))
-        {
-            TextureRectangle *texture = (TextureRectangle *)d_currentObject->texData[textureNumber].texture.get();
-            if (texture == NULL)
-            {
-                d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle();
-                texture->setDataVariance(osg::Object::DYNAMIC);
-
-                texSize += image->getTotalSizeInBytesIncludingMipmaps();
-            }
-            if (cover->debugLevel(2))
-                cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
-
-            d_currentObject->texData[textureNumber].texImage = image;
-            moviePs.push_back(dataSet);
-            d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle(image);
-            texture->setTextureSize(image->s(), image->t());
-
-            d_currentObject->texData[textureNumber].mirror = 1;
-
-            if (image->getPixelSizeInBits() == 32)
-            {
-                if (!d_currentObject->transparent)
-                {
-                    d_currentObject->transparent = true;
-                    d_currentObject->updateBin();
-                }
-            }
-
-            texture->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_BORDER);
-            texture->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_BORDER);
-
-            tex = texture;
-        }
-        else
         {
             Texture *texture = (Texture *)d_currentObject->texData[textureNumber].texture.get();
             if (texture == NULL)
@@ -4612,23 +4534,11 @@ void ViewerOsg::insertMovieReference(TextureObject t, int nc, bool environment, 
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::insertMovieReference" << endl;
-    bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
     d_currentObject->updateTexData(textureNumber + 1);
 
     if (d_currentObject->texData[textureNumber].texture == NULL)
     {
-        d_currentObject->texData[textureNumber].texture = (TextureRectangle *)t;
-        osg::Image *image = ((TextureRectangle *)d_currentObject->texData[textureNumber].texture.get())->getImage();
-        if (useTextureRectangle && !(checkPower2(image->s()) && checkPower2(image->t())))
-        {
-
-            d_currentObject->setTexEnv(environment, textureNumber, blendMode, nc);
-            d_currentObject->setTexGen(environment, textureNumber, blendMode);
-            d_currentObject->texData[textureNumber].texImage = image;
-            d_currentObject->texData[textureNumber].mirror = 1;
-        }
-        else
         {
             d_currentObject->texData[textureNumber].texture = (Texture *)t;
 			d_currentObject->texData[textureNumber].texture->setResizeNonPowerOfTwoHint(false);
@@ -5051,8 +4961,6 @@ void ViewerOsg::removeTextureObject(TextureObject t)
     osg::Image *image = NULL;
     if (dynamic_cast<osg::Texture2D *>(tex))
         image = ((osg::Texture2D *)tex)->getImage();
-    if (dynamic_cast<osg::TextureRectangle *>(tex))
-        image = ((osg::TextureRectangle *)tex)->getImage();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
     {

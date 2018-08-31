@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -312,6 +312,10 @@ namespace OpenCOVERPlugin
                 }
                 // this one handles Group.
             }
+            // send done
+
+            MessageBuffer mbf = new MessageBuffer();
+            sendMessage(mbf.buf, MessageTypes.Finished);
         }
         public void SendTypeParameters(Autodesk.Revit.DB.FilteredElementIterator iter)
         {
@@ -601,7 +605,7 @@ namespace OpenCOVERPlugin
                 List<AssetProperty> assets = new List<AssetProperty>();
                 for (int idx = 0; idx < theAsset.Size; idx++)
                 {
-                    AssetProperty ap = theAsset[idx];
+                    AssetProperty ap = theAsset.Get(idx);
                     assets.Add(ap);
                 }
                 String TextureName= "_diffuse";
@@ -658,7 +662,7 @@ namespace OpenCOVERPlugin
                                         int size = asset.Size;
                                         for (int i = 0; i < size; i++)
                                         {
-                                            AssetProperty subproperty = asset[i];
+                                            AssetProperty subproperty = asset.Get(i);
                                             if (subproperty.Name == "unifiedbitmap_Bitmap")
                                             {
 
@@ -1854,6 +1858,60 @@ namespace OpenCOVERPlugin
                             tn.Text = labelText;
                         }
 
+                    }
+                    break;
+                case MessageTypes.File:
+                    {
+                        int MatID = buf.readInt();
+                        string filePathName = buf.readString();
+                        string fileName = buf.readString();
+                        FileStream f=null;
+                        byte[] b=null;
+                        int fileSize = 0;
+                        // read File and send it
+                        try
+                        {
+                            f = File.OpenRead(filePathName);
+                            fileSize = (int)f.Length;
+                            b = new byte[fileSize];
+                            int size = f.Read(b, 0, fileSize);
+                            if (size != fileSize)
+                            {
+                                Console.WriteLine("could not read all bytes ", size, fileSize);
+                                fileSize = 0;
+                            }
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                f = File.OpenRead(fileName);
+                                fileSize = (int)f.Length;
+                                b = new byte[fileSize];
+                                int size = f.Read(b, 0, fileSize);
+                                if (size != fileSize)
+                                {
+                                    Console.WriteLine("could not read all bytes ", size, fileSize);
+                                    fileSize = 0;
+                                }
+                            }
+                            catch
+                            {
+                                fileSize = 0;
+                            }
+                        }
+                        MessageBuffer mb = new MessageBuffer();
+                        mb.add(MatID);
+                        mb.add(fileName);
+                        if (f!=null)
+                            mb.add(fileSize);
+                        else
+                            mb.add((int)0);
+                        if (b != null)
+                            mb.add(b);
+                        sendMessage(mb.buf, MessageTypes.File);
+                        if (f != null)
+                            f.Close();
                     }
                     break;
 

@@ -188,5 +188,15 @@ namespace OpenCOVERPlugin
               currentPos++;
           }
       }
-   }
+
+        public void add(byte[] ba)
+        {
+            incsize(ba.Length);
+            for (int i = 0; i < ba.Length; i++)
+            {
+                buf.SetValue(ba[i], currentPos);
+                currentPos++;
+            }
+        }
+    }
 }

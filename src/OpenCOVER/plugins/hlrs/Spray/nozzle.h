@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef NOZZLE_H
 #define NOZZLE_H
 
@@ -31,6 +38,7 @@ using namespace opencover;
 class nozzle : public coVR3DTransRotInteractor
 {
 private:
+
     int counter = 0;
     int nozzleID = 0;
 
@@ -42,28 +50,28 @@ private:
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Geode* geode_;
-    osg::Vec3 boundingBox_ = osg::Vec3(20000,20000,20000);
-    osg::Cylinder* cylinder_;
+    osg::Vec3 boundingBox_ = osg::Vec3(200,200,200);
+    osg::Box* box_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
     osg::Vec4 currentColor_ = osg::Vec4(1,1,0,1);
 
     void updateColor();
-    void deleteGen(class gen* current);
 
     bool initialized = false;
     bool labelRegistered = false;
-
-    ui::Label* nozzleLabel_;
 
     std::string param1 = "none";
     std::string param2 = "none";
     std::string type = "none";
 
+    bool intersection = true;
+
 
 protected:
     void createGeometry();
     int particleCount_ = 1000;
+    float autoremoveCount = 0.9;
     std::string nozzleName_;
     std::list<class gen*> genList;
 
@@ -120,11 +128,6 @@ public:
     bool isRegistered()
     {
         return labelRegistered;
-    }
-
-    ui::Label* getLabel()
-    {
-        return nozzleLabel_;
     }
 
     void setNozzleColor(osg::Vec4 newColor)
@@ -196,6 +199,17 @@ public:
         type = newType;
     }
 
+    void autoremove(bool state);
+
+    void setIntersection(bool state)
+    {
+        intersection = state;
+    }
+
+    bool getIntersection()
+    {
+        return intersection;
+    }
 };
 
 
@@ -225,7 +239,6 @@ class imageNozzle : public nozzle
 private:
     std::string fileName_;
     std::string pathName_;
-    std::string imageFilePath;
 
     pImageBuffer iBuf;
 

@@ -28,25 +28,27 @@ typedef std::unordered_set<index_t> vertex_set;
 typedef std::set<index_t> vertex_set;
 #endif
 
+namespace fs {
+class Model;
+}
+
 struct HeaderInfo
 {
-    HeaderInfo()
-        : lines(0)
-        , valid(false)
-    {
-    }
-
     std::string header;
 
     std::string version;
     std::string format;
     std::string fieldclass;
+    std::string arch;
+    std::string note;
     std::string location;
     std::string object;
     std::string dimensions;
     std::string internalField;
-    index_t lines;
-    bool valid;
+    index_t lines = 0;
+
+    int numbits = 32;
+    bool valid = false;
 };
 
 struct DimensionInfo
@@ -63,30 +65,6 @@ struct DimensionInfo
     index_t cells;
     index_t faces;
     index_t internalFaces;
-    bool valid;
-};
-
-struct CaseInfo
-{
-
-    CaseInfo()
-        : numblocks(0)
-        , varyingGrid(false)
-        , varyingCoords(false)
-        , hasParticles(false)
-        , valid(false)
-    {
-    }
-
-    std::string casedir;
-    std::map<double, std::string> timedirs; //< Map of all the Time Directories
-    std::map<double, std::string> completeMeshDirs; //< Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
-    std::map<std::string, int> varyingFields, constantFields, particleFields; //< name of all fields together with how often they appear
-    std::string constantdir;
-    std::string lagrangiandir; //< subdirectory of "lagrangian" which is used for particle data
-    int numblocks;
-    bool varyingGrid, varyingCoords;
-    bool hasParticles;
     bool valid;
 };
 
@@ -167,11 +145,38 @@ public:
     std::vector<Boundary> procboundaries;
 };
 
+
+struct CaseInfo
+{
+
+    CaseInfo()
+        : numblocks(0)
+        , varyingGrid(false)
+        , varyingCoords(false)
+        , hasParticles(false)
+        , valid(false)
+    {
+    }
+
+    std::string casedir;
+    std::map<double, std::string> timedirs; //< Map of all the Time Directories
+    std::map<double, std::string> completeMeshDirs; //< Map of most recent directory containing the full mesh (neighbour, owner, faces, points)
+    std::map<std::string, int> varyingFields, constantFields, particleFields; //< name of all fields together with how often they appear
+    std::string constantdir;
+    std::string lagrangiandir; //< subdirectory of "lagrangian" which is used for particle data
+    int numblocks;
+    bool varyingGrid, varyingCoords;
+    bool hasParticles = false;
+    bool valid = false;
+    bool archived = false;
+
+    std::shared_ptr<std::istream> getStreamForFile(const std::string &base, const std::string &filename);
+    Boundaries loadBoundary(const std::string &meshdir);
+
+    std::map<int, std::shared_ptr<fs::Model>> archives;
+};
+
 CaseInfo getCaseInfo(const std::string &casedir, bool exact = false, bool verbose = false);
-bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time);
-bool checkPolyMeshDirContent(CaseInfo &info);
-std::shared_ptr<std::istream> getStreamForFile(const std::string &filename);
-std::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename);
 HeaderInfo readFoamHeader(std::istream &stream);
 DimensionInfo parseDimensions(std::string header);
 
@@ -180,8 +185,6 @@ bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vecto
 bool readFloatArray(const HeaderInfo &info, std::istream &stream, scalar_t *p, const size_t lines);
 bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, const size_t lines);
 bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x, scalar_t *y, scalar_t *z, index_t *cell, const size_t lines);
-
-Boundaries loadBoundary(const std::string &meshdir);
 
 index_t findVertexAlongEdge(const index_t point,
                             const index_t homeface,

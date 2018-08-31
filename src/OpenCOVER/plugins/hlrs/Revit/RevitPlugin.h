@@ -125,7 +125,11 @@ public:
 	double sx, sy, ox, oy, angle,amount;
 	std::string texturePath;
 	unsigned char r,g,b;
+    bool requestTexture; // try to get texture from remote after the model has been transferred completely
+    enum textureType  { diffuse,bump};
+    textureType type;
 	int ID;
+    osg::Image *image;
 };
 
 class MaterialInfo
@@ -138,6 +142,8 @@ public:
 	osg::StateSet *geoState;
 	coVRShader *shader;
 	int ID;
+    void updateTexture(TextureInfo::textureType type, osg::Image *image);
+    osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
 };
 
 
@@ -261,7 +267,9 @@ public:
         MSG_Views = 523,
         MSG_SetView = 524,
 		MSG_Resend = 525,
-		MSG_NewDoorGroup = 526,
+        MSG_NewDoorGroup = 526,
+        MSG_File = 527,
+        MSG_Finished = 528,
     };
     enum ObjectTypes
     {
@@ -294,7 +302,7 @@ public:
 
     int maxEntryNumber;
     coTUITab *revitTab = nullptr;
-    void sendMessage(Message &m);
+    bool sendMessage(Message &m);
     
     void message(int toWhom, int type, int len, const void *buf);
     void deactivateAllViewpoints();
@@ -324,6 +332,7 @@ protected:
     void handleMessage(Message *m);
 
 	MaterialInfo * getMaterial(int revitID);
+    osg::Image *readImage(std::string name);
 
 
     void setDefaultMaterial(osg::StateSet *geoState);
@@ -338,11 +347,13 @@ protected:
     RevitInfo  *info = nullptr;
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
+    void requestTexture(int matID, TextureInfo *texture);
 
-	osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
 	
     float scaleFactor;
-	std::string textureDir;
+    std::string textureDir;
+    std::string localTextureDir;
+    std::string localTextureFile;
     
 
     Message *msg = nullptr;

@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef SPRAY_H
 #define SPRAY_H
 
@@ -61,7 +68,8 @@ private:
     ui::Menu* nozzleCreateMenuStandard = nullptr;
     ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
-    ui::Menu* saveLoadMenu_ = nullptr;
+    ui::Menu* saveMenu_ = nullptr;
+    ui::Menu* loadMenu_ = nullptr;
     ui::Menu* testMenu = nullptr;
     ui::Menu* bbEditMenu = nullptr;
 
@@ -74,6 +82,7 @@ private:
 
     //Buttons on main menu
     ui::Button* sprayStart_ = nullptr;
+    ui::Button* autoremove = nullptr;
 
     //EditFields on main menu
     ui::EditField* newGenCreate_ = nullptr;
@@ -107,14 +116,18 @@ private:
     ui::EditField* alpha_ = nullptr;
     ui::EditField* param1 = nullptr;
     ui::EditField* param2 = nullptr;
+    ui::EditField* rDeviation = nullptr;
+    ui::EditField* rMinimum = nullptr;
 
     ui::EditField* moveX = nullptr;
     ui::EditField* moveY = nullptr;
     ui::EditField* moveZ = nullptr;
 
+    //Buttons on edit menu
+    ui::Button* interaction = nullptr;
+
     //Slider on edit menu
     ui::Slider* pressureSlider_ = nullptr;
-
     ui::Slider* rotX = nullptr;
     ui::Slider* rotY = nullptr;
     ui::Slider* rotZ = nullptr;

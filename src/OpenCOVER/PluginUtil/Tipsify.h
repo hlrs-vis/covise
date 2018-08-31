@@ -42,8 +42,11 @@ Neighbors<Index> buildNeighbours(const Index *idx, size_t size, Index maxIndex) 
     N.use.resize(maxIndex+1);
     const Index *end = idx+size;
     for (const Index *v = idx; v<end; ++v) {
-        if (*v > N.maxIndex)
+        if (*v > N.maxIndex) {
             N.maxIndex = *v;
+            if (N.use.size()<N.maxIndex+1)
+                N.use.resize(N.maxIndex+1);
+        }
         ++N.use[*v];
     }
     N.use.resize(N.maxIndex+1);
@@ -90,7 +93,7 @@ void tipsify(Index *idx, size_t num, int cachesize=20, int batchsize=-1) {
     std::vector<char> emitted(N.tl.size()); // if a triangle has already been emitted
 
     std::vector<Index> deadEndStack;
-    std::vector<int> cachetime(num);
+    std::vector<int> cachetime(N.maxIndex+1);
     int time=cachesize+1;
     size_t cursor = 0;
     Index f = idx[0]; // start vertex for triangle fans

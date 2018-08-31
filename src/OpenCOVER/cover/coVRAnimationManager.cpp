@@ -113,9 +113,12 @@ void coVRAnimationManager::initAnimMenu()
     animFrameItem->setBounds(timestepBase, timestepBase);
     animFrameItem->setValue(timestepBase);
     animFrameItem->setCallback([this](ui::Slider::ValueType val, bool released){
-        // don't stop animation if (animationRunning())
-        //    enableAnimation(false);
         requestAnimationTime(val);
+        if (released) {
+            m_animationPaused = false;
+        } else {
+            m_animationPaused = true;
+        }
     });
     animFrameItem->setPriority(ui::Element::Toolbar);
 
@@ -209,9 +212,7 @@ coVRAnimationManager::setRemoteAnimationFrame(int currentFrame)
         currentAnimationFrame = currentFrame;
         for (unsigned int i = 0; i < listOfSeq.size(); i++)
         {
-            unsigned int numChildren = listOfSeq[i]->getNumChildren();
-            //listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
-            listOfSeq[i]->setValue(currentFrame % numChildren);
+            updateSequence(listOfSeq[i], currentFrame);
         }
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && numFrames != 0)
@@ -259,7 +260,7 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
 
     if ((currentFrame != oldFrame) && animSyncItem->state())
     {
-        if (animRunning)
+        if (animRunning && !m_animationPaused)
         {
             if (coVRCollaboration::instance()->isMaster()) // send update ot others if we are the Master
             {
@@ -283,6 +284,33 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
 }
 
 void
+coVRAnimationManager::updateSequence(Sequence &seq, int currentFrame)
+{
+    int numChildren = seq.seq->getNumChildren();
+    if (currentFrame < numChildren)
+    {
+        seq.seq->setValue(currentFrame);
+        return;
+    }
+
+    switch(seq.fill)
+    {
+        case Nothing:
+            seq.seq->setValue(-1);
+            break;
+        case Last:
+            seq.seq->setValue(numChildren-1);
+            break;
+        case Cycle:
+            if (numChildren>0)
+                seq.seq->setValue(currentFrame % numChildren);
+            else
+                seq.seq->setValue(-1);
+            break;
+    }
+}
+
+void
 coVRAnimationManager::setAnimationFrame(int currentFrame)
 {
     if (requestedAnimationFrame != -1 && currentFrame != requestedAnimationFrame)
@@ -295,10 +323,7 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
         currentAnimationFrame = currentFrame;
         for (unsigned int i = 0; i < listOfSeq.size(); i++)
         {
-            unsigned int numChildren = listOfSeq[i]->getNumChildren();
-            //listOfSeq[i]->setValue(((unsigned int)currentFrame) < numChildren ? currentFrame : numChildren - 1);
-			if (numChildren>0)            
-				listOfSeq[i]->setValue(currentFrame % numChildren);
+            updateSequence(listOfSeq[i], currentFrame);
         }
         coVRPluginList::instance()->setTimestep(currentFrame);
         if (animFrameItem && numFrames != 0)
@@ -311,7 +336,7 @@ coVRAnimationManager::setAnimationFrame(int currentFrame)
 bool
 coVRAnimationManager::updateAnimationFrame()
 {
-    if (animRunning && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
+    if (animRunning && !m_animationPaused && (!animSyncItem->state() || coVRCollaboration::instance()->isMaster()))
     {
         if (!animPingPongItem->state()) // normal loop mode
         {
@@ -462,7 +487,7 @@ coVRAnimationManager::removeSequence(osg::Sequence *seq)
 {
     for (unsigned int i = 0; i < listOfSeq.size(); i++)
     {
-        if (listOfSeq[i] == seq)
+        if (listOfSeq[i].seq == seq)
         {
             removeTimestepProvider(seq);
             for (unsigned int n = i; n < listOfSeq.size() - 1; n++)
@@ -473,39 +498,33 @@ coVRAnimationManager::removeSequence(osg::Sequence *seq)
     }
 }
 
-const std::vector<osg::Sequence *>&
+const std::vector<coVRAnimationManager::Sequence>&
 coVRAnimationManager::getSequences() const
 {
     return listOfSeq;
 }
 
 void
-coVRAnimationManager::addSequence(osg::Sequence *seq)
+coVRAnimationManager::addSequence(osg::Sequence *seq, coVRAnimationManager::FillMode mode)
 {
-    /*if (int(seq->getNumChildren()) > currentAnimationFrame)
-        seq->setValue(currentAnimationFrame);
-    else
-        seq->setValue(seq->getNumChildren());*/
-    
-    if (seq->getNumChildren()>0)
-		seq->setValue(currentAnimationFrame % seq->getNumChildren());
-    
-
     setNumTimesteps(seq->getNumChildren(), seq);
     bool alreadyAdded = false;
     for (unsigned int i = 0;
          i < listOfSeq.size();
          i++)
     {
-        if (seq == listOfSeq[i])
+        if (seq == listOfSeq[i].seq)
         {
+            listOfSeq[i].fill = mode;
             alreadyAdded = true;
+            updateSequence(listOfSeq[i], currentAnimationFrame);
             break;
         }
     }
     if (!alreadyAdded)
     {
-        listOfSeq.push_back(seq);
+        listOfSeq.emplace_back(seq, mode);
+        updateSequence(listOfSeq.back(), currentAnimationFrame);
     }
 }
 

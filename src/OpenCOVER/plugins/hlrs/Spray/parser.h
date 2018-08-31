@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -25,6 +32,7 @@ private:
 
     int reqParticles = 10000;
     int reqSamplings = 1000;
+    int iterations = 4;
     float lowerPressureBound = 0.1;
     float upperPressureBound = 10;
 
@@ -32,11 +40,13 @@ private:
     float densityOfParticle = 1000;
     float cwTurb = 0.15;
     float nu = 0;
-    int reynoldsThreshold = 170000;
+    int reynoldsThreshold = 2230;
+    int reynoldsLimit = 170000;
     float minimum = 0.000025;
     float deviation = 0.00005;
     float scaleFactor = 100000;
     float rendertime = 1;
+
 
     int colorThreshold = 100;
     int isAMD = 1;
@@ -198,6 +208,18 @@ public:
                         rendertime = stof(line);
                     }
 
+                    if(line.compare("iterations ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        iterations = stof(line);
+                    }
+
+                    if(line.compare("reynoldsLimit ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        reynoldsLimit = stof(line);
+                    }
+
 
 
                 }//try
@@ -314,6 +336,16 @@ public:
     float getRendertime()
     {
         return rendertime;
+    }
+
+    int getIterations()
+    {
+        return iterations;
+    }
+
+    int getReynoldsLimit()
+    {
+        return reynoldsLimit;
     }
 };
 

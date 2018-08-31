@@ -398,7 +398,10 @@ void VruiView::updateState(const Button *button)
         return;
 
     if (auto cb = dynamic_cast<coCheckboxMenuItem *>(ve->m_menuItem))
-        cb->setState(button->state(), false);
+    {
+        if (cb->getState() != button->state())
+            cb->setState(button->state(), false);
+    }
     if (auto tb = dynamic_cast<coIconToggleButtonToolboxItem *>(ve->m_toolboxItem))
     {
         if (tb->getState() != button->state())

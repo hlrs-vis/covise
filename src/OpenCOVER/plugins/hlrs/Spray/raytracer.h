@@ -10,6 +10,7 @@
 #include <list>
 #include <vector>
 #include "types.h"
+#include "gen.h"
 //using namespace embree;
 
 struct Vertex   { float x,y,z/*,r*/;  };        //From tutorial
@@ -30,7 +31,6 @@ private:
 
     RTCDevice gDevice = rtcNewDevice("");
     RTCScene rScene_ = nullptr;
-    particleParam pP_;
     std::list<RTCGeometry> geoList;    
     bool comitted = false;
 
@@ -300,15 +300,15 @@ public:
         rtcCommitScene(rScene_);
     }
 
-    particleParam handleParticleData(particleParam p)
+    particle handleParticleData(particle p)
     {
         RTCRayHit x;
-        x.ray.org_x = p.x;
-        x.ray.org_y = p.z;
-        x.ray.org_z = p.y;
-        x.ray.dir_x = p.vx;
-        x.ray.dir_y = p.vz;
-        x.ray.dir_z = p.vy;
+        x.ray.org_x = p.pos.x();
+        x.ray.org_y = p.pos.z();
+        x.ray.org_z = p.pos.y();
+        x.ray.dir_x = p.velocity.x();
+        x.ray.dir_y = p.velocity.z();
+        x.ray.dir_z = p.velocity.y();
         x.ray.tfar = 1000000;
         x.ray.flags = 0;
         x.ray.tnear = -1000000;
@@ -323,15 +323,15 @@ public:
         if(x.hit.geomID != -1)
         {
             p.hit = 1;
-            p.x = x.hit.u;
-            p.y = x.hit.v;
-            p.z = x.ray.tfar;
+            p.pos.x() = x.hit.u;
+            p.pos.y() = x.hit.v;
+            p.pos.z() = x.ray.tfar;
         }
         else
         {
-            p.x = 0;
-            p.y = 0;
-            p.z = 0;
+            p.pos.x() = 0;
+            p.pos.y() = 0;
+            p.pos.z() = 0;
         }
 
         return p;

@@ -20,7 +20,7 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
-
+#include <proj_api.h>
 #include "dataelement.hpp"
 
 class ProjectWidget;
@@ -56,7 +56,8 @@ public:
         CPD_DateChange = 0x80,
         CPD_SizeChange = 0x100,
         CPD_SelectedElementsChanged = 0x200,
-        CPD_HiddenElementsChanged = 0x400
+        CPD_HiddenElementsChanged = 0x400,
+        CPD_ProjectionSettingsChanged = 0x500
     };
 
     //################//
@@ -113,6 +114,16 @@ public:
 		return geoReferenceParams_;
 	}
 
+    projPJ getProj4ReferenceTo()
+    {
+        return proj4ReferenceTo_;
+    }
+
+    projPJ getProj4ReferenceFrom()
+    {
+        return proj4ReferenceFrom_;
+    }
+
     void setRevMajor(int revMajor);
     void setRevMinor(int revMinor);
 
@@ -126,6 +137,8 @@ public:
     void setWest(double west);
 
 	void setGeoReference(GeoReference *geoParams);
+    void setProj4ReferenceTo(projPJ proj);
+    void setProj4ReferenceFrom(projPJ proj);
 
     // RoadSystem //
     //
@@ -137,7 +150,6 @@ public:
 
     // Tile //
     //
-
     TileSystem *getTileSystem() const
     {
         return tileSystem_;
@@ -327,6 +339,14 @@ private:
 	// Georeference String //
 	//
 	GeoReference *geoReferenceParams_;
+
+    // Proj4 Object ProjFromString
+    //
+    projPJ proj4ReferenceTo_;
+
+    // Proj4 Object ProjToString
+    //
+    projPJ proj4ReferenceFrom_;
 };
 
 #endif // PROJECTDATA_HPP

@@ -1,3 +1,10 @@
+/* This file is part of COVISE.
+
+   You can use it under the terms of the GNU Lesser General Public License
+   version 2.1 or later, see lgpl-2.1.txt.
+
+ * License: LGPL 2+ */
+
 #ifndef NOZZLEMANAGER_H
 #define NOZZLEMANAGER_H
 
@@ -13,7 +20,8 @@
 #include "parser.h"
 
 
-typedef struct{
+typedef struct
+{
     int count;
     std::string name;
     float position[15];
@@ -24,6 +32,9 @@ typedef struct{
 
     float angle;
     std::string decoy;
+
+    float minimum;
+    float deviation;
 
 }nozzleParam;
 
@@ -40,7 +51,8 @@ private:
     {
     public:
         ~nozzleManagerGuard(){
-            if(NULL != nozzleManager::_instance){
+            if(NULL != nozzleManager::_instance)
+            {
                 delete nozzleManager::_instance;
                 nozzleManager::_instance = NULL;
             }
@@ -51,7 +63,7 @@ private:
     int nozzleCount = 0;
     int nextNozzleID = 0;
 
-    osg::Vec3 currentBoundingBox = osg::Vec3(20000,20000,20000);
+    osg::Vec3 currentBoundingBox = osg::Vec3(2000,2000,2000);
 
 
 public:
@@ -83,6 +95,7 @@ public:
     nozzle* getNozzle(int index);
 
     void setBoundingBox(osg::Vec3 newBoundingBox);
+    void autoremove(bool state);
     osg::Vec3 getBoundingBox()
     {
         return currentBoundingBox;

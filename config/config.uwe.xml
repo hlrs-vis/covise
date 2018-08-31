@@ -27,6 +27,19 @@
                     <!--VideoDevice value="1" width="640" height="480" /-->
                     <CameraCalibrationFile value="/data/ARToolKit/FullHDCalib.xml" />
                 </ALVAR>
+				
+    <Vrml97 value="on">
+
+     <Lights value="ON" />
+     <Audio value="OpenAL" >
+      <Host value="localhost" />
+     </Audio>
+
+    <ViewpointType value = "free"/>
+
+
+
+    </Vrml97>
             </Plugin>
   </COVER>
 

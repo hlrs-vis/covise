@@ -1200,6 +1200,80 @@ coSphere::setCoords(int no_of_points, const float *x_c, const float *y_c,
     }
 }
 
+void
+coSphere::setCoords(int no_of_points, const osg::Vec3Array* coords, const float *r)
+{
+    if (no_of_points < 0)
+        no_of_points = 0;
+    setNumberOfSpheres(no_of_points);
+
+    dirtyBound();
+
+    osg::Vec3Array::const_iterator coord = coords->begin();
+
+    m_maxRadius = FLT_MIN;
+    if (m_useVertexArrays)
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            const osg::Vec3 &pos = *coord;
+            m_coord[i * 12 + 0] = pos.x();
+            m_coord[i * 12 + 1] = pos.y();
+            m_coord[i * 12 + 2] = pos.z();
+            m_coord[i * 12 + 3] = pos.x();
+            m_coord[i * 12 + 4] = pos.y();
+            m_coord[i * 12 + 5] = pos.z();
+            m_coord[i * 12 + 6] = pos.x();
+            m_coord[i * 12 + 7] = pos.y();
+            m_coord[i * 12 + 8] = pos.z();
+            m_coord[i * 12 + 9] = pos.x();
+            m_coord[i * 12 + 10] = pos.y();
+            m_coord[i * 12 + 11] = pos.z();
+            m_radii[i * 12 + 0] = -1.0f;
+            m_radii[i * 12 + 1] = -1.0f;
+            m_radii[i * 12 + 2] = r[i];
+            m_radii[i * 12 + 3] = 1.0f;
+            m_radii[i * 12 + 4] = -1.0f;
+            m_radii[i * 12 + 5] = r[i];
+            m_radii[i * 12 + 6] = 1.0f;
+            m_radii[i * 12 + 7] = 1.0f;
+            m_radii[i * 12 + 8] = r[i];
+            m_radii[i * 12 + 9] = -1.0f;
+            m_radii[i * 12 + 10] = 1.0f;
+            m_radii[i * 12 + 11] = r[i];
+            ++coord;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            const osg::Vec3 &pos = *coord;
+            m_coord[i * 3 + 0] = pos.x();
+            m_coord[i * 3 + 1] = pos.y();
+            m_coord[i * 3 + 2] = pos.z();
+            m_radii[i] = r[i];
+            ++coord;
+        }
+    }
+
+    if (m_extMaxRadius != 0)
+        m_maxRadius = m_extMaxRadius;
+
+    // sorting by radius
+    for (int i = 0; i <= m_maxPointSize; ++i)
+        m_sortedRadiusIndices[i].clear();
+    for (int i = 0; i < m_numSpheres; ++i)
+    {
+        int bucket = (int)floor(0.5 + m_radii[i] / m_maxRadius * m_maxPointSize);
+        if (bucket < 0)
+            bucket = 0;
+        if (bucket >= m_maxPointSize)
+            bucket = m_maxPointSize - 1;
+        m_sortedRadiusIndices[bucket].push_back(i);
+    }
+}
+
 void coSphere::updateNormals(const float *nx, const float *ny, const float *nz)
 {
     if (m_useVertexArrays)
@@ -1401,6 +1475,35 @@ void coSphere::updateCoords(const float *x_c, const float *y_c, const float *z_c
         }
     }
 }
+
+void coSphere::updateCoords(int i, const osg::Vec3 &pos)
+{
+    dirtyBound();
+
+    if (m_useVertexArrays)
+    {
+            m_coord[i * 12 + 0] = pos.x();
+            m_coord[i * 12 + 1] = pos.y();
+            m_coord[i * 12 + 2] = pos.z();
+            m_coord[i * 12 + 3] = pos.x();
+            m_coord[i * 12 + 4] = pos.y();
+            m_coord[i * 12 + 5] = pos.z();
+            m_coord[i * 12 + 6] = pos.x();
+            m_coord[i * 12 + 7] = pos.y();
+            m_coord[i * 12 + 8] = pos.z();
+            m_coord[i * 12 + 9] = pos.x();
+            m_coord[i * 12 + 10] = pos.y();
+            m_coord[i * 12 + 11] = pos.z();
+
+    }
+    else
+    {
+            m_coord[i * 3 + 0] = pos.x();
+            m_coord[i * 3 + 1] = pos.y();
+            m_coord[i * 3 + 2] = pos.z();
+    }
+}
+
 
 void coSphere::setRenderMethod(RenderMethod rm)
 {

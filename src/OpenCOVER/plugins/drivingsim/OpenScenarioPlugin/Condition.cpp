@@ -14,7 +14,9 @@ Condition::Condition():
     checkedEvent(NULL),
     checkedManeuver(NULL),
     checkedSequence(NULL)
-{}
+{
+    distance = -10000000;
+}
 Condition::~Condition(){}
 
 void Condition::addActiveEntity(Entity* entity)

@@ -1009,6 +1009,7 @@ ModuleFeedbackManager::ModuleName(const char *objectName) const
     }
     else
         moduleName += objectName;
+    delete[] buf;
 
     //fprintf(stderr,"\tmodulename=%s\n", moduleName.c_str());
     return moduleName;

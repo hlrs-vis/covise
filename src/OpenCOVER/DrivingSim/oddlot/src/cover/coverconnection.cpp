@@ -24,25 +24,39 @@
 #include "../gui/projectwidget.hpp"
 #include "../graph/topviewgraph.hpp"
 #include "../graph/graphview.hpp"
+#include "ui_coverconnection.h"
 
 // Data //
 
 COVERConnection *COVERConnection::inst = NULL;
 
+void COVERConnection::okPressed()
+{
+    port = ui->portSpinBox->value();
+    hostname = ui->hostnameEdit->text();
+}
 //################//
 // CONSTRUCTOR    //
 //################//
 
 COVERConnection::COVERConnection()
+    : ui(new Ui::COVERConnection)
 {
     inst = this;
+    ui->setupUi(this);
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+
+    //Timer init for 1000 ms interrupt => call processMessages()
     m_periodictimer = new QTimer;
     QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(processMessages()));
     m_periodictimer->start(1000);
+    //monitoring activity to file descriptor
     toCOVERSN = NULL;
+    //connect to covise
     toCOVER = NULL;
     msg = new covise::Message;
     mainWindow = NULL;
+    inst = this;
 }
 
 void COVERConnection::setMainWindow(MainWindow *mw)
@@ -55,13 +69,30 @@ COVERConnection::~COVERConnection()
     inst = NULL;
     delete toCOVERSN;
     delete m_periodictimer;
+    delete ui;
+}
+
+bool COVERConnection::doConnect()
+{
+    return (ui->connectedState->isChecked());
+}
+
+void COVERConnection::setConnected(bool c)
+{
+    ui->connectedState->setChecked(c);
+}
+
+int COVERConnection::getPort()
+{
+    return (ui->portSpinBox->value());
 }
 
 void COVERConnection::closeConnection()
 {
     delete toCOVER;
     toCOVER=NULL;
-    LODSettings::instance()->setConnected(false);
+    //LODSettings::instance()->setConnected(false);
+    setConnected(false);
 }
 
 void COVERConnection::send(covise::TokenBuffer &tb)
@@ -97,16 +128,17 @@ void COVERConnection::processMessages()
 {
     if(toCOVER == NULL)
     {
-        if(LODSettings::instance()->doConnect())
+        //UI
+        if(/*LODSettings::instance()->*/doConnect())
         {
-            std::string hostname = LODSettings::instance()->hostname.toStdString();
+            std::string hostname = /*LODSettings::instance()->*/(this->hostname).toStdString();
             if (hostname.empty())
                 hostname = "localhost";
             covise::Host *h = new covise::Host(hostname.c_str());
-            toCOVER = new covise::ClientConnection(h ,LODSettings::instance()->getPort(),0,0,0,0.0000000001);
+            toCOVER = new covise::ClientConnection(h ,/*LODSettings::instance()->*/getPort(),0,0,0,0.0000000001);
             if(toCOVER->is_connected())
             {
-                LODSettings::instance()->setConnected(true);
+                /*LODSettings::instance()->*/setConnected(true);
                 struct linger linger;
                 linger.l_onoff = 0;
                 linger.l_linger = 0;

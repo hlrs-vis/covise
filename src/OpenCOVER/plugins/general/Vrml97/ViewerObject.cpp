@@ -613,7 +613,6 @@ void osgViewerObject::updateTMat()
                 {
                     StateSet *geostate = drawable->getOrCreateStateSet();
                     geostate->setNestRenderBins(false);
-                    bool useTextureRectangle = covise::coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
                     Matrixd multMat;
                     multMat.makeIdentity();
@@ -630,32 +629,18 @@ void osgViewerObject::updateTMat()
                     }
                     if(texData[i].mirror == 1)
                     {
-                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
-                        {
-                            multMat(0, 0) = texData[i].texture->getTextureWidth();
-                            multMat(1, 1) = -texData[i].texture->getTextureHeight();
-                            multMat(3, 1) = texData[i].texture->getTextureHeight();
-                        }
-                        else
-                        {
+                        
                             multMat(1, 1) = -1;
                             multMat(3, 1) = 1;
-                        }
+                        
                     }
                     else
                     {
-                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
-                        {
-                            multMat(0, 0) = -texData[i].texture->getTextureWidth();
-                            multMat(1, 1) = texData[i].texture->getTextureHeight();
-                            multMat(3, 0) = texData[i].texture->getTextureWidth();
-                        }
-                        else
-                        {
+                        
                             multMat(0, 0) = -1;
                             multMat(1, 1) = 1;
                             multMat(3, 0) = 1;
-                        }
+                        
                     }
                     TexMat *texMat = new TexMat();
                     Matrix tmpMat;
