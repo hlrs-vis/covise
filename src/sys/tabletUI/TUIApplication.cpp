@@ -561,7 +561,12 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
     case TABLET_EARTHMAP:
+#ifdef HAVE_TUIEARTHMAP
         return new TUIEarthMap(id, type, w, parent, name);
+#else
+        std::cerr << "TUIapplication::createElement info: TUIEarthMap requires Qt >= 5.9" << std::endl;
+        break;
+#endif
     case TABLET_PROGRESS_BAR:
         return new TUIProgressBar(id, type, w, parent, name);
     case TABLET_NAV_ELEMENT:
