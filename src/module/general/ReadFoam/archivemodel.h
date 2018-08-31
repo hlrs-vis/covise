@@ -6,6 +6,8 @@
 #include <vector>
 #include <streambuf>
 
+class archive_streambuf;
+
 namespace fs {
 
 class Entry;
@@ -45,6 +47,8 @@ private:
 
 class Entry {
     friend class Path;
+    friend class Model;
+    friend class ::archive_streambuf;
 public:
    Entry(const Directory *parent, std::string name);
    virtual ~Entry();
@@ -61,6 +65,7 @@ protected:
     const Model *model = nullptr;
     const Directory *parent = nullptr;
     std::string name;
+    std::string pathname;
 };
 
 class File: public Entry {
@@ -114,6 +119,7 @@ private:
 
 class Model {
    friend class Path;
+   friend class ::archive_streambuf;
 public:
 
    Model(const std::string &archiveOrDirectory);
@@ -142,4 +148,16 @@ bool exists(const Path &path);
 
 } // namespace fs
 
+
+class archive_streambuf: public std::streambuf {
+public:
+    archive_streambuf(const fs::File *file);
+    ~archive_streambuf() override;
+    int_type underflow() override;
+
+private:
+    std::streamsize nread = 0;
+    char buf[(1<<16)+1];
+    void *archive = nullptr;
+};
 #endif

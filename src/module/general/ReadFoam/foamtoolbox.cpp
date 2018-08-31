@@ -117,9 +117,10 @@ static bool is_directory(const fs::Path &path) {
 class FilteringStreamDeleter
 {
 public:
-    FilteringStreamDeleter(bi::filtering_istream *f, std::ifstream *s)
+    FilteringStreamDeleter(bi::filtering_istream *f, std::istream *s, archive_streambuf *b=nullptr)
         : filtered(f)
         , stream(s)
+        , buf(b)
     {
     }
 
@@ -128,10 +129,12 @@ public:
         assert(static_cast<bi::filtering_istream *>(f) == filtered);
         delete filtered;
         delete stream;
+        delete buf;
     }
 
-    bi::filtering_istream *filtered;
-    std::ifstream *stream;
+    bi::filtering_istream *filtered = nullptr;
+    std::istream *stream = nullptr;
+    archive_streambuf *buf = nullptr;
 };
 
 bool isTimeDir(const std::string &dir)
@@ -467,6 +470,7 @@ Path getProcessor(CaseInfo &info, int processor);
 template<>
 bf::path getProcessor<bf::path, bf::path>(CaseInfo &info, int processor) {
     assert(!info.archived);
+    assert(info.format == CaseInfo::FormatDir);
     std::stringstream s;
     s << info.casedir << "/processor" + std::to_string(processor);
     return bf::path(s.str());
@@ -475,8 +479,12 @@ bf::path getProcessor<bf::path, bf::path>(CaseInfo &info, int processor) {
 template<>
 fs::Path getProcessor<fs::Model, fs::Path>(CaseInfo &info, int processor) {
     assert(info.archived);
+    assert(info.format != CaseInfo::FormatDir);
     std::stringstream s;
-    s << info.casedir << "/processor" + std::to_string(processor) + ".tar";
+    if (info.format == CaseInfo::FormatTar)
+        s << info.casedir << "/processor" + std::to_string(processor) + ".tar";
+    else
+        s << info.casedir << "/processor" + std::to_string(processor) + ".zip";
     auto it = info.archives.find(processor);
     if (it == info.archives.end()) {
         info.archives[processor].reset(new fs::Model(s.str()));
@@ -539,7 +547,7 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
         return false;
     }
 
-    int numProcessorDirs = 0, numProcessorArchives = 0;
+    int numProcessorDirs = 0, numProcessorTars = 0, numProcessorZips = 0;
     for (bf::directory_iterator it(dir);
          it != bf::directory_iterator();
          ++it)
@@ -555,21 +563,27 @@ bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbo
         else
         {
             if (ext == ".tar" && isProcessorDir(stem))
-                ++numProcessorArchives;
+                ++numProcessorTars;
+            if (ext == ".zip" && isProcessorDir(stem))
+                ++numProcessorZips;
         }
     }
 
     int num_processors = numProcessorDirs;
-    if (numProcessorArchives > 0)
+    if (numProcessorTars > 0 || numProcessorZips > 0)
     {
         info.archived = true;
-        num_processors = numProcessorArchives;
+        num_processors = std::max(numProcessorTars, numProcessorZips);
+        if (numProcessorTars > numProcessorZips)
+            info.format = CaseInfo::FormatTar;
+        else
+            info.format = CaseInfo::FormatZip;
     }
     info.numblocks = num_processors;
 
     if (verbose)
     {
-        std::cerr << "case directory " << info.casedir << " is " << (info.archived ? "" : "not ") << "an archive: #archives=" << numProcessorArchives << std::endl;
+        std::cerr << "case directory " << info.casedir << " is " << (info.archived ? "" : "not ") << "an archive: #archives(zip/tar)=" << numProcessorZips << "/" << numProcessorTars << std::endl;
     }
 
     if (num_processors > 0)
@@ -1611,7 +1625,9 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
     bool zipped = false;
     int64_t offset = 0;
     size_t size = 0;
-    bool archive = false;
+    bool intar = false;
+    bool inzip = false;
+    archive_streambuf *buf = nullptr;
     if (archived) {
         if (boost::algorithm::starts_with(base, "processor")) {
             const char *p = base.c_str() + strlen("processor");
@@ -1624,10 +1640,15 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
                 file = root.getModel()->findFile(base + "/" + filename);
             }
             if (file) {
-                size = file->size;
-                offset = file->offset;
                 container = root.getModel()->getContainer();
-                archive = true;
+                size = file->size;
+                if (format == FormatTar) {
+                    offset = file->offset;
+                    intar = true;
+                } else if (format == FormatZip) {
+                    buf = new archive_streambuf(file);
+                    inzip = true;
+                }
             }
         }
     } else {
@@ -1638,27 +1659,33 @@ std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base
         }
     }
 
-    std::ifstream *s = new std::ifstream(container.c_str(), std::ios_base::in | std::ios_base::binary);
-    if (!s->is_open())
-    {
-        delete s;
-        std::cerr << "getStreamForFile(base=" << base << ", filename=" << filename << "): failed to open " << container << std::endl;
-        return std::shared_ptr<std::istream>();
-    }
-    if (offset>0)
-        s->seekg(offset);
-    if (!zipped && !archive)
-    {
-        return std::shared_ptr<std::istream>(s);
+    std::istream *s = nullptr;
+    if (buf) {
+        s = new std::istream(buf);
+    } else {
+        std::ifstream *sf = new std::ifstream(container.c_str(), std::ios_base::in | std::ios_base::binary);
+        if (!sf->is_open())
+        {
+            delete sf;
+            std::cerr << "getStreamForFile(base=" << base << ", filename=" << filename << "): failed to open " << container << std::endl;
+            return std::shared_ptr<std::istream>();
+        }
+        if (offset>0)
+            sf->seekg(offset);
+        if (!zipped && !intar)
+        {
+            return std::shared_ptr<std::istream>(sf);
+        }
+        s = sf;
     }
 
     bi::filtering_istream *fi = new bi::filtering_istream;
     if (zipped) {
         fi->push(bi::gzip_decompressor());
     }
-    if (archive) {
+    if (intar) {
         fi->push(stream_limiter<char>(size));
     }
     fi->push(*s);
-    return std::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s));
+    return std::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s, buf));
 }

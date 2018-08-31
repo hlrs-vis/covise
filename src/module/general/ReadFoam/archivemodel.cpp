@@ -268,8 +268,8 @@ Model::Model(const std::string &archiveOrDirectory)
         archive_read_free(a);
     });
 
-    archive_read_support_filter_all(a);
-    archive_read_support_format_all(a);
+    archive_read_support_format_zip(a);
+    archive_read_support_format_tar(a);
     int r = archive_read_open_filename(a, archiveOrDirectory.c_str(), 102400);
     if (r != ARCHIVE_OK) {
         throw std::runtime_error("failed to open archive " + archiveOrDirectory);
@@ -290,7 +290,6 @@ Model::Model(const std::string &archiveOrDirectory)
         } else if (type == AE_IFREG) {
             auto file = dynamic_cast<File *>(addPath(pathname));
             if (file) {
-                const void *buf = nullptr;
                 int64_t off = archive_read_header_position(a);
                 size_t sz = archive_entry_size(entry);
                 file->offset = off;
@@ -333,10 +332,12 @@ Entry *Model::addPath(const std::string &path) {
     }
     if (isDirectory(path)) {
         Directory *d = dir->addDirectory(components.back());
+        d->pathname = path;
         return d;
     }
 
     File *f = dir->addFile(components.back());
+    f->pathname = path;
     return f;
 }
 
@@ -486,3 +487,53 @@ bool exists(const Path &path) {
 }
 
 } // namespace fs
+
+
+archive_streambuf::archive_streambuf(const fs::File *file) {
+    auto end = buf + sizeof(buf);
+    setg(end, end, end);
+
+    auto &container = file->model->container;
+
+    auto a = archive_read_new();
+    archive = a;
+    archive_read_support_format_tar(a);
+    archive_read_support_format_zip(a);
+    int r = archive_read_open_filename(a, container.c_str(), sizeof(buf));
+    if (r != ARCHIVE_OK) {
+        archive_read_free(a);
+        throw std::runtime_error("failed to open archive " + container);
+    }
+
+    struct archive_entry *entry = nullptr;
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        std::string pathname = archive_entry_pathname(entry);
+        if (pathname == file->pathname) {
+            auto type = archive_entry_filetype(entry);
+            assert(type == AE_IFREG);
+            size_t sz = archive_entry_size(entry);
+            return;
+        }
+    }
+
+    archive_read_free(a);
+    archive = nullptr;
+    throw std::runtime_error("did not find " + file->pathname + " in archive " + container);
+}
+
+archive_streambuf::~archive_streambuf() {
+    auto a = static_cast<struct archive *>(archive);
+    archive_read_close(a);
+    archive_read_free(a);
+    archive = nullptr;
+}
+
+std::streambuf::int_type archive_streambuf::underflow() {
+    auto a = static_cast<struct archive *>(archive);
+    auto n = archive_read_data(a, buf, sizeof(buf));
+    if (n == 0)
+        return EOF;
+    nread += n;
+    setg(buf, buf, buf+n);
+    return traits_type::to_int_type(*gptr());
+}
