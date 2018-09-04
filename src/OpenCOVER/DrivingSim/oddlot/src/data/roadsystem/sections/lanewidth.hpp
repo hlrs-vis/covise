@@ -38,6 +38,7 @@ public:
         CLW_ParentLaneChanged = 0x1,
         CLW_OffsetChanged = 0x2,
         CLW_WidthChanged = 0x4,
+		CLW_GradientChanged = 0x8
     };
 
     //################//
@@ -74,7 +75,10 @@ public:
     double getSlope(double sSection) const;
     double getCurvature(double sSection) const;
 
+	double getT(double s);
+
     void setParameters(double a, double b, double c, double d);
+	void setOffsetParameters(bool start, const QPointF &dpos);
 
     // Observer Pattern //
     //

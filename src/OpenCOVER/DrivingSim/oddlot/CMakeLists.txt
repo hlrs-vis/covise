@@ -48,6 +48,9 @@ ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
 
+SET(ODDLOT_HEADERS
+	src/graph/items/handles/lanemovehandle.hpp
+	)
 
 SET(ODDLOT_SOURCES 
      src/main.cpp 
@@ -389,6 +392,8 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
+	src/graph/items/handles/baselanemovehandle.cpp
+	src/data/visitors/lanemovevalidator.cpp
 )
 SET(ODDLOT_MOC_HEADERS
     src/data/changemanager.hpp
@@ -480,6 +485,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/profilegraphview.hpp
     src/graph/projectgraph.hpp
     src/graph/topviewgraph.hpp
+	src/graph/items/handles/baselanemovehandle.hpp
     src/gui/exportsettings.hpp
     src/gui/importsettings.hpp
     src/gui/lodsettings.hpp

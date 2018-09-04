@@ -21,12 +21,14 @@
 #include "src/graph/profilegraph.hpp"
 #include "src/graph/profilegraphscene.hpp"
 #include "src/graph/profilegraphview.hpp"
+#include "src/graph/items/handles/lanemovehandle.hpp"
 
 #include "src/data/roadsystem/sections/typesection.hpp"
 
 class ProjectData;
 class TopviewGraph;
 
+class LaneWidth;
 class LaneWidthMoveHandle;
 class LaneRoadSystemItem;
 class RoadSystemItem;
@@ -42,7 +44,7 @@ class LaneEditor : public ProjectEditor
     //################//
 
 public:
-    explicit LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
+    explicit LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
     virtual ~LaneEditor();
 
     // Handle //
@@ -52,11 +54,8 @@ public:
     // Tool //
     //
     virtual void toolAction(ToolAction *);
+	virtual void mouseAction(MouseAction *mouseAction);
 
-    ProfileGraph *getProfileGraph()
-    {
-        return profileGraph_;
-    };
 
     // MoveHandles //
     //
@@ -64,6 +63,17 @@ public:
     int unregisterMoveHandle(LaneWidthMoveHandle *handle);
     void setWidth(double w);
     bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
+
+	void removeMoveHandle();
+
+	// BorderMoveHandles //
+	//
+
+	void registerMoveHandle(BaseLaneMoveHandle *handle);
+	int unregisterMoveHandle(BaseLaneMoveHandle *handle);
+
+
+	bool translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos, double width = 0.0, bool setWidth = false);
 
 protected:
     virtual void init();
@@ -89,16 +99,16 @@ private:
     //
     LaneRoadSystemItem *roadSystemItem_;
 
-    // ProfileGraph //
-    //
-    ProfileGraph *profileGraph_;
-    RoadSystemItem *laneSectionItemPolyGraph_;
-
     // Handle //
     //
     SectionHandle *insertSectionHandle_;
 
+	// Edit Mode (width or border) //
+	//
+//	bool borderEditMode_;
+
     QMultiMap<int, LaneWidthMoveHandle *> selectedMoveHandles_;
+	QList<BaseLaneMoveHandle *> selectedLaneMoveHandles_;
 };
 
 #endif // LANEEDITOR_HPP

@@ -117,75 +117,75 @@ public:
 	* This enum defines the Id of each tool. The Id will
 	* be used by the mainToolClicked(ToolId) signal.
 	*/
-    enum ToolId
-    {
-        // Road Link Editor
-        TRL_SELECT,
-        TRL_LINK,
-        TRL_ROADLINK,
-        TRL_UNLINK,
+	enum ToolId
+	{
+		// Road Link Editor
+		TRL_SELECT,
+		TRL_LINK,
+		TRL_ROADLINK,
+		TRL_UNLINK,
 
-        // Road Type Editor
-        TRT_SELECT,
-        TRT_ADD,
-        TRT_DEL,
-        TRT_MOVE,
+		// Road Type Editor
+		TRT_SELECT,
+		TRT_ADD,
+		TRT_DEL,
+		TRT_MOVE,
 
-        // Track Editor
-        TTE_MOVE,
-        TTE_MOVE_ROTATE,
-        TTE_ADD,
-        TTE_ADD_LINE,
-        TTE_ADD_CURVE,
+		// Track Editor
+		TTE_MOVE,
+		TTE_MOVE_ROTATE,
+		TTE_ADD,
+		TTE_ADD_LINE,
+		TTE_ADD_CURVE,
 		TTE_ADD_POLY,
-        TTE_DELETE,
-        TTE_TRACK_SPLIT,
-        TTE_ROAD_NEW,
-        TTE_ROAD_MOVE_ROTATE,
-        TTE_ROAD_DELETE,
-        TTE_ROAD_SPLIT,
-        TTE_ROAD_MERGE,
+		TTE_DELETE,
+		TTE_TRACK_SPLIT,
+		TTE_ROAD_NEW,
+		TTE_ROAD_MOVE_ROTATE,
+		TTE_ROAD_DELETE,
+		TTE_ROAD_SPLIT,
+		TTE_ROAD_MERGE,
 		TTE_ROAD_SNAP,
 		TTE_ROAD_CIRCLE,
 		TTE_TRACK_ROAD_SPLIT,
-        TTE_ROADSYSTEM_ADD,
-        TTE_TILE_NEW,
-        TTE_TILE_MOVE,
-        TTE_TILE_DELETE,
+		TTE_ROADSYSTEM_ADD,
+		TTE_TILE_NEW,
+		TTE_TILE_MOVE,
+		TTE_TILE_DELETE,
 
-        // Elevation Editor
-        TEL_SELECT,
-        TEL_ADD,
-        TEL_DEL,
-        TEL_MOVE,
-        TEL_SMOOTH,
+		// Elevation Editor
+		TEL_SELECT,
+		TEL_ADD,
+		TEL_DEL,
+		TEL_MOVE,
+		TEL_SMOOTH,
 
-        // Superelevation Editor
-        TSE_SELECT,
-        TSE_ADD,
-        TSE_DEL,
-        TSE_MOVE,
+		// Superelevation Editor
+		TSE_SELECT,
+		TSE_ADD,
+		TSE_DEL,
+		TSE_MOVE,
 
-        // Crossfall Editor
-        TCF_SELECT,
-        TCF_ADD,
-        TCF_DEL,
-        TCF_MOVE,
+		// Crossfall Editor
+		TCF_SELECT,
+		TCF_ADD,
+		TCF_DEL,
+		TCF_MOVE,
 
-        // Crossfall Editor
-        TLN_SELECT,
+		// Crossfall Editor
+		TLN_SELECT,
 
 		// RoadShape Editor
 		TRS_SELECT,
 		TRS_ADD,
 		TRS_DEL,
 
-        // Lane Editor
-        TLE_SELECT,
-        TLE_ADD,
-        TLE_DEL,
-        TLE_ADD_WIDTH,
-        TLE_MOVE,
+		// Lane Editor
+		TLE_SELECT,
+		TLE_ADD,
+		TLE_DEL,
+		TLE_ADD_WIDTH,
+		TLE_MOVE,
 
         // Junction Editor
         TJE_SELECT,

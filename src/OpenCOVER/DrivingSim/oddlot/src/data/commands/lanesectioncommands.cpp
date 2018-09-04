@@ -16,7 +16,10 @@
 #include "lanesectioncommands.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
+#include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/visitors/lanemovevalidator.hpp"
 
 #include <math.h>
 
@@ -249,7 +252,7 @@ InsertLaneWidthCommand::InsertLaneWidthCommand(Lane *lane, LaneWidth *laneWidth,
     }
 
     setValid();
-    setText(QObject::tr("Insert lane"));
+    setText(QObject::tr("Insert lanewidth"));
 }
 
 InsertLaneWidthCommand::~InsertLaneWidthCommand()
@@ -264,6 +267,7 @@ void
 InsertLaneWidthCommand::redo()
 {
     lane_->addWidthEntry(newLaneWidth_);
+	lane_->getParentLaneSection()->addLaneSectionChanges(LaneSection::CLS_LanesWidthsChanged);
     setRedone();
 }
 
@@ -272,6 +276,7 @@ InsertLaneWidthCommand::undo()
 {
 
     lane_->delWidthEntry(newLaneWidth_);
+	lane_->getParentLaneSection()->addLaneSectionChanges(LaneSection::CLS_LanesWidthsChanged);
 
     setUndone();
 }
@@ -1234,7 +1239,7 @@ RemoveLaneSectionCommand::RemoveLaneSectionCommand(LaneSection *laneSection, Dat
 
     // New section //
     //
-    newSectionHigh_ = new LaneSection(oldSectionLow_->getSStart(), oldSectionLow_, oldSectionHigh_);
+    newSectionHigh_ = new LaneSection(oldSectionLow_->getSStart(), oldSectionLow_->getSide(), oldSectionLow_, oldSectionHigh_);
     if (oldSectionHigh_->isElementSelected() || oldSectionMiddle_->isElementSelected())
     {
         newSectionHigh_->setElementSelected(true); // keep selection
@@ -1272,8 +1277,28 @@ RemoveLaneSectionCommand::redo()
     //
     parentRoad_->delLaneSection(oldSectionMiddle_);
     parentRoad_->delLaneSection(oldSectionHigh_);
+	parentRoad_->delLaneSection(oldSectionLow_);
 
     parentRoad_->addLaneSection(newSectionHigh_);
+
+	double sOffset = oldSectionHigh_->getSStart() - oldSectionLow_->getSStart();
+	foreach(Lane *lane, newSectionHigh_->getLanes())
+	{
+		if (!lane->getWidthEntries().isEmpty())
+		{
+			QMap<double, LaneMoveProperties *> props;
+			LaneMoveProperties *laneProps = new LaneMoveProperties();
+
+			laneProps->lowSlot = lane->getWidthEntryBefore(sOffset);
+			laneProps->highSlot = lane->getWidthEntry(sOffset);
+
+			props.insert(oldSectionHigh_->getSStart(), laneProps);
+			QList<Lane *> lanes;
+			QList<QMap<double, WidthPoints*> *> pointList;
+			parentRoad_->getLaneWidthsLists(props, false, lanes, pointList);
+			parentRoad_->translateLaneWidths(lanes, pointList);
+		}
+	}
 
     setRedone();
 }
@@ -1288,6 +1313,7 @@ RemoveLaneSectionCommand::undo()
     //
     parentRoad_->delLaneSection(newSectionHigh_);
 
+	parentRoad_->addLaneSection(oldSectionLow_);
     parentRoad_->addLaneSection(oldSectionMiddle_);
     parentRoad_->addLaneSection(oldSectionHigh_);
 
@@ -1716,4 +1742,6 @@ SelectLaneWidthCommand::
 
     setRedone();
 }
+
+
 

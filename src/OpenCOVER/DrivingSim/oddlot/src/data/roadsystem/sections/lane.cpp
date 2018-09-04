@@ -18,6 +18,7 @@
 #include "lanesection.hpp"
 
 #include "lanewidth.hpp"
+#include "laneborder.hpp"
 #include "laneroadmark.hpp"
 #include "lanespeed.hpp"
 #include "laneheight.hpp"
@@ -256,6 +257,7 @@ bool Lane::delWidthEntry(LaneWidth *widthEntry)
 {
     if (widths_.remove(widthEntry->getSSectionStart()) == 0)
         return false;
+	widthEntry->setParentLane(NULL);
     addLaneChanges(Lane::CLN_WidthsChanged);
     return true;
 }
@@ -264,6 +266,46 @@ LaneWidth *Lane::getWidthEntry(double sSection) const
 {
     return (widths_.value(sSection, NULL));
 }
+
+LaneWidth *
+Lane::getWidthEntryBefore(double sSection) const
+{
+	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection); // the second one after the one we want
+	if (i == widths_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	if (i == widths_.constBegin())
+	{
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+LaneWidth *
+Lane::getWidthEntryNext(double sSection) const
+{
+	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
+	if (i == widths_.constEnd())
+	{
+		return NULL;
+	}
+
+	return i.value();
+}
+
+LaneWidth *
+Lane::getLastWidthEntry() const
+{
+	QMap<double, LaneWidth *>::const_iterator i = widths_.constEnd();
+	--i;
+	return i.value();
+}
+
 bool
 Lane::moveWidthEntry(double oldS, double newS)
 {
@@ -305,6 +347,19 @@ Lane::moveWidthEntry(double oldS, double newS)
     addLaneChanges(Lane::CLN_WidthsChanged);
 
     return true;
+}
+
+LaneWidth *
+Lane::getWidthEntryContains(double sSection) const
+{
+	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
+	if (i == widths_.constBegin())
+	{
+		qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+		return NULL;
+	}
+	
+	return (--i).value();
 }
 
 /** Returns the width of this lane at the given coordinate sSection.
@@ -360,6 +415,93 @@ Lane::getWidthEnd(double sSection) const
         return (*nextIt)->getSSectionStart() + parentLaneSection_->getSStart();
     }
 }
+
+//###################//
+// Border Functions   //
+//###################//
+
+/** Adds a lane width entry to this lane.
+*/
+void
+Lane::addBorderEntry(LaneBorder *borderEntry)
+{
+	borders_.insert(borderEntry->getSOffset(), borderEntry);
+	borderEntry->setParentLane(this);
+	addLaneChanges(Lane::CLN_BorderChanged);
+}
+
+bool Lane::delBorderEntry(LaneBorder *borderEntry)
+{
+	if (borders_.remove(borderEntry->getSSectionStart()) == 0)
+		return false;
+	addLaneChanges(Lane::CLN_BorderChanged);
+	return true;
+}
+
+LaneBorder *Lane::getBorderEntry(double sSection) const
+{
+	return (borders_.value(sSection, NULL));
+}
+
+void
+Lane::delBorderEntries()
+{
+	borders_.clear();
+}
+
+LaneBorder *
+Lane::getLaneBorderBefore(double s) const
+{
+	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s); // the second one after the one we want
+
+	if (i != borders_.constBegin())
+	{
+		--i;
+	}
+
+	if (i == borders_.constBegin())
+	{
+		LaneSection *parentLaneSectionBefore = parentLaneSection_->getParentRoad()->getLaneSectionBefore(parentLaneSection_->getSStart());
+		if (parentLaneSectionBefore)
+		{
+			Lane *laneBefore = parentLaneSectionBefore->getLane(getId());
+
+			if (laneBefore)
+			{
+				return laneBefore->getBorderEntry(parentLaneSection_->getSStart() - parentLaneSectionBefore->getSStart());
+			}
+		}
+
+		return NULL;
+	}
+	--i;
+
+	return i.value();
+}
+
+LaneBorder *
+Lane::getLaneBorderNext(double s) const
+{
+	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(s);
+	if (i == borders_.constEnd())
+	{
+		LaneSection *parentLaneSectionNext = parentLaneSection_->getParentRoad()->getLaneSectionNext(parentLaneSection_->getSStart());
+		if (parentLaneSectionNext)
+		{
+			Lane *laneNext = parentLaneSectionNext->getLane(getId());
+
+			if (laneNext)
+			{
+				return laneNext->getBorderEntry(0.0);
+			}
+		}
+
+		return NULL;
+	}
+
+	return i.value();
+}
+
 
 //####################//
 // RoadMark Functions //
@@ -661,6 +803,13 @@ Lane::getClone() const
         clone->addWidthEntry(child->getClone());
     }
 
+	// LanesBorder //
+	//
+	foreach(LaneBorder *child, borders_)
+	{
+		clone->addBorderEntry(child->getClone());
+	}
+
     // LanesRoadMark //
     //
     foreach (LaneRoadMark *child, marks_)
@@ -862,6 +1011,9 @@ Lane::acceptForWidths(Visitor *visitor)
 {
     foreach (LaneWidth *child, widths_)
         child->accept(visitor);
+
+	foreach(LaneBorder *child, borders_)
+		child->accept(visitor);
 }
 
 /*! Accepts a visitor and passes it to the road mark entries.

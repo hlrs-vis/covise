@@ -18,6 +18,8 @@
 
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
+class LaneRoadItem;
+
 class LaneRoadSystemItem : public RoadSystemItem
 {
 
@@ -33,6 +35,17 @@ public:
     //
     virtual void updateObserver();
 
+	// RoadItems //
+	//
+	void addRoadItem(LaneRoadItem *item);
+	int removeRoadItem(LaneRoadItem *item);
+	LaneRoadItem *getRoadItem(RSystemElementRoad *road);
+
+	// Handles //
+	//
+	void rebuildMoveRotateHandles();
+	void deleteHandles();
+
 private:
     LaneRoadSystemItem(); /* not allowed */
     LaneRoadSystemItem(const LaneRoadSystemItem &); /* not allowed */
@@ -45,6 +58,9 @@ private:
     //################//
 
 private:
+	// RoadItems //
+	//
+	QMap<RSystemElementRoad *, LaneRoadItem *> laneRoadItems_;
 };
 
 #endif // LANEROADSYSTEMITEM_HPP

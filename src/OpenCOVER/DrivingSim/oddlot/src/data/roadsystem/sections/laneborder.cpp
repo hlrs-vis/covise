@@ -24,6 +24,23 @@ LaneBorder::~LaneBorder()
 {
 }
 
+/*! \brief Creates and returns a deep copy clone of this object.
+*
+*/
+LaneBorder *
+LaneBorder::getClone()
+{
+	LaneBorder *clone = new LaneBorder(getSOffset(), a_, b_, c_, d_);
+
+	return clone;
+}
+
+double
+LaneBorder::getT(double s)
+{
+	return f(s);
+}
+
 
 //################//
 // OBSERVER       //

@@ -19,7 +19,7 @@
 #include "src/graph/profilegraphview.hpp"
 #include "src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.hpp"
 #include "src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp"
-#include "src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp"
+#include "src/graph/items/handles/baselanemovehandle.hpp"
 
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 
@@ -45,9 +45,7 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
     , ui(new Ui::LaneSettings)
     , lane_(lane)
     , init_(false)
-    , roadSystemItemPolyGraph_(NULL)
     , insertWidthSectionHandle_(NULL)
-    , lswItem_(NULL)
 {
     ui->setupUi(this);
 
@@ -75,56 +73,17 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
               << Lane::parseLaneTypeBack(Lane::LT_SPECIAL3);
     ui->typeBox->addItems(typeNames);
 
-    /*heightGraph_ = new ProfileGraph(projectSettings->getProjectWidget(), projectSettings->getProjectData());
-	heightGraph_->setParent(ui->widthGroup);
-	ui->horizontalLayout_3->insertWidget(0,heightGraph_);
-	//heightGraph_->getView()->setDragMode(QGraphicsView::ScrollHandDrag);
-	//QGraphicsScene* pScene = new NoDeselectScene(this); 
-    //heightGraph_->getView()->setScene(pScene);
-	heightGraph_->getScene()->doDeselect(false);// we don't want to deselect ourselves if we click on the background, otherwise we delete ourselves--> chrash and it would not be practical anyway
-	*/
-
-    heightGraph_ = projectSettings->getProjectWidget()->getHeightGraph();
-
     laneEditor_ = dynamic_cast<LaneEditor *>(projectSettings->getProjectWidget()->getProjectEditor());
     if (!laneEditor_)
     {
         return; // another editor is active
     }
 
-    roadSystemItemPolyGraph_ = new LaneWidthRoadSystemItem(heightGraph_, projectSettings->getProjectData()->getRoadSystem());
-    heightGraph_->getScene()->addItem(roadSystemItemPolyGraph_);
 
-    // Section Handle //
-    //
-    //insertWidthSectionHandle_ = new SectionHandle(roadSystemItemPolyGraph_);
-    //insertWidthSectionHandle_->hide();
-    roadSystemItemPolyGraph_->setSettings(this);
-    roadSystemItemPolyGraph_->setAcceptHoverEvents(true);
-    // Activate Road in ProfileGraph //
-    //
-    lswItem_ = new LaneSectionWidthItem(roadSystemItemPolyGraph_, lane_);
-    //selectedElevationRoadItems_.insert(road, roadItem);
 
-    // Fit View //
-    //
-    QRectF boundingBox = lswItem_->boundingRect();
-    if (boundingBox.width() < 15.0)
-    {
-        boundingBox.setWidth(15.0);
-    }
-    if (boundingBox.height() < 10.0)
-    {
-        boundingBox.setHeight(10.0);
-    }
+ //   roadSystemItemPolyGraph_->setSettings(this);
 
-    heightGraph_->getView()->fitInView(boundingBox);
-    heightGraph_->getView()->zoomOut(Qt::Horizontal | Qt::Vertical);
-
-    //ui->horizontalLayout_3->insertWidget(0,heightGraph_);
-    //heightGraph_->show();
-    // Initial Values //
-    //
+    
     updateId();
     updateType();
     updateLevel();
@@ -139,20 +98,7 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
 
 LaneSettings::~LaneSettings()
 {
-    //heightGraph_->getScene()->removeItem(roadSystemItemPolyGraph_);
 
-    //heightGraph_->getScene()->clearSelection();
-    //delete insertWidthSectionHandle_;
-
-    if (lswItem_)
-    {
-//        delete lswItem_;
-    }
-
-    if (roadSystemItemPolyGraph_)
-    {
-        roadSystemItemPolyGraph_->registerForDeletion();
-    }
     delete ui;
 }
 
@@ -227,36 +173,40 @@ LaneSettings::updateSuccessor()
 void
 LaneSettings::updateWidth()
 {
-    LaneWidthMoveHandle *laneWidthMoveHandle = getFirstSelectedLaneWidthHandle();
+	BaseLaneMoveHandle *baseLaneMoveHandle = getFirstSelectedLaneWidthHandle();
 
-    if (laneWidthMoveHandle)
-    {
-        LaneWidth *laneWidth = laneWidthMoveHandle->getLowSlot();
+	if (baseLaneMoveHandle)
+	{
+		LaneMoveHandle<LaneWidth, LaneWidth> *moveHandle = dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth>*>(baseLaneMoveHandle);
 
-        if (laneWidth)
-        {
-            double w = laneWidth->getWidth(laneWidth->getSSectionEnd() - laneWidth->getParentLane()->getParentLaneSection()->getSStart());
-            ui->widthSpinBox->setValue(w);
-        }
+		if (moveHandle)
+		{
+			LaneWidth *laneWidth = moveHandle->getLowSlot();
 
-        laneWidth = laneWidthMoveHandle->getHighSlot();
-        if (laneWidth)
-        {
-            double w = laneWidth->getWidth(0.0);
-            ui->widthSpinBox->setValue(w);
-        }
-    }
+			if (laneWidth)
+			{
+				double w = laneWidth->getWidth(laneWidth->getSSectionEnd() - laneWidth->getParentLane()->getParentLaneSection()->getSStart());
+				ui->widthSpinBox->setValue(w);
+			}
 
+			laneWidth = moveHandle->getHighSlot();
+			if (laneWidth)
+			{
+				double w = laneWidth->getWidth(0.0);
+				ui->widthSpinBox->setValue(w);
+			}
+		}
+	}
 }
 
-LaneWidthMoveHandle *
+BaseLaneMoveHandle *
 LaneSettings::getFirstSelectedLaneWidthHandle()
 {
-    QList<QGraphicsItem *> selectList = getProjectSettings()->getProjectWidget()->getHeightGraph()->getScene()->selectedItems();
+    QList<QGraphicsItem *> selectList = getProjectSettings()->getProjectWidget()->getTopviewGraph()->getScene()->selectedItems();
 
     foreach (QGraphicsItem *item, selectList)
     {
-        LaneWidthMoveHandle *laneWidthMoveHandle = dynamic_cast<LaneWidthMoveHandle *>(item);
+        BaseLaneMoveHandle *laneWidthMoveHandle = dynamic_cast<BaseLaneMoveHandle *>(item);
         if (laneWidthMoveHandle)
         {
             return laneWidthMoveHandle;

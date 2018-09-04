@@ -33,6 +33,7 @@ public:
     enum LaneSectionChange
     {
         CLS_LanesChanged = 0x1,
+		CLS_LanesWidthsChanged = 0x2
     };
 
     //################//
@@ -104,15 +105,16 @@ public:
     virtual void accept(Visitor *visitor);
     virtual void acceptForLanes(Visitor *visitor);
 
+	// Observer Pattern //
+	//
+	void addLaneSectionChanges(int changes);
+
 protected:
 private:
     LaneSection(); /* not allowed */
     LaneSection(const LaneSection &); /* not allowed */
     LaneSection &operator=(const LaneSection &); /* not allowed */
 
-    // Observer Pattern //
-    //
-    void addLaneSectionChanges(int changes);
 
     //################//
     // PROPERTIES     //

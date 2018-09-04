@@ -20,6 +20,7 @@
 
 class LaneEditor;
 class ProjectEditor;
+class LaneItem;
 
 class LaneSectionItem : public SectionItem
 {
@@ -47,6 +48,17 @@ public:
     {
         return laneEditor_;
     }
+
+	// LaneItems //
+	//
+	void addLaneItem(LaneItem *item);
+	int removeLaneItem(LaneItem *item);
+	LaneItem *getLaneItem(Lane *lane);
+
+	// Handles //
+	//
+//	void rebuildMoveRotateHandles(bool delHandles);
+//	void deleteHandles();
 
     // Obsever Pattern //
     //
@@ -91,6 +103,10 @@ private:
     //
     LaneSection *laneSection_;
     LaneEditor *laneEditor_;
+
+	// LaneSectionItems //
+	//
+	QMap<Lane *, LaneItem *> laneItems_;
 };
 
 #endif // LANESECTIONITEM_HPP

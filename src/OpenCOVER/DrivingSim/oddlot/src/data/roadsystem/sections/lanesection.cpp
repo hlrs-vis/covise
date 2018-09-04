@@ -18,6 +18,8 @@
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "lane.hpp"
+#include "lanewidth.hpp"
+#include "laneborder.hpp"
 #include <cmath>
 
 //####################//
@@ -52,13 +54,52 @@ LaneSection::LaneSection(double s, bool singleSide, const LaneSection *laneSecti
 	, singleSide_(singleSide)
     , laneSectionChanges_(0x0)
 {
-    setParentRoad(laneSectionLow->getParentRoad());
+	RSystemElementRoad *parentRoad = laneSectionLow->getParentRoad();
+    setParentRoad(parentRoad);
     foreach (Lane *childLow, laneSectionLow->lanes_)
     {
         Lane *childHigh = laneSectionHigh->lanes_.value(childLow->getId(), NULL);
 
         Lane *newLane = childLow->getClone(s, laneSectionHigh->getSEnd());
         // TODO set width
+
+		QMap<double, LaneWidth*> widthEntries = childHigh->getWidthEntries();
+		double sOffset = laneSectionHigh->getSStart() - laneSectionLow->getSStart();
+		if (!widthEntries.isEmpty())
+		{
+			foreach(LaneWidth *laneWidth, childHigh->getWidthEntries())
+			{
+				LaneWidth *newWidth = laneWidth->getClone();
+				newWidth->setSOffset(sOffset + laneWidth->getSSectionStart());
+				newLane->addWidthEntry(newWidth);
+			}
+
+			// New parameters for polynomial of last width entry from low section //
+			//
+			LaneWidth *widthEntry = newLane->getWidthEntryBefore(sOffset);
+			widthEntry->Polynomial::setParameters(QPointF(sOffset - widthEntry->getSSectionStart(), childHigh->getWidthEntry(0.0)->f(0.0)));
+
+		}
+		else 
+		{
+			QMap<double, LaneBorder*> borderEntries = childHigh->getBorderEntries();
+			if (!borderEntries.isEmpty())
+			{
+				foreach(LaneBorder *laneBorder, childHigh->getBorderEntries())
+				{
+					LaneBorder *newBorder = laneBorder->getClone();
+					newBorder->setSOffset(sOffset + laneBorder->getSSectionStart());
+					newLane->addWidthEntry(newBorder);
+				}
+
+				// New parameters for polynomial of last width entry from low section //
+				//
+				LaneBorder *borderEntry = newLane->getLaneBorderBefore(sOffset);
+				borderEntry->Polynomial::setParameters(QPointF(sOffset - borderEntry->getSSectionStart(), childHigh->getBorderEntry(0.0)->f(0.0)));
+			}
+
+		}
+
         addLane(newLane);
     }
 }

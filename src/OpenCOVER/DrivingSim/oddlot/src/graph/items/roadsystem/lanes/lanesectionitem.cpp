@@ -26,6 +26,7 @@
 // Graph //
 //
 #include "src/graph/items/roadsystem/lanes/laneitem.hpp"
+#include "src/graph/items/roadsystem/lanes/laneroaditem.hpp"
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 #include "src/graph/items/roadsystem/roadtextitem.hpp"
 #include "src/graph/items/roadsystem/roaditem.hpp"
@@ -65,10 +66,60 @@ LaneSectionItem::init()
     {
         if (lane->getId() != 0)
         {
-            new LaneItem(this, lane);
+            laneItems_.insert(lane, new LaneItem(this, lane));
         }
     }
 }
+
+// LaneItems //
+//
+void 
+LaneSectionItem::addLaneItem(LaneItem *item)
+{
+	laneItems_.insert(item->getLane(), item);
+}
+
+int 
+LaneSectionItem::removeLaneItem(LaneItem *item)
+{
+	return laneItems_.remove(item->getLane());
+}
+
+
+LaneItem *
+LaneSectionItem::getLaneItem(Lane *lane)
+{
+	return laneItems_.value(lane);
+}
+
+//##################//
+// Handles          //
+//##################//
+
+/*! \brief .
+*
+*/
+/*void
+LaneSectionItem::rebuildMoveRotateHandles(bool delHandles)
+{
+	foreach(LaneItem *laneItem, laneItems_)
+	{
+		laneItem->rebuildMoveRotateHandles(delHandles);
+	}
+} */
+
+
+/*! \brief .
+*
+*/
+/*void
+LaneSectionItem::deleteHandles()
+{
+	foreach(LaneItem *laneItem, laneItems_)
+	{
+		laneItem->deleteHandles();
+	}
+}*/
 
 //##################//
 // Observer Pattern //
@@ -103,11 +154,15 @@ LaneSectionItem::updateObserver()
             {
                 if (lane->getId() != 0)
                 {
-                    new LaneItem(this, lane);
+                    laneItems_.insert(lane, new LaneItem(this, lane));
                 }
             }
         }
     }
+	else if (changes & LaneSection::CLS_LanesWidthsChanged)
+	{
+		dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
+	}
 }
 
 //################//

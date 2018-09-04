@@ -20,11 +20,9 @@
 #include "src/graph/profilegraph.hpp"
 #include "src/graph/items/roadsystem/roadsystemitem.hpp"
 
-class LaneWidthRoadSystemItem;
-class LaneSectionWidthItem;
 class LaneEditor;
 class SectionHandle;
-class LaneWidthMoveHandle;
+class BaseLaneMoveHandle;
 
 class RoadSystemItem;
 namespace Ui
@@ -64,7 +62,7 @@ private:
     void updatePredecessor();
     void updateSuccessor();
     void updateWidth();
-    LaneWidthMoveHandle * getFirstSelectedLaneWidthHandle();
+	BaseLaneMoveHandle * getFirstSelectedLaneWidthHandle();
 
     //################//
     // SLOTS          //
@@ -93,9 +91,7 @@ private:
     Lane *lane_;
 
     bool init_;
-    ProfileGraph *heightGraph_;
-    LaneWidthRoadSystemItem *roadSystemItemPolyGraph_;
-    LaneSectionWidthItem *lswItem_;
+
     LaneEditor *laneEditor_;
     SectionHandle *insertWidthSectionHandle_;
 };

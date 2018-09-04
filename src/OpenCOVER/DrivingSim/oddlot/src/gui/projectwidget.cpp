@@ -202,16 +202,6 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     // The ChangeManager triggers the view's garbage disposal.
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), profileGraph_, SLOT(garbageDisposal()));
 
-    // VIEW: HeightGraph //
-    //
-    heightGraph_ = new ProfileGraph(this, projectData_, 20.0);
-    heightGraph_->hide();
-    heightGraph_->getScene()->doDeselect(false);
-    splitter->addWidget(heightGraph_);
-    splitter->setStretchFactor(1, 1);
-
-    // The ChangeManager triggers the view's garbage disposal.
-    connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), heightGraph_, SLOT(garbageDisposal()));
 
     // CONTROLLER //
     //
@@ -222,7 +212,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
     editors_.insert(ODD::ESE, new SuperelevationEditor(this, projectData_, topviewGraph_, profileGraph_));
     editors_.insert(ODD::ECF, new CrossfallEditor(this, projectData_, topviewGraph_, profileGraph_));
 	editors_.insert(ODD::ERS, new ShapeEditor(this, projectData_, topviewGraph_, profileGraph_));
-    editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_, heightGraph_));
+	editors_.insert(ODD::ELN, new LaneEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::EJE, new JunctionEditor(this, projectData_, topviewGraph_));
     editors_.insert(ODD::ESG, new SignalEditor(this, projectData_, topviewGraph_));
 
@@ -277,7 +267,6 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 ProjectWidget::~ProjectWidget()
 {
     delete projectSettings_;
-    delete heightGraph_;
 
     foreach (ProjectEditor *editor, editors_)
     {
@@ -342,16 +331,6 @@ ProjectWidget::setEditor(ODD::EditorId id)
             profileGraph_->hide();
         }
 
-        // HeightGraph //
-        //
-        if (id == ODD::ELN)
-        {
-            heightGraph_->show();
-        }
-        else
-        {
-            heightGraph_->hide();
-        }
 
         // Signal tree //
         //

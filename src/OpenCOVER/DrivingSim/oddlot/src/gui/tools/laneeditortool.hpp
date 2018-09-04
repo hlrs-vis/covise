@@ -64,6 +64,7 @@ public slots:
     void setRibbonWidth();
     void handleToolClick(int);
 	void handleRibbonToolClick(int);
+//	void setEditMode();
 
     //################//
     // PROPERTIES     //
@@ -85,7 +86,8 @@ class LaneEditorToolAction : public ToolAction
 public:
     enum ActionType
     {
-        Width
+        Width,
+		ButtonPressed
     };
     explicit LaneEditorToolAction(ODD::ToolId toolId, ActionType at, double value);
     virtual ~LaneEditorToolAction()

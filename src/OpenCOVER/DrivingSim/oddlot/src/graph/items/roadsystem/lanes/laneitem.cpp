@@ -29,10 +29,12 @@
 //
 #include "lanesectionitem.hpp"
 #include "lanelinkitem.hpp"
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphscene.hpp"
 
 // Editor //
 //
-//#include "src/graph/editors/
+#include "src/graph/editors/laneeditor.hpp"
 
 // Utils //
 //
@@ -67,6 +69,7 @@ LaneItem::LaneItem(LaneSectionItem *parentLaneSectionItem, Lane *lane)
     , parentLaneSectionItem_(parentLaneSectionItem)
     , parentLaneSection_(parentLaneSectionItem->getLaneSection())
     , lane_(lane)
+	, handlesItem_(NULL)
 {
     grandparentRoad_ = parentLaneSection_->getParentRoad();
 
@@ -86,6 +89,10 @@ LaneItem::init()
     // Observer Pattern //
     //
     grandparentRoad_->attachObserver(this);
+
+	// LaneEditor //
+	//
+	laneEditor_ = dynamic_cast<LaneEditor *>(getProjectGraph()->getProjectWidget()->getProjectEditor());
 
     // Selection/Hovering //
     //
@@ -115,7 +122,63 @@ LaneItem::init()
 
     QAction *removeParentRoadAction = getRemoveMenu()->addAction(tr("Road"));
     connect(removeParentRoadAction, SIGNAL(triggered()), this, SLOT(removeParentRoad()));
+
+//	rebuildMoveRotateHandles(false);
 }
+
+//##################//
+// Handles          //
+//##################//
+
+/*! \brief .
+*
+*/
+/* void
+LaneItem::rebuildMoveRotateHandles(bool delHandles)
+{
+	if (delHandles)
+	{
+		deleteHandles();
+	}
+
+	handlesItem_ = new QGraphicsPathItem(this);
+	handlesItem_->setZValue(1.0); // Stack handles before items
+
+	LaneBorderMoveHandle *currentLaneMoveHandle = new LaneBorderMoveHandle(laneEditor_, handlesItem_); // first handle
+	foreach(LaneBorder *laneBorder, lane_->getBorderEntries())
+	{
+		currentLaneMoveHandle->registerHighSlot(laneBorder); // last handle
+		currentLaneMoveHandle = new LaneBorderMoveHandle(laneEditor_, handlesItem_); // new handle
+		currentLaneMoveHandle->registerLowSlot(laneBorder); // new handle
+	}
+
+/*	TrackRotateHandle *currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // first handle
+	foreach(TrackComponent *track, getRoad()->getTrackSections())
+	{
+		currentTrackRotateHandle->registerHighSlot(track); // last handle
+		currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // new handle
+		currentTrackRotateHandle->registerLowSlot(track); // new handle
+	} */
+//}
+
+/*! \brief .
+*
+*/
+/*void
+LaneItem::deleteHandles()
+{
+	//	delete handlesItem_;
+	if (handlesItem_ != NULL)
+	{
+		if (laneEditor_)
+		{
+			laneEditor_->getTopviewGraph()->getScene()->removeItem(handlesItem_);
+		}
+		handlesItem_->setParentItem(NULL);
+		getProjectGraph()->addToGarbage(handlesItem_);
+		handlesItem_ = NULL;
+	}
+} */
 
 //################//
 // SLOTS          //
@@ -336,11 +399,15 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if ((tool == ODD::TLE_ADD_WIDTH) && (event->button() == Qt::LeftButton))
     {
         RSystemElementRoad *road = parentLaneSection_->getParentRoad();
-        double s = road->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
+        double s = road->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
 
         double startWidth = lane_->getWidth(s);
-        double slope = lane_->getSlope(s);
-        LaneWidth *newLaneWidth = new LaneWidth(s, startWidth, slope, 0.0, 0.0);
+ //       double slope = lane_->getSlope(s);
+		LaneWidth *laneWidth = lane_->getWidthEntryContains(s);
+		double x = s - laneWidth->getSSectionStart();
+		double b = laneWidth->getB() + 2 * laneWidth->getC() * x + 3 * laneWidth->getD() * x * x;
+		double c = laneWidth->getC() + 3 * laneWidth->getD() * x;
+        LaneWidth *newLaneWidth = new LaneWidth(s, startWidth, b, c, laneWidth->getD());
 
         InsertLaneWidthCommand *command = new InsertLaneWidthCommand(lane_, newLaneWidth);
         getProjectGraph()->executeCommand(command);
