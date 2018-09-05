@@ -98,6 +98,9 @@ public:
     coTUIEditFloatField *viscosityEdit;
     coTUILabel *stLabel;
     coTUIEditFloatField *stEdit;
+    coTUIButton *minErrorButton;
+    double standardDeviation;
+    osg::Vec3 Origin;
 
     void recalc();
 

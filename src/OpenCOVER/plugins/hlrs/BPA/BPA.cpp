@@ -40,7 +40,7 @@ BPA::BPA(std::string filename, osg::Group *parent)
     fprintf(stderr, "BPA::BPA\n");
     
     floorHeight = 0;
-    int pos = BPAPlugin::plugin->bpa_map.size() * 4 + 1;
+    int pos = BPAPlugin::plugin->bpa_map.size() * 5 + 1;
 
     velocity = new coTUIFloatSlider("velocity", BPAPlugin::plugin->BPATab->getID());
     velocity->setEventListener(this);
@@ -93,6 +93,10 @@ BPA::BPA(std::string filename, osg::Group *parent)
 
     filenameLabel = new coTUILabel(filename, BPAPlugin::plugin->BPATab->getID());
     filenameLabel->setPos(3, 1 + pos);
+
+    minErrorButton = new coTUIButton("minError", BPAPlugin::plugin->BPATab->getID());
+    minErrorButton->setPos(0, 4+pos);
+    minErrorButton->setEventListener(this);
 
     trajectoriesGroup = new osg::Group();
     trajectoriesGroup->setName("BPA_Trajectories");
@@ -260,17 +264,19 @@ void BPA::calcIntersection()
     if(numIntersections >0)
     {
     p /= numIntersections;
-    double S = 0;
+    standardDeviation = 0;
     for (int i = 0; i < numIntersections; i++)
     {
-        S += (p - positions->at(i)).length2();
+        standardDeviation += (p - positions->at(i)).length2();
     }
-    S = sqrt(S / (numIntersections - 1));
-    sphere->setRadius(S);
+    standardDeviation = sqrt(standardDeviation / (numIntersections - 1));
+    sphere->setRadius(standardDeviation);
     sphereDrawable->dirtyDisplayList();
     sphereTrans->setMatrix(osg::Matrix::translate(p));
+    Origin = p;
     char buf[1000];
-    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)S,numIntersections);
+    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)standardDeviation,numIntersections);
+    fprintf(stderr, "%s\n",buf);
     originLabel->setLabel(buf);
     }
 }
@@ -445,7 +451,7 @@ float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a st
     if (vert->size() > 0 && t->vert->size() > 0)
     {
         int gi1=0,gi2=0;
-        float len2 = p1.length();
+        float len2 = (p1 - vert->at(0)).length();
         float l2=0;
         for (size_t i = 1; i < vert->size(); i++)
         {
@@ -710,6 +716,8 @@ BPAPlugin::BPAPlugin()
     angleEdit->setPos(5, 0);
     angleEdit->setValue(15);
 
+
+
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
 }
@@ -767,8 +775,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
 {
     if (tUIItem == length || tUIItem == velocity || tUIItem == rhoEdit || tUIItem == viscosityEdit || tUIItem == stEdit)
     {
-        std::list<Trajectory *>::iterator it;
-        for (it = trajectories.begin(); it != trajectories.end(); it++)
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
         {
             (*it)->length = length->getValue();
             if (!(*it)->correctVelocity)
@@ -784,6 +791,47 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
             }
         }
         recalc();
+    }
+    if (tUIItem == minErrorButton)
+    {
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+        {
+            (*it)->length = length->getValue();
+        }
+        double minDev = 100000;
+        double maxDev = -100000;
+        float minv;
+        std::list<pair<float, double>> deviations;
+        for (float vel = 0.5; vel < 6.0; vel += 0.1)
+        {
+            for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+            {
+                (*it)->startVelocity.normalize();
+                (*it)->startVelocity *= vel;
+            }
+            recalc();
+            deviations.push_back(std::make_pair(vel, standardDeviation));
+            if (standardDeviation < minDev)
+            {
+                minDev = standardDeviation;
+                minv = vel;
+            }
+            if (standardDeviation > maxDev)
+            {
+                maxDev = standardDeviation;
+            }
+        }
+
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+        {
+            (*it)->startVelocity.normalize();
+            (*it)->startVelocity *= minv;
+        }
+        velocity->setValue(minv);
+        recalc();
+
+        fprintf(stderr,"Origin: %f %f %f, standardDeviation=%f\n", Origin[0], Origin[1], Origin[2], (float)standardDeviation);
+
     }
     if (tUIItem == lineColor)
     {
