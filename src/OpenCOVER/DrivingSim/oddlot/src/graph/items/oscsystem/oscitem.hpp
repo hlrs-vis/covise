@@ -119,7 +119,7 @@ private:
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
-	std::string covisedir_;
+	QString covisedir_;
 	
 
     void init();
