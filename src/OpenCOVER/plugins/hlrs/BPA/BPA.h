@@ -9,6 +9,7 @@
 #define _BPA_NODE_PLUGIN_H
 
 #include <util/common.h>
+#include <unordered_map>
 
 #include <math.h>
 #include <string.h>
@@ -57,9 +58,12 @@ public:
     double velo;
     double Vol;
     float kappa;
+    bool recalcVelocities;
+    float veloDiff;
 
     osg::Geometry *geom;
     osg::Vec3Array *vert;
+    osg::Vec3Array *velos;
     osg::Vec4Array *colors;
 
     osg::DrawArrays *primitives;
@@ -77,6 +81,10 @@ public:
     double getDX(double v);
     float distance(osg::Vec3 &p,osg::Vec3 &p0,osg::Vec3 &p1);
     float distance(Trajectory *t,int gi,int git);
+
+    void setStartVelocity(BPA *bpa,float vel);
+    bool recalcVeloDiff=true;
+    void computeVeloDiff(osg::Vec3 &origin); // compute the velocity difference between origin and the start/end of the trajectory on the wall
 };
 
 class BPA : public coTUIListener
@@ -86,6 +94,8 @@ public:
     ~BPA();
     coTUIFloatSlider *velocity;
     coTUILabel *velocityLabel;
+    coTUIFloatSlider *originVelocity;
+    coTUILabel *originVelocityLabel;
     coTUIFloatSlider *length;
     coTUILabel *lengthLabel;
     coTUIColorButton *lineColor;
@@ -112,6 +122,9 @@ public:
     std::list<Trajectory *> left;
     std::list<Trajectory *> right;
     void tabletEvent(coTUIElement *tUIItem);
+    void tabletPressEvent(coTUIElement *tUIItem);
+
+    void setOriginVelocity(float ov);
 
     osg::MatrixTransform *sphereTrans;
 
@@ -143,6 +156,8 @@ public:
     coTUIToggleButton *allToAll;
     coTUILabel *angleLabel;
     coTUIEditFloatField *angleEdit;
+    coTUIButton *writeButton;
+    coTUIEditFloatField *originVeloEdit;
 
     static int SloadBPA(const char *filename, osg::Group *parent, const char *ck = "");
     int loadBPA(const char *filename, osg::Group *parent);
@@ -154,6 +169,7 @@ public:
     osg::ref_ptr<osg::Group> BPAGroup;
 
     std::map<std::string, BPA *> bpa_map;
+    std::list<BPA *> bpa_list;
 
 private:
     void tabletEvent(coTUIElement *tUIItem);
