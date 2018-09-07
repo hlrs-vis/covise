@@ -141,13 +141,13 @@ stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF); */
 
     // init bounding box
     box.init();
-    setInitialBound(box);
 
     //expand box
     ::Point *data = pointSet->points;
 
     for (int i = 0; i < pointSet->size; i++)
         box.expandBy(data[i].x, data[i].y, data[i].z);
+    setInitialBound(box);
 }
 
 PointCloudGeometry::PointCloudGeometry(const PointCloudGeometry &eqvis, const CopyOp &copyop)
