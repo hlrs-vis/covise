@@ -109,7 +109,8 @@ Vive::Vive()
 	m_strDisplay = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
 
 	bool exists;
-	if (!covise::coCoviseConfig::isOn("trackingOnly", "COVER.Plugin.Vive", false, &exists))
+    trackingOnly = covise::coCoviseConfig::isOn("trackingOnly", "COVER.Plugin.Vive", false, &exists);
+	if (!trackingOnly)
 	{
 		if (coVRConfig::instance()->numPBOs() == 0)
 		{ // no PBOs configured, thus try an outo config
@@ -181,21 +182,24 @@ bool Vive::needsThread() const
 } 
 bool Vive::init()
 {
-	if (!ivrSystem)
-	{
-		fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
-		return false;
-	}
+    if (!ivrSystem)
+    {
+        fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
+        return false;
+    }
 
-	fprintf(stderr, "Vive::init\n");
-	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
-	osg::Matrix lProj = convertMatrix44(mat);
-	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
-	osg::Matrix rProj = convertMatrix44(mat);
-	coVRConfig::instance()->channels[0].leftProj = lProj;
-	coVRConfig::instance()->channels[0].rightProj = rProj;
-	coVRConfig::instance()->channels[1].leftProj = lProj;
-	coVRConfig::instance()->channels[1].rightProj = rProj;
+    fprintf(stderr, "Vive::init\n");
+    vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+    osg::Matrix lProj = convertMatrix44(mat);
+    mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+    osg::Matrix rProj = convertMatrix44(mat);
+    coVRConfig::instance()->channels[0].leftProj = lProj;
+    coVRConfig::instance()->channels[0].rightProj = rProj;
+    if (coVRConfig::instance()->channels.size() > 1)
+    {
+        coVRConfig::instance()->channels[1].leftProj = lProj;
+        coVRConfig::instance()->channels[1].rightProj = rProj;
+    }
 
 
 	coVRConfig::instance()->OpenVR_HMD = true;
@@ -256,10 +260,20 @@ void Vive::preFrame()
 	osg::Matrix lProj = convertMatrix44(mat);
 	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
 	osg::Matrix rProj = convertMatrix44(mat);
-	coVRConfig::instance()->channels[0].leftProj = lProj;
-	coVRConfig::instance()->channels[0].rightProj = rProj;
-	coVRConfig::instance()->channels[1].leftProj = lProj;
-	coVRConfig::instance()->channels[1].rightProj = rProj;
+    if(!trackingOnly)
+    {
+        if (coVRConfig::instance()->channels.size() > 1)
+        {
+            coVRConfig::instance()->channels[0].leftProj = lProj;
+            coVRConfig::instance()->channels[0].rightProj = rProj;
+            coVRConfig::instance()->channels[1].leftProj = lProj;
+            coVRConfig::instance()->channels[1].rightProj = rProj;
+        }
+        else
+        {
+            fprintf(stderr, "configure two channes\n");
+        }
+    }
 
 }
 
@@ -413,11 +427,22 @@ void Vive::postFrame()
 void Vive::preSwapBuffers(int /*windowNumber*/)
 {
 
-	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[0].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	//vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[1].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+    if (!trackingOnly)
+    {
+        if (coVRConfig::instance()->PBOs.size() > 1)
+        {
+            vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[0].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+            //vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[1].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+
+        }
+        else
+        {
+            fprintf(stderr, "configure two PBOs\n");
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
