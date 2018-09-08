@@ -38,6 +38,10 @@
 #include <cover/ui/EditField.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/SelectionList.h>
+#include <cover/ui/Group.h>
+
+#include <vector>
+#include <list>
 
 using namespace covise;
 using namespace opencover;
@@ -69,12 +73,15 @@ private:
     ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
     ui::Menu* saveMenu_ = nullptr;
-    ui::Menu* loadMenu_ = nullptr;
+    ui::Menu* loadSaveMenu_ = nullptr;
     ui::Menu* testMenu = nullptr;
     ui::Menu* bbEditMenu = nullptr;
 
+    //All groups
+    ui::Group* globalActions = nullptr;
+    ui::Group* nozzleActions = nullptr;
+
     //Actions on main menu
-    ui::Action* edit_ = nullptr;
     ui::Action* save_ = nullptr;
     ui::Action* load_ = nullptr;
     ui::Action* create_ = nullptr;
@@ -83,6 +90,8 @@ private:
     //Buttons on main menu
     ui::Button* sprayStart_ = nullptr;
     ui::Button* autoremove = nullptr;
+    ui::Button* edit_ = nullptr;
+    ui::Button* controller = nullptr;
 
     //EditFields on main menu
     ui::EditField* newGenCreate_ = nullptr;
@@ -91,18 +100,14 @@ private:
     //Selection list on main menu
     ui::SelectionList* nozzleIDL = nullptr;
 
-    //Labels on main menu
-    ui::Label* outputField_ = nullptr;
-
     //Variables on main menu
     int nozzleID = 0;
-    int currentNozzleID = -1;
     bool sprayStart = false;
     bool creating = false;
     bool editing = false;
     bool TESTING = true;
     osg::Vec3 newBoundingBox = osg::Vec3(2000,2000,2000);
-    class nozzle* editNozzle;
+    class nozzle* editNozzle = nullptr;
 
     /************************************************************/
 
@@ -173,6 +178,7 @@ public:
 
     void createAndRegisterImageNozzle();
     void createAndRegisterStandardNozzle();
+    void updateEditContext();
 
 };
 #endif // SPRAY_H

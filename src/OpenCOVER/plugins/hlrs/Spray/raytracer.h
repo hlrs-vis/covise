@@ -304,9 +304,10 @@ public:
         rtcCommitScene(rScene_);
     }
 
-    particle handleParticleData(particle p)
+    float checkForHit(particle p, float time)
     {
         RTCRayHit x;
+        p.velocity *= time;
         x.ray.org_x = p.pos.x();
         x.ray.org_y = p.pos.z();
         x.ray.org_z = p.pos.y();
@@ -327,19 +328,12 @@ public:
 
         if(x.hit.geomID != -1)
         {
-            p.hit = 1;
-            p.pos.x() = x.hit.u;
-            p.pos.y() = x.hit.v;
-            p.pos.z() = x.ray.tfar;
+            return x.ray.tfar;
         }
         else
         {
-            p.pos.x() = 0;
-            p.pos.y() = 0;
-            p.pos.z() = 0;
+            return -1;
         }
-
-        return p;
     }
 
 

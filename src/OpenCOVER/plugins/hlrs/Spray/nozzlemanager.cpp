@@ -1,9 +1,8 @@
 #include "nozzlemanager.h"
 
-//class parser* parses = parser::instance();
-
 nozzle* nozzleManager::createNozzle(std::string nozzleName)
 {
+    //Will never be called
     std::string newNozzleName = nozzleName;
 
     printf("Start creating new nozzle!\n");
@@ -62,10 +61,9 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
                              0,0,0,1
                             };
     initialMat.set(baseTransform);
-    class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 10, newNozzleName);
+    class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 1, newNozzleName);
     if(!newNozzle->isFailed())
     {
-
         newNozzle->setID(nextNozzleID);
         newNozzle->enableIntersection();
 
@@ -104,7 +102,7 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
                             };
     initialMat.set(baseTransform);
 
-    class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 10, newNozzleName);
+    class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 1, newNozzleName);
 
     newNozzle->setID(nextNozzleID);
 
@@ -129,7 +127,8 @@ void nozzleManager::init()
 
 int nozzleManager::removeNozzle(int index)
 {
-    if(!nozzleList.empty()){
+    if(!nozzleList.empty())
+    {
         for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
             class nozzle* current = *i;
             if(current->getID() == index)
@@ -171,8 +170,10 @@ void nozzleManager::saveNozzle(std::string pathName, std::string fileName)
         fputs("\n\n", saving);
         fclose(saving);
 
-        if(!nozzleList.empty()){
-            for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+        if(!nozzleList.empty())
+        {
+            for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+            {
                 class nozzle* current = *i;
                 current->save(pathName, newFileName);
             }
@@ -373,8 +374,10 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
 
 void nozzleManager::update()
 {
-        if(!nozzleList.empty()){
-            for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+        if(!nozzleList.empty())
+        {
+            for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+            {
                 class nozzle* current = *i;
                 current->updateGen();
             }
@@ -383,10 +386,13 @@ void nozzleManager::update()
 
 nozzle* nozzleManager::getNozzle(int index)
 {
-    if(!nozzleList.empty()){
-        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+    if(!nozzleList.empty())
+    {
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+        {
             class nozzle* current = *i;
-            if(current->getID() == index) return current;
+            if(current->getID() == index)
+                return current;
         }
     }
     std::cout << "Nozzle doesn't exist" <<std::endl;
@@ -395,26 +401,31 @@ nozzle* nozzleManager::getNozzle(int index)
 
 void nozzleManager::remove_all()
 {
-    if(!nozzleList.empty()){
-        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+    if(!nozzleList.empty())
+    {
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+        {
             class nozzle* current = *i;
 
             delete current;
             std::cout << "Element cleared" << std::endl;
             nozzleCount--;
         }
-        //nozzleList.clear();
     }
-    else std::cout << "List is already empty" << std::endl;
+    else
+        std::cout << "List is already empty" << std::endl;
 
 }
 
 nozzle* nozzleManager::checkAll()
 {
-    if(!nozzleList.empty()){
-        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+    if(!nozzleList.empty())
+    {
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+        {
             class nozzle* current = *i;
-            if(!current->isRegistered()) return current;
+            if(!current->isRegistered())
+                return current;
         }
     }
     return 0;
@@ -424,7 +435,8 @@ void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
 {    
     currentBoundingBox = newBoundingBox;
     if(!nozzleList.empty()){
-        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+        {
             class nozzle* current = *i;
             current->resizeBoundingBox(newBoundingBox);
         }
@@ -435,8 +447,10 @@ void nozzleManager::setBoundingBox(osg::Vec3 newBoundingBox)
 
 void nozzleManager::autoremove(bool state)
 {
-    if(!nozzleList.empty()){
-        for(auto i = nozzleList.begin();i != nozzleList.end(); i++){
+    if(!nozzleList.empty())
+    {
+        for(auto i = nozzleList.begin();i != nozzleList.end(); i++)
+        {
             class nozzle* current = *i;
             current->autoremove(state);
         }

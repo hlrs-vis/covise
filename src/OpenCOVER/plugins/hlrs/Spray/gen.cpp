@@ -51,8 +51,6 @@ gen::gen(float pInit, class nozzle* owner)
     deviation = parser::instance()->getDeviation();
     alpha = parser::instance()->getAlpha();
     gaussamp = gaussian(0);
-    RTOffset = parser::instance()->getRTOffset();
-
 
     if(parser::instance()->getCwModelType().compare("STOKES") == 0)
         cwModelType = CW_STOKES;
@@ -111,7 +109,7 @@ inline float gen::reynoldsNr(float v, double d)
     {
         if(cwModelType == CW_STOKES)
         {
-            cwLam = 24/reynolds_;            
+            cwLam = 24/reynolds_;
             return cwLam;
         }
         if(cwModelType == CW_MOLERUS)
@@ -149,8 +147,8 @@ void gen::setCoSphere(osg::Vec3Array* pos)
 
     //Set particle parameters with radius for visualisation
     coSphere_->setCoords(particleCount_,
-                            pos,
-                            rVis);
+                         pos,
+                         rVis);
     geode_->addDrawable(coSphere_);
 }
 
@@ -160,7 +158,7 @@ void gen::updateCoSphere(){
 
     if(outOfBoundCounter >= removeCount*particleCount_)
     {
-        outOfBound = true;        
+        outOfBound = true;
     }
     else
     {
@@ -168,10 +166,6 @@ void gen::updateCoSphere(){
     }
 }
 
-
-//initialgeschiwndigkeit zeichnen, dann rt berechnen
-//class particle hit distance
-//handleParticleData zu checkforhit...z.b.
 void gen::updatePos(osg::Vec3 boundingBox)
 {
     tCur = parser::instance()->getRendertime()/60;
@@ -180,80 +174,71 @@ void gen::updatePos(osg::Vec3 boundingBox)
     for(int i = 0; i<particleCount_;i++){
 
         particle* p = pVec[i];
-
-        if(p->particleOutOfBound)
-        {
-            outOfBoundCounter++;
-            continue;
-        }
-
-        if(p->RTHit)
-        {
-            p->pos += p->velocity*timesteps;
-            coSphere_->setColor(i,0,0,1,1);
-            //p->pos.y() = p->hitDis;
-            p->particleOutOfBound = true;
-            continue;
-        }
+        if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
+            p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
 
         for(int it = 0; it<iterations; it++)
         {
-
-            float v = p->velocity.length();                                     //get absolute velocity
-
-            float cwTemp = reynoldsNr(v, 2*p->r);
-
-            p->pos += p->velocity*timesteps;                                    //set new positions
-
-            float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
-
-            p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
-
-        }
-
-
-        if(p->pos.z()<(-boundingBox.z())){
-            if(p->firstHit == true)
+            if(p->particleOutOfBound == particle::FIRST_OUTOFBOUND)
             {
-                p->particleOutOfBound = true;
+                p->particleOutOfBound = particle::ALREADY_OUTOFBOUND;
                 outOfBoundCounter++;
+                continue;
             }
             else
+                if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
+                    continue;
+
+            float elapsedTime = raytracer::instance()->checkForHit(*p, timesteps);
+
+            if(elapsedTime >= 0)                                                       //hit was registered by embree
             {
-                if((float)rand()/(float)randMax>0.5)
-                {
-                p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
-                p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
-                }
-                p->firstHit = true;
+//                if(p->velocity.y()*timesteps+absf(p->pos.y()) >= elapsedTime)           //check if position of sphere is near hit distance
+//                {
+                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;                                               //particle has hit an object
+                    p->pos += p->velocity*timesteps*elapsedTime;
+                    //printf("pos %f velocity %f hit %f\n", p->pos.y(), p->velocity.y(), elapsedTime);
+                    coSphere_->setColor(i,0,0,1,1);
+//                }
             }
-        }
 
-        if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
-               p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
-        {
-            p->particleOutOfBound = true;
-            outOfBoundCounter++;
-        }
+            else
+            {
+                float v = p->velocity.length();                                     //get absolute velocity
 
-        particle rayP = *p;
-        rayP.velocity *= timesteps;
-        rayP.pos.y() += RTOffset;
+                float cwTemp = reynoldsNr(v, 2*p->r);
 
-        rayP = raytracer::instance()->handleParticleData(rayP);
+                p->pos += p->velocity*timesteps;                                    //set new positions
 
-        if(rayP.hit != 0)                                                       //hit was registered by embree
-        {
-            if(p->velocity.y()*timesteps+absf(p->pos.y()) >= rayP.pos.z())           //check if position of sphere is near hit distance
-                {
-                    p->RTHit = true;                                                //particle has hit an object
-                    p->hitDis = rayP.pos.z();
-                    printf("pos %f velocity %f hit %f\n", p->pos.y(), p->velocity.y(), rayP.pos.z());
+                float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
+
+                p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
+
+                if(p->pos.z()<(-boundingBox.z())){
+                    if(p->firstHit == true)
+                    {
+                        p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                    }
+                    else
+                    {
+                        if((float)rand()/(float)randMax>0.5)
+                        {
+                            p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
+                            p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
+                        }
+                        p->firstHit = true;
+                    }
                 }
+
+                if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
+                        p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
+                {
+                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                }
+            }   //else
+
         }
-
     }
-
     updateCoSphere();
 }
 
@@ -268,16 +253,12 @@ imageGen::imageGen(pImageBuffer* iBuf, float pInit, class nozzle* owner):gen(pIn
     particleCount_ = iBuf->samplingPoints;
 }
 
-imageGen::~imageGen(){
-
-}
-
 void imageGen::seed(){
     int newParticleCount = 0;                                                               //Evaluated pixel != emitted pixels
     osg::Vec3Array* pos = new osg::Vec3Array;
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
-        for(int j = 0; j < (int)iBuf_->dataBuffer[i*6+4]+1; j++){
+        for(int j = 0; j < (int)iBuf_->dataBuffer[i*5+4]+1; j++){
             particle* p = new particle();
             osg::Vec3 spitze = osg::Vec3f(0,1,0);
             osg::Matrix sprayPos = owner_->getMatrix().inverse(owner_->getMatrix());
@@ -293,18 +274,18 @@ void imageGen::seed(){
             p->pos.z() = duese.z()+spitze.z()*offset;
             p->r = (getMinimum()+getDeviation()*gaussian(massRand))*0.5;
             p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
-            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Considers distribution around center
-            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*6+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
+            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Considers distribution around center
+            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
             //printf("x %f y %f\n", xdist, ydist);
 
             float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
 
-//            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
-//            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
+            //            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
+            //            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
 
-            p->velocity.x() = v*sin(iBuf_->dataBuffer[i*6])*cos(iBuf_->dataBuffer[i*6+1]) + xdist;
-            p->velocity.y() = v*cos(iBuf_->dataBuffer[i*6]);
-            p->velocity.z() = v*sin(iBuf_->dataBuffer[i*6])*sin(iBuf_->dataBuffer[i*6+1]) + ydist;
+            p->velocity.x() = v*sin(iBuf_->dataBuffer[i*5])*cos(iBuf_->dataBuffer[i*5+1]) + xdist;
+            p->velocity.y() = v*cos(iBuf_->dataBuffer[i*5]);
+            p->velocity.z() = v*sin(iBuf_->dataBuffer[i*5])*sin(iBuf_->dataBuffer[i*5+1]) + ydist;
 
 
             sprayPos.setTrans(0,0,0);

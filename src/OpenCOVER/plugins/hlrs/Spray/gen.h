@@ -46,6 +46,7 @@ private:
         CW_MUSCHELK,
         CW_NONE
     };
+
     coSphere* coSphere_;
     osg::Geode* geode_;
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
@@ -71,7 +72,6 @@ private:
     float removeCount = 0.9;
     float alpha = 0.4;
     float gaussamp = 1;
-    float RTOffset = 0;
 
     int outOfBoundCounter = 0;    
 
@@ -168,7 +168,7 @@ private:
     pImageBuffer* iBuf_;
 public:
     imageGen(pImageBuffer* iBuf, float pInit, class nozzle* owner);
-    ~imageGen();
+    ~imageGen(){}
 
     void seed();
 };

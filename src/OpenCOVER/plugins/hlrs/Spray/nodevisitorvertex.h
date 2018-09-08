@@ -8,12 +8,16 @@
 #ifndef NODEVISITORVERTEX_H
 #define NODEVISITORVERTEX_H
 
+#include <iostream>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/NodeVisitor>
 #include <osg/TriangleFunctor>
-#include <iostream>
+
 #include <cover/coVRPluginSupport.h>
+
+#include <vector>
 
 #include "raytracer.h"
 
@@ -34,7 +38,6 @@ private:
     osg::Geode *localGeodeTriangleStrip;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
-
 
     bool triFunc = true;
 
@@ -77,26 +80,19 @@ public:
             return vertexCoords;
         }
 
+        std::vector<osg::Node*> coNozzleList;
 };
 
 struct nodeVisitTriangle
 {
 private:
     nodeVisitorVertex* nvv_;
-    osg::Vec3 offset;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setNVV(nodeVisitorVertex* nvv)
     {
         nvv_ = nvv;
     }
-
-    void setOffset(osg::Vec3 newOffset)
-    {
-        offset = newOffset;
-    }
-
-
 };
 
 #endif // NODEVISITORVERTEX_H

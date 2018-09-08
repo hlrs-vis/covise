@@ -22,6 +22,9 @@ using namespace opencover;
 #include <osg/Node>
 #include <osg/ShapeDrawable>
 #include <osg/BoundingBox>
+#include <osg/Group>
+#include <osg/Node>
+#include <osg/Geode>
 
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
@@ -50,17 +53,21 @@ private:
     float alpha = 0.4;
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
+    osg::Group* interactorGroup;
     osg::Geode* geode_;
+    osg::Geode* nozzleGeode;
     osg::Vec3 boundingBox_ = osg::Vec3(200,200,200);
-    osg::Box* box_;
+    osg::Cone* cone_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
     osg::Vec4 currentColor_ = osg::Vec4(1,1,0,1);
+    osg::MatrixTransform* nozzleScale;
 
     void updateColor();
 
     bool initialized = false;
     bool labelRegistered = false;
+    bool displayed = true;
 
     std::string param1 = "none";
     std::string param2 = "none";
@@ -82,6 +89,7 @@ public:
     nozzle(osg::Matrix initialMat, float size, std::string nozzleName);
 
     virtual ~nozzle();
+    void display(bool state);
 
     virtual void createGen();
 
@@ -221,6 +229,170 @@ public:
     {
         return alpha;
     }
+
+    void setNozzleGeometryNode(osg::Node* node)
+    {
+        if (auto geode = dynamic_cast<osg::Geode *>(node))
+        {
+            osg::Group* p = node->getParent(0);
+            nozzleScale->addChild(geode);
+            p->removeChild(node);
+        }
+    }
+
+    bool setNozzleGeometryFile(std::string filename)
+    {
+        std::ifstream mystream(filename);
+        //std::string filename2 = "test.txt";
+        std::string line = "";
+        std::string name = "";
+        osg::Vec3Array* coordArray = new osg::Vec3Array();
+        osg::Vec3Array* normalsArray = new osg::Vec3Array();
+        osg::Vec3 coords = osg::Vec3(0,0,0);
+        osg::Vec3 normals = osg::Vec3(0,0,0);
+
+        if(mystream.is_open())
+        {
+            printf("File opened!\n");
+            std::cout << filename << std::endl;
+            while(std::getline(mystream,line))
+            {
+
+                std::cout << line << std::endl;
+                int x = 0;
+                    while(line[x] == ' ')
+                         x++;
+                    line.erase(0,x);
+                std::stringstream ss(line);
+                std::getline(ss,line,' ');
+
+                if(line.compare("solid") == 0)
+                {
+                    getline(ss,line, '\n');
+                    name = line;
+                    std::cout << "My name is " << name << std::endl;
+                }
+
+                if(line.empty())
+                    continue;
+
+                if(line.compare("facet") == 0)
+                {
+                    getline(ss,line, ' ');
+                    getline(ss,line, ' ');
+                    normals.x() = stof(line);
+                    getline(ss,line, ' ');
+                    normals.y() = stof(line);
+                    getline(ss,line, '\n');
+                    normals.z() = stof(line);
+
+                    printf("Normals of geometry %f %f %f \n", normals.x(), normals.y(), normals.z());
+                    normalsArray->push_back(normals);
+                    osg::Vec3Array::iterator itr = normalsArray->end();
+                    printf("Vertices of geometry %f %f %f \n", (*itr).x(), (*itr).y(), (*itr).z());
+                    continue;
+                }
+
+                if(line.compare("outer") == 0)
+                    continue;
+
+                if(line.compare("vertex") == 0)
+                {
+                    getline(ss,line, ' ');
+                    coords.x() = stof(line);
+                    getline(ss,line, ' ');
+                    coords.y() = stof(line);
+                    getline(ss,line, '\n');
+                    coords.z() = stof(line);
+                    printf("Vertices of geometry %f %f %f \n", coords.x(), coords.y(), coords.z());
+                    coordArray->push_back(coords);
+                    osg::Vec3Array::iterator itr = coordArray->end();
+                    printf("Vertices of geometry %f %f %f \n", (*itr).x(), (*itr).y(), (*itr).z());
+
+                    //TODO: Check why values don't apply
+
+
+                    continue;
+                }
+
+                if(line.compare("endloop") == 0)
+                    continue;
+
+                if(line.compare("endfacet") == 0)
+                    continue;
+
+                if(line.compare("endsolid") == 0)
+                    continue;
+
+            }//mystream
+
+            //cover->getObjectsRoot()->addChild(nozzleGeode);
+        }
+        else
+            return false;
+
+        mystream.close();
+
+//        nozzleGeode = new osg::Geode();
+//        scaleTransform->addChild(nozzleGeode);
+//        osg::Geometry* geom = new osg::Geometry();
+
+//        geom->setVertexArray(coordArray);
+
+//        osg::Vec4Array *colors = new osg::Vec4Array;
+//        colors->push_back(osg::Vec4(1,1,1,1));
+//        geom->setColorArray(colors);
+//        geom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+//        osg::Vec3Array *normals = new osg::Vec3Array;
+//        normals->push_back(osg::Vec3(0,0,-1));
+//        geom->setNormalArray(normals);
+//        geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+//        std::cout << coordArray->size() << std::endl;
+
+//        geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coordArray->size()));
+
+//        geode_->addDrawable(geom);
+
+//        return true;
+
+        osg::Geometry* test = new osg::Geometry();
+        osg::Vec3Array* jo = new osg::Vec3Array();
+
+        jo->push_back(osg::Vec3(1,1,1));
+        jo->push_back(osg::Vec3(1,-1,1));
+        jo->push_back(osg::Vec3(1,1,-1));
+        jo->push_back(osg::Vec3(-1,-1,-1));
+        jo->push_back(osg::Vec3(-1,1,-1));
+        jo->push_back(osg::Vec3(-1,-1,1));
+
+        test->setVertexArray(coordArray);
+
+        osg::Vec3Array *normalsA = new osg::Vec3Array;
+        normalsA->push_back(osg::Vec3(0,0,-1));
+        test->setNormalArray(normalsA);
+        test->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+        osg::Vec4Array *colors = new osg::Vec4Array;
+        colors->push_back(osg::Vec4(1,1,1,1));
+        test->setColorArray(colors);
+        test->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+        test->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coordArray->size()));
+        geode_->addDrawable(test);
+
+        //      Pattern of a STL file
+        //        solid name
+        //         facet normal n1 n2 n3
+        //          outer loop
+        //           vertex p1x p1y p1z
+        //           vertex p2x p2y p2z
+        //           vertex p3x p3y p3z
+        //          endloop
+        //         endfacet
+        //        endsolid name
+    }
 };
 
 
@@ -232,6 +404,7 @@ private:
     std::string decoy_;
 public:
     standardNozzle(float sprayAngle, std::string decoy, osg::Matrix initialMat, float size, std::string nozzleName);
+    ~standardNozzle(){}
 
     void createGen();
     void save(std::string pathName, std::string fileName);
@@ -257,7 +430,6 @@ private:
 
     float pixel_to_mm_;
     float pixel_to_flow_;
-    float pixel_to_radius_;
     int colorDepth_;
     int colorThreshold_ = 100;
 
@@ -269,7 +441,7 @@ private:
 public:
 
     imageNozzle(std::string pathName, std::string fileName, osg::Matrix initialMat, float size, std::string nozzleName);
-    ~imageNozzle();
+    ~imageNozzle(){}
 
     void createGen();
     void save(std::string pathName, std::string fileName);

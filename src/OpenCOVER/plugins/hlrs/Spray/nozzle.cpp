@@ -30,10 +30,17 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
     baseTransform.set(t);
     transform_->setMatrix(baseTransform);
 
+    nozzleScale = new osg::MatrixTransform();
+    baseTransform.makeIdentity();
+    baseTransform.makeScale(osg::Vec3(1/cover->getScale(), 1/cover->getScale(), 1/cover->getScale()));
+    nozzleScale->setMatrix(baseTransform);
+    scaleTransform->addChild(nozzleScale);
+
     particleCount_ = parser::instance()->getReqParticles();
 
-    box_ = new osg::Box(osg::Vec3(0,0,0),0.1*cover->getScale());                      //diameter = lenght = 0.1m, just for rendering purpose
-    shapeDrawable_ = new osg::ShapeDrawable(box_);
+    cone_ = new osg::Cone(osg::Vec3(0,0,0),0.1*cover->getScale(), 0.1*cover->getScale());                      //diameter = lenght = 0.1m, just for rendering purpose
+    cone_->setRotation(osg::Quat(-1,0,0,1));
+    shapeDrawable_ = new osg::ShapeDrawable(cone_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
     printf("Adding basic geometry to nozzle\n");
 
@@ -42,7 +49,8 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
     createGeometry();
 }
 
-nozzle::~nozzle(){
+nozzle::~nozzle()
+{
     if(!genList.empty()){
         for(auto i = genList.begin();i != genList.end(); i++){
             class gen* current = *i;
@@ -56,15 +64,40 @@ nozzle::~nozzle(){
     printf("Bye!\n");
 }
 
-void nozzle::createGeometry(){
+void nozzle::createGeometry()
+{
     osg::BoundingBox bb;
     bb = cover->getBBox(geode_);
+
+    interactorGroup = new osg::Group;
+    for(int i = 0; i < scaleTransform->getNumChildren(); i++)
+    {
+        interactorGroup->addChild(scaleTransform->getChild(i));
+    }
     scaleTransform->setName("transform");
     scaleTransform->removeChild(0,scaleTransform->getNumChildren());
+    scaleTransform->addChild(interactorGroup);
     scaleTransform->addChild(geode_);
 }
 
-void nozzle::createGen(){
+void nozzle::display(bool state)
+{
+    if(displayed && !state)
+    {
+        displayed = false;
+        interactorGroup->setNodeMask(displayed ? 0xffffffff : 0x0);
+    }
+    else
+        if(!displayed && state)
+        {
+            displayed = true;
+            interactorGroup->setNodeMask(displayed ? 0xffffffff : 0x0);
+        }
+}
+
+void nozzle::createGen()
+{
+    //Will never be called
     class gen* newGen = new class gen(initPressure_, this);
     newGen->setColor(getColor());
     newGen->setDeviation(deviation);
@@ -76,8 +109,8 @@ void nozzle::createGen(){
     genList.push_back(newGen);
 }
 
-void nozzle::updateGen(){
-
+void nozzle::updateGen()
+{
     if(prevGenCreate != parser::instance()->getNewGenCreate())
     {
         prevGenCreate = parser::instance()->getNewGenCreate();
@@ -86,32 +119,38 @@ void nozzle::updateGen(){
 
     for(auto i = genList.begin();i != genList.end(); i++){
         class gen* current = *i;
-        if(current->isOutOfBound() == true){
-            printf("generation out of bound\n");
+        if(current->isOutOfBound() == true)
+        {
+//            printf("generation out of bound\n");
             delete current;
             genList.erase(i);
             i = genList.begin();
         }
-        else{
+        else
+        {
             current->updatePos(boundingBox_);
         }
     }
-    if(counter == parser::instance()->getNewGenCreate()){
+    if(counter == parser::instance()->getNewGenCreate())
+    {
         createGen();
         counter = 0;
-        printf("New gen created\n");
+//        printf("New gen created\n");
     }
     counter++;
 }
 
-void nozzle::updateColor(){
-    for(auto i = genList.begin();i != genList.end(); i++){
+void nozzle::updateColor()
+{
+    for(auto i = genList.begin();i != genList.end(); i++)
+    {
         class gen* current = *i;
         current->setColor(currentColor_);
     }
 }
 
-void nozzle::save(std::string pathName, std::string fileName){
+void nozzle::save(std::string pathName, std::string fileName)
+{
     FILE* saving = new FILE;
     char ptr[1000];
 
@@ -125,7 +164,8 @@ void nozzle::save(std::string pathName, std::string fileName){
     fputs("position = \n", saving);
     osg::Matrix nozzleMatrix = this->getMatrix();
 
-    sprintf(ptr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",  nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
+    sprintf(ptr, "%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n",
+            nozzleMatrix.ptr()[0],nozzleMatrix.ptr()[1],nozzleMatrix.ptr()[2],nozzleMatrix.ptr()[3],
             nozzleMatrix.ptr()[4],nozzleMatrix.ptr()[5],nozzleMatrix.ptr()[6],nozzleMatrix.ptr()[7],
             nozzleMatrix.ptr()[8],nozzleMatrix.ptr()[9],nozzleMatrix.ptr()[10],nozzleMatrix.ptr()[11],
             nozzleMatrix.ptr()[12],nozzleMatrix.ptr()[13],nozzleMatrix.ptr()[14],nozzleMatrix.ptr()[15]);
@@ -157,7 +197,8 @@ void nozzle::setID(int ID)
         nozzleID = ID;
         initialized = true;
     }
-    else std::cout << "ID was already set" << std::endl;
+    else
+        std::cout << "ID was already set" << std::endl;
 }
 
 int nozzle::getID()
@@ -174,7 +215,8 @@ void nozzle::keepSize()
 
 void nozzle::autoremove(bool state)
 {
-    for(auto i = genList.begin();i != genList.end(); i++){
+    for(auto i = genList.begin();i != genList.end(); i++)
+    {
         class gen* current = *i;
         if(state)
         {
@@ -196,7 +238,7 @@ void nozzle::autoremove(bool state)
 standardNozzle::standardNozzle(float sprayAngle, std::string decoy, osg::Matrix initialMat, float size, std::string nozzleName) :
     nozzle(initialMat, size, nozzleName)
 {
-    if(sprayAngle == 0)
+    if(sprayAngle == 0.00)
     {
         sprayAngle_ = 30;
     }
@@ -213,21 +255,23 @@ standardNozzle::standardNozzle(float sprayAngle, std::string decoy, osg::Matrix 
     setType("standard");
 }
 
-void standardNozzle::createGen(){
+void standardNozzle::createGen()
+{
     class standardGen* newGen = new class standardGen(sprayAngle_, decoy_,getInitPressure(), this);
     newGen->init();
-    if(parser::instance()->getIsAMD() == 0)
-        newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
+    if(parser::instance()->getIsAMD() == 0)
+        newGen->setColor(getColor());
 
     genList.push_back(newGen);
 }
 
-void standardNozzle::save(std::string pathName, std::string fileName){
+void standardNozzle::save(std::string pathName, std::string fileName)
+{
     FILE* saving = new FILE;
     char ptr[20];
     char matrixPtr[1000];
@@ -316,26 +360,23 @@ imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix
     setType("image");
 }
 
-imageNozzle::~imageNozzle()
+void imageNozzle::createGen()
 {
-
-}
-
-void imageNozzle::createGen(){
     class imageGen* newGen = new class imageGen(&iBuf,getInitPressure(), this);
     newGen->init();
-    if(parser::instance()->getIsAMD() == 0)
-        newGen->setColor(getColor());
     newGen->setDeviation(getDeviation());
     newGen->setMinimum(getMinimum());
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
+    if(parser::instance()->getIsAMD() == 0)
+        newGen->setColor(getColor());
 
     genList.push_back(newGen);
 }
 
-void imageNozzle::save(std::string pathName, std::string fileName){
+void imageNozzle::save(std::string pathName, std::string fileName)
+{
     FILE* saving = new FILE;
     char matrixPtr[1000];
     char ptr[20];
@@ -414,10 +455,7 @@ bool imageNozzle::readImage()
     std::getline(nameStream, line, '_');
     pixel_to_flow_ = stof(line);
 
-    std::getline(nameStream, line, '.');
-    pixel_to_radius_ = stof(line)*0.001;
-
-    std::cout << height << " " << pixel_to_mm_ << " " << pixel_to_flow_ << " " << pixel_to_radius_ << std::endl;
+    std::cout << height << " " << pixel_to_mm_ << " " << pixel_to_flow_ << std::endl;
 
     /**********************************************************************************/
 
@@ -640,13 +678,12 @@ bool imageNozzle::readImage()
     float angleToNozzle = 0;
     float angleToPosition = 0;
     float particleFlow = 0;
-    float particleRadius = 0;
 
 
     iBuf.centerX = center_width;
     iBuf.centerY = center_height;
     iBuf.samplingPoints = samplingPoints;
-    iBuf.dataBuffer = new float[samplingPoints*6];
+    iBuf.dataBuffer = new float[samplingPoints*5];
 
     for(count; count < samplingPoints; count++){
 
@@ -666,23 +703,19 @@ bool imageNozzle::readImage()
         //Angle between height and width of particle - center
 
         particleFlow = 0.20*(  image->data()[index]+
-                               image->data()[index+3]+
-                               image->data()[index-3]+
+                               image->data()[index+colorDepth_]+
+                               image->data()[index-colorDepth_]+
                                image->data()[index+s_int]+
                                image->data()[index-s_int]
                                 )*pixel_to_flow_/255;
         particleFlow = 1;
         //Flow
 
-        particleRadius = image->data()[index]*pixel_to_radius_;
-        //Radius
-
-        iBuf.dataBuffer[count*6] = angleToNozzle;
-        iBuf.dataBuffer[count*6+1] = angleToPosition;
-        iBuf.dataBuffer[count*6+2] = deltaWidth;
-        iBuf.dataBuffer[count*6+3] = deltaHeight;
-        iBuf.dataBuffer[count*6+4] = particleFlow;
-        iBuf.dataBuffer[count*6+5] = particleRadius;
+        iBuf.dataBuffer[count*5] = angleToNozzle;
+        iBuf.dataBuffer[count*5+1] = angleToPosition;
+        iBuf.dataBuffer[count*5+2] = deltaWidth;
+        iBuf.dataBuffer[count*5+3] = deltaHeight;
+        iBuf.dataBuffer[count*5+4] = particleFlow;
 
     };
 
