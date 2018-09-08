@@ -1,0 +1,40 @@
+// Shader for four-channel data sets with alpha blending
+//
+// Authors: 
+// Alexander Rice <acrice@cs.brown.edu>
+// Jurgen Schulze <schulze@cs.brown.edu>
+
+struct PixelIn 
+{
+  float3 coord3d: TEXCOORD0;
+};
+
+float4 main(
+  const sampler3D  in uniform pix3dtex : TEXTURE0,
+  const sampler2D  in uniform pixLUT,           // used specifically for gamma correction
+  const float3     in uniform chan4color,       // channel four color
+  const float4     in uniform opWeights,        // opacity of four channels
+        PixelIn    in IN) : COLOR0
+{
+  float4 origColor = tex3D(pix3dtex, IN.coord3d);  // color as stored in 3D texture
+  float4 intColor;      // intermediate color: after texture lookup (esp. gamma correction)
+  float4 OUT;           // result after color conversion
+	
+  intColor.r = tex2D(pixLUT, float2(origColor.r, 0)).r;
+  intColor.g = tex2D(pixLUT, float2(origColor.g, 0)).g;
+  intColor.b = tex2D(pixLUT, float2(origColor.b, 0)).b;
+  intColor.a = tex2D(pixLUT, float2(origColor.a, 0)).a;
+
+  OUT.r = max(intColor.r, chan4color.r * intColor.a);
+  OUT.g = max(intColor.g, chan4color.g * intColor.a);
+  OUT.b = max(intColor.b, chan4color.b * intColor.a);
+
+  float maxColor = max(intColor.r, max(intColor.g, max(intColor.b, intColor.a)));
+  if      (maxColor==intColor.r) OUT.a = intColor.r * opWeights.r;
+  else if (maxColor==intColor.g) OUT.a = intColor.g * opWeights.g;
+  else if (maxColor==intColor.b) OUT.a = intColor.b * opWeights.b;
+  else                           OUT.a = intColor.a * opWeights.a;
+                           
+  return OUT;
+}
+// vim: sw=2:expandtab:softtabstop=2:ts=2:cino=\:0g0t0

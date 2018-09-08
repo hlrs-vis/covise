@@ -1,0 +1,21 @@
+scale 1.2       # scale object by factor 1.2
+rot x 20        # rotate 20 degrees about the x axis
+rot y 25        # rotate 25 degrees about y axis
+timestep 0      # switch to first time step
+setquality 0.5  # set rendering quality to 0.5
+show            # display dataset
+nextstep        # switch to second time step
+show            # display dataset
+repeat 10       # repeat the following 10 times
+  rot z 2       # rotate 2 degrees about z axis
+  rot x 1       # rotate 1 degree about x axis
+  show          # display dataset
+endrep          # terminate repeat loop
+rot z 10        # rotate 10 degrees about z axis
+show            # display dataset
+setpeak 0.0 0.1 # define peak at the lowest scalar value with width 0.1
+show            # display dataset
+repeat 5        # repeat the following 5 times
+  movepeak 0.1  # move peak to the right by 1/10th of the scalar value range
+  show          # display dataset
+endrep          # terminate repeat loop

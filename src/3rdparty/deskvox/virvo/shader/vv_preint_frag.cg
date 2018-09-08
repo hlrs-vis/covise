@@ -1,0 +1,19 @@
+struct v2f
+{
+  float4 TexCoord0 : TEXCOORD0;
+  float4 TexCoord1 : TEXCOORD1;
+};
+
+float4 main(
+  v2f IN,
+  uniform sampler3D Volume,
+  uniform sampler2D PreIntegrationTable) : COLOR
+{
+  float4 lookup;
+
+  lookup.x = tex3D(Volume, IN.TexCoord0.xyz).x;
+  lookup.y = tex3D(Volume, IN.TexCoord1.xyz).x;
+
+  return tex2D(PreIntegrationTable, lookup.xy);
+}
+// vim: sw=2:expandtab:softtabstop=2:ts=2:cino=\:0g0t0

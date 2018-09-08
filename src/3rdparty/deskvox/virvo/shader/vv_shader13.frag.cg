@@ -1,0 +1,74 @@
+// Authors: 
+//  Stefan Zellmann <zellmans@uni-koeln.de>
+
+#define DELTA (0.01)
+#define THRESHOLD (0.1)
+
+struct PixelIn 
+{
+  float3 coord3d : TEXCOORD0;
+};
+
+float4 main(
+  const sampler3D  in uniform pix3dtex : TEXTURE0,
+  const sampler2D  in uniform pixLUT,
+        PixelIn    in   IN,
+        half3      in uniform L,
+        half3      in uniform H,
+        fixed      in  Ka,
+        fixed      in  Kd,
+        fixed      in  Ks,
+        fixed      in  shininess) : COLOR0
+{
+  // TODO: make these parameters uniform and configurable.
+  Ka = float3(0.0, 0.0, 0.0);
+  Kd = float3(0.8, 0.8, 0.8);
+  Ks = float3(0.8, 0.8, 0.8);
+  shininess = 1000.0;
+
+  fixed4 center;
+  center.ar = (fixed)tex3D(pix3dtex, IN.coord3d.xyz).x;
+  fixed4 classification = (fixed4)tex2D(pixLUT, center.ar);
+
+  float4 OUT;
+  if (classification.a > THRESHOLD)
+  {
+    half3 N;
+    half3 sample1;
+    half3 sample2;
+    sample1.x = tex3D(pix3dtex, IN.coord3d - float3(DELTA, 0.0, 0.0)).x;
+    sample2.x = tex3D(pix3dtex, IN.coord3d + float3(DELTA, 0.0, 0.0)).x;
+    sample1.y = tex3D(pix3dtex, IN.coord3d - float3(0.0, DELTA, 0.0)).x;
+    sample2.y = tex3D(pix3dtex, IN.coord3d + float3(0.0, DELTA, 0.0)).x;
+    sample1.z = tex3D(pix3dtex, IN.coord3d - float3(0.0, 0.0, DELTA)).x;
+    sample2.z = tex3D(pix3dtex, IN.coord3d + float3(0.0, 0.0, DELTA)).x;
+
+    N = normalize(sample2.xyz - sample1.xyz);
+
+    const float ldot = dot(L, N.xyz);
+    fixed specular = pow(dot(H, N.xyz), shininess);
+
+    // Ambient term.
+    OUT.rgb = Ka * classification.rgb;
+
+    if (ldot > 0.0f)
+    {
+      // Diffuse term.
+      OUT.rgb += Kd * ldot * classification.rgb;
+
+      // Specular term.
+      const float spec = pow(dot(H, N), shininess);
+      if (spec > 0.0f)
+      {        
+        OUT.rgb += Ks * spec * classification.rgb;
+      }
+    }
+    OUT.a = classification.a;
+    return OUT;
+  }
+  else
+  {
+    return classification;
+  }
+}
+// vim: sw=2:expandtab:softtabstop=2:ts=2:cino=\:0g0t0
