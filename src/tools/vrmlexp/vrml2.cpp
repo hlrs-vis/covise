@@ -2648,7 +2648,14 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    }
    if (isBaked)
    {
-	   MSTREAMPRINTFNOSTRINGS("emissiveColor 1 1 1\n"));
+       if (!haveDiffuseMap)
+       {
+           //MSTREAMPRINTF("emissiveColor %s\n"), color(diffuseColor));
+       }
+       else
+       {
+           MSTREAMPRINTFNOSTRINGS("emissiveColor 1 1 1\n"));
+       }
    }
    else
    {
