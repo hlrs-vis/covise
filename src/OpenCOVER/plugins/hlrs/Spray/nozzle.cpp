@@ -7,7 +7,7 @@
 
 #include "nozzle.h"
 
-nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
+nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName/*, osg::Node* geometryNode = nullptr*/):
     coVR3DTransRotInteractor(initialMat,size,coInteraction::ButtonA,"Menu",nozzleName.c_str(),coInteraction::Medium)
 {
     nozzleName_ = nozzleName;
@@ -32,20 +32,19 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName):
 
     nozzleScale = new osg::MatrixTransform();
     baseTransform.makeIdentity();
-    baseTransform.makeScale(osg::Vec3(1/cover->getScale(), 1/cover->getScale(), 1/cover->getScale()));
+    baseTransform.makeScale(osg::Vec3(cover->getScale(), cover->getScale(), cover->getScale()));
     nozzleScale->setMatrix(baseTransform);
     scaleTransform->addChild(nozzleScale);
 
     particleCount_ = parser::instance()->getReqParticles();
 
-    cone_ = new osg::Cone(osg::Vec3(0,0,0),0.1*cover->getScale(), 0.1*cover->getScale());                      //diameter = lenght = 0.1m, just for rendering purpose
+    cone_ = new osg::Cone(osg::Vec3(0,0,0),0.1/**cover->getScale()*/, 0.1/**cover->getScale()*/);                      //diameter = lenght = 0.1m, just for rendering purpose
     cone_->setRotation(osg::Quat(-1,0,0,1));
     shapeDrawable_ = new osg::ShapeDrawable(cone_);
     shapeDrawable_->setColor(osg::Vec4(1,1,0,1));
-    printf("Adding basic geometry to nozzle\n");
+    printf("Adding basic geometry to nozzle\n");    
 
     geode_->addDrawable(shapeDrawable_);
-
     createGeometry();
 }
 
@@ -66,8 +65,8 @@ nozzle::~nozzle()
 
 void nozzle::createGeometry()
 {
-    osg::BoundingBox bb;
-    bb = cover->getBBox(geode_);
+//    osg::BoundingBox bb;
+//    bb = cover->getBBox(geode_);
 
     interactorGroup = new osg::Group;
     for(int i = 0; i < scaleTransform->getNumChildren(); i++)
@@ -77,7 +76,8 @@ void nozzle::createGeometry()
     scaleTransform->setName("transform");
     scaleTransform->removeChild(0,scaleTransform->getNumChildren());
     scaleTransform->addChild(interactorGroup);
-    scaleTransform->addChild(geode_);
+    nozzleScale->addChild(geode_);
+    scaleTransform->addChild(geometryNode.get());
 }
 
 void nozzle::display(bool state)
@@ -230,6 +230,62 @@ void nozzle::autoremove(bool state)
         }
     }
 }
+
+void nozzle::setNozzleGeometryNode(osg::Node* node)
+{
+    if(node != nullptr)
+    {
+    osg::Matrix coverToNode;
+    coverToNode.makeIdentity();
+    auto parentList = node->getParentalNodePaths();
+
+    for(int i = 0; i < /*parentList.size()*/1; i++)
+    {
+        auto pl = parentList[i];
+        int itr = 0;
+        while(pl[itr]->getName().compare("OBJECTS_ROOT") != 0)
+            itr++;
+        for(itr; itr < pl.size(); itr++)
+        {
+            if (auto nozzleMatrixTransform = dynamic_cast<osg::MatrixTransform *>(pl[itr]))
+            {
+                coverToNode *= nozzleMatrixTransform->getMatrix();
+            }
+        }
+    }
+
+
+    if (auto geode = dynamic_cast<osg::Geode *>(node))
+    {
+        osg::Group* p = node->getParent(0);
+        nozzleScale->addChild(geode);
+        p->removeChild(node);
+    }
+
+    if (auto matrixTransform = dynamic_cast<osg::MatrixTransform*>(node))
+    {
+        //nozzleScale->removeChildren(0,nozzleScale->getNumChildren());
+        for(int i = 0; i < matrixTransform->getNumChildren(); i++)
+        {
+            if (auto geode = dynamic_cast<osg::Geode*>(matrixTransform->getChild(i)))
+                nozzleScale->addChild(geode);
+            //nozzleScale->addChild(matrixTransform->getChild(i));
+        }
+        matrixTransform->removeChildren(0, matrixTransform->getNumChildren());
+        coverToNode = scaleTransform->getMatrix()*coverToNode;
+        scaleTransform->setMatrix(coverToNode);
+        osg::Group* p = node->getParent(0);
+        p->removeChild(node);
+    }
+
+    //osg::BoundingBox bb = cover->getBBox(nozzleScale);
+    scaleTransform->dirtyBound();
+    scaleTransform->getBound();
+    nozzleScale->dirtyBound();
+    nozzleScale->getBound();
+    }
+}
+
 
 
 

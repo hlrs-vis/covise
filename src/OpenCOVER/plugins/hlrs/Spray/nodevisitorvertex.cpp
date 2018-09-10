@@ -13,6 +13,8 @@ nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
     localScene->addChild(localGeodeTriangle);
     localScene->addChild(localGeodeTriangleStrip);
 
+    childTransform.makeIdentity();
+
     vertexCoords = new osg::Vec3Array;
 
     blacklist.push_back("1.Name");
@@ -22,17 +24,39 @@ nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 
 void nodeVisitorVertex::apply(osg::Node &node)
 {
+    std::cout << "Name of node " << node.getName() << std::endl;
     if(checkBlacklist(&node))
     {
         traverse(node);
     }
     else
+        if(notTraverse.compare(0,notTraverse.size(), node.getName()) == 0)
+        {
+                traverse(node);
+        }
+    else
     if(node.getName().compare(0,8,"coNozzle") == 0)
     {
-        coNozzleList.push_back(&node);
-        traverse(node);
+        if(node.getParent(0)->getName().compare(0,8,"coNozzle") == 0)
+            traverse(node);
+        else
+        {
+            coNozzleList.push_back(&node);
+            notTraverse = node.getName();
+            traverse(node);
+        }
     }
-else
+    else
+        if(auto transform = dynamic_cast<osg::Transform*>(&node))
+        {
+            if(transform->asMatrixTransform() != NULL)
+            {
+                childTransform = transform->asMatrixTransform()->getMatrix();
+                childTransform.invert(childTransform);
+
+            }
+        }
+    else
     if (auto geode = dynamic_cast<osg::Geode *>(&node))
     {
         if(geode->getName().compare("nopeTriangle") == 0 || geode->getName().compare("nopeTriangleStrip") == 0)
@@ -250,6 +274,8 @@ void nodeVisitorVertex::createFaceSet(Vec3Array *coords, int type)
 {
     osg::Geometry *geom = new osg::Geometry;
 
+    if(visualize)
+    {
     geom->setVertexArray(coords);
 
     osg::Vec4Array *colors = new osg::Vec4Array;
@@ -269,20 +295,23 @@ void nodeVisitorVertex::createFaceSet(Vec3Array *coords, int type)
 
 
     localGeodeTriangle->addDrawable(geom);
+    }
 }
 
 void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool)const
 {
-    nvv_->fillVertexArray(v1,v2,v3);
+    nvv_->fillVertexArray(nvv_->getChildTransform()*v1,
+                          nvv_->getChildTransform()*v2,
+                          nvv_->getChildTransform()*v3);
 
         //raytracer::instance()->createFace(v1,v2,v3,0);
         osg::Geometry *geom = new osg::Geometry;
 
         osg::Vec3Array *vertices = new osg::Vec3Array;
 
-        vertices->push_back(v1);
-        vertices->push_back(v2);
-        vertices->push_back(v3);
+        vertices->push_back(nvv_->getChildTransform()*v1);
+        vertices->push_back(nvv_->getChildTransform()*v2);
+        vertices->push_back(nvv_->getChildTransform()*v3);
 
         geom->setVertexArray(vertices);
 

@@ -229,19 +229,28 @@ bool SprayPlugin::init()
         {
             remove_->setEnabled(false);
             edit_->setEnabled(false);
+            if(nozzleEditMenu_ != nullptr)
+                nozzleEditMenu_->setEnabled(false);
         }
         else
         {
             remove_->setEnabled(true);
             edit_->setEnabled(true);
             if(nozzleEditMenu_ != nullptr)
+            {
+                if(edit_->state())
+                {
+                    nozzleEditMenu_->setVisible(true);
+                    nozzleEditMenu_->setEnabled(true);
+                }
                 updateEditContext();
+            }
         }
     });
 
     edit_ = new ui::Button(nozzleActions, "editContext");
     edit_->setText("Open Edit Menu");
-    edit_->setState(false);
+    edit_->setEnabled(false);
     edit_->setCallback([this](bool state)
     {
         std::cout << "Editing nozzle ID: " << nozzleID << " started" << std::endl;
@@ -256,7 +265,7 @@ bool SprayPlugin::init()
 
             if(nozzleEditMenu_ != nullptr)
             {
-                printf("blaaaa\n");
+                nozzleEditMenu_->setEnabled(true);
                 nozzleEditMenu_->setVisible(true);
                 updateEditContext();
             }
@@ -408,14 +417,14 @@ bool SprayPlugin::init()
                     {
                         editNozzle->disableIntersection();
                         editNozzle->setIntersection(false);
-                        editNozzle->display(false);
+                        //editNozzle->display(false);
                         std::cout << "Interaction deactivated" << std::endl;
                     }
                     else
                         if(state == true){
                             editNozzle->enableIntersection();
                             editNozzle->setIntersection(true);
-                            editNozzle->display(true);
+                            //editNozzle->display(true);
                             std::cout << "Interaction activated" << std::endl;
                         }
 
@@ -424,14 +433,16 @@ bool SprayPlugin::init()
                 acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
                 acceptEdit_->setText("Accept");
                 acceptEdit_->setCallback([this](){
-                    if(parser::instance()->getIsAMD() == 0)
-                        editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
-                    editNozzle->setInitPressure(pressureSlider_->value());
-                    editNozzle->setAlpha(alphaSlider_->value());
-                    editNozzle->setMinimum(minimum/1000000);
-                    editNozzle->setDeviation(deviation/1000000);
-                    editing = false;
-                    std::cout << "Editing done" << std::endl;
+                    if(editNozzle != nullptr)
+                    {
+                        if(parser::instance()->getIsAMD() == 0)
+                            editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
+                        editNozzle->setInitPressure(pressureSlider_->value());
+                        editNozzle->setAlpha(alphaSlider_->value());
+                        editNozzle->setMinimum(minimum/1000000);
+                        editNozzle->setDeviation(deviation/1000000);
+                        std::cout << "Editing done" << std::endl;
+                    }
                     //nozzleEditMenu_->setVisible(false);
 
                 });
@@ -569,25 +580,6 @@ bool SprayPlugin::init()
             nozzleEditMenu_->setVisible(false);
     });
 
-
-    //    create_ = new ui::Action(nozzleActions, "createNozzle");
-    //    create_->setText("Create Nozzle");
-    //    create_->setCallback([this]()
-    //    {
-    //        if(nozzleCreateMenu != nullptr)
-    //            nozzleCreateMenu->setVisible(true);
-    //        else
-    //        {
-    //            nozzleCreateMenu = new ui::Menu(nozzleActions, "Type of nozzle");
-
-    //            ui::Action* createImage = new ui::Action(nozzleCreateMenu, "image");
-    //            createImage->setText("Create image nozzle");
-    //            createImage->setCallback([this]()
-    //            {
-    //                if(nozzleCreateMenuImage != nullptr)
-    //                    nozzleCreateMenuImage->setVisible(true);
-    //                else
-    //                {
     nozzleCreateMenuImage = new ui::Menu(sprayMenu_, "Image Nozzle Parameters");
     ui::EditField* subMenuPathname_ = new ui::EditField(nozzleCreateMenuImage, "pathname_");
     subMenuPathname_->setText("Path Name");
@@ -620,22 +612,15 @@ bool SprayPlugin::init()
             temporary->registerLabel();
 
             nozzleIDL->append(temporary->getName());
+
+            if(nM->getNozzle(nozzleIDL->selectedIndex()) != nullptr|| nM->getNozzle(nozzleID) != nullptr)
+            {
+                edit_->setEnabled(true);
+                remove_->setEnabled(true);
+            }
         }
-        //                        nozzleCreateMenuImage->setVisible(false);
-        //                        nozzleCreateMenu->setVisible(false);
     });
-    //                }
 
-    //            });
-
-    //            ui::Action* createStandard = new ui::Action(nozzleCreateMenu, "standard");
-    //            createStandard->setText("Create standard nozzle");
-    //            createStandard->setCallback([this]()
-    //            {
-    //                if(nozzleCreateMenuStandard != nullptr)
-    //                    nozzleCreateMenuStandard->setVisible(true);
-    //                else
-    //                {
     nozzleCreateMenuStandard = new ui::Menu(sprayMenu_, "Standard Nozzle Parameter");
     ui::EditField* subMenuSprayAngle_ = new ui::EditField(nozzleCreateMenuStandard, "sprayAngle_");
     subMenuSprayAngle_->setText("Spray Angle");
@@ -676,17 +661,19 @@ bool SprayPlugin::init()
         temporary->registerLabel();
 
         nozzleIDL->append(temporary->getName());
-        //                        nozzleCreateMenuStandard->setVisible(false);
-        //                        nozzleCreateMenu->setVisible(false);
+
+        if(nM->getNozzle(nozzleIDL->selectedIndex()) != nullptr|| nM->getNozzle(nozzleID) != nullptr)
+        {
+            edit_->setEnabled(true);
+            remove_->setEnabled(true);
+        }
+
 
     });
 
-    //            });
-    //        }
-    //    });
-
     remove_ = new ui::Action(nozzleActions, "removeNozzle");
     remove_->setText("Remove Nozzle");
+    remove_->setEnabled(false);
     remove_->setCallback([this]()
     {
         if(nM->getNozzle(nozzleID) != 0)
@@ -699,6 +686,9 @@ bool SprayPlugin::init()
             editNozzle = nM->getNozzle(nozzleID);
             nM->removeNozzle(nozzleID);
             editNozzle = nullptr;
+            edit_->setEnabled(false);
+            remove_->setEnabled(false);
+            nozzleEditMenu_->setEnabled(false);
         }
         else
         {
@@ -722,7 +712,6 @@ bool SprayPlugin::init()
     //Traverse scenegraph to extract vertices for raytracer
     nodeVisitorVertex c;
     cover->getObjectsRoot()->accept(c);
-    raytracer::instance()->createFaceSet(c.getVertexArray(),0);
 
     //Set nozzle geometry for VRML nozzles
     for(int i = 0; i < c.coNozzleList.size(); i++)
@@ -731,13 +720,11 @@ bool SprayPlugin::init()
         current->setNozzleGeometryNode(c.coNozzleList[i]);
         current->registerLabel();
         nozzleIDL->append(current->getName());
+        edit_->setEnabled(true);
+        remove_->setEnabled(true);
     }
 
-    //    class nozzle* current = nM->createStandardNozzle("", 30, "NONE");
-    //    current->registerLabel();
-    //    current->setNozzleGeometryFile("test.txt");
-    //    current->setNozzleGeometryFile("test.txt");
-    //    nozzleIDL->append(current->getName());
+    raytracer::instance()->createFaceSet(c.getVertexArray(),0);
 
     std::cout << std::endl;
 
@@ -824,7 +811,7 @@ void SprayPlugin::createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual
 
 void SprayPlugin::updateEditContext()
 {
-    nozzleEditMenu_->setVisible(true);
+    //nozzleEditMenu_->setVisible(true);
     red_->setValue(editNozzle->getColor().x());
     green_->setValue(editNozzle->getColor().x());
     blue_->setValue(editNozzle->getColor().x());

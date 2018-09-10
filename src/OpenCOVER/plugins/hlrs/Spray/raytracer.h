@@ -30,7 +30,8 @@ private:
 
     RTCDevice gDevice = rtcNewDevice("");
     RTCScene rScene_ = nullptr;
-    std::list<RTCGeometry> geoList;    
+    std::list<RTCGeometry> geoList;
+    std::list<unsigned int> geoIDList;
     bool comitted = false;
 
 public:
@@ -61,14 +62,22 @@ public:
 
     void removeAllGeometry()
     {
-        if(comitted)comitted = false;
-        if(!geoList.empty())
+        if(comitted)
+            comitted = false;
+        if(!geoIDList.empty())
         {
-            for(auto i = geoList.begin(); i != geoList.end(); i++)
-                rtcReleaseGeometry(*i);
+            for(auto i = geoIDList.begin(); i != geoIDList.end(); i++)
+                rtcDetachGeometry(rScene_,(*i));
             geoList.clear();
         }
 
+        finishAddGeometry();
+    }
+
+    void finishAddGeometry()
+    {
+        comitted = true;
+        rtcCommitScene(rScene_);
     }
 
     int createCube(osg::Vec3 center, osg::Vec3 scale)
@@ -290,18 +299,11 @@ public:
             comitted = false;
         geoList.push_back(mesh);
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
+        geoIDList.push_back(geomID);
         rtcReleaseGeometry(mesh);
         return geomID;
 
 
-    }
-
-
-
-    void finishAddGeometry()
-    {
-        comitted = true;
-        rtcCommitScene(rScene_);
     }
 
     float checkForHit(particle p, float time)

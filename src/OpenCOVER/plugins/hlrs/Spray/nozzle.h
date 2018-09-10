@@ -230,15 +230,7 @@ public:
         return alpha;
     }
 
-    void setNozzleGeometryNode(osg::Node* node)
-    {
-        if (auto geode = dynamic_cast<osg::Geode *>(node))
-        {
-            osg::Group* p = node->getParent(0);
-            nozzleScale->addChild(geode);
-            p->removeChild(node);
-        }
-    }
+    void setNozzleGeometryNode(osg::Node* node);
 
     bool setNozzleGeometryFile(std::string filename)
     {

@@ -77,7 +77,7 @@ gen::gen(float pInit, class nozzle* owner)
     cover->getObjectsRoot()->addChild(transform_.get());
 
     geode_ = new osg::Geode;
-    geode_->setName(owner->getName()+"Gen");
+    geode_->setName("Gen"+owner->getName());
     transform_->addChild(geode_);
 
     coSphere_ = new coSphere();

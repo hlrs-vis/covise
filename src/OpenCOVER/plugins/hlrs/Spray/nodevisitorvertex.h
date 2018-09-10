@@ -36,10 +36,13 @@ private:
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
     osg::Geode *localGeodeTriangleStrip;
+    osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
+    std::string notTraverse = "";
 
     bool triFunc = true;
+    bool visualize = true;
 
 public:
         nodeVisitorVertex();
@@ -81,6 +84,10 @@ public:
         }
 
         std::vector<osg::Node*> coNozzleList;
+        osg::Matrix getChildTransform()
+        {
+            return childTransform;
+        }
 };
 
 struct nodeVisitTriangle
