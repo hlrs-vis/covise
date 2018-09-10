@@ -28,7 +28,7 @@ private:
 
     };
 
-    int newGenCreateCounter = 300;
+    int newGenCreateCounter = 200;
 
     int reqParticles = 10000;
     int reqSamplings = 1000;
@@ -39,13 +39,14 @@ private:
     float densityOfFluid = 1.18;
     float densityOfParticle = 1000;
     float cwTurb = 0.15;
-    float nu = 0;
+    float nu = 0.0000171;
     int reynoldsThreshold = 2230;
     int reynoldsLimit = 170000;
-    float minimum = 0.000025;
-    float deviation = 0.00005;
-    float scaleFactor = 100000;
+    float minimum = 0.0004;
+    float deviation = 0.0001;
+    float scaleFactor = 1000;
     float rendertime = 1;
+    float alpha = 0.4;
 
 
     int colorThreshold = 100;
@@ -54,7 +55,7 @@ private:
     std::string cwModelType = "STOKES";
     std::string samplingType = "square";
 
-    std::string configFileName = "config.txt";
+    std::string configFileName = "config/SprayConfig.txt";
 
 
 public:
@@ -86,7 +87,7 @@ public:
                 //empty lines
                 if(line.compare(0,1,"#") == 0)
                 {
-                    continue;                         //commentary
+                    continue;                         //comment
                 }
                 if(line.compare("-") == 0)
                 {
@@ -220,6 +221,12 @@ public:
                         reynoldsLimit = stof(line);
                     }
 
+                    if(line.compare("alpha ") == 0)
+                    {
+                        std::getline(ssLine,line,'\n');
+                        alpha = stof(line);
+                    }
+
 
 
                 }//try
@@ -229,6 +236,7 @@ public:
                     std::cerr << "Invalid argument: " << ia.what() << std::endl;
                 }//catch
             }
+            std::cout << "Config File successfully read!\n" << std::endl;
         }
         else
         {
@@ -346,6 +354,11 @@ public:
     int getReynoldsLimit()
     {
         return reynoldsLimit;
+    }
+
+    float getAlpha()
+    {
+        return alpha;
     }
 };
 

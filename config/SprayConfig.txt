@@ -1,0 +1,43 @@
+# SprayPlugin configuration file
+
+# '#' is a comment
+# '-' indicates the end of the file
+
+### GUI Parameter
+newGenCreateCounter = 100
+scaleFactor = 1000
+
+# Pressure unit is bar
+lower_pressure_bound = 0,2
+upper_pressure_bound = 11
+
+### Particle parameter
+cwTurb = 0,15
+densityOfFluid = 1,18
+densityOfParticle = 1000
+nu = 0,0000171
+reynoldsThreshold = 2230
+reynoldsLimit = 170000
+cwModelType = STOKES
+iterations = 5
+alpha = 0,4
+
+### Standard Nozzle Parameter
+particles = 1000
+minimum = 0,0004
+deviation = 0,0001
+
+### Image Nozzle Parameter
+samplings = 10000
+samplingtype = circle
+nrOfCircles = 15
+colorThreshold = 0
+
+
+### Visualisation Parameter
+#isAMD should only be set to 1 if size of spheres grows when tilting
+isAMD = 1
+#rendertime should be set to 1 when propagation of spheres should be done at 60fps
+rendertime = 1
+
+-

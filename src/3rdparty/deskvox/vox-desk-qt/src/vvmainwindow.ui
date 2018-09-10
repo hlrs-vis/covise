@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>DeskVOX</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <widget class="QMenu" name="menuRecentVolumes">
+     <property name="title">
+      <string>Recent Volumes</string>
+     </property>
+    </widget>
+    <addaction name="actionLoadVolume"/>
+    <addaction name="actionReloadVolume"/>
+    <addaction name="menuRecentVolumes"/>
+    <addaction name="actionSaveVolumeAs"/>
+    <addaction name="actionMergeFiles"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoadCamera"/>
+    <addaction name="actionSaveCameraAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionScreenshot"/>
+    <addaction name="actionMovieScript"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="actionTransferFunction"/>
+    <addaction name="actionGammaCorrection"/>
+    <addaction name="actionChannel4"/>
+    <addaction name="actionOpacityWeights"/>
+    <addaction name="actionChannelSettings"/>
+    <addaction name="actionFloatingPointRange"/>
+    <addaction name="actionClippingPlane"/>
+    <addaction name="actionRegionOfInterest"/>
+    <addaction name="actionLightSource"/>
+    <addaction name="actionBackgroundColor"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionSampleDistances"/>
+    <addaction name="actionDraw"/>
+    <addaction name="actionDataFormat"/>
+    <addaction name="actionGeometry"/>
+    <addaction name="actionMakeHeightField"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionShowOrientation"/>
+    <addaction name="actionShowBoundaries"/>
+    <addaction name="actionShowPalette"/>
+    <addaction name="actionShowNumTextures"/>
+    <addaction name="actionShowFrameRate"/>
+    <addaction name="actionAutoRotation"/>
+    <addaction name="actionCamera"/>
+    <addaction name="actionVolumeInformation"/>
+    <addaction name="actionSliceViewer"/>
+    <addaction name="actionTimeSteps"/>
+    <addaction name="actionDiagrams"/>
+   </widget>
+   <widget class="QMenu" name="menuPlugins">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>&amp;Plugins</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionKeyboardCommands"/>
+    <addaction name="separator"/>
+    <addaction name="actionAboutDeskVOX"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuPlugins"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoadVolume">
+   <property name="text">
+    <string>Load Volume...</string>
+   </property>
+  </action>
+  <action name="actionReloadVolume">
+   <property name="text">
+    <string>Reload Volume</string>
+   </property>
+  </action>
+  <action name="actionSaveVolumeAs">
+   <property name="text">
+    <string>Save Volume As...</string>
+   </property>
+  </action>
+  <action name="actionMergeFiles">
+   <property name="text">
+    <string>Merge Files...</string>
+   </property>
+  </action>
+  <action name="actionLoadCamera">
+   <property name="text">
+    <string>Load Camera...</string>
+   </property>
+  </action>
+  <action name="actionSaveCameraAs">
+   <property name="text">
+    <string>Save Camera As...</string>
+   </property>
+  </action>
+  <action name="actionScreenshot">
+   <property name="text">
+    <string>Screen Shot...</string>
+   </property>
+  </action>
+  <action name="actionMovieScript">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Movie Script...</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Preferences...</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionTransferFunction">
+   <property name="text">
+    <string>Transfer Function...</string>
+   </property>
+  </action>
+  <action name="actionBackgroundColor">
+   <property name="text">
+    <string>Background Color...</string>
+   </property>
+  </action>
+  <action name="actionGammaCorrection">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Gamma Correction...</string>
+   </property>
+  </action>
+  <action name="actionChannel4">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Channel 4...</string>
+   </property>
+  </action>
+  <action name="actionOpacityWeights">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Opacity Weights...</string>
+   </property>
+  </action>
+  <action name="actionChannelSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Channel Settings...</string>
+   </property>
+  </action>
+  <action name="actionFloatingPointRange">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Floating Point Range...</string>
+   </property>
+  </action>
+  <action name="actionClippingPlane">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Clipping Plane...</string>
+   </property>
+  </action>
+  <action name="actionRegionOfInterest">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Region of Interest...</string>
+   </property>
+  </action>
+  <action name="actionSampleDistances">
+   <property name="text">
+    <string>Sample Distances...</string>
+   </property>
+  </action>
+  <action name="actionDraw">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Draw...</string>
+   </property>
+  </action>
+  <action name="actionDataFormat">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Data Format...</string>
+   </property>
+  </action>
+  <action name="actionGeometry">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Geometry...</string>
+   </property>
+  </action>
+  <action name="actionMakeHeightField">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Make Height Field...</string>
+   </property>
+  </action>
+  <action name="actionShowOrientation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Orientation</string>
+   </property>
+  </action>
+  <action name="actionShowBoundaries">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Boundaries</string>
+   </property>
+  </action>
+  <action name="actionShowPalette">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Palette...</string>
+   </property>
+  </action>
+  <action name="actionShowNumTextures">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show #Textures</string>
+   </property>
+  </action>
+  <action name="actionShowFrameRate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Frame Rate</string>
+   </property>
+  </action>
+  <action name="actionAutoRotation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Rotation</string>
+   </property>
+  </action>
+  <action name="actionCamera">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Camera...</string>
+   </property>
+  </action>
+  <action name="actionVolumeInformation">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Volume Information...</string>
+   </property>
+  </action>
+  <action name="actionSliceViewer">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Slice Viewer...</string>
+   </property>
+  </action>
+  <action name="actionTimeSteps">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Time Steps...</string>
+   </property>
+  </action>
+  <action name="actionDiagrams">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Diagrams...</string>
+   </property>
+  </action>
+  <action name="actionKeyboardCommands">
+   <property name="text">
+    <string>Keyboard Commands</string>
+   </property>
+  </action>
+  <action name="actionAboutDeskVOX">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>About DeskVOX</string>
+   </property>
+  </action>
+  <action name="actionLightSource">
+   <property name="text">
+    <string>Light Source...</string>
+   </property>
+  </action>
+  <action name="action_file">
+   <property name="text">
+    <string>&lt;file&gt;</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

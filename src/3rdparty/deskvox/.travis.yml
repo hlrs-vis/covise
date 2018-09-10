@@ -1,0 +1,53 @@
+#--------------------------------------------------------------------------------------------------
+# Configuration script for use with continuous integration service travis-ci.org
+#
+
+sudo: false
+dist: trusty
+
+language: cpp
+compiler:
+    - gcc
+    - clang
+os:
+    - linux
+    - osx
+
+env:
+    matrix:
+        - STD="CPP03" BUILD_TYPE="Debug"
+        - STD="CPP03" BUILD_TYPE="Release"
+        - STD="CPP11" BUILD_TYPE="Debug"
+        - STD="CPP11" BUILD_TYPE="Release"
+
+addons:
+    apt:
+        packages:
+            - libboost-all-dev
+            - libglew-dev
+            - libopenscenegraph-dev
+            - libxi-dev
+            - libxmu-dev
+            - freeglut3-dev
+
+before_install:
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew update; fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew install glew ;fi
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then travis_retry brew install qt5 ;fi
+
+script:
+
+    - export USE_QT4=ON
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then export USE_QT4=OFF ;fi
+    - if [ "$STD" = "CPP03" ]; then export COMPILER_FLAGS="${COMPILER_FLAGS} -std=c++03"; fi
+    - if [ "$STD" = "CPP11" ]; then export COMPILER_FLAGS="${COMPILER_FLAGS} -std=c++11"; fi
+
+    - mkdir -p build
+    - cd build
+    - cmake ..
+        -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+        -DDESKVOX_USE_QT4=${USE_QT4}
+        "-DCMAKE_INSTALL_PREFIX=${HOME}/install"
+        "-DCMAKE_CXX_FLAGS=${COMPILER_FLAGS}"
+    - make VERBOSE=1
+    - make install

@@ -1,0 +1,40 @@
+struct appin
+{
+  float4 Position : POSITION;
+  float4 TCoords0 : TEXCOORD0;
+};
+
+struct v2f
+{
+  float4 HPosition : POSITION;
+  float4 TCoords0 : TEXCOORD0;
+  float4 TCoords1 : TEXCOORD1;
+};
+
+v2f main(
+  appin IN,
+  uniform float4x4 ModelViewProj,
+  uniform float4x4 ModelView,
+  uniform float4x4 ModelViewInv,
+  uniform float4x4 TexMatrix,
+  uniform float SliceDistance)
+{
+  v2f OUT;
+  
+  OUT.TCoords0 = mul(TexMatrix, IN.TCoords0);
+
+  float4 vPosition = float4(0, 0, 0, 1);
+  vPosition = mul(ModelViewInv, vPosition);
+  float4 vDir float4(0, 0, -1, 1);
+  vDir = normalize(mul(ModelViewInv, vDir));
+
+  float4 eyeToVert = normalize(IN.Position - vPosition);
+  float4 sB = IN.Position - eyeToVert
+    * (SliceDistance / dot(vDir, eyeToVert);
+
+  OUT.TCoords1 = mul(TexMatrix, sB);
+
+  OUT.HPosition = mul(ModelViewProj, IN.Position);
+  return OUT;
+}
+// vim: sw=2:expandtab:softtabstop=2:ts=2:cino=\:0g0t0
