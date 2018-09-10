@@ -5,8 +5,15 @@
 
  * License: LGPL 2+ */
 
+#include <config/CoviseConfig.h>
+#include <config/coConfig.h>
+
+#include <iostream>
+
 #ifndef PARSER_H
 #define PARSER_H
+
+using namespace covise;
 
 class parser
 {
@@ -56,6 +63,7 @@ private:
     std::string samplingType = "square";
 
     std::string configFileName = "config/SprayConfig.txt";
+    std::string COVERpluginpath = "COVER.Plugin.Spray";
 
 
 public:
@@ -72,7 +80,23 @@ public:
 
     void init()
     {
+        isAMD = coCoviseConfig::getInt(COVERpluginpath, 1);
+        printf("isAMD %i\n", isAMD);
         //std::cout << "hello, the parser is active" << std::endl;
+//        coConfigGroup* m_mapConfig = new coConfigGroup(COVERpluginpath);
+//        coCoviseConfig::ScopeEntries mappingEntries = coCoviseConfig::getScopeEntries("Module.Spray");
+//            if (mappingEntries.getValue() == NULL)
+//            {
+//                // add global spray.xml to current coviseconfig
+//                printf("added new spray module\n");
+//                m_mapConfig->addConfig(coConfigDefaultPaths::getDefaultGlobalConfigFilePath() + "spray.xml", "global", true);
+//            }
+
+//            coCoviseConfig::ScopeEntries mappingEntries2 = coCoviseConfig::getScopeEntries("Module.Spray");
+
+//                const char **mapEntry = mappingEntries2.getValue();
+//                if (mapEntry == NULL)
+//                    std::cout << "AtomMapping is NULL" << std::endl;
 
         std::ifstream mystream(configFileName);
         std::string line;

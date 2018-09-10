@@ -23,8 +23,8 @@ nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 }
 
 void nodeVisitorVertex::apply(osg::Node &node)
-{
-    std::cout << "Name of node " << node.getName() << std::endl;
+{    
+    //std::cout << "Name of node " << node.getName() << std::endl;
     if(checkBlacklist(&node))
     {
         traverse(node);
@@ -51,8 +51,26 @@ void nodeVisitorVertex::apply(osg::Node &node)
         {
             if(transform->asMatrixTransform() != NULL)
             {
-                childTransform = transform->asMatrixTransform()->getMatrix();
-                childTransform.invert(childTransform);
+                osg::Matrix coverToNode;
+                coverToNode.makeIdentity();
+                auto parentList = node.getParentalNodePaths();
+
+                for(int i = 0; i < /*parentList.size()*/1; i++)
+                {
+                    auto pl = parentList[i];
+                    int itr = 0;
+                    while(pl[itr]->getName().compare("OBJECTS_ROOT") != 0)
+                        itr++;
+                    for(itr; itr < pl.size(); itr++)
+                    {
+                        if (auto nozzleMatrixTransform = dynamic_cast<osg::MatrixTransform *>(pl[itr]))
+                        {
+                            coverToNode *= nozzleMatrixTransform->getMatrix();
+                        }
+                    }
+                }
+                //childTransform = transform->asMatrixTransform()->getMatrix();
+                childTransform.invert(coverToNode);
 
             }
         }
@@ -62,6 +80,11 @@ void nodeVisitorVertex::apply(osg::Node &node)
         if(geode->getName().compare("nopeTriangle") == 0 || geode->getName().compare("nopeTriangleStrip") == 0)
             traverse(node);
         else
+        {
+            if(auto transform = dynamic_cast<osg::MatrixTransform*>(geode->getParent(0)))
+            {}
+                else
+                childTransform.makeIdentity();
 
             for (unsigned int i = 0; i < geode->getNumDrawables(); i++)
             {
@@ -234,6 +257,8 @@ void nodeVisitorVertex::apply(osg::Node &node)
                 }
                 //nothing found
             }
+    }
+
     }
     //createFaceSet(vertexCoords, 0);
     traverse(node);

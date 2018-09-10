@@ -417,14 +417,14 @@ bool SprayPlugin::init()
                     {
                         editNozzle->disableIntersection();
                         editNozzle->setIntersection(false);
-                        //editNozzle->display(false);
+                        editNozzle->display(false);
                         std::cout << "Interaction deactivated" << std::endl;
                     }
                     else
                         if(state == true){
                             editNozzle->enableIntersection();
                             editNozzle->setIntersection(true);
-                            //editNozzle->display(true);
+                            editNozzle->display(true);
                             std::cout << "Interaction activated" << std::endl;
                         }
 

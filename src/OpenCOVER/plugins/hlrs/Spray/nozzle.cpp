@@ -34,7 +34,6 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName/*, osg
     baseTransform.makeIdentity();
     baseTransform.makeScale(osg::Vec3(cover->getScale(), cover->getScale(), cover->getScale()));
     nozzleScale->setMatrix(baseTransform);
-    scaleTransform->addChild(nozzleScale);
 
     particleCount_ = parser::instance()->getReqParticles();
 
@@ -76,21 +75,21 @@ void nozzle::createGeometry()
     scaleTransform->setName("transform");
     scaleTransform->removeChild(0,scaleTransform->getNumChildren());
     scaleTransform->addChild(interactorGroup);
+    scaleTransform->addChild(nozzleScale);
     nozzleScale->addChild(geode_);
-    scaleTransform->addChild(geometryNode.get());
 }
 
 void nozzle::display(bool state)
 {
     if(displayed && !state)
     {
-        displayed = false;
+        displayed = !displayed;
         interactorGroup->setNodeMask(displayed ? 0xffffffff : 0x0);
     }
     else
         if(!displayed && state)
         {
-            displayed = true;
+            displayed = !displayed;
             interactorGroup->setNodeMask(displayed ? 0xffffffff : 0x0);
         }
 }
