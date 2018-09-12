@@ -278,6 +278,8 @@
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+<INCLUDE global="1" configname="spray" >config-spray.xml </INCLUDE>
+
  <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->
