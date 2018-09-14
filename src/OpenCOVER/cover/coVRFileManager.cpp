@@ -631,7 +631,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     std::cerr << "Loading " << url.str() << std::endl;
 
-    if (url.scheme() == "cover")
+    if (url.scheme() == "cover"|| url.scheme() == "opencover")
     {
         if (url.authority() == "plugin")
         {

@@ -31,8 +31,11 @@
 #include <osg/Group>
 
 #include <TestTracker.h>
+#include "cover/input/input.h"
+#include <osg/MatrixTransform>
 
 using namespace opencover;
+
 
 class TestTracker : public opencover::coVRPlugin, public ui::Owner
 {
@@ -42,11 +45,17 @@ public:
     virtual bool init();
     virtual bool update();
     osg::ref_ptr<osg::Group> trackerNode;
+    osg::ref_ptr<osg::MatrixTransform> vt;
+    osg::ref_ptr<osg::MatrixTransform> at;
     static TestTracker *instance();
 private:
     static TestTracker *inst;
     ui::Menu* trackerMenu = nullptr;
     ui::Button *printButton = nullptr;
     bool doPrint = false;
+
+    TrackingBody* tbVive;
+    TrackingBody* tbART;
+    ButtonDevice* buttonsVive;
 };
 #endif

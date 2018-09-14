@@ -1141,6 +1141,7 @@ namespace OpenCOVERPlugin
             Autodesk.Revit.DB.Material m = null;
             bool sameMaterial = true;
             int triangles = 0;
+            int maintriangles = 0;
             bool twoSided = false;
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
@@ -1158,16 +1159,8 @@ namespace OpenCOVERPlugin
                     //return; // don't display curtain walls, these are probably fassades with bars and Glazing
                 }
             }*/
-            Autodesk.Revit.DB.ElementId materialID;
-            materialID = faces.get_Item(0).MaterialElementId;
-            foreach (Autodesk.Revit.DB.Face face in faces)
-            {
-                if (m == null)
-                {
-                    materialID = face.MaterialElementId;
-                    Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
-
-                    /* Autodesk.Revit.DB.ElementId appearanceID = materialElement.AppearanceAssetId;
+            /* 
+             * Autodesk.Revit.DB.ElementId appearanceID = materialElement.AppearanceAssetId;
                      Autodesk.Revit.DB.AppearanceAssetElement ae = elem.Document.GetElement(appearanceID) as Autodesk.Revit.DB.AppearanceAssetElement;
                      Autodesk.Revit.Utility.Asset asset = ae.GetRenderingAsset();
                      Autodesk.Revit.DB.ParameterSet ps = ae.Parameters;
@@ -1189,13 +1182,57 @@ namespace OpenCOVERPlugin
                          string val = p.AsValueString();
                      }
                     System.Collections.Generic.IList<Autodesk.Revit.Utility.AssetProperty> props2 = asset.GetAllConnectedProperties();*/
+            Autodesk.Revit.DB.ElementId materialID;
+            materialID = faces.get_Item(0).MaterialElementId;
+            foreach (Autodesk.Revit.DB.Face face in faces)
+            {
+                bool processedThisFace = false;
+                if (face.HasRegions)
+                {
+                    IList<Face> rfaces = face.GetRegions();
+                    if (rfaces.Count > 1)
+                    {
+                        foreach (Autodesk.Revit.DB.Face rface in rfaces)
+                        {
+
+                            processedThisFace = true;
+
+                            if (m == null)
+                            {
+                                materialID = rface.MaterialElementId;
+                                Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(rface.MaterialElementId) as Autodesk.Revit.DB.Material;
+                                m = materialElement;
+                                twoSided = rface.IsTwoSided;
+                            }
+                            Autodesk.Revit.DB.Mesh rgeomMesh = rface.Triangulate();
+                            if (rgeomMesh != null)
+                            {
+                                triangles += rgeomMesh.NumTriangles;
+                                if (materialID != rface.MaterialElementId)
+                                {
+                                    sameMaterial = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (m == null)
+                {
+                    materialID = face.MaterialElementId;
+                    Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
                     m = materialElement;
                     twoSided = face.IsTwoSided;
                 }
+
                 Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
                 if (geomMesh != null)
                 {
-                    triangles += geomMesh.NumTriangles;
+                    if (!processedThisFace)
+                    {
+                        triangles += geomMesh.NumTriangles;
+                    }
+                    maintriangles += geomMesh.NumTriangles;
                     if (materialID != face.MaterialElementId)
                     {
                         sameMaterial = false;
@@ -1212,7 +1249,7 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(twoSided);
-                mb.add(triangles);
+                mb.add(maintriangles);
 
                 int i = 0;
 
@@ -1260,35 +1297,81 @@ namespace OpenCOVERPlugin
                 int num = 0;
                 foreach (Autodesk.Revit.DB.Face face in geomSolid.Faces)
                 {
-                    Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
-                    if (geomMesh != null)
+                    bool processedThisFace = false;
+                    if (face.HasRegions)
                     {
-                        MessageBuffer mb = new MessageBuffer();
-                        mb.add(elem.Id.IntegerValue);
-                        mb.add(elem.Name + "_f_" + num.ToString());
-                        mb.add((int)ObjectTypes.Mesh);
-
-                        SendMesh(geomMesh, ref mb, face.IsTwoSided);
-                        if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                        IList<Face> rfaces = face.GetRegions();
+                        if (rfaces.Count > 1)
                         {
-                            mb.add((byte)220); // color
-                            mb.add((byte)220);
-                            mb.add((byte)220);
-                            mb.add((byte)255);
-                            mb.add(-1); // material ID
-                        }
-                        else
-                        {
-                            Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
+                            foreach (Autodesk.Revit.DB.Face rface in rfaces)
+                            {
 
-                            sendMaterial(materialElement, elem);
-                            mb.add(materialElement.Color);
-                            mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
-                            mb.add(materialElement.Id.IntegerValue);
+                                processedThisFace = true;
+
+                                Autodesk.Revit.DB.Mesh geomMesh = rface.Triangulate();
+                                if (geomMesh != null)
+                                {
+                                    MessageBuffer mb = new MessageBuffer();
+                                    mb.add(elem.Id.IntegerValue);
+                                    mb.add(elem.Name + "_f_" + num.ToString());
+                                    mb.add((int)ObjectTypes.Mesh);
+
+                                    SendMesh(geomMesh, ref mb, rface.IsTwoSided);
+                                    if (rface.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                                    {
+                                        mb.add((byte)220); // color
+                                        mb.add((byte)220);
+                                        mb.add((byte)220);
+                                        mb.add((byte)255);
+                                        mb.add(-1); // material ID
+                                    }
+                                    else
+                                    {
+                                        Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(rface.MaterialElementId) as Autodesk.Revit.DB.Material;
+
+                                        sendMaterial(materialElement, elem);
+                                        mb.add(materialElement.Color);
+                                        mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                        mb.add(materialElement.Id.IntegerValue);
+                                    }
+                                    sendMessage(mb.buf, MessageTypes.NewObject);
+                                }
+                                num++;
+                            }
                         }
-                        sendMessage(mb.buf, MessageTypes.NewObject);
                     }
-                    num++;
+                    if(!processedThisFace)
+                    {
+                        Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
+                        if (geomMesh != null)
+                        {
+                            MessageBuffer mb = new MessageBuffer();
+                            mb.add(elem.Id.IntegerValue);
+                            mb.add(elem.Name + "_f_" + num.ToString());
+                            mb.add((int)ObjectTypes.Mesh);
+
+                            SendMesh(geomMesh, ref mb, face.IsTwoSided);
+                            if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                            {
+                                mb.add((byte)220); // color
+                                mb.add((byte)220);
+                                mb.add((byte)220);
+                                mb.add((byte)255);
+                                mb.add(-1); // material ID
+                            }
+                            else
+                            {
+                                Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
+
+                                sendMaterial(materialElement, elem);
+                                mb.add(materialElement.Color);
+                                mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                mb.add(materialElement.Id.IntegerValue);
+                            }
+                            sendMessage(mb.buf, MessageTypes.NewObject);
+                        }
+                        num++;
+                    }
                 }
             }
 

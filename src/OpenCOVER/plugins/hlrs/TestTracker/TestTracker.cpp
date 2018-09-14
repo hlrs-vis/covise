@@ -21,6 +21,7 @@
 
 #include "TestTracker.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include "cover/input/input.h"
 using namespace opencover;
 TestTracker::TestTracker() : ui::Owner("TestTracker", cover->ui)
@@ -48,9 +49,9 @@ bool TestTracker::init()
     trackerNode = new osg::Group();
     trackerNode->setName("TestTracker");
     cover->getObjectsRoot()->addChild(trackerNode.get());
-    TrackingBody* tbVive = Input::instance()->getBody("ViveHand");
-    TrackingBody* tbART = Input::instance()->getBody("ArtHand");
-    ButtonDevice* buttonsVive = Input::instance()->getButtons("ViveRight");
+    tbVive = Input::instance()->getBody("ViveHand");
+    tbART = Input::instance()->getBody("ArtHand");
+    buttonsVive = Input::instance()->getButtons("ViveRight");
     if (tbVive == nullptr)
     {
         fprintf(stderr, "please configure ViveHand");
@@ -66,13 +67,26 @@ bool TestTracker::init()
         fprintf(stderr, "please configure ViveRight");
         return false;
     }
+    vt = new osg::MatrixTransform();
+    vt->setName("ViveCoordinateSystem");
+    at = new osg::MatrixTransform();
+    at->setName("ARTCoordinateSystem");
+    vt->addChild(coVRFileManager::instance()->loadIcon("Axis"));
+    at->addChild(coVRFileManager::instance()->loadIcon("Axis"));
+    trackerNode->addChild(vt);
+    trackerNode->addChild(at);
     return true;
 }
 
 bool TestTracker::update()
 {
-    if (doPrint)
+    osg::Vec3 vivePos = tbVive->getMat().getTrans();
+    osg::Vec3 artPos = tbART->getMat().getTrans();
+    vt->setMatrix(tbVive->getMat());
+    at->setMatrix(tbART->getMat());
+    if (doPrint || buttonsVive->getButtonState()!=0)
     {
+        fprintf(stderr, "Vive: %f %f %f  Art:%f %f %f  Diff:%f %f %f\n", vivePos[0], vivePos[1], vivePos[2], artPos[0], artPos[1], artPos[2], vivePos[0]- artPos[0], vivePos[1]- artPos[1], vivePos[2] - artPos[2]);
     }
     return true;
 }

@@ -105,6 +105,7 @@ public:
 	virtual void preSwapBuffers(int /*windowNumber*/);
 	bool init();
 	virtual bool needsThread() const; //< we don't needan extra thread
+    bool trackingOnly = false;
 
 private:
 

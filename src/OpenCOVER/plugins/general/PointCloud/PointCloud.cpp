@@ -810,8 +810,8 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
 				std::vector<Color> colors;
 				std::vector<::Point> points;
-				colors.resize(nPointsSize);
-				points.resize(nPointsSize);
+				colors.reserve(nPointsSize);
+				points.reserve(nPointsSize);
 
 				::Point point;
 				Color color;
@@ -820,7 +820,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 					for (unsigned int i = 0; i < size; i++)
 					{
 
-						if ( isInvalidData[i] == 0 )
+						if ( isInvalidData[i] == 0 && (xData[i]!=0.0 &&yData[i] != 0.0 &&zData[i] != 0.0))
 						{
 							osg::Vec3 p(xData[i], yData[i], zData[i]);
 							p = p * m;

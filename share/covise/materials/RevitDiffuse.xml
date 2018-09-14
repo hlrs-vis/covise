@@ -125,9 +125,9 @@ void main (void)
     vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;
 if(gl_Normal.x &gt; 0.5|| gl_Normal.x &lt; -0.5)
 Texcoord = gl_Vertex.yz;
-if(gl_Normal.y &gt; 0.5| gl_Normal.y &lt; -0.5)
+if(gl_Normal.y &gt; 0.5|| gl_Normal.y &lt; -0.5)
 Texcoord = gl_Vertex.xz;
-if(gl_Normal.z &gt; 0.5| gl_Normal.z&lt; -0.5)
+if(gl_Normal.z &gt; 0.5|| gl_Normal.z&lt; -0.5)
 Texcoord = gl_Vertex.xy;
 Texcoord.x/=revitSX;
 Texcoord.y/=revitSY;
