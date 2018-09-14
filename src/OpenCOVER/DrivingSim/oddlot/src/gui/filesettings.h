@@ -1,4 +1,0 @@
-#ifndef FILESETTINGS_H
-#define FILESETTINGS_H
-
-#endif // FILESETTINGS_H
