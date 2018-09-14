@@ -125,6 +125,7 @@ private:
     OpenScenarioEditor *oscEditor_;
 
     QVector<QPointF> controlPoints_;
+	QVector<bool> smoothList_;
 
 
 };

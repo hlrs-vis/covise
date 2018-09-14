@@ -124,6 +124,7 @@ OpenScenarioEditor::OpenScenarioEditor(ProjectWidget *projectWidget, ProjectData
 	mainWindow_ = projectWidget->getMainWindow();
 	oscBase_ = projectData->getOSCBase();
 	openScenarioBase_ = oscBase_->getOpenScenarioBase();
+	roadSystem_ = projectData->getRoadSystem();
     oscRoadSystemItem_ = NULL;
 }
 
@@ -220,7 +221,7 @@ OpenScenarioEditor::init()
 	{
 		// Root item //
         //
-        oscRoadSystemItem_ = new OSCRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
+        oscRoadSystemItem_ = new OSCRoadSystemItem(getTopviewGraph(), roadSystem_);
         getTopviewGraph()->getScene()->addItem(oscRoadSystemItem_);
 	}
 
@@ -383,7 +384,7 @@ OpenScenarioEditor::translateObject(OpenScenario::oscObject *oscObject, QPointF 
 
 //	odrID roadId(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "",odrID::ID_Road);
 	odrID roadId(QString::fromStdString(oscPosRoad->roadId.getValue()));
-	RSystemElementRoad *road = getProjectData()->getRoadSystem()->getRoad(roadId);
+	RSystemElementRoad *road = roadSystem_->getRoad(roadId);
 	if (road)
 	{
 		double s = oscPosRoad->s.getValue();
@@ -391,7 +392,7 @@ OpenScenarioEditor::translateObject(OpenScenario::oscObject *oscObject, QPointF 
 		QVector2D vec;
 		double dist;
 		QPointF to = road->getGlobalPoint(s, t) + diff;
-		RSystemElementRoad * newRoad = getProjectData()->getRoadSystem()->findClosestRoad( to, s, dist, vec);
+		RSystemElementRoad * newRoad = roadSystem_->findClosestRoad( to, s, dist, vec);
 		odrID newRoadId = newRoad->getID();
 		OSCElement *oscElement = oscBase_->getOSCElement(oscObject);
 
@@ -519,7 +520,7 @@ OpenScenarioEditor::getCatalog(std::string name)
 }
 
 void
-	OpenScenarioEditor::addGraphToObserver(const QVector<QPointF> &controlPoints)
+	OpenScenarioEditor::addGraphToObserver(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList)
 {
 	if (trajectoryElement_)
 	{
@@ -527,18 +528,25 @@ void
 
 		if (trajectory)
 		{
-			createWaypoints(trajectory, controlPoints);
+			createWaypoints(trajectory, controlPoints, smoothList);
 		}
 	}
 }
 
 void 
-OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints)
+OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList)
 {
     OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory->getMember("Vertex"));
     vertexArray->clear();
 
     getProjectData()->getUndoStack()->beginMacro(QObject::tr("Create waypoints"));
+
+	// find the closest road //
+	double s0;
+	double t0;
+	QVector2D vec0;
+	RSystemElementRoad *road = roadSystem_->findClosestRoad(controlPoints.at(0), s0, t0, vec0);
+
     for (int i = 0; i < controlPoints.count(); i += 3)
     {
         OpenScenario::oscVertex *vertex = NULL;
@@ -549,33 +557,63 @@ OpenScenarioEditor::createWaypoints(OpenScenario::oscTrajectory *trajectory, con
 
 		if (vertex)
 		{
+
 			OpenScenario::oscPosition *position = vertex->Position.createObject();
 			OpenScenario::oscWorld *posWorld = position->World.createObject();
+			OpenScenario::oscRoad *posRoad = position->Road.createObject();
+
 			posWorld->x.setValue(controlPoints.at(i).x());
 			posWorld->y.setValue(controlPoints.at(i).y());
 
-			OpenScenario::oscShape *shape = vertex->Shape.createObject();
-			OpenScenario::oscSpline *spline = shape->Spline.createObject();
-			int index = i - 1;
-			if (index > 0)
+
+			// find the closest road //
+			double s;
+			double t;
+			QVector2D vec;
+			RSystemElementRoad *road = roadSystem_->findClosestRoad(controlPoints.at(i), s, t, vec);
+
+			int vertexCount = i / 3;
+			OpenScenario::oscMemberValue *reference = vertex->reference.createValue();
+			reference->setValue(0.1 * (s - s0));
+			
+			if (road)
 			{
-				OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
-				char buf[100];
+				posRoad->roadId = road->getID().getName().toStdString();
+				posRoad->s = s;
+				posRoad->t = t;
 
-				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
-				sprintf(buf, "%lf %lf", dist.x(), dist.y());
-				controlPoint->status.setValue(buf);
-			}
+				OpenScenario::oscShape *shape = vertex->Shape.createObject();
+				
+				if (!smoothList.isEmpty() && (--vertexCount >= 0) && (vertexCount < smoothList.size()) && smoothList.at(vertexCount))
+				{
+					OpenScenario::oscSpline *spline = shape->Spline.createObject();
+					int index = i - 1;
+					if (index > 0)
+					{
+						OpenScenario::oscControlPoint1 *controlPoint = spline->ControlPoint1.createObject();
+						char buf[100];
 
-			index = i + 1;
-			if (index < controlPoints.count())
-			{
-				OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
-				char buf[100];
+						QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+						sprintf(buf, "%lf %lf", dist.x(), dist.y());
+						controlPoint->status.setValue(buf);
+					}
 
-				QPointF dist = controlPoints.at(index) - controlPoints.at(i);
-				sprintf(buf, "%lf %lf", dist.x(), dist.y());
-				controlPoint->status.setValue(buf);
+					index = i + 1;
+					if (index < controlPoints.count())
+					{
+						OpenScenario::oscControlPoint2 *controlPoint = spline->ControlPoint2.createObject();
+						char buf[100];
+
+						QPointF dist = controlPoints.at(index) - controlPoints.at(i);
+						sprintf(buf, "%lf %lf", dist.x(), dist.y());
+						controlPoint->status.setValue(buf);
+					}
+				}
+				else
+				{
+					OpenScenario::oscPolyline *poly = shape->Polyline.createObject();
+				}
+
 			}
 		}
 
@@ -753,7 +791,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 				double t;
 				QVector2D vec;
 
-				RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
+				RSystemElementRoad * road = roadSystem_->findClosestRoad(mousePoint, s, t, vec);
 				if (road)
 				{
 					// Create new object //
@@ -904,7 +942,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 				double t;
 				QVector2D vec;
 
-				RSystemElementRoad * road = getProjectData()->getRoadSystem()->findClosestRoad(mousePoint, s, t, vec);
+				RSystemElementRoad * road = roadSystem_->findClosestRoad(mousePoint, s, t, vec);
 				if (road)
 				{
 					// Create new object //
@@ -1161,11 +1199,15 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
                 if (trajectoryElement_)
                 {
                     OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(trajectoryElement_->getObject());
-                    createWaypoints(trajectory, getTopviewGraph()->getView()->getSplineControlPoints());
+					QVector<bool> smoothList;
+					QVector<QPointF> splinePoints = getTopviewGraph()->getView()->getSplineControlPoints(smoothList);
+                    createWaypoints(trajectory, splinePoints, smoothList);
                 }
                 else
                 {
-                    addGraphToObserver(getTopviewGraph()->getView()->getSplineControlPoints());
+					QVector<bool> smoothList;
+					QVector<QPointF> splinePoints = getTopviewGraph()->getView()->getSplineControlPoints(smoothList);
+                    addGraphToObserver(splinePoints, smoothList);
                 }
 
                 trajectoryElement_ = NULL;
@@ -1297,7 +1339,7 @@ OpenScenarioEditor::toolAction(ToolAction *toolAction)
 		{
 		QList<ControlEntry *>controlEntryList;
 		RSystemElementController *newController = new RSystemElementController("unnamed", "", 0,"", 0.0, controlEntryList);
-		AddControllerCommand *command = new AddControllerCommand(newController, getProjectData()->getRoadSystem(), NULL);
+		AddControllerCommand *command = new AddControllerCommand(newController, roadSystem_, NULL);
 
 		getProjectGraph()->executeCommand(command);
 		}

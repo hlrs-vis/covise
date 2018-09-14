@@ -145,19 +145,23 @@ public slots:
 
 	void shapeEditing(bool edit);
 
-    void setSplineControlPoints(const QVector<QPointF> &controlPoints)
+    void setSplineControlPoints(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList)
     {
         splineControlPoints_ = controlPoints;
+		splineSmoothList_ = smoothList;
     }
 
-    QVector<QPointF> getSplineControlPoints()
+    QVector<QPointF> getSplineControlPoints(QVector<bool> &smoothList)
     {
+		smoothList = splineSmoothList_;
+
         return splineControlPoints_;
     } 
 
     void clearSplineControlPoints()
     {
         splineControlPoints_.clear();
+		splineSmoothList_.clear();
     }
 
     //################//
@@ -198,6 +202,7 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
+	QVector<bool> splineSmoothList_;
 
 	/// http wget
 	void startRequest(const QUrl &requestedUrl);
