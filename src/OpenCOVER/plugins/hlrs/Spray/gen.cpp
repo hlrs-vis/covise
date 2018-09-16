@@ -138,7 +138,7 @@ void gen::setCoSphere(osg::Vec3Array* pos)
     float* rVis = new float[particleCount_];
     for(int i = 0; i<particleCount_;i++)
         rVis[i] = pVec[i]->r*parser::instance()->getScaleFactor();
-    coSphere_->setMaxRadius(100);
+    //coSphere_->setMaxRadius(100);
 
     if(parser::instance()->getIsAMD() == 1)
         coSphere_->setRenderMethod(coSphere::RENDER_METHOD_CG_SHADER);

@@ -126,6 +126,11 @@ bool SprayPlugin::init()
             ss << temporary->getName();
             nozzleIDL->append(ss.str());
         }
+        if(nM->getNozzle(nozzleID))
+        {
+            edit_->setEnabled(true);
+            remove_->setEnabled(true);
+        }
     });
 
     ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save nozzles");

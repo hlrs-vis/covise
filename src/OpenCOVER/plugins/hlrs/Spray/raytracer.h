@@ -28,7 +28,7 @@ private:
         rtcReleaseDevice(gDevice);
     }
 
-    RTCDevice gDevice = rtcNewDevice("");
+    RTCDevice gDevice = rtcNewDevice("hughpages=1");
     RTCScene rScene_ = nullptr;
     std::list<RTCGeometry> geoList;
     std::list<unsigned int> geoIDList;
@@ -337,8 +337,6 @@ public:
             return -1;
         }
     }
-
-
 
 };
 
