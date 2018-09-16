@@ -29,14 +29,18 @@ typedef struct{
 class particle
 {
 public:
+    enum
+    {
+        NOT_OUTOFBOUND,                 //not out of bounds
+        FIRST_OUTOFBOUND,               //first time out of bounds was detected
+        ALREADY_OUTOFBOUND              //out of bound counter won't raise
+    };
     osg::Vec3 pos;
     osg::Vec3 velocity;
     double r;
     double m;
-    int hit = 0;
-    bool particleOutOfBound = false;
+    int particleOutOfBound = NOT_OUTOFBOUND;
     bool firstHit = false;
-    bool RTHit = false;
 };
 
 #endif // TYPES_H

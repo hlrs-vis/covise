@@ -11,7 +11,6 @@
 #include <vector>
 #include "types.h"
 #include "gen.h"
-//using namespace embree;
 
 struct Vertex   { float x,y,z/*,r*/;  };        //From tutorial
 struct Triangle { int v0, v1, v2; };        //From tutorial
@@ -31,7 +30,8 @@ private:
 
     RTCDevice gDevice = rtcNewDevice("");
     RTCScene rScene_ = nullptr;
-    std::list<RTCGeometry> geoList;    
+    std::list<RTCGeometry> geoList;
+    std::list<unsigned int> geoIDList;
     bool comitted = false;
 
 public:
@@ -62,14 +62,22 @@ public:
 
     void removeAllGeometry()
     {
-        if(comitted)comitted = false;
-        if(!geoList.empty())
+        if(comitted)
+            comitted = false;
+        if(!geoIDList.empty())
         {
-            for(auto i = geoList.begin(); i != geoList.end(); i++)
-                rtcReleaseGeometry(*i);
+            for(auto i = geoIDList.begin(); i != geoIDList.end(); i++)
+                rtcDetachGeometry(rScene_,(*i));
             geoList.clear();
         }
 
+        finishAddGeometry();
+    }
+
+    void finishAddGeometry()
+    {
+        comitted = true;
+        rtcCommitScene(rScene_);
     }
 
     int createCube(osg::Vec3 center, osg::Vec3 scale)
@@ -282,59 +290,52 @@ public:
                 triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
             }
 
+        std::cout << "size " << coords->size() << std::endl;
+
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
         rtcCommitGeometry(mesh);
-        if(comitted)comitted = false;
+        if(comitted)
+            comitted = false;
         geoList.push_back(mesh);
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
+        geoIDList.push_back(geomID);
         rtcReleaseGeometry(mesh);
         return geomID;
 
 
     }
 
-    void finishAddGeometry()
-    {
-        comitted = true;
-        rtcCommitScene(rScene_);
-    }
-
-    particle handleParticleData(particle p)
+    float checkForHit(particle p, float time)
     {
         RTCRayHit x;
+        p.velocity *= time;
         x.ray.org_x = p.pos.x();
         x.ray.org_y = p.pos.z();
         x.ray.org_z = p.pos.y();
         x.ray.dir_x = p.velocity.x();
         x.ray.dir_y = p.velocity.z();
         x.ray.dir_z = p.velocity.y();
-        x.ray.tfar = 1000000;
+        x.ray.tfar = 1;
         x.ray.flags = 0;
-        x.ray.tnear = -1000000;
+        x.ray.tnear = 0;
         x.hit.geomID = RTC_INVALID_GEOMETRY_ID;
         x.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
         x.hit.instID[1] = RTC_INVALID_GEOMETRY_ID;
 
         RTCIntersectContext d;
+        d.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
         rtcInitIntersectContext(&d);
         rtcIntersect1(rScene_,&d,&x);
 
         if(x.hit.geomID != -1)
         {
-            p.hit = 1;
-            p.pos.x() = x.hit.u;
-            p.pos.y() = x.hit.v;
-            p.pos.z() = x.ray.tfar;
+            return x.ray.tfar;
         }
         else
         {
-            p.pos.x() = 0;
-            p.pos.y() = 0;
-            p.pos.z() = 0;
+            return -1;
         }
-
-        return p;
     }
 
 
