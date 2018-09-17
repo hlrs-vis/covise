@@ -126,6 +126,11 @@ bool SprayPlugin::init()
             ss << temporary->getName();
             nozzleIDL->append(ss.str());
         }
+        if(nM->getNozzle(nozzleID))
+        {
+            edit_->setEnabled(true);
+            remove_->setEnabled(true);
+        }
     });
 
     ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save nozzles");
@@ -200,6 +205,8 @@ bool SprayPlugin::init()
         raytracer::instance()->removeAllGeometry();                     //resets scene
         nodeVisitorVertex c;                                            //creates new scene
         cover->getObjectsRoot()->accept(c);
+        raytracer::instance()->createFaceSet(c.getVertexArray(),0);
+        raytracer::instance()->finishAddGeometry();
     });
 
     autoremove = new ui::Button(globalActions, "autoremove");

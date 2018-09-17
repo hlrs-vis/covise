@@ -1242,6 +1242,8 @@ coSphere::setCoords(int no_of_points, const osg::Vec3Array* coords, const float 
             m_radii[i * 12 + 10] = 1.0f;
             m_radii[i * 12 + 11] = r[i];
             ++coord;
+
+            m_maxRadius = m_maxRadius < r[i] ? r[i] : m_maxRadius;
         }
     }
     else
@@ -1249,6 +1251,7 @@ coSphere::setCoords(int no_of_points, const osg::Vec3Array* coords, const float 
         for (int i = 0; i < m_numSpheres; i++)
         {
             const osg::Vec3 &pos = *coord;
+            m_maxRadius = m_maxRadius < r[i] ? r[i] : m_maxRadius;
             m_coord[i * 3 + 0] = pos.x();
             m_coord[i * 3 + 1] = pos.y();
             m_coord[i * 3 + 2] = pos.z();

@@ -10,9 +10,9 @@
 
       <newGenCreateCounter value="200"/>
 
-      <reqParticles value="10000"/>
+      <reqParticles value="50000"/>
       <reqSamplings value="1000"/>
-      <iterations value="4"/>
+      <iterations value="2"/>
     
       <lowerPressureBound value="0.1"/>
       <upperPressureBound value="10.0"/>
