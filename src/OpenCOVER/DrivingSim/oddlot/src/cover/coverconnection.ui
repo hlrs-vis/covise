@@ -23,16 +23,6 @@
       <string>COVERConnection</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="connectedState">
-        <property name="text">
-         <string>Connected</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -78,6 +68,13 @@
          </layout>
         </item>
        </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="Instruction">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

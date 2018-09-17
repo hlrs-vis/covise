@@ -45,7 +45,23 @@ COVERConnection::COVERConnection()
     inst = this;
     ui->setupUi(this);
     //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
-
+#ifdef WIN32
+    char *pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+    if (err || pValue == NULL || strlen(pValue) == 0)
+        err = _dupenv_s(&pValue, &len, "COVISEDIR");
+    if (err)
+        pValue="";
+    QString covisedir = pValue;
+#else
+    QString covisedir = getenv("ODDLOTDIR");
+    if (covisedir == "")
+        covisedir = getenv("COVISEDIR");
+#endif
+    QString dir = covisedir + "/share/covise/icons/";
+    coverConnected = new QIcon(dir + "cover_connected.png");
+    coverDisconnected = new QIcon(dir + "cover_disconnected.png");
     //Timer init for 1000 ms interrupt => call processMessages()
     m_periodictimer = new QTimer;
     QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(processMessages()));
@@ -56,6 +72,7 @@ COVERConnection::COVERConnection()
     toCOVER = NULL;
     msg = new covise::Message;
     mainWindow = NULL;
+    connected = false;
     inst = this;
 }
 
@@ -70,16 +87,29 @@ COVERConnection::~COVERConnection()
     delete toCOVERSN;
     delete m_periodictimer;
     delete ui;
+    delete coverConnected;
+    delete coverDisconnected;
 }
 
-bool COVERConnection::doConnect()
+bool COVERConnection::isConnected()
 {
-    return (ui->connectedState->isChecked());
+    //return (ui->connectedState->isChecked());
+    return connected;
 }
 
 void COVERConnection::setConnected(bool c)
 {
-    ui->connectedState->setChecked(c);
+    //ui->connectedState->setChecked(c);
+    connected = c;
+    if(connected)
+    {
+        mainWindow->updateCOVERConnectionIcon(*coverConnected);
+        ui->Instruction->setText("");
+    }
+    else {
+        mainWindow->updateCOVERConnectionIcon(*coverDisconnected);
+        closeConnection();
+    }
 }
 
 int COVERConnection::getPort()
@@ -92,7 +122,7 @@ void COVERConnection::closeConnection()
     delete toCOVER;
     toCOVER=NULL;
     //LODSettings::instance()->setConnected(false);
-    setConnected(false);
+    //setConnected(false);
 }
 
 void COVERConnection::send(covise::TokenBuffer &tb)
@@ -129,7 +159,7 @@ void COVERConnection::processMessages()
     if(toCOVER == NULL)
     {
         //UI
-        if(/*LODSettings::instance()->*/doConnect())
+        if(/*LODSettings::instance()->*/isConnected())
         {
             std::string hostname = /*LODSettings::instance()->*/(this->hostname).toStdString();
             if (hostname.empty())
@@ -150,7 +180,17 @@ void COVERConnection::processMessages()
             }
             else
             {
-                closeConnection();
+                //closeConnection();
+                setConnected(false);
+                mainWindow->getFileSettings()->show();
+                mainWindow->getFileSettings()->getTabWidget()->setCurrentWidget(this);
+                ui->Instruction->setText("\n\nConnection not possible. Please check the connection details."
+                                         "\n\nInstructions:"
+                                         "\n- open tabletUI and openCOVER in seperate Terminals"
+                                         "\n- load plugin \"OddlotLink\" in tabletUI"
+                                         "\n- open the project in opencover"
+                                         "\n- start oddlot"
+                                         "\n- create a new project in oddlot and click the COVERConnection Button in the right corner");
             }
         }
     }

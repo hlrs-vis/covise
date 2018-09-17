@@ -727,13 +727,12 @@ ApplyHeightMapSuperelevationCommand::ApplyHeightMapSuperelevationCommand(RSystem
 {
     // Check for validity //
     //
-    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected()) || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected())|| sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
         return;
     }
-    
 
     // Sections //
     //
