@@ -63,15 +63,15 @@ bool SprayPlugin::init()
         }
     });
 
-    newGenCreate_ = new ui::EditField(globalActions, "newGenCreate");
-    newGenCreate_->setText("Gen Creating Rate");
-    newGenCreate_->setValue(parser::instance()->getNewGenCreate());
+    newGenCreate_ = new ui::EditField(globalActions, "emissionRate");
+    newGenCreate_->setText("Emission Rate");
+    newGenCreate_->setValue(parser::instance()->getEmissionRate());
     newGenCreate_->setCallback([this](const std::string &cmd)
     {
         try
         {
-            parser::instance()->setNewGenCreate(stoi(cmd));
-            printf("%i\n", parser::instance()->getNewGenCreate());
+            parser::instance()->setEmissionRate(stoi(cmd));
+            //printf("%i\n", parser::instance()->getNewGenCreate());
 
         }//try
 
@@ -266,7 +266,7 @@ bool SprayPlugin::init()
 
         if(nullptr != editNozzle && state)
         {
-            if(parser::instance()->getIsAMD() == 0)
+            if(parser::instance()->getSphereRenderType() == 0)
                 editNozzle->setColor(osg::Vec4(1,1,0,1));
             newColor = editNozzle->getColor();
 
@@ -358,7 +358,7 @@ bool SprayPlugin::init()
                 });
 
                 pressureSlider_ = new ui::Slider(nozzleEditMenu_, "sliderPressure");
-                pressureSlider_->setText("Initial pressure");
+                pressureSlider_->setText("Initial pressure in bar");
                 pressureSlider_->setBounds(parser::instance()->getLowerPressureBound(),
                                            parser::instance()->getUpperPressureBound()
                                            );
@@ -442,7 +442,7 @@ bool SprayPlugin::init()
                 acceptEdit_->setCallback([this](){
                     if(editNozzle != nullptr)
                     {
-                        if(parser::instance()->getIsAMD() == 0)
+                        if(parser::instance()->getSphereRenderType() == 0)
                             editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
                         editNozzle->setAlpha(alphaSlider_->value());
@@ -718,7 +718,15 @@ bool SprayPlugin::init()
 
     //Traverse scenegraph to extract vertices for raytracer
     nodeVisitorVertex c;
+
+    std::clock_t begin = clock();
+
     cover->getObjectsRoot()->accept(c);
+
+    std::clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for traversing %f\n", elapsed_secs);
 
     //Set nozzle geometry for VRML nozzles
     for(int i = 0; i < c.coNozzleList.size(); i++)
@@ -731,9 +739,15 @@ bool SprayPlugin::init()
         remove_->setEnabled(true);
     }
 
+    begin = clock();
+
     raytracer::instance()->createFaceSet(c.getVertexArray(),0);
 
-    std::cout << std::endl;
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for generating in embree %f\n", elapsed_secs);
+
 
     raytracer::instance()->finishAddGeometry();
 

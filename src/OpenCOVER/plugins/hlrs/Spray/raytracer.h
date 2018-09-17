@@ -28,7 +28,7 @@ private:
         rtcReleaseDevice(gDevice);
     }
 
-    RTCDevice gDevice = rtcNewDevice("hughpages=1");
+    RTCDevice gDevice = rtcNewDevice("start_threads=1,set_affinity=1,hugepages=1");    //
     RTCScene rScene_ = nullptr;
     std::list<RTCGeometry> geoList;
     std::list<unsigned int> geoIDList;
@@ -230,8 +230,8 @@ public:
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
         rtcCommitGeometry(mesh);
-        if(comitted)comitted = false;
-        geoList.push_back(mesh);
+        if(comitted)
+            comitted = false;
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
         rtcReleaseGeometry(mesh);
         return geomID;
@@ -239,23 +239,10 @@ public:
 
     }
 
-    int createFaceSet(osg::Vec3Array* coords, int type) //type = 0 for triangles, type = 1 for quads
+    int createFaceSet(osg::Vec3Array* coords, int type = 0) //type = 0 for triangles, type = 1 for quads
     {
-        //printf("Creating face in embree\n");
-        int numOfVertices = 0;
-        RTCGeometryType geoType;
-        if(type > 2)
-            return -1;
-        else if(type == 0)
-        {
-            numOfVertices = 3;
-            geoType = RTC_GEOMETRY_TYPE_TRIANGLE;
-        }
-        else
-        {
-            numOfVertices = 4;
-            geoType = RTC_GEOMETRY_TYPE_QUAD;
-        }
+        int numOfVertices = 3;
+        RTCGeometryType geoType = RTC_GEOMETRY_TYPE_TRIANGLE;
 
         RTCGeometry mesh = rtcNewGeometry(gDevice, geoType);
 
@@ -271,33 +258,31 @@ public:
             vertices[i].z = buf.y();
             itr++;
         }
-        int numOfFaces = 0;
-        if(type == 0)
-            numOfFaces = coords->size()/3;
-        else
-            numOfFaces = coords->size()/4;
+        int numOfFaces = coords->size()/3;
+//        if(type == 0)
+//            numOfFaces = coords->size()/3;
+//        else
+//            numOfFaces = coords->size()/4;
         Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
 
-        if(type == 0)
+//        if(type == 0)
             for(int fItr = 0; fItr < numOfFaces; fItr++)
             {
                 triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
             }
-        if(type == 1)
-            for(int fItr = 0; fItr < numOfFaces; fItr+=2)
-            {
-                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
-                triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
-            }
+//        if(type == 1)
+//            for(int fItr = 0; fItr < numOfFaces; fItr+=2)
+//            {
+//                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
+//                triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
+//            }
 
-        std::cout << "size " << coords->size() << std::endl;
 
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
         rtcCommitGeometry(mesh);
         if(comitted)
             comitted = false;
-        geoList.push_back(mesh);
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
         geoIDList.push_back(geomID);
         rtcReleaseGeometry(mesh);
@@ -309,7 +294,7 @@ public:
     float checkForHit(particle p, float time)
     {
         RTCRayHit x;
-        p.velocity *= time;
+        p.velocity*=time;
         x.ray.org_x = p.pos.x();
         x.ray.org_y = p.pos.z();
         x.ray.org_z = p.pos.y();
@@ -336,6 +321,30 @@ public:
         {
             return -1;
         }
+    }
+
+    void checkAllHits(std::vector<particle*> &p)
+    {
+        RTCRayHit* x = new RTCRayHit[p.size()];
+        RTCIntersectContext* d = new RTCIntersectContext[p.size()];
+        for(int i = 0; i < p.size(); i++)
+        {
+            x[i].ray.org_x = p[i]->pos.x();
+            x[i].ray.org_y = p[i]->pos.z();
+            x[i].ray.org_z = p[i]->pos.y();
+            x[i].ray.dir_x = p[i]->velocity.x();
+            x[i].ray.dir_y = p[i]->velocity.z();
+            x[i].ray.dir_z = p[i]->velocity.y();
+            x[i].ray.tfar = 1;
+            x[i].ray.flags = 0;
+            x[i].ray.tnear = 0;
+            x[i].hit.geomID = RTC_INVALID_GEOMETRY_ID;
+            x[i].hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
+            d[i].flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
+            rtcInitIntersectContext(&d[i]);
+        }
+
+        rtcIntersect1M(rScene_,d, x, p.size(),8);
     }
 
 };

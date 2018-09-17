@@ -45,7 +45,7 @@ private:
     int counter = 0;
     int nozzleID = 0;
 
-    int prevGenCreate = 0;
+    int prevEmissionRate = 0;
 
     float initPressure_ = 2;
     float minimum = 0.000025;

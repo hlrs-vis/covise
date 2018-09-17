@@ -14,7 +14,7 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName/*, osg
     geode_ = new osg::Geode;
     geode_->setName(nozzleName);
 
-    prevGenCreate = parser::instance()->getNewGenCreate();
+    prevEmissionRate = parser::instance()->getEmissionRate();
     minimum = parser::instance()->getMinimum();
     deviation = parser::instance()->getDeviation();
 
@@ -110,9 +110,9 @@ void nozzle::createGen()
 
 void nozzle::updateGen()
 {
-    if(prevGenCreate != parser::instance()->getNewGenCreate())
+    if(prevEmissionRate != parser::instance()->getEmissionRate())
     {
-        prevGenCreate = parser::instance()->getNewGenCreate();
+        prevEmissionRate = parser::instance()->getEmissionRate();
         counter = 0;
     }
 
@@ -130,7 +130,7 @@ void nozzle::updateGen()
             current->updatePos(boundingBox_);
         }
     }
-    if(counter == parser::instance()->getNewGenCreate())
+    if(counter == parser::instance()->getEmissionRate())
     {
         createGen();
         counter = 0;
@@ -319,7 +319,7 @@ void standardNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getIsAMD() == 0)
+    if(parser::instance()->getSphereRenderType() == 0)
         newGen->setColor(getColor());
 
     genList.push_back(newGen);
@@ -406,7 +406,6 @@ imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix
 
     if(readImage() == false)
     {
-        delete this;
         failed = true;
     }
 
@@ -424,7 +423,7 @@ void imageNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getIsAMD() == 0)
+    if(parser::instance()->getSphereRenderType() == 0)
         newGen->setColor(getColor());
 
     genList.push_back(newGen);

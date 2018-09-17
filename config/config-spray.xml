@@ -8,31 +8,31 @@
    <Plugin>
       <Spray>
 
-      <newGenCreateCounter value="200"/>
+      <EmissionRate value="200"/>
 
-      <reqParticles value="50000"/>
-      <reqSamplings value="1000"/>
-      <iterations value="2"/>
+      <NumParticles value="1000"/>
+      <NumSamplings value="1000"/>
+      <Iterations value="2"/>
     
-      <lowerPressureBound value="0.1"/>
-      <upperPressureBound value="10.0"/>
-      <densityOfFluid value="1.18"/>
-      <densityOfParticle value="1000.0"/>
-      <cwTurb value="0.3"/>
-      <nu value="0.0000171"/>
-      <minimum value="0.0004"/>
-      <deviation value="0.0001"/>
-      <scaleFactor value="1000.0"/>
-      <rendertime value="1.0"/>
-      <alpha value="0.4"/>
+      <LowerPressureBound value="0.1"/>
+      <UpperPressureBound value="10.0"/>
+      <DensityOfFluid value="1.27"/>
+      <DensityOfParticle value="998.0"/>
+      <CwTurb value="0.4"/>
+      <Nu value="0.0000171"/>
+      <Minimum value="0.0004"/>
+      <Deviation value="0.0001"/>
+      <ScaleFactor value="1000.0"/>
+      <Rendertime value="1.0"/>
+      <Alpha value="0.4"/>
 
-      <reynoldsThreshold value="2230"/>
-      <reynoldsLimit value="170000"/>
-      <colorThreshold value="100"/>
-      <isAMD value="0"/>
+      <ReynoldsThreshold value="2230"/>
+      <ReynoldsLimit value="170000"/>
+      <ColorThreshold value="100"/>
+      <SphereRenderType value="1"/>
 
-      <cwModelType value="STOKES"/>
-      <samplingType value="circle"/>
+      <CwModelType value="STOKES"/>
+      <SamplingType value="circle"/>
 
     </Spray>
    </Plugin>

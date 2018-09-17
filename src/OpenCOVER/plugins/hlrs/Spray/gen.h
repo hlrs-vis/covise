@@ -52,6 +52,7 @@ private:
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
     osg::Vec3 gravity = osg::Vec3(0,0,g);
     osg::ref_ptr<osg::MatrixTransform> transform_;
+    std::vector<particle*> RTParticles;
 
     bool outOfBound = false;
 
@@ -158,6 +159,8 @@ public:
     {
         return alpha;
     }
+
+    void updateAll(osg::Vec3 boundingBox);
 };
 
 
