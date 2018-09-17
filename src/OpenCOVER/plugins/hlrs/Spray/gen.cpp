@@ -33,6 +33,11 @@ float gen::gaussian(float value)
     return 1/(sqrt(Pi)*alpha*gaussamp)*exp((-1)*value*value/(alpha*alpha));
 }
 
+//float gen::gaussian(float value)
+//{
+//    return 1/(sqrt(2*Pi)*alpha*gaussamp)*exp((-1)*(value*value-deviation)/(alpha*alpha));
+//}
+
 gen::gen(float pInit, class nozzle* owner)
 {
     initPressure_ = pInit;
@@ -61,24 +66,9 @@ gen::gen(float pInit, class nozzle* owner)
     if(parser::instance()->getCwModelType().compare("NONE") == 0)
         cwModelType = CW_NONE;
 
-
-    //Basetransform - currently not needed
-    transform_ = new osg::MatrixTransform;
-
-    float t[] = {1,0,0,0,
-                 0,1,0,0,
-                 0,0,1,0,
-                 0,0,0,1
-                };
-    osg::Matrix baseTransform;
-    baseTransform.set(t);
-    transform_->setMatrix(baseTransform);
-
-    cover->getObjectsRoot()->addChild(transform_.get());
-
     geode_ = new osg::Geode;
     geode_->setName("Gen"+owner->getName());
-    transform_->addChild(geode_);
+    cover->getObjectsRoot()->addChild(geode_);
 
     coSphere_ = new coSphere();
 
@@ -110,7 +100,8 @@ inline float gen::reynoldsNr(float v, double d)
         if(cwModelType == CW_STOKES)
         {
             cwLam = 24/reynolds_;
-            return cwLam;
+            return cwLam > cwTurb ? cwLam : cwTurb;
+            //return cwLam;
         }
         if(cwModelType == CW_MOLERUS)
         {
@@ -134,13 +125,11 @@ inline float gen::reynoldsNr(float v, double d)
 
 void gen::setCoSphere(osg::Vec3Array* pos)
 {
-
     float* rVis = new float[particleCount_];
     for(int i = 0; i<particleCount_;i++)
         rVis[i] = pVec[i]->r*parser::instance()->getScaleFactor();
-    //coSphere_->setMaxRadius(100);
 
-    if(parser::instance()->getIsAMD() == 1)
+    if(parser::instance()->getSphereRenderType() == 1)
         coSphere_->setRenderMethod(coSphere::RENDER_METHOD_CG_SHADER);
     else
         coSphere_->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
@@ -191,15 +180,12 @@ void gen::updatePos(osg::Vec3 boundingBox)
 
             float elapsedTime = raytracer::instance()->checkForHit(*p, timesteps);
 
+
             if(elapsedTime >= 0)                                                       //hit was registered by embree
             {
-//                if(p->velocity.y()*timesteps+absf(p->pos.y()) >= elapsedTime)           //check if position of sphere is near hit distance
-//                {
                     p->particleOutOfBound = particle::FIRST_OUTOFBOUND;                                               //particle has hit an object
                     p->pos += p->velocity*timesteps*elapsedTime;
-                    //printf("pos %f velocity %f hit %f\n", p->pos.y(), p->velocity.y(), elapsedTime);
                     coSphere_->setColor(i,0,0,1,1);
-//                }
             }
 
             else
@@ -214,7 +200,8 @@ void gen::updatePos(osg::Vec3 boundingBox)
 
                 p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
 
-                if(p->pos.z()<(-boundingBox.z())){
+                if(p->pos.z()<(-boundingBox.z()))
+                {
                     if(p->firstHit == true)
                     {
                         p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
@@ -239,6 +226,81 @@ void gen::updatePos(osg::Vec3 boundingBox)
 
         }
     }
+    updateCoSphere();
+}
+
+void gen::updateAll(osg::Vec3 boundingBox)
+{
+    tCur = parser::instance()->getRendertime()/60;
+    float timesteps = tCur/iterations;
+
+    for(int i = 0; i<particleCount_;i++){
+
+        particle* p = pVec[i];
+        if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
+            p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+
+            if(p->particleOutOfBound == particle::FIRST_OUTOFBOUND)
+            {
+                p->particleOutOfBound = particle::ALREADY_OUTOFBOUND;
+                outOfBoundCounter++;
+                continue;
+            }
+            else
+                if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
+                    continue;
+
+            //float elapsedTime = raytracer::instance()->checkForHit(p, timesteps);
+
+            if(p->time >= 0)                                                       //hit was registered by embree
+            {
+                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;                                               //particle has hit an object
+                    p->pos += p->velocity*timesteps*p->time;
+                    coSphere_->setColor(i,0,0,1,1);
+                    continue;
+            }
+
+            else
+            {
+                float v = p->velocity.length();                                     //get absolute velocity
+
+                float cwTemp = reynoldsNr(v, 2*p->r);
+
+                p->pos += p->velocity*timesteps;                                    //set new positions
+
+                float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
+
+                p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
+
+                if(p->pos.z()<(-boundingBox.z()))
+                {
+                    if(p->firstHit == true)
+                    {
+                        p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                    }
+                    else
+                    {
+                        if((float)rand()/(float)randMax>0.5)
+                        {
+                            p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
+                            p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
+                        }
+                        p->firstHit = true;
+                    }
+                }
+
+                if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
+                        p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
+                {
+                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                }
+                continue;
+            }   //else
+
+        RTParticles.push_back(p);
+    }
+
+    raytracer::instance()->checkAllHits(RTParticles);
     updateCoSphere();
 }
 
@@ -276,12 +338,8 @@ void imageGen::seed(){
             p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
             float xdist = cos(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Considers distribution around center
             float ydist = sin(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
-            //printf("x %f y %f\n", xdist, ydist);
 
             float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
-
-            //            float hypotenuse = sqrt(pow(iBuf_->dataBuffer[i*6+2],2)+pow(iBuf_->dataBuffer[i*6+3],2));
-            //            float d_angle = atan2(iBuf_->dataBuffer[i*6+3], iBuf_->dataBuffer[i*6+2]);
 
             p->velocity.x() = v*sin(iBuf_->dataBuffer[i*5])*cos(iBuf_->dataBuffer[i*5+1]) + xdist;
             p->velocity.y() = v*cos(iBuf_->dataBuffer[i*5]);
@@ -405,7 +463,6 @@ void standardGen::seed(){
             p->velocity.y() = v*cos(sprayAngle);
             p->velocity.z() = v*sin(sprayAngle)*sin(d_angle);
         }
-
 
         sprayPos.setTrans(0,0,0);
 

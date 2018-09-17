@@ -39,6 +39,7 @@ public:
     osg::Vec3 velocity;
     double r;
     double m;
+    float time;
     int particleOutOfBound = NOT_OUTOFBOUND;
     bool firstHit = false;
 };

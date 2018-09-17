@@ -62,23 +62,23 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
                             };
     initialMat.set(baseTransform);
     class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 1, newNozzleName);
-    if(!newNozzle->isFailed())
+    if(newNozzle->isFailed())
     {
-        newNozzle->setID(nextNozzleID);
-        newNozzle->enableIntersection();
+        delete newNozzle;
+        return NULL;
+    }
 
-        nozzleList.push_back(newNozzle);
+    newNozzle->setID(nextNozzleID);
+    newNozzle->enableIntersection();
 
-        nozzleCount++;
-        nextNozzleID++;
+    nozzleList.push_back(newNozzle);
 
-        printf("New nozzle created!\n");
+    nozzleCount++;
+    nextNozzleID++;
+
+    printf("New nozzle created!\n");
 
     return newNozzle;
-    }
-    else
-        return NULL;
-
 }
 
 nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayAngle, std::string decoy)
