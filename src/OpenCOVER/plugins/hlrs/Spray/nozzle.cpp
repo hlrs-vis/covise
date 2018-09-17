@@ -244,7 +244,7 @@ void nozzle::setNozzleGeometryNode(osg::Node* node)
         int itr = 0;
         while(pl[itr]->getName().compare("OBJECTS_ROOT") != 0)
             itr++;
-        for(itr; itr < pl.size(); itr++)
+        for( ; itr < pl.size(); itr++)
         {
             if (auto nozzleMatrixTransform = dynamic_cast<osg::MatrixTransform *>(pl[itr]))
             {
@@ -531,7 +531,6 @@ bool imageNozzle::readImage()
 
     int point_width = 0;
     int point_height = 0;
-    int count = 0;
 
     /***********************************************************************************************/
     //Defines corner points of the read image
@@ -657,6 +656,7 @@ bool imageNozzle::readImage()
 //            }
 //        }
 
+        int count = 0;
         for(int i = 0; i < delta_2; i++)
         {
             for(int j = 0; j< ppl; j++)
@@ -673,9 +673,6 @@ bool imageNozzle::readImage()
 
         samplingPoints = count;
         std::cout << count << std::endl;
-
-        count = 0;
-
     }
 
     if(circle)
@@ -693,6 +690,7 @@ bool imageNozzle::readImage()
 
         float nBegin = samplingPoints/div;
 
+        int count = 0;
         for(int j = 0; j<nrOfCircles;j++)
         {
             float curPoints = nBegin*(1-(float)j/(float)nrOfCircles);
@@ -717,9 +715,6 @@ bool imageNozzle::readImage()
 
         printf("%i\n", count);
         samplingPoints = count;
-
-        count = 0;
-
     }
 
     int index = 0;
@@ -740,7 +735,7 @@ bool imageNozzle::readImage()
     iBuf.samplingPoints = samplingPoints;
     iBuf.dataBuffer = new float[samplingPoints*5];
 
-    for(count; count < samplingPoints; count++){
+    for(int count = 0; count < samplingPoints; count++){
 
         index = points_[count];       
 
