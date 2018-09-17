@@ -205,6 +205,8 @@ bool SprayPlugin::init()
         raytracer::instance()->removeAllGeometry();                     //resets scene
         nodeVisitorVertex c;                                            //creates new scene
         cover->getObjectsRoot()->accept(c);
+        raytracer::instance()->createFaceSet(c.getVertexArray(),0);
+        raytracer::instance()->finishAddGeometry();
     });
 
     autoremove = new ui::Button(globalActions, "autoremove");
