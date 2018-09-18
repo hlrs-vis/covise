@@ -139,6 +139,7 @@ ENDIF()
 # Install TBB
 ##############################################################
 
+IF (FALSE) # not building -> not installing
 IF (WIN32)
   INSTALL(PROGRAMS ${TBB_BINDIR}/tbb.dll ${TBB_BINDIR}/tbbmalloc.dll DESTINATION bin COMPONENT tutorials)
   INSTALL(PROGRAMS ${TBB_BINDIR}/tbb.dll ${TBB_BINDIR}/tbbmalloc.dll DESTINATION lib COMPONENT libraries)
@@ -150,4 +151,5 @@ ELSE()
   IF (NOT ENABLE_INSTALLER)
     INSTALL(PROGRAMS ${TBB_ROOT}/lib/intel64/gcc4.4/libtbb.so.2 ${TBB_ROOT}/lib/intel64/gcc4.4/libtbbmalloc.so.2 DESTINATION lib COMPONENT libraries)
   ENDIF()
+ENDIF()
 ENDIF()
