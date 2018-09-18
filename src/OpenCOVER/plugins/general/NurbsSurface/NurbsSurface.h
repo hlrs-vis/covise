@@ -77,7 +77,7 @@ struct curveInfo{
 
 private:
 
-
+    std::vector<osg::ref_ptr<osg::Geode>> surfaces;
     osg::ref_ptr<osg::Geode> geode;
 
 

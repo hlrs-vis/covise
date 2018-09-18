@@ -265,6 +265,7 @@ void NurbsSurface::computeSurface(double* points)
 
         // add the points geomtry to the geode.
         cover->getObjectsRoot()->addChild(geode.get());
+        surfaces.push_back(geode.get());
 
         // send back surface to PointCloudPlugin for intersection testing and pointcloud manipulation
 
@@ -787,7 +788,7 @@ void NurbsSurface::resize()
 void NurbsSurface::updateMessage()
 {
     //send message to PointCloudPlugin
-    //cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(points), &points);
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaces), &surfaces);
 }
 
 
