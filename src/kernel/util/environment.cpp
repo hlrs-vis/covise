@@ -320,7 +320,7 @@ bool setupEnvironment(int argc, char *argv[])
     setvar("COVISEDIR", covisedir);
 
     const char *vv_shader_path = getenv("VV_SHADER_PATH");
-    std::string vv1 = covisedir + "/share/covise/shader";
+    std::string vv1 = covisedir + "/share/covise/shaders";
     std::string vv2 = covisedir + "/src/3rdparty/deskvox/virvo/shader";
     if (coFile::exists((vv1 + "/vv_texrend.fsh").c_str())) {
         setvar("VV_SHADER_PATH", vv1);
