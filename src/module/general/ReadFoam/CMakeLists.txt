@@ -1,3 +1,7 @@
+if (APPLE)
+   # find keg-only libarchive from homebrew
+   set(LibArchive_ROOT /usr/local/opt/libarchive)
+endif()
 covise_find_package(LibArchive)
 if (LibArchive_FOUND)
    include_directories(SYSTEM ${LibArchive_INCLUDE_DIRS})

@@ -21,6 +21,7 @@ brew 'netcdf'
 brew 'swig'
 brew 'python3'
 brew 'freetype'
+brew 'libarchive'
 
 brew 'snappy'
 brew 'teem'
