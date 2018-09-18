@@ -363,6 +363,10 @@ bool SprayPlugin::init()
                                            parser::instance()->getUpperPressureBound()
                                            );
                 pressureSlider_->setValue(editNozzle->getInitPressure());
+                pressureSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setInitPressure(value);
+                });
 
                 alphaSlider_ = new ui::Slider(nozzleEditMenu_, "sliderAlpha");
                 alphaSlider_->setText("Gaussian Alpha Value");
@@ -726,7 +730,7 @@ bool SprayPlugin::init()
     std::clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    printf("elapsed time for traversing %f\n", elapsed_secs);
+    printf("elapsed time for traversing %f, vertices read out %i\n", elapsed_secs, c.numOfVertices);
 
     //Set nozzle geometry for VRML nozzles
     for(int i = 0; i < c.coNozzleList.size(); i++)

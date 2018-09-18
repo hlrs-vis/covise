@@ -12,7 +12,7 @@
 
       <NumParticles value="1000"/>
       <NumSamplings value="1000"/>
-      <Iterations value="2"/>
+      <Iterations value="1"/>
     
       <LowerPressureBound value="0.1"/>
       <UpperPressureBound value="10.0"/>

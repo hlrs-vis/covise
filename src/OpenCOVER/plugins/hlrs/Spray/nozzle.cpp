@@ -120,21 +120,31 @@ void nozzle::updateGen()
         class gen* current = *i;
         if(current->isOutOfBound() == true)
         {
-//            printf("generation out of bound\n");
-            delete current;
-            genList.erase(i);
-            i = genList.begin();
+            if(current->displayedTime > 5.0)
+            {
+                delete current;
+                genList.erase(i);
+                i = genList.begin();
+            }
+            else
+                current->displayedTime += cover->frameDuration();
         }
         else
         {
-            current->updatePos(boundingBox_);
+            std::clock_t begin = clock();
+            //current->updatePos(boundingBox_);
+            current->updateAll(boundingBox_);
+
+            std::clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+            printf("elapsed time for updating %f\n", elapsed_secs);
         }
     }
     if(counter == parser::instance()->getEmissionRate())
     {
         createGen();
         counter = 0;
-//        printf("New gen created\n");
     }
     counter++;
 }
@@ -224,8 +234,8 @@ void nozzle::autoremove(bool state)
         }
         else
         {
-            autoremoveCount = 0.9;
-            current->setRemoveCount(0.9);
+            autoremoveCount = 1.0;
+            current->setRemoveCount(autoremoveCount);
         }
     }
 }
