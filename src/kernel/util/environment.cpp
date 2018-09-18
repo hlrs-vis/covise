@@ -319,6 +319,7 @@ bool setupEnvironment(int argc, char *argv[])
 
     setvar("COVISEDIR", covisedir);
 
+#ifndef WITHOUT_VIRVO
     const char *vv_shader_path = getenv("VV_SHADER_PATH");
     std::string vv1 = covisedir + "/share/covise/shaders";
     std::string vv2 = covisedir + "/src/3rdparty/deskvox/virvo/shader";
@@ -334,6 +335,7 @@ bool setupEnvironment(int argc, char *argv[])
         std::cerr << "setupEnvironment: overriding VV_SHADER_PATH from " << vv_shader_path << " to " << getenv("VV_SHADER_PATH") << std::endl;
 
     setvar("VV_PLUGIN_PATH", covisedir + "/" + ARCHSUFFIX + "/lib");
+#endif
 
     addpath("COVISE_PATH", covisedir);
 #ifdef _WIN32
