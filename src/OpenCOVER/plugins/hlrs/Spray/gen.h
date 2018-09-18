@@ -103,6 +103,8 @@ public:
         }
     }
 
+    float displayedTime = 0;
+
     osg::Geode* getGeode(){
         return geode_;
     }

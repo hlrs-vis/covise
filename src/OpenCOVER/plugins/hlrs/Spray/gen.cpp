@@ -160,32 +160,34 @@ void gen::updatePos(osg::Vec3 boundingBox)
     tCur = parser::instance()->getRendertime()/60;
     float timesteps = tCur/iterations;
 
-    for(int i = 0; i<particleCount_;i++){
+    //    float sumElapsedTime = 0.0;
+    //    std::clock_t begin;
+    //    std::clock_t end;
 
-        particle* p = pVec[i];
-        if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
-            p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
-
-        for(int it = 0; it<iterations; it++)
+    for(int it = 0; it<iterations; it++)
+    {
+        outOfBoundCounter = 0;
+        for(int i = 0; i<particleCount_;i++)
         {
-            if(p->particleOutOfBound == particle::FIRST_OUTOFBOUND)
+
+            particle* p = pVec[i];
+
+            if(p->particleOutOfBound)
             {
-                p->particleOutOfBound = particle::ALREADY_OUTOFBOUND;
                 outOfBoundCounter++;
                 continue;
             }
-            else
-                if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
-                    continue;
 
+            //            begin = clock();
             float elapsedTime = raytracer::instance()->checkForHit(*p, timesteps);
-
+            //            end = clock();
+            //            sumElapsedTime += double(end - begin) / CLOCKS_PER_SEC;
 
             if(elapsedTime >= 0)                                                       //hit was registered by embree
             {
-                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;                                               //particle has hit an object
-                    p->pos += p->velocity*timesteps*elapsedTime;
-                    coSphere_->setColor(i,0,0,1,1);
+                p->particleOutOfBound = true;                                               //particle has hit an object
+                p->pos += p->velocity*timesteps*elapsedTime;
+                coSphere_->setColor(i,0,0,1,1);
             }
 
             else
@@ -204,7 +206,7 @@ void gen::updatePos(osg::Vec3 boundingBox)
                 {
                     if(p->firstHit == true)
                     {
-                        p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                        p->particleOutOfBound = true;
                     }
                     else
                     {
@@ -220,92 +222,85 @@ void gen::updatePos(osg::Vec3 boundingBox)
                 if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
                         p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
                 {
-                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                    p->particleOutOfBound = true;
                 }
             }   //else
 
         }
     }
+    //    printf("elapsed time for RT all %f\n", sumElapsedTime);
     updateCoSphere();
 }
 
 void gen::updateAll(osg::Vec3 boundingBox)
 {
     tCur = parser::instance()->getRendertime()/60;
-    float timesteps = tCur/iterations;
 
-    for(int i = 0; i<particleCount_;i++){
+//    std::clock_t begin = clock();
+    raytracer::instance()->checkAllHits(pVec, tCur);
+//    std::clock_t end = clock();
+//    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+//    printf("elapsed time for RT all %f\n", elapsed_secs);
 
+
+    for(int i = 0; i<particleCount_;i++)
+    {
         particle* p = pVec[i];
-        if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
-            p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
 
-            if(p->particleOutOfBound == particle::FIRST_OUTOFBOUND)
+        if(p->particleOutOfBound)
+        {
+            outOfBoundCounter++;
+            continue;
+        }
+
+        if(p->time >= 0)                                                       //hit was registered by embree
+        {
+            p->particleOutOfBound = true;                                               //particle has hit an object
+            p->pos += p->velocity*tCur*p->time;
+            coSphere_->setColor(i,0,0,1,1);
+        }
+
+        else
+        {
+            float v = p->velocity.length();                                     //get absolute velocity
+
+            float cwTemp = reynoldsNr(v, 2*p->r);
+
+            p->pos += p->velocity*tCur;                                    //set new positions
+
+            float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
+
+            p->velocity -= p->velocity*k*v*tCur*0.5+gravity*tCur/2;   //new velocity
+
+            if(p->pos.z()<(-boundingBox.z()))
             {
-                p->particleOutOfBound = particle::ALREADY_OUTOFBOUND;
-                outOfBoundCounter++;
-                continue;
-            }
-            else
-                if(p->particleOutOfBound == particle::ALREADY_OUTOFBOUND)
-                    continue;
-
-            //float elapsedTime = raytracer::instance()->checkForHit(p, timesteps);
-
-            if(p->time >= 0)                                                       //hit was registered by embree
-            {
-                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;                                               //particle has hit an object
-                    p->pos += p->velocity*timesteps*p->time;
-                    coSphere_->setColor(i,0,0,1,1);
-                    continue;
-            }
-
-            else
-            {
-                float v = p->velocity.length();                                     //get absolute velocity
-
-                float cwTemp = reynoldsNr(v, 2*p->r);
-
-                p->pos += p->velocity*timesteps;                                    //set new positions
-
-                float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
-
-                p->velocity -= p->velocity*k*v*timesteps*0.5+gravity*timesteps/2;   //new velocity
-
-                if(p->pos.z()<(-boundingBox.z()))
+                if(p->firstHit == true)
                 {
-                    if(p->firstHit == true)
-                    {
-                        p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
-                    }
-                    else
-                    {
-                        if((float)rand()/(float)randMax>0.5)
-                        {
-                            p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
-                            p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
-                        }
-                        p->firstHit = true;
-                    }
+                    p->particleOutOfBound = true;
                 }
-
-                if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
-                        p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
+                else
                 {
-                    p->particleOutOfBound = particle::FIRST_OUTOFBOUND;
+                    if((float)rand()/(float)randMax>0.5)
+                    {
+                        p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
+                        p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
+                    }
+                    p->firstHit = true;
                 }
-                continue;
-            }   //else
+            }
 
-        RTParticles.push_back(p);
+            if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
+                    p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
+            {
+                p->particleOutOfBound = true;
+            }
+        }   //else
+
+
     }
-
-    raytracer::instance()->checkAllHits(RTParticles);
     updateCoSphere();
+
 }
-
-
-
 
 
 

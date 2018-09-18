@@ -302,7 +302,6 @@ public:
         x.ray.dir_y = p.velocity.z();
         x.ray.dir_z = p.velocity.y();
         x.ray.tfar = 1;
-        x.ray.flags = 0;
         x.ray.tnear = 0;
         x.hit.geomID = RTC_INVALID_GEOMETRY_ID;
         for (int i=0; i<RTC_MAX_INSTANCE_LEVEL_COUNT; ++i)
@@ -323,20 +322,26 @@ public:
         }
     }
 
-    void checkAllHits(std::vector<particle*> &p)
+    inline void checkAllHits(std::vector<particle*> &p, float time)
     {
         RTCRayHit* x = new RTCRayHit[p.size()];
         RTCIntersectContext* d = new RTCIntersectContext[p.size()];
+        osg::Vec3 vTemp;
         for(int i = 0; i < p.size(); i++)
         {
+            if(p[i]->particleOutOfBound)
+                continue;
+            vTemp = p[i]->velocity*time;
             x[i].ray.org_x = p[i]->pos.x();
             x[i].ray.org_y = p[i]->pos.z();
             x[i].ray.org_z = p[i]->pos.y();
-            x[i].ray.dir_x = p[i]->velocity.x();
-            x[i].ray.dir_y = p[i]->velocity.z();
-            x[i].ray.dir_z = p[i]->velocity.y();
+//            x[i].ray.dir_x = p[i]->velocity.x()*time;
+//            x[i].ray.dir_y = p[i]->velocity.z()*time;
+//            x[i].ray.dir_z = p[i]->velocity.y()*time;
+            x[i].ray.dir_x = vTemp.x();
+            x[i].ray.dir_y = vTemp.z();
+            x[i].ray.dir_z = vTemp.y();
             x[i].ray.tfar = 1;
-            x[i].ray.flags = 0;
             x[i].ray.tnear = 0;
             x[i].hit.geomID = RTC_INVALID_GEOMETRY_ID;
             x[i].hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
@@ -344,7 +349,18 @@ public:
             rtcInitIntersectContext(&d[i]);
         }
 
-        rtcIntersect1M(rScene_,d, x, p.size(),8);
+        rtcIntersect1M(rScene_,d, x, p.size(), sizeof(RTCRayHit));
+
+        for(int i = 0; i < p.size(); i++)
+        {
+            if(x[i].hit.geomID != -1)
+            {
+                p[i]->time =  x[i].ray.tfar;
+                continue;
+            }
+                p[i]->time = -1;
+
+        }
     }
 
 };

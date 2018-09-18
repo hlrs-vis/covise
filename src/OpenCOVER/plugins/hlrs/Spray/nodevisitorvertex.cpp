@@ -38,7 +38,7 @@ void nodeVisitorVertex::apply(osg::Node &node)
     else
             if(auto transform = dynamic_cast<osg::MatrixTransform*>(&node))
             {
-                std::clock_t begin = clock();
+//                std::clock_t begin = clock();
                 osg::Matrix coverToNode;
                 coverToNode.makeIdentity();
                 auto parentList = transform->getParentalNodePaths();
@@ -59,10 +59,10 @@ void nodeVisitorVertex::apply(osg::Node &node)
                 }
                 childTransform.invert(coverToNode);
 
-                std::clock_t end = clock();
-                double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+//                std::clock_t end = clock();
+//                double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-                printf("elapsed time for mt %f\n", elapsed_secs);
+//                printf("elapsed time for mt %f\n", elapsed_secs);
                 traverse(node);
             }
     else
@@ -90,7 +90,7 @@ void nodeVisitorVertex::apply(osg::Node &node)
                 {
                     Geometry *geom = geode->getDrawable(i)->asGeometry();
                     if (geom)
-                    {
+                    {                        
                             osg::TriangleFunctor<nodeVisitTriangle> tfc;
                             tfc.setNVV(this);
                             geom->accept(tfc);
@@ -316,6 +316,7 @@ void nodeVisitTriangle::operator()(const osg::Vec3& v1, const osg::Vec3& v2, con
     nvv_->fillVertexArray(nvv_->getChildTransform()*v1,
                           nvv_->getChildTransform()*v2,
                           nvv_->getChildTransform()*v3);
+    nvv_->numOfVertices +=9;
 //        osg::Geometry *geom = new osg::Geometry;
 
 //        osg::Vec3Array *vertices = new osg::Vec3Array;

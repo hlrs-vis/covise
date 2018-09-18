@@ -60,6 +60,8 @@ public:
             vertexCoords->push_back(v3);
         }
 
+        int numOfVertices = 0;
+
         bool checkBlacklist(osg::Node* node)
         {
             std::clock_t begin = clock();
