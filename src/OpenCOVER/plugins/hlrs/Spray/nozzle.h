@@ -384,6 +384,8 @@ public:
         //          endloop
         //         endfacet
         //        endsolid name
+
+        return true;
     }
 };
 

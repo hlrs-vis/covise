@@ -228,7 +228,7 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
             if(line.compare("name ") == 0 || line.compare("name") == 0)
             {                
                 std::getline(nextss,line,'\n');
-                if(line[0] = '0') line.erase(0,1);
+                if(line[0] == '0') line.erase(0,1);
                 param.name = line;
             }
 
@@ -264,7 +264,7 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
             if(line.compare("type ") == 0 || line.compare("type") == 0)
             {                
                 std::getline(nextss,line,'\n');
-                if(line[0] = '0') line.erase(0,1);
+                if(line[0] == '0') line.erase(0,1);
                 param.type = line;
 
                 if(line.compare(" standard") == 0 || line.compare("standard") == 0){
@@ -283,14 +283,14 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
                     if(line.compare("pathname ") == 0 || line.compare("pathname") == 0)
                     {
                         std::getline(typess,line,'\n');
-                        if(line[0] = '0') line.erase(0,1);
+                        if(line[0] == '0') line.erase(0,1);
                         param.pathname = line;
                     }
 
                     if(line.compare("filename ") == 0 || line.compare("filename") == 0)
                     {
                         std::getline(typess,line,'\n');
-                        if(line[0] = '0') line.erase(0,1);
+                        if(line[0] == '0') line.erase(0,1);
                         param.filename = line;
                     }
 
@@ -303,7 +303,7 @@ void nozzleManager::loadNozzle(std::string pathName, std::string fileName)
                     if(line.compare("decoy ") == 0 || line.compare("decoy") == 0)
                     {
                         std::getline(typess,line,'\n');
-                        if(line[0] = '0') line.erase(0,1);
+                        if(line[0] == '0') line.erase(0,1);
                         param.decoy = line;
                     }
                 }

@@ -307,6 +307,7 @@ INSTALL(FILES
     config/config-colormaps.xml
     config/config-filetypes.xml
     config/config-ar.xml
+    config/config-spray.xml
     DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts
