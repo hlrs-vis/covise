@@ -652,6 +652,28 @@ int RoadSystem::uniqueID()
 	return lastID;
 }
 
+QList<odrID> RoadSystem::findID(QString &name, odrID::IDType type)
+{
+	QList<odrID> idList;
+	if (type == odrID::ID_Road)
+	{
+		QMap<uint32_t, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+		while (it != roads_.constEnd())
+		{
+			RSystemElementRoad *road = it.value();
+
+			QString s = road->getID().getName();
+			if (s.contains(name))
+			{
+				idList.append(road->getID());
+			}
+			it++;
+		}
+	}
+
+	return idList;
+}
+
 void
 RoadSystem::StringToNumericalIDs(const QMap<odrID, odrID> &idMap)
 {

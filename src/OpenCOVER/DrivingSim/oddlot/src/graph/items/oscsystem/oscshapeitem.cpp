@@ -192,10 +192,10 @@ OSCShapeItem::createControlPoints()
     controlPoints_.clear();
 
     OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getMember("Vertex"));
-	QMap<uint32_t, RSystemElementRoad *> roads = getTopviewGraph()->getProjectData()->getRoadSystem()->getRoads();
 
 	QPointF before;
 	RSystemElementRoad *oldRoad = NULL;
+	RoadSystem *roadSystem = getTopviewGraph()->getProjectData()->getRoadSystem();
 	std::string oldRoadID = "";
 	for (int i = 0; i < vertexArray->size(); i++)
 	{
@@ -220,20 +220,21 @@ OSCShapeItem::createControlPoints()
 			std::string roadID = posRoad->roadId.getValue();
 			if (roadID != oldRoadID)
 			{
-				QMap<uint32_t, RSystemElementRoad *>::const_iterator it = roads.constBegin();
-				while (it != roads.constEnd())
+				QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadID), odrID::ID_Road);
+				RSystemElementRoad *road = NULL;
+				int i;
+				for (i = 0; i < idList.size(); i++)
 				{
-					RSystemElementRoad *road = it.value();
-					QString s = road->getID().getName();
-					if (s.contains(QString::fromStdString(roadID)) && (road->getLength() > posRoad->s.getValue()))
+					road = roadSystem->getRoad(idList.at(i));
+					if (road->getLength() > posRoad->s.getValue())
 					{
 						oldRoad = road;
 						oldRoadID = roadID;
 						break;
 					}
-					it++;
 				}
-				if (it == roads.constEnd())
+
+				if (i >= idList.size())
 				{
 					std::string s = "Warning: No road with name" + roadID + "Trajectoy not loaded";
 					getTopviewGraph()->getProjectWidget()->getMainWindow()->statusBar()->showMessage(tr(s.c_str()), 2000);
@@ -288,19 +289,20 @@ OSCShapeItem::createControlPoints()
 
 					if (roadIDAfter != oldRoadID)
 					{
-						QMap<uint32_t, RSystemElementRoad *>::const_iterator it = roads.constBegin();
-						while (it != roads.constEnd())
+
+						RSystemElementRoad *nextRoad = NULL;
+						QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadIDAfter), odrID::ID_Road);
+						foreach(odrID id, idList)
 						{
-							RSystemElementRoad *nextRoad = it.value();
-							QString s = nextRoad->getID().getName();
-							if (s.contains(QString::fromStdString(roadIDAfter)) && (nextRoad->getLength() > posRoadAfter->s.getValue()))
+							nextRoad = roadSystem->getRoad(id);
+							if (nextRoad->getLength() > posRoad->s.getValue())
 							{
 								after = nextRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
 								break;
 							}
-							it++;
 						}
-						if (it == roads.constEnd())
+
+						if (!nextRoad)
 						{
 							continue;
 						}

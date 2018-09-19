@@ -915,7 +915,7 @@ OpenScenarioEditor::mouseAction(MouseAction *mouseAction)
 							OpenScenario::oscPrivateAction *privateAction = getOrCreatePrivateAction(oscObject->name.getValue());
 							OpenScenario::oscPosition *oscPosition = privateAction->Position.getOrCreateObject();
 							OpenScenario::oscRoad *oscRoad = oscPosition->Road.getOrCreateObject();
-							SetOSCValuePropertiesCommand<std::string> *roadCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscRoad, "roadId", road->getID().writeString().toStdString());
+							SetOSCValuePropertiesCommand<std::string> *roadCommand = new SetOSCValuePropertiesCommand<std::string>(oscElement, oscRoad, "roadId", road->getID().getName().toStdString());
 							getProjectGraph()->executeCommand(roadCommand);
 							SetOSCValuePropertiesCommand<double> *propertyCommand = new SetOSCValuePropertiesCommand<double>(oscElement, oscRoad, "s", s);
 							getProjectGraph()->executeCommand(propertyCommand);

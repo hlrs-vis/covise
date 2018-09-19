@@ -131,13 +131,23 @@ OSCBaseItem::init()
 						{
 
 	//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
-							odrID roadID(QString::fromStdString(oscPosRoad->roadId.getValue()));
-							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
-							if (road)
+							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+							RSystemElementRoad *road;
+							int i;
+							for (i = 0; i < idList.size(); i++)
+							{
+								road = roadSystem_->getRoad(idList.at(i));
+								if (road->getLength() > oscPosRoad->s.getValue())
+								{
+									break;
+								}
+							}
+
+							if (i < idList.size())
 							{
 								double s = oscPosRoad->s.getValue();
 								double t = oscPosRoad->t.getValue();
-								new OSCItem(element, this, object, catalog, oscPosRoad);
+								new OSCItem(element, this, object, catalog, oscPosRoad, road);
 							}
 						}
 						break;
@@ -291,11 +301,21 @@ OSCBaseItem:: updateObserver()
 						if (oscPosRoad)
 						{
 							//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
-							odrID roadID(QString::fromStdString(oscPosRoad->roadId.getValue()));
-							RSystemElementRoad *road = roadSystem_->getRoad(roadID);
-							if (road)
+							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+							RSystemElementRoad *road;
+							int i;
+							for (i = 0; i < idList.size(); i++)
 							{
-								new OSCItem(element, this, object, catalog, oscPosRoad);
+								road = roadSystem_->getRoad(idList.at(i));
+								if (road->getLength() > oscPosRoad->s.getValue())
+								{
+									break;
+								}
+							}
+							
+							if (i < idList.size())
+							{
+								new OSCItem(element, this, object, catalog, oscPosRoad, road);
 							}
 						}
 					}
