@@ -322,8 +322,8 @@ public:
         x.ray.tfar = 1;
         x.ray.tnear = 0;
         x.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-        x.hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
-        x.hit.instID[1] = RTC_INVALID_GEOMETRY_ID;
+        for (int i=0; i<RTC_MAX_INSTANCE_LEVEL_COUNT; ++i)
+            x.hit.instID[i] = RTC_INVALID_GEOMETRY_ID;
 
         RTCIntersectContext d;
         d.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;

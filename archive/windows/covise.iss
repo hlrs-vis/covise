@@ -337,6 +337,7 @@ Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-spray.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core

@@ -24,7 +24,7 @@ namespace opencover
 
 class InputDevice;
 
-class ButtonDevice: public InputSource
+class COVEREXPORT ButtonDevice: public InputSource
 {
     friend class Input;
     friend class coMousePointer;

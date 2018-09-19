@@ -698,8 +698,12 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 				if (nSize == 0) nSize = 1024;	// choose a chunk size
 
 				int8_t * isInvalidData = NULL;
-				if (scanHeader.pointFields.cartesianInvalidStateField)
-					isInvalidData = new int8_t[nSize];
+                isInvalidData = new int8_t[nSize];
+                if (!scanHeader.pointFields.cartesianInvalidStateField)
+                {
+                    for (int i = 0; i < nSize; i++)
+                        isInvalidData[i] = 0;
+                }
 
 
 				double * xData = NULL;
@@ -781,7 +785,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
 				e57::CompressedVectorReader dataReader = eReader.SetUpData3DPointsData(
 					scanIndex,			//!< data block index given by the NewData3D
-					nRow,				//!< size of each of the buffers given
+					nSize,				//!< size of each of the buffers given
 					xData,				//!< pointer to a buffer with the x data
 					yData,				//!< pointer to a buffer with the y data
 					zData,				//!< pointer to a buffer with the z data
@@ -806,8 +810,8 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
 				std::vector<Color> colors;
 				std::vector<::Point> points;
-				colors.resize(nPointsSize);
-				points.resize(nPointsSize);
+				colors.reserve(nPointsSize);
+				points.reserve(nPointsSize);
 
 				::Point point;
 				Color color;
@@ -816,7 +820,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 					for (unsigned int i = 0; i < size; i++)
 					{
 
-						if (isInvalidData[i] == 0)
+						if ( isInvalidData[i] == 0 && (xData[i]!=0.0 &&yData[i] != 0.0 &&zData[i] != 0.0))
 						{
 							osg::Vec3 p(xData[i], yData[i], zData[i]);
 							p = p * m;

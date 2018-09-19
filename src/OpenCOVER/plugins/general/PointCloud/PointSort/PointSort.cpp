@@ -118,9 +118,14 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 				int64_t nSize = nRow;
 				if (nSize == 0) nSize = 1024;	// choose a chunk size
 
-				int8_t * isInvalidData = NULL;
-				if (scanHeader.pointFields.cartesianInvalidStateField)
-					isInvalidData = new int8_t[nSize];
+
+                int8_t * isInvalidData = NULL;
+                isInvalidData = new int8_t[nSize];
+                if (!scanHeader.pointFields.cartesianInvalidStateField)
+                {
+                    for (int i = 0; i < nSize; i++)
+                        isInvalidData[i] = 0;
+                }
 
 
 				double * xData = NULL;

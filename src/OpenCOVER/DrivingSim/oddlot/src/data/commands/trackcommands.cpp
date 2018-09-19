@@ -2254,12 +2254,12 @@ TranslateTrackComponentsCommand::redo()
             iterLane++;
         }
 
- /*       QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
-        while ((iterLane != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i))
+        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i); // lane sections might have been too long because the length of the track element changed thus they are removed and a new one with correct length is added
+        while ((iterLaneAdd != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i)) // if this does not work and you want to remove this, make shure you also remove the removal of the lane section earlier.
         {
             roads_.at(i)->addLaneSection(iterLaneAdd.value());
             iterLaneAdd++;
-        } */
+        } 
 
 		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
 		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
@@ -2314,6 +2314,14 @@ TranslateTrackComponentsCommand::undo()
         {
             roads_.at(i)->addCrossfallSection(iterCrossfall.value());
             iterCrossfall++;
+        }
+
+
+        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
+        while ((iterLaneAdd != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i))
+        {
+            roads_.at(i)->delLaneSection(iterLaneAdd.value());
+            iterLaneAdd++;
         }
 
         QMap<int, LaneSection *>::const_iterator iterLane = laneSections_.find(i);

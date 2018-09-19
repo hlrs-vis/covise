@@ -49,7 +49,7 @@ void nodeVisitorVertex::apply(osg::Node &node)
                     int itr = 0;
                     while(pl[itr]->getName().compare("OBJECTS_ROOT") != 0)
                         itr++;
-                    for(itr; itr < pl.size(); itr++)
+                    for( ; itr < pl.size(); itr++)
                     {
                         if (auto nozzleMatrixTransform = dynamic_cast<osg::MatrixTransform *>(pl[itr]))
                         {
