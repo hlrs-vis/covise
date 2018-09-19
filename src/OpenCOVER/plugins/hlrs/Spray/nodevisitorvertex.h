@@ -8,12 +8,16 @@
 #ifndef NODEVISITORVERTEX_H
 #define NODEVISITORVERTEX_H
 
+#include <iostream>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/NodeVisitor>
 #include <osg/TriangleFunctor>
-#include <iostream>
+
 #include <cover/coVRPluginSupport.h>
+
+#include <vector>
 
 #include "raytracer.h"
 
@@ -32,11 +36,13 @@ private:
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
     osg::Geode *localGeodeTriangleStrip;
+    osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
-
+    std::string notTraverse = "";
 
     bool triFunc = true;
+    bool visualize = true;
 
 public:
         nodeVisitorVertex();
@@ -58,7 +64,7 @@ public:
             for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
             {
                 std::string compareString = *itr;
-                if(compareString.compare(node->getName()))
+                if(compareString.compare(node->getName()) == 0)
                     return true;
             }
             return false;
@@ -72,6 +78,16 @@ public:
             return localGeodeTriangle;
         }
 
+        osg::Vec3Array* getVertexArray()
+        {
+            return vertexCoords;
+        }
+
+        std::vector<osg::Node*> coNozzleList;
+        osg::Matrix getChildTransform()
+        {
+            return childTransform;
+        }
 };
 
 struct nodeVisitTriangle
@@ -84,8 +100,6 @@ public:
     {
         nvv_ = nvv;
     }
-
-
 };
 
 #endif // NODEVISITORVERTEX_H

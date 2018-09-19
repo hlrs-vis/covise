@@ -39,6 +39,14 @@ const float Pi = 3.141592653;
 class gen
 {
 private:
+    enum
+    {
+        CW_STOKES,
+        CW_MOLERUS,
+        CW_MUSCHELK,
+        CW_NONE
+    };
+
     coSphere* coSphere_;
     osg::Geode* geode_;
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
@@ -50,7 +58,7 @@ private:
     float tCur = 1;
 
 
-    std::string cwModelType = "STOKES";
+    int cwModelType = CW_MOLERUS;
 
     float densityOfFluid = 1.18;
     int reynoldsThreshold = 2230;
@@ -62,18 +70,19 @@ private:
     float deviation = 0.00005;
     int iterations = 4;
     float removeCount = 0.9;
+    float alpha = 0.4;
+    float gaussamp = 1;
 
     int outOfBoundCounter = 0;    
 
     void updateCoSphere();
-    float reynoldsNr(float v, double d);
 
 protected:
     std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
-    float initPressure_;
+    float initPressure_ = 2;
 
     void setCoSphere(osg::Vec3Array *pos);
 
@@ -81,7 +90,10 @@ public:
     gen(float pInit, class nozzle *owner);
     virtual ~gen();
 
-    void init();    
+    void init();
+
+    float gaussian(float value);
+    float reynoldsNr(float v, double d);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;
@@ -134,6 +146,18 @@ public:
     {
         removeCount = newRemoveCount;
     }
+
+    void setAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+        gaussamp = 1;
+        gaussamp = gaussian(0);
+    }
+
+    float getAlpha()
+    {
+        return alpha;
+    }
 };
 
 
@@ -144,7 +168,7 @@ private:
     pImageBuffer* iBuf_;
 public:
     imageGen(pImageBuffer* iBuf, float pInit, class nozzle* owner);
-    ~imageGen();
+    ~imageGen(){}
 
     void seed();
 };
