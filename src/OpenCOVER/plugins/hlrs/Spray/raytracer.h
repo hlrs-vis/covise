@@ -12,6 +12,8 @@
 #include "types.h"
 #include "gen.h"
 
+#define PROGRESS_SIZE 99999999
+
 struct Vertex   { float x,y,z/*,r*/;  };        //From tutorial
 struct Triangle { int v0, v1, v2; };        //From tutorial
 
@@ -264,11 +266,19 @@ public:
 
         RTCGeometry mesh = rtcNewGeometry(gDevice, geoType);
 
-        Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),coords->size());
-
+        int progressInVector = 0;
+        int currentProgress = 0;
         osg::Vec3Array::iterator itr = coords->begin();
 
-        for(int i = 0; i< coords->size(); i++)
+        while(progressInVector < coords->size())
+        {
+            if(coords->size() < PROGRESS_SIZE)
+                currentProgress = coords->size();
+            if(coords->size() - progressInVector < PROGRESS_SIZE)
+                currentProgress = coords->size()-progressInVector;
+        Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),currentProgress);
+
+        for(int i = 0; i< currentProgress; i++)
         {
             osg::Vec3 buf = *itr;
             vertices[i].x = buf.x();
@@ -276,7 +286,7 @@ public:
             vertices[i].z = buf.y();
             itr++;
         }
-        int numOfFaces = coords->size()/3;
+        int numOfFaces = currentProgress/3;
         Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
 
         for(int fItr = 0; fItr < numOfFaces; fItr++)
@@ -292,7 +302,11 @@ public:
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
         geoIDList.push_back(geomID);
         rtcReleaseGeometry(mesh);
-        return geomID;
+
+        progressInVector += PROGRESS_SIZE;
+        printf("Number of Iterations %i", progressInVector/PROGRESS_SIZE);
+        }
+        return 1;
     }
 
     float checkForHit(particle p, float time)
