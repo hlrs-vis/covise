@@ -295,6 +295,14 @@ void nozzle::setNozzleGeometryNode(osg::Node* node)
     }
 }
 
+void nozzle::setScale(float newScale)
+{
+    scale = newScale;
+    osg::Matrix scaleMatrix = nozzleScale->getMatrix();
+    scaleMatrix.makeScale(newScale, newScale, newScale);
+    nozzleScale->setMatrix(scaleMatrix);
+}
+
 
 
 
