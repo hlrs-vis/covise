@@ -225,6 +225,25 @@ bool SprayPlugin::init()
             }
     });
 
+    ui::EditField* numParticleField = new ui::EditField(globalActions, "Num of Particles");
+    numParticleField->setValue(parser::instance()->getReqParticles());
+    numParticleField->setCallback([this](std::string cmd)
+    {
+        try
+        {
+            int numParticles = stof(cmd);
+            parser::instance()->setNumParticles(numParticles);
+            raytracer::instance()->setNumRays(numParticles);
+
+        }//try
+
+        catch(const std::invalid_argument& ia)
+        {
+            std::cerr << "Invalid argument: " << ia.what() << std::endl;
+            newColor.x() = 1;
+        }//catch
+    });
+
     nozzleActions = new ui::Group(sprayMenu_, "Nozzle Actions");
 
     nozzleIDL = new ui::SelectionList(nozzleActions, "nozzleSelection");
@@ -372,6 +391,20 @@ bool SprayPlugin::init()
                 alphaSlider_->setText("Gaussian Alpha Value");
                 alphaSlider_->setBounds(0.1, 1);
                 alphaSlider_->setValue(editNozzle->getAlpha());
+                alphaSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setAlpha(value);
+                });
+
+
+                sizeSlider_ = new ui::Slider(nozzleEditMenu_, "sliderSize");
+                sizeSlider_->setText("Size of Nozzle");
+                sizeSlider_->setBounds(0.1, 100);
+                sizeSlider_->setValue(editNozzle->getScale());
+                sizeSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setScale(value);
+                });
 
                 rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
                 rMinimum->setValue(editNozzle->getMinimum()*1000000);
@@ -843,6 +876,7 @@ void SprayPlugin::updateEditContext()
     alpha_->setValue(editNozzle->getColor().x());
     pressureSlider_->setValue(editNozzle->getInitPressure());
     alphaSlider_->setValue(editNozzle->getAlpha());
+    sizeSlider_->setValue(editNozzle->getScale());
     rotX->setValue(editNozzle->getMatrix().getRotate().x());
     rotY->setValue(editNozzle->getMatrix().getRotate().y());
     rotZ->setValue(editNozzle->getMatrix().getRotate().z());

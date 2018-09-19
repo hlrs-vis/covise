@@ -51,6 +51,7 @@ private:
     float minimum = 0.000025;
     float deviation = 0.00005;
     float alpha = 0.4;
+    float scale = 1;
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Group* interactorGroup;
@@ -231,6 +232,13 @@ public:
     }
 
     void setNozzleGeometryNode(osg::Node* node);
+
+    void setScale(float newScale);
+
+    float getScale()
+    {
+        return scale;
+    }
 
 };
 

@@ -28,11 +28,16 @@ private:
         rtcReleaseDevice(gDevice);
     }
 
-    RTCDevice gDevice = rtcNewDevice("start_threads=1,set_affinity=1,hugepages=1");    //
+    RTCDevice gDevice = rtcNewDevice("start_threads=1,set_affinity=1,hugepages=1");
     RTCScene rScene_ = nullptr;
     std::list<RTCGeometry> geoList;
     std::list<unsigned int> geoIDList;
     bool comitted = false;
+    int numRays = 0;
+
+    RTCRayHit* x;
+    RTCIntersectContext* d;
+    osg::Vec3 vTemp;
 
 public:
     static raytracer* instance()
@@ -44,6 +49,9 @@ public:
     void init()
     {
         rScene_ = rtcNewScene(gDevice);
+        numRays = parser::instance()->getReqParticles();
+        x = new RTCRayHit[numRays];
+        d = new RTCIntersectContext[numRays];
     }
 
     int addGeometry(RTCGeometry geo)
@@ -78,6 +86,18 @@ public:
     {
         comitted = true;
         rtcCommitScene(rScene_);
+    }
+
+    int getNumRays()
+    {
+        return numRays;
+    }
+
+    void setNumRays(int newNumRays)
+    {
+        numRays = newNumRays;
+        x = new RTCRayHit[numRays];
+        d = new RTCIntersectContext[numRays];
     }
 
     int createCube(osg::Vec3 center, osg::Vec3 scale)
@@ -235,8 +255,6 @@ public:
         unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
         rtcReleaseGeometry(mesh);
         return geomID;
-
-
     }
 
     int createFaceSet(osg::Vec3Array* coords, int type = 0) //type = 0 for triangles, type = 1 for quads
@@ -259,24 +277,12 @@ public:
             itr++;
         }
         int numOfFaces = coords->size()/3;
-//        if(type == 0)
-//            numOfFaces = coords->size()/3;
-//        else
-//            numOfFaces = coords->size()/4;
         Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
 
-//        if(type == 0)
-            for(int fItr = 0; fItr < numOfFaces; fItr++)
-            {
-                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
-            }
-//        if(type == 1)
-//            for(int fItr = 0; fItr < numOfFaces; fItr+=2)
-//            {
-//                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
-//                triangles[fItr+1] = {fItr*numOfVertices, fItr*numOfVertices+2, fItr*numOfVertices+3};
-//            }
-
+        for(int fItr = 0; fItr < numOfFaces; fItr++)
+        {
+            triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
+        }
 
         rtcSetGeometryVertexAttributeCount(mesh,1);
 
@@ -287,8 +293,6 @@ public:
         geoIDList.push_back(geomID);
         rtcReleaseGeometry(mesh);
         return geomID;
-
-
     }
 
     float checkForHit(particle p, float time)
@@ -323,10 +327,7 @@ public:
     }
 
     inline void checkAllHits(std::vector<particle*> &p, float time)
-    {
-        RTCRayHit* x = new RTCRayHit[p.size()];
-        RTCIntersectContext* d = new RTCIntersectContext[p.size()];
-        osg::Vec3 vTemp;
+    {        
         for(int i = 0; i < p.size(); i++)
         {
             if(p[i]->particleOutOfBound)
