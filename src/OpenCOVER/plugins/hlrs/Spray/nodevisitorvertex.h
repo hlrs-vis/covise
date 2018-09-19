@@ -38,7 +38,6 @@ private:
     osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
-    std::string notTraverse = "";
 
     bool triFunc = true;
     bool visualize = false;
@@ -106,6 +105,7 @@ private:
     nodeVisitorVertex* nvv_;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
+    //void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setNVV(nodeVisitorVertex* nvv)
     {
         nvv_ = nvv;
