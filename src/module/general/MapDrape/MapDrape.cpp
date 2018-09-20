@@ -359,13 +359,21 @@ void MapDrape::openImage(std::string &name)
         pafScanline = (float *)CPLMalloc(sizeof(float)*nXSize);
         for (int i = 0; i < rows; i++)
         {
-            heightBand->RasterIO(GF_Read, 0, i, nXSize, 1,
+            if (heightBand->RasterIO(GF_Read, 0, i, nXSize, 1,
                 pafScanline, nXSize, 1, GDT_Float32,
-                0, 0);
+                0, 0) == CE_Failure)
+            {
+                std::cerr << "MapDrape::openImage: GDALRasterBand::RasterIO failed" << std::endl;
+                break;
+            }
             memcpy(&(rasterData[(i*cols)]), pafScanline, nXSize * sizeof(float));
         }
 
-        heightBand->ReadBlock(0, 0, rasterData);
+        if (heightBand->ReadBlock(0, 0, rasterData) == CE_Failure)
+        {
+            std::cerr << "MapDrape::openImage: GDALRasterBand::ReadBlock failed" << std::endl;
+            return;
+        }
 
 		adfMinMax[0] = heightBand->GetMinimum(&bGotMin);
 		adfMinMax[1] = heightBand->GetMaximum(&bGotMax);
