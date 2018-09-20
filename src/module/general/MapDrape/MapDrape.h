@@ -53,6 +53,15 @@ protected:
 	projPJ pj_from, pj_to;
 	std::string dir;
 
+    float *rasterData=NULL;
+
+    double xOrigin;
+    double yOrigin;
+    double pixelWidth;
+    double pixelHeight;
+    int cols;
+    int rows;
+
 public:
     /// constructor
     MapDrape(int argc, char *argv[]);
