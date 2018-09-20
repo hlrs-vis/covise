@@ -55,7 +55,7 @@ private:
     bool doPrint = false;
 
     TrackingBody* tbVive;
-    TrackingBody* tbART;
+    TrackingBody* tbTracker;
     ButtonDevice* buttonsVive;
 };
 #endif

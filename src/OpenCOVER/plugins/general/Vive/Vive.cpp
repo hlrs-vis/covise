@@ -204,7 +204,7 @@ bool Vive::init()
 
 	coVRConfig::instance()->OpenVR_HMD = true;
 
-	m_transformOriginToCamera=covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToCamera",false);
+	m_transformOriginToLighthouse =covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToLighthouse",false);
 
 
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
@@ -281,7 +281,8 @@ void Vive::postFrame()
 {
 
 
-	size_t controllerNumber = 0;
+    size_t controllerNumber = 0;
+    size_t trackerNumber = 0;
 	size_t baseStationNumber = 0;
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
@@ -298,7 +299,7 @@ void Vive::postFrame()
 			    case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; numControllers++; break;
 			    case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 			    case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-			    case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
+                case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; numTrackers++;  break;
 			    case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
 			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
@@ -307,7 +308,7 @@ void Vive::postFrame()
 			if (it != serialID.end())
 			{
 				idx = it->second.ID;
-				controllerNumber = it->second.controllerID+1; // +1 because we remote 1 afterwards (see below)
+				controllerNumber = it->second.controllerID+1; // +1 because we remove 1 afterwards (see below)
 				if (controllerNumber > numControllers)
 					numControllers = controllerNumber;
 			}
@@ -320,11 +321,11 @@ void Vive::postFrame()
 				// 2 -- last base station
 				// 3 -- first Vive controller
 				// 4 -- second Vive controller
-				size_t firstBaseStationIdx = 1, lastBaseStationIdx = 2, firstControllerIdx = 3;
+				size_t firstBaseStationIdx = 1, lastBaseStationIdx = 2, firstControllerIdx = 3, firstTrackerIdx = 5;
 
 				switch (m_rDevClassChar[nDevice])
 				{
-				case 'T': // a tracking camera
+				case 'T': // a lighthouse
 					idx = firstBaseStationIdx + baseStationNumber;
 					++baseStationNumber;
 					if (idx > lastBaseStationIdx)
@@ -337,6 +338,10 @@ void Vive::postFrame()
 					idx = firstControllerIdx + controllerNumber;
 					++controllerNumber;
 					break;
+                case 'G': //a controller
+                    idx = firstTrackerIdx + trackerNumber;
+                    ++trackerNumber;
+                    break;
 				case 'H':// the HMD
 					idx = 0;
 					break;
@@ -360,16 +365,12 @@ void Vive::postFrame()
 		}
 	}
 
-	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
 
-	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
-	if (maxBodyNumber + 1 > bodyMatSize)
-		bodyMatSize = maxBodyNumber;
-	if (bodyMatSize > m_bodyMatrices.size())
+	if (maxBodyNumber > m_bodyMatrices.size())
 	{
 		m_mutex.lock();
-		m_bodyMatrices.resize(bodyMatSize);
-		m_bodyMatricesValid.resize(bodyMatSize);
+		m_bodyMatrices.resize(maxBodyNumber);
+		m_bodyMatricesValid.resize(maxBodyNumber);
 		m_mutex.unlock();
 	}
 	if (numControllers * 4 > m_buttonStates.size())
@@ -408,15 +409,15 @@ void Vive::postFrame()
 			m_bodyMatrices[m_DeviceID[nDevice]](3, 1) *= 1000;
 			m_bodyMatrices[m_DeviceID[nDevice]](3, 2) *= 1000;
 			
-			if (m_transformOriginToCamera)
+			if (m_transformOriginToLighthouse)
 			{
 				m_bodyMatrices[m_DeviceID[nDevice]] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 			}
 
 		}
 	}
-	// get the transform matrix from 1st camera if we need that
-	if (!haveTrackerOrigin && haveBaseStation && m_transformOriginToCamera)
+	// get the transform matrix from 1st Lighthouse if we need that
+	if (!haveTrackerOrigin && haveBaseStation && m_transformOriginToLighthouse)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
