@@ -137,7 +137,6 @@ if (BASEARCHSUFFIX STREQUAL "cray64")
 else()
     OPTION(COVISE_USE_OSMESA "Use OSMesa OpenGL library for off-screen CPU rendering" OFF)
 endif()
-OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
@@ -197,10 +196,6 @@ endif()
 
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
 OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
-
-if(NOT COVISE_USE_CPP11)
-    set(COVISE_USE_VISIONARAY OFF)
-endif()
 
 IF(COVISE_USE_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)

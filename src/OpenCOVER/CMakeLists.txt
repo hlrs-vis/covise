@@ -18,7 +18,6 @@ set(COVISE_BUILDING_COVER TRUE)
 
 if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-    option(COVISE_USE_CPP11 "enable C++ 11 features" ON)
     option(COVISE_USE_CUDA "Use CUDA" ON)
     option(COVISE_USE_MPI "Use MPI" ON)
     option(COVISE_USE_VIRVO "Use Virvo volume rendering library" ON)
