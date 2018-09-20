@@ -582,7 +582,7 @@ archive_streambuf::archive_streambuf(const fs::File *file) {
 archive_streambuf::~archive_streambuf() {
 #ifdef HAVE_LIBZIP
     if (zip) {
-        auto z = static_cast<zip_file_t *>(zip);
+        auto z = static_cast<zip_file *>(zip);
         zip_fclose(z);
     }
     else
@@ -600,7 +600,7 @@ archive_streambuf::~archive_streambuf() {
 std::streambuf::int_type archive_streambuf::underflow() {
 #ifdef HAVE_LIBZIP
     if (zip) {
-        auto z = static_cast<zip_file_t *>(zip);
+        auto z = static_cast<zip_file *>(zip);
         auto n = zip_fread(z, buf, sizeof(buf));
         if (n < 0) {
             return EOF;
