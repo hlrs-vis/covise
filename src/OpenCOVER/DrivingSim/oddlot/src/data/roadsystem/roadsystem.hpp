@@ -161,7 +161,7 @@ public:
 	odrID getID(odrID::IDType t);// creates a unique ID with name unknown in current Tile
 	odrID getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t);
 
-	QList<odrID> findID(QString &name, odrID::IDType t);
+	QList<odrID> findID(const QString &name, odrID::IDType t);
 
 	void StringToNumericalIDs(const QMap<odrID, odrID> &idMap);
     void changeUniqueId(RSystemElement *element, const odrID &newId);

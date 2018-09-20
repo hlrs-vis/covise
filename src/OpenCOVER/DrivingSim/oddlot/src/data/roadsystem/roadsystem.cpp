@@ -652,7 +652,7 @@ int RoadSystem::uniqueID()
 	return lastID;
 }
 
-QList<odrID> RoadSystem::findID(QString &name, odrID::IDType type)
+QList<odrID> RoadSystem::findID(const QString &name, odrID::IDType type)
 {
 	QList<odrID> idList;
 	if (type == odrID::ID_Road)
