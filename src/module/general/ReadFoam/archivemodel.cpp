@@ -5,6 +5,10 @@
 #include <archive_entry.h>
 #endif
 
+#ifdef HAVE_LIBZIP
+#include <zip.h>
+#endif
+
 #include <boost/algorithm/string/split.hpp>
 
 #include <algorithm>
@@ -248,66 +252,106 @@ bool Path::exists() const {
     return model->exists(*this);
 }
 
+class ModelPrivate {
+    friend class Model;
+    friend class ::archive_streambuf;
+
+public:
+    ~ModelPrivate() {
+#ifdef HAVE_LIBZIP
+        if (zipfile)
+            zip_close(zipfile);
+#endif
+    }
+
+#ifdef HAVE_LIBZIP
+    struct zip *zipfile = nullptr;
+#endif
+};
 
 Model::Model(const std::string &archiveOrDirectory)
     : container(archiveOrDirectory)
     , root(this)
 {
-#if 0
-    if (bf::is_directory(archiveOrDirectory)) {
-        archive = false;
-
-        return;
+    d.reset(new ModelPrivate);
+#ifdef HAVE_LIBZIP
+    d->zipfile = zip_open(archiveOrDirectory.c_str(), 0, nullptr);
+    if (d->zipfile) {
+        archive = true;
+        auto nument = zip_get_num_entries(d->zipfile, 0);
+        for (auto idx=0; idx<nument; ++idx) {
+            std::string pathname = zip_get_name(d->zipfile, idx, 0);
+            if (auto file = dynamic_cast<File *>(addPath(pathname))) {
+                file->index = idx;
+            }
+        }
     }
 #endif
 
+    if (!archive) {
 #ifdef HAVE_LIBARCHIVE
-    archive = true;
-    struct archive *a = archive_read_new();
-    Cleaner archiveCleaner([a](){
-        archive_read_free(a);
-    });
+        archive = true;
+        struct archive *a = archive_read_new();
+        Cleaner archiveCleaner([a](){
+            archive_read_free(a);
+        });
 
-    archive_read_support_format_zip(a);
-    archive_read_support_format_tar(a);
-    int r = archive_read_open_filename(a, archiveOrDirectory.c_str(), 102400);
-    if (r != ARCHIVE_OK) {
-        throw std::runtime_error("failed to open archive " + archiveOrDirectory);
-    }
+        archive_read_support_format_zip(a);
+        archive_read_support_format_tar(a);
+        int r = archive_read_open_filename(a, archiveOrDirectory.c_str(), 102400);
+        if (r != ARCHIVE_OK) {
+            throw std::runtime_error("failed to open archive " + archiveOrDirectory);
+        }
 
-    File *prev = nullptr;
-    struct archive_entry *entry = nullptr;
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+#ifndef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+        File *prev = nullptr;
+#endif
+        struct archive_entry *entry = nullptr;
+        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+#ifndef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+            if (prev) {
+                prev->offset = (archive_read_header_position(a) - prev->size) & ~(int64_t)0x1ff;
+                //std::cerr << prev->path().string() << " OFFSET: " << prev->offset << std::endl;
+            }
+#endif
+            std::string pathname = archive_entry_pathname(entry);
+            auto type = archive_entry_filetype(entry);
+#ifndef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+            prev = nullptr;
+#endif
+            if (type == AE_IFDIR) {
+                auto dir = dynamic_cast<Directory *>(addPath(pathname));
+            } else if (type == AE_IFREG) {
+                auto file = dynamic_cast<File *>(addPath(pathname));
+                if (file) {
+                    size_t sz = archive_entry_size(entry);
+                    file->size = sz;
+#ifdef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+                    int64_t off = archive_read_current_position(a);
+#else
+                    int64_t off = archive_read_header_position(a);
+#endif
+                    file->offset = off;
+                    //std::cerr << file->path().string() << " OFFSET: " << file->offset  << "+" << file->size << std::endl;
+                }
+#ifndef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+                prev = file;
+#endif
+            }
+            //archive_read_data_skip(a); // not necessary, and might be detrimental to performance
+        }
+#ifndef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
         if (prev) {
             prev->offset = (archive_read_header_position(a) - prev->size) & ~(int64_t)0x1ff;
             //std::cerr << prev->path().string() << " OFFSET: " << prev->offset << std::endl;
         }
-        std::string pathname = archive_entry_pathname(entry);
-        auto type = archive_entry_filetype(entry);
-        prev = nullptr;
-        if (type == AE_IFDIR) {
-            auto dir = dynamic_cast<Directory *>(addPath(pathname));
-        } else if (type == AE_IFREG) {
-            auto file = dynamic_cast<File *>(addPath(pathname));
-            if (file) {
-                int64_t off = archive_read_header_position(a);
-                size_t sz = archive_entry_size(entry);
-                file->offset = off;
-                file->size = sz;
-                //std::cerr << file->path().string() << " OFFSET: " << file->offset  << "+" << file->size << std::endl;
-            }
-            prev = file;
-        }
-        archive_read_data_skip(a);
-    }
-    if (prev) {
-        prev->offset = (archive_read_header_position(a) - prev->size) & ~(int64_t)0x1ff;
-        //std::cerr << prev->path().string() << " OFFSET: " << prev->offset << std::endl;
-    }
+#endif
 #else
 
-    throw std::runtime_error("failed to open archive " + archiveOrDirectory + ": not compiled with libarchive");
+        if (!archive)
+            throw std::runtime_error("failed to open archive " + archiveOrDirectory + ": not compiled with libarchive");
 #endif
+    }
 }
 
 Model::operator Directory() const {
@@ -495,53 +539,88 @@ archive_streambuf::archive_streambuf(const fs::File *file) {
 
     auto &container = file->model->container;
 
+#ifdef HAVE_LIBZIP
+    if (file->index >= 0) {
+        auto &zipfile = file->model->d->zipfile;
+        zip = zip_fopen_index(zipfile, file->index, 0);
+    }
+    else
+#endif
+
 #ifdef HAVE_LIBARCHIVE
-    auto a = archive_read_new();
-    archive = a;
-    archive_read_support_format_tar(a);
-    archive_read_support_format_zip(a);
-    int r = archive_read_open_filename(a, container.c_str(), sizeof(buf));
-    if (r != ARCHIVE_OK) {
-        archive_read_free(a);
-        throw std::runtime_error("failed to open archive " + container);
-    }
-
-    struct archive_entry *entry = nullptr;
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-        std::string pathname = archive_entry_pathname(entry);
-        if (pathname == file->pathname) {
-            auto type = archive_entry_filetype(entry);
-            assert(type == AE_IFREG);
-            size_t sz = archive_entry_size(entry);
-            return;
+    {
+        auto a = archive_read_new();
+        archive = a;
+        archive_read_support_format_tar(a);
+        archive_read_support_format_zip(a);
+        int r = archive_read_open_filename(a, container.c_str(), sizeof(buf));
+        if (r != ARCHIVE_OK) {
+            archive_read_free(a);
+            throw std::runtime_error("failed to open archive " + container);
         }
-    }
 
-    archive_read_free(a);
-    archive = nullptr;
-    throw std::runtime_error("did not find " + file->pathname + " in archive " + container);
+        struct archive_entry *entry = nullptr;
+        while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+            std::string pathname = archive_entry_pathname(entry);
+            if (pathname == file->pathname) {
+                auto type = archive_entry_filetype(entry);
+                assert(type == AE_IFREG);
+                size_t sz = archive_entry_size(entry);
+                return;
+            }
+        }
+
+        archive_read_free(a);
+        archive = nullptr;
+        throw std::runtime_error("did not find " + file->pathname + " in archive " + container);
+    }
 #else
     throw std::runtime_error("cannot read from " + file->pathname + " from " + container + ": not compiled with libarchive");
 #endif
 }
 
 archive_streambuf::~archive_streambuf() {
+#ifdef HAVE_LIBZIP
+    if (zip) {
+        auto z = static_cast<zip_file_t *>(zip);
+        zip_fclose(z);
+    }
+    else
+#endif
 #ifdef HAVE_LIBARCHIVE
+    {
     auto a = static_cast<struct archive *>(archive);
     archive_read_close(a);
     archive_read_free(a);
     archive = nullptr;
+    }
 #endif
 }
 
 std::streambuf::int_type archive_streambuf::underflow() {
+#ifdef HAVE_LIBZIP
+    if (zip) {
+        auto z = static_cast<zip_file_t *>(zip);
+        auto n = zip_fread(z, buf, sizeof(buf));
+        if (n < 0) {
+            return EOF;
+        }
+        if (n == 0)
+            return EOF;
+        nread += n;
+        setg(buf, buf, buf+n);
+    }
+    else
+#endif
 #ifdef HAVE_LIBARCHIVE
+    {
     auto a = static_cast<struct archive *>(archive);
     auto n = archive_read_data(a, buf, sizeof(buf));
     if (n == 0)
         return EOF;
     nread += n;
     setg(buf, buf, buf+n);
+    }
 #endif
     return traits_type::to_int_type(*gptr());
 }
