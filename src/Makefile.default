@@ -7,7 +7,7 @@ BUILDDIR_PREFIX=$(COVISEDIR)/build
 else
 BUILDDIR_PREFIX=$(COVISEDIR)/$(ARCHSUFFIX)/build
 endif
-INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
+#INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
 ifeq ($(INOPENCOVER),)
    PROJBUILDDIR=$(BUILDDIR_PREFIX).covise
    RELBUILDDIR=$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR);;" -e "s;^$(PROJDIR);;" -e "s;^/;;")
