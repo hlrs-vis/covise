@@ -26,10 +26,11 @@ private:
 
 
 	coStringParam *p_mapping_from_;
-	coStringParam *p_mapping_to_;
+    coStringParam *p_mapping_to_;
 	coFloatVectorParam *p_offset_;
     // Draping geotif
     coFileBrowserParam *p_heightfield_;
+    coBooleanParam *p_mapSourceCS;
 
 	GDALDataset  *heightDataset;
 	GDALRasterBand  *heightBand;

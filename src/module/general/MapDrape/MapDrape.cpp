@@ -59,18 +59,24 @@ MapDrape::MapDrape(int argc, char *argv[])
 	p_offset_ = addFloatVectorParam("offset", "offset");
 	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
 	p_heightfield_->setValue("/tmp/foo.tif", "*.tif");
+    p_mapSourceCS = addBooleanParam("heightmap_is_in_source_cs", "heightmap_is_in_source_cs");
+    p_mapSourceCS->setValue(true);
+
 }
 
 
 int
 MapDrape::compute(const char *)
 {
-
+    heightDataset = 0;
 	const char *imageName = p_heightfield_->getValue();
 	if (imageName)
 	{
 		std::string name = imageName;
-		openImage(name);
+        if (name.length() > 0)
+        {
+            openImage(name);
+        }
 	}
 	p_offset_->getValue(Offset[0], Offset[1], Offset[2]);
 
@@ -299,15 +305,24 @@ MapDrape::compute(const char *)
 
 void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float *zIn, float *xOut, float *yOut, float *zOut)
 {
+    bool source = p_mapSourceCS->getValue();
 	for (int i = 0; i < numCoords; i++)
 	{
 
 		double x = xIn[i] * DEG_TO_RAD;
 		double y = yIn[i] * DEG_TO_RAD;
 		double z = zIn[i];
-		if (heightDataset)
-			z = getAlt(xIn[i], yIn[i]);
+        if(source)
+        {
+            if (heightDataset)
+                z = getAlt(xIn[i], yIn[i]);
+        }
 		pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
+        if (!source)
+        {
+            if (heightDataset)
+                z = getAlt(x, y);
+        }
 
 		xOut[i] = x + Offset[0];
 		yOut[i] = y + Offset[1];
