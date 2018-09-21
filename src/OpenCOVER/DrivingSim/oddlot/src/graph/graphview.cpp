@@ -166,12 +166,20 @@ GraphView::shapeEditing(bool edit)
 	if (edit)
 	{
 		doShapeEdit_ = true;
+		foreach(QGraphicsItem *item, items())
+		{
+			item->setEnabled(false);
+		}
 		shapeItem_ = new GraphViewShapeItem(this, x(), y(), width(), height());
 		scene()->addItem(shapeItem_);
 	}
 	else if (doShapeEdit_)
 	{
 		doShapeEdit_ = false;
+		foreach(QGraphicsItem *item, items())
+		{
+			item->setEnabled(true);
+		}
 		//               splineControlPoints_.clear();
 		if (scene())
 		{

@@ -22,6 +22,7 @@
 
 class ProjectData;
 class TopviewGraph;
+class RoadSystem;
 class RSystemElementRoad;
 class CatalogTreeWidget;
 
@@ -99,8 +100,8 @@ public:
 		return oscRoadSystemItem_;
 	}
 
-    void addGraphToObserver(const QVector<QPointF> &controlPoints);
-    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints);
+    void addGraphToObserver(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
+    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
 
 	void enableSplineEditing(bool state);
 
@@ -135,6 +136,7 @@ private:
 
 	// RoadSystem //
 	//
+	RoadSystem *roadSystem_;
 	 OSCRoadSystemItem * oscRoadSystemItem_;
 
 	// MainWindow //
