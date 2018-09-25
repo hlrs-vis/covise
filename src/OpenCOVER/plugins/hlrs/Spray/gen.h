@@ -84,6 +84,7 @@ protected:
     class nozzle* owner_;
     int particleCount_ = 1000;
     float initPressure_ = 2;
+    float vInit = 0;
 
     void setCoSphere(osg::Vec3Array *pos);
 
@@ -94,7 +95,7 @@ public:
     void init();
 
     float gaussian(float value);
-    float reynoldsNr(float v, double d);
+    float reynoldsNr(float vInit, double d);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;

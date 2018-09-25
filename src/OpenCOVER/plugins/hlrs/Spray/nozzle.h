@@ -240,6 +240,8 @@ public:
         return scale;
     }
 
+    void deleteAllGen();
+
 };
 
 
@@ -268,6 +270,16 @@ public:
 class imageNozzle : public nozzle
 {
 private:
+    enum
+    {
+        R_CANAL,
+        G_CANAL,
+        B_CANAL,
+        RG_CANAL,
+        RB_CANAL,
+        RGB_CANAL,
+        GB_CANAL
+    };
     std::string fileName_;
     std::string pathName_;
 
@@ -275,9 +287,11 @@ private:
 
     int samplingPoints = 1000;
 
-    float pixel_to_mm_;
-    float pixel_to_flow_;
-    int colorDepth_;
+    float pixel_to_mm_ = 0;
+    float pixel_to_flow_ = 0;
+    float pixel_to_radius_ = 0;
+    float pixel_to_velocity_ = 0;
+    int colorDepth_ = 3;
     int colorThreshold_ = 100;
 
 

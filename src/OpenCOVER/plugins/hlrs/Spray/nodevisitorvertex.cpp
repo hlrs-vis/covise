@@ -22,10 +22,9 @@ nodeVisitorVertex::nodeVisitorVertex():osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
 
 
 void nodeVisitorVertex::apply(osg::Node &node)
-{    
+{
     //    std::clock_t begin = clock();
 
-    //std::cout << "Name of node " << node.getName() << std::endl;
     if(checkBlacklist(&node))
     {
         return;
@@ -40,7 +39,6 @@ void nodeVisitorVertex::apply(osg::Node &node)
     if(auto transform = dynamic_cast<osg::MatrixTransform*>(&node))
     {
         //std::clock_t begin = clock();
-        std::cout << "Name of node " << node.getName() << std::endl;
         osg::Matrix saved = childTransform;
 
         childTransform = transform->getMatrix()*childTransform;

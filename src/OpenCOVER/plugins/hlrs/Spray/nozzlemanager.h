@@ -100,6 +100,8 @@ public:
     {
         return currentBoundingBox;
     }
+
+    void removeAllParticles();
 };
 
 

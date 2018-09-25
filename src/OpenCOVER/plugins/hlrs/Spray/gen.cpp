@@ -77,7 +77,6 @@ gen::gen(float pInit, class nozzle* owner)
 gen::~gen()
 {
     pVec.erase(pVec.begin(), pVec.end());
-    cover->getObjectsRoot()->removeChild(transform_.get());
     geode_->removeDrawable(coSphere_);
 }
 
@@ -187,7 +186,8 @@ void gen::updatePos(osg::Vec3 boundingBox)
             {
                 p->particleOutOfBound = true;                                               //particle has hit an object
                 p->pos += p->velocity*timesteps*elapsedTime;
-                coSphere_->setColor(i,0,0,1,1);
+                float hitColor = p->velocity.length()/vInit;
+                coSphere_->setColor(i,hitColor,hitColor,hitColor,1);
             }
 
             else
@@ -257,7 +257,8 @@ void gen::updateAll(osg::Vec3 boundingBox)
         {
             p->particleOutOfBound = true;                                               //particle has hit an object
             p->pos += p->velocity*tCur*p->time;
-            coSphere_->setColor(i,0,0,1,1);
+            float hitColor = 4*p->velocity.length()/vInit;
+            coSphere_->setColor(i,0,0,hitColor,1);
         }
 
         else
@@ -313,6 +314,13 @@ imageGen::imageGen(pImageBuffer* iBuf, float pInit, class nozzle* owner):gen(pIn
 void imageGen::seed(){
     int newParticleCount = 0;                                                               //Evaluated pixel != emitted pixels
     osg::Vec3Array* pos = new osg::Vec3Array;
+    float vMed = 0;
+
+    if(iBuf_->numOfEntries == 5)
+        vInit = sqrt(2*initPressure_*100000/densityOfParticle);                                 //Initial speed of particles
+    else if(iBuf_->numOfEntries == 7)
+        vInit = 0;
+
     for(int i = 0; i < iBuf_->samplingPoints; i++)
     {
         for(int j = 0; j < (int)iBuf_->dataBuffer[i*5+4]+1; j++){
@@ -329,16 +337,24 @@ void imageGen::seed(){
             p->pos.x() = duese.x()+spitze.x()*offset;
             p->pos.y() = duese.y()+spitze.y()*offset;
             p->pos.z() = duese.z()+spitze.z()*offset;
-            p->r = (getMinimum()+getDeviation()*gaussian(massRand))*0.5;
+            if(iBuf_->numOfEntries > 5)
+                p->r = iBuf_->dataBuffer[i*iBuf_->numOfEntries+5];
+            else
+                p->r = (getMinimum()+getDeviation()*gaussian(massRand))*0.5;
             p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
-            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Considers distribution around center
-            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*5+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
 
-            float v = sqrt(2*initPressure_*100000/densityOfParticle);                           //Initial speed of particle
+            if(iBuf_->numOfEntries == 7)
+            {
+                vInit = iBuf_->dataBuffer[i*iBuf_->numOfEntries+6];
+                vMed += vInit;
+            }
 
-            p->velocity.x() = v*sin(iBuf_->dataBuffer[i*5])*cos(iBuf_->dataBuffer[i*5+1]) + xdist;
-            p->velocity.y() = v*cos(iBuf_->dataBuffer[i*5]);
-            p->velocity.z() = v*sin(iBuf_->dataBuffer[i*5])*sin(iBuf_->dataBuffer[i*5+1]) + ydist;
+            float xdist = cos(2*Pi/iBuf_->dataBuffer[i*iBuf_->numOfEntries+4]*j)*0.01;                       //Considers distribution around center
+            float ydist = sin(2*Pi/iBuf_->dataBuffer[i*iBuf_->numOfEntries+4]*j)*0.01;                       //Otherwise all particles would travel the same trajectory
+
+            p->velocity.x() = vInit*sin(iBuf_->dataBuffer[i*iBuf_->numOfEntries])*cos(iBuf_->dataBuffer[i*iBuf_->numOfEntries+1]) + xdist;
+            p->velocity.y() = vInit*cos(iBuf_->dataBuffer[i*iBuf_->numOfEntries]);
+            p->velocity.z() = vInit*sin(iBuf_->dataBuffer[i*iBuf_->numOfEntries])*sin(iBuf_->dataBuffer[i*iBuf_->numOfEntries+1]) + ydist;
 
 
             sprayPos.setTrans(0,0,0);
@@ -352,6 +368,12 @@ void imageGen::seed(){
     }
     particleCount_ = newParticleCount;
     setCoSphere(pos);
+
+    //printf("%i particleCount %i entries\n", particleCount_, iBuf_->numOfEntries);
+
+    vInit = vMed/particleCount_;
+    raytracer::instance()->setNumRays(particleCount_);
+
     pos->unref();
 }
 
@@ -414,6 +436,7 @@ void standardGen::seed(){
     }
 
     osg::Vec3Array* pos = new osg::Vec3Array;
+    vInit = sqrt(2*initPressure_*100000/densityOfParticle);                                 //Initial speed of particles
 
     for(int i = 0; i< particleCount_; i++){
 
@@ -442,21 +465,20 @@ void standardGen::seed(){
 
         p->m = 4 / 3 * p->r * p->r * p->r * Pi * densityOfParticle;
 
-        float v = sqrt(2*initPressure_*100000/densityOfParticle);                            //Initial speed of particle
         float d_angle = 0;
         if(type.compare("BAR") == 0)
         {
             d_angle = -redDegree*Pi/180*0.5+(float)rand()/(float)randMax*redDegree*Pi/180;                    //BAR is only a rectangle
-            p->velocity.x() = v*sin(sprayAngle);
-            p->velocity.y() = v*cos(sprayAngle);
-            p->velocity.z() = v*sin(d_angle);
+            p->velocity.x() = vInit*sin(sprayAngle);
+            p->velocity.y() = vInit*cos(sprayAngle);
+            p->velocity.z() = vInit*sin(d_angle);
         }
         else
         {
             d_angle = (float)rand()/(float)randMax*2*Pi;                                //NONE and RING are still radially symmetric
-            p->velocity.x() = v*sin(sprayAngle)*cos(d_angle);
-            p->velocity.y() = v*cos(sprayAngle);
-            p->velocity.z() = v*sin(sprayAngle)*sin(d_angle);
+            p->velocity.x() = vInit*sin(sprayAngle)*cos(d_angle);
+            p->velocity.y() = vInit*cos(sprayAngle);
+            p->velocity.z() = vInit*sin(sprayAngle)*sin(d_angle);
         }
 
         sprayPos.setTrans(0,0,0);

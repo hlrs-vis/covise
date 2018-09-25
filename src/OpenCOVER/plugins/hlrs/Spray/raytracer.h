@@ -227,16 +227,16 @@ public:
         Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),numOfVertices);
 
 
-            //printf("%f %f %f\n", buf.x(), buf.y(), buf.z());
-            vertices[0].x = v1.x();
-            vertices[0].y = v1.z();
-            vertices[0].z = v1.y();
-            vertices[1].x = v2.x();
-            vertices[1].y = v2.z();
-            vertices[1].z = v2.y();
-            vertices[2].x = v3.x();
-            vertices[2].y = v3.z();
-            vertices[2].z = v3.y();
+        //printf("%f %f %f\n", buf.x(), buf.y(), buf.z());
+        vertices[0].x = v1.x();
+        vertices[0].y = v1.z();
+        vertices[0].z = v1.y();
+        vertices[1].x = v2.x();
+        vertices[1].y = v2.z();
+        vertices[1].z = v2.y();
+        vertices[2].x = v3.x();
+        vertices[2].y = v3.z();
+        vertices[2].z = v3.y();
 
 
         int numOfFaces = 0;
@@ -276,35 +276,35 @@ public:
                 currentProgress = coords->size();
             if(coords->size() - progressInVector < PROGRESS_SIZE)
                 currentProgress = coords->size()-progressInVector;
-        Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),currentProgress);
+            Vertex* vertices = (Vertex*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_VERTEX,0,RTC_FORMAT_FLOAT3,sizeof(Vertex),currentProgress);
 
-        for(int i = 0; i< currentProgress; i++)
-        {
-            osg::Vec3 buf = *itr;
-            vertices[i].x = buf.x();
-            vertices[i].y = buf.z();
-            vertices[i].z = buf.y();
-            itr++;
-        }
-        int numOfFaces = currentProgress/3;
-        Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
+            for(int i = 0; i< currentProgress; i++)
+            {
+                osg::Vec3 buf = *itr;
+                vertices[i].x = buf.x();
+                vertices[i].y = buf.z();
+                vertices[i].z = buf.y();
+                itr++;
+            }
+            int numOfFaces = currentProgress/3;
+            Triangle* triangles = (Triangle*) rtcSetNewGeometryBuffer(mesh,RTC_BUFFER_TYPE_INDEX,0,RTC_FORMAT_UINT3,sizeof(Triangle),numOfFaces);
 
-        for(int fItr = 0; fItr < numOfFaces; fItr++)
-        {
-            triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
-        }
+            for(int fItr = 0; fItr < numOfFaces; fItr++)
+            {
+                triangles[fItr] = {fItr*numOfVertices, fItr*numOfVertices+1, fItr*numOfVertices+2};
+            }
 
-        rtcSetGeometryVertexAttributeCount(mesh,1);
+            rtcSetGeometryVertexAttributeCount(mesh,1);
 
-        rtcCommitGeometry(mesh);
-        if(comitted)
-            comitted = false;
-        unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
-        geoIDList.push_back(geomID);
-        rtcReleaseGeometry(mesh);
+            rtcCommitGeometry(mesh);
+            if(comitted)
+                comitted = false;
+            unsigned int geomID = rtcAttachGeometry(rScene_,mesh);
+            geoIDList.push_back(geomID);
+            rtcReleaseGeometry(mesh);
 
-        progressInVector += PROGRESS_SIZE;
-        printf("Number of Iterations %i", progressInVector/PROGRESS_SIZE);
+            progressInVector += PROGRESS_SIZE;
+            //printf("Number of Iterations %i", progressInVector/PROGRESS_SIZE);
         }
         return 1;
     }
@@ -341,7 +341,7 @@ public:
     }
 
     inline void checkAllHits(std::vector<particle*> &p, float time)
-    {        
+    {
         for(int i = 0; i < p.size(); i++)
         {
             if(p[i]->particleOutOfBound)
@@ -350,21 +350,20 @@ public:
             x[i].ray.org_x = p[i]->pos.x();
             x[i].ray.org_y = p[i]->pos.z();
             x[i].ray.org_z = p[i]->pos.y();
-//            x[i].ray.dir_x = p[i]->velocity.x()*time;
-//            x[i].ray.dir_y = p[i]->velocity.z()*time;
-//            x[i].ray.dir_z = p[i]->velocity.y()*time;
             x[i].ray.dir_x = vTemp.x();
             x[i].ray.dir_y = vTemp.z();
             x[i].ray.dir_z = vTemp.y();
             x[i].ray.tfar = 1;
             x[i].ray.tnear = 0;
             x[i].hit.geomID = RTC_INVALID_GEOMETRY_ID;
+            for (int j = 0; j < RTC_MAX_INSTANCE_LEVEL_COUNT; ++j)
+                x[i].hit.instID[j] = RTC_INVALID_GEOMETRY_ID;
             x[i].hit.instID[0] = RTC_INVALID_GEOMETRY_ID;
             d[i].flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
             rtcInitIntersectContext(&d[i]);
         }
 
-        rtcIntersect1M(rScene_,d, x, p.size(), sizeof(RTCRayHit));
+        rtcIntersect1M(rScene_,d, x, numRays, sizeof(RTCRayHit));
 
         for(int i = 0; i < p.size(); i++)
         {
@@ -373,7 +372,7 @@ public:
                 p[i]->time =  x[i].ray.tfar;
                 continue;
             }
-                p[i]->time = -1;
+            p[i]->time = -1;
 
         }
     }
