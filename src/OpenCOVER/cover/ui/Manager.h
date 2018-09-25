@@ -25,6 +25,7 @@ namespace opencover {
 namespace ui {
 
 class View;
+class ButtonGroup;
 
 //! responsible for handling all \ref Element "elements" of a user interface
 class COVER_UI_EXPORT Manager: public Owner {
@@ -107,7 +108,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    std::map<int, std::pair<Element::UpdateMaskType, std::shared_ptr<covise::TokenBuffer>>> m_elemState;
    std::shared_ptr<covise::TokenBuffer> m_updates;
    void flushUpdates();
-   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
+   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
 
    int m_modifiers = 0;
    std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;
