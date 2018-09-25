@@ -35,14 +35,12 @@ class nodeVisitorVertex : public osg::NodeVisitor
 private:    
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
-    osg::Geode *localGeodeTriangleStrip;
     osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
-    std::string notTraverse = "";
 
     bool triFunc = true;
-    bool visualize = true;
+    bool visualize = false;
 
 public:
         nodeVisitorVertex();
@@ -59,8 +57,12 @@ public:
             vertexCoords->push_back(v3);
         }
 
+        int numOfVertices = 0;
+
         bool checkBlacklist(osg::Node* node)
         {
+            std::clock_t begin = clock();
+
             for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
             {
                 std::string compareString = *itr;
@@ -68,6 +70,11 @@ public:
                     return true;
             }
             return false;
+
+            std::clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+            printf("elapsed time for blacklisting %f\n", elapsed_secs);
 
         }
 
@@ -96,6 +103,7 @@ private:
     nodeVisitorVertex* nvv_;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
+    //void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setNVV(nodeVisitorVertex* nvv)
     {
         nvv_ = nvv;

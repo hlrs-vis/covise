@@ -52,6 +52,7 @@ private:
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
     osg::Vec3 gravity = osg::Vec3(0,0,g);
     osg::ref_ptr<osg::MatrixTransform> transform_;
+    std::vector<particle*> RTParticles;
 
     bool outOfBound = false;
 
@@ -83,6 +84,7 @@ protected:
     class nozzle* owner_;
     int particleCount_ = 1000;
     float initPressure_ = 2;
+    float vInit = 0;
 
     void setCoSphere(osg::Vec3Array *pos);
 
@@ -93,7 +95,7 @@ public:
     void init();
 
     float gaussian(float value);
-    float reynoldsNr(float v, double d);
+    float reynoldsNr(float vInit, double d);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;
@@ -101,6 +103,8 @@ public:
             coSphere_->setColor(i, newColor.x(), newColor.y(), newColor.z(), newColor.w());
         }
     }
+
+    float displayedTime = 0;
 
     osg::Geode* getGeode(){
         return geode_;
@@ -158,6 +162,8 @@ public:
     {
         return alpha;
     }
+
+    void updateAll(osg::Vec3 boundingBox);
 };
 
 

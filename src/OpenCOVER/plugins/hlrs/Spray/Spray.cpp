@@ -45,9 +45,9 @@ bool SprayPlugin::init()
     sprayMenu_ = new ui::Menu("Spray", this);
     sprayMenu_->setText("Spray");
 
-    globalActions = new ui::Group(sprayMenu_, "Global Actions");
+    globalActions = new ui::Group(sprayMenu_, "Global_Actions");
 
-    scaleFactorParticle = new ui::EditField(globalActions, "Particle Scale");
+    scaleFactorParticle = new ui::EditField(globalActions, "Particle_Scale");
     scaleFactorParticle->setValue(parser::instance()->getScaleFactor());
     scaleFactorParticle->setCallback([this](const std::string &cmd)
     {
@@ -63,15 +63,14 @@ bool SprayPlugin::init()
         }
     });
 
-    newGenCreate_ = new ui::EditField(globalActions, "newGenCreate");
-    newGenCreate_->setText("Gen Creating Rate");
-    newGenCreate_->setValue(parser::instance()->getNewGenCreate());
+    newGenCreate_ = new ui::EditField(globalActions, "emissionRate");
+    newGenCreate_->setText("Emission Rate");
+    newGenCreate_->setValue(parser::instance()->getEmissionRate());
     newGenCreate_->setCallback([this](const std::string &cmd)
     {
         try
         {
-            parser::instance()->setNewGenCreate(stoi(cmd));
-            printf("%i\n", parser::instance()->getNewGenCreate());
+            parser::instance()->setEmissionRate(stoi(cmd));
 
         }//try
 
@@ -97,7 +96,7 @@ bool SprayPlugin::init()
 
     });
 
-    loadSaveMenu_ = new ui::Menu(globalActions, "Save/Load Config");
+    loadSaveMenu_ = new ui::Menu(globalActions, "Save_Load_Config");
 
     pathNameFielddyn_ = new ui::EditField(loadSaveMenu_, "pathname");
     pathNameFielddyn_->setText("Path Name");
@@ -113,7 +112,7 @@ bool SprayPlugin::init()
         fileNameField_ = cmd;
     });
 
-    ui::Action* acceptL = new ui::Action(loadSaveMenu_, "Load nozzles");
+    ui::Action* acceptL = new ui::Action(loadSaveMenu_, "Load_nozzles");
     acceptL->setCallback([this]()
     {
         nM->loadNozzle(pathNameField_, fileNameField_);
@@ -133,7 +132,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save nozzles");
+    ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save_nozzles");
     acceptS->setCallback([this]()
     {
         nM->saveNozzle(pathNameField_, fileNameField_);
@@ -142,9 +141,9 @@ bool SprayPlugin::init()
 
 
 
-    bbEditMenu = new ui::Menu(globalActions, "BoundingBox Editor");
+    bbEditMenu = new ui::Menu(globalActions, "BoundingBox_Editor");
 
-    ui::EditField* xBB = new ui::EditField(bbEditMenu, "BoundingBox X");
+    ui::EditField* xBB = new ui::EditField(bbEditMenu, "BoundingBox_X");
     xBB->setValue(nM->getBoundingBox().x());
     xBB->setCallback([this](const std::string &cmd)
     {
@@ -162,7 +161,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::EditField* yBB = new ui::EditField(bbEditMenu, "BoundingBox Y");
+    ui::EditField* yBB = new ui::EditField(bbEditMenu, "BoundingBox_Y");
     yBB->setValue(nM->getBoundingBox().x());
     yBB->setCallback([this](const std::string &cmd)
     {
@@ -180,7 +179,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::EditField* zBB = new ui::EditField(bbEditMenu, "BoundingBox Z");
+    ui::EditField* zBB = new ui::EditField(bbEditMenu, "BoundingBox_Z");
     zBB->setValue(nM->getBoundingBox().x());
     zBB->setCallback([this](const std::string &cmd)
     {
@@ -199,7 +198,7 @@ bool SprayPlugin::init()
     });
 
     ui::Action* resetScene = new ui::Action(globalActions, "resetScene");
-    resetScene->setText("Reset RT Scene");
+    resetScene->setText("Reset_RT_Scene");
     resetScene->setCallback([this]()
     {
         raytracer::instance()->removeAllGeometry();                     //resets scene
@@ -210,7 +209,7 @@ bool SprayPlugin::init()
     });
 
     autoremove = new ui::Button(globalActions, "autoremove");
-    autoremove->setText("Autoremove particles");
+    autoremove->setText("Autoremove_particles");
     autoremove->setCallback([this](bool state)
     {
         if(state == false)
@@ -225,7 +224,27 @@ bool SprayPlugin::init()
             }
     });
 
-    nozzleActions = new ui::Group(sprayMenu_, "Nozzle Actions");
+    ui::EditField* numParticleField = new ui::EditField(globalActions, "Num_of_Particles");
+    numParticleField->setValue(parser::instance()->getReqParticles());
+    numParticleField->setCallback([this](std::string cmd)
+    {
+        try
+        {
+            int numParticles = stof(cmd);            
+            parser::instance()->setNumParticles(numParticles);
+            nM->removeAllParticles();
+            raytracer::instance()->setNumRays(numParticles);
+
+        }//try
+
+        catch(const std::invalid_argument& ia)
+        {
+            std::cerr << "Invalid argument: " << ia.what() << std::endl;
+            newColor.x() = 1;
+        }//catch
+    });
+
+    nozzleActions = new ui::Group(sprayMenu_, "Nozzle_Actions");
 
     nozzleIDL = new ui::SelectionList(nozzleActions, "nozzleSelection");
     nozzleIDL->setText("Selected nozzle");
@@ -256,7 +275,7 @@ bool SprayPlugin::init()
     });
 
     edit_ = new ui::Button(nozzleActions, "editContext");
-    edit_->setText("Open Edit Menu");
+    edit_->setText("Open_Edit_Menu");
     edit_->setEnabled(false);
     edit_->setCallback([this](bool state)
     {
@@ -266,7 +285,7 @@ bool SprayPlugin::init()
 
         if(nullptr != editNozzle && state)
         {
-            if(parser::instance()->getIsAMD() == 0)
+            if(parser::instance()->getSphereRenderType() == 0)
                 editNozzle->setColor(osg::Vec4(1,1,0,1));
             newColor = editNozzle->getColor();
 
@@ -279,7 +298,7 @@ bool SprayPlugin::init()
             else
             {
                 nozzleEditMenu_ = new ui::Menu(nozzleActions, "EditingInterface");
-                nozzleEditMenu_->setText("Editing Interface");
+                nozzleEditMenu_->setText("Editing_Interface");
 
                 //Set variables of nozzle to init values
                 minimum = editNozzle->getMinimum()*1000000;
@@ -358,16 +377,34 @@ bool SprayPlugin::init()
                 });
 
                 pressureSlider_ = new ui::Slider(nozzleEditMenu_, "sliderPressure");
-                pressureSlider_->setText("Initial pressure");
+                pressureSlider_->setText("Initial pressure in bar");
                 pressureSlider_->setBounds(parser::instance()->getLowerPressureBound(),
                                            parser::instance()->getUpperPressureBound()
                                            );
                 pressureSlider_->setValue(editNozzle->getInitPressure());
+                pressureSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setInitPressure(value);
+                });
 
                 alphaSlider_ = new ui::Slider(nozzleEditMenu_, "sliderAlpha");
                 alphaSlider_->setText("Gaussian Alpha Value");
                 alphaSlider_->setBounds(0.1, 1);
                 alphaSlider_->setValue(editNozzle->getAlpha());
+                alphaSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setAlpha(value);
+                });
+
+
+                sizeSlider_ = new ui::Slider(nozzleEditMenu_, "sliderSize");
+                sizeSlider_->setText("Size of Nozzle");
+                sizeSlider_->setBounds(0.1, 100);
+                sizeSlider_->setValue(editNozzle->getScale());
+                sizeSlider_->setCallback([this](float value, bool state)
+                {
+                    editNozzle->setScale(value);
+                });
 
                 rMinimum = new ui::EditField(nozzleEditMenu_, "Minimum in microns");
                 rMinimum->setValue(editNozzle->getMinimum()*1000000);
@@ -442,7 +479,7 @@ bool SprayPlugin::init()
                 acceptEdit_->setCallback([this](){
                     if(editNozzle != nullptr)
                     {
-                        if(parser::instance()->getIsAMD() == 0)
+                        if(parser::instance()->getSphereRenderType() == 0)
                             editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
                         editNozzle->setInitPressure(pressureSlider_->value());
                         editNozzle->setAlpha(alphaSlider_->value());
@@ -454,7 +491,7 @@ bool SprayPlugin::init()
 
                 });
 
-                controller = new ui::Button(nozzleEditMenu_, "Open Controller");
+                controller = new ui::Button(nozzleEditMenu_, "Open_Controller");
                 controller->setCallback([this](bool state)
                 {
                     if(state)
@@ -575,7 +612,7 @@ bool SprayPlugin::init()
                 setToCurPos->setCallback([this]()
                 {
                     osg::Matrix newPos = editNozzle->getMatrix();
-                    newPos.setTrans(cover->getMouseMat().getTrans());
+                    newPos.setTrans(cover->getViewerMat().getTrans());
                     editNozzle->updateTransform(newPos);
                 });
 
@@ -587,7 +624,7 @@ bool SprayPlugin::init()
             nozzleEditMenu_->setVisible(false);
     });
 
-    nozzleCreateMenuImage = new ui::Menu(sprayMenu_, "Image Nozzle Parameters");
+    nozzleCreateMenuImage = new ui::Menu(sprayMenu_, "Image_Nozzle_Parameters");
     ui::EditField* subMenuPathname_ = new ui::EditField(nozzleCreateMenuImage, "pathname_");
     subMenuPathname_->setText("Path Name");
     subMenuPathname_->setCallback([this](const std::string &cmd)
@@ -628,7 +665,7 @@ bool SprayPlugin::init()
         }
     });
 
-    nozzleCreateMenuStandard = new ui::Menu(sprayMenu_, "Standard Nozzle Parameter");
+    nozzleCreateMenuStandard = new ui::Menu(sprayMenu_, "Standard_Nozzle_Parameter");
     ui::EditField* subMenuSprayAngle_ = new ui::EditField(nozzleCreateMenuStandard, "sprayAngle_");
     subMenuSprayAngle_->setText("Spray Angle");
     subMenuSprayAngle_->setCallback([this](const std::string &cmd)
@@ -718,7 +755,15 @@ bool SprayPlugin::init()
 
     //Traverse scenegraph to extract vertices for raytracer
     nodeVisitorVertex c;
+
+    std::clock_t begin = clock();
+
     cover->getObjectsRoot()->accept(c);
+
+    std::clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for traversing %f, vertices read out %i\n", elapsed_secs, c.numOfVertices);
 
     //Set nozzle geometry for VRML nozzles
     for(int i = 0; i < c.coNozzleList.size(); i++)
@@ -731,9 +776,15 @@ bool SprayPlugin::init()
         remove_->setEnabled(true);
     }
 
+    begin = clock();
+
     raytracer::instance()->createFaceSet(c.getVertexArray(),0);
 
-    std::cout << std::endl;
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for generating in embree %f\n", elapsed_secs);
+
 
     raytracer::instance()->finishAddGeometry();
 
@@ -825,6 +876,7 @@ void SprayPlugin::updateEditContext()
     alpha_->setValue(editNozzle->getColor().x());
     pressureSlider_->setValue(editNozzle->getInitPressure());
     alphaSlider_->setValue(editNozzle->getAlpha());
+    sizeSlider_->setValue(editNozzle->getScale());
     rotX->setValue(editNozzle->getMatrix().getRotate().x());
     rotY->setValue(editNozzle->getMatrix().getRotate().y());
     rotZ->setValue(editNozzle->getMatrix().getRotate().z());
