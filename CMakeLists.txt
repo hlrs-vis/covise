@@ -278,6 +278,10 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     set(${CMAKE_PREFIX_PATH} ${saved_prefix_path})
 endif()
 
+if (APPLE)
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
