@@ -45,9 +45,9 @@ bool SprayPlugin::init()
     sprayMenu_ = new ui::Menu("Spray", this);
     sprayMenu_->setText("Spray");
 
-    globalActions = new ui::Group(sprayMenu_, "Global Actions");
+    globalActions = new ui::Group(sprayMenu_, "Global_Actions");
 
-    scaleFactorParticle = new ui::EditField(globalActions, "Particle Scale");
+    scaleFactorParticle = new ui::EditField(globalActions, "Particle_Scale");
     scaleFactorParticle->setValue(parser::instance()->getScaleFactor());
     scaleFactorParticle->setCallback([this](const std::string &cmd)
     {
@@ -71,7 +71,6 @@ bool SprayPlugin::init()
         try
         {
             parser::instance()->setEmissionRate(stoi(cmd));
-            //printf("%i\n", parser::instance()->getNewGenCreate());
 
         }//try
 
@@ -97,7 +96,7 @@ bool SprayPlugin::init()
 
     });
 
-    loadSaveMenu_ = new ui::Menu(globalActions, "Save/Load Config");
+    loadSaveMenu_ = new ui::Menu(globalActions, "Save_Load_Config");
 
     pathNameFielddyn_ = new ui::EditField(loadSaveMenu_, "pathname");
     pathNameFielddyn_->setText("Path Name");
@@ -113,7 +112,7 @@ bool SprayPlugin::init()
         fileNameField_ = cmd;
     });
 
-    ui::Action* acceptL = new ui::Action(loadSaveMenu_, "Load nozzles");
+    ui::Action* acceptL = new ui::Action(loadSaveMenu_, "Load_nozzles");
     acceptL->setCallback([this]()
     {
         nM->loadNozzle(pathNameField_, fileNameField_);
@@ -133,7 +132,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save nozzles");
+    ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save_nozzles");
     acceptS->setCallback([this]()
     {
         nM->saveNozzle(pathNameField_, fileNameField_);
@@ -142,9 +141,9 @@ bool SprayPlugin::init()
 
 
 
-    bbEditMenu = new ui::Menu(globalActions, "BoundingBox Editor");
+    bbEditMenu = new ui::Menu(globalActions, "BoundingBox_Editor");
 
-    ui::EditField* xBB = new ui::EditField(bbEditMenu, "BoundingBox X");
+    ui::EditField* xBB = new ui::EditField(bbEditMenu, "BoundingBox_X");
     xBB->setValue(nM->getBoundingBox().x());
     xBB->setCallback([this](const std::string &cmd)
     {
@@ -162,7 +161,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::EditField* yBB = new ui::EditField(bbEditMenu, "BoundingBox Y");
+    ui::EditField* yBB = new ui::EditField(bbEditMenu, "BoundingBox_Y");
     yBB->setValue(nM->getBoundingBox().x());
     yBB->setCallback([this](const std::string &cmd)
     {
@@ -180,7 +179,7 @@ bool SprayPlugin::init()
         }
     });
 
-    ui::EditField* zBB = new ui::EditField(bbEditMenu, "BoundingBox Z");
+    ui::EditField* zBB = new ui::EditField(bbEditMenu, "BoundingBox_Z");
     zBB->setValue(nM->getBoundingBox().x());
     zBB->setCallback([this](const std::string &cmd)
     {
@@ -199,7 +198,7 @@ bool SprayPlugin::init()
     });
 
     ui::Action* resetScene = new ui::Action(globalActions, "resetScene");
-    resetScene->setText("Reset RT Scene");
+    resetScene->setText("Reset_RT_Scene");
     resetScene->setCallback([this]()
     {
         raytracer::instance()->removeAllGeometry();                     //resets scene
@@ -210,7 +209,7 @@ bool SprayPlugin::init()
     });
 
     autoremove = new ui::Button(globalActions, "autoremove");
-    autoremove->setText("Autoremove particles");
+    autoremove->setText("Autoremove_particles");
     autoremove->setCallback([this](bool state)
     {
         if(state == false)
@@ -225,14 +224,15 @@ bool SprayPlugin::init()
             }
     });
 
-    ui::EditField* numParticleField = new ui::EditField(globalActions, "Num of Particles");
+    ui::EditField* numParticleField = new ui::EditField(globalActions, "Num_of_Particles");
     numParticleField->setValue(parser::instance()->getReqParticles());
     numParticleField->setCallback([this](std::string cmd)
     {
         try
         {
-            int numParticles = stof(cmd);
+            int numParticles = stof(cmd);            
             parser::instance()->setNumParticles(numParticles);
+            nM->removeAllParticles();
             raytracer::instance()->setNumRays(numParticles);
 
         }//try
@@ -244,7 +244,7 @@ bool SprayPlugin::init()
         }//catch
     });
 
-    nozzleActions = new ui::Group(sprayMenu_, "Nozzle Actions");
+    nozzleActions = new ui::Group(sprayMenu_, "Nozzle_Actions");
 
     nozzleIDL = new ui::SelectionList(nozzleActions, "nozzleSelection");
     nozzleIDL->setText("Selected nozzle");
@@ -275,7 +275,7 @@ bool SprayPlugin::init()
     });
 
     edit_ = new ui::Button(nozzleActions, "editContext");
-    edit_->setText("Open Edit Menu");
+    edit_->setText("Open_Edit_Menu");
     edit_->setEnabled(false);
     edit_->setCallback([this](bool state)
     {
@@ -298,7 +298,7 @@ bool SprayPlugin::init()
             else
             {
                 nozzleEditMenu_ = new ui::Menu(nozzleActions, "EditingInterface");
-                nozzleEditMenu_->setText("Editing Interface");
+                nozzleEditMenu_->setText("Editing_Interface");
 
                 //Set variables of nozzle to init values
                 minimum = editNozzle->getMinimum()*1000000;
@@ -491,7 +491,7 @@ bool SprayPlugin::init()
 
                 });
 
-                controller = new ui::Button(nozzleEditMenu_, "Open Controller");
+                controller = new ui::Button(nozzleEditMenu_, "Open_Controller");
                 controller->setCallback([this](bool state)
                 {
                     if(state)
@@ -612,7 +612,7 @@ bool SprayPlugin::init()
                 setToCurPos->setCallback([this]()
                 {
                     osg::Matrix newPos = editNozzle->getMatrix();
-                    newPos.setTrans(cover->getMouseMat().getTrans());
+                    newPos.setTrans(cover->getViewerMat().getTrans());
                     editNozzle->updateTransform(newPos);
                 });
 
@@ -624,7 +624,7 @@ bool SprayPlugin::init()
             nozzleEditMenu_->setVisible(false);
     });
 
-    nozzleCreateMenuImage = new ui::Menu(sprayMenu_, "Image Nozzle Parameters");
+    nozzleCreateMenuImage = new ui::Menu(sprayMenu_, "Image_Nozzle_Parameters");
     ui::EditField* subMenuPathname_ = new ui::EditField(nozzleCreateMenuImage, "pathname_");
     subMenuPathname_->setText("Path Name");
     subMenuPathname_->setCallback([this](const std::string &cmd)
@@ -665,7 +665,7 @@ bool SprayPlugin::init()
         }
     });
 
-    nozzleCreateMenuStandard = new ui::Menu(sprayMenu_, "Standard Nozzle Parameter");
+    nozzleCreateMenuStandard = new ui::Menu(sprayMenu_, "Standard_Nozzle_Parameter");
     ui::EditField* subMenuSprayAngle_ = new ui::EditField(nozzleCreateMenuStandard, "sprayAngle_");
     subMenuSprayAngle_->setText("Spray Angle");
     subMenuSprayAngle_->setCallback([this](const std::string &cmd)

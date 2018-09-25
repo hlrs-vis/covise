@@ -24,6 +24,7 @@ typedef struct{
     int samplingPoints;
     int centerX;
     int centerY;
+    int numOfEntries;
 }pImageBuffer;
 
 class particle

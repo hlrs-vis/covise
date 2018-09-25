@@ -46,8 +46,6 @@ public:
         nodeVisitorVertex();
 
         void apply(osg::Node &node);
-//        void apply(osg::MatrixTransform &mtransform);
-//        void apply(osg::Geode &geode);
 
         void createTestFaces(int num, osg::Vec3Array::iterator coords, int type);
         void createTestFaces(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3);
