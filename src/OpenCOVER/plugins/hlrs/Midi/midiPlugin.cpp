@@ -967,7 +967,7 @@ void Track::store()
 	osg::Matrix mat;
 	int xp = pos % 6;
 	int yp = pos / 6;
-	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, 0.5*yp);
+	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, (0.5*yp)+0.5);
 	TrackRoot->setMatrix(mat);
 }
 void Track::reset()

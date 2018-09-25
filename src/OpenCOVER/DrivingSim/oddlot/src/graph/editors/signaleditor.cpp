@@ -605,15 +605,16 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
     }
 	else if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT))
 	{
-		QPointF mousePoint = mouseAction->getEvent()->scenePos();
-
+        QPointF mousePoint = mouseAction->getEvent()->scenePos();
         if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
-		{
+        {
+
+            //if(projectData_->getSelectedElements())
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
 				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
 
-				if (underMouseItems.count() == 0)		// find the closest road //
+                if (underMouseItems.count() == 0)		// find the closest road //
 				{
 					double s;
 					double t;

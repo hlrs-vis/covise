@@ -80,6 +80,7 @@ protected:
 
 
 private:
+	double m_minPointDistance;
 
 	double s_;
 	double t_;

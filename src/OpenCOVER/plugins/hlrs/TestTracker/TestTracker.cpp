@@ -50,16 +50,16 @@ bool TestTracker::init()
     trackerNode->setName("TestTracker");
     cover->getObjectsRoot()->addChild(trackerNode.get());
     tbVive = Input::instance()->getBody("ViveHand");
-    tbART = Input::instance()->getBody("ArtHand");
+    tbTracker = Input::instance()->getBody("ViveTracker");
     buttonsVive = Input::instance()->getButtons("ViveRight");
     if (tbVive == nullptr)
     {
         fprintf(stderr, "please configure ViveHand");
         return false;
     }
-    if (tbART == nullptr)
+    if (tbTracker == nullptr)
     {
-        fprintf(stderr, "please configure ArtHand");
+        fprintf(stderr, "please configure ViveTracker");
         return false;
     }
     if (buttonsVive == nullptr)
@@ -81,12 +81,12 @@ bool TestTracker::init()
 bool TestTracker::update()
 {
     osg::Vec3 vivePos = tbVive->getMat().getTrans();
-    osg::Vec3 artPos = tbART->getMat().getTrans();
+    osg::Vec3 artPos = tbTracker->getMat().getTrans();
     vt->setMatrix(tbVive->getMat());
-    at->setMatrix(tbART->getMat());
+    at->setMatrix(tbTracker->getMat());
     if (doPrint || buttonsVive->getButtonState()!=0)
     {
-        fprintf(stderr, "Vive: %f %f %f  Art:%f %f %f  Diff:%f %f %f\n", vivePos[0], vivePos[1], vivePos[2], artPos[0], artPos[1], artPos[2], vivePos[0]- artPos[0], vivePos[1]- artPos[1], vivePos[2] - artPos[2]);
+        fprintf(stderr, "Vive: %f %f %f  Tracker:%f %f %f  Diff:%f %f %f\n", vivePos[0], vivePos[1], vivePos[2], artPos[0], artPos[1], artPos[2], vivePos[0]- artPos[0], vivePos[1]- artPos[1], vivePos[2] - artPos[2]);
     }
     return true;
 }

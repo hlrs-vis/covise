@@ -25,6 +25,10 @@
 //
 #include "src/data/oscsystem/oscelement.hpp"
 #include "src/data/commands/osccommands.hpp"
+#include "src/data/projectdata.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
+#include "src/data/tilesystem/tilesystem.hpp"
+#include "src/data/roadsystem/rsystemelementroad.hpp"
 
 // Widget //
 //
@@ -59,6 +63,7 @@
 #include <QKeyEvent>
 #include <QVector>
 #include <QPainterPath>
+#include <QStatusBar>
 
 OSCShapeItem::OSCShapeItem(OSCElement *element, OSCBaseShapeItem *oscBaseShapeItem, OpenScenario::oscTrajectory *trajectory)
     : GraphElement(oscBaseShapeItem, element)
@@ -98,14 +103,14 @@ OSCShapeItem::createPath()
         pos_ = QPointF(0, 0);
         if (!startPoint.isNull())
         {
-            path_->addRect(QRectF(startPoint.x() - pointSize,
+            path_->addEllipse(QRectF(startPoint.x() - pointSize,
                 startPoint.y() - pointSize,
                 pointSize * 2, pointSize * 2));
 
             QPointF endPoint = controlPoints_.at(controlPoints_.size() - 1);
             if (!endPoint.isNull())
             {
-                path_->addRect(QRectF(endPoint.x() - pointSize,
+                path_->addEllipse(QRectF(endPoint.x() - pointSize,
                     endPoint.y() - pointSize,
                     pointSize * 2, pointSize * 2));
             }
@@ -175,7 +180,7 @@ OSCShapeItem::init()
 	if (element_->isElementSelected())
 	{
 		setSelected(true);
-		getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_);
+		getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_,smoothList_);
 	}
     createPath();
     updatePosition();
@@ -187,59 +192,171 @@ OSCShapeItem::createControlPoints()
     controlPoints_.clear();
 
     OpenScenario::oscArrayMember *vertexArray = dynamic_cast<OpenScenario::oscArrayMember *>(trajectory_->getMember("Vertex"));
-    for (int i = 0; i < vertexArray->size(); i++)
-    {
-        OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i));
-        OpenScenario::oscPosition *position = vertex->Position.getObject();
-        if (!position)
-        {
-            continue;
-        }
-        OpenScenario::oscWorld *posWorld = position->World.getObject();
-        if (!posWorld)
-        {
-            continue;
-        }
 
-        QPointF p0(posWorld->x.getValue(), posWorld->y.getValue());
+	QPointF before;
+	RSystemElementRoad *oldRoad = NULL;
+	RoadSystem *roadSystem = getTopviewGraph()->getProjectData()->getRoadSystem();
+	std::string oldRoadID = "";
+	for (int i = 0; i < vertexArray->size(); i++)
+	{
+		QPointF p0;
+		OpenScenario::oscVertex *vertex = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i));
+		OpenScenario::oscPosition *position = vertex->Position.getObject();
+		if (!position)
+		{
+			continue;
+		}
 
-        OpenScenario::oscShape *shape = vertex ->Shape.getObject();
-        if (!shape)
-        {
-            continue;
-        }
+		OpenScenario::oscRoad *posRoad = position->Road.getObject();
+		OpenScenario::oscWorld *posWorld = position->World.getObject();
 
-        OpenScenario::oscSpline *spline = shape->Spline.getObject();
-        if (!spline)
-        {
-            continue;
-        }
+		if (posWorld)
+		{
+			p0.setX(posWorld->x.getValue());
+			p0.setY(posWorld->y.getValue());
+		}
+		else if (posRoad)
+		{
+			std::string roadID = posRoad->roadId.getValue();
+			if (roadID != oldRoadID)
+			{
+				QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadID), odrID::ID_Road);
+				RSystemElementRoad *road = NULL;
+				int i;
+				for (i = 0; i < idList.size(); i++)
+				{
+					road = roadSystem->getRoad(idList.at(i));
+					if (road->getLength() > posRoad->s.getValue())
+					{
+						oldRoad = road;
+						oldRoadID = roadID;
+						break;
+					}
+				}
 
-        OpenScenario::oscControlPoint1 *controlPoint1 = spline->ControlPoint1.getObject();
-        if (controlPoint1)
-        {
+				if (i >= idList.size())
+				{
+					std::string s = "Warning: No road with name" + roadID + "Trajectoy not loaded";
+					getTopviewGraph()->getProjectWidget()->getMainWindow()->statusBar()->showMessage(tr(s.c_str()), 2000);
+					continue;
+				}
+			}
+
+			p0 = oldRoad->getGlobalPoint(posRoad->s.getValue(), posRoad->t.getValue());
+		}
+
+		if (!posWorld && !posRoad)
+		{
+			continue;
+		}
+
+
+
+		OpenScenario::oscShape *shape = vertex->Shape.getObject();
+		if (!shape)
+		{
+			continue;
+		}
+
+		OpenScenario::oscSpline *spline = shape->Spline.getObject();
+		if (!spline)
+		{
+			OpenScenario::oscPolyline *poly = shape->Polyline.getObject();
+			if (!poly)
+			{
+				continue;
+			}
+
+
+			QPointF after;
+			if (i != vertexArray->size() - 1)
+			{
+				OpenScenario::oscVertex *vertexAfter = dynamic_cast<OpenScenario::oscVertex *>(vertexArray->at(i + 1));
+				OpenScenario::oscPosition *positionAfter = vertexAfter->Position.getObject();
+
+			
+				OpenScenario::oscWorld *posWorldAfter = positionAfter->World.getObject();
+				if (posWorldAfter)
+				{
+					after.setX(posWorldAfter->x.getValue());
+					after.setY(posWorldAfter->y.getValue());
+					after = (after - p0) / 3 + p0;
+				}
+				else
+				{
+					OpenScenario::oscRoad *posRoadAfter = positionAfter->Road.getObject();
+					std::string roadIDAfter = posRoadAfter->roadId.getValue();
+
+					if (roadIDAfter != oldRoadID)
+					{
+
+						RSystemElementRoad *nextRoad = NULL;
+						QList<odrID> idList = roadSystem->findID(QString::fromStdString(roadIDAfter), odrID::ID_Road);
+						foreach(odrID id, idList)
+						{
+							nextRoad = roadSystem->getRoad(id);
+							if (nextRoad->getLength() > posRoad->s.getValue())
+							{
+								after = nextRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
+								break;
+							}
+						}
+
+						if (!nextRoad)
+						{
+							continue;
+						}
+					}
+					else
+					{
+						after = oldRoad->getGlobalPoint(posRoadAfter->s.getValue(), posRoadAfter->t.getValue());
+					}
+					after = (after - p0) / 3 + p0;
+				}
+			}
+
+			if (i > 0)
+			{
+				controlPoints_.push_back((before - p0) / 3 + p0);
+			}
+
+			controlPoints_.push_back(p0);
+
+			if (i != vertexArray->size() - 1)
+			{
+				controlPoints_.push_back(after);
+			}
+
+			before = p0;
+			continue;
+		}
+
+		OpenScenario::oscControlPoint1 *controlPoint1 = spline->ControlPoint1.getObject();
+		if (controlPoint1)
+		{
 			std::string s = controlPoint1->status.getValue();
-            double x, y;
-            sscanf(s.c_str(), "%lf %lf", &x, &y);
-            QPointF p1(p0.x() + x, p0.y() + y);
+			double x, y;
+			sscanf(s.c_str(), "%lf %lf", &x, &y);
+			QPointF p1(p0.x() + x, p0.y() + y);
 
-            controlPoints_.push_back(p1);
-        }
+			controlPoints_.push_back(p1);
+		}
 
-        controlPoints_.push_back(p0);
+		controlPoints_.push_back(p0);
 
-        OpenScenario::oscControlPoint2 *controlPoint2 = spline->ControlPoint2.getObject();
-        if (controlPoint2)
-        {
-            std::string s = controlPoint2->status.getValue();
-            double x, y;
-            sscanf(s.c_str(), "%lf %lf", &x, &y);
-            QPointF p1(p0.x() + x, p0.y() + y);
+		OpenScenario::oscControlPoint2 *controlPoint2 = spline->ControlPoint2.getObject();
+		if (controlPoint2)
+		{
+			std::string s = controlPoint2->status.getValue();
+			double x, y;
+			sscanf(s.c_str(), "%lf %lf", &x, &y);
+			QPointF p1(p0.x() + x, p0.y() + y);
 
-            controlPoints_.push_back(p1);
-        }
+			controlPoints_.push_back(p1);
+		}
 
-    }
+		before = p0;
+	}
 }
 
 
@@ -493,7 +610,7 @@ OSCShapeItem::updateObserver()
     }
     else if (changes & OSCElement::COE_SettingChanged)
     {
-         getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_);
+         getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_, smoothList_);
     }
 
     else
@@ -504,7 +621,7 @@ OSCShapeItem::updateObserver()
         {
             if (element_->isElementSelected())
             {
-                getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_);
+                getTopviewGraph()->getView()->setSplineControlPoints(controlPoints_, smoothList_);
             }
         }
     }
