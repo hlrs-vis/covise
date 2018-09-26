@@ -7,6 +7,7 @@
 
 #include "ModuleInteraction.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRNavigationManager.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 #include <cover/coVRConfig.h>
@@ -36,7 +37,7 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
         showDirectInteractorCheckbox_ = new ui::Button(menu_, "DirectInteractor");
         showDirectInteractorCheckbox_->setText("Direct interactor");
         showDirectInteractorCheckbox_->setState(showDirectInteractor_);
-        showDirectInteractorCheckbox_->setGroup(cover->navGroup());
+        showDirectInteractorCheckbox_->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
         showDirectInteractorCheckbox_->setCallback([this](bool state){
             showDirectInteractor_ = state;
             updateDirectInteractors(state);

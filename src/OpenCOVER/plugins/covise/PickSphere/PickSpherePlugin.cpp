@@ -11,6 +11,7 @@
 #include <cover/coInteractor.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRAnimationManager.h>
+#include <cover/coVRNavigationManager.h>
 #include <OpenVRUI/coInteractionManager.h>
 
 #include <osg/MatrixTransform>
@@ -338,7 +339,7 @@ PickSpherePlugin::createSubmenu()
     singlePickCheckbox = new ui::Button(pickSphereSubmenu, "SingleSelect");
     singlePickCheckbox->setText("Single select");
     singlePickCheckbox->setState(false);
-    singlePickCheckbox->setGroup(cover->navGroup());
+    singlePickCheckbox->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
     singlePickCheckbox->setCallback([this](bool state){
         if (state)
         {
@@ -357,7 +358,7 @@ PickSpherePlugin::createSubmenu()
     multiplePickCheckbox = new ui::Button(pickSphereSubmenu, "MultiSelect");
     multiplePickCheckbox->setText("Multiple select");
     multiplePickCheckbox->setState(false);
-    multiplePickCheckbox->setGroup(cover->navGroup());
+    multiplePickCheckbox->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
     multiplePickCheckbox->setCallback([this](bool state){
         if (state)
         {
