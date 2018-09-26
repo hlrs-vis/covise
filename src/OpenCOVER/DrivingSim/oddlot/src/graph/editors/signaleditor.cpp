@@ -610,11 +610,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
         {
             QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
             QPointF mousePoint = mouseEvent->scenePos();
-            /*QMessageBox msg;
-            msg.setText("HIER");
-            msg.exec();*/
             //if(projectData_->getSelectedElements())
-
 
             /*if (mouseEvent->button() == Qt::LeftButton)
             {*/

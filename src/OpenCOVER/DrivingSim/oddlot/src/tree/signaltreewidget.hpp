@@ -19,6 +19,7 @@
 #include "src/util/odd.hpp"
 
 #include <QTreeWidget>
+#include <QDrag>
 
 class ProjectData;
 class ProjectWidget;
@@ -55,6 +56,7 @@ private:
     SignalTreeWidget(const SignalTreeWidget &); /* not allowed */
     SignalTreeWidget &operator=(const SignalTreeWidget &); /* not allowed */
 
+    QDrag* PrepareDrag();
     void init();
 
     //################//
