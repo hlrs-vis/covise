@@ -15,6 +15,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <cover/coVRPluginSupport.h>
 #include "types.h"
 
 #include "parser.h"

@@ -612,7 +612,7 @@ bool SprayPlugin::init()
                 setToCurPos->setCallback([this]()
                 {
                     osg::Matrix newPos = editNozzle->getMatrix();
-                    newPos.setTrans(cover->getViewerMat().getTrans());
+                    newPos.setTrans(cover->getPointerMat().getTrans());
                     editNozzle->updateTransform(newPos);
                 });
 
