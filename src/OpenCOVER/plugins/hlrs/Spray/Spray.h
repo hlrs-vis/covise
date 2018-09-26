@@ -134,6 +134,7 @@ private:
     //Slider on edit menu
     ui::Slider* pressureSlider_ = nullptr;
     ui::Slider* alphaSlider_ = nullptr;
+    ui::Slider* sizeSlider_ = nullptr;
     ui::Slider* rotX = nullptr;
     ui::Slider* rotY = nullptr;
     ui::Slider* rotZ = nullptr;
