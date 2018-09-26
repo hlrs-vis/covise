@@ -44,6 +44,9 @@
 #include "src/graph/editors/signaleditor.hpp"
 
 #include <QWidget>
+#include <QMouseEvent>
+#include <QDrag>
+#include <QMimeData>
 
 //################//
 // CONSTRUCTOR    //
@@ -325,6 +328,37 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 		clearFocus();
 		update();
 	}
+
+}
+
+void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    SignalContainer *signalContainer = signalManager_->getSelectedSignalContainer();
+
+    if(signalContainer)
+    {
+        QTreeWidget::mouseMoveEvent(event);
+        if (!(event->buttons() & Qt::LeftButton))
+            return;
+        if ((event->pos() - dragStartPosition_).manhattanLength() < QApplication::startDragDistance())
+            return;
+
+        QDrag *drag = new QDrag(this);
+        QMimeData *mimeData = new QMimeData;
+
+        QTreeWidgetItem *item = selectedItems().at(0);
+        const QString text = item->text(0);
+        //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
+        //QString signalName = signal->getName();
+        std::string entryName = text.toUtf8().constData();
+
+        mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
+        drag->setMimeData(mimeData);
+        QIcon signalIcon = signalContainer->getSignalIcon();
+        drag->setPixmap(signalIcon.pixmap(QSize(35,35)));
+
+        Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+    }
 
 }
 

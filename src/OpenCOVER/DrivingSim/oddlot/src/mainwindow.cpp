@@ -358,7 +358,6 @@ MainWindow::createActions()
     fileMenu_->addAction(lodSettingsAction);
 
     fileMenu_->addAction(coverConnectionAction);
-
 	fileMenu_->addAction(importSettingsAction);
     fileMenu_->addAction(exportSettingsAction);
     fileMenu_->addAction(OSCSettingsAction);*/

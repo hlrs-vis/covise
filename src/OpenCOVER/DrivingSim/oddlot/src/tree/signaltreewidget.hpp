@@ -48,6 +48,8 @@ public:
 	void setSignalEditor(SignalEditor *signalEditor);
 
 protected:
+
+    virtual void mouseMoveEvent(QMouseEvent *event);
 private:
     SignalTreeWidget(); /* not allowed */
     SignalTreeWidget(const SignalTreeWidget &); /* not allowed */
@@ -81,6 +83,8 @@ private:
 	MainWindow *mainWindow_;
 	SignalEditor *signalEditor_;
 	ODD::ToolId currentTool_;
+
+    QPointF dragStartPosition_;
 };
 
 #endif // PROJECTTREEWIDGET_HPP

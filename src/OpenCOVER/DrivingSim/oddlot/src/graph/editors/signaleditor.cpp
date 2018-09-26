@@ -604,14 +604,20 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
         }
     }
 	else if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT))
-	{
-        QPointF mousePoint = mouseAction->getEvent()->scenePos();
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_PRESS)
+    {
+        //QPointF mousePoint = mouseAction->getEvent()->scenePos();
+        if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP)//MouseAction::ATM_PRESS)
         {
-
+            QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
+            QPointF mousePoint = mouseEvent->scenePos();
+            /*QMessageBox msg;
+            msg.setText("HIER");
+            msg.exec();*/
             //if(projectData_->getSelectedElements())
-			if (mouseEvent->button() == Qt::LeftButton)
-			{
+
+
+            /*if (mouseEvent->button() == Qt::LeftButton)
+            {*/
 				QList<QGraphicsItem *> underMouseItems = getTopviewGraph()->getScene()->items(mousePoint);
 
                 if (underMouseItems.count() == 0)		// find the closest road //
@@ -632,7 +638,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 						}
 					}
 				}
-			}
+            //}
 		}
 	}
 
