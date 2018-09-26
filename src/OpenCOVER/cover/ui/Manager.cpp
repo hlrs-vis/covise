@@ -1,4 +1,3 @@
-#undef NDEBUG
 #include "Manager.h"
 #include "View.h"
 #include "Element.h"
