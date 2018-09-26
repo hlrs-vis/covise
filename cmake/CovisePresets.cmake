@@ -21,7 +21,7 @@ IF(COMMAND cmake_policy)
 	
 	# allow LOCATION to be used in build-targets we might change to $<TARGET_FILE> if we need a newer CMAKE version
     if (POLICY CMP0026)
-        cmake_policy(SET CMP0026 NEW)
+        cmake_policy(SET CMP0026 OLD) # needed on windows
     endif()
 	
     
