@@ -13,7 +13,7 @@ cmake_minimum_required (VERSION 2.6)
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
-find_package(COVISE)
+#find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
 #INCLUDE(Qt4-5)

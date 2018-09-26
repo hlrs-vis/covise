@@ -21,7 +21,7 @@ IF(COMMAND cmake_policy)
 	
 	# allow LOCATION to be used in build-targets we might change to $<TARGET_FILE> if we need a newer CMAKE version
     if (POLICY CMP0026)
-        cmake_policy(SET CMP0026 OLD)
+        cmake_policy(SET CMP0026 NEW)
     endif()
 	
     
@@ -33,12 +33,6 @@ IF(COMMAND cmake_policy)
     endif()
     # Works around warnings about escaped quotes in ADD_DEFINITIONS statements.
     cmake_policy(SET CMP0005 NEW)
-
-    # cmake-2.6.1 introduces policy cmp0008 decide how to treat full path libraries that do not appear to be valid library file names
-    # quote from cvslog "Such libraries worked by accident in the VS IDE and Xcode generators in CMake 2.4 and below."
-    IF(POLICY CMP0008)
-        cmake_policy(SET CMP0008 OLD)
-    ENDIF()
 
     # allow the commands include() and COVISE_FIND_PACKAGE() to do their default cmake_policy PUSH and POP.
     cmake_policy(SET CMP0011 NEW)
