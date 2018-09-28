@@ -14,7 +14,7 @@ nozzle::nozzle(osg::Matrix initialMat, float size, std::string nozzleName/*, osg
     geode_ = new osg::Geode;
     geode_->setName(nozzleName);
 
-    prevGenCreate = parser::instance()->getNewGenCreate();
+    prevEmissionRate = parser::instance()->getEmissionRate();
     minimum = parser::instance()->getMinimum();
     deviation = parser::instance()->getDeviation();
 
@@ -110,9 +110,9 @@ void nozzle::createGen()
 
 void nozzle::updateGen()
 {
-    if(prevGenCreate != parser::instance()->getNewGenCreate())
+    if(prevEmissionRate != parser::instance()->getEmissionRate())
     {
-        prevGenCreate = parser::instance()->getNewGenCreate();
+        prevEmissionRate = parser::instance()->getEmissionRate();
         counter = 0;
     }
 
@@ -120,21 +120,31 @@ void nozzle::updateGen()
         class gen* current = *i;
         if(current->isOutOfBound() == true)
         {
-//            printf("generation out of bound\n");
-            delete current;
-            genList.erase(i);
-            i = genList.begin();
+            if(current->displayedTime > 5.0)
+            {
+                delete current;
+                genList.erase(i);
+                i = genList.begin();
+            }
+            else
+                current->displayedTime += cover->frameDuration();
         }
         else
         {
-            current->updatePos(boundingBox_);
+//            std::clock_t begin = clock();
+            //current->updatePos(boundingBox_);
+            current->updateAll(boundingBox_);
+
+//            std::clock_t end = clock();
+//            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+//            printf("elapsed time for updating %f\n", elapsed_secs);
         }
     }
-    if(counter == parser::instance()->getNewGenCreate())
+    if(counter == parser::instance()->getEmissionRate())
     {
         createGen();
         counter = 0;
-//        printf("New gen created\n");
     }
     counter++;
 }
@@ -224,8 +234,8 @@ void nozzle::autoremove(bool state)
         }
         else
         {
-            autoremoveCount = 0.9;
-            current->setRemoveCount(0.9);
+            autoremoveCount = 1.0;
+            current->setRemoveCount(autoremoveCount);
         }
     }
 }
@@ -285,6 +295,25 @@ void nozzle::setNozzleGeometryNode(osg::Node* node)
     }
 }
 
+void nozzle::setScale(float newScale)
+{
+    scale = newScale;
+    osg::Matrix scaleMatrix = nozzleScale->getMatrix();
+    scaleMatrix.makeScale(newScale, newScale, newScale);
+    nozzleScale->setMatrix(scaleMatrix);
+}
+
+void nozzle::deleteAllGen()
+{
+    for(auto i = genList.begin();i != genList.end(); i++)
+    {
+        class gen* current = *i;
+        delete current;
+        genList.erase(i);
+        i = genList.begin();
+    }
+}
+
 
 
 
@@ -319,7 +348,7 @@ void standardNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getIsAMD() == 0)
+    if(parser::instance()->getSphereRenderType() == 0)
         newGen->setColor(getColor());
 
     genList.push_back(newGen);
@@ -406,7 +435,6 @@ imageNozzle::imageNozzle(std::string pathName, std::string fileName, osg::Matrix
 
     if(readImage() == false)
     {
-        delete this;
         failed = true;
     }
 
@@ -424,7 +452,7 @@ void imageNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getIsAMD() == 0)
+    if(parser::instance()->getSphereRenderType() == 0)
         newGen->setColor(getColor());
 
     genList.push_back(newGen);
@@ -510,7 +538,13 @@ bool imageNozzle::readImage()
     std::getline(nameStream, line, '_');
     pixel_to_flow_ = stof(line);
 
-    std::cout << height << " " << pixel_to_mm_ << " " << pixel_to_flow_ << std::endl;
+    std::getline(nameStream, line, '_');
+    pixel_to_radius_ = stof(line);
+
+    std::getline(nameStream, line, '_');
+    pixel_to_velocity_ = stof(line);
+
+    std::cout << height << " " << pixel_to_mm_ << " " << pixel_to_flow_ << " " << pixel_to_radius_ << " " << pixel_to_velocity_ <<std::endl;
 
     /**********************************************************************************/
 
@@ -637,7 +671,7 @@ bool imageNozzle::readImage()
         int ppl = samplingPoints/(delta_2);
         int steppingPerLine = delta_1/(ppl-1);
         if(steppingPerLine%3 != 0)
-            steppingPerLine -= steppingPerLine%3+3;
+            steppingPerLine -= steppingPerLine%colorDepth;
 
         std::cout << ppl << " " <<steppingPerLine << std::endl;
         std::cout << delta_1 << " " << delta_2 << std::endl;
@@ -700,6 +734,7 @@ bool imageNozzle::readImage()
             for(int i = 0; i<(int)curPoints;i++)
             {
                 int x = curRadius*cos(step*i*Pi/180);
+                x -= x%3;
                 int y = curRadius*sin(step*i*Pi/180);
 
                 if(image->data()[posToCount((center_width+x),(center_height+y),s_int)] == 0)
@@ -733,7 +768,15 @@ bool imageNozzle::readImage()
     iBuf.centerX = center_width;
     iBuf.centerY = center_height;
     iBuf.samplingPoints = samplingPoints;
-    iBuf.dataBuffer = new float[samplingPoints*5];
+
+    if(pixel_to_radius_ == 0.0 && pixel_to_velocity_ == 0.0)
+        iBuf.numOfEntries = 5;
+    if(pixel_to_radius_ != 0.0)
+        iBuf.numOfEntries = 6;
+    if(pixel_to_radius_ != 0.0 && pixel_to_velocity_ != 0.0)
+        iBuf.numOfEntries = 7;
+
+    iBuf.dataBuffer = new float[samplingPoints*iBuf.numOfEntries];
 
     for(int count = 0; count < samplingPoints; count++){
 
@@ -752,20 +795,23 @@ bool imageNozzle::readImage()
         angleToPosition = atan2(deltaWidth,deltaHeight);
         //Angle between height and width of particle - center
 
-        particleFlow = 0.20*(  image->data()[index]+
+        particleFlow = /*0.20**/(  image->data()[index]+
                                image->data()[index+colorDepth_]+
                                image->data()[index-colorDepth_]+
                                image->data()[index+s_int]+
                                image->data()[index-s_int]
                                 )*pixel_to_flow_/255;
-        particleFlow = 1;
         //Flow
 
-        iBuf.dataBuffer[count*5] = angleToNozzle;
-        iBuf.dataBuffer[count*5+1] = angleToPosition;
-        iBuf.dataBuffer[count*5+2] = deltaWidth;
-        iBuf.dataBuffer[count*5+3] = deltaHeight;
-        iBuf.dataBuffer[count*5+4] = particleFlow;
+        iBuf.dataBuffer[count*iBuf.numOfEntries] = angleToNozzle;
+        iBuf.dataBuffer[count*iBuf.numOfEntries+1] = angleToPosition;
+        iBuf.dataBuffer[count*iBuf.numOfEntries+2] = deltaWidth;
+        iBuf.dataBuffer[count*iBuf.numOfEntries+3] = deltaHeight;
+        iBuf.dataBuffer[count*iBuf.numOfEntries+4] = particleFlow;
+        if(pixel_to_radius_ != 0.0)
+            iBuf.dataBuffer[count*iBuf.numOfEntries+5] = image->data()[index+1]/255*pixel_to_radius_;
+        if(pixel_to_velocity_ != 0.0)
+            iBuf.dataBuffer[count*iBuf.numOfEntries+6] = image->data()[index+2]/255*pixel_to_velocity_;
 
     };
 

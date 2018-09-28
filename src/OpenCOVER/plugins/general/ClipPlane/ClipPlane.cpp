@@ -198,7 +198,7 @@ bool ClipPlanePlugin::init()
 
         sprintf(name, "Direct interactor for plane %d", i);
         plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
-        plane[i].DirectInteractorButton->setGroup(cover->navGroup());
+        plane[i].DirectInteractorButton->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
         plane[i].DirectInteractorButton->setText(name);
         plane[i].DirectInteractorButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();

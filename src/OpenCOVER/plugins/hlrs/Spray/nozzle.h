@@ -45,12 +45,13 @@ private:
     int counter = 0;
     int nozzleID = 0;
 
-    int prevGenCreate = 0;
+    int prevEmissionRate = 0;
 
     float initPressure_ = 2;
     float minimum = 0.000025;
     float deviation = 0.00005;
     float alpha = 0.4;
+    float scale = 1;
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
     osg::Group* interactorGroup;
@@ -79,7 +80,7 @@ private:
 protected:
     void createGeometry();
     int particleCount_ = 1000;
-    float autoremoveCount = 0.9;
+    float autoremoveCount = 1.0;
     std::string nozzleName_;
     std::list<class gen*> genList;
 
@@ -232,161 +233,15 @@ public:
 
     void setNozzleGeometryNode(osg::Node* node);
 
-    bool setNozzleGeometryFile(std::string filename)
+    void setScale(float newScale);
+
+    float getScale()
     {
-        std::ifstream mystream(filename);
-        //std::string filename2 = "test.txt";
-        std::string line = "";
-        std::string name = "";
-        osg::Vec3Array* coordArray = new osg::Vec3Array();
-        osg::Vec3Array* normalsArray = new osg::Vec3Array();
-        osg::Vec3 coords = osg::Vec3(0,0,0);
-        osg::Vec3 normals = osg::Vec3(0,0,0);
-
-        if(mystream.is_open())
-        {
-            printf("File opened!\n");
-            std::cout << filename << std::endl;
-            while(std::getline(mystream,line))
-            {
-
-                std::cout << line << std::endl;
-                int x = 0;
-                    while(line[x] == ' ')
-                         x++;
-                    line.erase(0,x);
-                std::stringstream ss(line);
-                std::getline(ss,line,' ');
-
-                if(line.compare("solid") == 0)
-                {
-                    getline(ss,line, '\n');
-                    name = line;
-                    std::cout << "My name is " << name << std::endl;
-                }
-
-                if(line.empty())
-                    continue;
-
-                if(line.compare("facet") == 0)
-                {
-                    getline(ss,line, ' ');
-                    getline(ss,line, ' ');
-                    normals.x() = stof(line);
-                    getline(ss,line, ' ');
-                    normals.y() = stof(line);
-                    getline(ss,line, '\n');
-                    normals.z() = stof(line);
-
-                    printf("Normals of geometry %f %f %f \n", normals.x(), normals.y(), normals.z());
-                    normalsArray->push_back(normals);
-                    osg::Vec3Array::iterator itr = normalsArray->end();
-                    printf("Vertices of geometry %f %f %f \n", (*itr).x(), (*itr).y(), (*itr).z());
-                    continue;
-                }
-
-                if(line.compare("outer") == 0)
-                    continue;
-
-                if(line.compare("vertex") == 0)
-                {
-                    getline(ss,line, ' ');
-                    coords.x() = stof(line);
-                    getline(ss,line, ' ');
-                    coords.y() = stof(line);
-                    getline(ss,line, '\n');
-                    coords.z() = stof(line);
-                    printf("Vertices of geometry %f %f %f \n", coords.x(), coords.y(), coords.z());
-                    coordArray->push_back(coords);
-                    osg::Vec3Array::iterator itr = coordArray->end();
-                    printf("Vertices of geometry %f %f %f \n", (*itr).x(), (*itr).y(), (*itr).z());
-
-                    //TODO: Check why values don't apply
-
-
-                    continue;
-                }
-
-                if(line.compare("endloop") == 0)
-                    continue;
-
-                if(line.compare("endfacet") == 0)
-                    continue;
-
-                if(line.compare("endsolid") == 0)
-                    continue;
-
-            }//mystream
-
-            //cover->getObjectsRoot()->addChild(nozzleGeode);
-        }
-        else
-            return false;
-
-        mystream.close();
-
-//        nozzleGeode = new osg::Geode();
-//        scaleTransform->addChild(nozzleGeode);
-//        osg::Geometry* geom = new osg::Geometry();
-
-//        geom->setVertexArray(coordArray);
-
-//        osg::Vec4Array *colors = new osg::Vec4Array;
-//        colors->push_back(osg::Vec4(1,1,1,1));
-//        geom->setColorArray(colors);
-//        geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-
-//        osg::Vec3Array *normals = new osg::Vec3Array;
-//        normals->push_back(osg::Vec3(0,0,-1));
-//        geom->setNormalArray(normals);
-//        geom->setNormalBinding(osg::Geometry::BIND_OVERALL);
-
-//        std::cout << coordArray->size() << std::endl;
-
-//        geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coordArray->size()));
-
-//        geode_->addDrawable(geom);
-
-//        return true;
-
-        osg::Geometry* test = new osg::Geometry();
-        osg::Vec3Array* jo = new osg::Vec3Array();
-
-        jo->push_back(osg::Vec3(1,1,1));
-        jo->push_back(osg::Vec3(1,-1,1));
-        jo->push_back(osg::Vec3(1,1,-1));
-        jo->push_back(osg::Vec3(-1,-1,-1));
-        jo->push_back(osg::Vec3(-1,1,-1));
-        jo->push_back(osg::Vec3(-1,-1,1));
-
-        test->setVertexArray(coordArray);
-
-        osg::Vec3Array *normalsA = new osg::Vec3Array;
-        normalsA->push_back(osg::Vec3(0,0,-1));
-        test->setNormalArray(normalsA);
-        test->setNormalBinding(osg::Geometry::BIND_OVERALL);
-
-        osg::Vec4Array *colors = new osg::Vec4Array;
-        colors->push_back(osg::Vec4(1,1,1,1));
-        test->setColorArray(colors);
-        test->setColorBinding(osg::Geometry::BIND_OVERALL);
-
-        test->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,coordArray->size()));
-        geode_->addDrawable(test);
-
-        //      Pattern of a STL file
-        //        solid name
-        //         facet normal n1 n2 n3
-        //          outer loop
-        //           vertex p1x p1y p1z
-        //           vertex p2x p2y p2z
-        //           vertex p3x p3y p3z
-        //          endloop
-        //         endfacet
-        //        endsolid name
-
-        return true;
+        return scale;
     }
+
+    void deleteAllGen();
+
 };
 
 
@@ -415,6 +270,16 @@ public:
 class imageNozzle : public nozzle
 {
 private:
+    enum
+    {
+        R_CANAL,
+        G_CANAL,
+        B_CANAL,
+        RG_CANAL,
+        RB_CANAL,
+        RGB_CANAL,
+        GB_CANAL
+    };
     std::string fileName_;
     std::string pathName_;
 
@@ -422,9 +287,11 @@ private:
 
     int samplingPoints = 1000;
 
-    float pixel_to_mm_;
-    float pixel_to_flow_;
-    int colorDepth_;
+    float pixel_to_mm_ = 0;
+    float pixel_to_flow_ = 0;
+    float pixel_to_radius_ = 0;
+    float pixel_to_velocity_ = 0;
+    int colorDepth_ = 3;
     int colorThreshold_ = 100;
 
 

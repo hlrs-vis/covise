@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRNavigationManager.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/input/VRKeys.h>
 #include "BoxSelection.h"
@@ -43,7 +44,7 @@ BoxSelection::BoxSelection(ui::Menu *parentMenu, const char *name, const char *t
     s_boxSelectionInteractor->registerInteractionRunningCallback(interactionRunning);
 
     m_useBoxSelection = new ui::Button("BoxSelection", this, cover->navGroup());
-    m_useBoxSelection->setGroup(cover->navGroup());
+    m_useBoxSelection->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
     m_useBoxSelection->setCallback([this](bool state){
         if (state)
         {

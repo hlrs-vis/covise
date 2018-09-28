@@ -35,17 +35,17 @@ private:
 
     };
 
-    int newGenCreateCounter = 200;
+    int emissionRate = 200;
 
-    int reqParticles = 10000;
-    int reqSamplings = 1000;
+    int numParticles = 10000;
+    int numSamplings = 1000;
     int iterations = 4;
     float lowerPressureBound = 0.1;
     float upperPressureBound = 10;
 
     float densityOfFluid = 1.18;
     float densityOfParticle = 1000;
-    float cwTurb = 0.15;
+    float cwTurb = 0.4;
     float nu = 0.0000171;
     int reynoldsThreshold = 2230;
     int reynoldsLimit = 170000;
@@ -57,12 +57,11 @@ private:
 
 
     int colorThreshold = 100;
-    int isAMD = 1;
+    int sphereRenderType = 1;
 
     std::string cwModelType = "STOKES";
     std::string samplingType = "square";
 
-    std::string configFileName = "config/SprayConfig.txt";
     std::string COVERpluginpath = "COVER.Plugin.Spray";
 
 
@@ -80,220 +79,48 @@ public:
 
     void init()
     {
+        emissionRate = coCoviseConfig::getInt(COVERpluginpath+".EmissionRate",200);
 
-        //std::cout << "hello, the parser is active" << std::endl;
-        newGenCreateCounter = coCoviseConfig::getInt(COVERpluginpath+".newGenCreateCounter",200);
-
-        reqParticles = coCoviseConfig::getInt(COVERpluginpath+".reqParticles",10000);
-        reqSamplings = coCoviseConfig::getInt(COVERpluginpath+".reqSamplings",1000);
-        iterations = coCoviseConfig::getInt(COVERpluginpath+".iterations",4);
-        lowerPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".lowerPressureBound",0.1);
-        upperPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".upperPressureBound",10.0);
+        numParticles = coCoviseConfig::getInt(COVERpluginpath+".NumParticles",10000);
+        numSamplings = coCoviseConfig::getInt(COVERpluginpath+".NumSamplings",1000);
+        iterations = coCoviseConfig::getInt(COVERpluginpath+".Iterations",4);
+        lowerPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".LowerPressureBound",0.1);
+        upperPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".UpperPressureBound",10.0);
 
 
-        densityOfFluid = coCoviseConfig::getFloat(COVERpluginpath+".densityOfFluid",1.18);
-        densityOfParticle = coCoviseConfig::getFloat(COVERpluginpath+".densityOfParticle",1000.0);
-        cwTurb = coCoviseConfig::getFloat(COVERpluginpath+".cwTurb",0.15);
-        nu = coCoviseConfig::getFloat(COVERpluginpath+".nu",0.0000171);
-        reynoldsThreshold = coCoviseConfig::getInt(COVERpluginpath+".reynoldsThreshold",2230);
-        reynoldsLimit = coCoviseConfig::getInt(COVERpluginpath+".reynoldsLimit",170000);
-        minimum = coCoviseConfig::getFloat(COVERpluginpath+".minimum",0.0004);
-        deviation = coCoviseConfig::getFloat(COVERpluginpath+".deviation",0.0001);
-        scaleFactor = coCoviseConfig::getFloat(COVERpluginpath+".scaleFactor",1000.0);
-        rendertime = coCoviseConfig::getFloat(COVERpluginpath+".rendertime",1.0);
-        alpha = coCoviseConfig::getFloat(COVERpluginpath+".alpha",0.4);
+        densityOfFluid = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfFluid",1.27);
+        densityOfParticle = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfParticle",998.0);
+        cwTurb = coCoviseConfig::getFloat(COVERpluginpath+".CwTurb",0.4);
+        nu = coCoviseConfig::getFloat(COVERpluginpath+".Nu",0.0000171);
+        reynoldsThreshold = coCoviseConfig::getInt(COVERpluginpath+".ReynoldsThreshold",2230);
+        reynoldsLimit = coCoviseConfig::getInt(COVERpluginpath+".ReynoldsLimit",170000);
+        minimum = coCoviseConfig::getFloat(COVERpluginpath+".Minimum",0.0004);
+        deviation = coCoviseConfig::getFloat(COVERpluginpath+".Deviation",0.0001);
+        scaleFactor = coCoviseConfig::getFloat(COVERpluginpath+".ScaleFactor",1000.0);
+        rendertime = coCoviseConfig::getFloat(COVERpluginpath+".Rendertime",1.0);
+        alpha = coCoviseConfig::getFloat(COVERpluginpath+".Alpha", 0.4);
 
-        colorThreshold = coCoviseConfig::getInt(COVERpluginpath+".colorThreshold", 100);
-        isAMD = coCoviseConfig::getInt(COVERpluginpath+".isAMD", 1);
+        colorThreshold = coCoviseConfig::getInt(COVERpluginpath+".ColorThreshold", 100);
+        sphereRenderType = coCoviseConfig::getInt(COVERpluginpath+".SphereRenderType", 1); /* 1 for ARB_POINT_SPRITES, 0 for CG_SHADER*/
 
-        cwModelType = coCoviseConfig::getEntry("value",COVERpluginpath+".cwModelType","STOKES");
-        samplingType = coCoviseConfig::getEntry("value",COVERpluginpath+".samplingType","circle");
+        cwModelType = coCoviseConfig::getEntry("value",COVERpluginpath+".CwModelType","STOKES");
+        samplingType = coCoviseConfig::getEntry("value",COVERpluginpath+".SamplingType","circle");
 
-        std::cout << cwModelType <<" "<< isAMD << " " << alpha << std::endl;
-
-
-//Not needed anymore
-//*******************************************************************************************
-//        std::ifstream mystream(configFileName);
-//        std::string line;
-//        if(mystream.is_open())
-//        {
-//            while(std::getline(mystream,line))
-//            {
-//                if(line.empty())
-//                {
-//                    continue;
-//                }
-//                //empty lines
-//                if(line.compare(0,1,"#") == 0)
-//                {
-//                    continue;                         //comment
-//                }
-//                if(line.compare("-") == 0)
-//                {
-//                    break;                            //imo better than EOF
-//                }
-//                std::stringstream ssLine(line);
-//                std::getline(ssLine,line,'=');
-
-//                try
-//                {
-
-//                    if(line.compare("particles ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        reqParticles = stof(line);
-//                    }
-//                    if(line.compare("samplings ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        reqSamplings = stof(line);
-//                    }
-
-//                    if(line.compare("samplingtype ") == 0)
-//                    {
-//                        std::getline(ssLine, line,'\n');
-//                        if(line[0] = '0') line.erase(0,1);
-//                        if(line.compare("square") || line.compare("circle"))
-//                            samplingType = line;
-//                    }
-
-//                    if(line.compare("lower_pressure_bound ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        lowerPressureBound = stof(line);
-//                    }
-
-//                    if(line.compare("upper_pressure_bound ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        upperPressureBound = stof(line);
-//                    }
-
-//                    if(line.compare("cwModelType ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        if(line[0] = '0') line.erase(0,1);
-//                        cwModelType = line;
-//                    }
-
-//                    if(line.compare("reynoldsThreshold ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        reynoldsThreshold = stof(line);
-//                    }
-
-//                    if(line.compare("nu ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        nu = stof(line);
-//                    }
-
-//                    if(line.compare("densityOfFluid ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        densityOfFluid = stof(line);
-//                    }
-
-//                    if(line.compare("densityOfParticle ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        densityOfParticle = stof(line);
-//                    }
-
-//                    if(line.compare("cwTurb ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        cwTurb = stof(line);
-//                    }
-
-//                    if(line.compare("newGenCreateCounter ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        newGenCreateCounter = stof(line);
-//                    }
-
-//                    if(line.compare("colorThreshold ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        colorThreshold = stof(line);
-//                    }
-
-//                    if(line.compare("minimum ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        minimum = stof(line);
-//                    }
-
-//                    if(line.compare("deviation ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        deviation = stof(line);
-//                    }
-
-//                    if(line.compare("scaleFactor ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        scaleFactor = stof(line);
-//                    }
-
-//                    if(line.compare("isAMD ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        isAMD = stof(line);
-//                    }
-
-//                    if(line.compare("rendertime ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        rendertime = stof(line);
-//                    }
-
-//                    if(line.compare("iterations ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        iterations = stof(line);
-//                    }
-
-//                    if(line.compare("reynoldsLimit ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        reynoldsLimit = stof(line);
-//                    }
-
-//                    if(line.compare("alpha ") == 0)
-//                    {
-//                        std::getline(ssLine,line,'\n');
-//                        alpha = stof(line);
-//                    }
-
-
-
-//                }//try
-
-//                catch(const std::invalid_argument& ia)
-//                {
-//                    std::cerr << "Invalid argument: " << ia.what() << std::endl;
-//                }//catch
-//            }
-//            std::cout << "Config File successfully read!\n" << std::endl;
-//        }
-//        else
-//        {
-//            std::cout << "Could not open " << configFileName << "!" <<std::endl;
-//            std::cout << "Standard values will be applied !" <<std::endl;
-//        }
-//        mystream.close();
     }
 
     int getReqSamplings()
     {
-        return reqSamplings;
+        return numSamplings;
     }
 
     int getReqParticles()
     {
-        return reqParticles;
+        return numParticles;
+    }
+
+    void setNumParticles(int newNumParticles)
+    {
+        numParticles = newNumParticles;
     }
 
     std::string getSamplingType()
@@ -311,14 +138,14 @@ public:
         return upperPressureBound;
     }
 
-    int getNewGenCreate()
+    int getEmissionRate()
     {
-        return newGenCreateCounter;
+        return emissionRate;
     }
 
-    void setNewGenCreate(int newGenCreate)
+    void setEmissionRate(int newEmissionRate)
     {
-        newGenCreateCounter = newGenCreate;
+        emissionRate = newEmissionRate;
     }
 
     std::string getCwModelType()
@@ -371,9 +198,9 @@ public:
         scaleFactor = newScaleFactor;
     }
 
-    int getIsAMD()
+    int getSphereRenderType()
     {
-        return isAMD;
+        return sphereRenderType;
     }
 
     float getDensityOfParticle()
