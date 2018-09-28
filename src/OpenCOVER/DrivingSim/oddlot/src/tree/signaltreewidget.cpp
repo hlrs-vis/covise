@@ -361,12 +361,11 @@ void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
         ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
         if(objectContainer)
         {
-            QTreeWidgetItem *item = selectedItems().at(0);
-            const QString text = item->text(0);
+            //QTreeWidgetItem *item = selectedItems().at(0);
+            //const QString text = item->text(0);
             QDrag* drag = PrepareDrag();
             QIcon objectIcon = objectContainer->getObjectIcon();
             drag->setPixmap(objectIcon.pixmap(QSize(35,35)));
-
             Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
         }
     }*/
