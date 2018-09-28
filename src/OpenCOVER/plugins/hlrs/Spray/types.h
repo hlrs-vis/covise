@@ -24,6 +24,7 @@ typedef struct{
     int samplingPoints;
     int centerX;
     int centerY;
+    int numOfEntries;
 }pImageBuffer;
 
 class particle
@@ -33,10 +34,9 @@ public:
     osg::Vec3 velocity;
     double r;
     double m;
-    int hit = 0;
+    float time;
     bool particleOutOfBound = false;
     bool firstHit = false;
-    bool RTHit = false;
 };
 
 #endif // TYPES_H

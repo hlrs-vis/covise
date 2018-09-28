@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+ <GLOBAL>
+
+  <COVER>
+
+   <Plugin>
+      <Spray>
+
+      <EmissionRate value="200"/>
+
+      <NumParticles value="1000"/>
+      <NumSamplings value="1000"/>
+      <Iterations value="1"/>
+    
+      <LowerPressureBound value="0.1"/>
+      <UpperPressureBound value="10.0"/>
+      <DensityOfFluid value="1.27"/>
+      <DensityOfParticle value="998.0"/>
+      <CwTurb value="0.4"/>
+      <Nu value="0.0000171"/>
+      <Minimum value="0.0004"/>
+      <Deviation value="0.0001"/>
+      <ScaleFactor value="1000.0"/>
+      <Rendertime value="1.0"/>
+      <Alpha value="0.4"/>
+
+      <ReynoldsThreshold value="2230"/>
+      <ReynoldsLimit value="170000"/>
+      <ColorThreshold value="100"/>
+      <SphereRenderType value="0"/>
+
+      <CwModelType value="STOKES"/>
+      <SamplingType value="circle"/>
+
+    </Spray>
+   </Plugin>
+
+  </COVER>
+
+ </GLOBAL>
+
+</COCONFIG>

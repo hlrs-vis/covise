@@ -8,12 +8,16 @@
 #ifndef NODEVISITORVERTEX_H
 #define NODEVISITORVERTEX_H
 
+#include <iostream>
+
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/NodeVisitor>
 #include <osg/TriangleFunctor>
-#include <iostream>
+
 #include <cover/coVRPluginSupport.h>
+
+#include <vector>
 
 #include "raytracer.h"
 
@@ -31,12 +35,12 @@ class nodeVisitorVertex : public osg::NodeVisitor
 private:    
     osg::Group *localScene;
     osg::Geode *localGeodeTriangle;
-    osg::Geode *localGeodeTriangleStrip;
+    osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
 
-
     bool triFunc = true;
+    bool visualize = false;
 
 public:
         nodeVisitorVertex();
@@ -53,15 +57,24 @@ public:
             vertexCoords->push_back(v3);
         }
 
+        int numOfVertices = 0;
+
         bool checkBlacklist(osg::Node* node)
         {
+            std::clock_t begin = clock();
+
             for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
             {
                 std::string compareString = *itr;
-                if(compareString.compare(node->getName()))
+                if(compareString.compare(node->getName()) == 0)
                     return true;
             }
             return false;
+
+            std::clock_t end = clock();
+            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+            printf("elapsed time for blacklisting %f\n", elapsed_secs);
 
         }
 
@@ -72,6 +85,16 @@ public:
             return localGeodeTriangle;
         }
 
+        osg::Vec3Array* getVertexArray()
+        {
+            return vertexCoords;
+        }
+
+        std::vector<osg::Node*> coNozzleList;
+        osg::Matrix getChildTransform()
+        {
+            return childTransform;
+        }
 };
 
 struct nodeVisitTriangle
@@ -80,12 +103,11 @@ private:
     nodeVisitorVertex* nvv_;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
+    //void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setNVV(nodeVisitorVertex* nvv)
     {
         nvv_ = nvv;
     }
-
-
 };
 
 #endif // NODEVISITORVERTEX_H

@@ -13,7 +13,7 @@ cmake_minimum_required (VERSION 2.6)
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
-find_package(COVISE)
+#find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
 #INCLUDE(Qt4-5)
@@ -44,7 +44,7 @@ using(EIGEN)
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
 
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
-ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
+ADD_DEFINITIONS( -DUSE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
 

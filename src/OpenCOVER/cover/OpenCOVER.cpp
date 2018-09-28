@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #endif
+#include <clocale>
 #include <util/unixcompat.h>
 
 #include <gpu/cudaglinterop.h>
@@ -294,6 +295,8 @@ bool OpenCOVER::init()
 {
     if (m_initialized)
         return true;
+
+    setlocale(LC_NUMERIC, "C");
 
     installSignalHandlers();
 

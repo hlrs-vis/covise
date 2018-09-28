@@ -169,6 +169,12 @@ struct CaseInfo
     bool hasParticles = false;
     bool valid = false;
     bool archived = false;
+    enum ArchiveFormat {
+        FormatDir,
+        FormatTar,
+        FormatZip,
+    };
+    ArchiveFormat  format = FormatDir;
 
     std::shared_ptr<std::istream> getStreamForFile(const std::string &base, const std::string &filename);
     Boundaries loadBoundary(const std::string &meshdir);

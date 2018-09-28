@@ -182,6 +182,10 @@ public:
 	QDockWidget  *createCatalog(const QString &, QWidget *widget);
 
 
+
+    void updateCOVERConnectionIcon(const QIcon &icon);
+
+
 private:
     // Init functions //
     //
@@ -195,6 +199,7 @@ private:
 
     void createFileSettings();
 
+    void createCOVERConnectionButton();
 
 
     void createMdiArea();
@@ -292,6 +297,8 @@ private slots:
 
     void changeCOVERConnection();
 
+
+    void openCOVERSettings();
     //################//
     // PROPERTIES     //
     //################//
@@ -357,6 +364,12 @@ private:
     // Covise Directory Path //
     //
     QString covisedir_;
+
+    // COVERConnection Button //
+    //
+    QPushButton *coverButton;
+
+    QToolBar *coverConnectionToolBar;
 };
 
 #endif // MAINWINDOW_HPP

@@ -52,7 +52,7 @@ class OSCItem : public SVGElement
     //################//
 
 public:
-	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad);
+	explicit OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad, RSystemElementRoad *road);
     virtual ~OSCItem();
 
 
@@ -119,7 +119,7 @@ private:
 	RoadSystem *roadSystem_;
 	OSCBaseItem * oscBaseItem_;
 	OSCRoadSystemItem *roadSystemItem_;
-	std::string covisedir_;
+	QString covisedir_;
 	
 
     void init();

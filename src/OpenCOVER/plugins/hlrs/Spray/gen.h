@@ -39,18 +39,27 @@ const float Pi = 3.141592653;
 class gen
 {
 private:
+    enum
+    {
+        CW_STOKES,
+        CW_MOLERUS,
+        CW_MUSCHELK,
+        CW_NONE
+    };
+
     coSphere* coSphere_;
     osg::Geode* geode_;
     osg::Vec4 currentColor = osg::Vec4(1,1,1,1);
     osg::Vec3 gravity = osg::Vec3(0,0,g);
     osg::ref_ptr<osg::MatrixTransform> transform_;
+    std::vector<particle*> RTParticles;
 
     bool outOfBound = false;
 
     float tCur = 1;
 
 
-    std::string cwModelType = "STOKES";
+    int cwModelType = CW_MOLERUS;
 
     float densityOfFluid = 1.18;
     int reynoldsThreshold = 2230;
@@ -62,18 +71,20 @@ private:
     float deviation = 0.00005;
     int iterations = 4;
     float removeCount = 0.9;
+    float alpha = 0.4;
+    float gaussamp = 1;
 
     int outOfBoundCounter = 0;    
 
     void updateCoSphere();
-    float reynoldsNr(float v, double d);
 
 protected:
     std::vector<particle*> pVec;
     float densityOfParticle = 1000;
     class nozzle* owner_;
     int particleCount_ = 1000;
-    float initPressure_;
+    float initPressure_ = 2;
+    float vInit = 0;
 
     void setCoSphere(osg::Vec3Array *pos);
 
@@ -81,7 +92,10 @@ public:
     gen(float pInit, class nozzle *owner);
     virtual ~gen();
 
-    void init();    
+    void init();
+
+    float gaussian(float value);
+    float reynoldsNr(float vInit, double d);
 
     void setColor(osg::Vec4 newColor){
         currentColor = newColor;
@@ -89,6 +103,8 @@ public:
             coSphere_->setColor(i, newColor.x(), newColor.y(), newColor.z(), newColor.w());
         }
     }
+
+    float displayedTime = 0;
 
     osg::Geode* getGeode(){
         return geode_;
@@ -134,6 +150,20 @@ public:
     {
         removeCount = newRemoveCount;
     }
+
+    void setAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+        gaussamp = 1;
+        gaussamp = gaussian(0);
+    }
+
+    float getAlpha()
+    {
+        return alpha;
+    }
+
+    void updateAll(osg::Vec3 boundingBox);
 };
 
 
@@ -144,7 +174,7 @@ private:
     pImageBuffer* iBuf_;
 public:
     imageGen(pImageBuffer* iBuf, float pInit, class nozzle* owner);
-    ~imageGen();
+    ~imageGen(){}
 
     void seed();
 };

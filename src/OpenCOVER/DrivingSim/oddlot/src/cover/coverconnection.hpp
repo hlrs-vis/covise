@@ -49,19 +49,32 @@ public:
     void send(covise::TokenBuffer &tb);
     void setMainWindow(MainWindow *mw);
 
+    QIcon* getIconConnected()
+    {
+        return coverConnected;
+    }
+
+    QIcon* getIconDisconnected()
+    {
+        return coverDisconnected;
+    }
+
+    bool getConnected()
+    {
+        return connected;
+    }
+
     static COVERConnection *instance()
     {
         if(inst==NULL)
             inst = new COVERConnection();
         return inst;
     };
-    bool isConnected()
-    {
-        return(toCOVER!=NULL);
-    }
-    
-    bool waitForMessage(covise::Message **m);
 
+
+    bool waitForMessage(covise::Message **m);
+    void setConnected(bool c);
+    bool isConnected();
 private:
     QString hostname;
     Ui::COVERConnection *ui;
@@ -70,14 +83,15 @@ private:
     covise::Message *msg;
     QSocketNotifier *toCOVERSN;
     MainWindow *mainWindow;
+    QIcon *coverConnected;
+    QIcon *coverDisconnected;
     int port;
+    bool connected;
 
     static COVERConnection *inst;
     
     void closeConnection();
 
-    bool doConnect();
-    void setConnected(bool c);
     int getPort();
 
     bool handleClient(covise::Message *msg);

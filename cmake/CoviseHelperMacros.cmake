@@ -995,7 +995,7 @@ MACRO(COVISE_FIND_CUDA)
           set(CUDA_PROPAGATE_HOST_FLAGS ON)
           if(NOT WIN32)
               # nvcc aborts compilation if -std was defined more than once
-              if (COVISE_USE_CPP11 AND "${CMAKE_VERSION}" VERSION_LESS "3.3.0")
+              if ("${CMAKE_VERSION}" VERSION_LESS "3.3.0")
                   set(CUDA_NVCC_FLAGS "-std=c++11 ${CUDA_NVCC_FLAGS}")
               endif()
               if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))

@@ -132,7 +132,7 @@ VRBLExport::texture(UVVert &uv)
 {
     static TCHAR buf[50];
     TCHAR format[20];
-    _stprintf(format, _T("%%.%dg %%.%dg"), mDigits, mDigits, mDigits);
+    _stprintf(format, _T("%%.%dg %%.%dg"), mDigits, mDigits);
     _stprintf(buf, format, roundToZero(uv.x), roundToZero(uv.y));
     CommaScan(buf);
     return buf;
@@ -1101,6 +1101,7 @@ VRBLExport::OutputMaterial(INode *node, BOOL &twoSided, int level)
 BOOL
 VRBLExport::VrblOutSphere(INode * node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* iSphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
 	DbgAssert(iSphereParams);
@@ -1126,6 +1127,29 @@ VRBLExport::VrblOutSphere(INode * node, Object *obj, int level)
 	mStream.Printf(_T("Sphere { radius %s }\n"), floatVal(radius));
 
 	return TRUE;
+
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float radius, hemi;
+    int basePivot, genUV, smooth;
+    BOOL td = HasTexture(node);
+
+    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+        return FALSE;
+
+    so->pblock->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+
+    Indent(level);
+
+    MSTREAMPRINTF("Sphere { radius %s }\n"), floatVal(radius));
+
+    return TRUE;
+#endif
 }
 
 // Create a VRMNL primitive cylinder, if appropriate.  
@@ -1133,6 +1157,7 @@ VRBLExport::VrblOutSphere(INode * node, Object *obj, int level)
 BOOL
 VRBLExport::VrblOutCylinder(INode* node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2 *iCylParams = obj->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
 	DbgAssert(iCylParams);
@@ -1173,6 +1198,45 @@ VRBLExport::VrblOutCylinder(INode* node, Object *obj, int level)
 	mStream.Printf(_T("}\n"));
 
 	return TRUE;
+#else
+SimpleObject *so = (SimpleObject *)obj;
+float radius, height;
+int sliceOn, genUV, smooth;
+BOOL td = HasTexture(node);
+
+// Reject sliced, non-smooth and mapped cylinders
+so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+if (sliceOn || (genUV && td) || !smooth)
+return FALSE;
+
+so->pblock->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+Indent(level);
+MSTREAMPRINTF("Separator {\n"));
+Indent(level + 1);
+if (mZUp)
+{
+    MSTREAMPRINTF("Rotation { rotation 1 0 0 %s }\n"),
+        floatVal(float(PI / 2.0)));
+        Indent(level + 1);
+        MSTREAMPRINTF("Translation { translation 0 %s 0 }\n"),
+            floatVal(float(height / 2.0)));
+}
+else
+{
+    Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+    MSTREAMPRINTF("Translation { translation %s }\n"), point(p));
+}
+Indent(level + 1);
+MSTREAMPRINTF("Cylinder { radius %s "), floatVal(radius));
+MSTREAMPRINTF("height %s }\n"), floatVal(float(fabs(height))));
+Indent(level);
+MSTREAMPRINTF("}\n"));
+
+return TRUE;
+#endif
 }
 
 // Create a VRMNL primitive cone, if appropriate.  
@@ -1180,6 +1244,7 @@ VRBLExport::VrblOutCylinder(INode* node, Object *obj, int level)
 BOOL
 VRBLExport::VrblOutCone(INode* node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2 *iConeParams = obj->GetParamBlockByID(CONE_PARAMBLOCK_ID);
 	DbgAssert(iConeParams);
@@ -1227,12 +1292,59 @@ VRBLExport::VrblOutCone(INode* node, Object *obj, int level)
 	Indent(level);
 	mStream.Printf(_T("}\n"));
 	return TRUE;
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float radius1, radius2, height;
+    int sliceOn, genUV, smooth;
+    BOOL td = HasTexture(node);
+
+    // Reject sliced, non-smooth and mappeded cones
+    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+    if (sliceOn || (genUV && td) || !smooth || radius2 > 0.0f)
+        return FALSE;
+
+    so->pblock->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
+    so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+    Indent(level);
+
+    MSTREAMPRINTF("Separator {\n"));
+    Indent(level + 1);
+    if (mZUp)
+    {
+        if (height > 0.0f)
+            MSTREAMPRINTF("Rotation { rotation 1 0 0 %s }\n"),
+            floatVal(float(PI / 2.0)));
+        else
+            MSTREAMPRINTF("Rotation { rotation 1 0 0 %s }\n"),
+            floatVal(float(-PI / 2.0)));
+            Indent(level + 1);
+            MSTREAMPRINTF("Translation { translation 0 %s 0 }\n"),
+                floatVal(float(fabs(height) / 2.0)));
+    }
+    else
+    {
+        Point3 p = Point3(0.0f, 0.0f, (float)fabs(height) / 2.0f);
+        MSTREAMPRINTF("Translation { translation %s }\n"), point(p));
+    }
+    Indent(level + 1);
+
+    MSTREAMPRINTF("Cone { bottomRadius %s "), floatVal(radius1));
+    MSTREAMPRINTF("height %s }\n"), floatVal(float(fabs(height))));
+
+    Indent(level);
+    MSTREAMPRINTF("}\n"));
+    return TRUE;
+#endif
 }
 // Create a VRMNL primitive cube, if appropriate.  
 // Returns TRUE if a primitive is created
 BOOL
 VRBLExport::VrblOutCube(INode* node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	Mtl* mtl = node->GetMtl();
 	// Multi materials need meshes
 	if (mtl && mtl->IsMultiMtl())
@@ -1286,6 +1398,58 @@ VRBLExport::VrblOutCube(INode* node, Object *obj, int level)
 	mStream.Printf(_T("}\n"));
 
 	return TRUE;
+#else
+    Mtl *mtl = node->GetMtl();
+    // Multi materials need meshes
+    if (mtl && mtl->IsMultiMtl())
+        return FALSE;
+
+    SimpleObject *so = (SimpleObject *)obj;
+    float length, width, height;
+    BOOL td = HasTexture(node);
+
+    int genUV, lsegs, wsegs, hsegs;
+    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+        return FALSE;
+
+    so->pblock->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
+    so->pblock->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
+    so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+    Indent(level);
+    MSTREAMPRINTF("Separator {\n"));
+    Indent(level + 1);
+    Point3 p = Point3(0.0f, 0.0f, height / 2.0f);
+    // VRML cubes grow from the middle, MAX grows from z=0
+    MSTREAMPRINTF("Translation { translation %s }\n"), point(p));
+    Indent(level + 1);
+
+    if (mZUp)
+    {
+        MSTREAMPRINTF("Cube { width %s "),
+            floatVal(float(fabs(width))));
+            MSTREAMPRINTF("height %s "),
+                floatVal(float(fabs(length))));
+                MSTREAMPRINTF(" depth %s }\n"),
+                    floatVal(float(fabs(height))));
+    }
+    else
+    {
+        MSTREAMPRINTF("Cube { width %s "),
+            floatVal(float(fabs(width))));
+            MSTREAMPRINTF("height %s "),
+                floatVal(float(fabs(height))));
+                MSTREAMPRINTF(" depth %s }\n"),
+                    floatVal(float(fabs(length))));
+    }
+    Indent(level);
+    MSTREAMPRINTF("}\n"));
+
+    return TRUE;
+#endif
 }
 
 // Output a perspective camera
@@ -3827,7 +3991,7 @@ VRBLExport::DoExport(const TCHAR *filename, ExpInterface *ei, Interface *i, BOOL
                 rfName.remove(extLoc);
             rfName.Append(_T(".txt"));
             FILE *fio = _tfopen(rfName.data(), _T("w"));
-            fprintf(fio, "%s\n", filename);
+            fprintf(fio, "%ls\n", filename);
             fprintf(fio, "Start Time (sec.):\t%d.0\n", mStart / TIME_TICKSPERSEC);
             fprintf(fio, "End Time (sec.):\t%d.0\n", end / TIME_TICKSPERSEC);
             fprintf(fio, "Number of Frames:\t%d\n", numFrames);

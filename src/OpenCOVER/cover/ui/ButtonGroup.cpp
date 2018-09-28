@@ -57,6 +57,19 @@ int ButtonGroup::value() const
             id = b->buttonId();
         }
     }
+    if (numSet > 1)
+    {
+        std::cerr << "ui::ButtonGroup " << path() << " has " << numSet << " values set:";
+        for (auto e: m_children)
+        {
+            auto b = dynamic_cast<Button *>(e);
+            if (b->state())
+            {
+                std::cerr << " " << b->name();
+            }
+        }
+        std::cerr << std::endl;
+    }
     assert(numSet <= 1);
     assert(numChildren()==0 || m_allowDeselect || numSet == 1);
     return id;

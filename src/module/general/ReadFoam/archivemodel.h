@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 #include <streambuf>
+#include <memory>
+
+class archive_streambuf;
 
 namespace fs {
 
@@ -45,6 +48,8 @@ private:
 
 class Entry {
     friend class Path;
+    friend class Model;
+    friend class ::archive_streambuf;
 public:
    Entry(const Directory *parent, std::string name);
    virtual ~Entry();
@@ -61,6 +66,7 @@ protected:
     const Model *model = nullptr;
     const Directory *parent = nullptr;
     std::string name;
+    std::string pathname;
 };
 
 class File: public Entry {
@@ -68,7 +74,8 @@ class File: public Entry {
 public:
    File(const Directory *dir, const std::string &name);
    size_t size = 0;
-   size_t offset = 0;
+   size_t offset = 0; // offset within archive
+   int index = -1; // index of entry in zip file
 };
 
 class Directory: public Entry {
@@ -112,8 +119,12 @@ private:
     std::map<std::string,File>::const_iterator fit;
 };
 
+class ModelPrivate;
+
 class Model {
    friend class Path;
+   friend class ::archive_streambuf;
+   friend class ModelPrivate;
 public:
 
    Model(const std::string &archiveOrDirectory);
@@ -134,6 +145,7 @@ private:
    bool archive = false;
    std::string container;
    Directory root;
+   std::shared_ptr<ModelPrivate> d;
 };
 
 bool is_directory(const Entry &entry);
@@ -142,4 +154,17 @@ bool exists(const Path &path);
 
 } // namespace fs
 
+
+class archive_streambuf: public std::streambuf {
+public:
+    archive_streambuf(const fs::File *file);
+    ~archive_streambuf() override;
+    int_type underflow() override;
+
+private:
+    std::streamsize nread = 0;
+    char buf[(1<<16)+1];
+    void *archive = nullptr;
+    void *zip = nullptr;
+};
 #endif

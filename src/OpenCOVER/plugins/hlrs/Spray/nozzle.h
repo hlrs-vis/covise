@@ -22,6 +22,9 @@ using namespace opencover;
 #include <osg/Node>
 #include <osg/ShapeDrawable>
 #include <osg/BoundingBox>
+#include <osg/Group>
+#include <osg/Node>
+#include <osg/Geode>
 
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRFileManager.h>
@@ -42,24 +45,30 @@ private:
     int counter = 0;
     int nozzleID = 0;
 
-    int prevGenCreate = 0;
+    int prevEmissionRate = 0;
 
     float initPressure_ = 2;
     float minimum = 0.000025;
     float deviation = 0.00005;
+    float alpha = 0.4;
+    float scale = 1;
 
     osg::ref_ptr<osg::MatrixTransform> transform_;
+    osg::Group* interactorGroup;
     osg::Geode* geode_;
+    osg::Geode* nozzleGeode;
     osg::Vec3 boundingBox_ = osg::Vec3(200,200,200);
-    osg::Box* box_;
+    osg::Cone* cone_;
     osg::ShapeDrawable* shapeDrawable_;
     osg::Vec4 nozzleColor = osg::Vec4(1,1,1,1);
     osg::Vec4 currentColor_ = osg::Vec4(1,1,0,1);
+    osg::MatrixTransform* nozzleScale;
 
     void updateColor();
 
     bool initialized = false;
     bool labelRegistered = false;
+    bool displayed = true;
 
     std::string param1 = "none";
     std::string param2 = "none";
@@ -71,7 +80,7 @@ private:
 protected:
     void createGeometry();
     int particleCount_ = 1000;
-    float autoremoveCount = 0.9;
+    float autoremoveCount = 1.0;
     std::string nozzleName_;
     std::list<class gen*> genList;
 
@@ -81,6 +90,7 @@ public:
     nozzle(osg::Matrix initialMat, float size, std::string nozzleName);
 
     virtual ~nozzle();
+    void display(bool state);
 
     virtual void createGen();
 
@@ -210,6 +220,28 @@ public:
     {
         return intersection;
     }
+
+    void setAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+    }
+
+    float getAlpha()
+    {
+        return alpha;
+    }
+
+    void setNozzleGeometryNode(osg::Node* node);
+
+    void setScale(float newScale);
+
+    float getScale()
+    {
+        return scale;
+    }
+
+    void deleteAllGen();
+
 };
 
 
@@ -221,6 +253,7 @@ private:
     std::string decoy_;
 public:
     standardNozzle(float sprayAngle, std::string decoy, osg::Matrix initialMat, float size, std::string nozzleName);
+    ~standardNozzle(){}
 
     void createGen();
     void save(std::string pathName, std::string fileName);
@@ -237,6 +270,16 @@ public:
 class imageNozzle : public nozzle
 {
 private:
+    enum
+    {
+        R_CANAL,
+        G_CANAL,
+        B_CANAL,
+        RG_CANAL,
+        RB_CANAL,
+        RGB_CANAL,
+        GB_CANAL
+    };
     std::string fileName_;
     std::string pathName_;
 
@@ -244,10 +287,11 @@ private:
 
     int samplingPoints = 1000;
 
-    float pixel_to_mm_;
-    float pixel_to_flow_;
-    float pixel_to_radius_;
-    int colorDepth_;
+    float pixel_to_mm_ = 0;
+    float pixel_to_flow_ = 0;
+    float pixel_to_radius_ = 0;
+    float pixel_to_velocity_ = 0;
+    int colorDepth_ = 3;
     int colorThreshold_ = 100;
 
 
@@ -258,7 +302,7 @@ private:
 public:
 
     imageNozzle(std::string pathName, std::string fileName, osg::Matrix initialMat, float size, std::string nozzleName);
-    ~imageNozzle();
+    ~imageNozzle(){}
 
     void createGen();
     void save(std::string pathName, std::string fileName);

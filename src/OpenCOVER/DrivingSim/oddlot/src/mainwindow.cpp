@@ -27,6 +27,7 @@
 // Qt //
 //
 #include <QtGui>
+#include <QPushButton>
 #include <QLabel>
 #include <QUndoGroup>
 #include <QUndoView>
@@ -103,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     fileSettings = new FileSettings();
 
     createFileSettings();
-
+    createCOVERConnectionButton();
     // Default //
     //
     emit(hasActiveProject(false));
@@ -164,6 +165,25 @@ void
 MainWindow::updateStatusBarPos(const QPointF &pos)
 {
     locationLabel_->setText(QString(" [%1").arg(pos.x(), 10, 'f', 3, ' ').append(", %2] ").arg(pos.y(), 10, 'f', 3, ' '));
+}
+
+void
+MainWindow::createCOVERConnectionButton()
+{
+    coverButton = new QPushButton();
+    updateCOVERConnectionIcon(*(coverConnection->getIconDisconnected()));
+    coverButton->setIconSize(QSize(30,30));
+    connect(coverButton,SIGNAL(clicked()),this,SLOT(openCOVERSettings()));
+    coverConnectionToolBar = new QToolBar();
+    coverConnectionToolBar->addWidget(coverButton);
+    coverConnectionToolBar->setAllowedAreas(Qt::TopToolBarArea);
+    addToolBar(coverConnectionToolBar);
+}
+
+void
+MainWindow::updateCOVERConnectionIcon(const QIcon &icon)
+{
+    coverButton->setIcon(icon);
 }
 
 /*! \brief Creates the official actions and inserts
@@ -338,7 +358,6 @@ MainWindow::createActions()
     fileMenu_->addAction(lodSettingsAction);
 
     fileMenu_->addAction(coverConnectionAction);
-
 	fileMenu_->addAction(importSettingsAction);
     fileMenu_->addAction(exportSettingsAction);
     fileMenu_->addAction(OSCSettingsAction);*/
@@ -373,6 +392,8 @@ MainWindow::createFileSettings()
     fileSettings->addTab(lodSettings);
     fileSettings->addTab(coverConnection);
 }
+
+
 
 /*! \brief Creates the MDI Area.
 *
@@ -1067,6 +1088,20 @@ MainWindow::changeCOVERConnection()
         coverConnection->show();
     }
     return;
+}
+
+void
+MainWindow::openCOVERSettings()
+{
+    if (getActiveProject())
+    {
+        /*if(coverConnection->getConnected())
+        {
+            fileSettings->show();
+            fileSettings->getTabWidget()->setCurrentWidget(coverConnection);
+        }*/
+        coverConnection->setConnected(!(coverConnection->getConnected()));
+    }
 }
 
 void

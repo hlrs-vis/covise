@@ -56,8 +56,11 @@ public:
 // #define DEBUG_NORM_HASH
 #include "BufferedStream.h"
 
-//#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 #define MAXSTREAMDECL BufferedStream
+#else
+#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#endif
 
 // Hash table for rendering normals
 class NormalTable

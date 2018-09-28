@@ -389,7 +389,7 @@ BOOL CALLBACK
                                            (WPARAM)index, 0);
                         th->dlgPrevSel = -1;
                         // remove the object from the table
-                        th->DeleteReference(i + 1);
+                        th->DeleteReference(i + 1+ th->objects.Count());
                         th->objectsExit.Delete(i, 1);
                         th->pblock->SetValue(PB_PS_NUMOBJS,
                                              th->iObjParams->GetTime(),

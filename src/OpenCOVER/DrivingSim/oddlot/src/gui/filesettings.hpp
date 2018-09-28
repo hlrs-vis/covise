@@ -16,6 +16,10 @@ class FileSettings : public QDialog
         explicit FileSettings();
         virtual ~FileSettings();
 
+        QTabWidget* getTabWidget()
+        {
+            return ui->tabWidget;
+        }
         void addTab(QWidget *widget);
 
     signals:

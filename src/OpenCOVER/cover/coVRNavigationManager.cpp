@@ -1554,7 +1554,8 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
             selectInteractButton_->setState(true, updateGroup);
         break;
     default:
-        fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
+        if (navMode != NavOther)
+            fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
 

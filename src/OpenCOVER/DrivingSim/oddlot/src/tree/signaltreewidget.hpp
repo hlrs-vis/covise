@@ -19,6 +19,7 @@
 #include "src/util/odd.hpp"
 
 #include <QTreeWidget>
+#include <QDrag>
 
 class ProjectData;
 class ProjectWidget;
@@ -48,11 +49,14 @@ public:
 	void setSignalEditor(SignalEditor *signalEditor);
 
 protected:
+
+    virtual void mouseMoveEvent(QMouseEvent *event);
 private:
     SignalTreeWidget(); /* not allowed */
     SignalTreeWidget(const SignalTreeWidget &); /* not allowed */
     SignalTreeWidget &operator=(const SignalTreeWidget &); /* not allowed */
 
+    QDrag* PrepareDrag();
     void init();
 
     //################//
@@ -81,6 +85,8 @@ private:
 	MainWindow *mainWindow_;
 	SignalEditor *signalEditor_;
 	ODD::ToolId currentTool_;
+
+    QPointF dragStartPosition_;
 };
 
 #endif // PROJECTTREEWIDGET_HPP

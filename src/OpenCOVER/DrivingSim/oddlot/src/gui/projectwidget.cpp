@@ -242,9 +242,6 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), projectSettings_, SLOT(garbageDisposal()));
 
-    //projectionSettings = ProjectionSettings::instance();
-    //projectionSettings = new ProjectionSettings();
-    //projectionSettings->setProjectData(projectData_);
     projectionSettings = mainWindow->getProjectionSettings();
     lodSettings = LODSettings::instance();
 

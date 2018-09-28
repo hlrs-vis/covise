@@ -25,7 +25,9 @@ MapDrape::MapDrape(int argc, char *argv[])
 	: coSimpleModule(argc, argv, "map coordinates and drape to height field")
 {
 	// setup GDAL
+    fprintf(stderr, "MapDrape::\n");
 	GDALAllRegister();
+    fprintf(stderr, "MapDrape::Gdal\n");
 
 	p_geo_in_ = addInputPort("geo_in", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid input");
 	p_geo_out_ = addOutputPort("geo_out", "Polygons|TriangleStrips|Points|Lines|UnstructuredGrid|UniformGrid|RectilinearGrid|StructuredGrid", "polygon/grid output");
@@ -57,18 +59,24 @@ MapDrape::MapDrape(int argc, char *argv[])
 	p_offset_ = addFloatVectorParam("offset", "offset");
 	p_heightfield_ = addFileBrowserParam("heightfield", "height field as geotif");
 	p_heightfield_->setValue("/tmp/foo.tif", "*.tif");
+    p_mapSourceCS = addBooleanParam("heightmap_is_in_source_cs", "heightmap_is_in_source_cs");
+    p_mapSourceCS->setValue(true);
+
 }
 
 
 int
 MapDrape::compute(const char *)
 {
-
+    heightDataset = 0;
 	const char *imageName = p_heightfield_->getValue();
 	if (imageName)
 	{
 		std::string name = imageName;
-		openImage(name);
+        if (name.length() > 0)
+        {
+            openImage(name);
+        }
 	}
 	p_offset_->getValue(Offset[0], Offset[1], Offset[2]);
 
@@ -297,15 +305,24 @@ MapDrape::compute(const char *)
 
 void MapDrape::transformCoordinates(int numCoords, float *xIn, float *yIn, float *zIn, float *xOut, float *yOut, float *zOut)
 {
+    bool source = p_mapSourceCS->getValue();
 	for (int i = 0; i < numCoords; i++)
 	{
 
 		double x = xIn[i] * DEG_TO_RAD;
 		double y = yIn[i] * DEG_TO_RAD;
 		double z = zIn[i];
-		if (heightDataset)
-			z = getAlt(xIn[i], yIn[i]);
+        if(source)
+        {
+            if (heightDataset)
+                z = getAlt(xIn[i], yIn[i]);
+        }
 		pj_transform(pj_from, pj_to, 1, 1, &x, &y, &z);
+        if (!source)
+        {
+            if (heightDataset)
+                z = getAlt(x, y);
+        }
 
 		xOut[i] = x + Offset[0];
 		yOut[i] = y + Offset[1];
@@ -322,24 +339,56 @@ void MapDrape::openImage(std::string &name)
 {
 
 	heightDataset = (GDALDataset *)GDALOpen(name.c_str(), GA_ReadOnly);
-	if (heightDataset != NULL)
-	{
-		int             nBlockXSize, nBlockYSize;
-		int             bGotMin, bGotMax;
-		double          adfMinMax[2];
-		double        adfGeoTransform[6];
+    if (heightDataset != NULL)
+    {
+        int             nBlockXSize, nBlockYSize;
+        int             bGotMin, bGotMax;
+        double          adfMinMax[2];
+        double        adfGeoTransform[6];
 
-		printf( "Size is %dx%dx%d\n", heightDataset->GetRasterXSize(), heightDataset->GetRasterYSize(), heightDataset->GetRasterCount() );
-		if (heightDataset->GetGeoTransform(adfGeoTransform) == CE_None)
-		{
-			printf("Origin = (%.6f,%.6f)\n",
-				adfGeoTransform[0], adfGeoTransform[3]);
-			printf("Pixel Size = (%.6f,%.6f)\n",
-				adfGeoTransform[1], adfGeoTransform[5]);
-		}
+        printf("Size is %dx%dx%d\n", heightDataset->GetRasterXSize(), heightDataset->GetRasterYSize(), heightDataset->GetRasterCount());
+        if (heightDataset->GetGeoTransform(adfGeoTransform) == CE_None)
+        {
+            printf("Origin = (%.6f,%.6f)\n",
+                adfGeoTransform[0], adfGeoTransform[3]);
+            printf("Pixel Size = (%.6f,%.6f)\n",
+                adfGeoTransform[1], adfGeoTransform[5]);
+        }
+        int numRasterBands = heightDataset->GetRasterCount();
 
-		heightBand = heightDataset->GetRasterBand(1);
-		heightBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
+        heightBand = heightDataset->GetRasterBand(1);
+        heightBand->GetBlockSize(&nBlockXSize, &nBlockYSize);
+        cols = heightDataset->GetRasterXSize();
+        rows = heightDataset->GetRasterYSize();
+        double transform[100];
+        heightDataset->GetGeoTransform(transform);
+
+        xOrigin = transform[0];
+        yOrigin = transform[3];
+        pixelWidth = transform[1];
+        pixelHeight = -transform[5];
+        delete[] rasterData;
+        rasterData = new float[cols*rows];
+        float *pafScanline;
+        int   nXSize = heightBand->GetXSize();
+        pafScanline = (float *)CPLMalloc(sizeof(float)*nXSize);
+        for (int i = 0; i < rows; i++)
+        {
+            if (heightBand->RasterIO(GF_Read, 0, i, nXSize, 1,
+                pafScanline, nXSize, 1, GDT_Float32,
+                0, 0) == CE_Failure)
+            {
+                std::cerr << "MapDrape::openImage: GDALRasterBand::RasterIO failed" << std::endl;
+                break;
+            }
+            memcpy(&(rasterData[(i*cols)]), pafScanline, nXSize * sizeof(float));
+        }
+
+        if (heightBand->ReadBlock(0, 0, rasterData) == CE_Failure)
+        {
+            std::cerr << "MapDrape::openImage: GDALRasterBand::ReadBlock failed" << std::endl;
+            return;
+        }
 
 		adfMinMax[0] = heightBand->GetMinimum(&bGotMin);
 		adfMinMax[1] = heightBand->GetMaximum(&bGotMax);
@@ -353,9 +402,13 @@ void MapDrape::openImage(std::string &name)
 
 float MapDrape::getAlt(double x, double y)
 {
+    int col = int((x - xOrigin) / pixelWidth);
+    int row = int((yOrigin - y) / pixelHeight);
+    return rasterData[col + (row*cols)];
 	float *pafScanline;
 	int   nXSize = heightBand->GetXSize();
 
+    delete[] pafScanline;
 	pafScanline = new float[nXSize];
 	auto err = heightBand->RasterIO(GF_Read, x, y, 1, 1,
 		pafScanline, nXSize, 1, GDT_Float32,
