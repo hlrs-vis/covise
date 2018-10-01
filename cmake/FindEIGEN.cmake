@@ -11,6 +11,7 @@ ENDIF(EIGEN_INCLUDE_DIR)
 
 FIND_PATH(EIGEN_INCLUDE_DIR "Eigen/Eigen"
   PATHS
+  $ENV{EXTERNLIBS}/eigen/include
   ~/Library/Frameworks
   /Library/Frameworks
   /usr/local/include/eigen3
