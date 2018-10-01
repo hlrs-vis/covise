@@ -128,6 +128,7 @@ private:
 	size_t maxBodyNumber;
     size_t numControllers;
     size_t numTrackers;
+    size_t numBaseStations;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	bool haveTrackerOrigin;
 	bool m_transformOriginToLighthouse;	//Config variable for origin transform
