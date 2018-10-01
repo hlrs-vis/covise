@@ -345,7 +345,7 @@ bool oscObjectBase::writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOM
 							{
 								//oscMember
 
-								xercesc::DOMElement *memberElement = document->createElement(t1 = xercesc::XMLString::transcode(member->getName().c_str())); xercesc::XMLString::release(&t1);
+								xercesc::DOMElement *memberElement = document->createElement(t1 = XMLChTranscodeUtf(member->getName().c_str())); xercesc::XMLString::release(&t1);
 								currentElement->appendChild(memberElement);
 								obj->writeToDOM(memberElement, document, writeInclude);
 							}
@@ -412,7 +412,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
         xercesc::DOMAttr *attribute = dynamic_cast<xercesc::DOMAttr *>(attributes->item(attrIndex));
         if(attribute != NULL)
         {
-            std::string attributeName = cs = xercesc::XMLString::transcode(attribute->getName()); xercesc::XMLString::release(&cs);
+            std::string attributeName = cs = XMLChTranscodeUtf(attribute->getName()); xercesc::XMLString::release(&cs);
 
             //attributes "xmlns", "xmlns:osc" and "xml:base" are generated and/or used with namespaces and XInclude
             //they have no representation in the object structure
@@ -461,7 +461,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
                 }
                 else
                 {
-                    std::cerr << "Node " << (cs = xercesc::XMLString::transcode(currentElement->getNodeName())) << " does not have any member value called " << attributeName << std::endl; xercesc::XMLString::release(&cs);
+                    std::cerr << "Node " << (cs = XMLChTranscodeUtf(currentElement->getNodeName())) << " does not have any member value called " << attributeName << std::endl; xercesc::XMLString::release(&cs);
                 }
             }
         }
@@ -474,7 +474,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
         xercesc::DOMElement *memberElem = dynamic_cast<xercesc::DOMElement *>(membersList->item(memberIndex));
         if(memberElem != NULL)
         {
-            std::string memberName = cs = xercesc::XMLString::transcode(memberElem->getNodeName()); xercesc::XMLString::release(&cs);
+            std::string memberName = cs = XMLChTranscodeUtf(memberElem->getNodeName()); xercesc::XMLString::release(&cs);
 
             oscMember *m = getMember(memberName);
             if(m)
@@ -493,7 +493,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
 				if (am == NULL &&  m->exists())
 				{
 					std::cerr << "\n Warning!" << std::endl;
-					std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << (cs =xercesc::XMLString::transcode(currentElement->getNodeName())) << "\"" << std::endl;
+					std::cerr << "  Member \"" << m->getName() << "\" exists more than once as child of element \"" << (cs =XMLChTranscodeUtf(currentElement->getNodeName())) << "\"" << std::endl;
 					std::cerr << "  Only first entry is used." << std::endl;
 					std::cerr << "  \"" << m->getName() << "\" from file: " << m->getOwner()->getSource()->getSrcFileHrefAsStr() << " is used.\n" << std::endl;
 				}
@@ -526,7 +526,7 @@ bool oscObjectBase::parseFromXML(xercesc::DOMElement *currentElement, oscSourceF
             //
             else
             {
-                std::cerr << "Node " << (cs = xercesc::XMLString::transcode(currentElement->getNodeName())) << " does not have any member called " << memberName << std::endl;
+                std::cerr << "Node " << (cs = XMLChTranscodeUtf(currentElement->getNodeName())) << " does not have any member called " << memberName << std::endl;
             }
         }
     }
@@ -565,7 +565,7 @@ oscObjectBase *oscObjectBase::readDefaultXMLObject(bf::path destFilePath, const 
 	xercesc::DOMElement *rootElem = oscBase->getDefaultXML(typeName);
 	if (rootElem)
 	{
-		std::string rootElemName = cs = xercesc::XMLString::transcode(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
+		std::string rootElemName = cs = XMLChTranscodeUtf(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
 
 		if (rootElemName == memberName)
 		{
@@ -664,7 +664,7 @@ unsigned char oscObjectBase::validate()
 
 	std::string name = ownMember->getName();
 
-	const XMLCh *source = xercesc::XMLString::transcode(name.c_str());
+	const XMLCh *source = XMLChTranscodeUtf(name.c_str());
 	xercesc::DOMDocument *xmlSrcDoc = impl->createDocument(0, source, 0);
 	if (xmlSrcDoc)
 	{
@@ -742,23 +742,23 @@ unsigned char oscObjectBase::validate()
 void oscObjectBase::addXInclude(xercesc::DOMElement *currElem, xercesc::DOMDocument *doc, const XMLCh *fileHref)
 {
     //add include element 
-    XMLCh *xInclude = xercesc::XMLString::transcode("osc:include");
+    XMLCh *xInclude = XMLChTranscodeUtf("osc:include");
     xercesc::DOMElement *xIncludeElem = doc->createElement(xInclude);
 	xercesc::XMLString::release(&xInclude);
-    XMLCh *attrHrefName = xercesc::XMLString::transcode("href");
+    XMLCh *attrHrefName = XMLChTranscodeUtf("href");
     xIncludeElem->setAttribute(attrHrefName, fileHref);
 	xercesc::XMLString::release(&attrHrefName);
     currElem->appendChild(xIncludeElem);
 
     //write namespace for XInclude as attribute to doc root element
-    XMLCh *attrXIncludeNsName = xercesc::XMLString::transcode("xmlns:osc");
+    XMLCh *attrXIncludeNsName = XMLChTranscodeUtf("xmlns:osc");
     xercesc::DOMElement *docRootElem = doc->getDocumentElement();
     xercesc::DOMAttr *attrNodeXIncludeNs = docRootElem->getAttributeNode(attrXIncludeNsName); xercesc::XMLString::release(&attrXIncludeNsName);
     if (!attrNodeXIncludeNs)
     {
         //XInclude defines a namespace associated with the URI http://www.w3.org/2001/XInclude
         //it is no link, it is treated as a normal string (as a formal identifier)
-        XMLCh *attrXIncludeNsValue = xercesc::XMLString::transcode("http://www.w3.org/2001/XInclude");
+        XMLCh *attrXIncludeNsValue = XMLChTranscodeUtf("http://www.w3.org/2001/XInclude");
         docRootElem->setAttribute(attrXIncludeNsName, attrXIncludeNsValue); xercesc::XMLString::release(&attrXIncludeNsValue);
     }
 }
@@ -769,7 +769,7 @@ oscSourceFile *oscObjectBase::determineSrcFile(xercesc::DOMElement *memElem, osc
 
     //if attribute with attrXmlBase is present, the element and all its children were read from a different file
     //therefore we generate a new oscSourceFile
-    const XMLCh *attrXmlBase = xercesc::XMLString::transcode("xml:base");
+    const XMLCh *attrXmlBase = XMLChTranscodeUtf("xml:base");
     xercesc::DOMAttr *memElemAttrXmlBase = memElem->getAttributeNode(attrXmlBase);
     if (memElemAttrXmlBase)
     {

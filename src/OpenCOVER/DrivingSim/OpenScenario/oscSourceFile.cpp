@@ -66,7 +66,7 @@ void oscSourceFile::setSrcFileHref(const std::string &srcFileHref)
 void oscSourceFile::setSrcFileHref(const XMLCh *srcFileHref)
 {
 	char *cs;
-    std::string tmpSrcFileHref = cs = xercesc::XMLString::transcode(srcFileHref); xercesc::XMLString::release(&cs);
+    std::string tmpSrcFileHref = cs = XMLChTranscodeUtf(srcFileHref); xercesc::XMLString::release(&cs);
     m_srcFileHref = convertToGenericFormat(tmpSrcFileHref);
 }
 
@@ -118,7 +118,7 @@ void oscSourceFile::setRootElementName(const std::string &rootElementName)
 void oscSourceFile::setRootElementName(const XMLCh *rootElementName)
 {
 	char *cs;
-    m_rootElementName = cs = xercesc::XMLString::transcode(rootElementName); xercesc::XMLString::release(&cs);
+    m_rootElementName = cs = XMLChTranscodeUtf(rootElementName); xercesc::XMLString::release(&cs);
 }
 
 void oscSourceFile::setXmlDoc(xercesc::DOMDocument *xmlDoc)
@@ -135,7 +135,7 @@ std::string oscSourceFile::getSrcFileHrefAsStr() const
 
 XMLCh *oscSourceFile::getSrcFileHrefAsXmlCh() const /// please release the XMLCh after usage
 {
-    return xercesc::XMLString::transcode(m_srcFileHref.generic_string().c_str());
+    return XMLChTranscodeUtf(m_srcFileHref.generic_string().c_str());
 }
 
 bf::path oscSourceFile::getSrcFileHref() const
@@ -170,7 +170,7 @@ std::string oscSourceFile::getRootElementNameAsStr() const
 
 XMLCh *oscSourceFile::getRootElementNameAsXmlCh() const /// do not forget to release the XMLCh
 {
-    return xercesc::XMLString::transcode(m_rootElementName.c_str());
+    return XMLChTranscodeUtf(m_rootElementName.c_str());
 }
 
 xercesc::DOMDocument *oscSourceFile::getXmlDoc() const

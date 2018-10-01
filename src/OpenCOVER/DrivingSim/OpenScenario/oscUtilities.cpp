@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cstdlib>
 
 #include <xercesc/sax/SAXParseException.hpp>
+#include <xercesc/util/TransService.hpp>
 
 
 using namespace OpenScenario;
@@ -50,7 +51,7 @@ void ParserErrorHandler::resetErrors()
 
 void ParserErrorHandler::reportParseException(const xercesc::SAXParseException &spExept)
 {
-    char *message = xercesc::XMLString::transcode(spExept.getMessage());
+    char *message = XMLChTranscodeUtf(spExept.getMessage());
 	errorMsg = message;
 
     std::cerr << " at line " << spExept.getLineNumber() << ", column " << spExept.getColumnNumber() <<":\n" << message <<std::endl;
@@ -98,4 +99,16 @@ std::string OpenScenario::generateRandomString(const size_t numOfChars)
     }
 
     return str;
+}
+
+char *
+OpenScenario::XMLChTranscodeUtf(const XMLCh *in)
+{
+	return  (char *)xercesc::TranscodeToStr(in, xercesc::XMLString::stringLen(in), "utf-8").adopt(); 
+}
+
+XMLCh *
+OpenScenario::XMLChTranscodeUtf(const char *s)
+{
+    return  xercesc::TranscodeFromStr((unsigned char*)s, strlen(s), "utf-8").adopt();
 }
