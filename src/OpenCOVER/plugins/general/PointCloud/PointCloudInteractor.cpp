@@ -127,6 +127,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                                 bestPoint.pointIndex = j;
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
+                                bestPoint.selectionIndex = 0;
                             }
                         }
                     }
