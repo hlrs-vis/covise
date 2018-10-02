@@ -11,6 +11,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include "oscExport.h"
 #include "oscMemberValue.h"
 #include "oscFactories.h"
+#include "oscUtilities.h"
 
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -104,7 +105,7 @@ public:
         if(valueT != NULL)
         {
 			XMLCh *t1=NULL;
-            xercesc::DOMElement *memberElement = document->createElement(t1 = xercesc::XMLString::transcode(TBase::name.c_str())); xercesc::XMLString::release(&t1);
+            xercesc::DOMElement *memberElement = document->createElement(t1 = XMLChTranscodeUtf(TBase::name.c_str())); xercesc::XMLString::release(&t1);
             currentElement->appendChild(memberElement);
             valueT->writeToDOM(memberElement,document,writeInclude);
             return true;

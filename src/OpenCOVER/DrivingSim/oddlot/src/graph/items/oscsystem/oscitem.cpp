@@ -148,6 +148,10 @@ OSCItem::init()
 	{
 		OpenScenario::oscEnum *categoryEnums = dynamic_cast<OpenScenario::oscEnum*>(categoryMember);
 		OpenScenario::oscIntValue *categoryValue = dynamic_cast<OpenScenario::oscIntValue*>(categoryMember->getValue());
+		if (!categoryValue)
+		{
+			return;
+		}
 		categoryName = categoryEnums->getValueAsStr(categoryValue->getValue());
 	}
 
