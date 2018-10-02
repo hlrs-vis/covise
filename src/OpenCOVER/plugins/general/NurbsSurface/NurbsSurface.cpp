@@ -81,6 +81,8 @@
 
 #include "alglib/interpolation.h"
 #include "alglib/stdafx.h"
+#include "alglib/statistics.h"
+#include "alglib/linalg.h"
 
 static const int DEFAULT_REF = 30000000; 
 static const int DEFAULT_MAX_REF = 100;
@@ -108,53 +110,63 @@ void NurbsSurface::initUI()
         saveFile("test.obj");
     });
 
-    orderUSlider = new ui::Slider(NurbsSurfaceMenu, "order_U");
-    orderVSlider = new ui::Slider(NurbsSurfaceMenu, "order_V");
+    surfaceSelectionSlider = new ui::Slider(NurbsSurfaceMenu, "selected_Surface");
+    surfaceSelectionSlider->setIntegral(true);
+    surfaceSelectionSlider->setText("Index of selected surface");
+    surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
+    surfaceSelectionSlider->setCallback([this](int val, bool released)
+    {
+        currentSurface = &surfaces[val];
+    }
+    );
+
+    selectionParameters = new ui::Group(NurbsSurfaceMenu,"selectionParameters");
+    selectionParameters->setText("parameters of selected surface");
+
+    orderUSlider = new ui::Slider(selectionParameters, "order_U");
+    orderVSlider = new ui::Slider(selectionParameters, "order_V");
 
     orderUSlider->setIntegral(true);
     orderUSlider->setText("Order U");
     orderUSlider->setBounds(2, 4);
-    orderUSlider->setValue(order_U);;
+    orderUSlider->setValue(currentSurface->order_U);;
     orderUSlider->setCallback([this](int val, bool released)
     {
-        destroy();
-        order_U=val;
-        updateSurface();
+        currentSurface->destroy();
+        currentSurface->order_U=val;
+        currentSurface->updateSurface();
     }
     );
-
-
 
     orderVSlider->setIntegral(true);
     orderVSlider->setText("Order V");
     orderVSlider->setBounds(2, 4);
-    orderVSlider->setValue(order_V);;
+    orderVSlider->setValue(currentSurface->order_V);;
     orderVSlider->setCallback([this](int val, bool released)
     {
-        destroy();
-        order_V=val;
-        updateSurface();
+        currentSurface->destroy();
+        currentSurface->order_V=val;
+        currentSurface->updateSurface();
     }
     );
 
-    numEdgeSectorsSlider = new ui::Slider(NurbsSurfaceMenu, "edge_sectors");
+    numEdgeSectorsSlider = new ui::Slider(selectionParameters, "edge_sectors");
     numEdgeSectorsSlider->setIntegral(true);
     numEdgeSectorsSlider->setText("Number of sectors for edge interpolation");
     numEdgeSectorsSlider->setBounds(2,10);
-    numEdgeSectorsSlider->setValue(numEdgeSectors);
+    numEdgeSectorsSlider->setValue(currentSurface->numEdgeSectors);
     numEdgeSectorsSlider->setCallback([this](int val, bool released)
     {
-        destroy();
-        numEdgeSectors=val;
-        updateSurface();
+        currentSurface->destroy();
+        currentSurface->numEdgeSectors=val;
+        currentSurface->updateSurface();
     }
     );
-
 }
 
 void NurbsSurface::saveFile(const std::string &fileName)
 {
-        osgDB::writeNodeFile(*geode, fileName.c_str());
+        //osgDB::writeNodeFile(*geode, fileName.c_str());
 }
 
 bool NurbsSurface::init()
@@ -162,127 +174,131 @@ bool NurbsSurface::init()
         if (cover->debugLevel(3))
                 fprintf(stderr, "\n--- NurbsSurface::init\n");
 
+        for (std::vector<surfaceInfo>::iterator it=surfaces.begin(); it != surfaces.end(); it++)
+        {
+            fprintf(stderr, "\n--- create model\n");
+            it->createRBFModel();
+        }
         initUI();
-        createRBFModel();
+        //createRBFModel();
         return true;
 }
 
-void NurbsSurface::computeSurface(double* points)
+osg::ref_ptr<osg::Geode> NurbsSurface::surfaceInfo::computeSurface(double* points)
 {
-    // generating interpolating surface
-    for (int i = 0; i < num_surf; ++i) {
+    SISLSurf* result_surf = 0;
+    int jstat = 0;
 
-        SISLSurf* result_surf = 0;
-        int jstat = 0;
-
-        s1537(points,       // pointer to the array of points to interpolate
-                num_points_u, // number of interpolating points along the 'u' parameter
-                num_points_v, // number of interpolating points along the 'v' parameter
-                dim,          // dimension of the Euclidean space
-                u_par,        // pointer to the 'u' parameter values of the points
-                v_par,        // pointer to the 'v' parameter values of the points
-                0,            // no additional condition along edge 1
-                0,            // no additional condition along edge 2
-                0,            // no additional condition along edge 3
-                0,            // no additional condition along edge 4
-                order_U,   // the order of the generated surface in the 'u' parameter
-                order_V,   // the order of the generated surface in the 'v' parameter
-                1,            // open surface in the u direction
-                1,            // open surface in the v direction 
-                &result_surf, // the generated surface
-                &jstat);      // status variable
-        if (jstat < 0) {
-            throw runtime_error("Error occured inside call to SISL routine s1537.");
-        } else if (jstat > 0) {
-            cerr << "WARNING: warning occured inside call to SISL routine s1537. \n";
-        }
-
-        int ref=DEFAULT_REF; // Number of new knots between old ones.
-        int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
-
-        lower_degree_and_subdivide(&result_surf, ref, maxref); 
-        double *normal;
-        compute_surface_normals(result_surf, &normal);
-
-        // create the Geode (Geometry Node) to contain all our osg::Geometry objects.
-        geode = new osg::Geode();
-
-        // create Geometry object to store all the vertices and lines primtive
-        osg::Geometry* polyGeom = new osg::Geometry();
-
-        osg::Vec3Array* vertices = new osg::Vec3Array;
-        osg::Vec3Array* normals = new osg::Vec3Array;
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        osg::Vec4 _color;
-        _color.set(1.0, 0.0, 0.0, 1.0);
-
-        for (int j=0; j<result_surf->in1-1; j++)
-        {
-            int vertexBegin=vertices->size();
-            for (int k=0; k<result_surf->in2; k++) 
-            { 
-                int p=3*(j+k*result_surf->in1); 
-                vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
-                normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
-                colors->push_back(_color);
-                p+=3;
-                vertices->push_back(osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
-                normals->push_back(osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
-                colors->push_back(_color);
-            }
-            int vertexEnd=vertices->size()-vertexBegin;
-            polyGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLE_STRIP,vertexBegin,vertexEnd));
-        } 
-
-        // pass the created vertex array to the points geometry object
-        polyGeom->setVertexArray(vertices);
-
-        // use the color array.
-        polyGeom->setColorArray(colors);
-        polyGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-
-        // use the normal array.
-        polyGeom->setNormalArray(normals);
-        polyGeom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-
-        //TriangleStrip
-        geode->addDrawable(polyGeom);
-
-        // stateSet
-        osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);//polyGeom->getOrCreateStateSet();
-        /*osg::Material* matirial = new osg::Material; 
-          matirial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE); 
-          matirial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-          matirial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-          matirial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1)); 
-          matirial->setShininess(osg::Material::FRONT_AND_BACK, 10.0f); 
-          stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); */
-        osg::LightModel* ltModel = new osg::LightModel; 
-        ltModel->setTwoSided(true); 
-        stateSet->setAttribute(ltModel); 
-        stateSet->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
-        polyGeom->setStateSet(stateSet);
-
-        // add the points geomtry to the geode.
-        cover->getObjectsRoot()->addChild(geode.get());
-        surfaces.push_back(geode.get());
-
-        // send back surface to PointCloudPlugin for intersection testing and pointcloud manipulation
-
-
-        freeSurf(result_surf);
+    s1537(points,       // pointer to the array of points to interpolate
+          num_points_u, // number of interpolating points along the 'u' parameter
+          num_points_v, // number of interpolating points along the 'v' parameter
+          dim,          // dimension of the Euclidean space
+          u_par,        // pointer to the 'u' parameter values of the points
+          v_par,        // pointer to the 'v' parameter values of the points
+          0,            // no additional condition along edge 1
+          0,            // no additional condition along edge 2
+          0,            // no additional condition along edge 3
+          0,            // no additional condition along edge 4
+          order_U,   // the order of the generated surface in the 'u' parameter
+          order_V,   // the order of the generated surface in the 'v' parameter
+          1,            // open surface in the u direction
+          1,            // open surface in the v direction
+          &result_surf, // the generated surface
+          &jstat);      // status variable
+    if (jstat < 0) {
+        throw runtime_error("Error occured inside call to SISL routine s1537.");
+    } else if (jstat > 0) {
+        cerr << "WARNING: warning occured inside call to SISL routine s1537. \n";
     }
+
+    int ref=DEFAULT_REF; // Number of new knots between old ones.
+    int maxref=DEFAULT_MAX_REF; // Maximal number of coeffs in any given direction.
+
+    lower_degree_and_subdivide(&result_surf, ref, maxref);
+    double *normal;
+    compute_surface_normals(result_surf, &normal);
+
+    // create the Geode (Geometry Node) to contain all our osg::Geometry objects.
+    geode = new osg::Geode();
+
+    // create Geometry object to store all the vertices and lines primtive
+    osg::Geometry* polyGeom = new osg::Geometry();
+
+    osg::Vec3Array* vertices = new osg::Vec3Array;
+    osg::Vec3Array* normals = new osg::Vec3Array;
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::Vec4 _color;
+    _color.set(1.0, 0.0, 0.0, 1.0);
+
+    for (int j=0; j<result_surf->in1-1; j++)
+    {
+        int vertexBegin=vertices->size();
+        for (int k=0; k<result_surf->in2; k++)
+        {
+            int p=3*(j+k*result_surf->in1);
+            vertices->push_back(rotationMatrixToWorld * osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
+            normals->push_back(rotationMatrixToWorld * osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
+            colors->push_back(_color);
+            p+=3;
+            vertices->push_back(rotationMatrixToWorld * osg::Vec3(result_surf->ecoef[p+0], result_surf->ecoef[p+1], result_surf->ecoef[p+2]));
+            normals->push_back(rotationMatrixToWorld * osg::Vec3(normal[p+0], normal[p+1], normal[p+2]));
+            colors->push_back(_color);
+        }
+        int vertexEnd=vertices->size()-vertexBegin;
+        polyGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLE_STRIP,vertexBegin,vertexEnd));
+    }
+
+    // pass the created vertex array to the points geometry object
+    polyGeom->setVertexArray(vertices);
+
+    // use the color array.
+    polyGeom->setColorArray(colors);
+    polyGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    // use the normal array.
+    polyGeom->setNormalArray(normals);
+    polyGeom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    //TriangleStrip
+    geode->addDrawable(polyGeom);
+
+    // stateSet
+    osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);//polyGeom->getOrCreateStateSet();
+    /*osg::Material* matirial = new osg::Material;
+          matirial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+          matirial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1));
+          matirial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1));
+          matirial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0, 0.3, 0, 1));
+          matirial->setShininess(osg::Material::FRONT_AND_BACK, 10.0f);
+          stateSet->setAttributeAndModes (matirial,osg::StateAttribute::ON); */
+    osg::LightModel* ltModel = new osg::LightModel;
+    ltModel->setTwoSided(true);
+    stateSet->setAttribute(ltModel);
+    stateSet->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
+    polyGeom->setStateSet(stateSet);
+
+    freeSurf(result_surf);
+
+    // add the points geomtry to the geode.
+    cover->getObjectsRoot()->addChild(geode.get());
+
+    // send back surface to PointCloudPlugin for intersection testing and pointcloud manipulation
+
+    return geode.get();
 }
 
 NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 {
-    splinePointsGroup = new osg::Group();
-    cover->getObjectsRoot()->addChild(splinePointsGroup.get());
-    updateSurface();
+    //initialize first surface
+    surfaces.push_back(surfaceInfo());
+    currentSurface = &surfaces.back();
+    currentSurface->splinePointsGroup = new osg::Group();
+    cover->getObjectsRoot()->addChild(currentSurface->splinePointsGroup.get());
+    //updateSurface();
 
 }
 
-bool NurbsSurface::destroy()
+bool NurbsSurface::surfaceInfo::destroy()
 {
     cover->getObjectsRoot()->removeChild(geode.get());
     return true;
@@ -293,7 +309,7 @@ bool NurbsSurface::destroy()
 NurbsSurface::~NurbsSurface()
 {
     fprintf(stderr, "Goodbye\n");
-    cover->getObjectsRoot()->removeChild(splinePointsGroup.get());
+    cover->getObjectsRoot()->removeChild(currentSurface->splinePointsGroup.get());
 }
 
 void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
@@ -301,20 +317,20 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
     if (type == PluginMessageTypes::NurbsSurfacePointMsg)
     {
         vector<pointSelection> *selectedPoints = (vector<pointSelection> *)buf;
-        receivedPoints.clear();
+        currentSurface->receivedPoints.clear();
         for (vector<pointSelection>::const_iterator iter=selectedPoints->begin(); iter!=selectedPoints->end(); iter++)
         {
         Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
                                      iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
                                      iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
-        receivedPoints.push_back(newSelectedPoint);
+        currentSurface->receivedPoints.push_back(newSelectedPoint);
         }
-                fprintf(stderr, "Points received %zi\n", receivedPoints.size());
-                updateSurface();
+                fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
+                currentSurface->updateSurface();
     }
 }
 
-void NurbsSurface::updateSurface()
+void NurbsSurface::surfaceInfo::updateSurface()
 {
     while (splinePointsGroup->getNumChildren()>0)
     {
@@ -323,8 +339,8 @@ void NurbsSurface::updateSurface()
     transformMatrices.clear();
     if (receivedPoints.size()>20)
     {
-        calcEdges();
         updateModel();
+        calcEdges();
         resize();
         int pointsNewSize=num_points_u*num_points_v*3;
         double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
@@ -339,8 +355,6 @@ void NurbsSurface::updateSurface()
         vector<double> interpolatedPoint(2);
         evaluateCurveAtParam(left,1.0,pointTempLeftOne);
         evaluateCurveAtParam(right,1.0,pointTempRightOne);
-        //pointTempLeftOne=evaluateCurveAtParam(left,1.0);
-        //pointTempRightOne=evaluateCurveAtParam(right,1.0);
         evaluateCurveAtParam(left,0.0,pointTempLeftZero);
         evaluateCurveAtParam(right,0.0,pointTempRightZero);
         int jstat; // status variable
@@ -374,29 +388,32 @@ void NurbsSurface::updateSurface()
                 pointsNew[k++]=y[0];
             }
         }
-
-        int l=0;
-        while (l!=pointsNewSize)
+        if (cover->debugLevel(3))
         {
-            fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
-            if (l % 3 ==2)
-                fprintf(stderr,"\n");
-            l++;
+            int l=0;
+            while (l!=pointsNewSize)
+            {
+                fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
+                if (l % 3 ==2)
+                    fprintf(stderr,"\n");
+                l++;
+            }
         }
         destroy();
         computeSurface(pointsNew);
 		delete[] pointsNew;
+
     }
 }
 
-void NurbsSurface::evaluateCurveAtParam(curveInfo& curve, double paramFactor, vector<double> &point)
+void NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor, vector<double> &point)
 {
     int jstat; // status variable
     int temp;
     s1227(curve.curve,0,curve.startPar+paramFactor*(curve.endPar-curve.startPar),&temp,&point[0],&jstat);
 }
 
-vector<double> NurbsSurface::evaluateCurveAtParam(curveInfo& curve, double paramFactor)
+vector<double> NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor)
 {
     vector<double> result;
     int jstat; // status variable
@@ -405,28 +422,28 @@ vector<double> NurbsSurface::evaluateCurveAtParam(curveInfo& curve, double param
     return result;
 }
 
-bool NurbsSurface::calcEdges()
+bool NurbsSurface::surfaceInfo::calcEdges()
 {
-    edge(receivedPoints,0,1,1,upper);
-    edge(receivedPoints,1,0,1,right);
-    edge(receivedPoints,0,1,-1,lower);
-    edge(receivedPoints,1,0,-1,left);
+    edge(receivedPointsRotated,0,1,1,upper);
+    edge(receivedPointsRotated,1,0,1,right);
+    edge(receivedPointsRotated,0,1,-1,lower);
+    edge(receivedPointsRotated,1,0,-1,left);
     if (upper.curve && lower.curve && left.curve && right.curve)
     {
         curveCurveIntersection(upper.curve, upper.endPar, right.curve, right.endPar);
         curveCurveIntersection(lower.curve, lower.endPar, right.curve, right.startPar);
         curveCurveIntersection(lower.curve, lower.startPar, left.curve, left.startPar);
         curveCurveIntersection(upper.curve, upper.startPar, left.curve, left.endPar);
-        /*fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
+        fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
     fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
     fprintf(stderr, "right curve end parameter %f \n", right.endPar);
-    fprintf(stderr, "right curve start parameter %f \n", right.startPar);*/
+    fprintf(stderr, "right curve start parameter %f \n", right.startPar);
         return true;
     }
     return false;
 }
 
-bool NurbsSurface::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCurve *c2, double& c2Param)
+bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1Param, SISLCurve *c2, double& c2Param)
 {
     // calculating intersection points
     double epsco = 1.0e-15; // computational epsilon
@@ -499,7 +516,7 @@ return false;
 //        without changing:   change = 1
 //        with changing:      change = -1
 
-int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo) {
+int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo) {
 
     SISLCurve *result_curve = 0;
 
@@ -509,7 +526,12 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
     maximum_y = -FLT_MAX;                                                                    //maximum local y-value
     minimum_y = FLT_MAX;                                                                     //minimum local y-value
 
-
+    double sumZ = 0.0;
+    for (std::vector<osg::Vec3>::const_iterator it = all_points.begin(); it !=all_points.end(); it++)
+    {
+        sumZ += it->_v[2];
+    }
+    double averageZ = sumZ/all_points.size();
 
     for(int i = 0; i < numberOfAllPoints; i++) {                                             //search for minimum and maximum local x and y
         if ((all_points[i][local_x]) > maximum_x) {
@@ -647,7 +669,8 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
             pointsSISLCurve[i*2+local_y]=barycentriccalc(curve,x);
             pointsSISLCurve[i*2+local_x]=x;
             type[i]=1;
-            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],0.0);
+            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            point = rotationMatrixToWorld * point;
             highlightPoint(point);
             //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
         }
@@ -701,30 +724,143 @@ int NurbsSurface::edge(vector<osg::Vec3> all_points, int local_x, int local_y, i
 return 0;
 }
 
-void NurbsSurface::createRBFModel()
+void NurbsSurface::surfaceInfo::createRBFModel()
 {
     rbfcreate(2,1,model);
     rbfsetalgohierarchical(model, 1.0, 5, 0.0);
 }
 
-void NurbsSurface::updateModel()
+void NurbsSurface::surfaceInfo::updateModel()
 {
-    xy.setlength(receivedPoints.size(),3);
+    fprintf(stderr, "NurbsSurface::updateModel() \n");
+    //xy.setlength(receivedPoints.size(),3);
     int i=0;
+    osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0); 
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
+        //Create real_2d_array holding points
+        //xy[i][0]=iter->_v[0];
+        //xy[i][1]=iter->_v[1];
+        //xy[i][2]=iter->_v[2];
+        centroid = centroid + *iter;
+        i++;
+    }
+    //Calculate centroid
+    fprintf(stderr, "Calculate centroid \n");
+    centroid = centroid / receivedPoints.size();
+
+    fprintf(stderr,"p: %f %f %f",centroid.x(), centroid.y(), centroid.z());
+
+    //Calculate normal of plane or let user pick
+    
+    //points relative to centroid
+    //fprintf(stderr, "points relative to centroid \n");
+    real_2d_array pointsRelativeToCentroid;
+    //pointsRelativeToCentroid.setlength(3, receivedPoints.size());
+    pointsRelativeToCentroid.setlength(receivedPoints.size(), 3);
+    i=0;
+    for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
+    {
+        //fprintf(stderr, "points relative to centroid %i \n",i);
+        //Create real_2d_array holding points relative to centroid
+        /*pointsRelativeToCentroid[0][i]=iter->_v[0]-centroid._v[0];
+        pointsRelativeToCentroid[1][i]=iter->_v[1]-centroid._v[1];
+        pointsRelativeToCentroid[2][i]=iter->_v[2]-centroid._v[2];
+        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[0][i], pointsRelativeToCentroid[1][i], pointsRelativeToCentroid[2][i]);*/
+        pointsRelativeToCentroid[i][0]=iter->_v[0]-centroid._v[0];
+        pointsRelativeToCentroid[i][1]=iter->_v[1]-centroid._v[1];
+        pointsRelativeToCentroid[i][2]=iter->_v[2]-centroid._v[2];
+        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[i][0], pointsRelativeToCentroid[i][1], pointsRelativeToCentroid[i][2]);
+        //fprintf(stderr,"xy %i: %f %f %f \n",i, xy[i][0], xy[i][1], xy[i][2]);
+        i++;
+    }
+
+    fprintf(stderr, "Covariance matrix \n");
+    real_2d_array covarianceMatrix;
+    //covarianceMatrix.setlength(3,3);
+    covm(pointsRelativeToCentroid, covarianceMatrix);
+    fprintf(stderr, "Covariance matrix has length: %i x %i \n", covarianceMatrix.rows(), covarianceMatrix.cols());
+    fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[0][0], covarianceMatrix[0][1], covarianceMatrix[0][2]);
+    fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[1][0], covarianceMatrix[1][1], covarianceMatrix[1][2]);
+    fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[2][0], covarianceMatrix[2][1], covarianceMatrix[2][2]);
+
+
+
+    //Calculate eigenvector
+    fprintf(stderr, "Calculate eigenvector \n");
+    eigsubspacestate state;
+    eigsubspacecreate(3,3, state);
+    real_1d_array eigenvalue;
+    real_2d_array eigenvector;
+    eigsubspacereport eigenRep;
+    eigsubspacesolvedenses(state,covarianceMatrix, true, eigenvalue, eigenvector, eigenRep);
+    fprintf(stderr, "eigenvector has length: %i x %i \n",  eigenvector.rows(), eigenvector.cols());
+    //fprintf(stderr,"Eigenvector: %f %f %f \n",eigenvector[0], eigenvector[1],eigenvector[0+2*eigenvector.getstride()]);
+    fprintf(stderr,"eigenvector 0: %f %f %f\n",eigenvector[0][0], eigenvector[1][0], eigenvector[2][0]);
+    fprintf(stderr,"eigenvector 1: %f %f %f\n",eigenvector[0][1], eigenvector[1][1], eigenvector[2][1]);
+    fprintf(stderr,"eigenvector 2: %f %f %f\n",eigenvector[0][2], eigenvector[1][2], eigenvector[2][2]);
+    
+    fprintf(stderr,"eigenvalues: %f %f %f\n",eigenvalue[0], eigenvalue[1], eigenvalue[2]);
+    //calculate coordinate axis and rotation matrix
+    osg::Vec3 zlocal = osg::Vec3(eigenvector[0][2], eigenvector[1][2], eigenvector[2][2]);
+    zlocal.normalize();
+    
+    osg::Vec3 ylocal;
+    double maxZAxisAbsValue=fmax(fmax(fabs(eigenvector[0][2]),fabs(eigenvector[1][2])), fabs(eigenvector[2][2]));
+    if (maxZAxisAbsValue == fabs(eigenvector[0][2]))
+        ylocal = osg::Vec3(0.0, - eigenvector[2][2], eigenvector[1][2]);
+    if (maxZAxisAbsValue == fabs(eigenvector[1][2]))
+        ylocal = osg::Vec3(-eigenvector[2][2], 0.0, eigenvector[0][2]);
+    if (maxZAxisAbsValue == fabs(eigenvector[2][2]))
+        ylocal = osg::Vec3(-eigenvector[1][2], eigenvector[0][2], 0.0);
+    ylocal.normalize();
+    osg::Vec3 xlocal = ylocal^zlocal;
+    xlocal.normalize();
+    fprintf(stderr,"xlocal: %f %f %f\n",xlocal[0], xlocal[1], xlocal[2]);
+    fprintf(stderr,"ylocal: %f %f %f\n",ylocal[0], ylocal[1], ylocal[2]);
+    fprintf(stderr,"zlocal: %f %f %f\n",zlocal[0], zlocal[1], zlocal[2]);
+    
+    rotationMatrixToWorld = osg::Matrixd(xlocal[0],ylocal[0],zlocal[0],0.0,xlocal[1],ylocal[1],zlocal[1],0.0,xlocal[2],ylocal[2],zlocal[2],0.0,0.0,0.0,0.0,1.0);
+    rotationMatrixToLocal.invert(rotationMatrixToWorld);
+    osg::Vec3 testVec = osg::Vec3(1.0,0.0,0.0);
+    osg::Vec3 testVecRotated = rotationMatrixToLocal * testVec;
+
+    fprintf(stderr,"testVecRotated: %f %f %f\n",testVecRotated[0], testVecRotated[1], testVecRotated[2]);
+    //Rotate points
+    receivedPointsRotated.clear();
+    for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
+    {
+        osg::Vec3 rotatedPoint = rotationMatrixToLocal * *iter;
+        fprintf(stderr,"rotatedPoint: %f %f %f\n",rotatedPoint[0], rotatedPoint[1], rotatedPoint[2]);
+        receivedPointsRotated.push_back(rotatedPoint);
+        i++;
+    }
+    i=0;
+        xy.setlength(receivedPointsRotated.size(),3);
+    for (std::vector<osg::Vec3>::const_iterator iter = receivedPointsRotated.begin() ; iter != receivedPointsRotated.end(); iter++)
+    {
+        fprintf(stderr,"i %i\n",i);
+        //Create real_2d_array holding points
         xy[i][0]=iter->_v[0];
         xy[i][1]=iter->_v[1];
         xy[i][2]=iter->_v[2];
+
+        fprintf(stderr, "rotatedPointxy: %f %f %f \n", xy[i][0],xy[i][1],xy[i][2]);
         i++;
     }
+    fprintf(stderr,"xy updated\n");
+
+    //Create RBFModel
     rbfsetpoints(model,xy);
+    fprintf(stderr,"xy points set\n");
+
     rbfreport rep;
     rbfbuildmodel(model, rep);
+    fprintf(stderr,"Model updated\n");
 }
 
 void
-NurbsSurface::highlightPoint(osg::Vec3& newSelectedPoint)
+NurbsSurface::surfaceInfo::highlightPoint(osg::Vec3& newSelectedPoint)
 {
 
     osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
@@ -757,7 +893,7 @@ NurbsSurface::highlightPoint(osg::Vec3& newSelectedPoint)
 }
 
 
-void NurbsSurface::resize()
+void NurbsSurface::surfaceInfo::resize()
 {
     osg::Vec3 wpoint1 = osg::Vec3(0, 0, 0);
     osg::Vec3 wpoint2 = osg::Vec3(0, 0, 1);
@@ -788,7 +924,7 @@ void NurbsSurface::resize()
 void NurbsSurface::updateMessage()
 {
     //send message to PointCloudPlugin
-    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaces), &surfaces);
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaceGeodes), &surfaceGeodes);
 }
 
 

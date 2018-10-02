@@ -68,84 +68,80 @@ struct curveInfo{
     NurbsSurface();
     ~NurbsSurface();
     bool init();
-    virtual bool destroy();
+
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
-    int getorder_U();
-    void setorder_U(int order_U);
-    void computeSurface(double* points);
-    int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
+    //int getorder_U();
+    //void setorder_U(int order_U);
 
-private:
-
-    std::vector<osg::ref_ptr<osg::Geode>> surfaces;
-    osg::ref_ptr<osg::Geode> geode;
-
-
-    void saveFile(const std::string &fileName);
-
-    ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
-    ui::Action *saveButton_;
-
-    ui::Slider *orderUSlider=nullptr;
-    ui::Slider *orderVSlider=nullptr;
-
-
-    int order_U = 2;
-    int order_V = 2;
-
-    ui::Slider *numEdgeSectorsSlider=nullptr;
-    int numEdgeSectors = 5;
-    
-    std::string fileName = "test.obj";
-
-    const int num_points_u = 3; // number of points in the u parameter direction
-        const int num_points_v = 3; // number of points in the v parameter direction
-
-        double points[27] = 
-        {
-            0, 0.005, 0,      0.03, 0.03, 0,      0.1, 0.05, 0,      
-            -0.001, 0, 0,      0.03, 0, 0.02,    0.1, 0, 0.05,      
-            0, -0.005, 0,      0.03, -0.03, 0,     0.1, -0.05, 0,      
-    };
-
-        std::vector<osg::Vec3> receivedPoints;
-        osg::ref_ptr<osg::Group> splinePointsGroup;
-        std::vector<osg::MatrixTransform*> transformMatrices;
-        curveInfo upper;
-        curveInfo lower;
-        curveInfo left;
-        curveInfo right;
+    struct surfaceInfo{
         void createRBFModel();
-        void updateModel();
-        bool calcEdges();
-        void evaluateCurveAtParam(curveInfo& curve, double paramFactor, std::vector<double>& point);
-        std::vector<double> evaluateCurveAtParam(curveInfo& curve, double paramFactor);
         rbfmodel model;
-        real_2d_array xy;
+        osg::ref_ptr<osg::Geode> computeSurface(double* points);
         void updateSurface();
-        bool curveCurveIntersection(SISLCurve* c1, double& c1Param, SISLCurve* c2, double& c2Param);
-        double sphereSize = 10.0;
-        void updateMessage();
-
-
-
-        void highlightPoint(osg::Vec3& newSelectedPoint);
-        void resize();
-
+        const int num_surf = 1;
+        const int num_points_u = 3; // number of points in the u parameter direction
+        const int num_points_v = 3; // number of points in the v parameter direction
         double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
         double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
 
         const int dim = 3; // dimension of the space we are working in
-
-        const int num_surf = 1;
-
+        int order_U = 2;
+        int order_V = 2;
+        osg::ref_ptr<osg::Geode> geode;
+        std::vector<osg::Vec3> receivedPoints;
+        osg::Matrixd rotationMatrixToWorld;
+        osg::Matrixd rotationMatrixToLocal;
+        std::vector<osg::Vec3> receivedPointsRotated;
+        osg::ref_ptr<osg::Group> splinePointsGroup;
+        std::vector<osg::MatrixTransform*> transformMatrices; //stores the highlighted Points
+        curveInfo upper;
+        curveInfo lower;
+        curveInfo left;
+        curveInfo right;
         int numberOfAllPoints;
         float maximum_x;
         float minimum_x;
         float maximum_y;
         float minimum_y;
 
-        void initUI();
+        void updateModel();
+        void resize();
+        bool calcEdges();
+        void evaluateCurveAtParam(curveInfo& curve, double paramFactor, std::vector<double>& point);
+        std::vector<double> evaluateCurveAtParam(curveInfo& curve, double paramFactor);
+
+        real_2d_array xy;
+
+        bool curveCurveIntersection(SISLCurve* c1, double& c1Param, SISLCurve* c2, double& c2Param);
+        double sphereSize = 10.0;
+        virtual bool destroy();
+        int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
+        int numEdgeSectors = 5;
+        void highlightPoint(osg::Vec3& newSelectedPoint);
+    };
+
+private:
+    surfaceInfo* currentSurface = nullptr;
+    std::vector<surfaceInfo> surfaces;
+
+    std::vector<osg::ref_ptr<osg::Geode>> surfaceGeodes;
+
+    void saveFile(const std::string &fileName);
+
+    ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
+    ui::Action *saveButton_;
+
+    ui::Slider *surfaceSelectionSlider=nullptr;
+
+    ui::Group *selectionParameters = nullptr;
+
+    ui::Slider *orderUSlider=nullptr;
+    ui::Slider *orderVSlider=nullptr;
+
+    ui::Slider *numEdgeSectorsSlider=nullptr;
+    std::string fileName = "test.obj";
+    void updateMessage();
+    void initUI();
 };
 
 template <typename T>
