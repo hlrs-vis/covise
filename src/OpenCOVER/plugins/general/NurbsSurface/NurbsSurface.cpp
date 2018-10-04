@@ -104,6 +104,17 @@ void NurbsSurface::initUI()
 
     NurbsSurfaceMenu = new ui::Menu("NurbsSurface", this);
     NurbsSurfaceMenu->setText("NurbsSurface");
+
+    currentSurfaceLabel = new ui::Label(NurbsSurfaceMenu,"currentSurfaceIndex");
+    currentSurfaceLabel->setText("Test");
+
+    newSurface = new ui::Action(NurbsSurfaceMenu, "createNewSurface");
+    newSurface->setText("create new surface");
+    newSurface->setCallback([this](){
+      createNewSurface();
+      updateUI();
+    });
+
     saveButton_ = new ui::Action(NurbsSurfaceMenu, "SaveFile");
     saveButton_->setText("SaveFile");
     saveButton_->setCallback([this](){
@@ -166,21 +177,23 @@ void NurbsSurface::initUI()
 
 void NurbsSurface::saveFile(const std::string &fileName)
 {
-        //osgDB::writeNodeFile(*geode, fileName.c_str());
+        osgDB::writeNodeFile(*currentSurface->geode, fileName.c_str());
 }
 
 bool NurbsSurface::init()
 {
         if (cover->debugLevel(3))
                 fprintf(stderr, "\n--- NurbsSurface::init\n");
-
-        for (std::vector<surfaceInfo>::iterator it=surfaces.begin(); it != surfaces.end(); it++)
+        //initialize first surface
+        createNewSurface();
+        initUI();
+        updateUI();
+        //createRBFModel();
+        /*for (std::vector<surfaceInfo>::iterator it=surfaces.begin(); it != surfaces.end(); it++)
         {
             fprintf(stderr, "\n--- create model\n");
             it->createRBFModel();
-        }
-        initUI();
-        //createRBFModel();
+        }*/
         return true;
 }
 
@@ -289,11 +302,6 @@ osg::ref_ptr<osg::Geode> NurbsSurface::surfaceInfo::computeSurface(double* point
 
 NurbsSurface::NurbsSurface() : ui::Owner("NurbsSurface", cover->ui)
 {
-    //initialize first surface
-    surfaces.push_back(surfaceInfo());
-    currentSurface = &surfaces.back();
-    currentSurface->splinePointsGroup = new osg::Group();
-    cover->getObjectsRoot()->addChild(currentSurface->splinePointsGroup.get());
     //updateSurface();
 
 }
@@ -309,7 +317,10 @@ bool NurbsSurface::surfaceInfo::destroy()
 NurbsSurface::~NurbsSurface()
 {
     fprintf(stderr, "Goodbye\n");
-    cover->getObjectsRoot()->removeChild(currentSurface->splinePointsGroup.get());
+    for (std::vector<surfaceInfo>::iterator it=surfaces.begin(); it != surfaces.end(); it++)
+    {
+        cover->getObjectsRoot()->removeChild(it->splinePointsGroup.get());
+    }
 }
 
 void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
@@ -927,6 +938,22 @@ void NurbsSurface::updateMessage()
     cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaceGeodes), &surfaceGeodes);
 }
 
+void NurbsSurface::createNewSurface()
+{
+    surfaces.push_back(surfaceInfo());
+    currentSurface = &surfaces.back();
+    currentSurface->surfaceIndex = surfaces.size()-1;
+    currentSurface->splinePointsGroup = new osg::Group();
+    currentSurface->createRBFModel();
+    cover->getObjectsRoot()->addChild(currentSurface->splinePointsGroup.get());
+}
 
+void NurbsSurface::updateUI()
+{
+    char currentSurfaceName[100];
+    sprintf(currentSurfaceName,"Current Surface: %d",currentSurface->surfaceIndex);
+    currentSurfaceLabel->setText(currentSurfaceName);
+    surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
+}
 
 COVERPLUGIN(NurbsSurface)
