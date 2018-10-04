@@ -336,8 +336,8 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
                                      iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
         currentSurface->receivedPoints.push_back(newSelectedPoint);
         }
-                fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
-                currentSurface->updateSurface();
+        fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
+        currentSurface->updateSurface();
     }
 }
 
@@ -413,7 +413,6 @@ void NurbsSurface::surfaceInfo::updateSurface()
         destroy();
         computeSurface(pointsNew);
 		delete[] pointsNew;
-
     }
 }
 
@@ -446,9 +445,9 @@ bool NurbsSurface::surfaceInfo::calcEdges()
         curveCurveIntersection(lower.curve, lower.startPar, left.curve, left.startPar);
         curveCurveIntersection(upper.curve, upper.startPar, left.curve, left.endPar);
         fprintf(stderr, "upper curve end parameter %f \n", upper.endPar);
-    fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
-    fprintf(stderr, "right curve end parameter %f \n", right.endPar);
-    fprintf(stderr, "right curve start parameter %f \n", right.startPar);
+        fprintf(stderr, "upper curve start parameter %f \n", upper.startPar);
+        fprintf(stderr, "right curve end parameter %f \n", right.endPar);
+        fprintf(stderr, "right curve start parameter %f \n", right.startPar);
         return true;
     }
     return false;
@@ -485,34 +484,34 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
     fprintf(stderr,"Number of intersection points detected: %i\n", num_int_points);
     if (num_int_points>0)
     {
-    c1Param=*intpar1;
-    c2Param=*intpar2;
-    fprintf(stderr,"value %f\n",*intpar1);
+        c1Param=*intpar1;
+        c2Param=*intpar2;
+        fprintf(stderr,"value %f\n",*intpar1);
 
-    // evaluating intersection points
-    vector<double> point_coords_3D(3 * num_int_points);
-    int i;
-    for (i = 0; i < num_int_points; ++i) {
-        // calculating position, using curve 1
-        // (we could also have used curve 2, which would give approximately
-        // the same points).
-        int temp;
-        s1227(c1,         // we evaluate on the first curve
-          0,          // calculate no derivatives
-          intpar1[i], // parameter value on which to evaluate
-          &temp,      // not used for our purposes (gives parameter interval)
-          &point_coords_3D[3 * i], // result written here
-          &jstat);
+        // evaluating intersection points
+        vector<double> point_coords_3D(3 * num_int_points);
+        int i;
+        for (i = 0; i < num_int_points; ++i) {
+            // calculating position, using curve 1
+            // (we could also have used curve 2, which would give approximately
+            // the same points).
+            int temp;
+            s1227(c1,         // we evaluate on the first curve
+                  0,          // calculate no derivatives
+                  intpar1[i], // parameter value on which to evaluate
+                  &temp,      // not used for our purposes (gives parameter interval)
+                  &point_coords_3D[3 * i], // result written here
+                    &jstat);
 
-        if (jstat < 0) {
-        throw runtime_error("Error occured inside call to SISL routine s1227.");
-        } else if (jstat > 0) {
-        std::cerr << "WARNING: warning occured inside call to SISL routine s1227. \n" << std::endl;
+            if (jstat < 0) {
+                throw runtime_error("Error occured inside call to SISL routine s1227.");
+            } else if (jstat > 0) {
+                std::cerr << "WARNING: warning occured inside call to SISL routine s1227. \n" << std::endl;
+            }
         }
+        return true;
     }
-    return true;
-}
-return false;
+    return false;
 }
 
 //method for creating edges in unsorted points
@@ -527,8 +526,8 @@ return false;
 //        without changing:   change = 1
 //        with changing:      change = -1
 
-int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo) {
-
+int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo)
+{
     SISLCurve *result_curve = 0;
 
     numberOfAllPoints = all_points.size();                                                   //number of points
@@ -544,7 +543,8 @@ int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, i
     }
     double averageZ = sumZ/all_points.size();
 
-    for(int i = 0; i < numberOfAllPoints; i++) {                                             //search for minimum and maximum local x and y
+    for(int i = 0; i < numberOfAllPoints; i++)
+    {                                             //search for minimum and maximum local x and y
         if ((all_points[i][local_x]) > maximum_x) {
             maximum_x = all_points[i][local_x];
         }
@@ -593,20 +593,20 @@ int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, i
     //find all maximum points in the quadrants
     if (minimum_x<maximum_x)
     {
-    for(int i = 0; i < numberOfAllPoints; i++) {
-        int j=int((all_points[i][local_x]-minimum_x)/(maximum_x-minimum_x)*numberOfQuadrants);
-        j=min(numberOfQuadrants-1,j);
+        for(int i = 0; i < numberOfAllPoints; i++) {
+            int j=int((all_points[i][local_x]-minimum_x)/(maximum_x-minimum_x)*numberOfQuadrants);
+            j=min(numberOfQuadrants-1,j);
 
-        //for(int j = 0; j < numberOfQuadrants; j++) {
+            //for(int j = 0; j < numberOfQuadrants; j++) {
             //if (all_points[i][local_x] >= (minimum_x + j*widthOfQuadrant) && all_points[i][local_x] < (minimum_x + (j+1)*widthOfQuadrant)) {
-                if (!maximumPointsInAllQuadrants[j]) {
+            if (!maximumPointsInAllQuadrants[j]) {
+                maximumPointsInAllQuadrants[j] = &all_points[i];
+                numberOfSectorsWithMaximum++;
+            }
+            else{
+                if (change * all_points[i][local_y] > change * maximumPointsInAllQuadrants[j]->_v[local_y]) {
                     maximumPointsInAllQuadrants[j] = &all_points[i];
-                    numberOfSectorsWithMaximum++;
                 }
-                else{
-                    if (change * all_points[i][local_y] > change * maximumPointsInAllQuadrants[j]->_v[local_y]) {
-                        maximumPointsInAllQuadrants[j] = &all_points[i];
-                    }
                 //}
             }
             if (maximumPointsInAllQuadrants[j])
@@ -688,51 +688,51 @@ int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, i
         const double cstartpar = 0;
         try {
 
-         double cendpar;
+            double cendpar;
 
-         double* gpar = 0;
-         int jnbpar;
-         int jstat;
+            double* gpar = 0;
+            int jnbpar;
+            int jstat;
 
-         s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
-               num_points,    // number of points to be interpolated
-               2,             // the dimension
-               type,          // what type of information is stored at a particular point
-               0,             // no additional condition at start point
-               0,             // no additional condition at end point
-               1,             // open curve
-               3,             // order of the spline curve to be produced
-               cstartpar,     // parameter value to be used at start of curve
-               &cendpar,      // parameter value at the end of the curve (to be determined)
-               &result_curve, // the resulting spline curve (to be determined)
-               &gpar,         // pointer to the parameter values of the points in the curve
-                              // (to be determined)
-               &jnbpar,       // number of unique parameter values (to be determined)
-               &jstat);       // status message
+            s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
+                  num_points,    // number of points to be interpolated
+                  2,             // the dimension
+                  type,          // what type of information is stored at a particular point
+                  0,             // no additional condition at start point
+                  0,             // no additional condition at end point
+                  1,             // open curve
+                  3,             // order of the spline curve to be produced
+                  cstartpar,     // parameter value to be used at start of curve
+                  &cendpar,      // parameter value at the end of the curve (to be determined)
+                  &result_curve, // the resulting spline curve (to be determined)
+                  &gpar,         // pointer to the parameter values of the points in the curve
+                  // (to be determined)
+                  &jnbpar,       // number of unique parameter values (to be determined)
+                  &jstat);       // status message
 
-         if (jstat < 0) {
-             throw runtime_error("Error occured inside call to SISL routine.");
-         } else if (jstat > 0) {
-             std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
-         }
-		 delete []pointsSISLCurve;
-		 delete[] type;
-         resultCurveInfo.curve = result_curve;
-         resultCurveInfo.startPar = cstartpar;
-         resultCurveInfo.endPar = cendpar;
-         fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
-
-         // cleaning up
-         //freeCurve(result_curve);
-         free(gpar);
-        } catch (exception& e) {
-			std::cerr << "Exception thrown: " << e.what() << std::endl;
-            return -1;
+            if (jstat < 0) {
+                throw runtime_error("Error occured inside call to SISL routine.");
+            } else if (jstat > 0) {
+                std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
             }
+            delete []pointsSISLCurve;
+            delete[] type;
+            resultCurveInfo.curve = result_curve;
+            resultCurveInfo.startPar = cstartpar;
+            resultCurveInfo.endPar = cendpar;
+            fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
+
+            // cleaning up
+            //freeCurve(result_curve);
+            free(gpar);
+        } catch (exception& e) {
+            std::cerr << "Exception thrown: " << e.what() << std::endl;
+            return -1;
+        }
     }
 
-//return empty curve if number of sectors with maximum is lower than 1
-return 0;
+    //return empty curve if number of sectors with maximum is lower than 1
+    return 0;
 }
 
 void NurbsSurface::surfaceInfo::createRBFModel()
@@ -795,8 +795,6 @@ void NurbsSurface::surfaceInfo::updateModel()
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[1][0], covarianceMatrix[1][1], covarianceMatrix[1][2]);
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[2][0], covarianceMatrix[2][1], covarianceMatrix[2][2]);
 
-
-
     //Calculate eigenvector
     fprintf(stderr, "Calculate eigenvector \n");
     eigsubspacestate state;
@@ -847,7 +845,7 @@ void NurbsSurface::surfaceInfo::updateModel()
         i++;
     }
     i=0;
-        xy.setlength(receivedPointsRotated.size(),3);
+    xy.setlength(receivedPointsRotated.size(),3);
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPointsRotated.begin() ; iter != receivedPointsRotated.end(); iter++)
     {
         fprintf(stderr,"i %i\n",i);
@@ -892,12 +890,12 @@ NurbsSurface::surfaceInfo::highlightPoint(osg::Vec3& newSelectedPoint)
     osg::Material *selMaterial = new osg::Material();
     sphereGeode->addDrawable(selectedSphereDrawable);
 
-        splinePointsGroup->addChild(sphereTransformation);
-        selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
-        selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
-        selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
-        selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
-        selMaterial->setColorMode(osg::Material::OFF);
+    splinePointsGroup->addChild(sphereTransformation);
+    selMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
+    selMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.0, 0.0, 0.6, 1.0f));
+    selMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.1f, 0.1f, 0.1f, 1.0f));
+    selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
+    selMaterial->setColorMode(osg::Material::OFF);
 
     stateSet->setAttribute(selMaterial);
     selectedSphereDrawable->setStateSet(stateSet);
