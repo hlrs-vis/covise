@@ -1,4 +1,4 @@
-USING(CG OPENGL)
+#USING(CG OPENGL)
 
 SET(HEADERS
   ParticleViewer.h

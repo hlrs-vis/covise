@@ -300,9 +300,10 @@ void Vive::postFrame()
 			    case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 			    case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
                 case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; numTrackers++;  break;
-			    case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+                case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; numBaseStations++; break;
 			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
+            fprintf(stderr, "DevClass:%c\n", m_rDevClassChar[nDevice]);
 			int idx;
 			std::map<std::string, serialInfo>::iterator it = serialID.find(std::string(serial));
 			if (it != serialID.end())
@@ -330,8 +331,11 @@ void Vive::postFrame()
 					++baseStationNumber;
 					if (idx > lastBaseStationIdx)
 					{
-						cerr << "Vive:Too many baseStations;number=" << baseStationNumber - 1 << " idx= " << idx << endl;
-						continue;
+                        lastBaseStationIdx++;
+                        firstControllerIdx++;
+                        firstTrackerIdx++;
+						//cerr << "Vive:Too many baseStations;number=" << baseStationNumber - 1 << " idx= " << idx << endl;
+						//continue;
 					}
 					break;
 				case 'C': //a controller
@@ -357,12 +361,10 @@ void Vive::postFrame()
 			m_ControllerID[nDevice] = (controllerNumber-1);
 			m_DeviceSerial[nDevice] = serial;
 		}
-		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
-		{
-			maxBodyNumber = nDevice;
-			if (m_DeviceID[nDevice] > maxBodyNumber)
-				maxBodyNumber = m_DeviceID[nDevice];
-		}
+			if ((m_DeviceID[nDevice]+1) > maxBodyNumber)
+            {
+				maxBodyNumber = m_DeviceID[nDevice]+1;
+            }
 	}
 
 

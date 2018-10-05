@@ -50,6 +50,9 @@ private:
 //
 bf::path getEnvVariable(const std::string &envVar);
 std::string generateRandomString(const size_t numOfChars);
+
+char *XMLChTranscodeUtf(const XMLCh *in);
+XMLCh *XMLChTranscodeUtf(const char *s);
 }
 
 #endif /* OSC_UTILITIES_H */

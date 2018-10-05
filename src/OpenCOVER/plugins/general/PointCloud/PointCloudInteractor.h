@@ -94,5 +94,7 @@ private:
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
 
+    int selectionSetIndex =0;
+
 };
 #endif //POINTCLOUD_INTERACTOR_H

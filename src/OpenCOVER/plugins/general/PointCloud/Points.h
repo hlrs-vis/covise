@@ -44,6 +44,7 @@ struct pointSelection
     int pointSetIndex;
     int pointIndex;
     osg::MatrixTransform *transformationMatrix;
+    int selectionIndex;
 };
 
 struct ScannerPosition

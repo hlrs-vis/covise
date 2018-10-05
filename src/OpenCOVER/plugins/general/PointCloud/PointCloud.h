@@ -19,6 +19,7 @@
 //#include "PointCloudDrawable.h"
 #include "PointCloudGeometry.h"
 #include "PointCloudInteractor.h"
+//#include "plugins/general/NurbsSurface/NurbsSurface.h"
 
 #include "FileInfo.h"
 
@@ -88,11 +89,13 @@ protected:
     ui::Group *selectionGroup = nullptr;
     ui::Button *singleSelectButton = nullptr;
     ui::Button *deselectButton = nullptr;
+    ui::Button *createNurbsSurface = nullptr;
     //ui::Button *deleteButton = nullptr;
     ui::ButtonGroup *selectionButtonGroup = nullptr;
     ui::Group *viewGroup = nullptr;
     ui::Button *adaptLODButton = nullptr;
     ui::Slider *pointSizeSlider = nullptr;
+    //NurbsSurface *nurbsSurface = nullptr;
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);

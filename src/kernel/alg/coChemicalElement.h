@@ -10,23 +10,47 @@
 
 #include <util/coExport.h>
 #include <string>
+#include <vector>
+#include <map>
 
 /// list of all chemical elements
 
 namespace covise
 {
 
-struct ALGEXPORT coChemicalElement
-{
-    int number;
-    std::string name;
-    std::string symbol;
-
-    enum
+    class ALGEXPORT coChemicalElement
     {
-        Number = 118
+        public:
+        int number;
+        std::string name;
+        std::string symbol;
+        float radius;
+        float color[4];
+        coChemicalElement();
+        coChemicalElement(int number, std::string n, std::string sym, float r, float re, float g, float b);
+        coChemicalElement(const coChemicalElement &ce);
     };
-    static coChemicalElement all[Number];
-};
+
+    class ALGEXPORT coAtomInfo
+    {
+
+    public:
+        static coAtomInfo* instance();
+        int getType(const std::string &type);
+        float getRadius(int type);
+        void getColor(int type, float (&color)[4]);
+        std::vector<coChemicalElement> all;
+        std::map<std::string, int> idMap;
+
+
+    private:
+        coAtomInfo();
+        static bool initialized;
+        static const int numStaticAtoms = 118;
+        static coChemicalElement allStatic[numStaticAtoms];
+
+        static coAtomInfo* myInstance;
+    };
 }
+
 #endif

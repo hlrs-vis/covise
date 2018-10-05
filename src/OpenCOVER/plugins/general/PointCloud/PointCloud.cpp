@@ -142,6 +142,7 @@ bool PointCloudPlugin::init()
         {
             //enable interaction
             vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+            //cover->addPlugin("NurbsSurface");
         }
         else
         {
@@ -163,7 +164,18 @@ bool PointCloudPlugin::init()
         s_pointCloudInteractor->setDeselection(false);
         }
     });
-
+    createNurbsSurface = new ui::Button(pointCloudMenu,"createNurbsSurface");
+    createNurbsSurface->setText("Create nurbs surface from selected points");
+    createNurbsSurface->setCallback([this](bool state){
+        if (state)
+        {
+            cover->addPlugin("NurbsSurface");
+        }
+        else
+        {
+            cover->removePlugin("NurbsSurface");
+        }
+    });
 /*
     //Create main menu button
     imanPluginInstanceMenuItem = new coSubMenuItem("Point Model Plugin");
