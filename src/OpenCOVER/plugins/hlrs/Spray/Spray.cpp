@@ -612,7 +612,7 @@ bool SprayPlugin::init()
                 setToCurPos->setCallback([this]()
                 {
                     osg::Matrix newPos = editNozzle->getMatrix();
-                    newPos.setTrans(cover->getPointerMat().getTrans());
+                    newPos.setTrans(cover->getInvBaseMat().getTrans());
                     editNozzle->updateTransform(newPos);
                 });
 
@@ -785,6 +785,7 @@ bool SprayPlugin::init()
 
     printf("elapsed time for generating in embree %f\n", elapsed_secs);
 
+    rtSceneGeode = c.returnGeode();
 
     raytracer::instance()->finishAddGeometry();
 
@@ -796,10 +797,10 @@ bool SprayPlugin::init()
 
 bool SprayPlugin::destroy()
 {
-    scene->removeChild(floorGeode);
     scene->removeChild(testBoxGeode);
     cover->getObjectsRoot()->removeChild(scene);
     cover->getObjectsRoot()->removeChild(testBoxGeode);
+    cover->getObjectsRoot()->removeChild(rtSceneGeode->getParent(0));
     nM->remove_all();
 
     delete sprayStart_;
@@ -833,38 +834,6 @@ void SprayPlugin::createTestBox(osg::Vec3 initPos, osg::Vec3 scale)
     testBoxGeode->addDrawable(boxDrawableTest);
 
     idGeo.push_back(raytracer::instance()->createCube(initPos, scale));
-}
-
-void SprayPlugin::createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual)
-{
-    osg::Geometry *geom = new osg::Geometry;
-
-    osg::Vec3Array *vertices = new osg::Vec3Array;
-    vertices->push_back(osg::Vec3(-1*scale.x(), -1*scale.y(), -1*scale.z()) +initPos);
-    vertices->push_back(osg::Vec3(-1*scale.x(), -1*scale.y(), 1*scale.z())  +initPos);
-    vertices->push_back(osg::Vec3(-1*scale.x(), 1*scale.y(), -1*scale.z())  +initPos);
-    vertices->push_back(osg::Vec3(-1*scale.x(), 1*scale.y(), 1*scale.z())   +initPos);
-    vertices->push_back(osg::Vec3(1*scale.x(), -1*scale.y(), -1*scale.z())  +initPos);
-    vertices->push_back(osg::Vec3(1*scale.x(), -1*scale.y(), 1*scale.z())   +initPos);
-    vertices->push_back(osg::Vec3(1*scale.x(), 1*scale.y(), -1*scale.z())   +initPos);
-    vertices->push_back(osg::Vec3(1*scale.x(), 1*scale.y(), 1*scale.z())    +initPos);
-
-    geom->setVertexArray(vertices);
-
-    osg::Vec4Array *colors = new osg::Vec4Array;
-    colors->push_back(osg::Vec4(1,0,0,1));
-    geom->setColorArray(colors);
-    geom->setColorBinding(osg::Geometry::BIND_OVERALL);
-
-    osg::Vec3Array *normals = new osg::Vec3Array;
-    normals->push_back(osg::Vec3(0,0,-1));
-    geom->setNormalArray(normals);
-    geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-
-    geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::TRIANGLES,0,8));
-
-    testBoxGeode->addDrawable(geom);
-
 }
 
 void SprayPlugin::updateEditContext()

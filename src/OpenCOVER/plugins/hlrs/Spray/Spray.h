@@ -58,7 +58,7 @@ class SprayPlugin : public coVRPlugin, public ui::Owner
 {
 private:
     osg::Group *scene;
-    osg::Geode* floorGeode;
+    osg::Geode* rtSceneGeode;
     osg::Geode* testBoxGeode;
 
     osg::MatrixTransform *baseTransform;
@@ -165,7 +165,6 @@ private:
     std::string fileNameField_ = "";
     std::string nozzleNameField_ = "";
 
-
 public:
     SprayPlugin();
 
@@ -175,7 +174,6 @@ public:
     bool update();
 
     void createTestBox(osg::Vec3 initPos, osg::Vec3 scale);
-    void createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual);
 
     void createAndRegisterImageNozzle();
     void createAndRegisterStandardNozzle();

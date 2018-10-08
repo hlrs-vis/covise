@@ -40,6 +40,9 @@ private:
     int numParticles = 10000;
     int numSamplings = 1000;
     int iterations = 4;
+
+    int displayRTScene = 0;
+
     float lowerPressureBound = 0.1;
     float upperPressureBound = 10;
 
@@ -87,6 +90,7 @@ public:
         lowerPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".LowerPressureBound",0.1);
         upperPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".UpperPressureBound",10.0);
 
+        displayRTScene = coCoviseConfig::getInt(COVERpluginpath+".DisplayRTScene",0);
 
         densityOfFluid = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfFluid",1.27);
         densityOfParticle = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfParticle",998.0);
@@ -226,6 +230,11 @@ public:
     float getAlpha()
     {
         return alpha;
+    }
+
+    int getDisplayRTScene()
+    {
+        return displayRTScene;
     }
 };
 

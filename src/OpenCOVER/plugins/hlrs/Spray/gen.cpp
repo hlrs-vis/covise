@@ -235,73 +235,73 @@ void gen::updatePos(osg::Vec3 boundingBox)
 void gen::updateAll(osg::Vec3 boundingBox)
 {
     tCur = parser::instance()->getRendertime()/60;
+    float timesteps = tCur/iterations;
 
-//    std::clock_t begin = clock();
-    raytracer::instance()->checkAllHits(pVec, tCur);
-//    std::clock_t end = clock();
-//    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-//    printf("elapsed time for RT all %f\n", elapsed_secs);
-
-
-    for(int i = 0; i<particleCount_;i++)
+    for(int it = 0; it<iterations; it++)
     {
-        particle* p = pVec[i];
+        outOfBoundCounter = 0;
+        raytracer::instance()->checkAllHits(pVec, timesteps);
 
-        if(p->particleOutOfBound)
+        for(int i = 0; i<particleCount_;i++)
         {
-            outOfBoundCounter++;
-            continue;
-        }
+            particle* p = pVec[i];
 
-        if(p->time >= 0)                                                       //hit was registered by embree
-        {
-            p->particleOutOfBound = true;                                               //particle has hit an object
-            p->pos += p->velocity*tCur*p->time;
-            float hitColor = 4*p->velocity.length()/vInit;
-            coSphere_->setColor(i,0,0,hitColor,1);
-        }
-
-        else
-        {
-            float v = p->velocity.length();                                     //get absolute velocity
-
-            float cwTemp = reynoldsNr(v, 2*p->r);
-
-            p->pos += p->velocity*tCur;                                    //set new positions
-
-            float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
-
-            p->velocity -= p->velocity*k*v*tCur*0.5+gravity*tCur/2;   //new velocity
-
-            if(p->pos.z()<(-boundingBox.z()))
+            if(p->particleOutOfBound)
             {
-                if(p->firstHit == true)
+                outOfBoundCounter++;
+                continue;
+            }
+
+            if(p->time >= 0)                                                       //hit was registered by embree
+            {
+                p->particleOutOfBound = true;                                               //particle has hit an object
+                p->pos += p->velocity*tCur*p->time;
+                float hitColor = 4*p->velocity.length()/vInit;
+                coSphere_->setColor(i,0,0,hitColor,1);
+            }
+
+            else
+            {
+                float v = p->velocity.length();                                     //get absolute velocity
+
+                float cwTemp = reynoldsNr(v, 2*p->r);
+
+                p->pos += p->velocity*timesteps;                                    //set new positions
+
+                float k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m;              //constant value for wind force
+
+                p->velocity -= p->velocity*k*v*tCur*0.5+gravity*timesteps/2;   //new velocity
+
+                if(p->pos.z()<(-boundingBox.z()))
+                {
+                    if(p->firstHit == true)
+                    {
+                        p->particleOutOfBound = true;
+                    }
+                    else
+                    {
+                        if((float)rand()/(float)randMax>0.5)
+                        {
+                            p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
+                            p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
+                        }
+                        p->firstHit = true;
+                    }
+                }
+
+                if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
+                        p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
                 {
                     p->particleOutOfBound = true;
                 }
-                else
-                {
-                    if((float)rand()/(float)randMax>0.5)
-                    {
-                        p->velocity.x() *= ((float)rand()/randMax-0.5)*0.5;
-                        p->velocity.y() *= ((float)rand()/randMax-0.5)*0.5;
-                    }
-                    p->firstHit = true;
-                }
-            }
+            }   //else
 
-            if(p->pos.x() > boundingBox.x() || p->pos.y() > boundingBox.y() || p->pos.z() > boundingBox.z() ||
-                    p->pos.x()<(-boundingBox.x()) || p->pos.y() < (-boundingBox.y()) )
-            {
-                p->particleOutOfBound = true;
-            }
-        }   //else
 
+        }
+    }
+        updateCoSphere();
 
     }
-    updateCoSphere();
-
-}
 
 
 
