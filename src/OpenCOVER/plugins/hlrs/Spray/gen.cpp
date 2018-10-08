@@ -138,6 +138,7 @@ void gen::setCoSphere(osg::Vec3Array* pos)
                          pos,
                          rVis);
     geode_->addDrawable(coSphere_);
+    setColor(currentColor);
 }
 
 void gen::updateCoSphere(){

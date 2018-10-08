@@ -723,7 +723,8 @@ bool SprayPlugin::init()
             editNozzle = nullptr;
             edit_->setEnabled(false);
             remove_->setEnabled(false);
-            nozzleEditMenu_->setEnabled(false);
+            if(nozzleEditMenu_ != nullptr)
+                nozzleEditMenu_->setEnabled(false);
         }
         else
         {

@@ -98,7 +98,6 @@ void nozzle::createGen()
 {
     //Will never be called
     class gen* newGen = new class gen(initPressure_, this);
-    newGen->setColor(getColor());
     newGen->setDeviation(deviation);
     newGen->setMinimum(minimum);
     newGen->setRemoveCount(autoremoveCount);
