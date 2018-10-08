@@ -892,19 +892,15 @@ void coVRFileManager::unloadFile(const char *file)
 coVRFileManager *coVRFileManager::instance()
 {
     if (!s_instance)
-    {
         s_instance = new coVRFileManager;
-    }
     return s_instance;
 }
 
 coVRFileManager::coVRFileManager()
-    : ui::Owner("FileManager",cover)
+    : ui::Owner("FileManager", cover->ui)
     , fileHandlerList()
 {
     assert(!s_instance);
-    if(cover)
-    {
 
     auto fileOpen = new ui::FileBrowser("OpenFile", this);
     fileOpen->setText("Open");
@@ -933,7 +929,6 @@ coVRFileManager::coVRFileManager()
         if (coVRMSController::instance()->isMaster())
             VRSceneGraph::instance()->saveScenegraph(file);
     });
-    }
 
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
