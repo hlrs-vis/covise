@@ -105,7 +105,7 @@ public:
         alpha = coCoviseConfig::getFloat(COVERpluginpath+".Alpha", 0.4);
 
         colorThreshold = coCoviseConfig::getInt(COVERpluginpath+".ColorThreshold", 100);
-        sphereRenderType = coCoviseConfig::getInt(COVERpluginpath+".SphereRenderType", 1); /* 1 for ARB_POINT_SPRITES, 0 for CG_SHADER*/
+        sphereRenderType = coCoviseConfig::getInt(COVERpluginpath+".SphereRenderType", 0); /* 0 for ARB_POINT_SPRITES, 1 for CG_SHADER*/
 
         cwModelType = coCoviseConfig::getEntry("value",COVERpluginpath+".CwModelType","STOKES");
         samplingType = coCoviseConfig::getEntry("value",COVERpluginpath+".SamplingType","circle");
