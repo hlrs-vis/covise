@@ -19,6 +19,8 @@ XERCES_CPP_NAMESPACE_END
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem.hpp>
 
+#include "oscExport.h"
+
 
 namespace bf = boost::filesystem;
 
@@ -51,8 +53,8 @@ private:
 bf::path getEnvVariable(const std::string &envVar);
 std::string generateRandomString(const size_t numOfChars);
 
-char *XMLChTranscodeUtf(const XMLCh *in);
-XMLCh *XMLChTranscodeUtf(const char *s);
+OPENSCENARIOEXPORT char *XMLChTranscodeUtf(const XMLCh *in);
+OPENSCENARIOEXPORT XMLCh *XMLChTranscodeUtf(const char *s);
 }
 
 #endif /* OSC_UTILITIES_H */
