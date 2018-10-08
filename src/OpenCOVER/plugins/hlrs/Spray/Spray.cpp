@@ -312,6 +312,8 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.x() = stof(cmd);
+                        if(parser::instance()->getSphereRenderType() == 0)
+                            editNozzle->setColor(newColor);
 
                     }//try
 
@@ -330,6 +332,8 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.y() = stof(cmd);
+                        if(parser::instance()->getSphereRenderType() == 0)
+                            editNozzle->setColor(newColor);
 
                     }//try
 
@@ -348,6 +352,8 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.z() = stof(cmd);
+                        if(parser::instance()->getSphereRenderType() == 0)
+                            editNozzle->setColor(newColor);
 
                     }//try
 
@@ -413,6 +419,7 @@ bool SprayPlugin::init()
                     try
                     {
                         minimum = stof(cmd);
+                        editNozzle->setMinimum(minimum/1000000);
 
                     }//try
 
@@ -430,6 +437,7 @@ bool SprayPlugin::init()
                     try
                     {
                         deviation = stof(cmd);
+                        editNozzle->setDeviation(deviation/1000000);
 
                     }//try
 
@@ -471,23 +479,6 @@ bool SprayPlugin::init()
                             editNozzle->display(true);
                             std::cout << "Interaction activated" << std::endl;
                         }
-
-                });
-
-                acceptEdit_ = new ui::Action(nozzleEditMenu_, "acceptEdit");
-                acceptEdit_->setText("Accept");
-                acceptEdit_->setCallback([this](){
-                    if(editNozzle != nullptr)
-                    {
-                        if(parser::instance()->getSphereRenderType() == 0)
-                            editNozzle->setColor(newColor);   //Somehow crashes the rendering of spheres
-                        editNozzle->setInitPressure(pressureSlider_->value());
-                        editNozzle->setAlpha(alphaSlider_->value());
-                        editNozzle->setMinimum(minimum/1000000);
-                        editNozzle->setDeviation(deviation/1000000);
-                        std::cout << "Editing done" << std::endl;
-                    }
-                    //nozzleEditMenu_->setVisible(false);
 
                 });
 
@@ -744,14 +735,15 @@ bool SprayPlugin::init()
     scene = new osg::Group;
     cover->getObjectsRoot()->addChild(scene);
     scene->setName("Spray Group");
-    testBoxGeode = new osg::Geode;
-    testBoxGeode->setName("testBox");
 
-    //Just for testing purpose
-    createTestBox(osg::Vec3(0,0,-10), osg::Vec3(10,10,10));
-    //createTestBox1(osg::Vec3(0,20,-20), osg::Vec3(10,10,10), true);
+//    testBoxGeode = new osg::Geode;
+//    testBoxGeode->setName("testBox");
 
-    scene->addChild(testBoxGeode);
+//    //Just for testing purpose
+//    createTestBox(osg::Vec3(0,0,-10), osg::Vec3(10,10,10));
+//    //createTestBox1(osg::Vec3(0,20,-20), osg::Vec3(10,10,10), true);
+
+//    scene->addChild(testBoxGeode);
 
     //Traverse scenegraph to extract vertices for raytracer
     nodeVisitorVertex c;

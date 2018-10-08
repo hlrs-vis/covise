@@ -61,18 +61,14 @@ private:
     osg::Geode* rtSceneGeode;
     osg::Geode* testBoxGeode;
 
-    osg::MatrixTransform *baseTransform;
-
     std::list<int> idGeo;
 
 
     //All menus and submenus
     ui::Menu* sprayMenu_ = nullptr;
-    ui::Menu* nozzleCreateMenu = nullptr;
     ui::Menu* nozzleCreateMenuStandard = nullptr;
     ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
-    ui::Menu* saveMenu_ = nullptr;
     ui::Menu* loadSaveMenu_ = nullptr;
     ui::Menu* testMenu = nullptr;
     ui::Menu* bbEditMenu = nullptr;
@@ -103,16 +99,10 @@ private:
     //Variables on main menu
     int nozzleID = 0;
     bool sprayStart = false;
-    bool creating = false;
-    bool editing = false;
-    bool TESTING = true;
     osg::Vec3 newBoundingBox = osg::Vec3(2000,2000,2000);
     class nozzle* editNozzle = nullptr;
 
     /************************************************************/
-
-    //Actions on edit menu
-    ui::Action* acceptEdit_ = nullptr;
 
     //EditFields on edit menu
     ui::EditField* red_ = nullptr;
