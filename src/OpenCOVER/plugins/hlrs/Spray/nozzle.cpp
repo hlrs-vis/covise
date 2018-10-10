@@ -347,8 +347,7 @@ void standardNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getSphereRenderType() == 0)
-        newGen->setColor(getColor());
+    newGen->setColor(getColor());
 
     genList.push_back(newGen);
 }
@@ -451,8 +450,7 @@ void imageNozzle::createGen()
     newGen->setRemoveCount(autoremoveCount);
     newGen->setAlpha(getAlpha());
     newGen->seed();
-    if(parser::instance()->getSphereRenderType() == 0)
-        newGen->setColor(getColor());
+    newGen->setColor(getColor());
 
     genList.push_back(newGen);
 }
