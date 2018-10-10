@@ -514,6 +514,194 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
     return false;
 }
 
+
+int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> all_points, Vec3 pointBegin, Vec3 pointEnd, curveInfo &resultCurveInfo)
+{
+    SISLCurve *result_curve = 0;
+    //int numPoints = all_points.size();
+
+    //rotation of points
+    Vec3 edgeDirection = pointEnd - pointBegin;
+    edgeDirection.normalize();
+    Matrixd rotationMatrix;
+    Matrixd inverseRotationMatrix;
+    Vec3 unitAxis = Vec3(1.0, 0.0, 0.0);
+    rotationMatrix.makeRotate(edgeDirection,unitAxis);
+    inverseRotationMatrix.inverse(rotationMatrix);
+    for (auto it=all_points.begin(); it!=all_points.end(); it++)
+    {
+        it->set(rotationMatrix * *it);
+    }
+    Vec3 pointBeginLocal = rotationMatrix * pointBegin;
+    Vec3 pointEndLocal = rotationMatrix * pointEnd;
+
+    //
+    double sumZ = 0.0;
+    for (std::vector<osg::Vec3>::const_iterator it = all_points.begin(); it !=all_points.end(); it++)
+    {
+        sumZ += it->_v[2];
+    }
+    double averageZ = sumZ/all_points.size();
+
+    float minimum_x = pointBeginLocal.x();
+    float maximum_x = pointEndLocal.x();
+
+    std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
+    maximumPointsInAllQuadrants.resize(numEdgeSectors, nullptr);
+    real_1d_array LocalXForFirstCurve;
+    real_1d_array LocalYForFirstCurve;
+
+    int numberOfSectorsWithMaximum = 0;
+    for(auto it=all_points.begin(); it != all_points.end(); it++)
+    {
+        int j=int((it->x()-minimum_x)/(maximum_x-minimum_x)*numEdgeSectors);
+        j=min(numEdgeSectors-1,j);
+        if (!maximumPointsInAllQuadrants[j])
+        {
+            maximumPointsInAllQuadrants[j] = &*it;
+            numberOfSectorsWithMaximum++;
+        }
+        else
+        {
+            if (it->y() > maximumPointsInAllQuadrants[j]->y())
+            {
+                maximumPointsInAllQuadrants[j] = &*it;
+            }
+        }
+    }
+    //initialize spline firstCurveWithMaximumPointsPerQuadrant
+    ae_int_t degree = 3;
+
+    ae_int_t info;
+    barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
+    polynomialfitreport repo;
+
+    //initialize spline curve
+    barycentricinterpolant curve;
+
+    if (numberOfSectorsWithMaximum > 1)
+    {
+        LocalXForFirstCurve.setlength(numberOfSectorsWithMaximum);
+        LocalYForFirstCurve.setlength(numberOfSectorsWithMaximum);
+
+        int countFirstCurve = 0;
+
+        for(std::vector<Vec3*>::iterator it = maximumPointsInAllQuadrants.begin(); it != maximumPointsInAllQuadrants.end(); it++)
+        {
+            LocalXForFirstCurve[countFirstCurve] = (*it)->x();
+            LocalYForFirstCurve[countFirstCurve] = (*it)->y();
+            countFirstCurve++;
+        }
+
+        //built first curve out of maximum points per quadrant
+        polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, firstCurveWithMaximumPointsPerQuadrant, repo);
+
+        std::vector<osg::Vec3> pointsAboveCurve;
+
+        //compare all points with first curve, if they are above or below
+        for(auto it = all_points.begin(); it != all_points.end(); it++)
+        {
+            if (it->y() > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, it->x()))
+            {
+                pointsAboveCurve.push_back(*it);
+            }
+        }
+
+        real_1d_array LocalXForSecondCurve;
+        real_1d_array LocalYForSecondCurve;
+
+        LocalXForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+        LocalYForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+
+        int countSecondCurve = 0;
+
+        for(int k = 0; k < maximumPointsInAllQuadrants.size(); k++)
+        {
+            if (!maximumPointsInAllQuadrants[k]) {
+            }
+            else{
+                LocalXForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->x();
+                LocalYForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->y();
+                countSecondCurve++;
+            }
+        }
+
+        for(int j = 0; j < pointsAboveCurve.size(); j++)
+        {
+            LocalXForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].x();
+            LocalYForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].y();
+        }
+
+        //built second curve out of maximum points per quadrant and all points above the first curve
+        polynomialfit(LocalXForSecondCurve, LocalYForSecondCurve, degree, info, curve, repo);
+        //return(curve);
+
+        //Also build a SISL-curve from this data for intersection calculation
+        //using transformed global coordinates
+        int num_points = numEdgeSectors;
+        double *pointsSISLCurve = new double[2*num_points];
+        int *type= new int[num_points];
+        for (int i=0; i!=num_points; i++)
+        {
+            double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
+            pointsSISLCurve[i*2+1]=barycentriccalc(curve,x);
+            pointsSISLCurve[i*2]=x;
+            type[i]=1;
+            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            point = rotationMatrixToWorld * point;
+            highlightPoint(point);
+            //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
+        }
+        const double cstartpar = 0;
+        try
+        {
+            double cendpar;
+
+            double* gpar = 0;
+            int jnbpar;
+            int jstat;
+
+            s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
+                  num_points,    // number of points to be interpolated
+                  2,             // the dimension
+                  type,          // what type of information is stored at a particular point
+                  0,             // no additional condition at start point
+                  0,             // no additional condition at end point
+                  1,             // open curve
+                  3,             // order of the spline curve to be produced
+                  cstartpar,     // parameter value to be used at start of curve
+                  &cendpar,      // parameter value at the end of the curve (to be determined)
+                  &result_curve, // the resulting spline curve (to be determined)
+                  &gpar,         // pointer to the parameter values of the points in the curve
+                  // (to be determined)
+                  &jnbpar,       // number of unique parameter values (to be determined)
+                  &jstat);       // status message
+
+            if (jstat < 0) {
+                throw runtime_error("Error occured inside call to SISL routine.");
+            } else if (jstat > 0) {
+                std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
+            }
+            delete []pointsSISLCurve;
+            delete[] type;
+            resultCurveInfo.curve = result_curve;
+            resultCurveInfo.startPar = cstartpar;
+            resultCurveInfo.endPar = cendpar;
+            fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
+
+            // cleaning up
+            //freeCurve(result_curve);
+            free(gpar);
+        }
+        catch (exception& e)
+        {
+            std::cerr << "Exception thrown: " << e.what() << std::endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
 //method for creating edges in unsorted points
 //
 //    local_x -> local x-value for creating upper edge
@@ -525,7 +713,6 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
 //    change -> changes upper edge to lower edge and right edge to left edge
 //        without changing:   change = 1
 //        with changing:      change = -1
-
 int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo)
 {
     SISLCurve *result_curve = 0;

@@ -119,6 +119,7 @@ struct curveInfo{
         double sphereSize = 10.0;
         virtual bool destroy();
         int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
+        int edgeByPoints(std::vector<osg::Vec3> all_points, osg::Vec3 pointBegin, osg::Vec3 pointEnd, curveInfo &resultCurveInfo);
         int numEdgeSectors = 5;
         void highlightPoint(osg::Vec3& newSelectedPoint);
     };
