@@ -118,7 +118,7 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
 
     void main( void )
     {
-Texcoord = gl_MultiTexCoord0;
+Texcoord = gl_MultiTexCoord0.xy;
 #ifdef __GLSL_CG_DATA_TYPES
 gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif
@@ -133,7 +133,8 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
     gl_Position = ftransform();
     transformedNormal = fnormal();
     flight(transformedNormal, ecPosition, alphaFade);
-        InLightCoordinates = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+	vec4 tmp4 = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    InLightCoordinates = tmp4.xyz;
 		
     }
   </vertexProgram><fragmentProgram>#version 130
