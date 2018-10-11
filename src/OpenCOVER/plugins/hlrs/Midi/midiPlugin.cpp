@@ -521,6 +521,9 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 {
 #ifndef WIN32
     char devName[100];
+    if(device == 0)
+    sprintf(devName, "/dev/midi");
+    else
     sprintf(devName, "/dev/midi%d", device + 1);
     midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
     fprintf(stderr, "open /dev/midi%d %d", device + 1, midifd[streamNum]);
@@ -757,7 +760,9 @@ void MidiPlugin::MIDItab_create(void)
     outputDevice = new ui::SelectionList(MIDITab, "outputDevices");
     for (int i = 0; i < NUMMidiStreams; i++)
     {
-        inputDevice[i] = new ui::SelectionList(MIDITab, "inputDevices");
+        char name[500];
+	sprintf(name,"inputDevices_%d",i);
+        inputDevice[i] = new ui::SelectionList(MIDITab, name);
 
 #ifdef WIN32
         const UINT_PTR nMidiIn = midiInGetNumDevs();
@@ -806,7 +811,7 @@ void MidiPlugin::MIDItab_create(void)
 
     });
 
-    outputDevice = new ui::SelectionList(MIDITab, "outputDevices");
+    outputDevice = new ui::SelectionList(MIDITab, "outputDevicest");
 
 
     infoLabel = new ui::Label(MIDITab, "MIDI Version 1.0");

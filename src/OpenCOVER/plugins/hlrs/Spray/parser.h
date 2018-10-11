@@ -40,6 +40,9 @@ private:
     int numParticles = 10000;
     int numSamplings = 1000;
     int iterations = 4;
+
+    int displayRTScene = 0;
+
     float lowerPressureBound = 0.1;
     float upperPressureBound = 10;
 
@@ -87,6 +90,7 @@ public:
         lowerPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".LowerPressureBound",0.1);
         upperPressureBound = coCoviseConfig::getFloat(COVERpluginpath+".UpperPressureBound",10.0);
 
+        displayRTScene = coCoviseConfig::getInt(COVERpluginpath+".DisplayRTScene",0);
 
         densityOfFluid = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfFluid",1.27);
         densityOfParticle = coCoviseConfig::getFloat(COVERpluginpath+".DensityOfParticle",998.0);
@@ -101,7 +105,7 @@ public:
         alpha = coCoviseConfig::getFloat(COVERpluginpath+".Alpha", 0.4);
 
         colorThreshold = coCoviseConfig::getInt(COVERpluginpath+".ColorThreshold", 100);
-        sphereRenderType = coCoviseConfig::getInt(COVERpluginpath+".SphereRenderType", 1); /* 1 for ARB_POINT_SPRITES, 0 for CG_SHADER*/
+        sphereRenderType = coCoviseConfig::getInt(COVERpluginpath+".SphereRenderType", 0); /* 0 for ARB_POINT_SPRITES, 1 for CG_SHADER*/
 
         cwModelType = coCoviseConfig::getEntry("value",COVERpluginpath+".CwModelType","STOKES");
         samplingType = coCoviseConfig::getEntry("value",COVERpluginpath+".SamplingType","circle");
@@ -226,6 +230,11 @@ public:
     float getAlpha()
     {
         return alpha;
+    }
+
+    int getDisplayRTScene()
+    {
+        return displayRTScene;
     }
 };
 

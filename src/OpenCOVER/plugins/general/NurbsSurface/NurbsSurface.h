@@ -31,6 +31,7 @@
 
 #include <string>
 #include <cover/ui/Owner.h>
+#include <cover/ui/Label.h>
 
 #include "alglib/stdafx.h"
 #include "alglib/interpolation.h"
@@ -50,6 +51,7 @@ class coVRSceneHandler;
 class coVRSceneView;
 namespace ui {
 class Slider;
+class Label;
 }
 }
 
@@ -78,7 +80,8 @@ struct curveInfo{
         rbfmodel model;
         osg::ref_ptr<osg::Geode> computeSurface(double* points);
         void updateSurface();
-        const int num_surf = 1;
+        //const int num_surf = 1;
+        int surfaceIndex = 0;
         const int num_points_u = 3; // number of points in the u parameter direction
         const int num_points_v = 3; // number of points in the v parameter direction
         double u_par[3] = {0, 1, 2}; // point parametrization in u-direction
@@ -129,6 +132,9 @@ private:
     void saveFile(const std::string &fileName);
 
     ui::Menu *NurbsSurfaceMenu; //< menu for NurbsSurface Plugin
+
+    ui::Label *currentSurfaceLabel = nullptr;
+    ui::Action *newSurface = nullptr;
     ui::Action *saveButton_;
 
     ui::Slider *surfaceSelectionSlider=nullptr;
@@ -142,6 +148,8 @@ private:
     std::string fileName = "test.obj";
     void updateMessage();
     void initUI();
+    void updateUI();
+    void createNewSurface();
 };
 
 template <typename T>

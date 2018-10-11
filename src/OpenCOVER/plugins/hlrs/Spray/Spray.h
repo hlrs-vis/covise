@@ -58,21 +58,17 @@ class SprayPlugin : public coVRPlugin, public ui::Owner
 {
 private:
     osg::Group *scene;
-    osg::Geode* floorGeode;
+    osg::Geode* rtSceneGeode;
     osg::Geode* testBoxGeode;
-
-    osg::MatrixTransform *baseTransform;
 
     std::list<int> idGeo;
 
 
     //All menus and submenus
     ui::Menu* sprayMenu_ = nullptr;
-    ui::Menu* nozzleCreateMenu = nullptr;
     ui::Menu* nozzleCreateMenuStandard = nullptr;
     ui::Menu* nozzleCreateMenuImage = nullptr;
     ui::Menu* nozzleEditMenu_ = nullptr;
-    ui::Menu* saveMenu_ = nullptr;
     ui::Menu* loadSaveMenu_ = nullptr;
     ui::Menu* testMenu = nullptr;
     ui::Menu* bbEditMenu = nullptr;
@@ -103,16 +99,10 @@ private:
     //Variables on main menu
     int nozzleID = 0;
     bool sprayStart = false;
-    bool creating = false;
-    bool editing = false;
-    bool TESTING = true;
     osg::Vec3 newBoundingBox = osg::Vec3(2000,2000,2000);
     class nozzle* editNozzle = nullptr;
 
     /************************************************************/
-
-    //Actions on edit menu
-    ui::Action* acceptEdit_ = nullptr;
 
     //EditFields on edit menu
     ui::EditField* red_ = nullptr;
@@ -165,7 +155,6 @@ private:
     std::string fileNameField_ = "";
     std::string nozzleNameField_ = "";
 
-
 public:
     SprayPlugin();
 
@@ -175,7 +164,6 @@ public:
     bool update();
 
     void createTestBox(osg::Vec3 initPos, osg::Vec3 scale);
-    void createTestBox1(osg::Vec3 initPos, osg::Vec3 scale, bool manual);
 
     void createAndRegisterImageNozzle();
     void createAndRegisterStandardNozzle();

@@ -13,6 +13,8 @@
       <NumParticles value="1000"/>
       <NumSamplings value="1000"/>
       <Iterations value="1"/>
+
+      <DisplayRTScene value="1"/>
     
       <LowerPressureBound value="0.1"/>
       <UpperPressureBound value="10.0"/>
@@ -29,7 +31,7 @@
       <ReynoldsThreshold value="2230"/>
       <ReynoldsLimit value="170000"/>
       <ColorThreshold value="100"/>
-      <SphereRenderType value="0"/>
+      <SphereRenderType value="1"/>
 
       <CwModelType value="STOKES"/>
       <SamplingType value="circle"/>

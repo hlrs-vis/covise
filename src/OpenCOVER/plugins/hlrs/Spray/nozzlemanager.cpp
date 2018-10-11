@@ -16,14 +16,8 @@ nozzle* nozzleManager::createNozzle(std::string nozzleName)
 
     osg::Matrix initialMat;
     initialMat.makeIdentity();
-//    initialMat.setTrans(cover->getPointerMat().getTrans());
-//    float baseTransform[] = {1,0,0,0,
-//                             0,1,0,0,
-//                             0,0,1,0,
-//                             0,0,0,1
-//                            };
-//    initialMat.set(baseTransform);
-    initialMat = cover->getPointerMat()*initialMat;
+    osg::Vec3 offset = cover->getInvBaseMat().getTrans();
+    initialMat.makeTranslate(offset);
 
     class nozzle* newNozzle = new class nozzle(initialMat, 1 , newNozzleName);
     newNozzle->setID(nextNozzleID);
@@ -59,14 +53,9 @@ nozzle* nozzleManager::createImageNozzle(std::string nozzleName, std::string pat
 
     osg::Matrix initialMat;
     initialMat.makeIdentity();
-//    initialMat.setTrans(cover->getPointerMat().getTrans());
-//    float baseTransform[] = {1,0,0,0,
-//                             0,1,0,0,
-//                             0,0,1,0,
-//                             0,0,0,1
-//                            };
-//    initialMat.set(baseTransform);
-    initialMat = cover->getPointerMat()*initialMat;
+    osg::Vec3 offset = cover->getInvBaseMat().getTrans();
+    initialMat.makeTranslate(offset);
+
     class imageNozzle* newNozzle = new class imageNozzle(pathName, fileName, initialMat, 1, newNozzleName);
     if(newNozzle->isFailed())
     {
@@ -102,14 +91,8 @@ nozzle* nozzleManager::createStandardNozzle(std::string nozzleName, float sprayA
 
     osg::Matrix initialMat;
     initialMat.makeIdentity();
-//    initialMat.setTrans(cover->getPointerMat().getTrans());
-//    float baseTransform[] = {1,0,0,0,
-//                             0,1,0,0,
-//                             0,0,1,0,
-//                             0,0,0,1
-//                            };
-//    initialMat.set(baseTransform);
-    initialMat = cover->getPointerMat()*initialMat;
+    osg::Vec3 offset = cover->getInvBaseMat().getTrans();
+    initialMat.makeTranslate(offset);
 
     class standardNozzle* newNozzle = new class standardNozzle(sprayAngle, decoy, initialMat, 1, newNozzleName);
 

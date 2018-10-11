@@ -127,7 +127,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                                 bestPoint.pointIndex = j;
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
-                                bestPoint.selectionIndex = 0;
+                                bestPoint.selectionIndex = selectionSetIndex;
                             }
                         }
                     }
@@ -390,6 +390,7 @@ bool PointCloudInteractor::deselectPoint()
             selectedPoints.erase(deselectionPoint);
         }
     }
+    updateMessage(selectedPoints);
     return hitPointSuccess;
 }
 
