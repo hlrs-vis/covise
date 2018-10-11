@@ -23,8 +23,6 @@
 
 using namespace covise;
 using namespace opencover;
-
-
 using namespace osg;
 
 
@@ -34,13 +32,12 @@ class nodeVisitorVertex : public osg::NodeVisitor
 
 private:    
     osg::Group *localScene;
-    osg::Geode *localGeodeTriangle;
+    osg::Geode *rtGeode;
     osg::Matrix childTransform;
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
 
-    bool triFunc = true;
-    bool visualize = false;
+    bool displayRTScene = false;
 
 public:
         nodeVisitorVertex();
@@ -61,8 +58,6 @@ public:
 
         bool checkBlacklist(osg::Node* node)
         {
-            std::clock_t begin = clock();
-
             for(auto itr = blacklist.begin();itr != blacklist.end(); itr++)
             {
                 std::string compareString = *itr;
@@ -70,19 +65,13 @@ public:
                     return true;
             }
             return false;
-
-            std::clock_t end = clock();
-            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-            printf("elapsed time for blacklisting %f\n", elapsed_secs);
-
         }
 
         void _printPrimitiveType(osg::PrimitiveSet *pset);
 
         osg::Geode* returnGeode()
         {
-            return localGeodeTriangle;
+            return rtGeode;
         }
 
         osg::Vec3Array* getVertexArray()
@@ -91,6 +80,7 @@ public:
         }
 
         std::vector<osg::Node*> coNozzleList;
+
         osg::Matrix getChildTransform()
         {
             return childTransform;
@@ -103,7 +93,6 @@ private:
     nodeVisitorVertex* nvv_;
 public:
     void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
-    //void operator()(const osg::Vec3& v1, const osg::Vec3& v2, const osg::Vec3& v3, bool = false)const;
     void setNVV(nodeVisitorVertex* nvv)
     {
         nvv_ = nvv;
