@@ -4,7 +4,7 @@
     varying vec2 Texcoord;
    uniform mat4 coEnvCorrectMatrix;
    uniform mat4 coInvEnvCorrectMatrix;
- uniform mat4 matrixLightMatrix[1];
+ uniform mat4 photometricLightMatrix[1];
   
      vec4 Ambient;
 vec4 Diffuse;
@@ -133,7 +133,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
     gl_Position = ftransform();
     transformedNormal = fnormal();
     flight(transformedNormal, ecPosition, alphaFade);
-        InLightCoordinates = matrixLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+        InLightCoordinates = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
 		
     }
   </vertexProgram><fragmentProgram>#version 130
@@ -141,7 +141,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 varying vec2 Texcoord;
    uniform mat4 coEnvCorrectMatrix;
    uniform mat4 coInvEnvCorrectMatrix;
- uniform mat4 matrixLightMatrix[1];
+ uniform mat4 photometricLightMatrix[1];
     uniform float minHAngle;
     uniform float minVAngle;
     uniform float HStep;
@@ -197,7 +197,7 @@ if(InLightCoordinates[0]&gt;0.0)
     }
 else
 {
-DiffuseColor=vec4(0,0,0,1);
+DiffuseColor=vec4(1,1,0,1);
 } 
       gl_FragColor = DiffuseColor+ (gl_Color*0.5);	
 
