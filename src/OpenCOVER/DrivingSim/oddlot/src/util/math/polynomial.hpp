@@ -46,6 +46,9 @@ public:
         return d_;
     }
 
+	void operator += (const Polynomial&);
+	void operator -= (const Polynomial&);
+
     // TODO: setFunctions with recalculateDegree
 
     int getDegree() const

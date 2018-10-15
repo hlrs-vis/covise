@@ -15,9 +15,9 @@
 
 #include "baselanemovehandle.hpp"
 
-
 // Graph //
 //
+#include "src/graph/projectgraph.hpp"
 #include "src/graph/editors/laneeditor.hpp"
 #include "src/graph/items/handles/texthandle.hpp"
 
@@ -46,10 +46,9 @@ BaseLaneMoveHandle::BaseLaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *pa
 		// Text //
 		//
 
-		widthTextItem_ = new TextHandle("", this);
+		widthTextItem_ = new TextHandle("", this, true);
 		widthTextItem_->setZValue(1.0); // stack before siblings
 		widthTextItem_->setVisible(false);
-
 	}
 
 BaseLaneMoveHandle::~BaseLaneMoveHandle()
@@ -103,26 +102,11 @@ BaseLaneMoveHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 
 	setFocus();
 
-	// Text //
-	//
-	QString text;
-	LaneWidth *highSlot = dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth> *>(this)->getHighSlot();
-	if (highSlot)
-	{
-		text = QString("%1").arg(highSlot->f(0.0), 0, 'f', 2);
-	}
-	else
-	{
-		LaneWidth *lowSlot = dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth> *>(this)->getLowSlot();
-		if (lowSlot)
-		{
-			text = QString("%1").arg(lowSlot->f(lowSlot->getSSectionEnd() - lowSlot->getSSectionStartAbs()), 0, 'f', 2);
-		}
-	}
-
-	widthTextItem_->setText(text);
+	widthTextItem_->setText(getText());
 	widthTextItem_->setVisible(true);
-	widthTextItem_->setPos(mapFromScene(scenePos()));
+
+	widthTextItem_->setPos(mapFromScene(event->scenePos()));
+
 
 	// Parent //
 	//
@@ -152,27 +136,5 @@ BaseLaneMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	laneEditor_->getProjectGraph()->finishGarbageDisposal();
 }
 
-
-//################//
-// SLOTS          //
-//################//
-
-void
-BaseLaneMoveHandle::removeCorner()
-{
-	dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth> *>(this)->removeCorner();
-}
-
-void
-BaseLaneMoveHandle::smoothCorner()
-{
-	dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth> *>(this)->smoothCorner();
-}
-
-void
-BaseLaneMoveHandle::corner()
-{
-	dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth> *>(this)->corner();
-}
 
 

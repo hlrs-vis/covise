@@ -235,14 +235,10 @@ SET(ODDLOT_SOURCES
 	 src/tree/items/sensortreeitem.cpp
 	 src/settings/projectsettingsvisitor.cpp
 	 src/graph/editors/laneeditor.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroaditem.cpp
 	 src/graph/items/roadsystem/lanes/lanesectionitem.cpp
 	 src/graph/items/roadsystem/lanes/laneitem.cpp
-	 src/graph/items/roadsystem/lanes/lanesectionwidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthmovehandle.cpp
 	 src/gui/tools/laneeditortool.cpp
 	 src/settings/settingselement.cpp
 	 src/settings/widgets/elevationsettings.cpp
@@ -446,9 +442,6 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/roadsystem/lanes/laneitem.hpp
     src/graph/items/roadsystem/lanes/lanelinkitem.hpp
     src/graph/items/roadsystem/lanes/lanesectionitem.hpp
-    src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp
-    src/graph/items/roadsystem/lanes/lanewidthitem.hpp
-    src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp
     src/graph/items/roadsystem/roaditem.hpp
     src/graph/items/roadsystem/roadlink/roadlinkitem.hpp
     src/graph/items/roadsystem/roadlink/roadlinkroaditem.hpp

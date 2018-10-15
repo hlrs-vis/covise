@@ -58,6 +58,24 @@ Polynomial::Polynomial(const Polynomial &polynomial)
 }
 
 void
+Polynomial::operator+=(const Polynomial &g)
+{
+	a_ += g.a_;
+	b_ += g.b_;
+	c_ += g.c_;
+	d_ += g.d_;
+}
+
+void
+Polynomial::operator-=(const Polynomial &g)
+{
+	a_ -= g.a_;
+	b_ -= g.b_;
+	c_ -= g.c_;
+	d_ -= g.d_;
+}
+
+void
 Polynomial::protectedSetParameters(double a, double b, double c, double d)
 {
     a_ = a;

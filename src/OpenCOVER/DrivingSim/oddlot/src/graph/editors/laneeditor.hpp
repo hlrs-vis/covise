@@ -18,20 +18,11 @@
 
 #include "projecteditor.hpp"
 
-#include "src/graph/profilegraph.hpp"
-#include "src/graph/profilegraphscene.hpp"
-#include "src/graph/profilegraphview.hpp"
-#include "src/graph/items/handles/lanemovehandle.hpp"
-
-#include "src/data/roadsystem/sections/typesection.hpp"
-
 class ProjectData;
 class TopviewGraph;
 
-class LaneWidth;
-class LaneWidthMoveHandle;
 class LaneRoadSystemItem;
-class RoadSystemItem;
+class BaseLaneMoveHandle;
 
 class SectionHandle;
 
@@ -56,19 +47,8 @@ public:
     virtual void toolAction(ToolAction *);
 	virtual void mouseAction(MouseAction *mouseAction);
 
-
-    // MoveHandles //
-    //
-    void registerMoveHandle(LaneWidthMoveHandle *handle);
-    int unregisterMoveHandle(LaneWidthMoveHandle *handle);
-    void setWidth(double w);
-    bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
-
-	void removeMoveHandle();
-
 	// BorderMoveHandles //
 	//
-
 	void registerMoveHandle(BaseLaneMoveHandle *handle);
 	int unregisterMoveHandle(BaseLaneMoveHandle *handle);
 
@@ -107,7 +87,6 @@ private:
 	//
 //	bool borderEditMode_;
 
-    QMultiMap<int, LaneWidthMoveHandle *> selectedMoveHandles_;
 	QList<BaseLaneMoveHandle *> selectedLaneMoveHandles_;
 };
 

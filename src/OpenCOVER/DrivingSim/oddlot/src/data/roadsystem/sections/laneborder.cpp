@@ -15,6 +15,8 @@
 
 #include "laneborder.hpp"
 
+#include "lane.hpp"
+
 LaneBorder::LaneBorder(double sOffset, double a, double b, double c, double d)
     : LaneWidth(sOffset, a, b, c, d)
 {
@@ -35,10 +37,29 @@ LaneBorder::getClone()
 	return clone;
 }
 
+/** Returns the end coordinate of this lane road mark.
+* In lane section coordinates [m].
+*/
+double
+LaneBorder::getSSectionEnd() const
+{
+	return getParentLane()->getBorderEnd(getSOffset());
+}
+
+/** Returns the length coordinate of this lane section.
+* In [m].
+*/
+double
+LaneBorder::getLength() const
+{
+	return getParentLane()->getBorderEnd(getSOffset()) - getSSectionStartAbs();
+}
+
+
 double
 LaneBorder::getT(double s)
 {
-	return f(s);
+	return f(s - getSOffset());
 }
 
 

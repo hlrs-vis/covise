@@ -2244,115 +2244,6 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
 
     laneSection->checkAndFixLanes(); // subsequent lane ids
 
-	// generate width and border entries //
-	//
-	int laneId = laneSection->getLeftmostLaneId();
-	for (int i = 1; i <= laneId; i++)
-	{
-		Lane *lane = laneSection->getLane(i);
-		if (!lane->getWidthEntries().isEmpty())
-		{
-			lane->delBorderEntries();
-/*			foreach(LaneWidth *widthEntry, lane->getWidthEntries())
-			{
-				double a = widthEntry->getA();
-				double b = widthEntry->getB();
-				double c = widthEntry->getC();
-				double d = widthEntry->getD();
-				double sOffset = widthEntry->getSOffset();
-
-				if (i > 1)
-				{
-					Lane *nextLane = laneSection->getLane(i - 1);
-					LaneBorder *nextBorderEntry = nextLane->getBorderEntry(sOffset);
-					a += nextBorderEntry->getA();
-					b += nextBorderEntry->getB();
-					c += nextBorderEntry->getC();
-					d += nextBorderEntry->getD();
-				}
-				LaneBorder *borderEntry = new LaneBorder(widthEntry->getSOffset(), a, b, c, d);
-				lane->addBorderEntry(borderEntry);
-			} */
-		}
-	/*	else if (lane->getWidthEntries().isEmpty() && !lane->getBorderEntries().isEmpty())
-		{
-			foreach(LaneBorder *borderEntry, lane->getBorderEntries())
-			{
-				double a = borderEntry->getA();
-				double b = borderEntry->getB();
-				double c = borderEntry->getC();
-				double d = borderEntry->getD();
-				double sOffset = borderEntry->getSOffset();
-
-				if (i > 1)
-				{
-					Lane *nextLane = laneSection->getLane(i - 1);
-					LaneBorder *nextBorderEntry = nextLane->getBorderEntry(sOffset);
-					a -= nextBorderEntry->getA();
-					b -= nextBorderEntry->getB();
-					c -= nextBorderEntry->getC();
-					d -= nextBorderEntry->getD();
-				}
-				LaneWidth *widthEntry = new LaneWidth(sOffset, a, b, c, d);
-				lane->addWidthEntry(widthEntry); 
-			} 
-		} */
-	}
-
-	laneId = laneSection->getRightmostLaneId();
-	for (int i = -1; i >= laneId; i--)
-	{
-		Lane *lane = laneSection->getLane(i);
-		if (!lane->getWidthEntries().isEmpty())
-		{
-			lane->delBorderEntries();
-	/*		foreach(LaneWidth *widthEntry, lane->getWidthEntries())
-			{
-				double a = widthEntry->getA();
-				double b = widthEntry->getB();
-				double c = widthEntry->getC();
-				double d = widthEntry->getD();
-				double sOffset = widthEntry->getSOffset();
-
-				if (i < -1)
-				{
-					Lane *nextLane = laneSection->getLane(i + 1);
-					LaneBorder *nextBorderEntry = nextLane->getBorderEntry(sOffset);
-					a += nextBorderEntry->getA();
-					b += nextBorderEntry->getB();
-					c += nextBorderEntry->getC();
-					d += nextBorderEntry->getD();
-				}
-				LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
-				lane->addBorderEntry(borderEntry);
-			} */
-		}
-/*		else if (lane->getWidthEntries().isEmpty() && !lane->getBorderEntries().isEmpty())
-		{
-			foreach(LaneBorder *borderEntry, lane->getBorderEntries())
-			{
-				double a = borderEntry->getA();
-				double b = borderEntry->getB();
-				double c = borderEntry->getC();
-				double d = borderEntry->getD();
-				double sOffset = borderEntry->getSOffset();
-
-				if (i < -1)
-				{
-					Lane *nextLane = laneSection->getLane(i + 1);
-					LaneBorder *nextBorderEntry = nextLane->getBorderEntry(sOffset);
-					a -= nextBorderEntry->getA();
-					b -= nextBorderEntry->getB();
-					c -= nextBorderEntry->getC();
-					d -= nextBorderEntry->getD();
-				}
-				LaneWidth *widthEntry = new LaneWidth(borderEntry->getSOffset(), a, b, c, d);
-				lane->addWidthEntry(widthEntry);
-			}
-		} */
-	}
-
-
     return true;
 }
 
@@ -2412,22 +2303,19 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 
 	// <lane><border> //
 	//
-	if (lane->getWidthEntries().isEmpty())
+	child = laneElement.firstChildElement("border"); // optional 
+	while (!child.isNull())
 	{
-		child = laneElement.firstChildElement("border"); // optional 
-		while (!child.isNull())
-		{
-			double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
-			double a = parseToDouble(child, "a", 0.0, false); // mandatory
-			double b = parseToDouble(child, "b", 0.0, false); // mandatory
-			double c = parseToDouble(child, "c", 0.0, false); // mandatory
-			double d = parseToDouble(child, "d", 0.0, false); // mandatory
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		double a = parseToDouble(child, "a", 0.0, false); // mandatory
+		double b = parseToDouble(child, "b", 0.0, false); // mandatory
+		double c = parseToDouble(child, "c", 0.0, false); // mandatory
+		double d = parseToDouble(child, "d", 0.0, false); // mandatory
 
-			LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
-			lane->addBorderEntry(borderEntry);
+		LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
+		lane->addWidthEntry(borderEntry);
 
-			child = child.nextSiblingElement("border");
-		}
+		child = child.nextSiblingElement("border");
 	}
 
 	if (lane->getWidthEntries().isEmpty() && lane->getBorderEntries().isEmpty())
@@ -2441,6 +2329,14 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 					.arg(laneSection->getSStart())
 					.arg(laneSection->getParentRoad()->getID().speakingName()));
 		}
+	}
+	else if (!lane->getWidthEntries().isEmpty())
+	{
+		lane->setWidthActive(true);
+	}
+	else
+	{
+		lane->setWidthActive(false);
 	}
 
 

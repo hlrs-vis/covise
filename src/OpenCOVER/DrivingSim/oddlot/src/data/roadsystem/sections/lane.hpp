@@ -44,6 +44,7 @@ struct WidthPoints
 	double sStart;
 	QPointF pStart;
 	QPointF pEnd;
+	bool typeChanged;
 };
 
 class Lane : public DataElement
@@ -137,6 +138,16 @@ public:
     }
     void setLaneType(Lane::LaneType laneType);
 
+	bool isWidthActive()
+	{
+		return widthActive_;
+	}
+
+	void setWidthActive(bool widthActive)
+	{
+		widthActive_ = widthActive;
+	}
+
     bool getLevel() const
     {
         return level_;
@@ -183,8 +194,8 @@ public:
 
 	// Border entries //
 	//
-	void addBorderEntry(LaneBorder *widthEntry);
-	bool delBorderEntry(LaneBorder *widthEntry);
+	void addWidthEntry(LaneBorder *widthEntry);
+	bool delWidthEntry(LaneBorder *widthEntry);
 	LaneBorder *getBorderEntry(double sSection) const;
 	void delBorderEntries();
 	const QMap<double, LaneBorder *> &getBorderEntries() const
@@ -193,6 +204,9 @@ public:
 	}
 	LaneBorder *getLaneBorderBefore(double s) const;
 	LaneBorder *getLaneBorderNext(double s) const;
+	double getBorderEnd(double sSection) const;
+	LaneBorder *getBorderEntryContains(double sSection) const;
+
 
     // RoadMark entries //
     //
@@ -281,6 +295,10 @@ private:
     // Change flags //
     //
     int laneChanges_;
+
+	// width or border entries active //
+	//
+	bool widthActive_;
 
     // Parent LaneSection //
     //

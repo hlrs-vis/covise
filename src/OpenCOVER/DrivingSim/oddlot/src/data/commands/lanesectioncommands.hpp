@@ -21,7 +21,7 @@
 #include "datacommand.hpp"
 
 #include "src/data/roadsystem/sections/lane.hpp"
-#include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 
@@ -587,56 +587,13 @@ private:
 };
 
 //################//
-// LaneSetWidth           //
-//################//
-
-class LaneSetWidthCommand : public DataCommand
-{
-public:
-    explicit LaneSetWidthCommand(const QList<LaneWidth *> &endPointWidth, const QList<LaneWidth *> &startPointWidth, float width, bool absolute = true, DataCommand *parent = NULL);
-    virtual ~LaneSetWidthCommand();
-
-    virtual int id() const
-    {
-        return 0x830;
-    }
-
-    virtual void undo();
-    virtual void redo();
-
-    virtual bool mergeWith(const QUndoCommand *other);
-
-private:
-    LaneSetWidthCommand(); /* not allowed */
-    LaneSetWidthCommand(const LaneSetWidthCommand &); /* not allowed */
-    LaneSetWidthCommand &operator=(const LaneSetWidthCommand &); /* not allowed */
-
-private:
-    QList<LaneWidth *> endPointWidth_;
-    QList<LaneWidth *> startPointWidth_;
-
-    QList<double> oldStartPointsAs_;
-    QList<double> oldStartPointsBs_;
-    QList<double> oldStartPointsCs_;
-    QList<double> oldStartPointsDs_;
-
-    QList<double> oldEndPointsAs_;
-    QList<double> oldEndPointsBs_;
-    QList<double> oldEndPointsCs_;
-    QList<double> oldEndPointsDs_;
-
-    float newWidth;
-    bool absoluteWidth;
-};
-
-//################//
 // InsertLaneWidthCommand //
 //################//
 
 class InsertLaneWidthCommand : public DataCommand
 {
 public:
-    explicit InsertLaneWidthCommand(Lane *lane, LaneWidth *laneWidth, DataCommand *parent = NULL);
+    explicit InsertLaneWidthCommand(Lane *lane, LaneWidth *laneWidth, LaneBorder *laneBorder, DataCommand *parent = NULL);
     virtual ~InsertLaneWidthCommand();
 
     virtual int id() const
@@ -655,6 +612,7 @@ private:
 private:
     Lane *lane_;
     LaneWidth *newLaneWidth_;
+	LaneBorder *newLaneBorder_;
 
     int id_;
 };
@@ -663,11 +621,11 @@ private:
 // Merge LaneWidth         //
 //################################//
 
-template<typename T>
+template<typename T, typename U>
 class MergeLaneWidthSectionCommand : public DataCommand
 {
 public:
-	explicit MergeLaneWidthSectionCommand(T *low, T *high, DataCommand *parent)
+	explicit MergeLaneWidthSectionCommand(T *low, U *high, DataCommand *parent)
 		: DataCommand(parent)
 		, oldLow_(low)
 		, oldHigh_(high)
@@ -678,8 +636,7 @@ public:
 		// Check for validity //
 		//
 		if ((!low || !high) && (parentLane_ != high->getParentLane()) // not the same parents
-			|| high != parentLane_->getWidthEntryNext(low->getSSectionStart()) // not consecutive
-			)
+			|| (fabs(high->getSSectionStartAbs() - low->getSSectionEnd()) > NUMERICAL_ZERO6 )) // not consecutive
 		{
 			setInvalid(); // Invalid
 			setText(QObject::tr("Merge LaneWidthSection (invalid!)"));
@@ -759,7 +716,15 @@ public:
 		WidthPoints *wp = pointList_.at(indexLow_)->value(oldLow_->getSSectionStartAbs(), NULL);
 		wp->slot = newEntry_;
 		wp->pEnd = oldPoints_->pEnd;
-		pointList_.at(indexHigh_)->remove(oldHigh_->getSSectionStartAbs());
+		if (pointList_.at(indexHigh_)->size() < 2)
+		{
+			pointList_.removeAt(indexHigh_);
+		}
+		else
+		{
+			pointList_.at(indexHigh_)->remove(oldHigh_->getSSectionStartAbs());
+		}
+		
 
 		parentLane_->delWidthEntry(oldLow_);
 		parentLane_->delWidthEntry(oldHigh_);
@@ -788,7 +753,17 @@ public:
 		WidthPoints *wp = pointList_.at(indexLow_)->value(oldLow_->getSSectionStartAbs(), NULL);
 		wp->slot = oldLow_;
 		wp->pEnd = oldPoints_->pStart;
-		pointList_.at(indexHigh_)->insert(oldHigh_->getSSectionStartAbs(), oldPoints_);
+
+		if (pointList_.size() > indexHigh_)
+		{
+			pointList_.at(indexHigh_)->insert(oldHigh_->getSSectionStartAbs(), oldPoints_);
+		}
+		else
+		{
+			QMap<double, WidthPoints *> *newPoints = new QMap<double, WidthPoints* >();;
+			newPoints->insert(oldHigh_->getSSectionStartAbs(), oldPoints_);
+			pointList_.append(newPoints);
+		}
 
 		road_->translateLaneWidths(lanes_, pointList_);
 
@@ -800,7 +775,8 @@ public:
 private:
 	Lane *parentLane_;
 
-	T *oldLow_, *oldHigh_, *newEntry_;
+	T *oldLow_, *newEntry_;
+	U *oldHigh_;
 	RSystemElementRoad *road_;
 	QList<Lane *> lanes_;
 	QList<QMap<double, WidthPoints*> *> pointList_;
@@ -842,87 +818,23 @@ private:
 // LaneBorderCornerCommand //
 //##########################//
 
-template<typename T>
 class LaneBorderCornerCommand : public DataCommand
 {
 
 public:
-	explicit LaneBorderCornerCommand(T *low, T *high, bool changeGradient, DataCommand *parent = NULL)
-		: DataCommand(parent)
-		, low_(low)
-		, high_(high)
-	{
-		// No entries //
-		//
-		if (!low || !high)
-		{
-
-			setInvalid();
-			setText(QObject::tr("No corner defined."));
-			return;
-		}
-
-		road_ = low_->getParentLane()->getParentLaneSection()->getParentRoad();
-		s_ = high_->getSSectionStartAbs();
-		setValid();
-		setText(QObject::tr("Change Gradient"));
-	}
-
-	/*! \brief .
-	*
-	*/
-	virtual ~LaneBorderCornerCommand()
-	{
-	}
-
+	explicit LaneBorderCornerCommand(LaneWidth *low, LaneWidth *high, bool changeGradient, DataCommand *parent = NULL);
+	virtual ~LaneBorderCornerCommand();
 
 	virtual int id() const
 	{
 		return 0x110;
 	}
 
-	virtual void undo()
-	{
-		// Make smooth again
-		//
-		LaneMoveProperties *props = new LaneMoveProperties();
-		props->lowSlot = low_;
-		props->highSlot = high_;
-		QMap<double, LaneMoveProperties *> propsMap;
-		propsMap.insert(s_, props);
-
-		QList<Lane *> lanes;
-		QList<QMap<double, WidthPoints*> *> pointList;
-		road_->getLaneWidthsLists(propsMap, true, lanes, pointList);
-		road_->translateLaneWidths(lanes, pointList);
-
-		low_->addLaneWidthChanges(LaneWidth::CLW_GradientChanged);
-
-		setUndone();
-	}
-
-	virtual void redo()
-	{
-		// Make a corner
-		//
-		LaneMoveProperties *props = new LaneMoveProperties();
-		props->lowSlot = low_;
-		props->highSlot = high_;
-		QMap<double, LaneMoveProperties *> propsMap;
-		propsMap.insert(s_, props);
-
-		QList<Lane *> lanes;
-		QList<QMap<double, WidthPoints*> *> pointList;
-		road_->getLaneWidthsLists(propsMap, true, lanes, pointList);
-		road_->translateLaneWidths(lanes, pointList);
-
-		low_->addLaneWidthChanges(LaneWidth::CLW_GradientChanged);
-
-		setRedone();
-	}
+	virtual void undo();
+	virtual void redo();
 
 private:
-	T *low_, *high_;
+	LaneWidth *low_, *high_;
 	RSystemElementRoad *road_;
 	double s_;
 };
@@ -931,190 +843,21 @@ private:
 // TranslateLaneBorderCommand //
 //##########################//
 
-template<typename T>
 class TranslateLaneBorderCommand : public DataCommand
 {
 
 public:
-	explicit TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos,DataCommand *parent = NULL)
-	: DataCommand(parent)
-		, selectedLaneBorders_(selectedLaneBorders)
-		, dPos_(dPos)
-		, width_(width)
-	{
-
-		// No entries //
-		//
-		if (selectedLaneBorders_.size() == 0)
-		{
-			setInvalid();
-			setText(QObject::tr("No elements to move."));
-			return;
-		}
-
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
-		while (it != selectedLaneBorders_.constEnd())
-		{
-			RSystemElementRoad *road = it.key();
-			QMap<double, LaneMoveProperties *> propsMap = it.value();
-
-			QList<Lane *> lanes;
-			QList<QMap<double, WidthPoints*> *> pointList;
-			QMap<double, LaneMoveProperties *> newProps;
-
-			newProps = road->getLaneWidthsLists(propsMap, false, lanes, pointList);
-
-			newPropsMap_.insert(road, newProps);
-			oldPointList_.insert(road, pointList);
-			lanes_.insert(road, lanes);
-
-			it++;
-		}
-
-		setValid();
-		setText(QObject::tr("Move Lane Width"));
-	}
-
-	/*! \brief .
-	*
-	*/
-	virtual ~TranslateLaneBorderCommand()
-	{
-	}
-
+	explicit TranslateLaneBorderCommand(const QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> &selectedLaneBorders, double width, const QPointF &dPos, DataCommand *parent = NULL);
+	virtual ~TranslateLaneBorderCommand();
 
 	virtual int id() const
 	{
 		return 0x109;
 	}
 
-	virtual void undo()
-	{
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
-		while (it != selectedLaneBorders_.constEnd())
-		{
-			RSystemElementRoad *road = it.key();
-
-			QList<Lane *> lanes = lanes_.value(road);
-			QList<QMap<double, WidthPoints*> *> pointList = oldPointList_.value(road);
-			road->translateLaneWidths(lanes, pointList);
-
-			selectedLaneBordersChanged.insert(road, newPropsMap_.value(road));
-			it++;
-		}
-		selectedLaneBorders_ = selectedLaneBordersChanged;
-
-		setUndone();
-	}
-
-	virtual void redo()
-	{
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneBordersChanged;
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::ConstIterator it = selectedLaneBorders_.constBegin();
-		while (it != selectedLaneBorders_.constEnd())
-		{
-			RSystemElementRoad *road = it.key();
-			QMap<double, LaneMoveProperties *> propsMap = it.value();
-			QMap<double, LaneMoveProperties *> newPropsMap;
-
-			QList<Lane *> lanes;
-			QList<QMap<double, WidthPoints*> *> pointList;
-			
-			if (dPos_.isNull())
-			{
-				newPropsMap = road->getLaneWidthsLists(propsMap, width_, lanes, pointList);
-			}
-			else
-			{
-				newPropsMap = road->getLaneWidthsLists(propsMap, dPos_, false, lanes, pointList);
-			}
-			road->translateLaneWidths(lanes, pointList);
-
-			selectedLaneBordersChanged.insert(road, newPropsMap);
-			it++;
-		}
-		selectedLaneBorders_ = selectedLaneBordersChanged;
-
-		setRedone();
-	}
-
-	virtual bool mergeWith(const QUndoCommand *other)
-	{
-		// Check Ids //
-		//
-		if (other->id() != id())
-		{
-			return false;
-		}
-
-		const TranslateLaneBorderCommand *command = static_cast<const TranslateLaneBorderCommand *>(other);
-
-		// Check selected tracks
-		//
-		if (selectedLaneBorders_.size() != command->selectedLaneBorders_.size())
-		{
-			qDebug() << "Selection not equal";
-			return false;
-		}
-
-		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::const_iterator it = selectedLaneBorders_.begin();
-
-		while (it != selectedLaneBorders_.end())
-		{
-			RSystemElementRoad *road = it.key();
-			QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>>::const_iterator itOther = command->selectedLaneBorders_.constFind(road);
-			if (itOther == command->selectedLaneBorders_.constEnd())
-			{
-				qDebug() << "Selected Borders are not equal";
-				return false;
-			}
-
-			QMap<double, LaneMoveProperties *> map = it.value();
-			QMap<double, LaneMoveProperties *> mapOther = itOther.value();
-			QMap<double, LaneMoveProperties *>::const_iterator mapIt = map.constBegin();
-
-			while (mapIt != map.constEnd())
-			{
-				LaneMoveProperties *props = mapIt.value();
-				LaneWidth *low = props->lowSlot;
-				LaneWidth *high = props->highSlot;
-
-				QMap<double, LaneMoveProperties *>::const_iterator mapOtherIt = mapOther.constBegin();
-				while (mapOtherIt != mapOther.constEnd())
-				{
-					LaneMoveProperties *otherProps = mapOtherIt.value();
-					LaneWidth *lowOther = otherProps->lowSlot;
-					LaneWidth *highOther = otherProps->highSlot;
-
-					if ((low == lowOther) && (high == highOther))
-					{
-						break;
-					}
-
-					mapOtherIt++;
-				}
-
-				if (mapOtherIt == mapOther.constEnd())
-				{
-					qDebug() << "Selected Borders are not equal";
-					return false;
-				}
-
-				mapIt++;
-			}
-			
-			it++;
-		}
-
-		// Success //
-		//
-		dPos_ += command->dPos_;
-		width_ += command->width_;
-		selectedLaneBorders_ = command->selectedLaneBorders_;
-
-		return true;
-	} 
+	virtual void undo();
+	virtual void redo();
+	virtual bool mergeWith(const QUndoCommand *other);
 
 private:
 	TranslateLaneBorderCommand(); /* not allowed */

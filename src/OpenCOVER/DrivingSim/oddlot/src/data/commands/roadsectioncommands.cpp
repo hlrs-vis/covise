@@ -17,6 +17,7 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/roadsection.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
 
 #define MINROADSECTIONLENGTH 1.0
 
@@ -73,6 +74,32 @@ MoveRoadSectionCommand::MoveRoadSectionCommand(RoadSection *roadSection, double 
     {
         newS_ = roadSection->getParentRoad()->getLength();
     }
+
+/*	if (sectionType == RSystemElementRoad::DRS_LaneSection)   // to do: move LaneSection
+	{
+		RSystemElementRoad *road = roadSection->getParentRoad();
+		QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+		LaneSection *laneSection = dynamic_cast<LaneSection *>(roadSection);
+		QMap<double, LaneMoveProperties *> propsMap;
+		QMap<int, Lane *>::const_iterator it = laneSection->getLanes().constBegin();
+		QPointF dPos = road->getGlobalPoint(newS_) - road->getGlobalPoint(oldS_);
+		while (it != laneSection->getLanes().constEnd())
+		{
+			LaneMoveProperties *props = new LaneMoveProperties();
+			props->lowSlot = NULL;
+			props->highSlot = it.value()->getWidthEntry(oldS_);
+			props->dPos = dPos;
+			propsMap.insert(oldS_, props);
+			it++;
+		}
+		selectedLaneMoveProps.insert(road, propsMap);
+
+		translateLaneBorderCommand_ = new TranslateLaneBorderCommand<LaneWidth>(selectedLaneMoveProps, 0.0, dPos, this);
+		if (!translateLaneBorderCommand_->isValid())
+		{
+			return;
+		}
+	} */
 
     // Done //
     //

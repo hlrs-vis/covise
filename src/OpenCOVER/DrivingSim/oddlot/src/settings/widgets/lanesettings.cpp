@@ -15,6 +15,11 @@
 
 #include "lanesettings.hpp"
 #include "ui_lanesettings.h"
+
+// Graph //
+//
+#include "src/graph/topviewgraph.hpp"
+#include "src/graph/graphscene.hpp"
 #include "src/graph/profilegraphscene.hpp"
 #include "src/graph/profilegraphview.hpp"
 #include "src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.hpp"
@@ -49,10 +54,8 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
 {
     ui->setupUi(this);
 
-	activateWidthGroupBox(false);
 	activateInsertGroupBox(false);
 	connect(ui->insertPushButton, SIGNAL(clicked(bool)), this, SLOT(activateInsertGroupBox(bool)));
-	connect(ui->editPushButton, SIGNAL(clicked(bool)), this, SLOT(activateWidthGroupBox(bool)));
 
     // List //
     //
@@ -89,7 +92,6 @@ LaneSettings::LaneSettings(ProjectSettings *projectSettings, SettingsElement *pa
     updateLevel();
     updatePredecessor();
     updateSuccessor();
-    updateWidth();
 
     // Done //
     //
@@ -168,35 +170,6 @@ LaneSettings::updateSuccessor()
         ui->successorCheckBox->setChecked(true);
         ui->successorBox->setEnabled(true);
     }
-}
-
-void
-LaneSettings::updateWidth()
-{
-	BaseLaneMoveHandle *baseLaneMoveHandle = getFirstSelectedLaneWidthHandle();
-
-	if (baseLaneMoveHandle)
-	{
-		LaneMoveHandle<LaneWidth, LaneWidth> *moveHandle = dynamic_cast<LaneMoveHandle<LaneWidth, LaneWidth>*>(baseLaneMoveHandle);
-
-		if (moveHandle)
-		{
-			LaneWidth *laneWidth = moveHandle->getLowSlot();
-
-			if (laneWidth)
-			{
-				double w = laneWidth->getWidth(laneWidth->getSSectionEnd() - laneWidth->getParentLane()->getParentLaneSection()->getSStart());
-				ui->widthSpinBox->setValue(w);
-			}
-
-			laneWidth = moveHandle->getHighSlot();
-			if (laneWidth)
-			{
-				double w = laneWidth->getWidth(0.0);
-				ui->widthSpinBox->setValue(w);
-			}
-		}
-	}
 }
 
 BaseLaneMoveHandle *
@@ -318,28 +291,6 @@ LaneSettings::on_addButton_released()
     getProjectSettings()->executeCommand(command);
 }
 
-void
-LaneSettings::on_addWidthButton_released()
-{
-
-    //insertWidthSectionHandle_->show();
-
-    double s;
-    LaneWidth *laneWidth = lane_->getWidthEntry(0);
-    double endWidth = lane_->getWidth(laneWidth->getSSectionEnd());
-    s = laneWidth->getLength() / 2;
-    double startWidth = lane_->getWidth(s);
-    double slope = (endWidth - startWidth) / (s);
-    LaneWidth *newLaneWidth = new LaneWidth(s, startWidth, slope, 0.0, 0.0);
-
-    InsertLaneWidthCommand *command = new InsertLaneWidthCommand(lane_, newLaneWidth);
-    getProjectSettings()->executeCommand(command);
-}
-
-void LaneSettings::on_widthSpinBox_valueChanged(double w)
-{
-  //  laneEditor_->setWidth(w);
-}
 
 void
 LaneSettings::activateInsertGroupBox(bool activ)
@@ -357,14 +308,8 @@ LaneSettings::activateInsertGroupBox(bool activ)
 	QRect geometry = ui->editFrame->geometry();
 	geometry.setY(y + 6);
 	ui->editFrame->setGeometry(geometry);
-	ui->widthGroupBox->updateGeometry();
 }
 
-void
-LaneSettings::activateWidthGroupBox(bool activ)
-{
-	ui->widthGroupBox->setVisible(activ);
-}
 
 //##################//
 // Observer Pattern //
@@ -393,7 +338,6 @@ LaneSettings::updateObserver()
         updateLevel();
         updatePredecessor();
         updateSuccessor();
-        updateWidth();
     }
 
     if ((changes & Lane::CLN_IdChanged))

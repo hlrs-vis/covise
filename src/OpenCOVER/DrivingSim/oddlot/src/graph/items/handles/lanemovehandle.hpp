@@ -40,379 +40,392 @@
 #include <QPointF>
 #include <QGraphicsItem>
 
-
-
 template<typename T, typename U>
 class LaneMoveHandle : public BaseLaneMoveHandle
 {
 
-	//################//
-	// FUNCTIONS      //
-	//################//
+    //################//
+    // FUNCTIONS      //
+    //################//
 
 public:
-	explicit LaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *parent)
-		: BaseLaneMoveHandle(laneEditor, parent)
-		, lowSlot_(NULL)
-		, highSlot_(NULL)
+    explicit LaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *parent)
+        : BaseLaneMoveHandle(laneEditor, parent)
+        , lowSlot_(NULL)
+        , highSlot_(NULL)
 
-	{
-		// Editor //
-		//
-		laneEditor_ = laneEditor;
+    {
+        // Editor //
+        //
+        laneEditor_ = laneEditor;
 
-		// Color //
-		//
-		updateColor();
+        // Color //
+        //
+        updateColor();
 
-	}
+    }
 
-	virtual ~LaneMoveHandle()
-	{
-		if (laneEditor_)
-		{
-			laneEditor_->unregisterMoveHandle(this);
-		}
+    virtual ~LaneMoveHandle()
+    {
+        if (laneEditor_)
+        {
+            laneEditor_->unregisterMoveHandle(this);
+        }
 
-		// Observer Pattern //
-		//
-		if (lowSlot_)
-		{
-			lowSlot_->detachObserver(this);
-		}
+        // Observer Pattern //
+        //
+        if (lowSlot_)
+        {
+            lowSlot_->detachObserver(this);
+        }
 
-		if (highSlot_)
-		{
-			highSlot_->detachObserver(this);
-		}
+        if (highSlot_)
+        {
+            highSlot_->detachObserver(this);
+        }
 
-	}
+    }
 
-	LaneWidth *getLowSlot()
-	{
-		return lowSlot_;
-	}
+    virtual T *getLowSlot()
+    {
+        return lowSlot_;
+    }
 
-	LaneWidth *getHighSlot()
-	{
-		return highSlot_;
-	}
+    virtual U *getHighSlot()
+    {
+        return highSlot_;
+    }
 
-	void registerLowSlot(LaneWidth *laneBorderSection)
-	{
-		lowSlot_ = laneBorderSection;
+    void registerLowSlot(T *laneBorderSection)
+    {
+        lowSlot_ = laneBorderSection;
 
-		// Observer //
-		//
-		lowSlot_->attachObserver(this);
+        // Observer //
+        //
+        lowSlot_->attachObserver(this);
 
-		if (fabs(lowSlot_->getLength() - lowSlot_->getParentLane()->getParentLaneSection()->getSEnd()) < NUMERICAL_ZERO6)
-		{
-			QAction *removeAction = getContextMenu()->actions().at(0);
-			getContextMenu()->removeAction(removeAction);
-		}
+        if (fabs(lowSlot_->getLength() - lowSlot_->getParentLane()->getParentLaneSection()->getSEnd()) < NUMERICAL_ZERO6)
+        {
+            QAction *removeAction = getContextMenu()->actions().at(0);
+            getContextMenu()->removeAction(removeAction);
+        }
 
-		// Transformation //
-		//
-		if (!highSlot_) // do not set pos twice
-		{
+        // Transformation //
+        //
+        if (!highSlot_) // do not set pos twice
+        {
 
-			setFlag(QGraphicsItem::ItemSendsGeometryChanges, false); // tmp deactivation
-			RSystemElementRoad *parentRoad = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-			if (lowSlot_->getParentLane()->getId() > 0)
-			{
-				setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
-			}
-			else
-			{
-				setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
-			}
-			setRotation(parentRoad->getGlobalHeading(lowSlot_->getSSectionEnd()));
-			setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-		}
-
-		updateColor();
-	}
+            setFlag(QGraphicsItem::ItemSendsGeometryChanges, false); // tmp deactivation
+            RSystemElementRoad *parentRoad = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+            if (lowSlot_->getParentLane()->getId() > 0)
+            {
+                setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+            }
+            else
+            {
+                setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+            }
+            setRotation(parentRoad->getGlobalHeading(lowSlot_->getSSectionEnd()));
+            setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+        }
 
 
-	void registerHighSlot(LaneWidth *laneBorderSection)
-	{
-		highSlot_ = laneBorderSection;
-
-		// Observer //
-		//
-		highSlot_->attachObserver(this);
-
-		if (highSlot_->getParentLane()->getWidthEntry(0.0) == highSlot_)
-		{
-			QAction *removeAction = getContextMenu()->actions().at(0);
-			getContextMenu()->removeAction(removeAction);
-		}
-
-		// Transformation //
-		//
-		if (!lowSlot_) // do not set pos twice
-		{
-
-			setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
-			RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-			if (highSlot_->getParentLane()->getId() > 0)
-			{
-				setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
-			}
-			else
-			{
-				setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
-			}
-			setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
-
-		}
+        updateColor();
+    }
 
 
-		updateColor();
+    void registerHighSlot(U *laneBorderSection)
+    {
+        highSlot_ = laneBorderSection;
 
-	}
+        // Observer //
+        //
+        highSlot_->attachObserver(this);
 
-	LaneWidth *getLowSlot() const
-	{
-		return lowSlot_;
-	}
-	LaneWidth *getHighSlot() const
-	{
-		return highSlot_;
-	}
+        if (highSlot_->getParentLane()->getWidthEntry(0.0) == highSlot_)
+        {
+            QAction *removeAction = getContextMenu()->actions().at(0);
+            getContextMenu()->removeAction(removeAction);
+        }
 
-	void removeCorner()
-	{
+        // Transformation //
+        //
+        if (!lowSlot_) // do not set pos twice
+        {
 
-		if (!lowSlot_ || !highSlot_)
-		{
-			return;
-		}
+            setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
+            RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+            if (highSlot_->getParentLane()->getId() > 0)
+            {
+                setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
+            }
+            else
+            {
+                setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
+            }
+            setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
+        }
 
-		MergeLaneWidthSectionCommand<T> *command = new MergeLaneWidthSectionCommand<T>(lowSlot_, highSlot_, NULL);
-		if (command->isValid())
-		{
-			lowSlot_->getUndoStack()->push(command);
-		} 
-		else
-		{
-			delete command;
-		} 
+        updateColor();
 
-	}
+    }
 
-	void smoothCorner()
-	{
-		if (!isCorner_)
-		{
-			return;
-		}
+    T *getLowSlot() const
+    {
+        return lowSlot_;
+    }
+    U *getHighSlot() const
+    {
+        return highSlot_;
+    }
 
-		if (!lowSlot_ || !highSlot_)
-		{
-			return;
-		}
+    virtual void removeCorner()
+    {
 
-		LaneBorderCornerCommand<T> *command = new LaneBorderCornerCommand<T>(lowSlot_, highSlot_, true, NULL);
-		laneEditor_->getTopviewGraph()->executeCommand(command);
-	}
-
-	void corner()
-	{
-		if (isCorner_ )
-		{
-			return;
-		}
-
-		if (!lowSlot_ || !highSlot_)
-		{
-			isCorner_ = true;
-			return;
-		}
-
-		LaneBorderCornerCommand<T> *command = new LaneBorderCornerCommand<T>(lowSlot_, highSlot_, true,  NULL);
-		laneEditor_->getTopviewGraph()->executeCommand(command);
-
-	}
+        if (!lowSlot_ || !highSlot_)
+        {
+            return;
+        }
 
 
-	// Observer Pattern //
-	//
-	virtual void updateObserver()
-	{
-		int changes = 0x0;
+        MergeLaneWidthSectionCommand<T, U> *command = new MergeLaneWidthSectionCommand<T, U>(lowSlot_, highSlot_, NULL);
+        if (command->isValid())
+        {
+            lowSlot_->getUndoStack()->push(command);
+        } 
+        else
+        {
+            delete command;
+        } 
 
-		// Deleted? //
-		//
-		if (lowSlot_)
-		{
-			// DataElementChanges //
-			//
-			changes = lowSlot_->getDataElementChanges();
+    }
 
-			// Deletion //
-			//
-			if ((changes & DataElement::CDE_DataElementDeleted)
-				|| (changes & DataElement::CDE_DataElementRemoved))
-			{
-				lowSlot_->detachObserver(this);
-				lowSlot_ = NULL;
-			}
-		}
+    virtual void smoothCorner()
+    {
+        if (!isCorner_)
+        {
+            return;
+        }
 
-		if (highSlot_)
-		{
-			// DataElementChanges //
-			//
-			changes = highSlot_->getDataElementChanges();
+        if (!lowSlot_ || !highSlot_)
+        {
+            return;
+        }
 
-			// Deletion //
-			//
-			if ((changes & DataElement::CDE_DataElementDeleted)
-				|| (changes & DataElement::CDE_DataElementRemoved))
-			{
-				highSlot_->detachObserver(this);
-				highSlot_ = NULL;
-			}
-		}
+        LaneBorderCornerCommand *command = new LaneBorderCornerCommand(lowSlot_, highSlot_, true, NULL);
+        laneEditor_->getTopviewGraph()->executeCommand(command);
+    }
 
-		if (!lowSlot_ && !highSlot_)
-		{
-			// No high and no low slot, so will be deleted //
-			//
+    virtual void corner()
+    {
+        if (isCorner_ )
+        {
+            return;
+        }
 
-			return;
-		}
+        if (!lowSlot_ || !highSlot_)
+        {
+            isCorner_ = true;
+            return;
+        }
 
-		// LowSlot //
-		//
-		if (lowSlot_)
-		{
-			// LaneBorderSectionChanges //
+        LaneBorderCornerCommand *command = new LaneBorderCornerCommand(lowSlot_, highSlot_, true,  NULL);
+        laneEditor_->getTopviewGraph()->executeCommand(command);
 
-			changes = lowSlot_->getLaneWidthChanges();
+    }
 
-			if (changes & LaneWidth::CLW_WidthChanged)
-			{
-				RSystemElementRoad *parentRoad = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-				setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
-				if (lowSlot_->getParentLane()->getId() > 0)
-				{
-					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
-				}
-				else
-				{
-					setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
-				}
-				setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
-			}
+    // Observer Pattern //
+    //
+    virtual void updateObserver()
+    {
+        int changes = 0x0;
 
-			if (changes & LaneWidth::CLW_GradientChanged)
-			{
-				updateColor();
-			}
+        // Deleted? //
+        //
+        if (lowSlot_)
+        {
+            // DataElementChanges //
+            //
+            changes = lowSlot_->getDataElementChanges();
 
-		}
+            // Deletion //
+            //
+            if ((changes & DataElement::CDE_DataElementDeleted)
+                || (changes & DataElement::CDE_DataElementRemoved))
+            {
+                lowSlot_->detachObserver(this);
+                lowSlot_ = NULL;
+            }
+        }
 
-		// HighSlot //
-		//
-		if (highSlot_)
-		{
-			// LaneBorderSectionChanges //
+        if (highSlot_)
+        {
+            // DataElementChanges //
+            //
+            changes = highSlot_->getDataElementChanges();
 
-			changes = highSlot_->getLaneWidthChanges();
+            // Deletion //
+            //
+            if ((changes & DataElement::CDE_DataElementDeleted)
+                || (changes & DataElement::CDE_DataElementRemoved))
+            {
+                highSlot_->detachObserver(this);
+                highSlot_ = NULL;
+            }
+        }
 
-			if (changes & LaneWidth::CLW_WidthChanged)
-			{
-				setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
-				RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
-				if (highSlot_->getParentLane()->getId() > 0)
-				{
-					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
-				}
-				else
-				{
-					setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
-				}
-				setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+        if (!lowSlot_ && !highSlot_)
+        {
+            // No high and no low slot, so will be deleted //
+            //
 
-			}
-		}
+            return;
+        }
 
-	}
+        // LowSlot //
+        //
+        if (lowSlot_)
+        {
+            // LaneBorderSectionChanges //
+
+            changes = lowSlot_->getLaneWidthChanges();
+
+            if (changes & LaneWidth::CLW_WidthChanged)
+            {
+                RSystemElementRoad *parentRoad = lowSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+                setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
+                if (lowSlot_->getParentLane()->getId() > 0)
+                {
+                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+                }
+                else
+                {
+                    setPos(parentRoad->getGlobalPoint(lowSlot_->getSSectionEnd(), -lowSlot_->getT(lowSlot_->getSSectionStart() + lowSlot_->getLength())));
+                }
+                setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+
+            }
+
+            if (changes & LaneWidth::CLW_GradientChanged)
+            {
+                updateColor();
+            }
+
+        }
+
+        // HighSlot //
+        //
+        if (highSlot_)
+        {
+            // LaneBorderSectionChanges //
+
+            changes = highSlot_->getLaneWidthChanges();
+
+            if (changes & LaneWidth::CLW_WidthChanged)
+            {
+                setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
+                RSystemElementRoad *parentRoad = highSlot_->getParentLane()->getParentLaneSection()->getParentRoad();
+                if (highSlot_->getParentLane()->getId() > 0)
+                {
+                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), highSlot_->getT(highSlot_->getSSectionStart())));
+                }
+                else
+                {
+                    setPos(parentRoad->getGlobalPoint(highSlot_->getSSectionStartAbs(), -highSlot_->getT(highSlot_->getSSectionStart())));
+                }
+                setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+
+            }
+        }
+
+    }
 
 protected:
-	virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+    virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+    {
+        // NOTE: position is relative to parent!!! //
+        //
+        if (change == QGraphicsItem::ItemSelectedHasChanged)
+        {
+            if (value.toBool())
+            {
+                laneEditor_->registerMoveHandle(this);
+            }
+            else
+            {
+                laneEditor_->unregisterMoveHandle(this);
+            }
+            return value;
+        }
+
+        else if (change == QGraphicsItem::ItemPositionChange)
+        {
+            return pos(); // no translation
+        }
+
+        return MoveHandle::itemChange(change, value);
+    }
+
+	virtual const QString getText()
 	{
-		// NOTE: position is relative to parent!!! //
+		// Text //
 		//
-		if (change == QGraphicsItem::ItemSelectedHasChanged)
+		QString text;
+
+		if (highSlot_)
 		{
-			if (value.toBool())
-			{
-				laneEditor_->registerMoveHandle(this);
-			}
-			else
-			{
-				laneEditor_->unregisterMoveHandle(this);
-			}
-			return value;
+			text = QString("%1").arg(highSlot_->f(0.0), 0, 'f', 2);
+		}
+		else if (lowSlot_)
+		{
+			text = QString("%1").arg(lowSlot_->f(lowSlot_->getSSectionEnd() - lowSlot_->getSSectionStartAbs()), 0, 'f', 2);
 		}
 
-		else if (change == QGraphicsItem::ItemPositionChange)
-		{
-			return pos(); // no translation
-		}
-
-		return MoveHandle::itemChange(change, value);
+		return text;
 	}
 
 private:
-	LaneMoveHandle(); /* not allowed */
-	LaneMoveHandle(const LaneMoveHandle &); /* not allowed */
-	LaneMoveHandle &operator=(const LaneMoveHandle &); /* not allowed */
+    LaneMoveHandle(); /* not allowed */
+    LaneMoveHandle(const LaneMoveHandle &); /* not allowed */
+    LaneMoveHandle &operator=(const LaneMoveHandle &); /* not allowed */
 
-	void updateColor()
-	{
-		if (lowSlot_ && highSlot_)
-		{
-			if (fabs(lowSlot_->df(highSlot_->getSSectionStartAbs() - lowSlot_->getSSectionStartAbs()) - highSlot_->df(0.0)) < NUMERICAL_ZERO3)
-			{
-//				if (fabs(lowSlot_->getCurvature(s) - highSlot_->getCurvature(s)) < NUMERICAL_ZERO6)
-				{
-					isCorner_ = false;
-					setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
-					setPen(QPen(ODD::instance()->colors()->darkOrange()));
+    void updateColor()
+    {
+        if (lowSlot_ && highSlot_)
+        {
+            if (fabs(lowSlot_->df(highSlot_->getSSectionStartAbs() - lowSlot_->getSSectionStartAbs()) - highSlot_->df(0.0)) < NUMERICAL_ZERO3)
+            {
+                    isCorner_ = false;
+                    setBrush(QBrush(ODD::instance()->colors()->brightOrange()));
+                    setPen(QPen(ODD::instance()->colors()->darkOrange()));
 
-					return;
-				}
-			}
-		}
+                    return;
+            }
+        }
 
 
-		isCorner_ = true;
-		setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
-		setPen(QPen(ODD::instance()->colors()->darkGreen()));
+        isCorner_ = true;
+        setBrush(QBrush(ODD::instance()->colors()->brightGreen()));
+        setPen(QPen(ODD::instance()->colors()->darkGreen()));
 
-	}
+    }
 
 
 
-	//################//
-	// PROPERTIES     //
-	//################//
+    //################//
+    // PROPERTIES     //
+    //################//
 
 protected:
 private:
-	LaneEditor *laneEditor_;
+    LaneEditor *laneEditor_;
 
-	LaneWidth *lowSlot_;
-	LaneWidth *highSlot_;
+    T *lowSlot_;
+    U *highSlot_;
 
-	bool isCorner_;
+    bool isCorner_;
 
 
 };

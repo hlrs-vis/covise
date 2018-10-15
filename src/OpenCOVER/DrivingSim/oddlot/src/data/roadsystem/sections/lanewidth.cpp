@@ -133,7 +133,7 @@ LaneWidth::addLaneWidthChanges(int changes)
         laneWidthChanges_ |= changes;
         notifyObservers();
     }
-    if (parentLane_)
+	if (parentLane_)
         parentLane_->addLaneChanges(Lane::CLN_WidthsChanged);
 }
 
@@ -160,101 +160,6 @@ LaneWidth::setParameters(double a, double b, double c, double d)
     addLaneWidthChanges(LaneWidth::CLW_WidthChanged);
 }
 
-void
-LaneWidth::setOffsetParameters(bool start, const QPointF &dPos)
-{
-
-	LaneSection *parentLaneSection = parentLane_->getParentLaneSection();
-	RSystemElementRoad *parentRoad = parentLaneSection->getParentRoad();
-	QTransform trafo;
-	double s = sOffset_ + parentLaneSection->getSStart();
-	QPointF pos = parentRoad->getGlobalPoint(s, getWidth(sOffset_));
-	double heading = parentRoad->getGlobalHeading(s);
-	QVector2D n = parentRoad->getGlobalNormal(s);
-
-	int id = parentLane_->getId();
-	double val = QVector2D::dotProduct(QVector2D(dPos), n) / n.length();
-	QPointF d = (n.normalized() * val).toPointF(); // Section Border has to be preserved //
-	if (id < 0)
-	{
-		d = -d;
-	}
-	
-	trafo.translate(pos.x(), pos.y());
-	trafo.rotate(heading);
-
-	// Change start point //  // !!!!start point is section start point and cannot change s //
-	//
-	if (start)
-	{
-		// Local to internal (Parameters are given in internal coordinates) //
-		//
-
-		/*double t = getTLength(getSSectionEnd() - sOffset_);
-		QPointF t1 = trafo.inverted().map(pos + d);
-		QPointF t2 = QPointF(t, f(t));
-		QPointF dPosLocal = trafo.inverted().map(pos + d) - QPointF(0.0, f(0.0));
-		Polynomial::setParameters(QPointF(t, f(t)) - dPosLocal); */
-//		qDebug() << a_ << b_ << c_ << d_;
-//		QPointF t1 = trafo.inverted().map(pos + d);
-		/*double t = getTLength(getSSectionEnd() - sOffset_);
-		QPointF t2 = QPointF(t, f(t));*/
-		double sEnd = getSSectionEnd();
-		QPointF posEnd = parentRoad->getGlobalPoint(sEnd, getWidth(sEnd - parentLaneSection->getSStart()));
-		a_ += val;
-		b_ = (posEnd.y() - pos.y()) / (posEnd.x() - pos.x());
-//		QPointF t2 = trafo.inverted().map(posEnd);
-		//a_ = t1.manhattanLength();
-		//a_ += t1.y();
-		//b_ = (t2.y() - t1.y()) / (t2.x() - t1.x());
-		if (parentLane_->getWidthEntries().size() > 1)
-		{
-			Polynomial::setParameters(posEnd - pos);
-		}
-//		qDebug() << t1 << t2;
-//		qDebug() << a_ << b_ << c_ << d_;
-
-	//	parentLane_->moveWidthEntry(sOffset_, parentRoad->getSFromGlobalPoint(pos + dPos) - parentLaneSection->getSStart());
-	}
-
-	// Change end point //
-	//
-	else
-	{
-		qDebug() << "end";
-		QPointF end = parentRoad->getGlobalPoint(getSSectionEnd(), getWidth(getSSectionEnd())) + d;
-		b_ = (end.y() - pos.y()) / (end.x() - pos.x());
-		if ((fabs(c_) > NUMERICAL_ZERO6) || (fabs(d_) > NUMERICAL_ZERO6) || (parentLane_->getWidthEntries().size() > 1))
-		{
-			Polynomial::setParameters(trafo.inverted().map(end));
-		}
-	}
-
-	addLaneWidthChanges(LaneWidth::CLW_WidthChanged);
-
-	if (id < 0)
-	{
-		id--;
-		for (id; id >= parentLaneSection->getRightmostLaneId(); id--)
-		{
-			foreach(LaneWidth *laneWidth, parentLaneSection->getLane(id)->getWidthEntries())
-			{
-				laneWidth->addLaneWidthChanges(LaneWidth::CLW_WidthChanged);
-			}
-		}
-	}
-	else if (id > 0)
-	{
-		id++;
-		for (id; id <= parentLaneSection->getLeftmostLaneId(); id++)
-		{
-			foreach(LaneWidth *laneWidth, parentLaneSection->getLane(id)->getWidthEntries())
-			{
-				laneWidth->addLaneWidthChanges(LaneWidth::CLW_WidthChanged);
-			}
-		}
-	} 
-}
 
 //###################//
 // Visitor Pattern   //

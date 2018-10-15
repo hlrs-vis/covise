@@ -21,6 +21,7 @@
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/commands/dataelementcommands.hpp"
 #include "src/data/commands/roadcommands.hpp"
 #include "src/data/commands/lanesectioncommands.hpp"
@@ -125,60 +126,6 @@ LaneItem::init()
 
 //	rebuildMoveRotateHandles(false);
 }
-
-//##################//
-// Handles          //
-//##################//
-
-/*! \brief .
-*
-*/
-/* void
-LaneItem::rebuildMoveRotateHandles(bool delHandles)
-{
-	if (delHandles)
-	{
-		deleteHandles();
-	}
-
-	handlesItem_ = new QGraphicsPathItem(this);
-	handlesItem_->setZValue(1.0); // Stack handles before items
-
-	LaneBorderMoveHandle *currentLaneMoveHandle = new LaneBorderMoveHandle(laneEditor_, handlesItem_); // first handle
-	foreach(LaneBorder *laneBorder, lane_->getBorderEntries())
-	{
-		currentLaneMoveHandle->registerHighSlot(laneBorder); // last handle
-		currentLaneMoveHandle = new LaneBorderMoveHandle(laneEditor_, handlesItem_); // new handle
-		currentLaneMoveHandle->registerLowSlot(laneBorder); // new handle
-	}
-
-/*	TrackRotateHandle *currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // first handle
-	foreach(TrackComponent *track, getRoad()->getTrackSections())
-	{
-		currentTrackRotateHandle->registerHighSlot(track); // last handle
-		currentTrackRotateHandle = new TrackRotateHandle(trackEditor_, handlesItem_); // new handle
-		currentTrackRotateHandle->registerLowSlot(track); // new handle
-	} */
-//}
-
-/*! \brief .
-*
-*/
-/*void
-LaneItem::deleteHandles()
-{
-	//	delete handlesItem_;
-	if (handlesItem_ != NULL)
-	{
-		if (laneEditor_)
-		{
-			laneEditor_->getTopviewGraph()->getScene()->removeItem(handlesItem_);
-		}
-		handlesItem_->setParentItem(NULL);
-		getProjectGraph()->addToGarbage(handlesItem_);
-		handlesItem_ = NULL;
-	}
-} */
 
 //################//
 // SLOTS          //
@@ -315,25 +262,51 @@ LaneItem::createPath()
 
     // Right side //
     //
-    for (int i = 0; i < pointCount; ++i)
-    {
-        double s = sStart + i * segmentLength; // [sStart, sEnd]
-        points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s) + road->getLaneOffset(s));
-    }
+	if (lane_->isWidthActive())
+	{
+		for (int i = 0; i < pointCount; ++i)
+		{
+			double s = sStart + i * segmentLength; // [sStart, sEnd]
+			points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s) + road->getLaneOffset(s));
+		}
 
-    // Left side //
-    //
-    for (int i = 0; i < pointCount; ++i)
-    {
-        double s = sEnd - i * segmentLength; // [sEnd, sStart]
-        if (s < 0.0)
-            s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
-        points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + road->getLaneOffset(s));
-    }
+		// Left side //
+		//
+		for (int i = 0; i < pointCount; ++i)
+		{
+			double s = sEnd - i * segmentLength; // [sEnd, sStart]
+			if (s < 0.0)
+				s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
+			points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + road->getLaneOffset(s));
+		}
 
-    // End point //
-    //
-    points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + road->getLaneOffset(sStart));
+		// End point //
+		//
+		points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + road->getLaneOffset(sStart));
+	}
+	else
+	{
+		for (int i = 0; i < pointCount; ++i)
+		{
+			double s = sStart + i * segmentLength; // [sStart, sEnd]
+			points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, s));
+		}
+
+		// Left side //
+		//
+		for (int i = 0; i < pointCount; ++i)
+		{
+			double s = sEnd - i * segmentLength; // [sEnd, sStart]
+			if (s < 0.0)
+				s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
+			points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId(), s));
+		}
+
+		// End point //
+		//
+		points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, sStart));
+	}
+
 
     // Psycho-Path //
     //
@@ -365,7 +338,7 @@ LaneItem::updateObserver()
     {
         updateColor();
     }
-    else if ((changes & Lane::CLN_WidthsChanged))
+    else if (changes & Lane::CLN_WidthsChanged)
     {
         createPath();
     }
@@ -404,12 +377,25 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         double startWidth = lane_->getWidth(s);
  //       double slope = lane_->getSlope(s);
 		LaneWidth *laneWidth = lane_->getWidthEntryContains(s);
-		double x = s - laneWidth->getSSectionStart();
-		double b = laneWidth->getB() + 2 * laneWidth->getC() * x + 3 * laneWidth->getD() * x * x;
-		double c = laneWidth->getC() + 3 * laneWidth->getD() * x;
-        LaneWidth *newLaneWidth = new LaneWidth(s, startWidth, b, c, laneWidth->getD());
+		LaneWidth *newLaneWidth = NULL;
+		LaneBorder *newLaneBorder = NULL;
+		if (laneWidth)
+		{
+			double x = s - laneWidth->getSSectionStart();
+			double b = laneWidth->getB() + 2 * laneWidth->getC() * x + 3 * laneWidth->getD() * x * x;
+			double c = laneWidth->getC() + 3 * laneWidth->getD() * x;
+			newLaneWidth = new LaneWidth(s, startWidth, b, c, laneWidth->getD());
+		}
+		else
+		{
+			LaneBorder *laneBorder = lane_->getBorderEntryContains(s);
+			double x = s - laneBorder->getSSectionStart();
+			double b = laneBorder->getB() + 2 * laneBorder->getC() * x + 3 * laneBorder->getD() * x * x;
+			double c = laneBorder->getC() + 3 * laneBorder->getD() * x;
+			newLaneBorder = new LaneBorder(s, startWidth, b, c, laneBorder->getD());
+		}
 
-        InsertLaneWidthCommand *command = new InsertLaneWidthCommand(lane_, newLaneWidth);
+        InsertLaneWidthCommand *command = new InsertLaneWidthCommand(lane_, newLaneWidth, newLaneBorder);
         getProjectGraph()->executeCommand(command);
     }
     parentLaneSectionItem_->mouseReleaseEvent(event);
@@ -422,12 +408,6 @@ LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
     parentLaneSectionItem_->hoverMoveEvent(event);
 }
 
-//void
-//	LaneItem
-//	::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
-//{
-
-//}
 
 //*************//
 // Delete Item

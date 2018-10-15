@@ -5,18 +5,18 @@
 
  * License: LGPL 2+ */
 
-/**************************************************************************
-** ODD: OpenDRIVE Designer
-**   Frank Naegele (c) 2010
-**   <mail@f-naegele.de>
-**   10/15/2010
-**
-**************************************************************************/
+ /**************************************************************************
+ ** ODD: OpenDRIVE Designer
+ **   Frank Naegele (c) 2010
+ **   <mail@f-naegele.de>
+ **   10/15/2010
+ **
+ **************************************************************************/
 
 #include "lanesectionitem.hpp"
 
-// Data //
-//
+ // Data //
+ //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
@@ -40,11 +40,11 @@
 //################//
 
 LaneSectionItem::LaneSectionItem(LaneEditor *laneEditor, RoadItem *parentRoadItem, LaneSection *laneSection)
-    : SectionItem(parentRoadItem, laneSection)
-    , laneEditor_(laneEditor)
-    , laneSection_(laneSection)
+	: SectionItem(parentRoadItem, laneSection)
+	, laneEditor_(laneEditor)
+	, laneSection_(laneSection)
 {
-    init();
+	init();
 }
 
 LaneSectionItem::~LaneSectionItem()
@@ -55,20 +55,31 @@ void
 LaneSectionItem::init()
 {
 
-    // Selection/Hovering //
-    //
-    setAcceptHoverEvents(true);
-    setSelectable();
+	// Selection/Hovering //
+	//
+	setAcceptHoverEvents(true);
+	setSelectable();
 
-    // SectionItems //
-    //
-    foreach (Lane *lane, laneSection_->getLanes())
-    {
-        if (lane->getId() != 0)
-        {
-            laneItems_.insert(lane, new LaneItem(this, lane));
-        }
-    }
+	// SectionItems //
+	//
+	foreach(Lane *lane, laneSection_->getLanes())
+	{
+		if (lane->getId() != 0)
+		{
+			laneItems_.insert(lane, new LaneItem(this, lane));
+		}
+	}
+}
+
+void
+LaneSectionItem::createPath()
+{
+	QMap<Lane *, LaneItem *>::const_iterator it = laneItems_.constBegin();
+	while (it != laneItems_.constEnd())
+	{
+		it.value()->createPath();
+		it++;
+	}
 }
 
 // LaneItems //
@@ -155,11 +166,12 @@ LaneSectionItem::updateObserver()
                 if (lane->getId() != 0)
                 {
                     laneItems_.insert(lane, new LaneItem(this, lane));
+					dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
                 }
             }
         }
     }
-	else if (changes & LaneSection::CLS_LanesWidthsChanged)
+	else if ((changes & LaneSection::CLS_LanesWidthsChanged) || (changes & LaneSection::CRS_LengthChange))
 	{
 		dynamic_cast<LaneRoadItem *>(parentRoadItem_)->rebuildMoveRotateHandles(true);
 	}

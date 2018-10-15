@@ -20,6 +20,7 @@
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 
 // Items //
 //
@@ -132,61 +133,171 @@ LaneRoadItem::rebuildMoveRotateHandles(bool delHandles)
 	}
 
 
-
-	LaneMoveHandle<LaneWidth, LaneWidth> *currentLaneMoveHandle = NULL;
 	bool newHandle = true;
 	for (int id = leftmostLaneId; id >= rightmostLaneId; id--)
 	{
 
 		LaneSection *laneSection;
+		Lane *lane;
 		foreach(laneSection, road_->getLaneSections())
 		{
-			Lane *lane = laneSection->getLane(id);
+			lane = laneSection->getLane(id);
 			if (lane)
 			{
 				break;
 			}
 		}
 
-		Lane *lane;
+		LaneMoveHandle<LaneWidth, LaneWidth> *currentWWMoveHandle = NULL;
+		LaneMoveHandle<LaneWidth, LaneBorder> *currentWBMoveHandle = NULL;
+		LaneMoveHandle<LaneBorder, LaneWidth> *currentBWMoveHandle = NULL;
+		LaneMoveHandle<LaneBorder, LaneBorder> *currentBBMoveHandle = NULL;
+		bool lastWidth;
+
 		while (laneSection)
 		{
-			lane = laneSection->getLane(id);
 			if (lane)
 			{
-				if (lane->getPredecessor() == -99)
+				if (lane->isWidthActive())
 				{
-					newHandle = true;
-				}
-				foreach(LaneWidth *laneWidth, lane->getWidthEntries())
-				{
-					if (newHandle)
+					QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
+					if (widthEntries.isEmpty())
 					{
-						currentLaneMoveHandle = new LaneMoveHandle<LaneWidth,LaneWidth>(laneEditor_, handlesItem_);
-						newHandle = false;
+						laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+						if (laneSection)
+						{
+							lane = laneSection->getLane(id);
+						}
+						newHandle = true;
+						continue;
 					}
-					currentLaneMoveHandle->registerHighSlot(laneWidth); // last handle
-					currentLaneMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
-					currentLaneMoveHandle->registerLowSlot(laneWidth); // new handle
-				}
 
-				if (lane->getWidthEntries().size() == 0)
-				{
-					foreach(LaneBorder *laneBorder, lane->getBorderEntries())
+					QMap<double, LaneWidth *>::const_iterator it = widthEntries.constBegin();
+
+					while (it != widthEntries.constEnd())
 					{
+						LaneWidth *laneWidth = it.value();
+
 						if (newHandle)
 						{
-							currentLaneMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_);
+							currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_);
+							currentWWMoveHandle->registerHighSlot(laneWidth);
+
 							newHandle = false;
 						}
-						currentLaneMoveHandle->registerHighSlot(laneBorder); // last handle
-						currentLaneMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
-						currentLaneMoveHandle->registerLowSlot(laneBorder); // new handle
+						else if (!lastWidth)
+						{
+							currentBWMoveHandle->registerHighSlot(laneWidth);
+						}
+						else
+						{
+							currentWWMoveHandle->registerHighSlot(laneWidth); // last handle
+						}
+
+						if (++it == widthEntries.constEnd())
+						{
+							laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+							if (laneSection)
+							{
+								lane = laneSection->getLane(id);
+								if (lane)
+								{
+									if (lane->getPredecessor() != -99)
+									{
+										if (lane->isWidthActive())
+										{
+											currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
+											currentWWMoveHandle->registerLowSlot(laneWidth);
+										}
+										else
+										{
+											currentWBMoveHandle = new LaneMoveHandle<LaneWidth, LaneBorder>(laneEditor_, handlesItem_); // new handle
+											currentWBMoveHandle->registerLowSlot(laneWidth);
+										}
+										lastWidth = true;
+										continue;
+									}
+								}
+							}
+
+							newHandle = true;
+						}
+
+						currentWWMoveHandle = new LaneMoveHandle<LaneWidth, LaneWidth>(laneEditor_, handlesItem_); // new handle
+						currentWWMoveHandle->registerLowSlot(laneWidth); // new handle
+						lastWidth = true;
+					}
+				}
+				else
+				{
+					QMap<double, LaneBorder *> borderEntries = lane->getBorderEntries();
+					if (borderEntries.isEmpty())
+					{
+						laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+						if (laneSection)
+						{
+							lane = laneSection->getLane(id);
+						}
+						newHandle = true;
+						continue;
+					}
+
+					QMap<double, LaneBorder *>::const_iterator it = borderEntries.constBegin();
+					while (it != borderEntries.constEnd())
+					{
+						LaneBorder *laneBorder = it.value();
+
+						if (newHandle)
+						{
+							currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_);
+							currentBBMoveHandle->registerHighSlot(laneBorder);
+							newHandle = false;
+						}
+						else if (lastWidth)
+						{
+							currentWBMoveHandle->registerHighSlot(laneBorder);
+						}
+						else
+						{
+							currentBBMoveHandle->registerHighSlot(laneBorder); // last handle
+						}
+
+						if (++it == borderEntries.constEnd())
+						{
+							laneSection = road_->getLaneSectionNext(laneSection->getSStart());
+							if (laneSection)
+							{
+								lane = laneSection->getLane(id);
+								if (lane)
+								{
+									if (lane->getPredecessor() != -99)
+									{
+										if (lane->isWidthActive())
+										{
+											currentBWMoveHandle = new LaneMoveHandle<LaneBorder, LaneWidth>(laneEditor_, handlesItem_); // new handle
+											currentBWMoveHandle->registerLowSlot(laneBorder);
+										}
+										else
+										{
+											currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
+											currentBBMoveHandle->registerLowSlot(laneBorder);
+										}
+										lastWidth = false;
+
+										continue;
+									}
+								}
+							}
+
+							newHandle = true;
+						}
+
+						currentBBMoveHandle = new LaneMoveHandle<LaneBorder, LaneBorder>(laneEditor_, handlesItem_); // new handle
+						currentBBMoveHandle->registerLowSlot(laneBorder); // new handle
+						lastWidth = false;
 					}
 				}
 			}
-
-			laneSection = road_->getLaneSectionNext(laneSection->getSStart());
 		} 
 	} 
 	

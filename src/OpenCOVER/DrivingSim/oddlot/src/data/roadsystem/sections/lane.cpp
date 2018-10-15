@@ -312,41 +312,77 @@ Lane::moveWidthEntry(double oldS, double newS)
     // Section //
     //
     LaneWidth *section = widths_.value(oldS, NULL);
-    if (!section)
-    {
-        return false;
-    }
+	if (section)
+	{
+		// Previous section //
+		//
+		double previousS = 0.0;
+		if (newS > section->getSSectionStart())
+		{
+			// Expand previous section //
+			//
+			previousS = section->getSSectionStart() - 0.001;
+		}
+		else
+		{
+			// Shrink previous section //
+			//
+			previousS = newS;
+		}
+		LaneWidth *previousSection = getWidthEntry(previousS);
+		if (previousSection)
+		{
+			previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
+		}
 
-    // Previous section //
-    //
-    double previousS = 0.0;
-    if (newS > section->getSSectionStart())
-    {
-        // Expand previous section //
-        //
-        previousS = section->getSSectionStart() - 0.001;
-    }
-    else
-    {
-        // Shrink previous section //
-        //
-        previousS = newS;
-    }
-    LaneWidth *previousSection = getWidthEntry(previousS);
-    if (previousSection)
-    {
-        previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
-    }
+		// Set and insert //
+		//
+		section->setSOffset(newS);
+		widths_.remove(oldS);
+		widths_.insert(newS, section);
 
-    // Set and insert //
-    //
-    section->setSOffset(newS);
-    widths_.remove(oldS);
-    widths_.insert(newS, section);
+		addLaneChanges(Lane::CLN_WidthsChanged);
+		return true;
+	}
+	else
+	{
+		LaneBorder *section = borders_.value(oldS, NULL);
+		if (section)
+		{
+			// Previous section //
+			//
+			double previousS = 0.0;
+			if (newS > section->getSSectionStart())
+			{
+				// Expand previous section //
+				//
+				previousS = section->getSSectionStart() - 0.001;
+			}
+			else
+			{
+				// Shrink previous section //
+				//
+				previousS = newS;
+			}
+			LaneBorder *previousSection = getBorderEntry(previousS);
+			if (previousSection)
+			{
+				previousSection->addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
+			}
 
-    addLaneChanges(Lane::CLN_WidthsChanged);
+			// Set and insert //
+			//
+			section->setSOffset(newS);
+			borders_.remove(oldS);
+			borders_.insert(newS, section);
 
-    return true;
+			addLaneChanges(Lane::CLN_WidthsChanged);
+			return true;
+		}
+	}
+
+        
+	return false;
 }
 
 LaneWidth *
@@ -367,17 +403,28 @@ Lane::getWidthEntryContains(double sSection) const
 double
 Lane::getWidth(double sSection) const
 {
-    QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
-    if (i == widths_.constBegin())
-    {
-        qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
-        return 0.0;
-    }
-    else
-    {
-        --i;
-        return i.value()->getWidth(sSection);
-    }
+	if (widthActive_)
+	{
+		QMap<double, LaneWidth *>::const_iterator iWidth = widths_.upperBound(sSection);
+		if (iWidth != widths_.constBegin())
+		{
+			--iWidth;
+			return iWidth.value()->getWidth(sSection);
+		}
+	}
+	else
+	{
+		QMap<double, LaneBorder *>::const_iterator iBorder = borders_.upperBound(sSection);
+		if (iBorder != borders_.constBegin())
+		{
+			--iBorder;
+			return iBorder.value()->getWidth(sSection);
+		}
+	}
+
+
+	qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << widths_.size() << " number of border entries in lane " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+	return 0.0;
 }
 
 /** Returns the slope of this lane at the given coordinate sSection.
@@ -423,14 +470,14 @@ Lane::getWidthEnd(double sSection) const
 /** Adds a lane width entry to this lane.
 */
 void
-Lane::addBorderEntry(LaneBorder *borderEntry)
+Lane::addWidthEntry(LaneBorder *borderEntry)
 {
 	borders_.insert(borderEntry->getSOffset(), borderEntry);
 	borderEntry->setParentLane(this);
 	addLaneChanges(Lane::CLN_BorderChanged);
 }
 
-bool Lane::delBorderEntry(LaneBorder *borderEntry)
+bool Lane::delWidthEntry(LaneBorder *borderEntry)
 {
 	if (borders_.remove(borderEntry->getSSectionStart()) == 0)
 		return false;
@@ -500,6 +547,37 @@ Lane::getLaneBorderNext(double s) const
 	}
 
 	return i.value();
+}
+
+/** Returns the absolute end coordinate of the border entry
+* containing the lane section coordinate sSection.
+* In lane section coordinates [m].
+*/
+double
+Lane::getBorderEnd(double sSection) const
+{
+	QMap<double, LaneBorder *>::const_iterator nextIt = borders_.upperBound(sSection);
+	if (nextIt == borders_.constEnd())
+	{
+		return parentLaneSection_->getSEnd(); // lane section: [0.0, length]
+	}
+	else
+	{
+		return (*nextIt)->getSSectionStart() + parentLaneSection_->getSStart();
+	}
+}
+
+LaneBorder *
+Lane::getBorderEntryContains(double sSection) const
+{
+	QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
+	if (i == borders_.constBegin())
+	{
+		qDebug() << "WARNING: Trying to get lane width but coordinate is out of bounds! Number of width entries in lane " << id_ << ": " << borders_.size() << ", laneSection at " << getParentLaneSection()->getSStart() << ", road " << getParentLaneSection()->getParentRoad()->getID().speakingName();
+		return NULL;
+	}
+
+	return (--i).value();
 }
 
 
@@ -807,7 +885,7 @@ Lane::getClone() const
 	//
 	foreach(LaneBorder *child, borders_)
 	{
-		clone->addBorderEntry(child->getClone());
+		clone->addWidthEntry(child->getClone());
 	}
 
     // LanesRoadMark //

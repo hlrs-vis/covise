@@ -62,8 +62,8 @@ public:
         return sOffset_;
     }
     double getSSectionStartAbs() const;
-    double getSSectionEnd() const;
-    double getLength() const;
+    virtual double getSSectionEnd() const;
+    virtual double getLength() const;
 
     double getSOffset() const
     {
@@ -75,10 +75,9 @@ public:
     double getSlope(double sSection) const;
     double getCurvature(double sSection) const;
 
-	double getT(double s);
+	virtual double getT(double s);
 
-    void setParameters(double a, double b, double c, double d);
-	void setOffsetParameters(bool start, const QPointF &dpos);
+    virtual void setParameters(double a, double b, double c, double d);
 
     // Observer Pattern //
     //

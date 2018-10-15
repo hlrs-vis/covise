@@ -20,6 +20,7 @@
 #include "src/graph/items/handles/movehandle.hpp"
 
 class LaneEditor;
+class LaneWidth;
 class TextHandle;
 
 
@@ -36,21 +37,28 @@ public:
 	explicit BaseLaneMoveHandle(LaneEditor *laneEditor, QGraphicsItem *parent);		
 	virtual ~BaseLaneMoveHandle();
 
+	// Get low and high slot of derived lanemovehandle //
+	//
+	virtual LaneWidth *getLowSlot() = 0;
+	virtual LaneWidth *getHighSlot() = 0;
+
 
 private:
 	BaseLaneMoveHandle(); /* not allowed */
 	BaseLaneMoveHandle(const BaseLaneMoveHandle &); /* not allowed */
 	BaseLaneMoveHandle &operator=(const BaseLaneMoveHandle &); /* not allowed */
 
+protected:
+	virtual const QString getText() = 0;
 
 	//################//
 	// SLOTS          //
 	//################//
 
 	public slots :
-	void removeCorner();
-	void smoothCorner();
-	void corner();
+	virtual void removeCorner() = 0;
+	virtual void smoothCorner() = 0;
+	virtual void corner() = 0;
 
 	//################//
 	// EVENTS         //
@@ -70,6 +78,7 @@ protected:
 	//################//
 
 protected:
+
 private:
 	LaneEditor *laneEditor_;
 

@@ -20,6 +20,8 @@
 
 #include <QMap>
 
+class Polynomial;
+
 class LaneSection : public RoadSection
 {
 
@@ -79,6 +81,7 @@ public:
 
     double getLaneWidth(int lane, double s) const;
     double getLaneSpanWidth(int fromLane, int toLane, double s) const;
+	Polynomial getPolynomialSum(int fromLane, int toLane, double s) const;
     int getLeftmostLaneId() const;
     int getRightmostLaneId() const;
     void checkAndFixLanes();

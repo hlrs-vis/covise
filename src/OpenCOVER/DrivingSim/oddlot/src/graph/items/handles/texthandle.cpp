@@ -19,8 +19,8 @@
 // CONSTRUCTOR    //
 //################//
 
-TextHandle::TextHandle(const QString &text, QGraphicsItem *parent)
-    : Handle(parent, false)
+TextHandle::TextHandle(const QString &text, QGraphicsItem *parent, bool flip)
+    : Handle(parent, flip)
     , textItem_(text, this)
 {
     // Flags //

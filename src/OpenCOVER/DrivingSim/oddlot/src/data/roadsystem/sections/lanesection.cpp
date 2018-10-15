@@ -326,11 +326,148 @@ double LaneSection::getLaneSpanWidth(int fromLane, int toLane, double s) const
     }
 
     double width = 0.0;
-    for (int i = fromLane; i <= toLane; ++i)
-    {
-        width += getLaneWidth(i, s);
-    }
+	if (fromLane < 0)
+	{
+		int endLane = toLane;
+		if (toLane >= 0)
+		{
+			endLane = -1;
+		}
+
+		for (int i = fromLane; i <= endLane; i++)
+		{
+			if (getLane(i)->isWidthActive())
+			{
+				width += getLaneWidth(i, s);
+			}
+			else
+			{
+				if (endLane == -1)
+				{
+					width += getLaneWidth(i, s);
+				}
+				else
+				{
+					width += getLaneWidth(i, s) - getLaneSpanWidth(endLane + 1, -1, s);
+				}
+				break;
+			}
+		}
+
+		if ((endLane == toLane) || (toLane == 0))
+		{
+			return width;
+		}
+
+		fromLane = 1;
+	}
+	
+	if (fromLane == 0)
+	{
+		fromLane = 1;
+	}
+
+	for (int i = toLane; i >= fromLane; i--)
+	{
+		if (getLane(i)->isWidthActive())
+		{
+			width += getLaneWidth(i, s);
+		}
+		else
+		{
+			if (fromLane == 1)
+			{
+				width += getLaneWidth(i, s);
+			}
+			else
+			{
+				width += getLaneWidth(i, s) - getLaneSpanWidth(fromLane - 1, 1, s);
+			}
+			return width;
+		}
+	}
+
     return width;
+}
+
+Polynomial 
+LaneSection::getPolynomialSum(int fromLane, int toLane, double s) const
+{
+	if (fromLane > toLane)
+	{
+		int tmp = fromLane;
+		fromLane = toLane;
+		toLane = tmp;
+	}
+
+	Polynomial poly(0.0, 0.0, 0.0, 0.0);
+
+	if (fromLane < 0)
+	{
+		int endLane = toLane;
+		if (toLane >= 0)
+		{
+			endLane = -1;
+		}
+
+		for (int i = fromLane; i <= endLane; i++)
+		{
+			Lane * lane = getLane(i);
+			if (lane->isWidthActive())
+			{
+				poly += *lane->getWidthEntryContains(s);
+			}
+			else
+			{
+				if (endLane == -1)
+				{
+					poly += *lane->getBorderEntryContains(s);
+				}
+				else
+				{
+					poly += *lane->getBorderEntryContains(s);
+					poly -= getPolynomialSum(endLane + 1, -1, s);
+				}
+				break;
+			}
+		}
+
+		if ((endLane == toLane) || (toLane == 0))
+		{
+			return poly;
+		}
+
+		fromLane = 1;
+	}
+
+	if (fromLane == 0)
+	{
+		fromLane = 1;
+	}
+
+	for (int i = toLane; i >= fromLane; i--)
+	{
+		Lane * lane = getLane(i);
+		if (lane->isWidthActive())
+		{
+			poly += *lane->getWidthEntryContains(s);
+		}
+		else
+		{
+			if (fromLane == 1)
+			{
+				poly += *lane->getBorderEntryContains(s);
+			}
+			else
+			{
+				poly += *lane->getBorderEntryContains(s);
+				poly -= getPolynomialSum(fromLane - 1, 1, s);
+			}
+			return poly;
+		}
+	}
+
+	return poly;
 }
 
 void LaneSection::checkAndFixLanes()

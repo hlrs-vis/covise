@@ -49,6 +49,10 @@ public:
         return laneEditor_;
     }
 
+	// Graphics //
+	//
+	virtual void createPath();
+
 	// LaneItems //
 	//
 	void addLaneItem(LaneItem *item);

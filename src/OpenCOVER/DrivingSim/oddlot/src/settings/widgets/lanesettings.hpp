@@ -61,7 +61,6 @@ private:
     void updateLevel();
     void updatePredecessor();
     void updateSuccessor();
-    void updateWidth();
 	BaseLaneMoveHandle * getFirstSelectedLaneWidthHandle();
 
     //################//
@@ -76,10 +75,7 @@ private slots:
     void on_successorCheckBox_stateChanged(int state);
     void on_successorBox_valueChanged(int i);
     void on_addButton_released();
-    void on_addWidthButton_released();
-    void on_widthSpinBox_valueChanged(double w);
 	void activateInsertGroupBox(bool);
-	void activateWidthGroupBox(bool);
 
     //################//
     // PROPERTIES     //

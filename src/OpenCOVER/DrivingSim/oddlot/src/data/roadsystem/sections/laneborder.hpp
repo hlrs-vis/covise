@@ -44,7 +44,10 @@ public:
 
 	LaneBorder *getClone();
 
-	double getT(double s);
+	virtual double getSSectionEnd() const;
+	virtual double getLength() const;
+
+	virtual double getT(double s);
 
     // Observer Pattern //
     //

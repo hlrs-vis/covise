@@ -19,6 +19,7 @@
 //
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 
@@ -50,10 +51,20 @@ LaneTreeItem::init()
     //
     widthsItem_ = new QTreeWidgetItem(this);
     widthsItem_->setText(0, tr("widths"));
-    foreach (LaneWidth *element, lane_->getWidthEntries())
-    {
-        new LaneWidthTreeItem(this, element, widthsItem_);
-    }
+	if (lane_->isWidthActive())
+	{
+		foreach(LaneWidth *element, lane_->getWidthEntries())
+		{
+			new LaneWidthTreeItem(this, element, widthsItem_);
+		}
+	}
+	else
+	{
+		foreach(LaneBorder *element, lane_->getBorderEntries())
+		{
+			new LaneWidthTreeItem(this, element, widthsItem_);
+		}
+	}
 
     // LaneRoadMarks //
     //
