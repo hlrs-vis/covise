@@ -43,7 +43,7 @@ IF(COMMAND cmake_policy)
     cmake_policy(SET CMP0011 NEW)
 
     # do not require BUNDLE DESTINATION on MacOS application bundles (simply use RUNTIME DESTINATION)
-    cmake_policy(SET CMP0006 OLD)
+    cmake_policy(SET CMP0006 NEW)
 
     if(POLICY CMP0042)
        # default to finding shlibs relative to @rpath on MacOS

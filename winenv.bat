@@ -5,6 +5,7 @@ if defined COMMON_ACTIVE (
 )
 
 set VCPKG_DEFAULT_TRIPLET=x64-windows
+set VCPKG_OSGVER=3.6.3
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
    echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
@@ -183,15 +184,15 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 
 if "%VCPKG_ROOT%" NEQ "" (
     if "%BASEARCHSUFFIX%" EQU "vcpkg" (
-        set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
-        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.6.2"
+        set "PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\bin;%VCPKG_ROOT%;%PATH%"
+        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\tools\osg\osgPlugins-%VCPKG_OSGVER%"
     )
 )
 
 if "%VCPKG_ROOT%" NEQ "" (
     if "%ARCHSUFFIX%" EQU "vcpkg" (
           set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
-          set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\debug\tools\osg\osgPlugins-3.6.2"
+          set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\%VCPKG_DEFAULT_TRIPLET%\debug\tools\osg\osgPlugins-%VCPKG_OSGVER%"
     )
 )
 

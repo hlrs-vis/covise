@@ -30,12 +30,6 @@ set(COVISE_EXPORTS_FILE "covise-exports.cmake")
 
 # this is used to override some of cmake's original find-modules
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-
-###########workaround to find vtk-5.8
-#INCLUDE_DIRECTORIES(vtk-5.8)
-#LINK_DIRECTORIES(/usr/lib64/vtk-5.8)
-#######################################
-
 IF(WIN32)
   SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/windows;${CMAKE_MODULE_PATH}")
 ENDIF()
@@ -89,7 +83,6 @@ ENDIF()
 
 # figure out COVISE version
 FIND_PACKAGE(Git)
-# TODO: get version from COVISE_VERSION environment variable if it is set
 
 set(COVISE_VERSION_YEAR 2015)
 set(COVISE_VERSION_MONTH 1)
@@ -143,13 +136,13 @@ OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<arc
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 IF(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
-  ELSE(UNIX)
+ELSE(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
 ENDIF(UNIX)
 if (CMAKE_GENERATOR STREQUAL "Ninja")
   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
 else()
-   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
+  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
 endif()
 
 set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
@@ -216,6 +209,10 @@ INCLUDE(Qt4-5)
 # preset some initial values for install dir and CFLAGS etc.
 INCLUDE(CovisePresets)
 covise_cmake_policy()
+if (POLICY CMP0074)
+  # make find_include/find_library search in <PackageName>_ROOT prefix
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 INCLUDE(CoviseHelperMacros)
 

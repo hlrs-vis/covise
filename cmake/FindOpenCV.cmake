@@ -29,7 +29,6 @@ FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
   /opt/csw/include # Blastwave
   /opt/include
   DOC "OpenCV - Headers"
-  NO_DEFAULT_PATH
 )
 FIND_PATH(OPENCV_INCLUDE_DIR "opencv/cv.h"
   DOC "OpenCV - Headers"
@@ -62,7 +61,6 @@ FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   /opt
   PATH_SUFFIXES lib lib64
   DOC "OPENCV - Library"
-  NO_DEFAULT_PATH
 )
 FIND_LIBRARY(OPENCV_${_uppercomponent}_LIBRARY NAMES ${OPENCV_NAMES}
   DOC "OPENCV - Library"
@@ -78,6 +76,7 @@ IF(MSVC)
     ${OPENCV_EXTERNLIBS}/x64/vc12/lib
     ${OPENCV_EXTERNLIBS}/x64/vc11/lib
     ${OPENCV_EXTERNLIBS}/x64/vc10/lib
+    PATH_SUFFIXES debug/lib debug/lib64 lib lib64
     DOC "OPENCV - Library (Debug)"
   )
   

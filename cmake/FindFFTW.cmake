@@ -51,6 +51,7 @@ IF(MSVC)
     PATHS
     $ENV{FFTW_HOME}/lib
     $ENV{EXTERNLIBS}/fftw/lib
+    PATH_SUFFIXES debug/lib debug/lib64
     DOC "FFTW - Library (Debug)"
   )
   
