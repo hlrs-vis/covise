@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QUuid>
+#include <QRegExpValidator>
 #include <cstdlib>
 #include <cstdio>
 

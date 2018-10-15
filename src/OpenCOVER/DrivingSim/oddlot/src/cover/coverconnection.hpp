@@ -22,7 +22,12 @@
 #include <net/tokenbuffer.h>
 #include "../mainwindow.hpp"
 
-class COVERConnection: QObject
+namespace Ui
+{
+    class COVERConnection;
+}
+
+class COVERConnection : /*QObject,*/public QDialog
 {
     
     Q_OBJECT
@@ -32,6 +37,8 @@ class COVERConnection: QObject
     
 private slots:
     void processMessages();
+    void okPressed();
+
 public:
     explicit COVERConnection();
     virtual ~COVERConnection();
@@ -42,31 +49,52 @@ public:
     void send(covise::TokenBuffer &tb);
     void setMainWindow(MainWindow *mw);
 
+    QIcon* getIconConnected()
+    {
+        return coverConnected;
+    }
+
+    QIcon* getIconDisconnected()
+    {
+        return coverDisconnected;
+    }
+
+    bool getConnected()
+    {
+        return connected;
+    }
+
     static COVERConnection *instance()
     {
         if(inst==NULL)
             inst = new COVERConnection();
         return inst;
     };
-    bool isConnected()
-    {
-        return(toCOVER!=NULL);
-    }
-    
-    bool waitForMessage(covise::Message **m);
 
+
+    bool waitForMessage(covise::Message **m);
+    void setConnected(bool c);
+    bool isConnected();
 private:
-    static COVERConnection *inst;
+    QString hostname;
+    Ui::COVERConnection *ui;
     QTimer *m_periodictimer;
     covise::ClientConnection *toCOVER;
+    covise::Message *msg;
     QSocketNotifier *toCOVERSN;
+    MainWindow *mainWindow;
+    QIcon *coverConnected;
+    QIcon *coverDisconnected;
+    int port;
+    bool connected;
+
+    static COVERConnection *inst;
     
     void closeConnection();
-    
-    bool handleClient(covise::Message *msg);
-    covise::Message *msg;
-    MainWindow *mainWindow;
 
+    int getPort();
+
+    bool handleClient(covise::Message *msg);
 
 };
 

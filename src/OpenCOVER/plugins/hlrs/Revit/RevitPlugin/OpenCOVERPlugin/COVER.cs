@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -312,6 +312,10 @@ namespace OpenCOVERPlugin
                 }
                 // this one handles Group.
             }
+            // send done
+
+            MessageBuffer mbf = new MessageBuffer();
+            sendMessage(mbf.buf, MessageTypes.Finished);
         }
         public void SendTypeParameters(Autodesk.Revit.DB.FilteredElementIterator iter)
         {
@@ -601,7 +605,7 @@ namespace OpenCOVERPlugin
                 List<AssetProperty> assets = new List<AssetProperty>();
                 for (int idx = 0; idx < theAsset.Size; idx++)
                 {
-                    AssetProperty ap = theAsset[idx];
+                    AssetProperty ap = theAsset.Get(idx);
                     assets.Add(ap);
                 }
                 String TextureName= "_diffuse";
@@ -658,7 +662,7 @@ namespace OpenCOVERPlugin
                                         int size = asset.Size;
                                         for (int i = 0; i < size; i++)
                                         {
-                                            AssetProperty subproperty = asset[i];
+                                            AssetProperty subproperty = asset.Get(i);
                                             if (subproperty.Name == "unifiedbitmap_Bitmap")
                                             {
 
@@ -1137,6 +1141,7 @@ namespace OpenCOVERPlugin
             Autodesk.Revit.DB.Material m = null;
             bool sameMaterial = true;
             int triangles = 0;
+            int maintriangles = 0;
             bool twoSided = false;
 
             Autodesk.Revit.DB.FaceArray faces = geomSolid.Faces;
@@ -1154,16 +1159,8 @@ namespace OpenCOVERPlugin
                     //return; // don't display curtain walls, these are probably fassades with bars and Glazing
                 }
             }*/
-            Autodesk.Revit.DB.ElementId materialID;
-            materialID = faces.get_Item(0).MaterialElementId;
-            foreach (Autodesk.Revit.DB.Face face in faces)
-            {
-                if (m == null)
-                {
-                    materialID = face.MaterialElementId;
-                    Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
-
-                    /* Autodesk.Revit.DB.ElementId appearanceID = materialElement.AppearanceAssetId;
+            /* 
+             * Autodesk.Revit.DB.ElementId appearanceID = materialElement.AppearanceAssetId;
                      Autodesk.Revit.DB.AppearanceAssetElement ae = elem.Document.GetElement(appearanceID) as Autodesk.Revit.DB.AppearanceAssetElement;
                      Autodesk.Revit.Utility.Asset asset = ae.GetRenderingAsset();
                      Autodesk.Revit.DB.ParameterSet ps = ae.Parameters;
@@ -1185,13 +1182,57 @@ namespace OpenCOVERPlugin
                          string val = p.AsValueString();
                      }
                     System.Collections.Generic.IList<Autodesk.Revit.Utility.AssetProperty> props2 = asset.GetAllConnectedProperties();*/
+            Autodesk.Revit.DB.ElementId materialID;
+            materialID = faces.get_Item(0).MaterialElementId;
+            foreach (Autodesk.Revit.DB.Face face in faces)
+            {
+                bool processedThisFace = false;
+                if (face.HasRegions)
+                {
+                    IList<Face> rfaces = face.GetRegions();
+                    if (rfaces.Count > 1)
+                    {
+                        foreach (Autodesk.Revit.DB.Face rface in rfaces)
+                        {
+
+                            processedThisFace = true;
+
+                            if (m == null)
+                            {
+                                materialID = rface.MaterialElementId;
+                                Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(rface.MaterialElementId) as Autodesk.Revit.DB.Material;
+                                m = materialElement;
+                                twoSided = rface.IsTwoSided;
+                            }
+                            Autodesk.Revit.DB.Mesh rgeomMesh = rface.Triangulate();
+                            if (rgeomMesh != null)
+                            {
+                                triangles += rgeomMesh.NumTriangles;
+                                if (materialID != rface.MaterialElementId)
+                                {
+                                    sameMaterial = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (m == null)
+                {
+                    materialID = face.MaterialElementId;
+                    Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
                     m = materialElement;
                     twoSided = face.IsTwoSided;
                 }
+
                 Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
                 if (geomMesh != null)
                 {
-                    triangles += geomMesh.NumTriangles;
+                    if (!processedThisFace)
+                    {
+                        triangles += geomMesh.NumTriangles;
+                    }
+                    maintriangles += geomMesh.NumTriangles;
                     if (materialID != face.MaterialElementId)
                     {
                         sameMaterial = false;
@@ -1208,7 +1249,7 @@ namespace OpenCOVERPlugin
                 mb.add(elem.Name + "_combined");
                 mb.add((int)ObjectTypes.Mesh);
                 mb.add(twoSided);
-                mb.add(triangles);
+                mb.add(maintriangles);
 
                 int i = 0;
 
@@ -1256,35 +1297,81 @@ namespace OpenCOVERPlugin
                 int num = 0;
                 foreach (Autodesk.Revit.DB.Face face in geomSolid.Faces)
                 {
-                    Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
-                    if (geomMesh != null)
+                    bool processedThisFace = false;
+                    if (face.HasRegions)
                     {
-                        MessageBuffer mb = new MessageBuffer();
-                        mb.add(elem.Id.IntegerValue);
-                        mb.add(elem.Name + "_f_" + num.ToString());
-                        mb.add((int)ObjectTypes.Mesh);
-
-                        SendMesh(geomMesh, ref mb, face.IsTwoSided);
-                        if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                        IList<Face> rfaces = face.GetRegions();
+                        if (rfaces.Count > 1)
                         {
-                            mb.add((byte)220); // color
-                            mb.add((byte)220);
-                            mb.add((byte)220);
-                            mb.add((byte)255);
-                            mb.add(-1); // material ID
-                        }
-                        else
-                        {
-                            Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
+                            foreach (Autodesk.Revit.DB.Face rface in rfaces)
+                            {
 
-                            sendMaterial(materialElement, elem);
-                            mb.add(materialElement.Color);
-                            mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
-                            mb.add(materialElement.Id.IntegerValue);
+                                processedThisFace = true;
+
+                                Autodesk.Revit.DB.Mesh geomMesh = rface.Triangulate();
+                                if (geomMesh != null)
+                                {
+                                    MessageBuffer mb = new MessageBuffer();
+                                    mb.add(elem.Id.IntegerValue);
+                                    mb.add(elem.Name + "_f_" + num.ToString());
+                                    mb.add((int)ObjectTypes.Mesh);
+
+                                    SendMesh(geomMesh, ref mb, rface.IsTwoSided);
+                                    if (rface.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                                    {
+                                        mb.add((byte)220); // color
+                                        mb.add((byte)220);
+                                        mb.add((byte)220);
+                                        mb.add((byte)255);
+                                        mb.add(-1); // material ID
+                                    }
+                                    else
+                                    {
+                                        Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(rface.MaterialElementId) as Autodesk.Revit.DB.Material;
+
+                                        sendMaterial(materialElement, elem);
+                                        mb.add(materialElement.Color);
+                                        mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                        mb.add(materialElement.Id.IntegerValue);
+                                    }
+                                    sendMessage(mb.buf, MessageTypes.NewObject);
+                                }
+                                num++;
+                            }
                         }
-                        sendMessage(mb.buf, MessageTypes.NewObject);
                     }
-                    num++;
+                    if(!processedThisFace)
+                    {
+                        Autodesk.Revit.DB.Mesh geomMesh = face.Triangulate();
+                        if (geomMesh != null)
+                        {
+                            MessageBuffer mb = new MessageBuffer();
+                            mb.add(elem.Id.IntegerValue);
+                            mb.add(elem.Name + "_f_" + num.ToString());
+                            mb.add((int)ObjectTypes.Mesh);
+
+                            SendMesh(geomMesh, ref mb, face.IsTwoSided);
+                            if (face.MaterialElementId == Autodesk.Revit.DB.ElementId.InvalidElementId)
+                            {
+                                mb.add((byte)220); // color
+                                mb.add((byte)220);
+                                mb.add((byte)220);
+                                mb.add((byte)255);
+                                mb.add(-1); // material ID
+                            }
+                            else
+                            {
+                                Autodesk.Revit.DB.Material materialElement = elem.Document.GetElement(face.MaterialElementId) as Autodesk.Revit.DB.Material;
+
+                                sendMaterial(materialElement, elem);
+                                mb.add(materialElement.Color);
+                                mb.add((byte)(((100 - (materialElement.Transparency)) / 100.0) * 255));
+                                mb.add(materialElement.Id.IntegerValue);
+                            }
+                            sendMessage(mb.buf, MessageTypes.NewObject);
+                        }
+                        num++;
+                    }
                 }
             }
 
@@ -1854,6 +1941,60 @@ namespace OpenCOVERPlugin
                             tn.Text = labelText;
                         }
 
+                    }
+                    break;
+                case MessageTypes.File:
+                    {
+                        int MatID = buf.readInt();
+                        string filePathName = buf.readString();
+                        string fileName = buf.readString();
+                        FileStream f=null;
+                        byte[] b=null;
+                        int fileSize = 0;
+                        // read File and send it
+                        try
+                        {
+                            f = File.OpenRead(filePathName);
+                            fileSize = (int)f.Length;
+                            b = new byte[fileSize];
+                            int size = f.Read(b, 0, fileSize);
+                            if (size != fileSize)
+                            {
+                                Console.WriteLine("could not read all bytes ", size, fileSize);
+                                fileSize = 0;
+                            }
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                f = File.OpenRead(fileName);
+                                fileSize = (int)f.Length;
+                                b = new byte[fileSize];
+                                int size = f.Read(b, 0, fileSize);
+                                if (size != fileSize)
+                                {
+                                    Console.WriteLine("could not read all bytes ", size, fileSize);
+                                    fileSize = 0;
+                                }
+                            }
+                            catch
+                            {
+                                fileSize = 0;
+                            }
+                        }
+                        MessageBuffer mb = new MessageBuffer();
+                        mb.add(MatID);
+                        mb.add(fileName);
+                        if (f!=null)
+                            mb.add(fileSize);
+                        else
+                            mb.add((int)0);
+                        if (b != null)
+                            mb.add(b);
+                        sendMessage(mb.buf, MessageTypes.File);
+                        if (f != null)
+                            f.Close();
                     }
                     break;
 

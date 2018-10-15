@@ -58,7 +58,7 @@ Build Requirements
   GCC 4.8 and newer should work.
 
 - **CMake**:
-  2.8.10 or newer should work, but currently we suggest CMake 3.7
+  3.1 or newer is required, but currently we suggest CMake 3.7
 - **XercesC**:
 - **Qt**:
   Qt 5 is required by the graphical user interface.
@@ -151,10 +151,8 @@ Building COVISE and OpenCOVER
       source .covise.sh #set environment variables
       make #invoke cmake followed by make
 
-COVISE and OpenCOVER are built by two separate CMake projects.
 This command sequence sets environment variables necessary while building
-COVISE, invokes `cmake` for the COVISE project, builds COVISE, and then
-continues with invoking `cmake` for the OpenCOVER project followed by `make`.
+COVISE, invokes `cmake` for the COVISE project, and builds COVISE.
 
 After an initial build, it is possible to invoke `make` from within
 subdirectories of `covise/src`.
@@ -175,11 +173,6 @@ Also on Windows, you should work from a command prompt:
        cd build.covise
        cmake-gui ..
        REM open Visual Studio - either directly or with the button from CMake GUI
-       devenv
-       cd %COVISEDIR%
-       mkdir build.cover
-       cd build.cover
-       cmake-gui ../src/OpenCOVER
        devenv
 
 
@@ -211,11 +204,10 @@ This might help you work around build problems.
     ccmake ../..
 
 - `COVISE_USE_VIRVO`: disable support for direct volume rendering
-- `COVISE_BUILD_DRIVINGSIM`: enable the road editor oddlot as part of the OpenCOVER CMake project
+- `COVISE_BUILD_DRIVINGSIM`: enable the road editor oddlot
 - `COVISE_USE_CUDA`: disable use of CUDA
 - `COVISE_USE_QT4`: enable Qt 4
 - `COVISE_CPU_ARCH`: set optimization for the CPU in your computer
-- `COVISE_USE_CPP11`: disable compilation in C++11 mode
 - `COVISE_BUILD_RENDERER`: disable building the desktop renderer
 
 After changing any of these settings, you have to restart the build process.

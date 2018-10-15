@@ -316,7 +316,7 @@ coMenu *coVRPluginSupport::getMenu()
         float h = 0, p = 0, r = 0;
         float size = 1;
         m_vruiMenu = new coRowMenu("COVER");
-        m_vruiMenu->setVisible(true);
+        m_vruiMenu->setVisible(coCoviseConfig::isOn("COVER.Menu.Visible", true));
 
         xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
         yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);
@@ -367,6 +367,17 @@ coPointerButton *coVRPluginSupport::getPointerButton() const
 void coVRPluginSupport::setFrameTime(double ft)
 {
     frameStartTime = ft;
+}
+
+void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
+{
+    bool displaylist = coVRConfig::instance()->useDisplayLists() && !dynamic;
+    bool vbo = !displaylist && coVRConfig::instance()->useVBOs();
+    //bool vao = false;
+
+    draw->setUseDisplayList(displaylist);
+    draw->setUseVertexBufferObjects(vbo);
+    //draw->setUseVertexArrayObject(vao);
 }
 
 void coVRPluginSupport::setFrameRealTime(double ft)
@@ -809,6 +820,7 @@ coVRPluginSupport::coVRPluginSupport()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
+    ui->init();
 
     auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
     interactorScaleSlider->setText("Interactor scale");

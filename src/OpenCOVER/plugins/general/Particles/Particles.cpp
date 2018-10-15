@@ -798,8 +798,7 @@ int Particles::readBinaryTimestep(int timestep)
     else
     {
         osg::Geometry *lines = new osg::Geometry();
-        lines->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-        lines->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+        cover->setRenderStrategy(lines);
 
         // set up geometry
         osg::Vec3Array *vert = new osg::Vec3Array;

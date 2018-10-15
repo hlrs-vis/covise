@@ -1,82 +1,102 @@
 #include "Entity.h"
 #include "ReferencePosition.h"
 #include "Action.h"
-#include "Maneuver.h"
+#include "Event.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscEntity.h>
+#include <OpenScenario/OpenScenarioBase.h>
+#include "OpenScenarioPlugin.h"
 using namespace std;
+using namespace OpenScenario;
 
-Entity::Entity(string entityName, string catalogReferenceName):
-	name(entityName),
-    catalogReferenceName(catalogReferenceName),
-    totalDistance(0),
-    visitedVertices(0),
+Entity::Entity(oscObject *obj):
+	object(obj),
+	name(obj->name),
     refPos(NULL),
     newRefPos(NULL),
-    dt(0.0),
-    actionCounter(0)
+    dt(0.0)
 {
 	directionVector.set(1, 0, 0);
+
+	std::string catalogReferenceName= object->CatalogReference->entryName;
+	vehicle = ((oscVehicle*)(OpenScenarioPlugin::instance()->osdb->getCatalogObjectByCatalogReference("VehicleCatalog", catalogReferenceName)));
+
+	std::string geometryFileName;
+	for (oscFileArrayMember::iterator it = vehicle->Properties->File.begin(); it != vehicle->Properties->File.end(); it++)
+	{
+		oscFile* file = ((oscFile*)(*it));
+		geometryFileName = file->filepath.getValue();
+		break;
+	}
+
+	agentVehicle = new AgentVehicle(name, new CarGeometry(name, geometryFileName, true));
 }
 
-void Entity::setInitEntityPosition(osg::Vec3 initPos)
+Entity::~Entity()
 {
-	entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true));
-	entityGeometry->setPosition(initPos, directionVector);
-}
-
-void Entity::setInitEntityPosition(Road *r)
-{
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,r,inits,laneId,speed,1);
-    // Road r; s inits;
-	auto vtrans = entityGeometry->getVehicleTransform();
-	osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-	entityPosition = pos;
-	entityGeometry->setPosition(pos, directionVector);
+    delete refPos;
+    delete newRefPos;
 }
 
 void Entity::setInitEntityPosition(ReferencePosition* init_refPos)
 {
-    entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+    dt = 0.0;
 
-    if(init_refPos->road != NULL)
+    refPos = init_refPos;
+    newRefPos = new ReferencePosition(refPos);
+    lastRefPos = new ReferencePosition(refPos);
+    //entityGeometry = new AgentVehicle(name, new CarGeometry(name, filepath, true),0,init_refPos->road,init_refPos->s,init_refPos->laneId,speed,1);
+
+    /*if(init_refPos->road != NULL)
     {
-        auto vtrans = entityGeometry->getVehicleTransform();
+        auto vtrans = agentVehicle->getVehicleTransform();
         osg::Vec3 pos(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
         entityPosition = pos;
-        entityGeometry->setTransform(vtrans,init_refPos->hdg);
+		agentVehicle->setTransform(vtrans,init_refPos->hdg);
 
     }
     else
-    {
+    {*/
         entityPosition = init_refPos->xyz;
 
         directionVector[0] = cos(init_refPos->hdg);
         directionVector[1] = sin(init_refPos->hdg);
 
 
-        entityGeometry->setPosition(entityPosition, directionVector);
+		agentVehicle->setPosition(entityPosition, directionVector);
 
-    }
+   // }
 
 }
 
 
 void Entity::moveLongitudinal()
 {
-    if(refPos->road != NULL)
+    if(refPos->road != NULL && speed > 0)
     {
-        float step_distance = speed*opencover::cover->frameDuration();
-        double ds = 1.0;
-        double dt = 0.0;
+        float step_distance = speed*OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
+        double ds;
+        double hdg;
+        if(refPos->laneId>0)
+        {
+            ds = -1.0;
+            hdg = refPos->hdg + 3.14159;
+        }
+        else
+        {
+            ds = 1.0;
+            hdg = refPos->hdg;
+        }
 
-        refPos->move(ds,dt,step_distance);
+        refPos->move(ds,0.0,step_distance);
 
         Transform vehicleTransform = refPos->road->getRoadTransform(refPos->s, refPos->t);
-        entityGeometry->setTransform(vehicleTransform,refPos->hdg);
+        agentVehicle->setTransform(vehicleTransform,hdg);
         //cout << name << " is driving on Road: " << refPos->roadId << endl;
     }
     else
     {
-        entityGeometry->setPosition(refPos->xyz, directionVector);
+		agentVehicle->setPosition(refPos->xyz, directionVector);
     }
 
 }
@@ -84,12 +104,6 @@ void Entity::moveLongitudinal()
 osg::Vec3 Entity::getPosition()
 {
     return refPos->getPosition();
-}
-
-void Entity::setPosition(osg::Vec3 &newPosition)
-{
-	entityPosition = newPosition;
-	entityGeometry->setPosition(newPosition, directionVector);
 }
 
 string &Entity::getName()
@@ -115,80 +129,98 @@ void Entity::setDirection(osg::Vec3 &dir)
 
 }
 
+
 void Entity::setTrajectoryDirection()
 {
-    // entity is heading to targetPosition
-    targetPosition = newRefPos->getPosition();
-    totaldirectionVector = targetPosition - refPos->getPosition();
-    totaldirectionVectorLength = totaldirectionVector.length();
+    osg::Vec3 segmentVector= newRefPos->getPosition() - refPos->getPosition();
+    segmentLength = segmentVector.length();
 
-    directionVector = totaldirectionVector;
-    directionVector.normalize();
+    directionVector = segmentVector/ segmentLength;
 
 }
-
-
-void Entity::setTrajSpeed(float deltat)
+void Entity::startFollowTrajectory(Trajectory *t)
 {
-
-    // calculate length of targetvector
-
-    speed = totaldirectionVectorLength/deltat;
-
-
-}
-
-void Entity::setTrajectoryDirectionOnRoad()
-{
-    targetPosition = newRefPos->getPosition();
-    totaldirectionVector = targetPosition - refPos->getPosition();
-    totaldirectionVectorLength = totaldirectionVector.length();
-
-    directionVector = totaldirectionVector;
-    directionVector.normalize();
-
-
-
-}
-
-void Entity::followTrajectoryOnRoad(Maneuver* maneuver, int verticesCounter)
-{
-
-    float step_distance = opencover::cover->frameDuration()*speed;
-
-    if(totalDistance == 0)
+    trajectory = t;
+    currentVertex = 0;
+    distanceTraveledFromLastVertex = 0;
+    if(t->Vertex.size()>1)
     {
-        totalDistance = totaldirectionVectorLength;
-    }
-    //calculate remaining distance
-    totalDistance = totalDistance-step_distance;
-
-    directionVector = newRefPos->getPosition() - refPos->getPosition();
-    directionVector.normalize();
-    refPos->move(directionVector,step_distance);
-    osg::Vec3 pos = refPos->getPosition();
-    //directionVector[0] = directionVector[0]*cos(refPos->hdg);
-    //directionVector[1] = directionVector[1]*sin(refPos->hdg);
-
-    entityGeometry->setPosition(pos, directionVector);
-
-    if(totalDistance <= 0)
-    {
-        cout << "Arrived at " << visitedVertices << endl;
-        visitedVertices++;
-        totalDistance = 0;
-        if(visitedVertices == verticesCounter)
+        Position* currentPos;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        currentPos->getAbsolutePosition(refPos, newRefPos); // update newRefPos (relative to Entity position)
+        *lastRefPos = *newRefPos;
+        *refPos = lastRefPos;
+        currentVertex++;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        currentPos->getAbsolutePosition(lastRefPos, newRefPos); // update newRefPos (relative to Entity position)
+        if (t->domain.getValue() == 0) // domain == time
         {
-            visitedVertices = 0;
-            ++actionCounter;
-            maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
-
-            refPos->update();
+            // calculate speed from trajectory vertices
+            speed = segmentLength / trajectory->getReference(currentVertex);
         }
     }
 }
+ 
+void Entity::followTrajectory(Event* event)
+{
 
-void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed, int shape)
+    osg::Vec3 segmentVector = newRefPos->getPosition() - lastRefPos->getPosition();
+    segmentLength = segmentVector.length();
+    if (trajectory->domain.getValue() == 0) // domain == time
+    {
+        // calculate speed from trajectory vertices
+        speed = segmentLength / trajectory->getReference(currentVertex);
+    }
+    float stepDistance = speed * OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
+    while ((stepDistance + distanceTraveledFromLastVertex) > segmentLength)
+    {
+        currentVertex++;
+
+        if (currentVertex == trajectory->Vertex.size())
+        {
+            break;
+        }
+        if (trajectory->domain.getValue() == 0) // domain == time
+        {
+            // calculate speed from trajectory vertices
+            speed = segmentLength / trajectory->getReference(currentVertex);
+        }
+        directionVector = newRefPos->getPosition() - lastRefPos->getPosition();
+        directionVector.normalize();
+        float moveWithinSegment = segmentLength- distanceTraveledFromLastVertex;
+
+        distanceTraveledFromLastVertex += moveWithinSegment;
+        refPos->move(directionVector, moveWithinSegment);
+        distanceTraveledFromLastVertex = 0;
+
+        Position* currentPos;
+        currentPos = ((Position*)(trajectory->Vertex[currentVertex]->Position.getObject()));
+        *lastRefPos = *newRefPos;
+
+        currentPos->getAbsolutePosition(lastRefPos,newRefPos); // update newRefPos (relative to last vertex) 
+
+        stepDistance -= moveWithinSegment;
+    }
+
+    if (currentVertex == trajectory->Vertex.size())
+    {
+        stepDistance = 0;
+        event->finishedEntityActions++;
+        refPos->update();
+    }
+    directionVector = newRefPos->getPosition() - lastRefPos->getPosition();
+    directionVector.normalize();
+    if (stepDistance > 0)
+    {
+        refPos->move(directionVector, stepDistance);
+    }
+    distanceTraveledFromLastVertex += stepDistance;
+    osg::Vec3 pos = refPos->getPosition();
+
+    agentVehicle->setPosition(pos, directionVector);
+}
+
+void Entity::longitudinalSpeedAction(Event* event, double init_targetSpeed, int shape)
 {
     float targetSpeed = (float) init_targetSpeed;
 
@@ -216,8 +248,7 @@ void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed
         acceleration = 1000;
     }
 
-    float frametime = opencover::cover->frameDuration();
-    dt += frametime;
+    dt += OpenScenarioPlugin::instance()->scenarioManager->simulationStep;
 
     cout << getName() << " is breaking! New speed: " << speed << endl;
     float t_end = (targetSpeed-old_speed)/acceleration;
@@ -225,8 +256,7 @@ void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed
     {
         speed = targetSpeed;
         dt = 0.0;
-        ++actionCounter;
-        maneuver->finishedEntityActions = maneuver->finishedEntityActions+1;
+        event->finishedEntityActions++;
 
     }
     else
@@ -237,11 +267,3 @@ void Entity::longitudinalSpeedAction(Maneuver* maneuver, double init_targetSpeed
 
 }
 
-void Entity::resetActionAttributes()
-{
-    totalDistance = 0;
-    visitedVertices = 0;
-
-    dt = 0.0;
-    actionCounter = 0;
-}

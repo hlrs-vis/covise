@@ -2,7 +2,10 @@ USING(Virvo optional) # for transfer function editor
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
+set(CMAKE_AUTORCC ON)
+
 SET(TUI_SOURCES
+  mapviewer.qrc
   qtcolortriangle.cpp
   qtpropertyDialog.cpp
   TUIColorTriangle.cpp
@@ -31,10 +34,10 @@ SET(TUI_SOURCES
   # TUITextSpinEdit.cpp
   TUIApplication.cpp
   TUINavElement.cpp
-  TUITextureTab.cpp
   TUISGBrowserTab.cpp
   TUIColorTab.cpp
   TUIMap.cpp
+  TUIEarthMap.cpp
   TUIFileBrowserButton.cpp
   FileBrowser/FileBrowser.cpp
   TUITextCheck.cpp
@@ -65,7 +68,6 @@ SET(TUI_MOC_HEADERS
   qtpropertyDialog.h
   TUIColorTriangle.h
   TUIColorButton.h
-  TUITextureTab.h
   TUISGBrowserTab.h
   TUIColorTab.h
   TUIButton.h
@@ -78,6 +80,7 @@ SET(TUI_MOC_HEADERS
   TUILineEdit.h
   TUILineCheck.h
   TUIListBox.h
+  TUIEarthMap.h
   TUIMap.h
   TUITabFolder.h
   # TUITextSpinEdit.h

@@ -72,13 +72,14 @@
 #include "QtSvg/qsvgrenderer.h"
 
 
-OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad)
+OSCItem::OSCItem(OSCElement *element, OSCBaseItem *oscBaseItem, OpenScenario::oscObject *oscObject, OpenScenario::oscCatalog *catalog, OpenScenario::oscRoad *oscRoad, RSystemElementRoad *road)
     : SVGElement(oscBaseItem, element)
 	, element_(element)
 	, oscBaseItem_(oscBaseItem)
     , oscObject_(oscObject)
 	, oscRoad_(oscRoad)
 	, catalog_(catalog)
+	, road_(road)
 	, angle_(0)
 {
     init();
@@ -125,9 +126,6 @@ OSCItem::init()
 	std::string entryName = catalogReference->entryName.getValue();
 
 	roadSystem_ = getProjectGraph()->getProjectData()->getRoadSystem();
-//	odrID roadID(atoi(oscRoad_->roadId.getValue().c_str()),0," ",odrID::ID_Road);
-	odrID roadID(QString::fromStdString(oscRoad_->roadId.getValue()));
-	road_ = roadSystem_->getRoad(roadID);
 	closestRoad_ = road_;
 	roadSystemItem_ = oscBaseItem_->getRoadSystemItem();
 	s_ = oscRoad_->s.getValue();
@@ -150,6 +148,10 @@ OSCItem::init()
 	{
 		OpenScenario::oscEnum *categoryEnums = dynamic_cast<OpenScenario::oscEnum*>(categoryMember);
 		OpenScenario::oscIntValue *categoryValue = dynamic_cast<OpenScenario::oscIntValue*>(categoryMember->getValue());
+		if (!categoryValue)
+		{
+			return;
+		}
 		categoryName = categoryEnums->getValueAsStr(categoryValue->getValue());
 	}
 

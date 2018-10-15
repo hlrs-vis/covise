@@ -261,7 +261,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes()
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%lx", (unsigned long)n);
+                    sprintf(buf, "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
 
@@ -280,7 +280,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes()
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%lx", (unsigned long)n);
+                    sprintf(buf, "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
             }
@@ -294,7 +294,7 @@ VrmlMFNode *VrmlNodeType::getImplementationNodes()
                 VrmlNode *n = (*j)->node;
                 if (strcmp(n->name(), "") == 0)
                 {
-                    sprintf(buf, "#%lx", (unsigned long)n);
+                    sprintf(buf, "#%llx", (unsigned long long)n);
                     n->setName(buf);
                 }
             }

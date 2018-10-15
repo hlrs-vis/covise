@@ -9,6 +9,7 @@ schema/oscParameter.h
 schema/oscFile.h
 schema/oscDirectory.h
 schema/oscCatalogs.h
+schema/oscVehicle.h
 schema/oscVehicleCatalog.h
 schema/oscDriverCatalog.h
 schema/oscPedestrianCatalog.h
@@ -26,7 +27,6 @@ schema/oscUserDataList.h
 schema/oscUserData.h
 schema/oscFileHeader.h
 schema/oscPedestrian.h
-schema/oscVehicle.h
 schema/oscPerformance.h
 schema/oscAxles.h
 schema/oscAxle.h
@@ -127,9 +127,7 @@ schema/oscJam.h
 schema/oscManeuver.h
 schema/oscEvent.h
 schema/oscAction.h
-schema/oscConditions.h
-schema/oscStart.h
-schema/oscStartConditionGroup.h
+schema/oscStartConditions.h
 schema/oscTrafficDefinition.h
 schema/oscVehicleDistribution.h
 schema/oscDriverDistribution.h
@@ -142,8 +140,8 @@ schema/oscPrecipitation.h
 schema/oscRoadCondition.h
 schema/oscEffect.h
 schema/oscPedestrianController.h
-schema/oscDriver.h
 schema/oscPersonDescription.h
+schema/oscRoute.h
 schema/oscWaypoint.h
 schema/oscTrajectory.h
 schema/oscVertex.h
@@ -160,8 +158,9 @@ schema/oscRoad.h
 schema/oscRelativeRoad.h
 schema/oscLane.h
 schema/oscRelativeLane.h
-schema/oscRouteRef.h
 schema/oscPositionRoute.h
+schema/oscRouteRef.h
+schema/oscRoutePosition.h
 schema/oscCurrent.h
 schema/oscRoadCoord.h
 schema/oscLaneCoord.h
@@ -193,9 +192,10 @@ schema/oscSequence.h
 schema/oscActors.h
 schema/oscByCondition.h
 schema/oscActConditions.h
+schema/oscStart.h
 schema/oscEnd.h
 schema/oscCancel.h
-schema/oscStoryboardEnd.h
+schema/oscEndConditions.h
 )
 SET(SCHEMA_SOURCES
 schema/oscParameter.cpp
@@ -217,6 +217,7 @@ schema/oscTiming.cpp
 schema/oscLateralParams.cpp
 schema/oscScript.cpp
 schema/oscEvent.cpp
+schema/oscVehicle.cpp
 schema/oscWeather.cpp
 schema/oscPrecipitation.cpp
 schema/oscPersonDescription.cpp

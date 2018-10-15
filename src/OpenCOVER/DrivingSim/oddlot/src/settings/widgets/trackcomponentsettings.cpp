@@ -25,6 +25,7 @@
 #include "src/data/roadsystem/track/trackelementarc.hpp"
 #include "src/data/roadsystem/track/trackelementspiral.hpp"
 #include "src/data/roadsystem/track/trackelementpoly3.hpp"
+#include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 
 // Qt //
@@ -82,6 +83,11 @@ TrackComponentSettings::TrackComponentSettings(ProjectSettings *projectSettings,
         ui->groupBox->setTitle(tr("spiral-arc-spiral"));
         sparcs_ = dynamic_cast<TrackSpiralArcSpiral *>(trackComponent_);
     }
+	else if (type == TrackComponent::DTT_CUBICCURVE)
+	{
+		ui->groupBox->setTitle(tr("cubic-curve"));
+		c_curve_ = dynamic_cast<TrackElementCubicCurve *>(trackComponent_);
+	}
     else
     {
         ui->groupBox->setTitle(tr("unknown type"));
@@ -186,11 +192,66 @@ TrackComponentSettings::updateCurvature()
         ui->factorLable->setVisible(true);
         ui->factorBox->setValue(sparcs_->getFactor());
     }
+	ui->gridLayout->update();
+	ui->bBox->updateGeometry();
+
+	QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	resize(sizeHint());
 }
 
 //################//
 // SLOTS          //
 //################//
+
+
+
+void TrackComponentSettings::on_headingBox_editingFinished()
+{
+	double newHeading;
+	newHeading = ui->headingBox->value();
+	TrackComponentHeadingCommand *command = new TrackComponentHeadingCommand(trackComponent_, newHeading, NULL);
+	getProjectSettings()->executeCommand(command);
+}
+
+void TrackComponentSettings::on_curv1Box_editingFinished()
+{
+	TrackComponent::DTrackType type = trackComponent_->getTrackType();
+	if (type == TrackComponent::DTT_ARC)
+	{
+		double newCurvature;
+		newCurvature = ui->curv1Box->value();
+		TrackElementArc * arc = dynamic_cast<TrackElementArc *>(trackComponent_);
+		if (arc)
+		{
+			ArcCurvatureCommand *command = new ArcCurvatureCommand(arc, newCurvature, NULL);
+			getProjectSettings()->executeCommand(command);
+		}
+	}
+}
+
+void TrackComponentSettings::on_curv2Box_editingFinished()
+{
+}
+
+void
+TrackComponentSettings::on_xBox_editingFinished()
+{
+	QPointF newPosition;
+	newPosition.setX(ui->xBox->value());
+	newPosition.setY(ui->yBox->value());
+	SetGlobalTrackPosCommand *command = new SetGlobalTrackPosCommand(trackComponent_, newPosition, NULL);
+	getProjectSettings()->executeCommand(command);
+}
+
+void
+TrackComponentSettings::on_yBox_editingFinished()
+{
+	QPointF newPosition;
+	newPosition.setX(ui->xBox->value());
+	newPosition.setY(ui->yBox->value());
+	SetGlobalTrackPosCommand *command = new SetGlobalTrackPosCommand(trackComponent_, newPosition, NULL);
+	getProjectSettings()->executeCommand(command);
+}
 
 void
 TrackComponentSettings::on_factorBox_editingFinished()

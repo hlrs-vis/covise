@@ -1156,7 +1156,7 @@ MergeLaneSectionCommand::MergeLaneSectionCommand(LaneSection *laneSectionLow, La
     //		newSection_->setElementSelected(true); // keep selection
     //	}
 
-    newSection_ = new LaneSection(laneSectionLow->getSStart(), laneSectionLow, laneSectionHigh);
+    newSection_ = new LaneSection(laneSectionLow->getSStart(), oldSectionLow_->getSide(), laneSectionLow, laneSectionHigh);
 
     // Done //
     //

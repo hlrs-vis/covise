@@ -10,6 +10,7 @@
 
 #include "Points.h"
 #include "PointCloud.h"
+#include "FileInfo.h"
 #include <osg/MatrixTransform>
 #include <osg/Geode>
 #include <osg/StateSet>
@@ -19,8 +20,8 @@
 #include <util/coRestraint.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
-class fileInfo;
-class nodeInfo;
+class FileInfo;
+class NodeInfo;
 
 class PointCloudInteractor : public vrui::coTrackerButtonInteraction
 {
@@ -43,10 +44,11 @@ public:
     void startInteraction();
 
     void addSelectedPoint(osg::Vec3);
+    void updateMessage(vector<pointSelection> points);
 
     // updates the temporary copy of the spheres
     // on them the intersection test takes place
-    void updatePoints(const std::list<fileInfo> *allFiles)
+    void updatePoints(const std::vector<FileInfo> *allFiles)
     {
         this->m_files = allFiles;
     };
@@ -65,7 +67,7 @@ private:
     // needed for interaction
     osg::Vec3 m_initHandPos, m_initHandDirection;
 
-    const std::list<fileInfo> *m_files;
+    const std::vector<FileInfo> *m_files;
     bool m_selectedWithBox;
 
     void swap(float &m, float &n);
@@ -91,6 +93,8 @@ private:
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
+
+    int selectionSetIndex =0;
 
 };
 #endif //POINTCLOUD_INTERACTOR_H

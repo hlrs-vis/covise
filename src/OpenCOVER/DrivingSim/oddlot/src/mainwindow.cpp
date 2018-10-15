@@ -27,6 +27,7 @@
 // Qt //
 //
 #include <QtGui>
+#include <QPushButton>
 #include <QLabel>
 #include <QUndoGroup>
 #include <QUndoView>
@@ -36,8 +37,6 @@
 #include <QToolBox>
 #include <QFileDialog>
 #include <QMessageBox>
-
-
 
 // Utils //
 //
@@ -83,23 +82,33 @@ MainWindow::MainWindow(QWidget *parent)
     createMdiArea();
     createTree();
     createSettings();
+
+    //createFileSettings();
+
+
     createUndo();
 	createErrorMessageTab();
     createPrototypes();
     createTools();
 	createSignals();
     createWizards();
-	
 
     projectionSettings = new ProjectionSettings();
-	importSettings = new ImportSettings();
+    importSettings = new ImportSettings();
 	exportSettings = new ExportSettings();
     lodSettings = new LODSettings();
 	oscSettings = new OSCSettings(covisedir_ + "/src/OpenCOVER/DrivingSim/oddlot/catalogs/");
 
+ //---------------------------------------//
+    coverConnection = COVERConnection::instance();
+    fileSettings = new FileSettings();
+
+    createFileSettings();
+    createCOVERConnectionButton();
     // Default //
     //
     emit(hasActiveProject(false));
+
 }
 
 MainWindow::~MainWindow()
@@ -139,7 +148,7 @@ MainWindow::createToolBars()
     fileToolBar_ = addToolBar(tr("File"));
 }
 
-/*! Creates the status bar.
+/*! \brief Creates the status bar.
 *
 */
 void
@@ -156,6 +165,25 @@ void
 MainWindow::updateStatusBarPos(const QPointF &pos)
 {
     locationLabel_->setText(QString(" [%1").arg(pos.x(), 10, 'f', 3, ' ').append(", %2] ").arg(pos.y(), 10, 'f', 3, ' '));
+}
+
+void
+MainWindow::createCOVERConnectionButton()
+{
+    coverButton = new QPushButton();
+    updateCOVERConnectionIcon(*(coverConnection->getIconDisconnected()));
+    coverButton->setIconSize(QSize(30,30));
+    connect(coverButton,SIGNAL(clicked()),this,SLOT(openCOVERSettings()));
+    coverConnectionToolBar = new QToolBar();
+    coverConnectionToolBar->addWidget(coverButton);
+    coverConnectionToolBar->setAllowedAreas(Qt::TopToolBarArea);
+    addToolBar(coverConnectionToolBar);
+}
+
+void
+MainWindow::updateCOVERConnectionIcon(const QIcon &icon)
+{
+    coverButton->setIcon(icon);
 }
 
 /*! \brief Creates the official actions and inserts
@@ -187,7 +215,6 @@ MainWindow::createActions()
 	openMenu->addAction(openXOSCAction);
 	connect(openXOSCAction, SIGNAL(triggered()), this, SLOT(openXOSC()));
     
-
 	QMenu *mergeMenu = new QMenu("&Merge", fileMenu_);
     QAction *openTileAction = new QAction(tr("&Merge Open&Drive file"), this);
     openTileAction->setShortcut(QKeySequence::AddTab);
@@ -200,7 +227,6 @@ MainWindow::createActions()
 	mergeMenu->addAction(mergeXOSCAction);
 	connect(mergeXOSCAction, SIGNAL(triggered()), this, SLOT(mergeXOSC()));
 	connect(this,SIGNAL(hasActiveProject(bool)),mergeXOSCAction,SLOT(setEnabled(bool)));
-
 
     QAction *saveAction = new QAction(tr("&Save"), this);
     saveAction->setShortcuts(QKeySequence::Save);
@@ -227,25 +253,53 @@ MainWindow::createActions()
     connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
     connect(this, SIGNAL(hasActiveProject(bool)), saveAsAction, SLOT(setEnabled(bool)));
 
-    QAction *projectionSettingsAction = new QAction(tr("Projection Settings"), fileMenu_);
+
+
+    QAction *fileSettingsAction = new QAction(tr("Settings"), fileMenu_);
+    connect(fileSettingsAction, SIGNAL(triggered()), this, SLOT(changeFileSettings()));
+    connect(this, SIGNAL(hasActiveProject(bool)), fileSettingsAction,SLOT(setEnabled(bool)));
+
+
+    /*
+    QMenu *settingsMenu = new QMenu("&Settings", fileMenu_);
+
+    //QAction *projectionSettingsAction = new QAction(tr("Projection Settings"), fileMenu_);
+    QAction *projectionSettingsAction = new QAction(tr("Projection Settings"), settingsMenu);
+    settingsMenu->addAction(projectionSettingsAction);
     connect(projectionSettingsAction, SIGNAL(triggered()), this, SLOT(changeSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), projectionSettingsAction, SLOT(setEnabled(bool)));
 
-    QAction *lodSettingsAction = new QAction(tr("LOD Settings"), fileMenu_);
+    //QAction *lodSettingsAction = new QAction(tr("LOD Settings"), fileMenu_);
+    QAction *lodSettingsAction = new QAction(tr("LOD Settings"), settingsMenu);
+    settingsMenu->addAction(lodSettingsAction);
     connect(lodSettingsAction, SIGNAL(triggered()), this, SLOT(changeLODSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), lodSettingsAction, SLOT(setEnabled(bool)));
 
-	QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), fileMenu_);
+
+    //QAction *coverConnectionAction = new QAction(tr("COVERConnection"), fileMenu_);
+    QAction *coverConnectionAction = new QAction(tr("COVERConnection"), settingsMenu);
+    settingsMenu->addAction(coverConnectionAction);
+    connect(coverConnectionAction,SIGNAL(triggered()),this, SLOT(changeCOVERConnection()));
+    connect(this, SIGNAL(hasActiveProject(bool)), coverConnectionAction, SLOT(setEnabled(bool)));
+
+
+    //QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), fileMenu_);
+    QAction *OSCSettingsAction = new QAction(tr("OpenSCENARIO Settings"), settingsMenu);
+    settingsMenu->addAction(OSCSettingsAction);
     connect(OSCSettingsAction, SIGNAL(triggered()), this, SLOT(changeOSCSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), OSCSettingsAction, SLOT(setEnabled(bool)));
 
-    QAction *importSettingsAction = new QAction(tr("Import Settings"), fileMenu_);
+    //QAction *importSettingsAction = new QAction(tr("Import Settings"), fileMenu_);
+    QAction *importSettingsAction = new QAction(tr("Import Settings"), settingsMenu);
+    settingsMenu->addAction(importSettingsAction);
     connect(importSettingsAction, SIGNAL(triggered()), this, SLOT(changeImportSettings()));
     connect(this, SIGNAL(hasActiveProject(bool)), importSettingsAction, SLOT(setEnabled(bool)));
 
-	QAction *exportSettingsAction = new QAction(tr("Export Settings"), fileMenu_);
+    //QAction *exportSettingsAction = new QAction(tr("Export Settings"), fileMenu_);
+    QAction *exportSettingsAction = new QAction(tr("Export Settings"), settingsMenu);
+    settingsMenu->addAction(exportSettingsAction);
 	connect(exportSettingsAction, SIGNAL(triggered()), this, SLOT(changeExportSettings()));
-	connect(this, SIGNAL(hasActiveProject(bool)), exportSettingsAction, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(hasActiveProject(bool)), exportSettingsAction, SLOT(setEnabled(bool)));*/
 
     QMenu *exportMenu = new QMenu("E&xport", fileMenu_);
     QAction *exportSplineAction = new QAction(tr("Export &Spline"), exportMenu);
@@ -294,12 +348,19 @@ MainWindow::createActions()
 	fileMenu_->addMenu(openMenu);
 	fileMenu_->addMenu(saveMenu);
 	fileMenu_->addMenu(mergeMenu);
+
+
+    //fileMenu_->addMenu(settingsMenu);
+    fileMenu_->addAction(fileSettingsAction);
+
     fileMenu_->addSeparator();
-    fileMenu_->addAction(projectionSettingsAction);
+    /*fileMenu_->addAction(projectionSettingsAction);
     fileMenu_->addAction(lodSettingsAction);
+
+    fileMenu_->addAction(coverConnectionAction);
 	fileMenu_->addAction(importSettingsAction);
-	fileMenu_->addAction(exportSettingsAction);
-	fileMenu_->addAction(OSCSettingsAction);
+    fileMenu_->addAction(exportSettingsAction);
+    fileMenu_->addAction(OSCSettingsAction);*/
     fileMenu_->addMenu(importMenu);
     fileMenu_->addMenu(exportMenu);
     fileMenu_->addSeparator();
@@ -318,7 +379,21 @@ MainWindow::createActions()
     helpMenu_->addAction(aboutAction);
 
     osmi = new OsmImport();
+
 }
+
+void
+MainWindow::createFileSettings()
+{
+    fileSettings->addTab(projectionSettings);
+    fileSettings->addTab(exportSettings);
+    fileSettings->addTab(importSettings);
+    fileSettings->addTab(oscSettings);
+    fileSettings->addTab(lodSettings);
+    fileSettings->addTab(coverConnection);
+}
+
+
 
 /*! \brief Creates the MDI Area.
 *
@@ -329,6 +404,7 @@ MainWindow::createMdiArea()
     // MDI Area //
     //
     mdiArea_ = new QMdiArea();
+
     //setOption(QMdiArea::DontMaximizeSubWindowOnActivation, false);
     setCentralWidget(mdiArea_);
     connect(mdiArea_, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(activateProject()));
@@ -473,8 +549,7 @@ MainWindow::createSignals()
 	signalTree_ = new SignalTreeWidget(signalManager_, this);
 	setSignalTree(signalTree_);
 
-	signalsDock_->hide();
-
+    signalsDock_->hide();
 }
 
 /*! \brief Creates the ToolManager and the tool box on the left side.
@@ -564,10 +639,9 @@ MainWindow::createSettings()
     settingsDock_ = new QDockWidget(tr("Settings View"), this);
     settingsDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	
-	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+	settingsDock_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 	settingsDock_->setFixedWidth(200);
 	settingsDock_->setMinimumHeight(152);
-
 
     //	settingsDock_->setFeatures(settingsDock_->features() | QDockWidget::DockWidgetVerticalTitleBar);
     addDockWidget(Qt::RightDockWidgetArea, settingsDock_);
@@ -703,8 +777,7 @@ MainWindow::newFile()
     project = createProject();
     project->newFile();
  //   project->show();
-	project->showMaximized();
-
+    project->showMaximized();
     return;
 }
 
@@ -1008,6 +1081,30 @@ MainWindow::changeExportSettings()
 }
 
 void
+MainWindow::changeCOVERConnection()
+{
+    if (getActiveProject())
+    {
+        coverConnection->show();
+    }
+    return;
+}
+
+void
+MainWindow::openCOVERSettings()
+{
+    if (getActiveProject())
+    {
+        /*if(coverConnection->getConnected())
+        {
+            fileSettings->show();
+            fileSettings->getTabWidget()->setCurrentWidget(coverConnection);
+        }*/
+        coverConnection->setConnected(!(coverConnection->getConnected()));
+    }
+}
+
+void
 MainWindow::changeLODSettings()
 {
     if (getActiveProject())
@@ -1016,6 +1113,17 @@ MainWindow::changeLODSettings()
     }
     return;
 }
+
+
+void
+MainWindow::changeFileSettings()
+{
+    if(getActiveProject())
+    {
+        fileSettings->show();
+    }
+}
+
 
 /*! \brief load Intermap xyz files.
 *
@@ -1226,7 +1334,7 @@ MainWindow::createProject()
     //
     ProjectWidget *project = new ProjectWidget(this);
     mdiArea_->addSubWindow(project);
-//    project->showMaximized();
+    // project->showMaximized();
 	project->setWindowState(windowState() & Qt::WindowMaximized);
 
     // Project Menu Action //

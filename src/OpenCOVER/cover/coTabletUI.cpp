@@ -87,11 +87,6 @@ void coTUIButton::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUIButton::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
 //TABLET_FILEBROWSER_BUTTON
 coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     : coTUIElement(n, pID, TABLET_FILEBROWSER_BUTTON)
@@ -136,6 +131,51 @@ coTUIFileBrowserButton::coTUIFileBrowserButton(const char *n, int pID)
     tb << path.c_str();
 
     tui()->send(tb);
+}
+
+coTUIFileBrowserButton::coTUIFileBrowserButton(coTabletUI *tui, const char *n, int pID)
+    : coTUIElement(tui, n, pID, TABLET_FILEBROWSER_BUTTON)
+{
+    VRBData *locData = new VRBData(this);
+    mLocalData = new LocalData(this);
+    mData = NULL;
+    this->mVRBCId = 0;
+    mAGData = NULL;
+    mMode = coTUIFileBrowserButton::OPEN;
+
+#ifdef FB_USE_AG
+    AGData *locAGData = new AGData(this);
+    mAGData = locAGData;
+#endif
+
+    std::string locCurDir = mLocalData->resolveToAbsolute(std::string("."));
+    locData->setLocation("127.0.0.1");
+    locData->setCurrentPath(locCurDir);
+    mLocalData->setCurrentPath(locCurDir);
+    Host host;
+    std::string shost(host.getAddress());
+    this->mId = ID;
+    locData->setId(this->mId);
+    mLocation = shost;
+    mLocalIP = shost;
+    mLocalData->setLocation(shost);
+    this->mDataObj = locData;
+    this->mDataObj->setLocation(shost);
+
+    this->mDataRepo.insert(Data_Pair("vrb", mDataObj));
+    this->mDataRepo.insert(Data_Pair("file", mLocalData));
+#ifdef FB_USE_AG
+    this->mDataRepo.insert(Data_Pair("agtk", mAGData));
+#endif
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_SET_CURDIR;
+    tb << ID;
+    std::string path = mDataObj->getCurrentPath();
+    tb << path.c_str();
+
+    tui->send(tb);
 }
 
 coTUIFileBrowserButton::~coTUIFileBrowserButton()
@@ -1136,11 +1176,6 @@ void coTUINav::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUINav::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -1191,11 +1226,6 @@ void coTUIBitmapButton::parseMessage(TokenBuffer &tb)
     {
         cerr << "unknown event " << i << endl;
     }
-}
-
-void coTUIBitmapButton::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -1281,12 +1311,6 @@ void coTUITabFolder::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUITabFolder::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
-
 
 //----------------------------------------------------------
 //----------------------------------------------------------
@@ -1365,11 +1389,6 @@ void coTUIUITab::sendEvent(const QString &source, const QString &event)
     tb.addBinary((const char *)event.utf16(), (event.size() + 1) * 2);
 
     tui()->send(tb);
-}
-
-void coTUIUITab::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 bool coTUIUITab::loadUIFile(const std::string &filename)
@@ -1464,1234 +1483,6 @@ void coTUITab::parseMessage(TokenBuffer &tb)
     }
 }
 
-void coTUITab::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
-//----------------------------------------------------------
-//----------------------------------------------------------
-
-void TextureThread::msleep(int msec)
-{
-    usleep(msec * 1000);
-}
-
-void TextureThread::run()
-{
-    while (running)
-    {
-        while (!tab->getConnection())
-        {
-            this->tab->tryConnect();
-            msleep(250);
-        }
-        //if(type == TABLET_TEX_UPDATE)
-        {
-            int count = 0;
-            while (!tab->queueIsEmpty())
-            {
-                tab->sendTexture();
-                sendedTextures++;
-
-                //cout << " sended textures : " << sendedTextures << "\n";
-                if (finishedTraversing && textureListCount == sendedTextures)
-                {
-                    //cout << " finished sending with: " << textureListCount << "  textures \n";
-                    tab->sendTraversedTextures();
-                    //type = THREAD_NOTHING_TO_DO;
-                    finishedTraversing = false;
-                    textureListCount = 0;
-                    sendedTextures = 0;
-                }
-                if (count++ == 5)
-                    break;
-            }
-            //msleep(100);
-        }
-        if (tab->getTexturesToChange()) //still Textures in queue
-        {
-            int count = 0;
-            Message m;
-            // waiting for incoming data
-            while (count < 200)
-            {
-                count++;
-
-                if (tab->getConnection())
-                {
-                    // message arrived
-                    if (tab->getConnection()->check_for_input())
-                    {
-                        tab->getConnection()->recv_msg(&m);
-                        TokenBuffer tokenbuffer(&m);
-                        if (m.type == COVISE_MESSAGE_TABLET_UI)
-                        {
-                            int ID;
-                            tokenbuffer >> ID;
-                            tab->parseTextureMessage(tokenbuffer);
-                            tab->decTexturesToChange();
-                            //type = THREAD_NOTHING_TO_DO;
-                            break;
-                        }
-                    }
-                }
-                msleep(50);
-            }
-        }
-        else
-            msleep(50);
-    }
-}
-
-coTUITextureTab::coTUITextureTab(const char *n, int pID)
-    : coTUIElement(n, pID, TABLET_TEXTURE_TAB)
-{
-    conn = NULL;
-    currentNode = 0;
-    changedNode = 0;
-    texturesToChange = 0;
-    texturePort = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", 31802);
-    texturePort++;
-    thread = new TextureThread(this);
-    thread->setType(THREAD_NOTHING_TO_DO);
-    thread->start();
-}
-
-coTUITextureTab::~coTUITextureTab()
-{
-    thread->terminateTextureThread();
-
-    while (thread->isRunning())
-    {
-        sleep(1);
-    }
-    delete thread;
-    delete conn;
-    conn = NULL;
-}
-
-void coTUITextureTab::finishedTraversing()
-{
-    thread->traversingFinished();
-}
-
-void coTUITextureTab::incTextureListCount()
-{
-    thread->incTextureListCount();
-}
-
-void coTUITextureTab::sendTraversedTextures()
-{
-    TokenBuffer t;
-    t << TABLET_SET_VALUE;
-    t << TABLET_TRAVERSED_TEXTURES;
-    t << ID;
-    this->send(t);
-}
-
-void coTUITextureTab::parseMessage(TokenBuffer &tb)
-{
-    int i;
-    tb >> i;
-    if (i == TABLET_TEX_UPDATE)
-    {
-        thread->setType(TABLET_TEX_UPDATE);
-        if (listener)
-        {
-            listener->tabletEvent(this);
-            listener->tabletReleaseEvent(this);
-        }
-    }
-    if (i == TABLET_TEX_PORT)
-    {
-        cerr << "newPort " << texturePort << endl;
-        tb >> texturePort;
-    }
-    else if (i == TABLET_TEX_CHANGE)
-    {
-        //cout << " currentNode : " << currentNode << "\n";
-        if (currentNode)
-        {
-            // let the tabletui know that it can send texture data now
-            TokenBuffer t;
-            int buttonNumber;
-            tb >> buttonNumber;
-            t << TABLET_SET_VALUE;
-            t << TABLET_TEX_CHANGE;
-            t << ID;
-            t << buttonNumber;
-            t << (uint64_t)(uintptr_t)currentNode;
-            tui()->send(t);
-            //thread->setType(TABLET_TEX_CHANGE);
-            texturesToChange++;
-        }
-    }
-    else
-    {
-        cerr << "unknown event " << i << endl;
-    }
-}
-
-void coTUITextureTab::parseTextureMessage(TokenBuffer &tb)
-{
-    int type;
-    tb >> type;
-    if (type == TABLET_TEX_CHANGE)
-    {
-        uint64_t node;
-        tb >> textureNumber;
-        tb >> textureMode;
-        tb >> textureTexGenMode;
-        tb >> alpha;
-        tb >> height;
-        tb >> width;
-        tb >> depth;
-        tb >> dataLength;
-        tb >> node;
-
-        changedNode = (osg::Node *)(uintptr_t)node;
-        if (changedNode)
-        {
-            data = new char[dataLength];
-
-            for (int k = 0; k < dataLength; k++)
-            {
-                if ((k % 4) == 3)
-                    tb >> data[k];
-                else if ((k % 4) == 2)
-                    tb >> data[k - 2];
-                else if ((k % 4) == 1)
-                    tb >> data[k];
-                else if ((k % 4) == 0)
-                    tb >> data[k + 2];
-            }
-            if (listener)
-            {
-                listener->tabletEvent(this);
-                listener->tabletPressEvent(this);
-            }
-        }
-    }
-}
-
-void coTUITextureTab::sendTexture()
-{
-    mutex.lock();
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX;
-    tb << ID;
-    tb << heightList.front();
-    tb << widthList.front();
-    tb << depthList.front();
-    tb << lengthList.front();
-
-    int length = heightList.front() * widthList.front() * depthList.front() / 8;
-    tb.addBinary(dataList.front(), length);
-    this->send(tb);
-    heightList.pop();
-    widthList.pop();
-    depthList.pop();
-    lengthList.pop();
-    dataList.pop();
-    mutex.unlock();
-}
-
-void coTUITextureTab::setTexture(int height, int width, int depth, int dataLength, const char *data)
-{
-    mutex.lock();
-    heightList.push(height);
-    widthList.push(width);
-    depthList.push(depth);
-    lengthList.push(dataLength);
-    dataList.push(data);
-    thread->incTextureListCount();
-    //cout << " added texture : \n";
-    mutex.unlock();
-}
-
-void coTUITextureTab::setTexture(int texNumber, int mode, int texGenMode)
-{
-    if (tui()->conn == NULL)
-        return;
-
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX_MODE;
-    tb << ID;
-    tb << texNumber;
-    tb << mode;
-    tb << texGenMode;
-
-    tui()->send(tb);
-}
-
-void coTUITextureTab::resend(bool create)
-{
-    coTUIElement::resend(create);
-}
-
-void coTUITextureTab::tryConnect()
-{
-    timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
-
-    if (serverHost)
-    {
-        conn = new ClientConnection(serverHost, texturePort, 0, (sender_type)0, 0);
-        if (!conn->is_connected()) // could not open server port
-        {
-#ifndef _WIN32
-            if (errno != ECONNREFUSED)
-            {
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        localHost->getName(), texturePort, strerror(errno));
-            }
-#else
-            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
-#endif
-            delete conn;
-            conn = NULL;
-        }
-    }
-
-    if (!conn && localHost)
-    {
-        conn = new ClientConnection(localHost, texturePort, 0, (sender_type)0, 0);
-        if (!conn->is_connected()) // could not open server port
-        {
-#ifndef _WIN32
-            if (errno != ECONNREFUSED)
-            {
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        localHost->getName(), texturePort, strerror(errno));
-            }
-#else
-            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), texturePort);
-#endif
-            delete conn;
-            conn = NULL;
-        }
-    }
-}
-
-void coTUITextureTab::send(TokenBuffer &tb)
-{
-    if (conn == NULL)
-        return;
-    Message m(tb);
-    m.type = COVISE_MESSAGE_TABLET_UI;
-    conn->send_msg(&m);
-}
-
-//----------------------------------------------------------
-//----------------------------------------------------------
-
-void SGTextureThread::msleep(int msec)
-{
-    usleep(msec * 1000);
-}
-
-void SGTextureThread::run()
-{
-    while (running)
-    {
-        //if(type == TABLET_TEX_UPDATE)
-        {
-            int count = 0;
-            while (!tab->queueIsEmpty())
-            {
-                tab->sendTexture();
-                sendedTextures++;
-
-                //cout << " sended textures : " << sendedTextures << "\n";
-                if (finishedTraversing && textureListCount == sendedTextures)
-                {
-                    //cout << " finished sending with: " << textureListCount << "  textures \n";
-                    tab->sendTraversedTextures();
-                    //type = THREAD_NOTHING_TO_DO;
-                    finishedTraversing = false;
-                    textureListCount = 0;
-                    sendedTextures = 0;
-                }
-                if (finishedNode && textureListCount == sendedTextures)
-                {
-                    //cout << " finished sending with: " << textureListCount << "  textures \n";
-                    tab->sendNodeTextures();
-
-                    finishedNode = false;
-                    textureListCount = 0;
-                    sendedTextures = 0;
-                }
-                if (count++ == 5)
-                    break;
-            }
-        }
-        /*if(noTextures)
-      {
-         tab->sendNoTextures();
-         noTextures = false;
-      }*/
-        if (tab->getTexturesToChange()) //still Textures in queue
-        {
-            int count = 0;
-            Message m;
-            // waiting for incoming data
-            while (count < 200)
-            {
-                count++;
-
-                if (tab->getConnection())
-                {
-                    // message arrived
-                    if (tab->getConnection()->check_for_input())
-                    {
-                        tab->getConnection()->recv_msg(&m);
-                        TokenBuffer tokenbuffer(&m);
-                        if (m.type == COVISE_MESSAGE_TABLET_UI)
-                        {
-                            int ID;
-                            tokenbuffer >> ID;
-                            tab->parseTextureMessage(tokenbuffer);
-                            tab->decTexturesToChange();
-                            //type = THREAD_NOTHING_TO_DO;
-                            break;
-                        }
-                    }
-                }
-                msleep(50);
-            }
-        }
-        else
-            msleep(50);
-    }
-}
-
-//----------------------------------------------------------
-
-coTUISGBrowserTab::coTUISGBrowserTab(const char *n, int pID)
-    : coTUIElement(n, pID, TABLET_BROWSER_TAB)
-{
-    thread = NULL;
-
-    conn = NULL;
-    currentNode = 0;
-    changedNode = 0;
-    texturesToChange = 0;
-
-    texturePort = 0;
-    // next port is for Texture communication
-
-    currentPath = "";
-    loadFile = false; //gottlieb
-}
-
-int coTUISGBrowserTab::openServer()
-{
-    conn = NULL;
-
-    ServerConnection *sConn = new ServerConnection(&texturePort, 0, (sender_type)0);
-    sConn->listen();
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX_PORT;
-    tb << ID;
-    tb << texturePort;
-
-    tui()->send(tb);
-
-    if (sConn->acceptOne(60) < 0)
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-    if (!sConn->getSocket())
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 0;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-    if (!sConn->is_connected()) // could not open server port
-    {
-        fprintf(stderr, "Could not open server port %d\n", texturePort);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
-    }
-    conn = sConn;
-    return 0;
-}
-
-coTUISGBrowserTab::~coTUISGBrowserTab()
-{
-    if (thread)
-    {
-        thread->terminateTextureThread();
-
-        while (thread->isRunning())
-        {
-            sleep(1);
-        }
-        delete thread;
-    }
-    delete conn;
-    conn = NULL;
-}
-
-void coTUISGBrowserTab::noTexture()
-{
-    thread->noTexturesFound(true);
-}
-
-void coTUISGBrowserTab::finishedNode()
-{
-    thread->nodeFinished(true);
-}
-
-void coTUISGBrowserTab::sendNodeTextures()
-{
-    TokenBuffer t;
-    t << TABLET_SET_VALUE;
-    t << TABLET_NODE_TEXTURES;
-    t << ID;
-    this->send(t);
-}
-//gottlieb<
-void coTUISGBrowserTab::loadFilesFlag(bool state)
-{
-    loadFile = state;
-    if (loadFile)
-        setVal(TABLET_LOADFILE_SATE, 1);
-    else
-        setVal(TABLET_LOADFILE_SATE, 0);
-}
-void coTUISGBrowserTab::hideSimNode(bool state, char *nodePath, char *simPath)
-{
-    if (state)
-    {
-        setVal(TABLET_SIM_SHOW_HIDE, 0, nodePath, simPath);
-    }
-    else
-    {
-        setVal(TABLET_SIM_SHOW_HIDE, 1, nodePath, simPath);
-    }
-}
-void coTUISGBrowserTab::setSimPair(char *nodePath, char *simPath, char *simName)
-{
-    setVal(TABLET_SIM_SETSIMPAIR, nodePath, simPath, simName);
-}
-//>gottlieb
-void coTUISGBrowserTab::sendNoTextures()
-{
-    TokenBuffer t;
-    t << TABLET_SET_VALUE;
-    t << TABLET_NO_TEXTURES;
-    t << ID;
-    this->send(t);
-}
-
-void coTUISGBrowserTab::finishedTraversing()
-{
-    thread->traversingFinished(true);
-}
-
-void coTUISGBrowserTab::incTextureListCount()
-{
-    thread->incTextureListCount();
-}
-
-void coTUISGBrowserTab::sendTraversedTextures()
-{
-    TokenBuffer t;
-    t << TABLET_SET_VALUE;
-    t << TABLET_TRAVERSED_TEXTURES;
-    t << ID;
-    this->send(t);
-}
-
-void coTUISGBrowserTab::send(TokenBuffer &tb)
-{
-    if (conn == NULL)
-        return;
-    Message m(tb);
-    m.type = COVISE_MESSAGE_TABLET_UI;
-    conn->send_msg(&m);
-}
-
-void coTUISGBrowserTab::tryConnect()
-{
-    ClientConnection *cConn = NULL;
-    tui()->lock();
-    if (tui()->connectedHost)
-    {
-        //timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", 0.0);
-
-        cConn = new ClientConnection(tui()->connectedHost, texturePort, 0, (sender_type)0, 10, 2.0);
-        if (!cConn->is_connected()) // could not open server port
-        {
-#ifndef _WIN32
-            if (errno != ECONNREFUSED)
-            {
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                        tui()->connectedHost->getName(), texturePort, strerror(errno));
-            }
-#else
-            fprintf(stderr, "Could not connect to TextureThread %s; port %d\n", tui()->connectedHost->getName(), texturePort);
-#endif
-            delete cConn;
-            cConn = NULL;
-        }
-    }
-    conn = cConn;
-    tui()->unlock();
-}
-
-void coTUISGBrowserTab::parseTextureMessage(TokenBuffer &tb)
-{
-    int type;
-    tb >> type;
-    if (type == TABLET_TEX_CHANGE)
-    {
-        char *path;
-        tb >> textureNumber;
-        tb >> textureMode;
-        tb >> textureTexGenMode;
-        tb >> alpha;
-        tb >> height;
-        tb >> width;
-        tb >> depth;
-        tb >> dataLength;
-        tb >> path;
-        tb >> index;
-
-        //changedNode = (osg::Node *)(uintptr_t)node;
-        changedPath = std::string(path);
-        if (currentNode)
-        {
-            changedNode = currentNode;
-            data = new char[dataLength];
-
-            for (int k = 0; k < dataLength; k++)
-            {
-                if ((k % 4) == 3)
-                    tb >> data[k];
-                else if ((k % 4) == 2)
-                    tb >> data[k - 2];
-                else if ((k % 4) == 1)
-                    tb >> data[k];
-                else if ((k % 4) == 0)
-                    tb >> data[k + 2];
-            }
-            if (listener)
-            {
-                listener->tabletEvent(this);
-            }
-        }
-    }
-}
-
-void coTUISGBrowserTab::sendTexture()
-{
-    mutex.lock();
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX;
-    tb << ID;
-    tb << _heightList.front();
-    tb << _widthList.front();
-    tb << _depthList.front();
-    tb << _indexList.front();
-    tb << _lengthList.front();
-
-    int length = _heightList.front() * _widthList.front() * _depthList.front() / 8;
-    tb.addBinary(_dataList.front(), length);
-    this->send(tb);
-    _heightList.pop();
-    _widthList.pop();
-    _depthList.pop();
-    _indexList.pop();
-    _lengthList.pop();
-    _dataList.pop();
-    mutex.unlock();
-}
-
-void coTUISGBrowserTab::setTexture(int height, int width, int depth, int texIndex, int dataLength, const char *data)
-{
-    mutex.lock();
-    _heightList.push(height);
-    _widthList.push(width);
-    _depthList.push(depth);
-    _indexList.push(texIndex);
-    _lengthList.push(dataLength);
-    _dataList.push(data);
-    thread->incTextureListCount();
-    //cout << " added texture : \n";
-    mutex.unlock();
-}
-
-void coTUISGBrowserTab::setTexture(int texNumber, int mode, int texGenMode, int texIndex)
-{
-    if (tui()->conn == NULL)
-        return;
-
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_TEX_MODE;
-    tb << ID;
-    tb << texNumber;
-    tb << mode;
-    tb << texGenMode;
-    tb << texIndex;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendType(int type, const char *nodeType, const char *name, const char *path, const char *pPath, int mode, int numChildren)
-{
-
-    if (tui()->conn == NULL)
-        return;
-
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_NODE;
-    tb << ID;
-    tb << type;
-    tb << name;
-    tb << nodeType;
-    tb << mode;
-    tb << path;
-    tb << pPath;
-    tb << numChildren;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendEnd()
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_END;
-    tb << ID;
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    int i;
-    const char *currentPath = path.c_str();
-    const char *currentpPath = pPath.c_str();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_PROPERTIES;
-    tb << ID;
-    tb << currentPath;
-    tb << currentpPath;
-    tb << mode;
-    tb << transparent;
-    for (i = 0; i < 4; i++)
-        tb << diffuse[i];
-    for (i = 0; i < 4; i++)
-        tb << specular[i];
-    for (i = 0; i < 4; i++)
-        tb << ambient[i];
-    for (i = 0; i < 4; i++)
-        tb << emissive[i];
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendProperties(std::string path, std::string pPath, int mode, int transparent, float mat[])
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    int i;
-    const char *currentPath = path.c_str();
-    const char *currentpPath = pPath.c_str();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_PROPERTIES;
-    tb << ID;
-    tb << currentPath;
-    tb << currentpPath;
-    tb << mode;
-    tb << transparent;
-    for (i = 0; i < 4; i++)
-        tb << diffuse[i];
-    for (i = 0; i < 4; i++)
-        tb << specular[i];
-    for (i = 0; i < 4; i++)
-        tb << ambient[i];
-    for (i = 0; i < 4; i++)
-        tb << emissive[i];
-
-    for (i = 0; i < 16; ++i)
-    {
-        tb << mat[i];
-    }
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendCurrentNode(osg::Node *node, std::string path)
-{
-    currentNode = node;
-    visitorMode = CURRENT_NODE;
-
-    if (listener)
-        listener->tabletCurrentEvent(this);
-
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    const char *currentPath = path.c_str();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_CURRENT_NODE;
-    tb << ID;
-    tb << currentPath;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendRemoveNode(std::string path, std::string parentPath)
-{
-
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    const char *removePath = path.c_str();
-    const char *removePPath = parentPath.c_str();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_BROWSER_REMOVE_NODE;
-    tb << ID;
-    tb << removePath;
-    tb << removePPath;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendShader(std::string name)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    const char *shaderName = name.c_str();
-
-    tb << TABLET_SET_VALUE;
-    tb << GET_SHADER;
-    tb << ID;
-    tb << shaderName;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendUniform(std::string name, std::string type, std::string value, std::string min, std::string max, std::string textureFile)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << GET_UNIFORMS;
-    tb << ID;
-    tb << name.c_str();
-    tb << type.c_str();
-    tb << value.c_str();
-    tb << min.c_str();
-    tb << max.c_str();
-    tb << textureFile.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::sendShaderSource(std::string vertex, std::string fragment, std::string geometry, std::string tessControl, std::string tessEval)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << GET_SOURCE;
-    tb << ID;
-    tb << vertex.c_str();
-    tb << fragment.c_str();
-    tb << geometry.c_str();
-    tb << tessControl.c_str();
-    tb << tessEval.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateUniform(std::string shader, std::string name, std::string value, std::string textureFile)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_UNIFORM;
-    tb << ID;
-    tb << shader.c_str();
-    tb << name.c_str();
-    tb << value.c_str();
-    tb << textureFile.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderSourceV(std::string shader, std::string vertex)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_VERTEX;
-    tb << ID;
-    tb << shader.c_str();
-    tb << vertex.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderSourceTC(std::string shader, std::string tessControl)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_TESSCONTROL;
-    tb << ID;
-    tb << shader.c_str();
-    tb << tessControl.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderSourceTE(std::string shader, std::string tessEval)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_TESSEVAL;
-    tb << ID;
-    tb << shader.c_str();
-    tb << tessEval.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderSourceF(std::string shader, std::string fragment)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_FRAGMENT;
-    tb << ID;
-    tb << shader.c_str();
-    tb << fragment.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderSourceG(std::string shader, std::string geometry)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << UPDATE_GEOMETRY;
-    tb << ID;
-    tb << shader.c_str();
-    tb << geometry.c_str();
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderNumVertices(std::string shader, int value)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << SET_NUM_VERT;
-    tb << ID;
-    tb << shader.c_str();
-    tb << value;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::updateShaderOutputType(std::string shader, int value)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << SET_OUTPUT_TYPE;
-    tb << ID;
-    tb << shader.c_str();
-    tb << value;
-
-    tui()->send(tb);
-}
-void coTUISGBrowserTab::updateShaderInputType(std::string shader, int value)
-{
-    if (tui()->conn == NULL)
-        return;
-    TokenBuffer tb;
-    tb << TABLET_SET_VALUE;
-    tb << SET_INPUT_TYPE;
-    tb << ID;
-    tb << shader.c_str();
-    tb << value;
-
-    tui()->send(tb);
-}
-
-void coTUISGBrowserTab::parseMessage(TokenBuffer &tb)
-{
-    int i;
-    tb >> i;
-    switch (i)
-    {
-
-    case TABLET_INIT_SECOND_CONNECTION:
-    {
-
-        if (tui()->serverMode)
-        {
-            openServer();
-        }
-        if (thread)
-        {
-            thread->terminateTextureThread();
-
-            while (thread->isRunning())
-            {
-                sleep(1);
-            }
-            delete thread;
-        }
-
-        thread = new SGTextureThread(this);
-        thread->setType(THREAD_NOTHING_TO_DO);
-        thread->traversingFinished(false);
-        thread->nodeFinished(false);
-        thread->noTexturesFound(false);
-        thread->start();
-        break;
-    }
-
-    case TABLET_BROWSER_PROPERTIES:
-    {
-        if (listener)
-            listener->tabletDataEvent(this, tb);
-        break;
-    }
-    case TABLET_BROWSER_UPDATE:
-    {
-        visitorMode = UPDATE_NODES;
-        if (listener)
-            listener->tabletPressEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_EXPAND_UPDATE:
-    {
-        visitorMode = UPDATE_EXPAND;
-        char *path;
-        tb >> path;
-        expandPath = std::string(path);
-
-        if (listener)
-            listener->tabletPressEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_SELECTED_NODE:
-    {
-        visitorMode = SET_SELECTION;
-        char *path, *pPath;
-        tb >> path;
-        selectPath = std::string(path);
-        tb >> pPath;
-        selectParentPath = std::string(pPath);
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_CLEAR_SELECTION:
-    {
-        visitorMode = CLEAR_SELECTION;
-        if (listener)
-            listener->tabletSelectEvent(this);
-
-        break;
-    }
-    case TABLET_BROWSER_SHOW_NODE:
-    {
-        visitorMode = SHOW_NODE;
-        char *path, *pPath;
-        tb >> path;
-        showhidePath = std::string(path);
-        tb >> pPath;
-        showhideParentPath = std::string(pPath);
-
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_HIDE_NODE:
-    {
-        visitorMode = HIDE_NODE;
-        char *path, *pPath;
-        tb >> path;
-        showhidePath = std::string(path);
-        tb >> pPath;
-        showhideParentPath = std::string(pPath);
-
-        if (listener)
-            listener->tabletSelectEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_COLOR:
-    {
-        visitorMode = UPDATE_COLOR;
-        tb >> ColorR;
-        tb >> ColorG;
-        tb >> ColorB;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_WIRE:
-    {
-        visitorMode = UPDATE_WIRE;
-        tb >> polyMode;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_SEL_ONOFF:
-    {
-        visitorMode = UPDATE_SEL;
-        tb >> selOnOff;
-        if (listener)
-            listener->tabletChangeModeEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_FIND:
-    {
-        char *fname;
-        visitorMode = FIND_NODE;
-        tb >> fname;
-        findName = std::string(fname);
-        if (listener)
-            listener->tabletFindEvent(this);
-        break;
-    }
-    case TABLET_BROWSER_LOAD_FILES:
-    {
-        char *fname;
-        tb >> fname;
-
-        if (listener)
-            listener->tabletLoadFilesEvent(fname);
-        break;
-    }
-    break;
-    case TABLET_TEX_UPDATE:
-    {
-        thread->setType(TABLET_TEX_UPDATE);
-        sendImageMode = SEND_IMAGES;
-        if (listener)
-        {
-            listener->tabletEvent(this);
-            listener->tabletReleaseEvent(this);
-        }
-        break;
-    }
-    case TABLET_TEX_PORT:
-    {
-        tb >> texturePort;
-        tryConnect();
-        break;
-    }
-    case TABLET_TEX_CHANGE:
-    {
-        //cout << " currentNode : " << currentNode << "\n";
-        if (currentNode)
-        {
-            // let the tabletui know that it can send texture data now
-            TokenBuffer t;
-            int buttonNumber;
-            const char *path = currentPath.c_str();
-            tb >> buttonNumber;
-            t << TABLET_SET_VALUE;
-            t << TABLET_TEX_CHANGE;
-            t << ID;
-            t << buttonNumber;
-            t << path;
-            tui()->send(t);
-            //thread->setType(TABLET_TEX_CHANGE);
-            texturesToChange++;
-        }
-        break;
-    }
-    default:
-    {
-        cerr << "unknown event " << i << endl;
-    }
-    }
-}
-
-void coTUISGBrowserTab::resend(bool create)
-{
-    if (thread)
-    {
-        thread->terminateTextureThread();
-
-        while (thread->isRunning())
-        {
-            sleep(1);
-        }
-        delete thread;
-        delete conn;
-        conn = NULL;
-    }
-
-    thread = new SGTextureThread(this);
-    thread->setType(THREAD_NOTHING_TO_DO);
-    thread->traversingFinished(false);
-    thread->nodeFinished(false);
-    thread->noTexturesFound(false);
-    thread->start();
-
-    coTUIElement::resend(create);
-
-    sendImageMode = SEND_LIST;
-    if (listener)
-    {
-        listener->tabletEvent(this);
-        listener->tabletReleaseEvent(this);
-    }
-    //gottlieb<
-    if (loadFile)
-        setVal(TABLET_LOADFILE_SATE, 1);
-    else
-        setVal(TABLET_LOADFILE_SATE, 0); //>gottlieb
-}
-
 //----------------------------------------------------------
 //----------------------------------------------------------
 
@@ -2704,12 +1495,6 @@ coTUIAnnotationTab::~coTUIAnnotationTab()
 {
 }
 
-void coTUIAnnotationTab::resend(bool create)
-{
-    //std::cout << "coTUIAnnotationTab::resend()" << std::endl;
-    coTUIElement::resend(create);
-}
-
 void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
 {
     listener->tabletDataEvent(this, tb);
@@ -2717,7 +1502,7 @@ void coTUIAnnotationTab::parseMessage(TokenBuffer &tb)
 
 void coTUIAnnotationTab::setNewButtonState(bool state)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2731,7 +1516,7 @@ void coTUIAnnotationTab::setNewButtonState(bool state)
 
 void coTUIAnnotationTab::addAnnotation(int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2745,7 +1530,7 @@ void coTUIAnnotationTab::addAnnotation(int id)
 
 void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2760,7 +1545,7 @@ void coTUIAnnotationTab::deleteAnnotation(int mode, int id)
 
 void coTUIAnnotationTab::setSelectedAnnotation(int id)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -2804,7 +1589,7 @@ void coTUIFunctionEditorTab::resend(bool create)
     coTUIElement::resend(create);
 
     //resend the transfer function information
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -3635,11 +2420,6 @@ coTUIMessageBox::coTUIMessageBox(QObject *parent, const std::string &n, int pID)
 
 coTUIMessageBox::~coTUIMessageBox()
 {
-}
-
-void coTUIMessageBox::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 //----------------------------------------------------------
@@ -4810,6 +3590,92 @@ void coTUIMap::resend(bool create)
     }
 }
 
+
+
+coTUIEarthMap::coTUIEarthMap(const char *n, int pID)
+    : coTUIElement(n, pID, TABLET_EARTHMAP)
+{
+}
+
+coTUIEarthMap::~coTUIEarthMap()
+{
+    
+}
+
+void coTUIEarthMap::parseMessage(TokenBuffer &tb)
+{
+    tb >> latitude;
+    tb >> longitude;
+    tb >> altitude;
+
+    if (listener)
+        listener->tabletEvent(this);
+}
+
+void coTUIEarthMap::setPosition(float lat, float longi, float alt)
+{
+    latitude = lat;
+    longitude = longi;
+    altitude = alt;
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_FLOAT;
+    tb << ID;
+    tb << latitude;
+    tb << longitude;
+    tb << altitude;
+    tui()->send(tb);
+}
+
+void coTUIEarthMap::addPathNode(float latitude, float longitude)
+{
+    path.push_back(pair<float, float>(latitude, longitude));
+}
+
+void coTUIEarthMap::updatePath()
+{
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_GEO_PATH;
+    tb << ID;
+    tb << (unsigned)path.size();
+    for (auto p = path.begin(); p != path.end(); p++)
+    {
+        tb << p->first;
+        tb << p->second;
+    }
+    tui()->send(tb);
+}
+void coTUIEarthMap::setMinMax(float minH, float maxH)
+{
+    minHeight = minH;
+    maxHeight = maxH;
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_MIN_MAX;
+    tb << ID;
+    tb << minHeight;
+    tb << maxHeight;
+    tui()->send(tb);
+}
+
+void coTUIEarthMap::resend(bool create)
+{
+    coTUIElement::resend(create);
+
+    TokenBuffer tb;
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_FLOAT;
+    tb << ID;
+    tb << latitude;
+    tb << longitude;
+    tb << altitude;
+    tui()->send(tb);
+    setMinMax(minHeight,maxHeight);
+    updatePath();
+}
+
 //----------------------------------------------------------
 //----------------------------------------------------------
 //##########################################################
@@ -5037,7 +3903,7 @@ coTUIListener *coTUIElement::getMenuListener()
 
 void coTUIElement::setVal(float value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5050,7 +3916,7 @@ void coTUIElement::setVal(float value)
 
 void coTUIElement::setVal(bool value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5063,7 +3929,7 @@ void coTUIElement::setVal(bool value)
 
 void coTUIElement::setVal(int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5076,7 +3942,7 @@ void coTUIElement::setVal(int value)
 
 void coTUIElement::setVal(const std::string &value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     //cerr << "coTUIElement::setVal info: " << (value ? value : "*NULL*") << endl;
@@ -5091,7 +3957,7 @@ void coTUIElement::setVal(const std::string &value)
 
 void coTUIElement::setVal(int type, int value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5104,7 +3970,7 @@ void coTUIElement::setVal(int type, int value)
 
 void coTUIElement::setVal(int type, float value)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5116,7 +3982,7 @@ void coTUIElement::setVal(int type, float value)
 }
 void coTUIElement::setVal(int type, int value, const std::string &nodePath)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
     TokenBuffer tb;
     tb << TABLET_SET_VALUE;
@@ -5128,7 +3994,7 @@ void coTUIElement::setVal(int type, int value, const std::string &nodePath)
 }
 void coTUIElement::setVal(int type, const std::string &nodePath, const std::string &simPath, const std::string &simName)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5143,7 +4009,7 @@ void coTUIElement::setVal(int type, const std::string &nodePath, const std::stri
 
 void coTUIElement::setVal(int type, int value, const std::string &nodePath, const std::string &parentPath)
 {
-    if (tui()->conn == NULL)
+    if (!tui()->isConnected())
         return;
 
     TokenBuffer tb;
@@ -5292,9 +4158,9 @@ coTabletUI::coTabletUI()
     init();
 
     std::string line;
-    if (getenv("COVER_TABLETPC"))
+    if (getenv("COVER_TABLETUI"))
     {
-        std::string env(getenv("COVER_TABLETPC"));
+        std::string env(getenv("COVER_TABLETUI"));
         std::string::size_type p = env.find(':');
         if (p != std::string::npos)
         {
@@ -5302,14 +4168,14 @@ coTabletUI::coTabletUI()
             env = env.substr(0, p);
         }
         line = env;
-        std::cerr << "getting TabletPC configuration from $COVER_TABLETPC: " << line << ":" << port << std::endl;
+        std::cerr << "getting TabletPC configuration from $COVER_TABLETUI: " << line << ":" << port << std::endl;
         serverMode = false;
     }
     else
     {
-        port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", port);
-        line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
-        serverMode = coCoviseConfig::isOn("COVER.TabletPC.ServerMode", false);
+        port = coCoviseConfig::getInt("port", "COVER.TabletUI", port);
+        line = coCoviseConfig::getEntry("host","COVER.TabletUI");
+        serverMode = coCoviseConfig::isOn("COVER.TabletUI.ServerMode", false);
     }
 
     if (!line.empty())
@@ -5342,15 +4208,32 @@ coTabletUI::coTabletUI(const std::string &host, int port)
 void coTabletUI::init()
 {
     debugTUIState = coCoviseConfig::isOn("COVER.DebugTUI", debugTUIState);
-    elements.setNoDelete();
 
     timeout = coCoviseConfig::getFloat("COVER.TabletPC.Timeout", timeout);
 }
 
+// resend all ui Elements to the TabletPC
+void coTabletUI::resendAll()
+{
+    for (auto el: elements)
+    {
+        el->resend(true);
+    }
+}
+
+bool coTabletUI::isConnected() const
+{
+    return connectedHost != nullptr;
+}
+
 void coTabletUI::close()
 {
+    connectedHost = NULL;
     delete conn;
     conn = NULL;
+
+    delete sgConn;
+    sgConn = NULL;
 
     delete serverConn;
     serverConn = NULL;
@@ -5387,8 +4270,11 @@ int coTabletUI::getID()
 
 void coTabletUI::send(TokenBuffer &tb)
 {
-    if (conn == NULL)
+    if (!connectedHost)
+    {
         return;
+    }
+    assert(conn);
     Message m(tb);
     m.type = COVISE_MESSAGE_TABLET_UI;
     conn->send_msg(&m);
@@ -5399,7 +4285,7 @@ bool coTabletUI::update()
     if (coVRMSController::instance() == NULL)
         return false;
 
-    if (conn)
+    if (connectedHost)
     {
     }
     else if (coVRMSController::instance()->isMaster() && serverMode)
@@ -5412,153 +4298,181 @@ bool coTabletUI::update()
     }
     else if ((coVRMSController::instance()->isMaster()) && (serverHost != NULL || localHost != NULL))
     {
-        lock();
-        connectedHost = NULL;
-        unlock();
-        // try to connect to server every 2 secnods
-        if ((cover->frameRealTime() - oldTime) > 2)
+        if (cover->frameRealTime() - oldTime > 2.)
         {
-            if (serverHost)
-            {
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
-                conn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
-                firstConnection = false;
-            }
-            if (conn && !conn->is_connected()) // could not open server port
-            {
-#ifndef _WIN32
-                if (errno != ECONNREFUSED)
-                {
-                    fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                            serverHost->getName(), port, strerror(errno));
-                }
-#else
-                fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
-                delete serverHost;
-                serverHost = NULL;
-#endif
-                delete conn;
-                conn = NULL;
-            }
-            else if (conn)
-            {
-                lock();
-                connectedHost = serverHost;
-                unlock();
-            }
+            oldTime = cover->frameRealTime();
 
-            if (!conn && localHost)
-            {
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
-                conn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
-                if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
-                    std::cerr << (conn->is_connected()?"success":"failed") << "." << std::endl;
-                firstConnection = false;
-                if (!conn->is_connected()) // could not open server port
-                {
-#ifndef _WIN32
-                    if (errno != ECONNREFUSED)
-                    {
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                                localHost->getName(), port, strerror(errno));
-                    }
-#else
-                    fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-#endif
-                    delete conn;
-                    conn = NULL;
-                }
-                else
-                {
-                    lock();
-                    connectedHost = localHost;
-                    unlock();
-                }
-            }
-
-            if (conn && conn->is_connected())
-            {
-                // create Texture and SGBrowser Connections
-                Message *msg = new covise::Message();
-                conn->recv_msg(msg);
-                if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-                {
-                    delete conn;
-                    conn = NULL;
-                }
-                else
-                {
-                    TokenBuffer tb(msg);
-                    int tPort;
-                    tb >> tPort;
-
-                    ClientConnection *cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
-                    if (!cconn->is_connected()) // could not open server port
-                    {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                    connectedHost->getName(), tPort, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
-#endif
-                        delete cconn;
-                        cconn = NULL;
-                    }
-                    textureConn = cconn;
-
-                    conn->recv_msg(msg);
-                    TokenBuffer stb(msg);
-
-                    stb >> tPort;
-
-                    cconn = new ClientConnection(connectedHost, tPort, 0, (sender_type)0, 2, 1);
-                    if (!cconn->is_connected()) // could not open server port
-                    {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC TexturePort %s; port %d: %s\n",
-                                    connectedHost->getName(), tPort, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), tPort);
-#endif
-                        delete cconn;
-                        cconn = NULL;
-                    }
-
-                    sgConn = cconn;
-                    // resend all ui Elements to the TabletPC
-                    coDLListIter<coTUIElement *> iter;
-                    iter = elements.first();
-                    while (iter)
-                    {
-                        iter->resend(true);
-                        iter++;
-                    }
-                }
-            }
-            else
             {
                 Message msg(Message::UI, "WANT_TABLETUI");
                 coVRPluginList::instance()->sendVisMessage(&msg);
             }
-            oldTime = cover->frameRealTime();
+
+            lock();
+            if (!connFuture.valid())
+            {
+                connectedHost = NULL;
+                connFuture = std::async(std::launch::async, [this]() -> covise::Host *
+                {
+                    ClientConnection *nconn = nullptr;
+                    Host *host = nullptr;
+                    if (serverHost)
+                    {
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << "Trying tablet UI connection to " << serverHost->getName() << ":" << port << "... " << std::flush;
+                        nconn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, timeout);
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
+                        firstConnection = false;
+                    }
+                    if (nconn && nconn->is_connected())
+                    {
+                        conn = nconn;
+                        host = serverHost;
+                    }
+                    else if (nconn) // could not open server port
+                    {
+#ifndef _WIN32
+                        if (errno != ECONNREFUSED)
+                        {
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                            serverHost->getName(), port, strerror(errno));
+                        }
+#else
+                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
+                        delete serverHost;
+                        serverHost = NULL;
+#endif
+                        delete nconn;
+                        nconn = NULL;
+                    }
+
+                    if (!conn && localHost)
+                    {
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << "Trying tablet UI connection to " << localHost->getName() << ":" << port << "... " << std::flush;
+                        nconn = new ClientConnection(localHost, port, 0, (sender_type)0, 0);
+                        if ((firstConnection && cover->debugLevel(1)) || cover->debugLevel(3))
+                        std::cerr << (nconn->is_connected()?"success":"failed") << "." << std::endl;
+                        firstConnection = false;
+
+                        if (nconn->is_connected())
+                        {
+                            conn = nconn;
+                            host = localHost;
+                        }
+                        else
+                        {
+                            // could not open server port
+                            delete nconn;
+                            nconn = NULL;
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
+                                localHost->getName(), port, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
+#endif
+                        }
+                    }
+
+
+                    if (!conn || !host)
+                    {
+                        return nullptr;
+                    }
+
+                    // create Texture and SGBrowser Connections
+                    Message *msg = new covise::Message();
+                    conn->recv_msg(msg);
+                    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
+                    {
+                        delete msg;
+
+                        delete conn;
+                        conn = NULL;
+
+                        delete sgConn;
+                        sgConn = NULL;
+
+                        return nullptr;
+                    }
+
+                    {
+                        TokenBuffer stb(msg);
+                        int sgPort = 0;
+                        stb >> sgPort;
+                        delete msg;
+
+                        ClientConnection *cconn = new ClientConnection(host, sgPort, 0, (sender_type)0, 2, 1);
+                        if (!cconn->is_connected()) // could not open server port
+                        {
+#ifndef _WIN32
+                            if (errno != ECONNREFUSED)
+                            {
+                                fprintf(stderr, "Could not connect to TabletPC SGBrowser %s; port %d: %s\n",
+                                        host->getName(), sgPort, strerror(errno));
+                            }
+#else
+                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", connectedHost->getName(), sgPort);
+#endif
+                            delete conn;
+                            conn = NULL;
+
+                            delete cconn;
+                            cconn = NULL;
+
+                            return nullptr;
+                        }
+                        sgConn = cconn;
+                    }
+
+                    return host;
+                });
+            }
+            unlock();
+        }
+
+        if (connFuture.valid())
+        {
+            lock();
+            auto status = connFuture.wait_for(std::chrono::seconds(0));
+            if (status == std::future_status::ready)
+            {
+                connectedHost = connFuture.get();
+
+                if (!connectedHost)
+                {
+                    delete conn;
+                    conn = NULL;
+
+                    delete sgConn;
+                    sgConn = NULL;
+                }
+                else
+                {
+                    assert(conn);
+                    assert(sgConn);
+
+                    // resend all ui Elements to the TabletPC
+                    resendAll();
+                }
+            }
+            unlock();
         }
     }
+
     if (serverConn && serverConn->check_for_input())
     {
         if (conn)
         {
+            connectedHost = nullptr;
             delete conn;
             conn = NULL;
+
+            delete sgConn;
+            sgConn = NULL;
         }
         conn = serverConn->spawn_connection();
         if (conn && conn->is_connected())
@@ -5569,14 +4483,8 @@ bool coTabletUI::update()
             char *hostName;
             tb >> hostName;
             serverHost = new Host(hostName);
-            // resend all ui Elements to the TabletPC
-            coDLListIter<coTUIElement *> iter;
-            iter = elements.first();
-            while (iter)
-            {
-                iter->resend(true);
-                iter++;
-            }
+
+            resendAll();
         }
     }
 
@@ -5635,8 +4543,12 @@ bool coTabletUI::update()
             case COVISE_MESSAGE_SOCKET_CLOSED:
             case COVISE_MESSAGE_CLOSE_SOCKET:
             {
+                connectedHost = nullptr;
                 delete conn;
                 conn = NULL;
+
+                delete sgConn;
+                sgConn = NULL;
             }
             break;
             case COVISE_MESSAGE_TABLET_UI:
@@ -5646,22 +4558,13 @@ bool coTabletUI::update()
                 tb >> ID;
                 if (ID >= 0)
                 {
-                    //coDLListSafeIter<coTUIElement*> iter;
-
-                    coDLListIter<coTUIElement *> iter;
-                    iter = elements.first();
-                    while (iter)
+                    for (auto el: elements)
                     {
-                        if (*iter)
+                        if (el && el->getID() == ID)
                         {
-
-                            if (iter->getID() == ID)
-                            {
-                                iter->parseMessage(tb);
-                                break;
-                            }
+                            el->parseMessage(tb);
+                            break;
                         }
-                        iter++;
                     }
                 }
             }
@@ -5680,19 +4583,22 @@ bool coTabletUI::update()
 
 void coTabletUI::addElement(coTUIElement *e)
 {
-    elements.append(e);
+    elements.push_back(e);
     newElements.push_back(e);
 }
 
 void coTabletUI::removeElement(coTUIElement *e)
 {
-    auto it = std::find(newElements.begin(), newElements.end(), e);
-    if (it != newElements.end())
-        newElements.erase(it);
-    coDLListIter<coTUIElement *> iter;
-    iter = elements.findElem(e);
-    if (iter)
-        iter.remove();
+    {
+        auto it = std::find(newElements.begin(), newElements.end(), e);
+        if (it != newElements.end())
+            newElements.erase(it);
+    }
+    {
+        auto it = std::find(elements.begin(), elements.end(), e);
+        if (it != elements.end())
+            elements.erase(it);
+    }
 }
 
 
@@ -5717,11 +4623,6 @@ coTUIGroupBox::coTUIGroupBox(QObject *parent, const std::string &n, int pID)
 coTUIGroupBox::~coTUIGroupBox()
 {
 
-}
-
-void coTUIGroupBox::resend(bool create)
-{
-    coTUIElement::resend(create);
 }
 
 void coTUIGroupBox::parseMessage(TokenBuffer &tb)

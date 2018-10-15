@@ -21,7 +21,6 @@
 
 #define USE_MATH_DEFINES
 #include <math.h>
-#include <QDir>
 #include <config/coConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
@@ -33,6 +32,7 @@
 #include <osg/LineWidth>
 #include <stdio.h>
 using namespace osg;
+#include <QDir>
 
 //Constructor of Wire
 Wire::Wire(float r, float len, float slength, float rlength, int ns, int nls, int WNum, float a, osg::Group *group)

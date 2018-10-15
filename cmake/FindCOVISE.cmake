@@ -5,6 +5,11 @@ if(POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
 endif()
 
+if(POLICY CMP0007)
+    # don't ignore empty list elements
+    cmake_policy(SET CMP0007 NEW)
+endif()
+
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
    if (WIN32)

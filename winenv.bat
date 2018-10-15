@@ -4,6 +4,7 @@ if defined COMMON_ACTIVE (
    goto END
 )
 
+set VCPKG_DEFAULT_TRIPLET=x64-windows
 if "%1" == "--help" (
    echo common.bat [ARCHSUFFIX]
    echo "ARCHSUFFIX: win32, win32opt, amdwin64, amdwin64opt, ia64win, vista (default), vistaopt, zackel, zackelopt, angus, angusopt, yoroo, yorooopt, berrenda, berrendaopt, tamarau, tamarauopt,zebu, zebuopt mingw, mingwopt"
@@ -176,7 +177,7 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     if "%VCPKG_ROOT%" NEQ "" (
         set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
-        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.5.6"
+        set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.6.2"
     )
 )
 
@@ -295,7 +296,7 @@ if not defined PYTHONHOME  (
    rem several different paths
    rem set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python"
    set "PYTHONPATH=%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\Python;%COVISEDIR%\PYTHON\bin;%COVISEDIR%\PYTHON\bin\vr-prepare;%COVISEDIR%\PYTHON\bin\vr-prepare\converters;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator;%COVISEDIR%\PYTHON\bin\vr-prepare\negotiator\import;%EXTERNLIBS%\pyqt\modules;%EXTERNLIBS%\sip\modules"
-   set "PATH=%PATH%;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%EXTERNLIBS%\Python\bin"
+   set "PATH=%EXTERNLIBS%\Python\bin;%EXTERNLIBS%\Python\DLLs;%EXTERNLIBS%\Python;%PATH%"
 )
 
 
@@ -318,7 +319,6 @@ set LOGNAME=covise
 set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
-if not defined VV_SHADER_PATH  set VV_SHADER_PATH=%COVISEDIR%\src\3rdparty\deskvox\virvo\shader
 if not defined COVISE_PATH (
    if "%COVISEDESTDIR%" EQU "%COVISEDIR%" (
        set "COVISE_PATH=%COVISEDIR%"

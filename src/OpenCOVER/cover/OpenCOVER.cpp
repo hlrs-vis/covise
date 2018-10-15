@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #endif
+#include <clocale>
 #include <util/unixcompat.h>
 
 #include <gpu/cudaglinterop.h>
@@ -184,6 +185,8 @@ OpenCOVER::OpenCOVER()
 {
     initCudaGlInterop();
 
+	// always parse floats with . as separator
+	setlocale(LC_NUMERIC, "C");
 #ifdef WIN32
     parentWindow = NULL;
 #else
@@ -267,15 +270,6 @@ bool OpenCOVER::run()
 
     if (init())
     {
-        if (!coVRConfig::instance()->continuousRendering())
-        {
-            if (dl >= 1)
-            {
-                fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
-            }
-            VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
-        }
-
         if (dl >= 2)
             fprintf(stderr, "OpenCOVER: Entering main loop\n\n");
 
@@ -301,6 +295,8 @@ bool OpenCOVER::init()
 {
     if (m_initialized)
         return true;
+
+    setlocale(LC_NUMERIC, "C");
 
     installSignalHandlers();
 
@@ -360,17 +356,19 @@ bool OpenCOVER::init()
         {
             std::cerr << "Optional Argument: " << optarg << std::endl;
 
-            const char *sepChar = ":";
-            char *sep = strstr(optarg, (const char *)sepChar);
-            vrbHost = new char[strlen(optarg) - strlen(sep) + 1];
-            char *tmpPort = new char[strlen(sep) + 1];
-            strncpy(vrbHost, optarg, strlen(optarg) - strlen(sep));
-            vrbHost[strlen(optarg) - strlen(sep)] = '\0';
-            sep++;
-            strncpy(tmpPort, sep, strlen(sep));
-            tmpPort[strlen(sep)] = '\0';
-            vrbPort = atoi(tmpPort);
-            delete[] tmpPort;
+            vrbHost = new char[strlen(optarg) + 1];
+            strcpy(vrbHost, optarg);
+            char *sep = strchr(vrbHost, ':');
+            if (sep)
+            {
+                *sep = '\0';
+                ++sep;
+                vrbPort = atoi(sep);
+            }
+            else
+            {
+                vrbPort = 0;
+            }
             break;
         }
         case 'h':
@@ -663,6 +661,9 @@ bool OpenCOVER::init()
 
     VRViewer::instance()->config();
 
+    hud->setText2("loading plugins");
+    hud->redraw();
+
     coVRPluginList::instance()->loadDefault(); // vive and other tracking system plugins have to be loaded before Input is initialized
 
     string welcomeMessage = coCoviseConfig::getEntry("value", "COVER.WelcomeMessage", "Welcome to OpenCOVER at HLRS");
@@ -702,10 +703,6 @@ bool OpenCOVER::init()
 
     coVRLighting::instance()->initMenu();
 
-    hud->setText2("loading plugin");
-
-    coVRPluginList::instance()->init();
-
     ARToolKit::instance()->config(); // setup Rendering Node
     VRSceneGraph::instance()->config();
 
@@ -737,6 +734,53 @@ bool OpenCOVER::init()
 
     coVRShaderList::instance()->init();
 
+    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
+    m_quitGroup->setText("");
+    m_quit = new ui::Action(m_quitGroup, "Quit");
+    m_quit->setShortcut("q");
+    m_quit->addShortcut("Q");
+    m_quit->setCallback([this](){
+#if 1
+        requestQuit();
+#else
+        auto qd = new QuitDialog;
+        qd->show();
+#endif
+    });
+    m_quit->setIcon("application-exit");
+    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    {
+        m_quit->setEnabled(false);
+        m_quit->setVisible(false);
+    }
+
+    cover->vruiView = new ui::VruiView;
+    cover->ui->addView(cover->vruiView);
+
+    auto tab = coVRTui::instance()->mainFolder;
+    cover->ui->addView(new ui::TabletView("mainTui", tab));
+    tabletUIs.push_back(coTabletUI::instance());
+    tabletTabs.push_back(tab);
+
+    auto mapeditorTui = new coTabletUI("localhost", 31803);
+    tab = new coTUITabFolder(mapeditorTui, "root");
+    cover->ui->addView(new ui::TabletView("mapeditor", tab));
+    tabletUIs.push_back(mapeditorTui);
+    tabletTabs.push_back(tab);
+    for (auto tui: tabletUIs)
+    {
+        tui->tryConnect();
+        tui->update();
+    }
+
+    hud->setText2("initialising plugins");
+    hud->redraw();
+
+    coVRPluginList::instance()->init();
+
+    hud->redraw();
+
+    double loadStart = cover->currentTime();
     //fprintf(stderr,"isMaster %d\n",coVRMSController::instance()->isMaster());
     if (coVRMSController::instance()->isMaster())
     {
@@ -767,41 +811,32 @@ bool OpenCOVER::init()
         for (int i = 0; i < num; i++)
             coVRMSController::instance()->loadFile(NULL);
     }
-    hud->hideLater();
+    double loadEnd = cover->currentTime();
+
+    coVRPluginList::instance()->init2();
+    double init2End = cover->currentTime();
+
+    if (!coVRConfig::instance()->continuousRendering())
+    {
+        if (cover->debugLevel(1))
+        {
+            fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
+        }
+        VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+    }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
-    
-    coVRPluginList::instance()->init2();
+    frame();
+    double frameEnd = cover->currentTime();
+    hud->hideLater();
 
-    cover->vruiView = new ui::VruiView;
-    cover->ui->addView(cover->vruiView);
-
-    cover->ui->addView(new ui::TabletView(coVRTui::instance()->mainFolder));
-    tabletUIs.push_back(coTabletUI::instance());
-
-    auto mapeditorTui = new coTabletUI("localhost", 31803);
-    cover->ui->addView(new ui::TabletView("mapeditor", mapeditorTui));
-    tabletUIs.push_back(mapeditorTui);
-
-    m_quitGroup = new ui::Group(cover->fileMenu, "QuitGroup");
-    m_quitGroup->setText("");
-    m_quit = new ui::Action(m_quitGroup, "Quit");
-    m_quit->setShortcut("q");
-    m_quit->addShortcut("Q");
-    m_quit->addShortcut("Esc");
-    m_quit->setCallback([this](){
-#if 1
-        requestQuit();
-#else
-        auto qd = new QuitDialog;
-        qd->show();
-#endif
-    });
-    m_quit->setIcon("application-exit");
-    if ((coVRConfig::instance()->numWindows() > 0) && coVRConfig::instance()->windows[0].embedded)
+    if (cover->debugLevel(1))
     {
-        m_quit->setEnabled(false);
-        m_quit->setVisible(false);
+        std::cerr << std::endl << "INIT TIMES:"
+                  << " load " << loadEnd-loadStart << "s"
+                  << ", init2 " << init2End-loadEnd << "s"
+                  << ", 1st frame " << frameEnd-init2End << "s"
+                  << std::endl;
     }
 
     m_initialized = true;
@@ -1333,4 +1368,26 @@ OpenCOVER::visPlugin() const
 {
 
     return m_visPlugin;
+}
+
+size_t OpenCOVER::numTuis() const
+{
+    return tabletUIs.size();
+}
+
+coTabletUI *OpenCOVER::tui(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletUIs.size())
+        return nullptr;
+    return tabletUIs[idx];
+}
+
+coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
+{
+    assert(tabletTabs.size() == tabletUIs.size());
+    if (idx >= tabletTabs.size())
+        return nullptr;
+
+    return tabletTabs[idx];
 }

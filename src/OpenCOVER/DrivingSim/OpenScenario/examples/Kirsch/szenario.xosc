@@ -3,7 +3,11 @@
 
   <FileHeader author="Andreas Biehn" date="2016-10-18T10:00:00" description="Beispielszenario fuer PEGASUS" revMajor="0" revMinor="11"/>
 
-  <ParameterDeclaration/>
+  <ParameterDeclaration>
+        <Parameter name="velo1" type="double" value="8.3" />
+        <Parameter name="distance" type="double" value="20.0" />
+        <Parameter name="name3" type="string" value="value3" />
+      </ParameterDeclaration>
 
   <Catalogs>
     <VehicleCatalog>
@@ -70,14 +74,15 @@
               <Speed>
                 <Dynamics rate="0.000000" shape="step"/>
                 <Target>
-                  <Absolute value="8.300000"/>
+                  <Absolute value="$velo1"/>
                 </Target>
               </Speed>
             </Longitudinal>
           </Action>
           <Action>
             <Position>
-              <Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="30.000000"/>
+              <!--><Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="30.000000"/><!-->
+              <Road t="-7.25" roadId="0_0_unnamed" s="30.000000"/>
             </Position>
           </Action>
         </Private>
@@ -94,7 +99,8 @@
           </Action>
           <Action>
             <Position>
-              <Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="130.000000"/>
+              <!--><Lane laneId="-4" offset="0.000000" roadId="0_0_unnamed" s="130.000000"/><!-->
+	      <World x="-133" y="-43.25" z="0.0"/>
             </Position>
           </Action>
         </Private>
@@ -112,6 +118,8 @@
           <Action>
             <Position>
               <Lane laneId="-3" offset="0.000000" roadId="0_0_unnamed" s="10.000000"/>
+	      <!--><World x="-253" y="-39.75" z="0.0"/><!-->
+              <!--><Lane t="-3.75" roadId="0_0_unnamed" s="10.000000"/><!-->
             </Position>
           </Action>
         </Private>
@@ -129,7 +137,7 @@
                 <Private>
                   <Routing>
                     <FollowTrajectory>
-                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory4"/>
+                      <CatalogReference catalogName="TrajectoryCatalog" entryName="MyLaneChangeTrajectory3"/>
                       <Longitudinal>
                         <None/>
                       </Longitudinal>
@@ -138,8 +146,7 @@
                   </Routing>
                 </Private>
               </Action>
-              <Conditions>
-                <Start>
+              <StartConditions>
                   <ConditionGroup>
                     <Condition delay="0.000000" edge="rising" name="">
                       <ByEntity>
@@ -147,22 +154,21 @@
                           <Entity name="Target2"/>
                         </TriggeringEntities>
                         <EntityCondition>
-                          <RelativeDistance entity="Ego" freespace="false" rule="equal-to" type="longitudinal" value="40.000000"/>
+                          <RelativeDistance entity="Ego" freespace="false" rule="equal-to" type="longitudinal" value="$distance"/>
                         </EntityCondition>
                       </ByEntity>
                     </Condition>
                   </ConditionGroup>
-                </Start>
-              </Conditions>
+              </StartConditions>
             </Event>
           </Maneuver>
-          <Maneuver name="break">
-            <Event name="MyLaneChangeEvent" priority="overwrite">
-              <Action name="MyLaneChangeAction">
+          <Maneuver name="BreakManeuver">
+            <Event name="BreakEvent" priority="overwrite">
+              <Action name="BreakAction">
                 <Private>
                   <Longitudinal>
                     <Speed>
-                      <Dynamics distance="0.000000" rate="0.000000" shape="step" time="0.000000"/>
+                      <Dynamics distance="0.000000" rate="0.000000" shape="linear" time="0.000000"/>
                       <Target>
                         <Absolute value="8.300000"/>
                       </Target>
@@ -170,8 +176,7 @@
                   </Longitudinal>
                 </Private>
               </Action>
-              <Conditions>
-                <Start>
+              <StartConditions>
                   <ConditionGroup>
                     <Condition delay="0.000000" edge="rising" name="">
                       <ByState>
@@ -179,8 +184,7 @@
                       </ByState>
                     </Condition>
                   </ConditionGroup>
-                </Start>
-              </Conditions>
+              </StartConditions>
             </Event>
           </Maneuver>
         </Sequence>
@@ -189,7 +193,7 @@
             <ConditionGroup>
               <Condition delay="0.000000" edge="rising" name="">
                 <ByValue>
-                  <SimulationTime rule="equal-to" value="5.000000"/>
+                  <SimulationTime rule="equal-to" value="2.000000"/>
                 </ByValue>
               </Condition>
             </ConditionGroup>
@@ -198,7 +202,7 @@
             <ConditionGroup>
               <Condition delay="0.000000" edge="rising" name="">
                 <ByValue>
-                  <SimulationTime rule="equal-to" value="20.000000"/>
+                  <SimulationTime rule="equal-to" value="40.000000"/>
                 </ByValue>
               </Condition>
             </ConditionGroup>
@@ -206,24 +210,14 @@
         </Conditions>
       </Act>
     </Story>  
-<!-->    <Start>
-      <ConditionGroup>
-       <Condition delay="0.000000" edge="rising" name="">
-         <ByValue>
-           <SimulationTime rule="equal-to" value="5.000000"/>
-         </ByValue>
-       </Condition>
-      </ConditionGroup>
-    </Start><!-->
-    <End>
+    <EndConditions>
       <ConditionGroup>
         <Condition delay="0.000000" edge="rising" name="">
           <ByValue>
-            <SimulationTime rule="equal-to" value="45.000000"/>
+            <SimulationTime rule="equal-to" value="999.000000"/>
           </ByValue>
         </Condition>
       </ConditionGroup>
-    </End>
+    </EndConditions>
   </Storyboard>
-
 </OpenSCENARIO>

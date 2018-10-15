@@ -33,6 +33,7 @@
 #include "Slider.h"
 #include "SelectionList.h"
 #include "EditField.h"
+#include "FileBrowser.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
@@ -397,7 +398,10 @@ void VruiView::updateState(const Button *button)
         return;
 
     if (auto cb = dynamic_cast<coCheckboxMenuItem *>(ve->m_menuItem))
-        cb->setState(button->state(), false);
+    {
+        if (cb->getState() != button->state())
+            cb->setState(button->state(), false);
+    }
     if (auto tb = dynamic_cast<coIconToggleButtonToolboxItem *>(ve->m_toolboxItem))
     {
         if (tb->getState() != button->state())
@@ -557,6 +561,15 @@ void VruiView::updateValue(const EditField *input)
     updateText(input);
 }
 
+void VruiView::updateValue(const FileBrowser *fb)
+{
+    updateText(fb);
+}
+
+void VruiView::updateFilter(const FileBrowser *fb)
+{
+}
+
 VruiViewElement *VruiView::elementFactoryImplementation(Label *label)
 {
     auto ve = new VruiViewElement(label);
@@ -658,6 +671,14 @@ VruiViewElement *VruiView::elementFactoryImplementation(EditField *input)
     return ve;
 }
 
+VruiViewElement *VruiView::elementFactoryImplementation(FileBrowser *fb)
+{
+    auto ve = new VruiViewElement(fb);
+    //ve->m_menuItem = new coLabelMenuItem(fb->text());
+    add(ve, fb);
+    return ve;
+}
+
 bool VruiView::useToolbar() const
 {
     return m_useToolbar;
@@ -744,7 +765,11 @@ VruiViewElement::VruiViewElement(Element *elem)
 VruiViewElement::~VruiViewElement()
 {
     if (m_menu)
+    {
         m_menu->closeMenu();
+        m_menu->setSubMenuItem(nullptr);
+    }
+
 
     if (auto tmi = dynamic_cast<coGenericSubMenuItem *>(m_toolboxItem))
     {

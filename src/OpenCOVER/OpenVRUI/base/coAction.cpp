@@ -17,15 +17,6 @@
 namespace vrui
 {
 
-coTouchAction::coTouchAction()
-{
-    actionName = "coTouchAction";
-}
-
-coTouchAction::~coTouchAction()
-{
-}
-
 coAction::coAction()
 {
     thisFrame = 0;
@@ -44,9 +35,6 @@ coAction::~coAction()
     // wenn nicht ist auch nicht schlimm
     // oh doch, wenn es sie garnicht gibt!
     vruiIntersection *inters = vruiIntersection::getIntersectorForAction("coAction");
-    if (inters)
-        inters->remove(this);
-    inters = vruiIntersection::getIntersectorForAction("coTouchAction");
     if (inters)
         inters->remove(this);
 

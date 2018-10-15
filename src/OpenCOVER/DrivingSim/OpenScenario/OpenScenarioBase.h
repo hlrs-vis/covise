@@ -43,7 +43,18 @@ XERCES_CPP_NAMESPACE_END
 namespace OpenScenario
 {
 
-class oscSourceFile;
+	class oscSourceFile;
+	class oscMemberValue;
+	class oscParameter;
+
+class OPENSCENARIOEXPORT parameterDescription
+{
+public:
+	parameterDescription(oscMemberValue *m=NULL, oscParameter *p=NULL);
+	~parameterDescription();
+	oscMemberValue *member;
+	oscParameter *parameter;
+};
 
 /// \class This class represents an OpenScenario database
 class OPENSCENARIOEXPORT OpenScenarioBase: public oscObjectBase
@@ -82,6 +93,9 @@ public:
     //
     void addToSrcFileVec(oscSourceFile *src);
     std::vector<oscSourceFile *> getSrcFileVec() const;
+	void addParameter(const std::string &paramName, oscMemberValue *);
+	void setParameterValue(const std::string & paramName, const std::string & value);
+	std::map<std::string, parameterDescription *> parameters;
 
     //
     void setValidation(const bool validate); ///< turn on/off validation

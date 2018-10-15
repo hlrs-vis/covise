@@ -123,7 +123,8 @@ TrackRoadItem::rebuildSections(bool fullRebuild)
             else if ((track->getTrackType() == TrackComponent::DTT_LINE)
                      || (track->getTrackType() == TrackComponent::DTT_ARC)
                      || (track->getTrackType() == TrackComponent::DTT_SPIRAL)
-                     || (track->getTrackType() == TrackComponent::DTT_POLY3))
+				     || (track->getTrackType() == TrackComponent::DTT_POLY3)
+				     || (track->getTrackType() == TrackComponent::DTT_CUBICCURVE))
             {
                 TrackElement *trackElement = dynamic_cast<TrackElement *>(track);
                 new TrackElementItem(this, trackElement);

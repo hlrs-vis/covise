@@ -60,8 +60,6 @@
 #include <osg/Point>
 
 #include <cover/coTabletUI.h>
-#include <QStringList>
-#include <QMap>
 
 using namespace opencover;
 using namespace vrui;

@@ -523,7 +523,13 @@ Vec3 coVRNavigationManager::getCenter() const
     if (bsphere.radius() == 0.f)
         bsphere.radius() = 1.f;
     osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
-    return originInWorld;
+
+    if (originInWorld.length() < 0.5f*cover->getSceneSize())
+    {
+        return originInWorld;
+    }
+
+    return osg::Vec3(0,0,0);
 }
 
 // process key events
@@ -1548,7 +1554,8 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
             selectInteractButton_->setState(true, updateGroup);
         break;
     default:
-        fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
+        if (navMode != NavOther)
+            fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
 

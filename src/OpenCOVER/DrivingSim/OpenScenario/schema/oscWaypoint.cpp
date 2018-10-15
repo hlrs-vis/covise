@@ -24,3 +24,10 @@ Enum_Route_strategyType *Enum_Route_strategyType::instance()
 	return inst;
 }
 Enum_Route_strategyType *Enum_Route_strategyType::inst = NULL;
+#include "oscPosition.h"
+oscWaypoint::oscWaypoint()
+{
+        OSC_ADD_MEMBER(strategy, 0);
+        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
+        strategy.enumType = Enum_Route_strategyType::instance();
+    };

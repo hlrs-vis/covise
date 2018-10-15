@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="icons" >
+    <file alias="cover.ico">../../../../../share/covise/icons/cover.ico</file>
+  </qresource>
+</RCC>

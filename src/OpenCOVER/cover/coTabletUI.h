@@ -28,6 +28,7 @@
 #include <queue>
 #include <map>
 #include <string>
+#include <future>
 //#ifndef WIN32
 //#include <stdint.h>
 //#define FILESYS_SEP "\\"
@@ -63,7 +64,6 @@ namespace opencover
 {
 class coTabletUI;
 class coTUIElement;
-class TextureThread;
 class SGTextureThread;
 class LocalData;
 class IData;
@@ -99,6 +99,7 @@ public:
     void tryConnect();
     void close();
     bool debugTUI();
+    bool isConnected() const;
 
     void lock()
     {
@@ -108,26 +109,28 @@ public:
     {
         connectionMutex.unlock();
     }
-    covise::Host *connectedHost;
+    covise::Host *connectedHost = nullptr;
 
     bool serverMode = false;
-    covise::Connection *conn = nullptr;
-    covise::Connection *textureConn = nullptr;
     covise::Connection *sgConn = nullptr;
 
 protected:
     void init();
-    covise::coDLPtrList<coTUIElement *> elements;
+    void resendAll();
+    std::vector<coTUIElement *> elements;
     std::vector<coTUIElement *> newElements;
     covise::ServerConnection *serverConn = nullptr;
     covise::Host *serverHost = nullptr;
     covise::Host *localHost = nullptr;
     int port = 31802;
     int ID = 3;
-    float timeout = 0.f;
+    float timeout = 1.f;
     bool debugTUIState = false;
     double oldTime = 0.0;
     bool firstConnection = true;
+
+    covise::Connection *conn = nullptr;
+    std::future<covise::Host *> connFuture;
 };
 
 
@@ -228,7 +231,6 @@ public:
     coTUIBitmapButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIBitmapButton(QObject *, const std::string &, int pID = 1);
     virtual ~coTUIBitmapButton();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -252,7 +254,6 @@ public:
     coTUIButton(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIButton(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIButton();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -660,166 +661,6 @@ public:
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 };
 
-class COVEREXPORT coTUITextureTab : public coTUIElement
-{
-private:
-public:
-    coTUITextureTab(const char *, int pID = 1);
-    virtual ~coTUITextureTab();
-    virtual void resend(bool create) override;
-    virtual void parseMessage(covise::TokenBuffer &tb) override;
-    virtual void parseTextureMessage(covise::TokenBuffer &tb);
-    virtual void setTexture(int height, int width, int depth, int dataLength, const char *data);
-    virtual void setTexture(int texNumber, int mode, int texGenMode);
-    virtual void setCurrentNode(osg::Node *node)
-    {
-        currentNode = node;
-    }
-    virtual void decTexturesToChange()
-    {
-        if (texturesToChange > 0)
-            --texturesToChange;
-    }
-    virtual void finishedTraversing();
-    virtual void sendTraversedTextures();
-    virtual void incTextureListCount();
-    virtual void sendTexture();
-    virtual void lock()
-    {
-        mutex.lock();
-    }
-    virtual void unlock()
-    {
-        mutex.unlock();
-    }
-
-    virtual int queueIsEmpty() const
-    {
-        return dataList.empty();
-    }
-    virtual int getHeight() const
-    {
-        return height;
-    }
-    virtual int getWidth() const
-    {
-        return width;
-    }
-    virtual int getDepth() const
-    {
-        return depth;
-    }
-    virtual int getDataLength() const
-    {
-        return dataLength;
-    }
-    virtual int getTextureNumber() const
-    {
-        return textureNumber;
-    }
-    virtual int getTextureMode() const
-    {
-        return textureMode;
-    }
-    virtual int getTextureTexGenMode() const
-    {
-        return textureTexGenMode;
-    }
-    virtual int getTexturesToChange() const
-    {
-        return texturesToChange;
-    }
-    virtual int hasAlpha() const
-    {
-        return alpha;
-    }
-    virtual unsigned char *getData()
-    {
-        return reinterpret_cast<unsigned char *>(data);
-    }
-    virtual covise::ClientConnection *getConnection()
-    {
-        return conn;
-    }
-    virtual osg::Node *getChangedNode()
-    {
-        return changedNode;
-    }
-
-    void send(covise::TokenBuffer &tb);
-    void tryConnect();
-    void close();
-    void parseTextureMessage();
-
-protected:
-    int texturesToChange;
-    int height;
-    int width;
-    int depth;
-    int dataLength;
-    char *data;
-    int textureNumber;
-    osg::Node *currentNode;
-    osg::Node *changedNode;
-    covise::ClientConnection *conn;
-
-    std::queue<int> heightList;
-    std::queue<int> widthList;
-    std::queue<int> depthList;
-    std::queue<int> lengthList;
-    std::queue<const char *> dataList;
-
-    int textureMode;
-    int textureTexGenMode;
-    int alpha;
-
-    covise::Host *serverHost;
-    covise::Host *localHost;
-    int texturePort;
-    float timeout;
-    TextureThread *thread;
-    OpenThreads::Mutex mutex;
-};
-
-class COVEREXPORT TextureThread : public OpenThreads::Thread
-{
-
-public:
-    TextureThread(coTUITextureTab *tab)
-        : OpenThreads::Thread()
-    {
-        this->tab = tab;
-        running = true;
-        textureListCount = 0;
-        sendedTextures = 0;
-    }
-    virtual void run();
-    void setType(int type)
-    {
-        this->type = type;
-    }
-    void terminateTextureThread()
-    {
-        running = false;
-    }
-    void incTextureListCount()
-    {
-        textureListCount++;
-    }
-    void traversingFinished()
-    {
-        finishedTraversing = true;
-    }
-    void msleep(int msec);
-
-private:
-    coTUITextureTab *tab;
-    int type;
-    int textureListCount;
-    int sendedTextures;
-    bool running;
-    bool finishedTraversing;
-};
 
 /**
  * a tab.
@@ -835,7 +676,6 @@ public:
     coTUITab(coTabletUI *tui, const std::string &, int pID);
     coTUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUITab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -860,7 +700,6 @@ public:
     coTUIUITab(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIUITab(QObject *parent, const std::string &, int pID);
     virtual ~coTUIUITab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
     bool loadUIFile(const std::string &filename);
@@ -891,7 +730,6 @@ public:
     coTUITabFolder(coTabletUI *tui, const std::string &, int pID = 1);
     coTUITabFolder(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUITabFolder();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 signals:
@@ -927,6 +765,7 @@ public:
     bool loadFile;
 
     coTUISGBrowserTab(const char *, int pID = 1);
+    coTUISGBrowserTab(coTabletUI *tui, const char *, int pID = 1);
     virtual ~coTUISGBrowserTab();
     virtual void resend(bool create) override;
 
@@ -1033,14 +872,6 @@ public:
     virtual void sendNoTextures();
     virtual void incTextureListCount();
     virtual void sendTexture();
-    virtual void lock()
-    {
-        mutex.lock();
-    }
-    virtual void unlock()
-    {
-        mutex.unlock();
-    }
     virtual void loadFilesFlag(bool state);
     virtual void hideSimNode(bool state, char *nodePath, char *parentPath);
     virtual void setSimPair(char *nodePath, char *simPath, char *simName);
@@ -1065,10 +896,7 @@ public:
     {
         return index;
     }
-    virtual int getDataLength() const
-    {
-        return dataLength;
-    }
+    virtual size_t getDataLength() const;
     virtual int getTextureNumber() const
     {
         return textureNumber;
@@ -1089,14 +917,8 @@ public:
     {
         return alpha;
     }
-    virtual char *getData()
-    {
-        return (data);
-    }
-    virtual covise::Connection *getConnection()
-    {
-        return conn;
-    }
+    virtual char *getData();
+    virtual covise::Connection *getConnection();
     virtual osg::Node *getChangedNode()
     {
         return changedNode;
@@ -1108,22 +930,29 @@ public:
 
     void send(covise::TokenBuffer &tb);
     void tryConnect();
-    void close();
     void parseTextureMessage();
 
 protected:
+    virtual void lock()
+    {
+        mutex.lock();
+    }
+    virtual void unlock()
+    {
+        mutex.unlock();
+    }
     int texturesToChange = 0;
     int height = 0;
     int width = 0;
     int depth = 0;
-    int dataLength = 0;
-    char *data = nullptr;
+    std::vector<char> data;
     int textureNumber;
 
     int index;
 
     osg::Node *changedNode = nullptr;
-    covise::Connection *conn = nullptr;
+    //covise::Connection *conn = nullptr;
+    covise::ServerConnection *sConn = nullptr;
 
     std::queue<int> _heightList;
     std::queue<int> _widthList;
@@ -1139,7 +968,6 @@ protected:
     covise::Host *serverHost = nullptr;
     covise::Host *localHost = nullptr;
     int texturePort;
-    float timeout;
     SGTextureThread *thread = nullptr;
     OpenThreads::Mutex mutex;
 
@@ -1148,62 +976,12 @@ protected:
     std::string changedPath;
 };
 
-class COVEREXPORT SGTextureThread : public OpenThreads::Thread
-{
-
-public:
-    SGTextureThread(coTUISGBrowserTab *tab)
-        : OpenThreads::Thread()
-    {
-        this->tab = tab;
-        running = true;
-        textureListCount = 0;
-        sendedTextures = 0;
-    }
-    virtual void run();
-    void setType(int type)
-    {
-        this->type = type;
-    }
-    void terminateTextureThread()
-    {
-        running = false;
-    }
-    void incTextureListCount()
-    {
-        textureListCount++;
-    }
-    void traversingFinished(bool state)
-    {
-        finishedTraversing = state;
-    }
-    void nodeFinished(bool state)
-    {
-        finishedNode = state;
-    }
-    void noTexturesFound(bool state)
-    {
-        noTextures = state;
-    }
-    void msleep(int msec);
-
-private:
-    coTUISGBrowserTab *tab;
-    int type;
-    int textureListCount;
-    int sendedTextures;
-    bool running;
-    bool finishedTraversing;
-    bool finishedNode;
-    bool noTextures;
-};
 
 class COVEREXPORT coTUIAnnotationTab : public coTUIElement
 {
 public:
     coTUIAnnotationTab(const char *, int pID = 1);
     virtual ~coTUIAnnotationTab();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
     void setNewButtonState(bool state);
@@ -1221,7 +999,6 @@ private:
 public:
     coTUINav(const char *, int pID = 1);
     virtual ~coTUINav();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
     bool down;
     int x;
@@ -1359,7 +1136,6 @@ public:
     coTUIGroupBox(coTabletUI *tui, const std::string &, int pID = 1);
     coTUIGroupBox(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIGroupBox();
-    virtual void resend(bool create) override;
     virtual void parseMessage(covise::TokenBuffer &tb) override;
 
 public slots:
@@ -1445,7 +1221,6 @@ public:
     coTUIMessageBox(const std::string &, int pID = 1);
     coTUIMessageBox(QObject *parent, const std::string &, int pID = 1);
     virtual ~coTUIMessageBox();
-    virtual void resend(bool create) override;
 
 protected:
 };
@@ -1998,6 +1773,34 @@ public:
 protected:
     covise::coDLList<MapData *> maps;
     covise::coDLListIter<MapData *> iter;
+};
+/**
+* an earth Map Widget
+*/
+class COVEREXPORT coTUIEarthMap : public coTUIElement
+{
+private:
+public:
+    coTUIEarthMap(const char *, int pID = 1);
+    virtual ~coTUIEarthMap();
+    virtual void setPosition(float latitude, float longitude, float altitude);
+    virtual void resend(bool create) override;
+    virtual void parseMessage(covise::TokenBuffer &tb) override;
+    
+
+    float latitude;
+    float longitude;
+    float altitude;
+    float minHeight;
+    float maxHeight;
+
+    void addPathNode(float latitude, float longitude);
+    std::list<std::pair<float, float>> path;
+    void updatePath();
+    void setMinMax(float minH, float maxH);
+
+
+protected:
 };
 /**
  * PopUp Window with text

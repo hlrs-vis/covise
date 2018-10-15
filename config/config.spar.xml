@@ -198,9 +198,6 @@
    <Vrml97>
      <MaybeGC value="ON" />
   
-
-     <!-- nicht ausschalten, sonst funktionieren die shader nicht die Binormalen brauchen GenerateTriangleStrips value="false" /-->
-
      <Audio value="AServer" >
 	 <!--Host value="192.168.0.10" /-->
      </Audio>
@@ -256,14 +253,6 @@
    <MultiProcess value="OFF" />
    <MultiThreaded value="OFF" />
 
-  <TabletPC>
-   <!--Server value="192.168.5.100" /-->
-   <!--Server value="192.168.0.2" /-->
-   <!--Server value="192.168.1.58" /-->
-   <!--Server value="localhost" /-->
-  </TabletPC>
-  
-    
 
     </COVER>
 

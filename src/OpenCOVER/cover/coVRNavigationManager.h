@@ -61,6 +61,7 @@ class COVEREXPORT coVRNavigationManager: public ui::Owner
 public:
     enum NavMode
     {
+        NavOther=-1,
         NavNone,
         XForm,
         Scale,
@@ -74,7 +75,8 @@ public:
         Menu,
         Measure,
         Select,
-        SelectInteract
+        SelectInteract,
+        NumNavModes // keep last
     };
 
     float AnalogX, AnalogY;
@@ -246,7 +248,7 @@ private:
 
     osg::Matrix invBaseMatrix;
     osg::Matrix oldInvBaseMatrix;
-	osg::Node *oldFloorNode;
+    osg::Node *oldFloorNode = nullptr;
 	osg::Matrix oldFloorMatrix;
 	osg::NodePath oldNodePath;
 

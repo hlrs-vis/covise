@@ -13,7 +13,7 @@ cmake_minimum_required (VERSION 2.6)
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
-find_package(COVISE)
+#find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
 #INCLUDE(Qt4-5)
@@ -35,6 +35,8 @@ using(OpenScenario)
 USING(OpenCRG)
 using(EIGEN)
 
+PROJECT(oddlot C CXX)
+
 #INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
 #INCLUDE_DIRECTORIES(${TIFF_INCLUDE_DIR})
@@ -44,7 +46,7 @@ using(EIGEN)
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
 
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
-ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
+ADD_DEFINITIONS( -DUSE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
 
@@ -60,7 +62,9 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/track/trackelement.cpp
 	 src/data/roadsystem/track/trackcomposite.cpp
 	 src/data/roadsystem/track/trackelementline.cpp
-	 src/gui/projectwidget.cpp
+         src/gui/projectwidget.cpp
+         src/gui/filesettings.cpp
+
      src/gui/osmimport.cpp
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
@@ -486,6 +490,11 @@ SET(ODDLOT_MOC_HEADERS
     src/gui/osmimport.hpp
     src/gui/projectionsettings.hpp
     src/gui/projectwidget.hpp
+
+
+    src/gui/filesettings.hpp
+
+
     src/gui/tools/crossfalleditortool.hpp
     src/gui/tools/elevationeditortool.hpp
     src/gui/tools/junctioneditortool.hpp
@@ -586,6 +595,10 @@ SET(ODDLOT_FORMS
      src/gui/importsettings.ui
      src/gui/exportsettings.ui
      src/gui/projectionsettings.ui
+
+         src/cover/coverconnection.ui
+         src/gui/filesettings.ui
+
 	 src/gui/lodsettings.ui
 	 src/gui/tools/TrackRibbon.ui
 	 src/gui/tools/TypeRibbon.ui

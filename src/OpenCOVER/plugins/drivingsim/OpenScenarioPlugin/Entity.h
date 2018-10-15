@@ -9,63 +9,62 @@
 class Spline;
 class ReferencePosition;
 class Action;
-class Maneuver;
+class Event;
+namespace OpenScenario
+{
+	class oscObject;
+	class oscVehicle;
+}
+class Trajectory;
 class Entity {
 
 public:
     std::string name;
-    std::string catalogReferenceName;
-    std::string filepath;
     float speed;
-    std::string roadId;
-    int laneId;
-    float inits;
-    AgentVehicle *entityGeometry;
+    AgentVehicle *agentVehicle;
     osg::Vec3 entityPosition;
     osg::Vec3 directionVector;
-    int actionCounter;
-
+    Trajectory *trajectory;
 
     ReferencePosition* refPos;
+    ReferencePosition* lastRefPos;
     ReferencePosition* newRefPos;
-    //void updateRefPos();
+    Entity* refObject;
 
-    Entity(std::string entityName, std::string catalogReferenceName);
+    Entity(OpenScenario::oscObject *object);
     ~Entity();
-    void setInitEntityPosition(osg::Vec3 init);
-    void setInitEntityPosition(Road *r);
     void setInitEntityPosition(ReferencePosition* init_refPos);
     void moveLongitudinal();
     std::string &getName();
     void setSpeed(float speed_temp);
-    void longitudinalSpeedAction(Maneuver *maneuver, double init_targetSpeed, int shape);
-    void resetActionAttributes();
+    void longitudinalSpeedAction(Event *event, double init_targetSpeed, int shape);
 
     float &getSpeed();
     osg::Vec3 getPosition();
-    void setPosition(osg::Vec3 &newPosition);
     void setDirection(osg::Vec3 &newDirection);
 
     // follow Trajectory attributes
-    osg::Vec3 targetPosition;
-    osg::Vec3 totaldirectionVector;
-    osg::Vec3 newPosition;
-    osg::Vec3 referencePosition;
 
-    int visitedVertices;
-    float totalDistance;
-    float totaldirectionVectorLength;
+    int currentVertex;
+    float distanceTraveledFromLastVertex;
+    float segmentLength;
 
     // follow Trajectories functions
-    void setTrajectoryDirection();
+    void startFollowTrajectory(Trajectory *t);
     void setTrajSpeed(float deltat);
-    void followTrajectoryOnRoad(Maneuver *maneuver, int verticesCounter);
-    void setTrajectoryDirectionOnRoad();
+    void followTrajectory(Event *event);
+    void setTrajectoryDirection();
 
     //Longitudinal attributes
     float dt;
     float old_speed;
     float acceleration;
+	OpenScenario::oscVehicle *getVehicle() { return vehicle; };
+
+private:
+
+	OpenScenario::oscVehicle * vehicle;
+	OpenScenario::oscObject *object;
 
 
 

@@ -210,7 +210,7 @@ fn setToWhite matNr =
 )
 -- matMerge
 -- Utility to merge (standard) material
-utility matMerge "Merge Materials"
+utility AAmatMerge "AAMerge Materials"
 (
 	local i
 	

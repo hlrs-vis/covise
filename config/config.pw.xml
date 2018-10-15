@@ -167,7 +167,6 @@
     <ViewpointType value = "free"/>
 
     <NewMovieSupport value="true"/>
-    <UseTextureRectangle value="true"/>
 
 
     </Vrml97>
@@ -183,13 +182,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <Server value="localhost" />
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <!--Server value="141.58.8.187" /-->
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+   <TabletUI host="localhost" />
 
    <MultiPC>
     <SyncMode value="TCP" />
@@ -433,7 +426,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="ON" value="ON" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->

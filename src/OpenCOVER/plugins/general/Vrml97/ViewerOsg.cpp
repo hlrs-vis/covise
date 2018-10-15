@@ -1,3 +1,4 @@
+#include "ViewerOsg.h"
 /* This file is part of COVISE.
 
    You can use it under the terms of the GNU Lesser General Public License
@@ -36,6 +37,7 @@ static const int NUM_TEXUNITS = 4;
 #include <vrml97/vrml/VrmlNodeNavigationInfo.h>
 #include <vrml97/vrml/VrmlNode.h>
 #include <vrml97/vrml/VrmlNodeLight.h>
+#include <vrml97/vrml/VrmlNodeMovieTexture.h>
 #include <vrml97/vrml/Player.h>
 
 #include <cover/coTabletUI.h>
@@ -52,7 +54,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osg/TexEnv>
 #include <osg/Texture>
 #include <osg/TextureCubeMap>
-#include <osg/TextureRectangle>
 #include <osg/Texture2D>
 #include <osg/Texture3D>
 #include <osg/Geode>
@@ -76,7 +77,6 @@ static const int NUM_TEXUNITS = 4;
 #include <osgDB/Registry>
 
 #include <osgUtil/Tessellator>
-#include <osgUtil/TriStripVisitor>
 #include <osg/KdTree>
 #include <osgUtil/TangentSpaceGenerator>
 
@@ -536,7 +536,6 @@ int Blended = 0;
 int AlphaTest = 0;
 static int Crease = 0;
 static bool backFaceCulling = true;
-static bool genStrips = false;
 static bool reTesselate = true;
 static bool countTextures = true;
 static int texSize = 0;
@@ -669,7 +668,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     d_selectMode = false;
     UseFieldOfViewForScaling = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseFieldOfViewForScaling", false);
-    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold",10000);
+    SubdivideThreshold=coCoviseConfig::getInt("COVER.Plugin.Vrml97.SubdivideThreshold", 10000);
 
     currentTransform.makeIdentity();
 
@@ -902,8 +901,6 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
 
     Crease = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Crease", true);
     enableLights = coCoviseConfig::isOn("COVER.Plugin.Vrml97.Lights", true);
-    genStrips = coCoviseConfig::isOn("COVER.GenStrips", genStrips);
-    genStrips = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GenerateTriangleStrips", genStrips);
     reTesselate = coCoviseConfig::isOn("COVER.Plugin.Vrml97.ReTesselate", false);
     countTextures = coCoviseConfig::isOn("counter", "COVER.Plugin.Vrml97.Texture", true);
     countGeometry = coCoviseConfig::isOn("COVER.Plugin.Vrml97.GeometryCounter", true);
@@ -1473,8 +1470,7 @@ Viewer::Object ViewerOsg::insertLineSet(int npoints,
         Geode *geode = new Geode();
 
         Geometry *geom = new Geometry();
-        geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-        geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+        cover->setRenderStrategy(geom);
         geode->addDrawable(geom);
         StateSet *geoState = geode->getOrCreateStateSet();
         geoState->setNestRenderBins(false);
@@ -1578,8 +1574,7 @@ Viewer::Object ViewerOsg::insertPointSet(int npoints,
     Geode *geode = new Geode();
 
     Geometry *geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
     geode->addDrawable(geom);
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -1868,6 +1863,25 @@ ViewerOsg::insertShell(unsigned int mask,
         // save old Mask if object already exists
         nodeMask = d_currentObject->pNode->getNodeMask();
 
+        if (auto geode = d_currentObject->pNode->asGeode())
+        {
+            for (unsigned i=0; i<geode->getNumDrawables(); ++i)
+            {
+                if (auto geom = geode->getDrawable(i)->asGeometry())
+                {
+                    auto vert = geom->getVertexArray();
+                    if (vert)
+                        numVert -= vert->getNumElements();
+                    for (unsigned j=0; j<geom->getNumPrimitiveSets(); ++j)
+                    {
+                        auto prim = geom->getPrimitiveSet(j);
+                        if (prim)
+                            numPoly -= prim->getNumPrimitives();
+                    }
+                }
+            }
+        }
+
         while (d_currentObject->pNode->getNumParents())
         {
             Group *parentNode = d_currentObject->pNode->getParent(0);
@@ -1883,8 +1897,7 @@ ViewerOsg::insertShell(unsigned int mask,
     //geode->setName(objName);
 
     ref_ptr<Geometry> geom = new Geometry();
-    geom->setUseDisplayList(coVRConfig::instance()->useDisplayLists());
-    geom->setUseVertexBufferObjects(coVRConfig::instance()->useVBOs());
+    cover->setRenderStrategy(geom);
 
     StateSet *geoState = geode->getOrCreateStateSet();
     setDefaultMaterial(geoState);
@@ -1898,8 +1911,79 @@ ViewerOsg::insertShell(unsigned int mask,
 
     geode->setStateSet(geoState);
 
+    bool indexed = true, tris = true, quads = true;
+    std::vector<int *> indices;
+    int numInd = 0;
+    if (nni > 0)
+    {
+        numInd = nni;
+        indices.push_back(ni);
+    }
+    if (nci > 0)
+    {
+        if (numInd == 0)
+            numInd = nci;
+        else if (numInd != nci)
+            indexed = false;
+        indices.push_back(ci);
+    }
+    for (int i=0; i<numTextures; ++i)
+    {
+        if (ntci[i] > 0)
+        {
+            if (numInd == 0)
+                numInd = ntci[i];
+            else if (numInd != ntci[i])
+                indexed = false;
+            indices.push_back(tci[i]);
+        }
+    }
+    int nverts = 0;
+    int n = 0;
+    int numFaces = 0;
+    for (int i=0; i<nfaces; ++i)
+    {
+        if (faces[i] == -1 && nverts > 0)
+        {
+            ++numFaces;
+            if (nverts != 3)
+                tris = false;
+            if (nverts != 4)
+                quads = false;
+            nverts = 0;
+        }
+        else
+        {
+            if (indexed)
+            {
+                int idx = faces[i];
+                for (auto i: indices)
+                {
+                    if (i[n] != idx)
+                    {
+                        indexed = false;
+                        break;
+                    }
+                }
+            }
+
+            ++nverts;
+            ++n;
+        }
+
+        if (!indexed && !tris && !quads)
+            break;
+    }
+
     // set up geometry
-    DrawArrayLengths *primitives = new DrawArrayLengths(PrimitiveSet::POLYGON);
+    DrawArrayLengths *polygons = nullptr;
+    DrawArrays *primitives = nullptr;
+    if (tris)
+        primitives = new DrawArrays(PrimitiveSet::TRIANGLES, 0, numFaces*3);
+    else if (quads)
+        primitives = new DrawArrays(PrimitiveSet::QUADS, 0, numFaces*4);
+    else
+        polygons = new DrawArrayLengths(PrimitiveSet::POLYGON);
     Vec3Array *vert = new Vec3Array;
     int polyStart = 0;
     if (mask & MASK_CCW)
@@ -1914,7 +1998,8 @@ ViewerOsg::insertShell(unsigned int mask,
             }
             else
             {
-                primitives->push_back(i - polyStart);
+                if (polygons)
+                    polygons->push_back(i - polyStart);
                 polyStart = i + 1;
                 numPoly++;
             }
@@ -1932,7 +2017,8 @@ ViewerOsg::insertShell(unsigned int mask,
                 i++;
             }
             polyEnd = i;
-            primitives->push_back(i - polyStart);
+            if (polygons)
+                polygons->push_back(i - polyStart);
             numPoly++;
             while (i > polyStart)
             {
@@ -1945,7 +2031,10 @@ ViewerOsg::insertShell(unsigned int mask,
         }
     }
     geom->setVertexArray(vert);
-    geom->addPrimitiveSet(primitives);
+    if (polygons)
+        geom->addPrimitiveSet(polygons);
+    else
+        geom->addPrimitiveSet(primitives);
 
     // associate colors
     if (ci && nci>1)
@@ -2103,7 +2192,8 @@ ViewerOsg::insertShell(unsigned int mask,
 
         if (ntcoords > 0)
         {
-            Vec2Array *tcArray = new Vec2Array(ntci[unit]);
+            Vec2Array *tcArray = new Vec2Array();
+			tcArray->reserve(ntci[unit]);
             int j = 0;
             if (mask & MASK_CCW)
             {
@@ -2111,7 +2201,7 @@ ViewerOsg::insertShell(unsigned int mask,
                 {
                     if (faces[i] != -1)
                     {
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+                        tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                 }
@@ -2130,7 +2220,7 @@ ViewerOsg::insertShell(unsigned int mask,
                     while (i > startPoly)
                     {
                         i--;
-                        (*tcArray)[j].set(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]);
+						tcArray->push_back(Vec2(tc[unit][tci[unit][i] * 2], tc[unit][tci[unit][i] * 2 + 1]));
                         j++;
                     }
                     i = endPoly + 1;
@@ -2156,25 +2246,19 @@ ViewerOsg::insertShell(unsigned int mask,
         if(((unsigned int)nfaces > SubdivideThreshold) && !((d_currentObject->pNode.get() && (mask & MASK_CONVEX) && !strncmp(objName, "Animated", 8))))
         {
             splitGeometry(geode,SubdivideThreshold);
+            if (cover->debugLevel(2))
+                cerr << "-" << nfaces  << "/" << geode->getNumDrawables() << ":";
         }
-        // if enabled, generate tri strips, but not for animated objects
-        if (genStrips)
+        if (cover->debugLevel(1))
         {
-            for(unsigned int i=0;i<geode->getNumDrawables();i++)
-            {
-                osg::Geometry *geo = dynamic_cast<osg::Geometry *>(geode->getDrawable(i));
-                /* XXX: this crashes  uwe: give it another try. (when does it crash? could we fix that?)*/
-                osgUtil::TriStripVisitor tsv;
-                tsv.stripify(*geo);
-            }
-
-            if (cover->debugLevel(3))
-                cerr << objName << " ";
-            if (cover->debugLevel(1))
-                cerr << "TS";
-        }
-        else if (cover->debugLevel(1))
             cerr << "P";
+            if (tris)
+                cerr << "t";
+            if (quads)
+                cerr << "q";
+            if (indexed)
+                cerr << "i";
+        }
     }
     else
     {
@@ -2214,6 +2298,7 @@ ViewerOsg::insertShell(unsigned int mask,
 
     return (Object)d_currentObject;
 }
+
 void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
 {
     bool didSplit=true;
@@ -2222,8 +2307,8 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
     {
         didSplit = false;
         numLevels++;
-        std::list<osg::Geometry *> newDrawables;
-        std::list<osg::Drawable *> oldDrawables;
+        std::vector<osg::ref_ptr<osg::Geometry>> newDrawables;
+        std::vector<osg::Drawable *> oldDrawables;
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Drawable *d = geode->getDrawable(i);
@@ -2231,10 +2316,10 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
             if(geom!=NULL)
             {
                 osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
-                osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
-                if(polygons!=NULL)
+                ps->getNumPrimitives();
+                if(ps!=NULL)
                 {
-                    if(polygons->getNumPrimitives()>threshold)
+                    if(ps->getNumPrimitives()>threshold)
                     {
                         didSplit=true;
                         osg::Geometry *geometries[2];
@@ -2252,27 +2337,29 @@ void ViewerOsg::splitGeometry(osg::Geode *geode, unsigned int threshold)
             }
         }
         
-        for(std::list<osg::Drawable *>::iterator it = oldDrawables.begin(); it != oldDrawables.end();it++)
+        for(auto it = oldDrawables.begin(); it != oldDrawables.end();it++)
         {
             geode->removeDrawable(*it);
         }
-        for(std::list<osg::Geometry *>::iterator it = newDrawables.begin(); it != newDrawables.end();it++)
+        for(auto it = newDrawables.begin(); it != newDrawables.end();it++)
         {
             geode->addDrawable(*it);
         }
         newDrawables.clear();
     }
 }
+
 void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geom)
 {
     osg::PrimitiveSet *ps = geom->getPrimitiveSet(0);
     osg::DrawArrayLengths *polygons = dynamic_cast<osg::DrawArrayLengths *>(ps);
+    osg::DrawArrays *drawarray = dynamic_cast<osg::DrawArrays *>(ps);
 
     Vec3Array *vertexArray = dynamic_cast<Vec3Array *>(geom->getVertexArray());
     Vec3Array *normalArray = dynamic_cast<Vec3Array *>(geom->getNormalArray());
     Vec4Array *colorArray = dynamic_cast<Vec4Array *>(geom->getColorArray());
     int numTexCoords = geom->getNumTexCoordArrays();
-    Vec2Array **tcArray =new Vec2Array *[numTexCoords];
+    Vec2Array **tcArray = new Vec2Array *[numTexCoords];
     for(int i=0;i<numTexCoords;i++)
     {
         tcArray[i] = dynamic_cast<Vec2Array *>(geom->getTexCoordArray(i));
@@ -2303,16 +2390,28 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         splitAt = zm;
     }
 
-    if(polygons!=NULL)
+    osg::DrawArrayLengths *polygonsMin = nullptr, *polygonsMax = nullptr;
+    osg::DrawArrays *primitivesMin = nullptr, *primitivesMax = nullptr;
+    if(polygons || drawarray)
     {
         // count new num vertices and polygons
         int nv=0;
         int np=0;
-        int vertNum=0;
-        int v;
-        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        int vpf = 1;
+        if (drawarray)
         {
-            v = (*polygons)[i];
+            if (drawarray->getMode() == osg::PrimitiveSet::TRIANGLES)
+                vpf = 3;
+            if (drawarray->getMode() == osg::PrimitiveSet::QUADS)
+                vpf = 4;
+        }
+
+        //std::cerr << "S" << vpf;
+
+        int vertNum = drawarray ? drawarray->getFirst() : 0;
+        for(unsigned int i=0;i<ps->getNumPrimitives();i++)
+        {
+            int v = polygons ? (*polygons)[i] : vpf;
             if((*vertexArray)[vertNum][index] < splitAt)
             {
                 nv +=v;
@@ -2321,10 +2420,18 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             vertNum += v;
         }
 
-        osg::DrawArrayLengths *polygonsMin = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
-        osg::DrawArrayLengths *polygonsMax = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
-        polygonsMin->reserve(np);
-        polygonsMax->reserve(polygons->getNumPrimitives() - np);
+        if (polygons)
+        {
+            polygonsMin = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+            polygonsMax = new osg::DrawArrayLengths(PrimitiveSet::POLYGON);
+            polygonsMin->reserve(np);
+            polygonsMax->reserve(polygons->getNumPrimitives() - np);
+        }
+        else if (drawarray)
+        {
+            primitivesMin = new osg::DrawArrays(drawarray->getMode(), 0, nv);
+            primitivesMax = new osg::DrawArrays(drawarray->getMode(), 0, drawarray->getCount()-nv);
+        }
 
         Vec3Array *vertexArrayMin = new Vec3Array();
         Vec3Array *vertexArrayMax = new Vec3Array();
@@ -2362,13 +2469,14 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             tcArrayMax[i]->reserve(tcArray[i]->getNumElements() - nv);
         }
         nv=0;
-        vertNum=0;
-        for(unsigned int i=0;i<polygons->getNumPrimitives();i++)
+        vertNum = drawarray ? drawarray->getFirst() : 0;
+        for(unsigned int i=0;i<ps->getNumPrimitives();i++)
         {
-            v = (*polygons)[i];
+            int v = polygons ? (*polygons)[i] : vpf;
             if((*vertexArray)[vertNum][index] < splitAt)
             {
-                polygonsMin->push_back(v);
+                if (polygonsMin)
+                    polygonsMin->push_back(v);
                 for(int n=0;n<v;n++)
                 {
                     vertexArrayMin->push_back((*vertexArray)[nv]);
@@ -2390,7 +2498,8 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
             }
             else
             {
-                polygonsMax->push_back(v);
+                if (polygonsMax)
+                    polygonsMax->push_back(v);
                 for(int n=0;n<v;n++)
                 {
                     vertexArrayMax->push_back((*vertexArray)[nv]);
@@ -2416,8 +2525,16 @@ void ViewerOsg::splitDrawable(osg::Geometry *(&geometries)[2],osg::Geometry *geo
         geometries[1] = new osg::Geometry;
         geometries[0]->setStateSet(geom->getStateSet());
         geometries[1]->setStateSet(geom->getStateSet());
-        geometries[0]->addPrimitiveSet(polygonsMin);
-        geometries[1]->addPrimitiveSet(polygonsMax);
+        if (polygons)
+        {
+            geometries[0]->addPrimitiveSet(polygonsMin);
+            geometries[1]->addPrimitiveSet(polygonsMax);
+        }
+        else
+        {
+            geometries[0]->addPrimitiveSet(primitivesMin);
+            geometries[1]->addPrimitiveSet(primitivesMax);
+        }
         geometries[0]->setVertexArray(vertexArrayMin);
         geometries[1]->setVertexArray(vertexArrayMax);
         if(normalArrayMin!=NULL)
@@ -3222,6 +3339,8 @@ struct coMirrorCullCallback : public osg::Drawable::CullCallback
     virtual bool cull(osg::NodeVisitor *, osg::Drawable *, osg::RenderInfo *) const
     {
         /*fprintf(stderr,"isVisible RenderInfo %d\n",myMirror);*/ theViewer->mirrors[myMirror].isVisible = true;
+		if (theViewer->mirrors[myMirror].camera->getNumParents() == 0)
+			return true; // don't render if it just became visible, otherwise the camera was not active this frame and rendering will crash
         return false;
     }
     virtual bool cull(osg::NodeVisitor *, osg::Drawable *, osg::State *) const
@@ -3262,10 +3381,7 @@ void ViewerOsg::setModesByName(const char *objectName)
                 osg::Drawable *drawable = pGeode->getDrawable(i);
                 if (drawable)
                 {
-                    if (animated)
-                    {
-                        drawable->setUseDisplayList(false);
-                    }
+                    cover->setRenderStrategy(drawable, false);
 
                     StateSet *stateset = drawable->getOrCreateStateSet();
                     stateset->setNestRenderBins(false);
@@ -3333,7 +3449,6 @@ void ViewerOsg::setModesByName(const char *objectName)
                             else
                                 d_currentObject->updateTexData(textureNumber + 1);
                         }
-                        //bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle",false);
                         int tex_width = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 512);
                         int tex_height = coCoviseConfig::getInt("COVER.Plugin.Vrml97.MirrorWidth", 256);
 
@@ -3363,33 +3478,6 @@ void ViewerOsg::setModesByName(const char *objectName)
 
                         osg::Texture *texture = NULL;
                         osg::Texture *texture2 = NULL;
-                        /*if (useTextureRectangle) // UV coords would need to be adjusted for this to work
-                  {
-                     if(cover->debugLevel(2))
-                        fprintf(stderr,"TextureRectangle enabled\n");
-                     osg::TextureRectangle* textureRect = new osg::TextureRectangle;
-                     textureRect->setTextureSize(tex_width, tex_height);
-                     textureRect->setInternalFormat(GL_RGBA);
-                     textureRect->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::LINEAR);
-                     textureRect->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::LINEAR);
-
-                     texture = textureRect; 
-                     if(shader)
-                     {
-                        fprintf(stderr,"TextureRectangle enabled\n");
-                        osg::TextureRectangle* textureRect = new osg::TextureRectangle;
-                        textureRect->setTextureSize(tex_width, tex_height);
-                        textureRect->setInternalFormat(GL_DEPTH_COMPONENT);
-                        textureRect->setFilter(osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST);
-                        textureRect->setFilter(osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST);
-
-                        textureRect->setSourceType(GL_UNSIGNED_SHORT);
-                        texture2 = textureRect; 
-                     }
-
-
-                  }
-                  else*/
                         {
                             osg::Texture2D *texture2D = new osg::Texture2D;
                             texture2D->setTextureSize(tex_width, tex_height);
@@ -3436,13 +3524,15 @@ void ViewerOsg::setModesByName(const char *objectName)
                         {
                             osg::Camera *camera;
                             mirrors[numCameras].camera = camera = new osg::Camera;
+							camera->setName("mirrorCamera");
                             mirrors[numCameras].geometry = pGeode;
-                            mirrors[numCameras].isVisible = false;
+                            mirrors[numCameras].isVisible = true;
 
                             // set up the background color and clear mask.
                             camera->setClearColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
                             camera->setClearMask(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                             camera->setCullMask(Isect::NoMirror);
+
 
                             // we assume a planar mapping from min to max in x/z  plane
                             // find out x/z min and max.
@@ -3469,9 +3559,11 @@ void ViewerOsg::setModesByName(const char *objectName)
                             camera->setRenderTargetImplementation(renderImplementation);
 
                             camera->attach(osg::Camera::COLOR_BUFFER, texture);
-                            camera->attach(osg::Camera::DEPTH_BUFFER, texture2);
+							if(texture2)
+                                camera->attach(osg::Camera::DEPTH_BUFFER, texture2);
 
                             mirrors[numCameras].statesetGroup = new osg::Group;
+							mirrors[numCameras].statesetGroup->setName("cameraStatesetGroup");
                             osg::StateSet *dstate = mirrors[numCameras].statesetGroup->getOrCreateStateSet();
                             dstate->setNestRenderBins(false);
                             dstate->setMode(GL_CULL_FACE, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
@@ -4083,7 +4175,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
         else
         {
             texSize += rowSize * hoehe * sizeof(char);
-            d_currentObject->texData[textureNumber].texImage = new Image();
+            d_currentObject->texData[textureNumber].texImage = new osg::Image();
         }
         if (d_currentObject->texData[textureNumber].texture.get() == NULL)
         {
@@ -4166,7 +4258,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
          texture->setFormat(PFTEX_IMAGE_FORMAT,PFTEX_RGB);
    }
 #endif
-    Image *pImage = d_currentObject->texData[textureNumber].texImage.get();
+   osg::Image *pImage = d_currentObject->texData[textureNumber].texImage.get();
     if (w != 0 || h != 0)
     {
         const unsigned char *vrmlImage = pixels;
@@ -4229,7 +4321,7 @@ ViewerOsg::insertTexture(int w, int h, int nc,
             format = GL_RGBA;
             break;
         }
-        pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+        pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
     }
     //pImage = osgDB::readImageFile("c:\\src\\uwexp\\covise\\icons\\UI\\frame.rgb");
     d_currentObject->texData[textureNumber].texture->setImage(0, pImage);
@@ -4328,19 +4420,6 @@ osg::Image *openMovie(char *filename, movieImageData *movDat)
     return (image);
 }
 
-bool checkPower2(int v)
-{
-    int v1 = 1;
-    while ((v1 <<= 1) < v)
-    {
-    }
-
-    if (v1 == v)
-        return (true);
-    else
-        return (false);
-}
-
 Viewer::TextureObject
 ViewerOsg::insertMovieTexture(char *filename,
                               movieProperties *movProp, int nc,
@@ -4349,7 +4428,6 @@ ViewerOsg::insertMovieTexture(char *filename,
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::insertMovieTexture" << endl;
-    static bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
     Texture *tex = NULL;
     movieImageData *dataSet = new movieImageData();
@@ -4360,41 +4438,6 @@ ViewerOsg::insertMovieTexture(char *filename,
 
     if (image)
     {
-        if (useTextureRectangle && !(checkPower2(image->s()) && checkPower2(image->t())))
-        {
-            TextureRectangle *texture = (TextureRectangle *)d_currentObject->texData[textureNumber].texture.get();
-            if (texture == NULL)
-            {
-                d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle();
-                texture->setDataVariance(osg::Object::DYNAMIC);
-
-                if (cover->debugLevel(2))
-                    cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
-
-                d_currentObject->texData[textureNumber].texImage = image;
-                moviePs.push_back(dataSet);
-                d_currentObject->texData[textureNumber].texture = texture = new TextureRectangle(image);
-                texture->setTextureSize(image->s(), image->t());
-
-                d_currentObject->texData[textureNumber].mirror = 1;
-
-                if (image->getPixelSizeInBits() == 32)
-                {
-                    if (!d_currentObject->transparent)
-                    {
-                        d_currentObject->transparent = true;
-                        d_currentObject->updateBin();
-                    }
-                }
-                texSize += image->getTotalSizeInBytesIncludingMipmaps();
-            }
-
-            texture->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_BORDER);
-            texture->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_BORDER);
-
-            tex = texture;
-        }
-        else
         {
             Texture *texture = (Texture *)d_currentObject->texData[textureNumber].texture.get();
             if (texture == NULL)
@@ -4402,6 +4445,7 @@ ViewerOsg::insertMovieTexture(char *filename,
                 d_currentObject->texData[textureNumber].texture = texture = new Texture2D();
                 texture->setDataVariance(osg::Object::DYNAMIC);
 
+            }
                 if (cover->debugLevel(2))
                     cerr << "ViewerOsg::insertMovieTexture(" << filename << ")" << endl;
 
@@ -4421,7 +4465,6 @@ ViewerOsg::insertMovieTexture(char *filename,
                     }
                 }
                 texSize += image->getTotalSizeInBytesIncludingMipmaps();
-            }
 
             if (filter)
             {
@@ -4491,23 +4534,11 @@ void ViewerOsg::insertMovieReference(TextureObject t, int nc, bool environment, 
 {
     if (cover->debugLevel(5))
         cerr << "ViewerOsg::insertMovieReference" << endl;
-    bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
     d_currentObject->updateTexData(textureNumber + 1);
 
     if (d_currentObject->texData[textureNumber].texture == NULL)
     {
-        d_currentObject->texData[textureNumber].texture = (TextureRectangle *)t;
-        osg::Image *image = ((TextureRectangle *)d_currentObject->texData[textureNumber].texture.get())->getImage();
-        if (useTextureRectangle && !(checkPower2(image->s()) && checkPower2(image->t())))
-        {
-
-            d_currentObject->setTexEnv(environment, textureNumber, blendMode, nc);
-            d_currentObject->setTexGen(environment, textureNumber, blendMode);
-            d_currentObject->texData[textureNumber].texImage = image;
-            d_currentObject->texData[textureNumber].mirror = 1;
-        }
-        else
         {
             d_currentObject->texData[textureNumber].texture = (Texture *)t;
 			d_currentObject->texData[textureNumber].texture->setResizeNonPowerOfTwoHint(false);
@@ -4830,21 +4861,21 @@ ViewerOsg::insertCubeTexture(int w, int h, int nc,
                 }
             }
         }
-        Image *pImage = new osg::Image();
+        osg::Image *pImage = new osg::Image();
         if (true) //3dsmax
         {
             if (n == 0 || n == 1)
             {
-                pImage->setImage(hoehe, breite, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+                pImage->setImage(hoehe, breite, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
             }
             else
             {
-                pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+                pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
             }
         }
         else
         {
-            pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
+            pImage->setImage(breite, hoehe, 1, internalFormat, format, GL_UNSIGNED_BYTE, imageData, osg::Image::USE_NEW_DELETE /*, nc,breite, hoehe, 1*/);
         }
         if (n == 0)
             cubemap->setImage(osg::TextureCubeMap::POSITIVE_X, pImage);
@@ -4930,8 +4961,6 @@ void ViewerOsg::removeTextureObject(TextureObject t)
     osg::Image *image = NULL;
     if (dynamic_cast<osg::Texture2D *>(tex))
         image = ((osg::Texture2D *)tex)->getImage();
-    if (dynamic_cast<osg::TextureRectangle *>(tex))
-        image = ((osg::TextureRectangle *)tex)->getImage();
     std::list<movieImageData *>::iterator it = moviePs.begin();
     for (; it != moviePs.end(); it++)
     {
@@ -5414,11 +5443,21 @@ bool ViewerOsg::update(double timeNow)
         osg::ImageStream *imageS = movDat->imageStream.get();
         if (imageS->getStatus() != osg::ImageStream::PLAYING)
         {
-            if (movDat->movieProp->start > -2)
+            if (movDat->movieProp->playing && !(movDat->movieProp->start > 0))
+            {
+                movDat->movieProp->playing = false;
+                movDat->movieProp->mtNode->stopped();
+            }
+            if (movDat->movieProp->start > 0)
             {
                 //     	                	imageS->setReferenceTime((cover->frameTime()-startLoadTime)*movieProp->speed*1000);
+                imageS->setReferenceTime(0);
+                imageS->rewind();
                 imageS->play();
+                movDat->movieProp->playing = true;
                 imageS->setTimeMultiplier((double)fabs(movDat->movieProp->speed));
+                if(movDat->movieProp->stop <movDat->movieProp->start)
+                    movDat->movieProp->stop = -2;
                 movDat->movieProp->start = -2;
                 movDat->movieProp->speed = -movDat->movieProp->speed;
             }
@@ -5478,592 +5517,610 @@ bool ViewerOsg::update(double timeNow)
         updated = d_scene->update(timeNow);
         redraw();
     }
-    //,j,k;
-    for (int i = 0; i < numCameras; i++)
-    {
+    if (cover->debugLevel(5))
+        cerr << "END ViewerOsg::update" << endl;
 
-        if (mirrors[i].isVisible)
-        {
-            if (mirrors[i].camera->getNumParents() == 0)
-            {
-                fprintf(stderr, "Camera on %d\n", i);
-                cover->getScene()->addChild(mirrors[i].camera.get());
-            }
-        }
-        else
-        {
-            if (mirrors[i].camera->getNumParents() != 0)
-            {
-                fprintf(stderr, "Camera off %d\n", i);
-                cover->getScene()->removeChild(mirrors[i].camera.get());
-            }
-        }
-        mirrors[i].isVisible = false;
-        // getPlane in wc
-        osg::Node *currentNode;
-        osg::Matrix geoToWC, tmpMat;
-        currentNode = mirrors[i].geometry->getParent(0);
-        geoToWC.makeIdentity();
-        while (currentNode != NULL)
-        {
-            if (dynamic_cast<osg::MatrixTransform *>(currentNode))
-            {
-                tmpMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
-                geoToWC.postMult(tmpMat);
-            }
-            if (currentNode->getNumParents() > 0)
-                currentNode = currentNode->getParent(0);
-            else
-                currentNode = NULL;
-        }
+    return updated;
+}
 
-        if (mirrors[i].CameraID < 0)
-        {
+void ViewerOsg::preFrame()
+{
 
-            osg::Matrix WCToGeo;
-            //osg::Vec3 wcCoords[4];
-            //for(j=0;j<4;j++)
-            //   wcCoords[j]=geoToWC.preMult(mirrors[i].coords[j]);
-            osg::Vec3 viewerPosMirror, mirrorViewerInMirrorCS;
+	//,j,k;
+	for (int i = 0; i < numCameras; i++)
+	{
+		osg::Camera *camera = mirrors[i].camera;
+		if (mirrors[i].isVisible)
+		{
+			if (camera->getCullMask() == 0)
+			{
+				fprintf(stderr, "\nCamera on %d\n", i);
+				camera->setCullMask(Isect::NoMirror);
+			}
+			/*
+			if (mirrors[i].camera->getNumParents() == 0)
+			{
+				fprintf(stderr, "Camera on %d\n", i);
+				cover->getScene()->addChild(mirrors[i].camera.get());
+			}*/
+		}
+		else
+		{
+			if (camera->getCullMask() != 0)
+			{
+				fprintf(stderr, "\nCamera off %d\n", i);
+				camera->setCullMask(0);
+			}
+			/*
+			if (mirrors[i].camera->getNumParents() != 0)
+			{
+				fprintf(stderr, "Camera off %d\n", i);
+				//cover->getScene()->removeChild(mirrors[i].camera.get());
+			}
+			*/
+		}
+		mirrors[i].isVisible = false;
+		// getPlane in wc
+		osg::Node *currentNode;
+		osg::Matrix geoToWC, tmpMat;
+		currentNode = mirrors[i].geometry->getParent(0);
+		geoToWC.makeIdentity();
+		while (currentNode != NULL)
+		{
+			if (dynamic_cast<osg::MatrixTransform *>(currentNode))
+			{
+				tmpMat = ((osg::MatrixTransform *)currentNode)->getMatrix();
+				geoToWC.postMult(tmpMat);
+			}
+			if (currentNode->getNumParents() > 0)
+				currentNode = currentNode->getParent(0);
+			else
+				currentNode = NULL;
+		}
 
-            if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::RIGHT_EYE)
-                viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-            else if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::LEFT_EYE)
-                viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
-            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-                viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-            else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-                viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
-            else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
-                viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
-            else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
-                viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
+		if (mirrors[i].CameraID < 0)
+		{
 
-            else
-                viewerPos.set(0.0, 0.0, 0.0);
-            osg::Matrix viewerMat = cover->getViewerMat();
-            viewerPos = viewerMat.preMult(viewerPos);
-            WCToGeo.invert(geoToWC);
+			osg::Matrix WCToGeo;
+			//osg::Vec3 wcCoords[4];
+			//for(j=0;j<4;j++)
+			//   wcCoords[j]=geoToWC.preMult(mirrors[i].coords[j]);
+			osg::Vec3 viewerPosMirror, mirrorViewerInMirrorCS;
+
+			if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::RIGHT_EYE)
+				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
+			else if (coVRConfig::instance()->stereoMode() == osg::DisplaySettings::LEFT_EYE)
+				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
+			else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
+				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
+			else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
+				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
+			else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::RIGHT_EYE)
+				viewerPos.set(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
+			else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
+				viewerPos.set(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
+
+			else
+				viewerPos.set(0.0, 0.0, 0.0);
+			osg::Matrix viewerMat = cover->getViewerMat();
+			viewerPos = viewerMat.preMult(viewerPos);
+			WCToGeo.invert(geoToWC);
 
 #ifdef DEBUG_LINES
-            if (updateCameraButton->getState())
-            {
-                viewerInMirrorCS = WCToGeo.preMult(viewerPos);
-            }
+			if (updateCameraButton->getState())
+			{
+				viewerInMirrorCS = WCToGeo.preMult(viewerPos);
+			}
 #else
 
-            viewerInMirrorCS = WCToGeo.preMult(viewerPos);
+			viewerInMirrorCS = WCToGeo.preMult(viewerPos);
 #endif
 
-            if (mirrors[i].shader) // compute viewing frustum for spherical/aspherical mirrors
-            {
-                osg::Uniform *radiusU = mirrors[i].shader->getUniform("Radius");
-                osg::Uniform *aU = mirrors[i].shader->getUniform("a");
-                osg::Uniform *KU = mirrors[i].shader->getUniform("K");
-                float Radius;
-                radiusU->get(Radius);
-                float a;
-                aU->get(a);
-                float K;
-                KU->get(K);
-                osg::Vec3 cornerPos[4];
-                osg::Vec3 flatCornerPos[4];
-                osg::Vec3 normal;
-                osg::Vec3 reflectVecs[4];
-                osg::Vec3 normalVecs[4];
-                for (int n = 0; n < 4; n++)
-                {
-                    float xpos = mirrors[i].coords[n][0];
-                    float zpos = mirrors[i].coords[n][2];
-                    cornerPos[n] = mirrors[i].coords[n];
-                    flatCornerPos[n] = mirrors[i].coords[n];
-                    flatCornerPos[n][1] = 0;
+			if (mirrors[i].shader) // compute viewing frustum for spherical/aspherical mirrors
+			{
+				osg::Uniform *radiusU = mirrors[i].shader->getUniform("Radius");
+				osg::Uniform *aU = mirrors[i].shader->getUniform("a");
+				osg::Uniform *KU = mirrors[i].shader->getUniform("K");
+				float Radius;
+				radiusU->get(Radius);
+				float a;
+				aU->get(a);
+				float K;
+				KU->get(K);
+				osg::Vec3 cornerPos[4];
+				osg::Vec3 flatCornerPos[4];
+				osg::Vec3 normal;
+				osg::Vec3 reflectVecs[4];
+				osg::Vec3 normalVecs[4];
+				for (int n = 0; n < 4; n++)
+				{
+					float xpos = mirrors[i].coords[n][0];
+					float zpos = mirrors[i].coords[n][2];
+					cornerPos[n] = mirrors[i].coords[n];
+					flatCornerPos[n] = mirrors[i].coords[n];
+					flatCornerPos[n][1] = 0;
 
-                    cornerPos[n][1] = Radius * -2 + sqrt(Radius * Radius - xpos * xpos) + sqrt(Radius * Radius - zpos * zpos);
-                    if (a > 0 && xpos > a)
-                    {
-                        float tmpf = xpos - a;
-                        cornerPos[n][1] = cornerPos[n][1] - K * tmpf * tmpf * tmpf;
-                        normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos) + (3 * K * (xpos - a) * (xpos - a));
-                        normal[1] = 1;
-                        normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
-                    }
-                    else if (a < 0 && xpos < a)
-                    {
-                        float tmpf = -(xpos - a);
-                        cornerPos[n][1] = cornerPos[n][1] - K * tmpf * tmpf * tmpf;
-                        normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos) - (3 * K * (xpos - a) * (xpos - a));
-                        normal[1] = 1;
-                        normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
-                    }
-                    else
-                    {
-                        normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos);
-                        normal[1] = 1;
-                        normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
-                    }
-                    normal.normalize();
-                    osg::Vec3 toViewer = viewerInMirrorCS - cornerPos[n];
-                    toViewer.normalize();
-                    reflectVecs[n] = reflect(toViewer, normal);
-                    normalVecs[n] = normal;
-                }
+					cornerPos[n][1] = Radius * -2 + sqrt(Radius * Radius - xpos * xpos) + sqrt(Radius * Radius - zpos * zpos);
+					if (a > 0 && xpos > a)
+					{
+						float tmpf = xpos - a;
+						cornerPos[n][1] = cornerPos[n][1] - K * tmpf * tmpf * tmpf;
+						normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos) + (3 * K * (xpos - a) * (xpos - a));
+						normal[1] = 1;
+						normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
+					}
+					else if (a < 0 && xpos < a)
+					{
+						float tmpf = -(xpos - a);
+						cornerPos[n][1] = cornerPos[n][1] - K * tmpf * tmpf * tmpf;
+						normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos) - (3 * K * (xpos - a) * (xpos - a));
+						normal[1] = 1;
+						normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
+					}
+					else
+					{
+						normal[0] = xpos / sqrt(Radius * Radius - xpos * xpos);
+						normal[1] = 1;
+						normal[2] = zpos / sqrt(Radius * Radius - zpos * zpos);
+					}
+					normal.normalize();
+					osg::Vec3 toViewer = viewerInMirrorCS - cornerPos[n];
+					toViewer.normalize();
+					reflectVecs[n] = reflect(toViewer, normal);
+					normalVecs[n] = normal;
+				}
 #ifdef oldMethod
-                osg::Vec3 points[4];
-                points[0] = closestPoint(cornerPos[0], reflectVecs[0], cornerPos[1], reflectVecs[1]);
-                points[1] = closestPoint(cornerPos[1], reflectVecs[1], cornerPos[2], reflectVecs[2]);
-                points[2] = closestPoint(cornerPos[2], reflectVecs[2], cornerPos[3], reflectVecs[3]);
-                points[3] = closestPoint(cornerPos[3], reflectVecs[3], cornerPos[0], reflectVecs[0]);
-                mirrorViewerInMirrorCS.set(0, 0, 0);
-                float min = fabs(points[0][1]);
-                mirrorViewerInMirrorCS = points[0];
-                mirrorViewerInMirrorCS += points[2];
-                mirrorViewerInMirrorCS /= 2.0;
+				osg::Vec3 points[4];
+				points[0] = closestPoint(cornerPos[0], reflectVecs[0], cornerPos[1], reflectVecs[1]);
+				points[1] = closestPoint(cornerPos[1], reflectVecs[1], cornerPos[2], reflectVecs[2]);
+				points[2] = closestPoint(cornerPos[2], reflectVecs[2], cornerPos[3], reflectVecs[3]);
+				points[3] = closestPoint(cornerPos[3], reflectVecs[3], cornerPos[0], reflectVecs[0]);
+				mirrorViewerInMirrorCS.set(0, 0, 0);
+				float min = fabs(points[0][1]);
+				mirrorViewerInMirrorCS = points[0];
+				mirrorViewerInMirrorCS += points[2];
+				mirrorViewerInMirrorCS /= 2.0;
 
-                for (int n = 0; n < 4; n++)
-                {
-                    if (fabs(points[n][1]) < min)
-                    {
-                        if (n == 1 || n == 3)
-                        {
-                            mirrorViewerInMirrorCS = points[1];
-                            mirrorViewerInMirrorCS += points[3];
-                            mirrorViewerInMirrorCS /= 2.0;
-                        }
-                        else
-                        {
-                            mirrorViewerInMirrorCS = points[0];
-                            mirrorViewerInMirrorCS += points[2];
-                            mirrorViewerInMirrorCS /= 2.0;
-                        }
-                        //viewerInMirrorCS = points[n];
-                        min = fabs(points[n][1]);
-                    }
-                    //viewerInMirrorCS += points[n];
-                }
-//viewerInMirrorCS /=4.0;
+				for (int n = 0; n < 4; n++)
+				{
+					if (fabs(points[n][1]) < min)
+					{
+						if (n == 1 || n == 3)
+						{
+							mirrorViewerInMirrorCS = points[1];
+							mirrorViewerInMirrorCS += points[3];
+							mirrorViewerInMirrorCS /= 2.0;
+						}
+						else
+						{
+							mirrorViewerInMirrorCS = points[0];
+							mirrorViewerInMirrorCS += points[2];
+							mirrorViewerInMirrorCS /= 2.0;
+						}
+						//viewerInMirrorCS = points[n];
+						min = fabs(points[n][1]);
+					}
+					//viewerInMirrorCS += points[n];
+				}
+				//viewerInMirrorCS /=4.0;
 #else
 
 #ifdef TaugtNichts
-                // 3     2
-                // 0     1
-                osg::Vec3 cposlr;
-                osg::Vec3 cposud;
-                if (reflectVecs[0][0] < reflectVecs[3][0])
-                {
-                    osg::Vec3 d = cornerPos[1] - cornerPos[0];
-                    float f1 = ((d[0] * reflectVecs[1][1]) - (d[1] * reflectVecs[1][0])) / ((reflectVecs[0][0] * reflectVecs[1][1]) - (reflectVecs[1][0] * reflectVecs[0][1]));
-                    cposlr = cornerPos[0] + (reflectVecs[0] * f1);
-                }
-                else
-                {
-                    osg::Vec3 d = cornerPos[2] - cornerPos[3];
-                    float f1 = ((d[0] * reflectVecs[2][1]) - (d[1] * reflectVecs[2][0])) / ((reflectVecs[3][0] * reflectVecs[2][1]) - (reflectVecs[2][0] * reflectVecs[3][1]));
-                    cposlr = cornerPos[3] + (reflectVecs[3] * f1);
-                }
+				// 3     2
+				// 0     1
+				osg::Vec3 cposlr;
+				osg::Vec3 cposud;
+				if (reflectVecs[0][0] < reflectVecs[3][0])
+				{
+					osg::Vec3 d = cornerPos[1] - cornerPos[0];
+					float f1 = ((d[0] * reflectVecs[1][1]) - (d[1] * reflectVecs[1][0])) / ((reflectVecs[0][0] * reflectVecs[1][1]) - (reflectVecs[1][0] * reflectVecs[0][1]));
+					cposlr = cornerPos[0] + (reflectVecs[0] * f1);
+				}
+				else
+				{
+					osg::Vec3 d = cornerPos[2] - cornerPos[3];
+					float f1 = ((d[0] * reflectVecs[2][1]) - (d[1] * reflectVecs[2][0])) / ((reflectVecs[3][0] * reflectVecs[2][1]) - (reflectVecs[2][0] * reflectVecs[3][1]));
+					cposlr = cornerPos[3] + (reflectVecs[3] * f1);
+				}
 
-                if (reflectVecs[0][2] > reflectVecs[1][2])
-                {
-                    osg::Vec3 d = cornerPos[3] - cornerPos[0];
-                    float f1 = ((d[0] * reflectVecs[3][1]) - (d[1] * reflectVecs[3][0])) / ((reflectVecs[0][0] * reflectVecs[3][1]) - (reflectVecs[3][0] * reflectVecs[0][1]));
-                    cposud = cornerPos[0] + (reflectVecs[0] * f1);
-                }
-                else
-                {
-                    osg::Vec3 d = cornerPos[2] - cornerPos[1];
-                    float f1 = ((d[0] * reflectVecs[2][1]) - (d[1] * reflectVecs[2][0])) / ((reflectVecs[1][0] * reflectVecs[2][1]) - (reflectVecs[2][0] * reflectVecs[1][1]));
-                    cposud = cornerPos[1] + (reflectVecs[1] * f1);
-                }
-                if (cposlr[1] < cposud[1])
-                {
-                    mirrorViewerInMirrorCS = cposlr;
-                }
-                else
-                {
-                    mirrorViewerInMirrorCS = cposud;
-                }
+				if (reflectVecs[0][2] > reflectVecs[1][2])
+				{
+					osg::Vec3 d = cornerPos[3] - cornerPos[0];
+					float f1 = ((d[0] * reflectVecs[3][1]) - (d[1] * reflectVecs[3][0])) / ((reflectVecs[0][0] * reflectVecs[3][1]) - (reflectVecs[3][0] * reflectVecs[0][1]));
+					cposud = cornerPos[0] + (reflectVecs[0] * f1);
+				}
+				else
+				{
+					osg::Vec3 d = cornerPos[2] - cornerPos[1];
+					float f1 = ((d[0] * reflectVecs[2][1]) - (d[1] * reflectVecs[2][0])) / ((reflectVecs[1][0] * reflectVecs[2][1]) - (reflectVecs[2][0] * reflectVecs[1][1]));
+					cposud = cornerPos[1] + (reflectVecs[1] * f1);
+				}
+				if (cposlr[1] < cposud[1])
+				{
+					mirrorViewerInMirrorCS = cposlr;
+				}
+				else
+				{
+					mirrorViewerInMirrorCS = cposud;
+				}
 #endif
 
-                // von vorne
-                // 0     1
-                // 3     2
-                // von hinten
-                // 1     0
-                // 2     3
+				// von vorne
+				// 0     1
+				// 3     2
+				// von hinten
+				// 1     0
+				// 2     3
 
-                //left/right
-                osg::Vec3 leftR, rightR, cposlr, cposud, pl, pr;
-                if (reflectVecs[3][0] / reflectVecs[3][1] < reflectVecs[2][0] / reflectVecs[2][1])
-                {
-                    leftR = reflectVecs[3];
-                    pl = cornerPos[3];
-                }
-                else
-                {
-                    leftR = reflectVecs[2];
-                    pl = cornerPos[2];
-                }
+				//left/right
+				osg::Vec3 leftR, rightR, cposlr, cposud, pl, pr;
+				if (reflectVecs[3][0] / reflectVecs[3][1] < reflectVecs[2][0] / reflectVecs[2][1])
+				{
+					leftR = reflectVecs[3];
+					pl = cornerPos[3];
+				}
+				else
+				{
+					leftR = reflectVecs[2];
+					pl = cornerPos[2];
+				}
 
-                if (reflectVecs[0][0] / reflectVecs[0][1] > reflectVecs[1][0] / reflectVecs[1][1])
-                {
-                    rightR = reflectVecs[0];
-                    pr = cornerPos[0];
-                }
-                else
-                {
-                    rightR = reflectVecs[1];
-                    pr = cornerPos[1];
-                }
-                leftR[2] = rightR[2] = pr[2] = pl[2] = 0;
-                cposlr = closestPoint(pl, leftR, pr, rightR);
-                
-                // von vorne
-                // 0     1
-                // 3     2
-                // von hinten
-                // 1     0
-                // 2     3
+				if (reflectVecs[0][0] / reflectVecs[0][1] > reflectVecs[1][0] / reflectVecs[1][1])
+				{
+					rightR = reflectVecs[0];
+					pr = cornerPos[0];
+				}
+				else
+				{
+					rightR = reflectVecs[1];
+					pr = cornerPos[1];
+				}
+				leftR[2] = rightR[2] = pr[2] = pl[2] = 0;
+				cposlr = closestPoint(pl, leftR, pr, rightR);
 
-                //up/down
-                osg::Vec3 up, down, pu, pd;
-                if (reflectVecs[0][2] / reflectVecs[0][1] > reflectVecs[1][2] / reflectVecs[1][1])
-                {
-                    down = reflectVecs[0];
-                    pd = cornerPos[0];
-                }
-                else
-                {
-                    down = reflectVecs[1];
-                    pd = cornerPos[1];
-                }
+				// von vorne
+				// 0     1
+				// 3     2
+				// von hinten
+				// 1     0
+				// 2     3
 
-                if (reflectVecs[3][2] / reflectVecs[3][1] < reflectVecs[2][2] / reflectVecs[2][1])
-                {
-                    up = reflectVecs[3];
-                    pu = cornerPos[3];
-                }
-                else
-                {
-                    up = reflectVecs[2];
-                    pu = cornerPos[2];
-                }
-                up[0] = down[0] = pu[0] = pd[0] = 0;
-                cposud = closestPoint(pu, up, pd, down);
+				//up/down
+				osg::Vec3 up, down, pu, pd;
+				if (reflectVecs[0][2] / reflectVecs[0][1] > reflectVecs[1][2] / reflectVecs[1][1])
+				{
+					down = reflectVecs[0];
+					pd = cornerPos[0];
+				}
+				else
+				{
+					down = reflectVecs[1];
+					pd = cornerPos[1];
+				}
 
-                if (cposlr[1] > cposud[1])
-                {
-                    mirrorViewerInMirrorCS = cposlr;
-                    mirrorViewerInMirrorCS[2] = pd[2] + down[2] * (cposlr[1] - pd[1]) / (down[1]);
-                }
-                else
-                {
-                    mirrorViewerInMirrorCS = cposud;
-                    mirrorViewerInMirrorCS[0] = pl[0] + leftR[0] * (cposud[1] - pl[1]) / (leftR[1]);
-                }
+				if (reflectVecs[3][2] / reflectVecs[3][1] < reflectVecs[2][2] / reflectVecs[2][1])
+				{
+					up = reflectVecs[3];
+					pu = cornerPos[3];
+				}
+				else
+				{
+					up = reflectVecs[2];
+					pu = cornerPos[2];
+				}
+				up[0] = down[0] = pu[0] = pd[0] = 0;
+				cposud = closestPoint(pu, up, pd, down);
+
+				if (cposlr[1] > cposud[1])
+				{
+					mirrorViewerInMirrorCS = cposlr;
+					mirrorViewerInMirrorCS[2] = pd[2] + down[2] * (cposlr[1] - pd[1]) / (down[1]);
+				}
+				else
+				{
+					mirrorViewerInMirrorCS = cposud;
+					mirrorViewerInMirrorCS[0] = pl[0] + leftR[0] * (cposud[1] - pl[1]) / (leftR[1]);
+				}
 
 #endif
 
-                //mirrors[i].shader->setVec3Uniform("viewerInMirrorCS",viewerInMirrorCS);
+				//mirrors[i].shader->setVec3Uniform("viewerInMirrorCS",viewerInMirrorCS);
 
-                viewerPosMirror = geoToWC.preMult(mirrorViewerInMirrorCS);
+				viewerPosMirror = geoToWC.preMult(mirrorViewerInMirrorCS);
 
-                osg::Vec3 tmpV;
-                tmpV.set(WCToGeo(0, 0), WCToGeo(0, 1), WCToGeo(0, 2));
-                float scale = tmpV.length();
-                float miny = std::min(cornerPos[0][1], cornerPos[1][1]);
-                miny = std::min(miny, cornerPos[2][1]);
-                miny = std::min(miny, cornerPos[3][1]);
-                float dist = -(mirrorViewerInMirrorCS[1] - miny);
+				osg::Vec3 tmpV;
+				tmpV.set(WCToGeo(0, 0), WCToGeo(0, 1), WCToGeo(0, 2));
+				float scale = tmpV.length();
+				float miny = std::min(cornerPos[0][1], cornerPos[1][1]);
+				miny = std::min(miny, cornerPos[2][1]);
+				miny = std::min(miny, cornerPos[3][1]);
+				float dist = -(mirrorViewerInMirrorCS[1] - miny);
 
-                float distl = -(mirrorViewerInMirrorCS[1] - pr[1]);
-                float distr = -(mirrorViewerInMirrorCS[1] - pl[1]);
-                float distu = -(mirrorViewerInMirrorCS[1] - pd[1]);
-                float distd = -(mirrorViewerInMirrorCS[1] - pu[1]);
+				float distl = -(mirrorViewerInMirrorCS[1] - pr[1]);
+				float distr = -(mirrorViewerInMirrorCS[1] - pl[1]);
+				float distu = -(mirrorViewerInMirrorCS[1] - pd[1]);
+				float distd = -(mirrorViewerInMirrorCS[1] - pu[1]);
 
-                // relation near plane to screen plane
-                float n_over_d = 1.0;
-                //float dx=mirrors[i].coords[1][0]-mirrors[i].coords[0][0];
-                //float dz=mirrors[i].coords[3][2]-mirrors[i].coords[0][2];
-                // parameter of right channel
+				// relation near plane to screen plane
+				float n_over_d = 1.0;
+				//float dx=mirrors[i].coords[1][0]-mirrors[i].coords[0][0];
+				//float dz=mirrors[i].coords[3][2]-mirrors[i].coords[0][2];
+				// parameter of right channel
 
-                // 0     1
-                // 3     2
+				// 0     1
+				// 3     2
 
-                float right = -n_over_d * (pl[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distr);
-                float left = -n_over_d * (pr[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distl);
-                float top = -n_over_d * (pd[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distu);
-                float bottom = -n_over_d * (pu[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distd);
-                float nearPlane = dist * 1.0 / scale;
+				float right = -n_over_d * (pl[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distr);
+				float left = -n_over_d * (pr[0] - mirrorViewerInMirrorCS[0]) / scale * (dist / distl);
+				float top = -n_over_d * (pd[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distu);
+				float bottom = -n_over_d * (pu[2] - mirrorViewerInMirrorCS[2]) / scale * (dist / distd);
+				float nearPlane = dist * 1.0 / scale;
 
-                mirrors[i].camera->setProjectionMatrixAsFrustum(left, right, bottom, top, nearPlane, coVRConfig::instance()->farClip());
+				mirrors[i].camera->setProjectionMatrixAsFrustum(left, right, bottom, top, nearPlane, coVRConfig::instance()->farClip());
 
 #ifdef DEBUG_LINES
-                //ObjektY in WC
-                osg::Vec3 objectY_WC;
-                objectY_WC.set(geoToWC(1, 0), geoToWC(1, 1), geoToWC(1, 2));
-                objectY_WC.normalize();
-                //objectY_WC*=-1;
+				//ObjektY in WC
+				osg::Vec3 objectY_WC;
+				objectY_WC.set(geoToWC(1, 0), geoToWC(1, 1), geoToWC(1, 2));
+				objectY_WC.normalize();
+				//objectY_WC*=-1;
 
-                //Up in WC
-                osg::Vec3 up_WC;
-                up_WC.set(geoToWC(2, 0), geoToWC(2, 1), geoToWC(2, 2));
-                up_WC.normalize();
-                up_WC *= -1;
+				//Up in WC
+				osg::Vec3 up_WC;
+				up_WC.set(geoToWC(2, 0), geoToWC(2, 1), geoToWC(2, 2));
+				up_WC.normalize();
+				up_WC *= -1;
 
-                mirrors[i].camera->setViewMatrixAsLookAt(viewerPosMirror, viewerPosMirror + objectY_WC, up_WC);
-                osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
-                osg::Matrix mv = mirrors[i].camera->getViewMatrix();
+				mirrors[i].camera->setViewMatrixAsLookAt(viewerPosMirror, viewerPosMirror + objectY_WC, up_WC);
+				osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
+				osg::Matrix mv = mirrors[i].camera->getViewMatrix();
 
-                osg::Vec3 pos;
-                osg::Vec3 pos2;
-                osg::Vec4f c(1, 1, 1, 1);
-                int vnum = 0;
+				osg::Vec3 pos;
+				osg::Vec3 pos2;
+				osg::Vec4f c(1, 1, 1, 1);
+				int vnum = 0;
 #define addLine(a, b, c)       \
     (*LineVerts)[vnum].set(a); \
     (*LineColors)[vnum++] = c; \
     (*LineVerts)[vnum].set(b); \
     (*LineColors)[vnum++] = c
-                pos = geoToWC.preMult(cornerPos[0]);
-                addLine(viewerPosMirror, pos, c);
-                pos = geoToWC.preMult(cornerPos[1]);
-                addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
-                pos = geoToWC.preMult(cornerPos[2]);
-                addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
-                pos = geoToWC.preMult(cornerPos[3]);
-                addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
-                pos = geoToWC.preMult(cornerPos[0] - reflectVecs[0] * 1000);
-                pos2 = geoToWC.preMult(cornerPos[0] + reflectVecs[0] * 1000);
-                addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
-                pos = geoToWC.preMult(cornerPos[1] - reflectVecs[1] * 1000);
-                pos2 = geoToWC.preMult(cornerPos[1] + reflectVecs[1] * 1000);
-                addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
-                pos = geoToWC.preMult(cornerPos[2] - reflectVecs[2] * 1000);
-                pos2 = geoToWC.preMult(cornerPos[2] + reflectVecs[2] * 1000);
-                addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
-                pos = geoToWC.preMult(cornerPos[3] - reflectVecs[3] * 1000);
-                pos2 = geoToWC.preMult(cornerPos[3] + reflectVecs[3] * 1000);
-                addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
-                pos = geoToWC.preMult(cornerPos[0]);
-                pos2 = geoToWC.preMult(cornerPos[1]);
-                addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[1]);
-                pos2 = geoToWC.preMult(cornerPos[2]);
-                addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[2]);
-                pos2 = geoToWC.preMult(cornerPos[3]);
-                addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[3]);
-                pos2 = geoToWC.preMult(cornerPos[0]);
-                addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[0]);
+				addLine(viewerPosMirror, pos, c);
+				pos = geoToWC.preMult(cornerPos[1]);
+				addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
+				pos = geoToWC.preMult(cornerPos[2]);
+				addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
+				pos = geoToWC.preMult(cornerPos[3]);
+				addLine(viewerPosMirror, pos, osg::Vec4(1, 1, 1, 1));
+				pos = geoToWC.preMult(cornerPos[0] - reflectVecs[0] * 1000);
+				pos2 = geoToWC.preMult(cornerPos[0] + reflectVecs[0] * 1000);
+				addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
+				pos = geoToWC.preMult(cornerPos[1] - reflectVecs[1] * 1000);
+				pos2 = geoToWC.preMult(cornerPos[1] + reflectVecs[1] * 1000);
+				addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
+				pos = geoToWC.preMult(cornerPos[2] - reflectVecs[2] * 1000);
+				pos2 = geoToWC.preMult(cornerPos[2] + reflectVecs[2] * 1000);
+				addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
+				pos = geoToWC.preMult(cornerPos[3] - reflectVecs[3] * 1000);
+				pos2 = geoToWC.preMult(cornerPos[3] + reflectVecs[3] * 1000);
+				addLine(pos, pos2, osg::Vec4(1, 0, 0, 1));
+				pos = geoToWC.preMult(cornerPos[0]);
+				pos2 = geoToWC.preMult(cornerPos[1]);
+				addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[1]);
+				pos2 = geoToWC.preMult(cornerPos[2]);
+				addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[2]);
+				pos2 = geoToWC.preMult(cornerPos[3]);
+				addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[3]);
+				pos2 = geoToWC.preMult(cornerPos[0]);
+				addLine(pos, pos2, osg::Vec4(0, 1, 0, 1));
 
-                pos = geoToWC.preMult(flatCornerPos[0]);
-                pos2 = geoToWC.preMult(flatCornerPos[1]);
-                addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
-                pos = geoToWC.preMult(flatCornerPos[1]);
-                pos2 = geoToWC.preMult(flatCornerPos[2]);
-                addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
-                pos = geoToWC.preMult(flatCornerPos[2]);
-                pos2 = geoToWC.preMult(flatCornerPos[3]);
-                addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
-                pos = geoToWC.preMult(flatCornerPos[3]);
-                pos2 = geoToWC.preMult(flatCornerPos[0]);
-                addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
+				pos = geoToWC.preMult(flatCornerPos[0]);
+				pos2 = geoToWC.preMult(flatCornerPos[1]);
+				addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
+				pos = geoToWC.preMult(flatCornerPos[1]);
+				pos2 = geoToWC.preMult(flatCornerPos[2]);
+				addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
+				pos = geoToWC.preMult(flatCornerPos[2]);
+				pos2 = geoToWC.preMult(flatCornerPos[3]);
+				addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
+				pos = geoToWC.preMult(flatCornerPos[3]);
+				pos2 = geoToWC.preMult(flatCornerPos[0]);
+				addLine(pos, pos2, osg::Vec4(0, 0, 1, 1));
 
-                pos = geoToWC.preMult(cornerPos[0]);
-                pos2 = geoToWC.preMult(cornerPos[0] + normalVecs[0] * 100);
-                addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[1]);
-                pos2 = geoToWC.preMult(cornerPos[1] + normalVecs[1] * 100);
-                addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[2]);
-                pos2 = geoToWC.preMult(cornerPos[2] + normalVecs[2] * 100);
-                addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
-                pos = geoToWC.preMult(cornerPos[3]);
-                pos2 = geoToWC.preMult(cornerPos[3] + normalVecs[3] * 100);
-                addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[0]);
+				pos2 = geoToWC.preMult(cornerPos[0] + normalVecs[0] * 100);
+				addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[1]);
+				pos2 = geoToWC.preMult(cornerPos[1] + normalVecs[1] * 100);
+				addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[2]);
+				pos2 = geoToWC.preMult(cornerPos[2] + normalVecs[2] * 100);
+				addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
+				pos = geoToWC.preMult(cornerPos[3]);
+				pos2 = geoToWC.preMult(cornerPos[3] + normalVecs[3] * 100);
+				addLine(pos, pos2, osg::Vec4(1, 1, 0, 1));
 
-                pos = viewerPosMirror;
-                pos2 = viewerPosMirror + objectY_WC;
-                addLine(pos, pos2, osg::Vec4(0, 1, 1, 1));
-                pos = viewerPosMirror;
-                pos2 = viewerPosMirror + up_WC;
-                addLine(pos, pos2, osg::Vec4(0, 1, 1, 1));
+				pos = viewerPosMirror;
+				pos2 = viewerPosMirror + objectY_WC;
+				addLine(pos, pos2, osg::Vec4(0, 1, 1, 1));
+				pos = viewerPosMirror;
+				pos2 = viewerPosMirror + up_WC;
+				addLine(pos, pos2, osg::Vec4(0, 1, 1, 1));
 #endif
-            }
-            else
-            {
-                viewerInMirrorCS = WCToGeo.preMult(viewerPos);
-                viewerInMirrorCS[1] = -viewerInMirrorCS[1];
-                viewerPosMirror = geoToWC.preMult(viewerInMirrorCS);
+			}
+			else
+			{
+				viewerInMirrorCS = WCToGeo.preMult(viewerPos);
+				viewerInMirrorCS[1] = -viewerInMirrorCS[1];
+				viewerPosMirror = geoToWC.preMult(viewerInMirrorCS);
 
-                osg::Vec3 tmpV;
-                tmpV.set(WCToGeo(0, 0), WCToGeo(0, 1), WCToGeo(0, 2));
-                
-                // von vorne
-                // 0     1
-                // 3     2
-                // von hinten
-                // 1     0
-                // 2     3
+				osg::Vec3 tmpV;
+				tmpV.set(WCToGeo(0, 0), WCToGeo(0, 1), WCToGeo(0, 2));
 
-                float scale = tmpV.length();
-                float dist = -(viewerInMirrorCS[1] - mirrors[i].coords[0][1]);
+				// von vorne
+				// 0     1
+				// 3     2
+				// von hinten
+				// 1     0
+				// 2     3
 
-                // relation near plane to screen plane
-                float n_over_d = 1.2;
-                //float dx=mirrors[i].coords[1][0]-mirrors[i].coords[0][0];
-                //float dz=mirrors[i].coords[3][2]-mirrors[i].coords[0][2];
-                // parameter of right channel
-                float right = -n_over_d * (mirrors[i].coords[0][0] - viewerInMirrorCS[0]) / scale;
-                float left = -n_over_d * (mirrors[i].coords[1][0] - viewerInMirrorCS[0]) / scale;
-                float top = -n_over_d * (mirrors[i].coords[0][2] - viewerInMirrorCS[2]) / scale;
-                float bottom = -n_over_d * (mirrors[i].coords[3][2] - viewerInMirrorCS[2]) / scale;
-                float nearPlane = dist * 1.2 / scale;
+				float scale = tmpV.length();
+				float dist = -(viewerInMirrorCS[1] - mirrors[i].coords[0][1]);
 
-                mirrors[i].camera->setProjectionMatrixAsFrustum(left, right, bottom, top, nearPlane, coVRConfig::instance()->farClip());
-            }
+				// relation near plane to screen plane
+				float n_over_d = 1.2;
+				//float dx=mirrors[i].coords[1][0]-mirrors[i].coords[0][0];
+				//float dz=mirrors[i].coords[3][2]-mirrors[i].coords[0][2];
+				// parameter of right channel
+				float right = -n_over_d * (mirrors[i].coords[0][0] - viewerInMirrorCS[0]) / scale;
+				float left = -n_over_d * (mirrors[i].coords[1][0] - viewerInMirrorCS[0]) / scale;
+				float top = -n_over_d * (mirrors[i].coords[0][2] - viewerInMirrorCS[2]) / scale;
+				float bottom = -n_over_d * (mirrors[i].coords[3][2] - viewerInMirrorCS[2]) / scale;
+				float nearPlane = dist * 1.2 / scale;
 
-            // Now in World coordinates for rendering
-            //osg::Matrix baseMat = cover->getBaseMat();
-            //ObjektY in WC
+				mirrors[i].camera->setProjectionMatrixAsFrustum(left, right, bottom, top, nearPlane, coVRConfig::instance()->farClip());
+			}
 
-            osg::Vec3 objectY_WC;
-            objectY_WC.set(geoToWC(1, 0), geoToWC(1, 1), geoToWC(1, 2));
-            objectY_WC.normalize();
-            //objectY_WC*=-1;
+			// Now in World coordinates for rendering
+			//osg::Matrix baseMat = cover->getBaseMat();
+			//ObjektY in WC
 
-            //Up in WC
-            osg::Vec3 up_WC;
-            up_WC.set(geoToWC(2, 0), geoToWC(2, 1), geoToWC(2, 2));
-            up_WC.normalize();
-            up_WC *= -1;
+			osg::Vec3 objectY_WC;
+			objectY_WC.set(geoToWC(1, 0), geoToWC(1, 1), geoToWC(1, 2));
+			objectY_WC.normalize();
+			//objectY_WC*=-1;
 
-            mirrors[i].camera->setViewMatrixAsLookAt(viewerPosMirror, viewerPosMirror + objectY_WC, up_WC);
-            //update all mirror cameras
+			//Up in WC
+			osg::Vec3 up_WC;
+			up_WC.set(geoToWC(2, 0), geoToWC(2, 1), geoToWC(2, 2));
+			up_WC.normalize();
+			up_WC *= -1;
 
-            osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
-            osg::Matrix mv = mirrors[i].camera->getViewMatrix();
+			mirrors[i].camera->setViewMatrixAsLookAt(viewerPosMirror, viewerPosMirror + objectY_WC, up_WC);
+			//update all mirror cameras
 
-            osg::Matrix nmv;
-            osg::Matrix npm;
-            if(coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
-            {
-                nmv = mv;
-                npm = proj;
-            }
-            else
-            {
-                osg::Matrix rotonly = mv;
-                rotonly(3, 0) = 0;
-                rotonly(3, 1) = 0;
-                rotonly(3, 2) = 0;
-                rotonly(3, 3) = 1;
-                osg::Matrix invRot;
+			osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
+			osg::Matrix mv = mirrors[i].camera->getViewMatrix();
 
-                invRot.invert(rotonly);
-                nmv = (mv * invRot) * cover->invEnvCorrectMat;
-                npm = cover->envCorrectMat * rotonly * proj;
-            }
+			osg::Matrix nmv;
+			osg::Matrix npm;
+			if (coVRConfig::instance()->getEnvMapMode() == coVRConfig::NONE)
+			{
+				nmv = mv;
+				npm = proj;
+			}
+			else
+			{
+				osg::Matrix rotonly = mv;
+				rotonly(3, 0) = 0;
+				rotonly(3, 1) = 0;
+				rotonly(3, 2) = 0;
+				rotonly(3, 3) = 1;
+				osg::Matrix invRot;
 
-            mirrors[i].camera->setViewMatrix(nmv);
-            mirrors[i].camera->setProjectionMatrix(npm);
-            if (mirrors[i].shader)
-            {
-                osg::Matrixf nmvf = nmv;
-                osg::Matrixf npmf = npm;
-                osg::Matrixf geoToWCf = geoToWC;
-                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
-                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
-                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
-                if (mirrors[i].instance)
-                {
-                    osg::Uniform *U;
-                    U = mirrors[i].instance->getUniform("ViewMatrix");
-                    if(U)
-                    {
-                        U->set(nmv);
-                    }
-                    U = mirrors[i].instance->getUniform("ProjectionMatrix");
-                    if(U)
-                    {
-                        U->set(npm);
-                    }
-                    U = mirrors[i].instance->getUniform("ModelMatrix");
-                    if(U)
-                    {
-                        U->set(geoToWC);
-                    }
-                }
-                /*osg::Vec3 tmpv(1,1,1);
-         osg::Vec3 tmpv2;
-         tmpv2 = tmpv * ProjInMirrorCS ;
-         fprintf(stderr,"%f %f %f\n",tmpv2[0],tmpv2[1],tmpv2[2]);*/
-            }
-        }
-        else
-        {
-            // this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
+				invRot.invert(rotonly);
+				nmv = (mv * invRot) * cover->invEnvCorrectMat;
+				npm = cover->envCorrectMat * rotonly * proj;
+			}
 
-            osg::Matrix nmv = mirrors[i].vm;
-            osg::Matrix npm = mirrors[i].pm;
-            mirrors[i].camera->setViewMatrix(mirrors[i].vm);
-            mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
-            // this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
-            // todo fix environment map orientation in mirror view
-            /*
-		  osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
-      osg::Matrix mv = mirrors[i].camera->getViewMatrix();
-      osg::Matrix rotonly = mv;
-      rotonly(3,0)=0;
-      rotonly(3,1)=0;
-      rotonly(3,2)=0;
-      rotonly(3,3)=1;
-      osg::Matrix invRot;
+			mirrors[i].camera->setViewMatrix(nmv);
+			mirrors[i].camera->setProjectionMatrix(npm);
+			if (mirrors[i].shader)
+			{
+				osg::Matrixf nmvf = nmv;
+				osg::Matrixf npmf = npm;
+				osg::Matrixf geoToWCf = geoToWC;
+				mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+				mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+				mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
+				if (mirrors[i].instance)
+				{
+					osg::Uniform *U;
+					U = mirrors[i].instance->getUniform("ViewMatrix");
+					if (U)
+					{
+						U->set(nmv);
+					}
+					U = mirrors[i].instance->getUniform("ProjectionMatrix");
+					if (U)
+					{
+						U->set(npm);
+					}
+					U = mirrors[i].instance->getUniform("ModelMatrix");
+					if (U)
+					{
+						U->set(geoToWC);
+					}
+				}
+				/*osg::Vec3 tmpv(1,1,1);
+				osg::Vec3 tmpv2;
+				tmpv2 = tmpv * ProjInMirrorCS ;
+				fprintf(stderr,"%f %f %f\n",tmpv2[0],tmpv2[1],tmpv2[2]);*/
+			}
+		}
+		else
+		{
+			// this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
 
-      invRot.invert(rotonly);
-      nmv=((mv * invRot) * cover->invEnvCorrectMat);
-      npm=(cover->envCorrectMat *rotonly * proj) ;
-          mirrors[i].camera->setViewMatrix(mirrors[i].vm);
-          mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
-	  */
-            if (mirrors[i].shader)
-            {
-                osg::Matrixf nmvf = nmv;
-                osg::Matrixf npmf = npm;
-                osg::Matrixf geoToWCf = geoToWC;
-                mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
-                mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
-                mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
-                if (mirrors[i].instance)
-                {
-                    osg::Uniform *U;
-                    U = mirrors[i].instance->getUniform("ViewMatrix");
-                    if(U)
-                    {
-                        U->set(nmv);
-                    }
-                    U = mirrors[i].instance->getUniform("ProjectionMatrix");
-                    if(U)
-                    {
-                        U->set(npm);
-                    }
-                    U = mirrors[i].instance->getUniform("ModelMatrix");
-                    if(U)
-                    {
-                        U->set(geoToWC);
-                    }
-                }
-                /*osg::Vec3 tmpv(1,1,1);
-			  osg::Vec3 tmpv2;
-			  tmpv2 = tmpv * ProjInMirrorCS ;
-			  fprintf(stderr,"%f %f %f\n",tmpv2[0],tmpv2[1],tmpv2[2]);*/
-            }
-        }
-    }
-    if (cover->debugLevel(5))
-        cerr << "END ViewerOsg::update" << endl;
+			osg::Matrix nmv = mirrors[i].vm;
+			osg::Matrix npm = mirrors[i].pm;
+			mirrors[i].camera->setViewMatrix(mirrors[i].vm);
+			mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
+			// this is a camera based mirror, get the view and projection matrix from the appropriate rear view camera.
+			// todo fix environment map orientation in mirror view
+			/*
+			osg::Matrix proj = mirrors[i].camera->getProjectionMatrix();
+			osg::Matrix mv = mirrors[i].camera->getViewMatrix();
+			osg::Matrix rotonly = mv;
+			rotonly(3,0)=0;
+			rotonly(3,1)=0;
+			rotonly(3,2)=0;
+			rotonly(3,3)=1;
+			osg::Matrix invRot;
 
-    return updated;
+			invRot.invert(rotonly);
+			nmv=((mv * invRot) * cover->invEnvCorrectMat);
+			npm=(cover->envCorrectMat *rotonly * proj) ;
+			mirrors[i].camera->setViewMatrix(mirrors[i].vm);
+			mirrors[i].camera->setProjectionMatrix(mirrors[i].pm);
+			*/
+			if (mirrors[i].shader)
+			{
+				osg::Matrixf nmvf = nmv;
+				osg::Matrixf npmf = npm;
+				osg::Matrixf geoToWCf = geoToWC;
+				mirrors[i].shader->setMatrixUniform("ViewMatrix", nmvf);
+				mirrors[i].shader->setMatrixUniform("ProjectionMatrix", npmf);
+				mirrors[i].shader->setMatrixUniform("ModelMatrix", geoToWCf);
+				if (mirrors[i].instance)
+				{
+					osg::Uniform *U;
+					U = mirrors[i].instance->getUniform("ViewMatrix");
+					if (U)
+					{
+						U->set(nmv);
+					}
+					U = mirrors[i].instance->getUniform("ProjectionMatrix");
+					if (U)
+					{
+						U->set(npm);
+					}
+					U = mirrors[i].instance->getUniform("ModelMatrix");
+					if (U)
+					{
+						U->set(geoToWC);
+					}
+				}
+				/*osg::Vec3 tmpv(1,1,1);
+				osg::Vec3 tmpv2;
+				tmpv2 = tmpv * ProjInMirrorCS ;
+				fprintf(stderr,"%f %f %f\n",tmpv2[0],tmpv2[1],tmpv2[2]);*/
+			}
+		}
+	}
 }
 
 void ViewerOsg::redraw()

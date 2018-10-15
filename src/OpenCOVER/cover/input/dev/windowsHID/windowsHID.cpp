@@ -34,7 +34,7 @@ windowsHID::windowsHID(const std::string &configBase)
     btnstatus = 0;
     oldbtnstatus = 0;
 
-    string devstring = coCoviseConfig::getEntry("device", configPath(), "/dev/input/mouse0"); //UNIX device string
+    string devstring = coCoviseConfig::getEntry("device", configPath(), "HID#VID_046D&amp;PID_C52D&amp;MI_00"); // Logitech Presenter R400
     cout << devstring << endl;
     rawMouse = new coRawDevice(devstring.c_str());
 

@@ -109,7 +109,8 @@ Vive::Vive()
 	m_strDisplay = GetTrackedDeviceString(ivrSystem, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
 
 	bool exists;
-	if (!covise::coCoviseConfig::isOn("trackingOnly", "COVER.Plugin.Vive", false, &exists))
+    trackingOnly = covise::coCoviseConfig::isOn("trackingOnly", "COVER.Plugin.Vive", false, &exists);
+	if (!trackingOnly)
 	{
 		if (coVRConfig::instance()->numPBOs() == 0)
 		{ // no PBOs configured, thus try an outo config
@@ -181,26 +182,29 @@ bool Vive::needsThread() const
 } 
 bool Vive::init()
 {
-	if (!ivrSystem)
-	{
-		fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
-		return false;
-	}
+    if (!ivrSystem)
+    {
+        fprintf(stderr, "Vive::init() failed -- ivrSystem is null\n");
+        return false;
+    }
 
-	fprintf(stderr, "Vive::init\n");
-	vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
-	osg::Matrix lProj = convertMatrix44(mat);
-	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
-	osg::Matrix rProj = convertMatrix44(mat);
-	coVRConfig::instance()->channels[0].leftProj = lProj;
-	coVRConfig::instance()->channels[0].rightProj = rProj;
-	coVRConfig::instance()->channels[1].leftProj = lProj;
-	coVRConfig::instance()->channels[1].rightProj = rProj;
+    fprintf(stderr, "Vive::init\n");
+    vr::HmdMatrix44_t mat = ivrSystem->GetProjectionMatrix(vr::Eye_Left, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+    osg::Matrix lProj = convertMatrix44(mat);
+    mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
+    osg::Matrix rProj = convertMatrix44(mat);
+    coVRConfig::instance()->channels[0].leftProj = lProj;
+    coVRConfig::instance()->channels[0].rightProj = rProj;
+    if (coVRConfig::instance()->channels.size() > 1)
+    {
+        coVRConfig::instance()->channels[1].leftProj = lProj;
+        coVRConfig::instance()->channels[1].rightProj = rProj;
+    }
 
 
 	coVRConfig::instance()->OpenVR_HMD = true;
 
-	m_transformOriginToCamera=covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToCamera",false);
+	m_transformOriginToLighthouse =covise::coCoviseConfig::isOn("COVER.Input.Device.Vive.TransformOriginToLighthouse",false);
 
 
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
@@ -256,10 +260,20 @@ void Vive::preFrame()
 	osg::Matrix lProj = convertMatrix44(mat);
 	mat = ivrSystem->GetProjectionMatrix(vr::Eye_Right, coVRConfig::instance()->nearClip(), coVRConfig::instance()->farClip());
 	osg::Matrix rProj = convertMatrix44(mat);
-	coVRConfig::instance()->channels[0].leftProj = lProj;
-	coVRConfig::instance()->channels[0].rightProj = rProj;
-	coVRConfig::instance()->channels[1].leftProj = lProj;
-	coVRConfig::instance()->channels[1].rightProj = rProj;
+    if(!trackingOnly)
+    {
+        if (coVRConfig::instance()->channels.size() > 1)
+        {
+            coVRConfig::instance()->channels[0].leftProj = lProj;
+            coVRConfig::instance()->channels[0].rightProj = rProj;
+            coVRConfig::instance()->channels[1].leftProj = lProj;
+            coVRConfig::instance()->channels[1].rightProj = rProj;
+        }
+        else
+        {
+            fprintf(stderr, "configure two channes\n");
+        }
+    }
 
 }
 
@@ -267,7 +281,8 @@ void Vive::postFrame()
 {
 
 
-	size_t controllerNumber = 0;
+    size_t controllerNumber = 0;
+    size_t trackerNumber = 0;
 	size_t baseStationNumber = 0;
 
 	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
@@ -284,16 +299,17 @@ void Vive::postFrame()
 			    case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; numControllers++; break;
 			    case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 			    case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-			    case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; break;
-			    case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+                case vr::TrackedDeviceClass_GenericTracker:    m_rDevClassChar[nDevice] = 'G'; numTrackers++;  break;
+                case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; numBaseStations++; break;
 			    default:                                       m_rDevClassChar[nDevice] = '?'; break;
 			}
+            fprintf(stderr, "DevClass:%c\n", m_rDevClassChar[nDevice]);
 			int idx;
 			std::map<std::string, serialInfo>::iterator it = serialID.find(std::string(serial));
 			if (it != serialID.end())
 			{
 				idx = it->second.ID;
-				controllerNumber = it->second.controllerID+1; // +1 because we remote 1 afterwards (see below)
+				controllerNumber = it->second.controllerID+1; // +1 because we remove 1 afterwards (see below)
 				if (controllerNumber > numControllers)
 					numControllers = controllerNumber;
 			}
@@ -306,23 +322,30 @@ void Vive::postFrame()
 				// 2 -- last base station
 				// 3 -- first Vive controller
 				// 4 -- second Vive controller
-				size_t firstBaseStationIdx = 1, lastBaseStationIdx = 2, firstControllerIdx = 3;
+				size_t firstBaseStationIdx = 1, lastBaseStationIdx = 2, firstControllerIdx = 3, firstTrackerIdx = 5;
 
 				switch (m_rDevClassChar[nDevice])
 				{
-				case 'T': // a tracking camera
+				case 'T': // a lighthouse
 					idx = firstBaseStationIdx + baseStationNumber;
 					++baseStationNumber;
 					if (idx > lastBaseStationIdx)
 					{
-						cerr << "Vive:Too many baseStations;number=" << baseStationNumber - 1 << " idx= " << idx << endl;
-						continue;
+                        lastBaseStationIdx++;
+                        firstControllerIdx++;
+                        firstTrackerIdx++;
+						//cerr << "Vive:Too many baseStations;number=" << baseStationNumber - 1 << " idx= " << idx << endl;
+						//continue;
 					}
 					break;
 				case 'C': //a controller
 					idx = firstControllerIdx + controllerNumber;
 					++controllerNumber;
 					break;
+                case 'G': //a controller
+                    idx = firstTrackerIdx + trackerNumber;
+                    ++trackerNumber;
+                    break;
 				case 'H':// the HMD
 					idx = 0;
 					break;
@@ -338,24 +361,18 @@ void Vive::postFrame()
 			m_ControllerID[nDevice] = (controllerNumber-1);
 			m_DeviceSerial[nDevice] = serial;
 		}
-		if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
-		{
-			maxBodyNumber = nDevice;
-			if (m_DeviceID[nDevice] > maxBodyNumber)
-				maxBodyNumber = m_DeviceID[nDevice];
-		}
+			if ((m_DeviceID[nDevice]+1) > maxBodyNumber)
+            {
+				maxBodyNumber = m_DeviceID[nDevice]+1;
+            }
 	}
 
-	//cout << "*"; for (int n = 0; n < vr::k_unMaxTrackedDeviceCount; ++n) cout << m_rDevClassChar[n]; cout << "*"<<endl;
 
-	size_t bodyMatSize = 1 + 2 + numControllers; //1xHMD+2xCamera+numControllers;
-	if (maxBodyNumber + 1 > bodyMatSize)
-		bodyMatSize = maxBodyNumber;
-	if (bodyMatSize > m_bodyMatrices.size())
+	if (maxBodyNumber > m_bodyMatrices.size())
 	{
 		m_mutex.lock();
-		m_bodyMatrices.resize(bodyMatSize);
-		m_bodyMatricesValid.resize(bodyMatSize);
+		m_bodyMatrices.resize(maxBodyNumber);
+		m_bodyMatricesValid.resize(maxBodyNumber);
 		m_mutex.unlock();
 	}
 	if (numControllers * 4 > m_buttonStates.size())
@@ -394,15 +411,15 @@ void Vive::postFrame()
 			m_bodyMatrices[m_DeviceID[nDevice]](3, 1) *= 1000;
 			m_bodyMatrices[m_DeviceID[nDevice]](3, 2) *= 1000;
 			
-			if (m_transformOriginToCamera)
+			if (m_transformOriginToLighthouse)
 			{
 				m_bodyMatrices[m_DeviceID[nDevice]] *= LighthouseMatrix; // transform to first Lighthouse coordinate system as this is fixed in our case
 			}
 
 		}
 	}
-	// get the transform matrix from 1st camera if we need that
-	if (!haveTrackerOrigin && haveBaseStation && m_transformOriginToCamera)
+	// get the transform matrix from 1st Lighthouse if we need that
+	if (!haveTrackerOrigin && haveBaseStation && m_transformOriginToLighthouse)
 	{
 		haveTrackerOrigin = true;
 		LighthouseMatrix.invert_4x4(m_bodyMatrices[1]);
@@ -413,11 +430,22 @@ void Vive::postFrame()
 void Vive::preSwapBuffers(int /*windowNumber*/)
 {
 
-	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[0].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-	//vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[1].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+    if (!trackingOnly)
+    {
+        if (coVRConfig::instance()->PBOs.size() > 1)
+        {
+            vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[0].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+            //vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)coVRConfig::instance()->PBOs[1].renderTargetTexture.get()->getTextureObject(coVRConfig::instance()->windows[0].context->getState()->getContextID())->id(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+
+        }
+        else
+        {
+            fprintf(stderr, "configure two PBOs\n");
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------

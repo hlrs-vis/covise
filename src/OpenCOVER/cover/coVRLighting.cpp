@@ -45,6 +45,7 @@
 
 #include <ui/Button.h>
 #include <ui/Menu.h>
+#include <ui/SelectionList.h>
 
 using namespace opencover;
 using covise::coCoviseConfig;
@@ -482,6 +483,31 @@ void coVRLighting::initMenu()
 {
     // place the menu inside "view options
     lightingMenu_ = new ui::Menu(cover->viewOptionsMenu, "Lighting");
+
+    auto shadowChoice = new ui::SelectionList(lightingMenu_, "Shadows");
+    shadowChoice->append("No shadows");
+    shadowChoice->append("Shadow texture");
+    shadowChoice->append("Soft shadow map");
+    shadowChoice->append("Standard shadow map");
+    shadowChoice->append("LightSpacePerspectiveShadowMapVB");
+    shadowChoice->append("LightSpacePerspectiveShadowMapCB");
+    shadowChoice->append("LightSpacePerspectiveShadowMapDB");
+    shadowChoice->append("Shadow map");
+    shadowChoice->select(0);
+    shadowChoice->setCallback([this](int idx){
+        std::string t = "NoShadows";
+        switch(idx)
+        {
+        case 1: t="ShadowTexture"; break;
+        case 2: t="SoftShadowMap"; break;
+        case 3: t="StandardShadowMap"; break;
+        case 4: t="LightSpacePerspectiveShadowMapVB"; break;
+        case 5: t="LightSpacePerspectiveShadowMapCB"; break;
+        case 6: t="LightSpacePerspectiveShadowMapDB"; break;
+        case 7: t="ShadowMap"; break;
+        }
+        coVRShadowManager::instance()->setTechnique(t);
+    });
 
     switchHeadlight_ = new ui::Button(lightingMenu_, "Headlight");
     switchHeadlight_->setState(headlightState);

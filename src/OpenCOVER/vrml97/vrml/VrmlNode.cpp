@@ -709,6 +709,34 @@ void VrmlNode::inverseTransform(double *m)
         Midentity(m);
 }
 
+bool VrmlNode::isOnlyGeometry() const
+{
+    if (d_routes)
+    {
+        //std::cerr << "Nr" << std::flush;
+        return false;
+    }
+    if (d_incomingRoutes)
+    {
+        //std::cerr << "Ni" << std::flush;
+        return false;
+    }
+
+    if (strstr(name(), "NoCache") != NULL)
+    {
+        //std::cerr << "Nn" << std::flush;
+        return false;
+    }
+
+	if (strstr(name(), "coMirror") != NULL)
+	{
+		//std::cerr << "Nn" << std::flush;
+		return false;
+	}
+    //std::cerr << "N(" << nodeType()->getName() << ")" << std::flush;
+    return true;
+}
+
 // Pass a named event to this node.
 
 void VrmlNode::eventIn(double timeStamp,

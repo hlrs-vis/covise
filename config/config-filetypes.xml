@@ -78,6 +78,8 @@
         <FileType name="tif" plugin="Volume" />
         <FileType name="tiff" plugin="Volume" />
         <FileType name="xvf" plugin="Volume" />
+        <FileType name="dcm" plugin="Volume" />
+        <FileType name="dicomdir" plugin="Volume" />
         
         <FileType name="dyn" plugin="VRAnim" />
         <FileType name="geoall" plugin="VRAnim" />

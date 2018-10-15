@@ -16,8 +16,11 @@
 #define PROJECTIONSETTINGS_HPP
 
 #include <QDialog>
-
+#include <QMessageBox>
+#include <QComboBox>
 #include <proj_api.h>
+
+class ProjectData;
 
 namespace Ui
 {
@@ -33,27 +36,52 @@ class ProjectionSettings : public QDialog
     //################//
 
 public:
+    enum Preset {
+        None = 0,
+        WGS84_to_Potsdam = 1,
+        WGS84_to_WGS84_Ellipsoid = 2,
+    };
+    //Q_ENUM(Preset)
+
     explicit ProjectionSettings();
     virtual ~ProjectionSettings();
 
     void transform(double &x, double &y, double &z);
-    projPJ pj_from, pj_to;
+
+    void setProjectData(ProjectData *pd);
+    //ProjectData *projectData_;
     double XOffset;
     double YOffset;
     double ZOffset;
+    /*
     static ProjectionSettings *instance()
     {
         return inst;
-    };
+    };*/
 
 private:
-    static ProjectionSettings *inst;
+    QMap<Preset,QString> presets;
+    //static ProjectionSettings *inst;
+    /*struct Presets
+    {
+        QList<Preset> presetsEnumList = {None,WGS84_to_Potsdam,WGS84_to_WGS84_Ellipsoid};
+        QMap<Preset,QString> presetsToProj;
+    };
+    Presets presets;*/
+    void update();
+    void updateSettings();
+    void updateUi();
+    void checkProjForEPSG(const QString &proj);
+    void checkProjForPreset(const QString &proj);
+    QString prepareString(const QString &src);
+    Preset resolvePreset(const QString &input);
     //################//
     // SLOTS          //
     //################//
 
 private slots:
     void okPressed();
+    void PresetIndexChanged(const QString &change);
 
     //################//
     // PROPERTIES     //
@@ -61,6 +89,7 @@ private slots:
 
 private:
     Ui::ProjectionSettings *ui;
+    ProjectData *projectData_;
 };
 
 #endif // OSMIMPORT_HPP

@@ -29,15 +29,6 @@ using namespace covise;
 #include <do/coDoData.h>
 #include <do/coDoSet.h>
 
-struct AtomColor
-{
-    enum
-    {
-        TypeLength = 3
-    };
-    char type[TypeLength];
-    float color[4];
-};
 
 class AtomColors : public coSimpleModule
 {
@@ -72,7 +63,5 @@ private:
 #else
     std::vector<coColorParam *> m_atom;
 #endif
-    std::vector<AtomColor> m_rgb;
-    std::vector<float> m_radius;
 };
 #endif

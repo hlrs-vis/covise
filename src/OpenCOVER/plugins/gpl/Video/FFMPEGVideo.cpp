@@ -201,7 +201,7 @@ bool FFMPEGPlugin::add_video_stream(AVCodec *codec, int w, int h, int frame_rate
 
     if (oc->oformat->flags & AVFMT_GLOBALHEADER)
     {
-        codecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        codecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }
 
     return true;
@@ -526,7 +526,7 @@ void FFMPEGPlugin::close_all(bool stream, int format)
     if (oc)
     {
         /* free the streams */
-        for (int i = 0; i < oc->nb_streams; i++)
+        for (unsigned int i = 0; i < oc->nb_streams; i++)
         {
             av_freep(&oc->streams[i]);
         }
@@ -562,10 +562,7 @@ void FFMPEGPlugin::init_GLbuffers()
 bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBFormat)
 {
 
-#ifdef WIN32
-       myPlugin->GL_fmt = GL_BGR_EXT;
-       capture_fmt = AV_PIX_FMT_RGB24;
-#else
+
     if (RGBFormat == 1)
     {
        myPlugin->GL_fmt = GL_BGRA;
@@ -584,7 +581,6 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
         capture_fmt = AV_PIX_FMT_BGR32;
 #endif
     }
-#endif
     linesize = myPlugin->inWidth * 4;
 
     if (!FFMPEGInit(NULL, NULL, filename, false))
@@ -601,10 +597,11 @@ bool FFMPEGPlugin::videoCaptureInit(const string &filename, int format, int RGBF
 bool FFMPEGPlugin::FFMPEGInit(AVOutputFormat *outfmt, AVCodec *codec, const string &filename,
                               bool test_codecs)
 {
+	XMLCh *t1 = NULL;
 #ifdef WIN32
     impl = nullptr;
 #else
-    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(t1 = xercesc::XMLString::transcode("Core")); xercesc::XMLString::release(&t1);
 #endif
 
 /* allocate the output media context */
@@ -1377,6 +1374,7 @@ int FFMPEGPlugin::readParams()
     std::string pathname = path.toStdString();
     pathname += "videoparams.xml";
 #ifndef WIN32
+	XMLCh *t1 = NULL;
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
@@ -1405,7 +1403,7 @@ int FFMPEGPlugin::readParams()
             if (!node)
                 continue;
             VideoParameter VP;
-            VP.name = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("name")));
+            VP.name = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t1);
             xercesc::DOMNodeList *childList = node->getChildNodes();
             for (int j = 0; j < childList->getLength(); j++)
             {
@@ -1413,15 +1411,15 @@ int FFMPEGPlugin::readParams()
                 if (!child)
                     continue;
 
-                const char *w = xercesc::XMLString::transcode(child->getAttribute(xercesc::XMLString::transcode("outWidth")));
-                const char *h = xercesc::XMLString::transcode(child->getAttribute(xercesc::XMLString::transcode("outHeight")));
-                VP.fps = xercesc::XMLString::transcode(child->getAttribute(xercesc::XMLString::transcode("frameRate")));
-                const char *constFrameRate = xercesc::XMLString::transcode(
-                    child->getAttribute(xercesc::XMLString::transcode("constantFrameRate")));
-                const char *avgBitrate = xercesc::XMLString::transcode(
-                    child->getAttribute(xercesc::XMLString::transcode("bitrateAverage")));
-                const char *maxBitrate = xercesc::XMLString::transcode(
-                    child->getAttribute(xercesc::XMLString::transcode("bitrateMax")));
+                char *w = xercesc::XMLString::transcode(child->getAttribute(t1 = xercesc::XMLString::transcode("outWidth"))); xercesc::XMLString::release(&t1);
+                char *h = xercesc::XMLString::transcode(child->getAttribute(t1 = xercesc::XMLString::transcode("outHeight"))); xercesc::XMLString::release(&t1);
+                VP.fps = xercesc::XMLString::transcode(child->getAttribute(t1 = xercesc::XMLString::transcode("frameRate"))); xercesc::XMLString::release(&t1);
+                char *constFrameRate = xercesc::XMLString::transcode(
+                    child->getAttribute(t1 = xercesc::XMLString::transcode("constantFrameRate"))); xercesc::XMLString::release(&t1);
+                char *avgBitrate = xercesc::XMLString::transcode(
+                    child->getAttribute(t1 = xercesc::XMLString::transcode("bitrateAverage"))); xercesc::XMLString::release(&t1);
+                char *maxBitrate = xercesc::XMLString::transcode(
+                    child->getAttribute(t1 = xercesc::XMLString::transcode("bitrateMax"))); xercesc::XMLString::release(&t1);
 
                 sscanf(w, "%d", &VP.width);
                 sscanf(h, "%d", &VP.height);
@@ -1436,6 +1434,11 @@ int FFMPEGPlugin::readParams()
                 sscanf(maxBitrate, "%d", &VP.maxBitrate);
 
                 VPList.push_back(VP);
+				xercesc::XMLString::release(&w);
+				xercesc::XMLString::release(&h);
+				xercesc::XMLString::release(&constFrameRate);
+				xercesc::XMLString::release(&avgBitrate);
+				xercesc::XMLString::release(&maxBitrate);
             }
         }
     }
@@ -1451,7 +1454,10 @@ void FFMPEGPlugin::saveParams()
     pathname += "videoparams.xml";
 
 #ifndef WIN32
-    xercesc::DOMDocument *xmlDoc = impl->createDocument(0, xercesc::XMLString::transcode("VideoParams"), 0);
+
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMDocument *xmlDoc = impl->createDocument(0, t1 = xercesc::XMLString::transcode("VideoParams"), 0); xercesc::XMLString::release(&t1);
     xercesc::DOMElement *rootElement = NULL;
     if (xmlDoc)
     {
@@ -1463,26 +1469,26 @@ void FFMPEGPlugin::saveParams()
         std::list<VideoParameter>::iterator it;
         for (it = VPList.begin(); it != VPList.end(); it++)
         {
-            xercesc::DOMElement *VPElement = xmlDoc->createElement(xercesc::XMLString::transcode("VPEntry"));
-            VPElement->setAttribute(xercesc::XMLString::transcode("name"),
-                                    xercesc::XMLString::transcode((*it).name.c_str()));
-            xercesc::DOMElement *VPChild = xmlDoc->createElement(xercesc::XMLString::transcode("VPValues"));
+            xercesc::DOMElement *VPElement = xmlDoc->createElement(t1 = xercesc::XMLString::transcode("VPEntry")); xercesc::XMLString::release(&t1);
+            VPElement->setAttribute(t1 = xercesc::XMLString::transcode("name"),
+                                    t2 = xercesc::XMLString::transcode((*it).name.c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
+            xercesc::DOMElement *VPChild = xmlDoc->createElement(t1 = xercesc::XMLString::transcode("VPValues")); xercesc::XMLString::release(&t1);
             char nr[100];
             sprintf(nr, "%d", (*it).width);
-            VPChild->setAttribute(xercesc::XMLString::transcode("outWidth"), xercesc::XMLString::transcode(nr));
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("outWidth"), t2 = xercesc::XMLString::transcode(nr)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
             sprintf(nr, "%d", (*it).height);
-            VPChild->setAttribute(xercesc::XMLString::transcode("outHeight"), xercesc::XMLString::transcode(nr));
-            VPChild->setAttribute(xercesc::XMLString::transcode("frameRate"),
-                                  xercesc::XMLString::transcode((*it).fps.c_str()));
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("outHeight"), t2 = xercesc::XMLString::transcode(nr)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("frameRate"),
+                                  t2 = xercesc::XMLString::transcode((*it).fps.c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
             sprintf(nr, "%d", (*it).constFrames);
-            VPChild->setAttribute(xercesc::XMLString::transcode("constantFrameRate"),
-                                  xercesc::XMLString::transcode(nr));
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("constantFrameRate"),
+                                  t2 = xercesc::XMLString::transcode(nr)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
             sprintf(nr, "%d", (*it).maxBitrate);
-            VPChild->setAttribute(xercesc::XMLString::transcode("bitrateMax"),
-                                  xercesc::XMLString::transcode(nr));
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("bitrateMax"),
+                                  t2 = xercesc::XMLString::transcode(nr)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
             sprintf(nr, "%d", (*it).avgBitrate);
-            VPChild->setAttribute(xercesc::XMLString::transcode("bitrateAverage"),
-                                  xercesc::XMLString::transcode(nr));
+            VPChild->setAttribute(t1 = xercesc::XMLString::transcode("bitrateAverage"),
+                                  t2 = xercesc::XMLString::transcode(nr)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
 
             VPElement->appendChild(VPChild);
             rootElement->appendChild(VPElement);
@@ -1505,9 +1511,9 @@ void FFMPEGPlugin::saveParams()
         xercesc::DOMLSSerializer *writer = ((xercesc::DOMImplementationLS *)impl)->createLSSerializer();
 
         xercesc::DOMLSOutput *theOutput = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-        theOutput->setEncoding(xercesc::XMLString::transcode("utf8"));
+        theOutput->setEncoding(t1 = xercesc::XMLString::transcode("utf8")); xercesc::XMLString::release(&t1);
 
-        bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode(pathname.c_str()));
+        bool written = writer->writeToURI(rootElement, t1 = xercesc::XMLString::transcode(pathname.c_str())); xercesc::XMLString::release(&t1);
         if (!written)
             fprintf(stderr, "save info: Could not open file for writing %s!\n", pathname.c_str());
         delete writer;

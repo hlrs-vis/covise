@@ -197,15 +197,17 @@ xercesc::DOMElement *coTrafficSimulation::getOpenDriveRootElement(std::string fi
 
 void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
 {
+	XMLCh *t1 = NULL, *t2 = NULL, *t3 = NULL;
+	char *ch;
     xercesc::DOMNodeList *documentChildrenList = rootElement->getChildNodes();
 
     for (int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
     {
         xercesc::DOMElement *sceneryElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("scenery")) == 0)
+        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t1 = xercesc::XMLString::transcode("scenery")) == 0)
         {
-            std::string fileString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("file")));
-            std::string vpbString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("vpb")));
+            std::string fileString = xercesc::XMLString::transcode(sceneryElement->getAttribute(t2 = xercesc::XMLString::transcode("file"))); xercesc::XMLString::release(&t2);
+            std::string vpbString = xercesc::XMLString::transcode(sceneryElement->getAttribute(t2 = xercesc::XMLString::transcode("vpb"))); xercesc::XMLString::release(&t2);
 
             //std::vector<BoundingArea> voidBoundingAreaVector;
             std::vector<std::string> shapeFileNameVector;
@@ -228,11 +230,12 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                     voidBoundingAreaVector.push_back(BoundingArea(osg::Vec2(xMin, yMin), osg::Vec2(xMax, yMax)));
                    
                 }
-                else */if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), xercesc::XMLString::transcode("shape")) == 0)
+                else */if (xercesc::XMLString::compareIString(sceneryChildElement->getTagName(), t1 = xercesc::XMLString::transcode("shape")) == 0)
                 {
-                    std::string fileString = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(xercesc::XMLString::transcode("file")));
+                    std::string fileString = ch = xercesc::XMLString::transcode(sceneryChildElement->getAttribute(t2 = xercesc::XMLString::transcode("file"))); xercesc::XMLString::release(&t2); xercesc::XMLString::release(&ch);
                     shapeFileNameVector.push_back(fileString);
                 }
+				xercesc::XMLString::release(&t1);
             }
 
             if (!fileString.empty())
@@ -258,9 +261,9 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                 }
             }*/
         }
-        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("environment")) == 0)
+        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t2 = xercesc::XMLString::transcode("environment")) == 0)
         {
-            std::string tessellateRoadsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateRoads")));
+            std::string tessellateRoadsString = ch = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateRoads"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&ch);
             if (tessellateRoadsString == "false" || tessellateRoadsString == "0")
             {
                 tessellateRoads = false;
@@ -270,7 +273,7 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateRoads = true;
             }
 
-            std::string tessellatePathsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellatePaths")));
+            std::string tessellatePathsString = ch = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellatePaths"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&ch);
             if (tessellatePathsString == "false" || tessellatePathsString == "0")
             {
                 tessellatePaths = false;
@@ -280,7 +283,7 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellatePaths = true;
             }
 
-            std::string tessellateBattersString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateBatters")));
+            std::string tessellateBattersString = ch = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateBatters"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&ch);
             if (tessellateBattersString == "true")
             {
                 tessellateBatters = true;
@@ -290,7 +293,7 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateBatters = false;
             }
 
-            std::string tessellateObjectsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateObjects")));
+            std::string tessellateObjectsString = ch = xercesc::XMLString::transcode(sceneryElement->getAttribute(t3 = xercesc::XMLString::transcode("tessellateObjects"))); xercesc::XMLString::release(&t3); xercesc::XMLString::release(&ch);
             if (tessellateObjectsString == "true")
             {
                 tessellateObjects = true;
@@ -300,6 +303,8 @@ void coTrafficSimulation::parseOpenDrive(xercesc::DOMElement *rootElement)
                 tessellateObjects = false;
             }
         }
+		xercesc::XMLString::release(&t1);
+		xercesc::XMLString::release(&t2);
     }
 }
 

@@ -70,9 +70,6 @@ if [ -z "$COENVERROR" ]; then
       extLibPath="${COVISEDIR}/${ARCHSUFFIX}/system-lib:${extLibPath}"
    fi
 
-   export VV_SHADER_PATH="${COVISEDIR}/src/3rdparty/deskvox/virvo/shader"
-   export VV_PLUGIN_PATH="${COVISEDIR}/${ARCHSUFFIX}/lib"
-
    if [ -n "$PYTHONPATH" ]; then
       export PYTHONPATH="${COVISEDIR}/${ARCHSUFFIX}/lib:${PYTHONPATH}"
    else

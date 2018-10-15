@@ -26,6 +26,7 @@ struct ChannelData {
     int frameNum;
     int width;
     int height;
+    int depthWidth=0, depthHeight=0;
     GLenum colorFormat;
     GLenum depthFormat;
     osg::Matrix curProj, curView, curModel;

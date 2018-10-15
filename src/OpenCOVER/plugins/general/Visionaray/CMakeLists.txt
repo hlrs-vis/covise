@@ -25,6 +25,11 @@ set(HEADERS
     kernels/normals_kernel.h
     kernels/tex_coords_kernel.h
     common.h
+    mask_intersector.h
+    pathtrace_cpu.h
+    pathtrace_gpu.h
+    render_cpu.h
+    render_gpu.h
     renderer.h
     scene_monitor.h
     state.h
@@ -32,12 +37,18 @@ set(HEADERS
 )
 
 set(SOURCES
+    pathtrace_cpu.cpp
+    render_cpu.cpp
     scene_monitor.cpp
     visionaray_plugin.cpp
 )
 
 if(COVISE_USE_CUDA AND CUDA_FOUND)
-    do_cuda_compile(CUDA_SOURCES renderer.cu)
+    do_cuda_compile(
+        CUDA_SOURCES
+        pathtrace_gpu.cu
+        render_gpu.cu
+        renderer.cu)
 else()
     set(SOURCES
         ${SOURCES}

@@ -34,7 +34,7 @@ ExportSettings::ExportSettings()
     inst = this;
     ui->setupUi(this);
 
-    connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
 
     //ui->exportIDOptions->
 

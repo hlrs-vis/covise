@@ -343,7 +343,7 @@ void module::start(char *parameter, Start::Flags flags)
             else if (flags == Start::Debug)
             {
                 //arg += "gdb --args ";
-                arg += "lldb ";
+                arg += "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb ";
                 arg += execpath;
                 arg += " -- ";
             }

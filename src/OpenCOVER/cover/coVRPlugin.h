@@ -57,6 +57,7 @@ namespace opencover
 {
 class RenderObject;
 class coInteractor;
+class Url;
 
 //! currently, there are these methods to start a plugin:
 //! 1. the plugin is specified in the configuration, then it is initialized in COVER before the render loop starts

@@ -200,6 +200,7 @@ void VRSceneGraph::init()
     m_drawStyle->append("Wireframe");
     m_drawStyle->append("Hidden lines (dark)");
     m_drawStyle->append("Hidden lines (bright)");
+    m_drawStyle->append("Points");
     cover->viewOptionsMenu->add(m_drawStyle);
     m_drawStyle->setShortcut("Alt+w");
     m_drawStyle->setCallback([this](int style){
@@ -214,20 +215,6 @@ void VRSceneGraph::init()
     m_showAxis->setShortcut("Shift+A");
     m_showAxis->setCallback([this](bool state){
         toggleAxis(state);
-    });
-
-    m_storeScenegraph = new ui::Action("StoreScenegraph", this);
-    cover->fileMenu->add(m_storeScenegraph);
-    m_storeScenegraph->setText("Store scenegraph");
-    m_storeScenegraph->setCallback([this](){
-        saveScenegraph();
-    });
-
-    m_reloadFile = new ui::Action("ReloadFile", this);
-    cover->fileMenu->add(m_reloadFile);
-    m_reloadFile->setText("Reload file");
-    m_reloadFile->setCallback([this](){
-        coVRFileManager::instance()->reloadFile();
     });
 
     m_showStats = new ui::SelectionList("ShowStats", this);
@@ -252,15 +239,31 @@ void VRSceneGraph::init()
     cover->viewOptionsMenu->add(m_useTextures);
     m_useTextures->setCallback([this](bool state){
         m_textured = state;
-        if (m_textured)
+        osg::Texture *texture = new osg::Texture2D;
+        for (int unit=0; unit<4; ++unit)
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
+            if (m_textured)
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OFF);
+            else
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
+    });
+
+    m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders->setVisible(false, ui::View::VR);
+    m_useShaders->setShortcut("Alt+s");
+    m_useShaders->setState(m_shaders);
+    cover->viewOptionsMenu->add(m_useShaders);
+    m_useShaders->setCallback([this](bool state){
+        m_shaders = state;
+        osg::Program *program = new osg::Program;
+        if (m_shaders)
+        {
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OFF);
         }
         else
         {
-            osg::Texture *texture = new osg::Texture2D;
-            m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
         }
     });
 }
@@ -357,9 +360,13 @@ void VRSceneGraph::initSceneGraph()
     // add it to the scene graph as the first child
     //                                  -----
     m_handTransform = new osg::MatrixTransform();
+	m_handTransform->setName("m_handTransform");
     m_handIconScaleTransform = new osg::MatrixTransform();
+	m_handIconScaleTransform->setName("m_handIconScaleTransform");
     m_handAxisScaleTransform = new osg::MatrixTransform();
+	m_handAxisScaleTransform->setName("m_handAxisScaleTransform");
     m_pointerDepthTransform = new osg::MatrixTransform();
+	m_pointerDepthTransform->setName("m_pointerDepthTransform");
     m_handTransform->addChild(m_pointerDepthTransform.get());
     m_handTransform->addChild(m_handAxisScaleTransform);
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
@@ -387,10 +394,12 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
+	m_objectsTransform->setName("m_objectsTransform");
     m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
+	m_scaleTransform->setName("m_scaleTransform");
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
@@ -419,6 +428,7 @@ void VRSceneGraph::initAxis()
     m_viewerAxis = loadAxisGeode(4);
     m_objectAxis = loadAxisGeode(0.01f);
     m_viewerAxisTransform = new osg::MatrixTransform();
+	m_viewerAxisTransform->setName("m_viewerAxisTransform");
     m_scene->addChild(m_viewerAxisTransform.get());
 
     showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
@@ -434,6 +444,7 @@ void VRSceneGraph::initAxis()
         m_smallSceneAxis = loadAxisGeode(0.01 * sx);
         m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
         m_smallSceneAxisTransform = new osg::MatrixTransform();
+		m_smallSceneAxisTransform->setName("m_smallSceneAxisTransform");
         m_smallSceneAxisTransform->setMatrix(osg::Matrix::translate(xp, yp, zp));
         m_scene->addChild(m_smallSceneAxisTransform.get());
 
@@ -1083,11 +1094,17 @@ VRSceneGraph::setWireframe(WireframeMode wf)
     {
         case Disabled:
         case Enabled:
+        case Points:
         {
             osg::PolygonMode *polymode = new osg::PolygonMode;
             if (m_wireframe == Disabled)
             {
                 m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+            }
+            else if (m_wireframe == Points)
+            {
+                polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
             }
             else
             {
@@ -1282,6 +1299,7 @@ VRSceneGraph::loadAxisGeode(float s)
         fprintf(stderr, "VRSceneGraph::loadAxisGeode\n");
 
     osg::MatrixTransform *mt = new osg::MatrixTransform;
+	mt->setName("AxisGeodeMatrixTransform");
     mt->addChild(coVRFileManager::instance()->loadIcon("Axis"));
     mt->setMatrix(osg::Matrix::scale(s, s, s));
 
@@ -1325,6 +1343,7 @@ VRSceneGraph::loadHandLine()
             float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
 
             osg::MatrixTransform *m = new osg::MatrixTransform;
+			m->setName("HandLineMatrixTransform");
             m->setMatrix(osg::Matrix::scale(width / sx, length / sy, width / sx));
             m->addChild(n);
             result = m;
@@ -1486,7 +1505,7 @@ VRSceneGraph::getBoundingSphere()
 void VRSceneGraph::scaleAllObjects(bool resetView)
 {
     osg::BoundingSphere bsphere = getBoundingSphere();
-    if (bsphere.radius() == 0.f)
+    if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
     // scale and translate but keep current orientation
@@ -1545,8 +1564,8 @@ void VRSceneGraph::dirtySpecialBounds()
 void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
                                             bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const
 {
-    scaleFactor[0] = cover->getSceneSize() / 2.f / boundingSphere.radius();
-    currentMatrix->makeTranslate(-(boundingSphere.center() * scaleFactor[0]));
+    *scaleFactor = std::abs(cover->getSceneSize() / 2.f / boundingSphere.radius());
+    currentMatrix->makeTranslate(-(boundingSphere.center() * *scaleFactor));
     if (!resetView)
     {
         osg::Quat rotation = m_objectsTransform->getMatrix().getRotate();
@@ -1630,14 +1649,20 @@ VRSceneGraph::isHighQuality() const
     return m_highQuality;
 }
 
-void
+bool
 VRSceneGraph::saveScenegraph(bool storeWithMenu)
 {
     std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osgb");
+    return saveScenegraph(filename, storeWithMenu);
+}
+
+bool
+VRSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
+{
     if (isScenegraphProtected_)
     {
         fprintf(stderr, "Cannot store scenegraph. Not allowed!");
-        return;
+        return false;
     }
 
     if (cover->debugLevel(3))
@@ -1648,22 +1673,23 @@ VRSceneGraph::saveScenegraph(bool storeWithMenu)
                         || !strcmp(filename.c_str() + len - 5, ".osgb")
                         || !strcmp(filename.c_str() + len - 5, ".osgx"))))
     {
-        if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
-        {
-            if (cover->debugLevel(3))
-                std::cerr << "Data written to \"" << filename << "\"." << std::endl;
-        }
-        else
-        {
-            if (cover->debugLevel(1))
-                std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
-        }
     }
     else
     {
         if (cover->debugLevel(1))
-            std::cerr << "Not writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
+            std::cerr << "Writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
+
+    if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
+    {
+        if (cover->debugLevel(3))
+            std::cerr << "Data written to \"" << filename << "\"." << std::endl;
+        return true;
+    }
+
+    if (cover->debugLevel(1))
+        std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
+    return false;
 }
 
 void
@@ -1845,7 +1871,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     material->setAlpha(osg::Material::FRONT_AND_BACK, 0.5f);
 
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, 0.0);
 
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
@@ -1861,7 +1887,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     stateTransp->setNestRenderBins(false);
     stateTransp->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateTransp->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
 

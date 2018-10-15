@@ -72,7 +72,9 @@ ProjectData::ProjectData(ProjectWidget *projectWidget, QUndoStack *undoStack, Ch
 	, oscBase_(NULL)
     , undoStack_(undoStack)
     , changeManager_(changeManager)
-	, geoReferenceParams_(NULL)
+    , geoReferenceParams_(NULL)
+    , proj4ReferenceTo_(NULL)
+    , proj4ReferenceFrom_(NULL)
 {
     linkToProject(this); // link to itself
 }
@@ -84,6 +86,10 @@ ProjectData::ProjectData(ProjectWidget *projectWidget, QUndoStack *undoStack, Ch
 ProjectData::~ProjectData()
 {
     delete undoStack_;
+
+    pj_free(proj4ReferenceFrom_);
+    pj_free(proj4ReferenceTo_);
+    delete geoReferenceParams_;
 
     delete roadSystem_;
     delete tileSystem_;
@@ -190,13 +196,25 @@ ProjectData::setWest(double west)
 void 
 ProjectData::setGeoReference(GeoReference *geoParams)
 {
-
-	if (geoReferenceParams_ != geoParams)
-	{
-		geoReferenceParams_ = geoParams;
-	}
+    if (geoReferenceParams_ != geoParams)
+    {
+        geoReferenceParams_ = geoParams;
+        addProjectDataChanges(ProjectData::CPD_ProjectionSettingsChanged);
+    }
 }
 
+//ÄNDERUNG!
+void
+ProjectData::setProj4ReferenceTo(projPJ proj)
+{
+    proj4ReferenceTo_ = proj;
+}
+
+void
+ProjectData::setProj4ReferenceFrom(projPJ proj)
+{
+    proj4ReferenceFrom_ = proj;
+}
 
 //##################//
 // SLOTS            //

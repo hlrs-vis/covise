@@ -36,6 +36,7 @@
 #include <util/coTabletUIMessages.h>
 #include <osg/Texture2D>
 #include <cover/VRSceneGraph.h>
+#include <cover/OpenCOVER.h>
 #include <net/tokenbuffer.h>
 
 #include <PluginUtil/PluginMessageTypes.h>
@@ -59,12 +60,14 @@ bool SGBrowser::pickedObjChanged()
     {
         node = (*iter).get();
         path = selectionManager->generatePath(node);
-        sGBrowserTab->sendCurrentNode(node, path);
+        for (auto t: tuis)
+            t.tab->sendCurrentNode(node, path);
         iter++;
     }
     return true;
 }
-bool SGBrowser::processTexture(osg::StateSet *ss)
+
+bool SGBrowser::processTexture(coTUISGBrowserTab *sGBrowserTab, TexVisitor *texvis, osg::StateSet *ss)
 {
     bool found = false;
     if (ss)
@@ -166,9 +169,10 @@ bool SGBrowser::processTexture(osg::StateSet *ss)
     }
     return found;
 }
+
 bool SGBrowser::selectionChanged()
 {
-    bool found = false;
+    bool finished = false;
     StateSet *ss = NULL;
 
     std::list<osg::ref_ptr<osg::Node> > selectedNodeList = selectionManager->getSelectionList();
@@ -186,33 +190,46 @@ bool SGBrowser::selectionChanged()
         if (pickedObject.get())
         {
             std::string path = selectionManager->generatePath(pickedObject.get());
-            sGBrowserTab->setCurrentPath(path);
-
             ss = pickedObject.get()->getStateSet();
-            if (processTexture(ss))
-                found = true;
 
-            Geode *geode = dynamic_cast<Geode *>(pickedObject.get());
-            if (geode)
+            finished = true;
+
+            for (auto t: tuis)
             {
-                for (unsigned int numdraw = 0; numdraw < geode->getNumDrawables(); numdraw++)
-                {
-                    Drawable *drawable = geode->getDrawable(numdraw);
+                bool found = false;
+                t.tab->setCurrentPath(path);
+                if (processTexture(t.tab, t.tex, ss))
+                    found = true;
 
-                    if (drawable)
+                Geode *geode = dynamic_cast<Geode *>(pickedObject.get());
+                if (geode)
+                {
+                    for (unsigned int numdraw = 0; numdraw < geode->getNumDrawables(); numdraw++)
                     {
-                        ss = drawable->getStateSet();
-                        if (processTexture(ss))
-                            found = true;
+                        Drawable *drawable = geode->getDrawable(numdraw);
+
+                        if (drawable)
+                        {
+                            ss = drawable->getStateSet();
+                            if (processTexture(t.tab, t.tex, ss))
+                                found = true;
+                        }
                     }
                 }
+
+                if (found)
+                    t.tab->finishedNode();
+                else
+                    t.tab->noTexture();
             }
         }
     }
-    if (found)
-        sGBrowserTab->finishedNode();
-    else
-        sGBrowserTab->noTexture();
+
+    if (!finished)
+    {
+        for (auto t: tuis)
+            t.tab->noTexture();
+    }
 
     return true;
 }
@@ -221,12 +238,9 @@ SGBrowser::SGBrowser()
     : idata(NULL)
     , myMes(false)
     , reconnect(false)
-    , sGBrowserTab(NULL)
     , selectionManager(NULL)
-    , vis(NULL)
     , restraint(NULL)
     , shaderList(NULL)
-    , texvis(NULL)
     , linked(false)
 {
     assert(plugin == NULL);
@@ -235,16 +249,22 @@ SGBrowser::SGBrowser()
 
 bool SGBrowser::init()
 {
-    sGBrowserTab = new coTUISGBrowserTab("Scenegraph", coVRTui::instance()->mainFolder->getID());
-    sGBrowserTab->setPos(0, 0);
+    std::cerr << "SGBrowser: #tuis = " <<  OpenCOVER::instance()->numTuis() << std::endl;
+    for (size_t i=0; i<OpenCOVER::instance()->numTuis(); ++i)
+    {
+        auto tui = OpenCOVER::instance()->tui(i);
 
-    sGBrowserTab->setEventListener(this);
-    vis = new MyNodeVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sGBrowserTab);
+        auto sgt = new coTUISGBrowserTab(tui, "Scenegraph", OpenCOVER::instance()->tuiTab(i)->getID());
+        sgt->setPos(0, 0);
+        sgt->setEventListener(this);
+
+        tuis.emplace_back(sgt,
+                          new MyNodeVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sgt),
+                          new TexVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sgt));
+    }
 
     selectionManager = coVRSelectionManager::instance();
     selectionManager->addListener(this);
-
-    texvis = new TexVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sGBrowserTab);
 
     restraint = new coRestraint();
 
@@ -262,8 +282,14 @@ SGBrowser::~SGBrowser()
 
     if (selectionManager)
         selectionManager->removeListener(this);
-    delete texvis;
-    delete sGBrowserTab;
+
+    for (auto t: tuis)
+    {
+        delete t.tex;
+        delete t.vis;
+        delete t.tab;
+    }
+
     delete restraint;
 
     plugin = NULL;
@@ -271,83 +297,107 @@ SGBrowser::~SGBrowser()
 
 void SGBrowser::tabletReleaseEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        if (sGBrowserTab->getImageMode() == SEND_IMAGES)
+        if (tUIItem == t.tab)
         {
-            texvis->setTexFound(false);
-            texvis->apply(*cover->getObjectsRoot());
-            if (texvis->getTexFound())
-                sGBrowserTab->finishedTraversing();
-            else
-                sGBrowserTab->noTexture();
-        }
-        if (sGBrowserTab->getImageMode() == SEND_LIST)
-        {
-            texvis->sendImageList();
-            sGBrowserTab->finishedTraversing();
+            if (t.tab->getImageMode() == SEND_IMAGES)
+            {
+                t.tex->setTexFound(false);
+                t.tex->apply(*cover->getObjectsRoot());
+                if (t.tex->getTexFound())
+                    t.tab->finishedTraversing();
+                else
+                    t.tab->noTexture();
+            }
+            if (t.tab->getImageMode() == SEND_LIST)
+            {
+                t.tex->sendImageList();
+                t.tab->finishedTraversing();
+            }
+
+            break;
         }
     }
 }
 
 void SGBrowser::tabletPressEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        vis->updateMyParent(*cover->getObjectsRoot());
-
-        sGBrowserTab->sendEnd();
+        if (tUIItem == t.tab)
+        {
+            t.vis->updateMyParent(*cover->getObjectsRoot());
+            t.tab->sendEnd();
+            break;
+        }
     }
 }
+
 void SGBrowser::tabletSelectEvent(coTUIElement *tUIItem)
 {
-
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        vis->addMyNode();
+        if (tUIItem == t.tab)
+        {
+            t.vis->addMyNode();
+            break;
+        }
     }
 }
+
 void SGBrowser::tabletChangeModeEvent(coTUIElement *tUIItem)
 {
-
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        int mode = sGBrowserTab->getVisMode();
+        if (tUIItem == t.tab)
+        {
+            int mode = t.tab->getVisMode();
 
-        if (mode == UPDATE_COLOR)
-        {
-            selectionManager->setSelectionColor(sGBrowserTab->getR(), sGBrowserTab->getG(), sGBrowserTab->getB());
-        }
-        else if (mode == UPDATE_WIRE)
-        {
-            selectionManager->setSelectionWire(sGBrowserTab->getPolyMode());
-        }
-        else if (mode == UPDATE_SEL)
-        {
-            selectionManager->showhideSelection(sGBrowserTab->getSelMode());
+            if (mode == UPDATE_COLOR)
+            {
+                selectionManager->setSelectionColor(t.tab->getR(), t.tab->getG(), t.tab->getB());
+            }
+            else if (mode == UPDATE_WIRE)
+            {
+                selectionManager->setSelectionWire(t.tab->getPolyMode());
+            }
+            else if (mode == UPDATE_SEL)
+            {
+                selectionManager->showhideSelection(t.tab->getSelMode());
+            }
+
+            break;
         }
     }
 }
+
 void SGBrowser::tabletFindEvent(coTUIElement *tUIItem)
 {
-
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        vis->myInit();
-        vis->apply(*cover->getObjectsRoot());
-        vis->traverseFindList();
-        vis->sendMyFindList();
-        sGBrowserTab->sendEnd();
+        if (tUIItem == t.tab)
+        {
+            t.vis->myInit();
+            t.vis->apply(*cover->getObjectsRoot());
+            t.vis->traverseFindList();
+            t.vis->sendMyFindList();
+            t.tab->sendEnd();
+            break;
+        }
     }
 }
 void SGBrowser::tabletCurrentEvent(coTUIElement *tUIItem)
 {
-
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        vis->myInit();
-        vis->traverseFindList();
-        vis->sendMyFindList();
+        if (tUIItem == t.tab)
+        {
+            t.vis->myInit();
+            t.vis->traverseFindList();
+            t.vis->sendMyFindList();
+            break;
+        }
     }
 }
 
@@ -383,318 +433,325 @@ void SGBrowser::tabletLoadFilesEvent(char *nodeName)
 
 void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 {
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
-        int mode;
-        char *path, *pPath;
-
-        TokenBuffer _tb;
-
-        tb >> mode;
-        if (mode == CENTER_OBJECT)
+        if (tUIItem == t.tab)
         {
-            VRSceneGraph::instance()->viewAll();
-        }
-        if (mode == SET_PROPERTIES)
-        {
-            int depthOnly, all, remove, j, trans;
-            char *children;
-            tb >> path;
-            tb >> pPath;
-            tb >> depthOnly;
-            tb >> children;
-            tb >> all;
-            tb >> remove;
-            tb >> trans;
-            for (j = 0; j < 4; j++)
-                tb >> sGBrowserTab->diffuse[j];
-            for (j = 0; j < 4; j++)
-                tb >> sGBrowserTab->specular[j];
-            for (j = 0; j < 4; j++)
-                tb >> sGBrowserTab->ambient[j];
-            for (j = 0; j < 4; j++)
-                tb >> sGBrowserTab->emissive[j];
-            for (j = 0; j < 16; ++j)
+            auto sGBrowserTab = t.tab;
+
+            int mode;
+            char *path, *pPath;
+
+            TokenBuffer _tb;
+
+            tb >> mode;
+            if (mode == CENTER_OBJECT)
             {
-                tb >> sGBrowserTab->matrix[j];
-                ;
+                VRSceneGraph::instance()->viewAll();
             }
-
-            _tb << path;
-            _tb << pPath;
-            _tb << depthOnly;
-            _tb << children;
-            _tb << all;
-            _tb << remove;
-            _tb << trans;
-            for (j = 0; j < 4; j++)
-                _tb << sGBrowserTab->diffuse[j];
-            for (j = 0; j < 4; j++)
-                _tb << sGBrowserTab->specular[j];
-            for (j = 0; j < 4; j++)
-                _tb << sGBrowserTab->ambient[j];
-            for (j = 0; j < 4; j++)
-                _tb << sGBrowserTab->emissive[j];
-            for (j = 0; j < 16; ++j)
+            if (mode == SET_PROPERTIES)
             {
-                _tb << sGBrowserTab->matrix[j];
-                ;
-            }
-
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetProperties,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == GET_PROPERTIES)
-        {
-            tb >> path;
-            tb >> pPath;
-
-            _tb << path;
-            _tb << pPath;
-
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserGetProperties,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == REMOVE_TEXTURE)
-        {
-            int texNumber;
-            tb >> path;
-            tb >> texNumber;
-
-            _tb << path;
-            _tb << texNumber;
-
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveTexture,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == GET_SHADER)
-        {
-            std::list<coVRShader *>::iterator iter;
-
-            for (iter = shaderList->begin(); iter != shaderList->end(); iter++)
-            {
-                std::string name = (*iter)->getName();
-                sGBrowserTab->sendShader(name);
-            }
-        }
-        if (mode == GET_UNIFORMS)
-        {
-
-            char *name;
-            tb >> name;
-            std::string shaderName = std::string(name);
-            coVRShader *_shader = shaderList->get(shaderName);
-            std::list<coVRUniform *> uniformList = _shader->getUniforms();
-            if (_shader->getFragmentShader().get() != NULL && _shader->getVertexShader().get() != NULL)
-            {
-                std::string fragmentSource = _shader->getFragmentShader().get()->getShaderSource();
-                std::string vertexSource = _shader->getVertexShader().get()->getShaderSource();
-
-                std::string tessControlSource, tessEvalSource;
-                if (_shader->getTessControlShader().get() != NULL && _shader->getTessEvalShader().get() != NULL)
+                int depthOnly, all, remove, j, trans;
+                char *children;
+                tb >> path;
+                tb >> pPath;
+                tb >> depthOnly;
+                tb >> children;
+                tb >> all;
+                tb >> remove;
+                tb >> trans;
+                for (j = 0; j < 4; j++)
+                    tb >> sGBrowserTab->diffuse[j];
+                for (j = 0; j < 4; j++)
+                    tb >> sGBrowserTab->specular[j];
+                for (j = 0; j < 4; j++)
+                    tb >> sGBrowserTab->ambient[j];
+                for (j = 0; j < 4; j++)
+                    tb >> sGBrowserTab->emissive[j];
+                for (j = 0; j < 16; ++j)
                 {
-                    tessControlSource = _shader->getTessControlShader()->getShaderSource();
-                    tessEvalSource = _shader->getTessEvalShader()->getShaderSource();
+                    tb >> sGBrowserTab->matrix[j];
+                    ;
                 }
 
-                std::string geometrySource;
-                if (_shader->getGeometryShader().get())
+                _tb << path;
+                _tb << pPath;
+                _tb << depthOnly;
+                _tb << children;
+                _tb << all;
+                _tb << remove;
+                _tb << trans;
+                for (j = 0; j < 4; j++)
+                    _tb << sGBrowserTab->diffuse[j];
+                for (j = 0; j < 4; j++)
+                    _tb << sGBrowserTab->specular[j];
+                for (j = 0; j < 4; j++)
+                    _tb << sGBrowserTab->ambient[j];
+                for (j = 0; j < 4; j++)
+                    _tb << sGBrowserTab->emissive[j];
+                for (j = 0; j < 16; ++j)
                 {
-                    geometrySource = _shader->getGeometryShader().get()->getShaderSource();
-                    sGBrowserTab->updateShaderNumVertices(shaderName, _shader->getNumVertices());
-                    sGBrowserTab->updateShaderInputType(shaderName, _shader->getInputType());
-                    sGBrowserTab->updateShaderOutputType(shaderName, _shader->getOutputType());
+                    _tb << sGBrowserTab->matrix[j];
+                    ;
                 }
 
-                sGBrowserTab->sendShaderSource(vertexSource, fragmentSource, geometrySource, tessControlSource, tessEvalSource);
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetProperties,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == GET_PROPERTIES)
+            {
+                tb >> path;
+                tb >> pPath;
 
-                std::list<coVRUniform *>::iterator iter;
-                for (iter = uniformList.begin(); iter != uniformList.end(); iter++)
+                _tb << path;
+                _tb << pPath;
+
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserGetProperties,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == REMOVE_TEXTURE)
+            {
+                int texNumber;
+                tb >> path;
+                tb >> texNumber;
+
+                _tb << path;
+                _tb << texNumber;
+
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveTexture,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == GET_SHADER)
+            {
+                std::list<coVRShader *>::iterator iter;
+
+                for (iter = shaderList->begin(); iter != shaderList->end(); iter++)
                 {
                     std::string name = (*iter)->getName();
-                    std::string texFile = (*iter)->getTextureFileName();
-                    std::string type = (*iter)->getType();
-                    std::string value = (*iter)->getValue();
-                    std::string min = (*iter)->getMin();
-                    std::string max = (*iter)->getMax();
-                    sGBrowserTab->sendUniform(name, type, value, min, max, texFile);
+                    sGBrowserTab->sendShader(name);
                 }
             }
-            else
+            if (mode == GET_UNIFORMS)
             {
-                if (_shader->getFragmentShader().get() == NULL)
-                    cerr << "missing fragment shader" << endl;
-                if (_shader->getVertexShader().get() == NULL)
-                    cerr << "missing vertex shader" << endl;
+
+                char *name;
+                tb >> name;
+                std::string shaderName = std::string(name);
+                coVRShader *_shader = shaderList->get(shaderName);
+                std::list<coVRUniform *> uniformList = _shader->getUniforms();
+                if (_shader->getFragmentShader().get() != NULL && _shader->getVertexShader().get() != NULL)
+                {
+                    std::string fragmentSource = _shader->getFragmentShader().get()->getShaderSource();
+                    std::string vertexSource = _shader->getVertexShader().get()->getShaderSource();
+
+                    std::string tessControlSource, tessEvalSource;
+                    if (_shader->getTessControlShader().get() != NULL && _shader->getTessEvalShader().get() != NULL)
+                    {
+                        tessControlSource = _shader->getTessControlShader()->getShaderSource();
+                        tessEvalSource = _shader->getTessEvalShader()->getShaderSource();
+                    }
+
+                    std::string geometrySource;
+                    if (_shader->getGeometryShader().get())
+                    {
+                        geometrySource = _shader->getGeometryShader().get()->getShaderSource();
+                        sGBrowserTab->updateShaderNumVertices(shaderName, _shader->getNumVertices());
+                        sGBrowserTab->updateShaderInputType(shaderName, _shader->getInputType());
+                        sGBrowserTab->updateShaderOutputType(shaderName, _shader->getOutputType());
+                    }
+
+                    sGBrowserTab->sendShaderSource(vertexSource, fragmentSource, geometrySource, tessControlSource, tessEvalSource);
+
+                    std::list<coVRUniform *>::iterator iter;
+                    for (iter = uniformList.begin(); iter != uniformList.end(); iter++)
+                    {
+                        std::string name = (*iter)->getName();
+                        std::string texFile = (*iter)->getTextureFileName();
+                        std::string type = (*iter)->getType();
+                        std::string value = (*iter)->getValue();
+                        std::string min = (*iter)->getMin();
+                        std::string max = (*iter)->getMax();
+                        sGBrowserTab->sendUniform(name, type, value, min, max, texFile);
+                    }
+                }
+                else
+                {
+                    if (_shader->getFragmentShader().get() == NULL)
+                        cerr << "missing fragment shader" << endl;
+                    if (_shader->getVertexShader().get() == NULL)
+                        cerr << "missing vertex shader" << endl;
+                }
             }
-        }
-        if (mode == REMOVE_SHADER)
-        {
-            tb >> path;
-
-            _tb << path;
-
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveShader,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == STORE_SHADER)
-        {
-            char *shaderName;
-            tb >> shaderName;
-            coVRShader *_shader = shaderList->get(shaderName);
-            if (_shader)
+            if (mode == REMOVE_SHADER)
             {
-                _shader->storeMaterial();
+                tb >> path;
+
+                _tb << path;
+
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveShader,
+                                   _tb.get_length(), _tb.get_data());
             }
-        }
-        if (mode == SET_SHADER)
-        {
-            char *name;
-            tb >> path;
-            tb >> name;
+            if (mode == STORE_SHADER)
+            {
+                char *shaderName;
+                tb >> shaderName;
+                coVRShader *_shader = shaderList->get(shaderName);
+                if (_shader)
+                {
+                    _shader->storeMaterial();
+                }
+            }
+            if (mode == SET_SHADER)
+            {
+                char *name;
+                tb >> path;
+                tb >> name;
 
-            _tb << path;
-            _tb << name;
+                _tb << path;
+                _tb << name;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetShader,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == SET_UNIFORM)
-        {
-            char *Sname, *Uname, *Uvalue, *StexFile;
-            tb >> Sname;
-            tb >> Uname;
-            tb >> Uvalue;
-            tb >> StexFile;
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetShader,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == SET_UNIFORM)
+            {
+                char *Sname, *Uname, *Uvalue, *StexFile;
+                tb >> Sname;
+                tb >> Uname;
+                tb >> Uvalue;
+                tb >> StexFile;
 
-            _tb << Sname;
-            _tb << Uname;
-            _tb << Uvalue;
-            _tb << StexFile;
+                _tb << Sname;
+                _tb << Uname;
+                _tb << Uvalue;
+                _tb << StexFile;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetUniform,
-                               _tb.get_length(), _tb.get_data());
-        }
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetUniform,
+                                   _tb.get_length(), _tb.get_data());
+            }
 
-        if (mode == SET_INPUT_TYPE)
-        {
-            char *Sname;
-            int value;
-            tb >> Sname;
-            tb >> value;
+            if (mode == SET_INPUT_TYPE)
+            {
+                char *Sname;
+                int value;
+                tb >> Sname;
+                tb >> value;
 
-            _tb << Sname;
-            _tb << value;
+                _tb << Sname;
+                _tb << value;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetInputType,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == SET_OUTPUT_TYPE)
-        {
-            char *Sname;
-            int value;
-            tb >> Sname;
-            tb >> value;
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetInputType,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == SET_OUTPUT_TYPE)
+            {
+                char *Sname;
+                int value;
+                tb >> Sname;
+                tb >> value;
 
-            _tb << Sname;
-            _tb << value;
+                _tb << Sname;
+                _tb << value;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetOutputType,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == SET_NUM_VERT)
-        {
-            char *Sname;
-            int value;
-            tb >> Sname;
-            tb >> value;
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetOutputType,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == SET_NUM_VERT)
+            {
+                char *Sname;
+                int value;
+                tb >> Sname;
+                tb >> value;
 
-            _tb << Sname;
-            _tb << value;
+                _tb << Sname;
+                _tb << value;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetNumVertex,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == SET_VERTEX)
-        {
-            char *Sname, *Vvalue;
-            tb >> Sname;
-            tb >> Vvalue;
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetNumVertex,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == SET_VERTEX)
+            {
+                char *Sname, *Vvalue;
+                tb >> Sname;
+                tb >> Vvalue;
 
-            _tb << Sname;
-            _tb << Vvalue;
+                _tb << Sname;
+                _tb << Vvalue;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetVertex,
-                               _tb.get_length(), _tb.get_data());
-        }
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetVertex,
+                                   _tb.get_length(), _tb.get_data());
+            }
 
-        if (mode == SET_TESSCONTROL)
-        {
-            char *Sname, *Vvalue;
-            tb >> Sname;
-            tb >> Vvalue;
+            if (mode == SET_TESSCONTROL)
+            {
+                char *Sname, *Vvalue;
+                tb >> Sname;
+                tb >> Vvalue;
 
-            _tb << Sname;
-            _tb << Vvalue;
+                _tb << Sname;
+                _tb << Vvalue;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessControl,
-                               _tb.get_length(), _tb.get_data());
-        }
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessControl,
+                                   _tb.get_length(), _tb.get_data());
+            }
 
-        if (mode == SET_TESSEVAL)
-        {
-            char *Sname, *Vvalue;
-            tb >> Sname;
-            tb >> Vvalue;
+            if (mode == SET_TESSEVAL)
+            {
+                char *Sname, *Vvalue;
+                tb >> Sname;
+                tb >> Vvalue;
 
-            _tb << Sname;
-            _tb << Vvalue;
+                _tb << Sname;
+                _tb << Vvalue;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessEval,
-                               _tb.get_length(), _tb.get_data());
-        }
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessEval,
+                                   _tb.get_length(), _tb.get_data());
+            }
 
-        if (mode == SET_FRAGMENT)
-        {
-            char *Sname, *Fvalue;
-            tb >> Sname;
-            tb >> Fvalue;
+            if (mode == SET_FRAGMENT)
+            {
+                char *Sname, *Fvalue;
+                tb >> Sname;
+                tb >> Fvalue;
 
-            _tb << Sname;
-            _tb << Fvalue;
+                _tb << Sname;
+                _tb << Fvalue;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetFragment,
-                               _tb.get_length(), _tb.get_data());
-        }
-        if (mode == SET_GEOMETRY)
-        {
-            char *Sname, *Gvalue;
-            tb >> Sname;
-            tb >> Gvalue;
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetFragment,
+                                   _tb.get_length(), _tb.get_data());
+            }
+            if (mode == SET_GEOMETRY)
+            {
+                char *Sname, *Gvalue;
+                tb >> Sname;
+                tb >> Gvalue;
 
-            _tb << Sname;
-            _tb << Gvalue;
+                _tb << Sname;
+                _tb << Gvalue;
 
-            myMes = true;
+                myMes = true;
 
-            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetGeometry,
-                               _tb.get_length(), _tb.get_data());
+                cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetGeometry,
+                                   _tb.get_length(), _tb.get_data());
+            }
+
+            break;
         }
     }
 }
@@ -702,56 +759,65 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
 void SGBrowser::tabletEvent(coTUIElement *tUIItem)
 {
     // add Texture
-    if (tUIItem == sGBrowserTab)
+    for (auto t: tuis)
     {
+        if (tUIItem == t.tab)
+        {
+            auto sGBrowserTab = t.tab;
+            TokenBuffer _tb;
+            _tb << sGBrowserTab->getChangedPath();
+            _tb << sGBrowserTab->getWidth();
+            _tb << sGBrowserTab->getHeight();
+            _tb << sGBrowserTab->getDepth();
+            _tb << sGBrowserTab->getIndex();
 
-        TokenBuffer _tb;
-        _tb << sGBrowserTab->getChangedPath();
-        _tb << sGBrowserTab->getWidth();
-        _tb << sGBrowserTab->getHeight();
-        _tb << sGBrowserTab->getDepth();
-        _tb << sGBrowserTab->getIndex();
+            _tb << sGBrowserTab->getTextureNumber();
+            _tb << sGBrowserTab->getTextureMode();
+            _tb << sGBrowserTab->getTextureTexGenMode();
+            _tb << sGBrowserTab->hasAlpha();
+            int dataLength = (int)sGBrowserTab->getDataLength();
+            _tb << dataLength;
 
-        _tb << sGBrowserTab->getTextureNumber();
-        _tb << sGBrowserTab->getTextureMode();
-        _tb << sGBrowserTab->getTextureTexGenMode();
-        _tb << sGBrowserTab->hasAlpha();
-        int dataLength = sGBrowserTab->getDataLength();
-        _tb << dataLength;
+            _tb.addBinary(sGBrowserTab->getData(), dataLength);
 
-        _tb.addBinary(sGBrowserTab->getData(), dataLength);
-        delete[] sGBrowserTab -> getData();
+            cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTexture,
+                               _tb.get_length(), _tb.get_data());
 
-        cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTexture,
-                           _tb.get_length(), _tb.get_data());
+            _tb.delete_data();
 
-        _tb.delete_data();
+            break;
+        }
     }
 }
 void SGBrowser::addNode(osg::Node *node, const RenderObject *obj)
 {
     (void)obj;
 
-    if (!vis)
-        return;
-
-    vis->myUpdate(node);
-    osg::Group *my = node->asGroup();
-    if (!my)
-        return;
-
-    for (unsigned int i = 0; my && i < my->getNumChildren(); i++)
+    for (auto t: tuis)
     {
-        vis->updateMyChild(my->getChild(i));
+        t.vis->myUpdate(node);
+        osg::Group *my = node->asGroup();
+        if (!my)
+            return;
+
+        for (unsigned int i = 0; my && i < my->getNumChildren(); i++)
+        {
+            t.vis->updateMyChild(my->getChild(i));
+        }
     }
-    /* takes too much time ...
-   TexVisitor *texvis = new TexVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sGBrowserTab);
-   texvis->apply(*cover->getObjectsRoot());
-   if(texvis->getTexFound())
-         sGBrowserTab->finishedTraversing();
-      else
-         sGBrowserTab->noTexture();
-*/
+
+#if 0
+    // takes too much time ...
+    for (auto sgt: sGBrowserTab)
+    {
+        TexVisitor *texvis = new TexVisitor(NodeVisitor::TRAVERSE_ALL_CHILDREN, sgt);
+        texvis->apply(*cover->getObjectsRoot());
+        if(texvis->getTexFound())
+            sgt->finishedTraversing();
+        else
+            sgt->noTexture();
+    }
+#endif
 }
 
 void SGBrowser::removeNode(Node *node, bool /*isGroup*/, Node * /*realNode*/)
@@ -762,7 +828,8 @@ void SGBrowser::removeNode(Node *node, bool /*isGroup*/, Node * /*realNode*/)
     for (int i = 0; i < numParents; i++)
     {
         parentPath = selectionManager->generatePath(node->getParent(i));
-        sGBrowserTab->sendRemoveNode(path, parentPath);
+        for (auto t: tuis)
+            t.tab->sendRemoveNode(path, parentPath);
     }
 }
 
@@ -784,7 +851,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         tb >> nodePath;
         tb >> simPath;
         tb >> simName;
-        sGBrowserTab->setSimPair(nodePath, simPath, simName);
+        for (auto t: tuis)
+            t.tab->setSimPair(nodePath, simPath, simName);
     }
 
     if (type == PluginMessageTypes::PLMXMLShowNode) //message from PLMXML -> show Node
@@ -793,7 +861,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         char *simPath;
         tb >> nodePath;
         tb >> simPath;
-        sGBrowserTab->hideSimNode(false, nodePath, simPath);
+        for (auto t: tuis)
+            t.tab->hideSimNode(false, nodePath, simPath);
     }
     if (type == PluginMessageTypes::PLMXMLHideNode) //message from PLMXML -> hide Node
     {
@@ -801,13 +870,15 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         char *simPath;
         tb >> nodePath;
         tb >> simPath;
-        sGBrowserTab->hideSimNode(true, nodePath, simPath);
+        for (auto t: tuis)
+            t.tab->hideSimNode(true, nodePath, simPath);
     }
     if (type == PluginMessageTypes::PLMXMLLoadFiles) //message from PLMXML ->create Load-Files Button
     {
         char *Sname;
         tb >> Sname;
-        sGBrowserTab->loadFilesFlag(true); //calls the loadFilesFlag-methode in /src/renderer/OpenCOVER/cover/coTabletUI.cpp
+        for (auto t: tuis)
+            t.tab->loadFilesFlag(true); //calls the loadFilesFlag-methode in /src/renderer/OpenCOVER/cover/coTabletUI.cpp
     } //>gottlieb
     if (type == PluginMessageTypes::SGBrowserSetFragment) // Set Fragment
     {
@@ -828,7 +899,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderSourceF(Sname, Fvalue);
+            for (auto t: tuis)
+                t.tab->updateShaderSourceF(Sname, Fvalue);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetGeometry) // Set Fragment
@@ -862,7 +934,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderSourceG(Sname, Gvalue);
+            for (auto t: tuis)
+                t.tab->updateShaderSourceG(Sname, Gvalue);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetNumVertex) // Set Vertex
@@ -882,7 +955,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderNumVertices(Sname, value);
+            for (auto t: tuis)
+                t.tab->updateShaderNumVertices(Sname, value);
         }
     }
 
@@ -903,7 +977,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderOutputType(Sname, value);
+            for (auto t: tuis)
+                t.tab->updateShaderOutputType(Sname, value);
         }
     }
 
@@ -925,7 +1000,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderInputType(Sname, value);
+            for (auto t: tuis)
+                t.tab->updateShaderInputType(Sname, value);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetVertex) // Set Vertex
@@ -947,7 +1023,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderSourceV(Sname, Vvalue);
+            for (auto t: tuis)
+                t.tab->updateShaderSourceV(Sname, Vvalue);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetTessControl) // Set TessControl
@@ -969,7 +1046,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderSourceTC(Sname, Vvalue);
+            for (auto t: tuis)
+                t.tab->updateShaderSourceTC(Sname, Vvalue);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetTessEval) // Set TessEval
@@ -991,7 +1069,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateShaderSourceTE(Sname, Vvalue);
+            for (auto t: tuis)
+                t.tab->updateShaderSourceTE(Sname, Vvalue);
         }
     }
     if (type == PluginMessageTypes::SGBrowserSetUniform) // Set Uniform
@@ -1024,7 +1103,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         }
         else
         {
-            sGBrowserTab->updateUniform(SName, Uname, Uvalue, StexFile);
+            for (auto t: tuis)
+                t.tab->updateUniform(SName, Uname, Uvalue, StexFile);
         }
     }
 
@@ -1212,32 +1292,39 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
                     ss->setTextureAttributeAndModes(texNumber, texGen, StateAttribute::OFF);
                 ss->setTextureAttributeAndModes(texNumber, texEnv, StateAttribute::ON);
 
-                osg::Image *foundImage = texvis->getImage(texIndex);
-                if (foundImage)
+                osg::Image *foundImage = nullptr;
+                if (!tuis.empty())
                 {
-                    image = foundImage;
-                }
-                else
-                {
-                    image = new Image;
-                    image->setImage(width,
-                                    height,
-                                    depth,
-                                    intTexFormat,
-                                    pixelFormat,
-                                    GLtype,
-                                    (unsigned char *)(idata),
-                                    Image::USE_NEW_DELETE);
+                    auto texvis = tuis.front().tex;
 
-                    Texture2D *helpTexture = new Texture2D;
-                    helpTexture->setImage(image);
+                    foundImage = texvis->getImage(texIndex);
+                    if (foundImage)
+                    {
+                        image = foundImage;
+                    }
 
-                    LItem newItem;
-                    newItem.image = image;
-                    newItem.index = texIndex;
-                    texvis->insertImage(newItem);
+                    else
+                    {
+                        image = new Image;
+                        image->setImage(width,
+                                        height,
+                                        depth,
+                                        intTexFormat,
+                                        pixelFormat,
+                                        GLtype,
+                                        (unsigned char *)(idata),
+                                        Image::USE_NEW_DELETE);
+
+                        Texture2D *helpTexture = new Texture2D;
+                        helpTexture->setImage(image);
+
+                        LItem newItem;
+                        newItem.image = image;
+                        newItem.index = texIndex;
+                        texvis->insertImage(newItem);
+                    }
+                    texture->setImage(image);
                 }
-                texture->setImage(image);
             }
         }
     }
@@ -1292,14 +1379,15 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
         tb >> all;
         tb >> remove;
         tb >> transparent;
+        float diffuse[4], specular[4], ambient[4], emissive[4];
         for (j = 0; j < 4; j++)
-            tb >> sGBrowserTab->diffuse[j];
+            tb >> diffuse[j];
         for (j = 0; j < 4; j++)
-            tb >> sGBrowserTab->specular[j];
+            tb >> specular[j];
         for (j = 0; j < 4; j++)
-            tb >> sGBrowserTab->ambient[j];
+            tb >> ambient[j];
         for (j = 0; j < 4; j++)
-            tb >> sGBrowserTab->emissive[j];
+            tb >> emissive[j];
 
         std::string _path = std::string(path);
         std::string _pPath = std::string(pPath);
@@ -1307,15 +1395,16 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
 
         propNode = selectionManager->validPath(_path);
 
+        float matrix[16];
         osg::MatrixTransform *osgTMatrix = dynamic_cast<osg::MatrixTransform *>(propNode);
         if (osgTMatrix != NULL)
         {
             for (int i = 0; i < 16; ++i)
             {
-                tb >> sGBrowserTab->matrix[i];
+                tb >> matrix[i];
             }
 
-            osgTMatrix->setMatrix(osg::Matrix(sGBrowserTab->matrix));
+            osgTMatrix->setMatrix(osg::Matrix(matrix));
         }
 
         Geode *geode = dynamic_cast<Geode *>(propNode);
@@ -1343,21 +1432,21 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             {
                 stateset->removeAttribute(mat);
             }
-            if (!remove && sGBrowserTab->diffuse[0] >= 0)
+            if (!remove && diffuse[0] >= 0)
             {
                 if (!mat)
                 {
                     mat = new osg::Material();
                 }
-                mat->setDiffuse(Material::FRONT_AND_BACK, osg::Vec4(sGBrowserTab->diffuse[0], sGBrowserTab->diffuse[1], sGBrowserTab->diffuse[2], sGBrowserTab->diffuse[3]));
-                if (sGBrowserTab->specular[0] >= 0)
-                    mat->setSpecular(Material::FRONT_AND_BACK, osg::Vec4(sGBrowserTab->specular[0], sGBrowserTab->specular[1], sGBrowserTab->specular[2], sGBrowserTab->specular[3]));
-                if (sGBrowserTab->ambient[0] >= 0)
-                    mat->setAmbient(Material::FRONT_AND_BACK, osg::Vec4(sGBrowserTab->ambient[0], sGBrowserTab->ambient[1], sGBrowserTab->ambient[2], sGBrowserTab->ambient[3]));
-                if (sGBrowserTab->emissive[0] >= 0)
-                    mat->setEmission(Material::FRONT_AND_BACK, osg::Vec4(sGBrowserTab->emissive[0], sGBrowserTab->emissive[1], sGBrowserTab->emissive[2], sGBrowserTab->emissive[3]));
+                mat->setDiffuse(Material::FRONT_AND_BACK, osg::Vec4(diffuse[0], diffuse[1], diffuse[2], diffuse[3]));
+                if (specular[0] >= 0)
+                    mat->setSpecular(Material::FRONT_AND_BACK, osg::Vec4(specular[0], specular[1], specular[2], specular[3]));
+                if (ambient[0] >= 0)
+                    mat->setAmbient(Material::FRONT_AND_BACK, osg::Vec4(ambient[0], ambient[1], ambient[2], ambient[3]));
+                if (emissive[0] >= 0)
+                    mat->setEmission(Material::FRONT_AND_BACK, osg::Vec4(emissive[0], emissive[1], emissive[2], emissive[3]));
 
-                if (sGBrowserTab->diffuse[3] < 1.0)
+                if (diffuse[3] < 1.0)
                 {
                     transparent = 1;
                 }
@@ -1420,6 +1509,23 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
     }
     if (type == PluginMessageTypes::SGBrowserGetProperties) //GET
     {
+#if 0
+        for (auto t: tuis)
+        {
+            for (int j=0; j<4; ++j)
+            {
+                t.tab->diffuse[j] = diffuse[j];
+                t.tab->specular[j] = specular[j];
+                t.tab->ambient[j] = ambient[j];
+                t.tab->emissive[j] = emissive[j];
+            }
+            for (int i=0; i<16; ++i)
+            {
+                t.tab->matrix[i] = matrix[i];
+            }
+        }
+#endif
+
         int i;
         char *path, *pPath;
         osg::Node *propNode = NULL;
@@ -1453,30 +1559,34 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             if (stateset)
             {
                 StateAttribute *stateAttrib = stateset->getAttribute(StateAttribute::MATERIAL);
-                Material *mat = dynamic_cast<Material *>(stateAttrib);
-                if (mat)
+                for (auto t: tuis)
                 {
-                    osg::Vec4 currentDiffuseColor = mat->getDiffuse(Material::FRONT);
-                    osg::Vec4 currentSpecularColor = mat->getSpecular(Material::FRONT);
-                    osg::Vec4 currentAmbientColor = mat->getAmbient(Material::FRONT);
-                    osg::Vec4 currentEmissiveColor = mat->getEmission(Material::FRONT);
+                    auto sGBrowserTab = t.tab;
+                    Material *mat = dynamic_cast<Material *>(stateAttrib);
+                    if (mat)
+                    {
+                        osg::Vec4 currentDiffuseColor = mat->getDiffuse(Material::FRONT);
+                        osg::Vec4 currentSpecularColor = mat->getSpecular(Material::FRONT);
+                        osg::Vec4 currentAmbientColor = mat->getAmbient(Material::FRONT);
+                        osg::Vec4 currentEmissiveColor = mat->getEmission(Material::FRONT);
 
-                    for (i = 0; i < 4; i++)
-                    {
-                        sGBrowserTab->diffuse[i] = currentDiffuseColor[i];
-                        sGBrowserTab->specular[i] = currentSpecularColor[i];
-                        sGBrowserTab->ambient[i] = currentAmbientColor[i];
-                        sGBrowserTab->emissive[i] = currentEmissiveColor[i];
+                        for (i = 0; i < 4; i++)
+                        {
+                            sGBrowserTab->diffuse[i] = currentDiffuseColor[i];
+                            sGBrowserTab->specular[i] = currentSpecularColor[i];
+                            sGBrowserTab->ambient[i] = currentAmbientColor[i];
+                            sGBrowserTab->emissive[i] = currentEmissiveColor[i];
+                        }
                     }
-                }
-                else
-                {
-                    for (i = 0; i < 4; i++)
+                    else
                     {
-                        sGBrowserTab->diffuse[i] = -1.0f;
-                        sGBrowserTab->specular[i] = -1.0f;
-                        sGBrowserTab->ambient[i] = -1.0f;
-                        sGBrowserTab->emissive[i] = -1.0f;
+                        for (i = 0; i < 4; i++)
+                        {
+                            sGBrowserTab->diffuse[i] = -1.0f;
+                            sGBrowserTab->specular[i] = -1.0f;
+                            sGBrowserTab->ambient[i] = -1.0f;
+                            sGBrowserTab->emissive[i] = -1.0f;
+                        }
                     }
                 }
 
@@ -1508,7 +1618,8 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
                         }
                 }
             }
-            sGBrowserTab->sendProperties(_path, _pPath, depthMode, transparent, matrix);
+            for (auto t: tuis)
+                t.tab->sendProperties(_path, _pPath, depthMode, transparent, matrix);
         }
     }
     if ((type == PluginMessageTypes::SGBrowserHideNode) || (type == PluginMessageTypes::SGBrowserShowNode))

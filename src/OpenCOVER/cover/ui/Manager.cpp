@@ -1,4 +1,3 @@
-#undef NDEBUG
 #include "Manager.h"
 #include "View.h"
 #include "Element.h"
@@ -41,7 +40,10 @@ Manager::Manager()
         m_buttonInteraction.push_back(new vrui::coTrackerButtonInteraction(t, "TrackerButton", vrui::coInteraction::Low));
         m_buttonInteraction.push_back(new vrui::coRelativeButtonInteraction(t, "RelativeButton", vrui::coInteraction::Low));
     }
+}
 
+void Manager::init()
+{
     for (auto &i: m_buttonInteraction)
         vrui::coInteractionManager::the()->registerInteraction(i);
 }
@@ -338,6 +340,22 @@ void Manager::updateValue(const EditField *input) const
     }
 }
 
+void Manager::updateValue(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateValue(fb);
+    }
+}
+
+void Manager::updateFilter(const FileBrowser *fb) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateFilter(fb);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;
@@ -623,11 +641,10 @@ void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, boo
     }
 }
 
-void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers)
+void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed)
 {
     updates->rewind();
 
-    std::vector<ButtonGroup *> delayed;
     for (int i=0; i<numUpdates; ++i)
     {
         //std::cerr << "processing " << i << std::flush;
@@ -655,13 +672,14 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         elem->update(mask);
         if (trigger)
         {
-            if (runTriggers)
+            if (auto bg = dynamic_cast<ButtonGroup *>(elem))
+            {
+                delayed.insert(bg);
+            }
+            else if (runTriggers)
             {
                 setChanged();
-                if (auto bg = dynamic_cast<ButtonGroup *>(elem))
-                    delayed.push_back(bg);
-                else
-                    elem->triggerImplementation();
+                elem->triggerImplementation();
             }
             else
             {
@@ -669,9 +687,6 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
             }
         }
     }
-
-    for (auto &bg: delayed)
-        bg->triggerImplementation();
 }
 
 bool Manager::sync()
@@ -700,6 +715,8 @@ bool Manager::sync()
         }
     }
 
+
+    std::set<ButtonGroup *> delayed;
     int round = 0;
     while (m_numUpdates > 0)
     {
@@ -715,8 +732,14 @@ bool Manager::sync()
         if (round > 2)
             break;
 
-        processUpdates(updates, numUpdates, round<1);
+        processUpdates(updates, numUpdates, round<1, delayed);
         ++round;
+    }
+
+    for (auto &bg: delayed)
+    {
+        setChanged();
+        bg->triggerImplementation();
     }
 
     //assert(m_numUpdates == 0);

@@ -46,7 +46,6 @@ namespace opencover
 {
 class coTabletUI;
 class coTUIElement;
-class TextureThread;
 class SGTextureThread;
 class LocalData;
 class IData;

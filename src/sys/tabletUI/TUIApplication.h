@@ -72,8 +72,7 @@ public:
     TUIElement *getElement(int ID);
     QWidget *getWidget(int ID);
 
-    covise::Connection *toCOVERTexture;
-    covise::Connection *toCOVERSG;
+    covise::Connection *toCOVERSG = nullptr;
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -103,21 +102,18 @@ private:
 
     int smsg;
     int port;
-    int lastID;
 
-    QSocketNotifier *serverSN, *clientSN;
-    QTimer *timer;
-    QAction *_exit, *_help;
+    QSocketNotifier *serverSN = nullptr, *clientSN = nullptr;
+    QTimer *timer = nullptr;
+    QAction *_exit = nullptr, *_help = nullptr;
 
-    covise::ServerConnection *sConn;
-    covise::Connection *clientConn;
-    covise::ConnectionList *connections;
-    covise::Message *msg;
-    TUIElement *lastElement;
-    QTimer *m_periodictimer;
+    covise::ServerConnection *sConn = nullptr;
+    covise::Connection *clientConn = nullptr;
+    covise::ConnectionList *connections = nullptr;
+    covise::Message *msg = nullptr;
+    QTimer *m_periodictimer = nullptr;
 
-    covise::ServerConnection *texConn;
-    covise::ServerConnection *sgConn;
+    covise::ServerConnection *sgConn = nullptr;
     int numberOfColumns = 5;
 };
 #endif

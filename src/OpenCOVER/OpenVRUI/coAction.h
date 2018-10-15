@@ -81,12 +81,5 @@ protected:
     std::string actionName;
 };
 
-/// this action is called whenever the user touches an object
-class OPENVRUIEXPORT coTouchAction : public coAction
-{
-public:
-    coTouchAction(); ///< Constructor
-    virtual ~coTouchAction(); ///< Destructor
-};
 }
 #endif

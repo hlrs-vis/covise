@@ -1,15 +1,14 @@
-all: covise cover-dep addons-dep python-dep
+all: covise addons-dep python-dep
 
 always_out_of_date:
 
 verbose: always_out_of_date
 	cd src && $(MAKE) verbose
-	cd src/OpenCOVER && $(MAKE) verbose
 	cd Python && $(MAKE)
 
-bin: covise cover-dep addons-dep
+bin: covise addons-dep
 
-python-dep: covise cover-dep addons-dep
+python-dep: covise addons-dep
 	$(MAKE) python
 
 python:
@@ -22,13 +21,7 @@ endif
 covise: always_out_of_date
 	cd src && $(MAKE)
 
-cover-dep: covise
-	$(MAKE) cover
-
-cover:
-	cd src/OpenCOVER && $(MAKE)
-
-addons-dep: covise cover-dep
+addons-dep: covise
 	$(MAKE) addons
 
 addons:
@@ -36,7 +29,7 @@ addons:
 		export BUILDDIR=$${COVISEDIR}/$${ARCHSUFFIX}/build.addon-$$(basename $${dir}); \
 		mkdir -p $${BUILDDIR} && \
 		cd $${BUILDDIR} && \
-		cmake $${COVISE_CMAKE_OPTIONS} $${dir} && \
+		$(COVISE_CMAKE) $${COVISE_CMAKE_OPTIONS} $${dir} && \
 		make; \
 	done
 
@@ -62,11 +55,9 @@ shareddist:	always_out_of_date
 
 install: always_out_of_date
 	$(MAKE) -f src/Makefile.default install
-	cd src/OpenCOVER && $(MAKE) install
 	
 clean:
 	cd src && $(MAKE) clean
-	cd src/OpenCOVER && $(MAKE) clean
 	cd Python && $(MAKE) clean
 	test -n "$${ARCHSUFFIX}" && $(RM) -rf "$${ARCHSUFFIX}/lib" "$${ARCHSUFFIX}/bin" || exit 0
 

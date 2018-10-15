@@ -10,6 +10,7 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
+#include <cover/ui/FileBrowser.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -21,6 +22,9 @@
 #include <QVBoxLayout>
 #include <QTextStream>
 #include <QFontMetrics>
+#include <QFileDialog>
+#include <QStyle>
+#include <QApplication>
 
 #include <cassert>
 #include <iostream>
@@ -46,7 +50,12 @@ QString sliderText(const Slider *slider)
 QString sliderWidthText(const Slider *slider)
 {
     int digits = std::max(QString::number(slider->min()).size(), QString::number(slider->max()).size());
-    return sliderText(slider, 0.0, digits);
+    double value = 0;
+    for (int d=0; d<digits; ++d) {
+        value *= 10;
+        value += 8;
+    }
+    return sliderText(slider, value, digits);
 }
 
 }
@@ -194,6 +203,34 @@ QWidget *QtView::qtContainerWidget(const Element *elem) const
     return m_toolbar;
 }
 
+void applyIcon(const Element *elem, QAction *a)
+{
+    if (elem->iconName().empty())
+        return;
+
+    static std::map<QString, QStyle::StandardPixmap> iconMap;
+    if (iconMap.empty()) {
+        iconMap.emplace("view-refresh", QStyle::SP_BrowserReload);
+        iconMap.emplace("media-playback-start", QStyle::SP_MediaPlay);
+        iconMap.emplace("media-seek-backward", QStyle::SP_MediaSeekBackward);
+        iconMap.emplace("media-seek-forward", QStyle::SP_MediaSeekForward);
+        //iconMap.emplace("zoom-fit-best", QStyle::SP_FileDialogContentsView);
+        //iconMap.emplace("zoom-original", QStyle::);
+        iconMap.emplace("application-exit", QStyle::SP_TitleBarCloseButton);
+    }
+
+    const auto name = QString::fromStdString(elem->iconName());
+    auto it = iconMap.find(name);
+    if (it == iconMap.end())
+    {
+        a->setIcon(QIcon::fromTheme(name));
+    }
+    else
+    {
+        a->setIcon(QIcon::fromTheme(name, qApp->style()->standardIcon(it->second)));
+    }
+}
+
 QtViewElement *QtView::elementFactoryImplementation(Menu *menu)
 {
     auto parent = qtContainerWidget(menu);
@@ -242,10 +279,7 @@ QtViewElement *QtView::elementFactoryImplementation(Action *action)
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(false);
-    if (!action->iconName().empty())
-    {
-        a->setIcon(QIcon::fromTheme(QString::fromStdString(action->iconName())));
-    }
+    applyIcon(action, a);
     auto ve = new QtViewElement(action, a);
     ve->action = a;
     add(ve);
@@ -265,10 +299,7 @@ QtViewElement *QtView::elementFactoryImplementation(Button *button)
     auto a = new QAction(qtObject(parent));
     a->setShortcutContext(Qt::WidgetShortcut);
     a->setCheckable(true);
-    if (!button->iconName().empty())
-    {
-        a->setIcon(QIcon::fromTheme(QString::fromStdString(button->iconName())));
-    }
+    applyIcon(button, a);
     auto ve = new QtViewElement(button, a);
     ve->action = a;
     add(ve);
@@ -340,6 +371,46 @@ QtViewElement *QtView::elementFactoryImplementation(EditField *input)
     add(ve);
     return ve;
 
+}
+
+QtViewElement *QtView::elementFactoryImplementation(FileBrowser *fb)
+{
+    auto parent = qtViewParent(fb);
+
+    auto a = new QAction(qtObject(parent));
+    a->setShortcutContext(Qt::WidgetShortcut);
+    a->setCheckable(false);
+    applyIcon(fb, a);
+    auto ve = new QtViewElement(fb, a);
+    ve->action = a;
+    add(ve);
+    ve->markForDeletion(a);
+    connect(a, &QAction::triggered, [fb](bool){
+        QString filters = QString::fromStdString(fb->filter());
+        filters.replace(";", ";;");
+        QString dir = QString::fromStdString(fb->value());
+        QString selectedFilter;
+        QString file = fb->forSaving()
+                ? QFileDialog::getSaveFileName(nullptr, "Save...", dir, filters, &selectedFilter)
+                : QFileDialog::getOpenFileName(nullptr, "Open...", dir, filters, &selectedFilter);
+        if (fb->forSaving()) {
+            QString extension;
+            if (selectedFilter.startsWith("*"))
+                extension = selectedFilter.mid(1);
+#ifdef WIN32
+            file.replace("\\", "/");
+#endif
+            QString filename = file.section("/", -1);
+            if (!filename.isEmpty())
+            {
+                if (!filename.contains("."))
+                    file.append(extension);
+            }
+        }
+        fb->setValue(file.toStdString());
+        fb->trigger();
+    });
+    return ve;
 }
 
 void QtView::updateContainer(const Element *elem)
@@ -435,6 +506,10 @@ void QtView::updateText(const Element *elem)
     {
         t += ": ";
         t += QString::fromStdString(i->value());
+    }
+    if (auto fb = dynamic_cast<const FileBrowser *>(elem))
+    {
+        t += "...";
     }
     //std::cerr << "updateText(" << elem->path() << "): " << t.toStdString() << std::endl;
     if (auto sa = dynamic_cast<QtSliderAction *>(o))
@@ -605,6 +680,17 @@ void QtView::updateBounds(const Slider *slider)
 void QtView::updateValue(const EditField *input)
 {
     updateText(input);
+}
+
+void QtView::updateValue(const FileBrowser *fb)
+{
+    updateText(fb);
+}
+
+void QtView::updateFilter(const FileBrowser *fb)
+{
+    QString filter = QString::fromStdString(fb->filter());
+
 }
 
 QtViewElement::QtViewElement(Element *elem, QObject *obj)

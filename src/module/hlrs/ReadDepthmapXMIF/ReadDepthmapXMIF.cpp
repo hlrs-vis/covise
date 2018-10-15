@@ -365,6 +365,18 @@ int ReadDepthmapXMIF::readASCIIData()
 					zCoords[i] = tmpdat[col_for_z];
 				}
             }
+			else
+			{
+				int n = 0;
+				if (RowCount < (numLines - 1))
+					n = l_l[RowCount + 1];
+				else
+					n = numVert;
+				for (int i = l_l[RowCount]; i<n; i++)
+				{
+					zCoords[i] = 0.0;
+				}
+			}
 
             for (int i = 0; i < varInfos.size(); i++)
             {

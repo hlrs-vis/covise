@@ -1,12 +1,17 @@
 #include "ReferencePosition.h"
 #include <iostream>
-
+#include <math.h>
 
 ReferencePosition::ReferencePosition():
     road(NULL),
     s(0.0),
     t(0.0),
-	hdg(0.0)
+    hdg(0.0),
+    laneId(0),
+    roadLength(0.0),
+    LS(NULL),
+    roadId(""),
+    isUp2Date(false)
 {
 }
 
@@ -62,6 +67,7 @@ void ReferencePosition::init(std::string init_roadId, int init_laneId, double in
 	{
 		std::cerr << "Did not find road with id: " << roadId << std::endl;
 	}
+    isUp2Date = true;
 }
 
 void ReferencePosition::init(std::string init_roadId,double init_s,double init_t,RoadSystem* init_system)
@@ -73,15 +79,23 @@ void ReferencePosition::init(std::string init_roadId,double init_s,double init_t
     system = init_system;
 
     road = system->getRoad(roadId);
-    hdg = road->getHeading(s);
+    if(road)
+    {
+        hdg = road->getHeading(s);
 
-    LS = road->getLaneSection(s);
-    laneId = LS->searchLane(s,t);
+        LS = road->getLaneSection(s);
+        laneId = LS->searchLane(s,t);
 
-    Transform vtrans = road->getRoadTransform(s, t);
-    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+        Transform vtrans = road->getRoadTransform(s, t);
+        xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
 
-    roadLength = road->getLength();
+        roadLength = road->getLength();
+    }
+    else
+    {
+        std::cerr << "Did not find road with id: " << roadId << std::endl;
+    }
+    isUp2Date = true;
 }
 
 void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, RoadSystem* init_system)
@@ -112,7 +126,7 @@ void ReferencePosition::init(osg::Vec3 initPos, double init_hdg, RoadSystem* ini
 
         roadLength = road->getLength();
     }
-
+    isUp2Date = true;
 
 }
 
@@ -125,7 +139,6 @@ void ReferencePosition::move(double ds, double dt, float step)
     t = t+dt1*step;
 
     double phi = atan(dt1/ds1);
-    hdg = phi + road->getHeading(s);
 
     if(s>roadLength)
     {
@@ -135,6 +148,11 @@ void ReferencePosition::move(double ds, double dt, float step)
     {
         this->getPredecessor();
     }
+    if (s < 0)
+    {
+        s = 0;
+    }
+    hdg = phi + road->getHeading(s);
 
     LaneSection* newLS = road->getLaneSection(s);
 
@@ -146,6 +164,7 @@ void ReferencePosition::move(double ds, double dt, float step)
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
+    isUp2Date = true;
 }
 
 void ReferencePosition::move(osg::Vec3 dirVec,float step_distance)
@@ -161,6 +180,10 @@ osg::Vec3 ReferencePosition::getPosition()
 
 void ReferencePosition::update()
 {
+    if(isUp2Date)
+    {
+        return;
+    }
     if(road == NULL)
     {
         const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
@@ -189,14 +212,38 @@ void ReferencePosition::update()
 
         s = stNew[0];
         t = stNew[1];
+        if(!isnan(s))
+        {
+            LaneSection* newLS = road->getLaneSection(s);
+            LS = newLS;
 
-        LaneSection* newLS = road->getLaneSection(s);
-        LS = newLS;
+            laneId = LS->searchLane(s,t);
+            roadLength = road->getLength();
+            roadId = system->getRoadId(road);
+        }
+        else
+        {
+            const Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+            Vector2D output = system->searchPosition(newPoint, road, s);
 
-        laneId = LS->searchLane(s,t);
-        roadLength = road->getLength();
-        roadId = system->getRoadId(road);
+            if (road != NULL)
+            {
+                Vector3D newPoint = Vector3D(xyz[0],xyz[1],xyz[2]);
+                Vector2D stNew = road->searchPosition(newPoint, s);
+                roadLength = road->getLength();
+                roadId = system->getRoadId(road);
 
+                s = stNew[0];
+                t = stNew[1];
+
+                LaneSection* newLS = road->getLaneSection(s);
+                LS = newLS;
+
+                laneId = LS->searchLane(s,t);
+            }
+
+        }
+        isUp2Date = true;
     }
 }
 
@@ -221,23 +268,7 @@ void ReferencePosition::update(std::string init_roadId, double init_s, int init_
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-
-}
-
-void ReferencePosition::update(int init_dLane, double init_ds)
-{
-    s += init_ds;
-    laneId += init_dLane;
-
-    LaneSection* newLS = road->getLaneSection(s);
-    LS = newLS;
-
-    Vector2D laneCenter = LS->getLaneCenter(laneId, s);
-    t = laneCenter[0];
-
-    Transform vtrans = road->getRoadTransform(s,t);
-    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-
+    isUp2Date = true;
 }
 
 void ReferencePosition::update(std::string init_roadId, double init_s, double init_t)
@@ -260,23 +291,7 @@ void ReferencePosition::update(std::string init_roadId, double init_s, double in
 
     Transform vtrans = road->getRoadTransform(s,t);
     xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-
-}
-
-void ReferencePosition::update(double init_ds, double init_dt)
-{
-    s += init_ds;
-    t += init_dt;
-
-    LaneSection* newLS = road->getLaneSection(s);
-    LS = newLS;
-
-    laneId = LS->searchLane(s,t);
-
-    Transform vtrans = road->getRoadTransform(s,t);
-    xyz = osg::Vec3(vtrans.v().x(), vtrans.v().y(), vtrans.v().z());
-
-
+    isUp2Date = true;
 }
 
 void ReferencePosition::update(double x, double y, double z,double init_hdg)
@@ -287,30 +302,19 @@ void ReferencePosition::update(double x, double y, double z,double init_hdg)
     update();
 }
 
-void ReferencePosition::update(double dx, double dy, double dz)
-{
-    xyz[0] +=dx;
-    xyz[1] +=dy;
-    xyz[2] +=dz;
-
-    update();
-    if (road != NULL)
-    {
-        hdg = road->getHeading(s);
-    }
-
-}
-
 void ReferencePosition::getSuccessor()
 {
     TarmacConnection* connection;
 
     connection = road->getSuccessorConnection();
-    road = dynamic_cast<Road *>(connection->getConnectingTarmac());
+	if (connection)
+	{
+		road = dynamic_cast<Road *>(connection->getConnectingTarmac());
 
-    s = s-roadLength;
-    roadId = system->getRoadId(road);
-    roadLength = road->getLength();
+		s = s - roadLength;
+		roadId = system->getRoadId(road);
+		roadLength = road->getLength();
+	}
 }
 
 void ReferencePosition::getPredecessor()
@@ -318,10 +322,19 @@ void ReferencePosition::getPredecessor()
     TarmacConnection* connection;
 
     connection = road->getPredecessorConnection();
-    road = dynamic_cast<Road *>(connection->getConnectingTarmac());
-
-    roadId = system->getRoadId(road);
-    roadLength = road->getLength();
-    s = roadLength+s;
+    if(connection)
+    {
+        Road *newRoad = dynamic_cast<Road *>(connection->getConnectingTarmac());
+        if(newRoad !=nullptr)
+        {
+            road = newRoad;
+            roadId = system->getRoadId(road);
+            roadLength = road->getLength();
+            s = roadLength + s;
+        } // else we are on an intersection or the road ends TODO handle this case
+    }
 }
-
+void ReferencePosition::resetStatus()
+{
+    isUp2Date = false;
+}

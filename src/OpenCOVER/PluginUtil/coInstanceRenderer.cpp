@@ -99,7 +99,7 @@ coInstanceObject::coInstanceObject(std::string textureName, float w, float h)
     geom = new osg::Geometry;
     // Configure the Geometry for use with EXT_draw_arrays:
     // DL off and buffer objects on.
-    geom->setUseDisplayList(false);
+    geom->setSupportsDisplayList(false);
     geom->setUseVertexBufferObjects(true);
 
     createTwoQuadGeometry(width, height);

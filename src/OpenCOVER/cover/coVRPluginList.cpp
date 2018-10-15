@@ -110,8 +110,10 @@ coVRPluginList::~coVRPluginList()
 
 void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 {
+#if 0
     if (domain == Window)
         return;
+#endif
 
     bool wasThreading = false;
     bool havePlugins = !m_loadedPlugins[domain].empty();
@@ -381,8 +383,9 @@ void coVRPluginList::preFrame()
 #endif
 }
 
-void coVRPluginList::setTimestep(int t) const
+void coVRPluginList::setTimestep(int t)
 {
+    m_currentTimestep = t;
     DOALL(plugin->setTimestep(t));
 }
 
@@ -500,6 +503,7 @@ void coVRPluginList::init()
 void coVRPluginList::init2()
 {
     DOALL(plugin->init2());
+    DOALL(plugin->setTimestep(m_currentTimestep));
 }
 
 void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
@@ -534,6 +538,7 @@ coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
             manage(m, domain);
             m->m_initDone = true;
             m->init2();
+            m->setTimestep(m_currentTimestep);
         }
         else
         {

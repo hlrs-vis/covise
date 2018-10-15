@@ -238,7 +238,7 @@ static ImageFileType imageFileType(const char *url, FILE *)
     else if (strcmp(suffix, "jpg") == 0 || strcmp(suffix, "JPG") == 0 || strcmp(suffix, "jpeg") == 0 || strcmp(suffix, "JPEG") == 0)
         return ImageFile_JPG;
 
-    else if (strcmp(suffix, "avi") == 0 || strcmp(suffix, "AVI") == 0 || strcmp(suffix, "mov") == 0 || strcmp(suffix, "MOV") == 0 || strcmp(suffix, "mpg") == 0 || strcmp(suffix, "MPG") == 0 || strcmp(suffix, "mpeg") == 0 || strcmp(suffix, "MPEG") == 0)
+    else if (strcmp(suffix, "avi") == 0 || strcmp(suffix, "AVI") == 0 || strcmp(suffix, "mov") == 0 || strcmp(suffix, "MOV") == 0 || strcmp(suffix, "mpg") == 0 || strcmp(suffix, "mp4") == 0 || strcmp(suffix, "MPG") == 0 || strcmp(suffix, "mpeg") == 0 || strcmp(suffix, "MPEG") == 0)
         return ImageFile_MOVIE;
 
     else if (strcmp(suffix, "tif") == 0 || strcmp(suffix, "TIF") == 0 || strcmp(suffix, "tiff") == 0 || strcmp(suffix, "TIFF") == 0)

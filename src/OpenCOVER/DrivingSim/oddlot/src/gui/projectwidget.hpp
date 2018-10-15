@@ -144,7 +144,6 @@ public:
         return strippedFileName_;
     }
 
-
     // MVC //
     //
     ProjectData *getProjectData() const

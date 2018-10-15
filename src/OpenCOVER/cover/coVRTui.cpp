@@ -21,7 +21,6 @@
 #include "coVRConfig.h"
 #include "coVRPluginList.h"
 #include "coVRCommunication.h"
-#include "coVRShadowManager.h"
 #include "coVRMSController.h"
 #include "coIntersection.h"
 #include "ARToolKit.h"
@@ -82,18 +81,6 @@ coVRTui::coVRTui()
     DebugBins = new coTUIToggleButton("DebugBins", topContainer->getID(), false);
     DebugBins->setEventListener(this);
     
-    ShadowChoice = new coTUIComboBox("shadowChoice",topContainer->getID());
-    ShadowChoice->setEventListener(this);
-    ShadowChoice->addEntry("No Shadows");
-    ShadowChoice->addEntry("ShadowVolume");
-    ShadowChoice->addEntry("ShadowTexture");
-    ShadowChoice->addEntry("SoftShadowMap");
-    ShadowChoice->addEntry("StandardShadowMap");
-    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapVB");
-    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapCB");
-    ShadowChoice->addEntry("LightSpacePerspectiveShadowMapDB");
-    ShadowChoice->addEntry("ShadowMap");
-
     FlipStereo = new coTUIToggleButton("Flip eyes", topContainer->getID(), false);
     FlipStereo->setEventListener(this);
 
@@ -207,7 +194,6 @@ coVRTui::coVRTui()
     Scale->setPos(0, 4);
     Collision->setPos(0, 5);
     DebugBins->setPos(3, 0);
-    ShadowChoice->setPos(3,1);
     FlipStereo->setPos(3,2);
     DisableIntersection->setPos(1, 5);
     testImage->setPos(2, 5);
@@ -299,7 +285,7 @@ void coVRTui::config()
 {
 #ifndef NOFB
     FileBrowser->setFilterList(coVRFileManager::instance()->getFilterList());
-    SaveFileFB->setFilterList(coVRFileManager::instance()->getFilterList());
+    SaveFileFB->setFilterList(coVRFileManager::instance()->getWriteFilterList());
 #endif
 }
 
@@ -316,7 +302,6 @@ coVRTui::~coVRTui()
     delete Scale;
     delete Collision;
     delete DebugBins;
-    delete ShadowChoice;
     delete FlipStereo;
     delete DisableIntersection;
     delete testImage;
@@ -909,10 +894,6 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
     {
         VRViewer::instance()->flipStereo();
     }
-    else if (tUIItem == ShadowChoice)
-    {
-        coVRShadowManager::instance()->setTechnique(ShadowChoice->getSelectedText());
-    }
     else if (tUIItem == PresentationForward)
     {
         PresentationStep->setValue(PresentationStep->getValue() + 1);
@@ -1039,7 +1020,7 @@ void coVRTui::tabletEvent(coTUIElement *tUIItem)
         std::string filename = SaveFileFB->getSelectedPath();
 
         OpenCOVER::instance()->hud->show();
-        OpenCOVER::instance()->hud->setText1("Replacing File...");
+        OpenCOVER::instance()->hud->setText1("Saving File...");
         OpenCOVER::instance()->hud->setText2(filename.c_str());
 
         cerr << "File-Path: " << SaveFileFB->getSelectedPath().c_str() << endl;

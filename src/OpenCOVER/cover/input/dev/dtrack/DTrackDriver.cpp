@@ -40,7 +40,7 @@ void DTrackDriver::initArrays()
     m_buttonBase.push_back(0);
     for (size_t i = 0; i < m_numFlySticks; ++i)
     {
-        DTrack_FlyStick_Type_d *f = dt->getFlyStick(i);
+        const DTrack_FlyStick_Type_d *f = dt->getFlyStick(i);
         m_valuatorBase.push_back(m_valuatorBase.back() + f->num_joystick);
         m_buttonBase.push_back(m_buttonBase.back() + f->num_button);
     }
@@ -60,7 +60,7 @@ void DTrackDriver::initArrays()
     cout<<"DTrack hands calibrated:"<<m_numHands<<endl;
     for (size_t i=0;i<m_numHands;++i)
     {
-    	DTrack_Hand_Type_d *h = dt->getHand(i);
+    	const DTrack_Hand_Type_d *h = dt->getHand(i);
     	m_handButtonBase.push_back(m_handButtonBase.back()+2); //each hand will have 2 virtual "buttons"
     }
 
@@ -74,8 +74,8 @@ DTrackDriver::DTrackDriver(const std::string &config)
     m_is6Dof = true;
 
     cout << "Initializing DTrack:" << configPath() << endl;
-    int dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
-    dt = new DTrackSDK(dtrack_port);
+    m_dtrack_port = coCoviseConfig::getInt("port", configPath(), 5000);
+    dt = new DTrackSDK(m_dtrack_port);
 
     if (!dt->isLocalDataPortValid())
         cout << "Cannot initialize DTrack!" << endl;
@@ -134,7 +134,7 @@ bool DTrackDriver::updateHand(size_t idx)
 	{
 		std::cout<<"!!! Hand id is out of range: "<<idx<<std::endl;
 	}
-	DTrack_Hand_Type_d *h=dt->getHand(idx);
+	const DTrack_Hand_Type_d *h=dt->getHand(idx);
 
 	osg::Vec3d fingerpos[3]; //using 3 fingers now
 
@@ -171,7 +171,7 @@ bool DTrackDriver::updateBodyMatrix(size_t idx)
     * dt->getBody() will crash, and dt->getNumBody() won't return the right number.
     * DTrack API will think that this device doesn't exist until it's tracked.
     */
-    DTrack_Body_Type_d *b = dt->getBody(idx);
+    const DTrack_Body_Type_d *b = dt->getBody(idx);
     return getDTrackMatrix(m_bodyMatrices[m_bodyBase + idx], *b);
 }
 
@@ -188,7 +188,7 @@ bool DTrackDriver::updateFlyStick(size_t idx)
     * dt->getBody() will crash, and dt->getNumBody() won't return the right number.
     * DTrack API will think that this device doesn't exist until it's tracked.
     */
-    DTrack_FlyStick_Type_d *f = dt->getFlyStick(idx);
+    const DTrack_FlyStick_Type_d *f = dt->getFlyStick(idx);
 
     for (int i = 0; i < f->num_button; ++i)
     {
@@ -235,7 +235,7 @@ bool DTrackDriver::poll()
 
         if (dt->getLastDataError() == DTrackSDK::ERR_NET)
         {
-            cout << "--- error while receiving tracking data" << endl;
+            fprintf(stderr, "DTrack Driver error: local UDP port %d already in use\n", m_dtrack_port);
             //return -1;
         }
 

@@ -486,9 +486,10 @@ int RemoteDaemon::handleClient(const char *line, Connection *conn)
     else if (strnicmp(line, "join", 4) == 0)
     {
         //removing special character at end of message line
-        char *client = new char[strlen(line)];
-        strncpy(client, line, strlen(line) - 1);
-        client[strlen(line) - 1] = '\0';
+        const size_t len = strlen(line);
+        char *client = new char[len];
+        strncpy(client, line, len-1);
+        client[len-1] = '\0';
 
         cerr << "Line is: " << client << "!" << endl;
         cerr << "Length of line is : " << strlen(client) << endl;

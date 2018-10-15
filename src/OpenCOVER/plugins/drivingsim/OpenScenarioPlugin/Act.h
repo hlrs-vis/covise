@@ -3,36 +3,33 @@
 
 #include "Entity.h"
 #include "Maneuver.h"
-
+#include "StoryElement.h"
 using namespace std;
 #include<iostream>
 #include<string>
 #include <list>
 #include <OpenScenario/schema/oscAct.h>
+class Sequence;
+class Condition;
 
-class Act : public OpenScenario::oscAct
+class Act : public OpenScenario::oscAct, public StoryElement
 {
 
  public:
 	string name;
 	list<Entity*> activeEntityList;
-	list<Maneuver*> maneuverList;
-	int numberOfExecutions;
-
-	//conditions
-	bool actCondition;
-	bool actFinished;
-	string startConditionType;
-	float startTime;
-	string endConditionType;
-	float endTime;
+    list<::Sequence*> sequenceList;
 
 	Act();
 	~Act();
 	virtual void finishedParsing();
-	void initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp);
+    void initialize(::Sequence *sequence_temp);
 	string getName();
-	int getNumberOfExecutions();
+
+    std::list<Condition*> startConditionList;
+    std::list<Condition*> endConditionList;
+    void addEndCondition(Condition* condition);
+    void addStartCondition(Condition* condition);
 
 };
 

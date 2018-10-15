@@ -486,7 +486,7 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       cd.reprojGeo->setNormalArray(normal);
       cd.reprojGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
       // required for instanced rendering and also for SingleScreenCB
-      cd.reprojGeo->setUseDisplayList( false );
+      cd.reprojGeo->setSupportsDisplayList( false );
       cd.reprojGeo->setUseVertexBufferObjects( true );
 
       osg::StateSet *stateSet = cd.reprojGeo->getOrCreateStateSet();
@@ -707,9 +707,13 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         }
         cd.fixedGeo->setTexCoordArray(0, cd.texcoord);
         cd.fixedGeo->getTexCoordArray(0)->dirty();
+
+        cd.width = w;
+        cd.height = h;
+        cd.colorFormat = colorFormat;
     }
 
-    if ((cd.width != w || cd.height != h || cd.depthFormat != depthFormat) && depthFormat != 0)
+    if (depthFormat != 0 && (cd.depthWidth != w || cd.depthHeight != h || cd.depthFormat != depthFormat))
     {
         GLenum depthInternalFormat = 0;
         int depthTypeSize = 0;
@@ -779,8 +783,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
         if (geo->getNumPrimitiveSets() > 0) {
             geo->setPrimitiveSet(0, arr);
-        }
-        else {
+        } else {
             geo->addPrimitiveSet(arr);
         }
         geo->dirtyDisplayList();
@@ -788,13 +791,10 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         cd.size->set(osg::Vec2(w, h));
         cd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
 
+        cd.depthWidth = w;
+        cd.depthHeight = h;
         cd.depthFormat = depthFormat;
     }
-
-    cd.width = w;
-    cd.height = h;
-
-    cd.colorFormat = colorFormat;
 }
 
 void MultiChannelDrawer::reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {

@@ -27,7 +27,7 @@ MACRO(USE_VISIONARAY)
             endif()
 
             USE_BOOST()
-            include_directories(${OPENGL_INCLUDE_DIR})
+            include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})
             include_directories(${VISIONARAY_CONFIG_DIR})
 
@@ -37,7 +37,7 @@ MACRO(USE_VISIONARAY)
             )
 
             if (NOT APPLE AND NOT WIN32)
-                include_directories(${PTHREAD_INCLUDE_DIR})
+                include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})
                 set(EXTRA_LIBS
                     ${EXTRA_LIBS}
                     ${PTHREAD_LIBRARY}
@@ -45,7 +45,7 @@ MACRO(USE_VISIONARAY)
             endif()
 
             if(COVISE_USE_CUDA AND CUDA_FOUND)
-                include_directories(${CUDA_INCLUDE_DIRS})
+                include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
                 set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
             endif()
 

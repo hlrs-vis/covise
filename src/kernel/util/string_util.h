@@ -20,4 +20,6 @@ UTILEXPORT int isIntNumber(const std::string &str);
 UTILEXPORT std::vector<std::string> split(const std::string &str, char delimiter = ' ');
 UTILEXPORT std::string toLower(const std::string &str);
 
+UTILEXPORT std::string url_decode(const std::string &str, bool in_path=false);
+
 #endif

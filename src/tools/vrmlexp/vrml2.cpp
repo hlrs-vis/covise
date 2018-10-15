@@ -2108,6 +2108,19 @@ BOOL VRML2Export::processTexture(TSTR bitmapFile, TSTR &fileName, TSTR &url)
     if (l < 0)
         return FALSE;
 
+    TSTR movieFile = bitmapFile;
+    if (movieFile.Replace(_T(".jpg"), _T(".mp4"), true, 0) > 0)
+    {
+        FILE *fp;
+        fp = fopen(movieFile.ToCStr(), "r");
+        if (fp != NULL)
+        {
+            fclose(fp);
+            bitmapFile = movieFile;
+        }
+    }
+
+
     TSTR path;
     SplitPathFile(bitmapFile, &path, &fileName);
 
@@ -2635,7 +2648,14 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
    }
    if (isBaked)
    {
-	   MSTREAMPRINTFNOSTRINGS("emissiveColor 1 1 1\n"));
+       if (!haveDiffuseMap)
+       {
+           //MSTREAMPRINTF("emissiveColor %s\n"), color(diffuseColor));
+       }
+       else
+       {
+           MSTREAMPRINTFNOSTRINGS("emissiveColor 1 1 1\n"));
+       }
    }
    else
    {
@@ -2878,7 +2898,17 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
                    Indent(level + 1);
                MSTREAMPRINTF  ("speed %s\n"),floatVal(textureDescs[texNum]->tex->GetPlaybackRate()));
                Indent(level + 1);
-			   MSTREAMPRINTFNOSTRINGS("startTime %d\n"),textureDescs[texNum]->tex->GetStartTime()/160.0);
+               TimeValue ts = textureDescs[texNum]->tex->GetStartTime();
+               if (ts == 0.0 && _tcsstr(texString->textureName, _T("start")) != NULL)
+               {
+                   MSTREAMPRINTFNOSTRINGS("startTime 1\n"));
+               }
+               else
+               {
+                   //MSTREAMPRINTFNOSTRINGS("startTime %f\n"), textureDescs[texNum]->tex->GetStartTime());
+                   float seconds = TicksToSec(ts);
+                   MSTREAMPRINTF("startTime %s\n"), floatVal(seconds));
+               }
                Indent(level + 1);
 			   MSTREAMPRINTFNOSTRINGS("stopTime -1\n"));
                if (textureDescs[texNum]->tex->GetEndCondition() == END_LOOP)
@@ -3026,6 +3056,7 @@ VRML2Export::OutputMaterial(INode *node, BOOL &isWire, BOOL &twoSided,
 BOOL
 VRML2Export::VrmlOutSphereTest(INode * node, Object *obj)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* sphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
 	DbgAssert(sphereParams);
@@ -3048,11 +3079,31 @@ VRML2Export::VrmlOutSphereTest(INode * node, Object *obj)
 	if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
 		return FALSE;
 	return TRUE;
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float hemi;
+    int basePivot, genUV, smooth;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+        return FALSE;
+    return TRUE;
+#endif
 }
 
 BOOL
 VRML2Export::VrmlOutSphere(INode * node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* sphereParams = so->GetParamBlockByID(SPHERE_PARAMBLOCK_ID);
 	DbgAssert(sphereParams);
@@ -3074,9 +3125,27 @@ VRML2Export::VrmlOutSphere(INode * node, Object *obj, int level)
 	sphereParams->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
 	if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
 		return FALSE;
+    sphereParams->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float radius, hemi;
+    int basePivot, genUV, smooth;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
 
-	sphereParams->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+    if (isWire)
+        return FALSE;
 
+    // Reject "base pivot" mapped, non-smoothed and hemisphere spheres
+    so->pblock->GetValue(SPHERE_RECENTER, mStart, basePivot, FOREVER);
+    so->pblock->GetValue(SPHERE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(SPHERE_HEMI, mStart, hemi, FOREVER);
+    so->pblock->GetValue(SPHERE_SMOOTH, mStart, smooth, FOREVER);
+    if (!smooth || basePivot || (genUV && td) || hemi > 0.0f)
+        return FALSE;
+
+    so->pblock->GetValue(SPHERE_RADIUS, mStart, radius, FOREVER);
+#endif
 	Indent(level);
 
 	mStream.Printf(_T("geometry "));
@@ -3089,6 +3158,7 @@ VRML2Export::VrmlOutSphere(INode * node, Object *obj, int level)
 BOOL
 VRML2Export::VrmlOutCylinderTest(INode* node, Object *obj)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
 	DbgAssert(cylParams);
@@ -3109,6 +3179,23 @@ VRML2Export::VrmlOutCylinderTest(INode* node, Object *obj)
 	if (sliceOn || (genUV && td) || !smooth)
 		return FALSE;
 	return TRUE;
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    int sliceOn, genUV, smooth;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    // Reject sliced, non-smooth and mapped cylinders
+    so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+    so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+    if (sliceOn || (genUV && td) || !smooth)
+        return FALSE;
+    return TRUE;
+#endif
 }
 
 BOOL
@@ -3118,6 +3205,7 @@ VRML2Export::VrmlOutCylinderTform(INode* node, Object *obj, int level,
 	if (!VrmlOutCylinderTest(node, obj))
 		return FALSE;
 
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
 	DbgAssert(cylParams);
@@ -3126,11 +3214,16 @@ VRML2Export::VrmlOutCylinderTform(INode* node, Object *obj, int level,
 
 	float height;
 	cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
-#ifdef MIRROR_BY_VERTICES
-	if (mirrored)
-		height = -height;
-#endif
 
+#else
+    float height;
+    SimpleObject *so = (SimpleObject *)obj;
+    so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+#endif
+#ifdef MIRROR_BY_VERTICES
+    if (mirrored)
+        height = -height;
+#endif
 	Indent(level);
 	mStream.Printf(_T("Transform {\n"));
 	if (mZUp) {
@@ -3154,6 +3247,7 @@ VRML2Export::VrmlOutCylinderTform(INode* node, Object *obj, int level,
 BOOL
 VRML2Export::VrmlOutCylinder(INode* node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* cylParams = so->GetParamBlockByID(CYLINDER_PARAMBLOCK_ID);
 	DbgAssert(cylParams);
@@ -3172,11 +3266,31 @@ VRML2Export::VrmlOutCylinder(INode* node, Object *obj, int level)
 	cylParams->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
 	cylParams->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
 	cylParams->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
-	if (sliceOn || (genUV && td) || !smooth)
-		return FALSE;
+    cylParams->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+    cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+    cylParams->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+    cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+#else
+SimpleObject *so = (SimpleObject *)obj;
+float radius, height;
+int sliceOn, genUV, smooth;
+BOOL isWire = FALSE;
+BOOL td = HasTexture(node, isWire);
 
-	cylParams->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
-	cylParams->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+if (isWire)
+return FALSE;
+
+// Reject sliced, non-smooth and mapped cylinders
+so->pblock->GetValue(CYLINDER_GENUVS, mStart, genUV, FOREVER);
+so->pblock->GetValue(CYLINDER_SLICEON, mStart, sliceOn, FOREVER);
+so->pblock->GetValue(CYLINDER_SMOOTH, mStart, smooth, FOREVER);
+if (sliceOn || (genUV && td) || !smooth)
+return FALSE;
+
+so->pblock->GetValue(CYLINDER_RADIUS, mStart, radius, FOREVER);
+so->pblock->GetValue(CYLINDER_HEIGHT, mStart, height, FOREVER);
+#endif
+
 	Indent(level);
 	mStream.Printf(_T("geometry "));
 	mStream.Printf(_T("Cylinder { radius %s "), floatVal(radius));
@@ -3188,6 +3302,7 @@ VRML2Export::VrmlOutCylinder(INode* node, Object *obj, int level)
 BOOL
 VRML2Export::VrmlOutConeTest(INode* node, Object *obj)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
 	DbgAssert(coneParams);
@@ -3207,6 +3322,22 @@ VRML2Export::VrmlOutConeTest(INode* node, Object *obj)
 	coneParams->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
 	coneParams->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
 	coneParams->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float radius2;
+    int sliceOn, genUV, smooth;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    // Reject sliced, non-smooth and mappeded cylinders
+    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+#endif
 	if (sliceOn || (genUV &&td) || !smooth || radius2 > 0.0f)
 		return FALSE;
 	return TRUE;
@@ -3221,6 +3352,7 @@ VRML2Export::VrmlOutConeTform(INode* node, Object *obj, int level,
 	Indent(level);
 	mStream.Printf(_T("Transform {\n"));
 
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
 	DbgAssert(coneParams);
@@ -3229,6 +3361,11 @@ VRML2Export::VrmlOutConeTform(INode* node, Object *obj, int level,
 
 	float height;
 	coneParams->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+#else 
+    float height;
+    SimpleObject *so = (SimpleObject *)obj;
+    so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+#endif
 #ifdef MIRROR_BY_VERTICES
 	if (mirrored)
 		height = -height;
@@ -3265,6 +3402,7 @@ VRML2Export::VrmlOutConeTform(INode* node, Object *obj, int level,
 BOOL
 VRML2Export::VrmlOutCone(INode* node, Object *obj, int level)
 {
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* coneParams = so->GetParamBlockByID(CONE_PARAMBLOCK_ID);
 	DbgAssert(coneParams);
@@ -3289,6 +3427,27 @@ VRML2Export::VrmlOutCone(INode* node, Object *obj, int level)
 
 	coneParams->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
 	coneParams->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float radius1, radius2, height;
+    int sliceOn, genUV, smooth;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    // Reject sliced, non-smooth and mappeded cylinders
+    so->pblock->GetValue(CONE_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(CONE_SLICEON, mStart, sliceOn, FOREVER);
+    so->pblock->GetValue(CONE_SMOOTH, mStart, smooth, FOREVER);
+    so->pblock->GetValue(CONE_RADIUS2, mStart, radius2, FOREVER);
+    if (sliceOn || (genUV && td) || !smooth || radius2 > 0.0f)
+        return FALSE;
+
+    so->pblock->GetValue(CONE_RADIUS1, mStart, radius1, FOREVER);
+    so->pblock->GetValue(CONE_HEIGHT, mStart, height, FOREVER);
+#endif
 	Indent(level);
 
 	mStream.Printf(_T("geometry "));
@@ -3307,6 +3466,7 @@ VRML2Export::VrmlOutCubeTest(INode* node, Object *obj)
 	if (mtl && mtl->IsMultiMtl())
 		return FALSE;
 
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
 	DbgAssert(boxParams);
@@ -3328,6 +3488,24 @@ VRML2Export::VrmlOutCubeTest(INode* node, Object *obj)
 		return FALSE;
 
 	return TRUE;
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    int genUV, lsegs, wsegs, hsegs;
+    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+        return FALSE;
+
+    return TRUE;
+#endif
 }
 
 BOOL
@@ -3339,6 +3517,7 @@ VRML2Export::VrmlOutCubeTform(INode* node, Object *obj, int level,
 	Indent(level);
 	mStream.Printf(_T("Transform {\n"));
 
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
 	DbgAssert(boxParams);
@@ -3347,6 +3526,11 @@ VRML2Export::VrmlOutCubeTform(INode* node, Object *obj, int level,
 
 	float height;
 	boxParams->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+#else
+    float height;
+    SimpleObject *so = (SimpleObject *)obj;
+    so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+#endif
 #ifdef MIRROR_BY_VERTICES
 	if (mirrored)
 		height = -height;
@@ -3370,6 +3554,7 @@ VRML2Export::VrmlOutCube(INode* node, Object *obj, int level)
 	if (mtl && mtl->IsMultiMtl())
 		return FALSE;
 
+#if MAX_PRODUCT_VERSION_MAJOR > 19
 	SimpleObject2* so = (SimpleObject2*)obj;
 	IParamBlock2* boxParams = so->GetParamBlockByID(BOXOBJ_PARAMBLOCK_ID);
 	DbgAssert(boxParams);
@@ -3394,6 +3579,27 @@ VRML2Export::VrmlOutCube(INode* node, Object *obj, int level)
 	boxParams->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
 	boxParams->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
 	boxParams->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+#else
+    SimpleObject *so = (SimpleObject *)obj;
+    float length, width, height;
+    BOOL isWire = FALSE;
+    BOOL td = HasTexture(node, isWire);
+
+    if (isWire)
+        return FALSE;
+
+    int genUV, lsegs, wsegs, hsegs;
+    so->pblock->GetValue(BOXOBJ_GENUVS, mStart, genUV, FOREVER);
+    so->pblock->GetValue(BOXOBJ_LSEGS, mStart, lsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_WSEGS, mStart, hsegs, FOREVER);
+    so->pblock->GetValue(BOXOBJ_HSEGS, mStart, wsegs, FOREVER);
+    if ((genUV && td) || lsegs > 1 || hsegs > 1 || wsegs > 1)
+        return FALSE;
+
+    so->pblock->GetValue(BOXOBJ_LENGTH, mStart, length, FOREVER);
+    so->pblock->GetValue(BOXOBJ_WIDTH, mStart, width, FOREVER);
+    so->pblock->GetValue(BOXOBJ_HEIGHT, mStart, height, FOREVER);
+#endif
 	Indent(level);
 	mStream.Printf(_T("geometry "));
 	if (mZUp) {
@@ -4671,10 +4877,11 @@ VRML2Export::VrmlOutCal3D(Cal3DObject *obj, int level)
    MSTREAMPRINTF  ("Cal3DNode {\n"));
    if (Cal3DCoreHelper *core = obj->getCoreHelper())
    {
+	   std::wstring ws = core->getVRMLName();
        if (core->wasWritten())
        {
            Indent(level + 1);
-         MSTREAMPRINTF  ("core USE %s\n"), core->getVRMLName().c_str());
+         MSTREAMPRINTF  ("core USE %s\n"), ws.c_str());
        }
        else
        {
@@ -4683,7 +4890,10 @@ VRML2Export::VrmlOutCal3D(Cal3DObject *obj, int level)
          Indent(level + 1);
          MSTREAMPRINTF  ("{\n"));
          Indent(level + 2);
-         MSTREAMPRINTF  ("modelName \"%s\"\n"), core->getName().c_str());
+		 std::wstring ws;
+		 std::string s = core->getName();
+		 ws.assign(s.begin(), s.end());
+         MSTREAMPRINTF  ("modelName \"%s\"\n"), ws.c_str());
          Indent(level + 2);
          MSTREAMPRINTF  ("scale %s\n"), floatVal(obj->GetSize()));
          Indent(level + 1);
@@ -5348,7 +5558,7 @@ VRML2Export::ObjIsAnimated(Object *obj)
     if (!obj)
         return FALSE;
     Interval iv = obj->ObjectValidity(mStart);
-    return (!(iv == FOREVER)) && (iv.Start() != iv.End());
+    return /*(*/!(iv == FOREVER)/*) && (iv.Start() != iv.End())*/;
 }
 
 static BOOL
@@ -5985,14 +6195,17 @@ TCHAR *VRML2Export::isMovie(const TCHAR *url)
         _tcscpy(name, url);
         return (name);
     }
-    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
+    if ((_tcsicmp(suffix, _T(".mpg")) == 0) || (_tcsicmp(suffix, _T(".mpeg")) == 0) || (_tcsicmp(suffix, _T(".avi")) == 0) || (_tcsicmp(suffix, _T(".mp4")) == 0) || (_tcsicmp(suffix, _T(".mov")) == 0))
     {
         suffix = _tcsrchr(url, '.');
         _tcsncpy(name, url, suffix - url);
         name[suffix - url] = '\0';
+
     }
     else
+    {
         return NULL;
+    }
 
     const TCHAR *dir = _tcsrchr(name, '/');
     if (dir != NULL)

@@ -8,7 +8,8 @@
 # requirements to cmake version
 
 # 2.8.7 is too old for identifying clang
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+set (CMAKE_CXX_STANDARD 11)
 
 set(COVISE_BUILDING_COVISE TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -65,7 +66,7 @@ STRING(REGEX REPLACE "opt$" "" BASEARCHSUFFIX "${ARCHSUFFIX}")
 SET(DBG_ARCHSUFFIX "${BASEARCHSUFFIX}")
 STRING(REGEX REPLACE "xenomai$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
 STRING(REGEX REPLACE "mpi$" "" BASEARCHSUFFIX "${BASEARCHSUFFIX}")
-IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
+IF(NOT WIN32 AND NOT DEFINED CMAKE_BUILD_TYPE)
   IF(ARCHSUFFIX STREQUAL DBG_ARCHSUFFIX)
     SET(CMAKE_BUILD_TYPE "Debug")
   ELSE()
@@ -73,6 +74,7 @@ IF("${CMAKE_BUILD_TYPE}" STREQUAL "")
   ENDIF()
 ENDIF()
 MESSAGE(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+set(COVISE_ARCHSUFFIX ${ARCHSUFFIX})
 
 IF(UNIX AND NOT APPLE)
   EXECUTE_PROCESS(COMMAND readlink -e ${COVISEDIR}
@@ -129,12 +131,12 @@ MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DAT
 option(COVISE_CMAKE_VERBOSE "more verbose CMake output" OFF)
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
 OPTION(COVISE_BUILD_ONLY_COVER_PREREQ "only build prerequisites for OpenCOVER" OFF)
+option(COVISE_OPENCOVER_INTERNAL_PROJECT "build OpenCOVER from this project" ON)
 if (BASEARCHSUFFIX STREQUAL "cray64")
     OPTION(COVISE_USE_OSMESA "Use OSMesa OpenGL library for off-screen CPU rendering" ON)
 else()
     OPTION(COVISE_USE_OSMESA "Use OSMesa OpenGL library for off-screen CPU rendering" OFF)
 endif()
-OPTION(COVISE_USE_CPP11 "enable C++ 11 features" ON)
 OPTION(COVISE_USE_FOLDERS "Enable solution folders in Visual Studio. Disable for Express versions." ON)
 OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<archsuffix> (default). Otherwise in <CMAKE_BINARY_DIR>/<archsuffix>." ON)
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
@@ -195,10 +197,6 @@ endif()
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
 OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
-if(NOT COVISE_USE_CPP11)
-    set(COVISE_USE_VISIONARAY OFF)
-endif()
-
 IF(COVISE_USE_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF(COVISE_USE_FOLDERS)
@@ -245,6 +243,7 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     find_qt()
     COVISE_FIND_PACKAGE(Threads)
     COVISE_FIND_PACKAGE(OpenSSL)
+    set(OpenGL_GL_PREFERENCE LEGACY)
     COVISE_FIND_PACKAGE(OpenGL)
     COVISE_FIND_PACKAGE(GLEW) # virvo depends on it
     if (NOT GLEW_FOUND)
@@ -277,6 +276,10 @@ if (NOT COVISE_BUILD_ONLY_FILE)
     set(${CMAKE_PREFIX_PATH} ${saved_prefix_path})
 endif()
 
+if (APPLE)
+    add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+
 # descend to sources
 ADD_SUBDIRECTORY(src)
 
@@ -306,6 +309,7 @@ INSTALL(FILES
     config/config-colormaps.xml
     config/config-filetypes.xml
     config/config-ar.xml
+    config/config-spray.xml
     DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts

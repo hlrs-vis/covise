@@ -42,7 +42,6 @@ enum TabletObjectType
     TABLET_TEXT_SPIN_EDIT_FIELD,
     TABLET_PROGRESS_BAR,
     TABLET_COLOR_TRIANGLE,
-    TABLET_TEXTURE_TAB,
     TABLET_BROWSER_TAB,
     TABLET_COLOR_TAB,
     TABLET_TEXT_EDIT_FIELD,
@@ -54,6 +53,7 @@ enum TabletObjectType
     TABLET_POPUP,
     TABLET_UI_TAB,
     TABLET_GROUPBOX,
+    TABLET_EARTHMAP,
 };
 
 ////////////////////////////////////////////////////////////
@@ -115,6 +115,8 @@ enum TabletValue {
     TABLET_REMOVE_ALL,
     TABLET_SET_ENABLED,
     TABLET_SLIDER_SCALE,
+    TABLET_GEO_PATH,
+    TABLET_MIN_MAX,
 
     ////////////////////////////////////////////////////////////
     // VALUES from SGBrowser (100)

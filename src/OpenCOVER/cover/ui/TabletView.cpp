@@ -11,6 +11,7 @@
 #include "Slider.h"
 #include "SelectionList.h"
 #include "EditField.h"
+#include "FileBrowser.h"
 
 #include <cover/coVRPluginSupport.h>
 
@@ -34,8 +35,8 @@ TabletView::TabletView(const std::string &name, coTabletUI *tui)
 
 }
 
-TabletView::TabletView(coTUITabFolder *root)
-: View("tabletUI")
+TabletView::TabletView(const std::string &name, coTUITabFolder *root)
+: View(name)
 {
     assert(root);
 
@@ -353,6 +354,28 @@ void TabletView::updateValue(const EditField *input)
     }
 }
 
+void TabletView::updateValue(const FileBrowser *fb)
+{
+    auto ve = tuiElement(fb);
+    if (!ve)
+        return;
+    if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
+    {
+        te->setCurDir(fb->value().c_str());
+    }
+}
+
+void TabletView::updateFilter(const FileBrowser *fb)
+{
+    auto ve = tuiElement(fb);
+    if (!ve)
+        return;
+    if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
+    {
+        te->setFilterList(fb->filter());
+    }
+}
+
 TabletViewElement *TabletView::elementFactoryImplementation(Label *label)
 {
     auto parent = tuiContainer(label);
@@ -442,6 +465,24 @@ TabletViewElement *TabletView::elementFactoryImplementation(EditField *input)
     add(ve, input);
     return ve;
 
+}
+
+TabletViewElement *TabletView::elementFactoryImplementation(FileBrowser *fb)
+{
+    auto ve = new TabletViewElement(fb);
+    auto parent = tuiContainer(fb);
+
+    auto te = new coTUIFileBrowserButton(m_tui, fb->path().c_str(), tuiContainerId(fb));
+    ve->m_elem = te;
+    if (fb->forSaving())
+        te->setMode(coTUIFileBrowserButton::SAVE);
+    else
+        te->setMode(coTUIFileBrowserButton::OPEN);
+
+    ve->m_elem->setLabel(fb->text());
+
+    add(ve, fb);
+    return ve;
 }
 
 TabletViewElement *TabletView::elementFactoryImplementation(Menu *menu)
@@ -551,6 +592,14 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
         {
             in->setValue(te->getText());
             in->trigger();
+        }
+    }
+    else if (auto fb = dynamic_cast<FileBrowser *>(element))
+    {
+        if (auto te = dynamic_cast<coTUIFileBrowserButton *>(elem))
+        {
+            fb->setValue(te->getSelectedPath());
+            fb->trigger();
         }
     }
 }

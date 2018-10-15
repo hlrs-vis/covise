@@ -40,5 +40,7 @@ int writeImage(char* filename, int width, int height, char *buffer, char* title)
 
     std::map<int, WindowData> m_windows;
     int frameCounter;
+    int frameRate;
+    int writeRate;
 };
 #endif

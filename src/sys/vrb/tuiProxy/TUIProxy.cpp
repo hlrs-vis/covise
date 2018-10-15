@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
 TUIProxy::TUIProxy(int argc, char **argv)
 {
-    port = coCoviseConfig::getInt("port", "COVER.TabletPC.Server", 31802);
+    port = coCoviseConfig::getInt("port", "COVER.TabletUI", 31802);
     int i;
     for (i = 1; i < argc; i++)
     {
@@ -116,7 +116,7 @@ void TUIProxy::handleMessages()
                     cerr << "new Connection" << endl;
                 setsockopt(toCOVER->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
                 connections->add(toCOVER);
-                std::string line = coCoviseConfig::getEntry("COVER.TabletPC.Server");
+                std::string line = coCoviseConfig::getEntry("host","COVER.TabletUI");
                 Host *serverHost = NULL;
                 if (!line.empty())
                 {

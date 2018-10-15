@@ -507,7 +507,7 @@ void Tube::create_tube()
             yp = yl[iPos];
             zp = zl[iPos];
 
-            int iPos2 = vl[ll[li]] + 1;
+            int iPos2 = vl[ll[li] + 1];
             xpd = xl[iPos2] - xp;
             ypd = yl[iPos2] - yp;
             zpd = zl[iPos2] - zp;

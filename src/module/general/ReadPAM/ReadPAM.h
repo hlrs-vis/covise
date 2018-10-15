@@ -34,10 +34,10 @@
 #endif
 
 #include <api/coModule.h>
-using namespace covise;
-#include <reader/CoviseIO.h>
 #include "ReadDSY.h"
 #include "auxiliary.h"
+
+using namespace covise;
 
 // ReadPam handles the interface with the user.
 // Requests from the user are comunicated to the readDSY (ReadDSY.h)
@@ -45,7 +45,6 @@ using namespace covise;
 // The communication of the requests is supported by auxiliary
 // classes.
 class ReadPam : public coModule
-//class ReadPam : public CoviseIO, public coModule
 {
 private:
     enum

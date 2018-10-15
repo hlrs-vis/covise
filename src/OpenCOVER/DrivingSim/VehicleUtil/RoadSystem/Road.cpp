@@ -1831,11 +1831,11 @@ osg::Group *Road::createRoadGroup(bool tessellateBatters, bool tessellateObjects
             {
 
                 std::string id, name, type;
-                double length, zOffset, validLength, width, radius, height, hdg = 0, pitch = 0, roll = 0;
+                double length=0.0, zOffset=0.0, validLength=0.0, width=0.0, radius=0.0, height=0.0, hdg = 0, pitch = 0, roll = 0;
                 RoadObject::OrientationType orientation = RoadObject::BOTH_DIRECTIONS;
                 double repeatLength = getLength();
                 double repeatDistance = 50.0;
-                double t;
+                double t=0.0;
 
                 for (double sObj = 0; sObj < repeatLength; sObj += repeatDistance)
                 {

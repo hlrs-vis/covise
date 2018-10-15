@@ -105,6 +105,7 @@ public:
 	virtual void preSwapBuffers(int /*windowNumber*/);
 	bool init();
 	virtual bool needsThread() const; //< we don't needan extra thread
+    bool trackingOnly = false;
 
 private:
 
@@ -125,10 +126,12 @@ private:
 	std::string m_DeviceSerial[vr::k_unMaxTrackedDeviceCount];   // for each device, a character representing its class // index is device ID
 	std::map<std::string, serialInfo> serialID;
 	size_t maxBodyNumber;
-	size_t numControllers;
+    size_t numControllers;
+    size_t numTrackers;
+    size_t numBaseStations;
 	vr::TrackedDevicePose_t m_rTrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 	bool haveTrackerOrigin;
-	bool m_transformOriginToCamera;	//Config variable for origin transform
+	bool m_transformOriginToLighthouse;	//Config variable for origin transform
 	osg::Matrix LighthouseMatrix;
 
 

@@ -41,7 +41,6 @@ bool FileBrowser::init()
 
 FileBrowser::~FileBrowser()
 {
-    removeMenuEntry();
 }
 
 FileBrowser *FileBrowser::instance()

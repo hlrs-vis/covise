@@ -2,6 +2,7 @@ if(NOT COVISE_BUILD_DRIVINGSIM)
   return()
 endif()
 
+PROJECT(drivingsim C CXX)
 set(MAIN_FOLDER "drivingsim")
 
 add_subdirectory(OpenScenario)

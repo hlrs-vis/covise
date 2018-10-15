@@ -1,13 +1,20 @@
 #include "Action.h"
+#include "Trajectory.h"
 
 Action::Action():
-    trajectoryCatalogReference(""),
-    routeCatalogReference(""),
-    actionCompleted(false),
-    actionTrajectory(NULL),
-    actionEntityList(NULL)
+    actionTrajectory(NULL)
 {
 
+}
+
+void Action::stop()
+{
+	StoryElement::stop();
+}
+
+void Action::start()
+{
+	StoryElement::start();
 }
 
 void Action::setTrajectory(Trajectory* init_Traj)

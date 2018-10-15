@@ -109,7 +109,7 @@ bool OsmImport::parseDoc(QDomDocument &doc)
     list = doc.elementsByTagName("way");
     for (int i = 0; i < list.count(); i++)
     {
-        ways.append(new osmWay(list.at(i).toElement(), nodes));
+        ways.append(new osmWay(list.at(i).toElement(), nodes, this));
     }
     
     bool doPrimary = ImportSettings::instance()->importPrimary();
@@ -201,7 +201,6 @@ void OsmImport::finishedSlot(QNetworkReply *reply)
     // and therefore need to handle deletion.
     reply->deleteLater();
 }
-
 osmNode::osmNode()
 {
     latitude = 0;
@@ -222,13 +221,15 @@ osmNode::osmNode(QDomElement element)
     longitude = element.attribute("lon").toDouble();
 }
 
+/* in osmWay(...) row 249 implemented
 void osmNode::getCoordinates(double &x, double &y, double &z) const
 {
     y = latitude * DEG_TO_RAD;
     x = longitude * DEG_TO_RAD;
     z = 0.0;
-    ProjectionSettings::instance()->transform(x, y, z);
-}
+    //ProjectionSettings::instance()->transform(x, y, z);
+}*/
+
 osmWay::osmWay()
 {
 }
@@ -244,7 +245,8 @@ osmWay::osmWay(const osmWay &w)
     maxSpeed = w.maxSpeed;
     bridge = w.bridge;
 }
-osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
+
+osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *importer)
 {
     type = unknown;
     numLanes = 2;
@@ -262,7 +264,10 @@ osmWay::osmWay(QDomElement element, QVector<osmNode *> &nodes)
             if (node->id == ref)
             {
                 double x, y, z;
-                node->getCoordinates(x, y, z);
+                x = node->latitude * DEG_TO_RAD;
+                y = node->longitude * DEG_TO_RAD;
+                z = 0.0;
+                importer->project->getProjectionSettings()->transform(x,y,z);
                 XVector.push_back(x);
                 YVector.push_back(y);
                 ZVector.push_back(0.0);

@@ -344,6 +344,9 @@ const char *System::httpFetch(const char *url)
     CURL *curl = curl_easy_init();
     if (curl)
     {
+        /* user agent required by same web servers */
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, curl_version());
+
         CurlData curlData = { NULL, tempnam(0, "VR") };
         /* Set url to get */
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -370,6 +373,7 @@ const char *System::httpFetch(const char *url)
         /* always cleanup */
         curl_easy_cleanup(curl);
 
+        //std::cerr << "Vrml System::httpFetch(" << url << ") -> " << curlData.filename << std::endl;
         return curlData.filename;
     }
     return NULL;

@@ -7,8 +7,8 @@
 #include "Export.h"
 
 namespace opencover {
+class coVRPluginSupport;
 namespace ui {
-
 class Manager;
 
 //! Manage the life time of objects: in its destructor it destroys all objects that it owns
@@ -18,6 +18,7 @@ class COVER_UI_EXPORT Owner {
  public:
    //! construct, owned by owner (deleted with owner)
    Owner(const std::string &name, Owner *owner);
+   Owner(const std::string &name, coVRPluginSupport *cov);
    //! conrtruct without owner: must be deleted
    Owner(const std::string &name, Manager *manager);
    Owner() = delete;

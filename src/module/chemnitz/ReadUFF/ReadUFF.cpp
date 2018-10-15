@@ -218,11 +218,15 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
 {
     coDoSet *tmp = NULL;
 
-    coObjInfo::setBaseName(portName);
-    char *tok = strtok((char *)datasetName, " (");
     char token[20];
-    strncpy_s(token, 20 * sizeof(char), tok, strlen(tok) - 1);
-    token[strlen(tok) - 1] = '\0';
+    strncpy(token, datasetName, sizeof(token));
+    token[sizeof(token)-1] = '\0';
+    if (char *p = strchr(token, ' '))
+        *p = '\0';
+    if (char *p = strchr(token, '('))
+        *p = '\0';
+
+    coObjInfo::setBaseName(portName);
 
     if (stricmp(token, "dataset15") == 0)
     {

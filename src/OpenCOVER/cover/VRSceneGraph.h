@@ -66,13 +66,14 @@ public:
         Disabled,
         Enabled,
         HiddenLineBlack,
-        HiddenLineWhite
+        HiddenLineWhite,
+        Points,
     };
     VRSceneGraph();
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
 
-    void saveScenegraph(bool withMenu=false);
+    bool saveScenegraph(const std::string &filename, bool withMenu=false);
 #ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
@@ -254,6 +255,7 @@ private:
     void initHandDeviceGeometry();
     void initMatrices();
     void initSceneGraph();
+    bool saveScenegraph(bool withMenu);
 
 #ifdef PHANTOM_TRACKER
     int m_forceFeedbackON;
@@ -289,10 +291,11 @@ private:
 
     float m_floorHeight;
     WireframeMode m_wireframe;
-    bool m_textured; /* =true: textures are drawn as intended */
-    bool m_coordAxis; /* =true: coord Axis will be drawn */
-    bool m_showMenu;
-    bool m_showObjects;
+    bool m_textured = true; /* =true: textures are drawn as intended */
+    bool m_shaders = true; /* =true: shaders are applied */
+    bool m_coordAxis = false; /* =true: coord Axis will be drawn */
+    bool m_showMenu = true;
+    bool m_showObjects = true;
     bool m_firstTime = true;
     bool m_pointerVisible = false;
 
@@ -342,8 +345,7 @@ private:
     ui::Button *m_trackHead=nullptr;
     ui::SelectionList *m_showStats=nullptr;
     ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
-    ui::Action *m_storeScenegraph=nullptr, *m_reloadFile=nullptr;
-    ui::Button *m_useTextures=nullptr;
+    ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
 };
 }
 #endif

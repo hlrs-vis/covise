@@ -95,8 +95,6 @@
      <MirrorViews value="true" enabled="false" posX="910" posY="260" posZ="1050" oriH="-20" oriP="0" oriR="0" />
 
     <Vrml97>
-    <GenerateTriangleStrips value="true" />
-
      <!--Audio value="AServer" >
       <Host value="visadler" />
      </Audio-->
@@ -105,9 +103,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <Server value="localhost" />
-   </TabletPC>
+   <TabletUI host="localhost" />
 
    <MultiPC>
     <SyncMode value="TCP" />
@@ -296,7 +292,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="OFF" value="OFF" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->

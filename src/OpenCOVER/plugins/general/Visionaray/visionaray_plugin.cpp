@@ -21,6 +21,7 @@
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
+#include <cover/VRSceneGraph.h>
 #include <cover/VRViewer.h>
 #include <cover/OpenCOVER.h>
 
@@ -137,6 +138,10 @@ namespace visionaray
 
         std::shared_ptr<render_state> state;
         std::shared_ptr<debug_state> dev_state;
+
+        // State before HQ mode was activated
+        render_state temporary_state;
+        bool hqmode = false;
 
         // init
 
@@ -686,7 +691,13 @@ namespace visionaray
         if (impl_->state->rebuild && opencover::OpenCOVER::instance()->initDone())
         {
             auto seqs = opencover::coVRAnimationManager::instance()->getSequences();
-            impl_->rend.acquire_scene_data(seqs);
+            std::vector<osg::Sequence *> osg_seqs;
+            osg_seqs.reserve(seqs.size());
+            for (const auto &s: seqs)
+            {
+                osg_seqs.emplace_back(s.seq.get());
+            }
+            impl_->rend.acquire_scene_data(osg_seqs);
             impl_->state->rebuild = false;
         }
 
@@ -718,6 +729,34 @@ namespace visionaray
                 break;
             }
         }
+    }
+
+    bool Visionaray::update()
+    {
+        // TODO: store and restore old head tracking state
+        if (opencover::cover->isHighQuality())
+        {
+            if (!impl_->hqmode)
+            {
+                impl_->temporary_state = *impl_->state;
+                impl_->hqmode = true;
+            }
+            impl_->state->algo = Pathtracing;
+            impl_->state->num_bounces = 5;
+            opencover::VRSceneGraph::instance()->toggleHeadTracking(false);
+        }
+        else
+        {
+            if (impl_->hqmode)
+            {
+                impl_->hqmode = false;
+                impl_->state->algo = impl_->temporary_state.algo;
+                impl_->state->num_bounces = impl_->temporary_state.num_bounces;
+                opencover::VRSceneGraph::instance()->toggleHeadTracking(true);
+            }
+        }
+
+        return true;
     }
 
 } // namespace visionaray

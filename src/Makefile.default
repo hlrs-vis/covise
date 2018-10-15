@@ -7,7 +7,7 @@ BUILDDIR_PREFIX=$(COVISEDIR)/build
 else
 BUILDDIR_PREFIX=$(COVISEDIR)/$(ARCHSUFFIX)/build
 endif
-INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
+#INOPENCOVER=$(shell echo $(CURDIR) | grep -i opencover)
 ifeq ($(INOPENCOVER),)
    PROJBUILDDIR=$(BUILDDIR_PREFIX).covise
    RELBUILDDIR=$(shell unset PWD; /bin/pwd | sed -e "s;^$(COVISEDIR);;" -e "s;^$(PROJDIR);;" -e "s;^/;;")
@@ -76,20 +76,20 @@ $(MAKEFILE):
 	@echo trying to make $(MAKEFILE)
 	mkdir -p $(PROJBUILDDIR)
 ifeq ($(ARCHSUFFIX),mingw)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake  $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
+	@echo "running '$(COVISE_CMAKE) $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && $(COVISE_CMAKE)  $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingw \
       -DCMAKE_BUILD_TYPE=Debug
 else ifeq ($(ARCHSUFFIX),mingwopt)
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
+	@echo "running '$(COVISE_CMAKE) $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && $(COVISE_CMAKE) $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR) \
       -DCMAKE_TOOLCHAIN_FILE=$(COVISEDIR)/cmake/Toolchain-cross-mingw32-linux.cmake \
       -DCMAKE_INSTALL_PREFIX=$(COVISEDIR)/mingwopt \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
 else
-	@echo "running 'cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
-	cd $(PROJBUILDDIR) && cmake $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)
+	@echo "running '$(COVISE_CMAKE) $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)' in $(PROJBUILDDIR)" && \
+	cd $(PROJBUILDDIR) && $(COVISE_CMAKE) $(COVISE_CMAKE_OPTIONS) -G $(GENERATOR) $(RELSRCDIR)
 endif
 
 $(PROJBUILDDIR):

@@ -30,12 +30,16 @@
 #include <png.h>
 
 using namespace opencover;
+using covise::coCoviseConfig;
+
 
 WindowTypeMesaPlugin::WindowTypeMesaPlugin()
 {
     fprintf(stderr, "WindowTypeMesaPlugin::WindowTypeMesaPlugin\n");
     frameCounter=0;
-coVRConfig::instance()->setFrameRate(60);
+frameRate = coCoviseConfig::getInt("COVER.Mesa.FrameRate",1);
+writeRate = coCoviseConfig::getInt("COVER.Mesa.WriteRate",1);
+coVRConfig::instance()->setFrameRate(frameRate);
 }
 
 // this is called if the plugin is removed at runtime
@@ -99,7 +103,7 @@ void WindowTypeMesaPlugin::windowUpdateContents(int num)
     char filename[100];
     sprintf(filename,"test%d.png",frameCounter);
     frameCounter++;
-    if((frameCounter % 60) == 0)
+    if((frameCounter % writeRate) == 0)
 {
     writeImage(filename,win.width,win.height,win.buffer,filename);
 }

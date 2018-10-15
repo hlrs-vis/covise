@@ -112,10 +112,11 @@ Bullet::Bullet()
 bool Bullet::init()
 {
 
+	XMLCh *t1 = NULL;
     if (Bullet::plugin != NULL)
         return false;
 
-    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(t1 = xercesc::XMLString::transcode("Core")); xercesc::XMLString::release(&t1);
 
     Bullet::plugin = this;
 
@@ -1067,6 +1068,7 @@ int Bullet::sloadBullet(const char *filename, osg::Group *loadParent, const char
 
 int Bullet::loadBullet(const char *filename, osg::Group *loadParent)
 {
+	XMLCh *t1 = NULL;
     fileName = filename;
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
@@ -1095,14 +1097,14 @@ int Bullet::loadBullet(const char *filename, osg::Group *loadParent)
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
             if (!node)
                 continue;
-            const char *sizes = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("size")));
-            const char *hostName = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("hostName")));
-            const char *hS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("h")));
-            const char *pS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("p")));
-            const char *rS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("r")));
-            const char *xS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("x")));
-            const char *yS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("y")));
-            const char *zS = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("z")));
+            char *sizes = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("size"))); xercesc::XMLString::release(&t1);
+            char *hostName = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("hostName"))); xercesc::XMLString::release(&t1);
+            char *hS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("h"))); xercesc::XMLString::release(&t1);
+            char *pS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("p"))); xercesc::XMLString::release(&t1);
+            char *rS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("r"))); xercesc::XMLString::release(&t1);
+            char *xS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("x"))); xercesc::XMLString::release(&t1);
+            char *yS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("y"))); xercesc::XMLString::release(&t1);
+            char *zS = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("z"))); xercesc::XMLString::release(&t1);
             float size;
             sscanf(sizes, "%f", &size);
 
@@ -1120,6 +1122,14 @@ int Bullet::loadBullet(const char *filename, osg::Group *loadParent)
             osg::Matrix rtMat = rotMat * transMat;
             bp->setMat(rtMat);
             bullet.push_back(bp);
+			xercesc::XMLString::release(&sizes);
+			xercesc::XMLString::release(&hostName);
+			xercesc::XMLString::release(&hS);
+			xercesc::XMLString::release(&pS);
+			xercesc::XMLString::release(&rS);
+			xercesc::XMLString::release(&xS);
+			xercesc::XMLString::release(&yS);
+			xercesc::XMLString::release(&zS);
         }
     }
 
@@ -1128,18 +1138,20 @@ int Bullet::loadBullet(const char *filename, osg::Group *loadParent)
 
 void Bullet::save()
 {
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode("BulletProbes"), 0);
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMDocument *document = impl->createDocument(0, t1 = xercesc::XMLString::transcode("BulletProbes"), 0); xercesc::XMLString::release(&t1);
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
 
     for (std::vector<BulletProbe *>::iterator bp = bullet.begin(); bp != bullet.end(); ++bp)
     {
-        xercesc::DOMElement *bpElement = document->createElement(xercesc::XMLString::transcode("BulletProbe"));
+        xercesc::DOMElement *bpElement = document->createElement(t1 = xercesc::XMLString::transcode("BulletProbe")); xercesc::XMLString::release(&t1);
 
         char number[100];
         sprintf(number, "%f", (*bp)->getScale());
-        bpElement->setAttribute(xercesc::XMLString::transcode("size"), xercesc::XMLString::transcode(number));
-        bpElement->setAttribute(xercesc::XMLString::transcode("hostName"), xercesc::XMLString::transcode((*bp)->getHost().c_str()));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("size"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("hostName"), t2 = xercesc::XMLString::transcode((*bp)->getHost().c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
 
         float x, y, z, h, p, r;
         osg::Matrix m;
@@ -1154,17 +1166,17 @@ void Bullet::save()
         z = coord.xyz[2];
 
         sprintf(number, "%f", h);
-        bpElement->setAttribute(xercesc::XMLString::transcode("h"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("h"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%f", p);
-        bpElement->setAttribute(xercesc::XMLString::transcode("p"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("p"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%f", r);
-        bpElement->setAttribute(xercesc::XMLString::transcode("r"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("r"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%f", x);
-        bpElement->setAttribute(xercesc::XMLString::transcode("x"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("x"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%f", y);
-        bpElement->setAttribute(xercesc::XMLString::transcode("y"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("y"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%f", z);
-        bpElement->setAttribute(xercesc::XMLString::transcode("z"), xercesc::XMLString::transcode(number));
+        bpElement->setAttribute(t1 = xercesc::XMLString::transcode("z"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         rootElement->appendChild(bpElement);
     }
 
@@ -1195,9 +1207,9 @@ void Bullet::save()
     //dc->setParameter(xercesc::XMLUni::fgDOMWRTDiscardDefaultContent,true);
 
     xercesc::DOMLSOutput *theOutput = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    theOutput->setEncoding(xercesc::XMLString::transcode("utf8"));
+    theOutput->setEncoding(t1 = xercesc::XMLString::transcode("utf8")); xercesc::XMLString::release(&t1);
 
-    bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode(fileName.c_str()));
+    bool written = writer->writeToURI(rootElement, t1 = xercesc::XMLString::transcode(fileName.c_str())); xercesc::XMLString::release(&t1);
     if (!written)
         fprintf(stderr, "Bullet::save info: Could not open file for writing %s!\n", fileName.c_str());
     delete writer;

@@ -46,7 +46,7 @@
 
 // static initializations
 std::list<VrmlNodeMatrixLight *> VrmlNodeMatrixLight::allMatrixLights;
-osg::ref_ptr<osg::Uniform> VrmlNodeMatrixLight::matrixLightMatrix;
+osg::ref_ptr<osg::Uniform> VrmlNodeMatrixLight::photometricLightMatrix;
 
 // MatrixLight factory.
 
@@ -66,11 +66,11 @@ void VrmlNodeMatrixLight::update()
 {
     osg::MatrixList worldMatrices = lightNodeInSceneGraph->getWorldMatrices();
     osg::Matrixf firstMat = worldMatrices[0];
-       // matrixLightMatrix->setElement(d_lightNumber.get(), firstMat); 
+       // photometricLightMatrix->setElement(d_lightNumber.get(), firstMat); 
     osg::Matrixf invFirstMat;
     if(invFirstMat.invert_4x4(firstMat))
     {
-        matrixLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
+        photometricLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
     }
 }
 
@@ -94,9 +94,9 @@ VrmlNodeType *VrmlNodeMatrixLight::defineType(VrmlNodeType *t)
     t->addExposedField("numColumns", VrmlField::SFINT32);
     t->addExposedField("IESFile", VrmlField::SFSTRING);
     static osg::Matrixf lightMatrices[MAX_LIGHTS];
-    matrixLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "matrixLightMatrix", MAX_LIGHTS);
+    photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
     osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
-    state->addUniform(matrixLightMatrix);
+    state->addUniform(photometricLightMatrix);
 
     return t;
 }

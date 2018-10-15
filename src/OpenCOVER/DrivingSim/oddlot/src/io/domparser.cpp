@@ -1715,7 +1715,6 @@ DomParser::parseObjectsElement(QDomElement &element, RSystemElementRoad *road)
 				crosswalk->setToLane(parseToInt(crosswalkChild, "toLane", 0, true)); // optional
 		}
 
-		ID;
 		StringToID(id, ID, odrID::ID_Object,tileID);
 		// Construct signal object
 		Signal *signal = new Signal(ID, name, s, 0.0, "no", Signal::POSITIVE_TRACK_DIRECTION, 0.0, "Germany", "293", "", "-1", length, 0.0, 0.0, 0.0, "km/h", "", 0.0, 0.0, false, 2, crosswalk->getFromLane(), crosswalk->getToLane(), crosswalk->getCrossProb(), crosswalk->getResetTime());
@@ -2171,16 +2170,16 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
 		TrackElementCubicCurve *cubicCurve = new TrackElementCubicCurve(x, y, hdg / (M_PI) * 180.0, s, length, polyU, polyV, pRange);
 		road->addTrackComponent(cubicCurve);
 
-		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialU()->getA() << "+" << cubicCurve->getPolynomialU()->getB() << "t+" << cubicCurve->getPolynomialU()->getC() << "t2+" << cubicCurve->getPolynomialU()->getD() << "t3";
-		qDebug() << "paramPoly3: " << cubicCurve->getPolynomialV()->getA() << "+" << cubicCurve->getPolynomialV()->getB() << "t+" << cubicCurve->getPolynomialV()->getC() << "t2+" << cubicCurve->getPolynomialV()->getD() << "t3";
+		//qDebug() << "paramPoly3: " << cubicCurve->getPolynomialU()->getA() << "+" << cubicCurve->getPolynomialU()->getB() << "t+" << cubicCurve->getPolynomialU()->getC() << "t2+" << cubicCurve->getPolynomialU()->getD() << "t3";
+		//qDebug() << "paramPoly3: " << cubicCurve->getPolynomialV()->getA() << "+" << cubicCurve->getPolynomialV()->getB() << "t+" << cubicCurve->getPolynomialV()->getC() << "t2+" << cubicCurve->getPolynomialV()->getD() << "t3";
 
 		QPointF p = cubicCurve->getPoint(272,0);
-		qDebug() << "paramPoly3: " << "Point for s=272: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(272);
+		//qDebug() << "paramPoly3: " << "Point for s=272: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(272);
 		p = cubicCurve->getPoint(0, 0);
-		qDebug() << "paramPoly3: " << "Point for s=0: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(0);
+		//qDebug() << "paramPoly3: " << "Point for s=0: " << p.x() << "," << p.y() << " Heading: " << cubicCurve->getHeading(0);
 		p = cubicCurve->getPoint(36, 0);
 		double curv = cubicCurve->getCurvature(36.0);
-		qDebug() << "paramPoly3: " << "Point for s=36: " << p.x() << "," << p.y() << " Curvature: " << curv << " Heading: " << cubicCurve->getHeading(36);
+		//qDebug() << "paramPoly3: " << "Point for s=36: " << p.x() << "," << p.y() << " Curvature: " << curv << " Heading: " << cubicCurve->getHeading(36);
 
 /*		cubicCurve->setLocalStartPoint(QPointF(147, 131));
 		cubicCurve->setLocalEndPoint(QPointF(216, 149));
@@ -2188,6 +2187,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
 	}
     else
     {
+		qDebug("Unknown track type while parsing planView geometry");
         // error! unknown //
         // TODO //
     }

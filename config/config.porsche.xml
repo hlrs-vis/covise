@@ -71,9 +71,7 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-     <TabletPC>
-         <Server value="localhost"/>
-       </TabletPC>
+    <TabletUI host="localhost" />
    <CheckForOpenGLErrors value="true" />
    <UseVertexBufferObjects value="false" />
    <UseDisplayLists value="true" />
@@ -196,12 +194,10 @@
     <Amber value="off"/>  
 	<StereoVideoPlayer>
 	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
 	<AudioOffset value="0.0"/>
   </StereoVideoPlayer>
 
     <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 

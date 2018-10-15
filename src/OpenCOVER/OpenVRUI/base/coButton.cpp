@@ -300,16 +300,14 @@ void coButton::setActive(bool a)
     if (!active_ && a)
     {
         vruiIntersection::getIntersectorForAction("coAction")->add(getDCS(), this);
-        myGeometry->switchGeometry(coButtonGeometry::NORMAL);
     }
     // if item is deactivated remove background from intersector
     else if (active_ && !a)
     {
         vruiIntersection::getIntersectorForAction("coAction")->remove(this);
-        myGeometry->switchGeometry(coButtonGeometry::DISABLED);
         selectionState = false;
-        pressState = false;
     }
     active_ = a;
+    updateSwitch();
 }
 }

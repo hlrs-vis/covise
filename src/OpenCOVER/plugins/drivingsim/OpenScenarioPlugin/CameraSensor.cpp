@@ -19,7 +19,7 @@ CameraSensor::~CameraSensor()
 void CameraSensor::updateView()
 {
 	
-	osg::Matrix vehicleMat = myEntity->entityGeometry->getCarGeometry()->getVehicleTransformMatrix();
+	osg::Matrix vehicleMat = myEntity->agentVehicle->getCarGeometry()->getVehicleTransformMatrix();
 
 	osg::Matrix scMat = opencover::cover->getObjectsScale()->getMatrix();
 	osg::Matrix iscMat;
@@ -37,5 +37,7 @@ void CameraSensor::updateView()
 	//osg::Matrix viewerTrans;
 	//viewerTrans.makeTranslate(cover->getViewerMat().getTrans());
 	//mat.postMult(viewerTrans);
+	if(opencover::cover->getScale()!=1000.0)
+		opencover::cover->setScale(1000); // OpenScenario unit is [m]
 	opencover::cover->setXformMat(itrans);
 }

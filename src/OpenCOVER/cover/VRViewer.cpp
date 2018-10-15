@@ -106,6 +106,14 @@
 #include <pthread.h>
 #endif
 
+#ifndef GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX
+#define GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#endif
+
 using namespace opencover;
 using namespace covise;
 
@@ -246,18 +254,8 @@ struct ViewerRunOperations : public osg::Operation
             return;
         // OpenCOVER begin
         // clear the whole window, if channels are smaller than window
-        if (VRViewer::instance()->clearWindow || numClears > 0)
-        {
-            VRViewer::instance()->clearWindow = false;
-            if (numClears == 0)
-            {
-                numClears = coVRConfig::instance()->numWindows() * 2;
-            }
-            numClears--;
-            auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(context);
-            clearGlWindow(!emb);
-            context->makeCurrent();
-        } // OpenCOVER end
+        VRViewer::instance()->glContextOperation(context);
+        // OpenCOVER end
 
         context->runOperations();
     }
@@ -382,6 +380,9 @@ VRViewer::VRViewer()
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew VRViewer\n");
     reEnableCulling = false;
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
+    setUseConfigureAffinity(false); // tell OpenSceneGraph not to set affinity (good if you want to run multiple instances on one machine)
+#endif
 
     setRealizeOperation(new InitGLOperation());
 
@@ -598,7 +599,7 @@ void VRViewer::createViewportCameras(int i)
                 osg::UShortArray *indexArray = new osg::UShortArray;
                 osg::ref_ptr<osg::DrawElementsUShort> drawElement;
                 geometry = new osg::Geometry;
-                geometry->setUseDisplayList(false);
+                geometry->setSupportsDisplayList(false);
                 geometry->setUseVertexBufferObjects(true);
                 positionArray->push_back(osg::Vec3f(0,0,0));
                 positionArray->push_back(osg::Vec3f(1,0,0));
@@ -805,7 +806,7 @@ osg::Geometry *VRViewer::distortionMesh(const char *fileName)
     // Get triangle indicies
 
     osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
-    geometry->setUseDisplayList(false);
+    geometry->setSupportsDisplayList(false);
     geometry->setUseVertexBufferObjects(true);
 
     FILE *fp = NULL;
@@ -1308,6 +1309,7 @@ void VRViewer::forceCompile()
         }
     }
 }
+
 void
 VRViewer::culling(bool enable, osg::CullSettings::CullingModeValues mode, bool once)
 {
@@ -1358,10 +1360,6 @@ VRViewer::setFrustumAndView(int i)
     osg::Matrix mat, trans, euler; // xform screencenter - world origin
     osg::Matrixf offsetMat;
     osg::Vec3 leftEye, rightEye, middleEye; // transformed eye position
-    float rc_dist, lc_dist, mc_dist; // dist from eye to screen for left&right chan
-    float rc_left, rc_right, rc_bottom, rc_top; // parameter of right frustum
-    float lc_left, lc_right, lc_bottom, lc_top; // parameter of left frustum
-    float mc_left, mc_right, mc_bottom, mc_top; // parameter of middle frustum
     float n_over_d; // near over dist -> Strahlensatz
     float dx, dz; // size of screen
 
@@ -1527,7 +1525,6 @@ VRViewer::setFrustumAndView(int i)
     // dist of right channel eye to screen (absolute)
     if (coco->trackedHMD)
     {
-        rc_dist = coco->HMDDistance;
         if (coco->orthographic())
         {
             currentChannel->rightProj.makeOrtho(-dx / 2.0, dx / 2.0, -dz / 2.0, dz / 2.0, coco->nearClip(), coco->farClip());
@@ -1559,9 +1556,10 @@ VRViewer::setFrustumAndView(int i)
     }
     else
     {
-        rc_dist = -rightEye[1];
-        lc_dist = -leftEye[1];
-        mc_dist = -middleEye[1];
+        // dist from eye to screen for left & right channel
+        float rc_dist = -rightEye[1];
+        float lc_dist = -leftEye[1];
+        float mc_dist = -middleEye[1];
 
         // relation near plane to screen plane
         if (coco->orthographic())
@@ -1570,30 +1568,30 @@ VRViewer::setFrustumAndView(int i)
             n_over_d = coco->nearClip() / rc_dist;
 
         // parameter of right channel
-        rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
-        rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
-        rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
-        rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
+        float rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
+        float rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
+        float rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
+        float rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
 
         // compute left frustum
         if (coco->orthographic())
             n_over_d = 1.0;
         else
             n_over_d = coco->nearClip() / lc_dist;
-        lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
-        lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
-        lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
-        lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
+        float lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
+        float lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
+        float lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
+        float lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
 
         // compute left frustum
         if (coco->orthographic())
             n_over_d = 1.0;
         else
             n_over_d = coco->nearClip() / mc_dist;
-        mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
-        mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
-        mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
-        mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
+        float mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
+        float mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
+        float mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
+        float mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
 
         if (coco->orthographic())
         {
@@ -2419,20 +2417,8 @@ void VRViewer::renderingTraversals()
 
             doneMakeCurrentInThisThread = true;
             makeCurrent(*itr);
-            static int numClears = 0;
-            if (VRViewer::instance()->clearWindow || numClears > 0)
-            {
-                VRViewer::instance()->clearWindow = false;
-                if (numClears == 0)
-                {
-                    numClears = coVRConfig::instance()->numWindows() * 2;
-                }
-                numClears--;
-                auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(*itr);
-                clearGlWindow(!emb);
-                makeCurrent(*itr);
-            }
-            //cerr << "finish" << endl;
+
+            glContextOperation(*itr);
 	    
             double beginFinish = elapsedTime();
             glFinish();
@@ -2565,6 +2551,37 @@ void VRViewer::toggleStatistics()
     ea->setEventType(osgGA::GUIEventAdapter::KEYDOWN);
     ea->setKey(statsHandler->getKeyEventTogglesOnScreenStats());
     statsHandler->handle(*ea, *this);
+}
+
+void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
+{
+    if (clearWindow || numClears > 0)
+    {
+        clearWindow = false;
+        if (numClears == 0)
+        {
+            numClears = coVRConfig::instance()->numWindows() * 2;
+        }
+        --numClears;
+        auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(ctx);
+        clearGlWindow(!emb);
+        ctx->makeCurrent();
+    } // OpenCOVER end
+
+    if (GLEW_NVX_gpu_memory_info)
+    {
+#ifdef GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
+        osg::FrameStamp *frameStamp = getViewerFrameStamp();
+
+        GLint mem=0, obj=0, avail=0;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &obj);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &mem);
+        glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &avail);
+        //std::cerr << "AVAIL=" << avail << ", EVICTED " << windowNumber << ": obj=" << obj << ", mem=" << mem << std::endl;
+
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "GPU mem free", avail);
+#endif
+    }
 }
 
 template <typename Cameras, typename F>

@@ -24,13 +24,8 @@ public:
     {
         using namespace osgGA;
 
-#ifdef Q_OS_MACOS
-        mKeyMap[Qt::Key_Control]         = GUIEventAdapter::KEY_Meta_L;
-        mKeyMap[Qt::Key_Meta]            = GUIEventAdapter::KEY_Control_L;
-#else
         mKeyMap[Qt::Key_Control]         = GUIEventAdapter::KEY_Control_L;
         mKeyMap[Qt::Key_Meta]            = GUIEventAdapter::KEY_Meta_L;
-#endif
         mKeyMap[Qt::Key_Alt]             = GUIEventAdapter::KEY_Alt_L;
         mKeyMap[Qt::Key_Shift]           = GUIEventAdapter::KEY_Shift_L;
 
@@ -187,6 +182,7 @@ bool QtGraphicsWindow::realizeImplementation()
             qApp->sendPostedEvents();
             qApp->processEvents();
         }
+		setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
     }
     else
     {
@@ -351,13 +347,8 @@ void QtOsgWidget::setKeyboardModifiers(QInputEvent *event)
 {
     unsigned int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
     int mask = 0;
-#ifdef Q_OS_MACOS
-    if (modkey & Qt::ControlModifier) mask |= osgGA::GUIEventAdapter::MODKEY_META;
-    if (modkey & Qt::MetaModifier) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-#else
     if (modkey & Qt::ControlModifier) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
     if (modkey & Qt::MetaModifier) mask |= osgGA::GUIEventAdapter::MODKEY_META;
-#endif
     if (modkey & Qt::ShiftModifier) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
     if (modkey & Qt::AltModifier) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
     m_modifierMask = mask;

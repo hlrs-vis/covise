@@ -108,6 +108,11 @@ function find_executable() {
       echo "$b"
       return 0
    fi
+   local e="${EXTERNLIBS}/ALL/bin/${name}"
+   if [ -e "$e" ]; then
+      echo "$e"
+      return 0
+   fi
    echo "$p"
    return 1
 }
@@ -171,7 +176,7 @@ elif [ "$basename" = "_debug_for_covise" ]; then
         case "$ARCHSUFFIX" in
             lion|lionopt|libc++|libc++opt|macos|macosopt)
                 DEBUGGER=/Applications/Xcode.app/Contents/Developer/usr/bin/lldb
-                if [ -n "$DEBUGGER" ]; then
+                if [ ! -x "$DEBUGGER" ]; then
                     DEBUGGER=lldb
                 fi
                 ;;
@@ -186,6 +191,13 @@ elif [ "$basename" = "_debug_for_covise" ]; then
             ;;
         *gdb|*ddd)
            exec "$DEBUGGER" --args "$runcmd" "$@"
+           ;;
+        lldb)
+           TMPFILE=$(mktemp /tmp/covise.XXXXXX) || exit 1
+           echo "env DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}" >> "$TMPFILE"
+           echo "env DYLD_FRAMEWORK_PATH=${DYLD_FRAMEWORK_PATH}" >> "$TMPFILE"
+           "$DEBUGGER" -s "$TMPFILE" "$runcmd" -- "$@"
+           exec rm -f "$TMPFILE"
            ;;
         *lldb)
            exec "$DEBUGGER" "$runcmd" -- "$@"

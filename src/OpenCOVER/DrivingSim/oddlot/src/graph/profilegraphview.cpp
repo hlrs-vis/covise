@@ -45,7 +45,7 @@ ProfileGraphView::ProfileGraphView(ProfileGraphScene *scene, QWidget *parent)
     , rubberBand_(NULL)
     , additionalSelection_(false)
 {
-    //	resetViewTransformation();
+    //resetViewTransformation();
 
     horizontalRuler_ = new Ruler(Qt::Horizontal);
     scene->addItem(horizontalRuler_);

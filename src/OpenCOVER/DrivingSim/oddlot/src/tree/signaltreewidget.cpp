@@ -44,6 +44,9 @@
 #include "src/graph/editors/signaleditor.hpp"
 
 #include <QWidget>
+#include <QMouseEvent>
+#include <QDrag>
+#include <QMimeData>
 
 //################//
 // CONSTRUCTOR    //
@@ -299,7 +302,6 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			else if (text == "Tunnel")
 			{
 				currentTool_ = ODD::TSG_TUNNEL;
-
 			}
 			else
 			{
@@ -326,5 +328,62 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 		update();
 	}
 
+}
+
+void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+    if ((event->pos() - dragStartPosition_).manhattanLength() < QApplication::startDragDistance())
+        return;
+    SignalContainer *signalContainer = signalManager_->getSelectedSignalContainer();
+    QTreeWidget::mouseMoveEvent(event);
+    if(signalContainer)
+    {
+        QDrag *drag = PrepareDrag();//new QDrag(this);
+        /*QMimeData *mimeData = new QMimeData;
+
+        QTreeWidgetItem *item = selectedItems().at(0);
+        const QString text = item->text(0);
+        //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
+        //QString signalName = signal->getName();
+        std::string entryName = text.toUtf8().constData();
+
+        mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
+        drag->setMimeData(mimeData);*/
+        QIcon signalIcon = signalContainer->getSignalIcon();
+        drag->setPixmap(signalIcon.pixmap(QSize(35,35)));
+
+        Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+    }
+    /*else
+    {
+        ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
+        if(objectContainer)
+        {
+            //QTreeWidgetItem *item = selectedItems().at(0);
+            //const QString text = item->text(0);
+            QDrag* drag = PrepareDrag();
+            QIcon objectIcon = objectContainer->getObjectIcon();
+            drag->setPixmap(objectIcon.pixmap(QSize(35,35)));
+            Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+        }
+    }*/
+}
+
+QDrag* SignalTreeWidget::PrepareDrag()
+{
+    QDrag* drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+
+    QTreeWidgetItem *item = selectedItems().at(0);
+    const QString text = item->text(0);
+    //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
+    //QString signalName = signal->getName();
+    std::string entryName = text.toUtf8().constData();
+
+    mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
+    drag->setMimeData(mimeData);
+    return drag;
 }
 

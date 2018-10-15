@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<OpenSCENARIO>
+
+  <FileHeader/>
+
+  <Catalog name="Vehicle">
+    <Vehicle category="car" name="Test">
+      <Axles>
+        <Front maxSteering="4.000000" positionX="5.000000" positionZ="1.000000" trackWidth="1.000000"/>
+      </Axles>
+    </Vehicle>
+  </Catalog>
+
+</OpenSCENARIO>

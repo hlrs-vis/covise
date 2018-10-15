@@ -53,7 +53,7 @@ guess_archsuffix() {
 	            export ARCHSUFFIX=libc++
                     ;;
 
-                15.*|16.*|17.*)
+                15.*|16.*|17.*|18.*)
 	            export ARCHSUFFIX=macos
                     ;;
 
@@ -188,6 +188,26 @@ guess_archsuffix() {
                    export ARCHSUFFIX=waran
                elif grep -i -q -s 'suse.*9.3' /etc/issue; then
                    export ARCHSUFFIX=leguan
+               elif grep -i -q -s 'ubuntu.*10\.04' /etc/issue; then
+                   export ARCHSUFFIX=lynx
+               elif grep -i -q -s 'ubuntu.*10\.10' /etc/issue; then
+                   export ARCHSUFFIX=meerkat
+               elif grep -i -q -s 'ubuntu.*11\.04' /etc/issue; then
+                   export ARCHSUFFIX=narwhal
+               elif grep -i -q -s 'ubuntu.*11\.10' /etc/issue; then
+                   export ARCHSUFFIX=ocelot
+               elif grep -i -q -s 'ubuntu.*12\.04' /etc/issue; then
+                   export ARCHSUFFIX=pangolin
+               elif grep -i -q -s 'ubuntu.*14\.04' /etc/issue; then
+                   export ARCHSUFFIX=tahr
+               elif grep -i -q -s 'ubuntu.*15\.04' /etc/issue; then
+                   export ARCHSUFFIX=vervet
+               elif grep -i -q -s 'ubuntu.*15\.10' /etc/issue; then
+                   export ARCHSUFFIX=werewolf
+               elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
+                   export ARCHSUFFIX=xerus
+               elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
+                   export ARCHSUFFIX=tahr
                elif grep -i -q -s 'ubuntu.*6\.06' /etc/issue; then
                    export ARCHSUFFIX=drake
                elif grep -i -q -s 'ubuntu.*6\.10' /etc/issue; then
@@ -210,26 +230,6 @@ guess_archsuffix() {
                    export ARCHSUFFIX=jackalope
                elif grep -i -q -s 'ubuntu.*9\.10' /etc/issue; then
                    export ARCHSUFFIX=koala
-               elif grep -i -q -s 'ubuntu.*10\.04' /etc/issue; then
-                   export ARCHSUFFIX=lynx
-               elif grep -i -q -s 'ubuntu.*10\.10' /etc/issue; then
-                   export ARCHSUFFIX=meerkat
-               elif grep -i -q -s 'ubuntu.*11\.04' /etc/issue; then
-                   export ARCHSUFFIX=narwhal
-               elif grep -i -q -s 'ubuntu.*11\.10' /etc/issue; then
-                   export ARCHSUFFIX=ocelot
-               elif grep -i -q -s 'ubuntu.*12\.04' /etc/issue; then
-                   export ARCHSUFFIX=pangolin
-               elif grep -i -q -s 'ubuntu.*14\.04' /etc/issue; then
-                   export ARCHSUFFIX=tahr
-               elif grep -i -q -s 'ubuntu.*15\.04' /etc/issue; then
-                   export ARCHSUFFIX=vervet
-               elif grep -i -q -s 'ubuntu.*15\.10' /etc/issue; then
-                   export ARCHSUFFIX=werewolf
-               elif grep -i -q -s 'ubuntu.*16\.04' /etc/issue; then
-                   export ARCHSUFFIX=xerus
-               elif grep -i -q -s 'Linux Mint *17\.' /etc/issue; then
-                   export ARCHSUFFIX=tahr
                fi
                ;;
             

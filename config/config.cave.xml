@@ -45,8 +45,8 @@
            </CaveHead>
 
            <CaveHand device="DTrackCave" bodyIndex="0">
-              <Offset x="0" y="-120" z="0" />
-              <Orientation h="0" p="-5" r="0" />
+              <Offset x="0" y="-110" z="0" />
+              <Orientation h="-2" p="-2" r="14" />
            </CaveHand>
 
            <CaveCamera device="DTrackCave" bodyIndex="2">
@@ -227,7 +227,6 @@
     <ViewpointType value = "free"/>
 
     <NewMovieSupport value="true"/>
-    <UseTextureRectangle value="true"/>
 
 
     </Vrml97>
@@ -243,13 +242,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <!--Server value="localhost" /-->
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <Server value="141.58.8.187" />
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+   <TabletUI host="141.58.8.187" />
 
    <MultiPC>
     <SyncMode value="TCP" hosts="viscluster50,viscluster51,viscluster52,viscluster53,viscluster54,viscluster55,viscluster56,viscluster57,viscluster58,viscluster59,viscluster60"/>
@@ -366,8 +359,8 @@
    <SplashScreen value="/mnt/raid/media/images/splash/Floor.tif" width="1176" height="1050" />
    
    <ScreenConfig>
-    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="0.0" name="0" screen="0" />
-    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="0.0" name="1" screen="1" />
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="180.0" name="0" screen="0" />
+    <Screen width="2700" comment="CEILING" h="0.0" originX="0" originY="0" originZ="1350" height="2700" p="90.0" r="180.0" name="1" screen="1" />
    </ScreenConfig>
   </COVER>
  </LOCAL>
@@ -377,7 +370,7 @@
  <LOCAL HOST="viscluster52,viscluster53,viscluster55,viscluster56,viscluster57,viscluster59" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -385,7 +378,7 @@
  <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster54,viscluster55,viscluster56,viscluster58,viscluster60" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11" type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1200" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -408,12 +401,12 @@
 
 <LOCAL HOST="viscluster52,viscluster54,viscluster56" >
   <COVER>
-     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuR.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
    </ViewportConfig>
 
   </COVER>
@@ -421,12 +414,12 @@
 
 <LOCAL HOST="viscluster58,viscluster60" >
   <COVER>
-     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuR.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="RIGHT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
    </ViewportConfig>
   </COVER>
  </LOCAL>
@@ -434,24 +427,24 @@
 
  <LOCAL HOST="viscluster51,viscluster53,viscluster55,visent,visent.hlrs.de" >
   <COVER>
-     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuL.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1201"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
    </ViewportConfig>
   </COVER>
  </LOCAL>
 
  <LOCAL HOST="viscluster57,viscluster59" >
   <COVER>
-     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1200x1200_neuR.png" />
+     <TestImage value="/mnt/raid/media/images/hpcwoess/testbild/testbild_1600x1600_neuL.png" />
    <ChannelConfig>
     <Channel comment="MAIN" channel="0"  stereoMode="LEFT" windowIndex="0" name="0" viewportIndex="0" />
    </ChannelConfig>
    <ViewportConfig>
-    <Viewport width="1200"  left="363" windowIndex="0" bottom="0" name="0" height="1200" />
+    <Viewport width="1600"  left="480" windowIndex="0" bottom="0" name="0" height="1600" />
    </ViewportConfig>
   </COVER>
  </LOCAL>
@@ -472,7 +465,6 @@
    <Crease value="OFF" />
    <TwoSide value="ON" />
    <Near value="100" />
-   <GenStrips value="OFF" />
    <Stereo enable="ON" value="ON" />
    <!--StereoCommand value="echo stereo > /proc/driver/genlock/state" /-->
    <!--MonoCommand value="echo mono > /proc/driver/genlock/state" /-->

@@ -25,6 +25,11 @@ set(HEADERS
   Position.h
   ReferencePosition.h
   Action.h
+  StartConditions.h
+  EndConditions.h
+  Event.h
+  Sequence.h
+  StoryElement.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -41,6 +46,11 @@ set(SOURCES
   Position.cpp
   ReferencePosition.cpp
   Action.cpp
+  StartConditions.cpp
+  EndConditions.cpp
+  Event.cpp
+  Sequence.cpp
+  StoryElement.cpp  
 )
 
 

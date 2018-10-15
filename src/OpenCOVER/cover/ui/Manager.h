@@ -25,11 +25,13 @@ namespace opencover {
 namespace ui {
 
 class View;
+class ButtonGroup;
 
 //! responsible for handling all \ref Element "elements" of a user interface
 class COVER_UI_EXPORT Manager: public Owner {
  public:
    Manager();
+   void init();
 
    //! attach a view (creating a graphical representation) of the user interface
    bool addView(View *view);
@@ -60,6 +62,10 @@ class COVER_UI_EXPORT Manager: public Owner {
    void updateBounds(const Slider *slider) const;
    //! update input value on all attached views
    void updateValue(const EditField *input) const;
+   //! update selected file on all attached views
+   void updateValue(const FileBrowser *fb) const;
+   //! update the file filter on all views
+   void updateFilter(const FileBrowser *fb) const;
 
    //! add elem to list of managed user interface items
    void add(Element *elem);
@@ -102,7 +108,7 @@ class COVER_UI_EXPORT Manager: public Owner {
    std::map<int, std::pair<Element::UpdateMaskType, std::shared_ptr<covise::TokenBuffer>>> m_elemState;
    std::shared_ptr<covise::TokenBuffer> m_updates;
    void flushUpdates();
-   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers);
+   void processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed);
 
    int m_modifiers = 0;
    std::vector<vrui::coMouseButtonInteraction *> m_wheelInteraction;

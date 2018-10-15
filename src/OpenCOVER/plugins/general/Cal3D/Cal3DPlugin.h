@@ -129,6 +129,11 @@ public:
 
     virtual void render(Viewer *);
 
+	void update(double deltaT)
+	{
+		model->update(deltaT);
+	};
+
 private:
     osgCal::Model *model;
     osg::ref_ptr<osg::MatrixTransform> myTransform;
@@ -152,12 +157,16 @@ public:
     Cal3DPlugin();
     ~Cal3DPlugin();
 
-    static Cal3DPlugin *plugin;
+	static Cal3DPlugin *instance() { return plugin; };
 
     // this will be called in PreFrame
     void preFrame();
+	bool update();
     bool init();
+	std::list<Cal3dNode *> nodes;
 
 private:
+	static Cal3DPlugin *plugin;
+	time_t oldT;
 };
 #endif

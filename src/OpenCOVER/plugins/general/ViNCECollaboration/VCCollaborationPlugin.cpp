@@ -48,6 +48,7 @@ VCCollaborationPlugin::VCCollaborationPlugin()
     {
         int argc = 0;
         this->app = new QApplication(argc, 0);
+        this->app->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
     }
 
     std::cerr << "VCCollaborationPlugin::<init> info: connecting to broker at " << qPrintable((QString)server) << ":" << port << std::endl;

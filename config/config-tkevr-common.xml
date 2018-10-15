@@ -236,12 +236,10 @@
     <Amber value="off"/>  
 	<StereoVideoPlayer>
 	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
 	<AudioOffset value="0.0"/>
   </StereoVideoPlayer>
 
     <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 
@@ -344,7 +342,6 @@
     <ViewpointType value = "free"/>
 
     <NewMovieSupport value="true"/>
-    <UseTextureRectangle value="true"/>
 
 
     </Vrml97>
@@ -360,13 +357,7 @@
 
    </Plugin>
 
-   <TabletPC>
-   <!--Server value="localhost" /-->
-   <!--Server value="141.58.8.211" /-->
-   <!--Server value="141.58.8.238" /-->
-   <Server value="localhost" />
-   <!--Server value="141.58.8.88" /-->
-   </TabletPC>
+   <TabletUI host="localhost" />
 
   <MultiPC>
     <SyncMode value="TCP" />

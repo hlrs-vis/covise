@@ -103,7 +103,7 @@ private:
     std::list<VrmlNodeType *> d_typeList;
 
     // Defined node names for this namespace
-    std::list<VrmlNode *> d_nameList;
+    std::map<std::string, VrmlNode *> d_nameList;
 
     // Parent namespace
     VrmlNamespace *d_parent;

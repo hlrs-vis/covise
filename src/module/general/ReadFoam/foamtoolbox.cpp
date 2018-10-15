@@ -32,6 +32,11 @@
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/char_traits.hpp>
+#include <boost/iostreams/operations.hpp>
+#include <boost/iostreams/pipeline.hpp>
+#include <boost/iostreams/detail/config/disable_warnings.hpp> // VC7.1 C4244.
 
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/qi_no_skip.hpp>
@@ -49,9 +54,11 @@
 #include <boost/filesystem.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include <boost/mpl/same_as.hpp>
 
+#include "archivemodel.h"
 #include "foamtoolbox.h"
 #include "byteswap.h"
 
@@ -70,7 +77,17 @@ namespace ascii = boost::spirit::ascii;
 
 BOOST_FUSION_ADAPT_STRUCT(
     HeaderInfo,
-    (std::string, version)(std::string, format)(std::string, fieldclass)(std::string, location)(std::string, object)(std::string, dimensions)(std::string, internalField)(index_t, lines))
+        (std::string, version)
+        (std::string, format)
+        (std::string, fieldclass)
+        (std::string, arch)
+        (std::string, note)
+        (std::string, location)
+        (std::string, object)
+        (std::string, dimensions)
+        (std::string, internalField)
+        (index_t, lines)
+    )
 
 BOOST_FUSION_ADAPT_STRUCT(
     DimensionInfo,
@@ -89,12 +106,21 @@ static bool is_directory(const bf::path &p)
     }
 }
 
+static bool is_directory(const fs::Entry &entry) {
+    return fs::is_directory(entry);
+}
+
+static bool is_directory(const fs::Path &path) {
+    return fs::is_directory(path);
+}
+
 class FilteringStreamDeleter
 {
 public:
-    FilteringStreamDeleter(bi::filtering_istream *f, std::ifstream *s)
+    FilteringStreamDeleter(bi::filtering_istream *f, std::istream *s, archive_streambuf *b=nullptr)
         : filtered(f)
         , stream(s)
+        , buf(b)
     {
     }
 
@@ -103,41 +129,13 @@ public:
         assert(static_cast<bi::filtering_istream *>(f) == filtered);
         delete filtered;
         delete stream;
+        delete buf;
     }
 
-    bi::filtering_istream *filtered;
-    std::ifstream *stream;
+    bi::filtering_istream *filtered = nullptr;
+    std::istream *stream = nullptr;
+    archive_streambuf *buf = nullptr;
 };
-
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &filename)
-{
-
-    std::ifstream *s = new std::ifstream(filename.c_str(), std::ios_base::in | std::ios_base::binary);
-    if (!s->is_open())
-    {
-        std::cerr << "failed to open " << filename << std::endl;
-        return boost::shared_ptr<std::istream>();
-    }
-
-    bi::filtering_istream *fi = new bi::filtering_istream;
-    bf::path p(filename);
-    if (p.extension().string() == ".gz")
-    {
-        fi->push(bi::gzip_decompressor());
-    }
-    fi->push(*s);
-    return boost::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s));
-}
-
-boost::shared_ptr<std::istream> getStreamForFile(const std::string &dir, const std::string &basename)
-{
-
-    bf::path zipped(dir + "/" + basename + ".gz");
-    if (bf::exists(zipped) && !::is_directory(zipped))
-        return getStreamForFile(zipped.string());
-    else
-        return getStreamForFile(dir + "/" + basename);
-}
 
 bool isTimeDir(const std::string &dir)
 {
@@ -186,35 +184,38 @@ bool isProcessorDir(const std::string &dir)
     return true;
 }
 
-bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
+template<class Directory, class Iterator, class Path>
+bool checkMeshDirectory(CaseInfo &info, const Path &meshdir, bool time)
 {
 
-    //std::cerr << "checking meshdir " << meshdir << std::endl;
-    bf::path p(meshdir);
-    if (!::is_directory(p))
+    //std::cerr << "checking meshdir " << meshdir.string() << std::endl;
+    if (!exists(meshdir))
     {
-        std::cerr << meshdir << " is not a directory" << std::endl;
+        std::cerr << "mesh directory " << meshdir.string() << " does not exist" << std::endl;
+        return false;
+    }
+    if (!::is_directory(meshdir))
+    {
+        std::cerr << "mesh directory " << meshdir.string()<< " is not a directory" << std::endl;
         return false;
     }
 
     bool havePoints = false;
     std::map<std::string, std::string> meshfiles;
-    for (bf::directory_iterator it(p);
-         it != bf::directory_iterator();
-         ++it)
+    for (Iterator it(meshdir); it != Iterator(); ++it)
     {
-        bf::path ent(*it);
+        Path ent(*it);
         std::string stem = ent.stem().string();
         std::string ext = ent.extension().string();
         if (stem == "points" || stem == "faces" || stem == "owner" || stem == "neighbour")
         {
             if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
             {
-                std::cerr << "ignoring " << *it << std::endl;
+                std::cerr << "ignoring " << ent.string() << std::endl;
             }
             else
             {
-                meshfiles[stem] = bf::path(*it).string();
+                meshfiles[stem] = ent.string();
                 if (stem == "points")
                     havePoints = true;
             }
@@ -248,40 +249,38 @@ bool checkMeshDirectory(CaseInfo &info, const std::string &meshdir, bool time)
     return false;
 }
 
-bool checkLagrangianDirectory(CaseInfo &info, std::string lagdir, bool time)
+template<class Directory, class Iterator, class Path>
+bool checkLagrangianDirectory(CaseInfo &info, Path lagdir, bool time)
 {
     if (info.lagrangiandir.empty())
     {
         info.lagrangiandir = "dsmc";
     }
-    lagdir = lagdir + "/" + info.lagrangiandir;
+    lagdir /= info.lagrangiandir;
     //std::cerr << "checking lagdir " << lagdir << std::endl;
-    bf::path p(lagdir);
-    if (!::is_directory(p))
+    if (!::is_directory(lagdir))
     {
-        std::cerr << lagdir << " is not a directory" << std::endl;
+        std::cerr << lagdir.string() << " is not a directory" << std::endl;
         return false;
     }
 
     bool havePositions = false;
     std::map<std::string, std::string> meshfiles;
-    for (bf::directory_iterator it(p);
-         it != bf::directory_iterator();
-         ++it)
+    for (Iterator it(lagdir); it != Iterator(); ++it)
     {
-        bf::path ent(*it);
+        Path ent(*it);
         std::string stem = ent.stem().string();
         std::string ext = ent.extension().string();
         if (::is_directory(*it) || (!ext.empty() && ext != ".gz"))
         {
             if (stem == "positions")
             {
-                std::cerr << "ignoring " << *it << std::endl;
+                std::cerr << "ignoring " << ent.string() << std::endl;
             }
         }
         else
         {
-            meshfiles[stem] = bf::path(*it).string();
+            meshfiles[stem] = ent.string();
             if (stem == "positions")
                 havePositions = true;
             else
@@ -294,44 +293,45 @@ bool checkLagrangianDirectory(CaseInfo &info, std::string lagdir, bool time)
 
     if (!havePositions)
     {
-        std::cerr << "did not find positions in " << lagdir << std::endl;
+        std::cerr << "did not find positions in " << lagdir.string() << std::endl;
         return false;
     }
 
     return true;
 }
 
-bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
-{
 
-    bf::path dir(timedir);
-    if (!bf::exists(dir))
+
+template<class Directory, class Iterator, class Path>
+bool checkCaseDataDirectory(CaseInfo &info, const Path &timedir, bool time)
+{
+    //std::cerr << "checkCaseDataDirectory: path=" << timedir.string() << std::endl;
+
+    if (!exists(timedir))
     {
-        std::cerr << "timestep directory " << timedir << " does not exist" << std::endl;
+        std::cerr << (time?"timestep":"constant") << " directory " << timedir.string() << " does not exist" << std::endl;
         return false;
     }
     if (!::is_directory(timedir))
     {
-        std::cerr << "timestep directory " << timedir << " is not a directory" << std::endl;
+        std::cerr << (time?"timestep":"constant") << " directory " << timedir.string()<< " is not a directory" << std::endl;
         return false;
     }
 
-    for (bf::directory_iterator it(dir);
-         it != bf::directory_iterator();
-         ++it)
+    for (Iterator it(timedir); it != Iterator(); ++it)
     {
-        bf::path p(*it);
+        Path p(*it);
         if (::is_directory(*it))
         {
             std::string name = p.filename().string();
             if (name == "polyMesh")
             {
-                if (!checkMeshDirectory(info, p.string(), time))
+                if (!checkMeshDirectory<Directory, Iterator>(info, p, time))
                     return false;
             }
             if (name == "lagrangian")
             {
-                if (!checkLagrangianDirectory(info, p.string(), time))
+                if (!checkLagrangianDirectory<Directory, Iterator>(info, p, time))
                     return false;
             }
         }
@@ -356,20 +356,19 @@ bool checkSubDirectory(CaseInfo &info, const std::string &timedir, bool time)
 }
 
 
-bool checkPolyMeshDirContent(CaseInfo &info)
+template<class Directory, class Iterator, class Path>
+bool checkPolyMeshDirContent(CaseInfo &info, const Path &basedir)
 {
 	// start out with 
-	std::stringstream s;
-    if (info.numblocks>0)
-		s << "/processor0" << "/";
-    std::string basedir = info.casedir;
-	basedir += s.str(); 
 	std::string fullMeshDir = info.constantdir;
 
 	for (std::map<double, std::string>::iterator it = info.timedirs.begin(); it != info.timedirs.end(); ++it)
 	{
-		std::string currentTimeDir= basedir + it->second;
-		checkSubDirectory(info, currentTimeDir, true);
+        Path currentTimeDir = basedir;
+        currentTimeDir /= it->second;
+        bool ret = checkCaseDataDirectory<Directory, Iterator>(info, currentTimeDir, true);
+        if (!ret)
+            return false;
 		if (info.varyingGrid)
 		{
 			fullMeshDir = it->second;
@@ -382,75 +381,16 @@ bool checkPolyMeshDirContent(CaseInfo &info)
 }
 
 
-
-bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare, bool exact)
+template<class Directory, class Iterator, class Path>
+bool checkCaseSubDirectory(CaseInfo &info, const Path &dir, bool compare, bool exact, bool verbose)
 {
-
-    std::cerr << "reading casedir: " << casedir << std::endl;
-
-    bf::path dir(casedir);
-    if (!bf::exists(dir))
+    if (verbose)
     {
-        std::cerr << "case directory " << casedir << " does not exist" << std::endl;
-        return false;
-    }
-    if (!::is_directory(casedir))
-    {
-        std::cerr << "case directory " << casedir << " is not a directory" << std::endl;
-        return false;
-    }
-
-    int num_processors = 0;
-    for (bf::directory_iterator it(dir);
-         it != bf::directory_iterator();
-         ++it)
-    {
-        if (::is_directory(*it))
-        {
-            if (isProcessorDir(bf::basename(it->path())))
-                ++num_processors;
-        }
-    }
-
-    if (!compare && num_processors > 0)
-    {
-        info.numblocks = num_processors;
-    }
-
-    if (compare && num_processors > 0)
-    {
-        std::cerr << "found processor subdirectory in processor directory" << std::endl;
-        return false;
-    }
-
-    if (num_processors > 0)
-    {
-        bool result = checkCaseDirectory(info, casedir + "/processor0", false, exact);
-        if (!result)
-        {
-            std::cerr << "failed to read case directory for processor 0" << std::endl;
-            return false;
-        }
-
-        if (exact)
-        {
-            for (int i = 1; i < num_processors; ++i)
-            {
-                std::stringstream s;
-                s << casedir << "/processor" << i;
-                bool result = checkCaseDirectory(info, s.str(), true, exact);
-                if (!result)
-                    return false;
-            }
-        }
-
-        return true;
+        std::cerr << "checkCaseSubDirectory: opening " << dir.string() << std::endl;
     }
 
     index_t num_timesteps = 0;
-    for (bf::directory_iterator it(dir);
-         it != bf::directory_iterator();
-         ++it)
+    for (Iterator it(dir); it != Iterator(); ++it)
     {
         if (::is_directory(*it))
         {
@@ -458,54 +398,45 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             if (isTimeDir(bn))
             {
                 double t = atof(bn.c_str());
-                //std::cerr << bn << "is a time directory, " << t  << std::endl;
-                //if (t >= mintime && t <= maxtime)
+                ++num_timesteps;
+                if (compare)
                 {
-                    ++num_timesteps;
-                    if (compare)
+                    if (info.timedirs.find(t) == info.timedirs.end())
                     {
-                        if (info.timedirs.find(t) == info.timedirs.end())
-                        {
-                            --num_timesteps;
-                            //                     std::cerr << "timestep " << bn << " not available on all processors" << std::endl;
-                            //                     return false;
-                        }
+                        --num_timesteps;
+                        //                     std::cerr << "timestep " << bn << " not available on all processors" << std::endl;
+                        //                     return false;
                     }
-                    else
-                    {
-                        info.timedirs[t] = bn;
-                    }
+                }
+                else
+                {
+                    info.timedirs[t] = bn;
                 }
             }
-            else
+            else if (bn == "constant")
             {
-                if (bn == "constant")
-                {
-                    info.constantdir = bn;
-                }
-                else if (bn == "0" && info.constantdir.empty())
-                {
-                    info.constantdir = bn;
-                }
+                info.constantdir = bn;
+            }
+            else if (bn == "0" && info.constantdir.empty())
+            {
+                info.constantdir = bn;
             }
         }
     }
 
     bool varyingChecked = false, constantChecked = false;
-    for (bf::directory_iterator it(dir);
-         it != bf::directory_iterator();
-         ++it)
+    for (Iterator it(dir); it != Iterator(); ++it)
     {
         if (::is_directory(*it))
         {
             std::string bn = it->path().filename().string();
-			//std::cerr << "directory :" << bn << std::endl;
+            //std::cerr << "directory :" << bn << std::endl;
             if (isTimeDir(bn) && !varyingChecked)
             {
                 double t = atof(bn.c_str());
                 if (info.timedirs.find(t) != info.timedirs.end())
                 {
-                    bool result = checkSubDirectory(info, it->path().string(), true);
+                    bool result = checkCaseDataDirectory<Directory, Iterator>(info, it->path(), true);
                     if (!result)
                         return false;
                     varyingChecked = true;
@@ -513,7 +444,7 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
             }
             else if (bn == info.constantdir)
             {
-                bool result = checkSubDirectory(info, it->path().string(), false);
+                bool result = checkCaseDataDirectory<Directory, Iterator>(info, it->path(), false);
                 if (!result)
                     return false;
                 constantChecked = true;
@@ -533,7 +464,153 @@ bool checkCaseDirectory(CaseInfo &info, const std::string &casedir, bool compare
     return true;
 }
 
-bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
+template<class Model, class Path>
+Path getProcessor(CaseInfo &info, int processor);
+
+template<>
+bf::path getProcessor<bf::path, bf::path>(CaseInfo &info, int processor) {
+    assert(!info.archived);
+    assert(info.format == CaseInfo::FormatDir);
+    std::stringstream s;
+    s << info.casedir << "/processor" + std::to_string(processor);
+    return bf::path(s.str());
+}
+
+template<>
+fs::Path getProcessor<fs::Model, fs::Path>(CaseInfo &info, int processor) {
+    assert(info.archived);
+    assert(info.format != CaseInfo::FormatDir);
+    std::stringstream s;
+    if (info.format == CaseInfo::FormatTar)
+        s << info.casedir << "/processor" + std::to_string(processor) + ".tar";
+    else
+        s << info.casedir << "/processor" + std::to_string(processor) + ".zip";
+    auto it = info.archives.find(processor);
+    if (it == info.archives.end()) {
+        info.archives[processor].reset(new fs::Model(s.str()));
+    }
+    it = info.archives.find(processor);
+    assert(it != info.archives.end());
+    fs::Model &model = *it->second;
+    fs::Path root(model);
+    root /= "processor0";
+    return root;
+}
+
+template<class Model, class Directory, class Iterator, class Path>
+bool checkCaseProcessorDirectories(CaseInfo &info, bool compare, bool exact, bool verbose)
+{
+    Path root = getProcessor<Model, Path>(info, 0);
+    bool result = checkCaseSubDirectory<Directory, Iterator>(info, root, false, exact, verbose);
+    if (!result)
+    {
+        std::cerr << "failed to read case directory for processor 0" << std::endl;
+        return false;
+    }
+
+    if (!checkPolyMeshDirContent<Directory, Iterator>(info, (Path)root)) {
+        std::cerr << "failed to gather topology directories for processor 0 in " << info.casedir << std::endl;
+        return false;
+    }
+
+    if (exact)
+    {
+       int num_processors = info.numblocks;
+        for (int i = 1; i < num_processors; ++i)
+        {
+            Path root = getProcessor<Model, Path>(info, i);
+            bool result = checkCaseSubDirectory<Directory, Iterator>(info, root, true, exact, verbose);
+            if (!result)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool checkCaseRootDirectory(CaseInfo &info, bool compare, bool exact, bool verbose)
+{
+    if (verbose)
+    {
+        std::cerr << "reading casedir: " << info.casedir << std::endl;
+    }
+
+    bf::path dir(info.casedir);
+    if (!bf::exists(dir))
+    {
+        std::cerr << "case directory " << info.casedir << " does not exist" << std::endl;
+        return false;
+    }
+    if (!::is_directory(info.casedir))
+    {
+        std::cerr << "case directory " << info.casedir << " is not a directory" << std::endl;
+        return false;
+    }
+
+    int numProcessorDirs = 0, numProcessorTars = 0, numProcessorZips = 0;
+    for (bf::directory_iterator it(dir);
+         it != bf::directory_iterator();
+         ++it)
+    {
+        auto last = it->path().filename().string();
+        auto stem = it->path().stem().string();
+        auto ext = it->path().extension().string();
+        if (::is_directory(*it))
+        {
+            if (isProcessorDir(last))
+                ++numProcessorDirs;
+        }
+        else
+        {
+            if (ext == ".tar" && isProcessorDir(stem))
+                ++numProcessorTars;
+            if (ext == ".zip" && isProcessorDir(stem))
+                ++numProcessorZips;
+        }
+    }
+
+    int num_processors = numProcessorDirs;
+    if (numProcessorTars > 0 || numProcessorZips > 0)
+    {
+        info.archived = true;
+        num_processors = std::max(numProcessorTars, numProcessorZips);
+        if (numProcessorTars > numProcessorZips)
+            info.format = CaseInfo::FormatTar;
+        else
+            info.format = CaseInfo::FormatZip;
+    }
+    info.numblocks = num_processors;
+
+    if (verbose)
+    {
+        std::cerr << "case directory " << info.casedir << " is " << (info.archived ? "" : "not ") << "an archive: #archives(zip/tar)=" << numProcessorZips << "/" << numProcessorTars << std::endl;
+    }
+
+    if (num_processors > 0)
+    {
+        if (info.archived)
+        {
+           return checkCaseProcessorDirectories<fs::Model, fs::Directory, fs::DirectoryIterator, fs::Path>(info, compare, exact, verbose);
+        }
+        return checkCaseProcessorDirectories<bf::path, bf::path, bf::directory_iterator, bf::path>(info, compare, exact, verbose);
+    }
+
+    if (!checkCaseSubDirectory<bf::path, bf::directory_iterator>(info, bf::path(info.casedir), false, exact, verbose))
+    {
+        std::cerr << "failed to read global case directory " << info.casedir << std::endl;
+        return false;
+    }
+
+    if (!checkPolyMeshDirContent<bf::path, bf::directory_iterator>(info, bf::path(info.casedir)))
+    {
+        std::cerr << "failed to gather topology directories in " << info.casedir << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact, bool verbose)
 {
     bool ignored = false;
     for (std::map<std::string, int>::iterator it = fields.begin(), next;
@@ -542,46 +619,55 @@ bool checkFields(std::map<std::string, int> &fields, int nRequired, bool exact)
     {
         next = it;
         ++next;
-        std::cerr << "  " << it->first << ": " << it->second;
+        if (verbose)
+            std::cerr << "  " << it->first << ": " << it->second;
         if (exact && it->second != nRequired)
         {
             ignored = true;
-            std::cerr << " (ignored)";
+            if (verbose)
+                std::cerr << " (ignored)";
             fields.erase(it->first);
         }
     }
-    std::cerr << std::endl;
+    if (verbose)
+        std::cerr << std::endl;
     return !ignored;
 }
 
-CaseInfo getCaseInfo(const std::string &casedir, bool exact)
+CaseInfo getCaseInfo(const std::string &casedir, bool exact, bool verbose)
 {
 
     CaseInfo info;
     info.casedir = casedir;
-    info.valid = checkCaseDirectory(info, casedir, false, exact);
+    info.valid = checkCaseRootDirectory(info, false, exact, verbose);
 
-    std::cerr << " "
-              << "casedir: " << casedir << " " << std::endl
-              << "Number of processors: " << info.numblocks << std::endl
-              << "Number of time directories found: " << info.timedirs.size() << std::endl
-              << "Number of fields: " << info.constantFields.size() + info.varyingFields.size() << std::endl;
+    if (verbose) {
+        std::cerr << " "
+                  << "casedir: " << casedir << " " << std::endl
+                  << "Number of processors: " << info.numblocks << std::endl
+                  << "Number of time directories found: " << info.timedirs.size() << std::endl
+                  << "Number of fields: " << info.constantFields.size() + info.varyingFields.size() << std::endl;
+    }
 
     int np = info.numblocks > 0 ? info.numblocks : 1;
-    std::cerr << "  constant:";
-    checkFields(info.constantFields, np, exact);
+    if (verbose)
+        std::cerr << "  constant:";
+    checkFields(info.constantFields, np, exact, verbose);
 
-    std::cerr << "  varying: ";
-    checkFields(info.varyingFields, np * int(info.timedirs.size()), exact);
+    if (verbose)
+        std::cerr << "  varying: ";
+    checkFields(info.varyingFields, np * int(info.timedirs.size()), exact, verbose);
 
     if (info.hasParticles)
     {
-        std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
-        checkFields(info.particleFields, np * int(info.timedirs.size()), exact);
+        if (verbose)
+            std::cerr << "  lagrangian from " << info.lagrangiandir << ": ";
+        checkFields(info.particleFields, np * int(info.timedirs.size()), exact, verbose);
     }
     else
     {
-        std::cerr << "  no lagrangian data" << std::endl;
+        if (verbose)
+            std::cerr << "  no lagrangian data" << std::endl;
     }
 
     return info;
@@ -644,7 +730,6 @@ struct headerSkipper : qi::grammar<Iterator>
                 | "/*" >> *(ascii::char_ - "*/") >> "*/"
                 | "//" >> *(ascii::char_ - qi::eol) >> qi::eol
                 | "FoamFile" >> *ascii::space >> '{' >> *(ascii::char_ - qi::eol) >> qi::eol
-                | "note" >> *(ascii::char_ - qi::eol) >> qi::eol
                 | '}';
     }
 
@@ -658,10 +743,13 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
     FileHeaderParser()
         : FileHeaderParser::base_type(start)
     {
+        using qi::lit;
 
         start = version
                 >> format
                 >> fieldclass
+                >> -arch
+                >> -note
                 >> location
                 >> object
                 >> -dimensions
@@ -671,7 +759,9 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
         version = "version" >> +(ascii::char_ - ';') >> ';';
         format = "format" >> +(ascii::char_ - ';') >> ';';
         fieldclass = "class" >> +(ascii::char_ - ';') >> ';';
-        location = "location" >> qi::lit('"') >> +(ascii::char_ - '"') >> '"' >> ';';
+        arch = "arch" >> lit('"') >> +(ascii::char_ - lit('"')) >> lit('"') >> ';';
+        note = "note" >> lit('"') >> +(ascii::char_ - lit('"')) >> lit('"') >> ';';
+        location = "location" >> lit('"') >> +(ascii::char_ - lit('"')) >> lit('"') >> ';';
         object = "object" >> +(ascii::char_ - ';') >> ';';
         dimensions = "dimensions" >> qi::lexeme['[' >> +(ascii::char_ - ']') >> ']' >> ';'];
         nonUniformField= "nonuniform">> qi::lexeme[+(ascii::char_ - qi::eol) >> qi::eol];
@@ -686,6 +776,8 @@ struct FileHeaderParser : qi::grammar<Iterator, HeaderInfo(), headerSkipper<Iter
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > version;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > format;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > fieldclass;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > arch;
+    qi::rule<Iterator, std::string(), headerSkipper<Iterator> > note;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > location;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > object;
     qi::rule<Iterator, std::string(), headerSkipper<Iterator> > dimensions;
@@ -737,8 +829,7 @@ HeaderInfo readFoamHeader(std::istream &stream)
 
     if (!info.valid)
     {
-        std::cerr << "parsing FOAM file header failed" << std::endl;
-
+        std::cerr << "parsing FOAM file header failed (shown between ===)" << std::endl;
         std::cerr << "================================================" << std::endl;
         std::cerr << info.header << std::endl;
         std::cerr << "================================================" << std::endl;
@@ -760,6 +851,11 @@ HeaderInfo readFoamHeader(std::istream &stream)
         }
     }
 #endif
+
+    if (info.arch.find("label=64") != std::string::npos)
+        info.numbits = 64;
+    else if (info.arch.find("label=32") != std::string::npos)
+        info.numbits = 32;
 
     return info;
 }
@@ -802,6 +898,15 @@ struct dimParser : qi::grammar<Iterator, DimensionInfo(),
     qi::rule<Iterator, DimensionInfo(), dimSkipper<Iterator> > start;
     qi::rule<Iterator, index_t(), dimSkipper<Iterator> > term;
 };
+
+DimensionInfo parseDimensions(std::string note)
+{
+    struct dimParser<std::string::iterator> dimParser;
+    struct dimSkipper<std::string::iterator> dimSkipper;
+    DimensionInfo info;
+    info.valid = qi::phrase_parse(note.begin(), note.end(), dimParser, dimSkipper, info);
+    return info;
+}
 
 //Skipper - skipping FOAM Headers and unimportant data when parsing Boundary files
 template <typename Iterator>
@@ -850,11 +955,10 @@ struct BoundaryParser
     qi::rule<Iterator, std::pair<key_type, value_type>(), skipper<Iterator> > pair;
 };
 
-Boundaries loadBoundary(const std::string &meshdir)
+Boundaries CaseInfo::loadBoundary(const std::string &meshdir)
 {
-
     Boundaries bounds;
-    boost::shared_ptr<std::istream> stream = getStreamForFile(meshdir, "boundary");
+    std::shared_ptr<std::istream> stream = getStreamForFile(meshdir, "boundary");
     if (!stream)
         return bounds;
 
@@ -915,6 +1019,7 @@ const endianness foam_endian = little_endian;
 
 typedef double FoamFloat;
 typedef uint32_t FoamIndex;
+typedef uint64_t FoamIndex64;
 
 template <typename T>
 struct on_disk;
@@ -1079,10 +1184,9 @@ bool readVectorArray(const HeaderInfo &info, std::istream &stream, T *x, T *y, T
     return ok && stream.good();
 }
 
-template <typename T>
+template <typename T, typename D = typename on_disk<T>::type>
 bool readArrayBinary(std::istream &stream, T *p, const size_t lines)
 {
-    typedef typename on_disk<T>::type D;
     if (boost::is_same<T, D>::value)
     {
        return readArrayChunkBinary(stream, p, lines);
@@ -1104,7 +1208,7 @@ bool readArrayBinary(std::istream &stream, T *p, const size_t lines)
     return true;
 }
 
-template <typename T>
+template <typename T, typename D = typename on_disk<T>::type>
 bool readListBinary(std::istream &stream, std::vector<T> &vec)
 {
 
@@ -1112,7 +1216,7 @@ bool readListBinary(std::istream &stream, std::vector<T> &vec)
     stream >> n;
     stream.ignore(std::numeric_limits<std::streamsize>::max(), '(');
     vec.resize(n);
-    readArrayBinary(stream, &vec[0], n);
+    readArrayBinary<T, D>(stream, &vec[0], n);
     stream.ignore(std::numeric_limits<std::streamsize>::max(), ')');
     return stream.good();
 }
@@ -1123,11 +1227,6 @@ bool readArrayAscii(std::istream &stream, T *p, const size_t lines)
     for (size_t i = 0; i < lines; ++i)
     {
         stream >> p[i];
-        if (!stream.good())
-        {
-           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
-           return false;
-        }
     }
     expect('\n');
     return stream.good();
@@ -1141,22 +1240,17 @@ bool readArrayAscii(std::istream &stream, float *p, const size_t lines)
         double val;
         stream >> val;
         p[i] = float(val);
-        if (!stream.good())
-        {
-           std::cerr << "readArrayAscii: failure at element " << i << " of " << lines << std::endl;
-           return false;
-        }
     }
     expect('\n');
     return stream.good();
 }
 
-template <typename T>
+template <typename T, typename D = typename on_disk<T>::type>
 bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
 {
     for (size_t i = 0; i < lines; ++i)
     {
-        readListBinary(stream, p[i]);
+        readListBinary<T, D>(stream, p[i]);
         if (!stream.good())
         {
            std::cerr << "readIndexListArrayBinary: failure at element " << i << " of " << lines << std::endl;
@@ -1167,14 +1261,13 @@ bool readIndexListArrayBinary(std::istream &stream, std::vector<T> *p, const siz
     return stream.good();
 }
 
-template <typename T>
+template <typename T, typename D = typename on_disk<T>::type>
 bool readArray(const HeaderInfo &info, std::istream &stream, T *p, const size_t lines)
 {
     expect('(');
     if (info.format == "binary")
     {
-        if (!readArrayBinary(stream, p, lines))
-           return false;
+        return readArrayBinary<T, D>(stream, p, lines);
     }
     else
     {
@@ -1192,15 +1285,20 @@ bool readIndexArray(const HeaderInfo &info, std::istream &stream, index_t *p, co
        return false;
     }
     assert(stream.good());
-    return readArray<index_t>(info, stream, p, lines);
+
+    if (info.numbits == 32)
+        return readArray<index_t, FoamIndex>(info, stream, p, lines);
+    else if (info.numbits == 64)
+        return readArray<index_t, FoamIndex64>(info, stream, p, lines);
+    return false;
 }
 
-template <typename T>
+template <typename T, typename D = typename on_disk<T>::type>
 bool readIndexCompactListArrayBinary(std::istream &stream, std::vector<T> *p, const size_t lines)
 {
     expect('(');
-    std::vector<FoamIndex> faceIndex(lines);
-    if (!readArrayBinary<FoamIndex>(stream, &faceIndex[0], lines))
+    std::vector<D> faceIndex(lines);
+    if (!readArrayBinary<D, D>(stream, &faceIndex[0], lines))
     {
         std::cerr << "readIndexCompactListArrayBinary: readArrayBinary<FoamIndex> for index array failed" << std::endl;
         return false;
@@ -1222,7 +1320,7 @@ bool readIndexCompactListArrayBinary(std::istream &stream, std::vector<T> *p, co
     {
        size_t n = faceIndex[i+1] - faceIndex[i];
        p[i].resize(n);
-       if (!readArrayBinary<index_t>(stream, &p[i][0], n))
+       if (!readArrayBinary<index_t, D>(stream, &p[i][0], n))
        {
            std::cerr << "readIndexCompactListArrayBinary: readArrayBinary<index_t> failed to read index list " << i << std::endl;
            return false;
@@ -1245,13 +1343,22 @@ bool readIndexListArray(const HeaderInfo &info, std::istream &stream, std::vecto
    {
       if (info.fieldclass == "faceCompactList")
       {
-         return readIndexCompactListArrayBinary<index_t>(stream, p, lines);
+          if (info.numbits == 32) {
+              return readIndexCompactListArrayBinary<index_t, FoamIndex>(stream, p, lines);
+          } else if (info.numbits == 64) {
+              return readIndexCompactListArrayBinary<index_t, FoamIndex64>(stream, p, lines);
+          }
       }
       else if (info.fieldclass == "faceList")
       {
           expect('(');
-          if(!readIndexListArrayBinary<index_t>(stream, p, lines))
-              return false;
+          if (info.numbits == 32) {
+              if(!readIndexListArrayBinary<index_t, FoamIndex>(stream, p, lines))
+                  return false;
+          } else if (info.numbits == 64) {
+              if(!readIndexListArrayBinary<index_t, FoamIndex64>(stream, p, lines))
+                  return false;
+          }
           expect(')');
       }
       else
@@ -1288,15 +1395,6 @@ bool readFloatVectorArray(const HeaderInfo &info, std::istream &stream, scalar_t
     }
     assert(stream.good());
     return readVectorArray(info, stream, x, y, z, lines);
-}
-
-DimensionInfo parseDimensions(std::string header)
-{
-    struct dimParser<std::string::iterator> dimParser;
-    struct dimSkipper<std::string::iterator> dimSkipper;
-    DimensionInfo info;
-    info.valid = qi::phrase_parse(header.begin(), header.end(), dimParser, dimSkipper, info);
-    return info;
 }
 
 index_t findVertexAlongEdge(const index_t point,
@@ -1361,13 +1459,14 @@ bool isPointingInwards(index_t face,
     }
     else
     {
-        index_t o = owners[face];
-        index_t n = neighbors[face];
-        index_t j = o==cell ? n : o;
+        index_t owner = owners[face];
+        index_t neighbor = neighbors[face];
+        assert(owner == cell || neighbor == cell);
+        index_t other = owner==cell ? neighbor : owner;
         // cell is the index of current cell and j is index of other cell sharing the same face
         // if index of cell is higher than index of the "next door" cell
         // then normal vector points inwards else outwards
-        if (cell > j)
+        if (cell > other)
         {
             return true;
         }
@@ -1462,4 +1561,137 @@ bool readParticleArray(const HeaderInfo &info, std::istream &stream, scalar_t *x
     }
     expect(')');
     return stream.good();
+}
+
+namespace {
+//! limit number of bytes to read from/write to a stream
+template<typename Ch>
+class stream_limiter  {
+public:
+    typedef Ch char_type;
+    struct category
+        : bi::dual_use,
+          bi::filter_tag,
+          bi::multichar_tag,
+          bi::optimally_buffered_tag
+        { };
+    explicit stream_limiter(std::streamsize maxpass)
+    : maxpass(maxpass)
+    {}
+    std::streamsize optimal_buffer_size() const { return 0; }
+
+    template<typename Source>
+    std::streamsize read(Source& src, char_type* s, std::streamsize n)
+    {
+        if (nread >= maxpass) {
+            return -1;
+        }
+        if (nread+n > maxpass) {
+            //std::streamsize prev = n;
+            n = maxpass-nread;
+            //std::cerr << "stream_limiter: n=" << prev << " -> " << n << " (limit=" << maxpass << ")" << std::endl;
+        }
+        std::streamsize result = bi::read(src, s, n);
+        if (result >= 0)
+            nread += result;
+        return result;
+    }
+
+    template<typename Sink>
+    std::streamsize write(Sink& snk, const char_type* s, std::streamsize n)
+    {
+        if (nwritten >= maxpass) {
+            return -1;
+        }
+        if (nwritten+n > maxpass)
+            n = maxpass-nwritten;
+        std::streamsize result = bi::write(snk, s, n);
+        if (result >= 0)
+            nwritten += result;
+        return result;
+    }
+private:
+    std::streamsize maxpass = 0;
+    std::streamsize nread = 0;
+    std::streamsize nwritten = 0;
+};
+BOOST_IOSTREAMS_PIPABLE(stream_limiter, 1)
+}
+
+std::shared_ptr<std::istream> CaseInfo::getStreamForFile(const std::string &base, const std::string &filename)
+{
+    std::string container = casedir + "/" + base + "/" + filename;
+    std::shared_ptr<std::istream> stream;
+    bool zipped = false;
+    int64_t offset = 0;
+    size_t size = 0;
+    bool intar = false;
+    bool inzip = false;
+    bool partialfile = false;
+    archive_streambuf *buf = nullptr;
+    if (archived) {
+        if (boost::algorithm::starts_with(base, "processor")) {
+            const char *p = base.c_str() + strlen("processor");
+            int proc = atoi(p);
+            fs::Path root = getProcessor<fs::Model, fs::Path>(*this, proc);
+            const fs::File *file = root.getModel()->findFile(base + "/" + filename + ".gz");
+            if (file) {
+                zipped = true;
+            } else  {
+                file = root.getModel()->findFile(base + "/" + filename);
+            }
+            if (file) {
+                container = root.getModel()->getContainer();
+                size = file->size;
+                if (file->index<0 && (format == FormatTar
+#ifdef HAVE_LIBARCHIVE_READ_CURRENT_POSITION
+                                      || format == FormatZip
+#endif
+                                      )) {
+                    offset = file->offset;
+                    intar = true;
+                    partialfile = true;
+                } else if (format == FormatZip) {
+                    buf = new archive_streambuf(file);
+                    inzip = true;
+                }
+            }
+        }
+    } else {
+        bf::path zipfile(container+".gz");
+        if (bf::exists(zipfile) && !::is_directory(zipfile)) {
+            container += ".gz";
+            zipped = true;
+        }
+    }
+
+    std::istream *s = nullptr;
+    if (buf) {
+        s = new std::istream(buf);
+    } else {
+        std::ifstream *sf = new std::ifstream(container.c_str(), std::ios_base::in | std::ios_base::binary);
+        if (!sf->is_open())
+        {
+            delete sf;
+            std::cerr << "getStreamForFile(base=" << base << ", filename=" << filename << "): failed to open " << container << std::endl;
+            return std::shared_ptr<std::istream>();
+        }
+        if (offset>0)
+            sf->seekg(offset);
+        if (!zipped && !intar)
+        {
+            return std::shared_ptr<std::istream>(sf);
+        }
+        s = sf;
+    }
+
+    bi::filtering_istream *fi = new bi::filtering_istream;
+    if (zipped) {
+        fi->push(bi::gzip_decompressor());
+    }
+    if (partialfile) {
+        fi->push(stream_limiter<char>(size));
+    }
+    fi->push(*s);
+    return std::shared_ptr<std::istream>(fi, FilteringStreamDeleter(fi, s, buf));
 }

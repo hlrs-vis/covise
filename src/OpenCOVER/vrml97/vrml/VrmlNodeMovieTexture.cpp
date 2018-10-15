@@ -322,6 +322,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
             movProp.stop = d_stopTime.get();
             movProp.repeatS = d_repeatS.get();
             movProp.repeatT = d_repeatT.get();
+            movProp.mtNode = this;
             System::the->inform("created Movie\n");
             d_texObject = viewer->insertMovieTexture((char *)d_image->pixels(), &movProp, d_image->nc(), false, d_environment.get(), getBlendMode(), d_anisotropy.get(), d_filter.get());
             if (imageChanged)
@@ -400,6 +401,14 @@ int VrmlNodeMovieTexture::height()
 int VrmlNodeMovieTexture::nFrames()
 {
     return d_image ? d_image->nFrames() : 0;
+}
+
+void VrmlNodeMovieTexture::stopped()
+{
+    double timeNow = System::the->time();
+    d_stopTime.set(timeNow);
+    eventOut(timeNow, "stopTime_changed", d_stopTime);
+    setModified();
 }
 
 unsigned char *VrmlNodeMovieTexture::pixels()

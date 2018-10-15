@@ -232,7 +232,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
     connect(projectData_->getChangeManager(), SIGNAL(notificationDone()), projectSettings_, SLOT(garbageDisposal()));
 
-    projectionSettings = ProjectionSettings::instance();
+    projectionSettings = mainWindow->getProjectionSettings();
     lodSettings = LODSettings::instance();
 
 	oscSettings = OSCSettings::instance();
@@ -1834,6 +1834,8 @@ ProjectWidget::setProjectActive(bool active)
 	}
 
     projectData_->projectActivated(active); // Undo, etc
+
+    projectionSettings->setProjectData(projectData_);
 
     projectTree_->projectActivated(active);
     projectSettings_->projectActivated(active);

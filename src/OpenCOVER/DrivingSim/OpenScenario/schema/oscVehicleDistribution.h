@@ -24,13 +24,9 @@ class OPENSCENARIOEXPORT oscVehicleDistribution : public oscObjectBase
 public:
 oscVehicleDistribution()
 {
-        OSC_ADD_MEMBER(category, 0);
-        OSC_ADD_MEMBER(percentage, 0);
         OSC_OBJECT_ADD_MEMBER(Vehicle, "oscVehicle", 0);
     };
         const char *getScope(){return "/OSCTrafficDefinition";};
-    oscString category;
-    oscDouble percentage;
     oscVehicleArrayMember Vehicle;
 
 };

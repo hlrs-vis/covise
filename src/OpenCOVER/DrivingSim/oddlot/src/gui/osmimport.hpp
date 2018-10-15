@@ -33,13 +33,14 @@ class OsmImport;
 }
 
 class ProjectWidget;
+class OsmImport;
 class osmNode
 {
 public:
     osmNode();
     osmNode(QDomElement element);
     osmNode(const osmNode &n);
-    void getCoordinates(double &x, double &y, double &z) const;
+    //void getCoordinates(double &x, double &y, double &z) const;
     double latitude;
     double longitude;
     uint64_t id;
@@ -75,7 +76,7 @@ public:
     static QString getTypeName(wayType t);
     osmWay();
     osmWay(const osmWay &w);
-    osmWay(QDomElement element, QVector<osmNode *> &nodes);
+    osmWay(QDomElement element, QVector<osmNode *> &nodes, OsmImport *importer);
     wayType type;
     QString name;
     int numLanes;
@@ -104,7 +105,7 @@ public:
     {
         project = pw;
     };
-
+    ProjectWidget *project;
 private:
     QVector<osmNode*> nodes;
     QVector<osmWay*> ways;
@@ -112,8 +113,6 @@ private:
     //################//
     // SLOTS          //
     //################//
-
-    ProjectWidget *project;
 
 private slots:
     void okPressed();

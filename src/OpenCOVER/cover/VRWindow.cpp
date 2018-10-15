@@ -465,6 +465,15 @@ VRWindow::createWin(int i)
         return false;
     }
     coVRConfig::instance()->windows[i].window = dynamic_cast<osgViewer::GraphicsWindow *>(coVRConfig::instance()->windows[i].context.get());
+    bool syncToVBlankConfigured = false;
+    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", true, &syncToVBlankConfigured);
+    if (syncToVBlankConfigured)
+    {
+        if (auto win = coVRConfig::instance()->windows[i].window)
+        {
+            win->setSyncToVBlank(syncToVBlank);
+        }
+    }
 
     if (opengl3)
     {

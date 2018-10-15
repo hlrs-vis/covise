@@ -56,20 +56,23 @@
 #endif
 
 class QTabWidget;
+
+class QSignalMapper;
+class Q3NetworkOperation;
+class QSocketNotifier;
+
 class nodeTree;
 class nodeTreeItem;
 class SGTextureThread;
 class PropertyDialog;
 
-class QSignalMapper;
-
-class Q3NetworkOperation;
-
+namespace covise
+{
 class ServerConnection;
 class Connection;
 class ConnectionList;
 class Message;
-class QSocketNotifier;
+}
 
 class TUISGBrowserTab : public QObject, public TUITab
 {
@@ -81,28 +84,9 @@ public:
     virtual void setValue(TabletValue type, covise::TokenBuffer &tb);
 
     void changeTexture(int, std::string);
-    covise::Connection *getClient()
-    {
-        return sConn;
-    };
-    covise::Connection *getServer()
-    {
-        return sConn;
-    };
-    covise::Message *getMessage()
-    {
-        return msg;
-    };
-    int openServer();
+    covise::Connection *getClient();;
+    covise::Connection *getServer();;
     void send(covise::TokenBuffer &tb);
-    void lock()
-    {
-        m_mutex.lock();
-    };
-    void unlock()
-    {
-        m_mutex.unlock();
-    };
     bool isReceivingTextures()
     {
         return receivingTextures;
@@ -177,13 +161,8 @@ private:
     int receivedTextures;
 
     SGTextureThread *thread;
-    QMutex m_mutex;
     QStringList buttonList;
     std::list<int> indexList;
-
-    covise::Connection *sConn;
-    covise::Message *msg;
-    int port;
 
     QString texturePluginDir;
     QString texturePluginTempDir;
@@ -203,8 +182,7 @@ public slots:
     void loadTexture();
     //void        finished();
     void updateTextureButtons();
-    void closeServer();
-    void handleClient(covise::Message *msg);
+    void handleClient(const covise::Message *msg);
 
     void handleGetShader();
     void handleSetShader();
@@ -252,23 +230,18 @@ public:
     SGTextureThread(TUISGBrowserTab *tab);
     void run();
     void enqueueGeode(int number, std::string geode);
-    void setButtonNumber(int number)
-    {
-        buttonNumber = number;
-    }
-    bool isSending()
-    {
-        return !buttonQueue.empty();
-    }
-    void terminateTextureThread()
-    {
-        isRunning = false;
-    }
+    void setButtonNumber(int number);
+    bool isSending();
+    void terminateTextureThread();
+    void lock();
+    void unlock();
 
 private:
+    QMutex m_mutex;
+
     TUISGBrowserTab *tab;
     int buttonNumber;
-    bool isRunning;
+    bool running;
     std::queue<int> buttonQueue;
     std::queue<std::string> geodeQueue;
 };

@@ -134,7 +134,7 @@ void Scalar2Vector::summarizeEntry(
         len = strlen(*xName);
         sName = new char[len + 4 + 10];
         sName[0] = '\0';
-        strncat(sName, *xName, strlen(*xName) - 1);
+        strncat(sName, *xName, len-1);
         strcat(sName, prefixOrSuffix);
         removeNewLine(sName);
 

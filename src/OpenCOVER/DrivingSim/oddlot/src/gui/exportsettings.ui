@@ -6,101 +6,70 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>165</height>
+    <width>450</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Export Settings</string>
   </property>
-  <widget class="QDialogButtonBox" name="dialogButtons">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>120</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>171</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Export options</string>
-   </property>
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>151</width>
-      <height>39</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>ID format</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="exportIDOptions">
-       <item>
-        <property name="text">
-         <string>Original</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Numerical</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Name_Tile_ID</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <zorder>verticalLayoutWidget</zorder>
-   <zorder>dialogButtons</zorder>
-  </widget>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Export Options</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>ID format</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="exportIDOptions">
+          <item>
+           <property name="text">
+            <string>Original</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Numerical</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Name_Tile_ID</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="dialogButtons">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>dialogButtons</sender>
-   <signal>accepted()</signal>
-   <receiver>ExportSettings</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>dialogButtons</sender>
    <signal>rejected()</signal>
@@ -108,11 +77,27 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>440</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dialogButtons</sender>
+   <signal>accepted()</signal>
+   <receiver>ExportSettings</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
      <y>274</y>
     </hint>
    </hints>

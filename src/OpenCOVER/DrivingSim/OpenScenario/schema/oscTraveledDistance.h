@@ -23,11 +23,9 @@ class OPENSCENARIOEXPORT oscTraveledDistance : public oscObjectBase
 public:
 oscTraveledDistance()
 {
-        OSC_ADD_MEMBER(entity, 0);
         OSC_ADD_MEMBER(value, 0);
     };
         const char *getScope(){return "/OSCCondition/ByEntity/EntityCondition";};
-    oscString entity;
     oscDouble value;
 
 };

@@ -422,7 +422,10 @@ void VariantPlugin::addNode(osg::Node *node, const RenderObject *render)
                    default_state = false;
                    set_default = true;
                 }
-                std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
+                if (set_default)
+                {
+                    //std::cerr << "Variant " << var_att << ", default=" << default_state << std::endl;
+                }
                 Variant *var = getVariant(var_att);
                 if (!var) //create new menu item
                 {

@@ -52,7 +52,6 @@
 
 #include "TUIApplication.h"
 #include "TUITab.h"
-#include "TUITextureTab.h"
 #include "TUISGBrowserTab.h"
 #include "TUIAnnotationTab.h"
 #ifndef WITHOUT_VIRVO
@@ -82,6 +81,7 @@
 #include "TUISplitter.h"
 #include "TUIFileBrowserButton.h"
 #include "TUIMap.h"
+#include "TUIEarthMap.h"
 //#include "TUITextSpinEdit.h"
 #include "TUILineEdit.h"
 #include "TUITextEdit.h"
@@ -129,12 +129,10 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QFrame(parent)
     , mainFolder(mainFolder)
     , port(31803)
-    , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
     , sConn(NULL)
     , clientConn(NULL)
-    , lastElement(NULL)
 {
 
     setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -152,7 +150,7 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     // init some values
     appwin = this;
 
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
@@ -173,18 +171,16 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
     : QMainWindow(parent)
     , mainFolder(mainFolder)
     , port(31802)
-    , lastID(-10)
     , serverSN(NULL)
     , clientSN(NULL)
     , sConn(NULL)
     , clientConn(NULL)
-    , lastElement(NULL)
 {
     // init some values
     appwin = this;
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    port = covise::coCoviseConfig::getInt("port", "COVER.TabletPC", port);
+    port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);
 #endif
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
@@ -295,6 +291,11 @@ void TUIMainWindow::closeServer()
         TUIElement *ele = &*elements.back();
         delete ele;
     }
+
+    delete  toCOVERSG;
+    toCOVERSG = NULL;
+    sgConn = NULL;
+
     if (!tabs.empty())
     {
         std::cerr << "TUIMainWindow::closeEvent: not all tabs erased: still " << tabs.size() << " remaining" << std::endl;
@@ -377,49 +378,15 @@ void TUIMainWindow::processMessages()
                 QObject::connect(clientSN, SIGNAL(activated(int)),
                                  this, SLOT(processMessages()));
 
-                // create connections for texture Thread and SceneGraph Browser Thread
-
-                //qDebug() << "open texConn";
-                texConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
-                texConn->listen();
-                covise::TokenBuffer tb;
-                tb << port;
-                send(tb);
-
-                //qDebug() << "sent port" << port;
-
-                if (texConn->acceptOne(60) < 0)
-                {
-                    qDebug() << "Could not open server port" << port;
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-                if (!texConn->getSocket())
-                {
-                    qDebug() << "Could not get Socket" << port;
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-
-                linger.l_onoff = 0;
-                linger.l_linger = 0;
-                setsockopt(texConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
-
-                if (!texConn->is_connected()) // could not open server port
-                {
-                    fprintf(stderr, "Could not open server port %d\n", port);
-                    delete texConn;
-                    texConn = NULL;
-                    return;
-                }
-
+                // create connections for SceneGraph Browser Thread
                 sgConn = new covise::ServerConnection(&port, 0, (covise::sender_type)0);
                 sgConn->listen();
+
                 covise::TokenBuffer stb;
                 stb << port;
                 send(stb);
+
+                std::cerr << "SGBrowser port: " << port << std::endl;
 
                 if (sgConn->acceptOne(60) < 0)
                 {
@@ -448,7 +415,6 @@ void TUIMainWindow::processMessages()
                     return;
                 }
 
-                toCOVERTexture = texConn;
                 toCOVERSG = sgConn;
 
                 connections->add(clientConn); //add new connection;
@@ -547,8 +513,6 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         tab->setNumberOfColumns(numberOfColumns);
         return tab;
     }
-    case TABLET_TEXTURE_TAB:
-        return new TUITextureTab(id, type, w, parent, name);
     case TABLET_BROWSER_TAB:
         return new TUISGBrowserTab(id, type, w, parent, name);
     case TABLET_ANNOTATION_TAB:
@@ -596,6 +560,13 @@ TUIElement *TUIMainWindow::createElement(int id, TabletObjectType type, QWidget 
         return new TUITabFolder(id, type, w, parent, name);
     case TABLET_MAP:
         return new TUIMap(id, type, w, parent, name);
+    case TABLET_EARTHMAP:
+#ifdef HAVE_TUIEARTHMAP
+        return new TUIEarthMap(id, type, w, parent, name);
+#else
+        std::cerr << "TUIapplication::createElement info: TUIEarthMap requires Qt >= 5.9" << std::endl;
+        break;
+#endif
     case TABLET_PROGRESS_BAR:
         return new TUIProgressBar(id, type, w, parent, name);
     case TABLET_NAV_ELEMENT:
@@ -640,7 +611,7 @@ TUIElement *TUIMainWindow::getElement(int ID)
     {
         if ((*iter)->getID() == ID)
             return *iter;
-        std::cerr << "TUIMainWindow: expected ID=" << ID << ", got " << (*iter)->getID() << std::endl;
+        std::cerr << "TUIMainWindow::getElement(ID=" << ID << "), got " << (*iter)->getID() << std::endl;
     }
     return nullptr;
 }
@@ -651,6 +622,7 @@ QWidget *TUIMainWindow::getWidget(int ID)
 {
     if (auto el = getElement(ID))
         return el->getWidget();
+    std::cerr << "TUIMainWindow::getWidget(ID=" << ID << "): mainFrame" << std::endl;
     return mainFrame;
 }
 
@@ -666,8 +638,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
         delete msg->conn;
         msg->conn = NULL;
         clientConn = NULL;
-        lastElement = NULL;
-        lastID = -10;
 
         //remove all UI Elements
         while (!elements.empty())
@@ -676,11 +646,16 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             delete ele;
         }
 
+        delete  toCOVERSG;
+        toCOVERSG = NULL;
+        sgConn = NULL;
+
 #ifdef TABLET_PLUGIN
         MEUserInterface::instance()->removeTabletUI();
 #endif
         return true; // we have been deleted, exit immediately
     }
+
     covise::TokenBuffer tb(msg);
     switch (msg->type)
     {
@@ -716,14 +691,12 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             TUIElement *newElement = createElement(ID, elementType, parentWidget, parent, name);
             if (newElement)
             {
-                lastElement = newElement;
                 if (parentElem)
-                    parentElem->addElement(lastElement);
-                lastID = ID;
+                    parentElem->addElement(newElement);
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
-                std::string blacklist = "COVER.TabletPC.Blacklist:";
+                std::string blacklist = "COVER.TabletUI.Blacklist:";
                 QString qname(name);
                 qname.replace(".", "").replace(":", "");
                 blacklist += qname.toStdString();
@@ -764,35 +737,20 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             tb >> ID;
             auto type = static_cast<TabletValue>(typeInt);
             //std::cerr << "TUIApplication::handleClient info: Set Value ID: " << ID <<" Type: "<< type << std::endl;
-            if (ID == lastID && (lastElement))
+            TUIElement *ele = getElement(ID);
+            if (ele)
             {
-                lastElement->setValue(type, tb);
+                ele->setValue(type, tb);
             }
             else
             {
-                TUIElement *ele = getElement(ID);
-                if (ele)
-                {
-                    lastElement = ele;
-                    lastID = ID;
-                    ele->setValue(type, tb);
-                }
-                else
-                {
-                    std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID << std::endl;
-                }
+                std::cerr << "TUIApplication::handleClient warn: element not available in setValue: " << ID << std::endl;
             }
         }
         break;
         case TABLET_REMOVE:
         {
             tb >> ID;
-            if (ID == lastID)
-            {
-                lastElement = NULL;
-                lastID = -10;
-            }
-
             TUIElement *ele = getElement(ID);
             if (ele)
             {
@@ -913,7 +871,7 @@ void TUIMainWindow::createToolbar()
     QToolBar *toolbar = addToolBar("TabletUI Toolbar");
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    bool visible = covise::coCoviseConfig::isOn("toolbar", "COVER.TabletPC", true);
+    bool visible = covise::coCoviseConfig::isOn("toolbar", "COVER.TabletUI", true);
 #else
     bool visible = false;
 #endif
@@ -946,7 +904,7 @@ void TUIMainWindow::createToolbar()
     QComboBox *fontsize = new QComboBox();
 #ifndef TABLET_PLUGIN
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
-    std::string configFontsize = covise::coCoviseConfig::getEntry("fontsize", "COVER.TabletPC");
+    std::string configFontsize = covise::coCoviseConfig::getEntry("fontsize", "COVER.TabletUI");
 #else
     std::string configFontsize;
 #endif

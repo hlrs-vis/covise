@@ -8,7 +8,7 @@
 #ifndef _POINTS_H_
 #define _POINTS_H_
 
-class fileInfo;
+class FileInfo;
 
 struct Point
 {
@@ -35,14 +35,23 @@ struct PointSet
     float zmax;
     Point *points;
     Color *colors;
+    uint32_t *IDs;
 };
 
 struct pointSelection
 {
-    const fileInfo *file;
+    const FileInfo *file;
     int pointSetIndex;
     int pointIndex;
     osg::MatrixTransform *transformationMatrix;
+    int selectionIndex;
+};
+
+struct ScannerPosition
+{
+    int type = 0; // 0: original imported, 1: moved, 2: copy
+    uint32_t ID;
+    osg::Vec3 point;
 };
 
 #endif

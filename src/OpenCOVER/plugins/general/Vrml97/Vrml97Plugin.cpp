@@ -97,27 +97,27 @@ using namespace grmsg;
 Vrml97Plugin *Vrml97Plugin::plugin = NULL;
 
 static FileHandler handlers[] = {
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl.gz" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrz" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
 	  "x3d" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
@@ -150,19 +150,25 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
     return plugin->viewer->VRMLRoot;
 }
 
+int Vrml97Plugin::loadUrl(const Url &url, osg::Group *group, const char *ck)
+{
+    return loadVrml(url.str().c_str(), group, ck);
+}
+
 int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *)
 {
     //fprintf(stderr, "----Vrml97Plugin::loadVrml %s\n", filename);
-    fprintf(stderr, "Loding VRML %s\n", filename);
+    fprintf(stderr, "Loading VRML %s\n", filename);
     if (plugin->vrmlScene)
     {
-        VrmlMFString url((char *)filename);
+        VrmlMFString url(filename);
         if (group)
             plugin->viewer->setRootNode(group);
         else
             plugin->viewer->setRootNode(cover->getObjectsRoot());
         plugin->vrmlScene->clearRelativeURL();
         plugin->vrmlScene->loadUrl(&url, NULL, false);
+
 
         //allow plugin to unregister
         VRRegisterSceneGraph::instance()->unregisterNode(getRegistrationRoot(), "root");
@@ -171,7 +177,12 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
     }
     else
     {
-        plugin->vrmlScene = new VrmlScene(filename, filename);
+        const char *local = NULL;
+        Doc url(filename);
+        std::string proto = url.urlProtocol();
+        if (proto.empty() || proto=="file")
+            local = filename;
+        plugin->vrmlScene = new VrmlScene(filename, local);
         if (group)
             plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
         else
@@ -438,32 +449,22 @@ Vrml97Plugin::preFrame()
 {
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
-    if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
-    {
-        plugin->isNewVRML = false;
-        coSensiveSensor::modified = false;
+    if (plugin->viewer)
+	{
+		if (plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
+		{
+			plugin->isNewVRML = false;
+			coSensiveSensor::modified = false;
 
-        for (int i = 0; i < plugin->viewer->sensors.size(); i++)
-        {
-            coSensiveSensor *s = plugin->viewer->sensors[i];
-            osg::Node *n = s->getNode();
-            cover->setNodesIsectable(n, true);
-        }
-        /*
-       VRRegisterSceneGraph::instance()->registerNode(getRegistrationRoot(), "root"); 
-       
-       for (int i=0; i<plugin->viewer->sensors.size(); i++)
-       {
-            // send sensors to GUI (a message for each sensor)
-            coGRObjSensorMsg sensorMsg(coGRMsg::SENSOR, vrmlFilename.c_str(), i);
-            Message grmsg;
-            grmsg.type = COVISE_MESSAGE_UI;
-            grmsg.data = (char *)(sensorMsg.c_str());
-            grmsg.length = strlen(grmsg.data)+1;
-            cover->sendVrbMessage(&grmsg);
-       }
-       // in case loading multiple VRMLs should ever work correctly, dont register the overall root but the per-file-root
-      */
+			for (int i = 0; i < plugin->viewer->sensors.size(); i++)
+			{
+				coSensiveSensor *s = plugin->viewer->sensors[i];
+				osg::Node *n = s->getNode();
+				cover->setNodesIsectable(n, true);
+			}
+		}
+
+		viewer->preFrame();
     }
 }
 

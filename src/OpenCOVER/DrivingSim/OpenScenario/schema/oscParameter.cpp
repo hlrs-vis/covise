@@ -10,7 +10,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 using namespace OpenScenario;
 Enum_OSC_Parameter_typeType::Enum_OSC_Parameter_typeType()
 {
-addEnum("int_t", oscParameter::int_t);
+addEnum("integer", oscParameter::integer);
 addEnum("double_t", oscParameter::double_t);
 addEnum("string", oscParameter::string);
 }

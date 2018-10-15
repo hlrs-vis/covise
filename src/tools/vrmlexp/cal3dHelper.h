@@ -48,7 +48,7 @@ protected:
     float m_lodLevel;
     std::string m_path;
     std::string m_name;
-    std::string m_VrmlName;
+    std::wstring m_VrmlName;
     bool written;
 
     // constructors/destructor
@@ -88,7 +88,7 @@ public:
     {
         return written;
     };
-    const std::string &getVRMLName()
+    const std::wstring &getVRMLName()
     {
         return m_VrmlName;
     };
@@ -145,7 +145,8 @@ public:
     {
         return 1;
     }
-    void setURL(const std::string &);
+	void setURL(const std::string &);
+	void setURL(const std::wstring &);
     void MakeQuad(int *f, int a, int b, int c, int d, int vab, int vbc, int vcd, int vda);
 
     BOOL needsScript; // Do we need to generate a script node?

@@ -22,6 +22,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <net/covise_connect.h>
 
 #include <TrafficSimulation/VehicleManager.h>
 #include <TrafficSimulation/VehicleFactory.h>
@@ -63,12 +64,25 @@ public:
 	// return if rendering is required
 	bool update();
 
+	void handleMessage(const char *buf);
+
+	bool readTCPData(void * buf, unsigned int numBytes);
+
 	void addSource(Source *s) { sources.push_back(s); };
 
 	ScenarioManager *scenarioManager;
+	OpenScenario::OpenScenarioBase *osdb;
+	RoadSystem *getRoadSystem() { return system; };
+
+	void preSwapBuffers(int windowNumber);
+
+	void checkAndHandleMessages(bool blocking=false);
+
+	void writeString(const std::string &msg);
 
 private:
-	OpenScenario::OpenScenarioBase *osdb;
+
+    bool advanceTime(double step);
 
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
@@ -88,10 +102,28 @@ private:
 	PedestrianFactory *pedestrianFactory;
 
 
+	covise::ServerConnection *serverConn;
+	covise::SimpleServerConnection *toClientConn;
+	int port;
+
+
 	bool tessellateRoads;
 	bool tessellatePaths;
     bool tessellateBatters;
     bool tessellateObjects;
+
+	int frameCounter;
+	int frameRate;
+	int writeRate;
+	bool doExit;
+	bool doWait;
+    bool blockingWait;
+    bool waitOnStart;
+    double minSimulationStep = -1.; // negative: once per frame
+
+	osg::ref_ptr<osg::Image> image;
+	GLenum GL_fmt;
+
 };
 
 #endif //OPENSCENARIO_PLUGIN_H
