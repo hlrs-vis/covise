@@ -137,7 +137,7 @@ private:
     ui::Label *currentSurfaceLabel = nullptr;
     ui::Action *newSurface = nullptr;
     ui::Action *saveButton_;
-
+    ui::Button *selectionIsBoundaryButton;
     ui::Slider *surfaceSelectionSlider=nullptr;
 
     ui::Group *selectionParameters = nullptr;
@@ -151,6 +151,10 @@ private:
     void initUI();
     void updateUI();
     void createNewSurface();
+    bool m_selectionIsBoundary = false;
+    void setSelectionIsBoundary(bool selectionIsBoundary);
+    void selectionIsBoundaryMessage();
+    void selectionSetMessage();
 };
 
 template <typename T>

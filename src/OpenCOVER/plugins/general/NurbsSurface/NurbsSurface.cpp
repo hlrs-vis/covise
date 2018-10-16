@@ -60,7 +60,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Slider.h>
-//#include <cover/ui/Button.h>
+#include <cover/ui/Button.h>
 
 #include <grmsg/coGRSnapshotMsg.h>
 #include <net/tokenbuffer.h>
@@ -128,8 +128,22 @@ void NurbsSurface::initUI()
     surfaceSelectionSlider->setCallback([this](int val, bool released)
     {
         currentSurface = &surfaces[val];
+        selectionSetMessage();
     }
     );
+    //NurbsSurfaceMenu, "DeselectPoints", selectionButtonGroup);
+    selectionIsBoundaryButton = new ui::Button(NurbsSurfaceMenu, "SelectBoundary");
+    selectionIsBoundaryButton->setText("Select Boundary");
+    selectionIsBoundaryButton->setCallback([this](bool state){
+        if (state)
+        {
+        setSelectionIsBoundary(true);
+        }
+        else
+        {
+        setSelectionIsBoundary(false);
+        }
+    });
 
     selectionParameters = new ui::Group(NurbsSurfaceMenu,"selectionParameters");
     selectionParameters->setText("parameters of selected surface");
@@ -1122,6 +1136,18 @@ void NurbsSurface::updateMessage()
     cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaceGeodes), &surfaceGeodes);
 }
 
+void NurbsSurface::selectionSetMessage()
+{
+    //Tell PointCloud-plugin which surface is currently selected
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionSetMsg, sizeof(currentSurface->surfaceIndex), &(currentSurface->surfaceIndex));
+}
+
+void NurbsSurface::selectionIsBoundaryMessage()
+{
+    // selected points mark the boundary
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionIsBoundaryMsg, sizeof(m_selectionIsBoundary), &(m_selectionIsBoundary));
+}
+
 void NurbsSurface::createNewSurface()
 {
     surfaces.push_back(surfaceInfo());
@@ -1138,6 +1164,11 @@ void NurbsSurface::updateUI()
     sprintf(currentSurfaceName,"Current Surface: %d",currentSurface->surfaceIndex);
     currentSurfaceLabel->setText(currentSurfaceName);
     surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
+}
+
+void NurbsSurface::setSelectionIsBoundary(bool selectionIsBoundary)
+{
+    m_selectionIsBoundary= selectionIsBoundary;
 }
 
 COVERPLUGIN(NurbsSurface)
