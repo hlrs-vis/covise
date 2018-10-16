@@ -2278,7 +2278,7 @@ RSystemElementRoad::calculateLaneWidths(const QMap<double, WidthPoints *> *point
 }
 
 void
-calculateTypeParameters(LaneSection *laneSection, Lane *lane, QList<LaneWidth *> &pointList)
+calculateTypeParameters(LaneSection *laneSection, Lane *lane, const QList<LaneWidth *> &pointList)
 {
 	int i = lane->getId();
 	int laneside = (i > 0) ? 1 : -1;
