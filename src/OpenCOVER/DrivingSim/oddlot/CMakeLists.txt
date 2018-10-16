@@ -393,7 +393,6 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
 	src/graph/items/handles/baselanemovehandle.cpp
-	src/data/visitors/lanemovevalidator.cpp
 )
 SET(ODDLOT_MOC_HEADERS
     src/data/changemanager.hpp
