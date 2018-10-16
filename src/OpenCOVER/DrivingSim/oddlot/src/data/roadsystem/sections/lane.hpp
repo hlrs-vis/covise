@@ -20,6 +20,7 @@
 
 #include <QString>
 #include <QMap>
+#include <QPointF>
 
 class LaneWidth;
 class LaneRoadMark;

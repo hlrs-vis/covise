@@ -17,7 +17,6 @@
 
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
-#include "src/data/visitors/lanemovevalidator.hpp"
 
 #include <math.h>
 
