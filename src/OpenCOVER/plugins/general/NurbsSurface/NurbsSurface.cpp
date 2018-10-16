@@ -60,7 +60,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Slider.h>
-//#include <cover/ui/Button.h>
+#include <cover/ui/Button.h>
 
 #include <grmsg/coGRSnapshotMsg.h>
 #include <net/tokenbuffer.h>
@@ -128,8 +128,22 @@ void NurbsSurface::initUI()
     surfaceSelectionSlider->setCallback([this](int val, bool released)
     {
         currentSurface = &surfaces[val];
+        selectionSetMessage();
     }
     );
+    //NurbsSurfaceMenu, "DeselectPoints", selectionButtonGroup);
+    selectionIsBoundaryButton = new ui::Button(NurbsSurfaceMenu, "SelectBoundary");
+    selectionIsBoundaryButton->setText("Select Boundary");
+    selectionIsBoundaryButton->setCallback([this](bool state){
+        if (state)
+        {
+        setSelectionIsBoundary(true);
+        }
+        else
+        {
+        setSelectionIsBoundary(false);
+        }
+    });
 
     selectionParameters = new ui::Group(NurbsSurfaceMenu,"selectionParameters");
     selectionParameters->setText("parameters of selected surface");
@@ -331,12 +345,13 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
         currentSurface->receivedPoints.clear();
         for (vector<pointSelection>::const_iterator iter=selectedPoints->begin(); iter!=selectedPoints->end(); iter++)
         {
-        Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
-                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
-                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
-        currentSurface->receivedPoints.push_back(newSelectedPoint);
+            Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
+                    iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
+                    iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
+            currentSurface->receivedPoints.push_back(newSelectedPoint);
         }
         fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
+
         currentSurface->updateSurface();
     }
 }
@@ -514,6 +529,210 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
     return false;
 }
 
+
+int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, Vec3 pointBegin, Vec3 pointEnd, curveInfo &resultCurveInfo)
+{
+    SISLCurve *result_curve = 0;
+    //int numPoints = all_points.size();
+    std::vector<Vec3> all_points;
+
+    //rotation of points
+    Vec3 edgeDirection = pointEnd - pointBegin;
+    edgeDirection.normalize();
+    Matrixd rotationMatrix;
+    Matrixd inverseRotationMatrix;
+    Vec3 unitAxis = Vec3(1.0, 0.0, 0.0);
+    rotationMatrix.makeRotate(edgeDirection,unitAxis);
+    inverseRotationMatrix.inverse(rotationMatrix);
+
+    Vec3 pointBeginLocal = rotationMatrix * pointBegin;
+    Vec3 pointEndLocal = rotationMatrix * pointEnd;
+    // Test if centroid is above or below
+    float dx = pointEnd.x() - pointBegin.x();
+    float dy = pointEnd.y() - pointBegin.y();
+    float slope = dy/dx;
+    float intercept = pointBegin.y() - slope * pointBegin.x();
+
+    float yOnLine = slope * centroid.x()+intercept;
+    if (yOnLine < centroid.y())
+    {
+        rotationMatrix.rotate(DegreesToRadians(180.0),Vec3(0.0,0.0,1.0));
+        pointBeginLocal = rotationMatrix * pointBegin;
+        Vec3 pointEndLocal = rotationMatrix * pointEnd;
+    }
+
+    for (auto it=selectedPoints.begin(); it!=selectedPoints.end(); it++)
+    {
+        all_points.push_back(rotationMatrix * *it);
+    }
+
+    //
+    double sumZ = 0.0;
+    for (std::vector<osg::Vec3>::const_iterator it = all_points.begin(); it !=all_points.end(); it++)
+    {
+        sumZ += it->_v[2];
+    }
+    double averageZ = sumZ/all_points.size();
+
+    float minimum_x = pointBeginLocal.x();
+    float maximum_x = pointEndLocal.x();
+
+    std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
+    maximumPointsInAllQuadrants.resize(numEdgeSectors, nullptr);
+    real_1d_array LocalXForFirstCurve;
+    real_1d_array LocalYForFirstCurve;
+
+    int numberOfSectorsWithMaximum = 0;
+    for(auto it=all_points.begin(); it != all_points.end(); it++)
+    {
+        int j=int((it->x()-minimum_x)/(maximum_x-minimum_x)*numEdgeSectors);
+        j=min(numEdgeSectors-1,j);
+        if (!maximumPointsInAllQuadrants[j])
+        {
+            maximumPointsInAllQuadrants[j] = &*it;
+            numberOfSectorsWithMaximum++;
+        }
+        else
+        {
+            if (it->y() > maximumPointsInAllQuadrants[j]->y())
+            {
+                maximumPointsInAllQuadrants[j] = &*it;
+            }
+        }
+    }
+    //initialize spline firstCurveWithMaximumPointsPerQuadrant
+    ae_int_t degree = 3;
+
+    ae_int_t info;
+    barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
+    polynomialfitreport repo;
+
+    //initialize spline curve
+    barycentricinterpolant curve;
+
+    if (numberOfSectorsWithMaximum > 1)
+    {
+        LocalXForFirstCurve.setlength(numberOfSectorsWithMaximum);
+        LocalYForFirstCurve.setlength(numberOfSectorsWithMaximum);
+
+        int countFirstCurve = 0;
+
+        for(std::vector<Vec3*>::iterator it = maximumPointsInAllQuadrants.begin(); it != maximumPointsInAllQuadrants.end(); it++)
+        {
+            LocalXForFirstCurve[countFirstCurve] = (*it)->x();
+            LocalYForFirstCurve[countFirstCurve] = (*it)->y();
+            countFirstCurve++;
+        }
+
+        //built first curve out of maximum points per quadrant
+        polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, firstCurveWithMaximumPointsPerQuadrant, repo);
+
+        std::vector<osg::Vec3> pointsAboveCurve;
+
+        //compare all points with first curve, if they are above or below
+        for(auto it = all_points.begin(); it != all_points.end(); it++)
+        {
+            if (it->y() > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, it->x()))
+            {
+                pointsAboveCurve.push_back(*it);
+            }
+        }
+
+        real_1d_array LocalXForSecondCurve;
+        real_1d_array LocalYForSecondCurve;
+
+        LocalXForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+        LocalYForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+
+        int countSecondCurve = 0;
+
+        for(int k = 0; k < maximumPointsInAllQuadrants.size(); k++)
+        {
+            if (!maximumPointsInAllQuadrants[k]) {
+            }
+            else{
+                LocalXForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->x();
+                LocalYForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->y();
+                countSecondCurve++;
+            }
+        }
+
+        for(int j = 0; j < pointsAboveCurve.size(); j++)
+        {
+            LocalXForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].x();
+            LocalYForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].y();
+        }
+
+        //built second curve out of maximum points per quadrant and all points above the first curve
+        polynomialfit(LocalXForSecondCurve, LocalYForSecondCurve, degree, info, curve, repo);
+        //return(curve);
+
+        //Also build a SISL-curve from this data for intersection calculation
+        //using transformed global coordinates
+        int num_points = numEdgeSectors;
+        double *pointsSISLCurve = new double[2*num_points];
+        int *type= new int[num_points];
+        for (int i=0; i!=num_points; i++)
+        {
+            double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
+            pointsSISLCurve[i*2+1]=barycentriccalc(curve,x);
+            pointsSISLCurve[i*2]=x;
+            type[i]=1;
+            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            point = rotationMatrixToWorld * point;
+            highlightPoint(point);
+            //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
+        }
+        const double cstartpar = 0;
+        try
+        {
+            double cendpar;
+
+            double* gpar = 0;
+            int jnbpar;
+            int jstat;
+
+            s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
+                  num_points,    // number of points to be interpolated
+                  2,             // the dimension
+                  type,          // what type of information is stored at a particular point
+                  0,             // no additional condition at start point
+                  0,             // no additional condition at end point
+                  1,             // open curve
+                  3,             // order of the spline curve to be produced
+                  cstartpar,     // parameter value to be used at start of curve
+                  &cendpar,      // parameter value at the end of the curve (to be determined)
+                  &result_curve, // the resulting spline curve (to be determined)
+                  &gpar,         // pointer to the parameter values of the points in the curve
+                  // (to be determined)
+                  &jnbpar,       // number of unique parameter values (to be determined)
+                  &jstat);       // status message
+
+            if (jstat < 0) {
+                throw runtime_error("Error occured inside call to SISL routine.");
+            } else if (jstat > 0) {
+                std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
+            }
+            delete []pointsSISLCurve;
+            delete[] type;
+            resultCurveInfo.curve = result_curve;
+            resultCurveInfo.startPar = cstartpar;
+            resultCurveInfo.endPar = cendpar;
+            fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
+
+            // cleaning up
+            //freeCurve(result_curve);
+            free(gpar);
+        }
+        catch (exception& e)
+        {
+            std::cerr << "Exception thrown: " << e.what() << std::endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
 //method for creating edges in unsorted points
 //
 //    local_x -> local x-value for creating upper edge
@@ -525,7 +744,6 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
 //    change -> changes upper edge to lower edge and right edge to left edge
 //        without changing:   change = 1
 //        with changing:      change = -1
-
 int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo)
 {
     SISLCurve *result_curve = 0;
@@ -746,13 +964,9 @@ void NurbsSurface::surfaceInfo::updateModel()
     fprintf(stderr, "NurbsSurface::updateModel() \n");
     //xy.setlength(receivedPoints.size(),3);
     int i=0;
-    osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0); 
+
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
-        //Create real_2d_array holding points
-        //xy[i][0]=iter->_v[0];
-        //xy[i][1]=iter->_v[1];
-        //xy[i][2]=iter->_v[2];
         centroid = centroid + *iter;
         i++;
     }
@@ -767,22 +981,13 @@ void NurbsSurface::surfaceInfo::updateModel()
     //points relative to centroid
     //fprintf(stderr, "points relative to centroid \n");
     real_2d_array pointsRelativeToCentroid;
-    //pointsRelativeToCentroid.setlength(3, receivedPoints.size());
     pointsRelativeToCentroid.setlength(receivedPoints.size(), 3);
     i=0;
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
-        //fprintf(stderr, "points relative to centroid %i \n",i);
-        //Create real_2d_array holding points relative to centroid
-        /*pointsRelativeToCentroid[0][i]=iter->_v[0]-centroid._v[0];
-        pointsRelativeToCentroid[1][i]=iter->_v[1]-centroid._v[1];
-        pointsRelativeToCentroid[2][i]=iter->_v[2]-centroid._v[2];
-        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[0][i], pointsRelativeToCentroid[1][i], pointsRelativeToCentroid[2][i]);*/
         pointsRelativeToCentroid[i][0]=iter->_v[0]-centroid._v[0];
         pointsRelativeToCentroid[i][1]=iter->_v[1]-centroid._v[1];
         pointsRelativeToCentroid[i][2]=iter->_v[2]-centroid._v[2];
-        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[i][0], pointsRelativeToCentroid[i][1], pointsRelativeToCentroid[i][2]);
-        //fprintf(stderr,"xy %i: %f %f %f \n",i, xy[i][0], xy[i][1], xy[i][2]);
         i++;
     }
 
@@ -803,8 +1008,6 @@ void NurbsSurface::surfaceInfo::updateModel()
     real_2d_array eigenvector;
     eigsubspacereport eigenRep;
     eigsubspacesolvedenses(state,covarianceMatrix, true, eigenvalue, eigenvector, eigenRep);
-    fprintf(stderr, "eigenvector has length: %i x %i \n",  eigenvector.rows(), eigenvector.cols());
-    //fprintf(stderr,"Eigenvector: %f %f %f \n",eigenvector[0], eigenvector[1],eigenvector[0+2*eigenvector.getstride()]);
     fprintf(stderr,"eigenvector 0: %f %f %f\n",eigenvector[0][0], eigenvector[1][0], eigenvector[2][0]);
     fprintf(stderr,"eigenvector 1: %f %f %f\n",eigenvector[0][1], eigenvector[1][1], eigenvector[2][1]);
     fprintf(stderr,"eigenvector 2: %f %f %f\n",eigenvector[0][2], eigenvector[1][2], eigenvector[2][2]);
@@ -840,32 +1043,29 @@ void NurbsSurface::surfaceInfo::updateModel()
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
         osg::Vec3 rotatedPoint = rotationMatrixToLocal * *iter;
-        fprintf(stderr,"rotatedPoint: %f %f %f\n",rotatedPoint[0], rotatedPoint[1], rotatedPoint[2]);
         receivedPointsRotated.push_back(rotatedPoint);
         i++;
     }
+
     i=0;
     xy.setlength(receivedPointsRotated.size(),3);
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPointsRotated.begin() ; iter != receivedPointsRotated.end(); iter++)
     {
-        fprintf(stderr,"i %i\n",i);
         //Create real_2d_array holding points
         xy[i][0]=iter->_v[0];
         xy[i][1]=iter->_v[1];
         xy[i][2]=iter->_v[2];
-
-        fprintf(stderr, "rotatedPointxy: %f %f %f \n", xy[i][0],xy[i][1],xy[i][2]);
         i++;
     }
-    fprintf(stderr,"xy updated\n");
+    //fprintf(stderr,"xy updated\n");
 
     //Create RBFModel
     rbfsetpoints(model,xy);
-    fprintf(stderr,"xy points set\n");
+    //fprintf(stderr,"xy points set\n");
 
     rbfreport rep;
     rbfbuildmodel(model, rep);
-    fprintf(stderr,"Model updated\n");
+    //fprintf(stderr,"Model updated\n");
 }
 
 void
@@ -936,6 +1136,18 @@ void NurbsSurface::updateMessage()
     cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaceGeodes), &surfaceGeodes);
 }
 
+void NurbsSurface::selectionSetMessage()
+{
+    //Tell PointCloud-plugin which surface is currently selected
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionSetMsg, sizeof(currentSurface->surfaceIndex), &(currentSurface->surfaceIndex));
+}
+
+void NurbsSurface::selectionIsBoundaryMessage()
+{
+    // selected points mark the boundary
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionIsBoundaryMsg, sizeof(m_selectionIsBoundary), &(m_selectionIsBoundary));
+}
+
 void NurbsSurface::createNewSurface()
 {
     surfaces.push_back(surfaceInfo());
@@ -952,6 +1164,11 @@ void NurbsSurface::updateUI()
     sprintf(currentSurfaceName,"Current Surface: %d",currentSurface->surfaceIndex);
     currentSurfaceLabel->setText(currentSurfaceName);
     surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
+}
+
+void NurbsSurface::setSelectionIsBoundary(bool selectionIsBoundary)
+{
+    m_selectionIsBoundary= selectionIsBoundary;
 }
 
 COVERPLUGIN(NurbsSurface)
