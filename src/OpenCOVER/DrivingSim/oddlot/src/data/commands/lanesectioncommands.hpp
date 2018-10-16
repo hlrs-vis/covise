@@ -21,6 +21,7 @@
 #include "datacommand.hpp"
 
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
 #include "src/data/roadsystem/sections/laneroadmark.hpp"
 #include "src/data/roadsystem/sections/lanespeed.hpp"

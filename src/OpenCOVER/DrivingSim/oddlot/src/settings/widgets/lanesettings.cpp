@@ -22,7 +22,6 @@
 #include "src/graph/graphscene.hpp"
 #include "src/graph/profilegraphscene.hpp"
 #include "src/graph/profilegraphview.hpp"
-#include "src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp"
 #include "src/graph/items/handles/baselanemovehandle.hpp"
 
 #include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
