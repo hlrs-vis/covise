@@ -170,6 +170,9 @@ Lane::~Lane()
     foreach (LaneWidth *child, widths_)
         delete child;
 
+    foreach (LaneBorder *child, borders_)
+        delete child;
+
     foreach (LaneRoadMark *child, marks_)
         delete child;
 
@@ -873,6 +876,7 @@ Lane::getClone() const
     // Lane //
     //
     Lane *clone = new Lane(id_, type_, level_, predecessorId_, successorId_);
+    clone->setWidthActive(widthActive_);
 
     // LanesWidth //
     //
@@ -914,6 +918,7 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
     // Lane //
     //
     Lane *clone = new Lane(id_, type_, level_, predecessorId_, successorId_);
+    clone->setWidthActive(widthActive_);
 
     // LanesWidth //
     //
