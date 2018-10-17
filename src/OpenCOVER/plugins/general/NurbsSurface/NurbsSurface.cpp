@@ -131,7 +131,7 @@ void NurbsSurface::initUI()
         selectionSetMessage();
     }
     );
-    //NurbsSurfaceMenu, "DeselectPoints", selectionButtonGroup);
+
     selectionIsBoundaryButton = new ui::Button(NurbsSurfaceMenu, "SelectBoundary");
     selectionIsBoundaryButton->setText("Select Boundary");
     selectionIsBoundaryButton->setCallback([this](bool state){
@@ -343,15 +343,24 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
     {
         vector<pointSelection> *selectedPoints = (vector<pointSelection> *)buf;
         currentSurface->receivedPoints.clear();
+        currentSurface->receivedBoundaryPoints.clear();
+        int numBoundaryPoints = 0;
         for (vector<pointSelection>::const_iterator iter=selectedPoints->begin(); iter!=selectedPoints->end(); iter++)
         {
             Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
-            currentSurface->receivedPoints.push_back(newSelectedPoint);
+            if (iter->isBoundaryPoint)
+            {
+                currentSurface->receivedBoundaryPoints.push_back(newSelectedPoint);
+            }
+            else
+            {
+                currentSurface->receivedPoints.push_back(newSelectedPoint);
+            }
         }
         fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
-
+        fprintf(stderr, "%zi points are boundary points \n", currentSurface->receivedBoundaryPoints.size());
         currentSurface->updateSurface();
     }
 }
@@ -366,44 +375,78 @@ void NurbsSurface::surfaceInfo::updateSurface()
     if (receivedPoints.size()>20)
     {
         updateModel();
-        calcEdges();
+        fprintf(stderr, "NurbsSurface::surfaceInfo::updateSurface  %zi points are boundary points \n", receivedBoundaryPoints.size());
+        if (receivedBoundaryPoints.size()== 4)
+        {
+            std::vector<curveInfo> boundaryCurves;
+            calcEdgeIntersectionsByPoints(boundaryCurves);
+            calcSamplingPoints(boundaryCurves);
+        }
+        else
+        {
+            calcEdges();
+            calcSamplingPoints();
+        }
         resize();
+    }
+}
+
+void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveInfo>& curves)
+{
+    for (auto it = receivedBoundaryPoints.begin(); it != receivedBoundaryPoints.end(); it++)
+    {
+        auto nx = std::next(it, 1);
+        if (nx == receivedBoundaryPoints.end())
+        {
+            nx==receivedBoundaryPoints.begin();
+        }
+        curveInfo boundaryCurve;
+        edgeByPoints(receivedPoints, *it, *nx, boundaryCurve);
+        curves.push_back(boundaryCurve);
+    }
+    for (auto it = curves.begin();it !=curves.end(); it++)
+    {
+        auto nx = std::next(it, 1);
+        if (nx == curves.end())
+        {
+            nx==curves.begin();
+        }
+        curveCurveIntersection(it->curve, it->endPar, nx->curve, nx->startPar);
+    }
+}
+
+void NurbsSurface::surfaceInfo::calcSamplingPoints(std::vector<curveInfo>& curves)
+{
+    if (curves.size()==4)
+    {
         int pointsNewSize=num_points_u*num_points_v*3;
-        double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
-        vector<double> pointTempUpper(2);
-        vector<double> pointTempLower(2);
-        vector<double> pointTempRight(2);
-        vector<double> pointTempLeft(2);
-        vector<double> pointTempRightZero(2);
-        vector<double> pointTempLeftZero(2);
-        vector<double> pointTempRightOne(2);
-        vector<double> pointTempLeftOne(2);
-        vector<double> interpolatedPoint(2);
-        evaluateCurveAtParam(left,1.0,pointTempLeftOne);
-        evaluateCurveAtParam(right,1.0,pointTempRightOne);
-        evaluateCurveAtParam(left,0.0,pointTempLeftZero);
-        evaluateCurveAtParam(right,0.0,pointTempRightZero);
-        int jstat; // status variable
-        int temp;
+        double *pointsNew = new double[pointsNewSize];
+
         int k=0;
+
+        vector<vector<double> > corners;
+        for (auto it = curves.begin();it !=curves.end(); it++)
+        {
+            vector<double> corner = evaluateCurveAtParam(*it, 0.0);
+            corners.push_back(corner);
+        }
+
         for (int i=0; i!=num_points_u; i++)
         {
             double paramFactor0=1.0/(num_points_u-1)*i;
-            fprintf(stderr,"paramFactor0: %f ",paramFactor0);
             for (int j=0; j!=num_points_v;j++)
             {
                 double paramFactor1=1.0/(num_points_v-1)*j;
-                fprintf(stderr,"paramFactor1: %f \n",paramFactor1);
-                evaluateCurveAtParam(upper,paramFactor0,pointTempUpper);
-                evaluateCurveAtParam(lower,paramFactor0,pointTempLower);
-                vector<double> pointTempUpperLower = pointTempUpper+(pointTempLower-pointTempUpper)*paramFactor1;
-                evaluateCurveAtParam(left,paramFactor1,pointTempLeft);
-                evaluateCurveAtParam(right,paramFactor1,pointTempRight);
-                vector<double> pointTempLeftRight = (paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1))+
-                                                     (1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1)));
-                interpolatedPoint = pointTempUpperLower + pointTempLeftRight;
+                //calculate the linear interpolation between edge 0 and 2 as if edges 1 and 3 were straight lines
+                vector<double> linearPointBetweenEdge0and2 = paramFactor1 * evaluateCurveAtParam(curves[0],paramFactor0) + (1.0-paramFactor1) * evaluateCurveAtParam(curves[2],(1-paramFactor0));
+                //then calculate compensation on edges 1 and 3 as difference between straight line and actual point on line
+                vector<double> shiftOnEdge1 = paramFactor0 * (evaluateCurveAtParam(curves[1],paramFactor1) - (corners[1] +(corners[2]-corners[1])*paramFactor1));
+                vector<double> shiftOnEdge3 = (1.0-paramFactor0) * (evaluateCurveAtParam(curves[3],(1.0 - paramFactor1)) - (corners[4]+(corners[3]-corners[4])*paramFactor1));
+                vector<double> interpolatedPoint = linearPointBetweenEdge0and2 + shiftOnEdge1 + shiftOnEdge3;
+
                 pointsNew[k++]=interpolatedPoint[0];
                 pointsNew[k++]=interpolatedPoint[1];
+
                 real_1d_array x;
                 x.setlength(2);
                 x[0]=interpolatedPoint[0];
@@ -414,21 +457,77 @@ void NurbsSurface::surfaceInfo::updateSurface()
                 pointsNew[k++]=y[0];
             }
         }
-        if (cover->debugLevel(3))
-        {
-            int l=0;
-            while (l!=pointsNewSize)
-            {
-                fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
-                if (l % 3 ==2)
-                    fprintf(stderr,"\n");
-                l++;
-            }
-        }
         destroy();
         computeSurface(pointsNew);
-		delete[] pointsNew;
+        delete[] pointsNew;
     }
+}
+
+void NurbsSurface::surfaceInfo::calcSamplingPoints()
+{
+    int pointsNewSize=num_points_u*num_points_v*3;
+    double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
+    vector<double> pointTempUpper(2);
+    vector<double> pointTempLower(2);
+    vector<double> pointTempRight(2);
+    vector<double> pointTempLeft(2);
+    vector<double> pointTempRightZero(2);
+    vector<double> pointTempLeftZero(2);
+    vector<double> pointTempRightOne(2);
+    vector<double> pointTempLeftOne(2);
+    vector<double> interpolatedPoint(2);
+    evaluateCurveAtParam(left,1.0,pointTempLeftOne);
+    evaluateCurveAtParam(right,1.0,pointTempRightOne);
+    evaluateCurveAtParam(left,0.0,pointTempLeftZero);
+    evaluateCurveAtParam(right,0.0,pointTempRightZero);
+    int jstat; // status variable
+    int temp;
+    int k=0;
+    for (int i=0; i!=num_points_u; i++)
+    {
+        double paramFactor0=1.0/(num_points_u-1)*i;
+        fprintf(stderr,"paramFactor0: %f \n",paramFactor0);
+        for (int j=0; j!=num_points_v;j++)
+        {
+            double paramFactor1=1.0/(num_points_v-1)*j;
+            fprintf(stderr,"paramFactor1: %f \n",paramFactor1);
+            //get a linear interpolation between upper and lower curve at paramFactor0
+            evaluateCurveAtParam(upper,paramFactor0,pointTempUpper);
+            evaluateCurveAtParam(lower,paramFactor0,pointTempLower);
+            vector<double> pointTempUpperLower = pointTempUpper+(pointTempLower-pointTempUpper)*paramFactor1;
+            //get points on left and right boundary according to paraFactor1
+            evaluateCurveAtParam(left,paramFactor1,pointTempLeft);
+            evaluateCurveAtParam(right,paramFactor1,pointTempRight);
+            vector<double> shiftAccordingtoRightBoundary = paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1));
+            vector<double> shiftAccordingtoLeftBoundary = (1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1));
+            //vector<double> pointTempLeftRight = (paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1))+(1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1)));
+            interpolatedPoint = pointTempUpperLower + shiftAccordingtoRightBoundary + shiftAccordingtoLeftBoundary;
+            pointsNew[k++]=interpolatedPoint[0];
+            pointsNew[k++]=interpolatedPoint[1];
+            real_1d_array x;
+            x.setlength(2);
+            x[0]=interpolatedPoint[0];
+            x[1]=interpolatedPoint[1];
+            real_1d_array y;
+            y.setlength(1);
+            rbfcalc(model,x,y);
+            pointsNew[k++]=y[0];
+        }
+    }
+    if (cover->debugLevel(3))
+    {
+        int l=0;
+        while (l!=pointsNewSize)
+        {
+            fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
+            if (l % 3 ==2)
+                fprintf(stderr,"\n");
+            l++;
+        }
+    }
+    destroy();
+    computeSurface(pointsNew);
+    delete[] pointsNew;
 }
 
 void NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor, vector<double> &point)
@@ -440,7 +539,7 @@ void NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double pa
 
 vector<double> NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor)
 {
-    vector<double> result;
+    vector<double> result(2);
     int jstat; // status variable
     int temp;
     s1227(curve.curve,0,curve.startPar+paramFactor*(curve.endPar-curve.startPar),&temp,&result[0],&jstat);
@@ -1168,7 +1267,8 @@ void NurbsSurface::updateUI()
 
 void NurbsSurface::setSelectionIsBoundary(bool selectionIsBoundary)
 {
-    m_selectionIsBoundary= selectionIsBoundary;
+    m_selectionIsBoundary = selectionIsBoundary;
+    selectionIsBoundaryMessage();
 }
 
 COVERPLUGIN(NurbsSurface)

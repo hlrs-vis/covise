@@ -91,6 +91,7 @@ struct curveInfo{
         int order_V = 2;
         osg::ref_ptr<osg::Geode> geode;
         std::vector<osg::Vec3> receivedPoints;
+        std::vector<osg::Vec3> receivedBoundaryPoints;
         osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0);
         osg::Matrixd rotationMatrixToWorld;
         osg::Matrixd rotationMatrixToLocal;
@@ -110,6 +111,9 @@ struct curveInfo{
         void updateModel();
         void resize();
         bool calcEdges();
+        void calcEdgeIntersectionsByPoints(std::vector<curveInfo>& curves);
+        void calcSamplingPoints();
+        void calcSamplingPoints(std::vector<curveInfo>& curves);
         void evaluateCurveAtParam(curveInfo& curve, double paramFactor, std::vector<double>& point);
         std::vector<double> evaluateCurveAtParam(curveInfo& curve, double paramFactor);
 
