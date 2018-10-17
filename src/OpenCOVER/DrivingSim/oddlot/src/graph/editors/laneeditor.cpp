@@ -57,6 +57,7 @@ LaneEditor::LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, T
     : ProjectEditor(projectWidget, projectData, topviewGraph)
     , roadSystemItem_(NULL)
     , insertSectionHandle_(NULL)
+	, pointHandle_(NULL)
 {
 }
 
@@ -86,6 +87,11 @@ LaneEditor::init()
         //
         insertSectionHandle_ = new SectionHandle(roadSystemItem_);
         insertSectionHandle_->hide();
+
+		// Width Add Handle //
+		//
+		pointHandle_ = new PointHandle(roadSystemItem_);
+		pointHandle_->hide();
     }
 }
 
@@ -106,6 +112,16 @@ LaneEditor::getInsertSectionHandle() const
         qDebug("ERROR 1010151634! LaneEditor not yet initialized.");
     }
     return insertSectionHandle_;
+}
+
+PointHandle *
+LaneEditor::getAddWidthHandle() const
+{
+	if (!pointHandle_)
+	{
+		qDebug("ERROR 1010151634! LaneEditor not yet initialized.");
+	}
+	return pointHandle_;
 }
 
 //################//

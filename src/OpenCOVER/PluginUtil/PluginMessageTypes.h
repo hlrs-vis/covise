@@ -57,6 +57,8 @@ public:
         VolumeClipMsg = 252,
         NurbsSurfacePointMsg = 260,
         PointCloudSurfaceMsg = 261,
+        PointCloudSelectionIsBoundaryMsg = 262,
+        PointCloudSelectionSetMsg = 263,
 
         //COVERScript
         COVERScriptEvaluate = 300,

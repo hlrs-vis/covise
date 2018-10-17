@@ -2329,6 +2329,7 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 					.arg(laneSection->getSStart())
 					.arg(laneSection->getParentRoad()->getID().speakingName()));
 		}
+                lane->setWidthActive(true);
 	}
 	else if (!lane->getWidthEntries().isEmpty())
 	{

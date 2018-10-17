@@ -25,6 +25,7 @@ class LaneRoadSystemItem;
 class BaseLaneMoveHandle;
 
 class SectionHandle;
+class PointHandle;
 
 class LaneEditor : public ProjectEditor
 {
@@ -41,6 +42,7 @@ public:
     // Handle //
     //
     SectionHandle *getInsertSectionHandle() const;
+	PointHandle *getAddWidthHandle() const;
 
     // Tool //
     //
@@ -79,9 +81,10 @@ private:
     //
     LaneRoadSystemItem *roadSystemItem_;
 
-    // Handle //
+    // Handles //
     //
     SectionHandle *insertSectionHandle_;
+	PointHandle *pointHandle_;
 
 	// Edit Mode (width or border) //
 	//

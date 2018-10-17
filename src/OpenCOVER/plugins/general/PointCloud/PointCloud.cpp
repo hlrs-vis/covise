@@ -1215,4 +1215,12 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
     {
 
     }
+    if (type == PluginMessageTypes::PointCloudSelectionSetMsg)
+    {
+
+    }
+    if (type == PluginMessageTypes::PointCloudSelectionIsBoundaryMsg)
+    {
+
+    }
 }

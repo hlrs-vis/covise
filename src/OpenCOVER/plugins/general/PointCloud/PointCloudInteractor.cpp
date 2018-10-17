@@ -107,6 +107,8 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         {
             if (fit->pointSet)
             {
+                //std::string fileName = fit->filename;
+                //fprintf(stderr, "Testing Set %s \n", fileName.c_str());
                 for (int i=0; i< fit->pointSetSize; i++)
                 {
                     Vec3 center = Vec3( (fit->pointSet[i].xmin+fit->pointSet[i].xmax)/2, (fit->pointSet[i].ymin+fit->pointSet[i].ymax)/2, (fit->pointSet[i].zmin+fit->pointSet[i].zmax)/2);
@@ -119,7 +121,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                         for (int j=0; j<fit->pointSet[i].size; j++)
                         {
                             Vec3 currentPoint = Vec3(fit->pointSet[i].points[j].x,fit->pointSet[i].points[j].y,fit->pointSet[i].points[j].z);
-                            double distance = LinePointDistance(currentPoint, currHandBegin, currHandDirection);
+                            double distance = LinePointMeasure(currentPoint, currHandBegin, currHandDirection);
                             if (distance<smallestDistance)
                             {
                                 smallestDistance=distance;
@@ -242,7 +244,7 @@ PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirec
     if (pMinusC.length()==0.)
         return 0.;
     
-    double d = c / pMinusC.length();
+    double d = c * pMinusC.length();
     return d;
 }
 

@@ -39,7 +39,7 @@ public:
     }
 
     void updateTransform();
-    void updatePos(RoadItem *roadItem, const QPointF &position, double sStartHint, double sEndHint);
+    virtual void updatePos(RoadItem *roadItem, const QPointF &position, double sStartHint, double sEndHint);
 
 protected:
 private:
@@ -79,6 +79,26 @@ private:
     //
     static void createPath();
     static QPainterPath *pathTemplate_; // this path will be shared by all handles
+};
+
+class PointHandle : public SectionHandle
+{
+public:
+	explicit PointHandle(RoadSystemItem *parentRoadSystemItem)
+		: SectionHandle(parentRoadSystemItem)
+	{};
+
+	virtual ~PointHandle()
+	{ /* does nothing */
+	}
+
+	virtual void updatePos(RoadItem *roadItem, const QPointF &position, double sStartHint, double sEndHint);
+
+protected:
+private:
+	PointHandle(); /* not allowed */
+	PointHandle(const PointHandle &); /* not allowed */
+	PointHandle &operator=(const PointHandle &); /* not allowed */
 };
 
 #endif // SECTIONHANDLE_HPP

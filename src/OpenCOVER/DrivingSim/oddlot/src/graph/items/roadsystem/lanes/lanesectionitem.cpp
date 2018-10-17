@@ -254,7 +254,7 @@ LaneSectionItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     {
         setCursor(Qt::PointingHandCursor);
     }
-    else if (tool == ODD::TLE_ADD || tool == ODD::TLE_ADD_WIDTH)
+    else if (tool == ODD::TLE_ADD)
     {
         setCursor(Qt::CrossCursor);
         laneEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
@@ -283,10 +283,14 @@ LaneSectionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     {
         // does nothing //
     }
-    else if (tool == ODD::TLE_ADD || tool == ODD::TLE_ADD_WIDTH)
+    else if (tool == ODD::TLE_ADD)
     {
         laneEditor_->getInsertSectionHandle()->hide();
     }
+	else if (tool == ODD::TLE_ADD_WIDTH)
+	{
+		laneEditor_->getAddWidthHandle()->hide();
+	}
     else if (tool == ODD::TLE_DEL)
     {
         // does nothing //
@@ -311,10 +315,14 @@ LaneSectionItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     {
         // does nothing //
     }
-    else if (tool == ODD::TLE_ADD || tool == ODD::TLE_ADD_WIDTH)
+    else if (tool == ODD::TLE_ADD)
     {
         laneEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
     }
+	else if (tool == ODD::TLE_ADD_WIDTH)
+	{
+		laneEditor_->getAddWidthHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
+	}
     else if (tool == ODD::TLE_DEL)
     {
         // does nothing //
