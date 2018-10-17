@@ -19,6 +19,7 @@
 //
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 #include "src/data/roadsystem/sections/roadsection.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/commands/roadsectioncommands.hpp"
 
 // Graph //
@@ -234,4 +235,24 @@ SectionHandle::createPath()
     pathTemplate.lineTo(0.0, -size * 0.5);
 
     SectionHandle::pathTemplate_ = &pathTemplate;
+}
+
+//##############################//
+//
+//    PointHandle
+//
+//##############################//
+void
+PointHandle::updatePos(RoadItem *roadItem, const QPointF &position, double sStartHint, double sEndHint)
+{
+	RSystemElementRoad *road = roadItem->getRoad();
+
+	// Calculate road coordinate //
+	//
+	double s = road->getSFromGlobalPoint(position, sStartHint, sEndHint);
+
+	// Set Item Pose //
+	//
+	setPos(position);
+	setRotation(road->getGlobalHeading(s));
 }
