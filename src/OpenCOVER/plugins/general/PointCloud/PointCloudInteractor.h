@@ -62,6 +62,10 @@ public:
     
     void resize();
     bool deselectPoint();
+    void setSelectionSetIndex(int selectionSet);
+    void setSelectionIsBoundary(bool selectionIsBoundary);
+    bool getSelectionIsBoundary();
+
 private:
 
     // needed for interaction
@@ -94,7 +98,8 @@ private:
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
 
-    int selectionSetIndex =0;
+    int selectionSetIndex = 0;
+    bool m_selectionIsBoundary = false;
 
 };
 #endif //POINTCLOUD_INTERACTOR_H

@@ -130,6 +130,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
                                 bestPoint.selectionIndex = selectionSetIndex;
+                                bestPoint.isBoundaryPoint = getSelectionIsBoundary();
                             }
                         }
                     }
@@ -138,6 +139,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         }
         if (hitPointSuccess)
         {
+            //dont select the same point twice
             for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
             {
                 if (iter->pointSetIndex==bestPoint.pointSetIndex && iter->pointIndex==bestPoint.pointIndex)
@@ -231,6 +233,11 @@ void PointCloudInteractor::updateMessage(vector<pointSelection> points)
 {
     //send message to NurbsSurfacePlugin
     cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(points), &points);
+    for (auto iter=points.begin(); iter !=points.end(); iter++)
+    {
+        if (iter->isBoundaryPoint)
+            fprintf(stderr, "PointCloudInteractor::updateMessage sending boundary point!\n");
+    }
 }
 
 double
@@ -402,4 +409,19 @@ void PointCloudInteractor::setDeselection(bool deselection)
         m_deselection = true;
     else
         m_deselection = false;
+}
+
+void PointCloudInteractor::setSelectionSetIndex(int selectionSet)
+{
+    selectionSetIndex=selectionSet;
+}
+
+void PointCloudInteractor::setSelectionIsBoundary(bool selectionIsBoundary)
+{
+    m_selectionIsBoundary=selectionIsBoundary;
+}
+
+bool PointCloudInteractor::getSelectionIsBoundary()
+{
+    return m_selectionIsBoundary;
 }
