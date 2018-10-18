@@ -36,7 +36,7 @@ LaneSection::LaneSection(double s, bool singleSide)
 {
 }
 
-LaneSection::LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection) // create new LaneSection at pos s of oldLaneSection
+LaneSection::LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection, double sEnd) // create new LaneSection at pos s of oldLaneSection, ending at sEnd
     : RoadSection(s)
 	, singleSide_(singleSide)
     , laneSectionChanges_(0x0)
@@ -44,7 +44,7 @@ LaneSection::LaneSection(double s, bool singleSide, const LaneSection *oldLaneSe
     setParentRoad(oldLaneSection->getParentRoad());
     foreach (Lane *child, oldLaneSection->lanes_)
     {
-        addLane(child->getClone(s, getSEnd()));
+        addLane(child->getClone(s, sEnd));
     }
 }
 

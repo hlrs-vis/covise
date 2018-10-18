@@ -18,8 +18,9 @@
 
 // 2400
 
+//    Data
+//
 #include "datacommand.hpp"
-
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/laneborder.hpp"
@@ -478,7 +479,11 @@ private:
 
 private:
     LaneSection *oldSection_;
-    LaneSection *newSection_;
+	LaneSection *nextSection_;
+    LaneSection *newSectionLeft_;
+	LaneSection *newSectionRight_;
+
+	RSystemElementRoad *parentRoad_;
 
     double splitPos_;
 };

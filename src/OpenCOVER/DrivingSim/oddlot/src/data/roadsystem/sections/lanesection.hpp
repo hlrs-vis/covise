@@ -44,7 +44,7 @@ public:
 
 public:
     explicit LaneSection(double s, bool singleSide);
-    explicit LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection); // create new LaneSection at pos s of oldLaneSection
+    explicit LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection, double sEnd); // create new LaneSection at pos s of oldLaneSection, ending at sEnd
     explicit LaneSection(double s, bool singleSide, const LaneSection *LanSectionLow, const LaneSection *LanSectionHigh); // create new LaneSection as e merger between low and high
     virtual ~LaneSection();
 

@@ -1623,7 +1623,7 @@ RSystemElementRoad::getShapeSectionBefore(double s) const
 	}
 	--i;
 
-	return i.value();
+return i.value();
 }
 
 double
@@ -1708,19 +1708,19 @@ RSystemElementRoad::setShapeSections(QMap<double, ShapeSection *> newSections)
 void
 RSystemElementRoad::addLaneSection(LaneSection *section)
 {
-    // Notify section //
-    //
-    section->setParentRoad(this);
+	// Notify section //
+	//
+	section->setParentRoad(this);
 
-    // Notify shrinking section //
-    //
-    if (!laneSections_.isEmpty())
-    {
-        LaneSection *lastSection = getLaneSection(section->getSStart()); // the section that is here before insertion
-        if (lastSection)
-        {
-            lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
-        }
+	// Notify shrinking section //
+	//
+	if (!laneSections_.isEmpty())
+	{
+		LaneSection *lastSection = getLaneSection(section->getSStart()); // the section that is here before insertion
+		if (lastSection)
+		{
+			lastSection->addRoadSectionChanges(RoadSection::CRS_LengthChange);
+		}
     }
 
     // Insert and Notify //
@@ -2456,6 +2456,7 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 				}
 				if (propsList.find(startS) != propsList.end())  // dPos only has to be added to points in the list
 				{
+
 					if (lane->getWidthEntryBefore(low->getSSectionStart()))
 					{
 						QPointF point;
@@ -3233,6 +3234,10 @@ RSystemElementRoad::getLaneWidthsLists(QMap<double, LaneMoveProperties *> &props
 		{
 			lane = high->getParentLane();
 			laneSection = lane->getParentLaneSection();
+			if (points->isEmpty())
+			{
+				widthType = lane->isWidthActive();
+			}
 
 			do
 			{

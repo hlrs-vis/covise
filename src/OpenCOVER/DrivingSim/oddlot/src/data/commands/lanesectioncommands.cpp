@@ -15,8 +15,11 @@
 
 #include "lanesectioncommands.hpp"
 
+// Data 
+//
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/roadlink.hpp"
+#include "src/data/commands/roadcommands.hpp"
 
 #include <math.h>
 
@@ -1054,7 +1057,9 @@ SetLaneSuccessorIdCommand::undo()
 SplitLaneSectionCommand::SplitLaneSectionCommand(LaneSection *laneSection, double splitPos, DataCommand *parent)
     : DataCommand(parent)
     , oldSection_(laneSection)
-    , newSection_(NULL)
+	, nextSection_(laneSection)
+    , newSectionLeft_(NULL)
+	, newSectionRight_(NULL)
     , splitPos_(splitPos)
 {
     // Check for validity //
@@ -1068,9 +1073,14 @@ SplitLaneSectionCommand::SplitLaneSectionCommand(LaneSection *laneSection, doubl
         return;
     }
 
+	parentRoad_ = oldSection_->getParentRoad();
+	nextSection_ = parentRoad_->getLaneSectionNext(laneSection->getSStart());
+
     // New section //
     //
-    newSection_ = new LaneSection(splitPos, oldSection_->getSide(), laneSection);
+    newSectionRight_ = new LaneSection(splitPos, oldSection_->getSide(), laneSection, oldSection_->getSEnd());
+	newSectionLeft_ = new LaneSection(laneSection->getSStart(), oldSection_->getSide(), laneSection, splitPos);
+
 
     // Done //
     //
@@ -1085,7 +1095,8 @@ SplitLaneSectionCommand::~SplitLaneSectionCommand()
 {
     if (isUndone())
     {
-        delete newSection_;
+        delete newSectionLeft_;
+		delete newSectionRight_;
     }
     else
     {
@@ -1102,7 +1113,18 @@ SplitLaneSectionCommand::redo()
 {
     //  //
     //
-    oldSection_->getParentRoad()->addLaneSection(newSection_);
+	parentRoad_->delLaneSection(oldSection_);
+
+	parentRoad_->addLaneSection(newSectionRight_);
+	parentRoad_->addLaneSection(newSectionLeft_);
+
+	// Link lanes //
+	//
+	CreateInnerLaneLinksCommand *createInnerLaneLinksCommand = new CreateInnerLaneLinksCommand(parentRoad_, this);
+	if (createInnerLaneLinksCommand->isValid())
+	{
+		createInnerLaneLinksCommand->redo();
+	}
 
     setRedone();
 }
@@ -1115,7 +1137,18 @@ SplitLaneSectionCommand::undo()
 {
     //  //
     //
-    newSection_->getParentRoad()->delLaneSection(newSection_);
+	parentRoad_->delLaneSection(newSectionLeft_);
+	parentRoad_->delLaneSection(newSectionRight_);
+
+	parentRoad_->addLaneSection(oldSection_);
+
+	// Reset lane links //
+	//
+	if (nextSection_)
+	{
+		parentRoad_->delLaneSection(nextSection_);
+		parentRoad_->addLaneSection(nextSection_);
+	}
 
     setUndone();
 }

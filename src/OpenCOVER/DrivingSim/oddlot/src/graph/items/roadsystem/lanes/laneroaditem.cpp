@@ -358,9 +358,9 @@ LaneRoadItem::updateObserver()
                 || (section->getDataElementChanges() & DataElement::CDE_DataElementAdded))
             {
 				laneSectionItems_.insert(section, new LaneSectionItem(laneEditor_, this, section));
-				rebuildMoveRotateHandles(true);
             }
         }
+		rebuildMoveRotateHandles(true);
     }
 
 

@@ -273,40 +273,83 @@ LaneWidth *Lane::getWidthEntry(double sSection) const
 LaneWidth *
 Lane::getWidthEntryBefore(double sSection) const
 {
-	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection); // the second one after the one we want
-	if (i == widths_.constBegin())
+	if (widthActive_)
 	{
-		return NULL;
-	}
-	--i;
+		QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection); // the second one after the one we want
+		if (i == widths_.constBegin())
+		{
+			return NULL;
+		}
+		--i;
 
-	if (i == widths_.constBegin())
+		if (i == widths_.constBegin())
+		{
+			return NULL;
+		}
+		--i;
+
+		return i.value();
+	}
+	else
 	{
-		return NULL;
-	}
-	--i;
+		QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection); // the second one after the one we want
+		if (i == borders_.constBegin())
+		{
+			return NULL;
+		}
+		--i;
 
-	return i.value();
+		if (i == borders_.constBegin())
+		{
+			return NULL;
+		}
+		--i;
+
+		return i.value();
+	}
 }
 
 LaneWidth *
 Lane::getWidthEntryNext(double sSection) const
 {
-	QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
-	if (i == widths_.constEnd())
+	if (widthActive_)
 	{
-		return NULL;
-	}
+		QMap<double, LaneWidth *>::const_iterator i = widths_.upperBound(sSection);
+		if (i == widths_.constEnd())
+		{
+			return NULL;
+		}
 
-	return i.value();
+		return i.value();
+	}
+	else
+	{
+		QMap<double, LaneBorder *>::const_iterator i = borders_.upperBound(sSection);
+		if (i == borders_.constEnd())
+		{
+			return NULL;
+		}
+
+		return i.value();
+
+	}
 }
 
 LaneWidth *
 Lane::getLastWidthEntry() const
 {
-	QMap<double, LaneWidth *>::const_iterator i = widths_.constEnd();
-	--i;
-	return i.value();
+	if (widthActive_)
+	{
+		QMap<double, LaneWidth *>::const_iterator i = widths_.constEnd();
+		--i;
+		return i.value();
+	}
+	else
+	{
+		QMap<double, LaneBorder *>::const_iterator i = borders_.constEnd();
+		--i;
+		return i.value();
+	}
 }
 
 bool
@@ -924,14 +967,12 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
     //
     foreach (LaneWidth *child, widths_)
     {
-        double parentStart = child->getParentLane()->getParentLaneSection()->getSStart();
-        double childStart = parentStart + child->getSOffset();
+		double childStart = child->getSSectionStartAbs();
         if (childStart < sOffsetStart)
         {
-            double childEnd = child->getParentLane()->getParentLaneSection()->getSEnd() + child->getSOffset();
             // a) Starts and ends before cloned region //
             //
-            if (childEnd < sOffsetStart)
+            if (child->getSSectionEnd() < sOffsetStart)
             {
                 continue; // do not add
             }
@@ -940,8 +981,8 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
             //
             else
             {
-                LaneWidth *newEntry = new LaneWidth(0.0, child->getWidth(sOffsetStart - parentStart), child->getSlope(sOffsetStart - parentStart), child->getCurvature(sOffsetStart - parentStart) / 2.0, child->getD());
-                newEntry->setSOffset(0.0);
+				double s = sOffsetStart - parentLaneSection_->getSStart();
+                LaneWidth *newEntry = new LaneWidth(0.0, child->getWidth(s), child->getSlope(s), child->getCurvature(s) / 2.0, child->getD());
                 clone->addWidthEntry(newEntry);
             }
         }
@@ -965,6 +1006,51 @@ Lane::getClone(double sOffsetStart, double sOffsetEnd) const
             continue; // do not add
         }
     }
+
+	// LanesBorder //
+	//
+	foreach(LaneBorder *child, borders_)
+	{
+		double childStart = child->getSSectionStartAbs();
+		if (childStart < sOffsetStart)
+		{
+			// a) Starts and ends before cloned region //
+			//
+			if (child->getSSectionEnd() < sOffsetStart)
+			{
+				continue; // do not add
+			}
+
+			// b) Starts before cloned region, ends in it //
+			//
+			else
+			{
+				double s = sOffsetStart - parentLaneSection_->getSStart();
+				LaneBorder *newEntry = new LaneBorder(0.0, child->getWidth(s), child->getSlope(s), child->getCurvature(s) / 2.0, child->getD());
+				newEntry->setSOffset(0.0);
+				clone->addWidthEntry(newEntry);
+			}
+		}
+		else if (childStart < sOffsetEnd)
+		{
+			// c) Starts in cloned region //
+			//
+			double newSStart = childStart - sOffsetStart;
+			if (fabs(newSStart) < NUMERICAL_ZERO6)
+			{
+				newSStart = 0.0; // round to zero, so it isn't negative (e.g. -1e-7)
+			}
+			LaneBorder *newEntry = child->getClone();
+			newEntry->setSOffset(newSStart);
+			clone->addWidthEntry(newEntry);
+		}
+		else
+		{
+			// d) Starts behind cloned region //
+			//
+			continue; // do not add
+		}
+	}
 
     // LanesRoadMark //
     //
