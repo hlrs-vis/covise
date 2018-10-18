@@ -32,6 +32,7 @@
 #include "lanelinkitem.hpp"
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
+#include "src/graph/items/roadsystem/sections/sectionhandle.hpp"
 
 // Editor //
 //
@@ -234,7 +235,6 @@ LaneItem::updateColor()
 void
 LaneItem::createPath()
 {
-    RSystemElementRoad *road = parentLaneSection_->getParentRoad();
 
     // Initialization //
     //
@@ -267,7 +267,7 @@ LaneItem::createPath()
 		for (int i = 0; i < pointCount; ++i)
 		{
 			double s = sStart + i * segmentLength; // [sStart, sEnd]
-			points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s) + road->getLaneOffset(s));
+			points[i] = grandparentRoad_->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s) + grandparentRoad_->getLaneOffset(s));
 		}
 
 		// Left side //
@@ -277,19 +277,19 @@ LaneItem::createPath()
 			double s = sEnd - i * segmentLength; // [sEnd, sStart]
 			if (s < 0.0)
 				s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
-			points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + road->getLaneOffset(s));
+			points[i + pointCount] = grandparentRoad_->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + grandparentRoad_->getLaneOffset(s));
 		}
 
 		// End point //
 		//
-		points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + road->getLaneOffset(sStart));
+		points[2 * pointCount] = grandparentRoad_->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + grandparentRoad_->getLaneOffset(sStart));
 	}
 	else
 	{
 		for (int i = 0; i < pointCount; ++i)
 		{
 			double s = sStart + i * segmentLength; // [sStart, sEnd]
-			points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, s));
+			points[i] = grandparentRoad_->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, s));
 		}
 
 		// Left side //
@@ -299,12 +299,12 @@ LaneItem::createPath()
 			double s = sEnd - i * segmentLength; // [sEnd, sStart]
 			if (s < 0.0)
 				s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
-			points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId(), s));
+			points[i + pointCount] = grandparentRoad_->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneWidth(lane_->getId(), s));
 		}
 
 		// End point //
 		//
-		points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, sStart));
+		points[2 * pointCount] = grandparentRoad_->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneWidth(lane_->getId() - laneSide, sStart));
 	}
 
 
@@ -345,7 +345,7 @@ LaneItem::updateObserver()
 
     // Road //
     //
-    int roadChanges = parentLaneSection_->getParentRoad()->getRoadChanges();
+    int roadChanges = grandparentRoad_->getRoadChanges();
     if ((roadChanges & RSystemElementRoad::CRD_TrackSectionChange)
         || (roadChanges & RSystemElementRoad::CRD_LaneSectionChange)
         || (roadChanges & RSystemElementRoad::CRD_ShapeChange))
@@ -371,8 +371,7 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
     if ((tool == ODD::TLE_ADD_WIDTH) && (event->button() == Qt::LeftButton))
     {
-        RSystemElementRoad *road = parentLaneSection_->getParentRoad();
-        double s = road->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
+        double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
 
         double startWidth = lane_->getWidth(s);
  //       double slope = lane_->getSlope(s);
@@ -405,6 +404,25 @@ LaneItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void 
 LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 {
+	ODD::ToolId tool = parentLaneSectionItem_->getLaneEditor()->getCurrentTool();
+	if (tool == ODD::TLE_ADD_WIDTH)
+	{
+		setCursor(Qt::CrossCursor);
+
+		double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
+		double t;
+		if (lane_->getId() > 0)
+		{
+			t = parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - 1, s) + lane_->getWidth(s) / 2;
+		}
+		else
+		{
+			t = -parentLaneSection_->getLaneSpanWidth(0, lane_->getId() + 1, s) - lane_->getWidth(s) / 2;
+		}
+
+		parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->updatePos(parentLaneSectionItem_->getParentRoadItem(), grandparentRoad_->getGlobalPoint(s, t), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
+		parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->show();
+	}
     parentLaneSectionItem_->hoverMoveEvent(event);
 }
 
