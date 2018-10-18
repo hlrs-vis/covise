@@ -2378,8 +2378,7 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double,
 
 		if (id < 0)
 		{
-			id--;
-			for (id; id >= laneSection->getRightmostLaneId(); id--)
+			for (--id; id >= laneSection->getRightmostLaneId(); id--)
 			{
 				foreach(LaneWidth *laneWidth, laneSection->getLane(id)->getWidthEntries())
 				{
@@ -2393,8 +2392,7 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double,
 		}
 		else if (id > 0)
 		{
-			id++;
-			for (id; id <= laneSection->getLeftmostLaneId(); id++)
+			for (++id; id <= laneSection->getLeftmostLaneId(); id++)
 			{
 				foreach(LaneWidth *laneWidth, laneSection->getLane(id)->getWidthEntries())
 				{
