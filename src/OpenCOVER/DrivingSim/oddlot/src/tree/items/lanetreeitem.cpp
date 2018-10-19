@@ -50,21 +50,19 @@ LaneTreeItem::init()
     // LaneWidths //
     //
     widthsItem_ = new QTreeWidgetItem(this);
-    widthsItem_->setText(0, tr("widths"));
-	if (lane_->isWidthActive())
+
+	widthsItem_->setText(0, tr("widths"));
+	foreach(LaneWidth *element, lane_->getWidthEntries())
 	{
-		foreach(LaneWidth *element, lane_->getWidthEntries())
-		{
-			new LaneWidthTreeItem(this, element, widthsItem_);
-		}
+		new LaneWidthTreeItem(this, element, widthsItem_);
 	}
-	else
+
+	widthsItem_->setText(0, tr("borders"));
+	foreach(LaneBorder *element, lane_->getBorderEntries())
 	{
-		foreach(LaneBorder *element, lane_->getBorderEntries())
-		{
-			new LaneWidthTreeItem(this, element, widthsItem_);
-		}
+		new LaneWidthTreeItem(this, element, widthsItem_);
 	}
+
 
     // LaneRoadMarks //
     //

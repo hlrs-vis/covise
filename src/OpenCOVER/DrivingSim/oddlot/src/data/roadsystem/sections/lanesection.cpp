@@ -22,6 +22,7 @@
 #include "laneborder.hpp"
 #include <cmath>
 
+
 //####################//
 // Constructors       //
 //####################//
@@ -56,52 +57,153 @@ LaneSection::LaneSection(double s, bool singleSide, const LaneSection *laneSecti
 {
 	RSystemElementRoad *parentRoad = laneSectionLow->getParentRoad();
     setParentRoad(parentRoad);
-    foreach (Lane *childLow, laneSectionLow->lanes_)
-    {
-        Lane *childHigh = laneSectionHigh->lanes_.value(childLow->getId(), NULL);
+	QMap<int, QList<LaneWidth *>> newWidths;
 
-        Lane *newLane = childLow->getClone(s, laneSectionHigh->getSEnd());
-        // TODO set width
+	double sOffset = laneSectionHigh->getSStart() - laneSectionLow->getSStart();
 
-		QMap<double, LaneWidth*> widthEntries = childHigh->getWidthEntries();
-		double sOffset = laneSectionHigh->getSStart() - laneSectionLow->getSStart();
-		if (!widthEntries.isEmpty())
+	foreach(Lane *childLow, laneSectionLow->lanes_)
+	{
+		Lane *childHigh = laneSectionHigh->lanes_.value(childLow->getId(), NULL);
+
+		Lane *newLane = childLow->getClone(s, laneSectionHigh->getSEnd());
+		newLane->setWidthActive(childLow->isWidthActive());
+		addLane(newLane);
+		// TODO set width
+
+		if (childLow->isWidthActive())
 		{
-			foreach(LaneWidth *laneWidth, childHigh->getWidthEntries())
+			if (childHigh->isWidthActive())
 			{
-				LaneWidth *newWidth = laneWidth->getClone();
-				newWidth->setSOffset(sOffset + laneWidth->getSSectionStart());
-				newLane->addWidthEntry(newWidth);
-			}
-
-			// New parameters for polynomial of last width entry from low section //
-			//
-			LaneWidth *widthEntry = newLane->getWidthEntryBefore(sOffset);
-			widthEntry->Polynomial::setParameters(QPointF(sOffset - widthEntry->getSSectionStart(), childHigh->getWidthEntry(0.0)->f(0.0)));
-
-		}
-		else 
-		{
-			QMap<double, LaneBorder*> borderEntries = childHigh->getBorderEntries();
-			if (!borderEntries.isEmpty())
-			{
-				foreach(LaneBorder *laneBorder, childHigh->getBorderEntries())
+				QMap<double, LaneWidth*> widthEntries = childHigh->getWidthEntries();
+				if (!widthEntries.empty())
 				{
-					LaneBorder *newBorder = laneBorder->getClone();
-					newBorder->setSOffset(sOffset + laneBorder->getSSectionStart());
-					newLane->addWidthEntry(newBorder);
+					foreach(LaneWidth *laneWidth, widthEntries)
+					{
+						LaneWidth *newWidth = laneWidth->getClone();
+						newWidth->setSOffset(sOffset + laneWidth->getSSectionStart());
+						newLane->addWidthEntry(newWidth);
+					}
+
+					// New parameters for polynomial of last width entry of low section //
+					//
+					LaneWidth *widthEntry = newLane->getWidthEntryBefore(sOffset);
+					widthEntry->Polynomial::setParameters(QPointF(sOffset - widthEntry->getSSectionStart(), childHigh->getWidthEntry(0.0)->f(0.0)));
 				}
 
-				// New parameters for polynomial of last width entry from low section //
-				//
-				LaneBorder *borderEntry = newLane->getLaneBorderBefore(sOffset);
-				borderEntry->Polynomial::setParameters(QPointF(sOffset - borderEntry->getSSectionStart(), childHigh->getBorderEntry(0.0)->f(0.0)));
+			}
+			else
+			{
+				QMap<double, LaneBorder*> borderEntries = childHigh->getBorderEntries();
+				if (!borderEntries.isEmpty())
+				{
+					QList<LaneWidth *> newWidthsList;
+					foreach(LaneBorder *laneBorder, childHigh->getBorderEntries())
+					{
+						LaneWidth *newWidth = new LaneWidth(0.0, laneBorder->getA(), laneBorder->getB(), laneBorder->getC(), laneBorder->getD());
+						
+						newWidth->setSOffset(sOffset + laneBorder->getSSectionStart());
+						newWidthsList.append(newWidth);
+						newLane->addWidthEntry(newWidth);
+					}
+					newWidths.insert(newLane->getId(), newWidthsList);
+				}
+
+			}
+		}
+		else
+		{
+			if (!childHigh->isWidthActive())
+			{
+				QMap<double, LaneBorder*> borderEntries = childHigh->getBorderEntries();
+				if (!borderEntries.isEmpty())
+				{
+					foreach(LaneBorder *laneBorder, childHigh->getBorderEntries())
+					{
+						LaneBorder *newBorder = laneBorder->getClone();
+						newBorder->setSOffset(sOffset + laneBorder->getSSectionStart());
+						newLane->addWidthEntry(newBorder);
+					}
+
+					// New parameters for polynomial of last width entry from low section //
+					//
+					LaneBorder *borderEntry = newLane->getLaneBorderBefore(sOffset);
+					borderEntry->Polynomial::setParameters(QPointF(sOffset - borderEntry->getSSectionStart(), childHigh->getBorderEntry(0.0)->f(0.0)));
+				}
+			}
+			else
+			{
+				QMap<double, LaneWidth*> widthEntries = childHigh->getWidthEntries();
+				if (!widthEntries.empty())
+				{
+					QList<LaneWidth *> newBordersList;
+					foreach(LaneWidth *laneWidth, widthEntries)
+					{
+						LaneBorder *newBorder = new LaneBorder(0.0, laneWidth->getA(), laneWidth->getB(), laneWidth->getC(), laneWidth->getD());
+						newBorder->setSOffset(sOffset + laneWidth->getSSectionStart());
+						newBordersList.append(newBorder);
+
+						newLane->addWidthEntry(newBorder);
+					}
+					newWidths.insert(newLane->getId(), newBordersList);
+				}
 			}
 
 		}
 
-        addLane(newLane);
     }
+
+	if (!newWidths.empty())
+	{
+		for (int i = -2; i >= getRightmostLaneId(); i--)
+		{
+			if (newWidths.contains(i))
+			{
+				Lane *lane = getLane(i);
+				QList<LaneWidth *> widthList = newWidths.value(i);
+				lane->calculateTypeParameters(lane->isWidthActive(), widthList);
+
+				// New parameters for polynomial of last width entry of low section //
+				//
+				if (lane->isWidthActive())
+				{
+					LaneWidth *widthEntry = lane->getWidthEntryBefore(sOffset);
+					widthEntry->Polynomial::setParameters(QPointF(sOffset - widthEntry->getSSectionStart(), lane->getWidthEntry(sOffset)->f(0.0)));
+
+				}
+				else
+				{
+					LaneBorder *borderEntry = lane->getLaneBorderBefore(sOffset);
+					borderEntry->Polynomial::setParameters(QPointF(sOffset - borderEntry->getSSectionStart(), lane->getBorderEntry(sOffset)->f(0.0)));
+				}
+
+			}
+		}
+
+		for (int i = 2; i <= getLeftmostLaneId(); i++)
+		{
+			if (newWidths.contains(i))
+			{
+				Lane *lane = getLane(i);
+				QList<LaneWidth *> widthList = newWidths.value(i);
+				lane->calculateTypeParameters(lane->isWidthActive(), widthList);
+
+				// New parameters for polynomial of last width entry of low section //
+				//
+				if (lane->isWidthActive())
+				{
+					LaneWidth *widthEntry = lane->getWidthEntryBefore(sOffset);
+					widthEntry->Polynomial::setParameters(QPointF(sOffset - widthEntry->getSSectionStart(), lane->getWidthEntry(sOffset)->f(0.0)));
+
+				}
+				else
+				{
+					LaneBorder *borderEntry = lane->getLaneBorderBefore(sOffset);
+					borderEntry->Polynomial::setParameters(QPointF(sOffset - borderEntry->getSSectionStart(), lane->getBorderEntry(sOffset)->f(0.0)));
+				}
+
+			}
+		}
+	}
 }
 
 LaneSection::~LaneSection()
@@ -469,6 +571,8 @@ LaneSection::getPolynomialSum(int fromLane, int toLane, double s) const
 
 	return poly;
 }
+
+
 
 void LaneSection::checkAndFixLanes()
 {

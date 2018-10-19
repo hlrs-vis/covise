@@ -208,6 +208,10 @@ public:
 	double getBorderEnd(double sSection) const;
 	LaneBorder *getBorderEntryContains(double sSection) const;
 
+	// Width/Border methods //
+	//
+	void calculateTypeParameters(bool activateWidth,const QList<LaneWidth *> &widthList) const;
+
 
     // RoadMark entries //
     //

@@ -1326,7 +1326,7 @@ RemoveLaneSectionCommand::redo()
     parentRoad_->addLaneSection(newSectionHigh_);
 
 	double sOffset = oldSectionHigh_->getSStart() - oldSectionLow_->getSStart();
-	foreach(Lane *lane, newSectionHigh_->getLanes())
+	foreach(Lane *lane, newSectionHigh_->getLanes())        // new Polynomial at oldSectionHigh startpoint
 	{
 		if (!lane->getWidthEntries().isEmpty())
 		{
@@ -1343,6 +1343,14 @@ RemoveLaneSectionCommand::redo()
 			parentRoad_->translateLaneWidths(lanes, pointList);
 		}
 	}
+
+	// Link lanes //
+	//
+	CreateInnerLaneLinksCommand *createInnerLaneLinksCommand = new CreateInnerLaneLinksCommand(parentRoad_, this);
+	if (createInnerLaneLinksCommand->isValid())
+	{
+		createInnerLaneLinksCommand->redo();
+	} 
 
     setRedone();
 }

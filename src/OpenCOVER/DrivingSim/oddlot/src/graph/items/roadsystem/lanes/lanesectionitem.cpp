@@ -225,6 +225,9 @@ LaneSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             RSystemElementRoad *road = laneSection_->getParentRoad();
             double s = road->getSFromGlobalPoint(event->pos(), laneSection_->getSStart(), laneSection_->getSEnd());
 
+
+			laneEditor_->getInsertSectionHandle()->hide();
+
             SplitLaneSectionCommand *command = new SplitLaneSectionCommand(laneSection_, s, NULL);
             getProjectGraph()->executeCommand(command);
         }
@@ -319,10 +322,6 @@ LaneSectionItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     {
         laneEditor_->getInsertSectionHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
     }
-	else if (tool == ODD::TLE_ADD_WIDTH)
-	{
-		laneEditor_->getAddWidthHandle()->updatePos(parentRoadItem_, event->scenePos(), laneSection_->getSStart(), laneSection_->getSEnd());
-	}
     else if (tool == ODD::TLE_DEL)
     {
         // does nothing //

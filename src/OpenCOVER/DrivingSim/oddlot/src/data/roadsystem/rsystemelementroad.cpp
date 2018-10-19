@@ -2277,28 +2277,6 @@ RSystemElementRoad::calculateLaneWidths(const QMap<double, WidthPoints *> *point
 
 }
 
-void
-calculateTypeParameters(LaneSection *laneSection, Lane *lane, const QList<LaneWidth *> &pointList)
-{
-	int i = lane->getId();
-	int laneside = (i > 0) ? 1 : -1;
-	for (int j = 0; j < pointList.size(); j++)
-	{
-
-		LaneWidth *width = pointList.at(j);
-		if (lane->isWidthActive())
-		{
-			/* iterate over all lanes */
-			*width -= laneSection->getPolynomialSum(i - laneside, laneside, width->getSSectionStart()); // alle Parameter summieren
-		}
-		else
-		{
-			*width += laneSection->getPolynomialSum(i - laneside, laneside, width->getSSectionStart());
-		}
-
-	}
-
-}
 
 /* Translates the LaneWidths in the list and calculates
 * the new polynomial functions.
@@ -2351,7 +2329,7 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double,
 					Lane *nextLane = laneSection->getLane(id);
 					if (lanes.contains(nextLane) && (newPointList.find(nextLane) != newPointList.end()))
 					{
-						calculateTypeParameters(laneSection, nextLane, newPointList.values(nextLane));
+						nextLane->calculateTypeParameters(nextLane->isWidthActive(), newPointList.values(nextLane));
 						lanesDone.append(nextLane);
 					}
 				}
@@ -2363,7 +2341,7 @@ RSystemElementRoad::translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double,
 					Lane *nextLane = laneSection->getLane(i);
 					if (lanes.contains(nextLane) && (newPointList.find(nextLane) != newPointList.end()))
 					{
-						calculateTypeParameters(laneSection, nextLane, newPointList.values(nextLane));
+						nextLane->calculateTypeParameters(nextLane->isWidthActive(), newPointList.values(nextLane));
 						lanesDone.append(nextLane);
 					}
 				}

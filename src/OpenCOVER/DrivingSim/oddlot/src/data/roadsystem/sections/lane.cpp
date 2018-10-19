@@ -626,6 +626,31 @@ Lane::getBorderEntryContains(double sSection) const
 	return (--i).value();
 }
 
+//########################//
+// Width/Border Methods //
+//########################//
+void
+Lane::calculateTypeParameters(bool calculateWidth, const QList<LaneWidth *> &widthList) const
+{
+	int laneside = (id_ > 0) ? 1 : -1;
+	for (int j = 0; j < widthList.size(); j++)
+	{
+
+		LaneWidth *width = widthList.at(j);
+		if (calculateWidth)
+		{
+			/* iterate over all lanes */
+			*width -= parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart()); // alle Parameter summieren
+		}
+		else
+		{
+			*width += parentLaneSection_->getPolynomialSum(id_ - laneside, laneside, width->getSSectionStart());
+		}
+
+	}
+
+}
+
 
 //####################//
 // RoadMark Functions //

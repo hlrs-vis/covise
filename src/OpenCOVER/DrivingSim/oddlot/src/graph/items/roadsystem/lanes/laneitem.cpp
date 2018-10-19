@@ -409,16 +409,8 @@ LaneItem::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 	{
 		setCursor(Qt::CrossCursor);
 
-		double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd()) - parentLaneSection_->getSStart();
-		double t;
-		if (lane_->getId() > 0)
-		{
-			t = parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - 1, s) + lane_->getWidth(s) / 2;
-		}
-		else
-		{
-			t = -parentLaneSection_->getLaneSpanWidth(0, lane_->getId() + 1, s) - lane_->getWidth(s) / 2;
-		}
+		double s = grandparentRoad_->getSFromGlobalPoint(event->pos(), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
+		double t = parentLaneSection_->getTValue(lane_, s, lane_->getWidth(s - parentLaneSection_->getSStart()));
 
 		parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->updatePos(parentLaneSectionItem_->getParentRoadItem(), grandparentRoad_->getGlobalPoint(s, t), parentLaneSection_->getSStart(), parentLaneSection_->getSEnd());
 		parentLaneSectionItem_->getLaneEditor()->getAddWidthHandle()->show();
