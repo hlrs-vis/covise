@@ -106,8 +106,11 @@ public:
 
         if (fabs(lowSlot_->getLength() - lowSlot_->getParentLane()->getParentLaneSection()->getSEnd()) < NUMERICAL_ZERO6)
         {
-            QAction *removeAction = getContextMenu()->actions().at(0);
-            getContextMenu()->removeAction(removeAction);
+			if (getContextMenu()->actions().size() > 2)
+			{
+				QAction *removeAction = getContextMenu()->actions().at(0);
+				getContextMenu()->removeAction(removeAction);
+			}
         }
 
         // Transformation //
@@ -144,8 +147,11 @@ public:
 
         if (highSlot_->getParentLane()->getWidthEntry(0.0) == highSlot_)
         {
-            QAction *removeAction = getContextMenu()->actions().at(0);
-            getContextMenu()->removeAction(removeAction);
+			if (getContextMenu()->actions().size() > 2)
+			{
+				QAction *removeAction = getContextMenu()->actions().at(0);
+				getContextMenu()->removeAction(removeAction);
+			}
         }
 
         // Transformation //
