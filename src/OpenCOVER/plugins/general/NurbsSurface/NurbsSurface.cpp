@@ -995,7 +995,7 @@ void NurbsSurface::surfaceInfo::updateModel()
     real_2d_array covarianceMatrix;
     //covarianceMatrix.setlength(3,3);
     covm(pointsRelativeToCentroid, covarianceMatrix);
-    fprintf(stderr, "Covariance matrix has length: %i x %i \n", covarianceMatrix.rows(), covarianceMatrix.cols());
+    fprintf(stderr, "Covariance matrix has length: %li x %li \n", (long)covarianceMatrix.rows(), (long)covarianceMatrix.cols());
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[0][0], covarianceMatrix[0][1], covarianceMatrix[0][2]);
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[1][0], covarianceMatrix[1][1], covarianceMatrix[1][2]);
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[2][0], covarianceMatrix[2][1], covarianceMatrix[2][2]);

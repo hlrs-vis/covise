@@ -204,8 +204,8 @@ void lower_degree_and_subdivide(SISLSurf **srf,
   }
 
   freeSurf(tmp);
-  delete new_u;
-  delete new_v;
+  delete[] new_u;
+  delete[] new_v;
 }
 
 

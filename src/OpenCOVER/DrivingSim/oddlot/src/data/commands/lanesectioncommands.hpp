@@ -641,7 +641,7 @@ public:
 
 		// Check for validity //
 		//
-		if ((!low || !high) && (parentLane_ != high->getParentLane()) // not the same parents
+		if (((!low || !high) && parentLane_ != high->getParentLane()) // not the same parents
 			|| (fabs(high->getSSectionStartAbs() - low->getSSectionEnd()) > NUMERICAL_ZERO6 )) // not consecutive
 		{
 			setInvalid(); // Invalid
