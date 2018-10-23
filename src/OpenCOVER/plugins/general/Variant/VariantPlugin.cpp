@@ -71,7 +71,8 @@ bool VariantPlugin::init()
         variant_menu = new ui::Menu("Variants", this);
 
         options_menu = new ui::Menu(variant_menu, "Options");
-        showHideLabels = new ui::Button(options_menu, "Show Labels");
+        showHideLabels = new ui::Button(options_menu, "ShowLabels");
+        showHideLabels->setText("Show labels");
         showHideLabels->setState(false);
         showHideLabels->setCallback([this](bool state){
             if (state)
@@ -86,7 +87,8 @@ bool VariantPlugin::init()
             tui_showLabel->setState(state);
         });
 
-        roi_menu = new ui::Menu(variant_menu, "Region of Interest");
+        roi_menu = new ui::Menu(variant_menu, "RegionOfInterest");
+        roi_menu->setText("Region of interest");
         define_roi = new ui::Button(roi_menu, "Define");
         define_roi->setState(false);
         define_roi->setCallback([this](bool state){
