@@ -58,13 +58,11 @@ do
     echo -e "${MENU}-----${TYP} LKA ${MENU}-----------------------------------"
     echo -e "${MENU} ${OPT} 41)  ${MENU} Gasthaus                  "
     echo -e "${MENU} ${OPT} 42)  ${MENU} Schweizer Autobus         "
-    echo -e "${MENU} ${OPT} 43)  ${MENU} Autohaus               CA "
-    echo -e "${MENU} ${OPT} 44)  ${MENU} Schule                 CA "
-    echo -e "${MENU} ${OPT} 45)  ${MENU} Sporthalle                "
-    echo -e "${MENU} ${OPT} 46)  ${MENU} Blutspuranalyse - UTM: CrimeHouse   "
-    echo -e "${MENU} ${OPT} 47)  ${MENU} Blutspuranalyse - UTM: Cardoor      "   
-    echo -e "${MENU} ${OPT} 48)  ${MENU} Car Crash                 "
-    echo -e "${MENU} ${OPT} 49)  ${MENU} Rollercrash               "
+    echo -e "${MENU} ${OPT} 43)  ${MENU} Sporthalle                "
+    echo -e "${MENU} ${OPT} 44)  ${MENU} Blutspuranalyse - UTM: CrimeHouse   "
+    echo -e "${MENU} ${OPT} 45)  ${MENU} Blutspuranalyse - UTM: Cardoor      "   
+    echo -e "${MENU} ${OPT} 46)  ${MENU} Car Crash                 "
+    echo -e "${MENU} ${OPT} 47)  ${MENU} Rollercrash               "
 
     echo -e "${MENU}-----${TYP} MolecularDynamics ${MENU}---------------------"
     echo -e "${MENU} ${OPT} 51)  ${MENU} IMWF      "
@@ -80,16 +78,18 @@ do
 
     echo -e "${MENU}-----${TYP} Volume Rendering ${MENU}----------------------"
     echo -e "${MENU} ${OPT} 61)  ${MENU} skull                     "
-    echo -e "${MENU} ${OPT} 62)  ${MENU} knee                      "
+    echo -e "${MENU} ${OPT} 62)  ${MENU} ant head                      "
+    echo -e "${MENU} ${OPT} 63)  ${MENU} Ruderfusskrebs                "	
+    echo -e "${MENU} ${OPT} 64)  ${MENU} Coral                "	
 
     echo -e "${MENU}-----${TYP} Art ${MENU}---------------------------------"
 
-    echo -e "${MENU} ${OPT} 64)  ${MENU} Jeremy                "    
-    echo -e "${MENU} ${OPT} 65)  ${MENU} Infinities                "  
-    echo -e "${MENU} ${OPT} 66)  ${MENU} Fendi                     "
-    echo -e "${MENU} ${OPT} 67)  ${MENU} Benjamin virtual museum   "
-    echo -e "${MENU} ${OPT} 68)  ${MENU} Gyjho Frank virtual museum   "
-    echo -e "${MENU} ${OPT} 69)  ${MENU} Gabi Bingula"
+    echo -e "${MENU} ${OPT} 65)  ${MENU} Jeremy                "    
+    echo -e "${MENU} ${OPT} 66)  ${MENU} Infinities                "  
+    echo -e "${MENU} ${OPT} 67)  ${MENU} Fendi                     "
+    echo -e "${MENU} ${OPT} 68)  ${MENU} Benjamin virtual museum   "
+    echo -e "${MENU} ${OPT} 69)  ${MENU} Gyjho Frank virtual museum   "
+    echo -e "${MENU} ${OPT} 70)  ${MENU} Gabi Bingula"
 
     echo -e "${MENU}-----${TYP} Misc. ${MENU}---------------------------------"
     echo -e "${MENU} ${OPT} 71)  ${MENU} Draeger OP                "
@@ -113,24 +113,31 @@ do
     echo -e "${MENU} ${OPT} 87)  ${MENU} start COVER: Town         "
     echo -e "${MENU} ${OPT} 88)  ${MENU} start FaSi: Laguna Seca   "
     echo -e "${MENU} ${OPT} 89)  ${MENU} start COVER: Laguna Seca  "
-    echo -e "${MENU} ${OPT} 90)  ${MENU} start FaSi: Nuerburgring   "
-    echo -e "${MENU} ${OPT} 91)  ${MENU} start COVER: Nuerburgring  "
-
+    echo -e "${MENU} ${OPT} 90)  ${MENU} start FaSi: Nuerburgring  "
+    echo -e "${MENU} ${OPT} 91)  ${MENU} start COVER: Nuerburgring "
+    echo -e "${MENU} ${OPT} 95)  ${MENU} Glider	                   "
+    
     echo -e "${MENU}-----${TYP} SYSTEM ${MENU}--------------------------------"
-    echo -e "${MENU} ${OPT} 92)  ${MENU} kill OpenCOVER            "
-    echo -e "${MENU} ${OPT} 93)  ${MENU} TiledDisplay ON           "
-    echo -e "${MENU} ${OPT} 94)  ${MENU} TiledDisplay OFF          "
-    echo -e "${MENU} ${OPT} 95)  ${MENU} TiledDisplay 3D_ON        "
-    echo -e "${MENU} ${OPT} 96)  ${MENU} TiledDisplay 3D_OFF       "
-    echo -e "${MENU} ${OPT} 97)  ${MENU} TiledDisplay Video Wall ON"
-    echo -e "${MENU} ${OPT} 98)  ${MENU} CAVE: Frame lock on       "
-    echo -e "${MENU} ${OPT} 99)  ${MENU} CAVE: Frame lock off      "
-    echo -e "${MENU} ${OPT} 100)  ${MENU} Receiver: Toggle Mute	   "
-    echo -e "${MENU} ${OPT} 101)  ${MENU} Receiver: Volume Up 	   "
-    echo -e "${MENU} ${OPT} 102)  ${MENU} Receiver: Volume Down	   "
-    echo -e "${MENU} ${OPT} 103)  ${MENU} Receiver: Input: Video 1 "
-    echo -e "${MENU} ${OPT} 104)  ${MENU} Receiver: Input: Aux	   "
-    echo -e "${MENU} ${OPT} 110)  ${MENU} Glider	   "
+    echo -e "${MENU} ${OPT} 100) ${MENU} CAVE: Frame lock on       "
+    echo -e "${MENU} ${OPT} 101) ${MENU} CAVE: Frame lock off      "
+    echo -e "${MENU} ${OPT} 102) ${MENU} killall OpenCOVER            "    
+
+    echo -e "${MENU}-----${TYP} SYSTEM (tiled display - video)${MENU}---------"
+    echo -e "${MENU} ${OPT} 110) ${MENU} TiledDisplay ON           "
+    echo -e "${MENU} ${OPT} 111) ${MENU} TiledDisplay OFF          "
+    echo -e "${MENU} ${OPT} 112) ${MENU} TiledDisplay 3D_ON        "
+    echo -e "${MENU} ${OPT} 113) ${MENU} TiledDisplay 3D_OFF       "
+    echo -e "${MENU} ${OPT} 114) ${MENU} TiledDisplay DVI          "
+    echo -e "${MENU} ${OPT} 115) ${MENU} TiledDisplay HDMI         "
+    echo -e "${MENU} ${OPT} 116) ${MENU} TiledDisplay Video Wall ON"
+    echo -e "${MENU} ${OPT} 117) ${MENU} TiledDisplay Video Wall OFF"
+
+    echo -e "${MENU}-----${TYP} SYSTEM (tiled display - audio)${MENU}---------"
+    echo -e "${MENU} ${OPT} 120) ${MENU} Receiver: Toggle Mute	   "
+    echo -e "${MENU} ${OPT} 121) ${MENU} Receiver: Volume Up 	   "
+    echo -e "${MENU} ${OPT} 122) ${MENU} Receiver: Volume Down	   "
+    echo -e "${MENU} ${OPT} 123) ${MENU} Receiver: Input: Video 1 "
+    echo -e "${MENU} ${OPT} 124) ${MENU} Receiver: Input: Aux	   "
     echo -e "                                                      "
     echo -e "${MENU} ${OPT}  q)  ${MENU} exit this menu            "
     echo -e "${MENU}---------------------------------------------"
@@ -205,14 +212,14 @@ do
 	    echo -e "starting Cyclist";
             covise -e /data/covise_net/2016/Radfahrer.net
 	    ;;
-    19)
-        echo -e "starting Motorbike";
+        19)
+            echo -e "starting Motorbike";
             covise -e /data/covise_net/2016/Maltes_motorrad_read.net
-        ;;
-    20)
-        echo -e "starting Wasserflugzeug";
+            ;;
+        20)
+            echo -e "starting Wasserflugzeug";
             covise -e /data/covise_net/2017/cowling_evaluate_05k4.net
-        ;;
+            ;;
 
 # ARCHEOLOGY
 
@@ -272,23 +279,15 @@ do
             opencover /data/LKA/InternetCafee/ReisebusMrdTimesteps.wrl
 	    ;;
 	43)
-	    echo -e "starting Autohaus";
-            opencover /data/LKA/WinWenn/Wendlingen_Ind_Wert.WRL
-	    ;;
-	44)
-	    echo -e "starting Schule";
-            opencover /data/LKA/WinWenn/winnenden_schule.WRL
-	    ;;
-	45)
 	    echo -e "starting Sporthalle";
             opencover /data/LKA/Sporthalle/HalleSortedGroesser.ptsb
 	    ;;
-	46)
+	44)
 	    echo -e "starting Blutspuranalyse 1 ";
 	    cd /data/UTM
 	    opencover testroom.wrl Trajectories.bpadxf
 	    ;;
-	47)
+	45)
 	    echo -e "starting Blutspuranalyse 2 ";
             cd /data/UTM/BloodstainTests/Trial10
             opencover Trial10PointCloudSorted.ptsb Trajectories-Calculated\ Origin.bpadxf 
@@ -297,12 +296,12 @@ do
 # /data/UTM/Parkinglot
 # Parkinglot2mm.sorted.ptsb
 
-	48)
+	46)
 	    echo -e "starting Car Crash";
             opencover /data/pointclouds/riegl/RIEGL_carcrash2_sorted.ptsb
 	    ;;
 
-	49)
+	47)
 	    echo -e "starting Rollercrash";
             /data/visdral/rollercrash/ptsb
             opencover RollerLiegendSorted.ptsb
@@ -354,42 +353,51 @@ do
 	    ;;
 
 	62)
-	    echo -e "starting knee";
-            opencover /data/VolData/vhd/female-knee-marked3.xvf
+	    echo -e "starting ant";
+            opencover /data/UCD/VisionAIr/antfusedhead.tif
 	    ;;
+
+	63)
+	    echo -e "starting Ruderfusskrebs";
+            opencover /data/UCD/VisionAIr/Z1copepod_transf.xvf
+	    ;;
+
+	64)
+	    echo -e "starting Coral";
+            opencover "/data/UCD/VisionAIr/Coral/Coral fluorescence 1 MAX.obj"
+	    ;;
+
 
 # Art
 
-        64)
+        65)
             echo -e "starting Jeremy";
             opencover cover://plugin/Midi /data/Jeremy/spaceGridWithoutSpiral.wrl
 	    ;;
-        65)
+        66)
             echo -e "starting Infinities";
             opencover /data/Labyrinth/labSoundNew.wrl
 	    ;;
-        66)
+        67)
             echo -e "starting FENDI";
             opencover /data/FENDI/wrl/praesentation.wrl
 	    ;;
 	    
-        67)
+        68)
             echo -e "Benjamin Spaet";
             opencover /data/architekten/architekten/caveAEC/praesentation.wrl
 	    ;;
 	    
-        68)
+        69)
             echo -e "Gyjho";
             opencover /data/visenso/Some_Demos_2014/Museum/museum_neu/plattform_k.WRL
 	    ;;
 	    
-        69)
+        70)
             echo -e "Gabi Bingula";
             opencover /data/architekten/architekten/GABI/dist/praesentation.wrl
 	    ;;
-	    
-		
-		
+	    		
 # MISC
 	71)
 	    echo -e "starting Draeger OP";
@@ -481,81 +489,94 @@ do
 
 	    opencover /data/porsche/lagunaseca/lagunaseca9.xodr 
 	    ;;
-# SYSTEM
 	90)
 	    echo -e "starting FaSi: Nr";
 	    ssh covise2@192.168.0.74 "cd /data/porsche/nr/ && fasi nr10.xodr > /dev/null 2>&1"&
 	    ;;
 	91)
 	    echo -e "starting OpenCOVER: NR";
-
 	    opencover /data/porsche/nr/nr11.xodr 
 	    ;;
+        95)
+	    echo -e "Starting Paraglider Flightsim Ctrl-P Ctrl-U in flightgear Ctrl-r in Opencover"
+	    export COCONFIG=config.flightgear.hlrs
+	    opencover /data/paraglider/FlightGearParaglider2.wrl
+	    ;;
+
+
 # SYSTEM
 
-	92)
+        100)
+            echo -e "CAVE: Frame lock on"
+            framelock-cave on
+            ;;
+	101)
+            echo -e "CAVE: Frame lock off"
+            framelock-cave off
+            ;;
+
+	102)
 	    echo -e "killing OpenCOVER";
 	    doallp killall opencover
 	    ;;
-	93)
+
+# SYSTEM (tiled display - video)
+	    	    
+	110)
 	    echo -e "turn on tiled display"
-	    samsungctrl power on
-        samsungctrl video_wall off
+	    sasuctrl on
 	    ;;
-	94)
+	111)
 	    echo -e "turn off tiled display"
-	    samsungctrl power off
+	    sasuctrl off
 	    ;;
-	95)
+	112)
 	    echo -e "turn on 3D mode & frame lock"
-            #framelock-powerwall on
-            #sleep 3
 	    sasuctrl 3d_on
 	    ;;
-	96)
+	113)
 	    echo -e "turn off 3D mode & frame lock"
 	    sasuctrl 3d_off
-	    #sleep 3
-            #framelock-powerwall off
 	    ;;
-	97)
-	    echo -e "switch tiled display to video wall mode"
-        samsungctrl video_wall on
+	114)
+	    echo -e "switch tiled display to DVI input"
+	    sasuctrl dvi
 	    ;;
-    98)
-        echo -e "CAVE: Frame lock on"
-        framelock-cave on
-        ;;
-    99)
-        echo -e "CAVE: Frame lock off"
-        framelock-cave off
-        ;;
-   100)
-	echo -e "Receiver: Toggle Mute"
-	sasuctrl kenwoodMute
-	;;
-   101)
-	echo -e "Receiver: Volume Up"
-	sasuctrl kenwoodVolUp
-	;;
-   102)
-	echo -e "Receiver: Volume Down"
-	sasuctrl kenwoodVolDown
-	;;
-   103)
-	echo -e "Receiver: Switch Input: Video 1"
-	sasuctrl kenwoodVideo
-	;;
-   104)
-	echo -e "Receiver: Switch Input: Aux"
-	sasuctrl kenwoodAux
-	;;
-   110)
-    echo -e "Starting Paraglider Flightsim Ctrl-P Ctrl-U in flightgear Ctrl-r in Opencover"
-    export COCONFIG=config.flightgear.hlrs
-    opencover /data/paraglider/FlightGearParaglider2.wrl
-    ;;
+	115)
+	    echo -e "switch tiled display to HDMI input"
+    	    sasuctrl hdmi
+	    ;;
+	116)
+	    echo -e "switch tiled display video wall mode on"
+            sasuctrl vwall_on
+	    ;;
+	117)
+	    echo -e "switch tiled display video wall mode off"
+            sasuctrl vwall_off
+	    ;;
 
+# SYSTEM (tiled dispay - audio)
+
+	120)
+	    echo -e "Receiver: Toggle Mute"
+	    sasuctrl kenwoodMute
+	    ;;
+	121)
+	    echo -e "Receiver: Volume Up"
+	    sasuctrl kenwoodVolUp
+	    ;;
+        122)
+	    echo -e "Receiver: Volume Down"
+	    sasuctrl kenwoodVolDown
+	    ;;
+        123)
+	    echo -e "Receiver: Switch Input: Video 1"
+	    sasuctrl kenwoodVideo
+	    ;;
+        124)
+	    echo -e "Receiver: Switch Input: Aux"
+	    sasuctrl kenwoodAux
+	    ;;
 
 # MENU
 
