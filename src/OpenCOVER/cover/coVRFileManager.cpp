@@ -32,6 +32,7 @@
 #include "coVRConfig.h"
 #include "coVRRenderer.h"
 #include <util/string_util.h>
+#include "ui/Owner.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
@@ -661,7 +662,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     bool isRoot = m_loadingFile==nullptr;
     ui::Button *button = nullptr;
-    if (isRoot)
+    if (cover && isRoot)
     {
         button = new ui::Button(m_fileGroup, std::string("File"+std::to_string(m_loadCount++)));
     }
@@ -892,54 +893,51 @@ void coVRFileManager::unloadFile(const char *file)
 coVRFileManager *coVRFileManager::instance()
 {
     if (!s_instance)
-    {
         s_instance = new coVRFileManager;
-    }
     return s_instance;
 }
 
 coVRFileManager::coVRFileManager()
-    : ui::Owner("FileManager",cover)
-    , fileHandlerList()
+    : fileHandlerList()
 {
-    assert(!s_instance);
-    if(cover)
-    {
-
-    auto fileOpen = new ui::FileBrowser("OpenFile", this);
-    fileOpen->setText("Open");
-    fileOpen->setFilter(getFilterList());
-    cover->fileMenu->add(fileOpen);
-    fileOpen->setCallback([this](const std::string &file){
-        loadFile(file.c_str());
-    });
-
-    m_fileGroup = new ui::Group("LoadedFiles", this);
-    m_fileGroup->setText("Files");
-    cover->fileMenu->add(m_fileGroup);
-
-    auto fileReload = new ui::Action("ReloadFile", this);
-    cover->fileMenu->add(fileReload);
-    fileReload->setText("Reload file");
-    fileReload->setCallback([this](){
-        reloadFile();
-    });
-
-    auto fileSave = new ui::FileBrowser("SaveFile", this, true);
-    fileSave->setText("Save");
-    fileSave->setFilter(getWriteFilterList());
-    cover->fileMenu->add(fileSave);
-    fileSave->setCallback([this](const std::string &file){
-        if (coVRMSController::instance()->isMaster())
-            VRSceneGraph::instance()->saveScenegraph(file);
-    });
-    }
-
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
 
-    if (cover != NULL)
+    assert(!s_instance);
+
+    if (cover) {
+        m_owner.reset(new ui::Owner("FileManager", cover->ui));
+
+        auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
+        fileOpen->setText("Open");
+        fileOpen->setFilter(getFilterList());
+        cover->fileMenu->add(fileOpen);
+        fileOpen->setCallback([this](const std::string &file){
+                loadFile(file.c_str());
+        });
+
+        m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
+        m_fileGroup->setText("Files");
+        cover->fileMenu->add(m_fileGroup);
+
+        auto fileReload = new ui::Action("ReloadFile", m_owner.get());
+        cover->fileMenu->add(fileReload);
+        fileReload->setText("Reload file");
+        fileReload->setCallback([this](){
+                reloadFile();
+        });
+
+        auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
+        fileSave->setText("Save");
+        fileSave->setFilter(getWriteFilterList());
+        cover->fileMenu->add(fileSave);
+        fileSave->setCallback([this](const std::string &file){
+                if (coVRMSController::instance()->isMaster())
+                VRSceneGraph::instance()->saveScenegraph(file);
+        });
+
         cover->getUpdateManager()->add(this);
+    }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
 }
