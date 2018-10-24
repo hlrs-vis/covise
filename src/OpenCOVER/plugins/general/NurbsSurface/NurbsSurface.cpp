@@ -398,8 +398,10 @@ void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveI
         auto nx = std::next(it, 1);
         if (nx == receivedBoundaryPoints.end())
         {
-            nx==receivedBoundaryPoints.begin();
+            nx=receivedBoundaryPoints.begin();
         }
+        fprintf(stderr,"Point 1 x: %f  y: %f\n",it->x(),it->y());
+        fprintf(stderr,"Point 1 x: %f  y: %f\n",nx->x(),nx->y());
         curveInfo boundaryCurve;
         edgeByPoints(receivedPoints, *it, *nx, boundaryCurve);
         curves.push_back(boundaryCurve);
@@ -631,6 +633,7 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
 
 int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, Vec3 pointBegin, Vec3 pointEnd, curveInfo &resultCurveInfo)
 {
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints\n");
     SISLCurve *result_curve = 0;
     //int numPoints = all_points.size();
     std::vector<Vec3> all_points;
@@ -642,7 +645,8 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
     Matrixd inverseRotationMatrix;
     Vec3 unitAxis = Vec3(1.0, 0.0, 0.0);
     rotationMatrix.makeRotate(edgeDirection,unitAxis);
-    inverseRotationMatrix.inverse(rotationMatrix);
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotation\n");
 
     Vec3 pointBeginLocal = rotationMatrix * pointBegin;
     Vec3 pointEndLocal = rotationMatrix * pointEnd;
@@ -659,6 +663,9 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
         pointBeginLocal = rotationMatrix * pointBegin;
         Vec3 pointEndLocal = rotationMatrix * pointEnd;
     }
+    inverseRotationMatrix.inverse(rotationMatrix);
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotated points\n");
 
     for (auto it=selectedPoints.begin(); it!=selectedPoints.end(); it++)
     {
@@ -675,11 +682,14 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
 
     float minimum_x = pointBeginLocal.x();
     float maximum_x = pointEndLocal.x();
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints minimum x= %f, maximum x=%f \n",minimum_x, maximum_x);
 
     std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
     maximumPointsInAllQuadrants.resize(numEdgeSectors, nullptr);
     real_1d_array LocalXForFirstCurve;
     real_1d_array LocalYForFirstCurve;
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints finding sectors with maximum\n");
 
     int numberOfSectorsWithMaximum = 0;
     for(auto it=all_points.begin(); it != all_points.end(); it++)
@@ -699,6 +709,7 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
             }
         }
     }
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints numberOfSectorsWithMaximum = %i\n", numberOfSectorsWithMaximum);
     //initialize spline firstCurveWithMaximumPointsPerQuadrant
     ae_int_t degree = 3;
 
@@ -708,7 +719,7 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
 
     //initialize spline curve
     barycentricinterpolant curve;
-
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints interpolating first curve\n");
     if (numberOfSectorsWithMaximum > 1)
     {
         LocalXForFirstCurve.setlength(numberOfSectorsWithMaximum);
@@ -718,11 +729,15 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
 
         for(std::vector<Vec3*>::iterator it = maximumPointsInAllQuadrants.begin(); it != maximumPointsInAllQuadrants.end(); it++)
         {
-            LocalXForFirstCurve[countFirstCurve] = (*it)->x();
-            LocalYForFirstCurve[countFirstCurve] = (*it)->y();
-            countFirstCurve++;
+            if (*it)
+            {
+                LocalXForFirstCurve[countFirstCurve] = (*it)->x();
+                LocalYForFirstCurve[countFirstCurve] = (*it)->y();
+                countFirstCurve++;
+            }
         }
 
+        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints building first curve out of maximum points per quadrant\n");
         //built first curve out of maximum points per quadrant
         polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, firstCurveWithMaximumPointsPerQuadrant, repo);
 
@@ -736,7 +751,7 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
                 pointsAboveCurve.push_back(*it);
             }
         }
-
+        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointsAboveCurve = %i\n", pointsAboveCurve.size());
         real_1d_array LocalXForSecondCurve;
         real_1d_array LocalYForSecondCurve;
 
@@ -774,15 +789,20 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
         for (int i=0; i!=num_points; i++)
         {
             double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
-            pointsSISLCurve[i*2+1]=barycentriccalc(curve,x);
-            pointsSISLCurve[i*2]=x;
+            double y = barycentriccalc(curve,x);
+            double z = averageZ;
+            osg::Vec3 pointRotated = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            osg::Vec3 point = inverseRotationMatrix * pointRotated;
+            pointsSISLCurve[i*2]=point.x();
+            pointsSISLCurve[i*2+1]=point.y();
             type[i]=1;
-            osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            //osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
             point = rotationMatrixToWorld * point;
             highlightPoint(point);
             //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
         }
         const double cstartpar = 0;
+            fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints trying sisl curve\n");
         try
         {
             double cendpar;
