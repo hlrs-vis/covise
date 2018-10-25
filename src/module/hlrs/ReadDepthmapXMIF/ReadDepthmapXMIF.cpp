@@ -205,7 +205,7 @@ int ReadDepthmapXMIF::readLines()
 			{
 				return STOP_PIPELINE;
 			}
-		} while (strncasecmp(buf, "LINE", 4) != 0);
+		} while ((strncasecmp(buf, "LINE", 4) != 0) && (strncasecmp(buf, "Pline", 5) != 0));
 
 		while (!feof(d_linesFile))
 		{
@@ -250,6 +250,44 @@ int ReadDepthmapXMIF::readLines()
 
 						
 				} while (*c == ' ' || *c == '-' || (*c >= '0' && *c <= '9'));
+			}
+			else if((strncasecmp(buf, "Pline", 5) == 0))
+			{
+			    int numVertices=0;
+			    sscanf(buf+6,"%d",&numVertices);
+			        Vlines.push_back(numRows);
+				numLines++;
+			        nextLine(d_linesFile);
+				for(int i=0;i<numVertices; i++)
+				{
+				
+				        char *c = buf;
+					float x = 0,y = 0;
+					while (*c == ' ' && *c != '\0') // skip whitespace until we have the next pair of numbers
+					{
+						c++;
+					}
+					if ((*c >= '0' && *c <= '9')|| *c == '-') // we got a number
+					{
+						sscanf(c, "%f", &x);
+					}
+					while (*c != ' ' && *c != '\0') // skip number
+					{
+						c++;
+					}
+					while (*c == ' ' && *c != '\0') // skip whitespace until we have the next pair of numbers
+					{
+						c++;
+					}
+					if ((*c >= '0' && *c <= '9') || *c == '-') // we got a number
+					{
+						sscanf(c, "%f", &y);
+						VxCoords.push_back(x);
+						VyCoords.push_back(y);
+						numRows++;
+					}
+			          nextLine(d_linesFile);
+				}
 			}
 			nextLine(d_linesFile);
 		}
