@@ -404,6 +404,14 @@ float MapDrape::getAlt(double x, double y)
 {
     int col = int((x - xOrigin) / pixelWidth);
     int row = int((yOrigin - y) / pixelHeight);
+    if (col < 0)
+        col = 0;
+    if (col >= cols)
+        col = cols-1;
+    if (row < 0)
+        row = 0;
+    if (row >= rows)
+        row = rows - 1;
     return rasterData[col + (row*cols)];
 	float *pafScanline;
 	int   nXSize = heightBand->GetXSize();
