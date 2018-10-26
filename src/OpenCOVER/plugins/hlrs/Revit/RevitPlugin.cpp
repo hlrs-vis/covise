@@ -2162,6 +2162,7 @@ TextureInfo::TextureInfo(TokenBuffer & tb)
 	tb >> g;
 	tb >> b;
 	amount = 1.0;
+	requestTexture=false;
 }
 
 MaterialInfo::MaterialInfo(TokenBuffer & tb)
