@@ -606,7 +606,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 	else if ((currentTool == ODD::TSG_SIGNAL) || (currentTool == ODD::TSG_OBJECT))
     {
         //QPointF mousePoint = mouseAction->getEvent()->scenePos();
-        if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP)//MouseAction::ATM_PRESS)
+        if (mouseAction->getMouseActionType() == MouseAction::ATM_DROP) //|| MouseAction::ATM_PRESS)
         {
             QGraphicsSceneDragDropEvent *mouseEvent = mouseAction->getDragDropEvent();
             QPointF mousePoint = mouseEvent->scenePos();
@@ -626,7 +626,7 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 					{
 						if (currentTool == ODD::TSG_SIGNAL)
 						{
-							addSignalToRoad(road, s, t);   
+                            addSignalToRoad(road, s, t);
 						}
 						else
 						{
@@ -635,7 +635,15 @@ SignalEditor::mouseAction(MouseAction *mouseAction)
 					}
 				}
             //}
-		}
+        }
+        else if (mouseAction->getMouseActionType() == MouseAction::ATM_DOUBLECLICK)
+        {
+            //opens the ui for shieldeditor
+
+            /*QMessageBox msg;
+            msg.setText("HELLO!");
+            msg.exec();*/
+        }
 	}
 
     //	ProjectEditor::mouseAction(mouseAction);
