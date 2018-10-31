@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 #include <osgGA/GUIActionAdapter>
 #include <osgGA/GUIEventAdapter>
@@ -65,6 +66,14 @@ void Manager::remove(Owner *owner)
 
 void Manager::remove(Element *elem)
 {
+    auto nit = std::find(m_newElements.begin(), m_newElements.end(), elem);
+    if (nit != m_newElements.end())
+    {
+        // an element is removed, before it was ever updated
+        elem->m_parent = nullptr;
+        m_newElements.erase(nit);
+    }
+
     //std::cerr << "DESTROY: " << elem->path() << std::endl;
     auto it = m_elements.find(elem->m_order);
     if (it != m_elements.end())
