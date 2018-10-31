@@ -280,6 +280,7 @@ bool ARUCOPlugin::init()
 bool ARUCOPlugin::destroy()
 {
     delete uiMenu;
+    return true;
 }
 
 // ----------------------------------------------------------------------------
