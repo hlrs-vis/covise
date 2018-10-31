@@ -1,0 +1,11 @@
+using(JSBSIM)
+
+SET(HEADERS
+  JSBSim.h
+)
+SET(SOURCES
+  JSBSim.cpp
+)
+cover_add_plugin(JSBSim)
+TARGET_LINK_LIBRARIES(JSBSim)
+#COVER_INSTALL_PLUGIN(JSBSim)
