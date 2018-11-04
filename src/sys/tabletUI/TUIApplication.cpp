@@ -18,6 +18,7 @@
 #undef setw
 #endif
 
+
 #include <QSocketNotifier>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -50,7 +51,7 @@
 #include <config/coConfig.h>
 #endif
 
-#include "TUIApplication.h"
+
 #include "TUITab.h"
 #include "TUITextureTab.h"
 #include "TUISGBrowserTab.h"

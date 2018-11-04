@@ -4,7 +4,9 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-
+#ifdef HAVE_WIRING_PI
+#include "Thyssen.h"
+#endif
 #ifndef TUIAPPLICATION_H
 #define TUIAPPLICATION_H
 #include <list>

@@ -1,4 +1,4 @@
-USING(Virvo optional) # for transfer function editor
+#USING(Virvo optional) # for transfer function editor
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
