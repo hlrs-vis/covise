@@ -22,7 +22,7 @@
 /*! \brief The constructor does nothing special.
 *
 */
-RSystemElement::RSystemElement(const QString &name, const QString &id, DRoadSystemElementType elementType)
+RSystemElement::RSystemElement(const QString &name, const odrID &id, DRoadSystemElementType elementType)
     : DataElement()
     , elementType_(elementType)
     , parentRoadSystem_(NULL)
@@ -55,7 +55,7 @@ RSystemElement::setRoadSystem(RoadSystem *parentRoadSystem)
 QString
 RSystemElement::getIdName() const
 {
-    QString text = id_;
+    QString text = id_.speakingName();
     if (!name_.isEmpty())
     {
         text.append(" (");
@@ -69,24 +69,17 @@ void
 RSystemElement::setName(const QString &name)
 {
     name_ = name;
+	id_.setName(name);
     addRSystemElementChanges(RSystemElement::CRE_NameChange);
 }
 
 void
-RSystemElement::setID(const QString &id)
+RSystemElement::setID(const odrID &id)
 {
     id_ = id;
     addRSystemElementChanges(RSystemElement::CRE_IdChange);
 }
 
-QString
-RSystemElement::getNewId(RSystemElement *element, QString &name)
-{
-    QStringList parts = element->getID().split("_");
-    QString newId = parts.at(0) + "_" + parts.at(1) + "_" + name;
-
-    return newId;
-}
 
 //##################//
 // Observer Pattern //

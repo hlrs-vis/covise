@@ -83,7 +83,7 @@ int PolygonSet::compute(const char *port)
             sprintf(objName, "%s_%d", outputObjectName, i);
 
             // create the first polygon object
-            polygonObjects[i] = createCube(objName, i * 2.0, 0.0, 0.0, 1.0);
+            polygonObjects[i] = createCube(objName, i * 2.0f, 0.0f, 0.0f, 1.0f);
         }
 
         // create the set obejct
@@ -141,37 +141,37 @@ PolygonSet::createCube(char *objectName, float cx, float cy, float cz, float siz
     //  .       . .
     //  0.......3
 
-    xCoords[0] = cx - 0.5 * size;
-    yCoords[0] = cy - 0.5 * size;
-    zCoords[0] = cz - 0.5 * size;
+    xCoords[0] = cx - 0.5f * size;
+    yCoords[0] = cy - 0.5f * size;
+    zCoords[0] = cz - 0.5f * size;
 
-    xCoords[1] = cx - 0.5 * size;
-    yCoords[1] = cy + 0.5 * size;
-    zCoords[1] = cz - 0.5 * size;
+    xCoords[1] = cx - 0.5f * size;
+    yCoords[1] = cy + 0.5f * size;
+    zCoords[1] = cz - 0.5f * size;
 
-    xCoords[2] = cx + 0.5 * size;
-    yCoords[2] = cy + 0.5 * size;
-    zCoords[2] = cz - 0.5 * size;
+    xCoords[2] = cx + 0.5f * size;
+    yCoords[2] = cy + 0.5f * size;
+    zCoords[2] = cz - 0.5f * size;
 
-    xCoords[3] = cx + 0.5 * size;
-    yCoords[3] = cy - 0.5 * size;
-    zCoords[3] = cz - 0.5 * size;
+    xCoords[3] = cx + 0.5f * size;
+    yCoords[3] = cy - 0.5f * size;
+    zCoords[3] = cz - 0.5f * size;
 
-    xCoords[4] = cx - 0.5 * size;
-    yCoords[4] = cy - 0.5 * size;
-    zCoords[4] = cz + 0.5 * size;
+    xCoords[4] = cx - 0.5f * size;
+    yCoords[4] = cy - 0.5f * size;
+    zCoords[4] = cz + 0.5f * size;
 
-    xCoords[5] = cx - 0.5 * size;
-    yCoords[5] = cy + 0.5 * size;
-    zCoords[5] = cz + 0.5 * size;
+    xCoords[5] = cx - 0.5f * size;
+    yCoords[5] = cy + 0.5f * size;
+    zCoords[5] = cz + 0.5f * size;
 
-    xCoords[6] = cx + 0.5 * size;
-    yCoords[6] = cy + 0.5 * size;
-    zCoords[6] = cz + 0.5 * size;
+    xCoords[6] = cx + 0.5f * size;
+    yCoords[6] = cy + 0.5f * size;
+    zCoords[6] = cz + 0.5f * size;
 
-    xCoords[7] = cx + 0.5 * size;
-    yCoords[7] = cy - 0.5 * size;
-    zCoords[7] = cz + 0.5 * size;
+    xCoords[7] = cx + 0.5f * size;
+    yCoords[7] = cy - 0.5f * size;
+    zCoords[7] = cz + 0.5f * size;
 
     // create the polygons data object
     polygonObj = new coDoPolygons(objectName, 8,

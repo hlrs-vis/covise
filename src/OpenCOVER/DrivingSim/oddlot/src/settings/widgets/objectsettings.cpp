@@ -108,6 +108,22 @@ ObjectSettings::ObjectSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->repeatLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->repeatDistanceSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatTStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatTStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatTEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatTEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatWidthStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatWidthStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatWidthEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatWidthEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatHeightStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatHeightStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatHeightEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatHeightEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatZOffsetStartSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatZOffsetStartSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
+	connect(ui->repeatZOffsetEndSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+	connect(ui->repeatZOffsetEndSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
     connect(ui->textureLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->textureLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
@@ -132,7 +148,7 @@ ObjectSettings::updateProperties()
     if (object_)
     {
         ui->nameBox->setText(object_->getModelFileName());
-        ui->idLabel->setText(object_->getId());
+        ui->idLabel->setText(object_->getId().speakingName());
         ui->sSpinBox->setValue(object_->getSStart());
         ui->tSpinBox->setValue(object_->getT());
         ui->zOffsetSpinBox->setValue(object_->getzOffset());
@@ -153,6 +169,14 @@ ObjectSettings::updateProperties()
         ui->repeatSSpinBox->setValue(object_->getRepeatS());
         ui->repeatLengthSpinBox->setValue(object_->getRepeatLength());
         ui->repeatDistanceSpinBox->setValue(object_->getRepeatDistance());
+		ui->repeatTStartSpinBox->setValue(object_->getRepeatTStart());
+		ui->repeatTEndSpinBox->setValue(object_->getRepeatTEnd());
+		ui->repeatWidthStartSpinBox->setValue(object_->getRepeatWidthStart());
+		ui->repeatWidthEndSpinBox->setValue(object_->getRepeatWidthEnd());
+		ui->repeatHeightStartSpinBox->setValue(object_->getRepeatHeightStart());
+		ui->repeatHeightEndSpinBox->setValue(object_->getRepeatHeightEnd());
+		ui->repeatZOffsetStartSpinBox->setValue(object_->getRepeatZOffsetStart());
+		ui->repeatZOffsetEndSpinBox->setValue(object_->getRepeatZOffsetEnd());
 
         ui->textureLineEdit->setText(object_->getTextureFileName());
     }
@@ -167,11 +191,11 @@ double ObjectSettings::
 
     if (t >= 0)
     {
-        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance;
+        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) + roadDistance;
     }
     else
     {
-        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance;
+        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) + object_->getParentRoad()->getLaneOffset(s) - roadDistance;
     }
 
     return dist;
@@ -202,7 +226,7 @@ ObjectSettings::updateProperties(QString country, ObjectContainer *objectPropert
 void
 ObjectSettings::onEditingFinished(int i)
 {
-    if ((ui->poleCheckBox->isChecked() != object_->getPole()) || (Object::ObjectOrientation)ui->orientationComboBox->currentIndex() != object_->getOrientation())
+    if ((ui->poleCheckBox->isChecked() != object_->getPole()) || (Signal::OrientationType)ui->orientationComboBox->currentIndex() != object_->getOrientation())
     {
         valueChanged_ = true;
         onEditingFinished();
@@ -214,32 +238,25 @@ ObjectSettings::onEditingFinished()
 {
     if (valueChanged_)
     {
-        QString filename = ui->nameBox->text();
-        QString newId = object_->getId();
+        QString name = ui->nameBox->text();
+        odrID newId = object_->getId();
         RSystemElementRoad * road = object_->getParentRoad();
-        if (filename != object_->getName())
-        {
-            QStringList parts = object_->getId().split("_");
-
-            if (parts.size() > 2)
-            {
-                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-            }
-            else
-            {
-                newId = road->getRoadSystem()->getUniqueId(object_->getId(), filename);
-            }
-        }
+		newId.setName(name);
 
         double repeatLength = ui->repeatLengthSpinBox->value();
         if (repeatLength > road->getLength() - ui->repeatSSpinBox->value())
         {
             repeatLength = road->getLength() - ui->repeatSSpinBox->value();
         }
+		
+		Object::ObjectProperties objectProps{ ui->tSpinBox->value(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->typeBox->text(),
+			ui->validLengthSpinBox->value(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(), 
+			ui->pitchSpinBox->value(), ui->rollSpinBox->value() };
+		Object::ObjectRepeatRecord repeatProps{ ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->repeatTStartSpinBox->value(), ui->repeatTEndSpinBox->value(),
+			ui->repeatWidthStartSpinBox->value(), ui->repeatWidthEndSpinBox->value(), ui->repeatHeightStartSpinBox->value(), ui->repeatHeightEndSpinBox->value(),
+			ui->repeatZOffsetStartSpinBox->value(), ui->repeatZOffsetEndSpinBox->value() };
 
-        SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, filename, ui->typeBox->text(), ui->tSpinBox->value(), ui->zOffsetSpinBox->value(),
-            ui->validLengthSpinBox->value(), (Object::ObjectOrientation)ui->orientationComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->widthSpinBox->value(), ui->radiusSpinBox->value(), ui->heightSpinBox->value(), ui->hdgSpinBox->value(),
-            ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->poleCheckBox->isChecked(), ui->repeatSSpinBox->value(), repeatLength, ui->repeatDistanceSpinBox->value(), ui->textureLineEdit->text());
+		SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object_, newId, name, objectProps, repeatProps, ui->textureLineEdit->text());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;
@@ -285,7 +302,9 @@ void
 		getProjectData()->getUndoStack()->beginMacro(QObject::tr("Change Start Values"));
 		getProjectSettings()->executeCommand(moveSectionCommand);
 
-		SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getType(), object_->getT(), object_->getzOffset(), object_->getValidLength(), object_->getOrientation(), object_->getLength(), object_->getWidth(), object_->getRadius(), object_->getHeight(), object_->getHeading(), object_->getPitch(), object_->getRoll(), object_->getPole(), object_->getSStart(), object_->getRepeatLength(), object_->getRepeatDistance(), object_->getTextureFileName());
+		Object::ObjectRepeatRecord repeatProps = object_->getRepeatProperties();
+		repeatProps.s = object_->getSStart();
+		SetObjectPropertiesCommand *setPropertiesCommand = new SetObjectPropertiesCommand(object_, object_->getId(), object_->getName(), object_->getProperties(), repeatProps, object_->getTextureFileName());
 		getProjectSettings()->executeCommand(setPropertiesCommand);
 
 		getProjectData()->getUndoStack()->endMacro();

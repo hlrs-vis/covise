@@ -322,6 +322,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
             movProp.stop = d_stopTime.get();
             movProp.repeatS = d_repeatS.get();
             movProp.repeatT = d_repeatT.get();
+            movProp.mtNode = this;
             System::the->inform("created Movie\n");
             d_texObject = viewer->insertMovieTexture((char *)d_image->pixels(), &movProp, d_image->nc(), false, d_environment.get(), getBlendMode(), d_anisotropy.get(), d_filter.get());
             if (imageChanged)
@@ -343,7 +344,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
     else
     {
         // Ensure image dimensions are powers of 2 (move to VrmlNodeTexture...)
-        int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+        int sizes[] = { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
         int nSizes = sizeof(sizes) / sizeof(int);
         int w = d_image->w();
         int h = d_image->h();
@@ -358,7 +359,7 @@ void VrmlNodeMovieTexture::render(Viewer *viewer)
         if (i > 0 && j > 0)
         {
             // Always scale images down in size and reuse the same pixel memory.
-            if (w != sizes[i - 1] || h != sizes[j - 1])
+            if (w>maxTextureSize() || h>maxTextureSize() || (!useTextureNPOT() && (w != sizes[i - 1] || h != sizes[j - 1])))
             {
                 cerr << endl << "Scaling texture " << d_image->url() << endl;
                 viewer->scaleTexture(w, h, sizes[i - 1], sizes[j - 1],
@@ -400,6 +401,14 @@ int VrmlNodeMovieTexture::height()
 int VrmlNodeMovieTexture::nFrames()
 {
     return d_image ? d_image->nFrames() : 0;
+}
+
+void VrmlNodeMovieTexture::stopped()
+{
+    double timeNow = System::the->time();
+    d_stopTime.set(timeNow);
+    eventOut(timeNow, "stopTime_changed", d_stopTime);
+    setModified();
 }
 
 unsigned char *VrmlNodeMovieTexture::pixels()

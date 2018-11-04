@@ -31,7 +31,7 @@
 
 #include <cover/input/VRKeys.h>
 #include "VRCoviseObjectManager.h"
-#include "VRCoviseGeometryManager.h"
+#include <CovisePluginUtil/VRCoviseGeometryManager.h>
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRFileManager.h>
 #include <cover/VRSceneGraph.h>
@@ -56,6 +56,7 @@
 #include <PluginUtil/coLOD.h>
 
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/osg/mathUtils.h>
 
 #include <config/CoviseConfig.h>
 #include <util/coLog.h>
@@ -158,6 +159,7 @@ ObjectManager::ObjectManager()
     depthPeeling = coCoviseConfig::isOn("COVER.DepthPeeling", false);
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::removeAllButtons()
 {
@@ -194,6 +196,7 @@ ObjectManager::removeButtonsForContainer(const char *container)
 
     buttonsMap.erase(it);
 }
+#endif
 
 ObjectManager::~ObjectManager()
 {
@@ -201,7 +204,9 @@ ObjectManager::~ObjectManager()
     if (cover->debugLevel(2))
         fprintf(stderr, "delete ObjectManager\n");
     delete interactionA;
+#ifdef PINBOARD
     removeAllButtons();
+#endif
     delete materialList;
     delete GeometryManager::instance();
 }
@@ -474,7 +479,7 @@ void ObjectManager::addObject(const char *object, const coDistributedObject *dat
     }
 }
 
-void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
+coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRenderObject *geomObj, CoviseRenderObject *normObj, CoviseRenderObject *colorObj, CoviseRenderObject *texObj) const
 {
 
     CoviseRenderObject *ro[4] = {
@@ -484,6 +489,7 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
         texObj
     };
 
+    coInteractor *ret = nullptr;
     if (geomObj)
     {
         // a new object arrived, look for interactors
@@ -510,11 +516,17 @@ void ObjectManager::handleInteractors(CoviseRenderObject *container, CoviseRende
 
                     it->incRefCount();
                     coVRPluginList::instance()->newInteractor(container, it);
+                    if (it->refCount() > 1)
+                    {
+                        if (strcmp(it->getModuleName(), "Colors") != 0)
+                            ret = it;
+                    }
                     it->decRefCount();
                 }
             }
         }
     }
+    return ret;
 }
 
 const ColorMap &ObjectManager::getColorMap(const std::string &species)
@@ -590,7 +602,9 @@ void ObjectManager::removeGeometry(const char *name, bool groupobject)
 
     // remove all Menus attached to this geometry
     coVRMenuList::instance()->removeAll(name);
+#ifdef PINBOARD
     removeButtonsForContainer(name);
+#endif
 
     coVRPluginList::instance()->removeObject(name, CoviseRender::isReplace());
     coviseSG->deleteNode(name, groupobject);
@@ -790,6 +804,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         lod = currentLod;
     }
 
+#if 0
     // check for FRAME_ANGLE attribute
     if (geometry->getAttribute("FRAME_ANGLE") != NULL && geometry->isAssignedToMe())
     {
@@ -827,6 +842,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             }
         }
     }
+#endif
 
     if (texture && geometry->isAssignedToMe())
     {
@@ -1000,10 +1016,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         // check for VertexOrderStr
         vertexOrderStr = geometry->getAttribute("vertexOrder");
@@ -1125,7 +1143,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         //fprintf(stderr,"ObjectManager::addGeometry if SETELE\n");
 
         // TODO change all Plugins to user RenderObjects
-        handleInteractors(container, geometry, normals, colors, texture);
+        auto inter = handleInteractors(container, geometry, normals, colors, texture);
         //fprintf(stderr, "++++++ObjectManager::addGeometry3  container=%s geometry=%s\n", container->getName(), geometry->getName() );
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
         // retrieve the whole set
@@ -1153,10 +1171,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             const char *name = geometry->getAttribute("OBJECTNAME");
             if (container->getAttribute("OBJECTNAME"))
                 name = container->getAttribute("OBJECTNAME");
+#ifdef PINBOARD
             if (name != NULL)
             {
                 this->addFeedbackButton(container->getName(), feedback_info, name);
             }
+#endif
         }
         if (normals != NULL)
         {
@@ -1285,9 +1305,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                                           no_va > 0 ? dobjsva[i] : NULL,
                                           container, lod);
             if (groupNode && node)
+            {
                 groupNode->addChild(node);
+            }
             else
-                std::cerr << "ignoring Set element: no group node" << std::endl;
+            {
+                std::cerr << "ignoring Set element " << objName << ": no " << (node ? "" : "group ") << "node" << std::endl;
+            }
 
             if (dobjsg)
                 delete dobjsg[i];
@@ -1338,6 +1362,12 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                     groupNode->addChild(mt);
                 }
             }
+        }
+
+        if (inter && groupNode)
+        {
+            std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
+            groupNode->setUserData(new InteractorReference(inter));
         }
 
         return groupNode;
@@ -1601,7 +1631,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         // add object to VRSceneGraph::instance() depending on type
         //
         // TODO Change all Plugins
-        handleInteractors(container, geometry, normals, colors, texture);
+        coInteractor *inter = handleInteractors(container, geometry, normals, colors, texture);
         coVRPluginList::instance()->addObject(container, root, geometry, normals, colors, texture);
 
         osg::Node *newNode = NULL;
@@ -1681,8 +1711,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 const char *var = container ? container->getAttribute("VARIANT") : 0;
                 if (!var || strncmp(var, "GPGPU", 5))
                     newNode = GeometryManager::instance()->addPoint(object, no_points,
-                                                                    x_c, y_c, z_c, colorbinding, colorpacking, rc, gc, bc, pc,
-                                                                    material, pointsize);
+                                                                    x_c, y_c, z_c, no_c, colorbinding, colorpacking, rc, gc, bc, pc,
+                                                                    material,
+                                                                    texW, texH, pixS, texImage, no_t, t_c[0], t_c[1], wrapMode, minfm, magfm,
+                                                                    pointsize);
             }
             else if (strcmp(gtype, "SPHERE") == 0)
             {
@@ -1974,7 +2006,14 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
             bool addNode = coVRMenuList::instance()->add(geometry, newNode);
             if (addNode)
+            {
+                if (inter && newNode)
+                {
+                    std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
+                    newNode->setUserData(new InteractorReference(inter));
+                }
                 return newNode;
+            }
         }
 
         return NULL;
@@ -1986,6 +2025,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
     return NULL;
 }
 
+#ifdef PINBOARD
 void
 ObjectManager::addPinboardButton(const char *buttonId, int moduleInstance, const char *feedback_info, const char *name)
 {
@@ -2313,3 +2353,4 @@ ObjectManager::feedbackCallback(void *objectManager, buttonSpecCell *spec)
 {
     ((ObjectManager *)objectManager)->feedback(spec);
 }
+#endif

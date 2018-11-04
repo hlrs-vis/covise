@@ -1270,7 +1270,7 @@ unstruct_grid::unstruct_grid(std::vector<const coDistributedObject *> &grid,
         t_tetras[j] = t_t[j];
 
     // get addresses & size of grid
-    int num_grid;
+    size_t num_grid;
     num_blocks = grid.size();
     //fprintf(stderr, "numblocks=%lu\n", (unsigned long)grid.size());
     if (num_blocks == 0)

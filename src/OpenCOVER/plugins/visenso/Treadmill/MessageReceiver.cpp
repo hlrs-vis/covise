@@ -133,7 +133,7 @@ int MessageReceiver::_sendData()
     _mutexSendingQueue.lock();
     for (size_t i = 0; i < _sendingQueue.size(); i++)
     {
-        _serverSocket->write((const void *)(_sendingQueue[i].c_str()), _sendingQueue[i].length());
+        _serverSocket->write((const void *)(_sendingQueue[i].c_str()), (unsigned int)_sendingQueue[i].length());
     }
     _sendingQueue.clear();
     _mutexSendingQueue.unlock();

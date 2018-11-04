@@ -93,19 +93,23 @@ using std::string;
 
 VRVruiRenderInterface::VRVruiRenderInterface()
 {
+    assert(!vruiRendererInterface::theInterface);
 
     groupNode = 0;
     sceneNode = 0;
-    buttons = new VRVruiButtons();
-    mouseButtons = new VRVruiButtons(cover->getMouseButton());
+    buttons = new VRVruiButtons(VRVruiButtons::Pointer);
+    mouseButtons = new VRVruiButtons(VRVruiButtons::Mouse);
+    relativeButtons = new VRVruiButtons(VRVruiButtons::Relative);
 
     handMatrix = new OSGVruiMatrix();
     headMatrix = new OSGVruiMatrix();
     mouseMatrix = new OSGVruiMatrix();
+    relativeMatrix = new OSGVruiMatrix();
 
     handMatrix->makeIdentity();
     headMatrix->makeIdentity();
     mouseMatrix->makeIdentity();
+    relativeMatrix->makeIdentity();
 
     vruiRendererInterface::theInterface = this;
     coIntersection::instance();
@@ -116,8 +120,20 @@ VRVruiRenderInterface::VRVruiRenderInterface()
 VRVruiRenderInterface::~VRVruiRenderInterface()
 {
     delete groupNode;
-    delete sceneNode;
     groupNode = 0;
+    delete sceneNode;
+    sceneNode = NULL;
+
+    delete buttons;
+    delete mouseButtons;
+    delete relativeButtons;
+
+    delete handMatrix;
+    delete headMatrix;
+    delete mouseMatrix;
+    delete relativeMatrix;
+
+    //delete coIntersection::instance();
     vruiRendererInterface::theInterface = 0;
 }
 
@@ -514,6 +530,12 @@ vruiMatrix *VRVruiRenderInterface::getMouseMatrix() const
 {
     mouseMatrix->setMatrix(cover->getMouseMat());
     return mouseMatrix;
+}
+
+vruiMatrix *VRVruiRenderInterface::getRelativeMatrix() const
+{
+    relativeMatrix->setMatrix(cover->getRelativeMat());
+    return relativeMatrix;
 }
 
 bool VRVruiRenderInterface::is2DInputDevice() const

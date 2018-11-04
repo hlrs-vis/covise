@@ -65,7 +65,7 @@ SwitchData::SwitchData(int argc, char *argv[])
 /// Compute routine: load checkpoint file
 int SwitchData::compute(const char *)
 {
-    int alternative = m_switchParam->getValue() - 2;
+    int alternative = m_switchParam->getValue();
     const coDoInt *paramData = dynamic_cast<const coDoInt *>(m_switchIn->getCurrentObject());
     bool copyAttribute = false;
     if (paramData && paramData->getNumPoints() >= 1)
@@ -73,6 +73,7 @@ int SwitchData::compute(const char *)
         paramData->getPointValue(0, &alternative);
         copyAttribute = true;
     }
+    alternative -= 2;
     if (alternative >= ninput)
         alternative = ninput - 1;
 
@@ -97,7 +98,7 @@ int SwitchData::compute(const char *)
     }
     coDoSet *setOut = new coDoSet(m_dataOut->getObjName(), (int)output.size(), &output[0]);
     coDoInt *switchOut = new coDoInt(m_switchOut->getObjName(), 1);
-    switchOut->setPointValue(0, alternative);
+    switchOut->setPointValue(0, alternative+2);
 
     if (copyAttribute)
     {

@@ -101,8 +101,7 @@ public:
     int *intValues;
     static LabViewPlugin *plugin;
 
-    // this will be called in PreFrame
-    void preFrame();
+    bool update();
     bool readVal(void *buf, unsigned int numBytes);
 
 private:

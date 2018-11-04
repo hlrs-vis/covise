@@ -13,6 +13,8 @@
 //
 
 #include <vector>
+#include <algorithm>
+#include <cctype>
 
 #include <errno.h>
 #ifndef WIN32
@@ -217,7 +219,7 @@ bool VrmlScene::loadUrl(VrmlMFString *url, VrmlMFString *parameters, bool replac
             char *mod = strchr(tail, '#');
             if (!mod)
                 mod = urls[i] + strlen(urls[i]);
-            if (mod - tail > 4 && (strncmp(mod - 4, ".wrl", 4) == 0 || strncmp(mod - 4, ".wrz", 4) == 0 || strncmp(mod - 4, ".WRL", 4) == 0 || strncmp(mod - 4, ".WRZ", 4) == 0 || (mod - tail > 5 && strncmp(mod - 7, ".VRML", 5) == 0) || (mod - tail > 5 && strncmp(mod - 7, ".vrml", 5) == 0) || (mod - tail > 7 && strncmp(mod - 7, ".wrl.gz", 7) == 0)))
+            if (isWrl(urls[i]))
             {
                 if (load(urls[i], NULL, replace))
                     break;
@@ -391,9 +393,10 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         return true;
     }
 
+    //std::cerr << "VrmlScene::load(url=" << (url?url:"<null>") << ", localCopy=" << (localCopy?localCopy:"<null>") << ")" << std::endl;
+
     // Try to load a file. Prefer a local copy if available.
     Doc *tryUrl;
-
     if (localCopy)
         tryUrl = new Doc(localCopy, 0);
     else
@@ -425,7 +428,7 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
         delete newNodes;
 
         // Look for '#Viewpoint' syntax
-        if (sourceUrl->urlModifier())
+        if (sourceUrl->urlModifier() && *sourceUrl->urlModifier())
         {
             VrmlNode *vp = d_namespace->findNode(sourceUrl->urlModifier() + 1);
             double timeNow = System::the->time();
@@ -444,6 +447,21 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
 
 // Read a VRML file from one of the urls.
 
+bool VrmlScene::isWrl(const std::string &filename)
+{
+    for (std::string ending: {".wrl", ".wrz", ".vrml", ".vrml.gz", ".wrl.gz", ".x3dv", ".x3dv.gz", ".x3dvz"})
+    {
+        auto len = ending.length();
+        if (filename.length() < len)
+            continue;
+        std::string tail = filename.substr(filename.length()-ending.length());
+        std::transform(tail.begin(), tail.end(), tail.begin(), ::tolower);
+        if (tail == ending)
+            return true;
+    }
+    return false;
+}
+
 VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
                                VrmlNamespace *ns, bool *encrypted)
 {
@@ -461,16 +479,18 @@ VrmlMFNode *VrmlScene::readWrl(VrmlMFString *urls, Doc *relative,
                               urls->get(i), strerror(errno));
     }
 
-    return 0;
+    return nullptr;
 }
 
 // yacc globals
 
 #define yyin lexerin
+#define yyrestart lexerrestart
 #define yyparse parserparse
 extern void yystring(char *);
 extern void yyfunction(int (*)(char *, int));
 extern int yyparse();
+extern void yyrestart(FILE *input_file);
 
 extern FILE *yyin;
 extern VrmlNamespace *yyNodeTypes;
@@ -646,6 +666,11 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             //char *tmp = (char *)malloc(12);
             //free(tmp);
             fflush(stderr);
+#if HAVE_LIBPNG
+            yyrestart(NULL);
+#else
+            yyrestart(YYIN);
+#endif
             yyparse();
             //fprintf(stderr,"%g s\n",System::the->realTime() -StartTime);
 
@@ -661,6 +686,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             tryUrl->fclose();
 #endif
         }
+        YYIN = 0;
     }
 
     return result;
@@ -1066,9 +1092,13 @@ bool VrmlScene::update(double timeStamp)
             m->update(now);
     }
 
+    bool eventsProcessed = false;
+
     // Pass along events to their destinations
     while (d_firstEvent != d_lastEvent && !d_pendingUrl && !d_pendingNodes)
     {
+        eventsProcessed = true;
+
         Event *e = &d_eventMem[d_firstEvent];
 
         // Ensure that the node is in the scene graph
@@ -1080,6 +1110,7 @@ bool VrmlScene::update(double timeStamp)
             n->addToScene((VrmlScene *)this, urlDoc()->url());
         }
         n->eventIn(e->timeStamp, e->toEventIn, e->value);
+        //fprintf(stderr, "VrmlScene::eventIn: %s::%s\n", n->nodeType()->getName(), n->name());
         // this needs to change if event values are shared...
 
         if (e == &d_eventMem[d_firstEvent])
@@ -1114,7 +1145,7 @@ bool VrmlScene::update(double timeStamp)
     d_sensorEventQueue->update();
 
     // Signal a redisplay if necessary
-    return isModified();
+    return eventsProcessed;
 }
 
 bool VrmlScene::headlightOn()
@@ -1309,7 +1340,8 @@ void VrmlScene::render(Viewer *viewer)
 
     clearModified();
 
-    cache->save();
+    if (cache)
+        cache->save();
 
     // If any events were generated during render (ugly...) do an update
     if (eventsPending())
@@ -1690,19 +1722,31 @@ void VrmlScene::removeAudioClip(VrmlNodeAudioClip *audio_clip)
     d_audioClips->remove(audio_clip);
 }
 
-void VrmlScene::storeCachedInline(const char *url, const Viewer::Object d_viewerObject)
+void VrmlScene::storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject)
 {
+#if 1
+    if (System::the->getCacheMode() != System::CACHE_CREATE
+            && System::the->getCacheMode() != System::CACHE_REWRITE)
+        return;
+
+    std::string cachefile = System::the->getCacheName(url, pathname);
+    if (cachefile.empty())
+        return;
+    std::cerr << "Cache store: " << pathname << " -> " << cachefile << std::endl;
+    System::the->storeInline(cachefile.c_str(), d_viewerObject);
+#else
     if (cache)
     {
-        char *fileName;
+        char *fileName = NULL;
 
-        int urlTime;
+        int urlTime = 0;
 #ifdef _WIN32
         struct _stat sbuf;
-        _stat(url, &sbuf);
+        _stat(pathname, &sbuf);
 #else
         struct stat sbuf;
-        stat(url, &sbuf);
+        int ret = stat(pathname, &sbuf);
+        if (ret == 0)
 #endif
 
 #ifdef __sgi
@@ -1710,8 +1754,7 @@ void VrmlScene::storeCachedInline(const char *url, const Viewer::Object d_viewer
 #else
         urlTime = (int)sbuf.st_mtime;
 #endif
-        cacheEntry *e = cache->findEntry(url);
-        if (e)
+        if (cacheEntry *e = cache->findEntry(url))
         {
             fileName = e->fileName;
             e->time = urlTime;
@@ -1719,25 +1762,90 @@ void VrmlScene::storeCachedInline(const char *url, const Viewer::Object d_viewer
         else
         {
             fileName = new char[strlen(cache->directory) + 1000];
-            sprintf(fileName, "%s/cache_%s_%lu", cache->directory, cache->fileBase, (unsigned long)cache->cacheList.size());
+            sprintf(fileName, "cache_%s_%lu", cache->fileBase, (unsigned long)cache->cacheList.size());
             cache->cacheList.push_back(cacheEntry(url, fileName, urlTime, d_viewerObject));
         }
+        std::stringstream str;
+        str << cache->directory << "/" << fileName;
         cache->modified = true;
-        System::the->storeInline(fileName, d_viewerObject);
+        System::the->storeInline(str.str().c_str(), d_viewerObject);
     }
+#endif
 }
 
-Viewer::Object VrmlScene::getCachedInline(const char *url)
+Viewer::Object VrmlScene::getCachedInline(const char *url, const char *pathname)
 {
+    if (System::the->getCacheMode() == System::CACHE_DISABLE
+            || System::the->getCacheMode() == System::CACHE_REWRITE)
+        return 0L;
+
+#if 1
+    std::string cachefile = System::the->getCacheName(url, pathname);
+    if (cachefile.empty())
+    {
+		if (pathname != NULL)
+		{
+			std::cerr << "Cache reject: no cachefile name: " << pathname << " -> " << cachefile << std::endl;
+		}
+        return 0L;
+    }
+
+#ifdef _WIN32
+    struct _stat sbufInline, sbufCached;
+    int ret = _stat(cachefile.c_str(), &sbufCached);
+#else
+    struct stat sbufInline, sbufCached;
+    int ret = stat(cachefile.c_str(), &sbufCached);
+#endif
+    if (ret != 0)
+    {
+        std::cerr << "Cache reject: failed to stat cache: " << pathname << " -> " << cachefile << std::endl;
+        return 0L;
+    }
+
+    if (System::the->getCacheMode() != System::CACHE_USEOLD)
+    {
+#ifdef _WIN32
+        ret = _stat(pathname, &sbufInline);
+#else
+        ret = stat(pathname, &sbufInline);
+#endif
+        if (ret != 0)
+        {
+            std::cerr << "Cache reject: failed to stat Inline: " << pathname << " -> " << cachefile << std::endl;
+            return 0L;
+        }
+
+#ifdef __APPLE__
+#define st_mtim st_mtimespec
+#endif
+
+#ifdef WIN32
+		if (sbufInline.st_mtime > sbufCached.st_mtime)
+#else
+        if (sbufInline.st_mtim.tv_sec > sbufCached.st_mtim.tv_sec
+                || (sbufInline.st_mtim.tv_sec == sbufCached.st_mtim.tv_sec && sbufInline.st_mtim.tv_nsec > sbufCached.st_mtim.tv_nsec))
+#endif
+        {
+            std::cerr << "Cache reject: too old: " << pathname << " -> " << cachefile << std::endl;
+            return 0L;
+        }
+    }
+
+    std::cerr << "Cache load: " << pathname << " -> " << cachefile << std::endl;
+    return System::the->getInline(cachefile.c_str());
+#else
+    //std::cerr << "VrmlScene::getCachedInline(url=" << url << ", local=" << (pathname?pathname:"<null>") << std::endl;
     if (cache)
     {
-        int urlTime;
+        int urlTime = -1;
 #ifdef _WIN32
         struct _stat sbuf;
         _stat(url, &sbuf);
 #else
         struct stat sbuf;
-        stat(url, &sbuf);
+        int ret = stat(pathname, &sbuf);
+        if (ret == 0)
 #endif
 #ifdef __sgi
         urlTime = sbuf.st_mtim.tv_sec;
@@ -1748,9 +1856,12 @@ Viewer::Object VrmlScene::getCachedInline(const char *url)
         cacheEntry *e = cache->findEntry(url);
         if (e && urlTime == e->time)
         {
-            return System::the->getInline(e->fileName);
+            std::stringstream str;
+            str << cache->directory << "/" << e->fileName;
+            return System::the->getInline(str.str().c_str());
         }
     }
+#endif
     return 0L;
 }
 
@@ -1759,10 +1870,13 @@ InlineCache::InlineCache(const char *vrmlfile)
     char *tmpName = coDirectory::canonical(vrmlfile);
     fileBase = coDirectory::fileOf(tmpName);
     directory = coDirectory::dirOf(tmpName);
-    char *cacheIndexName = new char[strlen(directory) + 1000];
-    sprintf(cacheIndexName, "%s/%s.cache", directory, fileBase);
-    FILE *fp = fopen(cacheIndexName, "r");
-    delete[] cacheIndexName;
+    delete[] tmpName;
+
+    std::stringstream str;
+    str << directory << "/cache_" << fileBase << ".cache";
+    cacheIndexName = str.str();
+    //std::cerr << "InlineCache(file=" << vrmlfile << ") -> " << cacheIndexName << std::endl;
+    FILE *fp = fopen(cacheIndexName.c_str(), "r");
     char buf[1000];
     char fn[1000];
     char url[1000];
@@ -1776,20 +1890,27 @@ InlineCache::InlineCache(const char *vrmlfile)
             retval_fgets = fgets(buf, 1000, fp);
             if (retval_fgets == NULL)
             {
-                std::cerr << "InlineCache::InlineCache: fgets failed" << std::endl;
-                return;
+                if (!feof(fp))
+                {
+                    std::cerr << "InlineCache::InlineCache: fgets failed" << std::endl;
+                    fclose(fp);
+                    return;
+                }
             }
-            retval_sscanf = sscanf(buf, "%s %s %d", url, fn, &time);
-            if (retval_sscanf != 3)
+            else
             {
-                std::cerr << "InlineCache::InlineCache: sscanf failed" << std::endl;
-                return;
+                retval_sscanf = sscanf(buf, "%s %s %d", url, fn, &time);
+                if (retval_sscanf != 3)
+                {
+                    std::cerr << "InlineCache::InlineCache: sscanf failed" << std::endl;
+                    fclose(fp);
+                    return;
+                }
+                cacheList.push_back(cacheEntry(url, fn, time));
             }
-            cacheList.push_back(cacheEntry(url, fn, time));
         }
         fclose(fp);
     }
-    delete[] tmpName;
     modified = false;
 }
 
@@ -1804,10 +1925,7 @@ void InlineCache::save()
     if (modified)
     {
         modified = false;
-        char *cacheIndexName = new char[strlen(directory) + 1000];
-        sprintf(cacheIndexName, "%s/%s.cache", directory, fileBase);
-        FILE *fp = fopen(cacheIndexName, "w");
-        delete[] cacheIndexName;
+        FILE *fp = fopen(cacheIndexName.c_str(), "w");
         if (fp)
         {
             list<cacheEntry>::iterator i, end = cacheList.end();

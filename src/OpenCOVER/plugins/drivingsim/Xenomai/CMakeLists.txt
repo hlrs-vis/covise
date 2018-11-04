@@ -3,6 +3,8 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
 ENDIF()
 USING(XERCESC BOOST)
 using(VRML)
+using(V8)
+using(VehicleUtil)
 if(NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
   RETURN()
 endif(NOT XENOMAI_FOUND OR NOT COVISE_USE_XENOMAI)
@@ -12,10 +14,7 @@ SET(HEADERS
 SET(SOURCES
  XenomaiPlugin.cpp
 )
-COVISE_FIND_PACKAGE(V8)
 INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ${V8_INCLUDE_DIR}
 )
 
 
@@ -31,7 +30,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 
  INCLUDE_DIRECTORIES(
    ${XENOMAI_INCLUDE_DIR}
-   ../../../DrivingSim/gaalet
+   ../../../DrivingSim/gaalet/include
 
  )
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
@@ -42,7 +41,6 @@ cover_add_plugin_TARGET(Xenomai)
 
 TARGET_LINK_LIBRARIES(Xenomai
    ${EXTRA_LIBS}
-   coOpenVehicleUtil
 )
 COVISE_WNOERROR(Xenomai)
 COVER_INSTALL_PLUGIN(Xenomai)

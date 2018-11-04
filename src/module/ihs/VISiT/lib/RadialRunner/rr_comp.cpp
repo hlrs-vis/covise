@@ -29,10 +29,10 @@
 #include "../General/include/v.h"
 
 #define INIT_PORTION 20
-#define SHROUD_EXT	0.75			  // extension factor of shroud height
-#define HUB_EXT_RAD	0.1			  // radius at hub extension end
-#define IN_EXT_H	0.05			  // height factor for inlet ext.
-#define IN_EXT_R	0.2			  // radius factor for inlet ext.
+#define SHROUD_EXT	0.75f			  // extension factor of shroud height
+#define HUB_EXT_RAD	0.1f			  // radius at hub extension end
+#define IN_EXT_H	0.05f			  // height factor for inlet ext.
+#define IN_EXT_R	0.2f			  // radius factor for inlet ext.
 #define BSPLN_DEGREE 3				  // bspline degree
 #define SMALL  1.0E-04
 
@@ -169,8 +169,8 @@ int CreateRR_BladeElements(struct radial *rr)
 										 rr->te->bmint->x[i], 
 										 rr->le->bmint->z[i], 
 										 rr->te->bmint->z[i], 
-										 rr->rot_clockwise,
-										 rr->camb_flag))) return err;
+					                     rr->rot_clockwise,
+										 float(rr->camb_flag)))) return err;
 		}
 	}
 	// use camber line function starting at leading edge
@@ -185,7 +185,7 @@ int CreateRR_BladeElements(struct radial *rr)
 										  rr->le->bmint->z[i], 
 										  rr->te->bmint->z[i], 
 										  rr->rot_clockwise,
-										  rr->camb_flag))) return err;
+										  float(rr->camb_flag)))) return err;
 		}
 	}
 	// use camber line function and given blade length

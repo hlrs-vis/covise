@@ -10,9 +10,12 @@
 #include <util/byteswap.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
+#include <cover/coIntersection.h>
 #include "coSphere.h"
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
+#include <osgUtil/LineSegmentIntersector>
+#include <osg/io_utils>
 
 #include <osg/GLExtensions>
 
@@ -24,7 +27,6 @@
 #endif
 
 using namespace covise;
-using namespace opencover;
 
 #ifdef WIN32
 template <class T>
@@ -33,6 +35,9 @@ inline const T &fmax(const T &a, const T &b)
     return a < b ? b : a;
 }
 #endif
+
+namespace opencover
+{
 
 #ifndef _USE_TEXTURE_LOADING_MS
 typedef struct _AUX_RGBImageRec
@@ -124,10 +129,101 @@ char *coSphere::s_chTexFile = 0;
 bool coSphere::s_configured = false;
 bool coSphere::s_useVertexArrays = false;
 
+class SphereIntersector: public opencover::IntersectionHandler
+{
+public:
+    bool canHandleDrawable(osg::Drawable *drawable) const
+    {
+        auto s = dynamic_cast<coSphere *>(drawable);
+        if (s)
+            return true;
+        return false;
+    }
+
+    void intersect(osgUtil::IntersectionVisitor &iv, coIntersector &is, osg::Drawable *drawable)
+    {
+        osg::Vec3d s(is.getStart()), e(is.getEnd());
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+        osg::BoundingBox bb = drawable->getBoundingBox();
+        if (!is.intersectAndClip(s, e, bb)) return;
+#endif
+        if (iv.getDoDummyTraversal()) return;
+
+        //std::cerr << "SPHERE isect start=" << s << ", end=" << e << std::endl;
+
+        coSphere *sphere = dynamic_cast<coSphere *>(drawable);
+        assert(sphere);
+
+        const osg::Vec3d se = e-s;
+        double a = se.length2();
+
+        for (int i=0; i<sphere->m_numSpheres; ++i)
+        {
+            osg::Vec3 center(sphere->m_coord[i*3], sphere->m_coord[i*3+1], sphere->m_coord[i*3+2]);
+            float radius = sphere->m_radii[i];
+
+            osg::Vec3 sm = s - center;
+            double c = sm.length2()-radius*radius;
+            if (c<0.0)
+            {
+                // inside sphere
+#if 0
+                osgUtil::LineSegmentIntersector::Intersection hit;
+                hit.ratio = 0;
+                hit.nodePath = iv.getNodePath();
+                hit.drawable = drawable;
+                hit.matrix = iv.getModelMatrix();
+                hit.localIntersectionPoint = s;
+                is.insertIntersection(hit);
+#endif
+                continue;
+            }
+
+            double b = (sm*se)*2.0;
+            double disc = b*b-4.0*a*c;
+
+            if (disc<0.0)
+                continue;
+
+            double d = sqrt(disc);
+
+            double div = 1.0/(2.0*a);
+
+            double r1 = (-b-d)*div;
+            double r2 = (-b+d)*div;
+
+            double ratio = r1 <= 0. ? r2 : r1;
+            if (ratio <= 0. || ratio >= 1.)
+                continue;
+
+            //std::cerr << "sphere " << i << ", dist=" << sqrt(c) << ", ratio=" << ratio << std::endl;
+
+#if 0
+            if (ratio >= is.getIntersections().begin()->ratio)
+                continue;
+#endif
+
+            osgUtil::LineSegmentIntersector::Intersection hit;
+            hit.ratio = ratio;
+            hit.nodePath = iv.getNodePath();
+            hit.drawable = drawable;
+            hit.primitiveIndex = i;
+            hit.matrix = iv.getModelMatrix();
+            hit.localIntersectionPoint = s + se*ratio;
+            osg::Vec3d norm = (hit.localIntersectionPoint-center);
+            norm.normalize();
+            hit.localIntersectionNormal = norm;
+            is.insertIntersection(hit);
+        }
+    }
+};
+
 coSphere::coSphere()
 {
     if (!s_configured)
     {
+        coIntersection::instance()->addHandler(new SphereIntersector);
+
         s_useVertexArrays = coCoviseConfig::isOn("COVER.Spheres.UseVertexArrays", false);
         s_configured = true;
     }
@@ -167,6 +263,7 @@ coSphere::coSphere()
 #else
     m_renderMethod = RENDER_METHOD_CPU_BILLBOARDS;
 #endif
+    m_renderMethod = RENDER_METHOD_ARB_POINT_SPRITES;
 
     if (!s_pointSpritesChecked && !s_glPointParameterfvARB && !s_glPointParameterfARB)
     {
@@ -480,10 +577,12 @@ void coSphere::setScale(float scale)
 //=====================================================
 void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
 {
+    mutex()->lock();
     if (s_maxcontext < 0)
     {
         s_maxcontext = renderInfo.getState()->getGraphicsContext()->getMaxContextID();
     }
+    mutex()->unlock();
     int thiscontext = renderInfo.getContextID();
     /*texture stuff*/
     if (s_textureID == NULL)
@@ -500,8 +599,10 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     mutex()->unlock();
 
     glPushMatrix();
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glPushAttrib(GL_ENABLE_BIT);
     glPushAttrib(GL_COLOR_BUFFER_BIT);
+    glPushAttrib(GL_POINT_BIT);
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_NORMALIZE);
@@ -701,31 +802,56 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             glEnable(GL_POINT_SPRITE_ARB);
             float minRad = m_maxRadius * 0.0001; // avoid opengl errors
 
-            for (int j = 0; j <= m_maxPointSize; ++j)
+            bool array = true;
+
+            if (array)
             {
+                glEnableClientState(GL_COLOR_ARRAY);
+                glColorPointer(4, GL_FLOAT, 0, m_color);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glVertexPointer(3, GL_FLOAT, 0, m_coord);
 
-                // setting pointSize once per bucket
-                float radius = (j * m_maxRadius) / m_maxPointSize;
-                glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
-
-                glBegin(GL_POINTS);
-                for (std::vector<int>::iterator index = m_sortedRadiusIndices[j].begin();
-                     index != m_sortedRadiusIndices[j].end(); ++index)
+                for (int j = 0; j <= m_maxPointSize; ++j)
                 {
-                    int i = *index;
-                    glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
-                    glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
+                    // setting pointSize once per bucket
+                    float radius = (j * m_maxRadius) / m_maxPointSize;
+                    glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
+                    //std::cerr << "bucket " << j << "#=" << m_sortedRadiusIndices[j].size() << ": rad=" << radius << "/" << fmax(minRad, 2*radius/m_maxRadius) << std::endl;
+
+                    glDrawElements(GL_POINTS, m_sortedRadiusIndices[j].size(), GL_UNSIGNED_INT, m_sortedRadiusIndices[j].data());
                 }
-                glEnd();
+
+                glDisableClientState(GL_VERTEX_ARRAY);
+                glDisableClientState(GL_COLOR_ARRAY);
             }
+            else
+            {
+                for (int j = 0; j <= m_maxPointSize; ++j)
+                {
+                    // setting pointSize once per bucket
+                    float radius = (j * m_maxRadius) / m_maxPointSize;
+                    glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
+
+                    glBegin(GL_POINTS);
+                    for (std::vector<int>::iterator index = m_sortedRadiusIndices[j].begin();
+                         index != m_sortedRadiusIndices[j].end(); ++index)
+                    {
+                        int i = *index;
+                        glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
+                        glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
+                    }
+                    glEnd();
+                }
+            }
+
             for (int i = 0; i < m_numSpheres; i++)
             {
                 // adapting size of point to radius
                 // using window resolution in pixel and
                 // window resolution in millimeter
             }
+
             glDisable(GL_POINT_SPRITE_ARB);
-            
         }
         else
         {
@@ -812,6 +938,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     //
     // Reset OpenGL states...
     //
+    glPopClientAttrib(); // GL_CLIENT_VERTEX_ARRAY_BIT
+    glPopAttrib(); // GL_POINT_BIT
     glPopAttrib(); // GL_COLOR_BUFFER_BIT
     glPopAttrib(); // GL_ENABLE_BIT
     glPopMatrix();
@@ -1072,6 +1200,83 @@ coSphere::setCoords(int no_of_points, const float *x_c, const float *y_c,
     }
 }
 
+void
+coSphere::setCoords(int no_of_points, const osg::Vec3Array* coords, const float *r)
+{
+    if (no_of_points < 0)
+        no_of_points = 0;
+    setNumberOfSpheres(no_of_points);
+
+    dirtyBound();
+
+    osg::Vec3Array::const_iterator coord = coords->begin();
+
+    m_maxRadius = FLT_MIN;
+    if (m_useVertexArrays)
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            const osg::Vec3 &pos = *coord;
+            m_coord[i * 12 + 0] = pos.x();
+            m_coord[i * 12 + 1] = pos.y();
+            m_coord[i * 12 + 2] = pos.z();
+            m_coord[i * 12 + 3] = pos.x();
+            m_coord[i * 12 + 4] = pos.y();
+            m_coord[i * 12 + 5] = pos.z();
+            m_coord[i * 12 + 6] = pos.x();
+            m_coord[i * 12 + 7] = pos.y();
+            m_coord[i * 12 + 8] = pos.z();
+            m_coord[i * 12 + 9] = pos.x();
+            m_coord[i * 12 + 10] = pos.y();
+            m_coord[i * 12 + 11] = pos.z();
+            m_radii[i * 12 + 0] = -1.0f;
+            m_radii[i * 12 + 1] = -1.0f;
+            m_radii[i * 12 + 2] = r[i];
+            m_radii[i * 12 + 3] = 1.0f;
+            m_radii[i * 12 + 4] = -1.0f;
+            m_radii[i * 12 + 5] = r[i];
+            m_radii[i * 12 + 6] = 1.0f;
+            m_radii[i * 12 + 7] = 1.0f;
+            m_radii[i * 12 + 8] = r[i];
+            m_radii[i * 12 + 9] = -1.0f;
+            m_radii[i * 12 + 10] = 1.0f;
+            m_radii[i * 12 + 11] = r[i];
+            ++coord;
+
+            m_maxRadius = m_maxRadius < r[i] ? r[i] : m_maxRadius;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < m_numSpheres; i++)
+        {
+            const osg::Vec3 &pos = *coord;
+            m_maxRadius = m_maxRadius < r[i] ? r[i] : m_maxRadius;
+            m_coord[i * 3 + 0] = pos.x();
+            m_coord[i * 3 + 1] = pos.y();
+            m_coord[i * 3 + 2] = pos.z();
+            m_radii[i] = r[i];
+            ++coord;
+        }
+    }
+
+    if (m_extMaxRadius != 0)
+        m_maxRadius = m_extMaxRadius;
+
+    // sorting by radius
+    for (int i = 0; i <= m_maxPointSize; ++i)
+        m_sortedRadiusIndices[i].clear();
+    for (int i = 0; i < m_numSpheres; ++i)
+    {
+        int bucket = (int)floor(0.5 + m_radii[i] / m_maxRadius * m_maxPointSize);
+        if (bucket < 0)
+            bucket = 0;
+        if (bucket >= m_maxPointSize)
+            bucket = m_maxPointSize - 1;
+        m_sortedRadiusIndices[bucket].push_back(i);
+    }
+}
+
 void coSphere::updateNormals(const float *nx, const float *ny, const float *nz)
 {
     if (m_useVertexArrays)
@@ -1273,6 +1478,35 @@ void coSphere::updateCoords(const float *x_c, const float *y_c, const float *z_c
         }
     }
 }
+
+void coSphere::updateCoords(int i, const osg::Vec3 &pos)
+{
+    dirtyBound();
+
+    if (m_useVertexArrays)
+    {
+            m_coord[i * 12 + 0] = pos.x();
+            m_coord[i * 12 + 1] = pos.y();
+            m_coord[i * 12 + 2] = pos.z();
+            m_coord[i * 12 + 3] = pos.x();
+            m_coord[i * 12 + 4] = pos.y();
+            m_coord[i * 12 + 5] = pos.z();
+            m_coord[i * 12 + 6] = pos.x();
+            m_coord[i * 12 + 7] = pos.y();
+            m_coord[i * 12 + 8] = pos.z();
+            m_coord[i * 12 + 9] = pos.x();
+            m_coord[i * 12 + 10] = pos.y();
+            m_coord[i * 12 + 11] = pos.z();
+
+    }
+    else
+    {
+            m_coord[i * 3 + 0] = pos.x();
+            m_coord[i * 3 + 1] = pos.y();
+            m_coord[i * 3 + 2] = pos.z();
+    }
+}
+
 
 void coSphere::setRenderMethod(RenderMethod rm)
 {
@@ -1771,4 +2005,6 @@ void coSphere::bindMatrices(int context) const
         cgGLSetStateMatrixParameter(s_CGVertexParam_modelViewIT[context], CG_GL_MODELVIEW_MATRIX, CG_GL_MATRIX_INVERSE_TRANSPOSE);
     }
 #endif
+}
+
 }

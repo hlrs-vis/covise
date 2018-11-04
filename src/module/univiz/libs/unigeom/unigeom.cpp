@@ -251,8 +251,8 @@ void UniGeom::generateNormals(void)
     // module GenNormals
     if (covNormals)
     {
-        int numPoints = vertices.size() / 3;
-        int numCells = polygons.size();
+        int numPoints = int(vertices.size() / 3);
+        int numCells = int(polygons.size());
 
         normals.clear();
 
@@ -267,7 +267,7 @@ void UniGeom::generateNormals(void)
         // accumulate
         for (int p = 0; p < numCells; p++)
         {
-            int nvts = polygons[p].size();
+            int nvts = int(polygons[p].size());
 
             // compute and sum normals of current polygon at its corners
             for (int v = 0; v < nvts; v++)
@@ -424,12 +424,12 @@ void UniGeom::assignObj(const char *)
     {
 
         // get sizes
-        int num_lines = lines.size();
+        int num_lines = int(lines.size());
         int num_points = 0, num_corners = 0;
         for (int l = 0; l < (int)lines.size(); l++)
         {
-            num_points += lines[l].size() / 3;
-            num_corners += lines[l].size() / 3; // ### actually lines can not share point
+            num_points += int(lines[l].size() / 3);
+            num_corners += int(lines[l].size() / 3); // ### actually lines can not share point
         }
 
 //printf("%d lines, %d points, %d corners\n", num_lines, num_points, num_corners);
@@ -485,12 +485,12 @@ void UniGeom::assignObj(const char *)
     {
 
         // get sizes
-        int num_points = vertices.size() / 3;
-        int num_polygons = polygons.size();
+        int num_points = int(vertices.size() / 3);
+        int num_polygons = int(polygons.size());
         int num_corners = 0;
         for (int p = 0; p < (int)polygons.size(); p++)
         {
-            num_corners += polygons[p].size();
+            num_corners += int(polygons[p].size());
         }
 
 //printf("%d lines, %d points, %d corners\n", num_lines, num_points, num_corners);
@@ -607,12 +607,12 @@ void UniGeom::assignObj(const char *)
         if (covNormals)
         {
             coDoVec3 *normalsOut;
-            normalsOut = new coDoVec3(covNormals->getObjName(), vertices.size() / 3);
+            normalsOut = new coDoVec3(covNormals->getObjName(), int(vertices.size() / 3));
 
             float *u, *v, *w;
             normalsOut->getAddresses(&u, &v, &w);
 
-            int numPoints = vertices.size() / 3;
+            int numPoints = int(vertices.size() / 3);
 
             for (int p = 0; p < numPoints; p++)
             {

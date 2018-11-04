@@ -6,7 +6,9 @@
  * License: LGPL 2+ */
 
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <mmsystem.h>
 #else
@@ -1339,7 +1341,7 @@ void InvViewer::deselectionCallback(void *userData, SoPath *deselectedObject)
 #ifdef YAC
         LOGINFO("ERROR: Cannot detach transformCallback from node");
 #else
-        cerr << "ERROR: Cannot detach transformCallback from node" << endl;
+        cerr << "ERROR: Cannot detach transformCallback from node" << std::endl;
 #endif
     }
 
@@ -1991,7 +1993,7 @@ SoNode *InvViewer::findShapeNode(const char *Name)
 #ifdef YAC
         LOGINFO("ERROR: findShapeNode : no object with this name found");
 #else
-        cerr << "ERROR: findShapeNode : no object with this name found" << endl;
+        cerr << "ERROR: findShapeNode : no object with this name found" << std::endl;
 #endif
         return NULL;
     }
@@ -2051,7 +2053,7 @@ void InvViewer::setSelection(const char *name)
 #ifdef YAC
         LOGINFO("Name of object to select is NULL");
 #else
-        cerr << "Name of object to select is NULL" << endl;
+        cerr << "Name of object to select is NULL" << std::endl;
 #endif
     }
 }
@@ -3162,7 +3164,7 @@ void InvViewer::updateObjectView()
 #ifdef YAC
         LOGINFO("Currently no objects in renderer");
 #else
-        cerr << "Currently no objects in renderer" << endl;
+        cerr << "Currently no objects in renderer" << std::endl;
 #endif
     }
 

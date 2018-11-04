@@ -47,10 +47,10 @@ int ArclenAR_BladeElements(struct axial *ar)
          }
          else                                     // (xsec > ar->le->nocon)
          {
-            xedge = (xsec - ar->le->nocon)/(1.0 - ar->le->nocon);
+            xedge = (xsec - ar->le->nocon)/(1.0f - ar->le->nocon);
             lec   = ar->le->con[1] * bl_arc;
          }
-         lec *= (coeff * pow(xedge, 3) + (1.0 - coeff) * pow(xedge, 2));
+         lec *= float((coeff * pow(xedge, 3) + (1.0f - coeff) * pow(xedge, 2)));
       }
       else                                        // (ar->le->nocon == 0)
       {
@@ -64,15 +64,15 @@ int ArclenAR_BladeElements(struct axial *ar)
       {
          if (xsec <= ar->te->nocon)
          {
-            xedge = 1.0 - xsec / ar->te->nocon;
+            xedge = 1.0f - xsec / ar->te->nocon;
             tec   = ar->te->con[0] * bl_arc;
          }
          else                                     // (xsec > ar->te->nocon)
          {
-            xedge = (xsec - ar->te->nocon) / (1.0 - ar->te->nocon);
+            xedge = (xsec - ar->te->nocon) / (1.0f - ar->te->nocon);
             tec   = ar->te->con[1] * bl_arc;
          }
-         tec *= (coeff * pow(xedge, 3) + (1.0 - coeff) * pow(xedge, 2));
+         tec *= float((coeff * pow(xedge, 3) + (1.0f - coeff) * pow(xedge, 2)));
       }
       else                                        // ((ar->te->nocon == 0) || (ar->te->nocon == 1))
       {

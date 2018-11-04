@@ -14,6 +14,9 @@
 // Creation Date: April 24th 2006
 //
 // **************************************************************************
+#include <iostream>
+#include <ostream>
+#include <sstream>
 #include <util/unixcompat.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRPluginSupport.h>
@@ -40,6 +43,10 @@
 
 #include <PluginUtil/PluginMessageTypes.h>
 
+using std::cerr;
+using std::endl;
+using std::string;
+using std::stringstream;
 using covise::coCoviseConfig;
 
 PDBSequenceDisplay *plugin = NULL;
@@ -490,7 +497,7 @@ void PDBSequenceDisplay::ChangeProtein(string filename)
     }
 }
 
-void PDBSequenceDisplay::message(int type, int, const void *buf)
+void PDBSequenceDisplay::message(int toWhom, int type, int, const void *buf)
 {
     if (type == PluginMessageTypes::PDBMoveMark)
     {
@@ -513,7 +520,7 @@ void PDBSequenceDisplay::message(int type, int, const void *buf)
             {
                 //Already loaded the file up, so change position
                 string smallestChain;
-                int smallestChainPos;
+                size_t smallestChainPos;
                 myProtein.ClosestAminoAcid(overallChain, mm->x, mm->y, mm->z, smallestChain, smallestChainPos);
                 cerr << "Closest Chain is : " << smallestChain << " Closest Postion is:" << smallestChainPos << endl;
                 GotoChainAndPos(smallestChain, smallestChainPos);

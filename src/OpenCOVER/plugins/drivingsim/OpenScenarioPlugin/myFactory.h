@@ -1,10 +1,10 @@
 #ifndef MY_FACTORY_H
 #define MY_FACTORY_H
 
-#include <DrivingSim/OpenScenario/oscFactory.h>
-#include <DrivingSim/OpenScenario/oscObjectBase.h>
-#include <FollowTrajectory.h>
-#include <string.h>
+#include <OpenScenario/oscFactory.h>
+#include <OpenScenario/oscObjectBase.h>
+#include "FollowTrajectory.h"
+#include <string>
 
 using namespace std;
 

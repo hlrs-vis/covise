@@ -5,6 +5,9 @@
    <GLOBAL>
 
       <COVER>
+          <UI>
+              <VRUI toolbar="true" />
+          </UI>
 
          <!-- Cykloop screen (1720 mm x 1320 mm) -->
 
@@ -32,7 +35,7 @@
 
          <Plugin>
 
-            <AKToolbar value="on">
+            <AKToolbar value="false">
                <Scale value=".7" />
                <Position x="-850" y="0" z="-550" />
             </AKToolbar>

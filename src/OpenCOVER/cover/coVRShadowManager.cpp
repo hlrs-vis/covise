@@ -1,18 +1,23 @@
-#include "cover/coVRShadowManager.h"
-#include "cover/coVRPluginSupport.h"
-#include "cover/VRSceneGraph.h"
-#include <config/CoviseConfig.h>
+#include "coVRShadowManager.h"
+#include "VRSceneGraph.h"
+#include "coVRPluginSupport.h"
+
 using namespace opencover;
+
 coVRShadowManager* coVRShadowManager::inst=NULL;
+
+class coShadowedScene: public osgShadow::ShadowedScene
+{
+public:
+    using osgShadow::ShadowedScene::setNumChildrenRequiringUpdateTraversal;
+};
+
 coVRShadowManager::coVRShadowManager()
 {
-    std::string tech = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
-    
-    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
-    
-    shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
-    shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
-    
+    assert(!inst);
+
+    technique = "undefined";
+
     shadowMap = new osgShadow::ShadowMap;
     lspsmdb = new osgShadow::LightSpacePerspectiveShadowMapDB;
     lspsmcb = new osgShadow::LightSpacePerspectiveShadowMapCB;
@@ -20,16 +25,38 @@ coVRShadowManager::coVRShadowManager()
     standardSM = new osgShadow::StandardShadowMap;
     softSM = new osgShadow::SoftShadowMap;
     st = new osgShadow::ShadowTexture;
-    sv = new osgShadow::ShadowVolume;
-    setTechnique(tech);
 }
+
+coVRShadowManager::~coVRShadowManager()
+{
+    setTechnique("none");
+    inst = NULL;
+}
+
+
 coVRShadowManager* coVRShadowManager::instance()
+{
+    if(inst == NULL)
     {
-        if(inst == NULL)
-        {
-            inst = new coVRShadowManager();
-        }
-        return inst;
+        inst = new coVRShadowManager();
+    }
+    return inst;
+}
+
+osgShadow::ShadowedScene *coVRShadowManager::newScene()
+{
+    auto shadowedScene = new coShadowedScene;
+
+    shadowedScene->setReceivesShadowTraversalMask(Isect::ReceiveShadow);
+    shadowedScene->setCastsShadowTraversalMask(Isect::CastShadow);
+    shadowedScene->setShadowTechnique(nullptr);
+
+    if (shadowedScene->getShadowTechnique() == nullptr)
+    {
+        shadowedScene->setNumChildrenRequiringUpdateTraversal(shadowedScene->getNumChildrenRequiringUpdateTraversal()-1);
+    }
+
+    return shadowedScene;
 }
 
 void coVRShadowManager::setLight(osg::LightSource *ls)
@@ -64,20 +91,17 @@ void coVRShadowManager::setTechnique(const std::string &tech)
 {
     if(technique == tech)
         return;
-    technique = tech;
-    osgShadow::ShadowedScene *shadowedScene = opencover::cover->getScene();
-    if (technique=="ShadowVolume")
-    {
-        if(sv.get()==NULL)
-        {
-            sv = new osgShadow::ShadowVolume;
-        }
-        sv->setDynamicShadowVolumes(false);
-        sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_SIDED);
-        //sv->setDrawMode(osgShadow::ShadowVolumeGeometry::STENCIL_TWO_PASS);
-        shadowedScene->setShadowTechnique(sv.get());
+
+    osgShadow::ShadowedScene *shadowedScene = dynamic_cast<osgShadow::ShadowedScene *>(opencover::cover->getScene());
+    if (!shadowedScene) {
+        std::cerr << "coVRShadowManager: scene is not a ShadowedScene" << std::endl;
+        return;
     }
-    else if (technique=="ShadowTexture")
+
+    bool haveTechnique = shadowedScene->getShadowTechnique() != nullptr;
+
+    technique = tech;
+    if (technique=="ShadowTexture")
     {
         if(st.get()==NULL)
         {
@@ -176,5 +200,50 @@ void coVRShadowManager::setTechnique(const std::string &tech)
     else
     {
         shadowedScene->setShadowTechnique(NULL); // no shadow
+        shadowedScene->cleanSceneGraph();
     }
+
+    coShadowedScene *scene = dynamic_cast<coShadowedScene *>(shadowedScene);
+    if (!scene)
+        return;
+
+    if (scene->getShadowTechnique() == nullptr)
+    {
+        if (haveTechnique)
+        {
+            scene->setNumChildrenRequiringUpdateTraversal(shadowedScene->getNumChildrenRequiringUpdateTraversal()-1);
+        }
+    }
+    else
+    {
+        if (!haveTechnique)
+        {
+            scene->setNumChildrenRequiringUpdateTraversal(shadowedScene->getNumChildrenRequiringUpdateTraversal()+1);
+        }
+    }
+}
+
+std::string coVRShadowManager::getTechnique()
+{
+    return technique;
+}
+
+void coVRShadowManager::setSoftnessWidth(float w)
+{
+    if(softSM) softSM->setSoftnessWidth(w);
+}
+
+void coVRShadowManager::setJitteringScale(float s)
+{
+    if(softSM) softSM->setJitteringScale(s);
+}
+
+void coVRShadowManager::setTextureSize(osg::Vec2s ts)
+{
+    if(softSM) softSM->setTextureSize(ts);
+    if(shadowMap) shadowMap->setTextureSize(ts);
+    if(standardSM) standardSM->setTextureSize(ts);
+    if(lspsm) lspsm->setTextureSize(ts);
+    if(lspsmcb) lspsmcb->setTextureSize(ts);
+    if(lspsmdb) lspsmdb->setTextureSize(ts);
 }

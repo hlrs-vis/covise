@@ -87,6 +87,7 @@ public:
 
     covise::coConfigBool cfg_storeWindowConfig, cfg_ErrorHandling, cfg_DeveloperMode;
     covise::coConfigBool cfg_HideUnusedModules, cfg_AutoConnect, cfg_TopLevelBrowser, cfg_ImbeddedRenderer;
+    covise::coConfigBool cfg_TabletUITabs;
     covise::coConfigInt cfg_AutoSaveTime, cfg_ModuleHistoryLength, cfg_GridSize;
     covise::coConfigString cfg_HostColors, cfg_QtStyle, cfg_HighColor;
     QString cfg_SavePath;

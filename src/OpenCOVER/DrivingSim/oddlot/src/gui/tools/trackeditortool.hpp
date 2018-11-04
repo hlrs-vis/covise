@@ -92,6 +92,7 @@ public slots:
     void handleElevationSelection(int);
     void handleSuperelevationSelection(int);
     void handleCrossfallSelection(int);
+	void handleShapeSelection(int);
     void handleLaneSectionSelection(int);
     void handleRoadSystemSelection(int);
 

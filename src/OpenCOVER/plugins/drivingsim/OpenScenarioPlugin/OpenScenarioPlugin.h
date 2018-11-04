@@ -22,15 +22,17 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <net/covise_connect.h>
 
-#include "VehicleManager.h"
-#include "VehicleFactory.h"
-#include "PedestrianManager.h"
-#include "PedestrianFactory.h"
-#include "RoadSystem/RoadSystem.h"
-#include "UDPBroadcast.h"
-#include "Vehicle.h"
+#include <TrafficSimulation/VehicleManager.h>
+#include <TrafficSimulation/VehicleFactory.h>
+#include <TrafficSimulation/PedestrianManager.h>
+#include <TrafficSimulation/PedestrianFactory.h>
+#include <VehicleUtil/RoadSystem/RoadSystem.h>
+#include <TrafficSimulation/UDPBroadcast.h>
+#include <TrafficSimulation/Vehicle.h>
 #include "myFactory.h"
+#include "ScenarioManager.h"
 
 
 namespace OpenScenario
@@ -39,6 +41,7 @@ class OpenScenarioBase;
 }
 
 class Source;
+class CameraSensor;
 
 class OpenScenarioPlugin : public opencover::coVRPlugin
 {
@@ -51,16 +54,35 @@ public:
 
 	static OpenScenarioPlugin *plugin;
 	static OpenScenarioPlugin *instance() { return plugin; };
+	std::list<CameraSensor *> cameras;
+	CameraSensor *currentCamera=NULL;
 
 	bool init();
 
     // this will be called in PreFrame
     void preFrame();
+	// return if rendering is required
+	bool update();
+
+	void handleMessage(const char *buf);
+
+	bool readTCPData(void * buf, unsigned int numBytes);
 
 	void addSource(Source *s) { sources.push_back(s); };
 
-private:
+	ScenarioManager *scenarioManager;
 	OpenScenario::OpenScenarioBase *osdb;
+	RoadSystem *getRoadSystem() { return system; };
+
+	void preSwapBuffers(int windowNumber);
+
+	void checkAndHandleMessages(bool blocking=false);
+
+	void writeString(const std::string &msg);
+
+private:
+
+    bool advanceTime(double step);
 
 	//benoetigt fuer loadRoadSystem
 	bool loadRoadSystem(const char *filename);
@@ -70,6 +92,7 @@ private:
 	void parseOpenDrive(xercesc::DOMElement *);
 	xercesc::DOMElement *rootElement;
 	osg::PositionAttitudeTransform *roadGroup;
+	osg::Group *trafficSignalGroup;
 	RoadSystem *system;
 	std::list<Source *> sources;
 
@@ -78,10 +101,29 @@ private:
     VehicleFactory *factory;
 	PedestrianFactory *pedestrianFactory;
 
+
+	covise::ServerConnection *serverConn;
+	covise::SimpleServerConnection *toClientConn;
+	int port;
+
+
 	bool tessellateRoads;
 	bool tessellatePaths;
     bool tessellateBatters;
     bool tessellateObjects;
+
+	int frameCounter;
+	int frameRate;
+	int writeRate;
+	bool doExit;
+	bool doWait;
+    bool blockingWait;
+    bool waitOnStart;
+    double minSimulationStep = -1.; // negative: once per frame
+
+	osg::ref_ptr<osg::Image> image;
+	GLenum GL_fmt;
+
 };
 
 #endif //OPENSCENARIO_PLUGIN_H

@@ -202,7 +202,7 @@ JunctionLaneItem::updateColor()
         qDebug("WARNING 1010181018! Unknown Lane Type!");
     }
 
-    if (grandparentRoad_->getJunction() != "-1")
+    if (grandparentRoad_->getJunction().getID() != -1)
     {
         setPen(QPen(ODD::instance()->colors()->darkPurple()));
     }
@@ -242,7 +242,7 @@ JunctionLaneItem::createPath()
     for (int i = 0; i < pointCount; ++i)
     {
         double s = sStart + i * segmentLength; // [sStart, sEnd]
-        points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, s));
+        points[i] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide + road->getLaneOffset(s), s));
     }
 
     // Left side //
@@ -252,12 +252,12 @@ JunctionLaneItem::createPath()
         double s = sEnd - i * segmentLength; // [sEnd, sStart]
         if (s < 0.0)
             s = 0.0; // can happen due to numerical inaccuracy (around -1.0e-15)
-        points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s));
+        points[i + pointCount] = road->getGlobalPoint(s, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId(), s) + road->getLaneOffset(s));
     }
 
     // End point //
     //
-    points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart));
+    points[2 * pointCount] = road->getGlobalPoint(sStart, laneSide * parentLaneSection_->getLaneSpanWidth(0, lane_->getId() - laneSide, sStart) + road->getLaneOffset(sStart));
 
     // Psycho-Path //
     //
@@ -303,6 +303,11 @@ JunctionLaneItem::updateObserver()
     {
         createPath();
     }
+	else if (roadChanges & RSystemElementRoad::CRD_JunctionChange)
+	{
+		updateColor();
+	}
+
 }
 
 //################//

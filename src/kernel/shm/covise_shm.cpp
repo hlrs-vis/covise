@@ -110,9 +110,9 @@ ShmConfig *ShmConfig::the()
     return theShmConfig;
 }
 
-size_t ShmConfig::getMallocSize()
+covise::shmSizeType ShmConfig::getMallocSize()
 {
-    return the()->minSegSize;
+    return (covise::shmSizeType)(the()->minSegSize);
 }
 
 ShmConfig::ShmConfig()
@@ -123,7 +123,7 @@ ShmConfig::ShmConfig()
     else
         minSegSize = 128 * 1024 * 1024 - 8;
     bool haveShmSizeConfig = false;
-    int minSegSizeConfig = coCoviseConfig::getInt("System.ShmSize", minSegSize, &haveShmSizeConfig);
+    int minSegSizeConfig = coCoviseConfig::getInt("System.ShmSize", (int)minSegSize, &haveShmSizeConfig);
     if (haveShmSizeConfig)
     {
         minSegSize = minSegSizeConfig;

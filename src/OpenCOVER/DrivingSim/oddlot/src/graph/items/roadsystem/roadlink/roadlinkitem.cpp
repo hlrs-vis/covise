@@ -100,7 +100,7 @@ RoadLinkItem::init()
         targetRoad_ = roadLink_->getProjectData()->getRoadSystem()->getRoad(roadLink_->getElementId());
         if (!targetRoad_)
         {
-            qDebug("%s", tr("Error 1011191315! RoadLinkItem::init() road not found: ").append(roadLink_->getElementId()).toUtf8().constData());
+            qDebug("%s", tr("Error 1011191315! RoadLinkItem::init() road not found: ").append(roadLink_->getElementId().speakingName()).toUtf8().constData());
         }
         else
         {
@@ -112,7 +112,7 @@ RoadLinkItem::init()
         targetJunction_ = roadLink_->getProjectData()->getRoadSystem()->getJunction(roadLink_->getElementId());
         if (!targetJunction_)
         {
-            qDebug("%s", tr("Error 1011191316! RoadLinkItem::init() junction not found: ").append(roadLink_->getElementId()).toUtf8().constData());
+            qDebug("%s", tr("Error 1011191316! RoadLinkItem::init() junction not found: ").append(roadLink_->getElementId().speakingName()).toUtf8().constData());
         }
         else
         {
@@ -123,7 +123,7 @@ RoadLinkItem::init()
                 RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!path)
                 {
-                    qDebug("%s", tr("Error 1011191314! RoadLinkItem::init() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
+                    qDebug("%s", tr("Error 1011191314! RoadLinkItem::init() road not found: ").append(connection->getConnectingRoad().speakingName()).toUtf8().constData());
                 }
                 else
                 {
@@ -191,7 +191,7 @@ RoadLinkItem::updatePathList()
             RSystemElementRoad *path = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
             if (!path)
             {
-                qDebug("%s", tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
+                qDebug("%s", tr("Error 1011261640! RoadLinkItem::updatePathList() road not found: ").append(connection->getConnectingRoad().speakingName()).toUtf8().constData());
             }
             else
             {
@@ -301,11 +301,11 @@ RoadLinkItem::createPath()
         {
             thePath.moveTo(handlePoint);
 
-            if (roadLink_->getContactPoint() == "start")
+            if (roadLink_->getContactPoint() == JunctionConnection::JCP_START)
             {
                 thePath.lineTo(targetRoad_->getGlobalPoint(DISTANCE, targetRoad_->getMinWidth(DISTANCE) - DISTANCE));
             }
-            else if (roadLink_->getContactPoint() == "end")
+            else if (roadLink_->getContactPoint() == JunctionConnection::JCP_END)
             {
                 thePath.lineTo(targetRoad_->getGlobalPoint(targetRoad_->getLength() - DISTANCE, targetRoad_->getMaxWidth(targetRoad_->getLength() - DISTANCE) + DISTANCE));
             }
@@ -326,17 +326,17 @@ RoadLinkItem::createPath()
                 RSystemElementRoad *targetRoad = connection->getProjectData()->getRoadSystem()->getRoad(connection->getConnectingRoad());
                 if (!targetRoad)
                 {
-                    qDebug("%s", tr("Error 1011191310! RoadLinkItem::createPath() road not found: ").append(connection->getConnectingRoad()).toUtf8().constData());
+                    qDebug("%s", tr("Error 1011191310! RoadLinkItem::createPath() road not found: ").append(connection->getConnectingRoad().speakingName()).toUtf8().constData());
                     continue;
                 }
 
                 thePath.moveTo(handlePoint);
 
-                if (connection->getContactPoint() == "start")
+                if (connection->getContactPoint() == JunctionConnection::JCP_START)
                 {
                     thePath.lineTo(targetRoad->getGlobalPoint(DISTANCE, targetRoad->getMinWidth(DISTANCE) - DISTANCE));
                 }
-                else if (connection->getContactPoint() == "end")
+                else if (connection->getContactPoint() == JunctionConnection::JCP_END)
                 {
                     thePath.lineTo(targetRoad->getGlobalPoint(targetRoad->getLength() - DISTANCE, targetRoad->getMaxWidth(targetRoad->getLength() - DISTANCE) + DISTANCE));
                 }

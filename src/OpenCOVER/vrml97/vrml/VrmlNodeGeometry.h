@@ -33,10 +33,10 @@ public:
     VrmlNodeGeometry(VrmlScene *);
     ~VrmlNodeGeometry();
 
-    virtual VrmlNodeGeometry *toGeometry() const;
+    virtual VrmlNodeGeometry *toGeometry() const override;
 
     // Geometry nodes need only define insertGeometry(), not render().
-    virtual void render(Viewer *);
+    virtual void render(Viewer *) override;
 
     virtual Viewer::Object insertGeometry(Viewer *) = 0;
 
@@ -45,6 +45,8 @@ public:
     {
         return d_viewerObject;
     };
+
+    virtual bool isOnlyGeometry() const override;
 
 protected:
     Viewer::Object d_viewerObject; // move to VrmlNode? ...

@@ -367,3 +367,12 @@ CrossfallMoveHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     MoveHandle::mouseMoveEvent(event); // pass to baseclass
 }
+
+
+void
+CrossfallMoveHandle::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	crossfallEditor_->getProfileGraph()->postponeGarbageDisposal();
+	getContextMenu()->exec(event->screenPos());
+	crossfallEditor_->getProfileGraph()->finishGarbageDisposal();
+}

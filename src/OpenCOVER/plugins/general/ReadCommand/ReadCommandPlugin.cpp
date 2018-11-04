@@ -24,6 +24,7 @@
 #include <cover/OpenCOVER.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRMSController.h>
+#include <cover/coVRNavigationManager.h>
 #include <cover/VRSceneGraph.h>
 
 #include <QTextStream>
@@ -66,10 +67,11 @@ void ReadCommandPlugin::preFrame()
     lock.lock();
     while (!queue.empty())
     {
+        auto navi = coVRNavigationManager::instance();
         QString command = queue.takeFirst();
         if (command == "quit")
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
         else if (command.startsWith("load"))
         {
@@ -88,23 +90,23 @@ void ReadCommandPlugin::preFrame()
         }
         else if (command == "walk")
         {
-            cover->enableNavigation("Walk");
+            navi->setNavMode(coVRNavigationManager::Walk);
         }
         else if (command == "fly")
         {
-            cover->enableNavigation("Fly");
+            navi->setNavMode(coVRNavigationManager::Fly);
         }
         else if (command == "drive")
         {
-            cover->enableNavigation("Drive");
+            navi->setNavMode(coVRNavigationManager::Glide);
         }
         else if (command == "scale")
         {
-            cover->enableNavigation("Scale");
+            navi->setNavMode(coVRNavigationManager::Scale);
         }
         else if (command == "xform")
         {
-            cover->enableNavigation("XForm");
+            navi->setNavMode(coVRNavigationManager::XForm);
         }
         else if (command.startsWith("wireframe"))
         {

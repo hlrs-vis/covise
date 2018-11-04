@@ -89,33 +89,35 @@
 #include <grmsg/coGRObjSensorEventMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
 
+#include <cover/ui/Action.h>
+
 using namespace covise;
 using namespace grmsg;
 
 Vrml97Plugin *Vrml97Plugin::plugin = NULL;
 
 static FileHandler handlers[] = {
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrl.gz" },
-    { Vrml97Plugin::loadVrml,
+    { Vrml97Plugin::loadUrl,
       Vrml97Plugin::loadVrml,
       NULL,
       Vrml97Plugin::unloadVrml,
       "wrz" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
 	  "x3d" },
-	  { Vrml97Plugin::loadVrml,
+      { Vrml97Plugin::loadUrl,
 	  Vrml97Plugin::loadVrml,
 	  NULL,
 	  Vrml97Plugin::unloadVrml,
@@ -129,7 +131,7 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
 
     if (!plugin)
         return NULL;
-    if (plugin->viewer)
+    if (!plugin->viewer)
         return NULL;
 
     osg::Group *g = plugin->viewer->VRMLRoot;
@@ -148,19 +150,25 @@ osg::Node *Vrml97Plugin::getRegistrationRoot()
     return plugin->viewer->VRMLRoot;
 }
 
+int Vrml97Plugin::loadUrl(const Url &url, osg::Group *group, const char *ck)
+{
+    return loadVrml(url.str().c_str(), group, ck);
+}
+
 int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *)
 {
     //fprintf(stderr, "----Vrml97Plugin::loadVrml %s\n", filename);
-    fprintf(stderr, "Loding VRML %s\n", filename);
+    fprintf(stderr, "Loading VRML %s\n", filename);
     if (plugin->vrmlScene)
     {
-        VrmlMFString url((char *)filename);
+        VrmlMFString url(filename);
         if (group)
             plugin->viewer->setRootNode(group);
         else
             plugin->viewer->setRootNode(cover->getObjectsRoot());
         plugin->vrmlScene->clearRelativeURL();
         plugin->vrmlScene->loadUrl(&url, NULL, false);
+
 
         //allow plugin to unregister
         VRRegisterSceneGraph::instance()->unregisterNode(getRegistrationRoot(), "root");
@@ -169,7 +177,12 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
     }
     else
     {
-        plugin->vrmlScene = new VrmlScene(filename, filename);
+        const char *local = NULL;
+        Doc url(filename);
+        std::string proto = url.urlProtocol();
+        if (proto.empty() || proto=="file")
+            local = filename;
+        plugin->vrmlScene = new VrmlScene(filename, local);
         if (group)
             plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
         else
@@ -296,7 +309,8 @@ void Vrml97Plugin::worldChangedCB(int reason)
 }
 
 Vrml97Plugin::Vrml97Plugin()
-    : listener(NULL)
+    : ui::Owner("Vrml97Plugin", cover->ui)
+    , listener(NULL)
     , viewer(NULL)
     , vrmlScene(NULL)
     , player(NULL)
@@ -382,6 +396,8 @@ bool Vrml97Plugin::init()
 // this is called if the plugin is removed at runtime
 Vrml97Plugin::~Vrml97Plugin()
 {
+    unloadVrml("");
+
     if (!coVRMSController::instance()->isSlave())
     {
         if (listener)
@@ -405,47 +421,50 @@ Vrml97Plugin::~Vrml97Plugin()
 
     delete sensorList;
     sensorList = NULL;
+
+    delete System::the;
+}
+
+bool
+Vrml97Plugin::update()
+{
+    bool render = false;
+
+    if (this->sensorList)
+        sensorList->update();
+    if (this->viewer)
+    {
+        render = this->viewer->update();
+    }
+    if (this->player)
+        this->player->update();
+    if (System::the)
+        System::the->update();
+
+    return render;
 }
 
 void
 Vrml97Plugin::preFrame()
 {
-    if (this->sensorList)
-        sensorList->update();
-    if (this->viewer)
-        this->viewer->update();
-    if (this->player)
-        this->player->update();
-    if (System::the)
-        System::the->update();
     VrmlNodeMatrixLight::updateAll();
     VrmlNodePhotometricLight::updateAll();
-    if (plugin->viewer && plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
-    {
-        plugin->isNewVRML = false;
-        coSensiveSensor::modified = false;
+    if (plugin->viewer)
+	{
+		if (plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
+		{
+			plugin->isNewVRML = false;
+			coSensiveSensor::modified = false;
 
-        for (int i = 0; i < plugin->viewer->sensors.size(); i++)
-        {
-            coSensiveSensor *s = plugin->viewer->sensors[i];
-            osg::Node *n = s->getNode();
-            cover->setNodesIsectable(n, true);
-        }
-        /*
-       VRRegisterSceneGraph::instance()->registerNode(getRegistrationRoot(), "root"); 
-       
-       for (int i=0; i<plugin->viewer->sensors.size(); i++)
-       {
-            // send sensors to GUI (a message for each sensor)
-            coGRObjSensorMsg sensorMsg(coGRMsg::SENSOR, vrmlFilename.c_str(), i);
-            Message grmsg;
-            grmsg.type = COVISE_MESSAGE_UI;
-            grmsg.data = (char *)(sensorMsg.c_str());
-            grmsg.length = strlen(grmsg.data)+1;
-            cover->sendVrbMessage(&grmsg);
-       }
-       // in case loading multiple VRMLs should ever work correctly, dont register the overall root but the per-file-root
-      */
+			for (int i = 0; i < plugin->viewer->sensors.size(); i++)
+			{
+				coSensiveSensor *s = plugin->viewer->sensors[i];
+				osg::Node *n = s->getNode();
+				cover->setNodesIsectable(n, true);
+			}
+		}
+
+		viewer->preFrame();
     }
 }
 
@@ -649,23 +668,18 @@ Vrml97Plugin::key(int type, int keySym, int mod)
     }
 }
 
-void Vrml97Plugin::message(int type, int len, const void *buf)
+void Vrml97Plugin::message(int toWhom, int type, int len, const void *buf)
 {
-    int headerSize = 2 * sizeof(int);
-    const char *header = (const char *)buf;
-    header -= headerSize;
-    int toWhom = *((int *)header);
-#ifdef BYTESWAP
-    byteSwap(toWhom);
-#endif
-
-    if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+    if (len >= strlen("activateTouchSensor0"))
     {
-        activateTouchSensor(0);
-    }
-    else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
-    {
-        activateTouchSensor(1);
+        if (strncmp(((const char *)buf), "activateTouchSensor0", strlen("activateTouchSensor0")) == 0)
+        {
+            activateTouchSensor(0);
+        }
+        else if (strncmp(((const char *)buf), "activateTouchSensor1", strlen("activateTouchSensor1")) == 0)
+        {
+            activateTouchSensor(1);
+        }
     }
 
     if (toWhom != coVRPluginSupport::VRML_EVENT)
@@ -786,15 +800,22 @@ void Vrml97Plugin::activateTouchSensor(int id)
         dummyMatrix);
 }
 
-coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
+ui::Element *Vrml97Plugin::getMenuButton(const std::string &buttonName)
 {
     if (buttonName.find("activateTouchSensor") == 0)
     {
         int i = atoi(buttonName.substr(19).c_str());
         if (viewer && viewer->sensors.size() > i)
         {
-            if (viewer->sensors[i]->getButton()->getMenuListener() == NULL)
-                viewer->sensors[i]->getButton()->setMenuListener(this);
+            if (auto a = viewer->sensors[i]->getButton())
+            {
+                if (!a->callback())
+                {
+                    a->setCallback([this, i](){
+                        activateTouchSensor(i);
+                    });
+                }
+            }
             return viewer->sensors[i]->getButton();
         }
         else
@@ -804,6 +825,7 @@ coMenuItem *Vrml97Plugin::getMenuButton(const std::string &buttonName)
     return NULL;
 }
 
+#if 0
 void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
 {
 
@@ -822,5 +844,6 @@ void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
         }
     }
 }
+#endif
 
 COVERPLUGIN(Vrml97Plugin)

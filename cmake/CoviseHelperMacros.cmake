@@ -51,10 +51,6 @@
 #
 #  --------------------------------------------------------------------------------------
 #
-#  COVISE_ADJUST_LIB_VARS (basename)
-#    - this is a support macro for cmake find modules (it simply sets/adjusts library-variables
-#      depending on what was previously found for example by FIND_LIBRARY()
-#
 #  COVISE_RESET (varname)
 #    - sets a variable to "not found"
 #
@@ -88,60 +84,6 @@
 # @author Blasius Czink
 #
 
-# Macro to adjust library-variables
-MACRO(COVISE_ADJUST_LIB_VARS basename)
-  # if only the release version was found, set the debug variable also to the release version
-  IF (${basename}_LIBRARY_RELEASE AND NOT ${basename}_LIBRARY_DEBUG)
-    SET(${basename}_LIBRARY_DEBUG ${${basename}_LIBRARY_RELEASE} CACHE FILEPATH "${basename}_LIBRARY_DEBUG" FORCE)
-    SET(${basename}_LIBRARY       ${${basename}_LIBRARY_RELEASE} CACHE FILEPATH "${basename}_LIBRARY" FORCE)
-    SET(${basename}_LIBRARIES     ${${basename}_LIBRARY_RELEASE} CACHE FILEPATH "${basename}_LIBRARIES" FORCE)
-  ENDIF (${basename}_LIBRARY_RELEASE AND NOT ${basename}_LIBRARY_DEBUG)
-
-  # if only the debug version was found, set the release variable also to the debug version
-  IF (${basename}_LIBRARY_DEBUG AND NOT ${basename}_LIBRARY_RELEASE)
-    SET(${basename}_LIBRARY_RELEASE ${${basename}_LIBRARY_DEBUG} CACHE FILEPATH "${basename}_LIBRARY_RELEASE" FORCE)
-    SET(${basename}_LIBRARY         ${${basename}_LIBRARY_DEBUG} CACHE FILEPATH "${basename}_LIBRARY" FORCE)
-    SET(${basename}_LIBRARIES       ${${basename}_LIBRARY_DEBUG} CACHE FILEPATH "${basename}_LIBRARIES" FORCE)
-  ENDIF (${basename}_LIBRARY_DEBUG AND NOT ${basename}_LIBRARY_RELEASE)
-  
-  # if both are set...
-  IF (${basename}_LIBRARY_DEBUG AND ${basename}_LIBRARY_RELEASE)
-    # if the generator supports configuration types then set
-    # optimized and debug libraries, or if the CMAKE_BUILD_TYPE has a value
-    IF (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
-      SET(${basename}_LIBRARY
-          optimized ${${basename}_LIBRARY_RELEASE}
-          debug     ${${basename}_LIBRARY_DEBUG}
-      )
-    ELSE(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
-      # if there are no configuration types and CMAKE_BUILD_TYPE has no value
-      # then just use the release libraries
-      SET(${basename}_LIBRARY ${${basename}_LIBRARY_RELEASE} )
-    ENDIF(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
-
-    SET(${basename}_LIBRARIES
-        optimized ${${basename}_LIBRARY_RELEASE}
-        debug ${${basename}_LIBRARY_DEBUG}
-        CACHE FILEPATH "${basename}_LIBRARIES" FORCE
-    )
-    
-  ENDIF (${basename}_LIBRARY_DEBUG AND ${basename}_LIBRARY_RELEASE)
-
-  SET(${basename}_LIBRARY "${${basename}_LIBRARY}" CACHE FILEPATH "The ${basename} library" FORCE)
-  # do not show those in normal view
-  MARK_AS_ADVANCED(FORCE
-    ${basename}_LIBRARY
-    ${basename}_LIBRARY_RELEASE
-    ${basename}_LIBRARY_DEBUG
-    ${basename}_LIBRARIES
-  )
-ENDMACRO(COVISE_ADJUST_LIB_VARS)
-
-
-# helper to reset variables to ...-NOTFOUND so that the FIND...-macros run again
-MACRO(COVISE_RESET varname)
-  SET (${varname} "${varname}-NOTFOUND")
-ENDMACRO(COVISE_RESET)
 
 # helper to dump the lib-values to a simple text-file
 MACRO(COVISE_DUMP_LIB_SETUP basename)
@@ -456,6 +398,7 @@ MACRO(COVER_ADD_PLUGIN targetname)
         #message("Obj: ${f} - ${ext}") 
 		#don#t add obj files as lib
         set(OBJECTS ${OBJECTS} ${f})
+     elseif(ext MATCHES "\\.(ui)\$")
      else()
         #message("Lib: ${f} - ${ext}")
         set(LIBS ${LIBS} ${f})
@@ -486,12 +429,14 @@ MACRO(COVER_ADD_PLUGIN_TARGET targetname)
     ADD_DEFINITIONS(-DIMPORT_PLUGIN)
   ENDIF(WIN32)
 
-  INCLUDE_DIRECTORIES(
+  INCLUDE_DIRECTORIES(SYSTEM
     ${ZLIB_INCLUDE_DIR}
     ${JPEG_INCLUDE_DIR}
     ${PNG_INCLUDE_DIR}
     ${TIFF_INCLUDE_DIR}
     ${OPENSCENEGRAPH_INCLUDE_DIRS}
+  )
+  INCLUDE_DIRECTORIES(
     "${COVISEDIR}/src/OpenCOVER"
   )
 IF(APPLE)
@@ -624,6 +569,7 @@ MACRO(COVISE_INSTALL_TARGET targetname)
 
   INSTALL(TARGETS ${ARGV} EXPORT covise-targets
           RUNTIME DESTINATION ${ARCHSUFFIX}/bin${_category_path}
+          BUNDLE DESTINATION ${ARCHSUFFIX}/bin${_category_path}
           LIBRARY DESTINATION ${ARCHSUFFIX}/lib
           ARCHIVE DESTINATION ${ARCHSUFFIX}/lib
           COMPONENT modules.${category}
@@ -895,7 +841,9 @@ MACRO(TESTIT)
 ENDMACRO(TESTIT)
 
 MACRO(USING_MESSAGE)
-   #MESSAGE(${ARGN})
+   if (COVISE_CMAKE_VERBOSE)
+       MESSAGE(${ARGN})
+   endif()
 ENDMACRO(USING_MESSAGE)
 
 MACRO(CREATE_USING)
@@ -1026,6 +974,9 @@ MACRO(COVISE_FIND_CUDA)
       if(APPLE)
           set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "\"-DBOOST_NOINLINE=__attribute__ ((noinline))\"")
       endif()
+	  if(BASEARCHSUFFIX STREQUAL "zebu")
+        SET(CUDA_HOST_COMPILER "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/amd64/cl.exe" CACHE STRING "CUDA nvcc host compiler" FORCE)
+      endif()
       if("${CUDA_VERSION}" VERSION_LESS 7.0)
           if(APPLE)
               set(CUDA_HOST_COMPILER ${COVISEDIR}/scripts/cuda-host-compiler CACHE STRING "CUDA nvcc host compiler" FORCE)
@@ -1044,7 +995,7 @@ MACRO(COVISE_FIND_CUDA)
           set(CUDA_PROPAGATE_HOST_FLAGS ON)
           if(NOT WIN32)
               # nvcc aborts compilation if -std was defined more than once
-              if (COVISE_USE_CPP11 AND "${CMAKE_VERSION}" VERSION_LESS "3.3.0")
+              if ("${CMAKE_VERSION}" VERSION_LESS "3.3.0")
                   set(CUDA_NVCC_FLAGS "-std=c++11 ${CUDA_NVCC_FLAGS}")
               endif()
               if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))

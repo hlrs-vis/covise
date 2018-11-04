@@ -104,6 +104,7 @@ public:
 
     VrmlSFRotation d_bikeRotation;
     VrmlSFVec3f d_bikeTranslation;
+    VrmlSFBool d_thermal;
     virtual ~VrmlNodeBicycle();
 
     virtual VrmlNode *cloneMe() const;
@@ -160,12 +161,16 @@ public:
     Tacx *tacx;
     FlightGear *flightgear;
     bool isPlane;
-
+    bool isBike;
+    bool isParaglider;
     coTUITab *BicycleTab;
     coTUIEditFloatField *velocityFactor;
     coTUILabel *velocityFactorLabel;
     coTUIEditFloatField *forceFactor;
     coTUILabel *forceFactorLabel;
+    coTUIEditFloatField *wingArea;
+    coTUILabel *wingAreaLabel;
+
 
 
     virtual void run();
@@ -177,9 +182,6 @@ public:
     void tabletPressEvent(coTUIElement *tUIItem);
     int initUI();
     void UpdateInputState();
-
-    // this function is called if a message arrives
-    virtual void message(int type, int length, const void *data);
 
     int buttonPressEventType;
     int buttonReleaseEventType;

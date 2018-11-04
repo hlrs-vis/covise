@@ -16,17 +16,51 @@
 
 #include <cstdlib>
 
-XenomaiSteeringWheelHomingTask::XenomaiSteeringWheelHomingTask(CanOpenController &con, uint8_t id)
+XenomaiSteeringWheel::XenomaiSteeringWheel(CanOpenController &con, uint8_t id)
     : CanOpenDevice(con, id)
-    , XenomaiTask("XenomaiSteeringWheelHoming")
-    , done(false)
-    , success(false)
+    , XenomaiTask("XenomaiSteeringWheel")
+	, currentMutex("xsw_current_mutex")
+	, positionMutex("xsw_positioni_mutex")
+    , runTask(true)
+    , taskFinished(false)
+    , homing(false)
+    , overruns(0)
+    , position(0)
+    , driftPosition(0)
+    , speedDeque(10, 0)
+    , Kwheel(0.005)
+    , Dwheel(0.1)
+    , rumbleAmplitude(3.0)
+    , Kdrill(0.005)
+    , drillElasticity(0.0)
 {
+	
 }
 
-void XenomaiSteeringWheelHomingTask::run()
+XenomaiSteeringWheel::~XenomaiSteeringWheel()
 {
-    fprintf(stderr, "Starting homing...\n");
+    RT_TASK_INFO info;
+    inquire(info);
+
+#ifdef MERCURY
+    if (info.stat.status & __THREAD_S_STARTED)
+#else
+    if (info.status & T_STARTED)
+#endif
+    {
+        runTask = false;
+        while (!taskFinished)
+        {
+            sleep(1);
+        }
+    }
+}
+
+bool XenomaiSteeringWheel::center()
+{
+	homing = true;
+    
+	fprintf(stderr, "Starting homing...\n");
 
     uint16_t RPDOData = 0x6; //enable op
     writeRPDO(1, (uint8_t *)&RPDOData, 6);
@@ -47,8 +81,8 @@ void XenomaiSteeringWheelHomingTask::run()
     rt_task_sleep(100000000);
     enterPreOp();
     rt_task_sleep(100000000);
-    done = false;
-    success = false;
+    
+    bool success = false;
 
     rt_task_set_periodic(NULL, TM_NOW, rt_timer_ns2ticks(1000000));
 
@@ -70,61 +104,68 @@ void XenomaiSteeringWheelHomingTask::run()
     uint8_t opMode = 0xf9; //homing mode
     if (!writeSDO(0x6060, 0, &opMode, 1))
     {
-        fprintf(stderr, "op mode failed\n");
+        fprintf(stderr, "op mode failed 1\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
 
-    uint8_t homingType = 0x9; //homing type: mechanical limit + zero mark: 7 or only mechanical limit: 9
+    uint8_t homingType = 0x7; //homing type: mechanical limit + zero mark: 7 or only mechanical limit: 9
     if (!writeSDO(0x2024, 1, &homingType, 1))
     {
         fprintf(stderr, "set homing type failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
     uint8_t homingDir = 0x0; //homing dir
     if (!writeSDO(0x2024, 2, &homingDir, 1))
     {
         fprintf(stderr, "set homing direction failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
     int32_t homingVel = 70000; //homing vel
     if (!writeSDO(0x2024, 3, (uint8_t *)&homingVel, 4))
     {
         fprintf(stderr, "set homing velocity failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
     uint16_t homingAcc = 50; //homing acc
     if (!writeSDO(0x2024, 4, (uint8_t *)&homingAcc, 2))
     {
         fprintf(stderr, "set homing acceleration failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
     uint16_t homingDec = 50; //homing dec
     if (!writeSDO(0x2024, 5, (uint8_t *)&homingDec, 2))
     {
         fprintf(stderr, "set homing decceleration failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
-    int32_t homingRef = limitSwitchPosition; //homing reference offset
+    int32_t homingRef = zeroMarkPosition; //homing reference offset
     if (!writeSDO(0x2024, 6, (uint8_t *)&homingRef, 4))
     {
         fprintf(stderr, "set homing reference offset\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+        homing = false;
+        return success;;
     }
-    controlWord = 0x1F; //disable operation
+    controlWord = 0x1F; //enable operation
     if (!writeSDO(0x6040, 0, (uint8_t *)&controlWord, 2))
     {
         fprintf(stderr, "control word enable starthoming operation failed\n");
@@ -135,8 +176,9 @@ void XenomaiSteeringWheelHomingTask::run()
     {
         fprintf(stderr, "1. rpdo select failed\n");
         stopNode();
-        done = true;
-        return;
+        //done = true;
+		homing = false;
+        return success;
     }
     /* pdoSelectData = 0x0; //2. RPDO: Control word
    if(!writeSDO(0x2601, 0, &pdoSelectData, 1)) {
@@ -180,7 +222,7 @@ void XenomaiSteeringWheelHomingTask::run()
     RPDOData = 0x1f; //enable op
     writeRPDO(1, (uint8_t *)&RPDOData, 2);
 
-    //unsigned int count = 0;
+    unsigned int count = 0;
     unsigned long overruns = 0;
     uint32_t enhStatus = 0;
     bool motionTaskActive = false;
@@ -191,20 +233,39 @@ void XenomaiSteeringWheelHomingTask::run()
         uint8_t *TPDOData = readTPDO(1);
         memcpy(&enhStatus, TPDOData + 2, 4);
         motionTaskActive = enhStatus & 0x10000;
-        //++count;
-        //std::cerr << "first stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		++count;
+        if(enhStatus & 0x20000)
+		{
+        std::cerr << "homing/reference point set "<< std::endl;
+		}
+		if(enhStatus & 0x40000)
+		{
+        std::cerr << "home "<< std::endl;
+		}
+        std::cerr << "first stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		//std::cerr << "first stage: enhStatus: " << std::hex << enhStatus << std::endl;
         rt_task_wait_period(&overruns);
     }
 
     fprintf(stderr, "Running to hardware limit2...\n");
-    //count = 0;
+    count = 0;
     while (motionTaskActive)
     {
         controller->recvPDO(1);
         uint8_t *TPDOData = readTPDO(1);
         memcpy(&enhStatus, TPDOData + 2, 4);
         motionTaskActive = enhStatus & 0x10000;
-        //std::cerr << "second stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		++count;
+		if(enhStatus & 0x20000)
+		{
+        std::cerr << "homing/reference point set "<< std::endl;
+		}
+		if(enhStatus & 0x40000)
+		{
+        std::cerr << "home "<< std::endl;
+		}
+        std::cerr << "second stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		//std::cerr << "second stage: enhStatus: " << std::hex << enhStatus << std::endl;
         rt_task_wait_period(&overruns);
     }
 
@@ -246,7 +307,7 @@ void XenomaiSteeringWheelHomingTask::run()
     writeRPDO(1, (uint8_t *)&RPDOData, 2);
     controller->sendPDO();
 
-    //count = 0;
+    count = 0;
     motionTaskActive = false;
     while (!motionTaskActive)
     {
@@ -255,20 +316,40 @@ void XenomaiSteeringWheelHomingTask::run()
         uint8_t *TPDOData = readTPDO(1);
         memcpy(&enhStatus, TPDOData + 2, 4);
         motionTaskActive = enhStatus & 0x10000;
-        //++count;
-        //std::cerr << "first stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		++count;
+		
+        if(enhStatus & 0x20000)
+		{
+        std::cerr << "homing/reference point set "<< std::endl;
+		}
+		if(enhStatus & 0x40000)
+		{
+        std::cerr << "home "<< std::endl;
+		}
+		std::cerr << "first: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		//std::cerr << "first stage: enhStatus: " << std::hex << enhStatus << std::endl;
         rt_task_wait_period(&overruns);
     }
-
+    
     fprintf(stderr, " to center position2\n");
-    //count = 0;
+    count = 0;
     while (motionTaskActive)
     {
         controller->recvPDO(1);
         uint8_t *TPDOData = readTPDO(1);
         memcpy(&enhStatus, TPDOData + 2, 4);
         motionTaskActive = enhStatus & 0x10000;
-        //std::cerr << "second stage: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		++count;
+		if(enhStatus & 0x20000)
+		{
+        std::cerr << "homing/reference point set "<< std::endl;
+		}
+		if(enhStatus & 0x40000)
+		{
+        std::cerr << "home "<< std::endl;
+		}
+        std::cerr << "running: count: " << std::dec << count << ", overruns: " << overruns << ", enhStatus: " << std::hex << enhStatus << std::endl;
+		//std::cerr << "second stage: enhStatus: " << std::hex << enhStatus << std::endl;
         rt_task_wait_period(&overruns);
     }
 
@@ -278,8 +359,6 @@ void XenomaiSteeringWheelHomingTask::run()
 
     stopNode();
 
-    done = true;
-    success = true;
 
     fprintf(stderr, "Homing done! \n");
 
@@ -341,58 +420,15 @@ void XenomaiSteeringWheelHomingTask::run()
 
     rt_task_sleep(10000000);
     startNode();
+    //done = true;
+    success = true;
 
     fprintf(stderr, "back to normal operation! \n");
-}
-
-XenomaiSteeringWheel::XenomaiSteeringWheel(CanOpenController &con, uint8_t id)
-    : CanOpenDevice(con, id)
-    , XenomaiTask("XenomaiSteeringWheel")
-    , runTask(true)
-    , taskFinished(false)
-    , overruns(0)
-    , position(0)
-    , driftPosition(0)
-    , speedDeque(10, 0)
-    , Kwheel(0.005)
-    , Dwheel(0.1)
-    , rumbleAmplitude(3.0)
-    , Kdrill(0.005)
-    , drillElasticity(0.0)
-{
-}
-
-XenomaiSteeringWheel::~XenomaiSteeringWheel()
-{
-    RT_TASK_INFO info;
-    inquire(info);
-
-#ifdef MERCURY
-    if (info.stat.status & __THREAD_S_STARTED)
-#else
-    if (info.status & T_STARTED)
-#endif
-    {
-        runTask = false;
-        while (!taskFinished)
-        {
-            sleep(1);
-        }
-    }
-}
-
-bool XenomaiSteeringWheel::center()
-{
-    XenomaiSteeringWheelHomingTask homingTask(*controller, nodeid);
-
-    homingTask.start();
-
-    while (homingTask.isDone() == false)
-    {
-        sleep(1);
-    }
-
-    return homingTask.isSuccess();
+	
+	homing = false;
+	
+	return success;
+	
 }
 
 void XenomaiSteeringWheel::run()
@@ -412,7 +448,7 @@ void XenomaiSteeringWheel::run()
         std::cerr << "control word failed" << std::endl;
     }
     std::cerr << "Starting2..." << std::endl;
-    uint8_t opMode = 0xfd; //homing mode
+    uint8_t opMode = 0xfd; //digital current
     if (!writeSDO(0x6060, 0, &opMode, 1))
     {
         std::cerr << "op mode failed" << std::endl;
@@ -460,7 +496,7 @@ void XenomaiSteeringWheel::run()
     uint8_t RPDOData[6] = { 0x1f, 0, 0, 0, 0, 0 }; //enable op
     writeRPDO(1, RPDOData, 6);
 
-    //unsigned int count = 0;
+    unsigned int count = 0;
     std::deque<int32_t> speedDeque(50, 0);
     std::deque<int32_t>::iterator speedDequeIt;
     int32_t speed = 0;
@@ -468,38 +504,76 @@ void XenomaiSteeringWheel::run()
 
     while (runTask)
     {
-        controller->sendSync();
-        controller->recvPDO(1);
+        //std::cout << "xenomai wheel run task is running" << std::cout;
+		if (overruns != 0)
+		{
+			std::cerr << "FourWheelDynamicsRealtimeRealtime::run(): overruns: " << overruns << std::endl;
+			overruns=0;
+		}
+		if(!homing)
+		{
+			controller->sendSync();
+			controller->recvPDO(1);
+			
+			uint8_t *TPDOData = readTPDO(1);
+			
+			positionMutex.acquire(1000000);
+			memcpy(&position, TPDOData, 4);
+			positionMutex.release();
+			
+			memcpy(&speed, TPDOData + 4, 3);
+			*(((uint8_t *)&speed) + 3) = (*(((uint8_t *)&speed) + 2) & 0x80) ? 0xff : 0x0;
+			
+			
+			bool useSpringDamper =  false;
+			
+			int32_t springDamperCurrent = 0;
+			
+			if(useSpringDamper)
+			{
+				speedDeque.pop_front();
+				speedDeque.push_back(speed);
+				lowPassSpeed = 0;
+				for (speedDequeIt = speedDeque.begin(); speedDequeIt != speedDeque.end(); ++speedDequeIt)
+				{
+					lowPassSpeed += (*speedDequeIt);
+				}
+				lowPassSpeed = (double)lowPassSpeed / (double)speedDeque.size();
+				
+				springDamperCurrent = (int32_t)(-Kwheel * drillElasticity * (double)position - Dwheel * lowPassSpeed); //Spring-Damping-Model
 
-        uint8_t *TPDOData = readTPDO(1);
-        memcpy(&position, TPDOData, 4);
-        memcpy(&speed, TPDOData + 4, 3);
-        *(((uint8_t *)&speed) + 3) = (*(((uint8_t *)&speed) + 2) & 0x80) ? 0xff : 0x0;
-        speedDeque.pop_front();
-        speedDeque.push_back(speed);
-        lowPassSpeed = 0;
-        for (speedDequeIt = speedDeque.begin(); speedDequeIt != speedDeque.end(); ++speedDequeIt)
-        {
-            lowPassSpeed += (*speedDequeIt);
-        }
-        lowPassSpeed = (double)lowPassSpeed / (double)speedDeque.size();
+				springDamperCurrent += (int32_t)(((rand() / ((double)RAND_MAX)) - 0.5) * rumbleAmplitude); //Rumbling
 
-        int32_t current = (int32_t)(-Kwheel * drillElasticity * (double)position - Dwheel * lowPassSpeed); //Spring-Damping-Model
-
-        current += (int32_t)(((rand() / ((double)RAND_MAX)) - 0.5) * rumbleAmplitude); //Rumbling
-
-        double drillRigidness = 1.0 - drillElasticity;
-        if ((driftPosition - position) > 100000 * drillRigidness)
-            driftPosition = position + (int32_t)(100000 * drillRigidness);
-        else if ((driftPosition - position) < -100000 * drillRigidness)
-            driftPosition = position - (int32_t)(100000 * drillRigidness);
-        current += (int32_t)((double)(driftPosition - position) * Kdrill);
-        //std::cerr << "drift position - position: " << (int32_t)((double)(driftPosition-position)*0.005) << ", drill current: " << (int32_t)((double)(driftPosition-position)*Kdrill) << ", Kdrill: " << Kdrill << std::endl;
-
-        *((int32_t *)(RPDOData + 2)) = (current > peakCurrent) ? peakCurrent : current;
-        writeRPDO(1, RPDOData, 6);
-        controller->sendPDO();
-
+				double drillRigidness = 1.0 - drillElasticity;
+				if ((driftPosition - position) > 100000 * drillRigidness)
+					driftPosition = position + (int32_t)(100000 * drillRigidness);
+				else if ((driftPosition - position) < -100000 * drillRigidness)
+					driftPosition = position - (int32_t)(100000 * drillRigidness);
+				springDamperCurrent += (int32_t)((double)(driftPosition - position) * Kdrill);
+				//std::cerr << "drift position - position: " << (int32_t)((double)(driftPosition-position)*0.005) << ", drill current: " << (int32_t)((double)(driftPosition-position)*Kdrill) << ", Kdrill: " << Kdrill << std::endl;
+			}
+			
+			
+			if(useSpringDamper)
+			{
+				current = springDamperCurrent;
+			}
+			if (current > peakCurrent)
+			{
+				current = peakCurrent;
+			}
+			else if (current < -peakCurrent)
+			{
+				current = -peakCurrent;
+			}
+			currentMutex.acquire(1000000);
+			*((int32_t *)(RPDOData + 2)) = current;
+			writeRPDO(1, RPDOData, 6);
+			currentMutex.release();
+			
+			controller->sendPDO();
+		}
+		
         //std::cerr << std::dec << "count: " << count << ", overruns: " << overruns << ", position: " << position << ", speed: " << speed << ", low pass speed: " << lowPassSpeed << ", deque size: " << speedDeque.size() << ", setpoint: " << *((int32_t*)(RPDOData+2)) << std::endl;
         rt_task_wait_period(&overruns);
     }
@@ -613,6 +687,8 @@ void XenomaiSteeringWheel::init()
     RPDOData[3] = 0;
     RPDOData[4] = 0;
     RPDOData[5] = 0;
+	
+	start();
 }
 
 void XenomaiSteeringWheel::shutdown()

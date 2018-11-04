@@ -10,11 +10,6 @@
 
 #include <PluginUtil/ModuleFeedbackManager.h>
 
-namespace vrui
-{
-class coCheckboxMenuItem;
-}
-
 namespace opencover
 {
 class RenderObject;
@@ -27,18 +22,20 @@ class PLUGIN_UTILEXPORT ModuleInteraction : public ModuleFeedbackManager
 public:
     ModuleInteraction(const opencover::RenderObject *container, opencover::coInteractor *inter, const char *pluginName);
     virtual ~ModuleInteraction();
-    virtual void update(const opencover::RenderObject *container, opencover::coInteractor *inter);
-    virtual void preFrame();
-    virtual void menuEvent(vrui::coMenuItem *menuItem);
+    virtual void update(const opencover::RenderObject *container, opencover::coInteractor *inter) override;
+    virtual void preFrame() override;
     virtual void updatePickInteractors(bool) = 0;
     virtual void updateDirectInteractors(bool) = 0;
     virtual void setShowInteractorFromGui(bool state);
+    virtual void enableDirectInteractorFromGui(bool state);
+
+    void triggerHide(bool state) override;
 
 protected:
     bool showPickInteractor_;
     bool showDirectInteractor_;
-    vrui::coCheckboxMenuItem *showPickInteractorCheckbox_;
-    vrui::coCheckboxMenuItem *showDirectInteractorCheckbox_;
+    ui::Button *showPickInteractorCheckbox_ = nullptr;
+    ui::Button *showDirectInteractorCheckbox_ = nullptr;
 };
 }
 #endif

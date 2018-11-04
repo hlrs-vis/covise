@@ -26,8 +26,6 @@
 
 #include <api/coModule.h>
 using namespace covise;
-#include <map>
-#include <string>
 
 class coReadXYZ : public coModule
 {
@@ -42,8 +40,6 @@ private:
     coBooleanParam *pboReadBounds; ///< true = interpret first 8 atoms as bounds
     coIntScalarParam *pLimitTimesteps; ///< 0 = unlimited
 
-    typedef std::map<std::string, int> ElemMap;
-    ElemMap elemMap;
 
     // Methods:
     virtual int compute(const char *port);

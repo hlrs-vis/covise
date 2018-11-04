@@ -182,8 +182,7 @@ JunctionEditorTool::initToolWidget()
     toolLayout->addWidget(thresholdLabel, ++row, 0);
     toolLayout->addWidget(thresholdEdit_, row, 1);
 
-    connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setRadius()));
-
+	connect(thresholdEdit_, SIGNAL(editingFinished()), this, SLOT(setRadius()));
     // Finish Layout //
     //
     toolLayout->setRowStretch(++row, 1); // row x fills the rest of the availlable space
@@ -220,8 +219,11 @@ JunctionEditorTool::initToolWidget()
     ribbonToolGroup->addButton(ui->linkSelected, ODD::TJE_LINK_ROADS);
     ribbonToolGroup->addButton(ui->unlinkSelected, ODD::TJE_UNLINK_ROADS);
     ribbonToolGroup->addButton(ui->cuttingCircle, ODD::TJE_CIRCLE);
+
+	ribbonToolGroup->addButton(ui->select, ODD::TJE_SELECT);
     
     connect(ui->radiusEdit, SIGNAL(editingFinished()), this, SLOT(setRRadius()));
+	connect(ui->radiusEdit, SIGNAL(valueChanged(double)), this, SLOT(setRRadius(double)));
 
     toolManager_->addRibbonWidget(ribbonWidget, tr("Junction"));
     connect(ribbonWidget, SIGNAL(activated()), this, SLOT(activateRibbonEditor()));
@@ -245,9 +247,7 @@ JunctionEditorTool::activateEditor()
 {
     // Send //
     //
-    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, thresholdEdit_->value());
-    emit toolAction(action);
-    delete action;
+    setRadius();
 }
 
 /*! \brief Gets called when this widget (tab) has been activated.
@@ -258,7 +258,9 @@ JunctionEditorTool::activateRibbonEditor()
 {
     // Send //
     //
-    JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
+    setRRadius();
+
+	JunctionEditorToolAction *action  = new JunctionEditorToolAction(ODD::TJE_SELECT, ui->radiusEdit->value());
     emit toolAction(action);
     delete action;
 }
@@ -307,6 +309,8 @@ JunctionEditorTool::setRadius()
     delete action;
 }
 
+
+
 /*! \brief Gets called when a tool has been selected.
 */
 void
@@ -318,6 +322,18 @@ JunctionEditorTool::setRRadius()
     JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
     emit toolAction(action);
     delete action;
+}
+/*! \brief Gets called when a tool has been selected.
+*/
+void
+JunctionEditorTool::setRRadius(double i)
+{
+
+	// Set a tool //
+	//
+	JunctionEditorToolAction *action = new JunctionEditorToolAction(ODD::TJE_THRESHOLD, ui->radiusEdit->value());
+	emit toolAction(action);
+	delete action;
 }
 
 //################//

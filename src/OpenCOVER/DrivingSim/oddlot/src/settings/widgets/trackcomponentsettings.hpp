@@ -52,6 +52,12 @@ private:
     //################//
 
 private slots:
+
+    void on_curv1Box_editingFinished();
+	void on_headingBox_editingFinished();
+	void on_curv2Box_editingFinished();
+    void on_xBox_editingFinished();
+    void on_yBox_editingFinished();
     void on_factorBox_editingFinished();
     void on_lengthBox_editingFinished();
 
@@ -67,7 +73,8 @@ private:
     TrackElementLine *line_;
     TrackElementArc *arc_;
     TrackElementSpiral *spiral_;
-    TrackElementPoly3 *poly3_;
+	TrackElementPoly3 *poly3_;
+	TrackElementCubicCurve *c_curve_;
 
     TrackSpiralArcSpiral *sparcs_;
 };

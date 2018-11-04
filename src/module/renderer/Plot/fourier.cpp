@@ -36,9 +36,9 @@ void dft(double *jr, double *ji, int n, int iflag)
     if (w == NULL || xr == NULL || xi == NULL)
     {
         errwin("Can't allocate temporary in DFT");
-        cxfree(w);
-        cxfree(xr);
-        cxfree(xi);
+        free(w);
+        free(xr);
+        free(xi);
         return;
     }
     for (i = 0; i < n; i++)
@@ -75,9 +75,9 @@ void dft(double *jr, double *ji, int n, int iflag)
         jr[i] = jr[i] * on;
         ji[i] = ji[i] * on;
     }
-    cxfree(w);
-    cxfree(xr);
-    cxfree(xi);
+    free(w);
+    free(xr);
+    free(xi);
 }
 
 /*

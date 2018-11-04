@@ -18,6 +18,7 @@
 
 #include "src/data/dataelement.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 // TODO: Observer Pattern
 
@@ -40,6 +41,16 @@ public:
         CJC_LaneLinkChanged = 0x40
     };
 
+	enum ContactPointValue
+	{
+		JCP_NONE,
+		JCP_START,
+		JCP_END
+	};
+
+	static ContactPointValue parseContactPoint(const QString &value);
+	static QString parseContactPointBack(ContactPointValue value);
+
     struct ConnectionUserData
     {
         double numerator;
@@ -50,7 +61,7 @@ public:
     //################//
 
 public:
-    explicit JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, const QString &contactPoint, double numerator);
+    explicit JunctionConnection(const QString &id, const odrID &incomingRoad, const odrID &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator);
     virtual ~JunctionConnection()
     { /* does nothing */
     }
@@ -65,29 +76,29 @@ public:
 
     // JunctionConnection //
     //
-    QString getId() const
+	const QString &getId() const
     {
         return id_;
     }
     void setId(const QString &id);
 
-    QString getIncomingRoad() const
+	const odrID & getIncomingRoad() const
     {
         return incomingRoad_;
     }
-    void setIncomingRoad(const QString &id);
+    void setIncomingRoad(const odrID &id);
 
-    QString getConnectingRoad() const
+    const odrID &getConnectingRoad() const
     {
         return connectingRoad_;
     }
-    void setConnectingRoad(const QString &id);
+    void setConnectingRoad(const odrID &id);
 
-    QString getContactPoint() const
+	ContactPointValue getContactPoint() const
     {
         return contactPoint_;
     }
-    void setContactPoint(const QString &contactPoint);
+    void setContactPoint(ContactPointValue contactPoint);
 
     double getNumerator() const
     {
@@ -153,9 +164,9 @@ private:
     // JunctionConnection //
     //
     QString id_;
-    QString incomingRoad_;
-    QString connectingRoad_;
-    QString contactPoint_;
+    odrID incomingRoad_;
+    odrID connectingRoad_;
+	ContactPointValue contactPoint_;
     ConnectionUserData userData_;
 
     // LaneLinks //

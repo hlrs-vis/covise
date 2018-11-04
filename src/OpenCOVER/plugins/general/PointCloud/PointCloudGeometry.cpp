@@ -147,6 +147,7 @@ stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF); */
 
     for (int i = 0; i < pointSet->size; i++)
         box.expandBy(data[i].x, data[i].y, data[i].z);
+    setInitialBound(box);
 }
 
 PointCloudGeometry::PointCloudGeometry(const PointCloudGeometry &eqvis, const CopyOp &copyop)
@@ -172,14 +173,32 @@ BoundingBox PointCloudGeometry::computeBound() const
 // need to recode in a better way to automatically adjust primitives based on depth  //TODO
 void PointCloudGeometry::changeLod(float sampleNum)
 {
-    if (sampleNum < 0 && sampleNum > 1.0)
+    if (sampleNum < 0)
+        sampleNum = 0.;
+    if (sampleNum > 1.)
+        sampleNum = 1.;
+
+    if (subsample == sampleNum)
         return;
 
-    if (getNumPrimitiveSets() == 0)
-        addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (int)(pointSet->size * sampleNum)));
-    else
-        setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (int)(pointSet->size * sampleNum)));
-
-    pointstate->setSize(PointCloudPlugin::plugin->pointSize() / ((sampleNum / 4.0) + (3.0 / 4.0)));
     subsample = sampleNum;
+
+    if (getNumPrimitiveSets() == 0)
+    {
+        addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (int)(pointSet->size * sampleNum)));
+    }
+    else
+    {
+        auto prim = getPrimitiveSet(0);
+        auto arr = dynamic_cast<osg::DrawArrays *>(prim);
+        arr->setCount(pointSet->size * sampleNum);
+    }
+
+    setPointSize(pointSize);
+}
+
+void PointCloudGeometry::setPointSize(float psize)
+{
+    pointSize = psize;
+    pointstate->setSize(pointSize / ((subsample / 4.0) + (3.0 / 4.0)));
 }

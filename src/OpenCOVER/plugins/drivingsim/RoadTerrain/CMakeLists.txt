@@ -3,26 +3,11 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
 ENDIF()
 
 using(VRML)
+using(VehicleUtil)
+using(RoadTerrain)
+using(XERCESC)
 
-SET(HEADERS
-  RoadTerrainPlugin.h
-  LevelTerrainCallback.h
-  DecoratedGeometryTechnique.h
-  mtrand.h
-)
-SET(SOURCES
-  RoadTerrainPlugin.cpp
-  LevelTerrainCallback.cpp
-  DecoratedGeometryTechnique.cpp
-  mtrand.cpp
-)
-
-USING(XERCESC)
-
-COVISE_FIND_PACKAGE(V8)
-set(GDAL_DIR $ENV{EXTERNLIBS}/gdal)
 COVISE_FIND_PACKAGE(GDAL)
-
 COVISE_FIND_PACKAGE(FFTW)
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
@@ -31,15 +16,6 @@ IF(NOT OSGTERRAIN_FOUND)
   RETURN()
 ENDIF()
 
-IF(${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.8.2")
-  RETURN()
-ENDIF()
-
-
-
-IF(NOT V8_FOUND)
-  RETURN()
-ENDIF()
 IF(NOT FFTW_FOUND)
   RETURN()
 ENDIF()
@@ -47,14 +23,14 @@ IF(NOT GDAL_FOUND)
   RETURN()
 ENDIF()
 
+SET(HEADERS
+  RoadTerrainPlugin.h
+)
+SET(SOURCES
+  RoadTerrainPlugin.cpp
+)
 
 ADD_DEFINITIONS(-DROADTERRAIN_PLUGIN -DIMPORT_PLUGIN)
-
-INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ../../../DrivingSim/gaalet/include
-   ${V8_INCLUDE_DIR}
-)
 
 INCLUDE_DIRECTORIES(
  ${GDAL_INCLUDE_DIR}
@@ -75,6 +51,5 @@ TARGET_LINK_LIBRARIES(
    ${GDAL_LIBRARIES}
    ${FFTW_LIBRARIES}
    ${EXTRA_LIBS}
-   coOpenVehicleUtil
 )
 COVER_INSTALL_PLUGIN(RoadTerrain)

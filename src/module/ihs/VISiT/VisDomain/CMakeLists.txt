@@ -5,3 +5,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT VisDomain ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(VisDomain coApi coAppl coCore)
+covise_install_target(VisDomain)

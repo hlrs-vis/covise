@@ -70,9 +70,6 @@ if [ -z "$COENVERROR" ]; then
       extLibPath="${COVISEDIR}/${ARCHSUFFIX}/system-lib:${extLibPath}"
    fi
 
-   export VV_SHADER_PATH="${COVISEDIR}/src/3rdparty/deskvox/virvo/shader"
-   export VV_PLUGIN_PATH="${COVISEDIR}/${ARCHSUFFIX}/lib"
-
    if [ -n "$PYTHONPATH" ]; then
       export PYTHONPATH="${COVISEDIR}/${ARCHSUFFIX}/lib:${PYTHONPATH}"
    else
@@ -174,7 +171,7 @@ if [ -z "$COENVERROR" ]; then
    cfxVersion=`which cfx5solve 2> /dev/null` 
    if [[ "$cfxVersion" != *14* ]] ; then
      # unit path for ReadCFX (path to units.cfx)
-     export CFX5_UNITS_DIR="${COVISEDIR}/icons"
+     export CFX5_UNITS_DIR="${COVISEDIR}/share/covise/cfx"
      #echo "CFX5_UNITS_DIR=${CFX5_UNITS_DIR}"
    else
      unset CFX5_UNITS_DIR

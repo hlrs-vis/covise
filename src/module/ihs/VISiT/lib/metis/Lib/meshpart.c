@@ -58,7 +58,7 @@ void METIS_PartMeshNodal(int *ne, int *nn, idxtype *elmnts, int *etype, int *num
     }
   }
 
-  maxpwgt = 1.03*(*ne)/(*nparts);
+  maxpwgt = (int)(1.03*(*ne)/(*nparts));
   for (i=0; i<*ne; i++) {
     if (epart[i] == -1) { /* Assign the boundary element */
       nnbrs = 0;
@@ -160,7 +160,7 @@ void METIS_PartMeshDual(int *ne, int *nn, idxtype *elmnts, int *etype, int *numf
     }
   }
 
-  maxpwgt = 1.03*(*nn)/(*nparts);
+  maxpwgt = (int)(1.03*(*nn)/(*nparts));
   for (i=0; i<*nn; i++) {
     if (npart[i] == -1) { /* Assign the boundary element */
       nnbrs = 0;

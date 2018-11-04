@@ -351,7 +351,7 @@ TensScal::S3D_Principal(int nopoints, const float *t_addr, int voption,
 
   double a[N*N];
   double d[N];
-  double error_frobenius;
+  //double error_frobenius;
   int it_max;
   int it_num;
   int n = N;
@@ -386,38 +386,38 @@ TensScal::S3D_Principal(int nopoints, const float *t_addr, int voption,
     // First Principal **************************
     if (voption == 0) {
 
-      xv[point] = d[0] * v[0];
-      yv[point] = d[0] * v[1];
-      zv[point] = d[0] * v[2]; 
+      xv[point] = float(d[0] * v[0]);
+      yv[point] = float(d[0] * v[1]);
+      zv[point] = float(d[0] * v[2]);
 
     // Second Principal *************************
     } else if (voption == 1) {
 
-      xv[point] = d[1] * v[3];
-      yv[point] = d[1] * v[4];
-      zv[point] = d[1] * v[5]; 
+      xv[point] = float(d[1] * v[3]);
+      yv[point] = float(d[1] * v[4]);
+      zv[point] = float(d[1] * v[5]);
     
     // Third Principal **************************
     } else if  (voption == 2) {
 
-      xv[point] = d[2] * v[6];
-      yv[point] = d[2] * v[7];
-      zv[point] = d[2] * v[8]; 
+      xv[point] = float(d[2] * v[6]);
+      yv[point] = float(d[2] * v[7]);
+      zv[point] = float(d[2] * v[8]);
     
     // Signed Max. Principal ********************
     } else if  (voption == 3) {
 
       // Third bigger than abs(first) ***********
       if ( fabs(d[2]) >= fabs(d[0]) ) {
-	xv[point] = d[2] * v[6];
-	yv[point] = d[2] * v[7];
-	zv[point] = d[2] * v[8]; 
+	xv[point] = float(d[2] * v[6]);
+	yv[point] = float(d[2] * v[7]);
+	zv[point] = float(d[2] * v[8]);
 
       // abs(First) bigger than third ***********
       } else {
-	xv[point] = d[0] * v[0];
-	yv[point] = d[0] * v[1];
-	zv[point] = d[0] * v[2]; 
+	xv[point] = float(d[0] * v[0]);
+	yv[point] = float(d[0] * v[1]);
+	zv[point] = float(d[0] * v[2]);
       }
     
     }
@@ -436,7 +436,7 @@ TensScal::S3D_Principal_Scalar(int nopoints, const float *t_addr, int option)
   float *ret = new float[nopoints];
   double a[N*N];
   double d[N];
-  double error_frobenius;
+  //double error_frobenius;
   int it_max;
   int it_num;
   int n = N;
@@ -470,26 +470,26 @@ TensScal::S3D_Principal_Scalar(int nopoints, const float *t_addr, int option)
 
     // First Principal **************************
     if (option == 2) {
-      ret[point] = d[0];
+      ret[point] = float(d[0]);
 
     // Second Principal *************************
     } else if (option == 3) {
-      ret[point] = d[1];
+      ret[point] = float(d[1]);
     
     // Third Principal **************************
     } else if  (option == 4) {
-      ret[point] = d[2];
+      ret[point] = float(d[2]);
     
     // Signed Max. Principal ********************
     } else if  (option == 5) {
 
       // Third bigger than abs(first) ***********
       if ( fabs(d[2]) >= fabs(d[0]) ) {
-	ret[point] = d[2];
+	ret[point] = float(d[2]);
 
       // abs(First) bigger than third ***********
       } else {
-	ret[point] = d[0];
+	ret[point] = float(d[0]);
 
       }
     

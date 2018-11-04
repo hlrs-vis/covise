@@ -6,13 +6,13 @@
  * License: LGPL 2+ */
 
 #include "ModuleInteraction.h"
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRNavigationManager.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
 #include <cover/coVRConfig.h>
-#include <cover/VRPinboard.h>
+#include "FeedbackManager.h"
 
-using namespace vrui;
 using namespace opencover;
 
 ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor *inter, const char *pluginName)
@@ -22,37 +22,42 @@ ModuleInteraction::ModuleInteraction(const RenderObject *container, coInteractor
     , showPickInteractorCheckbox_(NULL)
     , showDirectInteractorCheckbox_(NULL)
 {
+    FeedbackManager::instance()->registerFeedback(this, inter);
 
-    int menuItemCounter = 0;
-    showPickInteractorCheckbox_ = new coCheckboxMenuItem("Pick Interactor", false);
-    showPickInteractorCheckbox_->setMenuListener(this);
-    menu_->insert(showPickInteractorCheckbox_, menuItemCounter);
-    menuItemCounter++;
-
-    coSubMenuItem *parent = dynamic_cast<coSubMenuItem *>(menu_->getSubMenuItem());
-    if (parent)
-        parent->setSecondaryItem(showPickInteractorCheckbox_);
+    showPickInteractorCheckbox_ = new ui::Button(menu_, "PickInteractor");
+    showPickInteractorCheckbox_->setText("Pick interactor");
+    showPickInteractorCheckbox_->setState(showPickInteractor_);
+    showPickInteractorCheckbox_->setCallback([this](bool state){
+        showPickInteractor_ = state;
+        updatePickInteractors(state);
+    });
 
     if (coVRConfig::instance()->has6DoFInput())
     {
-        showDirectInteractorCheckbox_ = new coCheckboxMenuItem("Direct Interactor", false, groupPointerArray[0]);
-        showDirectInteractorCheckbox_->setMenuListener(this);
-        menu_->insert(showDirectInteractorCheckbox_, menuItemCounter);
-        menuItemCounter++;
+        showDirectInteractorCheckbox_ = new ui::Button(menu_, "DirectInteractor");
+        showDirectInteractorCheckbox_->setText("Direct interactor");
+        showDirectInteractorCheckbox_->setState(showDirectInteractor_);
+        showDirectInteractorCheckbox_->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
+        showDirectInteractorCheckbox_->setCallback([this](bool state){
+            showDirectInteractor_ = state;
+            updateDirectInteractors(state);
+        });
+#ifdef VRUI
         if (parent)
             parent->setSecondaryItem(showDirectInteractorCheckbox_);
+#endif
     }
 }
 
 ModuleInteraction::~ModuleInteraction()
 {
-    delete showPickInteractorCheckbox_;
-    delete showDirectInteractorCheckbox_;
+    FeedbackManager::instance()->unregisterFeedback(this);
 }
 
 void
 ModuleInteraction::update(const RenderObject *container, coInteractor *inter)
 {
+    FeedbackManager::instance()->registerFeedback(this, inter);
 
     // base class updates the item in the COVISE menu
     // and the title of the Tracer menu
@@ -66,54 +71,35 @@ ModuleInteraction::preFrame()
 }
 
 void
-ModuleInteraction::menuEvent(coMenuItem *item)
-{
-
-    //fprintf(stderr,"ModuleInteraction::menuEvent %s\n", item->getName());
-    ModuleFeedbackManager::menuEvent(item);
-
-    if (item == showPickInteractorCheckbox_)
-    {
-        showPickInteractor_ = showPickInteractorCheckbox_->getState();
-        updatePickInteractors(showPickInteractor_);
-    }
-    else if (item == showDirectInteractorCheckbox_)
-    {
-        showDirectInteractor_ = showDirectInteractorCheckbox_->getState();
-        updateDirectInteractors(showDirectInteractor_);
-    }
-    else if (item == hideCheckbox_)
-    {
-        if (!hideCheckbox_->getState() && showPickInteractor_)
-            updatePickInteractors(true);
-        else
-            updatePickInteractors(false);
-
-        if (!hideCheckbox_->getState() && showDirectInteractor_)
-            updateDirectInteractors(true);
-        else
-            updateDirectInteractors(false);
-    }
-}
-
-void
 ModuleInteraction::setShowInteractorFromGui(bool state)
 {
     showPickInteractor_ = state;
-    if (state)
-    {
-
-        if (!showPickInteractorCheckbox_->getState())
-        {
-            showPickInteractorCheckbox_->setState(true, true);
-        }
-    }
-    else
-    {
-        if (showPickInteractorCheckbox_->getState())
-        {
-            showPickInteractorCheckbox_->setState(false, true);
-        }
-    }
+    showPickInteractorCheckbox_->setState(state);
     updatePickInteractors(showPickInteractor_);
+}
+
+void ModuleInteraction::enableDirectInteractorFromGui(bool state)
+{
+    showDirectInteractor_ = false;
+    if (showDirectInteractorCheckbox_)
+    {
+        showDirectInteractor_ = state;
+        showDirectInteractorCheckbox_->setState(state);
+    }
+    updateDirectInteractors(showDirectInteractor_);
+}
+
+void ModuleInteraction::triggerHide(bool state)
+{
+    ModuleFeedbackManager::triggerHide(state);
+
+    if (!state && showPickInteractor_)
+        updatePickInteractors(true);
+    else
+        updatePickInteractors(false);
+
+    if (!state  && showDirectInteractor_)
+        updateDirectInteractors(true);
+    else
+        updateDirectInteractors(false);
 }

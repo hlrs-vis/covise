@@ -40,17 +40,26 @@ BPA::BPA(std::string filename, osg::Group *parent)
     fprintf(stderr, "BPA::BPA\n");
     
     floorHeight = 0;
-    int pos = BPAPlugin::plugin->bpa_map.size() * 4 + 1;
+    int pos = BPAPlugin::plugin->bpa_map.size() * 5 + 1;
 
     velocity = new coTUIFloatSlider("velocity", BPAPlugin::plugin->BPATab->getID());
     velocity->setEventListener(this);
     velocity->setValue(6.0); // 6 m/s
     velocity->setMin(1.0);
-    velocity->setMax(20.0);
+    velocity->setMax(22.0);
     velocity->setPos(1, 0 + pos);
 
     velocityLabel = new coTUILabel("velocity", BPAPlugin::plugin->BPATab->getID());
     velocityLabel->setPos(0, 0 + pos);
+    originVelocityLabel = new coTUILabel("originVelocity", BPAPlugin::plugin->BPATab->getID());
+    originVelocityLabel->setPos(3, 0 + pos);
+
+    originVelocity = new coTUIFloatSlider("originVelocity", BPAPlugin::plugin->BPATab->getID());
+    originVelocity->setEventListener(this);
+    originVelocity->setValue(6.0); // 6 m/s
+    originVelocity->setMin(1.0);
+    originVelocity->setMax(20.0);
+    originVelocity->setPos(4, 0 + pos);
 
     rhoLabel = new coTUILabel("rho", BPAPlugin::plugin->BPATab->getID());
     rhoLabel->setPos(0, 2 + pos);
@@ -93,6 +102,10 @@ BPA::BPA(std::string filename, osg::Group *parent)
 
     filenameLabel = new coTUILabel(filename, BPAPlugin::plugin->BPATab->getID());
     filenameLabel->setPos(3, 1 + pos);
+
+    minErrorButton = new coTUIButton("minError", BPAPlugin::plugin->BPATab->getID());
+    minErrorButton->setPos(0, 4+pos);
+    minErrorButton->setEventListener(this);
 
     trajectoriesGroup = new osg::Group();
     trajectoriesGroup->setName("BPA_Trajectories");
@@ -260,17 +273,19 @@ void BPA::calcIntersection()
     if(numIntersections >0)
     {
     p /= numIntersections;
-    double S = 0;
+    standardDeviation = 0;
     for (int i = 0; i < numIntersections; i++)
     {
-        S += (p - positions->at(i)).length2();
+        standardDeviation += (p - positions->at(i)).length2();
     }
-    S = sqrt(S / (numIntersections - 1));
-    sphere->setRadius(S);
+    standardDeviation = sqrt(standardDeviation / (numIntersections - 1));
+    sphere->setRadius(standardDeviation);
     sphereDrawable->dirtyDisplayList();
     sphereTrans->setMatrix(osg::Matrix::translate(p));
+    Origin = p;
     char buf[1000];
-    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)S,numIntersections);
+    sprintf(buf, "Origin: %f %f %f, deviation=%f, numIntersections:%d", p[0], p[1], p[2], (float)standardDeviation,numIntersections);
+    //fprintf(stderr, "%s\n",buf);
     originLabel->setLabel(buf);
     }
 }
@@ -306,6 +321,7 @@ BPA::~BPA()
 Trajectory::Trajectory(BPA *b)
 {
     bpa = b;
+    recalcVelocities = true;
     geode = new osg::Geode();
     //geode->setName(object_name);
     bpa->trajectoriesGroup->addChild(geode);
@@ -399,6 +415,7 @@ void Trajectory::createGeometry()
 
     // set up geometry
     vert = new osg::Vec3Array;
+    velos = new osg::Vec3Array;
     colors = new osg::Vec4Array;
 
     primitives = new osg::DrawArrays(osg::PrimitiveSet::LINE_STRIP, 0, 2);
@@ -438,16 +455,57 @@ float Trajectory::distance(Trajectory *t,int gi,int git)
     return (tmpP-tmpP2).length2();
 
 }
+void Trajectory::setStartVelocity(BPA *bpa, float vel)
+{
+    if (recalcVelocities)
+    { // get an initial estimate of the origin with the velocity set at the wall point of the trajectory
+        startVelocity *= bpa->velocity->getValue();
+        recalc();
+    }
+    if(recalcVeloDiff)
+    {
+        // now we can compute the velocity difference between the origin and the wall point.
+        computeVeloDiff(bpa->Origin);
+
+        startVelocity.normalize();
+    }
+    if((vel - veloDiff) < 0)
+    {
+        vel = veloDiff + 0.01;
+    }
+    startVelocity *= vel - veloDiff;
+}
+void Trajectory::computeVeloDiff(osg::Vec3 &origin)
+{
+    float oldDist = 1000000;
+    float currentDist=0;
+    float startVelo=0;
+    veloDiff = 0.0;
+    if(vert->size()>0)
+    {
+        startVelo = (*velos)[0].length();
+        for (int i = 0; i < vert->size(); i++)
+        {
+            currentDist = (vert->at(i) - origin).length();
+            if (oldDist < currentDist)
+            {
+                veloDiff = velos->at(i - 1).length() - startVelo;
+                recalcVeloDiff = false;
+                return;
+            }
+            oldDist = currentDist;
+        }
+    }
+    fprintf(stderr, "origin velocity not found\n");
+}
 float Trajectory::getMinimalDistance(Trajectory *t, osg::Vec3 &p1) // p1 is a start estimate and also returns the intersection point
 {
     float minDist = 100000;
-    int minI;
-    int minN;
 
     if (vert->size() > 0 && t->vert->size() > 0)
     {
         int gi1=0,gi2=0;
-        float len2 = p1.length();
+        float len2 = (p1 - vert->at(0)).length();
         float l2=0;
         for (size_t i = 1; i < vert->size(); i++)
         {
@@ -605,6 +663,10 @@ void Trajectory::recalc()
 {
     // set up geometry
     vert->clear();
+    if (recalcVelocities)
+    {
+        velos->clear();
+    }
     colors->clear();
 
     float dt = 0.01 / startVelocity.length();
@@ -622,10 +684,18 @@ void Trajectory::recalc()
     if (v >= vMax)
     {
         colors->push_back(osg::Vec4(1, 0, 0, 1));
+        if (recalcVelocities)
+        {
+            velos->push_back(startVelocity);
+        }
     }
     else
     {
         colors->push_back(osg::Vec4(bpa->lineColor->getRed(), bpa->lineColor->getGreen(), bpa->lineColor->getBlue(), bpa->lineColor->getAlpha()));
+        if (recalcVelocities)
+        {
+            velos->push_back(startVelocity);
+        }
     }
 
     osg::Vec3 a;
@@ -663,6 +733,10 @@ void Trajectory::recalc()
         pos = pos + vel * dt;
         len += (vel * dt).length();
         vert->push_back(pos);
+        if (recalcVelocities)
+        {
+            velos->push_back(vel);
+        }
     }
     //double We = 21.533333333333333333333333333333*D*velo*velo;// 1055.0 *D *v*v/0.06
     primitives->setCount(vert->size());
@@ -672,6 +746,7 @@ void Trajectory::recalc()
     geom->setVertexArray(vert);
     geom->setColorArray(colors);
     geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+    recalcVelocities = false;
 }
 
 BPAPlugin::BPAPlugin()
@@ -710,7 +785,16 @@ BPAPlugin::BPAPlugin()
     angleEdit = new coTUIEditFloatField("angleEdit", BPATab->getID(), 5);
     angleEdit->setEventListener(this);
     angleEdit->setPos(5, 0);
-    angleEdit->setValue(15);
+    angleEdit->setValue(20);
+
+
+    writeButton = new coTUIButton("wrteResults", BPATab->getID());
+    writeButton->setPos(6, 0);
+    writeButton->setEventListener(this);
+    originVeloEdit = new coTUIEditFloatField("originVelocity", BPATab->getID(), 19);
+    originVeloEdit->setEventListener(this);
+    originVeloEdit->setPos(7, 0);
+    originVeloEdit->setValue(19);
 
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->registerFileHandler(&handlers[index]);
@@ -723,12 +807,12 @@ BPAPlugin::~BPAPlugin()
     for (int index = 0; index < NUM_HANDLERS; index++)
         coVRFileManager::instance()->unregisterFileHandler(&handlers[index]);
 
-    std::map<std::string, BPA *>::iterator it;
-    for (it = bpa_map.begin(); it != bpa_map.end(); it++)
+    for (auto it = bpa_list.begin(); it != bpa_list.end(); it++)
     {
-        delete (*it).second;
+        delete (*it);
     }
     bpa_map.clear();
+    bpa_list.clear();
     delete airResistance;
     delete OriginComputationType;
     delete ignoreUpward;
@@ -736,16 +820,73 @@ BPAPlugin::~BPAPlugin()
     cover->getObjectsRoot()->removeChild(BPAGroup);
 }
 
-void BPAPlugin::tabletPressEvent(coTUIElement * /*tUIItem*/)
+void BPAPlugin::tabletPressEvent(coTUIElement * tUIItem)
 {
+    if (tUIItem == writeButton)
+    {
+        char fileName[100];
+        sprintf(fileName, "res%d.csv", (int)originVeloEdit->getValue());
+        FILE* res = fopen(fileName, "w");
+        if (res != NULL)
+        {
+            fprintf(res, "Origin positions and origin velocity\n");
+            for (auto it = bpa_list.begin(); it != bpa_list.end(); it++)
+            {
+                fprintf(res, "%s;%f;%f;%f;%f\n", (*it)->filenameLabel->getName().c_str(),(*it)->originVelocity->getValue(), (*it)->Origin[0], (*it)->Origin[1], (*it)->Origin[2]);
+            }
+            fprintf(res, "wall impact velocities\n");
+            fprintf(res, "file name;min Velocity;max Velocity;average Velocity;values\n");
+            for (auto it = bpa_list.begin(); it != bpa_list.end(); it++)
+            {
+                fprintf(res, "%s", (*it)->filenameLabel->getName().c_str());
+                float avgVelo = 0;
+                float vmin = 1000000;
+                float vmax = -1000000;
+                for (auto tit = (*it)->trajectories.begin(); tit != (*it)->trajectories.end(); tit++)
+                {
+                    float velo = (*tit)->startVelocity.length();
+                    avgVelo += velo;
+                    if (velo < vmin)
+                        vmin = velo;
+                    if (velo > vmax)
+                        vmax = velo;
+                }
+                avgVelo /= (*it)->trajectories.size();
+                fprintf(res, ";%f", vmin);
+                fprintf(res, ";%f", vmax);
+                fprintf(res, ";%f", avgVelo);
+
+                for (auto tit = (*it)->trajectories.begin(); tit != (*it)->trajectories.end(); tit++)
+                {
+                    float velo = (*tit)->startVelocity.length();
+                    fprintf(res, ";%f", velo);
+                }
+
+                fprintf(res, "\n");
+            }
+            fclose(res);
+        }
+        else
+        {
+            fprintf(stderr, "could not open results.csv in current directory\n");
+        }
+    }
 }
 
 void BPAPlugin::tabletEvent(coTUIElement *tUIItem)
 {
+    if (tUIItem == originVeloEdit)
+    {
+        for (auto it = bpa_map.begin(); it != bpa_map.end(); it++)
+        {
+            it->second->setOriginVelocity(originVeloEdit->getValue());
+        }
+        
+    }
+
     if (tUIItem == airResistance || tUIItem == ignoreUpward|| tUIItem == allToAll|| tUIItem == angleEdit)
     {
-        std::map<std::string, BPA *>::iterator it;
-        for (it = bpa_map.begin(); it != bpa_map.end(); it++)
+        for (auto it = bpa_map.begin(); it != bpa_map.end(); it++)
         {
             (*it).second->recalc();
         }
@@ -765,18 +906,102 @@ void BPA::recalc()
     }
 }
 
+void BPA::tabletPressEvent(coTUIElement *tUIItem)
+{
+    if (tUIItem == minErrorButton)
+    {
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+        {
+            (*it)->length = length->getValue();
+        }
+        double minDev = 100000;
+        double maxDev = -100000;
+        float minv;
+        std::list<pair<float, double>> deviations;
+        for (float vel = 3.5; vel < 21.5; vel += 0.05)
+        {
+            for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+            {
+                (*it)->setStartVelocity(this, vel);
+            }
+            float maxVdiff = 0;
+            for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+            {
+                if ((*it)->veloDiff > maxVdiff)
+                {
+                    maxVdiff = (*it)->veloDiff;
+                }
+            }
+            originVelocity->setMin(velocity->getValue()-maxVdiff);
+            originVelocity->setMax((velocity->getValue() - maxVdiff) + 20.0);
+            recalc();
+            deviations.push_back(std::make_pair(vel, standardDeviation));
+            if (standardDeviation < minDev)
+            {
+                minDev = standardDeviation;
+                minv = vel;
+            }
+            if (standardDeviation > maxDev)
+            {
+                maxDev = standardDeviation;
+            }
+        }
+
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+        {
+            (*it)->startVelocity.normalize();
+            (*it)->startVelocity *= minv;
+        }
+        velocity->setValue(minv);
+        recalc();
+
+        fprintf(stderr, "Origin: %f %f %f, standardDeviation=%f, minv=%f\n", Origin[0], Origin[1], Origin[2], (float)standardDeviation, minv);
+
+    }
+}
+void BPA::setOriginVelocity(float ov)
+{
+    for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+    {
+        (*it)->length = length->getValue();
+        (*it)->startVelocity.normalize();
+        originVelocity->setValue(ov);
+        (*it)->setStartVelocity(this, ov);
+    }
+    float maxVdiff = 0;
+    for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+    {
+        if ((*it)->veloDiff > maxVdiff)
+        {
+            maxVdiff = (*it)->veloDiff;
+        }
+    }
+    originVelocity->setMin(velocity->getValue() - maxVdiff);
+    originVelocity->setMax((velocity->getValue() - maxVdiff) + 20.0);
+    recalc();
+
+    fprintf(stderr, "Origin: %f;%f;%f, standardDeviation=%f\n", Origin[0], Origin[1], Origin[2], (float)standardDeviation);
+}
 void BPA::tabletEvent(coTUIElement *tUIItem)
 {
-    if (tUIItem == length || tUIItem == velocity || tUIItem == rhoEdit || tUIItem == viscosityEdit || tUIItem == stEdit)
+    if (tUIItem == length || tUIItem == velocity || tUIItem == originVelocity || tUIItem == rhoEdit || tUIItem == viscosityEdit || tUIItem == stEdit)
     {
-        std::list<Trajectory *>::iterator it;
-        for (it = trajectories.begin(); it != trajectories.end(); it++)
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
         {
             (*it)->length = length->getValue();
             if (!(*it)->correctVelocity)
             {
                 (*it)->startVelocity.normalize();
-                (*it)->startVelocity *= velocity->getValue();
+                if (tUIItem == velocity)
+                {
+                    (*it)->recalcVelocities = true;
+                    (*it)->recalcVeloDiff = true;
+                    (*it)->startVelocity *= velocity->getValue();
+                }
+                else
+                {
+                    (*it)->setStartVelocity(this,originVelocity->getValue());
+                }
             }
             else
             {
@@ -785,8 +1010,21 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
                 (*it)->startVelocity *= (*it)->velo;
             }
         }
+        float maxVdiff = 0;
+        for (auto it = trajectories.begin(); it != trajectories.end(); it++)
+        {
+            if ((*it)->veloDiff > maxVdiff)
+            {
+                maxVdiff = (*it)->veloDiff;
+            }
+        }
+        originVelocity->setMin(velocity->getValue() - maxVdiff);
+        originVelocity->setMax((velocity->getValue() - maxVdiff) + 20.0);
         recalc();
+
+        fprintf(stderr, "Origin: %f;%f;%f, standardDeviation=%f\n", Origin[0], Origin[1], Origin[2], (float)standardDeviation);
     }
+    
     if (tUIItem == lineColor)
     {
         std::list<Trajectory *>::iterator it;
@@ -799,7 +1037,7 @@ void BPA::tabletEvent(coTUIElement *tUIItem)
 void BPA::loadDxf(std::string filename)
 {
     floorHeight = -2;
-    BPAPlugin::plugin->airResistance->setState(false);
+    BPAPlugin::plugin->airResistance->setState(true);
     FILE *fp = fopen(filename.c_str(), "r");
     if (fp)
     {
@@ -986,11 +1224,17 @@ int BPAPlugin::SunloadBPA(const char *filename, const char *)
 
 int BPAPlugin::unloadBPA(const char *name)
 {
-    std::map<std::string, BPA *>::iterator it = bpa_map.find(std::string(name));
+    auto it = bpa_map.find(std::string(name));
 
     if (it != bpa_map.end())
     {
         BPA *b = bpa_map[(char *)name];
+
+        for (auto it = bpa_list.begin(); it != bpa_list.end(); it++)
+        {
+            bpa_list.erase(it);
+            break;
+        }
         bpa_map.erase(it);
         delete b;
         return 0;
@@ -1014,6 +1258,7 @@ int BPAPlugin::loadBPA(const char *filename, osg::Group *parent)
 {
     BPA *b = new BPA(filename, parent);
     bpa_map[std::string(filename)] = b;
+    bpa_list.push_back(b);
     return 0;
 }
 

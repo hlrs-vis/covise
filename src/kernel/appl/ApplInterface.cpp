@@ -1516,7 +1516,7 @@ void Covise::remove_pipeline_finish_callback(void)
     pipelineFinishCallbackData = (void *)NULL;
 }
 
-#ifdef USE_X11
+#ifdef COVISE_USE_X11
 
 //=====================================================================
 //

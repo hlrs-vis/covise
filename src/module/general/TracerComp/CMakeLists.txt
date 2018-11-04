@@ -50,7 +50,7 @@ SET(EXTRASOURCES
   ../Tracer/Tracer.h
 )
 
-ADD_COVISE_MODULE(Tracer TracerComp ${EXTRASOURCES} )
+ADD_COVISE_MODULE(Mapper TracerComp ${EXTRASOURCES} )
 TARGET_LINK_LIBRARIES(TracerComp  coAlg coApi coAppl coCore coUtil ${EXTRA_LIBS})
 
 COVISE_INSTALL_TARGET(TracerComp)

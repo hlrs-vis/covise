@@ -17,7 +17,7 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscVariables.h"
 #include "oscInit.h"
 #include "oscStory.h"
-#include "oscStoryboardEnd.h"
+#include "oscEndConditions.h"
 
 namespace OpenScenario
 {
@@ -28,12 +28,12 @@ oscStoryboard()
 {
         OSC_OBJECT_ADD_MEMBER(Init, "oscInit", 0);
         OSC_OBJECT_ADD_MEMBER(Story, "oscStory", 0);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(End, "oscStoryboardEnd", 0);
+        OSC_OBJECT_ADD_MEMBER(EndConditions, "oscEndConditions", 0);
     };
         const char *getScope(){return "/OpenSCENARIO";};
     oscInitMember Init;
     oscStoryArrayMember Story;
-    oscStoryboardEndMember End;
+    oscEndConditionsMember EndConditions;
 
 };
 

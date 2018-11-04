@@ -133,7 +133,7 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 
 	// get meridian length of intersection point and blade length
 	l[0]  = lepar * be->ml->len[be->ml->p->nump-1];
-	bllen = 2.0*M_PI*rref/nob;
+	bllen = float(2.0*M_PI*rref/nob);
 
 	if (be->bl_lenpara > 0.09999) {
 		bllen *= be->bl_lenpara;
@@ -141,7 +141,7 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 
 	if(bllen < 1.e-2*rref) {
 		fprintf(stderr,"\n WARNING: LSurfRR_BladeElement(): Blade length too small!\n\n");
-		bllen = 1.e-2*rref;
+		bllen = float(1.e-2*rref);
 	}
 
 	x = deltax = bllen;
@@ -183,8 +183,8 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 			}
 			continue;
 		}
-		rr = 0.5*(r[1] + r[0]);
-		ds = (ll2 - ll) / tan(bb);
+		rr = 0.5f*(r[1] + r[0]);
+		ds = (ll2 - ll) / float(tan(bb));
 		dphi = ds/rr;
 		p[0] = r[1];
 		p[1] = cl->y[cl->nump-1] + dphi;
@@ -235,15 +235,15 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 	ll    = 0.0;
 	Add2Flist(cl2par,ll);
 	for(i = 1; i < cl2->nump; i++) {
-	    r[0] = (cl2->x[i]+cl2->x[i-1])*0.5;
+	    r[0] = (cl2->x[i]+cl2->x[i-1])*0.5f;
 	    dphi = cl2->y[i]-cl2->y[i-1];
-	    ll2  = sqrt( pow(cl2->z[i]-cl2->z[i-1],2) + 
-			 pow(cl2->x[i]-cl2->x[i-1],2) );
-	    ll   = sqrt( pow(ll2,2) + pow(r[0]*dphi,2));
+	    ll2  = float(sqrt( pow(cl2->z[i]-cl2->z[i-1],2) + 
+			pow(cl2->x[i]-cl2->x[i-1],2) ));
+	    ll   = float(sqrt( pow(ll2,2) + pow(r[0]*dphi,2)));
 	    Add2Flist(cl2par,ll+cl2par->list[(cl2par->num-1)]);
 	}
 
-	ll = 1.0/cl2par->list[(cl2par->num-1)];
+	ll = 1.0f/cl2par->list[(cl2par->num-1)];
 	for(i = 0; i < cl2->nump; i++) {
 	    cl2par->list[i] *= ll;
 	}
@@ -254,8 +254,8 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 	j = 0;
 	beclmerid = AllocPointStruct();
 	for(i = 0; i < be->bp->num; i++) {
-	    x   = pow(be->bp->c[i], be->bp_shift);
-	    par = 0.0;
+	    x   = float(pow(be->bp->c[i], be->bp_shift));
+	    par = 0.0f;
 	    while( (x >= cl2par->list[j]) && (j < cl2par->num)) j++;
 	    if(j == 0) j = 1;
 	    par  = (x-cl2par->list[j-1]) / (cl2par->list[j]-cl2par->list[j-1]);
@@ -272,10 +272,10 @@ int LSurfRR_BladeElement(struct be *be, float lepar, float rle, float hle,
 
 	be->cl_len = 0.0;
 	for(i = 1; i < be->bp->num; i++) {
-		be->cl_len += sqrt(pow( (beclmerid->x[i]-
+		be->cl_len += float(sqrt(pow( (beclmerid->x[i]-
 					 beclmerid->x[i-1]), 2)
 				   + pow( (beclmerid->y[i]-
-					   beclmerid->y[i-1]), 2) );
+					   beclmerid->y[i-1]), 2) ));
 	}
 
 	// **************************************************
@@ -399,7 +399,7 @@ static float alpha(float a, float x, float *beta, float dbeta)
 
 static float cfunct(float a, float x)
 {
-	return ( (a*x + (1.0-a))*pow(x,2));
+	return float( (a*x + (1.0-a))*pow(x,2));
 }
 
 static int Surface2Cl(struct curve *ml, struct Point *cl, 
@@ -419,11 +419,11 @@ static int Surface2Cl(struct curve *ml, struct Point *cl,
 	else ii = i+1;
 	n[0]  = -(beclmerid->y[ii] - beclmerid->y[i-1]);
 	n[1]  =   beclmerid->x[ii] - beclmerid->x[i-1];
-	ll    = sqrt(pow(n[0],2) + pow(n[1],2));
+	ll    = float(sqrt(pow(n[0],2) + pow(n[1],2)));
 	n[0] /= ll; n[1] /= ll;
 	    
-	t1 = 0.5 * cl_len * bp->t[i];
-	t2 = 0.5 * te_thick * bp->c[i];
+	t1 = 0.5f * cl_len * bp->t[i];
+	t2 = 0.5f * te_thick * bp->c[i];
 	p[0] = beclmerid->x[i] + dfact*n[0] * (scale * t1 + t2);
 	p[1] = beclmerid->y[i] + dfact*n[1] * (scale * t1 + t2);
 	p[2] = beclmerid->z[i] + dfact*n[2] * (scale * t1 + t2);
@@ -443,7 +443,7 @@ static int Surface2Cl(struct curve *ml, struct Point *cl,
 	    }
 	    continue;
 	}
-	rr    = 0.5 * (r + cl->x[i]);
+	rr    = 0.5f * (r + cl->x[i]);
 	phi   = p[0]/rr;
 	p2[0] = r;
 	p2[1] = phi;
@@ -461,7 +461,7 @@ static float getDL(float dx, float beta)
 	dl = 1.e-5f;
 	if(beta == (float) M_PI) dl = dx;
 	else if(beta <= 1.e-5f) beta = 1.e-5f;
-	else dl = dx/sqrt(1.0f + 1.0f/pow(tan(beta),2.0f));
+	else dl = float(dx/sqrt(1.0f + 1.0f/pow(tan(beta),2.0f)));
 
 	return dl;
 }

@@ -92,7 +92,7 @@
      <DataDir value="/data/itt" />
     </Molecules>
 
-    <AKToolbar menu="true" >
+    <AKToolbar value="false" >
      <Scale value="2" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="xform" name="xform" />
@@ -216,12 +216,9 @@
     </SteeringWheel-->
    </Plugin>
 
-   <TabletPC>
-    <!-- Server value="localhost" /-->
-    <!--Server value="141.58.8.187" /-->
-   </TabletPC>
+   <!--TabletUI host="localhost" /-->
+
    <Input>
-    
     <Joystick zerox="507" zeroy="509" ymin="0" xmin="0" ymax="1023" value="false" xmax="1023" />
    </Input>
 
@@ -258,9 +255,9 @@
    </Network>
 -->
 
-   <!--VRB>
-    <Server value="141.58.8.5" port="31200" />
-   </VRB-->
+   <VRB>
+    <Server value="141.58.8.5" port="31251" />
+   </VRB>
    
    <RemoteDaemon>
     <Server port="31090" />

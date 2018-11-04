@@ -37,7 +37,7 @@ struct rechgrid *CreateRechGrid(struct rech_model *model)
     int i, j, k;
 
     // Create Coordinates
-    spacing = 0.6 / model->spacing; // one flor square is 0.6 m
+    spacing = 0.6f / model->spacing; // one flor square is 0.6 m
 
     /* archflow
    grid->nelem_x = (int) (model->size[0]/spacing);
@@ -50,9 +50,9 @@ struct rechgrid *CreateRechGrid(struct rech_model *model)
 */
 
     // different to archflow: the spacing must be reliable!
-    grid->spacing_x = 0.6 / model->spacing;
-    grid->spacing_y = 0.6 / model->spacing;
-    grid->spacing_z = 0.6 / model->spacing;
+    grid->spacing_x = 0.6f / model->spacing;
+    grid->spacing_y = 0.6f / model->spacing;
+    grid->spacing_z = 0.6f / model->spacing;
 
     grid->nelem_x = (int)(model->size[0] / spacing) + 1; // make it a bit bigger, will be cut off to fit later
     grid->nelem_y = (int)(model->size[1] / spacing) + 1;
@@ -494,8 +494,8 @@ struct rechgrid *CreateRechGrid(struct rech_model *model)
 
     float l = 1.; // characteristic length
     float vin_abs = sqrt(pow(model->bcin_velo[0], 2) + pow(model->bcin_velo[1], 2) + pow(model->bcin_velo[2], 2));
-    float _k = 3.75 * 0.001 * pow(vin_abs, 2);
-    float _eps = 9.40 * 0.0001 * pow(fabs(vin_abs / l), 3);
+    float _k = 3.75f * 0.001f * float(pow(vin_abs, 2));
+    float _eps = 9.40f * 0.0001f * float(pow(fabs(vin_abs / l), 3));
 
     float vx, vy, vz;
 
@@ -585,8 +585,8 @@ struct rechgrid *CreateRechGrid(struct rech_model *model)
             }
 
             vin_abs = sqrt(vx * vx + vy * vy + vz * vz);
-            _k = 3.75 * 0.001 * vin_abs * vin_abs;
-            _eps = 9.40 * 0.0001 * pow(fabs(vin_abs / l), 3);
+            _k = 3.75f * 0.001f * vin_abs * vin_abs;
+            _eps = 9.40f * 0.0001f * float(pow(fabs(vin_abs / l), 3));
 
             grid->bcin_nodes.push_back(bcnode);
             grid->bcin_velos.push_back(vx);
@@ -1505,7 +1505,7 @@ int DefineBCs(struct rechgrid *grid, struct rech_model *model, int number)
     int nelem_x = grid->nelem_x;
     int nelem_y = grid->nelem_y;
     int nelem_z = grid->nelem_z;
-    int ilo, ihi, jlo, jhi, klo, khi;
+    int ilo=0, ihi=0, jlo=0, jhi=0, klo=0, khi=0;
 
     // define bc types
     switch (number)
@@ -1862,7 +1862,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_4holes = xpos_4holes.size();
+    model->n_floor_4holes = int(xpos_4holes.size());
     fprintf(stderr, "Inlet floor squares with 4 holes: %d\n", model->n_floor_4holes);
 
     // empty line
@@ -1902,7 +1902,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_4holesopen = xpos_4holesopen.size();
+    model->n_floor_4holesopen = int(xpos_4holesopen.size());
     fprintf(stderr, "Inlet floor squares with 4 open holes: %d\n", model->n_floor_4holesopen);
 
     // empty line
@@ -1943,7 +1943,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_1hole = xpos_1hole.size();
+    model->n_floor_1hole = int(xpos_1hole.size());
     fprintf(stderr, "Inlet floor squares with 1 hole: %d\n", model->n_floor_1hole);
 
     // empty line
@@ -1984,7 +1984,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_open_sx9 = xpos_open_sx9.size();
+    model->n_floor_open_sx9 = int(xpos_open_sx9.size());
     fprintf(stderr, "Inlet floor squares completely open (sx9): %d\n", model->n_floor_open_sx9);
 
     // empty line
@@ -2026,7 +2026,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_lochblech = xpos_lochblech.size();
+    model->n_floor_lochblech = int(xpos_lochblech.size());
     fprintf(stderr, "Inlet floor squares with lochblech: %d\n", model->n_floor_lochblech);
 
     // empty line
@@ -2067,17 +2067,17 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         }
         token = strtok(NULL, " ");
     }
-    model->n_floor_open_nec_cluster = xpos_open_nec_cluster.size();
+    model->n_floor_open_nec_cluster = int(xpos_open_nec_cluster.size());
     fprintf(stderr, "Inlet floor squares completely open (NEC cluster): %d\n", model->n_floor_open_nec_cluster);
 
     // calculate area of floor inlet
 
-    model->Ain_floor_4holes = 4 * M_PI * (sqr(0.14 / 2) - sqr(0.134 / 2) + sqr(0.12 / 2) - sqr(0.114 / 2) + sqr(0.098 / 2) - sqr(0.092 / 2) + sqr(0.075 / 2) - sqr(0.069 / 2)) * 0.33;
-    model->Ain_floor_4holesopen = 4 * M_PI * (sqr(0.15 / 2));
-    model->Ain_floor_1hole = M_PI * sqr(0.4 / 2);
-    model->Ain_floor_open_sx9 = sqr(0.6);
-    model->Ain_floor_open_NEC_cluster = sqr(0.6);
-    model->Ain_floor_lochblech = (3 * 35 + 2 * 34) * 7 * M_PI * sqr(0.009 / 2);
+    model->Ain_floor_4holes = float(4 * M_PI * (sqr(0.14 / 2) - sqr(0.134 / 2) + sqr(0.12 / 2) - sqr(0.114 / 2) + sqr(0.098 / 2) - sqr(0.092 / 2) + sqr(0.075 / 2) - sqr(0.069 / 2)) * 0.33);
+    model->Ain_floor_4holesopen = float(4 * M_PI * (sqr(0.15 / 2)));
+    model->Ain_floor_1hole = float(M_PI * sqr(0.4 / 2));
+    model->Ain_floor_open_sx9 = float(sqr(0.6));
+    model->Ain_floor_open_NEC_cluster = float(sqr(0.6));
+    model->Ain_floor_lochblech = float((3 * 35 + 2 * 34) * 7 * M_PI * sqr(0.009 / 2));
 
     fprintf(stderr, "A_4holes=%8.5f\n", model->Ain_floor_4holes);
     fprintf(stderr, "A_4holesopen=%8.5f\n", model->Ain_floor_4holesopen);
@@ -2100,12 +2100,12 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
     model->Q_SX9 = model->cubes[20]->size[0] * model->cubes[20]->size[1] * model->v_sx9; // unit [m3/s]
     model->Q_NEC_cluster = 36.0; // unit [m3/s]
 
-    model->vin_4holes = (model->Ain_floor_4holes / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6));
-    model->vin_4holesopen = (model->Ain_floor_4holesopen / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6));
-    model->vin_1hole = (model->Ain_floor_1hole / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6));
-    model->vin_lochblech = (model->Ain_floor_lochblech / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6));
-    model->vin_open_sx9 = (model->Q_SX9) / (model->n_floor_open_sx9 * sqr(0.6)); // SX9
-    model->vin_open_nec_cluster = (model->Q_NEC_cluster) / (model->n_floor_open_nec_cluster * sqr(0.6)); // SX9
+    model->vin_4holes = float((model->Ain_floor_4holes / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6)));
+    model->vin_4holesopen = float((model->Ain_floor_4holesopen / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6)));
+    model->vin_1hole = float((model->Ain_floor_1hole / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6)));
+    model->vin_lochblech = float((model->Ain_floor_lochblech / model->Ain_floor_total) * (model->Q_total - (model->Q_SX9 + model->Q_NEC_cluster + model->Q_NEC_cluster)) / (3600. * sqr(0.6)));
+    model->vin_open_sx9 = float((model->Q_SX9) / (model->n_floor_open_sx9 * sqr(0.6))); // SX9
+    model->vin_open_nec_cluster = float((model->Q_NEC_cluster) / (model->n_floor_open_nec_cluster * sqr(0.6))); // SX9
 
     fprintf(stderr, "Q_SX9=%8.5f\n", model->Q_SX9);
     fprintf(stderr, "Q_NEC_cluster=%8.5f\n", model->Q_NEC_cluster);
@@ -2134,7 +2134,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_4holes_pol.push_back(grid->bcinlet_4holes.size());
+                grid->bcinlet_4holes_pol.push_back(int(grid->bcinlet_4holes.size()));
 
                 grid->bcinlet_4holes.push_back((ypos_4holes[i] + k) * grid->npoi_x + (xpos_4holes[i] + j));
                 grid->bcinlet_4holes.push_back((ypos_4holes[i] + k) * grid->npoi_x + (xpos_4holes[i] + j) + 1);
@@ -2156,7 +2156,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_4holesopen_pol.push_back(grid->bcinlet_4holesopen.size());
+                grid->bcinlet_4holesopen_pol.push_back(int(grid->bcinlet_4holesopen.size()));
 
                 grid->bcinlet_4holesopen.push_back((ypos_4holesopen[i] + k) * grid->npoi_x + (xpos_4holesopen[i] + j));
                 grid->bcinlet_4holesopen.push_back((ypos_4holesopen[i] + k) * grid->npoi_x + (xpos_4holesopen[i] + j) + 1);
@@ -2178,7 +2178,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_1hole_pol.push_back(grid->bcinlet_1hole.size());
+                grid->bcinlet_1hole_pol.push_back(int(grid->bcinlet_1hole.size()));
 
                 grid->bcinlet_1hole.push_back((ypos_1hole[i] + k) * grid->npoi_x + (xpos_1hole[i] + j));
                 grid->bcinlet_1hole.push_back((ypos_1hole[i] + k) * grid->npoi_x + (xpos_1hole[i] + j) + 1);
@@ -2200,7 +2200,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_open_sx9_pol.push_back(grid->bcinlet_open_sx9.size());
+                grid->bcinlet_open_sx9_pol.push_back(int(grid->bcinlet_open_sx9.size()));
 
                 grid->bcinlet_open_sx9.push_back((ypos_open_sx9[i] + k) * grid->npoi_x + (xpos_open_sx9[i] + j));
                 grid->bcinlet_open_sx9.push_back((ypos_open_sx9[i] + k) * grid->npoi_x + (xpos_open_sx9[i] + j) + 1);
@@ -2222,7 +2222,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_lochblech_pol.push_back(grid->bcinlet_lochblech.size());
+                grid->bcinlet_lochblech_pol.push_back(int(grid->bcinlet_lochblech.size()));
 
                 grid->bcinlet_lochblech.push_back((ypos_lochblech[i] + k) * grid->npoi_x + (xpos_lochblech[i] + j));
                 grid->bcinlet_lochblech.push_back((ypos_lochblech[i] + k) * grid->npoi_x + (xpos_lochblech[i] + j) + 1);
@@ -2244,7 +2244,7 @@ int GenerateFloorBCs(struct rechgrid *grid, struct rech_model *model)
         {
             for (k = 0; k < spacing; k++) // y-direction
             {
-                grid->bcinlet_open_nec_cluster_pol.push_back(grid->bcinlet_open_nec_cluster.size());
+                grid->bcinlet_open_nec_cluster_pol.push_back(int(grid->bcinlet_open_nec_cluster.size()));
 
                 grid->bcinlet_open_nec_cluster.push_back((ypos_open_nec_cluster[i] + k) * grid->npoi_x + (xpos_open_nec_cluster[i] + j));
                 grid->bcinlet_open_nec_cluster.push_back((ypos_open_nec_cluster[i] + k) * grid->npoi_x + (xpos_open_nec_cluster[i] + j) + 1);
@@ -2275,8 +2275,8 @@ int GenerateCeilingBCs(struct rechgrid *grid, struct rech_model *model)
     int jlo, jhi; // y-position in structured grid
     int klo, khi; // x-position
 
-    float dx = 0.3;
-    float dy = 1.2;
+    float dx = 0.3f;
+    float dy = 1.2f;
 
     // read BC file
     FILE *stream;
@@ -2518,7 +2518,7 @@ int GenerateCeilingBCs(struct rechgrid *grid, struct rech_model *model)
                     grid->bcoutlet_air.push_back(point_offset + j * grid->npoi_x + k + 1);
                     grid->bcoutlet_air.push_back(point_offset + (j + 1) * grid->npoi_x + k + 1);
                     grid->bcoutlet_air.push_back(point_offset + (j + 1) * grid->npoi_x + k);
-                    grid->bcoutlet_air_pol.push_back(4 * grid->bcoutlet_air_pol.size());
+                    grid->bcoutlet_air_pol.push_back(4 * int(grid->bcoutlet_air_pol.size()));
                     grid->bcoutlet_air_vol.push_back(elem_offset + j * grid->nelem_x + k);
                     grid->bcoutlet_air_outer.push_back(-1);
                     grid->ceilingbcs[j * grid->nelem_x + k] = (kx + 2) / 2;
@@ -3595,8 +3595,8 @@ int CreateGeoRbFile(struct rechgrid *grid, const char *geofile, const char *rbfi
         {
             fprintf(stream, "C\n");
         }
-        int n_bila = grid->bcinvol.size() + grid->bcoutvol->num;
-        int n_nodal = grid->bcin_nodes.size();
+        int n_bila = int(grid->bcinvol.size()) + grid->bcoutvol->num;
+        int n_nodal = int(grid->bcin_nodes.size());
 
         fprintf(stream, "%d %d %d %d %d %d %d %d\n", n_nodal * 5, grid->bcwallpol->num, 0, 0, 0, 0, n_bila, 0);
 

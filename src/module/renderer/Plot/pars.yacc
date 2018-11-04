@@ -3777,7 +3777,7 @@ void scanner(char *s, double *x, double *y, int len, double *a, double *b, doubl
     yyparse();
     *errpos = interr;
     for (i = 0; i < fcnt; i++) {
-	cfree(freelist[i]);
+	free(freelist[i]);
 	freelist[i] = NULL;
     }
 }

@@ -1503,7 +1503,6 @@ typedef int int32_t;
 
 /*static inline*/ void RENAME(rgb24tobgr24)(const uint8_t *src, uint8_t *dst, long src_size)
 {
-    unsigned i;
 #ifdef HAVE_MMX
     long mmx_size = 23 - src_size;
     asm volatile(
@@ -1559,7 +1558,7 @@ typedef int int32_t;
     src -= src_size;
     dst -= src_size;
 #endif
-    for (i = 0; i < src_size; i += 3)
+    for (long i = 0; i < src_size; i += 3)
     {
         register uint8_t x;
         x = src[i + 2];

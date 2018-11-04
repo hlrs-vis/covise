@@ -230,7 +230,7 @@ ADD_COVISE_EXECUTABLE(${TARGETNAME} MACOSX_BUNDLE
   ${MAPEDITOR_RCC_FILES} ${MAPEDITOR_UI_SRCS}
   ${ME_TUI_SOURCES} ${ME_TUI_HEADERS} ${ME_TUI_MOC_SRCS} ${ME_TUI_MOC_HEADERS}
 )
-qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg UiTools PrintSupport)
+qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg UiTools PrintSupport Quick Positioning Location)
 if (COVISE_USE_WEBENGINE)
   qt_use_modules(${TARGETNAME} WebEngineWidgets)
   ADD_DEFINITIONS(-DUSE_WEBENGINE)

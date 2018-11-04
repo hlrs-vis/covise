@@ -23,6 +23,10 @@
 #include <util/common.h>
 #include <OpenVRUI/coInteractionManager.h>
 
+#ifdef HAS_MPI
+#include <mpi.h>
+#endif
+
 namespace covise
 {
 class VRBClient;
@@ -30,9 +34,18 @@ class VRBClient;
 
 namespace opencover
 {
+namespace ui
+{
+class Action;
+class Button;
+class Group;
+}
+
 class coHud;
 class buttonSpecCell;
 class coVRPlugin;
+class coTabletUI;
+class coTUITabFolder;
 
 extern COVEREXPORT covise::VRBClient *vrbc;
 
@@ -57,18 +70,26 @@ private:
     coVRPlugin *m_visPlugin;
     bool m_forceMpi;
 
+    ui::Group *m_quitGroup=nullptr;
+    ui::Action *m_quit=nullptr;
+    ui::Button *m_clusterStats=nullptr;
+
 public:
-    OpenCOVER(bool forceMpi);
+    OpenCOVER();
+#ifdef HAS_MPI
+    OpenCOVER(const MPI_Comm *comm);
+#endif
 #ifdef WIN32
     OpenCOVER(HWND parentWindow);
 #else
     OpenCOVER(int parentWindow);
 #endif
+    bool run();
     bool init();
     bool initDone();
     ~OpenCOVER();
     void loop();
-    void frame();
+    bool frame();
     void doneRendering();
     void setExitFlag(bool flag);
     int getExitFlag()
@@ -91,8 +112,21 @@ public:
     int parentWindow;
 #endif
 
-    static void quitCallback(void *sceneGraph, buttonSpecCell *spec);
+    void requestQuit();
     coVRPlugin *visPlugin() const;
+
+    size_t numTuis() const;
+    coTabletUI *tui(size_t idx) const;
+    coTUITabFolder *tuiTab(size_t idx) const;
+private:
+#ifdef HAS_MPI
+    MPI_Comm m_comm;
+#endif
+    bool m_renderNext;
+    bool m_initialized = false;
+
+    std::vector<coTabletUI *> tabletUIs;
+    std::vector<coTUITabFolder *> tabletTabs;
 };
 }
 #endif

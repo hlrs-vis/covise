@@ -54,7 +54,7 @@ const string& HlExprList::fktstr()
 void HlExprList::postfix()
 {
 	char h[100];
-	int i, n;
+	size_t i, n;
 
 	if( NumberQ() ) 
 	{
@@ -93,7 +93,7 @@ void HlExprList::postfix()
 void HlExprList::infix()
 {
 	char h[100];
-	int i,start;
+	size_t i,start;
 
 	switch( typeOfHead() ) {
 
@@ -194,7 +194,7 @@ void HlExprList::infix()
 
 			else
 			{
-				int n = Length();
+				size_t n = Length();
 				if( (Is(ABS) || Is(SIGN)) && (Length() == 2) )  {
 					if( Second()->evalF() == 0 ) n = 1;
 				}

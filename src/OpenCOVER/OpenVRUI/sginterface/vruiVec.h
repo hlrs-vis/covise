@@ -51,10 +51,7 @@ public:
         }
     }
 
-    ~vruiVec()
-    {
-        delete[] vec;
-    }
+    ~vruiVec();
 
     double &operator[](int index)
     {

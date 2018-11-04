@@ -29,6 +29,7 @@
 #include "elevationeditortool.hpp"
 #include "superelevationeditortool.hpp"
 #include "crossfalleditortool.hpp"
+#include "shapeeditortool.hpp"
 #include "laneeditortool.hpp"
 #include "junctioneditortool.hpp"
 #include "signaleditortool.hpp"
@@ -101,7 +102,7 @@ ToolManager::initTools()
 
     // Selection //
     //
-    selectionTool_ = new SelectionTool(this);
+ //   selectionTool_ = new SelectionTool(this);
 
     // RoadLinkEditor //
     //
@@ -127,6 +128,10 @@ ToolManager::initTools()
     //
     new CrossfallEditorTool(this);
 
+	// RoadShapeEditor //
+	//
+	new ShapeEditorTool(this);
+
     // LaneEditor //
     //
     new LaneEditorTool(this);
@@ -135,7 +140,7 @@ ToolManager::initTools()
     new JunctionEditorTool(this);
 
     // Signal and Object Editor
-    new SignalEditorTool(this);
+    signalEditorTool_ = new SignalEditorTool(this);
 
     // Map //
     //
@@ -166,6 +171,18 @@ void
 ToolManager::enableOSCEditorToolButton(bool state)
 {
     oscEditorTool_->enableGraphEdit(state);
+}
+
+void
+ToolManager::activateSignalSelection(bool state)
+{
+    signalEditorTool_->signalSelection(state);
+}
+
+void
+ToolManager::activateOSCObjectSelection(bool state)
+{
+	oscEditorTool_->objectSelection(state);
 }
 
 void

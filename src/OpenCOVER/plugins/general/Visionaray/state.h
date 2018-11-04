@@ -28,11 +28,6 @@ namespace visionaray
         AnimationFrames,
         Dynamic
     };
-    enum color_space
-    {
-        RGB,
-        sRGB
-    };
     enum algorithm
     {
         Simple,
@@ -52,7 +47,6 @@ namespace visionaray
         unsigned num_bounces = 4;
         device_type device = CPU;
         data_variance data_var = AnimationFrames;
-        color_space clr_space = sRGB;
         unsigned num_threads = 0;
 
         // non-persistent state for control flow

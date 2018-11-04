@@ -18,6 +18,8 @@
 
 #include <QGraphicsView>
 #include <QRubberBand>
+#include <QNetworkAccessManager>
+#include <QUrl>
 
 class TopviewGraph;
 class GraphScene;
@@ -26,6 +28,12 @@ class ZoomTool;
 class Ruler;
 class ScenerySystemItem;
 class GraphViewShapeItem;
+
+
+class QFile;
+class QSslError;
+class QAuthenticator;
+class QNetworkReply;
 
 class ToolAction;
 
@@ -80,6 +88,11 @@ public:
 
     virtual void contextMenuEvent(QContextMenuEvent *e);
 
+protected:
+	virtual void dragEnterEvent(QDragEnterEvent *event);
+	virtual void dragMoveEvent(QDragMoveEvent *event);
+	virtual void dropEvent(QDropEvent *event);
+
     //################//
     // SLOTS          //
     //################//
@@ -132,19 +145,23 @@ public slots:
 
 	void shapeEditing(bool edit);
 
-    void setSplineControlPoints(const QVector<QPointF> &controlPoints)
+    void setSplineControlPoints(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList)
     {
         splineControlPoints_ = controlPoints;
+		splineSmoothList_ = smoothList;
     }
 
-    QVector<QPointF> getSplineControlPoints()
+    QVector<QPointF> getSplineControlPoints(QVector<bool> &smoothList)
     {
+		smoothList = splineSmoothList_;
+
         return splineControlPoints_;
     } 
 
     void clearSplineControlPoints()
     {
         splineControlPoints_.clear();
+		splineSmoothList_.clear();
     }
 
     //################//
@@ -158,6 +175,7 @@ private:
 
     bool doPan_;
     bool doKeyPan_;
+	bool select_;
 
     BoundingBoxStatusId doBoxSelect_;
     CircleStatusId doCircleSelect_;
@@ -184,6 +202,29 @@ private:
     double scaling_;
 
     QVector<QPointF> splineControlPoints_;
+	QVector<bool> splineSmoothList_;
+
+	/// http wget
+	void startRequest(const QUrl &requestedUrl);
+
+	private slots:
+	void downloadFile(const QString &fn, const QString &url);
+	void cancelDownload();
+	void httpFinished();
+	void httpReadyRead();
+	void slotAuthenticationRequired(QNetworkReply *, QAuthenticator *authenticator);
+#ifndef QT_NO_SSL
+	void sslErrors(QNetworkReply *, const QList<QSslError> &errors);
+#endif
+	private:
+		QUrl url;
+		QNetworkAccessManager qnam;
+		QNetworkReply *reply;
+		QFile *file;
+		bool httpRequestAborted;
+		void wgetInit();
+		QFile *openFileForWrite(const QString &fileName);
+
 };
 
 #endif // GRAPHVIEW_HPP

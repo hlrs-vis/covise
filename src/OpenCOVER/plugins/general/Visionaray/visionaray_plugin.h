@@ -31,6 +31,7 @@ namespace visionaray
         void preDraw(osg::RenderInfo &info);
         void expandBoundingSphere(osg::BoundingSphere &bs);
         void key(int type, int key_sym, int /* mod */);
+        bool update();
 
     private:
         struct impl;

@@ -5,6 +5,10 @@
 
  * License: LGPL 2+ */
 
+#include <cassert>
+#include <iostream>
+#include <ostream>
+
 #ifdef COVER
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
@@ -18,6 +22,8 @@
 // Local:
 #include "Interface.h"
 
+using std::cerr;
+using std::endl;
 using namespace osg;
 using namespace cui;
 using namespace covise;

@@ -46,16 +46,14 @@ class OPENVRUIEXPORT vruiRendererInterface
 
 public:
     vruiRendererInterface();
-    virtual ~vruiRendererInterface()
-    {
-    }
+    virtual ~vruiRendererInterface();
 
     virtual vruiNode *getMenuGroup() = 0;
 
     virtual vruiNode *getScene()
     {
         return NULL;
-    };
+    }
 
     virtual vruiUIElementProvider *createUIElementProvider(coUIElement *element) = 0;
     virtual vruiButtonProvider *createButtonProvider(coButtonGeometry *button) = 0;
@@ -88,6 +86,7 @@ public:
 
     virtual vruiButtons *getButtons() const;
     virtual vruiButtons *getMouseButtons() const;
+    virtual vruiButtons *getRelativeButtons() const;
 
     virtual double getFrameTime() const = 0; //{ return currentFrameTime; }
     //inline void setFrameTime(double t) { currentFrameTime = t; } // set frame start time by Renderer
@@ -100,17 +99,17 @@ public:
     virtual coJoystickManager *getJoystickManager()
     {
         return NULL;
-    };
+    }
     /// is menu pickable via ray
     virtual bool isRayActive()
     {
         return ray;
-    };
+    }
     /// set menu pickable via ray
     virtual void setRayActive(bool b)
     {
         ray = b;
-    };
+    }
     /// is menu selectable vie joystick
     virtual bool isJoystickActive();
     /// set menu selectable via joystick
@@ -129,12 +128,13 @@ public:
     virtual vruiMatrix *getViewerMatrix() const = 0;
     virtual vruiMatrix *getHandMatrix() const = 0;
     virtual vruiMatrix *getMouseMatrix() const = 0;
+    virtual vruiMatrix *getRelativeMatrix() const = 0;
 
     virtual bool is2DInputDevice() const = 0;
     virtual bool isMultiTouchDevice() const
     {
         return false;
-    };
+    }
 
     virtual void sendCollabMessage(vruiCollabInterface *myinterface, const char *buffer, int length) = 0;
     virtual void remoteLock(int)
@@ -160,23 +160,24 @@ public:
     float getInteractionScaleSensitivity()
     {
         return interactionScaleSensitivity;
-    };
+    }
 
     void setUpVector(coVector v)
     {
         upVector = v;
-    };
+    }
     coVector getUpVector()
     {
         return upVector;
-    };
+    }
 
     /* needed for RTT   
       virtual vruiMatrix *doBillboarding(vruiMatrix *invStartHandTrans, coVector pickPosition, coVector localPickPosition, float myScale) = 0;*/
 
 protected:
-    vruiButtons *buttons;
-    vruiButtons *mouseButtons;
+    vruiButtons *buttons = nullptr;
+    vruiButtons *mouseButtons = nullptr;
+    vruiButtons *relativeButtons = nullptr;
 
     std::map<std::string, vruiNode *> iconsList;
 
@@ -188,7 +189,7 @@ protected:
 
     static vruiRendererInterface *theInterface;
 
-    bool ray;
+    bool ray = false;
 };
 }
 #endif

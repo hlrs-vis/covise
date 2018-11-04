@@ -8,17 +8,17 @@
 #include <cover/coVRPluginSupport.h>
 #ifdef WIN32
 #include <windows.h>
-#include "lusb0_usb.h"
+#include "libusb-1.0/libusb.h"
 #include <conio.h>
 #else
-#include <usb.h>
+#include "libusb-1.0/libusb.h"
 #endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define USBDEV_Tacx_VENDOR 13665
-#define USBDEV_VRInterface_PRODUCT 6450
+#define USBDEV_Tacx_VENDOR 0x3561
+#define USBDEV_VRInterface_PRODUCT 0x1932
 
 #define USB_ERROR_NOTFOUND 1
 #define USB_ERROR_ACCESS 2
@@ -97,15 +97,14 @@ private:
 
     UDPComm *udp;
 
-    int usbGetStringAscii(usb_dev_handle *dev, int index, int langid, char *buf, int buflen);
-    int usbOpenDevice(usb_dev_handle **device, int vendor, const char *vendorName, int product, const char *productName);
-    usb_dev_handle *handle;
-    int errorCode;
+    int usbGetStringAscii(libusb_device_handle *dev, int index, int langid, char *buf, int buflen);
+    int usbOpenDevice(libusb_device_handle **device, int vendor, const char *vendorName, int product, const char *productName);
+    libusb_device_handle *handle;
 
     int nBytes;
     int n;
     int on;
-    char tmp[64];
+    unsigned char tmp[64];
     int ret;
 
     VRData vrdata;

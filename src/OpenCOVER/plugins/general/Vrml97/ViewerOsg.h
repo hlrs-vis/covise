@@ -371,7 +371,10 @@ public:
     // Viewer callbacks (not for public consumption)
 
     // Update the model.
-    void update(double time = 0.0);
+    bool update(double time = 0.0);
+
+	// Update the model once per frame.
+	void preFrame();
 
     // Redraw the screen.
     virtual void redraw();

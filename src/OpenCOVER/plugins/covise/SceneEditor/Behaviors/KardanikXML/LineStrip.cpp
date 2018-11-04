@@ -8,7 +8,6 @@
 #include "LineStrip.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -18,7 +17,7 @@ LineStrip::LineStrip()
 {
 }
 
-void LineStrip::AddPoint(std::tr1::shared_ptr<Point> point)
+void LineStrip::AddPoint(std::shared_ptr<Point> point)
 {
     m_Points.push_back(point);
 }

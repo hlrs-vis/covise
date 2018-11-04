@@ -153,7 +153,7 @@ int cflags;
     g = (struct re_guts *)malloc(sizeof(struct re_guts) + (NC - 1) * sizeof(cat_t));
     if (g == NULL)
         return (REG_ESPACE);
-    p->ssize = len / (size_t)2 * (size_t)3 + (size_t)1; /* ugh */
+    p->ssize = (sopno)(len / (size_t)2 * (size_t)3 + (size_t)1); /* ugh */
     p->strip = (sop *)malloc(p->ssize * sizeof(sop));
     p->slen = 0;
     if (p->strip == NULL)
@@ -293,7 +293,7 @@ static void
     case '(':
         REQUIRE(MORE(), REG_EPAREN);
         p->g->nsub++;
-        subno = p->g->nsub;
+        subno = (sopno)(p->g->nsub);
         if (subno < NPAREN)
             p->pbegin[subno] = HERE();
         EMIT(OLPAREN, subno);
@@ -520,7 +520,7 @@ int starordinary; /* is a leading * an ordinary character? */
         break;
     case BACKSL | '(':
         p->g->nsub++;
-        subno = p->g->nsub;
+        subno = (sopno)p->g->nsub;
         if (subno < NPAREN)
             p->pbegin[subno] = HERE();
         EMIT(OLPAREN, subno);
@@ -886,7 +886,7 @@ int endc; /* name ended by endc,']' */
         SETERROR(REG_EBRACK);
         return (0);
     }
-    len = p->next - sp;
+    len = (int)(p->next - sp);
     for (cp = cnames; cp->name != NULL; cp++)
         if (strncmp(cp->name, sp, len) == 0 && cp->name[len] == '\0')
             return (cp->code); /* known name */
@@ -1140,7 +1140,7 @@ register cset *cs;
     register size_t css = (size_t)p->g->csetsize;
 
     for (i = 0; i < css; i++)
-        CHsub(cs, i);
+        CHsub(cs, (uch)i);
     if (cs == top - 1) /* recover only the easy case */
         p->g->ncsets--;
 }
@@ -1404,7 +1404,7 @@ size_t opnd;
     assert(p->slen < p->ssize);
 
     /* finally, it's all reduced to the easy case */
-    p->strip[p->slen++] = SOP(op, opnd);
+    p->strip[p->slen++] = SOP(op, (sop)opnd);
 }
 
 /*

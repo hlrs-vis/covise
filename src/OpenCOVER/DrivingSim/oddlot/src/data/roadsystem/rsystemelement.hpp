@@ -17,6 +17,7 @@
 #define RSYSTEMELEMENT_HPP
 
 #include "../dataelement.hpp"
+#include "odrID.hpp"
 
 // Qt //
 //
@@ -39,7 +40,8 @@ public:
         DRE_Fiddleyard,
         DRE_PedFiddleyard,
         DRE_Signal,
-        DRE_Object
+        DRE_Object,
+		DRE_JunctionGroup
     };
 
     enum RSystemElementChange
@@ -54,7 +56,7 @@ public:
     //################//
 
 public:
-    explicit RSystemElement(const QString &name, const QString &id, DRoadSystemElementType elementType);
+    explicit RSystemElement(const QString &name, const odrID &id, DRoadSystemElementType elementType);
     virtual ~RSystemElement();
 
     // RoadSystem //
@@ -71,15 +73,14 @@ public:
     {
         return name_;
     }
-    const QString &getID() const
+    const odrID &getID() const
     {
         return id_;
     }
     QString getIdName() const;
-    QString getNewId(RSystemElement *element, QString &name);
 
     void setName(const QString &name);
-    void setID(const QString &id);
+    void setID(const odrID &id);
 
     // Observer Pattern //
     //
@@ -111,7 +112,7 @@ private:
     // RSystemElement //
     //
     QString name_; // name of the element
-    QString id_; // unique ID within database
+    odrID id_; // unique ID within database
 
     // Observer Pattern //
     //

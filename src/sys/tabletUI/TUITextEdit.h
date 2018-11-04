@@ -22,17 +22,13 @@ class TUITextEdit : public QObject, public TUIElement
 public:
     TUITextEdit(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUITextEdit();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
-    void setPos(int x, int y);
-    void setSize(int w = 0, int h = 0);
+    void setPos(int x, int y) override;
+    void setSize(int w = 0, int h = 0) override;
 
 public slots:
     void valueChanged();

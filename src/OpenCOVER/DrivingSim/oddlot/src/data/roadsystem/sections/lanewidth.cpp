@@ -18,6 +18,10 @@
 #include "lanesection.hpp"
 #include "lane.hpp"
 
+// Data //
+//
+#include "src/data/roadsystem/rsystemelementroad.hpp"
+
 LaneWidth::LaneWidth(double sOffset, double a, double b, double c, double d)
     : DataElement()
     , Polynomial(a, b, c, d)
@@ -97,6 +101,12 @@ LaneWidth::setSOffset(double sOffset)
     addLaneWidthChanges(LaneWidth::CLW_OffsetChanged);
 }
 
+double
+LaneWidth::getT(double s)
+{
+	return parentLane_->getParentLaneSection()->getLaneSpanWidth(parentLane_->getId(), 0, s + getParentLane()->getParentLaneSection()->getSStart());
+}
+
 //################//
 // OBSERVER       //
 //################//
@@ -123,7 +133,7 @@ LaneWidth::addLaneWidthChanges(int changes)
         laneWidthChanges_ |= changes;
         notifyObservers();
     }
-    if (parentLane_)
+	if (parentLane_)
         parentLane_->addLaneChanges(Lane::CLN_WidthsChanged);
 }
 
@@ -149,6 +159,7 @@ LaneWidth::setParameters(double a, double b, double c, double d)
 
     addLaneWidthChanges(LaneWidth::CLW_WidthChanged);
 }
+
 
 //###################//
 // Visitor Pattern   //

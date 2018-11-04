@@ -42,7 +42,6 @@ SET(BASE_SOURCES
   coLabelMenuItem.cpp
   coLabelSubMenuToolboxItem.cpp
   coMenu.cpp
-  coMenuChangeListener.cpp
   coMenuContainer.cpp
   coMenuItem.cpp
   coNavInteraction.cpp
@@ -79,8 +78,10 @@ SET(BASE_SOURCES
   coToolboxMenuHandle.cpp
   coToolboxMenuItem.cpp
   coButtonInteraction.cpp
+  coRelativeInputInteraction.cpp
   coTrackerButtonInteraction.cpp
   coMouseButtonInteraction.cpp
+  coRelativeButtonInteraction.cpp
   coCombinedButtonInteraction.cpp
   coUpdateManager.cpp
   coUIContainer.cpp
@@ -92,6 +93,20 @@ SET(BASE_SOURCES
 #  coLabelToggleButtonGeometry.cpp
 #  coLabelToggleButtonToolboxItem.cpp
 #  coLabelButtonToolboxItem.cpp
+   ../sginterface/vruiActionUserData.cpp
+   ../sginterface/vruiButtonProvider.cpp
+   ../sginterface/vruiButtons.cpp
+   ../sginterface/vruiCollabInterface.cpp
+   ../sginterface/vruiGroupNode.cpp
+   ../sginterface/vruiHit.cpp
+   ../sginterface/vruiMatrix.cpp
+   ../sginterface/vruiNode.cpp
+   ../sginterface/vruiPanelGeometryProvider.cpp
+   ../sginterface/vruiTexture.cpp
+   ../sginterface/vruiTransformNode.cpp
+   ../sginterface/vruiUIElementProvider.cpp
+   ../sginterface/vruiUserData.cpp
+   ../sginterface/vruiVec.cpp
 )
 
 SET(UTIL_HEADERS
@@ -144,7 +159,6 @@ SET(BASE_HEADERS
   ../coLabelMenuItem.h
   ../coLabelSubMenuToolboxItem.h
   ../coMenu.h
-  ../coMenuChangeListener.h
   ../coMenuContainer.h
   ../coMenuItem.h
   ../coNavInteraction.h
@@ -176,8 +190,10 @@ SET(BASE_HEADERS
   ../coToolboxMenuHandle.h
   ../coToolboxMenuItem.h
   ../coButtonInteraction.h
+  ../coRelativeInputInteraction.h
   ../coTrackerButtonInteraction.h
   ../coMouseButtonInteraction.h
+  ../coRelativeButtonInteraction.h
   ../coCombinedButtonInteraction.h
   ../coUpdateManager.h
   ../coUIContainer.h
@@ -191,6 +207,8 @@ SET(BASE_HEADERS
 
 ADD_COVISE_LIBRARY(coOpenVRUI SHARED ${BASE_SOURCES} ${BASE_HEADERS} ${SGINTERFACE_HEADERS})
 TARGET_LINK_LIBRARIES(coOpenVRUI ${COVISE_CONFIG_LIBRARY} ${COVISE_UTIL_LIBRARY})
+
+COVISE_WNOERROR(coOpenVRUI BASEARCH zebu)
 
 COVISE_INSTALL_TARGET(coOpenVRUI)
 COVISE_INSTALL_HEADERS(OpenVRUI ${BASE_HEADERS})

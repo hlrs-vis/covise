@@ -27,6 +27,7 @@
 #include "src/data/roadsystem/sections/tunnelobject.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/roadsystem.hpp"
 
 #include "src/data/commands/dataelementcommands.hpp"
 #include "src/data/commands/signalcommands.hpp"
@@ -222,7 +223,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 		// Add new bridge //
 		//
-		Bridge *newBridge = new Bridge("bridge", "", "", 0, s, 100.0);
+		Bridge *newBridge = new Bridge(roadSystemItem_->getProjectData()->getRoadSystem()->getID("bridge",odrID::ID_Bridge), "", "", Bridge::BT_CONCRETE, s, 100.0);
 		AddBridgeCommand *command = new AddBridgeCommand(newBridge, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
@@ -233,7 +234,7 @@ SignalRoadItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 		// Add new bridge //
 		//
-		Tunnel *newTunnel = new Tunnel("tunnel", "", "", 0, s, 100.0, 0.0, 0.0);
+		Tunnel *newTunnel = new Tunnel(roadSystemItem_->getProjectData()->getRoadSystem()->getID("tunnel", odrID::ID_Object), "", "", Tunnel::TT_STANDARD, s, 100.0, 0.0, 0.0);
 		AddBridgeCommand *command = new AddBridgeCommand(newTunnel, road_, NULL);
 
 		getProjectGraph()->executeCommand(command);
@@ -379,8 +380,9 @@ SignalRoadItem::updateObserver()
 
             iter++;
         }
-    }
-    else if (changes & RSystemElementRoad::CRD_ObjectChange)
+	}
+
+    if (changes & RSystemElementRoad::CRD_ObjectChange)
     {
         // A object has been added.
         //
@@ -397,7 +399,8 @@ SignalRoadItem::updateObserver()
             iter++;
         }
     }
-    else if (changes & RSystemElementRoad::CRD_BridgeChange)
+
+    if (changes & RSystemElementRoad::CRD_BridgeChange)
     {
         // A bridge has been added.
         //

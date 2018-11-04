@@ -160,8 +160,8 @@ struct contour_t  {
                                   // but its pixel_index_x; pixel_index_Y;  slice_index
 
     std::vector<xyz>::iterator getNextPoint(std::vector<xyz>::iterator iter) {
-        int distance = std::distance(points.begin(),iter);
-        if(distance < 0 || distance > points.size()){
+        ssize_t distance = std::distance(points.begin(),iter);
+        if(distance < 0 || distance > (ssize_t)points.size()){
             std::cerr << "getNextPoint distance: " << distance << "  size: " << points.size() << std::endl;
             return points.end();
         }

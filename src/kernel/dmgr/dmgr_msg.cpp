@@ -49,7 +49,7 @@ int DmgrMessage::process_new_object_list(DataManagerProcess *dmgr)
     char *chdata;
 
     otype = *(int *)data;
-    name_len = strlen(data + sizeof(int)) + 1;
+    name_len = int(strlen(data + int(sizeof(int))) + 1);
     name = new char[name_len];
     strcpy(name, &data[sizeof(int)]);
     if (name_len % SIZEOF_ALIGNMENT)

@@ -129,10 +129,11 @@ LaneEditorTool::initToolWidget()
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     
-    ribbonToolGroup->addButton(ui->laneSelect, ODD::TLE_SELECT);
+    ribbonToolGroup->addButton(ui->select, ODD::TLE_SELECT);
     ribbonToolGroup->addButton(ui->laneAdd, ODD::TLE_ADD);
     ribbonToolGroup->addButton(ui->laneDelete, ODD::TLE_DEL);
     ribbonToolGroup->addButton(ui->laneAddWidth, ODD::TLE_ADD_WIDTH);
+
     
     connect(ui->widthEdit, SIGNAL(editingFinished()), this, SLOT(setRibbonWidth()));
 
@@ -181,7 +182,7 @@ LaneEditorTool::handleToolClick(int id)
 
     // Set a tool //
     //
-    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::Width, widthEdit_->value());
+	LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::ButtonPressed, widthEdit_->value());
     emit toolAction(action);
     delete action;
 }
@@ -193,7 +194,7 @@ LaneEditorTool::handleRibbonToolClick(int id)
 
     // Set a tool //
     //
-    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::Width, ui->widthEdit->value());
+    LaneEditorToolAction *action = new LaneEditorToolAction(toolId_, LaneEditorToolAction::ButtonPressed, ui->widthEdit->value());
     emit toolAction(action);
     delete action;
 }
@@ -231,6 +232,20 @@ LaneEditorTool::setRibbonWidth()
     }
     ui->widthEdit->setValue(0.0);
 }
+
+/*void
+LaneEditorTool::setEditMode()
+{
+	LaneEditorToolAction *action = new LaneEditorToolAction(ODD::TLE_SELECT, LaneEditorToolAction::EditMode, ui->widthEdit->value());
+	emit toolAction(action);
+	delete action;
+
+	QWidget * focusWidget = QApplication::focusWidget();
+	if (focusWidget)
+	{
+		focusWidget->clearFocus();
+	}
+} */
 
 //################//
 //                //

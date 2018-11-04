@@ -19,7 +19,6 @@
       <ScaleAll value="OFF" />
       <CoordAxis value="off" />
       <Freeze value="on" />
-      <GenStrips value="off" />
       <DebugLevel value="0" /> 
       <FPS value="off" />
       <ConstantInteractorSize value="Off"/>
@@ -59,9 +58,12 @@
 -->      
 
 
+      <UI>
+          <VRUI toolbar="true" />
+      </UI>
       <Plugin>
 
-         <AKToolbar value="on">
+         <AKToolbar value="off">
             <Attachment value="BOTTOM" />
             <MenuMaxItems value="0"/>
             

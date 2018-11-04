@@ -33,7 +33,6 @@
 
 #include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>
-#include <cover/VRPinboard.h>
 
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -386,7 +385,7 @@ void VNCPlugin::menuEvent(coMenuItem *menuItem)
     (void)menuItem;
 }
 
-void VNCPlugin::message(int type, int len, const void *buf)
+void VNCPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     switch (type)
     {

@@ -41,6 +41,14 @@ VrmlNodeGeometry *VrmlNodeGeometry::toGeometry() const
 
 VrmlNodeColor *VrmlNodeGeometry::color() { return 0; }
 
+bool VrmlNodeGeometry::isOnlyGeometry() const
+{
+    if (!VrmlNode::isOnlyGeometry())
+        return false;
+
+    return true;
+}
+
 // Geometry nodes need only define insertGeometry(), not render().
 
 void VrmlNodeGeometry::render(Viewer *v)

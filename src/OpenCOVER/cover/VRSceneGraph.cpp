@@ -86,37 +86,39 @@
 #include <omp.h>
 #endif
 
+#include <OpenVRUI/osg/mathUtils.h>
+
+#include "ui/Menu.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/SelectionList.h"
+
 using namespace osg;
 using namespace opencover;
-using namespace vrui;
 using covise::coCoviseConfig;
-
-#define SYNC_MODE_GROUP 2
-#define NAVIGATION_GROUP 0
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+VRSceneGraph *VRSceneGraph::s_instance = NULL;
+
 VRSceneGraph *VRSceneGraph::instance()
 {
-    static VRSceneGraph *singleton = NULL;
-    if (!singleton)
-        singleton = new VRSceneGraph;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRSceneGraph;
+    return s_instance;
 }
 
 VRSceneGraph::VRSceneGraph()
-    : m_vectorInteractor(0)
+    : ui::Owner("VRSceneGraph", cover->ui)
+    , m_vectorInteractor(0)
     , m_pointerDepth(0.f)
     , m_floorHeight(-1250.0)
-    , m_handLocked(false)
     , m_wireframe(Disabled)
     , m_textured(true)
     , m_showMenu(true)
     , m_showObjects(true)
     , m_pointerType(0)
-    , m_worldTransformer(false)
-    , m_worldTransformerEnabled(true)
     , m_scaleMode(-1.0)
     , m_scaleFactor(1.0f)
     , m_scaleFactorButton(0.1f)
@@ -130,19 +132,13 @@ VRSceneGraph::VRSceneGraph()
     , m_transRestrictMaxZ(0.0f)
     , m_scalingAllObjects(false)
     , m_scaleTransform(NULL)
-    , transTraversingInteractors(Vec3(0, 0, 0))
-    , isFirstTraversal(true)
-    , storeWithMenu(false)
     , isScenegraphProtected_(false)
     , m_enableHighQualityOption(true)
-    , m_highQuality(false)
     , m_switchToHighQuality(false)
+    , m_highQuality(false)
     , m_interactionHQ(NULL)
 {
-    KeyButton[0] = 0;
-    KeyButton[1] = 0;
-    KeyButton[2] = 0;
-    KeyButton[3] = 0;
+    assert(!s_instance);
 }
 /*bis hier neu*/
 
@@ -169,8 +165,107 @@ void VRSceneGraph::init()
 
     emptyProgram_ = new osg::Program();
 
-    m_interactionHQ = new coCombinedButtonInteraction(coInteraction::AllButtons, "Anchor", coInteraction::Highest);
+    m_interactionHQ = new vrui::coCombinedButtonInteraction(vrui::coInteraction::AllButtons, "Anchor", vrui::coInteraction::Highest);
     m_interactionHQ->setNotifyOnly(true);
+
+    m_trackHead = new ui::Button(cover->viewOptionsMenu, "TrackHead");
+    m_trackHead->setText("Track head");
+    m_trackHead->setShortcut("Shift+F");
+    m_trackHead->setState(!coVRConfig::instance()->frozen());
+    m_trackHead->setCallback([this](bool state){
+        toggleHeadTracking(state);
+    });
+
+    m_allowHighQuality= new ui::Button("AllowHighQuality", this);
+    cover->viewOptionsMenu->add(m_allowHighQuality);
+    m_allowHighQuality->setState(m_enableHighQualityOption);
+    m_allowHighQuality->setText("Allow high quality");
+    m_allowHighQuality->setCallback([this](bool state){
+        toggleHighQuality(state);
+    });
+
+    auto switchToHighQuality = new ui::Action("SwitchToHighQuality", this);
+    switchToHighQuality->setVisible(false);
+    cover->viewOptionsMenu->add(switchToHighQuality);
+    switchToHighQuality->setText("Enable high quality rendering");
+    switchToHighQuality->setShortcut("Shift+H");
+    switchToHighQuality->setCallback([this](){
+        if (m_enableHighQualityOption && !m_highQuality)
+            m_switchToHighQuality = true;
+    });
+
+    m_drawStyle = new ui::SelectionList("DrawStyle", this);
+    m_drawStyle->setText("Draw style");
+    m_drawStyle->append("As is");
+    m_drawStyle->append("Wireframe");
+    m_drawStyle->append("Hidden lines (dark)");
+    m_drawStyle->append("Hidden lines (bright)");
+    m_drawStyle->append("Points");
+    cover->viewOptionsMenu->add(m_drawStyle);
+    m_drawStyle->setShortcut("Alt+w");
+    m_drawStyle->setCallback([this](int style){
+        setWireframe(WireframeMode(style));
+    });
+    m_drawStyle->select(0);
+
+    m_showAxis = new ui::Button("ShowAxis", this);
+    cover->viewOptionsMenu->add(m_showAxis);
+    m_showAxis->setState(m_coordAxis);
+    m_showAxis->setText("Show axis");
+    m_showAxis->setShortcut("Shift+A");
+    m_showAxis->setCallback([this](bool state){
+        toggleAxis(state);
+    });
+
+    m_showStats = new ui::SelectionList("ShowStats", this);
+    m_showStats->setText("Renderer statistics");
+    m_showStats->setShortcut("Shift+S");
+    m_showStats->append("Off");
+    m_showStats->append("Frames/s");
+    m_showStats->append("Viewer");
+    m_showStats->append("Viewer+camera");
+    m_showStats->append("Viewer+camera+nodes");
+    cover->viewOptionsMenu->add(m_showStats);
+    m_showStats->select(coVRConfig::instance()->drawStatistics);
+    m_showStats->setCallback([this](int val){
+        coVRConfig::instance()->drawStatistics = val;
+        statsDisplay->showStats(val, VRViewer::instance());
+    });
+
+    m_useTextures = new ui::Button("Texturing", this);
+    m_useTextures->setVisible(false, ui::View::VR);
+    m_useTextures->setShortcut("Shift+T");
+    m_useTextures->setState(m_textured);
+    cover->viewOptionsMenu->add(m_useTextures);
+    m_useTextures->setCallback([this](bool state){
+        m_textured = state;
+        osg::Texture *texture = new osg::Texture2D;
+        for (int unit=0; unit<4; ++unit)
+        {
+            if (m_textured)
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OFF);
+            else
+                m_objectsStateSet->setTextureAttributeAndModes(unit, texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
+    });
+
+    m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders->setVisible(false, ui::View::VR);
+    m_useShaders->setShortcut("Alt+s");
+    m_useShaders->setState(m_shaders);
+    cover->viewOptionsMenu->add(m_useShaders);
+    m_useShaders->setCallback([this](bool state){
+        m_shaders = state;
+        osg::Program *program = new osg::Program;
+        if (m_shaders)
+        {
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OFF);
+        }
+        else
+        {
+            m_objectsStateSet->setAttributeAndModes(program, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
+        }
+    });
 }
 
 VRSceneGraph::~VRSceneGraph()
@@ -179,6 +274,8 @@ VRSceneGraph::~VRSceneGraph()
         fprintf(stderr, "\ndelete VRSceneGraph\n");
 
     m_specialBoundsNodeList.clear();
+
+    delete coVRShadowManager::instance();
 
     int n = m_objectsRoot->getNumChildren();
 
@@ -190,16 +287,12 @@ VRSceneGraph::~VRSceneGraph()
     }
 
     delete statsDisplay;
+
+    s_instance = NULL;
 }
 
 void VRSceneGraph::config()
 {
-    std::string line = coCoviseConfig::getEntry("COVER.Input.WorldXFormAddress");
-    if (!line.empty())
-    {
-        m_worldTransformer = true; //TODO: get information from somewhere else instead??
-    }
-
     // if menu mode is on -- hide menus
     if (coVRConfig::instance()->isMenuModeOn())
         setMenuMode(false);
@@ -226,18 +319,6 @@ int VRSceneGraph::readConfigFile()
 
     m_coordAxis = coCoviseConfig::isOn("COVER.CoordAxis", false);
 
-    // TODO coConfig:vector
-    rotationAxis[0] = coCoviseConfig::getFloat("x", "COVER.RotationAxis", 1.0f);
-    rotationAxis[1] = coCoviseConfig::getFloat("y", "COVER.RotationAxis", 0.0f);
-    rotationAxis[2] = coCoviseConfig::getFloat("z", "COVER.RotationAxis", 0.0f);
-
-    // TODO coConfig:vector
-    rotationPoint[0] = coCoviseConfig::getFloat("x", "COVER.RotationPoint", 0.0f);
-    rotationPoint[1] = coCoviseConfig::getFloat("y", "COVER.RotationPoint", 0.0f);
-    rotationPoint[2] = coCoviseConfig::getFloat("z", "COVER.RotationPoint", 0.0f);
-
-    frameAngle = coCoviseConfig::getFloat("COVER.FrameAngle", 0.9);
-
     wiiPos = coCoviseConfig::getFloat("COVER.WiiPointerPos", -250.0);
 
     return 0;
@@ -252,15 +333,13 @@ void VRSceneGraph::initMatrices()
 void VRSceneGraph::initSceneGraph()
 {
     // create the scene node
-    m_scene = new osgShadow::ShadowedScene();
+    m_scene = coVRShadowManager::instance()->newScene();
     m_scene->setName("VR_RENDERER_SCENE_NODE");
-    m_scene->setShadowTechnique(NULL);
+    std::string shadowTechnique = covise::coCoviseConfig::getEntry("value","COVER.ShadowTechnique","none");
+    coVRShadowManager::instance()->setTechnique(shadowTechnique);
 
-    m_objectsScene = new osgShadow::ShadowedScene();
+    m_objectsScene = new osg::Group();
     m_objectsScene->setName("VR_RENDER_OBJECT_SCENE_NODE");
-    m_objectsScene->setShadowTechnique(NULL);
-
-    coVRShadowManager::instance();
 
     // Create a lit scene osg::StateSet for the scene
     m_rootStateSet = loadGlobalGeostate();
@@ -281,9 +360,13 @@ void VRSceneGraph::initSceneGraph()
     // add it to the scene graph as the first child
     //                                  -----
     m_handTransform = new osg::MatrixTransform();
+	m_handTransform->setName("m_handTransform");
     m_handIconScaleTransform = new osg::MatrixTransform();
+	m_handIconScaleTransform->setName("m_handIconScaleTransform");
     m_handAxisScaleTransform = new osg::MatrixTransform();
+	m_handAxisScaleTransform->setName("m_handAxisScaleTransform");
     m_pointerDepthTransform = new osg::MatrixTransform();
+	m_pointerDepthTransform->setName("m_pointerDepthTransform");
     m_handTransform->addChild(m_pointerDepthTransform.get());
     m_handTransform->addChild(m_handAxisScaleTransform);
     m_pointerDepthTransform->addChild(m_handIconScaleTransform);
@@ -311,10 +394,12 @@ void VRSceneGraph::initSceneGraph()
 
     // dcs for translating/rotating all objects
     m_objectsTransform = new osg::MatrixTransform();
+	m_objectsTransform->setName("m_objectsTransform");
     m_objectsTransform->setStateSet(m_objectsStateSet);
 
     // dcs for scaling all objects
     m_scaleTransform = new osg::MatrixTransform();
+	m_scaleTransform->setName("m_scaleTransform");
     m_objectsTransform->addChild(m_scaleTransform);
     m_scene->addChild(m_objectsTransform);
     m_objectsScene->addChild(m_objectsTransform);
@@ -343,6 +428,7 @@ void VRSceneGraph::initAxis()
     m_viewerAxis = loadAxisGeode(4);
     m_objectAxis = loadAxisGeode(0.01f);
     m_viewerAxisTransform = new osg::MatrixTransform();
+	m_viewerAxisTransform->setName("m_viewerAxisTransform");
     m_scene->addChild(m_viewerAxisTransform.get());
 
     showSmallSceneAxis_ = coCoviseConfig::isOn("COVER.SmallSceneAxis", false);
@@ -358,6 +444,7 @@ void VRSceneGraph::initAxis()
         m_smallSceneAxis = loadAxisGeode(0.01 * sx);
         m_smallSceneAxis->setNodeMask(m_objectAxis->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
         m_smallSceneAxisTransform = new osg::MatrixTransform();
+		m_smallSceneAxisTransform->setName("m_smallSceneAxisTransform");
         m_smallSceneAxisTransform->setMatrix(osg::Matrix::translate(xp, yp, zp));
         m_scene->addChild(m_smallSceneAxisTransform.get());
 
@@ -429,38 +516,10 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
     // Beschleunigung
     if (type == osgGA::GUIEventAdapter::KEYUP)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = false;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = false;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = false;
-        }
     }
     if (type == osgGA::GUIEventAdapter::KEYDOWN)
     {
-        if (keySym == 65365)
-        {
-            KeyButton[0] = true;
-        }
-        if (keySym == 65366)
-        {
-            KeyButton[2] = true;
-        }
-        if (keySym == 46)
-        {
-            KeyButton[1] = true;
-        }
-        if (keySym == ' ')
-        {
-            m_worldTransformerEnabled = !m_worldTransformerEnabled;
-        }
-        else if (keySym == '%')
+        if (keySym == '%')
         {
             //matrixCorrect->separateColor = !matrixCorrect->separateColor;
             //fprintf(stderr,"separateColor = %d\n",matrixCorrect->separateColor);
@@ -473,40 +532,12 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 fprintf(stderr, "alt: sym=%d\n", keySym);
             if (keySym == 'i' || keySym == 710) // i
             {
-                storeWithMenu = false;
-                storeCallback(this, NULL);
-                handled = true;
-            }
-            else if (keySym == 'w' || keySym == 8721) // w
-            {
-                int wf = m_wireframe+1;
-                if (wf > HiddenLineWhite)
-                    wf = Disabled;
-                setWireframe((WireframeMode)wf);
+                saveScenegraph(false);
                 handled = true;
             }
             else if (keySym == 'W' || keySym == 8722) // W
             {
-                storeWithMenu = true;
-                storeCallback(this, NULL);
-                handled = true;
-            }
-            else if (keySym == 's' || keySym == 223) // s
-            {
-                if (cover->debugLevel(3))
-                    fprintf(stderr, "toggling texturing\n");
-                if (m_textured)
-                {
-                    osg::Texture *texture = new osg::Texture2D;
-                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF);
-                    m_textured = false;
-                }
-                else
-                {
-                    osg::Texture *texture = new osg::Texture2D;
-                    m_objectsStateSet->setAttributeAndModes(texture, osg::StateAttribute::OFF);
-                    m_textured = true;
-                }
+                saveScenegraph(true);
                 handled = true;
             }
             else if (keySym == 'c' || keySym == 231) //c
@@ -567,19 +598,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 handled = true;
             }
 #endif
-            if (keySym == 'S')
-            {
-                coVRConfig::instance()->drawStatistics = !coVRConfig::instance()->drawStatistics;
-                //VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-                cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
-                handled = true;
-                if (coVRConfig::instance()->drawStatistics)
-                {
-                    statsDisplay->showStats(4, VRViewer::instance()); 
-                }
-                else
-                    statsDisplay->showStats(0, VRViewer::instance());
-            }
             if (keySym == 'C')
             {
                  VRViewer::instance()->forceCompile();
@@ -587,48 +605,9 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
         } // unmodified keys
         else if (mod & osgGA::GUIEventAdapter::MODKEY_SHIFT)
         {
-            if (keySym == 'h' || keySym == 'H')
-            {
-                if (m_enableHighQualityOption)
-                {
-                    m_switchToHighQuality = true;
-                    handled = true;
-                }
-            }
         }
         else
         {
-            if (keySym == 'F')
-            {
-                coVRConfig::instance()->setFrozen(!coVRConfig::instance()->frozen());
-                cover->setBuiltInFunctionState("Freeze", coVRConfig::instance()->frozen());
-                handled = true;
-            }
-            if (keySym == 'S')
-            {
-                coVRConfig::instance()->drawStatistics = !coVRConfig::instance()->drawStatistics;
-                //VRViewer::instance()->statistics(coVRConfig::instance()->drawStatistics);
-                cover->setBuiltInFunctionState("Statistics", coVRConfig::instance()->drawStatistics);
-                handled = true;
-                if (coVRConfig::instance()->drawStatistics)
-                {
-                        statsDisplay->showStats(2, VRViewer::instance()); 
-                }
-                else
-                    statsDisplay->showStats(0, VRViewer::instance());
-            }
-            if (keySym == 'v')
-            {
-                viewAll();
-                handled = true;
-            }
-
-            if (keySym == 'V')
-            {
-                viewAll(true);
-                handled = true;
-            }
-
             if (keySym == 'm')
             {
                 toggleMenu();
@@ -679,6 +658,12 @@ VRSceneGraph::setMenu(bool state)
     }
 }
 
+bool
+VRSceneGraph::menuVisible() const
+{
+    return m_showMenu;
+}
+
 void VRSceneGraph::setMenuMode(bool state)
 {
     if (state)
@@ -688,7 +673,7 @@ void VRSceneGraph::setMenuMode(bool state)
         applyMenuModeToMenus();
 
         // set joystickmanager active
-        coJoystickManager::instance()->setActive(true);
+        vrui::coJoystickManager::instance()->setActive(true);
 
         // set scene and documents not intersectable
         m_objectsTransform->setNodeMask(m_objectsTransform->getNodeMask() & (~Isect::Intersection));
@@ -735,6 +720,7 @@ void VRSceneGraph::setMenuMode(bool state)
         // set scene intersectable
         m_objectsTransform->setNodeMask(0xffffffff);
 
+#if 0
         // hide quit menu
         for (unsigned int i = 0; i < m_menuGroupNode->getNumChildren(); i++)
         {
@@ -744,11 +730,12 @@ void VRSceneGraph::setMenuMode(bool state)
                 break;
             }
         }
+#endif
 
         applyMenuModeToMenus();
 
         // set joystickmanager inactive
-        coJoystickManager::instance()->setActive(false);
+        vrui::coJoystickManager::instance()->setActive(false);
     }
 }
 
@@ -771,6 +758,12 @@ void VRSceneGraph::applyMenuModeToMenus()
                 m_menuGroupNode->getChild(i)->setNodeMask(0xffffffff & ~Isect::ReceiveShadow);
         }
     }
+}
+
+void VRSceneGraph::toggleHeadTracking(bool state)
+{
+    coVRConfig::instance()->setFrozen(!state);
+    m_trackHead->setState(state);
 }
 
 void
@@ -815,38 +808,39 @@ VRSceneGraph::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "VRSceneGraph::update\n");
-    static bool firstTime = true;
-    if (firstTime)
+    if (m_firstTime)
     {
-        windowStruct *ws = &(coVRConfig::instance()->windows[0]);
-        if (ws && ws->window)
+        if (coVRConfig::instance()->numWindows() > 0)
         {
-#ifdef WIN32
-            if (OpenCOVER::instance()->parentWindow == NULL)
-#endif
+            const auto &ws = coVRConfig::instance()->windows[0];
+            if (ws.window)
             {
-                ws->window->setWindowRectangle(ws->ox, ws->oy, ws->sx, ws->sy);
-                ws->window->setWindowDecoration(ws->decoration);
+#ifdef WIN32
+                if (OpenCOVER::instance()->parentWindow == NULL)
+#endif
+                {
+                    ws.window->setWindowRectangle(ws.ox, ws.oy, ws.sx, ws.sy);
+                    ws.window->setWindowDecoration(ws.decoration);
+                }
             }
         }
-        firstTime = false;
+        m_firstTime = false;
     }
 
-    static bool pointerVisible = false;
     if (Input::instance()->hasHand() && Input::instance()->isTrackingOn())
     {
-        if (!pointerVisible)
+        if (!m_pointerVisible)
         {
             m_scene->addChild(m_handTransform.get());
-            pointerVisible = true;
+            m_pointerVisible = true;
         }
     }
     else
     {
-        if (pointerVisible)
+        if (m_pointerVisible)
         {
             m_scene->removeChild(m_handTransform.get());
-            pointerVisible = false;
+            m_pointerVisible = false;
         }
     }
 
@@ -855,7 +849,7 @@ VRSceneGraph::update()
 
     if (!coVRConfig::instance()->isMenuModeOn())
     {
-        if (button->wasPressed(vruiButtons::MENU_BUTTON))
+        if (button->wasPressed(vrui::vruiButtons::MENU_BUTTON))
             toggleMenu();
     }
 
@@ -934,14 +928,6 @@ VRSceneGraph::update()
     // static osg::Vec3Array *coord = new osg::Vec3Array(4*6);
     osg::Matrix dcs_mat, rot_mat, tmpMat;
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
-    if (cover->isPointerLocked())
-    {
-        m_handLocked = true;
-    }
-    else
-    {
-        m_handLocked = false;
-    }
 
 #ifdef OLDINPUT
     if (VRTracker::instance()->getCameraSensorStation() != -1)
@@ -952,19 +938,6 @@ VRSceneGraph::update()
         osg::Matrix newWorld = viewerTrans * VRTracker::instance()->getCameraMat();
         newWorld.invert(newWorld);
         m_objectsTransform->setMatrix(newWorld);
-    }
-
-    if (m_worldTransformer)
-    {
-        static osg::Matrix oldWorldTransform;
-        osg::Matrix newWorld = VRTracker::instance()->getWorldMat();
-        if (m_worldTransformerEnabled)
-        {
-            oldWorldTransform.invert(oldWorldTransform);
-            osg::Matrix incWorld = oldWorldTransform * newWorld;
-            m_objectsTransform->setMatrix(m_objectsTransform->getMatrix() * incWorld);
-        }
-        oldWorldTransform = newWorld;
     }
 #endif
 
@@ -1091,7 +1064,7 @@ VRSceneGraph::update()
         m_switchToHighQuality = false;
         if (!m_interactionHQ->isRegistered())
         {
-            coInteractionManager::the()->registerInteraction(m_interactionHQ);
+            vrui::coInteractionManager::the()->registerInteraction(m_interactionHQ);
         }
         m_highQuality = true;
         fprintf(stdout, "\a");
@@ -1100,7 +1073,7 @@ VRSceneGraph::update()
     else if (m_highQuality && (cover->getPointerButton()->wasPressed() || cover->getMouseButton()->wasPressed()))
     {
         m_highQuality = false;
-        coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
+        vrui::coInteractionManager::the()->unregisterInteraction(m_interactionHQ);
     }
 }
 
@@ -1111,6 +1084,7 @@ VRSceneGraph::setWireframe(WireframeMode wf)
         fprintf(stderr, "VRSceneGraph::setWireframe\n");
 
     m_wireframe = wf;
+    m_drawStyle->select(m_wireframe);
 
     m_lineHider->removeChild(m_objectsTransform);
     m_scene->removeChild(m_objectsTransform);
@@ -1120,11 +1094,17 @@ VRSceneGraph::setWireframe(WireframeMode wf)
     {
         case Disabled:
         case Enabled:
+        case Points:
         {
             osg::PolygonMode *polymode = new osg::PolygonMode;
             if (m_wireframe == Disabled)
             {
                 m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::ON);
+            }
+            else if (m_wireframe == Points)
+            {
+                polymode->setMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::POINT);
+                m_objectsStateSet->setAttributeAndModes(polymode, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON);
             }
             else
             {
@@ -1161,6 +1141,7 @@ VRSceneGraph::toggleHighQuality(bool state)
         fprintf(stderr, "VRSceneGraph::toggleHighQuality %d\n", state);
 
     m_enableHighQualityOption = state;
+    m_allowHighQuality->setState(state);
 }
 
 bool
@@ -1176,6 +1157,7 @@ VRSceneGraph::toggleAxis(bool state)
         fprintf(stderr, "VRSceneGraph::toggleAxis %d\n", state);
 
     m_coordAxis = state;
+    m_showAxis->setState(m_coordAxis);
     if (m_coordAxis)
     {
         if (m_worldAxis->getNumParents() == 0)
@@ -1317,6 +1299,7 @@ VRSceneGraph::loadAxisGeode(float s)
         fprintf(stderr, "VRSceneGraph::loadAxisGeode\n");
 
     osg::MatrixTransform *mt = new osg::MatrixTransform;
+	mt->setName("AxisGeodeMatrixTransform");
     mt->addChild(coVRFileManager::instance()->loadIcon("Axis"));
     mt->setMatrix(osg::Matrix::scale(s, s, s));
 
@@ -1360,6 +1343,7 @@ VRSceneGraph::loadHandLine()
             float length = coCoviseConfig::getFloat("COVER.PointerAppearance.Length", sy);
 
             osg::MatrixTransform *m = new osg::MatrixTransform;
+			m->setName("HandLineMatrixTransform");
             m->setMatrix(osg::Matrix::scale(width / sx, length / sy, width / sx));
             m->addChild(n);
             result = m;
@@ -1389,7 +1373,7 @@ VRSceneGraph::loadHandLine()
 }
 
 osg::Vec3
-VRSceneGraph::getWorldPointOfInterest()
+VRSceneGraph::getWorldPointOfInterest() const
 {
     osg::Vec3 pointOfInterest(0, 0, 0);
     pointOfInterest = m_pointerDepthTransform.get()->getMatrix().preMult(pointOfInterest);
@@ -1510,6 +1494,8 @@ VRSceneGraph::getBoundingSphere()
             }
             BoundsData bd(bsphere);
             coVRMSController::instance()->sendSlaves(&bd, sizeof(bd));
+            bsphere.center() = osg::Vec3(bd.x, bd.y, bd.z);
+            bsphere.radius() = bd.r;
         }
     }
 
@@ -1519,7 +1505,7 @@ VRSceneGraph::getBoundingSphere()
 void VRSceneGraph::scaleAllObjects(bool resetView)
 {
     osg::BoundingSphere bsphere = getBoundingSphere();
-    if (bsphere.radius() == 0.f)
+    if (bsphere.radius() <= 0.f)
         bsphere.radius() = 1.f;
 
     // scale and translate but keep current orientation
@@ -1578,8 +1564,8 @@ void VRSceneGraph::dirtySpecialBounds()
 void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingSphere,
                                             bool resetView, osg::Matrix *currentMatrix, float *scaleFactor) const
 {
-    scaleFactor[0] = cover->getSceneSize() / 2.f / boundingSphere.radius();
-    currentMatrix->makeTranslate(-(boundingSphere.center() * scaleFactor[0]));
+    *scaleFactor = std::abs(cover->getSceneSize() / 2.f / boundingSphere.radius());
+    currentMatrix->makeTranslate(-(boundingSphere.center() * *scaleFactor));
     if (!resetView)
     {
         osg::Quat rotation = m_objectsTransform->getMatrix().getRotate();
@@ -1589,6 +1575,7 @@ void VRSceneGraph::boundingSphereToMatrices(const osg::BoundingSphere &boundingS
     }
 }
 
+#if 0
 void
 VRSceneGraph::manipulate(buttonSpecCell *spec)
 {
@@ -1635,6 +1622,7 @@ VRSceneGraph::manipulate(buttonSpecCell *spec)
         }
     }
 }
+#endif
 
 #ifdef PHANTOM_TRACKER
 void
@@ -1643,18 +1631,6 @@ VRSceneGraph::manipulateCallback(void *sceneGraph, buttonSpecCell *spec)
     ((VRSceneGraph *)sceneGraph)->manipulate(spec);
 }
 #endif
-
-void
-VRSceneGraph::viewallCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll();
-}
-
-void
-VRSceneGraph::resetviewCallback(void *sceneGraph, buttonSpecCell *)
-{
-    ((VRSceneGraph *)sceneGraph)->viewAll(true);
-}
 
 void
 VRSceneGraph::viewAll(bool resetView)
@@ -1667,48 +1643,26 @@ VRSceneGraph::viewAll(bool resetView)
     coVRCollaboration::instance()->SyncScale();
 }
 
-void
-VRSceneGraph::coordAxisCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleAxis(false);
-    }
-}
-
-void
-VRSceneGraph::highQualityCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(true);
-    }
-    else
-    {
-        ((VRSceneGraph *)sceneGraph)->toggleHighQuality(false);
-    }
-}
-
 bool
 VRSceneGraph::isHighQuality() const
 {
     return m_highQuality;
 }
 
-void
-VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
+bool
+VRSceneGraph::saveScenegraph(bool storeWithMenu)
 {
-    VRSceneGraph *sg = reinterpret_cast<VRSceneGraph *>(sceneGraph);
-
     std::string filename = coCoviseConfig::getEntry("value", "COVER.SaveFile", "/var/tmp/OpenCOVER.osgb");
-    if (sg->isScenegraphProtected_)
+    return saveScenegraph(filename, storeWithMenu);
+}
+
+bool
+VRSceneGraph::saveScenegraph(const std::string &filename, bool storeWithMenu)
+{
+    if (isScenegraphProtected_)
     {
         fprintf(stderr, "Cannot store scenegraph. Not allowed!");
-        return;
+        return false;
     }
 
     if (cover->debugLevel(3))
@@ -1719,46 +1673,23 @@ VRSceneGraph::storeCallback(void *sceneGraph, buttonSpecCell *)
                         || !strcmp(filename.c_str() + len - 5, ".osgb")
                         || !strcmp(filename.c_str() + len - 5, ".osgx"))))
     {
-        if (osgDB::writeNodeFile(sg->storeWithMenu ? *static_cast<osg::Group *>(sg->m_scene) : *sg->m_objectsRoot, filename.c_str()))
-        {
-            if (cover->debugLevel(3))
-                std::cerr << "Data written to \"" << filename << "\"." << std::endl;
-        }
-        else
-        {
-            if (cover->debugLevel(1))
-                std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
-        }
     }
     else
     {
         if (cover->debugLevel(1))
-            std::cerr << "Not writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
+            std::cerr << "Writing to \"" << filename << "\": unknown extension, use .ive, .osg, .osgt, .osgb, or .osgx." << std::endl;
     }
-}
 
-void
-VRSceneGraph::reloadFileCallback(void *, buttonSpecCell *)
-{
-    coVRFileManager::instance()->reloadFile();
-}
+    if (osgDB::writeNodeFile(storeWithMenu ? *static_cast<osg::Group *>(m_scene) : *m_objectsRoot, filename.c_str()))
+    {
+        if (cover->debugLevel(3))
+            std::cerr << "Data written to \"" << filename << "\"." << std::endl;
+        return true;
+    }
 
-void
-VRSceneGraph::scalePlusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(1.0f);
-}
-
-void
-VRSceneGraph::scaleMinusCallback(void *sceneGraph, buttonSpecCell *)
-{
-    if (!sceneGraph)
-        return;
-
-    ((VRSceneGraph *)sceneGraph)->setScaleFromButton(-1.0f);
+    if (cover->debugLevel(1))
+        std::cerr << "Writing to \"" << filename << "\" failed." << std::endl;
+    return false;
 }
 
 void
@@ -1940,7 +1871,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     material->setAlpha(osg::Material::FRONT_AND_BACK, 0.5f);
 
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
-    alphaFunc->setFunction(osg::AlphaFunc::ALWAYS, 1.0);
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, 0.0);
 
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
@@ -1956,7 +1887,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     stateTransp->setNestRenderBins(false);
     stateTransp->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateTransp->setMode(GL_LIGHTING, osg::StateAttribute::ON);
-    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::OFF);
+    stateTransp->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
     stateTransp->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
 

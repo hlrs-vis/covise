@@ -56,24 +56,24 @@ int CreateRR_BladeEdge(struct edge *e)
 	// point and gradient hub side
 	hub[0]	   = e->c->p->x[0];
 	hub[2]	   = e->c->p->z[0];
-	angle	   = e->angle[0] - M_PI_2;
-	roma[0][0] =  cos(angle);
-	roma[0][1] = -sin(angle);
-	roma[1][0] =  sin(angle);
-	roma[1][1] =  cos(angle);
+	angle	   = float(e->angle[0] - M_PI_2);
+	roma[0][0] = float(cos(angle));
+	roma[0][1] = float(-sin(angle));
+	roma[1][0] = float(sin(angle));
+	roma[1][1] = float(cos(angle));
 	h_vec[0]   = e->h_norm[0] * roma[0][0] + e->h_norm[2] * roma[0][1];
 	h_vec[2]   = e->h_norm[0] * roma[1][0] + e->h_norm[2] * roma[1][1];
 	// move hub point to properly intersect with meridian contour
-	hub[0] -= (0.01 * h_vec[0]);
-	hub[2] -= (0.01 * h_vec[2]);
+	hub[0] -= (0.01f * h_vec[0]);
+	hub[2] -= (0.01f * h_vec[2]);
 	// point and gradient shroud side
 	shroud[0]  = e->c->p->x[e->c->p->nump-1];
 	shroud[2]  = e->c->p->z[e->c->p->nump-1];
-	angle	   = e->angle[1] - M_PI_2;
-	roma[0][0] =  cos(angle);
-	roma[0][1] = -sin(angle);
-	roma[1][0] =  sin(angle);
-	roma[1][1] =  cos(angle);
+	angle	   = float(e->angle[1] - M_PI_2);
+	roma[0][0] = float(cos(angle));
+	roma[0][1] = float(-sin(angle));
+	roma[1][0] = float(sin(angle));
+	roma[1][1] = float(cos(angle));
 	s_vec[0]   = e->s_norm[0] * roma[0][0] + e->s_norm[2] * roma[0][1];
 	s_vec[2]   = e->s_norm[0] * roma[1][0] + e->s_norm[2] * roma[1][1];
 	// move shroud point to properly intersect with meridian contour
@@ -81,8 +81,8 @@ int CreateRR_BladeEdge(struct edge *e)
 	shroud[0] += (0.05 * s_vec[0]);
 	shroud[2] += (0.05 * s_vec[2]);
 #else
-	shroud[0] += (0.01 * s_vec[0]);
-	shroud[2] += (0.01 * s_vec[2]);
+	shroud[0] += (0.01f * s_vec[0]);
+	shroud[2] += (0.01f * s_vec[2]);
 #endif
 	// intersection and partition points
 	LineIntersectXZ(hub, h_vec, shroud, s_vec, inter);

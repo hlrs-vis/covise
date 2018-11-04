@@ -66,7 +66,7 @@ void
 JunctionSettings::updateProperties()
 {
     ui->nameBox->setText(junction_->getName());
-    ui->idLabel->setText(junction_->getID());
+    ui->idLabel->setText(junction_->getID().speakingName());
 }
 
 void
@@ -83,15 +83,15 @@ JunctionSettings::updateConnections()
            << "contactPoint";
     ui->connectionTableWidget->setHorizontalHeaderLabels(header);
 
-    QMultiMap<QString, JunctionConnection *> connections = junction_->getConnections();
+    auto connections = junction_->getConnections();
     ui->connectionTableWidget->setRowCount(connections.size());
     int row = 0;
     foreach (JunctionConnection *element, connections)
     {
         ui->connectionTableWidget->setItem(row, 0, new QTableWidgetItem(element->getId()));
-        ui->connectionTableWidget->setItem(row, 1, new QTableWidgetItem(element->getIncomingRoad()));
-        ui->connectionTableWidget->setItem(row, 2, new QTableWidgetItem(element->getConnectingRoad()));
-        ui->connectionTableWidget->setItem(row, 3, new QTableWidgetItem(element->getContactPoint()));
+        ui->connectionTableWidget->setItem(row, 1, new QTableWidgetItem(element->getIncomingRoad().speakingName()));
+        ui->connectionTableWidget->setItem(row, 2, new QTableWidgetItem(element->getConnectingRoad().speakingName()));
+        ui->connectionTableWidget->setItem(row, 3, new QTableWidgetItem(JunctionConnection::parseContactPointBack(element->getContactPoint())));
         ++row;
     }
 }
@@ -103,22 +103,12 @@ JunctionSettings::updateConnections()
 void
 JunctionSettings::on_editingFinished()
 {
-
-    QString filename = ui->nameBox->text();
-    if (filename != junction_->getName())
+    QString name = ui->nameBox->text();
+    if (name != junction_->getName())
     {
-        QString newId;
-        QStringList parts = junction_->getID().split("_");
-
-        if (parts.size() > 2)
-        {
-            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-        }
-        else
-        {
-            newId = junction_->getRoadSystem()->getUniqueId(junction_->getID(), filename);
-        }
-        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, filename, NULL);
+		odrID newId = junction_->getID();
+		newId.setName(name);
+        SetRSystemElementIdCommand *command = new SetRSystemElementIdCommand(junction_->getRoadSystem(), junction_, newId, name, NULL);
         getProjectSettings()->executeCommand(command);
     }
 }
@@ -133,7 +123,7 @@ JunctionSettings::on_cleanConnectionsButton_released()
     }
     else
     {
-        QMultiMap<QString, JunctionConnection *>::ConstIterator iter = junction_->getConnections().constBegin();
+        auto iter = junction_->getConnections().constBegin();
         QList<JunctionConnection *> deleteList;
         for (int i = 0; i < selectedTableEntries.size(); i++)
         {

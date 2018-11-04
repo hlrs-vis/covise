@@ -22,6 +22,7 @@
 
 class ProjectData;
 class TopviewGraph;
+class RoadSystem;
 class RSystemElementRoad;
 class CatalogTreeWidget;
 
@@ -33,9 +34,12 @@ class oscObject;
 class oscCatalog;
 class oscTrajectory;
 class oscPrivateAction;
+class oscArrayMember;
 }
 
 class OSCBaseItem;
+class OSCBaseShapeItem;
+class OSCItem;
 class OSCRoadSystemItem;
 class OSCElement;
 class OSCBase;
@@ -70,10 +74,14 @@ public:
 
     // Move Object //
     //
-	bool translateObject(OpenScenario::oscPrivateAction *privateAction, const QString &newRoadId, double s, double t);
+	void move(QPointF &diff);
+	void translate(QPointF &diff);
+	void translateObject(OpenScenario::oscObject *oscObject, QPointF &diff);
 
 	OpenScenario::oscCatalog *getCatalog(std::string name);
 	OpenScenario::oscPrivateAction *getOrCreatePrivateAction(const std::string &selectedObjectName);
+	std::string getName(OpenScenario::oscArrayMember *arrayMember, const std::string &baseName);
+	OSCElement* cloneEntity(OSCElement *element, OpenScenario::oscObject *oscObject);
 
 
 	// Catalog dock widget changed //
@@ -92,8 +100,8 @@ public:
 		return oscRoadSystemItem_;
 	}
 
-    void addGraphToObserver(const QVector<QPointF> &controlPoints);
-    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints);
+    void addGraphToObserver(const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
+    void createWaypoints(OpenScenario::oscTrajectory *trajectory, const QVector<QPointF> &controlPoints, const QVector<bool> &smoothList);
 
 	void enableSplineEditing(bool state);
 
@@ -128,6 +136,7 @@ private:
 
 	// RoadSystem //
 	//
+	RoadSystem *roadSystem_;
 	 OSCRoadSystemItem * oscRoadSystemItem_;
 
 	// MainWindow //
@@ -138,6 +147,7 @@ private:
 	//
 	OSCBase * oscBase_;
 	OSCBaseItem * oscBaseItem_;
+	OSCBaseShapeItem *oscBaseShapeItem_;
 	OpenScenario::OpenScenarioBase *openScenarioBase_;
 
 	// Selected catalog //

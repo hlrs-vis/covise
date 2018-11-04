@@ -24,7 +24,6 @@
 #include <osg/Group>
 #include <osg/Geometry>
 #include <osg/Texture>
-#include <osg/TextureRectangle>
 #include <osg/StateSet>
 #include <osg/Image>
 #include <osgDB/ReadFile>
@@ -32,8 +31,6 @@
 using namespace osg;
 
 StereoVideoPlayerPlugin *StereoVideoPlayerPlugin::plugin = NULL;
-
-static bool useTextureRectangle = coCoviseConfig::isOn("COVER.Plugin.StereoVideoPlayer.UseTextureRectangle", false);
 
 static FileHandler handlers[] = {
     { NULL,
@@ -372,28 +369,6 @@ osg::StateSet *StereoVideoPlayerPlugin::createMovieStateSet(osg::Image *image)
     movieStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     movieStateSet->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
 
-    if (useTextureRectangle && !(checkPower2(image->s()) && checkPower2(image->t())))
-    {
-
-        TextureRectangle *texture = new TextureRectangle();
-        texture->setDataVariance(osg::Object::DYNAMIC);
-
-        //          if(cover->debugLevel(2)) cerr << "StereoVideoPlayerPlugin::createMovieStateSet(" << filename << ")" << endl;
-
-        texture->setImage(0, image);
-        texture = new TextureRectangle(image);
-        texture->setTextureSize(image->s(), image->t());
-
-        texture->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_BORDER);
-        texture->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_BORDER);
-
-        texture->setSourceFormat(GL_RGB);
-        texture->setInternalFormat(GL_RGB);
-
-        //		 texture->setMaxAnisotropy(anisotropy);
-        movieStateSet->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-    }
-    else
     {
         Texture2D *texture = new Texture2D();
         texture->setDataVariance(osg::Object::DYNAMIC);
@@ -441,26 +416,12 @@ osg::Geometry *StereoVideoPlayerPlugin::createPlane(osg::Image *image)
         planeColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
-    if (useTextureRectangle)
-    {
-        float delta[2];
-
-        deltaTexRectangle((float)image->s() * xscale, (float)image->t() * yscale, (float)screenWidth, (float)screenHeight, &delta[0]);
-
-        planeTexCoords->push_back(osg::Vec2(-delta[0], image->t() + delta[1]));
-        planeTexCoords->push_back(osg::Vec2(-delta[0], -delta[1]));
-        planeTexCoords->push_back(osg::Vec2(image->s() + delta[0], -delta[1]));
-        planeTexCoords->push_back(osg::Vec2(image->s() + delta[0], image->t() + delta[1]));
-    }
-    else
-    {
-        float delta[2];
-        deltaTex((float)image->s() * xscale, (float)image->t() * yscale, (float)screenWidth, (float)screenHeight, &delta[0]);
-        planeTexCoords->push_back(osg::Vec2(-delta[0], 1 + delta[1]));
-        planeTexCoords->push_back(osg::Vec2(-delta[0], -delta[1]));
-        planeTexCoords->push_back(osg::Vec2(1 + delta[0], -delta[1]));
-        planeTexCoords->push_back(osg::Vec2(1 + delta[0], 1 + delta[1]));
-    }
+    float delta[2];
+    deltaTex((float)image->s() * xscale, (float)image->t() * yscale, (float)screenWidth, (float)screenHeight, &delta[0]);
+    planeTexCoords->push_back(osg::Vec2(-delta[0], 1 + delta[1]));
+    planeTexCoords->push_back(osg::Vec2(-delta[0], -delta[1]));
+    planeTexCoords->push_back(osg::Vec2(1 + delta[0], -delta[1]));
+    planeTexCoords->push_back(osg::Vec2(1 + delta[0], 1 + delta[1]));
 
     osg::DrawElementsUInt *planePrimitive = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
     for (int i = 0; i < 4; i++)

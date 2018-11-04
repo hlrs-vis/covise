@@ -51,7 +51,7 @@ SignalManager::~SignalManager()
 }
 
 void
-SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, int type, const QString &typeSubclass, int subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height)
+SignalManager::addSignal(const QString &country, const QString &name, const QIcon &icon, const QString &categoryName, const QString &type, const QString &typeSubclass, const QString &subType, double value, double distance, double heightOffset, const QString &unit, const QString text, double width, double height)
 {
     signals_.insert(country, new SignalContainer(name, icon, categoryName, type, typeSubclass, subType, value, distance, heightOffset, unit, text, width, height));
 }
@@ -111,33 +111,35 @@ SignalManager::getCountry(ObjectContainer *objectContainer)
 }
 
 SignalContainer *
-SignalManager::getSignalContainer(int type, const QString &typeSubclass, int subType)
+SignalManager::getSignalContainer(const QString &country, const QString &type, const QString &typeSubclass, const QString &subType)
 {
-    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
-    while (iter != signals_.constEnd())
+	QList<SignalContainer *>countryList = signals_.values(country);
+
+	for (auto i = 0; i < countryList.size(); i++)
     {
-        if ((iter.value()->getSignalType() == type) && (iter.value()->getSignalSubType() == subType) && (iter.value()->getSignalTypeSubclass() == typeSubclass))
+		SignalContainer *signal = countryList.at(i);
+        if ((signal->getSignalType() == type) && (signal->getSignalSubType() == subType) && (signal->getSignalTypeSubclass() == typeSubclass))
         {
-            return iter.value();
+            return signal;
         }
-        iter++;
     }
 
     return NULL;
 }
 
 SignalContainer *
-SignalManager::getSignalContainer(const QString &name)
+SignalManager::getSignalContainer(const QString &country, const QString &name)
 {
-    QMultiMap<QString, SignalContainer *>::const_iterator iter = signals_.constBegin();
-    while (iter != signals_.constEnd())
-    {
-        if (iter.value()->getSignalName() == name)
-        {
-            return iter.value();
-        }
-        iter++;
-    }
+	QList<SignalContainer *>countryList = signals_.values(country);
+
+	for (auto i = 0; i < countryList.size(); i++)
+	{
+		SignalContainer *signal = countryList.at(i);
+		if (signal->getSignalName() == name)
+		{
+			return signal;
+		}
+	}
 
     return NULL;
 }

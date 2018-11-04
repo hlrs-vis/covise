@@ -95,7 +95,7 @@ bool coConfigTools::matchingRank(const QString *rank)
     bool match = false;
     QString r = rank->simplified();
     QStringList ranges = r.split(",");
-    for (size_t i =0; i<ranges.size(); ++i)
+    for (int i =0; i<int(ranges.size()); ++i)
     {
         QString range = ranges[i].simplified();
         if (range == "-1" || range.toLower() == "all" || range.toLower() == "any")

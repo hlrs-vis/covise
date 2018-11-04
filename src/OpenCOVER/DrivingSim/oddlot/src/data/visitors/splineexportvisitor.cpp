@@ -49,7 +49,7 @@ SplineExportVisitor::visit(RSystemElementRoad *road)
     //	fileName = QString("export/spline_");
     QString fileName = dirName_;
     fileName.append("/spline_");
-    fileName.append(road->getID());
+    fileName.append(road->getID().speakingName());
     fileName.append(".txt");
 
     QFile file(fileName);

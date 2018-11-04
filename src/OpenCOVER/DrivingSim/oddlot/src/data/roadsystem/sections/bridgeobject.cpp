@@ -17,11 +17,64 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+Bridge::BridgeType 
+Bridge::parseBridgeType(const QString &type)
+{
+	if (type == "concrete")
+	{
+		return Bridge::BT_CONCRETE;
+	}
+	else if (type == "steel")
+	{
+		return Bridge::BT_STEEL;
+	}
+	else if (type == "brick")
+	{
+		return Bridge::BT_BRICK;
+	}
+	else if (type == "wood")
+	{
+		return Bridge::BT_WOOD;
+	}
+	else
+	{
+		qDebug("WARNING: unknown bridge type: %s", type.toUtf8().constData());
+		return Bridge::BT_UNKNOWN;
+	}
+
+}
+
+QString 
+Bridge::parseBridgeTypeBack(int type)
+{
+	if (type == Bridge::BT_CONCRETE)
+	{
+		return  QString("concrete");
+	}
+	else if (type == Bridge::BT_STEEL)
+	{
+		return  QString("steel");
+	}
+	else if (type == Bridge::BT_BRICK)
+	{
+		return  QString("brick");
+	}
+	else if (type == Bridge::BT_WOOD)
+	{
+		return  QString("wood");
+	}
+	else
+	{
+		qDebug("WARNING: unknown bridge type");
+		return  QString("none");
+	}
+}
+
 //####################//
 // Constructors       //
 //####################//
 
-Bridge::Bridge(const QString &id, const QString &file, const QString &name, int type, double s, double length)
+Bridge::Bridge(const odrID &id, const QString &file, const QString &name, int type, double s, double length)
     : RoadSection(s)
     , id_(id)
     , name_(name)

@@ -104,20 +104,20 @@ SignalTextItem::updateName()
 			{
 				if (signal_->getSubtype() >= 0)
 				{
-					signalName = QString::number(signal_->getType()) + "." + signal_->getTypeSubclass() + "-" + QString::number(signal_->getSubtype());
+					signalName = signal_->getType() + "." + signal_->getTypeSubclass() + "-" + signal_->getSubtype();
 				}
 				else
 				{
-					signalName = QString::number(signal_->getType()) + "." + signal_->getTypeSubclass();
+					signalName = signal_->getType() + "." + signal_->getTypeSubclass();
 				}
 			}
 			else if (signal_->getSubtype() >= 0)
 			{
-				signalName = QString::number(signal_->getType()) + "-" + QString::number(signal_->getSubtype());
+				signalName = signal_->getType() + "-" + signal_->getSubtype();
 			}
 			else
 			{
-				signalName = QString::number(signal_->getType());
+				signalName = signal_->getType();
 			}
 		}
 		textHandle_->setText(signalName);

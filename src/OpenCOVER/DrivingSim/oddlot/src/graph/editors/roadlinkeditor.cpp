@@ -165,19 +165,19 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
 
                 RSystemElementRoad *road = sink->getParentRoad();
 
-                QString contactPoint;
+                JunctionConnection::ContactPointValue contactPoint;
                 if (sink->getIsStart())
                 {
-                    contactPoint = "start";
+                    contactPoint = JunctionConnection::JCP_START;
                 }
                 else
                 {
-                    contactPoint = "end";
+                    contactPoint = JunctionConnection::JCP_END;
                 }
                 RoadLink *newRoadLink = NULL;
                 RSystemElementJunction *junction = NULL;
                 JunctionConnection *newConnection = NULL;
-                if (road->getJunction() != "-1" && road->getJunction() != "")
+                if (road->getJunction().isValid())
                 {
                     junction = getProjectData()->getRoadSystem()->getJunction(road->getJunction());
                     int numConn = 0;
@@ -185,7 +185,7 @@ RoadLinkEditor::toolAction(ToolAction *toolAction)
                     {
                         numConn = junction->getConnections().size();
                     }
-                    newConnection = new JunctionConnection(QString("jc%1").arg(numConn), item->getParentRoad()->getID(), road->getID(), contactPoint, 1);
+                    newConnection = new JunctionConnection(QString("%1").arg(numConn), item->getParentRoad()->getID(), road->getID(), contactPoint, 1);
 
                     QMap<double, LaneSection *> lanes = road->getLaneSections();
                     LaneSection *lsC = *lanes.begin();

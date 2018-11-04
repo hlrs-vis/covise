@@ -17,6 +17,7 @@
 #define RSYSTEMELEMENTROAD_HPP
 
 #include "rsystemelement.hpp"
+#include "sections/lane.hpp"
 
 #include <QMap>
 #include <QPointF>
@@ -33,10 +34,14 @@ class TrackComponent;
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 class LaneSection;
+class LaneOffset;
 class Object;
+class ObjectReference;
 class Crosswalk;
 class Signal;
+class SignalReference;
 class Sensor;
 class Surface;
 class Bridge;
@@ -54,12 +59,13 @@ public:
         DRS_TypeSection = 0x1,
         DRS_TrackSection = 0x2,
         DRS_ElevationSection = 0x4,
+		DRS_ShapeSection = 0x8,
         DRS_SuperelevationSection = 0x10,
         DRS_CrossfallSection = 0x20,
         DRS_LaneSection = 0x40,
-        DRS_SignalSection = 0x50,
-        DRS_ObjectSection = 0x60,
-        DRS_BridgeSection = 0x70
+        DRS_SignalSection = 0x80,
+        DRS_ObjectSection = 0x100,
+        DRS_BridgeSection = 0x200
     };
 
     enum DRoadObjectType
@@ -83,8 +89,10 @@ public:
         CRD_TypeSectionChange = 0x1,
         CRD_TrackSectionChange = 0x2,
         CRD_ElevationSectionChange = 0x4,
+		CRD_SignalReferenceChange = 0x8,
         CRD_SuperelevationSectionChange = 0x10,
         CRD_CrossfallSectionChange = 0x20,
+		CRD_ShapeSectionChange = 0x80,
         CRD_LaneSectionChange = 0x40,
         CRD_JunctionChange = 0x100,
         CRD_LengthChange = 0x200,
@@ -97,24 +105,28 @@ public:
         CRD_SensorChange = 0x10000,
         CRD_SurfaceChange = 0x20000,
         CRD_BridgeChange = 0x40000,
-		CRD_TunnelChange = 0x80000
+		CRD_TunnelChange = 0x80000,
+		CRD_ObjectReferenceChange = 0x100000,
+		CRD_LaneOffsetChange = 0x200000
     };
+
+
 
     //################//
     // FUNCTIONS      //
     //################//
 
 public:
-    explicit RSystemElementRoad(const QString &name, const QString &id, const QString &junction);
+    explicit RSystemElementRoad(const QString &name, const odrID &id = odrID::invalidID(), const odrID &junction=odrID::invalidID());
     virtual ~RSystemElementRoad();
 
     // road //
     //
-    QString getJunction() const
+	const odrID &getJunction() const
     {
         return junction_;
     }
-    void setJunction(const QString &junctionId);
+    void setJunction(const odrID &junctionId);
 
     double getLength() const
     {
@@ -235,12 +247,29 @@ public:
         return crossfallSections_;
     }
 
+	// road:lateralProfile:shape //
+	//
+	void addShapeSection(ShapeSection *section);
+	bool delShapeSection(ShapeSection *section);
+	bool moveShapeSection(double oldS, double newS);
+	void setShapeSections(QMap<double, ShapeSection *> newSections);
+
+	ShapeSection *getShapeSection(double s) const;
+	ShapeSection *getShapeSectionBefore(double s) const;
+	double getShapeSectionEnd(double s) const;
+	QMap<double, ShapeSection *> getShapeSections() const
+	{
+		return shapeSections_;
+	}
+
     // road:laneSection //
     //
     void addLaneSection(LaneSection *laneSection);
     bool delLaneSection(LaneSection *laneSection);
     bool moveLaneSection(double oldS, double newS);
     void setLaneSections(QMap<double, LaneSection *> newSections);
+
+
 
     LaneSection *getLaneSection(double s) const;
     LaneSection *getLaneSectionBefore(double s) const;
@@ -251,10 +280,34 @@ public:
         return laneSections_;
     }
 
+
+	// road:laneOffset //
+	//
+	void addLaneOffset(LaneOffset *laneOffset);
+	bool delLaneOffset(LaneOffset *laneOffset);
+	bool moveLaneOffset(double oldS, double newS);
+	bool delLaneOffset(double s);
+	void setLaneOffsets(QMap<double, LaneOffset *> newOffsets);
+
+	LaneOffset *getLaneOffsetObject(double s) const;
+	double getLaneOffset(double s) const;
+	LaneOffset *getLaneOffsetBefore(double s) const;
+	LaneOffset *getLaneOffsetNext(double s) const;
+
+
     // road:laneSection:lane:width //
     //
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
+
+	// LaneWidth //
+	//
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	void translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	void calculateLaneWidths(const QMap<double, WidthPoints *> *points);
+
 
     // check if the lanes are linked at their ends
     //
@@ -278,6 +331,18 @@ public:
     }
     bool delObject(Object *object);
     bool moveObject(RoadSection *section, double newS);
+	Object *getObject(const odrID &id);
+
+	// road:objectreference //
+	//
+	void addObjectReference(ObjectReference *objectReference);
+	QMultiMap<double, ObjectReference *> getObjectReferences() const
+	{
+		return objectReferences_;
+	}
+	ObjectReference *getObjectReference(const odrID &id);
+	bool delObjectReference(ObjectReference *objectReference);
+	bool moveObjectReference(RoadSection *section, double newS);
 
     // road:objects:bridge //
     //
@@ -299,7 +364,18 @@ public:
     bool delSignal(Signal *signal);
     bool moveSignal(RoadSection *section, double newS);
     int getValidLane(double s, double t);
-    Signal * getSignal(const QString &id);
+    Signal * getSignal(const odrID &id);
+
+	// road:signalreference //
+	//
+	void addSignalReference(SignalReference *signalReference);
+	QMultiMap<double, SignalReference *> getSignalReferences() const
+	{
+		return signalReferences_;
+	}
+	SignalReference *getSignalReference(const odrID &id);
+	bool delSignalReference(SignalReference *signalReference);
+	bool moveSignalReference(RoadSection *section, double newS);
 
     // road:objects:sensor //
     //
@@ -338,12 +414,16 @@ public:
     virtual void acceptForElevationSections(Visitor *visitor);
     virtual void acceptForSuperelevationSections(Visitor *visitor);
     virtual void acceptForCrossfallSections(Visitor *visitor);
+	virtual void acceptForShapeSections(Visitor *visitor);
     virtual void acceptForLaneSections(Visitor *visitor);
     virtual void acceptForObjects(Visitor *visitor);
+	virtual void acceptForObjectReferences(Visitor *visitor);
     virtual void acceptForBridges(Visitor *visitor);
     virtual void acceptForCrosswalks(Visitor *visitor);
     virtual void acceptForSignals(Visitor *visitor);
+	virtual void acceptForSignalReferences(Visitor *visitor);
     virtual void acceptForSensors(Visitor *visitor);
+	virtual void acceptForLaneOffsets(Visitor *visitor);
     
     double updateLength();
 
@@ -353,15 +433,13 @@ private:
     RSystemElementRoad &operator=(const RSystemElementRoad &); /* not allowed */
 
 
-    // IDs //
-    //
-    const QString getUniqueId(const QString &suggestion, RSystemElement::DRoadSystemElementType elementType);
 
     bool delTypeSection(double s);
     bool delTrackComponent(double s);
     bool delElevationSection(double s);
     bool delSuperelevationSection(double s);
     bool delCrossfallSection(double s);
+	bool delShapeSection(double s);
     bool delLaneSection(double s);
     bool delObject(double s);
     bool delBridge(double s);
@@ -381,7 +459,7 @@ private:
 
     // road //
     //
-    QString junction_; // ID of the junction (if road is a path), otherwise -1
+	odrID junction_; // ID of the junction (if road is a path), otherwise -1
     double cachedLength_; // total length of the road (xy-plane)
 
     // link //
@@ -409,21 +487,29 @@ private:
     // crossfall //
     QMap<double, CrossfallSection *> crossfallSections_; // owned
 
+	// shape //
+	QMap<double, ShapeSection *> shapeSections_; // owned
+
     // lanes //
     QMap<double, LaneSection *> laneSections_; // owned
+
+	// laneOffsets //
+	QMap<double, LaneOffset *> laneOffsets_; // owned
 
     // objects //
     QMap<double, Crosswalk *> crosswalks_; // owned
 
     QMultiMap<double, Object *> objects_; // owned
-    QStringList objectIds_;
-    int objectIdCount_;
+    QList<odrID> objectIds_;
+	int objectIdCount_;
+	QMultiMap<double, ObjectReference *> objectReferences_;
 
     QMultiMap<double, Bridge *> bridges_; // owned
 
     QMultiMap<double, Signal *> signals_; // owned
     QStringList signalIds_;
     int signalIdCount_;
+	QMultiMap<double, SignalReference *> signalReferences_; // owned
 
     QMap<double, Sensor *> sensors_; // owned
     QMap<double, Surface *> surfaces_; // owned

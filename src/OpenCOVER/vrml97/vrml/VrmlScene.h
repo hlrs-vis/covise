@@ -83,6 +83,7 @@ public:
     cacheEntry *findEntry(const char *url);
     void save();
     bool modified;
+    std::string cacheIndexName;
 };
 
 class VrmlScene
@@ -90,6 +91,7 @@ class VrmlScene
 
 public:
     // These are available without a scene object
+    static bool isWrl(const std::string &filename);
     static VrmlMFNode *readWrl(VrmlMFString *url, Doc *relative, VrmlNamespace *ns, bool *encrypted = NULL);
     static VrmlMFNode *readWrl(Doc *url, VrmlNamespace *ns, bool *encrypted = NULL);
     static VrmlMFNode *readString(const char *vrmlString, VrmlNamespace *ns, Doc *relative = NULL);
@@ -292,8 +294,8 @@ public:
         return d_sensorEventQueue;
     }
 
-    void storeCachedInline(const char *name, const Viewer::Object d_viewerObject);
-    Viewer::Object getCachedInline(const char *name);
+    void storeCachedInline(const char *url, const char *pathname, const Viewer::Object d_viewerObject);
+    Viewer::Object getCachedInline(const char *url, const char *pathname);
 
     bool wasEncrypted() const;
 

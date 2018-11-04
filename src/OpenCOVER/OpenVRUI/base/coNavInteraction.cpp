@@ -19,7 +19,7 @@ coNavInteraction::coNavInteraction(InteractionType type, const string &name, Int
     : coInteraction(type, name, priority)
 {
     oldState = Idle;
-    runningState = StateNotRunning;
+    group = GroupNavigation;
 }
 
 coNavInteraction::~coNavInteraction()

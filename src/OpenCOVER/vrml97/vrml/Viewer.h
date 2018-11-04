@@ -22,6 +22,7 @@
 namespace vrml
 {
 
+    class VRMLEXPORT VrmlNodeMovieTexture;
 typedef struct
 {
     bool loop;
@@ -30,6 +31,8 @@ typedef struct
     double stop;
     bool repeatS;
     bool repeatT;
+    bool playing;
+    VrmlNodeMovieTexture *mtNode;
 } movieProperties;
 
 class VRMLEXPORT VrmlNode;

@@ -17,9 +17,11 @@
 #define TRACKEDITOR_HPP
 
 #include "projecteditor.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 #include <QMultiMap>
 #include <QPointF>
+#include <QGraphicsItem>
 
 class ProjectData;
 class TopviewGraph;
@@ -36,9 +38,11 @@ class RoadMoveHandle;
 class RoadRotateHandle;
 
 class QGraphicsLineItem;
+class QGraphicsEllipseItem;
 class CircularRotateHandle;
 
 class TrackRoadSystemItem;
+
 
 // TODO
 class SectionHandle;
@@ -50,6 +54,14 @@ class TrackEditor : public ProjectEditor
     //################//
     // STATIC         //
     //################//
+
+public:
+
+	enum CacheMode
+	{
+		NoCache,
+		DeviceCache
+	};
 
 private:
     enum TrackEditorState
@@ -110,6 +122,8 @@ public:
     void registerRoadRotateHandle(RoadRotateHandle *handle);
     int unregisterRoadRotateHandle(RoadRotateHandle *handle);
     bool rotateRoadRotateHandles(const QPointF &pivotPoint, double angleDegrees);
+	void setCacheMode(RSystemElementRoad *road, CacheMode cache);
+	void setChildCacheMode(QGraphicsItem *child, QGraphicsItem::CacheMode mode);
 
     // AddHandles //
     //
@@ -158,10 +172,21 @@ private:
     // MouseAction //
     //
     QPointF pressPoint_;
+	QPointF firstPressPoint_;
 
     // New Road Tool //
     //
     QGraphicsLineItem *newRoadLineItem_;
+
+	// New Polynomial Tool //
+	//
+	TrackMoveHandle *newRoadPolyItem_;
+	RSystemElementRoad *newPolyRoad_;
+
+
+	// New Circle Tool //
+	//
+	QGraphicsEllipseItem *newRoadCircleItem_;
 
     // Add RoadSystem Tool //
     //
@@ -185,7 +210,7 @@ private:
 
     // Move Tile Tool //
     //
-    QString currentTile_;
+    odrID currentTile_;
 
     // State //
     //
@@ -193,6 +218,10 @@ private:
 
     // TODO
     SectionHandle *sectionHandle_;
+
+	// Line or Polynomial chosen for new road
+	//
+	ODD::ToolId lastEditorTool_;
 };
 
 #endif // TRACKEDITOR_HPP

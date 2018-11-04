@@ -159,10 +159,10 @@ bool Cal3DCoreHelper::loadCfg(const std::string &strFilename)
     // open the model configuration file
     m_name = strFilename;
 #if MAX_PRODUCT_VERSION_MAJOR > 14
-    TSTR tmpN;
-    tmpN.FromUTF8(m_name.c_str());
-    TSTR tmpName = myVRMLName(tmpN);
-    m_VrmlName = tmpName.ToCStr().data();
+	std::wstring ws;
+	ws.assign(m_name.begin(), m_name.end());
+    TSTR tmpName = myVRMLName(ws.c_str());
+	m_VrmlName = tmpName; // tmpName.ToCStr().data();
 #else
     m_VrmlName = myVRMLName(m_name.c_str());
 #endif
@@ -1079,11 +1079,24 @@ INT_PTR Cal3DParamDlgProc::DlgProc(TimeValue t, IParamMap *map, HWND hWnd,
 }
 
 IParamMap *Cal3DObject::pmapParam = NULL;
+void Cal3DObject::setURL(const std::wstring &url)
+{
+
+#if MAX_PRODUCT_VERSION_MAJOR > 14
+	cal3d_cfg = url.c_str();
+#endif
+	std::string s;
+	s.assign(url.begin(), url.end());
+	coreHelper = cores->addHelper(s);
+}
 void Cal3DObject::setURL(const std::string &url)
 {
 
 #if MAX_PRODUCT_VERSION_MAJOR > 14
-    cal3d_cfg.FromUTF8(url.c_str());
+
+	std::wstring ws;
+	ws.assign(url.begin(), url.end());
+    cal3d_cfg = ws.c_str();
 #else
 
     cal3d_cfg = url.c_str();
@@ -1507,10 +1520,11 @@ Cal3DObject::Load(ILoad *iload)
         {
         case CAL3D_URL_CHUNK:
         {
-            char *n;
 #ifdef _UNICODE
+			TCHAR *n;
             iload->ReadWStringChunk(&n);
 #else
+			char *n;
             iload->ReadCStringChunk(&n);
 #endif
             setURL(n);

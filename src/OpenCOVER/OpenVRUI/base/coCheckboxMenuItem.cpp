@@ -103,22 +103,6 @@ int coCheckboxMenuItem::hit(vruiHit *hit)
 
         if (listener)
             listener->menuEvent(this);
-
-        if (myTwin)
-        {
-            // the "twin" should be another coCheckboxMenuItem: special treatment required
-            // dynamic_cast does not work on all platforms, so don´t use if not necessary
-
-            if (strcmp(myTwin->getClassName(), "coCheckboxMenuItem") == 0)
-            {
-                coCheckboxMenuItem *cb = static_cast<coCheckboxMenuItem *>(myTwin);
-                cb->setState(myState, true, true);
-            }
-            else
-            {
-                myTwin->updateContentBool(myState);
-            }
-        }
     }
 
     return ACTION_CALL_ON_MISS;
@@ -159,49 +143,13 @@ void coCheckboxMenuItem::doActionRelease()
 
     if (listener)
         listener->menuEvent(this);
-
-    if (myTwin)
-    {
-        // the "twin" should be another coCheckboxMenuItem: special treatment required
-        // dynamic_cast does not work on all platforms, so donï¿½t use if not necessary
-
-        if (strcmp(myTwin->getClassName(), "coCheckboxMenuItem") == 0)
-        {
-            coCheckboxMenuItem *cb = static_cast<coCheckboxMenuItem *>(myTwin);
-            cb->setState(myState, true, true);
-        }
-        else
-        {
-            myTwin->updateContentBool(myState);
-        }
-    }
 }
 
 // just for the sake of implementing it
 void coCheckboxMenuItem::buttonEvent(coButton *button)
 {
     (void)button;
-
-    myState = !myState;
-
-    if (listener)
-        listener->menuEvent(this);
-
-    if (myTwin)
-    {
-        // the "twin" should be another coCheckboxMenuItem: special treatment required
-        // dynamic_cast does not work on all platforms, so don´t use if not necessary
-
-        if (strcmp(myTwin->getClassName(), "coCheckboxMenuItem") == 0)
-        {
-            coCheckboxMenuItem *cb = static_cast<coCheckboxMenuItem *>(myTwin);
-            cb->setState(myState, true, true);
-        }
-        else
-        {
-            myTwin->updateContentBool(myState);
-        }
-    }
+    doActionRelease();
 }
 
 /** Set new checkbox state.
@@ -229,9 +177,6 @@ void coCheckboxMenuItem::setState(bool newState, bool generateEvent, bool update
    else
    checkBox->setState(newState);
    }*/
-
-    if (myTwin)
-        myTwin->updateContentBool(newState);
 }
 
 /** Get checkbox state.
@@ -293,16 +238,4 @@ void coCheckboxMenuItem::setActive(bool a)
     coRowMenuItem::setActive(a);
 }
 
-bool coCheckboxMenuItem::updateContentBool(bool newState)
-{
-    if (group)
-        group->setState(this, newState);
-    else
-        checkBox->setState(newState);
-    myState = newState;
-    if (listener)
-        listener->menuEvent(this);
-
-    return true;
-}
 }

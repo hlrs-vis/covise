@@ -49,7 +49,6 @@ namespace opencover
 class coVRSlave;
 class Rel_Mcast;
 class coClusterStat;
-class buttonSpecCell;
 class COVEREXPORT coVRMSController
 {
 public:
@@ -103,7 +102,10 @@ public:
     };
 
     static coVRMSController *instance();
-    coVRMSController(bool forceMpi = false, int AmyID = -1, const char *addr = NULL, int port = 0);
+    coVRMSController(int AmyID = -1, const char *addr = NULL, int port = 0);
+#ifdef HAS_MPI
+    coVRMSController(const MPI_Comm *comm);
+#endif
     ~coVRMSController();
     void startSlaves();
     void checkMark(const char *file, int line);
@@ -136,6 +138,8 @@ public:
     void sendSlaves(const covise::Message *msg);
     int readMaster(covise::Message *msg);
     void sendMaster(const covise::Message *msg);
+    void sendMaster(const std::string &s);
+    void readSlave(int i, std::string &s);
     int getID()
     {
         return myID;
@@ -149,6 +153,7 @@ public:
     void syncDraw();
     void syncTime();
     int syncData(void *data, int size);
+    int syncMessage(covise::Message *msg);
     bool syncBool(bool);
     std::string syncString(const std::string &s);
     void syncVRBMessages();
@@ -168,13 +173,15 @@ public:
         return numSlaves + 1;
     }
     void killClients();
-    static void statisticsCallback(void *, buttonSpecCell *spec);
     int getNumSlaves() const
     {
         return this->numSlaves;
     }
 
     void heartBeat(const std::string &name = "unnamed", bool draw = false);
+
+    bool drawStatistics() const;
+    void setDrawStatistics(bool enable);
 
 #ifdef HAS_MPI
     MPI_Comm getAppCommunicator() const
@@ -195,7 +202,7 @@ private:
     int numSlaves;
     int syncMode;
     int syncProcess;
-    bool drawStatistics;
+    bool m_drawStatistics;
     Rel_Mcast *multicast;
     int multicastDebugLevel;
     std::string multicastAddress;

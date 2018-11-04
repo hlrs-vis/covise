@@ -38,7 +38,6 @@
 #include <QGraphicsPathItem>
 
 class GraphView;
-class OpenScenarioEditor;
 
 class GraphViewShapeItem :  public QObject, public QGraphicsPathItem
 {
@@ -47,7 +46,7 @@ class GraphViewShapeItem :  public QObject, public QGraphicsPathItem
      Q_PROPERTY(QEasingCurve easingCurve READ easingCurve WRITE setEasingCurve NOTIFY easingCurveChanged);
 
 public:
-    explicit GraphViewShapeItem(GraphView *view, OpenScenarioEditor *editor, int x, int y, int width, int height);
+    explicit GraphViewShapeItem(GraphView *view, int x, int y, int width, int height);
     virtual ~GraphViewShapeItem();
 
     void createPath();
@@ -81,6 +80,7 @@ protected:
 
 
 private:
+	double m_minPointDistance;
 
 	double s_;
 	double t_;
@@ -97,7 +97,6 @@ private:
     // Spline //
     //
     GraphView *view_;
-    OpenScenarioEditor *editor_;
 
     void invalidate();
     void invalidateSmoothList();

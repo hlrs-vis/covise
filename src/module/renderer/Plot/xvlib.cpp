@@ -840,7 +840,7 @@ void xlibfill(int n, int *px, int *py)
         XFillPolygon(disp, backpix, gc, p, n, Nonconvex, CoordModeOrigin);
     }
     XSetFillStyle(disp, gc, FillSolid);
-    cfree(p);
+    free(p);
 }
 
 void xlibfillcolor(int n, int *px, int *py)
@@ -863,7 +863,7 @@ void xlibfillcolor(int n, int *px, int *py)
     {
         XFillPolygon(disp, backpix, gc, p, n, Nonconvex, CoordModeOrigin);
     }
-    cfree(p);
+    free(p);
 }
 
 void xlibdrawarc(int x, int y, int r)

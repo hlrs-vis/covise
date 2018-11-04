@@ -8,6 +8,7 @@
 #ifndef _DESOXYRIBOSE_H
 #define _DESOXYRIBOSE_H
 
+#include <string>
 #include "DNABaseUnit.h"
 class DNABaseUnitConnectionPoint;
 

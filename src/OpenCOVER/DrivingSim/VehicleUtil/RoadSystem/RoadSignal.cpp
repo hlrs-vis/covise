@@ -10,6 +10,7 @@
 #include <osg/CullFace>
 #include <osg/AlphaFunc>
 #include <cover/coVRFileManager.h>
+#include <cover/coVRConfig.h>
 
 TrafficLightSignalTurnCallback::TrafficLightSignalTurnCallback(osgSim::MultiSwitch *ms)
     : multiSwitch(ms)
@@ -110,6 +111,10 @@ SignalPrototype::SignalPrototype(std::string n, std::string c, int t, int st, st
 {
     name = n;
     country = c;
+	if (c == "DEU")
+		country = "Germany";
+	if (c == "OpenDRIVE")
+		country = "Germany";
     std::string fn = "share/covise/signals/" + country + "/" + n + ".osg";
     type = t;
     subtype = st;
@@ -287,6 +292,8 @@ void SignalPrototype::createGeometry(bool realScale)
 
     osg::Geometry *signGeometry;
     signGeometry = new osg::Geometry();
+    signGeometry->setUseDisplayList(opencover::coVRConfig::instance()->useDisplayLists());
+    signGeometry->setUseVertexBufferObjects(opencover::coVRConfig::instance()->useVBOs());
     signGeode->addDrawable(signGeometry);
 
     osg::Vec3Array *signVertices;
@@ -790,6 +797,8 @@ osg::Node * TrafficLightPrototype::createGeometry()
 
     osg::Geometry *trafficLightGeometry;
     trafficLightGeometry = new osg::Geometry();
+    trafficLightGeometry->setUseDisplayList(opencover::coVRConfig::instance()->useDisplayLists());
+    trafficLightGeometry->setUseVertexBufferObjects(opencover::coVRConfig::instance()->useVBOs());
     trafficLightGeode->addDrawable(trafficLightGeometry);
 
     osg::Vec3Array *trafficLightVertices;

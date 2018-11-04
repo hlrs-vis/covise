@@ -108,7 +108,7 @@ OSCSignalItem::createPath()
 
     // Stopp line
     //
-    if (signal_->getType() == 294)
+    if (signal_->getType() == "294")
     {
 		setPen(QPen(outerColor_, 2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
@@ -118,26 +118,26 @@ OSCSignalItem::createPath()
 
         if (signal_->getValidFromLane() >= 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.moveTo(pos - width * normal);
 		}
 		else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane() + 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
 			path.moveTo(pos + width * normal);
 		}
 		if (signal_->getValidToLane() > 0)
 		{
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane() - 1, signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             path.lineTo(pos - width * normal);
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
 			path.lineTo(pos + width * normal);
         }
     }
-    else if (signal_->getType() == 293)
+    else if (signal_->getType() == "293")
     {
         setPen(QPen(outerColor_, 0.2, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin));
 
@@ -148,10 +148,10 @@ OSCSignalItem::createPath()
 
         if (signal_->getValidFromLane() > 0)
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
             if (signal_->getValidToLane() >= 0)
             {
-                while (width >= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+                while (width >= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart())))
                 {
 					QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
@@ -161,7 +161,7 @@ OSCSignalItem::createPath()
             }
             else
             {
-                while (width >= -laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+                while (width >= (-laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart())))
                 {
 					QPointF newPos = pos - width * normal;
                     path.moveTo(newPos);
@@ -172,8 +172,8 @@ OSCSignalItem::createPath()
         }
         else
         {
-            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart());
-            while (width <= laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart()))
+            double width = laneSection->getLaneSpanWidth(0, signal_->getValidFromLane(), signal_->getSStart()) + road_->getLaneOffset(signal_->getSStart());
+            while (width <= (laneSection->getLaneSpanWidth(0, signal_->getValidToLane(), signal_->getSStart())) + road_->getLaneOffset(signal_->getSStart()))
             {
 				QPointF newPos = pos + width * normal;
                 path.moveTo(newPos);

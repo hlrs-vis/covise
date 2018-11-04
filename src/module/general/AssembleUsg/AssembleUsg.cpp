@@ -415,7 +415,7 @@ coDistributedObject *AssembleUsg::unpack_grid(const coDistributedObject *obj_in,
     num_coord_in.clear();
 
     findGrid((coDoSet *)obj_in);
-    int num_elems = elem_in.size();
+    size_t num_elems = elem_in.size();
 
     for (i = 0; i < num_elems; ++i)
     {
@@ -488,7 +488,7 @@ coDistributedObject *AssembleUsg::unpack_data(const coDistributedObject *obj_in,
     num_points_in.clear();
 
     findData((coDoSet *)obj_in);
-    int num_elems = x_data_in.size();
+    size_t num_elems = x_data_in.size();
 
     for (int i = 0; i < num_elems; ++i)
     {

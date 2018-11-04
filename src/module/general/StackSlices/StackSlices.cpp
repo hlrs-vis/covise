@@ -31,7 +31,7 @@ StackSlices::StackSlices(int argc, char *argv[])
 
 int StackSlices::compute(const char *)
 {
-    const float Eps = 1e-10;
+    const float Eps = float(1e-10);
     const int axis = p_direction->getValue();
     const float dist = p_sliceDistance->getValue();
 
@@ -134,7 +134,7 @@ int StackSlices::compute(const char *)
         if (dist >= 0.f)
             dx = dist;
         else if (dx <= Eps)
-            dx = (dy+dz)/2.;
+            dx = (dy+dz)/2.0f;
         sx = numSlices;
         xmax = xmin+sx*dx;
     }
@@ -143,7 +143,7 @@ int StackSlices::compute(const char *)
         if (dist >= 0.f)
             dy = dist;
         else if (dy <= Eps)
-            dy = (dx+dz)/2.;
+            dy = (dx+dz)/2.0f;
         sy = numSlices;
         ymax = zmin+sy*dz;
     }
@@ -152,7 +152,7 @@ int StackSlices::compute(const char *)
         if (dist >= 0.f)
             dz = dist;
         else if (dz <= Eps)
-            dz = (dy+dz)/2.;
+            dz = (dy+dz)/2.0f;
         sz = numSlices;
         zmax = zmin+sz*dz;
     }

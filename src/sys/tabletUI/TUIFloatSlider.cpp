@@ -8,11 +8,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <iostream>
+#include <cmath>
 
 #include <QLabel>
 #include <QSlider>
 #include <QString>
 #include <QLineEdit>
+#include <QGridLayout>
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
@@ -24,11 +26,14 @@
 #include "TUIApplication.h"
 #include "TUIContainer.h"
 
+const float SliderMax = 1000000.f;
+const float SliderTiny = 1e-15f;
+
 /// Constructor
 TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
-    //int row  = 0;
+    width = 2;
 
     min = 0.0;
     max = 0.0;
@@ -40,28 +45,39 @@ TUIFloatSlider::TUIFloatSlider(int id, int type, QWidget *w, int parent, QString
 
     connect(string, SIGNAL(returnPressed()), this, SLOT(released()));
     slider->setMinimum(0);
-    slider->setMaximum(1000);
+    slider->setMaximum(SliderMax);
 
-    widget = slider;
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
     connect(slider, SIGNAL(sliderPressed()), this, SLOT(pressed()));
     connect(slider, SIGNAL(sliderReleased()), this, SLOT(released()));
+
+    auto gl = new QGridLayout;
+    layout = gl;
+    gl->addWidget(slider, 1, 0, 1, width-1);
+    gl->addWidget(string, 1, width-1);
+    for (int i=0; i<width-1; ++i)
+        gl->setColumnStretch(i, 100);
+    gl->setContentsMargins(0, 0, 0, 0);
+
+    widgets.insert(string);
+    widgets.insert(slider);
 }
 
 /// Destructor
 TUIFloatSlider::~TUIFloatSlider()
 {
+    delete layout;
     delete string;
     delete slider;
+    delete label;
 }
 
 void TUIFloatSlider::setPos(int x, int y)
 {
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
-    widget = slider;
-    if ((parent = getParent()))
+    TUIContainer *parent = getParent();
+    if (parent)
     {
         parent->addElementToLayout(this);
     }
@@ -69,37 +85,43 @@ void TUIFloatSlider::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    xPos++;
-    widget = string;
-    if ((parent = getParent()))
-    {
-        parent->addElementToLayout(this);
-    }
-    else
-    {
-        TUIMainWindow::getInstance()->addElementToLayout(this);
-    }
-    xPos--;
     slider->setVisible(!hidden);
     string->setVisible(!hidden);
+    if (label)
+        label->setVisible(!hidden);
+
+    slider->setMinimumWidth((width-1)*string->width());
 }
 
 void TUIFloatSlider::sliderChanged(int ival)
 {
-    float delta = (max - min) / 1000.0;
-    float newVal = min + (delta * ival);
-    if ((newVal < value - (delta / 2.0)) || (newVal > value + (delta / 2.0)))
+    if (this->ival == ival)
+        return;
+    this->ival = ival;
+
+    if (logScale)
     {
-        value = newVal;
-        QString tmp;
-        tmp = QString("%1").arg(value);
-        string->setText(tmp);
-        covise::TokenBuffer tb;
-        tb << ID;
-        tb << 10;
-        tb << value;
-        TUIMainWindow::getInstance()->send(tb);
+        float lmin = std::log10(std::max(SliderTiny, min));
+        float lmax = std::log10(std::max(SliderTiny, max));
+        float lval = lmax * (ival/SliderMax) + lmin * ((SliderMax-ival)/SliderMax);
+        value = std::pow(10.f, lval);
     }
+    else
+    {
+        float delta = (max - min) / SliderMax;
+        value = min + (delta * ival);
+    }
+
+    //std::cerr << "FloatSliderChanged: val=" << value << std::endl;
+
+    QString tmp;
+    tmp = QString("%1").arg(value);
+    string->setText(tmp);
+    covise::TokenBuffer tb;
+    tb << ID;
+    tb << TABLET_MOVED;
+    tb << value;
+    TUIMainWindow::getInstance()->send(tb);
     //TUIMainWindow::getInstance()->getStatusBar()->message(QString("Floatslider: %1").arg(value));
 }
 
@@ -112,6 +134,7 @@ void TUIFloatSlider::pressed()
     tb << TABLET_PRESSED;
     tb << value;
     TUIMainWindow::getInstance()->send(tb);
+    showSliderValue(min, max, value);
     //TUIMainWindow::getInstance()->getStatusBar()->message(QString("Floatslider: %1").arg(value));
 }
 
@@ -124,101 +147,76 @@ void TUIFloatSlider::released()
     tb << TABLET_RELEASED;
     tb << value;
     TUIMainWindow::getInstance()->send(tb);
+    showSliderValue(min, max, value);
     //TUIMainWindow::getInstance()->getStatusBar()->message(QString("Floatslider: %1").arg(value));
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUIFloatSlider::setEnabled(bool en)
+const char *TUIFloatSlider::getClassName() const
 {
-    TUIElement::setEnabled(en);
+    return "TUIFloatSlider";
 }
 
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUIFloatSlider::setHighlighted(bool hl)
+void TUIFloatSlider::showSliderValue(float min, float max, float value)
 {
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUIFloatSlider::getClassName()
-{
-    return (char *)"TUIFloatSlider";
-}
-
-bool TUIFloatSlider::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
+    int oival = ival;
+    if (value > max)
+        value = max;
+    if (value < min)
+        value = min;
+    if ((max - min) == 0.0)
     {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
+        ival = 0;
+    }
+    else
+    {
+        if (logScale)
+        {
+            float lmin = std::log10(std::max(SliderTiny, min));
+            float lmax = std::log10(std::max(SliderTiny, max));
+            float lval = std::log10(std::max(SliderTiny, value));
+            lval = lmin + ((lmax - lmin) * ((int)(SliderMax * ((lval - lmin) / (lmax - lmin)))) / SliderMax);
+            ival = (int)(0.5f+(SliderMax * ((lval - lmin) / (lmax - lmin))));
+#if 0
+            lval = lmin + ((lmax - lmin)/SliderMax*ival);
+            value = std::pow(10.f, lval);
+#endif
         }
         else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
+        {
+            ival = (int)(0.5f+(SliderMax * ((value - min) / (max - min))));
+#if 0
+            value = min + ((max - min)/SliderMax*ival);
+#endif
         }
     }
+    if (ival != oival)
+    {
+        //std::cerr << "setting slider value: " << oival << " -> " << ival << std::endl;
+        slider->setValue(ival);
 
-    // nobody is NULL
-    return false;
+        QString tmp;
+        tmp = QString("%1").arg(value);
+        string->setText(tmp);
+    }
 }
 
-void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
+void TUIFloatSlider::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUIFloatSlider::setValue " << name.toStdString()<< ": type = " << type << endl;
     if (type == TABLET_MIN)
     {
         tb >> min;
-        if (value > max)
-            value = max;
-        if (value < min)
-            value = min;
-        if ((max - min) == 0.0)
-            slider->setValue(0);
-        else
-            slider->setValue((int)(1000.0 * ((value - min) / (max - min))));
-        QString tmp;
-        tmp = QString("%1").arg(value);
-        string->setText(tmp);
+        showSliderValue(min, max, value);
     }
     else if (type == TABLET_MAX)
     {
         tb >> max;
-        if (value > max)
-            value = max;
-        if (value < min)
-            value = min;
-        if ((max - min) == 0.0)
-            slider->setValue(0);
-        else
-            slider->setValue((int)(1000.0 * ((value - min) / (max - min))));
-        QString tmp;
-        tmp = QString("%1").arg(value);
-        string->setText(tmp);
+        showSliderValue(min, max, value);
     }
     else if (type == TABLET_FLOAT)
     {
         tb >> value;
-        if (value > max)
-            value = max;
-        if (value < min)
-            value = min;
-        if ((max - min) == 0.0)
-            slider->setValue(0);
-        else
-        {
-            float oval = value;
-            value = min + ((max - min) * ((int)(1000.0 * ((value - min) / (max - min)))) / 1000.0);
-            slider->setValue((int)(1000.0 * ((oval - min) / (max - min))));
-        }
-        QString tmp;
-        tmp = QString("%1").arg(value);
-        string->setText(tmp);
+        showSliderValue(min, max, value);
     }
     else if (type == TABLET_BOOL)
     {
@@ -230,5 +228,45 @@ void TUIFloatSlider::setValue(int type, covise::TokenBuffer &tb)
         else
             slider->setOrientation(Qt::Vertical);
     }
+    else if (type == TABLET_ORIENTATION)
+    {
+        int orientation;
+        tb >> orientation;
+        if (orientation == Qt::Vertical)
+        {
+            slider->setOrientation(Qt::Vertical);
+        }
+        else
+        {
+            slider->setOrientation(Qt::Horizontal);
+        }
+    }
+    else if (type == TABLET_SLIDER_SCALE)
+    {
+        int scale;
+        tb >> scale;
+        logScale = scale==TABLET_SLIDER_LOGARITHMIC;
+        showSliderValue(min, max, value);
+    }
     TUIElement::setValue(type, tb);
+}
+
+void TUIFloatSlider::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (textl.isEmpty())
+    {
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
+    {
+        label = new QLabel(slider->parentWidget());
+        widgets.insert(label);
+        label->setBuddy(string);
+        static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
+    }
+    if (label)
+        label->setText(textl);
 }

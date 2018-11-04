@@ -26,3 +26,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT AxialRunner_dev ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(AxialRunner_dev coApi coAppl coCore visit_axialrunner visit_bspline visit_runnergridgen visit_general)
+covise_install_target(AxialRunner_dev)

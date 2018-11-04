@@ -125,7 +125,7 @@ OSCBridgeItem::createPath()
         while ((totalLength < bridge_->getLength()) && (currentS < road_->getLength()))
         {
             LaneSection *laneSection = road_->getLaneSection(currentS);
-            double t = laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId() - 1, currentS);
+            double t = laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId() - 1, currentS) + road_->getLaneOffset(currentS);
             QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)
@@ -159,7 +159,7 @@ OSCBridgeItem::createPath()
         while ((totalLength < bridge_->getLength()) && (currentS < road_->getLength()))
         {
             LaneSection *laneSection = road_->getLaneSection(currentS);
-            double t = -laneSection->getLaneSpanWidth(laneSection->getLeftmostLaneId(), 0, currentS);
+            double t = -laneSection->getLaneSpanWidth(laneSection->getLeftmostLaneId(), 0, currentS) + road_->getLaneOffset(currentS);
             QPointF currentPos = road_->getGlobalPoint(currentS, t);
 
             if (totalLength == 0)

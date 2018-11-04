@@ -12,6 +12,7 @@
 #include "Vehicle.h"
 #include "RemoteVehicle.h"
 #include "FKFSDynamics.h"
+#include "TestDynamics.h"
 #include "EinspurDynamik.h"
 #ifdef __XENO__
 #ifdef HAVE_CARDYNAMICSCGA
@@ -27,7 +28,7 @@
 
 // #include "ITM.h"
 #include "Keyboard.h"
-#include "fasiUpdateManager.h"
+#include <VehicleUtil/fasiUpdateManager.h>
 
 #ifdef HAVE_CARDYNAMICSCGA
 #include "CarDynamicsCGA.h"
@@ -43,11 +44,11 @@
 #include <util/unixcompat.h>
 
 #if !defined(_WIN32) && !defined(__APPLE__)
-//#define USE_X11
+//#define USE_XINPUT
 #define USE_LINUX
 #endif
 
-#ifdef USE_X11
+#ifdef USE_XINPUT
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>
 #include <X11/cursorfont.h>
@@ -668,7 +669,7 @@ void SteeringWheelPlugin::UpdateInputState()
             }
         }
     }
-#ifdef USE_X11
+#ifdef USE_XINPUT
     XEvent event;
     if (haveMouse)
     {
@@ -1001,7 +1002,12 @@ bool SteeringWheelPlugin::init()
    else {
    */
     std::string dynString = coCoviseConfig::getEntry("value", "COVER.Plugin.SteeringWheel.Dynamics", "EinspurDynamik");
-    if (dynString == "ITMDynamics")
+    if (dynString == "TestDynamics")
+    {
+        dynamics = new TestDynamics(); //mass, moment of inertia, front to point of mass, rear to point of mass
+        std::cout << "Using test vehicle dynamics..." << std::endl;
+    }
+	else if (dynString == "ITMDynamics")
     {
         dynamics = new ITMDynamics(); //mass, moment of inertia, front to point of mass, rear to point of mass
         std::cout << "Using ITM vehicle dynamics..." << std::endl;
@@ -1194,7 +1200,7 @@ bool SteeringWheelPlugin::init()
     }
 #endif
     wheelcounter = 0;
-#ifdef USE_X11
+#ifdef USE_XINPUT
     if (MouseDev)
     {
         display = XOpenDisplay(cover->inputDisplay);
@@ -1652,7 +1658,7 @@ int SteeringWheelPlugin::initUI()
 }
 
 // this function is called if a message arrives
-void SteeringWheelPlugin::message(int type, int length, const void *data)
+void SteeringWheelPlugin::message(int toWhom, int type, int length, const void *data)
 {
     if (type == PluginMessageTypes::HLRS_SteeringWheelRemoteVehiclePosition)
     {

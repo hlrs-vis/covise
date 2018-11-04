@@ -218,11 +218,15 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
 {
     coDoSet *tmp = NULL;
 
-    coObjInfo::setBaseName(portName);
-    char *tok = strtok((char *)datasetName, " (");
     char token[20];
-    strncpy_s(token, 20 * sizeof(char), tok, strlen(tok) - 1);
-    token[strlen(tok) - 1] = '\0';
+    strncpy(token, datasetName, sizeof(token));
+    token[sizeof(token)-1] = '\0';
+    if (char *p = strchr(token, ' '))
+        *p = '\0';
+    if (char *p = strchr(token, '('))
+        *p = '\0';
+
+    coObjInfo::setBaseName(portName);
 
     if (stricmp(token, "dataset15") == 0)
     {
@@ -251,7 +255,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
 
         coDistributedObject **doPtr = new coDistributedObject *[5];
 
-        int arrSize = old_nodes.size();
+        int arrSize = (int)old_nodes.size();
 
         for (int i = 0; i < old_nodes.size(); i++)
         {
@@ -334,7 +338,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record6.referenceNode);
             tmpArr.push_back(pDOFs[i].record6.referenceDirection);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -352,7 +356,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record7.numDataPairs);
             tmpArr.push_back(pDOFs[i].record7.abscissaSpacing);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -372,7 +376,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record8.forceUnitsExponent);
             tmpArr.push_back(pDOFs[i].record8.temperatureUnitsExponent);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -392,7 +396,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record9.forceUnitsExponent);
             tmpArr.push_back(pDOFs[i].record9.temperatureUnitsExponent);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -411,7 +415,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record10.forceUnitsExponent);
             tmpArr.push_back(pDOFs[i].record10.temperatureUnitsExponent);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -430,7 +434,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             tmpArr.push_back(pDOFs[i].record11.forceUnitsExponent);
             tmpArr.push_back(pDOFs[i].record11.temperatureUnitsExponent);
 
-            arraySize = tmpArr.size();
+            arraySize = (int)tmpArr.size();
             ptmpArr = &tmpArr[0];
 
             tmpDO[0] = new coDoIntArr(coObjInfo("intArray"), 1, &arraySize, ptmpArr);
@@ -452,7 +456,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             arraySize = 0;
         }
 
-        tmp = new coDoSet(coObjInfo(""), DOFs.size(), (coDistributedObject * const *)container);
+        tmp = new coDoSet(coObjInfo(""), (int)DOFs.size(), (coDistributedObject * const *)container);
         tmp->addAttribute("Type", "Dataset58");
     }
     else if (stricmp(token, "dataset82") == 0)
@@ -476,7 +480,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
 
         char lineName[80];
 
-        for (int i = 0; i < numTraceLines; i++)
+        for (unsigned int i = 0; i < numTraceLines; i++)
         {
             array.clear();
 
@@ -484,7 +488,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
             array.push_back(traceLines[i].record1.numNodes);
             array.push_back(traceLines[i].record1.color);
 
-            arraySize = array.size();
+            arraySize = (int)array.size();
             parray = &array[0];
 
             doPtr[0] = new coDoIntArr(coObjInfo("traceNodes"), 1, &traceLines[i].record1.numNodes, traceLines[i].record3.traceNodes);
@@ -526,7 +530,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
         array.push_back(fileHeader.record7.testID);
         array.push_back(fileHeader.record7.releaseCounterPerHost);
 
-        int matSize = array.size();
+        int matSize = (int)array.size();
         int *parray = &array[0];
 
         coDoIntArr *intArr = new coDoIntArr(coObjInfo("intArray"), 1, &matSize, parray);
@@ -571,19 +575,19 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
         intArray.push_back(units.record1.unitsCode);
         intArray.push_back(units.record1.tempMode);
 
-        int matSize = intArray.size();
+        int matSize = (int)intArray.size();
         int *pintArray = &intArray[0];
 
         doPtr[1] = new coDoIntArr(coObjInfo("intArray"), 1, &matSize, pintArray);
 
         vector<float> floatArray;
-        floatArray.push_back(units.record2.facLength);
-        floatArray.push_back(units.record2.facForce);
-        floatArray.push_back(units.record2.facTemp);
-        floatArray.push_back(units.record2.facTempOff);
+        floatArray.push_back(float(units.record2.facLength));
+        floatArray.push_back(float(units.record2.facForce));
+        floatArray.push_back(float(units.record2.facTemp));
+        floatArray.push_back(float(units.record2.facTempOff));
 
         float *pfloatArray = &floatArray[0];
-        doPtr[2] = new coDoFloat(coObjInfo("floatArray"), floatArray.size(), pfloatArray);
+        doPtr[2] = new coDoFloat(coObjInfo("floatArray"), (int)floatArray.size(), pfloatArray);
 
         tmp = new coDoSet(coObjInfo(""), 3, doPtr);
         tmp->addAttribute("Type", "Dataset164");
@@ -622,7 +626,7 @@ coDoSet *ReadUFF::PackDataset(const char *datasetName, const char *portName)
 
         coDistributedObject **doPtr = new coDistributedObject *[5];
 
-        int arrSize = nodes.size();
+        int arrSize = (int)nodes.size();
 
         for (int i = 0; i < nodes.size(); i++)
         {
@@ -1390,7 +1394,7 @@ int ReadUFF::ReadFile(const char *name)
 
             traceLines[numTraceLines - 1].record3.traceNodes = (int *)malloc((numLines * 8) * sizeof(int));
 
-            for (int i = 0; i < numLines; i++)
+            for (unsigned int i = 0; i < numLines; i++)
             {
                 if (FortranData::ReadFortranDataFormat("8I10", &traceLines[numTraceLines - 1].record3.traceNodes[8 * i + 0],
                                                        &traceLines[numTraceLines - 1].record3.traceNodes[8 * i + 1],
@@ -1560,7 +1564,7 @@ void ReadUFF::Clean()
     old_nodes.clear();
     numNodes = 0;
 
-    for (int i = 0; i < numTraceLines; i++)
+    for (unsigned int i = 0; i < numTraceLines; i++)
     {
         free(traceLines[i].record3.traceNodes);
     }

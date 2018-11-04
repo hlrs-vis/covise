@@ -23,7 +23,6 @@
 #include <util/coExport.h>
 #include <osgShadow/ShadowedScene>
 #include <osgShadow/ShadowMap>
-#include <osgShadow/ShadowVolume>
 #include <osgShadow/ShadowTexture>
 #include <osgShadow/SoftShadowMap>
 #include <osgShadow/StandardShadowMap>
@@ -35,25 +34,23 @@ namespace opencover
 class COVEREXPORT coVRShadowManager
 {
 public:
-    coVRShadowManager();
     ~coVRShadowManager();
     static coVRShadowManager *instance();
-    
+    osgShadow::ShadowedScene *newScene();
+
     void setLight(osg::LightSource *ls);
 
     void setTechnique(const std::string &tech);
-    std::string getTechnique(){return technique;};
-    void setSoftnessWidth(float w){if(softSM) softSM->setSoftnessWidth(w);};
-    void setJitteringScale(float s){if(softSM) softSM->setJitteringScale(s);};
-    void setTextureSize(osg::Vec2s ts){if(softSM) softSM->setTextureSize(ts);if(shadowMap) shadowMap->setTextureSize(ts);if(standardSM) standardSM->setTextureSize(ts);
-         if(lspsm) lspsm->setTextureSize(ts);if(lspsmcb) lspsmcb->setTextureSize(ts);if(lspsmdb) lspsmdb->setTextureSize(ts);};
-    
+    std::string getTechnique();
+    void setSoftnessWidth(float w);
+    void setJitteringScale(float s);
+    void setTextureSize(osg::Vec2s ts);
 
 private:
     
+    coVRShadowManager();
     std::string technique;
     static coVRShadowManager* inst;
-    osg::ref_ptr<osgShadow::ShadowVolume> sv;
     osg::ref_ptr<osgShadow::ShadowTexture> st;
     osg::ref_ptr<osgShadow::SoftShadowMap> softSM;
     osg::ref_ptr<osgShadow::StandardShadowMap> standardSM;

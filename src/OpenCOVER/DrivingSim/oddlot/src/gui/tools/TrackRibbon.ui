@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
+    <width>915</width>
     <height>103</height>
    </rect>
   </property>
@@ -35,6 +35,13 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item>
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="roadBox">
      <property name="sizePolicy">
@@ -71,20 +78,10 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="roadSplit">
+      <item row="2" column="2">
+       <widget class="QPushButton" name="roadCut">
         <property name="text">
-         <string>Split</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="roadModify">
-        <property name="text">
-         <string>Modify</string>
+         <string>Cut</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -107,30 +104,20 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="roadNew">
-        <property name="text">
-         <string>New</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="roadDelete">
-        <property name="text">
-         <string>Delete</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="roadSnap">
         <property name="text">
          <string>Snap to</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="roadNew">
+        <property name="text">
+         <string>New</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -153,13 +140,40 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="roadCut">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="roadDelete">
         <property name="text">
-         <string>Cut</string>
+         <string>Delete</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="roadModify">
+        <property name="text">
+         <string>Select/Modify</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="roadSplit">
+        <property name="text">
+         <string>Split</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QPushButton" name="roadCircle">
+        <property name="text">
+         <string>Circle</string>
         </property>
        </widget>
       </item>
@@ -185,10 +199,20 @@
       <string>Track Tools</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="1">
-       <widget class="QPushButton" name="trackNewLine">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="trackNewCurve">
         <property name="text">
-         <string>Line</string>
+         <string>Curve</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="trackNewPoly">
+        <property name="text">
+         <string>Polynomial</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -205,17 +229,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="trackNewCurve">
-        <property name="text">
-         <string>Curve</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
+      <item row="0" column="3">
        <widget class="QPushButton" name="trackDelete">
         <property name="text">
          <string>Delete</string>
@@ -225,7 +239,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="trackNewLine">
+        <property name="text">
+         <string>Line</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QPushButton" name="trackAddPrototype">
         <property name="text">
          <string>Add Prototype</string>
@@ -235,7 +259,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="4">
+      <item row="1" column="2">
        <widget class="QPushButton" name="trackModify">
         <property name="text">
          <string>Modify</string>
@@ -299,7 +323,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>40</width>
+       <width>60</width>
        <height>20</height>
       </size>
      </property>

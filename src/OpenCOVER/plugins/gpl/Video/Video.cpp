@@ -1,4 +1,7 @@
 #define __STDC_CONSTANT_MACROS
+#ifdef WIN32
+#pragma warning (disable: 4005)
+#endif
 #include <config/CoviseConfig.h>
 
 #include <cover/coVRTui.h>
@@ -6,27 +9,35 @@
 #include <cover/coVRAnimationManager.h>
 #include <grmsg/coGRMsg.h>
 #include <grmsg/coGRSnapshotMsg.h>
-
 #ifdef _MSC_VER
 #include <sys/timeb.h>
-#include "WINAVIVideo.h"
 #else
 #include <sys/time.h>
+#endif
+#ifdef HAVE_WMFSDK
+#include "WINAVIVideo.h"
+#endif
+#ifdef HAVE_FFMPEG
 #include "FFMPEGVideo.h"
 #endif
 
 #include <stdio.h>
 
 #include <config/coConfigConstants.h>
+#include "Video.h"
 
 using namespace covise;
 using namespace grmsg;
+
+SysPlugin::~SysPlugin()
+{
+}
 
 VideoPlugin::VideoPlugin()
 {
     frameCount = 0;
     captureActive = 0;
-    captureAnimActive = 0;
+    captureAnimActive = false;
     waitForFrame = false;
     pixels = NULL;
     time_base = 25;
@@ -47,12 +58,21 @@ VideoPlugin::VideoPlugin()
     else if (coVRConfig::instance()->channels[0].stereoMode == osg::DisplaySettings::LEFT_EYE)
         stereoEye = "LEFT";
 
-#ifdef _MSC_VER
-    sysPlug = new WINAVIPlugin;
-#else
-    sysPlug = new FFMPEGPlugin;
+    sysPlug = nullptr;
+    sysPlugFfmpeg = nullptr;
+    sysPlugWinAvi = nullptr;
+#ifdef HAVE_WMFSDK
+    sysPlugWinAvi = new WINAVIPlugin;
+    sysPlugWinAvi->myPlugin = this;
+    if (!sysPlug)
+        sysPlug = sysPlugWinAvi;
 #endif
-    sysPlug->myPlugin = this;
+#ifdef HAVE_FFMPEG
+    sysPlugFfmpeg = new FFMPEGPlugin;
+    sysPlugFfmpeg->myPlugin = this;
+    if (!sysPlug)
+        sysPlug = sysPlugFfmpeg;
+#endif
 
     // start record from gui
     recordFromGui_ = false;
@@ -137,9 +157,9 @@ void VideoPlugin::guiToRenderMsg(const char *msg)
                     tabletEvent(widthField);
                     heightField->setValue(height);
                     tabletEvent(heightField);
-                    outWidthField->setValue(width);
+                    outWidthField->setValue(-1);
                     tabletEvent(outWidthField);
-                    outHeightField->setValue(height);
+                    outHeightField->setValue(-1);
                     tabletEvent(outHeightField);
 
                     // change filename
@@ -148,10 +168,8 @@ void VideoPlugin::guiToRenderMsg(const char *msg)
                     changeFilename_ = false;
                     fillFilenameField(filename, false, changeFilename_);
 
-#ifdef NEWOSG
                     coVRConfig::instance()->windows[0].window->grabFocus();
                     coVRConfig::instance()->windows[0].window->raiseWindow();
-#endif
 
                     // press capture button
                     captureButton->setState(true);
@@ -339,23 +357,18 @@ void VideoPlugin::fillFilenameField(const string &name, bool browser, bool chang
 
 bool VideoPlugin::init()
 {
+    if (!sysPlug)
+        return false;
 
     resize = false;
     sizeError = false;
     fileError = false;
 #ifdef _MSC_VER
-    capture_fmt = PIX_FMT_RGB24;
     GL_fmt = GL_BGR_EXT;
 #else
-#ifdef HAVE_SWSCALE_H
-#ifdef AV_PIX_FMT_RGBA32
-    capture_fmt = AV_PIX_FMT_RGBA32;
-#else
-    capture_fmt = AV_PIX_FMT_RGB32;
-#endif
     GL_fmt = GL_BGRA;
 #endif
-#endif
+
     captureActive = false;
     waitForFrame = false;
 
@@ -443,11 +456,11 @@ bool VideoPlugin::init()
     videoSize->setColor(Qt::black);
     outWidthField = new coTUIEditIntField("outWidth", VideoTab->getID());
     outWidthField->setEventListener(this);
-    outWidthField->setValue(640);
+    outWidthField->setValue(-1);
     outWidthField->setPos(1, rowcount);
     outHeightField = new coTUIEditIntField("outHeight", VideoTab->getID());
     outHeightField->setEventListener(this);
-    outHeightField->setValue(480);
+    outHeightField->setValue(-1);
     outHeightField->setPos(2, rowcount++);
     checkPosSize(xPosField, widthField, width);
     checkPosSize(yPosField, heightField, height);
@@ -507,24 +520,30 @@ bool VideoPlugin::init()
     showFrameCountField = new coTUIEditIntField("framecount", VideoTab->getID());
     showFrameCountField->setEventListener(this);
     showFrameCountField->setPos(1, rowcount + 11);
+    showFrameCountField->setValue(frameCount);
 
     // default off cover->getScene()->addChild( ephemerisModel.get() );
 
     // use Config to fill default values
     time_base = coCoviseConfig::getInt("COVER.Plugin.Video.Framerate", 25);
     cfpsEdit->setValue(time_base);
-    outWidth = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeX", 800);
+    outWidth = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeX", -1);
     outWidthField->setValue(outWidth);
-    outHeight = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeY", 600);
+    outHeight = coCoviseConfig::getInt("COVER.Plugin.Video.VideoSizeY", -1);
     outHeightField->setValue(outHeight);
 
     filename = coCoviseConfig::getEntry("COVER.Plugin.Video.Filename");
     fillFilenameField(filename, false, false);
 
-    bitrate_ = coCoviseConfig::getInt("COVER.Plugin.Video.Bitrate", 1000);
+    bitrate_ = coCoviseConfig::getInt("COVER.Plugin.Video.Bitrate", 10000);
     sysPlug->bitrateField->setValue(bitrate_);
 
     return true;
+}
+
+bool VideoPlugin::update()
+{
+    return captureActive || captureAnimActive;
 }
 
 void VideoPlugin::cfpsHide(bool hidden)
@@ -613,10 +632,15 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
 
         if (captureHostButton[hostIndex]->getState())
         {
+            frameCount = 0;
+            showFrameCountField->setValue(frameCount);
+
             if (tUIItem == captureAnimButton)
             {
                 captureButton->setState(true);
                 captureAnimActive = true;
+                wasAnimating = coVRAnimationManager::instance()->animationRunning();
+                coVRAnimationManager::instance()->enableAnimation(false);
                 captureAnimFrame = coVRAnimationManager::instance()->getStartFrame();
                 waitForFrame = true;
                 coVRAnimationManager::instance()->requestAnimationFrame(captureAnimFrame);
@@ -632,7 +656,11 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                     filename = filename.substr(0, found) + "-" + hostName + stereoEye + filename.substr(found, filename.length());
             }
             outWidth = outWidthField->getValue();
+            if (outWidth <= 0)
+                outWidth = widthField->getValue();
             outHeight = outHeightField->getValue();
+            if (outHeight <= 0)
+                outHeight = heightField->getValue();
             sysPlug->checkFileFormat(filename);
 
             //////////////////////////////////////////////////////////////////////////////
@@ -641,6 +669,9 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
 
             if (fileError || sizeError)
             {
+                if (captureAnimActive)
+                    coVRAnimationManager::instance()->enableAnimation(wasAnimating);
+                captureAnimActive = false;
                 captureButton->setState(false);
                 captureAnimButton->setState(false);
                 // fprintf(stderr,"fileError=%d sizeError=%d\n", fileError, sizeError);
@@ -648,10 +679,8 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
             else if (!sizeError && !captureActive && captureHostButton[hostIndex]->getState())
             {
 
-#ifdef NEWOSG
                 coVRConfig::instance()->windows[0].window->grabFocus();
                 coVRConfig::instance()->windows[0].window->raiseWindow();
-#endif
                 inWidth = widthField->getValue();
                 inHeight = heightField->getValue();
 
@@ -670,7 +699,6 @@ void VideoPlugin::tabletEvent(coTUIElement *tUIItem)
                     starttime = cover->frameTime();
                     recordingTime = 0.0;
                     recordingFrames = 0;
-                    frameCount = 0;
                     cover->sendMessage(this, coVRPluginSupport::TO_ALL, 0, 15, "startingCapture");
                 }
                 else
@@ -703,7 +731,10 @@ void VideoPlugin::stopCapturing()
 {
     sysPlug->close_all(true, selectFormat->getSelectedEntry());
 
+    showFrameCountField->setValue(frameCount);
     captureActive = false;
+    if (captureAnimActive)
+        coVRAnimationManager::instance()->enableAnimation(wasAnimating);
     captureAnimActive = false;
     waitForFrame = false;
     captureButton->setState(false);
@@ -721,7 +752,12 @@ VideoPlugin::~VideoPlugin()
     {
         sysPlug->close_all(false);
     }
-    delete sysPlug;
+#ifdef HAVE_WMFSDK
+    delete sysPlugWinAvi;
+#endif
+#ifdef HAVE_FFMPEG
+    delete sysPlugFfmpeg;
+#endif
 
     delete captureButton;
     delete GLformatButton;
@@ -796,12 +832,15 @@ void VideoPlugin::preSwapBuffers(int windowNumber)
     if (waitForFrame)
         return;
 
+    auto &coco = *coVRConfig::instance();
+
     // only capture the first window and only on the master
     if (captureActive && windowNumber == 0 && captureHostButton[hostIndex])
     {
         // fprintf(stderr,"glRead...\n");
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glReadBuffer(GL_BACK);
+        if (coco.windows[windowNumber].doublebuffer)
+            glReadBuffer(GL_BACK);
         // for depth to work, it might be necessary to read from GL_FRONT (chang this, if it does not work like
         // this)
 
@@ -835,11 +874,11 @@ void VideoPlugin::preSwapBuffers(int windowNumber)
     }
 }
 
-void VideoPlugin::message(int type, int len, const void *data)
+void VideoPlugin::message(int toWhom, int type, int len, const void *data)
 {
     const char *buf = (const char *)data;
     // fprintf(stderr,"VideoPlugin::message type=%d, len=%d data=%s\n", type, len, data);
-    if (strncmp(buf, "stopCapturing", strlen("stopCapturing")) == 0)
+    if (strncmp(buf, "stopCapturing", len) == 0)
     {
         if (captureActive)
         {

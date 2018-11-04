@@ -13,6 +13,8 @@
 #include "TUIContainer.h"
 
 class QTabWidget;
+class QStackedWidget;
+class QComboBox;
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -25,20 +27,25 @@ class TUITabFolder : public QObject, public TUIContainer
     Q_OBJECT
 
 public:
-    TUITabFolder(int id, int type, QWidget *w, int parent, QString name);
+    TUITabFolder(int id, int type, QWidget *w, int parent, QString name, QTabWidget *reuseTabWidget=nullptr);
     virtual ~TUITabFolder();
-    virtual void addElementToLayout(TUIElement *el);
+    virtual void addElementToLayout(TUIElement *el) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
+    int indexOf(QWidget *widget) const;
+    void addTab(QWidget *widget, QString label);
+    void removeTab(int index);
 
 public slots:
 
     void valueChanged(int);
+    void setCurrentIndex(int);
 
 protected:
-    QTabWidget *tabWidget;
+    bool deleteTabWidget = true;
+    QTabWidget *tabWidget = nullptr;
+    QComboBox *switchWidget = nullptr;
+    QStackedWidget *stackWidget = nullptr;
 };
 #endif

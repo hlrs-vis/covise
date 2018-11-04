@@ -22,16 +22,21 @@
 #include "src/data/roadsystem/sections/lanesection.hpp"
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/sections/signalreference.hpp"
+#include "src/data/roadsystem/sections/objectreference.hpp"
 
 #include "rsystemelementroad.hpp"
 #include "rsystemelementcontroller.hpp"
 #include "rsystemelementjunction.hpp"
 #include "rsystemelementfiddleyard.hpp"
 #include "rsystemelementpedfiddleyard.hpp"
+#include "rsystemelementjunctiongroup.hpp"
 #include "roadlink.hpp"
 
 
 #include "src/data/tilesystem/tilesystem.hpp"
+
+#include <cmath>
 
 // Qt //
 //
@@ -64,6 +69,9 @@ RoadSystem::~RoadSystem()
 
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         delete child;
+
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		delete child;
 }
 
 //##################//
@@ -71,17 +79,17 @@ RoadSystem::~RoadSystem()
 //##################//
 
 RSystemElementRoad *
-RoadSystem::getRoad(const QString &id) const
+RoadSystem::getRoad(const odrID &id) const
 {
-    return roads_.value(id, NULL);
+    return roads_.value(id.getID(), NULL);
 }
 
 QList<RSystemElementRoad *> 
-RoadSystem::getRoads(const QString &junction) const
+RoadSystem::getRoads(const odrID &junction) const
 {
     QList<RSystemElementRoad *> roadList;
 
-    QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+    auto it = roads_.constBegin();
     while (it != roads_.constEnd())
     {
         if (it.value()->getJunction() == junction)
@@ -95,13 +103,13 @@ RoadSystem::getRoads(const QString &junction) const
 }
 
 QList<RSystemElementRoad *>
-RoadSystem::getTileRoads(const QString &tileId) const
+RoadSystem::getTileRoads(const odrID &tileId) const
 {
     QList<RSystemElementRoad *> tileRoads;
-    QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+    auto it = roads_.constBegin();
     while (it != roads_.constEnd())
     {
-        if (it.key().startsWith(tileId + "_"))
+        if (it.value()->getID().getTileID() == tileId.getID())
         {
             tileRoads.append(it.value());
         }
@@ -115,36 +123,23 @@ RoadSystem::getTileRoads(const QString &tileId) const
 void
 RoadSystem::addRoad(RSystemElementRoad *road)
 {
-    if (getProjectData())
-    {
-        // Id //
-        //
-        QString name = road->getName();
-        QString id = getUniqueId(road->getID(), name);
-        if (id != road->getID())
-        {
-            road->setID(id);
-            if (name != road->getName())
-            {
-                road->setName(name);
-            }
-        }
-    }
+	if (road->getID().isInvalid())
+	{
+		road->setID(getID(road->getName(), odrID::ID_Road));
+	}
 
     // Insert //
     //
     road->setRoadSystem(this);
 
-    roads_.insert(road->getID(), road);
+    roads_.insert(road->getID().getID(), road);
     addRoadSystemChanges(RoadSystem::CRS_RoadChange);
 }
 
 bool
 RoadSystem::delRoad(RSystemElementRoad *road)
 {
-    QStringList parts = road->getID().split("_");
-
-    if (roads_.remove(road->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    if (roads_.remove(road->getID().getID()))
     {
         addRoadSystemChanges(RoadSystem::CRS_RoadChange);
 
@@ -159,19 +154,19 @@ RoadSystem::delRoad(RSystemElementRoad *road)
 }
 
 RSystemElementController *
-RoadSystem::getController(const QString &id) const
+RoadSystem::getController(const odrID &id) const
 {
-    return controllers_.value(id, NULL);
+    return controllers_.value(id.getID(), NULL);
 }
 
 QList<RSystemElementController *>
-RoadSystem::getTileControllers(const QString &tileId) const
+RoadSystem::getTileControllers(const odrID &tileId) const
 {
     QList<RSystemElementController *> tileControllers;
-    QMap<QString, RSystemElementController *>::const_iterator it = controllers_.constBegin();
+    auto it = controllers_.constBegin();
     while (it != controllers_.constEnd())
     {
-        if (it.key().startsWith(tileId + "_"))
+        if (it.value()->getID().getTileID() == tileId.getID())
         {
             tileControllers.append(it.value());
         }
@@ -186,18 +181,12 @@ void
 RoadSystem::addController(RSystemElementController *controller)
 {
     QString name = controller->getName();
-    QString id = getUniqueId(controller->getID(), name);
-    if (id != controller->getID())
-    {
-        controller->setID(id);
-        if (name != controller->getName())
-        {
-            controller->setName(name);
-        }
-    }
-
+	if (controller->getID().isInvalid())
+	{
+		controller->setID(getID(name, odrID::ID_Controller));
+	}
     controller->setRoadSystem(this);
-    controllers_.insert(controller->getID(), controller);
+    controllers_.insert(controller->getID().getID(), controller);
 
     addRoadSystemChanges(RoadSystem::CRS_ControllerChange);
 }
@@ -205,9 +194,8 @@ RoadSystem::addController(RSystemElementController *controller)
 bool
 RoadSystem::delController(RSystemElementController *controller)
 {
-    QStringList parts = controller->getID().split("_");
 
-    if (controllers_.remove(controller->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    if (controllers_.remove(controller->getID().getID()))
     {
         addRoadSystemChanges(RoadSystem::CRS_ControllerChange);
 
@@ -222,19 +210,19 @@ RoadSystem::delController(RSystemElementController *controller)
 }
 
 RSystemElementJunction *
-RoadSystem::getJunction(const QString &id) const
+RoadSystem::getJunction(const odrID &id) const
 {
-    return junctions_.value(id, NULL);
+    return junctions_.value(id.getID(), NULL);
 }
 
 QList<RSystemElementJunction *>
-RoadSystem::getTileJunctions(const QString &tileId) const
+RoadSystem::getTileJunctions(const odrID &tileId) const
 {
     QList<RSystemElementJunction *> tileJunctions;
-    QMap<QString, RSystemElementJunction *>::const_iterator it = junctions_.constBegin();
+    auto it = junctions_.constBegin();
     while (it != junctions_.constEnd())
     {
-        if (it.key().startsWith(tileId + "_"))
+        if (it.value()->getID().getTileID() == tileId.getID())
         {
             tileJunctions.append(it.value());
         }
@@ -248,26 +236,20 @@ RoadSystem::getTileJunctions(const QString &tileId) const
 void
 RoadSystem::addJunction(RSystemElementJunction *junction)
 {
-    if (getProjectData())
-    {
-        // Id //
-        //
-        QString name = junction->getName();
-
-        QString id = getUniqueId(junction->getID(), name);
-        if (id != junction->getID())
-        {
-            junction->setID(id);
-            if (name != junction->getName())
-            {
-                junction->setName(name);
-            }
-        }
-    }
+	if (junction->getID().isInvalid())
+	{
+		if (getProjectData())
+		{
+			// Id //
+			//
+			QString name = junction->getName();
+			junction->setID(getID(name, odrID::ID_Junction));
+		}
+	}
 
     // Insert //
     //
-    junctions_.insert(junction->getID(), junction);
+    junctions_.insert(junction->getID().getID(), junction);
     addRoadSystemChanges(RoadSystem::CRS_JunctionChange);
 
     junction->setRoadSystem(this);
@@ -276,9 +258,8 @@ RoadSystem::addJunction(RSystemElementJunction *junction)
 bool
 RoadSystem::delJunction(RSystemElementJunction *junction)
 {
-    QStringList parts = junction->getID().split("_");
-
-    if (junctions_.remove(junction->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    
+    if (junctions_.remove(junction->getID().getID()))
     {
         addRoadSystemChanges(RoadSystem::CRS_JunctionChange);
 
@@ -293,20 +274,77 @@ RoadSystem::delJunction(RSystemElementJunction *junction)
     }
 }
 
-RSystemElementFiddleyard *
-RoadSystem::getFiddleyard(const QString &id) const
+QList<RSystemElementJunctionGroup *>
+RoadSystem::getTileJunctionGroups(const odrID &tileId) const
 {
-    return fiddleyards_.value(id, NULL);
+	QList<RSystemElementJunctionGroup *> tileJunctionGroups;
+	auto it = junctionGroups_.constBegin();
+	while (it != junctionGroups_.constEnd())
+	{
+		if (it.value()->getID().getTileID() == tileId.getID())
+		{
+			tileJunctionGroups.append(it.value());
+		}
+
+		it++;
+	}
+
+	return tileJunctionGroups;
+}
+
+void
+RoadSystem::addJunctionGroup(RSystemElementJunctionGroup *junctionGroup)
+{
+    if (junctionGroup->getID().isInvalid() && getProjectData())
+    {
+        // Id //
+        //
+        QString name = junctionGroup->getName();
+		junctionGroup->setID(getID(name, odrID::ID_Junction));
+    }
+
+    // Insert //
+    //
+    junctionGroups_.insert(junctionGroup->getID().getID(), junctionGroup);
+    addRoadSystemChanges(RoadSystem::CRS_JunctionGroupChange);
+
+    junctionGroup->setRoadSystem(this);
+}
+
+bool
+RoadSystem::delJunctionGroup(RSystemElementJunctionGroup *junctionGroup)
+{
+
+    if (junctionGroups_.remove(junctionGroup->getID().getID()))
+    {
+        addRoadSystemChanges(RoadSystem::CRS_JunctionGroupChange);
+
+		junctionGroup->clearReferences();
+        junctionGroup->setRoadSystem(NULL);
+        return true;
+    }
+    else
+    {
+        qDebug("WARNING 1007081034! Delete junctionGroup not successful!");
+        return false;
+    }
+}
+
+RSystemElementFiddleyard *
+RoadSystem::getFiddleyard(const odrID &id) const
+{
+    return fiddleyards_.value(id.getID(), NULL);
 }
 
 QList<RSystemElementFiddleyard *>
-RoadSystem::getTileFiddleyards(const QString &tileId) const
+RoadSystem::getTileFiddleyards(const odrID &tileId) const
 {
     QList<RSystemElementFiddleyard *> tileFiddleyards;
-    QMap<QString, RSystemElementFiddleyard *>::const_iterator it = fiddleyards_.constBegin();
+    auto it = fiddleyards_.constBegin();
     while (it != fiddleyards_.constEnd())
     {
-        if (it.key().startsWith(tileId + "_"))
+
+		if (it.value()->getID().getTileID() == tileId.getID())
         {
             tileFiddleyards.append(it.value());
         }
@@ -320,24 +358,20 @@ RoadSystem::getTileFiddleyards(const QString &tileId) const
 void
 RoadSystem::addFiddleyard(RSystemElementFiddleyard *fiddleyard)
 {
-    addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
-    QString name = fiddleyard->getName();
-    fiddleyards_.insert(getUniqueId(fiddleyard->getID(), name), fiddleyard);
-
-    if (name != fiddleyard->getName())
-    {
-        fiddleyard->setName(name);
-    }
-
+	addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
+	if (fiddleyard->getID().isInvalid())
+	{
+		QString name = fiddleyard->getName();
+		fiddleyard->setID(getID(name, odrID::ID_Fiddleyard));
+	}
     fiddleyard->setRoadSystem(this);
 }
 
 bool
 RoadSystem::delFiddleyard(RSystemElementFiddleyard *fiddleyard)
 {
-    QStringList parts = fiddleyard->getID().split("_");
 
-    if (fiddleyards_.remove(fiddleyard->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    if (fiddleyards_.remove(fiddleyard->getID().getID()))
     {
         addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
 
@@ -352,19 +386,19 @@ RoadSystem::delFiddleyard(RSystemElementFiddleyard *fiddleyard)
 }
 
 RSystemElementPedFiddleyard *
-RoadSystem::getPedFiddleyard(const QString &id) const
+RoadSystem::getPedFiddleyard(const odrID &id) const
 {
-    return pedFiddleyards_.value(id, NULL);
+    return pedFiddleyards_.value(id.getID(), NULL);
 }
 
 QList<RSystemElementPedFiddleyard *>
-RoadSystem::getTilePedFiddleyards(const QString &tileId) const
+RoadSystem::getTilePedFiddleyards(const odrID &tileId) const
 {
     QList<RSystemElementPedFiddleyard *> tilePedFiddleyards;
-    QMap<QString, RSystemElementPedFiddleyard *>::const_iterator it = pedFiddleyards_.constBegin();
+    auto it = pedFiddleyards_.constBegin();
     while (it != pedFiddleyards_.constEnd())
     {
-        if (it.key().startsWith(tileId + "_"))
+        if (it.value()->getID().getTileID() == tileId.getID())
         {
             tilePedFiddleyards.append(it.value());
         }
@@ -379,23 +413,19 @@ void
 RoadSystem::addPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard)
 {
     addRoadSystemChanges(RoadSystem::CRS_PedFiddleyardChange);
-    QString name = fiddleyard->getName();
-    pedFiddleyards_.insert(getUniqueId(fiddleyard->getID(), name), fiddleyard);
-
-    if (name != fiddleyard->getName())
-    {
-        fiddleyard->setName(name);
-    }
-
-    fiddleyard->setRoadSystem(this);
+	if (fiddleyard->getID().isInvalid())
+	{
+		QString name = fiddleyard->getName();
+		fiddleyard->setID(getID(name, odrID::ID_PedFiddleyard));
+	}
+	fiddleyard->setRoadSystem(this);
 }
 
 bool
 RoadSystem::delPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard)
 {
-    QStringList parts = fiddleyard->getID().split("_");
 
-    if (pedFiddleyards_.remove(fiddleyard->getID()) && elementIds_.remove(parts.at(0), parts.at(1).toInt()))
+    if (pedFiddleyards_.remove(fiddleyard->getID().getID()))
     {
         addRoadSystemChanges(RoadSystem::CRS_PedFiddleyardChange);
 
@@ -409,77 +439,19 @@ RoadSystem::delPedFiddleyard(RSystemElementPedFiddleyard *fiddleyard)
     }
 }
 
-//##################//
-// IDs              //
-//##################//
 
-const QString
-RoadSystem::getUniqueId(const QString &suggestion, QString &name)
-{
-    QString tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
-    QList<int> currentTileElementIds_ = elementIds_.values(tileId);
-
-    // Try suggestion //
-    //
-    if (!suggestion.isNull() && !suggestion.isEmpty() && !name.isEmpty())
-    {
-        bool number = false;
-        QStringList parts = suggestion.split("_");
-
-        if (parts.size() > 2)
-        {
-            parts.at(0).toInt(&number);
-            if (tileId == parts.at(0))
-            {
-                int nr = parts.at(1).toInt(&number);
-
-                if (number && !currentTileElementIds_.contains(nr))
-                {
-                    elementIds_.insert(tileId, nr);
-                    return suggestion;
-                }
-            }
-        }
-    }
-
-    // Create new one //
-    //
-
-    if (name.isEmpty())
-    {
-        name = "unnamed";
-    }
-    /*	else if (name.contains("_"))       // get rid of old name concatention
-	{
-		int index = name.indexOf("_");
-		name = name.left(index-1);
-	}*/
-
-    QString id;
-
-    int index = 0;
-    while ((index < currentTileElementIds_.size()) && currentTileElementIds_.contains(index))
-    {
-        index++;
-    }
-
-    id = QString("%1_%2_%3").arg(tileId).arg(index).arg(name);
-    elementIds_.insert(tileId, index);
-    return id;
-}
 
 // The ID is already unique
 //
 void
-RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
+RoadSystem::changeUniqueId(RSystemElement *element, const odrID &newId)
 {
-
-    if (roads_.contains(element->getID()))
+	if( (dynamic_cast<RSystemElementRoad *>(element)!=NULL) &&  (roads_.contains(element->getID().getID())) )
     {
-        roads_.remove(element->getID());
+        roads_.remove(element->getID().getID());
         RSystemElementRoad *road = static_cast<RSystemElementRoad *>(element);
 
-        if (road->getJunction() == "-1")
+        if (road->getJunction().isInvalid())
         {
             RoadLink *predecessor = road->getPredecessor();
 
@@ -488,7 +460,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                 if (predecessor->getElementType() == "road")
                 {
 					RSystemElementRoad *predecessorRoad = getRoad(predecessor->getElementId());
-					if (predecessor->getContactPoint() == "end")
+					if (predecessor->getContactPoint() == JunctionConnection::JCP_END)
 					{
 						RoadLink *predSuccessor = predecessorRoad->getSuccessor();
 						RoadLink *roadLink = new RoadLink("road", newId, predSuccessor->getContactPoint());
@@ -525,9 +497,8 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                         }
                     }
 
-                    QMap<QString, IdType> idChanged;
-					IdType el = {newId, "road"};
-                    idChanged.insert(element->getID(), el); 
+                    QMap<odrID, odrID> idChanged;
+                    idChanged.insert(element->getID(), newId); 
                     junction->checkConnectionIds(idChanged);
                 }
             }
@@ -538,7 +509,7 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                 if (successor->getElementType() == "road")
                 {
 					RSystemElementRoad *successorRoad = getRoad(successor->getElementId());
-					if (successor->getContactPoint() == "start")
+					if (successor->getContactPoint() == JunctionConnection::JCP_START)
 					{
                     RoadLink *succPredecessor = successorRoad->getPredecessor();
                     RoadLink *roadLink = new RoadLink("road", newId, succPredecessor->getContactPoint());
@@ -576,9 +547,8 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
                         }
                     }
 
-                    QMap<QString, IdType> idChanged;
-					IdType el = {newId, "road"};
-                    idChanged.insert(element->getID(), el);
+                    QMap<odrID, odrID> idChanged;
+                    idChanged.insert(element->getID(), newId);
                     junction->checkConnectionIds(idChanged);
                 }
             }
@@ -586,20 +556,19 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
 
         else // Connecting road
         {
-            QMap<QString, IdType> idChanged;
-			IdType el = {newId, "road"};
-            idChanged.insert(element->getID(), el);
+			QMap<odrID, odrID> idChanged;
+			idChanged.insert(element->getID(), newId);
             getJunction(road->getJunction())->checkConnectionIds(idChanged);
         }
 
         element->setID(newId);
-        roads_.insert(newId, static_cast<RSystemElementRoad *>(element));
+        roads_.insert(newId.getID(), static_cast<RSystemElementRoad *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_RoadChange);
 	}
-    else if (junctions_.contains(element->getID()))
+    else if (junctions_.contains(element->getID().getID()))
     {
-        junctions_.remove(element->getID());
+        junctions_.remove(element->getID().getID());
         foreach (RSystemElementRoad *road, roads_)
         {
             if (road->getJunction() == element->getID())
@@ -620,124 +589,197 @@ RoadSystem::changeUniqueId(RSystemElement *element, QString newId)
             }
         }
         element->setID(newId);
-        junctions_.insert(newId, static_cast<RSystemElementJunction *>(element));
+        junctions_.insert(newId.getID(), static_cast<RSystemElementJunction *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_JunctionChange);
     }
-    else if (controllers_.contains(element->getID()))
+    else if (controllers_.contains(element->getID().getID()))
     {
-        controllers_.remove(element->getID());
+        controllers_.remove(element->getID().getID());
         element->setID(newId);
-        controllers_.insert(newId, static_cast<RSystemElementController *>(element));
+        controllers_.insert(newId.getID(), static_cast<RSystemElementController *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_ControllerChange);
     }
-    else if (fiddleyards_.contains(element->getID()))
+    else if (fiddleyards_.contains(element->getID().getID()))
     {
-        fiddleyards_.remove(element->getID());
+        fiddleyards_.remove(element->getID().getID());
         element->setID(newId);
-        fiddleyards_.insert(newId, static_cast<RSystemElementFiddleyard *>(element));
+        fiddleyards_.insert(newId.getID(), static_cast<RSystemElementFiddleyard *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_FiddleyardChange);
     }
-    else if (pedFiddleyards_.contains(element->getID()))
+    else if (pedFiddleyards_.contains(element->getID().getID()))
     {
-        pedFiddleyards_.remove(element->getID());
+        pedFiddleyards_.remove(element->getID().getID());
         element->setID(newId);
-        pedFiddleyards_.insert(newId, static_cast<RSystemElementPedFiddleyard *>(element));
+        pedFiddleyards_.insert(newId.getID(), static_cast<RSystemElementPedFiddleyard *>(element));
 
         addRoadSystemChanges(RoadSystem::CRS_PedFiddleyardChange);
     }
 }
 
-QString
-RoadSystem::getNewId(const QMultiMap<QString, IdType> &idMap, QString id, QString type)
+odrID RoadSystem::getID(const QString &name, odrID::IDType t)
 {
-	QMultiMap<QString, IdType>::const_iterator it = idMap.find(id);
-
-	while (it != idMap.constEnd())
+	if (getProjectData() && getProjectData()->getTileSystem()->getCurrentTile())
 	{
-		IdType el = it.value();
-		if (el.type == type)
-		{
-			return el.id;
-		}
+		return odrID(getProjectData()->getTileSystem()->getCurrentTile()->uniqueID(t), getProjectData()->getTileSystem()->getCurrentTile()->getID().getID(), name, t);
+	}
+	return odrID(uniqueID(), 0, name, t);
+}
+odrID RoadSystem::getID(int32_t tileID, odrID::IDType t)
+{
+	return odrID(uniqueID(), tileID, "unknown",t);
+}
 
-		it++;
+odrID RoadSystem::getID(odrID::IDType t)// creates a unique ID with name unknown in current Tile
+{
+	
+	return getID("unknown",t);
+}
+
+odrID RoadSystem::getID(int32_t ID, int32_t tileID, QString &name, odrID::IDType t)
+{
+	return odrID(ID,tileID,name,t);
+}
+
+int RoadSystem::uniqueID()
+{
+	static int lastID = 0;
+	while (allIDs.contains(lastID))
+		lastID++;
+	allIDs.insert(lastID);
+	return lastID;
+}
+
+QList<odrID> RoadSystem::findID(const QString &name, odrID::IDType type)
+{
+	QList<odrID> idList;
+	if (type == odrID::ID_Road)
+	{
+		QMap<uint32_t, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+		while (it != roads_.constEnd())
+		{
+			RSystemElementRoad *road = it.value();
+
+			QString s = road->getID().getName();
+			if (s.contains(name))
+			{
+				idList.append(road->getID());
+			}
+			it++;
+		}
 	}
 
-	return id;
+	return idList;
 }
 
 void
-RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
+RoadSystem::StringToNumericalIDs(const QMap<odrID, odrID> &idMap)
 {
     //Roads //
     //
-    QString tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
-    QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+/*    odrID tileId = getProjectData()->getTileSystem()->getCurrentTile()->getID();
+    auto it = roads_.constBegin();
 
     while (it != roads_.constEnd())
     {
         RSystemElementRoad *road = it.value();
-        QStringList parts = road->getID().split("_");
 
-        if (tileId == parts.at(0))
-        {
+		if (road->getID().getTileID() == tileId.getID())
+		{
 
-            RoadLink *predecessor = road->getPredecessor();
+			RoadLink *predecessor = road->getPredecessor();
 
-            if (predecessor != NULL)
-            {
-				QString id = predecessor->getElementId();
+			if (predecessor != NULL)
+			{
+				odrID id = predecessor->getElementId();
 				QString type = predecessor->getElementType();
-				QString newId = getNewId(idMap, id, type);
-				
+				odrID newId = getID(idMap, id, type);
+
 				if (newId != id)
-                {
-                    RoadLink *roadLink = new RoadLink(type, newId, predecessor->getContactPoint());
-                    road->setPredecessor(roadLink);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
-                }
-            }
+				{
+					RoadLink *roadLink = new RoadLink(type, newId, predecessor->getContactPoint());
+					road->setPredecessor(roadLink);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Predecessor " << predecessor->getElementId() << " has the old ID!";
+				}
+			}
 
-            RoadLink *successor = road->getSuccessor();
+			RoadLink *successor = road->getSuccessor();
 
-            if (successor != NULL)
-            {
-                QString id = successor->getElementId();
+			if (successor != NULL)
+			{
+				QString id = successor->getElementId();
 				QString type = successor->getElementType();
 				QString newId = getNewId(idMap, id, type);
-				
+
 				if (newId != id)
-                {
-                    RoadLink *roadLink = new RoadLink(type, newId, successor->getContactPoint());
-                    road->setSuccessor(roadLink);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
-                }
-            }
+				{
+					RoadLink *roadLink = new RoadLink(type, newId, successor->getContactPoint());
+					road->setSuccessor(roadLink);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Successor " << successor->getElementId() << " has the old ID!";
+				}
+			}
 
-            QString junction = road->getJunction();
+			odrID junction = road->getJunction();
 
-            if (junction != "-1")
-            {
+			if (junction.isValid())
+			{
 				QString newId = getNewId(idMap, junction, "junction");
-                if (junction != newId)
-                {
-                    road->setJunction(newId);
-                }
-                else
-                {
-//                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
-                }
-            }
-        }
+				if (junction != newId)
+				{
+					road->setJunction(newId);
+				}
+				else
+				{
+					//                    qDebug() << "Road " << road->getID() << " Junction " << junction << " has the old ID!";
+				}
+			}
+		}
+
+		// SignalReferences //
+		//
+		QMap<double, SignalReference *>::const_iterator signalRefIt = road->getSignalReferences().constBegin();
+
+		while (signalRefIt != road->getSignalReferences().constEnd())
+		{
+			SignalReference *entry = signalRefIt.value();
+
+			QString signalId = entry->getReferenceId();
+
+			QString newId = getNewId(idMap, signalId, "signal");
+			if (signalId != newId)
+			{
+				entry->setReferenceId(newId);
+			}
+
+			signalRefIt++;
+		}
+
+		// ObjectReferences //
+		//
+		QMap<double, ObjectReference *>::const_iterator objectRefIt = road->getObjectReferences().constBegin();
+
+		while (objectRefIt != road->getObjectReferences().constEnd())
+		{
+			ObjectReference *entry = objectRefIt.value();
+
+			QString objectId = entry->getReferenceId();
+
+			QString newId = getNewId(idMap, objectId, "object");
+			if (objectId != newId)
+			{
+				entry->setReferenceId(newId);
+			}
+
+			objectRefIt++;
+		}
 
         it++;
     }
@@ -761,6 +803,30 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
         iter++;
     }
 
+	// JunctionGroups //
+	//
+
+	QMap<QString, RSystemElementJunctionGroup *>::const_iterator juncIt = junctionGroups_.constBegin();
+	
+	while (juncIt != junctionGroups_.constEnd())
+	{
+		RSystemElementJunctionGroup *junctionGroup = juncIt.value();
+		QList<QString> references = junctionGroup->getJunctionReferences();
+
+		for (int i = 0; i < references.size(); i++)
+		{
+			QString referenceId = references.at(i);
+			QString newId = getNewId(idMap, referenceId, "junction");
+			if (newId != referenceId)
+			{
+				junctionGroup->delJunction(referenceId);
+				junctionGroup->addJunction(newId);
+			}
+		}
+
+		juncIt++;
+	}
+
     // Controllers //
     //
     QMap<QString, RSystemElementController *>::const_iterator controlIt = controllers_.constBegin();
@@ -783,6 +849,7 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
 
 		controlIt++;
 	}
+
     //FiddleJards //
     //
 
@@ -800,13 +867,13 @@ RoadSystem::checkIDs(const QMultiMap<QString, IdType> &idMap)
         }
 
         fIter++;
-    }
+    }*/
 }
 
 void 
 RoadSystem::updateControllers()
 {
-     QMap<QString, RSystemElementController *>::const_iterator controlIt = controllers_.constBegin();
+     auto controlIt = controllers_.constBegin();
 
      while (controlIt != controllers_.constEnd())
      {
@@ -814,7 +881,7 @@ RoadSystem::updateControllers()
          for (int i = 0; i < controller->getControlEntries().size(); i++)
          {
              ControlEntry *control = controller->getControlEntries().at(i);
-             QMap<QString, RSystemElementRoad *>::ConstIterator iter = roads_.constBegin();
+             auto iter = roads_.constBegin();
              while (iter != roads_.constEnd())
              {
                  Signal * signal = iter.value()->getSignal(control->getSignalId());
@@ -840,7 +907,7 @@ RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &
 		return NULL;
 	}
 
-	QMap<QString, RSystemElementRoad *>::const_iterator it = roads_.constBegin();
+	auto it = roads_.constBegin();
 	RSystemElementRoad *road = it.value();
 	s = road->getSFromGlobalPoint(to, 0.0, road->getLength());
 	vec = QVector2D(road->getGlobalPoint(s) - to);
@@ -864,7 +931,12 @@ RoadSystem::findClosestRoad(const QPointF &to, double &s, double &t, QVector2D &
 
 	QVector2D normal = road->getGlobalNormal(s);
 
-	if (QVector2D::dotProduct(normal, vec) < 0)
+	double skalar = QVector2D::dotProduct(normal.normalized(), vec.normalized());
+	if (std::abs(skalar) < 1.0 - NUMERICAL_ZERO3) 
+	{
+		t = 0;
+	}
+	else if (skalar < 0)
 	{
 		t = -t;
 	}
@@ -959,6 +1031,9 @@ RoadSystem::acceptForChildNodes(Visitor *visitor)
 
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         child->accept(visitor);
+
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		child->accept(visitor);
 }
 
 /*! \brief Accepts a visitor and passes it to child nodes.
@@ -1004,4 +1079,13 @@ RoadSystem::acceptForPedFiddleyards(Visitor *visitor)
 {
     foreach (RSystemElementPedFiddleyard *child, pedFiddleyards_)
         child->accept(visitor);
+}
+
+/*! \brief Accepts a visitor and passes it to child nodes.
+*/
+void
+RoadSystem::acceptForJunctionGroups(Visitor *visitor)
+{
+	foreach(RSystemElementJunctionGroup *child, junctionGroups_)
+		child->accept(visitor);
 }

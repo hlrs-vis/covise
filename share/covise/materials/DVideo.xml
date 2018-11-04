@@ -1,0 +1,34 @@
+<DVideo>
+<uniform name="Stereo" type="int" value="0"/>
+<uniform name="diffuseMap" type="sampler2D" value="0"/>
+<vertexProgram>
+  
+     
+        
+    varying vec2 Texcoord;
+     
+  void main( void )
+  {  
+        Texcoord = gl_MultiTexCoord0;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+	gl_Position = ftransform();	
+  }
+  </vertexProgram><fragmentProgram>
+   
+    varying vec2 Texcoord;
+    uniform sampler2D diffuseMap;
+    uniform int Stereo;
+   void main( void )
+   {
+   vec2 tc=Texcoord;
+    if(Stereo==0) //right
+      tc.y = tc.y/-2.0 ;
+    else          //left
+      tc.y = (tc.y/-2.0)+0.5 ;
+     vec4 DiffuseColor = texture2D( diffuseMap, tc );
+      gl_FragColor = DiffuseColor ;
+          
+   }
+  </fragmentProgram></DVideo>

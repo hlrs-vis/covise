@@ -7,6 +7,8 @@
 
 
 #include <QLineEdit>
+#include <QLabel>
+#include <QGridLayout>
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
@@ -23,14 +25,23 @@ TUILineEdit::TUILineEdit(int id, int type, QWidget *w, int parent, QString name)
     : TUIElement(id, type, w, parent, name)
 {
     editField = new TUILineCheck(w);
-    widget = editField;
     connect(editField, SIGNAL(contentChanged()), this, SLOT(valueChanged()));
+
+    auto gl = new QGridLayout;
+    layout = gl;
+    gl->addWidget(editField, 1, 0, 1, width-1);
+    gl->addWidget(editField, 1, width-1);
+    for (int i=0; i<width-1; ++i)
+        gl->setColumnStretch(i, 100);
+    gl->setContentsMargins(0, 0, 0, 0);
+
+    widgets.insert(editField);
 }
 
 /// Destructor
 TUILineEdit::~TUILineEdit()
 {
-    delete widget;
+    delete editField;
 }
 
 void TUILineEdit::setPos(int x, int y)
@@ -38,7 +49,6 @@ void TUILineEdit::setPos(int x, int y)
     xPos = x;
     yPos = y;
     TUIContainer *parent;
-    widget = editField;
     if ((parent = getParent()))
     {
         parent->addElementToLayout(this);
@@ -48,6 +58,28 @@ void TUILineEdit::setPos(int x, int y)
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
     editField->setVisible(!hidden);
+    if (label)
+        label->setVisible(!hidden);
+}
+
+void TUILineEdit::setLabel(QString textl)
+{
+    TUIElement::setLabel(textl);
+    if (textl.isEmpty())
+    {
+        widgets.erase(label);
+        delete label;
+        label = nullptr;
+    }
+    else if (!label)
+    {
+        label = new QLabel(editField->parentWidget());
+        widgets.insert(label);
+        label->setBuddy(editField);
+        static_cast<QGridLayout *>(layout)->addWidget(label, 0, 0);
+    }
+    if (label)
+        label->setText(textl);
 }
 
 void TUILineEdit::valueChanged()
@@ -60,48 +92,12 @@ void TUILineEdit::valueChanged()
     TUIMainWindow::getInstance()->send(tb);
 }
 
-/** Set activation state of this container and all its children.
-  @param en true = elements enabled
-*/
-void TUILineEdit::setEnabled(bool en)
+const char *TUILineEdit::getClassName() const
 {
-    TUIElement::setEnabled(en);
+    return "TUILineEdit";
 }
 
-/** Set highlight state of this container and all its children.
-  @param hl true = element highlighted
-*/
-void TUILineEdit::setHighlighted(bool hl)
-{
-    TUIElement::setHighlighted(hl);
-}
-
-char *TUILineEdit::getClassName()
-{
-    return (char *)"TUILineEdit";
-}
-
-bool TUILineEdit::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
-        else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
-        }
-    }
-
-    // nobody is NULL
-    return false;
-}
-
-void TUILineEdit::setValue(int type, covise::TokenBuffer &tb)
+void TUILineEdit::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     //cerr << "TUILineEdit::setValue info: type = " << type << endl;
     if (type == TABLET_STRING)

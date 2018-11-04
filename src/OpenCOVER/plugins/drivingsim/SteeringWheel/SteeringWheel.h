@@ -222,7 +222,7 @@ public:
     void UpdateInputState();
 
     // this function is called if a message arrives
-    virtual void message(int type, int length, const void *data);
+    virtual void message(int toWhom, int type, int length, const void *data);
 
     bool initJoystick(int joystickNumber);
     int getData(int number_joystick);

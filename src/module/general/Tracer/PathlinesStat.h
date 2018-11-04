@@ -39,11 +39,7 @@ public:
        * @param sfield magnitude to be mapped onto the streamlines
        */
     PathlinesStat(const coModule *mod,
-#ifndef YAC
                   const char *name_line, const char *name_magnitude,
-#else
-                  coObjInfo name_line, coObjInfo name_magnitude,
-#endif
                   const coDistributedObject *grid, const coDistributedObject *velo,
                   const coDistributedObject *ini_p,
                   int number_per_tstep, float *x_ini, float *y_ini, float *z_ini,

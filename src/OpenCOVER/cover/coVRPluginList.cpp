@@ -52,7 +52,7 @@ typedef opencover::coVRPlugin *(coVRPluginInitFunc)();
         }                                                                                                  \
     }
 
-coVRPlugin *coVRPluginList::loadPlugin(const char *name)
+coVRPlugin *coVRPluginList::loadPlugin(const char *name, bool showErrors)
 {
     if (cover->debugLevel(3))
     {
@@ -63,24 +63,27 @@ coVRPlugin *coVRPluginList::loadPlugin(const char *name)
     }
 
     std::string libName = coVRDynLib::libName(name);
-    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName);
+    CO_SHLIB_HANDLE handle = coVRDynLib::dlopen(libName, showErrors);
     if (handle == NULL)
     {
-        cerr << "ERROR: could not load shared Library " << libName << endl;
+        if (showErrors)
+            cerr << "ERROR: could not load shared Library " << libName << endl;
         return NULL;
     }
     coVRPluginInitFunc *initFunc = (coVRPluginInitFunc *)coVRDynLib::dlsym(handle, "coVRPluginInit");
     if (initFunc == NULL)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
+        if (showErrors)
+            cerr << "ERROR: malformed COVER plugin " << name << ", no coVRPluginInit defined" << endl;
         return NULL;
     }
     coVRPlugin *plugin = initFunc();
     if (!plugin)
     {
         coVRDynLib::dlclose(handle);
-        cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
+        if (showErrors)
+            cerr << "ERROR: in COVER plugin " << name << ", coVRPluginInit failed" << endl;
         return NULL;
     }
 
@@ -100,33 +103,56 @@ coVRPluginList *coVRPluginList::instance()
 
 coVRPluginList::~coVRPluginList()
 {
-    unloadAllPlugins();
+    for (int d=0; d<NumPluginDomains; ++d)
+        unloadAllPlugins(static_cast<PluginDomain>(d));
     singleton = NULL;
 }
 
-void coVRPluginList::unloadAllPlugins()
+void coVRPluginList::unloadAllPlugins(PluginDomain domain)
 {
-    if (cover->debugLevel(1))
-        cerr << "Unloading plugins:";
-    bool wasThreading = VRViewer::instance()->areThreadsRunning();
-    if (wasThreading)
-        VRViewer::instance()->stopThreading();
-    while (!m_plugins.empty())
+#if 0
+    if (domain == Window)
+        return;
+#endif
+
+    bool wasThreading = false;
+    bool havePlugins = !m_loadedPlugins[domain].empty();
+
+    if (havePlugins)
     {
-        PluginMap::iterator it = m_plugins.begin();
         if (cover->debugLevel(1))
-            cerr << " " << it->first;
-        m_unloadQueue.push_back(it->second->handle);
-        coVRPlugin *plug = it->second;
-        m_plugins.erase(it);
-        plug->destroy();
+            cerr << "Unloading plugins (domain " << domain << "):";
+
+        if (domain == Default)
+            wasThreading = VRViewer::instance()->areThreadsRunning();
+        if (wasThreading)
+            VRViewer::instance()->stopThreading();
+    }
+
+    while (!m_loadedPlugins[domain].empty())
+    {
+        coVRPlugin *plug = m_loadedPlugins[domain].back();
+        if (plug)
+        {
+            if (cover->debugLevel(1))
+                cerr << " " << plug->getName();
+            m_unloadQueue.push_back(plug->handle);
+            plug->destroy();
+
+			cover->preparePluginUnload();
+        }
+        unmanage(plug);
         delete plug;
     }
     unloadQueued();
-    if (wasThreading)
-        VRViewer::instance()->startThreading();
-    if (cover->debugLevel(1))
-        cerr << endl;
+
+    if (havePlugins)
+    {
+        if (wasThreading)
+            VRViewer::instance()->startThreading();
+        if (cover->debugLevel(1))
+            cerr << endl;
+    }
 }
 
 coVRPluginList::coVRPluginList()
@@ -135,6 +161,10 @@ coVRPluginList::coVRPluginList()
     m_requestedTimestep = -1;
     m_numOutstandingTimestepPlugins = 0;
     keyboardPlugin = NULL;
+}
+
+void coVRPluginList::loadDefault()
+{
     if (cover->debugLevel(1))
     {
         cerr << "Loading plugins:";
@@ -188,7 +218,7 @@ coVRPluginList::coVRPluginList()
         {
             if (coVRPlugin *m = loadPlugin(plugins[i].c_str()))
             {
-                m_plugins[plugins[i]] = m; // if init OK, then add new plugin
+                manage(m, Default); // if init OK, then add new plugin
             }
             else
             {
@@ -223,10 +253,8 @@ void coVRPluginList::unload(coVRPlugin *plugin)
     if (plugin->destroy())
     {
         m_unloadQueue.push_back(plugin->handle);
-        if (m_plugins.erase(plugin->getName()) == 0)
-        {
-            cerr << "Plugin to unload not found2: " << plugin->getName() << endl;
-        }
+		cover->preparePluginUnload();
+        unmanage(plugin);
         delete plugin;
         updateState();
     }
@@ -242,6 +270,42 @@ void coVRPluginList::unloadQueued()
     }
     m_unloadNext = m_unloadQueue;
     m_unloadQueue.clear();
+}
+
+void coVRPluginList::manage(coVRPlugin *plugin, PluginDomain domain)
+{
+    m_plugins[plugin->getName()] = plugin;
+    m_loadedPlugins[domain].push_back(plugin);
+}
+
+void coVRPluginList::unmanage(coVRPlugin *plugin)
+{
+    if (!plugin)
+        return;
+
+    auto it = m_plugins.find(plugin->getName());
+    if (it == m_plugins.end())
+    {
+        cerr << "Plugin to unload not found2: " << plugin->getName() << endl;
+    }
+    else
+    {
+        m_plugins.erase(it);
+    }
+
+    for (int d=0; d<NumPluginDomains; ++d)
+    {
+        auto it2 = std::find(m_loadedPlugins[d].begin(), m_loadedPlugins[d].end(), plugin);
+        if (it2 != m_loadedPlugins[d].end())
+        {
+            m_loadedPlugins[d].erase(it2);
+        }
+    }
+}
+
+void coVRPluginList::notify(int level, const char *text) const
+{
+    DOALL(plugin->notify((coVRPlugin::NotificationLevel)level, text));
 }
 
 void coVRPluginList::addNode(osg::Node *node, const RenderObject *ro, coVRPlugin *addingPlugin) const
@@ -260,6 +324,13 @@ void coVRPluginList::addObject(const RenderObject *container, osg::Group *parent
 void coVRPluginList::newInteractor(const RenderObject *container, coInteractor *it) const
 {
     DOALL(plugin->newInteractor(container, it));
+}
+
+bool coVRPluginList::requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse)
+{
+    DOALL(if (plugin->requestInteraction(inter, triggerNode, isMouse))
+          return true);
+    return false;
 }
 
 void coVRPluginList::coviseError(const char *error) const
@@ -286,15 +357,17 @@ void coVRPluginList::removeNode(osg::Node *node, bool isGroup, osg::Node *realNo
     DOALL(plugin->removeNode(node, isGroup, realNode));
 }
 
-void coVRPluginList::prepareFrame() const
+bool coVRPluginList::update() const
 {
+    bool ret = false;
 #ifdef DOTIMING
-    MARK0("COVER calling prepareFrame for all plugins");
+    MARK0("COVER calling update for all plugins");
 #endif
-    DOALL(plugin->prepareFrame());
+    DOALL(ret |= plugin->update());
 #ifdef DOTIMING
     MARK0("done");
 #endif
+    return ret;
 }
 
 void coVRPluginList::preFrame()
@@ -310,8 +383,9 @@ void coVRPluginList::preFrame()
 #endif
 }
 
-void coVRPluginList::setTimestep(int t) const
+void coVRPluginList::setTimestep(int t)
 {
+    m_currentTimestep = t;
     DOALL(plugin->setTimestep(t));
 }
 
@@ -411,16 +485,17 @@ void coVRPluginList::init()
     {
         OpenCOVER::instance()->hud->setText3(it->first);
         OpenCOVER::instance()->hud->redraw();
+        auto plug = it->second;
+        ++it;
 
-        if (!it->second->m_initDone && !it->second->init())
+        if (!plug->m_initDone && !plug->init())
         {
-            cerr << "plugin " << it->second->getName() << " failed to initialise" << endl;
-            m_plugins.erase(it++);
+            cerr << "plugin " << plug->getName() << " failed to initialise" << endl;
+            unmanage(plug);
         }
         else
         {
-            it->second->m_initDone = true;
-            ++it;
+            plug->m_initDone = true;
         }
     }
     updateState();
@@ -428,11 +503,12 @@ void coVRPluginList::init()
 void coVRPluginList::init2()
 {
     DOALL(plugin->init2());
+    DOALL(plugin->setTimestep(m_currentTimestep));
 }
 
-void coVRPluginList::message(int t, int l, const void *b) const
+void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
 {
-    DOALL(plugin->message(t, l, b));
+    DOALL(plugin->message(toWhom, t, l, b));
 }
 
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
@@ -444,26 +520,35 @@ coVRPlugin *coVRPluginList::getPlugin(const char *name) const
     return it->second;
 }
 
-coVRPlugin *coVRPluginList::addPlugin(const char *name)
+coVRPlugin *coVRPluginList::addPlugin(const char *name, PluginDomain domain)
 {
-    coVRMSController::instance()->sync();
+    std::string arg(name);
+    std::string n = coVRMSController::instance()->syncString(arg);
+    if (n != arg)
+    {
+        std::cerr << "coVRPluginList::addPlugin(" << arg << "), but master is trying to load " << n << std::endl;
+        abort();
+    }
     coVRPlugin *m = getPlugin(name);
     if (m == NULL)
     {
-        m = loadPlugin(name);
+        m = loadPlugin(name, domain == Default);
         if (m && m->init())
         {
-            m_plugins[name] = m; // if init OK, then add new plugin
+            manage(m, domain);
             m->m_initDone = true;
             m->init2();
+            m->setTimestep(m_currentTimestep);
         }
         else
         {
-            cerr << "plugin " << name << " failed to initialise" << endl;
+            if (domain == Default)
+                cerr << "plugin " << name << " failed to initialise" << endl;
             delete m;
             m = NULL;
         }
-        updateState();
+        if (domain == Default)
+            updateState();
     }
     return m;
 }
@@ -486,7 +571,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         || (toWhom == coVRPluginSupport::TO_ALL_OTHERS)
         || (toWhom == coVRPluginSupport::VRML_EVENT))
     {
-        message(type, len - headerSize, ((const char *)buf) + headerSize);
+        message(toWhom, type, len - headerSize, ((const char *)buf) + headerSize);
     }
     else
     {
@@ -495,7 +580,7 @@ void coVRPluginList::forwardMessage(int len, const void *buf) const
         if (mod)
         {
             int ssize = strlen(name) + 1 + (8 - ((strlen(name) + 1) % 8));
-            mod->message(type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
+            mod->message(toWhom, type, len - headerSize - ssize, ((const char *)buf) + headerSize + ssize);
         }
     }
 }

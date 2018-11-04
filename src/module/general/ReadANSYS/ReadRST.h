@@ -179,10 +179,10 @@ private:
 
     int mmap_flag_;
     int file_des_;
-    off_t file_size_;
+    size_t file_size_;
     void *mmap_ini_;
-    off_t mmap_off_;
-    off_t actual_off_;
+	size_t mmap_off_;
+	size_t actual_off_;
     size_t mmap_len_;
 
     int anznodes_;

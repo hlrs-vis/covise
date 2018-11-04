@@ -80,12 +80,8 @@ const float PPathlineStat::RELATIVE_TIME_TOLERANCE = 1e-6f;
 // compute growing lines out of the integrated data
 void
 PPathlineStat::pathUpToTime(
-#ifndef YAC
     const char *line_name_time_traj,
     const char *mag_name_time_traj,
-#else
-    coOutputPort *port,
-#endif
     int tick,
     std::vector<int> &interpolation,
     coDistributedObject **line,
@@ -130,15 +126,9 @@ PPathlineStat::pathUpToTime(
     {
         corner_list.push_back(i);
     }
-#ifndef YAC
     *line = new coDoLines(line_name_time_traj, (int)x_l.size(), &x_l[0], &y_l[0], &z_l[0],
                           (int)x_l.size(), &corner_list[0], 1, &zero);
     *magn = new coDoFloat(mag_name_time_traj, (int)m_l.size(), &m_l[0]);
-#else
-    *line = new coDoLines(port->getNewObjectInfo(), x_l.size(), &x_l[0], &y_l[0], &z_l[0],
-                          (int)x_l.size(), &corner_list[0], 1, &zero);
-    *magn = new coDoFloat(port->getNewObjectInfo(), (int)m_l.size(), &m_l[0]);
-#endif
     if (speciesAttr.length() > 0)
         (*magn)->addAttribute("SPECIES", speciesAttr.c_str());
 }

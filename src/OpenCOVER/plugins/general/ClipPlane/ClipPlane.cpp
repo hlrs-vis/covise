@@ -9,10 +9,8 @@
 #include <cover/coVRNavigationManager.h>
 #include <cover/coVRConfig.h>
 #include <OpenVRUI/coTrackerButtonInteraction.h>
+#include <OpenVRUI/coRelativeInputInteraction.h>
 #include <OpenVRUI/osg/mathUtils.h>
-
-#include <cover/mui/Tab.h>
-#include <cover/mui/ToggleButton.h>
 
 #include <osg/MatrixTransform>
 #include <osg/Geode>
@@ -31,10 +29,14 @@
 #include <net/message.h>
 #include <net/tokenbuffer.h>
 
+#include <cover/ui/Button.h>
+#include <cover/ui/Menu.h>
+
 using namespace osg;
 using covise::coCoviseConfig;
+using vrui::coInteraction;
 
-void ClipPlanePlugin::message(int type, int len, const void *buf)
+void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 {
     const int numClip = cover->getNumClipPlanes();
 
@@ -82,9 +84,9 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
             return;
         plane[planeNumber].enabled = false;
         cover->getObjectsRoot()->removeClipPlane(plane[planeNumber].clip.get());
-        plane[planeNumber].PickInteractorButton->setState(false);
         plane[planeNumber].EnableButton->setState(true);
-        muiEvent(plane[planeNumber].PickInteractorButton);
+        plane[planeNumber].PickInteractorButton->setState(false);
+        plane[planeNumber].PickInteractorButton->trigger();
     }
     else if (!strncasecmp(number, "enable", 6))
     {
@@ -128,47 +130,110 @@ void ClipPlanePlugin::message(int type, int len, const void *buf)
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
-: clipTab(NULL)
+: ui::Owner("ClipPlane", cover->ui)
 {
 }
 
 bool ClipPlanePlugin::init()
 {
-    clipTab = mui::Tab::create("plugins.general.ClipPlane.ClipTab");
-    clipTab->setLabel("ClipPlane");
-    clipTab->setEventListener(this);
-    clipTab->setPos(0, 0);
+    clipMenu = new ui::Menu("ClipPlaneMenu", this);
+    clipMenu->setText("Clip planes");
+    //clipMenu->setPos(0, 0);
 
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
         char name[100];
+        sprintf(name, "Plane%d", i);
 
-        sprintf(name, "ClipPlane %d enable", i);
-        plane[i].EnableButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
-        plane[i].EnableButton->setLabel(std::string(name));
-        plane[i].EnableButton->setEventListener(this);
-        plane[i].EnableButton->setPos(0, i);
+        plane[i].UiGroup = new ui::Group(clipMenu, name);
+        auto group = plane[i].UiGroup;
+        sprintf(name, "Plane %d", i);
+        group->setText(name);
 
-        sprintf(name, "ClipPlane %d PickInteractor", i);
-        plane[i].PickInteractorButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
-        plane[i].PickInteractorButton->setLabel(std::string(name));
-        plane[i].PickInteractorButton->setEventListener(this);
-        plane[i].PickInteractorButton->setPos(1, i);
+        sprintf(name, "Enable plane %d", i);
+        plane[i].EnableButton = new ui::Button(group, "Enable"+std::to_string(i));
+        plane[i].EnableButton->setText(name);
+        //plane[i].EnableButton->setPos(0, i);
+        plane[i].EnableButton->setCallback([this, i](bool state){
+            ClipNode *clipNode = cover->getObjectsRoot();
+            if (state)
+            {
+                plane[i].enabled = true;
+                clipNode->addClipPlane(plane[i].clip.get());
+            }
+            else
+            {
+                plane[i].enabled = false;
+                clipNode->removeClipPlane(plane[i].clip.get());
+            }
+        });
 
-        if (!coVRConfig::instance()->has6DoFInput())
-        {
-            plane[i].DirectInteractorButton = NULL;
-        }
-        else
-        {
-            sprintf(name, "ClipPlane %d DirectInteractor", i);
-            plane[i].DirectInteractorButton = mui::ToggleButton::create(std::string("plugins.general.ClipPlane")+name, clipTab);
-            plane[i].DirectInteractorButton->setLabel(std::string(name));
-            plane[i].DirectInteractorButton->setEventListener(this);
-            plane[i].DirectInteractorButton->setPos(2, i);
-        }
+        sprintf(name, "Pick interactor for plane %d", i);
+        plane[i].PickInteractorButton = new ui::Button(group, "Pick"+std::to_string(i));
+        plane[i].PickInteractorButton->setText(name);
+        //plane[i].PickInteractorButton->setPos(1, i);
+        plane[i].PickInteractorButton->setCallback([this, i](bool state){
+            ClipNode *clipNode = cover->getObjectsRoot();
+            if (state)
+            {
+                plane[i].showPickInteractor_ = true;
+                plane[i].pickInteractor->show();
+                plane[i].pickInteractor->enableIntersection();
 
-        plane[i].directInteractor = new coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
+                plane[i].enabled = true;
+                plane[i].EnableButton->setState(true);
+                clipNode->addClipPlane(plane[i].clip.get());
+
+                if (!plane[i].valid)
+                {
+                    setInitialEquation(i);
+                }
+            }
+            else
+            {
+                plane[i].showPickInteractor_ = false;
+                plane[i].pickInteractor->hide();
+            }
+        });
+
+        sprintf(name, "Direct interactor for plane %d", i);
+        plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
+        plane[i].DirectInteractorButton->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
+        plane[i].DirectInteractorButton->setText(name);
+        plane[i].DirectInteractorButton->setCallback([this, i](bool state){
+            ClipNode *clipNode = cover->getObjectsRoot();
+            if (state)
+            {
+                plane[i].showDirectInteractor_ = true;
+                if (!plane[i].directInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
+                    plane[i].enabled = true;
+                    clipNode->addClipPlane(plane[i].clip.get());
+                    plane[i].EnableButton->setState(true);
+                }
+                if (!plane[i].relativeInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->registerInteraction(plane[i].relativeInteractor);
+                }
+            }
+            else
+            {
+                plane[i].showDirectInteractor_ = false;
+                if (plane[i].directInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
+                }
+                if (plane[i].relativeInteractor->isRegistered())
+                {
+                    vrui::coInteractionManager::the()->unregisterInteraction(plane[i].relativeInteractor);
+                }
+            }
+        });
+        plane[i].DirectInteractorButton->setVisible(coVRConfig::instance()->has6DoFInput());
+
+        plane[i].directInteractor = new vrui::coTrackerButtonInteraction(coInteraction::ButtonA, "sphere");
+        plane[i].relativeInteractor = new vrui::coRelativeInputInteraction("spacemouse");
 
         osg::Matrix m;
         // default size for all interactors
@@ -209,8 +274,6 @@ ClipPlanePlugin::~ClipPlanePlugin()
             clipNode->removeClipPlane(plane[i].clip.get());
         }
     }
-
-    delete clipTab;
 }
 
 Vec4d ClipPlanePlugin::matrixToEquation(const Matrix &mat)
@@ -224,24 +287,21 @@ Vec4d ClipPlanePlugin::matrixToEquation(const Matrix &mat)
 
 void ClipPlanePlugin::preFrame()
 {
-
+    if (!m_directInteractorShow)
+    {
+        m_directInteractorShow = coVRConfig::instance()->has6DoFInput();
+    }
+    if (m_directInteractorShow)
+        m_directInteractorEnable = coVRConfig::instance()->has6DoFInput();
     for (int i = 0; i < cover->getNumClipPlanes(); i++)
     {
+        if (m_directInteractorShow && !plane[i].DirectInteractorButton->visible())
+            plane[i].DirectInteractorButton->setVisible(true);
+        if (m_directInteractorEnable != plane[i].DirectInteractorButton->enabled())
+            plane[i].DirectInteractorButton->setEnabled(m_directInteractorEnable);
 
         // pick interaction update
         plane[i].pickInteractor->preFrame();
-
-        // directInteraction started
-        if (plane[i].directInteractor && plane[i].directInteractor->wasStarted())
-        {
-            interactorTransform->addChild(visibleClipPlaneGeode.get());
-            cover->setActiveClippingPlane(i);
-            if (plane[i].showPickInteractor_)
-            {
-                plane[i].pickInteractor->hide();
-                plane[i].pickInteractor->disableIntersection();
-            }
-        }
 
         // pick interaction started
         if (plane[i].pickInteractor->wasStarted())
@@ -250,50 +310,10 @@ void ClipPlanePlugin::preFrame()
             cover->setActiveClippingPlane(i);
         }
 
-        // direct interaction started or stopped or running
-        if (plane[i].directInteractor && !plane[i].directInteractor->isIdle())
+        // pick interaction stopped
+        if (plane[i].pickInteractor->wasStopped())
         {
-
-            // get the transformation matrix of the transform
-            pointerMatrix = pointerTransform->getMatrix();
-            if (coVRNavigationManager::instance()->isSnapping())
-            {
-                Matrix w_to_o = cover->getInvBaseMat();
-                pointerMatrix.postMult(w_to_o);
-                if (!coVRNavigationManager::instance()->isDegreeSnapping())
-                    snapTo45Degrees(&pointerMatrix);
-                else
-                    snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &pointerMatrix);
-                Matrix o_to_w = cover->getBaseMat();
-                pointerMatrix.postMult(o_to_w);
-                coCoord coord = pointerMatrix;
-                coord.makeMat(pointerMatrix);
-            }
-            // rotate geometry
-            interactorTransform->setMatrix(pointerMatrix);
-
-            covise::TokenBuffer tb;
-
-            tb << cover->getActiveClippingPlane();
-
-            Vec4d eq;
-            Matrix pointerMatrix_w(pointerMatrix);
-            Matrix pointerMatrix_o;
-            pointerMatrix_o = pointerMatrix_w * cover->getInvBaseMat();
-
-            coCoord coord = pointerMatrix_o;
-            coord.makeMat(pointerMatrix_o);
-
-            eq = matrixToEquation(pointerMatrix_o);
-
-            for (int j = 0; j < 4; j++)
-                tb << eq[j];
-
-            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::ClipPlaneMessage,
-                               tb.get_length(), tb.get_data());
-
-            plane[i].pickInteractor->updateTransform(pointerMatrix_o);
+            interactorTransform->removeChild(visibleClipPlaneGeode.get());
         }
 
         // pick interaction started or stopped or running
@@ -326,8 +346,54 @@ void ClipPlanePlugin::preFrame()
                                tb.get_length(), tb.get_data());
         }
 
+
+        // directInteraction started
+        if ((plane[i].directInteractor && plane[i].directInteractor->wasStarted())
+                || (plane[i].relativeInteractor && plane[i].relativeInteractor->wasStarted()))
+        {
+            interactorTransform->addChild(visibleClipPlaneGeode.get());
+            cover->setActiveClippingPlane(i);
+            if (plane[i].showPickInteractor_)
+            {
+                plane[i].pickInteractor->hide();
+                plane[i].pickInteractor->disableIntersection();
+            }
+        }
+
+        // direct interaction started or stopped or running
+        if ((plane[i].directInteractor && !plane[i].directInteractor->isIdle())
+                || (plane[i].relativeInteractor && !plane[i].relativeInteractor->isIdle()))
+        {
+            auto mat = cover->updateInteractorTransform(interactorTransform->getMatrix(), true);
+            interactorTransform->setMatrix(mat);
+
+            covise::TokenBuffer tb;
+
+            tb << cover->getActiveClippingPlane();
+
+            Vec4d eq;
+            Matrix pointerMatrix_w(mat);
+            Matrix pointerMatrix_o;
+            pointerMatrix_o = pointerMatrix_w * cover->getInvBaseMat();
+
+            coCoord coord = pointerMatrix_o;
+            coord.makeMat(pointerMatrix_o);
+
+            eq = matrixToEquation(pointerMatrix_o);
+
+            for (int j = 0; j < 4; j++)
+                tb << eq[j];
+
+            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
+                               PluginMessageTypes::ClipPlaneMessage,
+                               tb.get_length(), tb.get_data());
+
+            plane[i].pickInteractor->updateTransform(pointerMatrix_o);
+        }
+
         // direct interaction stopped
-        if (plane[i].directInteractor && plane[i].directInteractor->wasStopped())
+        if ((plane[i].directInteractor && plane[i].directInteractor->wasStopped())
+                || (plane[i].relativeInteractor && plane[i].relativeInteractor->wasStopped()))
         {
             interactorTransform->removeChild(visibleClipPlaneGeode.get());
             if (plane[i].showPickInteractor_)
@@ -336,172 +402,7 @@ void ClipPlanePlugin::preFrame()
                 plane[i].pickInteractor->enableIntersection();
             }
         }
-
-        // pick interaction stopped
-        if (plane[i].pickInteractor->wasStopped())
-        {
-            interactorTransform->removeChild(visibleClipPlaneGeode.get());
-        }
     }
-}
-
-/*void ClipPlanePlugin::menuEvent(coMenuItem *item)
-{
-    ClipNode *clipNode = cover->getObjectsRoot();
-
-    for (int i = 0; i < cover->getNumClipPlanes(); i++)
-    {
-
-        // enabled checkbox was clicked
-        if (item == plane[i].vruiEnableCheckbox)
-        {
-            if (plane[i].vruiEnableCheckbox->getState())
-            {
-                plane[i].enabled = true;
-                clipNode->addClipPlane(plane[i].clip.get());
-            }
-            else
-            {
-                plane[i].enabled = false;
-                clipNode->removeClipPlane(plane[i].clip.get());
-            }
-
-            if (plane[i].tuiEnableButton)
-            {
-                plane[i].tuiEnableButton->setState(plane[i].enabled);
-            }
-        }
-
-        // direct interactor checkbox was cklicked
-        else if (item == plane[i].vruiDirectInteractorCheckbox)
-        {
-            if (plane[i].vruiDirectInteractorCheckbox->getState())
-            {
-                plane[i].showDirectInteractor_ = true;
-                if (!plane[i].directInteractor->isRegistered())
-                {
-                    fprintf(stderr, "registerInteraction\n");
-                    coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
-                    plane[i].enabled = true;
-                    clipNode->addClipPlane(plane[i].clip.get());
-                    plane[i].vruiEnableCheckbox->setState(true);
-                }
-            }
-            else
-            {
-                plane[i].showDirectInteractor_ = false;
-                if (plane[i].directInteractor->isRegistered())
-                {
-                    fprintf(stderr, "unregisterInteraction\n");
-                    coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
-                }
-            }
-        }
-        // pick interactor checkbox was cklicked
-        else if (item == plane[i].vruiPickInteractorCheckbox)
-        {
-            if (plane[i].vruiPickInteractorCheckbox->getState())
-            {
-                plane[i].showPickInteractor_ = true;
-                plane[i].pickInteractor->show();
-                plane[i].pickInteractor->enableIntersection();
-
-                plane[i].enabled = true;
-                clipNode->addClipPlane(plane[i].clip.get());
-                plane[i].vruiEnableCheckbox->setState(true);
-
-                if (!plane[i].valid)
-                {
-                    setInitialEquation(i);
-                }
-            }
-            else
-            {
-                plane[i].showPickInteractor_ = false;
-                plane[i].pickInteractor->hide();
-            }
-        }
-    }
-}*/
-
-void ClipPlanePlugin::muiEvent(mui::Element *muiItem)
-{
-    ClipNode *clipNode = cover->getObjectsRoot();
-
-    for (int i = 0; i < cover->getNumClipPlanes(); i++)
-    {
-        // enable button was clicked
-        if (muiItem == plane[i].EnableButton)
-        {
-            bool state = plane[i].EnableButton->getState();
-            if (state)
-            {
-                plane[i].enabled = true;
-                clipNode->addClipPlane(plane[i].clip.get());
-            }
-            else
-            {
-                plane[i].enabled = false;
-                clipNode->removeClipPlane(plane[i].clip.get());
-            }
-        }
-        else if (muiItem == plane[i].DirectInteractorButton && plane[i].DirectInteractorButton)
-        {
-            bool state = plane[i].DirectInteractorButton->getState();
-            if (state)
-            {
-                plane[i].showDirectInteractor_ = true;
-                if (!plane[i].directInteractor->isRegistered())
-                {
-                    coInteractionManager::the()->registerInteraction(plane[i].directInteractor);
-                    plane[i].enabled = true;
-                    clipNode->addClipPlane(plane[i].clip.get());
-                    plane[i].EnableButton->setState(true);
-                }
-            }
-            else
-            {
-                plane[i].showDirectInteractor_ = false;
-                if (plane[i].directInteractor->isRegistered())
-                {
-                    coInteractionManager::the()->unregisterInteraction(plane[i].directInteractor);
-                }
-            }
-            plane[i].DirectInteractorButton->setState(state);
-        }
-        else if (muiItem == plane[i].PickInteractorButton)
-        {
-            bool state = plane[i].PickInteractorButton->getState();
-            if (state)
-            {
-                plane[i].showPickInteractor_ = true;
-                plane[i].pickInteractor->show();
-                plane[i].pickInteractor->enableIntersection();
-
-                plane[i].enabled = true;
-                plane[i].EnableButton->setState(true);
-                clipNode->addClipPlane(plane[i].clip.get());
-
-                if (!plane[i].valid)
-                {
-                    setInitialEquation(i);
-                }
-            }
-            else
-            {
-                plane[i].showPickInteractor_ = false;
-                plane[i].pickInteractor->hide();
-            }
-        }
-    }
-}
-
-void ClipPlanePlugin::muiPressEvent(mui::Element *)
-{
-}
-
-void ClipPlanePlugin::muiReleaseEvent(mui::Element *)
-{
 }
 
 Geode *ClipPlanePlugin::loadPlane()
@@ -631,4 +532,27 @@ void ClipPlanePlugin::setInitialEquation(int i)
         plane[5].pickInteractor->updateTransform(m);
     }
 }
+
+
+ClipPlanePlugin::Plane::Plane()
+{
+    valid = false;
+    enabled = false;
+    showPickInteractor_ = false;
+    showDirectInteractor_ = false;
+    clip = NULL;
+    directInteractor = NULL;
+    pickInteractor = NULL;
+    EnableButton = NULL;
+    DirectInteractorButton = NULL;
+    PickInteractorButton = NULL;
+}
+
+ClipPlanePlugin::Plane::~Plane()
+{
+    delete directInteractor;
+    delete relativeInteractor;
+    delete pickInteractor;
+}
+
 COVERPLUGIN(ClipPlanePlugin)

@@ -29,7 +29,6 @@
 #include <osg/CullFace>
 #include <osg/Material>
 #include <osg/PolygonMode>
-#include <osgUtil/IntersectVisitor>
 
 #include <config/CoviseConfig.h>
 
@@ -237,9 +236,9 @@ int coHSVSelector::hit(vruiHit *hit)
 
     if (interactionA->isRunning())
     {
-        osgUtil::Hit osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
+        osgUtil::LineSegmentIntersector::Intersection osgHit = dynamic_cast<OSGVruiHit *>(hit)->getHit();
 
-        if (osgHit._geode.valid())
+        if (osgHit.drawable.valid())
         {
             float x, y, h, s;
             Vec3 point = osgHit.getLocalIntersectPoint();
@@ -445,10 +444,10 @@ void coHSVSelector::createLists()
     normalGeostate->setMode(GL_LIGHTING, StateAttribute::ON);
 }
 
-ref_ptr<Group> coHSVSelector::createGeodes()
+osg::ref_ptr<osg::Group> coHSVSelector::createGeodes()
 {
 
-    ref_ptr<Group> group = new Group();
+    osg::ref_ptr<osg::Group> group = new osg::Group();
 
     ref_ptr<Geode> geode1 = new Geode();
     ref_ptr<Geode> geode2 = new Geode();

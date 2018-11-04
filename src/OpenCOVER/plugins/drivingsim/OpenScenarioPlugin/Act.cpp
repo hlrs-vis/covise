@@ -1,8 +1,11 @@
 #include "Act.h"
 #include "ScenarioManager.h"
+#include "Condition.h"
+#include "StoryElement.h"
 
 Act::Act() :
-	oscAct()
+    oscAct(),
+    StoryElement()
 {
 }
 
@@ -15,20 +18,9 @@ void Act::finishedParsing()
 	name = oscAct::name.getValue();
 }
 
-void Act::initialize(int noe, list<Maneuver*> &maneuverList_temp, list<Entity*> &activeEntityList_temp)
+void Act::initialize(::Sequence *sequence_temp)
 {
-	numberOfExecutions = noe;
-	maneuverList = maneuverList_temp;
-	activeEntityList = activeEntityList_temp;
-	//executionCounter = 0;
-	actCondition = false;
-	actFinished = false;
-	endTime = 0;
-}
-
-int Act::getNumberOfExecutions()
-{
-	return numberOfExecutions;
+    sequenceList.push_back(sequence_temp);
 }
 
 string Act::getName()
@@ -36,4 +28,14 @@ string Act::getName()
 	return name;
 }
 
+void Act::addEndCondition(Condition *condition)
+{
+    endConditionList.push_back(condition);
 
+}
+
+void Act::addStartCondition(Condition *condition)
+{
+    startConditionList.push_back(condition);
+
+}

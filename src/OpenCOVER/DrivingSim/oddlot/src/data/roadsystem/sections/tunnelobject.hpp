@@ -31,6 +31,15 @@ public:
         CEL_ParameterChange = 0x1
     };
 
+	enum TunnelType
+	{
+		TT_STANDARD,
+		TT_UNDERPASS
+	};
+
+	static TunnelType parseTunnelType(const QString &type);
+	static QString parseTunnelTypeBack(int type);
+
     struct TunnelUserData
     {
         QString fileName;
@@ -41,7 +50,7 @@ public:
     //################//
 
 public:
-    explicit Tunnel(const QString &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight);
+    explicit Tunnel(const odrID &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight);
     virtual ~Tunnel()
     { /* does nothing */
     }
@@ -66,6 +75,7 @@ public:
     {
         daylight_ = daylight;
     }
+
 
     // Observer Pattern //
     //

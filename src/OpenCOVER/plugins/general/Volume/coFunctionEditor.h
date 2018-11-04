@@ -52,6 +52,7 @@ public:
     virtual void update() = 0;
     virtual void show();
     virtual void hide();
+    virtual bool isVisible();
     virtual void setDiscreteColors(int);
     virtual void updateColorBar();
     virtual void putUndoBuffer();

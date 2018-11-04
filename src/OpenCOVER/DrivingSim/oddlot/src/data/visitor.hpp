@@ -45,25 +45,32 @@ class TrackElementLine;
 class TrackElementArc;
 class TrackElementSpiral;
 class TrackElementPoly3;
+class TrackElementCubicCurve;
 
 class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
+class ShapeSection;
 
 class Object;
+class ObjectReference;
 class Bridge;
 class Tunnel;
 class Crosswalk;
 class Signal;
+class SignalReference;
 class Sensor;
 class Surface;
 
 class LaneSection;
 class Lane;
 class LaneWidth;
+class LaneBorder;
 class LaneRoadMark;
 class LaneSpeed;
 class LaneHeight;
+class LaneRule;
+class LaneAccess;
 
 class FiddleyardSource;
 class FiddleyardSink;
@@ -73,6 +80,12 @@ class PedFiddleyardSink;
 
 class JunctionConnection;
 class RSystemElementJunction;
+
+class RSystemElementJunctionGroup;
+
+class GeoReference;
+class RoadLink;
+class LaneOffset;
 
 //OpenScenario //
 //
@@ -136,6 +149,9 @@ public:
     virtual void visit(RSystemElementPedFiddleyard *)
     {
     }
+	virtual void visit(RSystemElementJunctionGroup *)
+	{
+	}
 
     // Roads //
     //
@@ -159,6 +175,8 @@ public:
     virtual void visit(TrackElementSpiral *);
     virtual void visit(TrackElementPoly3 *);
     virtual void visit(TrackSpiralArcSpiral *);
+	virtual void visit(TrackElementCubicCurve *);
+	virtual void visit(LaneBorder *);
 
     virtual void visit(ElevationSection *)
     {
@@ -169,16 +187,25 @@ public:
     virtual void visit(CrossfallSection *)
     {
     }
+	virtual void visit(ShapeSection *)
+	{
+	}
 
     virtual void visit(Object *)
     {
     }
+	virtual void visit(ObjectReference *)
+	{
+	}
     virtual void visit(Crosswalk *)
     {
     }
     virtual void visit(Signal *)
     {
     }
+	virtual void visit(SignalReference *)
+	{
+	}
     virtual void visit(Sensor *)
     {
     }
@@ -198,9 +225,12 @@ public:
     virtual void visit(Lane *)
     {
     }
-    virtual void visit(LaneWidth *)
-    {
-    }
+	virtual void visit(LaneWidth *)
+	{
+	}
+	virtual void visit(LaneOffset *)
+	{
+	}
     virtual void visit(LaneRoadMark *)
     {
     }
@@ -210,6 +240,12 @@ public:
     virtual void visit(LaneHeight *)
     {
     }
+	virtual void visit(LaneRule *)
+	{
+	}
+	virtual void visit(LaneAccess *)
+	{
+	}
 
     virtual void visit(FiddleyardSink *)
     {
@@ -248,9 +284,12 @@ public:
     virtual void visit(VehicleGroup *)
     {
     }
-    virtual void visit(RoadVehicle *)
-    {
-    }
+	virtual void visit(RoadVehicle *)
+	{
+	}
+	virtual void visit(RoadLink *)
+	{
+	}
 
     // PedestrianSystem //
     //
@@ -274,6 +313,12 @@ public:
     virtual void visit(SceneryTesselation *)
     {
     }
+
+	// Georeference //
+	//
+	virtual void visit(GeoReference *)
+	{
+	}
 
 private:
     Visitor(const Visitor &); /* not allowed */

@@ -21,13 +21,25 @@
 #include "src/data/projectdata.hpp"
 #include "tilesystem.hpp"
 
-Tile::Tile(const QString &name, const QString &id)
+Tile::Tile(const odrID &id)
     : DataElement()
-    , name_(name)
+    , name_(id.getName())
     , id_(id)
     , tileChanges_(0x0)
     , tileSystem_(NULL)
 {
+}
+
+Tile::Tile(int tid)
+  : DataElement()
+, tileChanges_(0x0)
+, tileSystem_(NULL)
+{
+	name_ = "Tile";
+	odrID ID;
+	ID.setID(tid);
+	ID.setName(name_);
+	id_ = ID;
 }
 
 Tile::
@@ -48,14 +60,7 @@ Tile::setTileSystem(TileSystem *tileSystem)
 QString
 Tile::getIdName() const
 {
-    QString text = id_;
-    if (!name_.isEmpty())
-    {
-        text.append(" (");
-        text.append(name_);
-        text.append(")");
-    }
-    return text;
+	return id_.getName();
 }
 
 void
@@ -66,7 +71,7 @@ Tile::setName(const QString &name)
 }
 
 void
-Tile::setID(const QString &id)
+Tile::setID(const odrID &id)
 {
     id_ = id;
     addTileChanges(Tile::CT_IdChange);
@@ -89,6 +94,68 @@ Tile::addTileChanges(int changes)
         tileChanges_ |= changes;
         notifyObservers();
     }
+}
+
+void Tile::removeOSCID(const QString &ID)
+{
+	oscIDs.remove(ID);
+}
+
+int32_t Tile::uniqueID(odrID::IDType t)
+{
+	int32_t id = odrIDs[t].size();
+	if(odrIDs[t].contains(id))
+	{
+		// ID numbers are higher than number of IDs thus there must be empty spaces, search from scratch
+		id = 0;
+		while (odrIDs[t].contains(id))
+		{
+			id++;
+		}
+	}
+	odrIDs[t].insert(id);
+	return id;
+}
+
+const QString
+Tile::getUniqueOSCID(const QString &suggestion, const QString &name)
+{
+	
+	// Try suggestion //
+	//
+	if (!suggestion.isNull() && !suggestion.isEmpty() && !name.isEmpty())
+	{
+		bool number = false;
+		QStringList parts = suggestion.split("_");
+
+		if (parts.size() > 2)
+		{
+			int tn = parts.at(0).toInt(&number);
+			if (getID().getID() == tn)
+			{
+				if(oscIDs.contains(suggestion))
+				{
+					oscIDs.insert(suggestion);
+					return suggestion;
+				}
+			}
+		}
+	}
+
+	// Create new one //
+	//
+	QString myName = name;
+	if (name.isEmpty())
+	{
+		myName = "unnamed";
+	}
+	
+
+	QString id;
+		id = QString("%1_%2_%3").arg(uniqueID(odrID::ID_OSC)).arg(getID().getID()).arg(myName);
+
+	oscIDs.insert(id);
+	return id;
 }
 
 // visitor

@@ -13,7 +13,7 @@ cmake_minimum_required (VERSION 2.6)
 #covise_find_package(TIFF)
 #covise_find_package(ZLIB)
 #covise_find_package(JPEG)
-find_package(COVISE)
+#find_package(COVISE)
 
 #INCLUDE(CoviseHelperMacros)
 #INCLUDE(Qt4-5)
@@ -31,6 +31,11 @@ using(TIFF)
 using(JPEG)
 using(PROJ4)
 USING(BOOST)
+using(OpenScenario)
+USING(OpenCRG)
+using(EIGEN)
+
+PROJECT(oddlot C CXX)
 
 #INCLUDE_DIRECTORIES(${XERCESC_INCLUDE_DIR})
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${XERCESC_LIBRARIES})
@@ -39,26 +44,31 @@ USING(BOOST)
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${PROJ4_LIBRARIES})
 
 #INCLUDE_DIRECTORIES($ENV{COVISEDIR}/src/tools/oddlot)
-INCLUDE_DIRECTORIES(
-   ../OpenScenario
-)
+
 ADD_DEFINITIONS( -D_USE_MATH_DEFINES)
-ADD_DEFINITIONS( -D USE_MIDMOUSE_PAN)
+ADD_DEFINITIONS( -DUSE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
 
+SET(ODDLOT_HEADERS
+	src/graph/items/handles/lanemovehandle.hpp
+	)
 
 SET(ODDLOT_SOURCES 
      src/main.cpp 
 	 src/mainwindow.cpp
+	 src/data/roadsystem/odrID.cpp
 	 src/data/roadsystem/track/trackcomponent.cpp
 	 src/data/roadsystem/track/trackelement.cpp
 	 src/data/roadsystem/track/trackcomposite.cpp
 	 src/data/roadsystem/track/trackelementline.cpp
-	 src/gui/projectwidget.cpp
+         src/gui/projectwidget.cpp
+         src/gui/filesettings.cpp
+
      src/gui/osmimport.cpp
      src/gui/projectionsettings.cpp
      src/gui/importsettings.cpp
+     src/gui/exportsettings.cpp
 	 src/gui/lodsettings.cpp
 	 src/data/projectdata.cpp
 	 src/data/roadsystem/roadsystem.cpp
@@ -80,6 +90,7 @@ SET(ODDLOT_SOURCES
 	 src/data/roadsystem/sections/lanesection.cpp
 	 src/data/roadsystem/sections/lane.cpp
 	 src/data/roadsystem/sections/lanewidth.cpp
+	 src/data/roadsystem/sections/laneoffset.cpp
 	 src/util/math/polynomial.cpp
 	 src/data/roadsystem/sections/laneroadmark.cpp
 	 src/data/roadsystem/sections/lanespeed.cpp
@@ -112,6 +123,8 @@ SET(ODDLOT_SOURCES
 	 src/data/dataelement.cpp
 	 src/data/commands/dataelementcommands.cpp
 	 src/graph/items/graphelement.cpp
+	 src/graph/items/svgelement.cpp
+	 src/graph/items/basegraphelement.cpp
 	 src/gui/tools/toolmanager.cpp
 	 src/gui/tools/tool.cpp
 	 src/gui/tools/zoomtool.cpp
@@ -226,14 +239,10 @@ SET(ODDLOT_SOURCES
 	 src/tree/items/sensortreeitem.cpp
 	 src/settings/projectsettingsvisitor.cpp
 	 src/graph/editors/laneeditor.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroaditem.cpp
 	 src/graph/items/roadsystem/lanes/lanesectionitem.cpp
 	 src/graph/items/roadsystem/lanes/laneitem.cpp
-	 src/graph/items/roadsystem/lanes/lanesectionwidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthmovehandle.cpp
 	 src/gui/tools/laneeditortool.cpp
 	 src/settings/settingselement.cpp
 	 src/settings/widgets/elevationsettings.cpp
@@ -287,6 +296,7 @@ SET(ODDLOT_SOURCES
     src/graph/items/roadsystem/roadtextitem.cpp
     src/graph/items/roadsystem/junctionitem.cpp
     src/wizards/roadlinkwizard.cpp
+    src/wizards/circlewizard.cpp
     src/graph/items/roadsystem/lanes/lanelinkitem.cpp
     src/graph/topviewgraph.cpp
     src/graph/profilegraph.cpp
@@ -351,321 +361,227 @@ SET(ODDLOT_SOURCES
 	src/graph/items/roadsystem/scenario/oscroaditem.cpp
 	src/graph/items/roadsystem/scenario/oscroadsystemitem.cpp
 	src/graph/items/oscsystem/oscbaseitem.cpp
+	src/graph/items/oscsystem/oscbaseshapeitem.cpp
 	src/graph/items/oscsystem/oscitem.cpp
 	src/graph/items/oscsystem/oscshapeitem.cpp
 	src/graph/items/oscsystem/osctextitem.cpp
 	src/graph/graphviewitems/graphviewshapeitem.cpp
 	src/gui/oscsettings.cpp
+	src/data/georeference.cpp
+	src/data/roadsystem/track/trackelementcubiccurve.cpp
+	src/data/roadsystem/sections/shapesection.cpp
+	src/data/roadsystem/rsystemelementjunctiongroup.cpp
+	src/data/roadsystem/sections/laneborder.cpp
+	src/data/roadsystem/sections/lanerule.cpp
+	src/data/roadsystem/sections/laneaccess.cpp
+	src/data/roadsystem/sections/parkingspaceobject.cpp
+	src/data/roadsystem/sections/objectreference.cpp
+	src/data/roadsystem/sections/signalreference.cpp
+	src/graph/editors/shapeeditor.cpp
+	src/gui/tools/shapeeditortool.cpp
+	src/graph/items/roadsystem/shape/shaperoaditem.cpp
+	src/graph/items/roadsystem/shape/shaperoadsystemitem.cpp
+	src/graph/items/roadsystem/shape/shapesectionitem.cpp
+	src/graph/items/roadsystem/shape/shapesectionpolynomialitem.cpp
+	src/graph/items/roadsystem/shape/shapesectionpolynomialitems.cpp
+	src/tree/items/shapetreeitem.cpp
+	src/data/commands/shapesectioncommands.cpp
+	src/data/commands/shapelateralsectioncommands.cpp
+	src/graph/items/handles/splinemovehandle.cpp
+	src/data/roadsystem/lateralsections/lateralsection.cpp
+	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
+	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
+	src/data/commands/lateralsectioncommands.cpp
+	src/graph/items/handles/baselanemovehandle.cpp
 )
 SET(ODDLOT_MOC_HEADERS
-     src/mainwindow.hpp
-	 src/globalDefines.hpp
-	 src/data/roadsystem/track/trackcomponent.hpp
-	 src/data/roadsystem/track/trackelement.hpp
-	 src/data/roadsystem/track/trackcomposite.hpp
-	 src/data/roadsystem/track/trackelementline.hpp
-	 src/gui/projectwidget.hpp
-     src/gui/osmimport.hpp
-     src/gui/projectionsettings.hpp
-     src/gui/importsettings.hpp
-	 src/gui/lodsettings.hpp
-	 src/data/projectdata.hpp
-	 src/data/roadsystem/roadsystem.hpp
-	 src/data/roadsystem/rsystemelement.hpp
-	 src/data/roadsystem/rsystemelementroad.hpp
-	 src/data/roadsystem/rsystemelementfiddleyard.hpp
-	 src/data/roadsystem/rsystemelementpedfiddleyard.hpp
-	 src/data/roadsystem/rsystemelementjunction.hpp
-	 src/data/roadsystem/rsystemelementcontroller.hpp
-	 src/io/domparser.hpp
-	 src/graph/heightgraph.hpp
-	 src/graph/projectgraph.hpp
-	 src/graph/graphscene.hpp
-	 src/graph/graphview.hpp
-	 src/data/acceptor.hpp
-	 src/data/visitor.hpp
-	 src/data/roadsystem/track/trackelementarc.hpp
-	 src/data/roadsystem/track/trackelementspiral.hpp
-	 src/data/roadsystem/sections/lanesection.hpp
-	 src/data/roadsystem/sections/lane.hpp
-	 src/data/roadsystem/sections/lanewidth.hpp
-	 src/util/math/polynomial.hpp
-	 src/data/roadsystem/sections/laneroadmark.hpp
-	 src/data/roadsystem/sections/lanespeed.hpp
-	 src/data/roadsystem/sections/laneheight.hpp
-	 src/data/roadsystem/sections/objectobject.hpp
-	 src/data/roadsystem/sections/bridgeobject.hpp
-	 src/data/roadsystem/sections/tunnelobject.hpp
-	 src/data/roadsystem/sections/crosswalkobject.hpp
-	 src/data/roadsystem/sections/signalobject.hpp
-	 src/data/roadsystem/sections/sensorobject.hpp
-	 src/util/odd.hpp
-	 src/util/droparea.hpp
-	 src/graph/editors/roadlinkeditor.hpp
-	 src/graph/editors/trackeditor.hpp
-	 src/data/observer.hpp
-	 src/data/subject.hpp
-	 src/data/changemanager.hpp
-	 src/data/roadsystem/sections/typesection.hpp
-	 src/data/roadsystem/sections/surfacesection.hpp
-	 src/graph/editors/roadtypeeditor.hpp
-	 src/data/commands/typesectioncommands.hpp
-	 src/graph/visitors/roadmarkvisitor.hpp
-	 src/sample.hpp
-	 src/data/roadsystem/sections/roadsection.hpp
-	 src/data/commands/roadsectioncommands.hpp
-	 src/data/roadsystem/sections/elevationsection.hpp
-	 src/data/roadsystem/sections/superelevationsection.hpp
-	 src/data/roadsystem/sections/crossfallsection.hpp
-	 src/data/dataelement.hpp
-	 src/data/commands/dataelementcommands.hpp
-	 src/graph/items/graphelement.hpp
-	 src/gui/tools/toolmanager.hpp
-	 src/gui/tools/tool.hpp
-	 src/gui/tools/zoomtool.hpp
-	 src/gui/tools/selectiontool.hpp
-	 src/gui/tools/toolaction.hpp
-	 src/gui/tools/typeeditortool.hpp
-	 src/gui/tools/toolwidget.hpp
-	 src/gui/tools/trackeditortool.hpp
-	 src/util/colorpalette.hpp
-	 src/data/roadsystem/track/trackspiralarcspiral.hpp
-	 src/data/visitors/sparcsmergevisitor.hpp
-	 src/data/commands/trackcommands.hpp
-	 src/data/visitors/trackmovevalidator.hpp
-	 src/graph/items/handles/linkhandle.hpp
-	 src/gui/mouseaction.hpp
-	 src/gui/keyaction.hpp
-	 src/graph/editors/projecteditor.hpp
-	 src/data/prototypemanager.hpp
-	 src/data/commands/roadcommands.hpp
-	 src/graph/items/handles/handle.hpp
-	 src/graph/items/handles/movehandle.hpp
-	 src/graph/items/handles/rotatehandle.hpp
-	 src/data/vehiclesystem/vehiclesystem.hpp
-	 src/data/vehiclesystem/roadvehicle.hpp
-	 src/data/vehiclesystem/vehiclegroup.hpp
-	 src/data/vehiclesystem/carpool.hpp
-	 src/data/vehiclesystem/pool.hpp
-	 src/data/vehiclesystem/poolvehicle.hpp
-	 src/data/pedestriansystem/pedestriansystem.hpp
-	 src/data/pedestriansystem/pedestriangroup.hpp
-	 src/data/pedestriansystem/pedestrian.hpp
-	 src/graph/items/view/ruler.hpp
-	 src/data/visitors/splineexportvisitor.hpp
-	 src/gui/tools/maptool.hpp
-	 src/data/scenerysystem/scenerymap.hpp
-	 src/data/scenerysystem/scenerysystem.hpp
-	 src/data/commands/scenerycommands.hpp
-	 src/graph/items/scenerysystem/scenerysystemitem.hpp
-	 src/graph/items/scenerysystem/scenerymapitem.hpp
-	 src/graph/editors/elevationeditor.hpp
-	 src/graph/items/roadsystem/sections/sectionitem.hpp
-	 src/graph/items/roadsystem/sections/sectionhandle.hpp
-	 src/graph/items/roadsystem/roadsystemitem.hpp
-	 src/graph/items/roadsystem/roaditem.hpp
-	 src/gui/tools/elevationeditortool.hpp
-	 src/data/commands/elevationsectioncommands.hpp
-	 src/graph/items/roadsystem/elevation/elevationsectionpolynomialitem.hpp
-	 src/graph/items/roadsystem/elevation/elevationsectionitem.hpp
-	 src/graph/items/roadsystem/elevation/elevationroadpolynomialitem.hpp
-	 src/graph/items/roadsystem/elevation/elevationroaditem.hpp
-	 src/graph/items/roadsystem/elevation/elevationmovehandle.hpp
-	 src/graph/items/roadsystem/elevation/elevationroadsystemitem.hpp
-	 src/graph/items/roadsystem/roadtype/typesectionitem.hpp
-	 src/graph/items/roadsystem/roadtype/roadtyperoadsystemitem.hpp
-	 src/graph/items/roadsystem/roadtype/roadtyperoaditem.hpp
-	 src/graph/items/roadsystem/track/tracksparcsitem.hpp
-	 src/graph/items/roadsystem/track/trackrotatehandle.hpp
-	 src/graph/items/roadsystem/track/trackmovehandle.hpp
-	 src/graph/items/roadsystem/track/trackelementitem.hpp
-	 src/graph/items/roadsystem/track/trackcompositeitem.hpp
-	 src/graph/items/roadsystem/track/trackcomponentitem.hpp
-	 src/graph/items/roadsystem/track/trackaddhandle.hpp
-	 src/graph/items/roadsystem/track/trackroaditem.hpp
-	 src/graph/items/roadsystem/track/trackroadsystemitem.hpp
-	 src/graph/items/roadsystem/track/roadmovehandle.hpp
-	 src/graph/items/roadsystem/track/roadrotatehandle.hpp
-	 src/data/commands/roadsystemcommands.hpp
-	 src/graph/items/handles/circularrotatehandle.hpp
-	 src/data/visitors/idchangevisitor.hpp
-	 src/gui/tools/crossfalleditortool.hpp
-	 src/gui/tools/superelevationeditortool.hpp
-	 src/graph/editors/crossfalleditor.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallroadsystemitem.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallroaditem.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallsectionitem.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallmovehandle.hpp
-	 src/data/commands/crossfallsectioncommands.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallroadpolynomialitem.hpp
-	 src/graph/items/roadsystem/crossfall/crossfallsectionpolynomialitem.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationroadsystemitem.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationsectionitem.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationroaditem.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationmovehandle.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationroadpolynomialitem.hpp
-	 src/graph/items/roadsystem/superelevation/superelevationsectionpolynomialitem.hpp
-	 src/data/commands/superelevationsectioncommands.hpp
-	 src/graph/editors/superelevationeditor.hpp
-	 src/data/commands/projectdatacommands.hpp
-	 src/data/commands/datacommand.hpp
-	 src/tree/projecttree.hpp
-	 src/tree/items/projecttreeitem.hpp
-	 src/tree/items/roadsystemtreeitem.hpp
-	 src/tree/items/roadtreeitem.hpp
-	 src/tree/items/scenerysystemtreeitem.hpp
-	 src/tree/items/scenerymaptreeitem.hpp
-	 src/wizards/elevationwizard.hpp
-	 src/wizards/superelevationwizard.hpp
-	 src/wizards/wizardmanager.hpp
-	 src/tree/projecttreewidget.hpp
-	 src/tree/signaltreewidget.hpp
-	 src/data/scenerysystem/heightmap.hpp
-	 src/settings/projectsettings.hpp
-	 src/tree/items/typesectiontreeitem.hpp
-	 src/tree/items/sectiontreeitem.hpp
-	 src/tree/items/elevationsectiontreeitem.hpp
-	 src/tree/items/superelevationtreeitem.hpp
-	 src/tree/items/crossfalltreeitem.hpp
-	 src/tree/items/lanesectiontreeitem.hpp
-	 src/tree/items/objecttreeitem.hpp
-	 src/tree/items/bridgetreeitem.hpp
-	 src/tree/items/crosswalktreeitem.hpp
-	 src/tree/items/signaltreeitem.hpp
-	 src/tree/items/sensortreeitem.hpp
-	 src/settings/projectsettingsvisitor.hpp
-	 src/graph/editors/laneeditor.hpp
-	 src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.hpp
-	 src/graph/items/roadsystem/lanes/laneroadsystemitem.hpp
-	 src/graph/items/roadsystem/lanes/laneroaditem.hpp
-	 src/graph/items/roadsystem/lanes/lanesectionitem.hpp
-	 src/graph/items/roadsystem/lanes/laneitem.hpp
-     src/graph/items/roadsystem/lanes/lanelinkitem.hpp
-	 src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp
-	 src/graph/items/roadsystem/lanes/lanewidthitem.hpp
-	 src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp
-	 src/gui/tools/laneeditortool.hpp
-	 src/settings/settingselement.hpp
-	 src/settings/widgets/elevationsettings.hpp
-	 src/settings/widgets/scenerymapsettings.hpp
-	 src/graph/items/scenerysystem/heightmapitem.hpp
-	 src/data/roadsystem/track/trackelementpoly3.hpp
-	 src/settings/widgets/projectdatasettings.hpp
-	 src/graph/items/handles/sliderhandle.hpp
-	 src/graph/items/roadsystem/track/tracksparcshandle.hpp
-	 src/tree/items/trackcomponenttreeitem.hpp
-    src/settings/widgets/trackcomponentsettings.hpp
+    src/data/changemanager.hpp
+    src/data/projectdata.hpp
+    src/data/prototypemanager.hpp
+    src/data/signalmanager.hpp
+    src/data/tilesystem/tile.hpp
+    src/graph/editors/crossfalleditor.hpp
+    src/graph/editors/elevationeditor.hpp
+    src/graph/editors/junctioneditor.hpp
+    src/graph/editors/laneeditor.hpp
+    src/graph/editors/osceditor.hpp
+    src/graph/editors/projecteditor.hpp
+    src/graph/editors/roadlinkeditor.hpp
+    src/graph/editors/roadtypeeditor.hpp
+    src/graph/editors/shapeeditor.hpp
+    src/graph/editors/signaleditor.hpp
+    src/graph/editors/superelevationeditor.hpp
+    src/graph/editors/trackeditor.hpp
+    src/graph/graphscene.hpp
+    src/graph/graphview.hpp
+    src/graph/graphviewitems/graphviewshapeitem.hpp
+    src/graph/heightgraph.hpp
+    src/graph/items/graphelement.hpp
+	src/graph/items/svgelement.hpp
+    src/graph/items/handles/handle.hpp
+    src/graph/items/handles/sliderhandle.hpp
     src/graph/items/handles/slidermovehandle.hpp
-    src/tree/items/lanetreeitem.hpp
-    src/tree/items/laneroadmarktreeitem.hpp
-    src/tree/items/lanewidthtreeitem.hpp
-    src/tree/items/lanespeedtreeitem.hpp
-    src/data/commands/lanesectioncommands.hpp
-    src/settings/widgets/laneroadmarksettings.hpp
-    src/gui/tools/roadlinkeditortool.hpp
-    src/graph/items/roadsystem/roadlink/roadlinkroadsystemitem.hpp
-    src/graph/items/roadsystem/roadlink/roadlinkroaditem.hpp
-    src/settings/widgets/roadsettings.hpp
-    src/data/roadsystem/roadlink.hpp
-    src/wizards/flatjunctionswizard.hpp
-    src/data/roadsystem/junctionconnection.hpp
-    src/tree/items/junctiontreeitem.hpp
-    src/tree/items/connectiontreeitem.hpp
-    src/settings/widgets/junctionsettings.hpp
-    src/settings/widgets/signalsettings.hpp
-	src/settings/widgets/objectsettings.hpp
-	src/settings/widgets/bridgesettings.hpp
-	src/settings/widgets/tunnelsettings.hpp
-    src/tree/items/vehiclesystem/vehiclesystemtreeitem.hpp
-    src/tree/items/vehiclesystem/vehiclegrouptreeitem.hpp
-    src/tree/items/vehiclesystem/roadvehicletreeitem.hpp
-    src/tree/items/pedestriansystem/pedestriansystemtreeitem.hpp
-    src/tree/items/pedestriansystem/pedestriangrouptreeitem.hpp
-    src/tree/items/pedestriansystem/pedestriantreeitem.hpp
-	src/tree/items/controllertreeitem.hpp
-    src/data/scenerysystem/scenerytesselation.hpp
-    src/graph/items/roadsystem/roadlink/roadlinkhandle.hpp
-    src/graph/items/roadsystem/roadlink/roadlinkitem.hpp
-    src/data/visitors/boundingboxvisitor.hpp
-    src/graph/items/roadsystem/roadlink/roadlinksinkitem.hpp
-    src/graph/items/handles/circularhandle.hpp
-    src/graph/items/roadsystem/roadmark/roadmarklanesectionitem.hpp
-    src/graph/items/roadsystem/roadmark/roadmarklaneitem.hpp
-    src/graph/items/roadsystem/roadmark/roadmarkitem.hpp
-    src/settings/widgets/lanesettings.hpp
+    src/graph/items/handles/splinemovehandle.hpp
     src/graph/items/handles/texthandle.hpp
-    src/graph/items/roadsystem/roadtextitem.hpp
+    src/graph/items/oscsystem/oscbaseitem.hpp
+    src/graph/items/oscsystem/oscitem.hpp
+    src/graph/items/oscsystem/oscshapeitem.hpp
+    src/graph/items/oscsystem/osctextitem.hpp
+    src/graph/items/roadsystem/controlleritem.hpp
+    src/graph/items/roadsystem/crossfall/crossfallmovehandle.hpp
+    src/graph/items/roadsystem/crossfall/crossfallsectionitem.hpp
+    src/graph/items/roadsystem/crossfall/crossfallsectionpolynomialitem.hpp
+    src/graph/items/roadsystem/elevation/elevationmovehandle.hpp
+    src/graph/items/roadsystem/elevation/elevationsectionitem.hpp
+    src/graph/items/roadsystem/elevation/elevationsectionpolynomialitem.hpp
+    src/graph/items/roadsystem/junction/junctioncomponentitem.hpp
+    src/graph/items/roadsystem/junction/junctioncompositeitem.hpp
+    src/graph/items/roadsystem/junction/junctionelementitem.hpp
+    src/graph/items/roadsystem/junction/junctionlaneitem.hpp
+    src/graph/items/roadsystem/junction/junctionlanesectionitem.hpp
+    src/graph/items/roadsystem/junction/junctionlanewidthmovehandle.hpp
+    src/graph/items/roadsystem/junction/junctionsparcshandle.hpp
     src/graph/items/roadsystem/junctionitem.hpp
-    src/wizards/roadlinkwizard.hpp
-    src/graph/topviewgraph.hpp
+    src/graph/items/roadsystem/lanes/laneitem.hpp
+    src/graph/items/roadsystem/lanes/lanelinkitem.hpp
+    src/graph/items/roadsystem/lanes/lanesectionitem.hpp
+    src/graph/items/roadsystem/roaditem.hpp
+    src/graph/items/roadsystem/roadlink/roadlinkitem.hpp
+    src/graph/items/roadsystem/roadlink/roadlinkroaditem.hpp
+    src/graph/items/roadsystem/roadlink/roadlinksinkitem.hpp
+    src/graph/items/roadsystem/roadmark/roadmarklanesectionitem.hpp
+    src/graph/items/roadsystem/roadtextitem.hpp
+    src/graph/items/roadsystem/roadtype/typesectionitem.hpp
+    src/graph/items/roadsystem/scenario/oscbridgeitem.hpp
+    src/graph/items/roadsystem/scenario/oscobjectitem.hpp
+    src/graph/items/roadsystem/scenario/oscroaditem.hpp
+    src/graph/items/roadsystem/scenario/oscsignalitem.hpp
+    src/graph/items/roadsystem/sections/lateralsectionitem.hpp
+    src/graph/items/roadsystem/sections/sectionitem.hpp
+    src/graph/items/roadsystem/shape/shapesectionitem.hpp
+    src/graph/items/roadsystem/shape/shapesectionpolynomialitem.hpp
+    src/graph/items/roadsystem/signal/bridgeitem.hpp
+    src/graph/items/roadsystem/signal/bridgetextitem.hpp
+    src/graph/items/roadsystem/signal/objectitem.hpp
+    src/graph/items/roadsystem/signal/objecttextitem.hpp
+    src/graph/items/roadsystem/signal/signalitem.hpp
+    src/graph/items/roadsystem/signal/signalroaditem.hpp
+    src/graph/items/roadsystem/signal/signaltextitem.hpp
+    src/graph/items/roadsystem/superelevation/superelevationmovehandle.hpp
+    src/graph/items/roadsystem/superelevation/superelevationsectionitem.hpp
+    src/graph/items/roadsystem/superelevation/superelevationsectionpolynomialitem.hpp
+    src/graph/items/roadsystem/track/trackcomponentitem.hpp
+    src/graph/items/roadsystem/track/trackcompositeitem.hpp
+    src/graph/items/roadsystem/track/trackelementitem.hpp
+    src/graph/items/roadsystem/track/tracksparcshandle.hpp
+    src/graph/items/scenerysystem/heightmapitem.hpp
+    src/graph/items/scenerysystem/scenerymapitem.hpp
     src/graph/profilegraph.hpp
     src/graph/profilegraphscene.hpp
     src/graph/profilegraphview.hpp
-	src/settings/widgets/typesectionsettings.hpp
-	src/settings/widgets/typesectionsettingsUI.h
-	src/util/roadtypecombobox.h
-	src/data/commands/junctioncommands.hpp
-	src/graph/editors/junctioneditor.hpp
-	src/gui/tools/junctioneditortool.hpp
-	src/graph/items/roadsystem/junction/junctionroadsystemitem.hpp
-	src/graph/items/roadsystem/junction/junctionmovehandle.hpp
-	src/graph/items/roadsystem/junction/junctionroaditem.hpp
-	src/graph/items/roadsystem/junction/junctionaddhandle.hpp
-	src/graph/items/roadsystem/junction/junctioncomponentitem.hpp
-	src/graph/items/roadsystem/junction/junctioncompositeitem.hpp
-	src/graph/items/roadsystem/junction/junctionelementitem.hpp
-	src/graph/items/roadsystem/junction/junctionsparcshandle.hpp
-	src/graph/items/roadsystem/junction/junctionsparcsitem.hpp
-	src/graph/items/roadsystem/junction/junctionlaneroadsystemitem.hpp
-	src/graph/items/roadsystem/junction/junctionlaneroaditem.hpp
-	src/graph/items/roadsystem/junction/junctionlanesectionitem.hpp
-	src/graph/items/roadsystem/junction/junctionlaneitem.hpp
-	src/graph/items/roadsystem/junction/junctionlanewidthmovehandle.hpp
-	src/graph/editors/signaleditor.hpp
-	src/graph/items/roadsystem/signal/signalroadsystemitem.hpp
-	src/graph/items/roadsystem/signal/signalroaditem.hpp
-	src/graph/items/roadsystem/signal/signalitem.hpp
-	src/graph/items/roadsystem/signal/objectitem.hpp
-	src/graph/items/roadsystem/signal/bridgeitem.hpp
-	src/graph/items/roadsystem/signal/signalhandle.hpp
-	src/graph/items/roadsystem/signal/signaltextitem.hpp
-	src/graph/items/roadsystem/signal/objecttextitem.hpp
-	src/graph/items/roadsystem/signal/bridgetextitem.hpp
-	src/gui/tools/signaleditortool.hpp
-	src/data/commands/signalcommands.hpp
-	src/data/signalmanager.hpp
-    src/data/tilesystem/tile.hpp
-	src/data/tilesystem/tilesystem.hpp
-	src/tree/items/tilesystemtreeitem.hpp
-	src/tree/items/tiletreeitem.hpp
-	src/data/commands/tilecommands.hpp
-	src/data/commands/controllercommands.hpp
-	src/settings/widgets/controllersettings.hpp
-	src/graph/items/roadsystem/controlleritem.hpp
-	src/io/oscparser.hpp
-	src/gui/tools/osceditortool.hpp
-	src/graph/editors/osceditor.hpp
-	src/tree/catalogtreewidget.hpp
-	src/tree/catalogwidget.hpp
-	src/data/commands/osccommands.hpp
-	src/settings/widgets/oscobjectsettings.hpp
-	src/settings/widgets/oscobjectsettingsstack.hpp
-	src/data/oscsystem/oscelement.hpp
-	src/data/oscsystem/oscbase.hpp
-	src/graph/items/roadsystem/scenario/oscbridgeitem.hpp
-	src/graph/items/roadsystem/scenario/oscsignalitem.hpp
-	src/graph/items/roadsystem/scenario/oscobjectitem.hpp
-	src/graph/items/roadsystem/scenario/oscroaditem.hpp
-	src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp
-	src/graph/items/oscsystem/oscbaseitem.hpp
-	src/graph/items/oscsystem/oscitem.hpp
-	src/graph/items/oscsystem/oscshapeitem.hpp
-	src/graph/items/oscsystem/osctextitem.hpp
-	src/graph/graphviewitems/graphviewshapeitem.hpp
-	src/gui/oscsettings.hpp
+    src/graph/projectgraph.hpp
+    src/graph/topviewgraph.hpp
+	src/graph/items/handles/baselanemovehandle.hpp
+    src/gui/exportsettings.hpp
+    src/gui/importsettings.hpp
+    src/gui/lodsettings.hpp
+    src/gui/oscsettings.hpp
+    src/gui/osmimport.hpp
+    src/gui/projectionsettings.hpp
+    src/gui/projectwidget.hpp
+
+
+    src/gui/filesettings.hpp
+
+
+    src/gui/tools/crossfalleditortool.hpp
+    src/gui/tools/elevationeditortool.hpp
+    src/gui/tools/junctioneditortool.hpp
+    src/gui/tools/laneeditortool.hpp
+    src/gui/tools/maptool.hpp
+    src/gui/tools/osceditortool.hpp
+    src/gui/tools/roadlinkeditortool.hpp
+    src/gui/tools/selectiontool.hpp
+    src/gui/tools/shapeeditortool.hpp
+    src/gui/tools/signaleditortool.hpp
+    src/gui/tools/superelevationeditortool.hpp
+    src/gui/tools/tool.hpp
+    src/gui/tools/toolmanager.hpp
+    src/gui/tools/toolwidget.hpp
+    src/gui/tools/trackeditortool.hpp
+    src/gui/tools/typeeditortool.hpp
+    src/gui/tools/zoomtool.hpp
+    src/io/domparser.hpp
+    src/io/oscparser.hpp
+    src/mainwindow.hpp
+    src/sample.hpp
+    src/settings/projectsettings.hpp
+    src/settings/settingselement.hpp
+    src/settings/widgets/bridgesettings.hpp
+    src/settings/widgets/controllersettings.hpp
+    src/settings/widgets/elevationsettings.hpp
+    src/settings/widgets/junctionsettings.hpp
+    src/settings/widgets/laneroadmarksettings.hpp
+    src/settings/widgets/lanesettings.hpp
+    src/settings/widgets/objectsettings.hpp
+    src/settings/widgets/oscobjectsettings.hpp
+    src/settings/widgets/oscobjectsettingsstack.hpp
+    src/settings/widgets/projectdatasettings.hpp
+    src/settings/widgets/roadsettings.hpp
+    src/settings/widgets/scenerymapsettings.hpp
+    src/settings/widgets/signalsettings.hpp
+    src/settings/widgets/trackcomponentsettings.hpp
+    src/settings/widgets/tunnelsettings.hpp
+    src/settings/widgets/typesectionsettings.hpp
+    src/tree/catalogtreewidget.hpp
+    src/tree/catalogwidget.hpp
+    src/tree/items/bridgetreeitem.hpp
+    src/tree/items/connectiontreeitem.hpp
+    src/tree/items/controllertreeitem.hpp
+    src/tree/items/crossfalltreeitem.hpp
+    src/tree/items/crosswalktreeitem.hpp
+    src/tree/items/elevationsectiontreeitem.hpp
+    src/tree/items/junctiontreeitem.hpp
+    src/tree/items/laneroadmarktreeitem.hpp
+    src/tree/items/lanesectiontreeitem.hpp
+    src/tree/items/lanespeedtreeitem.hpp
+    src/tree/items/lanetreeitem.hpp
+    src/tree/items/lanewidthtreeitem.hpp
+    src/tree/items/objecttreeitem.hpp
+    src/tree/items/pedestriansystem/pedestriangrouptreeitem.hpp
+    src/tree/items/pedestriansystem/pedestriansystemtreeitem.hpp
+    src/tree/items/pedestriansystem/pedestriantreeitem.hpp
+    src/tree/items/projecttreeitem.hpp
+    src/tree/items/roadsystemtreeitem.hpp
+    src/tree/items/roadtreeitem.hpp
+    src/tree/items/scenerymaptreeitem.hpp
+    src/tree/items/scenerysystemtreeitem.hpp
+    src/tree/items/sectiontreeitem.hpp
+    src/tree/items/sensortreeitem.hpp
+    src/tree/items/shapetreeitem.hpp
+    src/tree/items/signaltreeitem.hpp
+    src/tree/items/superelevationtreeitem.hpp
+    src/tree/items/tilesystemtreeitem.hpp
+    src/tree/items/tiletreeitem.hpp
+    src/tree/items/trackcomponenttreeitem.hpp
+    src/tree/items/typesectiontreeitem.hpp
+    src/tree/items/vehiclesystem/roadvehicletreeitem.hpp
+    src/tree/items/vehiclesystem/vehiclegrouptreeitem.hpp
+    src/tree/items/vehiclesystem/vehiclesystemtreeitem.hpp
+    src/tree/projecttree.hpp
+    src/tree/projecttreewidget.hpp
+    src/tree/signaltreewidget.hpp
+    src/util/droparea.hpp
+    src/wizards/circlewizard.hpp
+    src/wizards/elevationwizard.hpp
+    src/wizards/flatjunctionswizard.hpp
+    src/wizards/roadlinkwizard.hpp
+    src/wizards/superelevationwizard.hpp
+    src/wizards/wizardmanager.hpp
 )
 SET(ODDLOT_FORMS 
      src/mainwindow.ui
+	 src/wizards/circlewizard.ui
 	 src/wizards/elevationwizard.ui
 	 src/wizards/superelevationwizard.ui
 	 src/settings/widgets/elevationsettings.ui
@@ -676,7 +592,12 @@ SET(ODDLOT_FORMS
      src/settings/widgets/roadsettings.ui
      src/gui/osmimport.ui
      src/gui/importsettings.ui
+     src/gui/exportsettings.ui
      src/gui/projectionsettings.ui
+
+         src/cover/coverconnection.ui
+         src/gui/filesettings.ui
+
 	 src/gui/lodsettings.ui
 	 src/gui/tools/TrackRibbon.ui
 	 src/gui/tools/TypeRibbon.ui
@@ -700,11 +621,13 @@ SET(ODDLOT_FORMS
 	 src/settings/widgets/oscobjectsettings.ui
 	 src/tree/errorMessageTree.ui
 	 src/gui/oscsettings.ui
+	 src/gui/tools/ShapeRibbon.ui
 )
 SET(ODDLOT_RESOURCES
    style/style.qrc
    icons/tools/tools.qrc
    ../../../../share/covise/signs/icons/signalIcons.qrc
+   ../../../../share/covise/icons/svg/svgIcons.qrc
 )
 SET(ODDLOT_OTHER_FILES
      prototypes/prototypes.odd
@@ -721,7 +644,7 @@ IF(COVISE_FOUND)
     SET(EXTRA_LIBS ${EXTRA_LIBS} ${COVISE_NET_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_CONFIG_LIBRARY})
 ENDIF(COVISE_FOUND)
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}) 
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${OPENCRG_INCLUDE_DIR} ${EIGEN_INCLUDE_DIR}) 
 
 QT_WRAP_CPP(ODDLOT_MOC_SRCS ${ODDLOT_MOC_HEADERS})
 QT_WRAP_UI(ODDLOT_UI_HEADERS ${ODDLOT_FORMS})
@@ -729,10 +652,9 @@ QT_ADD_RESOURCES(ODDLOT_MOC_SRCS ${ODDLOT_RESOURCES})
 
 
 add_covise_executable (oddlot ${ODDLOT_SOURCES} ${ODDLOT_HEADERS} ${ODDLOT_MOC_HEADERS} ${ODDLOT_MOC_SRCS} ${ODDLOT_UI_HEADERS} ${ODDLOT_UI_SRCS})
-qt_use_modules(oddlot Core Widgets Gui Network Xml)
+qt_use_modules(oddlot Core Widgets Gui Network Xml Svg)
 TARGET_LINK_LIBRARIES(oddlot
-   ${EXTRA_LIBS}
-   coOpenScenario
+   ${EXTRA_LIBS} ${OPENCRG_LIBRARIES}
 ) 
 
 source_group("testit" FILES src/cover/coverconnection.cpp coverconnection.cpp .*cover.*)

@@ -18,6 +18,7 @@
 #include <map>
 #include <osg/Matrix>
 #include <osg/Vec3>
+#include <util/unixcompat.h>
 
 #include <stdint.h>
 #ifdef HAVE_E57
@@ -30,6 +31,8 @@ using namespace std;
 float min_x, min_y, min_z;
 float max_x, max_y, max_z;
 bool intensityOnly;
+bool readScannerPosition = false;
+uint32_t fileVersion=1;
 
 enum formatTypes
 {
@@ -46,6 +49,14 @@ struct Point
 	float y;
 	float z;
 	uint32_t rgba;
+};
+
+struct ScannerPosition
+{
+    uint32_t ID;
+    int begin;
+    int end;//std::vector<Point>::const_iterator end;
+    osg::Vec3 point;
 };
 
 void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
@@ -198,11 +209,11 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format)
 	fclose(inputFile);
 }
 
-void ReadPTX(char *filename, std::vector<Point> &vec)
+void ReadPTX(char *filename, std::vector<Point> &vec, osg::Vec3 &pos)
 {
 
 	FILE *inputFile;
-	cout << "Input Data: " << filename << endl;
+	cout << "Input Data PTX: " << filename << endl;
 
 	inputFile = fopen(filename, "r");
 
@@ -256,6 +267,9 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
 			m(0, 3) = fa;
 			m(1, 3) = fb;
 			m(2, 3) = fc;
+            pos[0] = fa;
+            pos[1] = fb;
+            pos[2] = fc;
 			readHeader = false;
 			linesRead = 0;
 			numLines = numRows * numCols;
@@ -340,7 +354,7 @@ void ReadPTX(char *filename, std::vector<Point> &vec)
 			}
 		}
 	}
-
+    pos = m * pos;
 	fclose(inputFile);
 }
 void ReadE57(char *filename, std::vector<Point> &vec)
@@ -556,7 +570,7 @@ void ReadE57(char *filename, std::vector<Point> &vec)
 
 }
 
-void WriteData(char *filename, std::vector<Point> &vec)
+void WriteData(char *filename, std::vector<Point> &vec, std::vector<ScannerPosition> &scanPositions)
 {
 	cout << "Output Data: " << filename << endl;
 
@@ -583,6 +597,32 @@ void WriteData(char *filename, std::vector<Point> &vec)
 		{
 			file.write((char *)&(vec.at(i).rgba), sizeof(uint32_t));
 		}
+        if (readScannerPosition)
+        {
+            file.write((char *)&(fileVersion), sizeof(uint32_t));
+            cerr << "Version " << (fileVersion) << endl;
+            uint32_t numPositions= scanPositions.size();
+            file.write((char *)&(numPositions), sizeof(uint32_t));
+            for (std::vector<ScannerPosition>::const_iterator posIter = scanPositions.begin(); posIter!=scanPositions.end(); posIter++)
+            {
+                file.write((char *)&(posIter->ID), sizeof(uint32_t));
+                file.write((char *)&(posIter->point._v), sizeof(float) * 3);
+            }
+            file.write((char *)&(number_of_sets), sizeof(int));
+            file.write((char *)&(numPoints), sizeof(uint32_t));
+            //for (std::vector<Point>::const_iterator iter = vec.begin(); iter!= vec.end(); iter++)
+            for (int j=0; j<vec.size(); j++)
+            {
+                uint32_t scanID = 0;
+                for (std::vector<ScannerPosition>::const_iterator posIter = scanPositions.begin(); posIter!=scanPositions.end(); posIter++)
+                {
+                    if (j >=posIter->begin && j < posIter->end)
+                        scanID=posIter->ID;
+                }
+                file.write((char *)&scanID, sizeof(uint32_t));
+            }
+        }
+
 	}
 	file.close();
 
@@ -593,16 +633,17 @@ int main(int argc, char **argv)
 {
 
 	// TODO these values should be command line arguments
-	int maxPointsPerCube = 250000; // note set to -1 if no max points per cube is specified
-	int divisionSize = 16;
 	formatTypes format = FORMAT_IRGB;
 	//format = FORMAT_RGB;
 	std::vector<Point> vec;
 	vec.reserve(1000000);
 
+    std::vector<ScannerPosition> scanPositions;
+
 	min_x = min_y = min_z = FLT_MAX;
 	max_x = max_y = max_z = FLT_MIN;
 
+    int nread = 0;
 	if (argc < 3) /* argc should be > 3 for correct execution */
 	{
 		printf("Minimal two params required. read README.txt\n");
@@ -611,7 +652,6 @@ int main(int argc, char **argv)
 	{
 		for (int i = 1; i < argc - 1; i++)
 		{
-			printf("Reading in %s\n", argv[i]);
 			int len = strlen(argv[i]);
 			if ((len > 1) && argv[i][0] == '-')
 			{
@@ -619,14 +659,29 @@ int main(int argc, char **argv)
 				{
 					intensityOnly = true;
 				}
+				if (argv[i][1] == 'r')
+                {
+                    format = FORMAT_RGB;
+                }
+                if (argv[i][1] == 's')
+                {
+                    readScannerPosition = true;
+                }
 			}
 			else
 			{
+                ++nread;
+                printf("Reading in %s\n", argv[i]);
 				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
 				{
-					ReadPTX(argv[i], vec);
+                    ScannerPosition pos;
+                    pos.begin = vec.size();
+                    ReadPTX(argv[i], vec, pos.point);
+                    pos.end = vec.size();
+                    pos.ID = nread;
+                    scanPositions.push_back(pos);
 				}
-				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
+				else if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
 				{
 					ReadE57(argv[i], vec);
 				}
@@ -636,8 +691,8 @@ int main(int argc, char **argv)
 					ReadData(argv[i], vec, format);
 				}
 				else if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
-				{
-					format = FORMAT_If;
+				{   if (format != FORMAT_RGB)
+					    format = FORMAT_If;
 					ReadData(argv[i], vec, format);
 				}
 				else
@@ -646,7 +701,12 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		WriteData(argv[argc - 1], vec);
+        if (nread > 0)
+            WriteData(argv[argc - 1], vec, scanPositions);
+        else
+            printf("Did not read any data\n");
 	}
+
+    //printf("maxPointsPerCube=%d, divisionSize=%d\n", maxPointsPerCube, divisionSize);
 	return 0;
 }

@@ -22,9 +22,7 @@ public:
     {
         action = a;
     }
-    virtual ~vruiActionUserData()
-    {
-    }
+    virtual ~vruiActionUserData();
 
     coAction *action; ///< the associated action
 };

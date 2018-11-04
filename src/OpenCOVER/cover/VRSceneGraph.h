@@ -23,7 +23,6 @@
  */
 
 #include <util/common.h>
-#include <OpenVRUI/osg/mathUtils.h>
 #include <osg/Node>
 #include <osg/Matrix>
 #include <osg/Group>
@@ -32,8 +31,18 @@
 #include <osg/Multisample>
 #include <osg/Material>
 #include <osg/ClipNode>
-#include <osgShadow/ShadowedScene>
 #include <osgFX/Scribe>
+
+#include "ui/Owner.h"
+
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+class Button;
+class SelectionList;
+}
+}
 
 namespace osg
 {
@@ -48,33 +57,26 @@ class coCombinedButtonInteraction;
 
 namespace opencover
 {
-class buttonSpecCell;
 class coVRStatsDisplay;
 
-class COVEREXPORT VRSceneGraph
+class COVEREXPORT VRSceneGraph: public ui::Owner
 {
 public:
     enum WireframeMode {
         Disabled,
         Enabled,
         HiddenLineBlack,
-        HiddenLineWhite
+        HiddenLineWhite,
+        Points,
     };
     VRSceneGraph();
     virtual ~VRSceneGraph();
     static VRSceneGraph *instance();
 
-    static void resetviewCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void viewallCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void coordAxisCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void highQualityCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void storeCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void reloadFileCallback(void *sceneGraph, buttonSpecCell *spec);
+    bool saveScenegraph(const std::string &filename, bool withMenu=false);
 #ifdef PHANTOM_TRACKER
     static void manipulateCallback(void *sceneGraph, buttonSpecCell *spec);
 #endif
-    static void scalePlusCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void scaleMinusCallback(void *sceneGraph, buttonSpecCell *spec);
 
     osg::MatrixTransform *loadAxisGeode(float scale);
     osg::Node *loadHandIcon(const char *name);
@@ -84,28 +86,23 @@ public:
     osg::Group *getMenuGroup()
     {
         return m_menuGroupNode.get();
-    };
+    }
+    bool menuVisible() const;
     void toggleMenu();
     void setMenu(bool state);
     void setMenuMode(bool state);
     void applyMenuModeToMenus();
-    void manipulate(buttonSpecCell *spec);
+    void toggleHeadTracking(bool state);
     void setObjects(bool state);
-
-    // rotate world
-    int numFrames;
-    float frameAngle;
-    osg::Vec3 rotationAxis;
-    osg::Vec3 rotationPoint;
 
     // process key events
     bool keyEvent(int type, int keySym, int mod);
-    osgShadow::ShadowedScene *getScene()
+    osg::Group *getScene()
     {
         return m_scene.get();
     };
 
-    osgShadow::ShadowedScene *getObjectsScene()
+    osg::Group *getObjectsScene()
     {
         return m_objectsScene.get();
     }
@@ -114,19 +111,19 @@ public:
     void init();
     void update();
 
-    osg::MatrixTransform *getTransform()
+    osg::MatrixTransform *getTransform() const
     {
         return m_objectsTransform.get();
     }
-    osg::MatrixTransform *getScaleTransform()
+    osg::MatrixTransform *getScaleTransform() const
     {
         return (m_scaleTransform);
     }
-    osg::MatrixTransform *getHandTransform()
+    osg::MatrixTransform *getHandTransform() const
     {
         return (m_handTransform.get());
     }
-    osg::Vec3 getWorldPointOfInterest();
+    osg::Vec3 getWorldPointOfInterest() const;
     void getHandWorldPosition(float *, float *, float *);
     void addPointerIcon(osg::Node *node);
     void removePointerIcon(osg::Node *node);
@@ -212,14 +209,6 @@ public:
     void toggleAxis(bool state);
     void toggleHighQuality(bool state);
     void viewAll(bool resetView = false);
-    float &joyStickX()
-    {
-        return m_joyStickX;
-    }
-    float &joyStickY()
-    {
-        return m_joyStickY;
-    }
     float floorHeight()
     {
         return m_floorHeight;
@@ -257,16 +246,16 @@ public:
 
     int m_vectorInteractor; //< don't use - for COVISE plugin only
 
-    bool KeyButton[4];
-
     bool isHighQuality() const;
 
 private:
+    static VRSceneGraph *s_instance;
     int readConfigFile();
     void initAxis();
     void initHandDeviceGeometry();
     void initMatrices();
     void initSceneGraph();
+    bool saveScenegraph(bool withMenu);
 
 #ifdef PHANTOM_TRACKER
     int m_forceFeedbackON;
@@ -274,7 +263,7 @@ private:
     float m_forceScale;
 #endif
 
-    osg::ref_ptr<osgShadow::ShadowedScene> m_scene, m_objectsScene;
+    osg::ref_ptr<osg::Group> m_scene, m_objectsScene;
     osg::ref_ptr<osgFX::Scribe> m_lineHider;
     osg::ref_ptr<osg::MatrixTransform> m_handTransform;
     osg::ref_ptr<osg::MatrixTransform> m_handAxisTransform, m_viewerAxisTransform, m_smallSceneAxisTransform;
@@ -301,23 +290,19 @@ private:
     osg::ClipNode *m_objectsRoot;
 
     float m_floorHeight;
-    bool m_handLocked; /* =true: no hand input is accepted until button is released */
     WireframeMode m_wireframe;
-    bool m_textured; /* =true: textures are drawn as intended */
-    bool m_coordAxis; /* =true: coord Axis will be drawn */
-    bool m_showMenu;
-    bool m_showObjects;
+    bool m_textured = true; /* =true: textures are drawn as intended */
+    bool m_shaders = true; /* =true: shaders are applied */
+    bool m_coordAxis = false; /* =true: coord Axis will be drawn */
+    bool m_showMenu = true;
+    bool m_showObjects = true;
+    bool m_firstTime = true;
+    bool m_pointerVisible = false;
 
     osg::Matrix m_invBaseMatrix;
     osg::Matrix m_oldInvBaseMatrix;
 
     int m_pointerType;
-    float m_joyStickX, m_joyStickY; //philip: allow access to anology x and y movement
-
-    // do we use one input device only for world transformation?
-    bool m_worldTransformer;
-    // is transforming the world enabled?
-    bool m_worldTransformerEnabled;
 
     // attribute SCALE attached to PerformerScene objects:
     // SCALE viewAll                        : scaleMode=1.0
@@ -347,10 +332,6 @@ private:
     bool menusAreHidden;
     osg::ref_ptr<osg::Program> emptyProgram_;
 
-    osg::Vec3 transTraversingInteractors;
-    bool isFirstTraversal;
-
-    bool storeWithMenu;
     bool isScenegraphProtected_;
 
     typedef std::map<osg::Drawable *, osg::ref_ptr<osg::Material> > StoredMaterialsMap;
@@ -358,6 +339,13 @@ private:
     void storeMaterial(osg::Drawable *drawable);
     bool m_enableHighQualityOption, m_switchToHighQuality, m_highQuality;
     vrui::coCombinedButtonInteraction *m_interactionHQ;
+
+    ui::Menu *m_miscMenu=nullptr;
+    ui::SelectionList *m_drawStyle=nullptr;
+    ui::Button *m_trackHead=nullptr;
+    ui::SelectionList *m_showStats=nullptr;
+    ui::Button *m_showAxis=nullptr, *m_allowHighQuality=nullptr;
+    ui::Button *m_useTextures=nullptr, *m_useShaders=nullptr;
 };
 }
 #endif

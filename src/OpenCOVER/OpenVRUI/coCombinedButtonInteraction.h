@@ -30,7 +30,6 @@ public:
 
 protected:
     virtual void update();
-    vruiButtons *mousebutton;
     bool mouse;
 };
 }

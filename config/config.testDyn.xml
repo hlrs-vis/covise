@@ -260,7 +260,7 @@
      </Animations>
     </PDB>
 
-    <AKToolbar value="false" menu="true">
+    <AKToolbar value="false" menu="false">
      <Attachment value="TOP" />
      <Scale value=".8" />
      <MinClickTime value="0.2" />
@@ -276,12 +276,10 @@
     <Amber value="off"/>  
 	<StereoVideoPlayer>
 	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
 	<AudioOffset value="0.0"/>
   </StereoVideoPlayer>
 
     <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 

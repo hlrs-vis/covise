@@ -24,25 +24,56 @@
 #include "../gui/projectwidget.hpp"
 #include "../graph/topviewgraph.hpp"
 #include "../graph/graphview.hpp"
+#include "ui_coverconnection.h"
 
 // Data //
 
 COVERConnection *COVERConnection::inst = NULL;
 
+void COVERConnection::okPressed()
+{
+    port = ui->portSpinBox->value();
+    hostname = ui->hostnameEdit->text();
+}
 //################//
 // CONSTRUCTOR    //
 //################//
 
 COVERConnection::COVERConnection()
+    : ui(new Ui::COVERConnection)
 {
     inst = this;
+    ui->setupUi(this);
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+#ifdef WIN32
+    char *pValue;
+    size_t len;
+    errno_t err = _dupenv_s(&pValue, &len, "ODDLOTDIR");
+    if (err || pValue == NULL || strlen(pValue) == 0)
+        err = _dupenv_s(&pValue, &len, "COVISEDIR");
+    if (err)
+        pValue="";
+    QString covisedir = pValue;
+#else
+    QString covisedir = getenv("ODDLOTDIR");
+    if (covisedir == "")
+        covisedir = getenv("COVISEDIR");
+#endif
+    QString dir = covisedir + "/share/covise/icons/";
+    coverConnected = new QIcon(dir + "cover_connected.png");
+    coverDisconnected = new QIcon(dir + "cover_disconnected.png");
+    //Timer init for 1000 ms interrupt => call processMessages()
     m_periodictimer = new QTimer;
     QObject::connect(m_periodictimer, SIGNAL(timeout()), this, SLOT(processMessages()));
     m_periodictimer->start(1000);
+    //monitoring activity to file descriptor
     toCOVERSN = NULL;
+    //connect to covise
     toCOVER = NULL;
     msg = new covise::Message;
     mainWindow = NULL;
+    connected = false;
+    inst = this;
 }
 
 void COVERConnection::setMainWindow(MainWindow *mw)
@@ -55,13 +86,43 @@ COVERConnection::~COVERConnection()
     inst = NULL;
     delete toCOVERSN;
     delete m_periodictimer;
+    delete ui;
+    delete coverConnected;
+    delete coverDisconnected;
+}
+
+bool COVERConnection::isConnected()
+{
+    //return (ui->connectedState->isChecked());
+    return connected;
+}
+
+void COVERConnection::setConnected(bool c)
+{
+    //ui->connectedState->setChecked(c);
+    connected = c;
+    if(connected)
+    {
+        mainWindow->updateCOVERConnectionIcon(*coverConnected);
+        ui->Instruction->setText("");
+    }
+    else {
+        mainWindow->updateCOVERConnectionIcon(*coverDisconnected);
+        closeConnection();
+    }
+}
+
+int COVERConnection::getPort()
+{
+    return (ui->portSpinBox->value());
 }
 
 void COVERConnection::closeConnection()
 {
     delete toCOVER;
     toCOVER=NULL;
-    LODSettings::instance()->setConnected(false);
+    //LODSettings::instance()->setConnected(false);
+    //setConnected(false);
 }
 
 void COVERConnection::send(covise::TokenBuffer &tb)
@@ -97,13 +158,17 @@ void COVERConnection::processMessages()
 {
     if(toCOVER == NULL)
     {
-        if(LODSettings::instance()->doConnect())
+        //UI
+        if(/*LODSettings::instance()->*/isConnected())
         {
-            covise::Host *h = new covise::Host(LODSettings::instance()->hostname.toUtf8().constData());
-            toCOVER = new covise::ClientConnection(h ,LODSettings::instance()->getPort(),0,0,0,0.0000000001);
+            std::string hostname = /*LODSettings::instance()->*/(this->hostname).toStdString();
+            if (hostname.empty())
+                hostname = "localhost";
+            covise::Host *h = new covise::Host(hostname.c_str());
+            toCOVER = new covise::ClientConnection(h ,/*LODSettings::instance()->*/getPort(),0,0,0,0.0000000001);
             if(toCOVER->is_connected())
             {
-                LODSettings::instance()->setConnected(true);
+                /*LODSettings::instance()->*/setConnected(true);
                 struct linger linger;
                 linger.l_onoff = 0;
                 linger.l_linger = 0;
@@ -115,7 +180,17 @@ void COVERConnection::processMessages()
             }
             else
             {
-                closeConnection();
+                //closeConnection();
+                setConnected(false);
+                mainWindow->getFileSettings()->show();
+                mainWindow->getFileSettings()->getTabWidget()->setCurrentWidget(this);
+                ui->Instruction->setText("\n\nConnection not possible. Please check the connection details."
+                                         "\n\nInstructions:"
+                                         "\n- open tabletUI and openCOVER in seperate Terminals"
+                                         "\n- load plugin \"OddlotLink\" in tabletUI"
+                                         "\n- open the project in opencover"
+                                         "\n- start oddlot"
+                                         "\n- create a new project in oddlot and click the COVERConnection Button in the right corner");
             }
         }
     }

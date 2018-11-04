@@ -46,7 +46,7 @@ void lmfit(char *f, int n, double *x, double *y, double *yf, int np, double *a, 
     wa = (double *)calloc(lwa, sizeof(double));
     if (wa == NULL)
     {
-        cfree(fvec);
+        free(fvec);
         errwin("Memory allocation error, operation cancelled");
         return;
     }
@@ -56,8 +56,8 @@ void lmfit(char *f, int n, double *x, double *y, double *yf, int np, double *a, 
     yfit = y;
 
     lmdif1_(fcn_, &n, &np, a, fvec, &tol, info, iwa, wa, &lwa);
-    cfree(fvec);
-    cfree(wa);
+    free(fvec);
+    free(wa);
 }
 
 int fcn_(integer *m, integer *, doublereal *x, doublereal *fvec,

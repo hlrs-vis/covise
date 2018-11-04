@@ -283,12 +283,12 @@ public:
     }
     void print()
     {
-        cout << "Type: " << type << ",  " << type_name << endl;
+        cout << "Type: " << type << ",  " << type_name << std::endl;
         if (description)
-            cout << "Description: " << description << endl;
+            cout << "Description: " << description << std::endl;
         if (obj_name)
-            cout << "Object Name: " << obj_name << endl;
-        cout << "Pointer: " << ptr << endl;
+            cout << "Object Name: " << obj_name << std::endl;
+        cout << "Pointer: " << ptr << std::endl;
     }
 };
 

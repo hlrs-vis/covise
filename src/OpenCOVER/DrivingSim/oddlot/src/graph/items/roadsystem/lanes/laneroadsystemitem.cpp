@@ -43,8 +43,54 @@ LaneRoadSystemItem::init()
 {
     foreach (RSystemElementRoad *road, getRoadSystem()->getRoads())
     {
-        new LaneRoadItem(this, road);
+        laneRoadItems_.insert(road, new LaneRoadItem(this, road));
     }
+}
+
+void
+LaneRoadSystemItem::addRoadItem(LaneRoadItem *item)
+{
+	laneRoadItems_.insert(item->getRoad(), item);
+}
+
+int
+LaneRoadSystemItem::removeRoadItem(LaneRoadItem *item)
+{
+	return laneRoadItems_.remove(item->getRoad());
+}
+
+LaneRoadItem *
+LaneRoadSystemItem::getRoadItem(RSystemElementRoad *road)
+{
+	return laneRoadItems_.value(road, NULL);
+}
+
+//##################//
+// Handles          //
+//##################//
+
+/*! \brief .
+*
+*/
+void
+LaneRoadSystemItem::rebuildMoveRotateHandles()
+{
+	foreach(LaneRoadItem *laneRoadItem, laneRoadItems_)
+	{
+		laneRoadItem->rebuildMoveRotateHandles(true);
+	}
+}
+
+/*! \brief .
+*
+*/
+void
+LaneRoadSystemItem::deleteHandles()
+{
+	foreach(LaneRoadItem *laneRoadItem, laneRoadItems_)
+	{
+		laneRoadItem->deleteHandles();
+	}
 }
 
 //##################//
@@ -77,7 +123,7 @@ LaneRoadSystemItem::updateObserver()
             {
                 // SectionItem //
                 //
-                new LaneRoadItem(this, road);
+				laneRoadItems_.insert(road, new LaneRoadItem(this, road));
             }
         }
     }

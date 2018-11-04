@@ -281,7 +281,7 @@ int CutGeometry::compute(const char *)
     int geoSize = 0, num_poly = 0, num_vert = 0, num_coord = 0;
     int num_data_out[NUM_DATA_IN_PORTS + 1];
 
-    int last;
+    size_t last;
 
     char bfr[300];
 
@@ -498,7 +498,7 @@ int CutGeometry::compute(const char *)
             for (int poly_counter = 0; poly_counter < num_poly; poly_counter++)
             {
 
-                int last_polygon = pl_out.size();
+                size_t last_polygon = pl_out.size();
                 // work through current polygon
                 last_vertex = (poly_counter == num_poly - 1) ? num_vert : pl_in[poly_counter + 1];
 
@@ -536,7 +536,7 @@ int CutGeometry::compute(const char *)
                     temp_vect[1] = y_in[vl_in[j]];
                     temp_vect[2] = z_in[vl_in[j]];
 
-                    int k = to_remove_vertex(temp_vect[0], temp_vect[1], temp_vect[2]);
+                    size_t k = to_remove_vertex(temp_vect[0], temp_vect[1], temp_vect[2]);
                     if (k != last && (strcmp(geoType, "LINES") != 0 || j != first))
                     {
                         if (k)
@@ -551,7 +551,7 @@ int CutGeometry::compute(const char *)
                         // we might have to add a new element
                         if (element_to_add)
                         {
-                            pl_out.push_back(vl_out.size());
+                            pl_out.push_back((int)vl_out.size());
                             element_to_add = 0;
                         }
 
@@ -603,7 +603,7 @@ int CutGeometry::compute(const char *)
                         {
                             k = x_out.size();
                             // num_coord_out++;
-                            new_vert_id[vl_in[j]] = k;
+                            new_vert_id[vl_in[j]] = (int)k;
 
                             // add the data
                             for (int s = 0; s < NUM_DATA_IN_PORTS; s++)
@@ -623,12 +623,12 @@ int CutGeometry::compute(const char *)
                         // we might have to add a new element
                         if (element_to_add)
                         {
-                            pl_out.push_back(vl_out.size());
+                            pl_out.push_back((int)vl_out.size());
                             element_to_add = 0;
                         }
 
                         // update vertex_list
-                        vl_out.push_back(k);
+                        vl_out.push_back((int)k);
 
                         // remember that the last one was kept
                         last = 0;
@@ -673,10 +673,10 @@ int CutGeometry::compute(const char *)
             if (pl_out.size() == 0)
                 geo_return = new coDoPolygons(p_geo_out->getObjName(), 0, 0, 0);
             else
-                geo_return = new coDoPolygons(p_geo_out->getObjName(), x_out.size(),
+                geo_return = new coDoPolygons(p_geo_out->getObjName(), (int)x_out.size(),
                                               &x_out[0], &y_out[0], &z_out[0],
-                                              vl_out.size(), &vl_out[0],
-                                              pl_out.size(), &pl_out[0]);
+                                              (int)vl_out.size(), &vl_out[0],
+                                              (int)pl_out.size(), &pl_out[0]);
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
@@ -689,9 +689,9 @@ int CutGeometry::compute(const char *)
             if (pl_out.size() == 0)
                 geo_return = new coDoLines(p_geo_out->getObjName(), 0, 0, 0);
             else
-                geo_return = new coDoLines(p_geo_out->getObjName(), x_out.size(),
+                geo_return = new coDoLines(p_geo_out->getObjName(), (int)x_out.size(),
                                            &x_out[0], &y_out[0], &z_out[0],
-                                           vl_out.size(), &vl_out[0], pl_out.size(), &pl_out[0]);
+                                           (int)vl_out.size(), &vl_out[0], (int)pl_out.size(), &pl_out[0]);
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
@@ -705,9 +705,9 @@ int CutGeometry::compute(const char *)
             if (pl_out.size() == 0)
                 geo_return = new coDoPolygons(p_geo_out->getObjName(), 0, 0, 0);
             else
-                geo_return = new coDoPolygons(p_geo_out->getObjName(), x_out.size(),
+                geo_return = new coDoPolygons(p_geo_out->getObjName(), (int)x_out.size(),
                                               &x_out[0], &y_out[0], &z_out[0],
-                                              vl_out.size(), &vl_out[0], pl_out.size(), &pl_out[0]);
+                                              (int)vl_out.size(), &vl_out[0], (int)pl_out.size(), &pl_out[0]);
             // copyAttributes( strips_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
@@ -953,10 +953,10 @@ int CutGeometry::compute(const char *)
             if (pl_out.size() == 0)
                 geo_return = new coDoPolygons(p_geo_out->getObjName(), 0, 0, 0);
             else
-                geo_return = new coDoPolygons(p_geo_out->getObjName(), x_out.size(),
+                geo_return = new coDoPolygons(p_geo_out->getObjName(), (int)x_out.size(),
                                               &x_out[0], &y_out[0], &z_out[0],
-                                              vl_out.size(), &vl_out[0],
-                                              pl_out.size(), &pl_out[0]);
+                                              (int)vl_out.size(), &vl_out[0],
+                                              (int)pl_out.size(), &pl_out[0]);
             // copyAttributes( poly_in , geo_return);
             p_geo_out->setCurrentObject(geo_return);
             // we support VR here
@@ -1344,7 +1344,7 @@ int Interpol::add_vertex(int v1, int v2, float x = 0, float y = 0, float z = 0)
     else
     { // no - we have to add them to the vertex-list, coordinates and
         // record it
-        r = (*x_coord_out_).size(); // (*num_coord_out);
+        r = (int)((*x_coord_out_).size()); // (*num_coord_out);
         add_record(v1, v2, r);
 
         (*x_coord_out_).push_back(x);

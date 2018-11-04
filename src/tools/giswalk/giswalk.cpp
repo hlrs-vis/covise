@@ -48,7 +48,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 #else
     _ftime64_s(&currentTime);
 #endif
-    tv->tv_sec = currentTime.time;
+    tv->tv_sec = (int)currentTime.time;
     tv->tv_usec = currentTime.millitm * 1000;
 
     return 0;

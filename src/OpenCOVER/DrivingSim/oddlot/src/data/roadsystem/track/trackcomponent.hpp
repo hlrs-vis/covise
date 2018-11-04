@@ -18,7 +18,7 @@
 
 #include "src/data/dataelement.hpp"
 
-#include "src/globalDefines.hpp"
+#include <cstdlib>
 
 // Qt //
 //
@@ -43,6 +43,7 @@ public:
         DTT_ARC,
         DTT_SPIRAL,
         DTT_POLY3,
+		DTT_CUBICCURVE,
         DTT_COMPOSITE,
         DTT_SPARCS,
         DTT_USER

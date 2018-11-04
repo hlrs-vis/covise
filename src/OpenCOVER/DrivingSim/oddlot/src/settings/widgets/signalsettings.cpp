@@ -83,12 +83,12 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
     connect(ui->countryBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->countryBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
 
-    connect(ui->typeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->typeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
+    connect(ui->typeBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->typeBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
     connect(ui->subclassLineEdit, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->subclassLineEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
-    connect(ui->subtypeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
-    connect(ui->subtypeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged()));
+    connect(ui->subtypeBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
+    connect(ui->subtypeBox, SIGNAL(textChanged(const QString&)), this, SLOT(onValueChanged()));
     connect(ui->valueSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
     connect(ui->valueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
     connect(ui->hOffsetSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
@@ -124,7 +124,7 @@ SignalSettings::SignalSettings(ProjectSettings *projectSettings, SettingsElement
 	connect(ui->resetTimeSpinBox, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 	connect(ui->resetTimeSpinBox, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged()));
 
-	if (signal_->getType() != 293)
+	if (signal_->getType() != "293")
 	{
 		enableCrossingParams(false);
 	}
@@ -147,16 +147,16 @@ SignalSettings::updateProperties()
     if (signal_)
     {
         ui->nameBox->setText(signal_->getName());
-        ui->idLabel->setText(signal_->getId());
+        ui->idLabel->setText(signal_->getId().speakingName());
         ui->sSpinBox->setValue(signal_->getSStart());
         ui->tSpinBox->setValue(signal_->getT());
         ui->zOffsetSpinBox->setValue(signal_->getZOffset());
         ui->countryBox->setText(signal_->getCountry());
 
-        ui->typeSpinBox->setValue(signal_->getType());
+        ui->typeBox->setText(signal_->getType());
         ui->subclassLineEdit->setText(signal_->getTypeSubclass());
-        ui->subtypeSpinBox->setValue(signal_->getSubtype());
-		SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getType(),signal_->getTypeSubclass(),signal_->getSubtype());
+        ui->subtypeBox->setText(signal_->getSubtype());
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(signal_->getCountry(), signal_->getType(),signal_->getTypeSubclass(),signal_->getSubtype());
 		if (signalContainer)
 		{
 			QIcon icon = signalContainer->getSignalIcon();
@@ -180,17 +180,17 @@ SignalSettings::updateProperties()
 
 		//Pedestrian Crossing has ancillary data
 		//
-		if ((signal_->getType() == 293) && !ui->crossingPushButton->isVisible())
+		if ((signal_->getType() == "293") && !ui->crossingPushButton->isVisible())
 		{
 			enableCrossingParams(true);
 		}
-		else if (ui->crossingPushButton->isVisible() && (signal_->getType() != 293))
+		else if (ui->crossingPushButton->isVisible() && (signal_->getType() != "293"))
 		{
 			enableCrossingParams(false);
 		}
 
 		// User data //
-		if (signal_->getType() == 293)
+		if (signal_->getType() == "293")
 		{
 			ui->crossingSpinBox->setValue(signal_->getCrossingProbability());
 			ui->resetTimeSpinBox->setValue(signal_->getResetTime());
@@ -207,11 +207,11 @@ double SignalSettings::
 
     if (t >= 0)
     {
-        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance;
+        dist = laneSection->getLaneSpanWidth(0, laneSection->getLeftmostLaneId(), sSection) + roadDistance + signal_->getParentRoad()->getLaneOffset(s);
     }
     else
     {
-        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance;
+        dist = -laneSection->getLaneSpanWidth(0, laneSection->getRightmostLaneId(), sSection) - roadDistance + signal_->getParentRoad()->getLaneOffset(s);
     }
 
     return dist;
@@ -262,7 +262,7 @@ SignalSettings::onEditingFinished()
             toLane = fromLane;
         }
 
-        if (signal_->getType() != 293)
+        if (signal_->getType() != "293")
         {
             if (((t < 0) && ((fromLane > 0) || (fromLane < signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getRightmostLaneId()))) || ((t > 0) && ((fromLane < 0) || (fromLane > signal_->getParentRoad()->getLaneSection(signal_->getSStart())->getLeftmostLaneId()))))
             {
@@ -318,7 +318,7 @@ SignalSettings::onEditingFinished()
 			resetTime = ui->resetTimeSpinBox->value();
 		}
 
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeSpinBox->value(), ui->subclassLineEdit->text(), ui->subtypeSpinBox->value(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->unitEdit->text(), ui->textEdit->text(), ui->widthSpinBox->value(), ui->heightSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, signal_->getId(), signal_->getName(), t, ui->dynamicCheckBox->isChecked(), (Signal::OrientationType)ui->orientationComboBox->currentIndex(), ui->zOffsetSpinBox->value(), ui->countryBox->text(), ui->typeBox->text(), ui->subclassLineEdit->text(), ui->subtypeBox->text(), ui->valueSpinBox->value(), ui->hOffsetSpinBox->value(), ui->pitchSpinBox->value(), ui->rollSpinBox->value(), ui->unitEdit->text(), ui->textEdit->text(), ui->widthSpinBox->value(), ui->heightSpinBox->value(), ui->poleCheckBox->isChecked(), ui->sizeComboBox->currentIndex() + 1, fromLane, toLane, crossingProb, resetTime, NULL);
         getProjectSettings()->executeCommand(command);	
 
         valueChanged_ = false;
@@ -333,22 +333,13 @@ SignalSettings::onEditingFinished()
 void
 SignalSettings::onNameBoxEditingFinished()
 {
-    QString filename = ui->nameBox->text();
+    QString name = ui->nameBox->text();
 
-    if (filename != signal_->getName())
+    if (name != signal_->getName())
     {
-        QString newId;
-        QStringList parts = signal_->getId().split("_");
-
-        if (parts.size() > 2)
-        {
-            newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-        }
-        else
-        {
-            newId = signal_->getParentRoad()->getRoadSystem()->getUniqueId(signal_->getId(), filename);
-        }
-        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, filename, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
+		odrID newId = signal_->getId();
+		newId.setName(name);
+        SetSignalPropertiesCommand *command = new SetSignalPropertiesCommand(signal_, newId, name, signal_->getProperties(), signal_->getValidity(), signal_->getSignalUserData(), NULL);
         getProjectSettings()->executeCommand(command);
     }
 }

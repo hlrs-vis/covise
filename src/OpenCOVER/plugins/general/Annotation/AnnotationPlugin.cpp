@@ -148,7 +148,7 @@ bool AnnotationPlugin::init()
     annotationLabel->setFontSize(labelSize);
     annotationHandle->addElement(annotationFrame);
     annotationDeleteButton
-        = new coPushButton(new coRectButtonGeometry(buttonSize[0], buttonSize[1], "Annotaion/delete"), this);
+        = new coPushButton(new coRectButtonGeometry(buttonSize[0], buttonSize[1], "Annotation/delete"), this);
     colorPoti = new coValuePoti("Color", this, "Volume/valuepoti-bg");
     annotationDeleteButton->setSize(40);
     annotationDeleteButton->setPos(x[0], y[1], z);
@@ -869,7 +869,7 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
  * Handle incoming messages
  *
  */
-void AnnotationPlugin::message(int type, int len, const void *buf)
+void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 {
     if (type == PluginMessageTypes::AnnotationMessage) // An AnnotationMessage has been received
     {

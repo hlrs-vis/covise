@@ -19,10 +19,15 @@
  **********************************************************************/
 #ifndef _VRML_EXP_H
 #define _VRML_EXP_H
+#include "BufferedStream.h"
 
 #if MAX_PRODUCT_VERSION_MAJOR > 14 && ! defined FASTIO
 #include "maxtextfile.h"
+#if MAX_PRODUCT_VERSION_MAJOR > 19
+#define MAXSTREAMDECL BufferedStream
+#else
 #define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#endif
 #define MSTREAMPRINTF mStream.Printf( _T
 #else
 #define MAXSTREAMDECL FILE *

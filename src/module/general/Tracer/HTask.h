@@ -44,11 +44,7 @@ public:
        * @param ini_p initial points object
        */
     HTask(const coModule *mod,
-#ifndef YAC
           const char *name_line, const char *name_magnitude,
-#else
-          coObjInfo name_line, coObjInfo name_magnitude,
-#endif
           const coDistributedObject *grid, const coDistributedObject *velo,
           const coDistributedObject *ini_p);
 
@@ -83,11 +79,7 @@ public:
     virtual void createPTasks() = 0;
 /** Gather results from all PTasks after a time step.
        */
-#ifndef YAC
     virtual void gatherTimeStep() = 0;
-#else
-    virtual void gatherTimeStep(coOutputPort *port) = 0;
-#endif
     /** Gather results from all all time steps.
        * @param    p_line   pointer to line output port.
        * @param    p_mag    pointer to magnitude output port.
@@ -139,13 +131,8 @@ protected:
     std::vector<const coDistributedObject *> velo_tstep0_;
     std::vector<const coDistributedObject *> inip_tstep0_;
 
-#ifndef YAC
     const char *name_line_; // names for output objects
     const char *name_magnitude_;
-#else
-    coObjInfo name_line_; // names for output objects
-    coObjInfo name_magnitude_;
-#endif
     // used for getting object lists for a given time step
     void ExpandGridObjects(int covise_time, std::vector<const coDistributedObject *> &grid_tstep0);
     void ExpandVeloObjects(int covise_time, std::vector<const coDistributedObject *> &grid_tstep0);

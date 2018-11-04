@@ -169,7 +169,7 @@ void AccessGridDaemon::handleClient(Message *msg)
         cerr << "remove" << msg->conn;
         delete msg->conn;
         if (toAG)
-            toAG->getSocket()->write("masterLeft", strlen("masterLeft") + 1);
+            toAG->getSocket()->write("masterLeft", (unsigned int)strlen("masterLeft") + 1);
         cerr << "controller left" << endl;
     }
     break;
@@ -237,9 +237,9 @@ int AccessGridDaemon::handleClient(const char *line, Connection *conn)
 #endif
     {
         if (toController == NULL)
-            conn->getSocket()->write("masterLeft", strlen("masterLeft") + 1);
+            conn->getSocket()->write("masterLeft", (unsigned int)strlen("masterLeft") + 1);
         else
-            conn->getSocket()->write("masterRunning\n", strlen("masterRunning\n") + 1);
+            conn->getSocket()->write("masterRunning\n", (unsigned int)strlen("masterRunning\n") + 1);
     }
 #ifdef _WIN32
     else if (strnicmp(line, "join", 4) == 0)
@@ -264,7 +264,7 @@ int AccessGridDaemon::handleClient(const char *line, Connection *conn)
         Message *msg = new Message;
         msg->type = COVISE_MESSAGE_ACCESSGRID_DAEMON;
         msg->data = (char *)line;
-        msg->length = strlen(line) + 1;
+        msg->length = (unsigned int)strlen(line) + 1;
         toController->send_msg(msg);
         msg->data = NULL;
         delete msg;

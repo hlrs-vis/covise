@@ -154,19 +154,41 @@ RoadMarkItem::createPath()
     }
     else if (id < 0)
     {
-        for (int i = 0; i < pointCount; ++i)
-        {
-            double s = sStart + i * segmentLength; // [sStart, sEnd]
-            points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneSpanWidth(0, id, s));
-        }
+		if (parentLane_->isWidthActive())
+		{
+			for (int i = 0; i < pointCount; ++i)
+			{
+				double s = sStart + i * segmentLength; // [sStart, sEnd]
+				points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
+			}
+		}
+		else
+		{
+			for (int i = 0; i < pointCount; ++i)
+			{
+				double s = sStart + i * segmentLength; // [sStart, sEnd]
+				points[i] = parentRoad_->getGlobalPoint(s, -parentLaneSection_->getLaneWidth(id, s));
+			}
+		}
     }
     else
     {
-        for (int i = 0; i < pointCount; ++i)
-        {
-            double s = sStart + i * segmentLength; // [sStart, sEnd]
-            points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneSpanWidth(0, id, s));
-        }
+		if (parentLane_->isWidthActive())
+		{
+			for (int i = 0; i < pointCount; ++i)
+			{
+				double s = sStart + i * segmentLength; // [sStart, sEnd]
+				points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneSpanWidth(0, id, s) + parentRoad_->getLaneOffset(s));
+			}
+		}
+		else
+		{
+			for (int i = 0; i < pointCount; ++i)
+			{
+				double s = sStart + i * segmentLength; // [sStart, sEnd]
+				points[i] = parentRoad_->getGlobalPoint(s, parentLaneSection_->getLaneWidth(id, s));
+			}
+		}
     }
 
     // Path //

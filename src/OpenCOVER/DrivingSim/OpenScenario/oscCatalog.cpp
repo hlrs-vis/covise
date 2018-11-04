@@ -15,6 +15,9 @@ version 2.1 or later, see lgpl-2.1.txt.oscCatalog
 #include <xercesc/dom/DOMAttr.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
+#if defined WIN32
+#include <xercesc/util/XMLWin1252Transcoder.hpp>
+#endif
 
 #include <boost/algorithm/string.hpp>
 
@@ -38,7 +41,7 @@ oscCatalogFile *oscCatalog::getCatalogFile(const std::string &catalogName, const
 	std::string filename = catalogName + ".xosc";
 	for (size_t i = 0; i < xoscFiles.size(); i++)
 	{
-		if (xoscFiles[i]->getPath() == filename)
+		if ((xoscFiles[i]->getPath() == filename) || (xoscFiles[i]->getPath() == path + '/' + filename))
 		{
 			return xoscFiles[i];
 		}
@@ -150,11 +153,13 @@ void oscCatalog::fastReadCatalogObjects()
 
         if (rootElem)
         {
-			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
+			char *cs = NULL;
+			XMLCh *t1 = NULL;
+			std::string rootElemName = cs = XMLChTranscodeUtf(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
 
 			/*           if (rootElemName == m_catalogName)
 			{ */
-			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
+			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf(m_catalogName.c_str())); xercesc::XMLString::release(&t1);
 
 			for(int it = 0;it<list->getLength();it++)
 			{
@@ -162,13 +167,13 @@ void oscCatalog::fastReadCatalogObjects()
 				if (node)
 				{
 					xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
-					xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
+					xercesc::DOMNode *attribute = attributes->getNamedItem(t1 = XMLChTranscodeUtf("name")); xercesc::XMLString::release(&t1);
 
 
 					if (attribute)
 					{
+						std::string attributeName = XMLChTranscodeUtf(attribute->getNodeValue());
 						
-						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
 						ObjectsMap::const_iterator found = m_Objects.find(attributeName);
 
 						if (found != m_Objects.end())
@@ -277,6 +282,8 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 	oscCatalogFile *fileObject = objectFound->second.xoscFile;
     if (fileObject != NULL)
     {
+		char *cs;
+		XMLCh *t1 = NULL;
         bool success = false;
 
         OpenScenarioBase *oscBase = new OpenScenarioBase;
@@ -287,7 +294,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 		xercesc::DOMElement *rootElem = oscBase->getRootElement(filePath.generic_string(), m_catalogName, m_catalogType, false);
 		if (rootElem)
 		{
-			std::string rootElemName = xercesc::XMLString::transcode(rootElem->getNodeName());
+			std::string rootElemName = cs = XMLChTranscodeUtf(rootElem->getNodeName()); xercesc::XMLString::release(&cs);
 
 
 			//set variables for srcFile, differentiate between absolute and relative path for catalog object
@@ -323,7 +330,7 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 			fileObject->srcFile->setRelPathFromMainDir(relPathFromMainDir);
 			fileObject->srcFile->setRootElementName(rootElemName);
 
-			xercesc::DOMNodeList *headerList = rootElem->getElementsByTagName(xercesc::XMLString::transcode("FileHeader"));
+			xercesc::DOMNodeList *headerList = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf("FileHeader")); xercesc::XMLString::release(&t1);
 
 			//object for header
 			fileObject->m_Header = dynamic_cast<oscFileHeader *>(oscFactories::instance()->objectFactory->create("oscFileHeader"));
@@ -333,17 +340,17 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 				fileObject->m_Header->parseFromXML(dynamic_cast<xercesc::DOMElement *>(headerList->item(0)), fileObject->srcFile);
 			}
 
-			xercesc::DOMNodeList *catalogList = rootElem->getElementsByTagName(xercesc::XMLString::transcode("Catalog"));
+			xercesc::DOMNodeList *catalogList = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf("Catalog")); xercesc::XMLString::release(&t1);
 			xercesc::DOMNamedNodeMap *attributes = catalogList->item(0)->getAttributes();
-			xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
+			xercesc::DOMNode *attribute = attributes->getNamedItem(t1 = XMLChTranscodeUtf("name")); xercesc::XMLString::release(&t1);
 
 
 			if (attribute)
 			{
-				fileObject->catalogName = xercesc::XMLString::transcode(attribute->getNodeValue());
+				fileObject->catalogName = XMLChTranscodeUtf(attribute->getNodeValue());
 			}
 
-			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(xercesc::XMLString::transcode(m_catalogName.c_str()));
+			xercesc::DOMNodeList *list = rootElem->getElementsByTagName(t1 = XMLChTranscodeUtf(m_catalogName.c_str())); xercesc::XMLString::release(&t1);
 
 			for(int it = 0;it<list->getLength();it++)
 			{
@@ -351,13 +358,12 @@ bool oscCatalog::fullReadCatalogObjectWithName(const std::string &name)
 				if (node)
 				{
 					xercesc::DOMNamedNodeMap *attributes = node->getAttributes();
-					xercesc::DOMNode *attribute = attributes->getNamedItem(xercesc::XMLString::transcode("name"));
+					xercesc::DOMNode *attribute = attributes->getNamedItem(t1 = XMLChTranscodeUtf("name")); xercesc::XMLString::release(&t1);
 
 
 					if (attribute)
 					{
-
-						std::string attributeName = xercesc::XMLString::transcode(attribute->getNodeValue());
+						std::string attributeName = XMLChTranscodeUtf(attribute->getNodeValue());
 						if(attributeName == name)
 						{
 
@@ -442,6 +448,20 @@ bool oscCatalog::addCatalogObject(oscObjectBase *objectBase)
     }
 }
 */
+
+void oscCatalog::renameCatalogObject(oscObjectBase *object, const std::string &name)
+{
+	for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	{
+		ObjectParams params = it->second;
+		if (params.object == object)
+		{
+			m_Objects.erase(it);
+			std::pair<ObjectsMap::const_iterator, bool> returnVal = m_Objects.emplace(name, params);
+			return;
+		}
+	}
+}
 bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *objectBase, oscCatalogFile *catf)
 {
 
@@ -468,6 +488,19 @@ bool oscCatalog::addCatalogObject(const std::string &name, oscObjectBase *object
 	}
 
 	return false;
+}
+
+void oscCatalog::addCatalogObjects()
+{
+
+	for (auto it = m_Objects.begin(); it != m_Objects.end(); it++)
+	{
+		OpenScenario::oscObjectBase *obj = it->second.object;
+		if (!obj)
+		{
+			fullReadCatalogObjectWithName(it->first);
+		}
+	}
 }
 
 void oscCatalogFile::removeObject(oscObjectBase *obj)
@@ -597,6 +630,7 @@ void oscCatalog::writeCatalogsToDOM()
 }
 void oscCatalogFile::writeCatalogToDOM()
 {
+	XMLCh *t1 = NULL, *t2 = NULL;
 	xercesc::DOMElement *catalogElement;
 	xercesc::DOMDocument *objFromCatalogXmlDoc = srcFile->getOrCreateXmlDoc();
 	if (objects.size() > 0)
@@ -606,16 +640,16 @@ void oscCatalogFile::writeCatalogToDOM()
 		{
 			xercesc::DOMElement *rootElement = objFromCatalogXmlDoc->getDocumentElement();
 
-			xercesc::DOMElement *fhElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode("FileHeader"));
+			xercesc::DOMElement *fhElement = objFromCatalogXmlDoc->createElement(t1 = XMLChTranscodeUtf("FileHeader")); xercesc::XMLString::release(&t1);
 			rootElement->appendChild(fhElement);
 			if (m_Header == NULL)
 				m_Header = new oscFileHeader();
 			m_Header->writeToDOM(fhElement, objFromCatalogXmlDoc);
 
-			catalogElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode("Catalog"));
+			catalogElement = objFromCatalogXmlDoc->createElement(t1 = XMLChTranscodeUtf("Catalog")); xercesc::XMLString::release(&t1);
 			rootElement->appendChild(catalogElement);
 
-			catalogElement->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode(catalogName.c_str()));
+			catalogElement->setAttribute(t1 = XMLChTranscodeUtf("name"), t2 = XMLChTranscodeUtf(catalogName.c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
 		}
 	}
 
@@ -663,7 +697,7 @@ void oscCatalogFile::writeCatalogToDOM()
 				catalogTypeName = "Route";
 			}
 
-			xercesc::DOMElement *catalogItemElement = objFromCatalogXmlDoc->createElement(xercesc::XMLString::transcode(catalogTypeName.c_str()));
+			xercesc::DOMElement *catalogItemElement = objFromCatalogXmlDoc->createElement(t1 = XMLChTranscodeUtf(catalogTypeName.c_str())); xercesc::XMLString::release(&t1);
 			catalogElement->appendChild(catalogItemElement);
 			objFromCatalog->writeToDOM(catalogItemElement, objFromCatalogXmlDoc);
 		}
@@ -701,7 +735,7 @@ oscCatalog::SuccessIntVar oscCatalog::getIntFromIntAttribute(xercesc::DOMAttr *a
     SuccessIntVar successIntVar = std::make_pair(false, -1);
     oscMemberValue::MemberTypes memberTypeInt = oscMemberValue::INT;
     oscMemberValue *memberValInt = oscFactories::instance()->valueFactory->create(memberTypeInt);
-    bool initializeSuccess = memberValInt->initialize(attribute);
+    bool initializeSuccess = memberValInt->initialize(attribute, this->base);
     if (initializeSuccess)
     {
         oscIntValue *objIntVal = dynamic_cast<oscIntValue *>(memberValInt);

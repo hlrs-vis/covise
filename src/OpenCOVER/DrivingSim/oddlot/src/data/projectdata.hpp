@@ -20,7 +20,7 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
-
+#include <proj_api.h>
 #include "dataelement.hpp"
 
 class ProjectWidget;
@@ -29,6 +29,8 @@ class QUndoStack;
 class ChangeManager;
 
 class DataElement;
+
+class GeoReference;
 
 class OSCBase;
 
@@ -54,7 +56,8 @@ public:
         CPD_DateChange = 0x80,
         CPD_SizeChange = 0x100,
         CPD_SelectedElementsChanged = 0x200,
-        CPD_HiddenElementsChanged = 0x400
+        CPD_HiddenElementsChanged = 0x400,
+        CPD_ProjectionSettingsChanged = 0x500
     };
 
     //################//
@@ -106,6 +109,21 @@ public:
         return west_;
     }
 
+	GeoReference *getGeoReference()
+	{
+		return geoReferenceParams_;
+	}
+
+    projPJ getProj4ReferenceTo()
+    {
+        return proj4ReferenceTo_;
+    }
+
+    projPJ getProj4ReferenceFrom()
+    {
+        return proj4ReferenceFrom_;
+    }
+
     void setRevMajor(int revMajor);
     void setRevMinor(int revMinor);
 
@@ -118,6 +136,10 @@ public:
     void setEast(double east);
     void setWest(double west);
 
+	void setGeoReference(GeoReference *geoParams);
+    void setProj4ReferenceTo(projPJ proj);
+    void setProj4ReferenceFrom(projPJ proj);
+
     // RoadSystem //
     //
     RoadSystem *getRoadSystem() const
@@ -128,7 +150,6 @@ public:
 
     // Tile //
     //
-
     TileSystem *getTileSystem() const
     {
         return tileSystem_;
@@ -314,6 +335,18 @@ private:
     // Hidden Elements //
     //
     QList<DataElement *> hiddenElements_; // linked
+
+	// Georeference String //
+	//
+	GeoReference *geoReferenceParams_;
+
+    // Proj4 Object ProjFromString
+    //
+    projPJ proj4ReferenceTo_;
+
+    // Proj4 Object ProjToString
+    //
+    projPJ proj4ReferenceFrom_;
 };
 
 #endif // PROJECTDATA_HPP

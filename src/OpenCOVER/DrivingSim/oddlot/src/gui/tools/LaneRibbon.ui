@@ -36,6 +36,35 @@
     <number>0</number>
    </property>
    <item>
+    <widget class="QGroupBox" name="selectionBox">
+     <property name="title">
+      <string>Selection Tools</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="select">
+        <property name="text">
+         <string>Select/Move</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_type_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="laneBox">
      <property name="title">
       <string>LaneSection Tools</string>
@@ -68,26 +97,13 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="laneSelect">
-        <property name="text">
-         <string>Select</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="2">
        <widget class="QDoubleSpinBox" name="widthEdit"/>
       </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="laneAddWidth">
         <property name="text">
-         <string>Add Width</string>
+         <string>Add Control Point</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

@@ -55,7 +55,6 @@ int ReadCardiff::compute(const char *)
     int i, j, k;
 	float *scalar;
 	float *vx,*vy,*vz;
-    float x, y, z, s;
     coDoUniformGrid *str_grid = NULL;
     coDoFloat *ustr_s3d_out = NULL;
 	coDoVec3 *ustr_v3d_out=NULL;

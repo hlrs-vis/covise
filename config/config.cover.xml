@@ -48,7 +48,6 @@
 
    <DebugLevel value="0" />
    <Crease value="ON" />
-   <GenStrips value="OFF" />
    <Specular value="ON" />
    <FPS value="OFF" />
   </COVER>

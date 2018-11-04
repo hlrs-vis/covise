@@ -97,6 +97,47 @@ static void prependpath(const char *variable, std::string value)
     setvar(variable, path);
 }
 
+static void addpath(const char *variable, std::string value)
+{
+#ifdef _WIN32
+    const char *sep = ";";
+#else
+    const char *sep = ":";
+#endif
+
+    bool found = false;
+    if (const char *current = getenv(variable))
+    {
+        std::vector<std::string> components;
+        splitpath(current, &components);
+
+        for (int i = 0; i < components.size(); ++i)
+        {
+            std::string s1 = components[i];
+            std::string s2 = value;
+            std::replace(s1.begin(), s1.end(), '\\', '/'); // replace all '\\' with '/'
+            std::replace(s2.begin(), s2.end(), '\\', '/'); // replace all '\\' with '/'
+            if (s1 == s2)
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (!found)
+    {
+        std::string path = value;
+        if (const char *current = getenv(variable))
+        {
+            path += sep;
+            path += current;
+        }
+        setvar(variable, path);
+    }
+}
+
+
 #ifdef __APPLE__
 std::string getBundlePath()
 {
@@ -277,8 +318,26 @@ bool setupEnvironment(int argc, char *argv[])
     }
 
     setvar("COVISEDIR", covisedir);
-    setvar("VV_SHADER_PATH", covisedir + "/src/3rdparty/deskvox/virvo/shader");
-    prependpath("COVISE_PATH", covisedir);
+
+#ifndef WITHOUT_VIRVO
+    const char *vv_shader_path = getenv("VV_SHADER_PATH");
+    std::string vv1 = covisedir + "/share/covise/shaders";
+    std::string vv2 = covisedir + "/src/3rdparty/deskvox/virvo/shader";
+    if (coFile::exists((vv1 + "/vv_texrend.fsh").c_str())) {
+        setvar("VV_SHADER_PATH", vv1);
+    } else if (coFile::exists((vv2 + "/vv_texrend.fsh").c_str())) {
+        setvar("VV_SHADER_PATH", vv2);
+    } else if (!vv_shader_path) {
+        std::cerr << "VV_SHADER_PATH not set and Virvo shaders not found in " << vv1 << " and " << vv2 << ", using " << vv1 << std::endl;
+        setvar("VV_SHADER_PATH", vv1);
+    }
+    if (vv_shader_path && strcmp(vv_shader_path, getenv("VV_SHADER_PATH")))
+        std::cerr << "setupEnvironment: overriding VV_SHADER_PATH from " << vv_shader_path << " to " << getenv("VV_SHADER_PATH") << std::endl;
+
+    setvar("VV_PLUGIN_PATH", covisedir + "/" + ARCHSUFFIX + "/lib");
+#endif
+
+    addpath("COVISE_PATH", covisedir);
 #ifdef _WIN32
     prependpath("PATH", covisedir + "\\" + ARCHSUFFIX + "\\bin");
 #endif

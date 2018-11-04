@@ -29,23 +29,27 @@ using namespace covise;
 namespace opencover
 {
 
+VRRegisterSceneGraph *VRRegisterSceneGraph::s_instance = NULL;
+
 VRRegisterSceneGraph *VRRegisterSceneGraph::instance()
 {
-    static VRRegisterSceneGraph *singleton = NULL;
-    if (!singleton)
-        singleton = new VRRegisterSceneGraph;
-    return singleton;
+    if (!s_instance)
+        s_instance = new VRRegisterSceneGraph;
+    return s_instance;
 }
 
 VRRegisterSceneGraph::VRRegisterSceneGraph()
 {
+    assert(!s_instance);
     registerId = 0;
     sceneGraphAppendixIdString = "SCGR";
     blocked = false;
+	active = false;
 }
 
 VRRegisterSceneGraph::~VRRegisterSceneGraph()
 {
+    s_instance = NULL;
 }
 
 void VRRegisterSceneGraph::setRegisterStartIndex(int startIndex)
@@ -57,6 +61,8 @@ void VRRegisterSceneGraph::setRegisterStartIndex(int startIndex)
 
 void VRRegisterSceneGraph::registerNode(osg::Node *node, string parent)
 {
+	if (!active)
+		return;
     if (blocked)
         return;
     //fprintf(stderr, "VRRegisterSceneGraph::registerNode %s\n", node->getName().c_str());
@@ -70,6 +76,8 @@ void VRRegisterSceneGraph::registerNode(osg::Node *node, string parent)
 
 void VRRegisterSceneGraph::unregisterNode(osg::Node *node, string parent)
 {
+	if (!active)
+		return;
     if (blocked)
         return;
     whole_message = "SCENEGRAPH: \t";

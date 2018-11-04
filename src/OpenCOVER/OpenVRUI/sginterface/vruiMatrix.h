@@ -23,9 +23,7 @@ public:
     vruiMatrix()
     {
     }
-    virtual ~vruiMatrix()
-    {
-    }
+    virtual ~vruiMatrix();
 
     virtual vruiMatrix *makeIdentity() = 0;
     virtual vruiMatrix *makeEuler(double h, double p, double r) = 0;
@@ -60,6 +58,8 @@ public:
     }
 
     virtual coVector getHPR() const = 0;
+
+    bool isIdentity() const;
 };
 
 class OPENVRUIEXPORT vruiCoord

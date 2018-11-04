@@ -5,5 +5,5 @@ SET(SOURCES
 )
 ADD_COVISE_MODULE(Mapper AtomColors ${EXTRASOURCES})
 qt_use_modules(AtomColors Xml)
-TARGET_LINK_LIBRARIES(AtomColors coApi coAppl coCore)
+TARGET_LINK_LIBRARIES(AtomColors coApi coAppl coCore coAlg)
 COVISE_INSTALL_TARGET(AtomColors)

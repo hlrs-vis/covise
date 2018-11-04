@@ -22,7 +22,7 @@ VPBRoad::VPBRoad(std::string xodrName)
     {
         xercesc::XMLPlatformUtils::Initialize();
     }
-    catch (const xercesc::XMLException &toCatch)
+    catch (const xercesc::XMLException &/*toCatch*/)
     {
         // Do your failure processing here
     }
@@ -78,12 +78,13 @@ bool VPBRoad::loadRoadSystem(std::string filename)
 }
 void VPBRoad::parseOpenDrive(xercesc::DOMElement *rootElement)
 {
+	XMLCh *t1 = NULL, *t2 = NULL;
     xercesc::DOMNodeList *documentChildrenList = rootElement->getChildNodes();
 
     for (int childIndex = 0; childIndex < documentChildrenList->getLength(); ++childIndex)
     {
         xercesc::DOMElement *sceneryElement = dynamic_cast<xercesc::DOMElement *>(documentChildrenList->item(childIndex));
-        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("scenery")) == 0)
+        if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t1 = xercesc::XMLString::transcode("scenery")) == 0)
         {
             /*
 
@@ -140,7 +141,7 @@ RoadTerrainPlugin::plugin->loadTerrain(xodrDirectory+"/"+vpbString,offset, voidB
 }
 }*/
         }
-        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), xercesc::XMLString::transcode("environment")) == 0)
+        else if (sceneryElement && xercesc::XMLString::compareIString(sceneryElement->getTagName(), t2 = xercesc::XMLString::transcode("environment")) == 0)
         {
             /*std::string tessellateRoadsString = xercesc::XMLString::transcode(sceneryElement->getAttribute(xercesc::XMLString::transcode("tessellateRoads")));
 if(tessellateRoadsString=="false" || tessellateRoadsString=="0") {
@@ -174,6 +175,7 @@ else {
 tessellateObjects = false;
 }*/
         }
+		xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
     }
 }
 xercesc::DOMElement *VPBRoad::getOpenDriveRootElement(std::string filename)

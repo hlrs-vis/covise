@@ -19,6 +19,13 @@
  **********************************************************************/
 
 #include "TUIParam.h"
+#include "BufferedStream.h"
+
+#if MAX_PRODUCT_VERSION_MAJOR > 19
+#define MAXSTREAMDECL BufferedStream
+#else
+#define MAXSTREAMDECL MaxSDK::Util::TextFile::Writer
+#endif
 
 #ifndef __TabletUI__H__
 

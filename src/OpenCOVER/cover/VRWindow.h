@@ -35,6 +35,8 @@ class COVEREXPORT VRWindow
 {
 
 private:
+    static VRWindow *s_instance;
+
     int *origVSize, *origHSize;
 
     bool createWin(int i);
@@ -48,9 +50,11 @@ public:
     ~VRWindow();
 
     bool config();
+    void destroy();
 
     void lockPipes();
     void update();
+    void updateContents();
 
     void setOrigVSize(int win, int size)
     {

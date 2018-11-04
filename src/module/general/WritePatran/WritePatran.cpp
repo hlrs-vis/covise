@@ -298,7 +298,7 @@ void Application::writeObject(const coDistributedObject *new_data,
             sprintf(buffer, "% 16.9E% 16.9E% 16.9E\n", v[0][i], v[1][i], v[2][i]);
 #ifdef WIN32
             // Repair E+000 to E+00 on Win32
-            int length = strlen(buffer);
+            size_t length = strlen(buffer);
             if (length > 50)
             {
                 for (int ctr = 14; ctr < 30; ++ctr)

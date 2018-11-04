@@ -12,3 +12,4 @@ set(SOURCES
 )
 
 covise_add_module(Develop TestSet ${HEADERS} ${SOURCES})
+#covise_install_target(TestSet)

@@ -62,6 +62,7 @@ protected:
     Viewer::Object sgObject;
 
     bool d_hasLoaded;
+    bool d_wasCached = false;
 };
 }
 #endif // _VRMLNODEINLINE_

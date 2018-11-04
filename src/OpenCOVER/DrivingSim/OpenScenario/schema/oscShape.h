@@ -26,13 +26,11 @@ class OPENSCENARIOEXPORT oscShape : public oscObjectBase
 public:
 oscShape()
 {
-        OSC_ADD_MEMBER(reference, 0);
         OSC_OBJECT_ADD_MEMBER(Polyline, "oscPolyline", 1);
         OSC_OBJECT_ADD_MEMBER(Clothoid, "oscClothoid", 1);
         OSC_OBJECT_ADD_MEMBER(Spline, "oscSpline", 1);
     };
         const char *getScope(){return "/OSCTrajectory/Vertex";};
-    oscDouble reference;
     oscPolylineMember Polyline;
     oscClothoidMember Clothoid;
     oscSplineMember Spline;

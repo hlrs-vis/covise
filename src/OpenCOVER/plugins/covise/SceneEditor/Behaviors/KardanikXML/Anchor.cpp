@@ -16,7 +16,6 @@
 #include "Body.h"
 
 using namespace std;
-using namespace std::tr1;
 
 namespace KardanikXML
 {
@@ -25,12 +24,12 @@ Anchor::Anchor()
 {
 }
 
-std::tr1::shared_ptr<Point> Anchor::GetAnchorPoint() const
+std::shared_ptr<Point> Anchor::GetAnchorPoint() const
 {
     return m_AnchorPoint;
 }
 
-void Anchor::SetAnchorPoint(std::tr1::shared_ptr<Point> point)
+void Anchor::SetAnchorPoint(std::shared_ptr<Point> point)
 {
     m_AnchorPoint = point;
 }
@@ -45,12 +44,12 @@ void Anchor::SetAnchorNodeName(string nodeName)
     m_AnchorNodeName = nodeName;
 }
 
-std::tr1::weak_ptr<Body> Anchor::GetParentBody() const
+std::weak_ptr<Body> Anchor::GetParentBody() const
 {
     return m_ParentBody;
 }
 
-void Anchor::SetParentBody(std::tr1::weak_ptr<Body> parent)
+void Anchor::SetParentBody(std::weak_ptr<Body> parent)
 {
     m_ParentBody = parent;
 }

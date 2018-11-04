@@ -107,7 +107,7 @@ Renderer::Renderer(int argc, char *argv[])
         CoviseRender::add_port(PARIN, "axis_of_rotation", "FloatVector", "rotation of the VRML model");
         CoviseRender::add_port(PARIN, "angle_of_rotation", "FloatScalar", "rotation of the VRML model");
         static char defVal[256];
-        sprintf(defVal, "./%s_%s.wrl *.wrl", argv[0], argv[4]);
+        snprintf(defVal, sizeof(defVal), "./%s_%s.wrl *.wrl", argv[0], argv[4]);
         CoviseRender::set_port_default("Filename", defVal);
         CoviseRender::set_port_default("translate", "0 0 0");
         CoviseRender::set_port_default("scale", "1 1 1");
@@ -116,7 +116,7 @@ Renderer::Renderer(int argc, char *argv[])
 
         // don't overwrite defVal -- appl_lib doesn't copy
         char defaultValue[256];
-        sprintf(defaultValue, "./%s_%s.wrl", argv[0], argv[4]);
+        snprintf(defaultValue, sizeof(defaultValue), "./%s_%s.wrl", argv[0], argv[4]);
         CoviseRender::getname(wrlFilename, defaultValue); // try covise relative pathes
         if (!wrlFilename[0]) // if not: use given path
             strcpy(wrlFilename, defaultValue);
@@ -176,7 +176,7 @@ void Renderer::quit(void *callbackData)
         p_msg = new Message;
         p_msg->type = COVISE_MESSAGE_SOCKET_CLOSED;
         p_msg->data = (char *)" ";
-        p_msg->length = strlen(p_msg->data) + 1;
+        p_msg->length = (int)strlen(p_msg->data) + 1;
 
         m_wconn->send_msg(p_msg);
         delete p_msg;
@@ -250,11 +250,8 @@ void Renderer::param(const char *paraName)
 void Renderer::addObject(void *callbackData)
 {
     (void)callbackData;
-    char print_buf[1000];
 
-    sprintf(print_buf, "Adding object %s to %s", CoviseRender::get_object_name(),
-            wrlFilename);
-    CoviseRender::sendInfo("%s", print_buf);
+    CoviseRender::sendInfo("Adding object %s to %s", CoviseRender::get_object_name(), wrlFilename);
 
     om->addObject(CoviseRender::get_object_name());
     m_obj_needed = 1;
@@ -271,12 +268,10 @@ void Renderer::addObject(void *callbackData)
 void Renderer::deleteObject(void *callbackData)
 {
     (void)callbackData;
-    char print_buf[1000];
     char *obj_name;
+    char print_buf[1000];
 
-    sprintf(print_buf, "Removing object %s from %s", CoviseRender::get_object_name(),
-            wrlFilename);
-    CoviseRender::sendInfo("%s", print_buf);
+    CoviseRender::sendInfo("Removing object %s from %s", CoviseRender::get_object_name(), wrlFilename);
     m_obj_needed = 1;
 
     obj_name = CoviseRender::get_object_name();
@@ -284,7 +279,7 @@ void Renderer::deleteObject(void *callbackData)
 
     if (m_camera_update && objlist != NULL)
     {
-        sprintf(print_buf, " 9 %s", obj_name);
+        snprintf(print_buf, sizeof(print_buf), " 9 %s", obj_name);
         objlist->send_obj(m_wconn, print_buf);
         objlist->sendTimestep(m_wconn);
         m_obj_needed = 0;
@@ -511,7 +506,7 @@ int Renderer::check_aws(void)
     p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_INIT;
     p_msg->data = (char *)m_host->getName();
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
 
     m_wconn->send_msg(p_msg);
     delete p_msg;
@@ -523,10 +518,10 @@ int Renderer::start_aws(void)
 {
 
 #ifndef WIN32
-    char port_str[10];
+    char port_str[50];
     if (fork() == 0)
     {
-        sprintf(port_str, "%d", m_open_port);
+        snprintf(port_str, sizeof(port_str), "%d", m_open_port);
         execlp("web_srv", "web_srv", port_str, NULL);
     }
 #endif
@@ -540,14 +535,14 @@ int Renderer::register_vrml(void)
     char txt[250];
 
     // modulname_port(hostname).cgi-rnd#cport_wport
-    sprintf(txt, "%s_%d(%s).cgi-rnd#%d_%d", m_app->getName(), m_open_port, m_host->getName(), m_aws_cport, m_aws_wport);
+    snprintf(txt, sizeof(txt), "%s_%d(%s).cgi-rnd#%d_%d", m_app->getName(), m_open_port, m_host->getName(), m_aws_cport, m_aws_wport);
 
     //cerr << "\n Registering the renderer : " << txt << endl;
 
     p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_START;
     p_msg->data = &txt[0];
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
 
     m_wconn->send_msg(p_msg);
 
@@ -568,7 +563,7 @@ int Renderer::sendObjectOK(void)
     Message *p_msg = new Message;
     p_msg->type = COVISE_MESSAGE_OBJECT_OK;
     p_msg->data = (char *)" ";
-    p_msg->length = strlen(p_msg->data) + 1;
+    p_msg->length = (int)strlen(p_msg->data) + 1;
     //cerr << endl << "&&&& Sending OBJECT_OK " << endl;
     m_wconn->send_msg(p_msg);
 
@@ -589,7 +584,7 @@ int Renderer::sendViewPoint(void)
             Message *p_msg = new Message;
             p_msg->type = COVISE_MESSAGE_PARINFO;
             p_msg->data = camera;
-            p_msg->length = strlen(p_msg->data) + 1;
+            p_msg->length = (int)strlen(p_msg->data) + 1;
             //cerr << endl << "&&&& Sending CAMERA: " << camera << endl;
             m_wconn->send_msg(p_msg); // send ViewPoint
 

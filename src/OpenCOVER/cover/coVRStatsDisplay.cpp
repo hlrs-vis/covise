@@ -45,6 +45,7 @@ coVRStatsDisplay::coVRStatsDisplay()
     , _initialized(false)
     , _threadingModel(osgViewer::ViewerBase::SingleThreaded)
     , _frameRateChildNum(0)
+    , _gpuMemChildNum(0)
     , _viewerChildNum(0)
     , _cameraSceneChildNum(0)
     , _viewerSceneChildNum(0)
@@ -59,13 +60,9 @@ coVRStatsDisplay::coVRStatsDisplay()
     _camera->setProjectionResizePolicy(osg::Camera::FIXED);
 }
 
-void coVRStatsDisplay::showStats(int whichStats, osgViewer::View *myview)
+void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 {
 
-    if (!myview)
-        return;
-
-    osgViewer::ViewerBase *viewer = myview->getViewerBase();
     if (viewer && _threadingModelText.valid() && viewer->getThreadingModel() != _threadingModel)
     {
         _threadingModel = viewer->getThreadingModel();
@@ -179,6 +176,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::View *myview)
 
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_frameRateChildNum, true);
+        _switch->setValue(_gpuMemChildNum, true);
     }
     default:
         break;
@@ -1029,9 +1027,9 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         frameRateLabel->setFont(font);
         frameRateLabel->setCharacterSize(characterSize);
         frameRateLabel->setPosition(pos);
-        frameRateLabel->setText("Frame Rate: ", osgText::String::ENCODING_UTF8);
-
+        frameRateLabel->setText("Frame Rate:X", osgText::String::ENCODING_UTF8);
         pos.x() = frameRateLabel->getBound().xMax();
+        frameRateLabel->setText("Frame Rate: ", osgText::String::ENCODING_UTF8);
 
         osg::ref_ptr<osgText::Text> frameRateValue = new osgText::Text;
         geode->addDrawable(frameRateValue.get());
@@ -1040,9 +1038,40 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         frameRateValue->setFont(font);
         frameRateValue->setCharacterSize(characterSize);
         frameRateValue->setPosition(pos);
-        frameRateValue->setText("0.0", osgText::String::ENCODING_UTF8);
+        frameRateValue->setText("7777.77", osgText::String::ENCODING_UTF8);
 
         frameRateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Frame rate", -1, true, 1.0));
+
+        pos.x() = frameRateValue->getBound().xMax();
+    }
+
+    // available GPU memory
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuMemChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> gpuMemLabel = new osgText::Text;
+        geode->addDrawable(gpuMemLabel.get());
+
+        gpuMemLabel->setColor(colorFR);
+        gpuMemLabel->setFont(font);
+        gpuMemLabel->setCharacterSize(characterSize);
+        gpuMemLabel->setPosition(pos);
+        gpuMemLabel->setText("GPU free GB:X", osgText::String::ENCODING_UTF8);
+        pos.x() = gpuMemLabel->getBound().xMax();
+        gpuMemLabel->setText("GPU free GB: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> gpuMemValue = new osgText::Text;
+        geode->addDrawable(gpuMemValue.get());
+
+        gpuMemValue->setColor(colorFR);
+        gpuMemValue->setFont(font);
+        gpuMemValue->setCharacterSize(characterSize);
+        gpuMemValue->setPosition(pos);
+        gpuMemValue->setText("7777.77", osgText::String::ENCODING_UTF8);
+
+        gpuMemValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024));
 
         pos.y() -= characterSize * 1.5f;
     }

@@ -62,10 +62,28 @@ public:
         ButtonPrevInter,
         ButtonNextPerson,
         ButtonPrevPerson,
-        Wheel, // = vruiButtons::WHEEL,
+        LastButton = ButtonPrevPerson,
+        WheelHorizontal,
+        WheelVertical,
+        Wheel = WheelVertical,
         Joystick,
         AllButtons, // = vruiButtons::ALL_BUTTONS | vruiButtons::WHEEL,
+        NoButton, // non-zero relative input
         NumInteractorTypes
+    };
+
+    enum InteractionGroup
+    {
+        GroupNonexclusive,
+        GroupNavigation,
+    };
+
+    enum RunningState
+    {
+        StateStarted = 0,
+        StateRunning,
+        StateStopped,
+        StateNotRunning
     };
 
     coInteraction(InteractionType type, const std::string &name, InteractionPriority priority = Medium);
@@ -83,6 +101,12 @@ public:
     {
         return priority;
     }
+    InteractionGroup getGroup() const
+    {
+        return group;
+    }
+    void setGroup(InteractionGroup group);
+
     int getRemoteLockID() const
     {
         return remoteLockID;
@@ -126,12 +150,31 @@ public:
         return notifyOnly;
     }
 
+    bool wasStarted() const
+    {
+        return (runningState == StateStarted);
+    }
+    bool isRunning() const
+    {
+        return (runningState == StateRunning);
+    }
+    bool wasStopped() const
+    {
+        return (runningState == StateStopped);
+    }
+    bool isIdle() const
+    {
+        return (runningState == StateNotRunning);
+    }
+
 protected:
     std::string name;
 
     InteractionState state;
     InteractionType type;
     InteractionPriority priority;
+    InteractionGroup group = GroupNonexclusive;
+    RunningState runningState;
 
     bool notifyOnly;
     bool hasPriorityFlag;

@@ -48,11 +48,7 @@ ReadEAS::~ReadEAS()
 int ReadEAS::readHeader(const char *filename)
 {
     // open the file
-    char buf[1000];
     int nu = 0, nv = 0, nw = 0;
-    int i, j, k;
-    float *xCoord, *yCoord, *zCoord, *scalar;
-    float x, y, z, s;
     coDoStructuredGrid *str_grid = NULL;
     coDoFloat *ustr_s3d_out = NULL;
     if (headerState != 1)
@@ -358,7 +354,7 @@ int ReadEAS::compute(const char *)
         nb = 16;
     }
 
-    off_t dataSize = ks.header.ndim1 * ks.header.ndim2 * ks.header.ndim3 * nb;
+    size_t dataSize = ks.header.ndim1 * ks.header.ndim2 * ks.header.ndim3 * nb;
 
     std::string gridNameBase = READER_CONTROL->getAssocObjName(MESHPORT);
     // we have a vaild header, thus read the grid and data
@@ -534,8 +530,8 @@ ReadEAS::param(const char *paramName, bool inMapLoading)
 
 coDistributedObject *ReadEAS::makeDataObject(const char *objName, int paramNumber)
 {
-    int nElem = ks.header.ndim1 * ks.header.ndim2 * ks.header.ndim3;
-    coDoFloat *dobj = new coDoFloat(objName, nElem);
+    size_t nElem = ks.header.ndim1 * ks.header.ndim2 * ks.header.ndim3;
+    coDoFloat *dobj = new coDoFloat(objName, (int)nElem);
     float *scalar;
     dobj->getAddress(&scalar);
     if (ks.header.datasize == IEEES)
@@ -546,7 +542,7 @@ coDistributedObject *ReadEAS::makeDataObject(const char *objName, int paramNumbe
             return NULL;
         }
         int p = 0;
-        int n12 = ks.header.ndim1 * ks.header.ndim2;
+        size_t n12 = ks.header.ndim1 * ks.header.ndim2;
         for (int i = 0; i < ks.header.ndim1; i++)
             for (int j = 0; j < ks.header.ndim2; j++)
                 for (int k = 0; k < ks.header.ndim3; k++)
@@ -565,14 +561,14 @@ coDistributedObject *ReadEAS::makeDataObject(const char *objName, int paramNumbe
             return NULL;
         }
         int p = 0;
-        int n12 = ks.header.ndim1 * ks.header.ndim2;
+        size_t n12 = ks.header.ndim1 * ks.header.ndim2;
         for (int i = 0; i < ks.header.ndim1; i++)
             for (int j = 0; j < ks.header.ndim2; j++)
                 for (int k = 0; k < ks.header.ndim3; k++)
                 {
                     double d = tmpData[k * n12 + j * ks.header.ndim1 + i];
                     byteSwap(d);
-                    scalar[p] = d;
+                    scalar[p] = float(d);
                     p++;
                 }
     }
@@ -584,14 +580,14 @@ coDistributedObject *ReadEAS::makeDataObject(const char *objName, int paramNumbe
             return NULL;
         }
         int p = 0;
-        int n12 = ks.header.ndim1 * ks.header.ndim2;
+        size_t n12 = ks.header.ndim1 * ks.header.ndim2;
         for (int i = 0; i < ks.header.ndim1; i++)
             for (int j = 0; j < ks.header.ndim2; j++)
                 for (int k = 0; k < ks.header.ndim3; k++)
                 {
                     long double ld = tmpData[k * n12 + j * ks.header.ndim1 + i];
                     //byteSwap(ld);
-                    scalar[p] = ld;
+                    scalar[p] = float(ld);
                     p++;
                 }
     }
@@ -607,12 +603,12 @@ coDistributedObject *ReadEAS::makegrid(const char *objName)
         strGrd->getAddresses(&xCoord, &yCoord, &zCoord);
 
         int p = 0;
-        int n12 = ks.header.ndim1 * ks.header.ndim2;
+        size_t n12 = ks.header.ndim1 * ks.header.ndim2;
         for (int i = 0; i < ks.header.ndim1; i++)
             for (int j = 0; j < ks.header.ndim2; j++)
                 for (int k = 0; k < ks.header.ndim3; k++)
                 {
-                    int index = k * n12 + j * ks.header.ndim1 + i;
+                    size_t index = k * n12 + j * ks.header.ndim1 + i;
                     xCoord[p] = (float)ks.dim2Data[index];
                     yCoord[p] = (float)ks.dim1Data[index];
                     zCoord[p] = (float)ks.dim3Data[index];

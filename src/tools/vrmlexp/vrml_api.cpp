@@ -200,7 +200,11 @@ CallbackTable::GetCallbackMethods(Interface *ip)
     }
 
     // get dllKeys
+#if MAX_PRODUCT_VERSION_MAJOR > 20
+    MaxSDK::Util::GetPrivateProfileString(lpSection, lpKey, lpDefault, (LPTSTR)lpBuf, nSize, (LPCTSTR)lpINIFileName);
+#else
     GetPrivateProfileString(lpSection, lpKey, lpDefault, (LPTSTR)lpBuf, nSize, (LPCTSTR)lpINIFileName);
+#endif
     TCHAR *tmpPtr = lpBuf;
     while (tmpPtr[0] != '\0')
     {
@@ -221,7 +225,11 @@ CallbackTable::GetCallbackMethods(Interface *ip)
     // get dlls
     for (i = 0; i < GetKeyCount(); i++)
     {
+#if MAX_PRODUCT_VERSION_MAJOR > 20
+        MaxSDK::Util::GetPrivateProfileString(lpSection, GetKey(i), lpDefault, (LPTSTR)lpBuf, nSize, lpINIFileName);
+#else
         GetPrivateProfileString(lpSection, GetKey(i), lpDefault, (LPTSTR)lpBuf, nSize, lpINIFileName);
+#endif
         TCHAR *dllPtr = (TCHAR *)malloc(_tcslen(lpBuf) * sizeof(TCHAR));
         _tcscpy(dllPtr, lpBuf);
         AddDll(dllPtr);

@@ -49,6 +49,6 @@ bool ResultsFileParserBinaryFmb::readTimeSteps(
             _results.push_back(newResults);
         }
     }
-    _noOfTimeSteps = _results.size();
+    _noOfTimeSteps = (int)_results.size();
     return true;
 }

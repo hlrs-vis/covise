@@ -7,17 +7,13 @@
 
 
 #include "EdgeCollapseSimple.h"
+
 #include "PQ.h"
 #include "Point.h"
 #include "Vertex.h"
 #include "Edge.h"
 #include "Triangle.h"
-#ifdef WIN32
 #include <iterator>
-#endif
-#include "util/coviseCompat.h"
-
-//#include <algorithm>
 
 using namespace std;
 

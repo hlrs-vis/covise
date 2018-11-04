@@ -47,11 +47,15 @@ class SignalManager;
 class SignalTreeWidget;
 class WizardManager;
 class OsmImport;
+class COVERConnection;
 
 #include "src/gui/projectionsettings.hpp"
 #include "src/gui/importsettings.hpp"
+#include "src/gui/exportsettings.hpp"
 #include "src/gui/lodsettings.hpp"
 #include "src/gui/oscsettings.hpp"
+#include "src/cover/coverconnection.hpp"
+#include "src/gui/filesettings.hpp"
 
 namespace Ui
 {
@@ -147,6 +151,16 @@ public:
 		return signalTree_;
 	}
 
+    ProjectionSettings *getProjectionSettings()
+    {
+        return projectionSettings;
+    }
+
+    FileSettings *getFileSettings()
+    {
+        return fileSettings;
+    }
+
 	// ErrorMessageTree //
 	//
 	void setErrorMessageTree(QWidget *widget);
@@ -168,6 +182,10 @@ public:
 	QDockWidget  *createCatalog(const QString &, QWidget *widget);
 
 
+
+    void updateCOVERConnectionIcon(const QIcon &icon);
+
+
 private:
     // Init functions //
     //
@@ -176,6 +194,13 @@ private:
     void createStatusBar();
 
     void createActions();
+
+
+
+    void createFileSettings();
+
+    void createCOVERConnectionButton();
+
 
     void createMdiArea();
     void createPrototypes();
@@ -188,9 +213,15 @@ private:
 	void createErrorMessageTab();
 
     ProjectionSettings *projectionSettings;
-	OSCSettings *oscSettings;
-    ImportSettings *importSettings;
+
+    COVERConnection *coverConnection;
+
+    OSCSettings *oscSettings;
+	ImportSettings *importSettings;
+	ExportSettings *exportSettings;
     LODSettings *lodSettings;
+
+    FileSettings *fileSettings;
 
     // Program Settings //
     //
@@ -250,7 +281,8 @@ private slots:
     void exportSpline();
     void changeSettings();
 	void changeOSCSettings();
-    void changeImportSettings();
+	void changeImportSettings();
+	void changeExportSettings();
     void importIntermapRoad();
     void importCarMakerRoad();
     void importCSVRoad();
@@ -261,6 +293,12 @@ private slots:
     void openRecentFile();
     void changeLODSettings();
 
+    void changeFileSettings();
+
+    void changeCOVERConnection();
+
+
+    void openCOVERSettings();
     //################//
     // PROPERTIES     //
     //################//
@@ -326,6 +364,12 @@ private:
     // Covise Directory Path //
     //
     QString covisedir_;
+
+    // COVERConnection Button //
+    //
+    QPushButton *coverButton;
+
+    QToolBar *coverConnectionToolBar;
 };
 
 #endif // MAINWINDOW_HPP

@@ -54,12 +54,13 @@
 using namespace vrui;
 using namespace opencover;
 
+coVRCollaboration *coVRCollaboration::s_instance = NULL;
+
 coVRCollaboration *coVRCollaboration::instance()
 {
-    static coVRCollaboration *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRCollaboration;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRCollaboration;
+    return s_instance;
 }
 
 coVRCollaboration::coVRCollaboration()
@@ -72,6 +73,8 @@ coVRCollaboration::coVRCollaboration()
     , Tight(NULL)
     , MasterSlave(NULL)
 {
+    assert(!s_instance);
+
     init();
 }
 
@@ -90,6 +93,8 @@ coVRCollaboration::~coVRCollaboration()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete coVRCollaboration\n");
+
+    s_instance = NULL;
 }
 
 int coVRCollaboration::readConfigFile()
@@ -421,54 +426,6 @@ void coVRCollaboration::showCollaborative(bool visible)
         collButton->closeSubmenu();
         delete collButton;
         collButton = NULL;
-    }
-}
-
-void
-coVRCollaboration::tightCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("TIGHT");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
-    }
-}
-
-void
-coVRCollaboration::looseCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("LOOSE");
-        VRAvatarList::instance()->show();
-        cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
-    }
-}
-
-void
-coVRCollaboration::msCouplingCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->setSyncMode("MS");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "MS", 3);
-    }
-}
-
-void
-coVRCollaboration::showAvatarCallback(void *sceneGraph, buttonSpecCell *spec)
-{
-    if (spec->state)
-    {
-        ((coVRCollaboration *)sceneGraph)->showAvatar = true;
-        VRAvatarList::instance()->show();
-    }
-    else
-    {
-        ((coVRCollaboration *)sceneGraph)->showAvatar = false;
-        VRAvatarList::instance()->hide();
     }
 }
 

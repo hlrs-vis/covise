@@ -31,6 +31,9 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRFileManager.h>
+#include <cover/ui/Slider.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/Action.h>
 
 #ifndef _WIN32
 #include <sys/dir.h>
@@ -102,7 +105,8 @@ VRMoleculeViewer::unloadFile(const char *, const char *)
 //=======================================================================
 
 VRMoleculeViewer::VRMoleculeViewer()
-    : DCSList(NULL)
+    : ui::Owner("MoleculePlugin", cover->ui)
+    , DCSList(NULL)
     , radius(NULL)
     , maxNumberOfMolecules(0)
     , numberOfTimesteps(0)
@@ -198,7 +202,8 @@ void VRMoleculeViewer::setTimestep(int t)
 
 void VRMoleculeViewer::addMenuEntry()
 {
-    uniqueMenu = cover->createUniqueButtonGroupId();
+    uniqueMenu = new ui::ButtonGroup("MoleculeFiles", this);
+    uniqueMenu->enableDeselect(true);
 
 #ifdef USE_OLD_COVISE
     if (VRCoviseConnection::covconn)
@@ -210,33 +215,73 @@ void VRMoleculeViewer::addMenuEntry()
     else
 #endif
     {
+        menu = new ui::Menu("Molecules", this);
+        auto load = new ui::Action(menu, "LoadData");
+        load->setText("Load data");
+
+#if 0
         cover->addSubmenuButton("Molecules...", NULL, "Molecules", false, menuCallback, -1, this);
         cover->addSubmenuButton("Load Data", "Molecules", "Datafiles", false, menuCallback,
                                 cover->createUniqueButtonGroupId(), this);
+#endif
 #if 0
       cover->addToggleButton( "Animate", "Molecules", false, menuCallback, this );
                                     cover->addFunctionButton( "Step forward", "Molecules",  menuCallback, this );
                                     cover->addFunctionButton( "Step backward", "Molecules", menuCallback, this );
 #endif
+        auto clear = new ui::Action(menu, "Clear");
+        clear->setCallback([this](){
+            clearUp();
+        });
+#if 0
         cover->addFunctionButton("Clear", "Molecules", menuCallback, this);
+#endif
         // generate menu entries for all datafiles in current directory
         readDirectory("Datafiles");
-        cover->addSliderButton("Sphere Ratio", "Molecules", 0.0f, 1.0f, sphereRatio, sphereCallback, this);
-        cover->addFunctionButton("Update Ratio", "Molecules", updateCallback, this);
-        cover->addSliderButton("Speed", "Molecules", -2.0f, 2.0f, animationSpeed, speederCallback, this);
+        auto sl = new ui::Slider(menu, "SphereRatio");
+        sl->setText("Sphere ratio");
+        sl->setBounds(0., 1.);
+        sl->setValue(sphereRatio);
+        sl->setCallback([this](double value, bool released){
+            if (structure != NULL)
+                structure->setSphereRatio(value);
+        });
+        //cover->addSliderButton("Sphere Ratio", "Molecules", 0.0f, 1.0f, sphereRatio, sphereCallback, this);
+        auto update = new ui::Action(menu, "UpdateRatio");
+        update->setText("Update ratio");
+        update->setCallback([this](){
+            Init();
+            loadData(filename.c_str(), m_rootNode.get());
+        });
+        //cover->addFunctionButton("Update Ratio", "Molecules", updateCallback, this);
+        //cover->addSliderButton("Speed", "Molecules", -2.0f, 2.0f, animationSpeed, speederCallback, this);
+        auto speed = new ui::Slider(menu, "Speed");
+        speed->setBounds(-2., 2.);
+        speed->setValue(animationSpeed);
+        speed->setCallback([this](double value, bool released){
+            animationSpeed = value;
+
+            if (animationSpeed == 0)
+                timeBetweenFrames = 0;
+            else
+                timeBetweenFrames = fabs(1 / MAX_FRAMES_PER_SEC / (double)animationSpeed);
+        });
     }
 }
 
 void VRMoleculeViewer::removeMenuEntry()
 {
+#if 0
     cover->removeButton("Clear", "Molecules");
     cover->removeButton("Sphere Ratio", "Molecules");
     cover->removeButton("Speed", "Molecules");
     cover->removeButton("Update Ratio", "Molecules");
     cover->removeButton("Load Data", "Molecules");
     cover->removeButton("Molecules...", NULL);
+#endif
 }
 
+#if 0
 void VRMoleculeViewer::speederCallback(void *viewer, buttonSpecCell *spec)
 {
     VRMoleculeViewer *m = (VRMoleculeViewer *)viewer;
@@ -270,7 +315,9 @@ void VRMoleculeViewer::updateCallback(void *viewer, buttonSpecCell *spec)
     Init(viewer);
     m->loadData(m->filename.c_str(), m->m_rootNode.get());
 }
+#endif
 
+#if 0
 void VRMoleculeViewer::menuCallback(void *viewer, buttonSpecCell *spec)
 {
     VRMoleculeViewer *m = (VRMoleculeViewer *)viewer;
@@ -312,6 +359,7 @@ void VRMoleculeViewer::menuCallback(void *viewer, buttonSpecCell *spec)
     }
 
 } // end of menucallback
+#endif
 
 void VRMoleculeViewer::readDirectory(const char *parent)
 {
@@ -531,13 +579,30 @@ void VRMoleculeViewer::readDirectory(const char *parent)
 
     std::list<std::string>::iterator itFiles;
 
+    int count = 0;
     for (itFiles = vsFiles.begin(); itFiles != vsFiles.end(); itFiles++)
     {
+        auto filename = *itFiles;
+        auto b = new ui::Button(menu, "File"+std::to_string(count));
+        b->setGroup(uniqueMenu);
+        b->setText(filename.substr(0, filename.length()-4));
+        b->setCallback([this, filename](bool state){
+            if (!state)
+                return;
+            std::string f = dirName + "/";
+            f += filename;
+            Init();
+            loadData(f.c_str(), m_rootNode.get());
+        });
+
         //std::cout << "VRMoleculeViewer::readDirectory " << *itFiles << std::endl;
-        cover->addFunctionButton(((*itFiles).substr(0, (*itFiles).length() - 4)).c_str(), parent, fileSelection, this); // "Datafiles"
+        //cover->addFunctionButton(((*itFiles).substr(0, (*itFiles).length() - 4)).c_str(), parent, fileSelection, this); // "Datafiles"
+
+        ++count;
     }
 }
 
+#if 0
 void VRMoleculeViewer::fileSelection(void *viewer, buttonSpecCell *spec)
 {
     fprintf(stderr, "VRMoleculeViewer::fileSelection\n");
@@ -591,31 +656,31 @@ void VRMoleculeViewer::fileSelection(void *viewer, buttonSpecCell *spec)
         m->loadData(const_cast<char *>(m->filename.c_str()), m->m_rootNode.get());
     }
 }
+#endif
 
+#if 0
 void VRMoleculeViewer::sliderCallback(void *viewer, buttonSpecCell *spec)
 {
     VRMoleculeViewer *m = (VRMoleculeViewer *)viewer;
 
     m->slide(spec->state);
 }
+#endif
 
-void VRMoleculeViewer::Init(void *viewer)
+void VRMoleculeViewer::Init()
 {
-    VRMoleculeViewer *m = (VRMoleculeViewer *)viewer;
-
     // clear memory if any data has been loaded
-    if (m->numberOfTimesteps)
+    if (numberOfTimesteps)
     {
         if (cover->debugLevel(3))
             printf("clearing memory...\n");
-        m->clearUp();
+        clearUp();
     }
 
     // set all back to zero
-    m->maxNumberOfMolecules = 0;
-    m->numberOfTimesteps = 0;
-    m->moving = 0;
-    coVRAnimationManager::instance()->setNumTimesteps(0, plugin);
+    maxNumberOfMolecules = 0;
+    numberOfTimesteps = 0;
+    moving = 0;
 }
 
 int
@@ -624,7 +689,7 @@ VRMoleculeViewer::loadData(const char *moleculepath, osg::Group *parent)
     if (cover->debugLevel(3))
         fprintf(stderr, "VRMoleculeViewer::loadData for %s\n", moleculepath);
 
-    Init(this);
+    Init();
 
     FILE *molecule_fp = fopen(moleculepath, "r");
 
@@ -833,6 +898,7 @@ void VRMoleculeViewer::stepping()
 
 } // VRMoleculeViewer::stepping()
 
+#if 0
 void VRMoleculeViewer::stepForward()
 {
     if (numberOfTimesteps > 0)
@@ -856,6 +922,7 @@ void VRMoleculeViewer::stepForward()
         cover->setSliderValue("timesteps", value);
     }
 }
+
 
 void VRMoleculeViewer::stepBackward()
 {
@@ -889,6 +956,7 @@ void VRMoleculeViewer::slide(float actual)
     framelist.set(frameIndex - 1);
     framelist.current()->display();
 }
+#endif
 
 void VRMoleculeViewer::clearUp()
 // this aims to delete all data and restore the initial state
@@ -904,9 +972,11 @@ void VRMoleculeViewer::clearUp()
         //stop animation
         NoMove();
 
+#if 0
         //remove frameindex slider from menu
         if (numberOfTimesteps)
             cover->removeButton("timesteps", "Molecules");
+#endif
 
         if (framelist.current())
             framelist.current()->hide();
@@ -948,6 +1018,8 @@ void VRMoleculeViewer::clearUp()
         }
         bReady = false;
     }
+
+    coVRAnimationManager::instance()->setNumTimesteps(0, plugin);
 }
 
 void VRMoleculeViewer::guiToRenderMsg(const char *msg)
@@ -983,7 +1055,7 @@ void VRMoleculeViewer::guiToRenderMsg(const char *msg)
 
                 filename += std::string(*iterFiles);
 
-                Init(this);
+                Init();
                 loadData(filename.c_str(), m_rootNode.get());
             }
             else if (strcmp(keyword, "presBackward") == 0)
@@ -1002,7 +1074,7 @@ void VRMoleculeViewer::guiToRenderMsg(const char *msg)
 #endif
 
                     filename += std::string(*iterFiles);
-                    Init(this);
+                    Init();
                     loadData(filename.c_str(), m_rootNode.get());
                 }
             }
@@ -1027,7 +1099,7 @@ void VRMoleculeViewer::guiToRenderMsg(const char *msg)
 
                 filename += std::string(*iterFiles);
 
-                Init(this);
+                Init();
                 loadData(filename.c_str(), m_rootNode.get());
             }
         }

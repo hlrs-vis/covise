@@ -496,10 +496,10 @@ MinMaxCalculation(float cx, float cy, float tifx, float tify, vector<float> &poi
     int point;
     for (point = 0; point < points.size() / 4; ++point)
     {
-        a11 += (1.0 - points[4 * point] / cx) * (1.0 - points[4 * point] / cx);
-        a12 += (1.0 - points[4 * point] / cx) * points[4 * point] / cx;
+        a11 += (1.0f - points[4 * point] / cx) * (1.0f - points[4 * point] / cx);
+        a12 += (1.0f - points[4 * point] / cx) * points[4 * point] / cx;
         a22 += points[4 * point] * points[4 * point] / (cx * cx);
-        col1 += (1.0 - points[4 * point] / cx) * points[4 * point + 2] / tifx;
+        col1 += (1.0f - points[4 * point] / cx) * points[4 * point + 2] / tifx;
         col2 += (points[4 * point] / cx) * points[4 * point + 2] / tifx;
     }
     float det = a11 * a22 - a12 * a12;
@@ -514,18 +514,18 @@ MinMaxCalculation(float cx, float cy, float tifx, float tify, vector<float> &poi
     a11 = 0.0, a22 = 0.0, a12 = 0.0, col1 = 0.0, col2 = 0.0; // matrix coef
     for (point = 0; point < points.size() / 4; ++point)
     {
-        a11 += (1.0 - points[4 * point + 1] / cy) * (1.0 - points[4 * point + 1] / cy);
-        a12 += (1.0 - points[4 * point + 1] / cy) * points[4 * point + 1] / cy;
+        a11 += (1.0f - points[4 * point + 1] / cy) * (1.0f - points[4 * point + 1] / cy);
+        a12 += (1.0f - points[4 * point + 1] / cy) * points[4 * point + 1] / cy;
         a22 += points[4 * point + 1] * points[4 * point + 1] / (cy * cy);
-        col1 += (1.0 - points[4 * point + 1] / cy) * points[4 * point + 3] / tify;
+        col1 += (1.0f - points[4 * point + 1] / cy) * points[4 * point + 3] / tify;
         col2 += (points[4 * point + 1] / cy) * points[4 * point + 3] / tify;
     }
     det = a11 * a22 - a12 * a12;
     b11 = a22 / det;
     b22 = a11 / det;
     b12 = -a12 / det;
-    maxy = 1.0 - (b11 * col1 + b12 * col2);
-    miny = 1.0 - (b12 * col1 + b22 * col2);
+    maxy = 1.0f - (b11 * col1 + b12 * col2);
+    miny = 1.0f - (b12 * col1 + b22 * col2);
     // cerr << miny << ' ' << maxy << endl;
 }
 

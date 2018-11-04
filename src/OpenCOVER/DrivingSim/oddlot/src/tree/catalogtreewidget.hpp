@@ -19,7 +19,7 @@
 #include "src/util/odd.hpp"
 #include "src/data/observer.hpp"
 
-#include "oscCatalog.h"
+#include <OpenScenario/oscCatalog.h>
 
 #include <QTreeWidget>
 
@@ -27,6 +27,7 @@ class ProjectData;
 class ProjectWidget;
 class MainWindow;
 class ToolAction;
+class ToolManager;
 class OpenScenarioEditor;
 class OSCBase;
 class OSCElement;
@@ -59,6 +60,7 @@ public:
 	} */
 
 	void setOpenScenarioEditor(OpenScenarioEditor *oscEditor);
+	void createTree();
 
 
 	// Obsever Pattern //
@@ -73,15 +75,16 @@ private:
 
     void init();
 
-	void createTree();
 	QTreeWidgetItem *getItem(const QString &name);
+	QTreeWidgetItem *getItem(OpenScenario::oscObjectBase *obj);
 
     //################//
     // EVENTS         //
     //################//
 
-public:
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+protected:
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
 	//################//
 	// SIGNALS        //
@@ -96,6 +99,7 @@ signals:
 
 public slots:
 	void onVisibilityChanged(bool);
+	void onItemClicked(QTreeWidgetItem *item, int column);
 
     //################//
     // PROPERTIES     //
@@ -106,6 +110,7 @@ private:
     ProjectData *projectData_; // Model, linked
 	MainWindow *mainWindow_;
 	OpenScenarioEditor *oscEditor_;
+	ToolManager *toolManager_;
 
 	// OpenScenario Base //
 	//
@@ -125,6 +130,9 @@ private:
 	OpenScenario::oscMember *currentMember_;
 
 	ODD::ToolId currentTool_;
+
+	QPointF dragStartPosition_;
+
 };
 
 #endif // CATALOGTREEWIDGET_HPP

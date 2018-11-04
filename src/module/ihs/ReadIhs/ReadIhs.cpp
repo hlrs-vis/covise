@@ -104,7 +104,7 @@ int ReadIhs::compute(const char *)
 	strcpy(gp,grid_path->getValue());
 	strcpy(dp,data_path->getValue());
 
-	i=strlen(dp)-1;
+	i=(int)strlen(dp)-1;
 	while(dp[i] &&((dp[i]<'0')||(dp[i]>'9')))
 		i--;
 	// dp[i] ist jetzt die letzte Ziffer, alles danach ist Endung
@@ -140,7 +140,7 @@ int ReadIhs::compute(const char *)
 		currt = 0;
     }
 
-	i=strlen(gp)-1;
+	i=(int)strlen(gp)-1;
 	while(gp[i] &&((gp[i]<'0')||(gp[i]>'9')))
 		i--;
 	// gp[i] ist jetzt die letzte Ziffer, alles danach ist Endung
@@ -289,7 +289,7 @@ int ReadIhs::compute(const char *)
 				{
 					twoD = true;
 					}*/
-				int len=strlen(buf);
+				int len=(int)strlen(buf);
 				for(int j=0; j < len; j++)
 					buf[j] = tolower(buf[j]);
 				if (strstr(buf,"#")) {

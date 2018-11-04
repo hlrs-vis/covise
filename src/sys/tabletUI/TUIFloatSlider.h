@@ -14,6 +14,7 @@
 
 class QLineEdit;
 class QSlider;
+class QLabel;
 
 /** Basic Container
  * This class provides basic functionality and a
@@ -28,27 +29,28 @@ class TUIFloatSlider : public QObject, public TUIElement
 public:
     TUIFloatSlider(int id, int type, QWidget *w, int parent, QString namw);
     virtual ~TUIFloatSlider();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
+    virtual void setLabel(QString textl) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
-    void setPos(int x, int y);
-    QLineEdit *string;
-    QSlider *slider;
-    float min;
-    float max;
-    float value;
+    virtual const char *getClassName() const override;
+    void setPos(int x, int y) override;
 
 public slots:
-
     void sliderChanged(int index);
     void pressed();
     void released();
 
 protected:
+    void showSliderValue(float min, float max, float val);
+
+    QLineEdit *string = nullptr;
+    QSlider *slider = nullptr;
+    QLabel *label = nullptr;
+    float min;
+    float max;
+    float value;
+    int ival = 0;
+    bool logScale = false;
 };
 #endif

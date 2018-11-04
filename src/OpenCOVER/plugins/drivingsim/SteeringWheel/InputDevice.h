@@ -35,15 +35,19 @@
 #include <string>
 
 #ifdef __XENO__
-//#include "LinearMotorControlTask.h"
-#include "XenomaiSteeringWheel.h"
-//#include "BrakePedal.h"
-#include "GasPedal.h"
-#include "KI.h"
-#include "KLSM.h"
-#include "Klima.h"
-#include "Beckhoff.h"
-#include "IgnitionLock.h"
+class KI;
+class KLSM;
+class Klima;
+class VehicleUtil;
+class Beckhoff;
+class GasPedal;
+class IgnitionLock;
+//#include <VehicleUtil/GasPedal.h>
+//#include <VehicleUtil/KI.h>
+//#include <VehicleUtil/KLSM.h>
+//#include <VehicleUtil/Klima.h>
+//#include <VehicleUtil/Beckhoff.h>
+//#include <VehicleUtil/IgnitionLock.h>
 #ifdef debug
 #undef debug
 #endif

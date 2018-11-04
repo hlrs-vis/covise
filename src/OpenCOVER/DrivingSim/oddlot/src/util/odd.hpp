@@ -105,6 +105,7 @@ public:
         EEL, /*!< ElevationEditor */
         ESE, /*!< SuperelevationEditor */
         ECF, /*!< CrossfallEditor */
+		ERS, /*!< RoadShapeEditor */
         EJE, /*!< JunctionEditor */
         ESG, /*!< SignalEditor */
 		EOS, /*!< OpenScenatioEditor */
@@ -116,69 +117,75 @@ public:
 	* This enum defines the Id of each tool. The Id will
 	* be used by the mainToolClicked(ToolId) signal.
 	*/
-    enum ToolId
-    {
-        // Road Link Editor
-        TRL_SELECT,
-        TRL_LINK,
-        TRL_ROADLINK,
-        TRL_UNLINK,
+	enum ToolId
+	{
+		// Road Link Editor
+		TRL_SELECT,
+		TRL_LINK,
+		TRL_ROADLINK,
+		TRL_UNLINK,
 
-        // Road Type Editor
-        TRT_SELECT,
-        TRT_ADD,
-        TRT_DEL,
-        TRT_MOVE,
+		// Road Type Editor
+		TRT_SELECT,
+		TRT_ADD,
+		TRT_DEL,
+		TRT_MOVE,
 
-        // Track Editor
-        TTE_SELECT,
-        TTE_MOVE,
-        TTE_MOVE_ROTATE,
-        TTE_ADD,
-        TTE_ADD_LINE,
-        TTE_ADD_CURVE,
-        TTE_DELETE,
-        TTE_TRACK_SPLIT,
-        TTE_ROAD_NEW,
-        TTE_ROAD_MOVE_ROTATE,
-        TTE_ROAD_DELETE,
-        TTE_ROAD_SPLIT,
-        TTE_ROAD_MERGE,
-        TTE_ROAD_SNAP,
-        TTE_TRACK_ROAD_SPLIT,
-        TTE_ROADSYSTEM_ADD,
-        TTE_TILE_NEW,
-        TTE_TILE_MOVE,
-        TTE_TILE_DELETE,
+		// Track Editor
+		TTE_MOVE,
+		TTE_MOVE_ROTATE,
+		TTE_ADD,
+		TTE_ADD_LINE,
+		TTE_ADD_CURVE,
+		TTE_ADD_POLY,
+		TTE_DELETE,
+		TTE_TRACK_SPLIT,
+		TTE_ROAD_NEW,
+		TTE_ROAD_MOVE_ROTATE,
+		TTE_ROAD_DELETE,
+		TTE_ROAD_SPLIT,
+		TTE_ROAD_MERGE,
+		TTE_ROAD_SNAP,
+		TTE_ROAD_CIRCLE,
+		TTE_TRACK_ROAD_SPLIT,
+		TTE_ROADSYSTEM_ADD,
+		TTE_TILE_NEW,
+		TTE_TILE_MOVE,
+		TTE_TILE_DELETE,
 
-        // Elevation Editor
-        TEL_SELECT,
-        TEL_ADD,
-        TEL_DEL,
-        TEL_MOVE,
-        TEL_SMOOTH,
+		// Elevation Editor
+		TEL_SELECT,
+		TEL_ADD,
+		TEL_DEL,
+		TEL_MOVE,
+		TEL_SMOOTH,
 
-        // Superelevation Editor
-        TSE_SELECT,
-        TSE_ADD,
-        TSE_DEL,
-        TSE_MOVE,
+		// Superelevation Editor
+		TSE_SELECT,
+		TSE_ADD,
+		TSE_DEL,
+		TSE_MOVE,
 
-        // Crossfall Editor
-        TCF_SELECT,
-        TCF_ADD,
-        TCF_DEL,
-        TCF_MOVE,
+		// Crossfall Editor
+		TCF_SELECT,
+		TCF_ADD,
+		TCF_DEL,
+		TCF_MOVE,
 
-        // Crossfall Editor
-        TLN_SELECT,
+		// Crossfall Editor
+		TLN_SELECT,
 
-        // Lane Editor
-        TLE_SELECT,
-        TLE_ADD,
-        TLE_DEL,
-        TLE_ADD_WIDTH,
-        TLE_MOVE,
+		// RoadShape Editor
+		TRS_SELECT,
+		TRS_ADD,
+		TRS_DEL,
+
+		// Lane Editor
+		TLE_SELECT,
+		TLE_ADD,
+		TLE_DEL,
+		TLE_ADD_WIDTH,
+		TLE_MOVE,
 
         // Junction Editor
         TJE_SELECT,
@@ -206,6 +213,7 @@ public:
         TSG_REMOVE_CONTROL_ENTRY,
         TSG_DEL,
         TSG_MOVE,
+		TSG_NONE,
 
 		// OpenScenario Editor
 		TOS_SELECT,
@@ -214,6 +222,7 @@ public:
 		TOS_ELEMENT,
 		TOS_BASE,
         TOS_GRAPHELEMENT,
+		TOS_NONE,
 
 		// OpenScenario Settings
 		OSS_DIRECTORY,
@@ -221,6 +230,8 @@ public:
         // No Tool
         TNO_TOOL
     };
+
+		
 
     //################//
     // FUNCTIONS      //
@@ -259,7 +270,7 @@ private:
     ColorPalette *colorPalette_;
 
 	// Version //
-	static const unsigned short revMinor_ = 3;
+	static const unsigned short revMinor_ = 4;
 	static const unsigned short revMajor_ = 1;
 };
 

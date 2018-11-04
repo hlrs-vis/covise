@@ -20,6 +20,12 @@
 // ++**********************************************************************/
 
 // this includes our own class's headers
+
+#ifdef WIN32
+#ifndef _SCL_SECURE_NO_WARNINGS
+#define _SCL_SECURE_NO_WARNINGS
+#endif
+#endif
 #include "Collect.h"
 #include <do/coDoData.h>
 #include <do/coDoGeometry.h>
@@ -59,15 +65,6 @@ Collect::Collect(int argc, char *argv[])
             "Colors or Scalar Data for Volume Visualization"
             );
         p_color[c]->setRequired(c == 0);
-    }
-
-    for (int c = 0; c < NumColorMaps; ++c)
-    {
-        std::string data_in_str = "ColormapOut" + boost::lexical_cast<std::string>(c);
-        p_colorMap[c] = addInputPort(data_in_str.c_str(),
-                                     "ColorMap",
-                                     "Colormap Input");
-        p_colorMap[c]->setRequired(false);
     }
     p_shaderNum = addInt32Param("ShaderNum", "number of virvo shader");
     p_shaderNum->setValue(-1);
@@ -166,9 +163,6 @@ int Collect::compute(const char *)
     const coDistributedObject *color[NumChannels];
     for (int c = 0; c < NumChannels; ++c)
         color[c] = p_color[c]->getCurrentObject();
-    const coDistributedObject *colorMap[NumColorMaps];
-    for (int c = 0; c < NumColorMaps; ++c)
-        colorMap[c] = p_colorMap[c]->getCurrentObject();
     const coDistributedObject *text = 0;
     const coDistributedObject *norm = 0;
     const coDistributedObject *vertex = 0;
@@ -231,15 +225,6 @@ int Collect::compute(const char *)
         {
             geom->setColors(NONE, color[c], c);
             color[c]->incRefCount();
-        }
-    }
-
-    for (int c = 0; c < NumColorMaps; ++c)
-    {
-        if (colorMap[c])
-        {
-            geom->setColorMap(NONE, colorMap[c], c);
-            colorMap[c]->incRefCount();
         }
     }
 #else

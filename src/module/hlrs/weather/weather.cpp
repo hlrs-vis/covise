@@ -372,9 +372,9 @@ char *Application::recvString()
 
 void Application::sendString(const char *buf)
 {
-    int len = strlen(buf);
+    int len = (int)strlen(buf);
     sendInt(len);
-    if (len)
+    if(len!=0)
     {
         toSimulation->send(buf, len);
     }

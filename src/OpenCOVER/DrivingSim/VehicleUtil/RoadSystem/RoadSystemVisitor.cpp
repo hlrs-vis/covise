@@ -26,8 +26,9 @@ void RoadSystemVisitor::visit(Tarmac *tarmac)
 
 XodrWriteRoadSystemVisitor::XodrWriteRoadSystemVisitor()
 {
+	XMLCh *t1 = NULL;
     impl = xercesc::DOMImplementation::getImplementation();
-    document = impl->createDocument(0, xercesc::XMLString::transcode("OpenDRIVE"), 0);
+    document = impl->createDocument(0, t1 = xercesc::XMLString::transcode("OpenDRIVE"), 0); xercesc::XMLString::release(&t1);
 
     rootElement = document->getDocumentElement();
 
@@ -77,26 +78,28 @@ void XodrWriteRoadSystemVisitor::writeToFile(std::string filename)
 
 void XodrWriteRoadSystemVisitor::visit(Road *road)
 {
-    roadElement = document->createElement(xercesc::XMLString::transcode("road"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    roadElement = document->createElement(t1 = xercesc::XMLString::transcode("road")); xercesc::XMLString::release(&t1);
     rootElement->appendChild(roadElement);
-    roadElement->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode(road->getName().c_str()));
+    roadElement->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode(road->getName().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     std::ostringstream lengthStream;
     lengthStream << std::scientific << road->getLength();
-    roadElement->setAttribute(xercesc::XMLString::transcode("length"), xercesc::XMLString::transcode(lengthStream.str().c_str()));
-    roadElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(road->getId().c_str()));
+    roadElement->setAttribute(t1 = xercesc::XMLString::transcode("length"), t2 = xercesc::XMLString::transcode(lengthStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(road->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     Junction *junction = road->getJunction();
     std::string junctionId = (junction) ? junction->getId() : "-1";
-    roadElement->setAttribute(xercesc::XMLString::transcode("junction"), xercesc::XMLString::transcode(junctionId.c_str()));
+    roadElement->setAttribute(t1 = xercesc::XMLString::transcode("junction"), t2 = xercesc::XMLString::transcode(junctionId.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
-    xercesc::DOMElement *linkElement = document->createElement(xercesc::XMLString::transcode("link"));
+    xercesc::DOMElement *linkElement = document->createElement(t1 = xercesc::XMLString::transcode("link")); xercesc::XMLString::release(&t1);
     roadElement->appendChild(linkElement);
     TarmacConnection *conn = road->getPredecessorConnection();
     if (conn)
     {
-        xercesc::DOMElement *predecessorElement = document->createElement(xercesc::XMLString::transcode("predecessor"));
+        xercesc::DOMElement *predecessorElement = document->createElement(t1 = xercesc::XMLString::transcode("predecessor"));  xercesc::XMLString::release(&t1);
         linkElement->appendChild(predecessorElement);
         Tarmac *tarmac = conn->getConnectingTarmac();
-        predecessorElement->setAttribute(xercesc::XMLString::transcode("elementType"), xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));
+        predecessorElement->setAttribute(t1 = xercesc::XMLString::transcode("elementType"), t2 = xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::string idString;
         FiddleRoad *fiddleroad = dynamic_cast<FiddleRoad *>(tarmac);
         if (fiddleroad)
@@ -107,24 +110,24 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
         {
             idString = tarmac->getId();
         }
-        predecessorElement->setAttribute(xercesc::XMLString::transcode("elementId"), xercesc::XMLString::transcode(idString.c_str()));
+        predecessorElement->setAttribute(t1 = xercesc::XMLString::transcode("elementId"), t2 = xercesc::XMLString::transcode(idString.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         int direction = conn->getConnectingTarmacDirection();
         if (direction > 0)
         {
-            predecessorElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("start"));
+            predecessorElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("start"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
         else if (direction < 0)
         {
-            predecessorElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("end"));
+            predecessorElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("end"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
     }
     conn = road->getSuccessorConnection();
     if (conn)
     {
-        xercesc::DOMElement *successorElement = document->createElement(xercesc::XMLString::transcode("successor"));
+        xercesc::DOMElement *successorElement = document->createElement(t1 = xercesc::XMLString::transcode("successor")); xercesc::XMLString::release(&t1);
         linkElement->appendChild(successorElement);
         Tarmac *tarmac = conn->getConnectingTarmac();
-        successorElement->setAttribute(xercesc::XMLString::transcode("elementType"), xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));
+        successorElement->setAttribute(t1 = xercesc::XMLString::transcode("elementType"), t2 = xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::string idString;
         FiddleRoad *fiddleroad = dynamic_cast<FiddleRoad *>(tarmac);
         if (fiddleroad)
@@ -135,24 +138,24 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
         {
             idString = tarmac->getId();
         }
-        successorElement->setAttribute(xercesc::XMLString::transcode("elementId"), xercesc::XMLString::transcode(idString.c_str()));
+        successorElement->setAttribute(t1 = xercesc::XMLString::transcode("elementId"), t2 = xercesc::XMLString::transcode(idString.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         int direction = conn->getConnectingTarmacDirection();
         if (direction > 0)
         {
-            successorElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("start"));
+            successorElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("start"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
         else if (direction < 0)
         {
-            successorElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("end"));
+            successorElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("end"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
     }
 
-    xercesc::DOMElement *planViewElement = document->createElement(xercesc::XMLString::transcode("planView"));
+    xercesc::DOMElement *planViewElement = document->createElement(t1 = xercesc::XMLString::transcode("planView")); xercesc::XMLString::release(&t1);
     roadElement->appendChild(planViewElement);
     std::map<double, PlaneCurve *> planViewMap = road->getPlaneCurveMap();
     for (std::map<double, PlaneCurve *>::iterator mapIt = planViewMap.begin(); mapIt != planViewMap.end(); ++mapIt)
     {
-        geometryElement = document->createElement(xercesc::XMLString::transcode("geometry"));
+        geometryElement = document->createElement(t1 = xercesc::XMLString::transcode("geometry")); xercesc::XMLString::release(&t1);
         planViewElement->appendChild(geometryElement);
 
         double geometryStart = mapIt->first;
@@ -169,16 +172,16 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
         std::ostringstream lengthStream;
         lengthStream << std::scientific << length;
 
-        geometryElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
-        geometryElement->setAttribute(xercesc::XMLString::transcode("x"), xercesc::XMLString::transcode(xStream.str().c_str()));
-        geometryElement->setAttribute(xercesc::XMLString::transcode("y"), xercesc::XMLString::transcode(yStream.str().c_str()));
-        geometryElement->setAttribute(xercesc::XMLString::transcode("hdg"), xercesc::XMLString::transcode(hdgStream.str().c_str()));
-        geometryElement->setAttribute(xercesc::XMLString::transcode("length"), xercesc::XMLString::transcode(lengthStream.str().c_str()));
+        geometryElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        geometryElement->setAttribute(t1 = xercesc::XMLString::transcode("x"), t2 = xercesc::XMLString::transcode(xStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        geometryElement->setAttribute(t1 = xercesc::XMLString::transcode("y"), t2 = xercesc::XMLString::transcode(yStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        geometryElement->setAttribute(t1 = xercesc::XMLString::transcode("hdg"), t2 = xercesc::XMLString::transcode(hdgStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        geometryElement->setAttribute(t1 = xercesc::XMLString::transcode("length"), t2 = xercesc::XMLString::transcode(lengthStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
         (--mapIt)->second->accept(this);
     }
 
-    elevationProfileElement = document->createElement(xercesc::XMLString::transcode("elevationProfile"));
+    elevationProfileElement = document->createElement(t1 = xercesc::XMLString::transcode("elevationProfile")); xercesc::XMLString::release(&t1);
     roadElement->appendChild(elevationProfileElement);
     std::map<double, Polynom *> elevationMap = road->getElevationMap();
     polyType = ELEVATION;
@@ -187,7 +190,7 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
         mapIt->second->accept(this);
     }
 
-    lateralProfileElement = document->createElement(xercesc::XMLString::transcode("lateralProfile"));
+    lateralProfileElement = document->createElement(t1 = xercesc::XMLString::transcode("lateralProfile")); xercesc::XMLString::release(&t1);
     roadElement->appendChild(lateralProfileElement);
     std::map<double, LateralProfile *> lateralMap = road->getLateralMap();
     for (std::map<double, LateralProfile *>::iterator mapIt = lateralMap.begin(); mapIt != lateralMap.end(); ++mapIt)
@@ -195,7 +198,7 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
         mapIt->second->accept(this);
     }
 
-    lanesElement = document->createElement(xercesc::XMLString::transcode("lanes"));
+    lanesElement = document->createElement(t1 = xercesc::XMLString::transcode("lanes")); xercesc::XMLString::release(&t1);
     roadElement->appendChild(lanesElement);
     std::map<double, LaneSection *> laneSectionMap = road->getLaneSectionMap();
     for (std::map<double, LaneSection *>::iterator mapIt = laneSectionMap.begin(); mapIt != laneSectionMap.end(); ++mapIt)
@@ -206,11 +209,13 @@ void XodrWriteRoadSystemVisitor::visit(Road *road)
 
 void XodrWriteRoadSystemVisitor::visit(Junction *junction)
 {
-    junctionElement = document->createElement(xercesc::XMLString::transcode("junction"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    junctionElement = document->createElement(t1 = xercesc::XMLString::transcode("junction")); xercesc::XMLString::release(&t1);
     rootElement->appendChild(junctionElement);
 
-    junctionElement->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode(junction->getName().c_str()));
-    junctionElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(junction->getId().c_str()));
+    junctionElement->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode(junction->getName().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    junctionElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(junction->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
     std::map<Road *, PathConnectionSet> setMap = junction->getPathConnectionSetMap();
     for (std::map<Road *, PathConnectionSet>::iterator mapIt = setMap.begin(); mapIt != setMap.end(); ++mapIt)
@@ -225,94 +230,103 @@ void XodrWriteRoadSystemVisitor::visit(Junction *junction)
 
 void XodrWriteRoadSystemVisitor::visit(Fiddleyard *fiddleyard)
 {
-    fiddleyardElement = document->createElement(xercesc::XMLString::transcode("fiddleyard"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    fiddleyardElement = document->createElement(t1 = xercesc::XMLString::transcode("fiddleyard")); xercesc::XMLString::release(&t1);
     rootElement->appendChild(fiddleyardElement);
 
-    fiddleyardElement->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode(fiddleyard->getName().c_str()));
-    fiddleyardElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(fiddleyard->getId().c_str()));
+    fiddleyardElement->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode(fiddleyard->getName().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    fiddleyardElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(fiddleyard->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
     TarmacConnection *conn = fiddleyard->getTarmacConnection();
     if (conn)
     {
-        xercesc::DOMElement *linkElement = document->createElement(xercesc::XMLString::transcode("link"));
+        xercesc::DOMElement *linkElement = document->createElement(t1 = xercesc::XMLString::transcode("link")); xercesc::XMLString::release(&t1);
         fiddleyardElement->appendChild(linkElement);
         Tarmac *tarmac = conn->getConnectingTarmac();
-        linkElement->setAttribute(xercesc::XMLString::transcode("elementType"), xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));
-        linkElement->setAttribute(xercesc::XMLString::transcode("elementId"), xercesc::XMLString::transcode(tarmac->getId().c_str()));
+        linkElement->setAttribute(t1 = xercesc::XMLString::transcode("elementType"), t2 = xercesc::XMLString::transcode(tarmac->getTypeSpecifier().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        linkElement->setAttribute(t1 = xercesc::XMLString::transcode("elementId"), t2 = xercesc::XMLString::transcode(tarmac->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         int direction = conn->getConnectingTarmacDirection();
         if (direction > 0)
         {
-            linkElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("start"));
+            linkElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("start"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
         else if (direction < 0)
         {
-            linkElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode("end"));
+            linkElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode("end"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         }
     }
 
     std::map<int, VehicleSource *> sourceMap = fiddleyard->getVehicleSourceMap();
     for (std::map<int, VehicleSource *>::iterator mapIt = sourceMap.begin(); mapIt != sourceMap.end(); ++mapIt)
     {
-        xercesc::DOMElement *sourceElement = document->createElement(xercesc::XMLString::transcode("source"));
+        xercesc::DOMElement *sourceElement = document->createElement(t1 = xercesc::XMLString::transcode("source")); xercesc::XMLString::release(&t1);
         fiddleyardElement->appendChild(sourceElement);
 
-        sourceElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(mapIt->second->getId().c_str()));
+        sourceElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(mapIt->second->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::ostringstream laneId;
         laneId << mapIt->second->getLane();
-        sourceElement->setAttribute(xercesc::XMLString::transcode("lane"), xercesc::XMLString::transcode(laneId.str().c_str()));
+        sourceElement->setAttribute(t1 = xercesc::XMLString::transcode("lane"), t2 = xercesc::XMLString::transcode(laneId.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::ostringstream startId;
         startId << std::scientific << mapIt->second->getStartTime();
-        sourceElement->setAttribute(xercesc::XMLString::transcode("startTime"), xercesc::XMLString::transcode(startId.str().c_str()));
+        sourceElement->setAttribute(t1 = xercesc::XMLString::transcode("startTime"), t2 = xercesc::XMLString::transcode(startId.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::ostringstream repeatId;
         repeatId << std::scientific << mapIt->second->getRepeatTime();
-        sourceElement->setAttribute(xercesc::XMLString::transcode("repeatTime"), xercesc::XMLString::transcode(repeatId.str().c_str()));
+        sourceElement->setAttribute(t1 = xercesc::XMLString::transcode("repeatTime"), t2 = xercesc::XMLString::transcode(repeatId.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 
     std::map<int, VehicleSink *> sinkMap = fiddleyard->getVehicleSinkMap();
     for (std::map<int, VehicleSink *>::iterator mapIt = sinkMap.begin(); mapIt != sinkMap.end(); ++mapIt)
     {
-        xercesc::DOMElement *sinkElement = document->createElement(xercesc::XMLString::transcode("sink"));
+        xercesc::DOMElement *sinkElement = document->createElement(t1 = xercesc::XMLString::transcode("sink")); xercesc::XMLString::release(&t1);
         fiddleyardElement->appendChild(sinkElement);
 
-        sinkElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(mapIt->second->getId().c_str()));
+        sinkElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(mapIt->second->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
         std::ostringstream laneId;
         laneId << mapIt->second->getLane();
-        sinkElement->setAttribute(xercesc::XMLString::transcode("lane"), xercesc::XMLString::transcode(laneId.str().c_str()));
+        sinkElement->setAttribute(t1 = xercesc::XMLString::transcode("lane"), t2 = xercesc::XMLString::transcode(laneId.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 }
 
 void XodrWriteRoadSystemVisitor::visit(PlaneStraightLine *)
 {
-    xercesc::DOMElement *lineElement = document->createElement(xercesc::XMLString::transcode("line"));
+	XMLCh *t1 = NULL;
+    xercesc::DOMElement *lineElement = document->createElement(t1 = xercesc::XMLString::transcode("line")); xercesc::XMLString::release(&t1);
     geometryElement->appendChild(lineElement);
 }
 
 void XodrWriteRoadSystemVisitor::visit(PlaneArc *arc)
 {
-    xercesc::DOMElement *arcElement = document->createElement(xercesc::XMLString::transcode("arc"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *arcElement = document->createElement(t1 = xercesc::XMLString::transcode("arc")); xercesc::XMLString::release(&t1);
     geometryElement->appendChild(arcElement);
 
     std::ostringstream curvStream;
     curvStream << std::scientific << arc->getCurvature(arc->getStart());
-    arcElement->setAttribute(xercesc::XMLString::transcode("curvature"), xercesc::XMLString::transcode(curvStream.str().c_str()));
+    arcElement->setAttribute(t1 = xercesc::XMLString::transcode("curvature"), t2 = xercesc::XMLString::transcode(curvStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
 void XodrWriteRoadSystemVisitor::visit(PlaneClothoid *cloth)
 {
-    xercesc::DOMElement *spiralElement = document->createElement(xercesc::XMLString::transcode("spiral"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *spiralElement = document->createElement(t1 = xercesc::XMLString::transcode("spiral")); xercesc::XMLString::release(&t1);
     geometryElement->appendChild(spiralElement);
 
     std::ostringstream curvStartStream;
     curvStartStream << std::scientific << cloth->getCurvature(cloth->getStart());
     std::ostringstream curvEndStream;
     curvEndStream << std::scientific << cloth->getCurvature(cloth->getLength() + cloth->getStart());
-    spiralElement->setAttribute(xercesc::XMLString::transcode("curvStart"), xercesc::XMLString::transcode(curvStartStream.str().c_str()));
-    spiralElement->setAttribute(xercesc::XMLString::transcode("curvEnd"), xercesc::XMLString::transcode(curvEndStream.str().c_str()));
+    spiralElement->setAttribute(t1 = xercesc::XMLString::transcode("curvStart"), t2 = xercesc::XMLString::transcode(curvStartStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    spiralElement->setAttribute(t1 = xercesc::XMLString::transcode("curvEnd"), t2 = xercesc::XMLString::transcode(curvEndStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
 void XodrWriteRoadSystemVisitor::visit(PlanePolynom *poly)
 {
-    xercesc::DOMElement *poly3Element = document->createElement(xercesc::XMLString::transcode("poly3"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *poly3Element = document->createElement(t1 = xercesc::XMLString::transcode("poly3")); xercesc::XMLString::release(&t1);
     geometryElement->appendChild(poly3Element);
 
     double a, b, c, d;
@@ -327,23 +341,70 @@ void XodrWriteRoadSystemVisitor::visit(PlanePolynom *poly)
     std::ostringstream dStream;
     dStream << std::scientific << d;
 
-    poly3Element->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
-    poly3Element->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
-    poly3Element->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
-    poly3Element->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
+    poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("a"), t2 = xercesc::XMLString::transcode(aStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("b"), t2 = xercesc::XMLString::transcode(bStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("c"), t2 = xercesc::XMLString::transcode(cStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("d"), t2 = xercesc::XMLString::transcode(dStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
+void XodrWriteRoadSystemVisitor::visit(PlaneParamPolynom *poly)
+{
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+	xercesc::DOMElement *poly3Element = document->createElement(t1 = xercesc::XMLString::transcode("paramPoly3")); xercesc::XMLString::release(&t1);
+	geometryElement->appendChild(poly3Element);
+
+	double aU, bU, cU, dU;
+	double aV, bV, cV, dV;
+	poly->getCoefficients(aU, bU, cU, dU, aV, bV, cV, dV);
+
+	std::ostringstream aUStream;
+	aUStream << std::scientific << aU;
+	std::ostringstream bUStream;
+	bUStream << std::scientific << bU;
+	std::ostringstream cUStream;
+	cUStream << std::scientific << cU;
+	std::ostringstream dUStream;
+	dUStream << std::scientific << dU;
+	std::ostringstream aVStream;
+	aVStream << std::scientific << aV;
+	std::ostringstream bVStream;
+	bVStream << std::scientific << bV;
+	std::ostringstream cVStream;
+	cVStream << std::scientific << cV;
+	std::ostringstream dVStream;
+	dVStream << std::scientific << dV;
+
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("aU"), t2 = xercesc::XMLString::transcode(aUStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("bU"), t2 = xercesc::XMLString::transcode(bUStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("cU"), t2 = xercesc::XMLString::transcode(cUStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("dU"), t2 = xercesc::XMLString::transcode(dUStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("aV"), t2 = xercesc::XMLString::transcode(aVStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("bV"), t2 = xercesc::XMLString::transcode(bVStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("cV"), t2 = xercesc::XMLString::transcode(cVStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("dV"), t2 = xercesc::XMLString::transcode(dVStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	if(poly->isNormalized())
+	{
+		poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("pRange"), t2 = xercesc::XMLString::transcode("normalized"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	}
+	else
+	{
+		poly3Element->setAttribute(t1 = xercesc::XMLString::transcode("pRange"), t2 = xercesc::XMLString::transcode("arcLength"));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	}
+}
 void XodrWriteRoadSystemVisitor::visit(Polynom *poly)
 {
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
     xercesc::DOMElement *polyElement;
     if (polyType == ELEVATION)
     {
-        polyElement = document->createElement(xercesc::XMLString::transcode("elevation"));
+        polyElement = document->createElement(t1 = xercesc::XMLString::transcode("elevation")); xercesc::XMLString::release(&t1);
         elevationProfileElement->appendChild(polyElement);
     }
     else if (polyType == LANEWIDTH)
     {
-        polyElement = document->createElement(xercesc::XMLString::transcode("width"));
+        polyElement = document->createElement(t1 = xercesc::XMLString::transcode("width")); xercesc::XMLString::release(&t1);
         laneElement->appendChild(polyElement);
     }
 
@@ -369,22 +430,24 @@ void XodrWriteRoadSystemVisitor::visit(Polynom *poly)
 
     if (polyType == ELEVATION)
     {
-        polyElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
+        polyElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
     else if (polyType == LANEWIDTH)
     {
-        polyElement->setAttribute(xercesc::XMLString::transcode("sOffset"), xercesc::XMLString::transcode(sStream.str().c_str()));
+        polyElement->setAttribute(t1 = xercesc::XMLString::transcode("sOffset"), t2 = xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 
-    polyElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
-    polyElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
-    polyElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
-    polyElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
+    polyElement->setAttribute(t1 = xercesc::XMLString::transcode("a"), t2 = xercesc::XMLString::transcode(aStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    polyElement->setAttribute(t1 = xercesc::XMLString::transcode("b"), t2 = xercesc::XMLString::transcode(bStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    polyElement->setAttribute(t1 = xercesc::XMLString::transcode("c"), t2 = xercesc::XMLString::transcode(cStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    polyElement->setAttribute(t1 = xercesc::XMLString::transcode("d"), t2 = xercesc::XMLString::transcode(dStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
 void XodrWriteRoadSystemVisitor::visit(SuperelevationPolynom *elev)
 {
-    xercesc::DOMElement *superelevationElement = document->createElement(xercesc::XMLString::transcode("superelevation"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *superelevationElement = document->createElement(t1 = xercesc::XMLString::transcode("superelevation")); xercesc::XMLString::release(&t1);
     lateralProfileElement->appendChild(superelevationElement);
 
     double a, b, c, d;
@@ -401,72 +464,132 @@ void XodrWriteRoadSystemVisitor::visit(SuperelevationPolynom *elev)
     std::ostringstream dStream;
     dStream << std::scientific << d;
 
-    superelevationElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
-    superelevationElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
-    superelevationElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
-    superelevationElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
-    superelevationElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
+    superelevationElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    superelevationElement->setAttribute(t1 = xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    superelevationElement->setAttribute(t1 = xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    superelevationElement->setAttribute(t1 = xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    superelevationElement->setAttribute(t1 = xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
 void XodrWriteRoadSystemVisitor::visit(CrossfallPolynom *fall)
 {
-    xercesc::DOMElement *crossfallElement = document->createElement(xercesc::XMLString::transcode("crossfall"));
-    lateralProfileElement->appendChild(crossfallElement);
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+	if (fall->getLeftFallFactor() == fall->getRightFallFactor() )
+	{
+		xercesc::DOMElement *shapelElement = document->createElement(t1 = xercesc::XMLString::transcode("shape")); xercesc::XMLString::release(&t1);
+		lateralProfileElement->appendChild(shapelElement);
+		double a, b, c, d;
+		fall->getCoefficients(a, b, c, d);
+		std::ostringstream sstream;
+		sstream << std::scientific << fall->getStart();
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << a;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("a"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << b;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("b"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << c;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("c"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << d;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("d"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << fall->getRightFallFactor();
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("t"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	}
+	else
+	{
+		xercesc::DOMElement *crossfallElement = document->createElement(t1 = xercesc::XMLString::transcode("crossfall")); xercesc::XMLString::release(&t1);
+		lateralProfileElement->appendChild(crossfallElement);
 
-    double a, b, c, d;
-    fall->getCoefficients(a, b, c, d);
+		double a, b, c, d;
+		fall->getCoefficients(a, b, c, d);
 
-    std::ostringstream sStream;
-    sStream << std::scientific << fall->getStart();
-    std::ostringstream aStream;
-    aStream << std::scientific << a;
-    std::ostringstream bStream;
-    bStream << std::scientific << b;
-    std::ostringstream cStream;
-    cStream << std::scientific << c;
-    std::ostringstream dStream;
-    dStream << std::scientific << d;
-    std::string side;
-    if (fall->getLeftFallFactor() < 0 && fall->getRightFallFactor() > 0)
-    {
-        side = "both";
-    }
-    else
-    {
-        if (fall->getLeftFallFactor() < 0)
-        {
-            side = "left";
-        }
-        else if (fall->getRightFallFactor() > 0)
-        {
-            side = "right";
-        }
-        else
-        {
-            side = "both";
-        }
-    }
+		std::ostringstream sStream;
+		sStream << std::scientific << fall->getStart();
+		std::ostringstream aStream;
+		aStream << std::scientific << a;
+		std::ostringstream bStream;
+		bStream << std::scientific << b;
+		std::ostringstream cStream;
+		cStream << std::scientific << c;
+		std::ostringstream dStream;
+		dStream << std::scientific << d;
+		std::string side;
+		if (fall->getLeftFallFactor() < 0 && fall->getRightFallFactor() > 0)
+		{
+			side = "both";
+		}
+		else
+		{
+			if (fall->getLeftFallFactor() < 0)
+			{
+				side = "left";
+			}
+			else if (fall->getRightFallFactor() > 0)
+			{
+				side = "right";
+			}
+			else
+			{
+				side = "both";
+			}
+		}
 
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("a"), xercesc::XMLString::transcode(aStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("b"), xercesc::XMLString::transcode(bStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("c"), xercesc::XMLString::transcode(cStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("d"), xercesc::XMLString::transcode(dStream.str().c_str()));
-    crossfallElement->setAttribute(xercesc::XMLString::transcode("side"), xercesc::XMLString::transcode(side.c_str()));
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("a"), t2 = xercesc::XMLString::transcode(aStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("b"), t2 = xercesc::XMLString::transcode(bStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("c"), t2 = xercesc::XMLString::transcode(cStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("d"), t2 = xercesc::XMLString::transcode(dStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		crossfallElement->setAttribute(t1 = xercesc::XMLString::transcode("side"), t2 = xercesc::XMLString::transcode(side.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	}
+}
+
+
+void XodrWriteRoadSystemVisitor::visit(ShapePolynom *sp)
+{
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+		xercesc::DOMElement *shapelElement = document->createElement(t1 = xercesc::XMLString::transcode("shape")); xercesc::XMLString::release(&t1);
+		lateralProfileElement->appendChild(shapelElement);
+		double a, b, c, d;
+		sp->getCoefficients(a, b, c, d);
+		std::ostringstream sstream;
+		sstream << std::scientific << sp->getS();
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << a;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("a"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << b;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("b"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << c;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("c"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << d;
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("d"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+		sstream << std::scientific << sp->getTStart();
+		shapelElement->setAttribute(t1 = xercesc::XMLString::transcode("t"), t2 = xercesc::XMLString::transcode(sstream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+	
+}
+
+void XodrWriteRoadSystemVisitor::visit(roadShapePolynoms *sps)
+{
+	for (auto it = sps->shapes.begin(); it != sps->shapes.end();)
+	{
+		visit(it->second);
+	}
 }
 
 void XodrWriteRoadSystemVisitor::visit(LaneSection *section)
 {
-    xercesc::DOMElement *laneSectionElement = document->createElement(xercesc::XMLString::transcode("laneSection"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *laneSectionElement = document->createElement(t1 = xercesc::XMLString::transcode("laneSection")); xercesc::XMLString::release(&t1);
     lanesElement->appendChild(laneSectionElement);
 
     std::ostringstream sStream;
     sStream << std::scientific << section->getStart();
-    laneSectionElement->setAttribute(xercesc::XMLString::transcode("s"), xercesc::XMLString::transcode(sStream.str().c_str()));
+    laneSectionElement->setAttribute(t1 = xercesc::XMLString::transcode("s"), t2 = xercesc::XMLString::transcode(sStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
-    xercesc::DOMElement *leftElement = document->createElement(xercesc::XMLString::transcode("left"));
-    xercesc::DOMElement *centerElement = document->createElement(xercesc::XMLString::transcode("center"));
-    xercesc::DOMElement *rightElement = document->createElement(xercesc::XMLString::transcode("right"));
+    xercesc::DOMElement *leftElement = document->createElement(t1 = xercesc::XMLString::transcode("left")); xercesc::XMLString::release(&t1);
+    xercesc::DOMElement *centerElement = document->createElement(t1 = xercesc::XMLString::transcode("center")); xercesc::XMLString::release(&t1);
+    xercesc::DOMElement *rightElement = document->createElement(t1 = xercesc::XMLString::transcode("right")); xercesc::XMLString::release(&t1);
     sideElement = leftElement;
     laneSectionElement->appendChild(leftElement);
     laneSectionElement->appendChild(centerElement);
@@ -493,36 +616,38 @@ void XodrWriteRoadSystemVisitor::visit(LaneSection *section)
 
 void XodrWriteRoadSystemVisitor::visit(Lane *lane)
 {
-    laneElement = document->createElement(xercesc::XMLString::transcode("lane"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    laneElement = document->createElement(t1 = xercesc::XMLString::transcode("lane")); xercesc::XMLString::release(&t1);
     sideElement->appendChild(laneElement);
     std::ostringstream idStream;
     idStream << lane->getId();
     std::string levelString = (lane->isOnLevel()) ? "true" : "false";
-    laneElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(idStream.str().c_str()));
-    laneElement->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode(lane->getLaneTypeString().c_str()));
-    laneElement->setAttribute(xercesc::XMLString::transcode("level"), xercesc::XMLString::transcode(levelString.c_str()));
+    laneElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(idStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    laneElement->setAttribute(t1 = xercesc::XMLString::transcode("type"), t2 = xercesc::XMLString::transcode(lane->getLaneTypeString().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    laneElement->setAttribute(t1 = xercesc::XMLString::transcode("level"), t2 = xercesc::XMLString::transcode(levelString.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
-    xercesc::DOMElement *linkElement = document->createElement(xercesc::XMLString::transcode("link"));
+    xercesc::DOMElement *linkElement = document->createElement(t1 = xercesc::XMLString::transcode("link")); xercesc::XMLString::release(&t1);
     laneElement->appendChild(linkElement);
 
     int predId = lane->getPredecessor();
     if (predId != Lane::NOLANE)
     {
-        xercesc::DOMElement *predecessorElement = document->createElement(xercesc::XMLString::transcode("predecessor"));
+        xercesc::DOMElement *predecessorElement = document->createElement(t1 = xercesc::XMLString::transcode("predecessor")); xercesc::XMLString::release(&t1);
         linkElement->appendChild(predecessorElement);
         std::ostringstream predecessorStream;
         predecessorStream << predId;
-        predecessorElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(predecessorStream.str().c_str()));
+        predecessorElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(predecessorStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 
     int succId = lane->getSuccessor();
     if (succId != Lane::NOLANE)
     {
-        xercesc::DOMElement *successorElement = document->createElement(xercesc::XMLString::transcode("successor"));
+        xercesc::DOMElement *successorElement = document->createElement(t1 = xercesc::XMLString::transcode("successor")); xercesc::XMLString::release(&t1);
         linkElement->appendChild(successorElement);
         std::ostringstream successorStream;
         successorStream << succId;
-        successorElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(successorStream.str().c_str()));
+        successorElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(successorStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 
     std::map<double, Polynom *> widthMap = lane->getWidthMap();
@@ -541,36 +666,40 @@ void XodrWriteRoadSystemVisitor::visit(Lane *lane)
 
 void XodrWriteRoadSystemVisitor::visit(RoadMark *mark)
 {
-    xercesc::DOMElement *roadMarkElement = document->createElement(xercesc::XMLString::transcode("roadMark"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *roadMarkElement = document->createElement(t1 = xercesc::XMLString::transcode("roadMark")); xercesc::XMLString::release(&t1);
     laneElement->appendChild(roadMarkElement);
 
     std::ostringstream startStream;
     startStream << std::scientific << mark->getStart();
     std::ostringstream widthStream;
     widthStream << std::scientific << mark->getWidth();
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("sOffset"), xercesc::XMLString::transcode(startStream.str().c_str()));
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("type"), xercesc::XMLString::transcode(mark->getTypeString().c_str()));
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("weight"), xercesc::XMLString::transcode(mark->getWeightString().c_str()));
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("color"), xercesc::XMLString::transcode(mark->getColorString().c_str()));
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("width"), xercesc::XMLString::transcode(widthStream.str().c_str()));
-    roadMarkElement->setAttribute(xercesc::XMLString::transcode("laneChange"), xercesc::XMLString::transcode(mark->getLaneChangeString().c_str()));
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("sOffset"), t2 = xercesc::XMLString::transcode(startStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("type"), t2 = xercesc::XMLString::transcode(mark->getTypeString().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("weight"), t2 = xercesc::XMLString::transcode(mark->getWeightString().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("color"), t2 = xercesc::XMLString::transcode(mark->getColorString().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("width"), t2 = xercesc::XMLString::transcode(widthStream.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    roadMarkElement->setAttribute(t1 = xercesc::XMLString::transcode("laneChange"), t2 = xercesc::XMLString::transcode(mark->getLaneChangeString().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 }
 
 void XodrWriteRoadSystemVisitor::visit(PathConnection *conn)
 {
-    xercesc::DOMElement *connectionElement = document->createElement(xercesc::XMLString::transcode("connection"));
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMElement *connectionElement = document->createElement(t1 = xercesc::XMLString::transcode("connection")); xercesc::XMLString::release(&t1);
     junctionElement->appendChild(connectionElement);
 
-    connectionElement->setAttribute(xercesc::XMLString::transcode("id"), xercesc::XMLString::transcode(conn->getId().c_str()));
-    connectionElement->setAttribute(xercesc::XMLString::transcode("incomingRoad"), xercesc::XMLString::transcode(conn->getIncomingRoad()->getId().c_str()));
-    connectionElement->setAttribute(xercesc::XMLString::transcode("connectingRoad"), xercesc::XMLString::transcode(conn->getConnectingPath()->getId().c_str()));
+    connectionElement->setAttribute(t1 = xercesc::XMLString::transcode("id"), t2 = xercesc::XMLString::transcode(conn->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    connectionElement->setAttribute(t1 = xercesc::XMLString::transcode("incomingRoad"), t2 = xercesc::XMLString::transcode(conn->getIncomingRoad()->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+    connectionElement->setAttribute(t1 = xercesc::XMLString::transcode("connectingRoad"), t2 = xercesc::XMLString::transcode(conn->getConnectingPath()->getId().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     std::string dirString = (conn->getConnectingPathDirection() < 0) ? "end" : "start";
-    connectionElement->setAttribute(xercesc::XMLString::transcode("contactPoint"), xercesc::XMLString::transcode(dirString.c_str()));
+    connectionElement->setAttribute(t1 = xercesc::XMLString::transcode("contactPoint"), t2 = xercesc::XMLString::transcode(dirString.c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
 
     LaneConnectionMap laneConnMap = conn->getLaneConnectionMap();
     for (LaneConnectionMap::iterator mapIt = laneConnMap.begin(); mapIt != laneConnMap.end(); ++mapIt)
     {
-        xercesc::DOMElement *laneLinkElement = document->createElement(xercesc::XMLString::transcode("laneLink"));
+        xercesc::DOMElement *laneLinkElement = document->createElement(t1 = xercesc::XMLString::transcode("laneLink")); xercesc::XMLString::release(&t1);
         connectionElement->appendChild(laneLinkElement);
 
         std::ostringstream from;
@@ -578,7 +707,7 @@ void XodrWriteRoadSystemVisitor::visit(PathConnection *conn)
         std::ostringstream to;
         to << mapIt->second;
 
-        laneLinkElement->setAttribute(xercesc::XMLString::transcode("from"), xercesc::XMLString::transcode(from.str().c_str()));
-        laneLinkElement->setAttribute(xercesc::XMLString::transcode("to"), xercesc::XMLString::transcode(to.str().c_str()));
+        laneLinkElement->setAttribute(t1 = xercesc::XMLString::transcode("from"), t2 = xercesc::XMLString::transcode(from.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
+        laneLinkElement->setAttribute(t1 = xercesc::XMLString::transcode("to"), t2 = xercesc::XMLString::transcode(to.str().c_str()));  xercesc::XMLString::release(&t2); xercesc::XMLString::release(&t1);
     }
 }

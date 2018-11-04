@@ -31,6 +31,7 @@
 #include "src/data/roadsystem/sections/superelevationsection.hpp"
 #include "src/data/roadsystem/sections/crossfallsection.hpp"
 #include "src/data/roadsystem/sections/lanesection.hpp"
+#include "src/data/roadsystem/sections/shapesection.hpp"
 
 #include "src/data/visitors/trackmovevalidator.hpp"
 
@@ -1107,7 +1108,6 @@ SetTrackLengthCommand::mergeWith(const QUndoCommand *other)
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//
-#if 0
 	TrackComponentHeadingCommand
 	::TrackComponentHeadingCommand(TrackComponent * track, double newHeading, DataCommand * parent)
 	:	DataCommand(parent),
@@ -1175,12 +1175,10 @@ void
 	track_->setLocalRotation(oldHeading_);
 	setUndone();
 }
-#endif
 
 //##################//
 // ArcCurvatureCommand //
 //##################//
-#if 0
 	ArcCurvatureCommand
 	::ArcCurvatureCommand(TrackElementArc * arc, double newCurvature, DataCommand * parent)
 	:	DataCommand(parent),
@@ -1248,7 +1246,6 @@ void
 	arc_->setCurvature(oldCurvature_);
 	setUndone();
 }
-#endif
 
 //##########################//
 // MoveTrackCommand //
@@ -1471,7 +1468,7 @@ MorphIntoPoly3Command::MorphIntoPoly3Command(TrackComponent *track, DataCommand 
         setInvalid();
         setText(QObject::tr("Morph track: sorry, morphing is not possible with these parameters."));
         return;
-    }
+    } 
 
     setValid();
     setText(QObject::tr("Morph track"));
@@ -1631,7 +1628,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
     QMultiMap<TrackComponent *, bool>::iterator it = selectedTrackComponents_.begin();
 
     while (it != selectedTrackComponents_.end())
-    {
+	{
         QList<TrackMoveProperties *> itTranslateTracks;
 
         TrackComponent *track = it.key();
@@ -1859,7 +1856,8 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
 
     for (int i = 0; i < translateTracks_.size(); i++)
     {
-        if (!validate(translateTracks_.at(i)))
+//        if (((translateTracks_.at(i)->lowSlot->getTrackType() != TrackComponent::DTT_POLY3) || (translateTracks_.at(i)->highSlot->getTrackType() != TrackComponent::DTT_POLY3)) && !validate(translateTracks_.at(i)))
+		if (!validate(translateTracks_.at(i)))
         {
             setInvalid();
             setText(QObject::tr("Translation not valid"));
@@ -1957,6 +1955,18 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
                 }
             }
         }
+
+		// shape //
+		if (!roads_.at(i)->getShapeSections().isEmpty())
+		{
+			foreach(ShapeSection *section, roads_.at(i)->getShapeSections())
+			{
+				if (roads_.at(i)->getLength() - section->getSStart() < NUMERICAL_ZERO6)
+				{
+					shapeSections_.insert(i, section);
+				}
+			}
+		}
     }
 
     setValid();
@@ -2008,7 +2018,7 @@ TranslateTrackComponentsCommand::validate(TrackMoveProperties *props)
         validationVisitor = new TrackMoveValidator();
 
         if (props->transform & TT_ROTATE)
-        {
+		{
             if (props->highSlot && (props->highSlot->getStartPosDOF() == 2))
             {
                 TrackComponent *highSlotCopy = props->highSlot->getClone();
@@ -2244,12 +2254,19 @@ TranslateTrackComponentsCommand::redo()
             iterLane++;
         }
 
-        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
-        while ((iterLane != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i))
+        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i); // lane sections might have been too long because the length of the track element changed thus they are removed and a new one with correct length is added
+        while ((iterLaneAdd != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i)) // if this does not work and you want to remove this, make shure you also remove the removal of the lane section earlier.
         {
             roads_.at(i)->addLaneSection(iterLaneAdd.value());
             iterLaneAdd++;
-        }
+        } 
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+		{
+			roads_.at(i)->delShapeSection(iterShape.value());
+			iterShape++;
+		}
     }
 
     setRedone();
@@ -2299,12 +2316,27 @@ TranslateTrackComponentsCommand::undo()
             iterCrossfall++;
         }
 
+
+        QMap<int, LaneSection *>::const_iterator iterLaneAdd = laneSectionsAdd_.find(i);
+        while ((iterLaneAdd != laneSectionsAdd_.end()) && (iterLaneAdd.key() == i))
+        {
+            roads_.at(i)->delLaneSection(iterLaneAdd.value());
+            iterLaneAdd++;
+        }
+
         QMap<int, LaneSection *>::const_iterator iterLane = laneSections_.find(i);
         while ((iterLane != laneSections_.end()) && (iterLane.key() == i))
         {
             roads_.at(i)->addLaneSection(iterLane.value());
             iterLane++;
         }
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = shapeSections_.find(i);
+		while ((iterShape != shapeSections_.end()) && (iterShape.key() == i))
+		{
+			roads_.at(i)->addShapeSection(iterShape.value());
+			iterShape++;
+		}
     }
 
     setUndone();
@@ -2399,6 +2431,13 @@ TranslateTrackComponentsCommand::mergeWith(const QUndoCommand *other)
             laneSections_.insert(i, iterLane.value());
             iterLane++;
         }
+
+		QMap<int, ShapeSection *>::const_iterator iterShape = command->shapeSections_.find(i);
+		while ((iterShape != command->shapeSections_.end()) && (iterShape.key() == i))
+		{
+			shapeSections_.insert(i, iterShape.value());
+			iterShape++;
+		}
     }
 
     return true;

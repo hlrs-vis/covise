@@ -306,11 +306,11 @@ PBufferSnapShot::~PBufferSnapShot()
 
 void PBufferSnapShot::preSwapBuffers(int windowNumber)
 {
+    if (windowNumber > 0)
+        return;
 
-    if (doInit && windowNumber == 0)
+    if (doInit && coVRConfig::instance()->numWindows()>0)
     {
-        doInit = false;
-
         int maxVP[2] = { 3840, 2160 }, maxRB = 38400;
 #ifdef GL_MAX_VIEWPORT_DIMS
         glGetIntegerv(GL_MAX_VIEWPORT_DIMS, maxVP);
@@ -343,7 +343,11 @@ void PBufferSnapShot::preSwapBuffers(int windowNumber)
             resolutions[NumResolutions - 2].x = maxVP[1] * aspect;
             resolutions[NumResolutions - 2].y = maxVP[1];
         }
+    }
 
+    if (doInit)
+    {
+        doInit = false;
         initUI();
     }
 }
@@ -416,7 +420,7 @@ void PBufferSnapShot::preFrame()
         {
             cerr << "PBufferSnapShot::preFrame info: snapping (0, 0, "
                  << (int)tuiResolutionX->getValue() << ", " << (int)tuiResolutionY->getValue() << ")"
-                 << " to " << filename << endl;
+                 << " to " << filename << std::endl;
         }
     }
 }
@@ -454,8 +458,11 @@ void PBufferSnapShot::tabletEvent(coTUIElement *tUIItem)
 
         if (sel == 1)
         {
-            tuiResolutionX->setValue(coVRConfig::instance()->windows[0].sx);
-            tuiResolutionY->setValue(coVRConfig::instance()->windows[0].sy);
+            if (coVRConfig::instance()->numWindows() > 0)
+            {
+                tuiResolutionX->setValue(coVRConfig::instance()->windows[0].sx);
+                tuiResolutionY->setValue(coVRConfig::instance()->windows[0].sy);
+            }
         }
     }
 
@@ -559,9 +566,12 @@ void PBufferSnapShot::initUI()
     tuiResolutionX->setMin(0);
     tuiResolutionX->setMax(PB_RESOLUTION_MAX_X);
     tuiResolutionX->setPos(2, 0);
-    float vpx = coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin;
-    //fprintf(stderr,"vpx=%f\n", vpx);
-    tuiResolutionX->setValue(int(coVRConfig::instance()->windows[0].sx * vpx));
+    if (coVRConfig::instance()->numViewports() > 0)
+    {
+        float vpx = coVRConfig::instance()->viewports[0].viewportXMax - coVRConfig::instance()->viewports[0].viewportXMin;
+        //fprintf(stderr,"vpx=%f\n", vpx);
+        tuiResolutionX->setValue(int(coVRConfig::instance()->windows[0].sx * vpx));
+    }
 
     tuiResolutionY = new coTUIEditIntField("Resolution Y", tuiSnapTab->getID());
     tuiResolutionY->setValue(resolutions[1].y);
@@ -570,9 +580,12 @@ void PBufferSnapShot::initUI()
     tuiResolutionY->setMin(0);
     tuiResolutionY->setMax(PB_RESOLUTION_MAX_Y);
     tuiResolutionY->setPos(3, 0);
-    float vpy = coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin;
-    //fprintf(stderr,"vpy=%f\n", vpy);
-    tuiResolutionY->setValue(int(coVRConfig::instance()->windows[0].sy * vpy));
+    if (coVRConfig::instance()->numViewports() > 0)
+    {
+        float vpy = coVRConfig::instance()->viewports[0].viewportYMax - coVRConfig::instance()->viewports[0].viewportYMin;
+        //fprintf(stderr,"vpy=%f\n", vpy);
+        tuiResolutionY->setValue(int(coVRConfig::instance()->windows[0].sy * vpy));
+    }
 
     tuiResolutionLabel = new coTUILabel(resolutions[1].description.c_str(), tuiSnapTab->getID());
     tuiResolutionLabel->setPos(1, 1);
@@ -798,7 +811,7 @@ string PBufferSnapShot::suggestFileName(string suggestedFilename)
     return directory;
 }
 
-void PBufferSnapShot::message(int type, int len, const void *buf)
+void PBufferSnapShot::message(int toWhom, int type, int len, const void *buf)
 {
 
     switch (type)

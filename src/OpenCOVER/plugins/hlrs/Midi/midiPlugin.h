@@ -22,18 +22,24 @@
 #include <osg/ShapeDrawable>
 #include <osg/ShadeModel>
 #include <vrml97/vrml/Player.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+#include <cover/ui/SelectionList.h>
+#include <cover/ui/Label.h>
+#include <cover/ui/EditField.h>
+#include <cover/ui/Owner.h>
 
 using namespace opencover;
 using namespace covise;
 
 namespace covise
 {
-class coSubMenuItem;
-class coRowMenu;
-class coCheckboxMenuItem;
-class coCheckboxGroup;
-class coButtonMenuItem;
-class coSliderMenuItem;
+    class coSubMenuItem;
+    class coRowMenu;
+    class coCheckboxMenuItem;
+    class coCheckboxGroup;
+    class coButtonMenuItem;
+    class coSliderMenuItem;
 }
 class Track;
 class Note
@@ -51,25 +57,40 @@ class Track
 {
 public:
     int eventNumber;
-     Track(int tn);
-     ~Track();
-     std::list<Note *> notes;
-     
-     osg::ref_ptr<osg::Group> TrackRoot;
-     void update();
-     void reset();
-     void setVisible(bool state);
-     int trackNumber;
-     vrml::Player::Source *trackSource;
-     vrml::Audio *trackAudio;
+    Track(int tn,bool life=false);
+    ~Track();
+    std::list<Note *> notes;
+    //std::list<Note *>::iterator lastNoteIt;
+
+    osg::ref_ptr<osg::MatrixTransform> TrackRoot;
+    void update();
+    void reset();
+    void setVisible(bool state);
+    int trackNumber;
+    void addNote(Note*);
+    vrml::Player::Source *trackSource;
+    vrml::Audio *trackAudio;
+    osg::Geode *createLinesGeometry();
+
+    osg::ref_ptr<osg::Geode> geometryLines;
+    osg::Vec3Array *lineVert = new osg::Vec3Array;
+    osg::Vec4Array *lineColor = new osg::Vec4Array;
+    osg::DrawArrayLengths *linePrimitives;
+	void store();
+private:
+    bool life;
+    int lastNum;
+    int lastPrimitive;
+    double oldTime = 0.0;
+    int streamNum;
 };
 
 class NoteInfo
 {
-    public:
-        NoteInfo(int nN);
-        ~NoteInfo();
-	void createGeom();
+public:
+    NoteInfo(int nN);
+    ~NoteInfo();
+    void createGeom();
     osg::ref_ptr<osg::Geode> geometry;
     osg::Vec3 initialPosition;
     osg::Vec3 initialVelocity;
@@ -77,26 +98,23 @@ class NoteInfo
     int noteNumber;
 };
 
-class MidiPlugin : public coVRPlugin, public coTUIListener
+class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
-    
 
 
 
 public:
-    
+    static const size_t NUMMidiStreams = 2;
     double  tempo;
-    //tabletUI
-    coTUITab *MIDITab;
-    coTUILabel *infoLabel;
-    coTUIEditIntField *trackNumber;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
-    static MidiPlugin *plugin;
+    std::list<MidiEvent> eventqueue[NUMMidiStreams];
+    static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
     osg::ref_ptr<osg::Group> MIDIRoot;
+    osg::ref_ptr<osg::MatrixTransform> MIDITrans[NUMMidiStreams];
     std::vector<NoteInfo *> nIs;
     MidiFile midifile;
     double startTime;
@@ -109,8 +127,10 @@ public:
     void setTempo(int index);
 
     void setTimestep(int t);
-    int midi1fd;
-    Track *lTrack;
+    Track *lTrack[NUMMidiStreams];
+	std::list<Track *>storedTracks;
+
+    void addEvent(MidiEvent &me, int MidiStream);
 
     // constructor
     MidiPlugin();
@@ -120,25 +140,46 @@ public:
     osg::Geode *createGeometry(int i);
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
+    osg::ref_ptr<osg::StateSet> lineStateSet;
+
     osg::ref_ptr<osg::ShadeModel> shadeModel;
     osg::ref_ptr<osg::Material> globalmtl;
-    
+
+#ifdef WIN32
+    HMIDIOUT hMidiDeviceOut = NULL;
+    HMIDIIN hMidiDevice[NUMMidiStreams];
+#else
+#endif
+    int midifd[NUMMidiStreams];
+    int midiOutfd;
+
+    bool openMidiIn(int streamNum, int device);
+    bool openMidiOut(int device);
 
     bool init();
     bool destroy();
 
     // loop
+    bool update();
     void preFrame();
     void postFrame();
 
     void key(int type, int keySym, int mod);
 
-    //tabletUI
     void MIDItab_create();
     void MIDItab_delete();
-    
-    //tabletUI
-    void tabletEvent(coTUIElement *);
+
+
+    ui::Menu *MIDITab = nullptr;
+    ui::Button *reset = nullptr;
+    ui::EditField *trackNumber = nullptr;
+    ui::SelectionList *inputDevice[NUMMidiStreams];
+    ui::SelectionList *outputDevice = nullptr;
+    ui::Label *infoLabel = nullptr;
+private:
+
+    static MidiPlugin *plugin;
+
 
 };
 #endif

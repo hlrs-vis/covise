@@ -21,6 +21,7 @@
  */
 
 #include <util/coTypes.h>
+#include <string>
 #ifdef __hpux
 #include <dl.h>
 #endif
@@ -49,8 +50,8 @@ class COVEREXPORT coVRDynLib
 
 public:
     static const char *dlerror(void);
-    static CO_SHLIB_HANDLE dlopen(const char *filename);
-    static CO_SHLIB_HANDLE dlopen(const std::string &filename);
+    static CO_SHLIB_HANDLE dlopen(const char *filename, bool showErrors = true);
+    static CO_SHLIB_HANDLE dlopen(const std::string &filename, bool showErrors = true);
     static void *dlsym(CO_SHLIB_HANDLE handle, const char *symbolname);
     static int dlclose(CO_SHLIB_HANDLE handle);
     static std::string libName(const std::string &name);

@@ -1,10 +1,8 @@
 USING(GDAL)
 USING(XERCESC)
 USING(OSGTERRAIN)
-COVISE_FIND_PACKAGE(V8)
-if(NOT V8_FOUND)
-   return()
-endif()
+USING(V8 optional)
+USING(VehicleUtil)
 
 ADD_DEFINITIONS(-DVPB_LIBRARY)
 SET(LIB_NAME vpb)
@@ -78,11 +76,14 @@ SET(VPB_SOURCES
     VPBRoad.cpp
 )
 
-INCLUDE_DIRECTORIES(${V8_INCLUDE_DIR} ${XERCESC_INCLUDE_DIR}  ../../include ../../../VehicleUtil ../../../kernel ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES(../../include ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 
 ADD_COVISE_LIBRARY(coVPB SHARED ${VPB_SOURCES} ${VPB_HEADERS})
-TARGET_LINK_LIBRARIES(coVPB coOpenVehicleUtil
-${OPENSCENEGRAPH_LIBRARIES} ${EXTRA_LIBS})
+if(NOT MSVC)
+    add_covise_compile_flags(coVPB "-Wno-error=unused-result")
+    add_covise_compile_flags(coVPB "-Wno-error=deprecated-declarations")
+endif()
+TARGET_LINK_LIBRARIES(coVPB ${OPENSCENEGRAPH_LIBRARIES} ${EXTRA_LIBS})
 
 COVISE_INSTALL_TARGET(coVPB)
 

@@ -49,11 +49,12 @@ private:
     coDistributedObject *extractStaticData(const std::string &name, const coDoSet *set);
     static float returnIndex(float, int);
     static float fade(float, int);
-    std::string createIndexedName(const char *, int, int);
+    std::string createIndexedName(const char *, size_t, int);
 
-    int getIndex(int t, int numIDs, int ID);
+    int getIndex(size_t t, int numIDs, int ID);
 
-    int m_timestepStart, m_timestepStop, m_start, m_stop;
+	int m_timestepStart, m_timestepStop;
+	size_t m_start, m_stop;
     int **IDs;
     vector<ssize_t> m_particleSelection;
     coRestraint m_particleIndices;

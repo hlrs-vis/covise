@@ -36,7 +36,6 @@ class Geode;
 #include <osg/MatrixTransform>
 namespace opencover
 {
-class buttonSpecCell;
 class RenderObject;
 
 // A Slider Attribute has the following form
@@ -48,7 +47,9 @@ class RenderObject;
 //   S (spline) | s (spline line not visible)
 //   geometryType = Sphere | SphereSegment | none
 
+#ifdef PINBOARD
 class VRButton;
+#endif
 
 // class definitions
 class Slider
@@ -66,12 +67,16 @@ public:
     // return true, if ths attribute os from the same module/parameter
     int isSlider(const char *attrib);
     bool updateInteraction();
+#ifdef PINBOARD
     void updateMenu();
+#endif
     void updateParameter();
     void updateValue(osg::Vec3 position, osg::Vec3 direction);
     float getMinDist(float x, float y, float z);
     float getMinDist(osg::Vec3 position, osg::Vec3 direction);
+#ifdef PINBOARD
     static void menuCallback(void *sider, buttonSpecCell *spec);
+#endif
     Slider(const char *attrib, const char *sattrib, osg::Node *n);
     ~Slider();
     char getSliderType();
@@ -82,7 +87,9 @@ public:
     virtual void doInteraction();
 
 private:
+#ifdef PINBOARD
     void updateSpec(buttonSpecCell *spec);
+#endif
     float getPoint(float *points, int i, int numPoints);
     float intersect(osg::Vec3 point, osg::Vec3 norm,
                     osg::Vec3 p1, osg::Vec3 p2);
@@ -97,7 +104,9 @@ private:
     float totalLength;
     int numPoints;
     float radius;
+#ifdef PINBOARD
     VRButton *button;
+#endif
 
     std::string feedback_information;
     std::string moduleName;

@@ -4,15 +4,16 @@ MACRO(USE_VISIONARAY)
             using_message("Using Visionaray")
 
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
-            set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/3rdparty/visionaray/config")
             if(MSVC)
-                set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/visionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+                set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/build.covise/src/3rdparty/visionaray/config")
             else()
                 if(BUILD_SHARED_LIBS)
                     set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
                 else()
                     set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
                 endif()
+                set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/3rdparty/visionaray/config")
             endif()
 
             covise_find_package(OpenGL REQUIRED)
@@ -25,9 +26,8 @@ MACRO(USE_VISIONARAY)
                 covise_find_package(PTHREAD REQUIRED)
             endif()
 
-            USE_GLEW()
             USE_BOOST()
-            include_directories(${OPENGL_INCLUDE_DIR})
+            include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})
             include_directories(${VISIONARAY_CONFIG_DIR})
 
@@ -37,7 +37,7 @@ MACRO(USE_VISIONARAY)
             )
 
             if (NOT APPLE AND NOT WIN32)
-                include_directories(${PTHREAD_INCLUDE_DIR})
+                include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})
                 set(EXTRA_LIBS
                     ${EXTRA_LIBS}
                     ${PTHREAD_LIBRARY}
@@ -45,7 +45,7 @@ MACRO(USE_VISIONARAY)
             endif()
 
             if(COVISE_USE_CUDA AND CUDA_FOUND)
-                include_directories(${CUDA_INCLUDE_DIRS})
+                include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
                 set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
             endif()
 

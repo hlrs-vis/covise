@@ -16,39 +16,23 @@
 #include "objectobject.hpp"
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
+#include "src/data/roadsystem/sections/parkingspaceobject.hpp"
 
 //####################//
 // Constructors       //
 //####################//
 
-Object::Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
-               double validLength, ObjectOrientation orientation, double length, double width, double radius, double height,
-               double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance,
-               const QString &textureFile)
-    : RoadSection(s)
-    , id_(id)
-    , name_(name)
+Object::Object(const odrID &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile)
+	: RoadSection(s)
+	, id_(id)
+	, name_(name)
+	, objectProps_(objectProps)
+	, objectRepeat_(repeatRecord)
+	, parkingSpace_(NULL)
+	, outline_(NULL)
 {
-    objectProps_.type = type;
-    objectProps_.t = t;
-    objectProps_.zOffset = zOffset;
-    objectProps_.validLength = validLength;
-    objectProps_.orientation = orientation;
-    objectProps_.length = length;
-    objectProps_.width = width;
-    objectProps_.radius = radius;
-    objectProps_.height = height;
-    objectProps_.hdg = hdg;
-    objectProps_.pitch = pitch;
-    objectProps_.roll = roll;
-    objectProps_.pole = pole;
-
-    objectRepeat_.s = repeatS;
-    objectRepeat_.length = repeatLength;
-    objectRepeat_.distance = repeatDistance;
-
-    userData_.modelFile = name;
-    userData_.textureFile = textureFile;
+	userData_.modelFile = name;
+	userData_.textureFile = textureFile;
 }
 
 /*!
@@ -67,6 +51,23 @@ Object::getSEnd() const
     {
         return objectRepeat_.s + objectRepeat_.length;
     }
+}
+
+void 
+Object::setParkingSpace(ParkingSpace *parkingSpace)
+{
+	objectProps_.type = "parkingSpace";
+	parkingSpace_ = parkingSpace;
+	parkingSpace->setParentObject(this);
+	addObjectChanges(Object::CEL_TypeChange);
+}
+
+void 
+Object::setOutline(Outline *outline)
+{
+	outline_ = outline;
+	outline_->setParentObject(this);
+	addObjectChanges(Object::CEL_OutlineChange);
 }
 
 
@@ -110,9 +111,7 @@ Object::getClone()
 {
     // Object //
     //
-    Object *clone = new Object(id_, name_, objectProps_.type, getSStart(), objectProps_.t, objectProps_.zOffset, objectProps_.validLength, objectProps_.orientation,
-                               objectProps_.length, objectProps_.width, objectProps_.radius, objectProps_.height, objectProps_.hdg, objectProps_.pitch, objectProps_.roll, objectProps_.pole,
-                               objectRepeat_.s, objectRepeat_.length, objectRepeat_.distance, userData_.textureFile);
+	Object *clone = new Object(id_, name_, getSStart(), objectProps_, objectRepeat_, userData_.textureFile);
 
     return clone;
 }
@@ -131,3 +130,47 @@ Object::accept(Visitor *visitor)
 {
     visitor->visit(this);
 }
+
+
+
+//####################//
+// Outline            //
+//####################//
+
+Outline::Outline(QList<ObjectCorner *> corners)
+	: corners_(corners)
+{
+
+}
+
+Outline::~Outline()
+{
+	foreach(ObjectCorner *corner, corners_)
+		delete corner;
+}
+
+void 
+Outline::setParentObject(Object *object)
+{
+	parentObject_ = object;
+	object->addObjectChanges(Object::CEL_OutlineChange);
+}
+
+bool 
+Outline::addCorner(ObjectCorner *corner)
+{
+	if (corners_.contains(corner))
+	{
+		return false;
+	}
+
+	corners_.append(corner);
+
+	return true;
+}
+
+
+//####################//
+// ObjectCorner       //
+//####################//
+

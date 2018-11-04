@@ -21,9 +21,7 @@
 
 #include "Tracelines.h"
 
-#ifndef YAC
 #include <util/coviseCompat.h>
-#endif
 
 /**
  * Derived class from Tracelines, used for the management of PPathline objects.
@@ -44,11 +42,7 @@ public:
        * @param sfield magnitude to be mapped onto the integrated lines
        */
     Pathlines(const coModule *mod,
-#ifndef YAC
               const char *name_line, const char *name_magnitude,
-#else
-              coObjInfo name_line, coObjInfo name_magnitude,
-#endif
               const coDistributedObject *grid, const coDistributedObject *velo,
               const coDistributedObject *ini_p,
               int number_per_tstep, real *x_ini, real *y_ini, real *z_ini,
@@ -63,11 +57,7 @@ public:
     virtual int allPFinished();
 /** Gather results from all PTasks after a time step.
        */
-#ifndef YAC
     virtual void gatherTimeStep();
-#else
-    virtual void gatherTimeStep(coOutputPort *port);
-#endif
     /** Are we done with all time steps?
        */
     virtual int Finished();

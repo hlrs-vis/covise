@@ -68,6 +68,12 @@ TrackRoadSystemItem::removeRoadItem(TrackRoadItem *item)
     return trackRoadItems_.remove(item->getRoad());
 }
 
+TrackRoadItem *
+TrackRoadSystemItem::getRoadItem(RSystemElementRoad *road)
+{
+	return trackRoadItems_.value(road, NULL);
+}
+
 //##################//
 // Handles          //
 //##################//

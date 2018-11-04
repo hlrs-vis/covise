@@ -24,6 +24,7 @@
 #include "elevationwizard.hpp"
 #include "superelevationwizard.hpp"
 #include "flatjunctionswizard.hpp"
+#include "circlewizard.hpp"
 #include "roadlinkwizard.hpp"
 
 // Qt //
@@ -78,6 +79,15 @@ WizardManager::init()
     connect(mainWindow_, SIGNAL(hasActiveProject(bool)), flatJunctionsWizardAction, SLOT(setEnabled(bool)));
 
     mainWindow_->getWizardsMenu()->addAction(flatJunctionsWizardAction);
+	
+	// Circle wizard //
+	//
+	QAction *circleWizardAction = new QAction(tr("&Circle wizard"), this);
+	flatJunctionsWizardAction->setStatusTip(tr("creates Circular tracks."));
+	connect(circleWizardAction, SIGNAL(triggered()), this, SLOT(runCircleWizard()));
+	connect(mainWindow_, SIGNAL(hasActiveProject(bool)), circleWizardAction, SLOT(setEnabled(bool)));
+
+	mainWindow_->getWizardsMenu()->addAction(circleWizardAction);
 
     // Road link wizard //
     //
@@ -125,6 +135,16 @@ WizardManager::runFlatJunctionsWizard()
         FlatJunctionsWizard *wizard = new FlatJunctionsWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
         wizard->exec();
     }
+}
+
+void
+WizardManager::runCircleWizard()
+{
+	if (mainWindow_->getActiveProject())
+	{
+		CircleWizard *wizard = new CircleWizard(mainWindow_->getActiveProject()->getProjectData(), mainWindow_);
+		wizard->exec();
+	}
 }
 
 void

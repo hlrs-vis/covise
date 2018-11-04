@@ -39,12 +39,10 @@ Tracer::postInst()
     p_MaxPoints->show();
     p_trace_len->show();
     p_min_vel->show();
-#ifndef YAC
     p_cycles->disable();
     p_control->disable();
     p_timeNewParticles->disable();
     p_randomOffset->show();
-#endif
     p_cycles->hide();
     p_control->hide();
     p_timeNewParticles->hide();
@@ -277,9 +275,7 @@ void *worker_function(void *arg)
         diagnostics = pthread_mutex_lock(&m_mutex);
         if (diagnostics != 0)
         {
-#ifndef YAC
             Covise::sendWarning("A worker thread could not lock the main mutex.");
-#endif
         }
         // sign in the "book" of threads that have finished and signal
         doneThreads.add(label);
@@ -290,9 +286,7 @@ void *worker_function(void *arg)
 #endif
         if (diagnostics != 0)
         {
-#ifndef YAC
             Covise::sendWarning("A worker thread could not lock the main mutex.");
-#endif
         }
     }
     // the thread never gets here
@@ -333,89 +327,12 @@ printObjStr(coDistributedObject *grid)
 int Tracer::compute(const char *)
 {
 // Automatically adapt our Module's title to the species
-#ifndef YAC
     if (autoTitle)
     {
         char buf[64];
         sprintf(buf, "Tracer-%s", get_instance());
         setTitle(buf);
     }
-#else
-    int numInPorts = 0;
-    int numOutPorts = 0;
-    int numOut = 0;
-    int i;
-    coDLList<coPort *> *pl = portManager->getPortList();
-    coDistributedObject **inObjs;
-    inObjs = new coDistributedObject *[pl->num()];
-    coDistributedObject *tmpObj;
-    coOutputPort **outPorts = new coOutputPort *[pl->num()];
-    coInputPort **inPorts = new coInputPort *[pl->num()];
-
-    // =========================================================
-    // prepare everything we need to call the recursive handler
-    //
-    // outPorts[0..numOutPorts-1]  Output ports
-    // inPorts [0..numInPorts-1]   Input ports
-    //
-    // inObjs[0..numInPorts-1]     Current Objects at input ports
-    //
-    // set 'current' object at the input ports
-    // set 'current' object at the output pors to NULL
-    // ==========================================================
-
-    for (i = 0; i < pl->num(); i++)
-    {
-        coDataPort *p = (coDataPort *)(pl->item(i));
-
-        // Handle input ports -> get data
-        if (p->getPortType() == coPortType::CO_INPUT_PORT)
-        {
-            coInputPort *iPort = (coInputPort *)p;
-            if (iPort->isConnected() && (iPort->getObjectID()).isValid())
-            {
-                // remember all used input ports
-                inPorts[numInPorts] = iPort;
-
-                // get the appropriate object for the port, either pre-fetched or not
-                inObjs[numInPorts] = iPort->getPreFetchedObj();
-                if (!inObjs[numInPorts])
-                {
-                    tmpObj = new coDistributedObject(iPort->getObjectID(), getModID());
-                    inObjs[numInPorts] = tmpObj->createUnknown();
-                    delete tmpObj;
-                }
-                iPort->setCurrentObject(inObjs[numInPorts]);
-
-                // we'll set it later when the final OBJ is known -> sets unpacked
-                //p->setCurrentObject(inObjs[numInPorts]);
-                numInPorts++;
-            }
-        }
-
-        // handle output ports: set parameters for object creation
-        else if (p->getPortType() == coPortType::CO_OUTPUT_PORT)
-        {
-            coOutputPort *oPort = (coOutputPort *)p;
-            oPort->setCurrentObject(NULL);
-
-            // adjust timestep for out port in case of dependent input port
-            // adjust block numbering for out port in case of dependent input port
-            if (oPort->getTSDependencyPort())
-            {
-                oPort->setTime(oPort->getTSDependencyPort()->getTime());
-                oPort->setTimeStep(oPort->getTSDependencyPort()->getTimeStep());
-                oPort->setBlockNo(oPort->getTSDependencyPort()->getBlockNo());
-                oPort->setNumBlocks(oPort->getTSDependencyPort()->getNumBlocks());
-            }
-            outPorts[numOutPorts] = oPort;
-            numOutPorts++;
-        }
-    }
-
-    // Wait for outport availability
-    waitForOutportAvailability(numOutPorts, outPorts, 999.0);
-#endif
 
     // if fieldIn is connected then dont output a velocity vector,
     // or the Tracer would try to map vector and scalar data to the same outport
@@ -551,11 +468,7 @@ int Tracer::compute(const char *)
         fprintf(stderr, "main: gatherTimeStep\n");
 #endif
         theTask->WarnIfOutOfDomain();
-#ifndef YAC
         theTask->gatherTimeStep();
-#else
-        theTask->gatherTimeStep(p_line);
-#endif
     } // all time steps are done
     theTask->gatherAll(p_line, p_mag);
 
@@ -583,47 +496,12 @@ int Tracer::compute(const char *)
             resGeomObj->addAttribute("OBJECTNAME", getTitle());
     }
 
-#ifdef YAC
-    std::list<coDistributedObject *> delete_me_later;
-
-    // collect all Ports with new objects for the Controller message
-
-    numOut = 0;
-    for (i = 0; i < pl->num(); i++)
-    {
-        coDataPort *p = (coDataPort *)(pl->item(i));
-        if (p->getPortType() == coPortType::CO_OUTPUT_PORT)
-        {
-            if (p->getCurrentObject())
-            {
-                // deleteObj(p->getCurrentObject());
-                delete_me_later.push_back(p->getCurrentObject());
-                outPorts[numOut] = (coOutputPort *)p;
-                numOut++;
-            }
-        }
-    }
-    if (numOut)
-    {
-        createdObjects(numOut, outPorts);
-    }
-
-    std::list<coDistributedObject *>::iterator iter;
-    for (iter = delete_me_later.begin(); iter != delete_me_later.end(); iter++)
-        deleteObj(*iter);
-
-    delete[] inObjs;
-    delete[] outPorts;
-    delete[] inPorts;
-    return (1);
-#endif
     return SUCCESS;
 }
 
 void
 Tracer::AddInteractionAttributes()
 {
-#ifndef YAC // fixme
     // attach attribute always to geometry
     coDistributedObject *attachObj = p_line->getCurrentObject();
     if (!attachObj)
@@ -710,8 +588,6 @@ Tracer::AddInteractionAttributes()
 #endif
         attachObj->addAttribute("FEEDBACK", interaction);
     }
-
-#endif
 }
 
 #ifdef _COMPLEX_MODULE_
@@ -1511,7 +1387,6 @@ Tracer::param(const char *paramname, bool inMapLoading)
     // title: If user sets it, we have to de-activate auto-names
     if (strcmp(paramname, "SetModuleTitle") == 0)
     {
-#ifndef YAC //fixme
         // find out "real" module name
         char realTitle[1024];
         sprintf(realTitle, "%s_%s", get_module(), get_instance());
@@ -1521,7 +1396,6 @@ Tracer::param(const char *paramname, bool inMapLoading)
             autoTitle = false;
         else
             autoTitle = autoTitleConfigured; // otherwise do whatever configured
-#endif
         return;
     }
 
@@ -1735,14 +1609,6 @@ Tracer::param(const char *paramname, bool inMapLoading)
     (void)inMapLoading;
 #endif
 }
-
-#ifdef YAC
-void Tracer::paramChanged(coParam *param)
-{
-
-    this->param(param->getName(), false);
-}
-#endif
 
 //===============================================================================================
 //===============================================================================================

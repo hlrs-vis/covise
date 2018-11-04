@@ -60,9 +60,8 @@ VrmlNamespace::VrmlNamespace(VrmlNamespace *parent)
 VrmlNamespace::~VrmlNamespace()
 {
     // Free nameList
-    list<VrmlNode *>::iterator n;
-    for (n = d_nameList.begin(); n != d_nameList.end(); ++n)
-        (*n)->dereference();
+    for (auto &n: d_nameList)
+        n.second->dereference();
 
     // Free typeList
     list<VrmlNodeType *>::iterator i;
@@ -363,25 +362,28 @@ VrmlNamespace::addNodeName(VrmlNode *namedNode)
     // the list, the other name won't be found. If we do
     // something smart with this list (like sorting), this
     // will need to change.
-    d_nameList.push_front(namedNode->reference());
+    d_nameList[namedNode->name()] = namedNode->reference();
 }
 
 void
 VrmlNamespace::removeNodeName(VrmlNode *namedNode)
 {
-    if (d_nameList.size() > 0)
+    auto it = d_nameList.find(namedNode->name());
+    if (it != d_nameList.end())
     {
-        d_nameList.remove(namedNode);
+        d_nameList.erase(it);
         // namedNode->dereference();
     }
 }
 
 VrmlNode *VrmlNamespace::findNode(const char *name)
 {
-    list<VrmlNode *>::iterator n;
-    for (n = d_nameList.begin(); n != d_nameList.end(); ++n)
-        if (strcmp((*n)->name(), name) == 0)
-            return *n;
+    auto it = d_nameList.find(name);
+    if (it != d_nameList.end())
+    {
+        return it->second;
+    }
+
     if(strncmp(name,"global::",8)==0) // search in all namespaces
     {
         NamespaceList::iterator it;
@@ -420,10 +422,13 @@ VrmlNode *VrmlNamespace::findNode(const char *name, int num)
 
 void VrmlNamespace::repairRoutes()
 {
-    list<VrmlNode *>::iterator n;
-    for (n = d_nameList.begin(); n != d_nameList.end(); ++n)
+    for (auto &n: d_nameList)
     {
-        findNode((*n)->name())->repairRoutes();
+        auto node = findNode(n.second->name());
+        if (node)
+            node->repairRoutes();
+        else
+            std::cerr << "VrmlNamespace::repairRoutes: did not find node " << n.second->name() << std::endl;
     }
 }
 

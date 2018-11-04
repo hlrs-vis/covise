@@ -26,13 +26,15 @@
 #include "src/data/projectdata.hpp"
 #include "src/data/roadsystem/roadsystem.hpp"
 #include "src/data/commands/lanesectioncommands.hpp"
+#include "src/data/roadsystem/sections/lane.hpp"
+#include "src/data/roadsystem/sections/lanesection.hpp"
 
 // Graph //
 //
 #include "src/graph/topviewgraph.hpp"
 #include "src/graph/graphscene.hpp"
 #include "src/graph/graphview.hpp"
-#include "src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp"
+#include "src/graph/items/handles/lanemovehandle.hpp"
 
 #include "src/graph/items/roadsystem/lanes/laneroadsystemitem.hpp"
 #include "src/graph/items/roadsystem/lanes/lanesectionitem.hpp"
@@ -41,6 +43,7 @@
 // Tools //
 //
 #include "src/gui/tools/laneeditortool.hpp"
+#include "src/gui/mouseaction.hpp"
 
 // Qt //
 //
@@ -50,11 +53,11 @@
 // CONSTRUCTORS   //
 //################//
 
-LaneEditor::LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph)
+LaneEditor::LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph)
     : ProjectEditor(projectWidget, projectData, topviewGraph)
-    , profileGraph_(profileGraph)
     , roadSystemItem_(NULL)
     , insertSectionHandle_(NULL)
+	, pointHandle_(NULL)
 {
 }
 
@@ -80,20 +83,15 @@ LaneEditor::init()
         roadSystemItem_ = new LaneRoadSystemItem(getTopviewGraph(), getProjectData()->getRoadSystem());
         getTopviewGraph()->getScene()->addItem(roadSystemItem_);
 
-        // Width ProfileGraph //
-        //
-        if (!laneSectionItemPolyGraph_)
-        {
-            // Root item //
-            //
-            laneSectionItemPolyGraph_ = new RoadSystemItem(profileGraph_, getProjectData()->getRoadSystem());
-            profileGraph_->getScene()->addItem(laneSectionItemPolyGraph_);
-            profileGraph_->getScene()->setSceneRect(-1000.0, -1000.0, 20000.0, 2000.0);
-        }
         // Section Handle //
         //
         insertSectionHandle_ = new SectionHandle(roadSystemItem_);
         insertSectionHandle_->hide();
+
+		// Width Add Handle //
+		//
+		pointHandle_ = new PointHandle(roadSystemItem_);
+		pointHandle_->hide();
     }
 }
 
@@ -116,6 +114,16 @@ LaneEditor::getInsertSectionHandle() const
     return insertSectionHandle_;
 }
 
+PointHandle *
+LaneEditor::getAddWidthHandle() const
+{
+	if (!pointHandle_)
+	{
+		qDebug("ERROR 1010151634! LaneEditor not yet initialized.");
+	}
+	return pointHandle_;
+}
+
 //################//
 // TOOL           //
 //################//
@@ -130,204 +138,119 @@ LaneEditor::toolAction(ToolAction *toolAction)
     //
     ProjectEditor::toolAction(toolAction);
 
-    // Tools //
-    //
-    LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(toolAction);
-    if (laneEditorToolAction)
-    {
-        if (selectedMoveHandles_.size() > 0 && (laneEditorToolAction->getType() == LaneEditorToolAction::Width))
-        {
-
-            QList<LaneWidth *> endPointWidths;
-            QList<LaneWidth *> startPointWidths;
-            foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
-            {
-                LaneWidth *lowSlot = moveHandle->getLowSlot();
-                if (lowSlot)
-                {
-                    endPointWidths.append(lowSlot);
-                }
-
-                LaneWidth *highSlot = moveHandle->getHighSlot();
-                if (highSlot)
-                {
-                    startPointWidths.append(highSlot);
-                }
-            }
-
-            // Command //
-            //
-            LaneSetWidthCommand *command = new LaneSetWidthCommand(endPointWidths, startPointWidths, laneEditorToolAction->getWidth(), laneEditorToolAction->getType() == LaneEditorToolAction::Width, NULL);
-            if (command->isValid())
-            {
-                getProjectData()->getUndoStack()->push(command);
-
-                // Message //
-                //
-                printStatusBarMsg(QString("setWidth to: %1").arg(laneEditorToolAction->getWidth()), 1000);
-            }
-            else
-            {
-                if (command->text() != "")
-                {
-                    printStatusBarMsg(command->text(), 4000);
-                }
-                delete command;
-            }
-        }
-    }
+	if (getCurrentTool() == ODD::TLE_SELECT)
+	{
+		LaneEditorToolAction *laneEditorToolAction = dynamic_cast<LaneEditorToolAction *>(toolAction);
+		if (laneEditorToolAction)
+		{
+			LaneEditorToolAction::ActionType type = laneEditorToolAction->getType();
+			if (selectedLaneMoveHandles_.size() > 0 && (type == LaneEditorToolAction::Width))
+			{
+				translateLaneBorder(QPointF(0, 0), QPointF(0, 0), laneEditorToolAction->getWidth(), true);
+			}
+		}
+	}
 }
 
+void
+LaneEditor::mouseAction(MouseAction *mouseAction)
+{
+	QGraphicsSceneMouseEvent *mouseEvent = mouseAction->getEvent();
+
+	if (getCurrentTool() == ODD::TTE_ROAD_NEW)
+	{
+		QPointF mousePoint = mouseAction->getEvent()->scenePos();
+	}
+}
+
+
 //################//
-// MoveHandles    //
+// LaneMoveHandles    //
 //################//
 
 void
-LaneEditor::registerMoveHandle(LaneWidthMoveHandle *handle)
+LaneEditor::registerMoveHandle(BaseLaneMoveHandle *handle)
 {
-    if (handle->getPosDOF() < 0 || handle->getPosDOF() > 2)
-    {
-        qDebug("WARNING 1004261416! ElevationEditor ElevationMoveHandle DOF not in [0,1,2].");
-    }
-    selectedMoveHandles_.insert(handle->getPosDOF(), handle);
-
-    // The observers have to be notified, that a different handle has been selected
-    // 2: Two degrees of freedom //
-    //
-    QList<LaneWidth *> endPointWidths;
-    QList<LaneWidth *> startPointWidths;
-    foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
-    {
-        LaneWidth *lowSlot = moveHandle->getLowSlot();
-        if (lowSlot)
-        {
-            endPointWidths.append(lowSlot);
-        }
-
-        LaneWidth *highSlot = moveHandle->getHighSlot();
-        if (highSlot)
-        {
-            startPointWidths.append(highSlot);
-        }
-    }
-
-    // Command //
-    //
-    SelectLaneWidthCommand *command = new SelectLaneWidthCommand(endPointWidths, startPointWidths, NULL);
-
-    if (command->isValid())
-    {
-        getProjectData()->getUndoStack()->push(command);
-
-        // Message //
-        //
-        printStatusBarMsg(QString("Select Lane Width "), 100);
-    }
-    else
-    {
-        if (command->text() != "")
-        {
-            printStatusBarMsg(command->text(), 4000);
-        }
-        delete command;
-    }
-
+	selectedLaneMoveHandles_.append(handle);
 }
 
 int
-LaneEditor::unregisterMoveHandle(LaneWidthMoveHandle *handle)
+LaneEditor::unregisterMoveHandle(BaseLaneMoveHandle *handle)
 {
-    return selectedMoveHandles_.remove(handle->getPosDOF(), handle);
-}
-
-void LaneEditor::setWidth(double w)
-{
-    QList<LaneWidth *> endPointSections;
-    QList<LaneWidth *> startPointSections;
-    foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
-    {
-        LaneWidth *lowSlot = moveHandle->getLowSlot();
-        if (lowSlot)
-        {
-            endPointSections.append(lowSlot);
-        }
-
-        LaneWidth *highSlot = moveHandle->getHighSlot();
-        if (highSlot)
-        {
-            startPointSections.append(highSlot);
-        }
-    }
-    LaneSetWidthCommand *command = new LaneSetWidthCommand(endPointSections, startPointSections, w, false);
-
-    getProjectData()->getUndoStack()->push(command);
-}
+	return selectedLaneMoveHandles_.removeOne(handle);
+} 
 
 bool
-LaneEditor::translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos)
+LaneEditor::translateLaneBorder(const QPointF &pressPos, const QPointF &mousePosConst, double width, bool setWidth)
 {
-    QPointF dPos = mousePos - pressPos;
 
-    // No entries //
-    //
-    if (selectedMoveHandles_.size() == 0)
-    {
-        return false;
-    }
+	QMap<RSystemElementRoad *, QMap<double, LaneMoveProperties *>> selectedLaneMoveProps;
+	foreach (BaseLaneMoveHandle *baseMoveHandle, selectedLaneMoveHandles_)
+	{
+		LaneMoveProperties *props = new LaneMoveProperties();
+		LaneWidth *lowSlot = baseMoveHandle->getLowSlot();
+		RSystemElementRoad *road;
+		double s;
+		if (lowSlot)
+		{
+			props->lowSlot = lowSlot;
+			road = lowSlot->getParentLane()->getParentLaneSection()->getParentRoad();
+			s = lowSlot->getSSectionEnd();
+		}
+		LaneWidth *highSlot = baseMoveHandle->getHighSlot();
+		if (highSlot)
+		{
+			props->highSlot = highSlot;
+			if (!lowSlot)
+			{
+				road = highSlot->getParentLane()->getParentLaneSection()->getParentRoad();
+				s = highSlot->getSSectionStartAbs();
+			}
+		}
 
-    // 0: Check for zero degrees of freedom //
-    //
-    if (selectedMoveHandles_.count(0) > 0)
-    {
-        return false;
-    }
+		QMap<double, LaneMoveProperties *> propsMap;
+		if (selectedLaneMoveProps.find(road) != selectedLaneMoveProps.end())
+		{
+			propsMap = selectedLaneMoveProps.value(road);
+		}
 
-    // 1: Check for one degree of freedom //
-    //
-    if (selectedMoveHandles_.count(1) > 0)
-    {
-        printStatusBarMsg(tr("Sorry, you can't move yellow items."), 4000);
-        qDebug("One DOF not supported yet");
-        return false;
-    }
+		propsMap.insert(s, props);
+		selectedLaneMoveProps.insert(road, propsMap);
+	}
+	
+	if (setWidth)
+	{
+		TranslateLaneBorderCommand *command = new TranslateLaneBorderCommand(selectedLaneMoveProps, width, QPointF(0,0), NULL);
+		return getProjectGraph()->executeCommand(command);
+	}
+	else
+	{
+		QPointF mousePos = mousePosConst;
 
-    // 2: Two degrees of freedom //
-    //
-    QList<LaneWidth *> endPointSections;
-    QList<LaneWidth *> startPointSections;
-    foreach (LaneWidthMoveHandle *moveHandle, selectedMoveHandles_)
-    {
-        LaneWidth *lowSlot = moveHandle->getLowSlot();
-        if (lowSlot)
-        {
-            endPointSections.append(lowSlot);
-        }
+		// Snap to MoveHandle //
+		//
+		foreach(QGraphicsItem *item, getTopviewGraph()->getScene()->items(mousePos, Qt::IntersectsItemShape, Qt::AscendingOrder, getTopviewGraph()->getView()->viewportTransform()))
+		{
+			BaseLaneMoveHandle *handle = dynamic_cast<BaseLaneMoveHandle *>(item);
 
-        LaneWidth *highSlot = moveHandle->getHighSlot();
-        if (highSlot)
-        {
-            startPointSections.append(highSlot);
-        }
-    }
+			if (handle)
+			{
+				mousePos = handle->pos();
+				break;
+			}
+		}
 
-    // Command //
-    LaneWidthMovePointsCommand *command = new LaneWidthMovePointsCommand(endPointSections, startPointSections, dPos, NULL);
-    if (command->isValid())
-    {
-        getProjectData()->getUndoStack()->push(command);
+		if ((mousePos - pressPos).manhattanLength() < NUMERICAL_ZERO6)
+		{
+			return false;
+		}
 
-        // Message //
-        //
-        //printStatusBarMsg(QString("Move to: %1, %2").arg(pressPos.x()).arg(pressPos.y()+dPos.y()), 1000);
-    }
-    else
-    {
-        if (command->text() != "")
-        {
-            printStatusBarMsg(command->text(), 4000);
-        }
-        delete command;
-    }
+		// DeltaPos  //
+		//
+		QPointF dPos = mousePos - pressPos;
 
-    return true;
+		TranslateLaneBorderCommand *command = new TranslateLaneBorderCommand(selectedLaneMoveProps, width, dPos, NULL);
+		return getProjectGraph()->executeCommand(command);
+	}
+
 }

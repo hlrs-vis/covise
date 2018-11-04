@@ -85,7 +85,7 @@ int OceanDepth::compute(const char *)
             {
                 xcOut[n] = xcIn[n];
                 ycOut[n] = ycIn[n];
-                zcOut[n] = sr[k] + ze[m] * (1. + sr[k] / h[m]);
+                zcOut[n] = sr[k] + ze[m] * (1.0f + sr[k] / h[m]);
                 if (n % 100 == 0)
                     fprintf(stderr, "%.2e = %.2e + %.2e * ( 1. + %.2e / %.2e)\n",
                             zcOut[n],

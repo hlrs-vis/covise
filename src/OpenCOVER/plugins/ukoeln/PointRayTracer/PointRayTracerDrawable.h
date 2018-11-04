@@ -1,11 +1,11 @@
 #ifndef POINT_RAY_TRACER_DRAWABLE_H
 #define POINT_RAY_TRACER_DRAWABLE_H
 
+#include "PointRayTracerGlobals.h"
+
 #include <memory>
 
 #include <osg/Drawable>
-
-#include "PointRayTracerGlobals.h"
 
 class PointRayTracerDrawable : public osg::Drawable
 {
@@ -36,7 +36,6 @@ private:
 
 
     mutable size_t          m_total_frame_num = 0;
-    mutable bool            m_glewIsInitialized = false;
 };
 
 

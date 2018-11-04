@@ -8,21 +8,21 @@
 #ifndef PICKSPHERE_PLUGIN_H
 #define PICKSPHERE_PLUGIN_H
 
-#include <OpenVRUI/coMenuItem.h>
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
-namespace vrui
-{
-class coCheckboxMenuItem;
-}
 namespace opencover
 {
 class BoxSelection;
+
+namespace ui
+{
+class Button;
+}
 }
 
 class VolumeOfInterestInteractor;
 
-using namespace vrui;
 using namespace opencover;
 
 struct MatrixState
@@ -31,7 +31,7 @@ struct MatrixState
     float scaleFactor;
 };
 
-class VolumeOfInterestPlugin : public coVRPlugin, public coMenuListener
+class VolumeOfInterestPlugin : public coVRPlugin, public ui::Owner
 {
 public:
     VolumeOfInterestPlugin();
@@ -47,7 +47,7 @@ public:
 
 private:
     std::vector<MatrixState> m_stateHistory;
-    coCheckboxMenuItem *m_useVolumeOfInterestCheckbox;
+    ui::Button *m_useVolumeOfInterestCheckbox;
     VolumeOfInterestInteractor *m_volumeOfInterestInteractor;
 
     osg::Matrix m_originalMatrix, m_destinationMatrix;
@@ -61,8 +61,5 @@ private:
     void createMenuEntry();
     void deleteMenuEntry();
     void setCurrentInterpolationState(float alpha);
-
-    void menuEvent(coMenuItem *);
 };
-
 #endif

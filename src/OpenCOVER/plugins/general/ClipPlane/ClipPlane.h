@@ -12,72 +12,56 @@
 
 */
 
-#include <cover/mui/support/EventListener.h>
-
+#include <cover/ui/Owner.h>
 #include <osg/ClipPlane>
 
 #include <PluginUtil/coVR3DTransRotInteractor.h>
+#include <cover/coVRPlugin.h>
+#include <cover/coVRPluginSupport.h>
 
 namespace vrui
 {
-class coButtonMenuItem;
 class coTrackerButtonInteraction;
+class coRelativeInputInteraction;
 }
 
-namespace mui
-{
-class ToggleButton;
-class Tab;
+namespace opencover {
+namespace ui {
+class Button;
+class Menu;
+class Group;
+}
 }
 
-using namespace vrui;
 using namespace opencover;
 
 
-class ClipPlanePlugin : public coVRPlugin, public mui::EventListener
+class ClipPlanePlugin : public coVRPlugin, public ui::Owner
 {
 private:
     class Plane
     {
     public:
-        bool enabled;
-        bool valid; // valid is false before first use
+        bool enabled=false;
+        bool valid=false; // valid is false before first use
         osg::ref_ptr<osg::ClipPlane> clip;
-        mui::ToggleButton *EnableButton;
-        mui::ToggleButton *DirectInteractorButton;
-        mui::ToggleButton *PickInteractorButton;
-        coTrackerButtonInteraction *directInteractor;
-        coVR3DTransRotInteractor *pickInteractor;
-        bool showPickInteractor_, showDirectInteractor_;
-        Plane()
-        {
-            valid = false;
-            enabled = false;
-            showPickInteractor_ = false;
-            showDirectInteractor_ = false;
-            clip = NULL;
-            directInteractor = NULL;
-            pickInteractor = NULL;
-            EnableButton = NULL;
-            DirectInteractorButton = NULL;
-            PickInteractorButton = NULL;
-        }
-        ~Plane()
-        {
-            if (directInteractor)
-                delete directInteractor;
-            delete pickInteractor;
-            delete EnableButton;
-            delete DirectInteractorButton;
-            delete PickInteractorButton;
-        }
+        ui::Group *UiGroup = nullptr;
+        ui::Button *EnableButton = nullptr;
+        ui::Button *DirectInteractorButton = nullptr;
+        ui::Button *PickInteractorButton = nullptr;
+        vrui::coTrackerButtonInteraction *directInteractor = nullptr;
+        vrui::coRelativeInputInteraction *relativeInteractor = nullptr;
+        coVR3DTransRotInteractor *pickInteractor = nullptr;
+        bool showPickInteractor_=false, showDirectInteractor_=false;
+        Plane();
+        ~Plane();
     };
     Plane plane[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
 
-    mui::Tab *clipTab;
+    ui::Menu *clipMenu = nullptr;
 
     osg::ref_ptr<osg::Geode> visibleClipPlaneGeode; // transparent plane
-    bool active; // FLAG: ON = POSSIBLE TO CHANGE/SET CHOSEN CLIPPING PLANE
+    bool active = false; // FLAG: ON = POSSIBLE TO CHANGE/SET CHOSEN CLIPPING PLANE
     osg::Matrix pointerMatrix; // needed for computing eqn
     osg::ref_ptr<osg::MatrixTransform> pointerTransform;
     osg::ref_ptr<osg::MatrixTransform> interactorTransform; // needed as parent node for the visible plane
@@ -87,19 +71,12 @@ private:
     osg::Vec4d matrixToEquation(const osg::Matrix &mat);
 
     void setInitialEquation(int);
+    bool m_directInteractorShow = false, m_directInteractorEnable = false;
 
 public:
     ClipPlanePlugin();
     virtual ~ClipPlanePlugin();
     bool init();
-    coVRPlugin *getModule()
-    {
-        return this;
-    };
-    void muiEvent(mui::Element *muiItem);
-    void muiPressEvent(mui::Element *muiItem);
-    void muiReleaseEvent(mui::Element *muiItem);
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void preFrame();
-    static ClipPlanePlugin *thisInstance;
 };

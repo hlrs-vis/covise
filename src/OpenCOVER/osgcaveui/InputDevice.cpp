@@ -5,17 +5,19 @@
 
  * License: LGPL 2+ */
 
+
 #include <iostream>
 #include <fstream>
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
 #include <math.h>
-
+#include <algorithm>
 using namespace std;
 
 // C++:
-#include <assert.h>
+#include <cassert>
+#include <algorithm>
 
 // OSG:
 #include <osg/MatrixTransform>
@@ -743,7 +745,7 @@ void InputDevice::updateCursorGeometry()
 
     // Update pointer length:
     float thickness = _pointerThickFactor * _pointerLength;
-    thickness = min(thickness, _laserThickness);
+    thickness = std::min(thickness, _laserThickness);
     //  _pointerBox->set(Vec3(0.0f, 0.0f, _pointerLength / 2.0f),
     //    Vec3(thickness / 2.0f, thickness / 2.0f, _pointerLength / 2.0f));
     _pointerBox->set(Vec3(0.0f, _pointerLength / 2.0f, 0.0f),

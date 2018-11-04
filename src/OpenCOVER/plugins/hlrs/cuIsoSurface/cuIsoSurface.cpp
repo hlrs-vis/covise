@@ -13,10 +13,11 @@
 
 #include <PluginUtil/ColorBar.h>
 
-#include <OpenVRUI/coMenuItem.h>
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
+#include <cover/ui/Menu.h>
+#include <cover/ui/Slider.h>
 
 #include <osg/Geode>
 #include <osg/ref_ptr>
@@ -26,17 +27,11 @@
 
 #include <sysdep/opengl.h>
 
-#include <OpenVRUI/coSubMenuItem.h>
-#include <OpenVRUI/coButtonMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coRowMenu.h>
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coPotiToolboxItem.h>
-
 #include <cover/coVRMSController.h>
 #include <cover/coVRShader.h>
 
 using namespace covise;
+using vrui::coInteraction;
 
 CUDAEngine isoEngine;
 
@@ -49,8 +44,9 @@ void removeSpikesAdaptive(const float *data, int numElem,
                           float *min, float *max);
 
 cuIsoSurface::cuIsoSurface()
-    : initDone(false)
-    , menu(NULL)
+: ui::Owner("cuIsoSurface", cover->ui)
+, initDone(false)
+, menu(NULL)
 {
     tuiTab = new coTUITab("cuIsoSurface", coVRTui::instance()->mainFolder->getID());
     tuiTab->setPos(0, 0);
@@ -82,10 +78,10 @@ void cuIsoSurface::removeObject(const char *objName, bool /*replace*/)
         groups.erase(i);
     }
 
-    std::map<std::string, coPotiToolboxItem *>::iterator si = sliders.find(objName);
+    std::map<std::string, ui::Slider *>::iterator si = sliders.find(objName);
 
     if (si != sliders.end())
-        menu->remove(si->second);
+        delete si->second;
 }
 
 void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setName*/, const RenderObject *geometry, const RenderObject *normals, const RenderObject *colorObj, const RenderObject *texObj)
@@ -105,11 +101,8 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
 
     if (!menu)
     {
-        coMenu *coviseMenu = (coMenu *)(VRPinboard::instance()->namedMenu("COVISE")->getCoMenu());
-        coSubMenuItem *menuItem = new coSubMenuItem("cuIsoSurfaceUSG");
-        menu = new coRowMenu("cuIsoSurfaceUSG", coviseMenu);
-        menuItem->setMenu(menu);
-        coviseMenu->add(menuItem);
+        menu = new ui::Menu("cuIsoSurfaceUSG", this);
+        cover->visMenu->add(menu);
     }
 
     if (container)
@@ -235,13 +228,11 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
             */
                 g->setStateSet(state.get());
 
-                //coSliderMenuItem *slider = NULL;
-                coPotiToolboxItem *slider = NULL;
+                ui::Slider *slider = NULL;
                 coTUIFloatSlider *tuiSlider = NULL;
                 coTUIToggleButton *tuiButton = NULL;
 
-                //std::map<std::string, coSliderMenuItem *>::iterator i =
-                std::map<std::string, coPotiToolboxItem *>::iterator i = sliders.find(container->getName());
+                std::map<std::string, ui::Slider *>::iterator i = sliders.find(container->getName());
                 std::map<std::string, coTUIFloatSlider *>::iterator ti = tuiSliders.find(container->getName());
                 std::map<std::string, coTUIToggleButton *>::iterator tbi = tuiButtons.find(container->getName());
 
@@ -251,9 +242,10 @@ void cuIsoSurface::addObject(const RenderObject *container, osg::Group * /*setNa
                     if (!name)
                         name = container->getName();
 
-                    slider = new coPotiToolboxItem(name, dataMin, dataMax, dataMin);
+                    slider = new ui::Slider(menu, name);
+                    slider->setBounds(dataMin, dataMax);
+                    slider->setValue(dataMin);
                     sliders[container->getName()] = slider;
-                    menu->add(slider);
                 }
                 else
                     slider = i->second;
@@ -356,14 +348,12 @@ void cuIsoSurface::postFrame()
     }
 }
 
-//IsoDrawable::IsoDrawable(coSliderMenuItem *s, coTUIFloatSlider *tui,
-IsoDrawable::IsoDrawable(coPotiToolboxItem *s, coTUIFloatSlider *tui,
+IsoDrawable::IsoDrawable(ui::Slider *s, coTUIFloatSlider *tui,
                          coTUIToggleButton *button,
                          const RenderObject *g, const RenderObject *map,
                          const RenderObject *data,
                          float *b, float mi = 0.0, float ma = 0.0)
     : osg::Drawable()
-    , coMenuListener()
     , coTUIListener()
     , state(NULL)
     , geom(g)
@@ -418,7 +408,6 @@ IsoDrawable::IsoDrawable(coPotiToolboxItem *s, coTUIFloatSlider *tui,
         setDataVariance(Object::DYNAMIC);
         threshold = FLT_MAX;
         changed = true;
-        slider->setMenuListener(this);
         if (tuiSlider)
             tuiSlider->setEventListener(this);
         if (tuiButton)
@@ -429,14 +418,6 @@ IsoDrawable::IsoDrawable(coPotiToolboxItem *s, coTUIFloatSlider *tui,
 IsoDrawable::~IsoDrawable()
 {
     CleanupState(state);
-}
-
-void IsoDrawable::menuReleaseEvent(coMenuItem * /*item*/)
-{
-}
-
-void IsoDrawable::menuEvent(coMenuItem * /*item*/)
-{
 }
 
 void IsoDrawable::tabletEvent(coTUIElement *tUIItem)
@@ -457,7 +438,7 @@ void IsoDrawable::tabletEvent(coTUIElement *tUIItem)
 
 void IsoDrawable::preFrame()
 {
-    float thresh = slider->getValue();
+    float thresh = slider->value();
     /*
    if (animate && anim < 5)
       anim ++;
@@ -502,7 +483,6 @@ void IsoDrawable::postFrame()
 
 IsoDrawable::IsoDrawable(const IsoDrawable &draw, const osg::CopyOp &op)
     : osg::Drawable(draw, op)
-    , coMenuListener()
     , coTUIListener()
 {
 }

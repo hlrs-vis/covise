@@ -265,7 +265,8 @@ Highscore::Highscore()
 
 bool Highscore::init()
 {
-    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core"));
+	XMLCh *t1 = NULL;
+    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("Core")); xercesc::XMLString::release(&t1);
     fprintf(stderr, "Highscore::Highscore\n");
     HighscoreTab = new coTUITab("Highscore", coVRTui::instance()->mainFolder->getID());
     HighscoreTab->setPos(0, 0);
@@ -364,6 +365,7 @@ Highscore::setResetTime(double)
 
 void Highscore::load()
 {
+	XMLCh *t1 = NULL;
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
@@ -391,11 +393,11 @@ void Highscore::load()
             xercesc::DOMElement *node = dynamic_cast<xercesc::DOMElement *>(nodeList->item(i));
             if (!node)
                 continue;
-            const char *pos = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("pos")));
-            const char *name = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("name")));
-            const char *startTime = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("startTime")));
-            const char *interimTime = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("interimTime")));
-            const char *endTime = xercesc::XMLString::transcode(node->getAttribute(xercesc::XMLString::transcode("endTime")));
+            char *pos = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("pos"))); xercesc::XMLString::release(&t1);
+            char *name = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("name"))); xercesc::XMLString::release(&t1);
+            char *startTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("startTime"))); xercesc::XMLString::release(&t1);
+            char *interimTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("interimTime"))); xercesc::XMLString::release(&t1);
+            char *endTime = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("endTime"))); xercesc::XMLString::release(&t1);
             HSEntry *he = new HSEntry(this);
             double d;
             int posi;
@@ -410,13 +412,20 @@ void Highscore::load()
             sscanf(endTime, "%lf", &d);
             he->setEndTime(d);
             hsEntries.push_back(he);
+			xercesc::XMLString::release(&pos);
+			xercesc::XMLString::release(&name);
+			xercesc::XMLString::release(&startTime);
+			xercesc::XMLString::release(&interimTime);
+			xercesc::XMLString::release(&endTime);
         }
     }
 }
 
 void Highscore::save()
 {
-    xercesc::DOMDocument *document = impl->createDocument(0, xercesc::XMLString::transcode("Highscores"), 0);
+	XMLCh *t1 = NULL;
+	XMLCh *t2 = NULL;
+    xercesc::DOMDocument *document = impl->createDocument(0, t1 = xercesc::XMLString::transcode("Highscores"), 0); xercesc::XMLString::release(&t1);
 
     xercesc::DOMElement *rootElement = document->getDocumentElement();
 
@@ -426,14 +435,14 @@ void Highscore::save()
 
         char number[100];
         sprintf(number, "%d", (*hs)->getPos());
-        hsElement->setAttribute(xercesc::XMLString::transcode("pos"), xercesc::XMLString::transcode(number));
-        hsElement->setAttribute(xercesc::XMLString::transcode("name"), xercesc::XMLString::transcode((*hs)->getName().c_str()));
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("pos"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("name"), t2 = xercesc::XMLString::transcode((*hs)->getName().c_str())); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%lf", (*hs)->getStartTime());
-        hsElement->setAttribute(xercesc::XMLString::transcode("startTime"), xercesc::XMLString::transcode(number));
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("startTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%lf", (*hs)->getInterimTime());
-        hsElement->setAttribute(xercesc::XMLString::transcode("interimTime"), xercesc::XMLString::transcode(number));
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("interimTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         sprintf(number, "%lf", (*hs)->getEndTime());
-        hsElement->setAttribute(xercesc::XMLString::transcode("endTime"), xercesc::XMLString::transcode(number));
+        hsElement->setAttribute(t1 = xercesc::XMLString::transcode("endTime"), t2 = xercesc::XMLString::transcode(number)); xercesc::XMLString::release(&t1); xercesc::XMLString::release(&t2);
         rootElement->appendChild(hsElement);
     }
 
@@ -457,9 +466,9 @@ void Highscore::save()
     //dc->setParameter(xercesc::XMLUni::fgDOMWRTDiscardDefaultContent,true);
 
     xercesc::DOMLSOutput *theOutput = ((xercesc::DOMImplementationLS *)impl)->createLSOutput();
-    theOutput->setEncoding(xercesc::XMLString::transcode("utf8"));
+    theOutput->setEncoding(xercesc::XMLString::transcode("utf8")); xercesc::XMLString::release(&t1);
 
-    bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode("highscore.xml"));
+    bool written = writer->writeToURI(rootElement, xercesc::XMLString::transcode("highscore.xml")); xercesc::XMLString::release(&t1);
     if (!written)
         fprintf(stderr, "Material::save info: Could not open file for writing %s!\n", "highscore.xml");
     delete writer;

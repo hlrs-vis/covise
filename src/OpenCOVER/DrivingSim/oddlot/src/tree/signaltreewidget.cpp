@@ -44,6 +44,9 @@
 #include "src/graph/editors/signaleditor.hpp"
 
 #include <QWidget>
+#include <QMouseEvent>
+#include <QDrag>
+#include <QMimeData>
 
 //################//
 // CONSTRUCTOR    //
@@ -53,7 +56,7 @@ SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mai
 	: QTreeWidget()
 	, signalManager_(signalManager)
 	, mainWindow_(mainWindow)
-	, projectWidget_(NULL)
+    , projectWidget_(NULL)
 	, signalEditor_(NULL)
 	, currentTool_(ODD::TNO_TOOL)
 {
@@ -62,7 +65,7 @@ SignalTreeWidget::SignalTreeWidget(SignalManager *signalManager, MainWindow *mai
 
 SignalTreeWidget::~SignalTreeWidget()
 {
-    
+
 }
 
 //################//
@@ -74,10 +77,10 @@ SignalTreeWidget::init()
 {
 	// Connect with the ToolManager to send the selected signal or object //
     //
-	ToolManager *toolManager = mainWindow_->getToolManager();
-	if (toolManager)
+	toolManager_ = mainWindow_->getToolManager();
+	if (toolManager_)
 	{
-		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager, SLOT(toolActionSlot(ToolAction *)));
+		connect(this, SIGNAL(toolAction(ToolAction *)), toolManager_, SLOT(toolActionSlot(ToolAction *)));
 	}
 
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -209,19 +212,33 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 {
 	if (signalEditor_ && (selectedItems().size() > 0))
 	{
+		toolManager_->activateSignalSelection(false);
+
 		QTreeWidgetItem *item = selectedItems().at(0);
 		const QString text = item->text(0);
-		SignalContainer *signalContainer = signalManager_->getSignalContainer(text);
+		QString country;
+		QString category;
+		QTreeWidgetItem *parentItem = item->parent();
+		if (parentItem)
+		{
+			parentItem = parentItem->parent();
+			if (parentItem)
+			{
+				country = parentItem->text(0);
+			}
+		}
+		SignalContainer *signalContainer = signalManager_->getSignalContainer(country, text);
 		if (signalContainer)				// selected item is a signal
 		{
 			signalManager_->setSelectedSignalContainer(signalContainer);
 			currentTool_ = ODD::TSG_SIGNAL;
-			if (signalEditor_ && projectWidget_)
+
+			if (signalEditor_ && projectWidget_ && parentItem && !country.isEmpty())
 			{
-				const QString &country = signalManager_->getCountry(signalContainer);
-				int type = signalContainer->getSignalType();
+//				const QString &country = signalManager_->getCountry(signalContainer);
+				QString type = signalContainer->getSignalType();
 				const QString &typeSubclass = signalContainer->getSignalTypeSubclass();
-				int subtype = signalContainer->getSignalSubType();
+				QString subtype = signalContainer->getSignalSubType();
 				double value = signalContainer->getSignalValue();
 
 
@@ -267,9 +284,11 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 
 						if (object)
 						{
-							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), type, object->getT(), object->getzOffset(), 
-								object->getValidLength(), object->getOrientation(), length, width, radius, height, heading,
-								object->getPitch(), object->getRoll(), object->getPole(), object->getRepeatS(), object->getRepeatLength(), repeatDistance, object->getTextureFileName());
+							Object::ObjectProperties objectProps{ object->getT(), object->getOrientation(), object->getzOffset(), type, object->getValidLength(), length, width, radius, 
+								height, heading, object->getPitch(), object->getRoll(), object->getPole() };
+							Object::ObjectRepeatRecord repeatProps = object->getRepeatProperties();
+							object->setRepeatDistance(repeatDistance);
+							SetObjectPropertiesCommand *command = new SetObjectPropertiesCommand(object, object->getId(), object->getName(), objectProps, repeatProps, object->getTextureFileName());
 							projectWidget_->getProjectSettings()->executeCommand(command);
 						}
 					}
@@ -283,11 +302,10 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 			else if (text == "Tunnel")
 			{
 				currentTool_ = ODD::TSG_TUNNEL;
-
 			}
 			else
 			{
-				currentTool_ = ODD::TSE_SELECT;
+				currentTool_ = ODD::TSG_SELECT;
 			}
 		}
 
@@ -307,7 +325,63 @@ SignalTreeWidget::selectionChanged(const QItemSelection &selected, const QItemSe
 	{
 		clearSelection();
 		clearFocus();
+		update();
 	}
 
+}
+
+void SignalTreeWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+    if ((event->pos() - dragStartPosition_).manhattanLength() < QApplication::startDragDistance())
+        return;
+    SignalContainer *signalContainer = signalManager_->getSelectedSignalContainer();
+    QTreeWidget::mouseMoveEvent(event);
+    if(signalContainer)
+    {
+        QIcon signalIcon = signalContainer->getSignalIcon();
+        if(!signalIcon.isNull())
+        {
+            PrepareDrag(signalIcon);
+            signalManager_->setSelectedSignalContainer(NULL);
+        }
+    }
+    else
+    {
+        ObjectContainer* objectContainer = signalManager_->getSelectedObjectContainer();
+        if(objectContainer)
+        {
+            QIcon objectIcon = objectContainer->getObjectIcon();
+            if(!objectIcon.isNull())
+            {
+                PrepareDrag(objectIcon);
+                signalManager_->setSelectedObjectContainer(NULL);
+            }
+        }
+    }
+}
+
+/**
+ * @brief SignalTreeWidget::PrepareDrag
+ * Initialize a drag pointer with mimedata and set the icon.
+ * @param icon
+ */
+void SignalTreeWidget::PrepareDrag(const QIcon& icon)
+{
+    QDrag* drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+
+    QTreeWidgetItem *item = selectedItems().at(0);
+    const QString text = item->text(0);
+    //Signal *signal = dynamic_cast<Signal *>(projectWidget_->getProjectData()->getSelectedElements().at(0));
+    //QString signalName = signal->getName();
+    std::string entryName = text.toUtf8().constData();
+
+    mimeData->setData("text/plain", QByteArray::fromStdString(entryName));
+    drag->setMimeData(mimeData);
+    drag->setPixmap(icon.pixmap(QSize(35,35)));
+    drag->exec(Qt::CopyAction | Qt::MoveAction);
+    //return drag;
 }
 

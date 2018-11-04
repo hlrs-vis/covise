@@ -44,6 +44,7 @@ coVrbRegistryAccess *coVrbRegistryAccess::instance = NULL;
 //==========================================================================
 coVrbRegistryAccess::coVrbRegistryAccess(int ID)
 {
+    assert(!instance);
     _ID = ID;
     _entryList = new coDLPtrList<coVrbRegEntry *>();
     instance = this;
@@ -54,6 +55,7 @@ coVrbRegistryAccess::~coVrbRegistryAccess()
 
     // delete entry list including all entries!
     delete _entryList;
+    instance = NULL;
 }
 
 void coVrbRegistryAccess::setID(int id)

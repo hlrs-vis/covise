@@ -367,7 +367,7 @@ const char *SimpleServerConnection::readLine()
 {
     if (check_for_input())
     {
-        int numBytes = sock->read(buffer + buflen, 10000 - buflen);
+        int numBytes = sock->read(buffer + buflen, int(10000 - buflen));
         if (numBytes > 0)
         {
             buflen += numBytes;
@@ -422,7 +422,7 @@ const char *SimpleClientConnection::readLine()
 {
     if (check_for_input())
     {
-        int numBytes = sock->read(buffer + buflen, 10000 - buflen);
+        int numBytes = sock->read(buffer + buflen, int(10000 - buflen));
         if (numBytes > 0)
         {
             buflen += numBytes;
@@ -1633,7 +1633,7 @@ const char *SSLConnection::readLine()
         SSLSocket *locSocket = dynamic_cast<SSLSocket *>(sock);
         if (locSocket)
         {
-            numBytes = locSocket->read(mBuffer + mBuflen, 10000 - mBuflen);
+            numBytes = locSocket->read(mBuffer + mBuflen, int(10000 - mBuflen));
         }
         else
         {
@@ -2198,7 +2198,14 @@ SSLClientConnection::SSLClientConnection(Host *h, int p, SSLClientConnection::Pa
     SSLSocket *locSock = dynamic_cast<SSLSocket *>(sock);
     this->mSA_server.sin_family = AF_INET;
     this->mSA_server.sin_port = htons(port);
-    this->mSA_server.sin_addr.s_addr = inet_addr(h->getAddress());
+	//this->mSA_server.sin_addr.s_addr = inet_addr(h->getAddress());
+	int err = inet_pton(AF_INET, h->getAddress(), &this->mSA_server.sin_addr.s_addr);
+	if (err != 1)
+	{
+#ifdef WIN32
+		resolveError();
+#endif
+	}
 
     int result = locSock->connect(this->mSA_server /*, retries, 30.0*/);
     if (result != 0)

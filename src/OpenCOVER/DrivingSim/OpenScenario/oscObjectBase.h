@@ -85,6 +85,10 @@ public:
     virtual ~oscObjectBase(); ///< destructor
 	virtual const char *getScope() { return ""; }; ///< return parent hierarchie in order to uniquely identify chrildren by name
 
+	// Clone for members //
+	//
+	void cloneMembers(oscObjectBase *objectBase, oscObjectBase *parentObj, oscMember *ownMember);
+
     //
     virtual void initialize(OpenScenarioBase *b, oscObjectBase *parentObject, oscMember *ownMember, oscSourceFile *s); ///< params: base, parentObj, ownMem, source
     void addMember(oscMember *m);

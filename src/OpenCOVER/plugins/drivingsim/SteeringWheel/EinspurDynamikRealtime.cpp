@@ -5,17 +5,17 @@
 
  * License: LGPL 2+ */
 
+#include "SteeringWheel.h"
 #include "EinspurDynamikRealtime.h"
 #include <iostream>
 #include <cmath>
 
-#include "SteeringWheel.h"
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
 #include <osgUtil/IntersectVisitor>
 
-#include "VehicleUtil.h"
+#include <VehicleUtil/VehicleUtil.h>
 
 #include <deque>
 

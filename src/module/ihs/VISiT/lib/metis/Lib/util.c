@@ -414,7 +414,7 @@ float snorm2(int n, float *v)
   for (i = 0; i<n; i++)
     partial += v[i] * v[i];
 
-  return sqrt(partial);
+  return (float)sqrt(partial);
 }
 
 

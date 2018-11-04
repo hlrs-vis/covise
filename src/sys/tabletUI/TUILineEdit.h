@@ -14,6 +14,7 @@
 
 class QLineEdit;
 class QWidget;
+class QLabel;
 
 class TUILineEdit : public QObject, public TUIElement
 {
@@ -22,22 +23,20 @@ class TUILineEdit : public QObject, public TUIElement
 public:
     TUILineEdit(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUILineEdit();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
-    void setPos(int x, int y);
+    void setPos(int x, int y) override;
+    void setLabel(QString textl) override;
 
 public slots:
     void valueChanged();
 
 protected:
-    QLineEdit *editField;
+    QLineEdit *editField = nullptr;
     QString value;
+    QLabel *label = nullptr;
 };
 #endif

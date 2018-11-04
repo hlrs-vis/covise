@@ -209,16 +209,16 @@ void Plane::shapeFunction(float xi, float eta, float formValue[8])
 {
     formValue[7] = 1 - xi;
     formValue[1] = 1 - eta;
-    formValue[0] = 0.25 * formValue[7] * formValue[1] * (-1 - eta - xi);
-    formValue[4] = 0.25 * (1 + xi);
+    formValue[0] = 0.25f * formValue[7] * formValue[1] * (-1 - eta - xi);
+    formValue[4] = 0.25f * (1 + xi);
     formValue[2] = formValue[4] * formValue[1] * (-1 - eta + xi);
     formValue[6] = 1 + eta;
     formValue[4] *= formValue[6] * (-1 + eta + xi);
-    formValue[5] = 0.5 * (1 - xi * xi);
+    formValue[5] = 0.5f * (1 - xi * xi);
     formValue[1] *= formValue[5];
     formValue[5] *= formValue[6];
-    formValue[6] *= 0.25 * formValue[7] * (-1 + eta - xi);
-    formValue[3] = 0.5 * (1 - eta * eta);
+    formValue[6] *= 0.25f * formValue[7] * (-1 + eta - xi);
+    formValue[3] = 0.5f * (1 - eta * eta);
     formValue[7] *= formValue[3];
     formValue[3] *= 1 + xi;
 }

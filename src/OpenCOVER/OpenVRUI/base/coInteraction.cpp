@@ -28,6 +28,8 @@ coInteraction::coInteraction(InteractionType type, const string &name, Interacti
     hasPriorityFlag = false;
     remoteLockID = 0; // don't synchronize Interaction
     remoteLock = false;
+
+    runningState = StateNotRunning;
 }
 
 coInteraction::~coInteraction()
@@ -41,6 +43,11 @@ coInteraction::~coInteraction()
     }
     state = Idle;
     coInteractionManager::the()->unregisterInteraction(this);
+}
+
+void coInteraction::setGroup(coInteraction::InteractionGroup group)
+{
+    this->group = group;
 }
 
 void coInteraction::pause()
@@ -159,6 +166,10 @@ bool coInteraction::activate()
             return true;
         }
         else if (coInteractionManager::the()->isOneActive(type))
+        {
+            return false;
+        }
+        else if (group != GroupNonexclusive && coInteractionManager::the()->isOneActive(group))
         {
             return false;
         }

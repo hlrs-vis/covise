@@ -111,4 +111,3 @@ if (COVISE_USE_VIRVO)
       TUITF2DEditor.h
       )
 endif()
-

@@ -35,7 +35,7 @@ using std::endl;
 
 using namespace vrml;
 
-Doc::Doc(const char *url, Doc *relative)
+Doc::Doc(const char *url, const Doc *relative)
     : d_url(0)
     , d_ostream(0)
     , d_fp(0)
@@ -77,7 +77,7 @@ Doc::~Doc()
     }
 }
 
-void Doc::seturl(const char *url, Doc *relative)
+void Doc::seturl(const char *url, const Doc *relative)
 {
     delete[] d_url;
     d_url = 0;
@@ -95,9 +95,9 @@ void Doc::seturl(const char *url, Doc *relative)
     }
 }
 
-const char *Doc::url() { return d_url; }
+const char *Doc::url() const { return d_url; }
 
-const char *Doc::urlBase()
+const char *Doc::urlBase() const
 {
     if (!d_url)
         return "";
@@ -132,7 +132,7 @@ const char *Doc::urlBase()
     return s;
 }
 
-const char *Doc::urlExt()
+const char *Doc::urlExt() const
 {
     if (!d_url)
         return "";
@@ -151,7 +151,7 @@ const char *Doc::urlExt()
     return &ext[0];
 }
 
-const char *Doc::urlPath()
+const char *Doc::urlPath() const
 {
     if (!d_url)
         return "";
@@ -182,7 +182,7 @@ const char *Doc::urlPath()
     return &path[0];
 }
 
-const char *Doc::urlProtocol()
+const char *Doc::urlProtocol() const
 {
     if (d_url)
     {
@@ -211,7 +211,7 @@ const char *Doc::urlProtocol()
     return "file";
 }
 
-const char *Doc::urlModifier()
+const char *Doc::urlModifier() const
 {
     char *mod = d_url ? strrchr(d_url, '#') : 0;
     return mod ? mod : "";
@@ -341,6 +341,26 @@ bool Doc::filename(char *fn, int nfn)
     {
         // we have a local file now but does this exist?
         // if not, the try to fetch it from a remote site if possible
+#ifdef WIN32
+        struct _stat64 sbuf;
+        if (_stat64(s, &sbuf))
+        {
+            cerr << "file " << s << " not local, try to get it from remote " << endl;
+
+            if (d_tmpfile) // Already fetched it
+            {
+                s = d_tmpfile;
+            }
+            else if ((s = (char *)System::the->remoteFetch(s)))
+            {
+                d_tmpfile = new char[strlen(s) + 1 + endLength];
+                strcpy(d_tmpfile, s);
+                // XXX: there is a problem here: freeing sth not malloced...
+                //free(const_cast<char *>(s));        // assumes tempnam or equiv...
+                s = d_tmpfile;
+            }
+        }
+#else
         struct stat sbuf;
         if (stat(s, &sbuf))
         {
@@ -359,6 +379,7 @@ bool Doc::filename(char *fn, int nfn)
                 s = d_tmpfile;
             }
         }
+#endif
         if (s)
         {
             strncpy(fn, s, nfn - 1);

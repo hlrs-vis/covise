@@ -24,6 +24,7 @@
 #include <list>
 #include <limits.h>
 #include <map>
+#include <memory>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
 
@@ -44,12 +45,59 @@ class Font;
 namespace opencover
 {
 
+namespace ui
+{
+class Owner;
+class Group;
+class FileBrowser;
+};
+
 class coTUIFileBrowserButton;
 class coVRIOReader;
 
+struct LoadedFile;
+
+class COVEREXPORT Url
+{
+public:
+    Url(const std::string &url);
+    static Url fromFileOrUrl(const std::string &furl);
+    static std::string decode(const std::string &str, bool path=false);
+
+    std::string str() const;
+    operator std::string() const;
+
+    std::string extension() const;
+    bool valid() const;
+    bool isLocal() const;
+
+    const std::string &scheme() const;
+    const std::string &authority() const;
+    const std::string &path() const;
+    const std::string &query() const;
+    const std::string &fragment() const;
+
+private:
+
+    bool m_valid = false;
+
+    std::string m_scheme;
+    std::string m_authority;
+    bool m_haveAuthority = false;
+        std::string m_userinfo;
+        std::string m_host;
+        std::string m_port;
+    std::string m_path;
+    std::string m_query;
+    std::string m_fragment;
+
+    Url();
+};
+
+
 typedef struct
 {
-    int (*loadUrl)(const char *filename, osg::Group *parent, const char *covise_key);
+    int (*loadUrl)(const Url &url, osg::Group *parent, const char *covise_key);
     int (*loadFile)(const char *filename, osg::Group *parent, const char *covise_key);
     int (*replaceFile)(const char *filename, osg::Group *parent, const char *covise_key);
     int (*unloadFile)(const char *filename, const char *covise_key);
@@ -58,10 +106,14 @@ typedef struct
 
 class COVEREXPORT coVRFileManager : public vrui::coUpdateable
 {
+    friend struct LoadedFile;
+    static coVRFileManager *s_instance;
+
 public:
+    ~coVRFileManager();
     static coVRFileManager *instance();
 
-    const char *findFileExt(const char *filename);
+    std::string findFileExt(const Url &url);
 
     // returns the full path for file
     const char *getName(const char *file);
@@ -77,8 +129,6 @@ public:
 
     // unload the previously loaded file
     void unloadFile(const char *file=NULL);
-
-    osg::Node *getLastModelNode();
 
     // set name of a file to store Viewpoints; if unset, this is derived from the loaded FileName
     void setViewPointFile(const std::string &viewPointFile);
@@ -118,6 +168,9 @@ public:
     // get list of extensioins as required by a filebrowser
     std::string getFilterList();
 
+    // get list of extensioins for saving as required by a filebrowser
+    std::string getWriteFilterList();
+
     // get a loader for a file type, if available
     const FileHandler *getFileHandler(const char *extension);
     coVRIOReader *findIOHandler(const char *extension);
@@ -137,10 +190,10 @@ private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
 
-    char *lastFileName;
-    char *lastCovise_key;
     std::string viewPointFile;
-    osg::Node *lastNode;
+    int m_loadCount = 0;
+    std::unique_ptr<ui::Owner> m_owner;
+    ui::Group *m_fileGroup = nullptr;
 
     typedef std::list<const FileHandler *> FileHandlerList;
     FileHandlerList fileHandlerList;
@@ -170,7 +223,9 @@ private:
     ReadOperations readOperations;
 
     coVRFileManager();
-    ~coVRFileManager();
+    LoadedFile *m_lastFile = nullptr;
+    LoadedFile *m_loadingFile = nullptr;
+    std::map<std::string, LoadedFile *> m_files;
 };
 }
 #endif

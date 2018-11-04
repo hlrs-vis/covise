@@ -40,7 +40,7 @@ void Scalar2Vector::summarizedValuesPushBack(char *value)
 //Remove a trailing newline from a string
 void Scalar2Vector::removeNewLine(char *string)
 {
-    int len = strlen(string);
+    size_t len = strlen(string);
     if (string[len - 1] == '\n')
     {
         string[len - 1] = '\0';
@@ -55,7 +55,7 @@ void Scalar2Vector::summarizeValue(
     const char **zValue)
 {
     char *sValue;
-    int len;
+    size_t len;
 
     if ((strcasecmp(*xValue, *yValue) == 0) && (strcasecmp(*xValue, *zValue) == 0))
     {
@@ -97,7 +97,7 @@ void Scalar2Vector::summarizeEntry(
     switch (manner)
     {
         char *sName;
-        int len;
+        size_t len;
     case 0:
         //We do nothing because according to our heuristic
         //the names do not match
@@ -134,7 +134,7 @@ void Scalar2Vector::summarizeEntry(
         len = strlen(*xName);
         sName = new char[len + 4 + 10];
         sName[0] = '\0';
-        strncat(sName, *xName, strlen(*xName) - 1);
+        strncat(sName, *xName, len-1);
         strcat(sName, prefixOrSuffix);
         removeNewLine(sName);
 
@@ -203,7 +203,7 @@ int Scalar2Vector::matchAttributeNames(const char **xName, const char **yName, c
         //Perhaps they have a common prefix and a different suffix
         if ((strlen(*xName) == strlen(*yName)) && (strlen(*xName) == strlen(*zName)))
         {
-            int len = strlen(*xName);
+            size_t len = strlen(*xName);
             if ((strncasecmp(*xName, *yName, len - 1) == 0) && (strncasecmp(*xName, *zName, len - 1) == 0))
             {
                 prefixOrSuffix[0] = (*xName)[len - 1];

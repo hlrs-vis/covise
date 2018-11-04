@@ -54,7 +54,7 @@ public:
 
     int nameListLen()
     {
-        return nameList_.size();
+        return (int)nameList_.size();
     }
 
     // adds a module skeleton
@@ -63,7 +63,7 @@ public:
     // returns the number of known module skeletons
     int getNumSkels()
     {
-        return skels_.size();
+        return (int)skels_.size();
     }
 
     // returns a module skeleton by name

@@ -2,7 +2,10 @@ IF(NOT COVISE_BUILD_DRIVINGSIM)
   RETURN()
 ENDIF()
 
-USING(PROJ4 XERCESC)
+USING(PROJ4)
+USING(XERCESC)
+USING(OpenCRG)
+USING(V8 optional)
 
 SET(HEADERS
    ./opencrg/crgSurface.h
@@ -52,7 +55,6 @@ SET(SOURCES
    ./RoadSystem/Types.cpp
    fasiUpdateManager.cpp
 )
-USING(XERCESC)
 
 #QT4_WRAP_CPP(MOC_SRCS ${MOC_HEADERS})
 
@@ -83,6 +85,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    KLSM.h
    Klima.h
    LinearMotorControlTask.h
+   RoadPointFinder.h
    Seat.h
    ValidateMotionPlatform.h
    VehicleUtil.h
@@ -111,6 +114,7 @@ if(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
    Klima.cpp
    LinearMotorControlTask.cpp
    Seat.cpp
+   RoadPointFinder.cpp
    ValidateMotionPlatform.cpp
    VehicleUtil.cpp
    XenomaiSteeringWheel.cpp
@@ -122,12 +126,6 @@ else(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 
 endif(XENOMAI_FOUND AND COVISE_USE_XENOMAI)
 
-COVISE_FIND_PACKAGE(OpenCRG)
-COVISE_FIND_PACKAGE(V8)
-IF(NOT OPENCRG_FOUND)
- message("Not building VehicleUtil because of missing OpenCRG")
- RETURN()
-ENDIF(NOT OPENCRG_FOUND)
 
 
 IF(WIN32)
@@ -142,7 +140,6 @@ ADD_DEFINITIONS(-DVEHICLE_UTIL)
       ./..
       ${OPENCRG_INCLUDE_DIR}
       ${PROJ4_INCLUDE_DIR}
-      ${V8_INCLUDE_DIR}
    )
 
    ADD_COVISE_LIBRARY(coOpenVehicleUtil SHARED ${SOURCES} ${HEADERS})
@@ -156,7 +153,6 @@ ADD_DEFINITIONS(-DVEHICLE_UTIL)
      ${OPENSCENEGRAPH_LIBRARIES}
      coOpenCOVER
      ${EXTRA_LIBS}
-     ${V8_LIBRARIES}
    )
 
    COVISE_INSTALL_TARGET(coOpenVehicleUtil)

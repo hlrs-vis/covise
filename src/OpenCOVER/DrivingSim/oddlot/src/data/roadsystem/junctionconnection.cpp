@@ -16,10 +16,51 @@
 #include "junctionconnection.hpp"
 
 #include "rsystemelementjunction.hpp"
+#include "src/data/projectdata.hpp"
 
 #include "qmap.h"
 
-JunctionConnection::JunctionConnection(const QString &id, const QString &incomingRoad, const QString &connectingRoad, const QString &contactPoint, double numerator)
+JunctionConnection::ContactPointValue 
+JunctionConnection::parseContactPoint(const QString &value)
+{
+	if (value == "start")
+	{
+		return JunctionConnection::JCP_START;
+	}
+	else if (value == "end")
+	{
+		return JunctionConnection::JCP_END;
+	}
+	else if (value == "none")
+	{
+		return JunctionConnection::JCP_NONE;
+	}
+	else
+	{
+		qDebug("WARNING: unknown connection contact point: %s", value.toUtf8().constData());
+		return JunctionConnection::JCP_NONE;
+	}
+}
+
+QString 
+JunctionConnection::parseContactPointBack(ContactPointValue value)
+{
+	if (value == JunctionConnection::JCP_START)
+	{
+		return QString("start");
+	}
+	else if (value == JunctionConnection::JCP_END)
+	{
+		return QString("end");
+	}
+	else
+	{
+		qDebug("WARNING: unknown connection contact point");
+		return "";
+	}
+}
+
+JunctionConnection::JunctionConnection(const QString &id, const odrID &incomingRoad, const odrID &connectingRoad, JunctionConnection::ContactPointValue contactPoint, double numerator)
     : DataElement()
     , junctionConnectionChanges_(0x0)
     , parentJunction_(NULL)
@@ -47,21 +88,21 @@ JunctionConnection::setId(const QString &id)
 }
 
 void
-JunctionConnection::setIncomingRoad(const QString &id)
+JunctionConnection::setIncomingRoad(const odrID &id)
 {
     incomingRoad_ = id;
     addJunctionConnectionChanges(CJC_IncomingRoadChanged);
 }
 
 void
-JunctionConnection::setConnectingRoad(const QString &id)
+JunctionConnection::setConnectingRoad(const odrID &id)
 {
     connectingRoad_ = id;
     addJunctionConnectionChanges(CJC_ConnectingRoadChanged);
 }
 
 void
-JunctionConnection::setContactPoint(const QString &contactPoint)
+JunctionConnection::setContactPoint(JunctionConnection::ContactPointValue contactPoint)
 {
     contactPoint_ = contactPoint;
     addJunctionConnectionChanges(CJC_ContactPointChanged);
@@ -139,7 +180,7 @@ JunctionConnection::getClone()
 {
     // New JunctionConnection //
     //
-    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clone", incomingRoad_, connectingRoad_, contactPoint_, userData_.numerator);
+    JunctionConnection *clonedJunctionConnection = new JunctionConnection("clonedJunction", incomingRoad_, connectingRoad_, contactPoint_, userData_.numerator);
 
     // LaneLinks //
     //

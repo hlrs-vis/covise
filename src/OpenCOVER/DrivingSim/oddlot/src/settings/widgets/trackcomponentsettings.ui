@@ -66,8 +66,8 @@
         <rect>
          <x>0</x>
          <y>7</y>
-         <width>190</width>
-         <height>321</height>
+         <width>221</width>
+         <height>291</height>
         </rect>
        </property>
        <property name="title">
@@ -77,8 +77,17 @@
         <property name="leftMargin">
          <number>4</number>
         </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
         <property name="rightMargin">
-         <number>4</number>
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>0</number>
         </property>
         <item row="0" column="0">
          <widget class="QLabel" name="xLabel">

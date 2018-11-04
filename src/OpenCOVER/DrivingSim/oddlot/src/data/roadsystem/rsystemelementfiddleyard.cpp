@@ -22,7 +22,7 @@
 //                          //
 //##########################//
 
-RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const QString &id, const QString &elementType, const QString &elementId, const QString &contactPoint)
+RSystemElementFiddleyard::RSystemElementFiddleyard(const QString &name, const odrID &id, const QString &elementType, const odrID &elementId, const QString &contactPoint)
     : RSystemElement(name, id, RSystemElement::DRE_Fiddleyard)
     , elementType_(elementType)
     , elementId_(elementId)
@@ -62,7 +62,7 @@ RSystemElementFiddleyard::setElementType(const QString &elementType)
 }
 
 void
-RSystemElementFiddleyard::setElementId(const QString &elementId)
+RSystemElementFiddleyard::setElementId(const odrID &elementId)
 {
     elementId_ = elementId;
 }
@@ -102,11 +102,11 @@ RSystemElementFiddleyard::getClone()
 }
 
 void
-RSystemElementFiddleyard::updateIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds)
+RSystemElementFiddleyard::updateIds(const QMap<odrID, odrID> &roadIds)
 {
 	RoadSystem *roadSystem = getRoadSystem();
 
-	elementId_ = roadSystem->getNewId(roadIds, elementId_, "road");
+/*	elementId_ = roadSystem->getNewId(roadIds, elementId_, "road");
 
     foreach (FiddleyardSource *source, sources_)
     {
@@ -125,7 +125,7 @@ RSystemElementFiddleyard::updateIds(const QMultiMap<QString, RoadSystem::IdType>
         {
             sink->setId(newId);
         }
-    }
+    }*/
 }
 
 //###################//
@@ -173,7 +173,7 @@ RSystemElementFiddleyard::acceptForChildNodes(Visitor *visitor)
 //                        //
 //########################//
 
-FiddleyardSource::FiddleyardSource(QString &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance)
+FiddleyardSource::FiddleyardSource(const odrID &id, int lane, double startTime, double repeatTime, double velocity, double velocityDeviance)
     : id_(id)
     , lane_(lane)
     , startTime_(startTime)
@@ -184,7 +184,7 @@ FiddleyardSource::FiddleyardSource(QString &id, int lane, double startTime, doub
 }
 
 void
-FiddleyardSource::addVehicle(const QString &id, double numerator)
+FiddleyardSource::addVehicle(const odrID &id, double numerator)
 {
     if (vehicles_.remove(id))
     {
@@ -233,7 +233,7 @@ FiddleyardSource::getClone()
 //                        //
 //########################//
 
-FiddleyardSink::FiddleyardSink(const QString &id, int lane)
+FiddleyardSink::FiddleyardSink(const odrID &id, int lane)
     : id_(id)
     , lane_(lane)
 {

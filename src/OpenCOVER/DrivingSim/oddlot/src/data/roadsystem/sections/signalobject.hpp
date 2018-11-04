@@ -17,6 +17,7 @@
 #define SIGNALOBJECT_HPP
 
 #include "roadsection.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class Signal : public RoadSection
 {
@@ -32,6 +33,10 @@ public:
         NEGATIVE_TRACK_DIRECTION = 2,
         BOTH_DIRECTIONS = 0
     };
+
+	static OrientationType parseOrientationType(const QString &orientation);
+	static QString parseOrientationTypeBack(OrientationType orientation);
+
     enum SignalChange
     {
         CEL_ParameterChange = 0x1,
@@ -45,8 +50,8 @@ public:
         OrientationType orientation;
         double zOffset;
         QString country;
-        int type;
-        int subtype;
+		QString type;
+		QString subtype;
         double value;
         double hOffset;
         double pitch;
@@ -77,19 +82,19 @@ public:
     //################//
 
 public:
-    explicit Signal(const QString &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, int type, const QString typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability = 0.75, double resetTime = 20.0);
-    explicit Signal(const QString &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData);
+    explicit Signal(const odrID &id, const QString &name, double s, double t, bool dynamic, OrientationType orientation, double zOffset, QString country, const QString &type, const QString typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, QString unit, QString text, double width, double height, bool pole, int size, int validFromLane, int validToLane, double probability = 0.75, double resetTime = 20.0);
+    explicit Signal(const odrID &id, const QString &name, double s, SignalProperties &signalProps, Validity &validity, SignalUserData &userData);
     virtual ~Signal()
     { /* does nothing */
     }
 
     // Signal //
     //
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     }
@@ -148,11 +153,11 @@ public:
         signalProps_.country = country;
     }
 
-    int getType() const
+    QString getType() const
     {
         return signalProps_.type;
     }
-    void setType(const int type)
+    void setType(const QString &type)
     {
         signalProps_.type = type;
     }
@@ -166,11 +171,11 @@ public:
         signalUserData_.typeSubclass = typeSubclass;
     }
 
-    int getSubtype() const
+	QString getSubtype() const
     {
         return signalProps_.subtype;
     }
-    void setSubtype(const int subtype)
+    void setSubtype(const QString &subtype)
     {
         signalProps_.subtype = subtype;
     }
@@ -367,7 +372,7 @@ private:
     // Signal //
     //
     // Mandatory
-    QString id_;
+    odrID id_;
     QString name_;
     SignalProperties signalProps_;
     Validity validity_;

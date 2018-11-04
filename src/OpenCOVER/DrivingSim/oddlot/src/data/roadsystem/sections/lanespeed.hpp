@@ -40,7 +40,7 @@ public:
     //################//
 
 public:
-    explicit LaneSpeed(double sOffset, double max);
+    explicit LaneSpeed(double sOffset, double max, QString unit);
     virtual ~LaneSpeed();
 
     // Lane Functions //
@@ -71,6 +71,11 @@ public:
         return max_;
     }
     void setMaxSpeed(double max);
+
+	QString getMaxSpeedUnit()
+	{
+		return maxUnit_;
+	}
 
     // Observer Pattern //
     //
@@ -112,6 +117,7 @@ private:
 
     double sOffset_;
     double max_;
+	QString maxUnit_;
 };
 
 #endif // LANESPEED_HPP

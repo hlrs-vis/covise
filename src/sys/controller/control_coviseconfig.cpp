@@ -4,7 +4,9 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#endif
 #include <covise/covise.h>
 #include <util/unixcompat.h>
 
@@ -12,6 +14,7 @@
 #include <io.h>
 #include <direct.h>
 #else
+#include <arpa/inet.h>
 #include <dirent.h>
 #endif
 
@@ -28,9 +31,10 @@ using namespace covise;
 uint32_t ControlConfig::genip(const char *n)
 //----------------------------------------------------------------------------
 {
-    uint32_t addr[4];
+    //std::cerr << "genip: n=" << n << std::endl;
+    unsigned addr[4];
 
-    int no_of_no = sscanf(n, "%d.%d.%d.%d", &addr[0],
+    int no_of_no = sscanf(n, "%u.%u.%u.%u", &addr[0],
                           &addr[1], &addr[2], &addr[3]);
 
     if (no_of_no == 4)
@@ -38,16 +42,48 @@ uint32_t ControlConfig::genip(const char *n)
         return (addr[0] << 24) | (addr[1] << 16) | (addr[2] << 8) | addr[3];
     }
 
-    struct hostent *tmphe = gethostbyname(n);
-    if (tmphe == NULL)
-    {
-        return 0;
-    }
+	struct addrinfo hints, *result = NULL;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* any type of socket */
+	hints.ai_flags = AI_ADDRCONFIG;
+	hints.ai_protocol = 0;          /* Any protocol */
 
-    addr[0] = (unsigned char)tmphe->h_addr_list[0][0];
-    addr[1] = (unsigned char)tmphe->h_addr_list[0][1];
-    addr[2] = (unsigned char)tmphe->h_addr_list[0][2];
-    addr[3] = (unsigned char)tmphe->h_addr_list[0][3];
+	int s = getaddrinfo(n, NULL /* service */, &hints, &result);
+	if (s != 0)
+	{
+		fprintf(stderr, "ControlConfig::genip: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
+		return INADDR_NONE;
+	}
+	else
+	{
+		/* getaddrinfo() returns a list of address structures.
+		Try each address until we successfully connect(2).
+		If socket(2) (or connect(2)) fails, we (close the socket
+		and) try the next address. */
+
+		for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next)
+		{
+			if (rp->ai_family != AF_INET)
+				continue;
+
+			char address[1000];
+			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
+			memcpy(addr, &saddr->sin_addr, sizeof(saddr->sin_addr));
+			if (!inet_ntop(rp->ai_family, &saddr->sin_addr, address, sizeof(address)))
+			{
+				std::cerr << "could not convert address of " << n << " to printable format: " << strerror(errno) << std::endl;
+				continue;
+			}
+			else
+			{
+				memcpy(addr, &saddr->sin_addr, sizeof(saddr->sin_addr));
+				break;
+			}
+		}
+
+		freeaddrinfo(result);           /* No longer needed */
+	}
 
     return (addr[0] << 24) | (addr[1] << 16) | (addr[2] << 8) | addr[3];
 }

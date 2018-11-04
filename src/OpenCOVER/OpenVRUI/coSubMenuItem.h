@@ -59,8 +59,6 @@ public:
 
     virtual void buttonEvent(coRotButton *button);
 
-    virtual bool updateContentBool(bool newState);
-
     /// Set the attachment of the submenu respective to the menu item.
     virtual void setAttachment(int attachment);
 

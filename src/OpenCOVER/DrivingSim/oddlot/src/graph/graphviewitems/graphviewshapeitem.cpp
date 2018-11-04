@@ -34,8 +34,6 @@
 //
 // #include "src/data/oscsystem/oscelement.hpp"
 
-// Graph //
-//
 #include "src/graph/editors/osceditor.hpp"
 
 #include <QMouseEvent>
@@ -49,19 +47,18 @@
 #include <cmath>
 
 
-GraphViewShapeItem::GraphViewShapeItem(GraphView *view, OpenScenarioEditor *editor, int x, int y, int width, int height) :
+GraphViewShapeItem::GraphViewShapeItem(GraphView *view, int x, int y, int width, int height) :
     QObject()
     , QGraphicsPathItem()
 	, selected(true)
     , view_(view)
-    , editor_(editor)
     , canvasWidth(width)
     , canvasHeight(height)
     , graphicItemGroup_(NULL)
 {
 
  //   setFixedSize(960, 640);
-
+	m_minPointDistance = 2;
 	m_numberOfSegments = 0;
     m_activeControlPoint = -1;
 
@@ -80,7 +77,7 @@ GraphViewShapeItem::GraphViewShapeItem(GraphView *view, OpenScenarioEditor *edit
 
     QApplication::setOverrideCursor(Qt::CrossCursor);
 
-    m_controlPoints = view_->getSplineControlPoints();
+	m_controlPoints = view_->getSplineControlPoints(m_smoothList);
     if (m_controlPoints.size() > 0)
     {
         m_numberOfSegments = m_controlPoints.size() / 3;
@@ -120,31 +117,31 @@ GraphViewShapeItem::paintControlPoint(const QPointF &point, bool edit,
     QGraphicsPathItem *pathItem = new QGraphicsPathItem(this);
     graphicItemGroup_->addToGroup(pathItem);
 
-    int pointSize = 3;
+    qreal pointSize = 0.1;
 
     if (active)
-        pathItem->setBrush(QColor(140, 140, 240, 255));
+        pathItem->setPen(QColor(140, 140, 240, 255));
     else
-        pathItem->setBrush(QColor(120, 120, 220, 255));
+        pathItem->setPen(QColor(120, 120, 220, 255));
 
     if (realPoint) {
  //       pointSize = 6;
-        pathItem->setBrush(QColor(80, 80, 210, 150));
+        pathItem->setPen(QColor(80, 160, 80, 200));
     }
 
-    pathItem->setPen(QColor(50, 50, 50, 140));
+  //  pathItem->setBrush(QColor(50, 50, 50, 140));
 
     if (!edit)
-        pathItem->setBrush(QColor(160, 80, 80, 250));
+        pathItem->setPen(QColor(160, 80, 80, 200)); 
 
     QPainterPath *path = new QPainterPath();
     if (smooth) {
-        path->addEllipse(QRectF(point.x() - pointSize + 0.5,
-                                    point.y() - pointSize + 0.5,
+        path->addEllipse(QRectF(point.x() - pointSize,
+                                    point.y() - pointSize,
                                     pointSize * 2, pointSize * 2));
     } else {
-        path->addRect(QRectF(point.x() - pointSize + 0.5,
-                                 point.y() - pointSize + 0.5,
+        path->addRect(QRectF(point.x() - pointSize,
+                                 point.y() - pointSize,
                                  pointSize * 2, pointSize * 2));
     }
 
@@ -191,7 +188,7 @@ GraphViewShapeItem::createPath()
 
 	
     QGraphicsPathItem *pathCubicItem = new QGraphicsPathItem(this);
-    QPen penCubic(QBrush(Qt::black), 3);
+    QPen penCubic(QBrush(Qt::black), 1.5);
 	penCubic.setCosmetic(true);
     pathCubicItem->setPen(penCubic);
     graphicItemGroup_->addToGroup(pathCubicItem);
@@ -199,7 +196,7 @@ GraphViewShapeItem::createPath()
     QGraphicsPathItem *pathHandleItem = new QGraphicsPathItem(this);
     QPen penHandle(Qt::black);
     penHandle.setStyle(Qt::DashLine);
-    penHandle.setWidth(3);
+    penHandle.setWidthF(1.5);
 	penHandle.setCosmetic(true);
     pathHandleItem->setPen(penHandle);
     graphicItemGroup_->addToGroup(pathHandleItem);
@@ -264,7 +261,7 @@ GraphViewShapeItem::createPath()
 			isControlPointSmooth(i)); 
 	}
 
-    view_->setSplineControlPoints(m_controlPoints);
+    view_->setSplineControlPoints(m_controlPoints, m_smoothList);
 
 }
 
@@ -276,7 +273,7 @@ GraphViewShapeItem::mousePressEvent(QMouseEvent *e)
 		qreal distance;
         m_activeControlPoint = findControlPoint(p, distance);
 
-        if ((m_activeControlPoint < 0) || (distance > 10))
+        if ((m_activeControlPoint < 0) || (distance > m_minPointDistance))
         {
             if (startPoint.isNull() || endPoint.isNull())
             {
@@ -347,7 +344,7 @@ GraphViewShapeItem::contextMenu(QContextMenuEvent *e)
 		if (!startPoint.isNull())
 		{
 			qreal d = QLineF(e->pos(),startPoint).length();
-			if (d >= 10) 
+			if (d >= m_minPointDistance)
 			{
 				showMenu = true;
 			}
@@ -453,11 +450,11 @@ GraphViewShapeItem::smoothPoint(int index)
 {
     if (m_smoothAction->isChecked()) {
 
-        QPointF before = QPointF(0,0);
+        QPointF before = m_controlPoints.at(0);
         if (index > 3)
             before = m_controlPoints.at(index - 3);
 
-        QPointF after = QPointF(1.0, 1.0);
+        QPointF after = m_controlPoints.at(m_controlPoints.count() - 1);
         if ((index + 3) < m_controlPoints.count())
             after = m_controlPoints.at(index + 3);
 
@@ -483,11 +480,11 @@ GraphViewShapeItem::smoothPoint(int index)
 void 
 GraphViewShapeItem::cornerPoint(int index)
 {
-    QPointF before = QPointF(0,0);
+	QPointF before = m_controlPoints.at(0);
     if (index > 3)
         before = m_controlPoints.at(index - 3);
 
-    QPointF after = QPointF(1.0, 1.0);
+    QPointF after = m_controlPoints.at(m_controlPoints.count() - 1);
     if ((index + 3) < m_controlPoints.count())
         after = m_controlPoints.at(index + 3);
 
@@ -655,7 +652,7 @@ void GraphViewShapeItem::mouseMoveEvent(QMouseEvent *e)
 	if (m_mouseDrag && !startPoint.isNull() && m_activeControlPoint <= 0)
 	{
 		qreal d = QLineF(p, startPoint).length();
-        if (d < 10)
+        if (d < m_minPointDistance)
 		{
             QPointF distance = p - startPoint;
 			startPoint = p;

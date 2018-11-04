@@ -23,6 +23,7 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#ifdef VRUI
 #include <OpenVRUI/coMenuItem.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coPotiMenuItem.h>
@@ -31,6 +32,10 @@
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coCheckboxGroup.h>
 #include <OpenVRUI/coLabelMenuItem.h>
+#else
+#include <cover/ui/Owner.h>
+#include <cover/ui/Menu.h>
+#endif
 #include <cover/coVRSelectionManager.h>
 #include <util/coExport.h>
 #include <cover/coTabletUI.h>
@@ -51,29 +56,29 @@ using namespace opencover;
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 
-class VariantPlugin : public coVRPlugin, public coMenuListener, public coTUIListener, public coSelectionListener
+class VariantPlugin : public coVRPlugin, public ui::Owner, /*public coMenuListener,*/ public coTUIListener, public coSelectionListener
 {
     friend class mySensor;
 public:
     static VariantPlugin *plugin;
-    static coRowMenu *variants_menu;
 
     VariantPlugin();
     ~VariantPlugin();
 
     // this will be called in PreFrame
     void preFrame();
-    //void menuEvent ( coMenuItem* item );
     //this will be called by changing the selected object
     virtual bool selectionChanged();
     virtual bool pickedObjChanged();
 
+#ifdef VRUI
     void menuEvent(coMenuItem *menu_VariantPluginitem);
+#endif
     // this will be called if a COVISE object arrives
     bool init();
     void addNode(osg::Node *, const RenderObject *);
     void removeNode(osg::Node *node, bool /*isGroup*/, osg::Node *realNode);
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void setMenuItem(Variant *var, bool state);
     void tabletEvent(coTUIElement *);
 
@@ -106,6 +111,7 @@ public:
 
 private:
     coSensorList sensorList;
+#ifdef VRUI
     coMenu *cover_menu;
     coSubMenuItem *button;
     coRowMenu *variant_menu;
@@ -114,9 +120,17 @@ private:
     coRowMenu *options_menu;
     coCheckboxMenuItem *showHideLabels;
     coSubMenuItem *roi; //Region of Interest
-    coRowMenu *roi_menue;
+    coRowMenu *roi_menu;
     coCheckboxMenuItem *define_roi;
     coCheckboxMenuItem *active_roi;
+#else
+    ui::Menu *variant_menu=nullptr;
+    ui::Menu *options_menu=nullptr;
+    ui::Button *showHideLabels=nullptr;
+    ui::Menu *roi_menu=nullptr;
+    ui::Button *define_roi=nullptr;
+    ui::Button *active_roi=nullptr;
+#endif
 
     coTUITab *VariantPluginTab;
     coTUIToggleButton *VariantPluginTUIItem;
@@ -138,7 +152,7 @@ private:
     coVRBoxOfInterest *boi;
     bool interActing;
 
-    coTrackerButtonInteraction *_interactionA; ///< interaction for first button
+    vrui::coTrackerButtonInteraction *_interactionA; ///< interaction for first button
 
     osg::Vec3 tmpVec;
     float scale;

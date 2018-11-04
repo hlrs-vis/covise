@@ -50,9 +50,7 @@
     <!--ShmKind value="sysv" /-->
     <WSInterface value="false" />
    <CRB>
-    <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="windows" value="Renderer/QtRenderer" name="Renderer/Renderer" />
-    <ModuleAlias ARCH="mac" value="Renderer/OpenCOVER" name="Renderer/Renderer" />
+    <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/Renderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/VRRenderer" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER" />
     <ModuleAlias value="Renderer/OpenCOVER" name="Renderer/COVER_VRML" />
@@ -61,8 +59,29 @@
   </System>
 
   <COVER>
+      <UI>
+          <VRUI toolbar="false" />
+          <NavigationManager>
+              <Navigation>
+                  <!--MoveWorld parent="" /-->
+                  <ViewAll parent="" />
+                  <Snap parent="" />
+                  <Modes>
+                      <Scale parent="" />
+                      <SelectInteract parent="" />
+                      <!--Drive parent="" /-->
+                  </Modes>
+              </Navigation>
+          </NavigationManager>
+          <Manager>
+              <ViewOptions>
+                  <TrackHead parent="" />
+                  <!--Lighting parent="" /-->
+              </ViewOptions>
+          </Manager>
+      </UI>
       <!--GLVersion value="3.0" /-->
-      <!--GLDebug value="true" /-->
+      <!--GLDebug value="true" level="2" /-->
       <Snap value="ON" />
       <DebugTUI value="OFF" />
 	  
@@ -73,19 +92,33 @@
     <SyncToVBlank value="OFF" device="DFP-0" />
 
     <CudaNumThreads value="128" />        
-     <TabletPC>
-         <Server value="127.0.0.1"/>
-       </TabletPC>
+    <!--TabletUI host="127.0.0.1" port="31802" /-->
    <CheckForOpenGLErrors value="true" />
-   <UseVertexBufferObjects value="false" />
-   <UseDisplayLists value="true" />
+   <!--ContinuousRendering value="true" /-->
+   <!--UseVertexBufferObjects value="false" /-->
+   <!--UseDisplayLists value="true" /-->
    <NavigationMode value="XForm" />
    <AnimationSpeed min="0.0" max="25.0" default="24.0" />
    <MultiThreaded value="off" />
+   <FramebufferSRGB value="false" />
    <StencilBits value="8" />
    <Stencil value="true" />
 
    <VRUI>
+       <!-- position of transfer editor menu /-->
+       <!--TFE>
+           <Menu>
+               <Size value="0.15" />
+               <Position x="-200" y="0" z="80" />
+           </Menu>
+       </TFE-->
+       <!--position of error message window (PDBplugin) /-->
+      <!--Messages>
+         <Menu>
+         <Size value="0.15" />
+         <Position x="100" y="0" z="120" />
+         </Menu>
+      </Messages-->
      <VNC>
        <Menu>
          <Orientation h="-90" p="0" r="0" />
@@ -96,13 +129,13 @@
 
    <Input>
     <MouseNav value="ON" />
-    <TrackingSystem value="MOUSE" />
     <!--Keyboard terminal="on" evdev="/dev/input/coverkeys" /-->
    </Input>
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
    <CompositorIceT menu="true" />
+   <ViewPoint value="true" />
    <Measure menu="true" />
    <PointCloud>
    <PointSize value="4" />
@@ -127,7 +160,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <Audio value="OpenAL" />
+     <!--Audio value="OpenAL" /-->
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 
@@ -182,11 +215,11 @@
      </Animations>
     </PDB>
 
-    <AKToolbar value="false" menu="true">
+    <AKToolbar value="false" menu="false">
      <Attachment value="TOP" />
-     <Scale value=".8" />
+     <Scale value=".7" />
      <MinClickTime value="0.2" />
-     <Position x="-980" y="0" z="630" />
+     <Position x="-900" y="0" z="360" />
      <ShortCut value="viewall" name="viewall" />
      <ShortCut value="scale" name="scale" />
      <ShortCut value="xform" name="xform" />
@@ -198,15 +231,14 @@
     <Amber value="off"/>  
 	<StereoVideoPlayer>
 	<MoviePlayer value="ffmpeg"/>
-	<UseTextureRectangle value="true"/>
 	<AudioOffset value="0.0"/>
   </StereoVideoPlayer>
 
     <StereoVideoPlayer>
-        <UseTextureRectangle value="on" />
 	<AudioOffset value="0.0" />
     </StereoVideoPlayer>
 
+   <!--Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" /-->
 
    </Plugin>
 
@@ -217,6 +249,7 @@
    <SceneSize value="1000" />
    <DebugLevel value="1" />
    <FPS value="true" />
+   
 
    <PipeConfig>
        <Pipe name="0" useDISPLAY="true" />
@@ -226,7 +259,7 @@
     <!--Window ARCH="windows" width="1024" comment="FRONT" window="0" pipeIndex="0" height="768" left="0" top="0" name="0" decoration="false" /-->
     <!--Window ARCH="unix" width="1280" comment="FRONT" window="0" pipeIndex="0" height="720" left="0" top="0" name="0" decoration="true" /-->
     <!--Window width="1920" comment="FRONT" window="0" pipeIndex="0" height="1080" left="0" top="0" name="0" decoration="false" /-->
-    <Window width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" decoration="true" />
+    <Window type="Qt" width="1024" comment="FRONT" window="0" pipeIndex="0" height="576" left="100" top="100" name="0" embedded="false" decoration="true" />
    </WindowConfig>
 
    <ScreenConfig>
@@ -241,22 +274,12 @@
    </ViewportConfig>
    <!--Background r="1.0" g="1.0" b="1.0"/-->
   </COVER>
-
-
-  <!-- position of transfer editor menu>
-
-      <TFE>
-         <MenuPosition value="-200 0 80" >
-         <MenuSize value="0.15" >
-      </TFE--><!--position of error message window (PDBplugin)>
-
-      <Messages>
-         <MenuPosition value="100 0 120" />
-         <MenuSize value="0.15" />
-      </Messages--> </GLOBAL>
+ </GLOBAL>
 
  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+<INCLUDE global="1" configname="spray" >config-spray.xml </INCLUDE>
+
  <!--INCLUDE global="1" configname="ar" >config-ar.xml </INCLUDE-->
  <!-- this config is required by the ViNCE Renderer-->
  <!--INCLUDE global="1" configname="vince-base" >config-vince-base.xml </INCLUDE-->

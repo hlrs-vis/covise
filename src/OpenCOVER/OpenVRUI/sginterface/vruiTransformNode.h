@@ -21,9 +21,7 @@ public:
     vruiTransformNode()
     {
     }
-    virtual ~vruiTransformNode()
-    {
-    }
+    virtual ~vruiTransformNode();
 
     virtual void setScale(float scale) = 0;
     virtual void setScale(float scaleX, float scaleY, float scaleZ) = 0;

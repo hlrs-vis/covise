@@ -38,6 +38,7 @@ class ElevationSection;
 class SuperelevationSection;
 class CrossfallSection;
 class LaneSection;
+class ShapeSection;
 
 //##########################//
 // TrackComponentGlobalPointsCommand //
@@ -326,7 +327,6 @@ private:
 //##########################//
 // TrackComponentHeadingCommand //
 //##########################//
-#if 0
 class TrackComponentHeadingCommand : public DataCommand
 {
 public:
@@ -351,12 +351,11 @@ private:
 	double					newHeading_;
 
 };
-#endif
 
 //#########################//
 // ArcCurvatureCommand        //
 //#########################//
-#if 0
+
 class ArcCurvatureCommand : public DataCommand
 {
 public:
@@ -381,7 +380,6 @@ private:
 	double					newCurvature_;
 
 };
-#endif
 
 //##########################//
 // MoveTrackCommand //
@@ -551,6 +549,7 @@ private:
     QMap<int, SuperelevationSection *> superelevationSections_;
     QMap<int, CrossfallSection *> crossfallSections_;
     QMap<int, LaneSection *> laneSections_;
+	QMap<int, ShapeSection *> shapeSections_;
 
     QMap<int, LaneSection *> laneSectionsAdd_; // lane sections to add //
 };

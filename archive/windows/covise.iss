@@ -337,9 +337,11 @@ Source: {#COVISEDIR}\config\config.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?ar.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config?colormaps.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\config-filetypes.xml; DestDir: {app}\config; Components: core
+Source: {#COVISEDIR}\config\config-spray.xml; DestDir: {app}\config; Components: core
 Source: {#COVISEDIR}\config\*.xml; DestDir: {app}\config\examples; Excludes: config.xml config-*.xml; Components: core
 ;Source: {#COVISEDIR}\mkspecs\*; DestDir: {app}\covise\mkspecs; Components: core
 Source: {#COVISEDIR}\share\*; DestDir: {app}\share; Excludes: .svn\*; Flags: recursesubdirs; Components: core
+Source: {#COVISEDIR}\src\3rdparty\deskvox\virvo\shader\*; DestDir: {app}\share\covise\shaders; Excludes: .svn\*; Flags: recursesubdirs; Components: core
 #if VERSION ==  "HLRS"
 ;Source: {#EXTERNLIBS}\sed\*.exe; DestDir: {#DBIN}; Components: core
 ;Source: {#EXTERNLIBS}\sed\*.dll; DestDir: {#DBIN}; Components: core
@@ -510,7 +512,8 @@ Source: {#PTHREAD}\lib\*.dll; DestDir: {#DLIB}; Components: core
 Source: {#PNG}\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#PNG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core     
 Source: {#EXTERNLIBS}\libpng\lib\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
-Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\libpng\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core    
+Source: {#EXTERNLIBS}\OpenVR\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 
 Source: {#EXTERNLIBS}\fmod\lowlevel\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\fmod\studio\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
@@ -647,19 +650,18 @@ Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ALVAR_PLUGIN_PATH
 
 ; for user installation
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
-Root: HKCU; Subkey: Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: PATH; ValueData: "{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\lib;{code:getShortAppDir|{app}}\{#ARCHSUFFIX}\bin\renderer;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\OpenCOVER\plugins;{code:GetShortName|{app}}\{#ARCHSUFFIX}\lib\sgplugins;{olddata}"; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
+
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: EXTERNLIBS; ValueData: {code:getShortAppDir|{app}}\extern_libs; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 Root: HKCU; Subkey: Environment; ValueType: string; ValueName: COVISE_BRANCH; ValueData: {#BRANCH}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForUser()
 
 ; end for user installation
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: ARCHSUFFIX; ValueData: {#ARCHSUFFIX}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
-Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: VV_SHADER_PATH; ValueData: {code:getShortAppDir|{app}}\CgPrograms\virvo; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISEDESTDIR; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()
 Root: HKLM; Subkey: SYSTEM\CurrentControlSet\Control\Session Manager\Environment; ValueType: string; ValueName: COVISE_PATH; ValueData: {code:getShortAppDir|{app}}; Flags: uninsdeletekeyifempty uninsdeletevalue; Check: InstallForAll()

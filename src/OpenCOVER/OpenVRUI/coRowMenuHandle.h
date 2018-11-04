@@ -75,6 +75,8 @@ public:
     /// update the title
     virtual void updateTitle(const char *newTitle);
 
+    bool wasMoved() const;
+
 protected:
     virtual void buttonEvent(coButton *button);
     /// pointer to the menue it handles

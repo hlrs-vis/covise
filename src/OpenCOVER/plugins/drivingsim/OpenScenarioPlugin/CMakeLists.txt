@@ -2,30 +2,34 @@ USING(XERCESC)
 USING(OsgCal)
 using(VRML)
 using(GDAL)
-
-include_directories(../../../DrivingSim)
-IF(NOT COVISE_BUILD_DRIVINGSIM)
-  RETURN()
-ENDIF()
+using(VehicleUtil)
+using(TrafficSimulation)
+using(OpenScenario)
 
 
 covise_find_package(OpenSceneGraph 3.2.0 COMPONENTS osgTerrain)
 COVISE_FIND_PACKAGE(osgTerrain)
-COVISE_FIND_PACKAGE(V8)
-
-if(NOT V8_FOUND)
-    return()
-endif()
 
 set(HEADERS
   OpenScenarioPlugin.h
   ScenarioManager.h
   Maneuver.h
+  Condition.h
   Act.h
   Entity.h
   myFactory.h
   FollowTrajectory.h
   Trajectory.h
+  RouteInfo.h
+  CameraSensor.h
+  Position.h
+  ReferencePosition.h
+  Action.h
+  StartConditions.h
+  EndConditions.h
+  Event.h
+  Sequence.h
+  StoryElement.h
 )
 set(SOURCES
   OpenScenarioPlugin.cpp
@@ -33,17 +37,27 @@ set(SOURCES
   Maneuver.cpp
   Act.cpp
   Entity.cpp
+  Condition.cpp
   myFactory.cpp
   FollowTrajectory.cpp
   Trajectory.cpp
+  RouteInfo.cpp
+  CameraSensor.cpp
+  Position.cpp
+  ReferencePosition.cpp
+  Action.cpp
+  StartConditions.cpp
+  EndConditions.cpp
+  Event.cpp
+  Sequence.cpp
+  StoryElement.cpp  
 )
 
 
 INCLUDE_DIRECTORIES(
-   ../../../DrivingSim/VehicleUtil
-   ../../../DrivingSim/coTrafficSimulation
    ${OSGTERRAIN_INCLUDE_DIR}
-   ${V8_INCLUDE_DIR}
 )
 # build the plugin "OpenScenarioPlugin" from the ingredients listed in HEADERS and SOURCES
-cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} coOpenVehicleUtil coTrafficSimulation coOpenScenario ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} RoadTerrain SteeringWheel)
+cover_add_plugin(OpenScenarioPlugin ${HEADERS} ${SOURCES} ${OSGTERRAIN_LIBRARIES} ${EXTRA_LIBS} coRoadTerrain)
+covise_wnoerror(OpenScenarioPlugin)
+set_target_properties(OpenScenarioPlugin PROPERTIES OUTPUT_NAME "OpenScenario")

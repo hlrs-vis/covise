@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(
 
 SET(COVER_HEADERS
   ARToolKit.h
+  Deletable.h
   coActionUserData.h
   coBillboard.h
   coClusterStat.h
@@ -30,7 +31,6 @@ SET(COVER_HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
-  coIntersectionUtil.h
   coPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
@@ -51,11 +51,11 @@ SET(COVER_HEADERS
   coVRTui.h
   coVRSceneView.h
   coVRTouchTable.h
-  EnableGLDebugOperation.h
+  InitGLOperation.h
   OpenCOVER.h
   RenderObject.h
   VRAvatar.h
-  VRPinboard.h
+  QuitDialog.h
   VRSceneGraph.h
   coVRLighting.h
   coVRAnimationManager.h
@@ -91,6 +91,7 @@ SET(COVER_HEADERS
 )
 
 SET(COVER_SOURCES
+  Deletable.cpp
   VRWindow.cpp
   coCommandLine.cpp
   coCoverConfig.cpp
@@ -113,9 +114,9 @@ SET(COVER_SOURCES
   coVRSceneView.cpp
   coVRStatsDisplay.cpp
   coVRTouchTable.cpp
-  EnableGLDebugOperation.cpp
+  InitGLOperation.cpp
   OpenCOVER.cpp
-  VRPinboard.cpp
+  QuitDialog.cpp
   VRAvatar.cpp
   coCullVisitor.cpp
   VRSceneGraph.cpp
@@ -131,13 +132,13 @@ SET(COVER_SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
-  coIntersectionUtil.cpp
   coPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
   coHud.cpp
   coOnscreenDebug.cpp
   coTabletUI.cpp
+  coTUISGBrowserTab.cpp
   coTUIListener.cpp
   RenderObject.cpp
   coVRNavigationManager.cpp
@@ -154,8 +155,8 @@ SET(COVER_SOURCES
   coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
-  PluginMenu.cpp
   coTranslator.cpp
+  PluginMenu.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
   tridelity.cpp
@@ -163,40 +164,47 @@ SET(COVER_SOURCES
   #coVRDePeePass.cpp
 )
 
-SET(MUI_SOURCES
-  mui/Element.cpp
-  mui/Container.cpp
-  mui/Frame.cpp
-  mui/LabelElement.cpp
-  mui/ValueRegulator.cpp
-  mui/Tab.cpp
-  mui/TabFolder.cpp
-  mui/ToggleButton.cpp
-  mui/support/ConfigManager.cpp
-  mui/support/ConfigParser.cpp
-  mui/support/DefaultValues.cpp
-  mui/support/ElementManager.cpp
-  mui/support/PositionManager.cpp
-  mui/support/EventListener.cpp
+SET(UI_HEADERS
+    ui/Export.h
+    ui/Action.h
+    ui/Button.h
+    ui/Container.h
+    ui/Element.h
+    ui/Group.h
+    ui/Label.h
+    ui/Manager.h
+    ui/Menu.h
+    ui/Owner.h
+    ui/ButtonGroup.h
+    ui/SelectionList.h
+    ui/ShortcutListener.h
+    ui/Slider.h
+    ui/EditField.h
+    ui/FileBrowser.h
+    ui/View.h
+    ui/VruiView.h
+    ui/TabletView.h
 )
 
-SET(MUI_HEADERS
-  mui/Element.h
-  mui/Container.h
-  mui/Frame.h
-  mui/LabelElement.h
-  mui/ValueRegulator.h
-  mui/Tab.h
-  mui/TabFolder.h
-  mui/ToggleButton.h
-)
-SET(MUI_SUPPORT_HEADERS
-  mui/support/ConfigManager.h
-  mui/support/ConfigParser.h
-  mui/support/DefaultValues.h
-  mui/support/ElementManager.h
-  mui/support/PositionManager.h
-  mui/support/EventListener.h
+SET(UI_SOURCES
+    ui/Action.cpp
+    ui/Button.cpp
+    ui/Container.cpp
+    ui/Element.cpp
+    ui/Group.cpp
+    ui/Label.cpp
+    ui/Manager.cpp
+    ui/Menu.cpp
+    ui/Owner.cpp
+    ui/ButtonGroup.cpp
+    ui/SelectionList.cpp
+    ui/ShortcutListener.cpp
+    ui/Slider.cpp
+    ui/EditField.cpp
+    ui/FileBrowser.cpp
+    ui/View.cpp
+    ui/VruiView.cpp
+    ui/TabletView.cpp
 )
 
 SET(DEVICE_SOURCES
@@ -243,8 +251,8 @@ SET(COVER_MOCS ${TMP_COVER_MOCS})
 
 QT_WRAP_CPP(MOCS ${COVER_MOCS})
 
-SET(ALL_HEADERS ${COVER_HEADERS} ${MUI_HEADERS} ${MUI_SUPPORT_HEADERS} ${DEVICE_HEADERS})
-SET(ALL_SOURCES ${COVER_SOURCES} ${MUI_SOURCES} ${DEVICE_SOURCES})
+SET(ALL_HEADERS ${COVER_HEADERS} ${DEVICE_HEADERS} ${UI_HEADERS})
+SET(ALL_SOURCES ${COVER_SOURCES} ${DEVICE_SOURCES} ${UI_SOURCES})
 
 ADD_COVISE_LIBRARY(${COVERKERNEL_TARGET} SHARED ${ALL_SOURCES} ${MOCS})
 
@@ -276,14 +284,13 @@ IF(WIN32)
   set(EXTRA_LIBS ${EXTRA_LIBS} ws2_32.lib)
 ENDIF(WIN32)
 
-COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara)
+COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} vtrans coOpenVRUI coOSGVRUI
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})
 COVISE_INSTALL_HEADERS(cover ${COVER_HEADERS} ${COVER_MOCS})
-COVISE_INSTALL_HEADERS(cover/mui ${MUI_HEADERS})
-COVISE_INSTALL_HEADERS(cover/mui/support ${MUI_SUPPORT_HEADERS})
+COVISE_INSTALL_HEADERS(cover/ui ${UI_HEADERS})
 COVISE_INSTALL_HEADERS(cover/input ${DEVICE_HEADERS})
 qt_use_modules(${COVERKERNEL_TARGET} Core Network)

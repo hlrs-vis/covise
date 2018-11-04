@@ -15,9 +15,9 @@ version 2.1 or later, see lgpl - 2.1.txt.
 #include "../oscObjectVariableArray.h"
 
 #include "../oscVariables.h"
-#include "oscRouteRef.h"
-#include "oscOrientation.h"
-#include "oscPosition.h"
+#include "oscCurrent.h"
+#include "oscRoadCoord.h"
+#include "oscLaneCoord.h"
 
 namespace OpenScenario
 {
@@ -26,14 +26,14 @@ class OPENSCENARIOEXPORT oscRoutePosition : public oscObjectBase
 public:
 oscRoutePosition()
 {
-        OSC_OBJECT_ADD_MEMBER(RouteRef, "oscRouteRef", 0);
-        OSC_OBJECT_ADD_MEMBER_OPTIONAL(Orientation, "oscOrientation", 0);
-        OSC_OBJECT_ADD_MEMBER(Position, "oscPosition", 0);
+        OSC_OBJECT_ADD_MEMBER(Current, "oscCurrent", 1);
+        OSC_OBJECT_ADD_MEMBER(RoadCoord, "oscRoadCoord", 1);
+        OSC_OBJECT_ADD_MEMBER(LaneCoord, "oscLaneCoord", 1);
     };
-        const char *getScope(){return "/OSCPosition";};
-    oscRouteRefMember RouteRef;
-    oscOrientationMember Orientation;
-    oscPositionMember Position;
+        const char *getScope(){return "/OSCPosition/PositionRoute";};
+    oscCurrentMember Current;
+    oscRoadCoordMember RoadCoord;
+    oscLaneCoordMember LaneCoord;
 
 };
 

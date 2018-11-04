@@ -17,37 +17,37 @@
 
 #include <vrml97/vrml/System.h>
 #include <cover/coVRFileManager.h>
-#include <OpenVRUI/coMenu.h>
 #include <util/coTypes.h>
 #include <osg/Matrix>
 #include <map>
+#include <list>
 #include <cover/coTabletUI.h>
+#include <cover/ui/Owner.h>
 
-namespace vrui
-{
-class coCheckboxMenuItem;
-class coSubMenuItem;
-class coRowMenu;
-class coCheckboxGroup;
-class coButtonMenuItem;
+namespace opencover {
+namespace ui {
+class Action;
+class Button;
+class ButtonGroup;
+class Menu;
+class Group;
+}
 }
 
-using namespace vrui;
 using namespace vrml;
 using namespace opencover;
 
-class VRML97PLUGINEXPORT ViewpointEntry : public coMenuListener
+class VRML97PLUGINEXPORT ViewpointEntry
 {
 public:
     ViewpointEntry(VrmlNodeViewpoint *, VrmlScene *);
     virtual ~ViewpointEntry();
-    virtual void menuEvent(coMenuItem *button);
-    void setMenuItem(coCheckboxMenuItem *aMenuItem);
+    void setMenuItem(ui::Button *aMenuItem);
     VrmlNodeViewpoint *getViewpoint()
     {
         return viewPoint;
     };
-    coCheckboxMenuItem *getMenuItem()
+    ui::Button *getMenuItem()
     {
         return menuItem;
     };
@@ -59,13 +59,13 @@ public:
     int entryNumber;
 
 private:
-    VrmlScene *scene;
-    VrmlNodeViewpoint *viewPoint;
-    coCheckboxMenuItem *menuItem;
-    coTUIToggleButton *tuiItem;
+    VrmlScene *scene = nullptr;
+    VrmlNodeViewpoint *viewPoint = nullptr;
+    ui::Button *menuItem = nullptr;
+    coTUIToggleButton *tuiItem = nullptr;
 };
 
-class VRML97PLUGINEXPORT SystemCover : public System, public coMenuListener, public coTUIListener
+class VRML97PLUGINEXPORT SystemCover : public System, public ui::Owner, public coTUIListener
 {
 
 public:
@@ -79,9 +79,11 @@ public:
 
     bool loadUrl(const char *url, int np, char **parameters);
 
+#if 0
     virtual void setBuiltInFunctionState(const char *fname, int val);
     virtual void setBuiltInFunctionValue(const char *fname, float val);
     virtual void callBuiltInFunctionCallback(const char *fname);
+#endif
 
     virtual void setSyncMode(const char *mode);
 
@@ -135,6 +137,8 @@ public:
     virtual std::string getConfigEntry(const char *key);
     virtual bool getConfigState(const char *key, bool defaultVal);
 
+    virtual CacheMode getCacheMode() const;
+    virtual std::string getCacheName(const char *url, const char *pathname) const;
     virtual void storeInline(const char *name, const Viewer::Object d_viewerObject);
     virtual Viewer::Object getInline(const char *name);
     virtual void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject);
@@ -143,7 +147,6 @@ public:
 
     virtual float getLODScale();
     virtual float defaultCreaseAngle();
-    virtual void menuEvent(coMenuItem *aButton);
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
 
@@ -154,19 +157,19 @@ public:
     int maxEntryNumber;
     coTUITab *vrmlTab;
 
-    list<ViewpointEntry *> getViewpointEntries()
+    std::list<ViewpointEntry *> getViewpointEntries()
     {
         return viewpointEntries;
     }
 
 protected:
-    coSubMenuItem *VRMLButton;
-    coRowMenu *viewpointMenu;
-    coCheckboxGroup *cbg;
-    list<ViewpointEntry *> viewpointEntries;
-    coButtonMenuItem *addVPButton;
+    ui::Menu *vrmlMenu = nullptr;
+    ui::Group *viewpointGroup = nullptr;
+    ui::ButtonGroup *cbg = nullptr;
+    std::list<ViewpointEntry *> viewpointEntries;
+    ui::Action *addVPButton;
     coVRFileManager *mFileManager;
-    coButtonMenuItem *reloadButton;
+    ui::Action *reloadButton;
     coTUIButton *saveViewpoint;
     coTUIToggleButton *saveAnimation;
     coTUIButton *reload;
@@ -177,5 +180,7 @@ protected:
     float *orientations;
     bool record;
     bool doRemoteFetch;
+    int viewPointCount = 0;
+    CacheMode cacheMode = CACHE_CREATE;
 };
 #endif // SYSTEM_COVER_H

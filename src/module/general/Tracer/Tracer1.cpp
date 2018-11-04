@@ -155,7 +155,6 @@ Tracer::fillSquare(float **x_ini, // array of output addresses
             (*z_ini)[i * n1 + j] = z1 + v0[2] * s0 * i + v1[2] * s1 * j;
         }
     }
-    p_no_startp->setValue(no_p);
     p_start->setCurrentObject(new coDoPoints(p_start->getObjName(), no_p, *x_ini, *y_ini, *z_ini));
 }
 
@@ -357,7 +356,6 @@ Tracer::fillCylinder(float **x_ini, // array of output addresses
             (*z_ini)[i * n1 + j] = axispoint[2] + radius * vec1[2] * cos(t) + radius * vec2[2] * sin(t) + axis[2] * i * s0;
         }
     }
-    p_no_startp->setValue(no_p);
     p_start->setCurrentObject(new coDoPoints(p_start->getObjName(), no_p, *x_ini, *y_ini, *z_ini));
 }
 
@@ -541,11 +539,7 @@ void Tracer::addPoints(const coDistributedObject *obj)
     if (obj->isType("UNSGRD"))
     {
         ((coDoUnstructuredGrid *)obj)->getAddresses(&dummy, &dummy, &x, &y, &z);
-#ifndef YAC
         ((coDoUnstructuredGrid *)obj)->getGridSize(&nn, &nn, &num_points);
-#else
-        ((coDoUnstructuredGrid *)obj)->getGridSize(&nn, &nn, &num_points);
-#endif
     }
     else if (obj->isType("LINES"))
     {

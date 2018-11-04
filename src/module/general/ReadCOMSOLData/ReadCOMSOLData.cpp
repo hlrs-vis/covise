@@ -501,9 +501,8 @@ int ReadCOMSOLData::readASCIIData()
 }
 int ReadCOMSOLData::compute(const char *)
 {
-    float nu=0.0f;
     if (useNan->getValue())
-        nanValue = 0.0/nu;
+        nanValue = std::numeric_limits<float>::quiet_NaN();
     else
         nanValue = nanValueParam->getValue();
 

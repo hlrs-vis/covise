@@ -19,6 +19,7 @@
 #define _PDB_SEQ_DISPLAY_PLUGIN_H_
 
 #include <OpenVRUI/coMenu.h>
+#include <string>
 #include <vector>
 #include <osg/Group>
 #include <osg/Switch>
@@ -32,8 +33,8 @@
 #include <sys/stat.h>
 #include <cover/coVRPlugin.h>
 
-static const string WGET("wget -np ");
-static const string PDB_EXT(".pdb");
+static const std::string WGET("wget -np ");
+static const std::string PDB_EXT(".pdb");
 
 namespace vrui
 {
@@ -118,9 +119,9 @@ private:
     void ChangeChain(int);
     void GoFirst();
     void GoLast();
-    void ChangeProtein(string);
+    void ChangeProtein(std::string);
     void SendCoordinates();
-    void GotoChainAndPos(string chain, int pos);
+    void GotoChainAndPos(std::string chain, int pos);
 
 protected:
     void potiValueChanged(float oldvalue, float newvalue, coValuePoti *poti, int context);
@@ -131,7 +132,7 @@ public:
     bool init();
     void buttonEvent(coButton *);
     void preFrame();
-    void message(int type, int, const void *buf);
+    void message(int toWhom, int type, int, const void *buf);
     int FileExists(const char *filename);
 };
 

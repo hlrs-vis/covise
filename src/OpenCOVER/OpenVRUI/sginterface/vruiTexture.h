@@ -20,9 +20,7 @@ public:
     vruiTexture()
     {
     } ///< Constructor
-    virtual ~vruiTexture()
-    {
-    }
+    virtual ~vruiTexture();
 };
 }
 #endif

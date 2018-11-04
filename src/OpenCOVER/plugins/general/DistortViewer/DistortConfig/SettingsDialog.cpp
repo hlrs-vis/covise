@@ -9,6 +9,7 @@
 #include "Settings.h"
 #include "HelpFuncs.h"
 #include <QFileDialog>
+#include <QIntValidator>
 
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent)

@@ -728,7 +728,7 @@ bool ReadASCII::readDataFromFile(params para)
             {
 
                 // The pattern has to be parted into parts seperated from a \n
-                int pos = pattern.find("\\n", 0);
+                size_t pos = pattern.find("\\n", 0);
                 if (pos > 0)
                 {
                     strTemp = pattern.substr(0, pos);
@@ -1097,7 +1097,7 @@ bool ReadASCII::readDataFromFile(params para)
                 {
 
                     // The pattern has to be parted into parts seperated from a \n
-                    int pos = pattern.find("\\n", 0);
+                    size_t pos = pattern.find("\\n", 0);
                     if (pos > 0)
                     {
                         strTemp = pattern.substr(0, pos);
@@ -1260,7 +1260,7 @@ bool ReadASCII::readDataFromFile(params para)
         while (pattern.length() > 0)
         {
             // The pattern has to be parted into parts seperated from a \n
-            int pos = pattern.find("\\n", 0);
+            size_t pos = pattern.find("\\n", 0);
             if (pos > 0)
             {
                 strTemp = pattern.substr(0, pos);
@@ -1593,7 +1593,7 @@ bool ReadASCII::readDataFromFile(params para)
             {
 
                 // The pattern has to be parted into parts seperated from a \n
-                int pos = pattern.find("\\n", 0);
+                size_t pos = pattern.find("\\n", 0);
                 if (pos > 0)
                 {
                     strTemp = pattern.substr(0, pos);
@@ -2128,15 +2128,15 @@ bool strContains(const string &str1, const string &str2)
 
 void expandPattern(string &pattern, int bufferSize)
 {
-    unsigned int pos(pattern.find("%XP("));
+    size_t pos(pattern.find("%XP("));
     string output(pattern);
     char *del = new char[bufferSize];
     if (((pos > 0) && !(pos > output.length())) || (output.substr(0, 4) == "%XP("))
     {
         int num1(0), num2(0);
 
-        int pos2(output.find(")", pos + 4));
-        int pos3(output.find(",", pos + 4));
+        size_t pos2(output.find(")", pos + 4));
+		size_t pos3(output.find(",", pos + 4));
 
         pos += 4;
         if (sscanf(output.substr(pos, pos2 - pos).c_str(), "%d%n", &num1, &num2) < 1)
@@ -2162,8 +2162,8 @@ void expandPattern(string &pattern, int bufferSize)
     {
         int num1(0), num2(0);
 
-        int pos2(output.find(")", pos + 4));
-        int pos3(output.find(",", pos + 4));
+        size_t pos2(output.find(")", pos + 4));
+        size_t pos3(output.find(",", pos + 4));
 
         pos += 4;
         if (sscanf(output.substr(pos, pos2 - pos).c_str(), "%d%n", &num1, &num2) < 1)
@@ -2189,8 +2189,8 @@ void expandPattern(string &pattern, int bufferSize)
     {
         int num1(0), num2(0);
 
-        int pos2(output.find(")", pos + 4));
-        int pos3(output.find(",", pos + 4));
+        size_t pos2(output.find(")", pos + 4));
+        size_t pos3(output.find(",", pos + 4));
 
         pos += 4;
         if (sscanf(output.substr(pos, pos2 - pos).c_str(), "%d%n", &num1, &num2) < 1)

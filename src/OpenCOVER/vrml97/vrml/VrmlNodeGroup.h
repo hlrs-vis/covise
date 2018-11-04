@@ -32,29 +32,29 @@ class VRMLEXPORT VrmlNodeGroup : public VrmlNodeChild
 public:
     // Define the fields of all built in group nodes
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    virtual VrmlNodeType *nodeType() const override;
 
     VrmlNodeGroup(VrmlScene *s = 0);
     virtual ~VrmlNodeGroup();
     void flushRemoveList();
 
-    virtual VrmlNode *cloneMe() const;
-    virtual void cloneChildren(VrmlNamespace *);
+    virtual VrmlNode *cloneMe() const override;
+    virtual void cloneChildren(VrmlNamespace *) override;
 
-    virtual VrmlNodeGroup *toGroup() const;
+    virtual VrmlNodeGroup *toGroup() const override;
 
-    virtual bool isModified() const;
-    virtual void clearFlags();
+    virtual bool isModified() const override;
+    virtual void clearFlags() override;
 
-    virtual void addToScene(VrmlScene *s, const char *relativeUrl);
+    virtual void addToScene(VrmlScene *s, const char *relativeUrl) override;
 
-    virtual void copyRoutes(VrmlNamespace *ns);
+    virtual void copyRoutes(VrmlNamespace *ns) override;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
-    virtual void render(Viewer *);
+    virtual void render(Viewer *) override;
 
-    virtual void accumulateTransform(VrmlNode *);
+    virtual void accumulateTransform(VrmlNode *) override;
 
     void activate(double timeStamp, bool isOver, bool isActive, double *p, double *M);
 
@@ -64,15 +64,15 @@ public:
 
     virtual void eventIn(double timeStamp,
                          const char *eventName,
-                         const VrmlField *fieldValue);
+                         const VrmlField *fieldValue) override;
 
-    virtual void setField(const char *fieldName, const VrmlField &fieldValue);
-    virtual const VrmlField *getField(const char *fieldName) const;
+    virtual void setField(const char *fieldName, const VrmlField &fieldValue) override;
+    virtual const VrmlField *getField(const char *fieldName) const override;
 
     int size();
     VrmlNode *child(int index);
 
-    virtual VrmlNode *getParentTransform();
+    virtual VrmlNode *getParentTransform() override;
 
     // LarryD Feb 11/99
     VrmlMFNode *getNodes()
@@ -84,6 +84,8 @@ public:
     {
         return d_viewerObject;
     };
+
+    bool isOnlyGeometry() const override;
 
 protected:
     void checkAndRemoveNodes(Viewer *viewer);

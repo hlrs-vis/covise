@@ -52,7 +52,7 @@ public:
         return _camera.get();
     }
 
-    void showStats(int whichStats, osgViewer::View *myview);
+    void showStats(int whichStats, osgViewer::ViewerBase *viewer);
 
     /** Get the keyboard and mouse usage of this manipulator.*/
     virtual void getUsage(osg::ApplicationUsage &usage) const;
@@ -85,6 +85,7 @@ protected:
     osg::ref_ptr<osgText::Text> _threadingModelText;
 
     unsigned int _frameRateChildNum;
+    unsigned int _gpuMemChildNum;
     unsigned int _viewerChildNum;
     unsigned int _cameraSceneChildNum;
     unsigned int _viewerSceneChildNum;

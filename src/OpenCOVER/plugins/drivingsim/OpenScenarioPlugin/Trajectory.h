@@ -1,12 +1,12 @@
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
 
-using namespace std;
-#include<iostream>
 #include<string>
 #include<vector>
 #include <osg/Vec3>
-#include <DrivingSim/OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <Entity.h>
+
 
 class Trajectory : public OpenScenario::oscTrajectory
 {
@@ -15,12 +15,16 @@ private:
 	
 
 public:
-	string name;
-	vector<osg::Vec3> polylineVertices;
-	Trajectory();
+    std::vector<osg::Vec3> polylineVertices;
+    std::vector<bool> isRelVertice;
+    Trajectory();
 	~Trajectory();
 	virtual void finishedParsing();
-	void initialize(vector<osg::Vec3> vec_temp);
+    float getReference(int visitedVertices);
+    double t0;
+    double t1;
+    double dt;
+
 };
 
 #endif // TRAJECTORY_H

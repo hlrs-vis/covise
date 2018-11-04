@@ -8,3 +8,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT ShowDistBoco ${EXTRASOURCES} ${HEADERS} ${SOURCES})
 target_link_libraries(ShowDistBoco coApi coAppl coCore)
+covise_install_target(ShowDistBoco)

@@ -125,18 +125,21 @@ Normalise(float *normal)
 bool
 Normalise(float *normal, int dim)
 {
-    double dnormal[32]; // FIXME
-    std::copy(normal, normal + dim, dnormal);
-    double len = ScalarProd(dim, dnormal, dnormal);
-    len = sqrt(len);
-    if (len == 0.0)
-    {
-        return false;
-    }
-    len = 1.0 / len;
-    int i;
-    for (i = 0; i < dim; ++i)
-        dnormal[i] *= len;
-    std::copy(dnormal, dnormal + dim, normal);
+	double dnormal[32]; // FIXME
+	for (int i = 0; i < dim; i++)
+		dnormal[i] = normal[i];
+	double len = ScalarProd(dim, dnormal, dnormal);
+	len = sqrt(len);
+	if (len == 0.0)
+	{
+		return false;
+	}
+	len = 1.0 / len;
+	int i;
+	for (i = 0; i < dim; ++i)
+	{
+		dnormal[i] *= len;
+		normal[i] = float(dnormal[i]);
+	}
     return true;
 }

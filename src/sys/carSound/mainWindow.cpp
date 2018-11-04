@@ -218,7 +218,7 @@ mainWindow::mainWindow(QWidget *parent)
 		printf("FMOD error! (%d) could not load poersche911 bank\n", result);
 		exit(-1);
 	}
-	FMOD::Studio::EventDescription *array[100];
+	//FMOD::Studio::EventDescription *array[100];
 /*	int num;
 	porsche911Bank->getEventList(array,100, &num);
 	for (int i = 0; i < num; i++)

@@ -62,12 +62,24 @@ std::string Host::lookupHostname(const char *numericIP)
     static bool onlyNumeric = false;
     if (!onlyNumeric)
     {
-        struct hostent *he = NULL;
-        struct in_addr v4;
-        int err = inet_pton(AF_INET, numericIP, &v4);
+
+		struct sockaddr_in sa;
+		char hostname[NI_MAXHOST];
+		memset(&sa, 0, sizeof sa);
+		sa.sin_family = AF_INET;
+        int err = inet_pton(AF_INET, numericIP, &sa.sin_addr);
         if (err == 1)
         {
-            he = gethostbyaddr((const char *)&v4, sizeof(v4), AF_INET);
+
+			int res = getnameinfo((struct sockaddr*)&sa, sizeof(sa),
+				hostname, sizeof(hostname),
+				NULL, 0, NI_NAMEREQD);
+
+			if (!res) 
+			{
+				retVal = hostname;
+				return retVal;
+			}
         }
 #if 0
         if (err == 0)
@@ -78,71 +90,61 @@ std::string Host::lookupHostname(const char *numericIP)
                 he = gethostbyaddr(&v6, sizeof(v6), AF_INET6);
         }
 #endif
-        if (NULL != he)
-        {
-            retVal = he->h_name;
-        }
-        else
-        {
-            retVal = numericIP;
-            //TODO coConfig - das muss wieder richtig geparst werden
-            coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
-            const char **ipEntries = ipe.getValue();
-            const char *last;
-            if (NULL != ipEntries)
-            {
-                bool gotAll = false;
-                bool found = false;
-                do
-                {
-                    //An IpTable Entry has the form
-                    //<symbolic> <numeric>
-                    //The CoviseConfig::getScopeEntries
-                    //method gets them word by word
-                    //so we have to parse two of them
-                    last = *ipEntries;
-                    fprintf(stderr, "IPTABLE:%s ", last);
-                    ipEntries++;
-                    if (NULL != *ipEntries)
-                    {
-                        fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
-                        if (0 == strcmp(numericIP, *ipEntries))
-                        {
-                            //We found the entry
-                            retVal = last;
-                            found = true;
-                        }
-                        else
-                        {
-                            //There is an entry, but it does not match
-                            ipEntries++;
-                            if (NULL == *ipEntries)
-                            {
-                                onlyNumeric = true;
-                                gotAll = true;
-                                retVal = numericIP;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //We got all entries, the last of which is incomplete
-                        onlyNumeric = true;
-                        gotAll = true;
-                        retVal = numericIP;
-                    }
-                } while ((!gotAll) && (!found));
-            }
-            else
-            {
-                onlyNumeric = true;
-            }
-        }
-    }
-    else
-    {
-        retVal = numericIP;
-    }
+        
+		retVal = numericIP;
+		//TODO coConfig - das muss wieder richtig geparst werden
+		coCoviseConfig::ScopeEntries ipe = coCoviseConfig::getScopeEntries("System.IpTable");
+		const char **ipEntries = ipe.getValue();
+		const char *last;
+		if (NULL != ipEntries)
+		{
+			bool gotAll = false;
+			bool found = false;
+			do
+			{
+				//An IpTable Entry has the form
+				//<symbolic> <numeric>
+				//The CoviseConfig::getScopeEntries
+				//method gets them word by word
+				//so we have to parse two of them
+				last = *ipEntries;
+				fprintf(stderr, "IPTABLE:%s ", last);
+				ipEntries++;
+				if (NULL != *ipEntries)
+				{
+					fprintf(stderr, "IPTABLE:%s \n", *ipEntries);
+					if (0 == strcmp(numericIP, *ipEntries))
+					{
+						//We found the entry
+						retVal = last;
+						found = true;
+					}
+					else
+					{
+						//There is an entry, but it does not match
+						ipEntries++;
+						if (NULL == *ipEntries)
+						{
+							onlyNumeric = true;
+							gotAll = true;
+							retVal = numericIP;
+						}
+					}
+				}
+				else
+				{
+					//We got all entries, the last of which is incomplete
+					onlyNumeric = true;
+					gotAll = true;
+					retVal = numericIP;
+				}
+			} while ((!gotAll) && (!found));
+		}
+		else
+		{
+			onlyNumeric = true;
+		}
+	}
 #ifdef DEBUG
     fprintf(stderr, "lookup result for %s: %s (%f s)\n", numericIP, retVal.c_str(), watch.elapsed());
 #endif
@@ -215,6 +217,7 @@ void Host::HostNumeric(const char *n)
 
 void Host::HostSymbolic(const char *n)
 {
+    //std::cerr << "HostSymbolic: n=" << (n?n:"(null)") << std::endl;
     //The address is not numeric
     //and we try to convert the
     //symbolic address into a numeric one
@@ -232,7 +235,17 @@ void Host::HostSymbolic(const char *n)
 
     struct in_addr v4;
     int err = inet_pton(AF_INET, n, &v4);
-    memcpy(char_address, &v4, sizeof(char_address));
+    if (err == 1)
+    {
+        memcpy(char_address, &v4, sizeof(char_address));
+        setAddress(n);
+        auto name = lookupHostname(n);
+        if (name.empty())
+            setName(n);
+        else
+            setName(name.c_str());
+        return;
+    }
     if (err == 0)
     {
         struct in6_addr v6;
@@ -241,11 +254,14 @@ void Host::HostSymbolic(const char *n)
     if (err == 1)
     {
         setAddress(n);
-        setName(lookupHostname(n).c_str());
+        auto name = lookupHostname(n);
+        if (name.empty())
+            setName(n);
+        else
+            setName(name.c_str());
         return;
     }
     memset(char_address, 0, sizeof(char_address));
-
 
 #if 0
     struct hostent *hent = gethostbyname(n);
@@ -284,9 +300,12 @@ void Host::HostSymbolic(const char *n)
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_protocol = 0;          /* Any protocol */
 
+    //std::cerr << "HostSymbolic: calling getaddrinfo for n=" << n << std::endl;
     int s = getaddrinfo(n, NULL /* service */, &hints, &result);
+    //std::cerr << "HostSymbolic: after calling getaddrinfo for n=" << n << std::endl;
     if (s != 0)
     {
+        //std::cerr << "Host::HostSymbolic: getaddrinfo failed for " << n << ": " << s << " " << gai_strerror(s) << std::endl;
         fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", n, gai_strerror(s));
         return;
     }
@@ -326,6 +345,7 @@ void Host::HostSymbolic(const char *n)
 
 Host::Host(const char *n, bool numeric)
 {
+    //std::cerr << "Host: n=" << (n?n:"(null)") << ", numeric=" << numeric << std::endl;
     memset(char_address, '\0', sizeof(char_address));
     m_addressValid = false;
     m_nameValid = false;
@@ -636,6 +656,7 @@ bool Host::hasRoutableAddress() const
 
 Host::Host()
 {
+    //std::cerr << "Host()" << std::endl;
     m_addressValid = false;
     m_nameValid = false;
 

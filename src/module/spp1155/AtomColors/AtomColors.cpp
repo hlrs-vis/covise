@@ -24,6 +24,7 @@
 #include "AtomColors.h"
 #include <config/CoviseConfig.h>
 #include <do/coDoText.h>
+#include <alg/coChemicalElement.h>
 
 #include <float.h>
 #include <limits.h>
@@ -39,60 +40,19 @@
 AtomColors::AtomColors(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Map colors to atoms")
 {
-    // try to add local atommapping.xml to current coviseconfig
-    m_mapConfig = new coConfigGroup("Module.AtomColors");
-    m_mapConfig->addConfig(coConfigDefaultPaths::getDefaultLocalConfigFilePath() + "atommapping.xml", "local", true);
-    coConfig::getInstance()->addConfig(m_mapConfig);
-
-    coCoviseConfig::ScopeEntries mappingEntries = coCoviseConfig::getScopeEntries("Module.AtomMapping");
-    if (mappingEntries.getValue() == NULL)
+    coAtomInfo *ai = coAtomInfo::instance();
+    for (int i = 0; i < ai->all.size(); i++)
     {
-        // add global atommapping.xml to current coviseconfig
-        m_mapConfig->addConfig(coConfigDefaultPaths::getDefaultGlobalConfigFilePath() + "atommapping.xml", "global", true);
-        coConfig::getInstance()->addConfig(m_mapConfig);
-        // retrieve the values of atommapping.xml and build the GUI
-    }
-    coCoviseConfig::ScopeEntries mappingEntries2 = coCoviseConfig::getScopeEntries("Module.AtomMapping");
 
-    const char **mapEntry = mappingEntries2.getValue();
-    if (mapEntry == NULL)
-        std::cout << "AtomMapping is NULL" << std::endl;
-    int iNrCurrent = 0;
-    float radius;
-    char cAtomName[256], cAtomNameTmp[256];
-
-    if (mapEntry == NULL || *mapEntry == NULL)
-        std::cout << "The scope Module.AtomMapping is not available in your covise.config file!" << std::endl;
-
-    const char **curEntry = mapEntry;
-    while (curEntry && *curEntry)
-    {
-        AtomColor ac;
-        int iScanResult = sscanf(curEntry[1], "%3s %s %f %f %f %f %f", ac.type, cAtomName, &radius, &ac.color[0], &ac.color[1], &ac.color[2], &ac.color[3]);
-        if (iScanResult == 7)
-        {
-            m_rgb.push_back(ac);
-            if (radius < 0.)
-                radius = 0.;
-            m_radius.push_back(radius);
-
-            sprintf(cAtomNameTmp, "%03d  %s", iNrCurrent + 1, cAtomName);
 #ifdef ATOMRADII
-            coFloatParam *param = addFloatParam(ac.type, cAtomNameTmp);
-            param->setValue(radius);
+        coFloatParam *param = addFloatParam(ai->all[i].symbol.c_str(), ai->all[i].name.c_str());
+        param->setValue(ai->all[i].radius);
 #else
-            coColorParam *param = addColorParam(ac.type, cAtomNameTmp);
-            param->setValue(ac.color[0], ac.color[1], ac.color[2], ac.color[3]);
+        coColorParam *param = addColorParam(ai->all[i].symbol.c_str(), ai->all[i].name.c_str());
+        param->setValue(ai->all[i].color[0], ai->all[i].color[1], ai->all[i].color[2], ai->all[i].color[3]);
 #endif
-            m_atom.push_back(param);
-            //fprintf(stderr, "%d: name=%s (%s)\n", iNrCurrent+1, cAtomName, ac.type);
-            if (iNrCurrent + 1 != atoi(curEntry[0]))
-            {
-                std::cout << "Your atommapping.xml is garbled" << std::endl;
-            }
-        }
-        iNrCurrent++;
-        curEntry += 2;
+        m_atom.push_back(param);
+
     }
 
     // Input Ports
@@ -147,22 +107,24 @@ AtomColors::coDoResult *AtomColors::getOutputData(const coDoSet *inData)
         }
         text->getAddress(&type);
         text_size = text->getTextLength();
-        if (text_size >= AtomColor::TypeLength)
+        std::string atomType = type;
+        auto elem = coAtomInfo::instance()->idMap.find(atomType);
+        if (elem == coAtomInfo::instance()->idMap.end())
         {
-            fprintf(stderr, "incoming Text is longer than expected");
-            continue;
-        }
-        for (int j = 0; j < m_rgb.size(); j++)
-        {
-            if (memcmp(m_rgb.at(j).type, type, text_size) == 0 && m_rgb.at(j).type[text_size] == '\0')
-            {
 #ifdef ATOMRADII
-                result[i] = m_radius[j];
+            result[i] = 1.0;
 #else
-                pResult->setFloatRGBA(i, m_rgb[j].color[0], m_rgb[j].color[1], m_rgb[j].color[2], m_rgb[j].color[3]);
+            pResult->setFloatRGBA(i, 1,1,1,1);
 #endif
-                break;
-            }
+        }
+        else
+        {
+            int j = elem->second;
+#ifdef ATOMRADII
+            result[i] = coAtomInfo::instance()->all[j].radius;
+#else
+            pResult->setFloatRGBA(i, coAtomInfo::instance()->all[j].color[0], coAtomInfo::instance()->all[j].color[1], coAtomInfo::instance()->all[j].color[2], coAtomInfo::instance()->all[j].color[3]);
+#endif
         }
     }
 
@@ -183,21 +145,23 @@ AtomColors::coDoResult *AtomColors::getOutputData(const coDoInt *inData)
 
     for (int i = 0; i < numPoints; i++)
     {
-        int type = types[i] - 1;
-        if (m_rgb.size() <= type || m_radius.size() <= type)
-            type = 138; // Methanol
-
-        if (m_rgb.size() > type && m_radius.size() > type)
+        int type = types[i];
+        if (type >= coAtomInfo::instance()->all.size())
         {
-//fprintf(stderr, "%d: %d -> %s\n", i, type+1, m_atom[type]->getName());
 #ifdef ATOMRADII
-            result[i] = m_radius[type];
+            result[i] = 1.0;
 #else
-            pResult->setFloatRGBA(i, m_rgb[type].color[0], m_rgb[type].color[1], m_rgb[type].color[2], m_rgb[type].color[3]);
+            pResult->setFloatRGBA(i, 1, 1, 1, 1);
 #endif
         }
         else
-            std::cout << "m_rgb is too small: no entry for atom type " << type << std::endl;
+        {
+#ifdef ATOMRADII
+            result[i] = coAtomInfo::instance()->all[type].radius;
+#else
+            pResult->setFloatRGBA(i, coAtomInfo::instance()->all[type].color[0], coAtomInfo::instance()->all[type].color[1], coAtomInfo::instance()->all[type].color[2], coAtomInfo::instance()->all[type].color[3]);
+#endif
+        }
     }
 
     return pResult;
@@ -220,16 +184,22 @@ AtomColors::coDoResult *AtomColors::getOutputData(const coDoFloat *inData)
     for (int i = 0; i < numPoints; i++)
     {
         int type = static_cast<int>(fType[i]) - 1;
-        if (m_rgb.size() > type && m_radius.size() > type)
+        if (type >= coAtomInfo::instance()->all.size())
         {
 #ifdef ATOMRADII
-            result[i] = m_radius[type];
+            result[i] = 1.0;
 #else
-            pResult->setFloatRGBA(i, m_rgb[type].color[0], m_rgb[type].color[1], m_rgb[type].color[2], 1.0f);
+            pResult->setFloatRGBA(i, 1, 1, 1, 1);
 #endif
         }
         else
-            std::cout << "m_rgb is too small" << std::endl;
+        {
+#ifdef ATOMRADII
+            result[i] = coAtomInfo::instance()->all[type].radius;
+#else
+            pResult->setFloatRGBA(i, coAtomInfo::instance()->all[type].color[0], coAtomInfo::instance()->all[type].color[1], coAtomInfo::instance()->all[type].color[2], coAtomInfo::instance()->all[type].color[3]);
+#endif
+        }
     }
 
     return pResult;
@@ -265,23 +235,14 @@ int AtomColors::compute(const char *port)
 
 void AtomColors::param(const char *name, bool /*inMapLoading*/)
 {
-    int foundIndex = -1;
-    for (int i = 0; i < m_atom.size(); ++i)
+    auto elem = coAtomInfo::instance()->idMap.find(name);
+    if (elem != coAtomInfo::instance()->idMap.end())
     {
-        if (m_atom[i] && !strcmp(m_atom[i]->getName(), name))
-        {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    if (foundIndex >= 0)
-    {
-        for (int j = 0; j < 4; j++)
 #ifdef ATOMRADII
-            m_radius[foundIndex] = m_atom[foundIndex]->getValue();
+        coAtomInfo::instance()->all[elem->second].radius = m_atom[elem->second]->getValue();
 #else
-            m_rgb[foundIndex].color[j] = m_atom[foundIndex]->getValue(j);
+        for (int j = 0; j < 4; j++)
+            coAtomInfo::instance()->all[elem->second].color[j] = m_atom[elem->second]->getValue(j);
 #endif
     }
 }

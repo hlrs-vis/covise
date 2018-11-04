@@ -18,7 +18,6 @@ ADD_DEFINITIONS(-DHAVE_CONFIG_H -DYYERROR_VERBOSE)
 SET(EXTRA_INCS )
 # gather optional libraries in EXTRA_LIBS
 SET(EXTRA_LIBS )
-
 using(JPEG)
 using(PNG)
 using(TIFF)
@@ -180,6 +179,7 @@ SET(VRML_SOURCES
   VrmlNodeSpotLight.cpp
   VrmlNodeSwitch.cpp
   VrmlNodeText.cpp
+  VrmlNodeTexture.cpp
   VrmlNodeTextureCoordinate.cpp
   VrmlNodeTextureCoordinateGenerator.cpp
   VrmlNodeTextureTransform.cpp
@@ -387,7 +387,7 @@ if(APPLE)
    add_covise_compile_flags(coVRML "-Wno-error=unknown-warning-option")
 endif()
 
-COVISE_WNOERROR(coVRML BASEARCH chuckwalla stromboli waran gecko skink dornteufel lurchi basilisk neuffen leopard)
+COVISE_WNOERROR(coVRML BASEARCH chuckwalla stromboli waran gecko skink zebu dornteufel lurchi basilisk neuffen leopard)
 
 TARGET_LINK_LIBRARIES(coVRML
   coJS ${COVISE_UTIL_LIBRARY}

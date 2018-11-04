@@ -17,7 +17,9 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRDynLib.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRPluginList.h>
 #include <net/tokenbuffer.h>
+#include <OpenVRUI/sginterface/vruiButtons.h>
 
 #include "coMousePointer.h"
 #include "input.h"
@@ -33,13 +35,13 @@ using namespace covise;
 
 namespace opencover
 {
+Input *Input::s_singleton = NULL;
 
 Input *Input::instance()
 {
-    static Input *singleton = NULL;
-    if (!singleton)
-        singleton = new Input;
-    return singleton;
+    if (!s_singleton)
+        s_singleton = new Input;
+    return s_singleton;
 }
 
 Input::Input()
@@ -47,6 +49,7 @@ Input::Input()
 , m_mouse(NULL)
 , m_debug(0)
 {
+    assert(!s_singleton);
 }
 
 bool Input::init()
@@ -131,6 +134,8 @@ Input::~Input()
 		}
 	}
 	plugins.clear();
+
+    s_singleton = NULL;
 }
 
 void Input::printConfig() const
@@ -206,10 +211,29 @@ bool Input::isHandValid(int num) const
     return activePerson->isHandValid(num);
 }
 
+bool Input::hasRelative() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->hasRelative();
+}
+
+bool Input::isRelativeValid() const
+{
+    if (!activePerson)
+        return false;
+    return activePerson->isRelativeValid();
+}
+
 const osg::Matrix &Input::getHeadMat() const
 {
 
     return activePerson->getHeadMat();
+}
+
+const osg::Matrix &Input::getRelativeMat() const
+{
+    return activePerson->getRelativeMat();
 }
 
 const osg::Matrix &Input::getHandMat(int num) const
@@ -224,6 +248,12 @@ unsigned int Input::getButtonState(int num) const
     return activePerson->getButtonState(num);
 }
 
+unsigned int Input::getRelativeButtonState(int num) const
+{
+
+    return activePerson->getRelativeButtonState(num);
+}
+
 double Input::getValuatorValue(size_t idx) const
 {
 
@@ -232,6 +262,8 @@ double Input::getValuatorValue(size_t idx) const
 
 float Input::eyeDistance() const
 {
+    if (!activePerson)
+        return 0.f;
     return activePerson->eyeDistance();
 }
 
@@ -369,6 +401,11 @@ void Input::addDevice(const std::string &name, InputDevice *dev)
 	if (dev->needsThread())
 		dev->start();
 }
+void Input::removeDevice(const std::string &name, InputDevice *dev)
+{
+	drivers.erase(name);
+}
+
 
 InputDevice *Input::getDevice(const std::string &name)
 {
@@ -379,6 +416,24 @@ InputDevice *Input::getDevice(const std::string &name)
     {
         std::string conf = configPath("Device." + name);
         std::string type = coCoviseConfig::getEntry("driver", conf, "const");
+        if (type.empty())
+        {
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(name.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
+        }
+        else if (type != "const")
+        {
+            if (coVRPlugin *coverPlugin = coVRPluginList::instance()->addPlugin(type.c_str(), coVRPluginList::Input))
+            {
+                dev = findInMap(drivers, name);
+                if (dev)
+                    return dev;
+            }
+        }
         //std::cerr << "Input: creating dev " << name << ", driver " << type << std::endl;
         DriverFactoryBase *plug = getDriverPlugin(coVRMSController::instance()->isMaster() ? type : "const");
         if (!plug)
@@ -541,19 +596,22 @@ size_t Input::getActivePerson() const
  * @brief Input::update Updates all device data. Must be called at the main loop at every frame once
  * @return 0
  */
-void Input::update()
+bool Input::update()
 {
     unsigned activePerson = getActivePerson();
     unsigned nBodies = trackingbodies.size(), nButtons = buttondevices.size(), nValuators = valuators.size();
     unsigned int len = 0;
     osg::Matrix mouse = osg::Matrix::identity();
+
+    bool changed = false;
+
     if (coVRMSController::instance()->isMaster())
     {
 
         for (DriverMap::iterator it = drivers.begin(); it != drivers.end(); ++it)
-	{
+        {
             it->second->update();
-	}
+        }
 
         TokenBuffer tb;
         tb << activePerson;
@@ -561,10 +619,16 @@ void Input::update()
 
         { 
             const int oxres = m_mouse->xres, oyres = m_mouse->yres;
-            const int owidth = m_mouse->width, oheight = m_mouse->height;
+            const float owidth = m_mouse->width, oheight = m_mouse->height;
             const int ow0 = m_mouse->wheel(0), ow1 = m_mouse->wheel(1);
             const osg::Matrix omat = m_mouse->getMatrix();
             m_mouse->update();
+            if (omat != m_mouse->getMatrix())
+                changed = true;
+            if (oxres != m_mouse->xres || oyres != m_mouse->yres || owidth != m_mouse->width || oheight != m_mouse->height)
+                changed = true;
+            if (ow0 != m_mouse->wheel(0) || ow1 != m_mouse->wheel(1))
+                changed = true;
             if (debug(Input::Mouse))
             {
                 if (debug(Input::Matrices))
@@ -596,9 +660,13 @@ void Input::update()
             ButtonDevice *b = ob->second;
             const unsigned old = b->getButtonState();
             b->update();
-            if (debug(Input::Transformed) && debug(Input::Buttons) && old != b->getButtonState())
+            if (old != b->getButtonState())
             {
-                std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::endl;
+                changed = true;
+                if (debug(Input::Transformed) && debug(Input::Buttons))
+                {
+                    std::cerr << "Input: transformed " << ob->second->name() << " buttons=0x" << std::hex << b->getButtonState() << std::dec << std::endl;
+                }
             }
             tb << b->getButtonState();
         }
@@ -608,9 +676,13 @@ void Input::update()
             Valuator *v = it->second;
             const double old = v->getValue();
             v->update();
-            if (debug(Input::Transformed) && debug(Input::Valuators) && old != v->getValue())
+            if (old != v->getValue())
             {
-                std::cerr << "Input: transformed " << it->second->name() << " valuator=" << v->getValue() << std::endl;
+                changed = true;
+                if (debug(Input::Transformed) && debug(Input::Valuators))
+                {
+                    std::cerr << "Input: transformed " << it->second->name() << " valuator=" << v->getValue() << std::endl;
+                }
             }
             tb << v->getValue();
             std::pair<double, double> range = v->getRange();
@@ -622,9 +694,13 @@ void Input::update()
             const osg::Matrix old = ob->second->getMat();
             ob->second->update();
             ob->second->updateRelative();
-            if (debug(Input::Transformed) && debug(Input::Matrices) && old != ob->second->getMat())
+            if (old != ob->second->getMat())
             {
-                std::cerr << "Input: transformed " << ob->second->name() << " matrix=" << ob->second->getMat() << std::endl;
+                changed = true;
+                if (debug(Input::Transformed) && debug(Input::Matrices))
+                {
+                    std::cerr << "Input: transformed " << ob->second->name() << " matrix=" << ob->second->getMat() << std::endl;
+                }
             }
             int isVal = ob->second->isValid(), isVar = ob->second->isVarying(), is6Dof = ob->second->is6Dof();
             tb << isVal;
@@ -632,6 +708,8 @@ void Input::update()
             tb << is6Dof;
             tb << ob->second->getMat();
         }
+
+        tb << changed;
 
         len = tb.get_length();
         coVRMSController::instance()->syncData(&len, sizeof(len));
@@ -703,6 +781,8 @@ void Input::update()
             ob->second->setVarying(isVar != 0);
             ob->second->set6Dof(is6Dof != 0);
         }
+
+        tb >> changed;
     }
 
     for (size_t i=0; i<personNames.size(); ++i) {
@@ -714,6 +794,8 @@ void Input::update()
             }
         }
     }
+
+    return changed;
 }
 
 } // namespace opencover

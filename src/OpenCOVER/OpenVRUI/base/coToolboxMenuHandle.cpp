@@ -287,12 +287,15 @@ void coToolboxMenuHandle::setTransformMatrix(vruiMatrix *matrix)
     vruiMatrix *scaleMatrix = vruiRendererInterface::the()->createMatrix();
     vruiMatrix *transMatrix = vruiRendererInterface::the()->createMatrix();
     vruiMatrix *itMatrix = vruiRendererInterface::the()->createMatrix();
+    vruiMatrix *rxMatrix = vruiRendererInterface::the()->createMatrix();
+    rxMatrix->makeEuler(0.0, 90.0, 0.0);
 
     itMatrix->makeTranslate(-getWidth() / 2.0, -getHeight(), 0.0);
-    transMatrix->makeTranslate(getWidth() / 2.0, getHeight(), 0.0);
+    transMatrix->makeTranslate((getWidth() * myScale) / 2.0, getHeight() * myScale, 0.0);
     scaleMatrix->makeScale(myScale, myScale, myScale);
 
     newMatrix->makeIdentity();
+    newMatrix->mult(rxMatrix);
     newMatrix->mult(itMatrix);
     newMatrix->mult(scaleMatrix);
     newMatrix->mult(transMatrix);
@@ -304,6 +307,7 @@ void coToolboxMenuHandle::setTransformMatrix(vruiMatrix *matrix)
     vruiRendererInterface::the()->deleteMatrix(scaleMatrix);
     vruiRendererInterface::the()->deleteMatrix(transMatrix);
     vruiRendererInterface::the()->deleteMatrix(itMatrix);
+    vruiRendererInterface::the()->deleteMatrix(rxMatrix);
 }
 
 /** set a new menu position orientation and scale matrix.

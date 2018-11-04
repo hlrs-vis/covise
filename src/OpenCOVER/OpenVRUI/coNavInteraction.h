@@ -18,14 +18,6 @@ class OPENVRUIEXPORT coNavInteraction
     : public coInteraction
 {
 public:
-    enum RunningState
-    {
-        StateStarted = 0,
-        StateRunning,
-        StateStopped,
-        StateNotRunning
-    };
-
     coNavInteraction(InteractionType type, const std::string &name, InteractionPriority priority = Navigation);
     virtual ~coNavInteraction();
 
@@ -35,25 +27,7 @@ public:
     virtual void doInteraction();
     virtual void cancelInteraction();
 
-    bool wasStarted() const
-    {
-        return (runningState == StateStarted);
-    }
-    bool isRunning() const
-    {
-        return (runningState == StateRunning);
-    }
-    bool wasStopped() const
-    {
-        return (runningState == StateStopped);
-    }
-    bool isIdle() const
-    {
-        return (runningState == StateNotRunning);
-    }
-
 protected:
-    RunningState runningState;
     InteractionState oldState;
 };
 }

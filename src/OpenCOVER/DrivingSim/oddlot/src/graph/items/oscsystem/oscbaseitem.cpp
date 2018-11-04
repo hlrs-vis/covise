@@ -30,7 +30,6 @@
 #include "src/graph/graphscene.hpp"
 //#include "src/graph/items/roadsystem/signal/signaltextitem.hpp"
 #include "src/graph/items/oscsystem/oscitem.hpp"
-#include "src/graph/items/oscsystem/oscshapeitem.hpp"
 #include "src/graph/items/roadsystem/scenario/oscroadsystemitem.hpp"
 #include "src/graph/editors/osceditor.hpp"
 
@@ -45,15 +44,15 @@
 
 // OpenScenario //
 //
-#include "schema/oscVehicle.h"
-#include "schema/oscObject.h"
-#include "oscObjectBase.h"
-#include "oscMember.h"
-#include "schema/oscCatalogs.h"
-#include "schema/oscPosition.h"
-#include "schema/oscTrajectory.h"
-#include "schema/oscPrivateAction.h"
-#include "schema/oscPrivate.h"
+#include <OpenScenario/schema/oscVehicle.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/schema/oscCatalogs.h>
+#include <OpenScenario/schema/oscPosition.h>
+#include <OpenScenario/schema/oscTrajectory.h>
+#include <OpenScenario/schema/oscPrivateAction.h>
+#include <OpenScenario/schema/oscPrivate.h>
 
 // Qt //
 //
@@ -67,7 +66,7 @@
 using namespace OpenScenario;
 
 OSCBaseItem::OSCBaseItem(TopviewGraph *topviewGraph, OSCBase *oscBase)
-	: GraphElement(NULL, oscBase)
+	: SVGElement(NULL, oscBase)
 	, topviewGraph_(topviewGraph)
 	, oscBase_(oscBase)
 {
@@ -131,27 +130,29 @@ OSCBaseItem::init()
 						if (oscPosRoad)
 						{
 
-							QString roadId = QString::fromStdString(oscPosRoad->roadId.getValue());
-							RSystemElementRoad *road = roadSystem_->getRoad(roadId);
-							if (road)
+	//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+							RSystemElementRoad *road;
+							int i;
+							for (i = 0; i < idList.size(); i++)
+							{
+								road = roadSystem_->getRoad(idList.at(i));
+								if (road->getLength() > oscPosRoad->s.getValue())
+								{
+									break;
+								}
+							}
+
+							if (i < idList.size())
 							{
 								double s = oscPosRoad->s.getValue();
 								double t = oscPosRoad->t.getValue();
-								new OSCItem(element, this, object, catalog, road->getGlobalPoint(s, t), roadId);
+								new OSCItem(element, this, object, catalog, oscPosRoad, road);
 							}
 						}
 						break;
 					}
 				}
-			}
-		}
-
-		else
-		{
-			OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-			if (trajectory)
-			{
-				new OSCShapeItem(element, this, trajectory);
 			}
 		}
 	}
@@ -222,23 +223,6 @@ OSCBaseItem::removeOSCItem(OSCItem *oscItem)
     return oscItems_.remove(element->getID());
 }
 
-void
-OSCBaseItem::appendOSCShapeItem(OSCShapeItem *oscShapeItem)
-{
-	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
-	QString id = element->getID();
-    if (!oscShapeItems_.contains(id))
-    {
-        oscShapeItems_.insert(id, oscShapeItem);
-    }
-}
-
-bool
-OSCBaseItem::removeOSCShapeItem(OSCShapeItem *oscShapeItem)
-{
-	OSCElement *element = dynamic_cast<OSCElement *>(oscShapeItem->getDataElement());
-    return oscShapeItems_.remove(element->getID());
-}
 
 //##################//
 // Observer Pattern //
@@ -248,11 +232,11 @@ OSCBaseItem::removeOSCShapeItem(OSCShapeItem *oscShapeItem)
 *
 */
 void
-OSCBaseItem::updateObserver()
+OSCBaseItem:: updateObserver()
 {
     // Parent //
     //
-    GraphElement::updateObserver();
+    SVGElement::updateObserver();
     if (isInGarbage())
     {
         return; // will be deleted anyway
@@ -281,13 +265,13 @@ OSCBaseItem::updateObserver()
 				if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
 					|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
 				{
-					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getOwnMember());
+					OpenScenario::oscArrayMember *privateArray = dynamic_cast<OpenScenario::oscArrayMember *>(actions_->getMember("Private"));
 
 					// Root Base item //
 					//
 
 					OpenScenario::oscPrivate *privateObject = NULL;
-					for(oscArrayMember::iterator it =privateArray->begin();it != privateArray->end();it++)
+					for (oscArrayMember::iterator it = privateArray->begin(); it != privateArray->end(); it++)
 					{
 						privateObject = dynamic_cast<OpenScenario::oscPrivate *>(*it);
 						if (privateObject->object.getValue() == object->name.getValue())
@@ -316,30 +300,28 @@ OSCBaseItem::updateObserver()
 						OpenScenario::oscRoad *oscPosRoad = oscPosition->Road.getObject();
 						if (oscPosRoad)
 						{
-							QString id = QString::fromStdString(oscPosRoad->roadId.getValue());
-							RSystemElementRoad *road = roadSystem_->getRoad(id);
-                            if (road)
-                            {
-                                new OSCItem(element, this, object, catalog, road->getGlobalPoint(oscPosRoad->s.getValue(), oscPosRoad->t.getValue()), id);
-                            }
-                        }
-                    }
-				}
-			}
-			else
-			{
-
-				OpenScenario::oscTrajectory *trajectory = dynamic_cast<OpenScenario::oscTrajectory *>(element->getObject());
-				if (trajectory)
-				{
-					if ((element->getDataElementChanges() & DataElement::CDE_DataElementCreated)
-						|| (element->getDataElementChanges() & DataElement::CDE_DataElementAdded))
-					{
-						new OSCShapeItem(element, this, trajectory);
+							//						odrID roadID(atoi(oscPosRoad->roadId.getValue().c_str()), 0, "", odrID::ID_Road);
+							QList<odrID> idList = roadSystem_->findID(QString::fromStdString(oscPosRoad->roadId.getValue()), odrID::ID_Road);
+							RSystemElementRoad *road;
+							int i;
+							for (i = 0; i < idList.size(); i++)
+							{
+								road = roadSystem_->getRoad(idList.at(i));
+								if (road->getLength() > oscPosRoad->s.getValue())
+								{
+									break;
+								}
+							}
+							
+							if (i < idList.size())
+							{
+								new OSCItem(element, this, object, catalog, oscPosRoad, road);
+							}
+						}
 					}
 				}
-
 			}
+
             iter++;
         }
     }

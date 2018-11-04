@@ -93,8 +93,8 @@ private:
 class SetSignalPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, int type, const QString &typeSubclass, int subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent = NULL);
-    explicit SetSignalPropertiesCommand(Signal *signal, const QString &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent = NULL);
+    explicit SetSignalPropertiesCommand(Signal *signal, const odrID &id, const QString &name, double t, bool dynamic, Signal::OrientationType orientation, double zOffset, const QString &country, const QString &type, const QString &typeSubclass, const QString &subtype, double value, double hOffset, double pitch, double roll, const QString &unit, const QString &text, double width, double height, bool pole, int size, int fromLane, int toLane, double probability, double resetTime, DataCommand *parent = NULL);
+    explicit SetSignalPropertiesCommand(Signal *signal, const odrID &id, const QString &name, const Signal::SignalProperties &signalProps, const Signal::Validity &validLanes, const Signal::SignalUserData &userData, DataCommand *parent = NULL);
     virtual ~SetSignalPropertiesCommand();
 
     virtual int id() const
@@ -113,9 +113,9 @@ private:
 private:
     Signal *signal_;
     RSystemElementRoad *road_;
-    QString newId_;
+    odrID newId_;
     QString newName_;
-    QString oldId_;
+	odrID oldId_;
     QString oldName_;
     Signal::SignalProperties newSignalProps_;
     Signal::SignalProperties oldSignalProps_;
@@ -188,8 +188,7 @@ private:
 class SetObjectPropertiesCommand : public DataCommand
 {
 public:
-    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, const QString &type, double t, double zOffset, double validLength, Object::ObjectOrientation orientation, double length, double width, double radius, double height, double hdg, double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QString &textureFile, DataCommand *parent = NULL);
-    explicit SetObjectPropertiesCommand(Object *object, const QString &id, const QString &name, Object::ObjectProperties &objectProps, Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent = NULL);
+    explicit SetObjectPropertiesCommand(Object *object, const odrID &id, const QString &name, const Object::ObjectProperties &objectProps, const Object::ObjectRepeatRecord &objectRepeat, const QString &textureFile, DataCommand *parent = NULL);
     virtual ~SetObjectPropertiesCommand();
 
     virtual int id() const
@@ -207,10 +206,10 @@ private:
 
 private:
     Object *object_;
-    QString newId_;
+    odrID newId_;
     QString newName_;
     QString newTextureFile_;
-    QString oldId_;
+	odrID oldId_;
     QString oldName_;
     QString oldTextureFile_;
     Object::ObjectProperties newObjectProps_;
@@ -282,7 +281,7 @@ private:
 class SetBridgePropertiesCommand : public DataCommand
 {
 public:
-    explicit SetBridgePropertiesCommand(Bridge *bridge, const QString &id, const QString &file, const QString &name, int type, double length, DataCommand *parent = NULL);
+    explicit SetBridgePropertiesCommand(Bridge *bridge, const odrID &id, const QString &file, const QString &name, int type, double length, DataCommand *parent = NULL);
     virtual ~SetBridgePropertiesCommand();
 
     virtual int id() const
@@ -300,10 +299,10 @@ private:
 
 private:
     Bridge *bridge_;
-    QString newId_;
+    odrID newId_;
     QString newName_;
     QString newFile_;
-    QString oldId_;
+    odrID oldId_;
     QString oldName_;
     QString oldFile_;
     int newType_;
@@ -319,7 +318,7 @@ private:
 class SetTunnelPropertiesCommand : public SetBridgePropertiesCommand
 {
 public:
-    explicit SetTunnelPropertiesCommand(Tunnel *tunnel, const QString &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent = NULL);
+    explicit SetTunnelPropertiesCommand(Tunnel *tunnel, const odrID &id, const QString &file, const QString &name, int type, double length, double lighting, double daylight, DataCommand *parent = NULL);
     virtual ~SetTunnelPropertiesCommand();
 
     virtual int id() const

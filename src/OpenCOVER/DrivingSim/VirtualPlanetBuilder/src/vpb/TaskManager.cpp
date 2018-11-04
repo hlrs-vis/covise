@@ -854,7 +854,7 @@ bool TaskManager::readTasks(const std::string& filename)
             {
                 nextTaskSet();
                 readTasks(readFilename);
-                ++itrAdvanced;
+                itrAdvanced=true;
             }
 
             Task* task = readTask(fr, itrAdvanced);

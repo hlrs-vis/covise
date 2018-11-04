@@ -254,13 +254,16 @@ bool System::loadUrl(const char *url, int np, char **parameters)
 #include <windows.h>
 #include <WinSock2.h>
 #endif
+#ifndef WIN32
+typedef int SOCKET;
+#endif
 
 int System::connectSocket(const char *host, int port)
 {
     struct sockaddr_in sin;
     struct hostent *he;
 
-    int sockfd = -1;
+    SOCKET sockfd = -1;
 
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
@@ -341,6 +344,9 @@ const char *System::httpFetch(const char *url)
     CURL *curl = curl_easy_init();
     if (curl)
     {
+        /* user agent required by same web servers */
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, curl_version());
+
         CurlData curlData = { NULL, tempnam(0, "VR") };
         /* Set url to get */
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -367,6 +373,7 @@ const char *System::httpFetch(const char *url)
         /* always cleanup */
         curl_easy_cleanup(curl);
 
+        //std::cerr << "Vrml System::httpFetch(" << url << ") -> " << curlData.filename << std::endl;
         return curlData.filename;
     }
     return NULL;

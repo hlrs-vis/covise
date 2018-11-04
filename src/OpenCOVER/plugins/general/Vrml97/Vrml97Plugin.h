@@ -23,7 +23,7 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coTabletUI.h>
-#include <OpenVRUI/coMenu.h>
+#include <cover/ui/Owner.h>
 #include <PluginUtil/coSensor.h>
 
 class ViewerOsg;
@@ -33,14 +33,20 @@ namespace vrml
 class VrmlScene;
 }
 
+namespace opencover {
+namespace ui {
+class Menu;
+class Element;
+}
+}
+
 using namespace vrml;
-using namespace vrui;
 using namespace opencover;
 
 class ListenerCover;
 class SystemCover;
 
-class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, coMenuListener
+class VRML97PLUGINEXPORT Vrml97Plugin : public coVRPlugin, public ui::Owner
 {
     friend class ListenerCover;
     friend class SystemCover;
@@ -54,20 +60,21 @@ public:
     static Vrml97Plugin *plugin;
 
     static osg::Node *getRegistrationRoot();
+    static int loadUrl(const Url &url, osg::Group *group, const char *ck = "");
     static int loadVrml(const char *filename, osg::Group *group, const char *ck = "");
     static int replaceVrml(const char *filename, osg::Group *group, const char *ck = "");
     static int unloadVrml(const char *filename, const char *ck = "");
 
     static void worldChangedCB(int reason);
 
-    bool init();
+    bool init() override;
 
-    void key(int type, int keySym, int mod);
+    void key(int type, int keySym, int mod) override;
 
-    void message(int type, int len, const void *buf);
-    void guiToRenderMsg(const char *msg);
+    void message(int toWhom, int type, int len, const void *buf) override;
+    void guiToRenderMsg(const char *msg) override;
 
-    virtual void addNode(osg::Node *, const RenderObject *);
+    virtual void addNode(osg::Node *, const RenderObject *) override;
 
     Player *getPlayer() const
     {
@@ -91,10 +98,11 @@ public:
     }
 
     void activateTouchSensor(int id);
-    coMenuItem *getMenuButton(const std::string &buttonName);
+    ui::Element *getMenuButton(const std::string &buttonName);
 
+    bool update() override;
     // this will be called in PreFrame
-    void preFrame();
+    void preFrame() override;
     bool isNewVRML;
 
 protected:
@@ -110,6 +118,6 @@ private:
 
     bool raw;
 
-    void menuEvent(coMenuItem *);
+    //void menuEvent(coMenuItem *);
 };
 #endif

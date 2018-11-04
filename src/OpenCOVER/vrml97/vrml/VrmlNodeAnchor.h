@@ -31,26 +31,26 @@ class VRMLEXPORT VrmlNodeAnchor : public VrmlNodeGroup
 public:
     // Define the built in VrmlNodeType:: "Anchor"
     static VrmlNodeType *defineType(VrmlNodeType *t = 0);
-    virtual VrmlNodeType *nodeType() const;
+    virtual VrmlNodeType *nodeType() const override;
 
     VrmlNodeAnchor(VrmlScene *);
     VrmlNodeAnchor(const VrmlNodeAnchor &);
     virtual ~VrmlNodeAnchor();
 
     // Copy the node.
-    virtual VrmlNode *cloneMe() const;
+    virtual VrmlNode *cloneMe() const override;
 
-    virtual VrmlNodeAnchor *toAnchor() const;
+    virtual VrmlNodeAnchor *toAnchor() const override;
 
-    virtual std::ostream &printFields(std::ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent) override;
 
-    virtual void render(Viewer *);
+    virtual void render(Viewer *) override;
 
     void activate();
 
     virtual void setField(const char *fieldName,
-                          const VrmlField &fieldValue);
-    const VrmlField *getField(const char *fieldName) const;
+                          const VrmlField &fieldValue) override;
+    const VrmlField *getField(const char *fieldName) const override;
 
     const char *description()
     {
@@ -60,6 +60,8 @@ public:
     {
         return d_url.size() > 0 ? d_url[0] : 0;
     }
+
+    bool isOnlyGeometry() const override;
 
 protected:
     VrmlSFString d_description;

@@ -148,7 +148,7 @@ int RWCovise::compute(const char *)
             char *outfile;
             if (suffix != NULL)
             {
-                int baselen = strlen(grid_Path.c_str()) - strlen(suffix);
+                size_t baselen = strlen(grid_Path.c_str()) - strlen(suffix);
                 outfile = new char[baselen + 1 + 4 + strlen(suffix)];
 
                 snprintf(outfile, baselen + 1, "%s", grid_Path.c_str());

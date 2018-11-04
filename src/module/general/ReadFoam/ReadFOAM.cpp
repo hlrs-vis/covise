@@ -38,11 +38,11 @@
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <boost/shared_ptr.hpp>
 
 ReadFOAM::ReadFOAM(int argc, char *argv[]) //Constructor
     : coModule(argc, argv, "Read OpenFOAM Data") // description in the module setup window
@@ -157,7 +157,7 @@ ReadFOAM::~ReadFOAM() //Destructor
 
 std::vector<const char *> ReadFOAM::getFieldList()
 {
-    int num = m_case.varyingFields.size() + m_case.constantFields.size() + 2;
+    int num = int(m_case.varyingFields.size() + m_case.constantFields.size() + 2);
     std::vector<const char *> choiceVal(num);
     int i = 0;
     choiceVal[i] = "none";
@@ -187,7 +187,7 @@ std::vector<const char *> ReadFOAM::getFieldList()
 
 std::vector<const char *> ReadFOAM::getParticleFieldList()
 {
-    int num = m_case.particleFields.size()+2;
+    int num = int(m_case.particleFields.size()+2);
     std::vector<const char *> choiceVal(num);
     int i = 0;
     choiceVal[i] = "none";
@@ -245,15 +245,15 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         std::stringstream meshdir;
         if (m_case.numblocks > 0)
         {
-            meshdir << casedir << "/processor0/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+            meshdir << "processor0/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
         }
         else
         {
-            meshdir << casedir << "/constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
+            meshdir << "constant/polyMesh"; //<< m_case.constantdir << "/polyMesh";
         }
         coModule::sendInfo("%s", meshdir.str().c_str());
         coModule::sendInfo("Listing Boundary Patches!");
-        Boundaries bounds = loadBoundary(meshdir.str());
+        Boundaries bounds = m_case.loadBoundary(meshdir.str());
         for (int i = 0; i < bounds.boundaries.size(); ++i)
         {
             std::stringstream info;
@@ -272,7 +272,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
         //fill the choiceParameters and set them to the previously selected item (if not possible set them to "none")
         {
             std::vector<const char *> choiceVal = getFieldList();
-            index_t num = choiceVal.size();
+            index_t num = int(choiceVal.size());
 
             for (int i = 0; i < num_ports; ++i)
             {
@@ -306,7 +306,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
 
         {
             std::vector<const char *> choiceVal = getParticleFieldList();
-            index_t num = choiceVal.size();
+            index_t num = int(choiceVal.size());
             for (int i=0; i<num_ports; ++i)
             {
                 std::string lastSelection = lastParticlePortSelection[i];
@@ -365,7 +365,7 @@ void ReadFOAM::param(const char *paramName, bool inMapLoading)
     {
         if (vectorsAreFilled())
         {
-            index_t num = m_case.varyingFields.size() + m_case.constantFields.size() + 1;
+            index_t num = index_t(m_case.varyingFields.size() + m_case.constantFields.size() + 1);
             std::vector<const char *> choiceVal;
             choiceVal = getFieldList();
 
@@ -428,7 +428,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
 
     if (Processor == -1)
     {
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -436,7 +436,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         {
             int num_points = pointsH.lines;
             //std::cerr << std::time(0) << " reading Faces" << std::endl;
-            boost::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+            std::shared_ptr<std::istream> facesIn = m_case.getStreamForFile(meshdir, "faces");
             if (!facesIn)
                 return NULL;
             HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -444,7 +444,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexListArray(facesH, *facesIn, faces.data(), faces.size());
 
             //std::cerr << std::time(0) << " reading Owners" << std::endl;
-            boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+            std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
             if (!ownersIn)
                 return NULL;
             HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -453,7 +453,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
             readIndexArray(ownerH, *ownersIn, owners.data(), owners.size());
 
             //std::cerr << std::time(0) << " reading neighbours" << std::endl;
-            boost::shared_ptr<std::istream> neighborsIn = getStreamForFile(meshdir, "neighbour");
+            std::shared_ptr<std::istream> neighborsIn = m_case.getStreamForFile(meshdir, "neighbour");
             if (!neighborsIn)
                 return NULL;
             HeaderInfo neighbourH = readFoamHeader(*neighborsIn);
@@ -498,8 +498,8 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
                         break;
                     }
                 }
-                const index_t num_faces = cellfaces.size();
-                index_t num_verts = cellvertices.size();
+                const index_t num_faces = index_t(cellfaces.size());
+                index_t num_verts = index_t(cellvertices.size());
                 if (num_faces == 6 && num_verts == 8 && onlySimpleFaces)
                 {
                     types[i] = TYPE_HEXAEDER;
@@ -527,7 +527,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
                     num_verts = 0;
                     for (index_t j = 0; j < cellfaces.size(); ++j)
                     {
-                        num_verts += faces[cellfaces[j]].size() + 1;
+                        num_verts += index_t(faces[cellfaces[j]].size() + 1);
                     }
                 }
                 num_conn += num_verts;
@@ -701,7 +701,7 @@ coDoUnstructuredGrid *ReadFOAM::loadMesh(const std::string &meshdir,
         oldMesh->getTypeList(&oldtl);
 
         //std::cerr << std::time(0) << " Reading points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -747,7 +747,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
     if (Processor == -1)
     { //when Processor = -1, the boundary will be read completely
         std::cerr << std::time(0) << " Reading boundary from:             " << meshdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> facesIn = getStreamForFile(meshdir, "faces");
+        std::shared_ptr<std::istream> facesIn = m_case.getStreamForFile(meshdir, "faces");
         if (!facesIn)
             return NULL;
         HeaderInfo facesH = readFoamHeader(*facesIn);
@@ -756,7 +756,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
         coRestraint res;
         res.add(selection.c_str());
-        Boundaries boundaries = loadBoundary(meshdir);
+        Boundaries boundaries = m_case.loadBoundary(meshdir);
         int num_corners = 0;
         int num_polygons = 0;
         int num_points = 0;
@@ -782,7 +782,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
                 }
             }
         }
-        num_points = pointmap.size();
+        num_points = int(pointmap.size());
         //then the valuepart is assigned incremental values starting at 0
         index_t ni = 0;
         for (std::map<int, int>::iterator it = pointmap.begin(); it != pointmap.end(); ++it)
@@ -820,7 +820,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
         }
         std::vector<std::vector<index_t> >().swap(faces); //Deallocate the memory
 
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -870,7 +870,7 @@ coDoPolygons *ReadFOAM::loadPatches(const std::string &meshdir,
 
         // save coordinates to coordinate lists
         std::cerr << std::time(0) << " copying Boundary Polygons and reading new points from: " << pointsdir.c_str() << std::endl;
-        boost::shared_ptr<std::istream> pointsIn = getStreamForFile(pointsdir, "points");
+        std::shared_ptr<std::istream> pointsIn = m_case.getStreamForFile(pointsdir, "points");
         if (!pointsIn)
             return NULL;
         HeaderInfo pointsH = readFoamHeader(*pointsIn);
@@ -897,7 +897,7 @@ coDoPoints *ReadFOAM::loadParticles(const std::string &datadir, const std::strin
     *cellIdsPointer = NULL;
     std::string lagdir = datadir + "/lagrangian/" + m_case.lagrangiandir;
 
-    boost::shared_ptr<std::istream> posIn = getStreamForFile(lagdir, "positions");
+    std::shared_ptr<std::istream> posIn = m_case.getStreamForFile(lagdir, "positions");
     if (!posIn)
         return NULL;
     HeaderInfo posH = readFoamHeader(*posIn);
@@ -935,23 +935,24 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
                                      const std::string &vecObjName,
                                      const std::string &meshdir)
 {
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = m_case.getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
     size_t numberCells = header.lines;
     if (numberCells == 0)
     {
-        boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+        std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
         HeaderInfo ownerH = readFoamHeader(*ownersIn);
         DimensionInfo dim = parseDimensions(ownerH.header);
         numberCells = dim.cells;
     }
     coDistributedObject *fieldObj;
+    std::cerr << std::time(0) << "Field with name " << header.object.c_str() << " has dimensions " << header.dimensions.c_str() << std::endl;
     if (header.fieldclass == "volVectorField" || header.fieldclass == "vectorField")
     {
-        std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
-        coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), numberCells);
+        std::cerr << std::time(0) << " Reading VectorField from:          " << timedir.c_str() << "/" << file.c_str() << std::endl;
+        coDoVec3 *vecObj = new coDoVec3(vecObjName.c_str(), int(numberCells));
         float *x, *y, *z;
         vecObj->getAddresses(&x, &y, &z);
         if (header.lines==0)
@@ -971,12 +972,12 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     }
     else if (header.fieldclass == "volScalarField" || header.fieldclass == "scalarField")
     {
-        std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "//" << file.c_str() << std::endl;
-        coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), numberCells);
+        std::cerr << std::time(0) << " Reading ScalarField from:          " << timedir.c_str() << "/" << file.c_str() << std::endl;
+        coDoFloat *vecObj = new coDoFloat(vecObjName.c_str(), int(numberCells));
             float *x=vecObj->getAddress();
         if (header.lines==0)
         {
-            float uniformFieldValue=std::atof(header.internalField.c_str());
+            float uniformFieldValue=float(std::atof(header.internalField.c_str()));
             for (int i=0; i<numberCells; ++i)
             {
                 x[i] = uniformFieldValue;
@@ -992,7 +993,7 @@ coDistributedObject *ReadFOAM::loadField(const std::string &timedir,
     else if (header.fieldclass == "labelField")
     {
         std::cerr << std::time(0) << " Reading labelField from:" << timedir.c_str() << "//" << file.c_str() << std::endl;
-        coDoInt *vecObj = new coDoInt(vecObjName.c_str(), numberCells);
+        coDoInt *vecObj = new coDoInt(vecObjName.c_str(), int(numberCells));
         int *d=vecObj->getAddress();
         if (header.lines==0)
         {
@@ -1024,7 +1025,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
                                             const std::string &selection)
 {
 
-    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+    std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
     if (!ownersIn)
         return NULL;
     HeaderInfo ownerH = readFoamHeader(*ownersIn);
@@ -1033,10 +1034,10 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
 
     coRestraint res;
     res.add(selection.c_str());
-    Boundaries boundaries = loadBoundary(meshdir);
+    Boundaries boundaries = m_case.loadBoundary(meshdir);
     std::vector<index_t> dataMapping;
     int numBoundaryFaces =0;
-    boost::shared_ptr<std::istream> vecIn = getStreamForFile(timedir, file);
+    std::shared_ptr<std::istream> vecIn = m_case.getStreamForFile(timedir, file);
     if (!vecIn)
         return NULL;
     HeaderInfo header = readFoamHeader(*vecIn);
@@ -1069,7 +1070,7 @@ coDistributedObject *ReadFOAM::loadBoundaryField(const std::string &timedir,
 
         if (header.lines==0)
         {
-            float uniformFieldValue=std::atof(header.internalField.c_str());
+            float uniformFieldValue=float(std::atof(header.internalField.c_str()));
             for (int i=0; i<numBoundaryFaces; ++i)
             {
                 x[i] = uniformFieldValue;
@@ -1149,7 +1150,6 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         m_case.timedirs[t] = bn;
     }
     //Mesh
-    checkPolyMeshDirContent(m_case);
     int skipfactor = skipfactorParam->getValue();
     if (skipfactor < 1)
     {
@@ -1196,6 +1196,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             ++it)
     {
         double t = it->first;
+        const std::string &timedir = it->second;
         if (t >= starttime && t <= (stoptime*(1+1e-6)))
         { 
             std::stringstream realtime_s;
@@ -1203,11 +1204,11 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
             std::string realtime = realtime_s.str();
             if (counter % skipfactor == 0)
             {
-                if (meshParam->getValue() || boundaryParam->getValue()
+                if (meshParam->getValue() || boundaryParam->getValue() || true
                         || (m_case.hasParticles && (particleParam->getValue() || !cellIdPorts.empty())))
                 {
                     coModule::sendInfo("Reading mesh/boundary and data. Please wait ...");
-                    std::cerr << std::time(0) << " Reading mesh, boundary and fields for timestep: " << t << std::endl;
+                    std::cerr << std::time(0) << " Reading mesh, boundary and fields for timestep: " << t  << " (dir=" << timedir << ")" << std::endl;
                     std::string selection = patchesStringParam->getValString();
 
                     std::vector<coDistributedObject *> tempSetMesh;
@@ -1219,32 +1220,29 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     for (index_t j = 0;( j < m_case.numblocks || j==0); j++)
                     { //fill vector:tempSet with all the mesh parts of all processors even if its just one
                         //std::cerr << " processor" << j;
-                        std::string meshdir = casedir;
-                        std::string pointsdir = casedir;
-                        std::string datadir = casedir;
-                        std::string timedir = it->second;
                         std::stringstream sMeshDir;
                         std::stringstream sPointsDir;
                         std::stringstream sDataDir;
                         if (m_case.numblocks > 0)
                         {
-                            sMeshDir << "/processor" << j  << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
-                            sPointsDir << "/processor" << j  << "/" << timedir << "/polyMesh";
-                            sDataDir << "/processor" << j  << "/" << timedir;
+                            sMeshDir << "processor" << j  << "/" << m_case.completeMeshDirs[t] << "/polyMesh";
+                            sPointsDir << "processor" << j  << "/" << timedir << "/polyMesh";
+                            sDataDir << "processor" << j  << "/" << timedir;
                         }
                         else
                         {
-                            sMeshDir << "/" << m_case.completeMeshDirs[it->first] << "/polyMesh";
-                            sPointsDir << "/" << timedir << "/polyMesh";
-                            sDataDir << "/" << timedir;
+                            sMeshDir << m_case.completeMeshDirs[t] << "/polyMesh";
+                            sPointsDir << timedir << "/polyMesh";
+                            sDataDir << timedir;
                         }
 
-                        meshdir += sMeshDir.str();
+                        std::string meshdir = sMeshDir.str();
+                        std::string pointsdir;
                         if (m_case.varyingCoords)
-                            pointsdir += sPointsDir.str();
+                            pointsdir = sPointsDir.str();
                         else
                             pointsdir = meshdir;
-                        datadir += sDataDir.str();
+                        std::string datadir = sDataDir.str();
                         std::stringstream sm;
                         std::stringstream sb;
                         std::stringstream sd;
@@ -1315,7 +1313,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 std::string dataFilename = portChoice[nPort]->getLabel(portchoice);
                                 if (portchoice == 1)
                                 {
-                                    boost::shared_ptr<std::istream> ownersIn = getStreamForFile(meshdir, "owner");
+                                    std::shared_ptr<std::istream> ownersIn = m_case.getStreamForFile(meshdir, "owner");
                                     HeaderInfo ownerH = readFoamHeader(*ownersIn);
                                     DimensionInfo dim = parseDimensions(ownerH.header);
                                     std::string portObjName = outPorts[nPort]->getObjName();
@@ -1326,7 +1324,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 
                                     for (int i=0; i<dim.cells; ++i)
                                     {
-                                        processorID[i] = j;
+                                        processorID[i] = float(j);
                                     }
                                     v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetPort[nPort].push_back(v);
@@ -1353,7 +1351,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                                 {//ToDo:Replace dim.cells with the correct number of faces
                                     coRestraint res;
                                     res.add(selection.c_str());
-                                    Boundaries boundaries = loadBoundary(meshdir);
+                                    Boundaries boundaries = m_case.loadBoundary(meshdir);
                                     int numBoundaryFaces =0;
                                     for (std::vector<Boundary>::const_iterator it = boundaries.boundaries.begin();
                                             it != boundaries.boundaries.end();
@@ -1373,7 +1371,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
 
                                     for (int i=0; i<numBoundaryFaces; ++i)
                                     {
-                                        processorID[i] = j;
+                                        processorID[i] = float(j);
                                     }
                                     v->addAttribute("REALTIME", realtime.c_str());
                                     tempSetBoundPort[nPort].push_back(v);
@@ -1448,7 +1446,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             //std::cerr << std::time(0) << " Read mesh for timestep: " << t << std::endl;
                             std::string meshSubSetName = meshOutPort->getObjName();
                             meshSubSetName += s.str();
-                            meshSubSet = new coDoSet(meshSubSetName, tempSetMesh.size(), &tempSetMesh.front());
+                            meshSubSet = new coDoSet(meshSubSetName, int(tempSetMesh.size()), &tempSetMesh.front());
                             if (m_case.varyingCoords)
                                 meshSubSet->addAttribute("REALTIME", realtime.c_str());
                             meshSubSets.push_back(meshSubSet);
@@ -1458,7 +1456,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             //std::cerr << std::time(0) << " Read boundary for timestep: " << t << std::endl;
                             std::string boundSubSetName = boundaryOutPort->getObjName();
                             boundSubSetName += s.str();
-                            boundarySubSet = new coDoSet(boundSubSetName, tempSetBoundary.size(), &tempSetBoundary.front());
+                            boundarySubSet = new coDoSet(boundSubSetName, int(tempSetBoundary.size()), &tempSetBoundary.front());
                             if (m_case.varyingCoords)
                                 boundarySubSet->addAttribute("REALTIME", realtime.c_str());
                             boundarySubSets.push_back(boundarySubSet);
@@ -1486,7 +1484,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             //std::cerr << std::time(0) << " Read data for timestep: " << t << std::endl;
                             std::string portSubSetName = outPorts[nPort]->getObjName();
                             portSubSetName += s.str();
-                            portSubSet = new coDoSet(portSubSetName, tempSetPort[nPort].size(), &tempSetPort[nPort].front());
+                            portSubSet = new coDoSet(portSubSetName, int(tempSetPort[nPort].size()), &tempSetPort[nPort].front());
                             portSubSet->addAttribute("REALTIME", realtime.c_str());
                             portSubSets[nPort].push_back(portSubSet);
                         }
@@ -1499,7 +1497,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             //std::cerr << std::time(0) << " Read boundary data for timestep: " << t << std::endl;
                             std::string boundPortSubSetName = boundaryDataPorts[nPort]->getObjName();
                             boundPortSubSetName += s.str();
-                            boundPortSubSet = new coDoSet(boundPortSubSetName, tempSetBoundPort[nPort].size(), &tempSetBoundPort[nPort].front());
+                            boundPortSubSet = new coDoSet(boundPortSubSetName, int(tempSetBoundPort[nPort].size()), &tempSetBoundPort[nPort].front());
                             boundPortSubSet->addAttribute("REALTIME", realtime.c_str());
                             boundPortSubSets[nPort].push_back(boundPortSubSet);
                         }
@@ -1510,7 +1508,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                     {
                         std::string particleSubSetName = particleOutPort->getObjName();
                         particleSubSetName += s.str();
-                        particleSubSet = new coDoSet(particleSubSetName, tempSetParticles.size(), &tempSetParticles.front());
+                        particleSubSet = new coDoSet(particleSubSetName, int(tempSetParticles.size()), &tempSetParticles.front());
                         particleSubSet->addAttribute("REALTIME", realtime.c_str());
                         particleSubSets.push_back(particleSubSet);
                     }
@@ -1522,7 +1520,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
                             //std::cerr << std::time(0) << " Read data for timestep: " << t << std::endl;
                             std::string portSubSetName = particleDataPorts[nPort]->getObjName();
                             portSubSetName += s.str();
-                            particlePortSubSet = new coDoSet(portSubSetName, tempSetParticlesPort[nPort].size(), &tempSetParticlesPort[nPort].front());
+                            particlePortSubSet = new coDoSet(portSubSetName, int(tempSetParticlesPort[nPort].size()), &tempSetParticlesPort[nPort].front());
                             particlePortSubSet->addAttribute("REALTIME", realtime.c_str());
                             particlePortSubSets[nPort].push_back(particlePortSubSet);
                         }
@@ -1537,7 +1535,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     if (meshParam->getValue())
     {
         std::string meshSetName = meshOutPort->getObjName();
-        meshSet = new coDoSet(meshSetName, meshSubSets.size(), &meshSubSets.front());
+        meshSet = new coDoSet(meshSetName, int(meshSubSets.size()), &meshSubSets.front());
 
         std::stringstream sMesh;
         sMesh << "0-" << meshSubSets.size();
@@ -1548,7 +1546,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     if (boundaryParam->getValue())
     {
         std::string boundSetName = boundaryOutPort->getObjName();
-        boundarySet = new coDoSet(boundSetName, boundarySubSets.size(), &boundarySubSets.front());
+        boundarySet = new coDoSet(boundSetName, int(boundarySubSets.size()), &boundarySubSets.front());
         std::stringstream sBoundary;
         sBoundary << "0-" << boundarySubSets.size();
         boundarySet->addAttribute("TIMESTEP", sBoundary.str().c_str());
@@ -1558,7 +1556,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
     if (m_case.hasParticles && particleParam->getValue())
     {
         std::string particleSetName = particleOutPort->getObjName();
-        particleSet = new coDoSet(particleSetName, particleSubSets.size(), &particleSubSets.front());
+        particleSet = new coDoSet(particleSetName, int(particleSubSets.size()), &particleSubSets.front());
         std::stringstream s;
         s << "0-" << boundarySubSets.size();
         particleSet->addAttribute("TIMESTEP", s.str().c_str());
@@ -1570,7 +1568,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         if (portChoice[nPort]->getValue() > 0)
         {
             std::string portSetName = outPorts[nPort]->getObjName();
-            coDoSet *portSet = new coDoSet(portSetName, portSubSets[nPort].size(), &portSubSets[nPort].front());
+            coDoSet *portSet = new coDoSet(portSetName, int(portSubSets[nPort].size()), &portSubSets[nPort].front());
             if (m_case.timedirs.size() > 1)
             {
                 std::stringstream s;
@@ -1586,7 +1584,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         if (boundaryDataChoice[nPort]->getValue() > 0)
         {
             std::string boundPortSetName = boundaryDataPorts[nPort]->getObjName();
-            coDoSet *boundPortSet = new coDoSet(boundPortSetName, boundPortSubSets[nPort].size(), &boundPortSubSets[nPort].front());
+            coDoSet *boundPortSet = new coDoSet(boundPortSetName, int(boundPortSubSets[nPort].size()), &boundPortSubSets[nPort].front());
             if (m_case.timedirs.size() > 1)
             {
                 std::stringstream s;
@@ -1602,7 +1600,7 @@ int ReadFOAM::compute(const char *port) //Compute is called when Module is execu
         if (particleDataChoice[nPort]->getValue() > 0)
         {
             std::string particlePortSetName = particleDataPorts[nPort]->getObjName();
-            coDoSet *portSet = new coDoSet(particlePortSetName, particlePortSubSets[nPort].size(), &particlePortSubSets[nPort].front());
+            coDoSet *portSet = new coDoSet(particlePortSetName, int(particlePortSubSets[nPort].size()), &particlePortSubSets[nPort].front());
             if (m_case.timedirs.size() > 1)
             {
                 std::stringstream s;

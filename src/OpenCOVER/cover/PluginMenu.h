@@ -10,13 +10,15 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coSubMenuItem.h>
+#include "ui/Owner.h"
 
-namespace vrui
+namespace opencover
 {
-class coCheckboxMenuItem;
+namespace ui
+{
+class Button;
+class Menu;
+}
 }
 
 namespace opencover
@@ -24,39 +26,40 @@ namespace opencover
 
 class coVRPlugin;
 
-class PluginMenu : public vrui::coMenuListener
+class PluginMenu: public ui::Owner
 {
 public:
     static PluginMenu *instance();
 
     void updateState();
     void addEntry(const std::string &name, coVRPlugin *plugin);
+    void addEntry(const std::string &name);
     void init();
-
-    void menuEvent(vrui::coMenuItem *item);
 
 private:
     PluginMenu();
     ~PluginMenu();
+    void scanPlugins();
 
     struct Plugin
     {
         std::string name;
-        boost::shared_ptr<vrui::coCheckboxMenuItem> menu;
-        coVRPlugin *plugin;
+        ui::Button *button = nullptr;
+        coVRPlugin *plugin = nullptr;
+        bool configured = false;
 
         Plugin(const std::string &name)
             : name(name)
-            , plugin(NULL)
         {
         }
 
-        void add(vrui::coMenu *menu);
+        void add(ui::Menu *menu, bool onlyTui=false);
     };
 
-    std::vector<Plugin> items;
-    boost::shared_ptr<vrui::coSubMenuItem> pinboardEntry;
-    boost::shared_ptr<vrui::coMenu> menu;
+    std::map<std::string, Plugin> items;
+    ui::Menu *menu = nullptr;
+
+    static PluginMenu *s_instance;
 };
 }
 #endif

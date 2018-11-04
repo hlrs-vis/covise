@@ -211,9 +211,9 @@ TUIMap::TUIMap(int id, int type, QWidget *w, int parent, QString name)
     connect(zoomInButton, SIGNAL(pressed()), this, SLOT(zoomIn()));
     connect(zoomOutButton, SIGNAL(pressed()), this, SLOT(zoomOut()));
     connect(viewAllButton, SIGNAL(pressed()), this, SLOT(viewAll()));
-    connect(zoomFrameButton, SIGNAL(toogled(bool)), this, SLOT(zoomFrame(bool)));
     connect(panButton, SIGNAL(toggled(bool)), this, SLOT(pan(bool)));
     connect(camButton, SIGNAL(toggled(bool)), this, SLOT(cam(bool)));
+    connect(zoomFrameButton, SIGNAL(toogled(bool)), this, SLOT(zoomFrame(bool)));
 
     buttonsLayout->addWidget(zoomInButton, 0, 0);
     buttonsLayout->addWidget(zoomOutButton, 1, 0);
@@ -368,12 +368,12 @@ void TUIMap::setHighlighted(bool hl)
     TUIElement::setHighlighted(hl);
 }
 
-char *TUIMap::getClassName()
+const char *TUIMap::getClassName() const
 {
-    return (char *)"TUIMap";
+    return "TUIMap";
 }
 
-bool TUIMap::isOfClassName(char *classname)
+bool TUIMap::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())
@@ -687,7 +687,7 @@ void CamItem::moveBy(double dx, double dy)
 }
 
 CamItem::CamItem(NodeItem *f, NodeItem *t, QGraphicsScene *canvas)
-    : QGraphicsPolygonItem(0)
+    : QGraphicsPolygonItem(0), pa(8), pao(8)
 {
     from = f;
     to = t;
@@ -777,4 +777,16 @@ NodeItem::NodeItem(QGraphicsScene *canvas)
     setPen(*tp);
     setBrush(*tb);
     setZValue(128);
+}
+
+
+void TUIMap::setValue(TabletValue type, covise::TokenBuffer &tb)
+{
+	//cerr << "setValue " << type << endl;
+	if (type == TABLET_ADD_MAP)
+	{
+		//char *en;
+		//tb >> en;
+	}
+	TUIElement::setValue(type, tb);
 }

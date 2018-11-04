@@ -23,6 +23,7 @@ XERCES_CPP_NAMESPACE_END
 namespace OpenScenario
 {
 
+	class OpenScenarioBase;
 /// \class This class represents a member variable value in an oscObject
 class OPENSCENARIOEXPORT oscMemberValue
 {
@@ -73,7 +74,7 @@ public:
         return type;
     };
 
-    virtual bool initialize(xercesc::DOMAttr *) = 0;
+    virtual bool initialize(xercesc::DOMAttr *, OpenScenarioBase *base) = 0;
 
     virtual bool writeToDOM(xercesc::DOMElement *currentElement, xercesc::DOMDocument *document, const char *name) = 0;
 };

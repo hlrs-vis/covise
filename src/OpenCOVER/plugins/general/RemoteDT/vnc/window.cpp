@@ -26,7 +26,6 @@
 
 #include <OpenVRUI/coToolboxMenu.h>
 #include <OpenVRUI/coRowMenu.h>
-#include <cover/VRPinboard.h>
 
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>

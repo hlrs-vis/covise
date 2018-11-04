@@ -12,6 +12,9 @@
 
 #include <QObject>
 
+class QLabel;
+class QComboBox;
+
 /** Basic Container
  * This class provides basic functionality and a
  * common interface to all Container elements.<BR>
@@ -25,19 +28,18 @@ class TUIComboBox : public QObject, public TUIElement
 public:
     TUIComboBox(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUIComboBox();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setValue(int type, covise::TokenBuffer &);
+    virtual void setValue(TabletValue type, covise::TokenBuffer &) override;
+    void setLabel(QString textl) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual const char *getClassName() const override;
 
 public slots:
 
     void valueChanged(int index);
 
 protected:
+    QComboBox *combo = nullptr;
+    QLabel *label = nullptr;
 };
 #endif

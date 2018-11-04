@@ -19,24 +19,28 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 using namespace opencover;
 
-class CovisePlugin : public coVRPlugin
+class CovisePlugin : public coVRPlugin, public ui::Owner
 {
 public:
     CovisePlugin();
     ~CovisePlugin();
 
-    bool init();
-    void param(const char *paramName, bool inMapLoading);
-    void preFrame();
-    void removeNode(osg::Node *group, bool isGroup, osg::Node *node);
-    void requestQuit(bool killSession);
-    bool sendVisMessage(const covise::Message *msg);
-    bool becomeCollaborativeMaster();
-    bool executeAll();
-    covise::Message *waitForVisMessage(int type);
-    void expandBoundingSphere(osg::BoundingSphere &bs);
+    bool init() override;
+    void notify(NotificationLevel level, const char *text) override;
+    void param(const char *paramName, bool inMapLoading) override;
+    bool update() override;
+    void preFrame() override;
+    void removeNode(osg::Node *group, bool isGroup, osg::Node *node) override;
+    void requestQuit(bool killSession) override;
+    bool sendVisMessage(const covise::Message *msg) override;
+    bool becomeCollaborativeMaster() override;
+    bool executeAll() override;
+    covise::Message *waitForVisMessage(int type) override;
+    void expandBoundingSphere(osg::BoundingSphere &bs) override;
+    bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse) override;
 };
 #endif

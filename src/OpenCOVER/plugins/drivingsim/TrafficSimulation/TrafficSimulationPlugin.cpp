@@ -21,8 +21,8 @@
 
 #include "TrafficSimulationPlugin.h"
 
-#include "FindTrafficLightSwitch.h"
-#include <coTrafficSimulation.h>
+#include <TrafficSimulation/FindTrafficLightSwitch.h>
+#include <TrafficSimulation/coTrafficSimulation.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/RenderObject.h>
@@ -46,11 +46,9 @@
 #include <osg/PolygonOffset>
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "HumanVehicle.h"
-#include "../SteeringWheel/Vehicle.h"
+#include <TrafficSimulation/HumanVehicle.h>
 
-#include "PorscheFFZ.h"
-#include "../RoadTerrain/RoadTerrainPlugin.h"
+#include <TrafficSimulation/PorscheFFZ.h>
 
 using namespace covise;
 using namespace opencover;
@@ -78,6 +76,8 @@ TrafficSimulationPlugin::~TrafficSimulationPlugin()
 
     coVRFileManager::instance()->unregisterFileHandler(&handlers[0]);
     //coVRFileManager::instance()->unregisterFileHandler(&handlers[1]);
+
+	coTrafficSimulation::freeInstance();
 }
 
 
@@ -101,6 +101,7 @@ bool TrafficSimulationPlugin::init()
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     //coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     cover->setScale(1000);
+	coTrafficSimulation::useInstance();
 
     pluginTab = new coTUITab("Traffic Simulation", coVRTui::instance()->mainFolder->getID());
     pluginTab->setPos(0, 0);
@@ -529,7 +530,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
 
     else if (tUIItem == openC4DXMLButton || tUIItem == openLandXMLButton || tUIItem == openIntermapRoadButton)
     {
-        if (system == NULL)
+        if (coTrafficSimulation::instance()->system == NULL)
         {
 			coTrafficSimulation::instance()->system = RoadSystem::Instance();
         }
@@ -545,7 +546,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseCinema4dXml(filename);
-            std::cout << "Information about road system: " << std::endl << system;
+            std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
         else if (tUIItem == openLandXMLButton)
         {
@@ -557,7 +558,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseLandXml(filename);
-            std::cout << "Information about road system: " << std::endl << system;
+            std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
         else if (tUIItem == openIntermapRoadButton)
         {
@@ -569,7 +570,7 @@ void TrafficSimulationPlugin::tabletEvent(coTUIElement *tUIItem)
             }
 
 			coTrafficSimulation::instance()->system->parseIntermapRoad(filename, "+proj=latlong +datum=WGS84", "+proj=merc +x_0=-1008832.89 +y_0=-6179385.47");
-            //std::cout << "Information about road system: " << std::endl << system;
+            //std::cout << "Information about road system: " << std::endl << coTrafficSimulation::instance()->system;
         }
 
         //roadGroup = new osg::Group;

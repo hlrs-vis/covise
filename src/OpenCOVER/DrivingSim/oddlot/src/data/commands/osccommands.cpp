@@ -19,15 +19,15 @@
 #include "src/data/oscsystem/oscelement.hpp"
 
 // OpenScenario //
-#include "OpenScenarioBase.h"
-#include "oscObjectBase.h"
-#include "schema/oscObject.h"
-#include "oscMember.h"
-#include "oscMemberValue.h"
-#include "oscVariables.h"
-#include "schema/oscCatalogs.h"
-#include "oscCatalog.h"
-#include "oscArrayMember.h"
+#include <OpenScenario/OpenScenarioBase.h>
+#include <OpenScenario/oscObjectBase.h>
+#include <OpenScenario/schema/oscObject.h>
+#include <OpenScenario/oscMember.h>
+#include <OpenScenario/oscMemberValue.h>
+#include <OpenScenario/oscVariables.h>
+#include <OpenScenario/schema/oscCatalogs.h>
+#include <OpenScenario/oscCatalog.h>
+#include <OpenScenario/oscArrayMember.h>
 
 using namespace OpenScenario;
 
@@ -267,6 +267,7 @@ RemoveOSCCatalogObjectCommand::redo()
 		oscBase_->delOSCElement(element_);
 	}
 
+	catalog_->removeObjFromObjectsMap(name_);
 	//catalog_->removeCatalogObject(name_);
 
     setRedone();
@@ -314,7 +315,7 @@ AddOSCArrayMemberCommand::AddOSCArrayMemberCommand(OpenScenario::oscArrayMember 
         setText(QObject::tr("AddOSCArrayMember"));
     }
 
-	if (object_)
+	if (object_ && !object_->getOwnMember())
 	{
 		ownMember_ = arrayMember_->getObjectBase()->getMember(typeName_);
 	}
@@ -357,7 +358,10 @@ AddOSCArrayMemberCommand::redo()
             oscBase_->addOSCElement(oscElement_);
         }
 
-		object_->setOwnMember(ownMember_);
+		if (ownMember_)
+		{
+			object_->setOwnMember(ownMember_);
+		}
 		arrayMember_->push_back(object_);
 	}
 	

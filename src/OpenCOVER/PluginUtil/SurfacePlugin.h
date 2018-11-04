@@ -9,8 +9,6 @@
 #define _SURFACE_PLUGIN_H_
 
 #include <util/common.h>
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
 
 #include "ModuleFeedbackPlugin.h"
 #include "ModuleFeedbackManager.h"

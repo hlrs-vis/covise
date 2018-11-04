@@ -760,10 +760,10 @@ void ObjectManager::add_geometry(const char *object, int is_timestep, const char
         if (transparencyStr != 0)
         {
             fprintf(stderr, "Transparency: \"%s\"\n", transparencyStr);
-            if ((transparency = atof(transparencyStr)) < 0.0)
-                transparency = 0.0;
-            if (transparency > 1.0)
-                transparency = 1.0;
+            if ((transparency = (float)atof(transparencyStr)) < 0.0f)
+                transparency = 0.0f;
+            if (transparency > 1.0f)
+                transparency = 1.0f;
         }
 
         ////////////////////////////////////

@@ -1370,7 +1370,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
 {
     // Check for validity //
     //
-    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected()) || sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
+    if (!road || (maps.isEmpty() && !COVERConnection::instance()->isConnected())|| sampleDistance < NUMERICAL_ZERO3 || maxDeviation < NUMERICAL_ZERO3)
     {
         setInvalid(); // Invalid because no change.
         setText("Apply Heightmap: invalid parameters!");
@@ -1395,7 +1395,7 @@ ApplyHeightMapElevationCommand::ApplyHeightMapElevationCommand(RSystemElementRoa
     {
         // TODO
         pointCount = 2;
-        qDebug() << road->getID() << " Segment too short: duplicate points per meter";
+        qDebug() << road->getID().speakingName() << " Segment too short: duplicate points per meter";
     }
     double segmentLength = (sEnd - sStart) / (pointCount - 1);
 
@@ -1811,13 +1811,13 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
     // Roads //
     //
     RoadSystem *roadSystem = junction_->getRoadSystem();
-    QStringList pathIds;
-    QStringList endRoadIds;
-    QStringList startRoadIds;
+    QList<odrID> pathIds;
+	QList<odrID> endRoadIds;
+	QList<odrID> startRoadIds;
 
     foreach (JunctionConnection *connection, junction_->getConnections())
     {
-        QString pathId = connection->getConnectingRoad();
+        odrID pathId = connection->getConnectingRoad();
         RSystemElementRoad *road = roadSystem->getRoad(pathId);
         if (!road)
         {
@@ -1830,18 +1830,18 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
         }
 
         RoadLink *link = NULL;
-        if (connection->getContactPoint() == "start")
+        if (connection->getContactPoint() == JunctionConnection::JCP_START)
         {
             link = road->getSuccessor(); // junction -> path start ... path end -> path successor
         }
-        else if (connection->getContactPoint() == "end")
+        else if (connection->getContactPoint() == JunctionConnection::JCP_END)
         {
             link = road->getPredecessor();
         }
 
         if (link)
         {
-            if (link->getContactPoint() == "start" && !startRoadIds.contains(link->getElementId()))
+            if (link->getContactPoint() == JunctionConnection::JCP_START && !startRoadIds.contains(link->getElementId()))
             {
                 startRoadIds.append(link->getElementId());
                 RSystemElementRoad *road = roadSystem->getRoad(link->getElementId());
@@ -1850,7 +1850,7 @@ FlatJunctionsElevationCommand::FlatJunctionsElevationCommand(RSystemElementJunct
                     startRoads_.append(road);
                 }
             }
-            if (link->getContactPoint() == "end" && !endRoadIds.contains(link->getElementId()))
+            if (link->getContactPoint() == JunctionConnection::JCP_END && !endRoadIds.contains(link->getElementId()))
             {
                 endRoadIds.append(link->getElementId());
                 RSystemElementRoad *road = roadSystem->getRoad(link->getElementId());

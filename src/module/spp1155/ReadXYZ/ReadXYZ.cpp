@@ -50,12 +50,6 @@ coReadXYZ::coReadXYZ(int argc, char *argv[])
     pLimitTimesteps = addInt32Param("LimitTimestep", "Maximum number of timesteps to read (0 = all)");
     pLimitTimesteps->setValue(0);
 
-    for (int i = 0; i < coChemicalElement::Number; ++i)
-    {
-        assert(coChemicalElement::all[i].number == i + 1);
-        elemMap[coChemicalElement::all[i].symbol] = coChemicalElement::all[i].number;
-    }
-    elemMap["PE"] = 255; // Polyethylen
 }
 
 /// Compute routine: load checkpoint file
@@ -83,18 +77,26 @@ int coReadXYZ::compute(const char *)
         sendError("failed to open XYZ file %s for reading.", path);
         return STOP_PIPELINE;
     }
-
+    char lineData[5000];
+    if(fgets(lineData, 5000, fp)==NULL)
+    {
+        lineData[0] = '\0';
+    }
     while (!feof(fp))
     {
         if (timestepLimit > 0 && timestep >= timestepLimit)
             break;
 
         int dummyNumAtoms = 0;
-        if (fscanf(fp, "%d\n", &dummyNumAtoms) != 1)
+        if (sscanf(lineData, "%d", &dummyNumAtoms) != 1)
         {
+            if(timestep == 0)
+            { 
             sendError("Failed to read number of atoms.");
             fclose(fp);
             return STOP_PIPELINE;
+            }
+            break;
         }
 
         char line[1024];
@@ -114,7 +116,11 @@ int coReadXYZ::compute(const char *)
             {
                 char buf[1024];
                 float x[3];
-                if (fscanf(fp, "%3s %f %f %f\n", buf, &x[0], &x[1], &x[2]) != 4)
+                if (fgets(lineData, 5000, fp) == NULL)
+                {
+                    lineData[0] = '\0';
+                }
+                if (sscanf(lineData, "%3s %f %f %f\n", buf, &x[0], &x[1], &x[2]) != 4)
                 {
                     sendError("Failed to read data for bounds.");
                     fclose(fp);
@@ -144,16 +150,21 @@ int coReadXYZ::compute(const char *)
         std::vector<float> vx, vy, vz;
         do
         {
-            fpos_t pos;
-            fgetpos(fp, &pos);
+            //fpos_t pos;
+            //fgetpos(fp, &pos);
             char buf[1024];
             float x, y, z;
-            int n = fscanf(fp, "%s %f %f %f\n", buf, &x, &y, &z);
+
+            if(fgets(lineData, 5000, fp) == NULL)
+            {
+                lineData[0] = '\0';
+            }
+            int n = sscanf(lineData, "%s %f %f %f\n", buf, &x, &y, &z);
             if (n != 4)
             {
                 if (n <= 2)
                 {
-                    fsetpos(fp, &pos);
+                    //fsetpos(fp, &pos);
                     break;
                 }
                 sendError("Failed to read data for atom.");
@@ -165,13 +176,13 @@ int coReadXYZ::compute(const char *)
             vy.push_back(y);
             vz.push_back(z);
 
-            ElemMap::iterator elem = elemMap.find(buf);
-            if (elem == elemMap.end())
+            auto elem = coAtomInfo::instance()->idMap.find(buf);
+            if (elem == coAtomInfo::instance()->idMap.end())
                 vt.push_back(0);
             else
                 vt.push_back(elem->second);
         } while (!feof(fp));
-        int numAtoms = vt.size();
+        int numAtoms = (int)vt.size();
         totalAtoms += numAtoms;
 
         char name[1024];
@@ -196,8 +207,8 @@ int coReadXYZ::compute(const char *)
     }
 
     // Create set objects:
-    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), points.size(), (coDistributedObject **)&points[0]);
-    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), types.size(), (coDistributedObject **)&types[0]);
+    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), (int)points.size(), (coDistributedObject **)&points[0]);
+    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), (int)types.size(), (coDistributedObject **)&types[0]);
     // Now the arrays can be cleared:
     points.clear();
     types.clear();

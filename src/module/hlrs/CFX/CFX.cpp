@@ -347,7 +347,7 @@ int CFX::compute(const char *port)
                 int j, nodenr;
                 diricletVal = diricletValObj->getAddress();
 
-                omega = M_PI * p_revolutions->getValue() / 30.;
+                omega = float(M_PI * p_revolutions->getValue() / 30.0f);
 
                 for (j = 0; j < numberinletnodes; j++)
                 {
@@ -480,7 +480,7 @@ int CFX::compute(const char *port)
             }
             numblades = atoi(numberofblades);
             fprintf(stderr, "Number of blades: %d\n", numblades);
-            alpha = 360.0 / (float)numblades;
+            alpha = 360.0f / (float)numblades;
             fprintf(stderr, "alpha: %f\n", alpha);
 
             //	Gitter wird repliziert !
@@ -505,8 +505,8 @@ int CFX::compute(const char *port)
                 //          fprintf (stderr,"Drehwinkel: %f\n",k);
                 for (j = 0; j < numCoord; j++)
                 {
-                    x_machine[numCoord * i + j] = x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180);
-                    y_machine[numCoord * i + j] = x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180);
+                    x_machine[numCoord * i + j] = float(x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180));
+                    y_machine[numCoord * i + j] = float(x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180));
                     z_machine[numCoord * i + j] = z[j];
                 }
                 k = k + alpha;
@@ -606,15 +606,15 @@ int CFX::compute(const char *port)
             k = 0;
             float u, v, r, xr0, yr0, xu0, yu0, vu, vr, omega;
             int j, nodenr;
-            omega = M_PI * p_revolutions->getValue() / 30.;
+            omega = float(M_PI * p_revolutions->getValue() / 30.0f);
 
             for (i = 0; i < numblades; i++)
             {
                 // 	     fprintf (stderr,"Drehwinkel: %f\n",k);
                 for (j = 0; j < numberinletnodes; j++) //numberinletnodes des Kanals!!!!!!!
                 {
-                    diricletVal_machine[numDiriclet * i + j * 5 + 0] = diricletVal[j * 5 + 0] * cos(k * PI / 180) - diricletVal[j * 5 + 1] * sin(k * PI / 180);
-                    diricletVal_machine[numDiriclet * i + j * 5 + 1] = diricletVal[j * 5 + 0] * sin(k * PI / 180) + diricletVal[j * 5 + 1] * cos(k * PI / 180);
+                    diricletVal_machine[numDiriclet * i + j * 5 + 0] = float(diricletVal[j * 5 + 0] * cos(k * PI / 180) - diricletVal[j * 5 + 1] * sin(k * PI / 180));
+                    diricletVal_machine[numDiriclet * i + j * 5 + 1] = float(diricletVal[j * 5 + 0] * sin(k * PI / 180) + diricletVal[j * 5 + 1] * cos(k * PI / 180));
                     diricletVal_machine[numDiriclet * i + j * 5 + 2] = diricletVal[j * 5 + 2];
                     diricletVal_machine[numDiriclet * i + j * 5 + 3] = diricletVal[j * 5 + 3];
                     diricletVal_machine[numDiriclet * i + j * 5 + 4] = diricletVal[j * 5 + 4];
@@ -769,7 +769,7 @@ int CFX::compute(const char *port)
 
             //	numblades = 4;
             fprintf(stderr, "Number of blades: %d\n", numblades);
-            alpha = 360.0 / (float)numblades;
+            alpha = 360.0f / (float)numblades;
             fprintf(stderr, "alpha: %f\n", alpha);
 
             //	Gitter wird repliziert !
@@ -794,8 +794,8 @@ int CFX::compute(const char *port)
                 //          fprintf (stderr,"Drehwinkel: %f\n",k);
                 for (j = 0; j < numCoord; j++)
                 {
-                    x_machine[numCoord * i + j] = x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180);
-                    y_machine[numCoord * i + j] = x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180);
+                    x_machine[numCoord * i + j] = float(x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180));
+                    y_machine[numCoord * i + j] = float(x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180));
                     z_machine[numCoord * i + j] = z[j];
                 }
                 k = k + alpha;
@@ -895,7 +895,7 @@ int CFX::compute(const char *port)
             k = 0;
             float u, v, r, xr0, yr0, xu0, yu0, vu, vr, omega;
             int j, nodenr;
-            omega = M_PI * p_revolutions->getValue() / 30.;
+            omega = float(M_PI * p_revolutions->getValue() / 30.0f);
 
             for (i = 0; i < numblades; i++)
             {
@@ -904,8 +904,8 @@ int CFX::compute(const char *port)
                 for (j = 0; j < numberinletnodes; j++) //numberinletnodes des Kanals!!!!!!!
                 {
 
-                    diricletVal_machine[numDiriclet * i + j * 5 + 0] = diricletVal[j * 5 + 0] * cos(k * PI / 180) - diricletVal[j * 5 + 1] * sin(k * PI / 180);
-                    diricletVal_machine[numDiriclet * i + j * 5 + 1] = diricletVal[j * 5 + 0] * sin(k * PI / 180) + diricletVal[j * 5 + 1] * cos(k * PI / 180);
+                    diricletVal_machine[numDiriclet * i + j * 5 + 0] = float(diricletVal[j * 5 + 0] * cos(k * PI / 180) - diricletVal[j * 5 + 1] * sin(k * PI / 180));
+                    diricletVal_machine[numDiriclet * i + j * 5 + 1] = float(diricletVal[j * 5 + 0] * sin(k * PI / 180) + diricletVal[j * 5 + 1] * cos(k * PI / 180));
                     diricletVal_machine[numDiriclet * i + j * 5 + 2] = diricletVal[j * 5 + 2];
                     diricletVal_machine[numDiriclet * i + j * 5 + 3] = diricletVal[j * 5 + 3];
                     diricletVal_machine[numDiriclet * i + j * 5 + 4] = diricletVal[j * 5 + 4];
@@ -1118,7 +1118,7 @@ int CFX::compute(const char *port)
                 {
                     numblades = 4;
                 }
-                alpha = 360. / numblades;
+                alpha = 360.0f / numblades;
 
                 //	Gitter wird repliziert !
 
@@ -1141,8 +1141,8 @@ int CFX::compute(const char *port)
                 {
                     for (j = 0; j < numCoord; j++)
                     {
-                        x_machine[numCoord * i + j] = x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180);
-                        y_machine[numCoord * i + j] = x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180);
+                        x_machine[numCoord * i + j] = float(x[j] * cos(k * PI / 180) - y[j] * sin(k * PI / 180));
+                        y_machine[numCoord * i + j] = float(x[j] * sin(k * PI / 180) + y[j] * cos(k * PI / 180));
                         z_machine[numCoord * i + j] = z[j];
                     }
                     k = k + alpha;
@@ -1320,7 +1320,8 @@ int CFX::PrepareSimStart()
     while (onehost != NULL)
     {
         // 		fprintf(stderr, "onehost is \"%s\"\n", onehost );
-        if (!strchr(onehost, '*'))
+        const char *asterisk = strchr(onehost, '*');
+        if (!asterisk)
         {
             if ((numProc - numParts) > 0)
             {
@@ -1332,7 +1333,7 @@ int CFX::PrepareSimStart()
         }
         else
         {
-            anzahl = atoi(strchr(onehost, '*') + 1);
+            anzahl = atoi(asterisk + 1);
 
             if (numProc - numParts >= anzahl)
             {
@@ -1341,9 +1342,12 @@ int CFX::PrepareSimStart()
             }
             else
             {
-                strncat(newhosts, onehost, strlen(onehost) - strlen(strchr(onehost, '*')));
+                size_t len = strlen(onehost)-strlen(asterisk);
+                size_t pos = strlen(newhosts);
+                if (len+pos > sizeof(newhosts))
+                    len = sizeof(newhosts)-pos;
+                memcpy(newhosts+pos, onehost, len);
                 sprintf(newhosts, "%s*%d,", newhosts, numProc - numParts);
-                strcat(newhosts, "\0");
             }
             numParts = numParts + anzahl;
             // 			fprintf(stderr,"numParts: %d\n",numParts);

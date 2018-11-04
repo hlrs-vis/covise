@@ -19,39 +19,6 @@ using namespace opencover;
 coCoverConfig::~coCoverConfig()
 {
 }
-bool coCoverConfig::getWindowConfigEntry(int pos, std::string &name, int *pipeNum, int *ox, int *oy, int *sx, int *sy, bool *decoration, bool *stereo, bool *resize, bool *embedded, bool
-*pbuffer, int *swapGroup, int *swapBarrier)
-{
-    char str[200];
-    sprintf(str, "COVER.WindowConfig.Window:%d", pos);
-    name = coCoviseConfig::getEntry("comment", str, "COVER");
-    *pipeNum = coCoviseConfig::getInt("pipeIndex", str, 0);
-    *ox = coCoviseConfig::getInt("left", str, 0);
-    *oy = coCoviseConfig::getInt("top", str, 0);
-    *sx = coCoviseConfig::getInt("width", str, 1024);
-    *sy = coCoviseConfig::getInt("height", str, 768);
-    bool have_bottom = false;
-    coCoviseConfig::getInt("bottom", str, 0, &have_bottom);
-    if (have_bottom)
-        printf("bottom is ignored in %s, please use top\n", str);
-    if (decoration)
-        *decoration = coCoviseConfig::isOn("decoration", std::string(str), false);
-    if (resize)
-        *resize = coCoviseConfig::isOn("resize", str, true);
-    //*visualID  = coCoviseConfig::getInt("visualID",str,-1);
-    if (stereo)
-        *stereo = coCoviseConfig::isOn("stereo", std::string(str), false);
-    if (embedded)
-        *embedded = coCoviseConfig::isOn("embedded", std::string(str), false);
-    if (pbuffer)
-        *pbuffer = coCoviseConfig::isOn("pbuffer", std::string(str), false);
-    if(swapGroup)
-	*swapGroup = coCoviseConfig::getInt("swapGroup", str, -1);
-    if(swapBarrier)
-	*swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
-
-    return true;
-}
 
 bool coCoverConfig::getScreenConfigEntry(int pos, std::string &name, int *hsize, int *vsize, int *x, int *y, int *z, float *h, float *p, float *r)
 {

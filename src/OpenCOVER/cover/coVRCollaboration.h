@@ -25,6 +25,7 @@
 #include <util/common.h>
 
 #include <OpenVRUI/coRowMenu.h>
+#include <osg/Matrix>
 
 namespace vrui
 {
@@ -40,9 +41,11 @@ class Group;
 
 namespace opencover
 {
-class buttonSpecCell;
 class COVEREXPORT coVRCollaboration : public vrui::coMenuListener
 {
+    static coVRCollaboration *s_instance;
+    coVRCollaboration();
+
 public:
     enum SyncMode
     {
@@ -63,6 +66,7 @@ private:
     float syncInterval;
 
 public:
+    virtual ~coVRCollaboration();
     void config();
     vrui::coSubMenuItem *collButton;
     void showCollaborative(bool visible);
@@ -89,21 +93,14 @@ public:
     vrui::coPotiMenuItem *SyncInterval;
 
     // process key events
-    bool keyEvent(int type, int keySym, int mod);
     void menuEvent(vrui::coMenuItem *);
     void updateCollaborativeMenu();
 
-    coVRCollaboration();
-
-    virtual ~coVRCollaboration();
     void init();
 
     void update();
 
-    // menu interactions
-    void manipulate(buttonSpecCell *spec);
-
-    void SyncXform()
+    void SyncXform() //! mark VRSceneGraph::m_objectsTransform as dirty
     {
         syncXform = true;
     }
@@ -111,7 +108,7 @@ public:
     {
         syncXform = false;
     }
-    void SyncScale()
+    void SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
     {
         syncScale = true;
     }
@@ -119,11 +116,6 @@ public:
     {
         syncScale = false;
     }
-
-    static void tightCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void looseCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void msCouplingCallback(void *sceneGraph, buttonSpecCell *spec);
-    static void showAvatarCallback(void *sceneGraph, buttonSpecCell *spec);
 
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);

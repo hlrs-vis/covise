@@ -35,6 +35,8 @@
 #include <config/CoviseConfig.h>
 
 #include "OpenCOVER.h"
+#include "coInteractor.h"
+#include "coTranslator.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
 #include "coVRNavigationManager.h"
@@ -42,6 +44,7 @@
 #include "coVRConfig.h"
 #include "coVRMSController.h"
 #include "coVRCommunication.h"
+#include "coVRPluginList.h"
 #include "VRViewer.h"
 #include <osgGA/GUIActionAdapter>
 #include "coVRLabel.h"
@@ -49,25 +52,37 @@
 #include "coIntersection.h"
 #include <input/input.h>
 #include <input/coMousePointer.h>
-#include <OpenVRUI/sginterface/vruiButtons.h>
-#include <OpenVRUI/coMouseButtonInteraction.h>
 #include <OpenVRUI/coNavInteraction.h>
+#include <OpenVRUI/coMouseButtonInteraction.h>
+#include <OpenVRUI/coRelativeInputInteraction.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/coRowMenu.h>
+#include <OpenVRUI/coButtonMenuItem.h>
+#include "coVRAnimationManager.h"
+#include <ui/Menu.h>
+#include <ui/Action.h>
+#include <ui/Button.h>
+#include <ui/ButtonGroup.h>
+#include <ui/Slider.h>
 #include "coVRIntersectionInteractorManager.h"
 #include "coMeasurement.h"
 
 #include <osg/Vec4>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/LineSegmentIntersector>
 #include <osgDB/WriteFile>
 #include <osg/ShapeDrawable>
+#include <osg/io_utils>
 
-#include <vtrans/vtrans.h>
 
 using namespace osg;
 using namespace opencover;
 using namespace vrui;
 using covise::coCoviseConfig;
+
+coVRNavigationManager *coVRNavigationManager::s_instance = NULL;
 
 static float mouseX()
 {
@@ -101,14 +116,14 @@ static float mouseScreenHeight()
 
 coVRNavigationManager *coVRNavigationManager::instance()
 {
-    static coVRNavigationManager *singleton = NULL;
-    if (!singleton)
-        singleton = new coVRNavigationManager;
-    return singleton;
+    if (!s_instance)
+        s_instance = new coVRNavigationManager;
+    return s_instance;
 }
 
 coVRNavigationManager::coVRNavigationManager()
-    : AnalogX(-10.0)
+    : ui::Owner("NavigationManager", cover->ui)
+    , AnalogX(-10.0)
     , AnalogY(-10.0)
     , collision(false)
     , ignoreCollision(true)
@@ -122,24 +137,24 @@ coVRNavigationManager::coVRNavigationManager()
     , rotationPointVisible(false)
     , rotationAxis(false)
     , guiTranslateFactor(-1.0)
-    , startFrame(-1)
     , actScaleFactor(0)
-    , curTypeYRot(50)
-    , curTypeZRot(50)
-    , curTypeDef(68)
-    , curTypeZTrans(43)
-    , curTypeContRot(23)
     , jsEnabled(true)
     , joystickActive(false)
     , navExp(2.0)
     , driveSpeed(1.0)
-    , navigating(false)
     , jump(true)
+    , snapping(false)
+    , snappingD(false)
+    , snapDegrees(-1.0)
+    , rotationSpeed(50.0f)
+    , turntable(false)
 {
-    init();
-    oldKeyMask = 0;
+    assert(!s_instance);
+
     oldSelectedNode_ = NULL;
     oldShowNamesNode_ = NULL;
+
+    init();
 }
 
 void coVRNavigationManager::init()
@@ -153,22 +168,11 @@ void coVRNavigationManager::init()
 
     initMatrices();
 
+    initMenu();
+
     initShowName();
 
-    // parse snapping and tell NavigationManager
-    snapping = coCoviseConfig::isOn("COVER.Snap", false);
-    snapDegrees = coCoviseConfig::getFloat("COVER.SnapDegrees", -1);
-    rotationSpeed = coCoviseConfig::getFloat("COVER.RotationSpeed", 50.0f);
-    if (snapDegrees > 0)
-    {
-        snappingD = true;
-        snapping = true;
-    }
-    else
-    {
-        snappingD = false;
-    }
-    turntable = coCoviseConfig::isOn("COVER.Turntable", false);
+    updatePerson();
 
     oldHandPos = Vec3(0, 0, 0);
 
@@ -182,6 +186,8 @@ void coVRNavigationManager::init()
     rotPoint = new osg::MatrixTransform();
     rotPoint->addChild(rotPointGeode);
     setRotationPointVisible(rotationPointVisible);
+
+    setNavMode(XForm);
 }
 
 coVRNavigationManager::~coVRNavigationManager()
@@ -204,6 +210,10 @@ coVRNavigationManager::~coVRNavigationManager()
     delete interactionMA;
     delete interactionMB;
     delete interactionMC;
+    delete interactionRel;
+    delete interactionShortcut;
+
+    s_instance = NULL;
 }
 
 void coVRNavigationManager::updatePerson()
@@ -243,15 +253,19 @@ void coVRNavigationManager::initInteractionDevice()
     interactionB = new coNavInteraction(coInteraction::ButtonB, "ProbeMode", coInteraction::Navigation);
     interactionC = new coNavInteraction(coInteraction::ButtonC, "ProbeMode", coInteraction::Navigation);
     interactionMenu = new coNavInteraction(coInteraction::ButtonA, "MenuMode", coInteraction::Menu);
+    interactionShortcut = new coNavInteraction(coInteraction::NoButton, "Keyboard", coInteraction::Low);
 
     mouseNavButtonRotate = coCoviseConfig::getInt("RotateButton", "COVER.Input.MouseNav", 0);
     mouseNavButtonScale = coCoviseConfig::getInt("ScaleButton", "COVER.Input.MouseNav", 1);
     mouseNavButtonTranslate = coCoviseConfig::getInt("TranslateButton", "COVER.Input.MouseNav", 2);
     interactionMA = new coMouseButtonInteraction(coInteraction::ButtonA, "MouseNav");
+    interactionMA->setGroup(coInteraction::GroupNavigation);
     interactionMB = new coMouseButtonInteraction(coInteraction::ButtonB, "MouseNav");
+    interactionMB->setGroup(coInteraction::GroupNavigation);
     interactionMC = new coMouseButtonInteraction(coInteraction::ButtonC, "MouseNav");
-
-    updatePerson();
+    interactionMC->setGroup(coInteraction::GroupNavigation);
+    interactionRel = new coRelativeInputInteraction("SpaceMouse");
+    interactionRel->setGroup(coInteraction::GroupNavigation);
 
     wiiNav = coVRConfig::instance()->useWiiNavigationVisenso();
     /*if (wiiNav)
@@ -287,6 +301,23 @@ int coVRNavigationManager::readConfigFile()
 
     menuButtonQuitInterval = coCoviseConfig::getFloat("value", "COVER.MenuButtonQuitInterval", -1.0f);
 
+    // parse snapping and tell NavigationManager
+    snapping = coCoviseConfig::isOn("COVER.Snap", snapping);
+    snapDegrees = coCoviseConfig::getFloat("COVER.SnapDegrees", snapDegrees);
+    rotationSpeed = coCoviseConfig::getFloat("COVER.RotationSpeed", rotationSpeed);
+    if (snapDegrees > 0)
+    {
+        snappingD = true;
+        snapping = true;
+    }
+    else
+    {
+        snappingD = false;
+    }
+    turntable = coCoviseConfig::isOn("COVER.Turntable", turntable);
+
+    m_restrict = coCoviseConfig::isOn("COVER.Restrict", m_restrict);
+
     return 0;
 }
 
@@ -294,6 +325,155 @@ void coVRNavigationManager::initMatrices()
 {
     invBaseMatrix.makeIdentity();
     oldInvBaseMatrix.makeIdentity();
+}
+
+void coVRNavigationManager::initMenu()
+{
+    auto protectNav = [this](std::function<void()> f){
+        bool registered = false;
+        if (!interactionShortcut->isRegistered())
+        {
+            registered = true;
+            coInteractionManager::the()->registerInteraction(interactionShortcut);
+        }
+        if (interactionShortcut->activate())
+        {
+            f();
+        }
+        if (registered)
+        {
+            coInteractionManager::the()->unregisterInteraction(interactionShortcut);
+        }
+    };
+
+    navMenu_ = new ui::Menu("Navigation", this);
+
+    m_viewAll = new ui::Action(navMenu_, "ViewAll");
+    m_viewAll->setText("View all");
+    m_viewAll->setShortcut("v");
+    m_viewAll->setCallback([this, protectNav](){
+        protectNav([](){
+            VRSceneGraph::instance()->viewAll(false);
+        });
+    });
+    m_viewAll->setPriority(ui::Element::Toolbar);
+    m_viewAll->setIcon("zoom-fit-best");
+
+    m_resetView = new ui::Action(navMenu_, "ResetView");
+    m_resetView->setText("Reset view");
+    m_resetView->setShortcut("Shift+V");
+    m_resetView->setCallback([this, protectNav](){
+        protectNav([](){
+            VRSceneGraph::instance()->viewAll(true);
+        });
+    });
+    m_resetView->setIcon("zoom-original");
+
+    scaleSlider_ = new ui::Slider(navMenu_, "ScaleFactor");
+    scaleSlider_->setVisible(false, ui::View::VR);
+    scaleSlider_->setText("Scale factor");
+    scaleSlider_->setBounds(1e-5, 1e5);
+    scaleSlider_->setScale(ui::Slider::Logarithmic);
+    scaleSlider_->setValue(cover->getScale());
+    scaleSlider_->setCallback([this, protectNav](double val, bool released){
+        protectNav([this, val](){
+            startMouseNav();
+            doMouseScale(val);
+            stopMouseNav();
+        });
+    });
+
+    scaleUpAction_ = new ui::Action(navMenu_, "ScaleUp");
+    scaleUpAction_->setText("Scale up");
+    scaleUpAction_->setVisible(false);
+    scaleUpAction_->setCallback([this, protectNav](){
+        protectNav([this](){
+            startMouseNav();
+            doMouseScale(cover->getScale() * 1.1f);
+            stopMouseNav();
+        });
+    });
+    scaleUpAction_->setShortcut("=");
+    scaleUpAction_->addShortcut("+");
+    scaleUpAction_->addShortcut("Shift++");
+    scaleUpAction_->addShortcut("Button:WheelDown");
+    scaleDownAction_ = new ui::Action(navMenu_, "ScaleDown");
+    scaleDownAction_->setText("Scale down");
+    scaleDownAction_->setVisible(false);
+    scaleDownAction_->setCallback([this, protectNav](){
+        protectNav([this](){
+            startMouseNav();
+            doMouseScale(cover->getScale() / 1.1f);
+            stopMouseNav();
+        });
+    });
+    scaleDownAction_->setShortcut("-");
+    scaleDownAction_->addShortcut("Button:WheelUp");
+
+    navGroup_ = new ui::ButtonGroup(navMenu_, "NavigationGroup");
+    //navGroup_->enableDeselect(true);
+    navGroup_->setDefaultValue(NavNone);
+    navModes_ = new ui::Group(navMenu_, "Modes");
+    navModes_->setText("");
+    noNavButton_ = new ui::Button(navModes_, "NavNone", navGroup_, NavNone);
+    noNavButton_->setText("Navigation disabled");
+    noNavButton_->setVisible(false);
+    xformButton_ = new ui::Button(navModes_, "MoveWorld", navGroup_, XForm);
+    xformButton_->setText("Move world");
+    xformButton_->setShortcut("t");
+    xformButton_->setPriority(ui::Element::Toolbar);
+    scaleButton_ = new ui::Button(navModes_, "Scale", navGroup_, Scale);
+    scaleButton_->setShortcut("s");
+    flyButton_ = new ui::Button(navModes_, "Fly", navGroup_, Fly);
+    flyButton_->setShortcut("f");
+    walkButton_ = new ui::Button(navModes_, "Walk", navGroup_, Walk);
+    walkButton_->setShortcut("w");
+    driveButton_ = new ui::Button(navModes_, "Drive", navGroup_, Glide);
+    driveButton_->setShortcut("d");
+    driveButton_->setPriority(ui::Element::Toolbar);
+    selectButton_ = new ui::Button(navModes_, "Selection", navGroup_, Select);
+    showNameButton_ = new ui::Button(navModes_, "ShowName", navGroup_, ShowName);
+    showNameButton_->setText("Show name");
+    selectInteractButton_ = new ui::Button(navModes_, "SelectInteract", navGroup_, SelectInteract);
+    selectInteractButton_->setText("Pick & interact");
+    selectInteractButton_->setPriority(ui::Element::Toolbar);
+    selectInteractButton_->setShortcut("p");
+    selectInteractButton_->setEnabled(false);
+    selectInteractButton_->setVisible(false);
+    measureButton_ = new ui::Button(navModes_, "Measure", navGroup_, Measure);
+    measureButton_->setVisible(false);
+    traverseInteractorButton_ = new ui::Button(navModes_, "TraverseInteractors", navGroup_, TraverseInteractors);
+    traverseInteractorButton_->setText("Traverse interactors");
+    traverseInteractorButton_->setEnabled(false);
+    traverseInteractorButton_->setVisible(false);
+    navGroup_->setCallback([this](int value){ setNavMode(NavMode(value), false); });
+
+    driveSpeedSlider_ = new ui::Slider(navMenu_, "DriveSpeed");
+    driveSpeedSlider_->setText("Drive speed");
+    driveSpeedSlider_->setBounds(0., 30.);
+    driveSpeedSlider_->setValue(driveSpeed);;
+    driveSpeedSlider_->setCallback([this](double val, bool released){driveSpeed=val;});
+    collisionButton_ = new ui::Button(navMenu_, "Collision");
+    collisionButton_->setText("Collision detection");
+    collisionButton_->setState(collision);
+    collisionButton_->setCallback([this](bool state){collision = state;});
+
+    snapButton_ = new ui::Button(navMenu_, "Snap");
+    snapButton_->setState(snapping);
+    snapButton_->setCallback([this](bool state){snapping=state;});
+
+    auto restrictButton = new ui::Button(navMenu_, "Restrict");
+    restrictButton->setText("Restrict interactors");
+    restrictButton->setState(m_restrict);
+    restrictButton->setCallback([this](bool state){
+        m_restrict = state;
+    });
+    restrictButton->setVisible(true);
+    restrictButton->setVisible(false, ui::View::VR);
+
+#if 0
+    ui::RadioButton *xformRotButton_=nullptr, *xformTransButton_=nullptr;
+#endif
 }
 
 void coVRNavigationManager::initShowName()
@@ -307,9 +487,9 @@ void coVRNavigationManager::initShowName()
 
     showGeodeName_ = coCoviseConfig::isOn("COVER.ShowGeodeName", true);
 
-    nameMenu_ = new coRowMenu("Object Name");
+    nameMenu_ = new vrui::coRowMenu("Object Name");
     nameMenu_->setVisible(false);
-    OSGVruiMatrix t, r, m;
+    vrui::OSGVruiMatrix t, r, m;
     float px = coCoviseConfig::getFloat("x", "COVER.NameMenuPosition", -0.5 * cover->getSceneSize());
     float py = coCoviseConfig::getFloat("y", "COVER.NameMenuPosition", 0.0);
     float pz = coCoviseConfig::getFloat("z", "COVER.NameMenuPosition", 0.3 * cover->getSceneSize());
@@ -325,6 +505,31 @@ void coVRNavigationManager::initShowName()
     nameMenu_->setScale(scale * cover->getSceneSize() / 2500);
     nameButton_ = new coButtonMenuItem("-");
     nameMenu_->add(nameButton_);
+}
+
+Vec3 coVRNavigationManager::getCenter() const
+{
+    if (rotationPoint)
+    {
+        return rotPointVec;
+    }
+
+    if (isViewerPosRotation)
+    {
+        return cover->getViewerMat().getTrans();
+    }
+
+    osg::BoundingSphere bsphere = VRSceneGraph::instance()->getBoundingSphere();
+    if (bsphere.radius() == 0.f)
+        bsphere.radius() = 1.f;
+    osg::Vec3 originInWorld = bsphere.center() * cover->getBaseMat();
+
+    if (originInWorld.length() < 0.5f*cover->getSceneSize())
+    {
+        return originInWorld;
+    }
+
+    return osg::Vec3(0,0,0);
 }
 
 // process key events
@@ -361,120 +566,8 @@ bool coVRNavigationManager::keyEvent(int type, int keySym, int mod)
             currentVelocity = 0;
             handled = true;
         }
-        else if (keySym == '=' || keySym == '+')
-        {
-            // should check keyboard language
-            doScale(cover->getScale() * 1.1);
-            handled = true;
-        }
-        else if (keySym == '-')
-        {
-            doScale(cover->getScale() * 0.9);
-            handled = true;
-        }
-
-        if (!(mod & osgGA::GUIEventAdapter::MODKEY_ALT))
-        {
-            if (keySym == 'f')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Fly");
-                handled = true;
-            }
-            if (keySym == 'd')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Drive");
-                handled = true;
-            }
-            if (keySym == 'w')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Walk");
-                handled = true;
-            }
-            if (keySym == 't')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("XForm");
-                handled = true;
-            }
-            if (keySym == 's')
-            {
-                enableAllNavigations(false);
-
-                cover->enableNavigation("Scale");
-                handled = true;
-            }
-        }
     }
     return handled;
-}
-
-bool coVRNavigationManager::mouseEvent(int type, int state, int code)
-{
-    (void)code;
-
-    bool handled = false;
-    if (type == osgGA::GUIEventAdapter::MOVE)
-    {
-        return false;
-    }
-
-    if (type == osgGA::GUIEventAdapter::SCROLL)
-    {
-        if (state == osgGA::GUIEventAdapter::SCROLL_UP)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 1.1);
-            stopMouseNav();
-            handled = true;
-        }
-        else if (state == osgGA::GUIEventAdapter::SCROLL_DOWN)
-        {
-            startMouseNav();
-            doScale(cover->getScale() * 0.9);
-            stopMouseNav();
-            handled = true;
-        }
-    }
-    return handled;
-}
-
-void coVRNavigationManager::enableAllNavigations(bool enable)
-{
-    if (enable)
-    {
-        cover->enableNavigation("XForm");
-        cover->enableNavigation("XFormTranslate");
-        cover->enableNavigation("XFormRotate");
-        cover->enableNavigation("Fly");
-        cover->enableNavigation("Scale");
-        cover->enableNavigation("Drive");
-        cover->enableNavigation("Walk");
-        cover->enableNavigation("ShowName");
-        cover->enableNavigation("Scale");
-        cover->enableNavigation("Menu");
-        cover->enableNavigation("Measure");
-    }
-    else
-    {
-        cover->disableNavigation("XForm");
-        cover->disableNavigation("XFormTranslate");
-        cover->disableNavigation("XFormRotate");
-        cover->disableNavigation("Fly");
-        cover->disableNavigation("Scale");
-        cover->disableNavigation("Drive");
-        cover->disableNavigation("Walk");
-        cover->disableNavigation("ShowName");
-        cover->disableNavigation("Scale");
-        cover->disableNavigation("Menu");
-        cover->disableNavigation("Measure");
-    }
 }
 
 void coVRNavigationManager::saveCurrentBaseMatAsOldBaseMat()
@@ -487,10 +580,7 @@ void coVRNavigationManager::saveCurrentBaseMatAsOldBaseMat()
 // returns true if collision occurred
 bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
 {
-    osg::Vec3 tmp;
     osg::Vec3 oPos[2], Tip[2], nPos[2];
-    osg::Vec3 diff;
-    osg::Matrix dcs_mat;
     glideVec.set(0, 0, 0);
     osg::Vec3 rightPos(VRViewer::instance()->getSeparation() / 2.0f, 0.0f, 0.0f);
     osg::Vec3 leftPos(-(VRViewer::instance()->getSeparation() / 2.0f), 0.0f, 0.0f);
@@ -498,9 +588,8 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     currentRightPos = vmat.preMult(rightPos);
     currentLeftPos = vmat.preMult(leftPos);
 
-    osg::Matrix currentBase, diffMat;
-    currentBase = cover->getBaseMat();
-    diffMat = oldInvBaseMatrix * currentBase;
+    osg::Matrix currentBase = cover->getBaseMat();
+    osg::Matrix diffMat = oldInvBaseMatrix * currentBase;
 
     // left segment
     nPos[0].set(currentLeftPos[0], currentLeftPos[1], currentLeftPos[2]);
@@ -509,7 +598,7 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     oPos[0] = diffMat.preMult(oldLeftPos);
     oPos[1] = diffMat.preMult(oldRightPos);
 
-    diff = nPos[0] - oPos[0];
+    osg::Vec3 diff = nPos[0] - oPos[0];
     float dist = diff.length();
     if (dist < 1)
     {
@@ -526,86 +615,70 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
     diff *= collisionDist / dist;
     Tip[0] = nPos[0] + diff;
 
-    osg::ref_ptr<osg::LineSegment> ray1 = new osg::LineSegment();
-    ray1->set(oPos[0], Tip[0]);
-
     diff = nPos[1] - oPos[1];
     diff *= collisionDist / diff.length();
     Tip[1] = nPos[1] + diff;
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(oPos[1], Tip[1]);
+
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[2];
+    for (int i=0; i<2; ++i)
+    {
+        intersector[i] = coIntersection::instance()->newIntersector(oPos[i], Tip[i]);
+        igroup->addIntersector(intersector[i]);
+    }
 
     osg::Vec3 hitPoint[2];
     osg::Vec3 hitNormal[2];
 
-    osgUtil::IntersectVisitor visitor;
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(ray1.get());
-    visitor.addLineSegment(ray2.get());
-
     cover->getScene()->accept(visitor);
 
-    int num1 = visitor.getNumHits(ray1.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    if (num1 || num2)
+    osg::Vec3 distVec[2];
+    osg::Vec3 glideV[2];
+    float dists[2]{0, 0};
+    for (int i=0; i<2; ++i)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray1.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-        osg::Matrix xform;
-        osg::Vec3 distVec[2];
-        osg::Vec3 glideV[2];
-        float dist[2];
-        dist[0] = 0;
-        dist[1] = 0;
-        float cangle;
-        int i;
-        hitPoint[0] = hitInformation1.getWorldIntersectPoint();
-        hitPoint[1] = hitInformation2.getWorldIntersectPoint();
-        hitNormal[0] = hitInformation1.getWorldIntersectNormal();
-        hitNormal[1] = hitInformation1.getWorldIntersectNormal();
-        for (i = 0; i < 2; i++)
-        {
-            distVec[i] = hitPoint[i] - oPos[i];
-            distVec[i] *= 0.9;
-            hitPoint[i] = oPos[i] + distVec[i];
-            distVec[i] = hitPoint[i] - Tip[i];
-            dist[i] = distVec[i].length();
-            //fprintf(stderr,"hitPoint: %f %f %f\n",hitPoint[i][0],hitPoint[i][1],hitPoint[i][2]);
-            //fprintf(stderr,"Tip: %f %f %f\n",Tip[i][0],Tip[i][1],Tip[i][2]);
-            //fprintf(stderr,"oPos: %f %f %f\n",oPos[i][0],oPos[i][1],oPos[i][2]);
-            //fprintf(stderr,"nPos: %f %f %f\n",nPos[i][0],nPos[i][1],nPos[i][2]);
-            //fprintf(stderr,"distVec: %f %f %f %d\n",distVec[i][0],distVec[i][1],distVec[i][2],i);
-            //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+        if (!intersector[i]->containsIntersections())
+            continue;
 
-            tmp = distVec[i];
-            tmp.normalize();
-            hitNormal[i].normalize();
-            cangle = hitNormal[i] * (tmp);
-            if (cangle > M_PI_2 || cangle < -M_PI_2)
-            {
-                hitNormal[i] = -hitNormal[i];
-            }
-            //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
-            //fprintf(stderr,"tmp: %f %f %f %f\n",tmp[0],tmp[1],tmp[2],cangle);
-            hitNormal[i] *= (dist[i]) * cangle;
-            glideV[i] = hitNormal[i] - distVec[i];
-            // fprintf(stderr,"glideV: %f %f %f %d\n",glideV[i][0],glideV[i][1],glideV[i][2],i);
+        auto isect = intersector[i]->getFirstIntersection();
+        hitPoint[i] = isect.getWorldIntersectPoint();
+        hitNormal[i] = isect.getWorldIntersectNormal();
+
+        distVec[i] = hitPoint[i] - oPos[i];
+        distVec[i] *= 0.9;
+        hitPoint[i] = oPos[i] + distVec[i];
+        distVec[i] = hitPoint[i] - Tip[i];
+        dists[i] = distVec[i].length();
+        //fprintf(stderr,"hitPoint: %f %f %f\n",hitPoint[i][0],hitPoint[i][1],hitPoint[i][2]);
+        //fprintf(stderr,"Tip: %f %f %f\n",Tip[i][0],Tip[i][1],Tip[i][2]);
+        //fprintf(stderr,"oPos: %f %f %f\n",oPos[i][0],oPos[i][1],oPos[i][2]);
+        //fprintf(stderr,"nPos: %f %f %f\n",nPos[i][0],nPos[i][1],nPos[i][2]);
+        //fprintf(stderr,"distVec: %f %f %f %d\n",distVec[i][0],distVec[i][1],distVec[i][2],i);
+        //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+
+        auto tmp = distVec[i];
+        tmp.normalize();
+        hitNormal[i].normalize();
+        float cangle = hitNormal[i] * (tmp);
+        if (cangle > M_PI_2 || cangle < -M_PI_2)
+        {
+            hitNormal[i] = -hitNormal[i];
         }
+        //fprintf(stderr,"hitNormal: %f %f %f %d\n",hitNormal[i][0],hitNormal[i][1],hitNormal[i][2],i);
+        //fprintf(stderr,"tmp: %f %f %f %f\n",tmp[0],tmp[1],tmp[2],cangle);
+        hitNormal[i] *= (dists[i]) * cangle;
+        glideV[i] = hitNormal[i] - distVec[i];
+        // fprintf(stderr,"glideV: %f %f %f %d\n",glideV[i][0],glideV[i][1],glideV[i][2],i);
+    }
+
+    if (igroup->containsIntersections())
+    {
+        int i = dists[0]>dists[1] ? 0 : 1;
+
         // get xform matrix
-        dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-        if (dist[0] > dist[1])
-        {
-            //use dist1
-            i = 0;
-        }
-        else
-        {
-            i = 1;
-        }
+        osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
         osg::Matrix tmp;
         tmp.makeTranslate(-distVec[i][0], -distVec[i][1], -distVec[i][2]);
         dcs_mat.postMult(tmp);
@@ -616,6 +689,7 @@ bool coVRNavigationManager::avoidCollision(osg::Vec3 &glideVec)
         coVRCollaboration::instance()->SyncXform();
         return true;
     }
+
     saveCurrentBaseMatAsOldBaseMat();
     return false;
 }
@@ -635,56 +709,8 @@ coVRNavigationManager::update()
     if (cover->debugLevel(5))
         fprintf(stderr, "coVRNavigationManager::update\n");
 
-    bool lo = coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM);
-    static bool olo = false;
-    if (lo && !olo)
-    {
-        /*
-      if(interactionA->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionA);
-      }
-      if(interactionMA->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMA);
-      }
-      if(interactionB->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionB);
-      }
-      if(interactionMB->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMB);
-      }
-      if(interactionC->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionC);
-      }
-      if(interactionMC->isRegistered())
-      {
-         coInteractionManager::the()->unregisterInteraction(interactionMC);
-      }
-*/
-        fprintf(stderr, "TRANSFORM locked\n");
-    }
-    else if (!lo && olo)
-        fprintf(stderr, "TRANSFORM not locked\n");
-    /*
-      setNavMode(navMode);
-      if(VRTracker::instance()->getTrackingSystem()!=MOUSE)
-      {
-         coInteractionManager::the()->registerInteraction(interactionB);
-         coInteractionManager::the()->registerInteraction(interactionC);
-      }
-      if(doMouseNav)
-      {
-         cerr << "using mouse nav " << endl;
-         coInteractionManager::the()->registerInteraction(interactionMB);
-         coInteractionManager::the()->registerInteraction(interactionMC);
-      }
-   }
-*/
-    olo = lo;
+    scaleSlider_->setValue(cover->getScale());
+
     coPointerButton *button = cover->getPointerButton();
     oldHandDir = handDir;
     if (!wiiNav)
@@ -709,8 +735,6 @@ coVRNavigationManager::update()
     //int collided[6] = {0, 0, 0, 0, 0, 0}; /* front,back,right,left,up,down */
     //static int numframes=0;
 
-    navigating = false;
-
     if (doMouseNav)
     {
         mx = mouseX();
@@ -729,6 +753,9 @@ coVRNavigationManager::update()
         case ShowName:
             startShowName();
             break;
+        case SelectInteract:
+            startSelectInteract();
+            break;
         case Measure:
             startMeasure();
             break;
@@ -744,6 +771,9 @@ coVRNavigationManager::update()
         {
         case ShowName:
             stopShowName();
+            break;
+        case SelectInteract:
+            stopSelectInteract(true);
             break;
         case Measure:
             stopMeasure();
@@ -775,6 +805,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -814,6 +847,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             startShowName();
+            break;
+        case SelectInteract:
+            startSelectInteract();
             break;
         case Measure:
             startMeasure();
@@ -859,6 +895,9 @@ coVRNavigationManager::update()
             break;
         case ShowName:
             doShowName();
+            break;
+        case SelectInteract:
+            doSelectInteract();
             break;
         case Measure:
             doMeasure();
@@ -912,6 +951,9 @@ coVRNavigationManager::update()
         case ShowName:
             stopShowName();
             break;
+        case SelectInteract:
+            stopSelectInteract(false);
+            break;
         case Measure:
             stopMeasure();
             break;
@@ -931,6 +973,87 @@ coVRNavigationManager::update()
     if (interactionC->wasStopped())
     {
         stopXform();
+    }
+
+    if (interactionRel->wasStarted())
+    {
+        switch (getMode())
+        {
+        case Scale:
+            startMouseNav();
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (interactionRel->isRunning())
+    {
+        osg::Matrix relMat = Input::instance()->getRelativeMat();
+        coCoord co(relMat);
+        osg::Matrix tf = VRSceneGraph::instance()->getTransform()->getMatrix();
+        auto tr = applySpeedFactor(relMat.getTrans());
+
+        switch (getMode())
+        {
+        case Scale:
+        {
+            double s = pow(1.03, co.hpr[0]);
+            doMouseScale(cover->getScale() * s);
+            break;
+        }
+        case XForm:
+        {
+            osg::Vec3 center = getCenter();
+
+            relMat.makeTranslate(-tr);
+            tf *= relMat;
+
+            MAKE_EULER_MAT(relMat, -co.hpr[0], -co.hpr[1], -co.hpr[2]);
+            osg::Matrix originTrans, invOriginTrans;
+            originTrans.makeTranslate(center); // rotate arround the center of the objects in objectsRoot
+            invOriginTrans.makeTranslate(-center);
+            relMat = invOriginTrans * relMat * originTrans;
+            tf *= relMat;
+            break;
+        }
+        case Fly:
+        {
+            relMat.setTrans(tr);
+            tf *= relMat;
+            break;
+        }
+        case Glide:
+        case Walk:
+        {
+            MAKE_EULER_MAT(relMat, co.hpr[0], 0, 0);
+            relMat.setTrans(tr);
+            tf *= relMat;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+
+        if (tf != VRSceneGraph::instance()->getTransform()->getMatrix())
+        {
+            VRSceneGraph::instance()->getTransform()->setMatrix(tf);
+            coVRCollaboration::instance()->SyncXform();
+        }
+    }
+
+    if (interactionRel->wasStopped())
+    {
+        switch (getMode())
+        {
+        case Scale:
+            stopMouseNav();
+            break;
+        default:
+            break;
+        }
     }
 
     // was ist wenn mehrere Objekte geladen sind???
@@ -953,7 +1076,7 @@ coVRNavigationManager::update()
         float maxAnalogX = (jsXmax - jsZeroPosX) / 10;
         float maxAnalogY = (jsYmax - jsZeroPosY) / 10;
 
-        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors)
+        if ((xMove || yMove) && navMode != Walk && navMode != Fly && navMode != Glide && navMode != ShowName && navMode != Measure && navMode != TraverseInteractors && navMode != SelectInteract)
         {
 
             //einfache Translation in xy-Ebene
@@ -1095,7 +1218,6 @@ coVRNavigationManager::update()
                 if (!old_mat.invert(old_mat))
                     fprintf(stderr, "coVRNavigationManager::update old_mat is singular\n");
                 old_dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-                navigating = true;
             }
             // if xform in progress
 
@@ -1112,7 +1234,6 @@ coVRNavigationManager::update()
                 rel_mat.mult(old_mat, handMat); //erste handMat * aktualisierte handMat
                 dcs_mat.mult(old_dcs_mat, rel_mat);
                 //VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-                navigating = true;
                 coVRCollaboration::instance()->SyncXform();
             }
 
@@ -1258,7 +1379,6 @@ coVRNavigationManager::update()
                 dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
                 dcs_mat.postMult(osg::Matrix::translate(-AnalogX * driveSpeed, -AnalogY * driveSpeed, 0.0f));
                 VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-                navigating = true;
             }
         }
     }
@@ -1294,13 +1414,16 @@ coVRNavigationManager::update()
         jump = true;
     }
 
-    if (navMode == ShowName)
+    if (navMode == ShowName || navMode == SelectInteract)
         highlightSelectedNode(cover->getIntersectedNode());
 
     if (coVRConfig::instance()->isMenuModeOn())
     {
         if (button->wasReleased(vruiButtons::MENU_BUTTON))
-            menuCallback(coVRNavigationManager::instance(), NULL);
+        {
+            setMenuMode(true);
+            //menuCallback(coVRNavigationManager::instance(), NULL);
+        }
     }
 
     if ((button->getState() == vruiButtons::MENU_BUTTON) && (menuButtonQuitInterval >= 0.0))
@@ -1311,7 +1434,7 @@ coVRNavigationManager::update()
         }
         else if (menuButtonStartTime + menuButtonQuitInterval < cover->currentTime())
         {
-            OpenCOVER::instance()->quitCallback(NULL, NULL);
+            OpenCOVER::instance()->requestQuit();
         }
     }
 
@@ -1329,40 +1452,82 @@ coVRNavigationManager::update()
     }
 }
 
-void coVRNavigationManager::setNavMode(NavMode mode)
+void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
 {
+    //std::cerr << "navMode = " << mode << ", was " <<  navMode << ", old = " << oldNavMode << std::endl;
+
     if (navMode != NavNone)
         oldNavMode = navMode;
+
+    if (navMode == ShowName || mode == ShowName)
+    {
+        toggleShowName(mode == ShowName);
+    }
+    if (navMode == TraverseInteractors || mode == TraverseInteractors)
+    {
+        toggleInteractors(mode == TraverseInteractors);
+    }
+    if (navMode == Menu || mode == Menu)
+    {
+        setMenuMode(mode == Menu);
+    }
+    if (navMode == Select || mode == Select)
+    {
+        coVRSelectionManager::instance()->setSelectionOnOff(mode == Select);
+    }
+    if (navMode == SelectInteract || mode == SelectInteract)
+    {
+        toggleSelectInteract(mode == SelectInteract);
+    }
+
     navMode = mode;
 
     switch (mode)
     {
     case XForm:
         interactionA->setName("Xform");
+        if (xformButton_)
+            xformButton_->setState(true, updateGroup);
         break;
     case XFormRotate:
         interactionA->setName("XformRotate");
+        if (xformRotButton_)
+            xformRotButton_->setState(true, updateGroup);
         break;
     case XFormTranslate:
         interactionA->setName("XformTranslate");
+        if (xformTransButton_)
+            xformTransButton_->setState(true, updateGroup);
         break;
     case Scale:
         interactionA->setName("Scale");
+        if (scaleButton_)
+            scaleButton_->setState(true, updateGroup);
         break;
     case Fly:
         interactionA->setName("Fly");
+        if (flyButton_)
+            flyButton_->setState(true, updateGroup);
         break;
     case Walk:
         interactionA->setName("Walk");
+        if (walkButton_)
+            walkButton_->setState(true, updateGroup);
         break;
     case Glide:
         interactionA->setName("Drive");
+        if (driveButton_)
+            driveButton_->setState(true, updateGroup);
         break;
     case ShowName:
         interactionA->setName("ShowName");
+        if (showNameButton_)
+            showNameButton_->setState(true, updateGroup);
         break;
     case TraverseInteractors:
         interactionA->setName("TraverseInteractors");
+        if (traverseInteractorButton_)
+            traverseInteractorButton_->setState(true, updateGroup);
         break;
     case Menu:
         interactionA->setName("Menu");
@@ -1370,12 +1535,27 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         break;
     case NavNone:
         interactionA->setName("NoNavigation");
+        if (noNavButton_)
+            noNavButton_->setState(true, updateGroup);
         break;
     case Measure:
         interactionA->setName("Measure");
+        if (measureButton_)
+            measureButton_->setState(true, updateGroup);
+        break;
+    case Select:
+        interactionA->setName("Select");
+        if (selectButton_)
+            selectButton_->setState(true, updateGroup);
+        break;
+    case SelectInteract:
+        interactionA->setName("SelectInteract");
+        if (selectInteractButton_)
+            selectInteractButton_->setState(true, updateGroup);
         break;
     default:
-        fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
+        if (navMode != NavOther)
+            fprintf(stderr, "coVRNavigationManager::setNavMode: unknown mode %d\n", (int)navMode);
         break;
     }
 
@@ -1391,6 +1571,8 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         }
         if (interactionMenu->isRegistered())
             coInteractionManager::the()->unregisterInteraction(interactionMenu);
+        if (interactionRel->isRegistered())
+            coInteractionManager::the()->unregisterInteraction(interactionRel);
     }
     else if (mode == Menu)
     {
@@ -1421,6 +1603,8 @@ void coVRNavigationManager::setNavMode(NavMode mode)
         }
         if (interactionMenu->isRegistered())
             coInteractionManager::the()->unregisterInteraction(interactionMenu);
+        if (!interactionRel->isRegistered())
+            coInteractionManager::the()->registerInteraction(interactionRel);
     }
 
     if (coVRConfig::instance()->isMenuModeOn() && oldNavMode == Menu && mode != Menu)
@@ -1436,93 +1620,9 @@ void coVRNavigationManager::setNavMode(NavMode mode)
     }
 }
 
-void coVRNavigationManager::toggleXform(bool state)
+ui::ButtonGroup *coVRNavigationManager::navGroup() const
 {
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XForm);
-    }
-    else if (navMode == XForm || (oldNavMode == XForm && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleXformRotate(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXformRotate %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XFormRotate);
-    }
-    else if (navMode == XFormRotate || (oldNavMode == XFormRotate && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleXformTranslate(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(XFormTranslate);
-    }
-    else if (navMode == XFormTranslate || (oldNavMode == XFormTranslate && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleScale(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleScale %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Scale);
-    }
-    else if (navMode == Scale || (oldNavMode == Scale && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleFly(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleFly %d\n", int(state));
-    if (state)
-    {
-        setNavMode(Fly);
-    }
-    else if (navMode == Fly || (oldNavMode == Fly && navMode == Menu))
-        setNavMode(NavNone);
-}
-
-void coVRNavigationManager::toggleGlide(bool state)
-{
-    if (state)
-    {
-        setNavMode(Glide);
-    }
-    else if (navMode == Glide || (oldNavMode == Glide && navMode == Menu))
-        setNavMode(NavNone);
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleGlide %d\n", state);
-}
-
-void coVRNavigationManager::toggleWalk(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleWalk %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Walk);
-    }
-    else if (navMode == Walk || (oldNavMode == Walk && navMode == Menu))
-        setNavMode(NavNone);
+    return navGroup_;
 }
 
 void coVRNavigationManager::toggleCollide(bool state)
@@ -1531,6 +1631,7 @@ void coVRNavigationManager::toggleCollide(bool state)
         fprintf(stderr, "coVRNavigationManager::toggleCollide %d\n", state);
 
     collision = state;
+    collisionButton_->setState(collision);
 }
 
 void coVRNavigationManager::toggleShowName(bool state)
@@ -1540,41 +1641,18 @@ void coVRNavigationManager::toggleShowName(bool state)
 
     if (state)
     {
-        if (navMode != ShowName)
-        {
-            setNavMode(ShowName);
-            // enable intersection with scene
-            coIntersection::instance()->isectAllNodes(true);
-        }
+        // enable intersection with scene
+        coIntersection::instance()->isectAllNodes(true);
     }
     else
     {
-        if (navMode == ShowName || (oldNavMode == ShowName && navMode == Menu))
-        {
-            if (cover->debugLevel(4))
-                fprintf(stderr, "realtoggle\n");
-            setNavMode(NavNone);
-            nameLabel_->hide();
-            nameMenu_->setVisible(false);
-            highlightSelectedNode(NULL);
-            // disable intersection with scene
-            coIntersection::instance()->isectAllNodes(false);
-        }
-    }
-}
-
-void coVRNavigationManager::toggleMeasure(bool state)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleXform %d\n", state);
-
-    if (state)
-    {
-        setNavMode(Measure);
-    }
-    else if (navMode == Measure || (oldNavMode == Measure && navMode == Menu))
-    {
-        setNavMode(NavNone);
+        if (cover->debugLevel(4))
+            fprintf(stderr, "realtoggle\n");
+        nameLabel_->hide();
+        nameMenu_->setVisible(false);
+        highlightSelectedNode(NULL);
+        // disable intersection with scene
+        coIntersection::instance()->isectAllNodes(false);
     }
 }
 
@@ -1586,11 +1664,9 @@ void coVRNavigationManager::toggleInteractors(bool state)
     if (state)
     {
         coVRIntersectionInteractorManager::the()->enableCycleThroughInteractors();
-        setNavMode(TraverseInteractors);
     }
     else if (navMode == TraverseInteractors || (oldNavMode == TraverseInteractors && navMode == Menu))
     {
-        setNavMode(NavNone);
         coVRIntersectionInteractorManager::the()->disableCycleThroughInteractors();
     }
 }
@@ -1603,131 +1679,19 @@ void coVRNavigationManager::setMenuMode(bool state)
     if (!coVRConfig::instance()->isMenuModeOn())
         return;
 
-    if (state && (navMode != Menu))
+    if (state)
     {
         VRSceneGraph::instance()->setMenuMode(true);
-        setNavMode(Menu);
     }
-    else if (!state && (navMode == Menu))
+    else
     {
         VRSceneGraph::instance()->setMenuMode(false);
-        if (oldNavMode != Menu)
-        {
-            setNavMode(oldNavMode);
-        }
-        else
-        {
-            setNavMode(NavNone);
-        }
 
     } /* else if (!state)
    {
       VRSceneGraph::instance()->setMenuMode(true);
       VRSceneGraph::instance()->setMenuMode(false);
    }*/
-}
-
-void coVRNavigationManager::toggleMenu()
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::toggleMenu\n");
-
-    if (!coVRConfig::instance()->isMenuModeOn())
-        return;
-
-    if (navMode != Menu)
-    {
-        VRSceneGraph::instance()->setMenuMode(true);
-        setNavMode(Menu);
-    }
-    else
-    {
-        VRSceneGraph::instance()->setMenuMode(false);
-        if (oldNavMode != Menu)
-        {
-            setNavMode(oldNavMode);
-        }
-        else
-        {
-            setNavMode(NavNone);
-        }
-    }
-}
-
-void coVRNavigationManager::xformCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXform(spec->state != 0.0);
-}
-
-void coVRNavigationManager::xformTranslateCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXformTranslate(spec->state != 0.0);
-}
-
-void coVRNavigationManager::xformRotateCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleXformRotate(spec->state != 0.0);
-}
-
-void coVRNavigationManager::collideCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleCollide(spec->state != 0.0);
-}
-
-void coVRNavigationManager::scaleCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleScale(spec->state != 0.0);
-}
-
-void coVRNavigationManager::walkCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleWalk(spec->state != 0.0);
-}
-
-void coVRNavigationManager::driveCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleGlide(spec->state != 0.0);
-}
-
-void coVRNavigationManager::flyCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleFly(spec->state != 0.0);
-}
-
-void coVRNavigationManager::driveSpeedCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->driveSpeed = spec->state;
-}
-
-void coVRNavigationManager::snapCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->enableSnapping(spec->state != 0.f);
-}
-
-void coVRNavigationManager::showNameCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleShowName(spec->state != 0.0);
-}
-
-void coVRNavigationManager::measureCallback(void *mgr, buttonSpecCell *spec)
-{
-    ((coVRNavigationManager *)mgr)->toggleMeasure(spec->state != 0.0);
-}
-
-void coVRNavigationManager::traverseInteractorsCallback(void *mgr, buttonSpecCell *spec)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::traverseInteractorsCallback\n"); ///
-
-    ((coVRNavigationManager *)mgr)->toggleInteractors(spec->state != 0.0);
-}
-
-void coVRNavigationManager::menuCallback(void *mgr, buttonSpecCell *)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::menuCallback\n"); ///
-
-    ((coVRNavigationManager *)mgr)->toggleMenu();
 }
 
 float coVRNavigationManager::getPhiZVerti(float y2, float y1, float x2, float widthX, float widthY)
@@ -1809,7 +1773,6 @@ void coVRNavigationManager::doMouseFly()
     tmp.makeTranslate(velDir[0] * currentVelocity, velDir[1] * currentVelocity, velDir[2] * currentVelocity);
     dcs_mat.postMult(tmp);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -1828,16 +1791,6 @@ void coVRNavigationManager::doMouseXform()
         if (!shiftMouseNav && !isViewerPosRotation) //Rotation um Weltursprung funktioniert
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
-
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             float newx, newy; //newz;//relz0
             float heading, pitch, roll, rollVerti, rollHori;
@@ -1861,15 +1814,6 @@ void coVRNavigationManager::doMouseXform()
         else if (shiftMouseNav || isViewerPosRotation) //Rotation um beliebigen Punkt funktioniert
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::CycleCursor);
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             osg::Matrix doTrans, rot, doRot, doRotObj;
             dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -1920,7 +1864,6 @@ void coVRNavigationManager::doMouseXform()
             doTrans.makeTranslate(transXRel, (transYRel), transZRel);
             doRotObj.mult(doRot, doTrans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doRotObj);
-            navigating = true;
         }
         coVRCollaboration::instance()->SyncXform();
     }
@@ -1939,16 +1882,6 @@ void coVRNavigationManager::doMouseXform()
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::HandCursor);
 
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
-
             float newxTrans = mouseX() - originX;
             float newyTrans = mouseY() - originY;
             float xTrans, yTrans;
@@ -1963,21 +1896,11 @@ void coVRNavigationManager::doMouseXform()
             //Weise perfekt hinbekommen
             doTrans.mult(actTransState, trans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doTrans);
-            navigating = true;
         }
 
         else if (shiftMouseNav) //Translation in der Tiefe
         {
             cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
-#if 0
-            if (oldShiftEnabled != shiftEnabled)
-            {
-                oldShiftEnabled = shiftEnabled;
-
-                relx0 = mouseX() - originX;
-                rely0 = mouseY() - originY;
-            }
-#endif
 
             float newzTrans = mouseY() - originY;
             float zTrans;
@@ -1988,7 +1911,6 @@ void coVRNavigationManager::doMouseXform()
             trans.makeTranslate(0.0, 2.0 * zTrans, 0.0);
             doTrans.mult(actTransState, trans);
             VRSceneGraph::instance()->getTransform()->setMatrix(doTrans);
-            navigating = true;
             coVRCollaboration::instance()->SyncXform();
             coVRCollaboration::instance()->SyncScale();
         }
@@ -2006,6 +1928,28 @@ void coVRNavigationManager::doMouseXform()
     }
 }
 
+void coVRNavigationManager::doMouseScale(float newScaleFactor)
+{
+    //getting the old translation and adjust it according to the new scale factor
+    osg::Vec3 center = mouseNavCenter;
+    //calculate the new translation matrix
+    //and move the objects by the new translation
+    osg::Vec3 delta2 = mat0.getTrans();
+    osg::Vec3 delta = delta2 - center;
+
+    delta *= (newScaleFactor / actScaleFactor);
+    delta += center;
+    delta -= delta2;
+    osg::Matrix tmp;
+    tmp.makeTranslate(delta[0], delta[1], delta[2]);
+    osg::Matrix xform_mat = mat0 * tmp;
+
+    VRSceneGraph::instance()->getTransform()->setMatrix(xform_mat);
+    VRSceneGraph::instance()->setScaleFactor(newScaleFactor);
+    coVRCollaboration::instance()->SyncXform();
+    coVRCollaboration::instance()->SyncScale();
+}
+
 void coVRNavigationManager::doMouseScale()
 {
     cover->setCurrentCursor(osgViewer::GraphicsWindow::UpDownCursor);
@@ -2014,7 +1958,7 @@ void coVRNavigationManager::doMouseScale()
 
     //calculate the new scale factor
     float newScaleFactor = actScaleFactor * exp(((rely0 - newScaleY) / ampl));
-    doScale(newScaleFactor);
+    doMouseScale(newScaleFactor);
 }
 
 void coVRNavigationManager::doMouseWalk()
@@ -2063,7 +2007,6 @@ void coVRNavigationManager::doMouseWalk()
          cover->getMouseButton(), (int)doMouseNav, handLocked);
 #endif
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2085,12 +2028,13 @@ void coVRNavigationManager::startMouseNav()
 {
     shiftMouseNav = shiftEnabled;
 
-    osg::Matrix dcs_mat;
-    dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+    mat0 = dcs_mat;
+    mouseNavCenter = getCenter();
+
     actScaleFactor = cover->getScale();
     x0 = mx;
     y0 = my;
-    mat0 = dcs_mat;
     //cerr << "mouseNav" << endl;
     currentVelocity = 10;
 
@@ -2143,7 +2087,6 @@ void coVRNavigationManager::startXform()
         transformVec = rotPointVec * cover->getBaseMat();
         //fprintf(stderr, "****set TransformVec to %f %f %f\n",transformVec[0], transformVec[1], transformVec[2]);
     }
-    navigating = true;
 }
 
 void coVRNavigationManager::doXform()
@@ -2166,7 +2109,6 @@ void coVRNavigationManager::doXform()
     rel_mat.mult(old_mat, handMat); //erste handMat * aktualisierte handMat
     dcs_mat.mult(old_dcs_mat, rel_mat);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
 
     coVRCollaboration::instance()->SyncXform();
 }
@@ -2193,7 +2135,6 @@ void coVRNavigationManager::doXformRotate()
     dcs_mat.mult(dcs_mat, trans_mat);
     // setzen der transformationsmatrix
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2204,7 +2145,6 @@ void coVRNavigationManager::doXformTranslate()
     rel_mat.makeTranslate(rel_mat.getTrans()[0], rel_mat.getTrans()[1] / 5.0, rel_mat.getTrans()[2]);
     dcs_mat.mult(old_dcs_mat, rel_mat);
     VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-    navigating = true;
     coVRCollaboration::instance()->SyncXform();
 }
 
@@ -2217,8 +2157,6 @@ void coVRNavigationManager::stopXform()
 
 void coVRNavigationManager::startScale()
 {
-    navigating = true;
-
     // save start position
     startHandPos = handPos;
     startHandDir = handDir;
@@ -2226,25 +2164,6 @@ void coVRNavigationManager::startScale()
     oldDcsScaleFactor = VRSceneGraph::instance()->scaleFactor();
 
     old_xform_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-}
-
-void coVRNavigationManager::doScale(float newScaleFactor)
-{
-    //getting the old translation and adjust it according to the new scale factor
-    osg::Vec3 delta2 = mat0.getTrans();
-    osg::Vec3 delta = delta2 * newScaleFactor / actScaleFactor;
-    delta -= delta2;
-    //calculate the new translation matrix
-    osg::Matrix tmp;
-    tmp.makeTranslate(delta);
-    //and move the objects by the new translation
-    tmp.mult(mat0, tmp);
-    VRSceneGraph::instance()->getTransform()->setMatrix(tmp);
-    //set the new scale factor
-    cover->setScale(newScaleFactor);
-    navigating = true;
-    coVRCollaboration::instance()->SyncXform();
-    coVRCollaboration::instance()->SyncScale();
 }
 
 void coVRNavigationManager::doScale()
@@ -2327,9 +2246,7 @@ void coVRNavigationManager::doFly()
     dcs_mat.postMult(tmp);
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    dcs_mat.postMult(osg::Matrix::translate(applySpeedFactor(delta)));
 
     /* apply direction change */
     if ((dirAxis[0] != 0.0) || (dirAxis[1] != 0.0) || (dirAxis[2] != 0.0))
@@ -2364,7 +2281,7 @@ void coVRNavigationManager::startDrive()
     ignoreCollision = false;
 }
 
-double coVRNavigationManager::speedFactor(double delta)
+double coVRNavigationManager::speedFactor(double delta) const
 {
     /*
    return pow(navExp, fmax(fabs(delta),0.0)/8.0)
@@ -2372,6 +2289,14 @@ double coVRNavigationManager::speedFactor(double delta)
        */
     return sign(delta) * pow((double)(fabs(delta) / 40.0), (double)navExp) * 40.0
            * driveSpeed * (cover->frameDuration() > 0.05 ? 0.05 : cover->frameDuration());
+}
+
+osg::Vec3 coVRNavigationManager::applySpeedFactor(osg::Vec3 vec) const
+{
+    double l = vec.length();
+    double s = speedFactor(l);
+    vec.normalize();
+    return vec * s;
 }
 
 void coVRNavigationManager::doDrive()
@@ -2394,9 +2319,7 @@ void coVRNavigationManager::doDrive()
     dcs_mat.postMult(osg::Matrix::translate(-viewerPos[0], -viewerPos[1], -viewerPos[2]));
 
     /* apply translation */
-    dcs_mat.postMult(osg::Matrix::translate(speedFactor(delta[0]),
-                                            speedFactor(delta[1]),
-                                            speedFactor(delta[2])));
+    dcs_mat.postMult(osg::Matrix::translate(applySpeedFactor(delta)));
 
     /* apply direction change */
     osg::Matrix rot_mat;
@@ -2424,7 +2347,6 @@ void coVRNavigationManager::startWalk()
 {
     startDrive();
     ignoreCollision = false;
-    navigating = true;
     old_mat = handMat;
 
     /* get xform matrix */
@@ -2469,9 +2391,6 @@ void coVRNavigationManager::doWalk()
 
 void coVRNavigationManager::doWalkMoveToFloor()
 {
-
-    navigating = true;
-
     float floorHeight = VRSceneGraph::instance()->floorHeight();
 
     //  just adjust height here
@@ -2484,201 +2403,164 @@ void coVRNavigationManager::doWalkMoveToFloor()
     p0.set(pos[0], pos[1], floorHeight + stepSize);
     q0.set(pos[0], pos[1], floorHeight - stepSize);
 
-    osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
-    ray->set(p0, q0);
+    osg::ref_ptr<osg::LineSegment> ray[2];
+    ray[0] = new osg::LineSegment(p0, q0);
 
     // down segment 2
     p0.set(pos[0], pos[1] + 10, floorHeight + stepSize);
     q0.set(pos[0], pos[1] + 10, floorHeight - stepSize);
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(p0, q0);
+    ray[1] = new osg::LineSegment(p0, q0);
 
-    osgUtil::IntersectVisitor visitor;
-    visitor.setTraversalMask(Isect::Walk);
-    visitor.addLineSegment(ray.get());
-    visitor.addLineSegment(ray2.get());
-
-    VRSceneGraph::instance()->getTransform()->accept(visitor);
-    int num1 = visitor.getNumHits(ray.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    if (num1 || num2)
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersectors[2];
+    for (int i=0; i<2; ++i)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-        if (num1 || num2)
+        intersectors[i] = coIntersection::instance()->newIntersector(ray[i]->start(), ray[i]->end());
+        igroup->addIntersector(intersectors[i]);
+    }
+
+    osgUtil::IntersectionVisitor visitor(igroup);
+    visitor.setTraversalMask(Isect::Walk);
+    VRSceneGraph::instance()->getTransform()->accept(visitor);
+
+    bool haveIsect[2];
+    for (int i=0; i<2; ++i)
+        haveIsect[i] = intersectors[i]->containsIntersections();
+    if (!haveIsect[0] && !haveIsect[1])
+    {
+        oldFloorNode = NULL;
+        return;
+
+    }
+
+    osg::Node *floorNode = NULL;
+
+    float dist = FLT_MAX;
+    osgUtil::LineSegmentIntersector::Intersection isect;
+    if (haveIsect[0])
+    {
+        isect = intersectors[0]->getFirstIntersection();
+        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+        floorNode = isect.nodePath.back();
+    }
+    if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+    {
+        isect = intersectors[1]->getFirstIntersection();
+        dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+        floorNode = isect.nodePath.back();
+    }
+
+    //  get xform matrix
+    osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
+
+    if (floorNode && floorNode == oldFloorNode)
+    {
+        // we are walking on the same object as last time so move with the object if it is moving
+        osg::Matrix modelTransform;
+        modelTransform.makeIdentity();
+        int on = oldNodePath.size() - 1;
+        bool notSamePath = false;
+        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
         {
-            float dist = 0.0;
-			osg::Node *floorNode = NULL;
-			osgUtil::Hit *usedHI = NULL;
-			if (num1 && !num2)
-			{
-				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-				floorNode = hitInformation1.getGeode();
-				usedHI = &hitInformation1;
-
-			}
-			else if (!num1 && num2)
-			{
-				dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-				floorNode = hitInformation2.getGeode();
-				usedHI = &hitInformation2;
-			}
-			else if (num1 && num2)
-			{
-				floorNode = hitInformation1.getGeode();
-				dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-				usedHI = &hitInformation1;
-				if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-				{
-					dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-					usedHI = &hitInformation2;
-				}
+            osg::Node*n = isect.nodePath[i];
+            if (n == cover->getObjectsRoot())
+                break;
+            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+            if (t != NULL)
+            {
+                modelTransform = modelTransform * t->getMatrix();
             }
+            // check if this is really the same object as it could be a reused object thus compare the whole NodePath
+            // instead of just the last node
+            if (on < 0 || n != oldNodePath[on])
+            {
+                //oops, not same path
+                notSamePath = true;
+            }
+            on--;
+        }
+        if (notSamePath)
+        {
+            oldFloorMatrix = modelTransform;
+            oldFloorNode = floorNode;
+            oldNodePath = isect.nodePath;
+        }
+        else if (modelTransform != oldFloorMatrix)
+        {
 
-			//  get xform matrix
-			osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-
-			if (floorNode == oldFloorNode)
-			{
-				// we are walking on the same object as last time so move with the object if it is moving
-				osg::Matrix modelTransform;
-				modelTransform.makeIdentity();
-				int on = oldNodePath.size() - 1;
-				bool notSamePath = false;
-				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
-				{
-					osg::Node*n = usedHI->getNodePath()[i];
-					if (n == cover->getObjectsRoot())
-						break;
-					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-					if (t != NULL)
-					{
-						modelTransform = modelTransform * t->getMatrix();
-					}
-					// check if this is really the same object as it could be a reused object thus compare the whole NodePath
-					// instead of just the last node
-					if (on < 0 || n != oldNodePath[on])
-					{
-						//oops, not same path
-						notSamePath = true;
-					}
-					on--;
-				}
-				if (notSamePath)
-				{
-					oldFloorMatrix = modelTransform;
-					oldFloorNode = floorNode;
-					oldNodePath = usedHI->getNodePath();
-				}
-				if(modelTransform != oldFloorMatrix)
-				{
-					
-					//osg::Matrix iT;
-					osg::Matrix iS;
-					osg::Matrix S;
-					osg::Matrix imT;
-					//iT.invert_4x4(dcs_mat);
-					float sf = cover->getScale();
-					S.makeScale(sf, sf, sf);
-					sf = 1.0 / sf;
-					iS.makeScale(sf, sf, sf);
-					imT.invert_4x4(modelTransform);
-					dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
-					oldFloorMatrix = modelTransform;
-					// set new xform matrix
-					VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
-					// now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
-					VRSceneGraph::instance()->getTransform()->accept(visitor);
-
-					int num1 = visitor.getNumHits(ray.get());
-					int num2 = visitor.getNumHits(ray2.get());
-					if (num1 || num2)
-					{
-						osgUtil::Hit hitInformation1;
-						osgUtil::Hit hitInformation2;
-						if (num1)
-							hitInformation1 = visitor.getHitList(ray.get()).front();
-						if (num2)
-							hitInformation2 = visitor.getHitList(ray2.get()).front();
-						if (num1 || num2)
-						{
-							float dist = 0.0;
-							osg::Node *floorNode = NULL;
-							osgUtil::Hit *usedHI = NULL;
-							if (num1 && !num2)
-							{
-								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-								floorNode = hitInformation1.getGeode();
-								usedHI = &hitInformation1;
-
-							}
-							else if (!num1 && num2)
-							{
-								dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-								floorNode = hitInformation2.getGeode();
-								usedHI = &hitInformation2;
-							}
-							else if (num1 && num2)
-							{
-								floorNode = hitInformation1.getGeode();
-								dist = hitInformation1.getWorldIntersectPoint()[2] - floorHeight;
-								usedHI = &hitInformation1;
-								if (fabs(hitInformation2.getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
-								{
-									dist = hitInformation2.getWorldIntersectPoint()[2] - floorHeight;
-									usedHI = &hitInformation2;
-								}
-							}
-						}
-					}
-				}
-
-				
-			}
-
-
-            //  apply translation , so that isectPt is at floorLevel
-            osg::Matrix tmp;
-            tmp.makeTranslate(0, 0, -dist);
-            dcs_mat.postMult(tmp);
-
+            //osg::Matrix iT;
+            osg::Matrix iS;
+            osg::Matrix S;
+            osg::Matrix imT;
+            //iT.invert_4x4(dcs_mat);
+            float sf = cover->getScale();
+            S.makeScale(sf, sf, sf);
+            sf = 1.0 / sf;
+            iS.makeScale(sf, sf, sf);
+            imT.invert_4x4(modelTransform);
+            dcs_mat = iS *imT*oldFloorMatrix * S * dcs_mat;
+            oldFloorMatrix = modelTransform;
             // set new xform matrix
             VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+            // now we have a new base matrix and we have to compute the floor height again, otherwise we will jump up and down
+            //
+            VRSceneGraph::instance()->getTransform()->accept(visitor);
 
+            osgUtil::IntersectionVisitor visitor(igroup);
+            igroup->reset();
+            visitor.setTraversalMask(Isect::Walk);
+            VRSceneGraph::instance()->getTransform()->accept(visitor);
 
-			if ((floorNode != oldFloorNode) && (usedHI != NULL))
-			{
-				osg::Matrix modelTransform;
-				modelTransform.makeIdentity();
-				for (int i = usedHI->getNodePath().size() - 1; i >= 0; i--)
-				{
-					osg::Node*n = usedHI->getNodePath()[i];
-					if (n == cover->getObjectsRoot())
-						break;
-					osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
-					if (t != NULL)
-					{
-						modelTransform = modelTransform * t->getMatrix();
-					}
-				}
-				oldFloorMatrix = modelTransform;
-				oldNodePath = usedHI->getNodePath();
-			}
-
-			oldFloorNode = floorNode;
-
-            // do not sync with remote, they will do the same
-            // on their side SyncXform();
+            for (int i=0; i<2; ++i)
+                haveIsect[i] = intersectors[i]->containsIntersections();
+            dist = FLT_MAX;
+            if (haveIsect[0])
+            {
+                isect = intersectors[0]->getFirstIntersection();
+                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+                floorNode = isect.nodePath.back();
+            }
+            if (haveIsect[1] && fabs(intersectors[1]->getFirstIntersection().getWorldIntersectPoint()[2] - floorHeight) < fabs(dist))
+            {
+                isect = intersectors[1]->getFirstIntersection();
+                dist = isect.getWorldIntersectPoint()[2] - floorHeight;
+                floorNode = isect.nodePath.back();
+            }
         }
     }
-	else
-	{
-		oldFloorNode = NULL;
-	}
+
+
+    //  apply translation , so that isectPt is at floorLevel
+    osg::Matrix tmp;
+    tmp.makeTranslate(0, 0, -dist);
+    dcs_mat.postMult(tmp);
+
+    // set new xform matrix
+    VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+
+    if ((floorNode != oldFloorNode) && !isect.nodePath.empty())
+    {
+        osg::Matrix modelTransform;
+        modelTransform.makeIdentity();
+        for (int i = isect.nodePath.size() - 1; i >= 0; i--)
+        {
+            osg::Node*n = isect.nodePath[i];
+            if (n == cover->getObjectsRoot())
+                break;
+            osg::MatrixTransform *t = dynamic_cast<osg::MatrixTransform *>(n);
+            if (t != NULL)
+            {
+                modelTransform = modelTransform * t->getMatrix();
+            }
+        }
+        oldFloorMatrix = modelTransform;
+        oldNodePath = isect.nodePath;
+    }
+
+    oldFloorNode = floorNode;
+
+    // do not sync with remote, they will do the same
+    // on their side SyncXform();
 	
     // coVRCollaboration::instance()->SyncXform();
 }
@@ -2805,23 +2687,7 @@ void coVRNavigationManager::doShowName()
                 // check if we now have an empty string (containing spaces only)
                 if (nodeName.length() > 0)
                 {
-                    //-------------TRANSLATION BEGIN------------------------
-                    char *covisepath = getenv("COVISE_PATH");
-                    if (covisepath)
-                    {
-                        std::string covisePath(covisepath);
-
-                        //yes, there could be a semicolon in it!
-                        covisePath.erase(remove(covisePath.begin(), covisePath.end(), ';'), covisePath.end());
-
-                        nodeName = vtrans::VTrans::translate(
-                            coCoviseConfig::getEntry("value", "COVER.Localization.TranslatorType", ""),
-                            std::string(covisepath) + std::string("/") + coCoviseConfig::getEntry("value", "COVER.Localization.LocalePath", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.VRMLDomain", ""),
-                            coCoviseConfig::getEntry("value", "COVER.Localization.LanguageLocale", ""),
-                            nodeName);
-                    }
-                    //-------------TRANSLATION END--------------------------
+                    nodeName = coTranslator::coTranslate(nodeName);
 
                     //now remove special names
                     /*
@@ -2884,7 +2750,7 @@ void coVRNavigationManager::startMeasure()
     {
         if (measurements.size() > 0)
         {
-            delete measurements[measurements.size() - 1];
+            delete measurements.back();
             measurements.pop_back();
         }
     }
@@ -2904,7 +2770,7 @@ void coVRNavigationManager::doMeasure()
     }
     if (measurements.size() > 0)
     {
-        measurements[measurements.size() - 1]->update();
+        measurements.back()->update();
     }
 }
 
@@ -2912,11 +2778,82 @@ void coVRNavigationManager::stopMeasure()
 {
 }
 
-void coVRNavigationManager::menuEvent(coMenuItem *menuItem)
+void coVRNavigationManager::toggleSelectInteract(bool state)
 {
-    (void)menuItem;
     if (cover->debugLevel(3))
-        fprintf(stderr, "coVRNavigationManager::menuEvent\n");
+        fprintf(stderr, "coVRNavigationManager::toggleSelectInteract %d\n", state);
+
+    if (state)
+    {
+        // enable intersection with scene
+        coIntersection::instance()->isectAllNodes(true);
+    }
+    else
+    {
+        if (cover->debugLevel(4))
+            fprintf(stderr, "realtoggle\n");
+        highlightSelectedNode(NULL);
+        // disable intersection with scene
+        coIntersection::instance()->isectAllNodes(false);
+    }
+}
+
+void coVRNavigationManager::startSelectInteract()
+{
+    //fprintf(stderr, "coVRNavigationManager::startSelectInteract\n");
+    animationWasRunning = coVRAnimationManager::instance()->animationRunning();
+    coVRAnimationManager::instance()->enableAnimation(false);
+}
+
+void coVRNavigationManager::doSelectInteract()
+{
+}
+
+void coVRNavigationManager::stopSelectInteract(bool mouse)
+{
+    coVRAnimationManager::instance()->enableAnimation(animationWasRunning);
+
+    if (!cover->getIntersectedNode())
+        return;
+
+    bool changeToInteraction = false;
+    Node *currentNode = cover->getIntersectedNode();
+    while (currentNode != NULL)
+    {
+        if (auto ud = currentNode->getUserData())
+        {
+            if (auto ir = dynamic_cast<InteractorReference *>(ud))
+            {
+                auto inter = ir->interactor();
+                if (inter)
+                {
+                    std::cerr << "doSelectInteract: requesting interaction for node " << currentNode->getName() << std::endl;
+                    changeToInteraction = coVRPluginList::instance()->requestInteraction(inter, cover->getIntersectedNode(), mouse);
+                    if (changeToInteraction)
+                        break;
+                }
+            }
+        }
+        if (currentNode == cover->getObjectsRoot())
+        {
+            break;
+        }
+
+        if (currentNode->getNumParents() > 0)
+        {
+            currentNode = currentNode->getParent(0);
+        }
+        else
+        {
+            currentNode = nullptr;
+        }
+    }
+
+    if (changeToInteraction && mouse)
+    {
+        std::cerr << "doSelectInteract: Accepted interaction" << std::endl;
+        setNavMode(oldNavMode);
+    }
 }
 
 void coVRNavigationManager::wasJumping()
@@ -2927,12 +2864,11 @@ void coVRNavigationManager::wasJumping()
 void coVRNavigationManager::setDriveSpeed(float speed)
 {
     driveSpeed = speed;
-    cover->setNavigationValue("DriveSpeed", speed);
+    driveSpeedSlider_->setValue(speed);
 }
 
 float coVRNavigationManager::getDriveSpeed()
 {
-    cover->getBuiltInFunctionValue("DriveSpeed", &driveSpeed);
     return driveSpeed;
 }
 
@@ -2955,6 +2891,11 @@ void coVRNavigationManager::enableDegreeSnapping(bool val, float degrees)
 {
     snapDegrees = degrees;
     snappingD = val;
+}
+
+bool coVRNavigationManager::restrictOn() const
+{
+    return m_restrict;
 }
 
 float coVRNavigationManager::snappingDegrees() const
@@ -2991,8 +2932,6 @@ void coVRNavigationManager::processHotKeys(int keymask)
         fprintf(stderr, "ViewAll");
         VRSceneGraph::instance()->viewAll(false);
     }
-
-    oldKeyMask = keymask;
 }
 
 void coVRNavigationManager::setRotationPoint(float x, float y, float z, float size)

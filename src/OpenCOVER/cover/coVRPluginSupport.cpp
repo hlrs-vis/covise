@@ -16,17 +16,21 @@
 #include "coVRMSController.h"
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
+#include <OpenVRUI/coToolboxMenu.h>
 #include <config/CoviseConfig.h>
 #include <assert.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
 #include <net/message_types.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
+#include <OpenVRUI/osg/mathUtils.h>
+#include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
 #include "input/coMousePointer.h"
 #include "VRViewer.h"
-#include "coTabletUI.h"
+#include "ui/Slider.h"
 #ifdef DOTIMING
 #include <util/coTimer.h>
 #endif
@@ -42,6 +46,8 @@
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
 #endif
+
+#include "ui/Menu.h"
 
 // undef this to get no START/END messaged
 #undef VERBOSE
@@ -59,497 +65,61 @@
 
 #include <grmsg/coGRKeyWordMsg.h>
 
-using namespace opencover;
 using namespace vrui;
 using namespace grmsg;
 using namespace covise;
 
-opencover::coVRPluginSupport *opencover::cover = NULL;
+namespace opencover
+{
+
+coVRPluginSupport *cover = NULL;
+
+class NotifyBuf: public std::stringbuf
+{
+ public:
+    NotifyBuf(int level): level(level) {}
+    int sync()
+    {
+        coVRPluginList::instance()->notify(level, str().c_str());
+        str("");
+        return 0;
+    }
+ private:
+    int level;
+};
 
 bool coVRPluginSupport::debugLevel(int level) const
 {
     return coVRConfig::instance()->debugLevel(level);
 }
 
-void
-coVRPluginSupport::addGroupButton(const char *buttonName, const char *parentMenuName,
-                                  int state, ButtonCallback callback, int groupId, void *classPtr, void *userData)
+std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
 {
-    START("coVRPluginSupport::addGroupButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::addGroupButton\n");
-        if (buttonName)
-            fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        else
-            fprintf(stderr, "\t buttonName=NULL\n");
+    std::ostream *str = m_notifyStream[0];
+    if (level < m_notifyStream.size())
+        str = m_notifyStream[level];
+    *str << std::flush;
 
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-        else
-            fprintf(stderr, "\t parentMenuName=NULL\n");
-
-        fprintf(stderr, "\t state=[%d]\n", state);
-        fprintf(stderr, "\t groupId=[%d]\n", groupId);
-    }
-
-    buttonSpecCell button;
-
-    strcpy(button.name, buttonName);
-    button.subMenu = NULL;
-    button.actionType = BUTTON_SWITCH;
-    button.callback = callback;
-    button.calledClass = classPtr;
-    button.state = state;
-    button.dashed = false;
-    button.group = groupId;
-    if (userData)
-    {
-        button.userData = (void *)new char[strlen((char *)userData) + 1];
-        strcpy((char *)button.userData, (char *)userData);
-    }
-
-    if (parentMenuName)
-        VRPinboard::instance()->addButtonToNamedMenu(&button, (char *)parentMenuName);
-    else
-        VRPinboard::instance()->addButtonToMainMenu(&button);
-
-    // as the constructor of buttonspeccell doesn't call the callback
-    // if state =1 we do it here
-    if (state)
-        cover->setButtonState(button.name, (int)button.state);
+    return *str;
 }
 
-// Add Pinboard Buttons
-
-void
-coVRPluginSupport::addToggleButton(const char *buttonName, const char *parentMenuName,
-                                   int state, ButtonCallback callback, void *classPtr, void *userData)
+std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level, const char *fmt, ...) const
 {
-    START("coVRPluginSupport::addToggleButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::addToggleButton\n");
-        if (buttonName)
-            fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-        fprintf(stderr, "\t state=[%d]\n", state);
-    }
+    std::vector<char> text(strlen(fmt)+500);
 
-    buttonSpecCell button;
+    va_list args;
+    va_start(args, fmt);
+    int messageSize = vsnprintf(&text[0], text.size(), fmt, args);
+	va_end(args);
+	if (messageSize>text.size())
+	{
+        text.resize(strlen(fmt)+messageSize);
+		va_start(args, fmt);
+		vsnprintf(&text[0], text.size(), fmt, args);
+		va_end(args);
+	}
 
-    strcpy(button.name, buttonName);
-    button.subMenu = NULL;
-    button.actionType = BUTTON_SWITCH;
-    button.callback = callback;
-    button.calledClass = classPtr;
-    button.state = state;
-    button.dashed = false;
-    button.group = -1;
-    if (userData)
-    {
-        button.userData = (void *)new char[strlen((char *)userData) + 1];
-        strcpy((char *)button.userData, (char *)userData);
-    }
-    if (parentMenuName)
-        VRPinboard::instance()->addButtonToNamedMenu(&button, (char *)parentMenuName);
-    else
-        VRPinboard::instance()->addButtonToMainMenu(&button);
-
-    // as the constructor of buttonspeccell doesn't call the callback
-    // if state =1 we do it here
-    if (state)
-        cover->setButtonState(button.name, (int)button.state);
-}
-
-void
-coVRPluginSupport::addSubmenuButton(const char *buttonName, const char *parentMenuName, const char *subMenuName,
-                                    int state, ButtonCallback callback, int groupId, void *classPtr)
-{
-    START("coVRPluginSupport::addSubmenuButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::addSubmenuButton\n");
-        fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-        fprintf(stderr, "\t title=[%s]\n", subMenuName);
-        fprintf(stderr, "\t state=[%d]\n", state);
-        fprintf(stderr, "\t groupId=[%d]\n", groupId);
-    }
-    buttonSpecCell button;
-
-    strcpy(button.name, buttonName);
-    strcpy(button.subMenuName, subMenuName);
-    button.actionType = BUTTON_SUBMENU;
-    button.callback = callback;
-    button.calledClass = classPtr;
-    button.state = state;
-    button.dashed = false;
-    button.group = groupId;
-    if (parentMenuName)
-        VRPinboard::instance()->addButtonToNamedMenu(&button, (char *)parentMenuName);
-    else
-        VRPinboard::instance()->addButtonToMainMenu(&button);
-
-    if (state)
-        cover->setButtonState(button.name, (int)button.state);
-}
-
-void
-coVRPluginSupport::addFunctionButton(const char *buttonName, const char *parentMenuName,
-                                     ButtonCallback callback, void *classPtr, void *userData)
-{
-    START("coVRPluginSupport::addFunctionButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::addFunctionButton\n");
-        fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-    }
-    buttonSpecCell button;
-
-    strcpy(button.name, buttonName);
-    button.subMenu = NULL;
-    button.actionType = BUTTON_FUNCTION;
-    button.callback = callback;
-    button.calledClass = classPtr;
-    button.dashed = false;
-    if (userData)
-    {
-        button.userData = (void *)new char[strlen((char *)userData) + 1];
-        strcpy((char *)button.userData, (char *)userData);
-    }
-    if (parentMenuName)
-        VRPinboard::instance()->addButtonToNamedMenu(&button, parentMenuName);
-    else
-        VRPinboard::instance()->addButtonToMainMenu(&button);
-}
-
-void
-coVRPluginSupport::addSliderButton(const char *buttonName, const char *parentMenuName,
-                                   float min, float max, float value, ButtonCallback callback, void *classPtr, void *userData)
-{
-    START("coVRPluginSupport::addSliderButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::addSliderButton\n");
-        fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-        fprintf(stderr, "\t state=[%f]\n", min);
-        fprintf(stderr, "\t state=[%f]\n", max);
-        fprintf(stderr, "\t state=[%f]\n", value);
-    }
-
-    buttonSpecCell button;
-
-    strcpy(button.name, buttonName);
-    button.actionType = BUTTON_SLIDER;
-    button.callback = callback;
-    button.calledClass = classPtr;
-    button.state = value;
-    button.dashed = false;
-    button.group = -1;
-    button.sliderMin = min;
-    button.sliderMax = max;
-    if (userData)
-    {
-        button.userData = (void *)new char[strlen((char *)userData) + 1];
-        strcpy((char *)button.userData, (char *)userData);
-    }
-
-    if (parentMenuName)
-        VRPinboard::instance()->addButtonToNamedMenu(&button, (char *)parentMenuName);
-    else
-        VRPinboard::instance()->addButtonToMainMenu(&button);
-}
-
-// remove menu buttons
-
-void
-coVRPluginSupport::removeButton(const char *buttonName, const char *parentMenuName)
-{
-    START("coVRPluginSupport::removeButton");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::removeButton\n");
-        fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        if (parentMenuName)
-            fprintf(stderr, "\t parentMenuName=[%s]\n", parentMenuName);
-    }
-    if (parentMenuName)
-        VRPinboard::instance()->removeButtonFromNamedMenu(buttonName, parentMenuName);
-    else
-        VRPinboard::instance()->removeButtonFromMainMenu(buttonName);
-}
-
-// set the state/value of menu buttons
-
-bool
-coVRPluginSupport::setButtonState(const char *buttonName, int state)
-{
-    START("coVRPluginSupport::setButtonState");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setButtonState\n");
-        fprintf(stderr, "\tbutton = [%s] state=[%d]\n", buttonName, state);
-    }
-    return VRPinboard::instance()->setButtonState((char *)buttonName, state);
-}
-
-bool
-coVRPluginSupport::setSliderValue(const char *buttonName, float value)
-{
-    START("coVRPluginSupport::setSliderValue");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setSliderValue\n");
-        fprintf(stderr, "\t buttonName=[%s]\n", buttonName);
-        fprintf(stderr, "\t value=[%f]\n", value);
-    }
-    return VRPinboard::instance()->setButtonState((char *)buttonName, value);
-}
-
-// get state/value of menu buttons
-
-int
-coVRPluginSupport::getButtonState(const char *buttonName, const char *menuName)
-{
-    //START("coVRPluginSupport::getButtonState");
-    int s = (int)VRPinboard::instance()->namedMenu((char *)menuName)->namedButton((char *)buttonName)->spec.state;
-
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::getButtonState\n");
-        fprintf(stderr, "\t buttonName=[%s] menuName=[%s]\n", buttonName, menuName);
-        fprintf(stderr, "\t state=[%d]\n", s);
-    }
-    return (s);
-}
-
-float
-coVRPluginSupport::getSliderValue(const char *buttonName, const char *menuName)
-{
-    START("coVRPluginSupport::getSliderValue");
-    float v = VRPinboard::instance()->namedMenu((char *)menuName)->namedButton((char *)buttonName)->spec.state;
-
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::getSliderValue\n");
-        fprintf(stderr, "\t buttonName=[%s] menuName=[%s]\n", buttonName, menuName);
-        fprintf(stderr, "\t value=[%f]\n", v);
-    }
-    return (v);
-}
-
-// simulate a button press/release/slider drag
-
-void
-coVRPluginSupport::callButtonCallback(const char *buttonName)
-{
-    START("coVRPluginSupport::callButtonCallback");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::callButtonCallback\n");
-    }
-
-    VRPinboard::instance()->callButtonCallback((char *)buttonName);
-}
-
-// set the state/value of a COVER function
-
-void
-coVRPluginSupport::setBuiltInFunctionState(const char *functionName, int state)
-{
-    START("coVRPluginSupport::setBuiltInFunctionState");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setBuiltInFunctionState\n");
-        fprintf(stderr, "\t functionName=[%s]\n", functionName);
-        fprintf(stderr, "\t state=[%d]\n", state);
-    }
-
-    // check if this function is in pinboard
-    if (isBuiltInFunctionInPinboard(functionName)) // name is ok
-    {
-        int i = VRPinboard::instance()->getIndex(functionName);
-        // check if the function is a function button
-        if ((VRPinboard::instance()->functions[i].functionType == VRPinboard::BTYPE_TOGGLE)
-            || (VRPinboard::instance()->functions[i].functionType == VRPinboard::BTYPE_NAVGROUP)
-                   // type ok
-            || (VRPinboard::instance()->functions[i].functionType == VRPinboard::BTYPE_SYNCGROUP))
-        {
-            char *buttonName = VRPinboard::instance()->functions[i].customButtonName;
-            // val is ignored
-            VRPinboard::instance()->setButtonState(buttonName, state);
-        }
-        else // function not configured
-            fprintf(stderr, "ERROR: coVRPluginSupport::setFunctionValue - function %s is not a group or toggle button", functionName);
-    }
-    else
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setBuiltInFunctionState: %s not in pinboard\n", functionName);
-    }
-}
-
-void
-coVRPluginSupport::setBuiltInFunctionValue(const char *functionName, float val)
-{
-    START("coVRPluginSupport::setBuiltInFunctionValue");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setBuiltInFunctionValue\n");
-        fprintf(stderr, "\t functionName=[%s]\n", functionName);
-        fprintf(stderr, "\t value=[%f]\n", val);
-    }
-
-    // check if this function is in pinboard
-    if (isBuiltInFunctionInPinboard(functionName)) // name is ok
-    {
-        int i = VRPinboard::instance()->getIndex(functionName);
-        // check if the function is a function button
-        // type ok
-        if (VRPinboard::instance()->functions[i].functionType == VRPinboard::BTYPE_SLIDER)
-        {
-            char *buttonName = VRPinboard::instance()->functions[i].customButtonName;
-            // val is ignored
-            VRPinboard::instance()->setButtonState((char *)buttonName, val);
-        }
-        else // function not configured
-            fprintf(stderr, "ERROR: coVRPluginSupport::setFunctionValue - function %s is not a slider button", functionName);
-    }
-    else
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::setBuiltInFunctionValue: %s not in pinboard\n", functionName);
-    }
-}
-
-// get the state/value of a COVER function
-
-int
-coVRPluginSupport::getBuiltInFunctionState(const char *functionName, int *state)
-{
-    START("coVRPluginSupport::getBuiltInFunctionState");
-    if (debugLevel(3))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::getFunctionState\n");
-        fprintf(stderr, "\t functionName=[%s]\n", functionName);
-    }
-
-    if (isBuiltInFunctionInPinboard(functionName))
-    {
-        int i = VRPinboard::instance()->getIndex(functionName);
-        if ((VRPinboard::instance()->functions[i].customMenuName) && (VRPinboard::instance()->functions[i].customButtonName))
-            *state = (int)VRPinboard::instance()
-                         ->namedMenu(VRPinboard::instance()->functions[i].customMenuName)
-                         ->namedButton(VRPinboard::instance()->functions[i].customButtonName)
-                         ->spec.state;
-        else
-            return (false);
-        if (debugLevel(3))
-            fprintf(stderr, "\t state=[%d]\n", *state);
-
-        return (true);
-    }
-    else
-        return (false);
-}
-
-int
-coVRPluginSupport::getBuiltInFunctionValue(const char *functionName, float *val)
-{
-    START("coVRPluginSupport::getBuiltInFunctionValue");
-    if (debugLevel(4))
-    {
-        fprintf(stderr, "\ncoVRPluginSupport::getFunctionValue\n");
-        fprintf(stderr, "\t functionName=[%s]\n", functionName);
-    }
-
-    int i;
-
-    if (isBuiltInFunctionInPinboard(functionName))
-    {
-        i = VRPinboard::instance()->getIndex(functionName);
-
-        if ((VRPinboard::instance()->functions[i].customMenuName) && (VRPinboard::instance()->functions[i].customButtonName))
-            *val = VRPinboard::instance()->namedMenu(VRPinboard::instance()->functions[i].customMenuName)->namedButton(VRPinboard::instance()->functions[i].customButtonName)->spec.state;
-        else
-            return (false);
-        if (debugLevel(4))
-            fprintf(stderr, "\t value=[%f]\n", *val);
-        return (true);
-    }
-    else
-        return (false);
-}
-
-void
-coVRPluginSupport::callBuiltInFunctionCallback(const char *functionName)
-{
-    START("coVRPluginSupport::callBuiltInFunctionCallback");
-    if (debugLevel(3))
-        fprintf(stderr, "\ncoVRPluginSupport::callFunctionCallback\n");
-
-    int i = VRPinboard::instance()->getIndex(functionName);
-    if (i != -1)
-    {
-        char *buttonName = VRPinboard::instance()->functions[i].customButtonName;
-        VRPinboard::instance()->callButtonCallback((char *)buttonName);
-    }
-}
-
-// check if a COVER function is in the Pinboard
-
-int
-coVRPluginSupport::isBuiltInFunctionInPinboard(const char *functionName)
-{
-    START("coVRPluginSupport::isBuiltInFunctionInPinboard");
-    if (debugLevel(4))
-        fprintf(stderr, "\ncoVRPluginSupport::isFunction(%s)\n", functionName);
-
-    // check if this function is a built in function
-
-    int i = VRPinboard::instance()->getIndex(functionName);
-
-    if (i != -1) // the function is a built in function
-    {
-        if (VRPinboard::instance()->functions[i].isInPinboard)
-        {
-            if (debugLevel(4))
-                fprintf(stderr, "\t function is in pinboard\n");
-
-            return (true);
-        }
-        else
-        {
-            if (debugLevel(4))
-                fprintf(stderr, "\t function is NOT in pinboard\n");
-            return false;
-        }
-    }
-
-    if (debugLevel(4))
-        fprintf(stderr, "\t function is NOT a built in function\n");
-    return false;
-}
-
-coMenuItem *
-coVRPluginSupport::getBuiltInFunctionMenuItem(const char *functionName)
-{
-    if (isBuiltInFunctionInPinboard(functionName))
-    {
-        // return index of builtin function
-        //fprintf(stderr,"function=[%s] name=[%s]\n", functionName, VRPinboard::instance()->getCustomName(functionName));
-        // get name correspondig to this index and get vrui menu item for this name
-        return ((coMenuItem *)VRPinboard::instance()->getMenuItem(VRPinboard::instance()->getCustomName(functionName)));
-    }
-    else
-    {
-        return (NULL);
-    }
+    return notify(level) << &text[0];
 }
 
 osg::ClipNode *coVRPluginSupport::getObjectsRoot() const
@@ -559,7 +129,7 @@ osg::ClipNode *coVRPluginSupport::getObjectsRoot() const
     return NULL;
 }
 
-osgShadow::ShadowedScene *coVRPluginSupport::getScene() const
+osg::Group *coVRPluginSupport::getScene() const
 {
     //START("coVRPluginSupport::getScene");
     return (VRSceneGraph::instance()->getScene());
@@ -630,6 +200,18 @@ coPointerButton *coVRPluginSupport::getMouseButton() const
     return mouseButton;
 }
 
+coPointerButton *coVRPluginSupport::getRelativeButton() const
+{
+    if (!Input::instance()->hasRelative())
+        return NULL;
+
+    if (relativeButton == NULL)
+    {
+        relativeButton = new coPointerButton("relative");
+    }
+    return relativeButton;
+}
+
 const osg::Matrix &coVRPluginSupport::getViewerMat() const
 {
     START("coVRPluginSupport::getViewerMat");
@@ -650,12 +232,17 @@ const osg::Matrix &coVRPluginSupport::getMouseMat() const
     return Input::instance()->mouse()->getMatrix();
 }
 
+const osg::Matrix &coVRPluginSupport::getRelativeMat() const
+{
+    return Input::instance()->getRelativeMat();
+}
+
 const osg::Matrix &coVRPluginSupport::getPointerMat() const
 {
     //START("coVRPluginSupport::getPointerMat");
 
-    if (Input::instance()->hasHand())
-        return Input::instance()->getHandMat();
+    if (wasHandValid)
+        return handMat;
     else
         return getMouseMat();
 }
@@ -674,7 +261,7 @@ float coVRPluginSupport::getSceneSize() const
     return coVRConfig::instance()->getSceneSize();
 }
 
-double coVRPluginSupport::currentTime() const
+double coVRPluginSupport::currentTime()
 {
     START("coVRPluginSupport::currentTime");
     timeval currentTime;
@@ -715,10 +302,45 @@ double coVRPluginSupport::frameRealTime() const
     return frameStartRealTime;
 }
 
-coMenu *coVRPluginSupport::getMenu() const
+coMenu *coVRPluginSupport::getMenu()
 {
     START("coVRPluginSupport::getMenu");
-    return VRPinboard::instance()->mainMenu->getCoMenu();
+    if (!m_vruiMenu)
+    {
+        if (cover->debugLevel(4))
+        {
+            fprintf(stderr, "coVRPluginSupport::getMenu, creating menu\n");
+        }
+        osg::Matrix dcsTransMat, dcsRotMat, dcsMat, preRot, tmp;
+        float xp = 0.0, yp = 0.0, zp = 0.0;
+        float h = 0, p = 0, r = 0;
+        float size = 1;
+        m_vruiMenu = new coRowMenu("COVER");
+        m_vruiMenu->setVisible(coCoviseConfig::isOn("COVER.Menu.Visible", true));
+
+        xp = coCoviseConfig::getFloat("x", "COVER.Menu.Position", 0.0);
+        yp = coCoviseConfig::getFloat("y", "COVER.Menu.Position", 0.0);
+        zp = coCoviseConfig::getFloat("z", "COVER.Menu.Position", 0.0);
+        h = coCoviseConfig::getFloat("h", "COVER.Menu.Orientation", 0.0);
+        p = coCoviseConfig::getFloat("p", "COVER.Menu.Orientation", 0.0);
+        r = coCoviseConfig::getFloat("r", "COVER.Menu.Orientation", 0.0);
+        size = coCoviseConfig::getFloat("COVER.Menu.Size", 0.0);
+
+        if (size <= 0)
+            size = 1;
+        dcsRotMat.makeIdentity();
+        MAKE_EULER_MAT(dcsRotMat, h, p, r);
+        preRot.makeRotate(osg::inDegrees(90.0f), 1.0f, 0.0f, 0.0f);
+        dcsTransMat.makeTranslate(xp, yp, zp);
+        tmp.mult(preRot, dcsRotMat);
+        dcsMat.mult(tmp, dcsTransMat);
+        OSGVruiMatrix menuMatrix;
+        menuMatrix.setMatrix(dcsMat);
+        m_vruiMenu->setTransformMatrix(&menuMatrix);
+        m_vruiMenu->setScale(size * (getSceneSize() / 2500.0));
+    }
+
+    return m_vruiMenu;
 }
 
 void coVRPluginSupport::addedNode(osg::Node *node, coVRPlugin *addingPlugin)
@@ -747,6 +369,17 @@ void coVRPluginSupport::setFrameTime(double ft)
     frameStartTime = ft;
 }
 
+void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
+{
+    bool displaylist = coVRConfig::instance()->useDisplayLists() && !dynamic;
+    bool vbo = !displaylist && coVRConfig::instance()->useVBOs();
+    //bool vao = false;
+
+    draw->setUseDisplayList(displaylist);
+    draw->setUseVertexBufferObjects(vbo);
+    //draw->setUseVertexArrayObject(vao);
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
@@ -771,6 +404,8 @@ void coVRPluginSupport::updateTime()
             frameStartTime = frameStartRealTime;
         }
     }
+    
+    coVRMSController::instance()->syncTime();
 #ifdef DOTIMING
     MARK0("done");
 #endif
@@ -782,20 +417,36 @@ void coVRPluginSupport::update()
     if (debugLevel(5))
         fprintf(stderr, "coVRPluginSupport::update\n");
 
-    getMouseButton()->setWheel(Input::instance()->mouse()->wheel());
-    getMouseButton()->setState(Input::instance()->mouse()->buttonState());
-#if 0
-   if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
-      std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
-#endif
-    // don't overwrite mouse button state if only mouseTracking is used
-    if (getPointerButton() != getMouseButton())
+    if (Input::instance()->hasHand() && Input::instance()->isHandValid())
     {
-        getPointerButton()->setWheel(0);
+        wasHandValid = true;
+        handMat = Input::instance()->getHandMat();
+    }
+
+    if (getRelativeButton())
+    {
+        getRelativeButton()->setState(Input::instance()->getRelativeButtonState());
+    }
+
+    if (getPointerButton() && getPointerButton()!=getMouseButton())
+    {
+        for (size_t i=0; i<2; ++i)
+            getPointerButton()->setWheel(i, 0);
         getPointerButton()->setState(Input::instance()->getButtonState());
 #if 0
-   if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
-      std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
+        if (getPointerButton()->wasPressed() || getPointerButton()->wasReleased() || getPointerButton()->getState())
+            std::cerr << "pointer pressed: " << getPointerButton()->wasPressed() << ", released: " << getPointerButton()->wasReleased() << ", state: " << getPointerButton()->getState() << std::endl;
+#endif
+    }
+
+    if (getMouseButton())
+    {
+        for (size_t i=0; i<2; ++i)
+            getMouseButton()->setWheel(i, Input::instance()->mouse()->wheel(i));
+        getMouseButton()->setState(Input::instance()->mouse()->buttonState());
+#if 0
+        if (getMouseButton()->wasPressed() || getMouseButton()->wasReleased() || getMouseButton()->getState())
+            std::cerr << "mouse pressed: " << getMouseButton()->wasPressed() << ", released: " << getMouseButton()->wasReleased() << ", state: " << getMouseButton()->getState() << std::endl;
 #endif
     }
 
@@ -841,7 +492,6 @@ void coVRPluginSupport::update()
 
     invCalculated = 0;
     updateManager->update();
-    coTabletUI::instance()->update();
     //get rotational part of Xform only
     osg::Matrix frontRot(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
     if (VRViewer::instance()->isMatrixOverwriteOn())
@@ -967,13 +617,6 @@ void coVRPluginSupport::removePlugin(coVRPlugin *m)
     coVRPluginList::instance()->unload(m);
 }
 
-int coVRPluginSupport::createUniqueButtonGroupId()
-{
-    START("coVRPluginSupport::uniqueButtonGroup");
-    buttonGroup++;
-    return buttonGroup;
-}
-
 int coVRPluginSupport::isPointerLocked()
 {
     //START("coVRPluginSupport::isPointerLocked");
@@ -988,12 +631,6 @@ int coVRPluginSupport::isPointerLocked()
     if (isLocked)
         return true;
     return (false);
-}
-
-bool coVRPluginSupport::isNavigating()
-{
-    START("coVRPluginSupport::isNavigating");
-    return (coInteractionManager::the()->isOneActive(coInteraction::ButtonA));
 }
 
 float coVRPluginSupport::getSqrDistance(osg::Node *n, osg::Vec3 &p,
@@ -1071,7 +708,7 @@ float coVRPluginSupport::getInteractorScale(osg::Vec3 &pos) // pos in World coor
         scaleVal = eyeToPosDist / (2000);
     }
 
-    return scaleVal / cover->getScale();
+    return scaleVal / cover->getScale() * interactorScale;
 }
 
 float coVRPluginSupport::getViewerScreenDistance()
@@ -1079,7 +716,7 @@ float coVRPluginSupport::getViewerScreenDistance()
     return viewerDist;
 }
 
-osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node)
+osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node) const
 {
     osg::ComputeBoundsVisitor cbv;
     cbv.setTraversalMask(Isect::Visible);
@@ -1091,17 +728,120 @@ osg::BoundingBox coVRPluginSupport::getBBox(osg::Node *node)
     return cbv.getBoundingBox();
 }
 
+bool coVRPluginSupport::restrictOn() const
+{
+    return coVRNavigationManager::instance()->restrictOn();
+}
+
+coToolboxMenu *coVRPluginSupport::getToolBar(bool create)
+{
+    if (create && !m_toolBar)
+    {
+        auto tb = new coToolboxMenu("Toolbar");
+
+        //////////////////////////////////////////////////////////
+        // position AK-Toolbar and make it visible
+        float x = coCoviseConfig::getFloat("x", "COVER.Plugin.AKToolbar.Position", -400);
+        float y = coCoviseConfig::getFloat("y", "COVER.Plugin.AKToolbar.Position", -200);
+        float z = coCoviseConfig::getFloat("z", "COVER.Plugin.AKToolbar.Position", 0);
+
+        float h = coCoviseConfig::getFloat("h", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float p = coCoviseConfig::getFloat("p", "COVER.Plugin.AKToolbar.Orientation", 0);
+        float r = coCoviseConfig::getFloat("r", "COVER.Plugin.AKToolbar.Orientation", 0);
+
+        float scale = coCoviseConfig::getFloat("COVER.Plugin.AKToolbar.Scale", 0.2);
+
+        int attachment = coUIElement::TOP;
+        std::string att = coCoviseConfig::getEntry("COVER.Plugin.AKToolbar.Attachment");
+        if (att != "")
+        {
+            if (!strcasecmp(att.c_str(), "BOTTOM"))
+            {
+                attachment = coUIElement::BOTTOM;
+            }
+            else if (!strcasecmp(att.c_str(), "LEFT"))
+            {
+                attachment = coUIElement::LEFT;
+            }
+            else if (!strcasecmp(att.c_str(), "RIGHT"))
+            {
+                attachment = coUIElement::RIGHT;
+            }
+        }
+
+        //float sceneSize = cover->getSceneSize();
+
+        vruiMatrix *mat = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *rot = vruiRendererInterface::the()->createMatrix();
+        vruiMatrix *trans = vruiRendererInterface::the()->createMatrix();
+
+        rot->makeEuler(h, p, r);
+        trans->makeTranslate(x, y, z);
+        mat->makeIdentity();
+        mat->mult(rot);
+        mat->mult(trans);
+        tb->setTransformMatrix(mat);
+        tb->setScale(scale);
+        tb->setVisible(true);
+        tb->fixPos(true);
+        tb->setAttachment(attachment);
+
+        m_toolBar = tb;
+    }
+
+    return m_toolBar;
+}
+
+void coVRPluginSupport::setToolBar(coToolboxMenu *tb)
+{
+    m_toolBar = tb;
+}
+
+void coVRPluginSupport::preparePluginUnload()
+{
+	cover->intersectedDrawable = nullptr; // intersectedDrawable might be a node from this plugin
+	cover->intersectedNode = nullptr;
+}
+
 coVRPluginSupport::coVRPluginSupport()
     : scaleFactor(0.0)
     , viewerDist(0.0)
     , updateManager(0)
     , activeClippingPlane(0)
 {
+    assert(!cover);
+    cover = this;
+
     START("coVRPluginSupport::coVRPluginSupport");
+
+    new VRVruiRenderInterface();
+
+    ui = new ui::Manager();
+    fileMenu = new ui::Menu("File", ui);
+    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
+    viewOptionsMenu->setText("View options");
+    ui->init();
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released){
+        interactorScale = value;
+    });
+
+    for (int level=0; level<Notify::Fatal; ++level)
+    {
+        m_notifyBuf.push_back(new NotifyBuf(level));
+        m_notifyStream.push_back(new std::ostream(m_notifyBuf[level]));
+    }
+
     /// path for the viewpoint file: initialized by 1st param() call
     intersectedNode = NULL;
 
-    toolBar = NULL;
+    m_toolBar = NULL;
     numClipPlanes = coCoviseConfig::getInt("COVER.NumClipPlanes", 3);
     for (int i = 0; i < numClipPlanes; i++)
     {
@@ -1109,12 +849,11 @@ coVRPluginSupport::coVRPluginSupport()
         clipPlanes[i]->setClipPlaneNum(i);
     }
     NoFrameBuffer = new osg::ColorMask(false, false, false, false);
-    cover = this;
     player = NULL;
 
     pointerButton = NULL;
     mouseButton = NULL;
-    buttonGroup = 40;
+    relativeButton = NULL;
     baseMatrix.makeIdentity();
 
     invCalculated = false;
@@ -1138,8 +877,6 @@ coVRPluginSupport::coVRPluginSupport()
     currentCursor = osgViewer::GraphicsWindow::LeftArrowCursor;
     setCurrentCursor(currentCursor);
 
-    resOn = coVRConfig::instance()->restrictOn();
-
     frontWindowHorizontalSize = 0;
 
     if (debugLevel(2))
@@ -1151,6 +888,26 @@ coVRPluginSupport::~coVRPluginSupport()
     START("coVRPluginSupport::~coVRPluginSupport");
     if (debugLevel(2))
         fprintf(stderr, "delete coVRPluginSupport\n");
+
+    updateManager->removeAll();
+    delete VRVruiRenderInterface::the();
+    delete updateManager;
+
+    while(!m_notifyStream.empty())
+    {
+        delete m_notifyStream.back();
+        m_notifyStream.pop_back();
+    }
+    while(!m_notifyBuf.empty())
+    {
+        delete m_notifyBuf.back();
+        m_notifyBuf.pop_back();
+    }
+
+	intersectedDrawable = nullptr;
+	intersectedNode = nullptr;
+    cover = NULL;
+
 }
 
 int coVRPluginSupport::getNumClipPlanes()
@@ -1196,7 +953,7 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
     currentCursor = cursor;
     for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
     {
-        if (coVRConfig::instance()->windows[i].window)
+        if (coVRConfig::instance()->windows[i].window && cursorVisible)
             coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
     }
 }
@@ -1204,27 +961,19 @@ void coVRPluginSupport::setCurrentCursor(osgViewer::GraphicsWindow::MouseCursor 
 // make the cursor visible or invisible
 void coVRPluginSupport::setCursorVisible(bool visible)
 {
-    static bool isVisible = true;
-    if (visible && (!isVisible))
+    if (visible != cursorVisible)
     {
         for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
         {
             if (coVRConfig::instance()->windows[i].window)
             {
-                coVRConfig::instance()->windows[i].window->useCursor(true);
-                coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                if (visible)
+                    coVRConfig::instance()->windows[i].window->setCursor(currentCursor);
+                coVRConfig::instance()->windows[i].window->useCursor(visible);
             }
         }
     }
-    if (!visible && (isVisible))
-    {
-        for (int i = 0; i < coVRConfig::instance()->numWindows(); i++)
-        {
-            if (coVRConfig::instance()->windows[i].window)
-                coVRConfig::instance()->windows[i].window->useCursor(false);
-        }
-    }
-    isVisible = visible;
+    cursorVisible = visible;
 }
 
 //-----
@@ -1237,9 +986,9 @@ void coVRPluginSupport::sendMessage(coVRPlugin *sender, int toWhom, int type, in
     int size = len + 2 * sizeof(int);
 
     if (toWhom == coVRPluginSupport::TO_SAME)
-        sender->message(type, len, buf);
+        sender->message(toWhom, type, len, buf);
     if (toWhom == coVRPluginSupport::TO_ALL)
-        coVRPluginList::instance()->message(type, len, buf);
+        coVRPluginList::instance()->message(toWhom, type, len, buf);
 
     if ((toWhom == coVRPluginSupport::TO_SAME) || (toWhom == coVRPluginSupport::TO_SAME_OTHERS))
     {
@@ -1286,7 +1035,7 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
     coVRPlugin *dest = coVRPluginList::instance()->getPlugin(destination);
     if (dest)
     {
-        dest->message(type, len, buf);
+        dest->message(0, type, len, buf);
     }
     else if (strcmp(destination, "AKToolbar") != 0)
     {
@@ -1357,40 +1106,6 @@ int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int
     return 1;
 }
 
-void
-coVRPluginSupport::enableNavigation(const char *str)
-{
-    START("coVRPluginSupport::enableNavigation");
-    setBuiltInFunctionState(str, 1);
-}
-
-void
-coVRPluginSupport::disableNavigation(const char *str)
-{
-    START("coVRPluginSupport::disableNavigation");
-    setBuiltInFunctionState(str, 0);
-}
-
-void
-coVRPluginSupport::setNavigationValue(const char *str, float value)
-{
-    START("coVRPluginSupport::setNavigationValue");
-    buttonSpecCell buttonSpecifier;
-
-    strcpy(buttonSpecifier.name, str);
-    buttonSpecifier.state = value;
-    VRSceneGraph::instance()->manipulate(&buttonSpecifier);
-    if (strcmp(str, "DriveSpeed") == 0)
-    {
-        setBuiltInFunctionValue(str, value);
-        callBuiltInFunctionCallback(str);
-    }
-    else
-    {
-        VRPinboard::instance()->setButtonState(str, value);
-    }
-}
-
 osg::Node *coVRPluginSupport::getIntersectedNode() const
 {
     return intersectedNode.get();
@@ -1411,13 +1126,47 @@ const osg::Vec3 &coVRPluginSupport::getIntersectionHitPointWorldNormal() const
     return intersectionHitPointWorldNormal;
 }
 
+osg::Matrix coVRPluginSupport::updateInteractorTransform(osg::Matrix mat, bool usePointer) const
+{
+    if (usePointer && Input::instance()->hasHand() && Input::instance()->isHandValid())
+    {
+        // get the transformation matrix of the transform
+        mat = getPointer()->getMatrix();
+        if (coVRNavigationManager::instance()->isSnapping())
+        {
+            osg::Matrix w_to_o = cover->getInvBaseMat();
+            mat.postMult(w_to_o);
+            if (!coVRNavigationManager::instance()->isDegreeSnapping())
+                snapTo45Degrees(&mat);
+            else
+                snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &mat);
+            osg::Matrix o_to_w = cover->getBaseMat();
+            mat.postMult(o_to_w);
+            coCoord coord = mat;
+            coord.makeMat(mat);
+        }
+    }
+
+    if (Input::instance()->hasRelative() && Input::instance()->isRelativeValid())
+    {
+        auto rel = Input::instance()->getRelativeMat();
+        auto tr = rel.getTrans();
+        coCoord coord(rel);
+        MAKE_EULER_MAT_VEC(rel, -coord.hpr);
+        rel.setTrans(-tr);
+        mat *= rel;
+    }
+
+    return mat;
+}
+
 coPointerButton::coPointerButton(const std::string &name)
     : m_name(name)
 {
     START("coPointerButton::coPointerButton");
     buttonStatus = 0;
     lastStatus = 0;
-    wheelCount = 0;
+    wheelCount[0] = wheelCount[1] = 0;
 }
 
 coPointerButton::~coPointerButton()
@@ -1431,30 +1180,30 @@ const std::string &coPointerButton::name() const
     return m_name;
 }
 
-unsigned int coPointerButton::getState()
+unsigned int coPointerButton::getState() const
 {
     //START("coPointerButton::getButtonStatus")
     return buttonStatus;
 }
 
-unsigned int coPointerButton::oldState()
+unsigned int coPointerButton::oldState() const
 {
     START("coPointerButton::oldButtonStatus");
     return lastStatus;
 }
 
-bool coPointerButton::notPressed()
+bool coPointerButton::notPressed() const
 {
     START("coPointerButton::notPressed");
     return (buttonStatus == 0);
 }
 
-unsigned int coPointerButton::wasPressed(unsigned int buttonMask)
+unsigned int coPointerButton::wasPressed(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & getState());
 }
 
-unsigned int coPointerButton::wasReleased(unsigned int buttonMask)
+unsigned int coPointerButton::wasReleased(unsigned int buttonMask) const
 {
     return buttonMask & ((getState() ^ oldState()) & oldState());
 }
@@ -1466,14 +1215,18 @@ void coPointerButton::setState(unsigned int newButton) // called from
     buttonStatus = newButton;
 }
 
-int coPointerButton::getWheel()
+int coPointerButton::getWheel(size_t idx) const
 {
-    return wheelCount;
+    if (idx >= 2)
+        return 0;
+    return wheelCount[idx];
 }
 
-void coPointerButton::setWheel(int count)
+void coPointerButton::setWheel(size_t idx, int count)
 {
-    wheelCount = count;
+    if (idx >= 2)
+        return;
+    wheelCount[idx] = count;
 }
 
 int coVRPluginSupport::registerPlayer(vrml::Player *player)
@@ -1674,6 +1427,16 @@ void coVRPluginSupport::personSwitched(size_t personNum)
     VRViewer::instance()->setSeparation(Input::instance()->eyeDistance());
     coVRNavigationManager::instance()->updatePerson();
 }
+
+ui::ButtonGroup *coVRPluginSupport::navGroup() const
+{
+    if (coVRNavigationManager::instance())
+        return coVRNavigationManager::instance()->navGroup();
+
+    return nullptr;
+}
+
+} // namespace opencover
 
 covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix)
 {

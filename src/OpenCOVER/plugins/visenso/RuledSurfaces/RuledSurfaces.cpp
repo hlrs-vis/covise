@@ -9,6 +9,7 @@
 #include <cover/RenderObject.h>
 #include <cover/VRSceneGraph.h>
 #include "cover/VRSceneGraph.h"
+#include <net/message.h>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRNavigationManager.h>
@@ -17,6 +18,7 @@
 #include <cover/coVRConfig.h>
 #include <osg/Shape>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/osg/mathUtils.h>
 #include <vrbclient/VRBClient.h>
 #include <grmsg/coGRSendCurrentDocMsg.h>
 #include <math.h>
@@ -50,13 +52,6 @@
 #include "HfT_osg_StateSet.h"
 #include <osg/AnimationPath>
 #include <osg/ShapeDrawable>
-
-#include <osgShadow/ShadowedScene>
-#include <osgShadow/ShadowMap>
-#include <osgShadow/ShadowTexture>
-#include <osgShadow/ShadowVolume>
-#include <osgShadow/ParallelSplitShadowMap>
-#include <osgShadow/ViewDependentShadowTechnique>
 
 using namespace osg;
 using namespace covise;

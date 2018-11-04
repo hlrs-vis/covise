@@ -129,10 +129,10 @@ public:
     virtual bool pickedObjChanged();
     //_____________________________this will be called in PreFrame_____________________________
     void preFrame();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void removeNode(osg::Node *node, bool isGroup, osg::Node *realNode);
     void addNode(osg::Node *node, const RenderObject *obj);
-    bool processTexture(osg::StateSet *ss);
+    bool processTexture(coTUISGBrowserTab *sGBrowserTab, TexVisitor *texvis, osg::StateSet *ss);
 
     virtual void tabletPressEvent(coTUIElement *tUIItem);
     virtual void tabletReleaseEvent(coTUIElement *tUIItem);
@@ -153,13 +153,28 @@ private:
     bool reconnect;
     //_____________________________the plugin tab__________________________________________________________
 
-    coTUISGBrowserTab *sGBrowserTab;
     coVRSelectionManager *selectionManager;
-    MyNodeVisitor *vis;
+#if 0
+    std::vector<coTUISGBrowserTab *> sGBrowserTab;
+    std::vector<MyNodeVisitor *> vis;
+    std::vector<TexVisitor *> texvis;
+#endif
+
     coRestraint *restraint;
     coVRShaderList *shaderList;
 
-    TexVisitor *texvis;
+    struct TuiData
+    {
+        TuiData(coTUISGBrowserTab *tab, MyNodeVisitor *vis, TexVisitor *tex)
+            : tab(tab), vis(vis), tex(tex)
+        {}
+
+        coTUISGBrowserTab *tab;
+        MyNodeVisitor *vis;
+        TexVisitor *tex;
+    };
+
+    std::vector<TuiData> tuis;
 
     bool linked;
 

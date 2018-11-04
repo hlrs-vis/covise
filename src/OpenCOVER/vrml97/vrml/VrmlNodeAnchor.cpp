@@ -139,3 +139,8 @@ const VrmlField *VrmlNodeAnchor::getField(const char *fieldName) const
 
     return VrmlNodeGroup::getField(fieldName);
 }
+
+bool VrmlNodeAnchor::isOnlyGeometry() const
+{
+    return false;
+}

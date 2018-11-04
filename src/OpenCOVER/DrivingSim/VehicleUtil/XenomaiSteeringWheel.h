@@ -11,33 +11,8 @@
 #include "CanOpenDevice.h"
 #include "CanOpenController.h"
 #include "XenomaiTask.h"
+#include "XenomaiMutex.h"
 #include <deque>
-
-class VEHICLEUTILEXPORT XenomaiSteeringWheelHomingTask : public CanOpenDevice, public XenomaiTask
-{
-public:
-    XenomaiSteeringWheelHomingTask(CanOpenController &, uint8_t);
-
-    bool isDone()
-    {
-        return done;
-    }
-
-    bool isSuccess()
-    {
-        return success;
-    }
-
-protected:
-    void run();
-
-    bool done;
-    bool success;
-
-    const double speedRes = 1875.0 / 262144.0; // = 1 bit
-    const double homingSpeed = 10; //revs/min
-    const int32_t limitSwitchPosition = -369000; //was -380432;
-};
 
 class VEHICLEUTILEXPORT XenomaiSteeringWheel : public CanOpenDevice, public XenomaiTask
 {
@@ -52,7 +27,7 @@ public:
 
     unsigned long getPeriodicTaskOverruns();
 
-    int32_t getPosition();
+    double getPosition();
     int32_t getSpeed();
     int32_t getSmoothedSpeed();
     void getPositionSpeed(int32_t &, int32_t &);
@@ -74,11 +49,12 @@ public:
     //static const int32_t peakCurrent = 3280;
     static const int32_t peakCurrent = 1640;
     //static const int32_t peakCurrent = 40;
-
+	
 protected:
     void run();
     bool runTask;
     bool taskFinished;
+	bool homing;
     unsigned long overruns;
 
     int32_t position;
@@ -92,8 +68,17 @@ protected:
     double rumbleAmplitude;
     double Kdrill;
     double drillElasticity;
-
+	
+	int32_t current;
+	
+	XenomaiMutex positionMutex;
+	XenomaiMutex currentMutex;
     uint8_t RPDOData[6]; //enable op
+    
+    const double speedRes = 1875.0 / 262144.0; // = 1 bit
+    const double homingSpeed = 10; //revs/min
+    const int32_t limitSwitchPosition = -369000; //was -380432;
+    const int32_t zeroMarkPosition = -331000; 
 };
 
 inline unsigned long XenomaiSteeringWheel::getPeriodicTaskOverruns()
@@ -101,13 +86,13 @@ inline unsigned long XenomaiSteeringWheel::getPeriodicTaskOverruns()
     return overruns;
 }
 
-inline int32_t XenomaiSteeringWheel::getPosition()
+inline double XenomaiSteeringWheel::getPosition()
 {
-    int32_t position;
-    uint8_t *TPDOData = readTPDO(1);
-    memcpy(&position, TPDOData, 4);
-
-    return position;
+    positionMutex.acquire(1000000);
+	double steerPos =  (double)position / (double)countsPerTurn;
+	positionMutex.release();
+	
+    return steerPos;
 }
 
 inline int32_t XenomaiSteeringWheel::getSpeed()
@@ -148,18 +133,11 @@ inline void XenomaiSteeringWheel::getPositionSpeed(int32_t &position, int32_t &s
     memcpy(&speed, TPDOData + 4, 3);
 }
 
-inline void XenomaiSteeringWheel::setCurrent(int32_t current)
+inline void XenomaiSteeringWheel::setCurrent(int32_t inCurrent)
 {
-    if (current > peakCurrent)
-    {
-        current = peakCurrent;
-    }
-    else if (current < -peakCurrent)
-    {
-        current = -peakCurrent;
-    }
-    *((int32_t *)(RPDOData + 2)) = current;
-    writeRPDO(1, RPDOData, 6);
+	currentMutex.acquire(1000000);
+	current =  inCurrent;
+	currentMutex.release();
 }
 
 inline void XenomaiSteeringWheel::setSpringConstant(double setConst)

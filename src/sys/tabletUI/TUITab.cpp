@@ -11,8 +11,10 @@
 #include <QFrame>
 #include <QTabWidget>
 #include <QGridLayout>
+#include <QScrollArea>
 
 #include "TUITab.h"
+#include "TUITabFolder.h"
 #include "TUIApplication.h"
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
@@ -27,17 +29,35 @@ TUITab::TUITab(int id, int type, QWidget *w, int parent, QString name)
     : TUIContainer(id, type, w, parent, name)
 {
     label = name;
+    QScrollArea *scroll = nullptr;
 
-    QFrame *frame = new QFrame(w);
-    frame->setFrameStyle(QFrame::NoFrame);
-#ifdef _WIN32_WCE
-    frame->setContentsMargins(1, 1, 1, 1);
-#else
-    frame->setContentsMargins(5, 5, 5, 5);
-#endif
+    bool inMainFolder = parent==3;
+    auto parentWidget = w;
+    if (inMainFolder)
+    {
+        scroll = new QScrollArea(w);
+        scroll->setMinimumWidth(300);
+        scroll->setMinimumHeight(300);
+        scroll->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+        scroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+        scroll->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+        parentWidget = scroll;
+    }
 
-    layout = new QGridLayout(frame);
+    QFrame *frame = new QFrame(parentWidget);
+    frame->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+    frame->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+    frame->setContentsMargins(0, 0, 0, 0);
     widget = frame;
+    layout = new QGridLayout(frame);
+    frame->setLayout(layout);
+    if (scroll)
+    {
+        scroll->setWidget(frame);
+        scroll->setWidgetResizable(true);
+        widget = scroll;
+    }
+
     firstTime = true;
 }
 
@@ -46,7 +66,9 @@ TUITab::~TUITab()
 {
     removeAllChildren();
     delete layout;
+    layout = nullptr;
     delete widget;
+    widget = nullptr;
 }
 
 void TUITab::activated()
@@ -87,14 +109,14 @@ void TUITab::setPos(int x, int y)
 {
     xPos = x;
     yPos = y;
-    TUIContainer *parent;
-    if ((parent = getParent()))
+    TUIContainer *parent = getParent();
+    if (parent)
     {
         parent->addElementToLayout(this);
-        if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
-            tw->setCurrentIndex(tw->indexOf(widget));
+        if (auto folder = dynamic_cast<TUITabFolder *>(parent))
+            folder->setCurrentIndex(folder->indexOf(widget));
         else
-            std::cerr << "error: parent is not a QTabWidget" << std::endl;
+            std::cerr << "error: parent is not a TUITabFolder" << std::endl;
     }
     else
     {
@@ -103,20 +125,19 @@ void TUITab::setPos(int x, int y)
     widget->setVisible(!hidden);
 }
 
-void TUITab::setValue(int type, covise::TokenBuffer &tb)
+void TUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
 {
     if (type == TABLET_BOOL)
     {
-        TUIContainer *parent;
-        if ((parent = getParent()))
+        if (auto parent = getParent())
         {
-            if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
-                tw->setCurrentIndex(tw->indexOf(widget));
+            if (auto folder = dynamic_cast<TUITabFolder *>(parent))
+                folder->setCurrentIndex(folder->indexOf(widget));
             else
-                std::cerr << "error: parent is not a QTabWidget" << std::endl;
+                std::cerr << "error: parent is not a TUITabFolder" << std::endl;
         }
     }
-    TUIElement::setValue(type, tb);
+    TUIContainer::setValue(type, tb);
 }
 
 void TUITab::setHidden(bool hide)
@@ -124,44 +145,28 @@ void TUITab::setHidden(bool hide)
     TUIContainer::setHidden(hide);
     if (TUIContainer *parent = getParent())
     {
-        if (QTabWidget *tw = qobject_cast<QTabWidget *>(parent->getWidget()))
+        if (auto folder = dynamic_cast<TUITabFolder *>(parent))
         {
-            int index = tw->indexOf(widget);
+            int index = folder->indexOf(widget);
             if (hidden)
             {
                 if (index >= 0)
-                    tw->removeTab(index);
+                    folder->removeTab(index);
             }
             else
             {
                 if (index < 0)
-                    tw->addTab(widget, label);
+                    folder->addTab(widget, label);
             }
         }
-    }
-}
-
-char *TUITab::getClassName()
-{
-    return (char *)"TUITab";
-}
-
-bool TUITab::isOfClassName(char *classname)
-{
-    // paranoia makes us mistrust the string library and check for NULL.
-    if (classname && getClassName())
-    {
-        // check for identity
-        if (!strcmp(classname, getClassName()))
-        { // we are the one
-            return true;
-        }
         else
-        { // we are not the wanted one. Branch up to parent class
-            return TUIElement::isOfClassName(classname);
+        {
+            std::cerr << "TUITab::setHidden(): parent of " << getID() << "/" << getName().toStdString() << " is not a TUITabFolder but a " << parent->getClassName() << std::endl;
         }
     }
+}
 
-    // nobody is NULL
-    return false;
+const char *TUITab::getClassName() const
+{
+    return "TUITab";
 }

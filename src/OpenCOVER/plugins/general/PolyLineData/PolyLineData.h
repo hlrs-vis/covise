@@ -18,6 +18,8 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRTui.h>
 
+#include <OpenVRUI/coMenu.h>
+
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Array>
@@ -52,7 +54,7 @@ public:
     virtual void menuEvent(coMenuItem *menuItem);
     void drawInit();
 
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
 
     bool init();
 

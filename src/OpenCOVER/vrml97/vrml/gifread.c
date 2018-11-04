@@ -243,6 +243,7 @@ ReadGIF(FILE *fd, unsigned char *frame[])
             if (i == 0)
             {
                 fprintf(stderr, "Error, image sizes don't match\n");
+                return pm_error("error reading image frame 0: size mismatch");
             }
             tmp = frame[i];
             frame[i] = (unsigned char *)malloc(nc * GifScreen.Width * GifScreen.Height);

@@ -15,6 +15,9 @@
 //
 // **************************************************************************
 
+#include <iostream>
+#include <ostream>
+
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/coRowMenu.h>
 #include <OpenVRUI/coButtonMenuItem.h>
@@ -40,6 +43,8 @@
 // Local:
 #include "ModelViewer.h"
 
+using std::cerr;
+using std::endl;
 using covise::coCoviseConfig;
 
 /// Constructor

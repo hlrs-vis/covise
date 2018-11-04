@@ -28,7 +28,7 @@
 
 #include "HMIDeviceIface.h"
 #include "CANProvider.h"
-#include <cover/coVRPluginSupport.h>
+#include <OpenVRUI/coUpdateManager.h>
 
 //--------------------------------------------------------------------
 class Chrono : public HMIDeviceIface, public vrui::coUpdateable

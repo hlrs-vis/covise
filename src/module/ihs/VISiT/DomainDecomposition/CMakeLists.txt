@@ -11,3 +11,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT DomainDecomposition ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(DomainDecomposition coApi coAppl coCore visit_zerno visit_metis)
+covise_install_target(DomainDecomposition)

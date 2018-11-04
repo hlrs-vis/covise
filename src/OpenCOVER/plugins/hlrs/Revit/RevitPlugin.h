@@ -21,6 +21,7 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#include <cover/coVRShader.h>
 #include <net/covise_connect.h>
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coLabelMenuItem.h>
@@ -33,6 +34,9 @@
 #include <OpenVRUI/sginterface/vruiActionUserData.h>
 // for AnnotationMessage:
 #include <../../general/Annotation/AnnotationPlugin.h>
+
+#define REVIT_FEET_TO_M 0.304799999536704
+#define REVIT_M_TO_FEET 3.2808399
 
 class RevitInfo : public vrui::vruiUserData
 {
@@ -78,17 +82,17 @@ public:
     void updateCamera();
     int entryNumber;
     int ID;
-    bool isActive;
+    bool isActive = false;
 
 private:
     std::string name;
-    RevitPlugin *myPlugin;
+    RevitPlugin *myPlugin = nullptr;
     osg::Vec3 eyePosition;
     osg::Vec3 viewDirection;
     osg::Vec3 upDirection;
-    coCheckboxMenuItem *menuItem;
-    coTUIToggleButton *tuiItem;
-    coCheckboxMenuItem *menuEntry;
+    coCheckboxMenuItem *menuItem = nullptr;
+    coTUIToggleButton *tuiItem = nullptr;
+    coCheckboxMenuItem *menuEntry = nullptr;
 };
 
 class ElementInfo
@@ -103,7 +107,7 @@ public:
     std::string name;
 
 private:
-    coTUIFrame *frame;
+    coTUIFrame *frame = nullptr;
     static int yPos;
 };
 class AnnotationInfo
@@ -112,6 +116,63 @@ public:
     double x,y,z,h,p,r;
     std::string text;
     int ID;
+};
+
+class TextureInfo
+{
+public:
+	TextureInfo(TokenBuffer &tb);
+	double sx, sy, ox, oy, angle,amount;
+	std::string texturePath;
+	unsigned char r,g,b;
+    bool requestTexture; // try to get texture from remote after the model has been transferred completely
+    enum textureType  { diffuse,bump};
+    textureType type;
+	int ID;
+    osg::Image *image;
+};
+
+class MaterialInfo
+{
+public:
+	MaterialInfo(TokenBuffer &tb);
+	unsigned char r, g, b, a;
+	TextureInfo *bumpTexture;
+	TextureInfo *diffuseTexture;
+	osg::StateSet *geoState;
+	coVRShader *shader;
+	int ID;
+    void updateTexture(TextureInfo::textureType type, osg::Image *image);
+    osg::Image *createNormalMap(osg::Image *heightMap, double pStrength);
+};
+
+
+class DoorInfo
+{
+public:
+	DoorInfo(int id, const char *Name, osg::MatrixTransform *tn, TokenBuffer &tb);
+	std::string name;
+	osg::MatrixTransform *transformNode;
+	int ID;
+	bool HandFlipped;
+	bool FaceFlipped;
+	bool isSliding;
+	osg::Vec3 HandOrientation;
+	osg::Vec3 FaceOrientation;
+	osg::Vec3 Direction;
+	osg::Vec3 Origin;
+	double maxDistance;
+	osg::Vec3 Center;
+	float activationDistance2;
+	bool entered;
+	bool left;
+	bool isActive;
+	double startTime;
+	double animationTime;
+	void checkStart(osg::Vec3 &viewerPosition); 
+	void translateDoor(float fraction);
+	osg::BoundingBox boundingBox;
+	bool update(osg::Vec3 &viewerPosition); // returns false if updates are done and it can be removed from the list
 };
 
 
@@ -131,7 +192,7 @@ public:
     int StorageType;
     int ParameterType;
     int number; // param number in Element;
-    ElementInfo *element;
+    ElementInfo *element = nullptr;
     double d;
     int ElementReferenceID;
     int i;
@@ -139,11 +200,15 @@ public:
     void createTUI(coTUIFrame *frame, int pos);
     virtual void tabletEvent(coTUIElement *tUIItem);
 
-    coTUILabel *tuiLabel;
-    coTUIElement *tuiElement;
+    coTUILabel *tuiLabel = nullptr;
+    coTUIElement *tuiElement = nullptr;
 
 private:
 };
+
+
+
+
 
 class RevitPlugin : public coVRPlugin, public coMenuListener, public coTUIListener
 {
@@ -201,7 +266,10 @@ public:
         MSG_NewAnnotationID = 522,
         MSG_Views = 523,
         MSG_SetView = 524,
-        MSG_Resend = 525,
+		MSG_Resend = 525,
+        MSG_NewDoorGroup = 526,
+        MSG_File = 527,
+        MSG_Finished = 528,
     };
     enum ObjectTypes
     {
@@ -220,8 +288,11 @@ public:
         return plugin;
     };
 
+	bool update();
     // this will be called in PreFrame
-    void preFrame();
+	void preFrame();
+
+	bool checkDoors();
 
     void destroyMenu();
     void createMenu();
@@ -230,33 +301,39 @@ public:
     virtual void tabletPressEvent(coTUIElement *tUIItem);
 
     int maxEntryNumber;
-    coTUITab *revitTab;
-    void sendMessage(Message &m);
+    coTUITab *revitTab = nullptr;
+    bool sendMessage(Message &m);
     
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void deactivateAllViewpoints();
     int getAnnotationID(int revitID);
     int getRevitAnnotationID(int ai);
     void createNewAnnotation(int id, AnnotationMessage *am);
     void changeAnnotation(int id, AnnotationMessage *am);
+	std::list<DoorInfo *> doors;
+	std::list<DoorInfo *> activeDoors;
 protected:
     static RevitPlugin *plugin;
-    coSubMenuItem *REVITButton;
-    coSubMenuItem *roomInfoButton;
-    coLabelMenuItem *label1;
-    coRowMenu *viewpointMenu;
-    coRowMenu *roomInfoMenu;
-    coCheckboxGroup *cbg;
+    coSubMenuItem *REVITButton = nullptr;
+    coSubMenuItem *roomInfoButton = nullptr;
+    coLabelMenuItem *label1 = nullptr;
+    coRowMenu *viewpointMenu = nullptr;
+    coRowMenu *roomInfoMenu = nullptr;
+    coCheckboxGroup *cbg = nullptr;
     std::list<RevitViewpointEntry *> viewpointEntries;
-    coButtonMenuItem *addCameraButton;
-    coButtonMenuItem *updateCameraButton;
-    coTUIButton *addCameraTUIButton;
-    coTUIButton *updateCameraTUIButton;
-    coTUIComboBox *viewsCombo;
+    coButtonMenuItem *addCameraButton = nullptr;
+    coButtonMenuItem *updateCameraButton = nullptr;
+    coTUIButton *addCameraTUIButton = nullptr;
+    coTUIButton *updateCameraTUIButton = nullptr;
+    coTUIComboBox *viewsCombo = nullptr;
 
-    ServerConnection *serverConn;
-    ServerConnection *toRevit;
+    ServerConnection *serverConn = nullptr;
+    ServerConnection *toRevit = nullptr;
     void handleMessage(Message *m);
+
+	MaterialInfo * getMaterial(int revitID);
+    osg::Image *readImage(std::string name);
+
 
     void setDefaultMaterial(osg::StateSet *geoState);
     osg::ref_ptr<osg::Material> globalmtl;
@@ -267,12 +344,18 @@ protected:
     osg::Matrix lastMoveMat;
     bool MoveFinished;
     int MovedID;
-    RevitInfo  *info;
+    RevitInfo  *info = nullptr;
     std::vector<int> annotationIDs;
-    std::list<AnnotationInfo> annotationInfos;
+	std::map<int, MaterialInfo *> MaterialInfos;
+    void requestTexture(int matID, TextureInfo *texture);
+
+	
     float scaleFactor;
+    std::string textureDir;
+    std::string localTextureDir;
+    std::string localTextureFile;
     
 
-    Message *msg;
+    Message *msg = nullptr;
 };
 #endif

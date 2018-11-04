@@ -226,9 +226,9 @@ namespace OpenCOVERPlugin
             for (int index = 0; index < asset.Size; index++)
             {
                 
-                if (properties[index].Type == AssetPropertyType.Reference)
+                if (properties.Get(index).Type == AssetPropertyType.Reference)
                 {
-                    AssetPropertyReference e = properties[index] as AssetPropertyReference;
+                    AssetPropertyReference e = properties.Get(index) as AssetPropertyReference;
                     if (e != null)
                     {
                         AssetProperty p = e.GetConnectedProperty(0);
@@ -241,29 +241,29 @@ namespace OpenCOVERPlugin
                                 AssetProperties prop = a as AssetProperties;
                                 for (int ind = 0; ind < a.Size; ind++)
                                 {
-                                    if (prop[ind].Name == "unifiedbitmap_Bitmap")
+                                    if (prop.Get(ind).Name == "unifiedbitmap_Bitmap")
                                     {
 
-                                        AssetPropertyString ps = prop[ind] as AssetPropertyString;
+                                        AssetPropertyString ps = prop.Get(ind) as AssetPropertyString;
                                         if (ps.Value != "")
                                         {
                                             textureName = ps.Value;
                                             foundValidTexture = true;
                                         }
                                     }
-                                    if (prop[ind].Name == "texture_URepeat")
+                                    if (prop.Get(ind).Name == "texture_URepeat")
                                     {
-                                        AssetPropertyBoolean ps = prop[ind] as AssetPropertyBoolean;
+                                        AssetPropertyBoolean ps = prop.Get(ind) as AssetPropertyBoolean;
                                         if (foundValidTexture)
                                         {
 
                                         }
                                         //textureName = ps.Value;
                                     } 
-                                    if (prop[ind].Name == "texture_VRepeat")
+                                    if (prop.Get(ind).Name == "texture_VRepeat")
                                     {
 
-                                        AssetPropertyBoolean ps = prop[ind] as AssetPropertyBoolean;
+                                        AssetPropertyBoolean ps = prop.Get(ind) as AssetPropertyBoolean;
                                         if (foundValidTexture)
                                         {
 

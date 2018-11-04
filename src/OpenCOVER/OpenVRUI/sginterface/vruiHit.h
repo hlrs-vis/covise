@@ -25,13 +25,11 @@ public:
     {
     }
 
-    virtual ~vruiHit()
-    {
-    }
+    virtual ~vruiHit();
 
     virtual coVector &getLocalIntersectionPoint() const = 0;
     virtual coVector &getWorldIntersectionPoint() const = 0;
-    virtual coVector &getIntersectionNormal() const = 0;
+    virtual coVector &getWorldIntersectionNormal() const = 0;
     virtual bool isMouseHit() const = 0;
 
     virtual vruiNode *getNode() = 0;

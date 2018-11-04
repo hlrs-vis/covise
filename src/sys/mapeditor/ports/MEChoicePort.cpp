@@ -101,7 +101,7 @@ void MEChoicePort::defineParam(QString value, int apptype)
     }
 
     // check
-    if (m_currentChoice >= m_choiceValues.count())
+    if (m_currentChoice >= (unsigned int)m_choiceValues.count())
     {
         QString text = "_________ ATTENTION: " + node->getTitle() + "::" + portname;
         text.append(";  No. of choices is " + QString::number(m_choiceValues.count()) + ", current no. is " + QString::number(m_currentChoice));
@@ -165,7 +165,7 @@ void MEChoicePort::modifyParam(QStringList list, int noOfValues, int istart)
     }
 
     // check current index
-    if (m_currentChoice >= m_choiceValues.count())
+    if (m_currentChoice >= (unsigned int)m_choiceValues.count())
     {
         QString text = "_________ ATTENTION: " + node->getTitle() + "::" + portname;
         text.append(";  No. of choices is " + QString::number(m_choiceValues.count()) + ", current no. is " + QString::number(m_currentChoice));
@@ -223,7 +223,7 @@ void MEChoicePort::modifyParameter(QString lvalue)
         }
     }
 
-    if (m_currentChoice > list.count() - 2)
+    if (m_currentChoice > (unsigned int)list.count() - 2)
     {
         QString text = "_________ ATTENTION: " + node->getTitle() + "::" + portname;
         text.append(";  No. of choices is " + QString::number(m_choiceValues.count()) + ", current no. is " + QString::number(m_currentChoice));
@@ -288,7 +288,7 @@ void MEChoicePort::sendParamMessage()
     mybuffer.append(QString::number(m_currentChoice + 1));
 
     QChar sep = '\177';
-    for (unsigned int j = 0; j < m_choiceValues.count(); j++)
+    for ( int j = 0; j < m_choiceValues.count(); j++)
     {
         QString text = m_choiceValues[j].replace(" ", sep);
         mybuffer.append(" " + text);

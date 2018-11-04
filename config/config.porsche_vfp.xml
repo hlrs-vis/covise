@@ -70,7 +70,6 @@
 
 			<Vrml97>
                                <ViewpointType value="cave" />
-				<GenerateTriangleStrips value="false" />
 
 				<Audio value="AServer" >
 					<Host value="192.168.2.20" />
@@ -80,11 +79,7 @@
 
 		</Plugin>
 
-		<TabletPC>
-			<!--			<Server value="10.139.32.204" port="80"/> -->
-			<Server value="192.168.1.4" />
-<!--			<Server value="localhost" />-->
-		</TabletPC>
+        <TabletUI host="192.168.1.4" />
 
 		<MultiPC>
 			<SyncMode value="TCP" />
@@ -190,7 +185,6 @@
 		<TwoSide value="ON" />
 		<Near value="10" />
 		<Far value="50000000" />
-		<GenStrips value="OFF" />
 		<!--Stereo enable="ON" separation="45" value="ON" /-->
 		<Stereo enable="ON" separation="60" value="ON" />
 		<ViewerPosition x="-300" y="-500" z="-120" />

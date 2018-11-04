@@ -84,8 +84,8 @@ int BladeEdgeMeridianIntersection(struct edge *e, struct be **be, int be_num)
 #endif
 
 	// determine intersection coordinate
-	dr = fabs(e->c->p->x[0] - e->c->p->x[e->c->p->nump-1]);
-	dz = fabs(e->c->p->z[0] - e->c->p->z[e->c->p->nump-1]);
+	dr = float(fabs(e->c->p->x[0] - e->c->p->x[e->c->p->nump-1]));
+	dz = float(fabs(e->c->p->z[0] - e->c->p->z[e->c->p->nump-1]));
 	if(dr < dz) ii = 0;	 // use radius for intersection
 	else ii = 2;
 

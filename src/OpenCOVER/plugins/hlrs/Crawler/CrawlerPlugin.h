@@ -68,7 +68,7 @@ public:
     void menuEvent(coMenuItem *menu_CrawlerPluginitem);
     // this will be called if a COVISE object arrives
     bool init();
-    void message(int type, int len, const void *buf);
+    void message(int toWhom, int type, int len, const void *buf);
     void tabletEvent(coTUIElement *);
     
     unsigned int numActiveActor;

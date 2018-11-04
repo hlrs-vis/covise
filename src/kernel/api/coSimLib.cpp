@@ -5,9 +5,6 @@
 
  * License: LGPL 2+ */
 
-#include <util/common.h>
-#include <assert.h>
-#include <sys/types.h>
 #ifndef _WIN32
 #include <sys/time.h>
 #include <sys/socket.h>
@@ -15,8 +12,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #else
+#include <winsock2.h>
+#include <WS2tcpip.h>
 #include <io.h>
 #endif
+#include <util/common.h>
+#include <assert.h>
+#include <sys/types.h>
 
 #include <net/covise_connect.h>
 #include <net/covise_host.h>
@@ -527,9 +529,12 @@ int coSimLib::startSim(int reattach)
 
     // build the CO_SIMLIB_CONN variable
     char envVar[64];
-    if (modIsServer)
-        sprintf(envVar, "C:%s/%d_%f_%d", inet_ntoa(*(in_addr *)&d_localIP),
-                d_usePort, timeout, d_verbose);
+	char buf[100];
+	if (modIsServer)
+	{
+		inet_ntop(AF_INET, &d_localIP, buf, 100);
+		sprintf(envVar, "C:%s/%d_%f_%d", buf,d_usePort, timeout, d_verbose);
+	}
     else
         sprintf(envVar, "S:%d-%d_%f_%d", d_minPort, d_maxPort, timeout, d_verbose);
 
@@ -560,7 +565,11 @@ int coSimLib::startSim(int reattach)
             strcat(command, envVar);
             break;
         case 'h':
-            strcat(command, inet_ntoa(*(in_addr *)&d_targetIP));
+		    {
+			    char buf[100];
+			    inet_ntop(AF_INET, &d_targetIP, buf, 100);
+			    strcat(command, buf);
+		    }
             break;
         case '0':
             if (d_userArg[0])
@@ -923,25 +932,45 @@ int coSimLib::setUserArg(int num, const char *data)
 uint32_t coSimLib::nslookup(const char *name)
 {
     // try whether this is already ###.###.###.### IP address
-    unsigned long addr = inet_addr(name);
+    unsigned long addr = 0;
+	inet_pton(AF_INET, name, &addr);
 
     if (addr && addr != INADDR_NONE)
         return (uint32_t)addr;
 
     // not yet a numerical address, try a nameserver look-up
-    struct hostent *hostinfo;
-    hostinfo = gethostbyname(CONV name); /* Hack for Cray */
-    if (hostinfo)
-    {
-#ifndef _CRAY
-        return *(uint32_t *)*hostinfo->h_addr_list;
-#else
-        unsigned char *x = (unsigned char *)*hostinfo->h_addr_list;
-        return ((*x) << 24) | (*(x + 1) << 16) | (*(x + 2) << 8) | *(x + 3);
-#endif
-    }
-    else
-        sendError("Could find IP address for hostname '%s'", name);
+
+	struct addrinfo hints, *result = NULL;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+	hints.ai_socktype = 0; /* any type of socket */
+	hints.ai_flags = AI_ADDRCONFIG;
+	hints.ai_protocol = 0;          /* Any protocol */
+	int s = getaddrinfo(name, NULL /* service */, &hints, &result);
+	if (s != 0)
+	{
+		fprintf(stderr, "Host::HostSymbolic: getaddrinfo failed for %s: %s\n", name, gai_strerror(s));
+		sendError("Could find IP address for hostname '%s'", name);
+		return 0;
+	}
+	else
+	{
+
+		for (struct addrinfo *rp = result; rp != NULL; rp = rp->ai_next)
+		{
+			if (rp->ai_family != AF_INET)
+				continue;
+
+			struct sockaddr_in *saddr = reinterpret_cast<struct sockaddr_in *>(rp->ai_addr);
+
+			freeaddrinfo(result);           /* No longer needed */
+			return ntohl(saddr->sin_addr.s_addr);
+		}
+
+		freeaddrinfo(result);           /* No longer needed */
+	}
+
+	sendError("Could find IP address for hostname '%s'", name);
 
     return 0;
 }
@@ -1035,7 +1064,8 @@ int coSimLib::openClient()
     int connectStatus = 0;
     int numConnectTries = 0;
     unsigned int port = d_minPort;
-    struct hostent *host = gethostbyname("localhost");
+	struct in_addr ip;
+	inet_pton(AF_INET, "127.0.0.1", &ip.s_addr);
     do
     {
         fprintf(stderr, "coSimLib: trying port %d\n", port);
@@ -1049,10 +1079,7 @@ int coSimLib::openClient()
 
         // set s_addr structure
         struct sockaddr_in s_addr_in;
-        s_addr_in.sin_family = host->h_addrtype;
-        memcpy((char *)&s_addr_in.sin_addr.s_addr,
-               host->h_addr_list[0], host->h_length);
-        //s_addr_in.sin_addr.s_addr = htonl(d_targetIP);
+        s_addr_in.sin_addr.s_addr = htonl(ip.s_addr);
         s_addr_in.sin_port = htons(port); // network byte order
         s_addr_in.sin_family = AF_INET;
 
@@ -1087,45 +1114,49 @@ int coSimLib::openClient()
 
 int coSimLib::acceptServer(float wait)
 {
-    int tmp_soc;
-    struct timeval timeout;
-    fd_set fdread;
-    int i;
+	int tmp_soc;
+	struct timeval timeout;
+	fd_set fdread;
+	int i;
 
-    // prepare for select(2) call and wait for incoming connection
-    timeout.tv_sec = (int)wait;
-    timeout.tv_usec = (int)((wait - timeout.tv_sec) * 1000000);
-    FD_ZERO(&fdread);
-    FD_SET(server_socket, &fdread);
-    if (wait >= 0) // wait period was specified
-        i = select(server_socket + 1, &fdread, NULL, NULL, &timeout);
-    else // wait infinitly
-        i = select(server_socket + 1, &fdread, NULL, NULL, NULL);
+	// prepare for select(2) call and wait for incoming connection
+	timeout.tv_sec = (int)wait;
+	timeout.tv_usec = (int)((wait - timeout.tv_sec) * 1000000);
+	FD_ZERO(&fdread);
+	FD_SET(server_socket, &fdread);
+	if (wait >= 0) // wait period was specified
+		i = select(server_socket + 1, &fdread, NULL, NULL, &timeout);
+	else // wait infinitly
+		i = select(server_socket + 1, &fdread, NULL, NULL, NULL);
 
-    if (i == 0) // nothing happened: return -1
-        return -1;
+	if (i == 0) // nothing happened: return -1
+		return -1;
 
-    // now accepting the connection
-    struct sockaddr_in s_addr_in;
+	// now accepting the connection
+	struct sockaddr_in s_addr_in;
 
 #ifdef _WIN32
-    tmp_soc = (int)accept(server_socket, (sockaddr *)(void *)&s_addr_in, NULL);
+	tmp_soc = (int)accept(server_socket, (sockaddr *)(void *)&s_addr_in, NULL);
 #else
-    socklen_t length = sizeof(s_addr_in);
-    tmp_soc = accept(server_socket, (sockaddr *)(void *)&s_addr_in, &length);
+	socklen_t length = sizeof(s_addr_in);
+	tmp_soc = accept(server_socket, (sockaddr *)(void *)&s_addr_in, &length);
 #endif
 
-    if (tmp_soc < 0)
-        return -1;
+	if (tmp_soc < 0)
+		return -1;
 
-    // use the socket 'accept' delivered
-    d_socket = tmp_soc;
+	// use the socket 'accept' delivered
+	d_socket = tmp_soc;
 
-    if (d_verbose > 0)
-        cerr << "Accepted connection from "
-             << inet_ntoa(s_addr_in.sin_addr)
-             << " to socket " << d_socket
-             << endl;
+	if (d_verbose > 0)
+	{
+		char buf[100];
+		inet_ntop(AF_INET, &s_addr_in.sin_addr, buf, 100);
+		cerr << "Accepted connection from "
+			<< buf
+			<< " to socket " << d_socket
+			<< endl;
+	}
     return 0;
 }
 

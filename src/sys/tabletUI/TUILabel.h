@@ -25,16 +25,10 @@ private:
 public:
     TUILabel(int id, int type, QWidget *w, int parent, QString name);
     virtual ~TUILabel();
-    virtual void setEnabled(bool en);
-    virtual void setHighlighted(bool hl);
-    virtual void setColor(Qt::GlobalColor color);
 
     /// get the Element's classname
-    virtual char *getClassName();
-    /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
-    virtual void setValue(int type, covise::TokenBuffer &tb);
-    virtual void setLabel(QString text);
+    virtual const char *getClassName() const override;
+    virtual void setLabel(QString text) override;
     virtual void setPixmap(const QPixmap &pm);
 
 protected:

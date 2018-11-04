@@ -122,7 +122,7 @@ void VrmlNodePixelTexture::render(Viewer *viewer)
             if (i > 0 && j > 0)
             {
                 // Always scale images down in size and reuse the same pixel memory.
-                if (w != sizes[i - 1] || h != sizes[j - 1])
+                if (w>maxTextureSize() || h>maxTextureSize() || (!useTextureNPOT() && (w != sizes[i - 1] || h != sizes[j - 1])))
                 {
                     cerr << endl << "Scaling texture " << endl;
                     viewer->scaleTexture(w, h, sizes[i - 1], sizes[j - 1],

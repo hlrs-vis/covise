@@ -28,7 +28,7 @@ using namespace opencover;
 
 OpenThreads::Mutex Utouch3DPlugin::mutex;
 
-#if !USE_TUIOCLIENT
+#ifndef USE_TUIOCLIENT
 
 enum rrxevent_types
 {
@@ -57,7 +57,7 @@ struct rrxevent
 #endif
 
 Utouch3DPlugin::Utouch3DPlugin()
-#if !USE_TUIOCLIENT
+#ifndef USE_TUIOCLIENT
     : coInteraction(coInteraction::ButtonA, "Utouch3D", coInteraction::NavigationHigh)
     , needsActivation(false)
     , needsDeactivation(false)
@@ -74,7 +74,7 @@ Utouch3DPlugin::~Utouch3DPlugin()
 {
     fprintf(stderr, "Utouch3DPlugin::~Utouch3DPlugin\n");
 
-#if !USE_TUIOCLIENT
+#ifndef USE_TUIOCLIENT
     vrui::coInteractionManager::the()->unregisterInteraction(this);
 #endif
 }
@@ -83,7 +83,7 @@ bool Utouch3DPlugin::init()
 {
     std::cout << "Utouch3DPlugin... init()" << std::endl;
 
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     int port = 50096;
     tuioClient = new TuioClient(port);
 
@@ -108,7 +108,7 @@ bool Utouch3DPlugin::init()
 
 bool Utouch3DPlugin::destroy()
 {
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     tuioClient->disconnect();
     tuioClient->removeTuioListener(this);
     delete tuioClient;
@@ -123,7 +123,7 @@ bool Utouch3DPlugin::destroy()
 
 void Utouch3DPlugin::insertFakedMouseEvent(FakedMouseEvent *fme)
 {
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     mutex.lock();
     fakedMouseEvents.push(fme);
     mutex.unlock();
@@ -132,7 +132,7 @@ void Utouch3DPlugin::insertFakedMouseEvent(FakedMouseEvent *fme)
 
 void Utouch3DPlugin::startTouchInteraction()
 {
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     mutex.lock();
     haveToStartInteraction = true;
     mutex.unlock();
@@ -141,7 +141,7 @@ void Utouch3DPlugin::startTouchInteraction()
 
 void Utouch3DPlugin::stopTouchInteraction()
 {
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     mutex.lock();
     haveToStopInteraction = true;
     mutex.unlock();
@@ -150,7 +150,7 @@ void Utouch3DPlugin::stopTouchInteraction()
 
 bool Utouch3DPlugin::isTouchInteractionRunning()
 {
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
     bool result;
 
     mutex.lock();
@@ -169,7 +169,7 @@ bool Utouch3DPlugin::isTouchInteractionRunning()
  */
 void Utouch3DPlugin::preFrame()
 {
-#if !USE_TUIOCLIENT
+#ifndef USE_TUIOCLIENT
 
     //mutex.lock();
     {
@@ -243,7 +243,7 @@ void Utouch3DPlugin::preFrame()
 #endif
 }
 
-#if USE_TUIOCLIENT
+#ifdef USE_TUIOCLIENT
 
 void Utouch3DPlugin::addTuioObject(TuioObject *tobj)
 {
@@ -483,6 +483,7 @@ void Utouch3DPlugin::message(int /*type*/, int /*length*/, const void *data)
     }
 }
 
+#ifndef USE_TUIOCLIENT
 void Utouch3DPlugin::update()
 {
     if (state == Idle)
@@ -528,6 +529,7 @@ void Utouch3DPlugin::update()
         }
     }
 }
+#endif
 
 #endif
 

@@ -68,11 +68,7 @@ coRowMenu::coRowMenu(const char *name, coMenu *parent, int maxItems, bool inScen
     maxItems_ = maxItems;
     if (maxItems == 0)
     {
-        std::string menuMaxItems = covise::coCoviseConfig::getEntry("COVER.VRUI.MenuMaxItems");
-        if (!menuMaxItems.empty())
-        {
-            maxItems_ = atoi(menuMaxItems.c_str());
-        }
+        maxItems_ = covise::coCoviseConfig::getInt("COVER.VRUI.MenuMaxItems", 0);
     }
 
     upItem_ = NULL;

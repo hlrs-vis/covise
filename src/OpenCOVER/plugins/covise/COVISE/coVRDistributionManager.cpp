@@ -287,14 +287,16 @@ bool opencover::coVRDistributionManager::init()
         {
 
             // Send render info to head node
-            covise::TokenBuffer tb;
-            tb << this->self;
-            int renderNodeSize = tb.get_length();
+            {
+                covise::TokenBuffer tb;
+                tb << this->self;
+                int renderNodeSize = tb.get_length();
 
-            opencover::coVRMSController::instance()->sendMaster(&renderNodeSize, sizeof(int));
-            LOG_CERR("coVRDistributionManager::init info: renderNodeSize is " << renderNodeSize << "b" << std::endl);
+                opencover::coVRMSController::instance()->sendMaster(&renderNodeSize, sizeof(int));
+                LOG_CERR("coVRDistributionManager::init info: renderNodeSize is " << renderNodeSize << "b" << std::endl);
 
-            opencover::coVRMSController::instance()->sendMaster(tb.get_data(), renderNodeSize);
+                opencover::coVRMSController::instance()->sendMaster(tb.get_data(), renderNodeSize);
+            }
 
             // Get render group information from head node
             int maxTbSize = 0;
@@ -307,7 +309,7 @@ bool opencover::coVRDistributionManager::init()
 
             LOG_CERR(" <- done" << std::endl);
 
-            tb = covise::TokenBuffer(tbContent, maxTbSize);
+            covise::TokenBuffer tb(tbContent, maxTbSize);
 
             std::string hostlist;
             RenderNode master;

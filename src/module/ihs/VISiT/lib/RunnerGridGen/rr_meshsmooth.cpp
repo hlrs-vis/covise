@@ -99,14 +99,14 @@ static int OptimizeLayer(void)
             jj[iicount] = j;
             iicount++;
          }
-         l  = pow(n->n[(*elem)[j]]->arc-
-            n->n[(*elem)[(j+1)%4]]->arc,2);
-         l += pow(n->n[(*elem)[j]]->l-
-            n->n[(*elem)[(j+1)%4]]->l,2);
-         len += sqrt(l);
+         l  = float(pow(n->n[(*elem)[j]]->arc-
+            n->n[(*elem)[(j+1)%4]]->arc,2));
+         l += float(pow(n->n[(*elem)[j]]->l-
+            n->n[(*elem)[(j+1)%4]]->l,2));
+         len += float(sqrt(l));
       }
       len *= 0.25;
-      dx[0] = dx[1] = 0.02*len;
+      dx[0] = dx[1] = 0.02f*len;
 
       for(j = 0; j < iicount; j++)
       {
@@ -151,9 +151,9 @@ static float getVProd(float *x1, float *x2)
 {
    float vp,l;
 
-   l = 1.0/sqrt(x1[0]*x1[0]+x1[1]*x1[1]);
+   l = 1.0f/ float(sqrt(x1[0]*x1[0]+x1[1]*x1[1]));
    x1[0] *= l; x1[1] *= l;
-   l = 1.0/sqrt(x2[0]*x2[0]+x2[1]*x2[1]);
+   l = 1.0f/ float(sqrt(x2[0]*x2[0]+x2[1]*x2[1]));
    x2[0] *= l; x2[1] *= l;
 
    vp =  x1[0]*x2[1] - x2[0]*x1[1];

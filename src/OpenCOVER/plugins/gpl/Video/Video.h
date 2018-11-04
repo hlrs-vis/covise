@@ -45,6 +45,27 @@ using namespace opencover;
 
 class WINAVIPlugin;
 class FFMPEGPlugin;
+class VideoPlugin;
+
+class SysPlugin: public coTUIListener
+{
+public:
+    virtual ~SysPlugin();
+
+    VideoPlugin *myPlugin = nullptr;
+    coTUIComboBox *selectCodec = nullptr;
+    coTUIComboBox *selectParams = nullptr;
+    coTUIEditIntField *bitrateField = nullptr;
+    std::string filterList;
+
+    virtual void Menu(int row) = 0;
+    virtual void changeFormat(coTUIElement *, int row) = 0;
+    virtual void checkFileFormat(const string &name) = 0;
+    virtual bool videoCaptureInit(const string &filename, int format, int RGBFormat) = 0;
+    virtual void init_GLbuffers() = 0;
+    virtual void close_all(bool stream = false, int format = 0) = 0;
+    virtual void videoWrite(int format = 0) = 0;
+};
 
 class VideoPlugin : public coVRPlugin, public coTUIListener
 {
@@ -53,7 +74,7 @@ public:
     ~VideoPlugin();
     bool init();
 
-    // this will be called in PreFrame
+    bool update();
     void postFrame();
     void preSwapBuffers(int windowNumber);
     void setTimestep(int t);
@@ -86,19 +107,16 @@ public:
     coTUILabel *cfpsLabel;
     coTUIEditFloatField *cfpsEdit;
     coTUIToggleButton *captureHostButton[MAX_NUMBER_OF_WINDOWS_OF_SLAVES];
-#ifdef _MSC_VER
-    WINAVIPlugin *sysPlug;
-#else
-    FFMPEGPlugin *sysPlug;
-#endif
+    WINAVIPlugin *sysPlugWinAvi;
+    FFMPEGPlugin *sysPlugFfmpeg;
+    SysPlugin *sysPlug;
 
-    void menuEvent(coMenuItem *);
     void tabletEvent(coTUIElement *);
     void tabletReleaseEvent(coTUIElement *);
     void key(int type, int keySym, int mod);
     void cfpsHide(bool hidden);
     void guiToRenderMsg(const char *msg);
-    virtual void message(int type, int length, const void *data);
+    virtual void message(int toWhom, int type, int length, const void *data);
 
     friend class WINAVIPlugin;
     friend class FFMPEGPlugin;
@@ -119,16 +137,7 @@ private:
     double recordingTime;
     int recordingFrames;
     int frameCount;
-#ifdef WIN32
-typedef PixelFormat AVPixelFormat;
-
-#define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
-#define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
-#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
-    AVPixelFormat capture_fmt;
-#else
-    AVPixelFormat capture_fmt;
-#endif
+    bool wasAnimating = false;
     bool captureActive;
     bool captureAnimActive;
     int captureAnimFrame;

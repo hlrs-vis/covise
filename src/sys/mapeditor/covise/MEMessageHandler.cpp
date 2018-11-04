@@ -113,7 +113,7 @@ void MEMessageHandler::sendMessage(int type, const QString &text)
     msg->type = (covise::covise_msg_type)type;
     QByteArray ba = text.toUtf8();
     msg->data = ba.data();
-    msg->length = strlen(msg->data) + 1;
+    msg->length = int(strlen(msg->data) + 1);
 
 #if 0
    qDebug() << "Message send _____________________________ ";

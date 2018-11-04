@@ -17,6 +17,7 @@
 #define RSYSTEMELEMENTJUNCTION_HPP
 
 #include "roadsystem.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class JunctionConnection;
 
@@ -42,23 +43,23 @@ public:
     //################//
 
 public:
-    explicit RSystemElementJunction(const QString &name, const QString &id);
+    explicit RSystemElementJunction(const QString &name, const odrID &id=odrID::invalidID());
     virtual ~RSystemElementJunction();
 
     // JunctionConnections //
     //
-    QMultiMap<QString, JunctionConnection *> getConnections() const
+    QMultiMap<odrID, JunctionConnection *> getConnections() const
     {
         return connections_;
     }
-    QList<JunctionConnection *> getConnections(const QString &incomingRoad) const;
-    QList<JunctionConnection *> getConnectingRoadConnections(const QString &connectingRoad) const;
-    JunctionConnection *getConnection(const QString &incomingRoad, const QString &connectingRoad) const;
+    QList<JunctionConnection *> getConnections(const odrID &incomingRoad) const;
+    QList<JunctionConnection *> getConnectingRoadConnections(const odrID &connectingRoad) const;
+    JunctionConnection *getConnection(const odrID &incomingRoad, const odrID &connectingRoad) const;
     void addConnection(JunctionConnection *connection);
     void delConnection(JunctionConnection *connection);
     void delConnections();
 
-    void checkConnectionIds(const QMultiMap<QString, RoadSystem::IdType> &roadIds);
+    void checkConnectionIds(const QMultiMap<odrID, odrID> &roadIds);
 
     // Observer Pattern //
     //
@@ -95,7 +96,7 @@ private:
 
     // JunctionConnections //
     //
-    QMultiMap<QString, JunctionConnection *> connections_; // owned
+    QMultiMap<odrID, JunctionConnection *> connections_; // owned
 };
 
 #endif // RSYSTEMELEMENTJUNCTION_HPP

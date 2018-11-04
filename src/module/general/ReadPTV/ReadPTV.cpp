@@ -90,7 +90,7 @@ int coReadPTV::compute(const char *)
             {
                 char *nextFileStart = new char[strlen(fileName)+5];
                 sprintf(nextFileStart,"%d-",fileNumber);
-                int len = strlen(nextFileStart);
+                int len = int(strlen(nextFileStart));
                 if(strncmp(dir->name(i),nextFileStart,len)==0)
                 {
                     char *fullPath = new char[strlen(dir->name(i))+strlen(dirName)+5];
@@ -135,13 +135,13 @@ int coReadPTV::compute(const char *)
         
         char name[1024];
         snprintf(name, sizeof(name), "%s_%d", poTypes->getObjName(), fileNumber);
-        coDoInt *doTypes = new coDoInt(name, pNumber.size(), &pNumber[0]);
+        coDoInt *doTypes = new coDoInt(name, int(pNumber.size()), &pNumber[0]);
 
         snprintf(name, sizeof(name), "%s_%d", poPoints->getObjName(), fileNumber);
-        coDoPoints *doPoints = new coDoPoints(name, px.size(), &px[0], &py[0], &pz[0]);
+        coDoPoints *doPoints = new coDoPoints(name, int(px.size()), &px[0], &py[0], &pz[0]);
         
         snprintf(name, sizeof(name), "%s_%d", poVelos->getObjName(), fileNumber);
-        coDoVec3 *doVelos = new coDoVec3(name, vx.size(), &vx[0], &vy[0], &vz[0]);
+        coDoVec3 *doVelos = new coDoVec3(name, int(vx.size()), &vx[0], &vy[0], &vz[0]);
 
         
         points.push_back(doPoints);
@@ -154,9 +154,9 @@ int coReadPTV::compute(const char *)
 
     
     // Create set objects:
-    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), points.size(), (coDistributedObject **)&points[0]);
-    coDoSet *setVelos = new coDoSet(poVelos->getObjName(), velos.size(), (coDistributedObject **)&velos[0]);
-    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), types.size(), (coDistributedObject **)&types[0]);
+    coDoSet *setPoints = new coDoSet(poPoints->getObjName(), int(points.size()), (coDistributedObject **)&points[0]);
+    coDoSet *setVelos = new coDoSet(poVelos->getObjName(), int(velos.size()), (coDistributedObject **)&velos[0]);
+    coDoSet *setTypes = new coDoSet(poTypes->getObjName(), int(types.size()), (coDistributedObject **)&types[0]);
     // Now the arrays can be cleared:
     points.clear();
     velos.clear();

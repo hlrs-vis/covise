@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>398</height>
+    <height>431</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -58,13 +58,13 @@
         <x>0</x>
         <y>0</y>
         <width>200</width>
-        <height>398</height>
+        <height>431</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>394</height>
+        <height>431</height>
        </size>
       </property>
       <widget class="QGroupBox" name="groupBox_2">
@@ -72,8 +72,8 @@
         <rect>
          <x>0</x>
          <y>237</y>
-         <width>170</width>
-         <height>157</height>
+         <width>167</width>
+         <height>183</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -86,12 +86,6 @@
         <string>Prototypes</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
         <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
@@ -148,6 +142,16 @@
         </item>
         <item row="4" column="1">
          <widget class="QComboBox" name="superelevationComboBox"/>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>RoadShape</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="shapeComboBox"/>
         </item>
        </layout>
       </widget>

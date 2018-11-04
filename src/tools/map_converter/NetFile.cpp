@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <util/string_util.h>
+#include <util/coTypes.h>
 #include <fstream>
 
 //
@@ -173,7 +174,7 @@ NetFile::check(CheckMode mode)
         sDiag_ << "MODULE <"
                << modName
                << ">";
-        int msgLen = 9 + modName.size();
+        int msgLen = 9 + (int)modName.size();
         fPtr++;
         // index in net-file
         int netIndex = atoi(inLines_[fPtr].c_str());
@@ -478,11 +479,11 @@ NetFile::check(CheckMode mode)
                << " to "
                << toModName << ":" << toPortName;
 
-        int msgLen = 20 + frmModName.size() + frmPortName.size() + toModName.size() + toPortName.size();
+        size_t msgLen = 20 + frmModName.size() + frmPortName.size() + toModName.size() + toPortName.size();
 
         if (con.valid() == Connection::Valid)
         {
-            int kk;
+            size_t kk;
             for (kk = msgLen; kk < lBorder; ++kk)
                 sDiag_ << ".";
             sDiag_ << "VALID" << endl;
@@ -491,7 +492,7 @@ NetFile::check(CheckMode mode)
         }
         else
         {
-            int kk;
+            size_t kk;
             for (kk = msgLen; kk < lBorder; ++kk)
                 sDiag_ << ".";
             sDiag_ << "*INVALID*" << endl;
@@ -707,7 +708,7 @@ void
 NetFile::reCnt()
 {
 
-    const int len = modules_.size();
+    const size_t len = modules_.size();
 
     std::string *names = new std::string[len];
     int *cnts = new int[len];
@@ -739,7 +740,7 @@ NetFile::reCnt()
         }
     }
 
-    for (i = modules_.size() - 1; i >= 0; --i)
+    for (ssize_t i = (ssize_t)modules_.size() - 1; i >= 0; --i)
     {
         int idx;
         std::string thisMdNm = modules_[i].getName();
@@ -771,7 +772,7 @@ NetFile::replaceUserHost(const std::string &userHostStr)
          << endl;
 
     // parse userHostStr
-    int sep = userHostStr.find_first_of(":");
+    size_t sep = userHostStr.find_first_of(":");
     std::string oldInfo;
     std::string newInfo;
     if (sep != std::string::npos)

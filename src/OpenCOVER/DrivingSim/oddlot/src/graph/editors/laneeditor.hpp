@@ -18,20 +18,14 @@
 
 #include "projecteditor.hpp"
 
-#include "src/graph/profilegraph.hpp"
-#include "src/graph/profilegraphscene.hpp"
-#include "src/graph/profilegraphview.hpp"
-
-#include "src/data/roadsystem/sections/typesection.hpp"
-
 class ProjectData;
 class TopviewGraph;
 
-class LaneWidthMoveHandle;
 class LaneRoadSystemItem;
-class RoadSystemItem;
+class BaseLaneMoveHandle;
 
 class SectionHandle;
+class PointHandle;
 
 class LaneEditor : public ProjectEditor
 {
@@ -42,28 +36,26 @@ class LaneEditor : public ProjectEditor
     //################//
 
 public:
-    explicit LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph, ProfileGraph *profileGraph);
+    explicit LaneEditor(ProjectWidget *projectWidget, ProjectData *projectData, TopviewGraph *topviewGraph);
     virtual ~LaneEditor();
 
     // Handle //
     //
     SectionHandle *getInsertSectionHandle() const;
+	PointHandle *getAddWidthHandle() const;
 
     // Tool //
     //
     virtual void toolAction(ToolAction *);
+	virtual void mouseAction(MouseAction *mouseAction);
 
-    ProfileGraph *getProfileGraph()
-    {
-        return profileGraph_;
-    };
+	// BorderMoveHandles //
+	//
+	void registerMoveHandle(BaseLaneMoveHandle *handle);
+	int unregisterMoveHandle(BaseLaneMoveHandle *handle);
 
-    // MoveHandles //
-    //
-    void registerMoveHandle(LaneWidthMoveHandle *handle);
-    int unregisterMoveHandle(LaneWidthMoveHandle *handle);
-    void setWidth(double w);
-    bool translateMoveHandles(const QPointF &pressPos, const QPointF &mousePos);
+
+	bool translateLaneBorder(const QPointF &pressPos, const QPointF &mousePos, double width = 0.0, bool setWidth = false);
 
 protected:
     virtual void init();
@@ -89,16 +81,16 @@ private:
     //
     LaneRoadSystemItem *roadSystemItem_;
 
-    // ProfileGraph //
-    //
-    ProfileGraph *profileGraph_;
-    RoadSystemItem *laneSectionItemPolyGraph_;
-
-    // Handle //
+    // Handles //
     //
     SectionHandle *insertSectionHandle_;
+	PointHandle *pointHandle_;
 
-    QMultiMap<int, LaneWidthMoveHandle *> selectedMoveHandles_;
+	// Edit Mode (width or border) //
+	//
+//	bool borderEditMode_;
+
+	QList<BaseLaneMoveHandle *> selectedLaneMoveHandles_;
 };
 
 #endif // LANEEDITOR_HPP

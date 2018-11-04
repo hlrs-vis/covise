@@ -115,15 +115,15 @@ struct Ilist *psle, struct region *reg, struct region *reg0, int le_dis)
    // angles for spline
    u1[0] = reg->arc[0]->list[1] - reg->arc[0]->list[0];
    u1[1] = reg->line[0]->y[1] - reg->line[0]->y[0];
-   alpha[0] = atan(u1[1]/u1[0]);
+   alpha[0] = float(atan(u1[1]/u1[0]));
    u1[0] = reg->arc[1]->list[le_dis-1] - reg->arc[2]->list[le_dis-1];
    u1[1] = reg->line[1]->y[le_dis-1] - reg->line[2]->y[le_dis-1];
-   alpha[1] = beta[1] = atan(u1[1]/u1[0]);
+   alpha[1] = beta[1] = float(atan(u1[1]/u1[0]));
    u1[0] = reg->arc[0]->list[reg->line[0]->nump-1]
       - reg->arc[0]->list[reg->line[0]->nump-2];
    u1[1] = reg->line[0]->y[reg->line[0]->nump-1]
       - reg->line[0]->y[reg->line[0]->nump-2];
-   if( (beta[0] = atan(u1[1]/u1[0])) < 0.0f) beta[0] += (float) M_PI;
+   if( (beta[0] = float(atan(u1[1]/u1[0]))) < 0.0f) beta[0] += (float) M_PI;
 #ifdef DEBUG_PS
    fprintf(fp,"alpha = [%14.4f  %14.4f], beta = [%14.4f  %14.4f]\n",
       alpha[0]*180/M_PI, alpha[1]*180/M_PI,
@@ -137,16 +137,16 @@ struct Ilist *psle, struct region *reg, struct region *reg0, int le_dis)
       p3[0] = reg->arc[2]->list[i];
       p3[1] = reg->line[2]->y[i];
       para  = reg->para[1]->list[i]/reg->para[1]->list[le_dis-1];
-      delta = (1.0-para)*alpha[0] + para*alpha[1];
-      u1[0] = cos(delta);
-      u1[1] = sin(delta);
+      delta = (1.0f-para)*alpha[0] + para*alpha[1];
+      u1[0] = float(cos(delta));
+      u1[1] = float(sin(delta));
 #ifdef DEBUG_PS
       fprintf(fp,"# delta_1 = %f\n#",delta*180/M_PI);
       VPRINTF(u1,fp);
 #endif
-      delta = (1.0-para)*beta[0] + para*beta[1];
-      u2[0] = cos(delta);
-      u2[1] = sin(delta);
+      delta = (1.0f-para)*beta[0] + para*beta[1];
+      u2[0] = float(cos(delta));
+      u2[1] = float(sin(delta));
 #ifdef DEBUG_PS
       fprintf(fp,"# delta_2 = %f\n#",delta*180/M_PI);
       VPRINTF(u2,fp);

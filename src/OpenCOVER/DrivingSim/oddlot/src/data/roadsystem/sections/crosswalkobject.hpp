@@ -17,6 +17,7 @@
 #define CROSSWALKOBJECT_HPP
 
 #include "roadsection.hpp"
+#include "src/data/roadsystem/odrID.hpp"
 
 class Crosswalk : public RoadSection
 {
@@ -36,18 +37,18 @@ public:
     //################//
 
 public:
-    explicit Crosswalk(const QString &id, const QString &name, double s, double length);
+    explicit Crosswalk(const odrID &id, const QString &name, double s, double length);
     virtual ~Crosswalk()
     { /* does nothing */
     }
 
     // Crosswalk //
     //
-    QString getId() const
+    const odrID &getId() const
     {
         return id_;
     }
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     }
@@ -198,7 +199,7 @@ private:
     // Crosswalk //
     //
     // Mandatory
-    QString id_;
+    odrID id_;
     QString name_;
     double s_;
     double length_;

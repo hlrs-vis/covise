@@ -86,7 +86,7 @@ TunnelSettings::updateProperties()
     if (tunnel_)
     {
         ui->nameBox->setText(tunnel_->getName());
-        ui->idLabel->setText(tunnel_->getId());
+        ui->idLabel->setText(tunnel_->getId().speakingName());
         ui->sSpinBox->setValue(tunnel_->getSStart());
         ui->typeComboBox->setCurrentIndex(tunnel_->getType());
 
@@ -115,23 +115,9 @@ TunnelSettings::onEditingFinished()
     if (valueChanged_)
     {
         QString filename = ui->nameBox->text();
-        QString newId = tunnel_->getId();
-        if (filename != tunnel_->getName())
-        {
-            QStringList parts = tunnel_->getId().split("_");
-
-            if (parts.size() > 2)
-            {
-                newId = QString("%1_%2_%3").arg(parts.at(0)).arg(parts.at(1)).arg(filename); 
-            }
-            else
-            {
-                newId = tunnel_->getParentRoad()->getRoadSystem()->getUniqueId(tunnel_->getId(), filename);
-            }
-        }
     
 
-        SetTunnelPropertiesCommand *command = new SetTunnelPropertiesCommand(tunnel_, newId, filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->lightingSpinBox->value(), ui->daylightSpinBox->value());
+        SetTunnelPropertiesCommand *command = new SetTunnelPropertiesCommand(tunnel_, tunnel_->getId(), filename, ui->nameBox->text(), ui->typeComboBox->currentIndex(), ui->lengthSpinBox->value(), ui->lightingSpinBox->value(), ui->daylightSpinBox->value());
         getProjectSettings()->executeCommand(command);
 
         valueChanged_ = false;

@@ -112,8 +112,8 @@ int ReadITA::compute(const char *)
             stringstream s(line);
             s >> a.phi;
             s >> a.theta;
-            a.phi = a.phi / 180.0 * M_PI;
-            a.theta = a.theta / 180.0 * M_PI;
+            a.phi = float(a.phi / 180.0 * M_PI);
+            a.theta = float(a.theta / 180.0 * M_PI);
             for (int i = 0; i < numTimesteps; i++)
             {
                 s >> a.values[i];
@@ -136,14 +136,14 @@ int ReadITA::compute(const char *)
             break;
         }
     }
-    numTheta = table.size() / numPhi;
+    numTheta = (int)table.size() / numPhi;
     coDistributedObject **polygons = new coDistributedObject *[numTimesteps + 1];
     for (int t = 0; t < numTimesteps; t++)
     {
         char *objName = new char[strlen(gridPort->getObjName()) + 100];
         sprintf(objName, "%s_%d", gridPort->getObjName(), t);
         coDoPolygons *polygonObject;
-        polygonObject = new coDoPolygons(objName, table.size(), (numPhi - 1) * (numTheta - 1) * 4, (numPhi - 1) * (numTheta - 1));
+        polygonObject = new coDoPolygons(objName, (int)table.size(), (numPhi - 1) * (numTheta - 1) * 4, (numPhi - 1) * (numTheta - 1));
         float *x_c, *y_c, *z_c;
         int *v_l;
         int *p_l;
@@ -180,7 +180,7 @@ int ReadITA::compute(const char *)
         char *objName = new char[strlen(dataPort->getObjName()) + 100];
         sprintf(objName, "%s_%d", dataPort->getObjName(), t);
         coDoFloat *dataObject;
-        dataObject = new coDoFloat(objName, table.size());
+        dataObject = new coDoFloat(objName, (int)table.size());
         float *f_v;
         dataObject->getAddress(&f_v);
         int index = 0;

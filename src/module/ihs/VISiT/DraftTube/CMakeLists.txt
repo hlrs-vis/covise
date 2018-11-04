@@ -16,3 +16,4 @@ SET(SOURCES
 )
 covise_add_module(VISiT DraftTube ${EXTRASOURCES} ${SOURCES} ${HEADERS})
 target_link_libraries(DraftTube coApi coAppl coCore visit_drafttube visit_bspline visit_general)
+covise_install_target(DraftTube)

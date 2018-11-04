@@ -53,8 +53,6 @@ public:
     {
     }
 
-    virtual bool updateContentBool(bool);
-
     /// get the Element's classname
     virtual const char *getClassName() const;
     /// check if the Element or any ancestor is this classname

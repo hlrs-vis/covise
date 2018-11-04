@@ -8,7 +8,7 @@
 #include <cover/coVRPluginSupport.h>
 #ifdef WIN32
 #include <windows.h>
-#include "lusb0_usb.h"
+//#include "lusb0_usb.h"
 #include <conio.h>
 #else
 #include <usb.h>
@@ -81,7 +81,7 @@ public:
     volatile bool running;
     void stop();
     bool doStop;
-
+    void setThermal(bool thermalActivity);
 private:
     void init();
 
@@ -91,6 +91,7 @@ private:
     FGControl fgcontrol;
     int ret;
     OpenThreads::Mutex mutex;
+    bool thermal;
 };
 
 #endif /* FLIGHTGEAR_H */

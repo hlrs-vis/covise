@@ -6,7 +6,6 @@ AtomBallInteractor.h
 Atom.h
 AtomStickInteractor.h
 Carbon.h
-coVR3DRotCenterInteractor.h
 )
 
 SET(SOURCES
@@ -17,6 +16,5 @@ AtomBallInteractor.cpp
 Atom.cpp
 AtomStickInteractor.cpp
 Carbon.cpp
-coVR3DRotCenterInteractor.cpp
 )
 cover_add_plugin(AlkaneBuilder)

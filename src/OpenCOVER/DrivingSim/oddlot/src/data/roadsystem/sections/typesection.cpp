@@ -20,6 +20,7 @@
 SpeedRecord::SpeedRecord()
 {
     maxSpeed=0;
+	maxUnit = "m/s";
 }
 SpeedRecord::SpeedRecord(QString &max, QString &unit)
 {
@@ -36,6 +37,7 @@ SpeedRecord::SpeedRecord(QString &max, QString &unit)
     if(unit == "mph")
         factor = 0.44704f;
     maxSpeed *= factor;
+	maxUnit = unit;
 }
 
 //####################//

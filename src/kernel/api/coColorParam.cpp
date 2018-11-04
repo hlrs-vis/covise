@@ -121,7 +121,7 @@ int coColorParam::setValue(float r, float g, float b, float a)
 //
 float coColorParam::getValue(int c) const
 {
-    return (c >= 0 && c < 4) ? d_value[c] : 0.;
+    return (c >= 0 && c < 4) ? d_value[c] : 0.0f;
 }
 
 int coColorParam::getValue(float &r, float &g, float &b, float &a) const

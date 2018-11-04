@@ -200,7 +200,7 @@ ParamSkel::setVectDim()
 
     std::string value(value_);
 
-    int idx(value.find_first_of(" "));
+    size_t idx(value.find_first_of(" "));
     int i(-1);
     int cnt(0);
 
@@ -208,11 +208,11 @@ ParamSkel::setVectDim()
     {
         if (!value.substr(i + 1, idx - i - 1).empty())
             cnt++;
-        i = idx;
+        i = (int)idx;
         idx = value.find_first_of(" ", idx + 1);
     }
 
-    int len(value.size());
+    size_t len(value.size());
     if (!value.substr(i + 1, len - i).empty())
         cnt++;
 
@@ -231,7 +231,7 @@ ParamSkel::enforceDim() const
 
     std::string value(strip(value_));
 
-    int idx(value.find_first_of(" "));
+    size_t idx(value.find_first_of(" "));
     int i(-1);
     std::string ret;
 
@@ -240,13 +240,13 @@ ParamSkel::enforceDim() const
     {
         if (!value.substr(i + 1, idx - i - 1).empty())
             ret = ret + value.substr(i + 1, idx - i - 1) + std::string(" ");
-        i = idx;
+        i = (int)idx;
         idx = value.find_first_of(" ", idx + 1);
     }
 
     if (idx == std::string::npos)
     {
-        int len(value.size());
+        size_t len(value.size());
         if (!value.substr(i + 1, len - i).empty())
             ret = ret + value.substr(i + 1, len - i);
     }
@@ -306,9 +306,9 @@ ChoiceParamSkel::checkValue(const std::string &val)
 
     // we assume value_ as the default and parse it
     std::string pat(" ");
-    int end = val.find_first_of(pat.c_str());
-    int beg = 0;
-    int cnt = 0;
+    size_t end = val.find_first_of(pat.c_str());
+	size_t beg = 0;
+	size_t cnt = 0;
 
     int actChoice = 0;
     std::string actEntry;
@@ -336,10 +336,10 @@ ChoiceParamSkel::checkValue(const std::string &val)
     // now we check if the default-choices in value_ contain actEntry and modify
     // value_ accordingly
 
-    int pos = 0;
+    size_t pos = 0;
     cnt = 0;
     end = value_.find_first_of(pat.c_str());
-    int firstBlnk = end;
+    size_t firstBlnk = end;
     // we obtain the name of the chosen entry
     while (end != std::string::npos)
     {
@@ -355,9 +355,9 @@ ChoiceParamSkel::checkValue(const std::string &val)
         end = value_.find_first_of(pat.c_str(), beg);
         cnt++;
     }
-    int numDefChoices = cnt;
+    size_t numDefChoices = cnt;
 
-    int len = value_.size() - firstBlnk;
+	size_t len = value_.size() - firstBlnk;
     std::string defTail(value_.substr(firstBlnk, len));
 
     defTail = strip(defTail.c_str()); //Note: strip( CoNewString ) and strip( char * ) are distinct
@@ -387,7 +387,7 @@ ChoiceParamSkel::checkValue(const std::string &val)
     else
     {
         char num[55];
-        sprintf(num, "%d", pos);
+        sprintf(num, "%d", (int)pos);
         value_ = std::string(num) + std::string(" ") + defTail;
     }
     return;

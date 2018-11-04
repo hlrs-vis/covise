@@ -17,11 +17,48 @@
 
 #include "src/data/roadsystem/rsystemelementroad.hpp"
 
+Tunnel::TunnelType 
+Tunnel::parseTunnelType(const QString &type)
+{
+	if (type == "standard")
+	{
+		return Tunnel::TT_STANDARD;
+	}
+	else if (type == "underpass")
+	{
+		return Tunnel::TT_UNDERPASS;
+	}
+	else
+	{
+		qDebug("WARNING: unknown tunnel type: %s", type.toUtf8().constData());
+		return Tunnel::TT_STANDARD;
+	}
+}
+
+QString 
+Tunnel::parseTunnelTypeBack(int type)
+{
+	if (type == Tunnel::TT_STANDARD)
+	{
+		return  QString("standard");
+	}
+	else if (type == Tunnel::TT_UNDERPASS)
+	{
+		return  QString("underpass");
+	}
+	else
+	{
+		qDebug("WARNING: unknown tunnel type");
+		return  QString("none");
+	}
+}
+
+
 //####################//
 // Constructors       //
 //####################//
 
-Tunnel::Tunnel(const QString &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight)
+Tunnel::Tunnel(const odrID &id, const QString &file, const QString &name, int type, double s, double length, double lighting, double daylight)
     : Bridge(id, file, name, type, s, length)
 	, lighting_(lighting)
 	, daylight_(daylight)

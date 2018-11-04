@@ -25,23 +25,14 @@ extern PTask::whatout Whatout;
 
 // Gather results from all PTasks after a time step.
 void
-#ifndef YAC
 Pathlines::gatherTimeStep()
-#else
-Pathlines::gatherTimeStep(coOutputPort *port)
-#endif
 {
     if (task_type == Tracer::GROWING_LINES)
     {
 // if growing lines is the animation effect,
 // then do the same as in the "Tracelines" class...
-#ifndef YAC
         linesForATime();
         magForATime();
-#else
-        linesForATime(port);
-        magForATime(port);
-#endif
     }
     else if (task_type == Tracer::MOVING_POINTS)
     {
@@ -93,7 +84,6 @@ Pathlines::gatherTimeStep(coOutputPort *port)
             fprintf(stderr, "Tracer: finished %5d of %d particles\r", i + 1, no_ptasks_);
         }
         fprintf(stderr, "\n");
-#ifndef YAC
         name = name_line_;
         char buf[64];
         sprintf(buf, "_%d", covise_time_);
@@ -104,16 +94,6 @@ Pathlines::gatherTimeStep(coOutputPort *port)
                                               &point_x[0],
                                               &point_y[0],
                                               &point_z[0]);
-#else
-        // fixme
-        coObjInfo pInfo = port->getNewObjectInfo();
-        if (lines_.size() <= covise_time_)
-            lines_.resize(covise_time_ + 1);
-        lines_[covise_time_] = new coDoPoints(pInfo, (int)point_x.size(),
-                                              &point_x[0],
-                                              &point_y[0],
-                                              &point_z[0]);
-#endif
         if (verschiebung[0] != 0.0
             || verschiebung[1] != 0.0
             || verschiebung[2] != 0.0)
@@ -126,7 +106,6 @@ Pathlines::gatherTimeStep(coOutputPort *port)
 
         if (magnitude_.size() <= covise_time_)
             magnitude_.resize(covise_time_ + 1);
-#ifndef YAC
         name = name_magnitude_;
         sprintf(buf, "_%d", covise_time_);
         name += buf;
@@ -138,19 +117,6 @@ Pathlines::gatherTimeStep(coOutputPort *port)
         {
             magnitude_[covise_time_] = new coDoVec3(name, (int)mag.size(), &mag[0], &mag2[0], &mag3[0]);
         }
-#else
-        // fixme
-        coObjInfo fInfo = port->getNewObjectInfo();
-        magnitude_[covise_time_] = new coDoFloat(fInfo, (int)mag.size(), &mag[0]);
-        if (Whatout != PTask::V_VEC)
-        {
-            magnitude_[covise_time_] = new coDoFloat(fInfo, (int)mag.size(), &mag[0]);
-        }
-        else
-        {
-            magnitude_[covise_time_] = new coDoVec3(fInfo, (int)mag.size(), &mag[0], &mag2[0], &mag3[0]);
-        }
-#endif
         if (speciesAttr.length())
             magnitude_[covise_time_]->addAttribute("SPECIES", speciesAttr.c_str());
     }
@@ -427,11 +393,7 @@ Pathlines::Finished()
 // see header
 Pathlines::Pathlines(
     const coModule *mod,
-#ifndef YAC
     const char *name_line, const char *name_magnitude,
-#else
-    coObjInfo name_line, coObjInfo name_magnitude,
-#endif
     const coDistributedObject *grid,
     const coDistributedObject *velo,
     const coDistributedObject *ini_p,

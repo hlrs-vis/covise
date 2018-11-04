@@ -146,51 +146,29 @@ class MoveInfo;
 
 osgViewerObject *osgViewerObject::getChild(VrmlNode *n)
 {
-    if (children.current() && (children.current()->node == n))
+    auto iter = childIndex.find(n);
+    if (iter != childIndex.end())
     {
-        osgViewerObject *tmp = children.current();
-        children.next();
-        return tmp;
+        return iter->second;
     }
 
-    if ((parent) && (n == parent->node))
-        return NULL;
-
-    children.reset();
-    while (children.current())
-    {
-        if (children.current()->node == n)
-        {
-            osgViewerObject *tmp = children.current();
-            children.next();
-            return tmp;
-        }
-        children.next();
-    }
-    return NULL;
+    return nullptr;
 }
 
 bool osgViewerObject::hasChild(osgViewerObject *o)
 {
-    children.reset();
-    while (children.current())
-    {
-        if (children.current() == o)
-            return true;
-        children.next();
-    }
-    return false;
+    auto it = std::find(children.begin(), children.end(), o);
+    return it != children.end();
 }
 
 void osgViewerObject::setRootNode(Node *n)
 {
     rootNode = n;
-    children.reset();
-    while (children.current())
+
+    for (auto c: children)
     {
-        if (children.current()->rootNode != n)
-            children.current()->setRootNode(n);
-        children.next();
+        if (c->rootNode != n)
+            c->setRootNode(n);
     }
 }
 
@@ -198,7 +176,9 @@ void osgViewerObject::addChild(osgViewerObject *n)
 {
     //cerr << "osgViewerObject::addChild, num: " << children.num() << ", node:" << n->node << endl;
     n->parent = this;
-    children.append(n);
+    children.push_back(n);
+    if (n->node)
+        childIndex[n->node] = n;
     n->ref();
     if (rootNode.get())
         n->setRootNode(rootNode.get());
@@ -206,54 +186,50 @@ void osgViewerObject::addChild(osgViewerObject *n)
 
 void osgViewerObject::addChildrensNodes()
 {
-    children.reset();
-    while (children.current())
+    for (auto c: children)
     {
-
-        if ((children.current()->pNode.get()) && (children.current()->haveToAdd > 0))
+        if (c->pNode.get() && c->haveToAdd > 0)
         {
-            if (((Group *)pNode.get())->containsNode(children.current()->getNode()))
+            if (((Group *)pNode.get())->containsNode(c->getNode()))
             {
                 if (whichChoice > -1)
                 {
                     //cerr << "searchChild\n";
                     if (cover->debugLevel(1))
                         cerr << "_sch_";
-                    choiceMap[whichChoice] = ((Group *)pNode.get())->getChildIndex(children.current()->getNode());
-                    //choiceMap[whichChoice]=((Group *)pNode.get())->searchChild(children.current()->getNode());
+                    choiceMap[whichChoice] = ((Group *)pNode.get())->getChildIndex(c->getNode());
+                    //choiceMap[whichChoice]=((Group *)pNode.get())->searchChild(c->getNode());
                     //fprintf(stderr,"addChildrenNodes() 1: choiceMap: %d -> %d\n", whichChoice, choiceMap[whichChoice]);
                 }
-                children.current()->haveToAdd--;
+                c->haveToAdd--;
             }
             else
             {
-
-                if ((children.current()->node) && (strncmp(children.current()->node->name(), "StaticCave", 10) == 0))
+                if ((c->node) && (strncmp(c->node->name(), "StaticCave", 10) == 0))
                 {
-                    //ViewerOsg::VRMLCaveRoot->addChild(children.current()->getNode());
-                    viewer->addObj(children.current(), ViewerOsg::VRMLCaveRoot);
-                    children.current()->setRootNode(ViewerOsg::VRMLCaveRoot);
-                    //cerr << "add node " << children.current()->node->name() << " to Cave root!" << endl;
+                    //ViewerOsg::VRMLCaveRoot->addChild(c->getNode());
+                    viewer->addObj(c, ViewerOsg::VRMLCaveRoot);
+                    c->setRootNode(ViewerOsg::VRMLCaveRoot);
+                    //cerr << "add node " << c->node->name() << " to Cave root!" << endl;
                     if (cover->debugLevel(1))
                         cerr << "_SC_";
                 }
                 else
                 {
-                    //((Group *)pNode.get())->addChild(children.current()->getNode());
-                    viewer->addObj(children.current(), (Group *)pNode.get());
+                    //((Group *)pNode.get())->addChild(c->getNode());
+                    viewer->addObj(c, (Group *)pNode.get());
                 }
                 if (whichChoice > -1)
                 {
                     if (cover->debugLevel(1))
                         cerr << "_sch_2";
-                    choiceMap[whichChoice] = ((Group *)pNode.get())->getChildIndex(children.current()->getNode());
+                    choiceMap[whichChoice] = ((Group *)pNode.get())->getChildIndex(c->getNode());
                     //fprintf(stderr, "addChildrenNodes() 2: choiceMap: %d -> %d\n", whichChoice, choiceMap[whichChoice]);
                 }
-                children.current()->haveToAdd--;
+                c->haveToAdd--;
             }
             //cerr << "addch\n";
         }
-        children.next();
     }
 }
 
@@ -387,20 +363,24 @@ osgViewerObject::osgViewerObject(VrmlNode *n)
 
 osgViewerObject::~osgViewerObject()
 {
+    if (auto group = pNode->asGroup())
+    {
+        group->removeChildren(0, group->getNumChildren());
+    }
+
     if (sensor)
     {
         sensor->remove(); // can't be deleted here, because it could be active right now
     }
     delete[] modeNames;
 
-    children.noDelete = 1;
-    children.reset();
-    while (children.current())
+    for (auto c: children)
     {
-        //delete children.current();
-        children.current()->deref();
-        children.next();
+        c->deref();
     }
+    children.clear();
+    childIndex.clear();
+
     if (pNode.get())
     {
         Group *parentNode;
@@ -431,16 +411,15 @@ osgViewerObject::~osgViewerObject()
 
 void osgViewerObject::removeChild(osgViewerObject *rmObj)
 {
-    children.reset();
-    while (children.current())
-    {
-        if (children.current() == rmObj)
-        {
-            children.remove();
-            return;
-        }
-        children.next();
-    }
+    auto iter = childIndex.find(rmObj->node);
+    if (iter != childIndex.end())
+        childIndex.erase(iter);
+
+    auto it = std::find(children.begin(), children.end(), rmObj);
+    if (it == children.end())
+        return;
+
+    children.erase(it);
 }
 
 void osgViewerObject::updateBin()
@@ -634,7 +613,6 @@ void osgViewerObject::updateTMat()
                 {
                     StateSet *geostate = drawable->getOrCreateStateSet();
                     geostate->setNestRenderBins(false);
-                    bool useTextureRectangle = covise::coCoviseConfig::isOn("COVER.Plugin.Vrml97.UseTextureRectangle", false);
 
                     Matrixd multMat;
                     multMat.makeIdentity();
@@ -651,32 +629,18 @@ void osgViewerObject::updateTMat()
                     }
                     if(texData[i].mirror == 1)
                     {
-                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
-                        {
-                            multMat(0, 0) = texData[i].texture->getTextureWidth();
-                            multMat(1, 1) = -texData[i].texture->getTextureHeight();
-                            multMat(3, 1) = texData[i].texture->getTextureHeight();
-                        }
-                        else
-                        {
+                        
                             multMat(1, 1) = -1;
                             multMat(3, 1) = 1;
-                        }
+                        
                     }
                     else
                     {
-                        if (useTextureRectangle && texData[i].texImage!=NULL && !((texWidth == texData[i].texImage->s()) && (texHeight == texData[i].texImage->t())))
-                        {
-                            multMat(0, 0) = -texData[i].texture->getTextureWidth();
-                            multMat(1, 1) = texData[i].texture->getTextureHeight();
-                            multMat(3, 0) = texData[i].texture->getTextureWidth();
-                        }
-                        else
-                        {
+                        
                             multMat(0, 0) = -1;
                             multMat(1, 1) = 1;
                             multMat(3, 0) = 1;
-                        }
+                        
                     }
                     TexMat *texMat = new TexMat();
                     Matrix tmpMat;

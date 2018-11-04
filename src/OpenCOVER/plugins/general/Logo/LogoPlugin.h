@@ -39,7 +39,7 @@ public:
     virtual bool destroy();
 
     void preFrame();
-    virtual void message(int type, int length, const void *data);
+    virtual void message(int toWhom, int type, int length, const void *data);
 
 private:
     Logo *defaultLogo;

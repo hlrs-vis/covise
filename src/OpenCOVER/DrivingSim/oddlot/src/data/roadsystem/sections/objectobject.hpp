@@ -17,6 +17,10 @@
 #define OBJECTOBJECT_HPP
 
 #include "roadsection.hpp"
+#include "src/data/roadsystem/sections/signalobject.hpp"
+#include "src/data/roadsystem/odrID.hpp"
+
+class Object;
 
 class ObjectCorner
 {
@@ -25,12 +29,13 @@ class ObjectCorner
     //################//
 
 public:
-    explicit ObjectCorner(double u, double v, double z, double height)
+    explicit ObjectCorner(double u, double v, double z, double height, bool local)
     {
         u_ = u;
         v_ = v;
         z_ = z;
         height_ = height;
+		local_ = local;
     };
     virtual ~ObjectCorner()
     { /* does nothing */
@@ -73,15 +78,55 @@ public:
     }
 
 
+	double getLocal() const
+	{
+		return local_;
+	}
+	void setLocal(const double local)
+	{
+		local_ = local;
+	}
+
+	void setObjectParent(Object *parent)
+	{
+		parentObject_ = parent;
+	}
+
+
 private:
+	Object *parentObject_;
+
     double u_;
     double v_;
     double z_;
     double height_;
+	bool local_;
 };
+
+class Outline
+{
+public:
+	Outline(QList<ObjectCorner *> corners);
+	~Outline();
+
+	void setParentObject(Object *object);
+	bool addCorner(ObjectCorner *corner);
+	QList<ObjectCorner *> getCorners()
+	{
+		return corners_;
+	}
+
+private:
+	Object *parentObject_;
+	QList<ObjectCorner *> corners_;
+};
+
+class ParkingSpace;
 
 class Object : public RoadSection
 {
+	friend Outline;
+	friend ParkingSpace;
 
     //################//
     // STATIC         //
@@ -91,20 +136,15 @@ public:
     enum ObjectChange
     {
         CEL_ParameterChange = 0x1,
-		CEL_TypeChange = 0x2
-    };
-
-    enum ObjectOrientation
-    {
-        POSITIVE_TRACK_DIRECTION = 1,
-        NEGATIVE_TRACK_DIRECTION = 2,
-        BOTH_DIRECTIONS = 0
+		CEL_TypeChange = 0x2,
+		CEL_ParkingSpaceChange = 0x4,
+		CEL_OutlineChange = 0x10
     };
 
     struct ObjectProperties
     {
         double t;
-        ObjectOrientation orientation;
+        Signal::OrientationType orientation;
         double zOffset;
         QString type;
         double validLength;
@@ -123,6 +163,14 @@ public:
         double s;
         double length;
         double distance;
+		double tStart;
+		double tEnd;
+		double widthStart;
+		double widthEnd;
+		double heightStart;
+		double heightEnd;
+		double zOffsetStart;
+		double zOffsetEnd;
     };
 
     struct ObjectUserData
@@ -131,25 +179,24 @@ public:
         QString modelFile;
     };
 
+
     //################//
     // FUNCTIONS      //
     //################//
 
 public:
-    explicit Object(const QString &id, const QString &name, const QString &type, double s, double t, double zOffset,
-                    double validLength, ObjectOrientation orientation, double length, double width, double radius, double height, double hdg,
-                    double pitch, double roll, bool pole, double repeatS, double repeatLength, double repeatDistance, const QString &textureFile);
+	explicit Object(const odrID &id, const QString &name, double s, ObjectProperties &objectProps, ObjectRepeatRecord &repeatRecord, const QString &textureFile);
     virtual ~Object()
     { /* does nothing */
     }
 
     // Object //
     //
-    QString getId() const
+    odrID getId() const
     {
         return id_;
     }
-    void setId(const QString &id)
+    void setId(const odrID &id)
     {
         id_ = id;
     }
@@ -219,11 +266,11 @@ public:
         objectProps_.validLength = validLength;
     }
 
-    ObjectOrientation getOrientation() const
+	Signal::OrientationType getOrientation() const
     {
         return objectProps_.orientation;
     }
-    void setOrientation(const ObjectOrientation orientation)
+    void setOrientation(const Signal::OrientationType orientation)
     {
         objectProps_.orientation = orientation;
     }
@@ -327,6 +374,78 @@ public:
         objectRepeat_.distance = distance;
     }
 
+	double getRepeatTStart() const
+	{
+		return objectRepeat_.tStart;
+	}
+	void setRepeatTStart(const double tStart)
+	{
+		objectRepeat_.tStart = tStart;
+	}
+
+	double getRepeatTEnd() const
+	{
+		return objectRepeat_.tEnd;
+	}
+	void setRepeatTEnd(const double tEnd)
+	{
+		objectRepeat_.tEnd = tEnd;
+	}
+
+	double getRepeatWidthStart() const
+	{
+		return objectRepeat_.widthStart;
+	}
+	void setRepeatWidthStart(const double widthStart)
+	{
+		objectRepeat_.widthStart = widthStart;
+	}
+
+	double getRepeatWidthEnd() const
+	{
+		return objectRepeat_.widthEnd;
+	}
+	void setRepeatWidthEnd(const double widthEnd)
+	{
+		objectRepeat_.widthEnd = widthEnd;
+	}
+
+	double getRepeatHeightStart() const
+	{
+		return objectRepeat_.heightStart;
+	}
+	void setRepeatHeightStart(const double heightStart)
+	{
+		objectRepeat_.heightStart = heightStart;
+	}
+
+	double getRepeatHeightEnd() const
+	{
+		return objectRepeat_.heightEnd;
+	}
+	void setRepeatHeightEnd(const double heightEnd)
+	{
+		objectRepeat_.heightEnd = heightEnd;
+	}
+
+	double getRepeatZOffsetStart() const
+	{
+		return objectRepeat_.zOffsetStart;
+	}
+	void setRepeatZOffsetStart(const double zOffsetStart)
+	{
+		objectRepeat_.zOffsetStart = zOffsetStart;
+	}
+
+	double getRepeatZOffsetEnd() const
+	{
+		return objectRepeat_.zOffsetEnd;
+	}
+	void setRepeatZOffsetEnd(const double zOffsetEnd)
+	{
+		objectRepeat_.zOffsetEnd = zOffsetEnd;
+	}
+
     ObjectProperties getProperties() const
     {
         return objectProps_;
@@ -336,6 +455,7 @@ public:
         objectProps_ = objectProps;
     }
 
+
     ObjectRepeatRecord getRepeatProperties() const
     {
         return objectRepeat_;
@@ -344,6 +464,22 @@ public:
     {
         objectRepeat_ = objectRepeatProps;
     }
+
+	// Object is parking space //
+	//
+	ParkingSpace *getParkingSpace()
+	{
+		return parkingSpace_;
+	}
+	void setParkingSpace(ParkingSpace *parkingSpace);
+
+	// Object is outline //
+	//
+	Outline *getOutline()
+	{
+		return outline_;
+	}
+	void setOutline(Outline *outline);
 
 
     // Observer Pattern //
@@ -378,12 +514,15 @@ private:
     // Object //
     //
     // Mandatory
-    QString id_;
+    odrID id_;
     QString name_;
 
     ObjectProperties objectProps_;
     ObjectRepeatRecord objectRepeat_;
     ObjectUserData userData_;
+
+	ParkingSpace *parkingSpace_;
+	Outline *outline_;
 
 
     // Change flags //

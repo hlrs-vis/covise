@@ -34,7 +34,7 @@ ImportSettings::ImportSettings()
     inst = this;
     ui->setupUi(this);
 
-    connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
+    //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
 
     ui->LinearErrorSpin->setDecimals(10);
     ui->LinearErrorSpin->setMaximum(100);

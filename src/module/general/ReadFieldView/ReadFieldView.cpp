@@ -157,7 +157,7 @@ void ReadFieldView::nextLine()
 
 float ReadFieldView::readFloat()
 {
-    float data = atof(currentBufPos);
+    float data = float(atof(currentBufPos));
     while(*currentBufPos != '\0' && *currentBufPos != ' ')
         currentBufPos++;
     if(*currentBufPos == ' ')
@@ -271,7 +271,6 @@ int ReadFieldView::readHeader()
 // taken from old ReadFieldView module: 2-Pass reading
 int ReadFieldView::readASCIIData()
 {
-    char *cbuf;
     int res = readHeader();
     if (res != STOP_PIPELINE)
     {
@@ -408,8 +407,6 @@ int ReadFieldView::readASCIIData()
                                 varInfos[varIndex].dataObjs[t] = dataObj;
                                 varInfos[varIndex].dataObjs[t + 1] = NULL;
                                 float *x_d;
-                                float *y_d;
-                                float *z_d;
                                 dataObj->getAddress(&x_d);
                                 for (int i = 0; i < numPoints; i++)
                                 {

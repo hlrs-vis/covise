@@ -15,9 +15,6 @@
 #ifndef MOTIONSTATEFACTORY_H_
 #define MOTIONSTATEFACTORY_H_
 
-#ifndef WIN32
-#include <boost/tr1/memory.hpp>
-#endif
 #include <memory>
 class btMotionState;
 class btTransform;
@@ -36,7 +33,7 @@ public:
     virtual ~MotionStateFactory()
     {
     }
-    virtual MotionState *CreateMotionStateForBody(std::tr1::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass)
+    virtual MotionState *CreateMotionStateForBody(std::shared_ptr<KardanikXML::Body> body, const btTransform &centerOfMass)
     {
         return NULL;
     };
