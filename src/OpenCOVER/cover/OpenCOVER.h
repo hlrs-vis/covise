@@ -118,6 +118,12 @@ public:
     size_t numTuis() const;
     coTabletUI *tui(size_t idx) const;
     coTUITabFolder *tuiTab(size_t idx) const;
+
+    //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
+    bool watchFileDescriptor(int fd);
+    //! remove fd from filedescriptors to watch
+    bool unwatchFileDescriptor(int fd);
+
 private:
 #ifdef HAS_MPI
     MPI_Comm m_comm;
@@ -127,6 +133,8 @@ private:
 
     std::vector<coTabletUI *> tabletUIs;
     std::vector<coTUITabFolder *> tabletTabs;
+
+    std::set<int> m_watchedFds;
 };
 }
 #endif

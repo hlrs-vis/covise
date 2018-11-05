@@ -282,6 +282,11 @@ public:
     /*! use this cached value instead of inverting getBaseMat() yourself */
     const osg::Matrix &getInvBaseMat() const;
 
+    //! register filedescriptor fd for watching so that scene will be re-rendererd when it is ready
+    void watchFileDescriptor(int fd);
+    //! remove fd from filedescriptors to watch
+    void unwatchFileDescriptor(int fd);
+
     vrui::coUpdateManager *getUpdateManager() const;
 
     //! get the scene size defined in covise.config
