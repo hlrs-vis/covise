@@ -108,6 +108,9 @@
 #endif
 
 #include <cassert>
+#ifdef HAVE_WIRINGPI
+#include "Thyssen.h"
+#endif
 
 
 TUIMainWindow *TUIMainWindow::appwin = 0;
@@ -179,6 +182,11 @@ TUIMainWindow::TUIMainWindow(QWidget *parent, QTabWidget *mainFolder)
 {
     // init some values
     appwin = this;
+
+#ifdef HAVE_WIRINGPI
+    thyssenPanel = new ThyssenPanel();
+    thyssenPanel->led->setLED(0,true);
+#endif
 
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
     port = covise::coCoviseConfig::getInt("port", "COVER.TabletUI", port);

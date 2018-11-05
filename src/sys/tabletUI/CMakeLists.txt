@@ -21,7 +21,10 @@ LIST(APPEND TUI_MOC_HEADERS "${MAPEDITOR_DIR}/color/MEColorChooser.h")
 QT_WRAP_CPP(TUI_MOC_SRCS ${TUI_MOC_HEADERS})
 
 ADD_COVISE_EXECUTABLE(tabletUI MACOSX_BUNDLE ${TUI_SOURCES} ${TUI_HEADERS} ${TUI_MOC_HEADERS} ${TUI_MOC_SRCS})
-qt_use_modules(tabletUI Xml UiTools Widgets Quick Positioning Location)
+qt_use_modules(tabletUI Xml UiTools Widgets Quick)
+if(Qt5Positioning_FOUND)
+qt_use_modules(Positioning Location)
+endif(Qt5Positioning_FOUND)
 
 if(APPLE)
    set_target_properties(tabletUI PROPERTIES OUTPUT_NAME "TabletUI")

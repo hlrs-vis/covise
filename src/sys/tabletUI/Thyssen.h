@@ -48,6 +48,7 @@
 
 #ifndef THYSSEN_HEADER
 #define THYSSEN_HEADER
+#include <stdint.h>
 
 // ----------------------------------------------------------------------------
 //! class LEDController

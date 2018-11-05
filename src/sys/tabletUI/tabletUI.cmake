@@ -1,8 +1,14 @@
-#USING(Virvo optional) # for transfer function editor
+USING(Virvo optional) # for transfer function editor
+MESSAGE("halloTUI")
+USING(WiringPi optional)
+
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
+set(CMAKE_AUTORCC ON)
+
 SET(TUI_SOURCES
+  mapviewer.qrc
   qtcolortriangle.cpp
   qtpropertyDialog.cpp
   TUIColorTriangle.cpp
@@ -15,6 +21,7 @@ SET(TUI_SOURCES
   TUIToggleButton.cpp
   TUIToggleBitmapButton.cpp
   TUIFrame.cpp
+  TUIGroupBox.cpp
   TUIScrollArea.cpp
   TUISplitter.cpp
   TUIComboBox.cpp
@@ -30,10 +37,10 @@ SET(TUI_SOURCES
   # TUITextSpinEdit.cpp
   TUIApplication.cpp
   TUINavElement.cpp
-  TUITextureTab.cpp
   TUISGBrowserTab.cpp
   TUIColorTab.cpp
   TUIMap.cpp
+  TUIEarthMap.cpp
   TUIFileBrowserButton.cpp
   FileBrowser/FileBrowser.cpp
   TUITextCheck.cpp
@@ -51,6 +58,7 @@ SET(TUI_HEADERS
   TUIContainer.h
   TUIElement.h
   TUIFrame.h
+  TUIGroupBox.h
   TUILabel.h
   TUINavElement.h
   TUISplitter.h
@@ -63,7 +71,6 @@ SET(TUI_MOC_HEADERS
   qtpropertyDialog.h
   TUIColorTriangle.h
   TUIColorButton.h
-  TUITextureTab.h
   TUISGBrowserTab.h
   TUIColorTab.h
   TUIButton.h
@@ -76,6 +83,7 @@ SET(TUI_MOC_HEADERS
   TUILineEdit.h
   TUILineCheck.h
   TUIListBox.h
+  TUIEarthMap.h
   TUIMap.h
   TUITabFolder.h
   # TUITextSpinEdit.h
@@ -94,6 +102,15 @@ SET(TUI_MOC_HEADERS
   TUIUI/TUIUIWidgetSet.h
   TUIUI/TUIUIScriptWidget.h
 )
+if (wiringPi_FOUND)
+   SET(TUI_SOURCES ${TUI_SOURCES}
+      Thyssen.cpp
+      )
+   SET(TUI_HEADERS ${TUI_HEADERS}
+      Thyssen.h
+      )
+endif (wiringPi_FOUND)
+
 
 if (COVISE_USE_VIRVO)
    SET(TUI_SOURCES ${TUI_SOURCES}
@@ -111,3 +128,4 @@ if (COVISE_USE_VIRVO)
       TUITF2DEditor.h
       )
 endif()
+
