@@ -109,7 +109,7 @@ if (WIRINGPI_FOUND)
    SET(TUI_HEADERS ${TUI_HEADERS}
       Thyssen.h
       )
-endif (wiringPi_FOUND)
+endif (WIRINGPI_FOUND)
 
 
 if (COVISE_USE_VIRVO)
