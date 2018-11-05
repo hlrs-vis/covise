@@ -89,7 +89,7 @@ bool JSBSimPlugin::init()
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
 
-        result = FDMExec->LoadScript(ScriptName, 1.0/60.0, ResetName);
+        result = FDMExec->LoadScript(ScriptName, 1.0/60.0, SGPath(resetFile));
 
         if (!result) {
             cerr << "Script file " << ScriptName << " was not successfully loaded" << endl;
@@ -98,7 +98,7 @@ bool JSBSimPlugin::init()
 
         // *** OPTION B: LOAD AN AIRCRAFT AND A SET OF INITIAL CONDITIONS *** //
     }
-    else if (!AircraftName.empty() || !ResetName.isNull()) {
+    else if (!AircraftName.empty() || !resetFile.length()==0) {
 
         if (catalog) FDMExec->SetDebugLevel(0);
 
