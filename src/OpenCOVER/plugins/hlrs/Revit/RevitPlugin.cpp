@@ -443,8 +443,10 @@ RevitPlugin::RevitPlugin()
             delete serverConn;
             serverConn = NULL;
         }
-
-        cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+        else
+        {
+            cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+        }
     }
 
 	struct linger linger;
@@ -503,11 +505,13 @@ RevitPlugin::~RevitPlugin()
         cover->getObjectsRoot()->removeChild(revitGroup.get());
     }
 
-    cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
+    if (serverConn && serverConn->getSocket())
+        cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
 	delete serverConn;
 	serverConn = NULL;
 
-    cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
+    if (toRevit && toRevit->getSocket())
+        cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
 	delete toRevit;
 	delete msg;
 	toRevit = NULL;
