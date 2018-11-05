@@ -250,6 +250,7 @@ void VRSceneGraph::init()
     });
 
     m_useShaders = new ui::Button("UseShaders", this);
+    m_useShaders->setText("Use shaders");
     m_useShaders->setVisible(false, ui::View::VR);
     m_useShaders->setShortcut("Alt+s");
     m_useShaders->setState(m_shaders);

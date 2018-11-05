@@ -818,11 +818,23 @@ bool OpenCOVER::init()
 
     if (!coVRConfig::instance()->continuousRendering())
     {
-        if (cover->debugLevel(1))
+        if (cover->debugLevel(2))
         {
             fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
         }
         VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+    }
+
+    if (cover->viewOptionsMenu) {
+        auto cr = new ui::Button(cover->viewOptionsMenu, "ContinuousRendering");
+        cr->setText("Continuous rendering");
+        cr->setState(coVRConfig::instance()->continuousRendering());
+        cr->setCallback([this](bool state){
+           if (state)
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::CONTINUOUS);
+           else
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+        });
     }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
