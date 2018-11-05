@@ -59,8 +59,27 @@ private:
     vector <SGPath> LogDirectiveName;
     vector <string> CommandLineProperties;
     vector <double> CommandLinePropertyValues;
+
+    double current_seconds = 0.0;
+    double initial_seconds = 0.0;
+    double frame_duration = 0.0;
+    double printTime = 0.0;
+
     JSBSim::FGFDMExec* FDMExec;
     JSBSim::FGTrim* trimmer;
+
+    JSBSim::FGAtmosphere*      Atmosphere;
+    JSBSim::FGWinds*           Winds;
+    JSBSim::FGFCS*             FCS;
+    JSBSim::FGPropulsion*      Propulsion;
+    JSBSim::FGMassBalance*     MassBalance;
+    JSBSim::FGAircraft*        Aircraft;
+    JSBSim::FGPropagate*       Propagate;
+    JSBSim::FGAuxiliary*       Auxiliary;
+    JSBSim::FGAerodynamics*    Aerodynamics;
+    JSBSim::FGGroundReactions* GroundReactions;
+    JSBSim::FGInertial*        Inertial;
+    JSBSim::FGAccelerations*   Accelerations;
 
     bool realtime;
     bool play_nice;
