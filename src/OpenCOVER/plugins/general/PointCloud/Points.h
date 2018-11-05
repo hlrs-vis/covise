@@ -45,6 +45,7 @@ struct pointSelection
     int pointIndex;
     osg::MatrixTransform *transformationMatrix;
     int selectionIndex;
+    bool isBoundaryPoint;    
 };
 
 struct ScannerPosition

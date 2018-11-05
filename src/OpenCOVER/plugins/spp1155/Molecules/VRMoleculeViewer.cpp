@@ -579,10 +579,11 @@ void VRMoleculeViewer::readDirectory(const char *parent)
 
     std::list<std::string>::iterator itFiles;
 
+    int count = 0;
     for (itFiles = vsFiles.begin(); itFiles != vsFiles.end(); itFiles++)
     {
         auto filename = *itFiles;
-        auto b = new ui::Button(menu, "File");
+        auto b = new ui::Button(menu, "File"+std::to_string(count));
         b->setGroup(uniqueMenu);
         b->setText(filename.substr(0, filename.length()-4));
         b->setCallback([this, filename](bool state){
@@ -596,6 +597,8 @@ void VRMoleculeViewer::readDirectory(const char *parent)
 
         //std::cout << "VRMoleculeViewer::readDirectory " << *itFiles << std::endl;
         //cover->addFunctionButton(((*itFiles).substr(0, (*itFiles).length() - 4)).c_str(), parent, fileSelection, this); // "Datafiles"
+
+        ++count;
     }
 }
 

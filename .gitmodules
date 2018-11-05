@@ -1,9 +1,9 @@
 [submodule "src/3rdparty/deskvox"]
 	path = src/3rdparty/deskvox
-	url = git://github.com/deskvox/deskvox.git
+	url = https://github.com/deskvox/deskvox
 [submodule "share/covise/web/noVNC"]
 	path = share/covise/web/noVNC
-	url = git://github.com/kanaka/noVNC.git
+	url = https://github.com/kanaka/noVNC
 [submodule "src/3rdparty/visionaray"]
 	path = src/3rdparty/visionaray
-	url = git://github.com/szellmann/visionaray.git
+	url = https://github.com/szellmann/visionaray

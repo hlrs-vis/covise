@@ -78,7 +78,10 @@ int coReadXYZ::compute(const char *)
         return STOP_PIPELINE;
     }
     char lineData[5000];
-    fgets(lineData, 5000, fp);
+    if(fgets(lineData, 5000, fp)==NULL)
+    {
+        lineData[0] = '\0';
+    }
     while (!feof(fp))
     {
         if (timestepLimit > 0 && timestep >= timestepLimit)
@@ -113,7 +116,10 @@ int coReadXYZ::compute(const char *)
             {
                 char buf[1024];
                 float x[3];
-                fgets(lineData, 5000, fp);
+                if (fgets(lineData, 5000, fp) == NULL)
+                {
+                    lineData[0] = '\0';
+                }
                 if (sscanf(lineData, "%3s %f %f %f\n", buf, &x[0], &x[1], &x[2]) != 4)
                 {
                     sendError("Failed to read data for bounds.");
@@ -149,7 +155,10 @@ int coReadXYZ::compute(const char *)
             char buf[1024];
             float x, y, z;
 
-            fgets(lineData, 5000, fp);
+            if(fgets(lineData, 5000, fp) == NULL)
+            {
+                lineData[0] = '\0';
+            }
             int n = sscanf(lineData, "%s %f %f %f\n", buf, &x, &y, &z);
             if (n != 4)
             {

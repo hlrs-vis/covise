@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+  <GLOBAL>
+    <COVER>
+
+      <Input>
+	<MouseNav value="ON" />
+      </Input>
+      
+      <Menu>
+	<Size value="0.5" />
+	<Position x="700" y="0" z="500" />
+      </Menu>
+      <ViewerPosition x="0" y="-1500" z="0" />
+      
+      <Plugin>
+
+	<ARToolKit value="off" >
+          <Capture value="ON" />
+          <Stereo value="OFF" />
+          <TrackViewpoint value="OFF" />
+          <TrackObjects value="ON" />
+	  
+	  <Marker name="TestMarker42" >
+            <Pattern value="42" />
+            <Size value="150" />
+            <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
+            <VrmlToPf value="TRUE" />
+          </Marker>
+	  
+	</ARToolKit>
+
+        <ARUCO value="ON">
+          <Capture value="on" />
+          <VideoDevice value="1" width="1920" height="1080" />
+          <CameraCalibrationFile value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml" />
+          <DictionaryID value="7" /> <!-- 7=DICT_5x5_1000 --> 
+        </ARUCO>
+	
+      </Plugin>
+      
+      <FPS value="true" />
+      
+      <PipeConfig>
+	<Pipe name="0" useDISPLAY="true" />
+      </PipeConfig>
+      
+      <WindowConfig>
+	
+	<Window type="Qt" width="1600" comment="FRONT" window="0" pipeIndex="0" height="950" left="150" top="50" name="0" embedded="false" decoration="true" />
+      </WindowConfig>
+      
+      <ScreenConfig>
+	<Screen width="1920" comment="FRONT" h="0.0" originX="0" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+      </ScreenConfig>
+      
+      <ViewportConfig>
+	<Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0" />
+      </ViewportConfig>
+      
+      <Background r="0.1" g="0.1" b="0.1"/>
+      
+    </COVER>
+  </GLOBAL>
+  
+  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
+  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
+  <INCLUDE global="1" configname="spray" >config-spray.xml </INCLUDE>
+  
+</COCONFIG>

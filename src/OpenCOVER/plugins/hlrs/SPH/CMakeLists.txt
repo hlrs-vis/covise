@@ -1,5 +1,3 @@
-message("SPH: please fix me")
-
 using(VRML)
 COVISE_FIND_PACKAGE(CUDPP)
 

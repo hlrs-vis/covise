@@ -1,6 +1,5 @@
 #include "Owner.h"
 #include "Manager.h"
-#include "cover/coVRPluginSupport.h"
 
 #include <cassert>
 #include <iostream>
@@ -35,38 +34,9 @@ Owner::Owner(const std::string &name, Owner *owner)
     {
         std::cerr << "ui::Owner: " << path() << " is unmanaged" << std::endl;
     }
-    //assert(m_manager);
+    assert(m_manager);
     checkName(m_name);
-    if(owner)
-    {
-        owner->addItem(this);
-    }
-}
-Owner::Owner(const std::string &name, coVRPluginSupport *cov)
-: m_name(name)
-{
-    std::cerr << "testit3\n" << std::endl;
-    if(cov)
-    {
-        m_owner = cov->ui;
-        m_manager = m_owner->manager();
-    }
-    else
-    {
-        m_owner = NULL;
-	m_manager = NULL;
-    }
-    if (!m_manager)
-    {
-        std::cerr << "ui::Owner: " << path() << " is unmanaged" << std::endl;
-    }
-    //assert(m_manager);
-    checkName(m_name);
-    std::cerr << "testit3\n" << std::endl;
-    if(m_owner)
-    {
-        m_owner->addItem(this);
-    }
+    owner->addItem(this);
 }
 
 Owner::Owner(const std::string &name, Manager *manager)
@@ -78,7 +48,7 @@ Owner::Owner(const std::string &name, Manager *manager)
     {
         std::cerr << "ui::Owner: " << path() << " is unmanaged" << std::endl;
     }
-    //assert(m_manager);
+    assert(m_manager);
     checkName(name);
 }
 

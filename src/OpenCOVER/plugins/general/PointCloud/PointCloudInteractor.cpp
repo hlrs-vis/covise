@@ -107,6 +107,8 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         {
             if (fit->pointSet)
             {
+                //std::string fileName = fit->filename;
+                //fprintf(stderr, "Testing Set %s \n", fileName.c_str());
                 for (int i=0; i< fit->pointSetSize; i++)
                 {
                     Vec3 center = Vec3( (fit->pointSet[i].xmin+fit->pointSet[i].xmax)/2, (fit->pointSet[i].ymin+fit->pointSet[i].ymax)/2, (fit->pointSet[i].zmin+fit->pointSet[i].zmax)/2);
@@ -119,7 +121,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                         for (int j=0; j<fit->pointSet[i].size; j++)
                         {
                             Vec3 currentPoint = Vec3(fit->pointSet[i].points[j].x,fit->pointSet[i].points[j].y,fit->pointSet[i].points[j].z);
-                            double distance = LinePointDistance(currentPoint, currHandBegin, currHandDirection);
+                            double distance = LinePointMeasure(currentPoint, currHandBegin, currHandDirection);
                             if (distance<smallestDistance)
                             {
                                 smallestDistance=distance;
@@ -128,6 +130,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
                                 bestPoint.file = &(*fit);
                                 hitPointSuccess = true;
                                 bestPoint.selectionIndex = selectionSetIndex;
+                                bestPoint.isBoundaryPoint = getSelectionIsBoundary();
                             }
                         }
                     }
@@ -136,6 +139,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         }
         if (hitPointSuccess)
         {
+            //dont select the same point twice
             for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter !=selectedPoints.end(); iter++)
             {
                 if (iter->pointSetIndex==bestPoint.pointSetIndex && iter->pointIndex==bestPoint.pointIndex)
@@ -229,6 +233,11 @@ void PointCloudInteractor::updateMessage(vector<pointSelection> points)
 {
     //send message to NurbsSurfacePlugin
     cover->sendMessage(NULL, "NurbsSurface", PluginMessageTypes::NurbsSurfacePointMsg, sizeof(points), &points);
+    for (auto iter=points.begin(); iter !=points.end(); iter++)
+    {
+        if (iter->isBoundaryPoint)
+            fprintf(stderr, "PointCloudInteractor::updateMessage sending boundary point!\n");
+    }
 }
 
 double
@@ -242,7 +251,7 @@ PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirec
     if (pMinusC.length()==0.)
         return 0.;
     
-    double d = c / pMinusC.length();
+    double d = c * pMinusC.length();
     return d;
 }
 
@@ -400,4 +409,19 @@ void PointCloudInteractor::setDeselection(bool deselection)
         m_deselection = true;
     else
         m_deselection = false;
+}
+
+void PointCloudInteractor::setSelectionSetIndex(int selectionSet)
+{
+    selectionSetIndex=selectionSet;
+}
+
+void PointCloudInteractor::setSelectionIsBoundary(bool selectionIsBoundary)
+{
+    m_selectionIsBoundary=selectionIsBoundary;
+}
+
+bool PointCloudInteractor::getSelectionIsBoundary()
+{
+    return m_selectionIsBoundary;
 }

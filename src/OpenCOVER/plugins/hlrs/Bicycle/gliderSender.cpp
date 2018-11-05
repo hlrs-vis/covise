@@ -106,6 +106,9 @@ int main (int argc, char **argv) {
   long counterLeft=0;
   long counterRight=0;
   long counterMiddle=0;
+  uint8_t stateR=0;
+  uint8_t stateL=0;
+  uint8_t stateM=0;
   /* Daten senden */
   while (1) {
     gettimeofday(&tv,NULL);
@@ -138,37 +141,43 @@ int main (int argc, char **argv) {
        }
        middleAo = middleA;
     }
-    if(leftA !=leftAo)
-    {
-/*
-       if(leftA)
-       {
-          if(leftB)
-              counterLeft--;
-          else
-              counterLeft++;
-       }
-*/
+uint8_t st = stateL & 3;
+    if(leftA) st |=4;
+    if(leftB) st |=8;
+    switch (st) {
+                        case 0: case 5: case 10: case 15:
+                                break;
+                        case 1: case 7: case 8: case 14:
+                                counterLeft++; break;
+                        case 2: case 4: case 11: case 13:
+                                counterLeft--; break;
+                        case 3: case 12:
+                                counterLeft += 2; break;
+                        default:
+                                counterLeft -= 2; break;
+                }
+                stateL = (st >> 2);
 
-       if (leftA != leftB)
-            counterLeft--;
-       else 
-            counterLeft++;
-       leftAo = leftA;
-    }
-    if(rightA !=rightAo)
-    {
-       if(rightA != rightB)
-              counterRight--;
-          else
-              counterRight++;
-       rightAo = rightA;
-    }
-    
+    st = stateR & 3;
+    if(rightA) st |=4;
+    if(rightB) st |=8;
+    switch (st) {
+                        case 0: case 5: case 10: case 15:
+                                break;
+                        case 1: case 7: case 8: case 14:
+                                counterRight++; break;
+                        case 2: case 4: case 11: case 13:
+                                counterRight--; break;
+                        case 3: case 12:
+                                counterRight += 2; break;
+                        default:
+                                counterRight -= 2; break;
+                }
+                stateR = (st >> 2);
     if(currentTime > oldTime + 0.1)
     {
-       leftLine = (counterLeft/1240.0); 
-       rightLine =( counterRight/1240.0); 
+       leftLine = (counterLeft/2280.0); 
+       rightLine =( counterRight/2280.0); 
 	       float middleValue = -(counterMiddle/200.0); 
 	oldTime = currentTime;
     if (leftLine>1.0)
@@ -190,8 +199,8 @@ int main (int argc, char **argv) {
                  sizeof (remoteServAddr));
     printf ("Data Send cL %d cR %d ll %f rl %f m %d \n",counterLeft,counterRight,leftLine,rightLine,counterMiddle);
     if (rc < 0) {
-       printf ("%s: Konnte Daten nicht senden %d\n",
-          argv[0], i-1 );
+       printf ("%s: Konnte Daten nicht senden %d %s\n",
+          argv[0], i-1 ,strerror(errno));
        close (s);
        exit (EXIT_FAILURE);
     }

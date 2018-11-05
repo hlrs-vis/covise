@@ -17,6 +17,7 @@
 #define RSYSTEMELEMENTROAD_HPP
 
 #include "rsystemelement.hpp"
+#include "sections/lane.hpp"
 
 #include <QMap>
 #include <QPointF>
@@ -108,6 +109,8 @@ public:
 		CRD_ObjectReferenceChange = 0x100000,
 		CRD_LaneOffsetChange = 0x200000
     };
+
+
 
     //################//
     // FUNCTIONS      //
@@ -296,6 +299,14 @@ public:
     //
     double getMaxWidth(double s) const;
     double getMinWidth(double s) const;
+
+	// LaneWidth //
+	//
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, const QPointF &dPos, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, double width, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	QMap<double, LaneMoveProperties *> getLaneWidthsLists(QMap<double, LaneMoveProperties *> &propsList, bool changeGradient, QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	void translateLaneWidths(QList<Lane *> &lanes, QList<QMap<double, WidthPoints*> *> &pointList);
+	void calculateLaneWidths(const QMap<double, WidthPoints *> *points);
 
 
     // check if the lanes are linked at their ends

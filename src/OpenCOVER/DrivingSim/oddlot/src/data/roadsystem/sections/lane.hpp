@@ -20,6 +20,7 @@
 
 #include <QString>
 #include <QMap>
+#include <QPointF>
 
 class LaneWidth;
 class LaneRoadMark;
@@ -27,6 +28,25 @@ class LaneSpeed;
 class LaneHeight;
 class LaneRule;
 class LaneAccess;
+
+template<typename T, typename U>
+struct props
+{
+	T *highSlot;
+	U *lowSlot;
+	QPointF dPos;
+};
+
+typedef props<LaneWidth, LaneWidth> LaneMoveProperties;
+
+struct WidthPoints
+{
+	LaneWidth *slot;
+	double sStart;
+	QPointF pStart;
+	QPointF pEnd;
+	bool typeChanged;
+};
 
 class Lane : public DataElement
 {
@@ -51,7 +71,8 @@ public:
         CLN_SpeedsChanged = 0x100,
         CLN_HeightsChanged = 0x200,
 		CLN_LaneRulesChanged = 0x400,
-		CLN_LaneAccessChanged = 0x800
+		CLN_LaneAccessChanged = 0x800,
+		CLN_BorderChanged = 0x1000
     };
 
     // Lane Type //
@@ -95,6 +116,7 @@ public:
         DLLT_Successor
     };
 
+
     //################//
     // FUNCTIONS      //
     //################//
@@ -116,6 +138,16 @@ public:
         return type_;
     }
     void setLaneType(Lane::LaneType laneType);
+
+	bool isWidthActive()
+	{
+		return widthActive_;
+	}
+
+	void setWidthActive(bool widthActive)
+	{
+		widthActive_ = widthActive;
+	}
 
     bool getLevel() const
     {
@@ -149,6 +181,10 @@ public:
     bool delWidthEntry(LaneWidth *widthEntry);
     bool moveWidthEntry(double oldS, double newS);
     LaneWidth *getWidthEntry(double sSection) const;
+	LaneWidth *getWidthEntryContains(double sSection) const;
+	LaneWidth *getWidthEntryBefore(double sSection) const;
+	LaneWidth *getWidthEntryNext(double sSection) const;
+	LaneWidth *getLastWidthEntry() const;
     double getWidth(double sSection) const;
     double getSlope(double sSection) const;
     double getWidthEnd(double sSection) const;
@@ -156,6 +192,26 @@ public:
     {
         return widths_;
     }
+
+	// Border entries //
+	//
+	void addWidthEntry(LaneBorder *widthEntry);
+	bool delWidthEntry(LaneBorder *widthEntry);
+	LaneBorder *getBorderEntry(double sSection) const;
+	void delBorderEntries();
+	const QMap<double, LaneBorder *> &getBorderEntries() const
+	{
+		return borders_;
+	}
+	LaneBorder *getLaneBorderBefore(double s) const;
+	LaneBorder *getLaneBorderNext(double s) const;
+	double getBorderEnd(double sSection) const;
+	LaneBorder *getBorderEntryContains(double sSection) const;
+
+	// Width/Border methods //
+	//
+	void calculateTypeParameters(bool activateWidth,const QList<LaneWidth *> &widthList) const;
+
 
     // RoadMark entries //
     //
@@ -245,6 +301,10 @@ private:
     //
     int laneChanges_;
 
+	// width or border entries active //
+	//
+	bool widthActive_;
+
     // Parent LaneSection //
     //
     LaneSection *parentLaneSection_; // linked
@@ -261,6 +321,7 @@ private:
     // Entries //
     //
     QMap<double, LaneWidth *> widths_; // owned
+	QMap<double, LaneBorder *> borders_; // owned
     QMap<double, LaneRoadMark *> marks_; // owned
     QMap<double, LaneSpeed *> speeds_; // owned
     QMap<double, LaneHeight *> heights_; // owned

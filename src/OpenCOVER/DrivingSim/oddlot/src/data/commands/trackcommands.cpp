@@ -1628,7 +1628,7 @@ TranslateTrackComponentsCommand::TranslateTrackComponentsCommand(const QMultiMap
     QMultiMap<TrackComponent *, bool>::iterator it = selectedTrackComponents_.begin();
 
     while (it != selectedTrackComponents_.end())
-    {
+	{
         QList<TrackMoveProperties *> itTranslateTracks;
 
         TrackComponent *track = it.key();

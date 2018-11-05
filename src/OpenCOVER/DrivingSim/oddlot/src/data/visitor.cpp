@@ -26,6 +26,9 @@
 #include "src/data/roadsystem/track/trackspiralarcspiral.hpp"
 #include "src/data/roadsystem/track/trackelementcubiccurve.hpp"
 
+#include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
+
 #include "src/data/scenerysystem/heightmap.hpp"
 
 Visitor::Visitor()
@@ -96,4 +99,10 @@ void
 Visitor::visit(Heightmap *acceptor)
 {
     visit(static_cast<SceneryMap *>(acceptor));
+}
+
+void
+Visitor::visit(LaneBorder *acceptor)
+{
+	visit(static_cast<LaneWidth *>(acceptor));
 }

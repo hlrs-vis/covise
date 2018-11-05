@@ -60,7 +60,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Slider.h>
-//#include <cover/ui/Button.h>
+#include <cover/ui/Button.h>
 
 #include <grmsg/coGRSnapshotMsg.h>
 #include <net/tokenbuffer.h>
@@ -128,8 +128,22 @@ void NurbsSurface::initUI()
     surfaceSelectionSlider->setCallback([this](int val, bool released)
     {
         currentSurface = &surfaces[val];
+        selectionSetMessage();
     }
     );
+
+    selectionIsBoundaryButton = new ui::Button(NurbsSurfaceMenu, "SelectBoundary");
+    selectionIsBoundaryButton->setText("Select Boundary");
+    selectionIsBoundaryButton->setCallback([this](bool state){
+        if (state)
+        {
+        setSelectionIsBoundary(true);
+        }
+        else
+        {
+        setSelectionIsBoundary(false);
+        }
+    });
 
     selectionParameters = new ui::Group(NurbsSurfaceMenu,"selectionParameters");
     selectionParameters->setText("parameters of selected surface");
@@ -329,14 +343,24 @@ void NurbsSurface::message(int toWhom, int type, int len, const void *buf)
     {
         vector<pointSelection> *selectedPoints = (vector<pointSelection> *)buf;
         currentSurface->receivedPoints.clear();
+        currentSurface->receivedBoundaryPoints.clear();
+        int numBoundaryPoints = 0;
         for (vector<pointSelection>::const_iterator iter=selectedPoints->begin(); iter!=selectedPoints->end(); iter++)
         {
-        Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
-                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
-                                     iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
-        currentSurface->receivedPoints.push_back(newSelectedPoint);
+            Vec3 newSelectedPoint = Vec3(iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].x,
+                    iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].y,
+                    iter->file->pointSet[iter->pointSetIndex].points[iter->pointIndex].z);
+            if (iter->isBoundaryPoint)
+            {
+                currentSurface->receivedBoundaryPoints.push_back(newSelectedPoint);
+            }
+            else
+            {
+                currentSurface->receivedPoints.push_back(newSelectedPoint);
+            }
         }
         fprintf(stderr, "Points received %zi\n", currentSurface->receivedPoints.size());
+        fprintf(stderr, "%zi points are boundary points \n", currentSurface->receivedBoundaryPoints.size());
         currentSurface->updateSurface();
     }
 }
@@ -351,44 +375,80 @@ void NurbsSurface::surfaceInfo::updateSurface()
     if (receivedPoints.size()>20)
     {
         updateModel();
-        calcEdges();
+        fprintf(stderr, "NurbsSurface::surfaceInfo::updateSurface  %zi points are boundary points \n", receivedBoundaryPoints.size());
+        if (receivedBoundaryPoints.size()== 4)
+        {
+            std::vector<curveInfo> boundaryCurves;
+            calcEdgeIntersectionsByPoints(boundaryCurves);
+            calcSamplingPoints(boundaryCurves);
+        }
+        else
+        {
+            calcEdges();
+            calcSamplingPoints();
+        }
         resize();
+    }
+}
+
+void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveInfo>& curves)
+{
+    for (auto it = receivedBoundaryPoints.begin(); it != receivedBoundaryPoints.end(); it++)
+    {
+        auto nx = std::next(it, 1);
+        if (nx == receivedBoundaryPoints.end())
+        {
+            nx=receivedBoundaryPoints.begin();
+        }
+        fprintf(stderr,"Point 1 x: %f  y: %f\n",it->x(),it->y());
+        fprintf(stderr,"Point 1 x: %f  y: %f\n",nx->x(),nx->y());
+        curveInfo boundaryCurve;
+        edgeByPoints(receivedPoints, *it, *nx, boundaryCurve);
+        curves.push_back(boundaryCurve);
+    }
+    for (auto it = curves.begin();it !=curves.end(); it++)
+    {
+        auto nx = std::next(it, 1);
+        if (nx == curves.end())
+        {
+            nx==curves.begin();
+        }
+        curveCurveIntersection(it->curve, it->endPar, nx->curve, nx->startPar);
+    }
+}
+
+void NurbsSurface::surfaceInfo::calcSamplingPoints(std::vector<curveInfo>& curves)
+{
+    if (curves.size()==4)
+    {
         int pointsNewSize=num_points_u*num_points_v*3;
-        double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
-        vector<double> pointTempUpper(2);
-        vector<double> pointTempLower(2);
-        vector<double> pointTempRight(2);
-        vector<double> pointTempLeft(2);
-        vector<double> pointTempRightZero(2);
-        vector<double> pointTempLeftZero(2);
-        vector<double> pointTempRightOne(2);
-        vector<double> pointTempLeftOne(2);
-        vector<double> interpolatedPoint(2);
-        evaluateCurveAtParam(left,1.0,pointTempLeftOne);
-        evaluateCurveAtParam(right,1.0,pointTempRightOne);
-        evaluateCurveAtParam(left,0.0,pointTempLeftZero);
-        evaluateCurveAtParam(right,0.0,pointTempRightZero);
-        int jstat; // status variable
-        int temp;
+        double *pointsNew = new double[pointsNewSize];
+
         int k=0;
+
+        vector<vector<double> > corners;
+        for (auto it = curves.begin();it !=curves.end(); it++)
+        {
+            vector<double> corner = evaluateCurveAtParam(*it, 0.0);
+            corners.push_back(corner);
+        }
+
         for (int i=0; i!=num_points_u; i++)
         {
             double paramFactor0=1.0/(num_points_u-1)*i;
-            fprintf(stderr,"paramFactor0: %f ",paramFactor0);
             for (int j=0; j!=num_points_v;j++)
             {
                 double paramFactor1=1.0/(num_points_v-1)*j;
-                fprintf(stderr,"paramFactor1: %f \n",paramFactor1);
-                evaluateCurveAtParam(upper,paramFactor0,pointTempUpper);
-                evaluateCurveAtParam(lower,paramFactor0,pointTempLower);
-                vector<double> pointTempUpperLower = pointTempUpper+(pointTempLower-pointTempUpper)*paramFactor1;
-                evaluateCurveAtParam(left,paramFactor1,pointTempLeft);
-                evaluateCurveAtParam(right,paramFactor1,pointTempRight);
-                vector<double> pointTempLeftRight = (paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1))+
-                                                     (1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1)));
-                interpolatedPoint = pointTempUpperLower + pointTempLeftRight;
+                //calculate the linear interpolation between edge 0 and 2 as if edges 1 and 3 were straight lines
+                vector<double> linearPointBetweenEdge0and2 = paramFactor1 * evaluateCurveAtParam(curves[0],paramFactor0) + (1.0-paramFactor1) * evaluateCurveAtParam(curves[2],(1-paramFactor0));
+                //then calculate compensation on edges 1 and 3 as difference between straight line and actual point on line
+                vector<double> shiftOnEdge1 = paramFactor0 * (evaluateCurveAtParam(curves[1],paramFactor1) - (corners[1] +(corners[2]-corners[1])*paramFactor1));
+                vector<double> shiftOnEdge3 = (1.0-paramFactor0) * (evaluateCurveAtParam(curves[3],(1.0 - paramFactor1)) - (corners[4]+(corners[3]-corners[4])*paramFactor1));
+                vector<double> interpolatedPoint = linearPointBetweenEdge0and2 + shiftOnEdge1 + shiftOnEdge3;
+
                 pointsNew[k++]=interpolatedPoint[0];
                 pointsNew[k++]=interpolatedPoint[1];
+
                 real_1d_array x;
                 x.setlength(2);
                 x[0]=interpolatedPoint[0];
@@ -399,21 +459,77 @@ void NurbsSurface::surfaceInfo::updateSurface()
                 pointsNew[k++]=y[0];
             }
         }
-        if (cover->debugLevel(3))
-        {
-            int l=0;
-            while (l!=pointsNewSize)
-            {
-                fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
-                if (l % 3 ==2)
-                    fprintf(stderr,"\n");
-                l++;
-            }
-        }
         destroy();
         computeSurface(pointsNew);
-		delete[] pointsNew;
+        delete[] pointsNew;
     }
+}
+
+void NurbsSurface::surfaceInfo::calcSamplingPoints()
+{
+    int pointsNewSize=num_points_u*num_points_v*3;
+    double *pointsNew = new double[pointsNewSize];//num_points_u*num_points_v*3];
+    vector<double> pointTempUpper(2);
+    vector<double> pointTempLower(2);
+    vector<double> pointTempRight(2);
+    vector<double> pointTempLeft(2);
+    vector<double> pointTempRightZero(2);
+    vector<double> pointTempLeftZero(2);
+    vector<double> pointTempRightOne(2);
+    vector<double> pointTempLeftOne(2);
+    vector<double> interpolatedPoint(2);
+    evaluateCurveAtParam(left,1.0,pointTempLeftOne);
+    evaluateCurveAtParam(right,1.0,pointTempRightOne);
+    evaluateCurveAtParam(left,0.0,pointTempLeftZero);
+    evaluateCurveAtParam(right,0.0,pointTempRightZero);
+    int jstat; // status variable
+    int temp;
+    int k=0;
+    for (int i=0; i!=num_points_u; i++)
+    {
+        double paramFactor0=1.0/(num_points_u-1)*i;
+        fprintf(stderr,"paramFactor0: %f \n",paramFactor0);
+        for (int j=0; j!=num_points_v;j++)
+        {
+            double paramFactor1=1.0/(num_points_v-1)*j;
+            fprintf(stderr,"paramFactor1: %f \n",paramFactor1);
+            //get a linear interpolation between upper and lower curve at paramFactor0
+            evaluateCurveAtParam(upper,paramFactor0,pointTempUpper);
+            evaluateCurveAtParam(lower,paramFactor0,pointTempLower);
+            vector<double> pointTempUpperLower = pointTempUpper+(pointTempLower-pointTempUpper)*paramFactor1;
+            //get points on left and right boundary according to paraFactor1
+            evaluateCurveAtParam(left,paramFactor1,pointTempLeft);
+            evaluateCurveAtParam(right,paramFactor1,pointTempRight);
+            vector<double> shiftAccordingtoRightBoundary = paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1));
+            vector<double> shiftAccordingtoLeftBoundary = (1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1));
+            //vector<double> pointTempLeftRight = (paramFactor0*(pointTempRight -(pointTempRightZero+(pointTempRightOne-pointTempRightZero)*paramFactor1))+(1.0-paramFactor0)*(pointTempLeft -(pointTempLeftZero+(pointTempLeftOne-pointTempLeftZero)*paramFactor1)));
+            interpolatedPoint = pointTempUpperLower + shiftAccordingtoRightBoundary + shiftAccordingtoLeftBoundary;
+            pointsNew[k++]=interpolatedPoint[0];
+            pointsNew[k++]=interpolatedPoint[1];
+            real_1d_array x;
+            x.setlength(2);
+            x[0]=interpolatedPoint[0];
+            x[1]=interpolatedPoint[1];
+            real_1d_array y;
+            y.setlength(1);
+            rbfcalc(model,x,y);
+            pointsNew[k++]=y[0];
+        }
+    }
+    if (cover->debugLevel(3))
+    {
+        int l=0;
+        while (l!=pointsNewSize)
+        {
+            fprintf(stderr,"p: %i %f ",l,pointsNew[l]);
+            if (l % 3 ==2)
+                fprintf(stderr,"\n");
+            l++;
+        }
+    }
+    destroy();
+    computeSurface(pointsNew);
+    delete[] pointsNew;
 }
 
 void NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor, vector<double> &point)
@@ -425,7 +541,7 @@ void NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double pa
 
 vector<double> NurbsSurface::surfaceInfo::evaluateCurveAtParam(curveInfo& curve, double paramFactor)
 {
-    vector<double> result;
+    vector<double> result(2);
     int jstat; // status variable
     int temp;
     s1227(curve.curve,0,curve.startPar+paramFactor*(curve.endPar-curve.startPar),&temp,&result[0],&jstat);
@@ -514,6 +630,228 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
     return false;
 }
 
+
+int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, Vec3 pointBegin, Vec3 pointEnd, curveInfo &resultCurveInfo)
+{
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints\n");
+    SISLCurve *result_curve = 0;
+    //int numPoints = all_points.size();
+    std::vector<Vec3> all_points;
+
+    //rotation of points
+    Vec3 edgeDirection = pointEnd - pointBegin;
+    edgeDirection.normalize();
+    Matrixd rotationMatrix;
+    Matrixd inverseRotationMatrix;
+    Vec3 unitAxis = Vec3(1.0, 0.0, 0.0);
+    rotationMatrix.makeRotate(edgeDirection,unitAxis);
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotation\n");
+
+    Vec3 pointBeginLocal = rotationMatrix * pointBegin;
+    Vec3 pointEndLocal = rotationMatrix * pointEnd;
+    // Test if centroid is above or below
+    float dx = pointEnd.x() - pointBegin.x();
+    float dy = pointEnd.y() - pointBegin.y();
+    float slope = dy/dx;
+    float intercept = pointBegin.y() - slope * pointBegin.x();
+
+    float yOnLine = slope * centroid.x()+intercept;
+    if (yOnLine < centroid.y())
+    {
+        rotationMatrix.rotate(DegreesToRadians(180.0),Vec3(0.0,0.0,1.0));
+        pointBeginLocal = rotationMatrix * pointBegin;
+        Vec3 pointEndLocal = rotationMatrix * pointEnd;
+    }
+    inverseRotationMatrix.inverse(rotationMatrix);
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotated points\n");
+
+    for (auto it=selectedPoints.begin(); it!=selectedPoints.end(); it++)
+    {
+        all_points.push_back(rotationMatrix * *it);
+    }
+
+    //
+    double sumZ = 0.0;
+    for (std::vector<osg::Vec3>::const_iterator it = all_points.begin(); it !=all_points.end(); it++)
+    {
+        sumZ += it->_v[2];
+    }
+    double averageZ = sumZ/all_points.size();
+
+    float minimum_x = pointBeginLocal.x();
+    float maximum_x = pointEndLocal.x();
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints minimum x= %f, maximum x=%f \n",minimum_x, maximum_x);
+
+    std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
+    maximumPointsInAllQuadrants.resize(numEdgeSectors, nullptr);
+    real_1d_array LocalXForFirstCurve;
+    real_1d_array LocalYForFirstCurve;
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints finding sectors with maximum\n");
+
+    int numberOfSectorsWithMaximum = 0;
+    for(auto it=all_points.begin(); it != all_points.end(); it++)
+    {
+        int j=int((it->x()-minimum_x)/(maximum_x-minimum_x)*numEdgeSectors);
+        j=min(numEdgeSectors-1,j);
+        if (!maximumPointsInAllQuadrants[j])
+        {
+            maximumPointsInAllQuadrants[j] = &*it;
+            numberOfSectorsWithMaximum++;
+        }
+        else
+        {
+            if (it->y() > maximumPointsInAllQuadrants[j]->y())
+            {
+                maximumPointsInAllQuadrants[j] = &*it;
+            }
+        }
+    }
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints numberOfSectorsWithMaximum = %i\n", numberOfSectorsWithMaximum);
+    //initialize spline firstCurveWithMaximumPointsPerQuadrant
+    ae_int_t degree = 3;
+
+    ae_int_t info;
+    barycentricinterpolant firstCurveWithMaximumPointsPerQuadrant;
+    polynomialfitreport repo;
+
+    //initialize spline curve
+    barycentricinterpolant curve;
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints interpolating first curve\n");
+    if (numberOfSectorsWithMaximum > 1)
+    {
+        LocalXForFirstCurve.setlength(numberOfSectorsWithMaximum);
+        LocalYForFirstCurve.setlength(numberOfSectorsWithMaximum);
+
+        int countFirstCurve = 0;
+
+        for(std::vector<Vec3*>::iterator it = maximumPointsInAllQuadrants.begin(); it != maximumPointsInAllQuadrants.end(); it++)
+        {
+            if (*it)
+            {
+                LocalXForFirstCurve[countFirstCurve] = (*it)->x();
+                LocalYForFirstCurve[countFirstCurve] = (*it)->y();
+                countFirstCurve++;
+            }
+        }
+
+        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints building first curve out of maximum points per quadrant\n");
+        //built first curve out of maximum points per quadrant
+        polynomialfit(LocalXForFirstCurve, LocalYForFirstCurve, degree, info, firstCurveWithMaximumPointsPerQuadrant, repo);
+
+        std::vector<osg::Vec3> pointsAboveCurve;
+
+        //compare all points with first curve, if they are above or below
+        for(auto it = all_points.begin(); it != all_points.end(); it++)
+        {
+            if (it->y() > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, it->x()))
+            {
+                pointsAboveCurve.push_back(*it);
+            }
+        }
+        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointsAboveCurve = %i\n", pointsAboveCurve.size());
+        real_1d_array LocalXForSecondCurve;
+        real_1d_array LocalYForSecondCurve;
+
+        LocalXForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+        LocalYForSecondCurve.setlength(numberOfSectorsWithMaximum + pointsAboveCurve.size());
+
+        int countSecondCurve = 0;
+
+        for(int k = 0; k < maximumPointsInAllQuadrants.size(); k++)
+        {
+            if (!maximumPointsInAllQuadrants[k]) {
+            }
+            else{
+                LocalXForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->x();
+                LocalYForSecondCurve[countSecondCurve] = maximumPointsInAllQuadrants[k]->y();
+                countSecondCurve++;
+            }
+        }
+
+        for(int j = 0; j < pointsAboveCurve.size(); j++)
+        {
+            LocalXForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].x();
+            LocalYForSecondCurve[countSecondCurve + j] = pointsAboveCurve[j].y();
+        }
+
+        //built second curve out of maximum points per quadrant and all points above the first curve
+        polynomialfit(LocalXForSecondCurve, LocalYForSecondCurve, degree, info, curve, repo);
+        //return(curve);
+
+        //Also build a SISL-curve from this data for intersection calculation
+        //using transformed global coordinates
+        int num_points = numEdgeSectors;
+        double *pointsSISLCurve = new double[2*num_points];
+        int *type= new int[num_points];
+        for (int i=0; i!=num_points; i++)
+        {
+            double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
+            double y = barycentriccalc(curve,x);
+            double z = averageZ;
+            osg::Vec3 pointRotated = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            osg::Vec3 point = inverseRotationMatrix * pointRotated;
+            pointsSISLCurve[i*2]=point.x();
+            pointsSISLCurve[i*2+1]=point.y();
+            type[i]=1;
+            //osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
+            point = rotationMatrixToWorld * point;
+            highlightPoint(point);
+            //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
+        }
+        const double cstartpar = 0;
+            fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints trying sisl curve\n");
+        try
+        {
+            double cendpar;
+
+            double* gpar = 0;
+            int jnbpar;
+            int jstat;
+
+            s1356(pointsSISLCurve,        // pointer to where the point coordinates are stored
+                  num_points,    // number of points to be interpolated
+                  2,             // the dimension
+                  type,          // what type of information is stored at a particular point
+                  0,             // no additional condition at start point
+                  0,             // no additional condition at end point
+                  1,             // open curve
+                  3,             // order of the spline curve to be produced
+                  cstartpar,     // parameter value to be used at start of curve
+                  &cendpar,      // parameter value at the end of the curve (to be determined)
+                  &result_curve, // the resulting spline curve (to be determined)
+                  &gpar,         // pointer to the parameter values of the points in the curve
+                  // (to be determined)
+                  &jnbpar,       // number of unique parameter values (to be determined)
+                  &jstat);       // status message
+
+            if (jstat < 0) {
+                throw runtime_error("Error occured inside call to SISL routine.");
+            } else if (jstat > 0) {
+                std::cerr << "WARNING: warning occured inside call to SISL routine. \n" << std::endl;
+            }
+            delete []pointsSISLCurve;
+            delete[] type;
+            resultCurveInfo.curve = result_curve;
+            resultCurveInfo.startPar = cstartpar;
+            resultCurveInfo.endPar = cendpar;
+            fprintf(stderr,"start value %f end value %f\n",cstartpar,cendpar);
+
+            // cleaning up
+            //freeCurve(result_curve);
+            free(gpar);
+        }
+        catch (exception& e)
+        {
+            std::cerr << "Exception thrown: " << e.what() << std::endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
 //method for creating edges in unsorted points
 //
 //    local_x -> local x-value for creating upper edge
@@ -525,7 +863,6 @@ bool NurbsSurface::surfaceInfo::curveCurveIntersection(SISLCurve *c1, double& c1
 //    change -> changes upper edge to lower edge and right edge to left edge
 //        without changing:   change = 1
 //        with changing:      change = -1
-
 int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo)
 {
     SISLCurve *result_curve = 0;
@@ -746,13 +1083,9 @@ void NurbsSurface::surfaceInfo::updateModel()
     fprintf(stderr, "NurbsSurface::updateModel() \n");
     //xy.setlength(receivedPoints.size(),3);
     int i=0;
-    osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0); 
+
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
-        //Create real_2d_array holding points
-        //xy[i][0]=iter->_v[0];
-        //xy[i][1]=iter->_v[1];
-        //xy[i][2]=iter->_v[2];
         centroid = centroid + *iter;
         i++;
     }
@@ -767,22 +1100,13 @@ void NurbsSurface::surfaceInfo::updateModel()
     //points relative to centroid
     //fprintf(stderr, "points relative to centroid \n");
     real_2d_array pointsRelativeToCentroid;
-    //pointsRelativeToCentroid.setlength(3, receivedPoints.size());
     pointsRelativeToCentroid.setlength(receivedPoints.size(), 3);
     i=0;
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
-        //fprintf(stderr, "points relative to centroid %i \n",i);
-        //Create real_2d_array holding points relative to centroid
-        /*pointsRelativeToCentroid[0][i]=iter->_v[0]-centroid._v[0];
-        pointsRelativeToCentroid[1][i]=iter->_v[1]-centroid._v[1];
-        pointsRelativeToCentroid[2][i]=iter->_v[2]-centroid._v[2];
-        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[0][i], pointsRelativeToCentroid[1][i], pointsRelativeToCentroid[2][i]);*/
         pointsRelativeToCentroid[i][0]=iter->_v[0]-centroid._v[0];
         pointsRelativeToCentroid[i][1]=iter->_v[1]-centroid._v[1];
         pointsRelativeToCentroid[i][2]=iter->_v[2]-centroid._v[2];
-        fprintf(stderr,"point %i: %f %f %f \n",i, pointsRelativeToCentroid[i][0], pointsRelativeToCentroid[i][1], pointsRelativeToCentroid[i][2]);
-        //fprintf(stderr,"xy %i: %f %f %f \n",i, xy[i][0], xy[i][1], xy[i][2]);
         i++;
     }
 
@@ -790,7 +1114,7 @@ void NurbsSurface::surfaceInfo::updateModel()
     real_2d_array covarianceMatrix;
     //covarianceMatrix.setlength(3,3);
     covm(pointsRelativeToCentroid, covarianceMatrix);
-    fprintf(stderr, "Covariance matrix has length: %i x %i \n", covarianceMatrix.rows(), covarianceMatrix.cols());
+    fprintf(stderr, "Covariance matrix has length: %li x %li \n", (long)covarianceMatrix.rows(), (long)covarianceMatrix.cols());
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[0][0], covarianceMatrix[0][1], covarianceMatrix[0][2]);
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[1][0], covarianceMatrix[1][1], covarianceMatrix[1][2]);
     fprintf(stderr,"covariance matrix: %f %f %f\n",covarianceMatrix[2][0], covarianceMatrix[2][1], covarianceMatrix[2][2]);
@@ -803,8 +1127,6 @@ void NurbsSurface::surfaceInfo::updateModel()
     real_2d_array eigenvector;
     eigsubspacereport eigenRep;
     eigsubspacesolvedenses(state,covarianceMatrix, true, eigenvalue, eigenvector, eigenRep);
-    fprintf(stderr, "eigenvector has length: %i x %i \n",  eigenvector.rows(), eigenvector.cols());
-    //fprintf(stderr,"Eigenvector: %f %f %f \n",eigenvector[0], eigenvector[1],eigenvector[0+2*eigenvector.getstride()]);
     fprintf(stderr,"eigenvector 0: %f %f %f\n",eigenvector[0][0], eigenvector[1][0], eigenvector[2][0]);
     fprintf(stderr,"eigenvector 1: %f %f %f\n",eigenvector[0][1], eigenvector[1][1], eigenvector[2][1]);
     fprintf(stderr,"eigenvector 2: %f %f %f\n",eigenvector[0][2], eigenvector[1][2], eigenvector[2][2]);
@@ -840,32 +1162,29 @@ void NurbsSurface::surfaceInfo::updateModel()
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
         osg::Vec3 rotatedPoint = rotationMatrixToLocal * *iter;
-        fprintf(stderr,"rotatedPoint: %f %f %f\n",rotatedPoint[0], rotatedPoint[1], rotatedPoint[2]);
         receivedPointsRotated.push_back(rotatedPoint);
         i++;
     }
+
     i=0;
     xy.setlength(receivedPointsRotated.size(),3);
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPointsRotated.begin() ; iter != receivedPointsRotated.end(); iter++)
     {
-        fprintf(stderr,"i %i\n",i);
         //Create real_2d_array holding points
         xy[i][0]=iter->_v[0];
         xy[i][1]=iter->_v[1];
         xy[i][2]=iter->_v[2];
-
-        fprintf(stderr, "rotatedPointxy: %f %f %f \n", xy[i][0],xy[i][1],xy[i][2]);
         i++;
     }
-    fprintf(stderr,"xy updated\n");
+    //fprintf(stderr,"xy updated\n");
 
     //Create RBFModel
     rbfsetpoints(model,xy);
-    fprintf(stderr,"xy points set\n");
+    //fprintf(stderr,"xy points set\n");
 
     rbfreport rep;
     rbfbuildmodel(model, rep);
-    fprintf(stderr,"Model updated\n");
+    //fprintf(stderr,"Model updated\n");
 }
 
 void
@@ -936,6 +1255,18 @@ void NurbsSurface::updateMessage()
     cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSurfaceMsg, sizeof(surfaceGeodes), &surfaceGeodes);
 }
 
+void NurbsSurface::selectionSetMessage()
+{
+    //Tell PointCloud-plugin which surface is currently selected
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionSetMsg, sizeof(currentSurface->surfaceIndex), &(currentSurface->surfaceIndex));
+}
+
+void NurbsSurface::selectionIsBoundaryMessage()
+{
+    // selected points mark the boundary
+    cover->sendMessage(NULL, "PointCloud", PluginMessageTypes::PointCloudSelectionIsBoundaryMsg, sizeof(m_selectionIsBoundary), &(m_selectionIsBoundary));
+}
+
 void NurbsSurface::createNewSurface()
 {
     surfaces.push_back(surfaceInfo());
@@ -952,6 +1283,12 @@ void NurbsSurface::updateUI()
     sprintf(currentSurfaceName,"Current Surface: %d",currentSurface->surfaceIndex);
     currentSurfaceLabel->setText(currentSurfaceName);
     surfaceSelectionSlider->setBounds(0,surfaces.size()-1);
+}
+
+void NurbsSurface::setSelectionIsBoundary(bool selectionIsBoundary)
+{
+    m_selectionIsBoundary = selectionIsBoundary;
+    selectionIsBoundaryMessage();
 }
 
 COVERPLUGIN(NurbsSurface)

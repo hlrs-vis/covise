@@ -27,7 +27,7 @@ class TextHandle : public Handle
     //################//
 
 public:
-    explicit TextHandle(const QString &text, QGraphicsItem *parent);
+    explicit TextHandle(const QString &text, QGraphicsItem *parent, bool flip = false);
     virtual ~TextHandle();
 
     QString getText() const;

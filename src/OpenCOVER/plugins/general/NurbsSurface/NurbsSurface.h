@@ -44,7 +44,6 @@
 #include <assert.h>
 
 
-
 namespace opencover
 {
 class coVRSceneHandler;
@@ -92,6 +91,8 @@ struct curveInfo{
         int order_V = 2;
         osg::ref_ptr<osg::Geode> geode;
         std::vector<osg::Vec3> receivedPoints;
+        std::vector<osg::Vec3> receivedBoundaryPoints;
+        osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0);
         osg::Matrixd rotationMatrixToWorld;
         osg::Matrixd rotationMatrixToLocal;
         std::vector<osg::Vec3> receivedPointsRotated;
@@ -110,6 +111,9 @@ struct curveInfo{
         void updateModel();
         void resize();
         bool calcEdges();
+        void calcEdgeIntersectionsByPoints(std::vector<curveInfo>& curves);
+        void calcSamplingPoints();
+        void calcSamplingPoints(std::vector<curveInfo>& curves);
         void evaluateCurveAtParam(curveInfo& curve, double paramFactor, std::vector<double>& point);
         std::vector<double> evaluateCurveAtParam(curveInfo& curve, double paramFactor);
 
@@ -119,6 +123,7 @@ struct curveInfo{
         double sphereSize = 10.0;
         virtual bool destroy();
         int edge(std::vector<osg::Vec3> all_points, int local_x, int local_y, int change, curveInfo &resultCurveInfo);
+        int edgeByPoints(std::vector<osg::Vec3> &all_points, osg::Vec3 pointBegin, osg::Vec3 pointEnd, curveInfo &resultCurveInfo);
         int numEdgeSectors = 5;
         void highlightPoint(osg::Vec3& newSelectedPoint);
     };
@@ -136,7 +141,7 @@ private:
     ui::Label *currentSurfaceLabel = nullptr;
     ui::Action *newSurface = nullptr;
     ui::Action *saveButton_;
-
+    ui::Button *selectionIsBoundaryButton;
     ui::Slider *surfaceSelectionSlider=nullptr;
 
     ui::Group *selectionParameters = nullptr;
@@ -150,6 +155,10 @@ private:
     void initUI();
     void updateUI();
     void createNewSurface();
+    bool m_selectionIsBoundary = false;
+    void setSelectionIsBoundary(bool selectionIsBoundary);
+    void selectionIsBoundaryMessage();
+    void selectionSetMessage();
 };
 
 template <typename T>

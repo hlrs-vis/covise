@@ -50,6 +50,9 @@ ADD_DEFINITIONS( -DUSE_MIDMOUSE_PAN)
 
 #SET(EXTRA_LIBS ${EXTRA_LIBS} ${TIFF_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
 
+SET(ODDLOT_HEADERS
+	src/graph/items/handles/lanemovehandle.hpp
+	)
 
 SET(ODDLOT_SOURCES 
      src/main.cpp 
@@ -236,14 +239,10 @@ SET(ODDLOT_SOURCES
 	 src/tree/items/sensortreeitem.cpp
 	 src/settings/projectsettingsvisitor.cpp
 	 src/graph/editors/laneeditor.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroadsystemitem.cpp
 	 src/graph/items/roadsystem/lanes/laneroaditem.cpp
 	 src/graph/items/roadsystem/lanes/lanesectionitem.cpp
 	 src/graph/items/roadsystem/lanes/laneitem.cpp
-	 src/graph/items/roadsystem/lanes/lanesectionwidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthitem.cpp
-	 src/graph/items/roadsystem/lanes/lanewidthmovehandle.cpp
 	 src/gui/tools/laneeditortool.cpp
 	 src/settings/settingselement.cpp
 	 src/settings/widgets/elevationsettings.cpp
@@ -393,6 +392,7 @@ SET(ODDLOT_SOURCES
 	src/data/roadsystem/lateralsections/polynomiallateralsection.cpp
 	src/graph/items/roadsystem/sections/lateralsectionitem.cpp
 	src/data/commands/lateralsectioncommands.cpp
+	src/graph/items/handles/baselanemovehandle.cpp
 )
 SET(ODDLOT_MOC_HEADERS
     src/data/changemanager.hpp
@@ -445,9 +445,6 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/items/roadsystem/lanes/laneitem.hpp
     src/graph/items/roadsystem/lanes/lanelinkitem.hpp
     src/graph/items/roadsystem/lanes/lanesectionitem.hpp
-    src/graph/items/roadsystem/lanes/lanesectionwidthitem.hpp
-    src/graph/items/roadsystem/lanes/lanewidthitem.hpp
-    src/graph/items/roadsystem/lanes/lanewidthmovehandle.hpp
     src/graph/items/roadsystem/roaditem.hpp
     src/graph/items/roadsystem/roadlink/roadlinkitem.hpp
     src/graph/items/roadsystem/roadlink/roadlinkroaditem.hpp
@@ -484,6 +481,7 @@ SET(ODDLOT_MOC_HEADERS
     src/graph/profilegraphview.hpp
     src/graph/projectgraph.hpp
     src/graph/topviewgraph.hpp
+	src/graph/items/handles/baselanemovehandle.hpp
     src/gui/exportsettings.hpp
     src/gui/importsettings.hpp
     src/gui/lodsettings.hpp

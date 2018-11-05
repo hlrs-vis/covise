@@ -21,6 +21,7 @@
 class RSystemElementRoad;
 class RoadSystemItem;
 class LaneEditor;
+class LaneSectionItem;
 
 class LaneRoadItem : public RoadItem
 {
@@ -36,6 +37,17 @@ public:
     // Obsever Pattern //
     //
     virtual void updateObserver();
+
+	// SectionItems //
+	//
+	void addSectionItem(LaneSectionItem *item);
+	int removeSectionItem(LaneSectionItem *item);
+	LaneSectionItem *getSectionItem(LaneSection *section);
+
+	// Handles //
+	//
+	void rebuildMoveRotateHandles(bool delHandles);
+	void deleteHandles();
 
 private:
     LaneRoadItem(); /* not allowed */
@@ -55,6 +67,14 @@ public:
 
 private:
     LaneEditor *laneEditor_;
+
+	RSystemElementRoad *road_;
+
+	// LaneSectionItems //
+	//
+	QMap<LaneSection *, LaneSectionItem *> laneSectionItems_;
+
+	QGraphicsPathItem *handlesItem_;
 };
 
 #endif // LANEROADITEM_HPP

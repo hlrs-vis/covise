@@ -1,4 +1,7 @@
 USING(Virvo optional) # for transfer function editor
+MESSAGE("halloTUI")
+USING(WiringPi optional)
+
 
 # set TUI_SOURCES, TUI_HEADERS and TUI_MOC_HEADERS
 
@@ -99,6 +102,15 @@ SET(TUI_MOC_HEADERS
   TUIUI/TUIUIWidgetSet.h
   TUIUI/TUIUIScriptWidget.h
 )
+if (WIRINGPI_FOUND)
+   SET(TUI_SOURCES ${TUI_SOURCES}
+      Thyssen.cpp
+      )
+   SET(TUI_HEADERS ${TUI_HEADERS}
+      Thyssen.h
+      )
+endif (WIRINGPI_FOUND)
+
 
 if (COVISE_USE_VIRVO)
    SET(TUI_SOURCES ${TUI_SOURCES}

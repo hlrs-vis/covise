@@ -38,6 +38,7 @@ public:
         CLW_ParentLaneChanged = 0x1,
         CLW_OffsetChanged = 0x2,
         CLW_WidthChanged = 0x4,
+		CLW_GradientChanged = 0x8
     };
 
     //################//
@@ -61,8 +62,8 @@ public:
         return sOffset_;
     }
     double getSSectionStartAbs() const;
-    double getSSectionEnd() const;
-    double getLength() const;
+    virtual double getSSectionEnd() const;
+    virtual double getLength() const;
 
     double getSOffset() const
     {
@@ -74,7 +75,9 @@ public:
     double getSlope(double sSection) const;
     double getCurvature(double sSection) const;
 
-    void setParameters(double a, double b, double c, double d);
+	virtual double getT(double s);
+
+    virtual void setParameters(double a, double b, double c, double d);
 
     // Observer Pattern //
     //

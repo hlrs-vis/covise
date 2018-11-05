@@ -19,6 +19,7 @@
 #include "src/graph/items/graphelement.hpp"
 
 class LaneSectionItem;
+class LaneEditor;
 
 class LaneItem : public GraphElement
 {
@@ -47,6 +48,11 @@ public:
     //
     void updateColor();
     virtual void createPath();
+
+	// Handles //
+	//
+	void rebuildMoveRotateHandles(bool delHandles);
+	void deleteHandles();
 
     // Obsever Pattern //
     //
@@ -92,6 +98,9 @@ private:
     Lane *lane_;
 
     RSystemElementRoad *grandparentRoad_;
+
+	LaneEditor *laneEditor_;
+	QGraphicsPathItem *handlesItem_;
 };
 
 #endif // LANEITEM_HPP

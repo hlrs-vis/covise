@@ -2242,7 +2242,7 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
         child = child.nextSiblingElement();
     }
 
-    laneSection->checkAndFixLanes();
+    laneSection->checkAndFixLanes(); // subsequent lane ids
 
     return true;
 }
@@ -2253,99 +2253,72 @@ DomParser::parseLaneSectionElement(QDomElement &laneSectionElement, RSystemEleme
 bool
 DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 {
-    // <lane> (mandatory, max count: unlimited) //
-    //
-    int id = parseToInt(laneElement, "id", 0, false); // mandatory
-    QString type = parseToQString(laneElement, "type", "driving", false); // mandatory
-    QString level = parseToQString(laneElement, "level", "false", true); // optional
+	// <lane> (mandatory, max count: unlimited) //
+	//
+	int id = parseToInt(laneElement, "id", 0, false); // mandatory
+	QString type = parseToQString(laneElement, "type", "driving", false); // mandatory
+	QString level = parseToQString(laneElement, "level", "false", true); // optional
 
-    // <lane><link> //
-    //
-    int predecessorId = Lane::NOLANE;
-    int successorId = Lane::NOLANE;
+	// <lane><link> //
+	//
+	int predecessorId = Lane::NOLANE;
+	int successorId = Lane::NOLANE;
 
-    QDomElement child = laneElement.firstChildElement("link"); // optional
-    if (!child.isNull())
-    {
-        // <lane><link><predecessor> //
-        QDomElement linkChild = child.firstChildElement("predecessor"); // optional
-        if (!linkChild.isNull())
-        {
-            predecessorId = parseToInt(linkChild, "id", 0, false); // mandatory
-        }
+	QDomElement child = laneElement.firstChildElement("link"); // optional
+	if (!child.isNull())
+	{
+		// <lane><link><predecessor> //
+		QDomElement linkChild = child.firstChildElement("predecessor"); // optional
+		if (!linkChild.isNull())
+		{
+			predecessorId = parseToInt(linkChild, "id", 0, false); // mandatory
+		}
 
-        // <lane><link><successor> //
-        linkChild = child.firstChildElement("successor"); // optional
-        if (!linkChild.isNull())
-        {
-            successorId = parseToInt(linkChild, "id", 0, false); // mandatory
-        }
-    }
+		// <lane><link><successor> //
+		linkChild = child.firstChildElement("successor"); // optional
+		if (!linkChild.isNull())
+		{
+			successorId = parseToInt(linkChild, "id", 0, false); // mandatory
+		}
+	}
 
-    Lane *lane = new Lane(id, Lane::parseLaneType(type), (level == "true"), predecessorId, successorId);
+	Lane *lane = new Lane(id, Lane::parseLaneType(type), (level == "true"), predecessorId, successorId);
 
-    // <lane><width> //
-    //
-    child = laneElement.firstChildElement("width"); // optional for id=0 (center)
-    while (!child.isNull())
-    {
-        double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
-        double a = parseToDouble(child, "a", 0.0, false); // mandatory
-        double b = parseToDouble(child, "b", 0.0, false); // mandatory
-        double c = parseToDouble(child, "c", 0.0, false); // mandatory
-        double d = parseToDouble(child, "d", 0.0, false); // mandatory
+	// <lane><width> //
+	//
+	child = laneElement.firstChildElement("width"); // optional for id=0 (center)
+	while (!child.isNull())
+	{
+		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
+		double a = parseToDouble(child, "a", 0.0, false); // mandatory
+		double b = parseToDouble(child, "b", 0.0, false); // mandatory
+		double c = parseToDouble(child, "c", 0.0, false); // mandatory
+		double d = parseToDouble(child, "d", 0.0, false); // mandatory
 
-        LaneWidth *widthEntry = new LaneWidth(sOffset, a, b, c, d);
-        lane->addWidthEntry(widthEntry);
+		LaneWidth *widthEntry = new LaneWidth(sOffset, a, b, c, d);
+		lane->addWidthEntry(widthEntry);
 
-        child = child.nextSiblingElement("width");
-    }
+		child = child.nextSiblingElement("width");
+	}
 
 	// <lane><border> //
 	//
 	child = laneElement.firstChildElement("border"); // optional 
-	QMap<double, LaneWidth *> widthEntries = lane->getWidthEntries();
-	bool isWidthEntry = !widthEntries.isEmpty();
 	while (!child.isNull())
 	{
 		double sOffset = parseToDouble(child, "sOffset", 0.0, false); // mandatory
-		LaneBorder *border = NULL;
-		bool addEntry = false;
+		double a = parseToDouble(child, "a", 0.0, false); // mandatory
+		double b = parseToDouble(child, "b", 0.0, false); // mandatory
+		double c = parseToDouble(child, "c", 0.0, false); // mandatory
+		double d = parseToDouble(child, "d", 0.0, false); // mandatory
 
-		if (isWidthEntry)
-		{
-			QMap<double, LaneWidth *>::const_iterator it = widthEntries.upperBound(sOffset);
-			if (it != widthEntries.constBegin())
-			{
-				it--;
-			}
-
-			if (sOffset > it.key())
-			{
-				border = dynamic_cast<LaneBorder *>(it.value());
-			}
-			else if (it.key() - sOffset > NUMERICAL_ZERO3)
-			{
-				addEntry = true;
-			}
-		}
-
-		if (!isWidthEntry || border || addEntry)
-		{
-
-			double a = parseToDouble(child, "a", 0.0, false); // mandatory
-			double b = parseToDouble(child, "b", 0.0, false); // mandatory
-			double c = parseToDouble(child, "c", 0.0, false); // mandatory
-			double d = parseToDouble(child, "d", 0.0, false); // mandatory
-
-			LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
-			lane->addWidthEntry(borderEntry);
-		}
+		LaneBorder *borderEntry = new LaneBorder(sOffset, a, b, c, d);
+		lane->addWidthEntry(borderEntry);
 
 		child = child.nextSiblingElement("border");
 	}
 
-	if (lane->getWidthEntries().isEmpty())
+	if (lane->getWidthEntries().isEmpty() && lane->getBorderEntries().isEmpty())
 	{
 		if (id != 0)
 		{
@@ -2356,7 +2329,17 @@ DomParser::parseLaneElement(QDomElement &laneElement, LaneSection *laneSection)
 					.arg(laneSection->getSStart())
 					.arg(laneSection->getParentRoad()->getID().speakingName()));
 		}
+                lane->setWidthActive(true);
 	}
+	else if (!lane->getWidthEntries().isEmpty())
+	{
+		lane->setWidthActive(true);
+	}
+	else
+	{
+		lane->setWidthActive(false);
+	}
+
 
     // <lane><roadMark> //
     //

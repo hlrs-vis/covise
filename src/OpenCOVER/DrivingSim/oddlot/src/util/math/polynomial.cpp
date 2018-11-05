@@ -58,6 +58,24 @@ Polynomial::Polynomial(const Polynomial &polynomial)
 }
 
 void
+Polynomial::operator+=(const Polynomial &g)
+{
+	a_ += g.a_;
+	b_ += g.b_;
+	c_ += g.c_;
+	d_ += g.d_;
+}
+
+void
+Polynomial::operator-=(const Polynomial &g)
+{
+	a_ -= g.a_;
+	b_ -= g.b_;
+	c_ -= g.c_;
+	d_ -= g.d_;
+}
+
+void
 Polynomial::protectedSetParameters(double a, double b, double c, double d)
 {
     a_ = a;
@@ -333,3 +351,46 @@ Polynomial::setParametersFromControlPoints(QPointF p0, QPointF p1, QPointF p2, Q
 	qDebug() << "f(0)=" << f(0);
 	qDebug() << "f(p3.x)=" << f(p3.x()); */
 }
+
+void 
+Polynomial::setParameters(QPointF endPoint)
+{
+	double l = endPoint.x();
+	double h0 = a_;
+	double dh0 = b_;
+	double h1 = endPoint.y();
+	double dh1 = endPoint.y() / endPoint.x();
+
+	double d = (dh1 + dh0 - 2.0 * h1 / l + 2.0 * h0 / l) / (l * l);
+	double c = (h1 - d * l * l * l - dh0 * l - h0) / (l * l);
+	d_ = d;
+	c_ = c;
+}
+
+double
+Polynomial::getTLength(double s)
+{
+
+	double t = s * 0.5; // first approximation
+
+	for (int i = 0; i < 30; ++i)  // 20 is not enough!
+	{
+
+		// Flo's code //
+		//
+		// Cut taylor series approximation (1-degree) of arc length integral, solved with Newton-Raphson for t with respect to s
+		//		double b = getB();
+		//		double c = getC();
+		//		double d = getD();
+		//		double f = t*sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)-s;
+		//		double df = sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1)+(t*((3*d*t)/2+c)*((3*d*pow(t,2))/4+c*t+b))/sqrt(pow(((3*d*pow(t,2))/4+c*t+b),2)+1);
+
+		// New code with integration //
+		//
+		double f = getCurveLength(0.0, t) - s;
+		double df = sqrt(1.0 + (b_ + 2.0 * c_ * t + 3.0 * d_ * t * t) * (b_ + 2.0 * c_ * t + 3.0 * d_ * t * t));
+		t -= f / df;
+	}
+	return t;
+}
+

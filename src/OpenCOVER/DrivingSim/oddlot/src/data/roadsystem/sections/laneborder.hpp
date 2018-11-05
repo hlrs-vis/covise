@@ -34,13 +34,20 @@ public:
 public:
 	// Observer Pattern //
 	//
-	enum LaneWidthChange
+	enum LaneBorderChange
 	{
 		CLB_BorderChanged = 0x1
 	};
 
     explicit LaneBorder(double sOffset, double a, double b, double c, double d);
     virtual ~LaneBorder();
+
+	LaneBorder *getClone();
+
+	virtual double getSSectionEnd() const;
+	virtual double getLength() const;
+
+	virtual double getT(double s);
 
     // Observer Pattern //
     //

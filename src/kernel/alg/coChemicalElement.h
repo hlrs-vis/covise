@@ -18,39 +18,39 @@
 namespace covise
 {
 
-    class ALGEXPORT coChemicalElement
-    {
-        public:
-        int number;
-        std::string name;
-        std::string symbol;
-        float radius;
-        float color[4];
-        coChemicalElement();
-        coChemicalElement(int number, std::string n, std::string sym, float r, float re, float g, float b);
-        coChemicalElement(const coChemicalElement &ce);
-    };
+class ALGEXPORT coChemicalElement
+{
+ public:
+   int number;
+   std::string name;
+   std::string symbol;
+   float radius;
+   float color[4];
+   coChemicalElement();
+   coChemicalElement(int number, std::string n, std::string sym, float r, float re, float g, float b);
+   coChemicalElement(const coChemicalElement &ce);
+};
 
-    class ALGEXPORT coAtomInfo
-    {
+class ALGEXPORT coAtomInfo
+{
 
-    public:
-        static coAtomInfo* instance();
-        int getType(const std::string &type);
-        float getRadius(int type);
-        void getColor(int type, float (&color)[4]);
-        std::vector<coChemicalElement> all;
-        std::map<std::string, int> idMap;
+ public:
+   static coAtomInfo* instance();
+   int getType(const std::string &type);
+   float getRadius(int type);
+   void getColor(int type, float (&color)[4]);
+   std::vector<coChemicalElement> all;
+   std::map<std::string, int> idMap;
 
 
-    private:
-        coAtomInfo();
-        static bool initialized;
-        static const int numStaticAtoms = 118;
-        static coChemicalElement allStatic[numStaticAtoms];
+ private:
+   coAtomInfo();
+   static bool initialized;
+   static const int numStaticAtoms = 118;
+   static coChemicalElement allStatic[numStaticAtoms];
 
-        static coAtomInfo* myInstance;
-    };
+   static coAtomInfo* myInstance;
+};
+
 }
-
 #endif

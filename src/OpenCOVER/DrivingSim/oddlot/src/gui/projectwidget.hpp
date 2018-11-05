@@ -162,10 +162,6 @@ public:
     {
         return profileGraph_;
     }
-    ProfileGraph *getHeightGraph() const
-    {
-        return heightGraph_;
-    }
     ProjectTree *getProjectTree() const
     {
         return projectTree_;
@@ -261,7 +257,6 @@ private:
 
     TopviewGraph *topviewGraph_; // view			// owned
     ProfileGraph *profileGraph_; // view			// owned
-    ProfileGraph *heightGraph_; // view			// owned
 
     ProjectEditor *projectEditor_; // controller
     QMap<ODD::EditorId, ProjectEditor *> editors_; // owned

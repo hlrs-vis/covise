@@ -1215,4 +1215,14 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
     {
 
     }
+    if (type == PluginMessageTypes::PointCloudSelectionSetMsg)
+    {
+        int *selectionSet = (int *)buf;
+        s_pointCloudInteractor->setSelectionSetIndex(*selectionSet);
+    }
+    if (type == PluginMessageTypes::PointCloudSelectionIsBoundaryMsg)
+    {
+        bool *selectionIsBoundary = (bool *)buf;
+        s_pointCloudInteractor->setSelectionIsBoundary(*selectionIsBoundary);
+    }
 }

@@ -46,6 +46,9 @@ public:
         return d_;
     }
 
+	void operator += (const Polynomial&);
+	void operator -= (const Polynomial&);
+
     // TODO: setFunctions with recalculateDegree
 
     int getDegree() const
@@ -66,10 +69,12 @@ public:
 
 	double getX(double y, double l, double xApprox);
 	double getT(double y, double xApprox) const;
+	double getTLength(double s);
 
 	bool getPolynomialControlPoints(double length,QPointF &p0, QPointF &p1, QPointF &p2, QPointF &p3);
 	void setParametersFromControlPoints(QPointF p0, QPointF p1, QPointF p2, QPointF p3);
 	void setParameters(double a, double b, double c, double d);
+	void setParameters(QPointF endPoint);
 
 protected:
     // four doubles = 0 is the same Polynomial(); /* not allowed */

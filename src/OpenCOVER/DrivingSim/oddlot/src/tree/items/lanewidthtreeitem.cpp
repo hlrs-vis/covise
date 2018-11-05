@@ -19,18 +19,21 @@
 //
 #include "src/data/roadsystem/sections/lane.hpp"
 #include "src/data/roadsystem/sections/lanewidth.hpp"
+#include "src/data/roadsystem/sections/laneborder.hpp"
 
 // Tree //
 //
 #include "lanetreeitem.hpp"
 
+
 LaneWidthTreeItem::LaneWidthTreeItem(LaneTreeItem *parent, LaneWidth *laneWidth, QTreeWidgetItem *fosterParent)
-    : ProjectTreeItem(parent, laneWidth, fosterParent)
-    , laneTreeItem_(parent)
-    , laneWidth_(laneWidth)
+	: ProjectTreeItem(parent, laneWidth, fosterParent)
+	, laneTreeItem_(parent)
+	, laneWidth_(laneWidth)
 {
-    init();
+	init();
 }
+
 
 LaneWidthTreeItem::~LaneWidthTreeItem()
 {

@@ -4356,6 +4356,8 @@ void net_module_list::save_config(const string &filename)
 
     std::filebuf *pbuf = NULL;
 
+    Message err_msg(COVISE_MESSAGE_COVISE_ERROR, std::string("Error saving file " + filename));
+
     ofstream outFile(filename.c_str());
     if (!outFile.good())
     {
@@ -4368,6 +4370,7 @@ void net_module_list::save_config(const string &filename)
             {
                 string tmp = "Error saving file " + filename;
                 Message *err_msg = new Message(COVISE_MESSAGE_COVISE_ERROR, tmp);
+                std::cerr << "ERROR: " << tmp << std::endl;
                 CTRLGlobal::getInstance()->userinterfaceList->send_all(err_msg);
                 delete err_msg;
                 return;
@@ -4375,6 +4378,12 @@ void net_module_list::save_config(const string &filename)
 
             else
                 pbuf = outFile2.rdbuf();
+        }
+        else
+        {
+            std::cerr << "ERROR: Error saving file " + filename << std::endl;
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(&err_msg);
+            return;
         }
     }
 

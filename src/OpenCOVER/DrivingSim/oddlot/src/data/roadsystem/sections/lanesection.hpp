@@ -20,6 +20,8 @@
 
 #include <QMap>
 
+class Polynomial;
+
 class LaneSection : public RoadSection
 {
 
@@ -33,6 +35,7 @@ public:
     enum LaneSectionChange
     {
         CLS_LanesChanged = 0x1,
+		CLS_LanesWidthsChanged = 0x2
     };
 
     //################//
@@ -41,7 +44,7 @@ public:
 
 public:
     explicit LaneSection(double s, bool singleSide);
-    explicit LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection); // create new LaneSection at pos s of oldLaneSection
+    explicit LaneSection(double s, bool singleSide, const LaneSection *oldLaneSection, double sEnd); // create new LaneSection at pos s of oldLaneSection, ending at sEnd
     explicit LaneSection(double s, bool singleSide, const LaneSection *LanSectionLow, const LaneSection *LanSectionHigh); // create new LaneSection as e merger between low and high
     virtual ~LaneSection();
 
@@ -78,6 +81,7 @@ public:
 
     double getLaneWidth(int lane, double s) const;
     double getLaneSpanWidth(int fromLane, int toLane, double s) const;
+	Polynomial getPolynomialSum(int fromLane, int toLane, double s) const;
     int getLeftmostLaneId() const;
     int getRightmostLaneId() const;
     void checkAndFixLanes();
@@ -104,15 +108,16 @@ public:
     virtual void accept(Visitor *visitor);
     virtual void acceptForLanes(Visitor *visitor);
 
+	// Observer Pattern //
+	//
+	void addLaneSectionChanges(int changes);
+
 protected:
 private:
     LaneSection(); /* not allowed */
     LaneSection(const LaneSection &); /* not allowed */
     LaneSection &operator=(const LaneSection &); /* not allowed */
 
-    // Observer Pattern //
-    //
-    void addLaneSectionChanges(int changes);
 
     //################//
     // PROPERTIES     //

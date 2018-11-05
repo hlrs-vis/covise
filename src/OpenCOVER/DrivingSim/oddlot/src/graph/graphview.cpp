@@ -117,7 +117,7 @@ GraphView::GraphView(GraphScene *graphScene, TopviewGraph *topviewGraph)
 
     // interactive background
     
-    QPixmap pixmap("d:\\Pictures\\snapshot2.png");
+    QPixmap pixmap;
     backgroundItem = new QGraphicsPixmapItem(pixmap);
     graphScene->addItem(backgroundItem);
 	wgetInit();

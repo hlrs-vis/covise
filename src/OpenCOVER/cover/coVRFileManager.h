@@ -24,11 +24,11 @@
 #include <list>
 #include <limits.h>
 #include <map>
+#include <memory>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
 
 #include <OpenVRUI/coUpdateManager.h>
-#include "ui/Owner.h"
 
 namespace osg
 {
@@ -47,6 +47,7 @@ namespace opencover
 
 namespace ui
 {
+class Owner;
 class Group;
 class FileBrowser;
 };
@@ -103,7 +104,7 @@ typedef struct
     const char *extension;
 } FileHandler;
 
-class COVEREXPORT coVRFileManager : public vrui::coUpdateable, public ui::Owner
+class COVEREXPORT coVRFileManager : public vrui::coUpdateable
 {
     friend struct LoadedFile;
     static coVRFileManager *s_instance;
@@ -191,6 +192,7 @@ private:
 
     std::string viewPointFile;
     int m_loadCount = 0;
+    std::unique_ptr<ui::Owner> m_owner;
     ui::Group *m_fileGroup = nullptr;
 
     typedef std::list<const FileHandler *> FileHandlerList;

@@ -21,37 +21,75 @@
 **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
-#include <cover/coVRCollaboration.h>
-#include <cover/ARToolKit.h>
-#include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
+#include <cover/coVRCollaboration.h>
+
+#include <cover/ARToolKit.h>
+
+#include <cover/coTabletUI.h>
+#include <util/coTabletUIMessages.h>
+
+#include <cover/coVRPlugin.h>
+
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <opencv2/videoio/videoio.hpp>
 #include <opencv2/aruco.hpp>
 
+#include <OpenVRUI/coMenu.h>
+
+#include <util/coTabletUIMessages.h>
+
+#include <cover/ui/Menu.h>
+#include <cover/ui/Button.h>
+
 using namespace covise;
 using namespace opencover;
 
-class ARUCOPlugin : public coVRPlugin, public ARToolKitInterface, public coTUIListener
+class ARUCOPlugin : public opencover::coVRPlugin,
+                    public opencover::ARToolKitInterface,
+                    public ui::Owner
 {
 public:
     ARUCOPlugin();
     virtual ~ARUCOPlugin();
 
-    // this will be called in PreFrame
     virtual bool init();
     virtual void preFrame();
+    virtual bool update();
+    virtual bool destroy();
+    
+protected:
+    cv::VideoCapture inputVideo;
+    cv::Mat image;
+    
+    cv::Mat matCameraMatrix;
+    cv::Mat matDistCoefs;
 
+    std::vector<int> ids;
+    std::vector<std::vector<cv::Point2f>> corners;
+    std::vector<std::vector<cv::Point2f>> rejected;
+    std::vector<cv::Vec3d> rvecs;
+    std::vector<cv::Vec3d> tvecs;
+    
+    cv::Ptr<cv::aruco::Dictionary> dictionary;
+    cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
+
+    vrui::coSubMenuItem *arMenuEntry;
+    
 private:
-    coTUIToggleButton *arDebugButton;
-    coTUIButton *arSettingsButton;
-    coTUIToggleButton *calibrateButton;
-    coTUIToggleButton *visualizeButton;
-    coTUIToggleButton *detectAdditional;
-    coTUIToggleButton *useSFM;
 
-    coTUILabel *calibrateLabel;
+    bool bDrawDetMarker;
+    bool bDrawRejMarker;
+
+    ui::Menu* uiMenu = nullptr;
+    ui::Button* uiBtnDrawDetMarker = nullptr;
+    ui::Button* uiBtnDrawRejMarker = nullptr;
+    
+   
+    
+
+
     bool doCalibrate;
     bool calibrated;
     int calibCount;
@@ -70,25 +108,17 @@ private:
     osg::Matrix OpenGLToOSGMatrix;
     osg::Matrix OSGToOpenGLMatrix;
     
-    std::vector< int > ids;
-    std::vector< std::vector< cv::Point2f > > corners, rejected;
-    std::vector< cv::Vec3d > rvecs, tvecs;
 
     void adjustScreen();
     virtual void tabletEvent(coTUIElement *tUIItem);
     virtual void tabletPressEvent(coTUIElement *tUIItem);
-    virtual int loadPattern(const char *);
+
     virtual osg::Matrix getMat(int pattID, double pattCenter[2], double pattSize, double pattTrans[3][4]);
     virtual bool isVisible(int);
     virtual void updateMarkerParams();
     std::string calibrationFilename;
-    cv::VideoCapture inputVideo;
-    
-    cv::Ptr<cv::aruco::Dictionary> dictionary;
-    cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
-    cv::Mat camMatrix;
-    cv::Mat distCoeffs;
-    cv::Mat image;
+
+
     cv::Mat imageCopy;
     float markerLength;
 

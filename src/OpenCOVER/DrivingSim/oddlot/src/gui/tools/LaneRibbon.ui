@@ -103,7 +103,7 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="laneAddWidth">
         <property name="text">
-         <string>Add Width</string>
+         <string>Add Control Point</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

@@ -176,6 +176,7 @@ public:
     virtual void visit(TrackElementPoly3 *);
     virtual void visit(TrackSpiralArcSpiral *);
 	virtual void visit(TrackElementCubicCurve *);
+	virtual void visit(LaneBorder *);
 
     virtual void visit(ElevationSection *)
     {
@@ -228,9 +229,6 @@ public:
 	{
 	}
 	virtual void visit(LaneOffset *)
-	{
-	}
-	virtual void visit(LaneBorder *)
 	{
 	}
     virtual void visit(LaneRoadMark *)
