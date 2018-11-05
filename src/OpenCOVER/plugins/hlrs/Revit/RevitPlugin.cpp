@@ -443,6 +443,8 @@ RevitPlugin::RevitPlugin()
             delete serverConn;
             serverConn = NULL;
         }
+
+        cover->watchFileDescriptor(serverConn->getSocket()->get_id());
     }
 
 	struct linger linger;
@@ -501,8 +503,11 @@ RevitPlugin::~RevitPlugin()
         cover->getObjectsRoot()->removeChild(revitGroup.get());
     }
 
+    cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
 	delete serverConn;
 	serverConn = NULL;
+
+    cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
 	delete toRevit;
 	delete msg;
 	toRevit = NULL;
@@ -1632,6 +1637,8 @@ RevitPlugin::handleMessage(Message *m)
 		{
 		case Message::SOCKET_CLOSED:
 		case Message::CLOSE_SOCKET:
+
+            cover->unwatchFileDescriptor(toRevit->getSocket()->get_id());
 			delete toRevit;
 			toRevit = NULL;
 
@@ -1738,6 +1745,7 @@ RevitPlugin::preFrame()
 		if (toRevit && toRevit->is_connected())
 		{
 			fprintf(stderr, "Connected to Revit\n");
+            cover->watchFileDescriptor(toRevit->getSocket()->get_id());
 		}
 	}
 	char gotMsg = '\0';
