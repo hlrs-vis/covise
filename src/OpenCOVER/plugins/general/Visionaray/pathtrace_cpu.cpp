@@ -69,5 +69,5 @@ void pathtrace_cpu(
 
     pathtracing::kernel<decltype(kparams)> k;
     k.params = kparams;
-    sched.frame(k, sparams, ++frame_num);
+    sched.frame(k, sparams);
 }
