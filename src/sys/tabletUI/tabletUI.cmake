@@ -102,7 +102,7 @@ SET(TUI_MOC_HEADERS
   TUIUI/TUIUIWidgetSet.h
   TUIUI/TUIUIScriptWidget.h
 )
-if (wiringPi_FOUND)
+if (WIRINGPI_FOUND)
    SET(TUI_SOURCES ${TUI_SOURCES}
       Thyssen.cpp
       )
