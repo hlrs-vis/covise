@@ -23,9 +23,9 @@
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
 
-#include "initialization/FGTrim.h"
-#include "FGFDMExec.h"
-#include "input_output/FGXMLFileRead.h"
+#include <JSBSim/initialization/FGTrim.h>
+#include <JSBSim/FGFDMExec.h>
+#include <JSBSim/input_output/FGXMLFileRead.h>
 
 #include <util/coTypes.h>
 #include <cover/ui/Button.h>
