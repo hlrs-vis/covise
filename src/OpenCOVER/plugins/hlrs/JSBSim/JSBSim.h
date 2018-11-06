@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <cfenv>
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
