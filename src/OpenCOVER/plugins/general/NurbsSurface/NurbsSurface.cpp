@@ -411,7 +411,7 @@ void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveI
         auto nx = std::next(it, 1);
         if (nx == curves.end())
         {
-            nx==curves.begin();
+            nx=curves.begin();
         }
         curveCurveIntersection(it->curve, it->endPar, nx->curve, nx->startPar);
     }
@@ -751,7 +751,7 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
                 pointsAboveCurve.push_back(*it);
             }
         }
-        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointsAboveCurve = %i\n", pointsAboveCurve.size());
+        fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointsAboveCurve = %li\n", (long)pointsAboveCurve.size());
         real_1d_array LocalXForSecondCurve;
         real_1d_array LocalYForSecondCurve;
 
