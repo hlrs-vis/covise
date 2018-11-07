@@ -83,6 +83,10 @@ private:
     JSBSim::FGInertial*        Inertial;
     JSBSim::FGAccelerations*   Accelerations;
 
+    JSBSim::FGPropagate::VehicleState initialLocation;
+
+    osg::Vec3d zeroPosition;
+
     bool realtime;
     bool play_nice;
     bool suspend;
