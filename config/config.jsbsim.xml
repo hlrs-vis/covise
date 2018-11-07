@@ -241,13 +241,8 @@
    <!--Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" /-->
 
    <JSBSim>
-    <Model>
-     <!--ScriptName value="/mnt/raid/home/hpcthobs/src/JSBSim/jsbsim/scripts/paraglider_rotate_test.xml"/-->
-     <aircraftDir value= "/mnt/raid/home/hpcthobs/src/JSBSim/jsbsim/aircraft"/>
-     <aircraft value= "paraglider"/>
-     <enginesDir value= "/mnt/raid/home/hpcthobs/src/JSBSim/jsbsim/aircraft/paraglider/Engines"/>
-     <aircraftDir value= "/mnt/raid/home/hpcthobs/src/JSBSim/jsbsim/aircraft/paraglider/Systems"/>
-     <resetFile value= "/mnt/raid/home/hpcthobs/src/JSBSim/jsbsim/aircraft/paraglider/reset00.xml"/>
+    <!--ScriptName value="/data/extern_libs_src/src/jsbsim/scripts/paraglider_rotate_test.xml"/-->
+    <Model aircraft="paraglider" aircraftDir="/data/extern_libs_src/src/jsbsim/aircraft/" enginesDir="/data/extern_libs_src/src/jsbsim/aircraft/paraglider/Engine" systemsDir = "/data/extern_libs_src/src/jsbsim/aircraft/paraglider/Systems" resetFile= "/data/extern_libs_src/src/jsbsim/aircraft/paraglider/reset00.xml">
     </Model>
     </JSBSim>
    </Plugin>

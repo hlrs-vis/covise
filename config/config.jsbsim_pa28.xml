@@ -241,7 +241,7 @@
    <!--Revit value="off" textures="C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures" /-->
 
    <JSBSim>
-    <Model aircraft="p51d" aircraftDir="/data/extern_libs_src/src/jsbsim/aircraft/" enginesDir="/data/extern_libs_src/src/jsbsim/aircraft/p51d/Engines" systemsDir = "/data/extern_libs_src/src/jsbsim/aircraft/Systems" resetFile= "/data/extern_libs_src/src/jsbsim/aircraft/p51d/reset00.xml">
+    <Model aircraft="p51d" aircraftDir="/data/extern_libs_src/src/jsbsim/aircraft/" enginesDir="/data/extern_libs_src/src/jsbsim/aircraft/p51d/Engines" systemsDir = "/data/extern_libs_src/src/jsbsim/aircraft/p51d/Systems" resetFile= "/data/extern_libs_src/src/jsbsim/aircraft/p51d/reset00.xml">
     </Model>
     </JSBSim>
    </Plugin>
