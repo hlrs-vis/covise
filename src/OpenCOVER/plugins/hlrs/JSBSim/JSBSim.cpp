@@ -25,6 +25,8 @@
 #include "models/propulsion/FGPiston.h"
 #include "cover/VRSceneGraph.h"
 #include "cover/coVRCollaboration.h"
+#include <UDPComm.h>
+
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
 JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui)
@@ -174,6 +176,8 @@ bool JSBSimPlugin::init()
 bool
 JSBSimPlugin::update()
 {
+    updateUdp();
+
     FCS->SetDaCmd(0.0);
     FCS->SetDeCmd(0.0);
 
@@ -209,13 +213,13 @@ JSBSimPlugin::update()
     osg::Vec3d newPos;
     JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
     osg::Vec3d currentPosition(location.vLocation(1),location.vLocation(2),location.vLocation(3));
-    newPos = currentPosition-zeroPosition;
+    newPos = currentPosition;//-zeroPosition;
     //osg::Matrix planeOrientationMatrix;
     //JSBSim::FGQuaternion currentOrientation = Propagate->GetTec2l();
     //osg::Quat currentOrientation2(currentOrientation.Entry(0),currentOrientation.Entry(1),currentOrientation.Entry(2),currentOrientation.Entry(3));
     //planeOrientationMatrix.makeRotate(currentOrientation2);
     osg::Matrix planeTranslation;
-    planeTranslation.makeTranslate(-cover->getScale()*newPos[2],cover->getScale()*newPos[3],cover->getScale()*newPos[1]);
+    planeTranslation.makeTranslate(newPos[2],newPos[1],newPos[0]);
     //trans.makeTranslate(location.vLocation.GetLatitude(),location.vLocation.GetLongitude(), location.vLocation.GetAltitudeASL());
     //3502274.250000 -1281103.125000 217903.953125
     if (cover->frameTime() > printTime + 5)
@@ -247,6 +251,50 @@ JSBSimPlugin::update()
         coVRCollaboration::instance()->SyncXform();
     }
     return true;
+}
+
+bool
+JSBSimPlugin::updateUdp()
+{
+    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
+    if (udp)
+    {
+        int status = udp->receive(&fgcontrol, sizeof(FGControl));
+
+        if (status == sizeof(FGControl))
+        {
+            for (unsigned i = 0; i < 3; ++i)
+                byteSwap(fgcontrol);
+            for (unsigned i = 0; i < 3; ++i)
+                byteSwap(fgdata.orientation[i]);
+            FCS->SetDaCmd(fgcontrol.aileron);
+            FCS->SetDeCmd(fgcontrol.elevator);
+        }
+        else if (status == -1)
+        {
+            std::cerr << "FlightGear::update: error while reading data" << std::endl;
+            init();
+            return;
+        }
+        else
+        {
+            std::cerr << "FlightGear::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
+            init();
+            return;
+        }
+    }
+}
+
+void JSBSim::init()
+{
+    delete udp;
+
+    const std::string host = covise::coCoviseConfig::getEntry("value", "JSBSim.serverHost", "141.58.8.212");
+    unsigned short serverPort = covise::coCoviseConfig::getInt("JSBSim.serverPort", 1234);
+    unsigned short localPort = covise::coCoviseConfig::getInt("JSBSim.localPort", 5252);
+    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+    udp = new UDPComm(host.c_str(), serverPort, localPort);
+    return;
 }
 
 COVERPLUGIN(JSBSimPlugin)

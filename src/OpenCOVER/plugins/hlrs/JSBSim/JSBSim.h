@@ -87,6 +87,14 @@ private:
 
     osg::Vec3d zeroPosition;
 
+    struct FGControl
+    {
+        double elevator;
+        double aileron;
+    } fgcontrol;
+    UDPComm *udp;
+    void init();
+
     bool realtime;
     bool play_nice;
     bool suspend;
