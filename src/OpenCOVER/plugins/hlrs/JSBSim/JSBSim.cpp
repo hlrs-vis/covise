@@ -153,14 +153,17 @@ bool JSBSimPlugin::init()
     osg::Vec3 viewerPosInFeet = cover->getInvBaseMat().getTrans() / 0.3048;
     JSBSim::FGColumnVector3 v(-viewerPosInFeet[1], viewerPosInFeet[0], viewerPosInFeet[2]);
     JSBSim::FGLocation l(v);
-    FDMExec->GetPropagate()->SetLocation(l);
+    //JSBSim::FGPropagate::VehicleState o;
+    //o. //(48.678993, 8.359287, 20926069);
+    fprintf(stderr,"v: %f %f %f\n",-viewerPosInFeet[1], viewerPosInFeet[0], viewerPosInFeet[2]);
+    //FDMExec->GetPropagate()->SetLocation(o);
 
     result = FDMExec->Run();  // MAKE AN INITIAL RUN
     initialLocation = Propagate->GetVState();
-    if (true)
-    {
-        zeroPosition = osg::Vec3(initialLocation.vLocation(1),initialLocation.vLocation(2),initialLocation.vLocation(3));
-    }
+    initialLocation.vLocation += JSBSim::FGLocation(v);
+    FDMExec->GetPropagate()->SetLocation(initialLocation.vLocation);
+    fprintf(stderr,"v: %f %f %f\n",initialLocation.vLocation(1),initialLocation.vLocation(2),initialLocation.vLocation(3));
+    zeroPosition = osg::Vec3(initialLocation.vLocation(1),initialLocation.vLocation(2),initialLocation.vLocation(3));
 
     // PRINT SIMULATION CONFIGURATION
     FDMExec->PrintSimulationConfiguration();
@@ -212,17 +215,9 @@ JSBSimPlugin::update()
     //osg::Quat currentOrientation2(currentOrientation.Entry(0),currentOrientation.Entry(1),currentOrientation.Entry(2),currentOrientation.Entry(3));
     //planeOrientationMatrix.makeRotate(currentOrientation2);
     osg::Matrix planeTranslation;
-    planeTranslation.makeTranslate(newPos[0],newPos[1],newPos[2]);
-
-    osg::Matrix rot;
-    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, 1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(1, 0, 0),Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(0, 1, 0) );
-    osg::Matrix trans;
-    //trans.makeTranslate(-MassBalance->GetXYZcg(2),MassBalance->GetXYZcg(1), MassBalance->GetXYZcg(3));
-    trans.makeTranslate(-cover->getScale()*(location.vLocation(2)-initialLocation.vLocation(2)),  cover->getScale()*(location.vLocation(3)-initialLocation.vLocation(3)),  cover->getScale()*(location.vLocation(1)-initialLocation.vLocation(1)+100));
-
+    planeTranslation.makeTranslate(-cover->getScale()*newPos[2],cover->getScale()*newPos[3],cover->getScale()*newPos[1]);
     //trans.makeTranslate(location.vLocation.GetLatitude(),location.vLocation.GetLongitude(), location.vLocation.GetAltitudeASL());
-    osg::Matrix Plane = osg::Matrix::inverse(rot* trans);
-
+    //3502274.250000 -1281103.125000 217903.953125
     if (cover->frameTime() > printTime + 5)
     {
         printTime = cover->frameTime();
@@ -230,7 +225,7 @@ JSBSimPlugin::update()
         FDMExec->GetPropagate()->DumpState();
         //fprintf(stderr,"EPA: %f\n",Propagate->GetEarthPositionAngle());
         //fprintf(stderr,"cover->getScale(): %f\n", cover->getScale());
-        fprintf(stderr,"currentLocationOffset: %f %f %f\n",location.vLocation(1)-initialLocation.vLocation(1),location.vLocation(2)-initialLocation.vLocation(2), location.vLocation(3)-initialLocation.vLocation(3));
+        //fprintf(stderr,"currentLocationOffset: %f %f %f\n",location.vLocation(1)-initialLocation.vLocation(1),location.vLocation(2)-initialLocation.vLocation(2), location.vLocation(3)-initialLocation.vLocation(3));
     }
 
     osg::Matrix rot;
@@ -238,7 +233,7 @@ JSBSimPlugin::update()
     osg::Matrix trans;
     JSBSim::FGColumnVector3 pos = Propagate->GetInertialPosition();
     trans.makeTranslate(-pos(2)*0.3048, pos(1)*0.3048, pos(3)*0.3048);
-    osg::Matrix Plane = osg::Matrix::inverse(rot* trans);
+    osg::Matrix Plane = osg::Matrix::inverse(rot* planeTranslation);
     /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
     Plane.makeIdentity();
     for (int i = 0; i < 3; i++)
