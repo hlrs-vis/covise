@@ -69,7 +69,7 @@ private:
     VrmlSFString d_IESFile;
 
     coIES *iesFile;
-    static osg::ref_ptr<osg::Uniform> photometricLightMatrix;
+    static osg::ref_ptr<osg::Uniform> matrixLightMatrix; // used to be photometricLightMatrix
     Viewer::Object d_viewerObject;
     osg::ref_ptr<osg::MatrixTransform> lightNodeInSceneGraph;
     static const int MAX_LIGHTS = 4;
