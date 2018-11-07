@@ -26,6 +26,8 @@
 #include "cover/VRSceneGraph.h"
 #include "cover/coVRCollaboration.h"
 #include <UDPComm.h>
+#include <util/byteswap.h>
+#include <util/unixcompat.h>
 
 JSBSimPlugin *JSBSimPlugin::plugin = NULL;
 
@@ -41,6 +43,7 @@ JSBSimPlugin::JSBSimPlugin(): ui::Owner("JSBSimPlugin", cover->ui)
 #endif
 
     plugin = this;
+    udp = nullptr;
 }
 
 // this is called if the plugin is removed at runtime
@@ -54,6 +57,13 @@ JSBSimPlugin::~JSBSimPlugin()
 
 bool JSBSimPlugin::init()
 {
+    delete udp;
+
+    const std::string host = covise::coCoviseConfig::getEntry("value", "JSBSim.serverHost", "141.58.8.212");
+    unsigned short serverPort = covise::coCoviseConfig::getInt("JSBSim.serverPort", 1234);
+    unsigned short localPort = covise::coCoviseConfig::getInt("JSBSim.localPort", 5252);
+    std::cerr << "JSBSim config: UDP: serverHost: " << host << ", localPort: " << localPort << ", serverPort: " << serverPort << std::endl;
+    udp = new UDPComm(host.c_str(), serverPort, localPort);
 
     JSBMenu = new ui::Menu("JSBSim", this);
 
@@ -181,7 +191,7 @@ JSBSimPlugin::update()
     FCS->SetDaCmd(0.0);
     FCS->SetDeCmd(0.0);
 
-    for (int i = 0; i < Propulsion->GetNumEngines(); i++) {
+    for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
         FCS->SetThrottleCmd(i,1.0);
         FCS->SetMixtureCmd(i,1.0);
 
@@ -263,29 +273,28 @@ JSBSimPlugin::updateUdp()
 
         if (status == sizeof(FGControl))
         {
-            for (unsigned i = 0; i < 3; ++i)
-                byteSwap(fgcontrol);
-            for (unsigned i = 0; i < 3; ++i)
-                byteSwap(fgdata.orientation[i]);
+            byteSwap(fgcontrol.aileron);
+            byteSwap(fgcontrol.elevator);
             FCS->SetDaCmd(fgcontrol.aileron);
             FCS->SetDeCmd(fgcontrol.elevator);
         }
         else if (status == -1)
         {
             std::cerr << "FlightGear::update: error while reading data" << std::endl;
-            init();
-            return;
+            initUDP();
+            return false;
         }
         else
         {
             std::cerr << "FlightGear::update: received invalid no. of bytes: recv=" << status << ", got=" << status << std::endl;
-            init();
-            return;
+            initUDP();
+            return false;
         }
     }
+    return true;
 }
 
-void JSBSim::init()
+void JSBSimPlugin::initUDP()
 {
     delete udp;
 

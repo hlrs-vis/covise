@@ -32,6 +32,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
+class UDPComm;
 
 using JSBSim::FGXMLFileRead;
 using JSBSim::Element;
@@ -93,7 +94,8 @@ private:
         double aileron;
     } fgcontrol;
     UDPComm *udp;
-    void init();
+    void initUDP();
+    bool JSBSimPlugin::updateUdp();
 
     bool realtime;
     bool play_nice;
@@ -104,5 +106,6 @@ private:
     double end_time = 1e99;
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
+    OpenThreads::Mutex mutex;
 };
 #endif
