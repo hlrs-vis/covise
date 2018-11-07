@@ -50,6 +50,7 @@ public:
 private:
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
+    ui::Button *pauseButton;
 
     SGPath RootDir;
     SGPath ScriptName;

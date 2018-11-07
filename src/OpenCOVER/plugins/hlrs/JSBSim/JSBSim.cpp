@@ -47,7 +47,19 @@ bool JSBSimPlugin::init()
 
     printCatalog = new ui::Action(JSBMenu, "printCatalog");
     printCatalog->setCallback([this]() {
+        if (FDMExec)
             FDMExec->PrintPropertyCatalog();
+    });
+    pauseButton = new ui::Button(JSBMenu, "pause");
+    pauseButton->setState(false);
+    pauseButton->setCallback([this](bool state) {
+        if (FDMExec)
+        {
+            if (state)
+                FDMExec->Hold();
+            else
+                FDMExec->Resume();
+        }
     });
 
     // *** SET UP JSBSIM *** //
@@ -84,7 +96,7 @@ bool JSBSimPlugin::init()
     std::string AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model","D:/src/gitbase/jsbsim/aircraft");
     std::string AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model","paraglider");
     std::string EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Engines");
-    std::string SystemsDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
+    std::string SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
     std::string resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml");
     // *** OPTION A: LOAD A SCRIPT, WHICH LOADS EVERYTHING ELSE *** //
     if (!ScriptName.isNull()) {
@@ -130,6 +142,10 @@ bool JSBSimPlugin::init()
 
     FDMExec->RunIC();
     FDMExec->Setsim_time(cover->frameTime());
+    osg::Vec3 viewerPosInFeet = cover->getInvBaseMat().getTrans() / 0.3048;
+    JSBSim::FGColumnVector3 v(-viewerPosInFeet[1], viewerPosInFeet[0], viewerPosInFeet[2]);
+    JSBSim::FGLocation l(v);
+    FDMExec->GetPropagate()->SetLocation(l);
 
     result = FDMExec->Run();  // MAKE AN INITIAL RUN
 
@@ -147,12 +163,12 @@ JSBSimPlugin::update()
     FCS->SetDeCmd(0.0);
 
     bool result = false;
-    
+
     current_seconds = cover->frameTime();
     double sim_lag_time = current_seconds - FDMExec->GetSimTime(); // How far behind sim-time is from actual
                                                                 // elapsed time.
     //for (int i = 0; i<(int)(sim_lag_time / frame_duration); i++) {  // catch up sim time to actual elapsed time.
-        result = FDMExec->Run();
+    result = FDMExec->Run();
     //    if (FDMExec->Holding()) break;
     //}
 
@@ -165,14 +181,23 @@ JSBSimPlugin::update()
     }
 
     osg::Matrix rot;
-    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, 1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(1, 0, 0),Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(0, 1, 0) );
+    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, 1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(1, 0, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(0, 1, 0));
     osg::Matrix trans;
-    trans.makeTranslate(-MassBalance->GetXYZcg(2),MassBalance->GetXYZcg(1), MassBalance->GetXYZcg(3));
+    JSBSim::FGColumnVector3 pos = Propagate->GetInertialPosition();
+    trans.makeTranslate(-pos(2)*0.3048, pos(1)*0.3048, pos(3)*0.3048);
     osg::Matrix Plane = osg::Matrix::inverse(rot* trans);
+    /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
+    Plane.makeIdentity();
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            Plane(i, j) = tb2lMat.Entry(i+1, j+1);
+     Plane.invert(Plane); */
 
-
-    VRSceneGraph::instance()->getTransform()->setMatrix(Plane);
-    coVRCollaboration::instance()->SyncXform();
+    if (FDMExec && !FDMExec->Holding())
+    {
+        VRSceneGraph::instance()->getTransform()->setMatrix(Plane);
+        coVRCollaboration::instance()->SyncXform();
+    }
     return true;
 }
 
