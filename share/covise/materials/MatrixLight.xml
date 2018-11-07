@@ -1,0 +1,217 @@
+<Luminaire>
+<uniform max="0" min="-100" name="minHAngle" type="float" value="-65"/>
+<uniform max="0" min="-100" name="minVAngle" type="float" value="-15"/>
+<uniform max="10" min="0.01" name="HStep" type="float" value="0.1"/>
+<uniform max="10" min="0.01" name="VStep" type="float" value="0.2"/>
+<uniform name="IESMap" type="sampler2D" value="5"/>
+<uniform name="IESMapArray" type="sampler2DArray" value="6"/>
+
+<vertexProgram>
+varying vec3 InLightCoordinates;
+varying vec2 Texcoord;
+uniform mat4 coEnvCorrectMatrix;
+uniform mat4 coInvEnvCorrectMatrix;
+uniform mat4 matrixLightMatrix[4];
+
+vec4 Ambient;
+vec4 Diffuse;
+vec4 Specular;
+
+
+void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
+{
+   float nDotVP;       // normal . light direction
+   float nDotHV;       // normal . light half vector
+   float pf;           // power factor
+   float attenuation;  // computed attenuation factor
+   float d;            // distance from surface to light source
+   vec3  VP;           // direction from surface to light position
+   vec3  halfVector;   // direction of maximum highlights
+
+   // Compute vector from surface to light position
+   VP = vec3 (gl_LightSource[i].position) - ecPosition3;
+
+   // Compute distance between surface and light position
+   d = length(VP);
+
+   // Normalize the vector from surface to light position
+   VP = normalize(VP);
+
+   // Compute attenuation
+   attenuation = 1.0 / (gl_LightSource[i].constantAttenuation +
+       gl_LightSource[i].linearAttenuation * d +
+       gl_LightSource[i].quadraticAttenuation * d * d);
+
+   halfVector = normalize(VP + eye);
+   nDotVP = max(0.0, dot(normal, VP));
+   nDotHV = max(0.0, dot(normal, halfVector));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient * attenuation;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
+   Specular += gl_LightSource[i].specular * pf * attenuation;
+}
+
+
+void directionalLight(in int i, in vec3 normal)
+{
+   float nDotVP;         // normal . light direction
+   float nDotHV;         // normal . light half vector
+   float pf;             // power factor
+
+   nDotVP = max(0.0, dot(normal, normalize(vec3 (gl_LightSource[i].position))));
+   nDotHV = max(0.0, dot(normal, vec3 (gl_LightSource[i].halfVector)));
+
+   if (nDotVP == 0.0)
+   {
+       pf = 0.0;
+   }
+   else
+   {
+       pf = pow(nDotHV, gl_FrontMaterial.shininess);
+   }
+   Ambient  += gl_LightSource[i].ambient;
+   Diffuse  += gl_LightSource[i].diffuse * nDotVP;
+   Specular += gl_LightSource[i].specular * pf;
+}
+
+
+vec3 fnormal(void)
+{
+    //Compute the normal 
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    normal = normalize(normal);
+    return normal;
+}
+
+
+void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
+{
+    vec4 color;
+    vec3 ecPosition3;
+    vec3 eye;
+
+    ecPosition3 = (vec3 (ecPosition)) / ecPosition.w;
+    eye = vec3 (0.0, 0.0, 1.0);
+
+    // Clear the light intensity accumulators
+    Ambient  = vec4 (0.0);
+    Diffuse  = vec4 (0.0);
+    Specular = vec4 (0.0);
+
+    pointLight(0, normal, eye, ecPosition3);
+    //pointLight(1, normal, eye, ecPosition3);
+    //directionalLight(2, normal);
+
+    color = gl_FrontLightModelProduct.sceneColor +
+          Ambient  * gl_FrontMaterial.ambient +
+          Diffuse  * gl_FrontMaterial.diffuse;
+    color += Specular * gl_FrontMaterial.specular;
+    color = clamp( color, 0.0, 1.0 );
+    gl_FrontColor = color;
+
+    normal = gl_NormalMatrix * gl_Normal;
+    gl_FrontColor.a *= alphaFade;
+}
+
+void main( void )
+{
+    Texcoord = gl_MultiTexCoord0.xy;
+    #ifdef __GLSL_CG_DATA_TYPES
+    gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+    #endif
+
+    vec3  transformedNormal;
+    float alphaFade = 1.0;
+
+    // Eye-coordinate position of vertex, needed in various calculations
+    vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;
+
+    // Do fixed functionality vertex transform
+    gl_Position = ftransform();
+    transformedNormal = fnormal();
+    flight(transformedNormal, ecPosition, alphaFade);
+    vec4 tmp4 = matrixLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    InLightCoordinates = tmp4.xyz;
+}
+
+</vertexProgram><fragmentProgram>
+#version 130
+varying vec3 InLightCoordinates;
+varying vec2 Texcoord;
+uniform mat4 coEnvCorrectMatrix;
+uniform mat4 coInvEnvCorrectMatrix;
+uniform mat4 matrixLightMatrix[4];
+uniform float minHAngle;
+uniform float minVAngle;
+uniform float HStep;
+uniform float VStep;
+uniform sampler2D IESMap;
+uniform sampler2DArray IESMapArray;
+
+ivec2 texSize;
+// Function to get a texel data from a texture with GL_NEAREST property.
+// Bi-Linear interpolation is implemented in this function with the 
+// help of nearest four data.
+
+
+vec4 tex2DBiLinear( sampler2D textureSampler_i, vec2 texCoord_i )
+{
+    float texelSizeX = 1.0 / texSize[0]; //size of one texel 
+    float texelSizeY = 1.0 / texSize[1]; //size of one texel 
+
+    int nX = int( texCoord_i.x * texSize[0] );
+    int nY = int( texCoord_i.y * texSize[1] );
+    vec2 texCoord_New = vec2( ( float( nX ) + 0.5 ) / texSize[0],
+                              ( float( nY ) + 0.5 ) / texSize[1] );
+    // Take nearest two data in current row.
+    vec4 p0q0 = texture2D(textureSampler_i, texCoord_New);
+    vec4 p1q0 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX, 0));
+
+    // Take nearest two data in bottom row.
+    vec4 p0q1 = texture2D(textureSampler_i, texCoord_New + vec2(0, texelSizeY));
+    vec4 p1q1 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX , texelSizeY));
+
+    float a = fract( texCoord_i.x * texSize[0] ); // Get Interpolation factor for X direction.
+                                             // Fraction near to valid data.
+
+    // Interpolation in X direction.
+    vec4 pInterp_q0 = mix( p0q0, p1q0, a ); // Interpolates top row in X direction.
+    vec4 pInterp_q1 = mix( p0q1, p1q1, a ); // Interpolates bottom row in X direction.
+
+    float b = fract( texCoord_i.y * texSize[1] ); // Get Interpolation factor for Y direction.
+    return mix( pInterp_q0, pInterp_q1, b ); // Interpolate in Y direction.
+}
+
+void main( void )
+{
+    vec2 newtc;
+    vec4 DiffuseColor;
+    if(InLightCoordinates[0] != 0.0)
+    {
+        texSize = textureSize(IESMap,0);
+        //texSize[0]=1301;
+        //texSize[1]=161;
+        newtc[0]= (atan(InLightCoordinates[2]/InLightCoordinates[0])-radians(minHAngle))/radians(HStep*(texSize[0]-1));
+        newtc[1]= (atan(InLightCoordinates[1]/InLightCoordinates[0])-radians(minVAngle))/radians(VStep*(texSize[1]-1));
+        //newtc[0]= (atan(InLightCoordinates[2]/InLightCoordinates[0])-radians(minHAngle))/radians(HStep*1300.0);
+        //newtc[1]= (atan(InLightCoordinates[1]/InLightCoordinates[0])-radians(minVAngle))/radians(VStep*160.0);
+        DiffuseColor = tex2DBiLinear( IESMap, newtc );
+        DiffuseColor = texture2D( IESMap, newtc );
+        //DiffuseColor = texture2DArray( IESMap, vec3(newtc, 1) );
+        DiffuseColor = texture( IESMapArray, vec3(newtc, 1) );
+    }
+    else
+    {
+        DiffuseColor=vec4(1,1,0,1);
+    } 
+    gl_FragColor = DiffuseColor+ (gl_Color*0.5);    
+
+    }</fragmentProgram></Luminaire>
