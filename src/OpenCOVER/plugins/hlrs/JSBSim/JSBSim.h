@@ -95,7 +95,7 @@ private:
     } fgcontrol;
     UDPComm *udp;
     void initUDP();
-    bool JSBSimPlugin::updateUdp();
+    bool updateUdp();
 
     bool realtime;
     bool play_nice;
