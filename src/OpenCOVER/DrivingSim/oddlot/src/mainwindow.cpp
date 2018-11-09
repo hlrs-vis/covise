@@ -1347,6 +1347,9 @@ MainWindow::createProject()
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(show()));
     connect(projectMenuAction, SIGNAL(triggered()), project, SLOT(setFocus()));
 
+	// save current editor and tool in toolmanager
+	toolManager_->addProjectEditingState(project);
+
     return project;
 }
 
@@ -1383,7 +1386,7 @@ MainWindow::activateProject()
 
         // Pass currently selected tools //
         //
-        toolManager_->resendCurrentTool();
+        toolManager_->resendCurrentTool(project);
 
 		// Pass selected project to signal treewidget //
 		//

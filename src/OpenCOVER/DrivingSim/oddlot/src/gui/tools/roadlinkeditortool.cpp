@@ -125,13 +125,14 @@ RoadLinkEditorTool::initToolWidget()
     ui = new Ui::RoadLinkRibbon();
     ui->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+	ToolButtonGroup *ribbonToolGroup = new ToolButtonGroup(toolManager_);
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleRibbonToolClick(int)));
     
     ribbonToolGroup->addButton(ui->roadlUnlink, ODD::TRL_UNLINK);
     ribbonToolGroup->addButton(ui->roadLink, ODD::TRL_ROADLINK);
     ribbonToolGroup->addButton(ui->roadLinkHandles, ODD::TRL_LINK);
 	ribbonToolGroup->addButton(ui->select, ODD::TRL_SELECT);
+	connect(toolManager_, SIGNAL(pressButton(int)), ribbonToolGroup, SLOT(setButtonPressed(int)));
     
     connect(ui->thresholdSpinBox, SIGNAL(editingFinished()), this, SLOT(setRibbonThreshold()));
 

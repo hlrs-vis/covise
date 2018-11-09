@@ -378,7 +378,7 @@ TrackEditorTool::initToolWidget()
     Ui::TrackRibbon *ui = new Ui::TrackRibbon();
     ui->setupUi(ribbonWidget);
     
-    QButtonGroup *ribbonToolGroup = new QButtonGroup;
+    ToolButtonGroup *ribbonToolGroup = new ToolButtonGroup(toolManager_);
     connect(ribbonToolGroup, SIGNAL(buttonClicked(int)), this, SLOT(handleToolClick(int)));
     ribbonToolGroup->addButton(ui->trackModify, ODD::TTE_MOVE_ROTATE);
     ribbonToolGroup->addButton(ui->trackNewLine, ODD::TTE_ADD_LINE);

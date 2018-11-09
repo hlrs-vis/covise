@@ -317,7 +317,7 @@ ProjectWidget::setEditor(ODD::EditorId id)
 
         // Show new one //
         //
-        projectEditor_ = it.value();
+		projectEditor_ = it.value();
         projectEditor_->show();
 
         // ProfileGraph //

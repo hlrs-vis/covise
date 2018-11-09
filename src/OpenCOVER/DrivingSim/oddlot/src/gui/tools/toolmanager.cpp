@@ -37,6 +37,8 @@
 
 #include "maptool.hpp"
 
+#include "src/gui/projectwidget.hpp"
+
 // Qt //
 //
 #include <QToolBox>
@@ -49,6 +51,7 @@ ToolManager::ToolManager(PrototypeManager *prototypeManager, QObject *parent)
     : QObject(parent)
     , prototypeManager_(prototypeManager)
     , lastToolAction_(NULL)
+	, currentProject_(NULL)
 {
     initTools();
 }
@@ -158,11 +161,16 @@ ToolManager::initTools()
 /*! Resends a toolAction with the last EditorId and ToolId.
 */
 void
-ToolManager::resendCurrentTool()
+ToolManager::resendCurrentTool(ProjectWidget *project)
 {
+	currentProject_ = project;
+	lastToolAction_ = getProjectEditingState(project);
     if (lastToolAction_)
     {
-        emit(toolAction(lastToolAction_));
+		ribbon_->setCurrentIndex(lastToolAction_->getEditorId());
+
+		emit(pressButton(lastToolAction_->getToolId()));
+		emit(toolAction(lastToolAction_));
     }
 }
 
@@ -191,6 +199,84 @@ ToolManager::setPushButtonColor(const QString &name, QColor color)
 	oscEditorTool_->setButtonColor(name, color);
 }
 
+void
+ToolManager::addProjectEditingState(ProjectWidget *project)
+{
+	if (!editingStates_.contains(project))
+	{
+		QList<ToolAction *> toolList;
+		lastToolAction_ = new ToolAction(ODD::ERL, ODD::TRL_SELECT);
+		toolList.append(lastToolAction_);
+		editingStates_.insert(project, toolList);
+	}
+}
+
+void
+ToolManager::setProjectEditingState(ProjectWidget *project, ToolAction *toolAction)
+{
+	QMap<ProjectWidget *, QList<ToolAction *>>::iterator it = editingStates_.find(project);
+	if (it != editingStates_.end())
+	{
+		QList<ToolAction *> *toolList = &it.value();
+		if (toolList->contains(toolAction))
+		{
+			return;
+		}
+
+		int editorId = toolAction->getEditorId();
+		foreach(ToolAction *tool, *toolList)
+		{
+			if (tool->getEditorId() == editorId)
+			{
+				toolList->removeOne(tool);
+				toolList->prepend(toolAction);
+				return;
+			}
+		}
+		toolList->prepend(toolAction);
+	}
+	else
+	{
+		addProjectEditingState(project);
+	}
+}
+
+// Gets the toolId of Editor editorId and inserts the related ToolAction as first element of the list
+//
+ODD::ToolId 
+ToolManager::getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId)
+{
+	QMap<ProjectWidget *, QList<ToolAction *>>::iterator it = editingStates_.find(project);
+	if (it != editingStates_.end())
+	{
+		QList<ToolAction *> *toolList = &it.value();
+		foreach(ToolAction *tool, *toolList)
+		{
+			if (tool->getEditorId() == editorId)
+			{
+				toolList->removeOne(tool);
+				toolList->prepend(tool);
+				return tool->getToolId();
+			}
+		}
+	}
+
+	return ODD::TNO_TOOL;
+}
+
+
+ToolAction *
+ToolManager::getProjectEditingState(ProjectWidget *project)
+{
+	QMap<ProjectWidget *, QList<ToolAction *>>::iterator it = editingStates_.find(project);
+	if (it != editingStates_.end())
+	{
+		return it.value().first();
+	}
+
+	return NULL;
+}
+
 //################//
 // SLOTS          //
 //################//
@@ -198,9 +284,34 @@ ToolManager::setPushButtonColor(const QString &name, QColor color)
 void
 ToolManager::toolActionSlot(ToolAction *action)
 {
-    if (action->getEditorId() != ODD::ENO_EDITOR && action->getToolId() != ODD::TNO_TOOL)
-    {
-        lastToolAction_ = new ToolAction(action->getEditorId(), action->getToolId());
-    }
-    emit(toolAction(action));
+	static ODD::EditorId lastEditor = ODD::ENO_EDITOR;
+
+	ODD::EditorId editorId = action->getEditorId();
+	ODD::ToolId toolId = action->getToolId();
+	if (editorId != ODD::ENO_EDITOR)
+	{
+		if (currentProject_ && (editorId != lastEditor))
+		{
+			ODD::ToolId lastToolId = getProjectEditingState(currentProject_, editorId);
+			if (lastToolId != ODD::TNO_TOOL)
+			{
+				emit(pressButton(toolId));
+			}
+			else
+			{
+				lastToolAction_ = new ToolAction(editorId, toolId);
+				setProjectEditingState(currentProject_, lastToolAction_);
+			}
+		}
+		else if (toolId != ODD::TNO_TOOL)
+		{
+			lastToolAction_ = new ToolAction(editorId, toolId);
+			if (currentProject_)
+			{
+				setProjectEditingState(currentProject_, lastToolAction_);
+			}
+		}
+		lastEditor = editorId;
+	}
+	emit(toolAction(action));
 }

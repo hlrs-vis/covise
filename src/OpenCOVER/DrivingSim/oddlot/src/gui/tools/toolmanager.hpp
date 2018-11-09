@@ -16,9 +16,12 @@
 #ifndef TOOLMANAGER_HPP
 #define TOOLMANAGER_HPP
 
-#include <QObject>
+#include "src/util/odd.hpp"
 
+#include <QObject>
 #include <QList>
+#include <QMap>
+
 
 class ToolAction;
 class ToolWidget;
@@ -28,6 +31,8 @@ class PrototypeManager;
 class SelectionTool;
 class OpenScenarioEditorTool;
 class SignalEditorTool;
+
+class ProjectWidget;
 
 class QToolBox;
 class QMenu;
@@ -74,7 +79,7 @@ public:
     void addToolBoxWidget(ToolWidget *widget, const QString &title);
     void addRibbonWidget(ToolWidget *widget, const QString &title);
 
-    void resendCurrentTool();
+    void resendCurrentTool(ProjectWidget *project);
 
     SelectionTool *getSelectionTool()
     {
@@ -90,6 +95,13 @@ public:
 	void setPushButtonColor(const QString &name, QColor color);
     void activateSignalSelection(bool state);
 	void activateOSCObjectSelection(bool state);
+
+	// Save Project Editing State //
+	//
+	void addProjectEditingState(ProjectWidget *);
+	void setProjectEditingState(ProjectWidget *project, ToolAction*);
+	ODD::ToolId getProjectEditingState(ProjectWidget *project, ODD::EditorId editorId);
+	ToolAction *getProjectEditingState(ProjectWidget *project);
 
 protected:
 private:
@@ -112,6 +124,7 @@ public slots:
 
 signals:
     void toolAction(ToolAction *);
+	void pressButton(int i);
 
     //################//
     // PROPERTIES     //
@@ -152,6 +165,12 @@ private:
 	// SignalEditorTool //
     //
     SignalEditorTool *signalEditorTool_;
+
+	// Project, EditorTool, Toolaction //
+	//
+	QMap<ProjectWidget *, QList<ToolAction *>> editingStates_;
+	ProjectWidget *currentProject_;
+
 
 };
 
