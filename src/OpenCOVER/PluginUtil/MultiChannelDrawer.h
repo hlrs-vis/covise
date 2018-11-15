@@ -78,7 +78,7 @@ public:
     const osg::Matrix &viewMatrix(int idx) const;
     const osg::Matrix &projectionMatrix(int idx) const;
 
-    //! render mode
+    //! reprojection mode
     enum Mode {
         AsIs, //< as is, without reprojection
         Reproject, //< reproject every pixel as single pixel-sized point
@@ -90,6 +90,13 @@ public:
    Mode mode() const;
    void setMode(Mode mode);
 
+   //! whether all available views should be rendered
+   bool renderAllViews() const;
+   //! return whether all available views should be rendered
+   void setRenderAllViews(bool allViews);
+   //! set number of views to render, -1: one view/channel/stereo eye
+   void setNumViews(int nv=-1);
+
    //! from now on, draw with current RGBA and depth data for all views
    void swapFrame();
    //! set matrices corresponding to RGBA and depth data for view idx
@@ -100,6 +107,8 @@ public:
    void reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
    //! set matrices from COVER for all views
    void reproject();
+   //! get a pointer that can be retained
+   std::shared_ptr<ChannelData> getChannelData(int idx);
    //! access RGBA data for view idx
    unsigned char *rgba(int idx) const;
    //! access depth data for view idx
@@ -113,9 +122,10 @@ private:
    void initChannelData(ChannelData &cd);
    void createGeometry(ChannelData &cd);
    void clearChannelData();
-   std::vector<ChannelData> m_channelData;
+   std::vector<std::shared_ptr<ChannelData>> m_channelData;
    bool m_flipped;
    Mode m_mode;
+   bool m_renderAllViews = false;
 
    const bool m_useCuda;
 };

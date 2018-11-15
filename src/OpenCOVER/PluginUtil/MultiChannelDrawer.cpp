@@ -44,12 +44,14 @@ namespace opencover
 /*! decision is made based on cameras currently on osg's stack */
 struct SingleScreenCB: public osg::Drawable::DrawCallback {
 
+   osg::ref_ptr<MultiChannelDrawer> m_drawer;
    osg::ref_ptr<osg::Camera> m_cam;
    int m_channel;
    bool m_second;
 
-   SingleScreenCB(osg::ref_ptr<osg::Camera> cam, int channel, bool second=false)
-      : m_cam(cam)
+   SingleScreenCB(MultiChannelDrawer *drawer, osg::ref_ptr<osg::Camera> cam, int channel, bool second=false)
+      : m_drawer(drawer)
+      , m_cam(cam)
       , m_channel(channel)
       , m_second(second)
       {
@@ -57,38 +59,40 @@ struct SingleScreenCB: public osg::Drawable::DrawCallback {
 
    void  drawImplementation(osg::RenderInfo &ri, const osg::Drawable *d) const {
 
-      bool render = false;
-      const bool stereo = coVRConfig::instance()->channels[m_channel].stereoMode == osg::DisplaySettings::QUAD_BUFFER;
+      bool render = m_drawer->renderAllViews();
+      if (!render) {
+          const bool stereo = m_channel>=0 && coVRConfig::instance()->channels[m_channel].stereoMode == osg::DisplaySettings::QUAD_BUFFER;
 
-      bool right = true;
-      if (stereo) {
-         GLint db=0;
-         glGetIntegerv(GL_DRAW_BUFFER, &db);
-         if (db != GL_BACK_RIGHT && db != GL_FRONT_RIGHT && db != GL_RIGHT)
-            right = false;
-      }
+          bool right = true;
+          if (stereo) {
+              GLint db=0;
+              glGetIntegerv(GL_DRAW_BUFFER, &db);
+              if (db != GL_BACK_RIGHT && db != GL_FRONT_RIGHT && db != GL_RIGHT)
+                  right = false;
+          }
 
-      std::vector<osg::ref_ptr<osg::Camera> > cameraStack;
-      while (ri.getCurrentCamera()) {
-         if (ri.getCurrentCamera() == m_cam) {
-            render = true;
-            break;
-         }
-         cameraStack.push_back(ri.getCurrentCamera());
-         ri.popCamera();
-      }
-      while (!cameraStack.empty()) {
-         ri.pushCamera(cameraStack.back());
-         cameraStack.pop_back();
-      }
+          std::vector<osg::ref_ptr<osg::Camera> > cameraStack;
+          while (ri.getCurrentCamera()) {
+              if (ri.getCurrentCamera() == m_cam) {
+                  render = true;
+                  break;
+              }
+              cameraStack.push_back(ri.getCurrentCamera());
+              ri.popCamera();
+          }
+          while (!cameraStack.empty()) {
+              ri.pushCamera(cameraStack.back());
+              cameraStack.pop_back();
+          }
 
-      if (stereo) {
-         if (m_second && right)
-            render = false;
-         if (!m_second && !right)
-            render = false;
+          if (stereo) {
+              if (m_second && right)
+                  render = false;
+              if (!m_second && !right)
+                  render = false;
+          }
+          //std::cerr << "investigated " << cameraStack.size() << " cameras for channel " << m_channel << " (2nd: " << m_second << "): render=" << render << ", right=" << right << std::endl;
       }
-      //std::cerr << "investigated " << cameraStack.size() << " cameras for channel " << m_channel << " (2nd: " << m_second << "): render=" << render << ", right=" << right << std::endl;
 
       if (render)
          d->drawImplementation(ri);
@@ -300,6 +304,7 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
    setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
    setReferenceFrame(osg::Transform::ABSOLUTE_RF);
    setViewMatrix(osg::Matrix::identity());
+   setName("MultiChannelDrawer");
 
    //setRenderTargetImplementation( osg::Camera::FRAME_BUFFER, osg::Camera::FRAME_BUFFER );
 
@@ -315,26 +320,14 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
    setRenderOrder(osg::Camera::NESTED_RENDER);
    //setRenderer(new osgViewer::Renderer(m_remoteCam.get()));
 
-   int numChannels = coVRConfig::instance()->numChannels();
-   for (int i=0; i<numChannels; ++i) {
-      m_channelData.push_back(ChannelData(i));
-      initChannelData(m_channelData.back());
-      addChild(m_channelData.back().scene);
-      if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
-         m_channelData.push_back(ChannelData(i));
-         m_channelData.back().second = true;
-         initChannelData(m_channelData.back());
-         addChild(m_channelData.back().scene);
-      }
-   }
-
-   setMode(m_mode);
+   setRenderAllViews(false);
+   setNumViews(-1);
 }
 
 MultiChannelDrawer::~MultiChannelDrawer() {
 
    for (size_t i=0; i<m_channelData.size(); ++i)
-       removeChild(m_channelData[i].scene);
+       removeChild(m_channelData[i]->scene);
    m_channelData.clear();
 }
 
@@ -345,17 +338,17 @@ int MultiChannelDrawer::numViews() const {
 
 const osg::Matrix &MultiChannelDrawer::modelMatrix(int idx) const {
 
-    return m_channelData[idx].curModel;
+    return m_channelData[idx]->curModel;
 }
 
 const osg::Matrix &MultiChannelDrawer::viewMatrix(int idx) const {
 
-    return m_channelData[idx].curView;
+    return m_channelData[idx]->curView;
 }
 
 const osg::Matrix &MultiChannelDrawer::projectionMatrix(int idx) const {
 
-    return m_channelData[idx].curProj;
+    return m_channelData[idx]->curProj;
 }
 
 void MultiChannelDrawer::update() {
@@ -380,11 +373,11 @@ void MultiChannelDrawer::update() {
    int numChannels = coVRConfig::instance()->numChannels();
    int view = 0;
    for (int i=0; i<numChannels; ++i) {
-       ChannelData &cd = m_channelData[view];
+       ChannelData &cd = *m_channelData[view];
        updateView(cd, i, false);
        if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
            ++view;
-           ChannelData &cd = m_channelData[view];
+           ChannelData &cd = *m_channelData[view];
            updateView(cd, i, true);
        }
        ++view;
@@ -410,10 +403,12 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
    texEnv->setMode(osg::TexEnv::REPLACE);
 
    osg::Geode *geometryNode = new osg::Geode();
+   geometryNode->setName("channel_geode");
 
-   osg::ref_ptr<osg::Drawable::DrawCallback> drawCB = new SingleScreenCB(cd.camera, cd.channelNum, cd.second);
+   osg::ref_ptr<osg::Drawable::DrawCallback> drawCB = new SingleScreenCB(this, cd.camera, cd.channelNum, cd.second);
 
    cd.fixedGeo = new osg::Geometry();
+   cd.fixedGeo->setName("fixed_geo");
    ushort vertices[4] = { 0, 1, 2, 3 };
    osg::DrawElementsUShort *plane = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4, vertices);
 
@@ -472,6 +467,7 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
    }
 
    cd.reprojGeo = new osg::Geometry();
+   cd.reprojGeo->setName("reprojection_geo");
    {
       cd.reprojGeo->setDrawCallback(drawCB);
       cd.reprojGeo->setUseDisplayList( false );
@@ -566,10 +562,12 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
 
 void MultiChannelDrawer::initChannelData(ChannelData &cd) {
 
-   cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
+   if (cd.channelNum >= 0) {
+       cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
+   }
 
 #ifdef HAVE_CUDA
-   if (m_useCuda)
+   if (m_useCuda && cd.camera)
    {
        cd.colorTex = new CudaTextureRectangle;
        cd.depthTex = new CudaTextureRectangle;
@@ -606,9 +604,11 @@ void MultiChannelDrawer::initChannelData(ChannelData &cd) {
    osg::MatrixTransform *imageMat = new osg::MatrixTransform();
    imageMat->setMatrix(osg::Matrix::identity());
    imageMat->addChild(cd.geode);
-   imageMat->setName("VncClient_imageMat");
+   imageMat->setName("imageMat_"+std::to_string(cd.channelNum));
 
    cd.scene = imageMat;
+
+   addChild(cd.scene);
 }
 
 void MultiChannelDrawer::clearChannelData() {
@@ -621,14 +621,14 @@ void MultiChannelDrawer::clearChannelData() {
 
 void MultiChannelDrawer::swapFrame() {
    for (size_t s=0; s<m_channelData.size(); ++s) {
-      ChannelData &cd = m_channelData[s];
+      ChannelData &cd = *m_channelData[s];
 
       cd.imgView = cd.newView;
       cd.imgProj = cd.newProj;
       cd.imgModel = cd.newModel;
 
 #ifdef HAVE_CUDA
-      if (m_useCuda)
+      if (m_useCuda && cd.camera)
       {
           cd.colorTex->dirtyTextureObject();
           cd.depthTex->dirtyTextureObject();
@@ -646,14 +646,15 @@ void MultiChannelDrawer::swapFrame() {
 
 void MultiChannelDrawer::updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
 
-   ChannelData &cd = m_channelData[idx];
+   ChannelData &cd = *m_channelData[idx];
    cd.newModel = model;
    cd.newView = view;
    cd.newProj = proj;
 }
 
 void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, GLenum colorFormat) {
-    ChannelData &cd = m_channelData[idx];
+
+    ChannelData &cd = *m_channelData[idx];
 
     if (cd.width != w || cd.height != h || cd.colorFormat != colorFormat)
     {
@@ -674,7 +675,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         }
 
 #ifdef HAVE_CUDA
-        if (m_useCuda)
+        if (m_useCuda && cd.camera)
         {
             cd.colorTex->setTextureSize(w, h);
             cd.colorTex->setSourceFormat(GL_RGBA);
@@ -732,7 +733,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         }
 
 #ifdef HAVE_CUDA
-        if (m_useCuda)
+        if (m_useCuda && cd.camera)
         {
             cd.depthTex->setTextureSize(w, h);
             cd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
@@ -799,7 +800,7 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
 
 void MultiChannelDrawer::reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
 
-    ChannelData &cd = m_channelData[idx];
+    ChannelData &cd = *m_channelData[idx];
 
     osg::Matrix cur = model * view * proj;
     osg::Matrix old = cd.imgModel * cd.imgView * cd.imgProj;
@@ -815,8 +816,13 @@ void MultiChannelDrawer::reproject() {
     }
 }
 
+std::shared_ptr<MultiChannelDrawer::ChannelData> MultiChannelDrawer::getChannelData(int idx) {
+
+    return m_channelData[idx];
+}
+
 unsigned char *MultiChannelDrawer::rgba(int idx) const {
-    const ChannelData &cd = m_channelData[idx];
+    const ChannelData &cd = *m_channelData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
@@ -831,7 +837,7 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
 }
 
 unsigned char *MultiChannelDrawer::depth(int idx) const {
-    const ChannelData &cd = m_channelData[idx];
+    const ChannelData &cd = *m_channelData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
@@ -846,7 +852,7 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
 }
 
 void MultiChannelDrawer::clearColor(int idx) {
-    ChannelData &cd = m_channelData[idx];
+    ChannelData &cd = *m_channelData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
@@ -863,7 +869,7 @@ void MultiChannelDrawer::clearColor(int idx) {
 }
 
 void MultiChannelDrawer::clearDepth(int idx) {
-    ChannelData &cd = m_channelData[idx];
+    ChannelData &cd = *m_channelData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
@@ -888,7 +894,7 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
    m_mode = mode;
    for (size_t i=0; i<m_channelData.size(); ++i) {
-       ChannelData &cd = m_channelData[i];
+       ChannelData &cd = *m_channelData[i];
        osg::StateSet *state = cd.reprojGeo->getStateSet();
        assert(state);
 
@@ -906,7 +912,12 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
                break;
            case Reproject:
                cd.reprojGeo->setVertexArray(cd.pointCoord);
-               cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+               if (cd.pointArr) {
+                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
+                       cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+                   else
+                       cd.reprojGeo->addPrimitiveSet(cd.pointArr);
+               }
                state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
                state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
                state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
@@ -915,7 +926,12 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
            case ReprojectAdaptive:
            case ReprojectAdaptiveWithNeighbors:
                cd.reprojGeo->setVertexArray(cd.pointCoord);
-               cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+               if (cd.pointArr) {
+                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
+                       cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
+                   else
+                       cd.reprojGeo->addPrimitiveSet(cd.pointArr);
+               }
                state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
                state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
                state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
@@ -925,7 +941,12 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
            case ReprojectMesh:
            case ReprojectMeshWithHoles:
                cd.reprojGeo->setVertexArray(cd.quadCoord);
-               cd.reprojGeo->setPrimitiveSet(0, cd.quadArr);
+               if (cd.quadArr) {
+                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
+                       cd.reprojGeo->setPrimitiveSet(0, cd.quadArr);
+                   else
+                       cd.reprojGeo->addPrimitiveSet(cd.quadArr);
+               }
                state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
                state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
                state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
@@ -934,6 +955,43 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
                break;
        }
    }
+}
+
+bool MultiChannelDrawer::renderAllViews() const {
+    return m_renderAllViews;
+}
+
+void MultiChannelDrawer::setRenderAllViews(bool allViews) {
+    m_renderAllViews = allViews;
+}
+
+void MultiChannelDrawer::setNumViews(int nv) {
+
+    for (auto &chan: m_channelData) {
+        removeChild(chan->scene);
+    }
+    m_channelData.clear();
+
+    if (nv == -1) {
+
+        int numChannels = coVRConfig::instance()->numChannels();
+        for (int i=0; i<numChannels; ++i) {
+            m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+            initChannelData(*m_channelData.back());
+            if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
+                m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+                m_channelData.back()->second = true;
+                initChannelData(*m_channelData.back());
+            }
+        }
+    } else {
+        for (int i=0; i<nv; ++i) {
+            m_channelData.emplace_back(std::make_shared<ChannelData>());
+            initChannelData(*m_channelData.back());
+        }
+    }
+
+    setMode(m_mode);
 }
 
 }
