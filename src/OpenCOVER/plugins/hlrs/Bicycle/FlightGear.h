@@ -64,6 +64,8 @@ struct FGControl
     bool 	  starter; 
     double 	  throttle; 
     double        parkingBrake;
+    double 	  pause;
+    int 	  up;
 };
 #pragma pack(pop)
 
@@ -77,6 +79,9 @@ public:
     void update();
     osg::Vec3d getPosition();
     osg::Vec3d getOrientation();
+    void doUp();
+    void doPause(double s);
+    double getPause();
     virtual void run();
     volatile bool running;
     void stop();
@@ -92,6 +97,7 @@ private:
     int ret;
     OpenThreads::Mutex mutex;
     bool thermal;
+    int upVal;
 };
 
 #endif /* FLIGHTGEAR_H */

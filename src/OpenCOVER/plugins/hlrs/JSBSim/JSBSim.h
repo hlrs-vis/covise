@@ -64,7 +64,7 @@ private:
     vector <double> CommandLinePropertyValues;
 
     double current_seconds = 0.0;
-    double initial_seconds = 0.0;
+    double SimStartTime = 0.0;
     double frame_duration = 0.0;
     double printTime = 0.0;
 
@@ -88,6 +88,8 @@ private:
 
     osg::Vec3d zeroPosition;
 
+    JSBSim::FGLocation il;
+
     struct FGControl
     {
         double elevator;
@@ -96,6 +98,9 @@ private:
     UDPComm *udp;
     void initUDP();
     bool updateUdp();
+
+    //! this functions is called when a key is pressed or released
+    virtual void key(int type, int keySym, int mod);
 
     bool realtime;
     bool play_nice;

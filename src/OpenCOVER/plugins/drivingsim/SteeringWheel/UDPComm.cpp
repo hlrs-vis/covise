@@ -334,7 +334,7 @@ int UDPComm::receive(void *buffer, int numBytes, double timeout)
     // receive a package
     int numbytes = recvfrom(d_rsocket, (char *)buffer, numBytes, 0, 0, 0);
 
-    if (numbytes != numBytes)
+    if (numbytes <=0)
     {
         fprintf(stderr, "UDPComm: Message to short, expected %d but got %d, socket: %d\n", numBytes, numbytes, d_rsocket);
 #ifdef WIN32

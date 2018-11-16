@@ -115,8 +115,8 @@ bool JSBSimPlugin::init()
     std::string line = coCoviseConfig::getEntry("COVER.Plugin.JSBSim.ScriptName");
     SGPath ScriptName;
     ScriptName.set(line);
-    std::string AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model","D:/src/gitbase/jsbsim/aircraft");
-    std::string AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model","paraglider");
+    std::string AircraftDir = coCoviseConfig::getEntry("aircraftDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft");
+    std::string AircraftName = coCoviseConfig::getEntry("aircraft", "COVER.Plugin.JSBSim.Model", "paraglider");
     std::string EnginesDir = coCoviseConfig::getEntry("enginesDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Engines");
     std::string SystemsDir = coCoviseConfig::getEntry("systemsDir", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/Systems");
     std::string resetFile = coCoviseConfig::getEntry("resetFile", "COVER.Plugin.JSBSim.Model", "D:/src/gitbase/jsbsim/aircraft/paraglider/reset00.xml");
@@ -132,14 +132,14 @@ bool JSBSimPlugin::init()
 
         // *** OPTION B: LOAD AN AIRCRAFT AND A SET OF INITIAL CONDITIONS *** //
     }
-    else if (!AircraftName.empty() || !resetFile.length()==0) {
+    else if (!AircraftName.empty() || !resetFile.length() == 0) {
 
         if (catalog) FDMExec->SetDebugLevel(0);
 
         if (!FDMExec->LoadModel(SGPath(AircraftDir),
-                                SGPath(EnginesDir),
-                                SGPath(SystemsDir),
-                                AircraftName)) {
+            SGPath(EnginesDir),
+            SGPath(SystemsDir),
+            AircraftName)) {
             cerr << "  JSBSim could not be started" << endl << endl;
             return false;
         }
@@ -157,39 +157,113 @@ bool JSBSimPlugin::init()
 
     frame_duration = FDMExec->GetDeltaT();
 
-    initial_seconds = cover->frameTime();
-    Propagate->InitModel();
-
-    FDMExec->RunIC();
-    FDMExec->Setsim_time(0.0);//cover->frameTime());
+    FDMExec->Setsim_time(0.0);
+    SimStartTime = cover->frameTime();
     osg::Vec3 viewerPosInFeet = cover->getInvBaseMat().getTrans() / 0.3048;
-    JSBSim::FGColumnVector3 v(-viewerPosInFeet[1], viewerPosInFeet[0], viewerPosInFeet[2]);
-    JSBSim::FGLocation l(v);
+    //JSBSim::FGColumnVector3 v(viewerPosInFeet[2], viewerPosInFeet[1], -viewerPosInFeet[0]);
+    //JSBSim::FGLocation l(v);
     //JSBSim::FGPropagate::VehicleState o;
     //o. //(48.678993, 8.359287, 20926069);
-    fprintf(stderr,"v: %f %f %f\n",-viewerPosInFeet[1], viewerPosInFeet[0], viewerPosInFeet[2]);
-    //FDMExec->GetPropagate()->SetLocation(o);
+    fprintf(stderr, "oldPos: %f %f %f\n", viewerPosInFeet[0], viewerPosInFeet[1], viewerPosInFeet[2]);
 
-    result = FDMExec->Run();  // MAKE AN INITIAL RUN
+    il.SetLatitude(0.0);
+    il.SetLongitude(0.0);
+    il.SetAltitudeASL(0.0);
+    double radius = (il.GetRadius() + viewerPosInFeet[2]);
+    double ecX, ecY, ecZ;
+    ecX = viewerPosInFeet[2]+ radius;
+    ecY = -viewerPosInFeet[1];
+    ecZ = viewerPosInFeet[0];
+    double r02 = ecX* ecX + ecY*ecY;
+    double rxy = sqrt(r02);
+    double mLon, mLat;
+
+    // Compute the longitude and latitude itself
+    if (ecX == 0.0 && ecY == 0.0)
+        mLon = 0.0;
+    else
+        mLon = atan2(ecY, ecX);
+
+    if (rxy == 0.0 && ecZ == 0.0)
+        mLat = 0.0;
+    else
+        mLat = atan2(ecZ, rxy);
+
+    FDMExec->GetIC()->SetLatitudeRadIC(mLat);
+    FDMExec->GetIC()->SetLongitudeRadIC(mLon);
+    FDMExec->GetIC()->SetAltitudeASLFtIC(viewerPosInFeet[2]);
+
+
+    Propagate->InitModel();
+    FDMExec->RunIC();
+
+    /*
     initialLocation = Propagate->GetVState();
     initialLocation.vLocation += JSBSim::FGLocation(v);
-    FDMExec->GetPropagate()->SetLocation(initialLocation.vLocation);
-    fprintf(stderr,"v: %f %f %f\n",initialLocation.vLocation(1),initialLocation.vLocation(2),initialLocation.vLocation(3));
-    zeroPosition = osg::Vec3(initialLocation.vLocation(1),initialLocation.vLocation(2),initialLocation.vLocation(3));
+    FDMExec->GetPropagate()->SetLocation(il + JSBSim::FGLocation(v));
 
+    fprintf(stderr, "v: %f %f %f\n", initialLocation.vLocation(1), initialLocation.vLocation(2), initialLocation.vLocation(3));
+    zeroPosition = osg::Vec3(initialLocation.vLocation(1), initialLocation.vLocation(2), initialLocation.vLocation(3));
+
+    for (int i = 0; i < 10; i++)
+    {
+        FDMExec->Setdt(0.0);
+        result = FDMExec->Run();  // MAKE AN INITIAL RUN
+    }*/
+    FDMExec->Setdt(1.0 / 1200.0);
+    result = FDMExec->Run();  // MAKE AN INITIAL RUN
     // PRINT SIMULATION CONFIGURATION
     FDMExec->PrintSimulationConfiguration();
     FDMExec->GetPropagate()->DumpState();
+
+
+    JSBSim::FGColumnVector3 pos = Propagate->GetInertialPosition();
+    fprintf(stderr, "new pos %lf %lf %lf", pos(3), -pos(2), pos(1)-il.GetRadius());
+
+    fgcontrol.aileron = 0.0;
+    fgcontrol.elevator = 0.0;
     return true;
+}
+
+void JSBSimPlugin::key(int type, int keySym, int mod)
+{
+    (void)mod;
+    switch (type)
+    {
+    case (osgGA::GUIEventAdapter::KEYDOWN):
+        if (keySym == 'l' || keySym == 'O')
+        {
+            if(fgcontrol.aileron < 0.99)
+            fgcontrol.aileron += 0.1;
+        }
+        else if (keySym == 'j' || keySym == 'O')
+        {
+            if (fgcontrol.aileron > -0.99)
+            fgcontrol.aileron -= 0.1;
+        }
+        else if (keySym == 'i' || keySym == 'O')
+        {
+            if (fgcontrol.elevator < 0.99)
+            fgcontrol.elevator += 0.1;
+        }
+        else if (keySym == 'm' || keySym == 'O')
+        {
+            if (fgcontrol.elevator > -0.99)
+            fgcontrol.elevator -= 0.1;
+        }
+        break;
+    }
+    fprintf(stderr, "Keysym: %d\n", keySym);
+    fprintf(stderr, "Aileron: %lf Elevator %lf\n", fgcontrol.aileron,fgcontrol.elevator);
 }
 
 bool
 JSBSimPlugin::update()
 {
-    updateUdp();
+    //updateUdp();
 
-    FCS->SetDaCmd(0.0);
-    FCS->SetDeCmd(0.0);
+    FCS->SetDaCmd(fgcontrol.aileron);
+    FCS->SetDeCmd(fgcontrol.elevator);
 
     for (unsigned int i = 0; i < Propulsion->GetNumEngines(); i++) {
         FCS->SetThrottleCmd(i,1.0);
@@ -212,24 +286,22 @@ JSBSimPlugin::update()
     }
     bool result = false;
 
-    current_seconds = cover->frameTime();
-    double sim_lag_time = current_seconds - FDMExec->GetSimTime(); // How far behind sim-time is from actual
-    // elapsed time.
-    //for (int i = 0; i<(int)(sim_lag_time / frame_duration); i++) {  // catch up sim time to actual elapsed time.
-    result = FDMExec->Run();
-    //    if (FDMExec->Holding()) break;
-    //}
+    while (FDMExec->GetSimTime() + SimStartTime < cover->frameTime())
+    {
+        if (FDMExec->Holding()) break;
+        result = FDMExec->Run();
+    }
 
-    osg::Vec3d newPos;
-    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
-    osg::Vec3d currentPosition(location.vLocation(1),location.vLocation(2),location.vLocation(3));
-    newPos = currentPosition;//-zeroPosition;
+   // osg::Vec3d newPos;
+   // JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+   // osg::Vec3d currentPosition(-(location.vLocation(3)-il(3)),location.vLocation(2) - il(2),location.vLocation(1) - il(1));
+   // newPos = currentPosition;
     //osg::Matrix planeOrientationMatrix;
     //JSBSim::FGQuaternion currentOrientation = Propagate->GetTec2l();
     //osg::Quat currentOrientation2(currentOrientation.Entry(0),currentOrientation.Entry(1),currentOrientation.Entry(2),currentOrientation.Entry(3));
     //planeOrientationMatrix.makeRotate(currentOrientation2);
-    osg::Matrix planeTranslation;
-    planeTranslation.makeTranslate(newPos[2],newPos[1],newPos[0]);
+    //osg::Matrix planeTranslation;
+    //planeTranslation.makeTranslate(newPos[2],newPos[1],newPos[0]);
     //trans.makeTranslate(location.vLocation.GetLatitude(),location.vLocation.GetLongitude(), location.vLocation.GetAltitudeASL());
     //3502274.250000 -1281103.125000 217903.953125
     if (cover->frameTime() > printTime + 5)
@@ -243,11 +315,17 @@ JSBSimPlugin::update()
     }
 
     osg::Matrix rot;
-    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, 1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht), osg::Vec3(1, 0, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(0, 1, 0));
+    rot.makeRotate(Propagate->GetEuler(JSBSim::FGJSBBase::ePsi), osg::Vec3(0, 0, -1), Propagate->GetEuler(JSBSim::FGJSBBase::eTht) , osg::Vec3(0, 1, 0), Propagate->GetEuler(JSBSim::FGJSBBase::ePhi), osg::Vec3(1, 0, 0));
     osg::Matrix trans;
     JSBSim::FGColumnVector3 pos = Propagate->GetInertialPosition();
-    trans.makeTranslate(-pos(2)*0.3048, pos(1)*0.3048, pos(3)*0.3048);
-    osg::Matrix Plane = osg::Matrix::inverse(rot* planeTranslation);
+    trans.makeTranslate(pos(3)*0.3048, -pos(2)*0.3048, (pos(1) - il.GetRadius())*0.3048);
+
+    JSBSim::FGPropagate::VehicleState location = Propagate->GetVState();
+    float scale = cover->getScale();
+    trans.makeTranslate(location.vLocation(3)*0.3048*scale, -location.vLocation(2)*0.3048*scale, (location.vLocation(1) - il.GetRadius())*0.3048*scale);
+    osg::Matrix preRot;
+    preRot.makeRotate(-M_PI_2, 0, 0, 1.0);
+    osg::Matrix Plane = osg::Matrix::inverse(preRot*rot*trans);
     /*JSBSim::FGMatrix33 tb2lMat = Propagate->GetTb2l();
     Plane.makeIdentity();
     for (int i = 0; i < 3; i++)
@@ -269,7 +347,7 @@ JSBSimPlugin::updateUdp()
     OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
     if (udp)
     {
-        int status = udp->receive(&fgcontrol, sizeof(FGControl));
+        int status = udp->receive(&fgcontrol, sizeof(FGControl),0.001);
 
         if (status == sizeof(FGControl))
         {
