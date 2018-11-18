@@ -53,6 +53,8 @@ private:
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
     ui::Button *pauseButton;
+    ui::Action *resetButton;
+    ui::Action *upButton;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -62,6 +64,7 @@ private:
     vector <SGPath> LogDirectiveName;
     vector <string> CommandLineProperties;
     vector <double> CommandLinePropertyValues;
+    osg::Matrix eyePoint;
 
     double current_seconds = 0.0;
     double SimStartTime = 0.0;
@@ -98,6 +101,7 @@ private:
     UDPComm *udp;
     void initUDP();
     bool updateUdp();
+    void reset(double dz=0.0);
 
     //! this functions is called when a key is pressed or released
     virtual void key(int type, int keySym, int mod);
