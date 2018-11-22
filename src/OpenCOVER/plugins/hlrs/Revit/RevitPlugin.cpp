@@ -1652,6 +1652,7 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
     {
         fileName = fileName.substr(0, found);
     }
+    std::replace( fileName.begin(), fileName.end(), '\\', '/');
 
     localTextureFile = localTextureDir + "/" + fileName;
     found = fileName.find_last_of('\\');
