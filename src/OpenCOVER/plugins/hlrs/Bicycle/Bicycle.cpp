@@ -173,6 +173,9 @@ VrmlNodeBicycle::VrmlNodeBicycle(VrmlScene *scene)
 {
     setModified();
     bikeTrans.makeIdentity();
+    fgPlaneZeroPos[0] = 0.0;
+    fgPlaneZeroPos[1] = 0.0;
+    fgPlaneZeroPos[2] = 0.0;
 }
 
 // --------------------------------------------------------------------
@@ -186,6 +189,9 @@ VrmlNodeBicycle::VrmlNodeBicycle(const VrmlNodeBicycle &n)
 {
     setModified();
     bikeTrans.makeIdentity();
+    fgPlaneZeroPos[0] = 0.0;
+    fgPlaneZeroPos[1] = 0.0;
+    fgPlaneZeroPos[2] = 0.0;
 }
 
 // --------------------------------------------------------------------
@@ -356,7 +362,8 @@ void VrmlNodeBicycle::render(Viewer *)
             if (BicyclePlugin::plugin->isBike)
                 buttonState = BicyclePlugin::plugin->tacx->getButtons();
 
-            if (flightgearReset)   //buttonState)
+            osg::Vec3d currentPosition(BicyclePlugin::plugin->flightgear->getPosition());
+            if ((currentPosition[0] != 0.0 && fgPlaneZeroPos[0] == 0.0) || flightgearReset)   //buttonState)
             {
                 osg::Vec3d referenceCoordSys(0,1,0); 
                 osg::Vec3d zeroPosition(BicyclePlugin::plugin->flightgear->getPosition());
@@ -372,7 +379,6 @@ void VrmlNodeBicycle::render(Viewer *)
                 flightgearReset=false;
                 fgPlaneZeroPos=fgPlaneRot.preMult(osg::Vec3d(BicyclePlugin::plugin->flightgear->getPosition())); 
             } 
-            osg::Vec3d currentPosition(BicyclePlugin::plugin->flightgear->getPosition());
             newPos = fgPlaneRot.preMult(currentPosition)-fgPlaneZeroPos;
 
             /*	fprintf(stderr, "\r");
@@ -383,7 +389,15 @@ void VrmlNodeBicycle::render(Viewer *)
             osg::Vec3d newOrientation = currentOrientation;
             newOrientation.normalize();
             osg::Matrix planeOrientationMatrix;
-            planeOrientationMatrix.makeRotate(currentOrientation.length(),newOrientation);
+            double len = currentOrientation.length();
+            if (len > 0)
+            {
+                planeOrientationMatrix.makeRotate(len, newOrientation);
+            }
+            else
+            {
+                planeOrientationMatrix.makeIdentity();
+            }
 
             osg::Matrix viewcorrectionMatrix;
             viewcorrectionMatrix.makeRotate(M_PI/3*2,osg::Vec3d(-1,-1,1));
@@ -818,6 +832,8 @@ bool BicyclePlugin::init()
     plugin = this;
     flightgear = NULL;
     tacx = NULL;
+    mouse1 = 0;
+    mouse2 = 0;
 
     isPlane=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.FlightGear",false));
     isBike=(coCoviseConfig::isOn("COVER.Plugin.Bicycle.isBike",false));
@@ -1040,7 +1056,15 @@ bool BicyclePlugin::init()
 BicyclePlugin::~BicyclePlugin()
 {
     fprintf(stderr, "BicyclePlugin::~BicyclePlugin\n");
-    close(mouse1);
+    if (flightgear)
+    {
+        flightgear->stop();
+        delete flightgear;
+    }
+    if (mouse1 > 0)
+    {
+        close(mouse1);
+    }
     running = false;
     //AVRClose();
 }
@@ -1085,7 +1109,7 @@ BicyclePlugin::preFrame()
 
 void BicyclePlugin::key(int type, int keySym, int mod)
 {
-/*    fprintf(stderr, "type: %d \n ", type);
+    /*fprintf(stderr, "type: %d \n ", type);
     fprintf(stderr, "keySym: %d \n ", keySym);
     fprintf(stderr, "mod: %d \n " , mod);*/
     if(type == 32) 
@@ -1095,6 +1119,30 @@ void BicyclePlugin::key(int type, int keySym, int mod)
 	    case 114:
 		flightgearReset=true;
 		break;
+        case 'p':
+        case 'P':
+            if (flightgear)
+            {
+                if (flightgear->getPause()==1.0)
+                {
+                flightgear->doPause(0.01);
+                fprintf(stderr, "Pause\n");
+                }
+                else
+                {
+                    flightgear->doPause(1.0);
+                    fprintf(stderr, "Resume\n");
+                }
+            }
+            break;
+        case 'u':
+        case 'U':
+            if (flightgear)
+            {
+                flightgear->doUp();
+                fprintf(stderr, "Up\n");
+            }
+            break;
 	}
 }
 

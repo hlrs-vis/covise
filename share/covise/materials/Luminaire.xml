@@ -3,8 +3,9 @@
 <uniform max="0" min="-100" name="minVAngle" type="float" value="-15"/>
 <uniform max="10" min="0.01" name="HStep" type="float" value="0.1"/>
 <uniform max="10" min="0.01" name="VStep" type="float" value="0.2"/>
-<uniform name="IESMap" type="sampler2D" value="5"/><vertexProgram>
-  
+<uniform name="IESMap" type="sampler2D" value="5"/>
+
+<vertexProgram>
 varying vec3 InLightCoordinates;
 varying vec2 Texcoord;
 uniform mat4 coEnvCorrectMatrix;
@@ -56,6 +57,7 @@ void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
    Diffuse  += gl_LightSource[i].diffuse * nDotVP * attenuation;
    Specular += gl_LightSource[i].specular * pf * attenuation;
 }
+
 
 void directionalLight(in int i, in vec3 normal)
 {
@@ -113,7 +115,8 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
     color += Specular * gl_FrontMaterial.specular;
     color = clamp( color, 0.0, 1.0 );
     gl_FrontColor = color;
-    normal   = gl_NormalMatrix * gl_Normal;
+
+    normal = gl_NormalMatrix * gl_Normal;
     gl_FrontColor.a *= alphaFade;
 }
 
@@ -138,7 +141,8 @@ void main( void )
     InLightCoordinates = tmp4.xyz;
 }
 
-</vertexProgram><fragmentProgram>#version 130
+</vertexProgram><fragmentProgram>
+#version 130
 varying vec3 InLightCoordinates;
 varying vec2 Texcoord;
 uniform mat4 coEnvCorrectMatrix;

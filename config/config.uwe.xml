@@ -3,6 +3,10 @@
 <COCONFIG version="1" >
 
  <GLOBAL>
+ 
+   <FlightGear>
+        <serverHost value="140.221.131.37" />
+   </FlightGear>
   <COVER>
   
     <AnimationSpeed max="60" />
@@ -12,6 +16,16 @@
  <INCLUDE global="1" configname="general" >config.xml </INCLUDE>
  <GLOBAL>
   <COVER>
+  <Plugin>
+  
+   <Bicycle>
+        <udp value="on"/>
+        <serverHost value="140.221.131.37" /> <!-- medialab14 -->
+        <FlightGear value="on"/>
+        <isBike value="off"/>
+        <isParaglider value="on"/>
+   </Bicycle>
+  </Plugin>
   
     <AnimationSpeed max="60" />
             <Plugin>

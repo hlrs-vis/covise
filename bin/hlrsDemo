@@ -263,7 +263,9 @@ do
 	39)
 	    echo -e "starting Herrenberg";
 	    bash /data/reallabor/herrenberg/sumo/startSumo.sh &
+	    SUMO=$!
 	    covise -e /data/reallabor/herrenberg/OpenFOAM/covise/HerrenbergAusbreitunglokalCoviseRNewFinal.net
+	    kill $SUMO
             #opencover /data/reallabor/herrenberg/vrml/simulierteWelten.wrl
 	    ;;
 

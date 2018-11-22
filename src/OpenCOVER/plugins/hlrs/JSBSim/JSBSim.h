@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <cfenv>
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
@@ -23,14 +24,15 @@
 #include <util/byteswap.h>
 #include <net/covise_connect.h>
 
-#include "initialization/FGTrim.h"
-#include "FGFDMExec.h"
-#include "input_output/FGXMLFileRead.h"
+#include <initialization/FGTrim.h>
+#include <FGFDMExec.h>
+#include <input_output/FGXMLFileRead.h>
 
 #include <util/coTypes.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
+class UDPComm;
 
 using JSBSim::FGXMLFileRead;
 using JSBSim::Element;
@@ -50,6 +52,9 @@ public:
 private:
     ui::Menu *JSBMenu;
     ui::Action *printCatalog;
+    ui::Button *pauseButton;
+    ui::Action *resetButton;
+    ui::Action *upButton;
 
     SGPath RootDir;
     SGPath ScriptName;
@@ -59,9 +64,10 @@ private:
     vector <SGPath> LogDirectiveName;
     vector <string> CommandLineProperties;
     vector <double> CommandLinePropertyValues;
+    osg::Matrix eyePoint;
 
     double current_seconds = 0.0;
-    double initial_seconds = 0.0;
+    double SimStartTime = 0.0;
     double frame_duration = 0.0;
     double printTime = 0.0;
 
@@ -81,6 +87,25 @@ private:
     JSBSim::FGInertial*        Inertial;
     JSBSim::FGAccelerations*   Accelerations;
 
+    JSBSim::FGPropagate::VehicleState initialLocation;
+
+    osg::Vec3d zeroPosition;
+
+    JSBSim::FGLocation il;
+
+    struct FGControl
+    {
+        double elevator;
+        double aileron;
+    } fgcontrol;
+    UDPComm *udp;
+    void initUDP();
+    bool updateUdp();
+    void reset(double dz=0.0);
+
+    //! this functions is called when a key is pressed or released
+    virtual void key(int type, int keySym, int mod);
+
     bool realtime;
     bool play_nice;
     bool suspend;
@@ -90,5 +115,6 @@ private:
     double end_time = 1e99;
     double actual_elapsed_time = 0;
     double cycle_duration = 0;
+    OpenThreads::Mutex mutex;
 };
 #endif

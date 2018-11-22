@@ -83,6 +83,9 @@ OfficeConnection::OfficeConnection(ServerConnection *to)
 
 OfficeConnection::~OfficeConnection()
 {
+    if (toOffice && toOffice->getSocket())
+        cover->unwatchFileDescriptor(toOffice->getSocket()->get_id());
+    delete toOffice;
 }
 
 void OfficeConnection::sendMessage(Message &m)
@@ -201,6 +204,10 @@ bool OfficePlugin::init()
             delete serverConn;
             serverConn = NULL;
         }
+        else
+        {
+            cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+        }
 
         struct linger linger;
         linger.l_onoff = 0;
@@ -215,6 +222,7 @@ bool OfficePlugin::init()
             if (!serverConn->is_connected()) // could not open server port
             {
                 fprintf(stderr, "Could not open server port %d\n", port);
+                cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
                 delete serverConn;
                 serverConn = NULL;
             }
@@ -242,6 +250,8 @@ OfficePlugin *OfficePlugin::instance()
 OfficePlugin::~OfficePlugin()
 {
     destroyMenu();
+    if (serverConn && serverConn->getSocket())
+        cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
     delete serverConn;
     serverConn = NULL;
     plugin = nullptr;
@@ -317,6 +327,7 @@ void OfficePlugin::preFrame()
             if (toOffice && toOffice->is_connected())
             {
                 fprintf(stderr, "Connected to Office system\n");
+                cover->watchFileDescriptor(toOffice->getSocket()->get_id());
             }
             else
             {

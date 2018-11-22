@@ -1436,6 +1436,16 @@ ui::ButtonGroup *coVRPluginSupport::navGroup() const
     return nullptr;
 }
 
+void coVRPluginSupport::watchFileDescriptor(int fd)
+{
+    OpenCOVER::instance()->watchFileDescriptor(fd);
+}
+
+void coVRPluginSupport::unwatchFileDescriptor(int fd)
+{
+    OpenCOVER::instance()->unwatchFileDescriptor(fd);
+}
+
 } // namespace opencover
 
 covise::TokenBuffer &opencover::operator<<(covise::TokenBuffer &buffer, const osg::Matrixd &matrix)

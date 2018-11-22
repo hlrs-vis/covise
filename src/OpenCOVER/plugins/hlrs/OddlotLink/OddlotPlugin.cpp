@@ -134,6 +134,10 @@ OddlotPlugin::OddlotPlugin()
         delete serverConn;
         serverConn = NULL;
     }
+    else
+    {
+        cover->watchFileDescriptor(serverConn->getSocket()->get_id());
+    }
 
     struct linger linger;
     linger.l_onoff = 0;
@@ -148,8 +152,10 @@ OddlotPlugin::OddlotPlugin()
         if (!serverConn->is_connected()) // could not open server port
         {
             fprintf(stderr, "Could not open server port %d\n", port);
+            cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
             delete serverConn;
             serverConn = NULL;
+
         }
     }
     msg = new Message;
@@ -188,8 +194,12 @@ bool OddlotPlugin::init()
 OddlotPlugin::~OddlotPlugin()
 {
     destroyMenu();
+    if (serverConn && serverConn->getSocket())
+        cover->unwatchFileDescriptor(serverConn->getSocket()->get_id());
     delete serverConn;
     serverConn = NULL;
+    if (toOddlot && toOddlot->getSocket())
+        cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
     delete toOddlot;
     delete msg;
     
@@ -411,6 +421,7 @@ OddlotPlugin::handleMessage(Message *m)
         {
         case Message::SOCKET_CLOSED:
         case Message::CLOSE_SOCKET:
+            cover->unwatchFileDescriptor(toOddlot->getSocket()->get_id());
             delete toOddlot;
             toOddlot = NULL;
 
@@ -433,6 +444,7 @@ OddlotPlugin::preFrame()
         if (toOddlot && toOddlot->is_connected())
         {
             fprintf(stderr, "Connected to Oddlot\n");
+            cover->watchFileDescriptor(toOddlot->getSocket()->get_id());
         }
     }
     char gotMsg = '\0';

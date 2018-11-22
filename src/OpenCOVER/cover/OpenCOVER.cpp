@@ -818,11 +818,23 @@ bool OpenCOVER::init()
 
     if (!coVRConfig::instance()->continuousRendering())
     {
-        if (cover->debugLevel(1))
+        if (cover->debugLevel(2))
         {
             fprintf(stderr, "OpenCOVER: disabling continuous rendering\n");
         }
         VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+    }
+
+    if (cover->viewOptionsMenu) {
+        auto cr = new ui::Button(cover->viewOptionsMenu, "ContinuousRendering");
+        cr->setText("Continuous rendering");
+        cr->setState(coVRConfig::instance()->continuousRendering());
+        cr->setCallback([this](bool state){
+           if (state)
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::CONTINUOUS);
+           else
+               VRViewer::instance()->setRunFrameScheme(osgViewer::Viewer::ON_DEMAND);
+        });
     }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
@@ -1140,8 +1152,18 @@ bool OpenCOVER::frame()
             {
                 if (!m_renderNext)
                 {
-                    usleep(10000);
-                    return false;
+                    int maxfd = -1;
+                    fd_set fds;
+                    FD_ZERO(&fds);
+                    for (const auto &fd: m_watchedFds) {
+                        FD_SET(fd, &fds);
+                        if (maxfd < fd)
+                            maxfd = fd;
+                    }
+                    struct timeval tenms {0, 10000};
+                    int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+                    if (nready <= 0)
+                        return false;
                 }
                 m_renderNext = false;
                 if (cover->debugLevel(4))
@@ -1390,4 +1412,18 @@ coTUITabFolder *OpenCOVER::tuiTab(size_t idx) const
         return nullptr;
 
     return tabletTabs[idx];
+}
+
+bool OpenCOVER::watchFileDescriptor(int fd)
+{
+    return m_watchedFds.insert(fd).second;
+}
+
+bool OpenCOVER::unwatchFileDescriptor(int fd)
+{
+    auto it = m_watchedFds.find(fd);
+    if (it == m_watchedFds.end())
+
+    m_watchedFds.erase(it);
+    return true;
 }

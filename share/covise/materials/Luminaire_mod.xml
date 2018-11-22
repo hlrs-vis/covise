@@ -3,14 +3,14 @@
 <uniform max="0" min="-100" name="minVAngle" type="float" value="-15"/>
 <uniform max="10" min="0.01" name="HStep" type="float" value="0.1"/>
 <uniform max="10" min="0.01" name="VStep" type="float" value="0.2"/>
-<uniform name="IESMap" type="sampler2DArray" value="5"/>
+<uniform name="IESMap" type="sampler2D" value="5"/>
 
 <vertexProgram>
 varying vec3 InLightCoordinates;
 varying vec2 Texcoord;
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
-uniform mat4 matrixLightMatrix[1];
+uniform mat4 photometricLightMatrix[4];
 
 vec4 Ambient;
 vec4 Diffuse;
@@ -75,12 +75,12 @@ void directionalLight(in int i, in vec3 normal)
    else
    {
        pf = pow(nDotHV, gl_FrontMaterial.shininess);
-
    }
    Ambient  += gl_LightSource[i].ambient;
    Diffuse  += gl_LightSource[i].diffuse * nDotVP;
    Specular += gl_LightSource[i].specular * pf;
 }
+
 
 vec3 fnormal(void)
 {
@@ -89,6 +89,7 @@ vec3 fnormal(void)
     normal = normalize(normal);
     return normal;
 }
+
 
 void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
 {
@@ -105,22 +106,21 @@ void flight(in vec3 normal, in vec4 ecPosition, float alphaFade)
     Specular = vec4 (0.0);
 
     pointLight(0, normal, eye, ecPosition3);
-
     //pointLight(1, normal, eye, ecPosition3);
-
     //directionalLight(2, normal);
 
     color = gl_FrontLightModelProduct.sceneColor +
-        Ambient  * gl_FrontMaterial.ambient +
-        Diffuse  * gl_FrontMaterial.diffuse;
+          Ambient  * gl_FrontMaterial.ambient +
+          Diffuse  * gl_FrontMaterial.diffuse;
     color += Specular * gl_FrontMaterial.specular;
-    color = clamp( color, 0.0, 1.0 );
+    color = clamp(color, 0.0, 1.0);
     gl_FrontColor = color;
-	normal = gl_NormalMatrix * gl_Normal;
+
+    normal = gl_NormalMatrix * gl_Normal;
     gl_FrontColor.a *= alphaFade;
 }
 
-void main( void )
+void main(void)
 {
     Texcoord = gl_MultiTexCoord0.xy;
     #ifdef __GLSL_CG_DATA_TYPES
@@ -137,75 +137,84 @@ void main( void )
     gl_Position = ftransform();
     transformedNormal = fnormal();
     flight(transformedNormal, ecPosition, alphaFade);
-    vec4 tmp4 = matrixLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex; 
-    InLightCoordinates = tmp4.xyz;	
+    vec4 tmp4 = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    InLightCoordinates = tmp4.xyz;
 }
 </vertexProgram>
 <fragmentProgram>
 #version 130
-#extension GL_EXT_gpu_shader4 : enable 
 varying vec3 InLightCoordinates;
 varying vec2 Texcoord;
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
-uniform mat4 matrixLightMatrix[1];
+uniform mat4 photometricLightMatrix[4];
 uniform float minHAngle;
 uniform float minVAngle;
 uniform float HStep;
 uniform float VStep;
-uniform sampler2DArray IESMap;
-ivec3 texSize;
+uniform sampler2D IESMap;
+
+ivec2 texSize;
 // Function to get a texel data from a texture with GL_NEAREST property.
 // Bi-Linear interpolation is implemented in this function with the 
 // help of nearest four data.
 
-vec4 tex2DBiLinear( sampler2DArray textureSampler_i, vec2 texCoord_i )
+
+float smallestperiod(float theta)
 {
-	float texelSizeX = 1.0 / texSize[0]; //size of one texel 
-	float texelSizeY = 1.0 / texSize[1]; //size of one texel 
-
-	int nX = int( texCoord_i.x * texSize[0] );
-	int nY = int( texCoord_i.y * texSize[1] );
-	vec2 texCoord_New = vec2( ( float( nX ) + 0.5 ) / texSize[0],
-							  ( float( nY ) + 0.5 ) / texSize[1] );
-	// Take nearest two data in current row.
-    vec4 p0q0 = texture2DArray(textureSampler_i, vec3(texCoord_New,1));
-    vec4 p1q0 = texture2DArray(textureSampler_i, vec3(texCoord_New + vec2(texelSizeX, 0),1));
-
-	// Take nearest two data in bottom row.
-    vec4 p0q1 = texture2DArray(textureSampler_i, vec3(texCoord_New + vec2(0, texelSizeY),1));
-    vec4 p1q1 = texture2DArray(textureSampler_i, vec3(texCoord_New + vec2(texelSizeX , texelSizeY),1));
-
-    float a = fract( texCoord_i.x * texSize[0] ); // Get Interpolation factor for X direction.
-											 // Fraction near to valid data.
-
-	// Interpolation in X direction.
-    vec4 pInterp_q0 = mix( p0q0, p1q0, a ); // Interpolates top row in X direction.
-    vec4 pInterp_q1 = mix( p0q1, p1q1, a ); // Interpolates bottom row in X direction.
-
-    float b = fract( texCoord_i.y * texSize[1] ); // Get Interpolation factor for Y direction.
-    return mix( pInterp_q0, pInterp_q1, b ); // Interpolate in Y direction.
+    // makes sure value is in between -180° and  + 180°
+    // takes a value in radians as argument!
+    float pi = 3.141592653589793;
+    return mod(theta+pi, 2*pi) - pi;
 }
 
-void main( void )
-{
-   vec2 newtc;
-   vec4 DiffuseColor;
-   if(InLightCoordinates[0]&gt;0.0)
-   {
-       texSize = textureSize(IESMap,0);
-       //texSize[0]=1301;
-       //texSize[1]=161;
-	   newtc[0]= (atan(InLightCoordinates[2]/InLightCoordinates[0])-radians(minHAngle))/radians(HStep*(texSize[0]-1));
-	   newtc[1]= (atan(InLightCoordinates[1]/InLightCoordinates[0])-radians(minVAngle))/radians(VStep*(texSize[1]-1));
-	   //newtc[0]= (atan(InLightCoordinates[2]/InLightCoordinates[0])-radians(minHAngle))/radians(HStep*1300.0);
-	   //newtc[1]= (atan(InLightCoordinates[1]/InLightCoordinates[0])-radians(minVAngle))/radians(VStep*160.0);
-                      DiffuseColor = tex2DBiLinear( IESMap, newtc );
-    }
-    else
-    {
-    DiffuseColor=vec4(0,0,0,1);
-    } 
-    gl_FragColor = DiffuseColor+ (gl_Color*0.5);	
 
-}</fragmentProgram></Luminaire>
+vec4 tex2DBiLinear(sampler2D textureSampler_i, vec2 texCoord_i)
+{
+    float texelSizeX = 1.0 / texSize[0]; //size of one texel 
+    float texelSizeY = 1.0 / texSize[1]; //size of one texel 
+
+    int nX = int(texCoord_i.x * texSize[0]);  // 0 .. 130
+    int nY = int(texCoord_i.y * texSize[1]);  // 0 .. 27
+    vec2 texCoord_New = vec2((float(nX) + 0.5) / texSize[0],
+                              (float(nY) + 0.5) / texSize[1]);
+    // Take nearest two data in current row.
+    vec4 p0q0 = texture2D(textureSampler_i, texCoord_New);
+    vec4 p1q0 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX, 0));
+
+    // Take nearest two data in bottom row.
+    vec4 p0q1 = texture2D(textureSampler_i, texCoord_New + vec2(0, texelSizeY));
+    vec4 p1q1 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX , texelSizeY));
+
+    float a = fract(texCoord_i.x * texSize[0]); // Get Interpolation factor for X direction.
+                                             // Fraction near to valid data.
+
+    // Interpolation in X direction.
+    vec4 pInterp_q0 = mix(p0q0, p1q0, a); // Interpolates top row in X direction.
+    vec4 pInterp_q1 = mix(p0q1, p1q1, a); // Interpolates bottom row in X direction.
+
+    float b = fract(texCoord_i.y * texSize[1]); // Get Interpolation factor for Y direction.
+    return mix(pInterp_q0, pInterp_q1, b); // Interpolate in Y direction.
+}
+
+void main(void)
+{
+    vec2 newtc;
+    vec4 DiffuseColor;
+	texSize = textureSize(IESMap, 0);
+	// angular range in ies file: -25 to 25 and -10 to 10
+
+	float width = radians(130); // radians
+	float height = radians(27); // radians
+	float offset_horizontal = radians(0.0); 
+	float offset_vertical = radians(0.0);
+	float an_h = smallestperiod(atan(InLightCoordinates[2], InLightCoordinates[0]) - offset_horizontal);  // => arctan2
+	float an_v = smallestperiod(atan(InLightCoordinates[1], InLightCoordinates[0]) - offset_vertical);  // => arctan2
+	newtc[0]= an_h/width + 0.5;
+	newtc[1]= an_v/height + 0.5;
+	DiffuseColor = tex2DBiLinear(IESMap, newtc);
+	
+	DiffuseColor = texture2D(IESMap, newtc);
+    gl_FragColor = DiffuseColor+ (gl_Color*0.5);    
+
+    }</fragmentProgram></Luminaire>

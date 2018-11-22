@@ -195,6 +195,7 @@ else()
 endif()
 
 OPTION(COVISE_BUILD_RENDERER "Build desktop renderer" ON)
+OPTION(COVISE_BUILD_COVER "Build OpenCOVER VR/desktop renderer" ON)
 OPTION(COVISE_USE_VISIBILITY "Do not export all symbols" ON)
 
 IF(COVISE_USE_FOLDERS)
