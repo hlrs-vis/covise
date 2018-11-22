@@ -265,10 +265,13 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 
 
 							if (bColor) {			//Normalize color to 0 - 255
+							     if(!intensityOnly)
+							     {
 								int r = ((redData[i] - colorRedOffset)*255.0) / colorRedRange;
 								int g = ((greenData[i] - colorGreenOffset)*255.0) / colorBlueRange;
 								int b = ((blueData[i] - colorBlueOffset)*255.0) / colorBlueRange;
 								point.rgba = r | g << 8 | b << 16;
+							     }
 
 							}
 							vec.push_back(point);
