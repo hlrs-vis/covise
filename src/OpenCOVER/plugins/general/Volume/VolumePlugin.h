@@ -157,7 +157,8 @@ private:
 
     bool showClipOutlines;
     bool followCoverClipping = true;
-    bool opaqueClipping = false;
+    bool opaqueClipping = true;
+    bool singleSliceClipping = false;
     float lastRoll;
     float roiCellSize;
     float roiMaxSize;

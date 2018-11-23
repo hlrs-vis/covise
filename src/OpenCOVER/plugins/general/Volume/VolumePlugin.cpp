@@ -742,17 +742,30 @@ bool VolumePlugin::init()
     currentVolumeItem->setText("[]");
 
     // Create clipping menu
-    auto clipModeItem = new ui::Button(clipMenu, "OpaqueClipping");
-    clipModeItem->setText("Opaque clipping");
-    clipModeItem->setState(opaqueClipping);
-    clipModeItem->setCallback([this](bool state){
-        opaqueClipping = state;
+    auto clipSingleSlice = new ui::Button(clipMenu, "SingleSliceClipping");
+    clipSingleSlice->setText("Single slice clipping");
+    clipSingleSlice->setState(singleSliceClipping);
+    clipSingleSlice->setCallback([this](bool state){
+        singleSliceClipping = state;
         applyToVolumes([this, state](Volume &vol){
             vol.drawable->setSingleSliceClipping(state);
+            vol.drawable->setOpaqueClipping(opaqueClipping && state);
             if (state)
                 vol.drawable->setLighting(false);
             else
                 vol.drawable->setLighting(vol.lighting);
+        });
+    });
+
+    auto clipOpaqueItem = new ui::Button(clipMenu, "OpaqueClipping");
+    clipOpaqueItem->setText("Opaque clipping");
+    clipOpaqueItem->setState(opaqueClipping);
+    clipOpaqueItem->setCallback([this](bool state){
+        opaqueClipping = state;
+        applyToVolumes([this, state](Volume &vol){
+            if (singleSliceClipping) {
+                vol.drawable->setOpaqueClipping(state);
+            }
         });
     });
 
@@ -2176,7 +2189,7 @@ void VolumePlugin::preFrame()
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ0 + i), plane);
                     drawable->setParameter(PT(vvRenderState::VV_CLIP_OUTLINE0 + i), showClipOutlines);
 
-                    if (followCoverClipping || opaqueClipping)
+                    if (followCoverClipping || singleSliceClipping)
                     {
                         state->setMode(GL_CLIP_PLANE0 + cp->getClipPlaneNum(), StateAttribute::OFF);
                         drawable->setParameter(PT(vvRenderState::VV_CLIP_OBJ_ACTIVE0 + i), true);
