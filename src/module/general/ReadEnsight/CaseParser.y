@@ -85,6 +85,7 @@ class CaseLexer;
 %token ENSIGHTV ENSIGHT_GOLD ASTNOTFN FN_NUMS FLOAT
 %token PER_M_NODE PER_M_ELEMENT
 %token VAR_POST VAR_POST_TS VAR_POST_TS_FS VAR_INT
+%token FILE_SEC FILE_SET
 
 %left LOGICAL_OR 
 %left LOGICAL_AND 
@@ -107,6 +108,7 @@ sect_key: FORMAT_SEC
         | GEOMETRY_SEC
         | VARIABLE_SEC
         | TIME_SEC
+        | FILE_SEC
 
 spec: spec_line
     | spec spec_line
@@ -116,6 +118,7 @@ spec_line: type_spec
          | model_spec 
          | variable_spec
          | ts_spec
+         | fs_spec
          | const_spec
 
 
@@ -234,6 +237,26 @@ ts_tvals: ts_tvals DOUBLE
 	     }
 	 }
 	 
+
+fs_spec: fs_hdr
+        |fs_spec fs_hdr
+		
+fs_hdr: FILE_SET INTEGER NUM_OF_STEPS INTEGER 
+         {
+	     int ts( $<token>2.iVal );
+	     int ns( $<token>4.iVal );
+	     	     fprintf(stderr, "DEFINITION FILESET %d  STEPS %d\n", ts, ns);
+	     //actTs_ = new TimeSet( ts, ns );
+
+	 }
+         | TIME_SET INTEGER IDENTIFIER NUM_OF_STEPS INTEGER 
+         {
+	     int ts( $<token>2.iVal );
+	     int ns( $<token>5.iVal );
+	     	     fprintf(stderr, "DEFINITION FILESET %d  STEPS %d\n", ts, ns);
+	     //actTs_ = new TimeSet( ts, ns );
+
+	 } 
 
 
 type_spec: TYPE ENSIGHTV

@@ -159,6 +159,14 @@ TIME[ \t]* {
     return( CaseParser::TIME_VAL );
 }
 
+FILE[ \t]* {
+    return( CaseParser::FILE_SEC );
+}
+"file set"[ \t]*: {
+    return( CaseParser::FILE_SET );
+}
+
+
 <VARS>[^ ]{1,99}[ \t]+[\.a-zA-Z0-9]+[^ ^\n]+$ {
     strncpy( pToken->token.szValue, yytext, yyleng );
     pToken->token.szValue[ yyleng ] = '\0';
