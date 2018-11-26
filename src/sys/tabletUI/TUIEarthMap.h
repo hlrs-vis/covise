@@ -9,7 +9,7 @@
 #define CO_TUI_EARTHMAP_H
 
 #include <QtGlobal>
-#if QT_VERSION >= 0x050900
+#ifdef HAVE_QT_LOCATION
 #define HAVE_TUIEARTHMAP
 #endif
 

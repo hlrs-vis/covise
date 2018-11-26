@@ -230,7 +230,7 @@ ADD_COVISE_EXECUTABLE(${TARGETNAME} MACOSX_BUNDLE
   ${MAPEDITOR_RCC_FILES} ${MAPEDITOR_UI_SRCS}
   ${ME_TUI_SOURCES} ${ME_TUI_HEADERS} ${ME_TUI_MOC_SRCS} ${ME_TUI_MOC_HEADERS}
 )
-qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg UiTools PrintSupport Quick Positioning Location)
+qt_use_modules(${TARGETNAME} Widgets Xml Network OpenGL Svg UiTools PrintSupport Quick)
 if (COVISE_USE_WEBENGINE)
   qt_use_modules(${TARGETNAME} WebEngineWidgets)
   ADD_DEFINITIONS(-DUSE_WEBENGINE)
@@ -238,7 +238,9 @@ elseif (COVISE_USE_WEBKIT)
   ADD_DEFINITIONS(-DUSE_WEBKIT)
   qt_use_modules(${TARGETNAME} WebKit WebKitWidgets)
 endif()
-
+if(Qt5Positioning_FOUND)
+  qt_use_modules(${TARGETNAME} Positioning Location)
+endif(Qt5Positioning_FOUND)
 if(COVISE_USE_QT4)
    IF(QT_QTWEBKIT_FOUND)
       ADD_DEFINITIONS(-DQT_WEBKIT)
