@@ -283,14 +283,14 @@ void ReadData(char *filename, std::vector<Point> &vec, formatTypes format, std::
 
 				dataReader.close();
 
-				if (isInvalidData) delete isInvalidData;
-				if (xData) delete xData;
-				if (yData) delete yData;
-				if (zData) delete zData;
-				if (intData) delete intData;
-				if (redData) delete redData;
-				if (greenData) delete greenData;
-				if (blueData) delete blueData;
+				delete[] isInvalidData;
+				delete[] xData;
+				delete[] yData;
+				delete[] zData;
+				delete[] intData;
+				delete[] redData;
+				delete[] greenData;
+				delete[] blueData;
 
 			}
 
