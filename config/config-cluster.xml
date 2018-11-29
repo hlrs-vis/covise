@@ -2,8 +2,6 @@
 <!-- run two instances of OpenCOVER on one host (for debugging purposes) -->
 
 <COCONFIG version="1" >
- <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
-
  <GLOBAL>
   <COVER>
    <MultiPC>
@@ -13,6 +11,20 @@
     <Startup ARCH="x11" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
     <Startup ARCH="windows" value="covRemote OpenCOVER 1;" name="0" />   	 
    </MultiPC>
+
+   <ScreenConfig>
+   <!--Screen value="FRONT 400 300 0 0 0 0.0 0.0 0.0" name="0" screen="0" /-->
+   <Screen RANK="1" width="960" comment="FRONT-LEFT" h="0.0" originX="-480" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   <Screen RANK="0" width="960" comment="FRONT-RIGHT" h="0.0" originX="480" originY="0" originZ="0" height="1080" p="0.0" r="0.0" name="0" screen="0" />
+   </ScreenConfig>
+
+   <WindowConfig>
+    <Window RANK="1" type="Qtx" width="600" comment="FRONT" window="0" pipeIndex="0" height="672" left="50" top="100" name="0" embedded="false" decoration="true" />
+    <Window RANK="0" type="Qt" width="600" comment="FRONT" window="0" pipeIndex="0" height="672" left="700" top="100" name="0" embedded="false" decoration="true" />
+   </WindowConfig>
   </COVER>
  </GLOBAL>
+
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
 </COCONFIG>
