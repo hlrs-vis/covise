@@ -146,9 +146,10 @@ DataFileGoldBin::readCells()
                         actPart->d3dz_ = NULL;
                     }
                 }
+                currentLine = getStr(); // this should be the elementName now
             }
 
-            string elemName(getStr()); // this should be the part line
+            string elemName(currentLine); 
 
             if ((actPart != NULL) && (actPart->isActive()))
             {

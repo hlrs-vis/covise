@@ -1964,7 +1964,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
     globalParts_[step] = thePl;
     return retArr;
 }
-
+/*
 coDistributedObject **
 ReadEnsight::createDataOutObj(const string &baseName2d,
                               const string &baseName3d,
@@ -2235,6 +2235,7 @@ ReadEnsight::createDataOutObj(const string &baseName2d,
 
     return retArr;
 }
+*/
 
 /*
 coDistributedObject **
@@ -2733,7 +2734,7 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
 
     return retArr;
 }
-
+/*
 int
 ReadEnsight::readData(const int &portTok2d, const int &portTok3d,
                       const string &fileNameBase,
@@ -2914,7 +2915,7 @@ ReadEnsight::readData(const int &portTok2d, const int &portTok3d,
     sendInfo(" reading data finished");
     return Success;
 }
-
+*/
 int
 ReadEnsight::readData1d(const int &portTok1d,
                         const string &fileNameBase,

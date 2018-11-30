@@ -107,12 +107,12 @@ private:
     coDistributedObject **createGeoOutObj(const string &baseName2d,
                                           const string &baseName3d, const int &step);
     // data
-    coDistributedObject **createDataOutObj(const string &baseName2d,
+  /*  coDistributedObject **createDataOutObj(const string &baseName2d,
                                            const string &baseName3d,
                                            DataCont &dc,
-                                           const int &step, const bool &perVertex = true);
+                                           const int &step, const bool &perVertex = true);*/
 
-    coDistributedObject **createDataOutObj(dimType dim, const string &baseName2d,
+    coDistributedObject **createDataOutObj(dimType dim, const string &baseName,
                                              DataCont &dc,
                                              const int &step, const bool &perVertex = true);
 
