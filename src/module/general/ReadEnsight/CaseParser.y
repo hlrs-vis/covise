@@ -30,6 +30,25 @@ class CaseLexer;
 // define a constant for the maximum length of a string token
 #define MaxTokenLength 1024
 #define YYDEBUG 9
+// trim from left
+inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(0, s.find_first_not_of(t));
+    return s;
+}
+
+// trim from right
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
+// trim from left & right
+inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    return ltrim(rtrim(s, t), t);
+}
 %}
 
 %name CaseParser
@@ -84,7 +103,7 @@ class CaseLexer;
 %token VARDESC TENSOR_SYMM
 %token ENSIGHTV ENSIGHT_GOLD ASTNOTFN FN_NUMS FLOAT
 %token PER_M_NODE PER_M_ELEMENT
-%token VAR_POST VAR_POST_TS VAR_POST_TS_FS VAR_INT
+%token VAR_POST VAR_POST_TS VAR_INT
 %token FILE_SEC FILE_SET
 
 %left LOGICAL_OR 
@@ -123,13 +142,19 @@ spec_line: type_spec
 
 
 ts_spec: ts_hdr ts_opts
+         {
+	     	     fprintf(stderr, "ts_hdr ts_opts %s %s\n",$<token>1.szValue, $<token>2.szValue);
+         }
         |ts_spec ts_hdr ts_opts
+         {
+	     	     fprintf(stderr, "ts_hdr ts_opts %s %s\n",$<token>1.szValue, $<token>2.szValue);
+         }
 
 ts_hdr: TIME_SET INTEGER NUM_OF_STEPS INTEGER 
          {
 	     int ts( $<token>2.iVal );
 	     int ns( $<token>4.iVal );
-	     //	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
+	     	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
 	     actTs_ = new TimeSet( ts, ns );
 
 	 }
@@ -137,7 +162,7 @@ ts_hdr: TIME_SET INTEGER NUM_OF_STEPS INTEGER
          {
 	     int ts( $<token>2.iVal );
 	     int ns( $<token>5.iVal );
-	     //	     fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
+	          fprintf(stderr, "DEFINITION TIMESET %d  STEPS %d\n", ts, ns);
 	     actTs_ = new TimeSet( ts, ns );
 
 	 } 
@@ -152,13 +177,13 @@ ts_fn_start: FN_ST_NUM INTEGER
          {
 	     int fs( $<token>2.iVal );
 	     tsStart_ = fs;
-	     //	     fprintf(stderr, " FIELNAME START %d ", fs);
+	     	     fprintf(stderr, " FIELNAME START %d ", fs);
 	 }
 
 ts_fn_incr: FN_INCR INTEGER
          {
 	     int incr( $<token>2.iVal ); 
-	     //	     fprintf(stderr, " FIELNAME INCREMENT %d ", incr);
+	     	     fprintf(stderr, " FIELNAME INCREMENT %d ", incr);
 	     if (actTs_ != NULL) {
 		 int i;
 		 int j(0);
@@ -178,11 +203,13 @@ ts_fn_incr: FN_INCR INTEGER
 
 ts_fnum_sec: FN_NUMS ts_fn_nums 
          {
-	     //	     fprintf(stderr, " FILENAME NUMBERS ");
+	     	     fprintf(stderr, " FILENAME NUMBERS ");
 	 }
 
 ts_fn_nums: ts_fn_nums INTEGER
          {
+		 
+	     	     fprintf(stderr, " INTEGER ");
 	     int nf( $<token>2.iVal ); 
 	     if (actTs_ != NULL) {
 		 actTs_->addFileNr(nf); 		 	     
@@ -195,6 +222,7 @@ ts_fn_nums: ts_fn_nums INTEGER
 	 }
          |  INTEGER
          {
+	     	     fprintf(stderr, " INTEGER ");
 	     int nf( $<token>1.iVal ); 
 	     //	     fprintf(stderr, " %d ", nf);
 	     if (actTs_ != NULL) {
@@ -209,13 +237,27 @@ ts_fn_nums: ts_fn_nums INTEGER
 
 ts_tval_secc: TIME_VAL ts_tvals
          {
+	     	     fprintf(stderr, " TIME_VAL ts_tvals ");
 	     if ( actTs_ != NULL ) {
 	     }
 	 }
 
 ts_tvals: ts_tvals DOUBLE
          {
+	     	     fprintf(stderr, " ts_tvals DOUBLE ");
 	     float rt( (float) $<token>2.dVal );
+	     if (actTs_ != NULL) {
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	     else {
+		 actTs_ = caseFile_.getLastTimeSet();
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	 }
+	 | ts_tvals INTEGER
+         {
+	     	     fprintf(stderr, " ts_tvals INTEGER ");
+	     float rt( (float) $<token>2.iVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
 	     }
@@ -227,6 +269,7 @@ ts_tvals: ts_tvals DOUBLE
 
         | DOUBLE
          {
+	     	     fprintf(stderr, " DOUBLE ");
 	     float rt( (float)$<token>1.dVal );
 	     if (actTs_ != NULL) {
 		 actTs_->addRealTimeVal(rt); 
@@ -236,6 +279,19 @@ ts_tvals: ts_tvals DOUBLE
 		 actTs_->addRealTimeVal(rt); 
 	     }
 	 }
+        | INTEGER
+         {
+	     	     fprintf(stderr, " INTEGER ");
+	     float rt( (float)$<token>1.iVal );
+	     if (actTs_ != NULL) {
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	     else {
+		 actTs_ = caseFile_.getLastTimeSet();
+		 actTs_->addRealTimeVal(rt); 
+	     }
+	 }
+	 
 	 
 
 fs_spec: fs_hdr
@@ -249,7 +305,7 @@ fs_hdr: FILE_SET INTEGER NUM_OF_STEPS INTEGER
 	     //actTs_ = new TimeSet( ts, ns );
 
 	 }
-         | TIME_SET INTEGER IDENTIFIER NUM_OF_STEPS INTEGER 
+         | FILE_SET INTEGER IDENTIFIER NUM_OF_STEPS INTEGER 
          {
 	     int ts( $<token>2.iVal );
 	     int ns( $<token>5.iVal );
@@ -370,6 +426,7 @@ model_spec: MODEL any_identifier
 
 variable_spec: var_pre VAR_POST
           {
+	      	      fprintf(stderr," VAR_POST %s\n", $<token>2.szValue);
 	      string tmp($<token>2.szValue);
 	      size_t last = tmp.find(" ");
 	      if ( last == string::npos ) {
@@ -386,7 +443,7 @@ variable_spec: var_pre VAR_POST
 	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
@@ -401,7 +458,7 @@ variable_spec: var_pre VAR_POST
 	  }
           | var_pre VAR_INT VAR_POST
           {
-	      //	      fprintf(stderr," VAR_POST_TS %s\n", $<token>3.szValue);
+	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>3.szValue);
 	      string tmp($<token>3.szValue);
 	      size_t last = tmp.find(" ");
 	      if ( last == string::npos ) {
@@ -418,7 +475,7 @@ variable_spec: var_pre VAR_POST
 	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
@@ -433,7 +490,7 @@ variable_spec: var_pre VAR_POST
 	  }
           | var_pre VAR_INT VAR_INT VAR_POST
           {
-	      //fprintf(stderr," VAR_POST_TS_FS <%s>\n", $<token>4.szValue);
+	      	      fprintf(stderr," VAR_INT VAR_POST_TS %s\n", $<token>4.szValue);
 	      string tmp($<token>4.szValue);
 	      size_t last = tmp.find(" ");
 	      if ( last == string::npos ) {
@@ -446,10 +503,11 @@ variable_spec: var_pre VAR_POST
 	      size_t len( tmp.size() );
 	      size_t snd( tmp.find_first_not_of(" ",last) );
 	      string fname( tmp.substr( snd, len-snd ) );
-
+	      //	      fprintf(stderr," VAR_POST DE<%s>   FN<%s>\n", desc.c_str(), fname.c_str() );
+	      
 	      actIt_->setDesc( desc );
 
-	      actIt_->setFileName( fname );
+	      actIt_->setFileName( trim(fname) );
 	      
 	      if ( actIt_ != NULL ) {
 		  caseFile_.addDataIt( *actIt_ );
@@ -460,31 +518,34 @@ variable_spec: var_pre VAR_POST
 
 	      delete actIt_;
 	      actIt_ = NULL;
-	  }
 
+	  }
           | var_pre IDENTIFIER DOUBLE
+          {
+	      	      fprintf(stderr," var_type var_rela %s\n", $<token>3.szValue);
+	  }
 
 var_pre :  var_type var_rela 
           {
-
+	      	      fprintf(stderr," var_type var_rela\n");
 	  }
 
 var_type: SCALAR
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT SCALAR VARIABLE ");
 	      actIt_->setType( DataItem::scalar );
 	  }
           | VECTOR 
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT VECTOR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT VECTOR VARIABLE ");
 	      actIt_->setType( DataItem::vector );
 	  }
           | TENSOR_SYMM 
           {  
 	      actIt_ = new DataItem;
-	      //	      fprintf(stderr,"     ENSIGHT SYMMETRIC TENSOR VARIABLE ");
+	      	      fprintf(stderr,"     ENSIGHT SYMMETRIC TENSOR VARIABLE ");
 	      actIt_->setType( DataItem::tensor );
 	  }
 
@@ -493,29 +554,29 @@ var_rela: PER_ELEMENT
           {  
 	      actIt_->setDataType(false);
 	      actIt_->setMeasured(false);
-	      //	      fprintf(stderr," PER ELEMENT DATA");
+	      	      fprintf(stderr," PER ELEMENT DATA");
 	  }
           | PER_NODE
           {  
 	      actIt_->setDataType(true);
 	      actIt_->setMeasured(false);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_M_NODE
           {  
 	      actIt_->setDataType(true);
 	      actIt_->setMeasured(true);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_M_ELEMENT
           {  
 	      actIt_->setDataType(false);
 	      actIt_->setMeasured(true);
-	      //	      fprintf(stderr," PER NODE DATA");
+	      	      fprintf(stderr," PER NODE DATA");
 	  }
           | PER_CASE
           {  
-	      //	      fprintf(stderr," PER CASE ");
+	      	      fprintf(stderr," PER CASE ");
 	  }
 
 const_spec: CONSTANT var_rela POINT_IDENTIFIER INTEGER

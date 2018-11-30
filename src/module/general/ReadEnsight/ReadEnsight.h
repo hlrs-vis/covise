@@ -42,6 +42,11 @@ const int MAX_LIST_SIZE(500000000);
 class ReadEnsight : public coReader
 {
 public:
+    typedef enum
+    {
+        DIM2D,
+        DIM3D
+    } dimType;
     /// default CONSTRUCTOR
     ReadEnsight(int argc, char *argv[]);
 
@@ -107,13 +112,10 @@ private:
                                            DataCont &dc,
                                            const int &step, const bool &perVertex = true);
 
-    coDistributedObject **createDataOutObj2d(const string &baseName2d,
+    coDistributedObject **createDataOutObj(dimType dim, const string &baseName2d,
                                              DataCont &dc,
                                              const int &step, const bool &perVertex = true);
 
-    coDistributedObject **createDataOutObj3d(const string &baseName3d,
-                                             DataCont &dc,
-                                             const int &step, const bool &perVertex = true);
 
     void incrRefCnt(const coDistributedObject *obj);
 

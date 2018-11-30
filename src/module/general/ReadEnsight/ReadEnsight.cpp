@@ -69,11 +69,6 @@ enum
     DPORT5_1D,
 };
 
-enum
-{
-    DIM2D,
-    DIM3D
-};
 
 //
 // Constructor
@@ -2241,6 +2236,7 @@ ReadEnsight::createDataOutObj(const string &baseName2d,
     return retArr;
 }
 
+/*
 coDistributedObject **
 ReadEnsight::createDataOutObj2d(const string &baseName2d,
                                 DataCont &dcIn,
@@ -2417,9 +2413,10 @@ ReadEnsight::createDataOutObj2d(const string &baseName2d,
 
     return retArr;
 }
+*/
 
 coDistributedObject **
-ReadEnsight::createDataOutObj3d(const string &baseName3d,
+ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
                                 DataCont &dcIn,
                                 const int &step, const bool &perVertex)
 {
@@ -2442,7 +2439,7 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
         it++;
     }
 
-    coDistributedObject **objects3d = new coDistributedObject *[numActiveSetEle + 1];
+    coDistributedObject **objects = new coDistributedObject *[numActiveSetEle + 1];
     it = thePl.begin();
 
     bool scalarData = ((dcIn.y == NULL) && (dcIn.z == NULL));
@@ -2452,30 +2449,35 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
     int cnt = 0;
     while (it != thePl.end())
     {
-        if ((it->numEleRead3d() > 0) && (it->isActive()))
+        int numElem;
+        if (dim == DIM2D)
+            numElem = it->numEleRead2d();
+        if (dim == DIM3D)
+            numElem = it->numEleRead3d();
+        if ((numElem > 0) && (it->isActive()) || (dim == DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0))) // HACK: if no elements read, output coordinates as points at the 2D port)
         {
             char cn[16];
             sprintf(cn, "%d", it->getPartNum());
-            string oNm = baseName3d + "_el_" + string(cn);
-            string oNmCTV = baseName3d + "_elv_" + string(cn);
+            string oNm = baseName + "_el_" + string(cn);
+            string oNmCTV = baseName + "_elv_" + string(cn);
             coDistributedObject *tmp = NULL;
             if (perVertex)
             {
 #ifdef DEBUG
                 cerr << " vertex data" << endl;
 #endif
-
-                Reducer red(dcIn, it->indexMap3d_);
+                int *index = NULL;
+                if (dim == DIM2D)
+                    index = it->indexMap2d_;
+                if (dim == DIM3D)
+                    index = it->indexMap3d_;
+                Reducer red(dcIn, index);
                 //cerr << "       IDX-MAP GET "  << (*it).indexMap3d_ << "   ";
                 //cerr << dcIn.getNumCoord() << endl;
 
                 DataCont dcOut;
                 if (case_.getVersion() == CaseFile::gold)
                 {
-                    // dcOut.setNumCoord(it->numCoords());
-                    // dcOut.x = it->arr1_;
-                    // dcOut.y = it->arr2_;
-                    // dcOut.z = it->arr3_;
 
                     dcIn.setNumCoord(it->numCoords());
                     dcIn.x = it->arr1_;
@@ -2486,23 +2488,14 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                     // if (dcOut.x == NULL)
                     if (dcIn.x == NULL)
                     {
-                        cerr << " DATA -3d- NULL " << it->comment() << endl;
+                        cerr << " DATA  NULL " << it->comment() << endl;
                         if (scalarData)
                         {
-                            // dcOut.x = new float[it->numCoords()];
-                            // fill(dcOut.x, dcOut.x+it->numCoords(), 0.0);
                             dcIn.x = new float[it->numCoords()];
                             fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
                         }
                         else
                         {
-                            // dcOut.x = new float[it->numCoords()];
-                            // fill(dcOut.x, dcOut.x+it->numCoords(), 0.0);
-                            // dcOut.y = new float[it->numCoords()];
-                            // fill(dcOut.y, dcOut.y+it->numCoords(), 0.0);
-                            // dcOut.z = new float[it->numCoords()];
-                            // fill(dcOut.z, dcOut.z+it->numCoords(), 0.0);
-
                             dcIn.x = new float[it->numCoords()];
                             fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
                             dcIn.y = new float[it->numCoords()];
@@ -2515,13 +2508,8 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                     it->arr2_ = NULL;
                     it->arr3_ = NULL;
                 }
-                // else
-                // {
                 dcOut = red.reduceAndCopyData();
-                // }
 
-                //cerr << "ReadEnsight::createDataOutObj3d(..) Obj Name(perVertex) ";
-                //cerr << oNm.c_str() << endl;
 
                 if (scalarData)
                 {
@@ -2548,41 +2536,62 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                 cerr << " cell data" << endl;
                 cerr << " elem: " << it->subParts_numElem.size() << " conn: " << it->subParts_numConn.size() << endl;
 #endif
-
+                float *dx_, *dy_, *dz_;
+                int numElem;
+                if (dim == DIM2D)
+                {
+                    dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_; 
+                    numElem = it->numEleRead2d();
+                }
+                if (dim == DIM3D)
+                {
+                    dx_ = it->d3dx_; dy_ = it->d3dy_; dz_ = it->d3dz_;
+                    numElem = it->numEleRead3d();
+                }
+                scalarData = (dy_ == NULL) && (dz_ == NULL);
                 if (it->subParts_numElem.empty())
                 {
 #ifdef DEBUG
                     cerr << "  default" << endl;
 #endif
 
-                    if (it->d3dx_ != NULL)
+                    if (dx_ != NULL)
                     {
-                        scalarData = (it->d3dy_ == NULL) && (it->d3dz_ == NULL);
                         if (scalarData)
                         {
-                            //cerr << "ReadEnsight::createDataOutObj3d(..) Obj Name ";
+                            //cerr << "ReadEnsight::createDataOutObj(..) Obj Name ";
                             //cerr << oNm.c_str() << "  DATAPTR " << it->d3dx_;
                             //cerr << " numEleRead3d " << it->numEleRead3d() << endl;
                             tmp = new coDoFloat(oNm.c_str(),
-                                                it->numEleRead3d(),
-                                                it->d3dx_);
-                            delete[] it -> d3dx_;
-                            it->d3dx_ = NULL;
+                                                numElem,
+                                                dx_);
+                            delete[] dx_;
+                            if (dim == DIM2D)
+                            {
+                                it->d2dx_ = NULL;
+                            }
+                            if (dim == DIM3D)
+                            {
+                                it->d3dx_ = NULL;
+                            }
                         }
                         else
                         {
                             tmp = new coDoVec3((oNm + "t").c_str(),
-                                               it->numEleRead3d(),
-                                               it->d3dx_, it->d3dy_, it->d3dz_);
-                            delete[] it -> d3dx_;
-                            it->d3dx_ = NULL;
-                            delete[] it -> d3dy_;
-                            it->d3dy_ = NULL;
-                            delete[] it -> d3dz_;
-                            it->d3dz_ = NULL;
+                                               numElem,
+                                               dx_, dy_, dz_);
+                            delete[] dx_; delete[] dy_; delete[] dz_;
+                            if (dim == DIM2D)
+                            {
+                                it->d2dx_ = NULL; it->d2dy_ = NULL; it->d2dz_ = NULL;
+                            }
+                            if (dim == DIM3D)
+                            {
+                                it->d3dx_ = NULL; it->d3dy_ = NULL; it->d3dz_ = NULL;
+                            }
                         }
                         // integrate CellToVert
-                        const coDistributedObject *geoObj = getGeoObject(step, cnt, DIM3D);
+                        const coDistributedObject *geoObj = getGeoObject(step, cnt, dim);
                         coCellToVert c;
                         tmp = c.interpolate(geoObj, tmp, oNmCTV.c_str());
                     }
@@ -2600,12 +2609,11 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                     cerr << "  split" << endl;
 #endif
 
-                    scalarData = (it->d3dy_ == NULL) && (it->d3dz_ == NULL);
                     // prepare
                     int numberOfSubParts = it->subParts_numElem.size();
                     coDistributedObject **subObjects = new coDistributedObject *[numberOfSubParts + 1];
                     subObjects[numberOfSubParts] = NULL;
-                    const coDistributedObject *geoObj = getGeoObject(step, cnt, DIM3D);
+                    const coDistributedObject *geoObj = getGeoObject(step, cnt, dim);
                     // work on the sub parts
                     int offset(0);
                     for (int subPart = 0; subPart < numberOfSubParts; ++subPart)
@@ -2619,7 +2627,7 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                         string oNmsub = oNm + "_sp_" + string(c);
                         string oNmCTVsub = oNmCTV + "_sp_" + string(c);
 
-                        if (it->d3dx_ != NULL)
+                        if (dx_ != NULL)
                         {
 // split (create temp lists)
 #ifdef DEBUG
@@ -2644,13 +2652,13 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
                             {
                                 if (scalarData)
                                 {
-                                    tmp_x[i] = it->d3dx_[offset + i];
+                                    tmp_x[i] = dx_[offset + i];
                                 }
                                 else
                                 {
-                                    tmp_x[i] = it->d3dx_[offset + i];
-                                    tmp_y[i] = it->d3dy_[offset + i];
-                                    tmp_z[i] = it->d3dz_[offset + i];
+                                    tmp_x[i] = dx_[offset + i];
+                                    tmp_y[i] = dy_[offset + i];
+                                    tmp_z[i] = dz_[offset + i];
                                 }
                             }
 // standard create
@@ -2705,20 +2713,20 @@ ReadEnsight::createDataOutObj3d(const string &baseName3d,
             }
             //tmp->addAttribute("PART",(it->comment()).c_str());
 
-            objects3d[cnt] = tmp;
+            objects[cnt] = tmp;
             cnt++;
         }
         it++;
     }
-    objects3d[cnt] = NULL;
+    objects[cnt] = NULL;
 
-    retArr[0] = new coDoSet(baseName3d.c_str(), (coDistributedObject **)objects3d);
+    retArr[0] = new coDoSet(baseName.c_str(), (coDistributedObject **)objects);
 
     // delete !!!!
     int i;
     for (i = 0; i < cnt; ++i)
-        delete objects3d[i];
-    delete[] objects3d;
+        delete objects[i];
+    delete[] objects;
 
     // copy the now modified PartList back
     globalParts_[step] = thePl;
@@ -3103,7 +3111,7 @@ ReadEnsight::readData2d(const int &portTok2d,
             ddc = dFile->getDataCont();
             delete dFile;
             // create DO's
-            coDistributedObject **oOut = createDataOutObj2d(actObjNm2d, ddc, cnt);
+            coDistributedObject **oOut = createDataOutObj(DIM2D,actObjNm2d, ddc, cnt);
 
             ddc.cleanAll();
 
@@ -3128,7 +3136,7 @@ ReadEnsight::readData2d(const int &portTok2d,
             dFile->readCells();
             // create DO's
             DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj2d(actObjNm2d, ddc, cnt, false);
+            coDistributedObject **oOut = createDataOutObj(DIM2D,actObjNm2d, ddc, cnt, false);
             delete dFile;
 
             if (oOut[0] != NULL)
@@ -3262,7 +3270,7 @@ ReadEnsight::readData3d(const int &portTok3d,
             ddc = dFile->getDataCont();
             delete dFile;
             // create DO's
-            coDistributedObject **oOut = createDataOutObj3d(actObjNm3d, ddc, cnt);
+            coDistributedObject **oOut = createDataOutObj(DIM3D, actObjNm3d, ddc, cnt);
 
             ddc.cleanAll();
 
@@ -3287,7 +3295,7 @@ ReadEnsight::readData3d(const int &portTok3d,
             dFile->readCells();
             // create DO's
             DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj3d(actObjNm3d, ddc, cnt, false);
+            coDistributedObject **oOut = createDataOutObj(DIM3D, actObjNm3d, ddc, cnt, false);
             delete dFile;
 
             if (oOut[0] != NULL)

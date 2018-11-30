@@ -62,18 +62,33 @@ DataFileGoldBin::readCells()
 {
     if (isOpen_)
     {
-        // 1 lines decription - ignore it
-        getStr();
         size_t id(0);
         int actPartNr;
         EnPart *actPart(NULL);
         int eleCnt2d = 0, eleCnt3d = 0;
+        int timeStep = -1;
 
-        while (!feof(in_))
+        // 1 lines decription - ignore it
+        string currentLine(getStr());
+
+        while (!feof(in_)) // read all timesteps
         {
-            string tmp(getStr());
+            size_t tt(currentLine.find("BEGIN TIME STEP"));
+            if (tt != string::npos)
+            {
+                timeStep++;
+                currentLine = getStr(); // read description
+            }
+            tt = currentLine.find("END TIME STEP");
+            if (tt != string::npos)
+            {
+                break; // read first timestep only for now TODO change this
+                currentLine = getStr(); // read description
+            }
 
-            id = tmp.find("part");
+            currentLine = getStr(); // this should be the part line or an element name
+
+            id = currentLine.find("part");
             if (id != string::npos)
             {
                 // part line found   -- we skip it for the moment --
@@ -133,9 +148,11 @@ DataFileGoldBin::readCells()
                 }
             }
 
+            string elemName(getStr()); // this should be the part line
+
             if ((actPart != NULL) && (actPart->isActive()))
             {
-                string elementType(strip(tmp));
+                string elementType(strip(elemName));
                 EnElement elem(elementType);
                 int anzEle(0);
                 // we have a valid ENSIGHT element
@@ -251,8 +268,8 @@ DataFileGoldBin::readCells()
                 // skip data
                 while ((!feof(in_)) && (numParts > 0))
                 {
-                    tmp = getStr();
-                    string elementType(strip(tmp));
+                    currentLine = getStr();
+                    string elementType(strip(currentLine));
                     EnElement elem(elementType);
                     int anzEle(0);
                     // we have a valid ENSIGHT element
@@ -276,6 +293,7 @@ DataFileGoldBin::readCells()
                     numParts--;
                 }
             }
+
         }
     }
 }
