@@ -50,7 +50,7 @@ public:
     En6MGeoASC(const coModule *mod, const string &name);
 
     // read the file (Ensight 6)
-    void read();
+    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
 
     /// DESTRUCTOR
     virtual ~En6MGeoASC();

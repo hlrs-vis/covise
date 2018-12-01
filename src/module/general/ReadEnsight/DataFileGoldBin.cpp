@@ -20,6 +20,7 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "DataFileGoldBin.h"
+#include "ReadEnsight.h"
 #include <util/byteswap.h>
 
 //
@@ -58,31 +59,43 @@ DataFileGoldBin::DataFileGoldBin(const coModule *mod,
 }
 
 void
-DataFileGoldBin::readCells()
+DataFileGoldBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     if (isOpen_)
     {
+        bool written = false;
         size_t id(0);
         int actPartNr;
         EnPart *actPart(NULL);
         int eleCnt2d = 0, eleCnt3d = 0;
-        int timeStep = -1;
 
         // 1 lines decription - ignore it
         string currentLine(getStr());
 
         while (!feof(in_)) // read all timesteps
         {
-            size_t tt(currentLine.find("BEGIN TIME STEP"));
+            size_t tt = currentLine.find("END TIME STEP");
             if (tt != string::npos)
             {
-                timeStep++;
                 currentLine = getStr(); // read description
+                                        // create DO's
+
+                coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep,false);
+
+
+                if (oOut[0] != NULL)
+                    outObjects[timeStep] = oOut[0];
+
+                timeStep++;
+                if(timeStep < ens->globalParts_.size())
+                {
+                    setPartList(&ens->globalParts_[timeStep]); // make sure we use the current part list for this timestep
+                }
+                written = true;
             }
-            tt = currentLine.find("END TIME STEP");
+            tt = currentLine.find("BEGIN TIME STEP");
             if (tt != string::npos)
             {
-                break; // read first timestep only for now TODO change this
                 currentLine = getStr(); // read description
             }
 
@@ -296,14 +309,21 @@ DataFileGoldBin::readCells()
             }
 
         }
+        if (written)
+        {
+            //dc_.cleanAll();
+        }
+        else
+            createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
     }
+
 }
 
 //
 // Method
 //
 void
-DataFileGoldBin::read()
+DataFileGoldBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     if (isOpen_)
     {
@@ -416,6 +436,8 @@ DataFileGoldBin::read()
         }
     }
     //buildParts(true);
+
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
 }
 
 //

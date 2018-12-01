@@ -20,6 +20,7 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "DataFileGold.h"
+#include "ReadEnsight.h"
 
 #if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ > 2)
 #pragma GCC diagnostic warning "-Wuninitialized"
@@ -57,7 +58,7 @@ DataFileGold::DataFileGold(const coModule *mod, const string &name, const int &d
 }
 
 void
-DataFileGold::readCells()
+DataFileGold::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     if (isOpen_)
     {
@@ -304,12 +305,13 @@ DataFileGold::readCells()
             }
         }
     }
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
 }
 //
 // Method
 //
 void
-DataFileGold::read()
+DataFileGold::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     //cerr << "DataFileGold::read() called" << endl;
 
@@ -453,6 +455,7 @@ DataFileGold::read()
             }
         }
     }
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
 }
 
 //

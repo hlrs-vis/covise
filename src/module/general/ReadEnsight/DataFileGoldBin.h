@@ -35,9 +35,9 @@ public:
                     const int &numVals,
                     const EnFile::BinType &binType = CBIN);
 
-    void read();
+    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
 
-    void readCells();
+    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
 
     /// DESTRUCTOR
     ~DataFileGoldBin();

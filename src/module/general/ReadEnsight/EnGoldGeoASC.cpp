@@ -62,7 +62,7 @@ EnGoldGeoASC::EnGoldGeoASC(const coModule *mod, const string &name)
 // thats the gereral read method
 //
 void
-EnGoldGeoASC::read()
+EnGoldGeoASC::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
 {
     cerr << className_ << "::read() called" << endl;
     module_->sendInfo("%s", "start reading parts  -  please be patient..");
@@ -110,6 +110,7 @@ EnGoldGeoASC::read()
         globalCoordIndexOffset_ = numCoords_;
     }
 
+    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
     return;
 }
 

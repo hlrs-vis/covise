@@ -27,6 +27,7 @@
 #include "EnGoldGeoASC.h"
 #include "EnGoldGeoBIN.h"
 #include "EnElement.h"
+#include "ReadEnsight.h"
 
 #include <util/coviseCompat.h>
 #include <api/coModule.h>
@@ -224,6 +225,41 @@ EnFile::EnFile(const coModule *mod, const string &name, const BinType &binType)
     }
 }
 
+
+void
+EnFile::createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
+{
+
+    ens->globalParts_.push_back(*partList_);
+    // create DO's
+    coDistributedObject **oOut = ens->createGeoOutObj(actObjNm2d, actObjNm3d, timeStep);
+    outObjects2d[timeStep] = NULL;
+    outObjects3d[timeStep] = NULL;
+    if (oOut)
+    {
+        if (oOut[0] != NULL)
+            outObjects3d[timeStep] = oOut[0];
+        if (oOut[1] != NULL)
+            outObjects2d[timeStep] = oOut[1];
+    }
+    ++timeStep;
+    outObjects2d[timeStep] = NULL;
+    outObjects3d[timeStep] = NULL;
+}
+void EnFile::createDataOutObj(ReadEnsight * ens, dimType dim, coDistributedObject ** outObjects, const string & baseName, int & timeStep, bool perVertex)
+{
+    // create DO's
+    coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep,perVertex);
+
+    dc_.cleanAll();
+
+    outObjects[timeStep] = NULL;
+    if (oOut[0] != NULL)
+        outObjects[timeStep] = oOut[0];
+
+    ++timeStep;
+    outObjects[timeStep] = NULL;
+}
 void
 EnFile::setActiveAlloc(const bool &b)
 {

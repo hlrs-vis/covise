@@ -52,7 +52,7 @@ public:
     En6GeoASC(const coModule *mod, const string &name);
 
     // read the file (Ensight 6)
-    void read();
+    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
 
     // create a list of Parts
     virtual void parseForParts();

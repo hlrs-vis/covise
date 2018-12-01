@@ -27,6 +27,7 @@
 #include <util/coRestraint.h>
 #include <util/covise_regexp.h>
 #include <alg/coCellToVert.h>
+#include <reader/ReaderControl.h>
 
 #include "ReadEnsight.h"
 #include "CaseParser.hpp"
@@ -414,27 +415,15 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
         }
 
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
-        enf->read();
+        enf->read(this, EnFile::GEOMETRY, objects2d,objects3d, actObjNm2d,actObjNm3d,cnt);
 
 #ifdef DEBUG
         cerr << " elem: " << pl->at(0).subParts_numElem.size() << " conn: " << pl->at(0).subParts_numConn.size() << endl;
 #endif
 
-        globalParts_.push_back(*pl);
 
         delete enf;
 
-        // create DO's
-        coDistributedObject **oOut = createGeoOutObj(actObjNm2d, actObjNm3d, cnt);
-
-        if (oOut)
-        {
-            if (oOut[0] != NULL)
-                objects3d[cnt] = oOut[0];
-            if (oOut[1] != NULL)
-                objects2d[cnt] = oOut[1];
-        }
-        ++cnt;
     }
 
     // we have no timesteps - feed objectsXY[0] to outports
@@ -605,7 +594,7 @@ ReadEnsight::readMGeometry(const int &portTok1d)
         }
 
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
-        enf->read();
+        enf->read(this, EnFile::DIM1D, objects1d, actObjNm1d, cnt);
 
         numCoordsM_.push_back(enf->getDataCont().getNumCoord());
         objects1d[cnt] = enf->getDataObject(actObjNm1d);
@@ -1564,6 +1553,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
     cerr << "createGeoOutObj()" << endl;
 #endif
 
+
     if (step >= (int)globalParts_.size())
         return NULL;
 
@@ -1964,473 +1954,22 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
     globalParts_[step] = thePl;
     return retArr;
 }
-/*
-coDistributedObject **
-ReadEnsight::createDataOutObj(const string &baseName2d,
-                              const string &baseName3d,
-                              DataCont &dcIn,
-                              const int &step, const bool &perVertex)
-{
-    if (step >= (int)globalParts_.size())
-        return NULL;
-
-    coDistributedObject **retArr = new coDistributedObject *[3];
-
-    PartList thePl = globalParts_[step];
-    int numActiveSetEle = 0;
-    PartList::iterator it = thePl.begin();
-    while (it != thePl.end())
-    {
-        if (it->isActive())
-            numActiveSetEle++;
-        it++;
-    }
-
-    coDistributedObject **objects3d = new coDistributedObject *[numActiveSetEle + 1];
-    it = thePl.begin();
-
-    bool scalarData = ((dcIn.y == NULL) && (dcIn.z == NULL));
-    // //////////////////////////////////////////////
-    //     3d - parts
-    // /////////////////////////////////////////////
-    int cnt = 0;
-    while (it != thePl.end())
-    {
-        if ((it->numEleRead3d() > 0) && (it->isActive()))
-        {
-            char cn[16];
-            sprintf(cn, "%d", it->getPartNum());
-            string oNm = baseName3d + "_el_" + string(cn);
-            string oNmCTV = baseName3d + "_elv_" + string(cn);
-            coDistributedObject *tmp = NULL;
-            if (perVertex)
-            {
-                Reducer red(dcIn, it->indexMap3d_);
-                //cerr << "       IDX-MAP GET "  << (*it).indexMap3d_ << "   ";
-                cerr << dcIn.getNumCoord() << endl;
-
-                DataCont dcOut;
-                if (case_.getVersion() == CaseFile::gold)
-                {
-                    dcOut.setNumCoord(it->numCoords());
-                    dcOut.x = it->arr1_;
-                    dcOut.y = it->arr2_;
-                    dcOut.z = it->arr3_;
-                    if (dcOut.x == NULL)
-                    {
-                        cerr << " DATA -3d- NULL " << it->comment() << endl;
-                        if (scalarData)
-                        {
-                            dcOut.x = new float[it->numCoords()];
-                            fill(dcOut.x, dcOut.x + it->numCoords(), 0.0);
-                        }
-                        else
-                        {
-                            dcOut.x = new float[it->numCoords()];
-                            fill(dcOut.x, dcOut.x + it->numCoords(), 0.0);
-                            dcOut.y = new float[it->numCoords()];
-                            fill(dcOut.y, dcOut.y + it->numCoords(), 0.0);
-                            dcOut.z = new float[it->numCoords()];
-                            fill(dcOut.z, dcOut.z + it->numCoords(), 0.0);
-                        }
-                    }
-                    it->arr1_ = NULL;
-                    it->arr2_ = NULL;
-                    it->arr3_ = NULL;
-                }
-                else
-                {
-                    dcOut = red.reduceAndCopyData();
-                }
-
-                //cerr << "ReadEnsight::createDataOutObj(..) Obj Name(perVertex) ";
-                //cerr << oNm.c_str() << endl;
-
-                if (scalarData)
-                    tmp = new coDoFloat(oNm.c_str(),
-                                        dcOut.getNumCoord(),
-                                        dcOut.x);
-                else
-                    tmp = new coDoVec3(oNm.c_str(),
-                                       dcOut.getNumCoord(),
-                                       dcOut.x, dcOut.y, dcOut.z);
-                dcOut.cleanAll();
-            }
-
-            else
-            {
-                if (it->d3dx_ != NULL)
-                {
-                    scalarData = (it->d3dy_ == NULL) && (it->d3dz_ == NULL);
-                    if (scalarData)
-                    {
-                        //cerr << "ReadEnsight::createDataOutObj(..) Obj Name ";
-                        //cerr << oNm.c_str() << "  DATAPTR " << it->d3dx_;
-                        //cerr << " numEleRead3d " << it->numEleRead3d() << endl;
-                        tmp = new coDoFloat(oNm.c_str(),
-                                            it->numEleRead3d(),
-                                            it->d3dx_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                    }
-                    else
-                    {
-                        tmp = new coDoVec3((oNm + "t").c_str(),
-                                           it->numEleRead3d(),
-                                           it->d3dx_, it->d3dy_, it->d3dz_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                        delete[] it -> d3dy_;
-                        it->d3dy_ = NULL;
-                        delete[] it -> d3dz_;
-                        it->d3dz_ = NULL;
-                    }
-                    // integrate CellToVert
-                    const coDistributedObject *geoObj = getGeoObject(step, cnt, DIM3D);
-                    coCellToVert c;
-                    tmp = c.interpolate(geoObj, tmp, oNmCTV.c_str());
-                }
-                else
-                {
-                    cerr << " WARNING EMPTY DATA for " << oNm << endl;
-                    float dummy = 0;
-                    tmp = new coDoFloat(oNm.c_str(), 1, &dummy);
-                }
-            }
-            //tmp->addAttribute("PART",(it->comment()).c_str());
-
-            objects3d[cnt] = tmp;
-            cnt++;
-        }
-        it++;
-    }
-    objects3d[cnt] = NULL;
-
-    retArr[0] = new coDoSet(baseName3d.c_str(), (coDistributedObject **)objects3d);
-
-    // delete !!!!
-    int i;
-    for (i = 0; i < cnt; ++i)
-        delete objects3d[i];
-    delete[] objects3d;
-    // ////////////////////////////////////////////
-    //        2d parts
-    // ////////////////////////////////////////////
-    it = thePl.begin();
-    coDistributedObject **objects2d = new coDistributedObject *[numActiveSetEle + 1];
-    cnt = 0;
-
-    while (it != thePl.end())
-    {
-        if ((it->numEleRead2d() > 0) && (it->isActive()))
-        {
-            char cn[16];
-            sprintf(cn, "%d", cnt);
-            string oNm = baseName2d + "_el_" + string(cn);
-            string oNmCTV = baseName2d + "_elv_" + string(cn);
-
-            coDistributedObject *tmp;
-
-            Reducer red(dcIn, it->indexMap2d_);
-            if (perVertex)
-            {
-                // we must create a dummy obj to maintain the overall set-structure
-                DataCont dcOut;
-                if (case_.getVersion() == CaseFile::gold)
-                {
-                    dcOut.setNumCoord(it->numCoords());
-                    dcOut.x = it->arr1_;
-                    dcOut.y = it->arr2_;
-                    dcOut.z = it->arr3_;
-                    if (dcOut.x == NULL)
-                    {
-                        cerr << " DATA -2d- NULL " << it->comment() << endl;
-                        if (scalarData)
-                        {
-                            dcOut.x = new float[it->numCoords()];
-                            fill(dcOut.x, dcOut.x + it->numCoords(), 0.0);
-                        }
-                        else
-                        {
-                            dcOut.x = new float[it->numCoords()];
-                            fill(dcOut.x, dcOut.x + it->numCoords(), 0.0);
-                            dcOut.y = new float[it->numCoords()];
-                            fill(dcOut.y, dcOut.y + it->numCoords(), 0.0);
-                            dcOut.z = new float[it->numCoords()];
-                            fill(dcOut.z, dcOut.z + it->numCoords(), 0.0);
-                        }
-                    }
-                    it->arr1_ = NULL;
-                    it->arr2_ = NULL;
-                    it->arr3_ = NULL;
-                }
-                else
-                {
-                    dcOut = red.reduceAndCopyData();
-                }
-
-                if (scalarData)
-                    tmp = new coDoFloat(oNm.c_str(),
-                                        dcOut.getNumCoord(),
-                                        dcOut.x);
-                else
-                    tmp = new coDoVec3(oNm.c_str(),
-                                       dcOut.getNumCoord(),
-                                       dcOut.x, dcOut.y, dcOut.z);
-                dcOut.cleanAll();
-            }
-            else // cell data
-            {
-                scalarData = (it->d2dy_ == NULL) && (it->d2dz_ == NULL);
-                if (it->d2dx_ != NULL)
-                {
-                    if (scalarData)
-                    {
-                        tmp = new coDoFloat((oNm + "t").c_str(),
-                                            it->numEleRead2d(),
-                                            it->d2dx_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                    }
-                    else
-                    {
-                        tmp = new coDoVec3((oNm + "t").c_str(),
-                                           it->numEleRead2d(),
-                                           it->d2dx_, it->d2dy_, it->d2dz_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                        delete[] it -> d3dy_;
-                        it->d3dy_ = NULL;
-                        delete[] it -> d3dz_;
-                        it->d3dz_ = NULL;
-                    }
-                    const coDistributedObject *geoObj = getGeoObject(step, cnt, DIM2D);
-                    coCellToVert c;
-                    tmp = c.interpolate(geoObj, tmp, oNmCTV.c_str());
-                }
-                else
-                {
-                    float dummy = 0;
-                    tmp = new coDoFloat(oNm.c_str(), 1, &dummy);
-                }
-            }
-            //tmp->addAttribute("PART",(it->comment()).c_str());
-            objects2d[cnt] = tmp;
-            cnt++;
-        }
-        it++;
-    }
-
-    objects2d[cnt] = NULL;
-
-    retArr[1] = new coDoSet(baseName2d.c_str(), (coDistributedObject **)objects2d);
-
-    // delete !!!!
-    for (i = 0; i < cnt; ++i)
-        delete objects2d[i];
-    delete[] objects2d;
-
-    // copy the now modified PartList back
-    globalParts_[step] = thePl;
-
-    return retArr;
-}
-*/
-
-/*
-coDistributedObject **
-ReadEnsight::createDataOutObj2d(const string &baseName2d,
-                                DataCont &dcIn,
-                                const int &step, const bool &perVertex)
-{
-    if (step >= (int)globalParts_.size())
-        return NULL;
-
-    coDistributedObject **retArr = new coDistributedObject *[3];
-
-    PartList thePl = globalParts_[step];
-    int numActiveSetEle = 0;
-    PartList::iterator it = thePl.begin();
-    while (it != thePl.end())
-    {
-        if (it->isActive())
-            numActiveSetEle++;
-        it++;
-    }
-
-    it = thePl.begin();
-
-    bool scalarData = ((dcIn.y == NULL) && (dcIn.z == NULL));
-
-    // ////////////////////////////////////////////
-    //        2d parts
-    // ////////////////////////////////////////////
-
-    it = thePl.begin();
-    coDistributedObject **objects2d = new coDistributedObject *[numActiveSetEle + 1];
-    int cnt = 0;
-
-    while (it != thePl.end())
-    {
-        if (it->isActive() && ((it->numEleRead2d() > 0) || (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0) // HACK: if no elements read, output coordinates as points at the 2D port
-                               ))
-        {
-            char cn[16];
-            sprintf(cn, "%d", cnt);
-            string oNm = baseName2d + "_el_" + string(cn);
-            string oNmCTV = baseName2d + "_elv_" + string(cn);
-
-            coDistributedObject *tmp;
-
-            Reducer red(dcIn, it->indexMap2d_);
-            if (perVertex)
-            {
-                // we must create a dummy obj to maintain the overall set-structure
-                DataCont dcOut;
-                if (case_.getVersion() == CaseFile::gold)
-                {
-                    // dcOut.setNumCoord(it->numCoords());
-                    // dcOut.x = it->arr1_;
-                    // dcOut.y = it->arr2_;
-                    // dcOut.z = it->arr3_;
-
-                    dcIn.setNumCoord(it->numCoords());
-                    dcIn.x = it->arr1_;
-                    dcIn.y = it->arr2_;
-                    dcIn.z = it->arr3_;
-                    // if (dcOut.x == NULL)
-                    if (dcIn.x == NULL)
-                    {
-                        cerr << " DATA -2d- NULL " << it->comment() << endl;
-                        if (scalarData)
-                        {
-                            // dcOut.x = new float[it->numCoords()];
-                            // fill(dcOut.x, dcOut.x+it->numCoords(), 0.0);
-                            dcIn.x = new float[it->numCoords()];
-                            fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
-                        }
-                        else
-                        {
-                            // dcOut.x = new float[it->numCoords()];
-                            // fill(dcOut.x, dcOut.x+it->numCoords(), 0.0);
-                            // dcOut.y = new float[it->numCoords()];
-                            // fill(dcOut.y, dcOut.y+it->numCoords(), 0.0);
-                            // dcOut.z = new float[it->numCoords()];
-                            // fill(dcOut.z, dcOut.z+it->numCoords(), 0.0);
-
-                            dcIn.x = new float[it->numCoords()];
-                            fill(dcIn.x, dcIn.x + it->numCoords(), 0.0);
-                            dcIn.y = new float[it->numCoords()];
-                            fill(dcIn.y, dcIn.y + it->numCoords(), 0.0);
-                            dcIn.z = new float[it->numCoords()];
-                            fill(dcIn.z, dcIn.z + it->numCoords(), 0.0);
-                        }
-                    }
-                    it->arr1_ = NULL;
-                    it->arr2_ = NULL;
-                    it->arr3_ = NULL;
-                }
-                // else
-                // {
-                dcOut = red.reduceAndCopyData();
-                // }
-
-                if (scalarData)
-                {
-                    tmp = new coDoFloat(oNm.c_str(),
-                                        dcOut.getNumCoord(),
-                                        dcOut.x);
-                }
-                else
-                {
-                    tmp = new coDoVec3(oNm.c_str(),
-                                       dcOut.getNumCoord(),
-                                       dcOut.x, dcOut.y, dcOut.z);
-                }
-                dcOut.cleanAll();
-            }
-            else // cell data
-            {
-                if ((it->numEleRead2d() > 0) && (it->d2dx_ != NULL))
-                {
-                    scalarData = (it->d2dy_ == NULL) && (it->d2dz_ == NULL);
-                    if (scalarData)
-                    {
-                        tmp = new coDoFloat((oNm + "t").c_str(),
-                                            it->numEleRead2d(),
-                                            it->d2dx_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                    }
-                    else
-                    {
-                        tmp = new coDoVec3((oNm + "t").c_str(),
-                                           it->numEleRead2d(),
-                                           it->d2dx_, it->d2dy_, it->d2dz_);
-                        delete[] it -> d3dx_;
-                        it->d3dx_ = NULL;
-                        delete[] it -> d3dy_;
-                        it->d3dy_ = NULL;
-                        delete[] it -> d3dz_;
-                        it->d3dz_ = NULL;
-                    }
-                    const coDistributedObject *geoObj = getGeoObject(step, cnt, DIM2D);
-                    coCellToVert c;
-                    tmp = c.interpolate(geoObj, tmp, oNmCTV.c_str());
-                }
-                else
-                {
-                    float dummy = 0;
-                    tmp = new coDoFloat(oNm.c_str(), 1, &dummy);
-                }
-            }
-            //tmp->addAttribute("PART",(it->comment()).c_str());
-            objects2d[cnt] = tmp;
-            cnt++;
-        }
-
-        ///////////////////////
-        if ((it->numEleRead2d() == 0) && (it->isActive()))
-        {
-            it->arr1_ = NULL;
-            it->arr2_ = NULL;
-            it->arr3_ = NULL;
-        }
-        ///////////////////////
-
-        it++;
-    }
-    objects2d[cnt] = NULL;
-
-    retArr[0] = new coDoSet(baseName2d.c_str(), (coDistributedObject **)objects2d);
-
-    // delete !!!!
-    for (int i = 0; i < cnt; ++i)
-        delete objects2d[i];
-    delete[] objects2d;
-
-    // copy the now modified PartList back
-    globalParts_[step] = thePl;
-
-    return retArr;
-}
-*/
 
 coDistributedObject **
-ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
+ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                                 DataCont &dcIn,
                                 const int &step, const bool &perVertex)
 {
 #ifdef DEBUG
     cerr << "createDataOutObj3d()" << endl;
 #endif
-
-    if (step >= (int)globalParts_.size())
+    int numGeometries = (int)globalParts_.size();
+    if (step >= numGeometries)
         return NULL;
 
-    coDistributedObject **retArr = new coDistributedObject *[3];
 
-    PartList thePl = globalParts_[step];
+    coDistributedObject **retArr = new coDistributedObject *[3];
+    PartList &thePl=globalParts_[step];
     int numActiveSetEle = 0;
     PartList::iterator it = thePl.begin();
     while (it != thePl.end())
@@ -2451,16 +1990,16 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
     while (it != thePl.end())
     {
         int numElem;
-        if (dim == DIM2D)
+        if (dim == EnFile::EnFile::DIM2D)
             numElem = it->numEleRead2d();
-        if (dim == DIM3D)
+        if (dim == EnFile::EnFile::DIM3D)
             numElem = it->numEleRead3d();
-        if ((numElem > 0) && (it->isActive()) || (dim == DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0))) // HACK: if no elements read, output coordinates as points at the 2D port)
+        if ((numElem > 0) && (it->isActive()) || (dim == EnFile::EnFile::DIM2D && (it->numCoords() > 0 && it->numEleRead3d() == 0 && it->numEleRead2d() == 0))) // HACK: if no elements read, output coordinates as points at the 2D port)
         {
             char cn[16];
             sprintf(cn, "%d", it->getPartNum());
-            string oNm = baseName + "_el_" + string(cn);
-            string oNmCTV = baseName + "_elv_" + string(cn);
+            string oNm = baseName + "t"+std::to_string(step)+"_el_" + string(cn);
+            string oNmCTV = baseName + "t" + std::to_string(step) + "_elv_" + string(cn);
             coDistributedObject *tmp = NULL;
             if (perVertex)
             {
@@ -2468,9 +2007,9 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
                 cerr << " vertex data" << endl;
 #endif
                 int *index = NULL;
-                if (dim == DIM2D)
+                if (dim == EnFile::EnFile::DIM2D)
                     index = it->indexMap2d_;
-                if (dim == DIM3D)
+                if (dim == EnFile::EnFile::DIM3D)
                     index = it->indexMap3d_;
                 Reducer red(dcIn, index);
                 //cerr << "       IDX-MAP GET "  << (*it).indexMap3d_ << "   ";
@@ -2539,12 +2078,12 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
 #endif
                 float *dx_, *dy_, *dz_;
                 int numElem;
-                if (dim == DIM2D)
+                if (dim == EnFile::DIM2D)
                 {
                     dx_ = it->d2dx_; dy_ = it->d2dy_; dz_ = it->d2dz_; 
                     numElem = it->numEleRead2d();
                 }
-                if (dim == DIM3D)
+                if (dim == EnFile::DIM3D)
                 {
                     dx_ = it->d3dx_; dy_ = it->d3dy_; dz_ = it->d3dz_;
                     numElem = it->numEleRead3d();
@@ -2567,11 +2106,11 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
                                                 numElem,
                                                 dx_);
                             delete[] dx_;
-                            if (dim == DIM2D)
+                            if (dim == EnFile::DIM2D)
                             {
                                 it->d2dx_ = NULL;
                             }
-                            if (dim == DIM3D)
+                            if (dim == EnFile::DIM3D)
                             {
                                 it->d3dx_ = NULL;
                             }
@@ -2582,11 +2121,11 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
                                                numElem,
                                                dx_, dy_, dz_);
                             delete[] dx_; delete[] dy_; delete[] dz_;
-                            if (dim == DIM2D)
+                            if (dim == EnFile::DIM2D)
                             {
                                 it->d2dx_ = NULL; it->d2dy_ = NULL; it->d2dz_ = NULL;
                             }
-                            if (dim == DIM3D)
+                            if (dim == EnFile::DIM3D)
                             {
                                 it->d3dx_ = NULL; it->d3dy_ = NULL; it->d3dz_ = NULL;
                             }
@@ -2721,7 +2260,7 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
     }
     objects[cnt] = NULL;
 
-    retArr[0] = new coDoSet(baseName.c_str(), (coDistributedObject **)objects);
+    retArr[0] = new coDoSet((baseName + "t" + std::to_string(step)).c_str(), (coDistributedObject **)objects);
 
     // delete !!!!
     int i;
@@ -2729,193 +2268,8 @@ ReadEnsight::createDataOutObj(dimType dim, const string &baseName,
         delete objects[i];
     delete[] objects;
 
-    // copy the now modified PartList back
-    globalParts_[step] = thePl;
-
     return retArr;
 }
-/*
-int
-ReadEnsight::readData(const int &portTok2d, const int &portTok3d,
-                      const string &fileNameBase,
-                      const bool &pV, const int &dim, const string &desc)
-{
-    int rNumTs;
-    vector<string> allFiles(mkFileNames(fileNameBase, rNumTs));
-    int totNumTs(allFiles.size());
-
-    if (totNumTs == 0)
-        allFiles.push_back(fileNameBase);
-
-    // we want to have a set only if we have transient data
-    if (totNumTs > 0)
-        extendArrays(totNumTs);
-
-    // set object names and create object arrays for timesteps
-    string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
-    string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-    coDistributedObject **objects2d = new coDistributedObject *[totNumTs + 1];
-    coDistributedObject **objects3d = new coDistributedObject *[totNumTs + 1];
-
-    vector<string>::iterator ii;
-
-    int cnt(0);
-    for (ii = allFiles.begin(); ii != allFiles.end(); ii++)
-    {
-        char ch[64];
-        sprintf(ch, "%d", cnt);
-        string num(ch);
-        string actObjNm2d(objNameBase2d);
-        string actObjNm3d(objNameBase3d);
-        if (rNumTs > 1)
-        {
-            actObjNm2d = objNameBase2d + "_" + num;
-            actObjNm3d = objNameBase3d + "_" + num;
-        }
-
-        char buf[256];
-        switch (dim)
-        {
-        case 1:
-            sprintf(buf, "ReadEnsight start reading scalar data out of file %s", (*ii).c_str());
-            break;
-        case 3:
-            sprintf(buf, "ReadEnsight start reading vector data out of file %s", (*ii).c_str());
-            break;
-        }
-        coModule::sendInfo("%s", buf);
-
-        // really read the data
-        DataCont ddc;
-        EnFile *dFile(NULL);
-        if (pV) // per vertex
-        {
-            dFile = createDataFilePtr(*ii, dim, numCoords_[cnt]);
-            if (!dFile || !dFile->isOpen())
-            {
-                sendError(" could not open file %s", (*ii).c_str());
-                return 0;
-            }
-            dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->read();
-            ddc = dFile->getDataCont();
-            delete dFile;
-            // create DO's
-            coDistributedObject **oOut = createDataOutObj(actObjNm2d, actObjNm3d, ddc, cnt);
-
-            ddc.cleanAll();
-
-            if (oOut[0] != NULL)
-                objects3d[cnt] = oOut[0];
-            if (oOut[1] != NULL)
-                objects2d[cnt] = oOut[1];
-
-            ++cnt;
-        }
-        else // per cell
-        {
-
-            // memory is allocated now in build parts due to the information collected
-            // in the part list
-            dFile = createDataFilePtr(*ii, dim, 0);
-            //	    dFile = createDataFilePtr( *ii, fileNameBase, dim, 0 );
-            if (!dFile->isOpen())
-            {
-                sendError(" could not open file %s", fileNameBase.c_str());
-                return 0;
-            }
-            dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->readCells();
-            // create DO's
-            DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj(actObjNm2d, actObjNm3d, ddc, cnt, false);
-            delete dFile;
-
-            if (oOut[0] != NULL)
-                objects3d[cnt] = oOut[0];
-            if (oOut[1] != NULL)
-                objects2d[cnt] = oOut[1];
-
-            cnt++;
-        }
-    }
-
-    // we have no timesteps - feed objectsXY[0] to outports
-    if (rNumTs <= 1)
-    {
-        if (!desc.empty())
-        {
-            objects2d[0]->addAttribute("SPECIES", desc.c_str());
-            objects3d[0]->addAttribute("SPECIES", desc.c_str());
-        }
-        if (objects2d[0] != NULL)
-            READER_CONTROL->setAssocPortObj(portTok2d, objects2d[0]);
-        if (objects3d[0] != NULL)
-            READER_CONTROL->setAssocPortObj(portTok3d, objects3d[0]);
-        delete[] objects2d;
-        delete[] objects3d;
-    }
-    else
-    {
-        TimeSets ts(case_.getAllTimeSets());
-        // create warning if more than one timeset is present
-        // actually covise can handle only one timeset
-        if (ts.size() > 1)
-        {
-            coModule::sendInfo("number of time-sets greater than one - COVISE can handle only one time-set");
-        }
-
-        vector<float> rTimes(ts[0]->getRealTimes());
-
-        objects2d[cnt] = NULL;
-        objects3d[cnt] = NULL;
-
-        // set attribute - realtime
-        char ch[64];
-        for (int i = 0; i < cnt; ++i)
-        {
-            sprintf(ch, "%f", rTimes[i]);
-            objects2d[i]->addAttribute("REALTIME", ch);
-            objects3d[i]->addAttribute("REALTIME", ch);
-        }
-
-        coDoSet *outSet2d = new coDoSet(objNameBase2d.c_str(), (coDistributedObject **)objects2d);
-        coDoSet *outSet3d = new coDoSet(objNameBase3d.c_str(), (coDistributedObject **)objects3d);
-
-        // set attribute - timesteps
-        sprintf(ch, "1 %d", cnt);
-        string attr(ch);
-        outSet2d->addAttribute("TIMESTEP", attr.c_str());
-        outSet3d->addAttribute("TIMESTEP", attr.c_str());
-
-        // delete !!!!
-        int i;
-        for (i = 0; i < cnt; ++i)
-            delete objects2d[i];
-        for (i = 0; i < cnt; ++i)
-            delete objects3d[i];
-        delete[] objects2d;
-        delete[] objects3d;
-
-        // single geometry / multiple timesteps
-        if (cnt == 1)
-            geoTimesetIdx_ = -1;
-
-        if (!desc.empty())
-        {
-            outSet2d->addAttribute("SPECIES", desc.c_str());
-            outSet3d->addAttribute("SPECIES", desc.c_str());
-        }
-        READER_CONTROL->setAssocPortObj(portTok2d, outSet2d);
-        READER_CONTROL->setAssocPortObj(portTok3d, outSet3d);
-    }
-
-    sendInfo(" reading data finished");
-    return Success;
-}
-*/
 int
 ReadEnsight::readData1d(const int &portTok1d,
                         const string &fileNameBase,
@@ -2929,12 +2283,12 @@ ReadEnsight::readData1d(const int &portTok1d,
         allFiles.push_back(fileNameBase);
 
     // we want to have a set only if we have transient data
-    if (totNumTs > 0)
-        extendArrays(totNumTs);
+    if (rNumTs > 0)
+        extendArrays(rNumTs);
 
     // set object names and create object arrays for timesteps
     string objNameBase1d = READER_CONTROL->getAssocObjName(portTok1d);
-    coDistributedObject **objects1d = new coDistributedObject *[totNumTs + 1];
+    coDistributedObject **objects1d = new coDistributedObject *[rNumTs + 1];
 
     vector<string>::iterator ii;
 
@@ -2974,16 +2328,16 @@ ReadEnsight::readData1d(const int &portTok1d,
                 sendError(" could not open file %s", (*ii).c_str());
                 return 0;
             }
-            dFile->read();
-            objects1d[cnt] = dFile->getDataObject(actObjNm1d);
+            dFile->read(this, EnFile::EnFile::DIM1D, objects1d, actObjNm1d, cnt);
+         /*   objects1d[cnt] = dFile->getDataObject(actObjNm1d);
             if (objects1d[cnt] != NULL)
             {
                 ++cnt;
                 objects1d[cnt] = NULL;
             }
-
+            
             ddc = dFile->getDataCont();
-            ddc.cleanAll();
+            ddc.cleanAll();*/
 
             delete dFile;
         }
@@ -3064,12 +2418,12 @@ ReadEnsight::readData2d(const int &portTok2d,
         allFiles.push_back(fileNameBase);
 
     // we want to have a set only if we have transient data
-    if (totNumTs > 0)
-        extendArrays(totNumTs);
+    if (rNumTs > 0)
+        extendArrays(rNumTs);
 
     // set object names and create object arrays for timesteps
     string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
-    coDistributedObject **objects2d = new coDistributedObject *[totNumTs + 1];
+    coDistributedObject **objects2d = new coDistributedObject *[rNumTs + 1];
 
     vector<string>::iterator ii;
 
@@ -3108,18 +2462,18 @@ ReadEnsight::readData2d(const int &portTok2d,
             }
             dFile->setPartList(&globalParts_[cnt]);
             dFile->setMasterPL(masterPL_);
-            dFile->read();
+            dFile->read(this, EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt);
             ddc = dFile->getDataCont();
             delete dFile;
-            // create DO's
-            coDistributedObject **oOut = createDataOutObj(DIM2D,actObjNm2d, ddc, cnt);
+           /* // create DO's
+            coDistributedObject **oOut = createDataOutObj(EnFile::DIM2D,actObjNm2d, ddc, cnt);
 
             ddc.cleanAll();
 
             if (oOut[0] != NULL)
                 objects2d[cnt] = oOut[0];
 
-            ++cnt;
+            ++cnt;*/
         }
         else // per cell
         {
@@ -3134,16 +2488,16 @@ ReadEnsight::readData2d(const int &portTok2d,
             }
             dFile->setPartList(&globalParts_[cnt]);
             dFile->setMasterPL(masterPL_);
-            dFile->readCells();
-            // create DO's
+            dFile->readCells(this, EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt);
+           /* // create DO's
             DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj(DIM2D,actObjNm2d, ddc, cnt, false);
+            coDistributedObject **oOut = createDataOutObj(EnFile::DIM2D,actObjNm2d, ddc, cnt, false);
             delete dFile;
 
             if (oOut[0] != NULL)
                 objects2d[cnt] = oOut[0];
 
-            cnt++;
+            cnt++;*/
         }
     }
 
@@ -3223,12 +2577,12 @@ ReadEnsight::readData3d(const int &portTok3d,
         allFiles.push_back(fileNameBase);
 
     // we want to have a set only if we have transient data
-    if (totNumTs > 0)
-        extendArrays(totNumTs);
+    if (rNumTs > 0)
+        extendArrays(rNumTs);
 
     // set object names and create object arrays for timesteps
     string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-    coDistributedObject **objects3d = new coDistributedObject *[totNumTs + 1];
+    coDistributedObject **objects3d = new coDistributedObject *[rNumTs + 1];
 
     vector<string>::iterator ii;
 
@@ -3267,18 +2621,18 @@ ReadEnsight::readData3d(const int &portTok3d,
             }
             dFile->setPartList(&globalParts_[cnt]);
             dFile->setMasterPL(masterPL_);
-            dFile->read();
+            dFile->read(this, EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt);
             ddc = dFile->getDataCont();
             delete dFile;
-            // create DO's
-            coDistributedObject **oOut = createDataOutObj(DIM3D, actObjNm3d, ddc, cnt);
+         /*   // create DO's
+            coDistributedObject **oOut = createDataOutObj(EnFile::DIM3D, actObjNm3d, ddc, cnt);
 
             ddc.cleanAll();
 
             if (oOut[0] != NULL)
                 objects3d[cnt] = oOut[0];
 
-            ++cnt;
+            ++cnt;*/
         }
         else // per cell
         {
@@ -3293,16 +2647,16 @@ ReadEnsight::readData3d(const int &portTok3d,
             }
             dFile->setPartList(&globalParts_[cnt]);
             dFile->setMasterPL(masterPL_);
-            dFile->readCells();
+            dFile->readCells(this, EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt);
             // create DO's
-            DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj(DIM3D, actObjNm3d, ddc, cnt, false);
+         /*   DataCont ddc;
+            coDistributedObject **oOut = createDataOutObj(EnFile::DIM3D, actObjNm3d, ddc, cnt, false);
             delete dFile;
 
             if (oOut[0] != NULL)
                 objects3d[cnt] = oOut[0];
 
-            cnt++;
+            cnt++;*/
         }
     }
 
@@ -3372,9 +2726,9 @@ ReadEnsight::getGeoObject(const int &step, const int &iPart, const int &dimFlag)
 {
     // 3d data
     coDistributedObject *geoIn = NULL;
-    if (dimFlag == DIM2D)
+    if (dimFlag == EnFile::EnFile::DIM2D)
         geoIn = geoObjs_[0];
-    else if (dimFlag == DIM3D)
+    else if (dimFlag == EnFile::EnFile::DIM3D)
         geoIn = geoObjs_[1];
     coDoSet *geo3d = NULL;
     if (!geoIn->isType("SETELE"))

@@ -23,6 +23,7 @@
 #define DATAFILEBIN_H
 
 #include "EnFile.h"
+#include "ReadEnsight.h"
 
 class DataFileBin : public EnFile
 {
@@ -35,9 +36,9 @@ public:
                 const int &numVals,
                 const EnFile::BinType &binType = CBIN);
 
-    void read();
+    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
 
-    void readCells();
+    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
 
     virtual coDistributedObject *getDataObject(std::string s);
 

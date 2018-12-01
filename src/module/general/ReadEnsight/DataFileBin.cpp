@@ -75,7 +75,7 @@ DataFileBin::DataFileBin(const coModule *mod, const string &name,
 // read data
 //
 void
-DataFileBin::read()
+DataFileBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     if (isOpen_)
     {
@@ -107,6 +107,7 @@ DataFileBin::read()
         }
         delete[] locArr;
     }
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
 }
 
 coDistributedObject *DataFileBin::getDataObject(std::string s)
@@ -121,7 +122,7 @@ coDistributedObject *DataFileBin::getDataObject(std::string s)
 // reads cell based data
 //
 void
-DataFileBin::readCells()
+DataFileBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
 {
     EnPart *actPart;
     int numGot2d = 0, numGot3d = 0;
@@ -269,4 +270,5 @@ DataFileBin::readCells()
                 cerr << "DataFileBin::readCells(): part not found part nr: " << actPartNr << endl;
         }
     }
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
 }
