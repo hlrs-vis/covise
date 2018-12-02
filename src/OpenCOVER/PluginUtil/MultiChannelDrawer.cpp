@@ -1014,6 +1014,7 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
             switch(mode) {
             case AsIs:
+                vcd->fixedGeo->setStateSet(vd.fixedGeo->getStateSet());
                 break;
             case Reproject:
             case ReprojectAdaptive:
