@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 
 #include "K_Common.inl"
 #include "SimSnowSPH.cuh"
@@ -378,7 +378,7 @@ float SimSnowSPH::BuildDataStruct(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -480,7 +480,7 @@ float SimSnowSPH::ComputeStep1(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -544,7 +544,7 @@ float SimSnowSPH::ComputeStep2(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -606,7 +606,7 @@ float SimSnowSPH::ComputeStep3(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -664,7 +664,7 @@ float SimSnowSPH::Integrate(bool doTiming, bool progress, float deltaTime, bool 
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}

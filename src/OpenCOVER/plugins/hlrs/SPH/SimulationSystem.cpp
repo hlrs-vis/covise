@@ -56,7 +56,7 @@ SimulationSystem::~SimulationSystem()
 
 void SimulationSystem::PrintMemoryUse()
 {
-    cout << "Allocated "
+    std::cout << "Allocated "
          << mSimCudaAllocator->GetAllocedAmount() << " B / "
          << mSimCudaAllocator->GetAllocedAmount() / 1024.0f / 1024.0f << " MB / "
          << mSimCudaAllocator->GetAllocedAmount() / 1024.0f / 1024.0f / 1024.0f << " GB "
@@ -284,7 +284,7 @@ void SimulationSystem::SetFluidPosition(float3 fluidWorldPosition)
 {
     mFluidWorldPosition = fluidWorldPosition;
 
-    cout << "Fluid World Position: " << fluidWorldPosition.x << " " << fluidWorldPosition.y << " " << fluidWorldPosition.z << "\n";
+    std::cout << "Fluid World Position: " << fluidWorldPosition.x << " " << fluidWorldPosition.y << " " << fluidWorldPosition.z << "\n";
 }
 
 void SimulationSystem::FillTestData(int scene, float_vec *position, int numParticles, GridParams hGridParams)

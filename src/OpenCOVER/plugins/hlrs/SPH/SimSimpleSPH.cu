@@ -365,7 +365,7 @@ float SimSimpleSPH::BuildDataStruct(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -414,7 +414,7 @@ float SimSimpleSPH::ComputeDensityAndBuildNeighborList(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -488,7 +488,7 @@ float SimSimpleSPH::ComputeStep1(bool doTiming)
 
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}
@@ -549,7 +549,7 @@ float SimSimpleSPH::ComputeStep2(bool doTiming)
 	
 	while(numBlocks >= 64*1024)
 	{
-		cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
+        std::cout << "ALERT: have to rescale threadsPerBlock due to too large grid size >=65536\n";
 		threadsPerBlock += 32;
 		computeGridSize(mNumParticles, threadsPerBlock, numBlocks, numThreads);
 	}

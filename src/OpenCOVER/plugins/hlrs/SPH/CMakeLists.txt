@@ -107,3 +107,4 @@ CUDA_COMPILE(SPH_CUDA_OBJ ${SPH_CUDA_SOURCES} SHARED OPTIONS "-D__builtin_stdarg
 #message("SPH_CUDA_OBJ")
 #message(${SPH_CUDA_OBJ})
 cover_add_plugin(SPH ${SPH_CUDA_OBJ})
+add_covise_compile_flags(SPH "-Wno-error=deprecated-declarations")
