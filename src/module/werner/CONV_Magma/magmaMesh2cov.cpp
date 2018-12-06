@@ -5,9 +5,11 @@
 
  * License: LGPL 2+ */
 
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <ctype.h>
 
 static void
@@ -76,8 +78,8 @@ int main(int argc, char *argv[])
 
     if (argc != 2)
     {
-        cerr << "Call: " << argv[0] << " Meshfile" << endl;
-        exit(1);
+        std::cerr << "Call: " << argv[0] << " Meshfile" << std::endl;
+        return(1);
     }
 
     FILE *input = fopen(argv[1], "r");

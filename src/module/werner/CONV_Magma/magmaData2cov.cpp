@@ -5,9 +5,11 @@
 
  * License: LGPL 2+ */
 
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <ctype.h>
 
 static void
@@ -74,8 +76,8 @@ int main(int argc, char *argv[])
 {
     if (argc == 1)
     {
-        cerr << "Call: " << argv[0] << " <file> <file> ..." << endl;
-        exit(1);
+        std::cerr << "Call: " << argv[0] << " <file> <file> ..." << std::endl;
+        return(1);
     }
 
     FILE *dataFile = covOpenOutFile("data.covise");
@@ -93,9 +95,9 @@ int main(int argc, char *argv[])
         if (!fi)
         {
             perror(argv[fileNo + 1]);
-            exit(0);
+            return (0);
         }
-        cout << "File " << argv[fileNo + 1] << endl;
+        std::cout << "File " << argv[fileNo + 1] << std::endl;
 
         struct
         {
