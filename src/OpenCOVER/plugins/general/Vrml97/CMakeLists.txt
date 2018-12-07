@@ -31,6 +31,7 @@ SET(LIB_HEADERS
   VrmlNodeMatrixLight.h
   VrmlNodePhotometricLight.h
   coPrecipitationEffect.h
+  coMLB.h
   coIES.h
 )
 
@@ -52,6 +53,7 @@ SET(LIB_SOURCES
   VrmlNodeMatrixLight.cpp
   VrmlNodePhotometricLight.cpp
   coPrecipitationEffect.cpp
+  coMLB.cpp
   coIES.cpp
 )
 

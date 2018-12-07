@@ -31,6 +31,7 @@
 
 using namespace opencover;
 using namespace vrml;
+class coMLB;
 
 class VRML97COVEREXPORT VrmlNodePhotometricLight : public VrmlNodeChild
 {
@@ -64,9 +65,11 @@ public:
 private:
     // Fields
     VrmlSFInt d_lightNumber;
-    VrmlSFString d_IESFile;
+	VrmlSFString d_MLBFile;
+	VrmlSFString d_IESFile;
 
-    coIES *iesFile;
+	coMLB *mlbFile;
+	coIES *iesFile;
     static osg::ref_ptr<osg::Uniform> photometricLightMatrix;
     Viewer::Object d_viewerObject;
     osg::ref_ptr<osg::MatrixTransform> lightNodeInSceneGraph;

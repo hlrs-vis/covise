@@ -35,8 +35,9 @@
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
-
+#include <osg/Texture3D>
 #include <util/byteswap.h>
+#include <plugins/general/Vrml97/coMLB.h>
 
 #include "VrmlNodePhotometricLight.h"
 #include "ViewerOsg.h"
@@ -88,7 +89,8 @@ VrmlNodeType *VrmlNodePhotometricLight::defineType(VrmlNodeType *t)
     VrmlNodeChild::defineType(t); // Parent class
 
     t->addExposedField("lightNumber", VrmlField::SFINT32);
-    t->addExposedField("IESFile", VrmlField::SFSTRING);
+	t->addExposedField("MLBFile", VrmlField::SFSTRING);
+	t->addExposedField("IESFile", VrmlField::SFSTRING);
     static osg::Matrixf lightMatrices[MAX_LIGHTS];
     photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
     osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
@@ -106,7 +108,8 @@ VrmlNodePhotometricLight::VrmlNodePhotometricLight(VrmlScene *scene)
     : VrmlNodeChild(scene)
     , d_lightNumber(0)
     , d_viewerObject(0)
-    , d_IESFile("")
+	, d_MLBFile("")
+	, d_IESFile("")
 {
     setModified();
     lightNodeInSceneGraph = new osg::MatrixTransform();
@@ -132,7 +135,8 @@ VrmlNodePhotometricLight::VrmlNodePhotometricLight(const VrmlNodePhotometricLigh
     : VrmlNodeChild(n.d_scene)
     , d_lightNumber(n.d_lightNumber)
     , d_viewerObject(n.d_viewerObject)
-    , d_IESFile(n.d_IESFile)
+	, d_MLBFile(n.d_MLBFile)
+	, d_IESFile(n.d_IESFile)
     , lightNodeInSceneGraph(n.lightNodeInSceneGraph)
 {
     allPhotometricLights.push_back(this);
@@ -182,8 +186,10 @@ ostream &VrmlNodePhotometricLight::printFields(ostream &os, int indent)
 {
     if (!d_lightNumber.get())
         PRINT_FIELD(lightNumber);
-    if (!d_IESFile.get())
-        PRINT_FIELD(IESFile);
+	if (!d_MLBFile.get())
+		PRINT_FIELD(MLBFile);
+	if (!d_IESFile.get())
+		PRINT_FIELD(IESFile);
 
     return os;
 }
@@ -195,14 +201,31 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 {
     if
         TRY_FIELD(lightNumber, SFInt)
-    else if
-        TRY_FIELD(IESFile, SFString)
+	else if
+		TRY_FIELD(MLBFile, SFString)
+	else if
+		TRY_FIELD(IESFile, SFString)
     else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
     if (strcmp(fieldName, "lightNumber") == 0)
     {
     }
+	if (strcmp(fieldName, "MLBFile") == 0)
+	{
+		mlbFile = new coMLB(d_MLBFile.get());
+
+		osg::ref_ptr<osg::Texture3D> lightTextures = new osg::Texture3D();
+		lightTextures->setResizeNonPowerOfTwoHint(false);
+		lightTextures->setFilter(osg::Texture3D::MIN_FILTER, osg::Texture3D::NEAREST);
+		lightTextures->setFilter(osg::Texture3D::MAG_FILTER, osg::Texture3D::NEAREST);
+		lightTextures->setWrap(osg::Texture3D::WRAP_S, osg::Texture3D::CLAMP);
+		lightTextures->setWrap(osg::Texture3D::WRAP_T, osg::Texture3D::CLAMP);
+		lightTextures->setImage(mlbFile->getTexture());
+		osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+		std::cout << "Texture 3D set to: " << 6 + d_lightNumber.get() << std::endl;
+		state->setTextureAttributeAndModes(6 + d_lightNumber.get(), lightTextures, osg::StateAttribute::ON);
+	}
     if (strcmp(fieldName, "IESFile") == 0)
     {
         iesFile = new coIES(d_IESFile.get());
@@ -223,8 +246,10 @@ const VrmlField *VrmlNodePhotometricLight::getField(const char *fieldName) const
 {
     if (strcmp(fieldName, "lightNumber") == 0)
         return &d_lightNumber;
-    if (strcmp(fieldName, "IESFile") == 0)
-        return &d_IESFile;
+	if (strcmp(fieldName, "MLBFile") == 0)
+		return &d_MLBFile;
+	if (strcmp(fieldName, "IESFile") == 0)
+		return &d_IESFile;
     else
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
