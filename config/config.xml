@@ -134,7 +134,9 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
-   <CompositorIceT menu="true" />
+   <PBufferSnapShot menu="true" />
+   <Video menu="true" />
+   <CompositorIceT menu="false" />
    <ViewPoint value="true" />
    <Measure menu="true" />
    <PointCloud>
@@ -174,7 +176,7 @@
 	</PLMXML>
 	
 
-    <PDB value="off" menu="true" >
+    <PDB value="off" menu="false" >
      <PDBPluginPymolDir value="/var/tmp/pymol/" />
      <PDBPluginTempDir value="/var/tmp/pdb/" />
      <PDBUrl value="www.pdb.org/pdb/files/" />
