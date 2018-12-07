@@ -143,7 +143,7 @@
      <PDBPluginTempDir value="/mnt/raid/tmp/pdb/" />
      <PDBPluginPymolDir value="/mnt/raid/data/extern_libs/src/pymol/pymol/pymol" />
      <PDBUrl value="www.pdb.org/pdb/files" />
-     <PDBAnimationUrl value="www.molmovdb.org/uploads" />e
+     <PDBAnimationUrl value="www.molmovdb.org/uploads" />
     </PDB>
 
     <Image>
@@ -256,7 +256,7 @@
 -->
 
    <VRB>
-    <Server value="141.58.8.5" port="31251" />
+    <!--Server value="141.58.8.5" port="31251" /-->
    </VRB>
    
    <RemoteDaemon>
