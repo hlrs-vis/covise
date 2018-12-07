@@ -6,11 +6,12 @@
  * License: LGPL 2+ */
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #ifndef WIN32
 #include <unistd.h>
 #endif
-#include <ctype.h>
+#include <cctype>
+#include <cstring>
 
 static void
 byteSwap(int no_points, void *buffer)
@@ -28,7 +29,7 @@ byteSwap(int no_points, void *buffer)
 }
 
 /////////////////////////////////////////////////////
-FILE *covOpenOutFile(char *filename)
+FILE *covOpenOutFile(const char *filename)
 {
     FILE *fi = fopen(filename, "w");
     if (fi == NULL)
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
     const char *attribVal[] = { "magma2cov v1.0" };
 
     FILE *outfile = covOpenOutFile("Mesh.covise");
-    static char *rectgrd = "RCTGRD";
+    static const char *rectgrd = "RCTGRD";
     fwrite(rectgrd, 6, 1, outfile);
 
     // buffer > all individual sizes

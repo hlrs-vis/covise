@@ -8,6 +8,11 @@
 #include "coMLB.h"
 #include <iostream>
 #include <fstream>
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
  
  //#include <cnpy/cnpy.h>
 
