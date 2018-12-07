@@ -180,7 +180,7 @@ void CoviseSG::addNode(osg::Node *node, osg::Group *parent, RenderObject *ro)
     {
         if (sgDebug_)
             fprintf(stderr, "CoviseSG(%s)::addNode2 adding a sequence to coVRAnimationManager\n", hostName_);
-        coVRAnimationManager::instance()->addSequence(pSequence);
+        coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
     }
     if (parent == NULL)
     {
