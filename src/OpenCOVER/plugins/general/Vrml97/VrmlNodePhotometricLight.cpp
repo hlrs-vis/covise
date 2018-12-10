@@ -225,6 +225,11 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
 		std::cout << "Texture 3D set to: " << 6 + d_lightNumber.get() << std::endl;
 		state->setTextureAttributeAndModes(6 + d_lightNumber.get(), lightTextures, osg::StateAttribute::ON);
+		state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
+		state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
+		state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
+		state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
+		//state->addUniform(new osg::Uniform("num_lights", (mlbFile->header.t_depth)));
 	}
     if (strcmp(fieldName, "IESFile") == 0)
     {
