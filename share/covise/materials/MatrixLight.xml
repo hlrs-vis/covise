@@ -1,9 +1,4 @@
-<Luminaire>
-<uniform max="0" min="-100" name="minHAngle" type="float" value="-65"/>
-<uniform max="0" min="-100" name="minVAngle" type="float" value="-15"/>
-<uniform max="10" min="0.01" name="HStep" type="float" value="0.1"/>
-<uniform max="10" min="0.01" name="VStep" type="float" value="0.2"/>
-//<uniform name="IESMap" type="sampler2D" value="5"/>
+<MatrixLight>
 <uniform name="MLMap" type="sampler3D" value="6"/>
 
 <vertexProgram>
@@ -149,10 +144,11 @@ varying vec2 Texcoord;
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
 uniform mat4 photometricLightMatrix[4];
-uniform float minHAngle;
-uniform float minVAngle;
-uniform float HStep;
-uniform float VStep;
+uniform float left;
+uniform float bottom;
+uniform float width;
+uniform float height;
+//uniform int num_lights;
 //uniform sampler2D IESMap;
 uniform sampler3D MLMap;
 
@@ -205,46 +201,43 @@ void main(void)
     vec3 newtc3;
     vec4 tmp;
     vec4 DiffuseColor;
+	int num_lights;
+	ivec3 texsize;
+	texsize = textureSize(MLMap, 0);
+	num_lights = texsize[2];
+
     //texSize = textureSize(IESMap, 0);
     // angular range in ies file: -65 to 65 and -15 to 12
     // angular range in ies file: -25 to 25 and -10 to 10
-
-    float left = radians(-25.0); 
-    float bottom = radians(-10.0);
-    float width = radians(50); // radians
-    float height = radians(20); // radians
+/*
+    float left = radians(-25.); 
+    float bottom = radians(-10.);
+    float width = radians(50.); // radians
+    float height = radians(20.); // radians
+	*/
     float an_h = smallestperiod(atan(InLightCoordinates[2], InLightCoordinates[0]));  // => arctan2
     float an_v = smallestperiod(atan(InLightCoordinates[1], InLightCoordinates[0]));  // => arctan2
-    /*newtc[0]= an_h/width + 0.5;
-    newtc[1]= an_v/height + 0.5;
-    if((0.5 &lt; newtc[0])&amp;&amp;(newtc[0] &lt; 1.0))
-    {    
-    if((0.5 &lt; newtc[1])&amp;&amp;(newtc[1] &lt; 1.0))
-        {    
-            DiffuseColor = texture2D(IESMap, newtc);
-        }
-    }*/
+
     newtc3[0]= (an_h-left)/width;
     newtc3[1]= (an_v-bottom)/height;
-    newtc3[2]= 1/7;
-    DiffuseColor = texture3D(MLMap, newtc3);
-    
-    gl_FragColor = DiffuseColor+ (gl_Color*0.5);
+    newtc3[2]= 0.;
+    //int num_lights = 96;
+	float half_bin_width = 1./ float (num_lights*2);
 	
     if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
     {    
         if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
-        {
-            gl_FragColor += vec4 (.2,.2,0,0); 
+        {  
+            //gl_FragColor += vec4 (.2,.2,0.,0.);
+            DiffuseColor *= 0.0;
+            for (int i = 0; i &lt; num_lights; i++)
+            {
+                newtc3[2] = float (i) / float (num_lights) + half_bin_width;
+                DiffuseColor += texture3D(MLMap, newtc3);
+            }
         }
     }
-    if((0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 250))
-    {    
-        if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 100))
-        {
-            gl_FragColor += vec4 (.2,.0,0,0); 
-        }
-    }
+    gl_FragColor = DiffuseColor*0.5+ (gl_Color*0.5);
 
     }</fragmentProgram></Luminaire>
     //< 	&lt; 	
