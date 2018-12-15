@@ -189,6 +189,10 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     goto FINALIZE
 )
 
+if defined CUDA_PATH_V10_0 (
+    set CUDA_PATH=%CUDA_PATH_V10_0%
+)
+
 if not defined QT_HOME ( 
    REM QT_HOME is not set... check QTDIR
    IF not defined QTDIR (
