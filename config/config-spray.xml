@@ -14,7 +14,7 @@
       <NumSamplings value="1000"/>
       <Iterations value="1"/>
 
-      <DisplayRTScene value="1"/>
+      <DisplayRTScene value="0"/>
     
       <LowerPressureBound value="0.1"/>
       <UpperPressureBound value="10.0"/>
