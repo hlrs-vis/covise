@@ -384,7 +384,7 @@ void NurbsSurface::surfaceInfo::updateSurface()
         {
             std::vector<curveInfo> boundaryCurves;
             calcEdgeIntersectionsByPoints(boundaryCurves);
-            //calcSamplingPoints(boundaryCurves);
+            calcSamplingPoints(boundaryCurves);
         }
         else
         {
@@ -397,17 +397,20 @@ void NurbsSurface::surfaceInfo::updateSurface()
 
 void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveInfo>& curves)
 {
-    for (auto it = receivedBoundaryPoints.begin(); it != receivedBoundaryPoints.end(); it++)
+    bool intersectionSuccess = true;
+    edgeColor =osg::Vec4f(0.0, 0.1, 0.1, 1.0f);
+    for (auto it = receivedBoundaryPointsRotated.begin(); it != receivedBoundaryPointsRotated.end(); it++)
     {
         auto nx = std::next(it, 1);
-        if (nx == receivedBoundaryPoints.end())
+        if (nx == receivedBoundaryPointsRotated.end())
         {
-            nx=receivedBoundaryPoints.begin();
+            nx=receivedBoundaryPointsRotated.begin();
         }
-        fprintf(stderr,"Point it x: %f  y: %f\n",it->x(),it->y());
-        fprintf(stderr,"Point nx x: %f  y: %f\n",nx->x(),nx->y());
+        fprintf(stderr,"Point it x: %f  y: %f  z: %f\n",it->x(),it->y(),it->z());
+        fprintf(stderr,"Point nx x: %f  y: %f  z: %f\n",nx->x(),nx->y(),it->z());
         curveInfo boundaryCurve;
-        edgeByPoints(receivedPoints, *it, *nx, boundaryCurve);
+        edgeByPoints(receivedPointsRotated, *it, *nx, boundaryCurve);
+        edgeColor +=osg::Vec4f(0.0, 0.1, 0.1, 1.0f);
         curves.push_back(boundaryCurve);
     }
     for (auto it = curves.begin();it !=curves.end(); it++)
@@ -417,7 +420,7 @@ void NurbsSurface::surfaceInfo::calcEdgeIntersectionsByPoints(std::vector<curveI
         {
             nx=curves.begin();
         }
-        //curveCurveIntersection(it->curve, it->endPar, nx->curve, nx->startPar);
+        intersectionSuccess = curveCurveIntersection(it->curve, it->endPar, nx->curve, nx->startPar);
     }
 }
 
@@ -447,7 +450,7 @@ void NurbsSurface::surfaceInfo::calcSamplingPoints(std::vector<curveInfo>& curve
                 vector<double> linearPointBetweenEdge0and2 = paramFactor1 * evaluateCurveAtParam(curves[0],paramFactor0) + (1.0-paramFactor1) * evaluateCurveAtParam(curves[2],(1-paramFactor0));
                 //then calculate compensation on edges 1 and 3 as difference between straight line and actual point on line
                 vector<double> shiftOnEdge1 = paramFactor0 * (evaluateCurveAtParam(curves[1],paramFactor1) - (corners[1] +(corners[2]-corners[1])*paramFactor1));
-                vector<double> shiftOnEdge3 = (1.0-paramFactor0) * (evaluateCurveAtParam(curves[3],(1.0 - paramFactor1)) - (corners[4]+(corners[3]-corners[4])*paramFactor1));
+                vector<double> shiftOnEdge3 = (1.0-paramFactor0) * (evaluateCurveAtParam(curves[3],(1.0 - paramFactor1)) - (corners[0]+(corners[3]-corners[0])*paramFactor1));
                 vector<double> interpolatedPoint = linearPointBetweenEdge0and2 + shiftOnEdge1 + shiftOnEdge3;
 
                 pointsNew[k++]=interpolatedPoint[0];
@@ -642,64 +645,82 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints\n");
     for (auto iter = selectedPoints.begin(); iter!=selectedPoints.end(); iter++)
     {
-      fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints x: %f, y: %f, z: %f \n ",iter->x(), iter->y(), iter->z() );
+      //fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints x: %f, y: %f, z: %f \n ",iter->x(), iter->y(), iter->z() );
     }
 
     SISLCurve *result_curve = 0;
     //int numPoints = all_points.size();
     std::vector<Vec3> all_points;
-    std::vector<Vec3> all_points_rotatedBack;
 
     //rotation of points
     Vec3 edgeDirection = pointEnd - pointBegin;
+    edgeDirection[2] = 0.0;
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints edgeDirection x: %f, y: %f, z: %f \n ",edgeDirection.x(), edgeDirection.y(), edgeDirection.z() );
     edgeDirection.normalize();
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints edgeDirection x: %f, y: %f, z: %f \n ",edgeDirection.x(), edgeDirection.y(), edgeDirection.z() );
 
     Vec3 unitAxis = Vec3(1.0, 0.0, 0.0);
-    rotationMatrix.makeRotate(edgeDirection,unitAxis);
+    //rotationMatrix.makeRotate(edgeDirection,unitAxis);
+    rotationMatrix.makeRotate(unitAxis,edgeDirection);
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints PointBegin x: %f, y: %f, z: %f \n ",pointBegin.x(), pointBegin.y(), pointBegin.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointEnd x: %f, y: %f, z: %f \n ",pointEnd.x(), pointEnd.y(), pointEnd.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints centroid x: %f, y: %f, z: %f \n ",centroid.x(), centroid.y(), centroid.z() );
+
 
     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotation\n");
 
     Vec3 pointBeginLocal = rotationMatrix * pointBegin;
     Vec3 pointEndLocal = rotationMatrix * pointEnd;
-    Vec3 centroidLocal = rotationMatrix * centroid;
-    // Test if centroid is above or below
-    float dx = pointEnd.x() - pointBegin.x();
-    float dy = pointEnd.y() - pointBegin.y();
-    float slope = dy/dx;
-    float intercept = pointBegin.y() - slope * pointBegin.x();
+    Vec3 centroidLocal = rotationMatrix * centroidRotated;
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints PointBeginLocal x: %f, y: %f, z: %f \n ",pointBeginLocal.x(), pointBeginLocal.y(), pointBeginLocal.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointEndLocal x: %f, y: %f, z: %f \n ",pointEndLocal.x(), pointEndLocal.y(), pointEndLocal.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints centroidLocal x: %f, y: %f, z: %f \n ",centroidLocal.x(), centroidLocal.y(), centroidLocal.z() );
 
-    float yOnLine = slope * centroidLocal.x()+intercept;
-    if (yOnLine < centroidLocal.y())
+
+
+    if (pointBeginLocal.x() > pointEndLocal.x())
     {
-        rotationMatrix.rotate(DegreesToRadians(180.0),Vec3(0.0,0.0,1.0));
+        fprintf(stderr, "Rotated by 180deg \n ");
+        Matrixd rotate;
+        rotate.makeRotate(DegreesToRadians(180.0),Vec3(0.0,0.0,1.0));
+        rotationMatrix = rotate * rotationMatrix;
         pointBeginLocal = rotationMatrix * pointBegin;
         pointEndLocal = rotationMatrix * pointEnd;
-        centroidLocal = rotationMatrix * centroid;
+        centroidLocal = rotationMatrix * centroidRotated;
     }
-    inverseRotationMatrix.invert(rotationMatrix);
-    //inverseRotationMatrix= rotationMatrix;
-    //inverseRotationMatrix.invert()
 
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints matrix rotate %f, %f, %f, %f \n ",rotationMatrix(0,0), rotationMatrix(0,1), rotationMatrix(0,2),rotationMatrix(0,3));
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints matrix rotate %f, %f, %f, %f \n ",rotationMatrix(1,0), rotationMatrix(1,1), rotationMatrix(1,2),rotationMatrix(1,3));
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints matrix rotate %f, %f, %f, %f \n ",rotationMatrix(2,0), rotationMatrix(2,1), rotationMatrix(2,2),rotationMatrix(2,3));
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints matrix rotate %f, %f, %f, %f \n ",rotationMatrix(3,0), rotationMatrix(3,1), rotationMatrix(3,2),rotationMatrix(3,3));
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints PointBeginLocal x: %f, y: %f, z: %f \n ",pointBeginLocal.x(), pointBeginLocal.y(), pointBeginLocal.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointEndLocal x: %f, y: %f, z: %f \n ",pointEndLocal.x(), pointEndLocal.y(), pointEndLocal.z() );
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints centroidLocal x: %f, y: %f, z: %f \n ",centroidLocal.x(), centroidLocal.y(), centroidLocal.z() );
+
+    // Test if centroid is above or below
+    float dx = pointEndLocal.x() - pointBeginLocal.x();
+    float dy = pointEndLocal.y() - pointBeginLocal.y();
+    float slope = dy/dx;
+    float intercept = pointBeginLocal.y() - slope * pointBeginLocal.x();
+
+    float yOnLine = slope * centroidLocal.x()+intercept;
+    int centroidIsBelow=1;
+
+    if (yOnLine < centroidLocal.y())
+    {
+        fprintf(stderr, "Centroid is above Line \n ");
+        centroidIsBelow=-1;
+        fprintf(stderr, "y on line: %f \n ",yOnLine);
+        fprintf(stderr, "centroidLocal y: %f \n ",centroidLocal.y());
+    }
+
+    inverseRotationMatrix.invert(rotationMatrix);
     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints calculated rotated points\n");
 
     for (auto it=selectedPoints.begin(); it!=selectedPoints.end(); it++)
     {
         all_points.push_back(rotationMatrix * *it);
-    }
-
-    for (auto iter = all_points.begin(); iter!=all_points.end(); iter++)
-    {
-      fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints rotated x: %f, y: %f, z: %f \n ",iter->x(), iter->y(), iter->z() );
-    }
-
-    for (auto it=all_points.begin(); it!=all_points.end(); it++)
-    {
-        all_points_rotatedBack.push_back(inverseRotationMatrix * *it);
-    }
-
-    for (auto iter = all_points_rotatedBack.begin(); iter!=all_points_rotatedBack.end(); iter++)
-    {
-      fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints rotated back x: %f, y: %f, z: %f \n ",iter->x(), iter->y(), iter->z() );
     }
 
     //
@@ -710,8 +731,13 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
     }
     double averageZ = sumZ/all_points.size();
 
+     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints averageZ : %f\n", averageZ);
+
     float minimum_x = pointBeginLocal.x();
     float maximum_x = pointEndLocal.x();
+    float outerMinX = minimum_x;
+    float outerMaxX = maximum_x;
+
     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints minimum x= %f, maximum x=%f \n",minimum_x, maximum_x);
 
     std::vector<osg::Vec3*> maximumPointsInAllQuadrants;
@@ -725,20 +751,38 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
     for(auto it=all_points.begin(); it != all_points.end(); it++)
     {
         int j=int((it->x()-minimum_x)/(maximum_x-minimum_x)*numEdgeSectors);
-        j=min(numEdgeSectors-1,j);
-        if (!maximumPointsInAllQuadrants[j])
+        //j=min(numEdgeSectors-1,j);
+        //j=max(0,j);
+        if ((j>=0) && (j<numEdgeSectors))
         {
-            maximumPointsInAllQuadrants[j] = &*it;
-            numberOfSectorsWithMaximum++;
-        }
-        else
-        {
-            if (it->y() > maximumPointsInAllQuadrants[j]->y())
+            if (!maximumPointsInAllQuadrants[j])
             {
                 maximumPointsInAllQuadrants[j] = &*it;
+                numberOfSectorsWithMaximum++;
+            }
+            else
+            {
+                if ((centroidIsBelow * it->y()) > (centroidIsBelow * maximumPointsInAllQuadrants[j]->y()))
+                {
+                    maximumPointsInAllQuadrants[j] = &*it;
+                }
             }
         }
+        if (it->x() < outerMinX)
+        {
+            outerMinX = it->x();
+        }
+        if (it->x() > outerMaxX)
+        {
+            outerMaxX = it->x();
+        }
     }
+
+    float distMinMax = outerMaxX - outerMinX;
+    outerMaxX += 0.1 * distMinMax;
+    outerMinX -= 0.1 * distMinMax;
+
+    fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints outerMinX: %f, outerMaxX: %f \n ", outerMinX, outerMaxX);
     fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints numberOfSectorsWithMaximum = %i\n", numberOfSectorsWithMaximum);
     //initialize spline firstCurveWithMaximumPointsPerQuadrant
     ae_int_t degree = 3;
@@ -776,9 +820,12 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
         //compare all points with first curve, if they are above or below
         for(auto it = all_points.begin(); it != all_points.end(); it++)
         {
-            if (it->y() > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, it->x()))
+            if ((it->x() > minimum_x) && (it->x() < maximum_x ))
             {
-                pointsAboveCurve.push_back(*it);
+                if (it->y() > barycentriccalc(firstCurveWithMaximumPointsPerQuadrant, it->x()))
+                {
+                    pointsAboveCurve.push_back(*it);
+                }
             }
         }
         fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints pointsAboveCurve = %li\n", (long)pointsAboveCurve.size());
@@ -813,24 +860,45 @@ int NurbsSurface::surfaceInfo::edgeByPoints(std::vector<Vec3> &selectedPoints, V
 
         //Also build a SISL-curve from this data for intersection calculation
         //using transformed global coordinates
-        int num_points = numEdgeSectors;
-        double *pointsSISLCurve = new double[2*num_points];
-        int *type= new int[num_points];
-        for (int i=0; i!=num_points; i++)
+        vector<Vec3> curvePoints;
+        if (outerMinX<minimum_x)
         {
-            double x = (-minimum_x+maximum_x)/(num_points-1)*i+minimum_x;
+            osg::Vec3 pointRotated = osg::Vec3(outerMinX, barycentriccalc(curve,outerMinX),averageZ);
+            osg::Vec3 point = inverseRotationMatrix * pointRotated;
+            curvePoints.push_back(point);
+        }
+        for (int i=0; i!=numEdgeSectors; i++)
+        {
+            double x = (-minimum_x+maximum_x)/(numEdgeSectors-1)*i+minimum_x;
             double y = barycentriccalc(curve,x);
             double z = averageZ;
             osg::Vec3 pointRotated = osg::Vec3(x,y,z);
             osg::Vec3 point = inverseRotationMatrix * pointRotated;
-            pointsSISLCurve[i*2]=point.x();
-            pointsSISLCurve[i*2+1]=point.y();
+            curvePoints.push_back(point);
+        }
+        if (outerMaxX>maximum_x)
+        {
+            osg::Vec3 pointRotated = osg::Vec3(outerMaxX, barycentriccalc(curve,outerMaxX),averageZ);
+            osg::Vec3 point = inverseRotationMatrix * pointRotated;
+            curvePoints.push_back(point);
+        }
+
+        int num_points = curvePoints.size();
+        double *pointsSISLCurve = new double[2*curvePoints.size()];
+        int *type= new int[curvePoints.size()];
+
+        int i=0;
+        for (auto it=curvePoints.begin(); it!= curvePoints.end(); it++)
+        {
+            fprintf(stderr, "NurbsSurface::surfaceInfo::edgeByPoints curvePoints x: %f, y: %f, z: %f \n ",it->x(), it->y(), it->z() );
+            pointsSISLCurve[i*2]=it->x();
+            pointsSISLCurve[i*2+1]=it->y();
             type[i]=1;
             //osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
-            //point = rotationMatrixToWorld * point;
+            osg::Vec3 point = rotationMatrixToWorld * *it;
             highlightPoint(point, blue);
-            fprintf(stderr,"Point highlighted x: %f  y: %f z: %f \n",point.x(),point.y(), point.z());
-
+            //fprintf(stderr,"Point highlighted x: %f  y: %f z: %f \n",point.x(),point.y(), point.z());
+            i++;
             //fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
         }
         const double cstartpar = 0;
@@ -1051,7 +1119,7 @@ int NurbsSurface::surfaceInfo::edge(vector<osg::Vec3> all_points, int local_x, i
             type[i]=1;
             osg::Vec3 point = osg::Vec3(pointsSISLCurve[i*2],pointsSISLCurve[i*2+1],averageZ);
             point = rotationMatrixToWorld * point;
-            highlightPoint(point, blue);
+            highlightPoint(point, edgeColor);
             fprintf(stderr, "highlighting Point %f %f %f\n", point.x(), point.y(), point.z());
         }
         const double cstartpar = 0;
@@ -1116,7 +1184,7 @@ void NurbsSurface::surfaceInfo::updateModel()
     fprintf(stderr, "NurbsSurface::updateModel() \n");
     //xy.setlength(receivedPoints.size(),3);
 
-
+    centroid=Vec3(0.0,0.0,0.0);
     for (std::vector<osg::Vec3>::const_iterator iter = receivedPoints.begin() ; iter != receivedPoints.end(); iter++)
     {
         centroid = centroid + *iter;
@@ -1205,6 +1273,8 @@ void NurbsSurface::surfaceInfo::updateModel()
         receivedBoundaryPointsRotated.push_back(rotatedPoint);
         i++;
     }
+
+    centroidRotated = rotationMatrixToLocal * centroid;
 
     i=0;
     xy.setlength(receivedPointsRotated.size(),3);

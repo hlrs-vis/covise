@@ -89,12 +89,13 @@ struct curveInfo{
         double v_par[3] = {0, 1, 2}; // point parametrization in v-direction
 
         const int dim = 3; // dimension of the space we are working in
-        int order_U = 2;
-        int order_V = 2;
+        int order_U = 3;
+        int order_V = 3;
         osg::ref_ptr<osg::Geode> geode;
         std::vector<osg::Vec3> receivedPoints;
         std::vector<osg::Vec3> receivedBoundaryPoints;
         osg::Vec3 centroid = osg::Vec3(0.0, 0.0, 0.0);
+        osg::Vec3 centroidRotated = osg::Vec3(0.0, 0.0, 0.0);
         osg::Matrixd rotationMatrixToWorld;
         osg::Matrixd rotationMatrixToLocal;
         std::vector<osg::Vec3> receivedPointsRotated;
@@ -131,9 +132,11 @@ struct curveInfo{
         osg::Vec4 red = osg::Vec4f(0.6, 0.0, 0.0, 1.0f);
         osg::Vec4 green = osg::Vec4f(0.0, 0.6, 0.0, 1.0f);
         osg::Vec4 blue = osg::Vec4f(0.0, 0.0, 0.6, 1.0f);
+        osg::Vec4 edgeColor = osg::Vec4f(0.0, 0.0, 0.1, 1.0f);
         void highlightPoint(osg::Vec3& newSelectedPoint, osg::Vec4 colour);
         Matrixd rotationMatrix;
         Matrixd inverseRotationMatrix;
+
     };
 
 private:
