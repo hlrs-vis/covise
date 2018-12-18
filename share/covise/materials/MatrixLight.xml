@@ -1,9 +1,13 @@
 <MatrixLight>
 <uniform name="MLMap" type="sampler3D" value="6"/>
+//#<uniform name="targetTex" type="sampler2D" value="0"/>
 
 <vertexProgram>
 varying vec3 InLightCoordinates;
+uniform gl_MaterialParameters gl_FrontMaterial;  
+uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
 varying vec2 Texcoord;
+varying vec4 vColor;   // --------------------------------
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
 uniform mat4 photometricLightMatrix[4];
@@ -135,12 +139,15 @@ void main(void)
     flight(transformedNormal, ecPosition, alphaFade);
     vec4 tmp4 = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
     InLightCoordinates = tmp4.xyz;
+    //gl_FrontColor = gl_FrontMaterial.diffuse;
+    vColor = gl_FrontColor; //gl_Color;   // --------------------------------
 }
 </vertexProgram>
 <fragmentProgram>
 #version 130
 varying vec3 InLightCoordinates;
 varying vec2 Texcoord;
+varying vec4 vColor;   // --------------------------------
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
 uniform mat4 photometricLightMatrix[4];
@@ -151,6 +158,8 @@ uniform float height;
 //uniform int num_lights;
 //uniform sampler2D IESMap;
 uniform sampler3D MLMap;
+uniform sampler2D targetTex;
+
 
 ivec2 texSize;
 // Function to get a texel data from a texture with GL_NEAREST property.
@@ -167,44 +176,16 @@ float smallestperiod(float theta)
 }
 
 
-vec4 tex2DBiLinear(sampler2D textureSampler_i, vec2 texCoord_i)
-{
-    float texelSizeX = 1.0 / texSize[0]; //size of one texel 
-    float texelSizeY = 1.0 / texSize[1]; //size of one texel 
-
-    int nX = int(texCoord_i.x * texSize[0]);  // 0 .. 130
-    int nY = int(texCoord_i.y * texSize[1]);  // 0 .. 27
-    vec2 texCoord_New = vec2((float(nX) + 0.5) / texSize[0],
-                              (float(nY) + 0.5) / texSize[1]);
-    // Take nearest two data in current row.
-    vec4 p0q0 = texture2D(textureSampler_i, texCoord_New);
-    vec4 p1q0 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX, 0));
-
-    // Take nearest two data in bottom row.
-    vec4 p0q1 = texture2D(textureSampler_i, texCoord_New + vec2(0, texelSizeY));
-    vec4 p1q1 = texture2D(textureSampler_i, texCoord_New + vec2(texelSizeX , texelSizeY));
-
-    float a = fract(texCoord_i.x * texSize[0]); // Get Interpolation factor for X direction.
-                                             // Fraction near to valid data.
-
-    // Interpolation in X direction.
-    vec4 pInterp_q0 = mix(p0q0, p1q0, a); // Interpolates top row in X direction.
-    vec4 pInterp_q1 = mix(p0q1, p1q1, a); // Interpolates bottom row in X direction.
-
-    float b = fract(texCoord_i.y * texSize[1]); // Get Interpolation factor for Y direction.
-    return mix(pInterp_q0, pInterp_q1, b); // Interpolate in Y direction.
-}
-
 void main(void)
 {
     vec2 newtc;
     vec3 newtc3;
     vec4 tmp;
     vec4 DiffuseColor;
-	int num_lights;
-	ivec3 texsize;
-	texsize = textureSize(MLMap, 0);
-	num_lights = texsize[2];
+    int num_lights;
+    ivec3 texsize;
+    texsize = textureSize(MLMap, 0);
+    num_lights = texsize[2];
 
     //texSize = textureSize(IESMap, 0);
     // angular range in ies file: -65 to 65 and -15 to 12
@@ -214,15 +195,17 @@ void main(void)
     float bottom = radians(-10.);
     float width = radians(50.); // radians
     float height = radians(20.); // radians
-	*/
+*/
     float an_h = smallestperiod(atan(InLightCoordinates[2], InLightCoordinates[0]));  // => arctan2
     float an_v = smallestperiod(atan(InLightCoordinates[1], InLightCoordinates[0]));  // => arctan2
 
     newtc3[0]= (an_h-left)/width;
     newtc3[1]= (an_v-bottom)/height;
     newtc3[2]= 0.;
+    newtc[0] = newtc3[0];
+    newtc[1] = newtc3[1];
     //int num_lights = 96;
-	float half_bin_width = 1./ float (num_lights*2);
+    float half_bin_width = 1./ float (num_lights*2);
 	
     if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
     {    
@@ -235,11 +218,14 @@ void main(void)
                 newtc3[2] = float (i) / float (num_lights) + half_bin_width;
                 DiffuseColor += texture3D(MLMap, newtc3);
             }
+            DiffuseColor = texture2D(targetTex, newtc);
         }
     }
-    gl_FragColor = DiffuseColor*0.5+ (gl_Color*0.5);
+	
+    gl_FragColor = DiffuseColor*0.5+ (vColor*0.5);
+    //gl_FragColor = gl_Color;
 
-    }</fragmentProgram></Luminaire>
+    }</fragmentProgram></MatrixLight>
     //< 	&lt; 	
     //> 	&gt; 	nur problematisch in Tags und bei ']]>'
     //& 	&amp; 	
