@@ -401,6 +401,17 @@ git clone https://github.com/webmproject/libwebp.git
 on windows open the visual studio project and add enc/backward_references_cost_enc.cal3d and dsp/ssim*.c
 Build debug and release
 
+##############
+# pyqt5 build sip first
+
+
+############
+# sip
+set PYTHONHOME=c:\src\externlibs\zebu\Python
+python configure.py
+nmake
+nmake install
+
 
 ########
 #gmsh
