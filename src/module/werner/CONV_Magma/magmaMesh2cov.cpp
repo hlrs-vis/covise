@@ -206,21 +206,21 @@ int main(int argc, char *argv[])
     fwrite(&size, sizeof(int), 1, outfile);
 
     /// cell centers  Z
-    buffer[0] = hdr.zMin + 0.5 * dz[0];
+    buffer[0] = hdr.zMin + 0.5f * dz[0];
     for (i = 1; i < hdr.nz; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dz[i - 1] + dz[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dz[i - 1] + dz[i]);
     fwrite(buffer, sizeof(int), hdr.nz, outfile);
 
     /// cell centers  Y
-    buffer[0] = hdr.yMin + 0.5 * dy[0];
+    buffer[0] = hdr.yMin + 0.5f * dy[0];
     for (i = 1; i < hdr.ny; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dy[i - 1] + dy[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dy[i - 1] + dy[i]);
     fwrite(buffer, sizeof(int), hdr.ny, outfile);
 
     /// cell centers  X
-    buffer[0] = hdr.xMin + 0.5 * dx[0];
+    buffer[0] = hdr.xMin + 0.5f * dx[0];
     for (i = 1; i < hdr.nx; i++)
-        buffer[i] = buffer[i - 1] + 0.5 * (dx[i - 1] + dx[i]);
+        buffer[i] = buffer[i - 1] + 0.5f * (dx[i - 1] + dx[i]);
     fwrite(buffer, sizeof(int), hdr.nx, outfile);
 
     covWriteAttrib(outfile, 1, attribName, attribVal);

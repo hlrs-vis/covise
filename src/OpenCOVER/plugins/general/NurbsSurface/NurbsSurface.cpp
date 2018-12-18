@@ -482,8 +482,6 @@ void NurbsSurface::surfaceInfo::calcSamplingPoints()
     evaluateCurveAtParam(right,1.0,pointTempRightOne);
     evaluateCurveAtParam(left,0.0,pointTempLeftZero);
     evaluateCurveAtParam(right,0.0,pointTempRightZero);
-    int jstat; // status variable
-    int temp;
     int k=0;
     for (int i=0; i!=num_points_u; i++)
     {
