@@ -522,6 +522,26 @@ class net :
             return
 
         self.printNet("Add: " + m.name_ + "_" + str(m.nr_))
+# add module and wait until an INIT msg comes back        
+    def addExisting(self,m, nr=1, host=""):
+        if ( m.name_ in self.knownModules_ ):
+            i = self.knownModules_[m.name_]
+            #increment the number of the actual module
+            self.knownModules_[m.name_] = i+1
+            m.nr_ = str(nr)
+            self.actualModules_.append(m)
+            
+            """ start module on <host> if host is given """
+            if host!="" and host in self.__knownHosts:
+                m.host_ = host
+            elif self.__defaultHost != self.__knownHosts[0]:
+               m.host_ = self.__defaultHost
+            m.createParamAction()
+        else:    
+            print("Scripting Interface: module not recognized by covise scripting! addExisting")
+            return
+
+        self.printNet("Add: " + m.name_ + "_" + str(m.nr_))
 
     #remove module from net
     def remove(self,m):
