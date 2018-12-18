@@ -103,6 +103,9 @@ public:
     bool update() override;
     // this will be called in PreFrame
     void preFrame() override;
+
+	//! this function is called from the draw thread before drawing the scenegraph (after drawing the AR background)
+	virtual void preDraw(osg::RenderInfo &);
     bool isNewVRML;
 
 protected:

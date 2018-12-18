@@ -3,8 +3,6 @@
 Created on Thu Nov 29 15:18:44 2018
 
 @author: Florian
-- header geändert (n_lights und aus 3 Zeilen eine machen)
-
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -56,11 +56,14 @@ public:
     const VrmlField *getField(const char *fieldName) const;
 
     virtual void render(Viewer *);
-    
-    static void updateAll();
-    void update();
+
+	static void updateAll();
+	void update();
+	static void updateLightTextures();
+	void updateLightTexture();
     
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
+	osg::ref_ptr<osg::Program> computeProg;
 
 private:
     // Fields

@@ -221,7 +221,9 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
     }
     if (strcmp(fieldName, "IESFile") == 0)
     {
+
 		iesFile = new coIES(d_IESFile.get());
+		//float my_texture[] = iesFile->getTexture();
 		osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
 		lightTexture->setResizeNonPowerOfTwoHint(false);
 		lightTexture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
@@ -238,22 +240,22 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
 //		state->addUniform(new osg::Uniform("height_rad", (iesFile->height)));
 
 
-        osg::ref_ptr<osg::Texture2DArray> mytextureArray = new osg::Texture2DArray;
-        mytextureArray->setFilter(osg::Texture2DArray::MIN_FILTER, osg::Texture2DArray::NEAREST);
-        mytextureArray->setFilter(osg::Texture2DArray::MAG_FILTER, osg::Texture2DArray::NEAREST);
-        mytextureArray->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
-        mytextureArray->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
+        //osg::ref_ptr<osg::Texture2DArray> mytextureArray = new osg::Texture2DArray;
+        //mytextureArray->setFilter(osg::Texture2DArray::MIN_FILTER, osg::Texture2DArray::NEAREST);
+        //mytextureArray->setFilter(osg::Texture2DArray::MAG_FILTER, osg::Texture2DArray::NEAREST);
+        //mytextureArray->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
+        //mytextureArray->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
 
 //		iesFile = new coIES(d_IESFile.get());
 
-		mytextureArray->setResizeNonPowerOfTwoHint(false);
-        int numLights = d_numRows.get()*d_numColumns.get();
-        mytextureArray->setTextureDepth(numLights);
-        std::string filename = d_IESFile.get();
-        std::string dirName = filename.substr(0, filename.find_last_of("\\/"));
-		cout << "filename: " << filename << endl;
-		cout << "dirName: " << dirName << endl;
-		mytextureArray->setImage(0, iesFile->getTexture());
+		//mytextureArray->setResizeNonPowerOfTwoHint(false);
+        //int numLights = d_numRows.get()*d_numColumns.get();
+        //mytextureArray->setTextureDepth(numLights);
+        //std::string filename = d_IESFile.get();
+        //std::string dirName = filename.substr(0, filename.find_last_of("\\/"));
+		//cout << "filename: " << filename << endl;
+		//cout << "dirName: " << dirName << endl;
+		//mytextureArray->setImage(0, iesFile->getTexture());
 //        for(int i=0;i<numLights;i++)
 //        {
 //            char iesName[2000];
@@ -265,8 +267,8 @@ void VrmlNodeMatrixLight::setField(const char *fieldName,
 //
 //        osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
 //
-		cout << "light number(arr): " << d_lightNumber.get() << endl;
-        state->setTextureAttributeAndModes(6+d_lightNumber.get(), mytextureArray, osg::StateAttribute::ON);
+		//cout << "light number(arr): " << d_lightNumber.get() << endl;
+        //state->setTextureAttributeAndModes(6+d_lightNumber.get(), mytextureArray, osg::StateAttribute::ON);
     }
 }
 

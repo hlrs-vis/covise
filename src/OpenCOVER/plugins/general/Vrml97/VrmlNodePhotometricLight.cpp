@@ -35,6 +35,9 @@
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
+#include <osg/BindImageTexture>
+//#include <osg/DispatchCompute>
+#include <osg/ComputeDispatch>
 #include <osg/Texture3D>
 #include <util/byteswap.h>
 #include <plugins/general/Vrml97/coMLB.h>
@@ -42,6 +45,7 @@
 #include "VrmlNodePhotometricLight.h"
 #include "ViewerOsg.h"
 #include <osg/Quat>
+
 
 // static initializations
 std::list<VrmlNodePhotometricLight *> VrmlNodePhotometricLight::allPhotometricLights;
@@ -56,21 +60,51 @@ static VrmlNode *creator(VrmlScene *scene)
 
 void VrmlNodePhotometricLight::updateAll()
 {
-    for(std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin();it != allPhotometricLights.end(); it++)
-    {
-        (*it)->update();
-    }
+	for (std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin(); it != allPhotometricLights.end(); it++)
+	{
+		(*it)->update();
+	}
 }
 void VrmlNodePhotometricLight::update()
 {
-    osg::MatrixList worldMatrices = lightNodeInSceneGraph->getWorldMatrices();
-    osg::Matrixf firstMat = worldMatrices[0];
-       // photometricLightMatrix->setElement(d_lightNumber.get(), firstMat); 
-    osg::Matrixf invFirstMat;
-    if(invFirstMat.invert_4x4(firstMat))
-    {
-        photometricLightMatrix->setElement(d_lightNumber.get(), invFirstMat); 
-    }
+	osg::MatrixList worldMatrices = lightNodeInSceneGraph->getWorldMatrices();
+	osg::Matrixf firstMat = worldMatrices[0];
+	// photometricLightMatrix->setElement(d_lightNumber.get(), firstMat); 
+	osg::Matrixf invFirstMat;
+	if (invFirstMat.invert_4x4(firstMat))
+	{
+		photometricLightMatrix->setElement(d_lightNumber.get(), invFirstMat);
+	}
+}
+void VrmlNodePhotometricLight::updateLightTextures()
+{
+	for (std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin(); it != allPhotometricLights.end(); it++)
+	{
+		(*it)->updateLightTexture();
+	}
+}
+void VrmlNodePhotometricLight::updateLightTexture()
+{
+	// some code!
+    // https://github.com/openscenegraph/OpenSceneGraph/blob/master/examples/osgcomputeshaders/osgcomputeshaders.cpp
+	std::cout << "preDraw: ";
+	int numHorizontalAngles = mlbFile->header.t_width;
+	int numVerticalAngles = mlbFile->header.t_height;
+	int numValues = numHorizontalAngles * numVerticalAngles;
+	osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+
+	int work_group_size = 256;
+	//renderInfo.getState()->get<GLExtensions>()->glDispatchCompute(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
+	//osg::ref_ptr<osg::Node> sourceNode = new osg::ComputeDispatch(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
+	//sourceNode->setDataVariance(osg::Object::DYNAMIC);
+	//state->setAttributeAndModes(computeProg.get());
+	std::cout << "updateLightTextures... ";
+	
+	/*
+	#define WORK_GROUP_SIZE 128
+	_shaderManager->useProgram("computeProg");
+	glDispatchCompute((numtexels / WORK_GROUP_SIZE)+1, 1, 1);
+	*/
 }
 
 // Define the built in VrmlNodeType:: "PhotometricLight" fields
@@ -230,9 +264,82 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
 		state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
 		//state->addUniform(new osg::Uniform("num_lights", (mlbFile->header.t_depth)));
+
+		static const char* computeSrc = {
+			"#version 430\n"
+			"uniform float osg_FrameTime;\n"
+			"layout (r32f, binding = 0) uniform image2D targetTex;\n"
+			"layout (local_size_x = 16, local_size_y = 16) in;\n"
+			"void main() {\n"
+			"   ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);\n"
+			"   float coeffcient = 0.5*sin(float(gl_WorkGroupID.x + gl_WorkGroupID.y)*0.1 + osg_FrameTime);\n"
+			"   coeffcient *= length(vec2(ivec2(gl_LocalInvocationID.xy) - ivec2(8)) / vec2(8.0));\n"
+			"   imageStore(targetTex, storePos, vec4(1.0-coeffcient, 1.0, 0.0, 1.0));\n"
+			"}\n"
+		};
+
+		// placeholder 2D image:
+		int numHorizontalAngles = mlbFile->header.t_width;
+		int numVerticalAngles = mlbFile->header.t_height;
+		int numValues = numHorizontalAngles * numVerticalAngles;
+
+		// Create the texture as both the output of compute shader and the input of a normal quad
+		osg::ref_ptr<osg::Texture2D> tex2D = new osg::Texture2D;
+		tex2D->setTextureSize(numHorizontalAngles, numVerticalAngles);
+		tex2D->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
+		tex2D->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
+
+		tex2D->setInternalFormat(GL_R32F);
+		tex2D->setSourceFormat(GL_RED);
+		tex2D->setSourceType(GL_FLOAT);
+		/*
+		*/
+		// So we can use 'image2D' in the compute shader
+		osg::ref_ptr<osg::BindImageTexture> imagbinding = new osg::BindImageTexture(0, tex2D.get(), osg::BindImageTexture::WRITE_ONLY, GL_R32F);
+
+		// why do we still need this?
+		/*
+		osg::Image *image = new osg::Image();
+		unsigned char *data = new unsigned char[numValues*3];  // empty!!!
+		//std::fill(data[0], data[numValues-1], 1);
+		for (int i = 0; i < numValues * 3; i++){
+			data[i] = 255;}
+		image->setImage(numHorizontalAngles, numVerticalAngles, 3, 1,
+			GL_LUMINANCE, GL_UNSIGNED_BYTE, data, osg::Image::USE_NEW_DELETE, 1);
+		tex2D->setImage(image);
+		//std::cout << "Texture 2D set to: " << 5 + d_lightNumber.get() << std::endl;
+		//state->setTextureAttributeAndModes(5 + d_lightNumber.get(), tex2D, osg::StateAttribute::ON);
+		*/
+
+	    // The compute shader can't work with other kinds of shaders
+		// It also requires the work group numbers. Setting them to 0 will disable the compute shader
+		computeProg = new osg::Program;
+		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, computeSrc));
+
+		// Create a node for outputting to the texture.
+		// It is OK to have just an empty node here, but seems inbuilt uniforms like osg_FrameTime won't work then.
+		// TODO: maybe we can have a custom drawable which also will implement glMemoryBarrier?
+		osg::ref_ptr<osg::Node> sourceNode = new osg::ComputeDispatch(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
+		cover->getScene()->addChild(sourceNode);
+		state = sourceNode->getOrCreateStateSet(); // source node
+		sourceNode->setDataVariance(osg::Object::DYNAMIC);
+		state->setAttributeAndModes(computeProg.get());
+		state->addUniform(new osg::Uniform("targetTex", (int) 7));  // works
+		state->setTextureAttributeAndModes(7, tex2D.get());  // works   // what does "osg::StateAttribute::ON" do?
+		std::cout << "Uniform targetTex was set to 7 " << std::endl;
+
+		// Display the texture on a quad. We will also be able to operate on the data if reading back to CPU side
+
+		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
+		state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+		state->setTextureAttributeAndModes(7, tex2D.get());
+		state->addUniform(new osg::Uniform("targetTex", (int) 7));  // works
+		state->setAttributeAndModes(imagbinding.get());
+
 	}
     if (strcmp(fieldName, "IESFile") == 0)
     {
+		std::cout << "IESFile" << std::endl;
         iesFile = new coIES(d_IESFile.get());
         osg::ref_ptr<osg::Texture2D> lightTexture = new osg::Texture2D();
         lightTexture->setResizeNonPowerOfTwoHint(false);
