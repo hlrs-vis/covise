@@ -1507,6 +1507,45 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
             flags = Start::Memcheck;
         initModuleNode(name, nr, host, posx, posy, "", 0, flags);
     }
+    else if (key == "GETDESC")
+    {
+        string name = list[iel];
+        iel++;
+        string nr = list[iel];
+        iel++;
+        string host = list[iel];
+        iel++;
+
+        net_module *module = CTRLGlobal::getInstance()->netList->get(name, nr, host);
+
+        if (module)
+        {
+
+            ostringstream buffer;
+            buffer << "PARAMDESC\n" << name << "\n" << nr << "\n" << host << "\n";
+            vector<string> name_list;
+            vector<string> type_list;
+            vector<string> val_list;
+            vector<string> panel_list;
+            int n_pc = module->get_inpars_values(&name_list, &type_list, &val_list, &panel_list);
+
+            buffer << n_pc << "\n";
+            // loop over all input parameters
+            for (int i = 0; i < n_pc; i++)
+            {
+                buffer << name_list[i]<<"\n";
+                buffer << val_list[i] << "\n";
+            }
+            Message *tmpmsg = new Message(COVISE_MESSAGE_PARAMDESC, buffer.str());
+            CTRLGlobal::getInstance()->userinterfaceList->send_all(tmpmsg);
+            delete tmpmsg;
+        }
+        else
+        {
+            std::cerr << "CTRLHandler.cpp: GETDESC: did not find module: name=" << name << ", nr=" << nr << ", host=" << host << std::endl;
+        }
+    }
+
 
     //       UI::COPY  (SYNC)
     // ----------------------------------------------------------

@@ -1831,7 +1831,19 @@ void Covise::doParam(Message *m)
     strcpy(p, m->data);
 
     reply_keyword = strsep(&p, "\n");
-    if ((strcmp(reply_keyword, "INEXEC") != 0) && (strcmp(reply_keyword, "FINISHED") != 0))
+    if (strcmp(reply_keyword, "GETDESC") == 0)
+    {
+        Message *message = new Message();
+
+        message->data = get_description_message();
+        message->type = COVISE_MESSAGE_PARINFO; // should be a real type
+        message->length = (int)strlen(message->data) + 1;
+
+        appmod->send_ctl_msg(message);
+        delete[] message->data;
+        delete message;
+    }
+    else if ((strcmp(reply_keyword, "INEXEC") != 0) && (strcmp(reply_keyword, "FINISHED") != 0))
     {
         // See if its a pipeline state message...
         if (strcmp("PIPELINE_STATE", reply_keyword) == 0)
