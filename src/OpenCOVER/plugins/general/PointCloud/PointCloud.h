@@ -72,6 +72,7 @@ private:
     static PointCloudInteractor *s_pointCloudInteractor;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
+    void calcMinMax(PointSet& pointSet);
 
 protected:
     osg::MatrixTransform *planetTrans;

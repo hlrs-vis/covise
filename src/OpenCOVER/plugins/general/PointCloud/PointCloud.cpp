@@ -879,6 +879,8 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 				if (greenData) delete greenData;
 				if (blueData) delete blueData;
 
+                calcMinMax(pointSet[scanIndex]);
+
 				if (pointSet[scanIndex].size != 0)
 				{
 					PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[scanIndex]);
@@ -895,6 +897,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 			}
 
 			files.push_back(fi);
+            s_pointCloudInteractor->updatePoints(&files);
 			eReader.Close();
 			return;
 		}
@@ -956,33 +959,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             }
             delete[] pc;
 
-            if (pointSet[i].size >0)
-            {
-                pointSet[i].xmax = pointSet[i].xmin = pointSet[i].points[0].x;
-                pointSet[i].ymax = pointSet[i].ymin = pointSet[i].points[0].y;
-                pointSet[i].zmax = pointSet[i].zmin = pointSet[i].points[0].z;
-
-                if (pointSet[i].size >1)
-                {
-                    for (int k=1; k<pointSet[i].size; k++)
-                    {
-                        if(pointSet[i].points[k].x<pointSet[i].xmin)
-                            pointSet[i].xmin= pointSet[i].points[k].x;
-                        else if (pointSet[i].points[k].x>pointSet[i].xmax)
-                            pointSet[i].xmax= pointSet[i].points[k].x;
-
-                        if(pointSet[i].points[k].y<pointSet[i].ymin)
-                            pointSet[i].ymin= pointSet[i].points[k].y;
-                        else if (pointSet[i].points[k].y>pointSet[i].ymax)
-                            pointSet[i].ymax= pointSet[i].points[k].y;
-
-                        if(pointSet[i].points[k].z<pointSet[i].zmin)
-                            pointSet[i].zmin= pointSet[i].points[k].z;
-                        else if (pointSet[i].points[k].z> pointSet[i].zmax)
-                            pointSet[i].zmax= pointSet[i].points[k].z;
-                    }
-                }
-            }
+            calcMinMax(pointSet[i]);
 
             //create drawable and geode and add to the scene (make sure the cube is not empty)
 
@@ -1043,6 +1020,38 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         return;
     }
 }
+
+void PointCloudPlugin::calcMinMax(PointSet& pointSet)
+{
+    if (pointSet.size >0)
+    {
+        pointSet.xmax = pointSet.xmin = pointSet.points[0].x;
+        pointSet.ymax = pointSet.ymin = pointSet.points[0].y;
+        pointSet.zmax = pointSet.zmin = pointSet.points[0].z;
+
+        if (pointSet.size >1)
+        {
+            for (int k=1; k<pointSet.size; k++)
+            {
+                if(pointSet.points[k].x<pointSet.xmin)
+                    pointSet.xmin= pointSet.points[k].x;
+                else if (pointSet.points[k].x>pointSet.xmax)
+                    pointSet.xmax= pointSet.points[k].x;
+
+                if(pointSet.points[k].y<pointSet.ymin)
+                    pointSet.ymin= pointSet.points[k].y;
+                else if (pointSet.points[k].y>pointSet.ymax)
+                    pointSet.ymax= pointSet.points[k].y;
+
+                if(pointSet.points[k].z<pointSet.zmin)
+                    pointSet.zmin= pointSet.points[k].z;
+                else if (pointSet.points[k].z> pointSet.zmax)
+                    pointSet.zmax= pointSet.points[k].z;
+            }
+        }
+    }
+}
+
 int PointCloudPlugin::unloadFile(std::string filename)
 {
     for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)
