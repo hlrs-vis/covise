@@ -287,7 +287,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 			"   ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);\n"
 			"   float coeffcient = 0.5*sin(float(gl_WorkGroupID.x + gl_WorkGroupID.y)*0.1 + osg_FrameTime);\n"
 			"   coeffcient *= length(vec2(ivec2(gl_LocalInvocationID.xy) - ivec2(8)) / vec2(8.0));\n"
-			"   imageStore(targetTex, storePos, vec4(.5, 0.0, 0.0, 0.0));\n"
+			"   imageStore(targetTex, storePos, vec4(1.0-coeffcient, 0.0, 0.0, 0.0));\n"
 			"}\n"
 		};
 
