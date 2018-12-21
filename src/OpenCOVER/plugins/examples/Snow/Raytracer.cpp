@@ -5,7 +5,7 @@
 
 #define PROGRESS_SIZE 99999999
 
-
+Raytracer *Raytracer::_instance = NULL;
 Raytracer::~Raytracer()
 {
     removeAllGeometry();
@@ -22,6 +22,7 @@ Raytracer* Raytracer::instance()
 
 void Raytracer::init()
 {
+    gDevice = rtcNewDevice("start_threads=1,set_affinity=1,hugepages=1");
     rScene_ = rtcNewScene(gDevice);
     numRays = SnowPlugin::NumFlakes;// parser::instance()->getReqParticles();
     x = new RTCRayHit[numRays];
@@ -157,8 +158,8 @@ int Raytracer::createFace(osg::Vec3Array::iterator coords, int type /*0 = triang
         osg::Vec3 buf = *coords;
         //printf("%f %f %f\n", buf.x(), buf.y(), buf.z());
         vertices[i].x = buf.x();
-        vertices[i].y = buf.z();
-        vertices[i].z = buf.y();
+        vertices[i].y = buf.y();
+        vertices[i].z = buf.z();
         coords++;
     }
     int numOfFaces = 0;
@@ -201,14 +202,14 @@ int Raytracer::createFace(osg::Vec3 v1, osg::Vec3 v2, osg::Vec3 v3, int type /*0
 
     //printf("%f %f %f\n", buf.x(), buf.y(), buf.z());
     vertices[0].x = v1.x();
-    vertices[0].y = v1.z();
-    vertices[0].z = v1.y();
+    vertices[0].y = v1.y();
+    vertices[0].z = v1.z();
     vertices[1].x = v2.x();
-    vertices[1].y = v2.z();
-    vertices[1].z = v2.y();
+    vertices[1].y = v2.y();
+    vertices[1].z = v2.z();
     vertices[2].x = v3.x();
-    vertices[2].y = v3.z();
-    vertices[2].z = v3.y();
+    vertices[2].y = v3.y();
+    vertices[2].z = v3.z();
 
 
     int numOfFaces = 0;
@@ -254,8 +255,8 @@ int Raytracer::createFaceSet(osg::Vec3Array* coords, int type) //type = 0 for tr
         {
             osg::Vec3 buf = *itr;
             vertices[i].x = buf.x();
-            vertices[i].y = buf.z();
-            vertices[i].z = buf.y();
+            vertices[i].y = buf.y();
+            vertices[i].z = buf.z();
             itr++;
         }
         int numOfFaces = currentProgress / 3;
@@ -281,49 +282,19 @@ int Raytracer::createFaceSet(osg::Vec3Array* coords, int type) //type = 0 for tr
     return 1;
 }
 
-float Raytracer::checkForHit(particle p, float time)
-{
-    RTCRayHit x;
-    p.velocity *= time;
-    x.ray.org_x = p.pos.x();
-    x.ray.org_y = p.pos.z();
-    x.ray.org_z = p.pos.y();
-    x.ray.dir_x = p.velocity.x();
-    x.ray.dir_y = p.velocity.z();
-    x.ray.dir_z = p.velocity.y();
-    x.ray.tfar = 1;
-    x.ray.tnear = 0;
-    x.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    for (int i = 0; i < RTC_MAX_INSTANCE_LEVEL_COUNT; ++i)
-        x.hit.instID[i] = RTC_INVALID_GEOMETRY_ID;
 
-    RTCIntersectContext d;
-    d.flags = RTC_INTERSECT_CONTEXT_FLAG_INCOHERENT;
-    rtcInitIntersectContext(&d);
-    rtcIntersect1(rScene_, &d, &x);
-
-    if (x.hit.geomID != -1)
-    {
-        return x.ray.tfar;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-void Raytracer::checkAllHits(float time)
+void Raytracer::checkAllHits()
 {
     SnowPlugin *snow = SnowPlugin::instance();
         for (int i = 0; i < SnowPlugin::NumFlakes; i++)
         {
             vTemp.set(snow->vx[i], snow->vy[i], snow->vz[i]);
             x[i].ray.org_x = snow->x[i];
-            x[i].ray.org_y = snow->z[i];
-            x[i].ray.org_z = snow->y[i];
+            x[i].ray.org_y = snow->y[i];
+            x[i].ray.org_z = snow->z[i];
             x[i].ray.dir_x = vTemp.x();
-            x[i].ray.dir_y = vTemp.z();
-            x[i].ray.dir_z = vTemp.y();
+            x[i].ray.dir_y = vTemp.y();
+            x[i].ray.dir_z = vTemp.z();
             x[i].ray.tfar = 1;
             x[i].ray.tnear = 0;
             x[i].hit.geomID = RTC_INVALID_GEOMETRY_ID;
@@ -336,14 +307,16 @@ void Raytracer::checkAllHits(float time)
 
     rtcIntersect1M(rScene_, d, x, numRays, sizeof(RTCRayHit));
 
-    for (int i = 0; i < p.size(); i++)
+    for (int i = 0; i < SnowPlugin::NumFlakes; i++)
     {
-        if (x[i].hit.geomID != -1)
+        if (x[i].hit.geomID == RTC_INVALID_GEOMETRY_ID)
         {
-            p[i]->time = x[i].ray.tfar;
-            continue;
+            snow->isFixed[i] = 0;
         }
-        p[i]->time = -1;
+        else
+        {
+            snow->isFixed[i] = 1;
+        }
 
     }
 }

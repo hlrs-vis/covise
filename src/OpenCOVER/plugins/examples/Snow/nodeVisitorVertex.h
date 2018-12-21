@@ -37,7 +37,6 @@ private:
     osg::Vec3Array* vertexCoords;
     std::vector<std::string> blacklist;
 
-    bool displayRTScene = false;
 
 public:
     nodeVisitorVertex();
@@ -81,7 +80,7 @@ public:
 
     std::vector<osg::Node*> coNozzleList;
 
-    osg::Matrix getChildTransform()
+    osg::Matrix &getChildTransform()
     {
         return childTransform;
     }

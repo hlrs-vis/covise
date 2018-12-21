@@ -25,7 +25,7 @@ private:
     Raytracer(const Raytracer&);
     ~Raytracer();
 
-    RTCDevice gDevice = rtcNewDevice("start_threads=1,set_affinity=1,hugepages=1");
+    RTCDevice gDevice = nullptr;
     RTCScene rScene_ = nullptr;
     std::list<RTCGeometry> geoList;
     std::list<unsigned int> geoIDList;
@@ -49,7 +49,7 @@ public:
     int createFace(osg::Vec3Array::iterator coords, int type /*0 = triangle, 1 = quad*/);
     int createFace(osg::Vec3 v1, osg::Vec3 v2, osg::Vec3 v3, int type /*0 = triangle, 1 = quad*/);
     int createFaceSet(osg::Vec3Array* coords, int type = 0); //type = 0 for triangles, type = 1 for quads
-    void checkAllHits(float time);
+    void checkAllHits();
 
 };
 

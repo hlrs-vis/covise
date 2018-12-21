@@ -23,6 +23,7 @@ inline double drand48(void)
     return (double(rand()) / RAND_MAX);
 }
 #endif
+SnowPlugin *SnowPlugin::plugin = NULL;
 
 SnowPlugin::SnowPlugin()
     : snow(NULL)
@@ -33,22 +34,12 @@ SnowPlugin::SnowPlugin()
     , nx(NULL)
     , ny(NULL)
     , nz(NULL)
-    , FloorHeight(-1100.)
+    , FloorHeight(-10.)
 {
     cerr << "Let it snow" << endl;
     plugin = this;
 
-    //Traverse scenegraph to extract vertices for raytracer
-    nodeVisitorVertex c;
-
-    std::clock_t begin = clock();
-
-    cover->getObjectsRoot()->accept(c);
-
-    std::clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-    printf("elapsed time for traversing %f, vertices read out %i\n", elapsed_secs, c.numOfVertices);
+   
 }
 
 
@@ -56,33 +47,37 @@ void SnowPlugin::seed(int i)
 {
     double rnd = drand48();
     rnd = pow(1.1, rnd) - 1.0;
-    y[i] = MinY + rnd * (MaxY - MinY);
-    x[i] = (MinX + MaxX) * 0.5 + (drand48() - 0.5) * (MaxX - MinX) * (y[i] / MaxY + 0.1) * 3;
-    z[i] = StartHeight * (y[i] / MaxY + 0.1) * 10.;
+    y[i] = MinY + drand48() * (MaxY - MinY);
+    rnd = pow(1.1, drand48()) - 1.0;
+    x[i] = MinX + drand48() * (MaxX - MinX);
+    //x[i] = (MinX + MaxX) * 0.5 + (drand48() - 0.5) * (MaxX - MinX) * (y[i] / MaxY + 0.1) * 3;
+    z[i] = StartHeight;// +(y[i] / MaxY + 0.1) * 0.01;
     r[i] = (1. + drand48()) * 0.5 * Radius;
 
 
-    vx[i] = Wind * (drand48() - 0.5);
-    vy[i] = Wind * (drand48() - 0.5);
+    vx[i] = 0;// Wind * (drand48() - 0.5);
+    vy[i] = 0;//Wind * (drand48() - 0.5);
     vz[i] = r[i] * Gravity;
 
     nx[i] = drand48() - 0.5;
     ny[i] = drand48() - 0.5;
     nz[i] = (drand48() - 0.5) * 0.5;
+    isFixed[i] = 0;
 }
 
 bool SnowPlugin::init()
 {
-    FloorHeight = coCoviseConfig::getFloat("COVER.FloorHeight", -1100);
+    FloorHeight = 0.0;
 
     Raytracer::instance()->init();
+
     osg::Group *scene = cover->getScene();
     osg::Matrix mat;
     mat.makeIdentity();
     //mat.setTrans(osg::Vec3(0.0,0.0,-1250.0));
     origin = new osg::MatrixTransform;
     origin->setMatrix(mat);
-    scene->addChild(origin.get());
+    cover->getObjectsRoot()->addChild(origin.get());
 
     osg::Geode *geode = new osg::Geode;
     origin->addChild(geode);
@@ -99,13 +94,20 @@ bool SnowPlugin::init()
     nx = new float[NumFlakes];
     ny = new float[NumFlakes];
     nz = new float[NumFlakes];
+    isFixed = new int[NumFlakes];
     for (int i = 0; i < NumFlakes; ++i)
     {
         seed(i);
         if (i < NumFixFlakes || drand48() < 0.9)
-            z[i] = FloorHeight + 20.0;
+        {
+            z[i] = FloorHeight + 0.01;
+            isFixed[i] = 1;
+        }
         else
+        {
             z[i] *= drand48();
+            isFixed[i] = 0;
+        }
     }
     snow->setCoords(NumFlakes, x, y, z, r);
     snow->updateNormals(nx, ny, nz);
@@ -120,6 +122,23 @@ bool SnowPlugin::init()
         tex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
         geostate->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
     }
+
+    //Traverse scenegraph to extract vertices for raytracer
+
+    std::clock_t begin = clock();
+
+    Raytracer::instance()->removeAllGeometry();                     //resets scene
+    nodeVisitorVertex nv;                                            //creates new scene
+    cover->getObjectsRoot()->accept(nv);
+    Raytracer::instance()->createCube(osg::Vec3(0, 0, 0), osg::Vec3(2, 2, 2));
+    Raytracer::instance()->createFaceSet(nv.getVertexArray(), 0);
+    Raytracer::instance()->finishAddGeometry();
+
+    std::clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for traversing %f, vertices read out %i\n", elapsed_secs, nv.numOfVertices);
+
     return true;
 }
 
@@ -157,14 +176,17 @@ bool SnowPlugin::update()
 
     if (!snow)
         return false;
-
+    Raytracer::instance()->checkAllHits();
     for (int i = NumFixFlakes; i < NumFlakes; ++i)
     {
-        if (z[i] > FloorHeight + 20.0)
+        if ((z[i] > FloorHeight + 0.01) && (isFixed[i]==0))
         {
-            z[i] -= dt * (drand48() * vz[i]);
+           /* z[i] -= dt * (drand48() * vz[i]);
             x[i] += dt * (xwind + vx[i]);
-            y[i] += dt * (ywind + vy[i]);
+            y[i] += dt * (ywind + vy[i]);*/
+            z[i] -= dt * (vz[i]);
+            x[i] += dt * (vx[i]);
+            y[i] += dt * (vy[i]);
             if (drand48() < dt * 10.)
             {
                 vx[i] += (drand48() - 0.5) * Wind * 0.1;
