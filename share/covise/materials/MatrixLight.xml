@@ -1,6 +1,6 @@
 <MatrixLight>
 <uniform name="MLMap" type="sampler3D" value="6"/>
-//#<uniform name="targetTex" type="sampler2D" value="0"/>
+//#<uniform name="targetTex" type="sampler2D" value="7"/>
 
 <vertexProgram>
 varying vec3 InLightCoordinates;
