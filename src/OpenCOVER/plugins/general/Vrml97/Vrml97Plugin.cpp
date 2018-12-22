@@ -846,11 +846,10 @@ void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
 }
 #endif
 
-void Vrml97Plugin::preDraw(osg::RenderInfo &)  // implementierung von virtual void preDraw(osg::RenderInfo &), definiert in d:\src\covise\src\OpenCOVER\cover\coVRPlugin.h
+
+void Vrml97Plugin::preDraw(osg::RenderInfo &renderInfo)  // implementierung von virtual void preDraw(osg::RenderInfo &), definiert in d:\src\covise\src\OpenCOVER\cover\coVRPlugin.h
 {
-	VrmlNodePhotometricLight::updateLightTextures(); // note the s
-	// loop over PL
-	//VrmlNodePhotometricLight::allPhotometricLights()->updateLightTextures();
+	VrmlNodePhotometricLight::updateLightTextures(renderInfo); // note the s
 }
 
 COVERPLUGIN(Vrml97Plugin)
