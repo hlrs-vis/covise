@@ -10,7 +10,7 @@
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 
 #include "SteeringWheel.h"
 #include "Vehicle.h"
@@ -888,63 +888,65 @@ void VrmlNodeVehicle::moveToStreet(osg::Matrix &carTrans)
     p0.set(pos[0], pos[1], pos[2] + 1500.0);
     q0.set(pos[0], pos[1], pos[2] - 40000.0);
 
-    osg::ref_ptr<osg::LineSegment> ray = new osg::LineSegment();
-    ray->set(p0, q0);
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[2];
+
+    intersector[0] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[0]);
 
     // down segment 2
     p0.set(pos[0], pos[1] + 1000, pos[2] + 1500.0);
     q0.set(pos[0], pos[1] + 1000, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(p0, q0);
+    intersector[1] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[1]);
 
-    osgUtil::IntersectVisitor visitor;
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(ray.get());
-    visitor.addLineSegment(ray2.get());
 
     cover->getObjectsXform()->accept(visitor);
-    int num1 = visitor.getNumHits(ray.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    if (num1 || num2)
-    {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
 
-        if (num1 || num2)
+    bool hit1 = intersector[0]->containsIntersections();
+    bool hit2 = intersector[1]->containsIntersections();
+    if (hit1 || hit2)
+    {
+        if (hit1 || hit2)
         {
             float dist = 0.0;
             osg::Vec3 normal(0, 0, 1);
             osg::Vec3 normal2(0, 0, 1);
-            osg::Geode *geode = NULL;
-            if (num1 && !num2)
+            osg::Node *geode = NULL;
+            if (hit1 && !hit2)
             {
-                normal = hitInformation1.getWorldIntersectNormal();
-                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
-                geode = hitInformation1.getGeode();
+                auto isect = intersector[0]->getFirstIntersection();
+                normal = isect.getWorldIntersectNormal();
+                dist = pos[2] - isect.getWorldIntersectPoint()[2];
+                geode = *isect.nodePath.end();
             }
-            else if (!num1 && num2)
+            else if (!hit1 && hit2)
             {
-                normal = hitInformation2.getWorldIntersectNormal();
-                dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
-                geode = hitInformation2.getGeode();
+                auto isect = intersector[1]->getFirstIntersection();
+                normal = isect.getWorldIntersectNormal();
+                dist = pos[2] - isect.getWorldIntersectPoint()[2];
+                geode = *isect.nodePath.end();
             }
-            else if (num1 && num2)
+            else if (hit1 && hit2)
             {
 
-                normal = hitInformation1.getWorldIntersectNormal();
-                normal2 = hitInformation2.getWorldIntersectNormal();
+                auto isect1 = intersector[0]->getFirstIntersection();
+                auto isect2 = intersector[1]->getFirstIntersection();
+                normal = isect1.getWorldIntersectNormal();
+                dist = pos[2] - isect1.getWorldIntersectPoint()[2];
+                geode = *isect1.nodePath.end();
+
+                normal2 = isect2.getWorldIntersectNormal();
+
                 normal += normal2;
                 normal *= 0.5;
-                dist = pos[2] - hitInformation1.getWorldIntersectPoint()[2];
-                geode = hitInformation1.getGeode();
-                if (fabs(pos[2] - hitInformation2.getWorldIntersectPoint()[2]) < fabs(dist))
+
+                if (fabs(pos[2] - isect2.getWorldIntersectPoint()[2]) < fabs(dist))
                 {
-                    dist = pos[2] - hitInformation2.getWorldIntersectPoint()[2];
-                    geode = hitInformation2.getGeode();
+                    dist = pos[2] - isect2.getWorldIntersectPoint()[2];
+                    geode = *isect2.nodePath.end();
                 }
             }
             if (geode)
@@ -1029,58 +1031,52 @@ void VrmlNodeVehicle::getGroundIntersectPoints(osg::Matrix &wheelFLMatrix, osg::
     VRMLRotMat.makeRotate(M_PI / 2.0, osg::Vec3(1.0, 0.0, 0.0));
     osg::Matrix vrmlToBase = VRMLRotMat * baseMat;
     osg::Matrix baseToVrml = osg::Matrix::inverse(vrmlToBase);
+    
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[4];
+    osg::Matrix tmpMat = wheelFLMatrix * vrmlToBase;
+    intersector[0] = coIntersection::instance()->newIntersector(tmpMat.preMult(osg::Vec3d(0,1,0)), tmpMat.preMult(osg::Vec3d(0,-1,0)));
+    igroup->addIntersector(intersector[0]);
+    tmpMat = wheelFRMatrix * vrmlToBase;
+    intersector[1] = coIntersection::instance()->newIntersector(tmpMat.preMult(osg::Vec3d(0, 1, 0)), tmpMat.preMult(osg::Vec3d(0, -1, 0)));
+    igroup->addIntersector(intersector[1]);
+    tmpMat = wheelRLMatrix * vrmlToBase;
+    intersector[2] = coIntersection::instance()->newIntersector(tmpMat.preMult(osg::Vec3d(0, 1, 0)), tmpMat.preMult(osg::Vec3d(0, -1, 0)));
+    igroup->addIntersector(intersector[2]);
+    tmpMat = wheelRRMatrix * vrmlToBase;
+    intersector[3] = coIntersection::instance()->newIntersector(tmpMat.preMult(osg::Vec3d(0, 1, 0)), tmpMat.preMult(osg::Vec3d(0, -1, 0)));
+    igroup->addIntersector(intersector[3]);
 
-    osg::LineSegment *normalSegment = new osg::LineSegment(osg::Vec3(0, 1, 0), osg::Vec3(0, -1, 0));
-    osg::LineSegment *normalFL = new osg::LineSegment();
-    osg::LineSegment *normalFR = new osg::LineSegment();
-    osg::LineSegment *normalRL = new osg::LineSegment();
-    osg::LineSegment *normalRR = new osg::LineSegment();
-    normalFL->mult(*normalSegment, wheelFLMatrix * vrmlToBase);
-    normalFR->mult(*normalSegment, wheelFRMatrix * vrmlToBase);
-    normalRL->mult(*normalSegment, wheelRLMatrix * vrmlToBase);
-    normalRR->mult(*normalSegment, wheelRRMatrix * vrmlToBase);
-
-    //std::cerr << "normalSegment: " << (normalSegment->start())[0] << ", " << (normalSegment->start())[1] << ", " << (normalSegment->start())[2] << ", " << (normalSegment->end())[0] << ", " << (normalSegment->end())[1] << ", " << (normalSegment->end())[2] << std::endl;
-
-    osgUtil::IntersectVisitor visitor;
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(normalFL);
-    visitor.addLineSegment(normalFR);
-    visitor.addLineSegment(normalRL);
-    visitor.addLineSegment(normalRR);
     cover->getObjectsXform()->accept(visitor);
-
-    int num = visitor.getNumHits(normalFL);
-    if (num)
+    if (intersector[0]->containsIntersections())
     {
-        intersectFL = baseToVrml.preMult(visitor.getHitList(normalFL).front().getWorldIntersectPoint());
+        intersectFL = baseToVrml.preMult(intersector[0]->getFirstIntersection().getWorldIntersectPoint());
     }
     else
     {
         intersectFL = osg::Vec3(0, 0, 0);
     }
-    num = visitor.getNumHits(normalFR);
-    if (num)
+    if (intersector[1]->containsIntersections())
     {
-        intersectFR = baseToVrml.preMult(visitor.getHitList(normalFR).front().getWorldIntersectPoint());
+        intersectFR = baseToVrml.preMult(intersector[1]->getFirstIntersection().getWorldIntersectPoint());
     }
     else
     {
         intersectFR = osg::Vec3(0, 0, 0);
     }
-    num = visitor.getNumHits(normalRL);
-    if (num)
+    if (intersector[2]->containsIntersections())
     {
-        intersectRL = baseToVrml.preMult(visitor.getHitList(normalRL).front().getWorldIntersectPoint());
+        intersectRL = baseToVrml.preMult(intersector[2]->getFirstIntersection().getWorldIntersectPoint());
     }
     else
     {
         intersectRL = osg::Vec3(0, 0, 0);
     }
-    num = visitor.getNumHits(normalRR);
-    if (num)
+    if (intersector[3]->containsIntersections())
     {
-        intersectRR = baseToVrml.preMult(visitor.getHitList(normalRR).front().getWorldIntersectPoint());
+        intersectRR = baseToVrml.preMult(intersector[3]->getFirstIntersection().getWorldIntersectPoint());
     }
     else
     {

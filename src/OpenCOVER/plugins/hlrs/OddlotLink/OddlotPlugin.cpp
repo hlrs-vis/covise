@@ -48,7 +48,7 @@
 #include <osg/CullFace>
 #include <osg/MatrixTransform>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 
 
 #include <net/covise_host.h>
@@ -350,29 +350,25 @@ OddlotPlugin::handleMessage(Message *m)
                         double minHeightValue = 100000000.0;
                         double maxHeightValue = -100000000.0;
 
-                        osg::LineSegment *ray = new osg::LineSegment();
 
                         osg::Vec3 rayP = osg::Vec3(x, y, 9999999);
                         osg::Vec3 rayQ = osg::Vec3(x, y, -9999999);
 
-                        ray->set(rayP, rayQ);
+                        coIntersector* isect = coIntersection::instance()->newIntersector(rayP, rayQ);
+                        osgUtil::IntersectionVisitor visitor(isect);
+                        visitor.setTraversalMask(Isect::Collision);
 
-                        osgUtil::IntersectVisitor intersectVisitor;
-                        intersectVisitor.addLineSegment(ray);
+                        cover->getObjectsXform()->accept(visitor);
 
-                        cover->getObjectsXform()->accept(intersectVisitor);
-
-                        osgUtil::IntersectVisitor::HitList hits;
-                        hits = intersectVisitor.getHitList(ray);
-
-                        if (hits.empty())
+                        //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
+                        if (!isect->containsIntersections())
                         {
                             rtb << 0.0f;
                         }
                         else
                         {
-                            osgUtil::Hit results;
-                            results = hits.front();
+                            auto results = isect->getFirstIntersection();
+
                             osg::Vec3d terrainHeight = results.getWorldIntersectPoint();
 
                             double height = terrainHeight.z() / 1000.0;

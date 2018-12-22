@@ -48,7 +48,7 @@
 #include <osg/BoundingSphere>
 #include <osg/Vec3d>
 #include <osg/PositionAttitudeTransform>
-#include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 #include <osg/Camera>
 #include <osg/MatrixTransform>
 #include <osgDB/WriteFile>
@@ -323,30 +323,27 @@ OrthographicSnapShot::preFrame()
                         fprintf(stderr, "Percentage: %f Time left: %fs, %d ; %d\n", perc, (1.0 - (perc / 100.0)) * ((oldTime - startTime) / (perc / 100.0)), row, column);
                     }
 
-                    osg::LineSegment *ray = new osg::LineSegment();
 
                     osg::Vec3 rayP = osg::Vec3(x, y, 9999999);
                     osg::Vec3 rayQ = osg::Vec3(x, y, -9999999);
 
-                    ray->set(rayP, rayQ);
 
-                    osgUtil::IntersectVisitor intersectVisitor;
-                    intersectVisitor.addLineSegment(ray);
+                    coIntersector* isect = coIntersection::instance()->newIntersector(rayP, rayQ);
+                    osgUtil::IntersectionVisitor visitor(isect);
+                    visitor.setTraversalMask(Isect::Collision);
 
-                    cover->getObjectsXform()->accept(intersectVisitor);
+                    cover->getObjectsXform()->accept(visitor);
 
-                    osgUtil::IntersectVisitor::HitList hits;
-                    hits = intersectVisitor.getHitList(ray);
-
-                    if (hits.empty())
+                    //std::cerr << "Hits ray num: " << num1 << ", down (" << ray->start()[0] << ", " << ray->start()[1] <<  ", " << ray->start()[2] << "), up (" << ray->end()[0] << ", " << ray->end()[1] <<  ", " << ray->end()[2] << ")" <<  std::endl;
+                    if (!isect->containsIntersections())
                     {
                         heightArray[pixelPos] = 0.0;
                         continue;
                     }
                     else
                     {
-                        osgUtil::Hit results;
-                        results = hits.front();
+
+                        auto results = isect->getFirstIntersection();
                         osg::Vec3d terrainHeight = results.getWorldIntersectPoint();
 
                         double height = terrainHeight.z() / scale_;

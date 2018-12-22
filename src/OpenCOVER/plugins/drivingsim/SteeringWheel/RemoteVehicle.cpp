@@ -10,7 +10,6 @@
 
 #include <osg/LineSegment>
 #include <osg/MatrixTransform>
-#include <osgUtil/IntersectVisitor>
 
 #include "RemoteVehicle.h"
 #include "SteeringWheel.h"

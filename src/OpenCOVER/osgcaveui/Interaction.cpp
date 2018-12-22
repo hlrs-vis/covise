@@ -11,6 +11,7 @@
 // OSG:
 #include <osg/LineSegment>
 #include <osgUtil/IntersectVisitor>
+#include <cover/coIntersection.h>
 
 // Local:
 #include "CUI.h"
@@ -294,33 +295,32 @@ void Interaction::getFirstIntersection(Vec3 &wStart, Vec3 &wEnd, IsectInfo &isec
 Interaction::IsectType Interaction::getFirstGeodeIntersection(Vec3 &wStart, Vec3 &wEnd, IsectInfo &isect)
 {
     // Compute intersections of viewing ray with pick objects:
-    osgUtil::IntersectVisitor iv;
-    osg::ref_ptr<osg::LineSegment> testSegment = new LineSegment;
-    testSegment->set(wStart, wEnd);
-    iv.addLineSegment(testSegment.get());
-    iv.setTraversalMask(2);
 
+    opencover::coIntersector* coIsect = opencover::coIntersection::instance()->newIntersector(wStart, wEnd);
+    osgUtil::IntersectionVisitor visitor(coIsect);
+    visitor.setTraversalMask(opencover::Isect::Pick);
+
+    _worldRoot->accept(visitor);
+
+   
     // Traverse the whole scenegraph.
     // Non-Interactive objects have been marked with setNodeMask(~2):
-    _worldRoot->accept(iv);
 
     isect.found = false;
-    if (iv.hits())
+    if (coIsect->containsIntersections())
     {
-        osgUtil::IntersectVisitor::HitList &hitList = iv.getHitList(testSegment.get());
-        if (!hitList.empty())
+        auto hitInformation = coIsect->getFirstIntersection();
+        isect.point = hitInformation.getWorldIntersectPoint();
+        isect.normal = hitInformation.getWorldIntersectNormal();
+        osg::Geode *node = dynamic_cast<osg::Geode *>(*hitInformation.nodePath.end());
+        if (findGeodeWidget(node, isect.widget))
         {
-            isect.point = hitList.front().getWorldIntersectPoint();
-            isect.normal = hitList.front().getWorldIntersectNormal();
-            if (findGeodeWidget(hitList.front()._geode.get(), isect.widget))
-            {
-                isect.found = true;
-                return ISECT_OSG;
-            }
-            else
-            {
-                return ISECT_OTHER;
-            }
+            isect.found = true;
+            return ISECT_OSG;
+        }
+        else
+        {
+            return ISECT_OTHER;
         }
     }
     return ISECT_NONE;
