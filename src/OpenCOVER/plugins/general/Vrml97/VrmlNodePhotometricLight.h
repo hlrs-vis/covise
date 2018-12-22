@@ -59,8 +59,8 @@ public:
 
 	static void updateAll();
 	void update();
-	static void updateLightTextures();
-	void updateLightTexture();
+	static void updateLightTextures(osg::RenderInfo &);
+	void updateLightTexture(osg::RenderInfo &);
     
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
 	osg::ref_ptr<osg::Program> computeProg;

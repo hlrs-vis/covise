@@ -218,6 +218,7 @@ void main(void)
                 newtc3[2] = float (i) / float (num_lights) + half_bin_width;
                 DiffuseColor += texture3D(MLMap, newtc3);
             }
+        if((0.1 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; .6))
             DiffuseColor = texture2D(targetTex, newtc);
         }
     }
