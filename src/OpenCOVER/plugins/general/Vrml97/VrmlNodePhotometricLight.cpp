@@ -36,8 +36,7 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
 #include <osg/BindImageTexture>
-//#include <osg/DispatchCompute>
-#include <osg/ComputeDispatch>
+#include <osg/DispatchCompute>
 #include <osg/Texture3D>
 #include <util/byteswap.h>
 #include <plugins/general/Vrml97/coMLB.h>
@@ -95,7 +94,7 @@ void VrmlNodePhotometricLight::updateLightTexture()
 
 	int work_group_size = 256;
 	//renderInfo.getState()->get<GLExtensions>()->glDispatchCompute(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
-	//osg::ref_ptr<osg::Node> sourceNode = new osg::ComputeDispatch(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
+	//osg::ref_ptr<osg::Node> sourceNode = new osg::DispatchCompute(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
 	//sourceNode->setDataVariance(osg::Object::DYNAMIC);
 	//state->setAttributeAndModes(computeProg.get());
 	std::cout << "updateLightTextures... ";
@@ -319,7 +318,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		// Create a node for outputting to the texture.
 		// It is OK to have just an empty node here, but seems inbuilt uniforms like osg_FrameTime won't work then.
 		// TODO: maybe we can have a custom drawable which also will implement glMemoryBarrier?
-		osg::ref_ptr<osg::Node> sourceNode = new osg::ComputeDispatch(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
+		osg::ref_ptr<osg::Node> sourceNode = new osg::DispatchCompute(numHorizontalAngles / 16, numVerticalAngles / 16, 1);
 		cover->getScene()->addChild(sourceNode);
 		state = sourceNode->getOrCreateStateSet(); // source node
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
