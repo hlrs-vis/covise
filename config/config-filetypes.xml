@@ -6,6 +6,7 @@
       <FileManager>
         <FileType name="top" plugin="Amber" />
         <FileType name="trj" plugin="Amber" />
+        <FileType name="bvh" plugin="Lamure" />
         
         <FileType name="bpadxf" plugin="BPA" />
         <FileType name="nfi" plugin="BPA" />
