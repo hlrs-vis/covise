@@ -74,7 +74,7 @@ public:
     void message(int toWhom, int type, int len, const void *buf) override;
     void guiToRenderMsg(const char *msg) override;
 
-    virtual void addNode(osg::Node *, const RenderObject *) override;
+    void addNode(osg::Node *, const RenderObject *) override;
 
     Player *getPlayer() const
     {
@@ -105,7 +105,7 @@ public:
     void preFrame() override;
 
 	//! this function is called from the draw thread before drawing the scenegraph (after drawing the AR background)
-	virtual void preDraw(osg::RenderInfo &);
+	void preDraw(osg::RenderInfo &) override;
     bool isNewVRML;
 
 protected:
