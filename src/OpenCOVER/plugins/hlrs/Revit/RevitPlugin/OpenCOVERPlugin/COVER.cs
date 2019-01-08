@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -283,6 +283,9 @@ namespace OpenCOVERPlugin
             MessageBuffer mb = new MessageBuffer();
             mb.add(1);
             sendMessage(mb.buf, MessageTypes.ClearAll);
+            MessageBuffer mbdocinfo = new MessageBuffer();
+            mbdocinfo.add(doc.PathName);
+            sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
             View3D = null;
             if (uidoc.ActiveView is View3D)
             {
@@ -489,7 +492,7 @@ namespace OpenCOVERPlugin
         //
         public void SendElement(Autodesk.Revit.DB.Element elem)
         {
-           /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
+            /* if (elem.GetType() == typeof(Autodesk.Revit.DB.Element))
             {
                 return;
             }*/
@@ -827,7 +830,7 @@ namespace OpenCOVERPlugin
         /// <remarks></remarks>
         private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
         {
-            if (elementGeom == null)
+            if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
             {
                 return;
             }

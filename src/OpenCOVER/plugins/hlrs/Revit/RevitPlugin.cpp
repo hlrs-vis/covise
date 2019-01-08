@@ -287,7 +287,7 @@ void RevitViewpointEntry::activate()
 
 	osg::Matrix scMat;
 	osg::Matrix iscMat;
-	float scaleFactor = REVIT_FEET_TO_M * 1000;
+	float scaleFactor = 1000;
 	cover->setScale(scaleFactor);
 	scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
 	iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
@@ -427,6 +427,7 @@ RevitPlugin::RevitPlugin()
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 	plugin = this;
 	MoveFinished = true;
+    setViewpoint = true;
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
     localTextureDir = coCoviseConfig::getEntry("localTextures", "COVER.Plugin.Revit", "c:/tmp");
@@ -1187,6 +1188,22 @@ RevitPlugin::handleMessage(Message *m)
 			PluginMessageTypes::AnnotationTextMessage, tb3.get_length(), tb3.get_data());
 		break;
 	}
+    case MSG_DocumentInfo:
+    {
+        TokenBuffer tb(m);
+        char *fileName;
+        tb >> fileName;
+        if (fileName != currentRevitFile)
+        {
+            setViewpoint = true;
+            currentRevitFile = fileName;
+        }
+        else
+        {
+            setViewpoint = false;
+        }
+        break;
+    }
 	case MSG_AddView:
 	{
 		TokenBuffer tb(m);
@@ -1222,6 +1239,10 @@ RevitPlugin::handleMessage(Message *m)
 					vpe->setValues(pos, dir, up, name);
 					vpe->activate();
 				}
+                if (setViewpoint && strnicmp("Start",vpe->getName().c_str(),5)==0)
+                {
+                    vpe->activate();
+                }
 				break;
 			}
 		}
@@ -1237,6 +1258,9 @@ RevitPlugin::handleMessage(Message *m)
 			viewpointMenu->add(menuEntry);
 			vpe->setMenuItem(menuEntry);
 			viewpointEntries.push_back(vpe);
+
+            if (setViewpoint && strnicmp("Start", vpe->getName().c_str(),5) == 0)
+                vpe->activate();
 		}
 	}
 	break;

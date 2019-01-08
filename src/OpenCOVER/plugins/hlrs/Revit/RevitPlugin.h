@@ -83,6 +83,7 @@ public:
     int entryNumber;
     int ID;
     bool isActive = false;
+    std::string &getName() { return name; };
 
 private:
     std::string name;
@@ -270,6 +271,7 @@ public:
         MSG_NewDoorGroup = 526,
         MSG_File = 527,
         MSG_Finished = 528,
+        MSG_DocumentInfo = 529,
     };
     enum ObjectTypes
     {
@@ -354,6 +356,8 @@ protected:
     std::string textureDir;
     std::string localTextureDir;
     std::string localTextureFile;
+    std::string currentRevitFile;
+    bool setViewpoint;
     
 
     Message *msg = nullptr;
