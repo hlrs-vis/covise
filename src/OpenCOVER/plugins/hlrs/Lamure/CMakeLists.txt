@@ -1,0 +1,22 @@
+USING(Lamure)
+USING(Freeimage)
+
+SET(HEADERS
+  Lamure.h
+  LamureDrawable.h
+  management.h
+  measurement.h
+  renderer.h
+  utils.h
+)
+SET(SOURCES
+  Lamure.cpp
+  LamureDrawable.cpp
+  management.cpp
+  measurement.cpp
+  renderer.cpp
+  utils.cpp
+)
+cover_add_plugin(Lamure)
+covise_wnoerror(Lamure)
+TARGET_LINK_LIBRARIES(Lamure)
