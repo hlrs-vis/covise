@@ -1,4 +1,4 @@
-#include "nodevisitorvertex.h"
+#include "nodeVisitorVertex.h"
 #include <osg/MatrixTransform>
 
 nodeVisitorVertex::nodeVisitorVertex() :osg::NodeVisitor(TRAVERSE_ALL_CHILDREN)
