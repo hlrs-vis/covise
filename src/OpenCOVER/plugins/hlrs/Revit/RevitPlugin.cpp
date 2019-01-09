@@ -25,9 +25,9 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRSelectionManager.h>
-#include "cover/coVRTui.h"
-#include "cover/coVRShader.h"
-#include "cover/OpenCOVER.h"
+#include <cover/coVRTui.h>
+#include <cover/coVRShader.h>
+#include <cover/OpenCOVER.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -55,6 +55,7 @@
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
@@ -1239,7 +1240,7 @@ RevitPlugin::handleMessage(Message *m)
 					vpe->setValues(pos, dir, up, name);
 					vpe->activate();
 				}
-                if (setViewpoint && strnicmp("Start",vpe->getName().c_str(),5)==0)
+                if (setViewpoint && strncasecmp("Start",vpe->getName().c_str(),5)==0)
                 {
                     vpe->activate();
                 }
@@ -1259,7 +1260,7 @@ RevitPlugin::handleMessage(Message *m)
 			vpe->setMenuItem(menuEntry);
 			viewpointEntries.push_back(vpe);
 
-            if (setViewpoint && strnicmp("Start", vpe->getName().c_str(),5) == 0)
+            if (setViewpoint && strncasecmp("Start", vpe->getName().c_str(),5) == 0)
                 vpe->activate();
 		}
 	}
