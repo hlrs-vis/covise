@@ -1515,13 +1515,13 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
             std::cerr << "::HANDLECLIENT VRB FileBrowser Unknown RemoteRequest!" << std::endl;
 #endif
-            cerr << "unknown message in vrb" << endl;
+            cerr << "unknown VRB FileBrowser RemoteRequest message in vrb" << endl;
         }
         }
     }
     break;
     default:
-        cerr << "unknown message in vrb" << endl;
+        cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;
     }
 }
