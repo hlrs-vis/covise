@@ -50,5 +50,6 @@ private:
     bool m_update = true;
     QDialog *m_keyboardHelp = nullptr;
     bool m_deleteQApp = false;
+    bool m_initializing = true;
 };
 #endif

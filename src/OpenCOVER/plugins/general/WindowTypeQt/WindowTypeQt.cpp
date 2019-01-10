@@ -88,6 +88,16 @@ bool WindowTypeQtPlugin::update()
     }
     bool up = m_update;
     m_update = false;
+
+    if (m_initializing) {
+        m_initializing = false;
+
+        for (auto w: m_windows)
+        {
+            w.second.widget->setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        }
+    }
+
     return up;
 }
 
@@ -117,13 +127,13 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     auto window = new QtMainWindow();
     win.window = window;
-    win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
+    win.window->move(conf.windows[i].ox, conf.windows[i].oy);
+    //win.window->resize(conf.windows[i].sx, conf.windows[i].sy);
     if (i > 0)
         win.window->setWindowTitle(("COVER"+std::to_string(i)).c_str());
     else
         win.window->setWindowTitle("COVER");
     win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
-    win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this, i](){
         OpenCOVER::instance()->requestQuit();
     });
@@ -234,6 +244,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
     }
 #endif
+    win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
     conf.windows[i].context = win.widget->graphicsWindow();
