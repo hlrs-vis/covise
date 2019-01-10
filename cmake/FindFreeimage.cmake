@@ -64,7 +64,7 @@ find_library(FREEIMAGEPLUS_LIBRARY_DEBUG
 IF ( NOT FREEIMAGE_INCLUDE_DIR OR NOT FREEIMAGE_LIBRARY OR NOT FREEIMAGE_LIBRARY_DEBUG )
     SET(FREEIMAGE_INCLUDE_SEARCH_DIR "Please provide freeimage include path." CACHE PATH "path to freeimage headers.")
     SET(FREEIMAGE_LIBRARY_SEARCH_DIR "Please provide freeimage library path." CACHE PATH "path to freeimage libraries.")
-    MESSAGE(FATAL_ERROR "find_freeimage.cmake: unable to find freeimage library")
+    MESSAGE(STATUS "find_freeimage.cmake: unable to find freeimage library")
 ELSE ( NOT FREEIMAGE_INCLUDE_DIR OR NOT FREEIMAGE_LIBRARY OR NOT FREEIMAGE_LIBRARY_DEBUG )
     UNSET(FREEIMAGE_INCLUDE_SEARCH_DIR CACHE)
     UNSET(FREEIMAGE_LIBRARY_SEARCH_DIR CACHE)
