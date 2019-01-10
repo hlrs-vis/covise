@@ -64,6 +64,10 @@ public:
     
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
 	osg::ref_ptr<osg::Program> computeProg;
+	bool configuration_changed;
+	std::vector<float> configuration_vec;
+	osg::ref_ptr<osg::Texture2D> light_conf_tex;
+	osg::Image* configuration_img;
 
 private:
     // Fields
