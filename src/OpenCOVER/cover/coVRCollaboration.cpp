@@ -224,12 +224,11 @@ coVRCollaboration::update()
     double thisTime = cover->frameTime();
 
     bool lo = coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM);
-    static bool olo = false;
-    if (lo && !olo)
+    if (lo && !wasLo)
         fprintf(stderr, "TRANSFORM locked\n");
-    else if (!lo && olo)
+    else if (!lo && wasLo)
         fprintf(stderr, "TRANSFORM not locked\n");
-    olo = lo;
+	wasLo = lo;
 
     updateCollaborativeMenu();
 
