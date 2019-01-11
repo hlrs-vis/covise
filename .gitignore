@@ -1,5 +1,6 @@
 CMakeLists.txt.user
 DIST
+build
 extern_libs
 .envrc
 **/.*.swp
