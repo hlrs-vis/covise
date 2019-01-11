@@ -247,6 +247,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
+    win.window->show();
     conf.windows[i].context = win.widget->graphicsWindow();
     conf.windows[i].doublebuffer = false;
 
