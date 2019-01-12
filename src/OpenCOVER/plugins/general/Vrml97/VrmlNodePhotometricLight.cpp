@@ -36,8 +36,17 @@
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
 #include <osg/BindImageTexture>
-//#include <osg/DispatchCompute>
+
+
+#include <osg/Version>
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 7, 0)
 #include <osg/ComputeDispatch>
+#else
+#include <osg/DispatchCompute>
+#include <osg/DispatchCompute>
+namespace osg { typedef DispatchCompute ComputeDispatch; }
+#endif
+
 #include <osg/Texture3D>
 #include <util/byteswap.h>
 #include <plugins/general/Vrml97/coMLB.h>
