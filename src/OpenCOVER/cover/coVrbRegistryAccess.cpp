@@ -28,7 +28,6 @@
 #include <vrbclient/VRBMessage.h>
 #include <net/message.h>
 #include <net/message_types.h>
-#include "coVRCommunication.h"
 #include "OpenCOVER.h"
 
 #include <sys/stat.h>
