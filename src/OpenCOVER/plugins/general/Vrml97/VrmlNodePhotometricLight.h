@@ -28,6 +28,7 @@
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <cover/coVRPluginSupport.h>
+#include <osg/ComputeDispatch>
 
 using namespace opencover;
 using namespace vrml;
@@ -59,11 +60,18 @@ public:
 
 	static void updateAll();
 	void update();
-	static void updateLightTextures();
-	void updateLightTexture();
+	static void updateLightTextures(osg::RenderInfo &);
+	void updateLightTexture(osg::RenderInfo &);
     
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
 	osg::ref_ptr<osg::Program> computeProg;
+	osg::ref_ptr<osg::ComputeDispatch> comp_disp;
+	bool coMLB_initialized = false;
+	int counter = 0;
+	bool configuration_changed = false;
+	std::vector<float> configuration_vec;
+	osg::ref_ptr<osg::Texture2D> light_conf_tex;
+	osg::Image* configuration_img;
 
 private:
     // Fields

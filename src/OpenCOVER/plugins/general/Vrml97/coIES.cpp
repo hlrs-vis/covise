@@ -10,7 +10,7 @@
 
 coIES::coIES(std::string fn)
 {	
-	std::cout << "(coIES) raeading...: " << fn << "\n";
+    std::cout << "(coIES) raeading...: " << fn << "\n";
     fileName= fn;
     readData();
 }
@@ -83,16 +83,16 @@ bool coIES::readData()
         if(fgets(buf,1000,fp)!=NULL)
         {
             int numRead = sscanf(buf,"%d %f %f %d %d %d %d %f %f %f",&numLamps,&lumensPerLamp,&multiplier,&numVerticalAngles,&numHorizontalAngles,&photometricType,&unitsType,&width,&length,&height);
-			std::cout << "numLamps: " << numLamps << std::endl;
-			std::cout << "lumensPerLamp: " << lumensPerLamp << std::endl;
-			std::cout << "multiplier: " << multiplier << std::endl;
-			std::cout << "numVerticalAngles: " << numVerticalAngles << std::endl;
-			std::cout << "numHorizontalAngles: " << numHorizontalAngles << std::endl;
-			std::cout << "photometricType: " << photometricType << std::endl;
-			std::cout << "unitsType: " << unitsType << std::endl;
-			std::cout << "width: " << width << std::endl;
-			std::cout << "length: " << length << std::endl;
-			std::cout << "height: " << height << std::endl;
+            std::cout << "numLamps: " << numLamps << std::endl;
+	    std::cout << "lumensPerLamp: " << lumensPerLamp << std::endl;
+	    std::cout << "multiplier: " << multiplier << std::endl;
+	    std::cout << "numVerticalAngles: " << numVerticalAngles << std::endl;
+	    std::cout << "numHorizontalAngles: " << numHorizontalAngles << std::endl;
+	    std::cout << "photometricType: " << photometricType << std::endl;
+	    std::cout << "unitsType: " << unitsType << std::endl;
+	    std::cout << "width: " << width << std::endl;
+	    std::cout << "length: " << length << std::endl;
+	    std::cout << "height: " << height << std::endl;
             if(numRead == 3)
             {
                 if(fgets(buf,1000,fp)!=NULL)
@@ -132,9 +132,9 @@ bool coIES::readData()
         //read Angles
         readFloats(vAngles,numVerticalAngles);
         readFloats(hAngles,numHorizontalAngles);
-        readFloats(candela,numHorizontalAngles*numVerticalAngles*numLamps); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-		std::cout << "vAngles range from " << vAngles[0] << " to " << vAngles[numVerticalAngles - 1] << "\n";
-		std::cout << "hAngles range from " << hAngles[0] << " to " << hAngles[numHorizontalAngles - 1] << "\n";
+        readFloats(candela,numHorizontalAngles*numVerticalAngles);
+	std::cout << "vAngles range from " << vAngles[0] << " to " << vAngles[numVerticalAngles - 1] << "\n";
+	std::cout << "hAngles range from " << hAngles[0] << " to " << hAngles[numHorizontalAngles - 1] << "\n";
     }
     else
     {
@@ -173,7 +173,7 @@ osg::Image *coIES::getTexture()
     osg::Image *image = new osg::Image();
     float min=1000000, max=0, range;
     
-    int numValues = numHorizontalAngles * numVerticalAngles*numLamps; // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    int numValues = numHorizontalAngles * numVerticalAngles;
     for (int i=0; i<numValues; i++)
     {
         if(candela[i]< min)
@@ -182,16 +182,16 @@ osg::Image *coIES::getTexture()
             max = candela[i];
     }
     range = max - min;
-	std::cout << "(coIES) getTexture min / max: " << min << " / " << max << "\n";
+    std::cout << "(coIES) getTexture min / max: " << min << " / " << max << "\n";
         
     unsigned char *data = new unsigned char[numValues];
 	std::cout << numHorizontalAngles << " : " << numVerticalAngles << std::endl;
     for (int x=0; x<numHorizontalAngles; x++)
     {
-        for(int y=0 ; y<numVerticalAngles*numLamps; y++)
+        for(int y=0 ; y<numVerticalAngles; y++)
         {
-            data[x + y*numHorizontalAngles] = ((candela[y+x*numVerticalAngles*numLamps]-min)/range)*255;
-			//std::cout << x + y * numHorizontalAngles << ": " << data[x + y * numHorizontalAngles] << std::endl;
+            data[x + y*numHorizontalAngles] = ((candela[y+x*numVerticalAngles]-min)/range)*255;
+	    //std::cout << x + y * numHorizontalAngles << ": " << data[x + y * numHorizontalAngles] << std::endl;
         }
     }
 
@@ -200,7 +200,7 @@ osg::Image *coIES::getTexture()
         data[i] = ((candela[i]-min)/range)*255;
     }*/
     osg::ref_ptr<osg::Image> texImgRG = new osg::Image();
-    image->setImage(numHorizontalAngles, numVerticalAngles*numLamps, 1, 1,
+    image->setImage(numHorizontalAngles, numVerticalAngles, 1, 1,
 		GL_LUMINANCE, GL_UNSIGNED_BYTE, data, osg::Image::USE_NEW_DELETE, 1);
     return image;
 }
