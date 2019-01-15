@@ -559,6 +559,7 @@ Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoe
 Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\embree3\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
@@ -869,7 +870,9 @@ Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi""
 Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec    
 Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
 Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec 
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif
