@@ -106,33 +106,31 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 	int work_group_size = 16;
 
 	// we just assume for now someone changed the configuration
-	configuration_changed = true;
-	for (int i = 0; i <  num_lights; i++)
+	if (counter == 10)
 	{
-		configuration_vec[i] = ((float)rand() / (RAND_MAX));
-		//std::cout << configurationML[i] << std::endl;
+		counter = 0;
+		configuration_changed = true;
+		for (int i = 0; i < num_lights; i++)
+		{
+			configuration_vec[i] = ((float)rand() / (RAND_MAX));
+			//std::cout << configurationML[i] << std::endl;
+		}
 	}
+	else
+		counter++;
 
-	if (configuration_changed) {
+	if (configuration_changed)
+	{
 		// update texture data
 		float* data = reinterpret_cast<float*>(configuration_img->data());
 		for (int i = 0; i < num_lights; i++)
 			data[i] = configuration_vec[i];
 		configuration_img->dirty();
-		// dispatch compute shader
-		GLuint n_cs = 8;   // TODO: where do we get this number from???????
-		renderInfo.getState()->get<osg::GLExtensions>()->glUseProgram(n_cs);
-		renderInfo.getState()->get<osg::GLExtensions>()->glDispatchCompute(numHorizontalAngles / work_group_size + 1, numVerticalAngles / work_group_size + 1, 1);
-
+		comp_disp->setComputeGroups(numHorizontalAngles / work_group_size + 1, numVerticalAngles / work_group_size + 1, 1);
 		configuration_changed = false;
 	}
-}
-
-
-void osg::ComputeDispatch::drawImplementation(RenderInfo& renderInfo) const
-{
-	// usually this dispatches the compute shader. We dont want to do this here.
-	// Eventually (!) want to dispatch it in preDraw()
+	else
+		comp_disp->setComputeGroups(0, 0, 0);
 
 }
 
@@ -348,7 +346,8 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		computeProg = new osg::Program;
 		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
 		// Create a node for outputting to the texture.
-		osg::ref_ptr<osg::Node> sourceNode = new osg::ComputeDispatch(0); // launch 0 work groups, wich disables the compute shader for now
+		comp_disp = new osg::ComputeDispatch(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
+		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
 		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer
