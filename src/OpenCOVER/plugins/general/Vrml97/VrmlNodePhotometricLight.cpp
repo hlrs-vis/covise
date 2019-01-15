@@ -92,7 +92,8 @@ void VrmlNodePhotometricLight::updateLightTextures(osg::RenderInfo &renderInfo)
 {
 	for (std::list<VrmlNodePhotometricLight *>::iterator it = allPhotometricLights.begin(); it != allPhotometricLights.end(); it++)
 	{
-		(*it)->updateLightTexture(renderInfo);
+		if ((*it)->coMLB_initialized)
+			(*it)->updateLightTexture(renderInfo);
 	}
 }
 void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
@@ -102,7 +103,6 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 	int numHorizontalAngles = mlbFile->header.t_width;
 	int numVerticalAngles = mlbFile->header.t_height;
 	int num_lights = mlbFile->header.t_depth;
-	int numValues = numHorizontalAngles * numVerticalAngles;
 	int work_group_size = 16;
 
 	// we just assume for now someone changed the configuration
@@ -389,6 +389,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		// TODO: we need to find out about the number of the shader!
 		int i = computeProg->getNumShaders();
 		std::cout << "num shaders after setting up compute shader:" << i << std::endl;
+		coMLB_initialized = true;
 
 	}
 

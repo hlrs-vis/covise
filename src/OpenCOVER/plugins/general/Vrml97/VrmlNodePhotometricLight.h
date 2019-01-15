@@ -66,8 +66,9 @@ public:
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
 	osg::ref_ptr<osg::Program> computeProg;
 	osg::ref_ptr<osg::ComputeDispatch> comp_disp;
+	bool coMLB_initialized = false;
 	int counter = 0;
-	bool configuration_changed;
+	bool configuration_changed = false;
 	std::vector<float> configuration_vec;
 	osg::ref_ptr<osg::Texture2D> light_conf_tex;
 	osg::Image* configuration_img;
