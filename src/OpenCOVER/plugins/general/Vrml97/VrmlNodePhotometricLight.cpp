@@ -38,15 +38,6 @@
 #include <osg/BindImageTexture>
 
 
-#include <osg/Version>
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 7, 0)
-#include <osg/ComputeDispatch>
-#else
-#include <osg/DispatchCompute>
-#include <osg/DispatchCompute>
-namespace osg { typedef DispatchCompute ComputeDispatch; }
-#endif
-
 #include <osg/Texture3D>
 #include <util/byteswap.h>
 #include <plugins/general/Vrml97/coMLB.h>
@@ -346,7 +337,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		computeProg = new osg::Program;
 		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
 		// Create a node for outputting to the texture.
-		comp_disp = new osg::ComputeDispatch(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
+		comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
 		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);

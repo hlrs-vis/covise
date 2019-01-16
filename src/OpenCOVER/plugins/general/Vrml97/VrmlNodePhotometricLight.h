@@ -28,7 +28,16 @@
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 #include <cover/coVRPluginSupport.h>
+
+#include <osg/Version>
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
+// all OSG releases have DispatchCompute
+#include <osg/DispatchCompute>
+#else
+// only some dev versions use ComputeDispatch
 #include <osg/ComputeDispatch>
+namespace osg { typedef ComputeDispatch DispatchCompute; }
+#endif
 
 using namespace opencover;
 using namespace vrml;
@@ -65,7 +74,7 @@ public:
     
     static std::list<VrmlNodePhotometricLight *> allPhotometricLights;
 	osg::ref_ptr<osg::Program> computeProg;
-	osg::ref_ptr<osg::ComputeDispatch> comp_disp;
+	osg::ref_ptr<osg::DispatchCompute> comp_disp;
 	bool coMLB_initialized = false;
 	int counter = 0;
 	bool configuration_changed = false;
