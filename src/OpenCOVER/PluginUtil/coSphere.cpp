@@ -582,8 +582,6 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     {
         s_maxcontext = renderInfo.getState()->getGraphicsContext()->getMaxContextID();
     }
-    mutex()->unlock();
-    int thiscontext = renderInfo.getContextID();
     /*texture stuff*/
     if (s_textureID == NULL)
     {
@@ -593,6 +591,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             s_textureID[i] = 0;
         }
     }
+    mutex()->unlock();
+    int thiscontext = renderInfo.getContextID();
     mutex()->lock();
     if (s_textureID[thiscontext] == 0)
         initTexture(thiscontext);
