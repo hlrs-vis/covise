@@ -53,14 +53,12 @@ static const coSphere::RenderMethod sphereMode = coSphere::RENDER_METHOD_ARB_POI
 std::string
 clearString(const std::string &str, std::string comment)
 {
-    std::string argv;
-    std::string::size_type pos;
-    argv = str;
+    std::string argv = str;
     if (argv.length() == 0)
         return (argv);
 
     // Remove all comments from the string
-    for (pos = 0; pos < comment.length(); pos++)
+    for (std::string::size_type pos = 0; pos < comment.length(); pos++)
     {
         if (argv.find(comment[pos]) != std::string::npos)
             argv = argv.erase(argv.find(comment[pos]), argv.length());
@@ -71,7 +69,7 @@ clearString(const std::string &str, std::string comment)
         return (argv);
 
     // Replace tabs with a space
-    pos = argv.find("\t");
+    std::string::size_type pos = argv.find("\t");
     while (pos != std::string::npos)
     {
         argv = argv.replace(pos, 1, " ");
@@ -97,7 +95,7 @@ clearString(const std::string &str, std::string comment)
             argv = argv.erase(pos, 1);
 
     // Clear String if it is just the EOL char
-    if (argv[0] == '\0')
+    if (!argv.empty() && argv[0] == '\0')
         argv.clear();
 
     return (argv);
@@ -110,12 +108,10 @@ split(std::vector<std::string> &fields, const std::string &str, std::string fiel
     std::string worker = clearString(str, "");
 
     // Replace tabs with a space
-    std::string sub;
-    std::string::size_type pos;
-    pos = worker.find(fieldseparator);
+    std::string::size_type pos = worker.find(fieldseparator);
     while (pos != std::string::npos)
     {
-        sub = worker.substr(0, pos);
+        std::string sub = worker.substr(0, pos);
         worker = worker.erase(0, pos + 1);
         fields.push_back(sub);
         pos = worker.find(fieldseparator);
@@ -447,8 +443,12 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                 //RECOM Interval(int) NumTimeSteps(int)  								RECOM
                 if (strncmp(header, "RECOM VERSION 0.2", 17) == 0)
                 {
-                    char header2[201];
-                    fread(&header2, 201, 1, fp);
+                    char header2[202];
+                    memset(header2, 0, sizeof(header2));
+                    if (fread(&header2, 201, 1, fp) != 1)
+                    {
+                        std::cerr << "Particles::Particles: failed to read header 1" << std::endl;
+                    }
                     char *buf = header2;
                     buf += 6;
                     numFloats = 0;
@@ -499,7 +499,10 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                     std::vector<std::string> id_fields_;
                     float tmpf;
 
-                    fread(&header2, 201, 1, fp);
+                    if (fread(&header2, 201, 1, fp) != 1)
+                    {
+                        std::cerr << "Particles::Particles: failed to read header 1" << std::endl;
+                    }
                     split(id_fields_, header2, " ");
                     // Remove HEADER start and end ("RECOM")
                     for (std::vector<std::string>::iterator it = id_fields_.begin(); it != id_fields_.end();)
@@ -515,7 +518,10 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                         variableMin.push_back(tmpf);
                     }
 
-                    fread(&header2, 201, 1, fp);
+                    if (fread(&header2, 201, 1, fp) != 1)
+                    {
+                        std::cerr << "Particles::Particles: failed to read header 1" << std::endl;
+                    }
                     split(id_fields_, header2, " ");
                     // Remove HEADER start and end ("RECOM")
                     for (std::vector<std::string>::iterator it = id_fields_.begin(); it != id_fields_.end();)
@@ -531,7 +537,10 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                         variableMax.push_back(tmpf);
                     }
 
-                    fread(&header2, 201, 1, fp);
+                    if (fread(&header2, 201, 1, fp) != 1)
+                    {
+                        std::cerr << "Particles::Particles: failed to read header 1" << std::endl;
+                    }
                     split(id_fields_, header2, " ");
                     // Remove HEADER start and end ("RECOM")
                     for (std::vector<std::string>::iterator it = id_fields_.begin(); it != id_fields_.end();)
@@ -548,21 +557,30 @@ Particles::Particles(std::string filename, osg::Group *parent, int maxParticles)
                     }
 
                     // read interval
-                    fread(&header2, 201, 1, fp);
-                    buf = header2;
-                    buf += 6;
-                    while (*buf == ' ' && *buf != '\0')
+                    if (fread(&header2, 201, 1, fp) != 1)
                     {
-                        buf++;
+                        std::cerr << "Particles::Particles: failed to read header 1" << std::endl;
                     }
-                    sscanf(buf, "%d", &interval);
+                    buf = header2;
+                    if (strlen(buf) >= 6)
+                    {
+                        buf += 6;
+                        while (*buf == ' ' && *buf != '\0')
+                        {
+                            buf++;
+                        }
+                        sscanf(buf, "%d", &interval);
+                    }
                 }
                 else
                 {
                     fprintf(stderr, "Unknown file version %s\n", header);
                 }
 
-                fread(&blockstart, sizeof(int), 1, fp);
+                if (fread(&blockstart, sizeof(int), 1, fp) != 1)
+                {
+                    std::cerr << "Particles::Particles: failed to read blockstart" << std::endl;
+                }
             }
             else
             {
