@@ -28,6 +28,7 @@
 #include <util/unixcompat.h>
 #include <coTUIFileBrowser/FileSysAccess.h>
 #include <coTUIFileBrowser/NetHelp.h>
+#include <util/coTabletUIMessages.h>
 
 #include <stdio.h>
 #include <string.h>

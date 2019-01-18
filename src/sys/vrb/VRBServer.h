@@ -9,11 +9,9 @@
 #define VRB_SERVER_H
 
 #include "coRegistry.h"
-#include <util/coTabletUIMessages.h>
 
 #include <QObject>
 #include <QString>
-#include <QStringList>
 
 namespace covise
 {

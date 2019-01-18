@@ -21,14 +21,13 @@
  ** Author: D. Rantzau                                                     **
  ** Date:  15.07.98  V1.0                                                  **
 \**************************************************************************/
-#include "coVRPluginSupport.h"
 #include "coVrbRegistryAccess.h"
-#include "coVRMSController.h"
 #include <vrbclient/VRBClient.h>
 #include <vrbclient/VRBMessage.h>
 #include <net/message.h>
 #include <net/message_types.h>
-#include "OpenCOVER.h"
+#include "OpenCOVER.h" // vrbc
+#include <cassert>
 
 #include <sys/stat.h>
 

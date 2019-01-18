@@ -23,7 +23,6 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QCheckBox>
-#include <coTUIFileBrowser/IData.h>
 #include "../TUIFileBrowserButton.h"
 #include "RemoteClientDialog.h"
 
@@ -82,12 +81,6 @@ public:
        * @Return Returns the filenames of the user-selected files in the dialog.
        */
     QStringList *Filename();
-
-    /**
-       * Access methods for class attribute data object.
-       */
-    opencover::IData *DataObject();
-    void DataObject(opencover::IData *value);
 
     /**
        * Acces method for class attribute LocationPath
@@ -154,14 +147,6 @@ private:
        * in the dialog. Allowed range of filenames is 1..n
        */
     QStringList *mFilename;
-
-    /**
-       * The mDataObject attribute contains a references to the FileBrowsers
-       * underlying data management object, which performs file list retrieval
-       * utilizing either a VRB, the Controler or AccessGrid.
-       * @see IData
-       */
-    opencover::IData *mDataObject;
 
     /**
        * Path to the location the user has selected files in or is intended to
