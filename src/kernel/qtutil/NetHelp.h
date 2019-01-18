@@ -8,17 +8,18 @@
 #ifndef NETHELP_H_
 #define NETHELP_H_
 
-#include <util/coExport.h>
+#include "export.h"
 #include <QString>
 
-namespace opencover
+namespace covise
 {
-class NetHelp
+class QTUTIL_EXPORT NetHelp
 {
 public:
     QString getLocalIP();
     QString GetNamefromAddr(QString *address);
     QString GetIpAddress(const char *hostname);
 };
+
 }
 #endif

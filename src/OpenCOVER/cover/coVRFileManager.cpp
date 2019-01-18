@@ -27,7 +27,6 @@
 #include "coVRCommunication.h"
 #include "coTabletUI.h"
 #include "coVRIOReader.h"
-#include "coTUIFileBrowser/NetHelp.h"
 #include "VRRegisterSceneGraph.h"
 #include "coVRConfig.h"
 #include "coVRRenderer.h"

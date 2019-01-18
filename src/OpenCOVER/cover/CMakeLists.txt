@@ -80,10 +80,8 @@ SET(COVER_HEADERS
   tridelity.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
-  coTUIFileBrowser/FileSysAccess.h
   coTUIFileBrowser/IData.h
   coTUIFileBrowser/LocalData.h
-  coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
   #coVRDePee.h
@@ -149,10 +147,8 @@ SET(COVER_SOURCES
   EventReceiver.cpp
   coMeasurement.cpp
   coTUIFileBrowser/AGData.cpp
-  coTUIFileBrowser/FileSysAccess.cpp
   coTUIFileBrowser/IData.cpp
   coTUIFileBrowser/LocalData.cpp
-  coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
   coTranslator.cpp
@@ -286,7 +282,7 @@ ENDIF(WIN32)
 
 COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coQtUtil
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})

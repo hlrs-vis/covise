@@ -14,8 +14,9 @@
 #ifdef _WIN32
 #include "windows.h"
 #endif
-using namespace opencover;
-using namespace covise;
+
+namespace covise
+{
 
 QStringList FileSysAccess::getFileSysList(QString filter, QString &path, bool listFiles)
 {
@@ -100,4 +101,6 @@ QString FileSysAccess::getLocalHomeDirStr()
     QDir locDir;
     QString homeDir = locDir.homePath();
     return homeDir;
+}
+
 }

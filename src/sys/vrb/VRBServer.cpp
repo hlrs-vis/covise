@@ -26,8 +26,8 @@
 #include <net/covise_connect.h>
 #include <net/tokenbuffer.h>
 #include <util/unixcompat.h>
-#include <coTUIFileBrowser/FileSysAccess.h>
-#include <coTUIFileBrowser/NetHelp.h>
+#include <qtutil/FileSysAccess.h>
+#include <qtutil/NetHelp.h>
 #include <util/coTabletUIMessages.h>
 
 #include <stdio.h>
@@ -60,7 +60,6 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 
 using namespace covise;
-using namespace opencover;
 
 VRBServer::VRBServer()
 {

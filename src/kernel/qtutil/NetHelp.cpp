@@ -10,8 +10,9 @@
 #include <QHostInfo>
 #include <net/covise_host.h>
 
-using namespace opencover;
-using namespace covise;
+namespace covise
+{
+
 QString NetHelp::getLocalIP()
 {
     Host host;
@@ -34,4 +35,6 @@ QString NetHelp::GetNamefromAddr(QString *address)
     QHostInfo host = QHostInfo::fromName(*address);
     QString hostName = host.hostName();
     return hostName;
+}
+
 }
