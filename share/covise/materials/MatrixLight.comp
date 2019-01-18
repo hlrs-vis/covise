@@ -46,7 +46,7 @@ void main() {
        candela = 0.25;
    }
    */
-   
+   //trgt[0] = 1.0;
    
    imageStore(targetTex, storePos, trgt);
 }
