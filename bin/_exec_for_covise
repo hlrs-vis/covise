@@ -138,6 +138,10 @@ else
     fi
 fi
 
+if [ -f $HOME/.valgrind ]; then
+    exec valgrind "$runcmd" "$@"
+fi
+
 if [ "$basename" = "_exec_for_covise" ]; then
     exec "$runcmd" "$@"
 elif [ "$basename" = "_strace_for_covise" ]; then
