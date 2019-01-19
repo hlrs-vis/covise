@@ -134,6 +134,7 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     else
         win.window->setWindowTitle("COVER");
     win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
+    win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this, i](){
         OpenCOVER::instance()->requestQuit();
     });
@@ -247,7 +248,6 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
-    win.window->show();
     conf.windows[i].context = win.widget->graphicsWindow();
     conf.windows[i].doublebuffer = false;
 
