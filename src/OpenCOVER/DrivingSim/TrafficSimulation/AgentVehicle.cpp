@@ -108,7 +108,7 @@ AgentVehicle::AgentVehicle(AgentVehicle *veh, std::string name, const VehiclePar
         geometry = geo;
         boundRadius = geo->getBoundingCircleRadius();
         geometry->setLODrange(vehPars.rangeLOD);
-        geometry->setTransform(vehicleTransform, hdg);
+        geometry->setTransformOrig(vehicleTransform, hdg);
         junctionWaitTriggerDist += boundRadius + vehPars.deltaSmin;
     }
 
@@ -199,7 +199,7 @@ AgentVehicle::AgentVehicle(std::string name, CarGeometry *geo, const VehiclePara
         geometry = geo;
         boundRadius = geo->getBoundingCircleRadius();
         geometry->setLODrange(vehPars.rangeLOD);
-        geometry->setTransform(vehicleTransform, hdg);
+        geometry->setTransformOrig(vehicleTransform, hdg);
         junctionWaitTriggerDist += boundRadius + vehPars.deltaSmin;
     }
 
@@ -835,7 +835,7 @@ void AgentVehicle::move(double dt)
     // UPDATE GEOMETRY //
     //
     vehicleTransform = currentTransition->road->getRoadTransform(u, v);
-    geometry->setTransform(vehicleTransform, hdg);
+    geometry->setTransformOrig(vehicleTransform, hdg);
     geometry->updateCarParts(timer, dt, vehState);
 
     //alter Code von Florian Seybold - war bereits auskommentiert

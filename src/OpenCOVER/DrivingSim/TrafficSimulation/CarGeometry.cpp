@@ -407,6 +407,17 @@ void CarGeometry::setTransform(Transform &roadTransform, double heading)
     carTransform->setMatrix(m);
 }
 
+void CarGeometry::setTransformOrig(Transform &roadTransform, double heading)
+{
+    Quaternion qzaaa(heading, Vector3D(0, 0, 1));
+
+    Quaternion q = roadTransform.q() * qzaaa;
+    osg::Matrix m;
+    m.makeRotate(osg::Quat(q.x(), q.y(), q.z(), q.w()));
+    m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
+    carTransform->setMatrix(m);
+}
+
 void CarGeometry::setTransformByCoordinates(osg::Vec3 &pos, osg::Vec3 &xVec)
 {
 	osg::Matrix m;
