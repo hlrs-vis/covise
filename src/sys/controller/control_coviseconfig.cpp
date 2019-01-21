@@ -32,7 +32,7 @@ uint32_t ControlConfig::genip(const char *n)
 //----------------------------------------------------------------------------
 {
     //std::cerr << "genip: n=" << n << std::endl;
-    unsigned addr[4];
+    unsigned addr[4] = {0, 0, 0, 0};
 
     int no_of_no = sscanf(n, "%u.%u.%u.%u", &addr[0],
                           &addr[1], &addr[2], &addr[3]);
@@ -85,13 +85,14 @@ uint32_t ControlConfig::genip(const char *n)
 		freeaddrinfo(result);           /* No longer needed */
 	}
 
-    return (addr[0] << 24) | (addr[1] << 16) | (addr[2] << 8) | addr[3];
+    return htonl(addr[0]);
 }
 
 //----------------------------------------------------------------------------
 void ControlConfig::addhostinfo(const char *name, int s_mode, int e_mode, int t)
 //----------------------------------------------------------------------------
 {
+    std::cerr << "adding host info for " << name << std::endl;
     uint32_t ip = genip(name);
     if (ip)
     {
