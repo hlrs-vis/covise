@@ -222,8 +222,12 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     //format.setOption(QSurfaceFormat::DebugContext);
-    //format.setRedBufferSize(8);
-    format.setAlphaBufferSize(8);
+#if 0
+    int bpc = 8;
+    format.setRedBufferSize(bpc);
+    format.setGreenBufferSize(bpc);
+    format.setBlueBufferSize(bpc);
+#endif
     format.setDepthBufferSize(24);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStencilBufferSize(conf.numStencilBits());
