@@ -261,8 +261,8 @@ DEF DefaultTeapot001 Transform {
   children [
   DEF myLight PhotometricLight{
 	lightNumber 0
-	#MLBFile "96PhotometricMatrixLights.mlb"
-	MLBFile "test.mlb"
+	MLBFile "96PhotometricMatrixLights.mlb"
+	#MLBFile "test.mlb"
 	#IESFile "1.ies"
 	#IESFile "96P_Lichtverteilung+Vorfeld/all_pls.ies"
 	#IESFile "g 691 Walze XFern rechts RM Raster.IES"
