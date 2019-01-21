@@ -161,6 +161,11 @@ void LinearDimension::update()
         osg::Vec3 t1 = m1.getTrans();
         osg::Vec3 dist = t1 - t0;
         len = dist.length();
+        if (cover->debugLevel(0) && len != oldDist)
+        {
+            fprintf(stderr,"T0: x = %f, y = %f, z=%f \n",t0.x(), t0.y(), t0.z());
+            fprintf(stderr,"T1: x = %f, y = %f, z=%f \n",t1.x(), t1.y(), t1.z());
+        }
     }
 
     if (marks[1])

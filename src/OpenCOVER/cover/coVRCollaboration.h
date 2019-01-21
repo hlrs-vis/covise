@@ -62,7 +62,7 @@ private:
 
     bool syncXform;
     bool syncScale;
-
+	bool wasLo = false;
     float syncInterval;
 
 public:

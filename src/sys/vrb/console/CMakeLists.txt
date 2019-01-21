@@ -5,7 +5,6 @@
 # @author Blasius Czink
 
 INCLUDE_DIRECTORIES(
-  "${COVISEDIR}/src/OpenCOVER/cover"
   ..
 )
 
@@ -14,20 +13,16 @@ SET(VRBC_SOURCES
   ../VRBServer.cpp
   ../coRegistry.cpp
   ../VRBClientList.cpp
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/NetHelp.cpp"
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/FileSysAccess.cpp"
 )
 
 SET(VRBC_HEADERS
   ../VRBServer.h
   ../coRegistry.h
   ../VRBClientList.h
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/NetHelp.h"
-  "${COVISEDIR}/src/OpenCOVER/cover/coTUIFileBrowser/FileSysAccess.h"
 )
 
 ADD_COVISE_EXECUTABLE(vrbc ${VRBC_SOURCES} ${VRBC_HEADERS})
-TARGET_LINK_LIBRARIES(vrbc coVRBClient coNet coUtil) 
+TARGET_LINK_LIBRARIES(vrbc coVRBClient coNet coUtil coQtUtil)
 qt_use_modules(vrbc Core Network)
 
 COVISE_INSTALL_TARGET(vrbc)

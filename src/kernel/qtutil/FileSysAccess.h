@@ -10,10 +10,11 @@
 
 #include <QString>
 #include <QStringList>
-#include <util/coExport.h>
-namespace opencover
+#include "export.h"
+
+namespace covise
 {
-class FileSysAccess
+class QTUTIL_EXPORT FileSysAccess
 {
 public:
     /**

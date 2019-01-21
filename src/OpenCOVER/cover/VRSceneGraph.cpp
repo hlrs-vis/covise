@@ -9,7 +9,7 @@
  *                                                                      *
  *                                                                      *
  *                                                                      *
- *                            (C) 1996-200                              *
+ *                            (C) 1996-2000                             *
  *              Computer Centre University of Stuttgart                 *
  *                         Allmandring 30                               *
  *                       D-70550 Stuttgart                              *

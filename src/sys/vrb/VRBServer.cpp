@@ -26,8 +26,9 @@
 #include <net/covise_connect.h>
 #include <net/tokenbuffer.h>
 #include <util/unixcompat.h>
-#include <coTUIFileBrowser/FileSysAccess.h>
-#include <coTUIFileBrowser/NetHelp.h>
+#include <qtutil/FileSysAccess.h>
+#include <qtutil/NetHelp.h>
+#include <util/coTabletUIMessages.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -59,7 +60,6 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 
 using namespace covise;
-using namespace opencover;
 
 VRBServer::VRBServer()
 {
@@ -1515,13 +1515,13 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
             std::cerr << "::HANDLECLIENT VRB FileBrowser Unknown RemoteRequest!" << std::endl;
 #endif
-            cerr << "unknown message in vrb" << endl;
+            cerr << "unknown VRB FileBrowser RemoteRequest message in vrb" << endl;
         }
         }
     }
     break;
     default:
-        cerr << "unknown message in vrb" << endl;
+        cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;
     }
 }

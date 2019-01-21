@@ -7,11 +7,9 @@
 
 #ifndef _VRB_CLIENT_LIST_H
 #define _VRB_CLIENT_LIST_H
-#ifndef YAC
-#include "covise/covise.h"
-#endif
 #include <util/DLinkList.h>
-#include <covise/covise_msg.h>
+#include <net/tokenbuffer.h>
+#include <net/message_types.h>
 
 namespace covise
 {

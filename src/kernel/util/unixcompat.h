@@ -66,11 +66,6 @@ WINCOMPATINLINE int strcasecmp(const char *s1, const char *s2)
 {
     return stricmp(s1, s2);
 }
-
-WINCOMPATINLINE int strncasecmp(const char *s1, const char *s2, size_t n)
-{
-    return strnicmp(s1, s2, n);
-}
 #endif
 
 WINCOMPATINLINE void sleep(int time)

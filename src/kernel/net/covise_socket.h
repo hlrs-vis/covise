@@ -171,7 +171,7 @@ public:
     int acceptOnly(int); // wait for and accept a connection (server) wait max secondes
     // returns -1 when no accept, 0 otherwise
     virtual int read(void *buf, unsigned nbyte);
-    virtual int Read(void *buf, unsigned nbyte); // does not exit when read failes but returns -1
+    virtual int Read(void *buf, unsigned nbyte); // does not exit when read fails, but returns -1
 
     int setNonBlocking(bool on);
     //int read_non_blocking(void *buf, unsigned nbyte);

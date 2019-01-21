@@ -25,7 +25,7 @@
 #include "coTUIFileBrowser/VRBData.h"
 #include "coTUIFileBrowser/LocalData.h"
 #include "coTUIFileBrowser/IRemoteData.h"
-#include "coTUIFileBrowser/NetHelp.h"
+#include <qtutil/NetHelp.h>
 #include "OpenCOVER.h"
 #ifdef FB_USE_AG
 #include "coTUIFileBrowser/AGData.h"

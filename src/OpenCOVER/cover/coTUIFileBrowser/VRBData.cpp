@@ -12,7 +12,7 @@
 #include <osgDB/fstream>
 //#include <fstream>
 #include <QDir>
-#include "FileSysAccess.h"
+#include <qtutil/FileSysAccess.h>
 #include <cover/coVRCommunication.h>
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
