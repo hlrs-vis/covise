@@ -29,6 +29,9 @@
 #include "EventReceiver.h"
 
 #include <util/coExport.h>
+
+#include <vector>
+
 namespace opencover
 {
 class COVEREXPORT VRWindow
@@ -38,6 +41,9 @@ private:
     static VRWindow *s_instance;
 
     int *origVSize, *origHSize;
+    std::vector<int> oldWidth, oldHeight; // detect resized windows
+    std::vector<int> origWidth, origHeight; // detect resized windows
+    std::vector<float> aspectRatio;
 
     bool createWin(int i);
 
