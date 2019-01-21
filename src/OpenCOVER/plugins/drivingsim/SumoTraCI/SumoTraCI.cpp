@@ -100,6 +100,7 @@ bool SumoTraCI::init() {
 }
 
 void SumoTraCI::preFrame() {
+    //cover->watchFileDescriptor();
     currentTime = cover->frameTime();
     if ((currentTime - nextSimTime) > 1) 
     {
