@@ -72,6 +72,9 @@ public:
     void setRenderToTexture(bool);
     void flipStereo();
 
+    void setFullscreen(bool state);
+    bool isFullscreen() const;
+
     /** initiate shut down */
     void disableSync();
 
@@ -97,10 +100,10 @@ private:
 
     void readConfigFile();
 
-    void detectStereoMode();
     void setStereoMode();
 
     void createChannels(int i);
+    void destroyChannels(int i);
 
     int isHeadtracking;
     bool fixViewer;
@@ -113,7 +116,9 @@ private:
     
     osg::Geometry *distortionMesh(const char *fileName);
     void createViewportCameras(int i);
+    void destroyViewportCameras(int i);
     void createBlendingCameras(int i);
+    void destroyBlendingCameras(int i);
     float requestedSeparation, separation;
     int animateSeparation;
     bool stereoOn;
@@ -131,6 +136,7 @@ public:
     virtual ~VRViewer();
 
     void config();
+    void unconfig();
 
     virtual void getCameras(Cameras &cameras, bool onlyActive = true);
     virtual void getContexts(Contexts &contexts, bool onlyValid = true);
@@ -195,6 +201,10 @@ public:
     osg::Node::NodeMask getCullMask() /*const*/;
     osg::Node::NodeMask getCullMaskLeft() /*const*/;
     osg::Node::NodeMask getCullMaskRight() /*const*/;
+    std::vector<osg::ref_ptr<osg::Camera>> viewportCamera;
+    std::vector<osg::ref_ptr<osg::Camera>> blendingCamera;
+
+    bool m_fullscreen = false;
 };
 }
 #endif

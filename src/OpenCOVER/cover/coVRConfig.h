@@ -85,7 +85,6 @@ struct channelStruct
     int screenNum; // screen index
 
     osg::ref_ptr<osg::Camera> camera;
-    osg::ref_ptr<osgUtil::SceneView> sceneView;
     osg::DisplaySettings *ds;
     bool stereo;
     int stereoMode;

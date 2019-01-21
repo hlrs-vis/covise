@@ -32,6 +32,11 @@
 #include <sstream>
 
 #include <GL/glew.h>
+#ifdef USE_X11
+#include <GL/glxew.h>
+#include <osgViewer/api/X11/GraphicsWindowX11>
+#undef Status
+#endif
 
 #include <osg/GL>
 #include <osg/GLExtensions>
@@ -39,6 +44,7 @@
 #include <osg/Notify>
 
 #include <config/CoviseConfig.h>
+#include "coVRConfig.h"
 
 #include "InitGLOperation.h"
 
@@ -165,6 +171,27 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
         glEnable(GL_FRAMEBUFFER_SRGB);
     }
+
+    // setup swap groups and swap barriers
+#ifdef USE_X11
+    if (glXJoinSwapGroupNV)
+    {
+        auto &conf = *opencover::coVRConfig::instance();
+        for(int i=0; i<conf.numWindows();i++)
+        {
+            if(conf.windows[i].context == gc)
+            {
+                osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(gc);
+                if (!window)
+                    continue;
+                if(conf.windows[i].swapGroup > 0)
+                    glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),conf.windows[i].swapGroup);
+                if(conf.windows[i].swapBarrier > 0)
+                    glXJoinSwapGroupNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier);
+            }
+        }
+    }
+#endif
 }
 
 void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,

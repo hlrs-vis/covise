@@ -29,11 +29,6 @@
  ************************************************************************/
 
 #include <GL/glew.h>
-#ifdef USE_X11
-#include <GL/glxew.h>
-#include <osgViewer/api/X11/GraphicsWindowX11>
-#undef Status
-#endif
 
 #include <util/common.h>
 #include <util/unixcompat.h>
@@ -510,6 +505,8 @@ VRViewer::~VRViewer()
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete VRViewer\n");
 
+    unconfig();
+
 #ifndef _WIN32
     if (strlen(monoCommand) > 0)
     {
@@ -732,6 +729,19 @@ void VRViewer::createViewportCameras(int i)
         cameraWarp->addChild(geode);
     }
     cover->getScene()->addChild(cameraWarp.get());
+
+    if (viewportCamera.size() <= i)
+        viewportCamera.resize(i+1);
+    viewportCamera[i] = cameraWarp;
+}
+
+void VRViewer::destroyViewportCameras(int i)
+{
+    if (viewportCamera.size()>i && viewportCamera[i])
+    {
+        cover->getScene()->removeChild(viewportCamera[i]);
+        viewportCamera[i] = nullptr;
+    }
 }
 
 void VRViewer::createBlendingCameras(int i)
@@ -819,6 +829,18 @@ void VRViewer::createBlendingCameras(int i)
         cameraBlend->addChild(geode);
 
         cover->getScene()->addChild(cameraBlend.get());
+
+        if (blendingCamera.size() <= i)
+            blendingCamera.resize(i+1);
+        blendingCamera[i] = cameraBlend;
+}
+
+void VRViewer::destroyBlendingCameras(int i)
+{
+    if (blendingCamera.size()>i && blendingCamera[i])
+    {
+        cover->getScene()->removeChild(blendingCamera[i]);
+    }
 }
 
 osg::Geometry *VRViewer::distortionMesh(const char *fileName)
@@ -979,12 +1001,42 @@ void VRViewer::setAffinity()
 }
 
 void
+VRViewer::unconfig()
+{
+    stopThreading();
+
+    auto &conf = *coVRConfig::instance();
+    for (int i = 0; i < conf.numBlendingTextures(); i++)
+    {
+        destroyBlendingCameras(i);
+    }
+    blendingCamera.clear();
+    for (int i = 0; i < conf.numViewports(); i++)
+    {
+        destroyViewportCameras(i);
+    }
+    viewportCamera.clear();
+    for (int i = 0; i < conf.numChannels(); i++)
+    {
+        destroyChannels(i);
+    }
+    for (int i =0; i < conf.numPBOs(); ++i) {
+        conf.PBOs[i].renderTargetTexture = nullptr;
+    }
+
+    myCameras.clear();
+}
+
+void
 VRViewer::config()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "VRViewer::config\n");
-    statsHandler = new osgViewer::StatsHandler;
-    addEventHandler(statsHandler);
+    if (!statsHandler)
+    {
+        statsHandler = new osgViewer::StatsHandler;
+        addEventHandler(statsHandler);
+    }
     for (int i = 0; i < coVRConfig::instance()->numChannels(); i++)
     {
         createChannels(i);
@@ -1100,6 +1152,22 @@ VRViewer::flipStereo()
 {
     separation = -separation;
 }
+
+void VRViewer::setFullscreen(bool state)
+{
+    if (m_fullscreen != state)
+    {
+        unconfig();
+        m_fullscreen = state;
+        config();
+    }
+}
+
+bool VRViewer::isFullscreen() const
+{
+    return m_fullscreen;
+}
+
 void
 VRViewer::setRenderToTexture(bool b)
 {
@@ -1319,8 +1387,15 @@ VRViewer::createChannels(int i)
     {
         coVRConfig::instance()->channels[i].camera->setLODScale(lodScale);
     }
+}
 
-  
+void VRViewer::destroyChannels(int i)
+{
+    auto &conf = *coVRConfig::instance();
+    auto &chan = conf.channels[i];
+
+    removeCamera(chan.camera);
+    chan.camera = nullptr;
 }
 
 void VRViewer::forceCompile()
@@ -1934,9 +2009,6 @@ void VRViewer::startThreading()
             if (gc->valid())
             {
                 gc->makeCurrent();
-#ifdef USE_X11
-                glewInit();
-#endif
                 if (_realizeOperation.valid() && gc->valid())
                 {
                     (*_realizeOperation)(gc);
@@ -1944,26 +2016,6 @@ void VRViewer::startThreading()
                 gc->releaseContext();
             }
         }
-        // setup swap groups and swap barriers
-#ifdef USE_X11
-        if (glXJoinSwapGroupNV)
-        {
-            for(int i=0;i<coVRConfig::instance()->numWindows();i++)
-            {
-                if(coVRConfig::instance()->windows[i].context == gc)
-                {
-                    osgViewer::GraphicsWindowX11 *window = dynamic_cast<osgViewer::GraphicsWindowX11 *>(coVRConfig::instance()->windows[i].window.get());
-
-                    if(coVRConfig::instance()->windows[i].swapGroup > 0)
-                        glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),coVRConfig::instance()->windows[i].swapGroup);
-                    if(coVRConfig::instance()->windows[i].swapBarrier > 0)
-                        glXJoinSwapGroupNV(window->getDisplayToUse(),coVRConfig::instance()->windows[i].swapGroup,coVRConfig::instance()->windows[i].swapBarrier);
-
-                }
-            }
-        }
-#endif
-
 
         gc->getState()->setDynamicObjectRenderingCompletedCallback(_endDynamicDrawBlock.get());
 

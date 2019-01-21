@@ -27,9 +27,6 @@
  *									*
  ************************************************************************/
 
-#include "ui/Menu.h"
-#include "ui/Action.h"
-
 #include <util/common.h>
 #include "VRWindow.h"
 #include "coCommandLine.h"
@@ -37,6 +34,8 @@
 #include <config/CoviseConfig.h>
 #include "coVRConfig.h"
 #include "OpenCOVER.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
 
 #include "coVRPluginSupport.h"
 #include "coVRPluginList.h"
@@ -87,6 +86,29 @@ VRWindow::VRWindow()
     }
     origVSize = NULL;
     origHSize = NULL;
+
+
+    if (cover->viewOptionsMenu)
+    {
+        auto fs = new ui::Button(cover->viewOptionsMenu, "FullScreen");
+        fs->setText("Full screen");
+        fs->setState(false);
+        fs->addShortcut("Ctrl+f");
+        fs->addShortcut("Alt+f");
+        fs->setCallback([this](bool state){
+            VRWindow::instance()->makeFullScreen(state);
+        });
+        fs->setVisible(false, ui::View::VR);
+        m_fullScreenButton = fs;
+
+        auto lfs = new ui::Action(cover->viewOptionsMenu, "LeaveFullScreen");
+        lfs->setText("Exit full screen");
+        lfs->setShortcut("Escape");
+        lfs->setCallback([this](){
+            VRWindow::instance()->makeFullScreen(false);
+        });
+        lfs->setVisible(false);
+    }
 }
 
 VRWindow::~VRWindow()
@@ -172,15 +194,53 @@ VRWindow::config()
     return true;
 }
 
-void VRWindow::destroy()
+bool VRWindow::unconfig()
 {
     auto &conf = *coVRConfig::instance();
-    for (int i=0; i<conf.numWindows(); ++i)
+
+    for (int i = 0; i < conf.numWindows(); i++)
     {
+        origVSize[i] = -1;
+        origHSize[i] = -1;
+
+        if (!destroyWin(i))
+            return false;
+
         if (conf.windows[i].windowPlugin)
             conf.windows[i].windowPlugin->windowDestroy(i);
     }
 
+    oldWidth.clear();
+    oldHeight.clear();
+    origWidth.clear();
+    origHeight.clear();
+    aspectRatio.clear();
+
+    return true;
+}
+
+bool VRWindow::isFullScreen() const
+{
+    return m_fullscreen;
+}
+
+void VRWindow::makeFullScreen(bool state)
+{
+    m_fullscreen = state;
+    if (m_fullScreenButton)
+        m_fullScreenButton->setState(state);
+
+    auto &conf = *coVRConfig::instance();
+    for (int i=0; i<conf.numWindows(); ++i)
+    {
+        if (conf.windows[i].windowPlugin)
+            conf.windows[i].windowPlugin->windowFullScreen(i, state);
+    }
+}
+
+void VRWindow::destroy()
+{
+    unconfig();
     coVRPluginList::instance()->unloadAllPlugins(coVRPluginList::Window);
 }
 
@@ -291,6 +351,7 @@ VRWindow::createWin(int i)
     }
 
     auto &conf = *coVRConfig::instance();
+    auto &win = conf.windows[i];
     /*   int multisample_feature, stereo_feature;
 
       /// colle
@@ -485,10 +546,10 @@ VRWindow::createWin(int i)
 
     if (opengl3)
     {
-        // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
+    // for non GL3/GL4 and non GLES2 platforms we need enable the osg_ uniforms that the shaders will use,
         // you don't need thse two lines on GL3/GL4 and GLES2 specific builds as these will be enable by default.
-        coVRConfig::instance()->windows[i].context->getState()->setUseModelViewAndProjectionUniforms(true);
-        //coVRConfig::instance()->windows[i].context->getState()->setUseVertexAttributeAliasing(true);
+    coVRConfig::instance()->windows[i].context->getState()->setUseModelViewAndProjectionUniforms(true);
+    //coVRConfig::instance()->windows[i].context->getState()->setUseVertexAttributeAliasing(true);
     }
 
 #if 0
@@ -524,4 +585,19 @@ VRWindow::createWin(int i)
         fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
     //sleep(200);
     return true;
+    }
+
+    bool VRWindow::destroyWin(int i)
+    {
+        auto &conf = *coVRConfig::instance();
+        auto &win = conf.windows[i];
+
+        win.window = nullptr;
+        if (win.context)
+        {
+            win.context->close();
+            win.context = nullptr;
+        }
+
+        return true;
 }

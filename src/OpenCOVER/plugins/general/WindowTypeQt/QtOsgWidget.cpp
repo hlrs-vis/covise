@@ -182,7 +182,7 @@ bool QtGraphicsWindow::realizeImplementation()
             qApp->sendPostedEvents();
             qApp->processEvents();
         }
-		setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
+        setDefaultFboId(m_glWidget->defaultFramebufferObject()); // make the FBO ID available to OpenSceneGraph so that it can restore it after rendering to ther FBOs
     }
     else
     {
@@ -277,6 +277,9 @@ bool QtGraphicsWindow::setWindowDecorationImplementation(bool flag)
         else
             f &= ~Qt::FramelessWindowHint;
         win->setFlags(f);
+        return true;
+    } else {
+        m_glWidget->setWindowFlag(Qt::FramelessWindowHint, flag);
         return true;
     }
     return false;

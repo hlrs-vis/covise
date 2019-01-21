@@ -29,6 +29,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
+#include <cover/VRWindow.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -37,6 +38,7 @@
 #include <QLayout>
 #include <QMessageBox>
 #include <QDialog>
+#include <QWindow>
 
 #include "ui_AboutDialog.h"
 
@@ -112,7 +114,13 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
+        //qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
+        qApp->setAttribute(Qt::AA_UseDesktopOpenGL);
+        qApp->setAttribute(Qt::AA_ShareOpenGLContexts);
+#if QT_VERSION >= 0x050800
+        qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
+#endif
     }
 
     auto it = m_windows.find(i);
@@ -134,10 +142,26 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     else
         win.window->setWindowTitle("COVER");
     win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
+    win.window->setWindowFlag(Qt::CustomizeWindowHint);
+    win.window->setWindowFlag(Qt::WindowFullscreenButtonHint);
     win.window->show();
-    window->connect(win.window, &QtMainWindow::closing, [this, i](){
+    window->connect(win.window, &QtMainWindow::closing, [this](){
         OpenCOVER::instance()->requestQuit();
     });
+    window->connect(win.window, &QtMainWindow::fullScreenChanged, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
+
+    win.toggleFullScreen = new QAction(window);
+    win.toggleFullScreen->setCheckable(true);
+    win.toggleFullScreen->setChecked(false);
+    win.toggleFullScreen->setText("Full Screen");
+    window->connect(win.toggleFullScreen, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
+    window->addContextAction(win.toggleFullScreen);
 
     win.toggleMenu = new QAction(window);
     win.toggleMenu->setCheckable(true);
@@ -149,22 +173,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     });
     window->addContextAction(win.toggleMenu);
 
-    QMenuBar *menubar = nullptr;
+    win.menubar = nullptr;
 #ifdef __APPLE__
-    if (covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", false))
+    win.nativeMenuBar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", win.nativeMenuBar);
+    if (win.nativeMenuBar)
     {
-        menubar = new QMenuBar(nullptr);
-        menubar->setNativeMenuBar(true);
+        win.menubar = new QMenuBar(nullptr);
+        win.menubar->setNativeMenuBar(true);
     }
     else
     {
-        menubar = win.window->menuBar();
-        menubar->setNativeMenuBar(false);
+        win.menubar = win.window->menuBar();
+        win.menubar->setNativeMenuBar(false);
     }
 #endif
-    if (!menubar)
-        menubar = win.window->menuBar();
-    menubar->show();
+    if (!win.menubar)
+        win.menubar = win.window->menuBar();
+    win.menubar->show();
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
     if (useToolbar)
@@ -176,18 +201,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         toolbar->show();
         window->addContextAction(toolbar->toggleViewAction());
     }
-    win.view.emplace_back(new ui::QtView(menubar, toolbar));
+    win.toolbar = toolbar;
+    win.view.emplace_back(new ui::QtView(win.menubar, toolbar));
     cover->ui->addView(win.view.back());
 #if 0
     win.view.emplace_back(new ui::QtView(toolbar));
     cover->ui->addView(win.view.back());
 #endif
 
+    window->connect(win.toggleFullScreen, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
 
-    QMenu *helpMenu = new QMenu(menubar);
+    QMenu *helpMenu = new QMenu(win.menubar);
     helpMenu->setTearOffEnabled(true);
     helpMenu->setTitle("Help");
-    menubar->addMenu(helpMenu);
+    win.menubar->addMenu(helpMenu);
     win.view.back()->setInsertPosition(helpMenu->menuAction());
 
     QAction *keyboardHelp = new QAction(helpMenu);
@@ -343,6 +373,71 @@ void WindowTypeQtPlugin::windowDestroy(int num)
         qApp->sendPostedEvents();
         qApp->processEvents();
         delete qApp;
+    }
+}
+
+void WindowTypeQtPlugin::windowFullScreen(int num, bool state)
+{
+    auto it = m_windows.find(num);
+    if (it == m_windows.end())
+    {
+        std::cerr << "WindowTypeQt: window no. " << num << " not managed by this plugin" << std::endl;
+        return;
+    }
+    auto &win = it->second;
+
+    auto &conf = *coVRConfig::instance();
+
+    win.toggleFullScreen->setChecked(state);
+    if (state == win.fullscreen)
+        return;
+
+    win.fullscreen = state;
+    m_update = true;
+
+    if (state) {
+        win.flags = win.window->windowFlags();
+        auto state = win.window->windowState();
+        win.state = state & ~Qt::WindowFullScreen;
+#if 0
+        if (!(state & Qt::WindowFullScreen)) {
+            win.x = win.window->x();
+            win.y = win.window->y();
+            win.w = win.window->width();
+            win.h = win.window->height();
+        }
+#endif
+        if (win.toolbar) {
+            win.toolbarVisible = win.toolbar->isVisible();
+        }
+
+#ifdef __APPLE__
+        win.menubar->setNativeMenuBar(true);
+#else
+        win.menubar->hide();
+#endif
+        if (win.toolbar) {
+            win.toolbar->hide();
+        }
+        //win.window->setWindowFlag(Qt::FramelessWindowHint, true);
+        win.window->showFullScreen();
+        if (!win.state & Qt::WindowFullScreen)
+            win.window->setWindowState(win.state | Qt::WindowFullScreen);
+    } else {
+#ifdef __APPLE__
+        win.menubar->setNativeMenuBar(win.nativeMenuBar);
+#else
+        win.menubar->show();
+#endif
+        win.window->setWindowFlags(win.flags);
+        win.window->setWindowState(win.state);
+#if 0
+        win.window->move(win.x, win.y);
+        win.window->resize(win.w, win.h);
+#endif
+        if (win.toolbar && win.toolbarVisible)
+            win.toolbar->show();
+        //win.window->showNormal();
     }
 }
 

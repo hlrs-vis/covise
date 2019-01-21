@@ -342,6 +342,12 @@ public:
         (void)num;
     }
 
+    virtual void windowFullScreen(int num, bool state)
+    {
+        (void)num;
+        (void)state;
+    }
+
 protected:
     //! call as a response to requestTimestep(t) when timestep t is prepared
     void commitTimestep(int t);
