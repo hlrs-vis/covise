@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 #endif
             argv_mpi[4] = strdup(hostlist.c_str());
 #if defined(OMPI_MAJOR_VERSION)
-            argv_mpi[5] = strdup("-X");
+            argv_mpi[5] = strdup("-x");
 #elif defined(MPICH_VERSION)
             argv_mpi[5] = strdup("-genvlist");
 #elif defined(MSMPI_VER)
