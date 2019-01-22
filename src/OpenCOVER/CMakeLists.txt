@@ -131,11 +131,11 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
         set(CMAKE_BUILD_TYPE "RelWithDebInfo")
     endif()
     message(CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-    if(COVISE_USE_X11)
-        add_definitions(-DUSE_X11)
-    endif()
 endif()
 
+if(COVISE_USE_X11)
+    add_definitions(-DUSE_X11)
+endif()
 
 # find dependencies for coVRML library
 using(FLEX optional)
