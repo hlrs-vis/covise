@@ -50,6 +50,8 @@ private:
 	TraCIAPI::SubscribedValues simResults;
 	std::vector<simData> currentResults;
 	std::vector<simData> previousResults;
+        std::map<std::string, AgentVehicle *> vehicleMap;
+        AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
 
 	osg::Group *vehicleGroup;
 	std::string vehicleDirectory;

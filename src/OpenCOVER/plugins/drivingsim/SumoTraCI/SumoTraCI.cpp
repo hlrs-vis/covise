@@ -43,6 +43,24 @@ SumoTraCI::SumoTraCI() {
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
+    AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
+    av = getAgentVehicle("truck","truck","truck_truck");
+}
+
+AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
+{
+    AgentVehicle *av;
+    auto avIt = vehicleMap.find(vehicleType);
+    if(avIt != vehicleMap.end())
+{
+    av = avIt->second;
+}   
+else
+{
+av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", false), 0, NULL, 0, 1, 0.0, 1);
+   vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicleType,av));
+}
+   return av;
 }
 
 SumoTraCI::~SumoTraCI() {
@@ -291,7 +309,11 @@ osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPositio
 
 AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
-    return new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", true), 0, NULL, 0, 1, 0.0, 1);;
+    AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
+    
+    VehicleParameters vp;
+    vp.rangeLOD = 400;
+    return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
 }
 
 COVERPLUGIN(SumoTraCI)
