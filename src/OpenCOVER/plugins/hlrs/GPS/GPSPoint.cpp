@@ -166,7 +166,7 @@ void GPSPoint::setPointData (double x, double y, double z, double t, float v, st
     y *= DEG_TO_RAD;
     longitude = x;
     latitude = y;
-    time = time;
+    time = t;
     speed = v;
 
     int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
