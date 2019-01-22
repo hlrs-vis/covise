@@ -59,6 +59,7 @@
   </System>
 
   <COVER>
+      <!--Framebuffer bpc="10" srgb="false" alpha="-1" depth="24" /-->
       <UI>
           <VRUI toolbar="false" />
           <NavigationManager>

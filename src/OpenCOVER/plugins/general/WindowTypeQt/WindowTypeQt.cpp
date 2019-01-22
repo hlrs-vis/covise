@@ -252,19 +252,25 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     //format.setOption(QSurfaceFormat::DebugContext);
-#if 0
-    int bpc = 8;
+    int bpc = covise::coCoviseConfig::getInt("bpc", "COVER.Framebuffer", 10);
     format.setRedBufferSize(bpc);
     format.setGreenBufferSize(bpc);
     format.setBlueBufferSize(bpc);
-#endif
-    format.setDepthBufferSize(24);
+    int alpha = covise::coCoviseConfig::getInt("alpha", "COVER.Framebuffer", -1);
+    if (alpha >= 0)
+        format.setAlphaBufferSize(alpha);
+    int depth = covise::coCoviseConfig::getInt("depth", "COVER.Framebuffer", 24);
+    if (depth >= 0)
+        format.setDepthBufferSize(depth);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
 
 #if QT_VERSION >= 0x050A00
-    bool sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
+    bool found = false;
+    bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
+    if (!found)
+        sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
     if (sRGB)
     {
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
@@ -277,6 +283,18 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     if (sRGB)
     {
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
+    }
+    else if (bpc > 12)
+    {
+        win.widget->setTextureFormat(GL_RGBA16);
+    }
+    else if (bpc > 10)
+    {
+        win.widget->setTextureFormat(GL_RGBA12);
+    }
+    else if (bpc > 8)
+    {
+        win.widget->setTextureFormat(GL_RGB10_A2);
     }
 #endif
     win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
