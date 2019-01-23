@@ -45,10 +45,47 @@
 #include <cassert>
 
 #ifdef USE_X11
+#include <QX11Info>
+
 #include <X11/ICE/ICElib.h>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
 #endif
 
 using namespace opencover;
+
+namespace {
+
+bool enableCompositing(QWidget *window, bool state)
+{
+#ifdef USE_X11
+    auto wid = window->effectiveWinId();
+    if (wid == 0) {
+        std::cerr << "enableCompositing: did not find ID of native window for QWidget" << std::endl;
+        return false;
+    }
+
+    Display *dpy = QX11Info::display();
+    if (!dpy) {
+        std::cerr << "enableCompositing: did not find Display for application" << std::endl;
+        return false;
+    }
+
+    Atom bypasscomp = XInternAtom(dpy, "_NET_WM_BYPASS_COMPOSITOR", False);
+
+    long bypasscomp_on = state ? 2 : 1;
+    if (state) {
+        XChangeProperty(dpy, wid, bypasscomp, XA_CARDINAL, 32,
+                        PropModeReplace, (unsigned char *)&bypasscomp_on, 1);
+        bypasscomp_on = 0;
+    }
+    XChangeProperty(dpy, wid, bypasscomp, XA_CARDINAL, 32,
+                    PropModeReplace, (unsigned char *)&bypasscomp_on, 1);
+#endif
+    return true;
+}
+
+}
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
 {
@@ -457,6 +494,8 @@ void WindowTypeQtPlugin::windowFullScreen(int num, bool state)
             win.toolbar->show();
         //win.window->showNormal();
     }
+
+    enableCompositing(win.window, state);
 }
 
 COVERPLUGIN(WindowTypeQtPlugin)
