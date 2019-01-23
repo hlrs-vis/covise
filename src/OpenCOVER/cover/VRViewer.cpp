@@ -56,6 +56,7 @@
 #include "input/input.h"
 #include "tridelity.h"
 #include "ui/Button.h"
+#include "ui/SelectionList.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -465,6 +466,32 @@ VRViewer::VRViewer()
         update();
         requestRedraw();
     });
+
+    auto threading = new ui::SelectionList(cover->viewOptionsMenu, "ThreadingModel");
+    threading->setText("Threading model");
+    std::vector<std::string> items{"Auto", "Single", "Cull/draw per context", "Draw per context", "Cull per camera, draw per context"};
+    threading->setList(items);
+    auto model = getThreadingModel();
+    switch (model) {
+    case AutomaticSelection: threading->select(0); break;
+    case SingleThreaded: threading->select(1); break;
+    case CullDrawThreadPerContext: threading->select(2); break;
+    case DrawThreadPerContext: threading->select(3); break;
+    case CullThreadPerCameraDrawThreadPerContext: threading->select(4); break;
+    default: threading->select(0); break;
+    }
+    threading->setCallback([this](int val) {
+        switch (val) {
+        case 0: setThreadingModel(AutomaticSelection); break;
+        case 1: setThreadingModel(SingleThreaded); break;
+        case 2: setThreadingModel(CullDrawThreadPerContext); break;
+        case 3: setThreadingModel(DrawThreadPerContext); break;
+        case 4: setThreadingModel(CullThreadPerCameraDrawThreadPerContext); break;
+        default: setThreadingModel(AutomaticSelection); break;
+        }
+    });
+    threading->setShortcut("Alt+h");
+    threading->addShortcut("Ctrl+h");
 
 #if 0
     auto stat = new ui::Button(cover->viewOptionsMenu, "Statistics");

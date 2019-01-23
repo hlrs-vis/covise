@@ -549,36 +549,6 @@ bool VRSceneGraph::keyEvent(int type, int keySym, int mod)
                 VRViewer::instance()->clearWindow = true;
                 handled = true;
             }
-            else if (keySym == 'h' || keySym == 104) //h
-            {
-                VRViewer::instance()->stopThreading();
-                if (VRViewer::instance()->getThreadingModel() == osgViewer::Viewer::SingleThreaded)
-                {
-                    VRViewer::instance()->setThreadingModel(osgViewer::Viewer::CullDrawThreadPerContext);
-                    if (cover->debugLevel(1))
-                        std::cerr << "CullDrawThreadPerContext" << std::endl;
-                }
-                else if (VRViewer::instance()->getThreadingModel() == osgViewer::Viewer::CullDrawThreadPerContext)
-                {
-                    VRViewer::instance()->setThreadingModel(osgViewer::Viewer::DrawThreadPerContext);
-                    if (cover->debugLevel(1))
-                        std::cerr << "DrawThreadPerContext" << std::endl;
-                }
-                else if (VRViewer::instance()->getThreadingModel() == osgViewer::Viewer::DrawThreadPerContext)
-                {
-                    VRViewer::instance()->setThreadingModel(osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext);
-                    if (cover->debugLevel(1))
-                        std::cerr << "CullThreadPerCameraDrawThreadPerContext" << std::endl;
-                }
-                else if (VRViewer::instance()->getThreadingModel() == osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext)
-                {
-                    VRViewer::instance()->setThreadingModel(osgViewer::Viewer::SingleThreaded);
-                    if (cover->debugLevel(1))
-                        std::cerr << "SingleThreaded" << std::endl;
-                }
-                VRViewer::instance()->startThreading();
-                handled = true;
-            }
             else if (keySym == 'm' || keySym == 181) //m
             {
             }
