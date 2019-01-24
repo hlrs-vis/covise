@@ -373,6 +373,12 @@ VRWindow::createWin(int i)
         }
     }
 
+    if (conf.windows[i].stereo && !conf.windows[i].type.empty())
+    {
+        std::cerr << "VRWindow: ignoring window type " << conf.windows[i].type << ", because stereo visual was requested" << std::endl;
+        conf.windows[i].type.clear();
+    }
+
     if (!conf.windows[i].type.empty())
     {
         auto windowPlug = coVRPluginList::instance()->getPlugin(pluginName(conf.windows[i].type).c_str());

@@ -76,7 +76,9 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
             stereoMode = osg::DisplaySettings::LEFT_EYE;
         }
         else
+        {
             cerr << "Unknown stereo mode \"" << modeName << "\"" << endl;
+        }
     }
 
     if (stereo)
@@ -206,9 +208,6 @@ coVRConfig::coVRConfig()
             }
         }
     }
-    m_stereoState = coCoviseConfig::isOn("COVER.Stereo", false);
-    if (!m_stereoState)
-        m_stereoSeparation = 0.f;
 
     m_monoView = MONO_MIDDLE;
 
@@ -367,6 +366,7 @@ coVRConfig::coVRConfig()
         w.swapBarrier = coCoviseConfig::getInt("swapBarrier", str, -1);
     }
 
+    m_stereoState = false;
     for (size_t i = 0; i < channels.size(); i++)
     {
         std::string stereoM;
@@ -392,12 +392,16 @@ coVRConfig::coVRConfig()
                 {
                     channels[i].stereoMode = osg::DisplaySettings::LEFT_EYE;
                 }
+                channels[i].stereo = true;
             }
             else
             {
                 channels[i].stereoMode = m_stereoMode;
             }
         }
+
+        if (channels[i].stereo)
+            m_stereoState = true;
 
         if (channels[i].stereoMode == osg::DisplaySettings::VERTICAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::HORIZONTAL_INTERLACE || channels[i].stereoMode == osg::DisplaySettings::CHECKERBOARD)
         {
@@ -423,8 +427,9 @@ coVRConfig::coVRConfig()
             std::cerr << "screenIndex " << channels[i].screenNum << " for channel " << i << " out of range (max: " << screens.size()-1 << ")" << std::endl;
             exit(1);
         }
-        
     }
+    m_stereoState = coCoviseConfig::isOn("COVER.Stereo", m_stereoState);
+
     for (size_t i = 0; i < PBOs.size(); i++)
     {
         std::string stereoM;

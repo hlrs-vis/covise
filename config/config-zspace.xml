@@ -5,9 +5,8 @@
     <LOCAL HOST="visard" >  
 
         <COVER>
-            <Stereo value="true" />
             <WindowConfig>
-                <Window type="" width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="2560" top="0" name="0" decoration="false" stereo="true" />
+                <Window width="1920" comment="MAIN" window="0" pipeIndex="0" height="1080" left="2560" top="0" name="0" decoration="false" stereo="true" />
             </WindowConfig>
 
             <ScreenConfig>

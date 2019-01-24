@@ -276,7 +276,7 @@ bool VRViewer::update()
         if (animateSeparation == 1)
         {
             separation += ANIMATIONSPEED;
-            if (separation > requestedSeparation)
+            if (separation >= requestedSeparation)
             {
                 separation = requestedSeparation;
                 animateSeparation = 0;
@@ -285,9 +285,9 @@ bool VRViewer::update()
         else if (animateSeparation == 2)
         {
             separation -= ANIMATIONSPEED;
-            if (separation < 0.0)
+            if (separation <= requestedSeparation)
             {
-                separation = 0.0;
+                separation = requestedSeparation;
                 animateSeparation = 0;
             }
         }
@@ -411,7 +411,9 @@ VRViewer::VRViewer()
     // set initial view
     viewMat.makeTranslate(viewPos);
 
-    separation = Input::instance()->eyeDistance();
+    stereoOn = coVRConfig::instance()->stereoState();
+
+    separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
     if (coVRConfig::instance()->stereoState())
     {
         rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
@@ -1136,13 +1138,13 @@ VRViewer::setSeparation(float sep)
     {
         animateSeparation = 1;
     }
-    else if (requestedSeparation == 0)
+    else if (requestedSeparation < separation)
     {
         animateSeparation = 2;
     }
     else
     {
-        separation = sep;
+        separation = requestedSeparation;
         animateSeparation = 0;
     }
 }
@@ -1188,6 +1190,7 @@ VRViewer::createChannels(int i)
         return;
     }
 #endif
+    auto &conf = *coVRConfig::instance();
     const int vp = coVRConfig::instance()->channels[i].viewportNum;
     if (vp >= coVRConfig::instance()->numViewports())
     {
@@ -1362,7 +1365,7 @@ VRViewer::createChannels(int i)
         ds->setGLContextVersion(coVRConfig::instance()->glVersion);
 
     // set up the use of stereo by default.
-    ds->setStereo(coVRConfig::instance()->stereoState());
+    ds->setStereo(conf.channels[i].stereo);
     if (coVRConfig::instance()->doMultisample())
         ds->setNumMultiSamples(coVRConfig::instance()->getMultisampleSamples());
     ds->setStereoMode((osg::DisplaySettings::StereoMode)coVRConfig::instance()->channels[i].stereoMode);
@@ -1584,7 +1587,7 @@ VRViewer::setFrustumAndView(int i)
         //cerr << "test" << endl;
 
         const float off = stereoOn ? currentChannel->viewerOffset : 0.f;
-        if (stereoOn)
+        if (stereoOn || animateSeparation)
         {
             rightEye.set(separation / 2.0 + off, 0.0, 0.0);
             leftEye.set(-(separation / 2.0) + off, 0.0, 0.0);
