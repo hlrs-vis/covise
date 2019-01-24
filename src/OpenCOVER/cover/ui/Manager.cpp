@@ -226,7 +226,7 @@ bool Manager::addView(View *view)
 
     for (auto elem: m_elements)
     {
-        std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
+        //std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
         view->elementFactory(elem.second);
     }
 
