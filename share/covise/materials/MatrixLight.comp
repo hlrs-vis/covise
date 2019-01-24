@@ -3,7 +3,7 @@
 uniform float osg_FrameTime;
 layout(binding=5, r32f) coherent  uniform readonly image2D configuration;
 // TODO: somehow only working for 2D images, or the first layer of the 3D image. Should be cheaper than a texelFetch
-layout(binding=6, r8) coherent  uniform readonly image3D AllPhotometricLights;
+//layout(binding=6, r8) coherent  uniform readonly image3D AllPhotometricLights;
 layout(binding=7, r16f) coherent uniform writeonly image2D targetTex;
 //uniform sampler2D configuration;
 uniform sampler3D AllPhotometricLightsTex;
@@ -18,8 +18,8 @@ void main() {
    vec4 trgt = vec4(1.0-coeffcient, 0,0,1);
    */
    
-   ivec3 dim = imageSize(AllPhotometricLights);  // textureSize with LOD or imageSize
-   //ivec3 dim = textureSize(AllPhotometricLightsTex, 0);  // textureSize with LOD or imageSize
+   //ivec3 dim = imageSize(AllPhotometricLights);  // textureSize with LOD or imageSize
+   ivec3 dim = textureSize(AllPhotometricLightsTex, 0);  // textureSize with LOD or imageSize
    int num_lights = dim[2];// textureSize or imageSize
    float factor = 0.0;
    float candela = 0.0;
