@@ -2774,14 +2774,12 @@ Viewer::Object ViewerOsg::insertText(int *justify,
             if (!pText)
             {
                 pText = new osgText::Text();
-                pText->setDataVariance(osg::Object::DYNAMIC);
                 pGeode->setDrawable(i, pText);
             }
         }
         if (!pText)
         {
             pText = new osgText::Text;
-            pText->setDataVariance(osg::Object::DYNAMIC);
             pGeode->setDrawable(i, pText);
             pGeode->addDrawable(pText);
             pText->setFont(font);

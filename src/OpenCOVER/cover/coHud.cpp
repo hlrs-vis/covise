@@ -64,7 +64,6 @@ coHud::coHud()
     osg::Vec3 delta(0.0f, -40.0f, 0.0f);
 
     line1 = new osgText::Text;
-    line1->setDataVariance(Object::DYNAMIC);
     geode->addDrawable(line1.get());
 
     line1->setFont(defaultFont);
@@ -76,7 +75,6 @@ coHud::coHud()
     position += delta;
 
     line2 = new osgText::Text;
-    line2->setDataVariance(Object::DYNAMIC);
     if (!coCoviseConfig::isOn("CyberClassroom", false)) // dont display too much information in CyberClassroom
     {
         geode->addDrawable(line2.get());
@@ -91,7 +89,6 @@ coHud::coHud()
     position += delta;
 
     line3 = new osgText::Text;
-    line3->setDataVariance(Object::DYNAMIC);
     if (!coCoviseConfig::isOn("CyberClassroom", false)) // dont display too much information in CyberClassroom
     {
         geode->addDrawable(line3.get());

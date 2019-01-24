@@ -122,7 +122,6 @@ void OSGVruiLabel::createGeometry()
     myDCS = new OSGVruiTransformNode(transform.get());
 
     labelText = new Text();
-    labelText->setDataVariance(Object::DYNAMIC);
     labelText->setFont(OSGVruiPresets::getFontFile());
     labelText->setDrawMode(Text::TEXT);
     labelText->setColor(textColor);
