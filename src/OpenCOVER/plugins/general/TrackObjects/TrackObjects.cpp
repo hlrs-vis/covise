@@ -28,11 +28,7 @@ version 2.1 or later, see lgpl-2.1.txt.
 #include <cover/coVRCollaboration.h>
 #include <config/CoviseConfig.h>
 
-#include <vrml97/vrml/VrmlNodeCOVER.h>
-
 using namespace covise;
-using vrml::VrmlNodeCOVER;
-using vrml::theCOVER;
 
 
 TObject::TObject(const std::string &n)
@@ -67,11 +63,11 @@ TrackObjects::TrackObjects()
 
 bool TrackObjects::init()
 {
-    pinboardEntry = new coSubMenuItem("Tangible");
+    pinboardEntry = new coSubMenuItem("TrackObjects");
     execButton = new coButtonMenuItem("RestartSimulation");
 
     execButton->setMenuListener(this);
-    TangibleSimulationMenu = new coRowMenu("TangibleSimulationMenu");
+    TangibleSimulationMenu = new coRowMenu("TrackObjects");
     TangibleSimulationMenu->add(execButton);
     cover->getMenu()->add(pinboardEntry);
     pinboardEntry->setMenu(TangibleSimulationMenu);
