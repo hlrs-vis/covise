@@ -139,7 +139,10 @@
    <Video menu="true" />
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
+   <Annotation menu="true" />
    <Measure menu="true" />
+   <TangiblePosition menu="true" />
+   <Revit menu="true" />
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>

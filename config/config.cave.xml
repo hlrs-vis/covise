@@ -204,9 +204,9 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
-    <Revit value="on" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    <Revit menu="on" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
-    <TrackObjects value="on">
+    <TrackObjects menu="on" value="off" >
 	    <Objects>
            <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
            <Object name="Pumpe" x="400" y="960" z="-940"  h="0" p="0" r="0"/>
