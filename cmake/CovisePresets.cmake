@@ -85,7 +85,7 @@ endif(WIN32)
 
 # do not reconfigure when doing a rebuild/clean for example in VS
 # if you wish to reconfigure use cmake, ccmake or cmakesetup directly
-SET(CMAKE_SUPPRESS_REGENERATION true)
+#SET(CMAKE_SUPPRESS_REGENERATION false)
 
 set(COVISE_DESTDIR $ENV{COVISEDIR})
 if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "" AND NOT COVISE_DESTDIR STREQUAL "$ENV{COVISEDESTDIR}")
