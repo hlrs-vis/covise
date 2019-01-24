@@ -1316,11 +1316,15 @@ void TUISGBrowserTab::handleClient(const covise::Message *msg)
     case covise::COVISE_MESSAGE_SOCKET_CLOSED:
     case covise::COVISE_MESSAGE_CLOSE_SOCKET:
     {
-        std::cerr << "TUISGBrowserTab: socket closed: ignored" << std::endl;
+        if (!connectionClosed)
+            std::cerr << "TUISGBrowserTab: socket closed: ignored" << std::endl;
+        connectionClosed = true;
     }
     break;
     case covise::COVISE_MESSAGE_TABLET_UI:
     {
+        connectionClosed = false;
+
         int tablettype;
         tb >> tablettype;
         int ID;

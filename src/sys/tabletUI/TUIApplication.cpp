@@ -641,6 +641,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
 {
     if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
+        std::cerr << "TUIMainWindow: socket closed" << std::endl;
+
         delete clientSN;
         clientSN = NULL;
         connections->remove(msg->conn); //remove connection;

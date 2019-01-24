@@ -168,6 +168,7 @@ private:
     QString texturePluginTempDir;
     QString textureDir;
     QString currentDir;
+    bool connectionClosed = false;
 
 public slots:
     void updateScene();
