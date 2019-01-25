@@ -80,7 +80,7 @@ public:
 
 private:
     static VRViewer *s_singleton;
-    MSEventHandler *myeh;
+    MSEventHandler *myeh = nullptr;
 
     // stereo parameters
     char stereoCommand[500];
@@ -94,7 +94,7 @@ private:
     osg::Vec3 initialViewPos;
     osg::Vec3 leftViewPos, rightViewPos, middleViewPos;
     osg::Matrix viewMat;
-    osgViewer::StatsHandler *statsHandler;
+    osgViewer::StatsHandler *statsHandler = nullptr;
 
     angleStruct *screen_angle; // Screen angle: IWR movable screen
 
