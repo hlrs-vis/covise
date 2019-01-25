@@ -83,7 +83,7 @@ void Track::addPoint(double x, double y, double v)
     }
     std::array<double, 4> arr = {x, y, z, v };
     PointsVec.push_back(arr);
-    fprintf (stderr, "PointsVec size: %i\n", PointsVec.size());
+    //fprintf (stderr, "PointsVec size: %i\n", PointsVec.size());
 }
 void Track::drawBirdView()
 {
@@ -97,7 +97,8 @@ void Track::readFile (xercesc::DOMElement *node)
     fprintf(stderr, "Trackreading started\n");
 
     xercesc::DOMNodeList *TrackNodeList = node->getChildNodes();
-    for (int i = 0; i < TrackNodeList->getLength(); ++i)
+    int TrackNodeLength = TrackNodeList->getLength();
+    for (int i = 0; i < TrackNodeLength; ++i)
     {
         xercesc::DOMElement *TrackNode = dynamic_cast<xercesc::DOMElement *>(TrackNodeList->item(i));
         if (!TrackNode)
@@ -109,10 +110,11 @@ void Track::readFile (xercesc::DOMElement *node)
         {
             fprintf(stderr, "trkseg found\n");
 
-            xercesc::DOMNodeList *TrackPointList = TrackNode->getChildNodes();
-            for (int k = 0; k < TrackPointList->getLength(); ++k)
+            int TrackPointLength = TrackNode->getChildNodes()->getLength();
+            PointsVec.reserve(TrackPointLength);
+            for (xercesc::DOMNode *currentNode = TrackNode->getFirstChild() ; currentNode != NULL; currentNode = currentNode->getNextSibling())
             {
-                xercesc::DOMElement *TrackPoint = dynamic_cast<xercesc::DOMElement *>(TrackPointList->item(k));
+                xercesc::DOMElement *TrackPoint = dynamic_cast<xercesc::DOMElement *>(currentNode);
                 if (!TrackPoint)
                     continue;
                 char *tmp2 = xercesc::XMLString::transcode(TrackPoint->getNodeName());
@@ -140,7 +142,8 @@ void Track::readFile (xercesc::DOMElement *node)
                     xercesc::XMLString::release(&lon);
 
                     xercesc::DOMNodeList *nodeContentList = TrackPoint->getChildNodes();
-                    for (int i = 0; i < nodeContentList->getLength(); ++i)
+    int nodeContentLength = nodeContentList->getLength();
+                    for (int i = 0; i < nodeContentLength; ++i)
                     {
                         xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(nodeContentList->item(i));
                         if (!nodeContent)
@@ -159,7 +162,8 @@ void Track::readFile (xercesc::DOMElement *node)
                         if(nodeContentName == "extensions")
                         {
                             xercesc::DOMNodeList *extensionsList = nodeContent->getChildNodes();
-                            for (int k = 0; k < extensionsList->getLength(); ++k)
+                            int extensionsLength = extensionsList->getLength();
+                            for (int k = 0; k < extensionsLength; ++k)
                             {
                                 xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsList->item(k));
                                 if (!extensionNode)
@@ -184,7 +188,7 @@ void Track::readFile (xercesc::DOMElement *node)
                         }
 
                     }
-                    this->addPoint(x, y, v);
+                    addPoint(x, y, v);
 
                 }
                 else {
