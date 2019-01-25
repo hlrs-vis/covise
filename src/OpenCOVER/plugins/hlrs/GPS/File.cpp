@@ -44,17 +44,17 @@ File::File()
 {
     fprintf(stderr, "File created\n");
 }
-File::File(const char *filename, osg::Group *parent)
+File::File(const char *filename)
 {
     name = filename;
     size_t found = name.find_last_of("/");
     FileGroup = new osg::Group();
-    FileGroup->setName("Group for File: " + name.substr(found+1));
+    FileGroup->setName("File: " + name.substr(found+1));
     //OSGGPSPlugin->addChild(FileGroup);
     //if (parent)
     //    parent->addChild(FileGroup);
     //else
-    GPSPlugin::instance()->OSGGPSPlugin->addChild(FileGroup);
+    //GPSPlugin::instance()->OSGGPSPlugin->addChild(FileGroup);
 
     SwitchPoints = new osg::Switch();
     SwitchPoints->setName("SwitchNode for Points");
@@ -65,17 +65,38 @@ File::File(const char *filename, osg::Group *parent)
     FileGroup->addChild(SwitchTracks);
 
     readFile(filename);
-    fprintf(stderr, "File with name %s created\n", name.c_str());
+    //fprintf(stderr, "File with name %s created\n", name.c_str());
 }
 File::~File()
 {
+    for (auto *x : fileAllTracks){
+        delete x;
+    }
+    for (auto *x : fileAllPoints){
+        delete x;
+    }
+    //SwitchTracks.release();
+    //SwitchPoints.release();
+    //FileGroup.release();
+
     fprintf(stderr, "File deleted\n");
+}
+void File::addAllTracks(GPSALLTracks *at)
+{
+    fileAllTracks.push_back(at);
+    SwitchTracks->addChild(at->TrackGroup);
+    //fprintf(stderr, "AllTracks added to file\n");
+}
+void File::addAllPoints(GPSALLPoints *ap)
+{
+    fileAllPoints.push_back(ap);
+    SwitchPoints->addChild(ap->PointGroup);
+    //fprintf(stderr, "AllPoints added to file\n");
 }
 
 //fileReader
 void File::readFile(const std::string &filename)
 {
-    fprintf(stderr, "FileReader started\n");
     xercesc::XercesDOMParser *parser = new xercesc::XercesDOMParser();
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Never);
 
@@ -102,11 +123,14 @@ void File::readFile(const std::string &filename)
 
     if (rootElement)
     {
-        fprintf(stderr, "rootElement %s\n", xercesc::XMLString::transcode(rootElement->getNodeName()));
+        fprintf(stderr, "-----------\nStarted reading file: %s \n-----------\n", this->name.c_str());
+        //fprintf(stderr, "rootElement %s\n", xercesc::XMLString::transcode(rootElement->getNodeName()));
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
 
-        GPSALLPoints *ap = new GPSALLPoints(SwitchPoints);
-        GPSALLTracks *at = new GPSALLTracks(SwitchTracks);
+        GPSALLPoints *ap = new GPSALLPoints();
+        GPSALLTracks *at = new GPSALLTracks();
+        this->addAllTracks(at);
+        this->addAllPoints(ap);
 
         for (int o = 0; o < nodeList->getLength(); ++o)
         {
@@ -125,8 +149,6 @@ void File::readFile(const std::string &filename)
             }
             else if(nodeName == "trk")
             {
-                fprintf(stderr, "-----------\nStarting Track reading\n-----------\n");
-
                 Track *t = new Track();
                 at->addTrack(t);
                 t->readFile(node);
@@ -139,5 +161,9 @@ void File::readFile(const std::string &filename)
 
         ap->drawBirdView();
         at->drawBirdView();
+
+        fprintf(stderr, "-----------\nFinished reading file: %s \n", this->name.c_str());
+        fprintf(stderr, "GPSPoints added: %i , Tracks added: %i \n-----------\n",fileAllPoints.front()->allPoints.size(), fileAllTracks.front()->allTracks.size() );
+
     }
 }

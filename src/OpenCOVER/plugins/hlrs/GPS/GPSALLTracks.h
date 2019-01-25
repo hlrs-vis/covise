@@ -37,7 +37,6 @@ class GPSALLTracks
 {
 public:
     GPSALLTracks();
-    GPSALLTracks(osg::Group *parent);
     ~GPSALLTracks();
     void addTrack(Track *p);
     void drawBirdView();

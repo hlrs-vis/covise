@@ -31,6 +31,8 @@
 #include <gdal_priv.h>
 #include <xercesc/dom/DOM.hpp>
 
+#include "File.h"
+
 using namespace opencover;
 using namespace covise;
 namespace opencover
@@ -50,18 +52,17 @@ public:
     static GPSPlugin *instance(){return plugin;};
 
     float getAlt(double x, double y);
+    void addFile(File *f);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);
 
     ui::Menu *GPSTab = nullptr;
     ui::Label *infoLabel = nullptr;
-    ui::Button *ToggleLoad = nullptr;
+    ui::Button *Toggle = nullptr;
+    ui::Button *TogglePoints = nullptr;
     ui::Button *ToggleTracks = nullptr;
-    ui::Button *ToggleEmotions = nullptr;
-    ui::Button *TogglePictures = nullptr;
-    ui::Button *ToggleAudio = nullptr;
-    ui::Button *ToggleText = nullptr;
+
     osg::ref_ptr<osg::Group> OSGGPSPlugin;
     coVRLabel *Label;
     float zOffset=4.0;
@@ -80,6 +81,7 @@ private:
     int unloadGPX(const char *filename);
     void GPSTab_create();
     void GPSTab_delete();
+    std::list<File*> fileList;
 
     float *rasterData=NULL;
     double xOrigin; // origin of the height map

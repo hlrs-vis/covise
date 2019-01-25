@@ -21,6 +21,8 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
+#include "GPSALLPoints.h"
+#include "GPSALLTracks.h"
 
 using namespace opencover;
 using namespace covise;
@@ -36,17 +38,18 @@ class File
 {
 public:
     File();
-    File(const char *filename, osg::Group *parent);
+    File(const char *filename);
     ~File();
     void readFile(const std::string &filename);
-    //void addAPAT(GPSALLPoints *ap, GPSALLTracks *at);
+    void addAllTracks(GPSALLTracks *p);
+    void addAllPoints(GPSALLPoints *p);
     std::string name;
     osg::ref_ptr<osg::Group> FileGroup;
     osg::ref_ptr<osg::Switch> SwitchPoints;
     osg::ref_ptr<osg::Switch> SwitchTracks;
     osg::ref_ptr<osg::Group> TrackGroup;
 
-    //osg::ref_ptr<GPSALLTracks*> fileAllTracks;
-    //osg::ref_ptr<GPSALLPoints*> fileAllPoints;
+    std::list<GPSALLTracks*> fileAllTracks;
+    std::list<GPSALLPoints*> fileAllPoints;
 };
 #endif

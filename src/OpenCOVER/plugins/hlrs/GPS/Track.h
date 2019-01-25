@@ -23,6 +23,7 @@
 #include <cover/coVRPlugin.h>
 #include <xercesc/dom/DOM.hpp>
 #include <osg/Vec3>
+#include <osg/Vec4>
 #include <osg/Material>
 
 using namespace opencover;
@@ -41,15 +42,13 @@ public:
     Track();
     ~Track();
     void setIndex(int i);
-    void addPoint(GPSPoint *p);
+    void addPoint(double x, double y,double v);
     void drawBirdView();
     void readFile(xercesc::DOMElement *node);
     void drawTrack();
     osg::ref_ptr<osg::Group> SingleTrack;
-    std::list<GPSPoint*> TrackPoints;
-    osg::Vec3Array *PointsCoVec;
-    std::list<float> PointsSpeed;
     static osg::ref_ptr<osg::Material> globalDefaultMaterial;
+    std::vector<std::array<double,4>> PointsVec;
 };
 
 #endif

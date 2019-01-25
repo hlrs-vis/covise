@@ -31,17 +31,16 @@ using namespace opencover;
 // GPSALLTracks
 GPSALLTracks::GPSALLTracks()
 {
-    fprintf(stderr, "--- GPSALLTracks created ---\n");
-}
-GPSALLTracks::GPSALLTracks(osg::Group *parent)
-{
     TrackGroup = new osg::Group();
-    TrackGroup->setName("Group for Tracks");
-    parent->addChild(TrackGroup); //parent is SwitchTracks
-    fprintf(stderr, "GPSALLTracks with parent created");
+    TrackGroup->setName("All Tracks of file");
+    //fprintf(stderr, "--- GPSALLTracks created ---\n");
 }
+
 GPSALLTracks::~GPSALLTracks()
 {
+    for (auto *x : allTracks){
+        delete x;
+    }
     fprintf(stderr, "GPSALLPoints deleted\n");
 }
 void GPSALLTracks::addTrack(Track *t)
@@ -49,7 +48,7 @@ void GPSALLTracks::addTrack(Track *t)
     t->setIndex(allTracks.size());
     allTracks.push_back(t);
     TrackGroup->addChild(t->SingleTrack);
-    fprintf(stderr, "Track added to at\n");
+    //fprintf(stderr, "Track added to at\n");
 }
 void GPSALLTracks::drawBirdView()
 {

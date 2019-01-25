@@ -19,8 +19,10 @@
  **                                                                          **
 \****************************************************************************/
 
+#include "GPS.h"
 #include "GPSPoint.h"
 #include "Track.h"
+
 
 #include <osg/Group>
 #include <osg/Geode>
@@ -36,6 +38,8 @@
 #include <osg/Vec4>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
+
+#include <proj_api.h>
 
 #include <xercesc/dom/DOM.hpp>
 #if XERCES_VERSION_MAJOR < 3
@@ -53,9 +57,8 @@ osg::ref_ptr<osg::Material> Track::globalDefaultMaterial;
 //Track
 Track::Track()
 {
-    PointsCoVec = new osg::Vec3Array;
     SingleTrack = new osg::Group();
-    fprintf(stderr, "Track created\n");
+    //fprintf(stderr, "Track created\n");
 }
 Track::~Track()
 {
@@ -65,24 +68,34 @@ void Track::setIndex(int i)
 {
     SingleTrack->setName("Track Nr.: " + std::to_string(i));
 }
-void Track::addPoint(GPSPoint *p)
+void Track::addPoint(double x, double y, double v)
 {
-    p->setIndex(TrackPoints.size());
-    TrackPoints.push_back(p);
-    SingleTrack->addChild(p->Point);
+    double z = GPSPlugin::instance()->getAlt(x,y)+GPSPlugin::instance()->zOffset;
 
-    PointsCoVec->push_back(p->getCoArray());
-    PointsSpeed.push_back(p->getSpeed());
+    x *= DEG_TO_RAD;
+    y *= DEG_TO_RAD;
+
+    int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &x, &y, NULL);
+    if(error !=0 )
+    {
+        fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
+        fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
+    }
+    std::array<double, 4> arr = {x, y, z, v };
+    PointsVec.push_back(arr);
+    fprintf (stderr, "PointsVec size: %i\n", PointsVec.size());
 }
 void Track::drawBirdView()
 {
-    for (std::list<GPSPoint*>::iterator it = TrackPoints.begin(); it != TrackPoints.end(); it++){
-        (*it)->drawSphere();
-    }
+    //for (std::list<GPSPoint*>::iterator it = TrackPoints.begin(); it != TrackPoints.end(); it++){
+    //    (*it)->drawSphere();
+    //}
 }
 
 void Track::readFile (xercesc::DOMElement *node)
 {
+    fprintf(stderr, "Trackreading started\n");
+
     xercesc::DOMNodeList *TrackNodeList = node->getChildNodes();
     for (int i = 0; i < TrackNodeList->getLength(); ++i)
     {
@@ -102,15 +115,77 @@ void Track::readFile (xercesc::DOMElement *node)
                 xercesc::DOMElement *TrackPoint = dynamic_cast<xercesc::DOMElement *>(TrackPointList->item(k));
                 if (!TrackPoint)
                     continue;
-                char *tmp = xercesc::XMLString::transcode(TrackPoint->getNodeName());
-                std::string pointContentName = tmp;
+                char *tmp2 = xercesc::XMLString::transcode(TrackPoint->getNodeName());
+                std::string pointContentName = tmp2;
                 xercesc::XMLString::release(&tmp);
 
-                if(pointContentName == "trkpt")
+                if(pointContentName == "trkpt")           
                 {
-                    GPSPoint *p = new GPSPoint();
-                    p->readFile(TrackPoint);
-                    this->addPoint(p);
+                    //fprintf(stderr, "trkpt found\n");
+                    double x;
+                    double y;
+                    //double t;
+                    double v;
+                    XMLCh *t1 = NULL;
+
+                    char *lon = xercesc::XMLString::transcode(TrackPoint->getAttribute(t1 = xercesc::XMLString::transcode("lon"))); xercesc::XMLString::release(&t1);
+                    char *lat = xercesc::XMLString::transcode(TrackPoint->getAttribute(t1 = xercesc::XMLString::transcode("lat"))); xercesc::XMLString::release(&t1);
+
+                    sscanf(lon, "%lf", &x);
+                    sscanf(lat, "%lf", &y);
+
+                    //fprintf(stderr, "read from file:   lon: %s , lat: %s\n",lon, lat);
+
+                    xercesc::XMLString::release(&lat);
+                    xercesc::XMLString::release(&lon);
+
+                    xercesc::DOMNodeList *nodeContentList = TrackPoint->getChildNodes();
+                    for (int i = 0; i < nodeContentList->getLength(); ++i)
+                    {
+                        xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(nodeContentList->item(i));
+                        if (!nodeContent)
+                            continue;
+                        char *tmp = xercesc::XMLString::transcode(nodeContent->getNodeName());
+                        std::string nodeContentName = tmp;
+                        xercesc::XMLString::release(&tmp);
+
+                        //if(nodeContentName == "time")
+                        //{
+                        //    char *time = xercesc::XMLString::transcode(nodeContent->getTextContent());
+                        //    //fprintf(stderr, "read from file:   time: %s\n",time);
+                        //    sscanf(time, "%lf", &t);
+                        //    xercesc::XMLString::release(&time);
+                        //}
+                        if(nodeContentName == "extensions")
+                        {
+                            xercesc::DOMNodeList *extensionsList = nodeContent->getChildNodes();
+                            for (int k = 0; k < extensionsList->getLength(); ++k)
+                            {
+                                xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsList->item(k));
+                                if (!extensionNode)
+                                    continue;
+                                char *tmp = xercesc::XMLString::transcode(extensionNode->getNodeName());
+                                std::string extensionNodeName = tmp;
+                                xercesc::XMLString::release(&tmp);
+                                if(extensionNodeName == "speed")
+                                {
+                                    char *speed = xercesc::XMLString::transcode(extensionNode->getTextContent());
+                                    //fprintf(stderr, "read from file:   speed: %s\n",speed);
+                                    sscanf(speed, "%lf", &v);
+                                    xercesc::XMLString::release(&speed);
+                                }
+                                else {
+                                    fprintf(stderr, "unknown extension node named: %s\n",nodeContentName.c_str() );
+                                }
+                            }
+                        }
+                        else {
+                            //fprintf(stderr, "unknown content node named: %s\n",nodeContentName.c_str() );
+                        }
+
+                    }
+                    this->addPoint(x, y, v);
+
                 }
                 else {
                     fprintf(stderr, "unknown content node in trkseg named %s\n",nodeContentName.c_str() );
@@ -126,12 +201,12 @@ void Track::readFile (xercesc::DOMElement *node)
             fprintf(stderr, "unknown content node in trk named %s\n",nodeContentName.c_str() );
         }
     }
-
+    fprintf(stderr, "Trackreading finished. Trackpoints: %i\n",PointsVec.size() );
 }
 
 void Track::drawTrack()
 {
-    fprintf(stderr, "drawTrack called\n");
+    //fprintf(stderr, "drawTrack called\n");
 
     static double AlphaThreshold = 0.5;
     float linewidth = 4.0f;
@@ -141,21 +216,29 @@ void Track::drawTrack()
 
     cover->setRenderStrategy(geom);
 
-    //Array of Points
-    geom->setVertexArray(PointsCoVec);
+    //Setup geometry
+    osg::Vec3Array *vert = new osg::Vec3Array;
+    for (int i = 0; i < PointsVec.size(); ++i)
+    {
+        std::array<double, 4> *a1 = &PointsVec.at(i);
+        vert->push_back(osg::Vec3(a1->at(0), a1->at(1) , a1->at(2)));
+    }
+    geom->setVertexArray(vert);
 
     //color
     osg::Vec4Array *colArr = new osg::Vec4Array();
-
-    for (std::list<float>::iterator it = PointsSpeed.begin(); it != PointsSpeed.end(); it++){
-        colArr->push_back(osg::Vec4(1.0f, 1.0f/(1.0f+*it), 0.0f, 1.0f));
+    for (int t = 0; t < PointsVec.size(); ++t)
+    {
+        std::array<double, 4> *a1 = &PointsVec.at(t);
+        float s = a1->at(3);
+        colArr->push_back(osg::Vec4(1.0f, 1.0f/(1.0f+s), (1.0f+s), 1.0f));
     }
     geom->setColorArray(colArr);
     geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX );
 
     //primitves
     osg::DrawArrayLengths *primitives = new osg::DrawArrayLengths(osg::PrimitiveSet::LINE_STRIP);
-    primitives->push_back(PointsCoVec->size());
+    primitives->push_back(PointsVec.size());
     geom->addPrimitiveSet(primitives);
 
     //normals

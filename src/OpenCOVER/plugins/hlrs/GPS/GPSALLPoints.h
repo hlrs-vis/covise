@@ -39,7 +39,6 @@ class GPSALLPoints
 {
 public:
     GPSALLPoints();
-    GPSALLPoints(osg::Group *parent);
     ~GPSALLPoints();
     void drawBirdView();
     void addPoint(GPSPoint *p);

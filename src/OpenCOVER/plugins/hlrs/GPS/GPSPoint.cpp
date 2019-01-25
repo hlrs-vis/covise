@@ -263,7 +263,8 @@ void GPSPoint::drawSphere()
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
     sphereD->setStateSet(stateSet);
     Point->addDrawable(sphereD.get());
-    fprintf(stderr, "type %i\n", PT);
+
+    //fprintf(stderr, "type %i\n", PT);
 }
 
 void GPSPoint::drawDetail()

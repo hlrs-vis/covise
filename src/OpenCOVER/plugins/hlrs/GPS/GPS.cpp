@@ -25,6 +25,7 @@
 #include "File.h"
 #include "GPSALLPoints.h"
 #include "GPSALLTracks.h"
+#include <time.h>
 
 
 #include <cover/coVRPluginSupport.h>
@@ -76,7 +77,7 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     GPSTab = NULL;
     GPSTab_create();
     OSGGPSPlugin = new osg::Group();
-    OSGGPSPlugin->setName("Group for GPS Plugin");
+    OSGGPSPlugin->setName("GPS Plugin");
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
 
     //testlabel
@@ -136,9 +137,14 @@ bool GPSPlugin::update()
 
 GPSPlugin::~GPSPlugin()
 {
-
-    for (int index = 0; index < NUM_HANDLERS; index++)
+    //OSGGPSPlugin->removeChildren(0,1);
+    for (int index = 0; index < NUM_HANDLERS; index++){
         coVRFileManager::instance()->unregisterFileHandler(&handlers[index]);
+    }
+    for (auto *x : fileList){
+        delete x;
+    }
+
     GPSTab_delete();
     closeImage();
     fprintf(stderr, "------------------\n GPSPlugin stopped\n------------------\n");
@@ -148,19 +154,32 @@ void GPSPlugin::GPSTab_create(void)
 {
     GPSTab = new ui::Menu("GPS", this);
     // infoLabel = new ui::Label("GPS Version 1.0", GPSTab);
-    ToggleLoad = new ui::Button(GPSTab, "ToggleLoad");
-    ToggleLoad->setText("Toggle ON/OFF");
-    ToggleLoad->setCallback([this](bool) { fprintf(stderr, "Toggle ON/OFF pressed\n"); });
-    ToggleTracks = new ui::Button(GPSTab, "ToggleTracks");
-    ToggleTracks->setText("Tracks ON/OFF");
-    ToggleEmotions = new ui::Button(GPSTab, "ToggleEmotions");
-    ToggleEmotions->setText("Emotions ON/OFF");
-    TogglePictures = new ui::Button(GPSTab, "TogglePictures");
-    TogglePictures->setText("Pictures ON/OFF");
-    ToggleAudio = new ui::Button(GPSTab, "ToggleAudio");
-    ToggleAudio->setText("Audio ON/OFF");
-    ToggleText = new ui::Button(GPSTab, "ToggleText");
-    ToggleText->setText("Text ON/OFF");
+
+    ToggleTracks = new ui::Button(GPSTab, "Toggle Tracks ON/OFF");
+    ToggleTracks->setText("Tracks Tracks ON/OFF");
+    ToggleTracks->setCallback([this](bool) {
+        for (auto *x : fileList){
+            if(x->SwitchTracks->getNewChildDefaultValue()){
+                x->SwitchTracks->setAllChildrenOff();
+            }
+            else {
+                x->SwitchTracks->setAllChildrenOn();
+            }
+        }
+    });
+    TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
+    TogglePoints->setText("Tracks Points ON/OFF");
+    TogglePoints->setCallback([this](bool) {
+        for (auto *x : fileList){
+            if(x->SwitchPoints->getNewChildDefaultValue()){
+                x->SwitchPoints->setAllChildrenOff();
+            }
+            else {
+                x->SwitchPoints->setAllChildrenOn();
+            }
+        }
+    });
+
 }
 void GPSPlugin::GPSTab_delete(void)
 {
@@ -170,7 +189,12 @@ void GPSPlugin::GPSTab_delete(void)
         delete GPSTab;
     }
 }
-
+void GPSPlugin::addFile(File *f)
+{
+    fileList.push_back(f);
+    OSGGPSPlugin->addChild(f->FileGroup);
+    //fprintf(stderr, "File added to GPSPlugin\n");
+}
 
 void GPSPlugin::closeImage()
 {
@@ -282,7 +306,8 @@ int GPSPlugin::SloadGPX(const char *filename, osg::Group *parent, const char *)
 }
 int GPSPlugin::loadGPX(const char *filename, osg::Group *parent)
 {
-    File *f = new File(filename, parent);
+    File *f = new File(filename);
+    this->addFile(f);
     return 0;
 }
 

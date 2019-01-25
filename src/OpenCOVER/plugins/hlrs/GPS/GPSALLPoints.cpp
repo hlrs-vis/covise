@@ -31,17 +31,16 @@ using namespace opencover;
 // GPSALLPoints
 GPSALLPoints::GPSALLPoints()
 {
-    fprintf(stderr, "--- GPSALLPoints created ---\n");
-}
-GPSALLPoints::GPSALLPoints(osg::Group *parent)
-{
     PointGroup = new osg::Group();
-    PointGroup->setName("Group for Points");
-    parent->addChild(PointGroup); //parent is Switchpoint
-    fprintf(stderr, "GPSALLPoints with parent created");
+    PointGroup->setName("All Points of file");
+    //fprintf(stderr, "--- GPSALLPoints created ---\n");
 }
 GPSALLPoints::~GPSALLPoints()
 {
+    for (auto *x : allPoints){
+        delete x;
+    }
+
     fprintf(stderr, "GPSALLPoints deleted\n");
 }
 void GPSALLPoints::addPoint(GPSPoint *p)
@@ -49,7 +48,7 @@ void GPSALLPoints::addPoint(GPSPoint *p)
     p->setIndex(allPoints.size());
     allPoints.push_back(p);
     PointGroup->addChild(p->Point);
-    fprintf(stderr, "Point added to ap\n");
+    //fprintf(stderr, "Point added to ap\n");
 }
 void GPSALLPoints::drawBirdView()
 {
