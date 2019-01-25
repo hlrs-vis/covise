@@ -41,18 +41,8 @@ if (COVISE_USE_VISIONARAY)
    ENDIF()
 
    add_subdirectory(visionaray)
-   set(VISIONARAY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/visionaray/include")
-
    if(MSVC)
       set_target_properties(visionaray PROPERTIES OUTPUT_NAME "libvisionaray")
-      set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
-   else()
-     if(BUILD_SHARED_LIBS)
-        set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
-     else()
-        set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
-     endif()
    endif()
 
 endif()
