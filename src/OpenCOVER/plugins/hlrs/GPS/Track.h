@@ -26,6 +26,9 @@
 #include <osg/Vec4>
 #include <osg/Material>
 
+#include <vector>
+#include <array>
+
 using namespace opencover;
 using namespace covise;
 namespace opencover

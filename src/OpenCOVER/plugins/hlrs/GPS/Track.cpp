@@ -205,7 +205,7 @@ void Track::readFile (xercesc::DOMElement *node)
             fprintf(stderr, "unknown content node in trk named %s\n",nodeContentName.c_str() );
         }
     }
-    fprintf(stderr, "Trackreading finished. Trackpoints: %i\n",PointsVec.size() );
+    fprintf(stderr, "Trackreading finished. Trackpoints: %lu\n",(unsigned long)PointsVec.size() );
 }
 
 void Track::drawTrack()

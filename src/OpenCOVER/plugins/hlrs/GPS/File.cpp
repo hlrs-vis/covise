@@ -163,7 +163,7 @@ void File::readFile(const std::string &filename)
         at->drawBirdView();
 
         fprintf(stderr, "-----------\nFinished reading file: %s \n", this->name.c_str());
-        fprintf(stderr, "GPSPoints added: %i , Tracks added: %i \n-----------\n",fileAllPoints.front()->allPoints.size(), fileAllTracks.front()->allTracks.size() );
+        fprintf(stderr, "GPSPoints added: %lu , Tracks added: %lu \n-----------\n",(unsigned long)fileAllPoints.front()->allPoints.size(), (unsigned long)fileAllTracks.front()->allTracks.size() );
 
     }
 }
