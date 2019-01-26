@@ -1415,7 +1415,8 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
     }
     else if (vrbc)
     {
-        vrbc->sendMessage(msg);
+        if (covise::isVrbMessageType(msg->type))
+            vrbc->sendMessage(msg);
         return true;
     }
 

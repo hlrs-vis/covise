@@ -359,5 +359,8 @@ enum sender_type
     STDINOUT = 9,
     COVISED = 10
 };
+
+NETEXPORT bool isVrbMessageType(int type);
+
 }
 #endif

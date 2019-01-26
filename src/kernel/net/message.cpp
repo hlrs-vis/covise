@@ -55,7 +55,7 @@ Initial revision
  **                                                                     **
 \***********************************************************************/
 
-using namespace covise;
+namespace covise {
 
 Message::Message(TokenBuffer *t)
     : type(Message::EMPTY)
@@ -134,3 +134,41 @@ char *Message::extract_data()
     data = NULL;
     return tmpdata;
 }
+
+bool isVrbMessageType(int type)
+{
+    switch (type)
+    {
+    case COVISE_MESSAGE_VRB_REQUEST_FILE:
+    case COVISE_MESSAGE_VRB_SEND_FILE:
+    case COVISE_MESSAGE_VRB_CURRENT_FILE:
+    case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
+    case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
+    case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
+    case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
+    case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
+    case COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY:
+    case COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY:
+    case COVISE_MESSAGE_VRB_CONTACT:
+    case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
+    case COVISE_MESSAGE_VRB_SET_USERINFO:
+    case COVISE_MESSAGE_RENDER:
+    case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
+    case COVISE_MESSAGE_VRB_CHECK_COVER:
+    case COVISE_MESSAGE_VRB_GET_ID:
+    case COVISE_MESSAGE_VRB_SET_GROUP:
+    case COVISE_MESSAGE_VRB_SET_MASTER:
+    case COVISE_MESSAGE_SOCKET_CLOSED:
+    case COVISE_MESSAGE_CLOSE_SOCKET:
+    case COVISE_MESSAGE_VRB_FB_RQ:
+    case COVISE_MESSAGE_VRB_FB_REMREQ:
+        return true;
+
+    default:
+        return false;
+    }
+
+    return false;
+}
+
+} // namespace covise
