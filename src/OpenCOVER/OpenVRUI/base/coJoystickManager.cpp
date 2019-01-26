@@ -61,6 +61,7 @@ coJoystickManager::coJoystickManager()
     selectOnRelease = false;
     oldX = 0;
     oldY = 0;
+    oldButton = 0;
     barrierXValue = 0.9f;
     barrierYValue = 0.5f;
     barrierMilliSeconds = 1000;

@@ -76,16 +76,16 @@ public:
     static QPixmap *pix_slave;
 
 private:
-    char *address;
-    char *name;
-    char *userInfo;
+    char *address = nullptr;
+    char *name = nullptr;
+    char *userInfo = nullptr;
     int myID;
     int Group;
     int Master;
     long bytesSent;
     long bytesReceived;
-    double lastRecTime;
-    double lastSendTime;
+    double lastRecTime = -1.;
+    double lastSendTime = -1.;
     float interval;
     int bytesSentPerInterval;
     int bytesReceivedPerInterval;
