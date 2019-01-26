@@ -37,7 +37,7 @@ void observerList::removeObserver(int recvID)
         if (observers[i] == recvID)
         {
             i++;
-            while (i <= numObservers)
+            while (i < numObservers)
             {
                 observers[i - 1] = observers[i];
                 i++;
