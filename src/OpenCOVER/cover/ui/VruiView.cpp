@@ -34,9 +34,11 @@
 #include "SelectionList.h"
 #include "EditField.h"
 #include "FileBrowser.h"
+#include "CollaborativePartner.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>
+#include <cover/VruiPartnerMenuItem.h>
 #include <config/CoviseConfig.h>
 #include <util/unixcompat.h>
 
@@ -650,7 +652,6 @@ VruiViewElement *VruiView::elementFactoryImplementation(SelectionList *sl)
     ve->m_menuItem = smi;
     ve->m_menu = new coRowMenu(ve->m_text.c_str(), parent ? parent->m_menu : m_rootMenu);
     smi->setMenu(ve->m_menu);
-    smi->closeSubmenu();
     add(ve, sl);
 
     auto t = new coLabelSubMenuToolboxItem(sl->name());
@@ -676,6 +677,19 @@ VruiViewElement *VruiView::elementFactoryImplementation(FileBrowser *fb)
     auto ve = new VruiViewElement(fb);
     //ve->m_menuItem = new coLabelMenuItem(fb->text());
     add(ve, fb);
+    return ve;
+}
+
+VruiViewElement *VruiView::elementFactoryImplementation(CollaborativePartner *cp)
+{
+    auto ve = new VruiViewElement(cp);
+    auto parent = vruiParent(cp);
+    vrui::coCheckboxGroup *vrg = nullptr;
+    if (parent)
+        vrg = parent->m_group;
+    ve->m_menuItem = new VruiPartnerMenuItem(cp->text(), cp->state(), vrg);
+
+    add(ve, cp);
     return ve;
 }
 

@@ -34,22 +34,22 @@ namespace opencover
 /** Menu Item that reflects the state of a participant in a CVE
  */
 
-class COVEREXPORT coPartnerMenuItem : public vrui::coCheckboxMenuItem
+class COVEREXPORT VruiPartnerMenuItem : public vrui::coCheckboxMenuItem
 {
 protected:
     vrui::coButton *viewpoint; ///< actual button which is used for interaction
 
 public:
-    coPartnerMenuItem(const char *, bool, vrui::coCheckboxGroup * = NULL);
-    virtual ~coPartnerMenuItem();
-    int hit(osg::Vec3 &, osgUtil::Hit *);
-    void miss();
-    virtual void buttonEvent(vrui::coButton *button);
+    VruiPartnerMenuItem(const std::string &name, bool on, vrui::coCheckboxGroup * = NULL);
+    ~VruiPartnerMenuItem() override;
+    int hit(vrui::vruiHit *hit) override;
+    void miss() override;
+    void buttonEvent(vrui::coButton *button) override;
 
     /// get the Element's classname
-    virtual char *getClassName();
+    const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    bool isOfClassName(const char *) const override;
 };
 }
 #endif

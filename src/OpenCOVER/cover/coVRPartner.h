@@ -21,15 +21,10 @@
  \date   July 2001
  */
 
-#include <OpenVRUI/coButtonMenuItem.h>
-
 #include <util/coTypes.h>
 #include <util/DLinkList.h>
-namespace vrui
-{
-class coCheckboxGroup;
-class coMenuItem;
-}
+#include "ui/Owner.h"
+
 
 namespace covise
 {
@@ -38,50 +33,54 @@ class TokenBuffer;
 
 namespace opencover
 {
-class coPartnerMenuItem;
+namespace ui
+{
+class ButtonGroup;
+class CollaborativePartner;
+}
 
-class COVEREXPORT coVRPartner : public vrui::coMenuListener
+class COVEREXPORT coVRPartner: public ui::Owner
 {
 
 private:
-    char *hostname;
-    char *address;
-    int ID;
-    char *name;
-    char *email;
-    char *url;
-    int Group;
-    bool Master;
-    coPartnerMenuItem *menuEntry;
-    vrui::coButtonMenuItem *fileMenuEntry;
-    static vrui::coCheckboxGroup *partnerGroup;
+    std::string hostname;
+    std::string address;
+    int m_id = -1;
+    std::string name;
+    std::string email;
+    std::string url;
+    int m_group = -1;
+    bool m_isMaster = false;
+    ui::CollaborativePartner *m_ui = nullptr;
 
 public:
     void setID(int id);
     void setGroup(int g);
-    void setMaster(int m);
+    void setMaster(bool m);
     void setInfo(covise::TokenBuffer &tb);
-    bool isMaster();
+    void updateUi();
+    bool isMaster() const;
     void becomeMaster();
-    int getID();
+    int getID() const;
     void setFile(const char *fileName);
-    void menuEvent(vrui::coMenuItem *);
-    void print();
+    void print() const;
     coVRPartner();
-    coVRPartner(int id, covise::TokenBuffer &tb);
+    coVRPartner(int id);
 
     virtual ~coVRPartner();
     void sendHello();
 };
 
-class COVEREXPORT coVRPartnerList : public covise::DLinkList<coVRPartner *>
+class COVEREXPORT coVRPartnerList: public ui::Owner, public covise::DLinkList<coVRPartner *>
 {
     static coVRPartnerList *s_instance;
     coVRPartnerList();
+    ui::ButtonGroup *m_group = nullptr;
 public:
     ~coVRPartnerList();
     coVRPartner *get(int ID);
     void print();
+    ui::ButtonGroup *group();
     static coVRPartnerList *instance();
 };
 }

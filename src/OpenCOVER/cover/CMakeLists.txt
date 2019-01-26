@@ -31,7 +31,7 @@ SET(COVER_HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
-  coPartnerMenuItem.h
+  VruiPartnerMenuItem.h
   coVrbRegistryAccess.h
   coVRCommunication.h
   coVRConfig.h
@@ -130,7 +130,7 @@ SET(COVER_SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
-  coPartnerMenuItem.cpp
+  VruiPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
   coHud.cpp
@@ -164,6 +164,7 @@ SET(UI_HEADERS
     ui/Export.h
     ui/Action.h
     ui/Button.h
+    ui/CollaborativePartner.h
     ui/Container.h
     ui/Element.h
     ui/Group.h
@@ -185,6 +186,7 @@ SET(UI_HEADERS
 SET(UI_SOURCES
     ui/Action.cpp
     ui/Button.cpp
+    ui/CollaborativePartner.cpp
     ui/Container.cpp
     ui/Element.cpp
     ui/Group.cpp

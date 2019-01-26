@@ -25,6 +25,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/coRowMenu.h>
 #include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"

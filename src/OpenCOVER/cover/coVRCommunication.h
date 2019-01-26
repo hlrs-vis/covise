@@ -35,6 +35,7 @@ class VRBData;
 class IData;
 class LocalData;
 class coVRPartner;
+
 class COVEREXPORT coVRCommunication : public coVrbRegEntryObserver
 {
 
@@ -43,7 +44,7 @@ private:
 
     static coVRCommunication *s_instance;
     char *currentFile;
-    coVRPartner *me;
+    coVRPartner *me = nullptr;
     int RILockArray[1000];
     int randomID;
     bool ignoreRemoteTransform;
@@ -75,6 +76,7 @@ public:
 
     static const char *getHostname();
     static const char *getHostaddress();
+    static std::string getUsername();
     int getID();
     int getNumberOfPartners();
     void setFBData(IData *data);

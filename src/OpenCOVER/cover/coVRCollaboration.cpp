@@ -39,19 +39,20 @@
 #include "coVRMSController.h"
 #include "coVRCommunication.h"
 #include "VRAvatar.h"
-#include <OpenVRUI/coCheckboxMenuItem.h>
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coPotiMenuItem.h>
-#include <OpenVRUI/coSubMenuItem.h>
 #include <osg/MatrixTransform>
 
 #include <vrbclient/VRBClient.h>
 #include "OpenCOVER.h"
 
+#include "ui/Menu.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/SelectionList.h"
+#include "ui/Slider.h"
+
 #define SYNC_MODE_GROUP 2
 #define NAVIGATION_GROUP 0
 
-using namespace vrui;
 using namespace opencover;
 
 coVRCollaboration *coVRCollaboration::s_instance = NULL;
@@ -64,14 +65,11 @@ coVRCollaboration *coVRCollaboration::instance()
 }
 
 coVRCollaboration::coVRCollaboration()
-    : syncXform(0)
+    : ui::Owner("coVRCollaboration", cover->ui)
+    , syncXform(0)
     , syncScale(0)
     , syncInterval(0.3)
-    , collButton(NULL)
     , showAvatar(1)
-    , Loose(NULL)
-    , Tight(NULL)
-    , MasterSlave(NULL)
 {
     assert(!s_instance);
 
@@ -113,84 +111,46 @@ int coVRCollaboration::readConfigFile()
 
 void coVRCollaboration::initCollMenu()
 {
-    // Create collaborative menu:
-    coCheckboxGroup *cbg = new coCheckboxGroup();
-    collaborativeMenu = new coRowMenu("CollaborativeOptions");
-    Loose = new coCheckboxMenuItem("Loose", true, cbg);
-    Loose->setMenuListener(this);
-    Tight = new coCheckboxMenuItem("Tight", false, cbg);
-    Tight->setMenuListener(this);
-    MasterSlave = new coCheckboxMenuItem("Master/Slave", false, cbg);
-    MasterSlave->setMenuListener(this);
-    ShowAvatar = new coCheckboxMenuItem("Show avatar", true);
-    ShowAvatar->setMenuListener(this);
-    SyncInterval = new coPotiMenuItem("Sync Interval", 0.0, 5, syncInterval);
-    SyncInterval->setMenuListener(this);
-    Master = new coCheckboxMenuItem("Master", false);
-    Master->setMenuListener(this);
-    collaborativeMenu->add(Loose);
-    collaborativeMenu->add(Tight);
-    collaborativeMenu->add(MasterSlave);
-    collaborativeMenu->add(ShowAvatar);
-    collaborativeMenu->add(SyncInterval);
-    collaborativeMenu->add(Master);
-}
+    m_collaborativeMenu = new ui::Menu("CollaborativeOptions", this);
+    m_collaborativeMenu->setText("Collaborate");
 
-void coVRCollaboration::updateCollaborativeMenu()
-{
-    if (cover->debugLevel(5))
-        fprintf(stderr, "coVRCollaboration::updateCollaborativeMenu\n");
+    m_collaborationMode = new ui::SelectionList(m_collaborativeMenu, "CollaborationMode");
+    m_collaborationMode->setText("Collaboration mode");
+    // keep in sync with enum SyncMode:
+    assert(0 == LooseCoupling);
+    assert(1 == MasterSlaveCoupling);
+    assert(2 == TightCoupling);
+    m_collaborationMode->setList(std::vector<std::string>({"Loose", "Master/Slave", "Tight"}));
+    m_collaborationMode->setCallback([this](int mode){
+        switch(mode) {
+        case LooseCoupling:
+            setSyncMode("LOOSE");
+            VRAvatarList::instance()->show();
+            cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
+            break;
+        case MasterSlaveCoupling:
+            setSyncMode("MS");
+            VRAvatarList::instance()->hide();
+            cover->sendBinMessage("SYNC_MODE", "MS", 3);
+            SyncXform();
+            SyncScale();
+            break;
+        case TightCoupling:
+            setSyncMode("TIGHT");
+            VRAvatarList::instance()->hide();
+            cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
+            SyncXform();
+            SyncScale();
+            break;
+        }
+    });
+    m_collaborationMode->select(syncMode);
 
-    static bool oldMasterStatus = true;
-    static float oldSyncInterval = -1;
-    static bool oldAvatarVisibility = true;
-    if (oldMasterStatus != isMaster())
-    {
-        oldMasterStatus = isMaster();
-        Master->setState(isMaster());
-    }
-    if (oldSyncInterval != syncInterval)
-    {
-        oldSyncInterval = syncInterval;
-        SyncInterval->setValue(syncInterval);
-    }
-    if (oldAvatarVisibility != VRAvatarList::instance()->isVisible())
-    {
-        oldAvatarVisibility = VRAvatarList::instance()->isVisible();
-        ShowAvatar->setState(VRAvatarList::instance()->isVisible());
-    }
-}
-
-void coVRCollaboration::menuEvent(coMenuItem *menuItem)
-{
-    if (cover->debugLevel(3))
-        fprintf(stderr, "coVRCollaboration::menuEvent\n");
-
-    if (menuItem == Loose)
-    {
-        setSyncMode("LOOSE");
-        VRAvatarList::instance()->show();
-        cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
-    }
-    else if (menuItem == Tight)
-    {
-        setSyncMode("TIGHT");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
-        SyncXform();
-        SyncScale();
-    }
-    else if (menuItem == MasterSlave)
-    {
-        setSyncMode("MS");
-        VRAvatarList::instance()->hide();
-        cover->sendBinMessage("SYNC_MODE", "MS", 3);
-        SyncXform();
-        SyncScale();
-    }
-    else if (menuItem == ShowAvatar)
-    {
-        showAvatar = ShowAvatar->getState();
+    m_showAvatar = new ui::Button(m_collaborativeMenu, "ShowAvatar");
+    m_showAvatar->setText("Show avatar");
+    m_showAvatar->setState(true);
+    m_showAvatar->setCallback([this](bool state){
+        showAvatar = state;
         if (showAvatar)
         {
             VRAvatarList::instance()->show();
@@ -201,25 +161,70 @@ void coVRCollaboration::menuEvent(coMenuItem *menuItem)
             VRAvatarList::instance()->hide();
             cover->sendBinMessage("SYNC_MODE", "HIDE_AVATAR", 12);
         }
-    }
-    else if (menuItem == Master)
-    {
-        if (Master->getState())
-        {
+    });
+
+    m_syncInterval = new ui::Slider(m_collaborativeMenu, "SyncInterval");
+    m_syncInterval->setPresentation(ui::Slider::AsDial);
+    m_syncInterval->setText("Sync interval");
+    m_syncInterval->setBounds(0.01, 10.0);
+    m_syncInterval->setValue(syncInterval);
+    m_syncInterval->setScale(ui::Slider::Logarithmic);
+    m_syncInterval->setCallback([this](double value, bool moving){
+        if (!moving)
+            syncInterval = value;
+    });
+
+    m_master = new ui::Button(m_collaborativeMenu, "Master");
+    m_master->setState(isMaster());
+    m_master->setEnabled(!isMaster() && m_visible);
+    m_master->setCallback([this](bool state){
+        if (state)
             coVRCommunication::instance()->becomeMaster();
-        }
-    }
-    else if (menuItem == SyncInterval)
-    {
-        syncInterval = SyncInterval->getValue();
-    }
+        m_master->setEnabled(!state && m_visible);
+    });
+
+    m_partnerGroup = new ui::Group(m_collaborativeMenu, "Partners");
+
+    showCollaborative(false);
 }
 
-void
+bool coVRCollaboration::updateCollaborativeMenu()
+{
+    if (cover->debugLevel(5))
+        fprintf(stderr, "coVRCollaboration::updateCollaborativeMenu\n");
+
+    bool changed = false;
+
+    if (oldMasterStatus != isMaster())
+    {
+        changed = true;
+        oldMasterStatus = isMaster();
+        m_master->setState(isMaster());
+        m_master->setEnabled(!isMaster() && m_visible);
+    }
+    if (oldSyncInterval != syncInterval)
+    {
+        changed = true;
+        oldSyncInterval = syncInterval;
+        m_syncInterval->setValue(syncInterval);
+    }
+    if (oldAvatarVisibility != VRAvatarList::instance()->isVisible())
+    {
+        changed = true;
+        oldAvatarVisibility = VRAvatarList::instance()->isVisible();
+        m_showAvatar->setState(VRAvatarList::instance()->isVisible());
+    }
+
+    return changed;
+}
+
+bool
 coVRCollaboration::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "coVRCollaboration::update\n");
+
+    bool changed = false;
 
     double thisTime = cover->frameTime();
 
@@ -230,7 +235,8 @@ coVRCollaboration::update()
         fprintf(stderr, "TRANSFORM not locked\n");
 	wasLo = lo;
 
-    updateCollaborativeMenu();
+    if (updateCollaborativeMenu())
+        changed = true;
 
     if (syncScale)
     {
@@ -340,6 +346,28 @@ coVRCollaboration::update()
 
         lastAvatarUpdateTime = thisTime;
     }
+
+    return changed;
+}
+
+void coVRCollaboration::SyncXform() //! mark VRSceneGraph::m_objectsTransform as dirty
+{
+    syncXform = true;
+}
+
+void coVRCollaboration::UnSyncXform()
+{
+    syncXform = false;
+}
+
+void coVRCollaboration::SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
+{
+    syncScale = true;
+}
+
+void coVRCollaboration::UnSyncScale()
+{
+    syncScale = false;
 }
 
 void coVRCollaboration::setSyncMode(const char *mode)
@@ -350,34 +378,22 @@ void coVRCollaboration::setSyncMode(const char *mode)
     if (strcmp(mode, "LOOSE") == 0)
     {
         syncMode = LooseCoupling;
-        if (Loose)
-            Loose->setState(true);
-        if (MasterSlave)
-            MasterSlave->setState(false);
-        if (Tight)
-            Tight->setState(false);
+        if (m_collaborationMode)
+            m_collaborationMode->select(syncMode);
         VRAvatarList::instance()->show();
     }
     else if (strcmp(mode, "MS") == 0)
     {
         syncMode = MasterSlaveCoupling;
-        if (Loose)
-            Loose->setState(false);
-        if (MasterSlave)
-            MasterSlave->setState(true);
-        if (Tight)
-            Tight->setState(false);
+        if (m_collaborationMode)
+            m_collaborationMode->select(syncMode);
         VRAvatarList::instance()->hide();
     }
     else if (strcmp(mode, "TIGHT") == 0)
     {
         syncMode = TightCoupling;
-        if (Loose)
-            Loose->setState(false);
-        if (MasterSlave)
-            MasterSlave->setState(false);
-        if (Tight)
-            Tight->setState(true);
+        if (m_collaborationMode)
+            m_collaborationMode->select(syncMode);
         VRAvatarList::instance()->hide();
     }
     else if (strcmp(mode, "SHOW_AVATAR") == 0)
@@ -414,18 +430,18 @@ void coVRCollaboration::remoteScale(float d)
 
 void coVRCollaboration::showCollaborative(bool visible)
 {
-    if (visible && collButton == NULL)
-    {
-        collButton = new coSubMenuItem("Collaborative");
-        collButton->setMenu(collaborativeMenu);
-        cover->getMenu()->add(collButton);
-    }
-    else if (!visible && collButton != NULL)
-    {
-        collButton->closeSubmenu();
-        delete collButton;
-        collButton = NULL;
-    }
+    m_visible = visible;
+
+    if (m_collaborativeMenu)
+        m_collaborativeMenu->setVisible(visible);
+    if (m_collaborationMode)
+        m_collaborationMode->setEnabled(visible);
+    if (m_syncInterval)
+        m_syncInterval->setEnabled(visible);
+    if (m_master)
+        m_master->setEnabled(visible && !isMaster());
+    if (m_showAvatar)
+        m_showAvatar->setEnabled(visible);
 }
 
 float coVRCollaboration::getSyncInterval()
@@ -447,4 +463,14 @@ coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const
 bool coVRCollaboration::isMaster()
 {
     return coVRCommunication::instance()->isMaster();
+}
+
+ui::Menu *coVRCollaboration::menu() const
+{
+    return m_collaborativeMenu;
+}
+
+ui::Group *coVRCollaboration::partnerGroup() const
+{
+    return m_partnerGroup;
 }

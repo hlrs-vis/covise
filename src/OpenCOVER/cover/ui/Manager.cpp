@@ -365,6 +365,14 @@ void Manager::updateFilter(const FileBrowser *fb) const
     }
 }
 
+void Manager::updateViewpoint(const CollaborativePartner *cp) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateViewpoint(cp);
+    }
+}
+
 bool Manager::keyEvent(int type, int mod, int keySym)
 {
     std::string handled;

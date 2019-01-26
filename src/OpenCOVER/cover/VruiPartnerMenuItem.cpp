@@ -9,7 +9,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "coPartnerMenuItem.h"
+#include "VruiPartnerMenuItem.h"
 #include <OpenVRUI/coFlatButtonGeometry.h>
 #include <OpenVRUI/coMenuContainer.h>
 #include "coVRPluginSupport.h"
@@ -21,8 +21,8 @@
 using namespace vrui;
 using namespace opencover;
 
-coPartnerMenuItem::coPartnerMenuItem(const char *n, bool s, coCheckboxGroup *g)
-    : coCheckboxMenuItem(n, s, g)
+VruiPartnerMenuItem::VruiPartnerMenuItem(const std::string &name, bool on, coCheckboxGroup *g)
+    : coCheckboxMenuItem(name, on, g)
 {
     //viewpoint = new
     viewpoint = new coToggleButton(new coFlatButtonGeometry("UI/eye"), this);
@@ -31,7 +31,7 @@ coPartnerMenuItem::coPartnerMenuItem(const char *n, bool s, coCheckboxGroup *g)
 }
 
 /// Destructor.
-coPartnerMenuItem::~coPartnerMenuItem()
+VruiPartnerMenuItem::~VruiPartnerMenuItem()
 {
     delete viewpoint;
 }
@@ -40,7 +40,7 @@ coPartnerMenuItem::~coPartnerMenuItem()
   checkbox menu item.
   @return ACTION_CALL_ON_MISS
 */
-int coPartnerMenuItem::hit(osg::Vec3 &, osgUtil::Hit *)
+int VruiPartnerMenuItem::hit(vruiHit *hit)
 {
     container->setHighlighted(true);
     //return ACTION_CALL_ON_MISS;
@@ -48,12 +48,12 @@ int coPartnerMenuItem::hit(osg::Vec3 &, osgUtil::Hit *)
 }
 
 /// Called when input device leaves the element.
-void coPartnerMenuItem::miss()
+void VruiPartnerMenuItem::miss()
 {
     coCheckboxMenuItem::miss();
 }
 
-void coPartnerMenuItem::buttonEvent(coButton *button)
+void VruiPartnerMenuItem::buttonEvent(coButton *button)
 {
     if (button == viewpoint)
     {
@@ -82,12 +82,12 @@ void coPartnerMenuItem::buttonEvent(coButton *button)
     }
 }
 
-char *coPartnerMenuItem::getClassName()
+const char *VruiPartnerMenuItem::getClassName() const
 {
-    return (char *)"coPartnerMenuItem";
+    return "coPartnerMenuItem";
 }
 
-bool coPartnerMenuItem::isOfClassName(char *classname)
+bool VruiPartnerMenuItem::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

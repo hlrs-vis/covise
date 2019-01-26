@@ -10,6 +10,7 @@
 #include "SelectionList.h"
 #include "EditField.h"
 #include "FileBrowser.h"
+#include "CollaborativePartner.h"
 
 #include <iostream>
 #include <cassert>
@@ -65,6 +66,10 @@ View::ViewElement *View::elementFactory(Element *elem)
     {
         ve = elementFactoryImplementation(action);
     }
+    else if (auto cp = dynamic_cast<CollaborativePartner *>(elem))
+    {
+        ve = elementFactoryImplementation(cp);
+    }
     else if (auto button = dynamic_cast<Button *>(elem))
     {
         ve = elementFactoryImplementation(button);
@@ -94,6 +99,16 @@ View::ViewElement *View::elementFactory(Element *elem)
     }
 
     return ve;
+}
+
+View::ViewElement *View::elementFactoryImplementation(CollaborativePartner *cp)
+{
+    return elementFactoryImplementation(static_cast<Button *>(cp));
+}
+
+void View::updateViewpoint(const CollaborativePartner *cp)
+{
+    (void)cp;
 }
 
 bool View::removeElement(Element *elem)

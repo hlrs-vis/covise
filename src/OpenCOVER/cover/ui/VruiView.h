@@ -97,6 +97,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
    VruiViewElement *elementFactoryImplementation(EditField *input) override;
    VruiViewElement *elementFactoryImplementation(FileBrowser *fb) override;
+   VruiViewElement *elementFactoryImplementation(CollaborativePartner *cp) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;

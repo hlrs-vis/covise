@@ -66,6 +66,8 @@ class COVER_UI_EXPORT Manager: public Owner {
    void updateValue(const FileBrowser *fb) const;
    //! update the file filter on all views
    void updateFilter(const FileBrowser *fb) const;
+   //! update viewpoint on all views
+   void updateViewpoint(const CollaborativePartner *cp) const;
 
    //! add elem to list of managed user interface items
    void add(Element *elem);

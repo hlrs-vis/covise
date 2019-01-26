@@ -24,15 +24,9 @@
 #include <util/coExport.h>
 #include <util/common.h>
 
-#include <OpenVRUI/coRowMenu.h>
 #include <osg/Matrix>
 
-namespace vrui
-{
-class coSubMenuItem;
-class coPotiMenuItem;
-class coCheckboxMenuItem;
-}
+#include "ui/Owner.h"
 
 namespace osg
 {
@@ -41,7 +35,17 @@ class Group;
 
 namespace opencover
 {
-class COVEREXPORT coVRCollaboration : public vrui::coMenuListener
+
+namespace ui
+{
+class Group;
+class Menu;
+class Button;
+class Slider;
+class SelectionList;
+}
+
+class COVEREXPORT coVRCollaboration: public ui::Owner
 {
     static coVRCollaboration *s_instance;
     coVRCollaboration();
@@ -55,8 +59,6 @@ public:
     };
 
 private:
-    void addMenuItem(osg::Group *itemGroup);
-
     int readConfigFile();
     void initCollMenu();
 
@@ -64,11 +66,13 @@ private:
     bool syncScale;
 	bool wasLo = false;
     float syncInterval;
+    bool oldMasterStatus = true;
+    float oldSyncInterval = -1;
+    bool oldAvatarVisibility = true;
 
 public:
     virtual ~coVRCollaboration();
     void config();
-    vrui::coSubMenuItem *collButton;
     void showCollaborative(bool visible);
     static coVRCollaboration *instance();
     int showAvatar;
@@ -84,38 +88,27 @@ public:
     bool isMaster();
 
     // Collaborative menu:
-    vrui::coRowMenu *collaborativeMenu;
-    vrui::coCheckboxMenuItem *Loose;
-    vrui::coCheckboxMenuItem *Tight;
-    vrui::coCheckboxMenuItem *MasterSlave;
-    vrui::coCheckboxMenuItem *ShowAvatar;
-    vrui::coCheckboxMenuItem *Master;
-    vrui::coPotiMenuItem *SyncInterval;
+    bool m_visible = false;
+    ui::Menu *m_collaborativeMenu = nullptr;
+    ui::Group *m_partnerGroup = nullptr;
+    ui::Button *m_showAvatar = nullptr;
+    ui::Button *m_master = nullptr;
+    ui::Slider *m_syncInterval = nullptr;
+    ui::SelectionList *m_collaborationMode = nullptr;
 
-    // process key events
-    void menuEvent(vrui::coMenuItem *);
-    void updateCollaborativeMenu();
+    ui::Menu *menu() const;
+    ui::Group *partnerGroup() const;
+
+    bool updateCollaborativeMenu();
 
     void init();
 
-    void update();
+    bool update();
 
-    void SyncXform() //! mark VRSceneGraph::m_objectsTransform as dirty
-    {
-        syncXform = true;
-    }
-    void UnSyncXform()
-    {
-        syncXform = false;
-    }
-    void SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
-    {
-        syncScale = true;
-    }
-    void UnSyncScale()
-    {
-        syncScale = false;
-    }
+    void SyncXform();
+    void UnSyncXform();
+    void SyncScale();
+    void UnSyncScale();
 
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);

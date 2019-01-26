@@ -231,6 +231,21 @@ const char *coVRCommunication::getHostaddress()
     return hostaddr;
 }
 
+std::string coVRCommunication::getUsername()
+{
+    std::string name("noname");
+    if (auto val = getenv("USER"))
+    {
+        name = val;
+    }
+    else if (auto val = getenv("LOGNAME"))
+    {
+        name = val;
+    }
+
+    return name;
+}
+
 const char *coVRCommunication::getHostname()
 {
     static char *hostname = NULL;
@@ -274,17 +289,17 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
         coVRPartnerList::instance()->reset();
         while (coVRPartner *p2 = coVRPartnerList::instance()->current())
         {
-            p2->setMaster(0);
+            p2->setMaster(false);
             coVRPartnerList::instance()->next();
         }
-        me->setMaster(1);
+        me->setMaster(true);
     }
     else if (strcmp(key, "SLAVE") == 0)
     {
         coVRPartnerList::instance()->reset();
         while (coVRPartner *p2 = coVRPartnerList::instance()->current())
         {
-            p2->setMaster(0);
+            p2->setMaster(false);
             coVRPartnerList::instance()->next();
         }
     }
@@ -456,24 +471,24 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
         int num;
-        int minID = 10000000;
         tb >> num;
         for (int i = 0; i < num; i++)
         {
             int id;
             tb >> id;
             coVRPartner *p = coVRPartnerList::instance()->get(id);
-            if (p)
+            if (!p)
             {
+                p = new coVRPartner(id);
+                coVRPartnerList::instance()->append(p);
+            }
+            if (p->getID() != me->getID())
                 p->setInfo(tb);
-            }
-            else
-            {
-                coVRPartnerList::instance()->append(new coVRPartner(id, tb));
-            }
+            p->updateUi();
         }
         coVRPartnerList::instance()->reset();
         bool haveMaster = false;
+        int minID = 10000000;
         while (coVRPartner *p = coVRPartnerList::instance()->current())
         {
             if (p->isMaster())

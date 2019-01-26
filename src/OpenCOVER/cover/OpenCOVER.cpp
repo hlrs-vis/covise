@@ -1073,7 +1073,12 @@ bool OpenCOVER::frame()
     // update transformations node according to interaction
     coVRNavigationManager::instance()->update();
     VRSceneGraph::instance()->update();
-    coVRCollaboration::instance()->update();
+    if (coVRCollaboration::instance()->update())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of collaborative action" << std::endl;
+        render = true;
+    }
 
     // update viewer position and channels
     if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
