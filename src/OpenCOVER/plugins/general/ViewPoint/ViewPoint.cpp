@@ -194,7 +194,7 @@ bool ViewPoints::init()
 
 
     runMenu_ = new ui::Menu(viewPointMenu_, "run");
-    runMenu_->setText("run flight");
+    runMenu_->setText("Run flight");
 
 
     runButton = new ui::Button(runMenu_, "RunFlight");
