@@ -2654,7 +2654,7 @@ void SGTextureThread::run()
         }
     }
 
-    std::cerr << "SGTextureThread: finishd" << std::endl;
+    //std::cerr << "SGTextureThread: finished" << std::endl;
 }
 
 void SGTextureThread::enqueueGeode(int number, std::string geode)
