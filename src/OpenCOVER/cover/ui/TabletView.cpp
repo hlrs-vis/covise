@@ -205,13 +205,19 @@ void TabletView::updateEnabled(const Element *elem)
 
 void TabletView::updateVisible(const Element *elem)
 {
-    //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << ")" << std::endl;
+    //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << std::endl;
     auto ve = tuiElement(elem);
     if (!ve)
+    {
+        //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << ": NO view element" << std::endl;
         return;
+    }
     auto te = ve->m_elem;
     if (!te)
+    {
+        //std::cerr << "ui::Tablet: updateVisible(" << elem->path() << "): visible=" << elem->visible() << ": NO tablet element" << std::endl;
         return;
+    }
     te->setHidden(!elem->visible(this));
 }
 

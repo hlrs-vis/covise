@@ -3755,7 +3755,6 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     createSimple(type);
     if(tui()->debugTUI())
@@ -3779,7 +3778,6 @@ coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, 
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     createSimple(type);
     if(tui()->debugTUI())
@@ -3803,7 +3801,6 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     ID = tui()->getID();
     tui()->addElement(this);
     listener = NULL;
-    hidden = false;
     if(tui()->debugTUI())
     {
         coVRMSController::instance()->syncStringStop(name);
@@ -3826,7 +3823,6 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     if(tui()->debugTUI())
     {
@@ -4099,6 +4095,7 @@ void coTUIElement::setPos(int x, int y)
 
 void coTUIElement::setHidden(bool newState)
 {
+    //std::cerr << "coTUIElement::setHidden(hide=" << hidden << " -> " << newState << "): ID=" << ID << std::endl;
     if (hidden == newState)
         return;
 

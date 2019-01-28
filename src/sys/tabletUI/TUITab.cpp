@@ -142,6 +142,7 @@ void TUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
 
 void TUITab::setHidden(bool hide)
 {
+    //std::cerr << "TUITab::setHidden(hide=" << hide << "), tab=" << getID() << "/" << getName().toStdString() << std::endl;
     TUIContainer::setHidden(hide);
     if (TUIContainer *parent = getParent())
     {
@@ -163,6 +164,10 @@ void TUITab::setHidden(bool hide)
         {
             std::cerr << "TUITab::setHidden(): parent of " << getID() << "/" << getName().toStdString() << " is not a TUITabFolder but a " << parent->getClassName() << std::endl;
         }
+    }
+    else
+    {
+        //std::cerr << "TUITab::setHidden(): no parent for " << getID() << "/" << getName().toStdString() << std::endl;
     }
 }
 

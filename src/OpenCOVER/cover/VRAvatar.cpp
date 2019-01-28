@@ -183,6 +183,7 @@ void VRAvatarList::add(VRAvatar *a)
     avatars.push_back(a);
     if (!avatars.empty())
     {
+        //std::cerr << "Showing Collaborative: have Avatar" << std::endl;
         coVRCollaboration::instance()->showCollaborative(true);
     }
     //cerr << num << " AddAvatars" << endl;

@@ -105,14 +105,14 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
     }
     else if (type == TABLET_SET_HIDDEN)
     {
-        int hide;
+        bool hide;
         tb >> hide;
         setHidden(hide ? true : false);
         TUIElement::setHidden(hide ? true : false);
     }
     else if (type == TABLET_SET_ENABLED)
     {
-        int en;
+        bool en;
         tb >> en;
         setEnabled(en ? true : false);
         TUIElement::setEnabled(en ? true : false);
@@ -233,6 +233,8 @@ void TUIElement::setVisible(bool newState)
  */
 void TUIElement::setHidden(bool hide)
 {
+    //std::cerr << "TUIElement::setHidden(hide=" << hide << "), tab=" << getID() << "/" << getName().toStdString() << std::endl;
+
     hidden = hide;
     if (getWidget())
         getWidget()->setVisible(!hidden);
