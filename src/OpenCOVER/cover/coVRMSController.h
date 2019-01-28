@@ -156,7 +156,7 @@ public:
     int syncMessage(covise::Message *msg);
     bool syncBool(bool);
     std::string syncString(const std::string &s);
-    void syncVRBMessages();
+    bool syncVRBMessages();
     void waitForSlaves();
     void waitForSlavesDraw();
     void waitForMaster();

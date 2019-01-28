@@ -1029,7 +1029,8 @@ bool OpenCOVER::frame()
 
     DeletionManager::the()->run();
 
-    bool render = false;
+    bool render = m_renderNext;
+    m_renderNext = false;
 
     //MARK0("COVER reading input devices");
 
@@ -1144,6 +1145,13 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+    if (!render && coVRMSController::instance()->syncVRBMessages())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because of VRB message" << std::endl;
+        render = true;
+    }
+
     if (!render)
     {
         if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)
@@ -1162,10 +1170,10 @@ bool OpenCOVER::frame()
                     }
                     struct timeval tenms {0, 10000};
                     int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+
                     if (nready <= 0)
                         return false;
                 }
-                m_renderNext = false;
                 if (cover->debugLevel(4))
                     std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
             }
@@ -1239,7 +1247,12 @@ bool OpenCOVER::frame()
         cover->setCursorVisible(false);
     }
 
-    coVRMSController::instance()->syncVRBMessages();
+    if (coVRMSController::instance()->syncVRBMessages())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering next frame because of VRB message" << std::endl;
+        m_renderNext = true;
+    }
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {

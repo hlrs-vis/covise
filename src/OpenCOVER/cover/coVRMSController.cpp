@@ -2369,7 +2369,7 @@ std::string coVRMSController::syncString(const std::string &s)
     }
 }
 
-void coVRMSController::syncVRBMessages()
+bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
@@ -2392,7 +2392,7 @@ void coVRMSController::syncVRBMessages()
                 vrbMsg = new Message;
                 if (numVrbMessages >= MAX_VRB_MESSAGES)
                 {
-                    cerr << "to many VRB Messages!!" << endl;
+                    cerr << "too many VRB Messages!!" << endl;
                     break;
                 }
                 if (!vrbc->isConnected())
@@ -2452,6 +2452,8 @@ void coVRMSController::syncVRBMessages()
     }
     vrbMsg->data = NULL;
     delete vrbMsg;
+
+    return numVrbMessages>0;
 }
 
 void coVRMSController::loadFile(const char *filename)
