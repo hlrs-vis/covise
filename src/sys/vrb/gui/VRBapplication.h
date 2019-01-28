@@ -57,12 +57,14 @@ private slots:
     void about();
     void newDoc();
     void timerDone();
-    void showMsg();
+    void showMsg(bool show);
     void deleteItem();
     void configItem();
+    void popupCB(const QPoint &);
     void popupCB(QTreeWidgetItem *item, const QPoint &, int);
     void showBPS(QTreeWidgetItem *item);
     void setStyle(const QString &);
+    void enterWhatsThis();
 
 private:
     void createMenubar();

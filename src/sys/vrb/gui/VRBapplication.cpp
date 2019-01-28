@@ -32,6 +32,7 @@
 #include <QListWidgetItem>
 #include <QSignalMapper>
 #include <QStyleFactory>
+#include <QWhatsThis>
 //#include <QAccel>
 #include <QTextEdit>
 
@@ -58,7 +59,7 @@ ApplicationWindow *appwin = NULL;
 ApplicationWindow::ApplicationWindow()
     : QMainWindow()
 {
-    setWindowTitle("application main window");
+    setWindowTitle("VRB - Virtual Reality Request Broker");
 
     // init some values
 
@@ -118,10 +119,16 @@ ApplicationWindow::ApplicationWindow()
            << "IP";
     table->setHeaderLabels(labels);
     table->setMinimumSize(table->sizeHint());
-    connect(table, SIGNAL(itemClicked(QTreeWidgetem *)),
+    connect(table, SIGNAL(itemClicked(QTreeWidgetItem *,int)),
             this, SLOT(showBPS(QTreeWidgetItem *)));
+#if 0
     connect(table, SIGNAL(rightButtonClicked(QTreeWidgetItem *, const QPoint &, int)),
             this, SLOT(popupCB(QTreeWidgetItem *, const QPoint &, int)));
+#else
+    table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(table, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(popupCB(const QPoint &)));
+#endif
 
     box->addWidget(table);
 
@@ -189,8 +196,10 @@ void ApplicationWindow::createMenubar()
 
     QMenu *pref = new QMenu(tr("&Preference"), this);
     pref->setFont(QFont("Helvetica", 8));
-    showMessageAreaAction = pref->addAction("Show MessageArea", this, SLOT(showMsg()));
+    showMessageAreaAction = pref->addAction("Message Area");
+    showMessageAreaAction->setCheckable(true);
     showMessageAreaAction->setChecked(false);
+    connect(showMessageAreaAction, SIGNAL(toggled(bool)), SLOT(showMsg(bool)));
 
     // Style menu
 
@@ -209,7 +218,7 @@ void ApplicationWindow::createMenubar()
     help->setFont(QFont("Helvetica", 8));
     help->addAction("&About", this, SLOT(about()), Qt::Key_F1);
     help->addSeparator();
-    help->addAction("What's &This", this, SLOT(whatsThis()), Qt::SHIFT + Qt::Key_F1);
+    help->addAction("What's &This", this, SLOT(enterWhatsThis()), Qt::SHIFT + Qt::Key_F1);
 
     menuBar()->setFont(boldfont);
     menuBar()->addMenu(file);
@@ -379,17 +388,17 @@ void ApplicationWindow::createCurves(VRBSClient *vrb)
 //------------------------------------------------------------------------
 // hide/show the message window
 //------------------------------------------------------------------------
-void ApplicationWindow::showMsg()
+void ApplicationWindow::showMsg(bool show)
 {
-    if (showMessageAreaAction->isChecked())
-    {
-        msgFrame->hide();
-        showMessageAreaAction->setChecked(false);
-    }
-    else
+    if (show)
     {
         msgFrame->show();
         showMessageAreaAction->setChecked(true);
+    }
+    else
+    {
+        msgFrame->hide();
+        showMessageAreaAction->setChecked(false);
     }
 }
 
@@ -401,6 +410,11 @@ void ApplicationWindow::setStyle(const QString &style)
     QStyle *s = QStyleFactory::create(style);
     if (s)
         QApplication::setStyle(s);
+}
+
+void ApplicationWindow::enterWhatsThis()
+{
+    QWhatsThis::enterWhatsThisMode();
 }
 
 //------------------------------------------------------------------------
@@ -448,8 +462,8 @@ void ApplicationWindow::newDoc()
 //------------------------------------------------------------------------
 void ApplicationWindow::about()
 {
-    QMessageBox::about(this, "VRB User Interface ",
-                       "This is the new beautiful VRB User Interface");
+    QMessageBox::about(this, "VRB User Interface",
+                       "This is the GUI for the COVISE Virtual Reality Request Broker (VRB).");
 }
 
 //------------------------------------------------------------------------
@@ -462,7 +476,7 @@ void ApplicationWindow::closeEvent(QCloseEvent *ce)
     {
         switch (QMessageBox::information(this, "VRB User Interface",
                                          "There are clients connected to this VRB.\nDo you want to quit anyway?",
-                                         "Yes", "No",
+                                         "Quit", "Cancel",
                                          0, 1, 1))
         {
         case 0:
@@ -513,6 +527,15 @@ void ApplicationWindow::timerDone()
     }
 }
 
+void ApplicationWindow::popupCB(const QPoint &pos)
+{
+    auto item = table->itemAt(pos);
+    if (!item)
+        return;
+    int col = table->columnAt(pos.x());
+    popupCB(item, pos, col);
+}
+
 //------------------------------------------------------------------------
 // show the popup menu at the clicked vrb client
 //------------------------------------------------------------------------
@@ -521,7 +544,7 @@ void ApplicationWindow::popupCB(QTreeWidgetItem *item, const QPoint &pos, int co
     if (col == -1)
         return;
     popup->setItem(item);
-    popup->popup(pos);
+    popup->popup(table->mapToGlobal(pos));
 }
 
 //------------------------------------------------------------------------
