@@ -33,6 +33,7 @@
 #include <QSignalMapper>
 #include <QStyleFactory>
 #include <QWhatsThis>
+#include <QHeaderView>
 //#include <QAccel>
 #include <QTextEdit>
 
@@ -109,16 +110,18 @@ ApplicationWindow::ApplicationWindow()
 
     table = new QTreeWidget(w);
     QStringList labels;
+    // keep in sync with VRBSClient::Columns enum
     labels << "Master"
            << "ID"
            << "Group"
-           << "Host";
-    labels << "User"
+           << "User"
+           << "Host"
            << "Email"
            << "URL"
            << "IP";
     table->setHeaderLabels(labels);
     table->setMinimumSize(table->sizeHint());
+    table->header()->resizeSections(QHeaderView::ResizeToContents);
     connect(table, SIGNAL(itemClicked(QTreeWidgetItem *,int)),
             this, SLOT(showBPS(QTreeWidgetItem *)));
 #if 0

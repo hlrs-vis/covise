@@ -70,7 +70,7 @@ double VRBSClient::time()
 }
 #endif // _WIN32
 
-int VRBSClient::ID = 1;
+int VRBSClient::s_idCounter = 1;
 VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
 {
 #ifdef GUI
@@ -82,18 +82,18 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
 #endif
     address = new char[strlen(ip) + 1];
     strcpy(address, ip);
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    m_name = new char[strlen(n) + 1];
+    strcpy(m_name, n);
     conn = c;
     userInfo = NULL;
-    myID = ID++;
-    Group = -1;
+    myID = s_idCounter++;
+    m_group = -1;
     TokenBuffer rtb;
     rtb << myID;
     Message m(rtb);
     m.type = COVISE_MESSAGE_VRB_GET_ID;
     conn->send_msg(&m);
-    Master = 0;
+    m_master = 0;
     socketNotifier = NULL;
     myItem = NULL;
     lastRecTime = 0.0;
@@ -109,11 +109,11 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
 void VRBSClient::setContactInfo(const char *ip, const char *n)
 {
     delete[] address;
-    delete[] name;
+    delete[] m_name;
     address = new char[strlen(ip) + 1];
     strcpy(address, ip);
-    name = new char[strlen(n) + 1];
-    strcpy(name, n);
+    m_name = new char[strlen(n) + 1];
+    strcpy(m_name, n);
     TokenBuffer rtb;
     rtb << myID;
     Message m(rtb);
@@ -125,30 +125,30 @@ void VRBSClient::setContactInfo(const char *ip, const char *n)
     char num[100];
     myItem = new QTreeWidgetItem(appwin->table);
     sprintf(num, "%d", myID);
-    myItem->setText(1, num);
-    myItem->setText(7, address);
+    myItem->setText(ID, num);
+    myItem->setText(IP, address);
 #endif
 }
 
 void VRBSClient::setMaster(int m)
 {
-    Master = m;
+    m_master = m;
 // Eintrag ndern
 #ifdef GUI
     if (m)
-        myItem->setIcon(0, QIcon(*pix_master));
+        myItem->setIcon(Master, QIcon(*pix_master));
     else
-        myItem->setIcon(0, QIcon(*pix_slave));
+        myItem->setIcon(Master, QIcon(*pix_slave));
 #endif
 }
 
 void VRBSClient::setGroup(int g)
 {
-    Group = g;
+    m_group = g;
 #ifdef GUI
     char num[100];
     sprintf(num, "%d", g);
-    myItem->setText(2, num);
+    myItem->setText(Group, num);
 #endif
 }
 
@@ -164,13 +164,13 @@ VRBSClient::VRBSClient(Connection *c, QSocketNotifier *sn)
     socketNotifier = sn;
     address = new char[strlen("127.0.0.0") + 1];
     strcpy(address, "127.0.0.0");
-    name = new char[strlen("NONE") + 1];
-    strcpy(name, "NONE");
+    m_name = new char[strlen("NONE") + 1];
+    strcpy(m_name, "NONE");
     conn = c;
     userInfo = NULL;
-    myID = ID++;
-    Group = -1;
-    Master = 0;
+    myID = s_idCounter++;
+    m_group = -1;
+    m_master = 0;
     myItem = NULL;
     interval = 1;
     for (int j = 0; j < 4; j++)
@@ -196,7 +196,7 @@ VRBSClient::~VRBSClient()
         coRegistry::instance->deleteEntry(myID);
     }
     delete[] address;
-    delete[] name;
+    delete[] m_name;
     delete[] userInfo;
     delete conn;
     cerr << "closed connection to client " << myID << endl;
@@ -216,9 +216,9 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
 {
     rtb << myID;
     rtb << address;
-    if (name)
+    if (m_name)
     {
-        rtb << name;
+        rtb << m_name;
     }
     else
     {
@@ -232,8 +232,8 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
     {
         rtb << "";
     }
-    rtb << Group;
-    rtb << Master;
+    rtb << m_group;
+    rtb << m_master;
 }
 
 void VRBSClient::setUserInfo(const char *ui)
@@ -259,7 +259,7 @@ void VRBSClient::setUserInfo(const char *ui)
         return;
     *c = '\0';
     // hostname
-    myItem->setText(3, tmp2);
+    myItem->setText(Host, tmp2);
     c++;
     while ((*c != '\"') && (*c != '\0'))
         c++;
@@ -272,7 +272,7 @@ void VRBSClient::setUserInfo(const char *ui)
         return;
     *c = '\0';
     // userName
-    myItem->setText(4, tmp2);
+    myItem->setText(User, tmp2);
     c++;
     while ((*c != '\"') && (*c != '\0'))
         c++;
@@ -285,7 +285,7 @@ void VRBSClient::setUserInfo(const char *ui)
         return;
     *c = '\0';
     // email
-    myItem->setText(5, tmp2);
+    myItem->setText(Email, tmp2);
     c++;
     while ((*c != '\"') && (*c != '\0'))
         c++;
@@ -298,7 +298,7 @@ void VRBSClient::setUserInfo(const char *ui)
         return;
     *c = '\0';
     // url
-    myItem->setText(6, tmp2);
+    myItem->setText(URL, tmp2);
     c++;
     delete[] tmp;
 

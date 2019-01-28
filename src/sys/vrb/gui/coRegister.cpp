@@ -11,6 +11,7 @@
 #include <QString>
 #include <QFrame>
 #include <QTextEdit>
+#include <QGridLayout>
 
 #include "coRegister.h"
 
@@ -19,8 +20,11 @@
 coRegister::coRegister(QWidget *parent, const char * /*name*/)
     : QFrame(parent)
 {
+    auto layout = new QGridLayout(this);
+    setLayout(layout);
 
     table = new QTreeWidget(this);
+    layout->addWidget(table);
     table->setSortingEnabled(true);
     // connect (table,  SIGNAL (currentChanged ( int , int )),
     //        this,   SLOT(tableCB ( int , int )));
@@ -29,6 +33,7 @@ coRegister::coRegister(QWidget *parent, const char * /*name*/)
     headerLabels << tr("ClassName") << tr("ID") << tr("Variable") << tr("Value");
     table->setHeaderLabels(headerLabels);
     table->setColumnWidth(1, 20);
+    table->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 #if 0
    //no aequivalent present in qt4

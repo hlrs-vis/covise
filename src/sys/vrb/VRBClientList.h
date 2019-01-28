@@ -25,19 +25,31 @@ class QTreeWidgetItem;
 class QPixmap;
 class QLabel;
 class VRBCurve;
+
 class VRBSClient
 {
 public:
     VRBSClient(covise::Connection *c, QSocketNotifier *sn);
-    VRBSClient(covise::Connection *c, const char *ip, const char *name);
+    VRBSClient(covise::Connection *c, const char *ip, const char *m_name);
     ~VRBSClient();
+
+    enum Columns {
+        Master,
+        ID,
+        Group,
+        User,
+        Host,
+        Email,
+        URL,
+        IP,
+    };
 
     void setContactInfo(const char *ip, const char *n);
     void setUserInfo(const char *userInfo);
     covise::Connection *conn;
     const char *getName()
     {
-        return name;
+        return m_name;
     };
     const char *getIP()
     {
@@ -49,12 +61,12 @@ public:
     };
     int getGroup()
     {
-        return Group;
+        return m_group;
     };
     void setGroup(int g);
     int getMaster()
     {
-        return Master;
+        return m_master;
     };
     void setMaster(int m);
     const char *getUserInfo()
@@ -77,11 +89,11 @@ public:
 
 private:
     char *address = nullptr;
-    char *name = nullptr;
+    char *m_name = nullptr;
     char *userInfo = nullptr;
     int myID;
-    int Group;
-    int Master;
+    int m_group;
+    int m_master;
     long bytesSent;
     long bytesReceived;
     double lastRecTime = -1.;
@@ -92,7 +104,7 @@ private:
     int bytesSentPerSecond;
     int bytesReceivedPerSecond;
     QSocketNotifier *socketNotifier;
-    static int ID;
+    static int s_idCounter;
     double time();
 };
 
