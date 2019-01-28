@@ -1,4 +1,5 @@
 /* This file is part of COVISE.
+/* This file is part of COVISE.
 
    You can use it under the terms of the GNU Lesser General Public License
    version 2.1 or later, see lgpl-2.1.txt.
@@ -54,6 +55,7 @@
 #include <OpenVRUI/coSliderMenuItem.h>
 
 #include <osgGA/GUIEventAdapter>
+#include <SDL_audio.h>
 
 #ifndef WIN32
  // for chdir
@@ -65,6 +67,166 @@
 #include <mmeapi.h>
 #define GetCurrentDir _getcwd
 
+//Maximum number of supported recording devices
+const int MAX_RECORDING_DEVICES = 20;
+
+//Maximum recording time
+const int MAX_RECORDING_SECONDS = 5;
+
+//Maximum recording time plus padding
+const int RECORDING_BUFFER_SECONDS = MAX_RECORDING_SECONDS + 1;
+
+/*
+class Vector3d {  // this is a pretty standard vector class
+public:
+	double x, y, z;
+	...
+}
+
+void subdivide(const Vector3d &v1, const Vector3d &v2, const Vector3d &v3, vector<Vector3d> &sphere_points, const unsigned int depth) {
+	if (depth == 0) {
+		sphere_points.push_back(v1);
+		sphere_points.push_back(v2);
+		sphere_points.push_back(v3);
+		return;
+	}
+	const Vector3d v12 = (v1 + v2).norm();
+	const Vector3d v23 = (v2 + v3).norm();
+	const Vector3d v31 = (v3 + v1).norm();
+	subdivide(v1, v12, v31, sphere_points, depth - 1);
+	subdivide(v2, v23, v12, sphere_points, depth - 1);
+	subdivide(v3, v31, v23, sphere_points, depth - 1);
+	subdivide(v12, v23, v31, sphere_points, depth - 1);
+}
+
+void initialize_sphere(vector<Vector3d> &sphere_points, const unsigned int depth) {
+	const double X = 0.525731112119133606;
+	const double Z = 0.850650808352039932;
+	const Vector3d vdata[12] = {
+		{-X, 0.0, Z}, { X, 0.0, Z }, { -X, 0.0, -Z }, { X, 0.0, -Z },
+		{ 0.0, Z, X }, { 0.0, Z, -X }, { 0.0, -Z, X }, { 0.0, -Z, -X },
+		{ Z, X, 0.0 }, { -Z, X, 0.0 }, { Z, -X, 0.0 }, { -Z, -X, 0.0 }
+	};
+	int tindices[20][3] = {
+		{0, 4, 1}, { 0, 9, 4 }, { 9, 5, 4 }, { 4, 5, 8 }, { 4, 8, 1 },
+		{ 8, 10, 1 }, { 8, 3, 10 }, { 5, 3, 8 }, { 5, 2, 3 }, { 2, 7, 3 },
+		{ 7, 10, 3 }, { 7, 6, 10 }, { 7, 11, 6 }, { 11, 0, 6 }, { 0, 1, 6 },
+		{ 6, 1, 10 }, { 9, 0, 11 }, { 9, 11, 2 }, { 9, 2, 5 }, { 7, 2, 11 }
+	};
+	for (int i = 0; i < 20; i++)
+		subdivide(vdata[tindices[i][0]], vdata[tindices[i][1]], vdata[tindices[i][2]], sphere_points, depth);
+}*/
+AudioInStream::AudioInStream(std::string deviceName)
+{
+
+
+	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
+	want.freq = 48000;
+	want.format = AUDIO_F32;
+	want.channels = 2;
+	want.samples = 4096;
+	want.callback = readData; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
+	want.userdata = this;
+	const char *devName = NULL;
+	if (deviceName.length() > 0)
+		devName = deviceName.c_str();
+
+	dev = SDL_OpenAudioDevice(devName, 1, &want, &have, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+	if (dev == 0) {
+		SDL_Log("Failed to open audio: %s", SDL_GetError());
+	}
+	else {
+		if (have.format != want.format) { /* we let this one thing change. */
+			SDL_Log("We didn't get Float32 audio format.");
+		}
+
+		//Calculate per sample bytes
+		bytesPerSample = have.channels * (SDL_AUDIO_BITSIZE(have.format) / 8);
+
+		//Calculate bytes per second
+		int bytesPerSecond = have.freq * bytesPerSample;
+
+		//Calculate buffer size
+		gBufferByteSize = RECORDING_BUFFER_SECONDS * bytesPerSecond;
+
+		//Calculate max buffer use
+		gBufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
+
+		//Allocate and initialize byte buffer
+		gRecordingBuffer = new Uint8[gBufferByteSize];
+		memset(gRecordingBuffer, 0, gBufferByteSize);
+
+		SDL_PauseAudioDevice(dev, SDL_FALSE); /* start audio playing. */
+	}
+	inputSize = BINSIZE;
+	outputSize = inputSize / 2 + 1;
+
+	ddata = new double[inputSize];
+	magnitudes = new double[outputSize];
+
+	ifft_result = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * outputSize);
+
+	plan = fftw_plan_dft_r2c_1d(BINSIZE, ddata, ifft_result, FFTW_ESTIMATE);
+
+}
+AudioInStream::~AudioInStream()
+{
+	SDL_CloseAudioDevice(dev);
+	delete[] gRecordingBuffer;
+	delete[] ddata;
+	delete[] magnitudes;
+	fftw_destroy_plan(plan);
+	fftw_free(ifft_result);
+}
+
+void AudioInStream::update()
+{
+	int bytesProcessed = 0;
+	if (have.format == AUDIO_F32LSB)
+	{
+		while ((gBufferBytePosition - bytesProcessed) / bytesPerSample > inputSize)
+		{
+			int sample = 0;
+			for (; (bytesProcessed < gBufferBytePosition && sample < inputSize); bytesProcessed += bytesPerSample)
+			{
+				//Hanning window
+				double m = 0.5 * (1 - cos(2 * M_PI*sample / (inputSize - 1)));
+				ddata[sample] = m * (*((float*)&(gRecordingBuffer[bytesProcessed])));
+				sample++;
+
+			}
+			fftw_execute(plan);
+			for (int i = 0; i < outputSize; i++) {
+				magnitudes[i] = sqrt((ifft_result[i][0]* ifft_result[i][0]) + (ifft_result[i][1]* ifft_result[i][1]));// mag=sqrt(real^2+img^2)
+			}
+		}
+	}
+	if (bytesProcessed > 0)
+	{
+		memcpy(gRecordingBuffer, gRecordingBuffer + bytesProcessed, gBufferBytePosition - bytesProcessed);
+		gBufferBytePosition -= bytesProcessed;
+	}
+	//fprintf(stderr, "%03.3f\n", (float)magnitudes[20]);
+
+}
+
+void AudioInStream::readData(Uint8 * stream, int len)
+{
+	if ((gBufferBytePosition + len) < gBufferByteSize)
+	{
+		//Copy audio from stream
+		memcpy(&gRecordingBuffer[gBufferBytePosition], stream, len);
+
+		//Move along buffer
+		gBufferBytePosition += len;
+	}
+}
+
+void AudioInStream::readData(void *userdata, Uint8 * stream, int len)
+{
+	AudioInStream * as = (AudioInStream *)userdata;
+	as->readData(stream, len);
+}
 
 class MIDIMessage
 {
@@ -241,13 +403,50 @@ void MidiPlugin::key(int type, int keySym, int mod)
 
 //-----------------------------------------------------------------------------
 MidiPlugin::MidiPlugin()
-    : ui::Owner("MidiPlugin", cover->ui)
+	: ui::Owner("MidiPlugin", cover->ui)
 {
-    plugin = this;
-    player = NULL;
+	plugin = this;
+	player = NULL;
 
-    MIDITab = NULL;
-    startTime = 0;
+	MIDITab = NULL;
+	startTime = 0;
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+	}
+	else
+	{
+		//Get capture device count
+		gRecordingDeviceCount = SDL_GetNumAudioDevices(SDL_TRUE);
+
+		//No recording devices
+		if (gRecordingDeviceCount < 1)
+		{
+			printf("Unable to get audio capture device! SDL Error: %s\n", SDL_GetError());
+		}
+			//At least one device connected
+		else
+		{
+			//Cap recording device count
+			if (gRecordingDeviceCount > MAX_RECORDING_DEVICES)
+			{
+				gRecordingDeviceCount = MAX_RECORDING_DEVICES;
+			}
+			osg::MatrixTransform *mt = new osg::MatrixTransform();
+			mt->setMatrix(osg::Matrix::translate(30,0,0));
+			cover->getObjectsRoot()->addChild(mt);
+			//Render device names
+			for (int i = 0; i < gRecordingDeviceCount; ++i)
+			{
+				//Get capture device name
+				AudioInStream *stream = new AudioInStream(SDL_GetAudioDeviceName(i, SDL_TRUE));
+				audioStreams.push_back(stream);
+				waveSurfaces.push_back(new FrequencySurface(cover->getObjectsRoot(), stream));
+				waveSurfaces.push_back(new AmplitudeSurface(mt, stream));
+			}
+		}
+	}
 
 	globalmtl = new osg::Material;
 	globalmtl->ref();
@@ -605,6 +804,7 @@ MidiPlugin::~MidiPlugin()
     {
         delete lTrack[i];
     }
+	SDL_Quit();
 }
 
 void MidiPlugin::addEvent(MidiEvent &me, int MidiStream)
@@ -629,6 +829,14 @@ bool MidiPlugin::destroy()
 
 bool MidiPlugin::update()
 {
+	for (auto it = audioStreams.begin(); it != audioStreams.end(); it++)
+	{
+		(*it)->update();
+	}
+	for (auto it = waveSurfaces.begin(); it != waveSurfaces.end(); it++)
+	{
+		(*it)->update();
+	}
     return true;
 }
 
@@ -1177,4 +1385,157 @@ void Note::integrate(double time)
     nm.setTrans(pos);
     transform->setMatrix(nm);
 }
+FrequencySurface::FrequencySurface(osg::Group * parent, AudioInStream *s) :WaveSurface(parent, s, s->outputSize / 4)
+{
+	lastMagnitudes = new double[width];
+	memset(lastMagnitudes, 0, (width) * sizeof(double));
+}
+FrequencySurface::~FrequencySurface()
+{
+	delete[] lastMagnitudes;
+}
 
+bool FrequencySurface::update()
+{
+
+	createNormals();
+	moveOneLine();
+	for (int n = 0; n < width; n++)
+	{
+		//(*vert)[n].z() = stream->ddata[n * 2] + stream->ddata[(n * 2) + 1];
+		double val = (stream->magnitudes[n] + lastMagnitudes[n]) / 2.0;
+		(*vert)[n].z() = (val) / 5.0;
+		lastMagnitudes[n] = val;
+
+	}
+
+	vert->dirty();
+	normals->dirty();
+	return true;
+}
+
+AmplitudeSurface::AmplitudeSurface(osg::Group * parent, AudioInStream *s) :WaveSurface(parent, s, s->inputSize/2)
+{
+	lastAmplitudes = new double[width];
+	memset(lastAmplitudes, 0, width * sizeof(double));
+}
+AmplitudeSurface::~AmplitudeSurface()
+{
+	delete[] lastAmplitudes;
+}
+
+bool AmplitudeSurface::update()
+{
+	createNormals();
+	moveOneLine();
+	for (int n = 0; n < width; n++)
+	{
+		double val = (stream->ddata[n * 2] + stream->ddata[(n * 2) + 1] + lastAmplitudes[n]) / 2.0;
+		(*vert)[n].z() = (val)*10;
+		lastAmplitudes[n] = val;
+
+	}
+
+	vert->dirty();
+	normals->dirty();
+	return true;
+}
+WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s,int w)
+{
+	stream = s;
+	width = w;
+	geode = new osg::Geode();
+	geode->setName("WaveSurface");
+	parent->addChild(geode.get());
+	osg::Geometry *geom = new osg::Geometry();
+	geode->addDrawable(geom);
+
+	geom->setUseDisplayList(false);
+	geom->setUseVertexBufferObjects(true);
+
+	vert = new osg::Vec3Array;
+	normals = new osg::Vec3Array;
+	vert->reserve(depth*width);
+	osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS);
+	primitives->reserve((depth - 1)*(width - 1) * 4);
+	for(int i=1;i<depth;i++)
+	{
+		for (int n = 1; n < width; n++)
+		{
+			primitives->push_back(i*width + n);
+			primitives->push_back(i*width + n-1);
+			primitives->push_back((i - 1)*width + n-1);
+			primitives->push_back((i - 1)*width + n);
+		}
+	}
+	for (int i = 0; i < depth; i++)
+	{
+		for (int n = 0; n < width; n++)
+		{
+			vert->push_back(osg::Vec3(n*(20.0/width), i*0.1, 0.0));
+			normals->push_back(osg::Vec3(0,0,1));
+		}
+	}
+	geom->addPrimitiveSet(primitives);
+	geom->setVertexArray(vert);
+	geom->setNormalArray(normals);
+	geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+	osg::StateSet *geoState = geode->getOrCreateStateSet();
+
+	if (globalDefaultMaterial.get() == NULL)
+	{
+		globalDefaultMaterial = new osg::Material;
+		globalDefaultMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		globalDefaultMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+		globalDefaultMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+		globalDefaultMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
+		globalDefaultMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+		globalDefaultMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+	}
+
+	geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
+}
+
+osg::ref_ptr <osg::Material >WaveSurface::globalDefaultMaterial=NULL;
+
+WaveSurface::~WaveSurface()
+{
+	while (geode->getParent(0))
+		geode->getParent(0)->removeChild(geode);
+}
+
+void WaveSurface::moveOneLine()
+{
+	for (int i = (depth - 1); i > 0; i--)
+	{
+		for (int n = 0; n < width; n++)
+		{
+			(*vert)[i*width + n].z() = (*vert)[(i - 1)*width + n].z();
+			(*normals)[i*width + n] = (*normals)[(i - 1)*width + n];
+		}
+	}
+}
+void WaveSurface::createNormals()
+{
+	for (int n = 1; n < width; n++)
+	{
+		float nx = (*vert)[n].z() - (*vert)[n - 1].z() / ((*vert)[n-1].x() - (*vert)[n].x());
+		float ny = (*vert)[width + n].z() - (*vert)[n].z() / ((*vert)[width + n].y() - (*vert)[n].y());
+		float dz = (*vert)[width + n].z() - (*vert)[n].z();
+		float nz = 1.0;
+		if (dz != 0)
+		{
+			nz = ((*vert)[n].y() - (*vert)[width + n].y()) / dz;
+		}
+		(*normals)[n].z() = 1;
+		(*normals)[n].x() = nx;
+		(*normals)[n].y() = ny;
+		(*normals)[n].normalize();
+	}
+
+}
+bool WaveSurface::update()
+{
+	return false;
+}

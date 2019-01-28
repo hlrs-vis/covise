@@ -28,6 +28,13 @@
 #include <cover/ui/Label.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
+#include <SDL_audio.h>
+#include <SDL.h>
+#include <fftw3.h>
+
+#define BINSIZE 1024
+
+
 
 using namespace opencover;
 using namespace covise;
@@ -41,6 +48,77 @@ namespace covise
     class coButtonMenuItem;
     class coSliderMenuItem;
 }
+class AudioInStream;
+
+class WaveSurface
+{
+public:
+	WaveSurface(osg::Group *parent, AudioInStream* stream, int width);
+	~WaveSurface();
+
+
+	virtual bool update();
+protected:
+	void moveOneLine();
+	void createNormals();
+	int depth = 300;
+	int width = 50;
+	osg::ref_ptr<osg::Geode> geode;
+	osg::Vec3Array *vert;
+	osg::Vec3Array *normals;
+	AudioInStream* stream;
+	static osg::ref_ptr <osg::Material>globalDefaultMaterial;
+};
+
+
+class FrequencySurface : public WaveSurface
+{
+public:
+	FrequencySurface(osg::Group *parent, AudioInStream* stream);
+	~FrequencySurface();
+
+	virtual bool update();
+private:
+
+	double *lastMagnitudes;
+};
+class AmplitudeSurface : public WaveSurface
+{
+public:
+	AmplitudeSurface(osg::Group *parent, AudioInStream* stream);
+	~AmplitudeSurface();
+
+	virtual bool update();
+private:
+
+	double *lastAmplitudes;
+};
+
+class AudioInStream
+{
+public:
+	AudioInStream(std::string deviceName="");
+	~AudioInStream();
+	void update();
+	double *ddata;
+	double *magnitudes;
+	int inputSize;
+	int outputSize;
+private:
+	SDL_AudioDeviceID dev;
+	void readData(Uint8 * stream, int len);
+	static void readData(void *userdata, Uint8 * stream,int len);
+	int gBufferBytePosition=0;
+	int bytesPerSample;
+	int gBufferByteSize;
+	int gBufferByteMaxPosition;
+	Uint8 *gRecordingBuffer;
+	SDL_AudioSpec want, have;
+
+	fftw_complex *ifft_result;
+	fftw_plan plan;
+
+};
 class Track;
 class Note
 {
@@ -101,8 +179,9 @@ public:
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
-
-
+	int gRecordingDeviceCount;
+	std::list<AudioInStream *>audioStreams;
+	std::list<WaveSurface *>waveSurfaces;
 
 public:
     static const size_t NUMMidiStreams = 2;
