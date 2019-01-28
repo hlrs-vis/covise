@@ -34,10 +34,10 @@
 
 #define BINSIZE 1024
 
-
-
-using namespace opencover;
-using namespace covise;
+namespace smf
+{
+    // just for compiling with MidiFile inside and outside of smf namespace
+}
 
 namespace covise
 {
@@ -48,7 +48,12 @@ namespace covise
     class coButtonMenuItem;
     class coSliderMenuItem;
 }
+
 class AudioInStream;
+
+using namespace opencover;
+using namespace covise;
+using namespace smf;
 
 class WaveSurface
 {
