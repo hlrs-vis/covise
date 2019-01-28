@@ -164,8 +164,11 @@ AudioInStream::AudioInStream(std::string deviceName)
 
 	ddata = new double[inputSize];
 	magnitudes = new double[outputSize];
+	SDL_memset(ddata, 0, inputSize*sizeof(double));
+	SDL_memset(magnitudes, 0, outputSize*sizeof(double));
 
 	ifft_result = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * outputSize);
+	SDL_memset(ifft_result, 0, outputSize*sizeof(fftw_complex));
 
 	plan = fftw_plan_dft_r2c_1d(BINSIZE, ddata, ifft_result, FFTW_ESTIMATE);
 
@@ -437,6 +440,7 @@ MidiPlugin::MidiPlugin()
 			//Render device names
 			for (int i = 0; i < gRecordingDeviceCount; ++i)
 			{
+                                fprintf(stderr,"AudioDevice %d:%s\n",i,(SDL_GetAudioDeviceName(i, SDL_TRUE)));
 				//Get capture device name
 				AudioInStream *stream = new AudioInStream(SDL_GetAudioDeviceName(i, SDL_TRUE));
 				audioStreams.push_back(stream);

@@ -184,6 +184,8 @@ public:
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
+
+
 	int gRecordingDeviceCount;
 	std::list<AudioInStream *>audioStreams;
 	std::list<WaveSurface *>waveSurfaces;
