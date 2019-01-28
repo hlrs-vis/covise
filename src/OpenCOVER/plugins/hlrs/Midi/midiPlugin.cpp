@@ -65,7 +65,10 @@
 #include <direct.h>
 #include <mmeapi.h>
 #define GetCurrentDir _getcwd
-
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 //Maximum number of supported recording devices
 const int MAX_RECORDING_DEVICES = 20;
 
@@ -74,7 +77,6 @@ const int MAX_RECORDING_SECONDS = 5;
 
 //Maximum recording time plus padding
 const int RECORDING_BUFFER_SECONDS = MAX_RECORDING_SECONDS + 1;
-
 /*
 class Vector3d {  // this is a pretty standard vector class
 public:
@@ -231,10 +233,11 @@ class MIDIMessage
 {
 public:
     int			mTime;
-    UCHAR		mStatus;
-    UCHAR		mParam1;
-    UCHAR		mParam2;
+    unsigned char		mStatus;
+    unsigned char		mParam1;
+    unsigned char		mParam2;
 };
+#ifdef WIN32
 void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
 	switch (wMsg) {
@@ -292,11 +295,7 @@ void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwP
 	}
 	return;
 }
-#else
-#include <unistd.h>
-#define GetCurrentDir getcwd
 #endif
-
 MidiPlugin *MidiPlugin::plugin = NULL;
 
 void playerUnavailableCB()
@@ -410,7 +409,7 @@ MidiPlugin::MidiPlugin()
 	MIDITab = NULL;
 	startTime = 0;
 	//Initialize SDL
-	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	/*if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 	}
@@ -445,7 +444,7 @@ MidiPlugin::MidiPlugin()
 				waveSurfaces.push_back(new AmplitudeSurface(mt, stream));
 			}
 		}
-	}
+	}*/
 
 	globalmtl = new osg::Material;
 	globalmtl->ref();
