@@ -1,5 +1,5 @@
 using(MIDIFILE)
-using(SDL)
+using(SDL2)
 using(FFTW)
 
 using(VRML)
