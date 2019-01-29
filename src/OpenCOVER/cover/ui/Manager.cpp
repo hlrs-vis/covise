@@ -643,7 +643,7 @@ void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, boo
         }
         else
         {
-            it->second.second->reset();
+            it->second.second = std::make_shared<covise::TokenBuffer>();
         }
         it->second.first = mask;
         elem->save(*it->second.second);
