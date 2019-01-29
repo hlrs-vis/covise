@@ -57,8 +57,30 @@ Initial revision
 
 using namespace covise;
 
+//#define TB_DEBUG // define to enable debugging
+#define TB_DEBUG_TAG // include whether debug mode is enabled in first byte of TokenBuffer, for interoperability with debug-enabled TokenBuffer's
+
+#define CHECK(size_type, error_ret)                                                                                       \
+    do                                                                                                                    \
+    {                                                                                                                     \
+        if (currdata + sizeof(size_type) > data + length)                                                                 \
+        {                                                                                                                 \
+            std::cerr << "TokenBuffer: read past end (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;               \
+            std::cerr << "  required: " << sizeof(size_type) << ", available: " << data + length - currdata << std::endl; \
+            assert(0 == "read past end");                                                                                 \
+            return error_ret;                                                                                             \
+        }                                                                                                                 \
+    } while (false)
+
+
 TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
 {
+#ifndef TB_DEBUG_TAG
+#ifdef TB_DEBUG
+    debug = true;
+#endif
+#endif
+    //std::cerr << "new TokenBuffer(Message) " << this << ": debug=" << debug << std::endl;
     assert(msg);
     if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
     {
@@ -68,19 +90,186 @@ TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
     length = msg->length;
     data = currdata = msg->data;
     networkByteOrder = nbo;
+
+    rewind();
 }
 
 TokenBuffer::TokenBuffer(const char *dat, int len, bool nbo)
 {
+#ifndef TB_DEBUG_TAG
+#ifdef TB_DEBUG
+    debug = true;
+#endif
+#endif
+    //std::cerr << "new TokenBuffer(data,len) " << this << ": debug=" << debug << std::endl;
+
     buflen = 0;
     length = len;
     data = currdata = (char *)dat;
     networkByteOrder = nbo;
+
+    rewind();
+}
+
+TokenBuffer::TokenBuffer(bool nbo)
+{
+#ifdef TB_DEBUG
+    debug = true;
+#endif
+    //std::cerr << "new TokenBuffer() " << this << ": debug=" << debug << std::endl;
+
+    buflen = length = 0;
+    data = currdata = NULL;
+    networkByteOrder = nbo;
+}
+
+TokenBuffer::TokenBuffer(int al, bool nbo)
+{
+#ifdef TB_DEBUG
+    debug = true;
+#endif
+    //std::cerr << "new TokenBuffer(size) " << this << ": debug=" << debug << std::endl;
+
+#ifndef TB_DEBUG_TAG
+    buflen = al+1;
+    length = 1;
+#else
+    buflen = al;
+    length = 0;
+#endif
+    data = currdata = new char[al];
+#ifdef TB_DEBUG_TAG
+    if (al >= 1)
+    {
+        data[0] = debug;
+        ++currdata;
+        ++length;
+    }
+#endif
+    networkByteOrder = nbo;
+}
+
+
+const char *TokenBuffer::getBinary(int n)
+{
+    checktype(TbBinary);
+    const char *c = currdata;
+    currdata += n;
+    return c;
+}
+
+void TokenBuffer::addBinary(const char *buf, int n)
+{
+    puttype(TbBinary);
+    if (buflen < length + n + 1)
+        incbuf(n + 40);
+    memcpy(currdata, buf, n);
+    currdata += n;
+    length += n;
+}
+
+const char *TokenBuffer::allocBinary(int n)
+{
+    puttype(TbBinary);
+    if (buflen < length + n + 1)
+        incbuf(n + 40);
+    const char *buf = currdata;
+    currdata += n;
+    length += n;
+    return buf;
+}
+
+TokenBuffer &TokenBuffer::operator<<(const int i)
+{
+    *this << (uint32_t)i;
+    return *this;
+}
+
+TokenBuffer &TokenBuffer::operator>>(char *&c)
+{
+    checktype(TbString);
+    char *end = data + length - 1;
+    c = currdata;
+    while (*currdata)
+    {
+        currdata++;
+        if (currdata > end)
+        {
+            std::cerr << "string not terminated within range" << std::endl;
+            *end = '\0';
+            return (*this);
+        }
+    }
+    currdata++;
+    return (*this);
+}
+
+TokenBuffer &TokenBuffer::operator<<(const char c)
+{
+    puttype(TbChar);
+    if (buflen < length + 2)
+        incbuf();
+    *currdata = c;
+    currdata++;
+    length++;
+    return (*this);
+}
+
+TokenBuffer &TokenBuffer::operator>>(unsigned char &c)
+{
+    checktype(TbChar);
+    CHECK(c, *this);
+    c = *(unsigned char *)currdata;
+    currdata++;
+    return (*this);
+}
+
+TokenBuffer &TokenBuffer::operator>>(char &c)
+{
+    checktype(TbChar);
+    CHECK(c, *this);
+    c = *(char *)currdata;
+    currdata++;
+    return (*this);
+}
+
+TokenBuffer &TokenBuffer::operator>>(int &i)
+{
+    uint32_t u32;
+    *this >> u32;
+    i = *reinterpret_cast<int *>(&u32);
+    return *this;
+}
+
+TokenBuffer &TokenBuffer::operator<<(const TokenBuffer &t)
+{
+    //puttype(TbTB);
+    if (buflen < length + t.get_length() + 1)
+        incbuf(t.get_length() * 4);
+    memcpy(currdata, t.get_data(), t.get_length());
+    currdata += t.get_length();
+    length += t.get_length();
+    return (*this);
+}
+
+TokenBuffer &TokenBuffer::operator<<(const char *c)
+{
+    puttype(TbString);
+    int l = int(strlen(c) + 1);
+    if (buflen < length + l + 1)
+        incbuf(l * 10);
+    strcpy(currdata, c);
+    currdata += l;
+    length += l;
+    return (*this);
 }
 
 TokenBuffer &TokenBuffer::operator>>(bool &b)
 {
+    checktype(TbBool);
+
     char byte = 0;
+    CHECK(byte, *this);
     (*this) >> byte;
     b = byte>0;
     return *this;
@@ -88,12 +277,16 @@ TokenBuffer &TokenBuffer::operator>>(bool &b)
 
 TokenBuffer &TokenBuffer::operator<<(const bool b)
 {
+    puttype(TbBool);
+
     char byte = b?1:0;
     return (*this) << byte;
 }
 
 TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
 {
+    puttype(TbInt64);
+
     if (buflen < length + 9)
         incbuf();
     if (networkByteOrder)
@@ -140,6 +333,8 @@ TokenBuffer &TokenBuffer::operator<<(const uint64_t i)
 
 TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
 {
+    puttype(TbInt32);
+
     if (networkByteOrder)
     {
         if (buflen < length + 5)
@@ -172,6 +367,8 @@ TokenBuffer &TokenBuffer::operator<<(const uint32_t i)
 
 TokenBuffer &TokenBuffer::operator<<(const std::string &s)
 {
+    puttype(TbString);
+
     int slen = (int)s.length() + 1;
     if (buflen < length + slen)
         incbuf(slen);
@@ -183,6 +380,8 @@ TokenBuffer &TokenBuffer::operator<<(const std::string &s)
 
 TokenBuffer &TokenBuffer::operator<<(const TokenBuffer *t)
 {
+    //puttype(TbTB);
+
     if (buflen < length + t->get_length() + 1)
         incbuf(t->get_length() * 4);
     memcpy(currdata, t->get_data(), t->get_length());
@@ -191,12 +390,71 @@ TokenBuffer &TokenBuffer::operator<<(const TokenBuffer *t)
     return (*this);
 }
 
+void TokenBuffer::puttype(TokenBuffer::Types t)
+{
+#ifdef TB_DEBUG
+    //std::cerr << "TokenBuffer " << this << ", puttype: " << t << ", length=" << length << std::endl;
+    assert(debug);
+
+    if (buflen+1 >= length)
+        incbuf();
+    *currdata = (char)t;
+    ++currdata;
+    ++length;
+    assert(data+length == currdata);
+#else
+    assert(!debug);
+#endif
+}
+
+bool TokenBuffer::checktype(TokenBuffer::Types t)
+{
+    if (debug)
+    {
+        char tt = 0;
+        CHECK(tt, false);
+        //std::cerr << "TokenBuffer " << this << ", checktype: expecting " << t << ", have " << (int)*currdata << std::endl;
+        assert(data+length > currdata);
+
+        if (*currdata != t)
+        {
+            std::cerr << "TokenBuffer::checktype: ERROR: expecting " << t << ", have " << (int)*currdata << std::endl;
+            assert(*currdata == t);
+            abort();
+            return false;
+        }
+        ++currdata;
+    }
+
+    return true;
+}
+
 void TokenBuffer::incbuf(int size)
 {
+    assert((buflen==0 && !data) || (buflen>0 && data));
+    assert(buflen>0 || length==0);
+    assert(!data || data+length == currdata);
+
     buflen += size;
+#ifdef TB_DEBUG_TAG
+    if (!data)
+        buflen += 1;
+#endif
     char *nb = new char[buflen];
     if (data)
+    {
         memcpy(nb, data, length);
+    }
+    else
+    {
+#ifdef TB_DEBUG_TAG
+        nb[0] = debug;
+        length = 1;
+#else
+        length = 0;
+#endif
+    }
+
     delete[] data;
     data = nb;
     currdata = data + length;
@@ -219,6 +477,8 @@ TokenBuffer::~TokenBuffer()
 }
 TokenBuffer &TokenBuffer::operator<<(const double f)
 {
+    puttype(TbDouble);
+
     const uint64_t *i = (const uint64_t *)(void *)&f;
 
     if (buflen < length + 8)
@@ -268,20 +528,10 @@ TokenBuffer &TokenBuffer::operator<<(const double f)
     return (*this);
 }
 
-#define CHECK(size_type, error_ret)                                                                                       \
-    do                                                                                                                    \
-    {                                                                                                                     \
-        if (currdata + sizeof(size_type) > data + length)                                                                 \
-        {                                                                                                                 \
-            std::cerr << "TokenBuffer: read past end (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;               \
-            std::cerr << "  required: " << sizeof(size_type) << ", available: " << data + length - currdata << std::endl; \
-            assert(0 == "read past end");                                                                                 \
-            return error_ret;                                                                                             \
-        }                                                                                                                 \
-    } while (false)
-
 TokenBuffer &TokenBuffer::operator>>(double &f)
 {
+    checktype(TbDouble);
+
     f = 0.;
     CHECK(f, *this);
 
@@ -330,6 +580,8 @@ TokenBuffer &TokenBuffer::operator>>(double &f)
 
 TokenBuffer &TokenBuffer::operator<<(const float f)
 {
+    puttype(TbFloat);
+
     const uint32_t *i = (const uint32_t *)(void *)&f;
     if (buflen < length + 4)
         incbuf();
@@ -366,6 +618,8 @@ TokenBuffer &TokenBuffer::operator<<(const float f)
 
 TokenBuffer &TokenBuffer::operator>>(float &f)
 {
+    checktype(TbFloat);
+
     f = 0.f;
     CHECK(f, *this);
 
@@ -398,6 +652,7 @@ TokenBuffer &TokenBuffer::operator>>(float &f)
 
 float TokenBuffer::get_float_token()
 {
+    checktype(TbFloat);
     CHECK(float, 0.f);
 
     uint32_t i;
@@ -428,8 +683,19 @@ float TokenBuffer::get_float_token()
     return (*((float *)(void *)&i));
 }
 
+char *TokenBuffer::get_charp_token()
+{
+    checktype(TbString);
+    char *ret = currdata;
+    while (*currdata)
+        currdata++;
+    currdata++;
+    return (ret);
+}
+
 uint32_t TokenBuffer::get_int_token()
 {
+    checktype(TbInt32);
     CHECK(uint32_t, 0);
 
     uint32_t i;
@@ -460,8 +726,17 @@ uint32_t TokenBuffer::get_int_token()
     return (i);
 }
 
+char TokenBuffer::get_char_token()
+{
+    checktype(TbChar);
+    char ret = *(char *)currdata;
+    currdata++;
+    return (ret);
+}
+
 TokenBuffer &TokenBuffer::operator>>(uint32_t &i)
 {
+    checktype(TbInt32);
     i = 0;
     CHECK(i, *this);
 
@@ -494,6 +769,7 @@ TokenBuffer &TokenBuffer::operator>>(uint32_t &i)
 
 TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
 {
+    checktype(TbInt64);
     i = 0;
     CHECK(i, *this);
     if (networkByteOrder)
@@ -542,6 +818,7 @@ TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
 
 TokenBuffer &TokenBuffer::operator>>(std::string &s)
 {
+    checktype(TbString);
     const char *c;
     char *end = data + length - 1;
     c = currdata;
@@ -563,4 +840,38 @@ TokenBuffer &TokenBuffer::operator>>(std::string &s)
 void TokenBuffer::rewind()
 {
     currdata = data;
+    if (currdata)
+    {
+#ifdef TB_DEBUG_TAG
+        debug = *currdata;
+        ++currdata;
+#endif
+    }
+
+    //std::cerr << "rewind TokenBuffer " << this << ": debug=" << debug << std::endl;
+}
+
+void TokenBuffer::reset()
+{
+    currdata = data;
+    length = 0;
+#ifdef TB_DEBUG
+    debug = true;
+#else
+    debug = false;
+#endif
+#ifdef TB_DEBUG_TAG
+    if (data && buflen > length)
+    {
+        data[length] = debug;
+        ++currdata;
+        ++length;
+    }
+#endif
+    if (data && buflen > length)
+        data[length] = 0;
+
+    assert(!data || data+length == currdata);
+
+    //std::cerr << "reset TokenBuffer " << this << ": debug=" << debug << std::endl;
 }
