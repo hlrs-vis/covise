@@ -16,6 +16,8 @@ vec4 Ambient;
 vec4 Diffuse;
 vec4 Specular;
 
+uniform int light_number;
+
 
 void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
 {
@@ -137,7 +139,7 @@ void main(void)
     gl_Position = ftransform();
     transformedNormal = fnormal();
     flight(transformedNormal, ecPosition, alphaFade);
-    vec4 tmp4 = photometricLightMatrix[0]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    vec4 tmp4 = photometricLightMatrix[light_number]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
     InLightCoordinates = tmp4.xyz;
     //gl_FrontColor = gl_FrontMaterial.diffuse;
     vColor = gl_FrontColor; //gl_Color;   // --------------------------------

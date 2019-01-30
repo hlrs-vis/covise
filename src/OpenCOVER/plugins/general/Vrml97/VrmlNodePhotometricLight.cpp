@@ -288,16 +288,17 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 			code = buffer.str();
 		}
 
-		std::cout << code << "\n";
-		for (int binding_number = 5; binding_number < 8; binding_number++)
+		//std::cout << code << "\n";
+		for (int binding_number = 0; binding_number < 3; binding_number++)
 		{
-			std::cout << binding_number << "\n";
+			//std::cout << binding_number << "\n";
 			string from = std::string("binding=") + std::to_string(binding_number);
 			string to = std::string("binding=") + std::to_string(binding_number + d_lightNumber.get() * 3);
 			size_t start_pos = code.find(from);
-			std::cout << "        " << start_pos << "\n";
+			//std::cout << "        " << start_pos << "\n";
 			if (start_pos != std::string::npos)
 				code.replace(start_pos, from.length(), to);
+			std::cout << "changed binding nr from " << binding_number << " to "<< (binding_number + d_lightNumber.get() * 3) << std::endl;
 		}
 		std::cout << code << "\n";
 
@@ -354,22 +355,22 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
+
 		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer
 
-
 		std::cout << "light number: " << d_lightNumber.get() << std::endl;
-		state->addUniform(new osg::Uniform("configuration", (int)(5 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(6 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("targetTex", (int)(7 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
 		// dont bind anything to imageunit 8 !
-		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((5 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((6 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
+		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
         //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
 		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		state->setTextureAttributeAndModes(5, light_conf_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(6, all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(7, sum_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes(0, light_conf_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes(1, all_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes(2, sum_lights_tex, osg::StateAttribute::ON);
 
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
 		std::cout << "Texture 3D set to: " << (6 + d_lightNumber.get() * 3) << std::endl;
@@ -388,6 +389,8 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
 		state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
 		state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
+		// TODO: shader needs to know its light number. Its different for each light!
+		state->addUniform(new osg::Uniform("light_number", (d_lightNumber.get()))); // does not give the results needed...
 
 		// Create the scene graph and start the viewer
 		cover->getScene()->addChild(sourceNode);
