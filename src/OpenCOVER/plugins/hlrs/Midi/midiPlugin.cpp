@@ -412,7 +412,7 @@ MidiPlugin::MidiPlugin()
 	MIDITab = NULL;
 	startTime = 0;
 	//Initialize SDL
-	/*if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 	}
@@ -434,21 +434,25 @@ MidiPlugin::MidiPlugin()
 			{
 				gRecordingDeviceCount = MAX_RECORDING_DEVICES;
 			}
-			osg::MatrixTransform *mt = new osg::MatrixTransform();
-			mt->setMatrix(osg::Matrix::translate(30,0,0));
-			cover->getObjectsRoot()->addChild(mt);
 			//Render device names
 			for (int i = 0; i < gRecordingDeviceCount; ++i)
 			{
+				osg::MatrixTransform *mt = new osg::MatrixTransform();
+				mt->setMatrix(osg::Matrix::rotate(M_PI,0,1,0));
+				cover->getObjectsRoot()->addChild(mt);
                                 fprintf(stderr,"AudioDevice %d:%s\n",i,(SDL_GetAudioDeviceName(i, SDL_TRUE)));
 				//Get capture device name
 				AudioInStream *stream = new AudioInStream(SDL_GetAudioDeviceName(i, SDL_TRUE));
 				audioStreams.push_back(stream);
-				waveSurfaces.push_back(new FrequencySurface(cover->getObjectsRoot(), stream));
-				waveSurfaces.push_back(new AmplitudeSurface(mt, stream));
+				FrequencySurface *fs = new FrequencySurface(cover->getObjectsRoot(), stream);
+				fs->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(fs); 
+				AmplitudeSurface *as = new AmplitudeSurface(mt, stream);
+				as->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(as);
 			}
 		}
-	}*/
+	}
 
 	globalmtl = new osg::Material;
 	globalmtl->ref();
@@ -1406,7 +1410,26 @@ bool FrequencySurface::update()
 	{
 		//(*vert)[n].z() = stream->ddata[n * 2] + stream->ddata[(n * 2) + 1];
 		double val = (stream->magnitudes[n] + lastMagnitudes[n]) / 2.0;
-		(*vert)[n].z() = (val) / 5.0;
+		if (st == SurfacePlane)
+		{
+			(*vert)[n].z() = (val) * 5;
+		}
+		else if (st == SurfaceCylinder)
+		{
+			float angle = (float)n / (float)(width - 1) * M_PI;
+			float sa = sin(angle);
+			float ca = cos(angle);
+			(*vert)[n] = osg::Vec3(ca*(radius1 + val), 0.0, sa*(radius2 + val));
+			(*normals)[n] = osg::Vec3(ca, 0, sa);
+		}
+		else if (st == SurfaceSphere)
+		{
+			float angle = (float)n / (float)(width - 1) * M_PI;
+			float sa = sin(angle);
+			float ca = cos(angle);
+			(*vert)[n] = osg::Vec3(ca*(radius1 + val), 0.0, sa*(radius2 + val));
+			(*normals)[n] = osg::Vec3(ca, 0, sa);
+		}
 		lastMagnitudes[n] = val;
 
 	}
@@ -1433,7 +1456,26 @@ bool AmplitudeSurface::update()
 	for (int n = 0; n < width; n++)
 	{
 		double val = (stream->ddata[n * 2] + stream->ddata[(n * 2) + 1] + lastAmplitudes[n]) / 2.0;
-		(*vert)[n].z() = (val)*10;
+		if (st == SurfacePlane)
+		{
+			(*vert)[n].z() = (val) * 10;
+		}
+		else if (st == SurfaceCylinder)
+		{
+			float angle = (float)n / (float)(width - 1) * M_PI;
+			float sa = sin(angle);
+			float ca = cos(angle);
+			(*vert)[n] = osg::Vec3(ca*(radius1+val), 0.0, sa*(radius2+val));
+			(*normals)[n] = osg::Vec3(ca, 0, sa);
+		}
+		else if (st == SurfaceSphere)
+		{
+			float angle = (float)n / (float)(width - 1) * M_PI;
+			float sa = sin(angle);
+			float ca = cos(angle);
+			(*vert)[n] = osg::Vec3(ca*(radius1 + val), 0.0, sa*(radius2 + val));
+			(*normals)[n] = osg::Vec3(ca, 0, sa);
+		}
 		lastAmplitudes[n] = val;
 
 	}
@@ -1446,6 +1488,9 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s,int w)
 {
 	stream = s;
 	width = w;
+	radius1 = 50.0;
+	radius2 = 10.0;
+	yStep = 0.1;
 	geode = new osg::Geode();
 	geode->setName("WaveSurface");
 	parent->addChild(geode.get());
@@ -1474,7 +1519,7 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s,int w)
 	{
 		for (int n = 0; n < width; n++)
 		{
-			vert->push_back(osg::Vec3(n*(20.0/width), i*0.1, 0.0));
+			vert->push_back(osg::Vec3(n*(20.0/width), i*yStep, 0.0));
 			normals->push_back(osg::Vec3(0,0,1));
 		}
 	}
@@ -1499,6 +1544,53 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s,int w)
 	geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
 }
 
+
+void WaveSurface::setType(surfaceType s)
+{
+	st = s;
+	if (st == SurfacePlane)
+	{
+		for (int i = 0; i < depth; i++)
+		{
+			for (int n = 0; n < width; n++)
+			{
+				(*vert)[i*width+n] = osg::Vec3(n*(20.0 / width), i*yStep, 0.0);
+				(*normals)[i*width + n] = osg::Vec3(0, 0, 1);
+			}
+		}
+	}
+	else if (st == SurfaceCylinder)
+	{
+		for (int i = 0; i < depth; i++)
+		{
+			for (int n = 0; n < width; n++)
+			{
+				float angle = (float)n / (float)(width - 1) * M_PI;
+				float sa = sin(angle);
+				float ca = cos(angle);
+				(*vert)[i*width + n] = osg::Vec3(ca*radius1, i*yStep, sa*radius2);
+				(*normals)[i*width + n] = osg::Vec3(ca, 0, sa);
+			}
+		}
+	}
+	else if (st == SurfaceSphere)
+	{
+		for (int i = 0; i < depth; i++)
+		{
+			float angle2 = (float)i / (float)(depth-1) * M_PI;
+			float sa2 = sin(angle2);
+			float ca2 = cos(angle2);
+			for (int n = 0; n < width; n++)
+			{
+				float angle = (float)n / (float)(width-1) * M_PI;
+				float sa = sin(angle);
+				float ca = cos(angle);
+				(*vert)[i*width + n] = osg::Vec3(ca*(radius1), 0.0, sa*(radius1));
+				(*normals)[i*width + n] = osg::Vec3(ca, 0, sa);
+			}
+		}
+	}
+}
 osg::ref_ptr <osg::Material >WaveSurface::globalDefaultMaterial=NULL;
 
 WaveSurface::~WaveSurface()
@@ -1509,11 +1601,12 @@ WaveSurface::~WaveSurface()
 
 void WaveSurface::moveOneLine()
 {
+	osg::Matrix trans = osg::Matrix::translate(0, yStep, 0);
 	for (int i = (depth - 1); i > 0; i--)
 	{
 		for (int n = 0; n < width; n++)
 		{
-			(*vert)[i*width + n].z() = (*vert)[(i - 1)*width + n].z();
+			(*vert)[i*width + n] = ((*vert)[(i - 1)*width + n])*trans;
 			(*normals)[i*width + n] = (*normals)[(i - 1)*width + n];
 		}
 	}
