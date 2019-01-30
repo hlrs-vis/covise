@@ -288,6 +288,19 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 			code = buffer.str();
 		}
 
+		std::cout << code << "\n";
+		for (int binding_number = 5; binding_number < 8; binding_number++)
+		{
+			std::cout << binding_number << "\n";
+			string from = std::string("binding=") + std::to_string(binding_number);
+			string to = std::string("binding=") + std::to_string(binding_number + d_lightNumber.get() * 3);
+			size_t start_pos = code.find(from);
+			std::cout << "        " << start_pos << "\n";
+			if (start_pos != std::string::npos)
+				code.replace(start_pos, from.length(), to);
+		}
+		std::cout << code << "\n";
+
 		// matrix light data as texture3D
 		osg::ref_ptr<osg::Texture3D> all_lights_tex = new osg::Texture3D();
 		all_lights_tex->setInternalFormat(GL_R8);
@@ -337,19 +350,21 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		computeProg = new osg::Program;
 		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
 		// Create a node for outputting to the texture.
-		comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
+		comp_disp = new osg::ComputeDispatch(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
 		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
 		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer
 
-		state->addUniform(new osg::Uniform("configuration", (int)5));
-		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)6));
-		state->addUniform(new osg::Uniform("targetTex", (int)7));
+
+		std::cout << "light number: " << d_lightNumber.get() << std::endl;
+		state->addUniform(new osg::Uniform("configuration", (int)(5 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(6 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("targetTex", (int)(7 + d_lightNumber.get() * 3)));
 		// dont bind anything to imageunit 8 !
-		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture(5, light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture(6, all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture(7, sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
+		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((5 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((6 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
         //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
 		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
 		state->setTextureAttributeAndModes(5, light_conf_tex, osg::StateAttribute::ON);
@@ -357,18 +372,18 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->setTextureAttributeAndModes(7, sum_lights_tex, osg::StateAttribute::ON);
 
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
-		std::cout << "Texture 3D set to: " << 6 + d_lightNumber.get() << std::endl;
+		std::cout << "Texture 3D set to: " << (6 + d_lightNumber.get() * 3) << std::endl;
 		//state->setTextureAttributeAndModes(6 + d_lightNumber.get(), lightTextures, osg::StateAttribute::ON);
 		//state->setMode(GL_LIGHTING, osg::StateAttribute::OFF); // not needed
-		state->setTextureAttributeAndModes(5, light_conf_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(6, all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(7, sum_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 		state->setAttributeAndModes(imagbinding1.get());
 		state->setAttributeAndModes(imagbinding2.get());
 		state->setAttributeAndModes(imagbinding3.get());
-		state->addUniform(new osg::Uniform("configurationTex", (int)5));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex", (int)6));
-		state->addUniform(new osg::Uniform("targetTexTex", (int)7));
+		state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex", (int)(6 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("targetTexTex", (int)(7 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
 		state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
 		state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
