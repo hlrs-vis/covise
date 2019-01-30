@@ -350,7 +350,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		computeProg = new osg::Program;
 		computeProg->addShader(new osg::Shader(osg::Shader::COMPUTE, code));
 		// Create a node for outputting to the texture.
-		comp_disp = new osg::ComputeDispatch(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
+		comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
 		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
