@@ -1,10 +1,10 @@
 
 #version 430
 uniform float osg_FrameTime;
-layout(binding=5, r32f) coherent  uniform readonly image2D configuration;
+layout(binding=0, r32f) coherent  uniform readonly image2D configuration;
 // TODO: somehow only working for 2D images, or the first layer of the 3D image. Should be cheaper than a texelFetch
-//layout(binding=6, r8) coherent  uniform readonly image3D AllPhotometricLights;
-layout(binding=7, r16f) coherent uniform writeonly image2D targetTex;
+//layout(binding=1, r8) coherent  uniform readonly image3D AllPhotometricLights;
+layout(binding=2, r16f) coherent uniform writeonly image2D targetTex;
 //uniform sampler2D configuration;
 uniform sampler3D AllPhotometricLightsTex;
 layout (local_size_x = 16, local_size_y = 16) in;
