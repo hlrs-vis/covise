@@ -120,12 +120,15 @@ void initialize_sphere(vector<Vector3d> &sphere_points, const unsigned int depth
 AudioInStream::AudioInStream(std::string deviceName)
 {
 
+        if (coVRMSController::instance()->isMaster())
+        {
 
 	SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 	want.freq = 48000;
 	want.format = AUDIO_F32;
 	want.channels = 2;
-	want.samples = 4096;
+	want.samples = 1024;
+	//want.samples = 4096;
 	want.callback = readData; /* you wrote this function elsewhere -- see SDL_AudioSpec for details */
 	want.userdata = this;
 	const char *devName = NULL;
@@ -159,6 +162,7 @@ AudioInStream::AudioInStream(std::string deviceName)
 
 		SDL_PauseAudioDevice(dev, SDL_FALSE); /* start audio playing. */
 	}
+	}
 	inputSize = BINSIZE;
 	outputSize = inputSize / 2 + 1;
 
@@ -188,7 +192,7 @@ void AudioInStream::update()
 	int bytesProcessed = 0;
 	if (have.format == AUDIO_F32LSB)
 	{
-		while ((gBufferBytePosition - bytesProcessed) / bytesPerSample > inputSize)
+		if (((gBufferBytePosition - bytesProcessed) / bytesPerSample >= inputSize) )
 		{
 			int sample = 0;
 			for (; (bytesProcessed < gBufferBytePosition && sample < inputSize); bytesProcessed += bytesPerSample)
@@ -205,9 +209,24 @@ void AudioInStream::update()
 			}
 		}
 	}
+	fprintf(stderr,"%d %d\n",gBufferBytePosition,bytesProcessed);
+        if (coVRMSController::instance()->isMaster())
+        {
+            coVRMSController::instance()->sendSlaves((char *)ddata, inputSize*sizeof(double));
+
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster((char *)ddata, inputSize*sizeof(double));
+			fftw_execute(plan);
+			for (int i = 0; i < outputSize; i++) {
+				magnitudes[i] = sqrt((ifft_result[i][0]* ifft_result[i][0]) + (ifft_result[i][1]* ifft_result[i][1]));// mag=sqrt(real^2+img^2)
+			}
+        }
 	if (bytesProcessed > 0)
 	{
-		memcpy(gRecordingBuffer, gRecordingBuffer + bytesProcessed, gBufferBytePosition - bytesProcessed);
+	
+		memmove(gRecordingBuffer, gRecordingBuffer + bytesProcessed, gBufferBytePosition - bytesProcessed);
 		gBufferBytePosition -= bytesProcessed;
 	}
 	//fprintf(stderr, "%03.3f\n", (float)magnitudes[20]);
@@ -216,6 +235,7 @@ void AudioInStream::update()
 
 void AudioInStream::readData(Uint8 * stream, int len)
 {
+	fprintf(stderr, "read %d\n", len);
 	if ((gBufferBytePosition + len) < gBufferByteSize)
 	{
 		//Copy audio from stream
@@ -412,7 +432,10 @@ MidiPlugin::MidiPlugin()
 	MIDITab = NULL;
 	startTime = 0;
 	//Initialize SDL
-	/*if (SDL_Init(SDL_INIT_AUDIO) < 0)
+        if (coVRMSController::instance()->isMaster())
+        {
+	gRecordingDeviceCount = -1;
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
 	}
@@ -448,7 +471,24 @@ MidiPlugin::MidiPlugin()
 				waveSurfaces.push_back(new AmplitudeSurface(mt, stream));
 			}
 		}
-	}*/
+	}
+        coVRMSController::instance()->sendSlaves((char *)&gRecordingDeviceCount, sizeof(gRecordingDeviceCount));
+	}
+        if (!coVRMSController::instance()->isMaster())
+        {
+            coVRMSController::instance()->readMaster((char *)&gRecordingDeviceCount, sizeof(gRecordingDeviceCount));
+			for (int i = 0; i < gRecordingDeviceCount; ++i)
+			{
+			osg::MatrixTransform *mt = new osg::MatrixTransform();
+			mt->setMatrix(osg::Matrix::translate(30,0,0));
+			cover->getObjectsRoot()->addChild(mt);
+				AudioInStream *stream = new AudioInStream("slaveName");
+				audioStreams.push_back(stream);
+				waveSurfaces.push_back(new FrequencySurface(cover->getObjectsRoot(), stream));
+				waveSurfaces.push_back(new AmplitudeSurface(mt, stream));
+			}
+
+        }
 
 	globalmtl = new osg::Material;
 	globalmtl->ref();
