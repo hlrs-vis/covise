@@ -1,7 +1,6 @@
 using(MIDIFILE)
 using(SDL2)
 using(FFTW)
-
 using(VRML)
 #USE_MIDIFILE()
 #    MESSAGE(${MIDIFILE_INCLUDE_DIR})

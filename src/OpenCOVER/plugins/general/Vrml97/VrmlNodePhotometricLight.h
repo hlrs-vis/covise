@@ -39,6 +39,8 @@
 namespace osg { typedef ComputeDispatch DispatchCompute; }
 #endif
 
+
+
 using namespace opencover;
 using namespace vrml;
 class coMLB;

@@ -61,9 +61,15 @@ public:
 	WaveSurface(osg::Group *parent, AudioInStream* stream, int width);
 	~WaveSurface();
 
+	enum surfaceType {SurfacePlane,SurfaceCylinder,SurfaceSphere};
 
 	virtual bool update();
+	void setType(surfaceType st);
 protected:
+	float radius1;
+	float radius2;
+	float yStep;
+	surfaceType st;
 	void moveOneLine();
 	void createNormals();
 	int depth = 300;
