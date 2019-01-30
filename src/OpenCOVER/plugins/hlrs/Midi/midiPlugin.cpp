@@ -461,18 +461,21 @@ MidiPlugin::MidiPlugin()
 			for (int i = 0; i < gRecordingDeviceCount; ++i)
 			{
 				osg::MatrixTransform *mt = new osg::MatrixTransform();
-				mt->setMatrix(osg::Matrix::rotate(M_PI,0,1,0));
+				mt->setMatrix(osg::Matrix::rotate(0,0,1,0));
 				cover->getObjectsRoot()->addChild(mt);
+				osg::MatrixTransform *mt2 = new osg::MatrixTransform();
+				mt2->setMatrix(osg::Matrix::rotate(M_PI,0,1,0));
+				cover->getObjectsRoot()->addChild(mt2);
                                 fprintf(stderr,"AudioDevice %d:%s\n",i,(SDL_GetAudioDeviceName(i, SDL_TRUE)));
 				//Get capture device name
 				AudioInStream *stream = new AudioInStream(SDL_GetAudioDeviceName(i, SDL_TRUE));
 				audioStreams.push_back(stream);
-				FrequencySurface *fs = new FrequencySurface(cover->getObjectsRoot(), stream);
-				fs->setType(FrequencySurface::SurfaceCylinder);
-				waveSurfaces.push_back(fs); 
-				AmplitudeSurface *as = new AmplitudeSurface(mt, stream);
-				as->setType(FrequencySurface::SurfaceCylinder);
-				waveSurfaces.push_back(as);
+				frequencySurface = new FrequencySurface(mt2, stream);
+				frequencySurface->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(frequencySurface); 
+				amplitudeSurface = new AmplitudeSurface(mt, stream);
+				amplitudeSurface->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(amplitudeSurface);
 			}
 		}
 	}
@@ -485,17 +488,20 @@ MidiPlugin::MidiPlugin()
 			{
 			
 				osg::MatrixTransform *mt = new osg::MatrixTransform();
-				mt->setMatrix(osg::Matrix::rotate(M_PI,0,1,0));
+				mt->setMatrix(osg::Matrix::rotate(0,0,1,0));
 				cover->getObjectsRoot()->addChild(mt);
+				osg::MatrixTransform *mt2 = new osg::MatrixTransform();
+				mt2->setMatrix(osg::Matrix::rotate(M_PI,0,1,0));
+				cover->getObjectsRoot()->addChild(mt2);
 				//Get capture device name
 				AudioInStream *stream = new AudioInStream("slaveName");
 				audioStreams.push_back(stream);
-				FrequencySurface *fs = new FrequencySurface(cover->getObjectsRoot(), stream);
-				fs->setType(FrequencySurface::SurfaceCylinder);
-				waveSurfaces.push_back(fs); 
-				AmplitudeSurface *as = new AmplitudeSurface(mt, stream);
-				as->setType(FrequencySurface::SurfaceCylinder);
-				waveSurfaces.push_back(as);
+				frequencySurface = new FrequencySurface(mt2, stream);
+				frequencySurface->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(frequencySurface); 
+				amplitudeSurface = new AmplitudeSurface(mt, stream);
+				amplitudeSurface->setType(FrequencySurface::SurfaceCylinder);
+				waveSurfaces.push_back(amplitudeSurface);
 			}
 
         }
@@ -999,6 +1005,47 @@ void MidiPlugin::MIDItab_create(void)
             lTrack[i]->reset();
         }
     });
+    radius1Slider = new ui::Slider(MIDITab, "Radius1");
+    radius1Slider->setText("Radius1");
+    radius1Slider->setBounds(1,100);
+    radius1Slider->setValue(40.0);
+    radius1Slider->setCallback([this](float value,bool) {
+    frequencySurface->radius1 = value;
+    amplitudeSurface->radius1 = value;
+    });
+    radius2Slider = new ui::Slider(MIDITab, "Radius2");
+    radius2Slider->setText("Radius2");
+    radius2Slider->setBounds(1,100);
+    radius2Slider->setValue(20.0);
+    radius2Slider->setCallback([this](float value,bool) {
+    frequencySurface->radius2 = value;
+    amplitudeSurface->radius2 = value;
+    });
+    yStepSlider = new ui::Slider(MIDITab, "yStep");
+    yStepSlider->setText("yStep");
+    yStepSlider->setValue(0.6);
+    yStepSlider->setBounds(0.02,10);
+    yStepSlider->setCallback([this](float value,bool) {
+    frequencySurface->yStep = value;
+    amplitudeSurface->yStep = value;
+    });
+    amplitudeFactor = new ui::Slider(MIDITab, "Amplitude");
+    amplitudeFactor->setText("Amplitude");
+    amplitudeFactor->setBounds(-50,50);
+    amplitudeFactor->setValue(-10);
+    amplitudeFactor->setCallback([this](float value,bool) {
+    frequencySurface->amplitudeFactor = value;
+    amplitudeSurface->amplitudeFactor = value;
+    });
+    frequencyFactor = new ui::Slider(MIDITab, "Frequency");
+    frequencyFactor->setText("Frequency");
+    frequencyFactor->setBounds(-50,50);
+    frequencyFactor->setValue(-1);
+    frequencyFactor->setCallback([this](float value,bool) {
+    frequencySurface->frequencyFactor = value;
+    amplitudeSurface->frequencyFactor = value;
+    });
+    
     trackNumber = new  ui::EditField(MIDITab, "trackNumber");
     trackNumber->setValue(0);
     trackNumber->setCallback([this](std::string newVal) {
@@ -1465,7 +1512,7 @@ bool FrequencySurface::update()
 			float angle = (float)n / (float)(width - 1) * M_PI;
 			float sa = sin(angle);
 			float ca = cos(angle);
-			(*vert)[n] = osg::Vec3(ca*(radius1 + val), 0.0, sa*(radius2 + val));
+			(*vert)[n] = osg::Vec3(ca*(radius1 + (val*frequencyFactor)), 0.0, sa*(radius2 + (val*frequencyFactor)));
 			(*normals)[n] = osg::Vec3(ca, 0, sa);
 		}
 		else if (st == SurfaceSphere)
@@ -1511,7 +1558,7 @@ bool AmplitudeSurface::update()
 			float angle = (float)n / (float)(width - 1) * M_PI;
 			float sa = sin(angle);
 			float ca = cos(angle);
-			(*vert)[n] = osg::Vec3(ca*(radius1+val), 0.0, sa*(radius2+val));
+			(*vert)[n] = osg::Vec3(ca*(radius1+(val*amplitudeFactor)), 0.0, sa*(radius2+(val*amplitudeFactor)));
 			(*normals)[n] = osg::Vec3(ca, 0, sa);
 		}
 		else if (st == SurfaceSphere)
@@ -1534,9 +1581,9 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s,int w)
 {
 	stream = s;
 	width = w;
-	radius1 = 50.0;
-	radius2 = 10.0;
-	yStep = 0.1;
+	radius1 = 40.0;
+	radius2 = 20.0;
+	yStep = 0.6;
 	geode = new osg::Geode();
 	geode->setName("WaveSurface");
 	parent->addChild(geode.get());

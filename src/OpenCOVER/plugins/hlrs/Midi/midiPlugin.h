@@ -26,6 +26,7 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
 #include <SDL_audio.h>
@@ -65,10 +66,12 @@ public:
 
 	virtual bool update();
 	void setType(surfaceType st);
-protected:
 	float radius1;
 	float radius2;
 	float yStep;
+        float amplitudeFactor=-10.0;
+        float frequencyFactor=-1;
+protected:
 	surfaceType st;
 	void moveOneLine();
 	void createNormals();
@@ -260,10 +263,16 @@ public:
 
     void MIDItab_create();
     void MIDItab_delete();
-
+    FrequencySurface *frequencySurface;
+    AmplitudeSurface *amplitudeSurface;
 
     ui::Menu *MIDITab = nullptr;
     ui::Button *reset = nullptr;
+    ui::Slider *radius1Slider = nullptr;
+    ui::Slider *radius2Slider = nullptr;
+    ui::Slider *yStepSlider = nullptr;
+    ui::Slider *amplitudeFactor = nullptr;
+    ui::Slider *frequencyFactor = nullptr;
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
