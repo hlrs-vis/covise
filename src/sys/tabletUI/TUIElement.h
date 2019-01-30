@@ -103,7 +103,6 @@ public:
 
 protected:
     int ID;
-    int ParentID;
     int xPos, yPos;
     int height = 1, width = 1;
     QString label;

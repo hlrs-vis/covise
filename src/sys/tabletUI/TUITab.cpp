@@ -114,15 +114,22 @@ void TUITab::setPos(int x, int y)
     {
         parent->addElementToLayout(this);
         if (auto folder = dynamic_cast<TUITabFolder *>(parent))
+        {
+            int index = folder->indexOf(widget);
+            if (index < 0)
+            {
+                widget->show();
+                folder->addTab(widget, label);
+                index = folder->indexOf(widget);
+            }
             folder->setCurrentIndex(folder->indexOf(widget));
-        else
-            std::cerr << "error: parent is not a TUITabFolder" << std::endl;
+        }
     }
     else
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    widget->setVisible(!hidden);
+    setHidden(hidden);
 }
 
 void TUITab::setValue(TabletValue type, covise::TokenBuffer &tb)
@@ -157,7 +164,10 @@ void TUITab::setHidden(bool hide)
             else
             {
                 if (index < 0)
+                {
+                    widget->show();
                     folder->addTab(widget, label);
+                }
             }
         }
         else

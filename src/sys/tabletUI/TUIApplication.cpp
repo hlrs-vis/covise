@@ -694,6 +694,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
             if (parentElement && !parentElem)
                 std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
+            else if (!parentElement)
+                std::cerr << "TUIApplication::handleClient warn: no parent for: " << ID << std::endl;
 
             QWidget *parentWidget = mainFrame;
             if (parentElem)

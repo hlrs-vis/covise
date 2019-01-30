@@ -26,7 +26,6 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     enabled = true;
     hidden = false;
     highlighted = false;
-    ParentID = parent;
     ID = id;
     label = "";
     xPos = 0;
@@ -101,20 +100,21 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
         int c;
         tb >> c;
         TUIElement::setColor((Qt::GlobalColor)c);
+        setColor((Qt::GlobalColor)c);
     }
     else if (type == TABLET_SET_HIDDEN)
     {
         bool hide;
         tb >> hide;
-        setHidden(hide ? true : false);
         TUIElement::setHidden(hide ? true : false);
+        setHidden(hide ? true : false);
     }
     else if (type == TABLET_SET_ENABLED)
     {
         bool en;
         tb >> en;
-        setEnabled(en ? true : false);
         TUIElement::setEnabled(en ? true : false);
+        setEnabled(en ? true : false);
     }
 }
 
@@ -134,6 +134,12 @@ void TUIElement::setWidget(QWidget *w)
 void TUIElement::setParent(TUIContainer *c)
 {
     parentContainer = c;
+    if (c && c->widget) {
+        if (widget)
+            widget->setParent(c->widget);
+        for (auto w: widgets)
+            w->setParent(c->widget);
+    }
 }
 
 /** Set UI element size. Use different values for all dimensions.
@@ -163,8 +169,8 @@ void TUIElement::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    if (widget)
-        widget->setVisible(!hidden);
+
+    setHidden(hidden);
 }
 
 /** Get parent container.
@@ -225,10 +231,16 @@ void TUIElement::setHidden(bool hide)
 
     hidden = hide;
     if (getWidget())
+    {
         getWidget()->setVisible(!hidden);
+        if (!hidden)
+            getWidget()->show();
+    }
     for (auto &w: widgets)
     {
         w->setVisible(!hidden);
+        if (!hidden)
+            w->show();
     }
 }
 

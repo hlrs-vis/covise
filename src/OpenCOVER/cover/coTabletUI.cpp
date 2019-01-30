@@ -4043,15 +4043,12 @@ void coTUIElement::resend(bool create)
     tb << yp;
     tui()->send(tb);
 
-    if (hidden)
-    {
-        tb.reset();
-        tb << TABLET_SET_VALUE;
-        tb << TABLET_SET_HIDDEN;
-        tb << ID;
-        tb << hidden;
-        tui()->send(tb);
-    }
+    tb.reset();
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_LABEL;
+    tb << ID;
+    tb << label.c_str();
+    tui()->send(tb);
 
     if (!enabled)
     {
@@ -4063,12 +4060,15 @@ void coTUIElement::resend(bool create)
         tui()->send(tb);
     }
 
-    tb.reset();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_LABEL;
-    tb << ID;
-    tb << label.c_str();
-    tui()->send(tb);
+    if (hidden)
+    {
+        tb.reset();
+        tb << TABLET_SET_VALUE;
+        tb << TABLET_SET_HIDDEN;
+        tb << ID;
+        tb << hidden;
+        tui()->send(tb);
+    }
 }
 
 void coTUIElement::setPos(int x, int y)

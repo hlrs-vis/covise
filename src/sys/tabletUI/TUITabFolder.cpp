@@ -126,6 +126,8 @@ void TUITabFolder::addElementToLayout(TUIElement *el)
         {
             if (!el->isHidden())
                 tabWidget->addTab(el->getWidget(), el->getLabel());
+            else
+                el->getWidget()->setParent(tabWidget);
         }
         else
         {
@@ -140,6 +142,10 @@ void TUITabFolder::addElementToLayout(TUIElement *el)
             {
                 stackWidget->addWidget(el->getWidget());
                 switchWidget->addItem(el->getLabel());
+            }
+            else
+            {
+                el->getWidget()->setParent(tabWidget);
             }
         }
         else
