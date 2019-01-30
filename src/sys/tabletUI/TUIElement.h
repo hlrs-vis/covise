@@ -56,11 +56,9 @@ public:
     virtual void setEnabled(bool en);
     virtual void setHighlighted(bool hl);
     virtual void setColor(Qt::GlobalColor color);
-    virtual void setVisible(bool);
     virtual void setHidden(bool hidden);
     virtual bool isEnabled();
     virtual bool isHighlighted();
-    virtual bool isVisible();
     virtual bool isHidden() const;
     virtual void deActivate(TUITab *activedTab)
     {
@@ -114,7 +112,6 @@ protected:
     std::set<QWidget *> widgets;
     bool enabled; ///< true if UI element is enabled, false if UI element cannot be used
     bool highlighted; ///< true if highlighted
-    bool visible; ///< true if UI element is visible, false if not visible but still present in scene tree
     bool hidden; ///< true if UI element is to be hidden at any time
     QString name;
 };

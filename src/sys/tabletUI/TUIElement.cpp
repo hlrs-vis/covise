@@ -25,7 +25,6 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     parentContainer = NULL;
     enabled = true;
     hidden = false;
-    visible = false;
     highlighted = false;
     ParentID = parent;
     ID = id;
@@ -135,7 +134,6 @@ void TUIElement::setWidget(QWidget *w)
 void TUIElement::setParent(TUIContainer *c)
 {
     parentContainer = c;
-    visible = true;
 }
 
 /** Set UI element size. Use different values for all dimensions.
@@ -219,16 +217,6 @@ void TUIElement::setColor(Qt::GlobalColor color)
     }
 }
 
-/** Set element visibility.
-  @param newState true = element visible
-*/
-void TUIElement::setVisible(bool newState)
-{
-    if (visible == newState)
-        return; // state is already ok
-    visible = newState;
-}
-
 /** hide element
  */
 void TUIElement::setHidden(bool hide)
@@ -266,14 +254,6 @@ bool TUIElement::isEnabled()
 bool TUIElement::isHighlighted()
 {
     return highlighted;
-}
-
-/** Get visibility state.
-  @return visibility state (true = visible)
-*/
-bool TUIElement::isVisible()
-{
-    return visible;
 }
 
 const char *TUIElement::getClassName() const
