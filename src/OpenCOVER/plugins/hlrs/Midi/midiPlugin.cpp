@@ -209,7 +209,7 @@ void AudioInStream::update()
 			}
 		}
 	}
-	fprintf(stderr,"%d %d\n",gBufferBytePosition,bytesProcessed);
+	//fprintf(stderr,"%d %d\n",gBufferBytePosition,bytesProcessed);
         if (coVRMSController::instance()->isMaster())
         {
             coVRMSController::instance()->sendSlaves((char *)ddata, inputSize*sizeof(double));
@@ -235,7 +235,7 @@ void AudioInStream::update()
 
 void AudioInStream::readData(Uint8 * stream, int len)
 {
-	fprintf(stderr, "read %d\n", len);
+	//fprintf(stderr, "read %d\n", len);
 	if ((gBufferBytePosition + len) < gBufferByteSize)
 	{
 		//Copy audio from stream
