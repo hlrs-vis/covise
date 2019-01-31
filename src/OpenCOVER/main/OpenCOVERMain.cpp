@@ -27,6 +27,7 @@
 
 #include <util/common.h>
 #include <util/unixcompat.h>
+#include <net/covise_socket.h>
 #ifdef DOTIMING
 #include <covise/coTimer.h>
 #endif
@@ -69,6 +70,7 @@ static char *strcasestr(char *source, char *target)
 
 int main(int argc, char *argv[])
 {
+    covise::Socket::initialize();
 
 #ifdef _WIN32
     // disable "debug dialog": it prevents the application from exiting,

@@ -296,15 +296,12 @@ bool OpenCOVER::init()
     if (m_initialized)
         return true;
 
+    covise::Socket::initialize();
     setlocale(LC_NUMERIC, "C");
 
     installSignalHandlers();
 
 #ifdef _WIN32
-    unsigned short wVersionRequested;
-    struct WSAData wsaData;
-    wVersionRequested = MAKEWORD(2, 2);
-    WSAStartup(wVersionRequested, &wsaData);
 	// Require at least 4 processors, otherwise the process could occupy the machine.
 	if (OpenThreads::GetNumberOfProcessors() >= 4)
 	{
