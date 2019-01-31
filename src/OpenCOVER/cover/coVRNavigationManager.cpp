@@ -1379,6 +1379,7 @@ coVRNavigationManager::update()
                 dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
                 dcs_mat.postMult(osg::Matrix::translate(-AnalogX * driveSpeed, -AnalogY * driveSpeed, 0.0f));
                 VRSceneGraph::instance()->getTransform()->setMatrix(dcs_mat);
+				coVRCollaboration::instance()->SyncXform();
             }
         }
     }
