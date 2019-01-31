@@ -2789,8 +2789,8 @@ void CTRLHandler::handleUI(Message *msg, string copyData)
         iel++;
         if (!hostname.empty())
         {
-            int exectype = Config->getexectype(hostname.c_str());
-            int timeout = Config->gettimeout(hostname.c_str());
+            int exectype = Config->getexectype(hostname);
+            int timeout = Config->gettimeout(hostname);
             ostringstream buffer;
             buffer << "HOSTINFO\n" << exectype << "\n" << timeout << "\n" << hostname;
 
