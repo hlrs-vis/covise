@@ -8,11 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
+#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <config/CoviseConfig.h>
-#else
-#include <wce_msg.h>
 #endif
 #include "TUIElement.h"
 #include "TUIContainer.h"

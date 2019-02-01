@@ -13,13 +13,7 @@
 #define TABLET_UI_ELEMENT_H
 
 #include <QString>
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
-#include <covise/covise_msg.h>
 #include <net/covise_connect.h>
-#else
-#include "wce_msg.h"
-#include "wce_connect.h"
-#endif
 #include <util/coTabletUIMessages.h>
 #include <set>
 class TUIContainer;

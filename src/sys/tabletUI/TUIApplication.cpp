@@ -97,11 +97,8 @@
 #include "icons/covise.xpm"
 #endif
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include "wce_msg.h"
-#endif
+#include <net/message_types.h>
 
 #ifndef _WIN32
 #include <signal.h>

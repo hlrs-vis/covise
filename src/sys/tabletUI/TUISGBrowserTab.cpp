@@ -28,19 +28,17 @@
 #include <QDateTime>
 #include <util/unixcompat.h>
 
+#include <net/covise_connect.h>
+#include <net/message.h>
+#include <net/tokenbuffer.h>
+#include <net/message_types.h>
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
-#include <covise/covise_msg.h>
-#include <net/covise_connect.h>
-#include <net/message.h>
-#include <net/tokenbuffer.h>
 #else
-#include <wce_msg.h>
-#include <wce_connect.h>
 
 #define GL_POINTS 0x0000
 #define GL_LINES 0x0001

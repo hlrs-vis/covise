@@ -10,11 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <QLayout>
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 TUIUITab::TUIUITab(int id, int type, QWidget *w, int parent, QString name)
     : TUITab(id, type, w, parent, name)

@@ -56,11 +56,6 @@ SOURCES +=\
     ../TUIToggleBitmapButton.cpp \
     ../TUIToggleButton.cpp \
     ../TUIUITab.cpp \
-    ../wce_connect.cpp \
-    ../wce_host.cpp \
-    ../wce_msg.cpp \
-    ../wce_Restraint.cpp \
-    ../wce_socket.cpp \
     ../FileBrowser/FileBrowser.cpp \
     ../../mapeditor/color/MEColorChooser.cpp \
     ../TUIUI/TUIUIScriptWidget.cpp \
@@ -105,12 +100,7 @@ HEADERS  += \
     ../TUIToggleBitmapButton.h \
     ../TUIToggleButton.h \
     ../TUIUITab.h \
-    ../wce_connect.h \
-    ../wce_host.h \
-    ../wce_msg.h \
-    ../wce_Restraint.h \
-    ../wce_socket.h \
-    ../FileBrowser/FileBrowser.h \
+   ../FileBrowser/FileBrowser.h \
     ../FileBrowser/RemoteClientDialog.h \
     ../TUIUI/TUIUIScriptWidget.h \
     ../TUIUI/TUIUIWidget.h \

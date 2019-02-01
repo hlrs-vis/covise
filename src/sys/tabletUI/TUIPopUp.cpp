@@ -13,11 +13,7 @@
 #include "TUIPopUp.h"
 #include "TUIApplication.h"
 #include "TUIContainer.h"
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 /// Constructor
 TUIPopUp::TUIPopUp(int id, int type, QWidget *w, int parent, QString name)
