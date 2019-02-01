@@ -60,15 +60,6 @@ def loadIES(fname):
 def to_struct(left, bottom, width, height, t_width, t_height, t_depth, data):
     """
     """
-    extent = (left, left+width, bottom, bottom+height)
-    plt.imshow(np.sum(data, axis=0), interpolation="nearest", cmap="gray",
-               origin="lower", extent=extent, vmin=0, vmax=255)
-    plt.show()
-    data.shape = data.size  # flatten data
-    # '?' -> _BOOL , 'h' -> short, 'i' -> int and 'l' -> long
-    binary = struct.pack('ffffiii', left, bottom, width, height, t_width,
-                         t_height, t_depth) + data.tobytes()
-    # t_width.to_bytes(1, 'big')
     print("left:", left)
     print("bottom:", bottom)
     print("width:", width)
@@ -79,6 +70,15 @@ def to_struct(left, bottom, width, height, t_width, t_height, t_depth, data):
     print("first element:", data[0])
     print("second element:", data[1])
     print("last element:", data[-1])
+    extent = (left, left+width, bottom, bottom+height)
+    plt.imshow(np.sum(data, axis=0), interpolation="nearest", cmap="gray",
+               origin="lower", extent=extent, vmin=0, vmax=255)
+    plt.show()
+    data.shape = data.size  # flatten data
+    # '?' -> _BOOL , 'h' -> short, 'i' -> int and 'l' -> long
+    binary = struct.pack('ffffiii', left, bottom, width, height, t_width,
+                         t_height, t_depth) + data.tobytes()
+    # t_width.to_bytes(1, 'big')
     return binary
 
 
@@ -162,11 +162,46 @@ def img2mlb(p):
     return to_struct(-w/2, -h/2, w, h, t_width, t_height, t_depth, data_byte)
 
 
+def gkern(l=5, sig=1.):
+    """
+    creates gaussian kernel with side length l and a sigma of sig
+    """
+
+    ax = np.arange(-l // 2 + 1., l // 2 + 1.)
+    xx, yy = np.meshgrid(ax, ax)
+    kernel = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
+    return kernel / np.sum(kernel)
+
+
+def rndmlb(h, w, d, dh, dw, sig):
+
+    all_lights = np.zeros((h, w, d))
+    for i in range(d):
+        x = np.linspace(-dw/2, dw/2, w) + (np.random.rand()-.5)*dw
+        y = np.linspace(-dh/2, dh/2, h) + (np.random.rand()-.5)*dh
+        xx, yy = np.meshgrid(x, y)
+        all_lights[..., i] = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
+    data_byte = rescale(all_lights)
+
+    w_rad, h_rad = np.radians(30), np.radians(20)
+    print(-w/2, -h/2, w, h, w, h, d)
+    return to_struct(-w_rad/2, -h_rad/2, w_rad, h_rad, w, h, d, data_byte)
+
+
 def example_ies2mlb():
     p = "D:/covise_stuff/MatrixScheinwerfer/96P_Lichtverteilung+Vorfeld/"
     binary = ies2mlb(p, 96)
     fh = open("D:/covise_stuff/MatrixScheinwerfer/PhotometricMatrixLights.mlb",
               "wb")
+    fh.write(binary)
+    fh.close()
+    return
+
+
+def make_random_mlb():
+    fh = open("D:/covise_stuff/MatrixScheinwerfer/test_rand2.mlb", "wb")
+#    binary = rndmlb(h=30, w=40, d=7, dh=5, dw=6, sig=.3)
+    binary = rndmlb(h=100, w=100, d=20, dh=4, dw=10, sig=.3)
     fh.write(binary)
     fh.close()
     return
@@ -181,6 +216,7 @@ def example_img2mlb():
 
 
 if __name__ == "__main__":
-    example_img2mlb()
+    make_random_mlb()
+#    example_img2mlb()
 #    example_ies2mlb()
     print("done.")
