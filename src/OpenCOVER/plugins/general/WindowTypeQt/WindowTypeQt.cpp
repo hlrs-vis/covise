@@ -158,6 +158,9 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #if QT_VERSION >= 0x050800
         qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
 #endif
+#ifdef __APPLE__
+        qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
     }
 
     auto it = m_windows.find(i);
