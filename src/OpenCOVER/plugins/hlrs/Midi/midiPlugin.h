@@ -80,6 +80,7 @@ protected:
 	osg::ref_ptr<osg::Geode> geode;
 	osg::Vec3Array *vert;
 	osg::Vec3Array *normals;
+	osg::Vec2Array *texCoord;
 	AudioInStream* stream;
 	static osg::ref_ptr <osg::Material>globalDefaultMaterial;
 };

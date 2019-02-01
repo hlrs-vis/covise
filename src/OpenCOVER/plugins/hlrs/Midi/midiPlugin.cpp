@@ -23,6 +23,7 @@
 #include <cover/coVRTui.h>
 #include <config/CoviseConfig.h>
 #include "midiPlugin.h"
+#include <cover/coVRShader.h>
 
 #include <osg/GL>
 #include <osg/Group>
@@ -1510,6 +1511,7 @@ bool FrequencySurface::update()
 
 		if (val > 20.0)
 			val = 20.0;
+		(*texCoord)[n].x() = val;
 		if (st == SurfacePlane)
 		{
 			(*vert)[n].z() = (val) * 5;
@@ -1535,6 +1537,7 @@ bool FrequencySurface::update()
 	}
 
 	vert->dirty();
+	texCoord->dirty();
 	normals->dirty();
 	return true;
 }
@@ -1558,6 +1561,7 @@ bool AmplitudeSurface::update()
 		double val = (stream->ddata[n * 2] + stream->ddata[(n * 2) + 1] + lastAmplitudes[n]) / 2.0;
 		if (val > 2.0)
 			val = 2.0;
+		(*texCoord)[n].x() = val;
 		if (st == SurfacePlane)
 		{
 			(*vert)[n].z() = (val) * 10;
@@ -1583,6 +1587,7 @@ bool AmplitudeSurface::update()
 	}
 
 	vert->dirty();
+	texCoord->dirty();
 	normals->dirty();
 	return true;
 }
@@ -1599,11 +1604,18 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
 	osg::Geometry *geom = new osg::Geometry();
 	geode->addDrawable(geom);
 
+	coVRShader *wsShader = coVRShaderList::instance()->get("WaveSurface");
+	if (wsShader)
+	{
+		wsShader->apply(geode);
+	}
+
 	geom->setUseDisplayList(false);
 	geom->setUseVertexBufferObjects(true);
 
 	vert = new osg::Vec3Array;
 	normals = new osg::Vec3Array;
+	texCoord = new osg::Vec2Array;
 	vert->reserve(depth*width);
 	osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS);
 	primitives->reserve((depth - 1)*(width - 1) * 4);
@@ -1621,6 +1633,8 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
 	{
 		for (int n = 0; n < width; n++)
 		{
+
+			texCoord->push_back(osg::Vec2(0, 0));
 			vert->push_back(osg::Vec3(n*(20.0 / width), i*yStep, 0.0));
 			normals->push_back(osg::Vec3(0, 0, 1));
 		}
@@ -1628,6 +1642,7 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
 	geom->addPrimitiveSet(primitives);
 	geom->setVertexArray(vert);
 	geom->setNormalArray(normals);
+	geom->setTexCoordArray(0, texCoord);
 	geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
 	osg::StateSet *geoState = geode->getOrCreateStateSet();
@@ -1708,6 +1723,7 @@ void WaveSurface::moveOneLine()
 	{
 		for (int n = 0; n < width; n++)
 		{
+			(*texCoord)[i*width + n] = (*texCoord)[(i - 1)*width + n];
 			(*vert)[i*width + n] = ((*vert)[(i - 1)*width + n])*trans;
 			(*normals)[i*width + n] = (*normals)[(i - 1)*width + n];
 		}
