@@ -1,0 +1,85 @@
+<_WaveSurface>
+<uniform max="100.0" min="0.0" name="threshold" type="float" value="0.03"/>
+<uniform max="100.0" min="-100.0" name="colormapMin" type="float" value="-0.7"/>
+<uniform max="100.0" min="-100.0" name="colormapMax" type="float" value="26.03"/>
+<uniform max="15" min="0" name="colormapIndex" type="int" value="0"/>
+<uniform name="colormap" texture="share/covise/materials/WaveSurface2d.png" type="sampler2D" value="0"/>
+<vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+  
+     
+    void main( void )
+    {
+        normal   = gl_NormalMatrix * gl_Normal;
+        Texcoord = gl_MultiTexCoord0.xy;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif     
+	gl_Position = ftransform();	
+    }
+  </vertexProgram><fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+   
+    uniform float threshold;
+    uniform sampler2D colormap;
+    uniform float colormapMin;
+    uniform float colormapMax;
+	uniform int colormapIndex;
+   
+    void main( void )
+    {
+      vec4 final_color = 
+      	(gl_FrontLightModelProduct.sceneColor* 0.1*gl_FrontMaterial.ambient ) ;//+ 
+      	//(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
+	  vec2 colormapCoord;
+	  colormapCoord[1] = 0.5+(float)colormapIndex/15.0;
+	  colormapCoord[0] = (Texcoord[0]-colormapMin)/(colormapMax-colormapMin);
+if(abs(colormapCoord[0])&lt;threshold)
+{
+   discard;
+}
+      vec4 colormapColor = texture2D( colormap, colormapCoord );
+
+      	
+      							
+      
+      vec3 N = normalize(normal);
+      
+      vec3 nEyeVec = normalize(eyeVec);
+      	
+      vec3 L = normalize(lightDir);
+      	
+      float lambertTerm = dot(N,L);
+      	
+      if(lambertTerm &gt; 0.0)
+      {
+//if(N[2]&gt; 0.5)
+//{
+//final_color = vec4(1,1,1,1);
+//}
+//else
+{
+      	final_color += vec4(1,1,1,1) * 
+      	               colormapColor * 
+				   lambertTerm;	
+  }          		
+      	vec3 E = normalize(nEyeVec);
+      	vec3 R = reflect(-L, N);
+      	float specular = pow( max(dot(R, E), 0.0), 
+      		                0.9 );
+      	final_color +=  vec4(1,1,1,1)*  specular;	
+      	}
+      final_color+=vec4(0.2,0.2,0.2,0);
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram></_WaveSurface>
