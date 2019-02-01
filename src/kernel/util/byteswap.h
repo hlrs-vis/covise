@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+/* these routines are header-only */
+
+
 #ifndef __COVISE_BYTESWAP_INCLUDED
 #define __COVISE_BYTESWAP_INCLUDED
 

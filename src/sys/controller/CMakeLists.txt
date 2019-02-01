@@ -9,6 +9,7 @@ IF(COVISE_BUILD_WEBSERVICE)
 ENDIF()
 
 SET(CONTROLLER_SOURCES
+    Token.cpp
 	CTRLMain.cpp
 	CTRLHandler.cpp
 	CTRLGlobal.cpp
@@ -24,6 +25,7 @@ SET(CONTROLLER_SOURCES
 )
 
 SET(CONTROLLER_HEADERS
+    Token.h
 	CTRLHandler.h
 	CTRLGlobal.h
 	covise_module.h

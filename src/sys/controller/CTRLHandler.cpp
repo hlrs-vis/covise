@@ -18,13 +18,13 @@
 #include <util/coTimer.h>
 #include <config/CoviseConfig.h>
 #include <config/coConfig.h>
-#include <util/Token.h>
 #include <util/coFileUtil.h>
 #include <net/covise_connect.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
 #include <appl/CoviseBase.h>
 
+#include "Token.h"
 #include "CTRLHandler.h"
 #include "CTRLGlobal.h"
 #include "AccessGridDaemon.h"

@@ -5,15 +5,13 @@
 
  * License: LGPL 2+ */
 
-#ifndef __TOKEN_INCLUDED
-#define __TOKEN_INCLUDED
-
-#include "coExport.h"
+#ifndef TOKEN_INCLUDED
+#define TOKEN_INCLUDED
 
 namespace covise
 {
 
-class UTILEXPORT Token
+class Token
 {
 private:
     char *string;
