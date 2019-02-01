@@ -9,6 +9,7 @@
 #define EC_CONNECTION_H
 
 #include <iostream>
+#include <vector>
 
 #include <fcntl.h>
 #ifdef _WIN32
@@ -19,7 +20,6 @@
 #endif
 
 #include <util/coExport.h>
-#include <util/covise_list.h>
 #include "message.h"
 
 typedef struct ssl_st SSL;
@@ -311,7 +311,8 @@ public:
 
 class NETEXPORT ConnectionList // list connections in a way that select can be used
 {
-    List<Connection> *connlist; // list of connections
+    long curidx = -1; // current index into vector
+    std::vector<Connection *> connlist; // list of connections
     fd_set fdvar; // field for select call
     int maxfd; // maximum socket id
     ServerConnection *open_sock; // socket for listening
@@ -323,23 +324,14 @@ public:
     void add(Connection *c); // add connection
     void remove(Connection *c); // remove connection
     void deleteConnection(Connection *c);
-    Connection *get_last() // get connection made recently
-    {
-        return connlist->get_last();
-    };
+    Connection *get_last();
     Connection *wait_for_input(); // issue select call and return the
     // connection that shows the first event
     // issue select call and return a
     Connection *check_for_input(float time = 0.0);
     // connection if there is an event or 0L otherwise
-    void reset() //
-    {
-        connlist->reset();
-    };
-    Connection *next() //
-    {
-        return connlist->next();
-    };
+    void reset();
+    Connection *next();
     //Connection at(int index);					  // get specific entry from listpos i
     int count(); // returns the number of current elements
 };

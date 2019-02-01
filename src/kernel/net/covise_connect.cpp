@@ -49,6 +49,7 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include <config/CoviseConfig.h>
 
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 using namespace covise;
@@ -1164,7 +1165,6 @@ int Connection::check_for_input(float time)
 
 ConnectionList::ConnectionList()
 {
-    connlist = new List<Connection>;
     open_sock = 0;
     maxfd = 0;
     FD_ZERO(&fdvar);
@@ -1172,7 +1172,6 @@ ConnectionList::ConnectionList()
 
 ConnectionList::ConnectionList(ServerConnection *o_s)
 {
-    connlist = new List<Connection>;
     FD_ZERO(&fdvar); // the field for the select call is initiallized
     open_sock = o_s;
     if (open_sock->listen() < 0)
@@ -1187,7 +1186,7 @@ ConnectionList::ConnectionList(ServerConnection *o_s)
 
 int ConnectionList::count()
 {
-    return connlist->count();
+    return connlist.size();
 }
 /*
 Connection ConnectionList::at(int index)
@@ -1202,20 +1201,25 @@ Connection ConnectionList::at(int index)
 
 ConnectionList::~ConnectionList()
 {
-    Connection *ptr;
-    connlist->reset();
-    while ((ptr = connlist->next()))
+    for (auto ptr: connlist)
     {
         ptr->close_inform();
         delete ptr;
     }
-    delete connlist;
+    connlist.clear();
     return;
 }
 
 void ConnectionList::deleteConnection(Connection *c)
 {
     delete c;
+}
+
+Connection *ConnectionList::get_last() // get connection made recently
+{
+    if (connlist.empty())
+        return nullptr;
+    return connlist.back();
 }
 
 void ConnectionList::add_open_conn(ServerConnection *c)
@@ -1236,7 +1240,7 @@ void ConnectionList::add_open_conn(ServerConnection *c)
 
 void ConnectionList::add(Connection *c) // add a connection and update the
 { //c->print();
-    connlist->add(c); // field for the select call
+    connlist.push_back(c); // field for the select call
     if (c->get_id() > maxfd)
         maxfd = c->get_id();
     FD_SET(c->get_id(), &fdvar);
@@ -1247,7 +1251,13 @@ void ConnectionList::remove(Connection *c) // remove a connection and update
 {
     if (!c)
         return;
-    connlist->remove(c); // the field for the select call
+    auto it = std::find(connlist.begin(), connlist.end(), c);
+    if (it != connlist.end())
+        connlist.erase(it);
+    //FIXME curidx
+    if (curidx >= connlist.size())
+        curidx = connlist.size();
+    // the field for the select call
     FD_CLR(c->get_id(), &fdvar);
 }
 
@@ -1291,8 +1301,7 @@ Connection *ConnectionList::check_for_input(float time)
 {
     int numconn = 0;
     // if we already have a pending message, we return it
-    connlist->reset();
-    while (Connection *ptr = connlist->next())
+    for (auto ptr: connlist)
     {
         ++numconn;
         if (ptr->has_message())
@@ -1345,8 +1354,7 @@ Connection *ConnectionList::check_for_input(float time)
         }
         else
         {
-            connlist->reset();
-            while (Connection *ptr = connlist->next())
+            for (auto ptr: connlist)
             {
                 if (FD_ISSET(ptr->get_id(), &fdread))
                 {
@@ -1361,6 +1369,19 @@ Connection *ConnectionList::check_for_input(float time)
         coPerror("select failed");
     }
     return NULL;
+}
+
+void ConnectionList::reset() //
+{
+    curidx = 0;
+}
+
+Connection *ConnectionList::next() //
+{
+    ++curidx;
+    if (curidx < connlist.size())
+        return connlist[curidx];
+    return nullptr;
 }
 
 #ifdef HAVE_OPENSSL
