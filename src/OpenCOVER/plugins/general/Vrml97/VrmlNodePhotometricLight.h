@@ -84,6 +84,7 @@ public:
 	osg::ref_ptr<osg::Texture2D> light_conf_tex;
 	osg::Image* configuration_img;
 
+
 private:
     // Fields
     VrmlSFInt d_lightNumber;
@@ -95,7 +96,7 @@ private:
     static osg::ref_ptr<osg::Uniform> photometricLightMatrix;
     Viewer::Object d_viewerObject;
     osg::ref_ptr<osg::MatrixTransform> lightNodeInSceneGraph;
-    static const int MAX_LIGHTS = 4;
+    static const int MAX_LIGHTS = 4;  // must always be 4 or less!
 
 
 };
