@@ -162,28 +162,17 @@ def img2mlb(p):
     return to_struct(-w/2, -h/2, w, h, t_width, t_height, t_depth, data_byte)
 
 
-def gkern(l=5, sig=1.):
-    """
-    creates gaussian kernel with side length l and a sigma of sig
-    """
-
-    ax = np.arange(-l // 2 + 1., l // 2 + 1.)
-    xx, yy = np.meshgrid(ax, ax)
-    kernel = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
-    return kernel / np.sum(kernel)
-
-
-def rndmlb(h, w, d, dh, dw, sig):
+def rndmlb(h, w, d, h_deg, w_deg, sig):
 
     all_lights = np.zeros((h, w, d))
     for i in range(d):
-        x = np.linspace(-dw/2, dw/2, w) + (np.random.rand()-.5)*dw
-        y = np.linspace(-dh/2, dh/2, h) + (np.random.rand()-.5)*dh
+        x = np.linspace(-w_deg/2, w_deg/2, w) + (np.random.rand()-.5)*w_deg
+        y = np.linspace(-h_deg/2, h_deg/2, h) + (np.random.rand()-.5)*h_deg
         xx, yy = np.meshgrid(x, y)
         all_lights[..., i] = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
     data_byte = rescale(all_lights)
 
-    w_rad, h_rad = np.radians(30), np.radians(20)
+    w_rad, h_rad = np.radians(w_deg), np.radians(h_deg)
     print(-w/2, -h/2, w, h, w, h, d)
     return to_struct(-w_rad/2, -h_rad/2, w_rad, h_rad, w, h, d, data_byte)
 
@@ -199,9 +188,9 @@ def example_ies2mlb():
 
 
 def make_random_mlb():
-    fh = open("D:/covise_stuff/MatrixScheinwerfer/test_rand2.mlb", "wb")
-#    binary = rndmlb(h=30, w=40, d=7, dh=5, dw=6, sig=.3)
-    binary = rndmlb(h=100, w=100, d=20, dh=4, dw=10, sig=.3)
+    fh = open("D:/covise_stuff/MatrixScheinwerfer/test_rand1.mlb", "wb")
+#    binary = rndmlb(h=100, w=20, d=20, h_deg=5, w_deg=10, sig=.3)
+    binary = rndmlb(h=100, w=200, d=20, h_deg=15, w_deg=30, sig=1)
     fh.write(binary)
     fh.close()
     return
