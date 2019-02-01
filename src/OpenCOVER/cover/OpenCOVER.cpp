@@ -1271,7 +1271,8 @@ bool OpenCOVER::frame()
     if (frameNum > 2)
         coVRPluginList::instance()->postFrame();
 
-    hud->update();
+    if (hud->update())
+        m_renderNext = true;
 
     //cerr << "OpenCOVER::frame EMD " << frameCount << endl;
     return render;

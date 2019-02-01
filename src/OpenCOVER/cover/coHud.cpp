@@ -230,7 +230,7 @@ void coHud::setText3(const std::string &text)
     line3->setText(text, osgText::String::ENCODING_UTF8);
 }
 
-void coHud::update()
+bool coHud::update()
 {
     if (doHide)
     {
@@ -239,8 +239,17 @@ void coHud::update()
             hudTime = cover->frameTime();
             hide();
             doHide = false;
+
+            return true;
         }
     }
+
+    return false;
+}
+
+bool coHud::isVisible() const
+{
+    return visible || doHide;
 }
 
 void coHud::hideLater(float time)

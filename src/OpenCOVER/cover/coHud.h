@@ -40,7 +40,8 @@ public:
     void hide();
     void redraw();
     void hideLater(float time = -1.);
-    void update();
+    bool update();
+    bool isVisible() const;
 
     void setText1(const std::string &text);
     void setText2(const std::string &text);
