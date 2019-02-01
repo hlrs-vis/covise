@@ -48,6 +48,6 @@ void main() {
    */
    //trgt[0] = 1.0;
    
-   imageStore(targetTex, storePos, vec4(1));
+   //imageStore(targetTex, storePos, vec4(1));
    imageStore(targetTex, storePos, trgt);
 }
