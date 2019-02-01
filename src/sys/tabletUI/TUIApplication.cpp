@@ -711,20 +711,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
-                std::string blacklist = "COVER.TabletUI.Blacklist:";
-                QString qname(name);
-                qname.replace(".", "").replace(":", "");
-                blacklist += qname.toStdString();
-// TODO: won't work for items with identical names but different parents - a random item will be found
-//std::string value = covise::coCoviseConfig::getEntry(blacklist);
-
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
-                std::string parent = covise::coCoviseConfig::getEntry("parent", blacklist);
-                if (covise::coCoviseConfig::isOn(blacklist, false) && (parent.empty() || parent == parentName.toStdString()))
-                {
-                    newElement->setHidden(true);
-                }
-#endif
             }
 
 #ifdef TABLET_PLUGIN
