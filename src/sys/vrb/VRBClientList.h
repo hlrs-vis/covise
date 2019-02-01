@@ -91,9 +91,9 @@ private:
     char *address = nullptr;
     char *m_name = nullptr;
     char *userInfo = nullptr;
-    int myID;
-    int m_group;
-    int m_master;
+    int myID = -1;
+    int m_group = -1;
+    int m_master = false;
     long bytesSent;
     long bytesReceived;
     double lastRecTime = -1.;

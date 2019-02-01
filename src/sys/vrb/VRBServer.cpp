@@ -58,11 +58,14 @@ extern ApplicationWindow *mw;
 #endif
 
 #include <config/CoviseConfig.h>
+#include <net/covise_socket.h>
 
 using namespace covise;
 
 VRBServer::VRBServer()
 {
+    covise::Socket::initialize();
+
     port = coCoviseConfig::getInt("port", "System.VRB.Server", 31800);
     requestToQuit = false;
     currentFileClient = NULL;
@@ -113,9 +116,7 @@ int VRBServer::openServer()
     msg = new Message;
 
 #ifdef GUI
-    QSocketNotifier *serverSN;
-
-    serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
+    QSocketNotifier *serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
     QObject::connect(serverSN, SIGNAL(activated(int)),
                      this, SLOT(processMessages()));
 #endif
@@ -132,27 +133,22 @@ void VRBServer::loop()
 
 void VRBServer::processMessages()
 {
-    Connection *conn;
-    Connection *clientConn;
-    while ((conn = connections->check_for_input(0.0001f)))
+    while (Connection *conn = connections->check_for_input(0.0001f))
     {
         if (conn == sConn) // connection to server port
         {
-            clientConn = sConn->spawn_connection();
+            Connection *clientConn = sConn->spawn_connection();
             struct linger linger;
             linger.l_onoff = 0;
             linger.l_linger = 0;
             setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
 #ifdef GUI
-
-            QSocketNotifier *sn;
-
-            sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
+            QSocketNotifier *sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
             QObject::connect(sn, SIGNAL(activated(int)),
                              this, SLOT(processMessages()));
-
             clients.append(new VRBSClient(clientConn, sn));
+            std::cerr << "VRB new client: Numclients=" << clients.num() << std::endl;
 #endif
             connections->add(clientConn); //add new connection;
         }
@@ -164,8 +160,7 @@ void VRBServer::processMessages()
             clients.reset();
 
 #ifdef GUI
-            VRBSClient *cl = clients.get(conn);
-            if (cl != NULL)
+            if (VRBSClient *cl = clients.get(conn))
             {
                 cl->getSN()->setEnabled(false);
             }
@@ -193,8 +188,7 @@ void VRBServer::processMessages()
             }
 
 #ifdef GUI
-            cl = clients.get(conn);
-            if (cl != NULL)
+            if (VRBSClient *cl = clients.get(conn))
             {
                 QSocketNotifier *sn = cl->getSN();
                 sn->setEnabled(true);
@@ -473,6 +467,7 @@ void VRBServer::handleClient(Message *msg)
             }
 #else
             clients.append(new VRBSClient(msg->conn, ip, name));
+            std::cerr << "VRB new client: Numclients=" << clients.num() << std::endl;
 #endif
         }
         //cerr << name << " connected from " << ip << endl;
@@ -521,28 +516,27 @@ void VRBServer::handleClient(Message *msg)
         char *ui;
         tb >> ui;
         clients.reset();
-        VRBSClient *c2;
         VRBSClient *c = clients.get(msg->conn);
-        TokenBuffer rtb;
-        TokenBuffer rtb2;
         if (c)
         {
+            TokenBuffer rtb;
             rtb << 1;
             c->setUserInfo(ui);
             c->getInfo(rtb);
             Message m(rtb);
             m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
             clients.reset();
-            while ((c2 = clients.current()))
+            while (VRBSClient *c2 = clients.current())
             {
                 if (c2 != c)
                     c2->conn->send_msg(&m);
                 clients.next();
             }
         }
+        TokenBuffer rtb2;
         rtb2 << clients.num();
         clients.reset();
-        while ((c2 = clients.current()))
+        while (VRBSClient *c2 = clients.current())
         {
             c2->getInfo(rtb2);
             clients.next();
@@ -758,9 +752,8 @@ void VRBServer::handleClient(Message *msg)
             rtb << masterState;
             Message m(rtb);
             m.type = COVISE_MESSAGE_VRB_SET_MASTER;
-            VRBSClient *c2;
             clients.reset();
-            while ((c2 = clients.current()))
+            while (VRBSClient *c2 = clients.current())
             {
                 if (c2->getGroup() == c->getGroup())
                 {
@@ -810,8 +803,7 @@ void VRBServer::handleClient(Message *msg)
             Message m(rtb);
             m.type = COVISE_MESSAGE_VRB_QUIT;
             clients.reset();
-            VRBSClient *cc;
-            while ((cc = clients.current()))
+            while (VRBSClient *cc = clients.current())
             {
                 cc->conn->send_msg(&m);
                 clients.next();
@@ -819,6 +811,7 @@ void VRBServer::handleClient(Message *msg)
             if (wasMaster)
             {
                 clients.reset();
+                VRBSClient *cc = NULL;
                 while ((cc = clients.current()))
                 {
                     if (cc->getGroup() == MasterGroup)
@@ -833,9 +826,8 @@ void VRBServer::handleClient(Message *msg)
                     rtb << 1;
                     Message m(rtb);
                     m.type = COVISE_MESSAGE_VRB_SET_MASTER;
-                    VRBSClient *c2;
                     clients.reset();
-                    while ((c2 = clients.current()))
+                    while (VRBSClient *c2 = clients.current())
                     {
                         if (c2->getGroup() == MasterGroup)
                         {
