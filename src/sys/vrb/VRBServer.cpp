@@ -478,7 +478,7 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c;
         while ((c = clients.current()))
         {
-            if (strcmp(c->getIP(), ip) == 0)
+            if (c->getIP()==ip)
             {
                 rtb << c->getName();
                 rtb << c->getIP();
@@ -499,7 +499,7 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c;
         while ((c = clients.current()))
         {
-            if (strcmp(c->getIP(), ip) == 0)
+            if (c->getIP()==ip)
             {
                 c->conn->send_msg(msg);
                 break;
@@ -619,7 +619,7 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c;
         while ((c = clients.current()))
         {
-            if (strcmp(c->getIP(), ip) == 0)
+            if (c->getIP()==ip)
             {
                 rtb << 1;
                 break;
@@ -1045,8 +1045,8 @@ void VRBServer::handleClient(Message *msg)
             for (int i = clients.num(); i > 0;)
             {
                 VRBSClient *locConn = clients.item(--i);
-                locClientName = locConn->getName();
-                locClient = locConn->getIP();
+                locClientName = QString::fromStdString(locConn->getName());
+                locClient = QString::fromStdString(locConn->getIP());
                 tuiClientList.append(locClient);
             }
 
@@ -1076,7 +1076,7 @@ void VRBServer::handleClient(Message *msg)
                 QString address(tuiClientList.at(i));
                 hostName = networkHelper.GetNamefromAddr(&address);
                 strHostName = hostName.toStdString();
-                char *temp = (char *)strHostName.c_str();
+                const char *temp = strHostName.c_str();
                 tb2 << temp;
             }
 
@@ -1521,13 +1521,11 @@ void VRBServer::handleClient(Message *msg)
 void VRBServer::RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path)
 {
     VRBSClient *locClient = NULL;
-    char *host = NULL;
 
-    // not used int t = clients.num();
     for (int i = 0; i < clients.num(); i++)
     {
-        host = (char *)(clients.item(i))->getIP();
-        if (strcmp(location, host) == 0)
+        std::string host = clients.item(i)->getIP();
+        if (host == location)
         {
             locClient = clients.item(i);
         }

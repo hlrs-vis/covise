@@ -47,32 +47,14 @@ public:
     void setContactInfo(const char *ip, const char *n);
     void setUserInfo(const char *userInfo);
     covise::Connection *conn;
-    const char *getName()
-    {
-        return m_name;
-    };
-    const char *getIP()
-    {
-        return address;
-    };
-    int getID()
-    {
-        return myID;
-    };
-    int getGroup()
-    {
-        return m_group;
-    };
+    std::string getName() const;
+    std::string getIP() const;
+    int getID() const;
+    int getGroup();
     void setGroup(int g);
-    int getMaster()
-    {
-        return m_master;
-    };
+    int getMaster();
     void setMaster(int m);
-    const char *getUserInfo()
-    {
-        return userInfo;
-    };
+    std::string getUserInfo();
     int getSentBPS();
     int getReceivedBPS();
     void setInterval(float i);
@@ -88,9 +70,9 @@ public:
     static QPixmap *pix_slave;
 
 private:
-    char *address = nullptr;
-    char *m_name = nullptr;
-    char *userInfo = nullptr;
+    std::string address;
+    std::string m_name;
+    std::string userInfo;
     int myID = -1;
     int m_group = -1;
     int m_master = false;

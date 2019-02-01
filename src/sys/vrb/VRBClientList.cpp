@@ -80,12 +80,9 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
         pix_slave = new QPixmap(lockIcon);
     }
 #endif
-    address = new char[strlen(ip) + 1];
-    strcpy(address, ip);
-    m_name = new char[strlen(n) + 1];
-    strcpy(m_name, n);
+    address = ip;
+    m_name = n;
     conn = c;
-    userInfo = NULL;
     myID = s_idCounter++;
     m_group = -1;
     TokenBuffer rtb;
@@ -108,12 +105,8 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
 
 void VRBSClient::setContactInfo(const char *ip, const char *n)
 {
-    delete[] address;
-    delete[] m_name;
-    address = new char[strlen(ip) + 1];
-    strcpy(address, ip);
-    m_name = new char[strlen(n) + 1];
-    strcpy(m_name, n);
+    address = ip;
+    m_name = n;
     TokenBuffer rtb;
     rtb << myID;
     Message m(rtb);
@@ -126,7 +119,8 @@ void VRBSClient::setContactInfo(const char *ip, const char *n)
     myItem = new QTreeWidgetItem(appwin->table);
     sprintf(num, "%d", myID);
     myItem->setText(ID, num);
-    myItem->setText(IP, address);
+    myItem->setText(IP, QString::fromStdString(address));
+    setMaster(m_master);
 #endif
 }
 
@@ -135,21 +129,37 @@ void VRBSClient::setMaster(int m)
     m_master = m;
 // Eintrag ndern
 #ifdef GUI
-    if (m)
-        myItem->setIcon(Master, QIcon(*pix_master));
-    else
-        myItem->setIcon(Master, QIcon(*pix_slave));
+    if (myItem)
+    {
+        if (m)
+            myItem->setIcon(Master, QIcon(*pix_master));
+        else
+            myItem->setIcon(Master, QIcon(*pix_slave));
+    }
 #endif
+}
+
+std::string VRBSClient::getUserInfo()
+{
+    return userInfo;
 }
 
 void VRBSClient::setGroup(int g)
 {
     m_group = g;
 #ifdef GUI
-    char num[100];
-    sprintf(num, "%d", g);
+    char num[100] = "";
+    if (g >= 0)
+    {
+        sprintf(num, "%d", g);
+    }
     myItem->setText(Group, num);
 #endif
+}
+
+int VRBSClient::getMaster()
+{
+    return m_master;
 }
 
 VRBSClient::VRBSClient(Connection *c, QSocketNotifier *sn)
@@ -162,12 +172,9 @@ VRBSClient::VRBSClient(Connection *c, QSocketNotifier *sn)
     }
 #endif
     socketNotifier = sn;
-    address = new char[strlen("127.0.0.0") + 1];
-    strcpy(address, "127.0.0.0");
-    m_name = new char[strlen("NONE") + 1];
-    strcpy(m_name, "NONE");
+    address = "localhost";
+    m_name = "NONE";
     conn = c;
-    userInfo = NULL;
     myID = s_idCounter++;
     m_group = -1;
     m_master = 0;
@@ -195,9 +202,6 @@ VRBSClient::~VRBSClient()
         coRegistry::instance->unObserve(myID);
         coRegistry::instance->deleteEntry(myID);
     }
-    delete[] address;
-    delete[] m_name;
-    delete[] userInfo;
     delete conn;
     cerr << "closed connection to client " << myID << endl;
 #ifdef GUI
@@ -216,31 +220,15 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
 {
     rtb << myID;
     rtb << address;
-    if (m_name)
-    {
-        rtb << m_name;
-    }
-    else
-    {
-        rtb << "";
-    }
-    if (userInfo)
-    {
-        rtb << userInfo;
-    }
-    else
-    {
-        rtb << "";
-    }
+    rtb << m_name;
+    rtb << userInfo;
     rtb << m_group;
     rtb << m_master;
 }
 
 void VRBSClient::setUserInfo(const char *ui)
 {
-    delete[] userInfo;
-    userInfo = new char[strlen(ui) + 1];
-    strcpy(userInfo, ui);
+    userInfo = ui;
 
 // Eintrag ndern
 #ifdef GUI
@@ -304,6 +292,26 @@ void VRBSClient::setUserInfo(const char *ui)
 
     appwin->createCurves(this);
 #endif
+}
+
+std::string VRBSClient::getName() const
+{
+    return m_name;
+}
+
+std::string VRBSClient::getIP() const
+{
+    return address;
+}
+
+int VRBSClient::getID() const
+{
+    return myID;
+}
+
+int VRBSClient::getGroup()
+{
+    return m_group;
 }
 
 int VRBSClient::getSentBPS()
