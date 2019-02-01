@@ -3,7 +3,7 @@
 //#<uniform name="targetTex" type="sampler2D" value="7"/>
 
 <vertexProgram>
-varying vec3 InLightCoordinates;
+varying mat4 InLightCoordinates;
 uniform gl_MaterialParameters gl_FrontMaterial;  
 uniform gl_LightSourceParameters gl_LightSource[gl_MaxLights];
 varying vec2 Texcoord;
@@ -11,12 +11,12 @@ varying vec4 vColor;   // --------------------------------
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
 uniform mat4 photometricLightMatrix[4];
+uniform int MAX_LIGHTS;
 
 vec4 Ambient;
 vec4 Diffuse;
 vec4 Specular;
 
-uniform int light_number;
 
 
 void pointLight(in int i, in vec3 normal, in vec3 eye, in vec3 ecPosition3)
@@ -139,28 +139,41 @@ void main(void)
     gl_Position = ftransform();
     transformedNormal = fnormal();
     flight(transformedNormal, ecPosition, alphaFade);
-    vec4 tmp4 = photometricLightMatrix[light_number]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
-    InLightCoordinates = tmp4.xyz;
+    // TODO: for i in range(4):
+    // make in light coordinates 4x3
+    for (int light_number=0; light_number&lt;MAX_LIGHTS; light_number++)
+    {
+        InLightCoordinates[light_number] = photometricLightMatrix[light_number]*coEnvCorrectMatrix*gl_ModelViewMatrix*gl_Vertex;
+    }
     //gl_FrontColor = gl_FrontMaterial.diffuse;
     vColor = gl_FrontColor; //gl_Color;   // --------------------------------
 }
 </vertexProgram>
 <fragmentProgram>
 #version 130
-varying vec3 InLightCoordinates;
+varying mat4 InLightCoordinates;
 varying vec2 Texcoord;
 varying vec4 vColor;   // --------------------------------
 uniform mat4 coEnvCorrectMatrix;
 uniform mat4 coInvEnvCorrectMatrix;
 uniform mat4 photometricLightMatrix[4];
-uniform float left;
-uniform float bottom;
-uniform float width;
-uniform float height;
+
+uniform int MAX_LIGHTS;
 //uniform int num_lights;
 //uniform sampler2D IESMap;
-uniform sampler3D AllPhotometricLights;
-uniform sampler2D targetTex;
+
+//uniform sampler3D AllPhotometricLights;
+//uniform sampler2D targetTex;
+uniform sampler2D targetTex0;
+uniform sampler2D targetTex1;
+uniform sampler2D targetTex2;
+uniform sampler2D targetTex3;
+
+uniform vec4 left;
+uniform vec4 bottom;
+uniform vec4 width;
+uniform vec4 height;
+uniform vec4 is_active;
 
 
 ivec2 texSize;
@@ -183,12 +196,14 @@ void main(void)
     vec2 newtc;
     vec3 newtc3;
     vec4 tmp;
-    vec4 DiffuseColor;
+    vec4 DiffuseColor = vec4(0.0);
     float candela = 0.0;
-    int num_lights;
-    ivec3 texsize;
-    texsize = textureSize(AllPhotometricLights, 0);
-    num_lights = texsize[2];
+    float an_h;
+    float an_v;
+    //ivec3 texsize;
+    //int num_lights;
+    //texsize = textureSize(AllPhotometricLights, 0);
+    //num_lights = texsize[2];
 
     //texSize = textureSize(IESMap, 0);
     // angular range in ies file: -65 to 65 and -15 to 12
@@ -199,47 +214,58 @@ void main(void)
     float width = radians(50.); // radians
     float height = radians(20.); // radians
 */
-    float an_h = smallestperiod(atan(InLightCoordinates[2], InLightCoordinates[0]));  // => arctan2
-    float an_v = smallestperiod(atan(InLightCoordinates[1], InLightCoordinates[0]));  // => arctan2
-
-    newtc3[0]= (an_h-left)/width;
-    newtc3[1]= (an_v-bottom)/height;
-    newtc3[2]= 0.;
-    newtc[0] = newtc3[0];
-    newtc[1] = newtc3[1];
-    //int num_lights = 96;
-    float half_bin_width = 1./ float (num_lights*2);
-    
-    if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
-    {    
-        if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
+    for (int n=0; n &lt; MAX_LIGHTS; n++)
+    {
+        if (is_active[n] == 1.0)
         {
-            /*
-            //gl_FragColor += vec4 (.2,.2,0.,0.);
-            DiffuseColor *= 0.0;
-            for (int i = 0; i &lt; num_lights; i++)
-            {
-                newtc3[2] = float (i) / float (num_lights) + half_bin_width;
-                DiffuseColor += texture3D(AllPhotometricLights, newtc3);
-                ivec3 itc3;
-                itc3[0] = int(newtc3[0]*texsize[0]);
-                itc3[1] = int(newtc3[1]*texsize[1]);
-                itc3[2] = int(newtc3[2]*texsize[2]);
-                candela += texelFetch(AllPhotometricLights, itc3, 0).r; // works
+            an_h = smallestperiod(atan(InLightCoordinates[n][2], InLightCoordinates[n][0]));  // => arctan2
+            an_v = smallestperiod(atan(InLightCoordinates[n][1], InLightCoordinates[n][0]));  // => arctan2
+
+            newtc3[0]= (an_h-left[n])/width[n];
+            newtc3[1]= (an_v-bottom[n])/height[n];
+            newtc3[2]= 0.;
+            newtc[0] = newtc3[0];
+            newtc[1] = newtc3[1];
+            //float half_bin_width = 1./ float (num_lights*2);
+            
+            if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
+            {    
+                if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
+                {
+                    /*
+                    //gl_FragColor += vec4 (.2,.2,0.,0.);
+                    DiffuseColor *= 0.0;
+                    for (int i = 0; i &lt; num_lights; i++)
+                    {
+                        newtc3[2] = float (i) / float (num_lights) + half_bin_width;
+                        DiffuseColor += texture3D(AllPhotometricLights, newtc3);
+                        ivec3 itc3;
+                        itc3[0] = int(newtc3[0]*texsize[0]);
+                        itc3[1] = int(newtc3[1]*texsize[1]);
+                        itc3[2] = int(newtc3[2]*texsize[2]);
+                        candela += texelFetch(AllPhotometricLights, itc3, 0).r; // works
+                    }
+                    if((0.1 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; .6))
+                        DiffuseColor = texture2D(targetTex, newtc);
+                        //DiffuseColor[1] = candela;
+                    */
+                    if(n==0)
+                        DiffuseColor += vec4(texture2D(targetTex0, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+                    if (n==1)
+                        DiffuseColor += vec4(texture2D(targetTex1, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+                    if (n==2)
+                        DiffuseColor += vec4(texture2D(targetTex2, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+                    if (n==3)
+                        DiffuseColor += vec4(texture2D(targetTex3, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+                }
             }
-            if((0.1 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; .6))
-                DiffuseColor = texture2D(targetTex, newtc);
-                //DiffuseColor[1] = candela;
-            */
-            DiffuseColor = vec4(texture2D(targetTex, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
         }
     }
-    
     gl_FragColor = DiffuseColor*0.5+ (vColor*0.5);
     gl_FragColor[3] = 1;
     //gl_FragColor = gl_Color;
 
-    }</fragmentProgram></MatrixLight>
+}</fragmentProgram></MatrixLight>
     //<     &lt;     
     //>     &gt;     nur problematisch in Tags und bei ']]>'
     //&     &amp;     

@@ -6,7 +6,7 @@ layout(binding=0, r32f) coherent  uniform readonly image2D configuration;
 //layout(binding=1, r8) coherent  uniform readonly image3D AllPhotometricLights;
 layout(binding=2, r16f) coherent uniform writeonly image2D targetTex;
 //uniform sampler2D configuration;
-uniform sampler3D AllPhotometricLightsTex;
+uniform sampler3D AllPhotometricLightsTexX;
 layout (local_size_x = 16, local_size_y = 16) in;
 void main() {
    ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
@@ -19,7 +19,7 @@ void main() {
    */
    
    //ivec3 dim = imageSize(AllPhotometricLights);  // textureSize with LOD or imageSize
-   ivec3 dim = textureSize(AllPhotometricLightsTex, 0);  // textureSize with LOD or imageSize
+   ivec3 dim = textureSize(AllPhotometricLightsTexX, 0);  // textureSize with LOD or imageSize
    int num_lights = dim[2];// textureSize or imageSize
    float factor = 0.0;
    float candela = 0.0;
@@ -35,7 +35,7 @@ void main() {
             factor = imageLoad(configuration, ivec2(i, 0)).r;
             // imageLoad or texelFetch with LOD
             //candela = imageLoad(AllPhotometricLights, newitc3)[0] / float (num_lights);  //wordks only for i = 0
-            candela = texelFetch(AllPhotometricLightsTex, newitc3, 0).r;  // returns float (0 ... 1) insead of byte (0 ... 255) ???
+            candela = texelFetch(AllPhotometricLightsTexX, newitc3, 0).r;  // returns float (0 ... 1) insead of byte (0 ... 255) ???
             trgt[0] += (factor * candela);
         }
    }
@@ -48,5 +48,6 @@ void main() {
    */
    //trgt[0] = 1.0;
    
+   imageStore(targetTex, storePos, vec4(1));
    imageStore(targetTex, storePos, trgt);
 }
