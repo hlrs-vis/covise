@@ -198,6 +198,7 @@ VrmlNodePhotometricLight::VrmlNodePhotometricLight(const VrmlNodePhotometricLigh
 
 VrmlNodePhotometricLight::~VrmlNodePhotometricLight()
 {
+	// TODO: remove textures
     allPhotometricLights.remove(this);
 }
 
@@ -275,6 +276,9 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 
 
 
+		if (d_lightNumber.get()>4) {
+			throw std::invalid_argument("light number must be below 4!");
+		}
 
 		std::string buf = "share/covise/materials/MatrixLight.comp";
 		std::string code = "";
@@ -300,6 +304,18 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 				code.replace(start_pos, from.length(), to);
 			std::cout << "changed binding nr from " << binding_number << " to "<< (binding_number + d_lightNumber.get() * 3) << std::endl;
 		}
+		// we need to work with the texture... image3D does not work
+
+		string from = std::string("AllPhotometricLightsTexX");
+		string to = std::string("AllPhotometricLightsTex") + std::to_string(d_lightNumber.get());
+		size_t start_pos = 0;
+		while ((start_pos = code.find(from, start_pos)) != std::string::npos)
+		{
+			code.replace(start_pos, from.length(), to);
+			start_pos += to.length();
+		}
+		std::cout << "changed from " << from << " to " << to << std::endl;
+
 		std::cout << code << "\n";
 
 		// matrix light data as texture3D
@@ -360,44 +376,82 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 
 		std::cout << "light number: " << d_lightNumber.get() << std::endl;
 		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(1 + 0 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(1 + 1 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(1 + 2 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(1 + 3 * 3)));
 		// dont bind anything to imageunit 8 !
 		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
 		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
 		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
         //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
 		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
-		state->setTextureAttributeAndModes(0, light_conf_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(1, all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes(2, sum_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((0 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((1 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
 		std::cout << "Texture 3D set to: " << (6 + d_lightNumber.get() * 3) << std::endl;
-		//state->setTextureAttributeAndModes(6 + d_lightNumber.get(), lightTextures, osg::StateAttribute::ON);
 		//state->setMode(GL_LIGHTING, osg::StateAttribute::OFF); // not needed
-		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
+		//state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 		state->setAttributeAndModes(imagbinding1.get());
-		state->setAttributeAndModes(imagbinding2.get());
+		//state->setAttributeAndModes(imagbinding2.get());
 		state->setAttributeAndModes(imagbinding3.get());
-		state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex", (int)(6 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("targetTexTex", (int)(7 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
-		state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
-		state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
-		state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
-		// TODO: shader needs to know its light number. Its different for each light!
-		state->addUniform(new osg::Uniform("light_number", (d_lightNumber.get()))); // does not give the results needed...
+		// FIXME: angles may differ for each light! values are overwritten each time
+		//state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3))); // only needed in the compute shader!
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
+		state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
+		state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
+		state->addUniform(new osg::Uniform("targetTex2", (int)(7 + 2 * 3)));
+		state->addUniform(new osg::Uniform("targetTex3", (int)(7 + 3 * 3)));
+
+		osg::Vec4f tmp;
+
+		state->getOrCreateUniform(std::string("left"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+		tmp[d_lightNumber.get()] = (mlbFile->header.left);
+		state->addUniform(new osg::Uniform("left", tmp));
+		std::cout << "left\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+
+		state->getOrCreateUniform(std::string("bottom"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+		tmp[d_lightNumber.get()] = (mlbFile->header.bottom);
+		state->addUniform(new osg::Uniform("bottom", tmp));
+		std::cout << "bottom\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+
+		state->getOrCreateUniform(std::string("width"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+		tmp[d_lightNumber.get()] = (mlbFile->header.width);
+		state->addUniform(new osg::Uniform("width", tmp));
+		std::cout << "width\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+
+		state->getOrCreateUniform(std::string("height"), osg::Uniform::FLOAT_VEC4)->get(tmp);
+		tmp[d_lightNumber.get()] = (mlbFile->header.height);
+		state->addUniform(new osg::Uniform("height", tmp));
+		std::cout << "height\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+
+		state->getOrCreateUniform(std::string("is_active"), osg::Uniform::FLOAT_VEC4)->get(tmp); // bool or int not implemented in osg v 
+		if (tmp[d_lightNumber.get()] == 1.0) {
+			throw std::invalid_argument("this light already exists");
+		}
+		tmp[d_lightNumber.get()] = 1.0;
+		state->addUniform(new osg::Uniform("is_active", tmp));
+		std::cout << "is_active\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+
+		//state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
+		//state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
+		//state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
+		//state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
+
+		state->addUniform(new osg::Uniform("MAX_LIGHTS", (MAX_LIGHTS)));
 
 		// Create the scene graph and start the viewer
 		cover->getScene()->addChild(sourceNode);
 		
-		// TODO: we need to find out about the number of the shader!
-		int i = computeProg->getNumShaders();
-		std::cout << "num shaders after setting up compute shader:" << i << std::endl;
 		coMLB_initialized = true;
 
 	}
