@@ -123,7 +123,12 @@ void coButton::updateSwitch()
 
     createGeometry();
     if (!active_)
-        myGeometry->switchGeometry(coButtonGeometry::DISABLED);
+    {
+        if (pressState)
+            myGeometry->switchGeometry(coButtonGeometry::PRESSED);
+        else
+            myGeometry->switchGeometry(coButtonGeometry::DISABLED);
+    }
     else if (!selectionState)
     {
         if (pressState)
