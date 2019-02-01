@@ -64,7 +64,6 @@ ApplicationWindow::ApplicationWindow()
 
     // init some values
 
-    QFont boldfont;
     QLabel *label;
     QFrame *w;
     QVBoxLayout *box;
@@ -75,7 +74,6 @@ ApplicationWindow::ApplicationWindow()
     plugins = NULL;
 
     // set a proper font & layout
-    setFont(QFont("Helvetica", 8));
 
     // initialize two timer
     // timer.....waits for disconneting vrb clients
@@ -183,13 +181,10 @@ void ApplicationWindow::createMenubar()
     QPixmap newIcon(filenew);
     QPixmap openIcon(fileopen);
     QPixmap quitIcon(quit);
-    QFont boldfont;
-    boldfont.setWeight(QFont::Bold);
 
     // File menu
 
     QMenu *file = new QMenu(tr("&File"), this);
-    file->setFont(QFont("Helvetica", 8));
     file->addAction(newIcon, "&New", this, SLOT(newDoc()), Qt::CTRL + Qt::Key_N);
     file->addAction(openIcon, "&Open", this, SLOT(choose()), Qt::CTRL + Qt::Key_O);
     file->addSeparator();
@@ -198,7 +193,6 @@ void ApplicationWindow::createMenubar()
     // Preference menu
 
     QMenu *pref = new QMenu(tr("&Preference"), this);
-    pref->setFont(QFont("Helvetica", 8));
     showMessageAreaAction = pref->addAction("Message Area");
     showMessageAreaAction->setCheckable(true);
     showMessageAreaAction->setChecked(false);
@@ -207,7 +201,6 @@ void ApplicationWindow::createMenubar()
     // Style menu
 
     QMenu *styleMenu = new QMenu(tr("&Style"), this);
-    styleMenu->setFont(QFont("Helvetica", 8));
 
     QActionGroup *ag = new QActionGroup(this);
     ag->setExclusive(true);
@@ -218,12 +211,10 @@ void ApplicationWindow::createMenubar()
 
     // Help menu
     QMenu *help = new QMenu(tr("&Help"), this);
-    help->setFont(QFont("Helvetica", 8));
     help->addAction("&About", this, SLOT(about()), Qt::Key_F1);
     help->addSeparator();
     help->addAction("What's &This", this, SLOT(enterWhatsThis()), Qt::SHIFT + Qt::Key_F1);
 
-    menuBar()->setFont(boldfont);
     menuBar()->addMenu(file);
     menuBar()->addMenu(pref);
     menuBar()->addMenu(styleMenu);
