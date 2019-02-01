@@ -97,9 +97,9 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 	int work_group_size = 16;
 
 	// we just assume for now someone changed the configuration
-	if (counter == 10)
+
+	if (((float)rand() / (RAND_MAX)) < 0.05)
 	{
-		counter = 0;
 		configuration_changed = true;
 		for (int i = 0; i < num_lights; i++)
 		{
@@ -107,8 +107,6 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 			//std::cout << configurationML[i] << std::endl;
 		}
 	}
-	else
-		counter++;
 
 	if (configuration_changed)
 	{
@@ -198,7 +196,14 @@ VrmlNodePhotometricLight::VrmlNodePhotometricLight(const VrmlNodePhotometricLigh
 
 VrmlNodePhotometricLight::~VrmlNodePhotometricLight()
 {
-	// TODO: remove textures
+	// TODO: remove textures -> fixed
+	/*
+	Never use a regular C++ pointer variable for long-term storage of pointers
+	to objects derived from Referenced.As an exception, you can use a
+	regular C++ pointer variable temporarily, as long as the heap memory
+	address is eventually stored in a ref_ptr<>.However, using a ref_ptr<>
+	is always the safest approach.
+	*/
     allPhotometricLights.remove(this);
 }
 
@@ -276,7 +281,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 
 
 
-		if (d_lightNumber.get()>4) {
+		if (d_lightNumber.get()>=4) {
 			throw std::invalid_argument("light number must be below 4!");
 		}
 
@@ -360,7 +365,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		light_conf_tex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
 		light_conf_tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
 		light_conf_tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-		light_conf_tex->setImage(configuration_img);
+		light_conf_tex->setImage(configuration_img.get());
 
 
 	    // The compute shader can't work with other kinds of shaders
@@ -372,19 +377,20 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		osg::StateSet *state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
 
-		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer
+		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer. Don't use raw pointer!
 
 		std::cout << "light number: " << d_lightNumber.get() << std::endl;
 		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(1 + 0 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(1 + 1 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(1 + 2 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(1 + 3 * 3)));
 		// dont bind anything to imageunit 8 !
+
 		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8, 0, GL_TRUE, 0);
 		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
         //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
 		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
@@ -393,9 +399,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->setTextureAttributeAndModes((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
-		std::cout << "Texture 3D set to: " << (6 + d_lightNumber.get() * 3) << std::endl;
-		//state->setMode(GL_LIGHTING, osg::StateAttribute::OFF); // not needed
-		//state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
 		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 		state->setAttributeAndModes(imagbinding1.get());
@@ -417,22 +421,22 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->getOrCreateUniform(std::string("left"), osg::Uniform::FLOAT_VEC4)->get(tmp);
 		tmp[d_lightNumber.get()] = (mlbFile->header.left);
 		state->addUniform(new osg::Uniform("left", tmp));
-		std::cout << "left\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+		std::cout << "left = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
 		state->getOrCreateUniform(std::string("bottom"), osg::Uniform::FLOAT_VEC4)->get(tmp);
 		tmp[d_lightNumber.get()] = (mlbFile->header.bottom);
 		state->addUniform(new osg::Uniform("bottom", tmp));
-		std::cout << "bottom\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+		std::cout << "bottom = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
 		state->getOrCreateUniform(std::string("width"), osg::Uniform::FLOAT_VEC4)->get(tmp);
 		tmp[d_lightNumber.get()] = (mlbFile->header.width);
 		state->addUniform(new osg::Uniform("width", tmp));
-		std::cout << "width\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+		std::cout << "width = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
 		state->getOrCreateUniform(std::string("height"), osg::Uniform::FLOAT_VEC4)->get(tmp);
 		tmp[d_lightNumber.get()] = (mlbFile->header.height);
 		state->addUniform(new osg::Uniform("height", tmp));
-		std::cout << "height\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+		std::cout << "height = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
 		state->getOrCreateUniform(std::string("is_active"), osg::Uniform::FLOAT_VEC4)->get(tmp); // bool or int not implemented in osg v 
 		if (tmp[d_lightNumber.get()] == 1.0) {
@@ -440,7 +444,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		}
 		tmp[d_lightNumber.get()] = 1.0;
 		state->addUniform(new osg::Uniform("is_active", tmp));
-		std::cout << "is_active\n0: " << tmp[0] << "\t1: " << tmp[1] << "\t2: " << tmp[2] << "\t3: " << tmp[3] << "\n";
+		std::cout << "is_active = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
 		//state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
 		//state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));

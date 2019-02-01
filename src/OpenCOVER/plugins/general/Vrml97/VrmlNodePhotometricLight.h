@@ -78,11 +78,17 @@ public:
 	osg::ref_ptr<osg::Program> computeProg;
 	osg::ref_ptr<osg::DispatchCompute> comp_disp;
 	bool coMLB_initialized = false;
-	int counter = 0;
 	bool configuration_changed = false;
 	std::vector<float> configuration_vec;
 	osg::ref_ptr<osg::Texture2D> light_conf_tex;
-	osg::Image* configuration_img;
+	osg::ref_ptr<osg::Image> configuration_img;  
+	/*
+	Never use a regular C++ pointer variable for long-term storage of pointers
+	to objects derived from Referenced.As an exception, you can use a
+	regular C++ pointer variable temporarily, as long as the heap memory
+	address is eventually stored in a ref_ptr<>.However, using a ref_ptr<>
+	is always the safest approach.
+	*/
 
 
 private:
