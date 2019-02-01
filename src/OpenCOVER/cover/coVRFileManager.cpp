@@ -38,6 +38,7 @@
 #include "ui/FileBrowser.h"
 #include "ui/Menu.h"
 
+
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
 #endif
@@ -58,6 +59,7 @@ namespace opencover
 {
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
+
 
 Url::Url(const std::string &url)
 {
@@ -703,7 +705,14 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     if (isRoot)
     {
+        //if file does not exist, add it to the shared filePaths list
+        if (m_files.find(fileName) == m_files.end())
+        {
+            filePaths.value().push_back(fileName);
+            filePaths.push();
+        }
         m_files[fileName] = fe;
+
         if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
         else
@@ -899,6 +908,7 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
+    , filePaths("coVRFileManager.filePaths")
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -915,7 +925,7 @@ coVRFileManager::coVRFileManager()
         fileOpen->setCallback([this](const std::string &file){
                 loadFile(file.c_str());
         });
-
+        filePaths.setUpdateFunction([this](void) {loadPartnerFiles(); });
         m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
         m_fileGroup->setText("Files");
         cover->fileMenu->add(m_fileGroup);
@@ -1373,5 +1383,15 @@ bool coVRFileManager::update()
     return true;
 }
 
-
+void coVRFileManager::loadPartnerFiles()
+{
+    for (size_t i = 0; i < filePaths.value().size(); i++)
+    {
+        //only load new files
+        if (m_files.find(filePaths.value()[i]) == m_files.end())
+        {
+            loadFile(filePaths.value()[i].c_str());
+        }
+    }
+}
 }
