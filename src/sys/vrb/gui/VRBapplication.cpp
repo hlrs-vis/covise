@@ -74,6 +74,11 @@ ApplicationWindow::ApplicationWindow()
     plugins = NULL;
 
     // set a proper font & layout
+    QFont normalFont = font();
+    QFont smallFont = normalFont;
+    smallFont.setPointSize(0.8*normalFont.pointSize());
+    setFont(smallFont);
+    //QApplication::setFont(smallFont);
 
     // initialize two timer
     // timer.....waits for disconneting vrb clients
@@ -107,6 +112,7 @@ ApplicationWindow::ApplicationWindow()
     box->setMargin(5);
 
     table = new QTreeWidget(w);
+    table->setFont(smallFont);
     QStringList labels;
     // keep in sync with VRBSClient::Columns enum
     labels << "Master"
@@ -137,8 +143,11 @@ ApplicationWindow::ApplicationWindow()
 
     createTabWidget(split);
 
+    setFont(normalFont);
+
     // create a message area for the bottom
 
+    central->setFont(smallFont);
     msgFrame = new QFrame(central);
     msgFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     box = new QVBoxLayout(msgFrame);
@@ -166,7 +175,7 @@ ApplicationWindow::ApplicationWindow()
     // set a proper size
 
     setCentralWidget(central);
-    resize(600, 450);
+    resize(900, 450);
 }
 
 ApplicationWindow::~ApplicationWindow()
@@ -192,7 +201,7 @@ void ApplicationWindow::createMenubar()
 
     // Preference menu
 
-    QMenu *pref = new QMenu(tr("&Preference"), this);
+    QMenu *pref = new QMenu(tr("&View"), this);
     showMessageAreaAction = pref->addAction("Message Area");
     showMessageAreaAction->setCheckable(true);
     showMessageAreaAction->setChecked(false);
@@ -201,13 +210,21 @@ void ApplicationWindow::createMenubar()
     // Style menu
 
     QMenu *styleMenu = new QMenu(tr("&Style"), this);
-
     QActionGroup *ag = new QActionGroup(this);
     ag->setExclusive(true);
-
-    QSignalMapper *styleMapper = new QSignalMapper(this);
-    connect(styleMapper, SIGNAL(mapped(const QString &)),
-            this, SLOT(setStyle(const QString &)));
+    for (auto &key: QStyleFactory::keys())
+    {
+        QAction *a = new QAction(ag);
+        a->setObjectName(key);
+        a->setText(key);
+        a->setCheckable(true);
+        ag->addAction(a);
+        connect(a, &QAction::triggered, [this, a](bool checked){
+            if (checked)
+                setStyle(a->objectName());
+        });
+    }
+    styleMenu->addActions(ag->actions());
 
     // Help menu
     QMenu *help = new QMenu(tr("&Help"), this);
@@ -402,8 +419,13 @@ void ApplicationWindow::showMsg(bool show)
 void ApplicationWindow::setStyle(const QString &style)
 {
     QStyle *s = QStyleFactory::create(style);
-    if (s)
-        QApplication::setStyle(s);
+    if (!s)
+    {
+        std::cerr << "could not create style '" << style.toStdString() << "'" << std::endl;
+        return;
+    }
+
+    QApplication::setStyle(s);
 }
 
 void ApplicationWindow::enterWhatsThis()
