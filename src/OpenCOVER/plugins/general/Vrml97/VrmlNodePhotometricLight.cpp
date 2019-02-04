@@ -314,11 +314,11 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		string from = std::string("AllPhotometricLightsTexX");
 		string to = std::string("AllPhotometricLightsTex") + std::to_string(d_lightNumber.get());
 		size_t start_pos = 0;
-		while ((start_pos = code.find(from, start_pos)) != std::string::npos)
-		{
-			code.replace(start_pos, from.length(), to);
-			start_pos += to.length();
-		}
+		//while ((start_pos = code.find(from, start_pos)) != std::string::npos)
+		//{
+		//	code.replace(start_pos, from.length(), to);
+		//	start_pos += to.length();
+		//}
 		std::cout << "changed from " << from << " to " << to << std::endl;
 
 		std::cout << code << "\n";
@@ -383,10 +383,10 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(1 + 0 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(1 + 1 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(1 + 2 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(1 + 3 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTexX", (int)(1 + d_lightNumber.get() * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(1 + 1 * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(1 + 2 * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(1 + 3 * 3)));
 		// dont bind anything to imageunit 8 !
 
 		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
@@ -397,19 +397,25 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->setTextureAttributeAndModes((0 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((1 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
-
-		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
-		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
-		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
-		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 		state->setAttributeAndModes(imagbinding1.get());
-		//state->setAttributeAndModes(imagbinding2.get());
+		state->setAttributeAndModes(imagbinding2.get());
 		state->setAttributeAndModes(imagbinding3.get());
+		
+		
+		
+                // prepare state for all objects in the scene
+		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
+		//state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
+		//state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
+		//state->setAttributeAndModes(imagbinding1.get());
+		//state->setAttributeAndModes(imagbinding2.get());
+		//state->setAttributeAndModes(imagbinding3.get());
 		// FIXME: angles may differ for each light! values are overwritten each time
 		//state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3))); // only needed in the compute shader!
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
+		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
 		state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
 		state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
