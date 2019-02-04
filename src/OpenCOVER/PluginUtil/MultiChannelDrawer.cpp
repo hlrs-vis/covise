@@ -31,7 +31,7 @@
 
 #include "MultiChannelDrawer.h"
 
-//#define INSTANCED
+//#define INSTANCED // use instanced points instead of one vertex/pixel
 
 // requires GL 3.2
 #ifndef GL_PROGRAM_POINT_SIZE
@@ -40,6 +40,89 @@
 
 namespace opencover
 {
+
+struct EmptyBounding: public osg::Drawable::ComputeBoundingBoxCallback {
+    osg::BoundingBox computeBound(const osg::Drawable&) const {
+        return osg::BoundingBox();
+    }
+};
+
+ViewChannelData::ViewChannelData(std::shared_ptr<ViewData> view, ChannelData *chan)
+: chan(chan)
+, view(view)
+{
+    geode = new osg::Geode();
+    geode->setName("channel"+std::to_string(chan->channelNum)+"_view_geode");
+    state = geode->getOrCreateStateSet();
+
+    fixedGeo = new osg::Geometry(*view->fixedGeo);
+    fixedGeo->setName("fixed");
+    fixedGeo->setDrawCallback(chan->drawCallback);
+    fixedGeo->setComputeBoundingBoxCallback(new EmptyBounding);
+
+    reprojGeo = new osg::Geometry(*view->reprojGeo);
+    reprojGeo->setName("reprojected");
+    reprojGeo->setDrawCallback(chan->drawCallback);
+    reprojGeo->setComputeBoundingBoxCallback(new EmptyBounding);
+
+    reprojMat = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "ReprojectionMatrix");
+    reprojMat->set(osg::Matrix::identity());
+    state->addUniform(reprojMat);
+
+    state->setTextureAttributeAndModes(0, view->colorTex, osg::StateAttribute::ON);
+    state->setTextureAttributeAndModes(1, view->depthTex, osg::StateAttribute::ON);
+    osg::Uniform* colSampler = new osg::Uniform("col", 0);
+    osg::Uniform* depSampler = new osg::Uniform("dep", 1);
+    state->addUniform(colSampler);
+    state->addUniform(depSampler);
+}
+
+ViewChannelData::~ViewChannelData()
+{
+    std::cerr << "delete ViewChannelData, view=" << view->viewNum << std::endl;
+    while (geode->getNumParents() > 0)
+        geode->getParent(0)->removeChild(geode);
+}
+
+void ViewChannelData::update() {
+
+    osg::Matrix cur = chan->curModel * chan->curView * chan->curProj;
+    osg::Matrix old = view->imgModel * view->imgView * view->imgProj;
+    osg::Matrix oldInv = osg::Matrix::inverse(old);
+    osg::Matrix reproj = oldInv * cur;
+    reprojMat->set(reproj);
+}
+
+ChannelData::~ChannelData() {
+    std::cerr << "delete ChannelData" << std::endl;
+
+    clearViews();
+
+    while (scene->getNumParents() > 0)
+        scene->getParent(0)->removeChild(scene);
+}
+
+void ChannelData::addView(std::shared_ptr<ViewData> vd) {
+    auto vcd = std::make_shared<ViewChannelData>(vd, this);
+    viewChan.emplace_back(vcd);
+    vd->viewChan.emplace_back(vcd.get());
+    scene->addChild(vcd->geode);
+}
+
+void ChannelData::clearViews() {
+
+    for (auto &vcd: viewChan) {
+        scene->removeChild(vcd->geode);
+    }
+    assert(scene->getNumChildren() == 0);
+
+    viewChan.clear();
+}
+
+void ChannelData::updateViews() {
+    for (auto &vcd: viewChan)
+        vcd->update();
+}
 
 //! osg::Drawable::DrawCallback for rendering selected geometry on one channel only
 /*! decision is made based on cameras currently on osg's stack */
@@ -60,7 +143,7 @@ struct SingleScreenCB: public osg::Drawable::DrawCallback {
 
    void  drawImplementation(osg::RenderInfo &ri, const osg::Drawable *d) const {
 
-      bool render = m_drawer->renderAllViews();
+      bool render = false;
       if (!render) {
           const bool stereo = m_channel>=0 && coVRConfig::instance()->channels[m_channel].stereoMode == osg::DisplaySettings::QUAD_BUFFER;
 
@@ -321,6 +404,17 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
    setRenderOrder(osg::Camera::NESTED_RENDER);
    //setRenderer(new osgViewer::Renderer(m_remoteCam.get()));
 
+   int numChannels = coVRConfig::instance()->numChannels();
+   for (int i=0; i<numChannels; ++i) {
+       m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+       initChannelData(*m_channelData.back());
+       if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
+           m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+           m_channelData.back()->second = true;
+           initChannelData(*m_channelData.back());
+       }
+   }
+
    setRenderAllViews(false);
    setNumViews(-1);
 }
@@ -329,12 +423,13 @@ MultiChannelDrawer::~MultiChannelDrawer() {
 
    for (size_t i=0; i<m_channelData.size(); ++i)
        removeChild(m_channelData[i]->scene);
+   m_viewData.clear();
    m_channelData.clear();
 }
 
 int MultiChannelDrawer::numViews() const {
 
-    return m_channelData.size();
+    return m_viewData.size();
 }
 
 const osg::Matrix &MultiChannelDrawer::modelMatrix(int idx) const {
@@ -358,7 +453,7 @@ void MultiChannelDrawer::update() {
    const osg::Matrix &scale = cover->getObjectsScale()->getMatrix();
    const osg::Matrix model = scale * transform;
 
-   auto updateView = [&model](ChannelData &cd, int i, bool second) {
+   auto updateChannel = [&model](ChannelData &cd, int i, bool second) {
 
        const channelStruct &chan = coVRConfig::instance()->channels[i];
        const bool left = chan.stereoMode == osg::DisplaySettings::LEFT_EYE
@@ -369,31 +464,40 @@ void MultiChannelDrawer::update() {
        cd.curModel = model;
        cd.curView = view;
        cd.curProj = proj;
+
+       cd.updateViews();
    };
 
    int numChannels = coVRConfig::instance()->numChannels();
    int view = 0;
    for (int i=0; i<numChannels; ++i) {
        ChannelData &cd = *m_channelData[view];
-       updateView(cd, i, false);
+       updateChannel(cd, i, false);
        if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
            ++view;
            ChannelData &cd = *m_channelData[view];
-           updateView(cd, i, true);
+           updateChannel(cd, i, true);
        }
        ++view;
    }
 }
-
 //! create geometry for mapping remote image
 void MultiChannelDrawer::createGeometry(ChannelData &cd)
 {
+   cd.drawCallback = new SingleScreenCB(this, cd.camera, cd.channelNum, cd.second);
+   cd.scene = new osg::Group;
+   cd.scene->setName("channel_"+std::to_string(cd.channelNum)+(cd.second?"A":"B"));
+}
 
-   cd.texcoord  = new osg::Vec2Array(4);
-   (*cd.texcoord)[0].set(0.0,480.0);
-   (*cd.texcoord)[1].set(640.0,480.0);
-   (*cd.texcoord)[2].set(640.0,0.0);
-   (*cd.texcoord)[3].set(0.0,0.0);
+//! create geometry for mapping remote image
+void MultiChannelDrawer::createGeometry(ViewData &vd)
+{
+
+   vd.texcoord  = new osg::Vec2Array(4);
+   (*vd.texcoord)[0].set(0.0,480.0);
+   (*vd.texcoord)[1].set(640.0,480.0);
+   (*vd.texcoord)[2].set(640.0,0.0);
+   (*vd.texcoord)[3].set(0.0,0.0);
 
    osg::Vec4Array *color = new osg::Vec4Array(1);
    osg::Vec3Array *normal = new osg::Vec3Array(1);
@@ -403,33 +507,29 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
    osg::TexEnv * texEnv = new osg::TexEnv();
    texEnv->setMode(osg::TexEnv::REPLACE);
 
-   osg::Geode *geometryNode = new osg::Geode();
-   geometryNode->setName("channel_geode");
-
-   osg::ref_ptr<osg::Drawable::DrawCallback> drawCB = new SingleScreenCB(this, cd.camera, cd.channelNum, cd.second);
-
-   cd.fixedGeo = new osg::Geometry();
-   cd.fixedGeo->setName("fixed_geo");
+   vd.fixedGeo = new osg::Geometry();
+   vd.fixedGeo->setName("fixed_geo");
    ushort vertices[4] = { 0, 1, 2, 3 };
    osg::DrawElementsUShort *plane = new osg::DrawElementsUShort(osg::PrimitiveSet::QUADS, 4, vertices);
 
-   cd.fixedGeo->addPrimitiveSet(plane);
-   cd.fixedGeo->setColorArray(color);
-   cd.fixedGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
-   cd.fixedGeo->setNormalArray(normal);
-   cd.fixedGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
-   cd.fixedGeo->setTexCoordArray(0, cd.texcoord);
+   vd.fixedGeo->addPrimitiveSet(plane);
+   vd.fixedGeo->setColorArray(color);
+   vd.fixedGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
+   vd.fixedGeo->setNormalArray(normal);
+   vd.fixedGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
+   vd.fixedGeo->setTexCoordArray(0, vd.texcoord);
+   vd.fixedGeo->setComputeBoundingBoxCallback(new EmptyBounding);
    {
       osg::Vec3Array *coord  = new osg::Vec3Array(4);
       (*coord)[0 ].set(-1., -1., 0.);
       (*coord)[1 ].set( 1., -1., 0.);
       (*coord)[2 ].set( 1.,  1., 0.);
       (*coord)[3 ].set(-1.,  1., 0.);
-      cd.fixedGeo->setVertexArray(coord);
+      vd.fixedGeo->setVertexArray(coord);
+      vd.fixedGeo->setUseVertexBufferObjects( true );
 
-      cd.fixedGeo->setDrawCallback(drawCB);
-      cd.fixedGeo->setUseDisplayList( false ); // required for DrawCallback
-      osg::StateSet *stateSet = cd.fixedGeo->getOrCreateStateSet();
+      vd.fixedGeo->setUseDisplayList( false ); // required for DrawCallback
+      osg::StateSet *stateSet = vd.fixedGeo->getOrCreateStateSet();
       //stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
       //stateSet->setRenderBinDetails(-20,"RenderBin");
       //stateSet->setNestRenderBins(false);
@@ -438,15 +538,8 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
       depth->setRange(0.0,1.0);
       stateSet->setAttribute(depth);
       stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-      stateSet->setTextureAttributeAndModes(0, cd.colorTex, osg::StateAttribute::ON);
       stateSet->setTextureAttribute(0, texEnv);
-      stateSet->setTextureAttributeAndModes(1, cd.depthTex, osg::StateAttribute::ON);
       stateSet->setTextureAttribute(1, texEnv);
-
-      osg::Uniform* colSampler = new osg::Uniform("col", 0);
-      osg::Uniform* depSampler = new osg::Uniform("dep", 1);
-      stateSet->addUniform(colSampler);
-      stateSet->addUniform(depSampler);
 
       osg::Program *depthProgramObj = new osg::Program;
       osg::Shader *depthFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
@@ -464,155 +557,142 @@ void MultiChannelDrawer::createGeometry(ChannelData &cd)
             "}"
             );
       stateSet->setAttributeAndModes(depthProgramObj, osg::StateAttribute::ON);
-      cd.fixedGeo->setStateSet(stateSet);
+      vd.fixedGeo->setStateSet(stateSet);
    }
 
-   cd.reprojGeo = new osg::Geometry();
-   cd.reprojGeo->setName("reprojection_geo");
+   vd.reprojGeo = new osg::Geometry();
+   vd.reprojGeo->setName("reprojection_geo");
    {
-      cd.reprojGeo->setDrawCallback(drawCB);
-      cd.reprojGeo->setUseDisplayList( false );
-      osg::BoundingBox bb(-0.5,0.,-0.5, 0.5,0.,0.5);
-      cd.reprojGeo->setInitialBound(bb);
-      cd.pointCoord = new osg::Vec2Array(1);
-      (*cd.pointCoord)[0].set(0., 0.);
-      cd.reprojGeo->setVertexArray(cd.pointCoord);
-      cd.quadCoord = new osg::Vec2Array(0);
-      cd.reprojGeo->setColorArray(color);
-      cd.reprojGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
-      cd.reprojGeo->setNormalArray(normal);
-      cd.reprojGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
+      vd.reprojGeo->setUseDisplayList( false );
+      vd.reprojGeo->setComputeBoundingBoxCallback(new EmptyBounding);
+#ifndef INSTANCED
+      vd.pointCoord = new osg::Vec2Array(1);
+      (*vd.pointCoord)[0].set(0., 0.);
+      vd.reprojGeo->setVertexArray(vd.pointCoord);
+#endif
+      vd.quadCoord = new osg::Vec2Array(0);
+      vd.reprojGeo->setColorArray(color);
+      vd.reprojGeo->setColorBinding(osg::Geometry::BIND_OVERALL);
+      vd.reprojGeo->setNormalArray(normal);
+      vd.reprojGeo->setNormalBinding(osg::Geometry::BIND_OVERALL);
       // required for instanced rendering and also for SingleScreenCB
-      cd.reprojGeo->setSupportsDisplayList( false );
-      cd.reprojGeo->setUseVertexBufferObjects( true );
+      vd.reprojGeo->setSupportsDisplayList( false );
+      vd.reprojGeo->setUseVertexBufferObjects( true );
 
-      osg::StateSet *stateSet = cd.reprojGeo->getOrCreateStateSet();
+      osg::StateSet *stateSet = vd.reprojGeo->getOrCreateStateSet();
       osg::Depth* depth = new osg::Depth;
       depth->setFunction(osg::Depth::LEQUAL);
       depth->setRange(0.0,1.0);
       stateSet->setAttribute(depth);
       stateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-      stateSet->setTextureAttributeAndModes(0, cd.colorTex, osg::StateAttribute::ON);
       stateSet->setTextureAttribute(0, texEnv);
-      stateSet->setTextureAttributeAndModes(1, cd.depthTex, osg::StateAttribute::ON);
       stateSet->setTextureAttribute(1, texEnv);
 
-      osg::Uniform *colSampler = new osg::Uniform("col", 0);
-      osg::Uniform *depSampler = new osg::Uniform("dep", 1);
-      cd.size = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "size");
-      cd.pixelOffset = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "offset");
-      cd.withNeighbors = new osg::Uniform(osg::Uniform::BOOL, "withNeighbors");
-      cd.withHoles = new osg::Uniform(osg::Uniform::BOOL, "withHoles");
-      cd.reprojMat = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "ReprojectionMatrix");
-      cd.reprojMat->set(osg::Matrix::identity());
-      stateSet->addUniform(colSampler);
-      stateSet->addUniform(depSampler);
-      stateSet->addUniform(cd.size);
-      stateSet->addUniform(cd.pixelOffset);
-      stateSet->addUniform(cd.withNeighbors);
-      stateSet->addUniform(cd.withHoles);
-      stateSet->addUniform(cd.reprojMat);
+      vd.size = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "size");
+      vd.pixelOffset = new osg::Uniform(osg::Uniform::FLOAT_VEC2, "offset");
+      vd.withNeighbors = new osg::Uniform(osg::Uniform::BOOL, "withNeighbors");
+      vd.withHoles = new osg::Uniform(osg::Uniform::BOOL, "withHoles");
+      stateSet->addUniform(vd.size);
+      stateSet->addUniform(vd.pixelOffset);
+      stateSet->addUniform(vd.withNeighbors);
+      stateSet->addUniform(vd.withHoles);
 
       {
-         cd.reprojConstProgram = new osg::Program;
+         vd.reprojConstProgram = new osg::Program;
          osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
          reprojVertexObj->setShaderSource(reprojVert);
-         cd.reprojConstProgram->addShader(reprojVertexObj);
+         vd.reprojConstProgram->addShader(reprojVertexObj);
 
          osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
          reprojFragmentObj->setShaderSource(reprojFrag);
-         cd.reprojConstProgram->addShader(reprojFragmentObj);
+         vd.reprojConstProgram->addShader(reprojFragmentObj);
       }
 
       {
-         cd.reprojAdaptProgram = new osg::Program;
+         vd.reprojAdaptProgram = new osg::Program;
          osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
          reprojVertexObj->setShaderSource(reprojAdaptVert);
-         cd.reprojAdaptProgram->addShader(reprojVertexObj);
+         vd.reprojAdaptProgram->addShader(reprojVertexObj);
 
          osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
          reprojFragmentObj->setShaderSource(reprojFrag);
-         cd.reprojAdaptProgram->addShader(reprojFragmentObj);
+         vd.reprojAdaptProgram->addShader(reprojFragmentObj);
       }
 
       {
-          cd.reprojMeshProgram = new osg::Program;
+          vd.reprojMeshProgram = new osg::Program;
           osg::Shader *reprojVertexObj = new osg::Shader( osg::Shader::VERTEX );
           reprojVertexObj->setShaderSource(reprojMeshVert);
-          cd.reprojMeshProgram->addShader(reprojVertexObj);
+          vd.reprojMeshProgram->addShader(reprojVertexObj);
 
           osg::Shader *reprojGeoObj = new osg::Shader( osg::Shader::GEOMETRY );
           reprojGeoObj->setShaderSource(reprojMeshGeo);
-          cd.reprojMeshProgram->addShader(reprojGeoObj);
-          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
-          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
-          cd.reprojMeshProgram->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
+          vd.reprojMeshProgram->addShader(reprojGeoObj);
+          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
+          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
+          vd.reprojMeshProgram->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
 
           osg::Shader *reprojFragmentObj = new osg::Shader( osg::Shader::FRAGMENT );
           reprojFragmentObj->setShaderSource(reprojFrag);
-          cd.reprojMeshProgram->addShader(reprojFragmentObj);
+          vd.reprojMeshProgram->addShader(reprojFragmentObj);
       }
 
-      cd.reprojGeo->setStateSet(stateSet);
+      vd.reprojGeo->setStateSet(stateSet);
    }
-
-   cd.geode = geometryNode;
-   cd.geode->setNodeMask(cd.geode->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
 }
-
 
 void MultiChannelDrawer::initChannelData(ChannelData &cd) {
 
-   if (cd.channelNum >= 0) {
-       cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
-   }
+   cd.camera = coVRConfig::instance()->channels[cd.channelNum].camera;
+   createGeometry(cd);
+   cd.scene->setNodeMask(cd.scene->getNodeMask() & (~Isect::Intersection) & (~Isect::Pick));
+   addChild(cd.scene);
+}
+
+
+void MultiChannelDrawer::initViewData(ViewData &vd) {
 
 #ifdef HAVE_CUDA
-   if (m_useCuda && cd.camera)
+   if (m_useCuda)
    {
-       cd.colorTex = new CudaTextureRectangle;
-       cd.depthTex = new CudaTextureRectangle;
+       vd.colorTex = new CudaTextureRectangle;
+       vd.depthTex = new CudaTextureRectangle;
    }
    else
 #endif
    {
-       cd.colorTex = new osg::TextureRectangle;
+       vd.colorTex = new osg::TextureRectangle;
+       vd.colorTex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+       vd.colorTex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
        osg::Image *cimg = new osg::Image();
-       cd.colorTex->setImage(new osg::Image());
+       vd.colorTex->setImage(new osg::Image());
        cimg->setPixelBufferObject(new osg::PixelBufferObject(cimg));
 
-       cd.depthTex = new osg::TextureRectangle;
+       vd.depthTex = new osg::TextureRectangle;
+       vd.depthTex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+       vd.depthTex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
        osg::Image *dimg = new osg::Image();
-       cd.depthTex->setImage(dimg);
+       vd.depthTex->setImage(dimg);
        dimg->setPixelBufferObject(new osg::PixelBufferObject(dimg));
    }
 
 
-   cd.colorTex->setInternalFormat( GL_RGBA );
-   cd.colorTex->setBorderWidth( 0 );
-   cd.colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-   cd.colorTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+   vd.colorTex->setInternalFormat( GL_RGBA );
+   vd.colorTex->setBorderWidth( 0 );
+   vd.colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+   vd.colorTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
-   cd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
-   cd.depthTex->setBorderWidth( 0 );
-   cd.depthTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-   cd.depthTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+   vd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
+   vd.depthTex->setBorderWidth( 0 );
+   vd.depthTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+   vd.depthTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
-   createGeometry(cd);
+   createGeometry(vd);
 
    //std::cout << "vp: " << vp->width() << "," << vp->height() << std::endl;
-
-   osg::MatrixTransform *imageMat = new osg::MatrixTransform();
-   imageMat->setMatrix(osg::Matrix::identity());
-   imageMat->addChild(cd.geode);
-   imageMat->setName("imageMat_"+std::to_string(cd.channelNum));
-
-   cd.scene = imageMat;
-
-   addChild(cd.scene);
 }
 
-void MultiChannelDrawer::clearChannelData() {
+void MultiChannelDrawer::clearViewData() {
 
     for (size_t view=0; view<m_channelData.size(); ++view) {
        clearColor(view);
@@ -621,43 +701,53 @@ void MultiChannelDrawer::clearChannelData() {
 }
 
 void MultiChannelDrawer::swapFrame() {
+   //std::cerr << "MultiChannelDrawer::swapFrame" << std::endl;
    for (size_t s=0; s<m_channelData.size(); ++s) {
       ChannelData &cd = *m_channelData[s];
+      cd.frameNum++;
+   }
 
-      cd.imgView = cd.newView;
-      cd.imgProj = cd.newProj;
-      cd.imgModel = cd.newModel;
+   for (size_t s=0; s<m_viewData.size(); ++s) {
+      ViewData &vd = *m_viewData[s];
+
+      vd.imgView = vd.newView;
+      vd.imgProj = vd.newProj;
+      vd.imgModel = vd.newModel;
 
 #ifdef HAVE_CUDA
-      if (m_useCuda && cd.camera)
+      if (m_useCuda)
       {
-          cd.colorTex->dirtyTextureObject();
-          cd.depthTex->dirtyTextureObject();
+          vd.colorTex->dirtyTextureObject();
+          vd.depthTex->dirtyTextureObject();
       }
       else
 #endif
       {
-          cd.depthTex->getImage()->dirty();
-          cd.colorTex->getImage()->dirty();
+          vd.depthTex->getImage()->dirty();
+          vd.colorTex->getImage()->dirty();
       }
-
-      cd.frameNum++;
    }
+
 }
 
 void MultiChannelDrawer::updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
 
-   ChannelData &cd = *m_channelData[idx];
-   cd.newModel = model;
-   cd.newView = view;
-   cd.newProj = proj;
+   ViewData &vd = *m_viewData[idx];
+   vd.newModel = model;
+   vd.newView = view;
+   vd.newProj = proj;
 }
 
 void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, GLenum colorFormat) {
 
-    ChannelData &cd = *m_channelData[idx];
+    ViewData &vd = *m_viewData[idx];
+    ChannelData *cd = nullptr;
+    if (m_useCuda) {
+        if (idx < m_channelData.size())
+            cd = m_channelData[idx].get();
+    }
 
-    if (cd.width != w || cd.height != h || cd.colorFormat != colorFormat)
+    if (vd.width != w || vd.height != h || vd.colorFormat != colorFormat)
     {
         GLenum colorInternalFormat = 0;
         int colorTypeSize = 0;
@@ -676,47 +766,52 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         }
 
 #ifdef HAVE_CUDA
-        if (m_useCuda && cd.camera)
+        if (m_useCuda && cd)
         {
-            cd.colorTex->setTextureSize(w, h);
-            cd.colorTex->setSourceFormat(GL_RGBA);
-            cd.colorTex->setSourceType(colorFormat);
-            cd.colorTex->setInternalFormat(colorInternalFormat);
+            vd.colorTex->setTextureSize(w, h);
+            vd.colorTex->setSourceFormat(GL_RGBA);
+            vd.colorTex->setSourceType(colorFormat);
+            vd.colorTex->setInternalFormat(colorInternalFormat);
 
-            osg::State* state = cd.camera->getGraphicsContext()->getState();
+            osg::State* state = cd->camera->getGraphicsContext()->getState();
 
-            static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resize(state, w, h, colorTypeSize);
+            static_cast<CudaTextureRectangle*>(vd.colorTex.get())->resize(state, w, h, colorTypeSize);
         }
         else
 #endif
         {
-            osg::Image *cimg = cd.colorTex->getImage();
+            osg::Image *cimg = vd.colorTex->getImage();
             cimg->setInternalTextureFormat(colorFormat);
             cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
         }
 
         if (m_flipped) {
-            (*cd.texcoord)[0].set(0., h);
-            (*cd.texcoord)[1].set(w, h);
-            (*cd.texcoord)[2].set(w, 0.);
-            (*cd.texcoord)[3].set(0., 0.);
+            (*vd.texcoord)[0].set(0., h);
+            (*vd.texcoord)[1].set(w, h);
+            (*vd.texcoord)[2].set(w, 0.);
+            (*vd.texcoord)[3].set(0., 0.);
         }
         else {
-            (*cd.texcoord)[0].set(0., 0.);
-            (*cd.texcoord)[1].set(w, 0.);
-            (*cd.texcoord)[2].set(w, h);
-            (*cd.texcoord)[3].set(0., h);
+            (*vd.texcoord)[0].set(0., 0.);
+            (*vd.texcoord)[1].set(w, 0.);
+            (*vd.texcoord)[2].set(w, h);
+            (*vd.texcoord)[3].set(0., h);
         }
-        cd.fixedGeo->setTexCoordArray(0, cd.texcoord);
-        cd.fixedGeo->getTexCoordArray(0)->dirty();
+        vd.fixedGeo->setTexCoordArray(0, vd.texcoord);
+        for (auto &vcd: vd.viewChan) {
+            vcd->fixedGeo->setTexCoordArray(0, vd.texcoord);
+            vcd->fixedGeo->getTexCoordArray(0)->dirty();
+        }
+        vd.texcoord->dirty();
 
-        cd.width = w;
-        cd.height = h;
-        cd.colorFormat = colorFormat;
+        vd.width = w;
+        vd.height = h;
+        vd.colorFormat = colorFormat;
     }
 
-    if (depthFormat != 0 && (cd.depthWidth != w || cd.depthHeight != h || cd.depthFormat != depthFormat))
+    if (depthFormat != 0 && (vd.depthWidth != w || vd.depthHeight != h || vd.depthFormat != depthFormat))
     {
+        //std::cerr << "MultiChannelDrawer: need to update geo, format=" << depthFormat << ", w=" << w << ", h=" << h << std::endl;
         GLenum depthInternalFormat = 0;
         int depthTypeSize = 0;
         switch (depthFormat)
@@ -734,153 +829,160 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         }
 
 #ifdef HAVE_CUDA
-        if (m_useCuda && cd.camera)
+        if (m_useCuda && cd)
         {
-            cd.depthTex->setTextureSize(w, h);
-            cd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
-            cd.depthTex->setSourceType(depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
-            cd.depthTex->setInternalFormat(depthInternalFormat);
+            vd.depthTex->setTextureSize(w, h);
+            vd.depthTex->setSourceFormat(GL_DEPTH_COMPONENT);
+            vd.depthTex->setSourceType(depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
+            vd.depthTex->setInternalFormat(depthInternalFormat);
 
-            osg::State* state = cd.camera->getGraphicsContext()->getState();
+            osg::State* state = cd->camera->getGraphicsContext()->getState();
 
-            static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resize(state, w, h, depthTypeSize);
+            static_cast<CudaTextureRectangle*>(vd.depthTex.get())->resize(state, w, h, depthTypeSize);
         }
         else
 #endif
         {
-            osg::Image *dimg = cd.depthTex->getImage();
+            osg::Image *dimg = vd.depthTex->getImage();
             dimg->setInternalTextureFormat(depthInternalFormat);
             dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
 
-        osg::Geometry *geo = cd.reprojGeo;
-#ifdef INSTANCED
-        if (geo->getNumPrimitiveSets() > 0) {
-            geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-        }
-        else {
-            geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-        }
-#else
-        cd.pointCoord->resizeArray(w*h);
+#ifndef INSTANCED
+        vd.pointCoord->resizeArray(w*h);
         for (int y = 0; y<h; ++y) {
             for (int x = 0; x<w; ++x) {
-                (*cd.pointCoord)[y*w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+                (*vd.pointCoord)[y*w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
             }
         }
-        cd.pointCoord->dirty();
-        cd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
+        vd.pointCoord->dirty();
+        vd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
+#endif
 
-        cd.quadCoord->resizeArray((w - 1)*(h - 1));
+        vd.quadCoord->resizeArray((w - 1)*(h - 1));
         size_t idx = 0;
         for (int y = 0; y<h - 1; ++y) {
             for (int x = 0; x<w - 1; ++x) {
-                (*cd.quadCoord)[idx++].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+                (*vd.quadCoord)[idx++].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
             }
         }
-        cd.quadCoord->dirty();
-        cd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
+        vd.quadCoord->dirty();
+        vd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
 
-        osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? cd.quadArr : cd.pointArr;
+        osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? vd.quadArr : vd.pointArr;
 
-        if (geo->getNumPrimitiveSets() > 0) {
-            geo->setPrimitiveSet(0, arr);
-        } else {
-            geo->addPrimitiveSet(arr);
-        }
-        geo->dirtyDisplayList();
+        auto updateGeo = [this, arr, w, h](osg::Geometry *geo){
+#ifdef INSTANCED
+            if (geo->getNumPrimitiveSets() > 0) {
+                geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+            }
+            else {
+                geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+            }
+#else
+
+            if (geo->getNumPrimitiveSets() > 0) {
+                geo->setPrimitiveSet(0, arr);
+            } else {
+                geo->addPrimitiveSet(arr);
+            }
+            geo->dirtyDisplayList();
 #endif
-        cd.size->set(osg::Vec2(w, h));
-        cd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
+        };
+        updateGeo(vd.reprojGeo);
+        for (auto &vcd: vd.viewChan) {
+            updateGeo(vcd->reprojGeo);
+        }
 
-        cd.depthWidth = w;
-        cd.depthHeight = h;
-        cd.depthFormat = depthFormat;
+        vd.size->set(osg::Vec2(w, h));
+        vd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
+
+        vd.depthWidth = w;
+        vd.depthHeight = h;
+        vd.depthFormat = depthFormat;
     }
-}
-
-void MultiChannelDrawer::reproject(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
-
-    ChannelData &cd = *m_channelData[idx];
-
-    osg::Matrix cur = model * view * proj;
-    osg::Matrix old = cd.imgModel * cd.imgView * cd.imgProj;
-    osg::Matrix oldInv = osg::Matrix::inverse(old);
-    osg::Matrix reproj = oldInv * cur;
-    cd.reprojMat->set(reproj);
 }
 
 void MultiChannelDrawer::reproject() {
 
-    for (int v=0; v<numViews(); ++v) {
-        reproject(v, modelMatrix(v), viewMatrix(v), projectionMatrix(v));
-    }
+    for (auto &chan: m_channelData)
+        chan->updateViews();
 }
 
-std::shared_ptr<MultiChannelDrawer::ChannelData> MultiChannelDrawer::getChannelData(int idx) {
+std::shared_ptr<MultiChannelDrawer::ViewData> MultiChannelDrawer::getViewData(int idx) {
 
-    return m_channelData[idx];
+    return m_viewData[idx];
 }
 
 unsigned char *MultiChannelDrawer::rgba(int idx) const {
-    const ChannelData &cd = *m_channelData[idx];
+    if (idx < 0 || idx >= m_viewData.size()) {
+        std::cerr << "MultiChannelDrawer::rgba: index=" << idx << " out of range: #channels=" << m_channelData.size() << std::endl;
+        return nullptr;
+    }
+
+    const ViewData &vd = *m_viewData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(cd.colorTex.get())->resourceData());
+        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(vd.colorTex.get())->resourceData());
     }
     else
 #endif
     {
-        return cd.colorTex->getImage()->data();
+        return vd.colorTex->getImage()->data();
     }
 }
 
 unsigned char *MultiChannelDrawer::depth(int idx) const {
-    const ChannelData &cd = *m_channelData[idx];
+    if (idx < 0 || idx >= m_viewData.size()) {
+        std::cerr << "MultiChannelDrawer::depth: index=" << idx << " out of range: #channels=" << m_channelData.size() << std::endl;
+        return nullptr;
+    }
+
+    const ViewData &vd = *m_viewData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(cd.depthTex.get())->resourceData());
+        return static_cast<unsigned char*>(static_cast<CudaTextureRectangle*>(vd.depthTex.get())->resourceData());
     }
     else
 #endif
     {
-        return cd.depthTex->getImage()->data();
+        return vd.depthTex->getImage()->data();
     }
 }
 
 void MultiChannelDrawer::clearColor(int idx) {
-    ChannelData &cd = *m_channelData[idx];
+    ViewData &vd = *m_viewData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        static_cast<CudaTextureRectangle*>(cd.colorTex.get())->clear();
+        static_cast<CudaTextureRectangle*>(vd.colorTex.get())->clear();
     }
     else
 #endif
     {
-        osg::Image *color = cd.colorTex->getImage();
+        osg::Image *color = vd.colorTex->getImage();
         memset(color->data(), 0, color->getTotalSizeInBytes());
         color->dirty();
     }
 }
 
 void MultiChannelDrawer::clearDepth(int idx) {
-    ChannelData &cd = *m_channelData[idx];
+    ViewData &vd = *m_viewData[idx];
 
 #ifdef HAVE_CUDA
     if (m_useCuda)
     {
-        static_cast<CudaTextureRectangle*>(cd.depthTex.get())->clear();
+        static_cast<CudaTextureRectangle*>(vd.depthTex.get())->clear();
     }
     else
 #endif
     {
-        osg::Image *depth = cd.depthTex->getImage();
+        osg::Image *depth = vd.depthTex->getImage();
         memset(depth->data(), 0, depth->getTotalSizeInBytes());
         depth->dirty();
     }
@@ -893,69 +995,94 @@ MultiChannelDrawer::Mode MultiChannelDrawer::mode() const {
 
 void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
 
-   m_mode = mode;
-   for (size_t i=0; i<m_channelData.size(); ++i) {
-       ChannelData &cd = *m_channelData[i];
-       osg::StateSet *state = cd.reprojGeo->getStateSet();
-       assert(state);
+    m_mode = mode;
 
-       cd.geode->removeDrawable(cd.fixedGeo);
-       cd.geode->removeDrawable(cd.reprojGeo);
+    for (auto &cd: m_channelData) {
 
-       if (mode == AsIs) {
-           cd.geode->addDrawable(cd.fixedGeo);
-       } else {
-           cd.geode->addDrawable(cd.reprojGeo);
-       }
+        for (auto &vcd: cd->viewChan) {
+            vcd->geode->removeDrawable(vcd->fixedGeo);
+            vcd->geode->removeDrawable(vcd->reprojGeo);
+            assert(vcd->geode->getNumDrawables() == 0);
+        }
 
-       switch(mode) {
-           case AsIs:
-               break;
-           case Reproject:
-               cd.reprojGeo->setVertexArray(cd.pointCoord);
-               if (cd.pointArr) {
-                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
-                       cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
-                   else
-                       cd.reprojGeo->addPrimitiveSet(cd.pointArr);
-               }
-               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::ON);
-               break;
-           case ReprojectAdaptive:
-           case ReprojectAdaptiveWithNeighbors:
-               cd.reprojGeo->setVertexArray(cd.pointCoord);
-               if (cd.pointArr) {
-                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
-                       cd.reprojGeo->setPrimitiveSet(0, cd.pointArr);
-                   else
-                       cd.reprojGeo->addPrimitiveSet(cd.pointArr);
-               }
-               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
-               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::ON);
-               cd.withNeighbors->set(mode == ReprojectAdaptiveWithNeighbors ? true : false);
-               break;
-           case ReprojectMesh:
-           case ReprojectMeshWithHoles:
-               cd.reprojGeo->setVertexArray(cd.quadCoord);
-               if (cd.quadArr) {
-                   if (cd.reprojGeo->getNumPrimitiveSets() > 0)
-                       cd.reprojGeo->setPrimitiveSet(0, cd.quadArr);
-                   else
-                       cd.reprojGeo->addPrimitiveSet(cd.quadArr);
-               }
-               state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojConstProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojAdaptProgram, osg::StateAttribute::OFF);
-               state->setAttributeAndModes(cd.reprojMeshProgram, osg::StateAttribute::ON);
-               cd.withHoles->set(mode == ReprojectMeshWithHoles ? true : false);
-               break;
-       }
-   }
+        for (auto &vcd: cd->viewChan) {
+
+            const auto &vd = *vcd->view;
+
+            auto &geo = mode==AsIs ? vcd->fixedGeo : vcd->reprojGeo;
+            vcd->geode->addDrawable(geo);
+
+            switch(mode) {
+            case AsIs:
+                break;
+            case Reproject:
+            case ReprojectAdaptive:
+            case ReprojectAdaptiveWithNeighbors: {
+#ifdef INSTANCED
+                int numpix = vd.width*vd.height;
+                if (geo->getNumPrimitiveSets() > 0) {
+                    geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, numpix));
+                }
+                else {
+                    geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, numpix));
+                }
+#else
+                geo->setVertexArray(vd.pointCoord);
+                if (vd.pointArr) {
+                    if (geo->getNumPrimitiveSets() > 0)
+                        geo->setPrimitiveSet(0, vd.pointArr);
+                    else
+                        geo->addPrimitiveSet(vd.pointArr);
+                }
+#endif
+                break;
+            }
+            case ReprojectMesh:
+            case ReprojectMeshWithHoles:
+                geo->setVertexArray(vd.quadCoord);
+                if (vd.quadArr) {
+                    if (geo->getNumPrimitiveSets() > 0)
+                        geo->setPrimitiveSet(0, vd.quadArr);
+                    else
+                        geo->addPrimitiveSet(vd.quadArr);
+                }
+                break;
+            }
+        }
+    }
+
+    for (size_t i=0; i<m_viewData.size(); ++i) {
+        ViewData &vd = *m_viewData[i];
+        osg::StateSet *state = vd.reprojGeo->getStateSet();
+        assert(state);
+
+        switch(mode) {
+        case AsIs:
+            break;
+        case Reproject:
+            state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::ON);
+            break;
+        case ReprojectAdaptive:
+        case ReprojectAdaptiveWithNeighbors:
+            state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::ON);
+            state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::ON);
+            vd.withNeighbors->set(mode == ReprojectAdaptiveWithNeighbors ? true : false);
+            break;
+        case ReprojectMesh:
+        case ReprojectMeshWithHoles:
+            state->setMode(GL_PROGRAM_POINT_SIZE, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojConstProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojAdaptProgram, osg::StateAttribute::OFF);
+            state->setAttributeAndModes(vd.reprojMeshProgram, osg::StateAttribute::ON);
+            vd.withHoles->set(mode == ReprojectMeshWithHoles ? true : false);
+            break;
+        }
+    }
 }
 
 bool MultiChannelDrawer::renderAllViews() const {
@@ -968,31 +1095,51 @@ void MultiChannelDrawer::setRenderAllViews(bool allViews) {
 
 void MultiChannelDrawer::setNumViews(int nv) {
 
-    for (auto &chan: m_channelData) {
-        removeChild(chan->scene);
+    std::cerr << "MultiChannelDrawer::setNumViews(" << nv << ")" << std::endl;
+    for (auto &cd: m_channelData) {
+        cd->clearViews();
     }
-    m_channelData.clear();
+    m_viewData.clear();
 
     if (nv == -1) {
-
-        int numChannels = coVRConfig::instance()->numChannels();
-        for (int i=0; i<numChannels; ++i) {
-            m_channelData.emplace_back(std::make_shared<ChannelData>(i));
-            initChannelData(*m_channelData.back());
-            if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
-                m_channelData.emplace_back(std::make_shared<ChannelData>(i));
-                m_channelData.back()->second = true;
-                initChannelData(*m_channelData.back());
-            }
+        // one view per channel/screen
+        for (auto &cd: m_channelData) {
+            m_viewData.emplace_back(std::make_shared<ViewData>());
+            initViewData(*m_viewData.back());
         }
     } else {
         for (int i=0; i<nv; ++i) {
-            m_channelData.emplace_back(std::make_shared<ChannelData>());
-            initChannelData(*m_channelData.back());
+            m_viewData.emplace_back(std::make_shared<ViewData>(i));
+            initViewData(*m_viewData.back());
         }
     }
 
+    int idx = 0;
+    for (auto &cd: m_channelData) {
+        cd->clearViews();
+        if (m_renderAllViews) {
+            for (auto &vd: m_viewData) {
+                cd->addView(vd);
+            }
+        } else {
+            assert(m_viewData.size() > idx);
+            cd->addView(m_viewData[idx]);
+        }
+        ++idx;
+    }
+
     setMode(m_mode);
+
+    std::cerr << "setNumViews(nv=" << nv << "): #chan=" << m_channelData.size() << ", #views=" << m_viewData.size() << ", channels:";
+    for (auto &cd: m_channelData) {
+        std::cerr << " " << cd->viewChan.size();
+    }
+    std::cerr << std::endl;
+}
+
+ViewData::~ViewData()
+{
+    std::cerr << "delete ViewData: view=" << viewNum << ", #chan=" << viewChan.size() << std::endl;
 }
 
 }
