@@ -52,6 +52,7 @@
 #include "tridelity.h"
 #include "ui/Button.h"
 #include "ui/SelectionList.h"
+#include "coVRStatsDisplay.h"
 
 #include <osg/LightSource>
 #include <osg/ApplicationUsage>
@@ -368,7 +369,8 @@ VRViewer *VRViewer::instance()
 
 //OpenCOVER
 VRViewer::VRViewer()
-: animateSeparation(0)
+: ui::Owner("VRViewer", cover->ui)
+, animateSeparation(0)
 , stereoOn(true)
 {
     assert(!s_singleton);
@@ -447,7 +449,8 @@ VRViewer::VRViewer()
     }
     overwritePAndV = false;
 
-    auto stereosep = new ui::Button(cover->viewOptionsMenu, "StereoSep");
+    auto stereosep = new ui::Button("StereoSep", this);
+    cover->viewOptionsMenu->add(stereosep);
     stereosep->setText("Stereo separation");
     stereosep->setState(stereoOn);
     stereosep->setCallback([this](bool state){
@@ -455,7 +458,8 @@ VRViewer::VRViewer()
         setSeparation(Input::instance()->eyeDistance());
     });
 
-    auto ortho = new ui::Button(cover->viewOptionsMenu, "Orthographic");
+    auto ortho = new ui::Button("Orthographic", this);
+    cover->viewOptionsMenu->add(ortho);
     ortho->setText("Orthographic projection");
     ortho->setState(coVRConfig::instance()->orthographic());
     ortho->setCallback([this](bool state){
@@ -464,7 +468,8 @@ VRViewer::VRViewer()
         requestRedraw();
     });
 
-    auto threading = new ui::SelectionList(cover->viewOptionsMenu, "ThreadingModel");
+    auto threading = new ui::SelectionList("ThreadingModel", this);
+    cover->viewOptionsMenu->add(threading);
     threading->setText("Threading model");
     std::vector<std::string> items{"Auto", "Single", "Cull/draw per context", "Draw per context", "Cull per camera, draw per context"};
     threading->setList(items);
@@ -486,19 +491,30 @@ VRViewer::VRViewer()
         case 4: setThreadingModel(CullThreadPerCameraDrawThreadPerContext); break;
         default: setThreadingModel(AutomaticSelection); break;
         }
+        if (statsDisplay)
+            statsDisplay->updateThreadingModelText(getThreadingModel());
     });
     threading->setShortcut("Alt+h");
     threading->addShortcut("Ctrl+h");
 
-#if 0
-    auto stat = new ui::Button(cover->viewOptionsMenu, "Statistics");
-    stat->setState(coVRConfig::instance()->drawStatistics);
-    stat->setCallback([this](bool state){
-        coVRConfig::instance()->drawStatistics = state;
-        statistics(coVRConfig::instance()->drawStatistics);
+    auto showStats = new ui::SelectionList("ShowStats", this);
+    cover->viewOptionsMenu->add(showStats);
+    showStats->setText("Renderer statistics");
+    showStats->setShortcut("Shift+S");
+    showStats->append("Off");
+    showStats->append("Frames/s");
+    showStats->append("Viewer");
+    showStats->append("Viewer+camera");
+    showStats->append("Viewer+camera+nodes");
+    cover->viewOptionsMenu->add(showStats);
+    showStats->select(coVRConfig::instance()->drawStatistics);
+    showStats->setCallback([this](int val){
+        coVRConfig::instance()->drawStatistics = val;
+        statsDisplay->showStats(val, VRViewer::instance());
         //XXX setInstrumentationMode( coVRConfig::instance()->drawStatistics );
     });
-#endif
+
+    statsDisplay = new coVRStatsDisplay();
 }
 
 //OpenCOVER
@@ -506,6 +522,8 @@ VRViewer::~VRViewer()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\ndelete VRViewer\n");
+
+    delete statsDisplay;
 
     unconfig();
 
@@ -1098,6 +1116,8 @@ VRViewer::config()
         else
             setThreadingModel(SingleThreaded);
     }
+    if (statsDisplay)
+        statsDisplay->updateThreadingModelText(getThreadingModel());
     realize();
 
     setAffinity();
@@ -1108,6 +1128,7 @@ VRViewer::config()
     }
     assignSceneDataToCameras();
 	getUpdateVisitor()->setTraversalMask(Isect::Update);
+
 }
 
 //OpenCOVER
@@ -2623,16 +2644,6 @@ void VRViewer::renderingTraversals()
     }
 
     _requestRedraw = false;
-}
-
-void VRViewer::toggleStatistics()
-{
-
-    //simulate key press
-    osgGA::GUIEventAdapter *ea = new osgGA::GUIEventAdapter;
-    ea->setEventType(osgGA::GUIEventAdapter::KEYDOWN);
-    ea->setKey(statsHandler->getKeyEventTogglesOnScreenStats());
-    statsHandler->handle(*ea, *this);
 }
 
 void VRViewer::glContextOperation(osg::GraphicsContext *ctx)

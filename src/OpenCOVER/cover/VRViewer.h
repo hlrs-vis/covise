@@ -33,6 +33,7 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Matrix>
+#include "ui/Owner.h"
 
 namespace osg
 {
@@ -45,8 +46,9 @@ namespace opencover
 class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
+class coVRStatsDisplay;
 
-class COVEREXPORT VRViewer : public osgViewer::Viewer
+class COVEREXPORT VRViewer : public osgViewer::Viewer, public ui::Owner
 {
     friend class OpenCOVER;
 public:
@@ -185,7 +187,6 @@ public:
     bool clearWindow = true; // if set to true, the whole window is cleared once
     int numClears = 0;
 
-    void toggleStatistics();
     void overwriteViewAndProjectionMatrix(bool state)
     {
         overwritePAndV = state;
@@ -205,6 +206,8 @@ public:
     std::vector<osg::ref_ptr<osg::Camera>> blendingCamera;
 
     bool m_fullscreen = false;
+
+    coVRStatsDisplay *statsDisplay = nullptr;
 };
 }
 #endif

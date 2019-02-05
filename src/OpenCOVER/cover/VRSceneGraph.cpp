@@ -54,7 +54,6 @@
 #include <input/input.h>
 #include "coVRConfig.h"
 #include <OpenVRUI/coJoystickManager.h>
-#include "coVRStatsDisplay.h"
 #include "coVRIntersectionInteractorManager.h"
 #include "coVRShadowManager.h"
 
@@ -161,7 +160,6 @@ void VRSceneGraph::init()
     initHandDeviceGeometry();
 
     coVRLighting::instance();
-    statsDisplay = new coVRStatsDisplay();
 
     emptyProgram_ = new osg::Program();
 
@@ -215,21 +213,6 @@ void VRSceneGraph::init()
     m_showAxis->setShortcut("Shift+A");
     m_showAxis->setCallback([this](bool state){
         toggleAxis(state);
-    });
-
-    m_showStats = new ui::SelectionList("ShowStats", this);
-    m_showStats->setText("Renderer statistics");
-    m_showStats->setShortcut("Shift+S");
-    m_showStats->append("Off");
-    m_showStats->append("Frames/s");
-    m_showStats->append("Viewer");
-    m_showStats->append("Viewer+camera");
-    m_showStats->append("Viewer+camera+nodes");
-    cover->viewOptionsMenu->add(m_showStats);
-    m_showStats->select(coVRConfig::instance()->drawStatistics);
-    m_showStats->setCallback([this](int val){
-        coVRConfig::instance()->drawStatistics = val;
-        statsDisplay->showStats(val, VRViewer::instance());
     });
 
     m_useTextures = new ui::Button("Texturing", this);
@@ -286,8 +269,6 @@ VRSceneGraph::~VRSceneGraph()
         while (thisNode && thisNode->getNumParents() > 0)
             thisNode->getParent(0)->removeChild(thisNode.get());
     }
-
-    delete statsDisplay;
 
     s_instance = NULL;
 }

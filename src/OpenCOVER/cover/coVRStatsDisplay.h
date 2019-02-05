@@ -22,6 +22,7 @@ namespace opencover
 {
 class COVEREXPORT coVRStatsDisplay
 {
+    friend class VRViewer;
 public:
     coVRStatsDisplay();
     virtual ~coVRStatsDisplay(){};
@@ -72,7 +73,7 @@ protected:
 
     void setUpScene(osgViewer::ViewerBase *viewer);
 
-    void updateThreadingModelText();
+    void updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm);
 
     int _statsType;
 

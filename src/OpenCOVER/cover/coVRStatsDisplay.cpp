@@ -63,10 +63,9 @@ coVRStatsDisplay::coVRStatsDisplay()
 void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 {
 
-    if (viewer && _threadingModelText.valid() && viewer->getThreadingModel() != _threadingModel)
+    if (viewer && _threadingModelText.valid())
     {
-        _threadingModel = viewer->getThreadingModel();
-        updateThreadingModelText();
+        updateThreadingModelText(viewer->getThreadingModel());
     }
 
     if (!_initialized)
@@ -183,8 +182,13 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
     }
 }
 
-void coVRStatsDisplay::updateThreadingModelText()
+void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
 {
+    _threadingModel = tm;
+
+    if (!_threadingModelText.valid())
+        return;
+
     switch (_threadingModel)
     {
     case (osgViewer::Viewer::SingleThreaded):
@@ -1102,7 +1106,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             _threadingModelText->setCharacterSize(characterSize);
             _threadingModelText->setPosition(pos);
 
-            updateThreadingModelText();
+            updateThreadingModelText(viewer->getThreadingModel());
 
             pos.y() -= characterSize * 1.5f;
         }
