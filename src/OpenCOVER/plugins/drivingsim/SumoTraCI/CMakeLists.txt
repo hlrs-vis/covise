@@ -19,8 +19,8 @@ set(SOURCES
   SumoTraCI.cpp
   foreign/tcpip/socket.cpp
   foreign/tcpip/storage.cpp
-  utils/common/SUMOTime.cpp
   utils/traci/TraCIAPI.cpp
+
 )
 
 INCLUDE_DIRECTORIES(

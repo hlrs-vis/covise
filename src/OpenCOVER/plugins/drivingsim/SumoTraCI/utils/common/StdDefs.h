@@ -1,13 +1,11 @@
 /****************************************************************************/
 // Eclipse SUMO, Simulation of Urban MObility; see https://eclipse.org/sumo
-// Copyright (C) 2005-2017 German Aerospace Center (DLR) and others.
-/****************************************************************************/
-//
-//   This program and the accompanying materials
-//   are made available under the terms of the Eclipse Public License v2.0
-//   which accompanies this distribution, and is available at
-//   http://www.eclipse.org/legal/epl-v20.html
-//
+// Copyright (C) 2005-2018 German Aerospace Center (DLR) and others.
+// This program and the accompanying materials
+// are made available under the terms of the Eclipse Public License v2.0
+// which accompanies this distribution, and is available at
+// http://www.eclipse.org/legal/epl-v20.html
+// SPDX-License-Identifier: EPL-2.0
 /****************************************************************************/
 /// @file    StdDefs.h
 /// @author  Daniel Krajzewicz
@@ -26,17 +24,21 @@
 // ===========================================================================
 // included modules
 // ===========================================================================
-#ifdef _MSC_VER
-#include <windows_config.h>
-#else
 #include <config.h>
-#endif
 #include <string>
 #include <cmath>
 #include <limits>
 
 /* avoiding compiler warning unreferenced parameter */
 #define UNUSED_PARAMETER(x)  ((void)(x))
+
+#ifdef _MSC_VER
+#define FALLTHROUGH /* do nothing */
+#elif __GNUC__ < 7
+#define FALLTHROUGH /* do nothing */
+#else
+#define FALLTHROUGH __attribute__((fallthrough))
+#endif
 
 /// @brief the maximum number of connections across an intersection
 #define  SUMO_MAX_CONNECTIONS 256
@@ -47,11 +49,12 @@ class RGBColor;
  * some constant defaults used by SUMO
  * ----------------------------------------------------------------------- */
 const double SUMO_const_laneWidth = (double) 3.2;
-const double SUMO_const_halfLaneWidth = (double) 1.6;
-const double SUMO_const_quarterLaneWidth = (double) 0.8;
-const double SUMO_const_laneOffset = (double) .1;
-const double SUMO_const_laneWidthAndOffset = (double) 3.3;
-const double SUMO_const_halfLaneAndOffset = (double)(3.2 / 2. + .1);
+const double SUMO_const_laneOffset = (double) 0;
+const double SUMO_const_halfLaneWidth = SUMO_const_laneWidth / 2;
+const double SUMO_const_quarterLaneWidth = SUMO_const_laneWidth / 4;
+const double SUMO_const_laneWidthAndOffset = SUMO_const_laneWidth + SUMO_const_laneOffset;
+const double SUMO_const_halfLaneAndOffset = SUMO_const_halfLaneWidth + SUMO_const_laneOffset;
+const double SUMO_const_laneMarkWidth = (double) 0.1;
 
 /// @brief the speed threshold at which vehicles are considered as halting
 const double SUMO_const_haltingSpeed = (double) 0.1;
@@ -114,6 +117,8 @@ ISNAN(T a) {
 /// the precision for floating point outputs
 extern int gPrecision;
 extern int gPrecisionGeo; // for lon,lat
+extern bool gHumanReadableTime;
+extern bool gSimulation; // whether the current application is sumo or sumo-gui (as opposed to a router)
 
 
 /// @brief global utility flags for debugging

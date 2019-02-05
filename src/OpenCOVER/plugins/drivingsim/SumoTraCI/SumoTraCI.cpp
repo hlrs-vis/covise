@@ -86,7 +86,7 @@ bool SumoTraCI::init() {
     if(coVRMSController::instance()->isMaster())
     {
         client.simulationStep();
-        simResults = client.simulation.getSubscriptionResults();
+        simResults = client.vehicle.getAllSubscriptionResults();
         sendSimResults();
     }
     else
@@ -99,7 +99,7 @@ bool SumoTraCI::init() {
     if(coVRMSController::instance()->isMaster())
     {
         client.simulationStep();
-        simResults = client.simulation.getSubscriptionResults();
+        simResults = client.vehicle.getAllSubscriptionResults();
         sendSimResults();
     }
     else
@@ -130,7 +130,7 @@ void SumoTraCI::preFrame() {
         if(coVRMSController::instance()->isMaster())
         {
             client.simulationStep();
-            simResults = client.simulation.getSubscriptionResults();
+            simResults = client.vehicle.getAllSubscriptionResults();
             sendSimResults();
         }
         else
@@ -152,13 +152,17 @@ void SumoTraCI::sendSimResults()
         currentResults.resize(simResults.size());
     }
     size_t i = 0;
-    for (std::map<std::string, TraCIAPI::TraCIValues>::iterator it = simResults.begin(); it != simResults.end(); ++it) 
+    for (std::map<std::string, libsumo::TraCIResults>::iterator it = simResults.begin(); it != simResults.end(); ++it)
     {
-        currentResults[i].position = osg::Vec3d(it->second[VAR_POSITION3D].position.x,it->second[VAR_POSITION3D].position.y,it->second[VAR_POSITION3D].position.z);
-        currentResults[i].angle = it->second[VAR_ANGLE].scalar;
-        currentResults[i].vehicleClass = it->second[VAR_VEHICLECLASS].string;
-        currentResults[i].vehicleType = it->second[VAR_TYPE].string;
-        currentResults[i].vehicleID = it->first;        
+        std::shared_ptr<libsumo::TraCIPosition> position = std::dynamic_pointer_cast<libsumo::TraCIPosition> (it->second[VAR_POSITION3D]);
+        currentResults[i].position = osg::Vec3d(position->x, position->y, position->z);
+        std::shared_ptr<libsumo::TraCIDouble> angle = std::dynamic_pointer_cast<libsumo::TraCIDouble> (it->second[VAR_ANGLE]);
+        currentResults[i].angle = angle->value;
+        std::shared_ptr<libsumo::TraCIString> vehicleClass = std::dynamic_pointer_cast<libsumo::TraCIString> (it->second[VAR_VEHICLECLASS]);
+        currentResults[i].vehicleClass = vehicleClass->value;
+        std::shared_ptr<libsumo::TraCIString> vehicleType = std::dynamic_pointer_cast<libsumo::TraCIString> (it->second[VAR_TYPE]);
+        currentResults[i].vehicleType = vehicleType->value;
+        currentResults[i].vehicleID = it->first;
         i++;
     }
     covise::TokenBuffer stb;
@@ -219,7 +223,7 @@ void SumoTraCI::subscribeToSimulation() {
     if (client.simulation.getMinExpectedNumber() > 0) {
         std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
         for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it) {
-            client.simulation.subscribe(CMD_SUBSCRIBE_VEHICLE_VARIABLE, *it, 0, TIME2STEPS(1000), variables);
+            client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(1000));
         }
     } 
     else {
