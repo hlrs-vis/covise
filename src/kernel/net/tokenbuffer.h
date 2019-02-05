@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 #include <util/coExport.h>
 #include <util/byteswap.h>
@@ -109,6 +110,8 @@ public:
     void delete_data();
     TokenBuffer(const Message *msg, bool nbo = false);
     TokenBuffer(const char *dat, int len, bool nbo = false);
+    TokenBuffer &operator=(TokenBuffer &&other);
+    void copy(const TokenBuffer &other);
 
     const char *getBinary(int n);
     void addBinary(const char *buf, int n);
@@ -117,7 +120,7 @@ public:
     TokenBuffer &operator<<(const bool b);
     TokenBuffer &operator<<(const uint64_t i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
-//TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
+    //TokenBuffer& operator << (const size_t s){return (*this<<(uint64_t)s);}
 #endif
     TokenBuffer &operator<<(const uint32_t i);
     TokenBuffer &operator<<(const int i);
@@ -126,13 +129,12 @@ public:
     TokenBuffer &operator<<(const float f);
     TokenBuffer &operator<<(const double f);
     TokenBuffer &operator<<(const char *c);
-    TokenBuffer &operator<<(const TokenBuffer *t);
     TokenBuffer &operator<<(const TokenBuffer &t);
 
     TokenBuffer &operator>>(bool &b);
     TokenBuffer &operator>>(uint64_t &i);
 #ifndef WIN32 // it does not work on win32 as size_t == int
-//TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
+    //TokenBuffer& operator >> (size_t &s){uint64_t i; *this>>i; s=i; return *this; }
 #endif
     TokenBuffer &operator>>(uint32_t &i);
     TokenBuffer &operator>>(int &i);
@@ -142,7 +144,7 @@ public:
     TokenBuffer &operator>>(double &f);
     TokenBuffer &operator>>(std::string &s);
     TokenBuffer &operator>>(char *&c);
-
+    TokenBuffer &operator>>(TokenBuffer &tb);
     uint32_t get_int_token();
     char get_char_token();;
     float get_float_token();
@@ -155,9 +157,9 @@ public:
     {
         return (data);
     }
-
     void reset();
     void rewind();
 };
 }
+
 #endif
