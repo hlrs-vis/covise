@@ -280,6 +280,9 @@ endif()
 if (APPLE)
     add_definitions(-DGL_SILENCE_DEPRECATION)
 endif()
+if(MSVC)
+    add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
+endif()
 
 # descend to sources
 ADD_SUBDIRECTORY(src)
