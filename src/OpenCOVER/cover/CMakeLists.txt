@@ -78,6 +78,7 @@ SET(COVER_HEADERS
   VRRegisterSceneGraph.h
   MSEventHandler.h
   tridelity.h
+  SharedState.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
   coTUIFileBrowser/IData.h
@@ -152,6 +153,7 @@ SET(COVER_SOURCES
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
   coTranslator.cpp
+  SharedState.cpp
   PluginMenu.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp

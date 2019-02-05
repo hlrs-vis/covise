@@ -25,6 +25,7 @@
 #include <net/tokenbuffer.h>
 #include <util/coDLList.h>
 #include <string>
+#include <map>
 
 namespace opencover
 {
@@ -70,10 +71,11 @@ public:
     {
         return _var.c_str();
     }
-    const char *getValue(void)
+    const char *getValue(void) const
     {
-        return _val.c_str();
+        return _val.get_data();
     }
+	covise::TokenBuffer& getData();
     const char *getClass(void)
     {
         return _cl.c_str();
@@ -88,8 +90,12 @@ public:
     }
     void setVal(const char *val)
     {
-        _val = val;
+		_val.reset();
+		_val<< val;
     }
+	void setVal(covise::TokenBuffer &tb) {
+		_val = std::move(tb);
+	}
     bool isClassOnlyEntry()
     {
         return _isClassOnly;
@@ -115,13 +121,13 @@ public:
        */
     void updateVRB();
     void setValue(const char *val);
-
+	void setData(covise::TokenBuffer &&tb);
 private:
     coVrbRegEntryObserver *_observer;
     int _ID;
     std::string _cl;
     std::string _var;
-    std::string _val;
+    covise::TokenBuffer _val;
     bool _isClassOnly;
     bool _isDeleted;
     bool _changedByMe;
@@ -159,7 +165,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    coVrbRegEntry *subscribeVar(const char *cl, int ID, const char *var, coVrbRegEntryObserver *ob);
+    coVrbRegEntry *subscribeVar(const char *cl, int ID, const char *var, covise::TokenBuffer &&value, coVrbRegEntryObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)

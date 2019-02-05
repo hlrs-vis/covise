@@ -51,14 +51,19 @@ void observerList::removeObserver(int recvID)
 void observerList::copyObservers(regClass *c)
 {
     int i;
+    covise::TokenBuffer tb;
     for (i = 0; i < numObservers; i++)
     {
-        c->observe(observers[i], NULL);
+        c->observe(observers[i], NULL, tb);
     }
 }
 
-void observerList::serveObservers(regVar *v)
+void observerList::serveObservers(regVar *v, covise::Connection *exclude)
 {
+    if (numObservers == 0)
+    {
+        return;
+    }
     int i;
     TokenBuffer sb;
     sb << v->getClass()->getName();
@@ -67,7 +72,16 @@ void observerList::serveObservers(regVar *v)
     sb << v->getValue();
     for (i = 0; i < numObservers; i++)
     {
-        clients.sendMessageToID(sb, observers[i], COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
+        
+        VRBSClient *cl = clients.get(observers[i]);
+        if (cl)
+        {
+            if (cl->conn != exclude) //don't send message to the client that set the registry entry
+            {
+                clients.sendMessageToID(sb, observers[i], COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
+            }
+        }
+            
     }
 }
 
@@ -85,22 +99,22 @@ void observerList::informDeleteObservers(regVar *v)
     }
 }
 
-regVar::regVar(regClass *c, const char *n, const char *v, int s)
+regVar::regVar(regClass *c, const char *n, covise::TokenBuffer &v, int s)
 {
     myClass = c;
-    value = NULL;
     name = new char[strlen(n) + 1];
     strcpy(name, n);
-    setValue(v);
     staticVar = s;
+	setValue(v);
 }
+
 
 regVar::~regVar()
 {
     observers.informDeleteObservers(this);
     getClass()->getOList()->informDeleteObservers(this);
     delete[] name;
-    delete[] value;
+	value.delete_data();
 }
 
 regClass::regClass(const char *n, int ID)
@@ -110,14 +124,11 @@ regClass::regClass(const char *n, int ID)
     classID = ID;
 }
 
-void regVar::setValue(const char *v)
+inline void regVar::setValue(const covise::TokenBuffer &v)
 {
-    delete[] value;
-    if (!v)
-        v = "";
-    value = new char[strlen(v) + 1];
-    strcpy(value, v);
+	value.copy(v);
 }
+
 
 void regVar::updateUIs()
 {
@@ -149,42 +160,46 @@ void regVar::update(int recvID)
 }
 
 /// set a Value or create new Entry
-void coRegistry::setVar(const char *className, int ID, const char *name, const char *value)
+void coRegistry::setVar(const char *className, int ID, const char *name, covise::TokenBuffer &value, Connection *sender)
 {
-    if (ID == 0)
+
+	if (ID == 0)
     {
+		char *ch;
+		value >> ch;
         if (strcmp(className, "UI") == 0)
         {
             if (strcmp(name, "RegistryMode") == 0)
             {
                 regMode = 0;
-                if (strcasecmp(value, "ALL") == 0)
+                if (strcasecmp(ch, "ALL") == 0)
                     regMode = 2;
-                else if (strcasecmp(value, "Global Only") == 0)
+                else if (strcasecmp(ch, "Global Only") == 0)
                     regMode = 1;
             }
             else if (strcmp(name, "DebugMode") == 0)
             {
                 debugMode = 0;
-                if (strcasecmp(value, "true") == 0)
+                if (strcasecmp(ch, "true") == 0)
                     debugMode = 1;
-                else if (strcasecmp(value, "on") == 0)
+                else if (strcasecmp(ch, "on") == 0)
                     debugMode = 1;
-                else if (value[0] == '1')
+                else if (ch[0] == '1')
                     debugMode = 1;
             }
             else if (strcmp(name, "DataCaching") == 0)
             {
                 dataCaching = 0;
-                if (strcasecmp(value, "None") == 0)
+                if (strcasecmp(ch, "None") == 0)
                     dataCaching = 0;
-                else if (strcasecmp(value, "Low") == 0)
+                else if (strcasecmp(ch, "Low") == 0)
                     dataCaching = 1;
-                else if (strcasecmp(value, "High") == 0)
+                else if (strcasecmp(ch, "High") == 0)
                     dataCaching = 2;
             }
         }
     }
+
     regClass *rc = getClass(className, ID);
     if (!rc)
     {
@@ -208,8 +223,9 @@ void coRegistry::setVar(const char *className, int ID, const char *name, const c
         rv = new regVar(rc, name, value);
         rc->append(rv);
     }
-    rc->getOList()->serveObservers(rv);
-    rv->getOList()->serveObservers(rv);
+    //FIXME: combine rc->getOList() and rv->getOList() to a list of unique observers
+    rc->getOList()->serveObservers(rv, sender);
+    rv->getOList()->serveObservers(rv, sender);
     rv->updateUIs();
 }
 
@@ -232,7 +248,8 @@ void coRegistry::create(const char *className, int ID, const char *name, int s)
     regVar *rv = rc->getVar(name);
     if (!rv)
     {
-        rv = new regVar(rc, name, "", s);
+		covise::TokenBuffer tb;
+		rv = new regVar(rc, name, tb, s);
         rc->append(rv);
     }
     rc->getOList()->serveObservers(rv);
@@ -247,7 +264,8 @@ int coRegistry::isTrue(const char *className, int ID, const char *name, int def)
         regVar *rv = rc->getVar(name);
         if (rv)
         {
-            const char *v = rv->getValue();
+			const char *v = rv->getValue().get_data();
+			
             if (v[0] == '1')
                 return 1;
             if (v[0] == '0')
@@ -332,8 +350,7 @@ void coRegistry::unObserve(int recvID)
         next();
     }
 }
-
-void coRegistry::observe(const char *className, int ID, int recvID, const char *variableName)
+void coRegistry::observe(const char *className, int ID, int recvID, const char *variableName, covise::TokenBuffer &value)
 {
     if (!className)
     {
@@ -347,7 +364,7 @@ void coRegistry::observe(const char *className, int ID, int recvID, const char *
         {
             if (!strcmp(current()->getName(), className))
             {
-                current()->observe(recvID, variableName);
+                current()->observe(recvID, variableName, value);
                 foundOne = 1;
             }
         }
@@ -361,7 +378,7 @@ void coRegistry::observe(const char *className, int ID, int recvID, const char *
             rc = new regClass(className, ID);
             append(rc);
         }
-        rc->observe(recvID, variableName);
+        rc->observe(recvID, variableName, value);
     }
 }
 
@@ -394,15 +411,16 @@ void coRegistry::unObserve(const char *className, int ID, int recvID, const char
     }
 }
 
-void regClass::observe(int recvID, const char *variableName)
+void regClass::observe(int recvID, const char *variableName, covise::TokenBuffer &value)
 {
     if (variableName)
     {
         regVar *rv = getVar(variableName);
         if (!rv)
         {
-            rv = new regVar(this, variableName, "coNULL");
+			rv = new regVar(this, variableName, value);
             append(rv);
+            //FIXME: don't send value to the single observer that just set the value
         }
         rv->observe(recvID);
     }

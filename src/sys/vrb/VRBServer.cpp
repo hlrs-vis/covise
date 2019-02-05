@@ -37,6 +37,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <cstring>
 
 using std::cerr;
 using std::endl;
@@ -206,6 +207,7 @@ void VRBServer::handleClient(Message *msg)
     char *value;
     int fd;
     TokenBuffer tb(msg);
+    TokenBuffer tb_value;
 
     switch (msg->type)
     {
@@ -362,10 +364,24 @@ void VRBServer::handleClient(Message *msg)
         tb >> Class;
         tb >> classID;
         tb >> name;
-        tb >> value;
-        registry.setVar(Class, classID, name, value);
+		covise::TokenBuffer tb_value;
+		if (strcmp(Class, "SharedState") != 0)
+		{
+			tb >> value;
+			tb_value << value;
+		}
+		else
+		{
+			tb >> tb_value;
+		}
+        registry.setVar(Class, classID, name, tb_value, msg->conn);
+
+
 #ifdef GUI
-        mw->registry->updateEntry(Class, classID, name, value);
+		if (std::strcmp(Class, "SharedState") != 0)
+		{
+			mw->registry->updateEntry(Class, classID, name, value);
+		}
 #endif
     }
     break;
@@ -377,7 +393,8 @@ void VRBServer::handleClient(Message *msg)
         tb >> Class;
         tb >> classID;
         tb >> senderID;
-        registry.observe(Class, classID, senderID);
+        covise::TokenBuffer buf;
+        registry.observe(Class, classID, senderID, nullptr, buf);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
@@ -389,7 +406,8 @@ void VRBServer::handleClient(Message *msg)
         tb >> classID;
         tb >> name;
         tb >> senderID;
-        registry.observe(Class, classID, senderID, name);
+        tb >> tb_value;
+        registry.observe(Class, classID, senderID, name, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:

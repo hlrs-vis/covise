@@ -139,7 +139,7 @@ void coVrbRegistryAccess::subscribeClass(const char *cl, int ID, coVrbRegEntryOb
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);
 }
 
-coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const char *var, coVrbRegEntryObserver *ob)
+coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const char *var, covise::TokenBuffer &&value, coVrbRegEntryObserver *ob)
 {
     if ((cl == NULL) || (var == NULL))
         return NULL;
@@ -148,7 +148,7 @@ coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const c
     _entryList->reset();
     while (_entryList->current())
     {
-        if ((strcmp(_entryList->current()->getClass(), cl) == 0L) && (strcmp(_entryList->current()->getVar(), cl) == 0L && ((_entryList->current()->getID() == ID))))
+        if ((strcmp(_entryList->current()->getClass(), cl) == 0L) && (strcmp(_entryList->current()->getVar(), var) == 0L) && ((_entryList->current()->getID() == ID)))
             // entry already existing
             return _entryList->current();
         _entryList->next();
@@ -158,12 +158,13 @@ coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const c
     entry->attach(ob);
     _entryList->append(entry);
 
-    TokenBuffer tb;
+    covise::TokenBuffer tb;
     // compose message
     tb << cl;
     tb << ID;
     tb << var;
     tb << _ID;
+    tb << value;
     // inform controller about creation
     if (_ID >= 0)
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
@@ -262,7 +263,7 @@ void coVrbRegistryAccess::setVar(const char *cl, const char *var, const char *va
     _entryList->reset();
     while (_entryList->current())
     {
-        if ((strcmp(_entryList->current()->getClass(), cl) == 0L) && (strcmp(_entryList->current()->getVar(), cl) == 0L))
+        if ((strcmp(_entryList->current()->getClass(), cl) == 0L) && (strcmp(_entryList->current()->getVar(), var) == 0L))
         {
             _entryList->current()->changedByMe();
             // entry already existing
@@ -298,6 +299,7 @@ void coVrbRegistryAccess::update(TokenBuffer &tb, int reason)
     int clID;
     char *name;
     char *val;
+	covise::TokenBuffer tb_val;
 
     switch (reason)
     {
@@ -307,21 +309,35 @@ void coVrbRegistryAccess::update(TokenBuffer &tb, int reason)
         tb >> cl;
         tb >> clID;
         tb >> name;
-        tb >> val;
-
+        if (strcmp(cl, "SharedState") == 0)
+		{
+            tb >> tb_val;
+		}
+        else
+        {
+            tb >> val;     
+        }
         // call all class specific observers
         _entryList->reset();
 
         while (_entryList->current())
         {
-            if (!strcmp(_entryList->current()->getClass(), cl))
+            if (!strcmp(_entryList->current()->getClass(), cl) && _entryList->current()->getID() == clID)
             {
-                _entryList->current()->setVar((const char *)name);
-                _entryList->current()->setVal((const char *)val);
-                _entryList->current()->setID(clID);
-                // call observers
-                _entryList->current()->setChanged();
-                _entryList->current()->changedByMe(false);
+                if (!strcmp(_entryList->current()->getVar(), name))
+                {
+                    if (strcmp(cl, "SharedState") == 0)
+                    {
+                        _entryList->current()->setVal(tb_val);
+                    }
+                    else
+                    {
+                        _entryList->current()->setVal((const char *)val);
+                    }
+                    // call observers
+                    _entryList->current()->setChanged();
+                    _entryList->current()->changedByMe(false);
+                }
             }
             _entryList->next();
         }
@@ -362,22 +378,25 @@ void coVrbRegistryAccess::update(TokenBuffer &tb, int reason)
 
 void coVrbRegEntry::setValue(const char *val)
 {
-    if ((_cl.c_str() == NULL) || (_var.c_str() == NULL))
-        return;
+	TokenBuffer tb;
+	tb << val;
+	setData(std::move(tb));
+}
 
-    _val = val;
-    // compose message
-    TokenBuffer tb;
-    tb << _cl;
-    tb << _ID; // this module ID
-    tb << _var;
-    if (_val.c_str() == NULL)
-        tb << "";
-    else
-        tb << _val;
-    if (_ID >= 0)
-        coVrbRegistryAccess::instance->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
-    changedByMe();
+void opencover::coVrbRegEntry::setData(TokenBuffer &&data)
+{
+
+	_val = std::move(data);
+
+	// compose message
+	TokenBuffer tb;
+	tb << _cl;
+	tb << _ID; // this module ID
+	tb << _var;
+	tb << _val;
+	if (_ID >= 0)
+		coVrbRegistryAccess::instance->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
+	changedByMe();
 }
 
 void coVrbRegEntry::updateVRB()
@@ -422,10 +441,7 @@ void coVrbRegEntry::updateVRB()
         tb << _cl;
         tb << _ID; // this module ID
         tb << _var;
-        if (_val.c_str() == NULL)
-            tb << "";
-        else
-            tb << _val;
+        tb << _val;
         if (_ID >= 0)
             coVrbRegistryAccess::instance->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
     }
@@ -470,6 +486,7 @@ void coVrbRegEntry::attach(coVrbRegEntryObserver *ob)
     _observer = ob;
 }
 
+
 void coVrbRegEntry::detach(coVrbRegEntryObserver *)
 {
 
@@ -490,4 +507,9 @@ void coVrbRegEntry::notify(int interestType)
 
 coVrbRegEntry::~coVrbRegEntry()
 {
+}
+
+covise::TokenBuffer & opencover::coVrbRegEntry::getData()
+{
+	return _val;
 }
