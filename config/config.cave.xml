@@ -13,6 +13,7 @@
  <CLUSTER MASTER="viscluster50">
 
    <COVER>
+     <Stats leftPos="135.0" />
      
      <DebugTUI value="true" />
      <!--Background r="1" g="1" b="1" /-->

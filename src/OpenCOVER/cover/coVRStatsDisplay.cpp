@@ -33,6 +33,7 @@
 #include <osg/Geometry>
 #include "coVRStatsDisplay.h"
 #include "coVRFileManager.h"
+#include <config/CoviseConfig.h>
 #include <osg/Version>
 
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
@@ -46,6 +47,8 @@ coVRStatsDisplay::coVRStatsDisplay()
     , _threadingModel(osgViewer::ViewerBase::SingleThreaded)
     , _frameRateChildNum(0)
     , _gpuMemChildNum(0)
+    , _rhrFpsChildNum(0)
+    , _rhrBandwidthChildNum(0)
     , _viewerChildNum(0)
     , _cameraSceneChildNum(0)
     , _viewerSceneChildNum(0)
@@ -175,11 +178,32 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_frameRateChildNum, true);
-        _switch->setValue(_gpuMemChildNum, true);
+
+        auto stats = viewer->getViewerStats();
+        unsigned int first = stats->getEarliestFrameNumber(), last = stats->getLatestFrameNumber();
+        double dummy;
+        if (_gpuStats)
+            _switch->setValue(_gpuMemChildNum, true);
+        if (_rhrStats)
+        {
+            _switch->setValue(_rhrFpsChildNum, true);
+            _switch->setValue(_rhrDelayChildNum, true);
+            _switch->setValue(_rhrBandwidthChildNum, true);
+        }
     }
     default:
         break;
     }
+}
+
+void coVRStatsDisplay::enableGpuStats(bool enable)
+{
+    _gpuStats = enable;
+}
+
+void coVRStatsDisplay::enableRhrStats(bool enable)
+{
+    _rhrStats = enable;
 }
 
 void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
@@ -989,9 +1013,10 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     bool acquireGPUStats = numCamerasWithTimerQuerySupport == cameras.size();
     acquireGPUStats = true;
 
-    float leftPos = 10.0f;
+    float leftPos = covise::coCoviseConfig::getFloat("leftPos", "COVER.Stats", 10.0f);
     float startBlocks = 150.0f;
     float characterSize = 20.0f;
+    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*1.2f);
 
     osg::Vec3 pos(leftPos, _statsHeight - 24.0f, 0.0f);
 
@@ -1047,6 +1072,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         frameRateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Frame rate", -1, true, 1.0));
 
         pos.x() = frameRateValue->getBound().xMax();
+        pos.x() += space;
     }
 
     // available GPU memory
@@ -1075,10 +1101,114 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         gpuMemValue->setPosition(pos);
         gpuMemValue->setText("7777.77", osgText::String::ENCODING_UTF8);
 
-        gpuMemValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024));
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024);
+        gpuMemValue->setDrawCallback(cb);
 
-        pos.y() -= characterSize * 1.5f;
+        pos.x() = gpuMemValue->getBound().xMax();
+        pos.x() += space;
     }
+
+    // remote FPS
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrFpsChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrFpsLabel = new osgText::Text;
+        geode->addDrawable(rhrFpsLabel.get());
+
+        rhrFpsLabel->setColor(colorFR);
+        rhrFpsLabel->setFont(font);
+        rhrFpsLabel->setCharacterSize(characterSize);
+        rhrFpsLabel->setPosition(pos);
+        rhrFpsLabel->setText("RHR FPS:X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrFpsLabel->getBound().xMax();
+        rhrFpsLabel->setText("RHR FPS: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrFpsValue = new osgText::Text;
+        geode->addDrawable(rhrFpsValue.get());
+
+        rhrFpsValue->setColor(colorFR);
+        rhrFpsValue->setFont(font);
+        rhrFpsValue->setCharacterSize(characterSize);
+        rhrFpsValue->setPosition(pos);
+        rhrFpsValue->setText("777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR FPS", -1, true, 1.);
+        rhrFpsValue->setDrawCallback(cb);
+
+        pos.x() = rhrFpsValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // remote render latency
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrDelayChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrDelayLabel = new osgText::Text;
+        geode->addDrawable(rhrDelayLabel.get());
+
+        rhrDelayLabel->setColor(colorFR);
+        rhrDelayLabel->setFont(font);
+        rhrDelayLabel->setCharacterSize(characterSize);
+        rhrDelayLabel->setPosition(pos);
+        rhrDelayLabel->setText("Delay (s):X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrDelayLabel->getBound().xMax();
+        rhrDelayLabel->setText("Delay (s): ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrDelayValue = new osgText::Text;
+        geode->addDrawable(rhrDelayValue.get());
+
+        rhrDelayValue->setColor(colorFR);
+        rhrDelayValue->setFont(font);
+        rhrDelayValue->setCharacterSize(characterSize);
+        rhrDelayValue->setPosition(pos);
+        rhrDelayValue->setText("7.777", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Delay", -1, false, 1.);
+        rhrDelayValue->setDrawCallback(cb);
+
+        pos.x() = rhrDelayValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // remote render bandwidth
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrBandwidthChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrBandwidthLabel = new osgText::Text;
+        geode->addDrawable(rhrBandwidthLabel.get());
+
+        rhrBandwidthLabel->setColor(colorFR);
+        rhrBandwidthLabel->setFont(font);
+        rhrBandwidthLabel->setCharacterSize(characterSize);
+        rhrBandwidthLabel->setPosition(pos);
+        rhrBandwidthLabel->setText("MB/s:X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrBandwidthLabel->getBound().xMax();
+        rhrBandwidthLabel->setText("MB/s: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrBandwidthValue = new osgText::Text;
+        geode->addDrawable(rhrBandwidthValue.get());
+
+        rhrBandwidthValue->setColor(colorFR);
+        rhrBandwidthValue->setFont(font);
+        rhrBandwidthValue->setCharacterSize(characterSize);
+        rhrBandwidthValue->setPosition(pos);
+        rhrBandwidthValue->setText("777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Bps", -1, false, 1./1024/1024);
+        rhrBandwidthValue->setDrawCallback(cb);
+
+        pos.x() = rhrBandwidthValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // next line
+    pos.y() -= characterSize * 1.5f;
 
     osg::Vec4 backgroundColor(0.0, 0.0, 0.0f, 0.3);
     osg::Vec4 staticTextColor(1.0, 1.0, 0.0f, 1.0);
