@@ -22,7 +22,8 @@
 //#include "plugins/general/NurbsSurface/NurbsSurface.h"
 
 #include "FileInfo.h"
-
+#include <string>
+#include <cover/SharedState.h>
 namespace opencover {
 namespace ui {
 class Element;
@@ -76,7 +77,8 @@ private:
     float intensityScale;
     bool intColor;
     bool polar;
-    float pointSizeValue;
+    //float pointSizeValue;
+	SharedState<float> pointSizeValue;
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
@@ -110,17 +112,17 @@ protected:
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);
-
+	void UpdatePointSizeValue(void);
 public:
     PointCloudPlugin();
     ~PointCloudPlugin();
     bool init();
     void preFrame();
     void postFrame();
-    float pointSize()
-    {
-        return pointSizeValue;
-    };
+	inline float pointSize()
+	{
+		return pointSizeValue;
+	}
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
     int unloadFile(std::string filename);
