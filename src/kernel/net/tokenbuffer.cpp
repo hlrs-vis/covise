@@ -397,29 +397,38 @@ TokenBuffer &TokenBuffer::operator<<(const std::string &s)
 
 TokenBuffer &TokenBuffer::operator<<(const TokenBuffer &t)
 {
+    puttype(TbTB);
 
-	if (buflen < length + t.get_length() + 5)
-		incbuf(t.get_length() + 40);
-	uint32_t l = t.get_length();
-	*this << l;
-	memcpy(currdata, t.get_data(), t.get_length());
-	currdata += t.get_length();
-	length += t.get_length();
-	return (*this);
+    uint32_t l = t.get_length();
+    *this << l;
+
+    if (buflen < length + l)
+        incbuf(l);
+    memcpy(currdata, t.get_data(), l);
+    currdata += l;
+
+    return *this;
 }
 
-TokenBuffer &TokenBuffer::operator>>(TokenBuffer &tb) {
+TokenBuffer &TokenBuffer::operator>>(TokenBuffer &tb)
+{
+    checktype(TbTB);
+
     tb.delete_data();
+
     uint32_t l = 0;
-	*this >> l;
-    char *nb = new char[l];
-    memcpy(nb, currdata, l);
-    currdata += l;
-    tb.data = nb;
+    *this >> l;
+
+    tb.data = new char[l];
     tb.length = l;
     tb.buflen = l;
-	return (*this);
+    memcpy(tb.data, currdata, l);
+
+    tb.rewind();
+
+    return *this;
 }
+
 void TokenBuffer::puttype(TokenBuffer::Types t)
 {
 #ifdef TB_DEBUG
