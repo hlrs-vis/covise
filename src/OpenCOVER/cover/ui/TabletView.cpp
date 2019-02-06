@@ -345,7 +345,7 @@ void TabletView::updateBounds(const Slider *slider)
     }
 }
 
-void TabletView::updateValue(const EditField *input)
+void TabletView::updateValue(const TextField *input)
 {
     auto ve = tuiElement(input);
     if (!ve)
@@ -358,16 +358,9 @@ void TabletView::updateValue(const EditField *input)
     {
         vs->setText(input->value());
     }
-}
-
-void TabletView::updateValue(const FileBrowser *fb)
-{
-    auto ve = tuiElement(fb);
-    if (!ve)
-        return;
-    if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
+    else if (auto te = dynamic_cast<coTUIFileBrowserButton *>(ve->m_elem))
     {
-        te->setCurDir(fb->value().c_str());
+        te->setCurDir(input->value().c_str());
     }
 }
 

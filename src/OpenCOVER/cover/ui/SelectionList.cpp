@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 
+#include "../SharedState.h"
 #include <net/tokenbuffer.h>
 
 namespace opencover {
@@ -54,7 +55,35 @@ void SelectionList::load(covise::TokenBuffer &buf)
 			buf >> s;
 			m_selection[i] = s;
 		}
-	}
+        }
+}
+
+void SelectionList::setShared(bool shared)
+{
+    if (shared)
+    {
+        if (!m_sharedState)
+        {
+            m_sharedState = new SharedValue("ui."+path(), selectedIndex());
+            m_sharedState->setUpdateFunction([this](){
+                select(*static_cast<SharedValue *>(m_sharedState));
+            });
+        }
+    }
+    else
+    {
+        delete m_sharedState;
+        m_sharedState = nullptr;
+    }
+
+}
+
+void SelectionList::updateSharedState()
+{
+    if (auto st = static_cast<SharedValue *>(m_sharedState))
+    {
+        *st = selectedIndex();
+    }
 }
 
 void SelectionList::shortcutTriggered()
@@ -79,12 +108,13 @@ SelectionList::~SelectionList()
     manager()->remove(this);
 }
 
-void SelectionList::setList(const std::vector<std::string> items)
+void SelectionList::setList(const std::vector<std::string> &items)
 {
     m_items = items;
     m_selection.resize(m_items.size(), false);
     if (selectedIndex() < 0)
         select(0, false);
+    updateSharedState();
     manager()->updateChildren(this);
 }
 
@@ -99,13 +129,15 @@ void SelectionList::append(const std::string &item)
     m_selection.resize(m_items.size(), false);
     if (m_items.size() == 1)
         m_selection[0] = true;
+    updateSharedState();
     manager()->updateChildren(this);
 }
 
-void SelectionList::setSelection(const std::vector<bool> selection)
+void SelectionList::setSelection(const std::vector<bool> &selection)
 {
     assert(m_selection.size() == m_items.size());
     m_selection = selection;
+    updateSharedState();
     manager()->queueUpdate(this, UpdateChildren);
 }
 
@@ -118,6 +150,7 @@ void SelectionList::select(int index, bool update)
 {
     for (size_t i=0; i<m_items.size(); ++i)
         m_selection[i] = i==index;
+    updateSharedState();
     if (update)
         manager()->queueUpdate(this, UpdateChildren);
 }

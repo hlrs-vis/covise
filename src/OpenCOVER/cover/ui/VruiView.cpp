@@ -558,14 +558,9 @@ void VruiView::updateBounds(const Slider *slider)
     }
 }
 
-void VruiView::updateValue(const EditField *input)
+void VruiView::updateValue(const TextField *input)
 {
     updateText(input);
-}
-
-void VruiView::updateValue(const FileBrowser *fb)
-{
-    updateText(fb);
 }
 
 void VruiView::updateFilter(const FileBrowser *fb)

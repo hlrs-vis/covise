@@ -18,6 +18,7 @@ class Button;
 class Action;
 class Slider;
 class SelectionList;
+class TextField;
 class EditField;
 class FileBrowser;
 class CollaborativePartner;
@@ -85,9 +86,7 @@ class COVER_UI_EXPORT View {
     //! reflect change of slider range in graphical representation
     virtual void updateBounds(const Slider *slider) = 0;
     //! reflect change of input field value in graphical representation
-    virtual void updateValue(const EditField *input) = 0;
-    //! reflect change of selected file in graphical representation
-    virtual void updateValue(const FileBrowser *fb) = 0;
+    virtual void updateValue(const TextField *input) = 0;
     //! reflect change of file filter in graphical representation
     virtual void updateFilter(const FileBrowser *fb) = 0;
     //! reflect change of viewpoint in graphical representation

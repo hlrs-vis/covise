@@ -1,4 +1,4 @@
-#ifndef UI_BUTTON_H
+﻿#ifndef UI_BUTTON_H
 #define UI_BUTTON_H
 
 #include "Element.h"
@@ -46,11 +46,17 @@ class COVER_UI_EXPORT Button: public Element {
     void save(covise::TokenBuffer &buf) const override;
     void load(covise::TokenBuffer &buf) override;
 
+    void setShared(bool state) override;
+
  private:
     ButtonGroup *m_radioGroup = nullptr;
     int m_buttonId = 0;
     bool m_state = false;
     std::function<void(bool)> m_callback;
+
+protected:
+    typedef SharedState<int> SharedValue;
+    void updateSharedState() override;
 };
 
 }

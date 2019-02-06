@@ -35,4 +35,46 @@ void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<
     }
 }
 
+SharedStateBase::SharedStateBase(std::string name)
+: m_registry(coVRCommunication::instance()->registry)
+{
+}
+
+SharedStateBase::~SharedStateBase()
+{
+    m_registry->unsubscribeVar(className.c_str(), 8, variableName.c_str());
+}
+
+void SharedStateBase::setUpdateFunction(std::function<void ()> function)
+{
+    updateCallback = function;
+}
+
+bool SharedStateBase::valueChangedByOther() const
+{
+    return valueChanged;
+}
+
+std::string SharedStateBase::getName() const
+{
+    return variableName;
+}
+
+void SharedStateBase::update(coVrbRegEntry *theChangedRegEntry)
+{
+    if (variableName != theChangedRegEntry->getVar())
+    {
+        return;
+    }
+
+    theChangedRegEntry->getData().rewind();
+    deserializeValue(theChangedRegEntry->getData());
+
+    valueChanged = true;
+    if (updateCallback)
+    {
+        updateCallback();
+    }
+}
+
 }

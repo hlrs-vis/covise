@@ -3,6 +3,8 @@
 #include "ButtonGroup.h"
 #include "Manager.h"
 
+#include "../SharedState.h"
+
 #include <net/tokenbuffer.h>
 
 namespace opencover {
@@ -56,6 +58,7 @@ void Button::setState(bool flag, bool updateGroup)
     if (flag != m_state)
     {
         m_state = flag;
+        updateSharedState();
         manager()->queueUpdate(this, UpdateState);
     }
     if (updateGroup && group())
@@ -102,7 +105,36 @@ void Button::load(covise::TokenBuffer &buf)
 {
     Element::load(buf);
     buf >> m_state;
+    updateSharedState();
     //std::cerr << "Button::load " << path() << ": state=" << m_state << std::endl;
+}
+
+void Button::setShared(bool shared)
+{
+    if (shared)
+    {
+        if (!m_sharedState)
+        {
+            m_sharedState = new SharedValue("ui."+path(), m_state);
+            m_sharedState->setUpdateFunction([this](){
+                setState(*static_cast<SharedValue *>(m_sharedState));
+                triggerImplementation();
+            });
+        }
+    }
+    else
+    {
+        delete m_sharedState;
+        m_sharedState = nullptr;
+    }
+}
+
+void Button::updateSharedState()
+{
+    if (auto st = static_cast<SharedValue *>(m_sharedState))
+    {
+        *st = m_state;
+    }
 }
 
 void Button::shortcutTriggered()

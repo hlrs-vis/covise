@@ -55,6 +55,16 @@ Element::Priority Element::priority() const
     return m_priority;
 }
 
+void Element::setShared(bool state)
+{
+    assert(!state && "sharing of ui::Element state requested, but sharing not implemented for Element type");
+}
+
+bool Element::isShared() const
+{
+    return m_sharedState != nullptr;
+}
+
 void Element::setIcon(const std::string &iconName)
 {
     m_iconName = iconName;
@@ -157,6 +167,11 @@ void Element::load(covise::TokenBuffer &buf)
     buf >> m_visible;
     buf >> m_enabled;
     buf >> m_label;
+}
+
+void Element::updateSharedState()
+{
+    assert(!m_sharedState && "updating shared state of ui::Element requested, but sharing not implemented for Element type");
 }
 
 }

@@ -677,14 +677,9 @@ void QtView::updateBounds(const Slider *slider)
     }
 }
 
-void QtView::updateValue(const EditField *input)
+void QtView::updateValue(const TextField *input)
 {
     updateText(input);
-}
-
-void QtView::updateValue(const FileBrowser *fb)
-{
-    updateText(fb);
 }
 
 void QtView::updateFilter(const FileBrowser *fb)

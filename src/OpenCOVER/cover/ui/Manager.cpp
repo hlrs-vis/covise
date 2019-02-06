@@ -341,19 +341,11 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-void Manager::updateValue(const EditField *input) const
+void Manager::updateValue(const TextField *input) const
 {
     for (auto v: m_views)
     {
         v.second->updateValue(input);
-    }
-}
-
-void Manager::updateValue(const FileBrowser *fb) const
-{
-    for (auto v: m_views)
-    {
-        v.second->updateValue(fb);
     }
 }
 

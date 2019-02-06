@@ -11,6 +11,10 @@ class TokenBuffer;
 }
 
 namespace opencover {
+class SharedStateBase;
+template<class T>
+class SharedState;
+
 namespace ui {
 
 /** \mainpage COVER Abstract UI
@@ -106,6 +110,12 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     //! retrieve importance
     Priority priority() const;
 
+    //! make state shared among partners in a collaborative session
+    virtual void setShared(bool state);
+
+    //! query whether Element state is shared among collaborative partners
+    virtual bool isShared() const;
+
     //! set icon for Element
     void setIcon(const std::string &iconName);
     //! get icon name
@@ -142,6 +152,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     virtual void save(covise::TokenBuffer &buf) const;
     //! reimplement in derived class for deserialization, also call base class
     virtual void load(covise::TokenBuffer &buf);
+    //! reimplement in derived class for updating value of m_sharedState
+    virtual void updateSharedState();
     Group *m_parent = nullptr;
     std::set<Container *> m_containers;
     std::string m_label;
@@ -150,6 +162,8 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Priority m_priority = Default;
     std::string m_iconName;
     int m_viewBits = ~0;
+    SharedStateBase *m_sharedState = nullptr;
+
  private:
     mutable int m_id = -1, m_order = -1; // initialized by Manager
 };
