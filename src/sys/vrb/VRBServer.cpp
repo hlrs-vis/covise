@@ -61,6 +61,8 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
 
+//#define MB_DEBUG
+
 using namespace covise;
 
 VRBServer::VRBServer()
@@ -364,72 +366,69 @@ void VRBServer::handleClient(Message *msg)
         tb >> Class;
         tb >> classID;
         tb >> name;
-		covise::TokenBuffer tb_value;
-		if (strcmp(Class, "SharedState") != 0)
-		{
-			tb >> value;
-			tb_value << value;
-		}
-		else
-		{
-			tb >> tb_value;
-		}
+        covise::TokenBuffer tb_value;
+        tb >> tb_value;
         registry.setVar(Class, classID, name, tb_value, msg->conn);
 
 
 #ifdef GUI
 		if (std::strcmp(Class, "SharedState") != 0)
 		{
+                    tb_value >> value;
 			mw->registry->updateEntry(Class, classID, name, value);
 		}
+                else
+                {
+                    mw->registry->updateEntry(Class, classID, name, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+                }
 #endif
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
     {
-#ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Registry subscribe class!" << std::endl;
-#endif
         tb >> Class;
         tb >> classID;
         tb >> senderID;
         covise::TokenBuffer buf;
+#ifdef MB_DEBUG
+        std::cerr << "::HANDLECLIENT VRB Registry subscribe class=" << Class << std::endl;
+#endif
         registry.observe(Class, classID, senderID, nullptr, buf);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
     {
-#ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Registry subscribe variable!" << std::endl;
-#endif
         tb >> Class;
         tb >> classID;
         tb >> name;
         tb >> senderID;
         tb >> tb_value;
+#ifdef MB_DEBUG
+        std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << name << ", class=" << Class << std::endl;
+#endif
         registry.observe(Class, classID, senderID, name, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
     {
-#ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Registry unsubscribe class!" << std::endl;
-#endif
         tb >> Class;
         tb >> classID;
         tb >> senderID;
+#ifdef MB_DEBUG
+        std::cerr << "::HANDLECLIENT VRB Registry unsubscribe class=" << Class << std::endl;
+#endif
         registry.unObserve(Class, classID, senderID);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
     {
-#ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Registry unsubscribe variable!" << std::endl;
-#endif
         tb >> Class;
         tb >> classID;
         tb >> name;
         tb >> senderID;
+#ifdef MB_DEBUG
+        std::cerr << "::HANDLECLIENT VRB Registry unsubscribe variable=" << name << ", class=" << Class << std::endl;
+#endif
         registry.unObserve(Class, classID, senderID, name);
     }
     break;
