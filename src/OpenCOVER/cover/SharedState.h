@@ -30,13 +30,13 @@ namespace opencover {
 template<class T>
 void serialize(covise::TokenBuffer &tb, const T &value)
 {
-	tb << value;
+    tb << value;
 }
 ///converts the TokenBuffer back to the value
 template<class T>
 void deserialize(covise::TokenBuffer &tb, T &value)
 {
-	tb >> value;
+    tb >> value;
 }
 template <>
 void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
@@ -48,16 +48,17 @@ template <class T>
 class  SharedState : public coVrbRegEntryObserver
 {
 public:
-	SharedState<T>(std::string name, T value = T())
-		:variableName(name)
-		,m_value(value)
-	{
-		m_registry = coVRCommunication::instance()->registry;
+    SharedState<T>(std::string name, T value = T())
+    : variableName(name)
+    , m_value(value)
+    {
+        m_registry = coVRCommunication::instance()->registry;
         covise::TokenBuffer data;
         serialize(data, m_value);
         regEntry = m_registry->subscribeVar(className.c_str(), 8, name.c_str(), std::move(data), this); //ID != 0;
 
-	}
+    }
+
     SharedState<T> &operator=(T value)
     {
         if (m_value != value)
@@ -67,11 +68,13 @@ public:
         }
         return *this;
     }
+
     operator T() const
     {
         return m_value;
     }
-    ///sends the value change to the vrb
+
+    //! sends the value change to the vrb
     void push()
     {
         valueChanged = false;
@@ -79,46 +82,53 @@ public:
         serialize(data, m_value);
         regEntry->setData(std::move(data));
     }
-    //is called from the registryAcces when the registry entry got changed from the server
-	void update(coVrbRegEntry *theChangedRegEntry) override
+    //! is called from the registryAcces when the registry entry got changed from the server
+    void update(coVrbRegEntry *theChangedRegEntry) override
     {
         if (strcmp(theChangedRegEntry->getVar(), variableName.c_str()))
         {
             return;
         }
         theChangedRegEntry->getData().rewind();
-		deserialize (theChangedRegEntry->getData(), m_value);
-		valueChanged = true;
-		if (updateCallback != nullptr)
-		{
-			updateCallback();
-		}
-	}
-	
-	//returns true if the last value change was made by an other client
-	bool valueChangedByOther() {
-		return valueChanged;
-	}
-	std::string getName() {
-		return variableName;
-	}
-	///let the SharedState call the given function when the registry entry got changed from the server
-    void setUpdateFunction(std::function<void(void)> function ) {
-		updateCallback = function;
-	}
-    T &value()
+        deserialize (theChangedRegEntry->getData(), m_value);
+        valueChanged = true;
+        if (updateCallback != nullptr)
+        {
+            updateCallback();
+        }
+    }
+
+    //! returns true if the last value change was made by an other client
+    bool valueChangedByOther() const
+    {
+        return valueChanged;
+    }
+
+    std::string getName() const
+    {
+        return variableName;
+    }
+
+    //! let the SharedState call the given function when the registry entry got changed from the server
+    void setUpdateFunction(std::function<void(void)> function)
+    {
+        updateCallback = function;
+    }
+
+    const T &value() const
     {
         return m_value;
     }
+
 private:
     const std::string className = "SharedState";
     std::string variableName;
     T m_value;
-    coVrbRegistryAccess *m_registry;
+    coVrbRegistryAccess *m_registry = nullptr;
     coVrbRegEntry *regEntry = nullptr;
-	bool doSend = false;
-	bool doReceive = false;
-	bool valueChanged = false;
+    bool doSend = false;
+    bool doReceive = false;
+    bool valueChanged = false;
     std::function<void(void)> updateCallback = nullptr;
 };	
 }
