@@ -76,7 +76,7 @@ ApplicationWindow::ApplicationWindow()
     // set a proper font & layout
     QFont normalFont = font();
     QFont smallFont = normalFont;
-    smallFont.setPointSize(0.8*normalFont.pointSize());
+    smallFont.setPointSize(0.95*normalFont.pointSize());
     setFont(smallFont);
     //QApplication::setFont(smallFont);
 
@@ -497,7 +497,7 @@ void ApplicationWindow::closeEvent(QCloseEvent *ce)
         {
         case 0:
             // start a timer to allow all clients to disconnect
-            server.closeServer();
+
             timer->setSingleShot(true);
             timer->start(2000);
             break;

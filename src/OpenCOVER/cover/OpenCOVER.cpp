@@ -58,7 +58,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
-
+#include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
 
 #include "coVRAnimationManager.h"
@@ -688,6 +688,8 @@ bool OpenCOVER::init()
             hud->redraw();
             vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
             vrbc->connectToServer();
+            coVRCommunication::instance()->registry->setVrbc(vrbc);
+
         }
         else
         {
@@ -696,6 +698,7 @@ bool OpenCOVER::init()
             hud->redraw();
             vrbc = new VRBClient("COVER", vrbHost, vrbPort, coVRMSController::instance()->isSlave());
             vrbc->connectToServer();
+            coVRCommunication::instance()->registry->setVrbc(vrbc);
         }
     }
 
@@ -1403,6 +1406,7 @@ OpenCOVER::requestQuit()
         coVRPluginList::instance()->requestQuit(true);
     delete vrbc;
     vrbc = NULL;
+    coVRCommunication::instance()->registry->setVrbc(vrbc);
     setExitFlag(true);
     // exit COVER, even if COVER has a vrb connection
 }

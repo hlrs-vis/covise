@@ -18,6 +18,7 @@ class Host;
 class CoviseConfig;
 class ClientConnection;
 class Message;
+class TokenBuffer;
 
 //
 //
@@ -38,6 +39,7 @@ public:
     int wait(Message *m, int messageType);
     int setUserInfo(const char *userInfo);
     int sendMessage(const Message *m);
+    void sendMessage(TokenBuffer &tb, int type);
     int getID();
     void setID(int ID);
     DLinkList<Message *> messageQueue;

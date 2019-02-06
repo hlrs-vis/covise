@@ -25,9 +25,10 @@ namespace covise
 {
 class Message;
 }
+class VrbClientRegistry;
 
-#include "coVrbRegistryAccess.h"
 #include <map>
+#include <vrbclient/regClass.h>
 
 namespace opencover
 {
@@ -36,7 +37,7 @@ class IData;
 class LocalData;
 class coVRPartner;
 
-class COVEREXPORT coVRCommunication : public coVrbRegEntryObserver
+class COVEREXPORT coVRCommunication : public regClassObserver
 {
 
 private:
@@ -82,10 +83,10 @@ public:
     void setFBData(IData *data);
     void handleVRB(covise::Message *msg);
     void setCurrentFile(const char *filename);
-    virtual void update(coVrbRegEntry *theChangedRegEntry);
+    virtual void update(clientRegClass *theChangedClass);
 
     void becomeMaster();
-    coVrbRegistryAccess *registry;
+    VrbClientRegistry *registry;
     covise::Message *waitForMessage(int messageType);
 };
 }

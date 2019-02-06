@@ -22,7 +22,7 @@
 
 #include "VRBapplication.h"
 
-VRBServer server;
+
 ApplicationWindow *mw;
 
 int main(int argc, char **argv)
@@ -38,9 +38,12 @@ int main(int argc, char **argv)
     mw->show();
     a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 
+    VRBServer server;
     if (server.openServer() < 0)
     {
         return -1;
     }
-    return a.exec();
+    int exitcode = a.exec();
+    server.closeServer();
+    return exitcode;
 }

@@ -32,7 +32,7 @@ using std::endl;
 #endif
 
 #include <stdlib.h>
-#include "coRegistry.h"
+#include "VrbServerRegistry.h"
 
 QPixmap *VRBSClient::pix_master = NULL;
 QPixmap *VRBSClient::pix_slave = NULL;
@@ -197,10 +197,10 @@ VRBSClient::~VRBSClient()
 {
     //cerr << "instance" <<coRegistry::instance << endl;
     //cerr << "ID" <<myID << endl;
-    if (coRegistry::instance)
+    if (VrbServerRegistry::instance)
     {
-        coRegistry::instance->unObserve(myID);
-        coRegistry::instance->deleteEntry(myID);
+        VrbServerRegistry::instance->unObserve(myID);
+        VrbServerRegistry::instance->deleteEntry(myID);
     }
     delete conn;
     cerr << "closed connection to client " << myID << endl;

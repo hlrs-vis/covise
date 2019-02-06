@@ -708,8 +708,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         //if file does not exist, add it to the shared filePaths list
         if (m_files.find(fileName) == m_files.end())
         {
-            filePaths.value().push_back(fileName);
-            filePaths.push();
+            std::vector<std::string> v = filePaths;
+            v.push_back(fileName);
+            filePaths = v;
         }
         m_files[fileName] = fe;
 
@@ -908,7 +909,7 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , filePaths("coVRFileManager.filePaths")
+    , filePaths("coVRFileManager_filePaths")
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call

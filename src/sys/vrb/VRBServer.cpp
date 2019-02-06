@@ -23,6 +23,7 @@
 
 #include "VRBServer.h"
 #include "VRBClientList.h"
+#include "VrbServerRegistry.h"
 #include <net/covise_connect.h>
 #include <net/tokenbuffer.h>
 #include <util/unixcompat.h>
@@ -38,6 +39,7 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
+#include <cstdlib>
 
 using std::cerr;
 using std::endl;
@@ -76,6 +78,8 @@ VRBServer::VRBServer()
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
+    sessionID = rand() % 30000;
+    registry = new VrbServerRegistry(sessionID);
 }
 
 VRBServer::~VRBServer()
@@ -204,8 +208,8 @@ void VRBServer::processMessages()
 void VRBServer::handleClient(Message *msg)
 {
     char *Class;
-    int classID, senderID;
-    char *name;
+    int senderID, clientID;
+    char *variable;
     char *value;
     int fd;
     TokenBuffer tb(msg);
@@ -360,15 +364,14 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
     {
+        tb >> senderID;
         tb >> Class;
-        tb >> classID;
-        tb >> name;
-        covise::TokenBuffer tb_value;
+        tb >> variable;
         tb >> tb_value;
-        registry.setVar(Class, classID, name, tb_value, msg->conn);
+        registry->setVar(senderID, Class, variable, tb_value);
 
 #ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << name << std::endl;
+        std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
 #endif
 
 
@@ -376,72 +379,71 @@ void VRBServer::handleClient(Message *msg)
 		if (std::strcmp(Class, "SharedState") != 0)
 		{
                     tb_value >> value;
-			mw->registry->updateEntry(Class, classID, name, value);
+			mw->registry->updateEntry(Class, senderID, variable, value);
 		}
                 else
                 {
-                    mw->registry->updateEntry(Class, classID, name, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+                    mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
                 }
 #endif
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
     {
-        tb >> Class;
-        tb >> classID;
         tb >> senderID;
-        covise::TokenBuffer buf;
+        tb >> Class;
+        tb >> clientID;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe class=" << Class << std::endl;
 #endif
-        registry.observe(Class, classID, senderID, nullptr, buf);
+        registry->observeClass(senderID, Class, clientID);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
     {
-        tb >> Class;
-        tb >> classID;
-        tb >> name;
         tb >> senderID;
+        tb >> Class;
+        tb >> variable;
+        tb >> clientID;
         tb >> tb_value;
 #ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << name << ", class=" << Class << std::endl;
+        std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << variable << ", class=" << Class << std::endl;
 #endif
-        registry.observe(Class, classID, senderID, name, tb_value);
+        registry->observeVar(senderID, Class, clientID, variable, tb_value);
 #ifdef GUI
         if (std::strcmp(Class, "SharedState") != 0)
         {
             tb_value >> value;
-            mw->registry->updateEntry(Class, classID, name, value);
+            mw->registry->updateEntry(Class, senderID, variable, value);
         }
         else
         {
-            mw->registry->updateEntry(Class, classID, name, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+            mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
         }
 #endif
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
     {
-        tb >> Class;
-        tb >> classID;
         tb >> senderID;
+        tb >> Class;
+        tb >> clientID;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry unsubscribe class=" << Class << std::endl;
 #endif
-        registry.unObserve(Class, classID, senderID);
+        registry->unObserve(senderID, Class, clientID);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
     {
-        tb >> Class;
-        tb >> classID;
-        tb >> name;
         tb >> senderID;
+        tb >> Class;
+        tb >> variable;
+        tb >> clientID;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry unsubscribe variable=" << name << ", class=" << Class << std::endl;
 #endif
-        registry.unObserve(Class, classID, senderID, name);
+        registry->unObserve(senderID, Class, clientID, variable);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY:
@@ -449,14 +451,15 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry create entry!" << std::endl;
 #endif
-        int staticVar;
+        bool isStatic;
+        tb >> senderID;
         tb >> Class;
-        tb >> classID;
-        tb >> name;
-        tb >> staticVar;
-        registry.create(Class, classID, name, staticVar);
+        tb >> variable;
+        tb >> tb_value;
+        tb >> isStatic;
+        registry->create(senderID, Class, variable, tb_value, isStatic);
 #ifdef GUI
-        mw->registry->updateEntry(Class, classID, name, "");
+        mw->registry->updateEntry(Class, senderID, variable, "");
 #endif
     }
     break;
@@ -465,12 +468,12 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry delete entry!" << std::endl;
 #endif
+        tb >> senderID;
         tb >> Class;
-        tb >> classID;
-        tb >> name;
-        registry.deleteEntry(Class, classID, name);
+        tb >> variable;
+        registry->deleteEntry(senderID, Class, variable);
 #ifdef GUI
-        mw->registry->removeEntry(Class, classID, name);
+        mw->registry->removeEntry(Class, senderID, variable);
 #endif
     }
     break;

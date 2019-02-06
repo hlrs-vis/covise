@@ -267,6 +267,13 @@ int VRBClient::sendMessage(const Message *m)
     return 1;
 }
 
+void covise::VRBClient::sendMessage(TokenBuffer & tb, int type)
+{
+    Message m(tb);
+    m.type = type;
+    sendMessage(&m);
+}
+
 int VRBClient::isConnected()
 {
     if (isSlave)
