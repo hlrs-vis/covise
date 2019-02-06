@@ -252,10 +252,12 @@ void coVrbRegistryAccess::setVar(const char *cl, const char *var, const char *va
     tb << cl;
     tb << _ID; // this module ID
     tb << var;
+    TokenBuffer data;
     if (val == NULL)
-        tb << "";
+        data << "";
     else
-        tb << val;
+        data << val;
+    tb << data;
     if (_ID >= 0)
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 
