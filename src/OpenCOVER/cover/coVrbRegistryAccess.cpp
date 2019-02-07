@@ -156,6 +156,7 @@ coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const c
 
     coVrbRegEntry *entry = new coVrbRegEntry(cl, ID, var);
     entry->attach(ob);
+    entry->setVal(value);
     _entryList->append(entry);
 
     covise::TokenBuffer tb;
@@ -164,7 +165,7 @@ coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const c
     tb << ID;
     tb << var;
     tb << _ID;
-    tb << value;
+    tb << entry->getData();
     // inform controller about creation
     if (_ID >= 0)
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
