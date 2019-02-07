@@ -37,6 +37,7 @@
 #include <OpenVRUI/osg/OSGVruiUserDataCollection.h>
 #include <OpenVRUI/osg/mathUtils.h>
 
+
 #include <PluginUtil/PluginMessageTypes.h>
 
 
@@ -116,6 +117,31 @@ void OddlotPlugin::destroyMenu()
     delete addCameraTUIButton;
     delete updateCameraTUIButton;*/
     delete oddlotTab;
+}
+
+
+osg::Matrixd OddlotPlugin::computeLeftEyeProjection(const osg::Matrixd &projection) const
+{
+	(void)projection;
+	return projMat;
+}
+
+osg::Matrixd OddlotPlugin::computeLeftEyeView(const osg::Matrixd &view) const
+{
+	(void)view;
+	return viewMat;
+}
+
+osg::Matrixd OddlotPlugin::computeRightEyeProjection(const osg::Matrixd &projection) const
+{
+	(void)projection;
+	return projMat;
+}
+
+osg::Matrixd OddlotPlugin::computeRightEyeView(const osg::Matrixd &view) const
+{
+	(void)view;
+	return viewMat;
 }
 
 OddlotPlugin::OddlotPlugin()
@@ -218,7 +244,7 @@ void OddlotPlugin::setProjection(float xPos, float yPos, float width, float heig
     float hh = height/2.0;
     // ProjectionMatrix //
     //
-    osg::Matrix projMat = osg::Matrix::ortho(-hw, hw, -hh, hh, 10000.0, 4000000.0);
+    projMat = osg::Matrix::ortho(-hw, hw, -hh, hh, 10000.0, 4000000.0);
 
     // ViewMatrix //
     //
@@ -226,7 +252,7 @@ void OddlotPlugin::setProjection(float xPos, float yPos, float width, float heig
     //osg::Matrix viewMat = cover->getInvBaseMat();
     //viewMat.postMult(osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0)));
     osg::Matrix tmpMat = osg::Matrix::lookAt(osg::Vec3d(xPos+hw, yPos+hh, 1800000.0), osg::Vec3d(xPos+hw, yPos+hh, -1000000.0), osg::Vec3d(0.0, 1.0, 0.0));
-    osg::Matrix viewMat = cover->getInvBaseMat() *osg::Matrix::translate(-(xPos+hw), -(yPos+hh), -1800000.0);
+    viewMat = cover->getInvBaseMat() *osg::Matrix::translate(-(xPos+hw), -(yPos+hh), -1800000.0);
 
 
     camera->setProjectionMatrix(projMat);
@@ -271,6 +297,9 @@ void OddlotPlugin::createCamera()
     camera->setLODScale(0.0); // always highest LOD
     renderer->getSceneView(0)->setSceneData(cover->getScene());
     renderer->getSceneView(1)->setSceneData(cover->getScene());
+
+	renderer->getSceneView(0)->setComputeStereoMatricesCallback(this);
+	renderer->getSceneView(1)->setComputeStereoMatricesCallback(this);
 }
 
 void OddlotPlugin::menuEvent(coMenuItem *aButton)
