@@ -90,6 +90,7 @@ bool SumoTraCI::init()
     {
         client.simulationStep();
         simResults = client.vehicle.getAllSubscriptionResults();
+        pedestrianSimResults = client.person.getAllSubscriptionResults();
         sendSimResults();
     }
     else
@@ -103,6 +104,7 @@ bool SumoTraCI::init()
     {
         client.simulationStep();
         simResults = client.vehicle.getAllSubscriptionResults();
+        pedestrianSimResults = client.person.getAllSubscriptionResults();
         sendSimResults();
     }
     else
@@ -135,6 +137,7 @@ void SumoTraCI::preFrame()
         {
             client.simulationStep();
             simResults = client.vehicle.getAllSubscriptionResults();
+            pedestrianSimResults = client.person.getAllSubscriptionResults();
             sendSimResults();
         }
         else
@@ -152,9 +155,9 @@ void SumoTraCI::preFrame()
 
 void SumoTraCI::sendSimResults()
 {
-    if(currentResults.size() != simResults.size())
+    if(currentResults.size() != simResults.size()+pedestrianSimResults.size())
     {
-        currentResults.resize(simResults.size());
+        currentResults.resize(simResults.size()+pedestrianSimResults.size());
     }
     size_t i = 0;
     for (std::map<std::string, libsumo::TraCIResults>::iterator it = simResults.begin(); it != simResults.end(); ++it)
@@ -169,7 +172,26 @@ void SumoTraCI::sendSimResults()
         currentResults[i].vehicleType = vehicleType->value;
         currentResults[i].vehicleID = it->first;
         i++;
+        //fprintf(stderr,"VehicleClass is %s \n", vehicleClass->getString().c_str());
+        //fprintf(stderr,"VehicleID is %s \n", it->first.c_str());
     }
+    for (std::map<std::string, libsumo::TraCIResults>::iterator it = pedestrianSimResults.begin(); it != pedestrianSimResults.end(); ++it)
+    {
+        std::shared_ptr<libsumo::TraCIPosition> position = std::dynamic_pointer_cast<libsumo::TraCIPosition> (it->second[VAR_POSITION3D]);
+        currentResults[i].position = osg::Vec3d(position->x, position->y, position->z);
+        std::shared_ptr<libsumo::TraCIDouble> angle = std::dynamic_pointer_cast<libsumo::TraCIDouble> (it->second[VAR_ANGLE]);
+        currentResults[i].angle = angle->value;
+        std::shared_ptr<libsumo::TraCIString> vehicleClass = std::dynamic_pointer_cast<libsumo::TraCIString> (it->second[VAR_VEHICLECLASS]);
+        currentResults[i].vehicleClass = vehicleClass->value;
+        std::shared_ptr<libsumo::TraCIString> vehicleType = std::dynamic_pointer_cast<libsumo::TraCIString> (it->second[VAR_TYPE]);
+        currentResults[i].vehicleType = vehicleType->value;
+        currentResults[i].vehicleID = it->first;
+        i++;
+        //fprintf(stderr,"VehicleType is %s \n", vehicleType->getString().c_str());
+        //fprintf(stderr,"VehicleClass is %s \n", vehicleClass->getString().c_str());
+        //fprintf(stderr,"VehicleID is %s \n", it->first.c_str());
+    }
+
     covise::TokenBuffer stb;
     unsigned int currentSize = currentResults.size();
     stb << currentSize;
@@ -229,9 +251,16 @@ void SumoTraCI::subscribeToSimulation()
         if (client.simulation.getMinExpectedNumber() > 0)
         {
             std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
-            for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it) {
+            for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it)
+            {
                 client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(1000));
             }
+            std::vector<std::string> personIDList = client.person.getIDList();
+            for (std::vector<std::string>::iterator it = personIDList.begin(); it != personIDList.end();it++)
+            {
+                client.person.subscribe(*it, variables, 0, TIME2STEPS(1000));
+            }
+            //fprintf(stderr, "There are currently %i persons in the simulation ", personIDList.size());
         }
         else
         {
@@ -247,18 +276,24 @@ void SumoTraCI::updateVehiclePosition()
     for(int i=0;i < currentResults.size(); i++)
     {
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
-
-        // new vehicle appeared
-        if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+        if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-            loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+
         }
         else
         {
-            /*osg::Matrix rmat,tmat;
+        // new vehicle appeared
+        if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+            {
+             loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+            }
+            else
+            {
+                /*osg::Matrix rmat,tmat;
             rmat.makeRotate(orientation);
             tmat.makeTranslate(currentResults[i].position);
             loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
+            }
         }
     }
 }
@@ -269,28 +304,34 @@ void SumoTraCI::interpolateVehiclePosition()
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
     for(int i=0;i < previousResults.size(); i++)
     {
-        //osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+        if (!previousResults[i].vehicleClass.compare("pedestrian"))
+        {
 
-        std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
-        int currentIndex =-1;
-        // delete vehicle that will vanish in next step
-        for(int n=0;n < currentResults.size(); n++)
-        {
-            if(previousResults[i].vehicleID == currentResults[n].vehicleID)
-            {
-                currentIndex = n;
-                break;
-            }
         }
-        
-        if (itr != loadedVehicles.end())
+        else
         {
-            if (currentIndex == -1)
+            //osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+
+            std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
+            int currentIndex =-1;
+            // delete vehicle that will vanish in next step
+            for(int n=0;n < currentResults.size(); n++)
             {
-                //delete itr->second;
-                loadedVehicles.erase(itr);
+                if(previousResults[i].vehicleID == currentResults[n].vehicleID)
+                {
+                    currentIndex = n;
+                    break;
+                }
             }
-            else
+
+            if (itr != loadedVehicles.end())
+            {
+                if (currentIndex == -1)
+                {
+                    //delete itr->second;
+                    loadedVehicles.erase(itr);
+                }
+                else
             {
                 double weight = currentTime - nextSimTime;
 
@@ -308,6 +349,7 @@ void SumoTraCI::interpolateVehiclePosition()
                 av->setTransform(rotOffset*rmat*tmat);
                 VehicleState vs;
                 av->getCarGeometry()->updateCarParts(1, 0, vs);
+            }
             }
         }
     }

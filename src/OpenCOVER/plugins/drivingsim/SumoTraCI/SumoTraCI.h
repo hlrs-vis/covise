@@ -48,6 +48,7 @@ public:
 private:
 	TraCIAPI client;
     libsumo::SubscriptionResults simResults;
+    libsumo::SubscriptionResults pedestrianSimResults;
 	std::vector<simData> currentResults;
 	std::vector<simData> previousResults;
         std::map<std::string, AgentVehicle *> vehicleMap;
