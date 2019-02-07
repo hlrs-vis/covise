@@ -139,7 +139,7 @@ void coVrbRegistryAccess::subscribeClass(const char *cl, int ID, coVrbRegEntryOb
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);
 }
 
-coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const char *var, covise::TokenBuffer &&value, coVrbRegEntryObserver *ob)
+coVrbRegEntry *coVrbRegistryAccess::subscribeVar(const char *cl, int ID, const char *var, const covise::TokenBuffer &value, coVrbRegEntryObserver *ob)
 {
     if ((cl == NULL) || (var == NULL))
         return NULL;
@@ -328,7 +328,7 @@ void coVrbRegistryAccess::update(TokenBuffer &tb, int reason)
                 {
                     if (strcmp(cl, "SharedState") == 0)
                     {
-                        _entryList->current()->setVal(tb_val);
+                        _entryList->current()->setVal(std::move(tb_val));
                     }
                     else
                     {

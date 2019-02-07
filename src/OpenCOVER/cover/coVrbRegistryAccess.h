@@ -93,7 +93,7 @@ public:
 		_val.reset();
 		_val<< val;
     }
-	void setVal(covise::TokenBuffer &tb) {
+        void setVal(covise::TokenBuffer &&tb) {
 		_val = std::move(tb);
 	}
     bool isClassOnlyEntry()
@@ -165,7 +165,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    coVrbRegEntry *subscribeVar(const char *cl, int ID, const char *var, covise::TokenBuffer &&value, coVrbRegEntryObserver *ob);
+    coVrbRegEntry *subscribeVar(const char *cl, int ID, const char *var, const covise::TokenBuffer &value, coVrbRegEntryObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
