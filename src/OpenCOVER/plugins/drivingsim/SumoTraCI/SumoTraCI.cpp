@@ -282,10 +282,10 @@ void SumoTraCI::updateVehiclePosition()
         }
         else
         {
-        // new vehicle appeared
-        if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+            // new vehicle appeared
+            if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
             {
-             loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
             }
             else
             {
@@ -332,24 +332,24 @@ void SumoTraCI::interpolateVehiclePosition()
                     loadedVehicles.erase(itr);
                 }
                 else
-            {
-                double weight = currentTime - nextSimTime;
+                {
+                    double weight = currentTime - nextSimTime;
 
-                osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+                    osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
 
-                osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
-                osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
-                osg::Quat orientation;
-                orientation.slerp(weight, pastOrientation, futureOrientation);
+                    osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat orientation;
+                    orientation.slerp(weight, pastOrientation, futureOrientation);
 
-                osg::Matrix rmat, tmat;
-                rmat.makeRotate(orientation);
-                tmat.makeTranslate(position);
-                AgentVehicle * av = itr->second;
-                av->setTransform(rotOffset*rmat*tmat);
-                VehicleState vs;
-                av->getCarGeometry()->updateCarParts(1, 0, vs);
-            }
+                    osg::Matrix rmat, tmat;
+                    rmat.makeRotate(orientation);
+                    tmat.makeTranslate(position);
+                    AgentVehicle * av = itr->second;
+                    av->setTransform(rotOffset*rmat*tmat);
+                    VehicleState vs;
+                    av->getCarGeometry()->updateCarParts(1, 0, vs);
+                }
             }
         }
     }
