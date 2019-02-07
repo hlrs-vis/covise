@@ -64,13 +64,13 @@ void observerList::serveObservers(regVar *v, covise::Connection *exclude)
     {
         return;
     }
-    int i;
+
     TokenBuffer sb;
     sb << v->getClass()->getName();
     sb << v->getClass()->getID();
     sb << v->getName();
     sb << v->getValue();
-    for (i = 0; i < numObservers; i++)
+    for (int i = 0; i < numObservers; i++)
     {
         
         VRBSClient *cl = clients.get(observers[i]);

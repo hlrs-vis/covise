@@ -360,15 +360,16 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
     {
-#ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Set registry value!" << std::endl;
-#endif
         tb >> Class;
         tb >> classID;
         tb >> name;
         covise::TokenBuffer tb_value;
         tb >> tb_value;
         registry.setVar(Class, classID, name, tb_value, msg->conn);
+
+#ifdef MB_DEBUG
+        std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << name << std::endl;
+#endif
 
 
 #ifdef GUI
@@ -407,6 +408,17 @@ void VRBServer::handleClient(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << name << ", class=" << Class << std::endl;
 #endif
         registry.observe(Class, classID, senderID, name, tb_value);
+#ifdef GUI
+        if (std::strcmp(Class, "SharedState") != 0)
+        {
+            tb_value >> value;
+            mw->registry->updateEntry(Class, classID, name, value);
+        }
+        else
+        {
+            mw->registry->updateEntry(Class, classID, name, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+        }
+#endif
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
@@ -578,11 +590,11 @@ void VRBServer::handleClient(Message *msg)
     case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
     {
 #ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Render/Render Module!" << std::endl;
+        std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->length << "!" << std::endl;
 #endif
         int toGroup = -2;
 #ifdef MB_DEBUG
-        std::cerr << "====> Get senders vrbc connection!" << std::endl;
+        //std::cerr << "====> Get senders vrbc connection!" << std::endl;
 #endif
 
         VRBSClient *c = clients.get(msg->conn);
@@ -590,34 +602,34 @@ void VRBServer::handleClient(Message *msg)
         if (c)
         {
 #ifdef MB_DEBUG
-            std::cerr << "====> Sender found!" << std::endl;
-            std::cerr << "====> Sender: " << c->getIP() << std::endl;
+            //std::cerr << "====> Sender found!" << std::endl;
+            //std::cerr << "====> Sender: " << c->getIP() << std::endl;
 #endif
             toGroup = c->getGroup();
             c->addBytesSent(msg->length);
 #ifdef MB_DEBUG
-            std::cerr << "====> Increased amount of sent bytes!" << std::endl;
+            //std::cerr << "====> Increased amount of sent bytes!" << std::endl;
 #endif
         }
 #ifdef MB_DEBUG
-        std::cerr << "====> Reset clients!" << std::endl;
+        //std::cerr << "====> Reset clients!" << std::endl;
 #endif
 
         clients.reset();
 #ifdef MB_DEBUG
-        std::cerr << "====> Iterate through all vrbcs!" << std::endl;
+        //std::cerr << "====> Iterate through all vrbcs!" << std::endl;
 #endif
         while ((c = clients.current()))
         {
             if ((c->getGroup() == toGroup) && (c->conn != msg->conn))
             {
 #ifdef MB_DEBUG
-                std::cerr << "====> Distribute render message!" << std::endl;
+                //std::cerr << "====> Distribute render message!" << std::endl;
 #endif
                 c->conn->send_msg(msg);
                 c->addBytesReceived(msg->length);
 #ifdef MB_DEBUG
-                std::cerr << "====> Increased amount of sent bytes!" << std::endl;
+                //std::cerr << "====> Increased amount of sent bytes!" << std::endl;
 #endif
             }
             clients.next();
