@@ -38,7 +38,8 @@ int gPrecision;
 
 using namespace opencover;
 
-SumoTraCI::SumoTraCI() {
+SumoTraCI::SumoTraCI()
+{
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
@@ -52,31 +53,33 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
     AgentVehicle *av;
     auto avIt = vehicleMap.find(vehicleType);
     if(avIt != vehicleMap.end())
-{
-    av = avIt->second;
-}   
-else
-{
-av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", false), 0, NULL, 0, 1, 0.0, 1);
-   vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicleType,av));
-}
-   return av;
+    {
+        av = avIt->second;
+    }
+    else
+    {
+        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", false), 0, NULL, 0, 1, 0.0, 1);
+        vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicleType,av));
+    }
+    return av;
 }
 
-SumoTraCI::~SumoTraCI() {
+SumoTraCI::~SumoTraCI()
+{
     fprintf(stderr, "SumoTraCI::~SumoTraCI\n");
     if(coVRMSController::instance()->isMaster())
     {
-    client.close();
+        client.close();
     }
     //cover->getScene()->removeChild(vehicleGroup);
 }
 
-bool SumoTraCI::init() {
+bool SumoTraCI::init()
+{
     fprintf(stderr, "SumoTraCI::init\n");
     if(coVRMSController::instance()->isMaster())
     {
-       client.connect("localhost", 1337);
+        client.connect("localhost", 1337);
     }
 
     // identifiers: 57, 64, 67, 73, 79
@@ -117,15 +120,16 @@ bool SumoTraCI::init() {
     return true;
 }
 
-void SumoTraCI::preFrame() {
+void SumoTraCI::preFrame()
+{
     //cover->watchFileDescriptor();
     currentTime = cover->frameTime();
-    if ((currentTime - nextSimTime) > 1) 
+    if ((currentTime - nextSimTime) > 1)
     {
         subscribeToSimulation();
         simTime = nextSimTime;
         nextSimTime = cover->frameTime();
-            previousResults = currentResults;
+        previousResults = currentResults;
         
         if(coVRMSController::instance()->isMaster())
         {
@@ -140,7 +144,8 @@ void SumoTraCI::preFrame() {
         
         updateVehiclePosition();
     }
-    else {
+    else
+    {
         interpolateVehiclePosition();
     }
 }
@@ -217,33 +222,39 @@ void SumoTraCI::readSimResults()
     }
 }
 
-void SumoTraCI::subscribeToSimulation() {
+void SumoTraCI::subscribeToSimulation()
+{
     if(coVRMSController::instance()->isMaster())
     {
-    if (client.simulation.getMinExpectedNumber() > 0) {
-        std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
-        for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it) {
-            client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(1000));
+        if (client.simulation.getMinExpectedNumber() > 0)
+        {
+            std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
+            for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it) {
+                client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(1000));
+            }
         }
-    } 
-    else {
-        fprintf(stderr, "no expected vehicles in simulation\n");
-    }
+        else
+        {
+            fprintf(stderr, "no expected vehicles in simulation\n");
+        }
     }
 }
 
-void SumoTraCI::updateVehiclePosition() {
+void SumoTraCI::updateVehiclePosition()
+{
     osg::Matrix rotOffset;
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
-        for(int i=0;i < currentResults.size(); i++)
+    for(int i=0;i < currentResults.size(); i++)
     {
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
 
         // new vehicle appeared
-        if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end()) {
+        if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+        {
             loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
         }
-        else {
+        else
+        {
             /*osg::Matrix rmat,tmat;
             rmat.makeRotate(orientation);
             tmat.makeTranslate(currentResults[i].position);
@@ -252,59 +263,61 @@ void SumoTraCI::updateVehiclePosition() {
     }
 }
 
-void SumoTraCI::interpolateVehiclePosition() {
-
+void SumoTraCI::interpolateVehiclePosition()
+{
     osg::Matrix rotOffset;
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
-        for(int i=0;i < previousResults.size(); i++)
+    for(int i=0;i < previousResults.size(); i++)
     {
-    
         //osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
-    
-    
+
         std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
         int currentIndex =-1;
         // delete vehicle that will vanish in next step
-                for(int n=0;n < currentResults.size(); n++)
+        for(int n=0;n < currentResults.size(); n++)
         {
             if(previousResults[i].vehicleID == currentResults[n].vehicleID)
             {
-            currentIndex = n;
-            break;
+                currentIndex = n;
+                break;
             }
         }
         
-        if (itr != loadedVehicles.end()) 
+        if (itr != loadedVehicles.end())
         {
-            if (currentIndex == -1) {
+            if (currentIndex == -1)
+            {
                 //delete itr->second;
                 loadedVehicles.erase(itr);
             }
-        else {
-            double weight = currentTime - nextSimTime;
+            else
+            {
+                double weight = currentTime - nextSimTime;
 
-            osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+                osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
 
-            osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
-            osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
-            osg::Quat orientation;
-            orientation.slerp(weight, pastOrientation, futureOrientation);
+                osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+                osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
+                osg::Quat orientation;
+                orientation.slerp(weight, pastOrientation, futureOrientation);
 
-            osg::Matrix rmat, tmat;
-            rmat.makeRotate(orientation);
-            tmat.makeTranslate(position);
-            AgentVehicle * av = itr->second;
-            av->setTransform(rotOffset*rmat*tmat);
-            VehicleState vs;
-            av->getCarGeometry()->updateCarParts(1, 0, vs);
-        }
+                osg::Matrix rmat, tmat;
+                rmat.makeRotate(orientation);
+                tmat.makeTranslate(position);
+                AgentVehicle * av = itr->second;
+                av->setTransform(rotOffset*rmat*tmat);
+                VehicleState vs;
+                av->getCarGeometry()->updateCarParts(1, 0, vs);
+            }
         }
     }
 }
 
-osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition) {
+osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition)
+{
     osg::Vec3d interpolatedPosition;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         double interpolatedPoint = futurePosition[i] + (1.0 - lambda) * (pastPosition[i] - futurePosition[i]);
         interpolatedPosition[i] = interpolatedPoint;
     }
