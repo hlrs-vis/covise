@@ -1,16 +1,16 @@
 FROM library/ubuntu:16.04
 MAINTAINER "Martin Aumueller" <aumueller@hlrs.de>
 
-ENV PAR -j8
+ENV PAR -j30
 ENV ARCHSUFFIX xerusopt
 ENV BUILDTYPE Release
 ENV PREFIX /usr
 ENV BUILDDIR /build
 
-RUN apt-get update -y && apt-get install -y \
+RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         git bison flex swig cmake make file \
         libxerces-c-dev \
-        qttools5-dev qtscript5-dev libqt5scripttools5 libqt5svg5-dev libqt5opengl5-dev libqt5webkit5-dev \
+        qttools5-dev qtscript5-dev libqt5scripttools5 libqt5svg5-dev libqt5opengl5-dev libqt5webkit5-dev libqt5x11extras5-dev \
         libmpich-dev mpich \
         libopenscenegraph-dev libtiff-dev libpng-dev libgif-dev libjpeg-dev \
         libtbb-dev libglew-dev \
@@ -34,7 +34,7 @@ RUN git clone --recursive git://github.com/hlrs-vis/covise.git \
         && export QT_SELECT=5 \
         && mkdir -p build.covise \
         && cd build.covise \
-        && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_TYPE=${BUILDTYPE} -DCOVISE_WARNING_IS_ERROR=FALSE -DCOVISE_USE_VISIONARAY=FALSE \
+        && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_BUILD_TYPE=${BUILDTYPE} -DCOVISE_WARNING_IS_ERROR=FALSE -DCOVISE_USE_VISIONARAY=FALSE -DCOVISE_BUILD_RENDERER=FALSE -DCOVISE_USE_FORTRAN=FALSE \
         && make ${PAR} install \
         && cd ${BUILDDIR}/covise \
         && mkdir -p build.cover \
