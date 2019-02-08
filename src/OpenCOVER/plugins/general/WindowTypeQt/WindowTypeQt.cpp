@@ -45,7 +45,9 @@
 #include <cassert>
 
 #ifdef USE_X11
+#ifdef HAVE_QTX11EXTRAS
 #include <QX11Info>
+#endif
 
 #include <X11/ICE/ICElib.h>
 #include <X11/Xlib.h>
@@ -65,7 +67,11 @@ bool enableCompositing(QWidget *window, bool state)
         return false;
     }
 
+#ifdef HAVE_QTX11EXTRAS
     Display *dpy = QX11Info::display();
+#else
+    Display *dpy = nullptr;
+#endif
     if (!dpy) {
         std::cerr << "enableCompositing: did not find Display for application" << std::endl;
         return false;

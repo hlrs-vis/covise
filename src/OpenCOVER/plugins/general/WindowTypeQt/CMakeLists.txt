@@ -33,6 +33,7 @@ cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES}
 qt_use_modules(WindowTypeQt Core Widgets OpenGL)
 if (Qt5X11Extras_FOUND)
     qt_use_modules(WindowTypeQt X11Extras)
+    add_definitions(-DHAVE_QTX11EXTRAS)
 endif()
 
 if (X11_ICE_FOUND)
