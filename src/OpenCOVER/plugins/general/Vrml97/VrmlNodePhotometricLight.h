@@ -34,8 +34,9 @@
 #define HAVE_VRMLNODEPHOTOMETRICLIGHT
 // all OSG releases have DispatchCompute
 #include <osg/DispatchCompute>
-#else
+#elif OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
 // only some dev versions use ComputeDispatch
+#define HAVE_VRMLNODEPHOTOMETRICLIGHT
 #include <osg/ComputeDispatch>
 namespace osg { typedef ComputeDispatch DispatchCompute; }
 #endif
