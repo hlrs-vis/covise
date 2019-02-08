@@ -31,6 +31,7 @@
 
 #include <osg/Version>
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
+#define HAVE_VRMLNODEPHOTOMETRICLIGHT
 // all OSG releases have DispatchCompute
 #include <osg/DispatchCompute>
 #else
@@ -39,8 +40,11 @@
 namespace osg { typedef ComputeDispatch DispatchCompute; }
 #endif
 
+#include <osg/Texture2D>
 
 
+
+#ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
 using namespace opencover;
 using namespace vrml;
 class coMLB;
@@ -106,4 +110,6 @@ private:
 
 
 };
+#endif
+
 #endif //_VRMLNODEPhotometricLight_

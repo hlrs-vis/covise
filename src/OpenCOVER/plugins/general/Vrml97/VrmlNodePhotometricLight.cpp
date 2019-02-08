@@ -35,7 +35,6 @@
 #include <cover/coVRPluginSupport.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <math.h>
-#include <osg/BindImageTexture>
 
 
 #include <osg/Texture3D>
@@ -43,11 +42,15 @@
 #include <plugins/general/Vrml97/coMLB.h>
 
 #include "VrmlNodePhotometricLight.h"
+
+#ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
+
 #include "ViewerOsg.h"
 #include <osg/Quat>
 #include <osgDB/ReadFile>
 #include <cover/coVRFileManager.h>
 #include <osg/GLExtensions>
+#include <osg/BindImageTexture>
 
 
 // static initializations
@@ -495,3 +498,5 @@ const VrmlField *VrmlNodePhotometricLight::getField(const char *fieldName) const
         cerr << "Node does not have this eventOut or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
 }
+
+#endif // HAVE_VRMLNODEPHOTOMETRICLIGHT
