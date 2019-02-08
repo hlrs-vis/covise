@@ -158,7 +158,7 @@ ChoiceList *File09::get_choice(const char **scalarName, int maxList) const
         }
         else
         {
-            char buffer[16];
+            char buffer[32];
             sprintf(buffer, "Scalar_%d", i);
             choice->add(buffer, SCALAR - 1 + i);
         }

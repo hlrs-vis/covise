@@ -2017,7 +2017,7 @@ int ReadDyna3D::placpnt_(int *istart)
 int ReadDyna3D::otaurusr_()
 {
     /* Local variables */
-    static char ctaun[200];
+    static char ctaun[2000];
 
     /*------------------------------------------------------------------------------*/
     /*     open a TAURUS database for reading */
