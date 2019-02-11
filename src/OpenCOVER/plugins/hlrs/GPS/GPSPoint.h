@@ -23,19 +23,20 @@
 #include <cover/coVRPlugin.h>
 #include <xercesc/dom/DOM.hpp>
 
+#include <osg/MatrixTransform>
+#include <osg/ShapeDrawable>
+#include <cover/coBillboard.h>
+#include <osg/Material>
+
 using namespace opencover;
 using namespace covise;
-namespace opencover
-{
-class coVRLabel;
-}
 
 
 //Single Point
 class GPSPoint
 {
 private:
-    enum pointType { Trackpoint, Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,OtherChoice};
+    enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,OtherChoice};
     pointType PT;
     double longitude;
     double latitude;
@@ -43,6 +44,7 @@ private:
     double time;
     float speed;
     std::string text;
+    std::string filename;
 
 public:
     GPSPoint();
@@ -51,14 +53,29 @@ public:
     pointType gettype (void);
     void setPointData (double x, double y, double z, double time, float v, std::string &name);
     void setIndex(int i);
-    void drawSphere();
-    void drawDetail();
+    void draw();
+    void createSphere(osg::Vec4 *colVec);
+    void createDetail();
+    void createSign(std::string sname);
+    void createBillboard();
+    void createTextBox();
+    void createPictureBox(std::string &text, osg::Vec4 *colVec);
     osg::Vec3 getCoArray();
     float getSpeed();
     void readFile(xercesc::DOMElement *node);
-    osg::ref_ptr<osg::Geode> Point;
-    
+    osg::ref_ptr<osg::Group> Point;
+    osg::ref_ptr<osg::MatrixTransform> geoTrans;
+    osg::ref_ptr<osg::Switch> switchSphere;
+    osg::ref_ptr<osg::Switch> switchDetail;
+    osg::ref_ptr<coBillboard> BBoard;
+    osg::ref_ptr<osg::Geode> BBgeode;
 
+
+    osg::ref_ptr<osg::Sphere> sphere;
+    osg::ref_ptr<osg::Geode> PointSphere;
+    osg::ref_ptr<osg::ShapeDrawable> sphereD;
+
+    osg::ref_ptr<osg::Material> streetmarkMaterial;
 };
 
 

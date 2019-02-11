@@ -50,6 +50,7 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <chrono>
 
 
 osg::ref_ptr<osg::Material> Track::globalDefaultMaterial;
@@ -62,7 +63,7 @@ Track::Track()
 }
 Track::~Track()
 {
-    fprintf(stderr, "Track deleted\n");
+    //fprintf(stderr, "Track deleted\n");
 }
 void Track::setIndex(int i)
 {
@@ -74,17 +75,43 @@ void Track::addPoint(double x, double y, double v)
 
     x *= DEG_TO_RAD;
     y *= DEG_TO_RAD;
-
-    int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &x, &y, NULL);
+    std::array<double, 4> arr = {x, y, z, v };
+    int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
     if(error !=0 )
     {
         fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
         fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
     }
-    std::array<double, 4> arr = {x, y, z, v };
+
     PointsVec.push_back(arr);
-    //fprintf (stderr, "PointsVec size: %i\n", PointsVec.size());
 }
+void Track::transformxy()
+{
+    int s = PointsVec.size();
+    for (int i = 0; i < s; ++i)
+    {
+        std::array<double, 4> a1 = PointsVec.at(i);
+        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &a1.at(0), &a1.at(1), NULL);
+        if(error !=0 )
+        {
+            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
+            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
+        }
+    }
+}
+/*
+void Track::transformxy2()
+{
+    for (std::array<double, 4> arr = PointsVec.front(); arr.empty() != true; arr=std::next(arr,1) ){
+        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
+        if(error !=0 )
+        {
+            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
+            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
+        }
+    }
+}
+*/
 void Track::drawBirdView()
 {
     //for (std::list<GPSPoint*>::iterator it = TrackPoints.begin(); it != TrackPoints.end(); it++){
@@ -94,13 +121,14 @@ void Track::drawBirdView()
 
 void Track::readFile (xercesc::DOMElement *node)
 {
-    fprintf(stderr, "Trackreading started\n");
+    //fprintf(stderr, "Trackreading started\n");
+    auto start = std::chrono::steady_clock::now();
 
     xercesc::DOMNodeList *TrackNodeList = node->getChildNodes();
-    int TrackNodeLength = TrackNodeList->getLength();
-    for (int i = 0; i < TrackNodeLength; ++i)
+    int TrackNodeListLength = TrackNodeList->getLength();
+    for (xercesc::DOMNode *currentTrackNode = TrackNodeList->item(0) ; currentTrackNode != NULL; currentTrackNode = currentTrackNode->getNextSibling())
     {
-        xercesc::DOMElement *TrackNode = dynamic_cast<xercesc::DOMElement *>(TrackNodeList->item(i));
+        xercesc::DOMElement *TrackNode = dynamic_cast<xercesc::DOMElement *>(currentTrackNode);
         if (!TrackNode)
             continue;
         char *tmp = xercesc::XMLString::transcode(TrackNode->getNodeName());
@@ -108,7 +136,7 @@ void Track::readFile (xercesc::DOMElement *node)
         xercesc::XMLString::release(&tmp);
         if(nodeContentName == "trkseg")
         {
-            fprintf(stderr, "trkseg found\n");
+            //fprintf(stderr, "trkseg found\n");
 
             int TrackPointLength = TrackNode->getChildNodes()->getLength();
             PointsVec.reserve(TrackPointLength);
@@ -123,7 +151,6 @@ void Track::readFile (xercesc::DOMElement *node)
 
                 if(pointContentName == "trkpt")           
                 {
-                    //fprintf(stderr, "trkpt found\n");
                     double x;
                     double y;
                     //double t;
@@ -136,16 +163,13 @@ void Track::readFile (xercesc::DOMElement *node)
                     sscanf(lon, "%lf", &x);
                     sscanf(lat, "%lf", &y);
 
-                    //fprintf(stderr, "read from file:   lon: %s , lat: %s\n",lon, lat);
-
                     xercesc::XMLString::release(&lat);
                     xercesc::XMLString::release(&lon);
 
                     xercesc::DOMNodeList *nodeContentList = TrackPoint->getChildNodes();
-    int nodeContentLength = nodeContentList->getLength();
-                    for (int i = 0; i < nodeContentLength; ++i)
+                    for (xercesc::DOMNode *currentContentNode = nodeContentList->item(0) ; currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
                     {
-                        xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(nodeContentList->item(i));
+                        xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(currentContentNode);
                         if (!nodeContent)
                             continue;
                         char *tmp = xercesc::XMLString::transcode(nodeContent->getNodeName());
@@ -162,10 +186,9 @@ void Track::readFile (xercesc::DOMElement *node)
                         if(nodeContentName == "extensions")
                         {
                             xercesc::DOMNodeList *extensionsList = nodeContent->getChildNodes();
-                            int extensionsLength = extensionsList->getLength();
-                            for (int k = 0; k < extensionsLength; ++k)
+                            for (xercesc::DOMNode *extensionsListContent = extensionsList->item(0) ; extensionsListContent != NULL; extensionsListContent = extensionsListContent->getNextSibling())
                             {
-                                xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsList->item(k));
+                                xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsListContent);
                                 if (!extensionNode)
                                     continue;
                                 char *tmp = xercesc::XMLString::transcode(extensionNode->getNodeName());
@@ -179,7 +202,7 @@ void Track::readFile (xercesc::DOMElement *node)
                                     xercesc::XMLString::release(&speed);
                                 }
                                 else {
-                                    fprintf(stderr, "unknown extension node named: %s\n",nodeContentName.c_str() );
+                                    //fprintf(stderr, "unknown extension node named: %s\n",nodeContentName.c_str() );
                                 }
                             }
                         }
@@ -192,20 +215,21 @@ void Track::readFile (xercesc::DOMElement *node)
 
                 }
                 else {
-                    fprintf(stderr, "unknown content node in trkseg named %s\n",nodeContentName.c_str() );
+                    //fprintf(stderr, "unknown content node in trkseg named %s\n",nodeContentName.c_str() );
                 }
             }
         }
 
         else if(nodeContentName == "name")
         {
-            fprintf(stderr, "unused node in trkseg called: %s\n",nodeContentName.c_str());
+            //fprintf(stderr, "unused node in trkseg called: %s\n",nodeContentName.c_str());
         }
         else {
-            fprintf(stderr, "unknown content node in trk named %s\n",nodeContentName.c_str() );
+            //fprintf(stderr, "unknown content node in trk named %s\n",nodeContentName.c_str() );
         }
     }
-    fprintf(stderr, "Trackreading finished. Trackpoints: %lu\n",(unsigned long)PointsVec.size() );
+    auto end = std::chrono::steady_clock::now();
+    fprintf(stderr, "Trackreading finished after %d milliseconds Trackpoints: %lu\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(),(unsigned long)PointsVec.size());
 }
 
 void Track::drawTrack()
@@ -215,7 +239,7 @@ void Track::drawTrack()
     static double AlphaThreshold = 0.5;
     float linewidth = 4.0f;
 
-    osg::Geode *geode = new osg::Geode();
+    geode = new osg::Geode();
     osg::Geometry *geom = new osg::Geometry();
 
     cover->setRenderStrategy(geom);
@@ -224,8 +248,8 @@ void Track::drawTrack()
     osg::Vec3Array *vert = new osg::Vec3Array;
     for (int i = 0; i < PointsVec.size(); ++i)
     {
-        std::array<double, 4> *a1 = &PointsVec.at(i);
-        vert->push_back(osg::Vec3(a1->at(0), a1->at(1) , a1->at(2)));
+        std::array<double, 4> a1 = PointsVec.at(i);
+        vert->push_back(osg::Vec3(a1.at(0), a1.at(1) , a1.at(2)));
     }
     geom->setVertexArray(vert);
 
@@ -233,8 +257,8 @@ void Track::drawTrack()
     osg::Vec4Array *colArr = new osg::Vec4Array();
     for (int t = 0; t < PointsVec.size(); ++t)
     {
-        std::array<double, 4> *a1 = &PointsVec.at(t);
-        float s = a1->at(3);
+        std::array<double, 4> a1 = PointsVec.at(t);
+        float s = a1.at(3);
         colArr->push_back(osg::Vec4(1.0f, 1.0f/(1.0f+s), (1.0f+s), 1.0f));
     }
     geom->setColorArray(colArr);
@@ -276,7 +300,7 @@ void Track::drawTrack()
     geoState->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
 
-        geoState->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    geoState->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
     geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
 

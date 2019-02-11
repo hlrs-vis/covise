@@ -23,8 +23,6 @@
 #include "GPSPoint.h"
 #include "Track.h"
 #include "File.h"
-#include "GPSALLPoints.h"
-#include "GPSALLTracks.h"
 #include <time.h>
 
 
@@ -40,6 +38,8 @@
 #include <osg/ShapeDrawable>
 #include <gdal_priv.h>
 #include <config/CoviseConfig.h>
+#include <osg/LineWidth>
+#include <osg/Point>
 
 
 #include <xercesc/dom/DOM.hpp>
@@ -77,7 +77,7 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     GPSTab = NULL;
     GPSTab_create();
     OSGGPSPlugin = new osg::Group();
-    OSGGPSPlugin->setName("GPS Plugin");
+    OSGGPSPlugin->setName("GPS");
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
 
     //testlabel
@@ -156,7 +156,6 @@ void GPSPlugin::GPSTab_create(void)
     // infoLabel = new ui::Label("GPS Version 1.0", GPSTab);
 
     ToggleTracks = new ui::Button(GPSTab, "Toggle Tracks ON/OFF");
-    ToggleTracks->setText("Tracks Tracks ON/OFF");
     ToggleTracks->setCallback([this](bool) {
         for (auto *x : fileList){
             if(x->SwitchTracks->getNewChildDefaultValue()){
@@ -168,7 +167,6 @@ void GPSPlugin::GPSTab_create(void)
         }
     });
     TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
-    TogglePoints->setText("Tracks Points ON/OFF");
     TogglePoints->setCallback([this](bool) {
         for (auto *x : fileList){
             if(x->SwitchPoints->getNewChildDefaultValue()){
@@ -178,6 +176,37 @@ void GPSPlugin::GPSTab_create(void)
                 x->SwitchPoints->setAllChildrenOn();
             }
         }
+    });
+    ToggleLOD = new ui::Button(GPSTab, "Toggle Sphere - Detail view");
+    ToggleLOD->setCallback([this](bool) {
+        for (auto *f : fileList){
+            for (auto *p : f->allPoints){
+                if(p->switchSphere->getNewChildDefaultValue()){
+                    p->switchSphere->setAllChildrenOff();
+                    p->switchDetail->setAllChildrenOn();
+                }
+                else {
+                    p->switchSphere->setAllChildrenOn();
+                    p->switchDetail->setAllChildrenOff();
+                }
+            }
+        }
+    });
+    TrackSizeSlider = new ui::Slider(GPSTab, "Scale Tracksize");
+    TrackSizeSlider->setVisible(false, ui::View::VR);
+    TrackSizeSlider->setBounds(1, 100);
+    TrackSizeSlider->setScale(ui::Slider::Linear);
+    TrackSizeSlider->setValue(5);
+    TrackSizeSlider->setCallback([this](double value, bool released){
+        changeLinewidth( value);
+    });
+    PointSizeSlider = new ui::Slider(GPSTab, "Scale Pointsize");
+    PointSizeSlider->setVisible(false, ui::View::VR);
+    PointSizeSlider->setBounds(1, 100);
+    PointSizeSlider->setScale(ui::Slider::Logarithmic);
+    PointSizeSlider->setValue(5);
+    PointSizeSlider->setCallback([this](double value, bool released){
+        changePointSize( value);
     });
 
 }
@@ -192,14 +221,14 @@ void GPSPlugin::GPSTab_delete(void)
 void GPSPlugin::addFile(File *f, osg::Group *parent)
 {
     fileList.push_back(f);
-    if(parent)
-    {
-       parent->addChild(f->FileGroup);
-    }
-    else
-    {
+    //if(parent)
+    //{
+    //   parent->addChild(f->FileGroup);
+    //}
+    //else
+    //{
        OSGGPSPlugin->addChild(f->FileGroup);
-    }
+    //}
 }
 
 void GPSPlugin::closeImage()
@@ -270,6 +299,27 @@ void GPSPlugin::openImage(std::string &name)
                 printf("Min=%.3fd, Max=%.3f\n", adfMinMax[0], adfMinMax[1]);
 
         }
+}
+void GPSPlugin::changeLinewidth(float linewidth)
+{
+    for (auto *f : fileList){
+        for (auto *t : f->allTracks){
+            osg::StateSet *geoState = t->geode->getOrCreateStateSet();
+            osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
+            geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
+        }
+    }
+}
+void GPSPlugin::changePointSize(float radius)
+{
+    for (auto *f : fileList){
+        for (auto *p : f->allPoints){
+            p->sphere->setRadius(radius);
+            //printf("getradius: %f \n", p->sphere->getRadius());
+            p->sphereD->setShape(NULL);
+            p->sphereD->setShape(p->sphere);
+        }
+    }
 }
 
 float GPSPlugin::getAlt(double x, double y)

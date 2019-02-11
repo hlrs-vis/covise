@@ -23,8 +23,6 @@
 #include "File.h"
 #include "GPSPoint.h"
 #include "Track.h"
-#include "GPSALLPoints.h"
-#include "GPSALLTracks.h"
 
 #include <osg/Group>
 #include <osg/Switch>
@@ -38,11 +36,11 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <chrono>
 
 //File
 File::File()
 {
-    fprintf(stderr, "File created\n");
 }
 File::File(const char *filename)
 {
@@ -69,29 +67,37 @@ File::File(const char *filename)
 }
 File::~File()
 {
-    for (auto *x : fileAllTracks){
+    for (auto *x : allTracks){
         delete x;
     }
-    for (auto *x : fileAllPoints){
+    for (auto *x : allPoints){
         delete x;
     }
-    //SwitchTracks.release();
-    //SwitchPoints.release();
-    //FileGroup.release();
+}
 
-    fprintf(stderr, "File deleted\n");
-}
-void File::addAllTracks(GPSALLTracks *at)
+void File::addTrack(Track *t)
 {
-    fileAllTracks.push_back(at);
-    SwitchTracks->addChild(at->TrackGroup);
-    //fprintf(stderr, "AllTracks added to file\n");
+    t->setIndex(allTracks.size());
+    allTracks.push_back(t);
+    SwitchTracks->addChild(t->SingleTrack);
+    //fprintf(stderr, "Track added to at\n");
 }
-void File::addAllPoints(GPSALLPoints *ap)
+void File::addPoint(GPSPoint *p)
 {
-    fileAllPoints.push_back(ap);
-    SwitchPoints->addChild(ap->PointGroup);
-    //fprintf(stderr, "AllPoints added to file\n");
+    p->setIndex(allPoints.size());
+    allPoints.push_back(p);
+    SwitchPoints->addChild(p->geoTrans);
+    //fprintf(stderr, "Point added to ap\n");
+}
+
+void File::draw()
+{
+    for (std::list<Track*>::iterator it = allTracks.begin(); it != allTracks.end(); it++){
+        (*it)->drawTrack();
+    }
+    for (std::list<GPSPoint*>::iterator it = allPoints.begin(); it != allPoints.end(); it++){
+        (*it)->draw();
+    }
 }
 
 //fileReader
@@ -103,7 +109,7 @@ void File::readFile(const std::string &filename)
     try
     {
         parser->parse(filename.c_str());
-        fprintf(stderr, "Parsing file: %s\n", filename.c_str());
+        fprintf(stderr, "-----------\nParsing file: %s\n", filename.c_str());
     }
     catch (...)
     {
@@ -123,14 +129,10 @@ void File::readFile(const std::string &filename)
 
     if (rootElement)
     {
-        fprintf(stderr, "-----------\nStarted reading file: %s \n-----------\n", this->name.c_str());
+        auto start = std::chrono::steady_clock::now();
+        //fprintf(stderr, "-----------\nStarted reading file: %s \n-----------\n", this->name.c_str());
         //fprintf(stderr, "rootElement %s\n", xercesc::XMLString::transcode(rootElement->getNodeName()));
         xercesc::DOMNodeList *nodeList = rootElement->getChildNodes();
-
-        GPSALLPoints *ap = new GPSALLPoints();
-        GPSALLTracks *at = new GPSALLTracks();
-        this->addAllTracks(at);
-        this->addAllPoints(ap);
 
         for (int o = 0; o < nodeList->getLength(); ++o)
         {
@@ -144,26 +146,24 @@ void File::readFile(const std::string &filename)
             if(nodeName == "wpt")
             {
                 GPSPoint *p = new GPSPoint();
-                ap->addPoint(p);
+                addPoint(p);
                 p->readFile(node);
             }
             else if(nodeName == "trk")
             {
                 Track *t = new Track();
-                at->addTrack(t);
+                addTrack(t);
                 t->readFile(node);
             }
             else
             {
-                fprintf(stderr, "unknown node type %s\n",nodeName.c_str() );
+                //fprintf(stderr, "unknown node type %s\n",nodeName.c_str() );
             }
         }
 
-        ap->drawBirdView();
-        at->drawBirdView();
+        draw();
 
-        fprintf(stderr, "-----------\nFinished reading file: %s \n", this->name.c_str());
-        fprintf(stderr, "GPSPoints added: %lu , Tracks added: %lu \n-----------\n",(unsigned long)fileAllPoints.front()->allPoints.size(), (unsigned long)fileAllTracks.front()->allTracks.size() );
-
+        auto end = std::chrono::steady_clock::now();
+        fprintf(stderr, "Filereading finished after %d milliseconds. GPSPoints added: %lu , Tracks added: %lu \n-----------\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(), (unsigned long)allPoints.size(), (unsigned long)allTracks.size());
     }
 }

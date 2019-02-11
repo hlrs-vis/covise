@@ -21,8 +21,8 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
-#include "GPSALLPoints.h"
-#include "GPSALLTracks.h"
+#include "GPSPoint.h"
+#include "Track.h"
 
 using namespace opencover;
 using namespace covise;
@@ -30,8 +30,7 @@ namespace opencover
 {
 class coVRLabel;
 }
-class GPSAllPoints;
-class GPSALLTracks;
+
 
 //For single files
 class File
@@ -41,15 +40,16 @@ public:
     File(const char *filename);
     ~File();
     void readFile(const std::string &filename);
-    void addAllTracks(GPSALLTracks *p);
-    void addAllPoints(GPSALLPoints *p);
+    void addTrack(Track *p);
+    void addPoint(GPSPoint *p);
+    void draw();
     std::string name;
     osg::ref_ptr<osg::Group> FileGroup;
     osg::ref_ptr<osg::Switch> SwitchPoints;
     osg::ref_ptr<osg::Switch> SwitchTracks;
     osg::ref_ptr<osg::Group> TrackGroup;
 
-    std::list<GPSALLTracks*> fileAllTracks;
-    std::list<GPSALLPoints*> fileAllPoints;
+    std::list<Track*> allTracks;
+    std::list<GPSPoint*> allPoints;
 };
 #endif

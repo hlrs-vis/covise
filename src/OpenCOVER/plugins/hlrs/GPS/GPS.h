@@ -23,6 +23,7 @@
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Label.h>
 #include <cover/ui/EditField.h>
@@ -53,6 +54,8 @@ public:
 
     float getAlt(double x, double y);
     void addFile(File *f, osg::Group *parent);
+    void changeLinewidth(float linewidth);
+    void changePointSize(float linewidth);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);
@@ -62,6 +65,9 @@ public:
     ui::Button *Toggle = nullptr;
     ui::Button *TogglePoints = nullptr;
     ui::Button *ToggleTracks = nullptr;
+    ui::Button *ToggleLOD = nullptr;
+    ui::Slider *TrackSizeSlider=nullptr;
+    ui::Slider *PointSizeSlider=nullptr;
 
     osg::ref_ptr<osg::Group> OSGGPSPlugin;
     coVRLabel *Label;
