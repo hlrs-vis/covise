@@ -36,6 +36,8 @@
 #include "OpenCOVER.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
+#include "ui/Menu.h"
+#include "ui/View.h"
 
 #include "coVRPluginSupport.h"
 #include "coVRPluginList.h"

@@ -1,6 +1,7 @@
 #include "TabletView.h"
 
 #include <cassert>
+#include <iostream>
 
 #include "Element.h"
 #include "Menu.h"

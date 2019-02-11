@@ -2,6 +2,8 @@
 #include "View.h"
 #include "Element.h"
 #include "Group.h"
+#include "Menu.h"
+#include "ButtonGroup.h"
 
 #include <cctype>
 #include <cassert>

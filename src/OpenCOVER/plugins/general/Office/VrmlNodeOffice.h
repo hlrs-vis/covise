@@ -27,6 +27,8 @@
 #include <vrml97/vrml/VrmlNodeChild.h>
 #include <vrml97/vrml/VrmlScene.h>
 
+#include <iostream>
+
 class OfficeConnection;
 
 namespace opencover
@@ -54,7 +56,7 @@ public:
 
     virtual VrmlNodeOffice *toOffice() const;
 
-    virtual std::ostream &printFields(ostream &os, int indent);
+    virtual std::ostream &printFields(std::ostream &os, int indent);
 
     virtual void setField(const char *fieldName, const VrmlField &fieldValue);
     const VrmlField *getField(const char *fieldName) const;

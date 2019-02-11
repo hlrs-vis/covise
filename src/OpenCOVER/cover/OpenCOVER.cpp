@@ -89,6 +89,7 @@
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
+#include "ui/Manager.h"
 
 #ifdef _OPENMP
 #include <omp.h>

@@ -55,8 +55,8 @@ private:
     std::vector<std::string> removeQueue;
 
     /// The TabletUI Interface
-    opencover::coTUITab *colorBarTab;
-    opencover::coTUITabFolder *_tabFolder;
+    opencover::coTUITab *colorBarTab = nullptr;
+    opencover::coTUITabFolder *_tabFolder = nullptr;
     int tabID;
 
     // VR Menu

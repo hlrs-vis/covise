@@ -40,28 +40,32 @@
 #endif
 #endif
 
-#include <limits.h>
 #include <osg/Matrix>
 #include <osg/Geode>
+#include <osg/Drawable>
 #include <osg/ClipNode>
+#include <osg/MatrixTransform>
 #include <osgViewer/GraphicsWindow>
 #include <osg/BoundingBox>
 
-#include <deque>
 #include <list>
 #include <ostream>
-#include <OpenVRUI/sginterface/vruiButtons.h>
-#include "coVRPlugin.h"
 
-#include "ui/Manager.h"
-#include "ui/Menu.h"
-#include "ui/ButtonGroup.h"
-#include "ui/VruiView.h"
+#include <OpenVRUI/sginterface/vruiButtons.h>
+
+#include "coVRPlugin.h"
 
 namespace opencover {
 namespace ui {
+class ButtonGroup;
 class Menu;
+class Manager;
+class VruiView;
 }
+}
+
+namespace covise {
+class Message;
 }
 
 #define MAX_NUMBER_JOYSTICKS 64

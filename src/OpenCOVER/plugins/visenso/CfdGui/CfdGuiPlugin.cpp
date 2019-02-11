@@ -16,6 +16,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Manager.h>
 #include <net/message_types.h>
 #include <net/message.h>
 

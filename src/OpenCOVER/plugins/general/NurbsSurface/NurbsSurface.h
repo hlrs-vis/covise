@@ -51,6 +51,8 @@ class coVRSceneView;
 namespace ui {
 class Slider;
 class Label;
+class Action;
+class Button;
 }
 }
 

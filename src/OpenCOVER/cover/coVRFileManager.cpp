@@ -36,6 +36,7 @@
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/FileBrowser.h"
+#include "ui/Menu.h"
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>

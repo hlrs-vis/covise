@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <map>
+#include <iostream>
 
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
@@ -35,6 +36,7 @@
 #include "EditField.h"
 #include "FileBrowser.h"
 #include "CollaborativePartner.h"
+#include "Manager.h"
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRVruiRenderInterface.h>

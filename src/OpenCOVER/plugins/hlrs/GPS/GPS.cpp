@@ -24,6 +24,7 @@
 #include "Track.h"
 #include "File.h"
 #include <time.h>
+#include <iostream>
 
 
 #include <cover/coVRPluginSupport.h>

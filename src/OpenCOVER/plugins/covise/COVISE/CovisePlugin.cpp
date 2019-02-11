@@ -33,6 +33,7 @@
 
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Manager.h>
 
 using namespace covise;
 using namespace opencover;

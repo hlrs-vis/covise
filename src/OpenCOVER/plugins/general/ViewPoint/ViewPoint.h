@@ -24,6 +24,7 @@ namespace ui {
 class Menu;
 class Action;
 class Button;
+class Slider;
 }
 }
 

@@ -11,6 +11,7 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/FileBrowser.h>
+#include <cover/ui/Manager.h>
 
 #include <QMenuBar>
 #include <QToolBar>

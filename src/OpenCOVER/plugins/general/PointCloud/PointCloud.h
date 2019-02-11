@@ -23,6 +23,16 @@
 
 #include "FileInfo.h"
 
+namespace opencover {
+namespace ui {
+class Element;
+class Group;
+class Slider;
+class Menu;
+class Button;
+}
+}
+
 using namespace opencover;
 
 
