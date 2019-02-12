@@ -48,10 +48,7 @@ File::File(const char *filename, osg::Group *parent)
     size_t found = name.find_last_of("/");
     FileGroup = new osg::Group();
     FileGroup->setName("File: " + name.substr(found+1));
-    if (parent)
-        parent->addChild(FileGroup);
-    else
-        GPSPlugin::instance()->OSGGPSPlugin->addChild(FileGroup);
+    parent->addChild(FileGroup);
 
     SwitchPoints = new osg::Switch();
     SwitchPoints->setName("SwitchNode for Points");

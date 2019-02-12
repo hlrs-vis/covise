@@ -53,7 +53,7 @@ public:
     static GPSPlugin *instance(){return plugin;};
 
     float getAlt(double x, double y);
-    void addFile(File *f, osg::Group *parent);
+    void addFile(File *f);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);

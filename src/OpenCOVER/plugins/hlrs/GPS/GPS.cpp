@@ -242,17 +242,9 @@ void GPSPlugin::GPSTab_delete(void)
         delete GPSTab;
     }
 }
-void GPSPlugin::addFile(File *f, osg::Group *parent)
+void GPSPlugin::addFile(File *f)
 {
     fileList.push_back(f);
-    //if(parent)
-    //{
-    //   parent->addChild(f->FileGroup);
-    //}
-    //else
-    //{
-       OSGGPSPlugin->addChild(f->FileGroup);
-    //}
 }
 
 void GPSPlugin::closeImage()
@@ -365,8 +357,10 @@ int GPSPlugin::SloadGPX(const char *filename, osg::Group *parent, const char *)
 }
 int GPSPlugin::loadGPX(const char *filename, osg::Group *parent)
 {
+    if(parent == NULL)
+        parent =OSGGPSPlugin;
     File *f = new File(filename, parent);
-    this->addFile(f,parent);
+    this->addFile(f);
     return 0;
 }
 
