@@ -21,6 +21,8 @@
 
 #include "Spray.h"
 
+#include <cover/ui/Manager.h>
+
 class nozzleManager* nM = nozzleManager::instance();
 
 parser* parser::_instance = 0;
