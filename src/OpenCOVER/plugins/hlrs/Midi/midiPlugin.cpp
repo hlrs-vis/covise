@@ -747,6 +747,7 @@ bool MidiPlugin::init()
 		{
 			nIs[i]->initialPosition.set(sin(angle)*radius, 0, cos(angle)*radius);
 			nIs[i]->initialVelocity.set(sin(angle)*100.0, 1000, cos(angle)*100.0);
+			nIs[i]->initialVelocity.set(sin(angle)*100.0, 1000, cos(angle)*100.0);
 		}
 		else
 		{
@@ -1051,6 +1052,28 @@ void MidiPlugin::MIDItab_create(void)
 		amplitudeSurface->frequencyFactor = value;
 	});
 
+	accelSlider = new ui::Slider(MIDITab, "Acceleration");
+	accelSlider->setText("Acceleration");
+	accelSlider->setBounds(-1000, 100);
+	accelSlider->setValue(acceleration);
+	accelSlider->setCallback([this](float value, bool) {
+		acceleration = value;
+	});
+	raccelSlider = new ui::Slider(MIDITab, "rAcceleration");
+	raccelSlider->setText("rAcceleration");
+	raccelSlider->setBounds(-1, 1);
+	raccelSlider->setValue(rAcceleration);
+	raccelSlider->setCallback([this](float value, bool) {
+		rAcceleration = value;
+	});
+	spiralSpeedSlider = new ui::Slider(MIDITab, "spiralSpeed");
+	spiralSpeedSlider->setText("spiralSpeed");
+	spiralSpeedSlider->setBounds(-5, 5);
+	spiralSpeedSlider->setValue(0.1);
+	spiralSpeedSlider->setCallback([this](float value, bool) {
+		spiralSpeed = value;
+	});
+	
 	trackNumber = new  ui::EditField(MIDITab, "trackNumber");
 	trackNumber->setValue(0);
 	trackNumber->setCallback([this](std::string newVal) {
@@ -1476,16 +1499,21 @@ void Note::integrate(double time)
 	osg::Matrix nm = transform->getMatrix();
 	osg::Vec3 pos = nm.getTrans();
 	osg::Vec3 spiral;
-	spiral[0] = pos[1];
+	osg::Vec3 toCenter;
+	spiral[0] = pos[2];
 	spiral[1] = 0.0;
 	spiral[2] = -pos[0];
-	spiral *= 0.1;
+	spiral *= MidiPlugin::instance()->spiralSpeed;
+	toCenter[0] = -pos[0];
+	toCenter[1] = 0.0;
+	toCenter[2] = -pos[2];
+	toCenter *= MidiPlugin::instance()->rAcceleration;
 	osg::Vec3 a = osg::Vec3(0, -300.0, 0);
-	a = pos;
+	//a = pos;
 	a.normalize();
-	a *= 700;
+	a *= MidiPlugin::instance()->acceleration;
 	velo = velo + a * time;
-	pos += (velo + spiral) * time;
+	pos += (velo + spiral+toCenter) * time;
 	nm.setTrans(pos);
 	transform->setMatrix(nm);
 }
@@ -1501,6 +1529,12 @@ FrequencySurface::~FrequencySurface()
 
 bool FrequencySurface::update()
 {
+
+	coVRShader *wsShader = coVRShaderList::instance()->get("WaveSurface");
+	if (wsShader)
+	{
+		wsShader->apply(geode);
+	}
 
 	createNormals();
 	moveOneLine();
@@ -1554,6 +1588,12 @@ AmplitudeSurface::~AmplitudeSurface()
 
 bool AmplitudeSurface::update()
 {
+	coVRShader *wsShader = coVRShaderList::instance()->get("WaveSurfaceA");
+	if (wsShader)
+	{
+		wsShader->apply(geode);
+	}
+
 	createNormals();
 	moveOneLine();
 	for (int n = 0; n < width; n++)
@@ -1597,18 +1637,13 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
 	width = w;
 	radius1 = 40.0;
 	radius2 = 20.0;
+
 	yStep = 0.6;
 	geode = new osg::Geode();
 	geode->setName("WaveSurface");
 	parent->addChild(geode.get());
 	osg::Geometry *geom = new osg::Geometry();
 	geode->addDrawable(geom);
-
-	coVRShader *wsShader = coVRShaderList::instance()->get("WaveSurface");
-	if (wsShader)
-	{
-		wsShader->apply(geode);
-	}
 
 	geom->setUseDisplayList(false);
 	geom->setUseVertexBufferObjects(true);
@@ -1659,6 +1694,9 @@ WaveSurface::WaveSurface(osg::Group * parent, AudioInStream *s, int w)
 	}
 
 	geoState->setAttributeAndModes(globalDefaultMaterial.get(), osg::StateAttribute::ON);
+	
+	osg::BoundingBox *boundingBox = new osg::BoundingBox(-radius1*2, -radius1*20, -radius1*2,radius1*2, radius1*20, radius1*2);
+        geom->setInitialBound(*boundingBox);
 }
 
 
