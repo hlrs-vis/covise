@@ -51,6 +51,7 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <chrono>
+#include <iostream>
 
 
 osg::ref_ptr<osg::Material> Track::globalDefaultMaterial;
@@ -203,7 +204,8 @@ void Track::readFile (xercesc::DOMElement *node)
         }
     }
     auto end = std::chrono::steady_clock::now();
-    fprintf(stderr, "Trackreading finished after %d milliseconds Trackpoints: %lu\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(),(unsigned long)PointsVec.size());
+    std::cerr << "Trackreading finished after " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+        << "milliseconds Trackpoints: " << PointsVec.size() << "\n";
 }
 
 void Track::drawTrack()

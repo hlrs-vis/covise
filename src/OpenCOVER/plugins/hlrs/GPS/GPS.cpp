@@ -31,6 +31,7 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coBillboard.h>
 #include <cover/coVRLabel.h>
+#include <cover/ui/View.h>
 #include <osg/Group>
 #include <osg/Switch>
 #include <osg/Material>
