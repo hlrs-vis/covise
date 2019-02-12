@@ -42,6 +42,7 @@
 #include <cover/coVRConfig.h>
 
 #include <proj_api.h>
+#include <chrono>
 
 #include <xercesc/dom/DOM.hpp>
 #if XERCES_VERSION_MAJOR < 3
@@ -60,9 +61,16 @@ class coVRLabel;
 // GPSPoint
 GPSPoint::GPSPoint()
 {
-    geoTrans = new osg::MatrixTransform();
     Point = new osg::Group();
-    geoTrans->addChild(Point);
+    geoTrans = new osg::MatrixTransform();
+    geoScale = new osg::MatrixTransform();
+
+    osg::Matrix m;
+    m.makeScale(osg::Vec3(1,1,1));
+    geoScale->setMatrix(m);
+
+    geoScale->addChild(Point);
+    geoTrans->addChild(geoScale);
     switchSphere = new osg::Switch();
     switchSphere->setName("Switch Sphere");
     switchDetail = new osg::Switch();
@@ -83,17 +91,9 @@ void GPSPoint::setIndex(int i)
 {
     Point->setName(std::to_string(i) + ".");
     geoTrans->setName("TM " + std::to_string(i) + ".");
-}
-float GPSPoint::getSpeed()
-{
-    return speed;
+    geoScale->setName("Scale " + std::to_string(i) + ".");
 }
 
-osg::Vec3 GPSPoint::getCoArray()
-{
-    osg::Vec3 cord(longitude,latitude,altitude);
-    return(cord);
-}
 void GPSPoint::readFile (xercesc::DOMElement *node)
 {
     double x;
@@ -102,7 +102,6 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
     double t;
     float v;
     std::string typetext;
-    int type;
     XMLCh *t1 = NULL;
 
     char *lon = xercesc::XMLString::transcode(node->getAttribute(t1 = xercesc::XMLString::transcode("lon"))); xercesc::XMLString::release(&t1);
@@ -202,7 +201,7 @@ void GPSPoint::setPointData (double x, double y, double z, double t, float v, st
     int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
 
     osg::Matrix m;
-    m.makeTranslate(osg::Vec3(longitude,latitude,altitude));
+    m.makeTranslate(osg::Vec3(longitude,latitude,altitude-4));
     geoTrans->setMatrix(m);
 
 
@@ -240,7 +239,11 @@ void GPSPoint::setPointData (double x, double y, double z, double t, float v, st
     {
         PT = Sprachaufnahme;
     }
-    else if(name == "Barriere" || name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
+    else if(name == "Barriere")
+    {
+        PT = Barriere;
+    }
+    else if(name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
     {
         PT = OtherChoice;
     }
@@ -260,42 +263,42 @@ void GPSPoint::draw()
     case Good:
         *color = osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
         //createPictureBox(text = "good" , color);
-        createSign(name = "Heart");
+        createSign(GPSPlugin::instance()->iconGood);
         break;
     case Medium:
         *color = osg::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
         //createPictureBox(text = "medium" , color);
-        createSign(name = "NeutralFace");
+        createSign(GPSPlugin::instance()->iconMedium);
         break;
     case Bad:
         *color = osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f);
         //createPictureBox(text = "bad" , color);
-        createSign(name = "Sad");
+        createSign(GPSPlugin::instance()->iconBad);
         break;
     case Angst:
         *color = osg::Vec4(0.5f, 1.0f, 1.0f, 1.0f);
         //createPictureBox(text = "Angst" , color);
-        createSign(name = "Fear");
+        createSign(GPSPlugin::instance()->iconAngst);
         break;
     case Text:
         *color = osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f);
         //createTextBox();
-        createSign(name = "Pencil");
+        createSign(GPSPlugin::instance()->iconText);
         break;
     case Foto:
         *color = osg::Vec4(0.5f, 0.0f, 1.0f, 1.0f);
         //createPictureBox(text = "FOTO" , color);
-        createSign(name = "Foto");
+        createSign(GPSPlugin::instance()->iconFoto);
         break;
     case Sprachaufnahme:
         *color = osg::Vec4(0.0f, 0.5f, 1.0f, 1.0f);
         //createPictureBox(text = "Audio" , color);
-        createSign(name = "Microphone");
+        createSign(GPSPlugin::instance()->iconSprachaufnahme);
         break;
     case OtherChoice:
         *color = osg::Vec4(0.5f, 0.5f, 1.0f, 1.0f);
         //createPictureBox(text = "Something different" , color);
-        createSign(name =  "Barrier");
+        createSign(GPSPlugin::instance()->iconBarriere);
         break;
     }
     createSphere(color);
@@ -303,9 +306,9 @@ void GPSPoint::draw()
 
 void GPSPoint::createSphere(osg::Vec4 *colVec)
 {
-    float Radius = 10.0f;
+    float Radius = 5.0f;
 
-    sphere = new osg::Sphere(osg::Vec3(0, 0 , 0), Radius);
+    sphere = new osg::Sphere(osg::Vec3(0, 0 , 5), Radius);
 
     osg::ref_ptr<osg::Material> material_sphere = new osg::Material();
     material_sphere->setDiffuse(osg::Material::FRONT_AND_BACK, *colVec);
@@ -336,16 +339,18 @@ void GPSPoint::createBillboard()
 
     switchDetail->addChild(BBoard);
 }
-void GPSPoint::createSign(std::string name)
+void GPSPoint::createSign(osg::Image *img)
 {
+
     createBillboard();
 
+    auto start = std::chrono::steady_clock::now();
     osg::Geode *signGeode = new osg::Geode();
     signGeode->setName(text.c_str());
 
     osg::StateSet *signStateSet = signGeode->getOrCreateStateSet();
 
-    signStateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    signStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     signStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
     osg::CullFace *cullFace = new osg::CullFace();
     cullFace->setMode(osg::CullFace::BACK);
@@ -353,89 +358,53 @@ void GPSPoint::createSign(std::string name)
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.0);
     signStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
+    float hsize = 1;
+    float vsize = 1;
 
-
-    float hsize = 0.6;
-    float vsize = 0.6;
-
-    float aspectRatio;
-    bool flat = true;
-    int type;
-    int subtype;
-    std::string subclass;
-    std::string country;
-    bool realScale = true;
     bool withPost = true;
 
-    std::string fn = "share/covise/herrenberg/icons/" + name + ".png";
-    const char *fileName = opencover::coVRFileManager::instance()->getName(fn.c_str());
+    osg::Texture2D *signTex = new osg::Texture2D;
+    signTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+    signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
 
-    if (fileName)
+    signTex->setImage(img);
+
+    signStateSet->setTextureAttributeAndModes(3, signTex, osg::StateAttribute::ON);
+
+    // TODO implement shader for signs and street marks
+    if (streetmarkMaterial.get() == NULL)
     {
-        osg::Image *signTexImage = osgDB::readImageFile(fileName);
-        osg::Texture2D *signTex = new osg::Texture2D;
-        signTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-        signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-        hsize = signTexImage->s() / 2000.0;
-        vsize = signTexImage->t() / 1000.0;
-        aspectRatio = hsize / vsize;
-
-        if (signTexImage)
-            signTex->setImage(signTexImage);
-        signStateSet->setTextureAttributeAndModes(3, signTex, osg::StateAttribute::ON);
-
-        // TODO implement shader for signs and street marks
-        if (streetmarkMaterial.get() == NULL)
-        {
-            streetmarkMaterial = new osg::Material;
-            streetmarkMaterial->ref();
-            streetmarkMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-            streetmarkMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
-            streetmarkMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-            streetmarkMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
-            streetmarkMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
-            streetmarkMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
-        }
-
-        signStateSet->setAttributeAndModes(streetmarkMaterial.get(), osg::StateAttribute::ON);
-        if (flat)
-        {
-
-            signTex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
-            signTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
-        }
-        else
-        {
-            signStateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
-        }
-    }
-    else
-    {
-        fprintf(stderr, "couldnt find image\n");
+        streetmarkMaterial = new osg::Material;
+        streetmarkMaterial->ref();
+        streetmarkMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+        streetmarkMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+        streetmarkMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+        streetmarkMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     }
 
-    if (realScale)
-    {
-            hsize = 1;
-            vsize = 1;
-    }
+    signStateSet->setAttributeAndModes(streetmarkMaterial.get(), osg::StateAttribute::ON);
+
+    signTex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+    signTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
 
     float pr = 0.03;
     float height = 2.5;
     osg::Vec3 v[12];
-    v[0].set(-hsize / 2.0, 0, 0);
-    v[1].set(hsize / 2.0, 0, 0);
-    v[2].set(hsize / 2.0, 0, vsize);
-    v[3].set(-hsize / 2.0, 0, vsize);
+    v[0].set(-hsize / 2.0, 0, 0 +height);
+    v[1].set(hsize / 2.0, 0, 0 +height);
+    v[2].set(hsize / 2.0, 0, vsize +height);
+    v[3].set(-hsize / 2.0, 0, vsize +height);
 
-    v[4].set(-pr, 0.01, vsize * 0.8);
-    v[5].set(-pr, 0.01 + 2 * pr, vsize * 0.8);
-    v[6].set(pr, 0.01 + 2 * pr, vsize * 0.8);
-    v[7].set(pr, 0.01, vsize * 0.8);
-    v[8].set(-pr, 0.01, -height);
-    v[9].set(-pr, 0.01 + 2 * pr, -height);
-    v[10].set(pr, 0.01 + 2 * pr, -height);
-    v[11].set(pr, 0.01, -height);
+    v[4].set(-pr, 0.01, vsize * 0.8 +height);
+    v[5].set(-pr, 0.01 + 2 * pr, vsize * 0.8 +height);
+    v[6].set(pr, 0.01 + 2 * pr, vsize * 0.8 +height);
+    v[7].set(pr, 0.01, vsize * 0.8 +height);
+    v[8].set(-pr, 0.01, 0);
+    v[9].set(-pr, 0.01 + 2 * pr, 0);
+    v[10].set(pr, 0.01 + 2 * pr, 0);
+    v[11].set(pr, 0.01, 0);
 
     osg::Vec3 np[4];
     np[0].set(-0.7, -0.7, 0);
@@ -485,7 +454,7 @@ void GPSPoint::createSign(std::string name)
     if (withPost)
     {
         osg::Vec2 tc;
-        tc.set(0.75, 0.5);
+        tc.set(0.5, 0.02);
         signVertices->push_back(v[4]);
         signTexCoords->push_back(tc);
         signNormals->push_back(np[0]);
@@ -542,6 +511,10 @@ void GPSPoint::createSign(std::string name)
     osg::DrawArrays *sign = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, signVertices->size());
     signGeometry->addPrimitiveSet(sign);
     BBoard->addChild(signGeode);
+
+    auto end = std::chrono::steady_clock::now();
+    fprintf(stderr, "Signcreation %d microseconds\n", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+
 }
 void GPSPoint::createTextBox()
 {

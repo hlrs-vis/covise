@@ -36,7 +36,7 @@ using namespace covise;
 class GPSPoint
 {
 private:
-    enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,OtherChoice};
+    enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,Barriere, OtherChoice};
     pointType PT;
     double longitude;
     double latitude;
@@ -56,15 +56,14 @@ public:
     void draw();
     void createSphere(osg::Vec4 *colVec);
     void createDetail();
-    void createSign(std::string sname);
+    void createSign(osg::Image *img);
     void createBillboard();
     void createTextBox();
     void createPictureBox(std::string &text, osg::Vec4 *colVec);
-    osg::Vec3 getCoArray();
-    float getSpeed();
     void readFile(xercesc::DOMElement *node);
     osg::ref_ptr<osg::Group> Point;
     osg::ref_ptr<osg::MatrixTransform> geoTrans;
+    osg::ref_ptr<osg::MatrixTransform> geoScale;
     osg::ref_ptr<osg::Switch> switchSphere;
     osg::ref_ptr<osg::Switch> switchDetail;
     osg::ref_ptr<coBillboard> BBoard;

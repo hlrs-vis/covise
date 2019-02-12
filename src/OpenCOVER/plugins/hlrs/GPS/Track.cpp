@@ -85,33 +85,7 @@ void Track::addPoint(double x, double y, double v)
 
     PointsVec.push_back(arr);
 }
-void Track::transformxy()
-{
-    int s = PointsVec.size();
-    for (int i = 0; i < s; ++i)
-    {
-        std::array<double, 4> a1 = PointsVec.at(i);
-        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &a1.at(0), &a1.at(1), NULL);
-        if(error !=0 )
-        {
-            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
-            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
-        }
-    }
-}
-/*
-void Track::transformxy2()
-{
-    for (std::array<double, 4> arr = PointsVec.front(); arr.empty() != true; arr=std::next(arr,1) ){
-        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
-        if(error !=0 )
-        {
-            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
-            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
-        }
-    }
-}
-*/
+
 void Track::drawBirdView()
 {
     //for (std::list<GPSPoint*>::iterator it = TrackPoints.begin(); it != TrackPoints.end(); it++){

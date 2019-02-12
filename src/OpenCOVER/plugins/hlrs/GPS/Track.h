@@ -49,8 +49,6 @@ public:
     void drawBirdView();
     void readFile(xercesc::DOMElement *node);
     void drawTrack();
-    void transformxy();
-    void transformxy2();
     osg::ref_ptr<osg::Group> SingleTrack;
     static osg::ref_ptr<osg::Material> globalDefaultMaterial;
     std::vector<std::array<double,4>> PointsVec;

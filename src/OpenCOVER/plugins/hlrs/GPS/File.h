@@ -37,7 +37,7 @@ class File
 {
 public:
     File();
-    File(const char *filename);
+    File(const char *filename, osg::Group *parent);
     ~File();
     void readFile(const std::string &filename);
     void addTrack(Track *p);

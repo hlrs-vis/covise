@@ -54,8 +54,6 @@ public:
 
     float getAlt(double x, double y);
     void addFile(File *f, osg::Group *parent);
-    void changeLinewidth(float linewidth);
-    void changePointSize(float linewidth);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);
@@ -70,6 +68,16 @@ public:
     ui::Slider *PointSizeSlider=nullptr;
 
     osg::ref_ptr<osg::Group> OSGGPSPlugin;
+
+    osg::ref_ptr<osg::Image> iconGood;
+    osg::ref_ptr<osg::Image> iconMedium;
+    osg::ref_ptr<osg::Image> iconBad;
+    osg::ref_ptr<osg::Image> iconAngst;
+    osg::ref_ptr<osg::Image> iconText;
+    osg::ref_ptr<osg::Image> iconFoto;
+    osg::ref_ptr<osg::Image> iconSprachaufnahme;
+    osg::ref_ptr<osg::Image> iconBarriere;
+
     coVRLabel *Label;
     float zOffset=4.0;
 

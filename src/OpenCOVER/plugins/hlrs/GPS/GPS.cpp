@@ -40,6 +40,7 @@
 #include <config/CoviseConfig.h>
 #include <osg/LineWidth>
 #include <osg/Point>
+#include <osgDB/ReadFile>
 
 
 #include <xercesc/dom/DOM.hpp>
@@ -126,6 +127,17 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     std::string heightMapFileName = coCoviseConfig::getEntry("heightMap", "COVER.Plugin.GPS", "/data/reallabor/gelaende/Herrenberg10mwgs84.tif");
     openImage(heightMapFileName);
 
+
+    /* for sign icons*/
+    iconGood = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/HappyFace.png"));
+    iconMedium = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/NeutralFace.png"));
+    iconBad = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Sad.png"));
+    iconAngst = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/ShockFace.png"));
+    iconText = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Page.png"));
+    iconFoto = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Camera.png"));
+    iconSprachaufnahme = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Speechbubble.png"));
+    iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
+
 }
 
 
@@ -198,15 +210,27 @@ void GPSPlugin::GPSTab_create(void)
     TrackSizeSlider->setScale(ui::Slider::Linear);
     TrackSizeSlider->setValue(5);
     TrackSizeSlider->setCallback([this](double value, bool released){
-        changeLinewidth( value);
+        for (auto *f : fileList){
+            for (auto *t : f->allTracks){
+                osg::StateSet *geoState = t->geode->getOrCreateStateSet();
+                osg::LineWidth *lineWidth = new osg::LineWidth(value);
+                geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
+            }
+        }
     });
     PointSizeSlider = new ui::Slider(GPSTab, "Scale Pointsize");
     PointSizeSlider->setVisible(false, ui::View::VR);
-    PointSizeSlider->setBounds(1, 100);
+    PointSizeSlider->setBounds(0.1, 100);
     PointSizeSlider->setScale(ui::Slider::Logarithmic);
-    PointSizeSlider->setValue(5);
+    PointSizeSlider->setValue(1);
     PointSizeSlider->setCallback([this](double value, bool released){
-        changePointSize( value);
+        for (auto *f : fileList){
+            for (auto *p : f->allPoints){
+                osg::Matrix m;
+                m.makeScale(osg::Vec3(value,value,value));
+                p->geoScale->setMatrix(m);
+            }
+        }
     });
 
 }
@@ -300,27 +324,6 @@ void GPSPlugin::openImage(std::string &name)
 
         }
 }
-void GPSPlugin::changeLinewidth(float linewidth)
-{
-    for (auto *f : fileList){
-        for (auto *t : f->allTracks){
-            osg::StateSet *geoState = t->geode->getOrCreateStateSet();
-            osg::LineWidth *lineWidth = new osg::LineWidth(linewidth);
-            geoState->setAttributeAndModes(lineWidth, osg::StateAttribute::ON);
-        }
-    }
-}
-void GPSPlugin::changePointSize(float radius)
-{
-    for (auto *f : fileList){
-        for (auto *p : f->allPoints){
-            p->sphere->setRadius(radius);
-            //printf("getradius: %f \n", p->sphere->getRadius());
-            p->sphereD->setShape(NULL);
-            p->sphereD->setShape(p->sphere);
-        }
-    }
-}
 
 float GPSPlugin::getAlt(double x, double y)
 {
@@ -362,7 +365,7 @@ int GPSPlugin::SloadGPX(const char *filename, osg::Group *parent, const char *)
 }
 int GPSPlugin::loadGPX(const char *filename, osg::Group *parent)
 {
-    File *f = new File(filename);
+    File *f = new File(filename, parent);
     this->addFile(f,parent);
     return 0;
 }
