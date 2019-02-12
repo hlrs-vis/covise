@@ -246,10 +246,10 @@ EnFile::createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **out
     outObjects2d[timeStep] = NULL;
     outObjects3d[timeStep] = NULL;
 }
-void EnFile::createDataOutObj(ReadEnsight * ens, dimType dim, coDistributedObject ** outObjects, const string & baseName, int & timeStep, bool perVertex)
+void EnFile::createDataOutObj(ReadEnsight * ens, dimType dim, coDistributedObject ** outObjects, const string & baseName, int & timeStep, int numTimeSteps, bool perVertex)
 {
     // create DO's
-    coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep,perVertex);
+    coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep, numTimeSteps,perVertex);
 
     dc_.cleanAll();
 

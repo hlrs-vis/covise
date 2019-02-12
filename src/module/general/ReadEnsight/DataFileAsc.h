@@ -31,9 +31,9 @@ public:
     DataFileAsc(const coModule *mod);
     DataFileAsc(const coModule *mod, const string &name, const int &dim, const int &numVals);
 
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
+    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
-    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep);
+    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
     void setIndexMap(const int *im);
 

@@ -79,7 +79,7 @@ DataFileAsc::setIndexMap(const int *im)
 // read data
 //
 void
-DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (!isOpen_)
         return;
@@ -133,7 +133,7 @@ DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObject
         }
     }
 
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
+    createDataOutObj(ens, dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //
@@ -144,7 +144,7 @@ DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObject
 // corresponding geometry file
 //
 void
-DataFileAsc::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileAsc::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
