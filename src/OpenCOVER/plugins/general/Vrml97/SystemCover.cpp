@@ -1148,11 +1148,8 @@ Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::ref_ptr<osg::Group> g = new osg::Group;
     std::string n(name);
-    std::string cached = n;
 
-    coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
-    if (g->getNumChildren() <= 0)
-        coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
+    coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
 
     if (g->getNumChildren() > 0)
     {
