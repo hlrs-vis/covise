@@ -180,29 +180,91 @@ void GPSPlugin::GPSTab_create(void)
     });
     TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
     TogglePoints->setCallback([this](bool) {
-        for (auto *x : fileList){
-            if(x->SwitchPoints->getNewChildDefaultValue()){
-                x->SwitchPoints->setAllChildrenOff();
-            }
-            else {
-                x->SwitchPoints->setAllChildrenOn();
+        bool tmp = true;
+        for (auto *f : fileList){
+            for (auto *p : f->allPoints){
+                if(showPoints){
+                    p->switchSphere->setAllChildrenOff();
+                    p->switchDetail->setAllChildrenOff();
+                    tmp = false;
+                }
+                else {
+                    if(detailView){
+                        p->switchDetail->setAllChildrenOn();
+                    }
+                    else {
+                        p->switchSphere->setAllChildrenOn();
+                    }
+                }
             }
         }
+        showPoints = tmp;
     });
     ToggleLOD = new ui::Button(GPSTab, "Toggle Sphere - Detail view");
     ToggleLOD->setCallback([this](bool) {
+        bool tmp = true;
         for (auto *f : fileList){
             for (auto *p : f->allPoints){
-                if(p->switchSphere->getNewChildDefaultValue()){
+                if(detailView){
+                    p->switchSphere->setAllChildrenOn();
+                    p->switchDetail->setAllChildrenOff();
+                    tmp = false;
+                }
+                else {
                     p->switchSphere->setAllChildrenOff();
                     p->switchDetail->setAllChildrenOn();
                 }
-                else {
-                    p->switchSphere->setAllChildrenOn();
-                    p->switchDetail->setAllChildrenOff();
-                }
             }
         }
+        detailView = tmp;
+    });
+    ToggleGood = new ui::Button(GPSTab, "Good ON/OFF");
+    ToggleGood->setText("Good ON/OFF");
+    ToggleGood->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Good;
+        toggleDetail(type);
+    });
+    ToggleMedium = new ui::Button(GPSTab, "Medium ON/OFF");
+    ToggleMedium->setText("Medium ON/OFF");
+    ToggleMedium->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Medium;
+        toggleDetail(type);
+    });
+    ToggleBad = new ui::Button(GPSTab, "Bad ON/OFF");
+    ToggleBad->setText("Bad ON/OFF");
+    ToggleBad->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Bad;
+        toggleDetail(type);
+    });
+    ToggleAngst = new ui::Button(GPSTab, "Angst ON/OFF");
+    ToggleAngst->setText("Angst ON/OFF");
+    ToggleAngst->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Angst;
+        toggleDetail(type);
+    });
+    ToggleText = new ui::Button(GPSTab, "Text ON/OFF");
+    ToggleText->setText("Text ON/OFF");
+    ToggleText->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Text;
+        toggleDetail(type);
+    });
+    ToggleFoto = new ui::Button(GPSTab, "Foto ON/OFF");
+    ToggleFoto->setText("Foto ON/OFF");
+    ToggleFoto->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Foto;
+        toggleDetail(type);
+    });
+    ToggleSprachaufnahme = new ui::Button(GPSTab, "Sprachaufnahme ON/OFF");
+    ToggleSprachaufnahme->setText("Sprachaufnahme ON/OFF");
+    ToggleSprachaufnahme->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Sprachaufnahme;
+        toggleDetail(type);
+    });
+    ToggleBarriere = new ui::Button(GPSTab, "Barriere ON/OFF");
+    ToggleBarriere->setText("Barriere ON/OFF");
+    ToggleBarriere->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Barriere;
+        toggleDetail(type);
     });
     TrackSizeSlider = new ui::Slider(GPSTab, "Scale Tracksize");
     TrackSizeSlider->setVisible(false, ui::View::VR);
@@ -234,6 +296,32 @@ void GPSPlugin::GPSTab_create(void)
     });
 
 }
+void GPSPlugin::toggleDetail(GPSPoint::pointType type)
+{
+    for (auto *f : fileList){
+        for (auto *p : f->allPoints){
+            if (p->PT == type)
+            {
+                if(p->switchSphere->getNewChildDefaultValue() || p->switchDetail->getNewChildDefaultValue())
+                {
+                    p->switchSphere->setAllChildrenOff();
+                    p->switchDetail->setAllChildrenOff();
+                }
+                else {
+                    if(detailView){
+                        p->switchSphere->setAllChildrenOff();
+                        p->switchDetail->setAllChildrenOn();
+                    }
+                    else {
+                        p->switchSphere->setAllChildrenOn();
+                        p->switchDetail->setAllChildrenOff();
+                    }
+                }
+            }
+        }
+    }
+}
+
 void GPSPlugin::GPSTab_delete(void)
 {
     if (GPSTab)

@@ -35,9 +35,10 @@ using namespace covise;
 //Single Point
 class GPSPoint
 {
-private:
+public:
     enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,Barriere, OtherChoice};
     pointType PT;
+private:
     double longitude;
     double latitude;
     double altitude;
@@ -50,7 +51,6 @@ public:
     GPSPoint();
     GPSPoint(osg::Group *parent);
     ~GPSPoint();  
-    pointType gettype (void);
     void setPointData (double x, double y, double z, double time, float v, std::string &name);
     void setIndex(int i);
     void draw();

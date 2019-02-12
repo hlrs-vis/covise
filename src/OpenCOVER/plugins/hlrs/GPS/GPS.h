@@ -61,8 +61,16 @@ public:
     ui::Menu *GPSTab = nullptr;
     ui::Label *infoLabel = nullptr;
     ui::Button *Toggle = nullptr;
-    ui::Button *TogglePoints = nullptr;
     ui::Button *ToggleTracks = nullptr;
+    ui::Button *TogglePoints = nullptr;
+    ui::Button *ToggleGood = nullptr;
+    ui::Button *ToggleMedium = nullptr;
+    ui::Button *ToggleBad = nullptr;
+    ui::Button *ToggleAngst = nullptr;
+    ui::Button *ToggleText = nullptr;
+    ui::Button *ToggleFoto = nullptr;
+    ui::Button *ToggleSprachaufnahme = nullptr;
+    ui::Button *ToggleBarriere = nullptr;
     ui::Button *ToggleLOD = nullptr;
     ui::Slider *TrackSizeSlider=nullptr;
     ui::Slider *PointSizeSlider=nullptr;
@@ -80,6 +88,8 @@ public:
 
     coVRLabel *Label;
     float zOffset=4.0;
+    bool detailView = true;
+    bool showPoints = true;
 
     std::string dir;//Coordinates
     projPJ pj_from, pj_to;//Coordinates
@@ -90,6 +100,7 @@ private:
     static GPSPlugin *plugin;
     bool update();
     void closeImage();
+    void toggleDetail(GPSPoint::pointType type);
     void openImage(std::string &name);
     int loadGPX(const char *filename, osg::Group *parent);
     int unloadGPX(const char *filename);

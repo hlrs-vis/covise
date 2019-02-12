@@ -61,31 +61,29 @@ class coVRLabel;
 // GPSPoint
 GPSPoint::GPSPoint()
 {
-    Point = new osg::Group();
     geoTrans = new osg::MatrixTransform();
     geoScale = new osg::MatrixTransform();
+    Point = new osg::Group();
 
     osg::Matrix m;
     m.makeScale(osg::Vec3(1,1,1));
     geoScale->setMatrix(m);
 
-    geoScale->addChild(Point);
-    geoTrans->addChild(geoScale);
     switchSphere = new osg::Switch();
     switchSphere->setName("Switch Sphere");
+    switchSphere->setNewChildDefaultValue(false);
     switchDetail = new osg::Switch();
     switchDetail->setName("Switch Detail");
-    switchDetail->setNewChildDefaultValue(false);
+    switchDetail->setNewChildDefaultValue(true);
+
+    geoTrans->addChild(geoScale);
+    geoScale->addChild(Point);
     Point->addChild(switchSphere);
     Point->addChild(switchDetail);
 }
 GPSPoint::~GPSPoint()
 {
     fprintf(stderr, "GPSPoint deleted\n");
-}
-GPSPoint::pointType GPSPoint::gettype (void)
-{
-    return PT;
 }
 void GPSPoint::setIndex(int i)
 {
@@ -295,10 +293,15 @@ void GPSPoint::draw()
         //createPictureBox(text = "Audio" , color);
         createSign(GPSPlugin::instance()->iconSprachaufnahme);
         break;
-    case OtherChoice:
+    case Barriere:
         *color = osg::Vec4(0.5f, 0.5f, 1.0f, 1.0f);
         //createPictureBox(text = "Something different" , color);
         createSign(GPSPlugin::instance()->iconBarriere);
+        break;
+    case OtherChoice:
+        *color = osg::Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        //createPictureBox(text = "Something different" , color);
+        //createSign(GPSPlugin::instance()->iconBarriere);
         break;
     }
     createSphere(color);
@@ -397,10 +400,10 @@ void GPSPoint::createSign(osg::Image *img)
     v[2].set(hsize / 2.0, 0, vsize +height);
     v[3].set(-hsize / 2.0, 0, vsize +height);
 
-    v[4].set(-pr, 0.01, vsize * 0.8 +height);
-    v[5].set(-pr, 0.01 + 2 * pr, vsize * 0.8 +height);
-    v[6].set(pr, 0.01 + 2 * pr, vsize * 0.8 +height);
-    v[7].set(pr, 0.01, vsize * 0.8 +height);
+    v[4].set(-pr, 0.01,+height);
+    v[5].set(-pr, 0.01 + 2 * pr,  +height);
+    v[6].set(pr, 0.01 + 2 * pr,  +height);
+    v[7].set(pr, 0.01, +height);
     v[8].set(-pr, 0.01, 0);
     v[9].set(-pr, 0.01 + 2 * pr, 0);
     v[10].set(pr, 0.01 + 2 * pr, 0);
