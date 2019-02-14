@@ -103,7 +103,8 @@ private:
     void incbuf(int size = 100);
 
 public:
-    TokenBuffer(bool nbo = false);
+    TokenBuffer();
+    explicit TokenBuffer(bool nbo);
     TokenBuffer(int al, bool nbo = false);
     virtual ~TokenBuffer();
 

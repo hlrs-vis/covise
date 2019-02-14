@@ -456,7 +456,6 @@ void coVrbRegEntry::updateVRB()
 //==========================================================================
 coVrbRegEntry::coVrbRegEntry(const char *cl, int ID, const char *var)
 {
-    _val = "";
     _ID = ID;
     _isDeleted = false;
     _changedByMe = false;
