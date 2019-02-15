@@ -80,7 +80,7 @@ public:
     static const char *getHostaddress();
     static std::string getUsername();
     int getID();
-    std::set<int> *getSessions();
+    std::set<int> getSessions();
     int getSessionID();
     void setSessionID(int id);
     int getNumberOfPartners();

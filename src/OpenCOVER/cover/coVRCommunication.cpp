@@ -151,9 +151,9 @@ int coVRCommunication::getID()
     return myID;
 }
 
-std::set<int> *opencover::coVRCommunication::getSessions()
+std::set<int> opencover::coVRCommunication::getSessions()
 {
-  return &me->getSessions();
+  return me->getSessions();
 }
 
 int opencover::coVRCommunication::getSessionID()

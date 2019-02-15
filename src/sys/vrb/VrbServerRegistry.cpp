@@ -216,7 +216,7 @@ void VrbServerRegistry::observeVar(int ID, const std::string &className, int rec
     auto classIt = idIt->second.find(className);
     if(classIt == idIt->second.end()) //if class does not exists create it
     {
-        serverRegClass *rc = new serverRegClass(className, ID);
+        auto rc = std::make_shared<serverRegClass>(className, ID);
         classIt = idIt->second.emplace(className, rc).first;
     }
     classIt->second->observeVar(recvID, variableName, value);
@@ -246,7 +246,7 @@ void VrbServerRegistry::observeClass(int ID, const std::string &className, int r
     auto classIt = idIt->second.find(className);
     if (classIt == idIt->second.end()) //if class does not exists create it
     {
-        serverRegClass *rc = new serverRegClass(className, ID);
+        auto rc = std::make_shared<serverRegClass>(className, ID);
         classIt = idIt->second.emplace(className, rc).first;
     }
     classIt->second->observe(recvID);

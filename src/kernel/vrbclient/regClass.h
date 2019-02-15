@@ -7,15 +7,14 @@
 
 #ifndef REGCLASS_H
 #define REGCLASS_H
-#include <net/covise_connect.h>
+
 #include <net/tokenbuffer.h>
-#include <vrbclient/VRBClient.h>
 #include <map>
 #include <set>
+#include <memory>
 #include <util/coExport.h>
 
 class coCharBuffer;
-
 class clientRegClass;
 class clientRegVar;
 class serverRegVar;
@@ -23,6 +22,10 @@ class serverRegClass;
 class regClassObserver;
 class regVarObserver;
 class VrbClientRegistry;
+
+namespace covise {
+class VRBClient;
+}
 
 template<class variableType>
 class regClass

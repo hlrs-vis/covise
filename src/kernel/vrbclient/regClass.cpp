@@ -9,6 +9,7 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <vrbclient/VrbClientRegistry.h>
+#include <vrbclient/VRBClient.h>
 
 using namespace covise;
 /////////////CLIENTREGVAR//////////////////////////////////////////////////

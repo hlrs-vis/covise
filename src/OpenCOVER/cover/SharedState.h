@@ -14,14 +14,14 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #ifndef VRB_SHAREDSTATE_H
 #define VRB_SHAREDSTATE_H
 	
+#include <vector>
 #include <string>
 #include <functional>
+#include <cassert>
 
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
 #include <vrbclient/regClass.h>
-#include <functional>
-#include <cassert>
 
 class clientRegVar;
 namespace opencover {

@@ -477,7 +477,7 @@ float coVRCollaboration::getSyncInterval()
 
 void opencover::coVRCollaboration::updateSessionSelectionList()
 {
-    m_sessions = *coVRCommunication::instance()->getSessions();
+    m_sessions = coVRCommunication::instance()->getSessions();
     std::vector<std::string> sessions;
     for (auto it = m_sessions.begin(); it != m_sessions.end(); ++it)
     {

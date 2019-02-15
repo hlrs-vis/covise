@@ -30,7 +30,6 @@ class VrbServerRegistry
        /// constructor initializes Variables with values from yac.config:regVariables
         VrbServerRegistry();
         ~VrbServerRegistry();
-        int regMode;
 
 
     std::map<int, std::shared_ptr<serverRegClass>> getClasses(const std::string &name);
