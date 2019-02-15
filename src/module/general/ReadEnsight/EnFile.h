@@ -139,11 +139,11 @@ public:
     BinType binType();
 
     // read the file
-    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
     // read the file
-    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
     // read cell based data
-    virtual void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
 
     // Return data in data container.
     // this function is dangerous as only adresses are returned
@@ -171,7 +171,7 @@ public:
     // Ensight Geometry
     static EnFile *createGeometryFile(const coModule *mod, const CaseFile &c, const string &filename);
     void createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
-    void createDataOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, bool perVertex=true);
+    void createDataOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps, bool perVertex=true);
  
     void setActiveAlloc(const bool &b);
 

@@ -34,6 +34,8 @@
 #include <QTextStream>
 #include <QFile>
 
+#include <iostream>
+
 using namespace covise;
 using namespace opencover;
 //#define FILEBROWSER_DEBUG

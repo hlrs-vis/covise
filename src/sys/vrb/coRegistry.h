@@ -118,7 +118,7 @@ public:
 	{
 		type = v.type;
 		ch = v.ch;
-		tb = v.tb;
+        tb.copy(v.tb);
 	}
 
 	regVarVal &operator=(char *other) {
@@ -148,7 +148,7 @@ public:
 	regVarVal &operator=(covise::TokenBuffer &&other) {
 		if (type == 2)
 		{
-			other = tb;
+            tb = std::move(other);
 		}
 		else
 		{
@@ -162,7 +162,7 @@ public:
 	}
 private:
 	char *ch = nullptr;
-	covise::TokenBuffer *tb;
+    covise::TokenBuffer tb;
 	int type; //0 for undefined, 1 for char, 2 for tokenbuffer
 };
 class regClass : public covise::coDLPtrList<regVar *>

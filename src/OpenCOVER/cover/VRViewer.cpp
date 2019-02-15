@@ -52,6 +52,7 @@
 #include "tridelity.h"
 #include "ui/Button.h"
 #include "ui/SelectionList.h"
+#include "ui/Menu.h"
 #include "coVRStatsDisplay.h"
 
 #include <osg/LightSource>

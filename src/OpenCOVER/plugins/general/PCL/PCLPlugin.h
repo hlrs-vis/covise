@@ -20,20 +20,11 @@
 **                                                                          **
 **                                                                          **
 \****************************************************************************/
-#include <cover/coVRPluginSupport.h>
-#include <cover/coVRFileManager.h>
+#include <cover/coVRPlugin.h>
+#include <cover/coTabletUI.h>
+
 using namespace covise;
 using namespace opencover;
-
-#include "cover/coTabletUI.h"
-#include <osg/Geode>
-#include <osg/ref_ptr>
-#include <osg/Geometry>
-#include <osg/Material>
-#include <osg/LineWidth>
-#include <PluginUtil/coSphere.h>
-#include <QStringList>
-#include <QMap>
 
 class PCLPlugin : public coVRPlugin, public coTUIListener
 {

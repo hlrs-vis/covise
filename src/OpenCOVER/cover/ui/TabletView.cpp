@@ -1,6 +1,7 @@
 #include "TabletView.h"
 
 #include <cassert>
+#include <iostream>
 
 #include "Element.h"
 #include "Menu.h"
@@ -562,13 +563,11 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
         if (auto ts = dynamic_cast<coTUIFloatSlider *>(elem))
         {
             s->setValue(ts->getValue());
-            s->setMoving(true);
             s->trigger();
         }
         else if (auto ts = dynamic_cast<coTUISlider *>(elem))
         {
             s->setValue(ts->getValue());
-            s->setMoving(true);
             s->trigger();
         }
     }
@@ -606,6 +605,19 @@ void TabletViewElement::tabletEvent(coTUIElement *elem)
 void TabletViewElement::tabletPressEvent(coTUIElement *elem)
 {
     //std::cerr << "tabletPressEvent: " << element->path() << std::endl;
+    if (auto s = dynamic_cast<Slider *>(element))
+    {
+        if (auto ts = dynamic_cast<coTUIFloatSlider *>(elem))
+        {
+            s->setMoving(true);
+            s->trigger();
+        }
+        else if (auto ts = dynamic_cast<coTUISlider *>(elem))
+        {
+            s->setMoving(true);
+            s->trigger();
+        }
+    }
 }
 
 void TabletViewElement::tabletReleaseEvent(coTUIElement *elem)

@@ -84,7 +84,7 @@ EnGoldGeoBIN::EnGoldGeoBIN(const coModule *mod, const string &name, EnFile::BinT
 // thats the gereral read method
 //
 void
-EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
+EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     //cerr << className_ << "::read() called" << endl;
     module_->sendInfo("%s", "start reading parts  -  please be patient..");

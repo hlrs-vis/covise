@@ -50,6 +50,8 @@
 #include "PorscheFFZ.h"
 #include <RoadTerrain/RoadTerrainLoader.h>
 
+#include <functional>
+
 using namespace covise;
 using namespace opencover;
 int TrafficSimulation::counter = 0;

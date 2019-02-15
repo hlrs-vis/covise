@@ -26,6 +26,7 @@
 #include <QDir>
 #include <config/coConfig.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
 #include <osg/Geode>

@@ -15,6 +15,7 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #define VRB_SHAREDSTATE_H
 	
 #include <string>
+#include <functional>
 
 #include <net/tokenbuffer.h>
 #include <net/message.h>

@@ -65,6 +65,7 @@
 #include <ui/Button.h>
 #include <ui/ButtonGroup.h>
 #include <ui/Slider.h>
+#include <ui/View.h>
 #include "coVRIntersectionInteractorManager.h"
 #include "coMeasurement.h"
 

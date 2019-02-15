@@ -89,6 +89,7 @@
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
+#include "ui/Manager.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -1147,6 +1148,23 @@ bool OpenCOVER::frame()
         render = true;
     }
 
+    if (VRViewer::instance()->getRunFrameScheme() != osgViewer::Viewer::ON_DEMAND)
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
+        render = true;
+    }
+
+    if (VRViewer::instance()->checkNeedToDoFrame())
+    {
+        if (cover->debugLevel(4))
+            std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
+        render = true;
+    }
+
+    if (m_renderNext)
+        render = true;
+
     if (!render && coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
@@ -1156,40 +1174,28 @@ bool OpenCOVER::frame()
 
     if (!render)
     {
-        if (VRViewer::instance()->getRunFrameScheme() == osgViewer::Viewer::ON_DEMAND)
-        {
-            if (!VRViewer::instance()->checkNeedToDoFrame())
-            {
-                if (!m_renderNext)
-                {
-                    int maxfd = -1;
-                    fd_set fds;
-                    FD_ZERO(&fds);
-                    for (const auto &fd: m_watchedFds) {
-                        FD_SET(fd, &fds);
-                        if (maxfd < fd)
-                            maxfd = fd;
-                    }
-                    struct timeval tenms {0, 10000};
-                    int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
-
-                    if (nready <= 0)
-                        return false;
-                }
-                if (cover->debugLevel(4))
-                    std::cerr << "OpenCOVER::frame: rendering because rendering next frame was requested" << std::endl;
-            }
-            else
-            {
-                if (cover->debugLevel(4))
-                    std::cerr << "OpenCOVER::frame: rendering because checkNeedToDoFrame()==true" << std::endl;
-            }
+        int maxfd = -1;
+        fd_set fds;
+        FD_ZERO(&fds);
+        for (const auto &fd: m_watchedFds) {
+            FD_SET(fd, &fds);
+            if (maxfd < fd)
+                maxfd = fd;
         }
-        else
+        struct timeval tenms {0, 10000};
+        int nready = select(maxfd+1, &fds, &fds, &fds, &tenms);
+
+        if (nready > 0)
         {
             if (cover->debugLevel(4))
-                std::cerr << "OpenCOVER::frame: rendering because getRunFrameScheme()!=ON_DEMAND" << std::endl;
+                std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
+            render = true;
         }
+    }
+
+    if (!render)
+    {
+        return render;
     }
 
     if (frameNum > 2)

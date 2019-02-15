@@ -21,8 +21,7 @@
  **                                                                           **
 \****************************************************************************/
 #include <cover/coVRPluginSupport.h>
-using namespace covise;
-using namespace opencover;
+#include <cover/coVRPlugin.h>
 
 #include <cover/coVRSelectionManager.h>
 #include <cover/coVRShader.h>
@@ -37,6 +36,9 @@ using namespace opencover;
 
 #include <util/coTabletUIMessages.h>
 #include <util/coRestraint.h>
+
+using namespace covise;
+using namespace opencover;
 
 struct LItem
 {

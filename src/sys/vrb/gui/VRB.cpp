@@ -30,10 +30,14 @@ int main(int argc, char **argv)
     covise::setupEnvironment(argc, argv);
 
     QApplication a(argc, argv);
+#ifdef __APPLE__
+    a.setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
     mw = new ApplicationWindow();
     mw->setWindowTitle("VRB");
     mw->show();
     a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+
     if (server.openServer() < 0)
     {
         return -1;

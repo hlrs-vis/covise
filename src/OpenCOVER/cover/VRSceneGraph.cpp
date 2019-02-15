@@ -91,6 +91,7 @@
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/SelectionList.h"
+#include "ui/View.h"
 
 using namespace osg;
 using namespace opencover;

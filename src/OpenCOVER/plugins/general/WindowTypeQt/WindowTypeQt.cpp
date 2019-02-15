@@ -30,6 +30,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
 #include <cover/VRWindow.h>
+#include <cover/ui/Manager.h>
 
 #include <QMenuBar>
 #include <QToolBar>

@@ -159,7 +159,7 @@
      </Maze>
 
 
-     <Vrml97 value="on" >    
+     <Vrml97 value="off" >    
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>

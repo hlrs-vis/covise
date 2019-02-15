@@ -14,14 +14,9 @@
 #include <cover/coInteractor.h>
 #include <cover/coVRPluginSupport.h>
 
-#ifdef VRUI
-#include <OpenVRUI/coSliderMenuItem.h>
-#include <OpenVRUI/coCheckboxMenuItem.h>
-using namespace vrui;
-#else
 #include <cover/ui/Slider.h>
 #include <cover/ui/Button.h>
-#endif
+#include <cover/ui/Menu.h>
 
 using namespace opencover;
 
@@ -77,33 +72,6 @@ IsoSurfaceInteraction::preFrame()
 {
     isoPoint_->preFrame();
 }
-
-#ifdef VRUI
-void
-IsoSurfaceInteraction::menuEvent(coMenuItem *menuItem)
-{
-    ModuleInteraction::menuEvent(menuItem);
-
-    updateInteractorVisibility();
-}
-
-void
-IsoSurfaceInteraction::menuReleaseEvent(coMenuItem *menuItem)
-{
-    if (menuItem == valueSlider_)
-    {
-        inter_->getFloatSliderParam(ISOVALUE, minValue_, maxValue_, isoValue_);
-        isoValue_ = valueSlider_->getValue();
-        plugin->getSyncInteractors(inter_);
-        plugin->setSliderParam("isovalue", minValue_, maxValue_, isoValue_);
-        plugin->executeModule();
-    }
-    else
-    {
-        ModuleInteraction::menuReleaseEvent(menuItem);
-    }
-}
-#endif
 
 void
 IsoSurfaceInteraction::createMenu()

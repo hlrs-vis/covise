@@ -84,6 +84,27 @@ FIND_LIBRARY(JPEGTURBO_LIBRARY NAMES jpeg
   DOC "JPEGTURBO - Library"
 )
 
+if (MSVC)
+    FIND_LIBRARY(JPEGTURBO_LIBRARY_DEBUG NAMES jpegd
+        HINTS ${JPEGTURBO_PREFIX}/lib ${JPEGTURBO_PREFIX}/lib64
+        PATHS
+        $ENV{JPEGTURBO_HOME}
+        $ENV{EXTERNLIBS}/libjpeg-turbo64
+        $ENV{EXTERNLIBS}/libjpeg-turbo
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local
+        /usr/local/opt/jpeg-turbo
+        /usr
+        /sw
+        /opt/local
+        /opt/csw
+        /opt
+        PATH_SUFFIXES lib lib64
+        DOC "JPEGTURBO - Library"
+    )
+endif()
+
 FIND_LIBRARY(TURBOJPEG_LIBRARY turbojpeg
   HINTS ${JPEGTURBO_PREFIX}/lib ${JPEGTURBO_PREFIX}/lib64
   PATHS
@@ -122,14 +143,48 @@ FIND_LIBRARY(TURBOJPEG_LIBRARY_STATIC NAMES libturbojpeg.a
   DOC "JPEGTURBO - Static library"
 )
 
+if (MSVC)
+    FIND_LIBRARY(TURBOJPEG_LIBRARY_DEBUG turbojpegd
+        HINTS ${JPEGTURBO_PREFIX}/debug/lib ${JPEGTURBO_PREFIX}/debug/lib64 ${JPEGTURBO_PREFIX}/lib ${JPEGTURBO_PREFIX}/lib64
+        PATHS
+        $ENV{JPEGTURBO_HOME}
+        $ENV{EXTERNLIBS}/libjpeg-turbo64
+        $ENV{EXTERNLIBS}/libjpeg-turbo
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local
+        /usr/local/opt/jpeg-turbo
+        /usr
+        /sw
+        /opt/local
+        /opt/csw
+        /opt
+        PATH_SUFFIXES debug/lib debug/lib64 lib lib64
+        DOC "JPEGTURBO - Library"
+    )
+endif()
+
+
 # handle the QUIETLY and REQUIRED arguments and set JPEGTURBO_FOUND to TRUE if 
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(JPEGTURBO DEFAULT_MSG TURBOJPEG_LIBRARY JPEGTURBO_LIBRARY JPEGTURBO_INCLUDE_DIR)
+if (MSVC)
+    FIND_PACKAGE_HANDLE_STANDARD_ARGS(JPEGTURBO DEFAULT_MSG
+        JPEGTURBO_INCLUDE_DIR
+        TURBOJPEG_LIBRARY TURBOJPEG_LIBRARY_DEBUG
+        JPEGTURBO_LIBRARY JPEGTURBO_LIBRARY_DEBUG)
+else()
+    FIND_PACKAGE_HANDLE_STANDARD_ARGS(JPEGTURBO DEFAULT_MSG TURBOJPEG_LIBRARY JPEGTURBO_LIBRARY JPEGTURBO_INCLUDE_DIR)
+endif()
 
 IF(JPEGTURBO_FOUND)
-  SET(JPEGTURBO_LIBRARIES ${JPEGTURBO_LIBRARY})
-  SET(TURBOJPEG_LIBRARIES ${TURBOJPEG_LIBRARY})
+    if (MSVC)
+        SET(JPEGTURBO_LIBRARIES optimized ${JPEGTURBO_LIBRARY} debug ${JPEGTURBO_LIBRARY_DEBUG})
+        SET(TURBOJPEG_LIBRARIES optimized ${TURBOJPEG_LIBRARY} debug ${TURBOJPEG_LIBRARY_DEBUG})
+    else()
+        SET(JPEGTURBO_LIBRARIES ${JPEGTURBO_LIBRARY})
+        SET(TURBOJPEG_LIBRARIES ${TURBOJPEG_LIBRARY})
+  endif()
 
   INCLUDE (CheckSymbolExists)
   set(CMAKE_REQUIRED_INCLUDES ${JPEGTURBO_INCLUDE_DIR})

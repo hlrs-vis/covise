@@ -18,11 +18,10 @@
 #endif
 
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRPlugin.h>
 
 #include <OpenVRUI/coMenuItem.h>
-#include <OpenVRUI/coMenu.h>
-#include <OpenVRUI/coTexturedBackground.h>
-#include <cover/coVRTui.h>
+#include <cover/coTabletUI.h>
 
 namespace vrui
 {

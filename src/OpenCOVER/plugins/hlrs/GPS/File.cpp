@@ -37,6 +37,7 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <chrono>
+#include <iostream>
 
 //File
 File::File()
@@ -160,6 +161,8 @@ void File::readFile(const std::string &filename)
         draw();
 
         auto end = std::chrono::steady_clock::now();
-        fprintf(stderr, "Filereading finished after %d milliseconds. GPSPoints added: %lu , Tracks added: %lu \n-----------\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(), (unsigned long)allPoints.size(), (unsigned long)allTracks.size());
-    }
+        std::cerr << "Filereading finished after " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+            << "milliseconds. GPSPoints added: " << allPoints.size()
+            << ", Tracks added: " << allTracks.size()
+            << "\n-----------\n"; }
 }

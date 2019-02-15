@@ -43,6 +43,7 @@
 
 #include <proj_api.h>
 #include <chrono>
+#include <iostream>
 
 #include <xercesc/dom/DOM.hpp>
 #if XERCES_VERSION_MAJOR < 3
@@ -299,10 +300,9 @@ void GPSPoint::draw()
         createSign(GPSPlugin::instance()->iconBarriere);
         break;
     case OtherChoice:
-        *color = osg::Vec4(0.0f, 0.0f, 0.0f, 0.0f);
-        //createPictureBox(text = "Something different" , color);
-        //createSign(GPSPlugin::instance()->iconBarriere);
+        std::cerr << "GPSPoint::draw: no sign for this choice" << std::endl;
         break;
+        
     }
     createSphere(color);
 }
@@ -516,7 +516,9 @@ void GPSPoint::createSign(osg::Image *img)
     BBoard->addChild(signGeode);
 
     auto end = std::chrono::steady_clock::now();
-    fprintf(stderr, "Signcreation %d microseconds\n", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+    std::cerr << "Signcreation "
+        << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
+        << " microseconds\n";
 
 }
 void GPSPoint::createTextBox()

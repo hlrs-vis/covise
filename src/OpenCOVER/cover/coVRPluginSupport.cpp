@@ -49,6 +49,7 @@
 #endif
 
 #include "ui/Menu.h"
+#include "ui/Manager.h"
 
 // undef this to get no START/END messaged
 #undef VERBOSE

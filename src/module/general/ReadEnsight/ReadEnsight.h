@@ -62,7 +62,7 @@ public:
 
     coDistributedObject **createDataOutObj(EnFile::dimType dim, const string &baseName,
         DataCont &dc,
-        const int &step, const bool &perVertex = true);
+        const int &step, int numTimeSteps, const bool &perVertex = true);
 
     vector<PartList> globalParts_;
 private:

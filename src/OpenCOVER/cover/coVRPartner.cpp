@@ -23,6 +23,8 @@
 #include "VRAvatar.h"
 #include "OpenCOVER.h"
 #include "ui/CollaborativePartner.h"
+#include "ui/ButtonGroup.h"
+#include "ui/Group.h"
 
 using namespace opencover;
 using covise::coCoviseConfig;

@@ -30,6 +30,7 @@
 #include <OpenVRUI/coButtonInteraction.h>
 #include <cover/coVRShader.h>
 #include <PluginUtil/PluginMessageTypes.h>
+#include <cover/ui/ButtonGroup.h>
 
 // OSG:
 #include <osg/Node>

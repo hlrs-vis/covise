@@ -20,7 +20,6 @@
 
 FieldOfView *FieldOfView::plugin = NULL;
 
-#include <cover/coVRTui.h>
 #include <cover/coVRConfig.h>
 #include <cover/VRSceneGraph.h>
 #ifdef WIN32

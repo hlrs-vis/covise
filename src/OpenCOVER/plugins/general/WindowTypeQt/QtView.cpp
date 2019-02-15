@@ -11,6 +11,7 @@
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/FileBrowser.h>
+#include <cover/ui/Manager.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -529,6 +530,8 @@ void QtView::updateText(const Element *elem)
     else if (auto a = dynamic_cast<QAction *>(o))
     {
         a->setText(t);
+        if (t == "Quit")
+            a->setMenuRole(QAction::QuitRole);
     }
     else if (auto m = dynamic_cast<QMenu *>(o))
     {

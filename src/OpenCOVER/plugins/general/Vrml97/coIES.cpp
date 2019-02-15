@@ -8,6 +8,8 @@
 
 #include "coIES.h"
 
+#include <iostream>
+
 coIES::coIES(std::string fn)
 {	
     std::cout << "(coIES) raeading...: " << fn << "\n";

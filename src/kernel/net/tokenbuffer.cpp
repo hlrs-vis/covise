@@ -111,6 +111,18 @@ TokenBuffer::TokenBuffer(const char *dat, int len, bool nbo)
     rewind();
 }
 
+TokenBuffer::TokenBuffer()
+{
+#ifdef TB_DEBUG
+    debug = true;
+#endif
+    //std::cerr << "new TokenBuffer() " << this << ": debug=" << debug << std::endl;
+
+    buflen = length = 0;
+    data = currdata = NULL;
+    networkByteOrder = false;
+}
+
 TokenBuffer::TokenBuffer(bool nbo)
 {
 #ifdef TB_DEBUG

@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 
 #include <osg/Depth>
 #include <osg/Geometry>
