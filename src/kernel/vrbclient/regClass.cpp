@@ -20,7 +20,7 @@ void clientRegVar::notifyLocalObserver()
     }
 }
 
-void clientRegVar::subscribe(regVarObserver * ob)
+void clientRegVar::subscribe(regVarObserver * ob, int id)
 {
     myClass->setLastEditor(myClass->getID());
     lastEditor = myClass->getID();
@@ -30,7 +30,7 @@ void clientRegVar::subscribe(regVarObserver * ob)
     tb << myClass->getID();
     tb << myClass->getName();
     tb << name;
-    tb << myClass->getID(); //subscribe me
+    tb << id;
     tb << value;
     // inform controller about creation
     if (myClass->getID() >= 0 && myClass->getRegistryClient())
@@ -68,20 +68,20 @@ void clientRegClass::resubscribe(int oldID)
     {
         if (myVariables.size() == 0)
         {
-            subscribe(_observer);
+            subscribe(_observer, registry->getID());
         }
         else
         {
             for (const auto var : myVariables)
             {
-                var.second->subscribe(var.second->getLocalObserver());
+                var.second->subscribe(var.second->getLocalObserver(), registry->getID());
             }
         }
     }
 
 }
 
-void clientRegClass::subscribe(regClassObserver *obs)
+void clientRegClass::subscribe(regClassObserver *obs, int id)
 {
     lastEditor = classID;
     _observer = obs; //maybe inform old observer
@@ -89,7 +89,7 @@ void clientRegClass::subscribe(regClassObserver *obs)
     // compose message
     tb << classID;
     tb << name;
-    tb << classID; //I am the observer
+    tb << id; 
     // inform controller about creation
     if (classID >= 0 && getRegistryClient())
         getRegistryClient()->sendMessage(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);

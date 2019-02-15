@@ -897,8 +897,8 @@ void coVRCommunication::handleVRB(Message *msg)
     }
     case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
     {
-        int size;
-        int id;
+        uint32_t size;
+        uint32_t id;
         tb >> size;
         std::set<int> sessions;
         for (size_t i = 0; i < size; ++i)

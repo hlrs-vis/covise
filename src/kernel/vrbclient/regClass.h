@@ -194,7 +194,7 @@ public:
     void setLastEditor(int lastEditor);
     void notifyLocalObserver();
     void resubscribe(int oldID);
-    void subscribe(regClassObserver *obs);
+    void subscribe(regClassObserver *obs, int id);
     covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
 };
@@ -211,7 +211,7 @@ public:
         return _observer;
     }
     void notifyLocalObserver();
-    void subscribe(regVarObserver *ob);
+    void subscribe(regVarObserver *ob, int id);
     
     //void attach(regVarObserver *ob)
     //{

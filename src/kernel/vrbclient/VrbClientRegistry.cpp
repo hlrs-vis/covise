@@ -91,11 +91,11 @@ clientRegClass *VrbClientRegistry::subscribeClass(const std::string &cl, regClas
         }
         myClasses[cl].reset(rc);
     }
-    rc->subscribe(ob);
+    rc->subscribe(ob, id);
     return rc;
 }
 
-clientRegVar *VrbClientRegistry::subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
+clientRegVar *VrbClientRegistry::subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob, int id)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -111,7 +111,7 @@ clientRegVar *VrbClientRegistry::subscribeVar(const std::string &cl, const std::
         rc->append(rv);
     }
     //maybe inform old observer here
-    rv->subscribe(ob);
+    rv->subscribe(ob, id);
     return rv;
 }
 
@@ -199,6 +199,7 @@ void VrbClientRegistry::setVar(int ID, const std::string &cl, const std::string 
     tb << cl; 
     tb << var;
     tb << value;
+    tb << ID; //client or session ID
     if (clientID >= 0)
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }

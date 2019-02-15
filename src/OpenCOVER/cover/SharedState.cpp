@@ -52,11 +52,28 @@ SharedStateBase::~SharedStateBase()
 
 void SharedStateBase::subscribe(covise::TokenBuffer && val)
 {
-    m_registry->subscribeVar(className, variableName, std::move(val), this);
+    switch (coVRCollaboration::instance()->getSyncMode())
+    {
+    case coVRCollaboration::SyncMode::LooseCoupling:
+        m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getID());
+        break;
+    case coVRCollaboration::SyncMode::MasterSlaveCoupling:
+        if (coVRCommunication::instance()->isMaster())
+        {
+            m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getSessionID());
+        }
+        break;
+    case coVRCollaboration::SyncMode::TightCoupling:
+    {
+        m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getSessionID());
+    }
+        break;
+    default:
+        break;
+    }
 }
 void SharedStateBase::setVar(covise::TokenBuffer && val)
 {
-    int sessionID = -15; //replace with a valit session ID
     switch (coVRCollaboration::instance()->getSyncMode())
     {
     case coVRCollaboration::SyncMode::LooseCoupling:
@@ -65,11 +82,11 @@ void SharedStateBase::setVar(covise::TokenBuffer && val)
     case coVRCollaboration::SyncMode::MasterSlaveCoupling:
         if (coVRCommunication::instance()->isMaster())
         {
-            m_registry->setVar(sessionID, className, variableName, std::move(val));
+            m_registry->setVar(coVRCommunication::instance()->getSessionID(), className, variableName, std::move(val));
         }
         break;
     case coVRCollaboration::SyncMode::TightCoupling:
-        m_registry->setVar(sessionID, className, variableName, std::move(val));
+        m_registry->setVar(coVRCommunication::instance()->getSessionID(), className, variableName, std::move(val));
         break;
     default:
         break;

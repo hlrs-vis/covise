@@ -82,35 +82,22 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
         rv->setValue(value);
         rv->setLastEditor(senderID);
     }
-    else if (cl != currentVariables.end())
-    {
-        auto var = cl->second.find(name);
-        if (var != cl->second.end())
-        {
-            rv = new serverRegVar(rc, name, clientsClasses[var->second][className]->getVar(name)->getValue());
-            rc->append(rv);
-        }
-    }
-    if(!rv)
+    else 
     {
         rv = new serverRegVar(rc, name, value);
         rc->append(rv);
-        //maybe save the value as currentVariable
+        rv->setLastEditor(senderID);
     }
+
     //call observers
-    std::set<int> collectiveObservers;
-    for (auto client = clientsClasses.begin(); client != clientsClasses.end(); ++client)
+    std::set<int> collectiveObservers = *rc->getOList();
+    auto &client = clientsClasses[0];
+    auto clx = client.find(className);
+    if (clx != client.end())
     {
-        auto Class = client->second.find(className);
-        if (Class != client->second.end())
-        {
-            serverRegVar *variable = Class->second->getVar(name);
-            if (variable)
-            {
-                collectiveObservers.insert(variable->getOList()->begin(), variable->getOList()->end());
-            }
-        }
+        collectiveObservers.insert(clx->second->getOList()->begin(), clx->second->getOList()->end());
     }
+    collectiveObservers.insert(rv->getOList()->begin(), rv->getOList()->end());
     sendVariableChange(rv, collectiveObservers);
     updateUI(rv);
 

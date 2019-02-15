@@ -363,11 +363,12 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
     {
-        tb >> senderID;
+        tb >> clientID; //the client or session ID
         tb >> Class;
         tb >> variable;
         tb >> tb_value;
-        registry->setVar(senderID, Class, variable, tb_value);
+        tb >> senderID;
+        registry->setVar(clientID, Class, variable, tb_value, senderID);
 
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
@@ -410,7 +411,7 @@ void VRBServer::handleClient(Message *msg)
 #endif
         registry->observeVar(senderID, Class, clientID, variable, tb_value);
 #ifdef GUI
-        if (std::strcmp(Class, "SharedState") != 0)
+        if (std::strcmp(Class, "SharedState") != 0) //Change SharedState serialize / deserialze to send data type id first
         {
             tb_value >> value;
             mw->registry->updateEntry(Class, senderID, variable, value);
@@ -1546,10 +1547,10 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION:
     {
-        int sender;
+        uint32_t sender;
         TokenBuffer tb(msg);
         tb >> sender;
-        int sessionID = createSession();
+        uint32_t sessionID = createSession();
 
         TokenBuffer mtb;
         mtb << sessions.size();
@@ -1574,7 +1575,7 @@ void VRBServer::handleClient(Message *msg)
 }
 int VRBServer::createSession()
 {
-    int id = -2;
+    uint32_t id = -2;
     while (sessions.find(id) != sessions.end())
     {
         --id;

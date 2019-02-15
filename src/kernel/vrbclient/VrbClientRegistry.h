@@ -42,7 +42,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    clientRegVar *subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob);
+    clientRegVar *subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob, int id);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
