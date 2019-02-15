@@ -73,8 +73,9 @@ class VrbServerRegistry
     }
 private:
     int sessionID;
-    VRBClientList clients;
     std::map<const int, std::map<const std::string, std::shared_ptr<serverRegClass>>> clientsClasses;
+    //assinges the client wich did the last change on the class/variable
+    std::map<const std::string, std::map<const std::string, int>> currentVariables;
 };
 
 class serverRegVar : public regVar<serverRegClass>

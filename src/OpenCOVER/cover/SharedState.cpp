@@ -74,7 +74,7 @@ std::string SharedStateBase::getName() const
 
 void SharedStateBase::update(clientRegVar *theChangedVar)
 {
-    if (theChangedVar->getName()== variableName)
+    if (theChangedVar->getName()!= variableName)
     {
         return;
     }

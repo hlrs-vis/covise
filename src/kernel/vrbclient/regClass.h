@@ -173,7 +173,7 @@ public:
 class VRBEXPORT clientRegClass : public regClass<clientRegVar>
 {
 private:
-    regClassObserver *_observer; //local observer class
+    regClassObserver *_observer = nullptr; //local observer class
     int lastEditor;
     VrbClientRegistry *registry;
 public:

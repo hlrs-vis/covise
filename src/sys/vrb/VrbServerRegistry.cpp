@@ -64,10 +64,9 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
     serverRegClass *rc = getClass(ID, className);
     if (!rc)
     {
-        serverRegClass *grc;
+        serverRegClass *grc = getClass(0, className);
         rc = new serverRegClass(className, ID);
         clientsClasses[ID][className].reset(rc);
-        grc = getClass(0, className);
         if (grc)
         {
             // we have a generic observer for this class name, copy observers
@@ -78,28 +77,44 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
         }
     }
     serverRegVar *rv = rc->getVar(name);
+    auto cl = currentVariables.find(className);
     if (rv)
     {
         rv->setValue(value);
+        currentVariables[className][name] = ID;
     }
-    else
+    else if (cl != currentVariables.end())
+    {
+        auto var = cl->second.find(name);
+        if (var != cl->second.end())
+        {
+            rv = new serverRegVar(rc, name, clientsClasses[var->second][className]->getVar(name)->getValue());
+            rc->append(rv);
+        }
+    }
+    if(!rv)
     {
         rv = new serverRegVar(rc, name, value);
         rc->append(rv);
+        //maybe save the value as currentVariable
     }
     //call observers
-    //FIXME: combine rc->getOList() and rv->getOList() to a list of unique observers
     std::set<int> collectiveObservers;
-    for (const auto client : rc->observers)
+    for (auto client = clientsClasses.begin(); client != clientsClasses.end(); ++client)
     {
-        collectiveObservers.insert(client);
-    }
-    for (const auto client : rv->observers)
-    {
-        collectiveObservers.insert(client);
+        auto Class = client->second.find(className);
+        if (Class != client->second.end())
+        {
+            serverRegVar *variable = Class->second->getVar(name);
+            if (variable)
+            {
+                collectiveObservers.insert(variable->getOList()->begin(), variable->getOList()->end());
+            }
+        }
     }
     sendVariableChange(rv, collectiveObservers);
     updateUI(rv);
+
 
 }
 
@@ -142,7 +157,7 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
 
 void VrbServerRegistry::deleteEntry(int ID, const std::string &className, const std::string &name)
 {
-    if (className.empty())
+    if (currentVariables[className][name] == ID) //dont delete the entry if it is the current one *FIXME: delete it when sb else becomes current
     {
         return;
     }
@@ -292,6 +307,8 @@ void serverRegVar::update(int recvID)
     sb << myClass->getID();
     sb << myClass->getName();
     sb << getName();
+    myClass
+
     sb << getValue();
     clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }

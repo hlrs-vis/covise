@@ -51,7 +51,6 @@
 #include "VRAvatar.h"
 #include "coVRSelectionManager.h"
 #include "VRViewer.h"
-#include "coVrbRegistryAccess.h"
 #include "coTUIFileBrowser/VRBData.h"
 #include "coVRCollaboration.h"
 #include "ARToolKit.h"
