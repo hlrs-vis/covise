@@ -1553,7 +1553,8 @@ void VRBServer::handleClient(Message *msg)
         uint32_t sessionID = createSession();
 
         TokenBuffer mtb;
-        mtb << sessions.size();
+        uint32_t sessionsSize = sessions.size();
+        mtb << sessionsSize;
         for (const int session : sessions)
         {
             mtb << session;

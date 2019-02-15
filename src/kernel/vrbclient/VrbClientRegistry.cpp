@@ -37,7 +37,7 @@ VrbClientRegistry::~VrbClientRegistry()
 void VrbClientRegistry::setID(int clID, int session)
 {
     int oldID = clientID;
-    if (sessionID = session && clientID == clID)
+    if (sessionID == session && clientID == clID)
     {
         //reconect to old session
     }

@@ -32,7 +32,6 @@ SET(COVER_HEADERS
   coInteractor.h
   coIntersection.h
   VruiPartnerMenuItem.h
-  coVrbRegistryAccess.h
   coVRCommunication.h
   coVRConfig.h
   coVRDynLib.h
@@ -105,7 +104,6 @@ SET(COVER_SOURCES
   coVRDynLib.cpp
   coInteractor.cpp
   coClusterStat.cpp
-  coVrbRegistryAccess.cpp
   coVRCommunication.cpp
   coVRPartner.cpp
   coVRSlave.cpp
