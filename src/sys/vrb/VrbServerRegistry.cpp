@@ -307,7 +307,6 @@ void serverRegVar::update(int recvID)
     sb << myClass->getID();
     sb << myClass->getName();
     sb << getName();
-    myClass
 
     sb << getValue();
     clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
