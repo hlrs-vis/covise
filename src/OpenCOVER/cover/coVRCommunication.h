@@ -28,6 +28,7 @@ class Message;
 class VrbClientRegistry;
 
 #include <map>
+#include <set>
 #include <vrbclient/regClass.h>
 
 namespace opencover
@@ -79,6 +80,9 @@ public:
     static const char *getHostaddress();
     static std::string getUsername();
     int getID();
+    std::set<int> *getSessions();
+    int getSessionID();
+    void setSessionID(int id);
     int getNumberOfPartners();
     void setFBData(IData *data);
     void handleVRB(covise::Message *msg);

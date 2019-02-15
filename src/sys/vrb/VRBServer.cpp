@@ -78,8 +78,7 @@ VRBServer::VRBServer()
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
-    sessionID = rand() % 30000;
-    registry = new VrbServerRegistry(sessionID);
+    registry = new VrbServerRegistry();
 }
 
 VRBServer::~VRBServer()
@@ -776,6 +775,7 @@ void VRBServer::handleClient(Message *msg)
             break;
         clients.reset();
         VRBSClient *c = clients.get(msg->conn);
+
         if (c)
         {
             c->setMaster(masterState);
@@ -1544,10 +1544,43 @@ void VRBServer::handleClient(Message *msg)
         }
     }
     break;
+    case COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION:
+    {
+        int sender;
+        TokenBuffer tb(msg);
+        tb >> sender;
+        int sessionID = createSession();
+
+        TokenBuffer mtb;
+        mtb << sessions.size();
+        for (const int session : sessions)
+        {
+            mtb << session;
+        }
+        clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
+
+        TokenBuffer stb;
+        stb << sessionID;
+        clients.sendMessageToID(stb, sessionID, COVISE_MESSAGE_VRBC_SET_SESSION);
+
+
+    }
+    break;
     default:
         cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;
     }
+
+}
+int VRBServer::createSession()
+{
+    int id = -2;
+    while (sessions.find(id) != sessions.end())
+    {
+        --id;
+    }
+    sessions.insert(id);
+    return id;
 }
 
 void VRBServer::RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path)

@@ -24,6 +24,7 @@
 #include <util/coTypes.h>
 #include <util/DLinkList.h>
 #include "ui/Owner.h"
+#include <set>
 
 
 namespace covise
@@ -46,6 +47,8 @@ private:
     std::string hostname;
     std::string address;
     int m_id = -1;
+    int m_sessionID;
+    std::set<int> sessions;
     std::string name;
     std::string email;
     std::string url;
@@ -55,6 +58,7 @@ private:
 
 public:
     void setID(int id);
+    void setSessionID(int id);
     void setGroup(int g);
     void setMaster(bool m);
     void setInfo(covise::TokenBuffer &tb);
@@ -62,6 +66,9 @@ public:
     bool isMaster() const;
     void becomeMaster();
     int getID() const;
+    int getSessionID() const;
+    void setSessions(std::set<int> sessions);
+    std::set<int> getSessions();
     void setFile(const char *fileName);
     void print() const;
     coVRPartner();

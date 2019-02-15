@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QString>
+#include <set>
 
 namespace covise
 {
@@ -56,11 +57,12 @@ private:
     covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
     void handleClient(covise::Message *);
+    int createSession();
     void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
     covise::Message *msg = nullptr;
     bool requestToQuit = false;
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
-    int sessionID = -1;
+    std::set<int> sessions;
 };
 #endif

@@ -23,7 +23,7 @@
 
 #include <util/coExport.h>
 #include <util/common.h>
-
+#include <set>
 #include <osg/Matrix>
 
 #include "ui/Owner.h"
@@ -43,6 +43,7 @@ class Menu;
 class Button;
 class Slider;
 class SelectionList;
+class Action;
 }
 
 class COVEREXPORT coVRCollaboration: public ui::Owner
@@ -61,7 +62,7 @@ public:
 private:
     int readConfigFile();
     void initCollMenu();
-
+    std::set<int> m_sessions;
     bool syncXform;
     bool syncScale;
 	bool wasLo = false;
@@ -78,7 +79,7 @@ public:
     int showAvatar;
     SyncMode syncMode;
     float getSyncInterval();
-
+    void updateSessionSelectionList();
     // returns collaboration mode
     SyncMode getSyncMode() const;
 
@@ -93,9 +94,10 @@ public:
     ui::Group *m_partnerGroup = nullptr;
     ui::Button *m_showAvatar = nullptr;
     ui::Button *m_master = nullptr;
+    ui::Action *m_newSession = nullptr;
     ui::Slider *m_syncInterval = nullptr;
     ui::SelectionList *m_collaborationMode = nullptr;
-
+    ui::SelectionList *m_availableSessions = nullptr;
     ui::Menu *menu() const;
     ui::Group *partnerGroup() const;
 

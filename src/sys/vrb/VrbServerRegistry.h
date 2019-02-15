@@ -28,7 +28,7 @@ class VrbServerRegistry
    public:
        static VrbServerRegistry *instance;
        /// constructor initializes Variables with values from yac.config:regVariables
-        VrbServerRegistry(int session);
+        VrbServerRegistry();
         ~VrbServerRegistry();
         int regMode;
 
@@ -38,7 +38,7 @@ class VrbServerRegistry
 ///int : client id, regClass : regClass with name that belongs to that client
     serverRegClass *getClass(int ID, const std::string &name);
     /// set a Value or create new Entry, s for isStatic
-    void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s = false);
+    void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value,int senderID, bool s = false);
     /// create new Entry
     void create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s);
     /// remove an Entry
@@ -63,16 +63,8 @@ class VrbServerRegistry
        * add Registry to Script
        */
     void saveNetwork(coCharBuffer &cb);
-    int getSessionID()
-    {
-        return sessionID;
-    }
-    void setSessionID(int newID)
-    {
-        sessionID = newID;
-    }
+
 private:
-    int sessionID;
     std::map<const int, std::map<const std::string, std::shared_ptr<serverRegClass>>> clientsClasses;
     //assinges the client wich did the last change on the class/variable
     std::map<const std::string, std::map<const std::string, int>> currentVariables;
@@ -107,6 +99,10 @@ public:
         return (&observers);
     };
     void informDeleteObservers();
+    void setLastEditor(int id);
+    int getLastEditor();
+private:
+    int lastEditor;
 };
 
 class serverRegClass : public regClass<serverRegVar>

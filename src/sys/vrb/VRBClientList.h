@@ -102,6 +102,7 @@ public:
     void deleteAll();
     void sendMessage(covise::TokenBuffer &stb, int group = -2, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
+    void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     int numInGroup(int Group);
 };
 

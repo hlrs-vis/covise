@@ -151,6 +151,24 @@ int coVRCommunication::getID()
     return myID;
 }
 
+std::set<int> *opencover::coVRCommunication::getSessions()
+{
+  return &me->getSessions();
+}
+
+int opencover::coVRCommunication::getSessionID()
+{
+    return me->getSessionID();
+}
+
+void opencover::coVRCommunication::setSessionID(int id)
+{
+    if (id < 0)
+    {
+        me->setSessionID(id);
+    }
+}
+
 void coVRCommunication::RILock(int lockID)
 {
     int myID = getID();
@@ -563,7 +581,7 @@ void coVRCommunication::handleVRB(Message *msg)
         {
             TokenBuffer tb;
             tb << currentFile;
-            registry->setVar("VRMLFile", std::to_string(me->getID()), std::move(tb));
+            registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
         }
     }
     break;
@@ -877,6 +895,28 @@ void coVRCommunication::handleVRB(Message *msg)
             cerr << "Unknown type!" << endl;
         }
     }
+    case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
+    {
+        int size;
+        int id;
+        tb >> size;
+        std::set<int> sessions;
+        for (size_t i = 0; i < size; ++i)
+        {
+            tb >> id;
+            sessions.insert(id);
+        }
+        me->setSessions(sessions);
+        coVRCollaboration::instance()->updateSessionSelectionList();
+    }
+    break;
+    case COVISE_MESSAGE_VRBC_SET_SESSION:
+    {
+        int id;
+        tb >> id;
+        me->setSessionID(id);
+    }
+    break;
     default:
         if (registry)
             registry->update(tb, msg->type);
@@ -891,7 +931,7 @@ void coVRCommunication::setCurrentFile(const char *filename)
     me->setFile(filename);
     TokenBuffer tb;
     tb << filename;
-    registry->setVar("VRMLFile", std::to_string(me->getID()), std::move(tb));
+    registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
 
     if (currentFile)
     {

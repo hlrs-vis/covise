@@ -17,11 +17,10 @@ using namespace covise;
 
 VrbServerRegistry *VrbServerRegistry::instance = NULL;
 
-VrbServerRegistry::VrbServerRegistry(int session)
+VrbServerRegistry::VrbServerRegistry()
 {
     assert(!instance);
     instance = this;
-    sessionID = session;
 }
 
 VrbServerRegistry::~VrbServerRegistry()
@@ -59,7 +58,7 @@ serverRegClass *VrbServerRegistry::getClass(int ID, const std::string & name)
     return clientsClasses[ID][name].get();
 }
 /// set a Value or create new Entry
-void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
+void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, int senderID, bool s)
 {
     serverRegClass *rc = getClass(ID, className);
     if (!rc)
@@ -81,7 +80,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
     if (rv)
     {
         rv->setValue(value);
-        currentVariables[className][name] = ID;
+        rv->setLastEditor(senderID);
     }
     else if (cl != currentVariables.end())
     {
@@ -330,6 +329,16 @@ void serverRegVar::informDeleteObservers()
     {
         clients.sendMessageToID(sb, obs, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED);
     }
+}
+
+void serverRegVar::setLastEditor(int id)
+{
+    lastEditor = id;
+}
+
+int serverRegVar::getLastEditor()
+{
+    return lastEditor;
 }
 
 /////////////SERVERREGCLASS/////////////////////////////////////////////////

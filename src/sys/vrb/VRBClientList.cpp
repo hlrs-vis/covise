@@ -469,3 +469,15 @@ void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type ty
         cl->conn->send_msg(&m);
     }
 }
+
+void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type)
+{
+    Message m(stb);
+    m.type = type;
+    reset();
+    VRBSClient *cl;
+    while ((cl = current()))
+    {
+        cl->conn->send_msg(&m);
+    }
+}

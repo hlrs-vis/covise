@@ -9,6 +9,7 @@
 #include <vrbclient/regClass.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <coVRCommunication.h>
+#include <coVRCollaboration.h>
 
 namespace opencover
 {
@@ -55,7 +56,25 @@ void SharedStateBase::subscribe(covise::TokenBuffer && val)
 }
 void SharedStateBase::setVar(covise::TokenBuffer && val)
 {
-    m_registry->setVar(className, variableName, std::move(val));
+    int sessionID = -15; //replace with a valit session ID
+    switch (coVRCollaboration::instance()->getSyncMode())
+    {
+    case coVRCollaboration::SyncMode::LooseCoupling:
+        m_registry->setVar(coVRCommunication::instance()->getID(), className, variableName, std::move(val));
+        break;
+    case coVRCollaboration::SyncMode::MasterSlaveCoupling:
+        if (coVRCommunication::instance()->isMaster())
+        {
+            m_registry->setVar(sessionID, className, variableName, std::move(val));
+        }
+        break;
+    case coVRCollaboration::SyncMode::TightCoupling:
+        m_registry->setVar(sessionID, className, variableName, std::move(val));
+        break;
+    default:
+        break;
+    } 
+
 }
 void SharedStateBase::setUpdateFunction(std::function<void ()> function)
 {

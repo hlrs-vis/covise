@@ -30,8 +30,10 @@
 
 #include <util/common.h>
 #include <net/message.h>
-#include <config/CoviseConfig.h>
+#include <net/message_types.h>
 
+#include <config/CoviseConfig.h>
+#include <vrbclient/VrbClientRegistry.h>
 #include "coVRNavigationManager.h"
 #include "VRSceneGraph.h"
 #include "coVRCollaboration.h"
@@ -145,6 +147,24 @@ void coVRCollaboration::initCollMenu()
         }
     });
     m_collaborationMode->select(syncMode);
+
+    //session menue
+    m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "availableSessions");
+    m_availableSessions->setText("available Sessions");
+    updateSessionSelectionList();
+    m_availableSessions->setCallback([this](int id) 
+    {
+        std::set<int>::iterator it = m_sessions.begin();
+        std::advance(it, id);
+        coVRCommunication::instance()->setSessionID(*it);
+    });
+    m_newSession = new ui::Action(m_collaborativeMenu, "newSession");
+    m_newSession->setCallback([this](void) {
+        
+        covise::TokenBuffer tb;
+        tb << coVRCommunication::instance()->getID();
+        vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+    });
 
     m_showAvatar = new ui::Button(m_collaborativeMenu, "ShowAvatar");
     m_showAvatar->setText("Show avatar");
@@ -453,6 +473,17 @@ float coVRCollaboration::getSyncInterval()
     }
 
     return syncInterval;
+}
+
+void opencover::coVRCollaboration::updateSessionSelectionList()
+{
+    m_sessions = *coVRCommunication::instance()->getSessions();
+    std::vector<std::string> sessions;
+    for (auto it = m_sessions.begin(); it != m_sessions.end(); ++it)
+    {
+        sessions.push_back(std::to_string(*it));
+    }
+    m_availableSessions->setList(sessions);
 }
 
 coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const

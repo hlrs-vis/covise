@@ -171,7 +171,7 @@ void VrbClientRegistry::createVar(const std::string &cl, const std::string &var,
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(const std::string &cl, const std::string &var, TokenBuffer &&value)
+void VrbClientRegistry::setVar(int ID, const std::string &cl, const std::string &var, TokenBuffer &&value)
 {
     if ((cl.empty()) || (var.empty()))
         return;
