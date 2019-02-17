@@ -1,4 +1,5 @@
 USING(Visionaray)
+USING(TBB)
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 function(do_cuda_compile outfiles)
