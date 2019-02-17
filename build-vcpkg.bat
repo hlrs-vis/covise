@@ -59,7 +59,6 @@ cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpk
 if errorlevel 1 goto UPDIR
 msbuild /m covise.sln /p:Configuration=%cfg% %verb% %par%
 if errorlevel 1 goto UPDIR
-cd ..
 
 :UPDIR
 cd ..
