@@ -46,6 +46,10 @@ SumoTraCI::SumoTraCI()
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
     AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
     av = getAgentVehicle("truck","truck","truck_truck");
+    pf = PedestrianFactory::Instance();
+    pedestrianGroup =  new osg::Group;
+    pedestrianGroup->setName("pedestrianGroup");
+    cover->getObjectsRoot()->addChild(pedestrianGroup.get());
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
@@ -62,6 +66,25 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
         vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicleType,av));
     }
     return av;
+}
+
+PedestrianGeometry *SumoTraCI::getPedestrian(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
+{
+    PedestrianGeometry *p;
+    auto pIt = pedestrianMap.find(vehicleID);
+    if(pIt != pedestrianMap.end())
+    {
+        p = pIt->second;
+    }
+    else
+    {
+        PedestrianAnimations a = PedestrianAnimations();
+        std::string modelFile = "CH02_01";
+        std::string ID = vehicleID;
+        p = new PedestrianGeometry(ID, modelFile,0.0254,300.0,a, pedestrianGroup);
+        pedestrianMap.insert(std::pair<std::string, PedestrianGeometry *>(vehicleID, p));
+    }
+    return p;
 }
 
 SumoTraCI::~SumoTraCI()
@@ -278,7 +301,10 @@ void SumoTraCI::updateVehiclePosition()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-
+            if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
+            {
+                loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+            }
         }
         else
         {
@@ -304,25 +330,47 @@ void SumoTraCI::interpolateVehiclePosition()
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
     for(int i=0;i < previousResults.size(); i++)
     {
+        int currentIndex =-1;
+        // delete vehicle that will vanish in next step
+        for(int n=0;n < currentResults.size(); n++)
+        {
+            if(previousResults[i].vehicleID == currentResults[n].vehicleID)
+            {
+                currentIndex = n;
+                break;
+            }
+        }
+
         if (!previousResults[i].vehicleClass.compare("pedestrian"))
         {
+            //    p->getPedestrianGeometry()->setTransform();
+            std::map<const std::string, PedestrianGeometry *>::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
 
+            if (itr != loadedPedestrians.end())
+            {
+                if (currentIndex == -1)
+                {
+                    loadedPedestrians.erase(itr);
+                }
+                else
+                {
+                    double weight = currentTime - nextSimTime;
+
+                    osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+                    double heading = interpolateAngles(weight,osg::DegreesToRadians(previousResults[i].angle),osg::DegreesToRadians(currentResults[currentIndex].angle));
+                    PedestrianGeometry * p = itr->second;
+                    Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(0.0,Vector3D(0.0,0.0,0.0)));
+                    p->setTransform(trans,heading);
+                    p->setWalkingSpeed(1.0);
+                    //VehicleState vs;
+                    //av->getCarGeometry()->updateCarParts(1, 0, vs);
+                }
+            }
         }
         else
         {
             //osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
-
             std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
-            int currentIndex =-1;
-            // delete vehicle that will vanish in next step
-            for(int n=0;n < currentResults.size(); n++)
-            {
-                if(previousResults[i].vehicleID == currentResults[n].vehicleID)
-                {
-                    currentIndex = n;
-                    break;
-                }
-            }
 
             if (itr != loadedVehicles.end())
             {
@@ -366,6 +414,12 @@ osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPositio
     return interpolatedPosition;
 }
 
+double SumoTraCI::interpolateAngles(double lambda, double pastAngle, double futureAngle)
+{
+    double interpolatedPosition = futureAngle + (1.0 - lambda) * (pastAngle - futureAngle);
+    return interpolatedPosition;
+}
+
 AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
@@ -373,6 +427,15 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
     VehicleParameters vp;
     vp.rangeLOD = 400;
     return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
+}
+
+PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
+{
+    PedestrianGeometry *p = getPedestrian(vehicleID,vehicleClass,vehicleType);
+    std::string ID = vehicleID;
+    PedestrianAnimations a = PedestrianAnimations();
+    std::string modelFile = "CH02_01";
+    return new PedestrianGeometry(ID, modelFile,0.0254,400.0,a, pedestrianGroup);
 }
 
 COVERPLUGIN(SumoTraCI)
