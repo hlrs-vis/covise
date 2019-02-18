@@ -23,35 +23,51 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #include <util/coExport.h>
 #include <vrbclient/regClass.h>
 
-class clientRegVar;
-namespace opencover {
 
+
+
+namespace vrb
+{
+enum SharedStateType
+{
+    USE_COUPLING_MODE, //0
+    NEVER_SHARE, //1
+    ALWAYS_SHARE //2
+};
+class clientRegVar;
 ///convert the value to a TokenBuffer
 template<class T>
 void serialize(covise::TokenBuffer &tb, const T &value)
 {
+    int typeID = 0;
+    tb << typeID;
     tb << value;
 }
+
+template <>
+VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
 
 ///converts the TokenBuffer back to the value
 template<class T>
 void deserialize(covise::TokenBuffer &tb, T &value)
 {
+    int typeID;
+    tb >> typeID;
     tb >> value;
 }
 
 template <>
-void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
-
-template <>
-void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
+VRBEXPORT void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
 
 
-class  COVEREXPORT SharedStateBase: public regVarObserver
+
+
+
+class  VRBEXPORT SharedStateBase : public regVarObserver
 
 {
 public:
-    SharedStateBase(std::string name);
+    SharedStateBase(std::string name, SharedStateType mode);
 
     virtual ~SharedStateBase();
 
@@ -65,7 +81,8 @@ public:
 
     //! is called from the registryAcces when the registry entry got changed from the server
     void update(clientRegVar *theChangedRegEntry) override;
-
+    void setID(int id);
+    void resubscribe(int id);
 protected:
 
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
@@ -80,16 +97,18 @@ protected:
     std::function<void(void)> updateCallback;
 
     VrbClientRegistry *m_registry = nullptr;
-    //clientRegVar *m_regEntry = nullptr;
+
+private:
+    int sessionID = 0; ///the session to send updates to 
 };
 
 template <class T>
-class  SharedState: public SharedStateBase
+class  SharedState : public SharedStateBase
 {
 public:
-    SharedState<T>(std::string name, T value = T())
-    : SharedStateBase(name)
-    , m_value(value)
+    SharedState<T>(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
+        : SharedStateBase(name, mode)
+        , m_value(value)
     {
         assert(m_registry);
         covise::TokenBuffer data;
@@ -132,7 +151,10 @@ public:
     }
 
 private:
-    T m_value;
-};	
+    T m_value; ///the value of the SharedState
+
+};
 }
 #endif
+
+

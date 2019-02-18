@@ -47,7 +47,8 @@ private:
     std::string hostname;
     std::string address;
     int m_id = -1;
-    int m_sessionID;
+    int m_privateSessionID = 0;
+    int m_publicSessionID = 0;
     std::set<int> sessions;
     std::string name;
     std::string email;
@@ -66,7 +67,8 @@ public:
     bool isMaster() const;
     void becomeMaster();
     int getID() const;
-    int getSessionID() const;
+    int getPrivateSessionID() const;
+    int getPublicSessionID() const;
     void setSessions(std::set<int> sessions);
     std::set<int> getSessions();
     void setFile(const char *fileName);

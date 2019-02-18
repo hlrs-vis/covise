@@ -95,6 +95,26 @@ bool coVRPluginSupport::debugLevel(int level) const
     return coVRConfig::instance()->debugLevel(level);
 }
 
+void coVRPluginSupport::initUI()
+{
+    fileMenu = new ui::Menu("File", ui);
+    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
+    viewOptionsMenu->setText("View options");
+    ui->init();
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released) {
+        interactorScale = value;
+    });
+
+    
+}
+
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
 {
     std::ostream *str = m_notifyStream[0];
@@ -819,20 +839,7 @@ coVRPluginSupport::coVRPluginSupport()
     new VRVruiRenderInterface();
 
     ui = new ui::Manager();
-    fileMenu = new ui::Menu("File", ui);
-    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
-    viewOptionsMenu->setText("View options");
-    ui->init();
 
-    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
-    interactorScaleSlider->setText("Interactor scale");
-    interactorScaleSlider->setVisible(false, ui::View::VR);
-    interactorScaleSlider->setBounds(0.01, 100.);
-    interactorScaleSlider->setValue(1.);
-    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
-    interactorScaleSlider->setCallback([this](double value, bool released){
-        interactorScale = value;
-    });
 
     for (int level=0; level<Notify::Fatal; ++level)
     {

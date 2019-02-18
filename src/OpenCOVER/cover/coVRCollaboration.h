@@ -28,6 +28,7 @@
 
 #include "ui/Owner.h"
 
+
 namespace osg
 {
 class Group;
@@ -45,6 +46,7 @@ class Slider;
 class SelectionList;
 class Action;
 }
+
 
 class COVEREXPORT coVRCollaboration: public ui::Owner
 {
@@ -79,15 +81,16 @@ public:
     int showAvatar;
     SyncMode syncMode;
     float getSyncInterval();
-    void updateSessionSelectionList();
+    void updateSessionSelectionList(std::set<int> ses);
     // returns collaboration mode
     SyncMode getSyncMode() const;
 
     void setSyncMode(const char *mode); // set one of "LOOSE", "MS", "TIGHT"
 
+    void updateSharedStates();
     // returns true if this COVER ist master in a collaborative session
     bool isMaster();
-
+    void setCurrentSession(int id);
     // Collaborative menu:
     bool m_visible = false;
     ui::Menu *m_collaborativeMenu = nullptr;

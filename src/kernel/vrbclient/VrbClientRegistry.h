@@ -16,6 +16,8 @@ namespace covise
 {
 class VRBClient;
 }
+namespace vrb
+{
 class VRBEXPORT VrbClientRegistry
 {
 public:
@@ -24,7 +26,7 @@ public:
     VrbClientRegistry(int id, covise::VRBClient *vrbc);
     ///gets id from server
     void setID(int clID, int session);
-    void resubscribe(int odID);
+    void resubscribe(int sessionID, int oldSession = 0);
 
     /**
        *  Subscribe to all variables in a registry class
@@ -33,7 +35,7 @@ public:
        *  @ob    observer cl to be attached for updates
        *  @id    use clientID if id is not set
        */
-    clientRegClass *subscribeClass(const std::string &clName, regClassObserver *ob, int id = -1);
+    clientRegClass *subscribeClass(int sessionID, const std::string &clName, regClassObserver *ob);
 
     /**
        *  Subscribe to a specific variable of a registry cl
@@ -42,7 +44,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    clientRegVar *subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob, int id);
+    clientRegVar *subscribeVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
@@ -50,16 +52,16 @@ public:
        *  @cl    registry cl
        *
        */
-    void unsubscribeClass(const std::string &cl);
+    void unsubscribeClass(int sessionID, const std::string &cl);
 
     /**
        *  Unsubscribe from a specific variable of a registry cl
-       *
+       *  Stop observing this variable on the VRB
        *  @cl      registry class
        *  @var        registry variable belonging to the cl
-       *
+       *  @unsubscribeServerOnly    if true, the variable entry is kept in the local registry and only the observation on the server ends
        */
-    void unsubscribeVar(const std::string &cl, const std::string &var);
+    void unsubscribeVar(const std::string &cl, const std::string &var, bool unsubscribeServerOnly = false);
 
     /**
        *  Create a specific class variable in the registry. If the class
@@ -70,7 +72,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @flag   flag=0: session local variable, flag=1: global variable surviving a session
        */
-    void createVar(const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
+    void createVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
 
     /**
        *  Sets a specific variable value in the registry. The Vrb server
@@ -80,7 +82,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @val    current variable value to be set in the registry
        */
-    void setVar(int ID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val);
+    void setVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val);
 
     /**
        *  Destroys a specific variable in the registry. All observers attached
@@ -90,7 +92,7 @@ public:
        *  @cl  registry class
        *  @var    registry variable belonging to a cl
        */
-    void destroyVar(const std::string &cl, const std::string &var);
+    void destroyVar(int sessionID, const std::string &cl, const std::string &var);
 
     /**
        *  if a VRB connected, resend local variables and subscriptions.
@@ -114,15 +116,17 @@ public:
     }
     covise::VRBClient *getVrbc();
     void setVrbc(covise::VRBClient *client);
+    ///adjusts th
+
 
 private:
     std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
     int clientID;
-    int sessionID;
+    int sessionID = 0;
     covise::VRBClient *vrbc;
 
 };
-
+}
 
 
 #endif

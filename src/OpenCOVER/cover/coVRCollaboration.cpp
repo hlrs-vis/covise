@@ -42,7 +42,7 @@
 #include "coVRCommunication.h"
 #include "VRAvatar.h"
 #include <osg/MatrixTransform>
-
+#include <vrbclient/SharedStateManager.h>
 #include <vrbclient/VRBClient.h>
 #include "OpenCOVER.h"
 
@@ -56,7 +56,7 @@
 #define NAVIGATION_GROUP 0
 
 using namespace opencover;
-
+using namespace vrb;
 coVRCollaboration *coVRCollaboration::s_instance = NULL;
 
 coVRCollaboration *coVRCollaboration::instance()
@@ -151,18 +151,25 @@ void coVRCollaboration::initCollMenu()
     //session menue
     m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "availableSessions");
     m_availableSessions->setText("available Sessions");
-    updateSessionSelectionList();
     m_availableSessions->setCallback([this](int id) 
     {
-        std::set<int>::iterator it = m_sessions.begin();
-        std::advance(it, id);
-        coVRCommunication::instance()->setSessionID(*it);
+        int sessionID = 0;
+        if (id != 0)
+        {
+            std::set<int>::iterator it = m_sessions.begin();
+            std::advance(it, id - 1);
+            sessionID = *it;
+        }
+        //inform the server about the new session
+        coVRCommunication::instance()->setSessionID(sessionID);
     });
     m_newSession = new ui::Action(m_collaborativeMenu, "newSession");
     m_newSession->setCallback([this](void) {
-        
+        bool isPrivate = false;
         covise::TokenBuffer tb;
         tb << coVRCommunication::instance()->getID();
+        tb << coVRCommunication::instance()->getPublicSessionID();
+        tb << isPrivate;
         vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
     });
 
@@ -424,6 +431,7 @@ void coVRCollaboration::setSyncMode(const char *mode)
     {
         VRAvatarList::instance()->hide();
     }
+    updateSharedStates();
 }
 
 void coVRCollaboration::remoteTransform(osg::Matrix &mat)
@@ -475,15 +483,16 @@ float coVRCollaboration::getSyncInterval()
     return syncInterval;
 }
 
-void opencover::coVRCollaboration::updateSessionSelectionList()
+void opencover::coVRCollaboration::updateSessionSelectionList(std::set<int> ses)
 {
-    m_sessions = coVRCommunication::instance()->getSessions();
-    std::vector<std::string> sessions;
+    m_sessions = ses;
+    std::vector<std::string> sessionNames;
+    sessionNames.push_back("Private");
     for (auto it = m_sessions.begin(); it != m_sessions.end(); ++it)
     {
-        sessions.push_back(std::to_string(*it));
+        sessionNames.push_back(std::to_string(*it));
     }
-    m_availableSessions->setList(sessions);
+    m_availableSessions->setList(sessionNames);
 }
 
 coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const
@@ -496,6 +505,58 @@ bool coVRCollaboration::isMaster()
     return coVRCommunication::instance()->isMaster();
 }
 
+void coVRCollaboration::setCurrentSession(int id)
+{
+   
+    auto it = m_sessions.begin();
+    std::vector<std::string> sessionNames;
+    sessionNames.push_back("Private");
+    int index = 0;
+    for (int i = 0; i < m_sessions.size(); ++i)
+    {
+        sessionNames.push_back(std::to_string(*it));
+        if (*it == id)
+        {
+            index = i+1;
+        }
+        ++it;
+    }
+    m_availableSessions->setList(sessionNames);
+    m_availableSessions->select(index);
+
+}
+
+void coVRCollaboration::updateSharedStates() {
+    
+    int privateSessionID = coVRCommunication::instance()->getPrivateSessionID();
+    int publicSessionID = coVRCommunication::instance()->getPublicSessionID();
+    int useCouplingModeSessionID;
+    int sessionToSubscribe = publicSessionID;;
+
+    switch (syncMode)
+    {
+    case opencover::coVRCollaboration::LooseCoupling:
+        useCouplingModeSessionID = publicSessionID;
+        break;
+    case opencover::coVRCollaboration::MasterSlaveCoupling:
+        if (isMaster())
+        {
+            useCouplingModeSessionID = publicSessionID;
+            sessionToSubscribe = privateSessionID;
+        }
+        else
+        {
+            useCouplingModeSessionID = privateSessionID;
+        }
+        break;
+    case opencover::coVRCollaboration::TightCoupling:
+        useCouplingModeSessionID = publicSessionID;
+        break;
+    default:
+        break;
+    }
+    SharedStateManager::instance()->update(privateSessionID, publicSessionID, useCouplingModeSessionID, sessionToSubscribe);
+}
 ui::Menu *coVRCollaboration::menu() const
 {
     return m_collaborativeMenu;

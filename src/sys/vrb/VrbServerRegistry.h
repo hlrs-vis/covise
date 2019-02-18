@@ -22,34 +22,37 @@ namespace covise
 class TokenBuffer;
 }
 
-
-class VrbServerRegistry 
+namespace vrb
 {
-   public:
-       static VrbServerRegistry *instance;
-       /// constructor initializes Variables with values from yac.config:regVariables
-        VrbServerRegistry();
-        ~VrbServerRegistry();
+class VrbServerRegistry
+{
+public:
+    /// constructor initializes Variables with values from yac.config:regVariables
+    VrbServerRegistry(int session);
+    ~VrbServerRegistry();
+
 
 
     std::map<int, std::shared_ptr<serverRegClass>> getClasses(const std::string &name);
     /// get a map with an entry of the specified classes of all clients if the have that class
 ///int : client id, regClass : regClass with name that belongs to that client
-    serverRegClass *getClass(int ID, const std::string &name);
+    serverRegClass *getClass(const std::string &name);
     /// set a Value or create new Entry, s for isStatic
-    void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value,int senderID, bool s = false);
+    void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s = false);
     /// create new Entry
     void create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s);
     /// remove an Entry
-    void deleteEntry(int ID, const std::string &className, const std::string &name);
+    void deleteEntry(const std::string &className, const std::string &name);
     /// remove all Entries from one Module
-    void deleteEntry(int moduleID);
+    void deleteEntry();
     /// add a new observer to a specific variable and provide a default value
-    void observeVar(int ID, const std::string &className, int recvID, const std::string &variableName, covise::TokenBuffer &value);
+    void observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value);
     ///add a observer to a class an all its variables
-    void observeClass(int ID, const std::string &className, int recvID);
+    void observeClass(int ID, const std::string &className);
     /// remove an observer
-    void unObserve(int ID, const std::string &className, int recvID, const std::string &variableName = NULL);
+    void unObserveVar(int ID, const std::string &className, const std::string &variableName);
+    ///remove observer from class and all its variables
+    void unObserveClass(int ID, const std::string &className);
     /// remove all observers for this ID
     void unObserve(int recvID);
     ///informs the observers about a variable change
@@ -62,19 +65,20 @@ class VrbServerRegistry
        * add Registry to Script
        */
     void saveNetwork(coCharBuffer &cb);
-
+    void setOwner(int id);
+    int getOwner();
 private:
-    std::map<const int, std::map<const std::string, std::shared_ptr<serverRegClass>>> clientsClasses;
-    //assinges the client wich did the last change on the class/variable
-    std::map<const std::string, std::map<const std::string, int>> currentVariables;
+    std::map<const std::string, std::shared_ptr<serverRegClass>> classes;
+    int sessionID; // <= -10, -10 = default session
+    int owner;
 };
 
 class serverRegVar : public regVar<serverRegClass>
 {
 private:
-
-public:
     std::set<int> observers;
+public:
+
     using regVar::regVar;
     ~serverRegVar();
     /// send Value to recvID
@@ -107,8 +111,9 @@ private:
 class serverRegClass : public regClass<serverRegVar>
 {
 private:
-public:
     std::set<int> observers; //other clients
+public:
+
     using regClass::regClass;
     /// add a new observer to this class and all of its variables
     void observe(int recvID);
@@ -125,6 +130,6 @@ public:
     }
     void informDeleteObservers();
 };
-
+}
 
 #endif

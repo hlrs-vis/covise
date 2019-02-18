@@ -15,6 +15,13 @@
 #include <util/coExport.h>
 
 class coCharBuffer;
+namespace covise
+{
+class VRBClient;
+}
+
+namespace vrb
+{
 class clientRegClass;
 class clientRegVar;
 class serverRegVar;
@@ -23,14 +30,10 @@ class regClassObserver;
 class regVarObserver;
 class VrbClientRegistry;
 
-namespace covise {
-class VRBClient;
-}
-
 template<class variableType>
 class regClass
 {
-  public:
+public:
     typedef std::map<const std::string, std::shared_ptr<variableType>> VariableMap;
     regClass<variableType>(const std::string &n, int ID)
         : name(n)
@@ -42,6 +45,10 @@ class regClass
     int getID()
     {
         return (classID);
+    }
+    void setID(int id)
+    {
+        classID = id;
     }
     const std::string &getName()
     {
@@ -196,14 +203,14 @@ public:
     }
     void setLastEditor(int lastEditor);
     void notifyLocalObserver();
-    void resubscribe(int oldID);
-    void subscribe(regClassObserver *obs, int id);
+    void resubscribe(int sessionID);
+    void subscribe(regClassObserver *obs, int sessionID);
     covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
 };
 class VRBEXPORT clientRegVar : public regVar<clientRegClass>
 {
-private :
+private:
     regVarObserver *_observer;
     int lastEditor;
 public:
@@ -214,8 +221,8 @@ public:
         return _observer;
     }
     void notifyLocalObserver();
-    void subscribe(regVarObserver *ob, int id);
-    
+    void subscribe(regVarObserver *ob, int sessionID);
+
     //void attach(regVarObserver *ob)
     //{
     //    _observer = ob;
@@ -243,5 +250,5 @@ class VRBEXPORT regVarObserver
 public:
     virtual void update(clientRegVar *theChangedVar) = 0;
 };
-
+}
 #endif

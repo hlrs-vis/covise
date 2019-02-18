@@ -29,7 +29,7 @@
 #include <osg/Texture2D>
 #include <string>
 #include <vector>
-#include <cover/SharedState.h>
+#include <vrbclient/SharedState.h>
 #include <OpenVRUI/coUpdateManager.h>
 
 namespace osg
@@ -230,7 +230,7 @@ private:
     LoadedFile *m_lastFile = nullptr;
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
-    SharedState<std::vector<std::string>> filePaths;
+    vrb::SharedState<std::vector<std::string>> filePaths;
     void loadPartnerFiles();
 
 

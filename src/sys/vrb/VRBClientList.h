@@ -44,7 +44,7 @@ public:
         IP,
     };
 
-    void setContactInfo(const char *ip, const char *n);
+    void setContactInfo(const char *ip, const char *n, int session = 0);
     void setUserInfo(const char *userInfo);
     covise::Connection *conn;
     std::string getName() const;

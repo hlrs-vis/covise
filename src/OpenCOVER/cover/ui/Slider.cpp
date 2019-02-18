@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "../SharedState.h"
+#include <vrbclient/SharedState.h>
 #include <net/tokenbuffer.h>
 
 namespace opencover {

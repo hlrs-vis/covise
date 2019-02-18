@@ -13,7 +13,8 @@
 
 
 using namespace covise;
-
+namespace vrb
+{
 VrbClientRegistry *VrbClientRegistry::instance = NULL;
 //==========================================================================
 //
@@ -22,7 +23,7 @@ VrbClientRegistry *VrbClientRegistry::instance = NULL;
 //==========================================================================
 VrbClientRegistry::VrbClientRegistry(int ID, VRBClient *p_vrbc)
     :clientID(ID)
-    ,vrbc(p_vrbc)
+    , vrbc(p_vrbc)
 {
     assert(!instance);
     instance = this;
@@ -36,7 +37,6 @@ VrbClientRegistry::~VrbClientRegistry()
 
 void VrbClientRegistry::setID(int clID, int session)
 {
-    int oldID = clientID;
     if (sessionID == session && clientID == clID)
     {
         //reconect to old session
@@ -45,16 +45,26 @@ void VrbClientRegistry::setID(int clID, int session)
     {
         sessionID = session;
         clientID = clID;
-        resubscribe(oldID);
+        resubscribe(session);
     }
 }
-void VrbClientRegistry::resubscribe(int oldID)
+void VrbClientRegistry::resubscribe(int sessionID, int oldSession)
 {
 
     // resubscribe all registry entries on reconnect
     for (const auto cl : myClasses)
     {
-        cl.second->resubscribe(oldID);
+        cl.second->resubscribe(sessionID);
+    }
+    if (oldSession > 0) //unobserve old public session
+    {
+        covise::TokenBuffer tb;
+        tb << oldSession;
+        tb << clientID;
+        if (vrbc)
+        {
+            vrbc->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
+        }
     }
 }
 
@@ -76,26 +86,19 @@ void VrbClientRegistry::setVrbc(covise::VRBClient * client)
     vrbc = client;
 }
 
-clientRegClass *VrbClientRegistry::subscribeClass(const std::string &cl, regClassObserver *ob, int id)
+clientRegClass *VrbClientRegistry::subscribeClass(int sessionID, const std::string &cl, regClassObserver *ob)
 {
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
     {
-        if (id >= 0) //if id is set, use it
-        {
-            rc = new clientRegClass(cl, id, this);
-        }
-        else //use my clientID
-        {
-            rc = new clientRegClass(cl, clientID, this);
-        }
+        rc = new clientRegClass(cl, clientID, this);
         myClasses[cl].reset(rc);
     }
-    rc->subscribe(ob, id);
+    rc->subscribe(ob, sessionID);
     return rc;
 }
 
-clientRegVar *VrbClientRegistry::subscribeVar(const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob, int id)
+clientRegVar *VrbClientRegistry::subscribeVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -111,32 +114,29 @@ clientRegVar *VrbClientRegistry::subscribeVar(const std::string &cl, const std::
         rc->append(rv);
     }
     //maybe inform old observer here
-    rv->subscribe(ob, id);
+    rv->subscribe(ob, sessionID);
     return rv;
 }
 
-void VrbClientRegistry::unsubscribeClass(const std::string &cl)
+void VrbClientRegistry::unsubscribeClass(int sessionID, const std::string &cl)
 {
-    if (cl.empty())
-        return;
     clientRegClass *rc = getClass(cl);
     if (rc)
     {
         TokenBuffer tb;
         // compose message
+        tb << sessionID;
         tb << clientID;
         tb << cl;
         if (clientID >= 0)
             sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS);
         myClasses.erase(cl);
+
     }
 }
 
-void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string &var)
+void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string &var, bool unsubscribeServerOnly)
 {
-
-    if ((cl.empty()) || (var.empty()))
-        return;
     clientRegClass *rc = getClass(cl);
     if (rc)
     {
@@ -150,20 +150,22 @@ void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string 
             tb << var;
             if (clientID >= 0)
                 sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE);
-            rc->deleteVar(var);
+            if (!unsubscribeServerOnly)
+            {
+                rc->deleteVar(var);
+            }
         }
     }
 }
 
-void VrbClientRegistry::createVar(const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic)
+void VrbClientRegistry::createVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic)
 {
-    if (cl.empty() || var.empty())
-        return;
 
     // compose message
     TokenBuffer tb;
+    tb << sessionID;
     tb << clientID;
-    tb << cl; 
+    tb << cl;
     tb << var;
     tb << value;
     tb << isStatic;
@@ -171,11 +173,8 @@ void VrbClientRegistry::createVar(const std::string &cl, const std::string &var,
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(int ID, const std::string &cl, const std::string &var, TokenBuffer &&value)
+void VrbClientRegistry::setVar(int sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value)
 {
-    if ((cl.empty()) || (var.empty()))
-        return;
-
     // attach to the list
     clientRegClass *rc = getClass(cl);
     if (!rc)
@@ -184,30 +183,29 @@ void VrbClientRegistry::setVar(int ID, const std::string &cl, const std::string 
     }
     rc->setLastEditor(clientID);
     clientRegVar *rv = rc->getVar(var);
-    if (!rv) 
+    if (!rv)
     {
         rv = new clientRegVar(rc, var, value);
     }
     else
     {
-     rv->setValue(value);
-     rv->setLastEditor(clientID);
+        rv->setValue(value);
+        rv->setLastEditor(clientID);
     }
     // compose message
     TokenBuffer tb;
+    tb << sessionID;
     tb << clientID;// local client ID
-    tb << cl; 
+    tb << cl;
     tb << var;
     tb << value;
-    tb << ID; //client or session ID
+
     if (clientID >= 0)
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }
 
-void VrbClientRegistry::destroyVar(const std::string &cl, const std::string &var)
+void VrbClientRegistry::destroyVar(int sessionID, const std::string &cl, const std::string &var)
 {
-    if (cl.empty() || var.empty())
-        return;
     clientRegClass * rc = getClass(cl);
     if (rc)
     {
@@ -217,7 +215,7 @@ void VrbClientRegistry::destroyVar(const std::string &cl, const std::string &var
             rc->deleteVar(var);
             // compose message
             TokenBuffer tb;
-            tb << clientID;
+            tb << sessionID;
             tb << cl;
             tb << var;
             if (clientID >= 0)
@@ -235,7 +233,6 @@ clientRegClass *VrbClientRegistry::getClass(const std::string &name)
     }
     return it->second.get();
 }
-
 // called by controller if registry entry has changed
 void VrbClientRegistry::update(TokenBuffer &tb, int reason)
 {
@@ -304,3 +301,5 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
 
     } // switch
 }
+}
+

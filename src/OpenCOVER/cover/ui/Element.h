@@ -10,10 +10,15 @@ namespace covise {
 class TokenBuffer;
 }
 
-namespace opencover {
+namespace vrb
+{
 class SharedStateBase;
 template<class T>
 class SharedState;
+}
+
+namespace opencover {
+
 
 namespace ui {
 
@@ -162,7 +167,7 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Priority m_priority = Default;
     std::string m_iconName;
     int m_viewBits = ~0;
-    SharedStateBase *m_sharedState = nullptr;
+    vrb::SharedStateBase *m_sharedState = nullptr;
 
  private:
     mutable int m_id = -1, m_order = -1; // initialized by Manager

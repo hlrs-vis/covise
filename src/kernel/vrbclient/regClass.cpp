@@ -12,6 +12,8 @@
 #include <vrbclient/VRBClient.h>
 
 using namespace covise;
+namespace vrb
+{
 /////////////CLIENTREGVAR//////////////////////////////////////////////////
 void clientRegVar::notifyLocalObserver()
 {
@@ -21,17 +23,17 @@ void clientRegVar::notifyLocalObserver()
     }
 }
 
-void clientRegVar::subscribe(regVarObserver * ob, int id)
+void clientRegVar::subscribe(regVarObserver * ob, int sessionID)
 {
     myClass->setLastEditor(myClass->getID());
     lastEditor = myClass->getID();
     _observer = ob;
     TokenBuffer tb;
     // compose message
+    tb << sessionID;
     tb << myClass->getID();
     tb << myClass->getName();
     tb << name;
-    tb << id;
     tb << value;
     // inform controller about creation
     if (myClass->getID() >= 0 && myClass->getRegistryClient())
@@ -59,38 +61,39 @@ void clientRegClass::notifyLocalObserver()
     }
 }
 
-void clientRegClass::resubscribe(int oldID)
+void clientRegClass::resubscribe(int sessionID)
 {
-    if (classID == oldID)//update ID to new clientID
+    classID = registry->getID();
+    if (getRegistryClient() && sessionID != 0)
     {
-        classID = registry->getID();
-    }
-    if (getRegistryClient() && _observer)
-    {
-        if (myVariables.size() == 0)
+        if (myVariables.size() == 0 && _observer)
         {
-            subscribe(_observer, registry->getID());
+            subscribe(_observer, sessionID);
         }
         else
         {
             for (const auto var : myVariables)
             {
-                var.second->subscribe(var.second->getLocalObserver(), registry->getID());
+                if (var.second->getLocalObserver())
+                {
+                    var.second->subscribe(var.second->getLocalObserver(), sessionID);
+                }
             }
         }
     }
 
 }
 
-void clientRegClass::subscribe(regClassObserver *obs, int id)
+void clientRegClass::subscribe(regClassObserver *obs, int sessionID)
 {
     lastEditor = classID;
     _observer = obs; //maybe inform old observer
     TokenBuffer tb;
     // compose message
+    tb << sessionID;
     tb << classID;
     tb << name;
-    tb << id; 
+
     // inform controller about creation
     if (classID >= 0 && getRegistryClient())
         getRegistryClient()->sendMessage(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);
@@ -102,4 +105,5 @@ clientRegClass::VariableMap &clientRegClass::getAllVariables()
 covise::VRBClient * clientRegClass::getRegistryClient()
 {
     return registry->getVrbc();
+}
 }

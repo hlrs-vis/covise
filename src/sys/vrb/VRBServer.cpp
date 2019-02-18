@@ -66,7 +66,7 @@ extern ApplicationWindow *mw;
 //#define MB_DEBUG
 
 using namespace covise;
-
+using namespace vrb;
 VRBServer::VRBServer()
 {
     covise::Socket::initialize();
@@ -78,7 +78,7 @@ VRBServer::VRBServer()
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
-    registry = new VrbServerRegistry();
+    sessions[0].reset(new vrb::VrbServerRegistry(0));
 }
 
 VRBServer::~VRBServer()
@@ -207,7 +207,8 @@ void VRBServer::processMessages()
 void VRBServer::handleClient(Message *msg)
 {
     char *Class;
-    int senderID, clientID;
+    int sessionID, senderID;
+    int modeID; // =senderID for looseCoupling, =0 for observe all, else =-1  
     char *variable;
     char *value;
     int fd;
@@ -363,12 +364,13 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
     {
-        tb >> clientID; //the client or session ID
+        tb >> sessionID; 
+        tb >> senderID;
         tb >> Class;
         tb >> variable;
         tb >> tb_value;
-        tb >> senderID;
-        registry->setVar(clientID, Class, variable, tb_value, senderID);
+
+        sessions[sessionID]->setVar(senderID, Class, variable, tb_value); //maybe handle no existing registry for the given session ID
 
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
@@ -381,35 +383,68 @@ void VRBServer::handleClient(Message *msg)
                     tb_value >> value;
 			mw->registry->updateEntry(Class, senderID, variable, value);
 		}
-                else
-                {
-                    mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
-                }
+        else
+        {
+            int typeID;
+            tb_value >> typeID;
+            std::string valueString = "unknow data type with length: " + std::to_string(tb_value.get_length());
+            switch (typeID)
+            {
+            case 1:
+                bool b;
+                tb_value >> b;
+                valueString = std::to_string(b);
+                break;
+            case 2:
+                int v;
+                tb_value >> v;
+                valueString = std::to_string(v);
+                break;
+            case 3:
+                float f;
+                tb_value >> f;
+                valueString = std::to_string(f);
+                break;
+            case 4:
+                tb_value >> valueString;
+                break;
+            case 5:
+                char *c;
+                tb_value >> c;
+                valueString = c;
+                break;
+            default:
+                break;
+            }
+
+
+            mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+        }
 #endif
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
     {
+        tb >> sessionID;
         tb >> senderID;
         tb >> Class;
-        tb >> clientID;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe class=" << Class << std::endl;
 #endif
-        registry->observeClass(senderID, Class, clientID);
+        sessions[sessionID]->observeClass(senderID, Class);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE:
     {
+        tb >> sessionID;
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        tb >> clientID;
         tb >> tb_value;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << variable << ", class=" << Class << std::endl;
 #endif
-        registry->observeVar(senderID, Class, clientID, variable, tb_value);
+        sessions[sessionID]->observeVar(senderID, Class, variable, tb_value);
 #ifdef GUI
         if (std::strcmp(Class, "SharedState") != 0) //Change SharedState serialize / deserialze to send data type id first
         {
@@ -425,13 +460,13 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
     {
+        tb >> sessionID;
         tb >> senderID;
         tb >> Class;
-        tb >> clientID;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry unsubscribe class=" << Class << std::endl;
 #endif
-        registry->unObserve(senderID, Class, clientID);
+        sessions[sessionID]->unObserveClass(senderID, Class);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE:
@@ -439,11 +474,16 @@ void VRBServer::handleClient(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        tb >> clientID;
+
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry unsubscribe variable=" << name << ", class=" << Class << std::endl;
 #endif
-        registry->unObserve(senderID, Class, clientID, variable);
+        auto it = sessions.begin();
+        while (it != sessions.end())
+        {
+            it->second->unObserveVar(senderID, Class, variable);
+            ++it;
+        }
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY:
@@ -452,12 +492,13 @@ void VRBServer::handleClient(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Registry create entry!" << std::endl;
 #endif
         bool isStatic;
+        tb >> sessionID;
         tb >> senderID;
         tb >> Class;
         tb >> variable;
         tb >> tb_value;
         tb >> isStatic;
-        registry->create(senderID, Class, variable, tb_value, isStatic);
+        sessions[sessionID]->create(senderID, Class, variable, tb_value, isStatic);
 #ifdef GUI
         mw->registry->updateEntry(Class, senderID, variable, "");
 #endif
@@ -468,10 +509,10 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry delete entry!" << std::endl;
 #endif
-        tb >> senderID;
+        tb >> sessionID;
         tb >> Class;
         tb >> variable;
-        registry->deleteEntry(senderID, Class, variable);
+        sessions[sessionID]->deleteEntry(Class, variable);
 #ifdef GUI
         mw->registry->removeEntry(Class, senderID, variable);
 #endif
@@ -495,7 +536,7 @@ void VRBServer::handleClient(Message *msg)
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
-                c->setContactInfo(ip, name);
+                c->setContactInfo(ip, name, createSession(true));
             }
 #else
             clients.append(new VRBSClient(msg->conn, ip, name));
@@ -595,7 +636,7 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->length << "!" << std::endl;
 #endif
-        int toGroup = -2;
+        int toGroup = 0;
 #ifdef MB_DEBUG
         //std::cerr << "====> Get senders vrbc connection!" << std::endl;
 #endif
@@ -678,7 +719,7 @@ void VRBServer::handleClient(Message *msg)
         }
         else
             rtb << -1;
-
+        rtb << createSession(true);
         Message m(rtb);
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         msg->conn->send_msg(&m);
@@ -1547,24 +1588,67 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION:
     {
-        uint32_t sender;
-        TokenBuffer tb(msg);
+        bool isPrivate;
+        int sender;
         tb >> sender;
-        uint32_t sessionID = createSession();
-
+        tb >> sessionID;
+        tb >> isPrivate;
+        int newSessionID = createSession(isPrivate);
+        sessions[newSessionID]->setOwner(sender);
+        //send a list of all sessions to all clients
         TokenBuffer mtb;
-        uint32_t sessionsSize = sessions.size();
-        mtb << sessionsSize;
-        for (const int session : sessions)
+        std::set<int> publicSessions;
+        for (const auto session : sessions)
+        {
+            if (session.first > 0) //only send public sessions
+            {
+                publicSessions.insert(session.first);
+            }
+        }
+        int size = publicSessions.size();
+        mtb << size;
+        for (const auto session : publicSessions)
         {
             mtb << session;
         }
-        clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
-
+        if (size > 0)
+        {
+            clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
+        }
+        //send the sender the id if the new session
         TokenBuffer stb;
-        stb << sessionID;
-        clients.sendMessageToID(stb, sessionID, COVISE_MESSAGE_VRBC_SET_SESSION);
+        stb << newSessionID;
+        stb << isPrivate;
+        clients.sendMessageToID(stb, sender, COVISE_MESSAGE_VRBC_SET_SESSION);
+        auto session = sessions.find(sessionID);
+        if (session != sessions.end())
+        {
+            session->second->unObserve(sender);
+        }
 
+
+    }
+    break;
+    case COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION:
+    {
+        tb >> sessionID;
+        tb >> senderID;
+        sessions[sessionID]->unObserve(senderID);
+    }
+    break;
+    case COVISE_MESSAGE_VRBC_SET_SESSION:
+    {
+        tb >> sessionID;
+        tb >> senderID;
+
+        VRBSClient *cl = clients.get(senderID);
+        if (cl)
+        {
+            if (sessionID >= 0)
+            {
+                cl->setGroup(sessionID);
+            }
+        }
 
     }
     break;
@@ -1574,15 +1658,28 @@ void VRBServer::handleClient(Message *msg)
     }
 
 }
-int VRBServer::createSession()
+int VRBServer::createSession(bool isPrivate)
 {
-    uint32_t id = -2;
-    while (sessions.find(id) != sessions.end())
+    if (isPrivate)
     {
-        --id;
+        int id = -1;
+        while (sessions.find(id) != sessions.end())
+        {
+            --id;
+        }
+        sessions[id].reset(new VrbServerRegistry(id));
+        return id;
     }
-    sessions.insert(id);
-    return id;
+    else 
+    {
+        int id = 1;
+        while (sessions.find(id) != sessions.end())
+        {
+           ++id;
+        }
+        sessions[id].reset(new VrbServerRegistry(id));
+        return id;
+    }
 }
 
 void VRBServer::RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path)

@@ -55,7 +55,7 @@ class COVER_UI_EXPORT Button: public Element {
     std::function<void(bool)> m_callback;
 
 protected:
-    typedef SharedState<int> SharedValue;
+    typedef vrb::SharedState<int> SharedValue;
     void updateSharedState() override;
 };
 

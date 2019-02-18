@@ -83,7 +83,6 @@
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
-
 #include "ui/VruiView.h"
 #include "ui/TabletView.h"
 #include "ui/Action.h"
@@ -531,6 +530,8 @@ bool OpenCOVER::init()
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
     cover = new coVRPluginSupport();
+    coVRCommunication::instance();
+    cover->initUI();
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\nnew OpenCOVER\n");
@@ -558,6 +559,7 @@ bool OpenCOVER::init()
 
     cover->updateTime();
 
+   
     coVRPluginList::instance();
 
 	Input::instance()->init();

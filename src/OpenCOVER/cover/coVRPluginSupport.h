@@ -197,7 +197,7 @@ public:
           4,
           5 all functions which are called continously */
     bool debugLevel(int level) const;
-
+    void initUI();
     // show a message to the user
     std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
     std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
