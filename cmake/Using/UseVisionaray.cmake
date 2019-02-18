@@ -27,6 +27,7 @@ MACRO(USE_VISIONARAY)
             endif()
 
             USE_BOOST()
+            USE_TBB()
             include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})
             include_directories(${VISIONARAY_CONFIG_DIR})
