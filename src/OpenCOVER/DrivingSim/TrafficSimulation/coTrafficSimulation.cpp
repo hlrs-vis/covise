@@ -145,8 +145,7 @@ unsigned long coTrafficSimulation::getIntegerRandomNumber()
 
 double coTrafficSimulation::getZeroOneRandomNumber()
 {
-    auto r = std::bind(uniformDist, mersenneTwisterEngine);
-    return r();
+    return uniformDist(mersenneTwisterEngine);
 }
 
 
