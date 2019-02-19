@@ -344,7 +344,7 @@ void SumoTraCI::interpolateVehiclePosition()
         if (!previousResults[i].vehicleClass.compare("pedestrian"))
         {
             //    p->getPedestrianGeometry()->setTransform();
-            std::map<const std::string, PedestrianGeometry *>::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
+            PedestrianMap::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
 
             if (itr != loadedPedestrians.end())
             {

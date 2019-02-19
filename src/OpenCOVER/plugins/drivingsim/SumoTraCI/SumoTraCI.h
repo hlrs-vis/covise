@@ -61,8 +61,9 @@ private:
     osg::ref_ptr<osg::Group> pedestrianGroup;
 
     PedestrianFactory *pf;
-    std::map<std::string, PedestrianGeometry *> pedestrianMap;
-    std::map<std::string, PedestrianGeometry *> loadedPedestrians;
+    typedef std::map<std::string, PedestrianGeometry *> PedestrianMap;
+    PedestrianMap pedestrianMap;
+    PedestrianMap loadedPedestrians;
     PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     PedestrianGeometry* getPedestrian(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
