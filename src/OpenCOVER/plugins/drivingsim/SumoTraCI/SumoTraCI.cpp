@@ -70,26 +70,6 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
     return av;
 }
 
-PedestrianGeometry *SumoTraCI::getPedestrian(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
-{
-    std::map<std::string, PedestrianGeometry *> pedestrianMap;
-    PedestrianGeometry *p;
-    auto pIt = pedestrianMap.find(vehicleID);
-    if(pIt != pedestrianMap.end())
-    {
-        p = pIt->second;
-    }
-    else
-    {
-        PedestrianAnimations a = PedestrianAnimations();
-        std::string modelFile = "CH02_01";
-        std::string ID = vehicleID;
-        p = new PedestrianGeometry(ID, modelFile,0.0254,300.0,a, pedestrianGroup);
-        pedestrianMap.insert(std::pair<std::string, PedestrianGeometry *>(vehicleID, p));
-    }
-    return p;
-}
-
 SumoTraCI::~SumoTraCI()
 {
     fprintf(stderr, "SumoTraCI::~SumoTraCI\n");
@@ -346,7 +326,6 @@ void SumoTraCI::interpolateVehiclePosition()
 
         if (!previousResults[i].vehicleClass.compare("pedestrian"))
         {
-            //    p->getPedestrianGeometry()->setTransform();
             PedestrianMap::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
 
             if (itr != loadedPedestrians.end())

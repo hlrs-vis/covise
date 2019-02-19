@@ -75,7 +75,6 @@ private:
     PedestrianMap loadedPedestrians;
     
     PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
-    PedestrianGeometry* getPedestrian(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     std::vector<pedestrianModel> pedestrianModels;
     void getPedestriansFromConfig();
