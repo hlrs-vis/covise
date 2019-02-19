@@ -4,6 +4,7 @@
 
  <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
  <INCLUDE global="1" configname="fasi" >config-drivingsim.xml</INCLUDE>
+ <INCLUDE global="1" configname="sumo" >config-sumo.xml</INCLUDE>
 
  <TRYINCLUDE global="1" configname="private" ARCH="unix" >/data/hlrs/config-hlrs-private.xml</TRYINCLUDE>
  <!-- INCLUDE global="1" configname="private" ARCH="windows" >c:/data/hlrs/config-hlrs-private.xml</INCLUDE -->
