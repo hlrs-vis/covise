@@ -416,10 +416,11 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
     std::string ID = vehicleID;
     PedestrianAnimations a = PedestrianAnimations();
     std::string modelFile;
-    std::random_device rd;
-    std::mt19937 gen(rd());
+
+    static std::mt19937 gen(0);
     std::uniform_int_distribution<> dis(0, pedestrianModels.size()-1);
     int pedestrianIndex = dis(gen);
+
     pedestrianModel p = pedestrianModels[pedestrianIndex];
     return new PedestrianGeometry(ID, p.fileName,p.scale, 400.0, a, pedestrianGroup);
 }
