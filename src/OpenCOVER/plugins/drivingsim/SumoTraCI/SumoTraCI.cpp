@@ -26,6 +26,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
@@ -50,6 +51,7 @@ SumoTraCI::SumoTraCI()
     pedestrianGroup =  new osg::Group;
     pedestrianGroup->setName("pedestrianGroup");
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+    getPedestriansFromConfig();
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
@@ -70,6 +72,7 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
 
 PedestrianGeometry *SumoTraCI::getPedestrian(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
 {
+    std::map<std::string, PedestrianGeometry *> pedestrianMap;
     PedestrianGeometry *p;
     auto pIt = pedestrianMap.find(vehicleID);
     if(pIt != pedestrianMap.end())
@@ -431,11 +434,33 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
 
 PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
-    PedestrianGeometry *p = getPedestrian(vehicleID,vehicleClass,vehicleType);
     std::string ID = vehicleID;
     PedestrianAnimations a = PedestrianAnimations();
-    std::string modelFile = "CH02_01";
-    return new PedestrianGeometry(ID, modelFile,0.0254,400.0,a, pedestrianGroup);
+    std::string modelFile;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, pedestrianModels.size()-1);
+    int pedestrianIndex = dis(gen);
+    pedestrianModel p = pedestrianModels[pedestrianIndex];
+    return new PedestrianGeometry(ID, p.fileName,p.scale, 400.0, a, pedestrianGroup);
+}
+
+void SumoTraCI::getPedestriansFromConfig()
+{
+    covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Pedestrians");
+    const char **entries = e.getValue();
+    if (entries)
+    {
+        while (*entries)
+        {
+            const char *fileName = *entries;
+            entries++;
+            const char *scaleChar = *entries;
+            entries++;
+            double scale = atof(scaleChar);
+            pedestrianModels.push_back(pedestrianModel(fileName, scale));
+        }
+    }
 }
 
 COVERPLUGIN(SumoTraCI)
