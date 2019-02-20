@@ -268,18 +268,24 @@ void QtGraphicsWindow::setCursor(MouseCursor cursor)
 
 bool QtGraphicsWindow::setWindowDecorationImplementation(bool flag)
 {
+    auto f = m_glWidget->windowFlags();
     auto win = dynamic_cast<QWindow *>(m_glWidget->parent());
     if (win)
     {
-        auto f = win->flags();
-        if (flag)
-            f |= Qt::FramelessWindowHint;
-        else
-            f &= ~Qt::FramelessWindowHint;
+        f = win->flags();
+    }
+    if (flag)
+        f |= Qt::FramelessWindowHint;
+    else
+        f &= ~Qt::FramelessWindowHint;
+    if (win)
+    {
         win->setFlags(f);
         return true;
-    } else {
-        m_glWidget->setWindowFlag(Qt::FramelessWindowHint, flag);
+    }
+    else
+    {
+        m_glWidget->setWindowFlags(f);
         return true;
     }
     return false;
@@ -330,6 +336,7 @@ void QtOsgWidget::paintEvent(QPaintEvent *paintEvent)
 {
     //opencover::VRViewer::instance()->requestRedraw();
 }
+
 
 void QtOsgWidget::initializeGL()
 {

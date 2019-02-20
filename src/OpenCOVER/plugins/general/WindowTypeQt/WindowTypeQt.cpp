@@ -189,8 +189,10 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     else
         win.window->setWindowTitle("COVER");
     win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
-    win.window->setWindowFlag(Qt::CustomizeWindowHint);
-    win.window->setWindowFlag(Qt::WindowFullscreenButtonHint);
+    auto f = win.window->windowFlags();
+    f |= Qt::CustomizeWindowHint;
+    f |= Qt::WindowFullscreenButtonHint;
+    win.window->setWindowFlags(f);
     win.window->show();
     window->connect(win.window, &QtMainWindow::closing, [this](){
         OpenCOVER::instance()->requestQuit();
