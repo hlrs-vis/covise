@@ -332,6 +332,7 @@ void SumoTraCI::interpolateVehiclePosition()
             {
                 if (currentIndex == -1)
                 {
+                    delete itr->second;
                     loadedPedestrians.erase(itr);
                 }
                 else
