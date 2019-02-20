@@ -336,16 +336,22 @@ void SumoTraCI::interpolateVehiclePosition()
                 }
                 else
                 {
-                    double weight = currentTime - nextSimTime;
-
-                    osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
-                    double heading = interpolateAngles(weight,osg::DegreesToRadians(previousResults[i].angle),osg::DegreesToRadians(currentResults[currentIndex].angle));
                     PedestrianGeometry * p = itr->second;
-                    Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(0.0,Vector3D(0.0,0.0,0.0)));
-                    p->setTransform(trans,heading);
-                    p->setWalkingSpeed(1.0);
-                    //VehicleState vs;
-                    //av->getCarGeometry()->updateCarParts(1, 0, vs);
+
+                    double weight = currentTime - nextSimTime;
+                    osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+
+                    osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat orientation;
+                    orientation.slerp(weight, pastOrientation, futureOrientation);
+
+                    Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(orientation.w(),orientation.x(),orientation.y(),orientation.z()));
+                    p->setTransform(trans,M_PI);
+
+                    double dt = simTime - nextSimTime;
+                    double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/dt;
+                    p->setWalkingSpeed(walkingSpeed);
                 }
             }
         }
