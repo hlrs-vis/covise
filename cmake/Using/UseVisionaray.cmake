@@ -1,8 +1,6 @@
 MACRO(USE_VISIONARAY)
     if(COVISE_USE_VISIONARAY)
         IF(NOT VISIONARAY_USED)
-            using_message("Using Visionaray")
-
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
             set(VISIONARAY_CONFIG_DIR "${CMAKE_BINARY_DIR}/src/3rdparty/visionaray/config")
             if(MSVC)
@@ -27,42 +25,50 @@ MACRO(USE_VISIONARAY)
             endif()
 
             USE_BOOST()
-            USE_TBB()
-            include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-            include_directories(${VISIONARAY_INCLUDE_DIR})
-            include_directories(${VISIONARAY_CONFIG_DIR})
+            USE_TBB(optional)
+            if (NOT TBB_FOUND)
+                if (NOT ${ARGC} LESS 1)
+                    using_message("Skipping Visionaray dependee because of missing TBB")
+                    return()
+                endif()
+            else()
+                include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+                include_directories(${VISIONARAY_INCLUDE_DIR})
+                include_directories(${VISIONARAY_CONFIG_DIR})
 
-            set(EXTRA_LIBS
-                ${EXTRA_LIBS}
-                ${VISIONARAY_LIBRARY}
-            )
-
-            if (NOT APPLE AND NOT WIN32)
-                include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})
                 set(EXTRA_LIBS
                     ${EXTRA_LIBS}
-                    ${PTHREAD_LIBRARY}
-                )
-            endif()
+                    ${VISIONARAY_LIBRARY}
+                    )
 
-            if(COVISE_USE_CUDA AND CUDA_FOUND)
-                include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
-            endif()
+                if (NOT APPLE AND NOT WIN32)
+                    include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})
+                    set(EXTRA_LIBS
+                        ${EXTRA_LIBS}
+                        ${PTHREAD_LIBRARY}
+                        )
+                endif()
 
-            IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-                set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=0")
-                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=0")
-                IF(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0)
-                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=ignored-attributes")
-                    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=ignored-attributes")
+                if(COVISE_USE_CUDA AND CUDA_FOUND)
+                    include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+                    set(EXTRA_LIBS ${EXTRA_LIBS} ${CUDA_LIBRARIES})
+                endif()
+
+                IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fabi-version=0")
+                    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fabi-version=0")
+                    IF(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0)
+                        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-error=ignored-attributes")
+                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=ignored-attributes")
+                    ENDIF()
                 ENDIF()
-            ENDIF()
+            endif()
 
             SET(VISIONARAY_USED TRUE)
         ENDIF(NOT VISIONARAY_USED)
     else(COVISE_USE_VISIONARAY)
-        if (NOT opt STREQUAL "optional")
+        if (NOT ${ARGC} LESS 1)
+            using_message("Skipping because of disabled Visionaray")
             return()
         endif()
     endif(COVISE_USE_VISIONARAY)
