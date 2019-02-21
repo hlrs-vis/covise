@@ -184,6 +184,8 @@ private:
 class COVEREXPORT coVRPluginSupport
 {
     friend class OpenCOVER;
+    friend class fasi;
+    friend class fasi2;
     friend class coVRMSController;
     friend class coIntersection;
 

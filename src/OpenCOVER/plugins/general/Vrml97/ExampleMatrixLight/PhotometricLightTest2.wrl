@@ -11,7 +11,7 @@ DEF Camera001 Viewpoint {
   description "Camera001"
 }
 NavigationInfo { headlight TRUE }
-DEF coGroupShaderMatrixLight_AllObjects Group {
+DEF coGroupShaderMatrixLightV1_AllObjects Group {
    children [
 DEF Box001 Transform {
   translation -4.07196 0 1.75153
@@ -472,6 +472,138 @@ DEF Box095 Transform {
     }
   ]
 }
+DEF Box095 Transform {
+  translation 80 0 5.50812
+  rotation 0 -1 0 -1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.898039 0.65098 0.843137  # pink
+        }
+      }
+      geometry DEF Box005-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box005-COORD Coordinate { point [
+          -42.522 0 1.60421, 42.522 0 1.60421, -42.522 0 -1.60421, 
+          42.522 0 -1.60421, -42.522 32.0717 1.60421, 42.522 32.0717 1.60421, 
+          -42.522 32.0717 -1.60421, 42.522 32.0717 -1.60421]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box095 Transform {
+  translation 80 0 5.50812
+  rotation 0 -1 0 -1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.898039 0.65098 0.843137  # pink
+        }
+      }
+      geometry DEF Box005-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box005-COORD Coordinate { point [
+          -42.522 0 1.60421, 42.522 0 1.60421, -42.522 0 -1.60421, 
+          42.522 0 -1.60421, -42.522 32.0717 1.60421, 42.522 32.0717 1.60421, 
+          -42.522 32.0717 -1.60421, 42.522 32.0717 -1.60421]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box095 Transform {
+  translation 80 0 5.50812
+  rotation 0 -1 0 -1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.898039 0.65098 0.843137  # pink
+        }
+      }
+      geometry DEF Box005-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box005-COORD Coordinate { point [
+          -42.522 0 1.60421, 42.522 0 1.60421, -42.522 0 -1.60421, 
+          42.522 0 -1.60421, -42.522 32.0717 1.60421, 42.522 32.0717 1.60421, 
+          -42.522 32.0717 -1.60421, 42.522 32.0717 -1.60421]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
+DEF Box095 Transform {
+  translation 80 0 5.50812
+  rotation 0 -1 0 -1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material  Material {
+          diffuseColor 0.898039 0.65098 0.843137  # pink
+        }
+      }
+      geometry DEF Box005-FACES IndexedFaceSet {
+        ccw TRUE
+        solid TRUE
+        coord DEF Box005-COORD Coordinate { point [
+          -42.522 0 1.60421, 42.522 0 1.60421, -42.522 0 -1.60421, 
+          42.522 0 -1.60421, -42.522 32.0717 1.60421, 42.522 32.0717 1.60421, 
+          -42.522 32.0717 -1.60421, 42.522 32.0717 -1.60421]
+        }
+        normal Normal { vector [
+          1 0 0, -1 0 0, 0 1 0, 0 0 1, 0 -1 0, 0 0 -1, ] }
+        normalPerVertex TRUE
+        coordIndex [
+          0, 2, 3, -1, 3, 1, 0, -1, 4, 5, 7, -1, 7, 6, 4, -1, 0, 1, 5, -1, 
+          5, 4, 0, -1, 1, 3, 7, -1, 7, 5, 1, -1, 3, 2, 6, -1, 
+          6, 7, 3, -1, 2, 0, 4, -1, 4, 6, 2, -1]
+        normalIndex [
+          4, 4, 4, -1, 4, 4, 4, -1, 2, 2, 2, -1, 2, 2, 2, -1, 3, 
+          3, 3, -1, 3, 3, 3, -1, 0, 0, 0, -1, 0, 0, 0, -1, 5, 
+          5, 5, -1, 5, 5, 5, -1, 1, 1, 1, -1, 1, 1, 1, -1, ]
+        }
+    }
+  ]
+}
 
 DEF Box006 Transform {
   translation -3.42827 69.9247 1.75153
@@ -528,7 +660,7 @@ DEF Plane001 Transform {
           url "maps/BARK5.jpg"
         }
       }
-      geometry DEF coShaderMatrixLight_Plane001-FACES IndexedFaceSet {
+      geometry DEF coShaderMatrixLightV1_Plane001-FACES IndexedFaceSet {
         ccw TRUE
         solid TRUE
         coord DEF Plane001-COORD Coordinate { point [

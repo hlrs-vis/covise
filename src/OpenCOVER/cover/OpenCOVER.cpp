@@ -531,9 +531,15 @@ bool OpenCOVER::init()
         putenv(envStr);
     }
     if (coCoviseConfig::isOn("COVER.SyncToVBlank", false))
+    {
         putenv((char *)"__GL_SYNC_TO_VBLANK=1");
+        fprintf(stderr,"__GL_SYNC_TO_VBLANK=1\n");
+    }
     else
+    {
         putenv((char *)"__GL_SYNC_TO_VBLANK=0");
+        fprintf(stderr,"__GL_SYNC_TO_VBLANK=0\n");
+	}
     std::string syncDevice = coCoviseConfig::getEntry("device", "COVER.SyncToVBlank");
     if (!syncDevice.empty())
     {

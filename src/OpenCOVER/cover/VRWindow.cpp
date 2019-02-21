@@ -548,6 +548,7 @@ VRWindow::createWin(int i)
     {
         if (auto win = coVRConfig::instance()->windows[i].window)
         {
+	fprintf(stderr,"syncToVBlank=%d\n",(int)syncToVBlank);
             win->setSyncToVBlank(syncToVBlank);
         }
     }

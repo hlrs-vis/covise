@@ -28,6 +28,10 @@ coInteractionManager::~coInteractionManager()
 
 coInteractionManager *coInteractionManager::the()
 {
+    if(im == NULL)
+    {
+       im = new coInteractionManager();
+    }
     return im;
 }
 

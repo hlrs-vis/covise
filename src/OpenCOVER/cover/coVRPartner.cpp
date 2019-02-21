@@ -35,7 +35,7 @@ using covise::Message;
 coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
-: ui::Owner("VRPartner-Me", cover->ui)
+: ui::Owner("VRPartner-Me" ,cover->ui)
 {
     m_id = -1;
     m_group = -1;

@@ -92,7 +92,10 @@ coVRMSController::SlaveData::~SlaveData()
 
 coVRMSController *coVRMSController::instance()
 {
-    assert(s_singleton);
+    if(s_singleton == NULL)
+    {
+        s_singleton = new coVRMSController();
+    }
     return s_singleton;
 }
 
@@ -443,7 +446,10 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     if (covise::coConfigConstants::getRank() != myID) {
         std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
     }
+    if(AmyID != -1)
+    {
     assert(covise::coConfigConstants::getRank() == myID);
+    }
 }
 
 #ifdef HAS_MPI

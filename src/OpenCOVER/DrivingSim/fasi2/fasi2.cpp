@@ -10,7 +10,9 @@
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
 #include <xenomai/init.h>
-
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRMSController.h>
+using namespace opencover;
 int main(int argc, char* const* argv)
 {
     if (argc < 2)
@@ -32,6 +34,7 @@ fasi2::fasi2(const char *filename)
 {
     system = NULL;
     myFasi = this;
+    opencover::cover = new opencover::coVRPluginSupport();
     serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
     {
