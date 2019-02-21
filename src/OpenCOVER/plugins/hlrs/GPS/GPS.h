@@ -32,20 +32,26 @@
 #include <gdal_priv.h>
 #include <xercesc/dom/DOM.hpp>
 
+
+
 #include "File.h"
+#include "PointSensor.h"
+#include "GPSPoint.h"
+
 
 using namespace opencover;
 using namespace covise;
 namespace opencover
 {
 class coVRLabel;
+
 }
 class GPSPoint;
 class Track;
-class GPSAllPoints;
-class GPSALLTracks;
 
-class GPSPlugin : public opencover::coVRPlugin , public ui::Owner
+
+
+class GPSPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:
     GPSPlugin();
@@ -117,6 +123,7 @@ private:
     int rows;
     GDALDataset  *heightDataset;
     GDALRasterBand  *heightBand;
+
 
 };
 

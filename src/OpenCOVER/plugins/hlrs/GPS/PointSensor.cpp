@@ -5,52 +5,43 @@
 
  * License: LGPL 2+ */
 
-#ifndef _GPS_PLUGIN_FILE_H
-#define _GPS_PLUGIN_FILE_H
 /****************************************************************************\ 
  **                                                            (C)2008 HLRS  **
  **                                                                          **
- ** Description: GPS OpenCOVER Plugin (is polite)                            **
+ ** Description: GPS OpenCOVER Plugin (is polite)                          **
  **                                                                          **
  **                                                                          **
- ** Author: U.Woessner, T.Gudat		                                     **
+ ** Author: U.Woessner, T.Gudat	                                             **
  **                                                                          **
  ** History:  								     **
  ** June 2008  v1	    				       		     **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
-#include <cover/coVRPlugin.h>
-#include "GPSPoint.h"
-#include "Track.h"
 
-using namespace opencover;
-using namespace covise;
-namespace opencover
+#include "GPS.h"
+#include "GPSPoint.h"
+
+
+PointSensor::PointSensor(GPSPoint *p, osg::Node *n)
+    : coPickSensor(n)
 {
-class coVRLabel;
+    myGPSPoint = p;
 }
 
-
-//For single files
-class File
+PointSensor::~PointSensor()
 {
-public:
-    File();
-    File(const char *filename, osg::Group *parent);
-    ~File();
-    void readFile(const std::string &filename);
-    void addTrack(Track *p);
-    void addPoint(GPSPoint *p);
-    void draw();
-    void update();
-    std::string name;
-    osg::ref_ptr<osg::Group> FileGroup;
-    osg::ref_ptr<osg::Switch> SwitchPoints;
-    osg::ref_ptr<osg::Switch> SwitchTracks;
-    osg::ref_ptr<osg::Group> TrackGroup;
+    if (active)
+        disactivate();
+}
 
-    std::list<Track*> allTracks;
-    std::list<GPSPoint*> allPoints;
-};
-#endif
+void PointSensor::activate()
+{
+    myGPSPoint->activate();
+}
+
+void PointSensor::disactivate()
+{
+    myGPSPoint->disactivate();
+}
+

@@ -22,7 +22,6 @@
 #include "GPS.h"
 #include "GPSPoint.h"
 #include "Track.h"
-#include "File.h"
 #include <time.h>
 #include <iostream>
 
@@ -83,14 +82,6 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     OSGGPSPlugin->setName("GPS");
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
 
-    //testlabel
-    //std::string s  = "what";
-    //int size = 300;
-    //int len = 300;
-    //Label = new coVRLabel(s.c_str(), size,len, osg::Vec4(1,0,0,1), osg::Vec4(0.1,0.1,0.1,1));
-    //Label->setPositionInScene(osg::Vec3(1,1,0));
-
-
     //mapping of coordinates
 #ifdef WIN32
     const char *pValue;
@@ -139,19 +130,20 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     iconFoto = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Camera.png"));
     iconSprachaufnahme = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Speechbubble.png"));
     iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
-
 }
 
 
 bool GPSPlugin::update()
 {
-    //Label->update();
+    for (auto *f : fileList)
+    {
+        f->update();
+    }
     return false;
 }
 
 GPSPlugin::~GPSPlugin()
 {
-    //OSGGPSPlugin->removeChildren(0,1);
     for (int index = 0; index < NUM_HANDLERS; index++){
         coVRFileManager::instance()->unregisterFileHandler(&handlers[index]);
     }
@@ -181,11 +173,15 @@ void GPSPlugin::GPSTab_create(void)
         }
     });
     TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
-    TogglePoints->setCallback([this](bool) {
+    TogglePoints->setCallback([this](bool)
+    {
         bool tmp = true;
-        for (auto *f : fileList){
-            for (auto *p : f->allPoints){
-                if(showPoints){
+        for (auto *f : fileList)
+        {
+            for (auto *p : f->allPoints)
+            {
+                if(showPoints)
+                {
                     p->switchSphere->setAllChildrenOff();
                     p->switchDetail->setAllChildrenOff();
                     tmp = false;
