@@ -30,7 +30,7 @@
 #include <cover/coVRPluginSupport.h>
 
 #include <osg/Version>
-#if OSG_VERSION_GREATER_OR_EQUAL(3, 6, 0)
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 16, 0)
 #define HAVE_VRMLNODEPHOTOMETRICLIGHT
 // all OSG releases have DispatchCompute
 #include <osg/DispatchCompute>
