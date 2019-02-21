@@ -274,10 +274,16 @@ public:
     ui::Slider *yStepSlider = nullptr;
     ui::Slider *amplitudeFactor = nullptr;
     ui::Slider *frequencyFactor = nullptr;
+    ui::Slider *accelSlider = nullptr;
+    ui::Slider *raccelSlider = nullptr;
+    ui::Slider *spiralSpeedSlider = nullptr;
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
     ui::Label *infoLabel = nullptr;
+    float acceleration=-300;
+    float rAcceleration=0.2;
+    float spiralSpeed=0.1;
 private:
 
     static MidiPlugin *plugin;

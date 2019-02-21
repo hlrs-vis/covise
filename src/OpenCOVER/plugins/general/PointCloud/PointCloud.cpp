@@ -22,7 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-
+#include <functional>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
@@ -55,7 +55,6 @@ using covise::coCoviseConfig;
 using vrui::coInteraction;
 
 const int MAX_POINTS = 30000000;
-
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
 PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
 
@@ -65,6 +64,7 @@ COVERPLUGIN(PointCloudPlugin)
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
 : ui::Owner("PointCloud",cover->ui)
+, pointSizeValue("pointSizeValue", 4.0)
 {
 }
 
@@ -108,8 +108,9 @@ bool PointCloudPlugin::init()
         return false;
     }
     plugin = this;
-    pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", 9.0);
-
+    //pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSizeValue);
+	std::function<void(void)> update = [this](void) {UpdatePointSizeValue(); };
+	pointSizeValue.setUpdateFunction(update);
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     coVRFileManager::instance()->registerFileHandler(&handlers[2]);
@@ -122,8 +123,8 @@ bool PointCloudPlugin::init()
     pointCloudMenu->setText("Point cloud");
 
     // Create menu
-    char name[100];
 #if 0
+    char name[100];
     sprintf(name, "PointCloudFiles");
     fileGroup = new ui::Group(pointCloudMenu, name);
     sprintf(name, "Files");
@@ -391,6 +392,10 @@ void PointCloudPlugin::changeAllPointSize(float pointSize)
                 geo->setPointSize(pointSize);
         }
     }
+}
+void PointCloudPlugin::UpdatePointSizeValue(void) {
+	changeAllPointSize(pointSizeValue);
+    pointSizeSlider->setValue(pointSizeValue);
 }
 
 // create and add geodes to the scene  //DEFAULT JUST LOADS New_10x10x10.xyz  //UPDATE will be using the menu

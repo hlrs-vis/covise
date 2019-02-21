@@ -13,12 +13,14 @@ SET(VRBC_SOURCES
   ../VRBServer.cpp
   ../coRegistry.cpp
   ../VRBClientList.cpp
+  ../VrbServerRegistry.cpp
 )
 
 SET(VRBC_HEADERS
   ../VRBServer.h
   ../coRegistry.h
   ../VRBClientList.h
+  ../VrbServerRegistry.h
 )
 
 ADD_COVISE_EXECUTABLE(vrbc ${VRBC_SOURCES} ${VRBC_HEADERS})

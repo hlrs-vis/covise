@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
+    <GLOBAL>
+        <COVER>
+            <Plugin>
+                <SumoTraCI>
+                    <Pedestrians>
+                        <CH02_01 value="0.0254" />
+                        <CH02_02 value="0.0254" />
+                        <CH02_03 value="0.0254" />
+                        <CH02_04 value="0.0254" />
+                        <CH02_05 value="0.0254" />
+                        <CH02_06 value="0.0254" />
+                        <CH02_07 value="0.0254" />
+                        <CH02_08 value="0.0254" />
+                        <CH02_09 value="0.0254" />
+                        <CH02_10 value="0.0254" />
+
+                        <CP01_01 value="0.0254" />
+                        <CP01_02 value="0.0254" />
+                        <CP01_03 value="0.0254" />
+                        <CP01_04 value="0.0254" />
+                        <CP01_05 value="0.0254" />
+                        <CP01_06 value="0.0254" />
+                        <CP01_07 value="0.0254" />
+                        <CP01_08 value="0.0254" />
+                        <CP01_09 value="0.0254" />
+                        <CP01_10 value="0.0254" />
+
+                        <CW_01 value="0.0254" />
+                        <CW_02 value="0.0254" />
+                        <CW_03 value="0.0254" />
+                        <CW_04 value="0.0254" />
+                        <CW_05 value="0.0254" />
+                        <CW_06 value="0.0254" />
+                        <CW_07 value="0.0254" />
+                        <CW_08 value="0.0254" />
+                        <CW_09 value="0.0254" />
+                        <CW_10 value="0.0254" />
+
+                        <ST01_01 value="0.0254" />
+                        <ST01_02 value="0.0254" />
+                        <ST01_03 value="0.0254" />
+                        <ST01_04 value="0.0254" />
+                        <ST01_05 value="0.0254" />
+                        <ST01_06 value="0.0254" />
+                        <ST01_07 value="0.0254" />
+                        <ST01_08 value="0.0254" />
+                        <ST01_09 value="0.0254" />
+                        <ST01_10 value="0.0254" />
+                    </Pedestrians>
+                </SumoTraCI>
+            </Plugin>
+        </COVER>
+    </GLOBAL>
+</COCONFIG>

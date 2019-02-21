@@ -8,10 +8,9 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
-#include "coRegistry.h"
-
 #include <QObject>
 #include <QString>
+#include <set>
 
 namespace covise
 {
@@ -22,6 +21,7 @@ class Message;
 }
 class QSocketNotifier;
 class VRBSClient;
+class VrbServerRegistry;
 
 #ifdef Q_MOC_RUN
 #define GUI
@@ -49,18 +49,20 @@ public:
     void loop();
     int openServer();
     void closeServer();
-    coRegistry registry;
+    VrbServerRegistry *registry = nullptr;
 
 private:
-    covise::ServerConnection *sConn;
-    QSocketNotifier *serverSN;
-    covise::ConnectionList *connections;
+    covise::ServerConnection *sConn = nullptr;
+    QSocketNotifier *serverSN = nullptr;
+    covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
     void handleClient(covise::Message *);
+    int createSession();
     void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
-    covise::Message *msg;
-    bool requestToQuit;
-    VRBSClient *currentFileClient;
-    char *currentFile;
+    covise::Message *msg = nullptr;
+    bool requestToQuit = false;
+    VRBSClient *currentFileClient = nullptr;
+    char *currentFile = nullptr;
+    std::set<int> sessions;
 };
 #endif

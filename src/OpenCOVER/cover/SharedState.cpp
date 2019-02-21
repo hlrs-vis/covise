@@ -6,6 +6,10 @@
  * License: LGPL 2+ */
 
 #include "SharedState.h"
+#include <vrbclient/regClass.h>
+#include <vrbclient/VrbClientRegistry.h>
+#include <coVRCommunication.h>
+#include <coVRCollaboration.h>
 
 namespace opencover
 {
@@ -36,15 +40,59 @@ void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<
 }
 
 SharedStateBase::SharedStateBase(std::string name)
-: m_registry(coVRCommunication::instance()->registry)
+    : m_registry(coVRCommunication::instance()->registry)
+    , variableName(name)
 {
 }
 
 SharedStateBase::~SharedStateBase()
 {
-    m_registry->unsubscribeVar(className.c_str(), 8, variableName.c_str());
+    m_registry->unsubscribeVar(className, variableName);
 }
 
+void SharedStateBase::subscribe(covise::TokenBuffer && val)
+{
+    switch (coVRCollaboration::instance()->getSyncMode())
+    {
+    case coVRCollaboration::SyncMode::LooseCoupling:
+        m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getID());
+        break;
+    case coVRCollaboration::SyncMode::MasterSlaveCoupling:
+        if (coVRCommunication::instance()->isMaster())
+        {
+            m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getSessionID());
+        }
+        break;
+    case coVRCollaboration::SyncMode::TightCoupling:
+    {
+        m_registry->subscribeVar(className, variableName, std::move(val), this, coVRCommunication::instance()->getSessionID());
+    }
+        break;
+    default:
+        break;
+    }
+}
+void SharedStateBase::setVar(covise::TokenBuffer && val)
+{
+    switch (coVRCollaboration::instance()->getSyncMode())
+    {
+    case coVRCollaboration::SyncMode::LooseCoupling:
+        m_registry->setVar(coVRCommunication::instance()->getID(), className, variableName, std::move(val));
+        break;
+    case coVRCollaboration::SyncMode::MasterSlaveCoupling:
+        if (coVRCommunication::instance()->isMaster())
+        {
+            m_registry->setVar(coVRCommunication::instance()->getSessionID(), className, variableName, std::move(val));
+        }
+        break;
+    case coVRCollaboration::SyncMode::TightCoupling:
+        m_registry->setVar(coVRCommunication::instance()->getSessionID(), className, variableName, std::move(val));
+        break;
+    default:
+        break;
+    } 
+
+}
 void SharedStateBase::setUpdateFunction(std::function<void ()> function)
 {
     updateCallback = function;
@@ -60,18 +108,16 @@ std::string SharedStateBase::getName() const
     return variableName;
 }
 
-void SharedStateBase::update(coVrbRegEntry *theChangedRegEntry)
+void SharedStateBase::update(clientRegVar *theChangedVar)
 {
-    if (variableName != theChangedRegEntry->getVar())
+    if (theChangedVar->getName()!= variableName)
     {
         return;
     }
-
-    theChangedRegEntry->getData().rewind();
-    deserializeValue(theChangedRegEntry->getData());
-
+    theChangedVar->getValue().rewind();
+    deserializeValue(theChangedVar->getValue());
     valueChanged = true;
-    if (updateCallback)
+    if (updateCallback != nullptr)
     {
         updateCallback();
     }

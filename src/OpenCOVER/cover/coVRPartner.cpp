@@ -70,6 +70,11 @@ void coVRPartner::setID(int id)
     m_id = id;
 }
 
+void opencover::coVRPartner::setSessionID(int id)
+{
+    m_sessionID = id;
+}
+
 void coVRPartner::setFile(const char *fileName)
 {
 #if 0
@@ -222,6 +227,21 @@ void coVRPartner::updateUi()
 int coVRPartner::getID() const
 {
     return m_id;
+}
+
+int opencover::coVRPartner::getSessionID() const
+{
+    return m_sessionID;
+}
+
+void opencover::coVRPartner::setSessions(std::set<int> ses)
+{
+    sessions = ses;
+}
+
+std::set<int> opencover::coVRPartner::getSessions()
+{
+    return sessions;
 }
 
 void coVRPartner::sendHello()

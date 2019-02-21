@@ -23,7 +23,9 @@
 #include <utils/traci/TraCIAPI.h>
 
 #include <vector>
+#include <random>
 #include <TrafficSimulation/AgentVehicle.h>
+#include <TrafficSimulation/PedestrianFactory.h>
 
 using namespace opencover;
 
@@ -35,6 +37,15 @@ struct simData
     std::string vehicleType;
     std::string vehicleID;
 };
+
+struct pedestrianModel
+{
+    std::string fileName;
+    double scale;
+    pedestrianModel(std::string, double);
+};
+
+pedestrianModel::pedestrianModel(std::string n, double s) : fileName(n), scale(s) {}
 
 class SumoTraCI : public opencover::coVRPlugin
 {
@@ -56,6 +67,17 @@ private:
 
 	osg::Group *vehicleGroup;
 	std::string vehicleDirectory;
+
+    osg::ref_ptr<osg::Group> pedestrianGroup;
+
+    PedestrianFactory *pf;
+    typedef std::map<std::string, PedestrianGeometry *> PedestrianMap;
+    PedestrianMap loadedPedestrians;
+    
+    PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    double interpolateAngles(double lambda, double pastAngle, double futureAngle);
+    std::vector<pedestrianModel> pedestrianModels;
+    void getPedestriansFromConfig();
 
 	double simTime;
 	double nextSimTime;

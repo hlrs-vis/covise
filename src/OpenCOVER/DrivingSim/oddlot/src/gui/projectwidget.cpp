@@ -164,7 +164,7 @@ ProjectWidget::ProjectWidget(MainWindow *mainWindow)
 
     // MODEL //
     //
-    projectData_ = new ProjectData(this, undoStack, changeManager_, 1, 2, "Untitled", 1.0, QDateTime::currentDateTime().toString("ddd MMM hh:mm:ss yyyy"), 10000.0, -10000.0, 10000.0, -10000.0);
+    projectData_ = new ProjectData(this, undoStack, changeManager_, 1, 2, "Untitled", 1.0, QDateTime::currentDateTime().toString("ddd MMM hh:mm:ss yyyy"), 10.0, -10.0, 10.0, -10.0);
 
     connect(projectData_->getUndoStack(), SIGNAL(cleanChanged(bool)), this, SLOT(setProjectClean(bool)));
 

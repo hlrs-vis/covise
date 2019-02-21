@@ -14,17 +14,16 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #ifndef VRB_SHAREDSTATE_H
 #define VRB_SHAREDSTATE_H
 	
+#include <vector>
 #include <string>
 #include <functional>
+#include <cassert>
 
 #include <net/tokenbuffer.h>
-#include <net/message.h>
-#include <net/message_types.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/coVrbRegistryAccess.h>
-#include <cover/coVRCommunication.h>
+#include <util/coExport.h>
+#include <vrbclient/regClass.h>
 
-
+class clientRegVar;
 namespace opencover {
 
 ///convert the value to a TokenBuffer
@@ -48,7 +47,8 @@ template <>
 void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
 
 
-class  SharedStateBase: public coVrbRegEntryObserver
+class  COVEREXPORT SharedStateBase: public regVarObserver
+
 {
 public:
     SharedStateBase(std::string name);
@@ -64,12 +64,13 @@ public:
     std::string getName() const;
 
     //! is called from the registryAcces when the registry entry got changed from the server
-    void update(coVrbRegEntry *theChangedRegEntry) override;
+    void update(clientRegVar *theChangedRegEntry) override;
 
 protected:
 
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
-
+    void subscribe(covise::TokenBuffer &&val);
+    void setVar(covise::TokenBuffer &&val);
     const std::string className = "SharedState";
     std::string variableName;
 
@@ -78,8 +79,8 @@ protected:
     bool valueChanged = false;
     std::function<void(void)> updateCallback;
 
-    coVrbRegistryAccess *m_registry = nullptr;
-    coVrbRegEntry *m_regEntry = nullptr;
+    VrbClientRegistry *m_registry = nullptr;
+    //clientRegVar *m_regEntry = nullptr;
 };
 
 template <class T>
@@ -90,9 +91,10 @@ public:
     : SharedStateBase(name)
     , m_value(value)
     {
+        assert(m_registry);
         covise::TokenBuffer data;
         serialize(data, m_value);
-        m_regEntry = m_registry->subscribeVar(className.c_str(), 8, name.c_str(), std::move(data), this); //ID != 0;
+        subscribe(std::move(data));
     }
 
     SharedState<T> &operator=(T value)
@@ -121,7 +123,7 @@ public:
         valueChanged = false;
         covise::TokenBuffer data;
         serialize(data, m_value);
-        m_regEntry->setData(std::move(data));
+        setVar(std::move(data));
     }
 
     const T &value() const

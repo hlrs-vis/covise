@@ -26,6 +26,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
@@ -46,6 +47,11 @@ SumoTraCI::SumoTraCI()
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
     AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
     av = getAgentVehicle("truck","truck","truck_truck");
+    pf = PedestrianFactory::Instance();
+    pedestrianGroup =  new osg::Group;
+    pedestrianGroup->setName("pedestrianGroup");
+    cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+    getPedestriansFromConfig();
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
@@ -278,7 +284,10 @@ void SumoTraCI::updateVehiclePosition()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-
+            if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
+            {
+                loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+            }
         }
         else
         {
@@ -304,25 +313,53 @@ void SumoTraCI::interpolateVehiclePosition()
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
     for(int i=0;i < previousResults.size(); i++)
     {
+        int currentIndex =-1;
+        // delete vehicle that will vanish in next step
+        for(int n=0;n < currentResults.size(); n++)
+        {
+            if(previousResults[i].vehicleID == currentResults[n].vehicleID)
+            {
+                currentIndex = n;
+                break;
+            }
+        }
+
         if (!previousResults[i].vehicleClass.compare("pedestrian"))
         {
+            PedestrianMap::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
 
+            if (itr != loadedPedestrians.end())
+            {
+                if (currentIndex == -1)
+                {
+                    delete itr->second;
+                    loadedPedestrians.erase(itr);
+                }
+                else
+                {
+                    PedestrianGeometry * p = itr->second;
+
+                    double weight = currentTime - nextSimTime;
+                    osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+
+                    osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
+                    osg::Quat orientation;
+                    orientation.slerp(weight, pastOrientation, futureOrientation);
+
+                    Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(orientation.w(),orientation.x(),orientation.y(),orientation.z()));
+                    p->setTransform(trans,M_PI);
+
+                    double dt = simTime - nextSimTime;
+                    double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/dt;
+                    p->setWalkingSpeed(walkingSpeed);
+                }
+            }
         }
         else
         {
             //osg::Quat orientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
-
             std::map<const std::string, AgentVehicle *>::iterator itr = loadedVehicles.find(previousResults[i].vehicleID);
-            int currentIndex =-1;
-            // delete vehicle that will vanish in next step
-            for(int n=0;n < currentResults.size(); n++)
-            {
-                if(previousResults[i].vehicleID == currentResults[n].vehicleID)
-                {
-                    currentIndex = n;
-                    break;
-                }
-            }
 
             if (itr != loadedVehicles.end())
             {
@@ -366,6 +403,12 @@ osg::Vec3d SumoTraCI::interpolatePositions(double lambda, osg::Vec3d pastPositio
     return interpolatedPosition;
 }
 
+double SumoTraCI::interpolateAngles(double lambda, double pastAngle, double futureAngle)
+{
+    double interpolatedPosition = futureAngle + (1.0 - lambda) * (pastAngle - futureAngle);
+    return interpolatedPosition;
+}
+
 AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
@@ -373,6 +416,38 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
     VehicleParameters vp;
     vp.rangeLOD = 400;
     return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
+}
+
+PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
+{
+    std::string ID = vehicleID;
+    PedestrianAnimations a = PedestrianAnimations();
+    std::string modelFile;
+
+    static std::mt19937 gen(0);
+    std::uniform_int_distribution<> dis(0, pedestrianModels.size()-1);
+    int pedestrianIndex = dis(gen);
+
+    pedestrianModel p = pedestrianModels[pedestrianIndex];
+    return new PedestrianGeometry(ID, p.fileName,p.scale, 400.0, a, pedestrianGroup);
+}
+
+void SumoTraCI::getPedestriansFromConfig()
+{
+    covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Pedestrians");
+    const char **entries = e.getValue();
+    if (entries)
+    {
+        while (*entries)
+        {
+            const char *fileName = *entries;
+            entries++;
+            const char *scaleChar = *entries;
+            entries++;
+            double scale = atof(scaleChar);
+            pedestrianModels.push_back(pedestrianModel(fileName, scale));
+        }
+    }
 }
 
 COVERPLUGIN(SumoTraCI)

@@ -418,7 +418,7 @@ TokenBuffer &TokenBuffer::operator<<(const TokenBuffer &t)
         incbuf(l);
     memcpy(currdata, t.get_data(), l);
     currdata += l;
-
+    length += l;
     return *this;
 }
 

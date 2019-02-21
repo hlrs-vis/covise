@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
+#include <map>
 #include "coVRMSController.h"
 #include "coVRPluginSupport.h"
 #include "coVRFileManager.h"
@@ -51,7 +51,6 @@
 #include "VRAvatar.h"
 #include "coVRSelectionManager.h"
 #include "VRViewer.h"
-#include "coVrbRegistryAccess.h"
 #include "coTUIFileBrowser/VRBData.h"
 #include "coVRCollaboration.h"
 #include "ARToolKit.h"
@@ -61,7 +60,7 @@
 #include "coVRPluginList.h"
 
 #include <PluginUtil/PluginMessageTypes.h>
-
+#include <vrbclient/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
 
 #ifdef _WIN32
@@ -69,6 +68,8 @@
 #include <fcntl.h>
 #endif
 #include <sys/stat.h>
+#include <vrbclient/VrbClientRegistry.h>
+
 using namespace covise;
 using namespace opencover;
 
@@ -97,7 +98,8 @@ coVRCommunication::coVRCommunication()
     randomID = (int)rand();
     me->setID(randomID);
     coVRPartnerList::instance()->append(me);
-    registry = new coVrbRegistryAccess(me->getID());
+    registry = new VrbClientRegistry(me->getID(), vrbc);
+    
 }
 
 coVRCommunication::~coVRCommunication()
@@ -111,25 +113,31 @@ coVRCommunication::~coVRCommunication()
     s_instance = NULL;
 }
 
-void coVRCommunication::update(coVrbRegEntry *theChangedRegEntry)
+void coVRCommunication::update(clientRegClass *theChangedClass)
 {
-    if (theChangedRegEntry)
+    if (theChangedClass)
     {
-        if (strcmp(theChangedRegEntry->getClass(), "VRMLFile") == 0)
+        if (theChangedClass->getName() == "VRMLFile")
         {
-            coVRPartner *p = NULL;
-            int remoteID = -2;
-            if (sscanf(theChangedRegEntry->getVar(), "%d", &remoteID) != 1)
+            for (std::map<const std::string, std::shared_ptr<clientRegVar>>::iterator it = theChangedClass->getAllVariables().begin();
+                it != theChangedClass->getAllVariables().end(); ++it)
             {
-                cerr << "coVRCommunication::update: sscanf failed" << endl;
-            }
-            if ((p = coVRPartnerList::instance()->get(remoteID)))
-            {
-                p->setFile(theChangedRegEntry->getValue());
+                coVRPartner *p = NULL;
+                int remoteID = -2;
+                if (sscanf(it->first.c_str(), "%d", &remoteID) != 1)
+                {
+                    cerr << "coVRCommunication::update: sscanf failed" << endl;
+                }
+                if ((p = coVRPartnerList::instance()->get(remoteID)))
+                {
+                    char * value;
+                    it->second->getValue() >> value;
+                    p->setFile(value);
+                    cerr << theChangedClass->getName() << endl;
+                    cerr << value << endl;
+                }
             }
         }
-        cerr << theChangedRegEntry->getClass() << endl;
-        cerr << theChangedRegEntry->getValue() << endl;
     }
 }
 
@@ -141,6 +149,24 @@ int coVRCommunication::getID()
         myID = randomID;
     }
     return myID;
+}
+
+std::set<int> opencover::coVRCommunication::getSessions()
+{
+  return me->getSessions();
+}
+
+int opencover::coVRCommunication::getSessionID()
+{
+    return me->getSessionID();
+}
+
+void opencover::coVRCommunication::setSessionID(int id)
+{
+    if (id < 0)
+    {
+        me->setSessionID(id);
+    }
 }
 
 void coVRCommunication::RILock(int lockID)
@@ -461,9 +487,14 @@ void coVRCommunication::becomeMaster()
 void coVRCommunication::handleVRB(Message *msg)
 {
     //fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
+    if (registry->getVrbc() != vrbc)
+    {
+        registry->setVrbc(vrbc);
+    }
     if (vrbc == NULL)
     {
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        registry->setVrbc(vrbc);
     }
     TokenBuffer tb(msg);
     switch (msg->type)
@@ -533,23 +564,24 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_GET_ID:
     {
-        int id;
+        int id, session;
         tb >> id;
+        tb >> session;
         me->setID(id);
-        registry->setID(id);
+        registry->setID(id, session);
         if (vrbc)
         {
             vrbc->setID(id);
 
             me->sendHello();
         }
-        registry->subscribeClass("VRMLFile", 0, this);
-        registry->subscribeClass("COVERPlugins", 0, this);
-        if ((me->getID() >= -1) && (currentFile))
+        registry->subscribeClass("VRMLFile", this, 0);
+        registry->subscribeClass("COVERPlugins", this, 0);
+        if (currentFile)
         {
-            char *var = new char[100];
-            sprintf(var, "%d", me->getID());
-            registry->setVar("VRMLFile", var, currentFile);
+            TokenBuffer tb;
+            tb << currentFile;
+            registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
         }
     }
     break;
@@ -656,7 +688,7 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
 
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
-
+    {
         cerr << "VRB requests to quit" << endl;
         coVRPartnerList::instance()->reset();
         while (coVRPartnerList::instance()->num() > 1)
@@ -668,6 +700,8 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        registry->setVrbc(vrbc);
+    }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
     {
@@ -750,7 +784,7 @@ void coVRCommunication::handleVRB(Message *msg)
 
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
-
+    {
         cerr << "VRB left" << endl;
         coVRPartnerList::instance()->reset();
         while (coVRPartnerList::instance()->num() > 1)
@@ -762,6 +796,8 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        registry->setVrbc(vrbc);
+    }
         break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {
@@ -859,6 +895,28 @@ void coVRCommunication::handleVRB(Message *msg)
             cerr << "Unknown type!" << endl;
         }
     }
+    case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
+    {
+        uint32_t size;
+        uint32_t id;
+        tb >> size;
+        std::set<int> sessions;
+        for (size_t i = 0; i < size; ++i)
+        {
+            tb >> id;
+            sessions.insert(id);
+        }
+        me->setSessions(sessions);
+        coVRCollaboration::instance()->updateSessionSelectionList();
+    }
+    break;
+    case COVISE_MESSAGE_VRBC_SET_SESSION:
+    {
+        int id;
+        tb >> id;
+        me->setSessionID(id);
+    }
+    break;
     default:
         if (registry)
             registry->update(tb, msg->type);
@@ -870,13 +928,11 @@ void coVRCommunication::setCurrentFile(const char *filename)
 {
     if (!filename)
         return;
-    if (me->getID() >= -1)
-    {
-        char *var = new char[100];
-        sprintf(var, "%d", me->getID());
-        me->setFile(filename);
-        registry->setVar("VRMLFile", var, filename);
-    }
+    me->setFile(filename);
+    TokenBuffer tb;
+    tb << filename;
+    registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
+
     if (currentFile)
     {
         if (strcmp(currentFile, filename) == 0)

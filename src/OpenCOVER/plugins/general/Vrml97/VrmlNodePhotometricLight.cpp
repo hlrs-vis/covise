@@ -110,6 +110,7 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 			//std::cout << configurationML[i] << std::endl;
 		}
 	}
+	configuration_changed = true;
 
 	if (configuration_changed)
 	{
@@ -118,7 +119,7 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 		for (int i = 0; i < num_lights; i++)
 			data[i] = configuration_vec[i];
 		configuration_img->dirty();
-		comp_disp->setComputeGroups(numHorizontalAngles / work_group_size + 1, numVerticalAngles / work_group_size + 1, 1);
+		comp_disp->setComputeGroups(0, 0, 0);
 		configuration_changed = false;
 	}
 	else
@@ -393,7 +394,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		// dont bind anything to imageunit 8 !
 
 		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
-		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8, 0, GL_TRUE, 0);
+		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8); //, 0, GL_TRUE, 0
 		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
         //https://stackoverflow.com/questions/17015132/compute-shader-not-modifying-3d-texture
 		//<osg::GLExtensions>()->glBindImageTexture(0, 6, 0, /*layered=*/GL_TRUE, 0, GL_READ_WRITE, GL_R8);
@@ -408,17 +409,21 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		
                 // prepare state for all objects in the scene
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
-		//state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
-		//state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
+		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
+		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
 		//state->setAttributeAndModes(imagbinding1.get());
 		//state->setAttributeAndModes(imagbinding2.get());
 		//state->setAttributeAndModes(imagbinding3.get());
 		// FIXME: angles may differ for each light! values are overwritten each time
 		//state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3))); // only needed in the compute shader!
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
+		state->addUniform(new osg::Uniform("configuration0", (int)(5 + 0 * 3)));
+		state->addUniform(new osg::Uniform("configuration1", (int)(5 + 1 * 3)));
+		state->addUniform(new osg::Uniform("configuration2", (int)(5 + 2 * 3)));
+		state->addUniform(new osg::Uniform("configuration3", (int)(5 + 3 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex0", (int)(6 + 0 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
+		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
 		state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
 		state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
