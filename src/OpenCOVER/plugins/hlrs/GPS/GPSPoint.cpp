@@ -41,6 +41,9 @@
 #include <cover/coVRFileManager.h>
 #include <cover/coVRConfig.h>
 
+
+#include <OpenVRUI/coNavInteraction.h>
+
 #include <proj_api.h>
 #include <chrono>
 #include <iostream>
@@ -55,6 +58,7 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
+using namespace vrui;
 namespace opencover
 {
 class coVRLabel;
@@ -62,31 +66,32 @@ class coVRLabel;
 // GPSPoint
 GPSPoint::GPSPoint()
 {
-    Point = new osg::Group();
     geoTrans = new osg::MatrixTransform();
     geoScale = new osg::MatrixTransform();
+    Point = new osg::Group();
+    mySensor = nullptr;
 
     osg::Matrix m;
     m.makeScale(osg::Vec3(1,1,1));
     geoScale->setMatrix(m);
 
-    geoScale->addChild(Point);
-    geoTrans->addChild(geoScale);
     switchSphere = new osg::Switch();
     switchSphere->setName("Switch Sphere");
+    switchSphere->setNewChildDefaultValue(false);
     switchDetail = new osg::Switch();
     switchDetail->setName("Switch Detail");
-    switchDetail->setNewChildDefaultValue(false);
+    switchDetail->setNewChildDefaultValue(true);
+
+    geoTrans->addChild(geoScale);
+    geoScale->addChild(Point);
     Point->addChild(switchSphere);
     Point->addChild(switchDetail);
+
 }
 GPSPoint::~GPSPoint()
 {
+    delete mySensor;
     fprintf(stderr, "GPSPoint deleted\n");
-}
-GPSPoint::pointType GPSPoint::gettype (void)
-{
-    return PT;
 }
 void GPSPoint::setIndex(int i)
 {
@@ -235,10 +240,12 @@ void GPSPoint::setPointData (double x, double y, double z, double t, float v, st
     else if(name == "Foto")
     {
         PT = Foto;
+        mySensor = new PointSensor(this, Point);
     }
     else if(name == "Sprachaufnahme")
     {
         PT = Sprachaufnahme;
+        mySensor = new PointSensor(this, Point);
     }
     else if(name == "Barriere")
     {
@@ -263,51 +270,57 @@ void GPSPoint::draw()
     switch (PT){
     case Good:
         *color = osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f);
-        //createPictureBox(text = "good" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconGood);
         break;
     case Medium:
         *color = osg::Vec4(1.0f, 1.0f, 0.0f, 1.0f);
-        //createPictureBox(text = "medium" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconMedium);
         break;
     case Bad:
         *color = osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f);
-        //createPictureBox(text = "bad" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconBad);
         break;
     case Angst:
         *color = osg::Vec4(0.5f, 1.0f, 1.0f, 1.0f);
-        //createPictureBox(text = "Angst" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconAngst);
         break;
     case Text:
         *color = osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f);
-        //createTextBox();
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconText);
         break;
     case Foto:
         *color = osg::Vec4(0.5f, 0.0f, 1.0f, 1.0f);
-        //createPictureBox(text = "FOTO" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconFoto);
         break;
     case Sprachaufnahme:
         *color = osg::Vec4(0.0f, 0.5f, 1.0f, 1.0f);
-        //createPictureBox(text = "Audio" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconSprachaufnahme);
         break;
-    case OtherChoice:
+    case Barriere:
         *color = osg::Vec4(0.5f, 0.5f, 1.0f, 1.0f);
-        //createPictureBox(text = "Something different" , color);
+        createSphere(color);
         createSign(GPSPlugin::instance()->iconBarriere);
         break;
-    case Barriere:
-        std::cerr << "GPSPoint::draw: no sign for Barriere" << std::endl;
+    case OtherChoice:
+        std::cerr << "GPSPoint::draw: no sign for this choice" << std::endl;
         break;
+        
     }
-    createSphere(color);
+
 }
 
+void GPSPoint::update()
+{
+    if(mySensor)
+       mySensor->update();
+}
 void GPSPoint::createSphere(osg::Vec4 *colVec)
 {
     float Radius = 5.0f;
@@ -370,7 +383,7 @@ void GPSPoint::createSign(osg::Image *img)
     osg::Texture2D *signTex = new osg::Texture2D;
     signTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
     signTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-
+    signTex->setResizeNonPowerOfTwoHint(false);
     signTex->setImage(img);
 
     signStateSet->setTextureAttributeAndModes(3, signTex, osg::StateAttribute::ON);
@@ -401,10 +414,10 @@ void GPSPoint::createSign(osg::Image *img)
     v[2].set(hsize / 2.0, 0, vsize +height);
     v[3].set(-hsize / 2.0, 0, vsize +height);
 
-    v[4].set(-pr, 0.01, vsize * 0.8 +height);
-    v[5].set(-pr, 0.01 + 2 * pr, vsize * 0.8 +height);
-    v[6].set(pr, 0.01 + 2 * pr, vsize * 0.8 +height);
-    v[7].set(pr, 0.01, vsize * 0.8 +height);
+    v[4].set(-pr, 0.01,+height);
+    v[5].set(-pr, 0.01 + 2 * pr,  +height);
+    v[6].set(pr, 0.01 + 2 * pr,  +height);
+    v[7].set(pr, 0.01, +height);
     v[8].set(-pr, 0.01, 0);
     v[9].set(-pr, 0.01 + 2 * pr, 0);
     v[10].set(pr, 0.01 + 2 * pr, 0);
@@ -540,9 +553,130 @@ void GPSPoint::createTextBox()
 }
 
 
-void GPSPoint::createPictureBox(std::string &text, osg::Vec4 *colVec)
+void GPSPoint::createPictureBox()
 {
-    createBillboard();
+    fprintf(stderr, "createPictureBox\n");
+    PictureGeode = new osg::Geode();
+    PictureGeode->setName(text.c_str());
 
-    //createSign();
+    osg::StateSet *PictureStateSet = PictureGeode->getOrCreateStateSet();
+
+    PictureStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    PictureStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    osg::CullFace *cullFace = new osg::CullFace();
+    cullFace->setMode(osg::CullFace::BACK);
+    PictureStateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.0);
+    PictureStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+
+    float hsize = 5;
+    float vsize = 5;
+
+    osg::Texture2D *PictureTex = new osg::Texture2D;
+    PictureTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+    PictureTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+    PictureTex->setResizeNonPowerOfTwoHint(false);
+
+    std::string fn = "share/covise/GPS/" + filename;
+    const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
+    osg::Image *img = osgDB::readImageFile(fn2);
+
+    PictureTex->setImage(img);
+
+    PictureStateSet->setTextureAttributeAndModes(3, PictureTex, osg::StateAttribute::ON);
+
+    // TODO implement shader for Pictures and street marks
+    if (streetmarkMaterial.get() == NULL)
+    {
+        streetmarkMaterial = new osg::Material;
+        streetmarkMaterial->ref();
+        streetmarkMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+        streetmarkMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+        streetmarkMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+        streetmarkMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    }
+
+    PictureStateSet->setAttributeAndModes(streetmarkMaterial.get(), osg::StateAttribute::ON);
+
+    PictureTex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+    PictureTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
+
+    float pr = 0.03;
+    float height = 2.5;
+    osg::Vec3 v[12];
+    v[0].set(-hsize / 2.0, -0.1, 0 +height);
+    v[1].set(hsize / 2.0, -0.1, 0 +height);
+    v[2].set(hsize / 2.0, -0.1, vsize +height);
+    v[3].set(-hsize / 2.0, -0.1, vsize +height);
+
+    osg::Vec3 np[4];
+    np[0].set(-0.7, -0.7, 0);
+    np[1].set(-0.7, 0.7, 0);
+    np[2].set(0.7, 0.7, 0);
+    np[3].set(0.7, -0.7, 0);
+
+    osg::Vec3 n;
+    n.set(0, -1, 0);
+
+    osg::Geometry *PictureGeometry;
+    PictureGeometry = new osg::Geometry();
+    PictureGeometry->setUseDisplayList(opencover::coVRConfig::instance()->useDisplayLists());
+    PictureGeometry->setUseVertexBufferObjects(opencover::coVRConfig::instance()->useVBOs());
+    PictureGeode->addDrawable(PictureGeometry);
+
+    osg::Vec3Array *PictureVertices;
+    PictureVertices = new osg::Vec3Array;
+    PictureGeometry->setVertexArray(PictureVertices);
+
+    osg::Vec3Array *PictureNormals;
+    PictureNormals = new osg::Vec3Array;
+    PictureGeometry->setNormalArray(PictureNormals);
+    PictureGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    osg::Vec2Array *PictureTexCoords;
+    PictureTexCoords = new osg::Vec2Array;
+    PictureGeometry->setTexCoordArray(3, PictureTexCoords);
+
+    PictureVertices->push_back(v[0]);
+    PictureTexCoords->push_back(osg::Vec2(0, 0));
+    PictureNormals->push_back(n);
+
+    PictureVertices->push_back(v[1]);
+    PictureTexCoords->push_back(osg::Vec2(1, 0));
+    PictureNormals->push_back(n);
+
+    PictureVertices->push_back(v[2]);
+    PictureTexCoords->push_back(osg::Vec2(1, 1));
+    PictureNormals->push_back(n);
+
+    PictureVertices->push_back(v[3]);
+    PictureTexCoords->push_back(osg::Vec2(0, 1));
+    PictureNormals->push_back(n);
+
+    osg::DrawArrays *Picture = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, PictureVertices->size());
+    PictureGeometry->addPrimitiveSet(Picture);
+    BBoard->addChild(PictureGeode);
+
+}
+
+void GPSPoint::activate()
+{
+    if(PictureGeode)
+    {
+        fprintf(stderr,"PictureGeode true\n");
+        PictureGeode = nullptr;
+    }
+    else
+    {
+        fprintf(stderr,"PictureGeode false\n");
+        createPictureBox();
+    }
+
+    //fprintf(stderr,"activate\n");
+}
+void GPSPoint::disactivate()
+{
+    //fprintf(stderr,"disactivate\n");
 }

@@ -71,7 +71,13 @@ File::~File()
         delete x;
     }
 }
-
+void File::update()
+{
+    for (auto *p : allPoints)
+    {
+        p->update();
+    }
+}
 void File::addTrack(Track *t)
 {
     t->setIndex(allTracks.size());

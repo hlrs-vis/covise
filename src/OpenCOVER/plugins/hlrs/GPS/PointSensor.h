@@ -5,8 +5,8 @@
 
  * License: LGPL 2+ */
 
-#ifndef _GPS_PLUGIN_FILE_H
-#define _GPS_PLUGIN_FILE_H
+#ifndef _GPS_PLUGIN_SENSOR_H
+#define _GPS_PLUGIN_SENSOR_H
 /****************************************************************************\ 
  **                                                            (C)2008 HLRS  **
  **                                                                          **
@@ -20,37 +20,22 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
-#include <cover/coVRPlugin.h>
-#include "GPSPoint.h"
-#include "Track.h"
+#include <PluginUtil/coSensor.h>
 
-using namespace opencover;
-using namespace covise;
-namespace opencover
+class PointSensor : public coPickSensor
 {
-class coVRLabel;
-}
+private:
+    GPSPoint *myGPSPoint;
 
-
-//For single files
-class File
-{
 public:
-    File();
-    File(const char *filename, osg::Group *parent);
-    ~File();
-    void readFile(const std::string &filename);
-    void addTrack(Track *p);
-    void addPoint(GPSPoint *p);
-    void draw();
-    void update();
-    std::string name;
-    osg::ref_ptr<osg::Group> FileGroup;
-    osg::ref_ptr<osg::Switch> SwitchPoints;
-    osg::ref_ptr<osg::Switch> SwitchTracks;
-    osg::ref_ptr<osg::Group> TrackGroup;
+    PointSensor(GPSPoint *p, osg::Node *n);
+    ~PointSensor();
+    // this method is called if intersection just started
+    // and should be overloaded
+    void activate();
 
-    std::list<Track*> allTracks;
-    std::list<GPSPoint*> allPoints;
+    // should be overloaded, is called if intersection finishes
+    void disactivate();
 };
+
 #endif

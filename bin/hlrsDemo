@@ -50,6 +50,7 @@ do
     echo -e "${MENU} ${OPT} 32)  ${MENU} HLRS & Campus             "
     echo -e "${MENU} ${OPT} 33)  ${MENU} DC Filiale                "
     echo -e "${MENU} ${OPT} 34)  ${MENU} Adidas WOS                "
+    echo -e "${MENU} ${OPT} 35)  ${MENU} Hildesheim                "
 
     echo -e "${MENU}-----${TYP} Urban Planning ${MENU}------------------------"
     echo -e "${MENU} ${OPT} 38)  ${MENU} Spielplatz Stuttgart West "
@@ -254,6 +255,10 @@ do
 	34)
 	    echo -e "Adidas"
             opencover /data/strabag/Adidas/04-vrml/praesentation.wrl
+ 	    ;;
+	35)
+	    echo -e "Hildesheim"
+            opencover /data/hildesheim/33-VR/out/praesentation.wrl
  	    ;;
 		
 # URBAN PLANNING
