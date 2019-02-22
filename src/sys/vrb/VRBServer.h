@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QString>
 #include <map>
+#include <memory>
 
 namespace covise
 {
@@ -56,7 +57,9 @@ public:
 
 private:
     covise::ServerConnection *sConn = nullptr;
+#ifdef GUI
     QSocketNotifier *serverSN = nullptr;
+#endif
     covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
     void handleClient(covise::Message *);
