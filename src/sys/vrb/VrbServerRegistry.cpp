@@ -215,7 +215,6 @@ void serverRegVar::update(int recvID)
     sb << myClass->getID();
     sb << myClass->getName();
     sb << getName();
-
     sb << getValue();
     clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }
@@ -228,8 +227,11 @@ void serverRegVar::informDeleteObservers()
     sb << getClass()->getName();
     sb << getName();
     sb << getValue();
-    std::set<int> combinedObservers = observers;;
-    combinedObservers.insert(getClass()->getOList()->begin(), getClass()->getOList()->end());
+    std::set<int> combinedObservers = observers;
+    if (getClass()->getOList()->size()!= 0)
+    {
+        combinedObservers.insert(getClass()->getOList()->begin(), getClass()->getOList()->end());
+    }
     for (const int obs : combinedObservers)
     {
         clients.sendMessageToID(sb, obs, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED);

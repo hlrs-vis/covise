@@ -85,7 +85,7 @@ void clientRegClass::resubscribe(int sessionID)
 }
 
 void clientRegClass::subscribe(regClassObserver *obs, int sessionID)
-{
+{   
     lastEditor = classID;
     _observer = obs; //maybe inform old observer
     TokenBuffer tb;

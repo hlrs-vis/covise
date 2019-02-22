@@ -555,6 +555,10 @@ void coVRCollaboration::updateSharedStates() {
     default:
         break;
     }
+    if (publicSessionID == 0) //send to private if not in public session
+    {
+        publicSessionID = privateSessionID;
+    }
     SharedStateManager::instance()->update(privateSessionID, publicSessionID, useCouplingModeSessionID, sessionToSubscribe);
 }
 ui::Menu *coVRCollaboration::menu() const

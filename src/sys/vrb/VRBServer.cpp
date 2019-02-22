@@ -444,7 +444,7 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable="  << variable << ", class=" << Class << std::endl;
 #endif
-        sessions[sessionID]->observeVar(senderID, Class, variable, tb_value);
+        createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
 #ifdef GUI
         if (std::strcmp(Class, "SharedState") != 0) //Change SharedState serialize / deserialze to send data type id first
         {
@@ -498,7 +498,7 @@ void VRBServer::handleClient(Message *msg)
         tb >> variable;
         tb >> tb_value;
         tb >> isStatic;
-        sessions[sessionID]->create(senderID, Class, variable, tb_value, isStatic);
+        createSessionIfnotExists(sessionID, senderID)->create(senderID, Class, variable, tb_value, isStatic);
 #ifdef GUI
         mw->registry->updateEntry(Class, senderID, variable, "");
 #endif
@@ -559,6 +559,7 @@ void VRBServer::handleClient(Message *msg)
             }
             clients.next();
         }
+        sendSessions();
     }
     break;
     case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
@@ -1595,26 +1596,7 @@ void VRBServer::handleClient(Message *msg)
         tb >> isPrivate;
         int newSessionID = createSession(isPrivate);
         sessions[newSessionID]->setOwner(sender);
-        //send a list of all sessions to all clients
-        TokenBuffer mtb;
-        std::set<int> publicSessions;
-        for (const auto session : sessions)
-        {
-            if (session.first > 0) //only send public sessions
-            {
-                publicSessions.insert(session.first);
-            }
-        }
-        int size = publicSessions.size();
-        mtb << size;
-        for (const auto session : publicSessions)
-        {
-            mtb << session;
-        }
-        if (size > 0)
-        {
-            clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
-        }
+        sendSessions();
         //send the sender the id if the new session
         TokenBuffer stb;
         stb << newSessionID;
@@ -1682,6 +1664,42 @@ int VRBServer::createSession(bool isPrivate)
     }
 }
 
+std::shared_ptr<VrbServerRegistry> VRBServer::createSessionIfnotExists(int sessionID, int senderID) {
+    auto ses = sessions.find(sessionID);
+    if (ses == sessions.end())
+    {
+        VRBSClient *cl = clients.get(senderID);
+        if (cl && sessionID >= 0)
+        {
+            cl->setGroup(sessionID);
+        }
+        sessions[sessionID].reset(new VrbServerRegistry(sessionID));
+    }
+    return sessions[sessionID];
+}
+
+void VRBServer::sendSessions() {
+    //send a list of all sessions to all clients
+    TokenBuffer mtb;
+    std::set<int> publicSessions;
+    for (const auto session : sessions)
+    {
+        if (session.first > 0) //only send public sessions
+        {
+            publicSessions.insert(session.first);
+        }
+    }
+    int size = publicSessions.size();
+    mtb << size;
+    for (const auto session : publicSessions)
+    {
+        mtb << session;
+    }
+    if (size > 0)
+    {
+        clients.sendMessageToAll(mtb, COVISE_MESSAGE_VRBC_SEND_SESSIONS);
+    }
+}
 void VRBServer::RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path)
 {
     VRBSClient *locClient = NULL;

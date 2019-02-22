@@ -48,6 +48,7 @@ void VrbClientRegistry::setID(int clID, int session)
         resubscribe(session);
     }
 }
+
 void VrbClientRegistry::resubscribe(int sessionID, int oldSession)
 {
 

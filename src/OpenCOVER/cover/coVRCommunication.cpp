@@ -98,8 +98,9 @@ coVRCommunication::coVRCommunication()
     }
     currentFile = NULL;
     me = new coVRPartner();
-    randomID = (int)rand();
-    me->setID(randomID);
+    //randomID = (int)rand(); //nessesary??
+
+    //me->setID(randomID);
     coVRPartnerList::instance()->append(me);
     registry = new VrbClientRegistry(me->getID(), vrbc);
     new SharedStateManager(registry);
@@ -331,6 +332,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
             coVRPartnerList::instance()->next();
         }
         me->setMaster(true);
+        coVRCollaboration::instance()->updateSharedStates();
     }
     else if (strcmp(key, "SLAVE") == 0)
     {
@@ -340,6 +342,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
             p2->setMaster(false);
             coVRPartnerList::instance()->next();
         }
+        coVRCollaboration::instance()->updateSharedStates();
     }
     else if (!strcmp(key, "TRANSFORM_ALL"))
     {
@@ -404,6 +407,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
     else if (!(strcmp(key, "SYNC_MODE")))
     {
         coVRCollaboration::instance()->setSyncMode(tmp);
+        coVRCollaboration::instance()->updateSharedStates();
     }
     else if (!(strcmp(key, "AvatarX")))
     {
@@ -488,7 +492,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
     {
         coVRSelectionManager::instance()->receiveClear();
     }
-    coVRCollaboration::instance()->updateSharedStates();
+    
 }
 
 void coVRCommunication::becomeMaster()

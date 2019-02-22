@@ -121,7 +121,7 @@ public:
 
 private:
     std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
-    int clientID;
+    int clientID = -1;
     int sessionID = 0;
     covise::VRBClient *vrbc;
 

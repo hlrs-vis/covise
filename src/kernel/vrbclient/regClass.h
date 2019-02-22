@@ -111,7 +111,7 @@ public:
     };
 protected:
     std::string name;
-    int classID;
+    int classID = -1;
     bool isDel;
     VariableMap myVariables;
 };
