@@ -16,6 +16,8 @@
 
 #include <util/coExport.h>
 
+#include <memory>
+
 namespace opencover
 {
 
