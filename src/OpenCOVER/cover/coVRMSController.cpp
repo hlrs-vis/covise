@@ -2332,10 +2332,9 @@ int coVRMSController::syncMessage(covise::Message *msg)
 
 bool coVRMSController::syncBool(bool state)
 {
-    char c = state;
+    char c = state ? 1 : 0;
     syncData(&c, 1);
-    state = (c != 0);
-    return state;
+    return (c != 0);
 }
 
 std::string coVRMSController::syncString(const std::string &s)
