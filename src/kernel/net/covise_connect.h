@@ -246,7 +246,7 @@ class NETEXPORT ClientConnection : public Connection
 public:
     // connect to server at port p on host h
     //   ClientConnection(Host *h, int p, int id, int st);
-    ClientConnection(Host *, int, int, int, int retries = 20, double timeout = 0.0);
+    ClientConnection(Host *host, int port, int id, int senderType, int retries = 20, double timeout = 0.0);
     ~ClientConnection(); // close connection
 };
 
