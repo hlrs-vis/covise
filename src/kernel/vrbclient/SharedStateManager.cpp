@@ -53,9 +53,10 @@ int SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
         alwaysShare.insert(base);
         return m_publicSessionID;
         break;
-    default:
-        break;
     }
+
+    std::cerr << "SharedStateManager: invalid mode for " << base->getName() << std::endl;
+    return m_privateSessionID;
 }
 
 void SharedStateManager::remove(SharedStateBase *base)
