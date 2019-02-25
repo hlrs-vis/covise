@@ -25,10 +25,17 @@ namespace opencover
 class MultiChannelDrawer;
 struct ViewChannelData;
 
+enum ViewEye {
+    Middle,
+    Left,
+    Right,
+};
+
 // Store data associated with one view (image rendered for a viewport)
 struct ViewData {
     MultiChannelDrawer *drawer = nullptr;
 
+    ViewEye eye = Middle;
     int viewNum = -1;
     int width = 0;
     int height = 0;
@@ -74,6 +81,7 @@ struct ChannelData {
 
     int channelNum = -1;
     int frameNum = 0;
+    ViewEye eye = Middle;
     bool second;
     int width;
     int height;
@@ -89,6 +97,7 @@ struct ChannelData {
     ChannelData(int channel)
         : channelNum(channel)
         , frameNum(0)
+        , eye(Middle)
         , second(false)
         , width(0)
         , height(0)
@@ -98,6 +107,7 @@ struct ChannelData {
     ~ChannelData();
 
     void addView(std::shared_ptr<ViewData> vd);
+    void enableView(std::shared_ptr<ViewData> vd, bool enable);
     void clearViews();
     void updateViews();
 };
@@ -146,12 +156,20 @@ public:
    Mode mode() const;
    void setMode(Mode mode);
 
+   enum ViewSelection {
+       Same, //< only render the view created for this viewport
+       MatchingEye, //< render all views for the same (left/right) eye
+       All, //< render all views
+   };
+
    //! whether all available views should be rendered
-   bool renderAllViews() const;
+   ViewSelection viewsToRender() const;
    //! return whether all available views should be rendered
-   void setRenderAllViews(bool allViews);
+   void setViewsToRender(ViewSelection views);
    //! set number of views to render, -1: one view/channel/stereo eye
    void setNumViews(int nv=-1);
+   //! configure for which eye this a view is intended
+   void setViewEye(int view, ViewEye eye);
 
    //! from now on, draw with current RGBA and depth data for all views
    void swapFrame();
@@ -182,7 +200,7 @@ private:
    std::vector<std::shared_ptr<ChannelData>> m_channelData;
    bool m_flipped;
    Mode m_mode;
-   bool m_renderAllViews = false;
+   ViewSelection m_viewsToRender = Same;
 
    const bool m_useCuda;
 };

@@ -109,6 +109,24 @@ void ChannelData::addView(std::shared_ptr<ViewData> vd) {
     scene->addChild(vcd->geode);
 }
 
+void ChannelData::enableView(std::shared_ptr<ViewData> vd, bool enable) {
+    for (auto vcd: viewChan) {
+        if (vcd->view == vd) {
+            unsigned idx = scene->getChildIndex(vcd->geode);
+            if (enable) {
+                if (idx == scene->getNumChildren()) {
+                    scene->addChild(vcd->geode);
+                }
+            } else {
+                if (idx != scene->getNumChildren()) {
+                    scene->removeChild(idx);
+                }
+            }
+            return;
+        }
+    }
+}
+
 void ChannelData::clearViews() {
 
     for (auto &vcd: viewChan) {
@@ -406,16 +424,20 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
 
    int numChannels = coVRConfig::instance()->numChannels();
    for (int i=0; i<numChannels; ++i) {
+       int stereomode = coVRConfig::instance()->channels[i].stereoMode;
+       bool left = stereomode != osg::DisplaySettings::RIGHT_EYE;
        m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+       m_channelData.back()->eye = left ? Left : Right;
        initChannelData(*m_channelData.back());
-       if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
+       if (stereomode == osg::DisplaySettings::QUAD_BUFFER) {
            m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+           m_channelData.back()->eye = Right;
            m_channelData.back()->second = true;
            initChannelData(*m_channelData.back());
        }
    }
 
-   setRenderAllViews(false);
+   setViewsToRender(Same);
    setNumViews(-1);
 }
 
@@ -702,13 +724,27 @@ void MultiChannelDrawer::clearViewData() {
 
 void MultiChannelDrawer::swapFrame() {
    //std::cerr << "MultiChannelDrawer::swapFrame" << std::endl;
+   bool haveLeft=false, haveMiddle=false, haveRight=false;
    for (size_t s=0; s<m_channelData.size(); ++s) {
       ChannelData &cd = *m_channelData[s];
+      if (cd.eye == Middle)
+          haveMiddle = true;
+      if (cd.eye == Left)
+          haveLeft = true;
+      if (cd.eye == Right)
+          haveRight = true;
       cd.frameNum++;
    }
 
    for (size_t s=0; s<m_viewData.size(); ++s) {
       ViewData &vd = *m_viewData[s];
+
+      if (vd.eye == Middle && !haveMiddle)
+          continue;
+      if (vd.eye == Left && !haveLeft)
+          continue;
+      if (vd.eye == Right && !haveRight)
+          continue;
 
       vd.imgView = vd.newView;
       vd.imgProj = vd.newProj;
@@ -1086,12 +1122,18 @@ void MultiChannelDrawer::setMode(MultiChannelDrawer::Mode mode) {
     }
 }
 
-bool MultiChannelDrawer::renderAllViews() const {
-    return m_renderAllViews;
+MultiChannelDrawer::ViewSelection MultiChannelDrawer::viewsToRender() const {
+    return m_viewsToRender;
 }
 
-void MultiChannelDrawer::setRenderAllViews(bool allViews) {
-    m_renderAllViews = allViews;
+void MultiChannelDrawer::setViewsToRender(ViewSelection views) {
+    m_viewsToRender = views;
+
+    for (auto &cd: m_channelData) {
+        for (auto &vd: m_viewData) {
+            cd->enableView(vd, m_viewsToRender==Same || m_viewsToRender==All || (m_viewsToRender==MatchingEye && cd->eye==vd->eye));
+        }
+    }
 }
 
 void MultiChannelDrawer::setNumViews(int nv) {
@@ -1118,7 +1160,7 @@ void MultiChannelDrawer::setNumViews(int nv) {
     int idx = 0;
     for (auto &cd: m_channelData) {
         cd->clearViews();
-        if (m_renderAllViews) {
+        if (m_viewsToRender != Same) {
             for (auto &vd: m_viewData) {
                 cd->addView(vd);
             }
@@ -1136,6 +1178,18 @@ void MultiChannelDrawer::setNumViews(int nv) {
         std::cerr << " " << cd->viewChan.size();
     }
     std::cerr << std::endl;
+}
+
+void MultiChannelDrawer::setViewEye(int view, ViewEye eye) {
+    m_viewData[view]->eye = eye;
+
+    if (m_viewsToRender != MatchingEye)
+        return;
+
+    auto vd = m_viewData[view];
+    for (auto &cd: m_channelData) {
+        cd->enableView(vd, cd->eye==eye);
+    }
 }
 
 ViewData::~ViewData()
