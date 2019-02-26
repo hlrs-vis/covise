@@ -1269,7 +1269,7 @@ vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
     list<void (*)()>::const_iterator it = find(playerUseList.begin(),
                                                playerUseList.end(), playerUnavailableCB);
     if (it != playerUseList.end())
-        return NULL;
+        return this->player;
 
     playerUseList.push_back(playerUnavailableCB);
     return this->player;
