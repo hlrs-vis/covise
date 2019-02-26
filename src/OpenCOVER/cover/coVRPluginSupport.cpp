@@ -1252,13 +1252,12 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
     if (this->player != player)
         return -1;
 
-    for (list<void (*)()>::const_iterator it = playerUseList.begin();
-         it != playerUseList.end();
-         it++)
+    for (auto cb: playerUseList)
     {
-        if (*it)
-            (*it)();
+        if (cb)
+            cb();
     }
+
     player = NULL;
 
     return 0;
@@ -1266,23 +1265,22 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
 
 vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
-    if (it != playerUseList.end())
-        return this->player;
+    if (!this->player)
+    {
+        cover->addPlugin("Vrml97");
+    }
 
-    playerUseList.push_back(playerUnavailableCB);
+    playerUseList.emplace(playerUnavailableCB);
     return this->player;
 }
 
 int coVRPluginSupport::unusePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
+    auto it = playerUseList.find(playerUnavailableCB);
     if (it == playerUseList.end())
         return -1;
 
-    playerUseList.remove(playerUnavailableCB);
+    playerUseList.erase(it);
     return 0;
 }
 

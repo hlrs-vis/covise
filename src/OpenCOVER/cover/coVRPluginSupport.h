@@ -533,7 +533,7 @@ private:
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     bool cursorVisible = true;
     vrml::Player *player = nullptr;
-    std::list<void (*)()> playerUseList;
+    std::set<void (*)()> playerUseList;
 
     int activeClippingPlane;
 
