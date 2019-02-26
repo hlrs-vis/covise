@@ -206,6 +206,11 @@ void coVRStatsDisplay::enableRhrStats(bool enable)
     _rhrStats = enable;
 }
 
+void coVRStatsDisplay::enableFinishStats(bool enable)
+{
+    _finishStats = enable;
+}
+
 void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
 {
     _threadingModel = tm;
@@ -1445,6 +1450,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.y() -= characterSize * 1.5f;
         }
 
+        if (_finishStats)
         {
             pos.x() = leftPos;
 

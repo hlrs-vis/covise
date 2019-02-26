@@ -95,6 +95,8 @@ typedef void (GL_APIENTRY *GLDebugMessageCallbackPROC)(GLDEBUGPROC callback, voi
 #define GL_DEBUG_OUTPUT 0x92E0
 #define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
 
+namespace opencover {
+
 InitGLOperation::InitGLOperation()
 : osg::GraphicsOperation("InitGLOperation", false)
 {
@@ -185,13 +187,32 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
                 if (!window)
                     continue;
                 if(conf.windows[i].swapGroup > 0)
-                    glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),conf.windows[i].swapGroup);
-                if(conf.windows[i].swapBarrier > 0)
-                    glXBindSwapBarrierNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier);
+                {
+                    if (!glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),conf.windows[i].swapGroup))
+                    {
+                        std::cerr << "Failed to join GL swap group " << conf.windows[i].swapGroup << std::endl;
+                    }
+                    else if(conf.windows[i].swapBarrier > 0)
+                    {
+                        if (!glXBindSwapBarrierNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier))
+                        {
+                            std::cerr << "Failed to bind GL swap group " << conf.windows[i].swapGroup << " to barrier " << conf.windows[i].swapBarrier << std::endl;
+                        }
+                        else
+                        {
+                            m_boundSwapBarrier = true;
+                        }
+                    }
+                }
             }
         }
     }
 #endif
+}
+
+bool InitGLOperation::boundSwapBarrier() const
+{
+    return m_boundSwapBarrier;
 }
 
 void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
@@ -251,4 +272,6 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
                  ||  cbdata.debugLevel >= 3;
     if (printMsg)
         std::cerr << msg.str() << std::endl;
+}
+
 }

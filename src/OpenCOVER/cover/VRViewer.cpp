@@ -383,7 +383,8 @@ VRViewer::VRViewer()
     setUseConfigureAffinity(false); // tell OpenSceneGraph not to set affinity (good if you want to run multiple instances on one machine)
 #endif
 
-    setRealizeOperation(new InitGLOperation());
+    m_initGlOp = new InitGLOperation();
+    setRealizeOperation(m_initGlOp);
 
     unsyncedFrames = 0;
     lastFrameTime = 0.0;
@@ -1128,8 +1129,39 @@ VRViewer::config()
         setFrustumAndView(i);
     }
     assignSceneDataToCameras();
-	getUpdateVisitor()->setTraversalMask(Isect::Update);
+    getUpdateVisitor()->setTraversalMask(Isect::Update);
 
+    if (coVRMSController::instance()->isCluster())
+    {
+        bool haveSwapBarrier = m_initGlOp->boundSwapBarrier();
+        if (coVRMSController::instance()->isSlave()) {
+            coVRMSController::instance()->sendMaster(&haveSwapBarrier, sizeof(haveSwapBarrier));
+        } else {
+            coVRMSController::SlaveData swapBarrierData(sizeof(haveSwapBarrier));
+            coVRMSController::instance()->readSlaves(&swapBarrierData);
+            for (int i = 0; i < coVRMSController::instance()->getNumSlaves(); ++i)
+            {
+                const bool *haveBarrier = static_cast<const bool *>(swapBarrierData.data[i]);
+                if (*haveBarrier)
+                    haveSwapBarrier = true;
+            }
+        }
+        haveSwapBarrier = coVRMSController::instance()->syncBool(haveSwapBarrier);
+        if (haveSwapBarrier)
+        {
+            if (cover->debugLevel(1))
+                std::cerr << "VRViewer: swap group joined - disabling glFinish" << std::endl;
+            m_requireGlFinish = false;
+        }
+    }
+    else
+    {
+        if (cover->debugLevel(1))
+            std::cerr << "VRViewer: not running in cluster mode - disabling glFinish" << std::endl;
+        m_requireGlFinish = false;
+    }
+    if (statsDisplay)
+        statsDisplay->enableFinishStats(m_requireGlFinish);
 }
 
 //OpenCOVER
@@ -2525,13 +2557,16 @@ void VRViewer::renderingTraversals()
             glContextOperation(*itr);
 	    
             double beginFinish = elapsedTime();
-            glFinish();
-            if (getViewerStats()->collectStats("finish"))
+            if (m_requireGlFinish)
             {
-                double endFinish = elapsedTime();
-                getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
-                getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
-                getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
+                glFinish();
+                if (getViewerStats()->collectStats("finish"))
+                {
+                    double endFinish = elapsedTime();
+                    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish begin time ", beginFinish);
+                    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish end time ", endFinish);
+                    getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "finish time taken", endFinish - beginFinish);
+                }
             }
             sync = true;
         }

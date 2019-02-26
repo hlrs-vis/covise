@@ -33,11 +33,15 @@
 
 #include <osgViewer/ViewerEventHandlers>
 
+namespace opencover {
+
 class InitGLOperation: public osg::GraphicsOperation
 {
 public:
     InitGLOperation();
     virtual void operator ()(osg::GraphicsContext* gc);
+
+    bool boundSwapBarrier() const;
 
 private:
     OpenThreads::Mutex m_mutex;
@@ -52,6 +56,9 @@ private:
         int debugLevel;
     };
     DebugCallbackData m_callbackData;
+
+    bool m_boundSwapBarrier = false;
 };
 
+}
 #endif
