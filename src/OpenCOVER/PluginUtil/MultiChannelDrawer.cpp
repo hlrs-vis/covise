@@ -47,22 +47,91 @@ struct EmptyBounding: public osg::Drawable::ComputeBoundingBoxCallback {
     }
 };
 
+//! osg::Drawable::DrawCallback for rendering selected geometry on one channel only
+/*! decision is made based on cameras currently on osg's stack */
+struct SingleScreenCB: public osg::Drawable::DrawCallback {
+
+   osg::ref_ptr<MultiChannelDrawer> m_drawer;
+   osg::ref_ptr<osg::Camera> m_cam;
+   int m_channel = 0;
+   bool m_second = false;
+   mutable int m_renderCount = 0;
+
+   SingleScreenCB(MultiChannelDrawer *drawer, osg::ref_ptr<osg::Camera> cam, int channel, bool second=false)
+      : m_drawer(drawer)
+      , m_cam(cam)
+      , m_channel(channel)
+      , m_second(second)
+      {
+          assert(m_channel >= 0);
+      }
+
+   void  drawImplementation(osg::RenderInfo &ri, const osg::Drawable *d) const {
+
+      bool render = false;
+      if (!render) {
+          auto stm = coVRConfig::instance()->channels[m_channel].stereoMode;
+          const bool twoEyes = coVRConfig::requiresTwoViewpoints(stm);
+          bool quadbuf = stm == osg::DisplaySettings::QUAD_BUFFER;
+          ++m_renderCount;
+
+          bool right = true;
+          if (quadbuf) {
+              GLint db=0;
+              glGetIntegerv(GL_DRAW_BUFFER, &db);
+              if (db != GL_BACK_RIGHT && db != GL_FRONT_RIGHT && db != GL_RIGHT)
+                  right = false;
+          } else if (twoEyes) {
+              right = !(m_renderCount%2);
+          }
+
+          std::vector<osg::ref_ptr<osg::Camera> > cameraStack;
+          while (ri.getCurrentCamera()) {
+              if (ri.getCurrentCamera() == m_cam) {
+                  render = true;
+                  break;
+              }
+              cameraStack.push_back(ri.getCurrentCamera());
+              ri.popCamera();
+          }
+          while (!cameraStack.empty()) {
+              ri.pushCamera(cameraStack.back());
+              cameraStack.pop_back();
+          }
+
+          if (twoEyes) {
+              if (m_second && !right)
+                  render = false;
+              if (!m_second && right)
+                  render = false;
+          }
+          //std::cerr << "investigated " << cameraStack.size() << " cameras for channel " << m_channel << " (2nd: " << m_second << "): render=" << render << ", right=" << right << ", count=" << m_renderCount << std::endl;
+      }
+
+      if (render)
+         d->drawImplementation(ri);
+   }
+};
+
+
 ViewChannelData::ViewChannelData(std::shared_ptr<ViewData> view, ChannelData *chan)
 : chan(chan)
 , view(view)
 {
+    drawCallback = new SingleScreenCB(chan->drawer, chan->camera, chan->channelNum, chan->second);
+
     geode = new osg::Geode();
     geode->setName("channel"+std::to_string(chan->channelNum)+"_view_geode");
     state = geode->getOrCreateStateSet();
 
     fixedGeo = new osg::Geometry(*view->fixedGeo);
     fixedGeo->setName("fixed");
-    fixedGeo->setDrawCallback(chan->drawCallback);
+    fixedGeo->setDrawCallback(drawCallback);
     fixedGeo->setComputeBoundingBoxCallback(new EmptyBounding);
 
     reprojGeo = new osg::Geometry(*view->reprojGeo);
     reprojGeo->setName("reprojected");
-    reprojGeo->setDrawCallback(chan->drawCallback);
+    reprojGeo->setDrawCallback(drawCallback);
     reprojGeo->setComputeBoundingBoxCallback(new EmptyBounding);
 
     reprojMat = new osg::Uniform(osg::Uniform::FLOAT_MAT4, "ReprojectionMatrix");
@@ -141,65 +210,6 @@ void ChannelData::updateViews() {
     for (auto &vcd: viewChan)
         vcd->update();
 }
-
-//! osg::Drawable::DrawCallback for rendering selected geometry on one channel only
-/*! decision is made based on cameras currently on osg's stack */
-struct SingleScreenCB: public osg::Drawable::DrawCallback {
-
-   osg::ref_ptr<MultiChannelDrawer> m_drawer;
-   osg::ref_ptr<osg::Camera> m_cam;
-   int m_channel;
-   bool m_second;
-
-   SingleScreenCB(MultiChannelDrawer *drawer, osg::ref_ptr<osg::Camera> cam, int channel, bool second=false)
-      : m_drawer(drawer)
-      , m_cam(cam)
-      , m_channel(channel)
-      , m_second(second)
-      {
-      }
-
-   void  drawImplementation(osg::RenderInfo &ri, const osg::Drawable *d) const {
-
-      bool render = false;
-      if (!render) {
-          const bool stereo = m_channel>=0 && coVRConfig::instance()->channels[m_channel].stereoMode == osg::DisplaySettings::QUAD_BUFFER;
-
-          bool right = true;
-          if (stereo) {
-              GLint db=0;
-              glGetIntegerv(GL_DRAW_BUFFER, &db);
-              if (db != GL_BACK_RIGHT && db != GL_FRONT_RIGHT && db != GL_RIGHT)
-                  right = false;
-          }
-
-          std::vector<osg::ref_ptr<osg::Camera> > cameraStack;
-          while (ri.getCurrentCamera()) {
-              if (ri.getCurrentCamera() == m_cam) {
-                  render = true;
-                  break;
-              }
-              cameraStack.push_back(ri.getCurrentCamera());
-              ri.popCamera();
-          }
-          while (!cameraStack.empty()) {
-              ri.pushCamera(cameraStack.back());
-              cameraStack.pop_back();
-          }
-
-          if (stereo) {
-              if (m_second && right)
-                  render = false;
-              if (!m_second && !right)
-                  render = false;
-          }
-          //std::cerr << "investigated " << cameraStack.size() << " cameras for channel " << m_channel << " (2nd: " << m_second << "): render=" << render << ", right=" << right << std::endl;
-      }
-
-      if (render)
-         d->drawImplementation(ri);
-   }
-};
 
 const char reprojVert[] =
 
@@ -424,13 +434,17 @@ MultiChannelDrawer::MultiChannelDrawer(bool flipped, bool useCuda)
 
    int numChannels = coVRConfig::instance()->numChannels();
    for (int i=0; i<numChannels; ++i) {
+       bool stereo = coVRConfig::instance()->channels[i].stereo;
        int stereomode = coVRConfig::instance()->channels[i].stereoMode;
        bool left = stereomode != osg::DisplaySettings::RIGHT_EYE;
-       m_channelData.emplace_back(std::make_shared<ChannelData>(i));
-       m_channelData.back()->eye = left ? Left : Right;
+       m_channelData.emplace_back(std::make_shared<ChannelData>(this, i));
+       m_channelData.back()->eye = Middle;
+       if (stereo) {
+           m_channelData.back()->eye = left ? Left : Right;
+       }
        initChannelData(*m_channelData.back());
-       if (stereomode == osg::DisplaySettings::QUAD_BUFFER) {
-           m_channelData.emplace_back(std::make_shared<ChannelData>(i));
+       if (coVRConfig::requiresTwoViewpoints(stereomode)) {
+           m_channelData.emplace_back(std::make_shared<ChannelData>(this, i));
            m_channelData.back()->eye = Right;
            m_channelData.back()->second = true;
            initChannelData(*m_channelData.back());
@@ -479,8 +493,7 @@ void MultiChannelDrawer::update() {
 
        const channelStruct &chan = coVRConfig::instance()->channels[i];
        const bool left = chan.stereoMode == osg::DisplaySettings::LEFT_EYE
-                         || (second && chan.stereoMode == osg::DisplaySettings::QUAD_BUFFER)
-                         || (chan.stereoMode == osg::DisplaySettings::ANAGLYPHIC && cd.frameNum % 2 == 1);
+           || (!second && coVRConfig::requiresTwoViewpoints(chan.stereoMode));
        const osg::Matrix &view = left ? chan.leftView : chan.rightView;
        const osg::Matrix &proj = left ? chan.leftProj : chan.rightProj;
        cd.curModel = model;
@@ -495,7 +508,8 @@ void MultiChannelDrawer::update() {
    for (int i=0; i<numChannels; ++i) {
        ChannelData &cd = *m_channelData[view];
        updateChannel(cd, i, false);
-       if (coVRConfig::instance()->channels[i].stereoMode == osg::DisplaySettings::QUAD_BUFFER) {
+       auto stereomode = coVRConfig::instance()->channels[i].stereoMode;
+       if (coVRConfig::requiresTwoViewpoints(stereomode)) {
            ++view;
            ChannelData &cd = *m_channelData[view];
            updateChannel(cd, i, true);
@@ -506,7 +520,6 @@ void MultiChannelDrawer::update() {
 //! create geometry for mapping remote image
 void MultiChannelDrawer::createGeometry(ChannelData &cd)
 {
-   cd.drawCallback = new SingleScreenCB(this, cd.camera, cd.channelNum, cd.second);
    cd.scene = new osg::Group;
    cd.scene->setName("channel_"+std::to_string(cd.channelNum)+(cd.second?"A":"B"));
 }
@@ -683,31 +696,33 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
    else
 #endif
    {
-       vd.colorTex = new osg::TextureRectangle;
-       vd.colorTex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-       vd.colorTex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-       osg::Image *cimg = new osg::Image();
-       vd.colorTex->setImage(new osg::Image());
-       cimg->setPixelBufferObject(new osg::PixelBufferObject(cimg));
+       for (int i=0; i<ViewData::NumImages; ++i) {
+           vd.colorImg[i] = new osg::Image;
+           vd.colorImg[i]->setPixelBufferObject(new osg::PixelBufferObject(vd.colorImg[i]));
+           vd.depthImg[i] = new osg::Image;
+           vd.depthImg[i]->setPixelBufferObject(new osg::PixelBufferObject(vd.depthImg[i]));
+       }
 
+       vd.colorTex = new osg::TextureRectangle;
        vd.depthTex = new osg::TextureRectangle;
-       vd.depthTex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-       vd.depthTex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-       osg::Image *dimg = new osg::Image();
-       vd.depthTex->setImage(dimg);
-       dimg->setPixelBufferObject(new osg::PixelBufferObject(dimg));
+       for (auto tex: {vd.colorTex, vd.depthTex}) {
+           tex->setResizeNonPowerOfTwoHint(false);
+           tex->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+           tex->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+       }
+       vd.colorTex->setImage(vd.colorImg[writeTex]);
+       vd.depthTex->setImage(vd.depthImg[writeTex]);
+   }
+
+   for (auto tex: {vd.colorTex, vd.depthTex}) {
+       tex->setBorderWidth( 0 );
+       tex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+       tex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
    }
 
 
    vd.colorTex->setInternalFormat( GL_RGBA );
-   vd.colorTex->setBorderWidth( 0 );
-   vd.colorTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-   vd.colorTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
-
    vd.depthTex->setInternalFormat( GL_DEPTH_COMPONENT32F );
-   vd.depthTex->setBorderWidth( 0 );
-   vd.depthTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-   vd.depthTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
    createGeometry(vd);
 
@@ -722,28 +737,28 @@ void MultiChannelDrawer::clearViewData() {
     }
 }
 
+bool MultiChannelDrawer::haveEye(MultiChannelDrawer::ViewEye eye) {
+    if (m_viewsToRender != MatchingEye)
+        return true;
+
+    if (eye == Middle)
+        return m_availableEyes.middle;
+    if (eye == Left)
+        return m_availableEyes.left;
+    if (eye == Right)
+        return m_availableEyes.right;
+
+    return false;
+}
+
 void MultiChannelDrawer::swapFrame() {
+
    //std::cerr << "MultiChannelDrawer::swapFrame" << std::endl;
-   bool haveLeft=false, haveMiddle=false, haveRight=false;
-   for (size_t s=0; s<m_channelData.size(); ++s) {
-      ChannelData &cd = *m_channelData[s];
-      if (cd.eye == Middle)
-          haveMiddle = true;
-      if (cd.eye == Left)
-          haveLeft = true;
-      if (cd.eye == Right)
-          haveRight = true;
-      cd.frameNum++;
-   }
 
    for (size_t s=0; s<m_viewData.size(); ++s) {
       ViewData &vd = *m_viewData[s];
 
-      if (vd.eye == Middle && !haveMiddle)
-          continue;
-      if (vd.eye == Left && !haveLeft)
-          continue;
-      if (vd.eye == Right && !haveRight)
+      if (!haveEye(vd.eye))
           continue;
 
       vd.imgView = vd.newView;
@@ -759,11 +774,12 @@ void MultiChannelDrawer::swapFrame() {
       else
 #endif
       {
-          vd.depthTex->getImage()->dirty();
-          vd.colorTex->getImage()->dirty();
+          vd.colorImg[renderTex]->dirty();
+          vd.depthImg[renderTex]->dirty();
       }
-   }
 
+      updateGeoForView(vd);
+   }
 }
 
 void MultiChannelDrawer::updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj) {
@@ -779,12 +795,13 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
     ViewData &vd = *m_viewData[idx];
     ChannelData *cd = nullptr;
     if (m_useCuda) {
-        if (idx < m_channelData.size())
+        if (size_t(idx) < m_channelData.size())
             cd = m_channelData[idx].get();
     }
 
-    if (vd.width != w || vd.height != h || vd.colorFormat != colorFormat)
+    if (colorFormat && (vd.width[writeTex] != w || vd.height[writeTex] != h || vd.colorFormat[writeTex] != colorFormat))
     {
+        auto cimg = vd.colorImg[writeTex];
         GLenum colorInternalFormat = 0;
         int colorTypeSize = 0;
         switch (colorFormat)
@@ -801,6 +818,9 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             throw std::runtime_error("Color pixel type not supported!");
         }
 
+        cimg->setInternalTextureFormat(colorFormat);
+        cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
+
 #ifdef HAVE_CUDA
         if (m_useCuda && cd)
         {
@@ -816,37 +836,16 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
-            osg::Image *cimg = vd.colorTex->getImage();
-            cimg->setInternalTextureFormat(colorFormat);
-            cimg->allocateImage(w, h, 1, GL_RGBA, colorFormat);
         }
 
-        if (m_flipped) {
-            (*vd.texcoord)[0].set(0., h);
-            (*vd.texcoord)[1].set(w, h);
-            (*vd.texcoord)[2].set(w, 0.);
-            (*vd.texcoord)[3].set(0., 0.);
-        }
-        else {
-            (*vd.texcoord)[0].set(0., 0.);
-            (*vd.texcoord)[1].set(w, 0.);
-            (*vd.texcoord)[2].set(w, h);
-            (*vd.texcoord)[3].set(0., h);
-        }
-        vd.fixedGeo->setTexCoordArray(0, vd.texcoord);
-        for (auto &vcd: vd.viewChan) {
-            vcd->fixedGeo->setTexCoordArray(0, vd.texcoord);
-            vcd->fixedGeo->getTexCoordArray(0)->dirty();
-        }
-        vd.texcoord->dirty();
-
-        vd.width = w;
-        vd.height = h;
-        vd.colorFormat = colorFormat;
+        vd.width[writeTex] = w;
+        vd.height[writeTex] = h;
+        vd.colorFormat[writeTex] = colorFormat;
     }
 
-    if (depthFormat != 0 && (vd.depthWidth != w || vd.depthHeight != h || vd.depthFormat != depthFormat))
+    if (depthFormat != 0 && (vd.depthWidth[writeTex] != w || vd.depthHeight[writeTex] != h || vd.depthFormat[writeTex] != depthFormat))
     {
+        auto dimg = vd.depthImg[writeTex];
         //std::cerr << "MultiChannelDrawer: need to update geo, format=" << depthFormat << ", w=" << w << ", h=" << h << std::endl;
         GLenum depthInternalFormat = 0;
         int depthTypeSize = 0;
@@ -864,6 +863,9 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
             throw std::runtime_error("Depth pixel type not supported!");
         }
 
+        dimg->setInternalTextureFormat(depthInternalFormat);
+        dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
+
 #ifdef HAVE_CUDA
         if (m_useCuda && cd)
         {
@@ -879,70 +881,100 @@ void MultiChannelDrawer::resizeView(int idx, int w, int h, GLenum depthFormat, G
         else
 #endif
         {
-            osg::Image *dimg = vd.depthTex->getImage();
-            dimg->setInternalTextureFormat(depthInternalFormat);
-            dimg->allocateImage(w, h, 1, GL_DEPTH_COMPONENT, depthFormat == GL_UNSIGNED_INT_24_8 ? GL_UNSIGNED_INT : depthFormat);
         }
 
-#ifndef INSTANCED
-        vd.pointCoord->resizeArray(w*h);
-        for (int y = 0; y<h; ++y) {
-            for (int x = 0; x<w; ++x) {
-                (*vd.pointCoord)[y*w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
-            }
-        }
-        vd.pointCoord->dirty();
-        vd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
-#endif
-
-        vd.quadCoord->resizeArray((w - 1)*(h - 1));
-        size_t idx = 0;
-        for (int y = 0; y<h - 1; ++y) {
-            for (int x = 0; x<w - 1; ++x) {
-                (*vd.quadCoord)[idx++].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
-            }
-        }
-        vd.quadCoord->dirty();
-        vd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
-
-        osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? vd.quadArr : vd.pointArr;
-
-        auto updateGeo = [this, arr, w, h](osg::Geometry *geo){
-#ifdef INSTANCED
-            if (geo->getNumPrimitiveSets() > 0) {
-                geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-            }
-            else {
-                geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
-            }
-#else
-
-            if (geo->getNumPrimitiveSets() > 0) {
-                geo->setPrimitiveSet(0, arr);
-            } else {
-                geo->addPrimitiveSet(arr);
-            }
-            geo->dirtyDisplayList();
-#endif
-        };
-        updateGeo(vd.reprojGeo);
-        for (auto &vcd: vd.viewChan) {
-            updateGeo(vcd->reprojGeo);
-        }
-
-        vd.size->set(osg::Vec2(w, h));
-        vd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
-
-        vd.depthWidth = w;
-        vd.depthHeight = h;
-        vd.depthFormat = depthFormat;
+        vd.depthWidth[writeTex] = w;
+        vd.depthHeight[writeTex] = h;
+        vd.depthFormat[writeTex] = depthFormat;
     }
 }
 
-void MultiChannelDrawer::reproject() {
+void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
 
-    for (auto &chan: m_channelData)
-        chan->updateViews();
+    if (vd.width[renderTex] != vd.depthWidth[renderTex]) {
+        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "), renderTex=" << renderTex
+                  << ": width mismatch: " << vd.width[renderTex] << " != " << vd.depthWidth[renderTex] << std::endl;
+    }
+    if (vd.height[renderTex] != vd.depthHeight[renderTex]) {
+        std::cerr << "MultiChannelDrawer::updateGeoForView(" << vd.viewNum << "), renderTex=" << renderTex
+                  << ": height mismatch: " << vd.height[renderTex] << " != " << vd.depthHeight[renderTex] << std::endl;
+    }
+
+    int w = vd.width[renderTex], h = vd.height[renderTex];
+
+    if (w == vd.geoWidth && h == vd.geoHeight)
+        return;
+
+    vd.geoWidth = w;
+    vd.geoHeight = h;
+
+    if (m_flipped) {
+        (*vd.texcoord)[0].set(0., h);
+        (*vd.texcoord)[1].set(w, h);
+        (*vd.texcoord)[2].set(w, 0.);
+        (*vd.texcoord)[3].set(0., 0.);
+    }
+    else {
+        (*vd.texcoord)[0].set(0., 0.);
+        (*vd.texcoord)[1].set(w, 0.);
+        (*vd.texcoord)[2].set(w, h);
+        (*vd.texcoord)[3].set(0., h);
+    }
+    vd.fixedGeo->setTexCoordArray(0, vd.texcoord);
+    for (auto &vcd: vd.viewChan) {
+        vcd->fixedGeo->setTexCoordArray(0, vd.texcoord);
+        vcd->fixedGeo->getTexCoordArray(0)->dirty();
+    }
+    vd.texcoord->dirty();
+
+#ifndef INSTANCED
+    vd.pointCoord->resizeArray(w*h);
+    for (int y = 0; y<h; ++y) {
+        for (int x = 0; x<w; ++x) {
+            (*vd.pointCoord)[y*w + x].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+        }
+    }
+    vd.pointCoord->dirty();
+    vd.pointArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, w*h);
+#endif
+
+    vd.quadCoord->resizeArray((w - 1)*(h - 1));
+    size_t idx = 0;
+    for (int y = 0; y<h - 1; ++y) {
+        for (int x = 0; x<w - 1; ++x) {
+            (*vd.quadCoord)[idx++].set(x + 0.5f, m_flipped ? y + 0.5f : h - y + 0.5f);
+        }
+    }
+    vd.quadCoord->dirty();
+    vd.quadArr = new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, (w - 1)*(h - 1));
+
+    osg::ref_ptr<osg::DrawArrays> arr = (m_mode == ReprojectMesh || m_mode == ReprojectMeshWithHoles) ? vd.quadArr : vd.pointArr;
+
+    auto updateGeo = [this, arr, w, h](osg::Geometry *geo){
+#ifdef INSTANCED
+        if (geo->getNumPrimitiveSets() > 0) {
+            geo->setPrimitiveSet(0, new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+        }
+        else {
+            geo->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS, 0, 1, w*h));
+        }
+#else
+
+        if (geo->getNumPrimitiveSets() > 0) {
+            geo->setPrimitiveSet(0, arr);
+        } else {
+            geo->addPrimitiveSet(arr);
+        }
+        geo->dirtyDisplayList();
+#endif
+    };
+    updateGeo(vd.reprojGeo);
+    for (auto &vcd: vd.viewChan) {
+        updateGeo(vcd->reprojGeo);
+    }
+
+    vd.size->set(osg::Vec2(w, h));
+    vd.pixelOffset->set(osg::Vec2((w + 1) % 2 * 0.5f, (h + 1) % 2 * 0.5f));
 }
 
 std::shared_ptr<MultiChannelDrawer::ViewData> MultiChannelDrawer::getViewData(int idx) {
@@ -966,7 +998,7 @@ unsigned char *MultiChannelDrawer::rgba(int idx) const {
     else
 #endif
     {
-        return vd.colorTex->getImage()->data();
+        return vd.colorImg[writeTex]->data();
     }
 }
 
@@ -986,7 +1018,7 @@ unsigned char *MultiChannelDrawer::depth(int idx) const {
     else
 #endif
     {
-        return vd.depthTex->getImage()->data();
+        return vd.depthImg[writeTex]->data();
     }
 }
 
@@ -1001,7 +1033,7 @@ void MultiChannelDrawer::clearColor(int idx) {
     else
 #endif
     {
-        osg::Image *color = vd.colorTex->getImage();
+        osg::Image *color = vd.colorImg[writeTex];
         memset(color->data(), 0, color->getTotalSizeInBytes());
         color->dirty();
     }
@@ -1018,7 +1050,7 @@ void MultiChannelDrawer::clearDepth(int idx) {
     else
 #endif
     {
-        osg::Image *depth = vd.depthTex->getImage();
+        osg::Image *depth = vd.depthImg[writeTex];
         memset(depth->data(), 0, depth->getTotalSizeInBytes());
         depth->dirty();
     }
@@ -1138,57 +1170,79 @@ void MultiChannelDrawer::setViewsToRender(ViewSelection views) {
 
 void MultiChannelDrawer::setNumViews(int nv) {
 
-    std::cerr << "MultiChannelDrawer::setNumViews(" << nv << ")" << std::endl;
     for (auto &cd: m_channelData) {
         cd->clearViews();
     }
-    m_viewData.clear();
+    for (auto &vd: m_viewData) {
+        vd->viewChan.clear();
+    }
 
-    if (nv == -1) {
-        // one view per channel/screen
-        for (auto &cd: m_channelData) {
-            m_viewData.emplace_back(std::make_shared<ViewData>());
-            initViewData(*m_viewData.back());
-        }
+    int n = nv==-1 ? m_channelData.size() : nv;
+    if (int(m_viewData.size()) > n) {
+        m_viewData.resize(n);
     } else {
-        for (int i=0; i<nv; ++i) {
+        for (int i=m_viewData.size(); i<n; ++i) {
             m_viewData.emplace_back(std::make_shared<ViewData>(i));
             initViewData(*m_viewData.back());
         }
     }
 
+    bool matchEyes = m_viewsToRender == MatchingEye;
+
     int idx = 0;
     for (auto &cd: m_channelData) {
-        cd->clearViews();
-        if (m_viewsToRender != Same) {
-            for (auto &vd: m_viewData) {
-                cd->addView(vd);
-            }
-        } else {
+        if (m_viewsToRender == Same) {
             assert(m_viewData.size() > idx);
             cd->addView(m_viewData[idx]);
+        } else {
+            for (auto &vd: m_viewData) {
+                cd->addView(vd);
+                cd->enableView(vd, cd->eye==vd->eye || !matchEyes || m_numViews!=nv);
+            }
         }
         ++idx;
     }
 
+    m_numViews = nv;
+
     setMode(m_mode);
 
-    std::cerr << "setNumViews(nv=" << nv << "): #chan=" << m_channelData.size() << ", #views=" << m_viewData.size() << ", channels:";
+    std::cerr << "setNumViews(nv=" << nv << "): to render=" << m_viewsToRender << ", #chan=" << m_channelData.size() << ", #views=" << m_viewData.size() << ", channels:";
     for (auto &cd: m_channelData) {
         std::cerr << " " << cd->viewChan.size();
+    }
+
+    std::cerr << ", eyes: ";
+
+    for (auto &cd: m_channelData) {
+        if (cd->eye == Middle) {
+            m_availableEyes.middle = true;
+            std::cerr << "M";
+        }
+        if (cd->eye == Left) {
+            m_availableEyes.left = true;
+            std::cerr << "L";
+        }
+        if (cd->eye == Right) {
+            m_availableEyes.right = true;
+            std::cerr << "R";
+        }
     }
     std::cerr << std::endl;
 }
 
 void MultiChannelDrawer::setViewEye(int view, ViewEye eye) {
+
+    if (m_viewData[view]->eye == eye)
+        return;
+
     m_viewData[view]->eye = eye;
 
-    if (m_viewsToRender != MatchingEye)
-        return;
+    bool matchEyes = m_viewsToRender==MatchingEye;
 
     auto vd = m_viewData[view];
     for (auto &cd: m_channelData) {
-        cd->enableView(vd, cd->eye==eye);
+        cd->enableView(vd, cd->eye==eye || !matchEyes);
     }
 }
 
