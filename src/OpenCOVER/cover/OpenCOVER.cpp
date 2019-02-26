@@ -1219,6 +1219,7 @@ bool OpenCOVER::frame()
 
     if (frameNum > 2)
     {
+        double beginPreFrameTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1230,6 +1231,10 @@ bool OpenCOVER::frame()
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
+
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe begin time", beginPreFrameTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1274,6 +1279,8 @@ bool OpenCOVER::frame()
         cover->setCursorVisible(false);
     }
 
+    coVRShaderList::instance()->update();
+
     if (coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
@@ -1290,7 +1297,6 @@ bool OpenCOVER::frame()
         VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
-    coVRShaderList::instance()->update();
     VRViewer::instance()->frame();
     beginAppTraversal = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
