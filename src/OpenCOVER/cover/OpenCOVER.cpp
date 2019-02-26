@@ -309,6 +309,20 @@ bool OpenCOVER::init()
 	}
 #endif
 
+    std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
+    if (!startCommand.empty())
+    {
+        int ret = system(startCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
+
     m_visPlugin = NULL;
     Socket::initialize();
     s_instance = this;
@@ -1299,6 +1313,19 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    if (!exitCommand.empty())
+    {
+        int ret = system(exitCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
 
     if (cover->debugLevel(2))
     {
