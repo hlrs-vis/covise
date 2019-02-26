@@ -174,7 +174,7 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
 
     // setup swap groups and swap barriers
 #ifdef USE_X11
-    if (glXJoinSwapGroupNV)
+    if (glXJoinSwapGroupNV && glXBindSwapBarrierNV)
     {
         auto &conf = *opencover::coVRConfig::instance();
         for(int i=0; i<conf.numWindows();i++)
@@ -187,7 +187,7 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
                 if(conf.windows[i].swapGroup > 0)
                     glXJoinSwapGroupNV(window->getDisplayToUse(),window->getWindow(),conf.windows[i].swapGroup);
                 if(conf.windows[i].swapBarrier > 0)
-                    glXJoinSwapGroupNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier);
+                    glXBindSwapBarrierNV(window->getDisplayToUse(),conf.windows[i].swapGroup,conf.windows[i].swapBarrier);
             }
         }
     }
