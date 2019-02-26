@@ -7,6 +7,8 @@
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
+   <StartCommand value="nvidia-smi -ac 4513,1657" />
+   <ExitCommand value="nvidia-smi -rac" />
   </COVER>
  </GLOBAL>
 
