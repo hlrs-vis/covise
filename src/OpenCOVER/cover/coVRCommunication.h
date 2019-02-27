@@ -33,6 +33,8 @@ class VrbClientRegistry;
 #include <map>
 #include <set>
 #include <vrbclient/regClass.h>
+#include <vrbclient/SharedState.h>
+
 namespace vrb {
     class SharedStateManager;
 

@@ -652,7 +652,7 @@ void coVRCommunication::handleVRB(Message *msg)
             coVRPartnerList::instance()->next();
         }
         coVRPartnerList::instance()->print();
-
+        coVRCollaboration::instance()->updateSharedStates();
     }
     break;
     case COVISE_MESSAGE_VRB_QUIT:

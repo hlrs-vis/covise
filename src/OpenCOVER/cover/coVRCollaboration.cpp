@@ -91,6 +91,7 @@ void coVRCollaboration::init()
             m_collaborationMode->select(newSyncMode);
         syncModeChanged(newSyncMode);
     });
+
     readConfigFile();
 
     // create collaborative menu
@@ -238,9 +239,13 @@ void coVRCollaboration::initCollMenu()
     m_master->setEnabled(!isMaster() && m_visible);
     m_master->setCallback([this](bool state){
         if (state)
+        {
             coVRCommunication::instance()->becomeMaster();
+            updateSharedStates();
+        }
+
         m_master->setEnabled(!state && m_visible);
-        m_returnToMaster->setEnabled(state && m_visible);
+        m_returnToMaster->setEnabled(!state && m_visible);
     });
 
     m_returnToMaster = new ui::Action(m_collaborativeMenu, "return to Master");
@@ -267,6 +272,7 @@ bool coVRCollaboration::updateCollaborativeMenu()
         oldMasterStatus = isMaster();
         m_master->setState(isMaster());
         m_master->setEnabled(!isMaster() && m_visible);
+        m_returnToMaster->setEnabled(!isMaster() && m_visible);
     }
     if (oldSyncInterval != syncInterval)
     {
