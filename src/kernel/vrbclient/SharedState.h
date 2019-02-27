@@ -83,14 +83,15 @@ public:
     void update(clientRegVar *theChangedRegEntry) override;
     void setID(int id);
     void resubscribe(int id);
+    void frame(double time);
+    void setSyncInterval(float time);
+    float getSyncInerval();
 protected:
-
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
     void subscribe(covise::TokenBuffer &&val);
     void setVar(covise::TokenBuffer &&val);
     const std::string className = "SharedState";
     std::string variableName;
-
     bool doSend = false;
     bool doReceive = false;
     bool valueChanged = false;
@@ -100,6 +101,10 @@ protected:
 
 private:
     int sessionID = 0; ///the session to send updates to 
+    bool send = false;
+    float syncInterval = 0.1;
+    double lastUpdateTime = 0.0;
+    covise::TokenBuffer tb_value;
 };
 
 template <class T>

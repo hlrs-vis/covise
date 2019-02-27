@@ -60,6 +60,7 @@
 #include <osgGA/GUIActionAdapter>
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
+#include <vrbclient/SharedStateManager.h>
 
 #include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"
@@ -89,6 +90,7 @@
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/Manager.h"
+
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -1095,11 +1097,15 @@ bool OpenCOVER::frame()
     VRSceneGraph::instance()->update();
     if (coVRCollaboration::instance()->update())
     {
+        
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of collaborative action" << std::endl;
         render = true;
     }
-
+    if (vrb::SharedStateManager::instance())
+    {
+        vrb::SharedStateManager::instance()->frame(cover->frameTime());
+    }
     // update viewer position and channels
     if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
     {

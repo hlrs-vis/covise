@@ -8,8 +8,9 @@
 #include "SharedState.h"
 #include <vrbclient/regClass.h>
 #include "SharedStateManager.h"
-
 #include <vrbclient/VrbClientRegistry.h>
+#include <chrono>
+#include <ctime>
 
 namespace vrb
 {
@@ -27,43 +28,6 @@ void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vec
         tb << value[i];
     }
 }
-
-//template <>
-//void serialize<bool>(covise::TokenBuffer &tb, const bool &value)
-//{
-//    int typeID = 1;
-//    tb << typeID;
-//    tb << value;
-//}
-//template <>
-//void serialize<int>(covise::TokenBuffer &tb, const int &value)
-//{
-//    int typeID = 2;
-//    tb << 4;
-//    tb << value;
-//}
-//template <>
-//void serialize<float>(covise::TokenBuffer &tb, const float &value)
-//{
-//    int typeID = 3;
-//    tb << typeID;
-//    tb << value;
-//}
-//template <>
-//void serialize<std::string>(covise::TokenBuffer &tb, const std::string &value)
-//{
-//    int typeID = 4;
-//    tb << typeID;
-//    tb << value;
-//}
-//template <>
-//void serialize<char>(covise::TokenBuffer &tb, const char &value)
-//{
-//    int typeID = 5;
-//    tb << typeID;
-//    tb << value;
-//}
-
 template <>
 void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value)
 {
@@ -101,11 +65,8 @@ void SharedStateBase::subscribe(covise::TokenBuffer && val)
 }
 void SharedStateBase::setVar(covise::TokenBuffer && val)
 {
-    if (sessionID == 0)
-    {
-        return;
-    }
-    m_registry->setVar(sessionID, className, variableName, std::move(val));
+    tb_value = std::move(val);
+    send = true;
 }
 void SharedStateBase::setUpdateFunction(std::function<void()> function)
 {
@@ -150,5 +111,26 @@ void SharedStateBase::resubscribe(int id)
     m_registry->unsubscribeVar(className, variableName, true);
     covise::TokenBuffer tb;
     m_registry->subscribeVar(id, className, variableName, std::move(tb), this);
+}
+void SharedStateBase::frame(double time)
+{
+    if (sessionID == 0)
+    {
+        return;
+    }
+    if (send && time > lastUpdateTime + syncInterval)
+    {
+        m_registry->setVar(sessionID, className, variableName, std::move(tb_value));
+        lastUpdateTime = time;
+        send = false;
+    }
+}
+void SharedStateBase::setSyncInterval(float time)
+{
+    syncInterval = time;
+}
+float SharedStateBase::getSyncInerval()
+{
+    return syncInterval;
 }
 }

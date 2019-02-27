@@ -65,8 +65,8 @@ private:
     int readConfigFile();
     void initCollMenu();
     std::set<int> m_sessions;
-    bool syncXform;
-    bool syncScale;
+    bool syncXform = false;
+    bool syncScale = false;
 	bool wasLo = false;
     float syncInterval;
     bool oldMasterStatus = true;
@@ -88,7 +88,7 @@ public:
 
     void setSyncMode(const char *mode); // set one of "LOOSE", "MS", "TIGHT"
 
-    void updateSharedStates();
+    void updateSharedStates(bool force = false);
     // returns true if this COVER ist master in a collaborative session
     bool isMaster();
     void setCurrentSession(int id);
@@ -98,6 +98,7 @@ public:
     ui::Group *m_partnerGroup = nullptr;
     ui::Button *m_showAvatar = nullptr;
     ui::Button *m_master = nullptr;
+    ui::Action *m_returnToMaster = nullptr;
     ui::Action *m_newSession = nullptr;
     ui::Slider *m_syncInterval = nullptr;
     ui::SelectionList *m_collaborationMode = nullptr;

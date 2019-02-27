@@ -66,28 +66,55 @@ void SharedStateManager::remove(SharedStateBase *base)
     neverShare.erase(base);
 }
 
-void SharedStateManager::update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sesisonToSubscribe)
+void SharedStateManager::update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sessionToSubscribe, bool force)
 {
+
+
+    if (m_privateSessionID != privateSessionID ||force)
+    {
+        for (const auto sharedState : neverShare)
+        {
+            sharedState->resubscribe(privateSessionID);
+            sharedState->setID(privateSessionID);
+        }
+    }
+
+    if (m_publicSessionID != publicSessionID || force)
+    {
+        for (const auto sharedState : alwaysShare)
+        {
+            sharedState->resubscribe(publicSessionID);
+            sharedState->setID(publicSessionID);
+        }
+    }
+
+    if (m_useCouplingModeSessionID != useCouplingModeSessionID || force)
+    {
+        for (const auto sharedState : useCouplingMode)
+        {
+            sharedState->resubscribe(sessionToSubscribe);
+            sharedState->setID(useCouplingModeSessionID);
+        }
+    }
+
     m_privateSessionID = privateSessionID;
     m_publicSessionID = publicSessionID;
     m_useCouplingModeSessionID = useCouplingModeSessionID;
+}
 
+void SharedStateManager::frame(double time)
+{
     for (const auto sharedState : neverShare)
     {
-        sharedState->resubscribe(privateSessionID);
-        sharedState->setID(m_privateSessionID);
+        sharedState->frame(time);
     }
-
     for (const auto sharedState : alwaysShare)
     {
-        sharedState->resubscribe(publicSessionID);
-        sharedState->setID(m_publicSessionID);
+        sharedState->frame(time);
     }
-
     for (const auto sharedState : useCouplingMode)
     {
-        sharedState->resubscribe(sesisonToSubscribe);
-        sharedState->setID(m_useCouplingModeSessionID);
+        sharedState->frame(time);
     }
 }
 }

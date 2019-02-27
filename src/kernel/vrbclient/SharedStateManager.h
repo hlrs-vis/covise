@@ -31,7 +31,10 @@ public:
     static SharedStateManager *instance();
     int add(SharedStateBase *base, SharedStateType mode);
     void remove(SharedStateBase *base);
-    void update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sesisonToSubscribe);
+    ///Updates the IDs to which the SharedStates send and from which they receive updates. 
+    ///If force = true all SharedStates resubscribe, no matter if one of the IDs has changed  
+    void update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sesisonToSubscribe, bool force = false);
+    void frame(double time);
 private:
     static SharedStateManager *s_instance;
     std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare;
