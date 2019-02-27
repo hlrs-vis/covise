@@ -92,6 +92,7 @@ private:
     std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
 
     void getVehiclesFromConfig();
+    void loadAllVehicles();
 
 	double simTime;
 	double nextSimTime;

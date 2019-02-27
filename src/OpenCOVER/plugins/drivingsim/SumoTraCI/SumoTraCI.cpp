@@ -53,13 +53,14 @@ SumoTraCI::SumoTraCI()
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
     getPedestriansFromConfig();
     getVehiclesFromConfig();
+    loadAllVehicles();
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
 {
 
     auto vehiclesPair = vehicleModelMap.find(vehicleClass);
-    auto vehicles =vehiclesPair->second;
+    auto vehicles = vehiclesPair->second;
     static std::mt19937 gen2(0);
     std::uniform_int_distribution<> dis(0, vehicles->size()-1);
     int vehicleIndex = dis(gen2);
@@ -505,5 +506,17 @@ void SumoTraCI::getVehiclesFromConfig()
     }
 }
 
-
+void SumoTraCI::loadAllVehicles()
+{
+    for (auto itr = vehicleModelMap.begin(); itr!=vehicleModelMap.end(); itr++)
+    {
+        auto vehicles = itr->second;
+        for (auto itr2 =vehicles->begin(); itr2!= vehicles->end(); itr2++)
+        {
+            AgentVehicle * av;
+            av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false), 0, NULL, 0, 1, 0.0, 1);
+            vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
+        }
+    }
+}
 COVERPLUGIN(SumoTraCI)
