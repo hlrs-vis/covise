@@ -163,7 +163,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <!--Audio value="OpenAL" /-->
+     <Audio value="OpenAL" />
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 

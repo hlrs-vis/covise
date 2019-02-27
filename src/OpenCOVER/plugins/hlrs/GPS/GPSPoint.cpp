@@ -312,6 +312,7 @@ void GPSPoint::draw()
         *color = osg::Vec4(0.0f, 0.5f, 1.0f, 1.0f);
         createSphere(color);
         createSign(GPSPlugin::instance()->iconSprachaufnahme);
+        createSound();
         break;
     case Barriere:
         *color = osg::Vec4(0.5f, 0.5f, 1.0f, 1.0f);
@@ -547,26 +548,23 @@ void GPSPoint::createSign(osg::Image *img)
 
 void GPSPoint::createSound()
 {
-    //std::string fn = "share/covise/GPS/" + filename;
-    //const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
-    //VrmlNodeAudioClip *clip = d_source.get()->toAudioClip();
-
-    fprintf(stderr, "create Sound\n");
-
     if (GPSPlugin::player)
     {
         audio = new Audio((myDirectory+"/data/sounds/"+filename).c_str());
         if (audio == NULL)
         {
-            fprintf(stderr, "Audio not found\n");
+            fprintf(stderr, "Audio not found for %s\n", filename.c_str());
         }
-        fprintf(stderr, "Duration of Audio %lf \n", audio->duration());
         source = GPSPlugin::player->newSource(audio);
         if (source)
         {
             source->setLoop(false);
             source->stop();
             source->setIntensity(1.0);
+        }
+        else
+        {
+            fprintf(stderr, "newSource didnt work\n");
         }
     }
     else
@@ -946,12 +944,20 @@ void GPSPoint::activate()
         }
         break;
     case Sprachaufnahme:
-        fprintf(stderr,"Sprachaufnahme clicked\n");
-        createSound();
+
         if(source)
         {
-            fprintf(stderr,"Playing sound\n");
-            source->play();
+            printf("isPlaying?: %s \n", source->isPlaying() ? "true" : "false");
+            if(source->isPlaying())
+            {
+                fprintf(stderr,"Sound stopped\n");
+                source->stop();
+            }
+            else
+            {
+                fprintf(stderr,"Playing sound. Duration: %lf \n", audio->duration());
+                source->play();
+            }
         }
         else
         {
@@ -963,9 +969,7 @@ void GPSPoint::activate()
         break;
 
     }
-    fprintf(stderr,"activate\n");
 }
 void GPSPoint::disactivate()
 {
-    fprintf(stderr,"disactivate\n");
 }
