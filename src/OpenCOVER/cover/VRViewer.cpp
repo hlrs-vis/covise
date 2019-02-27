@@ -1160,8 +1160,12 @@ VRViewer::config()
             std::cerr << "VRViewer: not running in cluster mode - disabling glFinish" << std::endl;
         m_requireGlFinish = false;
     }
+
     if (statsDisplay)
+    {
         statsDisplay->enableFinishStats(m_requireGlFinish);
+        statsDisplay->enableSyncStats(coVRMSController::instance()->isCluster());
+    }
 }
 
 //OpenCOVER

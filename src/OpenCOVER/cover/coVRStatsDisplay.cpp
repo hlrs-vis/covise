@@ -211,6 +211,11 @@ void coVRStatsDisplay::enableFinishStats(bool enable)
     _finishStats = enable;
 }
 
+void coVRStatsDisplay::enableSyncStats(bool enable)
+{
+    _syncStats = enable;
+}
+
 void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
 {
     _threadingModel = tm;
@@ -1257,6 +1262,38 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         {
             pos.x() = leftPos;
 
+            osg::ref_ptr<osgText::Text> updateLabel = new osgText::Text;
+            geode->addDrawable(updateLabel.get());
+
+            updateLabel->setColor(colorUpdate);
+            updateLabel->setFont(font);
+            updateLabel->setCharacterSize(characterSize);
+            updateLabel->setPosition(pos);
+            updateLabel->setText("COVER: ", osgText::String::ENCODING_UTF8);
+
+            pos.x() = updateLabel->getBound().xMax();
+
+            osg::ref_ptr<osgText::Text> updateValue = new osgText::Text;
+            geode->addDrawable(updateValue.get());
+
+            updateValue->setColor(colorUpdate);
+            updateValue->setFont(font);
+            updateValue->setCharacterSize(characterSize);
+            updateValue->setPosition(pos);
+            updateValue->setText("0.0", osgText::String::ENCODING_UTF8);
+
+            updateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "opencover time taken", -1, false, 1000.0));
+
+            pos.x() = startBlocks;
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
+            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "opencover begin time", "opencover end time", -1, _numBlocks));
+            geode->addDrawable(geometry);
+
+            pos.y() -= characterSize * 1.5f;
+        }
+        {
+            pos.x() = leftPos;
+
             osg::ref_ptr<osgText::Text> eventLabel = new osgText::Text;
             geode->addDrawable(eventLabel.get());
 
@@ -1264,7 +1301,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             eventLabel->setFont(font);
             eventLabel->setCharacterSize(characterSize);
             eventLabel->setPosition(pos);
-            eventLabel->setText("Isect: ", osgText::String::ENCODING_UTF8);
+            eventLabel->setText("  Isect: ", osgText::String::ENCODING_UTF8);
 
             pos.x() = eventLabel->getBound().xMax();
 
@@ -1297,7 +1334,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pluginLabel->setFont(font);
             pluginLabel->setCharacterSize(characterSize);
             pluginLabel->setPosition(pos);
-            pluginLabel->setText("Plugins: ", osgText::String::ENCODING_UTF8);
+            pluginLabel->setText("  Plugins: ", osgText::String::ENCODING_UTF8);
 
             pos.x() = pluginLabel->getBound().xMax();
 
@@ -1329,7 +1366,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pluginLabel->setFont(font);
             pluginLabel->setCharacterSize(characterSize);
             pluginLabel->setPosition(pos);
-            pluginLabel->setText("PreFrame: ", osgText::String::ENCODING_UTF8);
+            pluginLabel->setText("    PreFrame: ", osgText::String::ENCODING_UTF8);
 
             pos.x() = pluginLabel->getBound().xMax();
 
@@ -1351,39 +1388,8 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
             pos.y() -= characterSize * 1.5f;
         }
-        {
-            pos.x() = leftPos;
 
-            osg::ref_ptr<osgText::Text> updateLabel = new osgText::Text;
-            geode->addDrawable(updateLabel.get());
-
-            updateLabel->setColor(colorUpdate);
-            updateLabel->setFont(font);
-            updateLabel->setCharacterSize(characterSize);
-            updateLabel->setPosition(pos);
-            updateLabel->setText("COVER: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = updateLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> updateValue = new osgText::Text;
-            geode->addDrawable(updateValue.get());
-
-            updateValue->setColor(colorUpdate);
-            updateValue->setFont(font);
-            updateValue->setCharacterSize(characterSize);
-            updateValue->setPosition(pos);
-            updateValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            updateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "opencover time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "opencover begin time", "opencover end time", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
+        if (_syncStats)
         {
             pos.x() = leftPos;
 
