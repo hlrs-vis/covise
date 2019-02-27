@@ -47,6 +47,15 @@ struct pedestrianModel
 
 pedestrianModel::pedestrianModel(std::string n, double s) : fileName(n), scale(s) {}
 
+struct vehicleModel
+{
+    std::string vehicleName;
+    std::string fileName;
+    vehicleModel(std::string, std::string);
+};
+
+vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
+
 class SumoTraCI : public opencover::coVRPlugin
 {
 public:
@@ -78,6 +87,11 @@ private:
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     std::vector<pedestrianModel> pedestrianModels;
     void getPedestriansFromConfig();
+
+    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle"};
+    std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
+
+    void getVehiclesFromConfig();
 
 	double simTime;
 	double nextSimTime;

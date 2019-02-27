@@ -47,6 +47,7 @@ class MSEventHandler;
 class ARToolKitMarker;
 class angleStruct;
 class coVRStatsDisplay;
+class InitGLOperation;
 
 class COVEREXPORT VRViewer : public osgViewer::Viewer, public ui::Owner
 {
@@ -208,6 +209,9 @@ public:
     bool m_fullscreen = false;
 
     coVRStatsDisplay *statsDisplay = nullptr;
+    InitGLOperation *m_initGlOp = nullptr;
+
+    bool m_requireGlFinish = true;
 };
 }
 #endif

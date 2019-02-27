@@ -45,30 +45,40 @@ SumoTraCI::SumoTraCI()
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
-    AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
-    av = getAgentVehicle("truck","truck","truck_truck");
+    //AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
+    //av = getAgentVehicle("truck","truck","truck_truck");
     pf = PedestrianFactory::Instance();
     pedestrianGroup =  new osg::Group;
     pedestrianGroup->setName("pedestrianGroup");
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
     getPedestriansFromConfig();
+    getVehiclesFromConfig();
 }
 
 AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType)
 {
+
+    auto vehiclesPair = vehicleModelMap.find(vehicleClass);
+    auto vehicles =vehiclesPair->second;
+    static std::mt19937 gen2(0);
+    std::uniform_int_distribution<> dis(0, vehicles->size()-1);
+    int vehicleIndex = dis(gen2);
+
     AgentVehicle *av;
-    auto avIt = vehicleMap.find(vehicleType);
+    auto avIt = vehicleMap.find(vehicles->at(vehicleIndex).vehicleName);
     if(avIt != vehicleMap.end())
     {
         av = avIt->second;
     }
     else
     {
-        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicleDirectory+"/"+vehicleClass+"/"+vehicleType+"/"+vehicleType+".wrl", false), 0, NULL, 0, 1, 0.0, 1);
-        vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicleType,av));
+        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false), 0, NULL, 0, 1, 0.0, 1);
+        vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicles->at(vehicleIndex).vehicleName,av));
     }
     return av;
 }
+
+
 
 SumoTraCI::~SumoTraCI()
 {
@@ -166,6 +176,7 @@ void SumoTraCI::sendSimResults()
         currentResults.resize(simResults.size()+pedestrianSimResults.size());
     }
     size_t i = 0;
+
     for (std::map<std::string, libsumo::TraCIResults>::iterator it = simResults.begin(); it != simResults.end(); ++it)
     {
         std::shared_ptr<libsumo::TraCIPosition> position = std::dynamic_pointer_cast<libsumo::TraCIPosition> (it->second[VAR_POSITION3D]);
@@ -340,8 +351,11 @@ void SumoTraCI::interpolateVehiclePosition()
                     PedestrianGeometry * p = itr->second;
 
                     double weight = currentTime - nextSimTime;
+                    if (isnan(currentResults[currentIndex].position.x()) || isnan(currentResults[currentIndex].position.x()) || isnan(currentResults[currentIndex].position.x()))
+                    {
+                        currentResults[currentIndex].position = previousResults[i].position;
+                    }
                     osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
-
                     osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
                     osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
                     osg::Quat orientation;
@@ -350,9 +364,27 @@ void SumoTraCI::interpolateVehiclePosition()
                     Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(orientation.w(),orientation.x(),orientation.y(),orientation.z()));
                     p->setTransform(trans,M_PI);
 
-                    double dt = simTime - nextSimTime;
-                    double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/dt;
-                    p->setWalkingSpeed(walkingSpeed);
+                    double dt = nextSimTime - simTime;
+                    if (dt>0.0)
+                    {
+                        double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/dt;
+                        std::string person = itr->first;
+                        /*if (!person.compare("ped51"))
+                        {
+                        fprintf(stderr, "Persons %s speed is %f \n", person.c_str(), walkingSpeed);
+                        fprintf(stderr, "Persons %s previous position is %f %f %f \n", person.c_str(), previousResults[i].position.x(), previousResults[i].position.y(), previousResults[i].position.z());
+                        fprintf(stderr, "Persons %s current position is %f %f %f \n", person.c_str(), currentResults[currentIndex].position.x(), currentResults[currentIndex].position.y(), currentResults[currentIndex].position.z());
+                        }*/
+                        if (!(walkingSpeed==walkingSpeed))
+                        {
+                            walkingSpeed = 0.0;
+                        }
+                        p->setWalkingSpeed(walkingSpeed);
+                    }
+                    else
+                    {
+                        p->setWalkingSpeed(0.0);
+                    }
                 }
             }
         }
@@ -412,7 +444,7 @@ double SumoTraCI::interpolateAngles(double lambda, double pastAngle, double futu
 AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID)
 {
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
-    
+
     VehicleParameters vp;
     vp.rangeLOD = 400;
     return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
@@ -449,5 +481,29 @@ void SumoTraCI::getPedestriansFromConfig()
         }
     }
 }
+
+void SumoTraCI::getVehiclesFromConfig()
+{
+    for (std::vector<std::string>::iterator itr=vehicleClasses.begin(); itr!=vehicleClasses.end(); itr++)
+    {
+        std::vector<vehicleModel> * vehicles = new std::vector<vehicleModel>;
+        vehicleModelMap[*itr]=vehicles;
+        covise::coCoviseConfig::ScopeEntries e = covise::coCoviseConfig::getScopeEntries("COVER.Plugin.SumoTraCI.Vehicles."+*itr);
+        const char **entries = e.getValue();
+        if (entries)
+        {
+            while (*entries)
+            {
+                const char *vehicleName = *entries;
+                entries++;
+                const char *fileName = *entries;
+                entries++;
+                vehicleModel m = vehicleModel(vehicleName, fileName);
+                vehicles->push_back(m);
+            }
+        }
+    }
+}
+
 
 COVERPLUGIN(SumoTraCI)

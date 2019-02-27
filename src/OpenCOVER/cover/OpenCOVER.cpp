@@ -309,6 +309,20 @@ bool OpenCOVER::init()
 	}
 #endif
 
+    std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
+    if (!startCommand.empty())
+    {
+        int ret = system(startCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
+
     m_visPlugin = NULL;
     Socket::initialize();
     s_instance = this;
@@ -1205,6 +1219,7 @@ bool OpenCOVER::frame()
 
     if (frameNum > 2)
     {
+        double beginPreFrameTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1216,6 +1231,10 @@ bool OpenCOVER::frame()
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
+
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe begin time", beginPreFrameTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1260,6 +1279,8 @@ bool OpenCOVER::frame()
         cover->setCursorVisible(false);
     }
 
+    coVRShaderList::instance()->update();
+
     if (coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
@@ -1276,7 +1297,6 @@ bool OpenCOVER::frame()
         VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
-    coVRShaderList::instance()->update();
     VRViewer::instance()->frame();
     beginAppTraversal = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
@@ -1299,6 +1319,19 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    if (!exitCommand.empty())
+    {
+        int ret = system(exitCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
 
     if (cover->debugLevel(2))
     {

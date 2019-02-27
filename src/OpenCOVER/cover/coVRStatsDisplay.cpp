@@ -206,6 +206,11 @@ void coVRStatsDisplay::enableRhrStats(bool enable)
     _rhrStats = enable;
 }
 
+void coVRStatsDisplay::enableFinishStats(bool enable)
+{
+    _finishStats = enable;
+}
+
 void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
 {
     _threadingModel = tm;
@@ -1317,6 +1322,38 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         {
             pos.x() = leftPos;
 
+            osg::ref_ptr<osgText::Text> pluginLabel = new osgText::Text;
+            geode->addDrawable(pluginLabel.get());
+
+            pluginLabel->setColor(colorUpdate);
+            pluginLabel->setFont(font);
+            pluginLabel->setCharacterSize(characterSize);
+            pluginLabel->setPosition(pos);
+            pluginLabel->setText("PreFrame: ", osgText::String::ENCODING_UTF8);
+
+            pos.x() = pluginLabel->getBound().xMax();
+
+            osg::ref_ptr<osgText::Text> pluginValue = new osgText::Text;
+            geode->addDrawable(pluginValue.get());
+
+            pluginValue->setColor(colorUpdate);
+            pluginValue->setFont(font);
+            pluginValue->setCharacterSize(characterSize);
+            pluginValue->setPosition(pos);
+            pluginValue->setText("0.0", osgText::String::ENCODING_UTF8);
+
+            pluginValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "preframe time taken", -1, false, 1000.0));
+
+            pos.x() = startBlocks;
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
+            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "preframe begin time", "preframe end time", -1, _numBlocks));
+            geode->addDrawable(geometry);
+
+            pos.y() -= characterSize * 1.5f;
+        }
+        {
+            pos.x() = leftPos;
+
             osg::ref_ptr<osgText::Text> updateLabel = new osgText::Text;
             geode->addDrawable(updateLabel.get());
 
@@ -1413,6 +1450,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.y() -= characterSize * 1.5f;
         }
 
+        if (_finishStats)
         {
             pos.x() = leftPos;
 

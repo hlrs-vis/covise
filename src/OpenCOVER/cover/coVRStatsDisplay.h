@@ -57,6 +57,7 @@ public:
 
     void enableGpuStats(bool enable);
     void enableRhrStats(bool enable);
+    void enableFinishStats(bool enable);
 
     /** Get the keyboard and mouse usage of this manipulator.*/
     virtual void getUsage(osg::ApplicationUsage &usage) const;
@@ -88,6 +89,7 @@ protected:
     osgViewer::ViewerBase::ThreadingModel _threadingModel;
     osg::ref_ptr<osgText::Text> _threadingModelText;
 
+    bool _finishStats = true;
     bool _gpuStats = false;
     bool _rhrStats = false;
     unsigned int _frameRateChildNum;
