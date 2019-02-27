@@ -22,6 +22,8 @@
 #include "GPSPoint.h"
 #include "GPS.h"
 
+#include <vrml97/vrml/VrmlNodeAudioClip.h>
+
 #include <cover/coBillboard.h>
 #include <cover/coVRLabel.h>
 #include <osg/Material>
@@ -59,17 +61,29 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
 using namespace vrui;
+using namespace vrml;
 namespace opencover
 {
 class coVRLabel;
 }
-// GPSPoint
-GPSPoint::GPSPoint()
+
+
+GPSPoint::~GPSPoint()
 {
+    delete mySensor;
+    fprintf(stderr, "GPSPoint deleted\n");
+}
+// GPSPoint
+GPSPoint::GPSPoint(std::string path)
+{
+    myDirectory = path;
     geoTrans = new osg::MatrixTransform();
     geoScale = new osg::MatrixTransform();
     Point = new osg::Group();
     mySensor = nullptr;
+    PictureGeode = nullptr;
+    TextGeode = nullptr;
+    source = nullptr;
 
     osg::Matrix m;
     m.makeScale(osg::Vec3(1,1,1));
@@ -87,11 +101,6 @@ GPSPoint::GPSPoint()
     Point->addChild(switchSphere);
     Point->addChild(switchDetail);
 
-}
-GPSPoint::~GPSPoint()
-{
-    delete mySensor;
-    fprintf(stderr, "GPSPoint deleted\n");
 }
 void GPSPoint::setIndex(int i)
 {
@@ -258,6 +267,7 @@ void GPSPoint::setPointData (double x, double y, double z, double t, float v, st
     else {
         PT = Text;
         text = name;
+        mySensor = new PointSensor(this, Point);
     }
     Point->setName(Point->getName() + " " + name);
     geoTrans->setName(geoTrans->getName() + " " + name);
@@ -351,8 +361,6 @@ void GPSPoint::createBillboard()
     BBoard->setNormal(osg::Vec3(0,-1,0));
     BBoard->setAxis(osg::Vec3(0,0,1));
     BBoard->setMode(coBillboard::AXIAL_ROT);
-    //BBgeode = new osg::Geode();
-    //BBoard->addChild(BBgeode);
 
     switchDetail->addChild(BBoard);
 }
@@ -535,27 +543,268 @@ void GPSPoint::createSign(osg::Image *img)
         << " microseconds\n";
 
 }
-void GPSPoint::createTextBox()
+
+
+void GPSPoint::createSound()
 {
-    createBillboard();
+    //std::string fn = "share/covise/GPS/" + filename;
+    //const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
+    //VrmlNodeAudioClip *clip = d_source.get()->toAudioClip();
 
+    fprintf(stderr, "create Sound\n");
+
+    if (GPSPlugin::player)
+    {
+        audio = new Audio((myDirectory+"/data/sounds/"+filename).c_str());
+        if (audio == NULL)
+        {
+            fprintf(stderr, "Audio not found\n");
+        }
+        fprintf(stderr, "Duration of Audio %lf \n", audio->duration());
+        source = GPSPlugin::player->newSource(audio);
+        if (source)
+        {
+            source->setLoop(false);
+            source->stop();
+            source->setIntensity(1.0);
+        }
+    }
+    else
+    {
+        fprintf(stderr, "GPSPlugin::player not found \n");
+    }
+}
+void GPSPoint::createText()
+{
     osgText::Text *textBox = new osgText::Text();
-    textBox->setAlignment(osgText::Text::CENTER_BASE_LINE);
+    textBox->setAlignment(osgText::Text::CENTER_BOTTOM);
     textBox->setAxisAlignment(osgText::Text::XZ_PLANE );
-    textBox->setColor(osg::Vec4(1, 0, 1, 1));
-    //osg::ref_ptr<osgText::Font> font = coVRFileManager::instance()->loadFont(NULL);
-    //text->setFont(font);
-    textBox->setCharacterSize(5);
+    textBox->setColor(osg::Vec4(0, 0, 1, 1));
+    textBox->setDrawMode(osgText::TextBase::DrawModeMask::TEXT);
+    osgText::Font *font = coVRFileManager::instance()->loadFont(NULL);
+    textBox->setFont(font);
+    //osgText::Style *style = textBox->getOrCreateStyle();
+    //style->setWidthRatio(1);
+    textBox->setCharacterSize(0.15);
     textBox->setText(text.c_str());
-    textBox->setPosition(osg::Vec3(0, 5, 0));
+    textBox->setMaximumWidth(2);
+    //textBox->setMaximumHeight(textBox->getMaximumWidth());
 
-    //BBgeode->addDrawable(textBox);
+    //osg::BoundingBox box = textBox->getBound();
+    //textBox->setPosition(osg::Vec3(0, -0.4, 2.5+0.5*(textBox->getBound().zMax() - textBox->getBound().zMin())));
+    textBox->setPosition(osg::Vec3(0, -0.4, 3.6));
+
+
+    TextGeode = new osg::Geode();
+    TextGeode->setName(text.c_str());
+
+    TextGeode->addDrawable(textBox);
+
+    osg::StateSet *TextStateSet = TextGeode->getOrCreateStateSet();
+    TextStateSet->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+    TextStateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    osg::CullFace *cullFace = new osg::CullFace();
+    cullFace->setMode(osg::CullFace::BACK);
+    TextStateSet->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.0);
+    TextStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+
+    osg::Texture2D *BackgroundTex = new osg::Texture2D;
+    BackgroundTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+    BackgroundTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+    BackgroundTex->setResizeNonPowerOfTwoHint(false);
+
+    img = GPSPlugin::instance()->textbackground;
+    BackgroundTex->setImage(img);
+
+    TextStateSet->setTextureAttributeAndModes(3, BackgroundTex, osg::StateAttribute::ON);
+
+    // TODO implement shader for Pictures and street marks
+    if (streetmarkMaterial.get() == NULL)
+    {
+        streetmarkMaterial = new osg::Material;
+        streetmarkMaterial->ref();
+        streetmarkMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+        streetmarkMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+        streetmarkMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.9f, 0.9f, 0.9f, 1.0));
+        streetmarkMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0));
+        streetmarkMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+    }
+
+    TextStateSet->setAttributeAndModes(streetmarkMaterial.get(), osg::StateAttribute::ON);
+
+    BackgroundTex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
+    BackgroundTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
+
+    float hsize = 2.5;
+    float vsize = 1.5; //must be greater than 1.2
+    //vsize = 1.2 + (textBox->getBound().zMax() - textBox->getBound().zMin());
+    vsize = 1.2 + textBox->getBound().radius()*2;
+    float height = 2.5; //of pole
+    float frame = 0.5f; //thickness of frame
+    float offset = -0.2f; //offset so not drawn within eachother
+
+    osg::Vec3 v[8];
+    v[0].set(-hsize / 2.0, offset, height);
+    v[1].set(hsize / 2.0, offset, height);
+    v[2].set(hsize / 2.0, offset, height + vsize );
+    v[3].set(-hsize / 2.0, offset, height + vsize );
+/*
+    v[4].set(-hsize / 2.0 + frame, offset, height + frame);
+    v[5].set(hsize / 2.0 - frame, offset, height + frame);
+    v[6].set(hsize / 2.0 - frame, offset, height + vsize - frame);
+    v[7].set(-hsize / 2.0 + frame, offset, height + vsize - frame);
+*/
+    v[4].set(-hsize / 2.0, offset, height + 1);
+    v[5].set(hsize / 2.0, offset, height + 1);
+    v[6].set(hsize / 2.0, offset, height + vsize - 0.2);
+    v[7].set(-hsize / 2.0, offset, height + vsize - 0.2);
+
+    osg::Vec3 n;
+    n.set(0, -1, 0);
+
+    osg::Geometry *BackgroundGeometry;
+    BackgroundGeometry = new osg::Geometry();
+    BackgroundGeometry->setUseDisplayList(opencover::coVRConfig::instance()->useDisplayLists());
+    BackgroundGeometry->setUseVertexBufferObjects(opencover::coVRConfig::instance()->useVBOs());
+    TextGeode->addDrawable(BackgroundGeometry);
+
+    osg::Vec3Array *BackgroundVertices;
+    BackgroundVertices = new osg::Vec3Array;
+    BackgroundGeometry->setVertexArray(BackgroundVertices);
+
+    osg::Vec3Array *BackgroundNormals;
+    BackgroundNormals = new osg::Vec3Array;
+    BackgroundGeometry->setNormalArray(BackgroundNormals);
+    BackgroundGeometry->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+    osg::Vec2Array *BackgroundTexCoords;
+    BackgroundTexCoords = new osg::Vec2Array;
+    BackgroundGeometry->setTexCoordArray(3, BackgroundTexCoords);
+
+    //TEST
+    // I
+    BackgroundVertices->push_back(v[0]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[1]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[5]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0.4));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[4]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0.4));
+    BackgroundNormals->push_back(n);
+
+    // III
+    BackgroundVertices->push_back(v[2]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0.98));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[3]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0.98));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[7]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0.9));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[6]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0.9));
+    BackgroundNormals->push_back(n);
+
+    // V
+    BackgroundVertices->push_back(v[4]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0.5));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[5]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0.5));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[6]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0.8));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[7]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0.8));
+    BackgroundNormals->push_back(n);
+/*
+    // I
+    BackgroundVertices->push_back(v[0]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[1]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[5]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[4]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
+    BackgroundNormals->push_back(n);
+
+    // II
+    BackgroundVertices->push_back(v[1]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[2]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 1));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[6]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[5]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
+    BackgroundNormals->push_back(n);
+
+    // III
+    BackgroundVertices->push_back(v[2]);
+    BackgroundTexCoords->push_back(osg::Vec2(1, 1));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[3]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 1));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[7]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[6]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
+    BackgroundNormals->push_back(n);
+    // IV
+    BackgroundVertices->push_back(v[3]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 1));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[0]);
+    BackgroundTexCoords->push_back(osg::Vec2(0, 0));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[4]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[7]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
+    BackgroundNormals->push_back(n);
+    // V
+    BackgroundVertices->push_back(v[4]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[5]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[6]);
+    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
+    BackgroundNormals->push_back(n);
+    BackgroundVertices->push_back(v[7]);
+    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
+    BackgroundNormals->push_back(n);
+*/
+    osg::DrawArrays *Background = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, BackgroundVertices->size());
+    BackgroundGeometry->addPrimitiveSet(Background);
+    BBoard->addChild(TextGeode);
 }
 
-
-void GPSPoint::createPictureBox()
+void GPSPoint::createPicture()
 {
-    fprintf(stderr, "createPictureBox\n");
+    float hsize = 5;
+    float vsize = 5;
+
+    fprintf(stderr, "create Picture\n");
     PictureGeode = new osg::Geode();
     PictureGeode->setName(text.c_str());
 
@@ -569,17 +818,29 @@ void GPSPoint::createPictureBox()
     osg::AlphaFunc *alphaFunc = new osg::AlphaFunc(osg::AlphaFunc::GREATER, 0.0);
     PictureStateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
 
-    float hsize = 5;
-    float vsize = 5;
-
     osg::Texture2D *PictureTex = new osg::Texture2D;
     PictureTex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
     PictureTex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
     PictureTex->setResizeNonPowerOfTwoHint(false);
 
-    std::string fn = "share/covise/GPS/" + filename;
-    const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
-    osg::Image *img = osgDB::readImageFile(fn2);
+    if(!img)
+    {
+        fprintf(stderr, "Picture first run\n");
+        std::string fn = myDirectory+"/data/pictures/" + filename;
+        fprintf(stderr, "fn %s\n", fn.c_str());
+        const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
+        if(fn2 == NULL)
+        {
+            fprintf(stderr, "Picture not found\n");
+        }
+        else
+        {
+            img = osgDB::readImageFile(fn2);
+        }
+    }
+
+
+
 
     PictureTex->setImage(img);
 
@@ -603,19 +864,12 @@ void GPSPoint::createPictureBox()
     PictureTex->setFilter(osg::Texture::MIN_FILTER, osg::Texture::NEAREST);
     PictureTex->setFilter(osg::Texture::MAG_FILTER, osg::Texture::NEAREST);
 
-    float pr = 0.03;
     float height = 2.5;
-    osg::Vec3 v[12];
-    v[0].set(-hsize / 2.0, -0.1, 0 +height);
-    v[1].set(hsize / 2.0, -0.1, 0 +height);
-    v[2].set(hsize / 2.0, -0.1, vsize +height);
-    v[3].set(-hsize / 2.0, -0.1, vsize +height);
-
-    osg::Vec3 np[4];
-    np[0].set(-0.7, -0.7, 0);
-    np[1].set(-0.7, 0.7, 0);
-    np[2].set(0.7, 0.7, 0);
-    np[3].set(0.7, -0.7, 0);
+    osg::Vec3 v[4];
+    v[0].set(-hsize / 2.0, -0.2, 0 +height);
+    v[1].set(hsize / 2.0, -0.2, 0 +height);
+    v[2].set(hsize / 2.0, -0.2, vsize +height);
+    v[3].set(-hsize / 2.0, -0.2, vsize +height);
 
     osg::Vec3 n;
     n.set(0, -1, 0);
@@ -663,20 +917,55 @@ void GPSPoint::createPictureBox()
 
 void GPSPoint::activate()
 {
-    if(PictureGeode)
-    {
-        fprintf(stderr,"PictureGeode true\n");
-        PictureGeode = nullptr;
-    }
-    else
-    {
-        fprintf(stderr,"PictureGeode false\n");
-        createPictureBox();
-    }
+    switch (PT){
+    case Text:
+        if(TextGeode)
+        {
+            fprintf(stderr,"Hide Text\n");
+            BBoard->removeChild(TextGeode);
+            TextGeode = nullptr;
+        }
+        else
+        {
+            fprintf(stderr,"Show  Text\n");
+            createText();
+            fprintf(stderr,"Show  Text finished\n");
+        }
+        break;
+    case Foto:
+        if(PictureGeode)
+        {
+            fprintf(stderr,"Hide Picture\n");
+            BBoard->removeChild(PictureGeode);
+            PictureGeode = nullptr;
+        }
+        else
+        {
+            fprintf(stderr,"Show  Picture\n");
+            createPicture();
+        }
+        break;
+    case Sprachaufnahme:
+        fprintf(stderr,"Sprachaufnahme clicked\n");
+        createSound();
+        if(source)
+        {
+            fprintf(stderr,"Playing sound\n");
+            source->play();
+        }
+        else
+        {
+            fprintf(stderr,"No sound to play\n");
+        }
+        break;
+    default:
+        std::cerr << "No action for this Point" << std::endl;
+        break;
 
-    //fprintf(stderr,"activate\n");
+    }
+    fprintf(stderr,"activate\n");
 }
 void GPSPoint::disactivate()
 {
-    //fprintf(stderr,"disactivate\n");
+    fprintf(stderr,"disactivate\n");
 }

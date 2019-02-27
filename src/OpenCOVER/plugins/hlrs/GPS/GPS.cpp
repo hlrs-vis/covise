@@ -56,6 +56,7 @@
 
 
 GPSPlugin *GPSPlugin::plugin = NULL;
+vrml::Player *GPSPlugin::player = NULL;
 
 static const int NUM_HANDLERS = 1;
 
@@ -67,6 +68,12 @@ static const FileHandler handlers[] = {
       GPSPlugin::SloadGPX,
       GPSPlugin::SunloadGPX,
       "gpx" }
+};
+
+
+void playerUnavailableCB()
+{
+    GPSPlugin::player = NULL;
 };
 
 GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
@@ -130,6 +137,22 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     iconFoto = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Camera.png"));
     iconSprachaufnahme = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Speechbubble.png"));
     iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
+    textbackground = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Textbackground.png"));
+
+    if (player == NULL)
+       {
+           player = cover->usePlayer(playerUnavailableCB);
+           if (player == NULL)
+           {
+               cover->unusePlayer(playerUnavailableCB);
+               cover->addPlugin("Vrml97");
+               player = cover->usePlayer(playerUnavailableCB);
+               if (player == NULL)
+               {
+                   fprintf(stderr, "sorry, no VRML, no Sound support \n");
+               }
+           }
+       }
 }
 
 
@@ -161,110 +184,119 @@ void GPSPlugin::GPSTab_create(void)
     GPSTab = new ui::Menu("GPS", this);
     // infoLabel = new ui::Label("GPS Version 1.0", GPSTab);
 
-    ToggleTracks = new ui::Button(GPSTab, "Toggle Tracks ON/OFF");
-    ToggleTracks->setCallback([this](bool) {
+    TracksOn = new ui::Button(GPSTab, "TracksOn");
+    TracksOn->setText("Tracks On/Off");
+    TracksOn->setCallback([this](bool) {
         for (auto *x : fileList){
-            if(x->SwitchTracks->getNewChildDefaultValue()){
+            if(x->SwitchTracks->getNewChildDefaultValue())
+            {
                 x->SwitchTracks->setAllChildrenOff();
             }
-            else {
+               else
+            {
                 x->SwitchTracks->setAllChildrenOn();
             }
         }
     });
-    TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
-    TogglePoints->setCallback([this](bool)
+    TracksOn->setState(true);
+
+    PointsOff = new ui::Action(GPSTab, "HideallPoints");
+    PointsOff->setText("Hide all Points");
+    PointsOff->setCallback([this]
     {
-        bool tmp = true;
         for (auto *f : fileList)
         {
             for (auto *p : f->allPoints)
             {
-                if(showPoints)
-                {
-                    p->switchSphere->setAllChildrenOff();
-                    p->switchDetail->setAllChildrenOff();
-                    tmp = false;
-                }
-                else {
-                    if(detailView){
-                        p->switchDetail->setAllChildrenOn();
-                    }
-                    else {
-                        p->switchSphere->setAllChildrenOn();
-                    }
-                }
+                p->switchSphere->setAllChildrenOff();
+                p->switchDetail->setAllChildrenOff();
             }
         }
-        showPoints = tmp;
+        toggleButtonStatus(false);
     });
-    ToggleLOD = new ui::Button(GPSTab, "Toggle Sphere - Detail view");
-    ToggleLOD->setCallback([this](bool) {
-        bool tmp = true;
-        for (auto *f : fileList){
-            for (auto *p : f->allPoints){
-                if(detailView){
+
+    ToggleLOD = new ui::Action(GPSTab, "ToggleLOD");
+    ToggleLOD->setText("Toggle Signs - Spheres");
+    ToggleLOD->setCallback([this]
+    {
+        for (auto *f : fileList)
+        {
+            for (auto *p : f->allPoints)
+            {
+                if(detailView)
+                {
                     p->switchSphere->setAllChildrenOn();
                     p->switchDetail->setAllChildrenOff();
-                    tmp = false;
                 }
-                else {
+                else
+                {
                     p->switchSphere->setAllChildrenOff();
                     p->switchDetail->setAllChildrenOn();
                 }
             }
         }
-        detailView = tmp;
+        toggleButtonStatus(true);
+        detailView = !detailView;
     });
-    ToggleGood = new ui::Button(GPSTab, "Good ON/OFF");
-    ToggleGood->setText("Good ON/OFF");
+
+    ToggleGood = new ui::Button(GPSTab, "Good");
+    ToggleGood->setText("Good");
+    ButtonList.push_back(ToggleGood);
     ToggleGood->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Good;
-        toggleDetail(type);
+        toggleDetail(type , ToggleGood);
     });
-    ToggleMedium = new ui::Button(GPSTab, "Medium ON/OFF");
-    ToggleMedium->setText("Medium ON/OFF");
+    ToggleMedium = new ui::Button(GPSTab, "Medium");
+    ToggleMedium->setText("Medium");
+    ButtonList.push_back(ToggleMedium);
     ToggleMedium->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Medium;
-        toggleDetail(type);
+        toggleDetail(type , ToggleMedium);
     });
-    ToggleBad = new ui::Button(GPSTab, "Bad ON/OFF");
-    ToggleBad->setText("Bad ON/OFF");
+    ToggleBad = new ui::Button(GPSTab, "Bad");
+    ToggleBad->setText("Bad");
+    ButtonList.push_back(ToggleBad);
     ToggleBad->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Bad;
-        toggleDetail(type);
+        toggleDetail(type , ToggleBad);
     });
-    ToggleAngst = new ui::Button(GPSTab, "Angst ON/OFF");
-    ToggleAngst->setText("Angst ON/OFF");
+    ToggleAngst = new ui::Button(GPSTab, "Angst");
+    ToggleAngst->setText("Angst");
+    ButtonList.push_back(ToggleAngst);
     ToggleAngst->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Angst;
-        toggleDetail(type);
+        toggleDetail(type , ToggleAngst);
     });
-    ToggleText = new ui::Button(GPSTab, "Text ON/OFF");
-    ToggleText->setText("Text ON/OFF");
+    ToggleText = new ui::Button(GPSTab, "Text");
+    ToggleText->setText("Text");
+    ButtonList.push_back(ToggleText);
     ToggleText->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Text;
-        toggleDetail(type);
+        toggleDetail(type , ToggleText);
     });
-    ToggleFoto = new ui::Button(GPSTab, "Foto ON/OFF");
-    ToggleFoto->setText("Foto ON/OFF");
+    ToggleFoto = new ui::Button(GPSTab, "Foto");
+    ToggleFoto->setText("Foto");
+    ButtonList.push_back(ToggleFoto);
     ToggleFoto->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Foto;
-        toggleDetail(type);
+        toggleDetail(type , ToggleFoto);
     });
-    ToggleSprachaufnahme = new ui::Button(GPSTab, "Sprachaufnahme ON/OFF");
-    ToggleSprachaufnahme->setText("Sprachaufnahme ON/OFF");
+    ToggleSprachaufnahme = new ui::Button(GPSTab, "Sprachaufnahme");
+    ToggleSprachaufnahme->setText("Sprachaufnahme");
+    ButtonList.push_back(ToggleSprachaufnahme);
     ToggleSprachaufnahme->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Sprachaufnahme;
-        toggleDetail(type);
+        toggleDetail(type , ToggleSprachaufnahme);
     });
-    ToggleBarriere = new ui::Button(GPSTab, "Barriere ON/OFF");
-    ToggleBarriere->setText("Barriere ON/OFF");
+    ToggleBarriere = new ui::Button(GPSTab, "Barriere");
+    ToggleBarriere->setText("Barriere");
+    ButtonList.push_back(ToggleBarriere);
     ToggleBarriere->setCallback([this](bool) {
         GPSPoint::pointType type= GPSPoint::pointType::Barriere;
-        toggleDetail(type);
+        toggleDetail(type , ToggleBarriere);
     });
-    TrackSizeSlider = new ui::Slider(GPSTab, "Scale Tracksize");
+    TrackSizeSlider = new ui::Slider(GPSTab, "ScaleTracksize");
+    TrackSizeSlider->setText("Scale Tracksize");
     TrackSizeSlider->setVisible(false, ui::View::VR);
     TrackSizeSlider->setBounds(1, 100);
     TrackSizeSlider->setScale(ui::Slider::Linear);
@@ -278,7 +310,8 @@ void GPSPlugin::GPSTab_create(void)
             }
         }
     });
-    PointSizeSlider = new ui::Slider(GPSTab, "Scale Pointsize");
+    PointSizeSlider = new ui::Slider(GPSTab, "ScalePointsize");
+    PointSizeSlider->setText("Scale Pointsize");
     PointSizeSlider->setVisible(false, ui::View::VR);
     PointSizeSlider->setBounds(0.1, 100);
     PointSizeSlider->setScale(ui::Slider::Logarithmic);
@@ -292,27 +325,47 @@ void GPSPlugin::GPSTab_create(void)
             }
         }
     });
-
+    toggleButtonStatus(true);
 }
-void GPSPlugin::toggleDetail(GPSPoint::pointType type)
+void GPSPlugin::toggleButtonStatus(bool status)
+{
+    for (auto *b : ButtonList)
+    {
+        b->setState(status);
+    }
+    showPoints = status;
+}
+void GPSPlugin::toggleDetail(GPSPoint::pointType type, ui::Button *button)
 {
     for (auto *f : fileList){
         for (auto *p : f->allPoints){
             if (p->PT == type)
             {
-                if(p->switchSphere->getNewChildDefaultValue() || p->switchDetail->getNewChildDefaultValue())
+                if(!showPoints)
                 {
-                    p->switchSphere->setAllChildrenOff();
-                    p->switchDetail->setAllChildrenOff();
+                    showPoints = true;
+                }
+                if(detailView)
+                {
+                    if(p->switchDetail->getNewChildDefaultValue()){
+                        button->setState(false);
+                        p->switchDetail->setAllChildrenOff();
+                    }
+                    else
+                    {
+                        p->switchDetail->setAllChildrenOn();
+                        button->setState(true);
+                    }
                 }
                 else {
-                    if(detailView){
+                    if(p->switchSphere->getNewChildDefaultValue()){
                         p->switchSphere->setAllChildrenOff();
-                        p->switchDetail->setAllChildrenOn();
+                        button->setState(false);
                     }
-                    else {
+                    else
+                    {
                         p->switchSphere->setAllChildrenOn();
-                        p->switchDetail->setAllChildrenOff();
+                        button->setState(true);
                     }
                 }
             }
