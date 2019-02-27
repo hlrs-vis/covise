@@ -13,6 +13,8 @@
 
 namespace vrb
 {
+
+////////////////////STRING_VECTOR////////////////////////////
 template <>
 void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value)
 {
@@ -78,6 +80,7 @@ void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<
         value[i] = path;
     }
 }
+////////////////////
 
 SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
     : m_registry(SharedStateManager::instance()->getRegistry())

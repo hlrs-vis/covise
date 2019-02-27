@@ -25,7 +25,7 @@
 #include <util/common.h>
 #include <set>
 #include <osg/Matrix>
-
+#include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
 
 
@@ -80,6 +80,7 @@ public:
     static coVRCollaboration *instance();
     int showAvatar;
     SyncMode syncMode;
+    vrb::SharedState<int> newSyncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
     float getSyncInterval();
     void updateSessionSelectionList(std::set<int> ses);
     // returns collaboration mode
@@ -105,7 +106,7 @@ public:
     ui::Group *partnerGroup() const;
 
     bool updateCollaborativeMenu();
-
+    void syncModeChanged(int mode);
     void init();
 
     bool update();

@@ -72,6 +72,7 @@ coVRCollaboration::coVRCollaboration()
     , syncScale(0)
     , syncInterval(0.3)
     , showAvatar(1)
+    , newSyncMode("coVRCollaboration_syncMode", LooseCoupling, ALWAYS_SHARE)
 {
     assert(!s_instance);
 
@@ -123,7 +124,11 @@ void coVRCollaboration::initCollMenu()
     assert(1 == MasterSlaveCoupling);
     assert(2 == TightCoupling);
     m_collaborationMode->setList(std::vector<std::string>({"Loose", "Master/Slave", "Tight"}));
-    m_collaborationMode->setCallback([this](int mode){
+    m_collaborationMode->setCallback([this](int mode) {
+        newSyncMode = mode;
+        syncModeChanged(mode);
+    });
+   /* m_collaborationMode->setCallback([this](int mode){
         switch(mode) {
         case LooseCoupling:
             setSyncMode("LOOSE");
@@ -145,9 +150,15 @@ void coVRCollaboration::initCollMenu()
             SyncScale();
             break;
         }
-    });
+    });*/
     m_collaborationMode->select(syncMode);
-
+    newSyncMode.setUpdateFunction([this]()
+    {
+        assert(newSyncMode < 3);
+        if (m_collaborationMode)
+        m_collaborationMode->select(newSyncMode);
+        syncModeChanged(newSyncMode);
+    });
     //session menue
     m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "availableSessions");
     m_availableSessions->setText("available Sessions");
@@ -402,27 +413,6 @@ void coVRCollaboration::setSyncMode(const char *mode)
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRCollaboration::setSyncMode\n");
 
-    if (strcmp(mode, "LOOSE") == 0)
-    {
-        syncMode = LooseCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->show();
-    }
-    else if (strcmp(mode, "MS") == 0)
-    {
-        syncMode = MasterSlaveCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->hide();
-    }
-    else if (strcmp(mode, "TIGHT") == 0)
-    {
-        syncMode = TightCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->hide();
-    }
     else if (strcmp(mode, "SHOW_AVATAR") == 0)
     {
         VRAvatarList::instance()->show();
@@ -431,7 +421,6 @@ void coVRCollaboration::setSyncMode(const char *mode)
     {
         VRAvatarList::instance()->hide();
     }
-    updateSharedStates();
 }
 
 void coVRCollaboration::remoteTransform(osg::Matrix &mat)
@@ -497,7 +486,22 @@ void opencover::coVRCollaboration::updateSessionSelectionList(std::set<int> ses)
 
 coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const
 {
-    return syncMode;
+    SyncMode s = LooseCoupling;
+    switch (newSyncMode)
+    {
+    case 0 :
+        s = LooseCoupling;
+        break;
+    case 1:
+        s = MasterSlaveCoupling;
+        break;
+    case 2:
+        s = TightCoupling;
+        break;
+    default:
+        break;
+    }
+    return s;
 }
 
 bool coVRCollaboration::isMaster()
@@ -533,7 +537,7 @@ void coVRCollaboration::updateSharedStates() {
     int useCouplingModeSessionID;
     int sessionToSubscribe = publicSessionID;;
 
-    switch (syncMode)
+    switch (newSyncMode)
     {
     case opencover::coVRCollaboration::LooseCoupling:
         useCouplingModeSessionID = publicSessionID;
@@ -570,3 +574,26 @@ ui::Group *coVRCollaboration::partnerGroup() const
 {
     return m_partnerGroup;
 }
+
+void coVRCollaboration::syncModeChanged(int mode) {
+    switch (mode) {
+    case LooseCoupling:
+        VRAvatarList::instance()->show();
+
+        break;
+    case MasterSlaveCoupling:
+        VRAvatarList::instance()->hide();
+
+        SyncXform();
+        SyncScale();
+        break;
+    case TightCoupling:
+        VRAvatarList::instance()->hide();
+        SyncXform();
+        SyncScale();
+        break;
+    }
+    updateSharedStates();
+}
+
+
