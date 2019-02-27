@@ -588,10 +588,8 @@ void GPSPoint::createText()
     textBox->setMaximumWidth(2);
     //textBox->setMaximumHeight(textBox->getMaximumWidth());
 
-    //osg::BoundingBox box = textBox->getBound();
-    //textBox->setPosition(osg::Vec3(0, -0.4, 2.5+0.5*(textBox->getBound().zMax() - textBox->getBound().zMin())));
+    //osg::BoundingBox box = textBox->getBoundingBox();
     textBox->setPosition(osg::Vec3(0, -0.4, 3.6));
-
 
     TextGeode = new osg::Geode();
     TextGeode->setName(text.c_str());
@@ -637,8 +635,7 @@ void GPSPoint::createText()
 
     float hsize = 2.5;
     float vsize = 1.5; //must be greater than 1.2
-    //vsize = 1.2 + (textBox->getBound().zMax() - textBox->getBound().zMin());
-    vsize = 1.2 + textBox->getBound().radius()*2;
+    vsize = 1.4 +(textBox->getBoundingBox().zMax() - textBox->getBoundingBox().zMin());
     float height = 2.5; //of pole
     float frame = 0.5f; //thickness of frame
     float offset = -0.2f; //offset so not drawn within eachother
