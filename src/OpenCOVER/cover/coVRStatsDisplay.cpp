@@ -47,9 +47,13 @@ coVRStatsDisplay::coVRStatsDisplay()
     , _threadingModel(osgViewer::ViewerBase::SingleThreaded)
     , _frameRateChildNum(0)
     , _gpuMemChildNum(0)
+    , _gpuPCIeChildNum(0)
+    , _gpuClockChildNum(0)
+    , _gpuUtilChildNum(0)
     , _rhrFpsChildNum(0)
     , _rhrBandwidthChildNum(0)
     , _viewerChildNum(0)
+    , _gpuChildNum(0)
     , _cameraSceneChildNum(0)
     , _viewerSceneChildNum(0)
     , _numBlocks(8)
@@ -173,6 +177,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_viewerChildNum, true);
+        _switch->setValue(_gpuChildNum, _statsType==VIEWER_STATS && _gpuStats);
     }
     case (FRAME_RATE):
     {
@@ -185,7 +190,12 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
         unsigned int first = stats->getEarliestFrameNumber(), last = stats->getLatestFrameNumber();
         double dummy;
         if (_gpuStats)
+        {
+            _switch->setValue(_gpuUtilChildNum, true);
+            _switch->setValue(_gpuPCIeChildNum, true);
+            _switch->setValue(_gpuClockChildNum, true);
             _switch->setValue(_gpuMemChildNum, true);
+        }
         if (_rhrStats)
         {
             _switch->setValue(_rhrFpsChildNum, true);
@@ -198,9 +208,10 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
     }
 }
 
-void coVRStatsDisplay::enableGpuStats(bool enable)
+void coVRStatsDisplay::enableGpuStats(bool enable, const std::string &devname)
 {
     _gpuStats = enable;
+    _gpuName = devname;
 }
 
 void coVRStatsDisplay::enableRhrStats(bool enable)
@@ -292,7 +303,7 @@ void coVRStatsDisplay::setUpHUDCamera(osgViewer::ViewerBase *viewer)
 // Drawcallback to draw averaged attribute
 struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallback
 {
-    AveragedValueTextDrawCallback(osg::Stats *stats, const std::string &name, int frameDelta, bool averageInInverseSpace, double multiplier)
+    AveragedValueTextDrawCallback(osg::Stats *stats, const std::string &name, int frameDelta = -1, bool averageInInverseSpace = false, double multiplier = 1.0)
         : _stats(stats)
         , _attributeName(name)
         , _frameDelta(frameDelta)
@@ -620,9 +631,10 @@ struct StatsGraph : public osg::MatrixTransform
 
     void addStatGraph(osg::Stats *viewerStats, osg::Stats *stats, const osg::Vec4 &color, float max, const std::string &nameBegin, const std::string &nameEnd = "")
     {
-        _statsGraphGeode->addDrawable(new Graph(_width, _height, viewerStats, stats, color, max, nameBegin, nameEnd));
+        _statsGraphGeode->addDrawable(new Graph(this, _width, _height, viewerStats, stats, color, max, nameBegin, nameEnd));
     }
 
+    int _frameNumber = 0;
     osg::Vec3 _pos;
     float _width;
     float _height;
@@ -632,7 +644,7 @@ struct StatsGraph : public osg::MatrixTransform
 protected:
     struct Graph : public osg::Geometry
     {
-        Graph(float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
+        Graph(struct StatsGraph *graph, float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
               const osg::Vec4 &color, float max, const std::string &nameBegin, const std::string &nameEnd = "")
         {
             setUseDisplayList(false);
@@ -644,13 +656,13 @@ protected:
             setColorArray(colors);
             setColorBinding(osg::Geometry::BIND_OVERALL);
 
-            setDrawCallback(new GraphUpdateCallback(width, height, viewerStats, stats, max, nameBegin, nameEnd));
+            setDrawCallback(new GraphUpdateCallback(graph, width, height, viewerStats, stats, max, nameBegin, nameEnd));
         }
     };
 
     struct GraphUpdateCallback : public osg::Drawable::DrawCallback
     {
-        GraphUpdateCallback(float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
+        GraphUpdateCallback(StatsGraph *graph, float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
                             float max, const std::string &nameBegin, const std::string &nameEnd = "")
             : _width((unsigned int)width)
             , _height((unsigned int)height)
@@ -660,6 +672,7 @@ protected:
             , _max(max)
             , _nameBegin(nameBegin)
             , _nameEnd(nameEnd)
+            , _graph(graph)
         {
         }
 
@@ -711,7 +724,7 @@ protected:
                 // many graphs, the transform is translated only once per
                 // frame.
                 static const float increment = -1.0;
-                if (GraphUpdateCallback::_frameNumber != frameNumber)
+                if (_graph->_frameNumber != frameNumber)
                 {
                     // We know the exact layout of this part of the scene
                     // graph, so this is OK...
@@ -737,7 +750,7 @@ protected:
             }
 
             _curX++;
-            GraphUpdateCallback::_frameNumber = frameNumber;
+            _graph->_frameNumber = frameNumber;
 
             geometry->dirtyBound();
 
@@ -754,11 +767,9 @@ protected:
         const float _max;
         const std::string _nameBegin;
         const std::string _nameEnd;
-        static int _frameNumber;
+        StatsGraph *_graph = nullptr;
     };
 };
-
-int StatsGraph::GraphUpdateCallback::_frameNumber = 0;
 
 osg::Geometry *coVRStatsDisplay::createGeometry(const osg::Vec3 &pos, float height, const osg::Vec4 &colour, unsigned int numBlocks)
 {
@@ -1028,7 +1039,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     float leftPos = covise::coCoviseConfig::getFloat("leftPos", "COVER.Stats", 10.0f);
     float startBlocks = 150.0f;
     float characterSize = 20.0f;
-    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*1.2f);
+    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*1.0f);
 
     osg::Vec3 pos(leftPos, _statsHeight - 24.0f, 0.0f);
 
@@ -1052,6 +1063,12 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     osg::Vec4 colorDrawAlpha(1.0f, 1.0f, 0.0f, 0.5f);
     osg::Vec4 colorGPU(1.0f, 0.5f, 0.0f, 1.0f);
     osg::Vec4 colorGPUAlpha(1.0f, 0.5f, 0.0f, 0.5f);
+
+    osg::Vec4 colorGpuUtil(1.f, 1.f, 1.f, 1.f);
+    osg::Vec4 colorGpuMemClock(1.f, 1.f, 0.f, 1.f);
+    osg::Vec4 colorGpuClock(1.f, 0.5f, 0.f, 1.f);
+    osg::Vec4 colorGpuPCIe(0.f, 1.f, 1.f, 1.f);
+    osg::Vec4 colorGpuMem(1.f, 1.f, 1.f, 1.f);
 
     osg::Vec4 colorDP(1.0f, 1.0f, 0.5f, 1.0f);
 
@@ -1087,36 +1104,189 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         pos.x() += space;
     }
 
-    // available GPU memory
+    // GPU utilization
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuUtilChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorGpuUtil);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Util:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Util: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorGpuUtil);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Utilization");
+        value->setDrawCallback(cb);
+
+        pos.x() = value->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // PCIe rx rate
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuPCIeChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorGpuPCIe);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("PCIe:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("PCIe: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorGpuPCIe);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7.77", osgText::String::ENCODING_UTF8);
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU PCIe rx KB/s", -1, false, 1./1024/1024);
+        value->setDrawCallback(cb);
+        pos.x() = value->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> sep = new osgText::Text;
+        geode->addDrawable(sep.get());
+        sep->setColor(colorGpuPCIe);
+        sep->setFont(font);
+        sep->setCharacterSize(characterSize);
+        sep->setPosition(pos);
+        sep->setText("/", osgText::String::ENCODING_UTF8);
+        pos.x() = sep->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> value2 = new osgText::Text;
+        geode->addDrawable(value2.get());
+        value2->setColor(colorGpuPCIe);
+        value2->setFont(font);
+        value2->setCharacterSize(characterSize);
+        value2->setPosition(pos);
+        value2->setText("7.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value2->getBound().xMax();
+
+        auto cb2 = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU PCIe tx KB/s", -1, false, 1./1024/1024);
+        value2->setDrawCallback(cb2);
+
+        pos.x() += space;
+    }
+
+    // GPU clock
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuClockChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+        label->setColor(colorGpuClock);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("GPU/Mem:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("GPU/Mem: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+        value->setColor(colorGpuClock);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7777.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value->getBound().xMax();
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Clock MHz");
+        value->setDrawCallback(cb);
+
+        osg::ref_ptr<osgText::Text> sep = new osgText::Text;
+        geode->addDrawable(sep.get());
+        sep->setColor(colorGpuClock);
+        sep->setFont(font);
+        sep->setCharacterSize(characterSize);
+        sep->setPosition(pos);
+        sep->setText("/", osgText::String::ENCODING_UTF8);
+        pos.x() = sep->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> value2 = new osgText::Text;
+        geode->addDrawable(value2.get());
+        value2->setColor(colorGpuMemClock);
+        value2->setFont(font);
+        value2->setCharacterSize(characterSize);
+        value2->setPosition(pos);
+        value2->setText("7777.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value2->getBound().xMax();
+        auto cb2 = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Mem Clock MHz");
+        value2->setDrawCallback(cb2);
+
+        osg::ref_ptr<osgText::Text> label2 = new osgText::Text;
+        geode->addDrawable(label2.get());
+        label2->setColor(colorGpuMemClock);
+        label2->setFont(font);
+        label2->setCharacterSize(characterSize);
+        label2->setPosition(pos);
+        label2->setText(" MHz", osgText::String::ENCODING_UTF8);
+        pos.x() = label2->getBound().xMax();
+
+        pos.x() += space;
+    }
+
+    // used GPU memory
     {
         osg::Geode *geode = new osg::Geode();
         _gpuMemChildNum = _switch->getNumChildren();
         _switch->addChild(geode, false);
 
-        osg::ref_ptr<osgText::Text> gpuMemLabel = new osgText::Text;
-        geode->addDrawable(gpuMemLabel.get());
+#if 0
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+        label->setColor(colorGpuMem);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Used:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Used: ", osgText::String::ENCODING_UTF8);
+#endif
 
-        gpuMemLabel->setColor(colorFR);
-        gpuMemLabel->setFont(font);
-        gpuMemLabel->setCharacterSize(characterSize);
-        gpuMemLabel->setPosition(pos);
-        gpuMemLabel->setText("GPU free GB:X", osgText::String::ENCODING_UTF8);
-        pos.x() = gpuMemLabel->getBound().xMax();
-        gpuMemLabel->setText("GPU free GB: ", osgText::String::ENCODING_UTF8);
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+        value->setColor(colorGpuMem);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("77.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value->getBound().xMax();
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Mem Used", -1, false, 1./1024/1024/1024);
+        value->setDrawCallback(cb);
 
-        osg::ref_ptr<osgText::Text> gpuMemValue = new osgText::Text;
-        geode->addDrawable(gpuMemValue.get());
+        osg::ref_ptr<osgText::Text> label2 = new osgText::Text;
+        geode->addDrawable(label2.get());
+        label2->setColor(colorGpuMem);
+        label2->setFont(font);
+        label2->setCharacterSize(characterSize);
+        label2->setPosition(pos);
+        label2->setText(" GB", osgText::String::ENCODING_UTF8);
+        pos.x() = label2->getBound().xMax();
 
-        gpuMemValue->setColor(colorFR);
-        gpuMemValue->setFont(font);
-        gpuMemValue->setCharacterSize(characterSize);
-        gpuMemValue->setPosition(pos);
-        gpuMemValue->setText("7777.77", osgText::String::ENCODING_UTF8);
-
-        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024);
-        gpuMemValue->setDrawCallback(cb);
-
-        pos.x() = gpuMemValue->getBound().xMax();
         pos.x() += space;
     }
 
@@ -1726,6 +1896,40 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.x() = leftPos;
         }
     }
+
+    auto opos = pos;
+    // another stats line for gpu stats
+    {
+        osg::Group *group = new osg::Group;
+        _gpuChildNum = _switch->getNumChildren();
+        _switch->addChild(group, false);
+
+        osg::Geode *geode = new osg::Geode();
+        group->addChild(geode);
+
+        // Another stats line graph for GPU stats
+        pos.y() -= (backgroundSpacing + 2 * backgroundMargin);
+        float width = _statsWidth - 4 * backgroundMargin;
+        float height = 10 * characterSize;
+
+        // Create a stats graph and add any stats we want to track with it.
+        StatsGraph *statsGraph = new StatsGraph(pos, width, height);
+        group->addChild(statsGraph);
+
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuClock, 1., "GPU Clock Rate");
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuMemClock, 1., "GPU Mem Clock Rate");
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuUtil, 1., "GPU Utilization");
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuPCIe, 1*1024*1024, "GPU PCIe rx KB/s");
+
+        geode->addDrawable(createBackgroundRectangle(pos + osg::Vec3(-backgroundMargin, backgroundMargin, 0),
+                                                     width + 2 * backgroundMargin,
+                                                     height + 2 * backgroundMargin,
+                                                     backgroundColor));
+
+            pos.x() = leftPos;
+            pos.y() -= height + 2 * backgroundMargin;
+    }
+    pos = opos;
 
     // Camera scene stats
     {

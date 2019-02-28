@@ -55,7 +55,7 @@ public:
 
     void showStats(int whichStats, osgViewer::ViewerBase *viewer);
 
-    void enableGpuStats(bool enable);
+    void enableGpuStats(bool enable, const std::string &devname = std::string());
     void enableRhrStats(bool enable);
     void enableFinishStats(bool enable);
     void enableSyncStats(bool enable);
@@ -93,13 +93,18 @@ protected:
     bool _finishStats = true;
     bool _syncStats = true;
     bool _gpuStats = false;
+    std::string _gpuName;
     bool _rhrStats = false;
     unsigned int _frameRateChildNum;
     unsigned int _gpuMemChildNum;
+    unsigned int _gpuPCIeChildNum;
+    unsigned int _gpuClockChildNum;
+    unsigned int _gpuUtilChildNum;
     unsigned int _rhrFpsChildNum;
     unsigned int _rhrBandwidthChildNum;
     unsigned int _rhrDelayChildNum;
     unsigned int _viewerChildNum;
+    unsigned int _gpuChildNum;
     unsigned int _cameraSceneChildNum;
     unsigned int _viewerSceneChildNum;
     unsigned int _numBlocks;

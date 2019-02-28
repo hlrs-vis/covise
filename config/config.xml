@@ -135,6 +135,7 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <NvTop menu="true" />
    <PBufferSnapShot menu="true" />
    <Video menu="true" />
    <CompositorIceT menu="false" />

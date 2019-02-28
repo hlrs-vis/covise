@@ -25,6 +25,7 @@
 
    <!--Background r="1" g="1" b="1" /-->
    <Plugin>
+       <NvTop value="true" />
        <Visionaray value="off" menu="true">
          <DataVariance value="static"  />                 <!-- "static" | "dynamic" -->
          <Algorithm    value="simple"  />                 <!-- "simple" | "whitted" -->

@@ -7,3 +7,6 @@
 [submodule "src/3rdparty/visionaray"]
 	path = src/3rdparty/visionaray
 	url = https://github.com/szellmann/visionaray
+[submodule "src/OpenCOVER/plugins/gpl/NvTop/nvtop"]
+	path = src/OpenCOVER/plugins/gpl/NvTop/nvtop
+	url = git://github.com/Syllo/nvtop.git
