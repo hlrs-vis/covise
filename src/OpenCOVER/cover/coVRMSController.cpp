@@ -2337,6 +2337,102 @@ bool coVRMSController::syncBool(bool state)
     return (c != 0);
 }
 
+
+
+bool coVRMSController::reduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LOR, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val || sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::reduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LAND, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val && sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::allReduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LOR, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceOr(val));
+}
+
+bool coVRMSController::allReduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LAND, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceAnd(val));
+}
+
 std::string coVRMSController::syncString(const std::string &s)
 {
     if (numSlaves == 0)
