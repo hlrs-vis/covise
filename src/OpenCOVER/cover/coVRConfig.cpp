@@ -69,6 +69,7 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
         else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "MIDDLE") == 0
                 || strcasecmp(modeName, "NONE") == 0
                 || strcasecmp(modeName, "") == 0)
         {
