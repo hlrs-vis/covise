@@ -1044,3 +1044,4 @@ void coVRCommunication::setFBData(IData *data)
         this->mfbData[locData->getId()] = locData;
     }
 }
+

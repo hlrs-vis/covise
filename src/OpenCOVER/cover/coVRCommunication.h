@@ -25,10 +25,7 @@ namespace covise
 {
 class Message;
 }
-namespace vrb
-{
-class VrbClientRegistry;
-}
+
 
 #include <map>
 #include <set>
@@ -37,7 +34,7 @@ class VrbClientRegistry;
 
 namespace vrb {
     class SharedStateManager;
-
+    class VrbClientRegistry;
 }
 namespace opencover
 {

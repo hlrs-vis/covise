@@ -33,7 +33,13 @@ namespace osg
 {
 class Group;
 }
+namespace vrb {
+template <>
+void serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value);
 
+template <>
+void deserialize<osg::Matrix>(covise::TokenBuffer &tb, osg::Matrix &value);
+}
 namespace opencover
 {
 
@@ -64,6 +70,7 @@ public:
 private:
     int readConfigFile();
     void initCollMenu();
+    void setSyncInterval();
     std::set<int> m_sessions;
     bool syncXform = false;
     bool syncScale = false;
@@ -79,8 +86,9 @@ public:
     void showCollaborative(bool visible);
     static coVRCollaboration *instance();
     int showAvatar;
-    SyncMode syncMode;
-    vrb::SharedState<int> newSyncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
+    vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
+    vrb::SharedState<osg::Matrix> avatarPosition;
+    vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
     void updateSessionSelectionList(std::set<int> ses);
     // returns collaboration mode
