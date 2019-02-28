@@ -89,6 +89,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
     viewer->getViewerStats()->collectStats("sync", false);
     viewer->getViewerStats()->collectStats("swap", false);
     viewer->getViewerStats()->collectStats("finish", false);
+    viewer->getViewerStats()->collectStats("update", false);
 
     for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
          itr != cameras.end();
@@ -158,6 +159,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
         viewer->getViewerStats()->collectStats("sync", true);
         viewer->getViewerStats()->collectStats("swap", true);
         viewer->getViewerStats()->collectStats("finish", true);
+        viewer->getViewerStats()->collectStats("update", true);
 
         for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
              itr != cameras.end();
@@ -1384,6 +1386,38 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.x() = startBlocks;
             osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
             geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "preframe begin time", "preframe end time", -1, _numBlocks));
+            geode->addDrawable(geometry);
+
+            pos.y() -= characterSize * 1.5f;
+        }
+        {
+            pos.x() = leftPos;
+
+            osg::ref_ptr<osgText::Text> pluginLabel = new osgText::Text;
+            geode->addDrawable(pluginLabel.get());
+
+            pluginLabel->setColor(colorUpdate);
+            pluginLabel->setFont(font);
+            pluginLabel->setCharacterSize(characterSize);
+            pluginLabel->setPosition(pos);
+            pluginLabel->setText("Update: ", osgText::String::ENCODING_UTF8);
+
+            pos.x() = pluginLabel->getBound().xMax();
+
+            osg::ref_ptr<osgText::Text> pluginValue = new osgText::Text;
+            geode->addDrawable(pluginValue.get());
+
+            pluginValue->setColor(colorUpdate);
+            pluginValue->setFont(font);
+            pluginValue->setCharacterSize(characterSize);
+            pluginValue->setPosition(pos);
+            pluginValue->setText("0.0", osgText::String::ENCODING_UTF8);
+
+            pluginValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Update traversal time taken", -1, false, 1000.0));
+
+            pos.x() = startBlocks;
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
+            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "Update traversal begin time", "Update traversal end time", -1, _numBlocks));
             geode->addDrawable(geometry);
 
             pos.y() -= characterSize * 1.5f;
