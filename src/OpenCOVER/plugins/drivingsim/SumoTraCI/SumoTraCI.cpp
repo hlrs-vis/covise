@@ -35,13 +35,20 @@
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
 
+#include <cover/ui/Menu.h>
+//#include <cover/ui/Action.h>
+//#include <cover/ui/Slider.h>
+#include <cover/ui/Button.h>
+
+
 int gPrecision;
 
 using namespace opencover;
 
-SumoTraCI::SumoTraCI()
+SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 {
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
+    initUI();
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
@@ -137,6 +144,23 @@ bool SumoTraCI::init()
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
 
     return true;
+}
+
+bool SumoTraCI::initUI()
+{
+traciMenu = new ui::Menu("TraCI", this);
+pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
+    pedestriansVisible->setCallback([this](bool state){
+        if (state)
+        {
+        setPedestriansVisible(true);
+        }
+        else
+        {
+        setPedestriansVisible(false);
+        }
+    });
+
 }
 
 void SumoTraCI::preFrame()
@@ -517,6 +541,18 @@ void SumoTraCI::loadAllVehicles()
             av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false), 0, NULL, 0, 1, 0.0, 1);
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
         }
+    }
+}
+
+void SumoTraCI::setPedestriansVisible(bool pedestrianVisibility)
+{
+    if (m_pedestrianVisible != pedestrianVisibility)
+    {
+        if (pedestrianVisibility)
+            cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+        else
+            cover->getObjectsRoot()->removeChild(pedestrianGroup.get());
+        m_pedestrianVisible = pedestrianVisibility;
     }
 }
 COVERPLUGIN(SumoTraCI)

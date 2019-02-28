@@ -17,6 +17,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 #include <osg/ShapeDrawable>
 
@@ -26,6 +27,16 @@
 #include <random>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <TrafficSimulation/PedestrianFactory.h>
+
+namespace opencover
+{
+namespace ui {
+class Slider;
+class Label;
+class Action;
+class Button;
+}
+}
 
 using namespace opencover;
 
@@ -56,7 +67,7 @@ struct vehicleModel
 
 vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
 
-class SumoTraCI : public opencover::coVRPlugin
+class SumoTraCI : public opencover::coVRPlugin , public ui::Owner
 {
 public:
     SumoTraCI();
@@ -67,6 +78,13 @@ public:
 
 private:
 	TraCIAPI client;
+
+    bool initUI();
+    ui::Menu *traciMenu;
+    ui::Button *pedestriansVisible;
+    bool m_pedestrianVisible = true;
+    void setPedestriansVisible(bool);
+
     libsumo::SubscriptionResults simResults;
     libsumo::SubscriptionResults pedestrianSimResults;
 	std::vector<simData> currentResults;
