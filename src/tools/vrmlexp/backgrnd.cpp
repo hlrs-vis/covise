@@ -62,7 +62,7 @@ INT_PTR CALLBACK
     case WM_INITDIALOG:
     {
         th = (BackgroundObject *)lParam;
-        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG)th);
+        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG_PTR)th);
         Edit_SetText(GetDlgItem(hDlg, IDC_BACK), th->back.data());
         Edit_SetText(GetDlgItem(hDlg, IDC_BOTTOM), th->bottom.data());
         Edit_SetText(GetDlgItem(hDlg, IDC_FRONT), th->front.data());

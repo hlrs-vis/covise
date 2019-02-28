@@ -184,7 +184,7 @@ comment out this in _ptw32.h
 
 #OpenSceneGraph
 Clone https://github.com/openscenegraph/OpenSceneGraph.git to OpenSceneGraph
-cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenSceneGraph -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
+cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX=c:/src/externlibs/zebu/OpenSceneGraph -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_PREFIX_PATH=c:/src/externlibs/zebu/Coin3D;c:/src/externlibs/zebu/curl;c:/src/externlibs/zebu/ffmpeg;c:/src/externlibs/zebu/freetype;c:/src/externlibs/zebu/giflib;c:/src/externlibs/zebu/glut;c:/src/externlibs/zebu/icu;c:/src/externlibs/zebu/jpeg;c:/src/externlibs/zebu/libpng;c:/src/externlibs/zebu/nvtt;c:/src/externlibs/zebu/OpenEXR;c:/src/externlibs/zebu/OpenSSL;c:/src/externlibs/zebu/Python;c:/src/externlibs/zebu/qt5;c:/src/externlibs/zebu/SDL;c:/src/externlibs/zebu/tiff;c:/src/externlibs/zebu/xerces;c:/src/externlibs/zebu/zlib;c:/src/externlibs/zebu/gdal
 adjust project file:
 for tiff: add c:/src/externlibs/zebu/jpeg/lib/jpeg[d].lib
 gdal and ogr: use gdalD_i.lib for the debug version
