@@ -436,6 +436,7 @@ bool OpenCOVER::init()
 
     coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
+    coVRConfig::instance()->m_stereoState = coVRMSController::instance()->allReduceOr(coVRConfig::instance()->m_stereoState);
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
@@ -657,21 +658,7 @@ bool OpenCOVER::init()
     }
 
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        coVRMSController::SlaveData sd(sizeof(haveWindows));
-        coVRMSController::instance()->readSlaves(&sd);
-        for (size_t i=0; i<coVRMSController::instance()->getNumSlaves(); ++i)
-        {
-            if (!*(bool*)sd.data[i])
-                haveWindows = false;
-        }
-    }
-    else
-    {
-        coVRMSController::instance()->sendMaster(&haveWindows, sizeof(haveWindows));
-    }
-    haveWindows = coVRMSController::instance()->syncBool(haveWindows);
+    haveWindows = coVRMSController::instance()->allReduceOr(haveWindows);
     if (!haveWindows)
         return false;
 

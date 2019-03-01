@@ -1082,19 +1082,7 @@ VRViewer::config()
     if (coVRMSController::instance()->isCluster())
     {
         bool haveSwapBarrier = m_initGlOp->boundSwapBarrier();
-        if (coVRMSController::instance()->isSlave()) {
-            coVRMSController::instance()->sendMaster(&haveSwapBarrier, sizeof(haveSwapBarrier));
-        } else {
-            coVRMSController::SlaveData swapBarrierData(sizeof(haveSwapBarrier));
-            coVRMSController::instance()->readSlaves(&swapBarrierData);
-            for (int i = 0; i < coVRMSController::instance()->getNumSlaves(); ++i)
-            {
-                const bool *haveBarrier = static_cast<const bool *>(swapBarrierData.data[i]);
-                if (*haveBarrier)
-                    haveSwapBarrier = true;
-            }
-        }
-        haveSwapBarrier = coVRMSController::instance()->syncBool(haveSwapBarrier);
+        haveSwapBarrier = coVRMSController::instance()->allReduceOr(haveSwapBarrier);
         if (haveSwapBarrier)
         {
             if (cover->debugLevel(1))
@@ -1583,7 +1571,7 @@ VRViewer::setFrustumAndView(int i)
         //cerr << "test" << endl;
 
         const float off = stereoOn ? currentChannel->viewerOffset : 0.f;
-        if (stereoOn || animateSeparation)
+        if ((stereoOn || animateSeparation) && currentChannel->stereo)
         {
             rightEye.set(separation / 2.0 + off, 0.0, 0.0);
             leftEye.set(-(separation / 2.0) + off, 0.0, 0.0);
