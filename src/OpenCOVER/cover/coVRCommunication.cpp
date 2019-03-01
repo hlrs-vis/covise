@@ -946,6 +946,20 @@ void coVRCommunication::handleVRB(Message *msg)
         }
     }
     break;
+    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    {
+        int size;
+        tb >> size;
+        std::vector<std::string> files;
+        for (size_t i = 0; i < size; i++)
+        {
+            std::string file;
+            tb >> file;
+            files.push_back(file);
+        }
+        openLoadFileDialog(files);
+    }
+    break;
     default:
         if (registry)
             registry->update(tb, msg->type);
@@ -1078,4 +1092,7 @@ void opencover::coVRCommunication::loadSession()
     {
         vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
     }
+}
+void coVRCommunication::openLoadFileDialog(std::vector<std::string> files) {
+
 }

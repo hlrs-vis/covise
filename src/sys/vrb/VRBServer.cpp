@@ -30,6 +30,8 @@
 #include <qtutil/FileSysAccess.h>
 #include <qtutil/NetHelp.h>
 #include <util/coTabletUIMessages.h>
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include <stdio.h>
 #include <string.h>
@@ -63,10 +65,7 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
 
-#include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <filesystem>
-#include <windows.h>
+
 
 //#define MB_DEBUG
 
@@ -1641,18 +1640,31 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
     {
-        boost::filesystem::path p(home() +"/Sessions");
-        if (is_directory(p))
+        std::set<std::string> files = getFilesInDir(home());
+        TokenBuffer ftb;
+        ftb << files.size();
+        for (const auto file : files)
         {
-            std::set<std::string> files;
-            std::cout << p << " is a directory containing:\n";
-
-            for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {})) {
-                std::string e = entry.path().filename().generic_string();
-                std::cout << e << "\n";
-                files.insert(e);
-            }
-
+            ftb << file;
+        }
+        VRBSClient *cl = clients.get(msg->conn);
+        if (cl)
+        {
+            clients.sendMessageToID(ftb, cl->getID(), COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
+        }
+    }
+    break;
+    case COVISE_MESSAGE_VRB_SAVE_SESSION:
+    {
+        tb >> sessionID;
+        auto ses = sessions.find(sessionID);
+        if (ses == sessions.end())
+        {
+            std::cout << "can't save a session that not exists" << std::endl;
+        }
+        else
+        {
+            ses->second->saveFile(std::string(home() + "/test.registry"));
         }
     }
     break;
@@ -1753,9 +1765,28 @@ void VRBServer::RerouteRequest(const char *location, int type, int senderId, int
     }
 }
 
-std::string VRBServer::home() {
+std::string VRBServer::home()
+{
     char buffer[MAX_PATH];
     GetModuleFileName(NULL, buffer, MAX_PATH);
     std::string::size_type pos = std::string(buffer).find_last_of("\\/");
     return std::string(buffer).substr(0, pos);
 }
+std::set<std::string> VRBServer::getFilesInDir(const std::string &path)const {
+    boost::filesystem::path p(path);
+    std::set<std::string> files;
+    if (is_directory(p))
+    {
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {})) {
+            files.insert(entry.path().filename().generic_string());
+        }
+    }
+    else
+    {
+        std::cerr << "Directory not found: " << path << std::endl;
+    }
+    return files;
+
+}
+
+

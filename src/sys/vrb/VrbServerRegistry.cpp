@@ -28,8 +28,8 @@ VrbServerRegistry::~VrbServerRegistry()
 serverRegClass *VrbServerRegistry::getClass(const std::string & name)
 {
 
-    auto cl = classes.find(name);
-    if (cl == classes.end())
+    auto cl = myClasses.find(name);
+    if (cl == myClasses.end())
     {
         return nullptr;
     }
@@ -43,7 +43,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
     if (!rc)
     {
         rc = new serverRegClass(className, ID);
-        classes[className].reset(rc);
+        myClasses[className].reset(rc);
 
     }
     rc->setID(ID);
@@ -119,12 +119,12 @@ int VrbServerRegistry::getOwner()
 
 void VrbServerRegistry::deleteEntry(const std::string &className, const std::string &name)
 {
-    classes[className]->deleteVar(name);
+    myClasses[className]->deleteVar(name);
 }
 
 void VrbServerRegistry::deleteEntry()
 {
-    for (const auto cl : classes)
+    for (const auto cl : myClasses)
     {
         cl.second->deleteAllNonStaticVars();
     }
@@ -151,30 +151,30 @@ void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> obse
 
 void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value)
 {
-    auto classIt = classes.find(className);
-    if (classIt == classes.end()) //if class does not exists create it
+    auto classIt = myClasses.find(className);
+    if (classIt == myClasses.end()) //if class does not exists create it
     {
         auto rc = std::make_shared<serverRegClass>(className, ID);
-        classIt = classes.emplace(className, rc).first;
+        classIt = myClasses.emplace(className, rc).first;
     }
     classIt->second->observeVar(ID, variableName, value);
 }
 
 void VrbServerRegistry::observeClass(int ID, const std::string &className)
 {
-    auto classIt = classes.find(className);
-    if (classIt == classes.end()) //if class does not exists create it
+    auto classIt = myClasses.find(className);
+    if (classIt == myClasses.end()) //if class does not exists create it
     {
         auto rc = std::make_shared<serverRegClass>(className, ID);
-        classIt = classes.emplace(className, rc).first;
+        classIt = myClasses.emplace(className, rc).first;
     }
     classIt->second->observe(ID);
 }
 ///unobserve a single variable
 void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const std::string &variableName)
 {
-    auto classIt = classes.find(className);
-    if (classIt != classes.end())
+    auto classIt = myClasses.find(className);
+    if (classIt != myClasses.end())
     {
         classIt->second->unObserveVar(ID, variableName);
     }
@@ -189,8 +189,8 @@ void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const
 ///unobserve a class and all its variables
 void VrbServerRegistry::unObserveClass(int ID, const std::string &className)
 {
-    auto classIt = classes.find(className);
-    if (classIt != classes.end())
+    auto classIt = myClasses.find(className);
+    if (classIt != myClasses.end())
     {
         classIt->second->unObserve(ID);
     }
@@ -198,7 +198,7 @@ void VrbServerRegistry::unObserveClass(int ID, const std::string &className)
 ///observer "recvID" gets removed from all classes and variables
 void VrbServerRegistry::unObserve(int recvID)
 {
-    for (const auto cl : classes)
+    for (const auto cl : myClasses)
     {
         cl.second->unObserve(recvID);
     }
@@ -238,15 +238,6 @@ void serverRegVar::informDeleteObservers()
     }
 }
 
-void serverRegVar::setLastEditor(int id)
-{
-    lastEditor = id;
-}
-
-int serverRegVar::getLastEditor()
-{
-    return lastEditor;
-}
 
 /////////////SERVERREGCLASS/////////////////////////////////////////////////
 void serverRegClass::observe(int recvID)

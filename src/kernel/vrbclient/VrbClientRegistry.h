@@ -12,28 +12,15 @@
 #include <map>
 #include "regClass.h"
 #include <util/coExport.h>
+#include "VrbRegistry.h"
 namespace covise
 {
 class VRBClient;
 }
 namespace vrb
 {
-class VRBEXPORT Registry {
-protected:
-    std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
 
-    std::string myDir();
-    std::set<std::string> getFilesInDir();
-    ///changes name to the read name and return the char which contains the classes variables
-    char *readClass(std::string &name);
-    ///reads the name and value out of stream
-    void readVar(char *stream , std::string &name, covise::TokenBuffer &value);
-
-public:
-    void saveFile(std::string &name);
-
-};
-class VRBEXPORT VrbClientRegistry : Registry
+class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
 {
 public:
     static VrbClientRegistry *instance;

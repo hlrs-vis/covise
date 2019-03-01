@@ -69,6 +69,7 @@ private:
     void removeVRB_UI();
     void saveSession();
     void loadSession();
+    void openLoadFileDialog(std::vector<std::string> files);
 public:
     enum
     {
@@ -109,6 +110,7 @@ public:
     void becomeMaster();
     vrb::VrbClientRegistry *registry;
     covise::Message *waitForMessage(int messageType);
+
 };
 }
 #endif
