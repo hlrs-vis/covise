@@ -88,6 +88,19 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
     return stereoMode;
 }
 
+bool coVRConfig::requiresTwoViewpoints(int stereomode)
+{
+    using osg::DisplaySettings;
+
+    switch (stereomode) {
+    case DisplaySettings::LEFT_EYE:
+    case DisplaySettings::RIGHT_EYE:
+        return false;
+    }
+
+    return true;
+}
+
 coVRConfig::coVRConfig()
     : m_useDISPLAY(false)
     , m_useVirtualGL(false)

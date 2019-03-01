@@ -295,7 +295,8 @@ public:
     float getSceneSize() const;
 
     int stereoMode() const;
-    int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static bool requiresTwoViewpoints(int stereomode);
     // have all the screens the same orientation?
     bool haveFlatDisplay() const;
 
