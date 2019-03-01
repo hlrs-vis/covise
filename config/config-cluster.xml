@@ -5,7 +5,7 @@
  <GLOBAL>
   <COVER>
    <MultiPC>
-    <SyncMode value="MPI" hosts="localhost,localhost" />
+    <SyncMode value="TCP" hosts="localhost,localhost" />
     <NumSlaves value="1" />
     
     <Startup ARCH="x11" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
@@ -22,6 +22,15 @@
     <Window RANK="1" type="Qtx" width="600" comment="FRONT" window="0" pipeIndex="0" height="672" left="50" top="100" name="0" embedded="false" decoration="true" />
     <Window RANK="0" type="Qt" width="600" comment="FRONT" window="0" pipeIndex="0" height="672" left="700" top="100" name="0" embedded="false" decoration="true" />
    </WindowConfig>
+
+   <ViewportConfig>
+      <!-- each channel needs at least one Viewport -->
+    <!--Viewport width="1" height="1" left="0" bottom="0" windowIndex="0" channelIndex="0" name="0"  /-->
+   </ViewportConfig>
+
+   <ChannelConfig>
+    <Channel stereoMode="MONO" comment="FRONT" channel="0" windowIndex="0" viewportIndex="0" screenIndex="0" name="0" />
+   </ChannelConfig>
   </COVER>
  </GLOBAL>
 
