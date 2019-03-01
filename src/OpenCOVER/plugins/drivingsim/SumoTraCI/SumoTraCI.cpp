@@ -161,6 +161,7 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
         }
     });
 
+    return true;
 }
 
 void SumoTraCI::preFrame()
