@@ -35,7 +35,7 @@ NvTop::~NvTop()
 {
     stopThread();
 
-    delete m_devinfos;
+    delete[] m_devinfos;
     m_devinfos = nullptr;
 
     auto stats = VRViewer::instance()->statsDisplay;
