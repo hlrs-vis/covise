@@ -63,6 +63,11 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
 
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <filesystem>
+#include <windows.h>
+
 //#define MB_DEBUG
 
 using namespace covise;
@@ -97,7 +102,7 @@ void VRBServer::closeServer()
     //sConn = NULL;
     TokenBuffer tb;
     requestToQuit = true;
-    clients.sendMessage(tb, -2, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
+    clients.sendMessageToAll(tb, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
 }
 
 int VRBServer::openServer()
@@ -1634,6 +1639,23 @@ void VRBServer::handleClient(Message *msg)
 
     }
     break;
+    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    {
+        boost::filesystem::path p(home() +"/Sessions");
+        if (is_directory(p))
+        {
+            std::set<std::string> files;
+            std::cout << p << " is a directory containing:\n";
+
+            for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {})) {
+                std::string e = entry.path().filename().generic_string();
+                std::cout << e << "\n";
+                files.insert(e);
+            }
+
+        }
+    }
+    break;
     default:
         cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;
@@ -1729,4 +1751,11 @@ void VRBServer::RerouteRequest(const char *location, int type, int senderId, int
     {
         locClient->conn->send_msg(&msg);
     }
+}
+
+std::string VRBServer::home() {
+    char buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+    return std::string(buffer).substr(0, pos);
 }

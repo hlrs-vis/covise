@@ -18,7 +18,22 @@ class VRBClient;
 }
 namespace vrb
 {
-class VRBEXPORT VrbClientRegistry
+class VRBEXPORT Registry {
+protected:
+    std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
+
+    std::string myDir();
+    std::set<std::string> getFilesInDir();
+    ///changes name to the read name and return the char which contains the classes variables
+    char *readClass(std::string &name);
+    ///reads the name and value out of stream
+    void readVar(char *stream , std::string &name, covise::TokenBuffer &value);
+
+public:
+    void saveFile(std::string &name);
+
+};
+class VRBEXPORT VrbClientRegistry : Registry
 {
 public:
     static VrbClientRegistry *instance;
@@ -120,7 +135,6 @@ public:
 
 
 private:
-    std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
     int clientID = -1;
     int sessionID = 0;
     covise::VRBClient *vrbc;

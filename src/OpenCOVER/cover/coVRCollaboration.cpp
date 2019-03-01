@@ -150,32 +150,9 @@ void coVRCollaboration::initCollMenu()
         {
             coVRCommunication::instance()->becomeMaster();
             m_master->setEnabled(false);
-            m_returnToMaster->setEnabled(true);
+            m_returnToMaster->setEnabled(false);
         }
     });
-   /* m_collaborationMode->setCallback([this](int mode){
-        switch(mode) {
-        case LooseCoupling:
-            setSyncMode("LOOSE");
-            VRAvatarList::instance()->show();
-            cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
-            break;
-        case MasterSlaveCoupling:
-            setSyncMode("MS");
-            VRAvatarList::instance()->hide();
-            cover->sendBinMessage("SYNC_MODE", "MS", 3);
-            SyncXform();
-            SyncScale();
-            break;
-        case TightCoupling:
-            setSyncMode("TIGHT");
-            VRAvatarList::instance()->hide();
-            cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
-            SyncXform();
-            SyncScale();
-            break;
-        }
-    });*/
     m_collaborationMode->select(syncMode);
 
     //session menue
@@ -260,7 +237,7 @@ void coVRCollaboration::initCollMenu()
         }
 
         m_master->setEnabled(!state && m_visible);
-        m_returnToMaster->setEnabled(state && m_visible);
+        m_returnToMaster->setEnabled(!state && m_visible);
     });
 
     m_returnToMaster = new ui::Action(m_collaborativeMenu, "return to Master");
@@ -608,6 +585,7 @@ void coVRCollaboration::syncModeChanged(int mode) {
         break;
     case MasterSlaveCoupling:
         VRAvatarList::instance()->hide();
+        m_returnToMaster->setEnabled(true);
         SyncXform();
         SyncScale();
         break;

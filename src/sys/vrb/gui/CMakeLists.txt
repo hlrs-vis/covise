@@ -3,7 +3,7 @@
 # CMakeLists.txt for sys vrb vrb (gui)
 #
 # @author Blasius Czink
-
+USING(BOOST)
 ADD_DEFINITIONS(-DGUI)
 
 INCLUDE_DIRECTORIES(

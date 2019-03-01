@@ -8,6 +8,7 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
+#include <string>
 #include <QObject>
 #include <QString>
 #include <map>
@@ -72,5 +73,8 @@ private:
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
     std::map<const int, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
+    std::string home();
 };
 #endif
+
+

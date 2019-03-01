@@ -338,6 +338,7 @@ ENDMACRO(COVISE_ADD_LIBRARY)
 # Macro to add covise executables
 MACRO(ADD_COVISE_EXECUTABLE targetname)
   ADD_EXECUTABLE(${targetname} ${ARGN} ${SOURCES} ${HEADERS})
+  TARGET_LINK_LIBRARIES(${targetname} ${EXTRA_LIBS})
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
   

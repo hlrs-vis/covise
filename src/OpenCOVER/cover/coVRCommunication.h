@@ -42,7 +42,13 @@ class VRBData;
 class IData;
 class LocalData;
 class coVRPartner;
-
+namespace ui
+{
+class Owner;
+class Group;
+class FileBrowser;
+class Action;
+};
 class COVEREXPORT coVRCommunication : public vrb::regClassObserver
 {
 
@@ -56,7 +62,13 @@ private:
     bool ignoreRemoteTransform;
     std::map<int, VRBData *> mfbData;
     LocalData *mfbLocalData;
-
+    std::unique_ptr<ui::Owner> m_owner = nullptr;
+    std::unique_ptr<ui::Action> saveBtn;
+    std::unique_ptr<ui::Action> loadBtn;
+    void initVRB_UI();
+    void removeVRB_UI();
+    void saveSession();
+    void loadSession();
 public:
     enum
     {
