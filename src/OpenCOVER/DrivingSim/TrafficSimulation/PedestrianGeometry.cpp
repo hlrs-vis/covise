@@ -31,7 +31,7 @@ PedestrianGeometry::PedestrianGeometry(std::string &name, std::string &modelFile
     // Create a new LOD, set range, and add it to the transform
     pedLOD = new osg::LOD();
     pedTransform->addChild(pedLOD);
-    pedLOD->setRange(0, 0.0, lod / scale);
+    pedLOD->setRange(0, 0.0, 2*lod/scale); // *2 == render them twice as far as they are animated
 
     // Create a new instance of the core model, add it to the LOD
     pedModel = new osgCal::Model();
@@ -55,6 +55,11 @@ PedestrianGeometry::~PedestrianGeometry()
 void PedestrianGeometry::removeFromSceneGraph()
 {
     pedGroup->removeChild(pedTransform);
+}
+
+void PedestrianGeometry::update(double dt)
+{
+	pedModel->update(dt);
 }
 
 /**
@@ -251,13 +256,7 @@ bool PedestrianGeometry::isGeometryWithinRange(const double r) const
     osg::Vec3d viewPos = viewerPosWld * opencover::cover->getInvBaseMat();
     osg::Vec3d geomPos = pedTransform->getMatrix().getTrans();
 
-    // Calculate distance between geometry's position and viewer's position
-    double xDiffSq = (geomPos.x() - viewPos.x()) * (geomPos.x() - viewPos.x());
-    double yDiffSq = (geomPos.y() - viewPos.y()) * (geomPos.y() - viewPos.y());
-    double zDiffSq = (geomPos.z() - viewPos.z()) * (geomPos.z() - viewPos.z());
-
-    // Calculate the distance squared (it's squared because no sqrt(x^2+y^2+z^2) was taken)
-    double distSq = xDiffSq + yDiffSq + zDiffSq;
+	double distSq = (geomPos - viewPos).length2();
     double rangeSq = r * r;
 
     // Compare it to the square of the LOD range; if it's less, then it's within the LOD range

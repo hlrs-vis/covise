@@ -58,6 +58,7 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
     pedestrianGroup =  new osg::Group;
     pedestrianGroup->setName("pedestrianGroup");
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+	pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
     getVehiclesFromConfig();
     loadAllVehicles();
@@ -103,7 +104,22 @@ bool SumoTraCI::init()
     fprintf(stderr, "SumoTraCI::init\n");
     if(coVRMSController::instance()->isMaster())
     {
-        client.connect("localhost", 1337);
+		bool connected = false;
+		do{
+
+		try {
+			client.connect("localhost", 1337);
+			connected = true;
+		}
+		catch (tcpip::SocketException&) {
+			fprintf(stderr, "could not connect to localhost 1337\n");
+#ifdef WIN32
+			_sleep(10);
+#else
+			sleep(10);
+#endif
+		}
+		} while (!connected);
     }
 
     // identifiers: 57, 64, 67, 73, 79
@@ -411,6 +427,11 @@ void SumoTraCI::interpolateVehiclePosition()
                     {
                         p->setWalkingSpeed(0.0);
                     }
+
+					if(p->isGeometryWithinLOD())
+					{
+					    p->update(cover->frameDuration());
+					}
                 }
             }
         }
@@ -487,7 +508,7 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
     int pedestrianIndex = dis(gen);
 
     pedestrianModel p = pedestrianModels[pedestrianIndex];
-    return new PedestrianGeometry(ID, p.fileName,p.scale, 400.0, a, pedestrianGroup);
+    return new PedestrianGeometry(ID, p.fileName,p.scale, 40.0, a, pedestrianGroup);
 }
 
 void SumoTraCI::getPedestriansFromConfig()
@@ -528,6 +549,10 @@ void SumoTraCI::getVehiclesFromConfig()
                 vehicles->push_back(m);
             }
         }
+		if (vehicles->size() == 0)
+		{
+			fprintf(stderr, "please add vehicle config %s\n", ("COVER.Plugin.SumoTraCI.Vehicles." + *itr).c_str());
+		}
     }
 }
 
