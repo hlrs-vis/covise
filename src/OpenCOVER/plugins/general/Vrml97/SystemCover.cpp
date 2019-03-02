@@ -907,7 +907,7 @@ bool SystemCover::getAvatarPositionAndOrientation(int num, float pos[3], float o
         return false;
 
     osg::Matrix feet;
-    feet = VRAvatarList::instance()->getAvatar(num)->schuheTransform->getMatrix();
+    feet = VRAvatarList::instance()->getAvatar(num)->feetTransform->getMatrix();
 
     return getPositionAndOrientationFromMatrix(feet, pos, ori);
 }

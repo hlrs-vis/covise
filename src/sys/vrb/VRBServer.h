@@ -8,9 +8,11 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
+#include <string>
 #include <QObject>
 #include <QString>
 #include <map>
+#include <set>
 #include <memory>
 
 namespace covise
@@ -64,7 +66,7 @@ private:
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
     void handleClient(covise::Message *);
     int createSession(bool isPrivate);
-    std::shared_ptr<vrb::VrbServerRegistry> createSessionIfnotExists(int sessionID, int senderID);
+    std::shared_ptr<vrb::VrbServerRegistry>createSessionIfnotExists(int sessionID, int senderID);
     void sendSessions();
     void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
     covise::Message *msg = nullptr;
@@ -72,5 +74,9 @@ private:
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
     std::map<const int, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
+    std::string home();
+    std::set<std::string> getFilesInDir(const std::string &path)const;
 };
 #endif
+
+

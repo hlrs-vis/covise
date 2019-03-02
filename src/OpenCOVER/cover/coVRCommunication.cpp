@@ -63,6 +63,13 @@
 #include <vrbclient/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
 
+#include "ui/Owner.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/Group.h"
+#include "ui/FileBrowser.h"
+#include "ui/Menu.h"
+
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
@@ -344,39 +351,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
         }
         coVRCollaboration::instance()->updateSharedStates();
     }
-    else if (!strcmp(key, "TRANSFORM_ALL"))
-    {
 
-        if (isRILockedByMe(TRANSFORM) || ignoreRemoteTransform)
-            return;
-        osg::Matrixd mat;
-        mat(0, 3) = 0;
-        mat(1, 3) = 0;
-        mat(2, 3) = 0;
-        mat(3, 3) = 1;
-        if (sscanf(tmp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   &mat(0, 0), &mat(0, 1), &mat(0, 2),
-                   &mat(1, 0), &mat(1, 1), &mat(1, 2),
-                   &mat(2, 0), &mat(2, 1), &mat(2, 2),
-                   &mat(3, 0), &mat(3, 1), &mat(3, 2)) != 12)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf1 failed" << endl;
-        }
-
-        coVRCollaboration::instance()->remoteTransform(mat);
-    }
-    else if (!strcmp(key, "SCALE_ALL"))
-    {
-        float d;
-        if (sscanf(tmp, "%f", &d) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf2 failed" << endl;
-        }
-        if (isRILockedByMe(SCALE) || ignoreRemoteTransform)
-            return;
-
-        coVRCollaboration::instance()->remoteScale(d);
-    }
     else if (!(strcmp(key, "TIMESTEP")))
     {
         int ts;
@@ -403,11 +378,6 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
             cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
         }
         coVRAnimationManager::instance()->setRemoteSynchronize(ts == 1);
-    }
-    else if (!(strcmp(key, "SYNC_MODE")))
-    {
-        coVRCollaboration::instance()->setSyncMode(tmp);
-        coVRCollaboration::instance()->updateSharedStates();
     }
     else if (!(strcmp(key, "AvatarX")))
     {
@@ -578,6 +548,7 @@ void coVRCommunication::handleVRB(Message *msg)
                 vrbc->sendMessage(&rns_m);
             }
         }
+        initVRB_UI();
     }
     break;
     case COVISE_MESSAGE_VRB_SET_GROUP:
@@ -749,6 +720,7 @@ void coVRCommunication::handleVRB(Message *msg)
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         registry->setVrbc(vrbc);
+        removeVRB_UI();
     }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
@@ -974,6 +946,20 @@ void coVRCommunication::handleVRB(Message *msg)
         }
     }
     break;
+    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    {
+        int size;
+        tb >> size;
+        std::vector<std::string> files;
+        for (size_t i = 0; i < size; i++)
+        {
+            std::string file;
+            tb >> file;
+            files.push_back(file);
+        }
+        openLoadFileDialog(files);
+    }
+    break;
     default:
         if (registry)
             registry->update(tb, msg->type);
@@ -1043,4 +1029,70 @@ void coVRCommunication::setFBData(IData *data)
     {
         this->mfbData[locData->getId()] = locData;
     }
+}
+
+void coVRCommunication::initVRB_UI() {
+    if (!m_owner)
+    {
+        m_owner.reset(new ui::Owner("FileManager", cover->ui));
+        saveBtn = std::unique_ptr<ui::Action>(new ui::Action("save Session", m_owner.get()));
+        saveBtn->setCallback([this]()
+        {
+            saveSession();
+        });
+        cover->fileMenu->add(saveBtn.get());
+        loadBtn = std::unique_ptr<ui::Action>(new ui::Action("load Session", m_owner.get()));
+        loadBtn->setCallback([this]()
+        {
+            loadSession();
+        });
+        cover->fileMenu->add(loadBtn.get());
+    }
+    else
+    {
+        saveBtn->setVisible(true);
+        saveBtn->setEnabled(true);
+        loadBtn->setVisible(true);
+        loadBtn->setEnabled(true);
+    }
+
+}
+
+void coVRCommunication::removeVRB_UI() {
+    if (m_owner)
+    {
+        saveBtn->setVisible(false);
+        saveBtn->setEnabled(false);
+        loadBtn->setVisible(false);
+        loadBtn->setEnabled(false);
+    }
+}
+void opencover::coVRCommunication::saveSession()
+{
+    assert(getPrivateSessionID() != 0);
+    TokenBuffer tb;
+    if (getPublicSessionID() == 0)
+    {
+        tb << getPrivateSessionID();
+    }
+    else
+    {
+        tb << getPublicSessionID();
+    }
+    if (vrbc)
+    {
+        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
+    }
+}
+void opencover::coVRCommunication::loadSession()
+{
+    TokenBuffer tb;
+    tb << 0;
+    if (vrbc)
+    {
+        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
+    }
+}
+void coVRCommunication::openLoadFileDialog(std::vector<std::string> files) {
+
 }

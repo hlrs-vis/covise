@@ -35,13 +35,20 @@
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
 
+#include <cover/ui/Menu.h>
+//#include <cover/ui/Action.h>
+//#include <cover/ui/Slider.h>
+#include <cover/ui/Button.h>
+
+
 int gPrecision;
 
 using namespace opencover;
 
-SumoTraCI::SumoTraCI()
+SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
 {
     fprintf(stderr, "SumoTraCI::SumoTraCI\n");
+    initUI();
     const char *coviseDir = getenv("COVISEDIR");
     std::string defaultDir = std::string(coviseDir) + "/share/covise/vehicles";
     vehicleDirectory = covise::coCoviseConfig::getEntry("value","COVER.Plugin.SumoTraCI.VehicleDirectory", defaultDir.c_str());
@@ -51,6 +58,7 @@ SumoTraCI::SumoTraCI()
     pedestrianGroup =  new osg::Group;
     pedestrianGroup->setName("pedestrianGroup");
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+	pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
     getVehiclesFromConfig();
     loadAllVehicles();
@@ -96,7 +104,22 @@ bool SumoTraCI::init()
     fprintf(stderr, "SumoTraCI::init\n");
     if(coVRMSController::instance()->isMaster())
     {
-        client.connect("localhost", 1337);
+		bool connected = false;
+		do{
+
+		try {
+			client.connect("localhost", 1337);
+			connected = true;
+		}
+		catch (tcpip::SocketException&) {
+			fprintf(stderr, "could not connect to localhost 1337\n");
+#ifdef WIN32
+			_sleep(10);
+#else
+			sleep(10);
+#endif
+		}
+		} while (!connected);
     }
 
     // identifiers: 57, 64, 67, 73, 79
@@ -135,6 +158,24 @@ bool SumoTraCI::init()
 
     //AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
+
+    return true;
+}
+
+bool SumoTraCI::initUI()
+{
+traciMenu = new ui::Menu("TraCI", this);
+pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
+    pedestriansVisible->setCallback([this](bool state){
+        if (state)
+        {
+        setPedestriansVisible(true);
+        }
+        else
+        {
+        setPedestriansVisible(false);
+        }
+    });
 
     return true;
 }
@@ -386,6 +427,11 @@ void SumoTraCI::interpolateVehiclePosition()
                     {
                         p->setWalkingSpeed(0.0);
                     }
+
+					if(p->isGeometryWithinLOD())
+					{
+					    p->update(cover->frameDuration());
+					}
                 }
             }
         }
@@ -462,7 +508,7 @@ PedestrianGeometry* SumoTraCI::createPedestrian(const std::string &vehicleClass,
     int pedestrianIndex = dis(gen);
 
     pedestrianModel p = pedestrianModels[pedestrianIndex];
-    return new PedestrianGeometry(ID, p.fileName,p.scale, 400.0, a, pedestrianGroup);
+    return new PedestrianGeometry(ID, p.fileName,p.scale, 40.0, a, pedestrianGroup);
 }
 
 void SumoTraCI::getPedestriansFromConfig()
@@ -503,6 +549,10 @@ void SumoTraCI::getVehiclesFromConfig()
                 vehicles->push_back(m);
             }
         }
+		if (vehicles->size() == 0)
+		{
+			fprintf(stderr, "please add vehicle config %s\n", ("COVER.Plugin.SumoTraCI.Vehicles." + *itr).c_str());
+		}
     }
 }
 
@@ -517,6 +567,18 @@ void SumoTraCI::loadAllVehicles()
             av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false), 0, NULL, 0, 1, 0.0, 1);
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
         }
+    }
+}
+
+void SumoTraCI::setPedestriansVisible(bool pedestrianVisibility)
+{
+    if (m_pedestrianVisible != pedestrianVisibility)
+    {
+        if (pedestrianVisibility)
+            cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+        else
+            cover->getObjectsRoot()->removeChild(pedestrianGroup.get());
+        m_pedestrianVisible = pedestrianVisibility;
     }
 }
 COVERPLUGIN(SumoTraCI)

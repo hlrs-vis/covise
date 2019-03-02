@@ -12,6 +12,8 @@
 #include <chrono>
 #include <ctime>
 
+
+
 namespace vrb
 {
 
@@ -44,6 +46,8 @@ void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<
         value[i] = path;
     }
 }
+
+
 ////////////////////
 
 SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)

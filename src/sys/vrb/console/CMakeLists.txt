@@ -3,7 +3,7 @@
 # CMakeLists.txt for sys vrb console
 #
 # @author Blasius Czink
-
+USING(BOOST)
 INCLUDE_DIRECTORIES(
   ..
 )

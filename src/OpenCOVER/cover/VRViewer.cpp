@@ -112,6 +112,8 @@
 #define GL_GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
 #endif
 
+//#define USE_NVX_INFO
+
 using namespace opencover;
 using namespace covise;
 
@@ -1160,8 +1162,12 @@ VRViewer::config()
             std::cerr << "VRViewer: not running in cluster mode - disabling glFinish" << std::endl;
         m_requireGlFinish = false;
     }
+
     if (statsDisplay)
+    {
         statsDisplay->enableFinishStats(m_requireGlFinish);
+        statsDisplay->enableSyncStats(coVRMSController::instance()->isCluster());
+    }
 }
 
 //OpenCOVER
@@ -1905,7 +1911,17 @@ void VRViewer::frame()
 
     lastFrameTime = cover->currentTime();
 
+    double startFrame = elapsedTime();
     osgViewer::Viewer::frame(cover->frameTime());
+    if (getViewerStats()->collectStats("frame"))
+    {
+        double endFrame = elapsedTime();
+        osg::FrameStamp *frameStamp = getViewerFrameStamp();
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "frame begin time ", startFrame);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "frame end time ", endFrame);
+        getViewerStats()->setAttribute(frameStamp->getFrameNumber(), "frame time taken", endFrame - startFrame);
+    }
+
     if (reEnableCulling)
     {
         culling(true);
@@ -2706,6 +2722,7 @@ void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
         ctx->makeCurrent();
     } // OpenCOVER end
 
+#ifdef USE_NVX_INFO
     if (GLEW_NVX_gpu_memory_info)
     {
 #ifdef GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
@@ -2725,6 +2742,7 @@ void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
         }
 #endif
     }
+#endif
 }
 
 template <typename Cameras, typename F>

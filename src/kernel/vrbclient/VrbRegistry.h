@@ -6,6 +6,55 @@
  * License: LGPL 2+ */
 #ifndef VrbRegistry_h 
 #define VrbRegistry_h
+#include "regClass.h"
+#include <filesystem>
+#include <windows.h>
+#include <fstream>
+#include <chrono>
+#include <ctime> 
+
+namespace vrb
+{
+template <class ClassType, class VarType>
+class VrbRegistry {
+protected:
+    std::map<const std::string, std::shared_ptr<ClassType>> myClasses;
 
 
+    
+    ///changes name to the read name and return the char which contains the classes variables
+    char *readClass(std::string &name);
+    ///reads the name and value out of stream
+    void readVar(char *stream, std::string &name, covise::TokenBuffer &value);
+
+public:
+
+
+    void saveFile(std::string &path) {
+        //openFile
+        std::ofstream outFile;
+        outFile.open(path);
+        outFile << getTime();
+        for (const auto cl : myClasses)
+        {
+            outFile << std::endl;
+            cl.second->writeClass(outFile);
+        }
+        outFile.close();
+    }
+private:
+    std::string getTime() {
+        time_t rawtime;
+        struct tm * timeinfo;
+        char buffer[80];
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+
+        strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+        std::string str(buffer);
+        return str;
+    }
+};
+}
 #endif // !VrbRegistry_h 

@@ -59,9 +59,9 @@ public:
     int thisnum;
     osg::MatrixTransform *handTransform;
     osg::Node *handNode;
-    osg::MatrixTransform *brilleTransform;
+    osg::MatrixTransform *headTransform;
     osg::Node *brilleNode;
-    osg::MatrixTransform *schuheTransform;
+    osg::MatrixTransform *feetTransform;
     osg::Node *schuheNode;
     osg::Node *hostIconNode;
     osg::ref_ptr<osg::Group> avatarNodes;

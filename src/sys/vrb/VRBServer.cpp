@@ -30,6 +30,8 @@
 #include <qtutil/FileSysAccess.h>
 #include <qtutil/NetHelp.h>
 #include <util/coTabletUIMessages.h>
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include <stdio.h>
 #include <string.h>
@@ -62,6 +64,8 @@ extern ApplicationWindow *mw;
 
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
+
+
 
 //#define MB_DEBUG
 
@@ -97,7 +101,7 @@ void VRBServer::closeServer()
     //sConn = NULL;
     TokenBuffer tb;
     requestToQuit = true;
-    clients.sendMessage(tb, -2, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
+    clients.sendMessageToAll(tb, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
 }
 
 int VRBServer::openServer()
@@ -1634,6 +1638,36 @@ void VRBServer::handleClient(Message *msg)
 
     }
     break;
+    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    {
+        std::set<std::string> files = getFilesInDir(home());
+        TokenBuffer ftb;
+        ftb << files.size();
+        for (const auto file : files)
+        {
+            ftb << file;
+        }
+        VRBSClient *cl = clients.get(msg->conn);
+        if (cl)
+        {
+            clients.sendMessageToID(ftb, cl->getID(), COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
+        }
+    }
+    break;
+    case COVISE_MESSAGE_VRB_SAVE_SESSION:
+    {
+        tb >> sessionID;
+        auto ses = sessions.find(sessionID);
+        if (ses == sessions.end())
+        {
+            std::cout << "can't save a session that not exists" << std::endl;
+        }
+        else
+        {
+            ses->second->saveFile(std::string(home() + "/test.registry"));
+        }
+    }
+    break;
     default:
         cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;
@@ -1730,3 +1764,29 @@ void VRBServer::RerouteRequest(const char *location, int type, int senderId, int
         locClient->conn->send_msg(&msg);
     }
 }
+
+std::string VRBServer::home()
+{
+    char buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+    return std::string(buffer).substr(0, pos);
+}
+std::set<std::string> VRBServer::getFilesInDir(const std::string &path)const {
+    boost::filesystem::path p(path);
+    std::set<std::string> files;
+    if (is_directory(p))
+    {
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {})) {
+            files.insert(entry.path().filename().generic_string());
+        }
+    }
+    else
+    {
+        std::cerr << "Directory not found: " << path << std::endl;
+    }
+    return files;
+
+}
+
+

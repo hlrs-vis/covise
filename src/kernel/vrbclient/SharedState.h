@@ -47,6 +47,7 @@ void serialize(covise::TokenBuffer &tb, const T &value)
 template <>
 VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
 
+
 ///converts the TokenBuffer back to the value
 template<class T>
 void deserialize(covise::TokenBuffer &tb, T &value)

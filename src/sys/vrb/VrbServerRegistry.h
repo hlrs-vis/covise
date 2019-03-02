@@ -15,8 +15,7 @@
 #ifndef VrbClientRegistry_H
 #define VrbClientRegistry_H
 
-class coVrbRegEntryObserver;
-class coCharBuffer;
+
 namespace covise
 {
 class TokenBuffer;
@@ -24,7 +23,7 @@ class TokenBuffer;
 
 namespace vrb
 {
-class VrbServerRegistry
+class VrbServerRegistry : public VrbRegistry<serverRegClass, clientRegClass>
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
@@ -68,7 +67,6 @@ public:
     void setOwner(int id);
     int getOwner();
 private:
-    std::map<const std::string, std::shared_ptr<serverRegClass>> classes;
     int sessionID; // <= -10, -10 = default session
     int owner;
 };
@@ -102,10 +100,7 @@ public:
         return (&observers);
     };
     void informDeleteObservers();
-    void setLastEditor(int id);
-    int getLastEditor();
-private:
-    int lastEditor;
+
 };
 
 class serverRegClass : public regClass<serverRegVar>

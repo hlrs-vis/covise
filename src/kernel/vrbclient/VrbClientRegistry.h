@@ -12,13 +12,15 @@
 #include <map>
 #include "regClass.h"
 #include <util/coExport.h>
+#include "VrbRegistry.h"
 namespace covise
 {
 class VRBClient;
 }
 namespace vrb
 {
-class VRBEXPORT VrbClientRegistry
+
+class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
 {
 public:
     static VrbClientRegistry *instance;
@@ -120,7 +122,6 @@ public:
 
 
 private:
-    std::map<const std::string, std::shared_ptr<clientRegClass>> myClasses;
     int clientID = -1;
     int sessionID = 0;
     covise::VRBClient *vrbc;

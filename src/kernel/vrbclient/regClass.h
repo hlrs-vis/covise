@@ -13,6 +13,7 @@
 #include <set>
 #include <memory>
 #include <util/coExport.h>
+#include <fstream>
 
 class coCharBuffer;
 namespace covise
@@ -105,7 +106,19 @@ public:
     /**
        * add this Class to Script
        */
-    void saveNetwork(coCharBuffer &cb);
+    void writeClass(std::ofstream &file) {
+        file << name;
+        file << std::endl;
+        file << "{";
+        file << std::endl;
+        for (const auto var : myVariables)
+        {
+            var.second->writeVar(file);
+            file << std::endl;
+        }
+        file << "}";
+
+    }
     ~regClass()
     {
     };
@@ -175,8 +188,11 @@ public:
     {
         isDel = isdeleted;
     }
-
-    //void saveNetwork(coCharBuffer &cb);
+    void writeVar(std::ofstream &file) 
+    {
+        file<< "    " << name << "; ";
+        file.write(value.get_data(), value.get_length());
+    }
 };
 
 

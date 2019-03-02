@@ -34,11 +34,11 @@ VRAvatar::VRAvatar(const char *name)
     hostname = new char[strlen(name) + 1];
     strcpy(hostname, name);
     handTransform = new osg::MatrixTransform;
-    brilleTransform = new osg::MatrixTransform;
-    schuheTransform = new osg::MatrixTransform;
+    headTransform = new osg::MatrixTransform;
+    feetTransform = new osg::MatrixTransform;
     avatarNodes = new osg::Group;
-    avatarNodes->addChild(schuheTransform);
-    avatarNodes->addChild(brilleTransform);
+    avatarNodes->addChild(feetTransform);
+    avatarNodes->addChild(headTransform);
     avatarNodes->addChild(handTransform);
     char *NodeName = new char[strlen(name) + 100];
     sprintf(NodeName, "Avatar %s", name);
@@ -63,7 +63,7 @@ VRAvatar::VRAvatar(const char *name)
     }
     if (brilleNode)
     {
-        brilleTransform->addChild(brilleNode);
+        headTransform->addChild(brilleNode);
     }
     if (handNode)
     {
@@ -71,10 +71,10 @@ VRAvatar::VRAvatar(const char *name)
     }
     if (schuheNode)
     {
-        schuheTransform->addChild(schuheNode);
+        feetTransform->addChild(schuheNode);
     }
     coBillboard *bb = new coBillboard;
-    schuheTransform->addChild(bb);
+    feetTransform->addChild(bb);
     if (hostIconNode)
     {
         bb->addChild(hostIconNode);
@@ -124,8 +124,8 @@ void VRAvatar::updateData(VRAvatarData &ad)
             feetmat(i, j) = ad.feetMat[i][j];
         }
     handTransform->setMatrix(handmat);
-    brilleTransform->setMatrix(headmat);
-    schuheTransform->setMatrix(feetmat);
+    headTransform->setMatrix(headmat);
+    feetTransform->setMatrix(feetmat);
 }
 
 VRAvatar *VRAvatarList::get(const char *name)

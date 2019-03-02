@@ -63,7 +63,7 @@ INT_PTR CALLBACK
     {
         th = (VRMLScriptObject *)lParam;
         BOOL usingsize = th->GetUseSize();
-        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG)th);
+        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG_PTR)th);
         SetDlgFont(hDlg, th->iObjParams->GetAppHFont());
 
         th->sizeSpin = GetISpinner(GetDlgItem(hDlg, IDC_SCRIPT_SIZE_SPINNER));

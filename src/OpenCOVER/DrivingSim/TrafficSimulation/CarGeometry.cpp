@@ -134,7 +134,7 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
     {
         cover->getObjectsRoot()->addChild(carTransform);
         // no need to do intersection tests on cars
-        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
+        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk | Isect::Update));
     }
     carTransform->setName(name);
 
