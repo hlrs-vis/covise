@@ -1492,13 +1492,23 @@ VRViewer::setFrustumAndView(int i)
         }
     }
 
+    const float off = stereoOn ? currentChannel->viewerOffset : 0.f;
+    if ((stereoOn || animateSeparation) && currentChannel->stereo)
+    {
+        rightEye.set(separation / 2.0 + off, 0.0, 0.0);
+        leftEye.set(-(separation / 2.0) + off, 0.0, 0.0);
+        middleEye.set(0.0 + off, 0.0, 0.0);
+    }
+    else
+    {
+        rightEye.set(off, 0.0, 0.0);
+        leftEye.set(off, 0.0, 0.0);
+        middleEye.set(off, 0.0, 0.0);
+    }
+
     if (coco->trackedHMD) // moving HMD
     {
         // moving hmd: frustum ist fixed and only a little bit assymetric through stereo
-        rightEye.set(separation / 2.0, 0, 0);
-        leftEye.set(-(separation / 2.0), 0, 0);
-        middleEye.set(0.0, 0, 0);
-
         // transform the left and right eye with the viewer matrix
         rightEye = viewMat.preMult(rightEye);
         leftEye = viewMat.preMult(leftEye);
@@ -1523,9 +1533,6 @@ VRViewer::setFrustumAndView(int i)
         //euler.invertN(euler);
         mat.mult(euler, mat);
 
-        rightEye.set(separation / 2.0f, 0.0f, 0.0f);
-        leftEye.set(-(separation / 2.0f), 0.0f, 0.0f);
-        middleEye.set(0.0, 0.0, 0.0);
         rightEye += initialViewPos;
         leftEye += initialViewPos;
         middleEye += initialViewPos;
@@ -1554,11 +1561,8 @@ VRViewer::setFrustumAndView(int i)
 
     else // fixed screens: viewing frustums change with tracking and are asymetric because of tracking and stereo
     {
-
         // transform the screen to fit the xz-plane
         trans.makeTranslate(-xyz[0], -xyz[1], -xyz[2]);
-
-        //euler.makeRotate(hpr[0],osg::Y_AXIS, hpr[1],osg::X_AXIS, hpr[2],osg::Z_AXIS);
 
         MAKE_EULER_MAT_VEC(euler, hpr);
         euler.invert(euler);
@@ -1566,24 +1570,8 @@ VRViewer::setFrustumAndView(int i)
         mat.mult(trans, euler);
 
         euler.makeRotate(-coco->worldAngle(), osg::X_AXIS);
-        //euler.invertN(euler);
         mat.mult(euler, mat);
-        //cerr << "test" << endl;
 
-        const float off = stereoOn ? currentChannel->viewerOffset : 0.f;
-        if ((stereoOn || animateSeparation) && currentChannel->stereo)
-        {
-            rightEye.set(separation / 2.0 + off, 0.0, 0.0);
-            leftEye.set(-(separation / 2.0) + off, 0.0, 0.0);
-            middleEye.set(0.0 + off, 0.0, 0.0);
-        }
-        else
-        {
-            rightEye.set(off, 0.0, 0.0);
-            leftEye.set(off, 0.0, 0.0);
-            middleEye.set(off, 0.0, 0.0);
-        }
-        
         if (currentChannel->fixedViewer)
         {
             osg::Matrix m;
@@ -1645,56 +1633,31 @@ VRViewer::setFrustumAndView(int i)
     }
     else
     {
-        float n_over_d; // near over dist -> Strahlensatz
-        // dist from eye to screen for left & right channel
-        float rc_dist = -rightEye[1];
-        float lc_dist = -leftEye[1];
-        float mc_dist = -middleEye[1];
+        auto projFromEye = [coco, dx, dz](const osg::Vec3 &eye) -> osg::Matrix {
+            float n_over_d; // near over dist -> Strahlensatz
+            float c_dist = -eye[1];
+            // relation near plane to screen plane
+            if (coco->orthographic())
+                n_over_d = 1.0;
+            else
+                n_over_d = coco->nearClip() / c_dist;
 
-        // relation near plane to screen plane
-        if (coco->orthographic())
-            n_over_d = 1.0;
-        else
-            n_over_d = coco->nearClip() / rc_dist;
+            float c_right = n_over_d * (dx / 2.0 - eye[0]);
+            float c_left = -n_over_d * (dx / 2.0 + eye[0]);
+            float c_top = n_over_d * (dz / 2.0 - eye[2]);
+            float c_bottom = -n_over_d * (dz / 2.0 + eye[2]);
 
-        // parameter of right channel
-        float rc_right = n_over_d * (dx / 2.0 - rightEye[0]);
-        float rc_left = -n_over_d * (dx / 2.0 + rightEye[0]);
-        float rc_top = n_over_d * (dz / 2.0 - rightEye[2]);
-        float rc_bottom = -n_over_d * (dz / 2.0 + rightEye[2]);
+            osg::Matrix ret;
+            if (coco->orthographic())
+                ret.makeOrtho(c_left, c_right, c_bottom, c_top, coco->nearClip(), coco->farClip());
+            else
+                ret.makeFrustum(c_left, c_right, c_bottom, c_top, coco->nearClip(), coco->farClip());
+            return ret;
+        };
 
-        // compute left frustum
-        if (coco->orthographic())
-            n_over_d = 1.0;
-        else
-            n_over_d = coco->nearClip() / lc_dist;
-        float lc_right = n_over_d * (dx / 2.0 - leftEye[0]);
-        float lc_left = -n_over_d * (dx / 2.0 + leftEye[0]);
-        float lc_top = n_over_d * (dz / 2.0 - leftEye[2]);
-        float lc_bottom = -n_over_d * (dz / 2.0 + leftEye[2]);
-
-        // compute left frustum
-        if (coco->orthographic())
-            n_over_d = 1.0;
-        else
-            n_over_d = coco->nearClip() / mc_dist;
-        float mc_right = n_over_d * (dx / 2.0 - middleEye[0]);
-        float mc_left = -n_over_d * (dx / 2.0 + middleEye[0]);
-        float mc_top = n_over_d * (dz / 2.0 - middleEye[2]);
-        float mc_bottom = -n_over_d * (dz / 2.0 + middleEye[2]);
-
-        if (coco->orthographic())
-        {
-            currentChannel->rightProj.makeOrtho(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-            currentChannel->leftProj.makeOrtho(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-            currentChannel->camera->setProjectionMatrixAsOrtho(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
-        }
-        else
-        {
-            currentChannel->rightProj.makeFrustum(rc_left, rc_right, rc_bottom, rc_top, coco->nearClip(), coco->farClip());
-            currentChannel->leftProj.makeFrustum(lc_left, lc_right, lc_bottom, lc_top, coco->nearClip(), coco->farClip());
-            currentChannel->camera->setProjectionMatrixAsFrustum(mc_left, mc_right, mc_bottom, mc_top, coco->nearClip(), coco->farClip());
-        }
+        currentChannel->rightProj = projFromEye(rightEye);
+        currentChannel->leftProj = projFromEye(leftEye);
+        currentChannel->camera->setProjectionMatrix(projFromEye(middleEye));
     }
 
     // set view
