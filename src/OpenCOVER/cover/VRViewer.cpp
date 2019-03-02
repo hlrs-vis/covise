@@ -314,41 +314,10 @@ bool VRViewer::update()
 
     viewPos = viewMat.getTrans();
 
-    middleViewPos.set(0.f, 0.f, 0.f);
-    if (coVRConfig::instance()->stereoState())
-    {
-        rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-        leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-    }
-    else
-    {
-        if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-        {
-            rightViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-            leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-        }
-        else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-        {
-            rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-            leftViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-        }
-        else
-        {
-            rightViewPos.set(0.0f, 0.0f, 0.0f);
-            leftViewPos.set(0.0f, 0.0f, 0.0f);
-        }
-    }
-
-    // get the current position of the eyes
-    rightViewPos = viewMat.preMult(rightViewPos);
-    leftViewPos = viewMat.preMult(leftViewPos);
-    middleViewPos = viewMat.preMult(middleViewPos);
 
     if (cover->debugLevel(5))
     {
         fprintf(stderr, "\t viewPos=[%f %f %f]\n", viewPos[0], viewPos[1], viewPos[2]);
-        fprintf(stderr, "\t rightViewPos=[%f %f %f]\n", rightViewPos[0], rightViewPos[1], rightViewPos[2]);
-        fprintf(stderr, "\t leftViewPos=[%f %f %f]\n", leftViewPos[0], leftViewPos[1], leftViewPos[2]);
         fprintf(stderr, "\n");
     }
 
@@ -422,33 +391,6 @@ VRViewer::VRViewer()
     stereoOn = coVRConfig::instance()->stereoState();
 
     separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
-    middleViewPos.set(0.f, 0.f, 0.f);
-    if (coVRConfig::instance()->stereoState())
-    {
-        rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-        leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-    }
-    else
-    {
-        if (coVRConfig::instance()->monoView() == coVRConfig::MONO_LEFT)
-        {
-            rightViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-            leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-        }
-        else if (coVRConfig::instance()->monoView() == coVRConfig::MONO_RIGHT)
-        {
-            rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-            leftViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-        }
-        else
-        {
-            rightViewPos.set(0.0f, 0.0f, 0.0f);
-            leftViewPos.set(0.0f, 0.0f, 0.0f);
-        }
-    }
-    rightViewPos = viewMat.preMult(rightViewPos);
-    leftViewPos = viewMat.preMult(leftViewPos);
-    middleViewPos = viewMat.preMult(middleViewPos);
     arTracking = false;
     if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.TrackViewpoint", false))
     {
@@ -1543,9 +1485,6 @@ VRViewer::setFrustumAndView(int i)
     // first set pos and yaxis
     // next set separation and dir from covise.config
     // which I think workks only if 0 0 0 (dr)
-    rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
-    leftViewPos.set(-(separation / 2.0f), 0.0f, 0.0f);
-    middleViewPos.set(0.0, 0.0, 0.0);
 
     ////// IWR : get values of moving screen; change only if moved by >1%
     if (screen_angle && screen_angle[0].screen == i)
@@ -1607,10 +1546,6 @@ VRViewer::setFrustumAndView(int i)
         rightEye = viewMat.preMult(rightEye);
         leftEye = viewMat.preMult(leftEye);
         middleEye = viewMat.preMult(middleEye);
-
-        rightViewPos += initialViewPos;
-        leftViewPos += initialViewPos;
-        middleViewPos += initialViewPos;
 
         // add world angle
         osg::Matrixf rotAll, newDir;

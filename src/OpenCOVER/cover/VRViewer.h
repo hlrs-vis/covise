@@ -95,7 +95,6 @@ private:
     // view
     osg::Vec3 viewPos, viewDir; //, viewYDir;
     osg::Vec3 initialViewPos;
-    osg::Vec3 leftViewPos, rightViewPos, middleViewPos;
     osg::Matrix viewMat;
     osgViewer::StatsHandler *statsHandler = nullptr;
 
