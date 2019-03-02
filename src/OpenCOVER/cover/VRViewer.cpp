@@ -314,6 +314,7 @@ bool VRViewer::update()
 
     viewPos = viewMat.getTrans();
 
+    middleViewPos.set(0.f, 0.f, 0.f);
     if (coVRConfig::instance()->stereoState())
     {
         rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
@@ -341,6 +342,7 @@ bool VRViewer::update()
     // get the current position of the eyes
     rightViewPos = viewMat.preMult(rightViewPos);
     leftViewPos = viewMat.preMult(leftViewPos);
+    middleViewPos = viewMat.preMult(middleViewPos);
 
     if (cover->debugLevel(5))
     {
@@ -420,6 +422,7 @@ VRViewer::VRViewer()
     stereoOn = coVRConfig::instance()->stereoState();
 
     separation = stereoOn ? Input::instance()->eyeDistance() : 0.;
+    middleViewPos.set(0.f, 0.f, 0.f);
     if (coVRConfig::instance()->stereoState())
     {
         rightViewPos.set(separation / 2.0f, 0.0f, 0.0f);
@@ -445,6 +448,7 @@ VRViewer::VRViewer()
     }
     rightViewPos = viewMat.preMult(rightViewPos);
     leftViewPos = viewMat.preMult(leftViewPos);
+    middleViewPos = viewMat.preMult(middleViewPos);
     arTracking = false;
     if (coCoviseConfig::isOn("COVER.Plugin.ARToolKit.TrackViewpoint", false))
     {
@@ -1525,14 +1529,10 @@ VRViewer::setFrustumAndView(int i)
     osg::Matrix mat, trans, euler; // xform screencenter - world origin
     osg::Matrixf offsetMat;
     osg::Vec3 leftEye, rightEye, middleEye; // transformed eye position
-    float n_over_d; // near over dist -> Strahlensatz
     float dx, dz; // size of screen
 
     //othEyesDirOffset; == hpr
     //osg::Vec3  rightEyePosOffset(0.0,0.0,0.0), leftEyePosOffset(0.0,0.0,0.0);
-
-    osg::Matrixf offsetMatRight;
-    osg::Matrixf offsetMatLeft;
 
     dx = currentScreen->hsize;
     dz = currentScreen->vsize;
@@ -1610,6 +1610,7 @@ VRViewer::setFrustumAndView(int i)
 
         rightViewPos += initialViewPos;
         leftViewPos += initialViewPos;
+        middleViewPos += initialViewPos;
 
         // add world angle
         osg::Matrixf rotAll, newDir;
@@ -1721,6 +1722,7 @@ VRViewer::setFrustumAndView(int i)
     }
     else
     {
+        float n_over_d; // near over dist -> Strahlensatz
         // dist from eye to screen for left & right channel
         float rc_dist = -rightEye[1];
         float lc_dist = -leftEye[1];

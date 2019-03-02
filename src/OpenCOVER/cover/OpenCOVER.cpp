@@ -1107,12 +1107,24 @@ bool OpenCOVER::frame()
         vrb::SharedStateManager::instance()->frame(cover->frameTime());
     }
     // update viewer position and channels
-    if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+    if (cover->isViewerGrabbed())
     {
-        if (cover->debugLevel(4))
-            std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
-        render = true;
-        VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        if (coVRPluginList::instance()->viewerGrabber()->updateViewer())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of plugin updated viewer" << std::endl;
+            render = true;
+        }
+    }
+    else
+    {
+        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
+            render = true;
+            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        }
     }
     if (VRViewer::instance()->update())
     {

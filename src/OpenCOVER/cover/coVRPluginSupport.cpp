@@ -947,6 +947,30 @@ bool coVRPluginSupport::grabKeyboard(coVRPlugin *plugin)
     return true;
 }
 
+bool coVRPluginSupport::grabViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber()
+        && coVRPluginList::instance()->viewerGrabber() != plugin)
+    {
+        return false;
+    }
+    coVRPluginList::instance()->grabViewer(plugin);
+    return true;
+}
+
+void coVRPluginSupport::releaseViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber() == plugin)
+    {
+        coVRPluginList::instance()->grabViewer(NULL);
+    }
+}
+
+bool coVRPluginSupport::isViewerGrabbed() const
+{
+    return (coVRPluginList::instance()->viewerGrabber() != NULL);
+}
+
 // get the active cursor number
 osgViewer::GraphicsWindow::MouseCursor coVRPluginSupport::getCurrentCursor() const
 {

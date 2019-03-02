@@ -348,6 +348,12 @@ public:
         (void)state;
     }
 
+    //! let the plugin that has a grab on viewer update viewer matrix
+    virtual bool updateViewer()
+    {
+        return false; // no update, no re-render required
+    }
+
 protected:
     //! call as a response to requestTimestep(t) when timestep t is prepared
     void commitTimestep(int t);
