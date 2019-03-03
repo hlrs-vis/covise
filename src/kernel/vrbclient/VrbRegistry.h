@@ -6,11 +6,11 @@
  * License: LGPL 2+ */
 #ifndef VrbRegistry_h 
 #define VrbRegistry_h
+
 #include "regClass.h"
+
 #include <filesystem>
-#include <windows.h>
 #include <fstream>
-#include <chrono>
 #include <ctime> 
 
 namespace vrb
@@ -30,12 +30,12 @@ protected:
 public:
 
 
-    void saveFile(std::string &path) {
+    void saveFile(const std::string &path) const {
         //openFile
         std::ofstream outFile;
         outFile.open(path);
         outFile << getTime();
-        for (const auto cl : myClasses)
+        for (const auto &cl : myClasses)
         {
             outFile << std::endl;
             cl.second->writeClass(outFile);
@@ -43,14 +43,12 @@ public:
         outFile.close();
     }
 private:
-    std::string getTime() {
+    std::string getTime() const {
         time_t rawtime;
-        struct tm * timeinfo;
-        char buffer[80];
-
         time(&rawtime);
-        timeinfo = localtime(&rawtime);
+        struct tm *timeinfo = localtime(&rawtime);
 
+        char buffer[80];
         strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
         std::string str(buffer);
         return str;

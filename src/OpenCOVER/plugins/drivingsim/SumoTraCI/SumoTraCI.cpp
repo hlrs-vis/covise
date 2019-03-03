@@ -34,10 +34,9 @@
 #include <TrafficSimulation/Vehicle.h>
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
+#include <util/unixcompat.h>
 
 #include <cover/ui/Menu.h>
-//#include <cover/ui/Action.h>
-//#include <cover/ui/Slider.h>
 #include <cover/ui/Button.h>
 
 
@@ -112,12 +111,8 @@ bool SumoTraCI::init()
 			connected = true;
 		}
 		catch (tcpip::SocketException&) {
-			fprintf(stderr, "could not connect to localhost 1337\n");
-#ifdef WIN32
-			_sleep(10);
-#else
-			sleep(10);
-#endif
+            fprintf(stderr, "could not connect to localhost port 1337\n");
+            usleep(10000);
 		}
 		} while (!connected);
     }

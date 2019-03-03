@@ -65,6 +65,10 @@ extern ApplicationWindow *mw;
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
 
+#ifndef MAX_PATH
+#define MAX_PATH 1024
+#endif
+
 
 
 //#define MB_DEBUG
@@ -1767,12 +1771,21 @@ void VRBServer::RerouteRequest(const char *location, int type, int senderId, int
 
 std::string VRBServer::home()
 {
+#ifdef _WIN32
     char buffer[MAX_PATH];
     GetModuleFileName(NULL, buffer, MAX_PATH);
     std::string::size_type pos = std::string(buffer).find_last_of("\\/");
     return std::string(buffer).substr(0, pos);
+#else
+    if (auto h = getenv("HOME"))
+        return h;
+
+    return "/";
+#endif
 }
-std::set<std::string> VRBServer::getFilesInDir(const std::string &path)const {
+
+std::set<std::string> VRBServer::getFilesInDir(const std::string &path) const
+{
     boost::filesystem::path p(path);
     std::set<std::string> files;
     if (is_directory(p))

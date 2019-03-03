@@ -156,8 +156,8 @@ void coVRCollaboration::initCollMenu()
     m_collaborationMode->select(syncMode);
 
     //session menue
-    m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "availableSessions");
-    m_availableSessions->setText("available Sessions");
+    m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "AvailableSessions");
+    m_availableSessions->setText("Available sessions");
     m_availableSessions->setCallback([this](int id) 
     {
         int sessionID = 0;
@@ -180,7 +180,8 @@ void coVRCollaboration::initCollMenu()
         //inform the server about the new session
         coVRCommunication::instance()->setSessionID(sessionID);
     });
-    m_newSession = new ui::Action(m_collaborativeMenu, "newSession");
+    m_newSession = new ui::Action(m_collaborativeMenu, "NewSession");
+    m_newSession->setText("New session");
     m_newSession->setCallback([this](void) {
         if (syncMode == LooseCoupling)
         {
@@ -240,7 +241,8 @@ void coVRCollaboration::initCollMenu()
         m_returnToMaster->setEnabled(!state && m_visible);
     });
 
-    m_returnToMaster = new ui::Action(m_collaborativeMenu, "return to Master");
+    m_returnToMaster = new ui::Action(m_collaborativeMenu, "ReturnToMaster");
+    m_returnToMaster->setText("Return to master");
     m_returnToMaster->setEnabled(false);
     m_returnToMaster->setCallback([this](void) {
         updateSharedStates(true);

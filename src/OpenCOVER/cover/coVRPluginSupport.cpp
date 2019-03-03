@@ -100,7 +100,6 @@ void coVRPluginSupport::initUI()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
-    ui->init();
 
     auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
     interactorScaleSlider->setText("Interactor scale");
@@ -112,7 +111,7 @@ void coVRPluginSupport::initUI()
         interactorScale = value;
     });
 
-    
+    ui->init();
 }
 
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
