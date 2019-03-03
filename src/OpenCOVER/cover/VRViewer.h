@@ -129,7 +129,29 @@ private:
     void setAffinity();
 
 public:
+    struct FrustumAndView
+    {
+        osg::Matrix view;
+        osg::Matrix proj;
+    };
+    struct FrustaAndViews
+    {
+        FrustumAndView left;
+        FrustumAndView right;
+        FrustumAndView middle;
+    };
+
+    FrustaAndViews computeFrustumAndView(int i);
+
     void setFrustumAndView(int i);
+
+    enum Eye {
+        EyeMiddle,
+        EyeLeft,
+        EyeRight,
+    };
+
+    osg::Vec3 eyeOffset(Eye eye) const;
 
     static VRViewer *instance();
     void setSeparation(float stereoSep);
@@ -212,5 +234,7 @@ public:
 
     bool m_requireGlFinish = true;
 };
+
+std::pair<osg::Matrix, osg::Matrix> COVEREXPORT computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const osg::Vec3 &xyz, const osg::Vec3 &hpr, const osg::Vec2 &size, double near, double far, bool ortho=false, double worldAngle=0.f);
 }
 #endif
