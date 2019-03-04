@@ -1646,7 +1646,7 @@ void VRBServer::handleClient(Message *msg)
     {
         std::set<std::string> files = getFilesInDir(home());
         TokenBuffer ftb;
-        ftb << files.size();
+        ftb << int(files.size());
         for (const auto file : files)
         {
             ftb << file;
