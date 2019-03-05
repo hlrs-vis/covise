@@ -112,9 +112,11 @@ private:
     void getVehiclesFromConfig();
     void loadAllVehicles();
 
-	double simTime;
-	double nextSimTime;
-	double currentTime;
+    double simTime;
+    double nextSimTime;
+    double previousTime;
+    double currentTime;
+    double framedt;
 	std::vector<int> variables;
 	std::map<const std::string, AgentVehicle *> loadedVehicles;
 
