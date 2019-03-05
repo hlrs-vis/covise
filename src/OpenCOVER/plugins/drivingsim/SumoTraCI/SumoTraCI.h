@@ -81,7 +81,9 @@ private:
 
     bool initUI();
     ui::Menu *traciMenu;
-    ui::Button *pedestriansVisible;
+	ui::Button *pedestriansVisible;
+	ui::Button *pauseUI;
+	
     bool m_pedestrianVisible = true;
     void setPedestriansVisible(bool);
 

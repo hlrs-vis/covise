@@ -171,6 +171,7 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
         setPedestriansVisible(false);
         }
     });
+	pauseUI = new ui::Button(traciMenu, "Pause");
 
     return true;
 }
@@ -190,9 +191,17 @@ void SumoTraCI::preFrame()
         
         if(coVRMSController::instance()->isMaster())
         {
+			if(!pauseUI->state())
+			{ 
             client.simulationStep();
             simResults = client.vehicle.getAllSubscriptionResults();
             pedestrianSimResults = client.person.getAllSubscriptionResults();
+			}
+			else
+			{
+				simResults.clear();
+				pedestrianSimResults.clear();
+			}
             sendSimResults();
         }
         else
