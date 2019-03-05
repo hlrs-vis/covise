@@ -7,6 +7,7 @@
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
 #include <string>
+#include <vector>
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
 
@@ -14,41 +15,51 @@ namespace vrb {
 
 ///////////////////////DATA TYPE FUNCTIONS //////////////////////////
 
-VRBEXPORT enum SharedStateDataType
+enum SharedStateDataType
 {
     UNDEFINED = 0,
     BOOL,   //1
     INT,    //2
     FLOAT,  //3
     STRING, //4
-    CHAR    //5
+    DOUBLE    //5
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
     return UNDEFINED;
 }
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type) {
-    return BOOL;
-}
+VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type); 
+
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<int>(const int &type) {
-    return INT;
-}
+VRBEXPORT SharedStateDataType getSharedStateType<int>(const int &type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<float>(const float &type) {
-    return FLOAT;
-}
+VRBEXPORT SharedStateDataType getSharedStateType<float>(const float &type);
 template <>
-VRBEXPORT SharedStateDataType getSharedStateType<std::string>(const std::string &type) {
-    return STRING;
+VRBEXPORT SharedStateDataType getSharedStateType<std::string>(const std::string &type);
+template <>
+VRBEXPORT SharedStateDataType getSharedStateType<char >(const char &type);
+template <>
+VRBEXPORT SharedStateDataType getSharedStateType<double>(const double &type);
+//tries to convert the serialized tokenbuffer to a string
+VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer &&tb);
+
+template<class T>
+void serializeWithType(covise::TokenBuffer &tb, const T &value)
+{
+    int typeID = getSharedStateType(value);
+    tb << typeID;
+    serialize(tb, value);
 }
 
-
+template<class T>
+void deserializeWithType(covise::TokenBuffer &tb, T &value)
+{
+    int typeID;
+    tb >> typeID;
+    deserialize(tb, value);
+}
 ///////////////////////SERIALIZE //////////////////////////
-template <>
-VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
-
 
 
 ///convert the value to a TokenBuffer
@@ -57,21 +68,13 @@ void serialize(covise::TokenBuffer &tb, const T &value)
 {
     tb << value;
 }
-template<class T>
-void serializeWithType(covise::TokenBuffer &tb, const T &value)
-{
-    int typeID = getSharedStateType(value);
-    serialize(tb, value);
-}
+
+template <>
+VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
+
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
-template<class T>
-void deserializeWithType(covise::TokenBuffer &tb, T &value)
-{
-    int typeID;
-    tb >> typeID;
-    deserialize(tb, value);
-}
+
 
 template<class T>
 void deserialize(covise::TokenBuffer &tb, T &value)

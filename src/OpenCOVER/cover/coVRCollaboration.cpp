@@ -387,7 +387,11 @@ bool coVRCollaboration::update()
 
         lastAvatarUpdateTime = thisTime;
     }
-
+    if (coVRCommunication::instance()->getPublicSessionID() == 0)
+    {
+        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+        scaleFactor = VRSceneGraph::instance()->scaleFactor();
+    }
     return changed;
 }
 
@@ -430,7 +434,7 @@ void coVRCollaboration::remoteTransform(osg::Matrix &mat)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRCollaboration::remoteTransform\n");
-    if (syncMode != LooseCoupling)
+    if (syncMode != LooseCoupling || coVRCommunication::instance()->getPublicSessionID() == 0)
     {
         VRSceneGraph::instance()->getTransform()->setMatrix(mat);
         coVRNavigationManager::instance()->adjustFloorHeight();
@@ -537,6 +541,10 @@ void coVRCollaboration::updateSharedStates(bool force) {
     
     int privateSessionID = coVRCommunication::instance()->getPrivateSessionID();
     int publicSessionID = coVRCommunication::instance()->getPublicSessionID();
+    if (publicSessionID == 0)
+    {
+        publicSessionID = privateSessionID;
+    }
     int useCouplingModeSessionID;
     int sessionToSubscribe = publicSessionID;;
 

@@ -108,7 +108,7 @@ public:
     virtual ~VrbClientRegistry();
     void sendMsg(covise::TokenBuffer &tb, int message_type);
 
-    int getID()
+    int getID() override
     {
         return clientID;
     }
@@ -118,9 +118,9 @@ public:
     }
     covise::VRBClient *getVrbc();
     void setVrbc(covise::VRBClient *client);
-    ///adjusts th
 
 
+    std::shared_ptr<clientRegClass> createClass(const std::string &name, int id) override;
 private:
     int clientID = -1;
     int sessionID = 0;

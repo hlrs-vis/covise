@@ -48,6 +48,7 @@ class Owner;
 class Group;
 class FileBrowser;
 class Action;
+class SelectionList;
 };
 class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public ui::Owner
 {
@@ -61,12 +62,13 @@ private:
     int randomID;
     bool ignoreRemoteTransform;
     std::map<int, VRBData *> mfbData;
+    std::vector<std::string> savedRegistries;
     std::unique_ptr<ui::Action> saveBtn;
-    std::unique_ptr<ui::Action> loadBtn;
-    void initVRB_UI();
+    std::unique_ptr<ui::SelectionList> loadSL;
+    void initSaveLoadSessionUI();
     void removeVRB_UI();
     void saveSession();
-    void loadSession();
+    void loadSession(std::string &filename);
     void openLoadFileDialog(std::vector<std::string> files);
 public:
     enum

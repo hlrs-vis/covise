@@ -149,6 +149,14 @@ void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> obse
     }
 }
 
+void VrbServerRegistry::observe(int sender)
+{
+    for (auto cl : myClasses)
+    {
+        cl.second->observeAllVars(sender);
+    }
+}
+
 void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value)
 {
     auto classIt = myClasses.find(className);
@@ -203,6 +211,11 @@ void VrbServerRegistry::unObserve(int recvID)
         cl.second->unObserve(recvID);
     }
 }
+
+std::shared_ptr<serverRegClass> VrbServerRegistry::createClass(const std::string &name, int id)
+{
+    return std::shared_ptr<serverRegClass>(new serverRegClass(name, id));
+}
 /////////////SERVERREGVAR/////////////////////////////////////////////////
 serverRegVar::~serverRegVar()
 {
@@ -240,6 +253,21 @@ void serverRegVar::informDeleteObservers()
 
 
 /////////////SERVERREGCLASS/////////////////////////////////////////////////
+void serverRegClass::observeAllVars(int sender)
+{
+    if (myVariables.size() == 0)
+    {
+        observe(sender);
+    }
+    else
+    {
+        for (auto var : myVariables)
+        {
+            var.second->observe(sender);
+        }
+    }
+}
+
 void serverRegClass::observe(int recvID)
 {
     observers.insert(recvID);
@@ -265,6 +293,7 @@ void serverRegClass::unObserveVar(int recvID, const std::string &variableName)
         rv->unObserve(recvID);
     }
 }
+
 void serverRegClass::unObserve(int recvID)
 {
     observers.erase(recvID);
@@ -272,5 +301,10 @@ void serverRegClass::unObserve(int recvID)
     {
         var.second->unObserve(recvID);
     }
+}
+
+std::shared_ptr<serverRegVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+{
+    return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
 }
 }

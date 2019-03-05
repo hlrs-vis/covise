@@ -103,22 +103,44 @@ public:
             var.second->setDeleted(isdeleted);
         }
     }
-    /**
-       * add this Class to Script
-       */
+    ///write the classname and all variables in a .vrbreg file
     void writeClass(std::ofstream &file) {
         file << name;
-        file << std::endl;
+        file << "\n";
         file << "{";
-        file << std::endl;
+        file << "\n";
         for (const auto var : myVariables)
         {
             var.second->writeVar(file);
-            file << std::endl;
+            file << "\n";
         }
         file << "}";
 
     }
+    ///reads the name and value out of stream, return false if class has no variable
+    void readVar(std::ifstream &file)
+    {
+
+        while (true)
+        {
+            std::string varName = "invalid";
+            int valueSize = -1;
+            file >> varName;
+            if (varName == "}")
+            {
+                return;
+            }
+            varName.pop_back();
+            file >> valueSize;
+            char *value = new char[valueSize];
+            file.read(value, valueSize);
+            covise::TokenBuffer tb(value, valueSize);
+            myVariables[varName] = createVar(varName, std::move(tb));
+            delete[] value; //createVar did copy the tokenbuffer
+        }
+
+    };
+    virtual std::shared_ptr<variableType> createVar(const std::string &name, covise::TokenBuffer &&value) = 0;
     ~regClass()
     {
     };
@@ -190,7 +212,9 @@ public:
     }
     void writeVar(std::ofstream &file) 
     {
-        file<< "    " << name << "; ";
+        file << "    " << name << "; ";
+        int length = value.get_length();
+        file << length;
         file.write(value.get_data(), value.get_length());
     }
 };
@@ -223,6 +247,7 @@ public:
     void subscribe(regClassObserver *obs, int sessionID);
     covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
+    std::shared_ptr<clientRegVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
 };
 class VRBEXPORT clientRegVar : public regVar<clientRegClass>
 {

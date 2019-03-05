@@ -21,7 +21,7 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
-#include <vrbclient/regClass.h>
+#include "regClass.h"
 #include "ShareStateSerializer.h"
 
 
@@ -76,7 +76,7 @@ protected:
 private:
     int sessionID = 0; ///the session to send updates to 
     bool send = false;
-    float syncInterval = 0.1;
+    float syncInterval = 0.1f;
     double lastUpdateTime = 0.0;
     covise::TokenBuffer tb_value;
 };

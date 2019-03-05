@@ -32,7 +32,7 @@
 #include <util/coTabletUIMessages.h>
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
-
+#include <vrbclient/ShareStateSerializer.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
@@ -332,6 +332,7 @@ void VRBServer::handleClient(Message *msg)
             currentFileClient = c;
             delete[] currentFile;
             char *buf;
+            tb >> senderID;
             tb >> buf;
             currentFile = new char[strlen(buf) + 1];
             strcpy(currentFile, buf);
@@ -344,8 +345,8 @@ void VRBServer::handleClient(Message *msg)
             if (currentFile && currentFileClient)
             {
                 TokenBuffer rtb3;
-                rtb3 << currentFile;
                 rtb3 << currentFileClient->getID();
+                rtb3 << currentFile;
                 Message m(rtb3);
                 m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
                 c->conn->send_msg(&m);
@@ -393,40 +394,7 @@ void VRBServer::handleClient(Message *msg)
 		}
         else
         {
-            int typeID;
-            tb_value >> typeID;
-            std::string valueString = "unknow data type with length: " + std::to_string(tb_value.get_length());
-            switch (typeID)
-            {
-            case 1:
-                bool b;
-                tb_value >> b;
-                valueString = std::to_string(b);
-                break;
-            case 2:
-                int v;
-                tb_value >> v;
-                valueString = std::to_string(v);
-                break;
-            case 3:
-                float f;
-                tb_value >> f;
-                valueString = std::to_string(f);
-                break;
-            case 4:
-                tb_value >> valueString;
-                break;
-            case 5:
-                char *c;
-                tb_value >> c;
-                valueString = c;
-                break;
-            default:
-                break;
-            }
-
-
-            mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+            mw->registry->updateEntry(Class, senderID, variable, vrb::tokenBufferToString(std::move(tb_value)).c_str());
         }
 #endif
     }
@@ -461,7 +429,7 @@ void VRBServer::handleClient(Message *msg)
         }
         else
         {
-            mw->registry->updateEntry(Class, senderID, variable, (std::string("data of length ")+std::to_string(tb_value.get_length())).c_str());
+            mw->registry->updateEntry(Class, senderID, variable, vrb::tokenBufferToString(std::move(tb_value)).c_str());
         }
 #endif
     }
@@ -631,8 +599,8 @@ void VRBServer::handleClient(Message *msg)
         if (currentFile && currentFileClient)
         {
             TokenBuffer rtb3;
-            rtb3 << currentFile;
             rtb3 << currentFileClient->getID();
+            rtb3 << currentFile;
             Message m(rtb3);
             m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
             c->conn->send_msg(&m);
@@ -1644,18 +1612,15 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
     {
-        std::set<std::string> files = getFilesInDir(home());
+        tb >> senderID;
+        std::set<std::string> files = getFilesInDir(home()+"/Sessions", ".vrbreg");
         TokenBuffer ftb;
         ftb << int(files.size());
         for (const auto file : files)
         {
             ftb << file;
         }
-        VRBSClient *cl = clients.get(msg->conn);
-        if (cl)
-        {
-            clients.sendMessageToID(ftb, cl->getID(), COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
-        }
+        clients.sendMessageToID(ftb, senderID, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
     }
     break;
     case COVISE_MESSAGE_VRB_SAVE_SESSION:
@@ -1668,8 +1633,38 @@ void VRBServer::handleClient(Message *msg)
         }
         else
         {
-            ses->second->saveFile(std::string(home() + "/test.registry"));
+            ses->second->saveFile(std::string(home() + "/Sessions"));
         }
+        std::set<std::string> files = getFilesInDir(home()+"/Sessions", ".vrbreg");
+        TokenBuffer ftb;
+        int size = files.size();
+        ftb << size;
+        for (std::string file : files)
+        {
+            ftb << file;
+        }
+        clients.sendMessageToAll(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
+    }
+    break;
+    case COVISE_MESSAGE_VRB_LOAD_SESSION:
+    {
+        std::string filename;
+        tb >> senderID;
+        tb >> sessionID;
+        tb >> filename;
+        sessions[sessionID]->loadFile(std::string(home() + "/Sessions/") + filename);
+        sessions[sessionID]->observe(senderID);
+        TokenBuffer stb;
+        stb << sessionID;
+        if (sessionID < 0)//inform the owner of the private session 
+        {
+            clients.sendMessageToID(stb, senderID, COVISE_MESSAGE_VRB_LOAD_SESSION);
+        }
+        else //inform all session members
+        {
+            clients.sendMessage(stb, sessionID, COVISE_MESSAGE_VRB_LOAD_SESSION);
+        }
+
     }
     break;
     default:
@@ -1784,14 +1779,17 @@ std::string VRBServer::home()
 #endif
 }
 
-std::set<std::string> VRBServer::getFilesInDir(const std::string &path) const
+std::set<std::string> VRBServer::getFilesInDir(const std::string &path, const std::string &fileEnding) const
 {
     boost::filesystem::path p(path);
     std::set<std::string> files;
     if (is_directory(p))
     {
         for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {})) {
-            files.insert(entry.path().filename().generic_string());
+            if (fileEnding == "" || entry.path().filename().generic_string().find(fileEnding) != std::string::npos)
+            {
+                files.insert(entry.path().filename().generic_string());
+            }
         }
     }
     else
@@ -1801,5 +1799,7 @@ std::set<std::string> VRBServer::getFilesInDir(const std::string &path) const
     return files;
 
 }
+
+
 
 

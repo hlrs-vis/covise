@@ -38,7 +38,9 @@ public:
 private:
     static SharedStateManager *s_instance;
     std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare;
-    int m_privateSessionID, m_publicSessionID, m_useCouplingModeSessionID = 0;
+    int m_privateSessionID = 0;
+    int m_publicSessionID = 0;
+    int m_useCouplingModeSessionID = 0;
     VrbClientRegistry *registry;
 };
 }

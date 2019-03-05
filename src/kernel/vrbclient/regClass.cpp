@@ -106,4 +106,8 @@ covise::VRBClient * clientRegClass::getRegistryClient()
 {
     return registry->getVrbc();
 }
+std::shared_ptr<clientRegVar> clientRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+{
+    return std::shared_ptr<clientRegVar>(new clientRegVar(this, name, value));
+}
 }
