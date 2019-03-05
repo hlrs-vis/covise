@@ -52,6 +52,7 @@ struct EmptyBounding: public osg::Drawable::ComputeBoundingBoxCallback {
 struct SingleScreenCB: public osg::Drawable::DrawCallback {
 
    osg::ref_ptr<MultiChannelDrawer> m_drawer;
+   std::shared_ptr<ViewChannelData> m_viewChan;
    osg::ref_ptr<osg::Camera> m_cam;
    int m_channel = 0;
    bool m_second = false;
@@ -65,6 +66,10 @@ struct SingleScreenCB: public osg::Drawable::DrawCallback {
       {
           assert(m_channel >= 0);
       }
+
+   void setViewChan(std::shared_ptr<ViewChannelData> vcd) {
+       m_viewChan = vcd;
+   }
 
    void  drawImplementation(osg::RenderInfo &ri, const osg::Drawable *d) const {
 
@@ -118,19 +123,22 @@ ViewChannelData::ViewChannelData(std::shared_ptr<ViewData> view, ChannelData *ch
 : chan(chan)
 , view(view)
 {
+    std::string name = "channel"+std::to_string(chan->channelNum);
+    name += "_view"+std::to_string(view->viewNum);
     drawCallback = new SingleScreenCB(chan->drawer, chan->camera, chan->channelNum, chan->second);
+    drawCallback->setName(name+"_singlescreen");
 
     geode = new osg::Geode();
-    geode->setName("channel"+std::to_string(chan->channelNum)+"_view_geode");
+    geode->setName(name+"_geode");
     state = geode->getOrCreateStateSet();
 
     fixedGeo = new osg::Geometry(*view->fixedGeo);
-    fixedGeo->setName("fixed");
+    fixedGeo->setName(name+"_fixed");
     fixedGeo->setDrawCallback(drawCallback);
     fixedGeo->setComputeBoundingBoxCallback(new EmptyBounding);
 
     reprojGeo = new osg::Geometry(*view->reprojGeo);
-    reprojGeo->setName("reprojected");
+    reprojGeo->setName(name+"_reprojected");
     reprojGeo->setDrawCallback(drawCallback);
     reprojGeo->setComputeBoundingBoxCallback(new EmptyBounding);
 
@@ -153,6 +161,10 @@ ViewChannelData::~ViewChannelData()
         geode->getParent(0)->removeChild(geode);
 }
 
+void ViewChannelData::setThis(std::shared_ptr<ViewChannelData> vcd) {
+    static_cast<SingleScreenCB *>(drawCallback.get())->setViewChan(vcd);
+}
+
 void ViewChannelData::update() {
 
     osg::Matrix cur = chan->curModel * chan->curView * chan->curProj;
@@ -173,6 +185,7 @@ ChannelData::~ChannelData() {
 
 void ChannelData::addView(std::shared_ptr<ViewData> vd) {
     auto vcd = std::make_shared<ViewChannelData>(vd, this);
+    vcd->setThis(vcd);
     viewChan.emplace_back(vcd);
     vd->viewChan.emplace_back(vcd.get());
     scene->addChild(vcd->geode);
@@ -698,9 +711,13 @@ void MultiChannelDrawer::initViewData(ViewData &vd) {
    {
        for (int i=0; i<ViewData::NumImages; ++i) {
            vd.colorImg[i] = new osg::Image;
-           vd.colorImg[i]->setPixelBufferObject(new osg::PixelBufferObject(vd.colorImg[i]));
+           auto pboc = new osg::PixelBufferObject(vd.colorImg[i]);
+           pboc->setUsage(GL_STREAM_DRAW);
+           vd.colorImg[i]->setPixelBufferObject(pboc);
            vd.depthImg[i] = new osg::Image;
-           vd.depthImg[i]->setPixelBufferObject(new osg::PixelBufferObject(vd.depthImg[i]));
+           auto pbod = new osg::PixelBufferObject(vd.depthImg[i]);
+           pbod->setUsage(GL_STREAM_DRAW);
+           vd.depthImg[i]->setPixelBufferObject(pbod);
        }
 
        vd.colorTex = new osg::TextureRectangle;
@@ -758,12 +775,14 @@ void MultiChannelDrawer::swapFrame() {
    for (size_t s=0; s<m_viewData.size(); ++s) {
       ViewData &vd = *m_viewData[s];
 
-      if (!haveEye(vd.eye))
-          continue;
+      updateGeoForView(vd);
 
       vd.imgView = vd.newView;
       vd.imgProj = vd.newProj;
       vd.imgModel = vd.newModel;
+
+      if (!haveEye(vd.eye))
+          continue;
 
 #ifdef HAVE_CUDA
       if (m_useCuda)
@@ -777,8 +796,6 @@ void MultiChannelDrawer::swapFrame() {
           vd.colorImg[renderTex]->dirty();
           vd.depthImg[renderTex]->dirty();
       }
-
-      updateGeoForView(vd);
    }
 }
 
@@ -907,6 +924,9 @@ void MultiChannelDrawer::updateGeoForView(ViewData &vd) {
 
     vd.geoWidth = w;
     vd.geoHeight = h;
+
+    w = std::max(w, 1);
+    h = std::max(h, 1);
 
     if (m_flipped) {
         (*vd.texcoord)[0].set(0., h);

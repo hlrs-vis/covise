@@ -120,6 +120,7 @@ struct ViewChannelData {
 
     ViewChannelData(std::shared_ptr<ViewData> view, ChannelData *chan);
     ~ViewChannelData();
+    void setThis(std::shared_ptr<ViewChannelData> vcd);
 
     osg::ref_ptr<osg::Geometry> fixedGeo;
     osg::ref_ptr<osg::Geometry> reprojGeo;
