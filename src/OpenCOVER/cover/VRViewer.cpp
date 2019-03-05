@@ -1437,7 +1437,7 @@ VRViewer::setClearColor(const osg::Vec4 &color)
 }
 
 std::pair<osg::Matrix, osg::Matrix>
-computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const osg::Vec3 &xyz, const osg::Vec3 &hpr, const osg::Vec2 &size, double near, double far, bool ortho, double worldAngle)
+computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const osg::Vec3 &xyz, const osg::Vec3 &hpr, const osg::Vec2 &size, double near_val, double far_val, bool ortho, double worldAngle)
 {
     osg::Matrix trans;
     // transform the screen to fit the xz-plane
@@ -1460,15 +1460,15 @@ computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const os
 
     float dx = size[0], dz = size[1];
 
-    auto projFromEye = [ortho, near, far, dx, dz](const osg::Vec3 &eye) -> osg::Matrix
+    auto projFromEye = [ortho, near_val, far_val, dx, dz](const osg::Vec3 &eye) -> osg::Matrix
     {
-        float n_over_d; // near over dist -> Strahlensatz
+        float n_over_d; // near_val over dist -> Strahlensatz
         float c_dist = -eye[1];
-        // relation near plane to screen plane
+        // relation near_val plane to screen plane
         if (ortho)
             n_over_d = 1.0;
         else
-            n_over_d = near / c_dist;
+            n_over_d = near_val / c_dist;
 
         float c_right = n_over_d * (dx / 2.0 - eye[0]);
         float c_left = -n_over_d * (dx / 2.0 + eye[0]);
@@ -1477,9 +1477,9 @@ computeViewProjFixedScreen(const osg::Matrix &viewerMat, osg::Vec3 eye, const os
 
         osg::Matrix ret;
         if (ortho)
-            ret.makeOrtho(c_left, c_right, c_bottom, c_top, near, far);
+            ret.makeOrtho(c_left, c_right, c_bottom, c_top, near_val, far_val);
         else
-            ret.makeFrustum(c_left, c_right, c_bottom, c_top, near, far);
+            ret.makeFrustum(c_left, c_right, c_bottom, c_top, near_val, far_val);
         return ret;
     };
 
