@@ -31,6 +31,7 @@ class Message;
 #include <set>
 #include <vrbclient/regClass.h>
 #include <vrbclient/SharedState.h>
+#include "ui/Owner.h"
 
 namespace vrb {
     class SharedStateManager;
@@ -40,7 +41,6 @@ namespace opencover
 {
 class VRBData;
 class IData;
-class LocalData;
 class coVRPartner;
 namespace ui
 {
@@ -48,8 +48,9 @@ class Owner;
 class Group;
 class FileBrowser;
 class Action;
+class SelectionList;
 };
-class COVEREXPORT coVRCommunication : public vrb::regClassObserver
+class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public ui::Owner
 {
 
 private:
@@ -61,14 +62,13 @@ private:
     int randomID;
     bool ignoreRemoteTransform;
     std::map<int, VRBData *> mfbData;
-    LocalData *mfbLocalData;
-    std::unique_ptr<ui::Owner> m_owner = nullptr;
+    std::vector<std::string> savedRegistries;
     std::unique_ptr<ui::Action> saveBtn;
-    std::unique_ptr<ui::Action> loadBtn;
-    void initVRB_UI();
+    std::unique_ptr<ui::SelectionList> loadSL;
+    void initSaveLoadSessionUI();
     void removeVRB_UI();
     void saveSession();
-    void loadSession();
+    void loadSession(std::string &filename);
     void openLoadFileDialog(std::vector<std::string> files);
 public:
     enum

@@ -81,7 +81,9 @@ private:
 
     bool initUI();
     ui::Menu *traciMenu;
-    ui::Button *pedestriansVisible;
+	ui::Button *pedestriansVisible;
+	ui::Button *pauseUI;
+	
     bool m_pedestrianVisible = true;
     void setPedestriansVisible(bool);
 
@@ -112,9 +114,11 @@ private:
     void getVehiclesFromConfig();
     void loadAllVehicles();
 
-	double simTime;
-	double nextSimTime;
-	double currentTime;
+    double simTime;
+    double nextSimTime;
+    double previousTime;
+    double currentTime;
+    double framedt;
 	std::vector<int> variables;
 	std::map<const std::string, AgentVehicle *> loadedVehicles;
 

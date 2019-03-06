@@ -6,52 +6,87 @@
  * License: LGPL 2+ */
 #ifndef VrbRegistry_h 
 #define VrbRegistry_h
+
 #include "regClass.h"
-#include <filesystem>
-#include <windows.h>
+#include <boost/filesystem.hpp>
 #include <fstream>
-#include <chrono>
 #include <ctime> 
 
 namespace vrb
 {
 template <class ClassType, class VarType>
-class VrbRegistry {
+class VrbRegistry
+{
 protected:
     std::map<const std::string, std::shared_ptr<ClassType>> myClasses;
 
-
-    
     ///changes name to the read name and return the char which contains the classes variables
-    char *readClass(std::string &name);
-    ///reads the name and value out of stream
-    void readVar(char *stream, std::string &name, covise::TokenBuffer &value);
+    void readClass(std::ifstream &file)
+    {
+        std::string className, delimiter, space;
+        file >> className;
+        file >> space; 
+        std::shared_ptr<ClassType> cl = createClass(className, -1); // -1 = nobodies client ID
+        myClasses[className] = cl;
+        cl->readVar(file);
+    }
+   
+    void clearRegistry() {
+        //delete all entries and inform their observers
+    }
 
 public:
 
+    virtual int getID() = 0;
+    virtual std::shared_ptr<ClassType> createClass(const std::string &name, int id) = 0;
+    void loadFile(const std::string &filename) {
+        clearRegistry();
+        if (filename.find(".vrbreg") == std::string::npos)
+        {
+        std::cerr << "can not load file: wrong format" << std::endl;
+            return;
+        }
+        std::ifstream inFile;
+        inFile.open(filename, std::ios_base::binary);
+        if (inFile.fail())
+        {
+            std::cerr << "can not load file: file does not exist" << std::endl;
+            return;
+        }
+        std::string line;
+        inFile >> line; //skip date
+        while (!inFile.eof())
+        {
+            readClass(inFile);
+        }
 
-    void saveFile(std::string &path) {
+    }
+
+    void saveFile(const std::string &path) const {
         //openFile
         std::ofstream outFile;
-        outFile.open(path);
-        outFile << getTime();
-        for (const auto cl : myClasses)
+        std::string fullPath = path +"/" +getTime() + ".vrbreg";
+        if (boost::filesystem::create_directory(path))
         {
-            outFile << std::endl;
+            std::cerr << "Directory Created: " << path.c_str() << std::endl;
+        }
+        outFile.open(fullPath, std::ios_base::binary);
+        outFile << getTime();
+        for (const auto &cl : myClasses)
+        {
+            outFile << "\n";
             cl.second->writeClass(outFile);
         }
         outFile.close();
     }
 private:
-    std::string getTime() {
+    std::string getTime() const {
         time_t rawtime;
-        struct tm * timeinfo;
-        char buffer[80];
-
         time(&rawtime);
-        timeinfo = localtime(&rawtime);
+        struct tm *timeinfo = localtime(&rawtime);
 
-        strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+        char buffer[80];
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d_%H-%M-%S", timeinfo);
         std::string str(buffer);
         return str;
     }

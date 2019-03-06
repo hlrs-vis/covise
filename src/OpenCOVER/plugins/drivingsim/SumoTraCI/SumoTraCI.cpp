@@ -34,10 +34,9 @@
 #include <TrafficSimulation/Vehicle.h>
 #include <TrafficSimulation/CarGeometry.h>
 #include <net/tokenbuffer.h>
+#include <util/unixcompat.h>
 
 #include <cover/ui/Menu.h>
-//#include <cover/ui/Action.h>
-//#include <cover/ui/Slider.h>
 #include <cover/ui/Button.h>
 
 
@@ -112,12 +111,8 @@ bool SumoTraCI::init()
 			connected = true;
 		}
 		catch (tcpip::SocketException&) {
-			fprintf(stderr, "could not connect to localhost 1337\n");
-#ifdef WIN32
-			_sleep(10);
-#else
-			sleep(10);
-#endif
+            fprintf(stderr, "could not connect to localhost port 1337\n");
+            usleep(10000);
 		}
 		} while (!connected);
     }
@@ -176,6 +171,7 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
         setPedestriansVisible(false);
         }
     });
+	pauseUI = new ui::Button(traciMenu, "Pause");
 
     return true;
 }
@@ -183,7 +179,9 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
 void SumoTraCI::preFrame()
 {
     //cover->watchFileDescriptor();
+    previousTime = currentTime;
     currentTime = cover->frameTime();
+    framedt = currentTime - previousTime;
     if ((currentTime - nextSimTime) > 1)
     {
         subscribeToSimulation();
@@ -193,9 +191,17 @@ void SumoTraCI::preFrame()
         
         if(coVRMSController::instance()->isMaster())
         {
+			if(!pauseUI->state())
+			{ 
             client.simulationStep();
             simResults = client.vehicle.getAllSubscriptionResults();
             pedestrianSimResults = client.person.getAllSubscriptionResults();
+			}
+			else
+			{
+				simResults.clear();
+				pedestrianSimResults.clear();
+			}
             sendSimResults();
         }
         else
@@ -364,6 +370,7 @@ void SumoTraCI::interpolateVehiclePosition()
 {
     osg::Matrix rotOffset;
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
+    double simdt = nextSimTime - simTime;
     for(int i=0;i < previousResults.size(); i++)
     {
         int currentIndex =-1;
@@ -406,10 +413,10 @@ void SumoTraCI::interpolateVehiclePosition()
                     Transform trans = Transform(Vector3D(position.x(),position.y(),position.z()),Quaternion(orientation.w(),orientation.x(),orientation.y(),orientation.z()));
                     p->setTransform(trans,M_PI);
 
-                    double dt = nextSimTime - simTime;
-                    if (dt>0.0)
+
+                    if (simdt>0.0)
                     {
-                        double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/dt;
+                        double walkingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/simdt;
                         std::string person = itr->first;
                         /*if (!person.compare("ped51"))
                         {
@@ -452,6 +459,7 @@ void SumoTraCI::interpolateVehiclePosition()
                     double weight = currentTime - nextSimTime;
 
                     osg::Vec3d position = interpolatePositions(weight, previousResults[i].position, currentResults[currentIndex].position);
+                    double drivingSpeed = (currentResults[currentIndex].position - previousResults[i].position).length()/simdt;
 
                     osg::Quat pastOrientation(osg::DegreesToRadians(previousResults[i].angle), osg::Vec3d(0, 0, -1));
                     osg::Quat futureOrientation(osg::DegreesToRadians(currentResults[currentIndex].angle), osg::Vec3d(0, 0, -1));
@@ -464,7 +472,8 @@ void SumoTraCI::interpolateVehiclePosition()
                     AgentVehicle * av = itr->second;
                     av->setTransform(rotOffset*rmat*tmat);
                     VehicleState vs;
-                    av->getCarGeometry()->updateCarParts(1, 0, vs);
+                    vs.du = drivingSpeed;
+                    av->getCarGeometry()->updateCarParts(1, framedt, vs);
                 }
             }
         }

@@ -171,6 +171,11 @@ private:
     }
     int pointerGrabbed;
     coVRPlugin *keyboardPlugin;
+
+    void grabViewer(coVRPlugin *);
+    coVRPlugin *viewerGrabber() const;
+    coVRPlugin *viewerPlugin = nullptr;
+
     static coVRPluginList *singleton;
     void updateState();
 

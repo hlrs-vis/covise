@@ -69,7 +69,6 @@ void SharedStateManager::remove(SharedStateBase *base)
 void SharedStateManager::update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sessionToSubscribe, bool force)
 {
 
-
     if (m_privateSessionID != privateSessionID ||force)
     {
         for (const auto sharedState : neverShare)

@@ -449,7 +449,7 @@ void VRBClientList::sendMessage(TokenBuffer &stb, int group, covise_msg_type typ
     m.type = type;
     while ((cl = current()))
     {
-        if ((group == -2) || (group == cl->getGroup()))
+        if ((group == 0) || (group == cl->getGroup()))
         {
             cl->conn->send_msg(&m);
         }

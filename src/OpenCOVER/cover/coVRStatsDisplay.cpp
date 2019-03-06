@@ -1528,6 +1528,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
             pos.y() -= characterSize * 1.5f;
         }
+#if 0
         {
             pos.x() = leftPos;
 
@@ -1560,6 +1561,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
             pos.y() -= characterSize * 1.5f;
         }
+#endif
         {
             pos.x() = leftPos;
 

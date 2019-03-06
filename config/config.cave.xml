@@ -304,7 +304,7 @@
  <LOCAL HOST="viscluster50" >
   <COVER>
    <ScreenConfig>
-    <Screen width="2700" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="4800" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
   </COVER>
  </LOCAL>

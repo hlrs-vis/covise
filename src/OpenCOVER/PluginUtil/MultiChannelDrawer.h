@@ -29,25 +29,27 @@ enum ViewEye {
     Middle,
     Left,
     Right,
+    Invalid,
 };
 
 // Store data associated with one view (image rendered for a viewport)
 struct ViewData {
-    MultiChannelDrawer *drawer = nullptr;
+    static const int NumImages = 1;
 
-    ViewEye eye = Middle;
+    ViewEye eye = Invalid;
     int viewNum = -1;
-    int width = 0;
-    int height = 0;
-    int depthWidth=0, depthHeight=0;
-    GLenum colorFormat = 0;
-    GLenum depthFormat = 0;
+    int geoWidth = 0, geoHeight = 0;
+    int width[NumImages], height[NumImages];
+    int depthWidth[NumImages], depthHeight[NumImages];
+    GLenum colorFormat[NumImages], depthFormat[NumImages];
     osg::Matrix imgProj, imgView, imgModel;
     osg::Matrix newProj, newView, newModel;
 
     // geometry for mapping depth image
     osg::ref_ptr<osg::TextureRectangle> colorTex;
     osg::ref_ptr<osg::TextureRectangle> depthTex;
+    osg::ref_ptr<osg::Image> colorImg[NumImages];
+    osg::ref_ptr<osg::Image> depthImg[NumImages];
     osg::ref_ptr<osg::Vec2Array> texcoord;
     osg::ref_ptr<osg::Geometry> fixedGeo;
     osg::ref_ptr<osg::Geometry> reprojGeo;
@@ -65,11 +67,15 @@ struct ViewData {
 
     ViewData(int view=-1)
         : viewNum(view)
-        , width(0)
-        , height(0)
-        , colorFormat(0)
-        , depthFormat(0)
     {
+        for (int i=0; i<NumImages; ++i) {
+            width[i] = 0;
+            height[i] = 0;
+            depthWidth[i] = 0;
+            depthHeight[i] = 0;
+            colorFormat[i] = 0;
+            depthFormat[i] = 0;
+        }
     }
 
     ~ViewData();
@@ -78,9 +84,7 @@ struct ViewData {
 //! store data associated with one channel (output viewport)
 struct ChannelData {
     MultiChannelDrawer *drawer = nullptr;
-
     int channelNum = -1;
-    int frameNum = 0;
     ViewEye eye = Middle;
     bool second;
     int width;
@@ -90,13 +94,12 @@ struct ChannelData {
     // geometry for mapping depth image
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<osg::Group> scene;
-    osg::ref_ptr<osg::Drawable::DrawCallback> drawCallback;
 
     std::vector<std::shared_ptr<ViewChannelData>> viewChan;
 
-    ChannelData(int channel)
-        : channelNum(channel)
-        , frameNum(0)
+    ChannelData(MultiChannelDrawer *drawer, int channel)
+        : drawer(drawer)
+        , channelNum(channel)
         , eye(Middle)
         , second(false)
         , width(0)
@@ -117,12 +120,14 @@ struct ViewChannelData {
 
     ViewChannelData(std::shared_ptr<ViewData> view, ChannelData *chan);
     ~ViewChannelData();
+    void setThis(std::shared_ptr<ViewChannelData> vcd);
 
     osg::ref_ptr<osg::Geometry> fixedGeo;
     osg::ref_ptr<osg::Geometry> reprojGeo;
     osg::ref_ptr<osg::Uniform> reprojMat;
     osg::ref_ptr<osg::StateSet> state;
     osg::ref_ptr<osg::Geode> geode;
+    osg::ref_ptr<osg::Drawable::DrawCallback> drawCallback;
 
     ChannelData *chan = nullptr;
     std::shared_ptr<ViewData> view;
@@ -132,9 +137,11 @@ struct ViewChannelData {
 };
 
 class PLUGIN_UTILEXPORT MultiChannelDrawer: public osg::Camera {
+    friend struct SingleScreenCB;
 public:
    typedef opencover::ChannelData ChannelData;
    typedef opencover::ViewData ViewData;
+   typedef opencover::ViewEye ViewEye;
 
     MultiChannelDrawer(bool flipped=false, bool useCuda=false);
     ~MultiChannelDrawer();
@@ -177,8 +184,6 @@ public:
    void updateMatrices(int idx, const osg::Matrix &model, const osg::Matrix &view, const osg::Matrix &proj);
    //! resize view idx
    void resizeView(int idx, int w, int h, GLenum depthFormat=0, GLenum colorFormat=GL_UNSIGNED_BYTE);
-   //! set matrices from COVER for all views
-   void reproject();
    //! get a pointer that can be retained
    std::shared_ptr<ViewData> getViewData(int idx);
    //! access RGBA data for view idx
@@ -201,8 +206,18 @@ private:
    bool m_flipped;
    Mode m_mode;
    ViewSelection m_viewsToRender = Same;
+   int renderTex=0, writeTex=0;
+   struct AvailableEyes {
+       bool middle=false;
+       bool left=false;
+       bool right=false;
+   };
+   AvailableEyes m_availableEyes;
+   bool haveEye(ViewEye eye);
 
    const bool m_useCuda;
+   void updateGeoForView(ViewData &vd);
+   int m_numViews = 0;
 };
 
 }

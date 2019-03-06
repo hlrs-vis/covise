@@ -457,6 +457,16 @@ void coVRPluginList::grabKeyboard(coVRPlugin *p)
     keyboardPlugin = p;
 }
 
+void coVRPluginList::grabViewer(coVRPlugin *p)
+{
+    viewerPlugin = p;
+}
+
+coVRPlugin *coVRPluginList::viewerGrabber() const
+{
+    return viewerPlugin;
+}
+
 bool coVRPluginList::key(int type, int keySym, int mod) const
 {
     if (keyboardPlugin)

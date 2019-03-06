@@ -75,7 +75,7 @@ private:
     char *currentFile = nullptr;
     std::map<const int, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
     std::string home();
-    std::set<std::string> getFilesInDir(const std::string &path)const;
+    std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
 };
 #endif
 

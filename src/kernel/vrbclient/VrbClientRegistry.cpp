@@ -51,12 +51,6 @@ void VrbClientRegistry::setID(int clID, int session)
 
 void VrbClientRegistry::resubscribe(int sessionID, int oldSession)
 {
-
-    // resubscribe all registry entries on reconnect
-    for (const auto cl : myClasses)
-    {
-        cl.second->resubscribe(sessionID);
-    }
     if (oldSession > 0) //unobserve old public session
     {
         covise::TokenBuffer tb;
@@ -66,6 +60,11 @@ void VrbClientRegistry::resubscribe(int sessionID, int oldSession)
         {
             vrbc->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
         }
+    }
+    // resubscribe all registry entries on reconnect
+    for (const auto cl : myClasses)
+    {
+        cl.second->resubscribe(sessionID);
     }
 }
 
@@ -285,7 +284,6 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
             {
                 rc->setDeleted();
                 rc->notifyLocalObserver();
-                myClasses.erase(cl); //maybe do more to delete this?
                 return;
             }
             rv = rc->getVar(var);
@@ -294,13 +292,18 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
                 rv->setDeleted();
                 rc->notifyLocalObserver();
                 rv->notifyLocalObserver();
-                rc->deleteVar(var);
             }
 
         }
         break;
 
     } // switch
+}
+
+
+std::shared_ptr<clientRegClass> VrbClientRegistry::createClass(const std::string &name, int id)
+{
+    return std::shared_ptr<clientRegClass>(new clientRegClass(name, id, this));
 }
 }
 

@@ -369,6 +369,13 @@ public:
     //! check if keyboard is grabbed
     bool isKeyboardGrabbed();
 
+    //! let plugin request control over viewer position
+    bool grabViewer(coVRPlugin *);
+    //! release control over viewer position
+    void releaseViewer(coVRPlugin *);
+    //! whether a plugins controls viewer position
+    bool isViewerGrabbed() const;
+
     //! forbid saving of scenegraph
     void protectScenegraph();
 

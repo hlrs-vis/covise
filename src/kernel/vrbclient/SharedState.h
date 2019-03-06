@@ -21,51 +21,24 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
-#include <vrbclient/regClass.h>
-
+#include "regClass.h"
+#include "ShareStateSerializer.h"
 
 
 
 namespace vrb
 {
+
+class clientRegVar;
+
 enum SharedStateType
 {
     USE_COUPLING_MODE, //0
     NEVER_SHARE, //1
     ALWAYS_SHARE //2
 };
-class clientRegVar;
-///convert the value to a TokenBuffer
-template<class T>
-void serialize(covise::TokenBuffer &tb, const T &value)
-{
-    int typeID = 0;
-    tb << typeID;
-    tb << value;
-}
-
-template <>
-VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
-
-
-///converts the TokenBuffer back to the value
-template<class T>
-void deserialize(covise::TokenBuffer &tb, T &value)
-{
-    int typeID;
-    tb >> typeID;
-    tb >> value;
-}
-
-template <>
-VRBEXPORT void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
-
-
-
-
 
 class  VRBEXPORT SharedStateBase : public regVarObserver
-
 {
 public:
     SharedStateBase(std::string name, SharedStateType mode);
@@ -103,7 +76,7 @@ protected:
 private:
     int sessionID = 0; ///the session to send updates to 
     bool send = false;
-    float syncInterval = 0.1;
+    float syncInterval = 0.1f;
     double lastUpdateTime = 0.0;
     covise::TokenBuffer tb_value;
 };
@@ -118,7 +91,7 @@ public:
     {
         assert(m_registry);
         covise::TokenBuffer data;
-        serialize(data, m_value);
+        serializeWithType(data, m_value);
         subscribe(std::move(data));
     }
 
@@ -139,7 +112,7 @@ public:
 
     void deserializeValue(covise::TokenBuffer &data) override
     {
-        deserialize(data, m_value);
+        deserializeWithType(data, m_value);
     }
 
     //! sends the value change to the vrb
@@ -147,7 +120,7 @@ public:
     {
         valueChanged = false;
         covise::TokenBuffer data;
-        serialize(data, m_value);
+        serializeWithType(data, m_value);
         setVar(std::move(data));
     }
 

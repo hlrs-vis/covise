@@ -69,6 +69,7 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
         else if (strcasecmp(modeName, "CHECKERBOARD") == 0)
             stereoMode = osg::DisplaySettings::CHECKERBOARD;
         else if (strcasecmp(modeName, "MONO") == 0
+                || strcasecmp(modeName, "MIDDLE") == 0
                 || strcasecmp(modeName, "NONE") == 0
                 || strcasecmp(modeName, "") == 0)
         {
@@ -86,6 +87,19 @@ int coVRConfig::parseStereoMode(const char *modeName, bool *stereo)
         *stereo = st;
     }
     return stereoMode;
+}
+
+bool coVRConfig::requiresTwoViewpoints(int stereomode)
+{
+    using osg::DisplaySettings;
+
+    switch (stereomode) {
+    case DisplaySettings::LEFT_EYE:
+    case DisplaySettings::RIGHT_EYE:
+        return false;
+    }
+
+    return true;
 }
 
 coVRConfig::coVRConfig()
@@ -410,7 +424,7 @@ coVRConfig::coVRConfig()
 
         bool exists = false;
         channels[i].fixedViewer = coCoviseConfig::isOn("fixedViewer", str, false, &exists);
-        channels[i].viewerOffset = coCoviseConfig::getFloat("viewerOffset", str, 0.f);
+        channels[i].stereoOffset = coCoviseConfig::getFloat("stereoOffset", str, 0.f);
         
         channels[i].PBONum = coCoviseConfig::getInt("PBOIndex", str, -1);
         if(channels[i].PBONum == -1)

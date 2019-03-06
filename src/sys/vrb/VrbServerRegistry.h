@@ -23,7 +23,7 @@ class TokenBuffer;
 
 namespace vrb
 {
-class VrbServerRegistry : public VrbRegistry<serverRegClass, clientRegClass>
+class VrbServerRegistry : public VrbRegistry<serverRegClass, serverRegVar>
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
@@ -44,6 +44,8 @@ public:
     void deleteEntry(const std::string &className, const std::string &name);
     /// remove all Entries from one Module
     void deleteEntry();
+    ///add sender sa observer to every vaiable and every class that has no variables
+    void observe(int sender);
     /// add a new observer to a specific variable and provide a default value
     void observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value);
     ///add a observer to a class an all its variables
@@ -66,8 +68,13 @@ public:
     void saveNetwork(coCharBuffer &cb);
     void setOwner(int id);
     int getOwner();
+    int getID() override
+    {
+        return sessionID;
+    }
+    std::shared_ptr<serverRegClass> createClass(const std::string &name, int id) override;
 private:
-    int sessionID; // <= -10, -10 = default session
+    int sessionID; 
     int owner;
 };
 
@@ -106,10 +113,12 @@ public:
 class serverRegClass : public regClass<serverRegVar>
 {
 private:
-    std::set<int> observers; //other clients
+    std::set<int> observers; // clients
 public:
 
     using regClass::regClass;
+    /// observe all variables or this clas if it has o variables
+    void observeAllVars(int sender);
     /// add a new observer to this class and all of its variables
     void observe(int recvID);
     ///add Observer to a specific variable
@@ -124,6 +133,8 @@ public:
         return (&observers);
     }
     void informDeleteObservers();
+    std::shared_ptr<serverRegVar> createVar(const std::string &name, covise::TokenBuffer &&value);
+
 };
 }
 

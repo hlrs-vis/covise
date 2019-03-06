@@ -100,7 +100,6 @@ void coVRPluginSupport::initUI()
     fileMenu = new ui::Menu("File", ui);
     viewOptionsMenu = new ui::Menu("ViewOptions", ui);
     viewOptionsMenu->setText("View options");
-    ui->init();
 
     auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
     interactorScaleSlider->setText("Interactor scale");
@@ -112,7 +111,7 @@ void coVRPluginSupport::initUI()
         interactorScale = value;
     });
 
-    
+    ui->init();
 }
 
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
@@ -946,6 +945,30 @@ bool coVRPluginSupport::grabKeyboard(coVRPlugin *plugin)
     }
     coVRPluginList::instance()->grabKeyboard(plugin);
     return true;
+}
+
+bool coVRPluginSupport::grabViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber()
+        && coVRPluginList::instance()->viewerGrabber() != plugin)
+    {
+        return false;
+    }
+    coVRPluginList::instance()->grabViewer(plugin);
+    return true;
+}
+
+void coVRPluginSupport::releaseViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber() == plugin)
+    {
+        coVRPluginList::instance()->grabViewer(NULL);
+    }
+}
+
+bool coVRPluginSupport::isViewerGrabbed() const
+{
+    return (coVRPluginList::instance()->viewerGrabber() != NULL);
 }
 
 // get the active cursor number
