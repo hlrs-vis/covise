@@ -57,7 +57,7 @@ Initial revision
 
 using namespace covise;
 
-#define TB_DEBUG // define to enable debugging
+//#define TB_DEBUG // define to enable debugging
 #define TB_DEBUG_TAG // include whether debug mode is enabled in first byte of TokenBuffer, for interoperability with debug-enabled TokenBuffer's
 
 #define CHECK(size_type, error_ret)                                                                                       \

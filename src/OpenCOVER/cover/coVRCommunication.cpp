@@ -726,6 +726,8 @@ void coVRCommunication::handleVRB(Message *msg)
             coVRPartnerList::instance()->remove();
         }
         coVRCollaboration::instance()->showCollaborative(false);
+        coVRCollaboration::instance()->updateSessionSelectionList(std::set<int>());
+        setSessionID(0);
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         registry->setVrbc(vrbc);
@@ -1049,7 +1051,6 @@ void coVRCommunication::setFBData(IData *data)
 
 void coVRCommunication::initSaveLoadSessionUI()
 {
-    
     if (!saveBtn)
     {
         saveBtn.reset(new ui::Action("SaveSession", this));

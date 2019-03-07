@@ -180,6 +180,7 @@ void coVRCollaboration::initCollMenu()
         //inform the server about the new session
         coVRCommunication::instance()->setSessionID(sessionID);
     });
+    m_availableSessions->setList(std::vector<std::string>{"private"});
     m_newSession = new ui::Action(m_collaborativeMenu, "NewSession");
     m_newSession->setText("New session");
     m_newSession->setCallback([this](void) {
