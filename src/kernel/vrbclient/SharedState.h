@@ -33,9 +33,10 @@ class clientRegVar;
 
 enum SharedStateType
 {
-    USE_COUPLING_MODE, //0
-    NEVER_SHARE, //1
-    ALWAYS_SHARE //2
+    USE_COUPLING_MODE, //0  write/read in/from private or puplic session depending on coupling mode 
+    NEVER_SHARE, //1        only write to private session to save the state on the server
+    ALWAYS_SHARE, //2       always write to public session and share the state within the group
+    SHARE_WITH_ALL //3      write to session 0 to share the state within all sessions
 };
 
 class  VRBEXPORT SharedStateBase : public regVarObserver
