@@ -32,7 +32,7 @@
 #include <util/coTabletUIMessages.h>
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <vrbclient/ShareStateSerializer.h>
+#include <vrbclient/SharedStateSerializer.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
