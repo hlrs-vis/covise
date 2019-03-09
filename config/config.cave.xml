@@ -462,7 +462,7 @@
   <COVER>
    <Snap value="ON" />
    <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
-   <SyncToVBlank value="ON" device="DFP-3"/>
+   <SyncToVBlank value="OFF" device="DFP-3"/>
    <WriteVrmlViewpoint value="ON" />
    <Crease value="OFF" />
    <TwoSide value="ON" />
