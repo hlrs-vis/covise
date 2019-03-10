@@ -9,6 +9,7 @@
 #include <QInputEvent>
 #include <QWindow>
 #include <QOpenGLContext>
+#include <QOpenGLFunctions>
 #include <QApplication>
 
 #include <cover/VRViewer.h>
@@ -216,7 +217,13 @@ bool QtGraphicsWindow::setWindowRectangleImplementation(int x, int y, int width,
 void QtGraphicsWindow::swapBuffersImplementation()
 {
     if (m_glWidget && m_glWidget->context())
+    {
+#ifdef Q_OS_MAC
+        // seems to be necessary on OS X: otherwise screen flickering
+        m_glWidget->context()->functions()->glFinish();
+#endif
         m_glWidget->context()->swapBuffers(m_glWidget->context()->surface());
+    }
 }
 
 void QtGraphicsWindow::useCursor(bool cursorOn)
