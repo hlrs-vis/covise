@@ -193,82 +193,40 @@ float smallestperiod(float theta)
 
 void main(void)
 {
-    vec2 newtc;
-    vec3 newtc3;
+    vec3 newtc3; // InLightTextureCoordinate
     vec4 tmp;
     vec4 DiffuseColor = vec4(0.0);
     float candela = 0.0;
     float an_h;
     float an_v;
-    //ivec3 texsize;
-    //int num_lights;
-    //texsize = textureSize(AllPhotometricLights, 0);
-    //num_lights = texsize[2];
-
-    //texSize = textureSize(IESMap, 0);
-    // angular range in ies file: -65 to 65 and -15 to 12
-    // angular range in ies file: -25 to 25 and -10 to 10
-/*
-    float left = radians(-25.); 
-    float bottom = radians(-10.);
-    float width = radians(50.); // radians
-    float height = radians(20.); // radians
-*/
-    for (int n=0; n &lt; MAX_LIGHTS; n++)
-    {
-        if (is_active[n] == 1.0)
-        {
-            an_h = smallestperiod(atan(InLightCoordinates[n][2], InLightCoordinates[n][0]));  // => arctan2
-            an_v = smallestperiod(atan(InLightCoordinates[n][1], InLightCoordinates[n][0]));  // => arctan2
-
-            newtc3[0]= (an_h-left[n])/width[n];
-            newtc3[1]= (an_v-bottom[n])/height[n];
-            newtc3[2]= 0.;
-            newtc[0] = newtc3[0];
-            newtc[1] = newtc3[1];
-            //float half_bin_width = 1./ float (num_lights*2);
             
-            if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
-            {    
-                if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
-                {
-                    /*
-                    //gl_FragColor += vec4 (.2,.2,0.,0.);
-                    DiffuseColor *= 0.0;
-                    for (int i = 0; i &lt; num_lights; i++)
-                    {
-                        newtc3[2] = float (i) / float (num_lights) + half_bin_width;
-                        DiffuseColor += texture3D(AllPhotometricLights, newtc3);
-                        ivec3 itc3;
-                        itc3[0] = int(newtc3[0]*texsize[0]);
-                        itc3[1] = int(newtc3[1]*texsize[1]);
-                        itc3[2] = int(newtc3[2]*texsize[2]);
-                        candela += texelFetch(AllPhotometricLights, itc3, 0).r; // works
-                    }
-                    if((0.1 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; .6))
-                        DiffuseColor = texture2D(targetTex, newtc);
-                        //DiffuseColor[1] = candela;
-                    */
-                    if(n==0)
-                        DiffuseColor += vec4(texture2D(targetTex0, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
-                    if (n==1)
-                        DiffuseColor += vec4(texture2D(targetTex1, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
-                    if (n==2)
-                        DiffuseColor += vec4(texture2D(targetTex2, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
-                    if (n==3)
-                        DiffuseColor += vec4(texture2D(targetTex3, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
-                }
-            }
-        }
-    }
+	for (int n=0; n &lt; MAX_LIGHTS; n++)
+	{
+		if (is_active[n] == 1.0)
+		{
+			an_h = smallestperiod(atan(InLightCoordinates[n][2], InLightCoordinates[n][0]));  // => arctan2
+			newtc3[0]= (an_h-left[n])/width[n];
+			newtc3[2]= 0.;
+			if((0.0 &lt; newtc3[0])&amp;&amp;(newtc3[0] &lt; 1.0))
+			{
+				an_v = smallestperiod(atan(InLightCoordinates[n][1], InLightCoordinates[n][0]));  // => arctan2
+				newtc3[1]= (an_v-bottom[n])/height[n];
+				if((0.0 &lt; newtc3[1])&amp;&amp;(newtc3[1] &lt; 1.0))
+				{
+					if(n==0)
+						DiffuseColor += vec4(texture2D(targetTex0, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+					if (n==1)
+						DiffuseColor += vec4(texture2D(targetTex1, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+					if (n==2)
+						DiffuseColor += vec4(texture2D(targetTex2, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+					if (n==3)
+						DiffuseColor += vec4(texture2D(targetTex3, newtc3.xy).r); // texelFetch(targetTex, itc3).r;
+				}
+			}
+		}
+	}
     gl_FragColor = DiffuseColor*0.5+ (vColor*0.5);
     gl_FragColor[3] = 1;
     //gl_FragColor = gl_Color;
 
 }</fragmentProgram></MatrixLight>
-    //<     &lt;     
-    //>     &gt;     nur problematisch in Tags und bei ']]>'
-    //&     &amp;     
-    //&& -> &amp;&amp;
-    //"     &quot;     nur problematisch in Attributwerten mit "…"
-    //'     &apos; 

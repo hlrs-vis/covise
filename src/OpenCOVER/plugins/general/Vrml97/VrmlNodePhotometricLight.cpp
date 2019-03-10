@@ -93,25 +93,23 @@ void VrmlNodePhotometricLight::updateLightTextures(osg::RenderInfo &renderInfo)
 void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 {
     // https://github.com/openscenegraph/OpenSceneGraph/blob/master/examples/osgcomputeshaders/osgcomputeshaders.cpp
-	//std::cout << "preDraw: ";
+	//RenderInfo is no longer needed. At the moment we dont need the openGL context
 	int numHorizontalAngles = mlbFile->header.t_width;
 	int numVerticalAngles = mlbFile->header.t_height;
 	int num_lights = mlbFile->header.t_depth;
 	int work_group_size = 16;
 
 	// we just assume for now someone changed the configuration
-
 	if (((float)rand() / (RAND_MAX)) < 0.05)
 	{
 		configuration_changed = true;
 		for (int i = 0; i < num_lights; i++)
 		{
 			configuration_vec[i] = ((float)rand() / (RAND_MAX));
-			//std::cout << configurationML[i] << std::endl;
 		}
 	}
-	configuration_changed = true;
 
+	// conditional copute shader dispatch
 	if (configuration_changed)
 	{
 		// update texture data
@@ -119,7 +117,8 @@ void VrmlNodePhotometricLight::updateLightTexture(osg::RenderInfo &renderInfo)
 		for (int i = 0; i < num_lights; i++)
 			data[i] = configuration_vec[i];
 		configuration_img->dirty();
-		comp_disp->setComputeGroups(0, 0, 0);
+		// launch compute shader. Remove the following line if you dont want to use the compute shader (=Version 1)
+		comp_disp->setComputeGroups(numHorizontalAngles / work_group_size + 1, numVerticalAngles / work_group_size + 1, 1);
 		configuration_changed = false;
 	}
 	else
@@ -148,7 +147,7 @@ VrmlNodeType *VrmlNodePhotometricLight::defineType(VrmlNodeType *t)
 	t->addExposedField("IESFile", VrmlField::SFSTRING);
     static osg::Matrixf lightMatrices[MAX_LIGHTS];
     photometricLightMatrix =new osg::Uniform(osg::Uniform::FLOAT_MAT4, "photometricLightMatrix", MAX_LIGHTS);
-    osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+	osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
     state->addUniform(photometricLightMatrix);
 
     return t;
@@ -276,6 +275,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
     }
 	if (strcmp(fieldName, "MLBFile") == 0)
 	{
+		// please use osg::ref_ptr rather than normal pointer.
 		mlbFile = new coMLB(d_MLBFile.get());
 		int numHorizontalAngles = mlbFile->header.t_width;
 		int numVerticalAngles = mlbFile->header.t_height;
@@ -283,12 +283,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		int numValues = numHorizontalAngles * numVerticalAngles;
 		std::cout << "Tex. size: " << numHorizontalAngles << " x " << numVerticalAngles << std::endl;
 
-
-
-		if (d_lightNumber.get()>=4) {
-			throw std::invalid_argument("light number must be below 4!");
-		}
-
+		// load compute shader code
 		std::string buf = "share/covise/materials/MatrixLight.comp";
 		std::string code = "";
 		const char *fn = coVRFileManager::instance()->getName(buf.c_str());
@@ -301,30 +296,16 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 			code = buffer.str();
 		}
 
-		//std::cout << code << "\n";
+		//set binding numbers in the compute shader code
 		for (int binding_number = 0; binding_number < 3; binding_number++)
 		{
-			//std::cout << binding_number << "\n";
 			string from = std::string("binding=") + std::to_string(binding_number);
 			string to = std::string("binding=") + std::to_string(binding_number + d_lightNumber.get() * 3);
 			size_t start_pos = code.find(from);
-			//std::cout << "        " << start_pos << "\n";
 			if (start_pos != std::string::npos)
 				code.replace(start_pos, from.length(), to);
 			std::cout << "changed binding nr from " << binding_number << " to "<< (binding_number + d_lightNumber.get() * 3) << std::endl;
 		}
-		// we need to work with the texture... image3D does not work
-
-		string from = std::string("AllPhotometricLightsTexX");
-		string to = std::string("AllPhotometricLightsTex") + std::to_string(d_lightNumber.get());
-		size_t start_pos = 0;
-		//while ((start_pos = code.find(from, start_pos)) != std::string::npos)
-		//{
-		//	code.replace(start_pos, from.length(), to);
-		//	start_pos += to.length();
-		//}
-		std::cout << "changed from " << from << " to " << to << std::endl;
-
 		std::cout << code << "\n";
 
 		// matrix light data as texture3D
@@ -346,10 +327,6 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		sum_lights_tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST);
 		sum_lights_tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST);
 		// https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml
-		/*
-		sum_lights_tex->setInternalFormat(GL_R8UI);
-		sum_lights_tex->setSourceFormat(GL_RED);
-		sum_lights_tex->setSourceType(GL_UNSIGNED_BYTE);*/
 		sum_lights_tex->setInternalFormat(GL_R16F);
 		sum_lights_tex->setSourceFormat(GL_RED);
 		sum_lights_tex->setSourceType(GL_FLOAT);
@@ -378,21 +355,17 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		// Create a node for outputting to the texture.
 		comp_disp = new osg::DispatchCompute(0, 0, 0); // launch 0 work groups, wich disables the compute shader for now
 		osg::ref_ptr<osg::Node> sourceNode = comp_disp;
-		osg::StateSet *state = sourceNode->getOrCreateStateSet();
+		osg::ref_ptr<osg::StateSet> state = sourceNode->getOrCreateStateSet();
 		sourceNode->setDataVariance(osg::Object::DYNAMIC);
 
 		state->setAttributeAndModes(computeProg.get());  //get()); if otherNode is a ref_ptr, without if the node is a raw pointer. Don't use raw pointer!
 
 		std::cout << "light number: " << d_lightNumber.get() << std::endl;
 		state->addUniform(new osg::Uniform("configuration", (int)(0 + d_lightNumber.get() * 3)));
-		state->addUniform(new osg::Uniform("AllPhotometricLights", (int)(1 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("targetTex", (int)(2 + d_lightNumber.get() * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTexX", (int)(1 + d_lightNumber.get() * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(1 + 1 * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(1 + 2 * 3)));
-		//state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(1 + 3 * 3)));
-		// dont bind anything to imageunit 8 !
 
+		// textures are read only, images not. we need to bind the image of a texture to a binding point.
 		osg::ref_ptr<osg::BindImageTexture> imagbinding1 = new osg::BindImageTexture((0 + d_lightNumber.get() * 3), light_conf_tex, osg::BindImageTexture::READ_ONLY, GL_R32F);
 		osg::ref_ptr<osg::BindImageTexture> imagbinding2 = new osg::BindImageTexture((1 + d_lightNumber.get() * 3), all_lights_tex, osg::BindImageTexture::READ_ONLY, GL_R8); //, 0, GL_TRUE, 0
 		osg::ref_ptr<osg::BindImageTexture> imagbinding3 = new osg::BindImageTexture((2 + d_lightNumber.get() * 3), sum_lights_tex, osg::BindImageTexture::WRITE_ONLY, GL_R16F);  // GLenum format = GL_RGBA8
@@ -405,18 +378,13 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->setAttributeAndModes(imagbinding2.get());
 		state->setAttributeAndModes(imagbinding3.get());
 		
-		
-		
-                // prepare state for all objects in the scene
+		// prepare state for all objects in the scene
 		state = cover->getObjectsRoot()->getOrCreateStateSet();  // Object Root
 		state->setTextureAttributeAndModes((5 + d_lightNumber.get() * 3), light_conf_tex, osg::StateAttribute::ON);  // needs to be done. otherwise the first frame after this texture changes is buggy
 		state->setTextureAttributeAndModes((6 + d_lightNumber.get() * 3), all_lights_tex, osg::StateAttribute::ON);
 		state->setTextureAttributeAndModes((7 + d_lightNumber.get() * 3), sum_lights_tex, osg::StateAttribute::ON);
-		//state->setAttributeAndModes(imagbinding1.get());
-		//state->setAttributeAndModes(imagbinding2.get());
-		//state->setAttributeAndModes(imagbinding3.get());
-		// FIXME: angles may differ for each light! values are overwritten each time
-		//state->addUniform(new osg::Uniform("configurationTex", (int)(5 + d_lightNumber.get() * 3))); // only needed in the compute shader!
+		// only the targetTex is needed if you use compute shader. If you dont want to use it (=version 1) uncomment the following lines
+		/*
 		state->addUniform(new osg::Uniform("configuration0", (int)(5 + 0 * 3)));
 		state->addUniform(new osg::Uniform("configuration1", (int)(5 + 1 * 3)));
 		state->addUniform(new osg::Uniform("configuration2", (int)(5 + 2 * 3)));
@@ -425,10 +393,17 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex1", (int)(6 + 1 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex2", (int)(6 + 2 * 3)));
 		state->addUniform(new osg::Uniform("AllPhotometricLightsTex3", (int)(6 + 3 * 3)));
+		*/
 		state->addUniform(new osg::Uniform("targetTex0", (int)(7 + 0 * 3)));
 		state->addUniform(new osg::Uniform("targetTex1", (int)(7 + 1 * 3)));
 		state->addUniform(new osg::Uniform("targetTex2", (int)(7 + 2 * 3)));
 		state->addUniform(new osg::Uniform("targetTex3", (int)(7 + 3 * 3)));
+
+		// the fragemnt shader needs to know the size of the light:
+		// TODO: use vectors rather than a osg::vec4 if you want to have more than 4 matrix lights. Take care of the shader accordingly.
+		if (d_lightNumber.get() >= 4) {
+			throw std::invalid_argument("light number must be below 4!");
+		}
 
 		osg::Vec4f tmp;
 
@@ -460,11 +435,6 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
 		state->addUniform(new osg::Uniform("is_active", tmp));
 		std::cout << "is_active = [" << tmp[0] << "\t" << tmp[1] << "\t" << tmp[2] << "\t" << tmp[3] << "]\n";
 
-		//state->addUniform(new osg::Uniform("left", (mlbFile->header.left)));
-		//state->addUniform(new osg::Uniform("bottom", (mlbFile->header.bottom)));
-		//state->addUniform(new osg::Uniform("width", (mlbFile->header.width)));
-		//state->addUniform(new osg::Uniform("height", (mlbFile->header.height)));
-
 		state->addUniform(new osg::Uniform("MAX_LIGHTS", (MAX_LIGHTS)));
 
 		// Create the scene graph and start the viewer
@@ -485,7 +455,7 @@ void VrmlNodePhotometricLight::setField(const char *fieldName,
         lightTexture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::CLAMP);
         lightTexture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP);
         lightTexture->setImage(iesFile->getTexture());
-        osg::StateSet *state = cover->getObjectsRoot()->getOrCreateStateSet();
+		osg::ref_ptr<osg::StateSet> state = cover->getObjectsRoot()->getOrCreateStateSet();
 
         state->setTextureAttributeAndModes(5+d_lightNumber.get(), lightTexture, osg::StateAttribute::ON);
     }
