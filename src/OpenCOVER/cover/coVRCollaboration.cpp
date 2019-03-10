@@ -42,7 +42,7 @@
 #include "coVRCommunication.h"
 #include "VRAvatar.h"
 #include <osg/MatrixTransform>
-
+#include <vrbclient/SharedStateManager.h>
 #include <vrbclient/VRBClient.h>
 #include "OpenCOVER.h"
 
@@ -56,7 +56,7 @@
 #define NAVIGATION_GROUP 0
 
 using namespace opencover;
-
+using namespace vrb;
 coVRCollaboration *coVRCollaboration::s_instance = NULL;
 
 coVRCollaboration *coVRCollaboration::instance()
@@ -72,6 +72,9 @@ coVRCollaboration::coVRCollaboration()
     , syncScale(0)
     , syncInterval(0.3)
     , showAvatar(1)
+    , syncMode("coVRCollaboration_syncMode", LooseCoupling, ALWAYS_SHARE)
+    , avatarPosition("coVRCollaboration_avatarPosition", osg::Matrix())
+    , scaleFactor("coVRCollaboration_scaleFactor", 1)
 {
     assert(!s_instance);
 
@@ -82,7 +85,23 @@ void coVRCollaboration::init()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew coVRCollaboration\n");
-
+    VRAvatarList::instance()->hide();
+    syncMode.setUpdateFunction([this]()
+    {
+        assert(syncMode < 3);
+        if (m_collaborationMode)
+            m_collaborationMode->select(syncMode);
+        syncModeChanged(syncMode);
+    });
+    avatarPosition.setUpdateFunction([this]()
+    {
+        osg::Matrix m = avatarPosition;
+        remoteTransform(m);
+    });
+    scaleFactor.setUpdateFunction([this]()
+    {
+        remoteScale(scaleFactor);
+    });
     readConfigFile();
 
     // create collaborative menu
@@ -103,6 +122,7 @@ int coVRCollaboration::readConfigFile()
         fprintf(stderr, "coVRCollaboration::readConfigFile\n");
 
     syncInterval = covise::coCoviseConfig::getFloat("interval", "COVER.Collaborative.Sync", 0.05);
+    setSyncInterval();
     setSyncMode("LOOSE");
     std::string sMode = covise::coCoviseConfig::getEntry("mode", "COVER.Collaborative.Sync");
     if (!sMode.empty())
@@ -123,46 +143,55 @@ void coVRCollaboration::initCollMenu()
     assert(1 == MasterSlaveCoupling);
     assert(2 == TightCoupling);
     m_collaborationMode->setList(std::vector<std::string>({"Loose", "Master/Slave", "Tight"}));
-    m_collaborationMode->setCallback([this](int mode){
-        switch(mode) {
-        case LooseCoupling:
-            setSyncMode("LOOSE");
-            VRAvatarList::instance()->show();
-            cover->sendBinMessage("SYNC_MODE", "LOOSE", 6);
-            break;
-        case MasterSlaveCoupling:
-            setSyncMode("MS");
-            VRAvatarList::instance()->hide();
-            cover->sendBinMessage("SYNC_MODE", "MS", 3);
-            SyncXform();
-            SyncScale();
-            break;
-        case TightCoupling:
-            setSyncMode("TIGHT");
-            VRAvatarList::instance()->hide();
-            cover->sendBinMessage("SYNC_MODE", "TIGHT", 6);
-            SyncXform();
-            SyncScale();
-            break;
+    m_collaborationMode->setCallback([this](int mode) {
+        syncMode = mode;
+        syncModeChanged(mode);
+        if (mode == MasterSlaveCoupling)
+        {
+            coVRCommunication::instance()->becomeMaster();
+            m_master->setEnabled(false);
+            m_returnToMaster->setEnabled(false);
         }
     });
     m_collaborationMode->select(syncMode);
 
     //session menue
-    m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "availableSessions");
-    m_availableSessions->setText("available Sessions");
-    updateSessionSelectionList();
+    m_availableSessions = new ui::SelectionList(m_collaborativeMenu, "AvailableSessions");
+    m_availableSessions->setText("Available sessions");
     m_availableSessions->setCallback([this](int id) 
     {
-        std::set<int>::iterator it = m_sessions.begin();
-        std::advance(it, id);
-        coVRCommunication::instance()->setSessionID(*it);
+        int sessionID = 0;
+        if (id != 0)
+        {
+            std::set<int>::iterator it = m_sessions.begin();
+            std::advance(it, id - 1);
+            sessionID = *it;
+            if (syncMode == LooseCoupling)
+            {
+                VRAvatarList::instance()->show();
+            }
+        }
+        else //dont sync when in private session
+        {
+            UnSyncXform();
+            UnSyncScale();
+            VRAvatarList::instance()->hide();
+        }
+        //inform the server about the new session
+        coVRCommunication::instance()->setSessionID(sessionID);
     });
-    m_newSession = new ui::Action(m_collaborativeMenu, "newSession");
+    m_newSession = new ui::Action(m_collaborativeMenu, "NewSession");
+    m_newSession->setText("New session");
     m_newSession->setCallback([this](void) {
-        
+        if (syncMode == LooseCoupling)
+        {
+            VRAvatarList::instance()->show();
+        }
+        bool isPrivate = false;
         covise::TokenBuffer tb;
         tb << coVRCommunication::instance()->getID();
+        tb << coVRCommunication::instance()->getPublicSessionID();
+        tb << isPrivate;
         vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
     });
 
@@ -191,7 +220,11 @@ void coVRCollaboration::initCollMenu()
     m_syncInterval->setScale(ui::Slider::Logarithmic);
     m_syncInterval->setCallback([this](double value, bool moving){
         if (!moving)
+        {
             syncInterval = value;
+            getSyncInterval();
+        }
+
     });
 
     m_master = new ui::Button(m_collaborativeMenu, "Master");
@@ -199,8 +232,20 @@ void coVRCollaboration::initCollMenu()
     m_master->setEnabled(!isMaster() && m_visible);
     m_master->setCallback([this](bool state){
         if (state)
+        {
             coVRCommunication::instance()->becomeMaster();
+            updateSharedStates();
+        }
+
         m_master->setEnabled(!state && m_visible);
+        m_returnToMaster->setEnabled(!state && m_visible);
+    });
+
+    m_returnToMaster = new ui::Action(m_collaborativeMenu, "ReturnToMaster");
+    m_returnToMaster->setText("Return to master");
+    m_returnToMaster->setEnabled(false);
+    m_returnToMaster->setCallback([this](void) {
+        updateSharedStates(true);
     });
 
     m_partnerGroup = new ui::Group(m_collaborativeMenu, "Partners");
@@ -221,6 +266,7 @@ bool coVRCollaboration::updateCollaborativeMenu()
         oldMasterStatus = isMaster();
         m_master->setState(isMaster());
         m_master->setEnabled(!isMaster() && m_visible);
+        m_returnToMaster->setEnabled(!isMaster() && m_visible);
     }
     if (oldSyncInterval != syncInterval)
     {
@@ -238,8 +284,7 @@ bool coVRCollaboration::updateCollaborativeMenu()
     return changed;
 }
 
-bool
-coVRCollaboration::update()
+bool coVRCollaboration::update()
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "coVRCollaboration::update\n");
@@ -261,7 +306,6 @@ coVRCollaboration::update()
     if (syncScale)
     {
         static float last_dcs_scale_factor = 0.0;
-        static double lastUpdateTime = 0.0;
         const float scaleFactor = VRSceneGraph::instance()->scaleFactor();
         if (scaleFactor != last_dcs_scale_factor)
         {
@@ -270,7 +314,6 @@ coVRCollaboration::update()
         }
 
         if ((coVRCommunication::instance()->collaborative())
-            && (thisTime > lastUpdateTime + syncInterval)
             && (syncMode != LooseCoupling)
             && ((syncMode != MasterSlaveCoupling) || (isMaster())))
         {
@@ -286,13 +329,8 @@ coVRCollaboration::update()
             {
                 coVRCommunication::instance()->RILock(coVRCommunication::SCALE);
             }
-
-            char msg[500];
-            sprintf(msg, "%f", scaleFactor);
-            cover->sendBinMessage("SCALE_ALL", msg, strlen(msg) + 1);
-
+            this->scaleFactor = scaleFactor;
             syncScale = 0;
-            lastUpdateTime = thisTime;
         }
     }
     else
@@ -313,7 +351,6 @@ coVRCollaboration::update()
     {
         //      cerr << "syncXform locked:" << coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) << endl;
 
-        static double xlastUpdateTime = 0.0;
         if ((coVRCommunication::instance()->collaborative())
             && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
             && (syncMode != LooseCoupling)
@@ -325,23 +362,7 @@ coVRCollaboration::update()
             {
                 coVRCommunication::instance()->RILock(coVRCommunication::TRANSFORM);
             }
-
-            if ((thisTime > xlastUpdateTime + syncInterval))
-            {
-                //cerr << "TRANSFORM_ALL:" << endl;
-                osg::Matrix dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
-                // send new xform dcs mat to other COVERs
-                char msg[500];
-                sprintf(msg, "%f %f %f %f %f %f %f %f %f %f %f %f",
-                        dcs_mat(0, 0), dcs_mat(0, 1), dcs_mat(0, 2),
-                        dcs_mat(1, 0), dcs_mat(1, 1), dcs_mat(1, 2),
-                        dcs_mat(2, 0), dcs_mat(2, 1), dcs_mat(2, 2),
-                        dcs_mat(3, 0), dcs_mat(3, 1), dcs_mat(3, 2));
-                cover->sendBinMessage("TRANSFORM_ALL", msg, strlen(msg) + 1);
-
-                xlastUpdateTime = thisTime;
-                syncXform = false;
-            }
+            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
         }
     }
     else
@@ -366,7 +387,11 @@ coVRCollaboration::update()
 
         lastAvatarUpdateTime = thisTime;
     }
-
+    if (coVRCommunication::instance()->getPublicSessionID() == 0)
+    {
+        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+        scaleFactor = VRSceneGraph::instance()->scaleFactor();
+    }
     return changed;
 }
 
@@ -395,27 +420,6 @@ void coVRCollaboration::setSyncMode(const char *mode)
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRCollaboration::setSyncMode\n");
 
-    if (strcmp(mode, "LOOSE") == 0)
-    {
-        syncMode = LooseCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->show();
-    }
-    else if (strcmp(mode, "MS") == 0)
-    {
-        syncMode = MasterSlaveCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->hide();
-    }
-    else if (strcmp(mode, "TIGHT") == 0)
-    {
-        syncMode = TightCoupling;
-        if (m_collaborationMode)
-            m_collaborationMode->select(syncMode);
-        VRAvatarList::instance()->hide();
-    }
     else if (strcmp(mode, "SHOW_AVATAR") == 0)
     {
         VRAvatarList::instance()->show();
@@ -430,7 +434,7 @@ void coVRCollaboration::remoteTransform(osg::Matrix &mat)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRCollaboration::remoteTransform\n");
-    if (syncMode != LooseCoupling)
+    if (syncMode != LooseCoupling || coVRCommunication::instance()->getPublicSessionID() == 0)
     {
         VRSceneGraph::instance()->getTransform()->setMatrix(mat);
         coVRNavigationManager::instance()->adjustFloorHeight();
@@ -475,25 +479,102 @@ float coVRCollaboration::getSyncInterval()
     return syncInterval;
 }
 
-void opencover::coVRCollaboration::updateSessionSelectionList()
+void opencover::coVRCollaboration::updateSessionSelectionList(std::set<int> ses)
 {
-    m_sessions = coVRCommunication::instance()->getSessions();
-    std::vector<std::string> sessions;
+    m_sessions = ses;
+    std::vector<std::string> sessionNames;
+    sessionNames.push_back("Private");
     for (auto it = m_sessions.begin(); it != m_sessions.end(); ++it)
     {
-        sessions.push_back(std::to_string(*it));
+        sessionNames.push_back(std::to_string(*it));
     }
-    m_availableSessions->setList(sessions);
+    m_availableSessions->setList(sessionNames);
 }
 
 coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const
 {
-    return syncMode;
+    SyncMode s = LooseCoupling;
+    switch (syncMode)
+    {
+    case 0 :
+        s = LooseCoupling;
+        break;
+    case 1:
+        s = MasterSlaveCoupling;
+        break;
+    case 2:
+        s = TightCoupling;
+        break;
+    default:
+        break;
+    }
+    return s;
 }
 
 bool coVRCollaboration::isMaster()
 {
     return coVRCommunication::instance()->isMaster();
+}
+
+void coVRCollaboration::setCurrentSession(int id)
+{
+   
+    auto it = m_sessions.begin();
+    std::vector<std::string> sessionNames;
+    sessionNames.push_back("Private");
+    int index = 0;
+    for (int i = 0; i < m_sessions.size(); ++i)
+    {
+        sessionNames.push_back(std::to_string(*it));
+        if (*it == id)
+        {
+            index = i+1;
+        }
+        ++it;
+    }
+    m_availableSessions->setList(sessionNames);
+    m_availableSessions->select(index);
+
+}
+
+void coVRCollaboration::updateSharedStates(bool force) {
+    
+    int privateSessionID = coVRCommunication::instance()->getPrivateSessionID();
+    int publicSessionID = coVRCommunication::instance()->getPublicSessionID();
+    if (publicSessionID == 0)
+    {
+        publicSessionID = privateSessionID;
+    }
+    int useCouplingModeSessionID;
+    int sessionToSubscribe = publicSessionID;;
+
+    switch (syncMode)
+    {
+    case opencover::coVRCollaboration::LooseCoupling:
+        useCouplingModeSessionID = publicSessionID;
+        break;
+    case opencover::coVRCollaboration::MasterSlaveCoupling:
+        if (isMaster())
+        {
+            useCouplingModeSessionID = publicSessionID;
+            sessionToSubscribe = privateSessionID;
+        }
+        else
+        {
+            useCouplingModeSessionID = privateSessionID;
+        }
+        break;
+    case opencover::coVRCollaboration::TightCoupling:
+        useCouplingModeSessionID = publicSessionID;
+        break;
+    default:
+        break;
+    }
+    if (publicSessionID == 0) //send to private if not in public session
+    {
+        publicSessionID = privateSessionID;
+    }
+    SharedStateManager::instance()->update(privateSessionID, publicSessionID, useCouplingModeSessionID, sessionToSubscribe, force);
 }
 
 ui::Menu *coVRCollaboration::menu() const
@@ -505,3 +586,52 @@ ui::Group *coVRCollaboration::partnerGroup() const
 {
     return m_partnerGroup;
 }
+
+void coVRCollaboration::syncModeChanged(int mode) {
+    switch (mode) {
+    case LooseCoupling:
+        VRAvatarList::instance()->show();
+        m_returnToMaster->setEnabled(false);
+        break;
+    case MasterSlaveCoupling:
+        VRAvatarList::instance()->hide();
+        m_returnToMaster->setEnabled(true);
+        SyncXform();
+        SyncScale();
+        break;
+    case TightCoupling:
+        VRAvatarList::instance()->hide();
+        SyncXform();
+        SyncScale();
+        m_returnToMaster->setEnabled(false);
+        break;
+
+    }
+    updateSharedStates();
+}
+void coVRCollaboration::setSyncInterval() 
+{
+    scaleFactor.setSyncInterval(syncInterval);
+    avatarPosition.setSyncInterval(syncInterval);
+
+}
+namespace vrb {
+template <>
+void serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value) {
+    tb << value(0, 0);  tb << value(0, 1); tb << value(0, 2);
+    tb << value(1, 0);  tb << value(1, 1); tb << value(1, 2);
+    tb << value(2, 0);  tb << value(2, 1); tb << value(2, 2);
+    tb << value(3, 0);  tb << value(3, 1); tb << value(3, 2);
+
+}
+template<>
+void deserialize<osg::Matrix>(covise::TokenBuffer &tb, osg::Matrix &value) {
+    tb >> value(0, 0); tb >> value(0, 1); tb >> value(0, 2);
+    tb >> value(1, 0); tb >> value(1, 1); tb >> value(1, 2);
+    tb >> value(2, 0); tb >> value(2, 1); tb >> value(2, 2);
+    tb >> value(3, 0); tb >> value(3, 1); tb >> value(3, 2);
+
+}
+}
+
+

@@ -14,89 +14,52 @@
 
 
 using namespace covise;
-
-VrbServerRegistry *VrbServerRegistry::instance = NULL;
-
-VrbServerRegistry::VrbServerRegistry()
+namespace vrb
 {
-    assert(!instance);
-    instance = this;
+VrbServerRegistry::VrbServerRegistry(int session)
+    :sessionID(session)
+{
 }
 
 VrbServerRegistry::~VrbServerRegistry()
 {
-    // delete entry list including all entries!
-    assert(instance == this);
-    instance = NULL;
 }
 
-std::map<int, std::shared_ptr<serverRegClass>> VrbServerRegistry::getClasses(const std::string &name)
+serverRegClass *VrbServerRegistry::getClass(const std::string & name)
 {
-    std::map<int, std::shared_ptr<serverRegClass>> clientsClass;
-    for (size_t i = 0; i < clients.num(); i++)
-    {
-        int id = clients.item(i)->getID();
-        if (clientsClasses[id].find(name) == clientsClasses[id].end())
-        {
-            continue;
-        }
-        clientsClass[id] = clientsClasses[id][name];
-    }
-    return clientsClass;
-}
 
-serverRegClass *VrbServerRegistry::getClass(int ID, const std::string & name)
-{
-    if (clientsClasses.find(ID) == clientsClasses.end())//to check if there is a id 0 class and if so copy their observers
+    auto cl = myClasses.find(name);
+    if (cl == myClasses.end())
     {
         return nullptr;
     }
-    if (clientsClasses[ID].find(name) == clientsClasses[ID].end())
-    {
-        return nullptr;
-    }
-    return clientsClasses[ID][name].get();
+    return cl->second.get();
 }
 /// set a Value or create new Entry
-void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, int senderID, bool s)
+void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
-    serverRegClass *rc = getClass(ID, className);
+
+    serverRegClass *rc = getClass(className);
     if (!rc)
     {
-        serverRegClass *grc = getClass(0, className);
         rc = new serverRegClass(className, ID);
-        clientsClasses[ID][className].reset(rc);
-        if (grc)
-        {
-            // we have a generic observer for this class name, copy observers
-            for (const auto client : grc->observers)
-            {
-                rc->observers.insert(client);
-            }
-        }
+        myClasses[className].reset(rc);
+
     }
+    rc->setID(ID);
     serverRegVar *rv = rc->getVar(name);
-    auto cl = currentVariables.find(className);
     if (rv)
     {
         rv->setValue(value);
-        rv->setLastEditor(senderID);
     }
-    else 
+    else
     {
         rv = new serverRegVar(rc, name, value);
         rc->append(rv);
-        rv->setLastEditor(senderID);
     }
 
     //call observers
     std::set<int> collectiveObservers = *rc->getOList();
-    auto &client = clientsClasses[0];
-    auto clx = client.find(className);
-    if (clx != client.end())
-    {
-        collectiveObservers.insert(clx->second->getOList()->begin(), clx->second->getOList()->end());
-    }
     collectiveObservers.insert(rv->getOList()->begin(), rv->getOList()->end());
     sendVariableChange(rv, collectiveObservers);
     updateUI(rv);
@@ -111,7 +74,7 @@ void VrbServerRegistry::updateUI(serverRegVar *rv)
 /// create new Entry
 void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
-    serverRegClass *rc = getClass(ID, className);
+    serverRegClass *rc = getClass(className);
     if (rc)
     {
         serverRegVar *rv = rc->getVar(name);
@@ -125,7 +88,7 @@ void VrbServerRegistry::create(int ID, const std::string &className, const std::
 /// get a boolean Variable
 int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::string &name, int def)
 {
-    serverRegClass *rc = getClass(ID, className);
+    serverRegClass *rc = getClass(className);
     if (rc)
     {
         serverRegVar *rv = rc->getVar(name);
@@ -141,38 +104,32 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
     return def;
 }
 
-void VrbServerRegistry::deleteEntry(int ID, const std::string &className, const std::string &name)
+void VrbServerRegistry::setOwner(int id)
 {
-    if (currentVariables[className][name] == ID) //dont delete the entry if it is the current one *FIXME: delete it when sb else becomes current
+    if (id < 0)
     {
-        return;
+        owner = id;
     }
-    clientsClasses[ID][className]->deleteVar(name);
-
 }
 
-void VrbServerRegistry::deleteEntry(int modID)
+int VrbServerRegistry::getOwner()
 {
-    if (!modID)
-    {
-        return;
-    }
-    for (const auto cl : clientsClasses[modID])
+    return owner;
+}
+
+void VrbServerRegistry::deleteEntry(const std::string &className, const std::string &name)
+{
+    myClasses[className]->deleteVar(name);
+}
+
+void VrbServerRegistry::deleteEntry()
+{
+    for (const auto cl : myClasses)
     {
         cl.second->deleteAllNonStaticVars();
     }
 }
 
-void VrbServerRegistry::unObserve(int recvID)
-{
-    for (const auto client : clientsClasses)
-    {
-        for (const auto cl : client.second)
-        {
-            cl.second->unObserve(recvID);
-        }
-    }
-}
 
 void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> observers)
 {
@@ -192,87 +149,44 @@ void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> obse
     }
 }
 
-void VrbServerRegistry::observeVar(int ID, const std::string &className, int recvID, const std::string &variableName, covise::TokenBuffer &value)
+void VrbServerRegistry::observe(int sender)
 {
-    if (ID == 0) //observe all clients class with className
+    for (auto cl : myClasses)
     {
-        for (auto it = clientsClasses.begin();
-            it != clientsClasses.end(); ++it)
-        {
-            auto found = it->second.find(className);
-            if (found != it->second.end())
-            {
-                found->second->observeVar(recvID, variableName, value);
-            }
-        }
-        return;
+        cl.second->observeAllVars(sender);
     }
-
-    auto idIt = clientsClasses.find(ID);
-    if (idIt == clientsClasses.end())
-    {
-        idIt = clientsClasses.emplace(ID, std::map<const std::string, std::shared_ptr<serverRegClass>>()).first;
-    }
-    auto classIt = idIt->second.find(className);
-    if(classIt == idIt->second.end()) //if class does not exists create it
-    {
-        auto rc = std::make_shared<serverRegClass>(className, ID);
-        classIt = idIt->second.emplace(className, rc).first;
-    }
-    classIt->second->observeVar(recvID, variableName, value);
 }
 
-void VrbServerRegistry::observeClass(int ID, const std::string &className, int recvID)
+void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value)
 {
-    if (ID == 0) //observe all clients class with className
-    {
-        for (auto it = clientsClasses.begin();
-            it != clientsClasses.end(); ++it)
-        {
-            auto found = it->second.find(className);
-            if (found != it->second.end())
-            {
-                found->second->observe(recvID);
-            }
-        }
-        return;
-    }
-
-    auto idIt = clientsClasses.find(ID);
-    if (idIt == clientsClasses.end())
-    {
-        idIt = clientsClasses.emplace(ID, std::map<const std::string, std::shared_ptr<serverRegClass>>()).first;
-    }
-    auto classIt = idIt->second.find(className);
-    if (classIt == idIt->second.end()) //if class does not exists create it
+    auto classIt = myClasses.find(className);
+    if (classIt == myClasses.end()) //if class does not exists create it
     {
         auto rc = std::make_shared<serverRegClass>(className, ID);
-        classIt = idIt->second.emplace(className, rc).first;
+        classIt = myClasses.emplace(className, rc).first;
     }
-    classIt->second->observe(recvID);
+    classIt->second->observeVar(ID, variableName, value);
 }
 
-void VrbServerRegistry::unObserve(int ID, const std::string &className, int recvID, const std::string &variableName)
+void VrbServerRegistry::observeClass(int ID, const std::string &className)
 {
-    if (className.empty())
+    auto classIt = myClasses.find(className);
+    if (classIt == myClasses.end()) //if class does not exists create it
     {
-        return;
+        auto rc = std::make_shared<serverRegClass>(className, ID);
+        classIt = myClasses.emplace(className, rc).first;
     }
-    int foundOne = 0;
-    if (ID == 0)
+    classIt->second->observe(ID);
+}
+///unobserve a single variable
+void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const std::string &variableName)
+{
+    auto classIt = myClasses.find(className);
+    if (classIt != myClasses.end())
     {
-        for (auto it = clientsClasses.begin(); it != clientsClasses.end(); ++it)
-        {
-            auto cl = it->second.find(className);
-            if (cl != it->second.end())
-            {
-                cl->second->unObserveVar(recvID, variableName);
-                foundOne = true;
-            }
-        }
+        classIt->second->unObserveVar(ID, variableName);
     }
-    clientsClasses[ID][className]->unObserveVar(recvID, variableName);
-    if (!foundOne)
+    else
     {
         if (!variableName.empty())
             std::cerr << "Variable " << variableName << " not found in class " << className << " ID: " << ID << std::endl;
@@ -280,7 +194,28 @@ void VrbServerRegistry::unObserve(int ID, const std::string &className, int recv
             std::cerr << "Class " << className << " ID: " << ID << " not found" << std::endl;
     }
 }
+///unobserve a class and all its variables
+void VrbServerRegistry::unObserveClass(int ID, const std::string &className)
+{
+    auto classIt = myClasses.find(className);
+    if (classIt != myClasses.end())
+    {
+        classIt->second->unObserve(ID);
+    }
+}
+///observer "recvID" gets removed from all classes and variables
+void VrbServerRegistry::unObserve(int recvID)
+{
+    for (const auto cl : myClasses)
+    {
+        cl.second->unObserve(recvID);
+    }
+}
 
+std::shared_ptr<serverRegClass> VrbServerRegistry::createClass(const std::string &name, int id)
+{
+    return std::shared_ptr<serverRegClass>(new serverRegClass(name, id));
+}
 /////////////SERVERREGVAR/////////////////////////////////////////////////
 serverRegVar::~serverRegVar()
 {
@@ -293,7 +228,6 @@ void serverRegVar::update(int recvID)
     sb << myClass->getID();
     sb << myClass->getName();
     sb << getName();
-
     sb << getValue();
     clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }
@@ -306,11 +240,10 @@ void serverRegVar::informDeleteObservers()
     sb << getClass()->getName();
     sb << getName();
     sb << getValue();
-    std::set<int> combinedObservers;
-    combinedObservers = observers;
-    for (const int obs : getClass()->observers)
+    std::set<int> combinedObservers = observers;
+    if (getClass()->getOList()->size()!= 0)
     {
-        combinedObservers.insert(obs);
+        combinedObservers.insert(getClass()->getOList()->begin(), getClass()->getOList()->end());
     }
     for (const int obs : combinedObservers)
     {
@@ -318,24 +251,26 @@ void serverRegVar::informDeleteObservers()
     }
 }
 
-void serverRegVar::setLastEditor(int id)
-{
-    lastEditor = id;
-}
-
-int serverRegVar::getLastEditor()
-{
-    return lastEditor;
-}
 
 /////////////SERVERREGCLASS/////////////////////////////////////////////////
+void serverRegClass::observeAllVars(int sender)
+{
+    if (myVariables.size() == 0)
+    {
+        observe(sender);
+    }
+    else
+    {
+        for (auto var : myVariables)
+        {
+            var.second->observe(sender);
+        }
+    }
+}
+
 void serverRegClass::observe(int recvID)
 {
     observers.insert(recvID);
-    for (const auto var : myVariables)
-    {
-        var.second->observe(recvID);
-    }
 }
 
 void serverRegClass::observeVar(int recvID, const std::string &variableName, covise::TokenBuffer &value)
@@ -358,6 +293,7 @@ void serverRegClass::unObserveVar(int recvID, const std::string &variableName)
         rv->unObserve(recvID);
     }
 }
+
 void serverRegClass::unObserve(int recvID)
 {
     observers.erase(recvID);
@@ -366,4 +302,9 @@ void serverRegClass::unObserve(int recvID)
         var.second->unObserve(recvID);
     }
 }
-   
+
+std::shared_ptr<serverRegVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+{
+    return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
+}
+}

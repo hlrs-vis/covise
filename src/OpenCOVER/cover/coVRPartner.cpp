@@ -25,6 +25,7 @@
 #include "ui/CollaborativePartner.h"
 #include "ui/ButtonGroup.h"
 #include "ui/Group.h"
+#include <vrbclient/VrbClientRegistry.h>
 
 using namespace opencover;
 using covise::coCoviseConfig;
@@ -72,7 +73,18 @@ void coVRPartner::setID(int id)
 
 void opencover::coVRPartner::setSessionID(int id)
 {
-    m_sessionID = id;
+    int oldSession = m_publicSessionID;
+    if (id < 0)
+    {
+        m_privateSessionID = id;
+    }
+    else
+    {
+        m_publicSessionID = id;
+        vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
+        coVRCollaboration::instance()->setCurrentSession(id);
+    }
+    coVRCollaboration::instance()->updateSharedStates();
 }
 
 void coVRPartner::setFile(const char *fileName)
@@ -229,9 +241,14 @@ int coVRPartner::getID() const
     return m_id;
 }
 
-int opencover::coVRPartner::getSessionID() const
+int opencover::coVRPartner::getPrivateSessionID() const
 {
-    return m_sessionID;
+    return m_privateSessionID;
+}
+
+int opencover::coVRPartner::getPublicSessionID() const
+{
+    return m_publicSessionID;
 }
 
 void opencover::coVRPartner::setSessions(std::set<int> ses)

@@ -60,6 +60,7 @@
 #include <osgGA/GUIActionAdapter>
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
+#include <vrbclient/SharedStateManager.h>
 
 #include "coVRAnimationManager.h"
 #include "coVRCollaboration.h"
@@ -83,13 +84,13 @@
 
 #include <input/input.h>
 #include <input/coMousePointer.h>
-
 #include "ui/VruiView.h"
 #include "ui/TabletView.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/Manager.h"
+
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -310,6 +311,20 @@ bool OpenCOVER::init()
 	}
 #endif
 
+    std::string startCommand = coCoviseConfig::getEntry("COVER.StartCommand");
+    if (!startCommand.empty())
+    {
+        int ret = system(startCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.StartCommand " << startCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
+
     m_visPlugin = NULL;
     Socket::initialize();
     s_instance = this;
@@ -421,6 +436,7 @@ bool OpenCOVER::init()
 
     coVRConfig::instance()->collaborativeOptionsFile = collaborativeOptionsFile;
     coVRConfig::instance()->viewpointsFile = viewpointsFile;
+    coVRConfig::instance()->m_stereoState = coVRMSController::instance()->allReduceOr(coVRConfig::instance()->m_stereoState);
 
 #ifdef _OPENMP
     std::string openmpThreads = coCoviseConfig::getEntry("value", "COVER.OMPThreads", "default");
@@ -531,6 +547,8 @@ bool OpenCOVER::init()
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
     cover = new coVRPluginSupport();
+    coVRCommunication::instance();
+    cover->initUI();
     if (cover->debugLevel(2))
     {
         fprintf(stderr, "\nnew OpenCOVER\n");
@@ -558,6 +576,7 @@ bool OpenCOVER::init()
 
     cover->updateTime();
 
+   
     coVRPluginList::instance();
 
 	Input::instance()->init();
@@ -639,21 +658,7 @@ bool OpenCOVER::init()
     }
 
 
-    if (coVRMSController::instance()->isMaster())
-    {
-        coVRMSController::SlaveData sd(sizeof(haveWindows));
-        coVRMSController::instance()->readSlaves(&sd);
-        for (size_t i=0; i<coVRMSController::instance()->getNumSlaves(); ++i)
-        {
-            if (!*(bool*)sd.data[i])
-                haveWindows = false;
-        }
-    }
-    else
-    {
-        coVRMSController::instance()->sendMaster(&haveWindows, sizeof(haveWindows));
-    }
-    haveWindows = coVRMSController::instance()->syncBool(haveWindows);
+    haveWindows = coVRMSController::instance()->allReduceOr(haveWindows);
     if (!haveWindows)
         return false;
 
@@ -1079,18 +1084,34 @@ bool OpenCOVER::frame()
     VRSceneGraph::instance()->update();
     if (coVRCollaboration::instance()->update())
     {
+        
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of collaborative action" << std::endl;
         render = true;
     }
-
-    // update viewer position and channels
-    if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+    if (vrb::SharedStateManager::instance())
     {
-        if (cover->debugLevel(4))
-            std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
-        render = true;
-        VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        vrb::SharedStateManager::instance()->frame(cover->frameTime());
+    }
+    // update viewer position and channels
+    if (cover->isViewerGrabbed())
+    {
+        if (coVRPluginList::instance()->viewerGrabber()->updateViewer())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of plugin updated viewer" << std::endl;
+            render = true;
+        }
+    }
+    else
+    {
+        if (Input::instance()->hasHead() && Input::instance()->isHeadValid())
+        {
+            if (cover->debugLevel(4))
+                std::cerr << "OpenCOVER::frame: rendering because of head tracking" << std::endl;
+            render = true;
+            VRViewer::instance()->updateViewerMat(Input::instance()->getHeadMat());
+        }
     }
     if (VRViewer::instance()->update())
     {
@@ -1203,6 +1224,7 @@ bool OpenCOVER::frame()
 
     if (frameNum > 2)
     {
+        double beginPreFrameTime = VRViewer::instance()->elapsedTime();
 
         // call preFrame for all plugins
         coVRPluginList::instance()->preFrame();
@@ -1214,6 +1236,10 @@ bool OpenCOVER::frame()
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin begin time", beginPluginTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin end time", endTime);
             VRViewer::instance()->getViewerStats()->setAttribute(fn, "Plugin time taken", endTime - beginPluginTime);
+
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe begin time", beginPreFrameTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe end time", endTime);
+            VRViewer::instance()->getViewerStats()->setAttribute(fn, "preframe time taken", endTime - beginPreFrameTime);
         }
     }
     ARToolKit::instance()->update();
@@ -1258,6 +1284,8 @@ bool OpenCOVER::frame()
         cover->setCursorVisible(false);
     }
 
+    coVRShaderList::instance()->update();
+
     if (coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
@@ -1274,7 +1302,6 @@ bool OpenCOVER::frame()
         VRViewer::instance()->getViewerStats()->setAttribute(fn, "opencover time taken", endAppTraversal - beginAppTraversal);
         // update current frames stats
     }
-    coVRShaderList::instance()->update();
     VRViewer::instance()->frame();
     beginAppTraversal = VRViewer::instance()->elapsedTime();
     if (frameNum > 2)
@@ -1297,6 +1324,19 @@ void OpenCOVER::doneRendering()
 
 OpenCOVER::~OpenCOVER()
 {
+    std::string exitCommand = coCoviseConfig::getEntry("COVER.ExitCommand");
+    if (!exitCommand.empty())
+    {
+        int ret = system(exitCommand.c_str());
+        if (ret == -1)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " failed: " << strerror(errno) << std::endl;
+        }
+        else if (ret > 0)
+        {
+            std::cerr << "COVER.ExitCommand " << exitCommand << " returned exit code  " << ret << std::endl;
+        }
+    }
 
     if (cover->debugLevel(2))
     {

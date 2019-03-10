@@ -13,8 +13,16 @@
 #include <set>
 #include <memory>
 #include <util/coExport.h>
+#include <fstream>
 
 class coCharBuffer;
+namespace covise
+{
+class VRBClient;
+}
+
+namespace vrb
+{
 class clientRegClass;
 class clientRegVar;
 class serverRegVar;
@@ -23,14 +31,10 @@ class regClassObserver;
 class regVarObserver;
 class VrbClientRegistry;
 
-namespace covise {
-class VRBClient;
-}
-
 template<class variableType>
 class regClass
 {
-  public:
+public:
     typedef std::map<const std::string, std::shared_ptr<variableType>> VariableMap;
     regClass<variableType>(const std::string &n, int ID)
         : name(n)
@@ -42,6 +46,10 @@ class regClass
     int getID()
     {
         return (classID);
+    }
+    void setID(int id)
+    {
+        classID = id;
     }
     const std::string &getName()
     {
@@ -95,16 +103,50 @@ class regClass
             var.second->setDeleted(isdeleted);
         }
     }
-    /**
-       * add this Class to Script
-       */
-    void saveNetwork(coCharBuffer &cb);
+    ///write the classname and all variables in a .vrbreg file
+    void writeClass(std::ofstream &file) {
+        file << name;
+        file << "\n";
+        file << "{";
+        file << "\n";
+        for (const auto var : myVariables)
+        {
+            var.second->writeVar(file);
+            file << "\n";
+        }
+        file << "}";
+
+    }
+    ///reads the name and value out of stream, return false if class has no variable
+    void readVar(std::ifstream &file)
+    {
+
+        while (true)
+        {
+            std::string varName = "invalid";
+            int valueSize = -1;
+            file >> varName;
+            if (varName == "}")
+            {
+                return;
+            }
+            varName.pop_back();
+            file >> valueSize;
+            char *value = new char[valueSize];
+            file.read(value, valueSize);
+            covise::TokenBuffer tb(value, valueSize);
+            myVariables[varName] = createVar(varName, std::move(tb));
+            delete[] value; //createVar did copy the tokenbuffer
+        }
+
+    };
+    virtual std::shared_ptr<variableType> createVar(const std::string &name, covise::TokenBuffer &&value) = 0;
     ~regClass()
     {
     };
 protected:
     std::string name;
-    int classID;
+    int classID = -1;
     bool isDel;
     VariableMap myVariables;
 };
@@ -168,8 +210,13 @@ public:
     {
         isDel = isdeleted;
     }
-
-    //void saveNetwork(coCharBuffer &cb);
+    void writeVar(std::ofstream &file) 
+    {
+        file << "    " << name << "; ";
+        int length = value.get_length();
+        file << length;
+        file.write(value.get_data(), value.get_length());
+    }
 };
 
 
@@ -196,14 +243,15 @@ public:
     }
     void setLastEditor(int lastEditor);
     void notifyLocalObserver();
-    void resubscribe(int oldID);
-    void subscribe(regClassObserver *obs, int id);
+    void resubscribe(int sessionID);
+    void subscribe(regClassObserver *obs, int sessionID);
     covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
+    std::shared_ptr<clientRegVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
 };
 class VRBEXPORT clientRegVar : public regVar<clientRegClass>
 {
-private :
+private:
     regVarObserver *_observer;
     int lastEditor;
 public:
@@ -214,8 +262,8 @@ public:
         return _observer;
     }
     void notifyLocalObserver();
-    void subscribe(regVarObserver *ob, int id);
-    
+    void subscribe(regVarObserver *ob, int sessionID);
+
     //void attach(regVarObserver *ob)
     //{
     //    _observer = ob;
@@ -243,5 +291,5 @@ class VRBEXPORT regVarObserver
 public:
     virtual void update(clientRegVar *theChangedVar) = 0;
 };
-
+}
 #endif

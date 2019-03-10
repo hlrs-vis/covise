@@ -23,7 +23,7 @@
 
 #include "FileInfo.h"
 #include <string>
-#include <cover/SharedState.h>
+#include <vrbclient/SharedState.h>
 namespace opencover {
 namespace ui {
 class Element;
@@ -78,7 +78,7 @@ private:
     bool intColor;
     bool polar;
     //float pointSizeValue;
-	SharedState<float> pointSizeValue;
+	vrb::SharedState<float> pointSizeValue;
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;

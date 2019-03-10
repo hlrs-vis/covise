@@ -121,7 +121,7 @@ protected:
         if (m_iterators.empty())
             return;
         typename std::list<coDLListSafeIter<T> *>::iterator iter;
-        LOGWARNING("Invalidating iterators !!! (%d iterators attached)", m_iterators.size());
+        LOGWARNING("Invalidating iterators !!! (%zd iterators attached)", m_iterators.size());
         for (iter = m_iterators.begin(); iter != m_iterators.end(); iter++)
         {
             (*iter)->d_actElem = NULL;
@@ -139,7 +139,7 @@ protected:
             {
                 if (m_iterators.size() > 1) // no warning if there is only one iterator
                 {
-                    LOGWARNING("Adjusting iterators in list 0x%x!", this);
+                    LOGWARNING("Adjusting iterators in list 0x%p!", this);
                 }
                 (*iter)->backstep();
             }

@@ -706,9 +706,17 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     if (isRoot)
     {
         //if file does not exist, add it to the shared filePaths list
-        if (m_files.find(fileName) == m_files.end())
+        std::vector<std::string> v = filePaths;
+        bool found = false;
+        for (const auto path : v)
         {
-            std::vector<std::string> v = filePaths;
+            if (!strcmp(path.c_str(), fileName))
+            {
+                found = true;
+            }
+        }
+        if (!found)
+        {
             v.push_back(fileName);
             filePaths = v;
         }
@@ -909,7 +917,7 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , filePaths("coVRFileManager_filePaths")
+    , filePaths("coVRFileManager_filePaths", std::vector<std::string>(), vrb::ALWAYS_SHARE)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call

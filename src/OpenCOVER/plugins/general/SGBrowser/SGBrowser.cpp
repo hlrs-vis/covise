@@ -1543,7 +1543,7 @@ void SGBrowser::message(int toWhom, int type, int len, const void *buf)
             //getProperties(propNode);
             Geode *geode = dynamic_cast<Geode *>(propNode);
             StateSet *stateset = NULL;
-            if (geode)
+            if (geode && geode->getNumDrawables()>0)
             {
                 Drawable *drawable = geode->getDrawable(0);
                 if (drawable)

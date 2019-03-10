@@ -7,12 +7,15 @@
   <COVER>
    <NumScreens value="0" />
    <NumWindows value="0" />
+   <StartCommand value="nvidia-smi -ac 4513,1657" />
+   <ExitCommand value="nvidia-smi -rac" />
   </COVER>
  </GLOBAL>
 
  <CLUSTER MASTER="viscluster50">
 
    <COVER>
+     <Stats leftPos="135.0" />
      
      <DebugTUI value="true" />
      <!--Background r="1" g="1" b="1" /-->
@@ -201,9 +204,9 @@
    <AnisotropicFiltering value="0" />
    <Plugin>
     <COVERScript value="off"/>
-    <Revit value="on" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
+    <Revit menu="on" textures="/data/revit/Textures" localTextures="/data/revit/Textures">
     </Revit>
-    <TrackObjects value="on">
+    <TrackObjects menu="on" value="off" >
 	    <Objects>
            <Object name="Capper" x="-7800" y="-5300" z="-940"  h="90" p="0" r="0"/>
            <Object name="Pumpe" x="400" y="960" z="-940"  h="0" p="0" r="0"/>
@@ -301,7 +304,7 @@
  <LOCAL HOST="viscluster50" >
   <COVER>
    <ScreenConfig>
-    <Screen width="2700" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
+    <Screen width="4800" comment="FRONT" h="0.0" originX="0" originY="1350" originZ="0" height="2700" p="0.0" r="0.0" name="0" screen="0" />
    </ScreenConfig>
   </COVER>
  </LOCAL>
@@ -369,7 +372,7 @@
  <LOCAL HOST="viscluster52,viscluster53,viscluster55,viscluster56,viscluster57,viscluster59" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" swapGroup="1" swapBarrier="1" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -377,7 +380,7 @@
  <LOCAL HOST="viscluster51,visent,visent.hlrs.de,viscluster54,viscluster55,viscluster56,viscluster58,viscluster60" >
   <COVER>
    <WindowConfig>
-   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" VisualID="0x23" swapGroup="0" swapBarrier="0" />
+   <Window ARCH="x11" type="" width="2560" comment="MAIN" window="0" pipeIndex="0" height="1600" left="0" top="0" name="0" decoration="false" swapGroup="1" swapBarrier="1" />
    </WindowConfig>
   </COVER>
  </LOCAL>
@@ -459,7 +462,7 @@
   <COVER>
    <Snap value="ON" />
    <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
-   <SyncToVBlank value="ON" device="DFP-3"/>
+   <SyncToVBlank value="OFF" device="DFP-3"/>
    <WriteVrmlViewpoint value="ON" />
    <Crease value="OFF" />
    <TwoSide value="ON" />

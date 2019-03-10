@@ -289,7 +289,7 @@ int VRBClient::connectToServer()
         return 0;
     if (serverHost == NULL)
         return 0;
-    sConn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0);
+    sConn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0, 1.0);
     if (!sConn->is_connected()) // could not open server port
     {
         fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);

@@ -95,6 +95,25 @@ bool coVRPluginSupport::debugLevel(int level) const
     return coVRConfig::instance()->debugLevel(level);
 }
 
+void coVRPluginSupport::initUI()
+{
+    fileMenu = new ui::Menu("File", ui);
+    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
+    viewOptionsMenu->setText("View options");
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released) {
+        interactorScale = value;
+    });
+
+    ui->init();
+}
+
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
 {
     std::ostream *str = m_notifyStream[0];
@@ -819,20 +838,7 @@ coVRPluginSupport::coVRPluginSupport()
     new VRVruiRenderInterface();
 
     ui = new ui::Manager();
-    fileMenu = new ui::Menu("File", ui);
-    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
-    viewOptionsMenu->setText("View options");
-    ui->init();
 
-    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
-    interactorScaleSlider->setText("Interactor scale");
-    interactorScaleSlider->setVisible(false, ui::View::VR);
-    interactorScaleSlider->setBounds(0.01, 100.);
-    interactorScaleSlider->setValue(1.);
-    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
-    interactorScaleSlider->setCallback([this](double value, bool released){
-        interactorScale = value;
-    });
 
     for (int level=0; level<Notify::Fatal; ++level)
     {
@@ -939,6 +945,30 @@ bool coVRPluginSupport::grabKeyboard(coVRPlugin *plugin)
     }
     coVRPluginList::instance()->grabKeyboard(plugin);
     return true;
+}
+
+bool coVRPluginSupport::grabViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber()
+        && coVRPluginList::instance()->viewerGrabber() != plugin)
+    {
+        return false;
+    }
+    coVRPluginList::instance()->grabViewer(plugin);
+    return true;
+}
+
+void coVRPluginSupport::releaseViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber() == plugin)
+    {
+        coVRPluginList::instance()->grabViewer(NULL);
+    }
+}
+
+bool coVRPluginSupport::isViewerGrabbed() const
+{
+    return (coVRPluginList::instance()->viewerGrabber() != NULL);
 }
 
 // get the active cursor number
@@ -1245,13 +1275,12 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
     if (this->player != player)
         return -1;
 
-    for (list<void (*)()>::const_iterator it = playerUseList.begin();
-         it != playerUseList.end();
-         it++)
+    for (auto cb: playerUseList)
     {
-        if (*it)
-            (*it)();
+        if (cb)
+            cb();
     }
+
     player = NULL;
 
     return 0;
@@ -1259,23 +1288,22 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
 
 vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
-    if (it != playerUseList.end())
-        return NULL;
+    if (!this->player)
+    {
+        cover->addPlugin("Vrml97");
+    }
 
-    playerUseList.push_back(playerUnavailableCB);
+    playerUseList.emplace(playerUnavailableCB);
     return this->player;
 }
 
 int coVRPluginSupport::unusePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
+    auto it = playerUseList.find(playerUnavailableCB);
     if (it == playerUseList.end())
         return -1;
 
-    playerUseList.remove(playerUnavailableCB);
+    playerUseList.erase(it);
     return 0;
 }
 

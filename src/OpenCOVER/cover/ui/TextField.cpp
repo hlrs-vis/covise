@@ -1,7 +1,7 @@
 #include "TextField.h"
 #include "Manager.h"
 #include <net/tokenbuffer.h>
-#include "../SharedState.h"
+#include <vrbclient/SharedState.h>
 
 #include <sstream>
 #include <cstdlib>

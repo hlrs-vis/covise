@@ -17,6 +17,7 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 #include <osg/ShapeDrawable>
 
@@ -26,6 +27,16 @@
 #include <random>
 #include <TrafficSimulation/AgentVehicle.h>
 #include <TrafficSimulation/PedestrianFactory.h>
+
+namespace opencover
+{
+namespace ui {
+class Slider;
+class Label;
+class Action;
+class Button;
+}
+}
 
 using namespace opencover;
 
@@ -47,7 +58,16 @@ struct pedestrianModel
 
 pedestrianModel::pedestrianModel(std::string n, double s) : fileName(n), scale(s) {}
 
-class SumoTraCI : public opencover::coVRPlugin
+struct vehicleModel
+{
+    std::string vehicleName;
+    std::string fileName;
+    vehicleModel(std::string, std::string);
+};
+
+vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
+
+class SumoTraCI : public opencover::coVRPlugin , public ui::Owner
 {
 public:
     SumoTraCI();
@@ -58,6 +78,15 @@ public:
 
 private:
 	TraCIAPI client;
+
+    bool initUI();
+    ui::Menu *traciMenu;
+	ui::Button *pedestriansVisible;
+	ui::Button *pauseUI;
+	
+    bool m_pedestrianVisible = true;
+    void setPedestriansVisible(bool);
+
     libsumo::SubscriptionResults simResults;
     libsumo::SubscriptionResults pedestrianSimResults;
 	std::vector<simData> currentResults;
@@ -79,9 +108,17 @@ private:
     std::vector<pedestrianModel> pedestrianModels;
     void getPedestriansFromConfig();
 
-	double simTime;
-	double nextSimTime;
-	double currentTime;
+    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle"};
+    std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
+
+    void getVehiclesFromConfig();
+    void loadAllVehicles();
+
+    double simTime;
+    double nextSimTime;
+    double previousTime;
+    double currentTime;
+    double framedt;
 	std::vector<int> variables;
 	std::map<const std::string, AgentVehicle *> loadedVehicles;
 

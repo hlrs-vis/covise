@@ -21,37 +21,27 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
-#include <vrbclient/regClass.h>
+#include "regClass.h"
+#include "ShareStateSerializer.h"
+
+
+
+namespace vrb
+{
 
 class clientRegVar;
-namespace opencover {
 
-///convert the value to a TokenBuffer
-template<class T>
-void serialize(covise::TokenBuffer &tb, const T &value)
+enum SharedStateType
 {
-    tb << value;
-}
+    USE_COUPLING_MODE, //0
+    NEVER_SHARE, //1
+    ALWAYS_SHARE //2
+};
 
-///converts the TokenBuffer back to the value
-template<class T>
-void deserialize(covise::TokenBuffer &tb, T &value)
-{
-    tb >> value;
-}
-
-template <>
-void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
-
-template <>
-void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
-
-
-class  COVEREXPORT SharedStateBase: public regVarObserver
-
+class  VRBEXPORT SharedStateBase : public regVarObserver
 {
 public:
-    SharedStateBase(std::string name);
+    SharedStateBase(std::string name, SharedStateType mode);
 
     virtual ~SharedStateBase();
 
@@ -65,35 +55,43 @@ public:
 
     //! is called from the registryAcces when the registry entry got changed from the server
     void update(clientRegVar *theChangedRegEntry) override;
-
+    void setID(int id);
+    void resubscribe(int id);
+    void frame(double time);
+    void setSyncInterval(float time);
+    float getSyncInerval();
 protected:
-
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
     void subscribe(covise::TokenBuffer &&val);
     void setVar(covise::TokenBuffer &&val);
     const std::string className = "SharedState";
     std::string variableName;
-
     bool doSend = false;
     bool doReceive = false;
     bool valueChanged = false;
     std::function<void(void)> updateCallback;
 
     VrbClientRegistry *m_registry = nullptr;
-    //clientRegVar *m_regEntry = nullptr;
+
+private:
+    int sessionID = 0; ///the session to send updates to 
+    bool send = false;
+    float syncInterval = 0.1f;
+    double lastUpdateTime = 0.0;
+    covise::TokenBuffer tb_value;
 };
 
 template <class T>
-class  SharedState: public SharedStateBase
+class  SharedState : public SharedStateBase
 {
 public:
-    SharedState<T>(std::string name, T value = T())
-    : SharedStateBase(name)
-    , m_value(value)
+    SharedState<T>(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
+        : SharedStateBase(name, mode)
+        , m_value(value)
     {
         assert(m_registry);
         covise::TokenBuffer data;
-        serialize(data, m_value);
+        serializeWithType(data, m_value);
         subscribe(std::move(data));
     }
 
@@ -114,7 +112,7 @@ public:
 
     void deserializeValue(covise::TokenBuffer &data) override
     {
-        deserialize(data, m_value);
+        deserializeWithType(data, m_value);
     }
 
     //! sends the value change to the vrb
@@ -122,7 +120,7 @@ public:
     {
         valueChanged = false;
         covise::TokenBuffer data;
-        serialize(data, m_value);
+        serializeWithType(data, m_value);
         setVar(std::move(data));
     }
 
@@ -132,7 +130,10 @@ public:
     }
 
 private:
-    T m_value;
-};	
+    T m_value; ///the value of the SharedState
+
+};
 }
 #endif
+
+

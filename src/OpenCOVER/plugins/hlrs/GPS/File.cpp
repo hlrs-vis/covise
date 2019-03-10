@@ -45,10 +45,14 @@ File::File()
 }
 File::File(const char *filename, osg::Group *parent)
 {
-    name = filename;
-    size_t found = name.find_last_of("/");
+    std::string str = filename;
+    std::size_t cut = str.find_last_of("/");
+    myDirectory = str.substr(0,cut);
+    name = str.substr(cut+1);
+
+
     FileGroup = new osg::Group();
-    FileGroup->setName("File: " + name.substr(found+1));
+    FileGroup->setName("File: " + name);
     parent->addChild(FileGroup);
 
     SwitchPoints = new osg::Switch();
@@ -69,6 +73,13 @@ File::~File()
     }
     for (auto *x : allPoints){
         delete x;
+    }
+}
+void File::update()
+{
+    for (auto *p : allPoints)
+    {
+        p->update();
     }
 }
 
@@ -142,7 +153,7 @@ void File::readFile(const std::string &filename)
 
             if(nodeName == "wpt")
             {
-                GPSPoint *p = new GPSPoint();
+                GPSPoint *p = new GPSPoint(myDirectory);
                 addPoint(p);
                 p->readFile(node);
             }
@@ -162,7 +173,7 @@ void File::readFile(const std::string &filename)
 
         auto end = std::chrono::steady_clock::now();
         std::cerr << "Filereading finished after " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-            << "milliseconds. GPSPoints added: " << allPoints.size()
+            << " milliseconds. GPSPoints added: " << allPoints.size()
             << ", Tracks added: " << allTracks.size()
             << "\n-----------\n"; }
 }

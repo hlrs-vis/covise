@@ -41,7 +41,7 @@ class COVER_UI_EXPORT TextField: public Element {
     std::function<void(const std::string &text)> m_callback;
     std::string m_value;
 
-    typedef SharedState<std::string> SharedValue;
+    typedef vrb::SharedState<std::string> SharedValue;
     void updateSharedState() override;
 };
 

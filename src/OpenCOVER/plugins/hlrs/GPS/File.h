@@ -43,6 +43,8 @@ public:
     void addTrack(Track *p);
     void addPoint(GPSPoint *p);
     void draw();
+    void update();
+    std::string myDirectory;
     std::string name;
     osg::ref_ptr<osg::Group> FileGroup;
     osg::ref_ptr<osg::Switch> SwitchPoints;

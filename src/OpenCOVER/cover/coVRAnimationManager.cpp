@@ -250,10 +250,10 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     else
         currentFrame = startFrame;
 
-    bool change = currentAnimationFrame != currentFrame;
-
-    if (requestedAnimationFrame == -1 && change)
+    bool change = false;
+    if (currentAnimationFrame != currentFrame && requestedAnimationFrame == -1)
     {
+        change = true;
         requestedAnimationFrame = currentFrame;
         coVRPluginList::instance()->requestTimestep(currentFrame);
     }

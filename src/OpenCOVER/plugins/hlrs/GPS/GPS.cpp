@@ -22,7 +22,6 @@
 #include "GPS.h"
 #include "GPSPoint.h"
 #include "Track.h"
-#include "File.h"
 #include <time.h>
 #include <iostream>
 
@@ -57,6 +56,7 @@
 
 
 GPSPlugin *GPSPlugin::plugin = NULL;
+vrml::Player *GPSPlugin::player = NULL;
 
 static const int NUM_HANDLERS = 1;
 
@@ -68,6 +68,12 @@ static const FileHandler handlers[] = {
       GPSPlugin::SloadGPX,
       GPSPlugin::SunloadGPX,
       "gpx" }
+};
+
+
+void playerUnavailableCB()
+{
+    GPSPlugin::player = NULL;
 };
 
 GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
@@ -82,14 +88,6 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     OSGGPSPlugin = new osg::Group();
     OSGGPSPlugin->setName("GPS");
     cover->getObjectsRoot()->addChild(OSGGPSPlugin);
-
-    //testlabel
-    //std::string s  = "what";
-    //int size = 300;
-    //int len = 300;
-    //Label = new coVRLabel(s.c_str(), size,len, osg::Vec4(1,0,0,1), osg::Vec4(0.1,0.1,0.1,1));
-    //Label->setPositionInScene(osg::Vec3(1,1,0));
-
 
     //mapping of coordinates
 #ifdef WIN32
@@ -139,19 +137,36 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     iconFoto = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Camera.png"));
     iconSprachaufnahme = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Speechbubble.png"));
     iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
+    textbackground = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Textbackground.png"));
 
+    if (player == NULL)
+       {
+           player = cover->usePlayer(playerUnavailableCB);
+           if (player == NULL)
+           {
+               cover->unusePlayer(playerUnavailableCB);
+               cover->addPlugin("Vrml97");
+               player = cover->usePlayer(playerUnavailableCB);
+               if (player == NULL)
+               {
+                   fprintf(stderr, "sorry, no VRML, no Sound support \n");
+               }
+           }
+       }
 }
 
 
 bool GPSPlugin::update()
 {
-    //Label->update();
+    for (auto *f : fileList)
+    {
+        f->update();
+    }
     return false;
 }
 
 GPSPlugin::~GPSPlugin()
 {
-    //OSGGPSPlugin->removeChildren(0,1);
     for (int index = 0; index < NUM_HANDLERS; index++){
         coVRFileManager::instance()->unregisterFileHandler(&handlers[index]);
     }
@@ -169,44 +184,119 @@ void GPSPlugin::GPSTab_create(void)
     GPSTab = new ui::Menu("GPS", this);
     // infoLabel = new ui::Label("GPS Version 1.0", GPSTab);
 
-    ToggleTracks = new ui::Button(GPSTab, "Toggle Tracks ON/OFF");
-    ToggleTracks->setCallback([this](bool) {
+    TracksOn = new ui::Button(GPSTab, "TracksOn");
+    TracksOn->setText("Tracks On/Off");
+    TracksOn->setCallback([this](bool) {
         for (auto *x : fileList){
-            if(x->SwitchTracks->getNewChildDefaultValue()){
+            if(x->SwitchTracks->getNewChildDefaultValue())
+            {
                 x->SwitchTracks->setAllChildrenOff();
             }
-            else {
+               else
+            {
                 x->SwitchTracks->setAllChildrenOn();
             }
         }
     });
-    TogglePoints = new ui::Button(GPSTab, "Toggle Points ON/OFF");
-    TogglePoints->setCallback([this](bool) {
-        for (auto *x : fileList){
-            if(x->SwitchPoints->getNewChildDefaultValue()){
-                x->SwitchPoints->setAllChildrenOff();
-            }
-            else {
-                x->SwitchPoints->setAllChildrenOn();
+    TracksOn->setState(true);
+
+    PointsOff = new ui::Action(GPSTab, "HideallPoints");
+    PointsOff->setText("Hide all Points");
+    PointsOff->setCallback([this]
+    {
+        for (auto *f : fileList)
+        {
+            for (auto *p : f->allPoints)
+            {
+                p->switchSphere->setAllChildrenOff();
+                p->switchDetail->setAllChildrenOff();
             }
         }
+        toggleButtonStatus(false);
     });
-    ToggleLOD = new ui::Button(GPSTab, "Toggle Sphere - Detail view");
-    ToggleLOD->setCallback([this](bool) {
-        for (auto *f : fileList){
-            for (auto *p : f->allPoints){
-                if(p->switchSphere->getNewChildDefaultValue()){
-                    p->switchSphere->setAllChildrenOff();
-                    p->switchDetail->setAllChildrenOn();
-                }
-                else {
+
+    ToggleLOD = new ui::Action(GPSTab, "ToggleLOD");
+    ToggleLOD->setText("Toggle Signs - Spheres");
+    ToggleLOD->setCallback([this]
+    {
+        for (auto *f : fileList)
+        {
+            for (auto *p : f->allPoints)
+            {
+                if(detailView)
+                {
                     p->switchSphere->setAllChildrenOn();
                     p->switchDetail->setAllChildrenOff();
                 }
+                else
+                {
+                    p->switchSphere->setAllChildrenOff();
+                    p->switchDetail->setAllChildrenOn();
+                }
             }
         }
+        toggleButtonStatus(true);
+        detailView = !detailView;
     });
-    TrackSizeSlider = new ui::Slider(GPSTab, "Scale Tracksize");
+
+    ToggleGood = new ui::Button(GPSTab, "Good");
+    ToggleGood->setText("Good");
+    ButtonList.push_back(ToggleGood);
+    ToggleGood->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Good;
+        toggleDetail(type , ToggleGood);
+    });
+    ToggleMedium = new ui::Button(GPSTab, "Medium");
+    ToggleMedium->setText("Medium");
+    ButtonList.push_back(ToggleMedium);
+    ToggleMedium->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Medium;
+        toggleDetail(type , ToggleMedium);
+    });
+    ToggleBad = new ui::Button(GPSTab, "Bad");
+    ToggleBad->setText("Bad");
+    ButtonList.push_back(ToggleBad);
+    ToggleBad->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Bad;
+        toggleDetail(type , ToggleBad);
+    });
+    ToggleAngst = new ui::Button(GPSTab, "Angst");
+    ToggleAngst->setText("Angst");
+    ButtonList.push_back(ToggleAngst);
+    ToggleAngst->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Angst;
+        toggleDetail(type , ToggleAngst);
+    });
+    ToggleText = new ui::Button(GPSTab, "Text");
+    ToggleText->setText("Text");
+    ButtonList.push_back(ToggleText);
+    ToggleText->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Text;
+        toggleDetail(type , ToggleText);
+    });
+    ToggleFoto = new ui::Button(GPSTab, "Foto");
+    ToggleFoto->setText("Foto");
+    ButtonList.push_back(ToggleFoto);
+    ToggleFoto->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Foto;
+        toggleDetail(type , ToggleFoto);
+    });
+    ToggleSprachaufnahme = new ui::Button(GPSTab, "Sprachaufnahme");
+    ToggleSprachaufnahme->setText("Sprachaufnahme");
+    ButtonList.push_back(ToggleSprachaufnahme);
+    ToggleSprachaufnahme->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Sprachaufnahme;
+        toggleDetail(type , ToggleSprachaufnahme);
+    });
+    ToggleBarriere = new ui::Button(GPSTab, "Barriere");
+    ToggleBarriere->setText("Barriere");
+    ButtonList.push_back(ToggleBarriere);
+    ToggleBarriere->setCallback([this](bool) {
+        GPSPoint::pointType type= GPSPoint::pointType::Barriere;
+        toggleDetail(type , ToggleBarriere);
+    });
+    TrackSizeSlider = new ui::Slider(GPSTab, "ScaleTracksize");
+    TrackSizeSlider->setText("Scale Tracksize");
     TrackSizeSlider->setVisible(false, ui::View::VR);
     TrackSizeSlider->setBounds(1, 100);
     TrackSizeSlider->setScale(ui::Slider::Linear);
@@ -220,7 +310,8 @@ void GPSPlugin::GPSTab_create(void)
             }
         }
     });
-    PointSizeSlider = new ui::Slider(GPSTab, "Scale Pointsize");
+    PointSizeSlider = new ui::Slider(GPSTab, "ScalePointsize");
+    PointSizeSlider->setText("Scale Pointsize");
     PointSizeSlider->setVisible(false, ui::View::VR);
     PointSizeSlider->setBounds(0.1, 100);
     PointSizeSlider->setScale(ui::Slider::Logarithmic);
@@ -234,8 +325,54 @@ void GPSPlugin::GPSTab_create(void)
             }
         }
     });
-
+    toggleButtonStatus(true);
 }
+void GPSPlugin::toggleButtonStatus(bool status)
+{
+    for (auto *b : ButtonList)
+    {
+        b->setState(status);
+    }
+    showPoints = status;
+}
+void GPSPlugin::toggleDetail(GPSPoint::pointType type, ui::Button *button)
+{
+    for (auto *f : fileList){
+        for (auto *p : f->allPoints){
+            if (p->PT == type)
+            {
+                if(!showPoints)
+                {
+                    showPoints = true;
+                }
+                if(detailView)
+                {
+                    if(p->switchDetail->getNewChildDefaultValue()){
+                        button->setState(false);
+                        p->switchDetail->setAllChildrenOff();
+                    }
+                    else
+                    {
+                        p->switchDetail->setAllChildrenOn();
+                        button->setState(true);
+                    }
+                }
+                else {
+                    if(p->switchSphere->getNewChildDefaultValue()){
+                        p->switchSphere->setAllChildrenOff();
+                        button->setState(false);
+                    }
+                    else
+                    {
+                        p->switchSphere->setAllChildrenOn();
+                        button->setState(true);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void GPSPlugin::GPSTab_delete(void)
 {
     if (GPSTab)

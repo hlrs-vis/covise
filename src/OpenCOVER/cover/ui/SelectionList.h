@@ -49,7 +49,7 @@ class COVER_UI_EXPORT SelectionList: public Element {
     void setShared(bool shared) override;
 
  private:
-    typedef SharedState<int> SharedValue;
+    typedef vrb::SharedState<int> SharedValue;
 
     void updateSharedState() override;
     void shortcutTriggered() override;

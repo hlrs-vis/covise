@@ -3,9 +3,10 @@
 #include "ButtonGroup.h"
 #include "Manager.h"
 
-#include "../SharedState.h"
+#include <vrbclient/SharedState.h>
 
 #include <net/tokenbuffer.h>
+
 
 namespace opencover {
 namespace ui {

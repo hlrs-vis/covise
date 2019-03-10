@@ -102,7 +102,7 @@ class COVER_UI_EXPORT Slider: public Element {
     std::function<void(double, bool)> m_callback;
 
 protected:
-    typedef SharedState<double> SharedValue;
+    typedef vrb::SharedState<double> SharedValue;
     void updateSharedState() override;
 };
 

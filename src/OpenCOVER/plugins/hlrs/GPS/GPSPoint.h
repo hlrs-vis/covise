@@ -20,24 +20,37 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
+
+
 #include <cover/coVRPlugin.h>
 #include <xercesc/dom/DOM.hpp>
 
 #include <osg/MatrixTransform>
 #include <osg/ShapeDrawable>
+#include <osgText/Text>
 #include <cover/coBillboard.h>
 #include <osg/Material>
+
+#include <vrml97/vrml/Player.h>
+
+
 
 using namespace opencover;
 using namespace covise;
 
+namespace vrui
+{
+    class coNavInteraction;
+}
+class PointSensor;
 
 //Single Point
 class GPSPoint
 {
-private:
+public:
     enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,Barriere, OtherChoice};
     pointType PT;
+private:
     double longitude;
     double latitude;
     double altitude;
@@ -45,12 +58,11 @@ private:
     float speed;
     std::string text;
     std::string filename;
+    std::string myDirectory;
 
 public:
-    GPSPoint();
-    GPSPoint(osg::Group *parent);
+    GPSPoint(std::string directory);
     ~GPSPoint();  
-    pointType gettype (void);
     void setPointData (double x, double y, double z, double time, float v, std::string &name);
     void setIndex(int i);
     void draw();
@@ -58,8 +70,9 @@ public:
     void createDetail();
     void createSign(osg::Image *img);
     void createBillboard();
-    void createTextBox();
-    void createPictureBox(std::string &text, osg::Vec4 *colVec);
+    void createText();
+    void createPicture();
+    void createSound();
     void readFile(xercesc::DOMElement *node);
     osg::ref_ptr<osg::Group> Point;
     osg::ref_ptr<osg::MatrixTransform> geoTrans;
@@ -67,7 +80,9 @@ public:
     osg::ref_ptr<osg::Switch> switchSphere;
     osg::ref_ptr<osg::Switch> switchDetail;
     osg::ref_ptr<coBillboard> BBoard;
-    osg::ref_ptr<osg::Geode> BBgeode;
+    osg::ref_ptr<osg::Geode> PictureGeode;
+    osg::ref_ptr<osg::Geode> TextGeode;
+    osg::ref_ptr<osg::Image> img;
 
 
     osg::ref_ptr<osg::Sphere> sphere;
@@ -75,6 +90,15 @@ public:
     osg::ref_ptr<osg::ShapeDrawable> sphereD;
 
     osg::ref_ptr<osg::Material> streetmarkMaterial;
+
+    vrml::Audio *audio;
+    vrml::Player::Source *source;
+
+
+    PointSensor *mySensor;
+    void activate();
+    void disactivate();
+    void update();
 };
 
 

@@ -7,50 +7,75 @@
             <Plugin>
                 <SumoTraCI>
                     <Pedestrians>
-                        <CH02_01 value="0.0254" />
-                        <CH02_02 value="0.0254" />
-                        <CH02_03 value="0.0254" />
-                        <CH02_04 value="0.0254" />
-                        <CH02_05 value="0.0254" />
-                        <CH02_06 value="0.0254" />
-                        <CH02_07 value="0.0254" />
-                        <CH02_08 value="0.0254" />
-                        <CH02_09 value="0.0254" />
-                        <CH02_10 value="0.0254" />
+                        <CH02_01 value="0.04" />
+                        <CH02_02 value="0.04" />
+                        <CH02_03 value="0.04" />
+                        <CH02_04 value="0.04" />
+                        <CH02_05 value="0.04" />
+                        <CH02_06 value="0.04" />
+                        <CH02_07 value="0.04" />
+                        <CH02_08 value="0.04" />
+                        <CH02_09 value="0.04" />
+                        <CH02_10 value="0.04" />
 
-                        <CP01_01 value="0.0254" />
-                        <CP01_02 value="0.0254" />
-                        <CP01_03 value="0.0254" />
-                        <CP01_04 value="0.0254" />
-                        <CP01_05 value="0.0254" />
-                        <CP01_06 value="0.0254" />
-                        <CP01_07 value="0.0254" />
-                        <CP01_08 value="0.0254" />
-                        <CP01_09 value="0.0254" />
-                        <CP01_10 value="0.0254" />
+                        <CP01_01 value="0.04" />
+                        <CP01_02 value="0.04" />
+                        <CP01_03 value="0.04" />
+                        <CP01_04 value="0.04" />
+                        <CP01_05 value="0.04" />
+                        <CP01_06 value="0.04" />
+                        <CP01_07 value="0.04" />
+                        <CP01_08 value="0.04" />
+                        <CP01_09 value="0.04" />
+                        <CP01_10 value="0.04" />
 
-                        <CW_01 value="0.0254" />
-                        <CW_02 value="0.0254" />
-                        <CW_03 value="0.0254" />
-                        <CW_04 value="0.0254" />
-                        <CW_05 value="0.0254" />
-                        <CW_06 value="0.0254" />
-                        <CW_07 value="0.0254" />
-                        <CW_08 value="0.0254" />
-                        <CW_09 value="0.0254" />
-                        <CW_10 value="0.0254" />
+                        <CW_01 value="0.04" />
+                        <CW_02 value="0.04" />
+                        <CW_03 value="0.04" />
+                        <CW_04 value="0.04" />
+                        <CW_05 value="0.04" />
+                        <CW_06 value="0.04" />
+                        <CW_07 value="0.04" />
+                        <CW_08 value="0.04" />
+                        <CW_09 value="0.04" />
+                        <CW_10 value="0.04" />
 
-                        <ST01_01 value="0.0254" />
-                        <ST01_02 value="0.0254" />
-                        <ST01_03 value="0.0254" />
-                        <ST01_04 value="0.0254" />
-                        <ST01_05 value="0.0254" />
-                        <ST01_06 value="0.0254" />
-                        <ST01_07 value="0.0254" />
-                        <ST01_08 value="0.0254" />
-                        <ST01_09 value="0.0254" />
-                        <ST01_10 value="0.0254" />
+                        <ST01_01 value="0.04" />
+                        <ST01_02 value="0.04" />
+                        <ST01_03 value="0.04" />
+                        <ST01_04 value="0.04" />
+                        <ST01_05 value="0.04" />
+                        <ST01_06 value="0.04" />
+                        <ST01_07 value="0.04" />
+                        <ST01_08 value="0.04" />
+                        <ST01_09 value="0.04" />
+                        <ST01_10 value="0.04" />
                     </Pedestrians>
+                    <Vehicles>
+                        <passenger>
+                            <Audi_TT value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/tt_white_nrm_s_h_p.wrl" />
+                            <Audi_A4 value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge/audi/a4_red_nrm_s_h_p.wrl" />
+                            <BMW_Z3 value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_black_big_s_h_p.wrl" />
+                            <Renault_Clio value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/renault/clio_grey_nrm_s_h_p.wrl" />
+                            <Seat_Ibiza value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/seat/ibiza_orange_nrm_s_h_p.wrl" />
+                            <Mini value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/mini/mini_red_s_h_p.wrl" />
+                            <Smart value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/smart/smart_pink_sml_s_h_p.wrl" />
+                            <Honda_Civic value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/honda/civic_green_nrm_s_h_p.wrl" />
+                            <Landcruiser value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/toyota/landcruiser_brown_nrm_s_h_p.wrl" />
+                            <Volvo value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/volvo/volvo_blue_nrm_s_h_p.wrl" />
+                            <Ford_Ka value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/ford/ka_yellow_sml_s_h_p.wrl" />
+                            <BmW_Z3green value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/bmw/z3_green_big_s_h_p.wrl" />
+                            <VW_Golf value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/vw/golf3_grey_sml_s_h_p.wrl" />
+                            <Audi_R8 value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/audi/r8/Audi_R8_s_h_p.wrl" />
+                        </passenger>
+                        <truck>
+                            <DAF_white value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_white_s_h_p.wrl" />
+                            <DAF_blue value="/data/porsche/TrafficSimulation/vehicle/fremdfahrzeuge_lights/daf/DAF_blue_s_h_p.wrl" />
+                        </truck>
+                        <bus>
+                            <Shuttle value="/mnt/raid/data/campus/Shuttle/Shuttle.wrl" />
+                        </bus>
+                    </Vehicles>
                 </SumoTraCI>
             </Plugin>
         </COVER>

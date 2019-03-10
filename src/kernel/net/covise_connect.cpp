@@ -248,8 +248,7 @@ MulticastConnection::MulticastConnection(int id, int s_type, int p,
 }
 #endif
 
-ClientConnection::ClientConnection(Host *h, int p, int id, int
-                                                               s_type,
+ClientConnection::ClientConnection(Host *h, int p, int id, int s_type,
                                    int retries, double timeout)
 {
     char dataformat;

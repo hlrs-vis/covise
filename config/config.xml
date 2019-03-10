@@ -135,11 +135,15 @@
 
 	<!--Console value="on" file="/tmp/coverlog"/-->
    <Plugin>
+   <NvTop menu="true" />
    <PBufferSnapShot menu="true" />
    <Video menu="true" />
    <CompositorIceT menu="false" />
    <ViewPoint value="true" />
+   <Annotation menu="true" />
    <Measure menu="true" />
+   <TangiblePosition menu="true" />
+   <Revit menu="true" />
    <PointCloud>
    <PointSize value="4" />
    </PointCloud>
@@ -163,7 +167,7 @@
       <!--SmallTextures value="true" /-->
       <!--MaxTextureSize value="1024" /-->
 	  <ViewpointType value = "standardNoFov"/>
-     <!--Audio value="OpenAL" /-->
+     <Audio value="OpenAL" />
      <ViewpointType value = "standardNoFov"/>
     </Vrml97>
 

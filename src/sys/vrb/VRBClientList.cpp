@@ -87,6 +87,7 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     m_group = -1;
     TokenBuffer rtb;
     rtb << myID;
+    rtb << 0;
     Message m(rtb);
     m.type = COVISE_MESSAGE_VRB_GET_ID;
     conn->send_msg(&m);
@@ -103,12 +104,13 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     }
 }
 
-void VRBSClient::setContactInfo(const char *ip, const char *n)
+void VRBSClient::setContactInfo(const char *ip, const char *n, int session)
 {
     address = ip;
     m_name = n;
     TokenBuffer rtb;
     rtb << myID;
+    rtb << session;
     Message m(rtb);
     m.type = COVISE_MESSAGE_VRB_GET_ID;
     conn->send_msg(&m);
@@ -197,11 +199,7 @@ VRBSClient::~VRBSClient()
 {
     //cerr << "instance" <<coRegistry::instance << endl;
     //cerr << "ID" <<myID << endl;
-    if (VrbServerRegistry::instance)
-    {
-        VrbServerRegistry::instance->unObserve(myID);
-        VrbServerRegistry::instance->deleteEntry(myID);
-    }
+
     delete conn;
     cerr << "closed connection to client " << myID << endl;
 #ifdef GUI
@@ -451,7 +449,7 @@ void VRBClientList::sendMessage(TokenBuffer &stb, int group, covise_msg_type typ
     m.type = type;
     while ((cl = current()))
     {
-        if ((group == -2) || (group == cl->getGroup()))
+        if ((group == 0) || (group == cl->getGroup()))
         {
             cl->conn->send_msg(&m);
         }
@@ -479,5 +477,6 @@ void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_ms
     while ((cl = current()))
     {
         cl->conn->send_msg(&m);
+        next();
     }
 }

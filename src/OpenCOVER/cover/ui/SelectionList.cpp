@@ -3,9 +3,10 @@
 #include <iostream>
 #include <cassert>
 
-#include "../SharedState.h"
+#include <vrbclient/SharedState.h>
 #include <net/tokenbuffer.h>
 
+using namespace vrb;
 namespace opencover {
 namespace ui {
 

@@ -276,9 +276,9 @@ do
 	    ;;
     40)
         echo -e "starting Campus with Sumo";
-        bash /data/porsche/sumo/osm_export/startSumo.sh &
+        bash /mnt/raid/data/campus/Sumo/CampusReduced/startSumo.sh &
         SUMO=$!
-        opencover /data/NeubauII/HLRS_Alles0303.wrl
+        opencover /data/campus/out/praesentation_campus.wrl
         kill $SUMO
         ;;
 # LKA

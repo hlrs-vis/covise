@@ -8,9 +8,12 @@
 #ifndef VRB_SERVER_H
 #define VRB_SERVER_H
 
+#include <string>
 #include <QObject>
 #include <QString>
+#include <map>
 #include <set>
+#include <memory>
 
 namespace covise
 {
@@ -21,7 +24,10 @@ class Message;
 }
 class QSocketNotifier;
 class VRBSClient;
+namespace vrb
+{
 class VrbServerRegistry;
+}
 
 #ifdef Q_MOC_RUN
 #define GUI
@@ -49,20 +55,28 @@ public:
     void loop();
     int openServer();
     void closeServer();
-    VrbServerRegistry *registry = nullptr;
+    
 
 private:
     covise::ServerConnection *sConn = nullptr;
+#ifdef GUI
     QSocketNotifier *serverSN = nullptr;
+#endif
     covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
     void handleClient(covise::Message *);
-    int createSession();
+    int createSession(bool isPrivate);
+    std::shared_ptr<vrb::VrbServerRegistry>createSessionIfnotExists(int sessionID, int senderID);
+    void sendSessions();
     void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
     covise::Message *msg = nullptr;
     bool requestToQuit = false;
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
-    std::set<int> sessions;
+    std::map<const int, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
+    std::string home();
+    std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
 };
 #endif
+
+

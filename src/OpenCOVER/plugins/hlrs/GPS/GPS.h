@@ -23,6 +23,8 @@
 #include <cover/coVRPlugin.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/ButtonGroup.h>
+#include <cover/ui/Action.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Label.h>
@@ -31,21 +33,28 @@
 #include <proj_api.h>
 #include <gdal_priv.h>
 #include <xercesc/dom/DOM.hpp>
+#include <vrml97/vrml/Player.h>
+
+
 
 #include "File.h"
+#include "PointSensor.h"
+#include "GPSPoint.h"
+
 
 using namespace opencover;
 using namespace covise;
 namespace opencover
 {
 class coVRLabel;
+
 }
 class GPSPoint;
 class Track;
-class GPSAllPoints;
-class GPSALLTracks;
 
-class GPSPlugin : public opencover::coVRPlugin , public ui::Owner
+
+
+class GPSPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:
     GPSPlugin();
@@ -60,10 +69,18 @@ public:
 
     ui::Menu *GPSTab = nullptr;
     ui::Label *infoLabel = nullptr;
-    ui::Button *Toggle = nullptr;
-    ui::Button *TogglePoints = nullptr;
-    ui::Button *ToggleTracks = nullptr;
-    ui::Button *ToggleLOD = nullptr;
+    ui::Button *TracksOn = nullptr;
+    ui::Action *PointsOff = nullptr;
+    ui::Action *ToggleLOD = nullptr;
+    ui::Action *ShowSigns = nullptr;
+    ui::Button *ToggleGood = nullptr;
+    ui::Button *ToggleMedium = nullptr;
+    ui::Button *ToggleBad = nullptr;
+    ui::Button *ToggleAngst = nullptr;
+    ui::Button *ToggleText = nullptr;
+    ui::Button *ToggleFoto = nullptr;
+    ui::Button *ToggleSprachaufnahme = nullptr;
+    ui::Button *ToggleBarriere = nullptr;
     ui::Slider *TrackSizeSlider=nullptr;
     ui::Slider *PointSizeSlider=nullptr;
 
@@ -77,12 +94,15 @@ public:
     osg::ref_ptr<osg::Image> iconFoto;
     osg::ref_ptr<osg::Image> iconSprachaufnahme;
     osg::ref_ptr<osg::Image> iconBarriere;
+    osg::ref_ptr<osg::Image> textbackground;
 
     coVRLabel *Label;
     float zOffset=4.0;
 
+
     std::string dir;//Coordinates
     projPJ pj_from, pj_to;//Coordinates
+    static vrml::Player *player;
 
 
     
@@ -90,12 +110,17 @@ private:
     static GPSPlugin *plugin;
     bool update();
     void closeImage();
+    void toggleDetail(GPSPoint::pointType type, ui::Button *button);
     void openImage(std::string &name);
     int loadGPX(const char *filename, osg::Group *parent);
     int unloadGPX(const char *filename);
     void GPSTab_create();
     void GPSTab_delete();
+    void toggleButtonStatus(bool status);
     std::list<File*> fileList;
+    std::list<ui::Button *> ButtonList;
+    bool detailView = true;
+    bool showPoints = true;
 
     float *rasterData=NULL;
     double xOrigin; // origin of the height map
@@ -106,6 +131,7 @@ private:
     int rows;
     GDALDataset  *heightDataset;
     GDALRasterBand  *heightBand;
+
 
 };
 

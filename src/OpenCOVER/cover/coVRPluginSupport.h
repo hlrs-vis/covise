@@ -197,7 +197,7 @@ public:
           4,
           5 all functions which are called continously */
     bool debugLevel(int level) const;
-
+    void initUI();
     // show a message to the user
     std::ostream &notify(Notify::NotificationLevel level=Notify::Info) const;
     std::ostream &notify(Notify::NotificationLevel level, const char *format, ...) const
@@ -367,6 +367,13 @@ public:
     //! check if keyboard is grabbed
     bool isKeyboardGrabbed();
 
+    //! let plugin request control over viewer position
+    bool grabViewer(coVRPlugin *);
+    //! release control over viewer position
+    void releaseViewer(coVRPlugin *);
+    //! whether a plugins controls viewer position
+    bool isViewerGrabbed() const;
+
     //! forbid saving of scenegraph
     void protectScenegraph();
 
@@ -533,7 +540,7 @@ private:
     osgViewer::GraphicsWindow::MouseCursor currentCursor;
     bool cursorVisible = true;
     vrml::Player *player = nullptr;
-    std::list<void (*)()> playerUseList;
+    std::set<void (*)()> playerUseList;
 
     int activeClippingPlane;
 
