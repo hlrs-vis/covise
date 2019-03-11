@@ -110,12 +110,11 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
         return;
     }
 
-#ifdef USE_X11
+#if defined(USE_X11) && defined(glxewInit)
     if (glxewInit() != GLEW_OK)
     {
         std::cerr << "glxewInit() failed" << std::endl;
     }
-
 #endif
 
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);

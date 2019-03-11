@@ -27,10 +27,17 @@
 
 void QtGraphicsWindow::setSyncToVBlank(bool flag)
 {
-#ifdef USE_X11
+#if defined(USE_X11)
+#ifdef glxewInit
     if (glxewInit() != GLEW_OK)
     {
         std::cerr << "setSyncToVBlank: failed to initialize GLXEW" << std::endl;
+    }
+    else
+#endif
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "setSyncToVBlank: failed to initialize GLEW" << std::endl;
     }
 
     auto wid = m_glWidget->effectiveWinId();
