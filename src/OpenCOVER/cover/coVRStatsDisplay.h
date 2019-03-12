@@ -100,9 +100,11 @@ protected:
     unsigned int _gpuPCIeChildNum;
     unsigned int _gpuClockChildNum;
     unsigned int _gpuUtilChildNum;
+    unsigned int _threadingModelChildNum;
     unsigned int _rhrFpsChildNum;
     unsigned int _rhrBandwidthChildNum;
     unsigned int _rhrDelayChildNum;
+    unsigned int _rhrSkippedChildNum;
     unsigned int _viewerChildNum;
     unsigned int _gpuChildNum;
     unsigned int _cameraSceneChildNum;

@@ -46,12 +46,14 @@ coVRStatsDisplay::coVRStatsDisplay()
     , _initialized(false)
     , _threadingModel(osgViewer::ViewerBase::SingleThreaded)
     , _frameRateChildNum(0)
+    , _threadingModelChildNum(0)
     , _gpuMemChildNum(0)
     , _gpuPCIeChildNum(0)
     , _gpuClockChildNum(0)
     , _gpuUtilChildNum(0)
     , _rhrFpsChildNum(0)
     , _rhrBandwidthChildNum(0)
+    , _rhrSkippedChildNum(0)
     , _viewerChildNum(0)
     , _gpuChildNum(0)
     , _cameraSceneChildNum(0)
@@ -178,6 +180,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_viewerChildNum, true);
         _switch->setValue(_gpuChildNum, _statsType==VIEWER_STATS && _gpuStats);
+        _switch->setValue(_threadingModelChildNum, true);
     }
     case (FRAME_RATE):
     {
@@ -201,6 +204,8 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
             _switch->setValue(_rhrFpsChildNum, true);
             _switch->setValue(_rhrDelayChildNum, true);
             _switch->setValue(_rhrBandwidthChildNum, true);
+            _switch->setValue(_rhrSkippedChildNum, true);
+            _switch->setValue(_threadingModelChildNum, true);
         }
     }
     default:
@@ -1039,7 +1044,7 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     float leftPos = covise::coCoviseConfig::getFloat("leftPos", "COVER.Stats", 10.0f);
     float startBlocks = 150.0f;
     float characterSize = 20.0f;
-    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*1.0f);
+    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*0.3f);
 
     osg::Vec3 pos(leftPos, _statsHeight - 24.0f, 0.0f);
 
@@ -1290,6 +1295,33 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         pos.x() += space;
     }
 
+    // next line
+    pos.y() -= characterSize * 1.5f;
+    pos.x() = leftPos;
+
+    // threading model
+    {
+        osg::Geode *geode = new osg::Geode();
+
+        _threadingModelText = new osgText::Text;
+        _threadingModelChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        geode->addDrawable(_threadingModelText.get());
+
+        _threadingModelText->setColor(colorFR);
+        _threadingModelText->setFont(font);
+        _threadingModelText->setCharacterSize(characterSize);
+        _threadingModelText->setPosition(pos);
+
+        //updateThreadingModelText(osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext);
+        updateThreadingModelText(viewer->getThreadingModel());
+        pos.x() = _threadingModelText->getBound().xMax();
+        pos.x() += 3.*space;
+
+        updateThreadingModelText(viewer->getThreadingModel());
+    }
+
     // remote FPS
     {
         osg::Geode *geode = new osg::Geode();
@@ -1389,6 +1421,39 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         pos.x() += space;
     }
 
+    // skipped remote frames
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrSkippedChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorFR);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Skipped/s:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Skipped/s: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorFR);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("77.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Skipped Frames", -1, false, 1./1024/1024);
+        value->setDrawCallback(cb);
+
+        pos.x() = value->getBound().xMax();
+        pos.x() += space;
+    }
+
     // next line
     pos.y() -= characterSize * 1.5f;
 
@@ -1406,22 +1471,6 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
         osg::Geode *geode = new osg::Geode();
         group->addChild(geode);
-
-        {
-            pos.x() = leftPos;
-
-            _threadingModelText = new osgText::Text;
-            geode->addDrawable(_threadingModelText.get());
-
-            _threadingModelText->setColor(colorFR);
-            _threadingModelText->setFont(font);
-            _threadingModelText->setCharacterSize(characterSize);
-            _threadingModelText->setPosition(pos);
-
-            updateThreadingModelText(viewer->getThreadingModel());
-
-            pos.y() -= characterSize * 1.5f;
-        }
 
         float topOfViewerStats = pos.y() + characterSize;
 
