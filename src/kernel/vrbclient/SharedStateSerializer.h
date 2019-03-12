@@ -8,6 +8,7 @@
 #include <util/coExport.h>
 #include <string>
 #include <vector>
+
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
 
@@ -22,11 +23,16 @@ enum SharedStateDataType
     INT,    //2
     FLOAT,  //3
     STRING, //4
-    DOUBLE    //5
+    DOUBLE, //5
+    VECTOR //6
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
     return UNDEFINED;
+}
+template<class T>
+SharedStateDataType getSharedStateType(const std::vector<T> &type) {
+    return VECTOR;
 }
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type); 
@@ -42,7 +48,7 @@ VRBEXPORT SharedStateDataType getSharedStateType<char >(const char &type);
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<double>(const double &type);
 //tries to convert the serialized tokenbuffer to a string
-VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer &&tb);
+VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID = -1);
 
 ///////////////////////SERIALIZE //////////////////////////
 
@@ -54,21 +60,44 @@ void serialize(covise::TokenBuffer &tb, const T &value)
     tb << value;
 }
 
-template <>
-VRBEXPORT void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value);
+template <class T>
+void serialize(covise::TokenBuffer &tb, const std::vector<T> &value) {
+    int size = value.size();
+    if (size == 0)
+    {
+        tb << 0;
+    }
+    else
+    {
+        tb << getSharedStateType(value.front());
+    }
+    tb << size;
+    for (const T entry: value)
+    {
+        serialize(tb, entry);
+    }
+}
 
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
-
-
 template<class T>
 void deserialize(covise::TokenBuffer &tb, T &value)
 {
     tb >> value;
 }
-
-template <>
-VRBEXPORT void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value);
+template <class T>
+void deserialize(covise::TokenBuffer &tb, std::vector<T> &value) {
+    int size, typeID;
+    tb >> typeID;
+    tb >> size;
+    value.clear();
+    value.resize(size);
+    for (int i = 0; i < size; i++)
+    {
+        T entry;
+        deserialize(tb, entry);
+        value[i] = entry;
+    }
 
 template<class T>
 void serializeWithType(covise::TokenBuffer &tb, const T &value)
@@ -77,14 +106,5 @@ void serializeWithType(covise::TokenBuffer &tb, const T &value)
     tb << typeID;
     serialize(tb, value);
 }
-
-template<class T>
-void deserializeWithType(covise::TokenBuffer &tb, T &value)
-{
-    int typeID;
-    tb >> typeID;
-    deserialize(tb, value);
 }
-
-} // namespace vrb
 #endif

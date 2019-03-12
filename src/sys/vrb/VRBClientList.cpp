@@ -87,7 +87,7 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     m_group = -1;
     TokenBuffer rtb;
     rtb << myID;
-    rtb << 0;
+    rtb << m_group;
     Message m(rtb);
     m.type = COVISE_MESSAGE_VRB_GET_ID;
     conn->send_msg(&m);
@@ -104,7 +104,7 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     }
 }
 
-void VRBSClient::setContactInfo(const char *ip, const char *n, int session)
+void VRBSClient::setContactInfo(const char *ip, const char *n, vrb::SessionID &session)
 {
     address = ip;
     m_name = n;
@@ -146,16 +146,11 @@ std::string VRBSClient::getUserInfo()
     return userInfo;
 }
 
-void VRBSClient::setGroup(int g)
+void VRBSClient::setGroup(vrb::SessionID &g)
 {
     m_group = g;
 #ifdef GUI
-    char num[100] = "";
-    if (g >= 0)
-    {
-        sprintf(num, "%d", g);
-    }
-    myItem->setText(Group, num);
+    myItem->setText(Group, g.toText().c_str());
 #endif
 }
 
@@ -307,7 +302,7 @@ int VRBSClient::getID() const
     return myID;
 }
 
-int VRBSClient::getGroup()
+vrb::SessionID &VRBSClient::getGroup()
 {
     return m_group;
 }
@@ -379,7 +374,7 @@ VRBSClient *VRBClientList::get(Connection *c)
     return NULL;
 }
 
-int VRBClientList::numInGroup(int Group)
+int VRBClientList::numInGroup(vrb::SessionID &Group)
 {
     VRBSClient *cl;
     int num = 0;
@@ -441,7 +436,7 @@ void VRBClientList::deleteAll()
     }
 }
 
-void VRBClientList::sendMessage(TokenBuffer &stb, int group, covise_msg_type type)
+void VRBClientList::sendMessage(TokenBuffer &stb, vrb::SessionID &group, covise_msg_type type)
 {
     VRBSClient *cl;
     reset();
@@ -449,7 +444,7 @@ void VRBClientList::sendMessage(TokenBuffer &stb, int group, covise_msg_type typ
     m.type = type;
     while ((cl = current()))
     {
-        if ((group == 0) || (group == cl->getGroup()))
+        if (group == vrb::SessionID(0,std::string(),false) || group == cl->getGroup())
         {
             cl->conn->send_msg(&m);
         }

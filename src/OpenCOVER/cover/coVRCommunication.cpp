@@ -78,7 +78,9 @@
 #include <sys/stat.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/SharedStateManager.h>
+#include <vrbclient/SessionID.h>
 #include <ui/SelectionList.h>
+#include "coVrbMenue.h"
 
 using namespace covise;
 using namespace opencover;
@@ -113,12 +115,14 @@ coVRCommunication::coVRCommunication()
     coVRPartnerList::instance()->append(me);
     registry = new VrbClientRegistry(me->getID(), vrbc);
     new SharedStateManager(registry);
+    m_vrbMenue = new VrbMenue(this);
 }
 
 coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
-    delete registry;
+    delete[] m_vrbMenue;
+    delete [] registry;
 
     if (coVRPartnerList::instance()->find(me))
         coVRPartnerList::instance()->remove();
@@ -164,23 +168,22 @@ int coVRCommunication::getID()
     return myID;
 }
 
-std::set<int> opencover::coVRCommunication::getSessions()
+vrb::SessionID & opencover::coVRCommunication::getPrivateSessionIDx()
 {
-  return me->getSessions();
+    return m_privateSessionID;
 }
 
-int opencover::coVRCommunication::getPublicSessionID()
+const vrb::SessionID &opencover::coVRCommunication::getSessionID() const
 {
-    return me->getPublicSessionID();
+    return me->getSessionID();
 }
 
-int opencover::coVRCommunication::getPrivateSessionID()
+void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
 {
-    return me->getPrivateSessionID();
-}
-
-void opencover::coVRCommunication::setSessionID(int id)
-{
+    if (id.isPrivate())
+    {
+        m_privateSessionID = id;
+    }
     me->setSessionID(id);
     TokenBuffer tb;
     tb << id;
@@ -536,13 +539,11 @@ void coVRCommunication::handleVRB(Message *msg)
         if (coVRPartnerList::instance()->num() > 1)
             coVRCollaboration::instance()->showCollaborative(true);
         //request a new private session if we dont have one
-        if (me->getPrivateSessionID() == 0)
+        if (m_privateSessionID.owner() == 0)
         {
             bool isPrivate = true;
             TokenBuffer rns;
-            rns << me->getID();
-            rns << me->getPrivateSessionID();
-            rns << isPrivate;
+            rns << me->getSessionID();
             Message rns_m(rns);
             rns_m.type = COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
             if (vrbc)
@@ -550,14 +551,7 @@ void coVRCommunication::handleVRB(Message *msg)
                 vrbc->sendMessage(&rns_m);
             }
         }
-        //prepare for saving and loading sessions on the vrb
-        TokenBuffer ftb;
-        int id = getID();
-        ftb << id;
-        if (vrbc)
-        {
-            vrbc->sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
-        }
+
     }
     break;
     case COVISE_MESSAGE_VRB_SET_GROUP:
@@ -576,39 +570,53 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_GET_ID:
     {
-        int id, session;
+        int id;
+        vrb::SessionID session;
         tb >> id;
         tb >> session;
         me->setID(id);
-        me->setSessionID(session);
-        registry->setID(id, session);
+        if (session.isPrivate())
+        {
+            m_privateSessionID = session;
+            registry->setID(id, session);
+        }
+        else
+        {
+            me->setID(id);
+            me->setSessionID(session);
+        }
         if (vrbc)
         {
             vrbc->setID(id);
 
             me->sendHello();
         }
-        registry->subscribeClass(me->getPrivateSessionID(), "VRMLFile", this);
-        registry->subscribeClass(me->getPrivateSessionID(), "COVERPlugins", this);
+        //registry->subscribeClass(getSessionID(), "VRMLFile", this);
+        //registry->subscribeClass(getSessionID(), "COVERPlugins", this);
         if (currentFile)
         {
             TokenBuffer tb;
             tb << currentFile;
             registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
         }
-        if (me->getPrivateSessionID() == 0)
+        if (m_privateSessionID.owner() == 0)
         {
-            bool isPrivate = true;
             TokenBuffer rns;
-            rns << me->getID();
-            rns << me->getPrivateSessionID();
-            rns << isPrivate;
+            rns << vrb::SessionID(me->getID());
             Message rns_m(rns);
             rns_m.type = COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
             if (vrbc)
             {
                 vrbc->sendMessage(&rns_m);
             }
+        }
+        m_vrbMenue->updateState(true);
+        //prepare for saving and loading sessions on the vrb
+        TokenBuffer ftb;
+        ftb << id;
+        if (vrbc)
+        {
+            vrbc->sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
         }
     }
     break;
@@ -726,12 +734,11 @@ void coVRCommunication::handleVRB(Message *msg)
             coVRPartnerList::instance()->remove();
         }
         coVRCollaboration::instance()->showCollaborative(false);
-        coVRCollaboration::instance()->updateSessionSelectionList(std::set<int>());
-        setSessionID(0);
+        m_vrbMenue->updateState(false);
+        setSessionID(vrb::SessionID());
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         registry->setVrbc(vrbc);
-        removeVRB_UI();
     }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
@@ -929,51 +936,44 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
     {
         int size;
-        int id;
+        vrb::SessionID id;
         tb >> size;
-        std::set<int> sessions;
+        std::vector<vrb::SessionID> sessions;
         for (size_t i = 0; i < size; ++i)
         {
             tb >> id;
-            sessions.insert(id);
+            sessions.push_back(id);
         }
-        me->setSessions(sessions);
-        coVRCollaboration::instance()->updateSessionSelectionList(sessions);
+        m_vrbMenue->updateSessions(sessions);
     }
     break;
     case COVISE_MESSAGE_VRBC_SET_SESSION:
     {
         
-        int sessionID;
+        vrb::SessionID sessionID;
         tb >> sessionID;
-        me->setSessionID(sessionID);
-        
-        TokenBuffer buf;
-        buf << sessionID;
-        buf << getID();
-        if (vrbc)
-        {
-            vrbc->sendMessage(buf, COVISE_MESSAGE_VRBC_SET_SESSION);
-        }
+        setSessionID(sessionID);
+        m_vrbMenue->setCurrentSession(sessionID);
+
     }
     break;
     case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
     {
         int size;
         tb >> size;
-        savedRegistries.clear();
+        std::vector<std::string> registries;
         for (size_t i = 0; i < size; i++)
         {
             std::string file;
             tb >> file;
-            savedRegistries.push_back(file);
+            registries.push_back(file);
         }
-        initSaveLoadSessionUI();
+        m_vrbMenue->updateRegistries(registries);
     }
     break;
     case COVISE_MESSAGE_VRB_LOAD_SESSION:
     {
-        int sessionID;
+        vrb::SessionID sessionID;
         tb >> sessionID;
         registry->resubscribe(sessionID);
     }
@@ -1049,83 +1049,4 @@ void coVRCommunication::setFBData(IData *data)
     }
 }
 
-void coVRCommunication::initSaveLoadSessionUI()
-{
-    if (!saveBtn)
-    {
-        saveBtn.reset(new ui::Action("SaveSession", this));
-        saveBtn->setText("Save session");
-        saveBtn->setCallback([this]()
-        {
-            saveSession();
-        });
-        cover->fileMenu->add(saveBtn.get());
-    }
 
-    if (!loadSL)
-    {
-        loadSL = std::unique_ptr<ui::SelectionList>(new ui::SelectionList("LoadSession", this));
-        loadSL->setText("Load session");
-        loadSL->setCallback([this](int index)
-        {
-            std::vector<std::string>::iterator it = savedRegistries.begin();
-            std::advance(it, index);
-            loadSession(*it);
-        });
-        cover->fileMenu->add(loadSL.get());
-    }
-    loadSL->setList(savedRegistries);
-    saveBtn->setVisible(true);
-    saveBtn->setEnabled(true);
-    loadSL->setVisible(true);
-    loadSL->setEnabled(true);
-}
-
-void coVRCommunication::removeVRB_UI()
-{
-    saveBtn->setVisible(false);
-    saveBtn->setEnabled(false);
-    loadSL->setVisible(false);
-    loadSL->setEnabled(false);
-}
-
-void opencover::coVRCommunication::saveSession()
-{
-    assert(getPrivateSessionID() != 0);
-    TokenBuffer tb;
-    if (getPublicSessionID() == 0)
-    {
-        tb << getPrivateSessionID();
-    }
-    else
-    {
-        tb << getPublicSessionID();
-    }
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
-    }
-}
-
-void opencover::coVRCommunication::loadSession(std::string &filename)
-{
-    TokenBuffer tb;
-    tb << getID();
-    if (getPublicSessionID() == 0)
-    {
-        tb << getPrivateSessionID();
-    }
-    else
-    {
-        tb << getPublicSessionID();
-    }
-    tb << filename;
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
-    }
-}
-
-void coVRCommunication::openLoadFileDialog(std::vector<std::string> files) {
-
-}

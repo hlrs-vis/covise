@@ -13,6 +13,7 @@ SET(VRBCLIENT_SOURCES
   VrbRegistry.cpp
   VrbClientRegistry.cpp
   regClass.cpp
+  SessionID.cpp	
   SharedState.cpp
   SharedStateManager.cpp
   SharedStateSerializer.cpp
@@ -24,6 +25,7 @@ SET(VRBCLIENT_HEADERS
   VrbRegistry.h
   VrbClientRegistry.h
   regClass.h
+  SessionID.cpp
   SharedState.h
   SharedStateManager.h
   SharedStateSerializer.h

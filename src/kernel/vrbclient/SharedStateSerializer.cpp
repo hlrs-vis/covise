@@ -4,7 +4,7 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-#include "ShareStateSerializer.h"
+#include "SharedStateSerializer.h"
 
 namespace vrb
 {
@@ -33,9 +33,11 @@ SharedStateDataType getSharedStateType<double>(const double &type) {
     return DOUBLE;
 }
 
-std::string tokenBufferToString(covise::TokenBuffer &&tb) {
-    int typeID;
-    tb >> typeID;
+std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
+    if (typeID == -1)
+    {
+        tb >> typeID;
+    }
     std::string valueString;
     switch (typeID)
     {
@@ -65,36 +67,19 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb) {
         tb >> d;
         valueString = std::to_string(d);
         break;
+    case VECTOR:
+        int tID, size;
+        tb >> tID;
+        tb >> size;
+        valueString = "Vector of size: " + std::to_string(size);
+        for (int i = 0; i < size; i++)
+        {
+            valueString += "\n [" + std::to_string(i) + "] ";
+            valueString += tokenBufferToString(std::move(tb), tID);
+        }
+
     }
     return valueString;
 }
-////////////////////VECTOR<STRING>////////////////////////////
-template <>
-void serialize<std::vector<std::string>>(covise::TokenBuffer &tb, const std::vector<std::string> &value)
-{
-    int typeID = 0;
-    tb << typeID;
-    uint32_t size = value.size();
-    tb << size;
-    for (size_t i = 0; i < size; i++)
-    {
-        tb << value[i];
-    }
-}
-template <>
-void deserialize<std::vector<std::string>>(covise::TokenBuffer &tb, std::vector<std::string> &value)
-{
-    int typeID;
-    uint32_t size;
-    tb >> typeID;
-    tb >> size;
-    value.clear();
-    value.resize(size);
-    for (size_t i = 0; i < size; i++)
-    {
-        std::string path;
-        tb >> path;
-        value[i] = path;
-    }
-}
+
 }

@@ -25,13 +25,15 @@
 #include <util/DLinkList.h>
 #include "ui/Owner.h"
 #include <set>
-
+#include <vrbclient/SessionID.h>
 
 namespace covise
 {
 class TokenBuffer;
 }
-
+namespace vrb {
+class SessionID;
+}
 namespace opencover
 {
 namespace ui
@@ -47,9 +49,7 @@ private:
     std::string hostname;
     std::string address;
     int m_id = -1;
-    int m_privateSessionID = 0;
-    int m_publicSessionID = 0;
-    std::set<int> sessions;
+    vrb::SessionID m_sessionID;
     std::string name;
     std::string email;
     std::string url;
@@ -59,7 +59,8 @@ private:
 
 public:
     void setID(int id);
-    void setSessionID(int id);
+    void setSessionID(const vrb::SessionID &id);
+    const vrb::SessionID &getSessionID() const;
     void setGroup(int g);
     void setMaster(bool m);
     void setInfo(covise::TokenBuffer &tb);
@@ -67,10 +68,6 @@ public:
     bool isMaster() const;
     void becomeMaster();
     int getID() const;
-    int getPrivateSessionID() const;
-    int getPublicSessionID() const;
-    void setSessions(std::set<int> sessions);
-    std::set<int> getSessions();
     void setFile(const char *fileName);
     void print() const;
     coVRPartner();

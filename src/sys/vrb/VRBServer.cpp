@@ -86,7 +86,8 @@ VRBServer::VRBServer()
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
-    sessions[0].reset(new vrb::VrbServerRegistry(0));
+    vrb::SessionID id(0, std::string(), false);
+    sessions[id].reset(new vrb::VrbServerRegistry(id));
 }
 
 VRBServer::~VRBServer()
@@ -215,7 +216,8 @@ void VRBServer::processMessages()
 void VRBServer::handleClient(Message *msg)
 {
     char *Class;
-    int sessionID, senderID;
+    vrb::SessionID sessionID;
+    int senderID;
     int modeID; // =senderID for looseCoupling, =0 for observe all, else =-1  
     char *variable;
     char *value;
@@ -422,7 +424,7 @@ void VRBServer::handleClient(Message *msg)
 #endif
         createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
 #ifdef GUI
-        if (std::strcmp(Class, "SharedState") != 0) //Change SharedState serialize / deserialze to send data type id first
+        if (std::strcmp(Class, "SharedState") != 0) 
         {
             tb_value >> value;
             mw->registry->updateEntry(Class, senderID, variable, value);
@@ -512,7 +514,7 @@ void VRBServer::handleClient(Message *msg)
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
-                c->setContactInfo(ip, name, createSession(true));
+                c->setContactInfo(ip, name, createSession(vrb::SessionID(c->getID())));
             }
 #else
             clients.append(new VRBSClient(msg->conn, ip, name));
@@ -613,7 +615,7 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->length << "!" << std::endl;
 #endif
-        int toGroup = 0;
+        vrb::SessionID toGroup;
 #ifdef MB_DEBUG
         //std::cerr << "====> Get senders vrbc connection!" << std::endl;
 #endif
@@ -690,13 +692,14 @@ void VRBServer::handleClient(Message *msg)
         TokenBuffer rtb;
         clients.reset();
         VRBSClient *c = clients.get(msg->conn);
+        int clId = -1;
         if (c)
         {
-            rtb << c->getID();
+            clId = c->getID();
         }
         else
-            rtb << -1;
-        rtb << createSession(true);
+            rtb << clId;
+        rtb << createSession(vrb::SessionID(clId));
         Message m(rtb);
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         msg->conn->send_msg(&m);
@@ -707,7 +710,7 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set Group!" << std::endl;
 #endif
-        int newGroup;
+        vrb::SessionID newGroup;
         tb >> newGroup;
         VRBSClient *c, *c2;
         c = clients.get(msg->conn);
@@ -833,10 +836,11 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c = clients.get(msg->conn);
         if (c)
         {
+            disconectClientFromSessions(c);
             if (currentFileClient == c)
                 currentFileClient = NULL;
             bool wasMaster = false;
-            int MasterGroup = 0;
+            vrb::SessionID MasterGroup;
             TokenBuffer rtb;
             cerr << c->getName() << " (host " << c->getIP() << " ID: " << c->getID() << ") left" << endl;
             rtb << c->getID();
@@ -1565,24 +1569,11 @@ void VRBServer::handleClient(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION:
     {
-        bool isPrivate;
-        int sender;
-        tb >> sender;
         tb >> sessionID;
-        tb >> isPrivate;
-        int newSessionID = createSession(isPrivate);
-        sessions[newSessionID]->setOwner(sender);
+        vrb::SessionID newSessionID = createSession(sessionID);
+        sessions[newSessionID]->setOwner(sessionID.owner());
         sendSessions();
-        //send the sender the id if the new session
-        TokenBuffer stb;
-        stb << newSessionID;
-        stb << isPrivate;
-        clients.sendMessageToID(stb, sender, COVISE_MESSAGE_VRBC_SET_SESSION);
-        auto session = sessions.find(sessionID);
-        if (session != sessions.end())
-        {
-            session->second->unObserve(sender);
-        }
+        setSession(newSessionID);
 
 
     }
@@ -1602,7 +1593,7 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *cl = clients.get(senderID);
         if (cl)
         {
-            if (sessionID >= 0)
+            if (!sessionID.isPrivate())
             {
                 cl->setGroup(sessionID);
             }
@@ -1656,7 +1647,7 @@ void VRBServer::handleClient(Message *msg)
         sessions[sessionID]->observe(senderID);
         TokenBuffer stb;
         stb << sessionID;
-        if (sessionID < 0)//inform the owner of the private session 
+        if (sessionID.isPrivate())//inform the owner of the private session 
         {
             clients.sendMessageToID(stb, senderID, COVISE_MESSAGE_VRB_LOAD_SESSION);
         }
@@ -1673,36 +1664,33 @@ void VRBServer::handleClient(Message *msg)
     }
 
 }
-int VRBServer::createSession(bool isPrivate)
+vrb::SessionID &VRBServer::createSession(vrb::SessionID &id)
 {
-    if (isPrivate)
+    if (id.name() == std::string()) //unspecific name -> create generic name here
     {
-        int id = -1;
+        int genericName = 1;
+        id.setName(std::to_string(genericName));
         while (sessions.find(id) != sessions.end())
         {
-            --id;
+            ++genericName;
+            id.setName(std::to_string(genericName));
+
         }
-        sessions[id].reset(new VrbServerRegistry(id));
-        return id;
+
     }
-    else 
+    if (sessions.find(id) == sessions.end())
     {
-        int id = 1;
-        while (sessions.find(id) != sessions.end())
-        {
-           ++id;
-        }
         sessions[id].reset(new VrbServerRegistry(id));
-        return id;
     }
+    return id;
 }
 
-std::shared_ptr<VrbServerRegistry> VRBServer::createSessionIfnotExists(int sessionID, int senderID) {
+std::shared_ptr<VrbServerRegistry> VRBServer::createSessionIfnotExists(vrb::SessionID &sessionID, int senderID) {
     auto ses = sessions.find(sessionID);
     if (ses == sessions.end())
     {
         VRBSClient *cl = clients.get(senderID);
-        if (cl && sessionID >= 0)
+        if (cl && !sessionID.isPrivate())
         {
             cl->setGroup(sessionID);
         }
@@ -1712,12 +1700,12 @@ std::shared_ptr<VrbServerRegistry> VRBServer::createSessionIfnotExists(int sessi
 }
 
 void VRBServer::sendSessions() {
-    //send a list of all sessions to all clients
+    
     TokenBuffer mtb;
-    std::set<int> publicSessions;
+    std::set<vrb::SessionID> publicSessions;
     for (const auto session : sessions)
     {
-        if (session.first > 0) //only send public sessions
+        if (session.first != vrb::SessionID(0, std::string(),false)) 
         {
             publicSessions.insert(session.first);
         }
@@ -1800,6 +1788,61 @@ std::set<std::string> VRBServer::getFilesInDir(const std::string &path, const st
 
 }
 
+void VRBServer::disconectClientFromSessions(VRBSClient *cl) {
+    if (!cl)
+    {
+        return;
+    }
+    auto it = sessions.begin();
+    while (it != sessions.end())
+    {
+        if (it->first.owner() == cl->getID())
+        {
+            if (it->first.isPrivate())
+            {
+                it = sessions.erase(it);
+            }
+            else
+            {
+                VRBSClient *cl2;
+                vrb::SessionID newId(it->first);
+                int newOwner;
+                bool first = false;
+                clients.reset();
+                //set the next client in that session to the session owner and update all clients in that session
+                while ((cl2 = clients.current()))
+                {
+                    if (cl2->getGroup() == cl->getGroup())
+                    {
+                        if (!first)
+                        {
+                            newOwner = cl2->getID();
+                            newId.setOwner(newOwner);
+                            sessions[newId] = it->second;
+                            first = true;
+                        }
+                        cl2->getGroup().setOwner(newOwner);
+                        setSession(newId); //inform clients about changed Session owner
+
+                    }
+                    clients.next();
+                }
+                it = sessions.erase(it);
+            }
+        }
+        else
+        {
+            ++it;
+        }
 
 
+    }
+    sendSessions();
+}
+
+void VRBServer::setSession(vrb::SessionID &sessionId) {
+    TokenBuffer stb;
+    stb << sessionId;
+    clients.sendMessageToID(stb, sessionId.owner(), COVISE_MESSAGE_VRBC_SET_SESSION);
+}
 

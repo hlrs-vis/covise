@@ -459,7 +459,7 @@ void ApplicationWindow::choose()
         TokenBuffer tb;
         tb << LOAD_FILE;
         tb << s.toStdString().c_str();
-        clients.sendMessage(tb);
+        clients.sendMessage(tb); //fix me: chose group before sending to all
     }
 }
 

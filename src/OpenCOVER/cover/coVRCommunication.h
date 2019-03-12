@@ -32,6 +32,7 @@ class Message;
 #include <vrbclient/regClass.h>
 #include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
+#include <vrbclient/SessionID.h>
 
 namespace vrb {
     class SharedStateManager;
@@ -42,6 +43,7 @@ namespace opencover
 class VRBData;
 class IData;
 class coVRPartner;
+class VrbMenue;
 namespace ui
 {
 class Owner;
@@ -62,14 +64,8 @@ private:
     int randomID;
     bool ignoreRemoteTransform;
     std::map<int, VRBData *> mfbData;
-    std::vector<std::string> savedRegistries;
-    std::unique_ptr<ui::Action> saveBtn;
-    std::unique_ptr<ui::SelectionList> loadSL;
-    void initSaveLoadSessionUI();
-    void removeVRB_UI();
-    void saveSession();
-    void loadSession(std::string &filename);
-    void openLoadFileDialog(std::vector<std::string> files);
+    VrbMenue *m_vrbMenue;
+    vrb::SessionID m_privateSessionID;
 public:
     enum
     {
@@ -97,10 +93,9 @@ public:
     static const char *getHostaddress();
     static std::string getUsername();
     int getID();
-    std::set<int> getSessions();
-    int getPublicSessionID();
-    int getPrivateSessionID();
-    void setSessionID(int id);
+    vrb::SessionID &getPrivateSessionIDx();
+    const vrb::SessionID &getSessionID() const;
+    void setSessionID(const vrb::SessionID &id);
     int getNumberOfPartners();
     void setFBData(IData *data);
     void handleVRB(covise::Message *msg);

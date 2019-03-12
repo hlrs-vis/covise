@@ -15,11 +15,13 @@
 #include "OpenCOVER.h"
 #include "coVRPluginSupport.h"
 #include "coVRCommunication.h"
+#include "coVRCollaboration.h"
 #include "vrbclient/VRBClient.h"
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
 #include <cassert>
 #include <vrbclient/SharedState.h>
+#include <vrbclient/SessionID.h>
 
 using namespace covise;
 namespace opencover
@@ -33,17 +35,44 @@ void VrbMenue::updateState(bool state)
 {
     menue->setVisible(state);
 }
-void VrbMenue::updateRegistries(std::vector<std::string> &registries)
+void VrbMenue::updateRegistries(const std::vector<std::string> &registries)
 {
     savedRegistries = registries;
     savedRegistries.insert(savedRegistries.begin(), noSavedSession);
     loadSL->setList(savedRegistries);
 }
-void VrbMenue::updateSessions(std::vector<std::string>& sessions)
+void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
 {
-    availiableSessions = sessions;
-    availiableSessions.insert(availiableSessions.begin(), noAvailiableSession);
-    SessionsSl->setList(availiableSessions);
+    availiableSessions.clear();
+    std::vector<std::string> sessionNames;
+    for (const auto &session : sessions)
+    {
+        if (!session.isPrivate() || session.owner() ==  coVRCommunication::instance()->getID())
+        {
+            availiableSessions.push_back(session);
+            sessionNames.push_back(session.toText());
+        }
+    }
+    SessionsSl->setList(sessionNames);
+}
+void VrbMenue::setCurrentSession(const vrb::SessionID & session)
+{
+    bool found = false;
+    int index = -1;
+    for (int i = 0; i < availiableSessions.size(); i++)
+    {
+        if (availiableSessions[i] == session)
+        {
+            found = true;
+            index = i;
+            break;
+        }
+    }
+    if (!found)
+    {
+        return;
+    }
+    SessionsSl->select(index);
 }
 void VrbMenue::init()
 {
@@ -77,9 +106,7 @@ void VrbMenue::init()
     newSessionBtn->setCallback([this](void) {
         bool isPrivate = false;
         covise::TokenBuffer tb;
-        tb << coVRCommunication::instance()->getID();
-        tb << coVRCommunication::instance()->getPublicSessionID();
-        tb << isPrivate;
+        tb << vrb::SessionID(coVRCommunication::instance()->getID() ,false);
         vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
     });
 
@@ -87,44 +114,31 @@ void VrbMenue::init()
     SessionsSl->setText("Available sessions");
     SessionsSl->setCallback([this](int id)
     {
-        int sessionID = 0;
-        if (id != 0)
-        {
-            std::vector<int>::iterator it = availiableSessions.begin()
-            std::advance(it, id );
-            sessionID = *it;
-            if (syncMode == LooseCoupling)
-            {
-                VRAvatarList::instance()->show();
-            }
-        }
-        else //dont sync when in private session
-        {
-            UnSyncXform();
-            UnSyncScale();
-            VRAvatarList::instance()->hide();
-        }
+        std::vector<vrb::SessionID>::iterator it = availiableSessions.begin();
+        std::advance(it, id);
+        //Toggle avatar visability
+        coVRCollaboration::instance()->sessionChanged(it->isPrivate());
         //inform the server about the new session
-        coVRCommunication::instance()->setSessionID(sessionID);
+        coVRCommunication::instance()->setSessionID(*it);
     });
-    m_availableSessions->setList(std::vector<std::string>{"private"});
+    SessionsSl->setList(std::vector<std::string>());
 
-
+    menue->setVisible(false);
 }
 
 
 
 void VrbMenue::saveSession()
 {
-    assert(coVRCommunication::instance()->getPrivateSessionID() != 0);
+    assert(coVRCommunication::instance()->getPrivateSessionIDx() != vrb::SessionID());
     TokenBuffer tb;
-    if (coVRCommunication::instance()->getPublicSessionID() == 0)
+    if (coVRCommunication::instance()->getSessionID().isPrivate())
     {
-        tb << coVRCommunication::instance()->getPrivateSessionID();
+        tb << coVRCommunication::instance()->getPrivateSessionIDx();
     }
     else
     {
-        tb << coVRCommunication::instance()->getPublicSessionID();
+        tb << coVRCommunication::instance()->getSessionID();
     }
     if (vrbc)
     {
@@ -136,13 +150,13 @@ void VrbMenue::loadSession(const std::string &filename)
 {
     TokenBuffer tb;
     tb << coVRCommunication::instance()->getID();
-    if (coVRCommunication::instance()->getPublicSessionID() == 0)
+    if (coVRCommunication::instance()->getSessionID().isPrivate())
     {
-        tb << coVRCommunication::instance()->getPrivateSessionID();
+        tb << coVRCommunication::instance()->getPrivateSessionIDx();
     }
     else
     {
-        tb << coVRCommunication::instance()->getPublicSessionID();
+        tb << coVRCommunication::instance()->getSessionID();
     }
     tb << filename;
     if (vrbc)

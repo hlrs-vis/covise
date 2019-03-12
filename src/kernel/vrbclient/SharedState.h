@@ -22,7 +22,8 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #include <net/tokenbuffer.h>
 #include <util/coExport.h>
 #include "regClass.h"
-#include "ShareStateSerializer.h"
+#include "SharedStateSerializer.h"
+#include "SessionID.h"
 
 
 
@@ -56,8 +57,8 @@ public:
 
     //! is called from the registryAcces when the registry entry got changed from the server
     void update(clientRegVar *theChangedRegEntry) override;
-    void setID(int id);
-    void resubscribe(int id);
+    void setID(SessionID &id);
+    void resubscribe(SessionID& id);
     void frame(double time);
     void setSyncInterval(float time);
     float getSyncInerval();
@@ -75,7 +76,7 @@ protected:
     VrbClientRegistry *m_registry = nullptr;
 
 private:
-    int sessionID = 0; ///the session to send updates to 
+    SessionID sessionID = 0; ///the session to send updates to 
     bool send = false;
     float syncInterval = 0.1f;
     double lastUpdateTime = 0.0;

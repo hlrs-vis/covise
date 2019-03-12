@@ -10,7 +10,7 @@
 #include <util/DLinkList.h>
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
-
+#include <vrbclient/SessionID.h>
 namespace covise
 {
 class ServerConnection;
@@ -44,14 +44,14 @@ public:
         IP,
     };
 
-    void setContactInfo(const char *ip, const char *n, int session = 0);
+    void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
     void setUserInfo(const char *userInfo);
     covise::Connection *conn;
     std::string getName() const;
     std::string getIP() const;
     int getID() const;
-    int getGroup();
-    void setGroup(int g);
+    vrb::SessionID &getGroup();
+    void setGroup(vrb::SessionID &g);
     int getMaster();
     void setMaster(int m);
     std::string getUserInfo();
@@ -74,7 +74,7 @@ private:
     std::string m_name;
     std::string userInfo;
     int myID = -1;
-    int m_group = -1;
+    vrb::SessionID m_group;
     int m_master = false;
     long bytesSent;
     long bytesReceived;
@@ -100,10 +100,10 @@ public:
     VRBSClient *get(int id);
     void setInterval(float i);
     void deleteAll();
-    void sendMessage(covise::TokenBuffer &stb, int group = -2, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
+    void sendMessage(covise::TokenBuffer &stb, vrb::SessionID &group = vrb::SessionID(0, std::string(), false), covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
-    int numInGroup(int Group);
+    int numInGroup(vrb::SessionID &Group);
 };
 
 extern VRBClientList clients;

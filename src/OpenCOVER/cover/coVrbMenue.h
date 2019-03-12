@@ -10,6 +10,8 @@
 
 #include <string>
 #include <set>
+#include <vector>
+#include <vrbclient/SessionID.h>
 
 namespace opencover {
 namespace ui
@@ -33,19 +35,20 @@ private:
     std::shared_ptr<ui::SelectionList> SessionsSl;
     std::unique_ptr<ui::Action> saveBtn;
     std::unique_ptr<ui::SelectionList> loadSL;
-    std::set<std::string> savedRegistries;
-    std::set<std::vector> availiableSessions;
-
+    std::vector<std::string> savedRegistries;
+    std::vector<vrb::SessionID> availiableSessions;
     void init();
-    void removeVRB_UI();
     void saveSession();
-    void loadSession(std::string &filename);
+    void loadSession(const std::string &filename);
     void unloadAll();
-
+    const std::string noSavedSession = "nothing";
 public:
     VrbMenue(ui::Owner *owner);
     void updateState(bool state);
-    void updateRegistries(std::vector<std::string> &registries);
+    void updateRegistries(const std::vector<std::string> &registries);
+    void updateSessions(const std::vector<vrb::SessionID> &sessions);
+    void setCurrentSession(const vrb::SessionID &session);
+    
 };
 
 

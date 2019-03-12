@@ -12,6 +12,7 @@
 #include "VRBClient.h"
 
 
+
 using namespace covise;
 namespace vrb
 {
@@ -35,7 +36,7 @@ VrbClientRegistry::~VrbClientRegistry()
     instance = NULL;
 }
 
-void VrbClientRegistry::setID(int clID, int session)
+void VrbClientRegistry::setID(int clID, const SessionID &session)
 {
     if (sessionID == session && clientID == clID)
     {
@@ -49,9 +50,9 @@ void VrbClientRegistry::setID(int clID, int session)
     }
 }
 
-void VrbClientRegistry::resubscribe(int sessionID, int oldSession)
+void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID &oldSession)
 {
-    if (oldSession > 0) //unobserve old public session
+    if (!oldSession.isPrivate()) //unobserve old public session
     {
         covise::TokenBuffer tb;
         tb << oldSession;
@@ -86,7 +87,7 @@ void VrbClientRegistry::setVrbc(covise::VRBClient * client)
     vrbc = client;
 }
 
-clientRegClass *VrbClientRegistry::subscribeClass(int sessionID, const std::string &cl, regClassObserver *ob)
+clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, const std::string &cl, regClassObserver *ob)
 {
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
@@ -98,7 +99,7 @@ clientRegClass *VrbClientRegistry::subscribeClass(int sessionID, const std::stri
     return rc;
 }
 
-clientRegVar *VrbClientRegistry::subscribeVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
+clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -118,7 +119,7 @@ clientRegVar *VrbClientRegistry::subscribeVar(int sessionID, const std::string &
     return rv;
 }
 
-void VrbClientRegistry::unsubscribeClass(int sessionID, const std::string &cl)
+void VrbClientRegistry::unsubscribeClass(const SessionID &sessionID, const std::string &cl)
 {
     clientRegClass *rc = getClass(cl);
     if (rc)
@@ -158,7 +159,7 @@ void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string 
     }
 }
 
-void VrbClientRegistry::createVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic)
+void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic)
 {
 
     // compose message
@@ -173,7 +174,7 @@ void VrbClientRegistry::createVar(int sessionID, const std::string &cl, const st
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(int sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value)
+void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -204,7 +205,7 @@ void VrbClientRegistry::setVar(int sessionID, const std::string &cl, const std::
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }
 
-void VrbClientRegistry::destroyVar(int sessionID, const std::string &cl, const std::string &var)
+void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string &cl, const std::string &var)
 {
     clientRegClass * rc = getClass(cl);
     if (rc)

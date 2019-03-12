@@ -90,7 +90,6 @@ public:
     vrb::SharedState<osg::Matrix> avatarPosition;
     vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
-    void updateSessionSelectionList(std::set<int> ses);
     // returns collaboration mode
     SyncMode getSyncMode() const;
 
@@ -99,7 +98,6 @@ public:
     void updateSharedStates(bool force = false);
     // returns true if this COVER ist master in a collaborative session
     bool isMaster();
-    void setCurrentSession(int id);
     // Collaborative menu:
     bool m_visible = false;
     ui::Menu *m_collaborativeMenu = nullptr;
@@ -107,10 +105,8 @@ public:
     ui::Button *m_showAvatar = nullptr;
     ui::Button *m_master = nullptr;
     ui::Action *m_returnToMaster = nullptr;
-    ui::Action *m_newSession = nullptr;
     ui::Slider *m_syncInterval = nullptr;
     ui::SelectionList *m_collaborationMode = nullptr;
-    ui::SelectionList *m_availableSessions = nullptr;
     ui::Menu *menu() const;
     ui::Group *partnerGroup() const;
 
@@ -124,7 +120,7 @@ public:
     void UnSyncXform();
     void SyncScale();
     void UnSyncScale();
-
+    void sessionChanged(bool isPrivate);
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);
 };
