@@ -98,13 +98,20 @@ void deserialize(covise::TokenBuffer &tb, std::vector<T> &value) {
         deserialize(tb, entry);
         value[i] = entry;
     }
-
+}
 template<class T>
 void serializeWithType(covise::TokenBuffer &tb, const T &value)
 {
     int typeID = getSharedStateType(value);
     tb << typeID;
     serialize(tb, value);
+}
+template<class T>
+void deserializeWithType(covise::TokenBuffer &tb, T &value)
+{
+    int typeID;
+    tb >> typeID;
+    deserialize(tb, value);
 }
 }
 #endif
