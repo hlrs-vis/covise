@@ -118,7 +118,7 @@ void coVRPartner::menuEvent(coMenuItem *m)
 }
 #endif
 
-void coVRPartner::setGroup(int g)
+void coVRPartner::setGroup(vrb::SessionID &g)
 {
     m_group = g;
 }
@@ -263,7 +263,7 @@ void coVRPartner::print() const
     cerr << "Name:     " << name << endl;
     cerr << "Email:    " << email << endl;
     cerr << "URL:      " << url << endl;
-    cerr << "Group:    " << m_group << endl;
+    cerr << "Group:    " << m_group.toText() << endl;
     cerr << "Master:   " << m_isMaster << endl;
 }
 

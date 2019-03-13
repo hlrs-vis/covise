@@ -53,7 +53,7 @@ private:
     std::string name;
     std::string email;
     std::string url;
-    int m_group = -1;
+    vrb::SessionID m_group;
     bool m_isMaster = false;
     ui::CollaborativePartner *m_ui = nullptr;
 
@@ -61,7 +61,7 @@ public:
     void setID(int id);
     void setSessionID(const vrb::SessionID &id);
     const vrb::SessionID &getSessionID() const;
-    void setGroup(int g);
+    void setGroup(vrb::SessionID &g);
     void setMaster(bool m);
     void setInfo(covise::TokenBuffer &tb);
     void updateUi();

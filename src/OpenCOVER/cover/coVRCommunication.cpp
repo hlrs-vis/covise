@@ -121,7 +121,7 @@ coVRCommunication::coVRCommunication()
 coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
-    delete[] m_vrbMenue;
+//    delete[] m_vrbMenue;
     delete [] registry;
 
     if (coVRPartnerList::instance()->find(me))
@@ -561,7 +561,7 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRPartner *p = coVRPartnerList::instance()->get(id);
         if (p)
         {
-            int group;
+            vrb::SessionID group;
             tb >> group;
             p->setGroup(group);
         }
@@ -627,7 +627,7 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRPartner *p = coVRPartnerList::instance()->get(id);
         if (p)
         {
-            int masterState;
+            bool masterState;
             tb >> masterState;
             p->setMaster(masterState);
         }

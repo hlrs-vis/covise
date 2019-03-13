@@ -488,7 +488,7 @@ void ApplicationWindow::about()
 void ApplicationWindow::closeEvent(QCloseEvent *ce)
 {
 
-    if (clients.num())
+    if (clients.numberOfClients() > 0)
     {
         switch (QMessageBox::information(this, "VRB User Interface",
                                          "There are clients connected to this VRB.\nDo you want to quit anyway?",
