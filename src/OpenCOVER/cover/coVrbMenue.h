@@ -31,11 +31,13 @@ class VrbMenue
 private:
     ui::Owner *m_owner;
     ui::Menu *menue;
-    std::shared_ptr<ui::EditField> newSessionEf;
-    std::shared_ptr<ui::Action> newSessionBtn;
-    std::shared_ptr<ui::SelectionList> SessionsSl;
-    std::unique_ptr<ui::Action> saveBtn;
-    std::unique_ptr<ui::SelectionList> loadSL;
+    ui::Group *sessionGroup;
+    ui::Group *ioGroup;
+    ui::EditField *newSessionEf;
+    ui::Action *newSessionBtn;
+    ui::SelectionList *SessionsSl;
+    ui::Action *saveBtn;
+    ui::SelectionList *loadSL;
     std::vector<std::string> savedRegistries;
     std::vector<vrb::SessionID> availiableSessions;
     void init();

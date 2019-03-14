@@ -79,14 +79,16 @@ void VrbMenue::init()
     menue = new ui::Menu("VrbOptions", m_owner);
     menue->setText("Vrb");
 
-    saveBtn.reset(new ui::Action(menue, "SaveSession"));
+    ioGroup = new ui::Group(menue, "ioGroup");
+
+    saveBtn = new ui::Action(ioGroup, "SaveSession");
     saveBtn->setText("Save session");
     saveBtn->setCallback([this]()
     {
         saveSession();
     });
 
-    loadSL.reset(new ui::SelectionList(menue, "LoadSession"));
+    loadSL = new ui::SelectionList(ioGroup, "LoadSession");
     loadSL->setText("Load session");
     loadSL->setCallback([this](int index)
     {
@@ -101,16 +103,26 @@ void VrbMenue::init()
     });
     loadSL->setList(savedRegistries);
 
-    newSessionBtn.reset(new ui::Action(menue, "newSession"));
+    sessionGroup = new ui::Group(menue, "sessisonGroup");
+
+    newSessionBtn = new ui::Action(sessionGroup, "newSession");
     newSessionBtn->setText("New session");
     newSessionBtn->setCallback([this](void) {
-        bool isPrivate = false;
         covise::TokenBuffer tb;
         tb << vrb::SessionID(coVRCommunication::instance()->getID() ,false);
         vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
     });
 
-    SessionsSl.reset(new ui::SelectionList(menue, "AvailableSessions"));
+    newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
+    newSessionEf->setText("enter session name");
+    newSessionEf->setCallback([this](std::string name) {
+        covise::TokenBuffer tb;
+        tb << vrb::SessionID(coVRCommunication::instance()->getID(),name, false);
+        vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+    });
+
+
+    SessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
     SessionsSl->setText("Available sessions");
     SessionsSl->setCallback([this](int id)
     {
