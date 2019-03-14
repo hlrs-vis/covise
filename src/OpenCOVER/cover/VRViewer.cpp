@@ -1088,7 +1088,7 @@ VRViewer::config()
         {
             if (cover->debugLevel(1))
                 std::cerr << "VRViewer: swap group joined - disabling glFinish" << std::endl;
-            m_requireGlFinish = false;
+            m_requireGlFinish = true;
         }
     }
     else

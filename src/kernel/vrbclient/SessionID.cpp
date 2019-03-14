@@ -20,7 +20,7 @@ SessionID::SessionID(int id, bool isPrivate)
 {
 
 }
-SessionID::SessionID(int id, std::string & name, bool isPrivate)
+SessionID::SessionID(int id, const std::string & name, bool isPrivate)
     :m_owner(id)
     , m_isPrivate(isPrivate)
     , m_name(name)
@@ -50,7 +50,7 @@ void SessionID::setOwner(int id)
     m_owner = id;
 }
 
-void SessionID::setName(std::string & name)
+void SessionID::setName(const std::string & name)
 {
     m_name = name;
 }

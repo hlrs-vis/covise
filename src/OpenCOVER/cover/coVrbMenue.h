@@ -11,6 +11,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <memory>
 #include <vrbclient/SessionID.h>
 
 namespace opencover {

@@ -278,7 +278,7 @@ do
         echo -e "starting Campus with Sumo";
         bash /mnt/raid/data/campus/Sumo/CampusReduced/startSumo.sh &
         SUMO=$!
-        opencover /data/campus/out/praesentation_campus.wrl
+        opencover /data/campus/out/praesentation_campus.wrl opencover://plugin/SumoTraCI
         kill $SUMO
         ;;
 # LKA

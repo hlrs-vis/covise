@@ -55,7 +55,9 @@ SessionID &SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
         break;
     case vrb::SHARE_WITH_ALL:
         shareWithAll.insert(base);
-        return SessionID(0, std::string(), false);
+        std::string name = "all";
+        static SessionID sid(0, name, false);
+        return sid;
     }
 
     std::cerr << "SharedStateManager: invalid mode for " << base->getName() << std::endl;

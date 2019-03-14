@@ -21,14 +21,14 @@ class VRBEXPORT SessionID {
 public:
     SessionID();
     SessionID(int id, bool isPrivate = true);
-    SessionID(int id, std::string &name, bool isPrivate = true);
+    SessionID(int id, const std::string &name, bool isPrivate = true);
     SessionID(const SessionID &id);
 
     std::string name() const;
     bool isPrivate()const ;
     int owner() const;
     void setOwner(int id);
-    void setName(std::string &name);
+    void setName(const std::string &name);
     void setPrivate(bool isPrivate);
     bool operator ==(const SessionID &other) const;
     bool operator !=(const SessionID &other) const;

@@ -413,12 +413,12 @@ void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &s
     }
 }
 
-void VRBClientList::collectClientInfo(covise::TokenBuffer && tb)
+void VRBClientList::collectClientInfo(covise::TokenBuffer & tb)
 {
     tb << (int)m_clients.size();
     for (auto cl : m_clients)
     {
-        cl->getInfo(std::move(tb));
+        cl->getInfo(tb);
     }
 }
 

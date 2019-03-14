@@ -505,7 +505,8 @@ void VRBServer::handleClient(Message *msg)
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
-                c->setContactInfo(ip, name, createSession(vrb::SessionID(c->getID())));
+	        vrb::SessionID sid(c->getID(),"none");
+                c->setContactInfo(ip, name, createSession(sid));
             }
 #else
             clients.addClient(new VRBSClient(msg->conn, ip, name));
@@ -551,7 +552,7 @@ void VRBServer::handleClient(Message *msg)
             clients.passOnMessage(&m);
         }
         TokenBuffer rtb2;
-        clients.collectClientInfo(std::move(rtb2));
+        clients.collectClientInfo(rtb2);
         Message m(rtb2);
         m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
         c->conn->send_msg(&m);
@@ -638,7 +639,8 @@ void VRBServer::handleClient(Message *msg)
             clId = c->getID();
         }
             rtb << clId;
-        rtb << createSession(vrb::SessionID(clId));
+	    vrb::SessionID sid(clId,"anon");
+        rtb << createSession(sid);
         Message m(rtb);
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         msg->conn->send_msg(&m);
@@ -1527,7 +1529,7 @@ vrb::SessionID &VRBServer::createSession(vrb::SessionID &id)
     if (id.name() == std::string()) //unspecific name -> create generic name here
     {
         int genericName = 1;
-        id.setName(std::to_string(genericName));
+        id.setName("1");
         while (sessions.find(id) != sessions.end())
         {
             ++genericName;

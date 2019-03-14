@@ -95,6 +95,8 @@ class VRBClientList
 {
 private:
     std::set<VRBSClient *> m_clients;
+    
+ 
 public:
     VRBSClient *get(QSocketNotifier *c);
     VRBSClient *get(covise::Connection *c);
@@ -108,7 +110,7 @@ public:
     void setInterval(float i);
     void deleteAll();
     ///send mesage to every member of the session
-    void sendMessage(covise::TokenBuffer &stb, const vrb::SessionID &group = vrb::SessionID(0, std::string(), false), covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
+    void sendMessage(covise::TokenBuffer &stb, const vrb::SessionID &group = vrb::SessionID(0, "all", false), covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     ///send message to the client with id
     void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
@@ -119,8 +121,7 @@ public:
     ///send Message to all clients but the sender of the message
     void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID());
     ///write the info of all clients in the tokenbuffer
-    void collectClientInfo(covise::TokenBuffer &&tb);
- 
+    void collectClientInfo(covise::TokenBuffer &tb);
 };
 
 extern VRBClientList clients;
