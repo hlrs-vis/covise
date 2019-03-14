@@ -2433,7 +2433,10 @@ void nodeTreeItem::setData(int column, int role, const QVariant &value)
     if (isCheckChange)
     {
         nodeTree *tree = static_cast<nodeTree *>(treeWidget());
-        emit tree->itemCheckStateChanged(this, checkState(0)==Qt::Checked);
+		if(tree)
+		{
+			emit tree->itemCheckStateChanged(this, checkState(0) == Qt::Checked);
+		}
     }
 }
 

@@ -586,7 +586,7 @@ bool MidiPlugin::init()
 		inputDevice[i] = NULL;
 
 		lTrack[i] = NULL;
-		lTrack[i] = new Track(tracks.size(), true);
+		lTrack[i] = new Track(i, true);
 	}
 	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
@@ -762,13 +762,20 @@ bool MidiPlugin::init()
 	{
 		int midiPort = coCoviseConfig::getInt("InPort", "COVER.Plugin.Midi", 0);
 		int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
-
+                int n=0;
 		for (int i = 0; i < NUMMidiStreams; i++)
 		{
-			if (openMidiIn(i, midiPort + i))
+			while(openMidiIn(i, midiPort + n)==false)
 			{
-				fprintf(stderr, "OpenMidiIn %d failed\n", midiPort);
+			        if(n>50)
+			          break;
+				fprintf(stderr, "OpenMidiIn %d failed\n", midiPort+ n);
+			        n++;
 			}
+			fprintf(stderr, "OpenMidiIn Stream %d device %d succeeded\n", i,midiPort+ n);
+			if(n>50)
+			    break;
+			 n++;
 		}
 		fprintf(stderr, "OpenMidiOut %d\n", midiPortOut);
 		if (openMidiOut(midiPortOut))
@@ -794,7 +801,7 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 		sprintf(devName, "/dev/midi%d", device + 1);
 		midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	}
-	fprintf(stderr, "open %s %d", devName, midifd[streamNum]);
+	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
 	if (midifd[streamNum] <= 0)
 		return false;
 #else
@@ -908,6 +915,17 @@ bool MidiPlugin::update()
 void MidiPlugin::preFrame()
 {
 
+
+		if (startTime == 0.0)
+		{
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+			lTrack[i]->reset();
+			startTime = cover->frameTime();
+			lTrack[i]->setVisible(true);
+			fprintf(stderr,"visible %d\n",i);
+	}
+		}
 	for (int i = 0; i < NUMMidiStreams; i++)
 	{
 		while (eventqueue[i].size() > 0)
@@ -933,12 +951,6 @@ void MidiPlugin::preFrame()
 				lTrack[i]->addNote(new Note(me, lTrack[i]));
 			}
 			printf("key: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
-		}
-		if (startTime == 0.0)
-		{
-			lTrack[i]->reset();
-			startTime = cover->frameTime();
-			lTrack[i]->setVisible(true);
 		}
 		lTrack[i]->update();
 	}
@@ -1125,6 +1137,7 @@ void MidiPlugin::MIDItab_create(void)
 			close(midifd[i]);
 #endif
 			openMidiIn(i, newInDev);
+			fprintf(stderr, "openMidiIn %d failed\n", newInDev);
 		});
 	}
 
@@ -1345,17 +1358,26 @@ void Track::update()
 		if (MidiPlugin::instance()->midifd[streamNum] > 0)
 		{
 			numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
+			
 		}
 		if (numRead > 0)
 		{
 			if (buf[0] != -2)
 			{
-				if (buf[0] == -112 || buf[0] == -103)
+			      
+				if (buf[0] == -112 || buf[0] == -103 ||(buf[1] == -112 ))
 				{
 					int key = buf[1];
+					if(buf[1] == -112)
+					{
+					me.setP0(buf[1]);
+					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf,1);
+					me.setP0(buf[0]);
+					}
 					me.setP0(buf[0]);
 					me.setP1(buf[1]);
 					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
+					
 					int value = buf[0];
 					me.setP2(buf[0]);
 					me.seconds = cover->frameTime();
@@ -1364,15 +1386,18 @@ void Track::update()
 						// key press
 						me.setKeyNumber(key);
 						me.setVelocity(value);
+					fprintf(stderr, "Midi info press %d %d\n", (int)key, (int)value);
 					}
 					else
 					{
+					fprintf(stderr, "Midi info release %d %d\n", (int)key, (int)value);
 						// key release
 					}
 				}
 				else
 				{
-					fprintf(stderr, "%d %d\n", (int)buf[0], (int)buf[1]);
+				       //if(buf[1]!=-8)
+				//	fprintf(stderr, "Unknown midi info %d %d\n", (int)buf[0], (int)buf[1]);
 				}
 			}
 		}

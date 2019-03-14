@@ -4509,20 +4509,15 @@ bool coTabletUI::update()
                     gotMessage = true;
                 }
             }
-            coVRMSController::instance()->sendSlaves((char *)&gotMessage, sizeof(bool));
-            if (gotMessage)
+        }
+        gotMessage = coVRMSController::instance()->syncBool(gotMessage);
+        if (gotMessage)
+        {
+            if (coVRMSController::instance()->isMaster())
             {
                 coVRMSController::instance()->sendSlaves(&m);
             }
-        }
-        else
-        {
-            if (coVRMSController::instance()->readMaster((char *)&gotMessage, sizeof(bool)) < 0)
-            {
-                cerr << "bcould not read message from Master" << endl;
-                exit(0);
-            }
-            if (gotMessage)
+            else
             {
                 if (coVRMSController::instance()->readMaster(&m) < 0)
                 {
@@ -4531,9 +4526,7 @@ bool coTabletUI::update()
                     exit(0);
                 }
             }
-        }
-        if (gotMessage)
-        {
+
             changed = true;
 
             TokenBuffer tb(&m);

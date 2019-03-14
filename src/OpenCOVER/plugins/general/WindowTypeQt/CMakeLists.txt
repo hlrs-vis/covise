@@ -19,6 +19,7 @@ set(HEADERS
 
 set(SOURCES
     QtOsgWidget.cpp
+    QtOsgWidgetImpl.cpp
     QtView.cpp
     QtMainWindow.cpp
     WindowTypeQt.cpp

@@ -4,6 +4,7 @@
   <GLOBAL>
     <COVER>
       <FileManager>
+        <FileType name="bcsv" plugin="Bore" />
         <FileType name="gpx" plugin="GPS" />
         <FileType name="top" plugin="Amber" />
         <FileType name="trj" plugin="Amber" />

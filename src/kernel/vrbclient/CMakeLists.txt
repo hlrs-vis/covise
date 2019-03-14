@@ -13,9 +13,10 @@ SET(VRBCLIENT_SOURCES
   VrbRegistry.cpp
   VrbClientRegistry.cpp
   regClass.cpp
+  SessionID.cpp	
   SharedState.cpp
   SharedStateManager.cpp
-  ShareStateSerializer.cpp
+  SharedStateSerializer.cpp
 )
 
 SET(VRBCLIENT_HEADERS
@@ -24,9 +25,10 @@ SET(VRBCLIENT_HEADERS
   VrbRegistry.h
   VrbClientRegistry.h
   regClass.h
+  SessionID.cpp
   SharedState.h
   SharedStateManager.h
-  ShareStateSerializer.h
+  SharedStateSerializer.h
 )
 
 ADD_COVISE_LIBRARY(coVRBClient ${COVISE_LIB_TYPE} ${VRBCLIENT_SOURCES} ${VRBCLIENT_HEADERS})

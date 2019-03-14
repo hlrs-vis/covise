@@ -10,6 +10,7 @@
 #include <vrbclient/VrbRegistry.h>
 #include <vrbclient/regClass.h>
 #include <VRBClientList.h>
+#include <vrbclient/SessionID.h>
 
 
 #ifndef VrbClientRegistry_H
@@ -27,7 +28,7 @@ class VrbServerRegistry : public VrbRegistry<serverRegClass, serverRegVar>
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
-    VrbServerRegistry(int session);
+    VrbServerRegistry(SessionID &session);
     ~VrbServerRegistry();
 
 
@@ -68,13 +69,14 @@ public:
     void saveNetwork(coCharBuffer &cb);
     void setOwner(int id);
     int getOwner();
+
     int getID() override
     {
-        return sessionID;
+        return -1;
     }
     std::shared_ptr<serverRegClass> createClass(const std::string &name, int id) override;
 private:
-    int sessionID; 
+    SessionID sessionID;
     int owner;
 };
 

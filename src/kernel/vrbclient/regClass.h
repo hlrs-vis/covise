@@ -30,6 +30,7 @@ class serverRegClass;
 class regClassObserver;
 class regVarObserver;
 class VrbClientRegistry;
+class SessionID;
 
 template<class variableType>
 class regClass
@@ -243,8 +244,8 @@ public:
     }
     void setLastEditor(int lastEditor);
     void notifyLocalObserver();
-    void resubscribe(int sessionID);
-    void subscribe(regClassObserver *obs, int sessionID);
+    void resubscribe(const SessionID &sessionID);
+    void subscribe(regClassObserver *obs, const SessionID &sessionID);
     covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
     std::shared_ptr<clientRegVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
@@ -262,7 +263,7 @@ public:
         return _observer;
     }
     void notifyLocalObserver();
-    void subscribe(regVarObserver *ob, int sessionID);
+    void subscribe(regVarObserver *ob, const SessionID &sessionID);
 
     //void attach(regVarObserver *ob)
     //{

@@ -13,13 +13,13 @@
 #include "regClass.h"
 #include <util/coExport.h>
 #include "VrbRegistry.h"
+#include "SessionID.h"
 namespace covise
 {
 class VRBClient;
 }
 namespace vrb
 {
-
 class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
 {
 public:
@@ -27,8 +27,8 @@ public:
     /// construct a registry access path to the controller
     VrbClientRegistry(int id, covise::VRBClient *vrbc);
     ///gets id from server
-    void setID(int clID, int session);
-    void resubscribe(int sessionID, int oldSession = 0);
+    void setID(int clID, const SessionID &session);
+    void resubscribe(const SessionID &sessionID, const SessionID &oldSession = SessionID());
 
     /**
        *  Subscribe to all variables in a registry class
@@ -37,7 +37,7 @@ public:
        *  @ob    observer cl to be attached for updates
        *  @id    use clientID if id is not set
        */
-    clientRegClass *subscribeClass(int sessionID, const std::string &clName, regClassObserver *ob);
+    clientRegClass *subscribeClass(const SessionID &sessionID, const std::string &clName, regClassObserver *ob);
 
     /**
        *  Subscribe to a specific variable of a registry cl
@@ -46,7 +46,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    clientRegVar *subscribeVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob);
+    clientRegVar *subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
@@ -54,7 +54,7 @@ public:
        *  @cl    registry cl
        *
        */
-    void unsubscribeClass(int sessionID, const std::string &cl);
+    void unsubscribeClass(const SessionID &sessionID, const std::string &cl);
 
     /**
        *  Unsubscribe from a specific variable of a registry cl
@@ -74,7 +74,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @flag   flag=0: session local variable, flag=1: global variable surviving a session
        */
-    void createVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
+    void createVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
 
     /**
        *  Sets a specific variable value in the registry. The Vrb server
@@ -84,7 +84,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @val    current variable value to be set in the registry
        */
-    void setVar(int sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val);
+    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val);
 
     /**
        *  Destroys a specific variable in the registry. All observers attached
@@ -94,7 +94,7 @@ public:
        *  @cl  registry class
        *  @var    registry variable belonging to a cl
        */
-    void destroyVar(int sessionID, const std::string &cl, const std::string &var);
+    void destroyVar(const SessionID sessionID, const std::string &cl, const std::string &var);
 
     /**
        *  if a VRB connected, resend local variables and subscriptions.
@@ -112,7 +112,7 @@ public:
     {
         return clientID;
     }
-    int getSession()
+    SessionID getSession()
     {
         return sessionID;
     }
@@ -123,7 +123,7 @@ public:
     std::shared_ptr<clientRegClass> createClass(const std::string &name, int id) override;
 private:
     int clientID = -1;
-    int sessionID = 0;
+    SessionID sessionID;
     covise::VRBClient *vrbc;
 
 };

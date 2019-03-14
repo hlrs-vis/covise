@@ -83,6 +83,7 @@ SET(COVER_HEADERS
   coTUIFileBrowser/LocalData.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
+  coVrbMenue.h
   #coVRDePee.h
   #coVRDePeePass.h
 )
@@ -150,6 +151,7 @@ SET(COVER_SOURCES
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
   coTranslator.cpp
+  coVrbMenue.cpp
   PluginMenu.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp

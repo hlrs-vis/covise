@@ -71,12 +71,12 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     }
 }
 
-void SharedStateBase::setID(int id)
+void SharedStateBase::setID(SessionID &id)
 {
     sessionID = id;
 }
 
-void SharedStateBase::resubscribe(int id)
+void SharedStateBase::resubscribe(SessionID &id)
 {
     if (!m_registry->getClass(className)->getVar(variableName))
     {

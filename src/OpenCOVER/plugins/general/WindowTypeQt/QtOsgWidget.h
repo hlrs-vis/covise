@@ -61,6 +61,7 @@ public:
     virtual void useCursor(bool cursorOn) override;
     virtual void setCursor(MouseCursor cursor) override;
     virtual bool setWindowDecorationImplementation(bool flag) override;
+    virtual void setSyncToVBlank(bool flag) override;
 
 protected:
     QOpenGLWidget *m_glWidget = nullptr;

@@ -459,7 +459,7 @@ void ApplicationWindow::choose()
         TokenBuffer tb;
         tb << LOAD_FILE;
         tb << s.toStdString().c_str();
-        clients.sendMessage(tb);
+        clients.sendMessage(tb); //fix me: chose group before sending to all
     }
 }
 
@@ -488,7 +488,7 @@ void ApplicationWindow::about()
 void ApplicationWindow::closeEvent(QCloseEvent *ce)
 {
 
-    if (clients.num())
+    if (clients.numberOfClients() > 0)
     {
         switch (QMessageBox::information(this, "VRB User Interface",
                                          "There are clients connected to this VRB.\nDo you want to quit anyway?",

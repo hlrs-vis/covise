@@ -1288,11 +1288,7 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
 
 vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
 {
-    if (!this->player)
-    {
-        cover->addPlugin("Vrml97");
-    }
-
+    cover->addPlugin("Vrml97");
     playerUseList.emplace(playerUnavailableCB);
     return this->player;
 }

@@ -9,7 +9,7 @@
 #define SHAREDSTATEMANAGER_H
 
 #include "SharedState.h"
-
+#include "SessionID.h"
 #include <set>
 
 
@@ -21,6 +21,7 @@ class VRBClient;
 namespace vrb
 {
 class VrbClientRegistry;
+ 
 class VRBEXPORT SharedStateManager
 {
 public:
@@ -29,18 +30,18 @@ public:
 
     VrbClientRegistry *getRegistry();
     static SharedStateManager *instance();
-    int add(SharedStateBase *base, SharedStateType mode);
+    SessionID &add(SharedStateBase *base, SharedStateType mode);
     void remove(SharedStateBase *base);
     ///Updates the IDs to which the SharedStates send and from which they receive updates. 
     ///If force = true all SharedStates resubscribe, no matter if one of the IDs has changed  
-    void update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sesisonToSubscribe, bool force = false);
+    void update(SessionID &privateSessionID, SessionID & publicSessionID, SessionID & useCouplingModeSessionID, SessionID & sesisonToSubscribe, bool force = false);
     void frame(double time);
 private:
     static SharedStateManager *s_instance;
-    std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare;
-    int m_privateSessionID = 0;
-    int m_publicSessionID = 0;
-    int m_useCouplingModeSessionID = 0;
+    std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare, shareWithAll;
+    SessionID m_privateSessionID;
+    SessionID m_publicSessionID;
+    SessionID m_useCouplingModeSessionID;
     VrbClientRegistry *registry;
 };
 }

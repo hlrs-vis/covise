@@ -16,7 +16,7 @@
 using namespace covise;
 namespace vrb
 {
-VrbServerRegistry::VrbServerRegistry(int session)
+VrbServerRegistry::VrbServerRegistry(SessionID &session)
     :sessionID(session)
 {
 }
@@ -106,7 +106,7 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
 
 void VrbServerRegistry::setOwner(int id)
 {
-    if (id < 0)
+    if (id > 0)
     {
         owner = id;
     }

@@ -149,6 +149,8 @@ public:
 class Track
 {
 public:
+
+	enum deviceType {Drum,Keyboard,NumTypes};
     int eventNumber;
     Track(int tn,bool life=false);
     ~Track();
@@ -176,6 +178,7 @@ private:
     int lastPrimitive;
     double oldTime = 0.0;
     int streamNum;
+    enum deviceType devType=Track::Drum;
 };
 
 class NoteInfo
@@ -201,7 +204,7 @@ private:
 	std::list<WaveSurface *>waveSurfaces;
 
 public:
-    static const size_t NUMMidiStreams = 2;
+    static const size_t NUMMidiStreams = 4;
     double  tempo;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;

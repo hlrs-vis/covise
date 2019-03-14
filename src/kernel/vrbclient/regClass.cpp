@@ -6,6 +6,7 @@
  * License: LGPL 2+ */
 
 #include "regClass.h"
+#include "SessionID.h"
 #include <net/message.h>
 #include <net/message_types.h>
 #include <vrbclient/VrbClientRegistry.h>
@@ -23,7 +24,7 @@ void clientRegVar::notifyLocalObserver()
     }
 }
 
-void clientRegVar::subscribe(regVarObserver * ob, int sessionID)
+void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
 {
     myClass->setLastEditor(myClass->getID());
     lastEditor = myClass->getID();
@@ -61,10 +62,10 @@ void clientRegClass::notifyLocalObserver()
     }
 }
 
-void clientRegClass::resubscribe(int sessionID)
+void clientRegClass::resubscribe(const SessionID &sessionID)
 {
     classID = registry->getID();
-    if (getRegistryClient() && sessionID != 0)
+    if (getRegistryClient())
     {
         if (myVariables.size() == 0 && _observer)
         {
@@ -84,7 +85,7 @@ void clientRegClass::resubscribe(int sessionID)
 
 }
 
-void clientRegClass::subscribe(regClassObserver *obs, int sessionID)
+void clientRegClass::subscribe(regClassObserver *obs, const SessionID &sessionID)
 {   
     lastEditor = classID;
     _observer = obs; //maybe inform old observer

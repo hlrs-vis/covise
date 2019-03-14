@@ -35,22 +35,23 @@ using covise::Message;
 coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
 coVRPartner::coVRPartner()
-: ui::Owner("VRPartner-Me" ,cover->ui)
+    :ui::Owner("VRPartner-Me", cover->ui)
+    ,m_id(  -1)
+    ,m_group(-1)
+    ,m_isMaster(false)
+    ,m_sessionID()
+    ,hostname(coVRCommunication::getHostname())
+    ,address(coVRCommunication::getHostaddress())
+    ,name(coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", coVRCommunication::getUsername()))
+    ,email (coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
+    ,url (coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
 {
-    m_id = -1;
-    m_group = -1;
-    m_isMaster = false;
-
-    hostname = coVRCommunication::getHostname();
-    address =  coVRCommunication::getHostaddress();
-    name = coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", coVRCommunication::getUsername());
-    email = coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de");
-    url = coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise");
 }
 
 coVRPartner::coVRPartner(int id)
 : ui::Owner("VRPartner_"+std::to_string(id), cover->ui)
 , m_id(id)
+,m_sessionID()
 {
     m_group = -1;
     m_isMaster = false;
@@ -71,20 +72,19 @@ void coVRPartner::setID(int id)
     m_id = id;
 }
 
-void opencover::coVRPartner::setSessionID(int id)
+void opencover::coVRPartner::setSessionID(const vrb::SessionID & id)
 {
-    int oldSession = m_publicSessionID;
-    if (id < 0)
-    {
-        m_privateSessionID = id;
-    }
-    else
-    {
-        m_publicSessionID = id;
-        vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
-        coVRCollaboration::instance()->setCurrentSession(id);
-    }
+    vrb::SessionID oldSession = m_sessionID;
+    m_sessionID = id;
+    vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
     coVRCollaboration::instance()->updateSharedStates();
+}
+
+
+
+const vrb::SessionID &opencover::coVRPartner::getSessionID() const
+{
+    return m_sessionID;
 }
 
 void coVRPartner::setFile(const char *fileName)
@@ -118,7 +118,7 @@ void coVRPartner::menuEvent(coMenuItem *m)
 }
 #endif
 
-void coVRPartner::setGroup(int g)
+void coVRPartner::setGroup(vrb::SessionID &g)
 {
     m_group = g;
 }
@@ -241,25 +241,6 @@ int coVRPartner::getID() const
     return m_id;
 }
 
-int opencover::coVRPartner::getPrivateSessionID() const
-{
-    return m_privateSessionID;
-}
-
-int opencover::coVRPartner::getPublicSessionID() const
-{
-    return m_publicSessionID;
-}
-
-void opencover::coVRPartner::setSessions(std::set<int> ses)
-{
-    sessions = ses;
-}
-
-std::set<int> opencover::coVRPartner::getSessions()
-{
-    return sessions;
-}
 
 void coVRPartner::sendHello()
 {
@@ -282,7 +263,7 @@ void coVRPartner::print() const
     cerr << "Name:     " << name << endl;
     cerr << "Email:    " << email << endl;
     cerr << "URL:      " << url << endl;
-    cerr << "Group:    " << m_group << endl;
+    cerr << "Group:    " << m_group.toText() << endl;
     cerr << "Master:   " << m_isMaster << endl;
 }
 

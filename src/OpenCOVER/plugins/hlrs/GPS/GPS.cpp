@@ -139,20 +139,11 @@ GPSPlugin::GPSPlugin(): ui::Owner("GPSPlugin", cover->ui)
     iconBarriere = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Roadblocksmall.png"));
     textbackground = osgDB::readImageFile(opencover::coVRFileManager::instance()->getName("share/covise/GPS/icons/Textbackground.png"));
 
+    player = cover->usePlayer(playerUnavailableCB);
     if (player == NULL)
-       {
-           player = cover->usePlayer(playerUnavailableCB);
-           if (player == NULL)
-           {
-               cover->unusePlayer(playerUnavailableCB);
-               cover->addPlugin("Vrml97");
-               player = cover->usePlayer(playerUnavailableCB);
-               if (player == NULL)
-               {
-                   fprintf(stderr, "sorry, no VRML, no Sound support \n");
-               }
-           }
-       }
+    {
+        fprintf(stderr, "sorry, no VRML, no Sound support \n");
+    }
 }
 
 

@@ -37,7 +37,7 @@ SharedStateManager *SharedStateManager::instance()
     return s_instance;
 }
 
-int SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
+SessionID &SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
 {
     switch (mode)
     {
@@ -53,6 +53,9 @@ int SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
         alwaysShare.insert(base);
         return m_publicSessionID;
         break;
+    case vrb::SHARE_WITH_ALL:
+        shareWithAll.insert(base);
+        return SessionID(0, std::string(), false);
     }
 
     std::cerr << "SharedStateManager: invalid mode for " << base->getName() << std::endl;
@@ -66,7 +69,7 @@ void SharedStateManager::remove(SharedStateBase *base)
     neverShare.erase(base);
 }
 
-void SharedStateManager::update(int privateSessionID, int publicSessionID, int useCouplingModeSessionID, int sessionToSubscribe, bool force)
+void SharedStateManager::update(SessionID & privateSessionID, SessionID & publicSessionID, SessionID & useCouplingModeSessionID, SessionID & sessionToSubscribe, bool force)
 {
 
     if (m_privateSessionID != privateSessionID ||force)
