@@ -14,6 +14,7 @@
 #include <osg/Image>
 #include <osg/AlphaFunc>
 #include <osg/TexEnv>
+#include <osg/TexGen>
 #include <cover/coVRFileManager.h>
 
 using namespace osg;
@@ -78,7 +79,7 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
     osg::PointSprite *sprite = new osg::PointSprite();
     stateset->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::ON);
 
-    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle2.rgb");
+    const char *mapName = opencover::coVRFileManager::instance()->getName("share/covise/icons/particle.png");
     if (mapName != NULL)
     {
         osg::Image *image = osgDB::readImageFile(mapName);
@@ -92,6 +93,10 @@ PointCloudGeometry::PointCloudGeometry(PointSet *pointData)
         osg::TexEnv *texEnv = new osg::TexEnv;
         texEnv->setMode(osg::TexEnv::MODULATE);
         stateset->setTextureAttributeAndModes(0, texEnv, osg::StateAttribute::ON);
+
+		osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
+		stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+
     }
 
     /*osg::Program* program = new osg::Program;
