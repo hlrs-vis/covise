@@ -1086,9 +1086,12 @@ VRViewer::config()
         haveSwapBarrier = coVRMSController::instance()->allReduceOr(haveSwapBarrier);
         if (haveSwapBarrier)
         {
+#if 0
+            // glFinish seems to be required also with enabled swap barriers
             if (cover->debugLevel(1))
                 std::cerr << "VRViewer: swap group joined - disabling glFinish" << std::endl;
-            m_requireGlFinish = true;
+            m_requireGlFinish = false;
+#endif
         }
     }
     else
