@@ -86,7 +86,8 @@ void deserialize(covise::TokenBuffer &tb, T &value)
     tb >> value;
 }
 template <class T>
-void deserialize(covise::TokenBuffer &tb, std::vector<T> &value) {
+void deserialize(covise::TokenBuffer &tb, std::vector<T> &value) 
+{
     int size, typeID;
     tb >> typeID;
     tb >> size;
