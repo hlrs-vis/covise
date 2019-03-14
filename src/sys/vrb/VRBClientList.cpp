@@ -486,7 +486,7 @@ void VRBClientList::setMaster(VRBSClient * client)
 {
     for (auto cl : m_clients)
     {
-        if (cl = client)
+        if (cl == client)
         {
             cl->setMaster(true);
         }
