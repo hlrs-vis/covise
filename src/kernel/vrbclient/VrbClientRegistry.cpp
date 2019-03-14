@@ -264,6 +264,7 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
                 //inform var observer if not receiving my own message
                 if (!(rv->getLastEditor() == clientID && senderID == clientID))
                 {
+                    rv->setLastEditor(senderID);
                     rv->setValue(val);
                     rv->notifyLocalObserver();
                 }

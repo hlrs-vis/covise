@@ -26,8 +26,6 @@ void clientRegVar::notifyLocalObserver()
 
 void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
 {
-    myClass->setLastEditor(myClass->getID());
-    lastEditor = myClass->getID();
     _observer = ob;
     TokenBuffer tb;
     // compose message
@@ -87,7 +85,6 @@ void clientRegClass::resubscribe(const SessionID &sessionID)
 
 void clientRegClass::subscribe(regClassObserver *obs, const SessionID &sessionID)
 {   
-    lastEditor = classID;
     _observer = obs; //maybe inform old observer
     TokenBuffer tb;
     // compose message
