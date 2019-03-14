@@ -453,7 +453,7 @@
 
  <LOCAL HOST="viscluster50" >
   <COVER>
-   <SyncToVBlank value="Off" device="DFP-3"/>
+   <SyncToVBlank value="Off" device="DP-0"/>
   </COVER>
  </LOCAL>
 
@@ -462,7 +462,7 @@
   <COVER>
    <Snap value="ON" />
    <WelcomeMessage value="Welcome to OpenCOVER at HLRS CAVE" />
-   <SyncToVBlank value="OFF" device="DFP-3"/>
+   <SyncToVBlank value="ON" device="DP-0"/>
    <WriteVrmlViewpoint value="ON" />
    <Crease value="OFF" />
    <TwoSide value="ON" />
