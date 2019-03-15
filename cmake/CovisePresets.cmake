@@ -221,7 +221,7 @@ ENDIF()
 
 if(APPLE)
    if(BASEARCHSUFFIX STREQUAL "libc++")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wno-stdlibcxx-not-found")
    endif()
 endif(APPLE)
 
