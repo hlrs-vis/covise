@@ -13,7 +13,12 @@
 #include <vector>
 #include <memory>
 #include <vrbclient/SessionID.h>
+#include <vrbclient/SharedState.h>
 
+namespace vrb
+{
+class SessionID;
+}
 namespace opencover {
 namespace ui
 {
@@ -40,10 +45,16 @@ private:
     ui::SelectionList *loadSL;
     std::vector<std::string> savedRegistries;
     std::vector<vrb::SessionID> availiableSessions;
+    vrb::SharedState<std::vector<int>> participants;
+
     void init();
     void saveSession();
+    void loadSession(int index);
     void loadSession(const std::string &filename);
     void unloadAll();
+    void requestNewSession(const std::string & name);
+    void selectSession(int id);
+    void signIn(const vrb::SessionID &session);
     const std::string noSavedSession = "nothing";
 public:
     VrbMenue(ui::Owner *owner);

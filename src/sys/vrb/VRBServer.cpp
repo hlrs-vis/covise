@@ -653,6 +653,10 @@ void VRBServer::handleClient(Message *msg)
 #endif
         vrb::SessionID newSession;
         tb >> newSession;
+        if (newSession.isPrivate())
+        {
+            return;
+        }
         VRBSClient *c, *c2;
         c = clients.get(msg->conn);
         bool becomeMaster;
@@ -673,7 +677,7 @@ void VRBServer::handleClient(Message *msg)
             m.type = COVISE_MESSAGE_VRB_SET_MASTER;
             c->setMaster(becomeMaster);
             c->conn->send_msg(&m);
-            //inform others about new group
+            //inform others about new session
             c->setSesion(newSession);
             TokenBuffer rtb;
             rtb << c->getID();
@@ -1450,14 +1454,21 @@ void VRBServer::handleClient(Message *msg)
         tb >> sessionID;
         tb >> senderID;
 
-        VRBSClient *cl = clients.get(senderID);
-        if (cl)
+        VRBSClient *c = clients.get(senderID);
+        if (c)
         {
             if (!sessionID.isPrivate())
             {
-                cl->setSesion(sessionID);
+                c->setSesion(sessionID);
             }
         }
+        TokenBuffer rtb;
+        rtb << c->getID();
+        rtb << sessionID;
+        Message mg(rtb);
+        mg.type = COVISE_MESSAGE_VRB_SET_GROUP;
+        mg.conn = c->conn;
+        clients.passOnMessage(&mg);
 
     }
     break;

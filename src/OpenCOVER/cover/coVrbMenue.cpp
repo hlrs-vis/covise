@@ -26,21 +26,145 @@
 using namespace covise;
 namespace opencover
 {
-VrbMenue::VrbMenue(ui::Owner *owner) 
+VrbMenue::VrbMenue(ui::Owner *owner)
     :m_owner(owner)
+    , participants("coVrbMenue_participants", std::vector<int>(), vrb::ALWAYS_SHARE)
 {
     init();
+}
+
+void VrbMenue::init()
+{
+    menue = new ui::Menu("VrbOptions", m_owner);
+    menue->setText("Vrb");
+
+    ioGroup = new ui::Group(menue, "ioGroup");
+
+    saveBtn = new ui::Action(ioGroup, "SaveSession");
+    saveBtn->setText("Save session");
+    saveBtn->setCallback([this]()
+    {
+        saveSession();
+    });
+
+    loadSL = new ui::SelectionList(ioGroup, "LoadSession");
+    loadSL->setText("Load session");
+    loadSL->setCallback([this](int index)
+    {
+        loadSession(index);
+    });
+    loadSL->setList(savedRegistries);
+
+    sessionGroup = new ui::Group(menue, "sessisonGroup");
+
+    newSessionBtn = new ui::Action(sessionGroup, "newSession");
+    newSessionBtn->setText("New session");
+    newSessionBtn->setCallback([this](void) {
+        requestNewSession("");
+    });
+
+    newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
+    newSessionEf->setText("enter session name");
+    newSessionEf->setCallback([this](std::string name) {
+        requestNewSession(name);
+    });
+
+
+    SessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
+    SessionsSl->setText("Available sessions");
+    SessionsSl->setCallback([this](int id)
+    {
+        selectSession(id);
+    });
+    SessionsSl->setList(std::vector<std::string>());
+
+    menue->setVisible(false);
 }
 void VrbMenue::updateState(bool state)
 {
     menue->setVisible(state);
 }
+//io functions : private
+void VrbMenue::saveSession()
+{
+    assert(coVRCommunication::instance()->getPrivateSessionIDx() != vrb::SessionID());
+    TokenBuffer tb;
+    if (coVRCommunication::instance()->getSessionID().isPrivate())
+    {
+        tb << coVRCommunication::instance()->getPrivateSessionIDx();
+    }
+    else
+    {
+        tb << coVRCommunication::instance()->getSessionID();
+    }
+    if (vrbc)
+    {
+        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
+    }
+}
+void VrbMenue::loadSession(int index)
+{
+    if (index == 0)
+    {
+        unloadAll();
+        return;
+    }
+    std::vector<std::string>::iterator it = savedRegistries.begin();
+    std::advance(it, index);
+    loadSession(*it);
+}
+void VrbMenue::loadSession(const std::string &filename)
+{
+    TokenBuffer tb;
+    tb << coVRCommunication::instance()->getID();
+    if (coVRCommunication::instance()->getSessionID().isPrivate())
+    {
+        tb << coVRCommunication::instance()->getPrivateSessionIDx();
+    }
+    else
+    {
+        tb << coVRCommunication::instance()->getSessionID();
+    }
+    tb << filename;
+    if (vrbc)
+    {
+        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
+    }
+}
+void VrbMenue::unloadAll()
+{
+}
+//io functions : public
 void VrbMenue::updateRegistries(const std::vector<std::string> &registries)
 {
     savedRegistries = registries;
     savedRegistries.insert(savedRegistries.begin(), noSavedSession);
     loadSL->setList(savedRegistries);
 }
+//session functions : private
+void VrbMenue::requestNewSession(const std::string &name)
+{
+    covise::TokenBuffer tb;
+    tb << vrb::SessionID(coVRCommunication::instance()->getID(), name, false);
+    vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+}
+void VrbMenue::selectSession(int id)
+{
+    std::vector<vrb::SessionID>::iterator it = availiableSessions.begin();
+    std::advance(it, id);
+    //Toggle avatar visability
+    coVRCollaboration::instance()->sessionChanged(it->isPrivate());
+    //inform the server about the new session
+    coVRCommunication::instance()->setSessionID(*it);
+}
+void VrbMenue::signIn(const vrb::SessionID & session)
+{
+    auto p = participants.value();
+    p.push_back(coVRCommunication::instance()->getID());
+    participants = p;
+
+}
+//session functions : public
 void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
 {
     availiableSessions.clear();
@@ -74,112 +198,5 @@ void VrbMenue::setCurrentSession(const vrb::SessionID & session)
     }
     SessionsSl->select(index);
 }
-void VrbMenue::init()
-{
-    menue = new ui::Menu("VrbOptions", m_owner);
-    menue->setText("Vrb");
-
-    ioGroup = new ui::Group(menue, "ioGroup");
-
-    saveBtn = new ui::Action(ioGroup, "SaveSession");
-    saveBtn->setText("Save session");
-    saveBtn->setCallback([this]()
-    {
-        saveSession();
-    });
-
-    loadSL = new ui::SelectionList(ioGroup, "LoadSession");
-    loadSL->setText("Load session");
-    loadSL->setCallback([this](int index)
-    {
-        if (index == 0)
-        {
-            unloadAll();
-            return;
-        }
-        std::vector<std::string>::iterator it = savedRegistries.begin();
-        std::advance(it, index);
-        loadSession(*it);
-    });
-    loadSL->setList(savedRegistries);
-
-    sessionGroup = new ui::Group(menue, "sessisonGroup");
-
-    newSessionBtn = new ui::Action(sessionGroup, "newSession");
-    newSessionBtn->setText("New session");
-    newSessionBtn->setCallback([this](void) {
-        covise::TokenBuffer tb;
-        tb << vrb::SessionID(coVRCommunication::instance()->getID() ,false);
-        vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
-    });
-
-    newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
-    newSessionEf->setText("enter session name");
-    newSessionEf->setCallback([this](std::string name) {
-        covise::TokenBuffer tb;
-        tb << vrb::SessionID(coVRCommunication::instance()->getID(),name, false);
-        vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
-    });
-
-
-    SessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
-    SessionsSl->setText("Available sessions");
-    SessionsSl->setCallback([this](int id)
-    {
-        std::vector<vrb::SessionID>::iterator it = availiableSessions.begin();
-        std::advance(it, id);
-        //Toggle avatar visability
-        coVRCollaboration::instance()->sessionChanged(it->isPrivate());
-        //inform the server about the new session
-        coVRCommunication::instance()->setSessionID(*it);
-    });
-    SessionsSl->setList(std::vector<std::string>());
-
-    menue->setVisible(false);
-}
-
-
-
-void VrbMenue::saveSession()
-{
-    assert(coVRCommunication::instance()->getPrivateSessionIDx() != vrb::SessionID());
-    TokenBuffer tb;
-    if (coVRCommunication::instance()->getSessionID().isPrivate())
-    {
-        tb << coVRCommunication::instance()->getPrivateSessionIDx();
-    }
-    else
-    {
-        tb << coVRCommunication::instance()->getSessionID();
-    }
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
-    }
-}
-
-void VrbMenue::loadSession(const std::string &filename)
-{
-    TokenBuffer tb;
-    tb << coVRCommunication::instance()->getID();
-    if (coVRCommunication::instance()->getSessionID().isPrivate())
-    {
-        tb << coVRCommunication::instance()->getPrivateSessionIDx();
-    }
-    else
-    {
-        tb << coVRCommunication::instance()->getSessionID();
-    }
-    tb << filename;
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
-    }
-}
-
-void VrbMenue::unloadAll()
-{
-}
-
 
 }

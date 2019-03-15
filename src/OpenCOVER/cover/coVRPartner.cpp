@@ -76,8 +76,58 @@ void opencover::coVRPartner::setSessionID(const vrb::SessionID & id)
 {
     vrb::SessionID oldSession = m_sessionID;
     m_sessionID = id;
-    vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
-    coVRCollaboration::instance()->updateSharedStates();
+    if (m_id == coVRCommunication::instance()->getID()) //this client
+    {
+        vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
+        coVRCollaboration::instance()->updateSharedStates();
+        bool alone = true;
+        coVRPartnerList::instance()->reset();
+        while (coVRPartner  *other = coVRPartnerList::instance()->current())
+        {
+            if (other->getID() != coVRCommunication::instance()->getID() && other->getSessionID() == id)
+            {
+                alone = false;
+                break;
+            }
+            coVRPartnerList::instance()->next();
+        }
+        if (alone)
+        {
+            coVRCollaboration::instance()->showCollaborative(false);
+        }
+        else
+        {
+            coVRCollaboration::instance()->showCollaborative(true);
+        }
+
+    }
+    else //other client changed session
+    {
+
+        if (oldSession == coVRCommunication::instance()->getSessionID()) //client left my session
+        {
+            bool lastInSession = true;
+            coVRPartnerList::instance()->reset();
+            while (coVRPartner  *other = coVRPartnerList::instance()->current())
+            {
+                if (other->getID() != coVRCommunication::instance()->getID() && other->getSessionID() == coVRCommunication::instance()->getID())
+                {
+                    lastInSession = false;
+                    break;
+                }
+                coVRPartnerList::instance()->next();
+            }
+            if (lastInSession)
+            {
+                coVRCollaboration::instance()->showCollaborative(false);
+            }
+        }
+        if (id == coVRCommunication::instance()->getSessionID()) //client joined my sessison
+        {
+            coVRCollaboration::instance()->showCollaborative(true);
+        }
+    }
+
 }
 
 

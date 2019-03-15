@@ -52,7 +52,6 @@
 #include "coVRSelectionManager.h"
 #include "VRViewer.h"
 #include "coTUIFileBrowser/VRBData.h"
-#include "coVRCollaboration.h"
 #include "ARToolKit.h"
 #include "OpenCOVER.h"
 #include "coVRAnimationManager.h"
@@ -536,8 +535,8 @@ void coVRCommunication::handleVRB(Message *msg)
             }
         }
         coVRPartnerList::instance()->print();
-        if (coVRPartnerList::instance()->num() > 1)
-            coVRCollaboration::instance()->showCollaborative(true);
+        //if (coVRPartnerList::instance()->num() > 1)
+        //    coVRCollaboration::instance()->showCollaborative(true);
         //request a new private session if we dont have one
         if (m_privateSessionID.owner() == 0)
         {
@@ -561,9 +560,10 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRPartner *p = coVRPartnerList::instance()->get(id);
         if (p)
         {
-            vrb::SessionID group;
-            tb >> group;
-            p->setGroup(group);
+            vrb::SessionID session;
+            tb >> session;
+            
+            p->setSessionID(session);
         }
         coVRPartnerList::instance()->print();
     }
@@ -831,6 +831,7 @@ void coVRCommunication::handleVRB(Message *msg)
                 coVRPartnerList::instance()->next();
             coVRPartnerList::instance()->remove();
         }
+        m_vrbMenue->updateState(false);
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
