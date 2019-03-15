@@ -258,7 +258,7 @@ int DisplaceUSG::compute(const char *)
 
     //// create output object name
     const char *out_mesh_name = outMeshPort->getObjName();
-    ERR0((out_mesh_name == NULL),
+    ERR0(out_mesh_name == NULL,
          "Cannot create output name for port 'meshOut'",
          return FAIL;)
 
@@ -348,7 +348,7 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         o_mesh = new coDoUnstructuredGrid(meshName, num_elem, num_conn, num_coord,
                                           mesh->hasTypeList());
 
-        ERR0((o_mesh == NULL),
+        ERR0(o_mesh == NULL,
              "could not create mesh output object", return 0;);
 
         int *o_elem_list, *o_conn_list, *o_type_list;
@@ -456,7 +456,7 @@ DisplaceUSG::displaceNodes(const coDistributedObject *m,
         else
             o_mesh = new coDoLines(meshName, nPoints, nCorners, nPolygons);
 
-        ERR0((o_mesh == NULL),
+        ERR0(o_mesh == NULL,
              "could not create mesh output object", return 0;);
 
         int *o_cl, *o_pl;

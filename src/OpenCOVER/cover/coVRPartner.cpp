@@ -271,10 +271,10 @@ coVRPartner *coVRPartnerList::get(int id)
 
 coVRPartner * opencover::coVRPartnerList::getFirstPartner()
 {
-    if (!partners.empty())
-    {
-        return partners.begin()->second;
-    }
+    if (partners.empty())
+        return nullptr;
+
+    return partners.begin()->second;
 }
 
 void opencover::coVRPartnerList::addPartner(coVRPartner * p)

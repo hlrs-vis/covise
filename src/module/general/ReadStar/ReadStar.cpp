@@ -991,7 +991,7 @@ int ReadStar::statData()
                                                           file16->numCovCells,
                                                           file16->numCovConn,
                                                           file16->maxn, 1);
-    ERR0((mesh == NULL), "Error allocating Mesh", return STOP_PIPELINE;);
+    ERR0(mesh == NULL, "Error allocating Mesh", return STOP_PIPELINE;);
     p_mesh->setCurrentObject(mesh);
 
     int *clPtr, *tlPtr, *elPtr;
@@ -1012,7 +1012,7 @@ int ReadStar::statData()
     size[0] = file16->numCovCells;
     coDoIntArr *type = new coDoIntArr(p_type->getObjName(), 1, size);
 
-    ERR0((type == NULL), "Error allocating Type Field", return STOP_PIPELINE;);
+    ERR0(type == NULL, "Error allocating Type Field", return STOP_PIPELINE;);
     type->getAddress(&typ);
 
     // ---- Read the Mesh and the type info from File16
@@ -1111,7 +1111,7 @@ int ReadStar::statData()
                     {
                         coDoVec3 *data
                             = new coDoVec3(Name, numData);
-                        ERR0((data == NULL), "Error allocating Data Field", return STOP_PIPELINE;);
+                        ERR0(data == NULL, "Error allocating Data Field", return STOP_PIPELINE;);
                         resData = data;
                         float *d0, *d1, *d2;
                         data->getAddresses(&d0, &d1, &d2);
@@ -1148,7 +1148,7 @@ int ReadStar::statData()
                     {
                         coDoFloat *data
                             = new coDoFloat(Name, numData);
-                        ERR0((data == NULL), "Error allocating Data Field", return STOP_PIPELINE;);
+                        ERR0(data == NULL, "Error allocating Data Field", return STOP_PIPELINE;);
                         resData = data;
                         float *d;
                         data->getAddress(&d);
@@ -1337,7 +1337,7 @@ int ReadStar::transData()
 
             size[0] = new_el;
             typeObjList[set_elem] = new coDoIntArr(namebuf, 1, size, tmpType);
-            ERR1((typeObjList[set_elem] == NULL),
+            ERR1(typeObjList[set_elem] == NULL,
                  "Error allocating Type '%s'", namebuf, return STOP_PIPELINE;)
             delete[] tmpType;
 
@@ -1353,7 +1353,7 @@ int ReadStar::transData()
 
             usg = new coDoUnstructuredGrid(namebuf, new_el, new_cl, new_vl,
                                            el, cl, xv, yv, zv, tl);
-            ERR1((usg == NULL),
+            ERR1(usg == NULL,
                  "Error allocating Mesh '%s'", namebuf, return STOP_PIPELINE;);
             meshObjList[set_elem] = usg;
 
@@ -1393,7 +1393,7 @@ int ReadStar::transData()
 
                 // --- stationary case -> use grid from File16
                 char *Mesh = Covise::get_object_name("mesh");
-                ERR0((Mesh == NULL), "Error getting name 'mesh'", return STOP_PIPELINE;)
+                ERR0(Mesh == NULL, "Error getting name 'mesh'", return STOP_PIPELINE;)
 
                 if (num_elem > 1)
                 {
@@ -1406,7 +1406,7 @@ int ReadStar::transData()
                 usg = new coDoUnstructuredGrid(namebuf, file16->numCovCells,
                                                file16->numCovConn,
                                                file16->maxn, 1);
-                ERR1((usg == NULL), "Error allocating '%s'", Mesh, return STOP_PIPELINE;);
+                ERR1(usg == NULL, "Error allocating '%s'", Mesh, return STOP_PIPELINE;);
                 int *clPtr, *tlPtr, *elPtr;
                 float *xPtr, *yPtr, *zPtr;
                 usg->getAddresses(&elPtr, &clPtr, &xPtr, &yPtr, &zPtr);
@@ -1423,7 +1423,7 @@ int ReadStar::transData()
                     strcpy(namebuf, Table);
                 }
 
-                ERR0((Table == NULL), "Error getting name 'cellTable'", return STOP_PIPELINE;)
+                ERR0(Table == NULL, "Error getting name 'cellTable'", return STOP_PIPELINE;)
                 int size[2];
                 size[1] = 10;
                 size[0] = file16->mxtb;
@@ -1459,7 +1459,7 @@ int ReadStar::transData()
 
                 int *typ;
                 char *Type = Covise::get_object_name("type");
-                ERR0((Type == NULL), "Error getting name 'type'", return STOP_PIPELINE;)
+                ERR0(Type == NULL, "Error getting name 'type'", return STOP_PIPELINE;)
                 size[0] = file16->numCovCells;
 
                 if (num_elem > 1)
@@ -1472,7 +1472,7 @@ int ReadStar::transData()
                 }
 
                 coDoIntArr *type = new coDoIntArr(namebuf, 1, size);
-                ERR1((type == NULL), "Error allocating '%s'", Type, return STOP_PIPELINE;);
+                ERR1(type == NULL, "Error allocating '%s'", Type, return STOP_PIPELINE;);
                 type->getAddress(&typ);
 
                 // --- get the mesh
@@ -1560,7 +1560,7 @@ int ReadStar::transData()
                                                 vdata[0], vdata[1], vdata[2]);
 
                     // --- read Fields
-                    ERR1((numRead < 0),
+                    ERR1(numRead < 0,
                          "Cannot read Velocity for Port Data%i", i + 1,
                          return STOP_PIPELINE;)
 
@@ -1573,7 +1573,7 @@ int ReadStar::transData()
                     {
                         coDoVec3 *data
                             = new coDoVec3(namebuf, new_el);
-                        ERR0((data == NULL), "Error allocating Data Field", return STOP_PIPELINE;);
+                        ERR0(data == NULL, "Error allocating Data Field", return STOP_PIPELINE;);
                         resData = data;
                         float *d0, *d1, *d2;
                         data->getAddresses(&d0, &d1, &d2);
@@ -1606,14 +1606,14 @@ int ReadStar::transData()
                     delete[] buffer;
 
                     dataObjList[i][set_elem] = data;
-                    ERR1((data == NULL), "Error allocating '%s'", buf, return STOP_PIPELINE;);
+                    ERR1(data == NULL, "Error allocating '%s'", buf, return STOP_PIPELINE;);
 
                     float *vx, *vy, *vz;
                     data->getAddresses(&vx, &vy, &vz);
                     int numRead = file29->readField(step_no, field_no[i],
                                                     redCovToStar, numDrops, vx, vy, vz);
 
-                    ERR1((numRead < 0),
+                    ERR1(numRead < 0,
                          "Cannot read Drop Velocity for Port Data%i", i,
                          return STOP_PIPELINE;)
 
@@ -1638,13 +1638,13 @@ int ReadStar::transData()
                     delete[] buffer;
 
                     dataObjList[i][set_elem] = data;
-                    ERR1((data == NULL), "Error allocating '%s'", buf, return STOP_PIPELINE;);
+                    ERR1(data == NULL, "Error allocating '%s'", buf, return STOP_PIPELINE;);
 
                     float *vx, *vy, *vz;
                     data->getAddresses(&vx, &vy, &vz);
                     int numRead = file29->readField(step_no, field_no[i],
                                                     redCovToStar, numDrops, vx, vy, vz);
-                    ERR1((numRead < 0),
+                    ERR1(numRead < 0,
                          "Cannot read Drop Velocity for Port Data%i", i, return STOP_PIPELINE;)
                     data->setSize(numRead);
                     resData = data;
@@ -1668,12 +1668,12 @@ int ReadStar::transData()
                     data->addAttribute("SPECIES", (char *)fieldName[i]);
                     delete[] buffer;
 
-                    ERR1((data == NULL), "Error allocating '%s'", buf, return STOP_PIPELINE;);
+                    ERR1(data == NULL, "Error allocating '%s'", buf, return STOP_PIPELINE;);
                     float *v;
                     data->getAddress(&v);
                     int numRead = file29->readField(step_no, field_no[i],
                                                     redCovToStar, numDrops, v, NULL, NULL);
-                    ERR1((numRead < 0),
+                    ERR1(numRead < 0,
                          "cannot read Data for Port Data%i", i + 1, return STOP_PIPELINE;)
                     data->setSize(numRead);
                     resData = data;
@@ -1686,7 +1686,7 @@ int ReadStar::transData()
                                                 sdata[0], sdata[1], sdata[2]);
 
                     // --- read Fields
-                    ERR1((numRead < 0),
+                    ERR1(numRead < 0,
                          "Cannot read Velocity for Port Data%i", i + 1,
                          return STOP_PIPELINE;)
 
@@ -1700,7 +1700,7 @@ int ReadStar::transData()
                     {
                         coDoFloat *data
                             = new coDoFloat(namebuf, new_el);
-                        ERR0((data == NULL), "Error allocating Data Field", return STOP_PIPELINE;);
+                        ERR0(data == NULL, "Error allocating Data Field", return STOP_PIPELINE;);
                         resData = data;
                         float *d;
                         data->getAddress(&d);
@@ -1751,7 +1751,7 @@ int ReadStar::transData()
 
         // --- Mesh
         coDoSet *set = new coDoSet(Mesh, meshObjList);
-        ERR0((set == NULL), "Error getting name 'mesh'", return STOP_PIPELINE;)
+        ERR0(set == NULL, "Error getting name 'mesh'", return STOP_PIPELINE;)
 
         // --- the droplet reader needs this factor
         if (file16->getVersion() >= 3000)
@@ -1788,7 +1788,7 @@ int ReadStar::transData()
 
         // --- Typelist
         set = new coDoSet(Type, typeObjList);
-        ERR0((set == NULL), "Error getting name 'mesh'", return STOP_PIPELINE;)
+        ERR0(set == NULL, "Error getting name 'mesh'", return STOP_PIPELINE;)
         if (num_elem > 1)
         {
             set->addAttribute("TIMESTEP", timestepattr);
@@ -1811,7 +1811,7 @@ int ReadStar::transData()
 
         // --- Polygons for Coupled Sets
         set = new coDoSet(Poly, polyObjList);
-        ERR0((set == NULL), "Error getting name 'mesh'", return STOP_PIPELINE;)
+        ERR0(set == NULL, "Error getting name 'mesh'", return STOP_PIPELINE;)
         if (num_elem > 1)
         {
             set->addAttribute("TIMESTEP", timestepattr);
@@ -1841,7 +1841,7 @@ int ReadStar::transData()
             if (field_no[port] > 0)
             {
                 coDoSet *set = new coDoSet(Data[port], dataObjList[port]);
-                ERR1((set == NULL), "Error creating '%s'", Data[port], return STOP_PIPELINE;)
+                ERR1(set == NULL, "Error creating '%s'", Data[port], return STOP_PIPELINE;)
                 if (num_elem > 1)
                 {
                     set->addAttribute("TIMESTEP", timestepattr);
@@ -2374,7 +2374,7 @@ coDistributedObject *ReadStar::cellToVert(coDoUnstructuredGrid *grid,
     {
         coDoVec3 *v3d = new coDoVec3(name, numVert);
 
-        ERR1((v3d == NULL), "Error allocating '%s'", name,
+        ERR1(v3d == NULL, "Error allocating '%s'", name,
              return NULL;);
         v3d->getAddresses(&vd0, &vd1, &vd2);
 
@@ -2404,7 +2404,7 @@ coDistributedObject *ReadStar::cellToVert(coDoUnstructuredGrid *grid,
     {
         coDoFloat *s3d = new coDoFloat(name, numVert);
 
-        ERR1((s3d == NULL), "Error allocating '%s'", name,
+        ERR1(s3d == NULL, "Error allocating '%s'", name,
              return NULL;);
         s3d->getAddress(&vd0);
 
@@ -2462,7 +2462,7 @@ coDistributedObject *ReadStar::cellToVert(coDoUnstructuredGrid *grid,
     {
         coDoVec3 *v3d = new coDoVec3(name, numVert);
 
-        ERR1((v3d == NULL), "Error allocating '%s'", name,
+        ERR1(v3d == NULL, "Error allocating '%s'", name,
              return NULL;);
         v3d->getAddresses(&vd0, &vd1, &vd2);
 
@@ -2492,7 +2492,7 @@ coDistributedObject *ReadStar::cellToVert(coDoUnstructuredGrid *grid,
     {
         coDoFloat *s3d = new coDoFloat(name, numVert);
 
-        ERR1((s3d == NULL), "Error allocating '%s'", name,
+        ERR1(s3d == NULL, "Error allocating '%s'", name,
              return NULL;);
         s3d->getAddress(&vd0);
 
