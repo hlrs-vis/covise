@@ -1394,13 +1394,33 @@ bool coVRFileManager::update()
 
 void coVRFileManager::loadPartnerFiles()
 {
-    for (size_t i = 0; i < filePaths.value().size(); i++)
+    //unload my files
+    for (auto myFile : m_files)
     {
-        //only load new files
-        if (m_files.find(filePaths.value()[i]) == m_files.end())
+        bool found = false;
+        for (auto theirFile : filePaths.value())
         {
-            loadFile(filePaths.value()[i].c_str());
+            if (myFile.first == theirFile)
+            {
+                myFile.second->load();
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            unloadFile(myFile.first.c_str());
         }
     }
+    
+    
+    //load new partner files
+    std::vector<std::string> newFiles;
+    std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
+    for (auto newFile : newFiles)
+    {
+        loadFile(newFile.c_str());
+    }
+    alreadyLoadedFiles.insert(alreadyLoadedFiles.end(), newFiles.begin(), newFiles.end());
 }
 }

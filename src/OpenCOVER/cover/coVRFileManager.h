@@ -231,6 +231,7 @@ private:
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
     vrb::SharedState<std::vector<std::string>> filePaths;
+    std::vector<std::string> alreadyLoadedFiles;
     void loadPartnerFiles();
 
 
