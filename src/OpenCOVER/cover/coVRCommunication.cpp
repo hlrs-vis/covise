@@ -111,7 +111,7 @@ coVRCommunication::coVRCommunication()
     //randomID = (int)rand(); //nessesary??
 
     //me->setID(randomID);
-    coVRPartnerList::instance()->append(me);
+    coVRPartnerList::instance()->addPartner(me);
     registry = new VrbClientRegistry(me->getID(), vrbc);
     new SharedStateManager(registry);
     m_vrbMenue = new VrbMenue(this);
@@ -123,8 +123,7 @@ coVRCommunication::~coVRCommunication()
 //    delete[] m_vrbMenue;
     delete [] registry;
 
-    if (coVRPartnerList::instance()->find(me))
-        coVRPartnerList::instance()->remove();
+    coVRPartnerList::instance()->removePartner(me->getID());
 
     s_instance = NULL;
 }
@@ -183,7 +182,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     {
         m_privateSessionID = id;
     }
-    me->setSessionID(id);
+    coVRPartnerList::instance()->setSessionID(me->getID(), id);
     TokenBuffer tb;
     tb << id;
     tb << me->getID();
@@ -316,7 +315,7 @@ const char *coVRCommunication::getHostname()
 
 bool coVRCommunication::collaborative() // returns true, if in collaborative mode
 {
-    if (coVRPartnerList::instance()->num() > 1)
+    if (coVRPartnerList::instance()->numberOfPartners() > 1)
         return true;
     if (OpenCOVER::instance()->visPlugin())
         return true;
@@ -325,7 +324,7 @@ bool coVRCommunication::collaborative() // returns true, if in collaborative mod
 
 bool coVRCommunication::isMaster() // returns true, if we are master
 {
-    if (coVRPartnerList::instance()->num() > 1)
+    if (coVRPartnerList::instance()->numberOfPartners() > 1)
     {
         return me->isMaster();
     }
@@ -336,23 +335,12 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
 {
     if (strcmp(key, "MASTER") == 0)
     {
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            p2->setMaster(false);
-            coVRPartnerList::instance()->next();
-        }
-        me->setMaster(true);
+        coVRPartnerList::instance()->setMaster(me->getID());
         coVRCollaboration::instance()->updateSharedStates();
     }
     else if (strcmp(key, "SLAVE") == 0)
     {
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            p2->setMaster(false);
-            coVRPartnerList::instance()->next();
-        }
+        coVRPartnerList::instance()->setMaster(-1); //nobody is master here?
         coVRCollaboration::instance()->updateSharedStates();
     }
 
@@ -502,29 +490,15 @@ void coVRCommunication::handleVRB(Message *msg)
             if (!p)
             {
                 p = new coVRPartner(id);
-                coVRPartnerList::instance()->append(p);
+                coVRPartnerList::instance()->addPartner(p);
             }
             if (p->getID() != me->getID())
                 p->setInfo(tb);
             p->updateUi();
         }
-        coVRPartnerList::instance()->reset();
-        bool haveMaster = false;
-        int minID = 10000000;
-        while (coVRPartner *p = coVRPartnerList::instance()->current())
+        if (!coVRPartnerList::instance()->getMaster() && coVRPartnerList::instance()->numberOfPartners() > 1) // no master, check if we have the lowest ID, then become Master
         {
-            if (p->isMaster())
-            {
-                haveMaster = true;
-                break;
-            }
-            if (p->getID() < minID)
-                minID = p->getID();
-            coVRPartnerList::instance()->next();
-        }
-        if (!haveMaster && coVRPartnerList::instance()->num() > 1) // no master, check if we have the lowest ID, then become Master
-        {
-            if (me->getID() == minID)
+            if (me == coVRPartnerList::instance()->getFirstPartner())
             {
                 TokenBuffer rtb;
                 rtb << 1;
@@ -557,14 +531,9 @@ void coVRCommunication::handleVRB(Message *msg)
     {
         int id;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
-        {
-            vrb::SessionID session;
-            tb >> session;
-            
-            p->setSessionID(session);
-        }
+        vrb::SessionID session;
+        tb >> session;
+        coVRPartnerList::instance()->setSessionID(id, session);
         coVRPartnerList::instance()->print();
     }
     break;
@@ -583,7 +552,7 @@ void coVRCommunication::handleVRB(Message *msg)
         else
         {
             me->setID(id);
-            me->setSessionID(session);
+            coVRPartnerList::instance()->setSessionID(id, session);
         }
         if (vrbc)
         {
@@ -623,21 +592,12 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_SET_MASTER:
     {
         int id;
+        bool masterState;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
+        tb >> masterState;
+        if (masterState)
         {
-            bool masterState;
-            tb >> masterState;
-            p->setMaster(masterState);
-        }
-
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            if (p2 != p)
-                p2->setMaster(0);
-            coVRPartnerList::instance()->next();
+            coVRPartnerList::instance()->setMaster(id);
         }
         coVRPartnerList::instance()->print();
         coVRCollaboration::instance()->updateSharedStates();
@@ -647,13 +607,11 @@ void coVRCommunication::handleVRB(Message *msg)
     {
         int id;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
+        if (id != me->getID())
         {
-            if (p != me)
-                coVRPartnerList::instance()->remove();
+             coVRPartnerList::instance()->removePartner(id);
         }
-        if (coVRPartnerList::instance()->num() <= 1)
+        if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);
     }
     break;
@@ -726,13 +684,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         cerr << "VRB requests to quit" << endl;
-        coVRPartnerList::instance()->reset();
-        while (coVRPartnerList::instance()->num() > 1)
-        {
-            if (coVRPartnerList::instance()->current() == me)
-                coVRPartnerList::instance()->next();
-            coVRPartnerList::instance()->remove();
-        }
+        coVRPartnerList::instance()->removeOthers();
         coVRCollaboration::instance()->showCollaborative(false);
         m_vrbMenue->updateState(false);
         setSessionID(vrb::SessionID());
@@ -824,13 +776,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     {
         cerr << "VRB left" << endl;
-        coVRPartnerList::instance()->reset();
-        while (coVRPartnerList::instance()->num() > 1)
-        {
-            if (coVRPartnerList::instance()->current() == me)
-                coVRPartnerList::instance()->next();
-            coVRPartnerList::instance()->remove();
-        }
+        coVRPartnerList::instance()->removeOthers();
         m_vrbMenue->updateState(false);
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;
@@ -1024,7 +970,7 @@ void coVRCommunication::setCurrentFile(const char *filename)
 
 int coVRCommunication::getNumberOfPartners()
 {
-    return coVRPartnerList::instance()->num();
+    return coVRPartnerList::instance()->numberOfPartners();
 }
 
 Message *coVRCommunication::waitForMessage(int messageType)

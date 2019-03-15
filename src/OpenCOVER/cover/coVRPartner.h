@@ -53,15 +53,13 @@ private:
     std::string name;
     std::string email;
     std::string url;
-    vrb::SessionID m_group;
     bool m_isMaster = false;
     ui::CollaborativePartner *m_ui = nullptr;
 
 public:
     void setID(int id);
-    void setSessionID(const vrb::SessionID &id);
     const vrb::SessionID &getSessionID() const;
-    void setGroup(vrb::SessionID &g);
+    void setSession(const vrb::SessionID &g);
     void setMaster(bool m);
     void setInfo(covise::TokenBuffer &tb);
     void updateUi();
@@ -77,14 +75,23 @@ public:
     void sendHello();
 };
 
-class COVEREXPORT coVRPartnerList: public ui::Owner, public covise::DLinkList<coVRPartner *>
+class COVEREXPORT coVRPartnerList: public ui::Owner //, public covise::DLinkList<coVRPartner *>
 {
     static coVRPartnerList *s_instance;
     coVRPartnerList();
     ui::ButtonGroup *m_group = nullptr;
+    std::map<int, coVRPartner *> partners;
 public:
     ~coVRPartnerList();
     coVRPartner *get(int ID);
+    coVRPartner *getFirstPartner();
+    void addPartner(coVRPartner *p);
+    void removePartner(int id);
+    void removeOthers();
+    int numberOfPartners() const;
+    void setMaster(int id);
+    coVRPartner *getMaster();
+    void setSessionID(int partner, const vrb::SessionID & id);
     void print();
     ui::ButtonGroup *group();
     static coVRPartnerList *instance();
