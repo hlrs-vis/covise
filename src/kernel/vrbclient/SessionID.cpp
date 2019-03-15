@@ -13,7 +13,7 @@ SessionID::SessionID()
     , m_name(std::string())
 {
 }
-SessionID::SessionID(int id, bool isPrivate)
+SessionID::SessionID(const int id, const bool isPrivate)
     :m_owner(id)
     ,m_isPrivate(isPrivate)
     ,m_name(std::string())
