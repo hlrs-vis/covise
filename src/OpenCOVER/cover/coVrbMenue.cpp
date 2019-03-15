@@ -26,10 +26,8 @@
 using namespace covise;
 namespace opencover
 {
-
 VrbMenue::VrbMenue()
-    : ui::Owner("VrbMenu", cover->ui)
-    , participants("coVrbMenue_participants", std::vector<int>(), vrb::ALWAYS_SHARE)
+    :ui::Owner("VRBMenue", cover->ui)
 {
     init();
 }
@@ -158,13 +156,7 @@ void VrbMenue::selectSession(int id)
     //inform the server about the new session
     coVRCommunication::instance()->setSessionID(*it);
 }
-void VrbMenue::signIn(const vrb::SessionID & session)
-{
-    auto p = participants.value();
-    p.push_back(coVRCommunication::instance()->getID());
-    participants = p;
 
-}
 //session functions : public
 void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
 {

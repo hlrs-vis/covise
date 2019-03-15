@@ -26,7 +26,6 @@ namespace ui
 class Action;
 class EditField;
 class Menu;
-class Owner;
 class Group;
 class SelectionList;
 
@@ -45,7 +44,7 @@ private:
     ui::SelectionList *loadSL;
     std::vector<std::string> savedRegistries;
     std::vector<vrb::SessionID> availiableSessions;
-    vrb::SharedState<std::vector<int>> participants;
+
 
     void init();
     void saveSession();
@@ -54,7 +53,6 @@ private:
     void unloadAll();
     void requestNewSession(const std::string & name);
     void selectSession(int id);
-    void signIn(const vrb::SessionID &session);
     const std::string noSavedSession = "nothing";
 public:
     VrbMenue();
