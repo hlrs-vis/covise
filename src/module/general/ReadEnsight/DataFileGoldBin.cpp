@@ -26,7 +26,7 @@
 //
 // Constructor
 //
-DataFileGoldBin::DataFileGoldBin(const coModule *mod,
+DataFileGoldBin::DataFileGoldBin(ReadEnsight *mod,
                                  const string &name,
                                  const int &dim,
                                  const int &numVals,
@@ -59,7 +59,7 @@ DataFileGoldBin::DataFileGoldBin(const coModule *mod,
 }
 
 void
-DataFileGoldBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
+DataFileGoldBin::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -314,7 +314,7 @@ DataFileGoldBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **
             //dc_.cleanAll();
         }
         else
-            createDataOutObj(ens, dim, outObjects, baseName, timeStep,numTimeSteps,false);
+            createDataOutObj(dim, outObjects, baseName, timeStep,numTimeSteps,false);
     }
 
 }
@@ -323,7 +323,7 @@ DataFileGoldBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **
 // Method
 //
 void
-DataFileGoldBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
+DataFileGoldBin::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -437,7 +437,7 @@ DataFileGoldBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outOb
     }
     //buildParts(true);
 
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep, numTimeSteps);
+    createDataOutObj(dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //

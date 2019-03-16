@@ -29,7 +29,7 @@
 //
 // Constructor
 //
-DataFileGold::DataFileGold(const coModule *mod, const string &name, const int &dim, const int &numVals)
+DataFileGold::DataFileGold(ReadEnsight *mod, const string &name, const int &dim, const int &numVals)
     : EnFile(mod, name, dim)
     , lineCnt_(0)
     , numVals_(numVals)
@@ -58,7 +58,7 @@ DataFileGold::DataFileGold(const coModule *mod, const string &name, const int &d
 }
 
 void
-DataFileGold::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
+DataFileGold::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -305,13 +305,13 @@ DataFileGold::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **out
             }
         }
     }
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
+    createDataOutObj(dim, outObjects, baseName, timeStep,false);
 }
 //
 // Method
 //
 void
-DataFileGold::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
+DataFileGold::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     //cerr << "DataFileGold::read() called" << endl;
 
@@ -455,7 +455,7 @@ DataFileGold::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjec
             }
         }
     }
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep, numTimeSteps);
+    createDataOutObj(dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //

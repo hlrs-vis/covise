@@ -24,6 +24,7 @@
 
 #include <util/coviseCompat.h>
 #include <api/coModule.h>
+#include <ReadEnsight.h>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ using namespace std;
 //
 // Constructor
 //
-En6GeoASC::En6GeoASC(const coModule *mod)
+En6GeoASC::En6GeoASC(ReadEnsight *mod)
     : EnFile(mod)
     , lineCnt_(0)
     , numCoords_(0)
@@ -43,7 +44,7 @@ En6GeoASC::En6GeoASC(const coModule *mod)
     className_ = string("En6GeoASC");
 }
 
-En6GeoASC::En6GeoASC(const coModule *mod, const string &name)
+En6GeoASC::En6GeoASC(ReadEnsight *mod, const string &name)
     : EnFile(mod, name)
     , lineCnt_(0)
     , numCoords_(0)
@@ -63,7 +64,7 @@ En6GeoASC::~En6GeoASC()
 }
 
 void
-En6GeoASC::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
+En6GeoASC::read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     // read header
     readHeader();
@@ -72,7 +73,7 @@ En6GeoASC::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2
     // read connectivity
     readConn();
     // TBD: err handling
-    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
+    createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
 }
 
 // read header
@@ -413,7 +414,7 @@ En6GeoASC::readConn()
     EnPart *actPart(NULL);
 
     // use the master part info to allocate element and corner lists
-    if (masterPL_.empty())
+    if (ens->masterPL_.empty())
         cerr << className_ << "::readConnX() MPL EMPTY!!! " << endl;
 
     bool partActive = false;
@@ -500,12 +501,12 @@ En6GeoASC::readConn()
 
             // find part with actPartNr in masterPL_
             unsigned int ii;
-            for (ii = 0; ii < masterPL_.size(); ++ii)
+            for (ii = 0; ii < ens->masterPL_.size(); ++ii)
             {
-                if (masterPL_[ii].getPartNum() == actPartNr)
+                if (ens->masterPL_[ii].getPartNum() == actPartNr)
                 {
                     // set active flag
-                    EnPart &theMasterPart(masterPL_[ii]);
+                    EnPart &theMasterPart(ens->masterPL_[ii]);
                     partActive = theMasterPart.isActive();
                     actPart->activate(partActive);
                     // set array sizes for elemen and cornerlists from MasterPartList

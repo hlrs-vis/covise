@@ -22,6 +22,7 @@
 
 #include "EnGoldGeoBIN.h"
 #include "GeoFileAsc.h"
+#include "ReadEnsight.h"
 #include <api/coModule.h>
 #include <util/byteswap.h>
 
@@ -32,7 +33,7 @@
 //
 // Constructor
 //
-EnGoldGeoBIN::EnGoldGeoBIN(const coModule *mod)
+EnGoldGeoBIN::EnGoldGeoBIN(ReadEnsight *mod)
     : EnFile(mod)
     , lineCnt_(0)
     , numCoords_(0)
@@ -47,7 +48,7 @@ EnGoldGeoBIN::EnGoldGeoBIN(const coModule *mod)
     className_ = string("EnGoldGeoBIN");
 }
 
-EnGoldGeoBIN::EnGoldGeoBIN(const coModule *mod, const string &name, EnFile::BinType binType)
+EnGoldGeoBIN::EnGoldGeoBIN(ReadEnsight *mod, const string &name, EnFile::BinType binType)
     : EnFile(mod, binType)
     , lineCnt_(0)
     , numCoords_(0)
@@ -84,10 +85,10 @@ EnGoldGeoBIN::EnGoldGeoBIN(const coModule *mod, const string &name, EnFile::BinT
 // thats the gereral read method
 //
 void
-EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
+EnGoldGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     //cerr << className_ << "::read() called" << endl;
-    module_->sendInfo("%s", "start reading parts  -  please be patient..");
+    ens->sendInfo("%s", "start reading parts  -  please be patient..");
     // read header
     readHeader();
 
@@ -98,12 +99,12 @@ EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjec
     //allocateMemory();
 
     int allPartsToRead(0);
-    if (!masterPL_.empty())
+    if (!ens->masterPL_.empty())
     {
         unsigned int ii;
-        for (ii = 0; ii < masterPL_.size(); ++ii)
+        for (ii = 0; ii < ens->masterPL_.size(); ++ii)
         {
-            if (masterPL_[ii].isActive())
+            if (ens->masterPL_[ii].isActive())
             {
                 allPartsToRead++;
             }
@@ -114,8 +115,8 @@ EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjec
     int cnt = 0;
     partFound = false;
     // read parts and connectivity
-    PartList::iterator it(masterPL_.begin());
-    for (; it != masterPL_.end(); it++)
+    PartList::iterator it(ens->masterPL_.begin());
+    for (; it != ens->masterPL_.end(); it++)
     {
         if (it->isActive())
         {
@@ -123,7 +124,7 @@ EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjec
             readPart(part);
             readPartConn(part);
             sprintf(buf, "read part#%d :  %d of %d", it->getPartNum(), cnt, allPartsToRead);
-            module_->sendInfo("%s", buf);
+            ens->sendInfo("%s", buf);
             cnt++;
         }
         else
@@ -134,11 +135,9 @@ EnGoldGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjec
     }
 
     sprintf(buf, "done reading parts  %d parts read", cnt);
-    module_->sendInfo("%s", buf);
+    ens->sendInfo("%s", buf);
 
-
-    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
-
+    createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
     return;
 }
 
@@ -195,7 +194,7 @@ EnGoldGeoBIN::readHeader()
         size_t tt(checkTs.find("BEGIN TIME STEP"));
         if (tt != string::npos)
         {
-            module_->sendInfo("%s", "found multiple timesteps in one file - ONLY THE FIRST TIMESTEP IS READ - ALL OTHERS ARE IGNORED");
+            ens->sendInfo("%s", "found multiple timesteps in one file - ONLY THE FIRST TIMESTEP IS READ - ALL OTHERS ARE IGNORED");
             getStr();
         }
 
@@ -291,7 +290,7 @@ EnGoldGeoBIN::readPart(EnPart &actPart)
             {
                 if (line.find("block") != string::npos)
                 {
-                    module_->sendInfo("%s", "found structured part - not implemented yet -");
+                    ens->sendInfo("%s", "found structured part - not implemented yet -");
                     return -1;
                 }
 
@@ -657,7 +656,7 @@ EnGoldGeoBIN::readPartConn(EnPart &actPart)
         }
 
         sprintf(buf, " -> found %d fully degenerated cells in part %d", degCells, partNo);
-        module_->sendInfo("%s", buf);
+        ens->sendInfo("%s", buf);
     }
 
     return ret;
@@ -683,7 +682,7 @@ EnGoldGeoBIN::parseForParts()
 
     readHeader();
     readBB();
-    module_->sendInfo("%s", "getting parts  -  please wait...");
+    ens->sendInfo("%s", "getting parts  -  please wait...");
 
 	if (!isOpen_)
 	{
@@ -848,16 +847,16 @@ EnGoldGeoBIN::allocateMemory()
     int totNumEle(0);
     int totNumCorners(0);
 
-    if (!masterPL_.empty())
+    if (!ens->masterPL_.empty())
     {
         unsigned int ii;
-        for (ii = 0; ii < masterPL_.size(); ++ii)
+        for (ii = 0; ii < ens->masterPL_.size(); ++ii)
         {
-            if (masterPL_[ii].isActive())
+            if (ens->masterPL_[ii].isActive())
             {
-                totNumEle += masterPL_[ii].getTotNumEle();
-                totNumCorners += masterPL_[ii].getTotNumberOfCorners();
-                totNumCoords += masterPL_[ii].numCoords();
+                totNumEle += ens->masterPL_[ii].getTotNumEle();
+                totNumCorners += ens->masterPL_[ii].getTotNumberOfCorners();
+                totNumCoords += ens->masterPL_[ii].numCoords();
             }
         }
         // prepare dc - allocate fields

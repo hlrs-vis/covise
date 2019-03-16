@@ -29,16 +29,16 @@ class DataFileBin : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    DataFileBin(const coModule *mod);
-    DataFileBin(const coModule *mod,
+    DataFileBin(ReadEnsight *mod);
+    DataFileBin(ReadEnsight *mod,
                 const string &name,
                 const int &dim,
                 const int &numVals,
                 const EnFile::BinType &binType = CBIN);
 
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
+    void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
-    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
+    void readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
     virtual coDistributedObject *getDataObject(std::string s);
 

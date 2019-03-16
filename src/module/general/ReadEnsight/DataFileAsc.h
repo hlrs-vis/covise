@@ -28,12 +28,12 @@ class DataFileAsc : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    DataFileAsc(const coModule *mod);
-    DataFileAsc(const coModule *mod, const string &name, const int &dim, const int &numVals);
+    DataFileAsc(ReadEnsight *mod);
+    DataFileAsc(ReadEnsight *mod, const string &name, const int &dim, const int &numVals);
 
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
+    void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
-    void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
+    void readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps);
 
     void setIndexMap(const int *im);
 

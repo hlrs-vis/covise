@@ -21,6 +21,7 @@
 
 #include "GeoFileBin.h"
 #include "GeoFileAsc.h"
+#include "ReadEnsight.h"
 #include <algorithm>
 #include <functional>
 #include <string>
@@ -33,7 +34,7 @@ using namespace std;
 //
 // Constructor
 //
-En6GeoBIN::En6GeoBIN(const coModule *mod, const string &name, EnFile::BinType binType)
+En6GeoBIN::En6GeoBIN(ReadEnsight *mod, const string &name, EnFile::BinType binType)
     : EnFile(mod, binType)
     , indexMap_(NULL)
     , resetAllocInc_(true)
@@ -537,7 +538,7 @@ En6GeoBIN::readConn()
     int cnt(0);
 
     EnPart *actPart(NULL);
-    if (masterPL_.empty())
+    if (ens->masterPL_.empty())
         cerr << className_ << "::readConn() masterPL_ is empty() " << endl;
 
     bool partActive(false);
@@ -622,12 +623,12 @@ En6GeoBIN::readConn()
 
             // find part with actPartNr in masterPL_
             unsigned int ii;
-            for (ii = 0; ii < masterPL_.size(); ++ii)
+            for (ii = 0; ii < ens->masterPL_.size(); ++ii)
             {
-                if (masterPL_[ii].getPartNum() == actPartNr)
+                if (ens->masterPL_[ii].getPartNum() == actPartNr)
                 {
-                    EnPart &theMasterPart(masterPL_[ii]);
-                    partActive = masterPL_[ii].isActive();
+                    EnPart &theMasterPart(ens->masterPL_[ii]);
+                    partActive = ens->masterPL_[ii].isActive();
                     actPart->activate(partActive);
                     //if ( partActive )
                     //    cerr << className_ << "::readConnX() will read active part " << actPartNr << endl;
@@ -866,14 +867,14 @@ En6GeoBIN::readConn()
 }
 
 void
-En6GeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
+En6GeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     readHeader();
 
     readCoords();
 
     readConn();
-    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
+    createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
 }
 
 //

@@ -38,14 +38,14 @@ class En6GeoBIN : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    En6GeoBIN(const coModule *mod);
+    En6GeoBIN(ReadEnsight *mod);
 
     // creates file-rep. and opens the file
-    En6GeoBIN(const coModule *mod, const string &name,
+    En6GeoBIN(ReadEnsight *mod, const string &name,
               EnFile::BinType binType = EnFile::CBIN);
 
     // read the file
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
+    void read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
 
     // destructor
     virtual ~En6GeoBIN();
@@ -74,7 +74,7 @@ private:
     int *indexMap_; // index map array if node id: GIVEN
     int maxIndex_; // max possible  index of indexmap
 
-    vector<EnPart> parts_; // contains all parts of the current geometry
+    //vector<EnPart> parts_; // contains all parts of the current geometry
     bool resetAllocInc_;
     int allocOffset_;
     bool debug_;

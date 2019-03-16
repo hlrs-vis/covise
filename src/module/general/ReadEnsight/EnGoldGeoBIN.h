@@ -29,13 +29,13 @@ class EnGoldGeoBIN : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    EnGoldGeoBIN(const coModule *mod);
+    EnGoldGeoBIN(ReadEnsight *mod);
 
     // creates file-rep. and opens the file
-    EnGoldGeoBIN(const coModule *mod, const string &name, EnFile::BinType binType = EnFile::CBIN);
+    EnGoldGeoBIN(ReadEnsight *mod, const string &name, EnFile::BinType binType = EnFile::CBIN);
 
     /// read the file
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
+    void read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
 
     // get part info
     void parseForParts();
@@ -73,8 +73,6 @@ private:
     int actPartNumber_;
     int currElementIdx_;
     int currCornerIdx_;
-
-    vector<EnPart> parts_; // contains all parts of the current geometry
 
     bool allocated_;
 
