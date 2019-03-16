@@ -2290,7 +2290,7 @@ ReadEnsight::readData1d(const int &portTok1d,
 
     // set object names and create object arrays for timesteps
     string objNameBase1d = READER_CONTROL->getAssocObjName(portTok1d);
-    coDistributedObject **objects1d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects1d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
@@ -2425,7 +2425,7 @@ ReadEnsight::readData2d(const int &portTok2d,
 
     // set object names and create object arrays for timesteps
     string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
-    coDistributedObject **objects2d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects2d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
@@ -2584,7 +2584,7 @@ ReadEnsight::readData3d(const int &portTok3d,
 
     // set object names and create object arrays for timesteps
     string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-    coDistributedObject **objects3d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects3d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
