@@ -14,6 +14,7 @@
 #include <memory>
 #include <vrbclient/SessionID.h>
 #include <vrbclient/SharedState.h>
+#include "ui/Owner.h"
 
 namespace vrb
 {
@@ -31,10 +32,9 @@ class SelectionList;
 
 }
 
-class VrbMenue
+class VrbMenue: public ui::Owner
 {
 private:
-    ui::Owner *m_owner;
     ui::Menu *menue;
     ui::Group *sessionGroup;
     ui::Group *ioGroup;
@@ -57,7 +57,7 @@ private:
     void signIn(const vrb::SessionID &session);
     const std::string noSavedSession = "nothing";
 public:
-    VrbMenue(ui::Owner *owner);
+    VrbMenue();
     void updateState(bool state);
     void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);

@@ -112,16 +112,14 @@ coVRCommunication::coVRCommunication()
 
     //me->setID(randomID);
     coVRPartnerList::instance()->addPartner(me);
-    registry = new VrbClientRegistry(me->getID(), vrbc);
-    new SharedStateManager(registry);
-    m_vrbMenue = new VrbMenue(this);
+    registry.reset(new VrbClientRegistry(me->getID(), vrbc));
+    new SharedStateManager(registry.get());
+    m_vrbMenue.reset(new VrbMenue());
 }
 
 coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
-//    delete[] m_vrbMenue;
-    delete [] registry;
 
     coVRPartnerList::instance()->removePartner(me->getID());
 

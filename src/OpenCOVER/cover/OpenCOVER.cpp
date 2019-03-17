@@ -1358,10 +1358,10 @@ OpenCOVER::~OpenCOVER()
     VRViewer::instance()->stopThreading();
     VRViewer::instance()->setSceneData(NULL);
     //delete vrbHost;
-    delete coVRPartnerList::instance();
     delete coVRAnimationManager::instance();
     delete coVRNavigationManager::instance();
     delete coVRCommunication::instance();
+    delete coVRPartnerList::instance();
     delete ARToolKit::instance();
     delete coVRTui::instance();
 

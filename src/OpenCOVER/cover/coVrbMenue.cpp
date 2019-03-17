@@ -26,8 +26,9 @@
 using namespace covise;
 namespace opencover
 {
-VrbMenue::VrbMenue(ui::Owner *owner)
-    :m_owner(owner)
+
+VrbMenue::VrbMenue()
+    : ui::Owner("VrbMenu", cover->ui)
     , participants("coVrbMenue_participants", std::vector<int>(), vrb::ALWAYS_SHARE)
 {
     init();
@@ -35,7 +36,7 @@ VrbMenue::VrbMenue(ui::Owner *owner)
 
 void VrbMenue::init()
 {
-    menue = new ui::Menu("VrbOptions", m_owner);
+    menue = new ui::Menu("VrbOptions", this);
     menue->setText("Vrb");
 
     ioGroup = new ui::Group(menue, "ioGroup");

@@ -54,18 +54,6 @@ class SelectionList;
 };
 class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public ui::Owner
 {
-
-private:
-    coVRCommunication();
-    static coVRCommunication *s_instance;
-    char *currentFile;
-    coVRPartner *me = nullptr;
-    int RILockArray[1000];
-    int randomID;
-    bool ignoreRemoteTransform;
-    std::map<int, VRBData *> mfbData;
-    VrbMenue *m_vrbMenue;
-    vrb::SessionID m_privateSessionID;
 public:
     enum
     {
@@ -103,9 +91,20 @@ public:
     virtual void update(vrb::clientRegClass *theChangedClass);
 
     void becomeMaster();
-    vrb::VrbClientRegistry *registry;
     covise::Message *waitForMessage(int messageType);
+    std::unique_ptr<vrb::VrbClientRegistry> registry;
 
+private:
+    coVRCommunication();
+    static coVRCommunication *s_instance;
+    char *currentFile;
+    coVRPartner *me = nullptr;
+    int RILockArray[1000];
+    int randomID;
+    bool ignoreRemoteTransform;
+    std::map<int, VRBData *> mfbData;
+    std::unique_ptr<VrbMenue> m_vrbMenue;
+    vrb::SessionID m_privateSessionID;
 };
 }
 #endif
