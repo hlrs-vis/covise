@@ -87,6 +87,7 @@ public:
     coVRPartner *getFirstPartner();
     void addPartner(coVRPartner *p);
     void removePartner(int id);
+    void changePartnerID(int oldID, int newID);
     void removeOthers();
     int numberOfPartners() const;
     void setMaster(int id);

@@ -67,12 +67,9 @@ coVRPartner::~coVRPartner()
 void coVRPartner::setID(int id)
 {
     std::cerr << "*** coVRPartner: own ID is " << id << " ***" << std::endl;
+    coVRPartnerList::instance()->changePartnerID(m_id, id);
     m_id = id;
 }
-
-
-
-
 
 const vrb::SessionID &opencover::coVRPartner::getSessionID() const
 {
@@ -259,6 +256,8 @@ void coVRPartner::print() const
     cerr << "Master:   " << m_isMaster << endl;
 }
 
+//////////////////////////////coVRPartnerList//////////////////////////////
+
 coVRPartner *coVRPartnerList::get(int id)
 {
     auto it = partners.find(id);
@@ -287,8 +286,23 @@ void opencover::coVRPartnerList::addPartner(coVRPartner * p)
 
 void opencover::coVRPartnerList::removePartner(int id)
 {
+    setSessionID(id, vrb::SessionID(0, "asdsadagbbdalsadjsdahklagjadk"));
     delete partners[id];
     partners.erase(id);
+}
+
+void opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
+{
+    if (auto newPlace = partners.find(newID) != partners.end())
+    {
+        std::cerr << "there is already a partner with " << newID << "registered in coVRParnerList" << std::endl;
+    }
+    auto it = partners.find(oldID);
+    if (it != partners.end())
+    {
+        std::swap(partners[newID], it->second);
+        partners.erase(it);
+    }
 }
 
 void opencover::coVRPartnerList::removeOthers()
@@ -305,6 +319,7 @@ void opencover::coVRPartnerList::removeOthers()
             ++p;
         }
     }
+    coVRCollaboration::instance()->showCollaborative(false);
 }
 
 int opencover::coVRPartnerList::numberOfPartners() const
@@ -336,24 +351,27 @@ coVRPartner * opencover::coVRPartnerList::getMaster()
     return nullptr;
 }
 
-void opencover::coVRPartnerList::setSessionID(int partner, const vrb::SessionID & id)
+void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionID & newSession)
 {
-    coVRPartner *part = get(partner);
-    if(!get(partner))
+    coVRPartner *partner = get(partnerID);
+
+    int myID = coVRCommunication::instance()->getID();
+    if(!partner)
     {
         return;
     }
-    vrb::SessionID oldSession = get(partner)->getID();
-    get(partner)->setSession(id);
-    if (get(partner)->getID() == coVRCommunication::instance()->getID()) //this client changed session
+    vrb::SessionID oldSession = partner->getSessionID();
+    partner->setSession(newSession);
+    vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
+    if (partnerID == myID) //this client changed session
     {
-        vrb::VrbClientRegistry::instance->resubscribe(id, oldSession);
+        vrb::VrbClientRegistry::instance->resubscribe(newSession, oldSession);
         coVRCollaboration::instance()->updateSharedStates();
         bool alone = true;
         //check if other partners are in my new session
-        for (auto partner : partners)
+        for (auto p : partners)
         {
-            if (partner.second->getID() != coVRCommunication::instance()->getID() && partner.second->getSessionID() == id)
+            if (p.first != myID && p.second->getSessionID() == newSession)
             {
                 alone = false;
                 break;
@@ -372,23 +390,23 @@ void opencover::coVRPartnerList::setSessionID(int partner, const vrb::SessionID 
     else //other client changed session
     {
 
-        if (oldSession == coVRCommunication::instance()->getSessionID()) //client left my session
+        if (oldSession == mySession && !mySession.isPrivate()) //client left my session
         {
             bool lastInSession = true;
-            for (auto partner : partners)
+            for (auto p : partners)
             {
-                if (partner.second->getID() != coVRCommunication::instance()->getID() && partner.second->getSessionID() == coVRCommunication::instance()->getID())
+                if (p.first != myID && p.second->getSessionID() == mySession)
                 {
                     lastInSession = false;
                     break;
                 }
             }
            if (lastInSession)
-            {
+           {
                 coVRCollaboration::instance()->showCollaborative(false);
-            }
+           }
         }
-        if (id == coVRCommunication::instance()->getSessionID()) //client joined my sessison
+        if (newSession == mySession) //client joined my sessison
         {
             coVRCollaboration::instance()->showCollaborative(true);
         }
