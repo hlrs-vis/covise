@@ -87,7 +87,7 @@ private:
     int bytesSentPerSecond;
     int bytesReceivedPerSecond;
     QSocketNotifier *socketNotifier;
-    static int s_idCounter;
+
     double time();
 };
 

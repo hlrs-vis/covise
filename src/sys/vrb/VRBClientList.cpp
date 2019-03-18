@@ -38,7 +38,7 @@ QPixmap *VRBSClient::pix_master = NULL;
 QPixmap *VRBSClient::pix_slave = NULL;
 
 VRBClientList clients;
-
+static std::set<int> s_clientIDs;
 #ifdef _WIN32
 
 // Windows
@@ -70,7 +70,7 @@ double VRBSClient::time()
 }
 #endif // _WIN32
 
-int VRBSClient::s_idCounter = 1;
+
 VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
 {
 #ifdef GUI
@@ -83,8 +83,13 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     address = ip;
     m_name = n;
     conn = c;
-    myID = s_idCounter++;
-    m_group = -1;
+    myID = 1;
+    while (s_clientIDs.find(myID) != s_clientIDs.end())
+    {
+        ++myID;
+    }
+    s_clientIDs.insert(myID);
+    m_group = vrb::SessionID();
     TokenBuffer rtb;
     rtb << myID;
     rtb << m_group;
@@ -172,8 +177,13 @@ VRBSClient::VRBSClient(Connection *c, QSocketNotifier *sn)
     address = "localhost";
     m_name = "NONE";
     conn = c;
-    myID = s_idCounter++;
-    m_group = -1;
+    myID = 1;
+    while (s_clientIDs.find(myID) != s_clientIDs.end())
+    {
+        ++myID;
+    }
+    s_clientIDs.insert(myID);
+    m_group = vrb::SessionID();
     m_master = 0;
     myItem = NULL;
     interval = 1;
@@ -196,6 +206,7 @@ VRBSClient::~VRBSClient()
     //cerr << "ID" <<myID << endl;
 
     delete conn;
+    s_clientIDs.erase(myID);
     cerr << "closed connection to client " << myID << endl;
 #ifdef GUI
     delete socketNotifier;
@@ -399,6 +410,7 @@ void VRBClientList::addClient(VRBSClient * cl)
 void VRBClientList::removeClient(VRBSClient * cl)
 {
     m_clients.erase(cl);
+    delete cl;
 }
 
 void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session)
