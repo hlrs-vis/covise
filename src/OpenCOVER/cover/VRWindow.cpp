@@ -594,7 +594,7 @@ VRWindow::createWin(int i)
         fprintf(stderr, "VRWindow::createWin %d --- finished\n", i);
     //sleep(200);
     return true;
-    }
+}
 
     bool VRWindow::destroyWin(int i)
     {

@@ -1106,6 +1106,19 @@ VRViewer::config()
         statsDisplay->enableFinishStats(m_requireGlFinish);
         statsDisplay->enableSyncStats(coVRMSController::instance()->isCluster());
     }
+
+    bool syncToVBlankConfigured = false;
+    bool syncToVBlank = covise::coCoviseConfig::isOn("COVER.SyncToVBlank", false, &syncToVBlankConfigured);
+    for (size_t i=0; i<coVRConfig::instance()->numWindows(); ++i)
+    {
+        if (syncToVBlankConfigured)
+        {
+            if (auto win = coVRConfig::instance()->windows[i].window)
+            {
+                win->setSyncToVBlank(syncToVBlank);
+            }
+        }
+    }
 }
 
 //OpenCOVER
