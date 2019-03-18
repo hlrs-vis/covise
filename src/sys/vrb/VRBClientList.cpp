@@ -415,13 +415,13 @@ void VRBClientList::removeClient(VRBSClient * cl)
 
 void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session)
 {
-    if (session.isPrivate() && session.owner() < 0)
+    if (session.isPrivate())
     {
         return;
     }
     for (auto cl : m_clients)
     {
-        if (cl->conn != msg->conn && (cl->getSession() == session || session == vrb::SessionID()))
+        if (cl->conn != msg->conn && (cl->getSession() == session || session == vrb::SessionID(0,"",false)))
         {
             cl->conn->send_msg(msg);
             cl->addBytesReceived(msg->length);

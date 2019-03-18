@@ -1457,10 +1457,9 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c = clients.get(senderID);
         if (c)
         {
-            if (!sessionID.isPrivate())
-            {
-                c->setSesion(sessionID);
-            }
+
+            c->setSesion(sessionID);
+
         }
         TokenBuffer rtb;
         rtb << c->getID();

@@ -119,7 +119,7 @@ public:
     void addClient(VRBSClient *cl);
     void removeClient(VRBSClient *cl);
     ///send Message to all clients but the sender of the message
-    void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID());
+    void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     ///write the info of all clients in the tokenbuffer
     void collectClientInfo(covise::TokenBuffer &tb);
 };
