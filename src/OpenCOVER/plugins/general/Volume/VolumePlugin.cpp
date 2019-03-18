@@ -1295,7 +1295,7 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDes
     const char *fn = coVRFileManager::instance()->getName(fName);
     if (!fn)
     {
-        cerr << "Invalid file name" << endl;
+        cerr << "Invalid file name: " << (fName ? fName : "(null)") << endl;
         return 0;
     }
 
