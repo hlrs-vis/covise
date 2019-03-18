@@ -34,6 +34,7 @@ public:
     bool operator !=(const SessionID &other) const;
     bool operator <(const SessionID &other) const;
     SessionID &operator=(const SessionID &other);
+    SessionID &operator=(const int other) = delete;
     std::string toText() const;
 private:
     int m_owner = 0;
