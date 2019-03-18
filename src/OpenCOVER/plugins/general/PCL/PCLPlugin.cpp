@@ -288,6 +288,8 @@ int PCLPlugin::loadOCT(const char *filename, osg::Group *loadParent)
 	if(parentNode==NULL)
 		parentNode = cover->getObjectsRoot();
 	parentNode->addChild(lod.get());;*/
+
+    return -1;
 }
 
 int PCLPlugin::unloadPCD(const char *filename, const char *)
