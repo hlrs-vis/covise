@@ -26,8 +26,6 @@
 #include "ui/ButtonGroup.h"
 #include "ui/Group.h"
 #include <vrbclient/VrbClientRegistry.h>
-#include <osg/MatrixTransform>
-#include "VRSceneGraph.h"
 
 using namespace opencover;
 using covise::coCoviseConfig;
@@ -59,7 +57,11 @@ coVRPartner::coVRPartner(int id)
 
 coVRPartner::~coVRPartner()
 {
-    delete m_avatar;
+    VRAvatar *a = VRAvatarList::instance()->get(address.c_str());
+    if (a)
+    {
+        VRAvatarList::instance()->remove(a);
+    }
 }
 
 void coVRPartner::setID(int id)
@@ -254,16 +256,6 @@ void coVRPartner::print() const
     cerr << "Master:   " << m_isMaster << endl;
 }
 
-VRAvatar * opencover::coVRPartner::getAvatar()
-{
-    return m_avatar;
-}
-
-void opencover::coVRPartner::setAvatar(VRAvatar * avatar)
-{
-    m_avatar = avatar;
-}
-
 //////////////////////////////coVRPartnerList//////////////////////////////
 
 coVRPartner *coVRPartnerList::get(int id)
@@ -382,17 +374,7 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
             if (p.first != myID && p.second->getSessionID() == newSession)
             {
                 alone = false;
-                if (p.second->getAvatar())
-                {
-                    p.second->getAvatar()->show();
-                }
-            }
-            else
-            {
-                if (p.second->getAvatar())
-                {
-                    p.second->getAvatar()->hide();
-                }
+                break;
             }
         }
         if (alone)
@@ -410,10 +392,6 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
 
         if (oldSession == mySession && !mySession.isPrivate()) //client left my session
         {
-            if (partner->getAvatar())
-            {
-                partner->getAvatar()->hide();
-            };
             bool lastInSession = true;
             for (auto p : partners)
             {
@@ -430,116 +408,10 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
         }
         if (newSession == mySession) //client joined my sessison
         {
-            if (partner->getAvatar())
-            {
-                partner->getAvatar()->show();
-            }
             coVRCollaboration::instance()->showCollaborative(true);
         }
     }
 
-}
-void opencover::coVRPartnerList::sendAvatarMessage()
-{
-    // all data is in object Coordinates
-
-    osg::Matrix invbase = cover->getInvBaseMat();
-    osg::Matrix handmat = cover->getPointerMat();
-    handmat *= invbase;
-    osg::Matrix headmat = cover->getViewerMat();
-    osg::Vec3 toFeet;
-    toFeet = headmat.getTrans();
-    toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    osg::Matrix feetmat;
-    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
-    headmat *= invbase;
-    feetmat *= invbase;
-
-    covise::TokenBuffer tb;
-    tb << std::string("AvatarX");
-    tb << coVRCommunication::instance()->getID();
-    std::string adress(coVRCommunication::instance()->getHostaddress());
-    tb << adress;
-    //osg::Matrix test;
-    //test(0, 0) = 1;     test(0, 1) = 2;     test(0, 2) = 3;     test(0, 3) = 4;
-    //test(1, 0) = 5;     test(1, 1) = 6;     test(1, 2) = 7;     test(1, 3) = 8;
-    //test(2, 0) = 9;     test(2, 1) = 10;    test(2, 2) = 11;    test(2, 3) = 12;
-    //test(3, 0) = 13;    test(3, 1) = 14;    test(3, 2) = 15;    test(3, 3) = 16;
-    vrb::serialize(tb, headmat);
-    vrb::serialize(tb, handmat);
-    vrb::serialize(tb, feetmat);
-
-    cover->sendBinMessage(tb);
-
-}
-void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
-{
-    int sender;
-    std::string adress;
-    tb >> sender; 
-    tb >> adress;
-    coVRPartner *p = get(sender);
-    if (p)
-    {
-        VRAvatar *av = p->getAvatar();
-        if (!av)
-        {
-            av = new VRAvatar(sender, adress);
-            if (m_avatarsVisible && p->getID() != coVRCommunication::instance()->getID() && p->getSessionID() == coVRCommunication::instance()->getSessionID())
-            {
-                av->show();
-            }
-            else
-            {
-                av->hide();
-            }
-            p->setAvatar(av);
-        }
-        osg::Matrix head, hand, feet;
-        vrb::deserialize(tb, head);
-        vrb::deserialize(tb, hand);
-        vrb::deserialize(tb, feet);
-        av->headTransform->setMatrix(head);
-        av->handTransform->setMatrix(hand);
-        av->feetTransform->setMatrix(feet);
-    }
-
-
-}
-void opencover::coVRPartnerList::showAvatars()
-{
-    int myID = coVRCommunication::instance()->getID();
-    vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
-    for (auto partner : partners)
-    {
-        if (partner.second->getAvatar())
-        {
-            if (partner.first != myID && partner.second->getSessionID() == mySession)
-            {
-                partner.second->getAvatar()->show();
-            }
-            else
-            {
-                partner.second->getAvatar()->hide();
-            }
-        }
-    }
-    m_avatarsVisible = true;
-}
-void opencover::coVRPartnerList::hideAvatars()
-{
-    for (auto partner : partners)
-    {
-        if (partner.second->getAvatar())
-        {
-            partner.second->getAvatar()->hide();
-        }
-    }
-    m_avatarsVisible = false;
-}
-bool opencover::coVRPartnerList::avatarsVisible()
-{
-    return m_avatarsVisible;
 }
 void coVRPartnerList::print()
 {
@@ -582,4 +454,3 @@ coVRPartnerList *coVRPartnerList::instance()
         s_instance = new coVRPartnerList;
     return s_instance;
 }
-
