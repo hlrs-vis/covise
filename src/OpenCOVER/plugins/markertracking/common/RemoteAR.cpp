@@ -722,7 +722,7 @@ bool RemoteAR::initDecoder()
 #endif
 }
 
-int RemoteAR::sendBinARMessage(const char *keyword, const char *data, int len)
+int RemoteAR::sendBinARMessage(covise::TokenBuffer &tb)
 {
     int size = 0;
 
@@ -732,26 +732,9 @@ int RemoteAR::sendBinARMessage(const char *keyword, const char *data, int len)
         //Check if we are master first, cause we only send from master
         if (!coVRMSController::instance()->isSlave())
         {
-            Message *msg = new Message();
-
             //Create Covise message
-            size = strlen(keyword) + 2;
-            size += len;
-
-            /*if(m_send_message->length < size)
-         {
-            delete[] m_send_message->data;
-            m_send_message->data = new char[size];
-         }*/
-
-            msg->data = new char[size];
-
-            msg->data[0] = 0;
-            strcpy(&msg->data[1], keyword);
-            memcpy(&msg->data[strlen(keyword) + 2], data, len);
-
-            msg->type = Message::RENDER;
-            msg->length = size;
+            Message msg(tb);
+            msg.type = Message::RENDER;
 
             //Send to ASC here
             //Create client connection
@@ -760,11 +743,8 @@ int RemoteAR::sendBinARMessage(const char *keyword, const char *data, int len)
             if (irmos_client->is_connected())
             {
                 //irmos_client->send_msg_fast(m_send_message);
-                irmos_client->send_msg(msg);
+                irmos_client->send_msg(&msg);
             }
-
-            delete[] msg -> data;
-            delete msg;
 
 #ifdef _DEBUG
 /*std::cerr << "Send COVISE AR-message" << std::endl;
@@ -784,7 +764,7 @@ int RemoteAR::sendBinARMessage(const char *keyword, const char *data, int len)
 #endif
         if (cover->isVRBconnected())
         {
-            return cover->sendBinMessage(keyword, data, len);
+            return cover->sendBinMessage(tb);
         }
     }
     return 1;

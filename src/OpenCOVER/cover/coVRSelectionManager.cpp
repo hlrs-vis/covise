@@ -16,6 +16,7 @@
 #include <osgFX/Outline>
 #include <osg/MatrixTransform>
 
+#include <net/tokenbuffer.h>
 #include <util/string_util.h>
 
 using namespace opencover;
@@ -376,16 +377,13 @@ void coVRSelectionManager::showhideSelection(int mode)
     SelOnOff = mode;
 }
 
-void coVRSelectionManager::receiveAdd(const char *messageData)
+void coVRSelectionManager::receiveAdd(covise::TokenBuffer &messageData)
 {
-    if (!messageData)
-        return;
+    std::string parentPath; 
+    std::string nodePath; 
 
-    std::string str(messageData);
-    std::vector<std::string> tokens = split(str, '?');
-
-    std::string &parentPath = tokens[0];
-    std::string &nodePath = tokens[1];
+    messageData >> parentPath;
+    messageData >> nodePath;
 
     osg::Node *parent = validPath(parentPath);
     osg::Node *node = validPath(nodePath);
@@ -402,12 +400,12 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
 
     if (send)
     {
-        std::string msg = generatePath(parent);
-        msg.append("?");
-        msg.append(generatePath(selectedNode));
-        char *charmsg = (char *)msg.c_str();
-        int len = strlen(charmsg) + 1;
-        cover->sendBinMessage("ADD_SELECTION", charmsg, len);
+        covise::TokenBuffer tb;
+        tb << std::string("ADD_SELECTION");
+        tb <<generatePath(parent);
+        tb << generatePath(selectedNode);
+
+        cover->sendBinMessage(tb);
     }
 
     osg::Group *selectionNode = NULL;
@@ -503,7 +501,9 @@ void coVRSelectionManager::clearSelection(bool send)
 {
     if (send)
     {
-        cover->sendBinMessage("CLEAR_SELECTION", "", 0);
+        covise::TokenBuffer tb;
+        tb << std::string("CLEAR_SELECTION");
+        cover->sendBinMessage(tb);
     }
 
     while (!selectionNodeList.empty())
