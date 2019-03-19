@@ -1111,15 +1111,27 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
     }
 }
 
-int coVRPluginSupport::sendBinMessage(covise::TokenBuffer &tb)
+int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int len)
 {
     START("coVRPluginSupport::sendBinMessage");
     if (!coVRMSController::instance()->isSlave())
     {
-        Message message(tb);
+        int size = strlen(keyword) + 2;
+        size += len;
+
+        Message message;
+        message.data = new char[size];
+        message.data[0] = 0;
+        strcpy(&message.data[1], keyword);
+        memcpy(&message.data[strlen(keyword) + 2], data, len);
         message.type = Message::RENDER;
+        message.length = size;
 
         bool ret = sendVrbMessage(&message);
+
+        delete[] message.data;
+        message.data = NULL;
+
         return ret ? 1 : 0;
     }
 

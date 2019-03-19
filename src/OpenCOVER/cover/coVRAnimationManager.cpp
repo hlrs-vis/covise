@@ -264,19 +264,17 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
         {
             if (coVRCollaboration::instance()->isMaster()) // send update ot others if we are the Master
             {
-                covise::TokenBuffer tb;
-                tb << std::string("TIMESTEP");
-                tb << currentFrame;
-                cover->sendBinMessage(tb);
+                char num[100];
+                sprintf(num, "%d", currentFrame);
+                cover->sendBinMessage("TIMESTEP", num, strlen(num) + 1);
             }
         }
         else
         {
             // send update to other users
-            covise::TokenBuffer tb;
-            tb << std::string("TIMESTEP");
-            tb << currentFrame;
-            cover->sendBinMessage(tb);
+            char num[100];
+            sprintf(num, "%d", currentFrame);
+            cover->sendBinMessage("TIMESTEP", num, strlen(num) + 1);
         }
         oldFrame = currentFrame;
         change = true;
@@ -414,10 +412,7 @@ coVRAnimationManager::enableAnimation(bool state)
 {
     animRunning = state;
     animToggleItem->setState(animRunning);
-    covise::TokenBuffer tb;
-    tb << std::string("TIMESTEP_ANIMATE");
-    tb << animRunning;
-    cover->sendBinMessage(tb);
+    cover->sendBinMessage("TIMESTEP_ANIMATE", animRunning ? "1" : "0", 2);
     sendAnimationStateMessage();
 }
 

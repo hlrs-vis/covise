@@ -72,7 +72,7 @@ public:
 
     ~coVRCommunication();
 
-    void processRenderMessage(covise::TokenBuffer &tb);
+    void processRenderMessage(const char *key, const char *tmp);
 
     bool collaborative(); // returns true, if in collaborative mode
     bool isMaster(); // returns true, if we are master

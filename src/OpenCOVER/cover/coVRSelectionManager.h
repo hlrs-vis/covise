@@ -15,9 +15,6 @@ namespace vrui
 {
 class coNavInteraction;
 }
-namespace covise {
-class TokenBuffer;
-}
 namespace opencover
 {
 
@@ -68,7 +65,7 @@ public:
     };
 
     void addSelection(osg::Group *parent, osg::Node *selectedNode, bool send = true);
-    void receiveAdd(covise::TokenBuffer &messageData);
+    void receiveAdd(const char *messageData);
     void receiveClear();
     void clearSelection(bool send = true);
 
