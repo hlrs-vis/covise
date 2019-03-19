@@ -293,11 +293,12 @@ struct LoadedFile
   Url url;
   std::shared_ptr<ui::Button> button;
   std::string key;
-  osg::Node *node; // these should not be ref_ptrs as the group node or node might not be part of the scenegraph yet and will then be deleted immediately after loading 
-  osg::Group *parent;
+  osg::Node *node = nullptr; // these should not be ref_ptrs as the group node or node might not be part of the scenegraph yet and will then be deleted immediately after loading
+  osg::Group *parent = nullptr;
   const FileHandler *handler = nullptr;
   coVRIOReader *reader = nullptr;
   coTUIFileBrowserButton *filebrowser = nullptr;
+  bool loaded = false;
 
   osg::Node *load();
 
@@ -321,6 +322,9 @@ struct LoadedFile
 
   bool unload()
   {
+      if (!loaded)
+          return false;
+
       const char *ck = nullptr;
       if (!key.empty())
           ck = key.c_str();
@@ -350,12 +354,17 @@ struct LoadedFile
       if (ok && button)
           button->setState(false);
 
+      loaded = false;
+
       return ok;
   }
 };
 
 osg::Node *LoadedFile::load()
 {
+    if (loaded)
+        return node;
+
     const char *covise_key = nullptr;
     if (!key.empty())
         covise_key = key.c_str();
@@ -477,6 +486,8 @@ osg::Node *LoadedFile::load()
 
     if (button)
         button->setState(true);
+
+    loaded = true;
 
     return node;
 }
