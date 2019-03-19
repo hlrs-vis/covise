@@ -705,7 +705,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     if (isRoot)
     {
-        //if file does not exist, add it to the shared filePaths list
+        //if file is not shared, add it to the shared filePaths list
         std::vector<std::string> v = filePaths;
         bool found = false;
         for (const auto path : v)
