@@ -36,6 +36,7 @@ class SessionID;
 }
 namespace opencover
 {
+class VRAvatar;
 namespace ui
 {
 class ButtonGroup;
@@ -55,6 +56,7 @@ private:
     std::string url;
     bool m_isMaster = false;
     ui::CollaborativePartner *m_ui = nullptr;
+    VRAvatar *m_avatar = nullptr;
 
 public:
     void setID(int id);
@@ -68,6 +70,8 @@ public:
     int getID() const;
     void setFile(const char *fileName);
     void print() const;
+    VRAvatar *getAvatar();
+    void setAvatar(VRAvatar *avatar);
     coVRPartner();
     coVRPartner(int id);
 
@@ -93,9 +97,17 @@ public:
     void setMaster(int id);
     coVRPartner *getMaster();
     void setSessionID(int partner, const vrb::SessionID & id);
+    void sendAvatarMessage();
+    void receiveAvatarMessage(covise::TokenBuffer &tb);
+    void showAvatars();
+    void hideAvatars();
+    bool avatarsVisible();
     void print();
     ui::ButtonGroup *group();
     static coVRPartnerList *instance();
+
+private:
+    bool m_avatarsVisible;
 };
 }
 #endif
