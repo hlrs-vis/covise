@@ -196,9 +196,11 @@ void coVRCommunication::RILock(int lockID)
     //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
     if (RILockArray[lockID] < myID)
     {
-        char num[500];
-        sprintf(num, "%d;%d", lockID, myID);
-        cover->sendBinMessage("LOCK", num, strlen(num) + 1);
+        covise::TokenBuffer tb;
+        tb << std::string("LOCK");
+        tb << lockID;
+        tb << myID;
+        cover->sendBinMessage(tb);
         RILockArray[lockID] = myID;
         cerr << "LOCK ID: " << lockID << " myID:" << myID << endl;
     }
@@ -209,9 +211,11 @@ void coVRCommunication::RIUnLock(int lockID)
     int myID = getID();
     if (RILockArray[lockID] == myID)
     {
-        char num[500];
-        sprintf(num, "%d;%d", lockID, myID);
-        cover->sendBinMessage("UNLOCK", num, strlen(num) + 1);
+        covise::TokenBuffer tb;
+        tb << std::string("UNLOCK");
+        tb << lockID;
+        tb << myID;
+        cover->sendBinMessage(tb);
         RILockArray[lockID] = -1;
         cerr << "UNLOCK ID: " << lockID << " myID:" << myID << endl;
     }
@@ -329,51 +333,46 @@ bool coVRCommunication::isMaster() // returns true, if we are master
     return true;
 }
 
-void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
+void coVRCommunication::processRenderMessage(covise::TokenBuffer &tb)
 {
-    if (strcmp(key, "MASTER") == 0)
+    std:string key;
+    char *tmp;
+    tb >> key;
+    
+    if (key == "MASTER")
     {
         coVRPartnerList::instance()->setMaster(me->getID());
         coVRCollaboration::instance()->updateSharedStates();
     }
-    else if (strcmp(key, "SLAVE") == 0)
+    else if (key == "SLAVE")
     {
         coVRPartnerList::instance()->setMaster(-1); //nobody is master here?
         coVRCollaboration::instance()->updateSharedStates();
     }
 
-    else if (!(strcmp(key, "TIMESTEP")))
+    else if (key == "TIMESTEP")
     {
         int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
+        tb >> ts;
         coVRAnimationManager::instance()->setRemoteAnimationFrame(ts);
     }
-    else if (!(strcmp(key, "TIMESTEP_ANIMATE")))
+    else if (key == "TIMESTEP_ANIMATE")
     {
-        int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
-        coVRAnimationManager::instance()->setRemoteAnimate(ts == 1);
+        bool anumRunning;
+        tb >> anumRunning;
+        coVRAnimationManager::instance()->setRemoteAnimate(anumRunning);
     }
-    else if (!(strcmp(key, "TIMESTEP_SYNCRONIZE")))
+    else if (key == "TIMESTEP_SYNCRONIZE")
     {
         int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
+        tb >> ts;
         coVRAnimationManager::instance()->setRemoteSynchronize(ts == 1);
     }
-    else if (!(strcmp(key, "AvatarX")))
+    else if (key == "AvatarX")
     {
-        VRAvatarList::instance()->receiveMessage(tmp);
+        coVRPartnerList::instance()->receiveAvatarMessage(tb);
     }
-    else if (!(strcmp(key, "MOVE_HAND")))
+    else if (key == "MOVE_HAND")
     {
         cerr << "braucht das doch jemand" << endl;
         /*   mat(0,3) = 0;
@@ -391,49 +390,38 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
       cover->getButton()->setButtonStatus(button);
       VRSceneGraph::instance()->updateHandMat(mat);*/
     }
-    else if (!(strcmp(key, "MOVE_HEAD")))
+    else if (key == "MOVE_HEAD")
     {
         osg::Matrixd mat;
-        if (sscanf(tmp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   &mat(0, 0), &mat(0, 1), &mat(0, 2), &mat(0, 3),
-                   &mat(1, 0), &mat(1, 1), &mat(1, 2), &mat(1, 3),
-                   &mat(2, 0), &mat(2, 1), &mat(2, 2), &mat(2, 3),
-                   &mat(3, 0), &mat(3, 1), &mat(3, 2), &mat(3, 3)) != 16)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf3 failed" << endl;
-        }
+        vrb::deserialize(tb, mat);
         VRViewer::instance()->updateViewerMat(mat);
     }
-    else if (!(strcmp(key, "LOCK")))
+    else if (key == "LOCK")
     {
         int lockID = 0, myID = -1;
-        if (sscanf(tmp, "%d;%d", &lockID, &myID) != 2)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf4 failed" << endl;
-        }
+        tb >> lockID;
+        tb >> myID;
         RIRemoteLock(lockID, myID);
     }
-    else if (!(strcmp(key, "UNLOCK")))
+    else if (key == "UNLOCK")
     {
         int lockID = 0, myID = -1;
-        if (sscanf(tmp, "%d;%d", &lockID, &myID) != 2)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf5 failed" << endl;
-        }
+        tb >> lockID;
+        tb >> myID;
         RIRemoteUnLock(lockID, myID);
     }
-    else if (!(strcmp(key, "AR_VIDEO_FRAME")) && ARToolKit::instance()->remoteAR)
+    else if (key == "AR_VIDEO_FRAME" && ARToolKit::instance()->remoteAR)
     {
+        tb >> tmp;
         ARToolKit::instance()->remoteAR->receiveImage(tmp);
     }
-    else if (!(strcmp(key, "SYNC_KEYBOARD")))
+    else if (key == "SYNC_KEYBOARD")
     {
         fprintf(stderr, "Slave receiving SYNC_KEYBOARD msg=[%s]\n", tmp);
         int type, state, code;
-        if (sscanf(tmp, "%d %d %d", &type, &state, &code) != 3)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf failed" << endl;
-        }
+        tb >> type;
+        tb >> state;
+        tb >> code;
         /*  if(((sh->writePos+1)%RINGBUFLEN)==sh->readPos)
         {
            fprintf(stderr,"Keyboard Buffer Overflow!! discarding Events\n");
@@ -444,13 +432,17 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
         sh->keyKeycode[sh->writePos]=code;
         sh->writePos = ((sh->writePos+1)%RINGBUFLEN);*/
     }
-    else if (!(strcmp(key, "ADD_SELECTION")))
+    else if (key == "ADD_SELECTION")
     {
-        coVRSelectionManager::instance()->receiveAdd(tmp);
+        coVRSelectionManager::instance()->receiveAdd(tb);
     }
-    else if (!(strcmp(key, "CLEAR_SELECTION")))
+    else if (key == "CLEAR_SELECTION")
     {
         coVRSelectionManager::instance()->receiveClear();
+    }
+    else
+    {
+        cerr << key << ": unknown render message" << endl;
     }
     
 }
@@ -490,8 +482,7 @@ void coVRCommunication::handleVRB(Message *msg)
                 p = new coVRPartner(id);
                 coVRPartnerList::instance()->addPartner(p);
             }
-            if (p->getID() != me->getID())
-                p->setInfo(tb);
+            p->setInfo(tb);
             p->updateUi();
         }
         if (!coVRPartnerList::instance()->getMaster() && coVRPartnerList::instance()->numberOfPartners() > 1) // no master, check if we have the lowest ID, then become Master
@@ -666,7 +657,10 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER:
     {
-        if (msg->data[0] != 0)
+        processRenderMessage(tb);
+
+        
+        /*if (msg->data[0] != 0)
         {
             std::string data(msg->data);
             std::vector<std::string> tokens = split(data, '\n');
@@ -675,7 +669,7 @@ void coVRCommunication::handleVRB(Message *msg)
         else
         {
             processRenderMessage(&msg->data[1], &msg->data[strlen(&msg->data[1]) + 2]);
-        }
+        }*/
     }
     break;
 

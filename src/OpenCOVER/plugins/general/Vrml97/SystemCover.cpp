@@ -37,6 +37,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRCommunication.h>
+#include <cover/coVRPartner.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRCollaboration.h>
 #include <cover/coVRNavigationManager.h>
@@ -898,16 +899,18 @@ double SystemCover::getAvatarHeight()
 
 int SystemCover::getNumAvatars()
 {
-    return VRAvatarList::instance()->getNum();
+    return coVRPartnerList::instance()->numberOfPartners(); //maybe return number of partners in current session instead
 }
 
 bool SystemCover::getAvatarPositionAndOrientation(int num, float pos[3], float ori[4])
 {
-    if (num < 0 || num >= VRAvatarList::instance()->getNum())
+    coVRPartner *p = coVRPartnerList::instance()->get(num);
+    if (!p || !p->getAvatar())
+    {
         return false;
-
+    }
     osg::Matrix feet;
-    feet = VRAvatarList::instance()->getAvatar(num)->feetTransform->getMatrix();
+    feet = p->getAvatar()->feetTransform->getMatrix();
 
     return getPositionAndOrientationFromMatrix(feet, pos, ori);
 }

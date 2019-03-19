@@ -40,6 +40,7 @@
 #include "coVRPluginSupport.h"
 #include "coVRMSController.h"
 #include "coVRCommunication.h"
+#include "coVRPartner.h"
 #include "VRAvatar.h"
 #include <osg/MatrixTransform>
 #include <vrbclient/SharedStateManager.h>
@@ -85,7 +86,7 @@ void coVRCollaboration::init()
 {
     if (cover->debugLevel(2))
         fprintf(stderr, "\nnew coVRCollaboration\n");
-    VRAvatarList::instance()->hide();
+    coVRPartnerList::instance()->hideAvatars();
     syncMode.setUpdateFunction([this]()
     {
         assert(syncMode < 3);
@@ -164,13 +165,19 @@ void coVRCollaboration::initCollMenu()
         showAvatar = state;
         if (showAvatar)
         {
-            VRAvatarList::instance()->show();
-            cover->sendBinMessage("SYNC_MODE", "SHOW_AVATAR", 12);
+            coVRPartnerList::instance()->showAvatars();
+            covise::TokenBuffer tb;
+            tb << std::string("SYNC_MODE");
+            tb << std::string("SHOW_AVATAR");
+            cover->sendBinMessage(tb);
         }
         else
         {
-            VRAvatarList::instance()->hide();
-            cover->sendBinMessage("SYNC_MODE", "HIDE_AVATAR", 12);
+            coVRPartnerList::instance()->hideAvatars();
+            covise::TokenBuffer tb;
+            tb << std::string("SYNC_MODE");
+            tb << std::string("HIDE_AVATAR");
+            cover->sendBinMessage(tb);
         }
     });
 
@@ -236,11 +243,11 @@ bool coVRCollaboration::updateCollaborativeMenu()
         oldSyncInterval = syncInterval;
         m_syncInterval->setValue(syncInterval);
     }
-    if (oldAvatarVisibility != VRAvatarList::instance()->isVisible())
+    if (oldAvatarVisibility != coVRPartnerList::instance()->avatarsVisible())
     {
         changed = true;
-        oldAvatarVisibility = VRAvatarList::instance()->isVisible();
-        m_showAvatar->setState(VRAvatarList::instance()->isVisible());
+        oldAvatarVisibility = coVRPartnerList::instance()->avatarsVisible();
+        m_showAvatar->setState(coVRPartnerList::instance()->avatarsVisible());
     }
 
     return changed;
@@ -339,13 +346,13 @@ bool coVRCollaboration::update()
     static double lastAvatarUpdateTime = 0.0;
     if ((coVRCommunication::instance()->collaborative())
         && (thisTime > lastAvatarUpdateTime + syncInterval)
-        && (VRAvatarList::instance()->isVisible())) /*&& (syncMode == LooseCoupling)*/
+        && (coVRPartnerList::instance()->avatarsVisible())) /*&& (syncMode == LooseCoupling)*/
     {
         // in LOOSE Coupling, we transfer AVATAR data
         // changed, now we always transfer avatar data when avatars are visible
         // visibility is synchronized....!
 
-        VRAvatarList::instance()->sendMessage();
+        coVRPartnerList::instance()->sendAvatarMessage();
 
         lastAvatarUpdateTime = thisTime;
     }
@@ -381,13 +388,13 @@ void opencover::coVRCollaboration::sessionChanged(bool isPrivate)
 {
     if (!isPrivate && syncMode == LooseCoupling)
     {
-        VRAvatarList::instance()->show();
+        coVRPartnerList::instance()->showAvatars();
     }
     else //dont sync when in private session
     {
         UnSyncXform();
         UnSyncScale();
-        VRAvatarList::instance()->hide();
+        coVRPartnerList::instance()->hideAvatars();
     }
 }
 
@@ -398,11 +405,11 @@ void coVRCollaboration::setSyncMode(const char *mode)
 
     else if (strcmp(mode, "SHOW_AVATAR") == 0)
     {
-        VRAvatarList::instance()->show();
+        coVRPartnerList::instance()->showAvatars();
     }
     else if (strcmp(mode, "HIDE_AVATAR") == 0)
     {
-        VRAvatarList::instance()->hide();
+        coVRPartnerList::instance()->hideAvatars();
     }
 }
 
@@ -533,17 +540,17 @@ ui::Group *coVRCollaboration::partnerGroup() const
 void coVRCollaboration::syncModeChanged(int mode) {
     switch (mode) {
     case LooseCoupling:
-        VRAvatarList::instance()->show();
+        coVRPartnerList::instance()->showAvatars();
         m_returnToMaster->setEnabled(false);
         break;
     case MasterSlaveCoupling:
-        VRAvatarList::instance()->hide();
+        coVRPartnerList::instance()->hideAvatars();
         m_returnToMaster->setEnabled(true);
         SyncXform();
         SyncScale();
         break;
     case TightCoupling:
-        VRAvatarList::instance()->hide();
+        coVRPartnerList::instance()->hideAvatars();
         SyncXform();
         SyncScale();
         m_returnToMaster->setEnabled(false);
@@ -561,18 +568,19 @@ void coVRCollaboration::setSyncInterval()
 namespace vrb {
 template <>
 void serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value) {
-    tb << value(0, 0);  tb << value(0, 1); tb << value(0, 2);
-    tb << value(1, 0);  tb << value(1, 1); tb << value(1, 2);
-    tb << value(2, 0);  tb << value(2, 1); tb << value(2, 2);
-    tb << value(3, 0);  tb << value(3, 1); tb << value(3, 2);
+   
+    tb << value(0, 0);  tb << value(0, 1); tb << value(0, 2); tb << value(0, 3);
+    tb << value(1, 0);  tb << value(1, 1); tb << value(1, 2); tb << value(1, 3);
+    tb << value(2, 0);  tb << value(2, 1); tb << value(2, 2); tb << value(2, 3);
+    tb << value(3, 0);  tb << value(3, 1); tb << value(3, 2); tb << value(3, 3);
 
 }
 template<>
 void deserialize<osg::Matrix>(covise::TokenBuffer &tb, osg::Matrix &value) {
-    tb >> value(0, 0); tb >> value(0, 1); tb >> value(0, 2);
-    tb >> value(1, 0); tb >> value(1, 1); tb >> value(1, 2);
-    tb >> value(2, 0); tb >> value(2, 1); tb >> value(2, 2);
-    tb >> value(3, 0); tb >> value(3, 1); tb >> value(3, 2);
+    tb >> value(0, 0); tb >> value(0, 1); tb >> value(0, 2); tb >> value(0, 3);
+    tb >> value(1, 0); tb >> value(1, 1); tb >> value(1, 2); tb >> value(1, 3);
+    tb >> value(2, 0); tb >> value(2, 1); tb >> value(2, 2); tb >> value(2, 3);
+    tb >> value(3, 0); tb >> value(3, 1); tb >> value(3, 2); tb >> value(3, 3);
 
 }
 }
