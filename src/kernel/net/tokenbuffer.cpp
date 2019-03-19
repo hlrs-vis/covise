@@ -207,7 +207,7 @@ TokenBuffer &TokenBuffer::operator>>(char *&c)
         currdata++;
         if (currdata > end)
         {
-            std::cerr << "string not terminated within range" << std::endl;
+            std::cerr << "TokenBuffer: string not terminated within range" << std::endl;
             *end = '\0';
             return (*this);
         }
@@ -257,10 +257,12 @@ TokenBuffer &TokenBuffer::operator>>(int &i)
 TokenBuffer &TokenBuffer::operator<<(const char *c)
 {
     puttype(TbString);
-    int l = int(strlen(c) + 1);
+    int l = 1;
+    if (c)
+        l = int(strlen(c) + 1);
     if (buflen < length + l + 1)
         incbuf(l * 10);
-    strcpy(currdata, c);
+    strcpy(currdata, c ? c : "");
     currdata += l;
     length += l;
     return (*this);
@@ -870,15 +872,15 @@ TokenBuffer &TokenBuffer::operator>>(uint64_t &i)
 TokenBuffer &TokenBuffer::operator>>(std::string &s)
 {
     checktype(TbString);
-    const char *c;
     char *end = data + length - 1;
-    c = currdata;
+    const char *c = currdata;
     while (*currdata)
     {
         currdata++;
         if (currdata > end)
         {
-            std::cerr << "string not terminated within range" << std::endl;
+            std::cerr << "TokenBuffer: string not terminated within range" << std::endl;
+            s = c;
             *end = '\0';
             return (*this);
         }
