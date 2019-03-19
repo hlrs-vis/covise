@@ -52,7 +52,7 @@ public:
     std::string getIP() const;
     int getID() const;
     vrb::SessionID &getSession();
-    void setSesion(vrb::SessionID &g);
+    void setSession(vrb::SessionID &g);
     int getMaster();
     void setMaster(int m);
     std::string getUserInfo();
@@ -105,6 +105,7 @@ public:
     VRBSClient *getMaster(const vrb::SessionID &session);
     VRBSClient *getNextInGroup(const vrb::SessionID &id);
     VRBSClient *getNthClient(int N);
+    int getNextFreeClientID();
     ///client becomes master and all other clients in clients in session lose master state
     void setMaster(VRBSClient *client);
     void setInterval(float i);
