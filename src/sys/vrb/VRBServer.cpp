@@ -678,7 +678,7 @@ void VRBServer::handleClient(Message *msg)
             c->setMaster(becomeMaster);
             c->conn->send_msg(&m);
             //inform others about new session
-            c->setSesion(newSession);
+            c->setSession(newSession);
             TokenBuffer rtb;
             rtb << c->getID();
             rtb << newSession;
@@ -736,6 +736,7 @@ void VRBServer::handleClient(Message *msg)
             mw->registry->removeEntries(c->getID());
 #endif
             clients.removeClient(c);
+            delete c;
             clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
             if (wasMaster)
             {
@@ -1458,7 +1459,7 @@ void VRBServer::handleClient(Message *msg)
         if (c)
         {
 
-            c->setSesion(sessionID);
+            c->setSession(sessionID);
 
         }
         TokenBuffer rtb;
@@ -1562,7 +1563,7 @@ std::shared_ptr<VrbServerRegistry> VRBServer::createSessionIfnotExists(vrb::Sess
         VRBSClient *cl = clients.get(senderID);
         if (cl && !sessionID.isPrivate())
         {
-            cl->setSesion(sessionID);
+            cl->setSession(sessionID);
         }
         sessions[sessionID].reset(new VrbServerRegistry(sessionID));
     }
