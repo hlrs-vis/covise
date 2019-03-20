@@ -8,7 +8,8 @@
 #ifndef _VRB_CLIENT_H
 #define _VRB_CLIENT_H
 #include <stdio.h>
-
+#include <future>
+#include <mutex>
 #include <util/DLinkList.h>
 #include <util/coTypes.h>
 namespace covise
@@ -53,6 +54,9 @@ private:
     Host *serverHost;
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
     float sendDelay; // low-pass filtered time for sending one packet of 1000 bytes
+    std::mutex connMutex;
+    std::future<ClientConnection *> connFuture;
+    bool firstVrbConnection = true;
 };
 }
 #endif
