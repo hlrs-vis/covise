@@ -90,9 +90,9 @@ public:
     coVRPartner *get(int ID);
     coVRPartner *getFirstPartner();
     void addPartner(coVRPartner *p);
-    void removePartner(int id);
+    void deletePartner(int id);
     void changePartnerID(int oldID, int newID);
-    void removeOthers();
+    void deleteOthers();
     int numberOfPartners() const;
     void setMaster(int id);
     coVRPartner *getMaster();

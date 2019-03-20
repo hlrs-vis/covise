@@ -188,10 +188,10 @@ void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const
     }
     else
     {
-        if (!variableName.empty())
-            std::cerr << "Variable " << variableName << " not found in class " << className << " ID: " << ID << std::endl;
-        else
-            std::cerr << "Class " << className << " ID: " << ID << " not found" << std::endl;
+        //if (!variableName.empty())
+        //    std::cerr << "Variable " << variableName << " not found in class " << className << " ID: " << ID << std::endl;
+        //else
+        //    std::cerr << "Class " << className << " ID: " << ID << " not found" << std::endl;
     }
 }
 ///unobserve a class and all its variables

@@ -122,7 +122,7 @@ coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
 
-    coVRPartnerList::instance()->removePartner(me->getID());
+    coVRPartnerList::instance()->deletePartner(me->getID());
 
     s_instance = NULL;
 }
@@ -663,7 +663,7 @@ void coVRCommunication::handleVRB(Message *msg)
         tb >> id;
         if (id != me->getID())
         {
-             coVRPartnerList::instance()->removePartner(id);
+             coVRPartnerList::instance()->deletePartner(id);
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);
@@ -738,10 +738,11 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         cerr << "VRB requests to quit" << endl;
-        coVRPartnerList::instance()->removeOthers();
+        coVRPartnerList::instance()->deleteOthers();
         coVRCollaboration::instance()->showCollaborative(false);
         m_vrbMenue->updateState(false);
-        setSessionID(vrb::SessionID());
+        me->setSession(vrb::SessionID());
+        m_privateSessionID = vrb::SessionID();
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         registry->setVrbc(vrbc);
@@ -830,7 +831,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     {
         cerr << "VRB left" << endl;
-        coVRPartnerList::instance()->removeOthers();
+        coVRPartnerList::instance()->deleteOthers();
         m_vrbMenue->updateState(false);
         coVRCollaboration::instance()->showCollaborative(false);
         delete vrbc;

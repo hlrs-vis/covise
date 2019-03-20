@@ -202,7 +202,7 @@ void coVRPartner::setInfo(TokenBuffer &tb)
 
 void coVRPartner::updateUi()
 {
-    std::string menuText = name + "@" + hostname;
+    std::string menuText = std::to_string(m_id) + " " + name + "@" + hostname;
 #if 0
     fileMenuEntry = new coButtonMenuItem("NoFile");
     fileMenuEntry->setMenuListener(this);
@@ -293,9 +293,9 @@ void opencover::coVRPartnerList::addPartner(coVRPartner * p)
     }
 }
 
-void opencover::coVRPartnerList::removePartner(int id)
+void opencover::coVRPartnerList::deletePartner(int id)
 {
-    setSessionID(id, vrb::SessionID(0, "asdsadagbbdalsadjsdahklagjadk"));
+    setSessionID(id, vrb::SessionID(0, ""));
     delete partners[id];
     partners.erase(id);
 }
@@ -314,13 +314,14 @@ void opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
     }
 }
 
-void opencover::coVRPartnerList::removeOthers()
+void opencover::coVRPartnerList::deleteOthers()
 {
     auto p = partners.begin();
     while (p != partners.end())
     {
         if (p->second->getID() != coVRCommunication::instance()->getID())
         {
+            delete p->second;
             p = partners.erase(p);
         }
         else
