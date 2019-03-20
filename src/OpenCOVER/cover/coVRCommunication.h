@@ -71,11 +71,13 @@ public:
     bool isRILockedByMe(int lockID);
 
     ~coVRCommunication();
-
-    void processRenderMessage(covise::TokenBuffer &tb);
+    void processRenderMessage(const char * key, const char * tmp);
+    void processVRBMessage(covise::TokenBuffer &tb);
 
     bool collaborative(); // returns true, if in collaborative mode
     bool isMaster(); // returns true, if we are master
+
+
 
     static const char *getHostname();
     static const char *getHostaddress();

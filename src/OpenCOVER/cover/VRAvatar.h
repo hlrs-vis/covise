@@ -22,7 +22,7 @@
 #define VR_AVATAR_H
 
 #include <util/common.h>
-
+#include <net/tokenbuffer.h>
 #include <osg/ref_ptr>
 #include <osg/Matrix>
 namespace osg
@@ -51,6 +51,7 @@ public:
     osg::Node *schuheNode;
     osg::Node *hostIconNode;
     osg::ref_ptr<osg::Group> avatarNodes;
+    VRAvatar();
     VRAvatar(int clientID, const std::string &hostAdress);
     virtual ~VRAvatar();
     void show();
@@ -58,5 +59,7 @@ public:
     //osg::Node *genNode();
     //void updateData(VRAvatarData &ad);
 };
+COVEREXPORT covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar);
+COVEREXPORT covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, opencover::VRAvatar &avatar);
 }
 #endif

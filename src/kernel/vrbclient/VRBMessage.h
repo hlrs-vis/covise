@@ -20,4 +20,29 @@ enum vrb_gui_subtype
     NUM_GUI_SUBTYPES
 };
 }
+namespace vrb
+{
+VRBEXPORT enum vrbMessageType
+{
+    LOCK = 0,
+    UNLOCK,
+    AVATAR,
+    TIMESTEP,
+    TIMESTEP_ANIMATE,
+    TIMESTEP_SYNCRONIZE,
+    SYNC_MODE,
+    MASTER,
+    SLAVE,
+    MOVE_HAND,
+    MOVE_HEAD,
+    AR_VIDEO_FRAME,
+    SYNC_KEYBOARD,
+    ADD_SELECTION,
+    CLEAR_SELECTION
+
+
+
+
+};
+}
 #endif

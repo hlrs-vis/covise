@@ -433,7 +433,7 @@ public:
     int isPointerLocked();
 
     // old COVISE Messages
-    int sendBinMessage(covise::TokenBuffer &tb);
+    int sendBinMessage(const char *keyword, const char *data, int len);
     // update frametime
     void updateTime();
     // update matrices

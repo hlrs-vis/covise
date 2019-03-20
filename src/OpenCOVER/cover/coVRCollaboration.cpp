@@ -45,6 +45,7 @@
 #include <osg/MatrixTransform>
 #include <vrbclient/SharedStateManager.h>
 #include <vrbclient/VRBClient.h>
+#include <vrbclient/VRBMessage.h>
 #include "OpenCOVER.h"
 
 #include "ui/Menu.h"
@@ -163,22 +164,13 @@ void coVRCollaboration::initCollMenu()
     m_showAvatar->setState(true);
     m_showAvatar->setCallback([this](bool state){
         showAvatar = state;
-        if (showAvatar)
-        {
-            coVRPartnerList::instance()->showAvatars();
-            covise::TokenBuffer tb;
-            tb << std::string("SYNC_MODE");
-            tb << std::string("SHOW_AVATAR");
-            cover->sendBinMessage(tb);
-        }
-        else
-        {
-            coVRPartnerList::instance()->hideAvatars();
-            covise::TokenBuffer tb;
-            tb << std::string("SYNC_MODE");
-            tb << std::string("HIDE_AVATAR");
-            cover->sendBinMessage(tb);
-        }
+        coVRPartnerList::instance()->showAvatars();
+        covise::TokenBuffer tb;
+        tb << vrb::SYNC_MODE;
+        tb << showAvatar;
+        covise::Message msg(tb);
+        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
     });
 
     m_syncInterval = new ui::Slider(m_collaborativeMenu, "SyncInterval");

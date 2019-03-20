@@ -26,6 +26,7 @@
 #include "ui/ButtonGroup.h"
 #include "ui/Group.h"
 #include <vrbclient/VrbClientRegistry.h>
+#include <vrbclient/VRBMessage.h>
 #include <osg/MatrixTransform>
 #include "VRSceneGraph.h"
 
@@ -443,33 +444,18 @@ void opencover::coVRPartnerList::sendAvatarMessage()
 {
     // all data is in object Coordinates
 
-    osg::Matrix invbase = cover->getInvBaseMat();
-    osg::Matrix handmat = cover->getPointerMat();
-    handmat *= invbase;
-    osg::Matrix headmat = cover->getViewerMat();
-    osg::Vec3 toFeet;
-    toFeet = headmat.getTrans();
-    toFeet[2] = VRSceneGraph::instance()->floorHeight();
-    osg::Matrix feetmat;
-    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
-    headmat *= invbase;
-    feetmat *= invbase;
 
+    VRAvatar av = VRAvatar();
     covise::TokenBuffer tb;
-    tb << std::string("AvatarX");
+    tb << vrb::AVATAR;
     tb << coVRCommunication::instance()->getID();
     std::string adress(coVRCommunication::instance()->getHostaddress());
     tb << adress;
-    //osg::Matrix test;
-    //test(0, 0) = 1;     test(0, 1) = 2;     test(0, 2) = 3;     test(0, 3) = 4;
-    //test(1, 0) = 5;     test(1, 1) = 6;     test(1, 2) = 7;     test(1, 3) = 8;
-    //test(2, 0) = 9;     test(2, 1) = 10;    test(2, 2) = 11;    test(2, 3) = 12;
-    //test(3, 0) = 13;    test(3, 1) = 14;    test(3, 2) = 15;    test(3, 3) = 16;
-    vrb::serialize(tb, headmat);
-    vrb::serialize(tb, handmat);
-    vrb::serialize(tb, feetmat);
+    tb << av;
 
-    cover->sendBinMessage(tb);
+    Message msg(tb);
+    msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+    cover->sendVrbMessage(&msg);
 
 }
 void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
@@ -495,13 +481,7 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
             }
             p->setAvatar(av);
         }
-        osg::Matrix head, hand, feet;
-        vrb::deserialize(tb, head);
-        vrb::deserialize(tb, hand);
-        vrb::deserialize(tb, feet);
-        av->headTransform->setMatrix(head);
-        av->handTransform->setMatrix(hand);
-        av->feetTransform->setMatrix(feet);
+        tb >> *av;
     }
 
 

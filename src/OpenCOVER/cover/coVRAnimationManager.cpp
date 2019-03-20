@@ -26,6 +26,9 @@
 #include <grmsg/coGRSetAnimationSpeedMsg.h>
 #include <grmsg/coGRSetTimestepMsg.h>
 
+#include <vrbclient/VRBMessage.h>
+#include <net/message.h>
+#include <net/message_types.h>
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;
@@ -260,23 +263,26 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
 
     if ((currentFrame != oldFrame) && animSyncItem->state())
     {
+        bool send = false;
         if (animRunning && !m_animationPaused)
         {
             if (coVRCollaboration::instance()->isMaster()) // send update ot others if we are the Master
             {
-                covise::TokenBuffer tb;
-                tb << std::string("TIMESTEP");
-                tb << currentFrame;
-                cover->sendBinMessage(tb);
+                send = true;
             }
         }
         else
         {
-            // send update to other users
+            send = true;
+        }
+        if (send)
+        {
             covise::TokenBuffer tb;
-            tb << std::string("TIMESTEP");
+            tb << vrb::TIMESTEP;
             tb << currentFrame;
-            cover->sendBinMessage(tb);
+            Message msg(tb);
+            msg.type = COVISE_MESSAGE_VRB_MESSAGE;
+            cover->sendVrbMessage(&msg);
         }
         oldFrame = currentFrame;
         change = true;
@@ -415,9 +421,11 @@ coVRAnimationManager::enableAnimation(bool state)
     animRunning = state;
     animToggleItem->setState(animRunning);
     covise::TokenBuffer tb;
-    tb << std::string("TIMESTEP_ANIMATE");
+    tb << vrb::TIMESTEP_ANIMATE;
     tb << animRunning;
-    cover->sendBinMessage(tb);
+    Message msg(tb);
+    msg.type = COVISE_MESSAGE_VRB_MESSAGE;
+    cover->sendVrbMessage(&msg);
     sendAnimationStateMessage();
 }
 

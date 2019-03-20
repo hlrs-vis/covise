@@ -1529,6 +1529,18 @@ void VRBServer::handleClient(Message *msg)
 
     }
     break;
+    case COVISE_MESSAGE_VRB_MESSAGE:
+    {
+        vrb::SessionID toGroup;
+        VRBSClient *c = clients.get(msg->conn);
+        if (c)
+        {
+            toGroup = c->getSession();
+            c->addBytesSent(msg->length);
+        }
+        clients.passOnMessage(msg, toGroup);
+    }
+    break;
     default:
         cerr << "unknown message in vrb: type=" << msg->type << endl;
         break;

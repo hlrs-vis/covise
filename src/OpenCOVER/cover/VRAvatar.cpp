@@ -16,8 +16,29 @@
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 
-using namespace opencover;
+namespace opencover
+{
 using namespace covise;
+
+opencover::VRAvatar::VRAvatar()
+{
+    osg::Matrix invbase = cover->getInvBaseMat();
+    osg::Matrix handmat = cover->getPointerMat();
+    handmat *= invbase;
+    osg::Matrix headmat = cover->getViewerMat();
+    osg::Vec3 toFeet;
+    toFeet = headmat.getTrans();
+    toFeet[2] = VRSceneGraph::instance()->floorHeight();
+    osg::Matrix feetmat;
+    feetmat.makeTranslate(toFeet[0], toFeet[1], toFeet[2]);
+    headmat *= invbase;
+    feetmat *= invbase;
+
+    handTransform = new osg::MatrixTransform(handmat);
+    headTransform = new osg::MatrixTransform(headmat);
+    feetTransform = new osg::MatrixTransform(feetmat);
+
+}
 
 VRAvatar::VRAvatar(int clientID, const std::string &hostAdress)
     :m_clientID(clientID)
@@ -77,6 +98,8 @@ VRAvatar::VRAvatar(int clientID, const std::string &hostAdress)
 VRAvatar::~VRAvatar()
 {
     cover->getObjectsRoot()->removeChild(avatarNodes.get());
+
+
 }
 void VRAvatar::show()
 {
@@ -94,7 +117,27 @@ void VRAvatar::hide()
     }
 }
 
-
 //float VRAvatar::rc[10] = { 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 0.2f, 0.1f, 0.2f };
 //float VRAvatar::gc[10] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.5f, 0.4f, 0.4f, 0.0f };
 //float VRAvatar::bc[10] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.7f, 0.7f };
+
+covise::TokenBuffer &operator<<(covise::TokenBuffer &tb, const opencover::VRAvatar &avatar)
+{
+    vrb::serialize(tb, avatar.headTransform->getMatrix());
+    vrb::serialize(tb, avatar.handTransform->getMatrix());
+    vrb::serialize(tb, avatar.feetTransform->getMatrix());
+    return tb;
+}
+covise::TokenBuffer &operator>>(covise::TokenBuffer &tb, opencover::VRAvatar &avatar)
+{
+    osg::Matrix head, hand, feet;
+    vrb::deserialize(tb, head);
+    vrb::deserialize(tb, hand);
+    vrb::deserialize(tb, feet);
+    avatar.headTransform->setMatrix(head);
+    avatar.handTransform->setMatrix(hand);
+    avatar.feetTransform->setMatrix(feet);
+    return tb;
+}
+}
+

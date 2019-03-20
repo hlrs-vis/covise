@@ -18,6 +18,9 @@
 
 #include <net/tokenbuffer.h>
 #include <util/string_util.h>
+#include <vrbclient/VRBMessage.h>
+#include <net/message.h>
+#include <net/message_types.h>
 
 using namespace opencover;
 using namespace vrui;
@@ -401,11 +404,12 @@ void coVRSelectionManager::addSelection(osg::Group *parent, osg::Node *selectedN
     if (send)
     {
         covise::TokenBuffer tb;
-        tb << std::string("ADD_SELECTION");
+        tb << vrb::ADD_SELECTION;
         tb <<generatePath(parent);
         tb << generatePath(selectedNode);
-
-        cover->sendBinMessage(tb);
+        covise::Message msg;
+        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
     }
 
     osg::Group *selectionNode = NULL;
@@ -502,8 +506,10 @@ void coVRSelectionManager::clearSelection(bool send)
     if (send)
     {
         covise::TokenBuffer tb;
-        tb << std::string("CLEAR_SELECTION");
-        cover->sendBinMessage(tb);
+        tb << vrb::CLEAR_SELECTION;
+        covise::Message msg;
+        msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
     }
 
     while (!selectionNodeList.empty())

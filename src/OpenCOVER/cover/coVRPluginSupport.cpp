@@ -504,7 +504,7 @@ void coVRPluginSupport::update()
         grmsg.type = Message::UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 
 #ifdef DOTIMING
@@ -1110,16 +1110,27 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
         delete message;
     }
 }
-
-int coVRPluginSupport::sendBinMessage(covise::TokenBuffer &tb)
+int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int len)
 {
     START("coVRPluginSupport::sendBinMessage");
     if (!coVRMSController::instance()->isSlave())
     {
-        Message message(tb);
+        int size = strlen(keyword) + 2;
+        size += len;
+
+        Message message;
+        message.data = new char[size];
+        message.data[0] = 0;
+        strcpy(&message.data[1], keyword);
+        memcpy(&message.data[strlen(keyword) + 2], data, len);
         message.type = Message::RENDER;
+        message.length = size;
 
         bool ret = sendVrbMessage(&message);
+
+        delete[] message.data;
+        message.data = NULL;
+
         return ret ? 1 : 0;
     }
 
@@ -1429,7 +1440,6 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
     }
     else if (vrbc)
     {
-        if (covise::isVrbMessageType(msg->type))
             vrbc->sendMessage(msg);
         return true;
     }

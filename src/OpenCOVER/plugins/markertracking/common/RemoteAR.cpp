@@ -42,6 +42,9 @@ using std::string;
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRConfig.h>
 #include <net/covise_socket.h>
+#include <net/message.h>
+#include <net/message_types.h>
+#include <vrbclient/VRBMessage.h>
 //#include <util/coTimer.h>
 #include <osg/Material>
 #include <osg/MatrixTransform>
@@ -764,7 +767,9 @@ int RemoteAR::sendBinARMessage(covise::TokenBuffer &tb)
 #endif
         if (cover->isVRBconnected())
         {
-            return cover->sendBinMessage(tb);
+            covise::Message msg;
+            msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+            return cover->sendVrbMessage(&msg);
         }
     }
     return 1;
