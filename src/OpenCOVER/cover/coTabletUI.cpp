@@ -4330,17 +4330,6 @@ bool coTabletUI::update()
                     }
                     else if (nconn) // could not open server port
                     {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                            serverHost->getName(), port, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
-                        delete serverHost;
-                        serverHost = NULL;
-#endif
                         delete nconn;
                         nconn = NULL;
                     }
@@ -4364,15 +4353,7 @@ bool coTabletUI::update()
                             // could not open server port
                             delete nconn;
                             nconn = NULL;
-#ifndef _WIN32
-                            if (errno != ECONNREFUSED)
-                            {
-                                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                                localHost->getName(), port, strerror(errno));
-                            }
-#else
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-#endif
+
                         }
                     }
 
