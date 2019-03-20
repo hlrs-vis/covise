@@ -224,7 +224,7 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(sensorMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
     return 0;
 }

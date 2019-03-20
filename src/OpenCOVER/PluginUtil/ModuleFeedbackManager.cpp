@@ -15,6 +15,7 @@
 
 #include <cover/coInteractor.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRPluginList.h>
 #include <cover/RenderObject.h>
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRMSController.h>
@@ -298,7 +299,7 @@ void ModuleFeedbackManager::registerObjAtUi(string name)
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(regMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -918,7 +919,7 @@ ModuleFeedbackManager::sendHideMsg(bool hide)
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(visMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 

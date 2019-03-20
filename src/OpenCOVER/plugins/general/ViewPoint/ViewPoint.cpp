@@ -49,6 +49,7 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRConfig.h>
 #include <osg/ClipNode>
+#include <cover/coVRPluginList.h>
 
 using namespace osg;
 using namespace opencover;
@@ -2076,7 +2077,7 @@ void ViewPoints::preFrame()
             grmsg.type = COVISE_MESSAGE_UI;
             grmsg.data = (char *)(vMsg.c_str());
             grmsg.length = strlen(grmsg.data) + 1;
-            cover->sendVrbMessage(&grmsg);
+            coVRPluginList::instance()->sendVisMessage(&grmsg);
             if (cover->debugLevel(3))
                 fprintf(stderr, "--- sendActivatedViewpointMsg\n");
         }
@@ -2752,7 +2753,7 @@ void ViewPoints::sendNewViewpointMsgToGui(const char *name, int index, const cha
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(vMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendNewViewpointMsgToGui \n");
     }
@@ -2770,7 +2771,7 @@ void ViewPoints::sendNewDefaultViewpointMsgToGui(const char *name, int index)
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(vMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendNewDefaultViewpointMsgToGui\n");
     }
@@ -2791,7 +2792,7 @@ void ViewPoints::sendViewpointChangedMsgToGui(const char *name, int index, const
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(vMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendViewpointChangedMsgToGui \n");
     }
@@ -2811,7 +2812,7 @@ void ViewPoints::sendLoadViewpointMsgToGui(int index)
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(vMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendLoadViewpointMsgToGui\n");
     }
@@ -2829,7 +2830,7 @@ void ViewPoints::sendFlyingModeToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(vMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendFlyingModeToGui\n");
     }
@@ -2846,7 +2847,7 @@ void ViewPoints::sendChangeIdMsgToGui(int guiId, int newId)
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(cidMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
         if (cover->debugLevel(3))
             fprintf(stderr, "--- sendChangeIdMsgToGui\n");
     }

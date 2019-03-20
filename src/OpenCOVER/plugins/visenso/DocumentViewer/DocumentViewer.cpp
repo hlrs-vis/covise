@@ -14,6 +14,7 @@
 #include <cover/RenderObject.h>
 #include <cover/OpenCOVER.h>
 #include <cover/coTranslator.h>
+#include <cover/coVRPluginList.h>
 #include <net/message.h>
 #include <net/message_types.h>
 
@@ -142,7 +143,7 @@ DocumentViewerPlugin::add(const char *documentName, const char *imageName)
     grmsg.type = COVISE_MESSAGE_UI;
     grmsg.data = (char *)(pageSizeMsg.c_str());
     grmsg.length = strlen(grmsg.data) + 1;
-    cover->sendVrbMessage(&grmsg);
+    coVRPluginList::instance()->sendVisMessage(&grmsg);
 
     return true;
 }
@@ -171,7 +172,7 @@ void DocumentViewerPlugin::registerObjAtUi(string name)
     grmsg.type = COVISE_MESSAGE_UI;
     grmsg.data = (char *)(regMsg.c_str());
     grmsg.length = strlen(grmsg.data) + 1;
-    cover->sendVrbMessage(&grmsg);
+    coVRPluginList::instance()->sendVisMessage(&grmsg);
 }
 
 void
@@ -299,7 +300,7 @@ DocumentViewerPlugin::addObject(const RenderObject *container, osg::Group *, con
             grmsg.type = COVISE_MESSAGE_UI;
             grmsg.data = (char *)(docNumMsg.c_str());
             grmsg.length = strlen(grmsg.data) + 1;
-            cover->sendVrbMessage(&grmsg);
+            coVRPluginList::instance()->sendVisMessage(&grmsg);
         }
     }
 }
