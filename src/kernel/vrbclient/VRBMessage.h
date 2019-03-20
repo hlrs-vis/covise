@@ -22,7 +22,7 @@ enum vrb_gui_subtype
 }
 namespace vrb
 {
-VRBEXPORT enum vrbMessageType
+enum VRBEXPORT vrbMessageType
 {
     LOCK = 0,
     UNLOCK,
