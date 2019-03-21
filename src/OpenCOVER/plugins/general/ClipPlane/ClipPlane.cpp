@@ -126,11 +126,39 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 
         plane[planeNumber].clip->setClipPlane(eq);
         plane[planeNumber].valid = true;
+        switch (planeNumber)
+        {
+        case 0:
+        {
+        sharedPlane_1 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
+        }
+        break;
+        case 1:
+        {
+            sharedPlane_2 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
+        }
+        break;
+        case 2:
+        {
+            sharedPlane_3 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
+        }
+        break;
+        }
+
     }
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
-: ui::Owner("ClipPlane", cover->ui)
+    : ui::Owner("ClipPlane", cover->ui)
+    , sharedPlane_1("ClipPlane_Plane_1", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
+    , sharedPlane_2("ClipPlane_Plane_2", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
+    , sharedPlane_3("ClipPlane_Plane_3", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
+    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_1", std::vector<double>(), vrb::USE_COUPLING_MODE)
+    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_2", std::vector<double>(), vrb::USE_COUPLING_MODE)
+    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_3", std::vector<double>(), vrb::USE_COUPLING_MODE)
+    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_4", std::vector<double>(), vrb::USE_COUPLING_MODE)
+    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_5", std::vector<double>(), vrb::USE_COUPLING_MODE)
+   
 {
 }
 
@@ -144,6 +172,25 @@ bool ClipPlanePlugin::init()
     {
         char name[100];
         sprintf(name, "Plane%d", i);
+        //SharedState update functions
+        sharedPlane_1.setUpdateFunction([this]() {
+            int i = 0;
+            std::vector<double> v = sharedPlane_1.value();
+            Vec4d vec4 (v[0], v[1], v[2], v[3]);
+            plane[i].clip->setClipPlane(vec4);
+        });
+        sharedPlane_2.setUpdateFunction([this]() {
+            int i = 1;
+            std::vector<double> v = sharedPlane_2.value();
+            Vec4d vec4(v[0], v[1], v[2], v[3]);
+            plane[i].clip->setClipPlane(vec4);
+        });
+        sharedPlane_3.setUpdateFunction([this]() {
+            int i = 2;
+            std::vector<double> v = sharedPlane_3.value();
+            Vec4d vec4(v[0], v[1], v[2], v[3]);
+            plane[i].clip->setClipPlane(vec4);
+        });
 
         plane[i].UiGroup = new ui::Group(clipMenu, name);
         auto group = plane[i].UiGroup;
@@ -153,6 +200,7 @@ bool ClipPlanePlugin::init()
         sprintf(name, "Enable plane %d", i);
         plane[i].EnableButton = new ui::Button(group, "Enable"+std::to_string(i));
         plane[i].EnableButton->setText(name);
+        plane[i].EnableButton->setShared(true);
         //plane[i].EnableButton->setPos(0, i);
         plane[i].EnableButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();
@@ -171,6 +219,7 @@ bool ClipPlanePlugin::init()
         sprintf(name, "Pick interactor for plane %d", i);
         plane[i].PickInteractorButton = new ui::Button(group, "Pick"+std::to_string(i));
         plane[i].PickInteractorButton->setText(name);
+        plane[i].PickInteractorButton->setShared(true);
         //plane[i].PickInteractorButton->setPos(1, i);
         plane[i].PickInteractorButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();
@@ -200,6 +249,7 @@ bool ClipPlanePlugin::init()
         plane[i].DirectInteractorButton = new ui::Button(group, "Direct"+std::to_string(i));
         plane[i].DirectInteractorButton->setGroup(cover->navGroup(), coVRNavigationManager::NavOther);
         plane[i].DirectInteractorButton->setText(name);
+        plane[i].DirectInteractorButton->setShared(true);
         plane[i].DirectInteractorButton->setCallback([this, i](bool state){
             ClipNode *clipNode = cover->getObjectsRoot();
             if (state)

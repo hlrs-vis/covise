@@ -18,6 +18,7 @@
 #include <PluginUtil/coVR3DTransRotInteractor.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRPluginSupport.h>
+#include <vrbclient/SharedState.h>
 
 namespace vrui
 {
@@ -57,7 +58,8 @@ private:
         ~Plane();
     };
     Plane plane[coVRPluginSupport::MAX_NUM_CLIP_PLANES];
-
+    vrb::SharedState<std::vector<double>> sharedPlane_1, sharedPlane_2, sharedPlane_3;
+    //vrb::SharedState<std::vector<double>> sharedPlaneCoords [coVRPluginSupport::MAX_NUM_CLIP_PLANES];
     ui::Menu *clipMenu = nullptr;
 
     osg::ref_ptr<osg::Geode> visibleClipPlaneGeode; // transparent plane
