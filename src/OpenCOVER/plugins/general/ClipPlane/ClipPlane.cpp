@@ -126,39 +126,13 @@ void ClipPlanePlugin::message(int toWhom, int type, int len, const void *buf)
 
         plane[planeNumber].clip->setClipPlane(eq);
         plane[planeNumber].valid = true;
-        switch (planeNumber)
-        {
-        case 0:
-        {
-        sharedPlane_1 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
-        }
-        break;
-        case 1:
-        {
-            sharedPlane_2 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
-        }
-        break;
-        case 2:
-        {
-            sharedPlane_3 = std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
-        }
-        break;
-        }
+        *sharedPlanes[planeNumber].get()= std::vector<double>{ eq[0], eq[1], eq[2], eq[3] };
 
     }
 }
 
 ClipPlanePlugin::ClipPlanePlugin()
     : ui::Owner("ClipPlane", cover->ui)
-    , sharedPlane_1("ClipPlane_Plane_1", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
-    , sharedPlane_2("ClipPlane_Plane_2", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
-    , sharedPlane_3("ClipPlane_Plane_3", std::vector<double>({ 0,0,0,0 }), vrb::USE_COUPLING_MODE)
-    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_1", std::vector<double>(), vrb::USE_COUPLING_MODE)
-    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_2", std::vector<double>(), vrb::USE_COUPLING_MODE)
-    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_3", std::vector<double>(), vrb::USE_COUPLING_MODE)
-    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_4", std::vector<double>(), vrb::USE_COUPLING_MODE)
-    //,vrb::SharedState<std::vector<double>>("ClipPlane_Plane_5", std::vector<double>(), vrb::USE_COUPLING_MODE)
-   
 {
 }
 
@@ -173,22 +147,10 @@ bool ClipPlanePlugin::init()
         char name[100];
         sprintf(name, "Plane%d", i);
         //SharedState update functions
-        sharedPlane_1.setUpdateFunction([this]() {
-            int i = 0;
-            std::vector<double> v = sharedPlane_1.value();
+        sharedPlanes[i].reset(new vrb::SharedState<std::vector<double>>(("ClipPlane_Plane_" + std::to_string(i)), std::vector<double>{0, 0, 0, 0}, vrb::USE_COUPLING_MODE));
+        sharedPlanes[i]->setUpdateFunction([this,i]() {
+            std::vector<double> v = sharedPlanes[i]->value();
             Vec4d vec4 (v[0], v[1], v[2], v[3]);
-            plane[i].clip->setClipPlane(vec4);
-        });
-        sharedPlane_2.setUpdateFunction([this]() {
-            int i = 1;
-            std::vector<double> v = sharedPlane_2.value();
-            Vec4d vec4(v[0], v[1], v[2], v[3]);
-            plane[i].clip->setClipPlane(vec4);
-        });
-        sharedPlane_3.setUpdateFunction([this]() {
-            int i = 2;
-            std::vector<double> v = sharedPlane_3.value();
-            Vec4d vec4(v[0], v[1], v[2], v[3]);
             plane[i].clip->setClipPlane(vec4);
         });
 
