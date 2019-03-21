@@ -77,8 +77,7 @@ private:
     float intensityScale;
     bool intColor;
     bool polar;
-    //float pointSizeValue;
-	vrb::SharedState<float> pointSizeValue;
+	float pointSizeValue;
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;

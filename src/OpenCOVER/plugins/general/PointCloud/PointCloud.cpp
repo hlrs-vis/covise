@@ -64,7 +64,6 @@ COVERPLUGIN(PointCloudPlugin)
 // Constructor
 PointCloudPlugin::PointCloudPlugin()
 : ui::Owner("PointCloud",cover->ui)
-, pointSizeValue("pointSizeValue", 4.0)
 {
 }
 
@@ -108,9 +107,8 @@ bool PointCloudPlugin::init()
         return false;
     }
     plugin = this;
-    //pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSizeValue);
-	std::function<void(void)> update = [this](void) {UpdatePointSizeValue(); };
-	pointSizeValue.setUpdateFunction(update);
+    pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSizeValue);
+
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
     coVRFileManager::instance()->registerFileHandler(&handlers[2]);
@@ -143,7 +141,7 @@ bool PointCloudPlugin::init()
         if (state)
         {
             //enable interaction
-            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
             //cover->addPlugin("NurbsSurface");
         }
         else
@@ -233,6 +231,7 @@ bool PointCloudPlugin::init()
     adaptLODButton = new ui::Button(pointCloudMenu,"adaptLOD");
     adaptLODButton->setState(adaptLOD);
     adaptLODButton->setText("Adapt level of detail");
+    adaptLODButton->setShared(true);
     adaptLODButton->setCallback([this](bool state){
         adaptLOD = state;
         if (!adaptLOD)
@@ -245,6 +244,7 @@ bool PointCloudPlugin::init()
     pointSizeSlider->setText("Point size");
     pointSizeSlider->setBounds(1.0,10.0);
     pointSizeSlider->setValue(pointSizeValue);
+    pointSizeSlider->setShared(true);
     pointSizeSlider->setCallback([this](double value, bool released){
         pointSizeValue = value;
         changeAllPointSize(pointSizeValue);
@@ -254,6 +254,7 @@ bool PointCloudPlugin::init()
     lodScaleSlider->setText("LOD scale");
     lodScaleSlider->setBounds(0.01, 100.);
     lodScaleSlider->setValue(1.);
+    lodScaleSlider->setShared(true);
     lodScaleSlider->setScale(ui::Slider::Logarithmic);
     lodScaleSlider->setCallback([this](double value, bool released){
         lodScale = value;
