@@ -734,12 +734,12 @@ void coVRCommunication::handleVRB(Message *msg)
         }
     }
     break;
-
+    case COVISE_MESSAGE_SOCKET_CLOSED:
+    case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
-        cerr << "VRB requests to quit" << endl;
+        cerr << "VRB requests to quit " << msg->type<< endl;
         coVRPartnerList::instance()->deleteOthers();
-        coVRCollaboration::instance()->showCollaborative(false);
         m_vrbMenue->updateState(false);
         me->setSession(vrb::SessionID());
         m_privateSessionID = vrb::SessionID();
@@ -826,19 +826,6 @@ void coVRCommunication::handleVRB(Message *msg)
          cover->loadFile(filename);*/
     }
     break;
-
-    case COVISE_MESSAGE_SOCKET_CLOSED:
-    case COVISE_MESSAGE_CLOSE_SOCKET:
-    {
-        cerr << "VRB left" << endl;
-        coVRPartnerList::instance()->deleteOthers();
-        m_vrbMenue->updateState(false);
-        coVRCollaboration::instance()->showCollaborative(false);
-        delete vrbc;
-        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-        registry->setVrbc(vrbc);
-    }
-        break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {
 
@@ -984,6 +971,7 @@ void coVRCommunication::handleVRB(Message *msg)
     {
         processVRBMessage(tb);
     }
+    break;
     default:
         if (registry)
             registry->update(tb, msg->type);
