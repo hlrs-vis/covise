@@ -694,7 +694,7 @@ void VRBServer::handleClient(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set Master!" << std::endl;
 #endif
-        int masterState;
+        bool masterState;
         tb >> masterState;
         if (!masterState)
             break;
@@ -704,7 +704,10 @@ void VRBServer::handleClient(Message *msg)
             TokenBuffer rtb;
             rtb << c->getID();
             rtb << masterState;
-            clients.sendMessage(rtb, c->getSession(), COVISE_MESSAGE_VRB_SET_MASTER);
+            Message  rmsg(rtb);
+            rmsg.type = COVISE_MESSAGE_VRB_SET_MASTER;
+            rmsg.conn = c->conn;
+            clients.passOnMessage(&rmsg, c->getSession());
         }
     }
     break;
@@ -746,7 +749,7 @@ void VRBServer::handleClient(Message *msg)
                     clients.setMaster(newMaster);
                     TokenBuffer rtb;
                     rtb << newMaster->getID();
-                    rtb << 1;
+                    rtb << true;
                     clients.sendMessage(rtb, MasterSession, COVISE_MESSAGE_VRB_SET_MASTER);
                 }
                 else

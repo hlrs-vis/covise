@@ -151,10 +151,13 @@ void VrbMenue::selectSession(int id)
 {
     std::vector<vrb::SessionID>::iterator it = availiableSessions.begin();
     std::advance(it, id);
-    //Toggle avatar visability
-    coVRCollaboration::instance()->sessionChanged(it->isPrivate());
-    //inform the server about the new session
-    coVRCommunication::instance()->setSessionID(*it);
+    if (*it != coVRCommunication::instance()->getSessionID())
+    {
+        //Toggle avatar visability
+        coVRCollaboration::instance()->sessionChanged(it->isPrivate());
+        //inform the server about the new session
+        coVRCommunication::instance()->setSessionID(*it);
+    }
 }
 
 //session functions : public

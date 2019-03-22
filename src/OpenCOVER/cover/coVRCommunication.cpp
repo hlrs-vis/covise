@@ -555,7 +555,7 @@ void coVRCommunication::handleVRB(Message *msg)
             if (me == coVRPartnerList::instance()->getFirstPartner())
             {
                 TokenBuffer rtb;
-                rtb << 1;
+                rtb << true;
                 Message m(rtb);
                 m.type = COVISE_MESSAGE_VRB_SET_MASTER;
                 if (vrbc)

@@ -122,8 +122,7 @@ void coVRPartner::becomeMaster()
 {
     m_isMaster = true;
     TokenBuffer rtb;
-    int master = 1;
-    rtb << master;
+    rtb << true;
     Message m(rtb);
     m.type = covise::COVISE_MESSAGE_VRB_SET_MASTER;
     if (vrbc)
