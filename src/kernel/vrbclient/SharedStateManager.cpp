@@ -92,7 +92,7 @@ void SharedStateManager::update(SessionID & privateSessionID, SessionID & public
         }
     }
 
-    if (m_useCouplingModeSessionID != useCouplingModeSessionID || force)
+    if (m_useCouplingModeSessionID != useCouplingModeSessionID || sessionToSubscribe != m_sessionToSubscribe ||force)
     {
         for (const auto sharedState : useCouplingMode)
         {
@@ -101,6 +101,7 @@ void SharedStateManager::update(SessionID & privateSessionID, SessionID & public
         }
     }
 
+    m_sessionToSubscribe = sessionToSubscribe;
     m_privateSessionID = privateSessionID;
     m_publicSessionID = publicSessionID;
     m_useCouplingModeSessionID = useCouplingModeSessionID;

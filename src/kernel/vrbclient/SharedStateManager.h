@@ -42,6 +42,7 @@ private:
     SessionID m_privateSessionID;
     SessionID m_publicSessionID;
     SessionID m_useCouplingModeSessionID;
+    SessionID m_sessionToSubscribe;
     VrbClientRegistry *registry;
 };
 }
