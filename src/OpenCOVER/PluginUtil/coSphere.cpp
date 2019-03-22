@@ -799,6 +799,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             //
             glBindTexture(GL_TEXTURE_2D, s_textureID[thiscontext]);
             // Render each particle...
+            GLboolean pointSprites = GL_FALSE;
+            glGetBooleanv(GL_POINT_SPRITE_ARB, &pointSprites);
             glEnable(GL_POINT_SPRITE_ARB);
             float minRad = m_maxRadius * 0.0001; // avoid opengl errors
 
@@ -853,7 +855,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                 // window resolution in millimeter
             }
 
-            glDisable(GL_POINT_SPRITE_ARB);
+            if (!pointSprites)
+                glDisable(GL_POINT_SPRITE_ARB);
         }
         else
         {
