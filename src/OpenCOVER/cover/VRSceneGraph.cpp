@@ -78,6 +78,7 @@
 #include <osg/AlphaFunc>
 #include <osg/Version>
 #include <osg/io_utils>
+#include <osg/PointSprite>
 #include <osgDB/WriteFile>
 #include <osgFX/Scribe>
 
@@ -1763,6 +1764,10 @@ VRSceneGraph::loadGlobalGeostate()
         stateSet->setAttribute(rootColorMask);
     }
     stateSet->setAttribute(rootDepth);
+
+	osg::PointSprite *sprite = new osg::PointSprite();
+	stateSet->setTextureAttributeAndModes(0, sprite, osg::StateAttribute::OFF);
+
     stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
