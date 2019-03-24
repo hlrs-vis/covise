@@ -120,8 +120,9 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);
     bool glDebugLevelExists = false;
     int glDebugLevel = covise::coCoviseConfig::getInt("level", "COVER.GLDebug", 1, &glDebugLevelExists);
+    bool abortOnError = covise::coCoviseConfig::isOn("abortOnError", "COVER.GLDebug", false);
 
-    if (glDebug || (glDebugLevelExists && glDebugLevel > 0)) {
+    if (glDebug || (glDebugLevelExists && glDebugLevel > 0) || abortOnError) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;
 
         OpenThreads::ScopedLock<OpenThreads::Mutex> lock(m_mutex);
@@ -164,7 +165,7 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
             return;
         }
 
-        m_callbackData = { contextId, glDebugLevel };
+        m_callbackData = { contextId, glDebugLevel, abortOnError };
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
@@ -246,7 +247,6 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
     }
 
     std::string typeStr = "UNDEFINED";
-
     switch(type)
     {
 
@@ -271,14 +271,52 @@ void InitGLOperation::debugCallback(GLenum source, GLenum type, GLuint id, GLenu
         break;
     }
 
-    std::stringstream msg;
-    msg << "GL ctx " << ctxId << ": " << typeStr <<  " [" << srcStr <<"]: " << std::string(message, length);
+    std::string severityStr = "";
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH:
+        severityStr = "HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        severityStr = "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        severityStr = "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        severityStr = "NOTIFICATION";
+        break;
+    }
 
-    bool printMsg = (cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR)
+    bool printMsg = severity==GL_DEBUG_SEVERITY_HIGH;
+    if (cbdata.debugLevel >= 1 && severity==GL_DEBUG_SEVERITY_MEDIUM)
+        printMsg = true;
+    if (cbdata.debugLevel >= 2 && severity==GL_DEBUG_SEVERITY_LOW)
+    {
+        // filter warnings about non full-screen clears
+        if (type != GL_DEBUG_TYPE_OTHER && source != GL_DEBUG_SOURCE_API)
+            printMsg = true;
+        else if (cbdata.debugLevel >= 3)
+            printMsg = true;
+    }
+    if (cbdata.debugLevel >= 3 && severity==GL_DEBUG_SEVERITY_NOTIFICATION)
+        printMsg = true;
+
+    std::stringstream msg;
+    msg << "GL ctx " << ctxId << ": " << typeStr << " (" << severityStr << ")" <<  " [" << srcStr <<"]: " << std::string(message, length);
+
+    bool print = (cbdata.debugLevel >= 1 && type == GL_DEBUG_TYPE_ERROR)
                  || (cbdata.debugLevel >= 2 && type == GL_DEBUG_TYPE_PERFORMANCE)
                  ||  cbdata.debugLevel >= 3;
-    if (printMsg)
+    if (cbdata.abortOnError && type==GL_DEBUG_TYPE_ERROR)
+        print = true;
+
+    if (print || printMsg)
         std::cerr << msg.str() << std::endl;
+
+    if (cbdata.abortOnError && type==GL_DEBUG_TYPE_ERROR)
+    {
+        abort();
+    }
 }
 
 }

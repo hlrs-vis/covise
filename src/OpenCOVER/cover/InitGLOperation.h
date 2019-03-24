@@ -54,6 +54,7 @@ private:
     {
         int contextId;
         int debugLevel;
+        bool abortOnError;
     };
     DebugCallbackData m_callbackData;
 
