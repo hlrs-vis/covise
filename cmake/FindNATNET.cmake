@@ -1,0 +1,78 @@
+# - Find NATNET
+# Find the NATNET includes and library
+#
+#  NATNET_INCLUDE_DIR - Where to find NATNET includes
+#  NATNET_LIBRARIES   - List of libraries when using NATNET
+#  NATNET_FOUND       - True if NATNET was found
+
+IF(NATNET_INCLUDE_DIR)
+  SET(NATNET_FIND_QUIETLY TRUE)
+ENDIF(NATNET_INCLUDE_DIR)
+
+FIND_PATH(NATNET_INCLUDE_DIR "NatNetClient.h"
+  PATHS
+  $ENV{NATNET_HOME}/include
+  $ENV{EXTERNLIBS}/NatNetSDK/include
+  ~/Library/Frameworks/include
+  /Library/Frameworks/include
+  /usr/local/include
+  /usr/include
+  /sw/include # Fink
+  /opt/local/include # DarwinPorts
+  /opt/csw/include # Blastwave
+  /opt/include
+  DOC "NATNET - Headers"
+)
+
+SET(NATNET_NAMES NatNetLib NatNetLib.lib)
+SET(NATNET_DBG_NAMES NatNetLib NatNetLib.lib)
+
+FIND_LIBRARY(NATNET_LIBRARY NAMES ${NATNET_NAMES}
+  PATHS
+  $ENV{NATNET_HOME}
+  $ENV{EXTERNLIBS}/NatNetSDK/lib/x64
+  ~/Library/Frameworks
+  /Library/Frameworks
+  /usr/local
+  /usr
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  PATH_SUFFIXES lib lib64
+  DOC "NATNET - Library"
+)
+
+
+INCLUDE(FindPackageHandleStandardArgs)
+
+IF(MSVC)
+  # VisualStudio needs a debug version
+  FIND_LIBRARY(NATNET_LIBRARY_DEBUG NAMES ${NATNET_DBG_NAMES}
+    PATHS
+    $ENV{NATNET_HOME}/lib
+    $ENV{EXTERNLIBS}/NatNetSDK/lib/x64
+    DOC "NATNET - Library (Debug)"
+  )
+  
+  IF(NATNET_LIBRARY_DEBUG AND NATNET_LIBRARY)
+    SET(NATNET_LIBRARIES optimized ${NATNET_LIBRARY} debug ${NATNET_LIBRARY_DEBUG})
+  ENDIF(NATNET_LIBRARY_DEBUG AND NATNET_LIBRARY)
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(NATNET DEFAULT_MSG NATNET_LIBRARY NATNET_LIBRARY_DEBUG NATNET_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(NATNET_LIBRARY NATNET_LIBRARY_DEBUG NATNET_INCLUDE_DIR)
+  
+ELSE(MSVC)
+  # rest of the world
+  SET(NATNET_LIBRARIES ${NATNET_LIBRARY})
+
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(NATNET DEFAULT_MSG NATNET_LIBRARY NATNET_INCLUDE_DIR)
+  
+  MARK_AS_ADVANCED(NATNET_LIBRARY NATNET_INCLUDE_DIR)
+  
+ENDIF(MSVC)
+
+IF(NATNET_FOUND)
+  SET(NATNET_INCLUDE_DIRS ${NATNET_INCLUDE_DIR})
+ENDIF(NATNET_FOUND)
