@@ -172,7 +172,15 @@ void coVRIntersectionInteractor::hide()
     if (label_)
         label_->hide();
 }
+void coVRIntersectionInteractor::setShared(bool state)
+{
+    assert(!state && "sharing of coVRIntersectionInteractor state requested, but sharing not implemented for coVRIntersectionInteractor type");
+}
 
+bool coVRIntersectionInteractor::isShared() const
+{
+    return m_sharedState != nullptr;
+}
 void coVRIntersectionInteractor::enableIntersection()
 {
     if (cover->debugLevel(4))
@@ -221,7 +229,10 @@ const osg::Matrix &coVRIntersectionInteractor::getPointerMat() const
     else
         return cover->getPointerMat();
 }
-
+void coVRIntersectionInteractor::updateSharedState()
+{
+    assert(!m_sharedState && "updating shared state of coVRIntersectionInteractor requested, but sharing not implemented for interactor type");
+}
 int coVRIntersectionInteractor::hit(vruiHit *hit)
 {
     if (cover->debugLevel(4))

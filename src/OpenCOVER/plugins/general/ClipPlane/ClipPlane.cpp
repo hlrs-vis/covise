@@ -256,6 +256,7 @@ bool ClipPlanePlugin::init()
         interSize = coCoviseConfig::getFloat("COVER.Plugin.Cuttingsurface.IconSize", interSize);
         plane[i].pickInteractor = new coVR3DTransRotInteractor(m, interSize, coInteraction::ButtonA, "hand", ("ClipPlane_" + std::to_string(i)).c_str(), coInteraction::Medium);
         plane[i].pickInteractor->hide();
+        plane[i].pickInteractor->setShared(true);
 
         plane[i].clip = cover->getClipPlane(i);
     }

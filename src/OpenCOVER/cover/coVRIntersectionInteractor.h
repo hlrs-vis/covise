@@ -19,6 +19,12 @@ namespace osg
 class Geode;
 class Node;
 }
+namespace vrb
+{
+class SharedStateBase;
+template<class T>
+class SharedState;
+}
 
 namespace opencover
 {
@@ -79,7 +85,7 @@ protected:
 
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
-
+    vrb::SharedStateBase *m_sharedState = nullptr;
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
@@ -91,6 +97,8 @@ protected:
 
     const osg::Matrix &getPointerMat() const;
 
+    //! reimplement in derived class for updating value of m_sharedState
+    virtual void updateSharedState();
 public:
     // size: size in world coordinates, the size of the sphere is fixed, even if the user scales the world
     // buttonId: ButtonA, ButtonB etc.
@@ -132,6 +140,12 @@ public:
 
     // make the interactor invisible
     void hide();
+
+    //! make state shared among partners in a collaborative session
+    virtual void setShared(bool state);
+
+    //! query whether Element state is shared among collaborative partners
+    virtual bool isShared() const;
 
     virtual void addIcon(); // highlight and add
 

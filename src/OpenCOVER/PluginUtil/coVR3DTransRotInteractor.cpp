@@ -15,6 +15,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRPluginSupport.h>
 #include <osg/io_utils>
+#include <vrbclient/SharedState.h>
 
 const float ArrowLength = 5.0f;
 
@@ -172,6 +173,14 @@ coVR3DTransRotInteractor::createGeometry()
 
     //_interPos = scaleTransform.getBound().center();
     //fprintf("coVR3DTransRotInteractor _interPos (%f %f %f) ", _interPos.x(), _interPos.y(), _interPos.z());///
+}
+
+void opencover::coVR3DTransRotInteractor::updateSharedState()
+{
+    if (auto st = static_cast<SharedMatrix *>(m_sharedState))
+    {
+        *st = _oldInteractorXformMat_o;//myPosition
+    }
 }
 
 osg::Geometry *
@@ -377,6 +386,10 @@ coVR3DTransRotInteractor::doInteraction()
 
     // and now we apply it
     updateTransform(interactorXformMat_o);
+    if (m_sharedState)
+    {
+        updateSharedState();
+    }
 }
 
 void
@@ -389,4 +402,46 @@ coVR3DTransRotInteractor::updateTransform(osg::Matrix m)
     ////interMat_o.print(0, 1,"interMat_o :", stderr);
 
     moveTransform->setMatrix(m);
+}
+
+void coVR3DTransRotInteractor::setShared(bool shared)
+{
+    if (shared)
+    {
+        if (!m_sharedState)
+        {
+            m_sharedState = new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o);//myPosition
+            m_sharedState->setUpdateFunction([this]() {
+                osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState);
+                if (cover->restrictOn())
+                {
+                    // restrict to visible scene
+                    osg::Vec3 pos_o, restrictedPos_o;
+                    pos_o = interactorXformMat_o.getTrans();
+                    restrictedPos_o = restrictToVisibleScene(pos_o);
+                    interactorXformMat_o.setTrans(restrictedPos_o);
+                }
+
+                if (coVRNavigationManager::instance()->isSnapping())
+                {
+                    if (coVRNavigationManager::instance()->isDegreeSnapping())
+                    {
+                        // snap orientation
+                        snapToDegrees(coVRNavigationManager::instance()->snappingDegrees(), &interactorXformMat_o);
+                    }
+                    else
+                    {
+                        // snap orientation to 45 degree
+                        snapTo45Degrees(&interactorXformMat_o);
+                    }
+                }
+                updateTransform(interactorXformMat_o);
+            });
+        }
+    }
+    else
+    {
+        delete m_sharedState;
+        m_sharedState = nullptr;
+    }
 }
