@@ -65,23 +65,22 @@ void SelectionList::setShared(bool shared)
     {
         if (!m_sharedState)
         {
-            m_sharedState = new SharedValue("ui."+path(), selectedIndex());
+            m_sharedState.reset(new SharedValue("ui."+path(), selectedIndex()));
             m_sharedState->setUpdateFunction([this](){
-                select(*static_cast<SharedValue *>(m_sharedState));
+                select(*static_cast<SharedValue *>(m_sharedState.get()));
             });
         }
     }
     else
     {
-        delete m_sharedState;
-        m_sharedState = nullptr;
+        m_sharedState.reset();
     }
 
 }
 
 void SelectionList::updateSharedState()
 {
-    if (auto st = static_cast<SharedValue *>(m_sharedState))
+    if (auto st = static_cast<SharedValue *>(m_sharedState.get()))
     {
         *st = selectedIndex();
     }

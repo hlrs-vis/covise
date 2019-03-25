@@ -81,23 +81,22 @@ void TextField::setShared(bool shared)
     {
         if (!m_sharedState)
         {
-            m_sharedState = new SharedValue("ui."+path(), m_value);
+            m_sharedState.reset(new SharedValue("ui."+path(), m_value));
             m_sharedState->setUpdateFunction([this](){
-                setValue(*static_cast<SharedValue *>(m_sharedState));
+                setValue(*static_cast<SharedValue *>(m_sharedState.get()));
                 triggerImplementation();
             });
         }
     }
     else
     {
-        delete m_sharedState;
-        m_sharedState = nullptr;
+        m_sharedState.reset();
     }
 }
 
 void TextField::updateSharedState()
 {
-    if (auto st = static_cast<SharedValue *>(m_sharedState))
+    if (auto st = static_cast<SharedValue *>(m_sharedState.get()))
     {
         *st = m_value;
     }

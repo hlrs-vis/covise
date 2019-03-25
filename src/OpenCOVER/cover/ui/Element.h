@@ -167,7 +167,7 @@ class COVER_UI_EXPORT Element: public Owner, public ShortcutListener {
     Priority m_priority = Default;
     std::string m_iconName;
     int m_viewBits = ~0;
-    vrb::SharedStateBase *m_sharedState = nullptr;
+    std::unique_ptr<vrb::SharedStateBase> m_sharedState;
 
  private:
     mutable int m_id = -1, m_order = -1; // initialized by Manager

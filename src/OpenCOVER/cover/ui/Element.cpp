@@ -7,6 +7,7 @@
 #include <cassert>
 
 #include <net/tokenbuffer.h>
+#include <vrbclient/SharedState.h>
 
 namespace opencover {
 namespace ui {
@@ -62,7 +63,7 @@ void Element::setShared(bool state)
 
 bool Element::isShared() const
 {
-    return m_sharedState != nullptr;
+    return bool(m_sharedState);
 }
 
 void Element::setIcon(const std::string &iconName)

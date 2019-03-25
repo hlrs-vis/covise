@@ -116,23 +116,22 @@ void Button::setShared(bool shared)
     {
         if (!m_sharedState)
         {
-            m_sharedState = new SharedValue("ui."+path(), m_state);
+            m_sharedState.reset(new SharedValue("ui."+path(), m_state));
             m_sharedState->setUpdateFunction([this](){
-                setState(*static_cast<SharedValue *>(m_sharedState));
+                setState(*static_cast<SharedValue *>(m_sharedState.get()));
                 triggerImplementation();
             });
         }
     }
     else
     {
-        delete m_sharedState;
-        m_sharedState = nullptr;
+        m_sharedState.reset();
     }
 }
 
 void Button::updateSharedState()
 {
-    if (auto st = static_cast<SharedValue *>(m_sharedState))
+    if (auto st = static_cast<SharedValue *>(m_sharedState.get()))
     {
         *st = m_state;
     }
