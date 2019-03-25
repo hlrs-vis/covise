@@ -280,7 +280,8 @@ public:
         OBJ_TYPE_Instance,
         OBJ_TYPE_Solid,
         OBJ_TYPE_RenderElement,
-        OBJ_TYPE_PolyMesh
+        OBJ_TYPE_PolyMesh,
+		OBJ_TYPE_Inline
     };
     RevitPlugin();
     ~RevitPlugin();
@@ -349,6 +350,7 @@ protected:
     RevitInfo  *info = nullptr;
     std::vector<int> annotationIDs;
 	std::map<int, MaterialInfo *> MaterialInfos;
+	std::map<std::string, osg::ref_ptr<osg::Node>> inlineNodes;
     void requestTexture(int matID, TextureInfo *texture);
 
 	

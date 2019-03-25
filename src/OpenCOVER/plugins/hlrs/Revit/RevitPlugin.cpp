@@ -21,6 +21,7 @@
 
 #include "RevitPlugin.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
@@ -1357,7 +1358,7 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geode *geode = new osg::Geode();
 			geode->setName(name);
 			osg::Geometry *geom = new osg::Geometry();
-            cover->setRenderStrategy(geom);
+			cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
 
 			// set up geometry
@@ -1452,6 +1453,42 @@ RevitPlugin::handleMessage(Message *m)
 			info->ObjectID = ID;
 			OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
 			currentGroup.top()->addChild(geode);
+		}
+		else if (GeometryType == OBJ_TYPE_Inline)
+		{
+			std::string url;
+			tb >> url;
+			osg::MatrixTransform *mt = new osg::MatrixTransform();
+			mt->setMatrix(osg::Matrix::scale(REVIT_M_TO_FEET, REVIT_M_TO_FEET, REVIT_M_TO_FEET));
+			char buffer[333];
+			sprintf(buffer, "Default %d", ID);
+			mt->setName(buffer);
+			currentGroup.top()->addChild(mt);
+			osg::Node *inlineNode = NULL;
+			auto it = inlineNodes.find(url);
+			if (it != inlineNodes.end())
+			{
+				inlineNode = it->second;
+			}
+			else
+			{
+				osg::Group *g=new osg::Group();
+				inlineNode = coVRFileManager::instance()->loadFile(url.c_str(),NULL,g);
+				if (inlineNode)
+				{
+					inlineNodes[url] = inlineNode;
+				}
+				g->removeChild(inlineNode);
+			}
+			if (inlineNode)
+			{
+				mt->addChild(inlineNode);
+			}
+
+			ei->nodes.push_back(mt);
+			RevitInfo *info = new RevitInfo();
+			info->ObjectID = ID;
+			OSGVruiUserDataCollection::setUserData(mt, "RevitInfo", info);
 		}
 
 	}

@@ -63,7 +63,7 @@ namespace OpenCOVERPlugin
     {
 
         public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo };
-        public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh };
+        public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
 
@@ -823,12 +823,32 @@ namespace OpenCOVERPlugin
                 Z = ebb.Max.Z;
             bb.Max = new XYZ(X, Y, Z);
         }
-        /// <summary>
-        /// Draw geometry of element.
-        /// </summary>
-        /// <param name="elementGeom"></param>
-        /// <remarks></remarks>
-        private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
+
+        private void SendInline(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
+        {
+            Autodesk.Revit.DB.FamilyInstance fi = elem as Autodesk.Revit.DB.FamilyInstance;
+            Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
+            if (family != null)
+            {
+                Parameter p = elem.LookupParameter("url");
+                if (p != null)
+                {
+                    MessageBuffer mb = new MessageBuffer();
+                    mb.add(elem.Id.IntegerValue);
+                    mb.add(elem.Name);
+                    mb.add((int)ObjectTypes.Inline);
+                    mb.add(p.AsString());
+                    sendMessage(mb.buf, MessageTypes.NewObject);
+                    sendParameters(elem);
+                }
+            }
+        }
+            /// <summary>
+            /// Draw geometry of element.
+            /// </summary>
+            /// <param name="elementGeom"></param>
+            /// <remarks></remarks>
+            private void SendElement(Autodesk.Revit.DB.GeometryElement elementGeom, Autodesk.Revit.DB.Element elem)
         {
             if (elementGeom == null || elem.CreatedPhaseId != null && elem.CreatedPhaseId.IntegerValue==-1)
             {
@@ -1055,13 +1075,21 @@ namespace OpenCOVERPlugin
             Autodesk.Revit.DB.FamilySymbol family = fi.Symbol;
             if (family != null)
             {
-                IList<Parameter> ps = family.GetParameters("isSliding");
-                if ((ps.Count > 0) && (ps[0] != null))
+                bool sliding = false;
+                IList<Parameter> ifcs = family.GetParameters("Operation");
+                if (ifcs.Count > 0 && (ifcs[0].AsString() == "SlidingToLeft" || ifcs[0].AsString() == "SlidingToRight"))
                 {
-                    mb.add((ps[0].AsInteger() != 0));
+                    sliding = true;
                 }
                 else
-                    mb.add(false);
+                {
+                    IList<Parameter> ps = family.GetParameters("isSliding");
+                    if ((ps.Count > 0) && (ps[0] != null))
+                    {
+                        sliding = (ps[0].AsInteger() != 0);
+                    }
+                }
+                mb.add(sliding);
             }
             else
             {
@@ -1117,7 +1145,14 @@ namespace OpenCOVERPlugin
             sendMessage(mb.buf, MessageTypes.NewTransform);
             //Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetInstanceGeometry(geomInstance.Transform);
             Autodesk.Revit.DB.GeometryElement ge = geomInstance.GetSymbolGeometry();
-            SendElement(ge, elem);
+            if (elem.Name == "VrmlInline")
+            {
+                SendInline(ge, elem);
+            }
+            else
+            {
+                SendElement(ge, elem);
+            }
 
             mb = new MessageBuffer();
             sendMessage(mb.buf, MessageTypes.EndGroup);
@@ -2229,7 +2264,10 @@ namespace OpenCOVERPlugin
             {
                 if (toCOVER != null)
                 {
-                    messageThread.Abort(); // stop reading from the old toCOVER connection
+                    if(messageThread != null)
+                    {
+                        messageThread.Abort(); // stop reading from the old toCOVER connection
+                    }
                     toCOVER.Close();
                     toCOVER = null;
                     setConnected(false);
