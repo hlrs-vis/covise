@@ -17,6 +17,7 @@
 #include "coVRTui.h"
 #include "coHud.h"
 #include "coVRFileManager.h"
+#include "MatrixSerializer.h"
 #include <net/message.h>
 #include <net/message_types.h>
 #include <config/CoviseConfig.h>

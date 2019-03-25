@@ -25,6 +25,7 @@
 #include <net/tokenbuffer.h>
 #include <osg/ref_ptr>
 #include <osg/Matrix>
+#include "MatrixSerializer.h"
 namespace osg
 {
 class Node;

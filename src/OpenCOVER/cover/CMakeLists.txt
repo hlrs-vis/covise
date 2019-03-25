@@ -84,6 +84,7 @@ SET(COVER_HEADERS
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
   coVrbMenue.h
+  MatrixSerializer.h
   #coVRDePee.h
   #coVRDePeePass.h
 )
@@ -156,6 +157,7 @@ SET(COVER_SOURCES
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
   tridelity.cpp
+  MatrixSerializer.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )

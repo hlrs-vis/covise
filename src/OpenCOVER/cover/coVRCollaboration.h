@@ -27,19 +27,13 @@
 #include <osg/Matrix>
 #include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
-
+#include "MatrixSerializer.h"
 
 namespace osg
 {
 class Group;
 }
-namespace vrb {
-template <>
-void serialize<osg::Matrix>(covise::TokenBuffer &tb, const osg::Matrix &value);
 
-template <>
-void deserialize<osg::Matrix>(covise::TokenBuffer &tb, osg::Matrix &value);
-}
 namespace opencover
 {
 
