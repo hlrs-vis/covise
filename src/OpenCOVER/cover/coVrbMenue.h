@@ -39,7 +39,7 @@ private:
     ui::Group *ioGroup;
     ui::EditField *newSessionEf;
     ui::Action *newSessionBtn;
-    ui::SelectionList *SessionsSl;
+    ui::SelectionList *sessionsSl;
     ui::Action *saveBtn;
     ui::SelectionList *loadSL;
     std::vector<std::string> savedRegistries;

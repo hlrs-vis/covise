@@ -69,13 +69,13 @@ void VrbMenue::init()
     });
 
 
-    SessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
-    SessionsSl->setText("Available sessions");
-    SessionsSl->setCallback([this](int id)
+    sessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
+    sessionsSl->setText("Available sessions");
+    sessionsSl->setCallback([this](int id)
     {
         selectSession(id);
     });
-    SessionsSl->setList(std::vector<std::string>());
+    sessionsSl->setList(std::vector<std::string>());
 
     menue->setVisible(false);
 }
@@ -173,7 +173,7 @@ void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
             sessionNames.push_back(session.toText());
         }
     }
-    SessionsSl->setList(sessionNames);
+    sessionsSl->setList(sessionNames);
 }
 void VrbMenue::setCurrentSession(const vrb::SessionID & session)
 {
@@ -192,7 +192,7 @@ void VrbMenue::setCurrentSession(const vrb::SessionID & session)
     {
         return;
     }
-    SessionsSl->select(index);
+    sessionsSl->select(index);
 }
 
 }
