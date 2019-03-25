@@ -120,7 +120,8 @@ void InitGLOperation::operator()(osg::GraphicsContext* gc)
     const bool glDebug = covise::coCoviseConfig::isOn("COVER.GLDebug", false);
     bool glDebugLevelExists = false;
     int glDebugLevel = covise::coCoviseConfig::getInt("level", "COVER.GLDebug", 1, &glDebugLevelExists);
-    bool abortOnError = covise::coCoviseConfig::isOn("abortOnError", "COVER.GLDebug", false);
+    bool abortOnErrorExists = false;
+    bool abortOnError = covise::coCoviseConfig::isOn("abortOnError", "COVER.GLDebug", false, &abortOnErrorExists);
 
     if (glDebug || (glDebugLevelExists && glDebugLevel > 0) || abortOnError) {
         std::cerr << "VRViewer: enabling GL debugging" << std::endl;

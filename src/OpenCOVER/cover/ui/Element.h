@@ -3,6 +3,7 @@
 
 #include <string>
 #include <set>
+#include <memory>
 #include "Owner.h"
 #include "ShortcutListener.h"
 
