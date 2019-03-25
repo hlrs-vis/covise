@@ -8,7 +8,8 @@
 #include "SharedStateManager.h"
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
-
+#include <cassert>
+#include <assert.h>
 
 namespace vrb
 {
@@ -39,27 +40,28 @@ SharedStateManager *SharedStateManager::instance()
 
 SessionID &SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
 {
+    bool alreadyExists = false;
     switch (mode)
     {
     case vrb::USE_COUPLING_MODE:
-        useCouplingMode.insert(base);
+        alreadyExists = !useCouplingMode.insert(base).second;
         return m_useCouplingModeSessionID;
         break;
     case vrb::NEVER_SHARE:
-        neverShare.insert(base);
+        alreadyExists = !neverShare.insert(base).second;
         return m_privateSessionID;
         break;
     case vrb::ALWAYS_SHARE:
-        alwaysShare.insert(base);
+        alreadyExists = !alwaysShare.insert(base).second;
         return m_publicSessionID;
         break;
     case vrb::SHARE_WITH_ALL:
-        shareWithAll.insert(base);
+        alreadyExists = !shareWithAll.insert(base).second;
         std::string name = "all";
         static SessionID sid(0, name, false);
         return sid;
     }
-
+    assert(alreadyExists);
     std::cerr << "SharedStateManager: invalid mode for " << base->getName() << std::endl;
     return m_privateSessionID;
 }
