@@ -47,16 +47,15 @@ void SelectionList::load(covise::TokenBuffer &buf)
 	Element::load(buf);
 	int sz = 0;
 	buf >> sz;
-	if (sz > 0) // during startup we get an update with sz ++ 0 even though there is a list of four entries e.g. in draw style please check this Martin
+	for (size_t i = 0; i < sz; ++i)
 	{
-		assert(sz == m_selection.size());
-		for (size_t i = 0; i < m_selection.size(); ++i)
-		{
-			bool s = false;
-			buf >> s;
+		bool s = false;
+		buf >> s;
+        if (i < m_selection.size())
 			m_selection[i] = s;
-		}
-        }
+	}
+    for (size_t i = sz; i < m_selection.size(); ++i)
+        m_selection[i] = false; 
 }
 
 void SelectionList::setShared(bool shared)
