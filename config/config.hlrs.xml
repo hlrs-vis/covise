@@ -258,7 +258,7 @@
 -->
 
    <VRB>
-    <!--Server value="141.58.8.5" port="31251" /-->
+    <Server value="visent.hlrs.de" port="31251">
    </VRB>
    
    <RemoteDaemon>
