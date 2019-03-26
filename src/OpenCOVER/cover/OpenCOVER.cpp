@@ -1047,7 +1047,19 @@ bool OpenCOVER::frame()
     //MARK0("COVER reading input devices");
 
     cover->updateTime();
-    
+
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
+    {
+        auto stats = VRViewer::instance()->getViewerStats();
+        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
+        double updateTime = VRViewer::instance()->elapsedTime();
+        double deltaUpdateTime = updateTime - lastUpdateTime;
+        lastUpdateTime = updateTime;
+        stats->setAttribute(fn, "Update duration", deltaUpdateTime);
+        stats->setAttribute(fn, "Update rate", 1.0/deltaUpdateTime);
+    }
+
+
     // update window size and process events
     VRWindow::instance()->update();
     if (VRViewer::instance()->handleEvents())
@@ -1315,6 +1327,24 @@ bool OpenCOVER::frame()
 
     if (hud->update())
         m_renderNext = true;
+
+    double frameTime = VRViewer::instance()->elapsedTime();
+    double frameDuration = frameTime - lastFrameTime;
+    lastFrameTime = frameTime;
+    frameDurations.push_back(frameDuration);
+    if (frameDurations.size() > 20)
+        frameDurations.pop_front();
+
+    if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("frame_rate"))
+    {
+        auto stats = VRViewer::instance()->getViewerStats();
+        int fn = VRViewer::instance()->getFrameStamp()->getFrameNumber();
+        double maxDuration = -1.;
+        for (auto &d: frameDurations) {
+            maxDuration = std::max(maxDuration, d);
+        }
+        stats->setAttribute(fn, "Max frame duration", maxDuration);
+    }
 
     //cerr << "OpenCOVER::frame EMD " << frameCount << endl;
     return render;

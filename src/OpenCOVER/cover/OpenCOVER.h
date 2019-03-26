@@ -101,6 +101,8 @@ public:
     coHud *hud;
     double beginAppTraversal;
     double endAppTraversal;
+    double lastUpdateTime = -1.0, lastFrameTime = -1.0;
+    std::deque<double> frameDurations;
     void setIgnoreMouseEvents(bool ign)
     {
         ignoreMouseEvents = ign;
