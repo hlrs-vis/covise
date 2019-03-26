@@ -515,6 +515,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
 void coVRCommunication::becomeMaster()
 {
     coVRPluginList::instance()->becomeCollaborativeMaster();
+    coVRPartnerList::instance()->setMaster(me->getID());
     me->becomeMaster();
 }
 

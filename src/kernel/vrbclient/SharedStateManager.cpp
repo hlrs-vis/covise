@@ -38,32 +38,32 @@ SharedStateManager *SharedStateManager::instance()
     return s_instance;
 }
 
-SessionID &SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
+std::pair<SessionID, bool> SharedStateManager::add(SharedStateBase *base, SharedStateType mode)
 {
     bool alreadyExists = false;
     switch (mode)
     {
     case vrb::USE_COUPLING_MODE:
         alreadyExists = !useCouplingMode.insert(base).second;
-        return m_useCouplingModeSessionID;
+        return std::make_pair(m_publicSessionID, m_muted);
         break;
     case vrb::NEVER_SHARE:
         alreadyExists = !neverShare.insert(base).second;
-        return m_privateSessionID;
+        return std::make_pair(m_privateSessionID, false);
         break;
     case vrb::ALWAYS_SHARE:
         alreadyExists = !alwaysShare.insert(base).second;
-        return m_publicSessionID;
+        return std::make_pair(m_publicSessionID, false);
         break;
     case vrb::SHARE_WITH_ALL:
         alreadyExists = !shareWithAll.insert(base).second;
         std::string name = "all";
         static SessionID sid(0, name, false);
-        return sid;
+        return std::make_pair(sid, false);
     }
     assert(alreadyExists);
     std::cerr << "SharedStateManager: invalid mode for " << base->getName() << std::endl;
-    return m_privateSessionID;
+    return std::make_pair(m_privateSessionID, true);
 }
 
 void SharedStateManager::remove(SharedStateBase *base)
@@ -73,7 +73,7 @@ void SharedStateManager::remove(SharedStateBase *base)
     neverShare.erase(base);
 }
 
-void SharedStateManager::update(SessionID & privateSessionID, SessionID & publicSessionID, SessionID & useCouplingModeSessionID, SessionID & sessionToSubscribe, bool force)
+void SharedStateManager::update(SessionID &privateSessionID, SessionID & publicSessionID, bool muted, bool force)
 {
 
     if (m_privateSessionID != privateSessionID ||force)
@@ -92,21 +92,24 @@ void SharedStateManager::update(SessionID & privateSessionID, SessionID & public
             sharedState->resubscribe(publicSessionID);
             sharedState->setID(publicSessionID);
         }
-    }
-
-    if (m_useCouplingModeSessionID != useCouplingModeSessionID || sessionToSubscribe != m_sessionToSubscribe ||force)
-    {
         for (const auto sharedState : useCouplingMode)
         {
-            sharedState->resubscribe(sessionToSubscribe);
-            sharedState->setID(useCouplingModeSessionID);
+            sharedState->resubscribe(publicSessionID);
+            sharedState->setID(publicSessionID);
         }
     }
 
-    m_sessionToSubscribe = sessionToSubscribe;
+    if (m_muted != muted || force)
+    {
+        for (const auto sharedState : useCouplingMode)
+        {
+            sharedState->setMute(muted);
+        }
+    }
+
     m_privateSessionID = privateSessionID;
     m_publicSessionID = publicSessionID;
-    m_useCouplingModeSessionID = useCouplingModeSessionID;
+    m_muted = muted;
 }
 
 void SharedStateManager::frame(double time)

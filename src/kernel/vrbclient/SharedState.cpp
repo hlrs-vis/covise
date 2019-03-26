@@ -21,7 +21,9 @@ SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
     : m_registry(SharedStateManager::instance()->getRegistry())
     , variableName(name)
 {
-    sessionID = SharedStateManager::instance()->add(this, mode);
+    auto news = SharedStateManager::instance()->add(this, mode);
+    sessionID = news.first;
+    muted = news.second;
 }
 
 SharedStateBase::~SharedStateBase()
@@ -76,6 +78,16 @@ void SharedStateBase::setID(SessionID &id)
     sessionID = id;
 }
 
+void SharedStateBase::setMute(bool m)
+{
+    muted = m;
+}
+
+bool SharedStateBase::getMute()
+{
+    return muted;
+}
+
 void SharedStateBase::resubscribe(SessionID &id)
 {
     if (!m_registry->getClass(className)->getVar(variableName))
@@ -95,7 +107,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, className, variableName, std::move(tb_value));
+        m_registry->setVar(sessionID, className, variableName, std::move(tb_value), muted);
         lastUpdateTime = time;
         send = false;
     }

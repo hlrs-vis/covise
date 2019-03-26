@@ -147,13 +147,14 @@ void coVRCollaboration::initCollMenu()
     m_collaborationMode->setList(std::vector<std::string>({"Loose", "Master/Slave", "Tight"}));
     m_collaborationMode->setCallback([this](int mode) {
         syncMode = mode;
-        syncModeChanged(mode);
         if (mode == MasterSlaveCoupling)
         {
             coVRCommunication::instance()->becomeMaster();
             m_master->setEnabled(false);
             m_returnToMaster->setEnabled(false);
         }
+        syncModeChanged(mode);
+
     });
     m_collaborationMode->select(syncMode);
 
@@ -483,40 +484,16 @@ void coVRCollaboration::updateSharedStates(bool force) {
     
     vrb::SessionID privateSessionID = coVRCommunication::instance()->getPrivateSessionIDx();
     vrb::SessionID publicSessionID = coVRCommunication::instance()->getSessionID();
+    bool muted = false;
     if (publicSessionID.isPrivate())
     {
         publicSessionID = privateSessionID;
     }
-    vrb::SessionID useCouplingModeSessionID;
-    vrb::SessionID sessionToSubscribe = publicSessionID;;
-
-    switch (syncMode)
+    if (opencover::coVRCollaboration::MasterSlaveCoupling && !isMaster())
     {
-    case opencover::coVRCollaboration::LooseCoupling:
-        useCouplingModeSessionID = publicSessionID;
-        break;
-    case opencover::coVRCollaboration::MasterSlaveCoupling:
-        if (isMaster())
-        {
-            useCouplingModeSessionID = publicSessionID;
-            sessionToSubscribe = privateSessionID;
-        }
-        else
-        {
-            useCouplingModeSessionID = privateSessionID;
-        }
-        break;
-    case opencover::coVRCollaboration::TightCoupling:
-        useCouplingModeSessionID = publicSessionID;
-        break;
-    default:
-        break;
+        muted = true;
     }
-    if (publicSessionID == 0) //send to private if not in public session
-    {
-        publicSessionID = privateSessionID;
-    }
-    SharedStateManager::instance()->update(privateSessionID, publicSessionID, useCouplingModeSessionID, sessionToSubscribe, force);
+    SharedStateManager::instance()->update(privateSessionID, publicSessionID, muted, force);
 }
 
 ui::Menu *coVRCollaboration::menu() const
@@ -537,7 +514,10 @@ void coVRCollaboration::syncModeChanged(int mode) {
         break;
     case MasterSlaveCoupling:
         coVRPartnerList::instance()->hideAvatars();
-        m_returnToMaster->setEnabled(true);
+        if (!isMaster())
+        {
+            m_returnToMaster->setEnabled(true);
+        }
         SyncXform();
         SyncScale();
         break;

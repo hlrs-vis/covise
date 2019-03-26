@@ -58,6 +58,8 @@ public:
     //! is called from the registryAcces when the registry entry got changed from the server
     void update(clientRegVar *theChangedRegEntry) override;
     void setID(SessionID &id);
+    void setMute(bool m);
+    bool getMute();
     void resubscribe(SessionID& id);
     void frame(double time);
     void setSyncInterval(float time);
@@ -77,6 +79,7 @@ protected:
 
 private:
     SessionID sessionID = 0; ///the session to send updates to 
+    bool muted = false;
     bool send = false;
     float syncInterval = 0.1f;
     double lastUpdateTime = 0.0;

@@ -174,7 +174,7 @@ void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &
         sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value)
+void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value, bool muted)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -192,6 +192,10 @@ void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl,
     {
         rv->setValue(value);
         rv->setLastEditor(clientID);
+    }
+    if (muted)
+    {
+        return;
     }
     // compose message
     TokenBuffer tb;

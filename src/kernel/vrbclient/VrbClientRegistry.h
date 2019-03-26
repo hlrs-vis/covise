@@ -84,7 +84,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @val    current variable value to be set in the registry
        */
-    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val);
+    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val, bool muted = false);
 
     /**
        *  Destroys a specific variable in the registry. All observers attached

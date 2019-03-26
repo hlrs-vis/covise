@@ -30,19 +30,18 @@ public:
 
     VrbClientRegistry *getRegistry();
     static SharedStateManager *instance();
-    SessionID &add(SharedStateBase *base, SharedStateType mode);
+    std::pair<SessionID, bool> add(SharedStateBase *base, SharedStateType mode);
     void remove(SharedStateBase *base);
     ///Updates the IDs to which the SharedStates send and from which they receive updates. 
     ///If force = true all SharedStates resubscribe, no matter if one of the IDs has changed  
-    void update(SessionID &privateSessionID, SessionID & publicSessionID, SessionID & useCouplingModeSessionID, SessionID & sesisonToSubscribe, bool force = false);
+    void update(SessionID &privateSessionID, SessionID & publicSessionID, bool muted, bool force = false);
     void frame(double time);
 private:
     static SharedStateManager *s_instance;
     std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare, shareWithAll;
     SessionID m_privateSessionID;
     SessionID m_publicSessionID;
-    SessionID m_useCouplingModeSessionID;
-    SessionID m_sessionToSubscribe;
+    bool m_muted;
     VrbClientRegistry *registry;
 };
 }
