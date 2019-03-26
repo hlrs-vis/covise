@@ -5,6 +5,12 @@
 
  * License: LGPL 2+ */
 
+/*
+ * NatNet.h
+ *
+ *  Created on: Dec 9, 2015
+ *      Author: uwe
+ */
 
 #ifndef NatNet_DRIVER_H
 #define NatNet_DRIVER_H
@@ -13,7 +19,6 @@
 #include <osg/Matrix>
 #include <string>
 
-#include "NatNetClient.h"
 
 #include <cover/input/inputdevice.h>
 
@@ -26,18 +31,28 @@
  *
  * Main interaction loop runs in its own thread
  */
+
+
+
+#include "NatNetClient.h"
+#include "NatNetCAPI.h"
+
 class NatNetDriver : public opencover::InputDevice
 {
     //-------------------NatNet related stuff
-	NatNetClient *nn; ///ART NatNet SDK class
-
-    size_t m_numBodies; ///Number of NatNet bodies
-	std::string m_NatNet_server;
-	std::string m_NatNet_local;
+    
+	NatNetClient *nn;
+    
+    
+    std::string trackerid;
+    std::string buttonid;
 
     virtual bool poll();
-    void initArrays();
+    
 
+	size_t m_numBodies; ///Number of NatNet bodies
+	std::string m_NatNet_server;
+	std::string m_NatNet_local;
 	sNatNetClientConnectParams connectParams;
 
 	std::vector< sNatNetDiscoveredServer > discoveredServers;
@@ -45,16 +60,15 @@ class NatNetDriver : public opencover::InputDevice
 	int analogSamplesPerMocapFrame = 0;
 	sServerDescription serverDescription;
 
+	int ConnectClient();
+
 public:
+	virtual bool needsThread() const { return false; }; //< whether a thread should be spawned - reimplement if not necessary
     NatNetDriver(const std::string &name);
     virtual ~NatNetDriver();
 
 	void DataHandler(sFrameOfMocapData* data);
-	int ConnectClient();
 
-    //==============Hardware related interface methods=====================
-    bool updateBodyMatrix(size_t idx); ///get NatNet body matrix
-    bool updateFlyStick(size_t idx); ///get flystick body matrix
-    bool updateHand(size_t idx);	/// get Hand matrix and other data
+    
 };
 #endif

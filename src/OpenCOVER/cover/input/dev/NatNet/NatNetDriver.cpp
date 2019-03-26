@@ -11,10 +11,8 @@
  *  Created on: Dec 9, 2014
  *      Author: svnvlad
  */
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
 #include "NatNetDriver.h"
+
 #include <NatNetTypes.h>
 #include <NatNetCAPI.h>
 #include <NatNetClient.h>
@@ -25,16 +23,14 @@
 #include <osg/Matrix>
 
 #include <OpenVRUI/osg/mathUtils.h> //for MAKE_EULER_MAT
-#include <algorithm> // for min/max
 
 using namespace std;
 using namespace covise;
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
+
+#include <util/unixcompat.h>
+#include <iostream>
+
+#include <osg/Quat>
 
 // MessageHandler receives NatNet error/debug messages
 void NATNET_CALLCONV MessageHandler(Verbosity msgType, const char* msg)
@@ -69,12 +65,6 @@ void NATNET_CALLCONV MessageHandler(Verbosity msgType, const char* msg)
 	printf(": %s\n", msg);
 }
 
-
-void NatNetDriver::initArrays()
-{
-
-}
-
 void NATNET_CALLCONV DataHandler(sFrameOfMocapData* data, void* pUserData)
 {
 	NatNetDriver * nd = (NatNetDriver *)pUserData;
@@ -103,9 +93,9 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 
 	int i = 0;
 
-	printf("FrameID : %d\n", data->iFrame);
-	printf("Timestamp : %3.2lf\n", data->fTimestamp);
-	printf("Software latency : %.2lf milliseconds\n", softwareLatencyMillisec);
+	//printf("FrameID : %d\n", data->iFrame);
+	//printf("Timestamp : %3.2lf\n", data->fTimestamp);
+	//printf("Software latency : %.2lf milliseconds\n", softwareLatencyMillisec);
 
 	// Only recent versions of the Motive software in combination with ethernet camera systems support system latency measurement.
 	// If it's unavailable (for example, with USB camera systems, or during playback), this field will be zero.
@@ -127,12 +117,12 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 		// You could equivalently do the following (not accounting for time elapsed since we calculated transit latency above):
 		//const double clientLatencyMillisec = systemLatencyMillisec + transitLatencyMillisec;
 
-		printf("System latency : %.2lf milliseconds\n", systemLatencyMillisec);
-		printf("Total client latency : %.2lf milliseconds (transit time +%.2lf ms)\n", clientLatencyMillisec, transitLatencyMillisec);
+		//printf("System latency : %.2lf milliseconds\n", systemLatencyMillisec);
+		//printf("Total client latency : %.2lf milliseconds (transit time +%.2lf ms)\n", clientLatencyMillisec, transitLatencyMillisec);
 	}
 	else
 	{
-		printf("Transit latency : %.2lf milliseconds\n", transitLatencyMillisec);
+		//printf("Transit latency : %.2lf milliseconds\n", transitLatencyMillisec);
 	}
 
 	// FrameOfMocapData params
@@ -150,10 +140,12 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 	// decode to friendly string
 	char szTimecode[128] = "";
 	NatNet_TimecodeStringify(data->Timecode, data->TimecodeSubframe, szTimecode, 128);
-	printf("Timecode : %s\n", szTimecode);
+	//printf("Timecode : %s\n", szTimecode);
+
+	m_mutex.lock();
 
 	// Rigid Bodies
-	printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
+	//printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
 	if (m_numBodies < data->nRigidBodies)
 		m_numBodies = data->nRigidBodies;
 	for (i = 0; i < data->nRigidBodies; i++)
@@ -162,20 +154,24 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 		// 0x01 : bool, rigid body was successfully tracked in this frame
 		bool bTrackingValid = data->RigidBodies[i].params & 0x01;
 
-		printf("Rigid Body [ID=%d  Error=%3.2f  Valid=%d]\n", data->RigidBodies[i].ID, data->RigidBodies[i].MeanError, bTrackingValid);
-		printf("\tx\ty\tz\tqx\tqy\tqz\tqw\n");
-		printf("\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
-			data->RigidBodies[i].x,
-			data->RigidBodies[i].y,
-			data->RigidBodies[i].z,
-			data->RigidBodies[i].qx,
-			data->RigidBodies[i].qy,
-			data->RigidBodies[i].qz,
-			data->RigidBodies[i].qw);
+		//printf("Rigid Body [ID=%d  Error=%3.2f  Valid=%d]\n", data->RigidBodies[i].ID, data->RigidBodies[i].MeanError, bTrackingValid);
+		//printf("\tx\ty\tz\tqx\tqy\tqz\tqw\n");
+		//printf("\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
+		m_bodyMatricesValid[data->RigidBodies[i].ID] = bTrackingValid;
+		if (bTrackingValid)
+		{
+			osg::Matrix matrix;
+			osg::Quat q(data->RigidBodies[i].qx, data->RigidBodies[i].qy, data->RigidBodies[i].qz, data->RigidBodies[i].qw);
+			matrix.makeRotate(q);
+			matrix(3, 0) = data->RigidBodies[i].x * 1000.;
+			matrix(3, 1) = data->RigidBodies[i].y * 1000.;
+			matrix(3, 2) = data->RigidBodies[i].z * 1000.;
+			m_bodyMatrices[data->RigidBodies[i].ID] = matrix;
+		}
 	}
 
 	// devices
-	printf("Device [Count=%d]\n", data->nDevices);
+	/*printf("Device [Count=%d]\n", data->nDevices);
 	for (int iDevice = 0; iDevice < data->nDevices; iDevice++)
 	{
 		printf("Device %d\n", data->Devices[iDevice].ID);
@@ -194,15 +190,21 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 				printf("%3.2f\t", data->Devices[iDevice].ChannelData[iChannel].Values[iSample]);
 			printf("\n");
 		}
-	}
+	}*/
+
+	m_mutex.unlock();
 }
 
+
+static OpenThreads::Mutex NatNetMutex; // NatNet is not thread-safe
+
+using namespace std;
 
 NatNetDriver::NatNetDriver(const std::string &config)
     : InputDevice(config)
 {
-    m_isVarying = true;
-    m_is6Dof = true;
+    
+    NatNetMutex.lock();
 
 	unsigned char ver[4];
 	NatNet_GetVersion(ver);
@@ -217,7 +219,7 @@ NatNetDriver::NatNetDriver(const std::string &config)
 	// set the frame callback handler
 	nn->SetFrameReceivedCallback(::DataHandler, this);	// this function will receive data from the server
 
-    cout << "Initializing NatNet:" << configPath() << endl;
+	cout << "Initializing NatNet:" << configPath() << endl;
 	m_NatNet_server = coCoviseConfig::getEntry("server", configPath(), "localhost");
 	m_NatNet_local = coCoviseConfig::getEntry("local", configPath(), "localhost");
 
@@ -226,11 +228,9 @@ NatNetDriver::NatNetDriver(const std::string &config)
 	connectParams.localAddress = m_NatNet_local.c_str();
 
 
-    initArrays();
-    //
 
 
-    m_numBodies = 0;
+	m_numBodies = 0;
 
 	int iResult = ConnectClient();
 	if (iResult != ErrorCode_OK)
@@ -283,7 +283,8 @@ NatNetDriver::NatNetDriver(const std::string &config)
 				printf("RigidBody ID : %d\n", pRB->ID);
 				printf("RigidBody Parent ID : %d\n", pRB->parentID);
 				printf("Parent Offset : %3.2f,%3.2f,%3.2f\n", pRB->offsetx, pRB->offsety, pRB->offsetz);
-				m_numBodies++;
+				if (pRB->ID+1 > m_numBodies)
+					m_numBodies = pRB->ID+1;
 				if (pRB->MarkerPositions != NULL && pRB->MarkerRequiredLabels != NULL)
 				{
 					for (int markerIdx = 0; markerIdx < pRB->nMarkers; ++markerIdx)
@@ -353,9 +354,33 @@ NatNetDriver::NatNetDriver(const std::string &config)
 		}
 	}
 
-    poll(); // try to retrieve  bodies
+	m_bodyMatricesValid.resize(m_numBodies + 1);
+	m_bodyMatrices.resize(m_numBodies + 1);
+	for (int i = 0; i < m_numBodies; i++)
+	{
+		m_bodyMatricesValid[i] = false;
+	}
+    NatNetMutex.unlock();
 }
 
+//====================END of init section============================
+
+
+NatNetDriver::~NatNetDriver()
+{
+	if(nn)
+	{
+		void* response;
+		int nBytes;
+		int iResult = nn->SendMessageAndWait("Disconnect", &response, &nBytes);
+		if (iResult == ErrorCode_OK)
+			printf("[SampleClient] Disconnected");
+	}
+    stopLoop();
+    NatNetMutex.lock();
+    delete nn;
+    NatNetMutex.unlock();
+}
 
 // Establish a NatNet Client connection
 int NatNetDriver::ConnectClient()
@@ -419,84 +444,6 @@ int NatNetDriver::ConnectClient()
 	return ErrorCode_OK;
 }
 
-//====================END of init section============================
-
-//====================Hardware read methods============
-
-/**
- * @brief NatNetDriver::getNatNetBodyMatrix Gets common NatNet body tracking data
- * @param mat   osg::Matrixd to store the data
- * @param devidx NatNet body index
- * @return 0 if it reads and tracks the body; otherwise returns -1
- */
-
-template <class Data>
-bool getNatNetMatrix(osg::Matrix &mat, const Data &d)
-{
-
-    if (d.quality < 0.)
-        return false;
-
-    mat.set(d.rot[0], d.rot[1], d.rot[2], 0,
-            d.rot[3], d.rot[4], d.rot[5], 0,
-            d.rot[6], d.rot[7], d.rot[8], 0,
-            0, 0, 0, 1);
-
-    osg::Vec3d pos(d.loc[0], d.loc[1], d.loc[2]);
-    mat.setTrans(pos);
-
-    return true;
-}
-bool NatNetDriver::updateHand(size_t idx)
-{
-	if (ssize_t(idx)>= numBodies())
-	{
-		std::cout<<"!!! Hand id is out of range: "<<idx<<std::endl;
-	}
-
-	return getNatNetMatrix(m_bodyMatrices[idx],*h);
-}
-bool NatNetDriver::updateBodyMatrix(size_t idx)
-{
-    
-    const NatNet_Body_Type_d *b = dt->getBody(idx);
-    return getNatNetMatrix(m_bodyMatrices[idx], *b);
-}
-
-bool NatNetDriver::updateFlyStick(size_t idx)
-{
-    if (ssize_t(idx) >= dt->getNumFlyStick())
-    {
-        std::cout << "!!!flystick id out of range " << idx << std::endl;
-        return false;
-    }
-
-    /* NatNet API issue:
-    * If a configured and calibrated tracking body won't be tracked durung NatNet init,
-    * dt->getBody() will crash, and dt->getNumBody() won't return the right number.
-    * NatNet API will think that this device doesn't exist until it's tracked.
-    */
-    const NatNet_FlyStick_Type_d *f = dt->getFlyStick(idx);
-
-    for (int i = 0; i < f->num_button; ++i)
-    {
-        m_buttonStates[i + m_buttonBase[idx]] = f->button[i] != 0 ? true : false;
-    }
-
-    for (int i = 0; i < f->num_joystick; ++i)
-    {
-        m_valuatorValues[i + m_valuatorBase[idx]] = f->joystick[i];
-    }
-
-    return getNatNetMatrix(m_bodyMatrices[idx], *f);
-}
-
-NatNetDriver::~NatNetDriver()
-{
-    stopLoop();
-    dt->stopMeasurement();
-    delete dt;
-}
 
 //==========================main loop =================
 
@@ -507,105 +454,11 @@ NatNetDriver::~NatNetDriver()
  */
 bool NatNetDriver::poll()
 {
-    if (!dt)
+    if (nn==NULL)
         return false;
-
-    if (!dt->receive())
-    {
-        // error messages from example
-        // cout<<"NatNet input error!"<<endl;
-
-        if (dt->getLastDataError() == NatNetSDK::ERR_TIMEOUT)
-        {
-            cout << "--- timeout while waiting for tracking data" << endl;
-            //return -1;
-        }
-
-        if (dt->getLastDataError() == NatNetSDK::ERR_NET)
-        {
-            fprintf(stderr, "NatNet Driver error: local UDP port %d already in use\n", m_NatNet_port);
-            //return -1;
-        }
-
-        if (dt->getLastDataError() == NatNetSDK::ERR_PARSE)
-        {
-            cout << "--- error while parsing tracking data" << endl;
-            //return -1;
-        }
-
-        return true;
-    }
-
-    if (dt->getNumBody() != m_numBodies || dt->getNumFlyStick() != m_numFlySticks ||
-    		dt->getNumHand() != m_numHands )
-    {
-        m_mutex.lock();
-        m_numFlySticks = dt->getNumFlyStick();
-        m_numBodies = dt->getNumBody();
-        m_bodyBase = m_numFlySticks;
-        initArrays();
-
-        m_numHands = dt->getNumHand();
-        m_handBase = m_bodyBase + m_numBodies;
-
-        m_bodyBase = coCoviseConfig::getInt("bodyBase", configPath(), m_bodyBase);
-        m_flystickBase = coCoviseConfig::getInt("flystickBase", configPath(), m_flystickBase);
-        m_handBase = coCoviseConfig::getInt("handBase", configPath(), m_handBase);
-
-        if (m_bodyBase < 0)
-        {
-            std::cerr << "bodyBase " << m_bodyBase << " below zero" << std::endl;
-            m_bodyBase = 0;
-        }
-        if (m_handBase < 0)
-        {
-            std::cerr << "handBase " << m_handBase << " below zero" << std::endl;
-            m_handBase = 0;
-        }
-        if (m_flystickBase < 0)
-        {
-            std::cerr << "flystickBase " << m_flystickBase << " below zero" << std::endl;
-            m_flystickBase = 0;
-        }
-        // FIXME: check that indices don't overlap
-
-        const size_t numMat = std::max(std::max(m_bodyBase+m_numBodies, m_flystickBase+m_numFlySticks), m_handBase+m_numHands);
-        m_bodyMatrices.resize(numMat);
-        m_bodyMatricesValid.resize(numMat);
-        m_mutex.unlock();
-    }
-
-    bool valid = false;
     m_mutex.lock();
-    for (int i = 0; i < dt->getNumFlyStick(); ++i)
-    {
-        m_bodyMatricesValid[i] = updateFlyStick(i);
-        if (m_bodyMatricesValid[i])
-            valid = true;
-    }
+    m_valid = true;
     m_mutex.unlock();
-
-    m_mutex.lock();
-    for (int i = 0; i < dt->getNumBody(); ++i)
-    {
-        m_bodyMatricesValid[m_bodyBase+i] = updateBodyMatrix(i);
-        if (m_bodyMatricesValid[m_bodyBase+i])
-            valid = true;
-    }
-    m_mutex.unlock();
-
-    //hands matrices update
-
-    m_mutex.lock();
-	for (int i = 0; i < dt->getNumHand(); ++i)
-	{
-		m_bodyMatricesValid[m_handBase+i] = updateHand(i);
-        if (m_bodyMatricesValid[m_handBase+i])
-            valid = true;
-    }
-    m_valid = valid;
-    m_mutex.unlock();
-
     return true;
 }
 
