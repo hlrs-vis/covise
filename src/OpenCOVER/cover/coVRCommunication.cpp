@@ -417,6 +417,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     }
         break;
     case vrb::SYNC_MODE:
+    {
         bool showAvatar;
         tb >> showAvatar;
         if (showAvatar)
@@ -427,6 +428,7 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
         {
             coVRPartnerList::instance()->hideAvatars();
         }
+    }
         break;
     case vrb::MASTER:
     {
@@ -718,10 +720,6 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER_MODULE:
     {
-        if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling && coVRCollaboration::instance()->isMaster())
-        {
-            return;
-        }
         coVRPluginList::instance()->forwardMessage(msg->length, msg->data);
     }
     break;
