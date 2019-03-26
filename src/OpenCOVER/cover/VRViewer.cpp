@@ -2699,7 +2699,7 @@ void VRViewer::glContextOperation(osg::GraphicsContext *ctx)
             numClears = coVRConfig::instance()->numWindows() * 2;
         }
         --numClears;
-        auto emb = dynamic_cast<osgViewer::GraphicsWindowEmbedded *>(ctx);
+        bool emb = std::string(ctx->className()) == "GraphicsWindowEmbedded";
         clearGlWindow(!emb);
         ctx->makeCurrent();
     } // OpenCOVER end
