@@ -41,18 +41,25 @@ AtomColors::AtomColors(int argc, char *argv[])
     : coSimpleModule(argc, argv, "Map colors to atoms")
 {
     coAtomInfo *ai = coAtomInfo::instance();
+    m_atom.resize(ai->all.size());
     for (int i = 0; i < ai->all.size(); i++)
     {
+        if (!ai->all[i].valid)
+            continue;
 
+        std::string symbol = ai->all[i].symbol;
+        if (!isalpha(symbol[0]))
+            symbol = "_" + symbol;
+        std::string description = ai->all[i].name;
+        description += " (" + std::to_string(i) + ")";
 #ifdef ATOMRADII
-        coFloatParam *param = addFloatParam(ai->all[i].symbol.c_str(), ai->all[i].name.c_str());
+        coFloatParam *param = addFloatParam(symbol.c_str(), description.c_str());
         param->setValue(ai->all[i].radius);
 #else
-        coColorParam *param = addColorParam(ai->all[i].symbol.c_str(), ai->all[i].name.c_str());
+        coColorParam *param = addColorParam(symbol.c_str(), description.c_str());
         param->setValue(ai->all[i].color[0], ai->all[i].color[1], ai->all[i].color[2], ai->all[i].color[3]);
 #endif
-        m_atom.push_back(param);
-
+        m_atom[i] = param;
     }
 
     // Input Ports
@@ -108,22 +115,43 @@ AtomColors::coDoResult *AtomColors::getOutputData(const coDoSet *inData)
         text->getAddress(&type);
         text_size = text->getTextLength();
         std::string atomType = type;
+        int idx = -1;
         auto elem = coAtomInfo::instance()->idMap.find(atomType);
         if (elem == coAtomInfo::instance()->idMap.end())
         {
+            bool onlyDigit = true;
+            for (const auto &c: atomType)
+            {
+                if (!isdigit(c)) {
+                    onlyDigit = false;
+                    break;
+                }
+            }
+            if (onlyDigit)
+            {
+                idx = atoi(type);
+            }
+        }
+        else
+        {
+            idx = elem->second;
+        }
+
+        if (idx >= 0 && idx < int(coAtomInfo::instance()->all.size()))
+        {
 #ifdef ATOMRADII
-            result[i] = 1.0;
+            result[i] = coAtomInfo::instance()->all[idx].radius;
 #else
-            pResult->setFloatRGBA(i, 1,1,1,1);
+            pResult->setFloatRGBA(i, coAtomInfo::instance()->all[idx].color[0], coAtomInfo::instance()->all[idx].color[1], coAtomInfo::instance()->all[idx].color[2], coAtomInfo::instance()->all[idx].color[3]);
 #endif
         }
         else
         {
-            int j = elem->second;
+
 #ifdef ATOMRADII
-            result[i] = coAtomInfo::instance()->all[j].radius;
+            result[i] = 1.0;
 #else
-            pResult->setFloatRGBA(i, coAtomInfo::instance()->all[j].color[0], coAtomInfo::instance()->all[j].color[1], coAtomInfo::instance()->all[j].color[2], coAtomInfo::instance()->all[j].color[3]);
+            pResult->setFloatRGBA(i, 1,1,1,1);
 #endif
         }
     }
