@@ -13,6 +13,7 @@
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>
 #include <osg/MatrixTransform>
+#include <memory>
 
 namespace osg
 {
