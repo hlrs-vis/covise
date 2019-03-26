@@ -19,7 +19,7 @@
 #include <osg/PolygonMode>
 #include <osg/ComputeBoundsVisitor>
 #include <osg/ShapeDrawable>
-
+#include <vrbclient/SharedState.h>
 #include <OpenVRUI/sginterface/vruiHit.h>
 #include <OpenVRUI/osg/OSGVruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>

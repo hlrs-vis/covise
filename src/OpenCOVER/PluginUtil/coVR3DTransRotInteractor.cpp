@@ -177,7 +177,7 @@ coVR3DTransRotInteractor::createGeometry()
 
 void opencover::coVR3DTransRotInteractor::updateSharedState()
 {
-    if (auto st = static_cast<SharedMatrix *>(m_sharedState))
+    if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
     {
         *st = _oldInteractorXformMat_o;//myPosition
     }
@@ -410,9 +410,9 @@ void coVR3DTransRotInteractor::setShared(bool shared)
     {
         if (!m_sharedState)
         {
-            m_sharedState = new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o);//myPosition
+            m_sharedState.reset(new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o));//myPosition
             m_sharedState->setUpdateFunction([this]() {
-                osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState);
+                osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState.get());
                 if (cover->restrictOn())
                 {
                     // restrict to visible scene
@@ -441,7 +441,6 @@ void coVR3DTransRotInteractor::setShared(bool shared)
     }
     else
     {
-        delete m_sharedState;
-        m_sharedState = nullptr;
+        m_sharedState.reset(nullptr);
     }
 }

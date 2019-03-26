@@ -85,7 +85,7 @@ protected:
 
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
-    vrb::SharedStateBase *m_sharedState = nullptr;
+    std::unique_ptr<vrb::SharedStateBase> m_sharedState;
     // the geosets are created in the derived classes
     virtual void createGeometry() = 0;
 
