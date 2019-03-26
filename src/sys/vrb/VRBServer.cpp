@@ -1459,10 +1459,13 @@ void VRBServer::handleClient(Message *msg)
         tb >> senderID;
 
         VRBSClient *c = clients.get(senderID);
-        if (c)
+        if (!c)
         {
-            c->setSession(sessionID);
+            cerr << "client " << senderID << " not found" << endl;
+            return;
         }
+        c->setSession(sessionID);
+
         TokenBuffer rtb;
         rtb << c->getID();
         rtb << sessionID;
