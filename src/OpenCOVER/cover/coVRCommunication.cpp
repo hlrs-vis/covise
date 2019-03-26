@@ -717,6 +717,10 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER_MODULE:
     {
+        if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling && coVRCollaboration::instance()->isMaster())
+        {
+            return;
+        }
         coVRPluginList::instance()->forwardMessage(msg->length, msg->data);
     }
     break;
