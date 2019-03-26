@@ -96,7 +96,6 @@ public:
     void observe(int recvID)
     {
         observers.insert(recvID);
-        update(recvID);
     };
     /// remove an observer to my list
     void unObserve(int recvID)

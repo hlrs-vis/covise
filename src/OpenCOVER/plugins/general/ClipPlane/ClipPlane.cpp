@@ -345,18 +345,15 @@ void ClipPlanePlugin::preFrame()
             coord.makeMat(m_w);
             interactorTransform->setMatrix(m_w);
 
-            covise::TokenBuffer tb;
-
-            tb << cover->getActiveClippingPlane();
-
             Vec4d eq;
             eq = matrixToEquation(m_o);
+            std::vector<double> eqV;
             for (int j = 0; j < 4; j++)
-                tb << eq[j];
-
-            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::ClipPlaneMessage,
-                               tb.get_length(), tb.get_data());
+                eqV.push_back(eq[j]);
+            
+            *sharedPlanes[i] = eqV;
+            plane[i].clip->setClipPlane(eq);
+            plane[i].valid = true;
         }
 
 
@@ -394,13 +391,13 @@ void ClipPlanePlugin::preFrame()
 
             eq = matrixToEquation(pointerMatrix_o);
 
+            std::vector<double> eqV;
             for (int j = 0; j < 4; j++)
-                tb << eq[j];
+                eqV.push_back(eq[j]);
 
-            cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::ClipPlaneMessage,
-                               tb.get_length(), tb.get_data());
-
+            *sharedPlanes[i] = eqV;
+            plane[i].clip->setClipPlane(eq);
+            plane[i].valid = true;
             plane[i].pickInteractor->updateTransform(pointerMatrix_o);
         }
 

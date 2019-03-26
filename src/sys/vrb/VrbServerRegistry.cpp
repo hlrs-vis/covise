@@ -264,6 +264,7 @@ void serverRegClass::observeAllVars(int sender)
         for (auto var : myVariables)
         {
             var.second->observe(sender);
+            var.second->update(sender);
         }
     }
 }
@@ -281,8 +282,11 @@ void serverRegClass::observeVar(int recvID, const std::string &variableName, cov
         rv = new serverRegVar(this, variableName, value);
         append(rv);
     }
+    else
+    {
+        rv->update(recvID);
+    }
     rv->observe(recvID);
-
 }
 
 void serverRegClass::unObserveVar(int recvID, const std::string &variableName)

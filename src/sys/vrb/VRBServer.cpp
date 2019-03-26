@@ -1518,7 +1518,6 @@ void VRBServer::handleClient(Message *msg)
         tb >> sessionID;
         tb >> filename;
         sessions[sessionID]->loadFile(std::string(home() + "/Sessions/") + filename);
-        sessions[sessionID]->observe(senderID);
         TokenBuffer stb;
         stb << sessionID;
         if (sessionID.isPrivate())//inform the owner of the private session 

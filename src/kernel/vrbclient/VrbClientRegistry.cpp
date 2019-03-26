@@ -258,10 +258,12 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
         rc = getClass(cl);
         if (rc)
         {
+            rc->setDeleted(false);
             rv = rc->getVar(var);
             if (rv)
             {
                 //inform var observer if not receiving my own message
+                rv->setDeleted(false);
                 if (!(rv->getLastEditor() == clientID && senderID == clientID))
                 {
                     rv->setLastEditor(senderID);
