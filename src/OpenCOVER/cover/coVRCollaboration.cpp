@@ -489,7 +489,7 @@ void coVRCollaboration::updateSharedStates(bool force) {
     {
         publicSessionID = privateSessionID;
     }
-    if (opencover::coVRCollaboration::MasterSlaveCoupling && !isMaster())
+    if (syncMode == MasterSlaveCoupling && !isMaster())
     {
         muted = true;
     }
