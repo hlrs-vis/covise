@@ -1461,9 +1461,7 @@ void VRBServer::handleClient(Message *msg)
         VRBSClient *c = clients.get(senderID);
         if (c)
         {
-
             c->setSession(sessionID);
-
         }
         TokenBuffer rtb;
         rtb << c->getID();

@@ -181,6 +181,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     {
         m_privateSessionID = id;
     }
+    coVRPartnerList::instance()->setMaster(-1);
     coVRPartnerList::instance()->setSessionID(me->getID(), id);
     TokenBuffer tb;
     tb << id;
