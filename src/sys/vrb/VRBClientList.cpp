@@ -504,7 +504,7 @@ void VRBClientList::setMaster(VRBSClient * client)
         {
             cl->setMaster(true);
         }
-        else
+        else if(cl->getSession() == client->getSession())
         {
             cl->setMaster(false);
         }
