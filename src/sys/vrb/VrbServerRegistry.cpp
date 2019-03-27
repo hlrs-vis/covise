@@ -133,19 +133,9 @@ void VrbServerRegistry::deleteEntry()
 
 void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> observers)
 {
-    covise::TokenBuffer sb;
-    sb << rv->getClass()->getID(); //sender ID
-    sb << rv->getClass()->getName();
-    sb << rv->getName();
-    sb << rv->getValue();
-
     for (const auto client : observers)
     {
-        VRBSClient *cl = clients.get(client);
-        if (cl)
-        {
-            clients.sendMessageToID(sb, client, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
-        }
+        rv->update(client);
     }
 }
 
