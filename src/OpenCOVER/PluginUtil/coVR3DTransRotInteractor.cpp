@@ -396,10 +396,6 @@ coVR3DTransRotInteractor::updateTransform(osg::Matrix m)
         fprintf(stderr, "coVR3DTransRotInteractor:setMatrix\n");
     _interMat_o = m;
     ////interMat_o.print(0, 1,"interMat_o :", stderr);
-    if (strcmp(_interactorName, "ClipPlane_0") == 0)
-    {
-        cout << "test" << endl;
-    }
     moveTransform->setMatrix(m);
     if (m_sharedState)
     {
