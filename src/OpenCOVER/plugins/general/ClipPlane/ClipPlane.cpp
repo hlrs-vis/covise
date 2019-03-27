@@ -152,6 +152,7 @@ bool ClipPlanePlugin::init()
             std::vector<double> v = sharedPlanes[i]->value();
             Vec4d vec4 (v[0], v[1], v[2], v[3]);
             plane[i].clip->setClipPlane(vec4);
+            plane[i].valid = true;
         });
 
         plane[i].UiGroup = new ui::Group(clipMenu, name);

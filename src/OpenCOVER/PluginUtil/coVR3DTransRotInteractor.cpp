@@ -386,10 +386,7 @@ coVR3DTransRotInteractor::doInteraction()
 
     // and now we apply it
     updateTransform(interactorXformMat_o);
-    if (m_sharedState)
-    {
-        updateSharedState();
-    }
+
 }
 
 void
@@ -397,11 +394,20 @@ coVR3DTransRotInteractor::updateTransform(osg::Matrix m)
 {
     if (cover->debugLevel(5))
         fprintf(stderr, "coVR3DTransRotInteractor:setMatrix\n");
-
     _interMat_o = m;
     ////interMat_o.print(0, 1,"interMat_o :", stderr);
-
+    if (strcmp(_interactorName, "ClipPlane_0") == 0)
+    {
+        cout << "test" << endl;
+    }
     moveTransform->setMatrix(m);
+    if (m_sharedState)
+    {
+        if (auto st = static_cast<SharedMatrix *>(m_sharedState.get()))
+        {
+            *st = m;
+        }
+    }
 }
 
 void coVR3DTransRotInteractor::setShared(bool shared)
