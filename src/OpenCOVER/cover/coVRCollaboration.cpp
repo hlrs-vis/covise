@@ -410,7 +410,7 @@ void coVRCollaboration::remoteTransform(osg::Matrix &mat)
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "coVRCollaboration::remoteTransform\n");
-    if (syncMode != LooseCoupling || coVRCommunication::instance()->getSessionID().isPrivate())
+    if (syncMode != LooseCoupling || !coVRCommunication::instance()->getSessionID().isPrivate())
     {
         VRSceneGraph::instance()->getTransform()->setMatrix(mat);
         coVRNavigationManager::instance()->adjustFloorHeight();
