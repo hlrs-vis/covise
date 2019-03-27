@@ -8,6 +8,7 @@
 #include <util/coExport.h>
 #include <string>
 #include <vector>
+#include <set>
 
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
@@ -65,7 +66,7 @@ void serialize(covise::TokenBuffer &tb, const std::vector<T> &value) {
     int size = value.size();
     if (size == 0)
     {
-        tb << 0;
+        tb << UNDEFINED;
     }
     else
     {
@@ -78,6 +79,23 @@ void serialize(covise::TokenBuffer &tb, const std::vector<T> &value) {
     }
 }
 
+template <class T>
+void serialize(covise::TokenBuffer &tb, const std::set<T> &value) {
+    int size = value.size();
+    if (size == 0)
+    {
+        tb << UNDEFINED;
+    }
+    else
+    {
+        tb << getSharedStateType(*value.begin());
+    }
+    tb << size;
+    for (const T entry : value)
+    {
+        serialize(tb, entry);
+    }
+}
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
 template<class T>
@@ -100,6 +118,22 @@ void deserialize(covise::TokenBuffer &tb, std::vector<T> &value)
         value[i] = entry;
     }
 }
+
+template <class T>
+void deserialize(covise::TokenBuffer &tb, std::set<T> &value)
+{
+    int size, typeID;
+    tb >> typeID;
+    tb >> size;
+    value.clear();
+    for (int i = 0; i < size; i++)
+    {
+        T entry;
+        deserialize(tb, entry);
+        value.insert(entry);
+    }
+}
+///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>
 void serializeWithType(covise::TokenBuffer &tb, const T &value)
 {

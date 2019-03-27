@@ -717,18 +717,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     if (isRoot)
     {
         //if file is not shared, add it to the shared filePaths list
-        std::vector<std::string> v = filePaths;
-        bool found = false;
-        for (const auto path : v)
+        std::set<std::string> v = filePaths;
+        if (v.insert(fileName).second)
         {
-            if (!strcmp(path.c_str(), fileName))
-            {
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            v.push_back(fileName);
             filePaths = v;
         }
         m_files[fileName] = fe;
@@ -928,7 +919,7 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , filePaths("coVRFileManager_filePaths", std::vector<std::string>(), vrb::ALWAYS_SHARE)
+    , filePaths("coVRFileManager_filePaths", std::set<std::string>(), vrb::ALWAYS_SHARE)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -1426,12 +1417,13 @@ void coVRFileManager::loadPartnerFiles()
     
     
     //load new partner files
-    std::vector<std::string> newFiles;
+    std::set<std::string> newFiles;
     std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
     for (auto newFile : newFiles)
     {
         loadFile(newFile.c_str());
+        alreadyLoadedFiles.insert(newFile);
+
     }
-    alreadyLoadedFiles.insert(alreadyLoadedFiles.end(), newFiles.begin(), newFiles.end());
 }
 }
