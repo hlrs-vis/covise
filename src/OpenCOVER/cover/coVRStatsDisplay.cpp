@@ -2004,9 +2004,9 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
                  citr != cameras.end();
                  ++citr)
             {
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorCull, MaxTime, 0, "Cull traversal time taken", AccumNewest);
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorDraw, MaxTime, 0, "Draw traversal time taken", AccumNewest);
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorGPU, MaxTime, 0, "GPU draw time taken", AccumNewest);
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorCull, 0, MaxTime, "Cull traversal time taken", AccumNewest);
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorDraw, 0, MaxTime, "Draw traversal time taken", AccumNewest);
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorGPU, 0, MaxTime, "GPU draw time taken", AccumNewest);
             }
 
             geode->addDrawable(createBackgroundRectangle(pos + osg::Vec3(-backgroundMargin, backgroundMargin, 0),
