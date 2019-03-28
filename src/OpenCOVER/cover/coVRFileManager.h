@@ -123,6 +123,8 @@ public:
     const char *getName(const char *file);
     //removes COVISE_PATH from filePath
     std::string cutName(const std::string &fileName);
+    //search the file under COVISE_PATH; Return the first path to a valid file or an empty string
+    std::string findSharedFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -234,7 +236,11 @@ private:
     vrb::SharedState<std::set<std::string>> filePaths;
     std::set<std::string> alreadyLoadedFiles;
     void loadPartnerFiles();
-
+    struct Compare {
+        bool operator()(const std::string& first, const std::string& second) {
+            return first.size() > second.size();
+        }
+    };
 
 };
 }

@@ -1078,6 +1078,8 @@ std::string coVRFileManager::cutName(const std::string & fileName)
 #else
     std::vector<std::string> p = split(covisepath, ':');
 #endif
+    Compare c;
+    std::sort(p.begin(), p.end(), c);
     std::string shortName = fileName;
     for (auto path : p)
     {
@@ -1088,6 +1090,39 @@ std::string coVRFileManager::cutName(const std::string & fileName)
         }
     }
     return shortName;
+}
+
+std::string coVRFileManager::findSharedFile(const std::string & fileName)
+{
+    FILE *file;
+    file = ::fopen(fileName.c_str(), "r");
+    if (file)
+    {
+        ::fclose(file);
+        return fileName;
+    }
+
+    
+    char *covisepath = getenv("COVISE_PATH");
+#ifdef WIN32
+    std::vector<std::string> p = split(covisepath, ';');
+#else
+    std::vector<std::string> p = split(covisepath, ':');
+#endif
+    Compare c;
+    std::sort(p.begin(), p.end(), c);
+    for (auto path : p)
+    {
+        std::string name = path + "/" + fileName;
+        FILE *file2;
+        file2 = ::fopen(name.c_str(), "r");
+        if (file2)
+        {
+            ::fclose(file2);
+            return name;
+        }
+    }
+    return std::string();
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
@@ -1448,7 +1483,7 @@ void coVRFileManager::loadPartnerFiles()
     std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
     for (auto newFile : newFiles)
     {
-        loadFile(getName(newFile.c_str()));
+        loadFile(findSharedFile(newFile).c_str());
         alreadyLoadedFiles.insert(newFile);
 
     }
