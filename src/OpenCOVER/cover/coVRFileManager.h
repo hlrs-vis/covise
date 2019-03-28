@@ -121,7 +121,8 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-
+    //removes COVISE_PATH from filePath
+    std::string cutName(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -169,10 +170,10 @@ public:
     int unregisterFileHandler(const FileHandler *handler);
     int unregisterFileHandler(coVRIOReader *handler);
 
-    // get list of extensioins as required by a filebrowser
+    // get list of extensions as required by a filebrowser
     std::string getFilterList();
 
-    // get list of extensioins for saving as required by a filebrowser
+    // get list of extensions for saving as required by a filebrowser
     std::string getWriteFilterList();
 
     // get a loader for a file type, if available

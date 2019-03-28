@@ -625,6 +625,10 @@ bool coVRFileManager::fileExist(const char *fileName)
 
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
+    if (!fileName || strcmp(fileName, "") == 0)
+    {
+        return nullptr;
+    }
     START("coVRFileManager::loadFile");
 
     std::string adjustedFileName;
@@ -718,7 +722,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
-        if (v.insert(fileName).second)
+        std::string shortName = cutName(fileName);
+        if (v.insert(shortName).second)
         {
             filePaths = v;
         }
@@ -1065,6 +1070,26 @@ const char *coVRFileManager::getName(const char *file)
     return NULL;
 }
 
+std::string coVRFileManager::cutName(const std::string & fileName)
+{
+    char *covisepath = getenv("COVISE_PATH");
+#ifdef WIN32
+    std::vector<std::string> p = split(covisepath, ';');
+#else
+    std::vector<std::string> p = split(covisepath, ':');
+#endif
+    std::string shortName = fileName;
+    for (auto path : p)
+    {
+        if (fileName.length() > path.length() && path.length() > 0 && fileName.compare(0, path.length(), path) == 0)
+        {
+            shortName.erase(shortName.begin(), shortName.begin() + path.length() + 1);
+            return shortName;
+        }
+    }
+    return shortName;
+}
+
 std::string coVRFileManager::getFontFile(const char *fontname)
 {
     std::string fontFile = "share/covise/fonts/";
@@ -1400,9 +1425,11 @@ void coVRFileManager::loadPartnerFiles()
     for (auto myFile : m_files)
     {
         bool found = false;
+        
+        auto shortPath = cutName(myFile.first);
         for (auto theirFile : filePaths.value())
         {
-            if (myFile.first == theirFile)
+            if (shortPath == theirFile)
             {
                 myFile.second->load();
                 found = true;
@@ -1421,7 +1448,7 @@ void coVRFileManager::loadPartnerFiles()
     std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
     for (auto newFile : newFiles)
     {
-        loadFile(newFile.c_str());
+        loadFile(getName(newFile.c_str()));
         alreadyLoadedFiles.insert(newFile);
 
     }
