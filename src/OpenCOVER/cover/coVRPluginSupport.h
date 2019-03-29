@@ -55,6 +55,7 @@
 
 #include "coVRPlugin.h"
 
+#include <vrbclient/VrbMessageSenderInterface.h>
 namespace opencover {
 namespace ui {
 class ButtonGroup;
@@ -103,6 +104,12 @@ class coVRPlugin;
 class RenderObject;
 class coInteractor;
 class NotifyBuf;
+class VRBMessageSender : public vrb::VrbMessageSenderInterface
+{
+public:
+    bool sendMessage(const covise::Message *msg);
+    bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
+};
 struct Isect
 {
     enum IntersectionBits
@@ -515,8 +522,9 @@ public:
     void setFrameTime(double ft);
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
-
+    VRBMessageSender *getSender();
 private:
+    VRBMessageSender m_sender;
     void setFrameRealTime(double ft);
 
     //! calls the callback

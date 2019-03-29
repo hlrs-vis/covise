@@ -33,6 +33,8 @@ class Message;
 #include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
 #include <vrbclient/SessionID.h>
+#include <net/message_types.h>
+
 
 namespace vrb {
     class SharedStateManager;
@@ -95,6 +97,8 @@ public:
     void becomeMaster();
     covise::Message *waitForMessage(int messageType);
     std::unique_ptr<vrb::VrbClientRegistry> registry;
+    bool sendMessage(covise::Message *msg);
+    bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
 
 private:
     coVRCommunication();

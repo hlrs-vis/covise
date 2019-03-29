@@ -559,7 +559,7 @@ const char *SystemCover::remoteFetch(const char *filename)
             rtb << vrbc->getID();
             Message m(rtb);
             m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
-            vrbc->sendMessage(&m);
+            cover->sendVrbMessage(&m);
         }
         int message = 1;
         Message *msg = new Message;

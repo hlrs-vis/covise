@@ -27,6 +27,7 @@ class QPixmap;
 class QLabel;
 class VRBCurve;
 
+///Vrb-server client that stores connection information 
 class VRBSClient
 {
 public:

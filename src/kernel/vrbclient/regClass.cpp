@@ -35,11 +35,16 @@ void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
     tb << name;
     tb << value;
     // inform controller about creation
-    if (myClass->getID() >= 0 && myClass->getRegistryClient())
-        myClass->getRegistryClient()->sendMessage(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
+    if (myClass->getID() >= 0)
+        myClass->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
 }
 
 /////////////CLIENTREGCLASS/////////////////////////////////////////////////
+
+void clientRegClass::sendMsg(covise::TokenBuffer & tb, covise::covise_msg_type type)
+{
+    registry->sendMsg(tb, type);
+}
 
 clientRegClass::clientRegClass(const std::string & n, int ID, VrbClientRegistry * reg)
     : regClass(n, ID)
@@ -63,20 +68,17 @@ void clientRegClass::notifyLocalObserver()
 void clientRegClass::resubscribe(const SessionID &sessionID)
 {
     classID = registry->getID();
-    if (getRegistryClient())
+    if (myVariables.size() == 0 && _observer)
     {
-        if (myVariables.size() == 0 && _observer)
+        subscribe(_observer, sessionID);
+    }
+    else
+    {
+        for (const auto var : myVariables)
         {
-            subscribe(_observer, sessionID);
-        }
-        else
-        {
-            for (const auto var : myVariables)
+            if (var.second->getLocalObserver())
             {
-                if (var.second->getLocalObserver())
-                {
-                    var.second->subscribe(var.second->getLocalObserver(), sessionID);
-                }
+                var.second->subscribe(var.second->getLocalObserver(), sessionID);
             }
         }
     }
@@ -93,17 +95,14 @@ void clientRegClass::subscribe(regClassObserver *obs, const SessionID &sessionID
     tb << name;
 
     // inform controller about creation
-    if (classID >= 0 && getRegistryClient())
-        getRegistryClient()->sendMessage(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);
+    if (classID >= 0)
+        sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS);
 }
 clientRegClass::VariableMap &clientRegClass::getAllVariables()
 {
     return myVariables;
 }
-covise::VRBClient * clientRegClass::getRegistryClient()
-{
-    return registry->getVrbc();
-}
+
 std::shared_ptr<clientRegVar> clientRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
 {
     return std::shared_ptr<clientRegVar>(new clientRegVar(this, name, value));

@@ -20,14 +20,16 @@ class VRBClient;
 }
 namespace vrb
 {
+class VrbMessageSenderInterface;
 class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
 {
 public:
     static VrbClientRegistry *instance;
     /// construct a registry access path to the controller
-    VrbClientRegistry(int id, covise::VRBClient *vrbc);
+    VrbClientRegistry(int id, VrbMessageSenderInterface *sender);
     ///gets id from server
     void setID(int clID, const SessionID &session);
+    ///unsubscribe all clases and variables from old session and subscribe to the new one
     void resubscribe(const SessionID &sessionID, const SessionID &oldSession = SessionID());
 
     /**
@@ -99,14 +101,14 @@ public:
     /**
        *  if a VRB connected, resend local variables and subscriptions.
        */
-    void updateVRB();
 
+///returns  the regClass with name or nullptr
     clientRegClass *getClass(const std::string &name);
 
     void update(covise::TokenBuffer &tb, int reason);
 
     virtual ~VrbClientRegistry();
-    void sendMsg(covise::TokenBuffer &tb, int message_type);
+    void sendMsg(covise::TokenBuffer &tb, covise::covise_msg_type type);
 
     int getID() override
     {
@@ -116,15 +118,12 @@ public:
     {
         return sessionID;
     }
-    covise::VRBClient *getVrbc();
-    void setVrbc(covise::VRBClient *client);
-
 
     std::shared_ptr<clientRegClass> createClass(const std::string &name, int id) override;
 private:
     int clientID = -1;
     SessionID sessionID;
-    covise::VRBClient *vrbc;
+    VrbMessageSenderInterface *m_sender;
 
 };
 }

@@ -401,6 +401,11 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
     //draw->setUseVertexArrayObject(vao);
 }
 
+VRBMessageSender * coVRPluginSupport::getSender()
+{
+    return &m_sender;
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
@@ -1469,6 +1474,18 @@ void coVRPluginSupport::watchFileDescriptor(int fd)
 void coVRPluginSupport::unwatchFileDescriptor(int fd)
 {
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
+}
+
+bool VRBMessageSender::sendMessage(const covise::Message * msg)
+{
+    return cover->sendVrbMessage(msg);
+}
+
+bool VRBMessageSender::sendMessage(covise::TokenBuffer & tb, covise_msg_type type)
+{
+    covise::Message msg(tb);
+    msg.type = type;
+    return sendMessage(&msg);
 }
 
 } // namespace opencover

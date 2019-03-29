@@ -96,10 +96,7 @@ void VrbMenue::saveSession()
     {
         tb << coVRCommunication::instance()->getSessionID();
     }
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
-    }
+    cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_SAVE_SESSION);
 }
 void VrbMenue::loadSession(int index)
 {
@@ -125,10 +122,7 @@ void VrbMenue::loadSession(const std::string &filename)
         tb << coVRCommunication::instance()->getSessionID();
     }
     tb << filename;
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
-    }
+    cover->getSender()->sendMessage(tb, COVISE_MESSAGE_VRB_LOAD_SESSION);
 }
 void VrbMenue::unloadAll()
 {
@@ -145,7 +139,7 @@ void VrbMenue::requestNewSession(const std::string &name)
 {
     covise::TokenBuffer tb;
     tb << vrb::SessionID(coVRCommunication::instance()->getID(), name, false);
-    vrbc->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+    cover->getSender()->sendMessage(tb, covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
 }
 void VrbMenue::selectSession(int id)
 {

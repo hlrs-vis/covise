@@ -9,6 +9,7 @@
 #define REGCLASS_H
 
 #include <net/tokenbuffer.h>
+#include <net/message_types.h>
 #include <map>
 #include <set>
 #include <memory>
@@ -228,6 +229,7 @@ private:
     int lastEditor;
     VrbClientRegistry *registry;
 public:
+    void sendMsg(covise::TokenBuffer &tb, covise::covise_msg_type type);
     clientRegClass(const std::string &n, int ID, VrbClientRegistry *reg);
     regClassObserver *getLocalObserver()
     {
@@ -246,7 +248,6 @@ public:
     void notifyLocalObserver();
     void resubscribe(const SessionID &sessionID);
     void subscribe(regClassObserver *obs, const SessionID &sessionID);
-    covise::VRBClient *getRegistryClient();
     VariableMap &getAllVariables();
     std::shared_ptr<clientRegVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
 };

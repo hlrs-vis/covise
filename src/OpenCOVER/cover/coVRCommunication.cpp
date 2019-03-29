@@ -113,7 +113,7 @@ coVRCommunication::coVRCommunication()
 
     //me->setID(randomID);
     coVRPartnerList::instance()->addPartner(me);
-    registry.reset(new VrbClientRegistry(me->getID(), vrbc));
+    registry.reset(new VrbClientRegistry(me->getID(), cover->getSender()));
     new SharedStateManager(registry.get());
     m_vrbMenue.reset(new VrbMenue());
 }
@@ -186,10 +186,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     TokenBuffer tb;
     tb << id;
     tb << me->getID();
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
-    }
+    sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
 }
 
 void coVRCommunication::RILock(int lockID)
@@ -525,14 +522,9 @@ void coVRCommunication::becomeMaster()
 void coVRCommunication::handleVRB(Message *msg)
 {
     //fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
-    if (registry->getVrbc() != vrbc)
-    {
-        registry->setVrbc(vrbc);
-    }
     if (vrbc == NULL)
     {
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-        registry->setVrbc(vrbc);
     }
     TokenBuffer tb(msg);
     switch (msg->type)
@@ -560,10 +552,7 @@ void coVRCommunication::handleVRB(Message *msg)
             {
                 TokenBuffer rtb;
                 rtb << true;
-                Message m(rtb);
-                m.type = COVISE_MESSAGE_VRB_SET_MASTER;
-                if (vrbc)
-                    vrbc->sendMessage(&m);
+                sendMessage(rtb, COVISE_MESSAGE_VRB_SET_MASTER);
             }
         }
         coVRPartnerList::instance()->print();
@@ -575,12 +564,7 @@ void coVRCommunication::handleVRB(Message *msg)
             bool isPrivate = true;
             TokenBuffer rns;
             rns << me->getSessionID();
-            Message rns_m(rns);
-            rns_m.type = COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
-            if (vrbc)
-            {
-                vrbc->sendMessage(&rns_m);
-            }
+            sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
         }
 
     }
@@ -630,21 +614,13 @@ void coVRCommunication::handleVRB(Message *msg)
         {
             TokenBuffer rns;
             rns << vrb::SessionID(me->getID());
-            Message rns_m(rns);
-            rns_m.type = COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
-            if (vrbc)
-            {
-                vrbc->sendMessage(&rns_m);
-            }
+            sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
         }
         m_vrbMenue->updateState(true);
         //prepare for saving and loading sessions on the vrb
         TokenBuffer ftb;
         ftb << id;
-        if (vrbc)
-        {
-            vrbc->sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
-        }
+        sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
     }
     break;
     case COVISE_MESSAGE_VRB_SET_MASTER:
@@ -684,7 +660,7 @@ void coVRCommunication::handleVRB(Message *msg)
         {
             tb >> argv[i];
         }
-        // VRCoviseConnection::covconn = new VRCoviseConnection(argc, argv);
+       //VRCoviseConnectio::covconn = new VRCoviseConnection(argc, argv);
     }
     break;
     case COVISE_MESSAGE_VRB_GUI:
@@ -749,7 +725,6 @@ void coVRCommunication::handleVRB(Message *msg)
         m_privateSessionID = vrb::SessionID();
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-        registry->setVrbc(vrbc);
         coVRCollaboration::instance()->updateSharedStates();
     }
         break;
@@ -785,21 +760,14 @@ void coVRCommunication::handleVRB(Message *msg)
                 cerr << " file access error, could not open " << filename << endl;
                 rtb << 0;
             }
-
-            Message m(rtb);
-            m.type = COVISE_MESSAGE_VRB_SEND_FILE;
-            if (vrbc)
-                vrbc->sendMessage(&m);
+            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
         }
         else
         {
             TokenBuffer rtb;
             rtb << requestorsID;
             rtb << 0;
-            Message m(rtb);
-            m.type = COVISE_MESSAGE_VRB_SEND_FILE;
-            if (vrbc)
-                vrbc->sendMessage(&m);
+            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
         }
     }
     break;
@@ -1006,10 +974,7 @@ void coVRCommunication::setCurrentFile(const char *filename)
     TokenBuffer rtb3;
     rtb3 << me->getID();
     rtb3 << (char *)filename;
-    Message m(rtb3);
-    m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
-    if (vrbc)
-        vrbc->sendMessage(&m);
+    sendMessage(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
 
     if (coVRPluginList::instance()->getPlugin("ACInterface"))
     {
@@ -1037,6 +1002,22 @@ Message *coVRCommunication::waitForMessage(int messageType)
     }
 
     return m;
+}
+
+bool opencover::coVRCommunication::sendMessage(Message * msg)
+{
+    if (vrbc)
+    {
+        return vrbc->sendMessage(msg);
+    }
+    return false;
+}
+
+bool opencover::coVRCommunication::sendMessage(TokenBuffer & tb, covise_msg_type type)
+{
+    Message msg(tb);
+    msg.type = type;
+    return sendMessage(&msg);
 }
 
 void coVRCommunication::setFBData(IData *data)

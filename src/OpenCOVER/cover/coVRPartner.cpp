@@ -126,8 +126,7 @@ void coVRPartner::becomeMaster()
     rtb << true;
     Message m(rtb);
     m.type = covise::COVISE_MESSAGE_VRB_SET_MASTER;
-    if (vrbc)
-        vrbc->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 bool coVRPartner::isMaster() const
@@ -239,8 +238,7 @@ void coVRPartner::sendHello()
     tb << str.str();
     Message msg(tb);
     msg.type = covise::COVISE_MESSAGE_VRB_SET_USERINFO;
-    if (vrbc)
-        vrbc->sendMessage(&msg);
+    cover->sendVrbMessage(&msg);
 }
 
 void coVRPartner::print() const

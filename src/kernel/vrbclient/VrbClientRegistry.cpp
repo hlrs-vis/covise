@@ -10,6 +10,7 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include "VRBClient.h"
+#include "VrbMessageSenderInterface.h"
 
 
 
@@ -22,9 +23,9 @@ VrbClientRegistry *VrbClientRegistry::instance = NULL;
 // class VrbClientRegistry
 //
 //==========================================================================
-VrbClientRegistry::VrbClientRegistry(int ID, VRBClient *p_vrbc)
+VrbClientRegistry::VrbClientRegistry(int ID, VrbMessageSenderInterface *sender)
     :clientID(ID)
-    , vrbc(p_vrbc)
+    , m_sender(sender)
 {
     assert(!instance);
     instance = this;
@@ -57,10 +58,7 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
         covise::TokenBuffer tb;
         tb << oldSession;
         tb << clientID;
-        if (vrbc)
-        {
-            vrbc->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
-        }
+        m_sender->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
     }
     // resubscribe all registry entries on reconnect
     for (const auto cl : myClasses)
@@ -69,22 +67,9 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
     }
 }
 
-void VrbClientRegistry::sendMsg(TokenBuffer &tb, int type)
+void VrbClientRegistry::sendMsg(TokenBuffer &tb, covise::covise_msg_type type)
 {
-    if (vrbc)
-    {
-        vrbc->sendMessage(tb, type);
-    }
-}
-
-covise::VRBClient *VrbClientRegistry::getVrbc()
-{
-    return vrbc;
-}
-
-void VrbClientRegistry::setVrbc(covise::VRBClient * client)
-{
-    vrbc = client;
+    m_sender->sendMessage(tb, type);
 }
 
 clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, const std::string &cl, regClassObserver *ob)
