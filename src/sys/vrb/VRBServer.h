@@ -15,6 +15,7 @@
 #include <set>
 #include <memory>
 #include <vrbclient/SessionID.h>
+#include "VrbMessageHandler.h"
 namespace covise
 {
 class ServerConnection;
@@ -36,9 +37,9 @@ class VrbServerRegistry;
 //
 //
 #ifndef GUI
-class VRBServer
+class VRBServer : public vrb::ServerInterface
 #else
-class VRBServer : public QObject
+class VRBServer : public QObject, public vrb::ServerInterface
 #endif
 {
 
@@ -55,35 +56,25 @@ public:
     void loop();
     int openServer();
     void closeServer();
-    
+    void removeConnection(covise::Connection *conn) override;
+#ifdef  GUI
+    QSocketNotifier *getSN() override;
+    ApplicationWindow *getAW() override;
+#endif //  GUI
+
 
 private:
     covise::ServerConnection *sConn = nullptr;
+    vrb::VrbMessageHandler *handler;
 #ifdef GUI
     QSocketNotifier *serverSN = nullptr;
 #endif
     covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
-    void handleClient(covise::Message *);
-    ///creates a session with the id in sessions, if id has no name, creates a name for it, if the id already exists returns
-    vrb::SessionID & createSession(vrb::SessionID &id);
-    ///Checs if the session already exists in sessionsion and if not, creates it and informs the sender
-    std::shared_ptr<vrb::VrbServerRegistry>createSessionIfnotExists(vrb::SessionID &sessionID, int senderID);
-    ///send a list of all public sessions to all clients
-    void sendSessions();
-    void RerouteRequest(const char *location, int type, int senderId, int recvVRBId, QString filter, QString path);
+  
     covise::Message *msg = nullptr;
     bool requestToQuit = false;
-    VRBSClient *currentFileClient = nullptr;
-    char *currentFile = nullptr;
-    std::map<vrb::SessionID, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
-    ///return a path to the curren directory
-    std::string home();
-    ///get a kist of all files of type .fileEnding in the directory
-    std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
-    void disconectClientFromSessions(VRBSClient * cl);
-    ///assign a client to a session
-    void setSession(vrb::SessionID & sessionId);
+
 };
 #endif
 

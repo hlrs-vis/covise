@@ -33,7 +33,6 @@ class VrbServerRegistry;
 class ServerInterface
 {
 public:
-    virtual void sendMessage(int toWhom, const covise::Message &msg) = 0;
     virtual void removeConnection(covise::Connection *conn) = 0;
 #ifdef GUI
     virtual QSocketNotifier *getSN() = 0;
@@ -43,10 +42,22 @@ public:
 };
 class VrbMessageHandler
 {
-protected:
+public:
     VrbMessageHandler(ServerInterface *s);
+    ///do stuff depening on message type
     void handleMessage(covise::Message *msg);
+    ///inform clients about closing the socket
     void closeConnection();
+    ///return numer of clients
+    int numberOfClients();
+#ifdef GUI
+    ///create and add a new client
+    void addClient(covise::Connection *conn, QSocketNotifier *sn);
+    ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists
+    bool setClientNotifier(covise::Connection *conn, bool state);
+#endif 
+
+
 private:
     ServerInterface *m_server;
 
@@ -69,7 +80,7 @@ private:
     std::string home();
     ///get a kist of all files of type .fileEnding in the directory
     std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
-    void disconectClientFromSessions(VRBSClient * cl);
+    void disconectClientFromSessions(int clID);
     ///assign a client to a session
     void setSession(vrb::SessionID & sessionId);
 };

@@ -53,6 +53,8 @@ namespace vrb
 VrbMessageHandler::VrbMessageHandler(ServerInterface * s)
     :m_server(s)
 {
+    vrb::SessionID id(0, std::string(), false);
+    sessions[id].reset(new vrb::VrbServerRegistry(id));
 }
 void VrbMessageHandler::handleMessage(Message *msg)
 {
@@ -564,13 +566,12 @@ void VrbMessageHandler::handleMessage(Message *msg)
         VRBSClient *c = clients.get(msg->conn);
         if (c)
         {
-            disconectClientFromSessions(c);
-            if (currentFileClient == c)
-                currentFileClient = NULL;
-            bool wasMaster = false;
-            vrb::SessionID MasterSession;
-            TokenBuffer rtb;
+            int clID = c->getID();
             cerr << c->getName() << " (host " << c->getIP() << " ID: " << c->getID() << ") left" << endl;
+            vrb::SessionID MasterSession;
+            bool wasMaster = false;
+            TokenBuffer rtb;
+
             rtb << c->getID();
             if (c->getMaster())
             {
@@ -578,11 +579,17 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 cerr << "Master Left" << endl;
                 wasMaster = true;
             }
-#ifdef GUI
-            m_server->getAW()->registry->removeEntries(c->getID());
-#endif
             clients.removeClient(c);
             delete c;
+            disconectClientFromSessions(clID);
+            if (currentFileClient == c)
+                currentFileClient = NULL;
+
+
+#ifdef GUI
+            m_server->getAW()->registry->removeEntries(clID);
+#endif
+            sendSessions();
             clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
             if (wasMaster)
             {
@@ -1393,9 +1400,27 @@ void VrbMessageHandler::handleMessage(Message *msg)
 void VrbMessageHandler::closeConnection()
 {
     TokenBuffer tb;
-    //requestToQuit = true;
     clients.sendMessageToAll(tb, COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION);
 }
+int VrbMessageHandler::numberOfClients()
+{
+    return clients.numberOfClients();
+}
+#ifdef GUI
+void VrbMessageHandler::addClient(covise::Connection * conn, QSocketNotifier * sn)
+{
+    clients.addClient(new VRBSClient(conn, sn));
+}
+bool VrbMessageHandler::setClientNotifier(covise::Connection * conn, bool state)
+{
+    if (VRBSClient *cl = clients.get(conn))
+    {
+        cl->getSN()->setEnabled(state);
+        return true;
+    }
+    return false;
+}
+#endif
 vrb::SessionID & VrbMessageHandler::createSession(vrb::SessionID & id)
 {
     if (id.name() == std::string()) //unspecific name -> create generic name here
@@ -1515,16 +1540,12 @@ std::set<std::string> VrbMessageHandler::getFilesInDir(const std::string & path,
     }
     return files;
 }
-void VrbMessageHandler::disconectClientFromSessions(VRBSClient * cl)
+void VrbMessageHandler::disconectClientFromSessions(int clID)
 {
-    if (!cl)
-    {
-        return;
-    }
     auto it = sessions.begin();
     while (it != sessions.end())
     {
-        if (it->first.owner() == cl->getID())
+        if (it->first.owner() == clID)
         {
             if (it->first.isPrivate())
             {
@@ -1541,7 +1562,6 @@ void VrbMessageHandler::disconectClientFromSessions(VRBSClient * cl)
                 }
                 //int newOwner;
                 bool first = false;
-                sendSessions();
                 TokenBuffer stb;
                 stb << newId;
                 clients.sendMessage(stb, it->first, COVISE_MESSAGE_VRBC_SET_SESSION);
@@ -1555,7 +1575,6 @@ void VrbMessageHandler::disconectClientFromSessions(VRBSClient * cl)
 
 
     }
-    sendSessions();
 }
 void VrbMessageHandler::setSession(vrb::SessionID & sessionId)
 {
