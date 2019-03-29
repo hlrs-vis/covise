@@ -750,6 +750,7 @@ void coVRCommunication::handleVRB(Message *msg)
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         registry->setVrbc(vrbc);
+        coVRCollaboration::instance()->updateSharedStates();
     }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
