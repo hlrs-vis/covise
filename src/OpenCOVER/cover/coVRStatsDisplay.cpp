@@ -1929,12 +1929,12 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Update: ", "Update traversal", colorUpdate)
         if (_finishStats)
         {
-            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Finish: ", "finish", colorUpdate)
+            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Finish: ", "finish", colorFinish)
         }
         ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Swap: ", "swap", colorSwap)
         if (_syncStats)
         {
-            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Sync: ", "sync", colorUpdate)
+            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Sync: ", "sync", colorSync)
         }
         pos.x() = leftPos;
 
