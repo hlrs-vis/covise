@@ -12,6 +12,7 @@
 
 #include <set>
 #include <map>
+#include <memory>
 #include <string.h>
 #include <vector>
 #include <QString>

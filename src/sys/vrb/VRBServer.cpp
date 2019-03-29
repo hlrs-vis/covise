@@ -19,6 +19,7 @@
 #else
 #include <unistd.h>
 #include <dirent.h>
+#include <signal.h>
 #endif
 
 #include "VRBServer.h"
