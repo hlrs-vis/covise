@@ -21,12 +21,14 @@ SET(VRB_SOURCES
   ../VRBServer.cpp
   ../VRBClientList.cpp
   ../VrbServerRegistry.cpp
+  ../VrbMessageHandler.cpp
 )
 
 SET(VRB_HEADERS
   ../coRegistry.h
   ../VRBClientList.h
   ../VrbServerRegistry.h
+  ../VrbMessageHandler.h
 )
 
 SET(VRB_MOC_HEADERS
