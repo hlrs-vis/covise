@@ -355,7 +355,7 @@ void QtOsgWidget::paintGL()
 
 void QtOsgWidget::resizeGL(int width, int height)
 {
-    auto pr = devicePixelRatioF();
+    auto pr = pixelRatio();
     getEventQueue()->windowResize(x()*pr, y()*pr, width*pr, height*pr);
     m_graphicsWindow->resized(x()*pr, y()*pr, width*pr, height*pr);
 }
@@ -400,7 +400,7 @@ void QtOsgWidget::keyReleaseEvent(QKeyEvent *event)
 void QtOsgWidget::mouseMoveEvent(QMouseEvent *event )
 {
     setKeyboardModifiers(event);
-    auto pr = devicePixelRatioF();
+    auto pr = pixelRatio();
     getEventQueue()->mouseMotion(event->x()*pr, event->y()*pr);
 }
 
@@ -426,7 +426,7 @@ void QtOsgWidget::mousePressEvent(QMouseEvent *event)
         break;
     }
 
-    auto pr = devicePixelRatioF();
+    auto pr = pixelRatio();
     getEventQueue()->mouseButtonPress(event->x()*pr, event->y()*pr, button);
 }
 
@@ -452,7 +452,7 @@ void QtOsgWidget::mouseReleaseEvent(QMouseEvent* event)
         break;
     }
 
-    auto pr = devicePixelRatioF();
+    auto pr = pixelRatio();
     getEventQueue()->mouseButtonRelease(event->x()*pr, event->y()*pr, button);
 }
 
@@ -472,6 +472,15 @@ void QtOsgWidget::wheelEvent(QWheelEvent *event)
 osgGA::EventQueue* QtOsgWidget::getEventQueue() const
 {
     return m_graphicsWindow->getEventQueue();
+}
+
+float QtOsgWidget::pixelRatio() const
+{
+#if QT_VERSION >= 0x050600
+    return devicePixelRatioF();
+#else
+    return devicePixelRatio();
+#endif
 }
 
 #include "moc_QtOsgWidget.cpp"

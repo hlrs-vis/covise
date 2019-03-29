@@ -44,6 +44,8 @@ private:
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> m_graphicsWindow;
     std::map<int, bool> m_pressedKeys;
     int m_modifierMask = 0;
+
+    float pixelRatio() const;
 };
 
 class QtGraphicsWindow: public osgViewer::GraphicsWindowEmbedded
