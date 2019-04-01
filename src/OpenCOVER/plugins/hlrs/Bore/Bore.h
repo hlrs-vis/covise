@@ -18,6 +18,7 @@
 
 #include <cover/VRViewer.h>
 #include <cover/coVRPluginSupport.h>
+#include <PluginUtil/coSensor.h>
 using namespace covise;
 using namespace opencover;
 
@@ -43,6 +44,16 @@ using namespace opencover;
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
 #include <cover/ui/SelectionList.h>
+class textureInfo
+{
+public:
+	textureInfo() {};
+	textureInfo(const textureInfo &);
+	~textureInfo() {};
+	std::string fileName;
+	float startDepth;
+	float endDepth;
+};
 
 class BoreHolePos
 {
@@ -56,6 +67,11 @@ public:
 	double depth= -1.0;
 	double azimut;
 	double angle;
+	double angle2; //Fallwinkel
+	double buildingDist;
+	double Bauwerksbereich;
+	std::string description;
+	std::vector<textureInfo> textures;
 };
 class CoreInfo
 {
@@ -94,18 +110,42 @@ public:
 	int verw_max;
 };
 
+class BoreHole;
+
+class HoleSensor : public coPickSensor
+{
+private:
+	BoreHole *hole;
+
+public:
+	HoleSensor(BoreHole *h, osg::Node *n);
+	~HoleSensor();
+	// this method is called if intersection just started
+	// and should be overloaded
+	void activate();
+
+	// should be overloaded, is called if intersection finishes
+	void disactivate();
+};
+
 class BoreHole
 {
 public:
-	BoreHole(BoreHolePos *);
+	BoreHole(BoreHolePos *, const std::string &path);
     ~BoreHole();
 	void init();
 	void regenerate(); // regenerate Geometry
 	osg::Matrix position;
-	std::string ID;
 	BoreHolePos *boreHolePos;
-	int numSides = 8;
+	int numSides = 16;
 	float radius = 0.4;
+	int currentTex = -1;
+	HoleSensor *holeSensor=nullptr;
+	std::string path;
+
+	void update();
+	void activate();
+	void disactivate();
 
     osg::Cylinder *cylinder;
 	osg::ref_ptr<osg::MatrixTransform> boreHoleTrans;
@@ -149,4 +189,5 @@ public:
 private:
 	static BorePlugin *plugin;
 };
+
 #endif

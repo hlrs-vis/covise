@@ -12,11 +12,37 @@
 #include <osg/LineWidth>
 #include <osg/CullFace>
 #include <osg/Version>
+#include <osg/TexEnv>
+#include <osg/TexGen>
 #include <cover/coVRTui.h>
 #include <cover/coVRFileManager.h>
 #include <boost/tokenizer.hpp>
+#include <osgDB/ReadFile>
+#include <boost/filesystem.hpp>
 
 BorePlugin *BorePlugin::plugin = NULL;
+
+
+HoleSensor::HoleSensor(BoreHole *h, osg::Node *n): coPickSensor(n)
+{
+	hole = h;
+}
+
+HoleSensor::~HoleSensor()
+{
+	if (active)
+		disactivate();
+}
+
+void HoleSensor::activate()
+{
+	hole->activate();
+}
+
+void HoleSensor::disactivate()
+{
+	hole->disactivate();
+}
 
 static const int NUM_HANDLERS = 1;
 using namespace boost;
@@ -85,6 +111,53 @@ BoreHolePos::BoreHolePos(std::string info)
 	catch (...) { angle = 0.0; }
 	if (it == tokens.end())
 		return;
+	try {
+		std::string s = *it++;
+		std::replace(s.begin(), s.end(), ',', '.');
+		angle2 = std::stod(s);
+	}
+	catch (...) { angle2 = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string ds = *it++;
+		std::replace(ds.begin(), ds.end(), ',', '.');
+		buildingDist = std::stod(ds);
+	}
+	catch (...) { buildingDist = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string ds = *it++;
+		std::replace(ds.begin(), ds.end(), ',', '.');
+		Bauwerksbereich = std::stod(ds);
+	}
+	catch (...) { Bauwerksbereich = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		description = *it++;
+	}
+	catch (...) {  }
+	while (it != tokens.end())
+	{
+		textureInfo ti;
+		ti.fileName = *it++;
+		if (it == tokens.end())
+			return;
+		std::string s = *it++;
+		if (it == tokens.end())
+			return;
+		std::replace(s.begin(), s.end(), ',', '.');
+		ti.startDepth = std::stod(s);
+		s = *it++;
+		if (it == tokens.end())
+			return;
+		std::replace(s.begin(), s.end(), ',', '.');
+		ti.endDepth = std::stod(s);
+		textures.push_back(ti);
+		fprintf(stderr, "BT: %s,%f,%f\n", ti.fileName.c_str(), ti.startDepth, ti.endDepth);
+	}
 }
 BoreHolePos::~BoreHolePos()
 {
@@ -197,13 +270,18 @@ CoreInfo::~CoreInfo()
 
 }
 
-BoreHole::BoreHole(BoreHolePos *bp)
+BoreHole::BoreHole(BoreHolePos *bp, const std::string &p)
 {
     fprintf(stderr, "BoreHole::BoreHole\n");
 	boreHolePos = bp;
-
-    
-
+	if (p.length() == 0)
+	{
+		path = ".";
+	}
+	else
+	{
+		path = p;
+	}
 }
 void BoreHole::init()
 {
@@ -229,7 +307,22 @@ void BoreHole::init()
 	osg::Matrix rot;
 	rot.makeRotate((boreHolePos->angle + 180) / 180.0*M_PI, osg::Vec3(1, 0, 0), boreHolePos->azimut / 180.0*M_PI, osg::Vec3(0, 0, -1), 0.0, osg::Vec3(0, 1, 0));
 	boreHoleTrans->setMatrix(rot*m);
+	holeSensor = new HoleSensor(this, boreHoleTrans);
+	boreHoleTrans->setName(boreHolePos->ID+"_t");
 	BorePlugin::instance()->BoreGroup->addChild(boreHoleTrans);
+}
+void BoreHole::activate()
+{
+	currentTex++;
+	if (currentTex >= boreHolePos->textures.size())
+	{
+		currentTex = -1;
+	}
+	regenerate();
+}
+void BoreHole::disactivate()
+{
+	//regenerate();
 }
 
 void BoreHole::regenerate()
@@ -259,8 +352,14 @@ void BoreHole::regenerate()
 BoreHole::~BoreHole()
 {
     fprintf(stderr, "BorePlugin::~BorePlugin\n");
+	delete holeSensor;
     if (boreHoleTrans->getNumParents())
 		boreHoleTrans->getParent(0)->removeChild(boreHoleTrans);
+}
+
+void BoreHole::update()
+{
+	holeSensor->update();
 }
 
 osg::Geode *BoreHole::createGeometry()
@@ -269,15 +368,6 @@ osg::Geode *BoreHole::createGeometry()
 	geode->setName(boreHolePos->ID);
 	osg::Geometry *geom = new osg::Geometry();
 	cover->setRenderStrategy(geom);
-	osg::StateSet *stateset = geode->getOrCreateStateSet();
-	osg::Material *material = new osg::Material;
-	material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-	material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
-	material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
-	material->setShininess(osg::Material::FRONT_AND_BACK, 25.0);
-	stateset->setAttributeAndModes(material);
-	stateset->setNestRenderBins(false);
 	bool interpolate = BorePlugin::instance()->Interpolated->state();
 
 	int numSegments = cores.size();
@@ -285,6 +375,7 @@ osg::Geode *BoreHole::createGeometry()
 	osg::Vec3Array *vert = new osg::Vec3Array;
 	osg::Vec3Array *normal = new osg::Vec3Array;
 	osg::Vec4Array *color = new osg::Vec4Array;
+	osg::Vec2Array *texCoord = new osg::Vec2Array;
 	osg::Vec4 colors[6];
 	CoreInfo *ci = cores[0];
 	colors[0] = osg::Vec4(1, 1, 1, 1);
@@ -299,52 +390,107 @@ osg::Geode *BoreHole::createGeometry()
 	colors[3] = osg::Vec4(1, 0.7, 0.7, 1);
 	colors[4] = osg::Vec4(1, 0.6, 0.6, 1);
 	colors[5] = osg::Vec4(1, 0.5, 0.5, 1);*/
+	float minT, maxT;
+	bool texture = false;;
+	osg::Image * image = NULL;
+	if (currentTex >= 0 && currentTex < boreHolePos->textures.size())
+	{
+		minT = boreHolePos->textures[currentTex].startDepth;
+		maxT = boreHolePos->textures[currentTex].endDepth;
+		image = osgDB::readImageFile(path+"/"+boreHolePos->textures[currentTex].fileName);
+		if (image == NULL)
+		{
+
+			osg::notify(osg::ALWAYS) << "Can't open image file" << path + "/" + boreHolePos->textures[currentTex].fileName << std::endl;
+		}
+		else
+		{
+			texture = true;
+		}
+	}
+
+	osg::StateSet *stateset = geom->getOrCreateStateSet();
+	osg::Material *material = new osg::Material;
+	if (texture)
+	{
+		osg::Texture2D *texture = new osg::Texture2D(image);
+		texture->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+		texture->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+		texture->setWrap(osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT);
+		texture->setWrap(osg::Texture2D::WRAP_T, osg::Texture2D::CLAMP_TO_BORDER);
+		texture->setBorderColor(osg::Vec4(1,1,1,1));
+		texture->setResizeNonPowerOfTwoHint(false);
+		stateset->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
+		material->setColorMode(osg::Material::OFF);
+		osg::TexEnv *tEnv = new osg::TexEnv(osg::TexEnv::MODULATE);
+		stateset->setTextureAttributeAndModes(0, tEnv, osg::StateAttribute::ON);
+		osg::ref_ptr<osg::TexGen> texGen = new osg::TexGen();
+		stateset->setTextureAttributeAndModes(0, texGen.get(), osg::StateAttribute::OFF);
+	}
+	else
+	{
+		material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+	}
+	material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
+	material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
+	material->setShininess(osg::Material::FRONT_AND_BACK, 25.0);
+	stateset->setAttributeAndModes(material);
+	stateset->setNestRenderBins(false);
+	
 	if(interpolate)
 	{
-		for (int i = 0; i < numSides; i++)
+		for (int i = 0; i < numSides+1; i++)
 		{
 			float a = i * 2.0 * M_PI / numSides;
 			vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, 0.0));
+			if(texture)
+			    texCoord->push_back(osg::Vec2(i/(float)numSides, 0.0));
+			else
+				color->push_back(colors[ci->verw_max]);
 			normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));
-			color->push_back(colors[ci->verw_max]);
 		}
 	}
 	for (int n = 0; n < numSegments; n++)
 	{
 		CoreInfo *ci = cores[n];
-		for (int i = 0; i < numSides; i++)
+		for (int i = 0; i < numSides+1; i++)
 		{
 			float a = i * 2.0 * M_PI / numSides;
 			vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, ci->DepthTop));
+			if (texture)
+				texCoord->push_back(osg::Vec2(i / (float)numSides, (ci->DepthTop - minT) / (maxT - minT)));
+			else
+				color->push_back(colors[ci->verw_max]);
 			normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));
-			color->push_back(colors[ci->verw_max]);
 		}
 		if (!interpolate)
 		{
-			for (int i = 0; i < numSides; i++)
+			for (int i = 0; i < numSides+1; i++)
 			{
 				float a = i * 2.0 * M_PI / numSides;
 				vert->push_back(osg::Vec3(cos(a)*radius, sin(a)*radius, ci->DepthBase));
+				if (texture)
+					texCoord->push_back(osg::Vec2(i / (float)numSides, (ci->DepthBase - minT) / (maxT - minT)));
+				else
+					color->push_back(colors[ci->verw_max]);
 				normal->push_back(osg::Vec3(cos(a), sin(a), 0.0));
-				color->push_back(colors[ci->verw_max]);
 			}
 		}
 	}
 	osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
 	for (int n = 0; n < numSegments; n++)
 	{
-		int b0 = n * numSides;
-		int b1 = (n + 1) * numSides;
+		int b0 = n * (numSides+1);
+		int b1 = (n + 1) * (numSides+1);
 		if(!interpolate)
 		{
-			b0 = (n*2) * numSides;
-			b1 = ((n * 2) + 1) * numSides;
+			b0 = (n*2) * (numSides+1);
+			b1 = ((n * 2) + 1) * (numSides+1);
 		}
 		for (int i = 0; i < numSides; i++)
 		{
 			int ni = i + 1;
-			if (i == numSides - 1)
-				ni = 0;
 			primitives->push_back(b0 + i);
 			primitives->push_back(b1 + ni);
 			primitives->push_back(b1 + i);
@@ -356,8 +502,15 @@ osg::Geode *BoreHole::createGeometry()
 	geom->addPrimitiveSet(primitives);
 	geom->setVertexArray(vert);;
 	geom->setNormalArray(normal);
-	geom->setColorArray(color);
-	geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	if (texture)
+	{
+		geom->setTexCoordArray(0, texCoord);
+	}
+	else
+	{
+		geom->setColorArray(color);
+		geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	}
 	geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
 
 
@@ -456,6 +609,9 @@ bool BorePlugin::init()
 bool
 BorePlugin::update()
 {
+	for (auto& b : Bore_map) {
+		b.second->update();
+	}
 	return false;
 }
 
@@ -494,6 +650,8 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 		parent = cover->getObjectsRoot();
 	parent->addChild(BoreGroup);
 
+	boost::filesystem::path fpath(fileName);
+
 	FILE *fp = fopen(fileName.c_str(), "r");
 	if (fp != NULL)
 	{
@@ -505,7 +663,8 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 			if(bp->depth > 0)
 			{
 				BoreHolePos_map[bp->ID] = bp;
-				BoreHole *b = new BoreHole(bp);
+				std::string path = fpath.parent_path().string();
+				BoreHole *b = new BoreHole(bp,path);
 				Bore_map[bp->ID] = b;
 			}
 		}
@@ -544,3 +703,10 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 
 
 COVERPLUGIN(BorePlugin)
+
+textureInfo::textureInfo(const textureInfo &t)
+{
+	fileName = t.fileName;
+	startDepth = t.startDepth;
+	endDepth = t.endDepth;
+}
