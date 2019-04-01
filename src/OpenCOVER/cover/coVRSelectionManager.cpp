@@ -932,7 +932,7 @@ osg::Node *coVRSelectionManager::validPath(std::string path)
     while (isHelperNode(returnValue))
     {
         help = returnValue->asGroup();
-        if (help)
+        if (help!=NULL && help->getNumChildren()>0)
             returnValue = help->getChild(0);
         else
             returnValue = NULL;
