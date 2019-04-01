@@ -46,11 +46,13 @@ extern ApplicationWindow *mw;
 
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
+#include <net/covise_connect.h>
+#include <util/unixcompat.h>
 
 #ifndef MAX_PATH
 #define MAX_PATH 1024
 #endif
-
+ 
 
 
 //#define MB_DEBUG
