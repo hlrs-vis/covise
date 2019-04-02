@@ -54,6 +54,10 @@ coRegister::~coRegister()
 void coRegister::updateEntry(QString cname, int id, QString name, QString value)
 {
 
+    if (id < 0)
+    {
+        return;
+    }
     // look if registry entry already exist
     int found = getEntry(cname, id, name);
 
