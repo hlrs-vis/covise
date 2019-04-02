@@ -590,6 +590,7 @@ void coVRCommunication::handleVRB(Message *msg)
         {
             m_privateSessionID = session;
             registry->setID(id, session);
+            coVRCollaboration::instance()->updateSharedStates();
         }
         else
         {
@@ -938,6 +939,7 @@ void coVRCommunication::handleVRB(Message *msg)
         vrb::SessionID sessionID;
         tb >> sessionID;
         registry->resubscribe(sessionID);
+        coVRCollaboration::instance()->updateSharedStates(true);
     }
     break;
     case COVISE_MESSAGE_VRB_MESSAGE:
