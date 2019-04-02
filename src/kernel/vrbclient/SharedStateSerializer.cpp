@@ -68,6 +68,7 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
         valueString = std::to_string(d);
         break;
     case VECTOR:
+    case SET:
         int tID, size;
         tb >> tID;
         tb >> size;

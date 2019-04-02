@@ -25,7 +25,8 @@ enum SharedStateDataType
     FLOAT,  //3
     STRING, //4
     DOUBLE, //5
-    VECTOR //6
+    VECTOR, //6
+    SET     //7
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
@@ -34,6 +35,10 @@ SharedStateDataType getSharedStateType(const T &type) {
 template<class T>
 SharedStateDataType getSharedStateType(const std::vector<T> &type) {
     return VECTOR;
+}
+template<class T>
+SharedStateDataType getSharedStateType(const std::set<T> &type) {
+    return SET;
 }
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type); 
