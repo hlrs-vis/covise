@@ -175,6 +175,10 @@ void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const
     if (classIt != myClasses.end())
     {
         classIt->second->unObserveVar(ID, variableName);
+        if (classIt->second->getID() == ID)
+        {
+            classIt->second->setID(-1);
+        }
     }
     else
     {
@@ -191,6 +195,10 @@ void VrbServerRegistry::unObserveClass(int ID, const std::string &className)
     if (classIt != myClasses.end())
     {
         classIt->second->unObserve(ID);
+        if (classIt->second->getID() == ID)
+        {
+            classIt->second->setID(-1);
+        }
     }
 }
 ///observer "recvID" gets removed from all classes and variables
@@ -199,6 +207,10 @@ void VrbServerRegistry::unObserve(int recvID)
     for (const auto cl : myClasses)
     {
         cl.second->unObserve(recvID);
+        if (cl.second->getID() == recvID)
+        {
+            cl.second->setID(-1);
+        }
     }
 }
 
