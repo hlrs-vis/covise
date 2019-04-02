@@ -32,6 +32,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <qtutil/NetHelp.h>
 #include <qtutil/FileSysAccess.h>
@@ -350,8 +351,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
-                vrb::SessionID sid(c->getID(), "none");
-                c->setContactInfo(ip, name, createSession(sid));
+                vrb::SessionID sid =  createSession(vrb::SessionID(c->getID(), "private"));
+                c->setContactInfo(ip, name, sid);
             }
 #else
             clients.addClient(new VRBSClient(msg->conn, ip, name));
@@ -478,14 +479,16 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #endif
         TokenBuffer rtb;
         VRBSClient *c = clients.get(msg->conn);
+        vrb::SessionID sid = createSession(vrb::SessionID(c->getID(), "private"));
         int clId = -1;
         if (c)
         {
             clId = c->getID();
+            c->setPrivateSession(sid);
         }
         rtb << clId;
-        vrb::SessionID sid(clId, "anon");
-        rtb << createSession(sid);
+
+        rtb << sid;
         Message m(rtb);
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         msg->conn->send_msg(&m);
@@ -1325,7 +1328,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
     case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
     {
         tb >> senderID;
-        std::set<std::string> files = getFilesInDir(home() + "/Sessions", ".vrbreg");
+        std::set<std::string> files = getFilesInDir(home() + "/Sessions");
         TokenBuffer ftb;
         ftb << int(files.size());
         for (const auto file : files)
@@ -1338,16 +1341,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
     case COVISE_MESSAGE_VRB_SAVE_SESSION:
     {
         tb >> sessionID;
-        auto ses = sessions.find(sessionID);
-        if (ses == sessions.end())
-        {
-            std::cout << "can't save a session that not exists" << std::endl;
-        }
-        else
-        {
-            ses->second->saveFile(std::string(home() + "/Sessions"));
-        }
-        std::set<std::string> files = getFilesInDir(home() + "/Sessions", ".vrbreg");
+        saveSession(sessionID);
+
+        //send information about all existing session files to clients
+        std::set<std::string> files = getFilesInDir(home() + "/Sessions");
         TokenBuffer ftb;
         int size = files.size();
         ftb << size;
@@ -1364,7 +1361,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> sessionID;
         tb >> filename;
-        sessions[sessionID]->loadFile(std::string(home() + "/Sessions/") + filename);
+        loadSesion(filename, sessionID);
+
         TokenBuffer stb;
         stb << sessionID;
         if (sessionID.isPrivate())//inform the owner of the private session 
@@ -1423,7 +1421,7 @@ bool VrbMessageHandler::setClientNotifier(covise::Connection * conn, bool state)
 #endif
 vrb::SessionID & VrbMessageHandler::createSession(vrb::SessionID & id)
 {
-    if (id.name() == std::string()) //unspecific name -> create generic name here
+    if (id.name() == std::string() || sessions.find(id) != sessions.end()) //unspecific name or already existing session -> create generic name here
     {
         int genericName = 1;
         id.setName("1");
@@ -1582,6 +1580,122 @@ void VrbMessageHandler::setSession(vrb::SessionID & sessionId)
     stb << sessionId;
     clients.sendMessageToID(stb, sessionId.owner(), COVISE_MESSAGE_VRBC_SET_SESSION);
 }
+void VrbMessageHandler::saveSession(const vrb::SessionID &id)
+{
+    //get all participants of the sesision
+    std::vector<VRBSClient *> participants;
+    for (size_t i = 0; i < clients.numberOfClients(); i++)
+    {
+        if (clients.getNthClient(i)->getSession() == id)
+        {
+            participants.push_back(clients.getNthClient(i));
+        }
+    }
+    //create directory archsuffix/bin/sessions/sessionName
+    std::string path = home() + "/Sessions/" + id.name();
+    if (boost::filesystem::create_directory(home() + "/Sessions"))
+    {
+        std::cerr << "Directory created: " << home() << "/Sessions" << std::endl;
+    }
+    int i = 2;
+    std::string tryPath = path;
+    while(!boost::filesystem::create_directory(tryPath))
+    {
+        tryPath = path + "(" + std::to_string(i) + ")";
+        ++i;
+    }
+    std::cerr << "Directory created: " << path.c_str() << std::endl;
+    std::ofstream outFile;
+    //write private registries
+    std::set<std::string> participantNames;
+    i = 2;
+    for (auto cl : participants)
+    {
+        std::string name = cl->getUserName();
+        while (!participantNames.insert(name).second)
+        {
+            name += "_" + std::to_string(i);
+            ++i;
+        }
+        outFile.open(tryPath + "/" + name + suffix, std::ios_base::binary);
+        outFile << getTime() << "\n";
+        sessions[cl->getPrivateSession()]->saveRegistry(outFile);
+        outFile.close();
+    }
+    //write shared registry
+    outFile.open(tryPath + "/" + id.name() + suffix, std::ios_base::binary);
+    outFile << getTime() << "\n";
+    outFile << "Number of participants : " << participants.size() << "\n";
+    for (auto cl : participantNames)
+    {
+        outFile << cl << "\n";
+    }
+    sessions[id]->saveRegistry(outFile);
+    outFile.close();
+}
+void VrbMessageHandler::loadSesion(const std::string &name, const vrb::SessionID &currentSession)
+{
+    //open file of shared session
+    std::vector<std::string> fragments;
+    boost::split(fragments, name, [](char c) {return c == '('; });
+    std::string sessionName = fragments[0];
+    std::string path = home() + "/Sessions/" + name + "/" + sessionName + suffix;
+    std::ifstream inFile;
+    inFile.open(path, std::ios_base::binary);
+    if (inFile.fail())
+    {
+        std::cerr << "can not load file: file does not exist" << std::endl;
+        return;
+    }
+    //read participants 
+    std::string trash;
+    int numberOfParticipants;
+    std::vector<VRBSClient *> participants;
+    std::map <std::string, std::vector<std::string>> paricipantFileNames;
+    std::getline(inFile, trash, ':');
+    inFile >> numberOfParticipants;
+    for (size_t i = 0; i < numberOfParticipants; i++)
+    {
+        std::string fullName;
+        inFile >> fullName;
+        fragments.clear();
+        boost::split(fragments, fullName, [](char c) {return c == '_'; });
+        paricipantFileNames[fragments[0]].push_back(fullName);
+    }
+    inFile.close();
+    //read and assign private registries
+    for (const auto par : paricipantFileNames)
+    {
+        for (size_t i = 0; i < std::min(par.second.size(), clients.getClientsWithUserName(par.first).size()); i++)
+        {
+            path = home() + "/Sessions/" + name + "/" +par.second[i] +suffix;
+            inFile.open(path, std::ios_base::binary);
+            inFile >> trash; //get rid of date
+            sessions[clients.getClientsWithUserName(par.first)[i]->getPrivateSession()]->loadRegistry(inFile);
+            inFile.close();
+        }
+    }
+    //read shared session (after private sessions to ensure that sessions get merged correctly in case of currensession.isPrivate())
+    path = home() + "/Sessions/" + name + "/" + sessionName + suffix;
+    inFile.open(path, std::ios_base::binary);
+    std::getline(inFile, trash, ':');
+    inFile >> numberOfParticipants;
+    for (size_t i = 0; i < numberOfParticipants; i++)
+    {
+        inFile >> trash;
+    }
+    sessions[currentSession]->loadRegistry(inFile);
+    inFile.close();
+}
+std::string VrbMessageHandler::getTime() const {
+    time_t rawtime;
+    time(&rawtime);
+    struct tm *timeinfo = localtime(&rawtime);
 
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d_%H-%M-%S", timeinfo);
+    std::string str(buffer);
+    return str;
+}
 }
 

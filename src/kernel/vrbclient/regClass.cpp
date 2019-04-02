@@ -34,9 +34,8 @@ void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
     tb << myClass->getName();
     tb << name;
     tb << value;
-    // inform controller about creation
-    if (myClass->getID() >= 0)
-        myClass->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
+    // inform vrb about creation
+    myClass->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
 }
 
 /////////////CLIENTREGCLASS/////////////////////////////////////////////////

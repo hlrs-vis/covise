@@ -39,22 +39,8 @@ public:
 
     virtual int getID() = 0;
     virtual std::shared_ptr<ClassType> createClass(const std::string &name, int id) = 0;
-    void loadFile(const std::string &filename) {
-        clearRegistry();
-        if (filename.find(".vrbreg") == std::string::npos)
-        {
-        std::cerr << "can not load file: wrong format" << std::endl;
-            return;
-        }
-        std::ifstream inFile;
-        inFile.open(filename, std::ios_base::binary);
-        if (inFile.fail())
-        {
-            std::cerr << "can not load file: file does not exist" << std::endl;
-            return;
-        }
-        std::string line;
-        inFile >> line; //skip date
+    void loadRegistry(std::ifstream &inFile) {
+
         while (!inFile.eof())
         {
             readClass(inFile);
@@ -62,33 +48,12 @@ public:
 
     }
 
-    void saveFile(const std::string &path) const {
-        //openFile
-        std::ofstream outFile;
-        std::string fullPath = path +"/" +getTime() + ".vrbreg";
-        if (boost::filesystem::create_directory(path))
-        {
-            std::cerr << "Directory Created: " << path.c_str() << std::endl;
-        }
-        outFile.open(fullPath, std::ios_base::binary);
-        outFile << getTime();
+    void saveRegistry(std::ofstream &outFile) const {
         for (const auto &cl : myClasses)
         {
             outFile << "\n";
             cl.second->writeClass(outFile);
         }
-        outFile.close();
-    }
-private:
-    std::string getTime() const {
-        time_t rawtime;
-        time(&rawtime);
-        struct tm *timeinfo = localtime(&rawtime);
-
-        char buffer[80];
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d_%H-%M-%S", timeinfo);
-        std::string str(buffer);
-        return str;
     }
 };
 }

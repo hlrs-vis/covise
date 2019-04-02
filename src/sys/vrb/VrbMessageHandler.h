@@ -65,6 +65,8 @@ private:
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
 
+    const std::string suffix = ".vrbreg";
+
     std::map<vrb::SessionID, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
 
 
@@ -84,6 +86,9 @@ private:
     void disconectClientFromSessions(int clID);
     ///assign a client to a session
     void setSession(vrb::SessionID & sessionId);
+    void saveSession(const vrb::SessionID & id);
+    void loadSesion(const std::string & name, const vrb::SessionID &currentSession);
+    std::string getTime() const;
 };
 }
 #endif // !VRB_MESAGE_HANDLER_H
