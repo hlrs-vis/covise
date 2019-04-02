@@ -22,6 +22,7 @@
 #include <net/tokenbuffer.h>
 
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 
 using namespace covise;
 using std::cerr;
@@ -84,10 +85,10 @@ VRBSClient::VRBSClient(Connection *c, const char *ip, const char *n)
     m_name = n;
     conn = c;
     myID = clients.getNextFreeClientID();
-    m_group = vrb::SessionID();
+    m_publicSession = vrb::SessionID();
     TokenBuffer rtb;
     rtb << myID;
-    rtb << m_group;
+    rtb << m_publicSession;
     Message m(rtb);
     m.type = COVISE_MESSAGE_VRB_GET_ID;
     conn->send_msg(&m);
@@ -108,6 +109,7 @@ void VRBSClient::setContactInfo(const char *ip, const char *n, vrb::SessionID &s
 {
     address = ip;
     m_name = n;
+    m_privateSession = session;
     TokenBuffer rtb;
     rtb << myID;
     rtb << session;
@@ -146,12 +148,29 @@ std::string VRBSClient::getUserInfo()
     return userInfo;
 }
 
+std::string VRBSClient::getUserName()
+{
+    std::vector<std::string> info;
+    boost::split(info, userInfo, [](char c) {return c == ',' || c == '"' || c == '\\'; });
+    return info[1];
+}
+
 void VRBSClient::setSession(vrb::SessionID &g)
 {
-    m_group = g;
+    m_publicSession = g;
 #ifdef GUI
     myItem->setText(Group, g.toText().c_str());
 #endif
+}
+
+vrb::SessionID & VRBSClient::getPrivateSession()
+{
+    return m_privateSession;
+}
+
+void VRBSClient::setPrivateSession(vrb::SessionID & g)
+{
+    m_privateSession = g;
 }
 
 int VRBSClient::getMaster()
@@ -173,7 +192,7 @@ VRBSClient::VRBSClient(Connection *c, QSocketNotifier *sn)
     m_name = "NONE";
     conn = c;
     myID = clients.getNextFreeClientID();;
-    m_group = vrb::SessionID();
+    m_publicSession = vrb::SessionID();
     m_master = 0;
     myItem = NULL;
     interval = 1;
@@ -215,7 +234,7 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
     rtb << address;
     rtb << m_name;
     rtb << userInfo;
-    rtb << m_group;
+    rtb << m_publicSession;
     rtb << m_master;
 }
 
@@ -304,7 +323,7 @@ int VRBSClient::getID() const
 
 vrb::SessionID &VRBSClient::getSession()
 {
-    return m_group;
+    return m_publicSession;
 }
 
 int VRBSClient::getSentBPS()
@@ -484,6 +503,19 @@ VRBSClient * VRBClientList::getNthClient(int N)
     std::advance(it, N);
     return *it;
     
+}
+
+std::vector<VRBSClient*> VRBClientList::getClientsWithUserName(const std::string & name)
+{
+    std::vector<VRBSClient *> clients;
+    for (const auto cl : m_clients)
+    {
+        if (cl->getUserName() == name)
+        {
+            clients.push_back(cl);
+        }
+    }
+    return clients;
 }
 
 int VRBClientList::getNextFreeClientID()

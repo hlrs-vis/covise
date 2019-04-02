@@ -12,6 +12,8 @@
 #include <net/message_types.h>
 #include <vrbclient/SessionID.h>
 #include <set>
+#include <vector>
+
 namespace covise
 {
 class ServerConnection;
@@ -54,9 +56,12 @@ public:
     int getID() const;
     vrb::SessionID &getSession();
     void setSession(vrb::SessionID &g);
+    vrb::SessionID &getPrivateSession();
+    void setPrivateSession(vrb::SessionID &g);
     int getMaster();
     void setMaster(int m);
     std::string getUserInfo();
+    std::string getUserName();
     int getSentBPS();
     int getReceivedBPS();
     void setInterval(float i);
@@ -76,7 +81,7 @@ private:
     std::string m_name;
     std::string userInfo;
     int myID = -1;
-    vrb::SessionID m_group;
+    vrb::SessionID m_publicSession, m_privateSession;
     int m_master = false;
     long bytesSent;
     long bytesReceived;
@@ -106,6 +111,7 @@ public:
     VRBSClient *getMaster(const vrb::SessionID &session);
     VRBSClient *getNextInGroup(const vrb::SessionID &id);
     VRBSClient *getNthClient(int N);
+    std::vector<VRBSClient *> getClientsWithUserName(const std::string &name);
     int getNextFreeClientID();
     ///client becomes master and all other clients in clients in session lose master state
     void setMaster(VRBSClient *client);
