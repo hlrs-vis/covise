@@ -90,18 +90,18 @@ bool SharedStateBase::getMute()
 
 void SharedStateBase::resubscribe(SessionID &id)
 {
-    if (!m_registry->getClass(className)->getVar(variableName))
+    if (m_registry->getClass(className)->getVar(variableName))
     {
-        return;
+        m_registry->unsubscribeVar(className, variableName, true);
     }
-    m_registry->unsubscribeVar(className, variableName, true);
+
     covise::TokenBuffer tb;
     m_registry->subscribeVar(id, className, variableName, std::move(tb), this);
 }
 
 void SharedStateBase::frame(double time)
 {
-    if (sessionID == 0)
+    if (sessionID == SessionID())
     {
         return;
     }
