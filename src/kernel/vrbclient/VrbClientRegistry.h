@@ -29,7 +29,7 @@ public:
     VrbClientRegistry(int id, VrbMessageSenderInterface *sender);
     ///gets id from server
     void setID(int clID, const SessionID &session);
-    ///unsubscribe all clases and variables from old session and subscribe to the new one
+    ///unsubscribe all clases and variables from old session and subscribe to the new one (ignore sharedStates, they resubscribe them selves)
     void resubscribe(const SessionID &sessionID, const SessionID &oldSession = SessionID());
 
     /**

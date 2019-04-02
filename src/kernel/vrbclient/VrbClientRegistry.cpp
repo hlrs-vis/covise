@@ -47,7 +47,10 @@ void VrbClientRegistry::setID(int clID, const SessionID &session)
     {
         sessionID = session;
         clientID = clID;
-        resubscribe(session);
+        for (const auto cl : myClasses)
+        {
+            cl.second->setID(clientID);
+        }
     }
 }
 
@@ -63,7 +66,10 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
     // resubscribe all registry entries on reconnect
     for (const auto cl : myClasses)
     {
-        cl.second->resubscribe(sessionID);
+        if (cl.first != "SharedState")
+        {
+            cl.second->resubscribe(sessionID);
+        }
     }
 }
 
@@ -87,6 +93,10 @@ clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, co
 clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
 {
     // attach to the list
+    if (var == "VRVMenue_testTest")
+    {
+        std::cerr << "debug" << var << std::endl;
+    }
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
     {
@@ -114,8 +124,7 @@ void VrbClientRegistry::unsubscribeClass(const SessionID &sessionID, const std::
         tb << sessionID;
         tb << clientID;
         tb << cl;
-        if (clientID >= 0)
-            sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS);
+        sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS);
         myClasses.erase(cl);
 
     }
@@ -134,8 +143,7 @@ void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string 
             tb << clientID;
             tb << cl;
             tb << var;
-            if (clientID >= 0)
-                sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE);
+            sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_VARIABLE);
             if (!unsubscribeServerOnly)
             {
                 rc->deleteVar(var);
@@ -155,8 +163,7 @@ void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &
     tb << var;
     tb << value;
     tb << isStatic;
-    if (clientID >= 0)
-        sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
+    sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
 void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value, bool muted)
@@ -190,8 +197,7 @@ void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl,
     tb << var;
     tb << value;
 
-    if (clientID >= 0)
-        sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
+    sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }
 
 void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string &cl, const std::string &var)
@@ -208,8 +214,7 @@ void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string 
             tb << sessionID;
             tb << cl;
             tb << var;
-            if (clientID >= 0)
-                sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY);
+            sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY);
         }
     }
 }
