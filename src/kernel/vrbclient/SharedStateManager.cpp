@@ -71,6 +71,7 @@ void SharedStateManager::remove(SharedStateBase *base)
     useCouplingMode.erase(base);
     alwaysShare.erase(base);
     neverShare.erase(base);
+    shareWithAll.erase(base);
 }
 
 void SharedStateManager::update(SessionID &privateSessionID, SessionID & publicSessionID, bool muted, bool force)
