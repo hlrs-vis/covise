@@ -585,7 +585,7 @@ void coVRCommunication::handleVRB(Message *msg)
         vrb::SessionID session;
         tb >> id;
         tb >> session;
-        me->setID(id);
+        me = me->setID(id);
         if (session.isPrivate())
         {
             m_privateSessionID = session;
@@ -594,7 +594,6 @@ void coVRCommunication::handleVRB(Message *msg)
         }
         else
         {
-            me->setID(id);
             coVRPartnerList::instance()->setSessionID(id, session);
         }
         if (vrbc)

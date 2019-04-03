@@ -59,7 +59,7 @@ private:
     VRAvatar *m_avatar = nullptr;
 
 public:
-    void setID(int id);
+    coVRPartner *setID(int id);
     const vrb::SessionID &getSessionID() const;
     void setSession(const vrb::SessionID &g);
     void setMaster(bool m);
@@ -91,7 +91,7 @@ public:
     coVRPartner *getFirstPartner();
     void addPartner(coVRPartner *p);
     void deletePartner(int id);
-    void changePartnerID(int oldID, int newID);
+    coVRPartner *changePartnerID(int oldID, int newID);
     void deleteOthers();
     int numberOfPartners() const;
     void setMaster(int id);

@@ -64,11 +64,12 @@ coVRPartner::~coVRPartner()
     delete m_avatar;
 }
 
-void coVRPartner::setID(int id)
+coVRPartner * coVRPartner::setID(int id)
 {
     std::cerr << "*** coVRPartner: own ID is " << id << " ***" << std::endl;
-    coVRPartnerList::instance()->changePartnerID(m_id, id);
+    int oldID = m_id;
     m_id = id;
+    return coVRPartnerList::instance()->changePartnerID(oldID, id);
 }
 
 const vrb::SessionID &opencover::coVRPartner::getSessionID() const
@@ -298,18 +299,25 @@ void opencover::coVRPartnerList::deletePartner(int id)
     partners.erase(id);
 }
 
-void opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
+coVRPartner *opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
 {
-    if (auto newPlace = partners.find(newID) != partners.end())
+    auto p = partners.find(newID);
+    if (oldID == newID)
     {
-        std::cerr << "there is already a partner with " << newID << "registered in coVRParnerList" << std::endl;
+        return p->second;
     }
     auto it = partners.find(oldID);
+    if (p != partners.end())
+    {
+        std::cerr << "there is already a partner with " << newID << "registered in coVRParnerList" << std::endl;
+        return it->second;
+    }
     if (it != partners.end())
     {
         std::swap(partners[newID], it->second);
         partners.erase(it);
     }
+    return partners[newID];
 }
 
 void opencover::coVRPartnerList::deleteOthers()
