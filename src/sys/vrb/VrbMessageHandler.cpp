@@ -351,7 +351,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
-                vrb::SessionID sid =  createSession(vrb::SessionID(c->getID(), "private"));
+                vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
+                createSession(sid);
                 c->setContactInfo(ip, name, sid);
             }
 #else
@@ -479,7 +480,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #endif
         TokenBuffer rtb;
         VRBSClient *c = clients.get(msg->conn);
-        vrb::SessionID sid = createSession(vrb::SessionID(c->getID(), "private"));
+        vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
+        createSession(sid);
         int clId = -1;
         if (c)
         {
@@ -1283,10 +1285,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
     case COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION:
     {
         tb >> sessionID;
-        vrb::SessionID newSessionID = createSession(sessionID);
-        sessions[newSessionID]->setOwner(sessionID.owner());
+        createSession(sessionID);
+        sessions[sessionID]->setOwner(sessionID.owner());
         sendSessions();
-        setSession(newSessionID);
+        setSession(sessionID);
 
 
     }
@@ -1419,25 +1421,22 @@ bool VrbMessageHandler::setClientNotifier(covise::Connection * conn, bool state)
     return false;
 }
 #endif
-vrb::SessionID & VrbMessageHandler::createSession(vrb::SessionID & id)
+void VrbMessageHandler::createSession(vrb::SessionID & id)
 {
-    if (id.name() == std::string() || sessions.find(id) != sessions.end()) //unspecific name or already existing session -> create generic name here
+    int genericName = 0;
+    std::string name = id.name();
+    if (name == std::string()) //unspecific name or already existing session -> create generic name here
     {
-        int genericName = 1;
+        ++genericName;
         id.setName("1");
-        while (sessions.find(id) != sessions.end())
-        {
-            ++genericName;
-            id.setName(std::to_string(genericName));
-
-        }
-
     }
-    if (sessions.find(id) == sessions.end())
+    while (sessions.find(id) != sessions.end())
     {
-        sessions[id].reset(new VrbServerRegistry(id));
+        ++genericName;
+        id.setName(name+ std::to_string(genericName));
+
     }
-    return id;
+    sessions[id].reset(new VrbServerRegistry(id));
 }
 std::shared_ptr<vrb::VrbServerRegistry> VrbMessageHandler::createSessionIfnotExists(vrb::SessionID & sessionID, int senderID)
 {

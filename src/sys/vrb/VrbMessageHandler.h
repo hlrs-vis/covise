@@ -71,8 +71,9 @@ private:
 
 
 
-    ///creates a session with the id in sessions, if id has no name, creates a name for it, if the id already exists returns
-    vrb::SessionID & createSession(vrb::SessionID &id);
+    ///changes the given ID to a unique sessionID as close as possible to the given ID; Private/Publi state keeps unchanged
+    ///Create a new entry in sessions map for the new sessionID
+    void createSession(vrb::SessionID &id);
     ///Checs if the session already exists in sessionsion and if not, creates it and informs the sender
     std::shared_ptr<vrb::VrbServerRegistry>createSessionIfnotExists(vrb::SessionID &sessionID, int senderID);
     ///send a list of all public sessions to all clients
