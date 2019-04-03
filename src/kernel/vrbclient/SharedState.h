@@ -60,11 +60,16 @@ public:
     void setID(SessionID &id);
     void setMute(bool m);
     bool getMute();
+    ///resubscribe to the local registry and the vrb after sessionID has changed
     void resubscribe(SessionID& id);
+    //send value to local registry and vrb if syncInterval allows it
     void frame(double time);
     void setSyncInterval(float time);
     float getSyncInerval();
+    //unmute and send value to vrb
+    void becomeMaster();
 protected:
+    //convert tokenbuffer to datatype of the sharedState
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
     void subscribe(covise::TokenBuffer &&val);
     void setVar(covise::TokenBuffer &&val);

@@ -122,4 +122,12 @@ float SharedStateBase::getSyncInerval()
 {
     return syncInterval;
 }
+void SharedStateBase::becomeMaster()
+{
+    muted = false;
+    if (tb_value.get_length() > 0)
+    {
+        send = true;
+    }
+}
 }

@@ -113,6 +113,17 @@ void SharedStateManager::update(SessionID &privateSessionID, SessionID & publicS
     m_muted = muted;
 }
 
+void SharedStateManager::becomeMaster() {
+    std::set<SharedStateBase *> sharedStates[4] = { useCouplingMode, alwaysShare, neverShare, shareWithAll };
+    for (size_t i = 0; i < 4; i++)
+    {
+        for (auto sharedState : sharedStates[i])
+        {
+            sharedState->becomeMaster();
+        }
+    }
+}
+
 void SharedStateManager::frame(double time)
 {
     for (const auto sharedState : neverShare)

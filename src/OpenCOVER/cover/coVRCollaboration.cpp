@@ -196,6 +196,9 @@ void coVRCollaboration::initCollMenu()
         if (state)
         {
             coVRCommunication::instance()->becomeMaster();
+            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+            scaleFactor = VRSceneGraph::instance()->scaleFactor();
+            vrb::SharedStateManager::instance()->becomeMaster();
             updateSharedStates();
         }
 
