@@ -36,6 +36,7 @@
 #include <osg/Switch>
 #include <osgText/Font>
 #include <osgText/Text>
+#include <osg/Version>
 
 #include <osgDB/ReadFile>
 #include <osg/CullFace>
@@ -635,7 +636,13 @@ void GPSPoint::createText()
 
     float hsize = 2.5;
     float vsize = 1.5; //must be greater than 1.2
+
+#if OSG_VERSION_GREATER_OR_EQUAL(3,3,2)
     vsize = 1.4 +(textBox->getBoundingBox().zMax() - textBox->getBoundingBox().zMin());
+#else
+    vsize = 1.4 +(textBox->getBound().zMax() - textBox->getBound().zMin());
+#endif
+
     float height = 2.5; //of pole
     float frame = 0.5f; //thickness of frame
     float offset = -0.2f; //offset so not drawn within eachother
