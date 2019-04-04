@@ -55,10 +55,24 @@ public:
 	float endDepth;
 };
 
+class Cleft
+{
+public:
+	Cleft(const std::string &info);
+	~Cleft();
+	std::string ID;
+	int number;
+	double depth;
+	double angle1;
+	double angle2;
+	double angle3;
+	std::string type;
+};
+
 class BoreHolePos
 {
 public:
-	BoreHolePos(std::string info);
+	BoreHolePos(const std::string &info);
 	~BoreHolePos();
 	std::string ID;
 	double x;
@@ -76,7 +90,7 @@ public:
 class CoreInfo
 {
 public:
-	CoreInfo(std::string info);
+	CoreInfo(const std::string &info);
 	~CoreInfo();
 	std::string ID;
 	double DepthTop;
@@ -152,6 +166,7 @@ public:
 	osg::ref_ptr<osg::Geode> geode;
 	osg::ref_ptr<osg::ShapeDrawable> cylinderDrawable;
 	std::vector<CoreInfo *> cores;
+	std::vector<Cleft *> clefts;
 	osg::ref_ptr<osg::Geode> geodeVergrusung;
 	osg::Geode *createGeometry();
 };

@@ -55,7 +55,7 @@ static const FileHandler handlers[] = {
       "bcsv" },
 };
 
-BoreHolePos::BoreHolePos(std::string info)
+BoreHolePos::BoreHolePos(const std::string &info)
 {
 	escaped_list_separator<char> sep('\\',';','\"');
 	tokenizer<escaped_list_separator<char>> tokens(info, sep);
@@ -163,7 +163,7 @@ BoreHolePos::~BoreHolePos()
 {
 
 }
-CoreInfo::CoreInfo(std::string info)
+CoreInfo::CoreInfo(const std::string &info)
 {
 	escaped_list_separator<char> CSVSeparator('\\', ';', '\"');
 	char_separator<char> kommaSeparator(".");
@@ -695,6 +695,28 @@ int BorePlugin::loadBore(std::string fileName, osg::Group *p)
 	{
 		return 0;
 	}
+
+	fclose(fp);
+	fp = fopen((fileName.substr(0, fileName.length() - 5) + "Kluefte.csv").c_str(), "r");
+	if (fp != NULL)
+	{
+		char buf[1000];
+		fgets(buf, 1000, fp);
+		while (fgets(buf, 1000, fp) != NULL)
+		{
+			Cleft *c = new Cleft(buf);
+			auto b = Bore_map.find(c->ID);
+			if (b != Bore_map.end())
+			{
+				b->second->clefts.push_back(c);
+			}
+		}
+
+	}
+	else
+	{
+		return 0;
+	}
 	for (auto& b : Bore_map) {
 		b.second->init();
 	}
@@ -709,4 +731,58 @@ textureInfo::textureInfo(const textureInfo &t)
 	fileName = t.fileName;
 	startDepth = t.startDepth;
 	endDepth = t.endDepth;
+}
+
+Cleft::Cleft(const std::string & info)
+{
+	escaped_list_separator<char> sep('\\', ';', '\"');
+	tokenizer<escaped_list_separator<char>> tokens(info, sep);
+	auto it = tokens.begin();
+	ID = *it++;
+	if (it == tokens.end())
+		return;
+	try {
+		std::string s = *it++;
+		number = std::stoi(s);
+	}
+	catch (...) { number = 0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string s = *it++;
+		std::replace(s.begin(), s.end(), ',', '.');
+		depth = std::stod(s);
+	}
+	catch (...) { depth = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string s = *it++;
+		std::replace(s.begin(), s.end(), ',', '.');
+		angle1 = std::stod(s);
+	}
+	catch (...) { angle1 = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string s = *it++;
+		std::replace(s.begin(), s.end(), ',', '.');
+		angle2 = std::stod(s);
+	}
+	catch (...) { angle2 = 0.0; }
+	if (it == tokens.end())
+		return;
+	try {
+		std::string s = *it++;
+		std::replace(s.begin(), s.end(), ',', '.');
+		angle3 = std::stod(s);
+	}
+	catch (...) { angle3 = 0.0; }
+	if (it == tokens.end())
+		return;
+	type = *it++;
+}
+
+Cleft::~Cleft()
+{
 }
