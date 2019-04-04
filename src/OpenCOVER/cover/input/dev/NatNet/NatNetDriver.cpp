@@ -71,6 +71,8 @@ void NATNET_CALLCONV DataHandler(sFrameOfMocapData* data, void* pUserData)
 	nd->DataHandler(data);
 }
 
+static OpenThreads::Mutex NatNetMutex; // NatNet is not thread-safe
+
 // DataHandler receives data from the server
 // This function is called by NatNet when a frame of mocap data is available
 void NatNetDriver::DataHandler(sFrameOfMocapData* data)
@@ -128,10 +130,10 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 	// FrameOfMocapData params
 	bool bIsRecording = ((data->params & 0x01) != 0);
 	bool bTrackedModelsChanged = ((data->params & 0x02) != 0);
-	if (bIsRecording)
+	/*if (bIsRecording)
 		printf("RECORDING\n");
 	if (bTrackedModelsChanged)
-		printf("Models Changed.\n");
+		printf("Models Changed.\n");*/
 
 
 	// timecode - for systems with an eSync and SMPTE timecode generator - decode to values
@@ -146,8 +148,7 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 
 	// Rigid Bodies
 	//printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
-	if (m_numBodies < data->nRigidBodies)
-		m_numBodies = data->nRigidBodies;
+	
 	for (i = 0; i < data->nRigidBodies; i++)
 	{
 		// params
@@ -157,16 +158,41 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 		//printf("Rigid Body [ID=%d  Error=%3.2f  Valid=%d]\n", data->RigidBodies[i].ID, data->RigidBodies[i].MeanError, bTrackingValid);
 		//printf("\tx\ty\tz\tqx\tqy\tqz\tqw\n");
 		//printf("\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
-		m_bodyMatricesValid[data->RigidBodies[i].ID] = bTrackingValid;
-		if (bTrackingValid)
+		if (data->RigidBodies[i].ID > m_numBodies)
 		{
-			osg::Matrix matrix;
-			osg::Quat q(data->RigidBodies[i].qx, data->RigidBodies[i].qy, data->RigidBodies[i].qz, data->RigidBodies[i].qw);
-			matrix.makeRotate(q);
-			matrix(3, 0) = data->RigidBodies[i].x * 1000.;
-			matrix(3, 1) = data->RigidBodies[i].y * 1000.;
-			matrix(3, 2) = data->RigidBodies[i].z * 1000.;
-			m_bodyMatrices[data->RigidBodies[i].ID] = matrix;
+			fprintf(stderr, "not enought space for ID %d device %d", data->RigidBodies[i].ID, i);
+
+			m_numBodies = data->RigidBodies[i].ID + 6;
+			m_bodyMatricesValid.resize(m_numBodies + 6);
+			m_bodyMatrices.resize(m_numBodies + 6);
+			for (int i = 0; i < m_numBodies; i++)
+			{
+				m_bodyMatricesValid[i] = false;
+			}
+		}
+		if (data->RigidBodies[i].ID < m_numBodies)
+		{
+			if(!validonly)
+			{
+			    bTrackingValid = true;
+			}
+			//fprintf(stderr, "ID %d valid %d\n", data->RigidBodies[i].ID, bTrackingValid);
+			m_bodyMatricesValid[data->RigidBodies[i].ID] = bTrackingValid;
+			if (bTrackingValid)
+			{
+				osg::Matrix matrix;
+				osg::Quat q(data->RigidBodies[i].qx, data->RigidBodies[i].qy, data->RigidBodies[i].qz, data->RigidBodies[i].qw);
+				matrix.makeRotate(q);
+				matrix(3, 0) = data->RigidBodies[i].x * 1000.;
+				matrix(3, 1) = data->RigidBodies[i].y * 1000.;
+				matrix(3, 2) = data->RigidBodies[i].z * 1000.;
+				m_bodyMatrices[data->RigidBodies[i].ID] = matrix;
+			}
+		}
+		else
+		{
+
+			fprintf(stderr, "not enought space for ID %d device %d", data->RigidBodies[i].ID, i);
 		}
 	}
 
@@ -196,8 +222,6 @@ void NatNetDriver::DataHandler(sFrameOfMocapData* data)
 }
 
 
-static OpenThreads::Mutex NatNetMutex; // NatNet is not thread-safe
-
 using namespace std;
 
 NatNetDriver::NatNetDriver(const std::string &config)
@@ -222,8 +246,18 @@ NatNetDriver::NatNetDriver(const std::string &config)
 	cout << "Initializing NatNet:" << configPath() << endl;
 	m_NatNet_server = coCoviseConfig::getEntry("server", configPath(), "localhost");
 	m_NatNet_local = coCoviseConfig::getEntry("local", configPath(), "localhost");
-
-	connectParams.connectionType = ConnectionType_Multicast;
+	std::string type = coCoviseConfig::getEntry("type", configPath(), "unicast");
+	validonly = coCoviseConfig::isOn("validonly", configPath(), false);
+	if(type == "unicast")
+	{
+		fprintf(stderr, "%s\n", "using unicast");
+		connectParams.connectionType = ConnectionType_Unicast;
+	}
+	else
+	{
+		fprintf(stderr, "%s\n", "using multicast");
+	    connectParams.connectionType = ConnectionType_Multicast;
+	}
 	connectParams.serverAddress = m_NatNet_server.c_str();
 	connectParams.localAddress = m_NatNet_local.c_str();
 
@@ -281,11 +315,13 @@ NatNetDriver::NatNetDriver(const std::string &config)
 				sRigidBodyDescription* pRB = pDataDefs->arrDataDescriptions[i].Data.RigidBodyDescription;
 				printf("RigidBody Name : %s\n", pRB->szName);
 				printf("RigidBody ID : %d\n", pRB->ID);
-				printf("RigidBody Parent ID : %d\n", pRB->parentID);
-				printf("Parent Offset : %3.2f,%3.2f,%3.2f\n", pRB->offsetx, pRB->offsety, pRB->offsetz);
-				if (pRB->ID+1 > m_numBodies)
-					m_numBodies = pRB->ID+1;
-				if (pRB->MarkerPositions != NULL && pRB->MarkerRequiredLabels != NULL)
+				//printf("RigidBody Parent ID : %d\n", pRB->parentID);
+				//printf("Parent Offset : %3.2f,%3.2f,%3.2f\n", pRB->offsetx, pRB->offsety, pRB->offsetz);
+				//if (pRB->ID+4 > m_numBodies)
+				//	m_numBodies = pRB->ID+4;
+
+				printf("test ID : %d\n", pRB->ID);
+				/*if (pRB->MarkerPositions != NULL && pRB->MarkerRequiredLabels != NULL)
 				{
 					for (int markerIdx = 0; markerIdx < pRB->nMarkers; ++markerIdx)
 					{
@@ -300,7 +336,7 @@ NatNetDriver::NatNetDriver(const std::string &config)
 							printf("\t\tRequired active label: %d\n", markerRequiredLabel);
 						}
 					}
-				}
+				}*/
 			}
 			else if (pDataDefs->arrDataDescriptions[i].type == Descriptor_Skeleton)
 			{
@@ -354,12 +390,9 @@ NatNetDriver::NatNetDriver(const std::string &config)
 		}
 	}
 
-	m_bodyMatricesValid.resize(m_numBodies + 1);
-	m_bodyMatrices.resize(m_numBodies + 1);
-	for (int i = 0; i < m_numBodies; i++)
-	{
-		m_bodyMatricesValid[i] = false;
-	}
+	printf("test 1\n");
+	
+	printf("test 2\n");
     NatNetMutex.unlock();
 }
 
@@ -456,6 +489,7 @@ bool NatNetDriver::poll()
 {
     if (nn==NULL)
         return false;
+	fprintf(stderr, "polling\n");
     m_mutex.lock();
     m_valid = true;
     m_mutex.unlock();

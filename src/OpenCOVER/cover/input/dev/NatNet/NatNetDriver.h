@@ -59,6 +59,7 @@ class NatNetDriver : public opencover::InputDevice
 	char discoveredMulticastGroupAddr[kNatNetIpv4AddrStrLenMax] = NATNET_DEFAULT_MULTICAST_ADDRESS;
 	int analogSamplesPerMocapFrame = 0;
 	sServerDescription serverDescription;
+	bool validonly;
 
 	int ConnectClient();
 
