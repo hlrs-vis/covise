@@ -16,6 +16,39 @@
  <INCLUDE global="1" configname="general" >config.xml </INCLUDE>
  <GLOBAL>
   <COVER>
+  <Input>
+        <MouseNav value="true" />
+        <Device>
+           <Joystick driver="Joystick" device="0">
+              <Offset x="0" y="0" z="0" />
+              <Orientation h="0" p="90" r="0" />
+           </Joystick>
+
+        </Device>
+
+                <Body>
+
+                    <FixedHead>
+                        <Offset x="0" y="-800" z="200" />
+                    </FixedHead>
+                    <FixedHead>
+                        <Offset x="0" y="-8" z="2" />
+                    </FixedHead>
+                </Body>
+
+        <Buttons>
+           <CaveMouse device="Joystick" >
+              <Map name="0" value="ACTION_BUTTON" />
+              <Map name="1" value="XFORM_BUTTON" />
+              <Map name="2" value="MENU_BUTTON" />
+              <Map name="3" value="DRIVE_BUTTON" />
+           </CaveMouse>
+        </Buttons>
+
+        <Persons>
+           <Person name="Tracked" head="FixedHead" hand="FixedHand" buttons="CaveMouse" />
+        </Persons>
+     </Input>
   <Plugin>
   
    <Bicycle>
