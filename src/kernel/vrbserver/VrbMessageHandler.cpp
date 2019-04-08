@@ -7,7 +7,7 @@
 
 
 #include "VrbMessageHandler.h"
-#include "VRBClientList.h"
+#include "VrbClientList.h"
 #include "VrbServerRegistry.h"
 
 #include <vrbclient/SessionID.h>
