@@ -6,11 +6,13 @@
  * License: LGPL 2+ */
 
 
-#ifdef GUI
-#include <QSocketNotifier>
+
+
+
+#include <qsocketnotifier.h>
 #define IOMANIPH
 // don't include iomanip.h becaus it interferes with qt
-#endif
+
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -23,8 +25,7 @@
 #endif
 
 #include "VRBServer.h"
-#include "VRBClientList.h"
-
+#include <vrbserver/VRBClientList.h>
 using std::cerr;
 using std::endl;
 #include <sys/types.h>
@@ -38,39 +39,60 @@ using std::endl;
 #include <QList>
 #include <QHostAddress>
 
-#ifdef GUI
 #include "gui/VRBapplication.h"
 #include "gui/coRegister.h"
+#include "VrbUiClientList.h"
+#include <vrbserver/VrbClientList.h>
+#include <VrbUiMessageHandler.h>
 extern ApplicationWindow *mw;
-#endif
+
 
 #include <config/CoviseConfig.h>
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
+#include <net/message_types.h>
 #include <util/unixcompat.h>
+
+#include <qtutil/NetHelp.h>
+#include <qtutil/FileSysAccess.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qdir.h>
+#include <QtNetwork/qhostinfo.h>
+#include <QSocketNotifier>
+//#include <QTreeWidget>
+
+#include <vrbserver/VrbClientList.h>
+
+#include "gui/VRBapplication.h"
 
 #ifndef MAX_PATH
 #define MAX_PATH 1024
 #endif
- 
-
-
+vrb::VRBClientList *vrbClients;
 //#define MB_DEBUG
 
 using namespace covise;
 using namespace vrb;
-VRBServer::VRBServer()
+VRBServer::VRBServer(bool gui)
+    :m_gui(gui)
 {
     covise::Socket::initialize();
 
     port = coCoviseConfig::getInt("port", "System.VRB.Server", 31800);
     requestToQuit = false;
-    handler = new VrbMessageHandler(this);
-
+    if (gui)
+    {
+        vrbClients = &uiClients;
+        handler = new VrbUiMessageHandler(this);
+    }
+    else
+    {
+        vrbClients = &clients;
+        handler = new VrbMessageHandler(this);
+    }
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN); // otherwise writes to a closed socket kill the application.
 #endif
-
 }
 
 VRBServer::~VRBServer()
@@ -82,9 +104,12 @@ VRBServer::~VRBServer()
 
 void VRBServer::closeServer()
 {
-#ifdef GUI
+    if (m_gui)
+    {
     delete serverSN;
-#endif
+    }
+
+
     connections->remove(sConn);
     // tut sonst nicht (close_socket kommt nicht an)delete sConn;
     //sConn = NULL;
@@ -101,18 +126,6 @@ void VRBServer::removeConnection(covise::Connection * conn)
         exit(0);
     }
 }
-
-#ifdef GUI
-QSocketNotifier * VRBServer::getSN()
-{
-    return serverSN;
-}
-
-ApplicationWindow * VRBServer::getAW()
-{
-    return mw;
-}
-#endif
 
 int VRBServer::openServer()
 {
@@ -135,11 +148,12 @@ int VRBServer::openServer()
     connections->add(sConn);
     msg = new Message;
 
-#ifdef GUI
-    QSocketNotifier *serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
-    QObject::connect(serverSN, SIGNAL(activated(int)),
-                     this, SLOT(processMessages()));
-#endif
+    if (m_gui)
+    {
+        QSocketNotifier *serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
+        QObject::connect(serverSN, SIGNAL(activated(int)),
+            this, SLOT(processMessages()));
+    }
     return 0;
 }
 
@@ -163,13 +177,15 @@ void VRBServer::processMessages()
             linger.l_linger = 0;
             setsockopt(clientConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
 
-#ifdef GUI
-            QSocketNotifier *sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
-            QObject::connect(sn, SIGNAL(activated(int)),
-                             this, SLOT(processMessages()));
-            handler->addClient(clientConn, sn);
-            std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
-#endif
+            if (m_gui)
+            {
+                QSocketNotifier *sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
+                QObject::connect(sn, SIGNAL(activated(int)),
+                    this, SLOT(processMessages()));
+                VrbUiClient *cl = new VrbUiClient(clientConn, sn);
+                handler->addClient(cl);
+                std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
+            }
             connections->add(clientConn); //add new connection;
         }
         else
@@ -177,9 +193,11 @@ void VRBServer::processMessages()
 #ifdef MB_DEBUG
             std::cerr << "Receive Message!" << std::endl;
 #endif
-#ifdef GUI
-            handler->setClientNotifier(conn, false);
-#endif
+            if (m_gui)
+            {
+                static_cast<VrbUiMessageHandler*>(handler)->setClientNotifier(conn, false);
+            }
+
 
             if (conn->recv_msg(msg))
             {
@@ -202,9 +220,12 @@ void VRBServer::processMessages()
                 }
             }
 
-#ifdef GUI
-            handler->setClientNotifier(conn, true);
-#endif
+            if (m_gui)
+            {
+                static_cast<VrbUiMessageHandler*>(handler)->setClientNotifier(conn, true);
+            }
+
+
         }
     }
 }

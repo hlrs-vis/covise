@@ -5,11 +5,11 @@
 
  * License: LGPL 2+ */
 
-#ifdef GUI
+
 #include <qsocketnotifier.h>
 #define IOMANIPH
 // don't include iomanip.h becaus it interferes with qt
-#endif
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <process.h>

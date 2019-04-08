@@ -5,61 +5,52 @@
 
  * License: LGPL 2+ */
 
-#ifndef _VRB_CLIENT_LIST_H
-#define _VRB_CLIENT_LIST_H
-#include <util/DLinkList.h>
-#include <net/tokenbuffer.h>
-#include <net/message_types.h>
+#ifndef VRBCLIENTLIST_H
+#define VRBCLIENTLIST_H
+#include <util/coExport.h>
 #include <vrbclient/SessionID.h>
+#include <net/message_types.h>
+#include <string>
 #include <set>
 #include <vector>
-
 namespace covise
 {
-class ServerConnection;
-class Connection;
-class ConnectionList;
-class Message;
 class TokenBuffer;
+class Connection;
+class Message;
 }
 
-class QSocketNotifier;
-class QTreeWidgetItem;
-class QPixmap;
-class QLabel;
-class VRBCurve;
+namespace vrb
+{
+class ServerInterface;
 
-///Vrb-server client that stores connection information 
-class VRBSClient
+enum VRBSERVEREXPORT Columns {
+    Master,
+    ID,
+    Group,
+    User,
+    Host,
+    Email,
+    URL,
+    IP,
+};
+class VRBSERVEREXPORT VRBSClient
 {
 public:
-    VRBSClient(covise::Connection *c, QSocketNotifier *sn);
-    VRBSClient(covise::Connection *c, const char *ip, const char *m_name);
-    ~VRBSClient();
-
-    enum Columns {
-        Master,
-        ID,
-        Group,
-        User,
-        Host,
-        Email,
-        URL,
-        IP,
-    };
-
-    void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
-    void setUserInfo(const char *userInfo);
+    VRBSClient(covise::Connection *c, const char *ip, const char *n);
+    VRBSClient();
+    virtual void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
+    virtual void setUserInfo(const char *userInfo);
     covise::Connection *conn;
     std::string getName() const;
     std::string getIP() const;
     int getID() const;
     vrb::SessionID &getSession();
-    void setSession(vrb::SessionID &g);
+    virtual void setSession(const vrb::SessionID &g);
     vrb::SessionID &getPrivateSession();
     void setPrivateSession(vrb::SessionID &g);
     int getMaster();
-    void setMaster(int m);
+    virtual void setMaster(bool m);
     std::string getUserInfo();
     std::string getUserName();
     int getSentBPS();
@@ -68,15 +59,9 @@ public:
     void addBytesSent(int b);
     void addBytesReceived(int b);
     void getInfo(covise::TokenBuffer &rtb);
-    QSocketNotifier *getSN();
 
-    QTreeWidgetItem *myItem;
-    VRBCurve *myCurves[4];
-    QLabel *myLabels[8];
-    static QPixmap *pix_master;
-    static QPixmap *pix_slave;
 
-private:
+protected:
     std::string address;
     std::string m_name;
     std::string userInfo;
@@ -92,19 +77,18 @@ private:
     int bytesReceivedPerInterval;
     int bytesSentPerSecond;
     int bytesReceivedPerSecond;
-    QSocketNotifier *socketNotifier;
-
+    
     double time();
+
 };
 
-class VRBClientList 
+class VRBSERVEREXPORT VRBClientList
 {
-private:
+protected:
     std::set<VRBSClient *> m_clients;
-    
- 
+
+
 public:
-    VRBSClient *get(QSocketNotifier *c);
     VRBSClient *get(covise::Connection *c);
     VRBSClient *get(const char *ip);
     VRBSClient *get(int id);
@@ -131,6 +115,7 @@ public:
     ///write the info of all clients in the tokenbuffer
     void collectClientInfo(covise::TokenBuffer &tb);
 };
+extern VRBSERVEREXPORT VRBClientList clients;
 
-extern VRBClientList clients;
+}
 #endif

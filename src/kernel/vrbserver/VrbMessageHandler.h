@@ -9,18 +9,18 @@
 #define VRB_MESAGE_HANDLER_H
 
 #include <net/message.h>
-
+#include <util/coExport.h>
+#include "VRBClientList.h"
 #include <set>
 #include <map>
 #include <memory>
 #include <string.h>
 #include <vector>
 #include <QString>
-#ifdef GUI
-#include <QSocketNotifier>
-class ApplicationWindow;
+#ifdef Q_MOC_RUN
+#define GUI
 #endif
-class VRBSClient;
+
 namespace covise
 {
 class Connection;
@@ -28,39 +28,39 @@ class Connection;
 
 namespace vrb
 {
+class VRBSClient;
 class SessionID;
 class VrbServerRegistry;
 
-class ServerInterface
+class VRBSERVEREXPORT ServerInterface
 {
 public:
     virtual void removeConnection(covise::Connection *conn) = 0;
-#ifdef GUI
-    virtual QSocketNotifier *getSN() = 0;
-    virtual ApplicationWindow *getAW() = 0;
-#endif // GUI
 
 };
-class VrbMessageHandler
+
+class VRBSERVEREXPORT VrbMessageHandler
 {
 public:
-    VrbMessageHandler(ServerInterface *s);
+    VrbMessageHandler(ServerInterface *server);
     ///do stuff depening on message type
-    void handleMessage(covise::Message *msg);
+    virtual void handleMessage(covise::Message *msg);
+    ///
+    virtual  
     ///inform clients about closing the socket
     void closeConnection();
     ///return numer of clients
     int numberOfClients();
-#ifdef GUI
-    ///create and add a new client
-    void addClient(covise::Connection *conn, QSocketNotifier *sn);
-    ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists
-    bool setClientNotifier(covise::Connection *conn, bool state);
-#endif 
+
+    ///add a client
+    void addClient(VRBSClient *client);
 
 
-private:
+protected:
     ServerInterface *m_server;
+    virtual void updateApplicationWindow(const char *cl, int sender, const char *var, covise::TokenBuffer &value);
+    virtual void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var);
+    virtual void removeEntriesFromApplicationWindow(int sender);
 
     VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;

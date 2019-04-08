@@ -17,18 +17,13 @@ SET(VRB_SOURCES
   VRBCurve.cpp
   VRBFileDialog.cpp
   coRegister.cpp
-  ../coRegistry.cpp
   ../VRBServer.cpp
-  ../VRBClientList.cpp
-  ../VrbServerRegistry.cpp
-  ../VrbMessageHandler.cpp
+  ../VrbUiClientList.cpp
+  ../VrbUiMessageHandler.cpp
 )
 
 SET(VRB_HEADERS
   ../coRegistry.h
-  ../VRBClientList.h
-  ../VrbServerRegistry.h
-  ../VrbMessageHandler.h
 )
 
 SET(VRB_MOC_HEADERS
@@ -38,6 +33,8 @@ SET(VRB_MOC_HEADERS
   VRBFileDialog.h
   coRegister.h
   ../VRBServer.h
+  ../VrbUiClientList.h
+  ../VrbUiMessageHandler.h
 )
 
 QT_WRAP_CPP(VRB_MOC_SRCS ${VRB_MOC_HEADERS})
@@ -49,6 +46,6 @@ IF(BASEARCHSUFFIX STREQUAL "gecko" OR BASEARCHSUFFIX STREQUAL "heiner")
 ENDIF()
 # COVISE_WNOERROR(coVRML BASEARCH gecko heiner)
 
-TARGET_LINK_LIBRARIES(vrb coVRBClient coNet coUtil coQtUtil)
+TARGET_LINK_LIBRARIES(vrb coVRBServer coVRBClient coNet coUtil coQtUtil)
 
 COVISE_INSTALL_TARGET(vrb)

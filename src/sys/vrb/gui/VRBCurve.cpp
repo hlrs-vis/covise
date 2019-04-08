@@ -8,8 +8,7 @@
 
 //#include "application.h"
 #include "VRBCurve.h"
-#include "VRBClientList.h"
-
+#include "VrbUiClientList.h"
 #ifndef YAC
 #include <covise/covise.h>
 #endif
@@ -59,7 +58,7 @@ VRBCurve::~VRBCurve()
 {
 }
 
-void VRBCurve::setClient(VRBSClient *client)
+void VRBCurve::setClient(VrbUiClient *client)
 {
     vrb = client;
 }

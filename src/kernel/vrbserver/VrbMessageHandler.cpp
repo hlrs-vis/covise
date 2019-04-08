@@ -6,7 +6,7 @@
  * License: LGPL 2+ */
 
 
-#include"VrbMessageHandler.h"
+#include "VrbMessageHandler.h"
 #include "VRBClientList.h"
 #include "VrbServerRegistry.h"
 
@@ -34,28 +34,21 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <qtutil/NetHelp.h>
+#include <QDir>
+#include <qtutil/NetHelp.h> 
 #include <qtutil/FileSysAccess.h>
-#include <QtCore/qfileinfo.h>
-#include <QtCore/qdir.h>
 #include <QtNetwork/qhostinfo.h>
-
-#ifdef GUI
-#include "gui/VRBapplication.h"
-#include "gui/coRegister.h"
-#endif
-
 
 
 using namespace std;
 using namespace covise;
 namespace vrb
 {
-VrbMessageHandler::VrbMessageHandler(ServerInterface * s)
-    :m_server(s)
+VrbMessageHandler::VrbMessageHandler(ServerInterface *server)
+    :m_server(server)
 {
-    vrb::SessionID id(0, std::string(), false);
-    sessions[id].reset(new vrb::VrbServerRegistry(id));
+    SessionID id(0, std::string(), false);
+    sessions[id].reset(new VrbServerRegistry(id));
 }
 void VrbMessageHandler::handleMessage(Message *msg)
 {
@@ -77,7 +70,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Request file message!" << std::endl;
 #endif
         struct stat statbuf;
-        VRBSClient *c = clients.get(msg->conn);
+        vrb::VRBSClient *c = clients.get(msg->conn);
         if (c)
         {
             c->addBytesSent(msg->length);
@@ -224,18 +217,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
 #endif
 
-
-#ifdef GUI
-        if (std::strcmp(Class, "SharedState") != 0)
-        {
-            tb_value >> value;
-            m_server->getAW()->registry->updateEntry(Class, senderID, variable, value);
-        }
-        else
-        {
-            m_server->getAW()->registry->updateEntry(Class, senderID, variable, vrb::tokenBufferToString(std::move(tb_value)).c_str());
-        }
-#endif
+        updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
@@ -260,17 +242,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
         createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
-#ifdef GUI
-        if (std::strcmp(Class, "SharedState") != 0)
-        {
-            tb_value >> value;
-            m_server->getAW()->registry->updateEntry(Class, senderID, variable, value);
-        }
-        else
-        {
-            m_server->getAW()->registry->updateEntry(Class, senderID, variable, vrb::tokenBufferToString(std::move(tb_value)).c_str());
-        }
-#endif
+        updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
@@ -314,9 +286,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> tb_value;
         tb >> isStatic;
         createSessionIfnotExists(sessionID, senderID)->create(senderID, Class, variable, tb_value, isStatic);
-#ifdef GUI
-        m_server->getAW()->registry->updateEntry(Class, senderID, variable, "");
-#endif
+        updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY:
@@ -328,9 +298,9 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> Class;
         tb >> variable;
         sessions[sessionID]->deleteEntry(Class, variable);
-#ifdef GUI
-        m_server->getAW()->registry->removeEntry(Class, senderID, variable);
-#endif
+
+        removeEntryFromApplicationWindow(Class, senderID, variable);
+
     }
     break;
     case COVISE_MESSAGE_VRB_CONTACT:
@@ -347,7 +317,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         }
         else
         {
-#ifdef GUI
+
             VRBSClient *c = clients.get(msg->conn);
             if (c)
             {
@@ -355,10 +325,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 createSession(sid);
                 c->setContactInfo(ip, name, sid);
             }
-#else
+            else
             clients.addClient(new VRBSClient(msg->conn, ip, name));
             std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
-#endif
+
         }
         //cerr << name << " connected from " << ip << endl;
         // send a list of all participants to all clients
@@ -591,9 +561,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 currentFileClient = NULL;
 
 
-#ifdef GUI
-            m_server->getAW()->registry->removeEntries(clID);
-#endif
+            removeEntriesFromApplicationWindow(clID);
             sendSessions();
             clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
             if (wasMaster)
@@ -1406,21 +1374,25 @@ int VrbMessageHandler::numberOfClients()
 {
     return clients.numberOfClients();
 }
-#ifdef GUI
-void VrbMessageHandler::addClient(covise::Connection * conn, QSocketNotifier * sn)
+
+void VrbMessageHandler::addClient(VRBSClient *client)
 {
-    clients.addClient(new VRBSClient(conn, sn));
+    clients.addClient(client);
 }
-bool VrbMessageHandler::setClientNotifier(covise::Connection * conn, bool state)
+void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer &value)
 {
-    if (VRBSClient *cl = clients.get(conn))
-    {
-        cl->getSN()->setEnabled(state);
-        return true;
-    }
-    return false;
+    //std::cerr <<"userinterface not implemented" << std:endl;
 }
-#endif
+void VrbMessageHandler::removeEntryFromApplicationWindow(const char * cl, int sender, const char * var)
+{
+    //std::cerr <<"userinterface not implemented" << std:endl;
+}
+void VrbMessageHandler::removeEntriesFromApplicationWindow(int sender)
+{
+    //std::cerr <<"userinterface not implemented" << std:endl;
+}
+
+
 void VrbMessageHandler::createSession(vrb::SessionID & id)
 {
     int genericName = 0;

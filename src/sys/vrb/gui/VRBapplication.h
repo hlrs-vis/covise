@@ -23,7 +23,8 @@ class QSplitter;
 
 class ApplicationWindow;
 
-class VRBSClient;
+class VrbUiClient;
+
 class VRBPopupMenu;
 class VRBFileDialog;
 class VRBCurve;
@@ -46,8 +47,8 @@ public:
     QTextEdit *msg;
     coRegister *registry;
     void addMessage(char *);
-    void createCurves(VRBSClient *);
-    void removeCurves(VRBSClient *);
+    void createCurves(VrbUiClient *);
+    void removeCurves(VrbUiClient *);
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -83,7 +84,7 @@ private:
 
     VRBFileDialog *browser;
     VRBPopupMenu *popup;
-    VRBSClient *currClient;
+    VrbUiClient *currClient;
     VRBCurve *curve[4];
 };
 #endif

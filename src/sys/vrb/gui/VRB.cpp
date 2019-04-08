@@ -28,22 +28,38 @@ ApplicationWindow *mw;
 int main(int argc, char **argv)
 {
     covise::setupEnvironment(argc, argv);
-
+    bool gui = true;
+    for (size_t i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--console")==0)
+        {
+            gui = false;
+        }
+    }
     QApplication a(argc, argv);
+    if (gui)
+    {
 #ifdef __APPLE__
-    a.setAttribute(Qt::AA_DontShowIconsInMenus);
+        a.setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
-    mw = new ApplicationWindow();
-    mw->setWindowTitle("VRB");
-    mw->show();
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+        mw = new ApplicationWindow();
+        mw->setWindowTitle("VRB");
+        mw->show();
+        a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
+    }
 
-    VRBServer server;
+
+    VRBServer server(gui);
     if (server.openServer() < 0)
     {
         return -1;
     }
+    if (!gui)
+    {
+        server.loop();
+    }
     int exitcode = a.exec();
+
     server.closeServer();
     return exitcode;
 }

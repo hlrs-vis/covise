@@ -12,7 +12,7 @@
 #include "VRBFileDialog.h"
 #include "VRBCurve.h"
 
-#include "VRBClientList.h"
+#include "VrbUiClientList.h"
 #include <vrbclient/VRBMessage.h>
 #include <net/tokenbuffer.h>
 #include "VRBServer.h"
@@ -44,7 +44,7 @@
 #include "coRegister.h"
 
 using namespace covise;
-
+using namespace vrb;
 const char *ltext[4] = {
     "TCP sent bytes", "TCP received bytes",
     "UDP sent bytes", "UDP received bytes"
@@ -349,7 +349,7 @@ void ApplicationWindow::addMessage(char *text)
 //------------------------------------------------------------------------
 // remove all 4 curve types for current vrb client
 //------------------------------------------------------------------------
-void ApplicationWindow::removeCurves(VRBSClient *vrb)
+void ApplicationWindow::removeCurves(VrbUiClient *vrb)
 {
     for (int j = 0; j < 4; j++)
     {
@@ -362,7 +362,7 @@ void ApplicationWindow::removeCurves(VRBSClient *vrb)
 //------------------------------------------------------------------------
 // add all 4 curve types for for current vrb client
 //------------------------------------------------------------------------
-void ApplicationWindow::createCurves(VRBSClient *vrb)
+void ApplicationWindow::createCurves(VrbUiClient *vrb)
 {
     QLabel *label, *text;
     QString s;
@@ -440,11 +440,7 @@ void ApplicationWindow::enterWhatsThis()
 void ApplicationWindow::choose()
 {
     QString s;
-
-    // show the current groups
-    //
-    // ????????????????????????
-    //
+    //select session before 
 
     // show the filebrowser
     browser->show();
@@ -488,7 +484,7 @@ void ApplicationWindow::about()
 void ApplicationWindow::closeEvent(QCloseEvent *ce)
 {
 
-    if (clients.numberOfClients() > 0)
+    if (vrbClients->numberOfClients() > 0)
     {
         switch (QMessageBox::information(this, "VRB User Interface",
                                          "There are clients connected to this VRB.\nDo you want to quit anyway?",
@@ -515,7 +511,7 @@ void ApplicationWindow::closeEvent(QCloseEvent *ce)
 
     else
     {
-        clients.deleteAll();
+        vrbClients->deleteAll();
         ce->accept();
     }
 }
@@ -614,7 +610,7 @@ void ApplicationWindow::showBPS(QTreeWidgetItem *item)
         // get current vrb client
         QString s = item->text(1);
         int ID = s.toInt();
-        currClient = clients.get(ID);
+        currClient = static_cast<VrbUiClient *>(vrbClients->get(ID));
 
         // stop old timer
         if (currClient == oldClient)

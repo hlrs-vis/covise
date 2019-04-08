@@ -15,7 +15,9 @@
 #include <set>
 #include <memory>
 #include <vrbclient/SessionID.h>
-#include "VrbMessageHandler.h"
+#include <vrbserver/VrbMessageHandler.h>
+
+
 namespace covise
 {
 class ServerConnection;
@@ -23,52 +25,47 @@ class Connection;
 class ConnectionList;
 class Message;
 }
+class QTreeWidgetItem;
 class QSocketNotifier;
-class VRBSClient;
 namespace vrb
 {
 class VrbServerRegistry;
 }
 
-#ifdef Q_MOC_RUN
-#define GUI
-#endif
-//
-//
-//
-#ifndef GUI
-class VRBServer : public vrb::ServerInterface
-#else
-class VRBServer : public QObject, public vrb::ServerInterface
-#endif
+namespace vrb
 {
+class VRBClientList;
+}
+extern vrb::VRBClientList *vrbClients;
 
-#ifdef GUI
-    Q_OBJECT
-
+//
+//
+class VRBServer : public QObject, public vrb::ServerInterface
+{
+Q_OBJECT
 private slots:
-#endif
+
     void processMessages();
 
 public:
-    VRBServer();
+    VRBServer(bool gui);
     ~VRBServer();
     void loop();
     int openServer();
     void closeServer();
     void removeConnection(covise::Connection *conn) override;
-#ifdef  GUI
-    QSocketNotifier *getSN() override;
-    ApplicationWindow *getAW() override;
-#endif //  GUI
 
 
 private:
+    bool m_gui;
+    QPixmap *pix_master = NULL;
+    QPixmap *pix_slave = NULL;
     covise::ServerConnection *sConn = nullptr;
-    vrb::VrbMessageHandler *handler;
-#ifdef GUI
+
     QSocketNotifier *serverSN = nullptr;
-#endif
+
+    vrb::VrbMessageHandler *handler;
+
     covise::ConnectionList *connections = nullptr;
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
   
