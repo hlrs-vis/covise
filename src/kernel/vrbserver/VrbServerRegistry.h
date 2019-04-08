@@ -9,7 +9,7 @@
 #include <map>
 #include <vrbclient/VrbRegistry.h>
 #include <vrbclient/regClass.h>
-#include <VRBClientList.h>
+#include <VrbClientList.h>
 #include <vrbclient/SessionID.h>
 
 

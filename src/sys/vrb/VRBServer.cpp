@@ -25,7 +25,7 @@
 #endif
 
 #include "VRBServer.h"
-#include <vrbserver/VRBClientList.h>
+#include <vrbserver/VrbClientList.h>
 using std::cerr;
 using std::endl;
 #include <sys/types.h>

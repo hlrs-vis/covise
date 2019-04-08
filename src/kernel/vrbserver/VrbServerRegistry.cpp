@@ -7,7 +7,7 @@
 #include "VrbServerRegistry.h"
 #include <util/unixcompat.h>
 #include <net/tokenbuffer.h>
-#include <VRBClientList.h>
+#include <VrbClientList.h>
 #include <iostream>
 
 #include <assert.h>
