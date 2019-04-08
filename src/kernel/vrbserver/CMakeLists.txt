@@ -5,7 +5,6 @@
 # @author Dennis Grieger
 
 USING(BOOST)
-ADD_DEFINITIONS(-DGUI)
 
 SET(VRBSERVER_SOURCES
   VrbClientList.cpp
