@@ -324,6 +324,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
                 createSession(sid);
                 c->setContactInfo(ip, name, sid);
+                if (c->getSession() != vrb::SessionID())
+                {
+                    setSession(c->getSession(), c->getID());
+                }
             }
             else
             clients.addClient(new VRBSClient(msg->conn, ip, name));
@@ -1256,7 +1260,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         createSession(sessionID);
         sessions[sessionID]->setOwner(sessionID.owner());
         sendSessions();
-        setSession(sessionID);
+        setSession(sessionID, sessionID.owner());
 
 
     }
@@ -1545,11 +1549,11 @@ void VrbMessageHandler::disconectClientFromSessions(int clID)
 
     }
 }
-void VrbMessageHandler::setSession(vrb::SessionID & sessionId)
+void VrbMessageHandler::setSession(vrb::SessionID & sessionId, int clID)
 {
     TokenBuffer stb;
     stb << sessionId;
-    clients.sendMessageToID(stb, sessionId.owner(), COVISE_MESSAGE_VRBC_SET_SESSION);
+    clients.sendMessageToID(stb, clID, COVISE_MESSAGE_VRBC_SET_SESSION);
 }
 void VrbMessageHandler::saveSession(const vrb::SessionID &id)
 {

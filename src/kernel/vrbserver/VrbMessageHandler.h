@@ -10,7 +10,7 @@
 
 #include <net/message.h>
 #include <util/coExport.h>
-#include "VRBClientList.h"
+#include <vrbserver/VrbClientList.h>
 #include <set>
 #include <map>
 #include <memory>
@@ -86,7 +86,7 @@ protected:
     std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
     void disconectClientFromSessions(int clID);
     ///assign a client to a session
-    void setSession(vrb::SessionID & sessionId);
+    void setSession(vrb::SessionID & sessionId, int clID);
     void saveSession(const vrb::SessionID & id);
     void loadSesion(const std::string & name, const vrb::SessionID &currentSession);
     std::string getTime() const;
