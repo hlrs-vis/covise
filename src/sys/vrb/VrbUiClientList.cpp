@@ -48,7 +48,7 @@ VrbUiClient::VrbUiClient(Connection *c, QSocketNotifier *sn)
     socketNotifier = sn;
 }
 
-VrbUiClient::VrbUiClient()
+VrbUiClient::~VrbUiClient()
 {
     delete socketNotifier;
     delete myItem;

@@ -26,7 +26,7 @@ class VrbUiClient : public vrb::VRBSClient
 public: 
     VrbUiClient(covise::Connection *c, const char *ip, const char *n);
     VrbUiClient(covise::Connection *c, QSocketNotifier *sn);
-    VrbUiClient();
+    ~VrbUiClient();
 
     void setContactInfo(const char *ip, const char *n, vrb::SessionID &session) override;
 
