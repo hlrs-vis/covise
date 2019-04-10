@@ -312,31 +312,30 @@ void VrbMessageHandler::handleMessage(Message *msg)
         char *ip;
         tb >> name;
         tb >> ip;
+
+        VRBSClient *c = clients.get(msg->conn);
+        if (!c)
+        {
+            c = new VRBSClient(msg->conn, ip, name, false);
+            clients.addClient(c);
+        }
+        //create unique private session for the client
+        vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
+        createSession(sid);
+
+        c->setContactInfo(ip, name, sid);
+        std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
+        //if the client is started by covise it has a muduleID that can be translated to sessionID
         if (strcasecmp(name, "CRB") == 0)
         {
+            char *coviseModuleID;
+            tb >> coviseModuleID;
+            vrb::SessionID sid = vrb::SessionID(-1, std::string(coviseModuleID), false);
+
+            createSessionIfnotExists(sid, c->getID());
+            c->setSession(sid);
+            setSession(sid, c->getID());
         }
-        else
-        {
-
-            VRBSClient *c = clients.get(msg->conn);
-            if (c)
-            {
-                vrb::SessionID sid = vrb::SessionID(c->getID(), "private");
-                createSession(sid);
-                c->setContactInfo(ip, name, sid);
-                if (c->getSession() != vrb::SessionID())
-                {
-                    setSession(c->getSession(), c->getID());
-                }
-            }
-            else
-            clients.addClient(new VRBSClient(msg->conn, ip, name));
-            std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
-
-        }
-        //cerr << name << " connected from " << ip << endl;
-        // send a list of all participants to all clients
-
         sendSessions();
     }
     break;
