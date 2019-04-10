@@ -20,9 +20,12 @@
 #include <config/coConfig.h>
 #include <util/coFileUtil.h>
 #include <net/covise_connect.h>
+#include <net/tokenbuffer.h>
 #include <covise/covise_msg.h>
 #include <net/covise_host.h>
 #include <appl/CoviseBase.h>
+
+#include <vrbserver/VrbClientList.h>
 
 #include "Token.h"
 #include "CTRLHandler.h"
@@ -138,6 +141,7 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     , m_startScript(0)
     , m_accessGridDaemonPort(0)
     , m_writeUndoBuffer(true)
+    , m_handler(this)
 // == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 {
 
@@ -620,6 +624,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     }
 
     default:
+        //check if it is a vrb message
+        m_handler.handleMessage(msg);
         break;
     } //  end message switch
 
@@ -3324,7 +3330,9 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
                                 int posx, int posy, const string &title, int action, Start::Flags flags)
 {
     CTRLGlobal::getInstance()->s_nodeID++;
-    int count = CTRLGlobal::getInstance()->netList->init(CTRLGlobal::getInstance()->s_nodeID, name, nr, host, posx, posy, 0, flags);
+    int s_nodeID = CTRLGlobal::getInstance()->s_nodeID;
+    int count = CTRLGlobal::getInstance()->netList->init(s_nodeID, name, nr, host, posx, posy, 0, flags);
+    //create vrb client for OpenCOVER
     if (count != 0)
     {
         // send INIT message
@@ -3344,9 +3352,8 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
         }
 
         // send DESC message
-        net_module *n_mod = CTRLGlobal::getInstance()->netList->get(CTRLGlobal::getInstance()->s_nodeID);
+        net_module *n_mod = CTRLGlobal::getInstance()->netList->get(s_nodeID);
         module *module = n_mod->get_type();
-
         ostringstream oss;
         oss << "DESC\n";
         if (module)
@@ -3369,7 +3376,7 @@ int CTRLHandler::initModuleNode(const string &name, const string &nr, const stri
         tmp_msg = new Message(COVISE_MESSAGE_UI, osss.str());
         CTRLGlobal::getInstance()->userinterfaceList->send_all(tmp_msg);
         delete tmp_msg;
-        return CTRLGlobal::getInstance()->s_nodeID;
+        return s_nodeID;
     }
 
     else
@@ -3896,6 +3903,11 @@ bool CTRLHandler::recreate(string content, readMode mode)
     m_writeUndoBuffer = true;
 
     return true;
+}
+
+void covise::CTRLHandler::removeConnection(covise::Connection * conn)
+{
+    //implement here
 }
 
 bool CTRLHandler::checkModule(const string &modname, const string &modhost)
