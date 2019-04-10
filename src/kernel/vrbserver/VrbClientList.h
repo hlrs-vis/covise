@@ -37,9 +37,13 @@ enum VRBSERVEREXPORT Columns {
 class VRBSERVEREXPORT VRBSClient
 {
 public:
-    VRBSClient(covise::Connection *c, const char *ip, const char *n);
-    VRBSClient();
+    ///Vrb Server client that holds a connection and information about the client
+    ///send = false if you dont want to inform the client immediatly about the contact
+    VRBSClient(covise::Connection *c, const char *ip, const char *name , bool send = true);
+    ~VRBSClient();
+    ///set clientinformation and inform the client about its server id and session
     virtual void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
+    ///store userinfo like email, pc-name, ...
     virtual void setUserInfo(const char *userInfo);
     covise::Connection *conn;
     std::string getName() const;

@@ -20,26 +20,29 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n)
+VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool send)
 {
     address = ip;
     m_name = n;
     conn = c;
     myID = clients.getNextFreeClientID();
     m_publicSession = vrb::SessionID();
-    TokenBuffer rtb;
-    rtb << myID;
-    rtb << m_publicSession;
-    Message m(rtb);
-    m.type = COVISE_MESSAGE_VRB_GET_ID;
-    conn->send_msg(&m);
+    if (send)
+    {
+        TokenBuffer rtb;
+        rtb << myID;
+        rtb << m_publicSession;
+        Message m(rtb);
+        m.type = COVISE_MESSAGE_VRB_GET_ID;
+        conn->send_msg(&m);
+    }
     m_master = 0;
     lastRecTime = 0.0;
     lastSendTime = 0.0;
 
 }
 
-VRBSClient::VRBSClient()
+VRBSClient::~VRBSClient()
 {
     //cerr << "instance" <<coRegistry::instance << endl;
 //cerr << "ID" <<myID << endl;
