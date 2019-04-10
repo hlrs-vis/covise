@@ -946,9 +946,15 @@ void coVRCommunication::handleVRB(Message *msg)
         processVRBMessage(tb);
     }
     break;
-    default:
+    case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED:
+    case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED:
+    {
         if (registry)
             registry->update(tb, msg->type);
+    }
+    break;
+    default:
+
         break;
     }
 }
@@ -1007,11 +1013,7 @@ Message *coVRCommunication::waitForMessage(int messageType)
 
 bool opencover::coVRCommunication::sendMessage(Message * msg)
 {
-    if (vrbc)
-    {
-        return vrbc->sendMessage(msg);
-    }
-    return false;
+    return cover->sendVrbMessage(msg);
 }
 
 bool opencover::coVRCommunication::sendMessage(TokenBuffer & tb, covise_msg_type type)
