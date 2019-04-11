@@ -75,7 +75,10 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
 
 void VrbClientRegistry::sendMsg(TokenBuffer &tb, covise::covise_msg_type type)
 {
-    m_sender->sendMessage(tb, type);
+    if (clientID != -1)
+    {
+        m_sender->sendMessage(tb, type);
+    }
 }
 
 clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, const std::string &cl, regClassObserver *ob)
