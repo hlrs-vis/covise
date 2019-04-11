@@ -311,6 +311,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         char *name;
         char *ip;
         tb >> name;
+
         tb >> ip;
 
         VRBSClient *c = clients.get(msg->conn);
@@ -333,10 +334,14 @@ void VrbMessageHandler::handleMessage(Message *msg)
             vrb::SessionID sid = vrb::SessionID(-1, std::string(coviseModuleID), false);
 
             createSessionIfnotExists(sid, c->getID());
+            sendSessions();
             c->setSession(sid);
             setSession(sid, c->getID());
         }
-        sendSessions();
+        else
+        {
+            sendSessions();
+        }
     }
     break;
     case COVISE_MESSAGE_VRB_CONNECT_TO_COVISE:
