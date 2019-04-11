@@ -851,7 +851,7 @@ bool OpenCOVER::init()
     if (loadCovisePlugin)
     {
         CoviseRender::set_custom_callback(OpenCOVER::OpenCOVERCallback, this); //get covisemessages from 
-        char * coviseModuleID = coCommandLine::argv(3);
+        char * coviseModuleID = coCommandLine::argv(4);
         char *ipAdress = coCommandLine::argv(5);
         TokenBuffer tb;
         tb << "CRB";
