@@ -25,8 +25,8 @@ VrbUiClientList uiClients;
 QPixmap *VrbUiClient::pix_master;
 QPixmap *VrbUiClient::pix_slave;
 
-VrbUiClient::VrbUiClient(Connection *c, const char *ip, const char *n)
-    :VRBSClient(c,ip, n)
+VrbUiClient::VrbUiClient(Connection *c, const char *ip, const char *n, bool send)
+    :VRBSClient(c,ip, n, false)
 {
     if (pix_master == NULL)
     {
@@ -43,7 +43,7 @@ VrbUiClient::VrbUiClient(Connection *c, const char *ip, const char *n)
     }
 }
 VrbUiClient::VrbUiClient(Connection *c, QSocketNotifier *sn)
-    :VrbUiClient(c, "localhost", "NONE")
+    :VrbUiClient(c, "localhost", "NONE", false)
 {
     socketNotifier = sn;
 }
