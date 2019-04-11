@@ -556,14 +556,13 @@ void coVRCommunication::handleVRB(Message *msg)
             }
         }
         coVRPartnerList::instance()->print();
-        //if (coVRPartnerList::instance()->num() > 1)
-        //    coVRCollaboration::instance()->showCollaborative(true);
+
         //request a new private session if we dont have one
         if (m_privateSessionID.owner() == 0)
         {
             bool isPrivate = true;
             TokenBuffer rns;
-            rns << me->getSessionID();
+            rns << m_privateSessionID;
             sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
         }
 
