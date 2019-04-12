@@ -340,9 +340,9 @@ bool coVRCollaboration::update()
     }
 
     static double lastAvatarUpdateTime = 0.0;
-    if ((coVRCommunication::instance()->collaborative())
+    if (m_visible
         && (thisTime > lastAvatarUpdateTime + syncInterval)
-        && (coVRPartnerList::instance()->avatarsVisible())) /*&& (syncMode == LooseCoupling)*/
+        && (syncMode == LooseCoupling))
     {
         // in LOOSE Coupling, we transfer AVATAR data
         // changed, now we always transfer avatar data when avatars are visible
@@ -445,6 +445,14 @@ void coVRCollaboration::showCollaborative(bool visible)
         m_master->setEnabled(visible && !isMaster());
     if (m_showAvatar)
         m_showAvatar->setEnabled(visible);
+    if (visible && syncMode == LooseCoupling)
+    {
+        coVRPartnerList::instance()->showAvatars();
+    }
+    else
+    {
+        coVRPartnerList::instance()->hideAvatars();
+    }
 }
 
 float coVRCollaboration::getSyncInterval()

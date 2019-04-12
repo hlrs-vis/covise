@@ -35,15 +35,16 @@ class MatrixTransform;
 
 namespace opencover
 {
+class coVRPartner;
 class COVEREXPORT VRAvatar
 {
 private:
     //static float rc[10];
     //static float gc[10];
     //static float bc[10];
-
+    bool initialized = false;
 public:
-    int m_clientID;
+    coVRPartner *m_partner;
     osg::MatrixTransform *handTransform;
     osg::Node *handNode;
     osg::MatrixTransform *headTransform;
@@ -52,8 +53,13 @@ public:
     osg::Node *schuheNode;
     osg::Node *hostIconNode;
     osg::ref_ptr<osg::Group> avatarNodes;
+    ///create an Avatar that only holds the local tramsfom matrices 
+    ///Used to collect the date to send it to the partners
     VRAvatar();
-    VRAvatar(int clientID, const std::string &hostAdress);
+    ///create an Avatar for a remote partner that hold his informations
+    VRAvatar(coVRPartner *partner);
+    ///initalize avatar if not initialized. Return true if sth. is done
+    bool init(const std::string &hostAdress);
     virtual ~VRAvatar();
     void show();
     void hide();

@@ -49,6 +49,7 @@ coVRPartner::coVRPartner()
     ,email (coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
     ,url (coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
 {
+    m_avatar = new VRAvatar(this);
 }
 
 coVRPartner::coVRPartner(int id)
@@ -57,6 +58,7 @@ coVRPartner::coVRPartner(int id)
 ,m_sessionID()
 ,m_isMaster(false)
 {
+    m_avatar = new VRAvatar(this);
 }
 
 coVRPartner::~coVRPartner()
@@ -418,10 +420,6 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
 
         if (oldSession == mySession && !mySession.isPrivate()) //client left my session
         {
-            if (partner->getAvatar())
-            {
-                partner->getAvatar()->hide();
-            };
             bool lastInSession = true;
             for (auto p : partners)
             {
@@ -438,10 +436,6 @@ void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionI
         }
         if (newSession == mySession) //client joined my sessison
         {
-            if (partner->getAvatar())
-            {
-                partner->getAvatar()->show();
-            }
             coVRCollaboration::instance()->showCollaborative(true);
         }
     }
@@ -475,9 +469,8 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
     if (p)
     {
         VRAvatar *av = p->getAvatar();
-        if (!av)
+        if (av->init(adress))
         {
-            av = new VRAvatar(sender, adress);
             if (m_avatarsVisible && p->getID() != coVRCommunication::instance()->getID() && p->getSessionID() == coVRCommunication::instance()->getSessionID())
             {
                 av->show();
@@ -486,7 +479,6 @@ void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
             {
                 av->hide();
             }
-            p->setAvatar(av);
         }
         tb >> *av;
     }

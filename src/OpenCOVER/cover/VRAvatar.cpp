@@ -13,6 +13,7 @@
 #include "coVRCommunication.h"
 #include "coVRFileManager.h"
 #include "coBillboard.h"
+#include "coVRPartner.h"
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
 
@@ -40,59 +41,70 @@ opencover::VRAvatar::VRAvatar()
 
 }
 
-VRAvatar::VRAvatar(int clientID, const std::string &hostAdress)
-    :m_clientID(clientID)
+VRAvatar::VRAvatar(coVRPartner *partner)
+    :m_partner(partner)
 {
-    handTransform = new osg::MatrixTransform;
-    headTransform = new osg::MatrixTransform;
-    feetTransform = new osg::MatrixTransform;
-    avatarNodes = new osg::Group;
-    avatarNodes->addChild(feetTransform);
-    avatarNodes->addChild(headTransform);
-    avatarNodes->addChild(handTransform);
-    char *NodeName = new char[100 + hostAdress.length()];
-    sprintf(NodeName, "Avatar %s", hostAdress.c_str());
-    avatarNodes->setName(NodeName);
-    osg::StateSet *ss = avatarNodes->getOrCreateStateSet();
-    for (int i = 0; i < cover->getNumClipPlanes(); i++)
-    {
-        ss->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
-    }
+    
+}
 
-    delete[] NodeName;
-    brilleNode = coVRFileManager::instance()->loadIcon("brille");
-    handNode = coVRFileManager::instance()->loadIcon("hand");
-    schuheNode = coVRFileManager::instance()->loadIcon("schuhe");
-    char *hostIcon = new char[6 + hostAdress.length() + 4];
-    strcpy(hostIcon, "hosts/");
-    strcat(hostIcon, hostAdress.c_str());
-    hostIconNode = coVRFileManager::instance()->loadIcon(hostIcon);
-    if (hostIconNode == NULL)
+bool VRAvatar::init(const std::string &hostAdress)
+{
+    if (!initialized)
     {
-        cerr << "Hosticon not found " << hostIcon << endl;
+        handTransform = new osg::MatrixTransform;
+        headTransform = new osg::MatrixTransform;
+        feetTransform = new osg::MatrixTransform;
+        avatarNodes = new osg::Group;
+        avatarNodes->addChild(feetTransform);
+        avatarNodes->addChild(headTransform);
+        avatarNodes->addChild(handTransform);
+        char *NodeName = new char[100 + hostAdress.length()];
+        sprintf(NodeName, "Avatar %s", hostAdress.c_str());
+        avatarNodes->setName(NodeName);
+        osg::StateSet *ss = avatarNodes->getOrCreateStateSet();
+        for (int i = 0; i < cover->getNumClipPlanes(); i++)
+        {
+            ss->setAttributeAndModes(cover->getClipPlane(i), osg::StateAttribute::OFF);
+        }
+
+        delete[] NodeName;
+        brilleNode = coVRFileManager::instance()->loadIcon("brille");
+        handNode = coVRFileManager::instance()->loadIcon("hand");
+        schuheNode = coVRFileManager::instance()->loadIcon("schuhe");
+        char *hostIcon = new char[6 + hostAdress.length() + 4];
+        strcpy(hostIcon, "hosts/");
+        strcat(hostIcon, hostAdress.c_str());
+        hostIconNode = coVRFileManager::instance()->loadIcon(hostIcon);
+        if (hostIconNode == NULL)
+        {
+            cerr << "Hosticon not found " << hostIcon << endl;
+        }
+        if (brilleNode)
+        {
+            headTransform->addChild(brilleNode);
+        }
+        if (handNode)
+        {
+            handTransform->addChild(handNode);
+        }
+        if (schuheNode)
+        {
+            feetTransform->addChild(schuheNode);
+        }
+        coBillboard *bb = new coBillboard;
+        feetTransform->addChild(bb);
+        if (hostIconNode)
+        {
+            bb->addChild(hostIconNode);
+        }
+        if (coVRCollaboration::instance()->showAvatar)
+        {
+            cover->getObjectsRoot()->addChild(avatarNodes.get());
+        }
+        initialized = true;
+        return true;
     }
-    if (brilleNode)
-    {
-        headTransform->addChild(brilleNode);
-    }
-    if (handNode)
-    {
-        handTransform->addChild(handNode);
-    }
-    if (schuheNode)
-    {
-        feetTransform->addChild(schuheNode);
-    }
-    coBillboard *bb = new coBillboard;
-    feetTransform->addChild(bb);
-    if (hostIconNode)
-    {
-        bb->addChild(hostIconNode);
-    }
-    if (coVRCollaboration::instance()->showAvatar)
-    {
-        cover->getObjectsRoot()->addChild(avatarNodes.get());
-    }
+    return false;
 }
 
 VRAvatar::~VRAvatar()
@@ -103,7 +115,7 @@ VRAvatar::~VRAvatar()
 }
 void VRAvatar::show()
 {
-    if (avatarNodes->getNumParents() == 0)
+    if (initialized && avatarNodes->getNumParents() == 0)
     {
         cover->getObjectsRoot()->addChild(avatarNodes.get());
     }
@@ -111,7 +123,7 @@ void VRAvatar::show()
 
 void VRAvatar::hide()
 {
-    if (avatarNodes->getNumParents() == 1)
+    if (initialized && avatarNodes->getNumParents() == 1)
     {
         cover->getObjectsRoot()->removeChild(avatarNodes.get());
     }
