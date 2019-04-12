@@ -172,6 +172,10 @@ void coVRIntersectionInteractor::hide()
     if (label_)
         label_->hide();
 }
+bool coVRIntersectionInteractor::isInitializedThroughSharedState()
+{
+    return m_isInitializedThroughSharedState;
+}
 void coVRIntersectionInteractor::setShared(bool state)
 {
     assert(!state && "sharing of coVRIntersectionInteractor state requested, but sharing not implemented for coVRIntersectionInteractor type");

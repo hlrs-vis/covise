@@ -196,7 +196,7 @@ bool ClipPlanePlugin::init()
                 plane[i].EnableButton->setState(true);
                 clipNode->addClipPlane(plane[i].clip.get());
 
-                if (!plane[i].valid)
+                if (!plane[i].valid && !plane[i].pickInteractor->isInitializedThroughSharedState())
                 {
                     setInitialEquation(i);
                 }
@@ -497,50 +497,39 @@ void ClipPlanePlugin::setInitialEquation(int i)
         m.makeRotate(-1.5, 0, 0, 1);
         m.setTrans(-d, 0, 0);
         eq = matrixToEquation(m);
-        plane[0].clip->setClipPlane(eq);
-        plane[0].pickInteractor->updateTransform(m);
     }
     else if (i == 1)
     {
         m.makeRotate(1.5, 0, 0, 1);
         m.setTrans(d, 0, 0);
         eq = matrixToEquation(m);
-        plane[1].clip->setClipPlane(eq);
-        plane[1].pickInteractor->updateTransform(m);
     }
     else if (i == 1)
     {
         m.makeRotate(0, 0, 0, 1);
         m.setTrans(0, -d, 0);
         eq = matrixToEquation(m);
-        plane[2].clip->setClipPlane(eq);
-        plane[2].pickInteractor->updateTransform(m);
     }
     else if (i == 3)
     {
         m.makeRotate(3, 0, 0, 1);
         m.setTrans(0, d, 0);
         eq = matrixToEquation(m);
-        plane[3].clip->setClipPlane(eq);
-        plane[3].pickInteractor->updateTransform(m);
     }
-
     else if (i == 4)
     {
         m.makeRotate(1.5, 1, 0, 0);
         m.setTrans(0, 0, -d);
         eq = matrixToEquation(m);
-        plane[4].clip->setClipPlane(eq);
-        plane[4].pickInteractor->updateTransform(m);
     }
     else if (i == 5)
     {
         m.makeRotate(-1.5, 1, 0, 0);
         m.setTrans(0, 0, d);
         eq = matrixToEquation(m);
-        plane[5].clip->setClipPlane(eq);
-        plane[5].pickInteractor->updateTransform(m);
     }
+    plane[i].clip->setClipPlane(eq);
+    plane[i].pickInteractor->updateTransform(m);
 }
 
 

@@ -83,7 +83,7 @@ protected:
     osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
 
     coVRLabel *label_;
-
+    bool m_isInitializedThroughSharedState = false;
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
     std::unique_ptr<vrb::SharedStateBase> m_sharedState;
@@ -100,6 +100,8 @@ protected:
 
     //! reimplement in derived class for updating value of m_sharedState
     virtual void updateSharedState();
+
+    
 public:
     // size: size in world coordinates, the size of the sphere is fixed, even if the user scales the world
     // buttonId: ButtonA, ButtonB etc.
@@ -142,6 +144,8 @@ public:
     // make the interactor invisible
     void hide();
 
+    // gives information whether this item has been initialized through a sharedState call
+    bool isInitializedThroughSharedState();
     //! make state shared among partners in a collaborative session
     virtual void setShared(bool state);
 

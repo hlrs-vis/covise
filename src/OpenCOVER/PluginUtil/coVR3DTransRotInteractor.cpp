@@ -414,6 +414,7 @@ void coVR3DTransRotInteractor::setShared(bool shared)
         {
             m_sharedState.reset(new SharedMatrix("interactor." + std::string(_interactorName), _oldInteractorXformMat_o));//myPosition
             m_sharedState->setUpdateFunction([this]() {
+                m_isInitializedThroughSharedState = true;
                 osg::Matrix interactorXformMat_o = *static_cast<SharedMatrix *>(m_sharedState.get());
                 if (cover->restrictOn())
                 {
