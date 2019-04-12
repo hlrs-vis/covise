@@ -336,8 +336,17 @@ void BoreHole::regenerate()
 				geodeVergrusung->getParent(0)->removeChild(geodeVergrusung.get());
 			}
 		}
+		if (cleftGeode.get() != nullptr)
+		{
+			if (cleftGeode->getParent(0) != nullptr)
+			{
+				cleftGeode->getParent(0)->removeChild(cleftGeode.get());
+			}
+		}
 		geodeVergrusung = createGeometry();
 		boreHoleTrans->addChild(geodeVergrusung);
+		cleftGeode = createCleftGeometry(1.5);
+		boreHoleTrans->addChild(cleftGeode);
 	}
 	else
 	{
@@ -522,6 +531,95 @@ osg::Geode *BoreHole::createGeometry()
 	osg::CullFace *cullFace = new osg::CullFace();
 	cullFace->setMode(osg::CullFace::BACK);
 	stateset->setAttributeAndModes(cullFace, osg::StateAttribute::ON);
+	return geode;
+}
+
+osg::Geode *BoreHole::createCleftGeometry(float cleftRadius)
+{
+	osg::Geode *geode = new osg::Geode();
+	geode->setName(boreHolePos->ID+"Cleft");
+	osg::Geometry *geom = new osg::Geometry();
+	cover->setRenderStrategy(geom);
+
+
+	osg::Vec3Array *vert = new osg::Vec3Array;
+	osg::Vec3Array *normal = new osg::Vec3Array;
+	osg::Vec4Array *color = new osg::Vec4Array;
+	osg::Vec4 colors[6];
+	colors[0] = osg::Vec4(1, 1, 1, 1);
+	colors[1] = osg::Vec4(1, 0, 0.1, 1);
+	colors[2] = osg::Vec4(0.1, 1, 0.0, 1);
+	colors[3] = osg::Vec4(1, 0.4, 0.4, 1);
+	colors[4] = osg::Vec4(1, 0.2, 0.2, 1);
+	colors[5] = osg::Vec4(1, 0.0, 0.0, 1);
+
+	osg::StateSet *stateset = geom->getOrCreateStateSet();
+	osg::Material *material = new osg::Material;
+	material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+	material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
+	material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
+	material->setShininess(osg::Material::FRONT_AND_BACK, 25.0);
+	stateset->setAttributeAndModes(material);
+	stateset->setNestRenderBins(false);
+
+	for (auto ci : clefts)
+	{
+
+		osg::Matrix m;
+		osg::Vec3f p(0,0, ci->depth);
+		m.makeTranslate(p);
+		osg::Matrix rot;
+		rot.makeRotate(ci->angle1 / 180.0*M_PI, osg::Vec3(0, 0, 1), (ci->angle2) / 180.0*M_PI, osg::Vec3(1, 0, 0), 0.0, osg::Vec3(0, 1, 0));
+		m = rot*m;
+
+		osg::Vec3 n(0, 0, 1);
+		n = osg::Matrix::transform3x3(m, n);
+		osg::Vec3 v = osg::Vec3(0, 0, 0);
+		v = m.preMult(v);
+		vert->push_back(v);
+		normal->push_back(n);
+
+		for (int i = 0; i < numSides; i++)
+		{
+			float a = i * 2.0 * M_PI / numSides;
+			osg::Vec3 v = osg::Vec3(cos(a)*cleftRadius, sin(a)*cleftRadius, 0);
+			v = m.preMult(v);
+			vert->push_back(v);
+			normal->push_back(n);
+
+			color->push_back(colors[ci->type]);
+		}
+	}
+	osg::DrawElementsUInt *primitives = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES);
+	for (int n = 0; n < clefts.size(); n++)
+	{
+		int b0 = n * (numSides + 1);
+		for (int i = 0; i < numSides; i++)
+		{
+			primitives->push_back(b0 );
+			primitives->push_back(b0 + i+1);
+			if (i == numSides - 1)
+				primitives->push_back(b0 + 1);
+			else
+				primitives->push_back(b0 + i + 2);
+		}
+	}
+	geom->addPrimitiveSet(primitives);
+	geom->setVertexArray(vert);;
+	geom->setNormalArray(normal);
+	geom->setColorArray(color);
+	geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	geom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+
+
+#if (OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0))
+	BorePlugin::instance()->d_kdtreeBuilder->apply(*geom);
+#endif
+
+	geode->addDrawable(geom);
+	osg::CullFace *cullFace = new osg::CullFace();
+	stateset->setAttributeAndModes(cullFace, osg::StateAttribute::OFF);
 	return geode;
 }
 
@@ -772,15 +870,11 @@ Cleft::Cleft(const std::string & info)
 	catch (...) { angle2 = 0.0; }
 	if (it == tokens.end())
 		return;
-	try {
-		std::string s = *it++;
-		std::replace(s.begin(), s.end(), ',', '.');
-		angle3 = std::stod(s);
-	}
-	catch (...) { angle3 = 0.0; }
-	if (it == tokens.end())
-		return;
-	type = *it++;
+	std::string stype = *it++;
+	if (stype == "Kluft")
+		type = 0;
+	else
+		type = 1;
 }
 
 Cleft::~Cleft()

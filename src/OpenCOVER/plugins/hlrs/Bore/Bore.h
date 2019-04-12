@@ -66,7 +66,7 @@ public:
 	double angle1;
 	double angle2;
 	double angle3;
-	std::string type;
+	int type;
 };
 
 class BoreHolePos
@@ -169,6 +169,8 @@ public:
 	std::vector<Cleft *> clefts;
 	osg::ref_ptr<osg::Geode> geodeVergrusung;
 	osg::Geode *createGeometry();
+	osg::Geode *createCleftGeometry(float cleftRadius);
+	osg::ref_ptr<osg::Geode> cleftGeode;
 };
 
 
