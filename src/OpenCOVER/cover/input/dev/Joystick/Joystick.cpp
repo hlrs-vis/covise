@@ -294,6 +294,8 @@ bool Joystick::poll()
 			axes[i][4] = js.lRy / 1000.0f;
 		if (number_axes[i] > 5)
 			axes[i][5] = js.lRz / 1000.0f;
+		if (number_axes[i] > 6)
+			number_axes[i] = 6;
 
 		for (int n = 0; n < number_POVs[i]; n++)
 		{
@@ -303,6 +305,7 @@ bool Joystick::poll()
 
 	m_mutex.lock();
 	bs = 0;
+	int vs = 0;
 	for (i = 0; i < numLocalJoysticks; i++)
 	{
 
@@ -313,6 +316,17 @@ bool Joystick::poll()
 			m_buttonStates[bs] = buttons[i][n];
 			bs++;
 		}
+		for (int n = 0; n < number_axes[i]; n++)
+		{
+			while (vs >= m_valuatorValues.size())
+			{
+				m_valuatorValues.push_back(0);
+				m_valuatorRanges.push_back(std::pair<double,double>(0.0,1.0));
+			}
+			m_valuatorValues[vs] = axes[i][n];
+			vs++;
+		}
+		
 	}
     m_valid = true;
     m_mutex.unlock();
