@@ -43,7 +43,13 @@ namespace osgText
 {
 class Font;
 }
-
+namespace boost
+{
+namespace filesystem
+{
+class path;
+}
+}
 namespace opencover
 {
 
@@ -121,8 +127,8 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-    //removes COVISE_PATH from filePath
-    std::string cutName(const std::string &fileName);
+    //removes sharedDataPath from filePath
+    void cutName(std::string &fileName);
     //search the file under COVISE_PATH; Return the first path to a valid file or an empty string
     std::string findSharedFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
@@ -241,7 +247,10 @@ private:
             return first.size() > second.size();
         }
     };
-
+    ///returns the full path of the symbolic link that points to the shared data
+    ///the link should be in COVISE_PATH/.. and named sharedData
+    void getSharedDataPath();
+    std::unique_ptr<boost::filesystem::path> m_sharedDataPath;
 };
 }
 #endif

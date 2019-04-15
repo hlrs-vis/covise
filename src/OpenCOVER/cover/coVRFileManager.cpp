@@ -38,6 +38,8 @@
 #include "ui/FileBrowser.h"
 #include "ui/Menu.h"
 
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -55,6 +57,7 @@
 #endif
 
 using namespace covise;
+namespace fs = boost::filesystem;
 namespace opencover
 {
 
@@ -722,7 +725,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
-        std::string shortName = cutName(fileName);
+        std::string shortName =fileName;
+        cutName(shortName);
         if (v.insert(shortName).second)
         {
             filePaths = v;
@@ -928,9 +932,8 @@ coVRFileManager::coVRFileManager()
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
-
     assert(!s_instance);
-
+    getSharedDataPath();
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 
@@ -1070,59 +1073,28 @@ const char *coVRFileManager::getName(const char *file)
     return NULL;
 }
 
-std::string coVRFileManager::cutName(const std::string & fileName)
+void coVRFileManager::cutName(std::string & fileName)
 {
-    char *covisepath = getenv("COVISE_PATH");
-#ifdef WIN32
-    std::vector<std::string> p = split(covisepath, ';');
-#else
-    std::vector<std::string> p = split(covisepath, ':');
-#endif
-    Compare c;
-    std::sort(p.begin(), p.end(), c);
-    std::string shortName = fileName;
-    for (auto path : p)
+    boost::filesystem::path filePath(fileName);
+    filePath.make_preferred();
+    if (!boost::filesystem::exists(filePath) || !m_sharedDataPath)
     {
-        if (fileName.length() > path.length() && path.length() > 0 && fileName.compare(0, path.length(), path) == 0)
-        {
-            shortName.erase(shortName.begin(), shortName.begin() + path.length() + 1);
-            return shortName;
-        }
+        return;
     }
-    return shortName;
+    fileName = filePath.lexically_relative(*m_sharedDataPath).string();
 }
 
 std::string coVRFileManager::findSharedFile(const std::string & fileName)
 {
-    FILE *file;
-    file = ::fopen(fileName.c_str(), "r");
-    if (file)
+    std::string path = m_sharedDataPath->string() + "/" + fileName;
+    if (fs::exists(path))
     {
-        ::fclose(file);
+        return path;
+    }
+    else
+    {
         return fileName;
     }
-
-    
-    char *covisepath = getenv("COVISE_PATH");
-#ifdef WIN32
-    std::vector<std::string> p = split(covisepath, ';');
-#else
-    std::vector<std::string> p = split(covisepath, ':');
-#endif
-    Compare c;
-    std::sort(p.begin(), p.end(), c);
-    for (auto path : p)
-    {
-        std::string name = path + "/" + fileName;
-        FILE *file2;
-        file2 = ::fopen(name.c_str(), "r");
-        if (file2)
-        {
-            ::fclose(file2);
-            return name;
-        }
-    }
-    return std::string();
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
@@ -1456,15 +1428,16 @@ bool coVRFileManager::update()
 
 void coVRFileManager::loadPartnerFiles()
 {
-    //unload my files
+    //load and unload existing files
     for (auto myFile : m_files)
     {
         bool found = false;
         
-        auto shortPath = cutName(myFile.first);
+        auto shortPath = myFile.first;
+        cutName(shortPath);
         for (auto theirFile : filePaths.value())
         {
-            if (shortPath == theirFile)
+            if (shortPath == theirFile || myFile.first == theirFile)
             {
                 myFile.second->load();
                 found = true;
@@ -1488,4 +1461,27 @@ void coVRFileManager::loadPartnerFiles()
 
     }
 }
+
+void coVRFileManager::getSharedDataPath()
+{
+    char *covisepath = getenv("COVISE_PATH");
+#ifdef WIN32
+    std::vector<std::string> p = split(covisepath, ';');
+#else
+    std::vector<std::string> p = split(covisepath, ':');
+#endif
+    for (const auto path : p)
+    {
+        std::string fullPath = path + "/../sharedData";
+        if (fs::exists(fullPath))
+        {
+            m_sharedDataPath.reset(new fs::path(boost::filesystem::canonical(fullPath)));
+            if (!fs::exists(*m_sharedDataPath))
+            {
+                m_sharedDataPath = nullptr;
+            }
+        }
+    }
+}
+
 }
