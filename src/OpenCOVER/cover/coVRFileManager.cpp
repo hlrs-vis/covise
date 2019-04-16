@@ -633,7 +633,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         return nullptr;
     }
     START("coVRFileManager::loadFile");
-    std::string canonicalPath = fs::canonical(fileName).string();
+    std::string canonicalPath = fs::canonical(fileName).string(); //resolve links and use slash conversion of the system
     std::string adjustedFileName;
     std::string key;
 
@@ -726,12 +726,23 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
         std::string shortName =canonicalPath;
-        cutName(shortName);
-        if (v.insert(shortName).second)
+        cutName(shortName); 
+        bool found = false;
+        for (auto p : v)
         {
+            if (fs::path(p) == fs::path(shortName))
+            {
+                found = true;
+                continue;
+            }
+        }
+        if (!found)
+        {
+            v.insert(shortName);
             filePaths = v;
         }
         m_files[canonicalPath] = fe;
+
 
         if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
