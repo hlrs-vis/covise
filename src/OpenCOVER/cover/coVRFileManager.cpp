@@ -640,7 +640,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         cerr << "file " << p.string() << " does not exist" << endl;
         return nullptr;
     }
-    std::string canonicalPath = fs::canonical(p).string();
+    std::string canonicalPath = fs::canonical(p).generic().string();
     
     std::string adjustedFileName;
     std::string key;
@@ -1099,7 +1099,7 @@ void coVRFileManager::cutName(std::string & fileName)
     {
         return;
     }
-    fileName = filePath.lexically_relative(*m_sharedDataPath).string();
+    fileName = filePath.lexically_relative(*m_sharedDataPath).generic().string();
 }
 
 std::string coVRFileManager::findSharedFile(const std::string & fileName)

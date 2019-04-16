@@ -12,6 +12,8 @@
 #include "ui/Menu.h"
 #include "ui/SelectionList.h"
 
+#include "ui/Slider.h"
+
 #include "OpenCOVER.h"
 #include "coVRPluginSupport.h"
 #include "coVRCommunication.h"
@@ -23,11 +25,18 @@
 #include <vrbclient/SharedState.h>
 #include <vrbclient/SessionID.h>
 
+//test remote fetch
+#include <coTabletUI.h>
+#include <coVRFileManager.h>
+#include <coVRMSController.h>
+#include <net/message.h>
+#include <fcntl.h>
 using namespace covise;
 namespace opencover
 {
 VrbMenue::VrbMenue()
     :ui::Owner("VRBMenue", cover->ui)
+    ,testTest("VRVMenue_testTest", 0.0, vrb::NEVER_SHARE)
 {
     init();
 }
@@ -78,6 +87,30 @@ void VrbMenue::init()
     sessionsSl->setList(std::vector<std::string>());
 
     menue->setVisible(false);
+
+    ////test test test//////
+    testSlider = new ui::Slider(sessionGroup, "testSlider");
+    testSlider->setEnabled(true);
+    testSlider->setText("blablabla");
+    testSlider->setBounds(1.0, 10.0);
+    testSlider->setValue(0.0);
+    testSlider->setCallback([this](double i, bool b) {
+        if (b)
+        {
+            testTest = i;
+        }
+    });
+
+    testTest.setUpdateFunction([this]() {
+        testSlider->setValue(testTest);
+    });
+
+    requestFile = new ui::Action(sessionGroup, "requestFile");
+    requestFile->setText("request File");
+    requestFile->setCallback([this]() {
+        const char * file = remoteFetch("\\\\visfs1\\raid\\media\\3d\\verschiedeneModelle\\1967Shelby\\Shelby.3ds");
+        coVRFileManager::instance()->loadFile(file);
+    });
 }
 void VrbMenue::updateState(bool state)
 {
@@ -187,6 +220,121 @@ void VrbMenue::setCurrentSession(const vrb::SessionID & session)
         return;
     }
     sessionsSl->select(index);
+}
+const char *VrbMenue::remoteFetch(const char *filename)
+{
+    char *result = 0;
+    const char *buf = NULL;
+    int numBytes = 0;
+    static int working = 0;
+
+    if (working)
+    {
+        cerr << "WARNING!!! reentered remoteFetch!!!!" << endl;
+        return NULL;
+    }
+
+    working = 1;
+
+    if (strncmp(filename, "vrb://", 6) == 0)
+    {
+        //Request file from VRB
+        std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+        coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filename));
+        std::string sresult = locFB->getFilename(filename).c_str();
+        char *result = new char[sresult.size() + 1];
+        strcpy(result, sresult.c_str());
+        working = 0;
+        return result;
+    }
+    else if (strncmp(filename, "agtk3://", 8) == 0)
+    {
+        //REquest file from AG data store
+        std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+        coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filename));
+        working = 0;
+        return locFB->getFilename(filename).c_str();
+    }
+
+    if (vrbc || !coVRMSController::instance()->isMaster())
+    {
+        if (coVRMSController::instance()->isMaster())
+        {
+            TokenBuffer rtb;
+            rtb << filename;
+            rtb << vrbc->getID();
+            Message m(rtb);
+            m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+            cover->sendVrbMessage(&m);
+        }
+        int message = 1;
+        Message *msg = new Message;
+        do
+        {
+            if (coVRMSController::instance()->isMaster())
+            {
+                if (!vrbc->isConnected())
+                {
+                    message = 0;
+                    coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+                    break;
+                }
+                else
+                {
+                    vrbc->wait(msg);
+                }
+                coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+            }
+            if (coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(msg);
+            }
+            else
+            {
+                coVRMSController::instance()->readMaster((char *)&message, sizeof(message));
+                if (message == 0)
+                    break;
+                // wait for message from master instead
+                coVRMSController::instance()->readMaster(msg);
+            }
+            coVRCommunication::instance()->handleVRB(msg);
+        } while (msg->type != COVISE_MESSAGE_VRB_SEND_FILE);
+
+        if ((msg->data) && (msg->type == COVISE_MESSAGE_VRB_SEND_FILE))
+        {
+            TokenBuffer tb(msg);
+            int myID;
+            tb >> myID; // this should be my ID
+            tb >> numBytes;
+            buf = tb.getBinary(numBytes);
+            if ((numBytes > 0) && (result = tempnam(0, "VR")))
+            {
+#ifndef _WIN32
+                int fd = open(result, O_RDWR | O_CREAT, 0777);
+#else
+                int fd = open(result, O_RDWR | O_CREAT | O_BINARY, 0777);
+#endif
+                if (fd != -1)
+                {
+                    if (write(fd, buf, numBytes) != numBytes)
+                    {
+                        //warn("remoteFetch: temp file write error\n");
+                        free(result);
+                        result = NULL;
+                    }
+                    close(fd);
+                }
+                else
+                {
+                    free(result);
+                    result = NULL;
+                }
+            }
+        }
+        delete msg;
+    }
+    working = 0;
+    return result;
 }
 
 }
