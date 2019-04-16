@@ -634,7 +634,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
     fs::path p(fileName);
-    p.make_preferred();
+    p.generic();
     if (!fs::exists(p))
     {
         cerr << "file " << p.string() << " does not exist" << endl;
@@ -1095,7 +1095,6 @@ const char *coVRFileManager::getName(const char *file)
 void coVRFileManager::cutName(std::string & fileName)
 {
     boost::filesystem::path filePath(fileName);
-    filePath.make_preferred();
     if (!boost::filesystem::exists(filePath) || !m_sharedDataPath)
     {
         return;
@@ -1494,7 +1493,7 @@ void coVRFileManager::getSharedDataPath()
         std::string fullPath = path + "/../sharedData";
         if (fs::exists(fullPath))
         {
-            m_sharedDataPath.reset(new fs::path(fs::canonical(fullPath)));
+            m_sharedDataPath.reset(new fs::path(fs::canonical(fullPath).generic()));
             if (!fs::exists(*m_sharedDataPath))
             {
                 m_sharedDataPath = nullptr;
