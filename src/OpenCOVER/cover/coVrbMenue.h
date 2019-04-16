@@ -13,8 +13,8 @@
 #include <vector>
 #include <memory>
 #include <vrbclient/SessionID.h>
-#include <vrbclient/SharedState.h>
 #include "ui/Owner.h"
+#include <vrbclient/SharedState.h>
 
 namespace vrb
 {
@@ -28,6 +28,7 @@ class EditField;
 class Menu;
 class Group;
 class SelectionList;
+class Slider;
 
 }
 
@@ -60,7 +61,10 @@ public:
     void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);
-    
+    const char * remoteFetch(const char * filename);
+    vrb::SharedState<double> testTest;
+    ui::Slider * testSlider;
+    ui::Action *requestFile;
 };
 
 
