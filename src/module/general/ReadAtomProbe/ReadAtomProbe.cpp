@@ -30,7 +30,7 @@
 #include <float.h>
 #include <cassert>
 #include "ReadAtomProbe.h"
-
+#include <fcntl.h>
 /// Constructor
 coReadAtomProbe::coReadAtomProbe(int argc, char *argv[])
     : coModule(argc, argv, "Read atom Probbe point clouds.")
