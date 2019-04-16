@@ -51,7 +51,7 @@
     <WSInterface value="false" />
 	
    <VRB>
-    <Server value="vistidy@hlrs.de" port="31201" />
+    <Server value="vistidy.hlrs.de" port="31201" />
    </VRB>
 
    <CRB>
