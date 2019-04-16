@@ -65,6 +65,9 @@ int coReadAtomProbe::compute(const char *)
 
 
 	int file = -1;
+#ifndef O_BINARY
+#define O_BINARY  0
+#endif
 	file = open(path, O_RDONLY | O_BINARY);
 	if (file <= 0)
 	{
