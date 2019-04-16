@@ -633,7 +633,15 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         return nullptr;
     }
     START("coVRFileManager::loadFile");
-    std::string canonicalPath = fs::canonical(fileName).string(); //resolve links and use slash conversion of the system
+    fs::path p(fileName);
+    p.make_preferred();
+    if (!fs::exists(p))
+    {
+        cerr << "file " << p.string() << " does not exist" << endl;
+        return nullptr;
+    }
+    std::string canonicalPath = fs::canonical(p).string();
+    
     std::string adjustedFileName;
     std::string key;
 
