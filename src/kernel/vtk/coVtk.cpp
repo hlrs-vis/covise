@@ -596,6 +596,13 @@ static coDoGrid *vtkPoly2Covise(const coObjInfo &info, vtkPolyData *vpolydata)
         geo = cpoints;
         cpoints->getAddresses(&xc, &yc, &zc);
     }
+	else if (ncoord > 0)
+	{
+	coDoPoints *cpoints = new coDoPoints(info, ncoord);
+	CHECK_AND_RETURN(cpoints);
+	geo = cpoints;
+	cpoints->getAddresses(&xc, &yc, &zc);
+	}
 
     if (xc && yc && zc)
     {
