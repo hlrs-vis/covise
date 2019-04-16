@@ -633,21 +633,21 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         return nullptr;
     }
     START("coVRFileManager::loadFile");
-
+    const char *canonicalPath = fs::canonical(fileName).string().c_str();
     std::string adjustedFileName;
     std::string key;
 
     if (fb)
     {
         //Store filename associated with corresponding fb instance
-        key = fileName;
+        key = canonicalPath;
         fileFBMap[key] = fb;
     }
 
-    Url url = Url::fromFileOrUrl(fileName);
+    Url url = Url::fromFileOrUrl(canonicalPath);
     if (!url.valid())
     {
-        std::cerr << "failed to parse URL " << fileName << std::endl;
+        std::cerr << "failed to parse URL " << canonicalPath << std::endl;
         return  nullptr;
     }
     std::cerr << "Loading " << url.str() << std::endl;
@@ -692,7 +692,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->filebrowser = fb;
 
     OpenCOVER::instance()->hud->setText2("loading");
-    OpenCOVER::instance()->hud->setText3(fileName);
+    OpenCOVER::instance()->hud->setText3(canonicalPath);
     OpenCOVER::instance()->hud->redraw();
     if (isRoot)
     {
@@ -701,7 +701,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             const char *ext = strchr(url.path().c_str(), '.');
             if(ext)
             {
-                viewPointFile = fileName;
+                viewPointFile = canonicalPath;
                 std::string::size_type pos = viewPointFile.find_last_of('.');
                 viewPointFile = viewPointFile.substr(0,pos);
                 viewPointFile+=".vwp";
@@ -725,13 +725,13 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
-        std::string shortName =fileName;
+        std::string shortName =canonicalPath;
         cutName(shortName);
         if (v.insert(shortName).second)
         {
             filePaths = v;
         }
-        m_files[fileName] = fe;
+        m_files[canonicalPath] = fe;
 
         if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
@@ -1475,7 +1475,7 @@ void coVRFileManager::getSharedDataPath()
         std::string fullPath = path + "/../sharedData";
         if (fs::exists(fullPath))
         {
-            m_sharedDataPath.reset(new fs::path(boost::filesystem::canonical(fullPath)));
+            m_sharedDataPath.reset(new fs::path(fs::canonical(fullPath)));
             if (!fs::exists(*m_sharedDataPath))
             {
                 m_sharedDataPath = nullptr;
