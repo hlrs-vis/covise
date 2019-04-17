@@ -20,8 +20,9 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool send)
+VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool send, bool dc)
 {
+	deleteClient = dc;
     address = ip;
     m_name = n;
     conn = c;
@@ -46,8 +47,8 @@ VRBSClient::~VRBSClient()
 {
     //cerr << "instance" <<coRegistry::instance << endl;
 //cerr << "ID" <<myID << endl;
-
-    delete conn;
+	if(deleteClient)
+       delete conn;
     cerr << "closed connection to client " << myID << endl;
 }
 
@@ -264,6 +265,18 @@ void VRBClientList::addClient(VRBSClient * cl)
 void VRBClientList::removeClient(VRBSClient * cl)
 {
     m_clients.erase(cl);
+}
+
+void VRBClientList::remove(Connection * c)
+{
+	for (auto cl : m_clients)
+	{
+		if (cl->conn == c)
+		{
+			m_clients.erase(cl);
+			return;
+		}
+	}
 }
 
 void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session)

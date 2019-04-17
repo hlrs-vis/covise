@@ -55,6 +55,9 @@ public:
     ///add a client
     void addClient(VRBSClient *client);
 
+	/// remove client with connection c
+	void remove(covise::Connection *c); 
+
 
 protected:
     ServerInterface *m_server;

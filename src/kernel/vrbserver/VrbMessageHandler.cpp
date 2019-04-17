@@ -317,7 +317,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         VRBSClient *c = clients.get(msg->conn);
         if (!c)
         {
-            c = new VRBSClient(msg->conn, ip, name, false);
+            c = new VRBSClient(msg->conn, ip, name, false,false);
             clients.addClient(c);
         }
         //create unique private session for the client
@@ -541,57 +541,12 @@ void VrbMessageHandler::handleMessage(Message *msg)
     break;
     case COVISE_MESSAGE_SOCKET_CLOSED:
     case COVISE_MESSAGE_CLOSE_SOCKET:
+	case COVISE_MESSAGE_QUIT:
     {
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Close Socket!" << std::endl;
 #endif
-        m_server->removeConnection(msg->conn);
-        VRBSClient *c = clients.get(msg->conn);
-        if (c)
-        {
-            int clID = c->getID();
-            cerr << c->getName() << " (host " << c->getIP() << " ID: " << c->getID() << ") left" << endl;
-            vrb::SessionID MasterSession;
-            bool wasMaster = false;
-            TokenBuffer rtb;
-
-            rtb << c->getID();
-            if (c->getMaster())
-            {
-                MasterSession = c->getSession();
-                cerr << "Master Left" << endl;
-                wasMaster = true;
-            }
-            clients.removeClient(c);
-            delete c;
-            disconectClientFromSessions(clID);
-            if (currentFileClient == c)
-                currentFileClient = NULL;
-
-
-            removeEntriesFromApplicationWindow(clID);
-            sendSessions();
-            clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
-            if (wasMaster)
-            {
-                VRBSClient *newMaster = clients.getNextInGroup(MasterSession);
-                if (newMaster)
-                {
-                    clients.setMaster(newMaster);
-                    TokenBuffer rtb;
-                    rtb << newMaster->getID();
-                    rtb << true;
-                    clients.sendMessage(rtb, MasterSession, COVISE_MESSAGE_VRB_SET_MASTER);
-                }
-                else
-                {
-                    //save & delete Masersession
-                }
-            }
-        }
-        else
-            cerr << "CRB left" << endl;
-
+		remove(msg->conn);
         cerr << "Numclients: " << clients.numberOfClients() << endl;
     }
     break;
@@ -1386,6 +1341,55 @@ int VrbMessageHandler::numberOfClients()
 void VrbMessageHandler::addClient(VRBSClient *client)
 {
     clients.addClient(client);
+}
+
+/// remove client with connection c
+void VrbMessageHandler::remove(Connection *conn)
+{
+	m_server->removeConnection(conn);
+	VRBSClient *c = clients.get(conn);
+	if (c)
+	{
+		int clID = c->getID();
+		cerr << c->getName() << " (host " << c->getIP() << " ID: " << c->getID() << ") left" << endl;
+		vrb::SessionID MasterSession;
+		bool wasMaster = false;
+		TokenBuffer rtb;
+
+		rtb << c->getID();
+		if (c->getMaster())
+		{
+			MasterSession = c->getSession();
+			cerr << "Master Left" << endl;
+			wasMaster = true;
+		}
+		clients.removeClient(c);
+		delete c;
+		disconectClientFromSessions(clID);
+		if (currentFileClient == c)
+			currentFileClient = NULL;
+
+
+		removeEntriesFromApplicationWindow(clID);
+		sendSessions();
+		clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
+		if (wasMaster)
+		{
+			VRBSClient *newMaster = clients.getNextInGroup(MasterSession);
+			if (newMaster)
+			{
+				clients.setMaster(newMaster);
+				TokenBuffer rtb;
+				rtb << newMaster->getID();
+				rtb << true;
+				clients.sendMessage(rtb, MasterSession, COVISE_MESSAGE_VRB_SET_MASTER);
+			}
+			else
+			{
+				//save & delete Masersession
+			}
+		}
+	}
 }
 void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer &value)
 {

@@ -39,7 +39,7 @@ class VRBSERVEREXPORT VRBSClient
 public:
     ///Vrb Server client that holds a connection and information about the client
     ///send = false if you dont want to inform the client immediatly about the contact
-    VRBSClient(covise::Connection *c, const char *ip, const char *name , bool send = true);
+    VRBSClient(covise::Connection *c, const char *ip, const char *name , bool send = true, bool deleteClient = true);
     virtual ~VRBSClient();
     ///set clientinformation and inform the client about its server id and session
     virtual void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
@@ -81,6 +81,7 @@ protected:
     int bytesReceivedPerInterval;
     int bytesSentPerSecond;
     int bytesReceivedPerSecond;
+	bool deleteClient = true;
     
     double time();
 
@@ -114,6 +115,8 @@ public:
     int numberOfClients();
     void addClient(VRBSClient *cl);
     void removeClient(VRBSClient *cl);
+	/// remove client with connection c
+	void remove(covise::Connection *c);
     ///send Message to all clients but the sender of the message
     void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     ///write the info of all clients in the tokenbuffer
