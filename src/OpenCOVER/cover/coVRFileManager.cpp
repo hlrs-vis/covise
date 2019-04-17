@@ -634,14 +634,13 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
     fs::path p(fileName);
-    p.generic();
     if (!fs::exists(p))
     {
         cerr << "file " << p.string() << " does not exist" << endl;
         return nullptr;
     }
-    std::string canonicalPath = fs::canonical(p).generic().string();
-    
+    std::string canonicalPath = fs::canonical(p).string();
+    convertBackslash(canonicalPath);
     std::string adjustedFileName;
     std::string key;
 
@@ -735,18 +734,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         std::set<std::string> v = filePaths;
         std::string shortName =canonicalPath;
         cutName(shortName); 
-        bool found = false;
-        for (auto p : v)
+
+        if (v.insert(shortName).second)
         {
-            if (fs::path(p) == fs::path(shortName))
-            {
-                found = true;
-                continue;
-            }
-        }
-        if (!found)
-        {
-            v.insert(shortName);
             filePaths = v;
         }
         m_files[canonicalPath] = fe;
@@ -1095,16 +1085,19 @@ const char *coVRFileManager::getName(const char *file)
 void coVRFileManager::cutName(std::string & fileName)
 {
     boost::filesystem::path filePath(fileName);
-    if (!boost::filesystem::exists(filePath) || !m_sharedDataPath)
+    if (!boost::filesystem::exists(filePath))
     {
         return;
     }
-    fileName = filePath.lexically_relative(*m_sharedDataPath).generic().string();
+    if (fileName.compare(0, m_sharedDataPath.length(), m_sharedDataPath)== 0)
+    {
+        fileName.erase(0, m_sharedDataPath.length());
+    }
 }
 
 std::string coVRFileManager::findSharedFile(const std::string & fileName)
 {
-    std::string path = m_sharedDataPath->string() + "/" + fileName;
+    std::string path = m_sharedDataPath + fileName;
     if (fs::exists(path))
     {
         return path;
@@ -1447,8 +1440,10 @@ bool coVRFileManager::update()
 void coVRFileManager::loadPartnerFiles()
 {
     //load and unload existing files
+    std::set<std::string> alreadyLoadedFiles;
     for (auto myFile : m_files)
     {
+        alreadyLoadedFiles.insert(myFile.first);
         bool found = false;
         
         auto shortPath = myFile.first;
@@ -1475,8 +1470,6 @@ void coVRFileManager::loadPartnerFiles()
     for (auto newFile : newFiles)
     {
         loadFile(findSharedFile(newFile).c_str());
-        alreadyLoadedFiles.insert(newFile);
-
     }
 }
 
@@ -1490,16 +1483,31 @@ void coVRFileManager::getSharedDataPath()
 #endif
     for (const auto path : p)
     {
-        std::string fullPath = path + "/../sharedData";
-        if (fs::exists(fullPath))
+        std::string link = path + "/../sharedData";
+        if (fs::exists(link))
         {
-            m_sharedDataPath.reset(new fs::path(fs::canonical(fullPath).generic()));
-            if (!fs::exists(*m_sharedDataPath))
-            {
-                m_sharedDataPath = nullptr;
-            }
+            m_sharedDataPath = fs::canonical(link).string();
+            convertBackslash(m_sharedDataPath);
+
         }
     }
+}
+
+void coVRFileManager::convertBackslash(std::string & path)
+{
+    std::string convertedPath;
+    for (char c : path)
+    {
+        if (c == '\\')
+        {
+            convertedPath.push_back('/');
+        }
+        else
+        {
+            convertedPath.push_back(c);
+        }
+    }
+    path = convertedPath;
 }
 
 }

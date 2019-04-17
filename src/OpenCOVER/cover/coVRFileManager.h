@@ -43,13 +43,6 @@ namespace osgText
 {
 class Font;
 }
-namespace boost
-{
-namespace filesystem
-{
-class path;
-}
-}
 namespace opencover
 {
 
@@ -240,7 +233,6 @@ private:
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
     vrb::SharedState<std::set<std::string>> filePaths;
-    std::set<std::string> alreadyLoadedFiles;
     void loadPartnerFiles();
     struct Compare {
         bool operator()(const std::string& first, const std::string& second) {
@@ -250,7 +242,8 @@ private:
     ///returns the full path of the symbolic link that points to the shared data
     ///the link should be in COVISE_PATH/.. and named sharedData
     void getSharedDataPath();
-    std::unique_ptr<boost::filesystem::path> m_sharedDataPath;
+    std::string m_sharedDataPath;
+    void convertBackslash(std::string &path);
 };
 }
 #endif
