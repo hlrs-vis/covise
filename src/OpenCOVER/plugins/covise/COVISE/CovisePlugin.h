@@ -42,5 +42,11 @@ public:
     covise::Message *waitForVisMessage(int type) override;
     void expandBoundingSphere(osg::BoundingSphere &bs) override;
     bool requestInteraction(coInteractor *inter, osg::Node *triggerNode, bool isMouse) override;
+private:
+    covise::Message *m_vrbmsg;
+    ///send messege from covise to coVRCommunication
+    void handleVrbMessage();
+    ///this function get called from covise when a new vrb message is beeing sent
+    static void OpenCOVERCallback(void* userData, void *callbackData);
 };
 #endif

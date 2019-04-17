@@ -133,9 +133,6 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-    covise::Message *m_vrbmsg;
-    void handleVrbMessage();
-    static void OpenCOVERCallback(void* userData, void *callbackData);
     std::vector<coTabletUI *> tabletUIs;
     std::vector<coTUITabFolder *> tabletTabs;
 

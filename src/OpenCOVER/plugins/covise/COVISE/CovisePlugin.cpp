@@ -27,13 +27,15 @@
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPluginList.h>
 #include <cover/coVRFileManager.h>
-
+#include <cover/coVRCommunication.h>
 #include <PluginUtil/FeedbackManager.h>
 #include <PluginUtil/ModuleInteraction.h>
 
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Manager.h>
+
+#include <net/message.h>
 
 using namespace covise;
 using namespace opencover;
@@ -121,6 +123,7 @@ bool CovisePlugin::init()
         }
     }
 #endif
+    CoviseRender::set_custom_callback(CovisePlugin::OpenCOVERCallback, this); //get covisemessages from 
     CoviseRender::set_render_module_callback(messageCallback);
     return VRCoviseConnection::covconn;
 }
@@ -372,6 +375,19 @@ bool CovisePlugin::requestInteraction(coInteractor *inter, osg::Node *triggerNod
     else
         interaction->enableDirectInteractorFromGui(true);
     return true;
+}
+
+void CovisePlugin::handleVrbMessage()
+{
+    coVRCommunication::instance()->handleVRB(m_vrbmsg);
+}
+
+void CovisePlugin::OpenCOVERCallback(void * userData, void * callbackData)
+{
+    CovisePlugin *thisCovisePlugin = (CovisePlugin *)userData;
+    thisCovisePlugin->m_vrbmsg = (covise::Message *)callbackData;
+    thisCovisePlugin->handleVrbMessage();
+
 }
 
 COVERPLUGIN(CovisePlugin)

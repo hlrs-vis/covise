@@ -91,7 +91,6 @@
 #include "ui/Group.h"
 #include "ui/Manager.h"
 
-#include <appl/RenderInterface.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -850,7 +849,6 @@ bool OpenCOVER::init()
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
     if (loadCovisePlugin)
     {
-        CoviseRender::set_custom_callback(OpenCOVER::OpenCOVERCallback, this); //get covisemessages from 
         char * coviseModuleID = coCommandLine::argv(4);
         char *ipAdress = coCommandLine::argv(5);
         TokenBuffer tb;
@@ -1540,15 +1538,4 @@ bool OpenCOVER::unwatchFileDescriptor(int fd)
     return true;
 }
 
-void opencover::OpenCOVER::handleVrbMessage()
-{
-    coVRCommunication::instance()->handleVRB(m_vrbmsg);
-}
 
-void opencover::OpenCOVER::OpenCOVERCallback(void * userData, void * callbackData)
-{
-    OpenCOVER *thisOpenCOVER = (OpenCOVER *)userData;
-    thisOpenCOVER->m_vrbmsg = (covise::Message *)callbackData;
-    thisOpenCOVER->handleVrbMessage();
-
-}
