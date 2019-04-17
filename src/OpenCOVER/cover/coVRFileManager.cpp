@@ -273,6 +273,7 @@ struct LoadedFile
       {
           button->setText(shortenUrl(url));
           button->setState(true);
+          button->setShared(true);
           button->setCallback([this](bool state){
               if (state)
               {
@@ -283,10 +284,6 @@ struct LoadedFile
                   if (!unload())
                   {
                       std::cerr << "unloading " << this->url << " failed" << std::endl;
-                  }
-                  else
-                  {
-                      //delete this;
                   }
               }
           });
@@ -641,6 +638,14 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     std::string canonicalPath = fs::canonical(p).string();
     convertBackslash(canonicalPath);
+    if (m_files.find(canonicalPath) != m_files.end())
+    {
+        cerr << "The File : " << fileName << " is already loaded" << endl;
+        cerr << "Loading a file multiple times is currently not supported" << endl;
+        return nullptr;
+    }
+    std::string relativePath = canonicalPath;
+    cutName(relativePath);
     std::string adjustedFileName;
     std::string key;
 
@@ -691,7 +696,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, std::string("File"+std::to_string(m_loadCount++)));
+        button = new ui::Button(m_fileGroup, std::string("File_"+ relativePath));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -732,10 +737,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
-        std::string shortName =canonicalPath;
-        cutName(shortName); 
-
-        if (v.insert(shortName).second)
+        if (v.insert(relativePath).second)
         {
             filePaths = v;
         }
@@ -1509,5 +1511,4 @@ void coVRFileManager::convertBackslash(std::string & path)
     }
     path = convertedPath;
 }
-
 }
