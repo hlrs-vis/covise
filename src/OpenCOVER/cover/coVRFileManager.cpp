@@ -1637,7 +1637,7 @@ std::string coVRFileManager::remoteFetch(const char *filename)
     working = 0;
     return pathToTmpFile;
 }
-std::string coVRFileManager::getFileName(std::string &fileName)
+std::string coVRFileManager::getFileName(const std::string &fileName)
 {
     std::string name;
     for (size_t i = fileName.length() - 1; i > 0; --i)
@@ -1651,7 +1651,7 @@ std::string coVRFileManager::getFileName(std::string &fileName)
     cerr << "invalid file path : " << fileName << endl;
     return "";
 }
-std::string coVRFileManager::cutFileName(std::string &fileName)
+std::string coVRFileManager::cutFileName(const std::string &fileName)
 {
     std::string name = fileName;
     for (size_t i = fileName.length() - 1; i > 0; --i)

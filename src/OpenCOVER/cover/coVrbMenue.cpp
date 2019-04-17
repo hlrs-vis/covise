@@ -340,7 +340,7 @@ std::string VrbMenue::remoteFetch(const char *filename)
     working = 0;
     return pathToTmpFile;
 }
-std::string VrbMenue::getFileName(std::string &fileName)
+std::string VrbMenue::getFileName(const std::string &fileName)
 {
     std::string name;
     for (size_t i = fileName.length() - 1; i > 0; --i)
@@ -354,7 +354,7 @@ std::string VrbMenue::getFileName(std::string &fileName)
     cerr << "invalid file path : " << fileName << endl;
     return "";
 }
-std::string VrbMenue::cutFileName(std::string &fileName)
+std::string VrbMenue::cutFileName(const std::string &fileName)
 {
     std::string name = fileName;
     for (size_t i = fileName.length() - 1; i > 0; --i)
