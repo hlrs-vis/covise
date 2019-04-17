@@ -31,7 +31,9 @@
 #include <coVRMSController.h>
 #include <net/message.h>
 #include <fcntl.h>
+#include <boost/filesystem/operations.hpp>
 using namespace covise;
+namespace fs = boost::filesystem;
 namespace opencover
 {
 VrbMenue::VrbMenue()
@@ -108,8 +110,8 @@ void VrbMenue::init()
     requestFile = new ui::Action(sessionGroup, "requestFile");
     requestFile->setText("request File");
     requestFile->setCallback([this]() {
-        const char * file = remoteFetch("\\\\visfs1\\raid\\media\\3d\\verschiedeneModelle\\1967Shelby\\Shelby.3ds");
-        coVRFileManager::instance()->loadFile(file);
+        std::string file = remoteFetch("C:\\src\\anipod.obj");
+        coVRFileManager::instance()->loadFile(file.c_str());
     });
 }
 void VrbMenue::updateState(bool state)
@@ -221,7 +223,7 @@ void VrbMenue::setCurrentSession(const vrb::SessionID & session)
     }
     sessionsSl->select(index);
 }
-const char *VrbMenue::remoteFetch(const char *filename)
+std::string VrbMenue::remoteFetch(const char *filename)
 {
     char *result = 0;
     const char *buf = NULL;
@@ -231,7 +233,7 @@ const char *VrbMenue::remoteFetch(const char *filename)
     if (working)
     {
         cerr << "WARNING!!! reentered remoteFetch!!!!" << endl;
-        return NULL;
+        return std::string();
     }
 
     working = 1;
@@ -245,7 +247,7 @@ const char *VrbMenue::remoteFetch(const char *filename)
         char *result = new char[sresult.size() + 1];
         strcpy(result, sresult.c_str());
         working = 0;
-        return result;
+        return std::string(result);
     }
     else if (strncmp(filename, "agtk3://", 8) == 0)
     {
@@ -253,7 +255,7 @@ const char *VrbMenue::remoteFetch(const char *filename)
         std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
         coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filename));
         working = 0;
-        return locFB->getFilename(filename).c_str();
+        return std::string(locFB->getFilename(filename).c_str());
     }
 
     if (vrbc || !coVRMSController::instance()->isMaster())
@@ -333,8 +335,39 @@ const char *VrbMenue::remoteFetch(const char *filename)
         }
         delete msg;
     }
+    std::string pathToTmpFile = cutFileName(std::string(result)) + "/" + getFileName(std::string(filename));
+    fs::rename(result, pathToTmpFile);
     working = 0;
-    return result;
+    return pathToTmpFile;
+}
+std::string VrbMenue::getFileName(std::string &fileName)
+{
+    std::string name;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+        name.insert(name.begin(), fileName[i]);
+    }
+    cerr << "invalid file path : " << fileName << endl;
+    return "";
+}
+std::string VrbMenue::cutFileName(std::string &fileName)
+{
+    std::string name = fileName;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        name.pop_back();
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+
+    }
+    cerr << "invalid file path : " << fileName << endl;
+    return "";
 }
 
 }

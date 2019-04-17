@@ -61,7 +61,9 @@ public:
     void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);
-    const char * remoteFetch(const char * filename);
+    std::string remoteFetch(const char * filename);
+    std::string getFileName(std::string & fileName);
+    std::string cutFileName(std::string & fileName);
     vrb::SharedState<double> testTest;
     ui::Slider * testSlider;
     ui::Action *requestFile;

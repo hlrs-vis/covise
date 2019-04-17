@@ -244,6 +244,9 @@ private:
     void getSharedDataPath();
     std::string m_sharedDataPath;
     void convertBackslash(std::string &path);
+    std::string remoteFetch(const char * filename);
+    std::string getFileName(std::string & fileName);
+    std::string cutFileName(std::string & fileName);
 };
 }
 #endif

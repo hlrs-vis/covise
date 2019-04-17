@@ -40,6 +40,10 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <net/message.h>
+#include <vrbclient/VRBClient.h>
+#include <fcntl.h>
+
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -1099,6 +1103,10 @@ void coVRFileManager::cutName(std::string & fileName)
 
 std::string coVRFileManager::findSharedFile(const std::string & fileName)
 {
+    if (fs::exists(fileName))
+    {
+        return fileName;
+    }
     std::string path = m_sharedDataPath + fileName;
     if (fs::exists(path))
     {
@@ -1106,7 +1114,7 @@ std::string coVRFileManager::findSharedFile(const std::string & fileName)
     }
     else
     {
-        return fileName;
+        return remoteFetch(fileName.c_str());
     }
 }
 
@@ -1510,5 +1518,152 @@ void coVRFileManager::convertBackslash(std::string & path)
         }
     }
     path = convertedPath;
+}
+
+std::string coVRFileManager::remoteFetch(const char *filename)
+{
+    char *result = 0;
+    const char *buf = NULL;
+    int numBytes = 0;
+    static int working = 0;
+
+    if (working)
+    {
+        cerr << "WARNING!!! reentered remoteFetch!!!!" << endl;
+        return std::string();
+    }
+
+    working = 1;
+
+    if (strncmp(filename, "vrb://", 6) == 0)
+    {
+        //Request file from VRB
+        std::cerr << "VRB file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+        coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filename));
+        std::string sresult = locFB->getFilename(filename).c_str();
+        char *result = new char[sresult.size() + 1];
+        strcpy(result, sresult.c_str());
+        working = 0;
+        return std::string(result);
+    }
+    else if (strncmp(filename, "agtk3://", 8) == 0)
+    {
+        //REquest file from AG data store
+        std::cerr << "AccessGrid file, needs to be requested through FileBrowser-ProtocolHandler!" << std::endl;
+        coTUIFileBrowserButton *locFB = coVRFileManager::instance()->getMatchingFileBrowserInstance(string(filename));
+        working = 0;
+        return std::string(locFB->getFilename(filename).c_str());
+    }
+
+    if (vrbc || !coVRMSController::instance()->isMaster())
+    {
+        if (coVRMSController::instance()->isMaster())
+        {
+            TokenBuffer rtb;
+            rtb << filename;
+            rtb << vrbc->getID();
+            Message m(rtb);
+            m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+            cover->sendVrbMessage(&m);
+        }
+        int message = 1;
+        Message *msg = new Message;
+        do
+        {
+            if (coVRMSController::instance()->isMaster())
+            {
+                if (!vrbc->isConnected())
+                {
+                    message = 0;
+                    coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+                    break;
+                }
+                else
+                {
+                    vrbc->wait(msg);
+                }
+                coVRMSController::instance()->sendSlaves((char *)&message, sizeof(message));
+            }
+            if (coVRMSController::instance()->isMaster())
+            {
+                coVRMSController::instance()->sendSlaves(msg);
+            }
+            else
+            {
+                coVRMSController::instance()->readMaster((char *)&message, sizeof(message));
+                if (message == 0)
+                    break;
+                // wait for message from master instead
+                coVRMSController::instance()->readMaster(msg);
+            }
+            coVRCommunication::instance()->handleVRB(msg);
+        } while (msg->type != COVISE_MESSAGE_VRB_SEND_FILE);
+
+        if ((msg->data) && (msg->type == COVISE_MESSAGE_VRB_SEND_FILE))
+        {
+            TokenBuffer tb(msg);
+            int myID;
+            tb >> myID; // this should be my ID
+            tb >> numBytes;
+            buf = tb.getBinary(numBytes);
+            if ((numBytes > 0) && (result = tempnam(0, "VR")))
+            {
+#ifndef _WIN32
+                int fd = open(result, O_RDWR | O_CREAT, 0777);
+#else
+                int fd = open(result, O_RDWR | O_CREAT | O_BINARY, 0777);
+#endif
+                if (fd != -1)
+                {
+                    if (write(fd, buf, numBytes) != numBytes)
+                    {
+                        //warn("remoteFetch: temp file write error\n");
+                        free(result);
+                        result = NULL;
+                    }
+                    close(fd);
+                }
+                else
+                {
+                    free(result);
+                    result = NULL;
+                }
+            }
+        }
+        delete msg;
+    }
+    std::string pathToTmpFile = cutFileName(std::string(result)) + "/" + getFileName(std::string(filename));
+    fs::rename(result, pathToTmpFile);
+    working = 0;
+    return pathToTmpFile;
+}
+std::string coVRFileManager::getFileName(std::string &fileName)
+{
+    std::string name;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+        name.insert(name.begin(), fileName[i]);
+    }
+    cerr << "invalid file path : " << fileName << endl;
+    return "";
+}
+std::string coVRFileManager::cutFileName(std::string &fileName)
+{
+    std::string name = fileName;
+    for (size_t i = fileName.length() - 1; i > 0; --i)
+    {
+        name.pop_back();
+        if (fileName[i] == '/' || fileName[i] == '\\')
+        {
+            return name;
+        }
+
+    }
+    cerr << "invalid file path : " << fileName << endl;
+    return "";
 }
 }
