@@ -1443,11 +1443,11 @@ void coVRFileManager::loadPartnerFiles()
     std::set<std::string> alreadyLoadedFiles;
     for (auto myFile : m_files)
     {
-        alreadyLoadedFiles.insert(myFile.first);
         bool found = false;
         
         auto shortPath = myFile.first;
         cutName(shortPath);
+        alreadyLoadedFiles.insert(shortPath);
         for (auto theirFile : filePaths.value())
         {
             if (shortPath == theirFile || myFile.first == theirFile)
