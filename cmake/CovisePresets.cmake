@@ -151,7 +151,10 @@ IF(NOT COVISE_CONFIGURED_ONCE)
     SET (CMAKE_Fortran_FLAGS_DEBUG "-gdwarf-2" CACHE STRING "Flags used by the compiler during debug builds." FORCE)
     SET (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O2 -gdwarf-2" CACHE STRING "Flags used by the compiler during Release with Debug Info builds." FORCE)
   ENDIF(APPLE)
-  
+
+  # continue to support old fortran code with gnu fortran 8
+  SET (CMAKE_Fortran_FLAGS "-std=legacy" CACHE STRING "general fortran flags" FORCE)
+
   # IF(CMAKE_COMPILER_IS_GNUCXX)
   #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -fno-omit-frame-pointer")
   #   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-aliasing -fexceptions -fno-omit-frame-pointer")
