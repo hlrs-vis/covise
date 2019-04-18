@@ -38,7 +38,8 @@
 
 SignalManager::SignalManager(QObject *parent)
     : QObject(parent),
-      selectedSignalContainer_(NULL)
+      selectedSignalContainer_(NULL),
+      selectedObjectContainer_(NULL)
 {
 }
 

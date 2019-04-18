@@ -92,7 +92,10 @@ coVRMSController::SlaveData::~SlaveData()
 
 coVRMSController *coVRMSController::instance()
 {
-    assert(s_singleton);
+    if(s_singleton == NULL)
+    {
+        s_singleton = new coVRMSController();
+    }
     return s_singleton;
 }
 
@@ -443,7 +446,10 @@ coVRMSController::coVRMSController(int AmyID, const char *addr, int port)
     if (covise::coConfigConstants::getRank() != myID) {
         std::cerr << "coVRMSController: coConfigConstants::getRank()=" << covise::coConfigConstants::getRank() << ", myID=" << myID << std::endl;
     }
+    if(AmyID != -1)
+    {
     assert(covise::coConfigConstants::getRank() == myID);
+    }
 }
 
 #ifdef HAS_MPI
@@ -2332,10 +2338,105 @@ int coVRMSController::syncMessage(covise::Message *msg)
 
 bool coVRMSController::syncBool(bool state)
 {
-    char c = state;
+    char c = state ? 1 : 0;
     syncData(&c, 1);
-    state = (c != 0);
-    return state;
+    return (c != 0);
+}
+
+
+
+bool coVRMSController::reduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LOR, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val || sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::reduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Reduce(&in, &out, 1, MPI_INT, MPI_LAND, 0, appComm);
+        return out != 0;
+    }
+#endif
+
+    if (isMaster())
+    {
+        SlaveData sd(sizeof(bool));
+        instance()->readSlaves(&sd);
+        for (int s=0; s<getNumSlaves(); ++s) {
+            bool sval = *static_cast<bool *>(sd.data[s]);
+            val = val && sval;
+         }
+    }
+    else
+    {
+        sendMaster(&val, sizeof(val));
+    }
+    return val;
+}
+
+bool coVRMSController::allReduceOr(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LOR, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceOr(val));
+}
+
+bool coVRMSController::allReduceAnd(bool val)
+{
+    if (numSlaves == 0)
+        return val;
+
+#ifdef HAS_MPI
+    if (syncMode == SYNC_MPI)
+    {
+        int in = val ? 1 : 0, out = in;
+        MPI_Allreduce(&in, &out, 1, MPI_INT, MPI_LAND, appComm);
+        return out != 0;
+    }
+#endif
+
+    return syncBool(reduceAnd(val));
 }
 
 std::string coVRMSController::syncString(const std::string &s)
@@ -2369,7 +2470,7 @@ std::string coVRMSController::syncString(const std::string &s)
     }
 }
 
-void coVRMSController::syncVRBMessages()
+bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
@@ -2392,7 +2493,7 @@ void coVRMSController::syncVRBMessages()
                 vrbMsg = new Message;
                 if (numVrbMessages >= MAX_VRB_MESSAGES)
                 {
-                    cerr << "to many VRB Messages!!" << endl;
+                    cerr << "too many VRB Messages!!" << endl;
                     break;
                 }
                 if (!vrbc->isConnected())
@@ -2452,6 +2553,8 @@ void coVRMSController::syncVRBMessages()
     }
     vrbMsg->data = NULL;
     delete vrbMsg;
+
+    return numVrbMessages>0;
 }
 
 void coVRMSController::loadFile(const char *filename)

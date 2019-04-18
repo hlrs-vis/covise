@@ -7,6 +7,7 @@
 
 #include "PedestrianFactory.h"
 #include <utility>
+#include <cover/coVRPluginSupport.h>
 
 using std::pair;
 using std::list;
@@ -32,7 +33,7 @@ PedestrianFactory::PedestrianFactory()
     : maximumPeds(-1)
 {
     // Set default values (hardcoded, can be overridden in .xodr)
-    pedDefaults = PedestrianSettings("", "", "300", "0", // id, name, rangeLOD, debugLvl,
+    pedDefaults = PedestrianSettings("", "", "50", "0", // id, name, rangeLOD, debugLvl,
                                      "cally", "0.01", "0.0", // modelFile, scale, heading,
                                      "road", "1", "1", "0.0", "0.0", "1.2", "0.6", // road, lane, dir, sOff, vOff, vel, acc,
                                      "0", "0.0", "1", "0.6", "2", "1.5", "3", "3.0", "-1", "-1"); // animation mapping
@@ -40,7 +41,9 @@ PedestrianFactory::PedestrianFactory()
     // Create OSG group for pedestrians
     pedestrianGroup = new osg::Group();
     pedestrianGroup->setName("PedestrianSystem");
+	pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~opencover::Isect::Update); // don't use the update traversal, tey are updated manually when in range
     opencover::cover->getObjectsRoot()->addChild(pedestrianGroup);
+
 }
 
 PedestrianFactory::~PedestrianFactory()

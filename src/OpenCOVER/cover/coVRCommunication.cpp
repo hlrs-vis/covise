@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-
+#include <map>
 #include "coVRMSController.h"
 #include "coVRPluginSupport.h"
 #include "coVRFileManager.h"
@@ -51,9 +51,7 @@
 #include "VRAvatar.h"
 #include "coVRSelectionManager.h"
 #include "VRViewer.h"
-#include "coVrbRegistryAccess.h"
 #include "coTUIFileBrowser/VRBData.h"
-#include "coVRCollaboration.h"
 #include "ARToolKit.h"
 #include "OpenCOVER.h"
 #include "coVRAnimationManager.h"
@@ -61,16 +59,32 @@
 #include "coVRPluginList.h"
 
 #include <PluginUtil/PluginMessageTypes.h>
-
+#include <vrbclient/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
+
+#include "ui/Owner.h"
+#include "ui/Action.h"
+#include "ui/Button.h"
+#include "ui/Group.h"
+#include "ui/FileBrowser.h"
+#include "ui/Menu.h"
+#include "ui/SelectionList.h"
 
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
 #endif
 #include <sys/stat.h>
+#include <vrbclient/VrbClientRegistry.h>
+#include <vrbclient/SharedStateManager.h>
+#include <vrbclient/SessionID.h>
+#include <ui/SelectionList.h>
+#include "coVrbMenue.h"
+#include <vrbclient/VRBMessage.h>
+
 using namespace covise;
 using namespace opencover;
+using namespace vrb;
 
 coVRCommunication *coVRCommunication::s_instance = NULL;
 
@@ -82,6 +96,7 @@ coVRCommunication *coVRCommunication::instance()
 }
 
 coVRCommunication::coVRCommunication()
+: ui::Owner("VRCommunication", cover->ui)
 {
     assert(!s_instance);
 
@@ -94,42 +109,49 @@ coVRCommunication::coVRCommunication()
     }
     currentFile = NULL;
     me = new coVRPartner();
-    randomID = (int)rand();
-    me->setID(randomID);
-    coVRPartnerList::instance()->append(me);
-    registry = new coVrbRegistryAccess(me->getID());
+    //randomID = (int)rand(); //nessesary??
+
+    //me->setID(randomID);
+    coVRPartnerList::instance()->addPartner(me);
+    registry.reset(new VrbClientRegistry(me->getID(), cover->getSender()));
+    new SharedStateManager(registry.get());
+    m_vrbMenue.reset(new VrbMenue());
 }
 
 coVRCommunication::~coVRCommunication()
 {
     delete[] currentFile;
-    delete registry;
 
-    if (coVRPartnerList::instance()->find(me))
-        coVRPartnerList::instance()->remove();
+    coVRPartnerList::instance()->deletePartner(me->getID());
 
     s_instance = NULL;
 }
 
-void coVRCommunication::update(coVrbRegEntry *theChangedRegEntry)
+void coVRCommunication::update(clientRegClass *theChangedClass)
 {
-    if (theChangedRegEntry)
+    if (theChangedClass)
     {
-        if (strcmp(theChangedRegEntry->getClass(), "VRMLFile") == 0)
+        if (theChangedClass->getName() == "VRMLFile")
         {
-            coVRPartner *p = NULL;
-            int remoteID = -2;
-            if (sscanf(theChangedRegEntry->getVar(), "%d", &remoteID) != 1)
+            for (std::map<const std::string, std::shared_ptr<clientRegVar>>::iterator it = theChangedClass->getAllVariables().begin();
+                it != theChangedClass->getAllVariables().end(); ++it)
             {
-                cerr << "coVRCommunication::update: sscanf failed" << endl;
-            }
-            if ((p = coVRPartnerList::instance()->get(remoteID)))
-            {
-                p->setFile(theChangedRegEntry->getValue());
+                coVRPartner *p = NULL;
+                int remoteID = -2;
+                if (sscanf(it->first.c_str(), "%d", &remoteID) != 1)
+                {
+                    cerr << "coVRCommunication::update: sscanf failed" << endl;
+                }
+                if ((p = coVRPartnerList::instance()->get(remoteID)))
+                {
+                    char * value;
+                    it->second->getValue() >> value;
+                    p->setFile(value);
+                    cerr << theChangedClass->getName() << endl;
+                    cerr << value << endl;
+                }
             }
         }
-        cerr << theChangedRegEntry->getClass() << endl;
-        cerr << theChangedRegEntry->getValue() << endl;
     }
 }
 
@@ -143,15 +165,43 @@ int coVRCommunication::getID()
     return myID;
 }
 
+vrb::SessionID & opencover::coVRCommunication::getPrivateSessionIDx()
+{
+    return m_privateSessionID;
+}
+
+const vrb::SessionID &opencover::coVRCommunication::getSessionID() const
+{
+    return me->getSessionID();
+}
+
+void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
+{
+    if (id.isPrivate())
+    {
+        m_privateSessionID = id;
+    }
+    coVRPartnerList::instance()->setMaster(-1);
+    coVRPartnerList::instance()->setSessionID(me->getID(), id);
+    TokenBuffer tb;
+    tb << id;
+    tb << me->getID();
+    sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
+}
+
 void coVRCommunication::RILock(int lockID)
 {
     int myID = getID();
     //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
     if (RILockArray[lockID] < myID)
     {
-        char num[500];
-        sprintf(num, "%d;%d", lockID, myID);
-        cover->sendBinMessage("LOCK", num, strlen(num) + 1);
+        covise::TokenBuffer tb;
+        tb << vrb::LOCK;
+        tb << lockID;
+        tb << myID;
+        Message msg(tb);
+        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
         RILockArray[lockID] = myID;
         cerr << "LOCK ID: " << lockID << " myID:" << myID << endl;
     }
@@ -162,9 +212,13 @@ void coVRCommunication::RIUnLock(int lockID)
     int myID = getID();
     if (RILockArray[lockID] == myID)
     {
-        char num[500];
-        sprintf(num, "%d;%d", lockID, myID);
-        cover->sendBinMessage("UNLOCK", num, strlen(num) + 1);
+        covise::TokenBuffer tb;
+        tb << vrb::UNLOCK;
+        tb << lockID;
+        tb << myID;
+        Message msg(tb);
+        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
+        cover->sendVrbMessage(&msg);
         RILockArray[lockID] = -1;
         cerr << "UNLOCK ID: " << lockID << " myID:" << myID << endl;
     }
@@ -231,6 +285,21 @@ const char *coVRCommunication::getHostaddress()
     return hostaddr;
 }
 
+std::string coVRCommunication::getUsername()
+{
+    std::string name("noname");
+    if (auto val = getenv("USER"))
+    {
+        name = val;
+    }
+    else if (auto val = getenv("LOGNAME"))
+    {
+        name = val;
+    }
+
+    return name;
+}
+
 const char *coVRCommunication::getHostname()
 {
     static char *hostname = NULL;
@@ -251,7 +320,7 @@ const char *coVRCommunication::getHostname()
 
 bool coVRCommunication::collaborative() // returns true, if in collaborative mode
 {
-    if (coVRPartnerList::instance()->num() > 1)
+    if (coVRPartnerList::instance()->numberOfPartners() > 1)
         return true;
     if (OpenCOVER::instance()->visPlugin())
         return true;
@@ -260,152 +329,15 @@ bool coVRCommunication::collaborative() // returns true, if in collaborative mod
 
 bool coVRCommunication::isMaster() // returns true, if we are master
 {
-    if (coVRPartnerList::instance()->num() > 1)
+    if (coVRPartnerList::instance()->numberOfPartners() > 1)
     {
         return me->isMaster();
     }
     return true;
 }
-
 void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
 {
-    if (strcmp(key, "MASTER") == 0)
-    {
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            p2->setMaster(0);
-            coVRPartnerList::instance()->next();
-        }
-        me->setMaster(1);
-    }
-    else if (strcmp(key, "SLAVE") == 0)
-    {
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            p2->setMaster(0);
-            coVRPartnerList::instance()->next();
-        }
-    }
-    else if (!strcmp(key, "TRANSFORM_ALL"))
-    {
-
-        if (isRILockedByMe(TRANSFORM) || ignoreRemoteTransform)
-            return;
-        osg::Matrixd mat;
-        mat(0, 3) = 0;
-        mat(1, 3) = 0;
-        mat(2, 3) = 0;
-        mat(3, 3) = 1;
-        if (sscanf(tmp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   &mat(0, 0), &mat(0, 1), &mat(0, 2),
-                   &mat(1, 0), &mat(1, 1), &mat(1, 2),
-                   &mat(2, 0), &mat(2, 1), &mat(2, 2),
-                   &mat(3, 0), &mat(3, 1), &mat(3, 2)) != 12)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf1 failed" << endl;
-        }
-
-        coVRCollaboration::instance()->remoteTransform(mat);
-    }
-    else if (!strcmp(key, "SCALE_ALL"))
-    {
-        float d;
-        if (sscanf(tmp, "%f", &d) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf2 failed" << endl;
-        }
-        if (isRILockedByMe(SCALE) || ignoreRemoteTransform)
-            return;
-
-        coVRCollaboration::instance()->remoteScale(d);
-    }
-    else if (!(strcmp(key, "TIMESTEP")))
-    {
-        int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
-        coVRAnimationManager::instance()->setRemoteAnimationFrame(ts);
-    }
-    else if (!(strcmp(key, "TIMESTEP_ANIMATE")))
-    {
-        int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
-        coVRAnimationManager::instance()->setRemoteAnimate(ts == 1);
-    }
-    else if (!(strcmp(key, "TIMESTEP_SYNCRONIZE")))
-    {
-        int ts;
-        if (sscanf(tmp, "%d", &ts) != 1)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf ts failed" << endl;
-        }
-        coVRAnimationManager::instance()->setRemoteSynchronize(ts == 1);
-    }
-    else if (!(strcmp(key, "SYNC_MODE")))
-    {
-        coVRCollaboration::instance()->setSyncMode(tmp);
-    }
-    else if (!(strcmp(key, "AvatarX")))
-    {
-        VRAvatarList::instance()->receiveMessage(tmp);
-    }
-    else if (!(strcmp(key, "MOVE_HAND")))
-    {
-        cerr << "braucht das doch jemand" << endl;
-        /*   mat(0,3) = 0;
-         mat(1,3) = 0;
-         mat(2,3) = 0;
-         mat(3,3) = 1;
-         int button = 0;
-         sscanf(tmp, "%f %f %f %f %f %f %f %f %f %f %f %f %d %f %f", \
-            &mat(0,0), &mat(0,1), &mat(0,2), \
-            &mat(1,0), &mat(1,1), &mat(1,2), \
-            &mat(2,0), &mat(2,1), &mat(2,2), \
-            &mat(3,0), &mat(3,1), &mat(3,2) );
-            &button, &(VRSceneGraph::instance()->AnalogX), &(VRSceneGraph::instance()->AnalogY));
-
-      cover->getButton()->setButtonStatus(button);
-      VRSceneGraph::instance()->updateHandMat(mat);*/
-    }
-    else if (!(strcmp(key, "MOVE_HEAD")))
-    {
-        osg::Matrixd mat;
-        if (sscanf(tmp, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                   &mat(0, 0), &mat(0, 1), &mat(0, 2), &mat(0, 3),
-                   &mat(1, 0), &mat(1, 1), &mat(1, 2), &mat(1, 3),
-                   &mat(2, 0), &mat(2, 1), &mat(2, 2), &mat(2, 3),
-                   &mat(3, 0), &mat(3, 1), &mat(3, 2), &mat(3, 3)) != 16)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf3 failed" << endl;
-        }
-        VRViewer::instance()->updateViewerMat(mat);
-    }
-    else if (!(strcmp(key, "LOCK")))
-    {
-        int lockID = 0, myID = -1;
-        if (sscanf(tmp, "%d;%d", &lockID, &myID) != 2)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf4 failed" << endl;
-        }
-        RIRemoteLock(lockID, myID);
-    }
-    else if (!(strcmp(key, "UNLOCK")))
-    {
-        int lockID = 0, myID = -1;
-        if (sscanf(tmp, "%d;%d", &lockID, &myID) != 2)
-        {
-            cerr << "coVRCommunication::processRenderMessage: sscanf5 failed" << endl;
-        }
-        RIRemoteUnLock(lockID, myID);
-    }
-    else if (!(strcmp(key, "AR_VIDEO_FRAME")) && ARToolKit::instance()->remoteAR)
+    if (!(strcmp(key, "AR_VIDEO_FRAME")) && ARToolKit::instance()->remoteAR)
     {
         ARToolKit::instance()->remoteAR->receiveImage(tmp);
     }
@@ -427,19 +359,163 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
         sh->keyKeycode[sh->writePos]=code;
         sh->writePos = ((sh->writePos+1)%RINGBUFLEN);*/
     }
-    else if (!(strcmp(key, "ADD_SELECTION")))
+    else 
     {
-        coVRSelectionManager::instance()->receiveAdd(tmp);
+    cerr << "pls adress new processVRBMessage function" << endl;
     }
-    else if (!(strcmp(key, "CLEAR_SELECTION")))
+
+}
+void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
+{
+    int t;
+    tb >> t;
+    vrb::vrbMessageType type = (vrbMessageType)t;
+    switch (type)
+    {
+    case vrb::LOCK:
+    {
+        int lockID = 0, myID = -1;
+        tb >> lockID;
+        tb >> myID;
+        RIRemoteLock(lockID, myID);
+    }
+        break;
+    case vrb::UNLOCK:
+    {
+        int lockID = 0, myID = -1;
+        tb >> lockID;
+        tb >> myID;
+        RIRemoteUnLock(lockID, myID);
+    }
+        break;
+    case vrb::AVATAR:
+    {
+        coVRPartnerList::instance()->receiveAvatarMessage(tb);
+    }
+        break;
+    case vrb::TIMESTEP:
+    {
+        int ts;
+        tb >> ts;
+        coVRAnimationManager::instance()->setRemoteAnimationFrame(ts);
+    }
+        break;
+    case vrb::TIMESTEP_ANIMATE:
+    {
+        bool anumRunning;
+        tb >> anumRunning;
+        coVRAnimationManager::instance()->setRemoteAnimate(anumRunning);
+    }
+        break;
+    case vrb::TIMESTEP_SYNCRONIZE:
+    {
+        int ts;
+        tb >> ts;
+        coVRAnimationManager::instance()->setRemoteSynchronize(ts == 1);
+    }
+        break;
+    case vrb::SYNC_MODE:
+    {
+        bool showAvatar;
+        tb >> showAvatar;
+        if (showAvatar)
+        {
+            coVRPartnerList::instance()->showAvatars();
+        }
+        else
+        {
+            coVRPartnerList::instance()->hideAvatars();
+        }
+    }
+        break;
+    case vrb::MASTER:
+    {
+        coVRPartnerList::instance()->setMaster(me->getID());
+        coVRCollaboration::instance()->updateSharedStates();
+    }
+        break;
+    case vrb::SLAVE:
+    {
+        coVRPartnerList::instance()->setMaster(-1); //nobody is master here?
+        coVRCollaboration::instance()->updateSharedStates();
+    }
+        break;
+    case vrb::MOVE_HAND:
+    {
+        cerr << "braucht das doch jemand" << endl;
+        /*   mat(0,3) = 0;
+         mat(1,3) = 0;
+         mat(2,3) = 0;
+         mat(3,3) = 1;
+         int button = 0;
+         sscanf(tmp, "%f %f %f %f %f %f %f %f %f %f %f %f %d %f %f", \
+            &mat(0,0), &mat(0,1), &mat(0,2), \
+            &mat(1,0), &mat(1,1), &mat(1,2), \
+            &mat(2,0), &mat(2,1), &mat(2,2), \
+            &mat(3,0), &mat(3,1), &mat(3,2) );
+            &button, &(VRSceneGraph::instance()->AnalogX), &(VRSceneGraph::instance()->AnalogY));
+
+      cover->getButton()->setButtonStatus(button);
+      VRSceneGraph::instance()->updateHandMat(mat);*/
+    }
+        break;
+    case vrb::MOVE_HEAD:
+    {
+        osg::Matrixd mat;
+        vrb::deserialize(tb, mat);
+        VRViewer::instance()->updateViewerMat(mat);
+    }
+        break;
+    case vrb::AR_VIDEO_FRAME:
+    {
+        char * tmp;
+        tb >> tmp;
+        ARToolKit::instance()->remoteAR->receiveImage(tmp);
+    }
+        break;
+    case vrb::SYNC_KEYBOARD:
+    {
+        
+
+        int type, state, code;
+        tb >> type;
+        tb >> state;
+        tb >> code;
+        fprintf(stderr, "Slave receiving SYNC_KEYBOARD msg=[%d %d %d]\n", type, state, code);
+        /*  if(((sh->writePos+1)%RINGBUFLEN)==sh->readPos)
+        {
+           fprintf(stderr,"Keyboard Buffer Overflow!! discarding Events\n");
+           sh->readPos++;
+        }
+        sh->keyType[sh->writePos]=type;
+        sh->keyState[sh->writePos]=state;
+        sh->keyKeycode[sh->writePos]=code;
+        sh->writePos = ((sh->writePos+1)%RINGBUFLEN);*/
+    }
+        break;
+    case vrb::ADD_SELECTION:
+    {
+        coVRSelectionManager::instance()->receiveAdd(tb);
+    }
+        break;
+    case vrb::CLEAR_SELECTION:
     {
         coVRSelectionManager::instance()->receiveClear();
     }
+        break;
+    default:
+    {
+        cerr << type << ": unknown render message" << endl;
+    }
+        break;
+    }
+
 }
 
 void coVRCommunication::becomeMaster()
 {
     coVRPluginList::instance()->becomeCollaborativeMaster();
+    coVRPartnerList::instance()->setMaster(me->getID());
     me->becomeMaster();
 }
 
@@ -456,121 +532,119 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_SET_USERINFO:
     {
         int num;
-        int minID = 10000000;
         tb >> num;
         for (int i = 0; i < num; i++)
         {
             int id;
             tb >> id;
             coVRPartner *p = coVRPartnerList::instance()->get(id);
-            if (p)
+            if (!p)
             {
-                p->setInfo(tb);
+                p = new coVRPartner(id);
+                coVRPartnerList::instance()->addPartner(p);
             }
-            else
-            {
-                coVRPartnerList::instance()->append(new coVRPartner(id, tb));
-            }
+            p->setInfo(tb);
+            p->updateUi();
         }
-        coVRPartnerList::instance()->reset();
-        bool haveMaster = false;
-        while (coVRPartner *p = coVRPartnerList::instance()->current())
+        if (!coVRPartnerList::instance()->getMaster() && coVRPartnerList::instance()->numberOfPartners() > 1) // no master, check if we have the lowest ID, then become Master
         {
-            if (p->isMaster())
-            {
-                haveMaster = true;
-                break;
-            }
-            if (p->getID() < minID)
-                minID = p->getID();
-            coVRPartnerList::instance()->next();
-        }
-        if (!haveMaster && coVRPartnerList::instance()->num() > 1) // no master, check if we have the lowest ID, then become Master
-        {
-            if (me->getID() == minID)
+            if (me == coVRPartnerList::instance()->getFirstPartner())
             {
                 TokenBuffer rtb;
-                rtb << 1;
-                Message m(rtb);
-                m.type = COVISE_MESSAGE_VRB_SET_MASTER;
-                if (vrbc)
-                    vrbc->sendMessage(&m);
+                rtb << true;
+                sendMessage(rtb, COVISE_MESSAGE_VRB_SET_MASTER);
             }
         }
         coVRPartnerList::instance()->print();
-        if (coVRPartnerList::instance()->num() > 1)
-            coVRCollaboration::instance()->showCollaborative(true);
+
+        //request a new private session if we dont have one
+        if (m_privateSessionID.owner() == 0)
+        {
+            bool isPrivate = true;
+            TokenBuffer rns;
+            rns << m_privateSessionID;
+            sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+        }
+
     }
     break;
     case COVISE_MESSAGE_VRB_SET_GROUP:
     {
         int id;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
-        {
-            int group;
-            tb >> group;
-            p->setGroup(group);
-        }
+        vrb::SessionID session;
+        tb >> session;
+        coVRPartnerList::instance()->setSessionID(id, session);
         coVRPartnerList::instance()->print();
     }
     break;
     case COVISE_MESSAGE_VRB_GET_ID:
     {
         int id;
+        vrb::SessionID session;
         tb >> id;
-        me->setID(id);
-        registry->setID(id);
+        tb >> session;
+        me = me->setID(id);
+        if (session.isPrivate())
+        {
+            m_privateSessionID = session;
+            registry->setID(id, session);
+            coVRCollaboration::instance()->updateSharedStates();
+        }
+        else
+        {
+            coVRPartnerList::instance()->setSessionID(id, session);
+        }
         if (vrbc)
         {
             vrbc->setID(id);
 
             me->sendHello();
         }
-        registry->subscribeClass("VRMLFile", 0, this);
-        registry->subscribeClass("COVERPlugins", 0, this);
-        if ((me->getID() >= -1) && (currentFile))
+        //registry->subscribeClass(getSessionID(), "VRMLFile", this);
+        //registry->subscribeClass(getSessionID(), "COVERPlugins", this);
+        if (currentFile)
         {
-            char *var = new char[100];
-            sprintf(var, "%d", me->getID());
-            registry->setVar("VRMLFile", var, currentFile);
+            TokenBuffer tb;
+            tb << currentFile;
+            registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
         }
+        if (m_privateSessionID.owner() == 0)
+        {
+            TokenBuffer rns;
+            rns << vrb::SessionID(me->getID());
+            sendMessage(rns, COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION);
+        }
+        m_vrbMenue->updateState(true);
+        //prepare for saving and loading sessions on the vrb
+        TokenBuffer ftb;
+        ftb << id;
+        sendMessage(ftb, COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION);
     }
     break;
     case COVISE_MESSAGE_VRB_SET_MASTER:
     {
         int id;
+        bool masterState;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
+        tb >> masterState;
+        if (masterState)
         {
-            int masterState;
-            tb >> masterState;
-            p->setMaster(masterState);
-        }
-
-        coVRPartnerList::instance()->reset();
-        while (coVRPartner *p2 = coVRPartnerList::instance()->current())
-        {
-            if (p2 != p)
-                p2->setMaster(0);
-            coVRPartnerList::instance()->next();
+            coVRPartnerList::instance()->setMaster(id);
         }
         coVRPartnerList::instance()->print();
+        coVRCollaboration::instance()->updateSharedStates();
     }
     break;
     case COVISE_MESSAGE_VRB_QUIT:
     {
         int id;
         tb >> id;
-        coVRPartner *p = coVRPartnerList::instance()->get(id);
-        if (p)
+        if (id != me->getID())
         {
-            if (p != me)
-                coVRPartnerList::instance()->remove();
+             coVRPartnerList::instance()->deletePartner(id);
         }
-        if (coVRPartnerList::instance()->num() <= 1)
+        if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);
     }
     break;
@@ -585,7 +659,7 @@ void coVRCommunication::handleVRB(Message *msg)
         {
             tb >> argv[i];
         }
-        // VRCoviseConnection::covconn = new VRCoviseConnection(argc, argv);
+       //VRCoviseConnectio::covconn = new VRCoviseConnection(argc, argv);
     }
     break;
     case COVISE_MESSAGE_VRB_GUI:
@@ -639,20 +713,19 @@ void coVRCommunication::handleVRB(Message *msg)
         }
     }
     break;
-
+    case COVISE_MESSAGE_SOCKET_CLOSED:
+    case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
-
-        cerr << "VRB requests to quit" << endl;
-        coVRPartnerList::instance()->reset();
-        while (coVRPartnerList::instance()->num() > 1)
-        {
-            if (coVRPartnerList::instance()->current() == me)
-                coVRPartnerList::instance()->next();
-            coVRPartnerList::instance()->remove();
-        }
-        coVRCollaboration::instance()->showCollaborative(false);
+    {
+        cerr << "VRB requests to quit " << msg->type<< endl;
+        coVRPartnerList::instance()->deleteOthers();
+        m_vrbMenue->updateState(false);
+        me->setSession(vrb::SessionID());
+        m_privateSessionID = vrb::SessionID();
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+        coVRCollaboration::instance()->updateSharedStates();
+    }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
     {
@@ -686,21 +759,14 @@ void coVRCommunication::handleVRB(Message *msg)
                 cerr << " file access error, could not open " << filename << endl;
                 rtb << 0;
             }
-
-            Message m(rtb);
-            m.type = COVISE_MESSAGE_VRB_SEND_FILE;
-            if (vrbc)
-                vrbc->sendMessage(&m);
+            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
         }
         else
         {
             TokenBuffer rtb;
             rtb << requestorsID;
             rtb << 0;
-            Message m(rtb);
-            m.type = COVISE_MESSAGE_VRB_SEND_FILE;
-            if (vrbc)
-                vrbc->sendMessage(&m);
+            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
         }
     }
     break;
@@ -715,7 +781,7 @@ void coVRCommunication::handleVRB(Message *msg)
         coVRPartner *p = coVRPartnerList::instance()->get(remoteID);
         if (p)
         {
-            p->setInfo(tb);
+            //p->setInfo(tb);
             p->setFile(filename);
         }
         /*if(currentFile)
@@ -732,22 +798,6 @@ void coVRCommunication::handleVRB(Message *msg)
          cover->loadFile(filename);*/
     }
     break;
-
-    case COVISE_MESSAGE_SOCKET_CLOSED:
-    case COVISE_MESSAGE_CLOSE_SOCKET:
-
-        cerr << "VRB left" << endl;
-        coVRPartnerList::instance()->reset();
-        while (coVRPartnerList::instance()->num() > 1)
-        {
-            if (coVRPartnerList::instance()->current() == me)
-                coVRPartnerList::instance()->next();
-            coVRPartnerList::instance()->remove();
-        }
-        coVRCollaboration::instance()->showCollaborative(false);
-        delete vrbc;
-        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-        break;
     case COVISE_MESSAGE_VRB_FB_SET:
     {
 
@@ -844,9 +894,66 @@ void coVRCommunication::handleVRB(Message *msg)
             cerr << "Unknown type!" << endl;
         }
     }
-    default:
+    case COVISE_MESSAGE_VRBC_SEND_SESSIONS:
+    {
+        int size;
+        vrb::SessionID id;
+        tb >> size;
+        std::vector<vrb::SessionID> sessions;
+        for (size_t i = 0; i < size; ++i)
+        {
+            tb >> id;
+            sessions.push_back(id);
+        }
+        m_vrbMenue->updateSessions(sessions);
+    }
+    break;
+    case COVISE_MESSAGE_VRBC_SET_SESSION:
+    {
+        
+        vrb::SessionID sessionID;
+        tb >> sessionID;
+        setSessionID(sessionID);
+        m_vrbMenue->setCurrentSession(sessionID);
+
+    }
+    break;
+    case COVISE_MESSAGE_VRB_REQUEST_SAVED_SESSION:
+    {
+        int size;
+        tb >> size;
+        std::vector<std::string> registries;
+        for (size_t i = 0; i < size; i++)
+        {
+            std::string file;
+            tb >> file;
+            registries.push_back(file);
+        }
+        m_vrbMenue->updateRegistries(registries);
+    }
+    break;
+    case COVISE_MESSAGE_VRB_LOAD_SESSION:
+    {
+        vrb::SessionID sessionID;
+        tb >> sessionID;
+        registry->resubscribe(sessionID);
+        coVRCollaboration::instance()->updateSharedStates(true);
+    }
+    break;
+    case COVISE_MESSAGE_VRB_MESSAGE:
+    {
+        processVRBMessage(tb);
+    }
+    break;
+    case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED:
+    case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED:
+    {
         if (registry)
             registry->update(tb, msg->type);
+    }
+    break;
+    default:
+
         break;
     }
 }
@@ -855,13 +962,11 @@ void coVRCommunication::setCurrentFile(const char *filename)
 {
     if (!filename)
         return;
-    if (me->getID() >= -1)
-    {
-        char *var = new char[100];
-        sprintf(var, "%d", me->getID());
-        me->setFile(filename);
-        registry->setVar("VRMLFile", var, filename);
-    }
+    me->setFile(filename);
+    TokenBuffer tb;
+    tb << filename;
+    registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
+
     if (currentFile)
     {
         if (strcmp(currentFile, filename) == 0)
@@ -875,10 +980,7 @@ void coVRCommunication::setCurrentFile(const char *filename)
     TokenBuffer rtb3;
     rtb3 << me->getID();
     rtb3 << (char *)filename;
-    Message m(rtb3);
-    m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
-    if (vrbc)
-        vrbc->sendMessage(&m);
+    sendMessage(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
 
     if (coVRPluginList::instance()->getPlugin("ACInterface"))
     {
@@ -891,7 +993,7 @@ void coVRCommunication::setCurrentFile(const char *filename)
 
 int coVRCommunication::getNumberOfPartners()
 {
-    return coVRPartnerList::instance()->num();
+    return coVRPartnerList::instance()->numberOfPartners();
 }
 
 Message *coVRCommunication::waitForMessage(int messageType)
@@ -908,6 +1010,18 @@ Message *coVRCommunication::waitForMessage(int messageType)
     return m;
 }
 
+bool opencover::coVRCommunication::sendMessage(Message * msg)
+{
+    return cover->sendVrbMessage(msg);
+}
+
+bool opencover::coVRCommunication::sendMessage(TokenBuffer & tb, covise_msg_type type)
+{
+    Message msg(tb);
+    msg.type = type;
+    return sendMessage(&msg);
+}
+
 void coVRCommunication::setFBData(IData *data)
 {
     VRBData *locData = dynamic_cast<VRBData *>(data);
@@ -916,3 +1030,5 @@ void coVRCommunication::setFBData(IData *data)
         this->mfbData[locData->getId()] = locData;
     }
 }
+
+

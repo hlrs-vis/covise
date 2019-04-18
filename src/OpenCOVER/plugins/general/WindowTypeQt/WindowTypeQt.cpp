@@ -29,6 +29,8 @@
 #include <cover/VRSceneGraph.h>
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
+#include <cover/VRWindow.h>
+#include <cover/ui/Manager.h>
 
 #include <QMenuBar>
 #include <QToolBar>
@@ -37,16 +39,60 @@
 #include <QLayout>
 #include <QMessageBox>
 #include <QDialog>
+#include <QWindow>
 
 #include "ui_AboutDialog.h"
 
 #include <cassert>
 
 #ifdef USE_X11
+#ifdef HAVE_QTX11EXTRAS
+#include <QX11Info>
+#endif
+
 #include <X11/ICE/ICElib.h>
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
 #endif
 
 using namespace opencover;
+
+namespace {
+
+bool enableCompositing(QWidget *window, bool state)
+{
+#ifdef USE_X11
+    auto wid = window->effectiveWinId();
+    if (wid == 0) {
+        std::cerr << "enableCompositing: did not find ID of native window for QWidget" << std::endl;
+        return false;
+    }
+
+#ifdef HAVE_QTX11EXTRAS
+    Display *dpy = QX11Info::display();
+#else
+    Display *dpy = nullptr;
+#endif
+    if (!dpy) {
+        std::cerr << "enableCompositing: did not find Display for application" << std::endl;
+        return false;
+    }
+
+    Atom bypasscomp = XInternAtom(dpy, "_NET_WM_BYPASS_COMPOSITOR", False);
+
+    long bypasscomp_on = state ? 2 : 1;
+    if (state) {
+        XChangeProperty(dpy, wid, bypasscomp, XA_CARDINAL, 32,
+                        PropModeReplace, (unsigned char *)&bypasscomp_on, 1);
+        bypasscomp_on = 0;
+    }
+    XChangeProperty(dpy, wid, bypasscomp, XA_CARDINAL, 32,
+                    PropModeReplace, (unsigned char *)&bypasscomp_on, 1);
+#endif
+    return true;
+}
+
+}
 
 WindowTypeQtPlugin::WindowTypeQtPlugin()
 {
@@ -88,6 +134,16 @@ bool WindowTypeQtPlugin::update()
     }
     bool up = m_update;
     m_update = false;
+
+    if (m_initializing) {
+        m_initializing = false;
+
+        for (auto w: m_windows)
+        {
+            w.second.widget->setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+        }
+    }
+
     return up;
 }
 
@@ -102,7 +158,16 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 #endif
         new QApplication(coCommandLine::argc(), coCommandLine::argv());
         qApp->setWindowIcon(QIcon(":/icons/cover.ico"));
+        //qApp->setAttribute(Qt::AA_PluginApplication);
         qApp->setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
+        qApp->setAttribute(Qt::AA_UseDesktopOpenGL);
+        qApp->setAttribute(Qt::AA_ShareOpenGLContexts);
+#if QT_VERSION >= 0x050800
+        qApp->setAttribute(Qt::AA_DontCheckOpenGLContextThreadAffinity);
+#endif
+#ifdef __APPLE__
+        qApp->setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
     }
 
     auto it = m_windows.find(i);
@@ -117,16 +182,35 @@ bool WindowTypeQtPlugin::windowCreate(int i)
 
     auto window = new QtMainWindow();
     win.window = window;
-    win.window->setGeometry(conf.windows[i].ox, conf.windows[i].oy, conf.windows[i].sx, conf.windows[i].sy);
+    win.window->move(conf.windows[i].ox, conf.windows[i].oy);
+    //win.window->resize(conf.windows[i].sx, conf.windows[i].sy);
     if (i > 0)
         win.window->setWindowTitle(("COVER"+std::to_string(i)).c_str());
     else
         win.window->setWindowTitle("COVER");
     win.window->setWindowIcon(QIcon(":/icons/cover.ico"));
+    auto f = win.window->windowFlags();
+    f |= Qt::CustomizeWindowHint;
+    f |= Qt::WindowFullscreenButtonHint;
+    win.window->setWindowFlags(f);
     win.window->show();
-    window->connect(win.window, &QtMainWindow::closing, [this, i](){
+    window->connect(win.window, &QtMainWindow::closing, [this](){
         OpenCOVER::instance()->requestQuit();
     });
+    window->connect(win.window, &QtMainWindow::fullScreenChanged, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
+
+    win.toggleFullScreen = new QAction(window);
+    win.toggleFullScreen->setCheckable(true);
+    win.toggleFullScreen->setChecked(false);
+    win.toggleFullScreen->setText("Full Screen");
+    window->connect(win.toggleFullScreen, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
+    window->addContextAction(win.toggleFullScreen);
 
     win.toggleMenu = new QAction(window);
     win.toggleMenu->setCheckable(true);
@@ -138,22 +222,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     });
     window->addContextAction(win.toggleMenu);
 
-    QMenuBar *menubar = nullptr;
+    win.menubar = nullptr;
 #ifdef __APPLE__
-    if (covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", false))
+    win.nativeMenuBar = covise::coCoviseConfig::isOn("nativeMenuBar", "COVER.UI.Qt", win.nativeMenuBar);
+    if (win.nativeMenuBar)
     {
-        menubar = new QMenuBar(nullptr);
-        menubar->setNativeMenuBar(true);
+        win.menubar = new QMenuBar(nullptr);
+        win.menubar->setNativeMenuBar(true);
     }
     else
     {
-        menubar = win.window->menuBar();
-        menubar->setNativeMenuBar(false);
+        win.menubar = win.window->menuBar();
+        win.menubar->setNativeMenuBar(false);
     }
 #endif
-    if (!menubar)
-        menubar = win.window->menuBar();
-    menubar->show();
+    if (!win.menubar)
+        win.menubar = win.window->menuBar();
+    win.menubar->show();
     QToolBar *toolbar = nullptr;
     bool useToolbar = covise::coCoviseConfig::isOn("toolbar", "COVER.UI.Qt", true);
     if (useToolbar)
@@ -165,18 +250,23 @@ bool WindowTypeQtPlugin::windowCreate(int i)
         toolbar->show();
         window->addContextAction(toolbar->toggleViewAction());
     }
-    win.view.emplace_back(new ui::QtView(menubar, toolbar));
+    win.toolbar = toolbar;
+    win.view.emplace_back(new ui::QtView(win.menubar, toolbar));
     cover->ui->addView(win.view.back());
 #if 0
     win.view.emplace_back(new ui::QtView(toolbar));
     cover->ui->addView(win.view.back());
 #endif
 
+    window->connect(win.toggleFullScreen, &QAction::triggered, [this](bool state){
+        m_update = true;
+        VRWindow::instance()->makeFullScreen(state);
+    });
 
-    QMenu *helpMenu = new QMenu(menubar);
+    QMenu *helpMenu = new QMenu(win.menubar);
     helpMenu->setTearOffEnabled(true);
     helpMenu->setTitle("Help");
-    menubar->addMenu(helpMenu);
+    win.menubar->addMenu(helpMenu);
     win.view.back()->setInsertPosition(helpMenu->menuAction());
 
     QAction *keyboardHelp = new QAction(helpMenu);
@@ -211,15 +301,25 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     format.setProfile(QSurfaceFormat::CompatibilityProfile);
     //format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
     //format.setOption(QSurfaceFormat::DebugContext);
-    //format.setRedBufferSize(8);
-    format.setAlphaBufferSize(8);
-    format.setDepthBufferSize(24);
+    int bpc = covise::coCoviseConfig::getInt("bpc", "COVER.Framebuffer", 10);
+    format.setRedBufferSize(bpc);
+    format.setGreenBufferSize(bpc);
+    format.setBlueBufferSize(bpc);
+    int alpha = covise::coCoviseConfig::getInt("alpha", "COVER.Framebuffer", -1);
+    if (alpha >= 0)
+        format.setAlphaBufferSize(alpha);
+    int depth = covise::coCoviseConfig::getInt("depth", "COVER.Framebuffer", 24);
+    if (depth >= 0)
+        format.setDepthBufferSize(depth);
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setStencilBufferSize(conf.numStencilBits());
     format.setStereo(conf.windows[i].stereo);
 
 #if QT_VERSION >= 0x050A00
-    bool sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
+    bool found = false;
+    bool sRGB = covise::coCoviseConfig::isOn("srgb", "COVER.Framebuffer", false, &found);
+    if (!found)
+        sRGB = covise::coCoviseConfig::isOn("COVER.FramebufferSRGB", false);
     if (sRGB)
     {
         std::cerr << "Enable GL_FRAMEBUFFER_SRGB" << std::endl;
@@ -233,7 +333,20 @@ bool WindowTypeQtPlugin::windowCreate(int i)
     {
         win.widget->setTextureFormat(GL_SRGB8_ALPHA8);
     }
+    else if (bpc > 12)
+    {
+        win.widget->setTextureFormat(GL_RGBA16);
+    }
+    else if (bpc > 10)
+    {
+        win.widget->setTextureFormat(GL_RGBA12);
+    }
+    else if (bpc > 8)
+    {
+        win.widget->setTextureFormat(GL_RGB10_A2);
+    }
 #endif
+    win.widget->setFixedSize(conf.windows[i].sx, conf.windows[i].sy);
     win.window->setCentralWidget(win.widget);
     win.widget->show();
     conf.windows[i].context = win.widget->graphicsWindow();
@@ -328,6 +441,73 @@ void WindowTypeQtPlugin::windowDestroy(int num)
         qApp->processEvents();
         delete qApp;
     }
+}
+
+void WindowTypeQtPlugin::windowFullScreen(int num, bool state)
+{
+    auto it = m_windows.find(num);
+    if (it == m_windows.end())
+    {
+        std::cerr << "WindowTypeQt: window no. " << num << " not managed by this plugin" << std::endl;
+        return;
+    }
+    auto &win = it->second;
+
+    auto &conf = *coVRConfig::instance();
+
+    win.toggleFullScreen->setChecked(state);
+    if (state == win.fullscreen)
+        return;
+
+    win.fullscreen = state;
+    m_update = true;
+
+    if (state) {
+        win.flags = win.window->windowFlags();
+        auto state = win.window->windowState();
+        win.state = state & ~Qt::WindowFullScreen;
+#if 0
+        if (!(state & Qt::WindowFullScreen)) {
+            win.x = win.window->x();
+            win.y = win.window->y();
+            win.w = win.window->width();
+            win.h = win.window->height();
+        }
+#endif
+        if (win.toolbar) {
+            win.toolbarVisible = win.toolbar->isVisible();
+        }
+
+#ifdef __APPLE__
+        win.menubar->setNativeMenuBar(true);
+#else
+        win.menubar->hide();
+#endif
+        if (win.toolbar) {
+            win.toolbar->hide();
+        }
+        //win.window->setWindowFlag(Qt::FramelessWindowHint, true);
+        win.window->showFullScreen();
+        if (!win.state & Qt::WindowFullScreen)
+            win.window->setWindowState(win.state | Qt::WindowFullScreen);
+    } else {
+#ifdef __APPLE__
+        win.menubar->setNativeMenuBar(win.nativeMenuBar);
+#else
+        win.menubar->show();
+#endif
+        win.window->setWindowFlags(win.flags);
+        win.window->setWindowState(win.state);
+#if 0
+        win.window->move(win.x, win.y);
+        win.window->resize(win.w, win.h);
+#endif
+        if (win.toolbar && win.toolbarVisible)
+            win.toolbar->show();
+        //win.window->showNormal();
+    }
+
+    enableCompositing(win.window, state);
 }
 
 COVERPLUGIN(WindowTypeQtPlugin)

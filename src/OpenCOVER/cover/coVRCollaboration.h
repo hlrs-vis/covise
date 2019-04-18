@@ -23,16 +23,11 @@
 
 #include <util/coExport.h>
 #include <util/common.h>
-
-#include <OpenVRUI/coRowMenu.h>
+#include <set>
 #include <osg/Matrix>
-
-namespace vrui
-{
-class coSubMenuItem;
-class coPotiMenuItem;
-class coCheckboxMenuItem;
-}
+#include <vrbclient/SharedState.h>
+#include "ui/Owner.h"
+#include "MatrixSerializer.h"
 
 namespace osg
 {
@@ -41,7 +36,19 @@ class Group;
 
 namespace opencover
 {
-class COVEREXPORT coVRCollaboration : public vrui::coMenuListener
+
+namespace ui
+{
+class Group;
+class Menu;
+class Button;
+class Slider;
+class SelectionList;
+class Action;
+}
+
+
+class COVEREXPORT coVRCollaboration: public ui::Owner
 {
     static coVRCollaboration *s_instance;
     coVRCollaboration();
@@ -55,68 +62,59 @@ public:
     };
 
 private:
-    void addMenuItem(osg::Group *itemGroup);
-
     int readConfigFile();
     void initCollMenu();
-
-    bool syncXform;
-    bool syncScale;
-
+    void setSyncInterval();
+    std::set<int> m_sessions;
+    bool syncXform = false;
+    bool syncScale = false;
+	bool wasLo = false;
     float syncInterval;
+    bool oldMasterStatus = true;
+    float oldSyncInterval = -1;
+    bool oldAvatarVisibility = true;
 
 public:
     virtual ~coVRCollaboration();
     void config();
-    vrui::coSubMenuItem *collButton;
     void showCollaborative(bool visible);
     static coVRCollaboration *instance();
-    int showAvatar;
-    SyncMode syncMode;
+    bool showAvatar;
+    vrb::SharedState<int> syncMode; ///0: LooseCoupling, 1: MasterSlaveCoupling, 2 TightCoupling
+    vrb::SharedState<osg::Matrix> avatarPosition;
+    vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
-
     // returns collaboration mode
     SyncMode getSyncMode() const;
 
     void setSyncMode(const char *mode); // set one of "LOOSE", "MS", "TIGHT"
 
+    void updateSharedStates(bool force = false);
     // returns true if this COVER ist master in a collaborative session
     bool isMaster();
-
     // Collaborative menu:
-    vrui::coRowMenu *collaborativeMenu;
-    vrui::coCheckboxMenuItem *Loose;
-    vrui::coCheckboxMenuItem *Tight;
-    vrui::coCheckboxMenuItem *MasterSlave;
-    vrui::coCheckboxMenuItem *ShowAvatar;
-    vrui::coCheckboxMenuItem *Master;
-    vrui::coPotiMenuItem *SyncInterval;
+    bool m_visible = false;
+    ui::Menu *m_collaborativeMenu = nullptr;
+    ui::Group *m_partnerGroup = nullptr;
+    ui::Button *m_showAvatar = nullptr;
+    ui::Button *m_master = nullptr;
+    ui::Action *m_returnToMaster = nullptr;
+    ui::Slider *m_syncInterval = nullptr;
+    ui::SelectionList *m_collaborationMode = nullptr;
+    ui::Menu *menu() const;
+    ui::Group *partnerGroup() const;
 
-    // process key events
-    void menuEvent(vrui::coMenuItem *);
-    void updateCollaborativeMenu();
-
+    bool updateCollaborativeMenu();
+    void syncModeChanged(int mode);
     void init();
 
-    void update();
+    bool update();
 
-    void SyncXform() //! mark VRSceneGraph::m_objectsTransform as dirty
-    {
-        syncXform = true;
-    }
-    void UnSyncXform()
-    {
-        syncXform = false;
-    }
-    void SyncScale() //! mark VRSceneGraph::m_scaleTransform as dirty
-    {
-        syncScale = true;
-    }
-    void UnSyncScale()
-    {
-        syncScale = false;
-    }
-
+    void SyncXform();
+    void UnSyncXform();
+    void SyncScale();
+    void UnSyncScale();
+    void sessionChanged(bool isPrivate);
     void remoteTransform(osg::Matrix &mat);
     void remoteScale(float d);
 };

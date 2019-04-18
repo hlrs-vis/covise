@@ -154,7 +154,7 @@ void PluginMenu::scanPlugins()
 
     for (std::vector<std::string>::iterator it = paths.begin(); it != paths.end(); ++it)
     {
-        coDirectory *dir = coDirectory::open(it->c_str());
+        std::unique_ptr<coDirectory> dir(coDirectory::open(it->c_str()));
         for (int i = 0; dir && i < dir->count(); i++)
         {
             if (dir->match(dir->name(i),

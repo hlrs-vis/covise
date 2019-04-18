@@ -2,6 +2,8 @@
 #include "View.h"
 #include "Element.h"
 #include "Group.h"
+#include "Menu.h"
+#include "ButtonGroup.h"
 
 #include <cctype>
 #include <cassert>
@@ -226,7 +228,7 @@ bool Manager::addView(View *view)
 
     for (auto elem: m_elements)
     {
-        std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
+        //std::cerr << "Creating by id: " << elem.first << " -> " << elem.second->path() << std::endl;
         view->elementFactory(elem.second);
     }
 
@@ -341,19 +343,11 @@ void Manager::updateBounds(const Slider *slider) const
     }
 }
 
-void Manager::updateValue(const EditField *input) const
+void Manager::updateValue(const TextField *input) const
 {
     for (auto v: m_views)
     {
         v.second->updateValue(input);
-    }
-}
-
-void Manager::updateValue(const FileBrowser *fb) const
-{
-    for (auto v: m_views)
-    {
-        v.second->updateValue(fb);
     }
 }
 
@@ -362,6 +356,14 @@ void Manager::updateFilter(const FileBrowser *fb) const
     for (auto v: m_views)
     {
         v.second->updateFilter(fb);
+    }
+}
+
+void Manager::updateViewpoint(const CollaborativePartner *cp) const
+{
+    for (auto v: m_views)
+    {
+        v.second->updateViewpoint(cp);
     }
 }
 
@@ -643,7 +645,7 @@ void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, boo
         }
         else
         {
-            it->second.second->reset();
+            it->second.second = std::make_shared<covise::TokenBuffer>();
         }
         it->second.first = mask;
         elem->save(*it->second.second);

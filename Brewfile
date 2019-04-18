@@ -22,6 +22,7 @@ brew 'swig'
 brew 'python3'
 brew 'freetype'
 brew 'libarchive'
+brew 'libzip'
 
 brew 'snappy'
 brew 'teem'

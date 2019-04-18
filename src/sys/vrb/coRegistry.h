@@ -4,11 +4,14 @@
    version 2.1 or later, see lgpl-2.1.txt.
 
  * License: LGPL 2+ */
-
+/////////////////////////////////////////////////////////////////////////////////
+///////////////////OBSOLETE/////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 #ifndef regVar_H
 #define regVar_H
-
+#include <net/tokenbuffer.h>
 #include <util/coDLList.h>
+#include <net/covise_connect.h>
 
 class netModule;
 class coCharBuffer;
@@ -29,7 +32,7 @@ public:
     };
     void addObserver(int recvID);
     void removeObserver(int recvID);
-    void serveObservers(regVar *v);
+    void serveObservers(regVar *v, covise::Connection *exclude = nullptr);
     void informDeleteObservers(regVar *v);
     void copyObservers(regClass *v);
 
@@ -42,18 +45,20 @@ public:
 class regVar
 {
 private:
-    char *value;
+    covise::TokenBuffer value;
+	char * tb_startPtr = nullptr;
     char *name;
     regClass *myClass;
     observerList observers;
     int staticVar;
 
 public:
-    regVar(regClass *c, const char *n, const char *v, int s = 1);
+    regVar(regClass *c, const char *n, covise::TokenBuffer &v, int s = 1);
     /// returns the value
-    const char *getValue()
+    covise::TokenBuffer &getValue()
     {
-        return (value);
+		value.rewind();
+		return (value);
     };
     /// returns the class of this variable
     regClass *getClass()
@@ -61,7 +66,7 @@ public:
         return (myClass);
     };
     /// set value
-    void setValue(const char *v);
+    void setValue(const covise::TokenBuffer &v);
     /// returns true if this Var is static
     int isStatic()
     {
@@ -98,7 +103,70 @@ public:
     void saveNetwork(coCharBuffer &cb);
     ~regVar();
 };
+class regVarVal
+{
+public:
+	regVarVal(const char *v)
+		:type (1)
+	{
+		strcpy(ch, v);
+	}
+	regVarVal(covise::TokenBuffer *v)
+		: tb(v)
+		, type(2)
+	{
+	}
+	regVarVal(const regVarVal &v)
+	{
+		type = v.type;
+		ch = v.ch;
+        tb.copy(v.tb);
+	}
 
+	regVarVal &operator=(char *other) {
+		if (type == 1)
+		{
+			delete[] ch;
+			ch = new char[strlen(other) + 1];
+			strcpy(ch, other);
+		}
+		else
+		{
+			std::cerr << "regVarValue is of type : tokenbuffer, you are trying to get a char" << std::endl;
+		}
+		return *this;
+	}
+	regVarVal &operator=(const char &other) {
+		if (type == 1)
+		{
+			*ch = other;
+		}
+		else
+		{
+			std::cerr << "regVarValue is of type : tokenbuffer, you are trying to get a char" << std::endl;
+		}
+		return *this;
+	}
+	regVarVal &operator=(covise::TokenBuffer &&other) {
+		if (type == 2)
+		{
+            tb = std::move(other);
+		}
+		else
+		{
+			std::cerr << "regVarValue is of type : char, you are trying to get a tokenbuffer" << std::endl;
+		}
+		return *this;
+	}
+	//returns 0 for undefined, 1 for char and 2 for tokenbuffer
+	int getType() {
+		return type;
+	}
+private:
+	char *ch = nullptr;
+    covise::TokenBuffer tb;
+	int type; //0 for undefined, 1 for char, 2 for tokenbuffer
+};
 class regClass : public covise::coDLPtrList<regVar *>
 {
 private:
@@ -114,7 +182,7 @@ public:
         return (name);
     };
     /// add a new observer to this class or variable of this class
-    void observe(int recvID, const char *variableName = NULL);
+    void observe(int recvID, const char *variableName, covise::TokenBuffer &value);
     /// remove an observer from this class or variable of this class
     void unObserve(int recvID, const char *variableName = NULL);
     /// get Class ID
@@ -156,7 +224,7 @@ public:
     /// getClassEntry, returns NULL if not found
     regClass *getClass(const char *name, int ID = 0);
     /// set a Value or create new Entry
-    void setVar(const char *className, int ID, const char *name, const char *value);
+    void setVar(const char *className, int ID, const char *name, covise::TokenBuffer &value, covise::Connection *sender);
     /// create new Entry
     void create(const char *className, int ID, const char *name, int s = 0);
     /// remove an Entry
@@ -164,7 +232,7 @@ public:
     /// remove all Entries from one Module
     void deleteEntry(int moduleID);
     /// add a new observer
-    void observe(const char *className, int ID, int recvID, const char *variableName = NULL);
+    void observe(const char *className, int ID, int recvID, const char *variableName, covise::TokenBuffer &value);
     /// remove an observer
     void unObserve(const char *className, int ID, int recvID, const char *variableName = NULL);
     /// remove all observers for this ID

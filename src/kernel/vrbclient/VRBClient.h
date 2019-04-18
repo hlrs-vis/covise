@@ -8,7 +8,8 @@
 #ifndef _VRB_CLIENT_H
 #define _VRB_CLIENT_H
 #include <stdio.h>
-
+#include <future>
+#include <mutex>
 #include <util/DLinkList.h>
 #include <util/coTypes.h>
 namespace covise
@@ -18,10 +19,12 @@ class Host;
 class CoviseConfig;
 class ClientConnection;
 class Message;
+class TokenBuffer;
 
 //
 //
 //
+
 class VRBEXPORT VRBClient
 {
 
@@ -38,6 +41,7 @@ public:
     int wait(Message *m, int messageType);
     int setUserInfo(const char *userInfo);
     int sendMessage(const Message *m);
+    void sendMessage(TokenBuffer &tb, int type);
     int getID();
     void setID(int ID);
     DLinkList<Message *> messageQueue;
@@ -51,6 +55,9 @@ private:
     Host *serverHost;
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
     float sendDelay; // low-pass filtered time for sending one packet of 1000 bytes
+    std::mutex connMutex;
+    std::future<ClientConnection *> connFuture;
+    bool firstVrbConnection = true;
 };
 }
 #endif

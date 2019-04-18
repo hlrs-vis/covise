@@ -267,6 +267,13 @@ int VRBClient::sendMessage(const Message *m)
     return 1;
 }
 
+void covise::VRBClient::sendMessage(TokenBuffer & tb, int type)
+{
+    Message m(tb);
+    m.type = type;
+    sendMessage(&m);
+}
+
 int VRBClient::isConnected()
 {
     if (isSlave)
@@ -278,35 +285,66 @@ int VRBClient::isConnected()
 
 int VRBClient::connectToServer()
 {
-    if (isSlave)
+    if (isSlave || serverHost == NULL|| sConn != nullptr)
         return 0;
-    if (serverHost == NULL)
-        return 0;
-    sConn = new ClientConnection(serverHost, port, 0, (sender_type)0, 0);
-    if (!sConn->is_connected()) // could not open server port
+    connMutex.lock();
+    if (!connFuture.valid())
     {
-        fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
-        delete sConn;
-        sConn = NULL;
-        return (-1);
+        connFuture = std::async(std::launch::async, [this]() -> ClientConnection *
+        {
+            ClientConnection *myConn = new ClientConnection(serverHost, port, 0, (sender_type)0,0, 1.0);
+            if (!myConn->is_connected()) // could not open server port
+            {
+                if (firstVrbConnection)
+                {
+                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
+                    firstVrbConnection = false;
+                }
+
+                delete myConn;
+                myConn = NULL;
+                sleep(1);
+                return nullptr;
+            }
+            struct linger linger;
+            linger.l_onoff = 0;
+            linger.l_linger = 1;
+            setsockopt(myConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+
+            return myConn;
+        });
     }
-    struct linger linger;
-    linger.l_onoff = 0;
-    linger.l_linger = 1;
-    setsockopt(sConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char *)&linger, sizeof(linger));
+    connMutex.unlock();
+    if (connFuture.valid())
+    {
+        connMutex.lock();
+        auto status = connFuture.wait_for(std::chrono::seconds(0));
+        if (status == std::future_status::ready)
+        {
+            sConn = connFuture.get();
+            if(sConn != nullptr)
+            {
+                Host host;
 
-    Host host;
+                TokenBuffer tb;
 
-    TokenBuffer tb;
+                tb << name;
+                tb << host.getAddress();
 
-    tb << name;
-    tb << host.getAddress();
+                Message msg(tb);
+                msg.type = COVISE_MESSAGE_VRB_CONTACT;
+                sConn->send_msg(&msg);
+            }
+        }
+        connMutex.unlock();
+    }
 
-    Message msg(tb);
-    msg.type = COVISE_MESSAGE_VRB_CONTACT;
-    sConn->send_msg(&msg);
 
-    return 1;
+    if (!sConn)
+    {
+        return false;
+    }
+    return true;
 }
 
 void VRBClient::setID(int i)

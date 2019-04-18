@@ -9,7 +9,7 @@
 #define CTRL_MODULELIST_H
 
 #include <covise/covise.h>
-#include <net/coHostType.h>
+#include "coHostType.h"
 
 #include "control_list.h"
 #include "control_module.h"

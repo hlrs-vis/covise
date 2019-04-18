@@ -13,6 +13,7 @@
 #include "SteeringWheel.h"
 
 #include <cover/coVRTui.h>
+#include <cover/coIntersection.h>
 
 #include <net/covise_host.h>
 #include <net/covise_socket.h>
@@ -367,23 +368,26 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
     //  ... for plane 1     //
     //----------------------//
 
+    osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[6];
+
     // Front-Right segment
     p0.set(pos[0] + 2000, pos[1] + 1500, pos[2] + 1500.0); // 1.5 m above actual position and ...
     q0.set(pos[0] + 2000, pos[1] + 1500, pos[2] - 40000.0); // 40 m under actual position
-    osg::ref_ptr<osg::LineSegment> ray1 = new osg::LineSegment();
-    ray1->set(p0, q0);
+    intersector[0] = coIntersection::instance()->newIntersector(p0,q0);
+    igroup->addIntersector(intersector[0]);
 
     // Back-Center segment
     p0.set(pos[0], pos[1] - 1500, pos[2] + 1500.0);
     q0.set(pos[0], pos[1] - 1500, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray2 = new osg::LineSegment();
-    ray2->set(p0, q0);
+    intersector[1] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[1]);
 
     // Front-Left segment
     p0.set(pos[0] - 2000, pos[1] + 1500, pos[2] + 1500.0);
     q0.set(pos[0] - 2000, pos[1] + 1500, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray3 = new osg::LineSegment();
-    ray3->set(p0, q0);
+    intersector[2] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[2]);
 
     //----------------------//
     //  ... for plane 2     //
@@ -392,65 +396,43 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
     // Front-center segment
     p0.set(pos[0], pos[1] + 1500, pos[2] + 1500.0);
     q0.set(pos[0], pos[1] + 1500, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray4 = new osg::LineSegment();
-    ray4->set(p0, q0);
+    intersector[3] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[3]);
 
     // Back-Right segment
     p0.set(pos[0] + 2000, pos[1] - 1500, pos[2] + 1500.0);
     q0.set(pos[0] + 2000, pos[1] - 1500, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray5 = new osg::LineSegment();
-    ray5->set(p0, q0);
+    intersector[4] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[4]);
 
     // Back-Left segment
     p0.set(pos[0] - 2000, pos[1] - 1500, pos[2] + 1500.0);
     q0.set(pos[0] - 2000, pos[1] - 1500, pos[2] - 40000.0);
-    osg::ref_ptr<osg::LineSegment> ray6 = new osg::LineSegment();
-    ray6->set(p0, q0);
+    intersector[5] = coIntersection::instance()->newIntersector(p0, q0);
+    igroup->addIntersector(intersector[5]);
 
-    osgUtil::IntersectVisitor visitor;
+    osgUtil::IntersectionVisitor visitor(igroup);
     visitor.setTraversalMask(Isect::Collision);
-    visitor.addLineSegment(ray1.get());
-    visitor.addLineSegment(ray2.get());
-    visitor.addLineSegment(ray3.get());
-    visitor.addLineSegment(ray4.get());
-    visitor.addLineSegment(ray5.get());
-    visitor.addLineSegment(ray6.get());
-
     cover->getObjectsXform()->accept(visitor);
-    int num1 = visitor.getNumHits(ray1.get());
-    int num2 = visitor.getNumHits(ray2.get());
-    int num3 = visitor.getNumHits(ray3.get());
 
-    int num4 = visitor.getNumHits(ray4.get());
-    int num5 = visitor.getNumHits(ray5.get());
-    int num6 = visitor.getNumHits(ray6.get());
 
     ////////////////////////////////////////
     // 		   Intersection check		  //
     ////////////////////////////////////////
 
-    if (num1 || num2 || num3 || num4 || num5 || num6)
+    osg::Vec3 point[6];
+    int numHits = 0;
+    for (int i = 0; i < 6; i++)
     {
-        osgUtil::Hit hitInformation1;
-        osgUtil::Hit hitInformation2;
-        osgUtil::Hit hitInformation3;
-        osgUtil::Hit hitInformation4;
-        osgUtil::Hit hitInformation5;
-        osgUtil::Hit hitInformation6;
+        if (intersector[0]->containsIntersections())
+        {
+            point[i] = intersector[0]->getFirstIntersection().getWorldIntersectPoint();
+            numHits++;
+        }
+    }
 
-        if (num1)
-            hitInformation1 = visitor.getHitList(ray1.get()).front();
-        if (num2)
-            hitInformation2 = visitor.getHitList(ray2.get()).front();
-        if (num3)
-            hitInformation3 = visitor.getHitList(ray3.get()).front();
-        if (num4)
-            hitInformation4 = visitor.getHitList(ray4.get()).front();
-        if (num5)
-            hitInformation5 = visitor.getHitList(ray5.get()).front();
-        if (num6)
-            hitInformation6 = visitor.getHitList(ray6.get()).front();
-
+    if (numHits==6)
+    {
         float dist = 0.0;
         osg::Vec3 normal(0, 0, 1);
         osg::Vec3 oldnormal(0, 0, 1);
@@ -461,29 +443,12 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
         //          Creating a normal out of the normals of two planes         //
         /////////////////////////////////////////////////////////////////////////
 
-        osg::Vec3 point1(0, 0, 0);
-        osg::Vec3 point2(0, 0, 0);
-        osg::Vec3 point3(0, 0, 0);
-
-        osg::Vec3 point4(0, 0, 0);
-        osg::Vec3 point5(0, 0, 0);
-        osg::Vec3 point6(0, 0, 0);
-
-        // Interseciton points plane1
-        point1 = hitInformation1.getWorldIntersectPoint();
-        point2 = hitInformation2.getWorldIntersectPoint();
-        point3 = hitInformation3.getWorldIntersectPoint();
-        // Intersection points plane2
-        point4 = hitInformation4.getWorldIntersectPoint();
-        point5 = hitInformation5.getWorldIntersectPoint();
-        point6 = hitInformation6.getWorldIntersectPoint();
-
         //------------------------------//
         //         create planes        //
         //------------------------------//
 
-        osg::Plane plane(point1, point2, point3);
-        osg::Plane plane2(point4, point5, point6);
+        osg::Plane plane(point[0], point[1], point[2]);
+        osg::Plane plane2(point[3], point[4], point[5]);
 
         //------------------------------//
         //        create normals        //
@@ -577,34 +542,34 @@ PorscheRealtimeDynamics::moveToStreet(osg::Matrix &carTrans, osg::Matrix &moveMa
 
         setOldnormal(normal);
 
-        dist = pos[2] - point1[2];
-        geode = hitInformation1.getGeode();
+        dist = pos[2] - point[0][2];
+        geode = dynamic_cast<osg::Geode *>(*intersector[0]->getFirstIntersection().nodePath.end());
 
-        if (fabs(pos[2] - point2[2]) < fabs(dist))
+        if (fabs(pos[2] - point[1][2]) < fabs(dist))
         {
-            dist = pos[2] - point2[2];
-            geode = hitInformation2.getGeode();
+            dist = pos[2] - point[1][2];
+            geode = dynamic_cast<osg::Geode *>(*intersector[1]->getFirstIntersection().nodePath.end());
         }
-        if (fabs(pos[2] - point3[2]) < fabs(dist))
+        if (fabs(pos[2] - point[2][2]) < fabs(dist))
         {
-            dist = pos[2] - point3[2];
-            geode = hitInformation3.getGeode();
+            dist = pos[2] - point[2][2];
+            geode = dynamic_cast<osg::Geode *>(*intersector[2]->getFirstIntersection().nodePath.end());
         }
 
-        if (fabs(pos[2] - point4[2]) < fabs(dist))
+        if (fabs(pos[2] - point[3][2]) < fabs(dist))
         {
-            dist = pos[2] - point4[2];
-            geode = hitInformation4.getGeode();
+            dist = pos[2] - point[3][2];
+            geode = dynamic_cast<osg::Geode *>(*intersector[3]->getFirstIntersection().nodePath.end());
         }
-        if (fabs(pos[2] - point5[2]) < fabs(dist))
+        if (fabs(pos[2] - point[4][2]) < fabs(dist))
         {
-            dist = pos[2] - point5[2];
-            geode = hitInformation5.getGeode();
+            dist = pos[2] - point[4][2];
+            geode = dynamic_cast<osg::Geode *>(*intersector[4]->getFirstIntersection().nodePath.end());
         }
-        if (fabs(pos[2] - point6[2]) < fabs(dist))
+        if (fabs(pos[2] - point[5][2]) < fabs(dist))
         {
-            dist = pos[2] - point6[2];
-            geode = hitInformation6.getGeode();
+            dist = pos[2] - point[5][2];
+            geode = dynamic_cast<osg::Geode *>(*intersector[5]->getFirstIntersection().nodePath.end());
         }
 
         if (geode)
@@ -757,40 +722,30 @@ if(coVRMSController::instance()->isMaster()) {
 
         // Strahlen generieren
 
-        osg::ref_ptr<osg::LineSegment> rayA[4];
+        osg::ref_ptr<osgUtil::IntersectorGroup> igroup = new osgUtil::IntersectorGroup;
+        osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector[4];
         int a = 0;
         for (int i = 0; i < 4; i++)
         {
-            rayA[i] = new osg::LineSegment();
             p0.set(-DSpaceData.RadPosY[i], DSpaceData.RadPosX[i], height + 40000.0); // Strahlen +- 40 m
             q0.set(-DSpaceData.RadPosY[i], DSpaceData.RadPosX[i], height - 40000.0);
-            rayA[i]->set(p0, q0);
+            intersector[i] = coIntersection::instance()->newIntersector(p0,q0);
+            igroup->addIntersector(intersector[i]);
         }
 
         // Schnittpunkte auslesen
-        osgUtil::IntersectVisitor visitorR;
-        visitorR.setTraversalMask(Isect::Collision);
-        for (int w = 0; w < 4; w++)
-        { //Strahlen der TraversalMask hinzufuegen, die den Szenegraphen durchlaeuft
-            visitorR.addLineSegment(rayA[w].get());
-        }
 
-        cover->getObjectsXform()->accept(visitorR);
+        osgUtil::IntersectionVisitor visitor(igroup);
+        visitor.setTraversalMask(Isect::Collision);
+        cover->getObjectsXform()->accept(visitor);
 
-        int test[4]; // Falls SP vorhanden, wird in diese Variable geschrieben
-        for (int nr = 0; nr < 4; nr++)
-        { //Ueberpruefung ob es SP gab
-            test[nr] = visitorR.getNumHits(rayA[nr].get());
-            //cout << ">>>>>>>>SP:" << test[nr] << "nr " << nr << endl;
-        }
+        
 
-        osgUtil::Hit hitInformationA[4];
         for (int h = 0; h < 4; h++)
         {
-            if (test[h])
+            if (intersector[h]->containsIntersections())
             {
-                hitInformationA[h] = visitorR.getHitList(rayA[h].get()).front();
-                rayHeight = hitInformationA[h].getWorldIntersectPoint()[2];
+                rayHeight = intersector[0]->getFirstIntersection().getWorldIntersectPoint()[2];
                 //cout << rayHeight << " " << h << endl;
             }
         }

@@ -52,7 +52,7 @@ EntityInfo::EntityInfo(Entity *e)
 	if (currentRoad != NULL)
 	{
 	    int laneNumber = currentRoad->searchLane(s,t);
-		if (laneNumber != NULL)
+		if (laneNumber != 0)
 		{
 			//RoadTransition rt(;
 			//entity->entityGeometry->addRouteTransition();

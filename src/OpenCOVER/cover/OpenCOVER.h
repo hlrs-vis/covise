@@ -30,6 +30,7 @@
 namespace covise
 {
 class VRBClient;
+class Message;
 }
 
 namespace opencover
@@ -101,6 +102,8 @@ public:
     coHud *hud;
     double beginAppTraversal;
     double endAppTraversal;
+    double lastUpdateTime = -1.0, lastFrameTime = -1.0;
+    std::deque<double> frameDurations;
     void setIgnoreMouseEvents(bool ign)
     {
         ignoreMouseEvents = ign;
@@ -130,7 +133,9 @@ private:
 #endif
     bool m_renderNext;
     bool m_initialized = false;
-
+    covise::Message *m_vrbmsg;
+    void handleVrbMessage();
+    static void OpenCOVERCallback(void* userData, void *callbackData);
     std::vector<coTabletUI *> tabletUIs;
     std::vector<coTUITabFolder *> tabletTabs;
 

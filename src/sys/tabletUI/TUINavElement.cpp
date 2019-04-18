@@ -11,11 +11,7 @@
 #include <QFrame>
 #include <QMouseEvent>
 #include <stdio.h>
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 
 class InputFrame : public QFrame
 {

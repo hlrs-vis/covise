@@ -522,6 +522,36 @@ class net :
             return
 
         self.printNet("Add: " + m.name_ + "_" + str(m.nr_))
+# add module and wait until an INIT msg comes back        
+    def addExisting(self,m, nr=1, host=""):
+        if ( m.name_ in self.knownModules_ ):
+            i = self.knownModules_[m.name_]
+            #increment the number of the actual module
+            self.knownModules_[m.name_] = i+1
+            m.nr_ = str(nr)
+            self.actualModules_.append(m)
+            
+            """ start module on <host> if host is given """
+            if host!="" and host in self.__knownHosts:
+                m.host_ = host
+            elif self.__defaultHost != self.__knownHosts[0]:
+               m.host_ = self.__defaultHost
+			   
+            deMod = DescActionExistingModule(m)
+            CoviseMsgLoop().register( deMod )
+            # send getDesc msg to module
+            cn = "\n"
+            getDescStr = "GETDESC\n" + m.name_ + cn +  "%s" % (m.nr_) + cn + m.host_ + cn
+            sendCtrlMsg(getDescStr)
+            while not deMod.stop:
+                time.sleep(0.08)
+            CoviseMsgLoop().unregister( deMod )
+            m.createParamAction()
+        else:    
+            print("Scripting Interface: module not recognized by covise scripting! addExisting")
+            return
+
+        self.printNet("Add: " + m.name_ + "_" + str(m.nr_))
 
     #remove module from net
     def remove(self,m):
@@ -748,5 +778,31 @@ class DescAction(CoviseMsgLoopAction):
             for i in range(len(param)-1):
                 if param[i]=="IMM":
                     if i+1<len(param)-1 and i+4<len(param)-1 : self.mod.setParamValueWithoutMsg(param[i+1], param[i+4] )
+            self.stop=True
+        else : raise nameError
+
+# action to parse the DESC message of module. The message contains all default parameters set by the module
+# currently only the colormap choice parameter is parsed
+class DescActionExistingModule(CoviseMsgLoopAction):
+
+    UI=134
+    def __init__(self, mod):
+        CoviseMsgLoopAction.__init__( self, "DescACTION for "+ mod.name_, self.UI, "action to react on Init msg of modules" )
+        self.stop = False
+        self.mod = mod
+        
+    def run(self, param):
+#        print(param)
+#        print(param[0])
+        if 'PARAMDESC'==param[0] and self.mod.name_==param[1]:
+            numParams = int(param[4])
+            index = 5
+            iparam = 0
+            while iparam < numParams:
+#                print(iparam, param[index])
+#                print("index", index)
+                self.mod.setParamValueWithoutMsg(param[index], param[index+1] )
+                index += 2
+                iparam += 1
             self.stop=True
         else : raise nameError

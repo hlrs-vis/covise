@@ -313,7 +313,11 @@ void coVRTcpSlave::start()
     else
     {
         cerr << "Using default ssh remote startup" << endl;
-        sprintf(co, "%s -c %d %s %d %s&", command.c_str(), myID, mi.c_str(), port, hn.c_str());
+#ifdef WIN32
+        sprintf(co, "%s -c %d %s %d %s", command.c_str(), myID, mi.c_str(), port, hn.c_str());
+#else
+		sprintf(co, "%s -c %d %s %d %s&", command.c_str(), myID, mi.c_str(), port, hn.c_str());
+#endif
         cerr << "DEF starting: " << co << endl;
         if (system(co) == -1)
         {

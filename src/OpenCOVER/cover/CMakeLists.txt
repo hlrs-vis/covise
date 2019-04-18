@@ -31,8 +31,7 @@ SET(COVER_HEADERS
   coHud.h
   coInteractor.h
   coIntersection.h
-  coPartnerMenuItem.h
-  coVrbRegistryAccess.h
+  VruiPartnerMenuItem.h
   coVRCommunication.h
   coVRConfig.h
   coVRDynLib.h
@@ -80,12 +79,12 @@ SET(COVER_HEADERS
   tridelity.h
   # tui file browser headers
   coTUIFileBrowser/AGData.h
-  coTUIFileBrowser/FileSysAccess.h
   coTUIFileBrowser/IData.h
   coTUIFileBrowser/LocalData.h
-  coTUIFileBrowser/NetHelp.h
   coTUIFileBrowser/VRBData.h
   coTUIFileBrowser/IRemoteData.h
+  coVrbMenue.h
+  MatrixSerializer.h
   #coVRDePee.h
   #coVRDePeePass.h
 )
@@ -106,7 +105,6 @@ SET(COVER_SOURCES
   coVRDynLib.cpp
   coInteractor.cpp
   coClusterStat.cpp
-  coVrbRegistryAccess.cpp
   coVRCommunication.cpp
   coVRPartner.cpp
   coVRSlave.cpp
@@ -132,7 +130,7 @@ SET(COVER_SOURCES
   coVRTui.cpp
   coActionUserData.cpp
   coIntersection.cpp
-  coPartnerMenuItem.cpp
+  VruiPartnerMenuItem.cpp
   coCollabInterface.cpp
   coVRLabel.cpp
   coHud.cpp
@@ -149,17 +147,17 @@ SET(COVER_SOURCES
   EventReceiver.cpp
   coMeasurement.cpp
   coTUIFileBrowser/AGData.cpp
-  coTUIFileBrowser/FileSysAccess.cpp
   coTUIFileBrowser/IData.cpp
   coTUIFileBrowser/LocalData.cpp
-  coTUIFileBrowser/NetHelp.cpp
   coTUIFileBrowser/VRBData.cpp
   coShutDownHandler.cpp
   coTranslator.cpp
+  coVrbMenue.cpp
   PluginMenu.cpp
   VRRegisterSceneGraph.cpp
   MSEventHandler.cpp
   tridelity.cpp
+  MatrixSerializer.cpp
   #coVRDePee.cpp
   #coVRDePeePass.cpp
 )
@@ -168,6 +166,7 @@ SET(UI_HEADERS
     ui/Export.h
     ui/Action.h
     ui/Button.h
+    ui/CollaborativePartner.h
     ui/Container.h
     ui/Element.h
     ui/Group.h
@@ -179,6 +178,7 @@ SET(UI_HEADERS
     ui/SelectionList.h
     ui/ShortcutListener.h
     ui/Slider.h
+    ui/TextField.h
     ui/EditField.h
     ui/FileBrowser.h
     ui/View.h
@@ -189,6 +189,7 @@ SET(UI_HEADERS
 SET(UI_SOURCES
     ui/Action.cpp
     ui/Button.cpp
+    ui/CollaborativePartner.cpp
     ui/Container.cpp
     ui/Element.cpp
     ui/Group.cpp
@@ -200,6 +201,7 @@ SET(UI_SOURCES
     ui/SelectionList.cpp
     ui/ShortcutListener.cpp
     ui/Slider.cpp
+    ui/TextField.cpp
     ui/EditField.cpp
     ui/FileBrowser.cpp
     ui/View.cpp
@@ -286,7 +288,7 @@ ENDIF(WIN32)
 
 COVISE_WNOERROR(${COVERKERNEL_TARGET} BASEARCH basilisk tuatara zebu)
 
-TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI
+TARGET_LINK_LIBRARIES(${COVERKERNEL_TARGET} coOpenVRUI coOSGVRUI coQtUtil coAppl
    ${COVISE_VRBCLIENT_LIBRARY} ${COVISE_GRMSG_LIBRARY} ${COVISE_UTIL_LIBRARY} ${COVISE_GPU_LIBRARIES} ${COVISE_NET_LIBRARY}
    ${XERCESC_LIBRARIES} ${OPENSCENEGRAPH_LIBRARIES} ${TIFF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIBS})
 COVISE_INSTALL_TARGET(${COVERKERNEL_TARGET})

@@ -22,6 +22,17 @@
 //#include "plugins/general/NurbsSurface/NurbsSurface.h"
 
 #include "FileInfo.h"
+#include <string>
+#include <vrbclient/SharedState.h>
+namespace opencover {
+namespace ui {
+class Element;
+class Group;
+class Slider;
+class Menu;
+class Button;
+}
+}
 
 using namespace opencover;
 
@@ -66,12 +77,13 @@ private:
     float intensityScale;
     bool intColor;
     bool polar;
-    float pointSizeValue;
+	float pointSizeValue;
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
+    void calcMinMax(PointSet& pointSet);
 
 protected:
     osg::MatrixTransform *planetTrans;
@@ -99,17 +111,17 @@ protected:
 
     void changeAllLOD(float lod);
     void changeAllPointSize(float pointSize);
-
+	void UpdatePointSizeValue(void);
 public:
     PointCloudPlugin();
     ~PointCloudPlugin();
     bool init();
     void preFrame();
     void postFrame();
-    float pointSize()
-    {
-        return pointSizeValue;
-    };
+	inline float pointSize()
+	{
+		return pointSizeValue;
+	}
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
     int unloadFile(std::string filename);

@@ -22,6 +22,8 @@
 #include <PluginUtil/ColorBar.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/View.h>
+#include <cover/ui/VruiView.h>
 
 using namespace opencover;
 

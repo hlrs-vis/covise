@@ -47,7 +47,6 @@ coOnscreenDebug::coOnscreenDebug()
     osg::Vec3 delta(0.0f, -40.0f, 0.0f);
 
     text = new osgText::Text;
-    text->setDataVariance(Object::DYNAMIC);
     geode->addDrawable(text.get());
 
     text->setFont(timesFont);

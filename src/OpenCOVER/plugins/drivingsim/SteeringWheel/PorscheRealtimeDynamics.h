@@ -23,7 +23,6 @@
 
 #include <osg/MatrixTransform>
 #include <osg/LineSegment>
-#include <osgUtil/IntersectVisitor>
 
 #include <vrml97/vrml/VrmlSFTime.h>
 

@@ -17,13 +17,26 @@
 \****************************************************************************/
 
 #include <cover/coVRPlugin.h>
+#include <cover/ui/Owner.h>
 
 #include <osg/ShapeDrawable>
 
 #include <utils/traci/TraCIAPI.h>
 
 #include <vector>
+#include <random>
 #include <TrafficSimulation/AgentVehicle.h>
+#include <TrafficSimulation/PedestrianFactory.h>
+
+namespace opencover
+{
+namespace ui {
+class Slider;
+class Label;
+class Action;
+class Button;
+}
+}
 
 using namespace opencover;
 
@@ -36,7 +49,25 @@ struct simData
     std::string vehicleID;
 };
 
-class SumoTraCI : public opencover::coVRPlugin
+struct pedestrianModel
+{
+    std::string fileName;
+    double scale;
+    pedestrianModel(std::string, double);
+};
+
+pedestrianModel::pedestrianModel(std::string n, double s) : fileName(n), scale(s) {}
+
+struct vehicleModel
+{
+    std::string vehicleName;
+    std::string fileName;
+    vehicleModel(std::string, std::string);
+};
+
+vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
+
+class SumoTraCI : public opencover::coVRPlugin , public ui::Owner
 {
 public:
     SumoTraCI();
@@ -47,16 +78,47 @@ public:
 
 private:
 	TraCIAPI client;
-	TraCIAPI::SubscribedValues simResults;
+
+    bool initUI();
+    ui::Menu *traciMenu;
+	ui::Button *pedestriansVisible;
+	ui::Button *pauseUI;
+	
+    bool m_pedestrianVisible = true;
+    void setPedestriansVisible(bool);
+
+    libsumo::SubscriptionResults simResults;
+    libsumo::SubscriptionResults pedestrianSimResults;
 	std::vector<simData> currentResults;
 	std::vector<simData> previousResults;
+        std::map<std::string, AgentVehicle *> vehicleMap;
+        AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
 
 	osg::Group *vehicleGroup;
 	std::string vehicleDirectory;
 
-	double simTime;
-	double nextSimTime;
-	double currentTime;
+    osg::ref_ptr<osg::Group> pedestrianGroup;
+
+    PedestrianFactory *pf;
+    typedef std::map<std::string, PedestrianGeometry *> PedestrianMap;
+    PedestrianMap loadedPedestrians;
+    
+    PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    double interpolateAngles(double lambda, double pastAngle, double futureAngle);
+    std::vector<pedestrianModel> pedestrianModels;
+    void getPedestriansFromConfig();
+
+    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle"};
+    std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
+
+    void getVehiclesFromConfig();
+    void loadAllVehicles();
+
+    double simTime;
+    double nextSimTime;
+    double previousTime;
+    double currentTime;
+    double framedt;
 	std::vector<int> variables;
 	std::map<const std::string, AgentVehicle *> loadedVehicles;
 

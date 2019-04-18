@@ -30,23 +30,170 @@
 #include <osgViewer/Renderer>
 
 #include <osg/PolygonMode>
+#include <osg/LineWidth>
 #include <osg/Geometry>
 #include "coVRStatsDisplay.h"
 #include "coVRFileManager.h"
+#include <config/CoviseConfig.h>
 #include <osg/Version>
 
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 3, 2)
 #define getBound getBoundingBox
 #endif
+
 using namespace opencover;
+
+namespace {
+
+enum Accum {
+    AccumMin,
+    AccumMax,
+    AccumJitter,
+    AccumMean,
+    AccumMedian,
+    AccumAverage,
+    AccumAverageInverse,
+    AccumNewest, // keep last before the print-only values
+    // the following values are just for displaying in AveragedValueTextDrawCallback
+    AccumMeanJitter,
+    AccumMedianJitter,
+    AccumAverageJitter,
+    AccumMinMax,
+};
+
+bool getAttribute(osg::Stats *stats, unsigned int startFrameNumber, unsigned int endFrameNumber, const std::string& attributeName, Accum accum, double& value)
+{
+    if (endFrameNumber<startFrameNumber)
+    {
+        std::swap(endFrameNumber, startFrameNumber);
+    }
+
+    value = 0.0;
+    double vmin = std::numeric_limits<double>::max();
+    double vmax = std::numeric_limits<double>::lowest();
+
+    std::vector<double> vals;
+
+    int numFound = 0;
+    for(unsigned int i = startFrameNumber; i<=endFrameNumber; ++i)
+    {
+        double v = 0.0;
+        if (!stats->getAttribute(i,attributeName, v))
+            continue;
+
+        ++numFound;
+        if (v < vmin)
+            vmin = v;
+        if (v > vmax)
+            vmax = v;
+
+        switch (accum) {
+        case AccumMeanJitter:
+        case AccumMedianJitter:
+        case AccumAverageJitter:
+        case AccumMinMax:
+            assert("invalid for AccumMeanJitter and AccumMedianJitter" == 0);
+            break;
+        case AccumAverage:
+            value += v;
+            break;
+        case AccumAverageInverse:
+            value += 1./v;
+            break;
+        case AccumNewest:
+            value = v;
+            break;
+        case AccumMedian:
+            vals.push_back(v);
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (numFound == 0)
+        return false;
+
+    switch (accum) {
+    case AccumAverageInverse:
+        value = numFound/value;
+        break;
+    case AccumAverage:
+        value /= numFound;
+        break;
+    case AccumMin:
+        value = vmin;
+        break;
+    case AccumMax:
+        value = vmax;
+        break;
+    case AccumJitter:
+        value = (vmax-vmin)*0.5;
+        break;
+    case AccumMean:
+        value = (vmin+vmax)*0.5;
+        break;
+    case AccumMedian:
+        assert(numFound == vals.size());
+        std::sort(vals.begin(), vals.end());
+        value = vals[vals.size()/2];
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+bool getAttribute(osg::Stats *stats, const std::string& attributeName, Accum accum, double& value)
+{
+    return getAttribute(stats, stats->getEarliestFrameNumber(), stats->getLatestFrameNumber(), attributeName, accum, value);
+}
+
+int getSlowestFrame(osg::Stats *stats, int frameNumber)
+{
+    static int lastFrame = -1;
+    static int cachedSlowest = -1;
+
+    if (lastFrame == frameNumber)
+        return cachedSlowest;
+
+    cachedSlowest = -1;
+
+    int start = stats->getEarliestFrameNumber(), last = stats->getLatestFrameNumber();
+    double duration = -1.;
+    for (int f=start; f<last; ++f)
+    {
+        double d = 0.;
+        if (!stats->getAttribute(f, "Frame duration", d))
+            continue;
+        if (d > duration)
+        {
+            duration = d;
+            cachedSlowest = f;
+        }
+    }
+
+    return cachedSlowest;
+}
+
+} // anonymous namespace
 
 coVRStatsDisplay::coVRStatsDisplay()
     : _statsType(NO_STATS)
     , _initialized(false)
     , _threadingModel(osgViewer::ViewerBase::SingleThreaded)
     , _frameRateChildNum(0)
+    , _threadingModelChildNum(0)
     , _gpuMemChildNum(0)
+    , _gpuPCIeChildNum(0)
+    , _gpuClockChildNum(0)
+    , _gpuUtilChildNum(0)
+    , _rhrFpsChildNum(0)
+    , _rhrBandwidthChildNum(0)
+    , _rhrSkippedChildNum(0)
     , _viewerChildNum(0)
+    , _gpuChildNum(0)
     , _cameraSceneChildNum(0)
     , _viewerSceneChildNum(0)
     , _numBlocks(8)
@@ -63,10 +210,9 @@ coVRStatsDisplay::coVRStatsDisplay()
 void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 {
 
-    if (viewer && _threadingModelText.valid() && viewer->getThreadingModel() != _threadingModel)
+    if (viewer && _threadingModelText.valid())
     {
-        _threadingModel = viewer->getThreadingModel();
-        updateThreadingModelText();
+        updateThreadingModelText(viewer->getThreadingModel());
     }
 
     if (!_initialized)
@@ -87,6 +233,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
     viewer->getViewerStats()->collectStats("sync", false);
     viewer->getViewerStats()->collectStats("swap", false);
     viewer->getViewerStats()->collectStats("finish", false);
+    viewer->getViewerStats()->collectStats("update", false);
 
     for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
          itr != cameras.end();
@@ -156,6 +303,7 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
         viewer->getViewerStats()->collectStats("sync", true);
         viewer->getViewerStats()->collectStats("swap", true);
         viewer->getViewerStats()->collectStats("finish", true);
+        viewer->getViewerStats()->collectStats("update", true);
 
         for (osgViewer::ViewerBase::Cameras::iterator itr = cameras.begin();
              itr != cameras.end();
@@ -169,6 +317,8 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_viewerChildNum, true);
+        _switch->setValue(_gpuChildNum, _statsType==VIEWER_STATS && _gpuStats);
+        _switch->setValue(_threadingModelChildNum, true);
     }
     case (FRAME_RATE):
     {
@@ -176,15 +326,59 @@ void coVRStatsDisplay::showStats(int whichStats, osgViewer::ViewerBase *viewer)
 
         _camera->setNodeMask(0xffffffff);
         _switch->setValue(_frameRateChildNum, true);
-        _switch->setValue(_gpuMemChildNum, true);
+
+        auto stats = viewer->getViewerStats();
+        unsigned int first = stats->getEarliestFrameNumber(), last = stats->getLatestFrameNumber();
+        double dummy;
+        if (_gpuStats)
+        {
+            _switch->setValue(_gpuUtilChildNum, true);
+            _switch->setValue(_gpuPCIeChildNum, true);
+            _switch->setValue(_gpuClockChildNum, true);
+            _switch->setValue(_gpuMemChildNum, true);
+        }
+        if (_rhrStats)
+        {
+            _switch->setValue(_rhrFpsChildNum, true);
+            _switch->setValue(_rhrDelayChildNum, true);
+            _switch->setValue(_rhrBandwidthChildNum, true);
+            _switch->setValue(_rhrSkippedChildNum, true);
+            _switch->setValue(_threadingModelChildNum, true);
+        }
     }
     default:
         break;
     }
 }
 
-void coVRStatsDisplay::updateThreadingModelText()
+void coVRStatsDisplay::enableGpuStats(bool enable, const std::string &devname)
 {
+    _gpuStats = enable;
+    _gpuName = devname;
+}
+
+void coVRStatsDisplay::enableRhrStats(bool enable)
+{
+    _rhrStats = enable;
+}
+
+void coVRStatsDisplay::enableFinishStats(bool enable)
+{
+    _finishStats = enable;
+}
+
+void coVRStatsDisplay::enableSyncStats(bool enable)
+{
+    _syncStats = enable;
+}
+
+void coVRStatsDisplay::updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm)
+{
+    _threadingModel = tm;
+
+    if (!_threadingModelText.valid())
+        return;
+
     switch (_threadingModel)
     {
     case (osgViewer::Viewer::SingleThreaded):
@@ -252,11 +446,10 @@ void coVRStatsDisplay::setUpHUDCamera(osgViewer::ViewerBase *viewer)
 // Drawcallback to draw averaged attribute
 struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallback
 {
-    AveragedValueTextDrawCallback(osg::Stats *stats, const std::string &name, int frameDelta, bool averageInInverseSpace, double multiplier)
+    AveragedValueTextDrawCallback(osg::Stats *stats, const std::string &name, Accum accum=AccumAverage, double multiplier = 1.0)
         : _stats(stats)
         , _attributeName(name)
-        , _frameDelta(frameDelta)
-        , _averageInInverseSpace(averageInInverseSpace)
+        , _accum(accum)
         , _multiplier(multiplier)
         , _tickLastUpdated(0)
     {
@@ -270,11 +463,49 @@ struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallbac
         osg::Timer_t tick = osg::Timer::instance()->tick();
         double delta = osg::Timer::instance()->delta_m(_tickLastUpdated, tick);
 
-        if (delta > 50) // update every 50ms
+        if (_accum > AccumNewest)
+        {
+            _tickLastUpdated = tick;
+            Accum first = AccumMean, second = AccumJitter;
+            switch (_accum) {
+            case AccumMeanJitter:
+                first = AccumMean;
+                second = AccumJitter;
+                break;
+            case AccumMedianJitter:
+                first = AccumMedian;
+                second = AccumJitter;
+                break;
+            case AccumAverageJitter:
+                first = AccumAverage;
+                second = AccumJitter;
+                break;
+            case AccumMinMax:
+                first = AccumMin;
+                second = AccumMax;
+                break;
+            default:
+                break;
+            }
+
+            double val1, val2;
+            if (getAttribute(_stats, _attributeName, first, val1)
+                && getAttribute(_stats, _attributeName, second, val2))
+            {
+                sprintf(_tmpText, "%3.1f%s%3.1f", val1 * _multiplier, _accum==AccumMinMax ? "-" : "±", val2 * _multiplier);
+                text->setText(_tmpText, osgText::String::ENCODING_UTF8);
+            }
+            else
+            {
+                text->setText("", osgText::String::ENCODING_UTF8);
+            }
+
+        }
+        else if (delta > 50) // update every 50ms
         {
             _tickLastUpdated = tick;
             double value;
-            if (_stats->getAveragedAttribute(_attributeName, value, _averageInInverseSpace))
+            if (getAttribute(_stats, _attributeName, _accum, value))
             {
                 sprintf(_tmpText, "%4.2f", value * _multiplier);
                 text->setText(_tmpText, osgText::String::ENCODING_UTF8);
@@ -289,8 +520,7 @@ struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallbac
 
     osg::ref_ptr<osg::Stats> _stats;
     std::string _attributeName;
-    int _frameDelta;
-    bool _averageInInverseSpace;
+    Accum _accum;
     double _multiplier;
     mutable char _tmpText[128];
     mutable osg::Timer_t _tickLastUpdated;
@@ -516,7 +746,6 @@ struct BlockDrawCallback : public virtual osg::Drawable::DrawCallback
                 (*vertices)[vi++].x() = _xPos + (endValue - referenceTime) * _statsHandler->getBlockMultiplier();
             }
         }
-
 		vertices->dirty();
 
         drawable->drawImplementation(renderInfo);
@@ -529,6 +758,59 @@ struct BlockDrawCallback : public virtual osg::Drawable::DrawCallback
     std::string _beginName;
     std::string _endName;
     int _frameDelta;
+    int _numFrames;
+};
+
+struct SlowestBlockDrawCallback : public virtual osg::Drawable::DrawCallback
+{
+    SlowestBlockDrawCallback(coVRStatsDisplay *statsHandler, float xPos, osg::Stats *viewerStats, osg::Stats *stats, const std::string &beginName, const std::string &endName)
+        : _statsHandler(statsHandler)
+        , _xPos(xPos)
+        , _viewerStats(viewerStats)
+        , _stats(stats)
+        , _beginName(beginName)
+        , _endName(endName)
+    {
+    }
+
+    /** do customized draw code.*/
+    virtual void drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const
+    {
+        osg::Geometry *geom = (osg::Geometry *)drawable;
+        osg::Vec3Array *vertices = (osg::Vec3Array *)geom->getVertexArray();
+
+        int frameNumber = renderInfo.getState()->getFrameStamp()->getFrameNumber();
+        int slowest = getSlowestFrame(_viewerStats, frameNumber);
+        double referenceTime;
+        if (!_viewerStats->getAttribute(slowest, "Reference time", referenceTime))
+        {
+            return;
+        }
+
+        unsigned int vi = 0;
+        double beginValue, endValue;
+        if (slowest >= 0)
+        {
+            if (_stats->getAttribute(slowest, _beginName, beginValue) && _stats->getAttribute(slowest, _endName, endValue))
+            {
+                (*vertices)[vi++].x() = _xPos + (beginValue - referenceTime) * _statsHandler->getBlockMultiplier();
+                (*vertices)[vi++].x() = _xPos + (beginValue - referenceTime) * _statsHandler->getBlockMultiplier();
+                (*vertices)[vi++].x() = _xPos + (endValue - referenceTime) * _statsHandler->getBlockMultiplier();
+                (*vertices)[vi++].x() = _xPos + (endValue - referenceTime) * _statsHandler->getBlockMultiplier();
+            }
+        }
+
+        vertices->dirty();
+
+        drawable->drawImplementation(renderInfo);
+    }
+
+    coVRStatsDisplay *_statsHandler;
+    float _xPos;
+    osg::ref_ptr<osg::Stats> _viewerStats;
+    osg::ref_ptr<osg::Stats> _stats;
+    std::string _beginName;
+    std::string _endName;
     int _numFrames;
 };
 
@@ -567,33 +849,43 @@ osg::Geometry *coVRStatsDisplay::createBackgroundRectangle(const osg::Vec3 &pos,
 
 struct StatsGraph : public osg::MatrixTransform
 {
-    StatsGraph(osg::Vec3 pos, float width, float height)
+    StatsGraph(osg::Vec3 pos, float width, float height, int stackHeight=0)
         : _pos(pos)
         , _width(width)
         , _height(height)
+        , _stackHeight(stackHeight)
         , _statsGraphGeode(new osg::Geode)
     {
         _pos -= osg::Vec3(0, height, 0.1);
         setMatrix(osg::Matrix::translate(_pos));
         addChild(_statsGraphGeode.get());
+
+        _statsGraphGeode->addDrawable(new Ticker(this, _width, _height, osg::Vec4(1,1,1,1)));
     }
 
-    void addStatGraph(osg::Stats *viewerStats, osg::Stats *stats, const osg::Vec4 &color, float max, const std::string &nameBegin, const std::string &nameEnd = "")
+    void addStatGraph(osg::Stats *viewerStats, osg::Stats *stats, const osg::Vec4 &color, float base, float max, const std::string &nameBegin, Accum accum=AccumAverage, const std::string &nameEnd = "")
     {
-        _statsGraphGeode->addDrawable(new Graph(_width, _height, viewerStats, stats, color, max, nameBegin, nameEnd));
+        if (base > _stackHeight)
+            base = _stackHeight;
+        _statsGraphGeode->addDrawable(new Graph(this, base*0.05*_height, _width, _height*(1.-0.05*_stackHeight), viewerStats, stats, color, max, nameBegin, accum, nameEnd));
+        ++_numGraphs;
     }
 
+    int _frameNumber = 0;
     osg::Vec3 _pos;
     float _width;
     float _height;
+    int _numGraphs = 0;
+    int _stackHeight = 0;
+    static constexpr float increment = 1.9;
 
     osg::ref_ptr<osg::Geode> _statsGraphGeode;
 
 protected:
-    struct Graph : public osg::Geometry
+    struct Ticker : public osg::Geometry
     {
-        Graph(float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
-              const osg::Vec4 &color, float max, const std::string &nameBegin, const std::string &nameEnd = "")
+        Ticker(struct StatsGraph *graph, float width, float height,
+              const osg::Vec4 &color)
         {
             setUseDisplayList(false);
 
@@ -604,22 +896,118 @@ protected:
             setColorArray(colors);
             setColorBinding(osg::Geometry::BIND_OVERALL);
 
-            setDrawCallback(new GraphUpdateCallback(width, height, viewerStats, stats, max, nameBegin, nameEnd));
+            osg::StateSet *s = getOrCreateStateSet();
+            s->setAttribute(new osg::LineWidth(2.), osg::StateAttribute::ON);
+
+            setDrawCallback(new TickerUpdateCallback(graph, width, height));
+        }
+    };
+    struct TickerUpdateCallback : public osg::Drawable::DrawCallback
+    {
+        TickerUpdateCallback(StatsGraph *graph, float width, float height)
+            : _width((unsigned int)width)
+            , _height((unsigned int)height)
+            , _curX(0.f)
+            , _graph(graph)
+        {
+        }
+
+        virtual void drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const
+        {
+            osg::Geometry *geometry = const_cast<osg::Geometry *>(drawable->asGeometry());
+            if (!geometry)
+                return;
+            osg::Vec3Array *vertices = dynamic_cast<osg::Vec3Array *>(geometry->getVertexArray());
+            if (!vertices)
+                return;
+
+
+            double t = renderInfo.getState()->getFrameStamp()->getReferenceTime();
+            times.push_back(t);
+
+            // One vertex per pixel in X.
+            unsigned width = _width/increment;
+            if (times.size() > width)
+            {
+                unsigned int excedent = times.size() - width;
+                times.erase(times.begin(), times.begin() + excedent);
+            }
+
+            if (trunc(t) > _last)
+            {
+                _last = t;
+                vertices->push_back(osg::Vec3(_curX,  0.00f*float(_height), 0));
+                vertices->push_back(osg::Vec3(_curX, -0.03f*float(_height), 0));
+            }
+
+            if (vertices->size() > width)
+            {
+                unsigned int excedent = vertices->size() - width;
+                excedent &= ~1;
+                vertices->erase(vertices->begin(), vertices->begin() + excedent);
+            }
+
+            // Create primitive set if none exists.
+            if (geometry->getNumPrimitiveSets() == 0)
+                geometry->addPrimitiveSet(new osg::DrawArrays(GL_LINES, 0, 0));
+
+            // Update primitive set.
+            osg::DrawArrays *drawArrays = dynamic_cast<osg::DrawArrays *>(geometry->getPrimitiveSet(0));
+            if (!drawArrays)
+                return;
+            drawArrays->setFirst(0);
+            drawArrays->setCount(vertices->size());
+
+            _curX += increment;
+
+            geometry->dirtyBound();
+
+            vertices->dirty();
+
+            drawable->drawImplementation(renderInfo);
+        }
+
+        const unsigned int _width;
+        const unsigned int _height;
+        mutable float _curX;
+        mutable double _last = -1.;
+        mutable std::vector<double> times;
+        StatsGraph *_graph = nullptr;
+    };
+
+    struct Graph : public osg::Geometry
+    {
+        Graph(struct StatsGraph *graph, float base, float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
+              const osg::Vec4 &color, float max, const std::string &nameBegin, Accum accum=AccumAverage, const std::string &nameEnd = "")
+        {
+            setUseDisplayList(false);
+
+            setVertexArray(new osg::Vec3Array);
+
+            osg::Vec4Array *colors = new osg::Vec4Array;
+            colors->push_back(color);
+            setColorArray(colors);
+            setColorBinding(osg::Geometry::BIND_OVERALL);
+
+            setDrawCallback(new GraphUpdateCallback(graph, base, width, height, viewerStats, stats, max, nameBegin, accum, nameEnd));
         }
     };
 
     struct GraphUpdateCallback : public osg::Drawable::DrawCallback
     {
-        GraphUpdateCallback(float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
-                            float max, const std::string &nameBegin, const std::string &nameEnd = "")
-            : _width((unsigned int)width)
+        GraphUpdateCallback(StatsGraph *graph, float base, float width, float height, osg::Stats *viewerStats, osg::Stats *stats,
+                            float max, const std::string &nameBegin, Accum accum, const std::string &nameEnd = "")
+            : _base(base)
+            , _width((unsigned int)width)
             , _height((unsigned int)height)
-            , _curX(0)
+            , _curX(0.f)
             , _viewerStats(viewerStats)
             , _stats(stats)
             , _max(max)
+            , _accum(accum)
             , _nameBegin(nameBegin)
             , _nameEnd(nameEnd)
+            , _graph(graph)
         {
         }
 
@@ -638,7 +1026,7 @@ protected:
             double value;
             if (_nameEnd.empty())
             {
-                if (!_stats->getAveragedAttribute(_nameBegin, value, true))
+                if (!getAttribute(_stats, _nameBegin, _accum, value))
                 {
                     value = 0.0;
                 }
@@ -658,27 +1046,28 @@ protected:
 
             // Add new vertex for this frame.
             value = osg::clampTo(value, 0.0, double(_max));
-            vertices->push_back(osg::Vec3(float(_curX), float(_height) / _max * value, 0));
+            vertices->push_back(osg::Vec3(_curX, _base + float(_height) / _max * value, 0));
 
             // One vertex per pixel in X.
-            if (vertices->size() > _width)
+            unsigned width = _width/increment;
+            if (vertices->size() > width)
             {
-                unsigned int excedent = vertices->size() - _width;
+                unsigned int excedent = vertices->size() - width;
                 vertices->erase(vertices->begin(), vertices->begin() + excedent);
 
                 // Make the graph scroll when there is enough data.
                 // Note: We check the frame number so that even if we have
                 // many graphs, the transform is translated only once per
                 // frame.
-                static const float increment = -1.0;
-                if (GraphUpdateCallback::_frameNumber != frameNumber)
+                if (_graph->_frameNumber != frameNumber)
                 {
                     // We know the exact layout of this part of the scene
                     // graph, so this is OK...
                     osg::MatrixTransform *transform = geometry->getParent(0)->getParent(0)->asTransform()->asMatrixTransform();
                     if (transform)
                     {
-                        transform->setMatrix(transform->getMatrix() * osg::Matrix::translate(osg::Vec3(increment, 0, 0)));
+                        transform->setMatrix(osg::Matrix::translate(_graph->_pos)*osg::Matrix::translate(osg::Vec3(-vertices->at(0)[0], 0, 0)));
+
                     }
                 }
             }
@@ -696,8 +1085,8 @@ protected:
                 drawArrays->setCount(vertices->size());
             }
 
-            _curX++;
-            GraphUpdateCallback::_frameNumber = frameNumber;
+            _curX += increment;
+            _graph->_frameNumber = frameNumber;
 
             geometry->dirtyBound();
 
@@ -706,19 +1095,21 @@ protected:
             drawable->drawImplementation(renderInfo);
         }
 
+        float _base = 0.f;
         const unsigned int _width;
         const unsigned int _height;
-        mutable unsigned int _curX;
+        mutable float _curX;
         osg::Stats *_viewerStats;
         osg::Stats *_stats;
         const float _max;
+        Accum _accum;
+        bool _average;
+        bool _averageInInverseSpace;
         const std::string _nameBegin;
         const std::string _nameEnd;
-        static int _frameNumber;
+        StatsGraph *_graph = nullptr;
     };
 };
-
-int StatsGraph::GraphUpdateCallback::_frameNumber = 0;
 
 osg::Geometry *coVRStatsDisplay::createGeometry(const osg::Vec3 &pos, float height, const osg::Vec4 &colour, unsigned int numBlocks)
 {
@@ -797,6 +1188,49 @@ struct FrameMarkerDrawCallback : public virtual osg::Drawable::DrawCallback
     std::string _endName;
     int _frameDelta;
     int _numFrames;
+};
+
+struct SlowFrameMarkerDrawCallback : public virtual osg::Drawable::DrawCallback
+{
+    SlowFrameMarkerDrawCallback(coVRStatsDisplay *statsHandler, float xPos, osg::Stats *viewerStats)
+        : _statsHandler(statsHandler)
+        , _xPos(xPos)
+        , _viewerStats(viewerStats)
+    {
+    }
+
+    /** do customized draw code.*/
+    virtual void drawImplementation(osg::RenderInfo &renderInfo, const osg::Drawable *drawable) const
+    {
+        osg::Geometry *geom = (osg::Geometry *)drawable;
+        osg::Vec3Array *vertices = (osg::Vec3Array *)geom->getVertexArray();
+
+        int frameNumber = renderInfo.getState()->getFrameStamp()->getFrameNumber();
+
+        int slowest = getSlowestFrame(_viewerStats, frameNumber);
+        double referenceTime;
+        if (!_viewerStats->getAttribute(slowest, "Reference time", referenceTime))
+        {
+            return;
+        }
+
+        unsigned int vi = 0;
+        double currentReferenceTime;
+        if (_viewerStats->getAttribute(slowest+1, "Reference time", currentReferenceTime))
+        {
+            (*vertices)[vi++].x() = _xPos + (currentReferenceTime - referenceTime) * _statsHandler->getBlockMultiplier();
+            (*vertices)[vi++].x() = _xPos + (currentReferenceTime - referenceTime) * _statsHandler->getBlockMultiplier();
+        }
+
+        vertices->dirty();
+
+        drawable->drawImplementation(renderInfo);
+    }
+
+    coVRStatsDisplay *_statsHandler;
+    float _xPos;
+    osg::ref_ptr<osg::Stats> _viewerStats;
+    std::string _endName;
 };
 
 struct PagerCallback : public virtual osg::NodeCallback
@@ -985,32 +1419,45 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
     bool acquireGPUStats = numCamerasWithTimerQuerySupport == cameras.size();
     acquireGPUStats = true;
 
-    float leftPos = 10.0f;
+    float leftPos = covise::coCoviseConfig::getFloat("leftPos", "COVER.Stats", 10.0f);
     float startBlocks = 150.0f;
     float characterSize = 20.0f;
+    float space = covise::coCoviseConfig::getFloat("space", "COVER.Stats", characterSize*0.3f);
 
     osg::Vec3 pos(leftPos, _statsHeight - 24.0f, 0.0f);
 
     osg::Vec4 colorFR(1.0f, 1.0f, 1.0f, 1.0f);
     osg::Vec4 colorFRAlpha(1.0f, 1.0f, 1.0f, 0.5f);
+    osg::Vec4 colorMaxFR(1.0f, 0.0f, 1.0f, 1.0f);
+    osg::Vec4 colorMaxFRAlpha(1.0f, 0.0f, 1.0f, 0.5f);
     osg::Vec4 colorUpdate(0.0f, 1.0f, 0.0f, 1.0f);
     osg::Vec4 colorUpdateAlpha(0.0f, 1.0f, 0.0f, 0.5f);
     osg::Vec4 colorSync(1.0f, 0.0f, 0.0f, 1.0f);
     osg::Vec4 colorSyncAlpha(1.0f, 0.0f, 0.0f, 0.5f);
-    osg::Vec4 colorSwap(1.0f, 1.0f, 0.0f, 1.0f);
-    osg::Vec4 colorSwapAlpha(1.0f, 1.0f, 0.0f, 0.5f);
+    osg::Vec4 colorSwap(0.5f, 1.0f, 0.5f, 1.0f);
+    osg::Vec4 colorSwapAlpha(0.5f, 1.0f, 0.5f, 0.5f);
     osg::Vec4 colorFinish(0.5f, 1.0f, 0.0f, 1.0f);
     osg::Vec4 colorFinishAlpha(0.5f, 1.0f, 0.0f, 0.5f);
     osg::Vec4 colorEvent(0.0f, 1.0f, 0.5f, 1.0f);
     osg::Vec4 colorEventAlpha(0.0f, 1.0f, 0.5f, 0.5f);
-    osg::Vec4 colorIsect(0.0f, 0.0f, 1.0f, 1.0f);
-    osg::Vec4 colorIsectAlpha(0.0f, 0.0f, 1.0f, 0.5f);
+    osg::Vec4 colorIsect(0.0f, 0.5f, 0.8f, 1.0f);
+    osg::Vec4 colorIsectAlpha(0.0f, 0.5f, 0.8f, 0.5f);
+    osg::Vec4 colorPlugin(0.0f, 0.2f, 1.0f, 1.0f);
+    osg::Vec4 colorPluginAlpha(0.0f, 0.2f, 1.0f, 0.5f);
+    osg::Vec4 colorCover(0.0f, 0.5f, 1.0f, 1.0f);
+    osg::Vec4 colorCoverAlpha(0.0f, 0.5f, 1.0f, 0.5f);
     osg::Vec4 colorCull(0.0f, 1.0f, 1.0f, 1.0f);
     osg::Vec4 colorCullAlpha(0.0f, 1.0f, 1.0f, 0.5f);
     osg::Vec4 colorDraw(1.0f, 1.0f, 0.0f, 1.0f);
     osg::Vec4 colorDrawAlpha(1.0f, 1.0f, 0.0f, 0.5f);
     osg::Vec4 colorGPU(1.0f, 0.5f, 0.0f, 1.0f);
     osg::Vec4 colorGPUAlpha(1.0f, 0.5f, 0.0f, 0.5f);
+
+    osg::Vec4 colorGpuUtil(1.f, 1.f, 1.f, 1.f);
+    osg::Vec4 colorGpuMemClock(1.f, 1.f, 0.f, 1.f);
+    osg::Vec4 colorGpuClock(1.f, 0.5f, 0.f, 1.f);
+    osg::Vec4 colorGpuPCIe(0.f, 1.f, 1.f, 1.f);
+    osg::Vec4 colorGpuMem(1.f, 1.f, 1.f, 1.f);
 
     osg::Vec4 colorDP(1.0f, 1.0f, 0.5f, 1.0f);
 
@@ -1022,65 +1469,439 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
 
         osg::ref_ptr<osgText::Text> frameRateLabel = new osgText::Text;
         geode->addDrawable(frameRateLabel.get());
-
         frameRateLabel->setColor(colorFR);
         frameRateLabel->setFont(font);
         frameRateLabel->setCharacterSize(characterSize);
         frameRateLabel->setPosition(pos);
-        frameRateLabel->setText("Frame Rate:X", osgText::String::ENCODING_UTF8);
+        frameRateLabel->setText("Frames/s:X", osgText::String::ENCODING_UTF8);
         pos.x() = frameRateLabel->getBound().xMax();
-        frameRateLabel->setText("Frame Rate: ", osgText::String::ENCODING_UTF8);
+        frameRateLabel->setText("Frames/s: ", osgText::String::ENCODING_UTF8);
 
         osg::ref_ptr<osgText::Text> frameRateValue = new osgText::Text;
         geode->addDrawable(frameRateValue.get());
-
         frameRateValue->setColor(colorFR);
         frameRateValue->setFont(font);
         frameRateValue->setCharacterSize(characterSize);
         frameRateValue->setPosition(pos);
         frameRateValue->setText("7777.77", osgText::String::ENCODING_UTF8);
-
-        frameRateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Frame rate", -1, true, 1.0));
-
+        frameRateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Frame rate", AccumAverageInverse, 1.0));
         pos.x() = frameRateValue->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+        label->setColor(colorFR);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("ms/F:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("ms/F: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+        value->setColor(colorFR);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("777.7/777.7", osgText::String::ENCODING_UTF8);
+        value->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Frame duration", AccumMeanJitter, 1000.0));
+        pos.x() = value->getBound().xMax();
+
+        pos.x() += space;
     }
 
-    // available GPU memory
+    // GPU utilization
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuUtilChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorGpuUtil);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Util:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Util: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorGpuUtil);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Utilization");
+        value->setDrawCallback(cb);
+
+        pos.x() = value->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // PCIe rx rate
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuPCIeChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorGpuPCIe);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("PCIe:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("PCIe: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorGpuPCIe);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7.77", osgText::String::ENCODING_UTF8);
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU PCIe rx KB/s", AccumAverageInverse, 1./1024/1024);
+        value->setDrawCallback(cb);
+        pos.x() = value->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> sep = new osgText::Text;
+        geode->addDrawable(sep.get());
+        sep->setColor(colorGpuPCIe);
+        sep->setFont(font);
+        sep->setCharacterSize(characterSize);
+        sep->setPosition(pos);
+        sep->setText("/", osgText::String::ENCODING_UTF8);
+        pos.x() = sep->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> value2 = new osgText::Text;
+        geode->addDrawable(value2.get());
+        value2->setColor(colorGpuPCIe);
+        value2->setFont(font);
+        value2->setCharacterSize(characterSize);
+        value2->setPosition(pos);
+        value2->setText("7.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value2->getBound().xMax();
+
+        auto cb2 = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU PCIe tx KB/s", AccumAverageInverse, 1./1024/1024);
+        value2->setDrawCallback(cb2);
+
+        pos.x() += space;
+    }
+
+    // GPU clock
+    {
+        osg::Geode *geode = new osg::Geode();
+        _gpuClockChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+        label->setColor(colorGpuClock);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("GPU/Mem:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("GPU/Mem: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+        value->setColor(colorGpuClock);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("7777.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value->getBound().xMax();
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Clock MHz");
+        value->setDrawCallback(cb);
+
+        osg::ref_ptr<osgText::Text> sep = new osgText::Text;
+        geode->addDrawable(sep.get());
+        sep->setColor(colorGpuClock);
+        sep->setFont(font);
+        sep->setCharacterSize(characterSize);
+        sep->setPosition(pos);
+        sep->setText("/", osgText::String::ENCODING_UTF8);
+        pos.x() = sep->getBound().xMax();
+
+        osg::ref_ptr<osgText::Text> value2 = new osgText::Text;
+        geode->addDrawable(value2.get());
+        value2->setColor(colorGpuMemClock);
+        value2->setFont(font);
+        value2->setCharacterSize(characterSize);
+        value2->setPosition(pos);
+        value2->setText("7777.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value2->getBound().xMax();
+        auto cb2 = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Mem Clock MHz");
+        value2->setDrawCallback(cb2);
+
+        osg::ref_ptr<osgText::Text> label2 = new osgText::Text;
+        geode->addDrawable(label2.get());
+        label2->setColor(colorGpuMemClock);
+        label2->setFont(font);
+        label2->setCharacterSize(characterSize);
+        label2->setPosition(pos);
+        label2->setText(" MHz", osgText::String::ENCODING_UTF8);
+        pos.x() = label2->getBound().xMax();
+
+        pos.x() += space;
+    }
+
+    // used GPU memory
     {
         osg::Geode *geode = new osg::Geode();
         _gpuMemChildNum = _switch->getNumChildren();
         _switch->addChild(geode, false);
 
-        osg::ref_ptr<osgText::Text> gpuMemLabel = new osgText::Text;
-        geode->addDrawable(gpuMemLabel.get());
+#if 0
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+        label->setColor(colorGpuMem);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Used:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Used: ", osgText::String::ENCODING_UTF8);
+#endif
 
-        gpuMemLabel->setColor(colorFR);
-        gpuMemLabel->setFont(font);
-        gpuMemLabel->setCharacterSize(characterSize);
-        gpuMemLabel->setPosition(pos);
-        gpuMemLabel->setText("GPU free GB:X", osgText::String::ENCODING_UTF8);
-        pos.x() = gpuMemLabel->getBound().xMax();
-        gpuMemLabel->setText("GPU free GB: ", osgText::String::ENCODING_UTF8);
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+        value->setColor(colorGpuMem);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("77.77", osgText::String::ENCODING_UTF8);
+        pos.x() = value->getBound().xMax();
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU Mem Used", AccumMax, 1./1024/1024/1024);
+        value->setDrawCallback(cb);
 
-        osg::ref_ptr<osgText::Text> gpuMemValue = new osgText::Text;
-        geode->addDrawable(gpuMemValue.get());
+        osg::ref_ptr<osgText::Text> label2 = new osgText::Text;
+        geode->addDrawable(label2.get());
+        label2->setColor(colorGpuMem);
+        label2->setFont(font);
+        label2->setCharacterSize(characterSize);
+        label2->setPosition(pos);
+        label2->setText(" GB", osgText::String::ENCODING_UTF8);
+        pos.x() = label2->getBound().xMax();
 
-        gpuMemValue->setColor(colorFR);
-        gpuMemValue->setFont(font);
-        gpuMemValue->setCharacterSize(characterSize);
-        gpuMemValue->setPosition(pos);
-        gpuMemValue->setText("7777.77", osgText::String::ENCODING_UTF8);
-
-        gpuMemValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "GPU mem free", -1, false, 1./1024/1024));
-
-        pos.y() -= characterSize * 1.5f;
+        pos.x() += space;
     }
+
+    // next line
+    pos.y() -= characterSize * 1.5f;
+    pos.x() = leftPos;
+
+    // threading model
+    {
+        osg::Geode *geode = new osg::Geode();
+
+        _threadingModelText = new osgText::Text;
+        _threadingModelChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        geode->addDrawable(_threadingModelText.get());
+
+        _threadingModelText->setColor(colorFR);
+        _threadingModelText->setFont(font);
+        _threadingModelText->setCharacterSize(characterSize);
+        _threadingModelText->setPosition(pos);
+
+        //updateThreadingModelText(osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext);
+        updateThreadingModelText(viewer->getThreadingModel());
+        pos.x() = _threadingModelText->getBound().xMax();
+        pos.x() += 3.*space;
+
+        updateThreadingModelText(viewer->getThreadingModel());
+    }
+
+    // remote FPS
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrFpsChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrFpsLabel = new osgText::Text;
+        geode->addDrawable(rhrFpsLabel.get());
+
+        rhrFpsLabel->setColor(colorFR);
+        rhrFpsLabel->setFont(font);
+        rhrFpsLabel->setCharacterSize(characterSize);
+        rhrFpsLabel->setPosition(pos);
+        rhrFpsLabel->setText("RHR FPS:X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrFpsLabel->getBound().xMax();
+        rhrFpsLabel->setText("RHR FPS: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrFpsValue = new osgText::Text;
+        geode->addDrawable(rhrFpsValue.get());
+
+        rhrFpsValue->setColor(colorFR);
+        rhrFpsValue->setFont(font);
+        rhrFpsValue->setCharacterSize(characterSize);
+        rhrFpsValue->setPosition(pos);
+        rhrFpsValue->setText("777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR FPS", AccumAverageInverse, 1.);
+        rhrFpsValue->setDrawCallback(cb);
+
+        pos.x() = rhrFpsValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // remote render latency
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrDelayChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrDelayLabel = new osgText::Text;
+        geode->addDrawable(rhrDelayLabel.get());
+
+        rhrDelayLabel->setColor(colorFR);
+        rhrDelayLabel->setFont(font);
+        rhrDelayLabel->setCharacterSize(characterSize);
+        rhrDelayLabel->setPosition(pos);
+        rhrDelayLabel->setText("Delay (s):X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrDelayLabel->getBound().xMax();
+        rhrDelayLabel->setText("Delay (s): ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrDelayValue = new osgText::Text;
+        geode->addDrawable(rhrDelayValue.get());
+
+        rhrDelayValue->setColor(colorFR);
+        rhrDelayValue->setFont(font);
+        rhrDelayValue->setCharacterSize(characterSize);
+        rhrDelayValue->setPosition(pos);
+        rhrDelayValue->setText("7.777", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Delay", AccumMax, 1.);
+        rhrDelayValue->setDrawCallback(cb);
+
+        pos.x() = rhrDelayValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // remote render bandwidth
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrBandwidthChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> rhrBandwidthLabel = new osgText::Text;
+        geode->addDrawable(rhrBandwidthLabel.get());
+
+        rhrBandwidthLabel->setColor(colorFR);
+        rhrBandwidthLabel->setFont(font);
+        rhrBandwidthLabel->setCharacterSize(characterSize);
+        rhrBandwidthLabel->setPosition(pos);
+        rhrBandwidthLabel->setText("MB/s:X", osgText::String::ENCODING_UTF8);
+        pos.x() = rhrBandwidthLabel->getBound().xMax();
+        rhrBandwidthLabel->setText("MB/s: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> rhrBandwidthValue = new osgText::Text;
+        geode->addDrawable(rhrBandwidthValue.get());
+
+        rhrBandwidthValue->setColor(colorFR);
+        rhrBandwidthValue->setFont(font);
+        rhrBandwidthValue->setCharacterSize(characterSize);
+        rhrBandwidthValue->setPosition(pos);
+        rhrBandwidthValue->setText("777.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Bps", AccumAverageInverse, 1./1024/1024);
+        rhrBandwidthValue->setDrawCallback(cb);
+
+        pos.x() = rhrBandwidthValue->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // skipped remote frames
+    {
+        osg::Geode *geode = new osg::Geode();
+        _rhrSkippedChildNum = _switch->getNumChildren();
+        _switch->addChild(geode, false);
+
+        osg::ref_ptr<osgText::Text> label = new osgText::Text;
+        geode->addDrawable(label.get());
+
+        label->setColor(colorFR);
+        label->setFont(font);
+        label->setCharacterSize(characterSize);
+        label->setPosition(pos);
+        label->setText("Skipped/s:X", osgText::String::ENCODING_UTF8);
+        pos.x() = label->getBound().xMax();
+        label->setText("Skipped/s: ", osgText::String::ENCODING_UTF8);
+
+        osg::ref_ptr<osgText::Text> value = new osgText::Text;
+        geode->addDrawable(value.get());
+
+        value->setColor(colorFR);
+        value->setFont(font);
+        value->setCharacterSize(characterSize);
+        value->setPosition(pos);
+        value->setText("77.77", osgText::String::ENCODING_UTF8);
+
+        auto cb = new AveragedValueTextDrawCallback(viewer->getViewerStats(), "RHR Skipped Frames", AccumMax, 1./1024/1024);
+        value->setDrawCallback(cb);
+
+        pos.x() = value->getBound().xMax();
+        pos.x() += space;
+    }
+
+    // next line
+    pos.y() -= characterSize * 1.5f;
 
     osg::Vec4 backgroundColor(0.0, 0.0, 0.0f, 0.3);
     osg::Vec4 staticTextColor(1.0, 1.0, 0.0f, 1.0);
     osg::Vec4 dynamicTextColor(1.0, 1.0, 1.0f, 1.0);
     float backgroundMargin = 5;
     float backgroundSpacing = 3;
+
+#define ADDBLOCK(viewerStats, stats, text, prefix, color) \
+    { \
+            pos.x() = leftPos; \
+\
+            osg::ref_ptr<osgText::Text> label = new osgText::Text; \
+            geode->addDrawable(label.get()); \
+\
+            label->setColor(color); \
+            label->setFont(font); \
+            label->setCharacterSize(characterSize); \
+            label->setPosition(pos); \
+            label->setText(text, osgText::String::ENCODING_UTF8); \
+\
+            pos.x() = label->getBound().xMax(); \
+\
+            osg::ref_ptr<osgText::Text> value = new osgText::Text; \
+            geode->addDrawable(value.get()); \
+\
+            value->setColor(color); \
+            value->setFont(font); \
+            value->setCharacterSize(characterSize); \
+            value->setPosition(pos); \
+            value->setText("0.0", osgText::String::ENCODING_UTF8); \
+\
+            value->setDrawCallback(new AveragedValueTextDrawCallback(stats, prefix " time taken", AccumAverage, 1000.0)); \
+\
+            pos.x() = startBlocks; \
+            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, color##Alpha, _numBlocks); \
+            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewerStats, stats, prefix " begin time", prefix " end time", -1, _numBlocks)); \
+            geode->addDrawable(geometry); \
+\
+            pos.x() = startBlocks; \
+            osg::Geometry *geo = createGeometry(pos, characterSize*0.2, color, 1); \
+            geo->setDrawCallback(new SlowestBlockDrawCallback(this, startBlocks, viewerStats, stats, prefix " begin time", prefix " end time")); \
+            geode->addDrawable(geo); \
+\
+            pos.y() -= characterSize * 1.5f; \
+}
 
     // viewer stats
     {
@@ -1091,22 +1912,6 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
         osg::Geode *geode = new osg::Geode();
         group->addChild(geode);
 
-        {
-            pos.x() = leftPos;
-
-            _threadingModelText = new osgText::Text;
-            geode->addDrawable(_threadingModelText.get());
-
-            _threadingModelText->setColor(colorFR);
-            _threadingModelText->setFont(font);
-            _threadingModelText->setCharacterSize(characterSize);
-            _threadingModelText->setPosition(pos);
-
-            updateThreadingModelText();
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
         float topOfViewerStats = pos.y() + characterSize;
 
         geode->addDrawable(createBackgroundRectangle(
@@ -1115,203 +1920,22 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             (3 + 4.5 * cameras.size()) * characterSize + 2 * backgroundMargin,
             backgroundColor));
 
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "COVER: ", "opencover", colorCover)
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "  Isect: ", "Isect", colorIsect)
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "  Plugins: ", "Plugin", colorPlugin)
+#if 0
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "    Preframe: ", "preframe", colorUpdate)
+#endif
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Update: ", "Update traversal", colorUpdate)
+        if (_finishStats)
         {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> eventLabel = new osgText::Text;
-            geode->addDrawable(eventLabel.get());
-
-            eventLabel->setColor(colorUpdate);
-            eventLabel->setFont(font);
-            eventLabel->setCharacterSize(characterSize);
-            eventLabel->setPosition(pos);
-            eventLabel->setText("Isect: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = eventLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> eventValue = new osgText::Text;
-            geode->addDrawable(eventValue.get());
-
-            eventValue->setColor(colorUpdate);
-            eventValue->setFont(font);
-            eventValue->setCharacterSize(characterSize);
-            eventValue->setPosition(pos);
-            eventValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            eventValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Isect time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorIsectAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "Isect begin time", "Isect end time", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
+            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Finish: ", "finish", colorFinish)
         }
-
+        ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Swap: ", "swap", colorSwap)
+        if (_syncStats)
         {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> pluginLabel = new osgText::Text;
-            geode->addDrawable(pluginLabel.get());
-
-            pluginLabel->setColor(colorUpdate);
-            pluginLabel->setFont(font);
-            pluginLabel->setCharacterSize(characterSize);
-            pluginLabel->setPosition(pos);
-            pluginLabel->setText("Plugins: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = pluginLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> pluginValue = new osgText::Text;
-            geode->addDrawable(pluginValue.get());
-
-            pluginValue->setColor(colorUpdate);
-            pluginValue->setFont(font);
-            pluginValue->setCharacterSize(characterSize);
-            pluginValue->setPosition(pos);
-            pluginValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            pluginValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "Plugin time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "Plugin begin time", "Plugin end time", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
+            ADDBLOCK(viewer->getViewerStats(), viewer->getViewerStats(), "Sync: ", "sync", colorSync)
         }
-        {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> updateLabel = new osgText::Text;
-            geode->addDrawable(updateLabel.get());
-
-            updateLabel->setColor(colorUpdate);
-            updateLabel->setFont(font);
-            updateLabel->setCharacterSize(characterSize);
-            updateLabel->setPosition(pos);
-            updateLabel->setText("COVER: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = updateLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> updateValue = new osgText::Text;
-            geode->addDrawable(updateValue.get());
-
-            updateValue->setColor(colorUpdate);
-            updateValue->setFont(font);
-            updateValue->setCharacterSize(characterSize);
-            updateValue->setPosition(pos);
-            updateValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            updateValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "opencover time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorUpdateAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "opencover begin time", "opencover end time", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
-        {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> syncLabel = new osgText::Text;
-            geode->addDrawable(syncLabel.get());
-
-            syncLabel->setColor(colorSync);
-            syncLabel->setFont(font);
-            syncLabel->setCharacterSize(characterSize);
-            syncLabel->setPosition(pos);
-            syncLabel->setText("Sync: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = syncLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> syncValue = new osgText::Text;
-            geode->addDrawable(syncValue.get());
-
-            syncValue->setColor(colorSync);
-            syncValue->setFont(font);
-            syncValue->setCharacterSize(characterSize);
-            syncValue->setPosition(pos);
-            syncValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            syncValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "sync time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorSyncAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "sync begin time ", "sync end time ", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
-        {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> swapLabel = new osgText::Text;
-            geode->addDrawable(swapLabel.get());
-
-            swapLabel->setColor(colorSwap);
-            swapLabel->setFont(font);
-            swapLabel->setCharacterSize(characterSize);
-            swapLabel->setPosition(pos);
-            swapLabel->setText("Swap: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = swapLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> swapValue = new osgText::Text;
-            geode->addDrawable(swapValue.get());
-
-            swapValue->setColor(colorSwap);
-            swapValue->setFont(font);
-            swapValue->setCharacterSize(characterSize);
-            swapValue->setPosition(pos);
-            swapValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            swapValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "swap time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorSwapAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "swap begin time ", "swap end time ", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
-        {
-            pos.x() = leftPos;
-
-            osg::ref_ptr<osgText::Text> swapLabel = new osgText::Text;
-            geode->addDrawable(swapLabel.get());
-
-            swapLabel->setColor(colorFinish);
-            swapLabel->setFont(font);
-            swapLabel->setCharacterSize(characterSize);
-            swapLabel->setPosition(pos);
-            swapLabel->setText("Finish: ", osgText::String::ENCODING_UTF8);
-
-            pos.x() = swapLabel->getBound().xMax();
-
-            osg::ref_ptr<osgText::Text> swapValue = new osgText::Text;
-            geode->addDrawable(swapValue.get());
-
-            swapValue->setColor(colorFinish);
-            swapValue->setFont(font);
-            swapValue->setCharacterSize(characterSize);
-            swapValue->setPosition(pos);
-            swapValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-            swapValue->setDrawCallback(new AveragedValueTextDrawCallback(viewer->getViewerStats(), "finish time taken", -1, false, 1000.0));
-
-            pos.x() = startBlocks;
-            osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorFinishAlpha, _numBlocks);
-            geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewer->getViewerStats(), viewer->getViewerStats(), "finish begin time ", "finish end time ", -1, _numBlocks));
-            geode->addDrawable(geometry);
-
-            pos.y() -= characterSize * 1.5f;
-        }
-
         pos.x() = leftPos;
 
         // add camera stats
@@ -1327,21 +1951,33 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             osg::Geode *geode = new osg::Geode;
             group->addChild(geode);
 
-            osg::Vec4 colourTicks(1.0f, 1.0f, 1.0f, 0.5f);
+            osg::Vec4 colourTicksAlpha(1.0f, 1.0f, 1.0f, 0.5f);
+            osg::Vec4 colourTicks(1.0f, 1.0f, 1.0f, 1.0f);
 
             pos.x() = startBlocks;
             pos.y() += characterSize;
             float height = topOfViewerStats - pos.y();
 
-            osg::Geometry *ticks = createTick(pos, 5.0f, colourTicks, 100);
+            osg::Geometry *ticks = createTick(pos, 5.0f, colourTicksAlpha, 100);
             geode->addDrawable(ticks);
 
-            osg::Geometry *frameMarkers = createFrameMarkers(pos, height, colourTicks, _numBlocks + 1);
+            osg::Geometry *frameMarkers = createFrameMarkers(pos, height, colourTicksAlpha, _numBlocks + 1);
             frameMarkers->setDrawCallback(new FrameMarkerDrawCallback(this, startBlocks, viewer->getViewerStats(), 0, _numBlocks + 1));
             geode->addDrawable(frameMarkers);
 
             pos.x() = leftPos;
+
+            osg::Geometry *slowTick = createTick(pos, 5.0f, colourTicks, 100);
+            geode->addDrawable(slowTick);
+
+            osg::Geometry *slowFrameMarkers = createFrameMarkers(pos, height, colourTicks, 1);
+            slowFrameMarkers->setDrawCallback(new SlowFrameMarkerDrawCallback(this, startBlocks, viewer->getViewerStats()));
+            geode->addDrawable(slowFrameMarkers);
+
+            pos.x() = leftPos;
         }
+
+        const float MaxTime = 0.100;
 
         // Stats line graph
         {
@@ -1350,24 +1986,27 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             float height = 10 * characterSize;
 
             // Create a stats graph and add any stats we want to track with it.
-            StatsGraph *statsGraph = new StatsGraph(pos, width, height);
+            StatsGraph *statsGraph = new StatsGraph(pos, width, height, 0);
             group->addChild(statsGraph);
 
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFR, 100, "Frame rate");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorIsect, 0.008, "Isect time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorEvent, 0.008, "Plugin time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorUpdate, 0.008, "opencover time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSync, 0.002, "sync time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSwap, 0.002, "swap time taken");
-            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFinish, 0.004, "finish time taken");
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFR, 5, MaxTime, "Frame duration", AccumNewest);
+            //statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorMaxFR, 5, MaxTime*5.f, "Frame duration", AccumMax);
+            //statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorIsect, 0, MaxTime, "Isect time taken", AccumNewest);
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorPlugin, 1, MaxTime, "Plugin time taken", AccumNewest);
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorCover, 1, MaxTime, "opencover time taken", AccumNewest);
+            if (_syncStats)
+                statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSync, 2, MaxTime, "sync time taken", AccumNewest);
+            statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorSwap, 3, MaxTime, "swap time taken", AccumNewest);
+            if (_finishStats)
+                statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorFinish, 4, MaxTime, "finish time taken", AccumNewest);
 
             for (osgViewer::ViewerBase::Cameras::iterator citr = cameras.begin();
                  citr != cameras.end();
                  ++citr)
             {
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorCull, 0.016, "Cull traversal time taken");
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorDraw, 0.016, "Draw traversal time taken");
-                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorGPU, 0.016, "GPU draw time taken");
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorCull, 0, MaxTime, "Cull traversal time taken", AccumNewest);
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorDraw, 0, MaxTime, "Draw traversal time taken", AccumNewest);
+                statsGraph->addStatGraph(viewer->getViewerStats(), (*citr)->getStats(), colorGPU, 0, MaxTime, "GPU draw time taken", AccumNewest);
             }
 
             geode->addDrawable(createBackgroundRectangle(pos + osg::Vec3(-backgroundMargin, backgroundMargin, 0),
@@ -1514,6 +2153,40 @@ void coVRStatsDisplay::setUpScene(osgViewer::ViewerBase *viewer)
             pos.x() = leftPos;
         }
     }
+
+    auto opos = pos;
+    // another stats line for gpu stats
+    {
+        osg::Group *group = new osg::Group;
+        _gpuChildNum = _switch->getNumChildren();
+        _switch->addChild(group, false);
+
+        osg::Geode *geode = new osg::Geode();
+        group->addChild(geode);
+
+        // Another stats line graph for GPU stats
+        pos.y() -= (backgroundSpacing + 2 * backgroundMargin);
+        float width = _statsWidth - 4 * backgroundMargin;
+        float height = 10 * characterSize;
+
+        // Create a stats graph and add any stats we want to track with it.
+        StatsGraph *statsGraph = new StatsGraph(pos, width, height, 0);
+        group->addChild(statsGraph);
+
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuClock, 0., 1., "GPU Clock Rate", AccumNewest);
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuMemClock, 0., 1., "GPU Mem Clock Rate", AccumNewest);
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuUtil, 0., 1., "GPU Utilization", AccumNewest);
+        statsGraph->addStatGraph(viewer->getViewerStats(), viewer->getViewerStats(), colorGpuPCIe, 0., 4*1024*1024, "GPU PCIe rx KB/s", AccumNewest);
+
+        geode->addDrawable(createBackgroundRectangle(pos + osg::Vec3(-backgroundMargin, backgroundMargin, 0),
+                                                     width + 2 * backgroundMargin,
+                                                     height + 2 * backgroundMargin,
+                                                     backgroundColor));
+
+            pos.x() = leftPos;
+            pos.y() -= height + 2 * backgroundMargin;
+    }
+    pos = opos;
 
     // Camera scene stats
     {
@@ -1687,104 +2360,12 @@ osg::Node *coVRStatsDisplay::createCameraTimeStats(const std::string &font, osg:
     osg::Vec4 colorGPU(1.0f, 0.5f, 0.0f, 1.0f);
     osg::Vec4 colorGPUAlpha(1.0f, 0.5f, 0.0f, 0.5f);
 
-    {
-        pos.x() = leftPos;
-
-        osg::ref_ptr<osgText::Text> cullLabel = new osgText::Text;
-        geode->addDrawable(cullLabel.get());
-
-        cullLabel->setColor(colorCull);
-        cullLabel->setFont(font);
-        cullLabel->setCharacterSize(characterSize);
-        cullLabel->setPosition(pos);
-        cullLabel->setText("Cull: ", osgText::String::ENCODING_UTF8);
-
-        pos.x() = cullLabel->getBound().xMax();
-
-        osg::ref_ptr<osgText::Text> cullValue = new osgText::Text;
-        geode->addDrawable(cullValue.get());
-
-        cullValue->setColor(colorCull);
-        cullValue->setFont(font);
-        cullValue->setCharacterSize(characterSize);
-        cullValue->setPosition(pos);
-        cullValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-        cullValue->setDrawCallback(new AveragedValueTextDrawCallback(stats, "Cull traversal time taken", -1, false, 1000.0));
-
-        pos.x() = startBlocks;
-        osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorCullAlpha, _numBlocks);
-        geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewerStats, stats, "Cull traversal begin time", "Cull traversal end time", -1, _numBlocks));
-        geode->addDrawable(geometry);
-
-        pos.y() -= characterSize * 1.5f;
-    }
-
-    {
-        pos.x() = leftPos;
-
-        osg::ref_ptr<osgText::Text> drawLabel = new osgText::Text;
-        geode->addDrawable(drawLabel.get());
-
-        drawLabel->setColor(colorDraw);
-        drawLabel->setFont(font);
-        drawLabel->setCharacterSize(characterSize);
-        drawLabel->setPosition(pos);
-        drawLabel->setText("Draw: ", osgText::String::ENCODING_UTF8);
-
-        pos.x() = drawLabel->getBound().xMax();
-
-        osg::ref_ptr<osgText::Text> drawValue = new osgText::Text;
-        geode->addDrawable(drawValue.get());
-
-        drawValue->setColor(colorDraw);
-        drawValue->setFont(font);
-        drawValue->setCharacterSize(characterSize);
-        drawValue->setPosition(pos);
-        drawValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-        drawValue->setDrawCallback(new AveragedValueTextDrawCallback(stats, "Draw traversal time taken", -1, false, 1000.0));
-
-        pos.x() = startBlocks;
-        osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorDrawAlpha, _numBlocks);
-        geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewerStats, stats, "Draw traversal begin time", "Draw traversal end time", -1, _numBlocks));
-        geode->addDrawable(geometry);
-
-        pos.y() -= characterSize * 1.5f;
-    }
+    ADDBLOCK(viewerStats, stats, "Cull: ", "Cull traversal", colorCull)
+    ADDBLOCK(viewerStats, stats, "Draw: ", "Draw traversal", colorDraw)
 
     if (acquireGPUStats)
     {
-        pos.x() = leftPos;
-
-        osg::ref_ptr<osgText::Text> gpuLabel = new osgText::Text;
-        geode->addDrawable(gpuLabel.get());
-
-        gpuLabel->setColor(colorGPU);
-        gpuLabel->setFont(font);
-        gpuLabel->setCharacterSize(characterSize);
-        gpuLabel->setPosition(pos);
-        gpuLabel->setText("GPU: ", osgText::String::ENCODING_UTF8);
-
-        pos.x() = gpuLabel->getBound().xMax();
-
-        osg::ref_ptr<osgText::Text> gpuValue = new osgText::Text;
-        geode->addDrawable(gpuValue.get());
-
-        gpuValue->setColor(colorGPU);
-        gpuValue->setFont(font);
-        gpuValue->setCharacterSize(characterSize);
-        gpuValue->setPosition(pos);
-        gpuValue->setText("0.0", osgText::String::ENCODING_UTF8);
-
-        gpuValue->setDrawCallback(new AveragedValueTextDrawCallback(stats, "GPU draw time taken", -1, false, 1000.0));
-
-        pos.x() = startBlocks;
-        osg::Geometry *geometry = createGeometry(pos, characterSize * 0.8, colorGPUAlpha, _numBlocks);
-        geometry->setDrawCallback(new BlockDrawCallback(this, startBlocks, viewerStats, stats, "GPU draw begin time", "GPU draw end time", -1, _numBlocks));
-        geode->addDrawable(geometry);
-
-        pos.y() -= characterSize * 1.5f;
+        ADDBLOCK(viewerStats, stats, "GPU: ", "GPU draw", colorGPU)
     }
 
     pos.x() = leftPos;

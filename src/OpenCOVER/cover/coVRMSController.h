@@ -110,15 +110,15 @@ public:
     void startSlaves();
     void checkMark(const char *file, int line);
     void connectToMaster(const char *addr, int port);
-    bool isMaster()
+    bool isMaster() const
     {
         return master;
     };
-    bool isSlave()
+    bool isSlave() const
     {
         return !master;
     };
-    bool isCluster()
+    bool isCluster() const
     {
         return (numSlaves > 0);
     };
@@ -155,8 +155,12 @@ public:
     int syncData(void *data, int size);
     int syncMessage(covise::Message *msg);
     bool syncBool(bool);
+    bool reduceOr(bool); // master will resceive logical or of all inputs
+    bool reduceAnd(bool);
+    bool allReduceOr(bool); // master and slaves will receive logical or of all inputs
+    bool allReduceAnd(bool);
     std::string syncString(const std::string &s);
-    void syncVRBMessages();
+    bool syncVRBMessages();
     void waitForSlaves();
     void waitForSlavesDraw();
     void waitForMaster();

@@ -81,6 +81,12 @@
 #define VRBEXPORT COIMPORT
 #endif
 
+#if defined(coVRBServer_EXPORTS)
+#define VRBSERVEREXPORT COEXPORT
+#else
+#define VRBSERVEREXPORT COIMPORT
+#endif
+
 #if defined(COVISE_FILE)
 #define FILEEXPORT COEXPORT
 #else

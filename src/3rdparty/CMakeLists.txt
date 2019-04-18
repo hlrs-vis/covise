@@ -20,6 +20,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "${COVISEDIR}/${DBG_ARCHSUFFIX}opt
 
 if (COVISE_USE_VISIONARAY)
    using(Boost optional)
+   using(TBB optional)
    set(VSNRAY_ENABLE_CUDA ${COVISE_USE_CUDA} CACHE BOOL "CUDA for Visionaray" FORCE)
    set(VSNRAY_ENABLE_EXAMPLES FALSE CACHE BOOL "Visionaray examples" FORCE)
    set(VSNRAY_ENABLE_VIEWER FALSE CACHE BOOL "Visionaray viewer" FORCE)
@@ -41,11 +42,9 @@ if (COVISE_USE_VISIONARAY)
    ENDIF()
 
    add_subdirectory(visionaray)
-   set(VISIONARAY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/visionaray/include")
-
    if(MSVC)
       set_target_properties(visionaray PROPERTIES OUTPUT_NAME "libvisionaray")
-      set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(VISIONARAY_LIBRARY "${COVISEDIR}/${DBG_ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
       set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
    else()
      if(BUILD_SHARED_LIBS)

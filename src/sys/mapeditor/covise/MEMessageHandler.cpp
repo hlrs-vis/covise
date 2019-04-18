@@ -332,6 +332,10 @@ void MEMessageHandler::dataReceived(int)
                     break;
                 }
 
+                case covise::COVISE_MESSAGE_PARAMDESC:
+                    // used in python interface
+                    break;
+
                 default:
                     qCritical() << "======> unknown message type" << msg->type;
                     qCritical() << "======> ... data = " << msg->data;

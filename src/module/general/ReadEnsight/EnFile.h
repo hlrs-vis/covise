@@ -127,11 +127,11 @@ public:
         UNKNOWN
     } BinType;
 
-    EnFile(const coModule *mod, const BinType &binType = UNKNOWN);
+    EnFile(ReadEnsight *mod, const BinType &binType = UNKNOWN);
 
-    EnFile(const coModule *mod, const string &name, const BinType &binType = UNKNOWN);
+    EnFile(ReadEnsight *mod, const string &name, const BinType &binType = UNKNOWN);
 
-    EnFile(const coModule *mod, const string &name, const int &dim, const BinType &binType = UNKNOWN);
+    EnFile(ReadEnsight *mod, const string &name, const int &dim, const BinType &binType = UNKNOWN);
 
     bool isOpen();
 
@@ -139,11 +139,11 @@ public:
     BinType binType();
 
     // read the file
-    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
     // read the file
-    virtual void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
     // read cell based data
-    virtual void readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep) { fprintf(stderr, "oops, please implement this\n"); };
+    virtual void readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps) { fprintf(stderr, "oops, please implement this\n"); };
 
     // Return data in data container.
     // this function is dangerous as only adresses are returned
@@ -153,7 +153,6 @@ public:
     // Set the master part list. This is the list of all part in the geometry file
     // or the geo. file for the first timestep. This means we must still check the
     // length of the connection table
-    virtual void setMasterPL(PartList p);
 
     virtual void setPartList(PartList *p);
 
@@ -169,9 +168,9 @@ public:
     // data files
     // you will have to change this method each time you enter a new type of
     // Ensight Geometry
-    static EnFile *createGeometryFile(const coModule *mod, const CaseFile &c, const string &filename);
-    void createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
-    void createDataOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, bool perVertex=true);
+    static EnFile *createGeometryFile(ReadEnsight *mod, const CaseFile &c, const string &filename);
+    void createGeoOutObj(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
+    void createDataOutObj(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps, bool perVertex=true);
  
     void setActiveAlloc(const bool &b);
 
@@ -233,8 +232,6 @@ protected:
 
     PartList *partList_;
 
-    PartList masterPL_;
-
     int dim_;
 
     bool activeAlloc_;
@@ -243,7 +240,7 @@ protected:
 
     bool includePolyeder_;
     // pointer to module for sending ui messages
-    const coModule *module_;
+    ReadEnsight *ens;
 
 private:
     string name_;

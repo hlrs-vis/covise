@@ -843,7 +843,7 @@ ViewerOsg::ViewerOsg(VrmlScene *s, Group *rootNode)
     tmpMat.makeRotate(M_PI / 2.0, 1.0, 0.0, 0.0);
     //tmpMat.scale(Vec3(1000.f, 1000.f, 1000.f));
     VRMLRoot->setMatrix(tmpMat);
-	VRMLRoot->setNodeMask(~Isect::Update);
+	VRMLRoot->setNodeMask(VRMLRoot->getNodeMask() & ~Isect::Update);
     VRMLCaveRoot = new MatrixTransform();
     VRMLCaveRoot->setName("VRMLCaveRoot");
     VRMLCaveRoot->setMatrix(tmpMat);
@@ -2774,14 +2774,12 @@ Viewer::Object ViewerOsg::insertText(int *justify,
             if (!pText)
             {
                 pText = new osgText::Text();
-                pText->setDataVariance(osg::Object::DYNAMIC);
                 pGeode->setDrawable(i, pText);
             }
         }
         if (!pText)
         {
             pText = new osgText::Text;
-            pText->setDataVariance(osg::Object::DYNAMIC);
             pGeode->setDrawable(i, pText);
             pGeode->addDrawable(pText);
             pText->setFont(font);

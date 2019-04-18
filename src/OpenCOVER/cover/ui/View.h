@@ -18,8 +18,10 @@ class Button;
 class Action;
 class Slider;
 class SelectionList;
+class TextField;
 class EditField;
 class FileBrowser;
+class CollaborativePartner;
 
 //! abstract base class for all views onto the user interface elements handled by a Manager
 class COVER_UI_EXPORT View {
@@ -84,11 +86,11 @@ class COVER_UI_EXPORT View {
     //! reflect change of slider range in graphical representation
     virtual void updateBounds(const Slider *slider) = 0;
     //! reflect change of input field value in graphical representation
-    virtual void updateValue(const EditField *input) = 0;
-    //! reflect change of selected file in graphical representation
-    virtual void updateValue(const FileBrowser *fb) = 0;
-    //! reflect change of file filetr in graphical representation
+    virtual void updateValue(const TextField *input) = 0;
+    //! reflect change of file filter in graphical representation
     virtual void updateFilter(const FileBrowser *fb) = 0;
+    //! reflect change of viewpoint in graphical representation
+    virtual void updateViewpoint(const CollaborativePartner *cp);
 
     //! remove elem from View and delete associated data
     bool removeElement(Element *elem);
@@ -119,6 +121,8 @@ class COVER_UI_EXPORT View {
     virtual ViewElement *elementFactoryImplementation(EditField *input) = 0;
     //! implement to create graphical representation of an input field
     virtual ViewElement *elementFactoryImplementation(FileBrowser *fb) = 0;
+    //! implement to create graphical representation of a collaborative partner
+    virtual ViewElement *elementFactoryImplementation(CollaborativePartner *cp); // degrade to Button, if not implemented
 
  private:
     const std::string m_name;

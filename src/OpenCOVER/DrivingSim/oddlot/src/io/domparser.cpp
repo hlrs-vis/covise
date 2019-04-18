@@ -2163,7 +2163,7 @@ DomParser::parseGeometryElement(QDomElement &geometry, RSystemElementRoad *road)
 		double bV = parseToDouble(child, "bV", 0.0, false); // mandatory
 		double cV = parseToDouble(child, "cV", 0.0, false); // mandatory
 		double dV = parseToDouble(child, "dV", 0.0, false); // mandatory
-		QString pRange = parseToQString(child, "pRange", "normalized", false); // mandatory
+		QString pRange = parseToQString(child, "pRange", "normalized", true); // optional
 
 		Polynomial *polyU = new Polynomial(aU, bU, cU, dU);
 		Polynomial *polyV = new Polynomial(aV, bV, cV, dV);

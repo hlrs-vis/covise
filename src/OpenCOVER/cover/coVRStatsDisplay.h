@@ -22,6 +22,7 @@ namespace opencover
 {
 class COVEREXPORT coVRStatsDisplay
 {
+    friend class VRViewer;
 public:
     coVRStatsDisplay();
     virtual ~coVRStatsDisplay(){};
@@ -54,6 +55,11 @@ public:
 
     void showStats(int whichStats, osgViewer::ViewerBase *viewer);
 
+    void enableGpuStats(bool enable, const std::string &devname = std::string());
+    void enableRhrStats(bool enable);
+    void enableFinishStats(bool enable);
+    void enableSyncStats(bool enable);
+
     /** Get the keyboard and mouse usage of this manipulator.*/
     virtual void getUsage(osg::ApplicationUsage &usage) const;
 
@@ -72,7 +78,7 @@ protected:
 
     void setUpScene(osgViewer::ViewerBase *viewer);
 
-    void updateThreadingModelText();
+    void updateThreadingModelText(osgViewer::ViewerBase::ThreadingModel tm);
 
     int _statsType;
 
@@ -84,9 +90,23 @@ protected:
     osgViewer::ViewerBase::ThreadingModel _threadingModel;
     osg::ref_ptr<osgText::Text> _threadingModelText;
 
+    bool _finishStats = true;
+    bool _syncStats = true;
+    bool _gpuStats = false;
+    std::string _gpuName;
+    bool _rhrStats = false;
     unsigned int _frameRateChildNum;
     unsigned int _gpuMemChildNum;
+    unsigned int _gpuPCIeChildNum;
+    unsigned int _gpuClockChildNum;
+    unsigned int _gpuUtilChildNum;
+    unsigned int _threadingModelChildNum;
+    unsigned int _rhrFpsChildNum;
+    unsigned int _rhrBandwidthChildNum;
+    unsigned int _rhrDelayChildNum;
+    unsigned int _rhrSkippedChildNum;
     unsigned int _viewerChildNum;
+    unsigned int _gpuChildNum;
     unsigned int _cameraSceneChildNum;
     unsigned int _viewerSceneChildNum;
     unsigned int _numBlocks;

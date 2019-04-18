@@ -26,11 +26,19 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/SelectionList.h>
 #include <cover/ui/Label.h>
+#include <cover/ui/Slider.h>
 #include <cover/ui/EditField.h>
 #include <cover/ui/Owner.h>
+#include <SDL_audio.h>
+#include <SDL.h>
+#include <fftw3.h>
 
-using namespace opencover;
-using namespace covise;
+#define BINSIZE 1024
+
+namespace smf
+{
+    // just for compiling with MidiFile inside and outside of smf namespace
+}
 
 namespace covise
 {
@@ -41,6 +49,91 @@ namespace covise
     class coButtonMenuItem;
     class coSliderMenuItem;
 }
+
+class AudioInStream;
+
+using namespace opencover;
+using namespace covise;
+using namespace smf;
+
+class WaveSurface
+{
+public:
+	WaveSurface(osg::Group *parent, AudioInStream* stream, int width);
+	~WaveSurface();
+
+	enum surfaceType {SurfacePlane,SurfaceCylinder,SurfaceSphere};
+
+	virtual bool update();
+	void setType(surfaceType st);
+	float radius1;
+	float radius2;
+	float yStep;
+        float amplitudeFactor=-10.0;
+        float frequencyFactor=-1;
+protected:
+	surfaceType st;
+	void moveOneLine();
+	void createNormals();
+	int depth = 300;
+	int width = 50;
+	osg::ref_ptr<osg::Geode> geode;
+	osg::Vec3Array *vert;
+	osg::Vec3Array *normals;
+	osg::Vec2Array *texCoord;
+	AudioInStream* stream;
+	static osg::ref_ptr <osg::Material>globalDefaultMaterial;
+};
+
+
+class FrequencySurface : public WaveSurface
+{
+public:
+	FrequencySurface(osg::Group *parent, AudioInStream* stream);
+	~FrequencySurface();
+
+	virtual bool update();
+private:
+
+	double *lastMagnitudes;
+};
+class AmplitudeSurface : public WaveSurface
+{
+public:
+	AmplitudeSurface(osg::Group *parent, AudioInStream* stream);
+	~AmplitudeSurface();
+
+	virtual bool update();
+private:
+
+	double *lastAmplitudes;
+};
+
+class AudioInStream
+{
+public:
+	AudioInStream(std::string deviceName="");
+	~AudioInStream();
+	void update();
+	double *ddata;
+	double *magnitudes;
+	int inputSize;
+	int outputSize;
+private:
+	SDL_AudioDeviceID dev;
+	void readData(Uint8 * stream, int len);
+	static void readData(void *userdata, Uint8 * stream,int len);
+	int gBufferBytePosition=0;
+	int bytesPerSample;
+	int gBufferByteSize;
+	int gBufferByteMaxPosition;
+	Uint8 *gRecordingBuffer;
+	SDL_AudioSpec want, have;
+
+	fftw_complex *ifft_result;
+	fftw_plan plan;
+
+};
 class Track;
 class Note
 {
@@ -56,6 +149,8 @@ public:
 class Track
 {
 public:
+
+	enum deviceType {Drum,Keyboard,NumTypes};
     int eventNumber;
     Track(int tn,bool life=false);
     ~Track();
@@ -83,6 +178,7 @@ private:
     int lastPrimitive;
     double oldTime = 0.0;
     int streamNum;
+    enum deviceType devType=Track::Drum;
 };
 
 class NoteInfo
@@ -103,9 +199,12 @@ class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 private:
 
 
+	int gRecordingDeviceCount;
+	std::list<AudioInStream *>audioStreams;
+	std::list<WaveSurface *>waveSurfaces;
 
 public:
-    static const size_t NUMMidiStreams = 2;
+    static const size_t NUMMidiStreams = 4;
     double  tempo;
     std::vector<Track *> tracks;
     std::vector<NoteInfo *> noteInfos;
@@ -168,14 +267,26 @@ public:
 
     void MIDItab_create();
     void MIDItab_delete();
-
+    FrequencySurface *frequencySurface;
+    AmplitudeSurface *amplitudeSurface;
 
     ui::Menu *MIDITab = nullptr;
     ui::Button *reset = nullptr;
+    ui::Slider *radius1Slider = nullptr;
+    ui::Slider *radius2Slider = nullptr;
+    ui::Slider *yStepSlider = nullptr;
+    ui::Slider *amplitudeFactor = nullptr;
+    ui::Slider *frequencyFactor = nullptr;
+    ui::Slider *accelSlider = nullptr;
+    ui::Slider *raccelSlider = nullptr;
+    ui::Slider *spiralSpeedSlider = nullptr;
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
     ui::Label *infoLabel = nullptr;
+    float acceleration=-300;
+    float rAcceleration=0.2;
+    float spiralSpeed=0.1;
 private:
 
     static MidiPlugin *plugin;

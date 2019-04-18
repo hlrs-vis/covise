@@ -10,6 +10,7 @@
 # 2.8.7 is too old for identifying clang
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(COVISE_BUILDING_COVISE TRUE)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
@@ -142,15 +143,14 @@ OPTION(COVISE_PLACE_BINARIES_INSOURCE "Place COVISE binaries in <COVISEDIR>/<arc
 OPTION(COVISE_EXPORT_TO_INSTALL "Place COVISE exported targets cmake-file in <install directory>/<archsuffix>/lib (default). Otherwise in build directory." ON)
 IF(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" ON)
-  if (CMAKE_GENERATOR STREQUAL "Ninja")
-      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
-  else()
-      OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
-  endif()
-ELSE(UNIX)
+  ELSE(UNIX)
   OPTION(COVISE_WARNING_IS_ERROR "Treat warnings as errors" OFF)
-  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
 ENDIF(UNIX)
+if (CMAKE_GENERATOR STREQUAL "Ninja")
+  OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" OFF)
+else()
+   OPTION(COVISE_USE_FORTRAN "Enable Modules using Fortran" ON)
+endif()
 
 set(COVISE_CPU_ARCH "native" CACHE STRING "CPU architecture to optimize for (native, core-avx2, atom, ...)")
 
@@ -279,6 +279,9 @@ endif()
 
 if (APPLE)
     add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+if(MSVC)
+    add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
 endif()
 
 # descend to sources

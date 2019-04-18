@@ -85,12 +85,11 @@ struct channelStruct
     int screenNum; // screen index
 
     osg::ref_ptr<osg::Camera> camera;
-    osg::ref_ptr<osgUtil::SceneView> sceneView;
     osg::DisplaySettings *ds;
     bool stereo;
     int stereoMode;
     bool fixedViewer;
-    float viewerOffset;
+    float stereoOffset;
     osg::Matrixd leftView, rightView;
     osg::Matrixd leftProj, rightProj;
 
@@ -103,7 +102,7 @@ struct channelStruct
     , stereo(true)
     , stereoMode(osg::DisplaySettings::LEFT_EYE)
     , fixedViewer(false)
-    , viewerOffset(0.f)
+    , stereoOffset(0.f)
     {}
 };
 
@@ -296,7 +295,8 @@ public:
     float getSceneSize() const;
 
     int stereoMode() const;
-    int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static int parseStereoMode(const char *modeName, bool *stereo=NULL);
+    static bool requiresTwoViewpoints(int stereomode);
     // have all the screens the same orientation?
     bool haveFlatDisplay() const;
 

@@ -131,7 +131,7 @@ void TiledDisplayOSGTexQuadCompositor::initSlaveChannel()
 
     modelViewMatrix->addChild(geode.get());
 
-    opencover::coVRConfig::instance()->channels[channel].sceneView.get()->setSceneData(compositorNode.get());
+    //opencover::coVRConfig::instance()->channels[channel].sceneView.get()->setSceneData(compositorNode.get());
 }
 
 void TiledDisplayOSGTexQuadCompositor::updateTexturesImplementation()

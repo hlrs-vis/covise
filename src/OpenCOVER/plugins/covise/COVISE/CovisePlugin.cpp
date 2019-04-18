@@ -33,6 +33,7 @@
 
 #include <cover/ui/Action.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Manager.h>
 
 using namespace covise;
 using namespace opencover;
@@ -104,6 +105,7 @@ bool CovisePlugin::init()
     {
         cover->visMenu = new ui::Menu("COVISE", this);
         auto e = new ui::Action(cover->visMenu, "Execute");
+        e->setShortcut("e");
         e->setCallback([this](){
             executeAll();
         });

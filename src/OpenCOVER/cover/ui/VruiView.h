@@ -84,8 +84,7 @@ class VruiView: public View
    void updateScale(const Slider *slider) override;
    void updateValue(const Slider *slider) override;
    void updateBounds(const Slider *slider) override;
-   void updateValue(const EditField *input) override;
-   void updateValue(const FileBrowser *fb) override;
+   void updateValue(const TextField *input) override;
    void updateFilter(const FileBrowser *fb) override;
 
    VruiViewElement *elementFactoryImplementation(Menu *menu) override;
@@ -97,6 +96,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(SelectionList *sl) override;
    VruiViewElement *elementFactoryImplementation(EditField *input) override;
    VruiViewElement *elementFactoryImplementation(FileBrowser *fb) override;
+   VruiViewElement *elementFactoryImplementation(CollaborativePartner *cp) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;

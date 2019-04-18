@@ -25,6 +25,7 @@
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
 #include <OpenVRUI/osg/OSGVruiMatrix.h>
+#include <OpenVRUI/coRowMenu.h>
 #include "VRVruiRenderInterface.h"
 #include "input/VRKeys.h"
 #include "input/input.h"
@@ -48,6 +49,7 @@
 #endif
 
 #include "ui/Menu.h"
+#include "ui/Manager.h"
 
 // undef this to get no START/END messaged
 #undef VERBOSE
@@ -91,6 +93,25 @@ class NotifyBuf: public std::stringbuf
 bool coVRPluginSupport::debugLevel(int level) const
 {
     return coVRConfig::instance()->debugLevel(level);
+}
+
+void coVRPluginSupport::initUI()
+{
+    fileMenu = new ui::Menu("File", ui);
+    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
+    viewOptionsMenu->setText("View options");
+
+    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
+    interactorScaleSlider->setText("Interactor scale");
+    interactorScaleSlider->setVisible(false, ui::View::VR);
+    interactorScaleSlider->setBounds(0.01, 100.);
+    interactorScaleSlider->setValue(1.);
+    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
+    interactorScaleSlider->setCallback([this](double value, bool released) {
+        interactorScale = value;
+    });
+
+    ui->init();
 }
 
 std::ostream &coVRPluginSupport::notify(Notify::NotificationLevel level) const
@@ -380,6 +401,11 @@ void coVRPluginSupport::setRenderStrategy(osg::Drawable *draw, bool dynamic)
     //draw->setUseVertexArrayObject(vao);
 }
 
+VRBMessageSender * coVRPluginSupport::getSender()
+{
+    return &m_sender;
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
@@ -483,7 +509,7 @@ void coVRPluginSupport::update()
         grmsg.type = Message::UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 
 #ifdef DOTIMING
@@ -817,20 +843,7 @@ coVRPluginSupport::coVRPluginSupport()
     new VRVruiRenderInterface();
 
     ui = new ui::Manager();
-    fileMenu = new ui::Menu("File", ui);
-    viewOptionsMenu = new ui::Menu("ViewOptions", ui);
-    viewOptionsMenu->setText("View options");
-    ui->init();
 
-    auto interactorScaleSlider = new ui::Slider(viewOptionsMenu, "InteractorScale");
-    interactorScaleSlider->setText("Interactor scale");
-    interactorScaleSlider->setVisible(false, ui::View::VR);
-    interactorScaleSlider->setBounds(0.01, 100.);
-    interactorScaleSlider->setValue(1.);
-    interactorScaleSlider->setScale(ui::Slider::Logarithmic);
-    interactorScaleSlider->setCallback([this](double value, bool released){
-        interactorScale = value;
-    });
 
     for (int level=0; level<Notify::Fatal; ++level)
     {
@@ -937,6 +950,30 @@ bool coVRPluginSupport::grabKeyboard(coVRPlugin *plugin)
     }
     coVRPluginList::instance()->grabKeyboard(plugin);
     return true;
+}
+
+bool coVRPluginSupport::grabViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber()
+        && coVRPluginList::instance()->viewerGrabber() != plugin)
+    {
+        return false;
+    }
+    coVRPluginList::instance()->grabViewer(plugin);
+    return true;
+}
+
+void coVRPluginSupport::releaseViewer(coVRPlugin *plugin)
+{
+    if (coVRPluginList::instance()->viewerGrabber() == plugin)
+    {
+        coVRPluginList::instance()->grabViewer(NULL);
+    }
+}
+
+bool coVRPluginSupport::isViewerGrabbed() const
+{
+    return (coVRPluginList::instance()->viewerGrabber() != NULL);
 }
 
 // get the active cursor number
@@ -1078,7 +1115,6 @@ void coVRPluginSupport::sendMessage(coVRPlugin * /*sender*/, const char *destina
         delete message;
     }
 }
-
 int coVRPluginSupport::sendBinMessage(const char *keyword, const char *data, int len)
 {
     START("coVRPluginSupport::sendBinMessage");
@@ -1243,13 +1279,12 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
     if (this->player != player)
         return -1;
 
-    for (list<void (*)()>::const_iterator it = playerUseList.begin();
-         it != playerUseList.end();
-         it++)
+    for (auto cb: playerUseList)
     {
-        if (*it)
-            (*it)();
+        if (cb)
+            cb();
     }
+
     player = NULL;
 
     return 0;
@@ -1257,23 +1292,18 @@ int coVRPluginSupport::unregisterPlayer(vrml::Player *player)
 
 vrml::Player *coVRPluginSupport::usePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
-    if (it != playerUseList.end())
-        return NULL;
-
-    playerUseList.push_back(playerUnavailableCB);
+    cover->addPlugin("Vrml97");
+    playerUseList.emplace(playerUnavailableCB);
     return this->player;
 }
 
 int coVRPluginSupport::unusePlayer(void (*playerUnavailableCB)())
 {
-    list<void (*)()>::const_iterator it = find(playerUseList.begin(),
-                                               playerUseList.end(), playerUnavailableCB);
+    auto it = playerUseList.find(playerUnavailableCB);
     if (it == playerUseList.end())
         return -1;
 
-    playerUseList.remove(playerUnavailableCB);
+    playerUseList.erase(it);
     return 0;
 }
 
@@ -1415,7 +1445,7 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
     }
     else if (vrbc)
     {
-        vrbc->sendMessage(msg);
+            vrbc->sendMessage(msg);
         return true;
     }
 
@@ -1444,6 +1474,18 @@ void coVRPluginSupport::watchFileDescriptor(int fd)
 void coVRPluginSupport::unwatchFileDescriptor(int fd)
 {
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
+}
+
+bool VRBMessageSender::sendMessage(const covise::Message * msg)
+{
+    return cover->sendVrbMessage(msg);
+}
+
+bool VRBMessageSender::sendMessage(covise::TokenBuffer & tb, covise_msg_type type)
+{
+    covise::Message msg(tb);
+    msg.type = type;
+    return sendMessage(&msg);
 }
 
 } // namespace opencover

@@ -8,7 +8,7 @@
 
 void Add2Flist(struct Flist *flist, float ind)
 {
-   char buf[200];
+   char buf[1000];
 
    if ((flist->num+1) >= flist->max)
    {
@@ -41,7 +41,7 @@ struct Flist * AllocFlistStruct(int portion)
 
 void FreeFlistStruct(struct Flist *flist)
 {
-   char buf[50];
+   char buf[1000];
 
    if (flist)
    {

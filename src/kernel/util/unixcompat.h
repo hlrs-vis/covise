@@ -5,6 +5,9 @@
 
  * License: LGPL 2+ */
 
+/* these routines are header-only */
+
+
 #ifndef COV_WINCOMPAT_H
 #define COV_WINCOMPAT_H
 

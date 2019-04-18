@@ -19,6 +19,7 @@
 #include <cover/RenderObject.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
+#include <cover/ui/Manager.h>
 
 #include <osg/Geode>
 #include <osg/ref_ptr>

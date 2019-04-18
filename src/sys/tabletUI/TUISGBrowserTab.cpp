@@ -28,19 +28,17 @@
 #include <QDateTime>
 #include <util/unixcompat.h>
 
+#include <net/covise_connect.h>
+#include <net/message.h>
+#include <net/tokenbuffer.h>
+#include <net/message_types.h>
 #if !defined _WIN32_WCE && !defined ANDROID_TUI
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
-#include <covise/covise_msg.h>
-#include <net/covise_connect.h>
-#include <net/message.h>
-#include <net/tokenbuffer.h>
 #else
-#include <wce_msg.h>
-#include <wce_connect.h>
 
 #define GL_POINTS 0x0000
 #define GL_LINES 0x0001
@@ -1316,11 +1314,15 @@ void TUISGBrowserTab::handleClient(const covise::Message *msg)
     case covise::COVISE_MESSAGE_SOCKET_CLOSED:
     case covise::COVISE_MESSAGE_CLOSE_SOCKET:
     {
-        std::cerr << "TUISGBrowserTab: socket closed: ignored" << std::endl;
+        if (!connectionClosed)
+            std::cerr << "TUISGBrowserTab: socket closed: ignored" << std::endl;
+        connectionClosed = true;
     }
     break;
     case covise::COVISE_MESSAGE_TABLET_UI:
     {
+        connectionClosed = false;
+
         int tablettype;
         tb >> tablettype;
         int ID;
@@ -2431,7 +2433,10 @@ void nodeTreeItem::setData(int column, int role, const QVariant &value)
     if (isCheckChange)
     {
         nodeTree *tree = static_cast<nodeTree *>(treeWidget());
-        emit tree->itemCheckStateChanged(this, checkState(0)==Qt::Checked);
+		if(tree)
+		{
+			emit tree->itemCheckStateChanged(this, checkState(0) == Qt::Checked);
+		}
     }
 }
 
@@ -2650,7 +2655,7 @@ void SGTextureThread::run()
         }
     }
 
-    std::cerr << "SGTextureThread: finishd" << std::endl;
+    //std::cerr << "SGTextureThread: finished" << std::endl;
 }
 
 void SGTextureThread::enqueueGeode(int number, std::string geode)

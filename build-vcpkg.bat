@@ -40,7 +40,10 @@ REM choco -y install git swig winflexbison
 "%vc%" install boost-asio boost-bimap boost-chrono boost-date-time boost-mpl boost-program-options boost-serialization boost-signals2 boost-smart-ptr boost-uuid boost-variant boost-interprocess
 "%vc%" install qt5-tools qt5-base qt5-svg
 "%vc%" install openvr
+"%vc%" install openexr
 "%vc%" install pcl
+"%vc%" install libarchive libzip snappy
+"%vc%" install embree3
 
 %vc% list
 REM %vc% integrate project
@@ -51,18 +54,10 @@ cd vcpkg
 :COVISE
 mkdir build.covise
 cd build.covise
+REM cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_BUILD_RENDERER:BOOL=OFF -DCOVISE_USE_VISIONARAY:BOOL=OFF ../..
 cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpkg.cmake" -DCOVISE_BUILD_RENDERER:BOOL=OFF ../..
 if errorlevel 1 goto UPDIR
 msbuild /m covise.sln /p:Configuration=%cfg% %verb% %par%
-if errorlevel 1 goto UPDIR
-cd ..
-
-:COVER
-mkdir build.cover
-cd build.cover
-cmake -G "%generator%" "-DCMAKE_TOOLCHAIN_FILE=%vcdir%\scripts\buildsystems\vcpkg.cmake" ../../src/OpenCOVER
-if errorlevel 1 goto UPDIR
-msbuild /m OpenCOVER.sln /p:Configuration=%cfg% %verb% %par%
 if errorlevel 1 goto UPDIR
 
 :UPDIR

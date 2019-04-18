@@ -6,9 +6,6 @@
  * License: LGPL 2+ */
 
 #include "coVRPartner.h"
-#include <OpenVRUI/coCheckboxGroup.h>
-#include <OpenVRUI/coRowMenu.h>
-#include "coPartnerMenuItem.h"
 #include <vrbclient/VRBClient.h>
 #include <OpenVRUI/coLabel.h>
 #ifndef _WIN32
@@ -20,92 +17,80 @@
 #include "coVRTui.h"
 #include "coHud.h"
 #include "coVRFileManager.h"
+#include "MatrixSerializer.h"
 #include <net/message.h>
 #include <net/message_types.h>
 #include <config/CoviseConfig.h>
 #include "VRAvatar.h"
 #include "OpenCOVER.h"
+#include "ui/CollaborativePartner.h"
+#include "ui/ButtonGroup.h"
+#include "ui/Group.h"
+#include <vrbclient/VrbClientRegistry.h>
+#include <vrbclient/VRBMessage.h>
+#include <osg/MatrixTransform>
+#include "VRSceneGraph.h"
 
 using namespace opencover;
-using namespace vrui;
 using covise::coCoviseConfig;
 using covise::TokenBuffer;
 using covise::Message;
 
-coCheckboxGroup *coVRPartner::partnerGroup = new coCheckboxGroup();
-
 coVRPartnerList *coVRPartnerList::s_instance = NULL;
 
-
 coVRPartner::coVRPartner()
+    :ui::Owner("VRPartner-Me", cover->ui)
+    ,m_id(  -1)
+    ,m_isMaster(false)
+    ,m_sessionID()
+    ,hostname(coVRCommunication::getHostname())
+    ,address(coVRCommunication::getHostaddress())
+    ,name(coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", coVRCommunication::getUsername()))
+    ,email (coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise-users@listserv.uni-stuttgart.de"))
+    ,url (coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de/covise"))
 {
-    std::string entry;
-    hostname = NULL;
-    address = NULL;
-    name = NULL;
-    email = NULL;
-    url = NULL;
-    ID = -1;
-    Group = -1;
-    Master = 0;
-    menuEntry = NULL;
-    fileMenuEntry = NULL;
-
-    hostname = new char[strlen(coVRCommunication::getHostname()) + 1];
-    strcpy(hostname, coVRCommunication::getHostname());
-    address = new char[strlen(coVRCommunication::getHostaddress()) + 1];
-    strcpy(address, coVRCommunication::getHostaddress());
-    entry = coCoviseConfig::getEntry("value", "COVER.Collaborative.UserName", "noname");
-    name = new char[strlen(entry.c_str()) + 1];
-    strcpy(name, entry.c_str());
-    entry = coCoviseConfig::getEntry("value", "COVER.Collaborative.Email", "covise@vis-mail.hlrs.de");
-    email = new char[entry.length() + 1];
-    strcpy(email, entry.c_str());
-    entry = coCoviseConfig::getEntry("value", "COVER.Collaborative.URL", "www.hlrs.de");
-    url = new char[entry.length() + 1];
-    strcpy(url, entry.c_str());
+    m_avatar = new VRAvatar(this);
 }
 
-coVRPartner::coVRPartner(int id, TokenBuffer &tb)
+coVRPartner::coVRPartner(int id)
+: ui::Owner("VRPartner_"+std::to_string(id), cover->ui)
+, m_id(id)
+,m_sessionID()
+,m_isMaster(false)
 {
-    hostname = NULL;
-    name = NULL;
-    email = NULL;
-    address = NULL;
-    url = NULL;
-    ID = id;
-    Group = -1;
-    Master = 0;
-    menuEntry = NULL;
-    fileMenuEntry = NULL;
-    setInfo(tb);
+    m_avatar = new VRAvatar(this);
 }
 
 coVRPartner::~coVRPartner()
 {
-    VRAvatar *a = VRAvatarList::instance()->get(address);
-    if (a)
-    {
-        VRAvatarList::instance()->remove(a);
-    }
-    delete menuEntry;
-    delete fileMenuEntry;
+    delete m_avatar;
 }
 
-void coVRPartner::setID(int id)
+coVRPartner * coVRPartner::setID(int id)
 {
-    ID = id;
+    std::cerr << "*** coVRPartner: own ID is " << id << " ***" << std::endl;
+    int oldID = m_id;
+    m_id = id;
+    return coVRPartnerList::instance()->changePartnerID(oldID, id);
+}
+
+const vrb::SessionID &opencover::coVRPartner::getSessionID() const
+{
+    return m_sessionID;
 }
 
 void coVRPartner::setFile(const char *fileName)
 {
+#if 0
     if (fileName && fileMenuEntry)
     {
         std::cerr << "coVRPartner::setFile: Filename: " << fileName << std::endl;
         fileMenuEntry->setLabel(fileName ? fileName : "");
     }
+#endif
 }
 
+#if 0
 void coVRPartner::menuEvent(coMenuItem *m)
 {
     if (m == fileMenuEntry)
@@ -123,46 +108,46 @@ void coVRPartner::menuEvent(coMenuItem *m)
         /*OpenCOVER::instance()->hud->hide();*/
     }
 }
+#endif
 
-void coVRPartner::setGroup(int g)
+void coVRPartner::setSession(const vrb::SessionID &g)
 {
-    Group = g;
+    m_sessionID = g;
 }
 
-void coVRPartner::setMaster(int m)
+void coVRPartner::setMaster(bool m)
 {
-    if (menuEntry)
-        menuEntry->setState(m != 0);
-    Master = m != 0;
+    if (m_ui)
+        m_ui->setState(m);
+    m_isMaster = m;
 }
 
 void coVRPartner::becomeMaster()
 {
-    Master = 1;
+    m_isMaster = true;
     TokenBuffer rtb;
-    rtb << 1;
+    rtb << true;
     Message m(rtb);
     m.type = covise::COVISE_MESSAGE_VRB_SET_MASTER;
-    vrbc->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
-bool coVRPartner::isMaster()
+bool coVRPartner::isMaster() const
 {
-    return Master;
+    return m_isMaster;
 }
 
 void coVRPartner::setInfo(TokenBuffer &tb)
 {
     char *tmp, *tmp2;
-    tb >> tmp;
-    address = new char[strlen(tmp) + 1];
-    strcpy(address, tmp);
-    int m;
-    tb >> tmp; // name
+    tb >> address;
+    tb >> name; // name
     tb >> tmp; // userInfo
-    tb >> Group;
-    tb >> m;
-    Master = m != 0;
+    tb >> m_sessionID;
+    int master = -1;
+    tb >> master;
+    m_isMaster = master ? true : false;
+
     char *c = tmp;
     while ((*c != '\"') && (*c != '\0'))
         c++;
@@ -174,129 +159,397 @@ void coVRPartner::setInfo(TokenBuffer &tb)
     if (*c == '\0')
         return;
     *c = '\0';
-    hostname = new char[strlen(tmp2) + 1];
-    strcpy(hostname, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    name = new char[strlen(tmp2) + 1];
-    strcpy(name, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    email = new char[strlen(tmp2) + 1];
-    strcpy(email, tmp2);
-    c++;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c != '\0')
-        c++;
-    tmp2 = c;
-    while ((*c != '\"') && (*c != '\0'))
-        c++;
-    if (*c == '\0')
-        return;
-    *c = '\0';
-    url = new char[strlen(tmp2) + 1];
-    strcpy(url, tmp2);
+    hostname = tmp2;
     c++;
 
-    char *menuText = new char[strlen(name) + strlen(hostname) + 4];
-    sprintf(menuText, "%s@%s", name, hostname);
-    delete menuEntry;
-    menuEntry = new coPartnerMenuItem(menuText, Master, partnerGroup);
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c != '\0')
+        c++;
+    tmp2 = c;
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c == '\0')
+        return;
+    *c = '\0';
+    name = tmp2;
+    c++;
+
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c != '\0')
+        c++;
+    tmp2 = c;
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c == '\0')
+        return;
+    *c = '\0';
+    email = tmp2;
+    c++;
+
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c != '\0')
+        c++;
+    tmp2 = c;
+    while ((*c != '\"') && (*c != '\0'))
+        c++;
+    if (*c == '\0')
+        return;
+    *c = '\0';
+    url = tmp2;
+    c++;
+}
+
+void coVRPartner::updateUi()
+{
+    std::string menuText = std::to_string(m_id) + " " + name + "@" + hostname;
+#if 0
     fileMenuEntry = new coButtonMenuItem("NoFile");
     fileMenuEntry->setMenuListener(this);
-    coVRCollaboration::instance()->collaborativeMenu->add(menuEntry);
-    coVRCollaboration::instance()->collaborativeMenu->add(fileMenuEntry);
+#endif
+
+    if (!m_ui)
+    {
+        m_ui = new ui::CollaborativePartner("VRPartner"+std::to_string(m_id), this, coVRPartnerList::instance()->group());
+        if (auto g = coVRCollaboration::instance()->partnerGroup())
+        {
+            g->add(m_ui);
+        }
+        m_ui->setCallback([this](bool state){
+            // change it back
+            m_ui->setState(!state, false);
+        });
+    }
+    m_ui->setText(menuText);
+    m_ui->setState(m_isMaster);
 }
 
-int coVRPartner::getID()
+int coVRPartner::getID() const
 {
-    return ID;
+    return m_id;
 }
+
 
 void coVRPartner::sendHello()
 {
+    std::stringstream str;
+    str << "\"" << hostname << "\",\"" << name << "\",\"" << email << "\",\"" << url << "\"";
+
     TokenBuffer tb;
-    char *infoString = new char[strlen(hostname) + strlen(name) + strlen(email) + strlen(url) + 100];
-    sprintf(infoString, "\"%s\",\"%s\",\"%s\",\"%s\"", hostname, name, email, url);
-    tb << infoString;
+    tb << str.str();
     Message msg(tb);
     msg.type = covise::COVISE_MESSAGE_VRB_SET_USERINFO;
-    vrbc->sendMessage(&msg);
-    delete[] infoString;
+    cover->sendVrbMessage(&msg);
 }
 
-void coVRPartner::print()
+void coVRPartner::print() const
 {
-    cerr << "ID:       " << ID << endl;
-    if (hostname)
-        cerr << "HostName: " << hostname << endl;
-    if (address)
-        cerr << "Address:  " << address << endl;
-    if (name)
-        cerr << "Name:     " << name << endl;
-    if (email)
-        cerr << "Email:    " << email << endl;
-    if (url)
-        cerr << "URL:      " << url << endl;
-    cerr << "Group:    " << Group << endl;
-    cerr << "Master:   " << Master << endl;
+    cerr << "ID:       " << m_id << endl;
+    cerr << "HostName: " << hostname << endl;
+    cerr << "Address:  " << address << endl;
+    cerr << "Name:     " << name << endl;
+    cerr << "Email:    " << email << endl;
+    cerr << "URL:      " << url << endl;
+    cerr << "Group:    " << m_sessionID.toText() << endl;
+    cerr << "Master:   " << m_isMaster << endl;
 }
+
+VRAvatar * opencover::coVRPartner::getAvatar()
+{
+    return m_avatar;
+}
+
+void opencover::coVRPartner::setAvatar(VRAvatar * avatar)
+{
+    m_avatar = avatar;
+}
+
+//////////////////////////////coVRPartnerList//////////////////////////////
 
 coVRPartner *coVRPartnerList::get(int id)
 {
-    coVRPartner *p;
-    reset();
-    while ((p = current()))
+    auto it = partners.find(id);
+    if (it != partners.end())
     {
-        if (p->getID() == id)
-            return p;
-        next();
+        return it->second;
     }
-    return NULL;
+    return nullptr;
 }
 
+coVRPartner * opencover::coVRPartnerList::getFirstPartner()
+{
+    if (partners.empty())
+        return nullptr;
+
+    return partners.begin()->second;
+}
+
+void opencover::coVRPartnerList::addPartner(coVRPartner * p)
+{
+    if (p)
+    {
+        partners[p->getID()] = p;
+    }
+}
+
+void opencover::coVRPartnerList::deletePartner(int id)
+{
+    setSessionID(id, vrb::SessionID(0, ""));
+    delete partners[id];
+    partners.erase(id);
+}
+
+coVRPartner *opencover::coVRPartnerList::changePartnerID(int oldID, int newID)
+{
+    auto p = partners.find(newID);
+    if (oldID == newID)
+    {
+        return p->second;
+    }
+    auto it = partners.find(oldID);
+    if (p != partners.end())
+    {
+        std::cerr << "there is already a partner with " << newID << "registered in coVRParnerList" << std::endl;
+        return it->second;
+    }
+    if (it != partners.end())
+    {
+        std::swap(partners[newID], it->second);
+        partners.erase(it);
+    }
+    return partners[newID];
+}
+
+void opencover::coVRPartnerList::deleteOthers()
+{
+    auto p = partners.begin();
+    while (p != partners.end())
+    {
+        if (p->second->getID() != coVRCommunication::instance()->getID())
+        {
+            delete p->second;
+            p = partners.erase(p);
+        }
+        else
+        {
+            ++p;
+        }
+    }
+    coVRCollaboration::instance()->showCollaborative(false);
+}
+
+int opencover::coVRPartnerList::numberOfPartners() const
+{
+    return partners.size();
+}
+
+void opencover::coVRPartnerList::setMaster(int id)
+{
+    for (auto p : partners)
+    {
+        p.second->setMaster(false);
+    }
+    if (id > 0)
+    {
+        partners[id]->setMaster(true);
+    }
+}
+
+coVRPartner * opencover::coVRPartnerList::getMaster()
+{
+    for (auto p : partners)
+    {
+        if (p.second->isMaster())
+        {
+            return p.second;
+        }
+    }
+    return nullptr;
+}
+
+void opencover::coVRPartnerList::setSessionID(int partnerID, const vrb::SessionID & newSession)
+{
+    coVRPartner *partner = get(partnerID);
+
+    int myID = coVRCommunication::instance()->getID();
+    if(!partner)
+    {
+        return;
+    }
+    vrb::SessionID oldSession = partner->getSessionID();
+    partner->setSession(newSession);
+    vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
+    if (partnerID == myID) //this client changed session
+    {
+        vrb::VrbClientRegistry::instance->resubscribe(newSession, oldSession);
+        coVRCollaboration::instance()->updateSharedStates();
+        bool alone = true;
+        //check if other partners are in my new session
+        for (auto p : partners)
+        {
+            if (p.first != myID && p.second->getSessionID() == newSession)
+            {
+                alone = false;
+                if (p.second->getAvatar())
+                {
+                    p.second->getAvatar()->show();
+                }
+            }
+            else
+            {
+                if (p.second->getAvatar())
+                {
+                    p.second->getAvatar()->hide();
+                }
+            }
+        }
+        if (alone)
+        {
+            coVRCollaboration::instance()->showCollaborative(false);
+        }
+        else
+        {
+            coVRCollaboration::instance()->showCollaborative(true);
+        }
+
+    }
+    else //other client changed session
+    {
+
+        if (oldSession == mySession && !mySession.isPrivate()) //client left my session
+        {
+            bool lastInSession = true;
+            for (auto p : partners)
+            {
+                if (p.first != myID && p.second->getSessionID() == mySession)
+                {
+                    lastInSession = false;
+                    break;
+                }
+            }
+           if (lastInSession)
+           {
+                coVRCollaboration::instance()->showCollaborative(false);
+           }
+        }
+        if (newSession == mySession) //client joined my sessison
+        {
+            coVRCollaboration::instance()->showCollaborative(true);
+        }
+    }
+
+}
+void opencover::coVRPartnerList::sendAvatarMessage()
+{
+    // all data is in object Coordinates
+
+
+    VRAvatar av = VRAvatar();
+    covise::TokenBuffer tb;
+    tb << vrb::AVATAR;
+    tb << coVRCommunication::instance()->getID();
+    std::string adress(coVRCommunication::instance()->getHostaddress());
+    tb << adress;
+    tb << av;
+
+    Message msg(tb);
+    msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+    cover->sendVrbMessage(&msg);
+
+}
+void opencover::coVRPartnerList::receiveAvatarMessage(covise::TokenBuffer &tb)
+{
+    int sender;
+    std::string adress;
+    tb >> sender; 
+    tb >> adress;
+    coVRPartner *p = get(sender);
+    if (p)
+    {
+        VRAvatar *av = p->getAvatar();
+        if (av->init(adress))
+        {
+            if (m_avatarsVisible && p->getID() != coVRCommunication::instance()->getID() && p->getSessionID() == coVRCommunication::instance()->getSessionID())
+            {
+                av->show();
+            }
+            else
+            {
+                av->hide();
+            }
+        }
+        tb >> *av;
+    }
+
+
+}
+void opencover::coVRPartnerList::showAvatars()
+{
+    int myID = coVRCommunication::instance()->getID();
+    vrb::SessionID mySession = coVRCommunication::instance()->getSessionID();
+    for (auto partner : partners)
+    {
+        if (partner.second->getAvatar())
+        {
+            if (partner.first != myID && partner.second->getSessionID() == mySession)
+            {
+                partner.second->getAvatar()->show();
+            }
+            else
+            {
+                partner.second->getAvatar()->hide();
+            }
+        }
+    }
+    m_avatarsVisible = true;
+}
+void opencover::coVRPartnerList::hideAvatars()
+{
+    for (auto partner : partners)
+    {
+        if (partner.second->getAvatar())
+        {
+            partner.second->getAvatar()->hide();
+        }
+    }
+    m_avatarsVisible = false;
+}
+bool opencover::coVRPartnerList::avatarsVisible()
+{
+    return m_avatarsVisible;
+}
 void coVRPartnerList::print()
 {
-    cerr << "Num Partners: " << num() << endl;
-    coVRPartner *p;
-    reset();
-    while ((p = current()))
+    cerr << "Num Partners: " << partners.size() << endl;
+    for (auto p : partners)
     {
-        p->print();
+        p.second->print();
         cerr << endl;
-        next();
-    }
+}
+}
+
+ui::ButtonGroup *coVRPartnerList::group()
+{
+    return m_group;
 }
 
 coVRPartnerList::coVRPartnerList()
+: ui::Owner("PartnerList", cover->ui)
 {
+    m_group = new ui::ButtonGroup("PartnerGroup", this);
     assert(!s_instance);
 }
 
 coVRPartnerList::~coVRPartnerList()
 {
-    reset();
-    while (current())
-        remove();
+    auto partner = partners.begin();
+    while (partner != partners.end())
+    {
+        delete partner->second;
+        partner = partners.erase(partner);
+    }
 
     // da sollte noch mehr geloescht werden
     s_instance = NULL;
@@ -308,3 +561,4 @@ coVRPartnerList *coVRPartnerList::instance()
         s_instance = new coVRPartnerList;
     return s_instance;
 }
+

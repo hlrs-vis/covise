@@ -137,7 +137,7 @@ AppModule *Controller::start_datamanager(const string &name)
 
     {
         Host thisHost;
-        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(thisHost.get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(thisHost)) < 0)
         {
             delete conn;
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -209,7 +209,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         list_of_connections->add(tmp_conn);
     }
 #endif
-    if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+    if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(*rhost)) < 0)
     {
         delete conn;
         cerr << "* timelimit in accept for crb exceeded!!" << endl;
@@ -232,7 +232,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
     char chport[10];
     char chid[10];
     int port;
-    char *dsp = CTRLHandler::instance()->Config->getDisplayIP(rhost->get_ipv4());
+    char *dsp = CTRLHandler::instance()->Config->getDisplayIP(*rhost);
 
     CTRLGlobal *global = CTRLGlobal::getInstance();
 
@@ -481,7 +481,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
         conn->acceptOne(-1);
     else
     {
-        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout_ip(rhost->get_ipv4())) < 0)
+        if (conn->acceptOne(CTRLHandler::instance()->Config->gettimeout(*rhost)) < 0)
         {
             cerr << "* timelimit in accept for crb exceeded!!" << endl;
             delete conn;
@@ -501,7 +501,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
     //std::cerr << "Controller::start_applicationmodule: dmod host name=" << dmod->get_host()->getName() << std::endl;
     char remote_command[300];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*dmod->get_host());
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -513,12 +513,12 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP((*dmod->get_host())))
         sprintf(remote_command, "\001 %s %d %s %d %s %s %s %s",
                 name, port, h->getAddress(), module_count, instance,
                 dmod->get_host()->getAddress(),
                 dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     else
         sprintf(remote_command, "\001 %s %d %s %d %s %s %s",
                 name, port, h->getAddress(), module_count, instance,
@@ -564,7 +564,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 {
     char remote_command[300];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -607,13 +607,13 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
     {
         sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
                 name, cat, port, h->getAddress(), module_count, instance,
                 dmod->get_host()->getAddress(),
                 dmod->get_host()->getName(),
-                CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     }
     else
     {
@@ -669,7 +669,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 {
     char remote_command[3000];
     int port;
-    int timeout = CTRLHandler::instance()->Config->gettimeout_ip(dmod->get_host()->get_ipv4());
+    int timeout = CTRLHandler::instance()->Config->gettimeout(*(dmod->get_host()));
 
     module_count++;
     ServerConnection *conn = new ServerConnection(&port, module_count, CONTROLLER);
@@ -711,20 +711,20 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
                   ? &localhost
                   : host;
 
-    if (CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()))
+    if (CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()))
     {
         if (param)
             sprintf(remote_command, "%s %s %s %d %s %d %s %s %s %s",
                     name, cat, param, port, h->getAddress(), module_count, instance,
                     dmod->get_host()->getAddress(),
                     dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
         else
             sprintf(remote_command, "%s %s %d %s %d %s %s %s %s",
                     name, cat, port, h->getAddress(), module_count, instance,
                     dmod->get_host()->getAddress(),
                     dmod->get_host()->getName(),
-                    CTRLHandler::instance()->Config->getDisplayIP(dmod->get_host()->get_ipv4()));
+                    CTRLHandler::instance()->Config->getDisplayIP(*dmod->get_host()));
     }
     else
     {

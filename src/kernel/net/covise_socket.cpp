@@ -394,12 +394,15 @@ Socket::Socket(const Host *h, int p, int retries, double timeout)
             if (writable)
                 break;
         }
-        if (WSAGetLastError() == WSAETIMEDOUT)
+        else if (WSAGetLastError() == WSAETIMEDOUT)
         {
             //fprintf(stderr, "connect to %s:%d timed out, setting retries to 0\n", host->getAddress(), p);
             //retries=0;
         }
-        fprintf(stderr, "connect to %s:%d failed: %s %d\n", host->getAddress(), p, coStrerror(WSAGetLastError()), WSAGetLastError());
+        else
+        {
+            fprintf(stderr, "connect to %s:%d failed: %s %d\n", host->getAddress(), p, coStrerror(WSAGetLastError()), WSAGetLastError());
+        }
 
 #endif
 // always allow two unsuccessful tries before complaining - looks better

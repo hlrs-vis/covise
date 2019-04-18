@@ -81,7 +81,7 @@ private:
     bool mapLoading; // true during loading of map
     int num_in; // number of connected inports
 
-    ChoiceList *choice, *filenames;
+    ChoiceList *choice=nullptr, *filenames=nullptr;
 
     // filenames received at map loading : do not immediately read it.
     char *mapLoad;

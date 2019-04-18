@@ -28,10 +28,7 @@ Person::Person(const std::string &name)
     const std::string conf = "COVER.Input.Persons.Person:" + name;
 
     m_eyeDistance = coVRConfig::instance()->stereoSeparation();
-    if (coVRConfig::instance()->stereoState())
-    {
-        m_eyeDistance = coCoviseConfig::getFloat("eyeDistance", conf, m_eyeDistance);
-    }
+    m_eyeDistance = coCoviseConfig::getFloat("eyeDistance", conf, m_eyeDistance);
 
     m_head = Input::instance()->getBody(coCoviseConfig::getEntry("head", conf, ""));
     m_relative = Input::instance()->getBody(coCoviseConfig::getEntry("relative", conf, ""));

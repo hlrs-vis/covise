@@ -25,7 +25,7 @@
 #include "coTUIFileBrowser/VRBData.h"
 #include "coTUIFileBrowser/LocalData.h"
 #include "coTUIFileBrowser/IRemoteData.h"
-#include "coTUIFileBrowser/NetHelp.h"
+#include <qtutil/NetHelp.h>
 #include "OpenCOVER.h"
 #ifdef FB_USE_AG
 #include "coTUIFileBrowser/AGData.h"
@@ -33,6 +33,8 @@
 
 #include <QTextStream>
 #include <QFile>
+
+#include <iostream>
 
 using namespace covise;
 using namespace opencover;
@@ -3755,7 +3757,6 @@ coTUIElement::coTUIElement(const std::string &n, int pID, int type)
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     createSimple(type);
     if(tui()->debugTUI())
@@ -3779,7 +3780,6 @@ coTUIElement::coTUIElement(coTabletUI *tabletUI, const std::string &n, int pID, 
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     createSimple(type);
     if(tui()->debugTUI())
@@ -3803,7 +3803,6 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID)
     ID = tui()->getID();
     tui()->addElement(this);
     listener = NULL;
-    hidden = false;
     if(tui()->debugTUI())
     {
         coVRMSController::instance()->syncStringStop(name);
@@ -3826,7 +3825,6 @@ coTUIElement::coTUIElement(QObject *parent, const std::string &n, int pID, int t
     label = n;
     ID = tui()->getID();
     listener = NULL;
-    hidden = false;
     tui()->addElement(this);
     if(tui()->debugTUI())
     {
@@ -4047,15 +4045,12 @@ void coTUIElement::resend(bool create)
     tb << yp;
     tui()->send(tb);
 
-    if (hidden)
-    {
-        tb.reset();
-        tb << TABLET_SET_VALUE;
-        tb << TABLET_SET_HIDDEN;
-        tb << ID;
-        tb << hidden;
-        tui()->send(tb);
-    }
+    tb.reset();
+    tb << TABLET_SET_VALUE;
+    tb << TABLET_LABEL;
+    tb << ID;
+    tb << label.c_str();
+    tui()->send(tb);
 
     if (!enabled)
     {
@@ -4067,12 +4062,15 @@ void coTUIElement::resend(bool create)
         tui()->send(tb);
     }
 
-    tb.reset();
-    tb << TABLET_SET_VALUE;
-    tb << TABLET_LABEL;
-    tb << ID;
-    tb << label.c_str();
-    tui()->send(tb);
+    if (hidden)
+    {
+        tb.reset();
+        tb << TABLET_SET_VALUE;
+        tb << TABLET_SET_HIDDEN;
+        tb << ID;
+        tb << hidden;
+        tui()->send(tb);
+    }
 }
 
 void coTUIElement::setPos(int x, int y)
@@ -4099,6 +4097,7 @@ void coTUIElement::setPos(int x, int y)
 
 void coTUIElement::setHidden(bool newState)
 {
+    //std::cerr << "coTUIElement::setHidden(hide=" << hidden << " -> " << newState << "): ID=" << ID << std::endl;
     if (hidden == newState)
         return;
 
@@ -4331,17 +4330,6 @@ bool coTabletUI::update()
                     }
                     else if (nconn) // could not open server port
                     {
-#ifndef _WIN32
-                        if (errno != ECONNREFUSED)
-                        {
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                            serverHost->getName(), port, strerror(errno));
-                        }
-#else
-                        fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", serverHost->getName(), port);
-                        delete serverHost;
-                        serverHost = NULL;
-#endif
                         delete nconn;
                         nconn = NULL;
                     }
@@ -4365,15 +4353,7 @@ bool coTabletUI::update()
                             // could not open server port
                             delete nconn;
                             nconn = NULL;
-#ifndef _WIN32
-                            if (errno != ECONNREFUSED)
-                            {
-                                fprintf(stderr, "Could not connect to TabletPC %s; port %d: %s\n",
-                                localHost->getName(), port, strerror(errno));
-                            }
-#else
-                            fprintf(stderr, "Could not connect to TabletPC %s; port %d\n", localHost->getName(), port);
-#endif
+
                         }
                     }
 
@@ -4510,20 +4490,15 @@ bool coTabletUI::update()
                     gotMessage = true;
                 }
             }
-            coVRMSController::instance()->sendSlaves((char *)&gotMessage, sizeof(bool));
-            if (gotMessage)
+        }
+        gotMessage = coVRMSController::instance()->syncBool(gotMessage);
+        if (gotMessage)
+        {
+            if (coVRMSController::instance()->isMaster())
             {
                 coVRMSController::instance()->sendSlaves(&m);
             }
-        }
-        else
-        {
-            if (coVRMSController::instance()->readMaster((char *)&gotMessage, sizeof(bool)) < 0)
-            {
-                cerr << "bcould not read message from Master" << endl;
-                exit(0);
-            }
-            if (gotMessage)
+            else
             {
                 if (coVRMSController::instance()->readMaster(&m) < 0)
                 {
@@ -4532,9 +4507,7 @@ bool coTabletUI::update()
                     exit(0);
                 }
             }
-        }
-        if (gotMessage)
-        {
+
             changed = true;
 
             TokenBuffer tb(&m);

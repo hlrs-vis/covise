@@ -518,6 +518,7 @@ Source: {#EXTERNLIBS}\OpenVR\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoe
 Source: {#EXTERNLIBS}\fmod\lowlevel\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\fmod\studio\lib\*64.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#EXTERNLIBS}\SDL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
+Source: {#EXTERNLIBS}\NatNetSDK\lib\x64\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#GEOS}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CG}\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: core
 Source: {#CUDAPATH}\bin\cudart*.dll; Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: core
@@ -559,6 +560,7 @@ Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoe
 Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
+Source: {#EXTERNLIBS}\embree3\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\alvarplugins\*.dll; DestDir: {#DLIB}\alvarplugins; Components: opencover
 ;Source: {#EXTERNLIBS}\opencv\build\x64\vc10\bin\*.dll;  Flags: skipifsourcedoesntexist; DestDir: {#DLIB}; Components: opencover
@@ -830,11 +832,11 @@ Name: {group}\Documentation\Programming Guide; Filename: {app}\doc\pdf\programmi
 Name: {group}\Documentation\COVER Config Guide; Filename: {app}\doc\pdf\cover_inst_config.pdf; Flags: createonlyiffileexists
 Name: {group}\Uninstall COVISE; Filename: {uninstallexe}
 
-Name: {commondesktop}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists
-Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico
-Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico
+Name: {commondesktop}\COVISE; Filename: {app}\{#ARCHSUFFIX}\bin\covise.exe; Comment: Start COVISE; IconFilename: {app}\share\covise\icons\covise.ico; Flags: createonlyiffileexists; Tasks: desktopicon
+Name: {commondesktop}\OpenCOVER; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\OpenCOVER.exe; Comment: OpenSceneGraph COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico; Flags: createonlyiffileexists; Tasks: desktopicon
+Name: {commondesktop}\Tablet UI; Filename: {app}\{#ARCHSUFFIX}\bin\tabletUI.exe; Comment: COVISE Tablet User Interface; IconFilename: {app}\share\covise\icons\tabletui.ico; Flags: createonlyiffileexists; Tasks: desktopicon
+Name: {commondesktop}\COVISE Cleaner; Filename: {cmd}; Parameters: """/K clean_covise.bat"""; WorkingDir: {app}\bin; Comment: Clean COVISE Processes; IconFilename: {app}\share\covise\icons\covise_clean.ico; Tasks: desktopicon
+Name: {commondesktop}\COVISE Daemon; Filename: {app}\{#ARCHSUFFIX}\bin\RemoteDaemon.exe; WorkingDir: {app}; Comment: COVISE Daemon, starts covise or Fenfloss; IconFilename: {app}\share\covise\icons\covise.ico; Tasks: desktopicon
 
 #if VERSION == "HLRS"
 ;Name: {group}\cover; Filename: {app}\{#ARCHSUFFIX}\bin\Renderer\cover.exe; Comment: COVISE VR Renderer; IconFilename: {app}\share\covise\icons\cover.ico Flags: createonlyiffileexist
@@ -866,10 +868,12 @@ Filename: {app}\{#ARCHSUFFIX}\lib\vcredist2010_x64.exe; Parameters: /Q; Descript
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
 Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec   
 #elif ARCHSUFFIX == "zebuopt"
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall shellexec    
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall shellexec
-Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall shellexec
-Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Installint MS-MPI Runtime; Flags: postinstall shellexec
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x64.exe; Parameters: /Q; Description: Install VisualStudio 2012 Runtime; Flags: postinstall    
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vcredist_x86.exe; Parameters: /Q; Description: Install VisualStudio 2010 x86 Runtime; Flags: postinstall
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\vc_redist.x64.exe; Parameters: /Q; Description: Install VisualStudio 2010 x64 Runtime; Flags: postinstall
+Filename: "msiexec.exe"; Parameters: "/I ""{app}\{#ARCHSUFFIX}\lib\bin\mpi_x64.Msi"" /qb"; Description: Install MS-MPI Runtime; Flags: postinstall   
+Filename: {app}\{#ARCHSUFFIX}\lib\bin\w_cproc_p_11.1.072_redist_intel64.exe; Parameters: /Q; Description: Install Intel Runtime; Flags: postinstall
+
 #elif ARCHSUFFIX == "amdwin64opt"
 Filename: {app}\{#ARCHSUFFIX}\lib\vcredist_x64_sp1_secfix.exe; Parameters: /Q; Description: Install VisualStudio 2005 SP1 Runtime (incl. ATL sec.fix); Flags: postinstall shellexec
 #endif

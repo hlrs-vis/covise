@@ -12,7 +12,7 @@
 #include "VRBFileDialog.h"
 #include "VRBCurve.h"
 
-#include "VRBClientList.h"
+#include "VrbUiClientList.h"
 #include <vrbclient/VRBMessage.h>
 #include <net/tokenbuffer.h>
 #include "VRBServer.h"
@@ -32,6 +32,8 @@
 #include <QListWidgetItem>
 #include <QSignalMapper>
 #include <QStyleFactory>
+#include <QWhatsThis>
+#include <QHeaderView>
 //#include <QAccel>
 #include <QTextEdit>
 
@@ -42,7 +44,7 @@
 #include "coRegister.h"
 
 using namespace covise;
-
+using namespace vrb;
 const char *ltext[4] = {
     "TCP sent bytes", "TCP received bytes",
     "UDP sent bytes", "UDP received bytes"
@@ -58,11 +60,10 @@ ApplicationWindow *appwin = NULL;
 ApplicationWindow::ApplicationWindow()
     : QMainWindow()
 {
-    setWindowTitle("application main window");
+    setWindowTitle("VRB - Virtual Reality Request Broker");
 
     // init some values
 
-    QFont boldfont;
     QLabel *label;
     QFrame *w;
     QVBoxLayout *box;
@@ -73,7 +74,11 @@ ApplicationWindow::ApplicationWindow()
     plugins = NULL;
 
     // set a proper font & layout
-    setFont(QFont("Helvetica", 8));
+    QFont normalFont = font();
+    QFont smallFont = normalFont;
+    smallFont.setPointSize(0.95*normalFont.pointSize());
+    setFont(smallFont);
+    //QApplication::setFont(smallFont);
 
     // initialize two timer
     // timer.....waits for disconneting vrb clients
@@ -107,21 +112,30 @@ ApplicationWindow::ApplicationWindow()
     box->setMargin(5);
 
     table = new QTreeWidget(w);
+    table->setFont(smallFont);
     QStringList labels;
+    // keep in sync with VRBSClient::Columns enum
     labels << "Master"
            << "ID"
            << "Group"
-           << "Host";
-    labels << "User"
+           << "User"
+           << "Host"
            << "Email"
            << "URL"
            << "IP";
     table->setHeaderLabels(labels);
     table->setMinimumSize(table->sizeHint());
-    connect(table, SIGNAL(itemClicked(QTreeWidgetem *)),
+    table->header()->resizeSections(QHeaderView::ResizeToContents);
+    connect(table, SIGNAL(itemClicked(QTreeWidgetItem *,int)),
             this, SLOT(showBPS(QTreeWidgetItem *)));
+#if 0
     connect(table, SIGNAL(rightButtonClicked(QTreeWidgetItem *, const QPoint &, int)),
             this, SLOT(popupCB(QTreeWidgetItem *, const QPoint &, int)));
+#else
+    table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(table, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(popupCB(const QPoint &)));
+#endif
 
     box->addWidget(table);
 
@@ -129,8 +143,11 @@ ApplicationWindow::ApplicationWindow()
 
     createTabWidget(split);
 
+    setFont(normalFont);
+
     // create a message area for the bottom
 
+    central->setFont(smallFont);
     msgFrame = new QFrame(central);
     msgFrame->setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
     box = new QVBoxLayout(msgFrame);
@@ -158,7 +175,7 @@ ApplicationWindow::ApplicationWindow()
     // set a proper size
 
     setCentralWidget(central);
-    resize(600, 450);
+    resize(900, 450);
 }
 
 ApplicationWindow::~ApplicationWindow()
@@ -173,13 +190,10 @@ void ApplicationWindow::createMenubar()
     QPixmap newIcon(filenew);
     QPixmap openIcon(fileopen);
     QPixmap quitIcon(quit);
-    QFont boldfont;
-    boldfont.setWeight(QFont::Bold);
 
     // File menu
 
     QMenu *file = new QMenu(tr("&File"), this);
-    file->setFont(QFont("Helvetica", 8));
     file->addAction(newIcon, "&New", this, SLOT(newDoc()), Qt::CTRL + Qt::Key_N);
     file->addAction(openIcon, "&Open", this, SLOT(choose()), Qt::CTRL + Qt::Key_O);
     file->addSeparator();
@@ -187,31 +201,37 @@ void ApplicationWindow::createMenubar()
 
     // Preference menu
 
-    QMenu *pref = new QMenu(tr("&Preference"), this);
-    pref->setFont(QFont("Helvetica", 8));
-    showMessageAreaAction = pref->addAction("Show MessageArea", this, SLOT(showMsg()));
+    QMenu *pref = new QMenu(tr("&View"), this);
+    showMessageAreaAction = pref->addAction("Message Area");
+    showMessageAreaAction->setCheckable(true);
     showMessageAreaAction->setChecked(false);
+    connect(showMessageAreaAction, SIGNAL(toggled(bool)), SLOT(showMsg(bool)));
 
     // Style menu
 
     QMenu *styleMenu = new QMenu(tr("&Style"), this);
-    styleMenu->setFont(QFont("Helvetica", 8));
-
     QActionGroup *ag = new QActionGroup(this);
     ag->setExclusive(true);
-
-    QSignalMapper *styleMapper = new QSignalMapper(this);
-    connect(styleMapper, SIGNAL(mapped(const QString &)),
-            this, SLOT(setStyle(const QString &)));
+    for (auto &key: QStyleFactory::keys())
+    {
+        QAction *a = new QAction(ag);
+        a->setObjectName(key);
+        a->setText(key);
+        a->setCheckable(true);
+        ag->addAction(a);
+        connect(a, &QAction::triggered, [this, a](bool checked){
+            if (checked)
+                setStyle(a->objectName());
+        });
+    }
+    styleMenu->addActions(ag->actions());
 
     // Help menu
     QMenu *help = new QMenu(tr("&Help"), this);
-    help->setFont(QFont("Helvetica", 8));
     help->addAction("&About", this, SLOT(about()), Qt::Key_F1);
     help->addSeparator();
-    help->addAction("What's &This", this, SLOT(whatsThis()), Qt::SHIFT + Qt::Key_F1);
+    help->addAction("What's &This", this, SLOT(enterWhatsThis()), Qt::SHIFT + Qt::Key_F1);
 
-    menuBar()->setFont(boldfont);
     menuBar()->addMenu(file);
     menuBar()->addMenu(pref);
     menuBar()->addMenu(styleMenu);
@@ -329,7 +349,7 @@ void ApplicationWindow::addMessage(char *text)
 //------------------------------------------------------------------------
 // remove all 4 curve types for current vrb client
 //------------------------------------------------------------------------
-void ApplicationWindow::removeCurves(VRBSClient *vrb)
+void ApplicationWindow::removeCurves(VrbUiClient *vrb)
 {
     for (int j = 0; j < 4; j++)
     {
@@ -342,7 +362,7 @@ void ApplicationWindow::removeCurves(VRBSClient *vrb)
 //------------------------------------------------------------------------
 // add all 4 curve types for for current vrb client
 //------------------------------------------------------------------------
-void ApplicationWindow::createCurves(VRBSClient *vrb)
+void ApplicationWindow::createCurves(VrbUiClient *vrb)
 {
     QLabel *label, *text;
     QString s;
@@ -379,17 +399,17 @@ void ApplicationWindow::createCurves(VRBSClient *vrb)
 //------------------------------------------------------------------------
 // hide/show the message window
 //------------------------------------------------------------------------
-void ApplicationWindow::showMsg()
+void ApplicationWindow::showMsg(bool show)
 {
-    if (showMessageAreaAction->isChecked())
-    {
-        msgFrame->hide();
-        showMessageAreaAction->setChecked(false);
-    }
-    else
+    if (show)
     {
         msgFrame->show();
         showMessageAreaAction->setChecked(true);
+    }
+    else
+    {
+        msgFrame->hide();
+        showMessageAreaAction->setChecked(false);
     }
 }
 
@@ -399,8 +419,18 @@ void ApplicationWindow::showMsg()
 void ApplicationWindow::setStyle(const QString &style)
 {
     QStyle *s = QStyleFactory::create(style);
-    if (s)
-        QApplication::setStyle(s);
+    if (!s)
+    {
+        std::cerr << "could not create style '" << style.toStdString() << "'" << std::endl;
+        return;
+    }
+
+    QApplication::setStyle(s);
+}
+
+void ApplicationWindow::enterWhatsThis()
+{
+    QWhatsThis::enterWhatsThisMode();
 }
 
 //------------------------------------------------------------------------
@@ -410,11 +440,7 @@ void ApplicationWindow::setStyle(const QString &style)
 void ApplicationWindow::choose()
 {
     QString s;
-
-    // show the current groups
-    //
-    // ????????????????????????
-    //
+    //select session before 
 
     // show the filebrowser
     browser->show();
@@ -429,7 +455,7 @@ void ApplicationWindow::choose()
         TokenBuffer tb;
         tb << LOAD_FILE;
         tb << s.toStdString().c_str();
-        clients.sendMessage(tb);
+        clients.sendMessage(tb); //fix me: chose group before sending to all
     }
 }
 
@@ -448,8 +474,8 @@ void ApplicationWindow::newDoc()
 //------------------------------------------------------------------------
 void ApplicationWindow::about()
 {
-    QMessageBox::about(this, "VRB User Interface ",
-                       "This is the new beautiful VRB User Interface");
+    QMessageBox::about(this, "VRB User Interface",
+                       "This is the GUI for the COVISE Virtual Reality Request Broker (VRB).");
 }
 
 //------------------------------------------------------------------------
@@ -458,16 +484,16 @@ void ApplicationWindow::about()
 void ApplicationWindow::closeEvent(QCloseEvent *ce)
 {
 
-    if (clients.num())
+    if (vrbClients->numberOfClients() > 0)
     {
         switch (QMessageBox::information(this, "VRB User Interface",
                                          "There are clients connected to this VRB.\nDo you want to quit anyway?",
-                                         "Yes", "No",
+                                         "Quit", "Cancel",
                                          0, 1, 1))
         {
         case 0:
             // start a timer to allow all clients to disconnect
-            server.closeServer();
+
             timer->setSingleShot(true);
             timer->start(2000);
             break;
@@ -485,7 +511,7 @@ void ApplicationWindow::closeEvent(QCloseEvent *ce)
 
     else
     {
-        clients.deleteAll();
+        vrbClients->deleteAll();
         ce->accept();
     }
 }
@@ -513,6 +539,15 @@ void ApplicationWindow::timerDone()
     }
 }
 
+void ApplicationWindow::popupCB(const QPoint &pos)
+{
+    auto item = table->itemAt(pos);
+    if (!item)
+        return;
+    int col = table->columnAt(pos.x());
+    popupCB(item, pos, col);
+}
+
 //------------------------------------------------------------------------
 // show the popup menu at the clicked vrb client
 //------------------------------------------------------------------------
@@ -521,7 +556,7 @@ void ApplicationWindow::popupCB(QTreeWidgetItem *item, const QPoint &pos, int co
     if (col == -1)
         return;
     popup->setItem(item);
-    popup->popup(pos);
+    popup->popup(table->mapToGlobal(pos));
 }
 
 //------------------------------------------------------------------------
@@ -575,7 +610,7 @@ void ApplicationWindow::showBPS(QTreeWidgetItem *item)
         // get current vrb client
         QString s = item->text(1);
         int ID = s.toInt();
-        currClient = clients.get(ID);
+        currClient = static_cast<VrbUiClient *>(vrbClients->get(ID));
 
         // stop old timer
         if (currClient == oldClient)

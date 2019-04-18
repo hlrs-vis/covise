@@ -582,8 +582,6 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
     {
         s_maxcontext = renderInfo.getState()->getGraphicsContext()->getMaxContextID();
     }
-    mutex()->unlock();
-    int thiscontext = renderInfo.getContextID();
     /*texture stuff*/
     if (s_textureID == NULL)
     {
@@ -593,6 +591,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             s_textureID[i] = 0;
         }
     }
+    mutex()->unlock();
+    int thiscontext = renderInfo.getContextID();
     mutex()->lock();
     if (s_textureID[thiscontext] == 0)
         initTexture(thiscontext);
@@ -799,10 +799,12 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
             //
             glBindTexture(GL_TEXTURE_2D, s_textureID[thiscontext]);
             // Render each particle...
+            GLboolean pointSprites = GL_FALSE;
+            glGetBooleanv(GL_POINT_SPRITE_ARB, &pointSprites);
             glEnable(GL_POINT_SPRITE_ARB);
             float minRad = m_maxRadius * 0.0001; // avoid opengl errors
 
-            bool array = true;
+            bool array = false;
 
             if (array)
             {
@@ -833,10 +835,12 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                     glPointSize(fmax(minRad, 2 * (radius) / m_maxRadius));
 
                     glBegin(GL_POINTS);
-                    for (std::vector<int>::iterator index = m_sortedRadiusIndices[j].begin();
-                         index != m_sortedRadiusIndices[j].end(); ++index)
+                    for (std::vector<int>::iterator it = m_sortedRadiusIndices[j].begin();
+                         it != m_sortedRadiusIndices[j].end(); ++it)
                     {
-                        int i = *index;
+                        int i = *it;
+                        assert(i >= 0);
+                        assert(i < m_numSpheres);
                         glColor4f(m_color[i * 4 + 0], m_color[i * 4 + 1], m_color[i * 4 + 2], m_color[i * 4 + 3]);
                         glVertex3f(m_coord[i * 3 + 0], m_coord[i * 3 + 1], m_coord[i * 3 + 2]);
                     }
@@ -851,7 +855,8 @@ void coSphere::drawImplementation(osg::RenderInfo &renderInfo) const
                 // window resolution in millimeter
             }
 
-            glDisable(GL_POINT_SPRITE_ARB);
+            if (!pointSprites)
+                glDisable(GL_POINT_SPRITE_ARB);
         }
         else
         {

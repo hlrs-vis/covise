@@ -4,6 +4,9 @@ MACRO(USE_BOOST)
   IF(WIN32)
       #set(COMPONENTS ${COMPONENTS} zlib)
   ENDIF(WIN32)
+
+  set (BOOST_INCLUDEDIR /usr/include/boost169)  
+  set (BOOST_LIBRARYDIR /usr/lib64/boost169)
   
   covise_find_package(Boost COMPONENTS ${COMPONENTS} QUIET)
   if (Boost_FOUND AND (NOT Boost_VERSION VERSION_LESS "105300"))

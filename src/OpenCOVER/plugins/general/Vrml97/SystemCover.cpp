@@ -37,6 +37,7 @@
 #include <cover/coVRConfig.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRCommunication.h>
+#include <cover/coVRPartner.h>
 #include <cover/coVRAnimationManager.h>
 #include <cover/coVRCollaboration.h>
 #include <cover/coVRNavigationManager.h>
@@ -558,7 +559,7 @@ const char *SystemCover::remoteFetch(const char *filename)
             rtb << vrbc->getID();
             Message m(rtb);
             m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
-            vrbc->sendMessage(&m);
+            cover->sendVrbMessage(&m);
         }
         int message = 1;
         Message *msg = new Message;
@@ -898,16 +899,18 @@ double SystemCover::getAvatarHeight()
 
 int SystemCover::getNumAvatars()
 {
-    return VRAvatarList::instance()->getNum();
+    return coVRPartnerList::instance()->numberOfPartners(); //maybe return number of partners in current session instead
 }
 
 bool SystemCover::getAvatarPositionAndOrientation(int num, float pos[3], float ori[4])
 {
-    if (num < 0 || num >= VRAvatarList::instance()->getNum())
+    coVRPartner *p = coVRPartnerList::instance()->get(num);
+    if (!p || !p->getAvatar())
+    {
         return false;
-
+    }
     osg::Matrix feet;
-    feet = VRAvatarList::instance()->getAvatar(num)->schuheTransform->getMatrix();
+    feet = p->getAvatar()->feetTransform->getMatrix();
 
     return getPositionAndOrientationFromMatrix(feet, pos, ori);
 }
@@ -1148,11 +1151,8 @@ Viewer::Object SystemCover::getInline(const char *name)
 {
     osg::ref_ptr<osg::Group> g = new osg::Group;
     std::string n(name);
-    std::string cached = n;
 
-    coVRFileManager::instance()->loadFile(cached.c_str(), NULL, g);
-    if (g->getNumChildren() <= 0)
-        coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
+    coVRFileManager::instance()->loadFile(n.c_str(), NULL, g);
 
     if (g->getNumChildren() > 0)
     {

@@ -27,7 +27,9 @@
 #include <memory>
 #include <osg/ref_ptr>
 #include <osg/Texture2D>
-
+#include <string>
+#include <vector>
+#include <vrbclient/SharedState.h>
 #include <OpenVRUI/coUpdateManager.h>
 
 namespace osg
@@ -41,7 +43,6 @@ namespace osgText
 {
 class Font;
 }
-
 namespace opencover
 {
 
@@ -104,6 +105,8 @@ typedef struct
     const char *extension;
 } FileHandler;
 
+
+
 class COVEREXPORT coVRFileManager : public vrui::coUpdateable
 {
     friend struct LoadedFile;
@@ -117,7 +120,10 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-
+    //removes sharedDataPath from filePath
+    void cutName(std::string &fileName);
+    //search the file under COVISE_PATH; Return the first path to a valid file or an empty string
+    std::string findSharedFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -165,10 +171,10 @@ public:
     int unregisterFileHandler(const FileHandler *handler);
     int unregisterFileHandler(coVRIOReader *handler);
 
-    // get list of extensioins as required by a filebrowser
+    // get list of extensions as required by a filebrowser
     std::string getFilterList();
 
-    // get list of extensioins for saving as required by a filebrowser
+    // get list of extensions for saving as required by a filebrowser
     std::string getWriteFilterList();
 
     // get a loader for a file type, if available
@@ -226,6 +232,18 @@ private:
     LoadedFile *m_lastFile = nullptr;
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
+    vrb::SharedState<std::set<std::string>> filePaths;
+    void loadPartnerFiles();
+    struct Compare {
+        bool operator()(const std::string& first, const std::string& second) {
+            return first.size() > second.size();
+        }
+    };
+    ///returns the full path of the symbolic link that points to the shared data
+    ///the link should be in COVISE_PATH/.. and named sharedData
+    void getSharedDataPath();
+    std::string m_sharedDataPath;
+    void convertBackslash(std::string &path);
 };
 }
 #endif

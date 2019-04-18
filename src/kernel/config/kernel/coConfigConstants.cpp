@@ -98,15 +98,11 @@ const QString &coConfigConstants::getHostname()
 
     if (instance->hostname == QString::null)
     {
-        instance->hostname = getenv("COVISE_HOST");
+        instance->hostname = getenv("COVISE_CONFIG");
         if (instance->hostname != QString::null)
         {
-            COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from COVISE_HOST)");
+            COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from COVISE_CONFIG)");
         }
-    }
-    if (instance->hostname == QString::null)
-    {
-        instance->hostname = getenv("COVISE_CONFIG");
     }
 
     if (instance->hostname == QString::null)

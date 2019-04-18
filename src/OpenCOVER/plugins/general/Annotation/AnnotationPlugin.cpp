@@ -118,8 +118,9 @@ bool AnnotationPlugin::init()
     annotationsMenu->add(annotationsMenuCheckbox);
     annotationsMenuCheckbox->setMenuListener(this);
 
+    
     // hide all annotations
-    hideMenuCheckbox = new coCheckboxMenuItem("Display Annotations", true);
+    hideMenuCheckbox = new coCheckboxMenuItem("Display Annotations", !coCoviseConfig::isOn("COVER.DisplayAnnotations", false));
     annotationsMenu->add(hideMenuCheckbox);
     hideMenuCheckbox->setMenuListener(this);
 
@@ -924,6 +925,8 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 
                 curr
                     = new Annotation(mm->id, mm->sender, pick, scaleMenuPoti->getValue(), orientation);
+                if (hideMenuCheckbox->getState() == true)
+                    curr->setVisible(false);
                 curr->setOwnerID(mm->sender);
                 previousAnnotation = activeAnnotation; //remember last selected annotation
                 if (previousAnnotation)

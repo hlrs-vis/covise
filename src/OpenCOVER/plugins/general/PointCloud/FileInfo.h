@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-class PointSet;
+struct PointSet;
 
 class NodeInfo
 {

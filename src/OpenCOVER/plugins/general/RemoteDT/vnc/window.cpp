@@ -40,6 +40,7 @@
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/select.h>
 #endif
 
 #ifdef _WIN32

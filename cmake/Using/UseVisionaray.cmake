@@ -1,19 +1,17 @@
 MACRO(USE_VISIONARAY)
     if(COVISE_USE_VISIONARAY)
         IF(NOT VISIONARAY_USED)
-            using_message("Using Visionaray")
-
             set(VISIONARAY_INCLUDE_DIR "${COVISEDIR}/src/3rdparty/visionaray/include")
+            set(VISIONARAY_CONFIG_DIR "${CMAKE_BINARY_DIR}/src/3rdparty/visionaray/config")
             if(MSVC)
                 set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
-                set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/build.covise/src/3rdparty/visionaray/config")
+                set(VISIONARAY_LIBRARY_RELEASE "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
             else()
                 if(BUILD_SHARED_LIBS)
                     set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_SHARED_LIBRARY_SUFFIX}")
                 else()
                     set(VISIONARAY_LIBRARY "${COVISEDIR}/${ARCHSUFFIX}/lib/libvisionaray${CMAKE_STATIC_LIBRARY_SUFFIX}")
                 endif()
-                set(VISIONARAY_CONFIG_DIR "${COVISEDIR}/${ARCHSUFFIX}/build.covise/src/3rdparty/visionaray/config")
             endif()
 
             covise_find_package(OpenGL REQUIRED)
@@ -27,6 +25,7 @@ MACRO(USE_VISIONARAY)
             endif()
 
             USE_BOOST()
+            USE_TBB(optional)
             include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
             include_directories(${VISIONARAY_INCLUDE_DIR})
             include_directories(${VISIONARAY_CONFIG_DIR})
@@ -34,14 +33,14 @@ MACRO(USE_VISIONARAY)
             set(EXTRA_LIBS
                 ${EXTRA_LIBS}
                 ${VISIONARAY_LIBRARY}
-            )
+                )
 
             if (NOT APPLE AND NOT WIN32)
                 include_directories(SYSTEM ${PTHREAD_INCLUDE_DIR})
                 set(EXTRA_LIBS
                     ${EXTRA_LIBS}
                     ${PTHREAD_LIBRARY}
-                )
+                    )
             endif()
 
             if(COVISE_USE_CUDA AND CUDA_FOUND)
@@ -61,7 +60,8 @@ MACRO(USE_VISIONARAY)
             SET(VISIONARAY_USED TRUE)
         ENDIF(NOT VISIONARAY_USED)
     else(COVISE_USE_VISIONARAY)
-        if (NOT opt STREQUAL "optional")
+        if (${ARGC} LESS 1)
+            using_message("Skipping because of disabled Visionaray")
             return()
         endif()
     endif(COVISE_USE_VISIONARAY)

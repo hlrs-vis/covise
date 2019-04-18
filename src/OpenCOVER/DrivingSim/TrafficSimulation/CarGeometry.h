@@ -26,6 +26,7 @@ public:
     ~CarGeometry();
 
     void setTransform(Transform &, double);
+    void setTransformOrig(Transform &, double);
 
 	void setTransformByCoordinates(osg::Vec3 &pos, osg::Vec3 &xVec);
 	void setTransform(osg::Matrix m);

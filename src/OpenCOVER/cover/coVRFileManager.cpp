@@ -27,7 +27,6 @@
 #include "coVRCommunication.h"
 #include "coTabletUI.h"
 #include "coVRIOReader.h"
-#include "coTUIFileBrowser/NetHelp.h"
 #include "VRRegisterSceneGraph.h"
 #include "coVRConfig.h"
 #include "coVRRenderer.h"
@@ -37,6 +36,10 @@
 #include "ui/Button.h"
 #include "ui/Group.h"
 #include "ui/FileBrowser.h"
+#include "ui/Menu.h"
+
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #ifdef __DARWIN_OSX__
 #include <Carbon/Carbon.h>
@@ -54,10 +57,12 @@
 #endif
 
 using namespace covise;
+namespace fs = boost::filesystem;
 namespace opencover
 {
 
 coVRFileManager *coVRFileManager::s_instance = NULL;
+
 
 Url::Url(const std::string &url)
 {
@@ -268,6 +273,7 @@ struct LoadedFile
       {
           button->setText(shortenUrl(url));
           button->setState(true);
+          button->setShared(true);
           button->setCallback([this](bool state){
               if (state)
               {
@@ -279,10 +285,6 @@ struct LoadedFile
                   {
                       std::cerr << "unloading " << this->url << " failed" << std::endl;
                   }
-                  else
-                  {
-                      //delete this;
-                  }
               }
           });
       }
@@ -291,11 +293,12 @@ struct LoadedFile
   Url url;
   std::shared_ptr<ui::Button> button;
   std::string key;
-  osg::Node *node; // these should not be ref_ptrs as the group node or node might not be part of the scenegraph yet and will then be deleted immediately after loading 
-  osg::Group *parent;
+  osg::Node *node = nullptr; // these should not be ref_ptrs as the group node or node might not be part of the scenegraph yet and will then be deleted immediately after loading
+  osg::Group *parent = nullptr;
   const FileHandler *handler = nullptr;
   coVRIOReader *reader = nullptr;
   coTUIFileBrowserButton *filebrowser = nullptr;
+  bool loaded = false;
 
   osg::Node *load();
 
@@ -319,6 +322,9 @@ struct LoadedFile
 
   bool unload()
   {
+      if (!loaded)
+          return false;
+
       const char *ck = nullptr;
       if (!key.empty())
           ck = key.c_str();
@@ -348,12 +354,17 @@ struct LoadedFile
       if (ok && button)
           button->setState(false);
 
+      loaded = false;
+
       return ok;
   }
 };
 
 osg::Node *LoadedFile::load()
 {
+    if (loaded)
+        return node;
+
     const char *covise_key = nullptr;
     if (!key.empty())
         covise_key = key.c_str();
@@ -475,6 +486,8 @@ osg::Node *LoadedFile::load()
 
     if (button)
         button->setState(true);
+
+    loaded = true;
 
     return node;
 }
@@ -612,22 +625,41 @@ bool coVRFileManager::fileExist(const char *fileName)
 
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
 {
+    if (!fileName || strcmp(fileName, "") == 0)
+    {
+        return nullptr;
+    }
     START("coVRFileManager::loadFile");
-
+    fs::path p(fileName);
+    if (!fs::exists(p))
+    {
+        cerr << "file " << p.string() << " does not exist" << endl;
+        return nullptr;
+    }
+    std::string canonicalPath = fs::canonical(p).string();
+    convertBackslash(canonicalPath);
+    if (m_files.find(canonicalPath) != m_files.end())
+    {
+        cerr << "The File : " << fileName << " is already loaded" << endl;
+        cerr << "Loading a file multiple times is currently not supported" << endl;
+        return nullptr;
+    }
+    std::string relativePath = canonicalPath;
+    cutName(relativePath);
     std::string adjustedFileName;
     std::string key;
 
     if (fb)
     {
         //Store filename associated with corresponding fb instance
-        key = fileName;
+        key = canonicalPath;
         fileFBMap[key] = fb;
     }
 
-    Url url = Url::fromFileOrUrl(fileName);
+    Url url = Url::fromFileOrUrl(canonicalPath);
     if (!url.valid())
     {
-        std::cerr << "failed to parse URL " << fileName << std::endl;
+        std::cerr << "failed to parse URL " << canonicalPath << std::endl;
         return  nullptr;
     }
     std::cerr << "Loading " << url.str() << std::endl;
@@ -664,7 +696,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, std::string("File"+std::to_string(m_loadCount++)));
+        button = new ui::Button(m_fileGroup, std::string("File_"+ relativePath));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -672,7 +704,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->filebrowser = fb;
 
     OpenCOVER::instance()->hud->setText2("loading");
-    OpenCOVER::instance()->hud->setText3(fileName);
+    OpenCOVER::instance()->hud->setText3(canonicalPath);
     OpenCOVER::instance()->hud->redraw();
     if (isRoot)
     {
@@ -681,7 +713,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             const char *ext = strchr(url.path().c_str(), '.');
             if(ext)
             {
-                viewPointFile = fileName;
+                viewPointFile = canonicalPath;
                 std::string::size_type pos = viewPointFile.find_last_of('.');
                 viewPointFile = viewPointFile.substr(0,pos);
                 viewPointFile+=".vwp";
@@ -703,7 +735,15 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     if (isRoot)
     {
-        m_files[fileName] = fe;
+        //if file is not shared, add it to the shared filePaths list
+        std::set<std::string> v = filePaths;
+        if (v.insert(relativePath).second)
+        {
+            filePaths = v;
+        }
+        m_files[canonicalPath] = fe;
+
+
         if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
         else
@@ -899,12 +939,12 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
+    , filePaths("coVRFileManager_filePaths", std::set<std::string>(), vrb::ALWAYS_SHARE)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
-
     assert(!s_instance);
-
+    getSharedDataPath();
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 
@@ -915,7 +955,7 @@ coVRFileManager::coVRFileManager()
         fileOpen->setCallback([this](const std::string &file){
                 loadFile(file.c_str());
         });
-
+        filePaths.setUpdateFunction([this](void) {loadPartnerFiles(); });
         m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
         m_fileGroup->setText("Files");
         cover->fileMenu->add(m_fileGroup);
@@ -1042,6 +1082,32 @@ const char *coVRFileManager::getName(const char *file)
     delete[] coPath;
     buf[0] = '\0';
     return NULL;
+}
+
+void coVRFileManager::cutName(std::string & fileName)
+{
+    boost::filesystem::path filePath(fileName);
+    if (!boost::filesystem::exists(filePath))
+    {
+        return;
+    }
+    if (fileName.compare(0, m_sharedDataPath.length(), m_sharedDataPath)== 0)
+    {
+        fileName.erase(0, m_sharedDataPath.length());
+    }
+}
+
+std::string coVRFileManager::findSharedFile(const std::string & fileName)
+{
+    std::string path = m_sharedDataPath + fileName;
+    if (fs::exists(path))
+    {
+        return path;
+    }
+    else
+    {
+        return fileName;
+    }
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
@@ -1373,5 +1439,76 @@ bool coVRFileManager::update()
     return true;
 }
 
+void coVRFileManager::loadPartnerFiles()
+{
+    //load and unload existing files
+    std::set<std::string> alreadyLoadedFiles;
+    for (auto myFile : m_files)
+    {
+        bool found = false;
+        
+        auto shortPath = myFile.first;
+        cutName(shortPath);
+        alreadyLoadedFiles.insert(shortPath);
+        for (auto theirFile : filePaths.value())
+        {
+            if (shortPath == theirFile || myFile.first == theirFile)
+            {
+                myFile.second->load();
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            unloadFile(myFile.first.c_str());
+        }
+    }
+    
+    
+    //load new partner files
+    std::set<std::string> newFiles;
+    std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
+    for (auto newFile : newFiles)
+    {
+        loadFile(findSharedFile(newFile).c_str());
+    }
+}
 
+void coVRFileManager::getSharedDataPath()
+{
+    char *covisepath = getenv("COVISE_PATH");
+#ifdef WIN32
+    std::vector<std::string> p = split(covisepath, ';');
+#else
+    std::vector<std::string> p = split(covisepath, ':');
+#endif
+    for (const auto path : p)
+    {
+        std::string link = path + "/../sharedData";
+        if (fs::exists(link))
+        {
+            m_sharedDataPath = fs::canonical(link).string();
+            convertBackslash(m_sharedDataPath);
+
+        }
+    }
+}
+
+void coVRFileManager::convertBackslash(std::string & path)
+{
+    std::string convertedPath;
+    for (char c : path)
+    {
+        if (c == '\\')
+        {
+            convertedPath.push_back('/');
+        }
+        else
+        {
+            convertedPath.push_back(c);
+        }
+    }
+    path = convertedPath;
+}
 }

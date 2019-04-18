@@ -111,6 +111,15 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
         }
     }
 
+    if (carPartsTransformList.find("wheelFL") != carPartsTransformList.end())
+        wheelFL = carPartsTransformList["wheelFL"];
+    if (carPartsTransformList.find("wheelFR") != carPartsTransformList.end())
+        wheelFR = carPartsTransformList["wheelFR"];
+    if (carPartsTransformList.find("wheelBL") != carPartsTransformList.end())
+        wheelBL = carPartsTransformList["wheelBL"];
+    if (carPartsTransformList.find("wheelBR") != carPartsTransformList.end())
+        wheelBR = carPartsTransformList["wheelBR"];
+
     // bounding radius //
     osg::BoundingSphere boundingSphere = carTransform->computeBound();
     boundingCircleRadius = (boundingSphere.center() - carTransform->getMatrix().getTrans()).length() + boundingSphere.radius();
@@ -134,7 +143,7 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
     {
         cover->getObjectsRoot()->addChild(carTransform);
         // no need to do intersection tests on cars
-        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
+        carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk | Isect::Update));
     }
     carTransform->setName(name);
 
@@ -390,11 +399,20 @@ CarGeometry::updateCarParts(double t, double dt, VehicleState &vehState)
     double phi = vehState.du / WHEEL_RADIUS * dt; // w*t = v/r * t
     osg::Matrix addPhi;
     addPhi.makeRotate(-phi, osg::Vec3(0.0, 0.0, 1.0)); // (VRML axis)
-    if (wheelFL != NULL)
+    if (wheelFL != NULL )
     {
         wheelFL->preMult(addPhi);
+    }
+    if (wheelFR != NULL)
+    {
         wheelFR->preMult(addPhi);
+    }
+    if (wheelBL != NULL)
+    {
         wheelBL->preMult(addPhi);
+    }
+    if (wheelBR != NULL)
+    {
         wheelBR->preMult(addPhi);
     }
 }
@@ -403,6 +421,17 @@ void CarGeometry::setTransform(Transform &roadTransform, double heading)
 {
     osg::Matrix m;
     m.makeRotate(heading, 0, 0, 1);
+    m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
+    carTransform->setMatrix(m);
+}
+
+void CarGeometry::setTransformOrig(Transform &roadTransform, double heading)
+{
+    Quaternion qzaaa(heading, Vector3D(0, 0, 1));
+
+    Quaternion q = roadTransform.q() * qzaaa;
+    osg::Matrix m;
+    m.makeRotate(osg::Quat(q.x(), q.y(), q.z(), q.w()));
     m.setTrans(roadTransform.v().x(), roadTransform.v().y(), roadTransform.v().z());
     carTransform->setMatrix(m);
 }

@@ -27,7 +27,7 @@
 //
 // Constructor
 //
-DataFileAsc::DataFileAsc(const coModule *mod)
+DataFileAsc::DataFileAsc(ReadEnsight *mod)
     : EnFile(mod)
     , lineCnt_(0)
     , numVals_(0)
@@ -37,7 +37,7 @@ DataFileAsc::DataFileAsc(const coModule *mod)
     className_ = string("DataFileAsc");
 }
 
-DataFileAsc::DataFileAsc(const coModule *mod, const string &name, const int &dim, const int &numVals)
+DataFileAsc::DataFileAsc(ReadEnsight *mod, const string &name, const int &dim, const int &numVals)
     : EnFile(mod, name, dim)
     , lineCnt_(0)
     , numVals_(numVals)
@@ -79,7 +79,7 @@ DataFileAsc::setIndexMap(const int *im)
 // read data
 //
 void
-DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileAsc::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (!isOpen_)
         return;
@@ -133,7 +133,7 @@ DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObject
         }
     }
 
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
+    createDataOutObj(dim, outObjects, baseName, timeStep, numTimeSteps);
 }
 
 //
@@ -144,7 +144,7 @@ DataFileAsc::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObject
 // corresponding geometry file
 //
 void
-DataFileAsc::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileAsc::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -318,5 +318,5 @@ DataFileAsc::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outO
         }
     }
 
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
+    createDataOutObj(dim, outObjects, baseName, timeStep,false);
 }

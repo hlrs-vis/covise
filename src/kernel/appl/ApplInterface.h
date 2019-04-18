@@ -128,6 +128,7 @@ public:
 
     static char *get_description_message();
 
+
     /// check whether port is connected - use in compute() CB only
     static int is_port_connected(const char *name)
     {

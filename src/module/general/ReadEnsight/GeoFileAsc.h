@@ -46,13 +46,13 @@ class En6GeoASC : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    En6GeoASC(const coModule *mod);
+    En6GeoASC(ReadEnsight *mod);
 
     // creates file-rep. and opens the file
-    En6GeoASC(const coModule *mod, const string &name);
+    En6GeoASC(ReadEnsight *mod, const string &name);
 
     // read the file (Ensight 6)
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
+    void read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
 
     // create a list of Parts
     virtual void parseForParts();
@@ -89,6 +89,6 @@ private:
     int maxIndex_; // max possible  index of indexmap
     int lastNc_;
 
-    vector<EnPart> parts_; // contains all parts of the current geometry
+    //vector<EnPart> parts_; // contains all parts of the current geometry
 };
 #endif

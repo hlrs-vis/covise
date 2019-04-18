@@ -305,6 +305,7 @@ ENDFUNCTION(COVISE_ADJUST_OUTPUT_DIR)
 # Macro to add covise libraries
 MACRO(ADD_COVISE_LIBRARY targetname)
   ADD_LIBRARY(${ARGV} ${SOURCES} ${HEADERS})
+  TARGET_LINK_LIBRARIES(${targetname} ${EXTRA_LIBS})
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
 
@@ -338,6 +339,7 @@ ENDMACRO(COVISE_ADD_LIBRARY)
 # Macro to add covise executables
 MACRO(ADD_COVISE_EXECUTABLE targetname)
   ADD_EXECUTABLE(${targetname} ${ARGN} ${SOURCES} ${HEADERS})
+  TARGET_LINK_LIBRARIES(${targetname} ${EXTRA_LIBS})
   # SET_TARGET_PROPERTIES(${targetname} PROPERTIES PROJECT_LABEL "${targetname}")
   SET_TARGET_PROPERTIES(${targetname} PROPERTIES OUTPUT_NAME "${targetname}")
   
@@ -945,13 +947,9 @@ MACRO(COVISE_USE_OPENMP target)
          SET(WITH_OPENMP "FALSE")
       ENDIF()
       IF(APPLE)
-         # with cmake 2.8.8 (rc for now), clang will be identifiable
-         # using CMAKE_COMPILER_ID. For now, use this hack to identify
-         # clang on Max OS X
-         EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS --version OUTPUT_VARIABLE _clang_version_info)
-         IF(${_clang_version_info} MATCHES "clang")
+         IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
             SET(WITH_OPENMP "FALSE")
-         ENDIF(${_clang_version_info} MATCHES "clang")
+         ENDIF()
       ENDIF(APPLE)
 
       IF(WITH_OPENMP)

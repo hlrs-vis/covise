@@ -7,6 +7,7 @@
 #include <cassert>
 
 #include <net/tokenbuffer.h>
+#include <vrbclient/SharedState.h>
 
 namespace opencover {
 namespace ui {
@@ -53,6 +54,16 @@ void Element::setPriority(Element::Priority prio)
 Element::Priority Element::priority() const
 {
     return m_priority;
+}
+
+void Element::setShared(bool state)
+{
+    assert(!state && "sharing of ui::Element state requested, but sharing not implemented for Element type");
+}
+
+bool Element::isShared() const
+{
+    return bool(m_sharedState);
 }
 
 void Element::setIcon(const std::string &iconName)
@@ -157,6 +168,11 @@ void Element::load(covise::TokenBuffer &buf)
     buf >> m_visible;
     buf >> m_enabled;
     buf >> m_label;
+}
+
+void Element::updateSharedState()
+{
+    assert(!m_sharedState && "updating shared state of ui::Element requested, but sharing not implemented for Element type");
 }
 
 }

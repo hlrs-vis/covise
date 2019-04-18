@@ -42,13 +42,9 @@ IF(UNIX OR MINGW)
          SET(WITH_OPENMP "FALSE")
       ENDIF()
       IF(APPLE)
-         # with cmake 2.8.8 (rc for now), clang will be identifiable
-         # using CMAKE_COMPILER_ID. For now, use this hack to identify
-         # clang on Max OS X
-         EXEC_PROGRAM(${CMAKE_CXX_COMPILER} ARGS --version OUTPUT_VARIABLE _clang_version_info)
-         IF(${_clang_version_info} MATCHES "clang")
+          IF (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
             SET(WITH_OPENMP "FALSE")
-         ENDIF(${_clang_version_info} MATCHES "clang")
+         ENDIF()
       ENDIF(APPLE)
 
       IF(WITH_OPENMP)

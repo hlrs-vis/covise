@@ -224,7 +224,7 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(sensorMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
     return 0;
 }
@@ -377,7 +377,9 @@ bool Vrml97Plugin::init()
     VrmlNamespace::addBuiltIn(VrmlNodeCOVISEObject::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodePrecipitation::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMatrixLight::defineType());
+#ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
     VrmlNamespace::addBuiltIn(VrmlNodePhotometricLight::defineType());
+#endif
 
     VrmlNamespace::addBuiltIn(VrmlNodeARSensor::defineType());
     VrmlNamespace::addBuiltIn(VrmlNodeMirrorCamera::defineType());
@@ -448,7 +450,9 @@ void
 Vrml97Plugin::preFrame()
 {
     VrmlNodeMatrixLight::updateAll();
+#ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
     VrmlNodePhotometricLight::updateAll();
+#endif
     if (plugin->viewer)
 	{
 		if (plugin->viewer->VRMLRoot && (plugin->isNewVRML || coSensiveSensor::modified))
@@ -845,5 +849,13 @@ void Vrml97Plugin::menuEvent(coMenuItem *menuItem)
     }
 }
 #endif
+
+
+void Vrml97Plugin::preDraw(osg::RenderInfo &renderInfo)  // implementierung von virtual void preDraw(osg::RenderInfo &), definiert in d:\src\covise\src\OpenCOVER\cover\coVRPlugin.h
+{
+#ifdef HAVE_VRMLNODEPHOTOMETRICLIGHT
+        VrmlNodePhotometricLight::updateLightTextures(renderInfo); // note the s
+#endif
+}
 
 COVERPLUGIN(Vrml97Plugin)

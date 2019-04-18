@@ -22,7 +22,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-
+#include <functional>
 #include <cover/ui/Button.h>
 #include <cover/ui/Menu.h>
 #include <cover/ui/Slider.h>
@@ -30,6 +30,7 @@
 #include <OpenVRUI/coButtonInteraction.h>
 #include <cover/coVRShader.h>
 #include <PluginUtil/PluginMessageTypes.h>
+#include <cover/ui/ButtonGroup.h>
 
 // OSG:
 #include <osg/Node>
@@ -54,7 +55,6 @@ using covise::coCoviseConfig;
 using vrui::coInteraction;
 
 const int MAX_POINTS = 30000000;
-
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
 PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
 
@@ -107,7 +107,7 @@ bool PointCloudPlugin::init()
         return false;
     }
     plugin = this;
-    pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", 9.0);
+    pointSizeValue = coCoviseConfig::getFloat("COVER.Plugin.PointCloud.PointSize", pointSizeValue);
 
     coVRFileManager::instance()->registerFileHandler(&handlers[0]);
     coVRFileManager::instance()->registerFileHandler(&handlers[1]);
@@ -121,8 +121,8 @@ bool PointCloudPlugin::init()
     pointCloudMenu->setText("Point cloud");
 
     // Create menu
-    char name[100];
 #if 0
+    char name[100];
     sprintf(name, "PointCloudFiles");
     fileGroup = new ui::Group(pointCloudMenu, name);
     sprintf(name, "Files");
@@ -141,7 +141,7 @@ bool PointCloudPlugin::init()
         if (state)
         {
             //enable interaction
-            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+            vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
             //cover->addPlugin("NurbsSurface");
         }
         else
@@ -231,6 +231,7 @@ bool PointCloudPlugin::init()
     adaptLODButton = new ui::Button(pointCloudMenu,"adaptLOD");
     adaptLODButton->setState(adaptLOD);
     adaptLODButton->setText("Adapt level of detail");
+    adaptLODButton->setShared(true);
     adaptLODButton->setCallback([this](bool state){
         adaptLOD = state;
         if (!adaptLOD)
@@ -243,6 +244,7 @@ bool PointCloudPlugin::init()
     pointSizeSlider->setText("Point size");
     pointSizeSlider->setBounds(1.0,10.0);
     pointSizeSlider->setValue(pointSizeValue);
+    pointSizeSlider->setShared(true);
     pointSizeSlider->setCallback([this](double value, bool released){
         pointSizeValue = value;
         changeAllPointSize(pointSizeValue);
@@ -252,6 +254,7 @@ bool PointCloudPlugin::init()
     lodScaleSlider->setText("LOD scale");
     lodScaleSlider->setBounds(0.01, 100.);
     lodScaleSlider->setValue(1.);
+    lodScaleSlider->setShared(true);
     lodScaleSlider->setScale(ui::Slider::Logarithmic);
     lodScaleSlider->setCallback([this](double value, bool released){
         lodScale = value;
@@ -390,6 +393,10 @@ void PointCloudPlugin::changeAllPointSize(float pointSize)
                 geo->setPointSize(pointSize);
         }
     }
+}
+void PointCloudPlugin::UpdatePointSizeValue(void) {
+	changeAllPointSize(pointSizeValue);
+    pointSizeSlider->setValue(pointSizeValue);
 }
 
 // create and add geodes to the scene  //DEFAULT JUST LOADS New_10x10x10.xyz  //UPDATE will be using the menu
@@ -879,6 +886,8 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 				if (greenData) delete greenData;
 				if (blueData) delete blueData;
 
+                calcMinMax(pointSet[scanIndex]);
+
 				if (pointSet[scanIndex].size != 0)
 				{
 					PointCloudGeometry *drawable = new PointCloudGeometry(&pointSet[scanIndex]);
@@ -895,6 +904,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 			}
 
 			files.push_back(fi);
+            s_pointCloudInteractor->updatePoints(&files);
 			eReader.Close();
 			return;
 		}
@@ -956,33 +966,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
             }
             delete[] pc;
 
-            if (pointSet[i].size >0)
-            {
-                pointSet[i].xmax = pointSet[i].xmin = pointSet[i].points[0].x;
-                pointSet[i].ymax = pointSet[i].ymin = pointSet[i].points[0].y;
-                pointSet[i].zmax = pointSet[i].zmin = pointSet[i].points[0].z;
-
-                if (pointSet[i].size >1)
-                {
-                    for (int k=1; k<pointSet[i].size; k++)
-                    {
-                        if(pointSet[i].points[k].x<pointSet[i].xmin)
-                            pointSet[i].xmin= pointSet[i].points[k].x;
-                        else if (pointSet[i].points[k].x>pointSet[i].xmax)
-                            pointSet[i].xmax= pointSet[i].points[k].x;
-
-                        if(pointSet[i].points[k].y<pointSet[i].ymin)
-                            pointSet[i].ymin= pointSet[i].points[k].y;
-                        else if (pointSet[i].points[k].y>pointSet[i].ymax)
-                            pointSet[i].ymax= pointSet[i].points[k].y;
-
-                        if(pointSet[i].points[k].z<pointSet[i].zmin)
-                            pointSet[i].zmin= pointSet[i].points[k].z;
-                        else if (pointSet[i].points[k].z> pointSet[i].zmax)
-                            pointSet[i].zmax= pointSet[i].points[k].z;
-                    }
-                }
-            }
+            calcMinMax(pointSet[i]);
 
             //create drawable and geode and add to the scene (make sure the cube is not empty)
 
@@ -1043,6 +1027,38 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         return;
     }
 }
+
+void PointCloudPlugin::calcMinMax(PointSet& pointSet)
+{
+    if (pointSet.size >0)
+    {
+        pointSet.xmax = pointSet.xmin = pointSet.points[0].x;
+        pointSet.ymax = pointSet.ymin = pointSet.points[0].y;
+        pointSet.zmax = pointSet.zmin = pointSet.points[0].z;
+
+        if (pointSet.size >1)
+        {
+            for (int k=1; k<pointSet.size; k++)
+            {
+                if(pointSet.points[k].x<pointSet.xmin)
+                    pointSet.xmin= pointSet.points[k].x;
+                else if (pointSet.points[k].x>pointSet.xmax)
+                    pointSet.xmax= pointSet.points[k].x;
+
+                if(pointSet.points[k].y<pointSet.ymin)
+                    pointSet.ymin= pointSet.points[k].y;
+                else if (pointSet.points[k].y>pointSet.ymax)
+                    pointSet.ymax= pointSet.points[k].y;
+
+                if(pointSet.points[k].z<pointSet.zmin)
+                    pointSet.zmin= pointSet.points[k].z;
+                else if (pointSet.points[k].z> pointSet.zmax)
+                    pointSet.zmax= pointSet.points[k].z;
+            }
+        }
+    }
+}
+
 int PointCloudPlugin::unloadFile(std::string filename)
 {
     for (std::vector<FileInfo>::iterator fit = files.begin(); fit != files.end(); fit++)

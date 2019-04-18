@@ -7,14 +7,15 @@
 
 #include <osg/MatrixTransform>
 
-#include <config/CoviseConfig.h>
+#include "Snow.h"
+#include "Raytracer.h"
+using namespace opencover;
 using namespace covise;
 
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 #include <cover/coVRPlugin.h>
-#include <PluginUtil/coSphere.h>
-using namespace opencover;
+#include "nodeVisitorVertex.h"
 
 #ifdef _WIN32
 inline double drand48(void)
@@ -22,197 +23,198 @@ inline double drand48(void)
     return (double(rand()) / RAND_MAX);
 }
 #endif
+SnowPlugin *SnowPlugin::plugin = NULL;
 
-class SnowPlugin : public coVRPlugin
+SnowPlugin::SnowPlugin()
+    : snow(NULL)
+    , x(NULL)
+    , y(NULL)
+    , z(NULL)
+    , r(NULL)
+    , nx(NULL)
+    , ny(NULL)
+    , nz(NULL)
+    , FloorHeight(-10.)
 {
-private:
-    static const int NumFlakes = 120000;
-    static const int NumFixFlakes = 80000;
+    cerr << "Let it snow" << endl;
+    plugin = this;
 
-    osg::ref_ptr<osg::MatrixTransform> origin;
-    coSphere *snow;
-    float *x, *y, *z, *r, *nx, *ny, *nz, *vx, *vy;
-    float FloorHeight;
+   
+}
 
-    static const double Wind;
-    static const double SeedRate;
-    static const double Gravity;
-    static const double StartHeight;
-    static const float Radius;
 
-    static const float MinX, MaxX;
-    static const float MinY, MaxY;
+void SnowPlugin::seed(int i)
+{
+    double rnd = drand48();
+    rnd = pow(1.1, rnd) - 1.0;
+    y[i] = MinY + drand48() * (MaxY - MinY);
+    rnd = pow(1.1, drand48()) - 1.0;
+    x[i] = MinX + drand48() * (MaxX - MinX);
+    //x[i] = (MinX + MaxX) * 0.5 + (drand48() - 0.5) * (MaxX - MinX) * (y[i] / MaxY + 0.1) * 3;
+    z[i] = StartHeight;// +(y[i] / MaxY + 0.1) * 0.01;
+    r[i] = (1. + drand48()) * 0.5 * Radius;
 
-public:
-    SnowPlugin()
-        : snow(NULL)
-        , x(NULL)
-        , y(NULL)
-        , z(NULL)
-        , r(NULL)
-        , nx(NULL)
-        , ny(NULL)
-        , nz(NULL)
-        , FloorHeight(-1100.)
+
+    vx[i] = 0;// Wind * (drand48() - 0.5);
+    vy[i] = 0;//Wind * (drand48() - 0.5);
+    vz[i] = r[i] * Gravity;
+
+    nx[i] = drand48() - 0.5;
+    ny[i] = drand48() - 0.5;
+    nz[i] = (drand48() - 0.5) * 0.5;
+    isFixed[i] = 0;
+}
+
+bool SnowPlugin::init()
+{
+    FloorHeight = 0.0;
+
+    Raytracer::instance()->init();
+
+    osg::Group *scene = cover->getScene();
+    osg::Matrix mat;
+    mat.makeIdentity();
+    //mat.setTrans(osg::Vec3(0.0,0.0,-1250.0));
+    origin = new osg::MatrixTransform;
+    origin->setMatrix(mat);
+    cover->getObjectsRoot()->addChild(origin.get());
+
+    osg::Geode *geode = new osg::Geode;
+    origin->addChild(geode);
+    snow = new coSphere();
+    geode->addDrawable(snow);
+    snow->setRenderMethod(coSphere::RENDER_METHOD_TEXTURE);
+    x = new float[NumFlakes];
+    y = new float[NumFlakes];
+    z = new float[NumFlakes];
+    r = new float[NumFlakes];
+    vx = new float[NumFlakes];
+    vy = new float[NumFlakes];
+    vz = new float[NumFlakes];
+    nx = new float[NumFlakes];
+    ny = new float[NumFlakes];
+    nz = new float[NumFlakes];
+    isFixed = new int[NumFlakes];
+    for (int i = 0; i < NumFlakes; ++i)
     {
-        cerr << "Let it snow" << endl;
-    }
-
-    void normalize(int i)
-    {
-        float n = sqrt(nx[i] * nx[i] + ny[i] * ny[i] + nz[i] * nz[i]);
-        if (n > 0.)
+        seed(i);
+        if (i < NumFixFlakes || drand48() < 0.9)
         {
-            nx[i] /= n;
-            ny[i] /= n;
-            nz[i] /= n;
+            z[i] = FloorHeight + 0.01;
+            isFixed[i] = 1;
+        }
+        else
+        {
+            z[i] *= drand48();
+            isFixed[i] = 0;
         }
     }
+    snow->setCoords(NumFlakes, x, y, z, r);
+    snow->updateNormals(nx, ny, nz);
 
-    void seed(int i)
+    osg::StateSet *geostate = geode->getOrCreateStateSet();
+    osg::Texture2D *tex = coVRFileManager::instance()->loadTexture("src/renderer/OpenCOVER/plugins/examples/Snow/Snowflake1.jpg");
+    if (tex)
     {
-        double rnd = drand48();
-        rnd = pow(1.1, rnd) - 1.0;
-        y[i] = MinY + rnd * (MaxY - MinY);
-        x[i] = (MinX + MaxX) * 0.5 + (drand48() - 0.5) * (MaxX - MinX) * (y[i] / MaxY + 0.1) * 3;
-        z[i] = StartHeight * (y[i] / MaxY + 0.1) * 10.;
-        r[i] = (1. + drand48()) * 0.5 * Radius;
-
-        vx[i] = Wind * (drand48() - 0.5);
-        vy[i] = Wind * (drand48() - 0.5);
-
-        nx[i] = drand48() - 0.5;
-        ny[i] = drand48() - 0.5;
-        nz[i] = (drand48() - 0.5) * 0.5;
+        tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+        tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+        tex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+        tex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+        geostate->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
     }
 
-    bool init()
+    //Traverse scenegraph to extract vertices for raytracer
+
+    std::clock_t begin = clock();
+
+    Raytracer::instance()->removeAllGeometry();                     //resets scene
+    nodeVisitorVertex nv;                                            //creates new scene
+    cover->getObjectsRoot()->accept(nv);
+    Raytracer::instance()->createCube(osg::Vec3(0, 0, 0), osg::Vec3(2, 2, 2));
+    Raytracer::instance()->createFaceSet(nv.getVertexArray(), 0);
+    Raytracer::instance()->finishAddGeometry();
+
+    std::clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    printf("elapsed time for traversing %f, vertices read out %i\n", elapsed_secs, nv.numOfVertices);
+
+    return true;
+}
+
+bool SnowPlugin::destroy()
+{
+    osg::Group *scene = cover->getScene();
+    scene->removeChild(origin.get());
+    return true;
+}
+
+bool SnowPlugin::update()
+{
+    static double lastTime = 0.;
+    double curTime = cover->frameTime();
+    double dt = curTime - lastTime;
+    if (lastTime == 0.)
+        dt = 0.01;
+
+    static double xwind = (drand48() - 0.5) * Wind;
+    static double ywind = (drand48() - 0.5) * Wind;
+    if (drand48() < 0.01)
     {
-        FloorHeight = coCoviseConfig::getFloat("COVER.FloorHeight", -1100);
+        xwind += (drand48() - 0.5) * Wind * 0.5;
+        if (xwind < -Wind)
+            xwind = -Wind;
+        if (xwind > Wind)
+            xwind = Wind;
 
-        osg::Group *scene = cover->getScene();
-        osg::Matrix mat;
-        mat.makeIdentity();
-        //mat.setTrans(osg::Vec3(0.0,0.0,-1250.0));
-        origin = new osg::MatrixTransform;
-        origin->setMatrix(mat);
-        scene->addChild(origin.get());
-
-        osg::Geode *geode = new osg::Geode;
-        origin->addChild(geode);
-        snow = new coSphere();
-        geode->addDrawable(snow);
-        snow->setRenderMethod(coSphere::RENDER_METHOD_TEXTURE);
-        x = new float[NumFlakes];
-        y = new float[NumFlakes];
-        z = new float[NumFlakes];
-        r = new float[NumFlakes];
-        vx = new float[NumFlakes];
-        vy = new float[NumFlakes];
-        nx = new float[NumFlakes];
-        ny = new float[NumFlakes];
-        nz = new float[NumFlakes];
-        for (int i = 0; i < NumFlakes; ++i)
-        {
-            seed(i);
-            if (i < NumFixFlakes || drand48() < 0.9)
-                z[i] = FloorHeight + 20.0;
-            else
-                z[i] *= drand48();
-        }
-        snow->setCoords(NumFlakes, x, y, z, r);
-        snow->updateNormals(nx, ny, nz);
-
-        osg::StateSet *geostate = geode->getOrCreateStateSet();
-        osg::Texture2D *tex = coVRFileManager::instance()->loadTexture("src/renderer/OpenCOVER/plugins/examples/Snow/Snowflake1.jpg");
-        if (tex)
-        {
-            tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR);
-            tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
-            tex->setWrap(osg::Texture2D::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
-            tex->setWrap(osg::Texture2D::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-            geostate->setTextureAttributeAndModes(0, tex, osg::StateAttribute::ON);
-        }
-        return true;
+        ywind += (drand48() - 0.5) * Wind * 0.5;
+        if (ywind < -Wind)
+            ywind = Wind;
+        if (ywind > Wind)
+            ywind = Wind;
     }
 
-    bool destroy()
+    if (!snow)
+        return false;
+    Raytracer::instance()->checkAllHits();
+    for (int i = NumFixFlakes; i < NumFlakes; ++i)
     {
-        osg::Group *scene = cover->getScene();
-        scene->removeChild(origin.get());
-        return true;
-    }
-
-    void preFrame()
-    {
-        static double lastTime = 0.;
-        double curTime = cover->frameTime();
-        double dt = curTime - lastTime;
-        if (lastTime == 0.)
-            dt = 0.01;
-
-        static double xwind = (drand48() - 0.5) * Wind;
-        static double ywind = (drand48() - 0.5) * Wind;
-        if (drand48() < 0.01)
+        if ((z[i] > FloorHeight + 0.01) && (isFixed[i]==0))
         {
-            xwind += (drand48() - 0.5) * Wind * 0.5;
-            if (xwind < -Wind)
-                xwind = -Wind;
-            if (xwind > Wind)
-                xwind = Wind;
-
-            ywind += (drand48() - 0.5) * Wind * 0.5;
-            if (ywind < -Wind)
-                ywind = Wind;
-            if (ywind > Wind)
-                ywind = Wind;
-        }
-
-        if (!snow)
-            return;
-
-        for (int i = NumFixFlakes; i < NumFlakes; ++i)
-        {
-            if (z[i] > FloorHeight + 20.0)
+           /* z[i] -= dt * (drand48() * vz[i]);
+            x[i] += dt * (xwind + vx[i]);
+            y[i] += dt * (ywind + vy[i]);*/
+            z[i] -= dt * (vz[i]);
+            x[i] += dt * (vx[i]);
+            y[i] += dt * (vy[i]);
+            if (drand48() < dt * 10.)
             {
-                z[i] -= dt * drand48() * r[i] * Gravity;
-                x[i] += dt * (xwind + vx[i]);
-                y[i] += dt * (ywind + vy[i]);
-                if (drand48() < dt * 10.)
-                {
-                    vx[i] += (drand48() - 0.5) * Wind * 0.1;
-                    vy[i] += (drand48() - 0.5) * Wind * 0.1;
-                }
-
-                if (drand48() < dt * 10.)
-                {
-                    nx[i] += drand48() * 0.5;
-                    ny[i] += drand48() * 0.5;
-                    nz[i] += drand48() * 0.5;
-                    normalize(i);
-                }
+                vx[i] += (drand48() - 0.5) * Wind * 0.1;
+                vy[i] += (drand48() - 0.5) * Wind * 0.1;
             }
-            else
+
+            if (drand48() < dt * 10.)
             {
-                if (drand48() < SeedRate * dt)
-                    seed(i);
+                nx[i] += drand48() * 0.5;
+                ny[i] += drand48() * 0.5;
+                nz[i] += drand48() * 0.5;
+                normalize(i);
             }
         }
-        snow->updateCoords(x, y, z);
-
-        lastTime = curTime;
+        else
+        {
+            if (drand48() < SeedRate * dt)
+                seed(i);
+        }
     }
-};
+    snow->updateCoords(x, y, z);
 
-const double SnowPlugin::Wind = 200.0;
-const double SnowPlugin::SeedRate = 0.003;
-const double SnowPlugin::Gravity = 10.0;
-const double SnowPlugin::StartHeight = 1500.;
-const float SnowPlugin::Radius = 25.0;
-
-const float SnowPlugin::MinX = -30000.;
-const float SnowPlugin::MaxX = 30000.;
-const float SnowPlugin::MinY = -1000.;
-const float SnowPlugin::MaxY = 100000.;
+    lastTime = curTime;
+    return true;
+}
+SnowPlugin *SnowPlugin::instance()
+{
+    return plugin;
+}
 
 COVERPLUGIN(SnowPlugin);

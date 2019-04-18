@@ -17,8 +17,7 @@
 class QPainter;
 class QTimer;
 class QLabel;
-class VRBSClient;
-
+class VrbUiClient;
 class VRBCurve : public QFrame
 {
     Q_OBJECT
@@ -35,7 +34,7 @@ public:
 
     void run();
     void stop();
-    void setClient(VRBSClient *);
+    void setClient(VrbUiClient *);
     void setLabel(QLabel *);
 
 protected:
@@ -53,7 +52,7 @@ private:
     int pos0; // buffer pointer for x == 0
     int step;
 
-    VRBSClient *vrb;
+    VrbUiClient *vrb;
     QTimer *timer;
     QLabel *label;
 };

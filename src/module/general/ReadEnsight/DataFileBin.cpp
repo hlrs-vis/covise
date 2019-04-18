@@ -28,7 +28,7 @@
 //
 // Constructor
 //
-DataFileBin::DataFileBin(const coModule *mod)
+DataFileBin::DataFileBin(ReadEnsight *mod)
     : EnFile(mod)
     , dim_(1)
     , lineCnt_(0)
@@ -38,7 +38,7 @@ DataFileBin::DataFileBin(const coModule *mod)
     className_ = string("DataFileBin");
 }
 
-DataFileBin::DataFileBin(const coModule *mod, const string &name,
+DataFileBin::DataFileBin(ReadEnsight *mod, const string &name,
                          const int &dim,
                          const int &numVals,
                          const EnFile::BinType &binType)
@@ -75,7 +75,7 @@ DataFileBin::DataFileBin(const coModule *mod, const string &name,
 // read data
 //
 void
-DataFileBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileBin::read(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     if (isOpen_)
     {
@@ -107,7 +107,7 @@ DataFileBin::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObject
         }
         delete[] locArr;
     }
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep);
+    createDataOutObj(dim, outObjects, baseName, timeStep,numTimeSteps);
 }
 
 coDistributedObject *DataFileBin::getDataObject(std::string s)
@@ -122,7 +122,7 @@ coDistributedObject *DataFileBin::getDataObject(std::string s)
 // reads cell based data
 //
 void
-DataFileBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep)
+DataFileBin::readCells(dimType dim, coDistributedObject **outObjects, const string &baseName, int &timeStep, int numTimeSteps)
 {
     EnPart *actPart;
     int numGot2d = 0, numGot3d = 0;
@@ -270,5 +270,5 @@ DataFileBin::readCells(ReadEnsight *ens, dimType dim, coDistributedObject **outO
                 cerr << "DataFileBin::readCells(): part not found part nr: " << actPartNr << endl;
         }
     }
-    createDataOutObj(ens, dim, outObjects, baseName, timeStep,false);
+    createDataOutObj(dim, outObjects, baseName, timeStep,false);
 }

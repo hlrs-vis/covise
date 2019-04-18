@@ -147,7 +147,7 @@ public:
     DLinkList<RemoteVideo *> *getRemoteVideoList();
 
 protected:
-    int sendBinARMessage(const char *keyword, const char *data, int len);
+    int sendBinARMessage(covise::TokenBuffer &tb);
 
 private:
 #if defined(VV_FFMPEG) || defined(VV_XVID)

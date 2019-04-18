@@ -24,7 +24,6 @@
 #include <util/DLinkList.h>
 #include <util/coExport.h>
 #include <osg/Vec3>
-#include <osg/BoundingSphere>
 #include <OpenVRUI/sginterface/vruiIntersection.h>
 #include <OpenVRUI/sginterface/vruiHit.h>
 #include <OpenVRUI/osg/OSGVruiNode.h>

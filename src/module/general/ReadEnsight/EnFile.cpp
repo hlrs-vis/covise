@@ -49,7 +49,7 @@ InvalidWordException::what()
 // static member to create an Ensight geometry file
 // use the information given in the case file
 EnFile *
-EnFile::createGeometryFile(const coModule *mod, const CaseFile &c, const string &filename)
+EnFile::createGeometryFile(ReadEnsight *mod, const CaseFile &c, const string &filename)
 {
     EnFile *enf = new EnFile(mod, filename);
     // file type
@@ -139,7 +139,7 @@ EnFile::createGeometryFile(const coModule *mod, const CaseFile &c, const string 
     return enf;
 }
 
-EnFile::EnFile(const coModule *mod, const BinType &binType)
+EnFile::EnFile(ReadEnsight *mod, const BinType &binType)
     : fileMayBeCorrupt_(false)
     , className_(string("EnFile"))
     , isOpen_(false)
@@ -149,11 +149,11 @@ EnFile::EnFile(const coModule *mod, const BinType &binType)
     , dim_(1)
     , activeAlloc_(true)
     , dataByteSwap_(false)
-    , module_(mod)
+    , ens(mod)
 {
 }
 
-EnFile::EnFile(const coModule *mod, const string &name, const int &dim, const BinType &binType)
+EnFile::EnFile(ReadEnsight *mod, const string &name, const int &dim, const BinType &binType)
     : fileMayBeCorrupt_(false)
     , className_(string("EnFile"))
     , isOpen_(false)
@@ -163,7 +163,7 @@ EnFile::EnFile(const coModule *mod, const string &name, const int &dim, const Bi
     , dim_(dim)
     , activeAlloc_(true)
     , dataByteSwap_(false)
-    , module_(mod)
+    , ens(mod)
     , name_(name)
 {
     if (binType != FBIN && binType != CBIN)
@@ -189,7 +189,7 @@ EnFile::EnFile(const coModule *mod, const string &name, const int &dim, const Bi
     }
 }
 
-EnFile::EnFile(const coModule *mod, const string &name, const BinType &binType)
+EnFile::EnFile(ReadEnsight *mod, const string &name, const BinType &binType)
     : fileMayBeCorrupt_(false)
     , className_(string("EnFile"))
     , isOpen_(false)
@@ -198,7 +198,7 @@ EnFile::EnFile(const coModule *mod, const string &name, const BinType &binType)
     , partList_(NULL)
     , dim_(1)
     , activeAlloc_(true)
-    , module_(mod)
+    , ens(mod)
     , name_(name)
 {
 
@@ -227,7 +227,7 @@ EnFile::EnFile(const coModule *mod, const string &name, const BinType &binType)
 
 
 void
-EnFile::createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
+EnFile::createGeoOutObj(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
 {
 
     ens->globalParts_.push_back(*partList_);
@@ -244,12 +244,12 @@ EnFile::createGeoOutObj(ReadEnsight *ens, dimType dim, coDistributedObject **out
     }
     ++timeStep;
     outObjects2d[timeStep] = NULL;
-    outObjects3d[timeStep] = NULL;
+    outObjects3d[timeStep] = NULL; 
 }
-void EnFile::createDataOutObj(ReadEnsight * ens, dimType dim, coDistributedObject ** outObjects, const string & baseName, int & timeStep, bool perVertex)
+void EnFile::createDataOutObj(dimType dim, coDistributedObject ** outObjects, const string & baseName, int & timeStep, int numTimeSteps, bool perVertex)
 {
     // create DO's
-    coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep,perVertex);
+    coDistributedObject **oOut = ens->createDataOutObj(dim, baseName, dc_, timeStep, numTimeSteps,perVertex);
 
     dc_.cleanAll();
 
@@ -597,18 +597,6 @@ EnFile::setPartList(PartList *p)
     partList_ = p;
 }
 
-void
-EnFile::setMasterPL(PartList p)
-{
-    masterPL_ = p;
-
-    // test if masterPL_ is correct
-    //     PartList::iterator pos(  masterPL_.begin() );
-    //     for(; pos != masterPL_.end(); pos++) {
-    //         cerr << "EnFile::setMasterPL(..) " <<  pos->partInfoString() << endl;
-    //     }
-}
-
 float *
 EnFile::getFloatArr(const int &n, float *farr)
 {
@@ -712,15 +700,12 @@ EnFile::resetPart(const int &partNum, EnPart *p)
 EnPart
 EnFile::findMasterPart(const int &partNum) const
 {
-    if (!masterPL_.empty())
-    {
-        unsigned int i;
-        for (i = 0; i < masterPL_.size(); ++i)
-        {
-            if ((masterPL_)[i].getPartNum() == partNum)
-                return masterPL_[i];
-        }
-    }
+	unsigned int i;
+	for (i = 0; i < ens->masterPL_.size(); ++i)
+	{
+		if ((ens->masterPL_)[i].getPartNum() == partNum)
+			return ens->masterPL_[i];
+	}
     EnPart dummy(-1);
     return dummy;
 }
@@ -873,16 +858,16 @@ EnFile::sendPartsToInfo()
     // output to covise covise info pannel
     char ostr[256];
     strcpy(ostr, "List of Ensight Parts:");
-    module_->sendInfo("%s", ostr);
+    ens->sendInfo("%s", ostr);
 
     strcpy(ostr, " ");
-    module_->sendInfo("%s", ostr);
+    ens->sendInfo("%s", ostr);
 
     strcpy(ostr, "  Ref# |  Part# | Part Description                                                                   | Number of Elements | Dimension");
-    module_->sendInfo("%s", ostr);
+    ens->sendInfo("%s", ostr);
 
     strcpy(ostr, "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-    module_->sendInfo("%s", ostr);
+    ens->sendInfo("%s", ostr);
 
     int cnt(0);
     if (partList_ != NULL)
@@ -890,11 +875,11 @@ EnFile::sendPartsToInfo()
         vector<EnPart>::iterator pos(partList_->begin());
         for (; pos != partList_->end(); pos++)
         {
-            module_->sendInfo("%s", (pos->partInfoString(cnt)).c_str());
+            ens->sendInfo("%s", (pos->partInfoString(cnt)).c_str());
             cnt++;
         }
     }
-    module_->sendInfo("...Finished: List of Ensight Parts");
+    ens->sendInfo("...Finished: List of Ensight Parts");
 }
 
 /////////////////////////// class DataCont /////////////////////////////////

@@ -44,13 +44,13 @@ class En6MGeoASC : public EnFile
 {
 public:
     /// default CONSTRUCTOR
-    En6MGeoASC(const coModule *mod);
+    En6MGeoASC(ReadEnsight *mod);
 
     // creates file-rep. and opens the file
-    En6MGeoASC(const coModule *mod, const string &name);
+    En6MGeoASC(ReadEnsight *mod, const string &name);
 
     // read the file (Ensight 6)
-    void read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep);
+    void read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps);
 
     /// DESTRUCTOR
     virtual ~En6MGeoASC();
@@ -78,6 +78,6 @@ private:
     int lastNc_;
     coDoPoints *pointObj;
 
-    vector<EnPart> parts_; // contains all parts of the current geometry
+    //vector<EnPart> parts_; // contains all parts of the current geometry
 };
 #endif

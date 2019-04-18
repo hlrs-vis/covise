@@ -198,7 +198,6 @@ ref_ptr<Geode> OSGVruiSlider::createText(float xPos)
         textNode = new Geode();
 
         numberText = new Text();
-        numberText->setDataVariance(Object::DYNAMIC);
         numberText->setFont(OSGVruiPresets::getFontFile());
         numberText->setDrawMode(Text::TEXT);
         numberText->setColor(Vec4(1.0f, 1.0f, 1.0f, 1.0f));

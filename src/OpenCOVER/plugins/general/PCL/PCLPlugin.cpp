@@ -26,6 +26,7 @@
 #include <QDir>
 #include <config/coConfig.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRTui.h>
 #include <osg/Geode>
@@ -287,6 +288,8 @@ int PCLPlugin::loadOCT(const char *filename, osg::Group *loadParent)
 	if(parentNode==NULL)
 		parentNode = cover->getObjectsRoot();
 	parentNode->addChild(lod.get());;*/
+
+    return -1;
 }
 
 int PCLPlugin::unloadPCD(const char *filename, const char *)

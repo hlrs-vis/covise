@@ -444,7 +444,7 @@ VRCoviseConnection::receiveRenderMessage()
     // get render message type
     key = CoviseRender::get_render_keyword();
     tmp = CoviseRender::get_render_data();
-    coVRCommunication::instance()->processRenderMessage(key, tmp);
+    coVRCommunication::instance()->processRenderMessage(key, tmp); 
 
     if (strcmp(key, "INEXEC") == 0 || strcmp(key, "FINISHED") == 0)
     {

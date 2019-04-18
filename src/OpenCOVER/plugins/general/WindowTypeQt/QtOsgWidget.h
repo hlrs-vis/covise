@@ -44,6 +44,8 @@ private:
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> m_graphicsWindow;
     std::map<int, bool> m_pressedKeys;
     int m_modifierMask = 0;
+
+    float pixelRatio() const;
 };
 
 class QtGraphicsWindow: public osgViewer::GraphicsWindowEmbedded
@@ -61,6 +63,7 @@ public:
     virtual void useCursor(bool cursorOn) override;
     virtual void setCursor(MouseCursor cursor) override;
     virtual bool setWindowDecorationImplementation(bool flag) override;
+    virtual void setSyncToVBlank(bool flag) override;
 
 protected:
     QOpenGLWidget *m_glWidget = nullptr;

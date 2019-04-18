@@ -1295,7 +1295,7 @@ int VolumePlugin::loadFile(const char *fName, osg::Group *parent, const vvVolDes
     const char *fn = coVRFileManager::instance()->getName(fName);
     if (!fn)
     {
-        cerr << "Invalid file name" << endl;
+        cerr << "Invalid file name: " << (fName ? fName : "(null)") << endl;
         return 0;
     }
 
@@ -1413,7 +1413,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
     if (geometry && geometry->isUniformGrid())
     {
 #ifdef VERBOSE
-        fprintf(stderr, "add volume: %s\n", geometry->getName());
+        fprintf(stderr, "add volume: geo=%s, color=%s\n", geometry->getName(), colorObj->getName());
 #endif
         int sizeX, sizeY, sizeZ;
         geometry->getSize(sizeX, sizeY, sizeZ);
@@ -1426,11 +1426,6 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
 
         float minX, maxX, minY, maxY, minZ, maxZ;
         geometry->getMinMax(minX, maxX, minY, maxY, minZ, maxZ);
-
-#ifdef VERBOSE
-        cerr << "@ APP @@\n";
-        cerr << "@ APP @@ Color object type is " << colorObj->getType() << endl;
-#endif
 
         bool showEditor = showTFE;
         if (colorObj)
@@ -1601,7 +1596,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                 volDesc->addFrame(data, vvVolDesc::ARRAY_DELETE);
                 volDesc->frames = volDesc->getStoredFrames();
 #ifdef VERBOSE
-                fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), volDesc->frames);
+                fprintf(stderr, "added timestep to %s: %d steps\n", container->getName(), (int)volDesc->frames);
 #endif
             }
             else

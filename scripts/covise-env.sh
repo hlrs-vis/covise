@@ -42,7 +42,7 @@ fi
 
 if [ -z "$COENVERROR" ]; then
 
-   if [ -z "$EXTERNLIBS" ]; then
+   if [ -z "$EXTERNLIBS" -a -d "$EXTERNLIBS" ]; then
       export EXTERNLIBS=`sh -c "cd $COVISEDIR/extern_libs/$ARCHSUFFIX ; pwd -P"`
    fi
 
@@ -55,9 +55,11 @@ if [ -z "$COENVERROR" ]; then
    fi
 fi
 
-ALVAR_PLUGIN_PATH=${EXTERNLIBS}/alvar/bin/alvarplugins
-if [ -d "${ALVAR_PLUGIN_PATH}" ]; then
-    export ALVAR_PLUGIN_PATH
+if [ -d "$EXTERNLIBS" ]; then
+    ALVAR_PLUGIN_PATH=${EXTERNLIBS}/alvar/bin/alvarplugins
+    if [ -d "${ALVAR_PLUGIN_PATH}" ]; then
+        export ALVAR_PLUGIN_PATH
+    fi
 fi
 
 if [ -z "$COENVERROR" ]; then
@@ -91,7 +93,11 @@ if [ -z "$COENVERROR" ]; then
    esac
 
    ### add our own libraries
-   eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   if [ -d "$EXTERNLIBS" ]; then
+       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:${EXTERNLIBS}/ALL/${primlibdir}:${EXTERNLIBS}/ALL/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   else
+       eval export ${libvar}=${empty}:${extLibPath}:${COVISEDIR}/${ARCHSUFFIX}/lib:\$${libvar}:${COVISEDIR}/${ARCHSUFFIX}/lib/OpenCOVER/plugins
+   fi
 
    # Sanity: remove dummy/lib
    eval export ${libvar}=\`echo \$${libvar} \| sed -e 's+:dummy/lib\[0-9\]\*:+:+g'\`

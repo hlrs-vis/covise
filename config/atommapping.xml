@@ -3,7 +3,8 @@
  <GLOBAL configname="local" scope="global" >
  <Module>
  <AtomMapping>
-<!-- <Nr> <Element> <Descritpion for Tooltip> <Radii (Van der Waals)> <Color in RGB Range [0..1]> <Opacity (1.0)> -->
+<!-- augment hard-coded list -->
+<!-- <Nr> <Element> <Description for Tooltip> <Radii (Van der Waals)> <Color in RGB Range [0..1]> <Opacity (1.0)> -->
 119 Dj DD           0.0   1.0 1.0 1.0 1.0
 120 Dk DD           0.0   1.0 1.0 1.0 1.0
 121 Dl DD           0.0   1.0 1.0 1.0 1.0

@@ -102,7 +102,7 @@ int PipelineCollect::compute(const char *)
 
     else
     {
-        char objname[128];
+        char objname[1280];
         coDistributedObject *newObj = NULL;
 
         std::string next;
@@ -198,7 +198,7 @@ int PipelineCollect::compute(const char *)
                         set_output = new coDoSet(p_outport[i]->getObjName(), outobjs);
                         if (real_obj->getAttribute("LAST_STEP"))
                         {
-                            char step_range[10];
+                            char step_range[100];
                             sprintf(step_range, "1 %d", cnt);
                             set_output->addAttribute("TIMESTEP", step_range);
                         }

@@ -27,6 +27,7 @@
 
 #include <util/common.h>
 #include <util/unixcompat.h>
+#include <net/covise_socket.h>
 #ifdef DOTIMING
 #include <covise/coTimer.h>
 #endif
@@ -69,6 +70,7 @@ static char *strcasestr(char *source, char *target)
 
 int main(int argc, char *argv[])
 {
+    covise::Socket::initialize();
 
 #ifdef _WIN32
     // disable "debug dialog": it prevents the application from exiting,
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
 #endif
             argv_mpi[4] = strdup(hostlist.c_str());
 #if defined(OMPI_MAJOR_VERSION)
-            argv_mpi[5] = strdup("-X");
+            argv_mpi[5] = strdup("-x");
 #elif defined(MPICH_VERSION)
             argv_mpi[5] = strdup("-genvlist");
 #elif defined(MSMPI_VER)

@@ -29,8 +29,16 @@
 #include "EventReceiver.h"
 
 #include <util/coExport.h>
+
+#include <vector>
+
 namespace opencover
 {
+
+namespace ui {
+class Button;
+}
+
 class COVEREXPORT VRWindow
 {
 
@@ -38,11 +46,17 @@ private:
     static VRWindow *s_instance;
 
     int *origVSize, *origHSize;
+    std::vector<int> oldWidth, oldHeight; // detect resized windows
+    std::vector<int> origWidth, origHeight; // detect resized windows
+    std::vector<float> aspectRatio;
 
     bool createWin(int i);
+    bool destroyWin(int i);
 
     bool _firstTimeEmbedded;
     EventReceiver *_eventReceiver;
+    bool m_fullscreen = false;
+    ui::Button *m_fullScreenButton = nullptr;
 
 public:
     VRWindow();
@@ -51,8 +65,11 @@ public:
 
     bool config();
     void destroy();
+    bool unconfig();
 
-    void lockPipes();
+    void makeFullScreen(bool state);
+    bool isFullScreen() const;
+
     void update();
     void updateContents();
 

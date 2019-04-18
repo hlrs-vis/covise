@@ -22,6 +22,7 @@
 #include <grmsg/coGRObjSetConnectionMsg.h>
 #include <grmsg/coGRObjTransformMsg.h>
 #include <cover/coVRNavigationManager.h>
+#include <cover/coVRPluginList.h>
 #include <cover/coVRPluginSupport.h>
 #include <config/CoviseConfig.h>
 #include <OpenVRUI/osg/mathUtils.h>
@@ -104,7 +105,7 @@ void DNABaseUnit::registerAtGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(regMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 
     registered_ = true;
@@ -536,8 +537,8 @@ void DNABaseUnit::sendMatrixToGUI()
         grmsg2.data = (char *)(moveMsg2.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
         grmsg2.length = strlen(grmsg2.data) + 1;
-        cover->sendVrbMessage(&grmsg);
-        cover->sendVrbMessage(&grmsg2);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg2);
     }
 }
 
@@ -557,7 +558,7 @@ void DNABaseUnit::sendConnectionToGUI(std::string conn1, std::string conn2, int 
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(setConnMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 

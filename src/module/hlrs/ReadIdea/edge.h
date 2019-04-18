@@ -41,4 +41,4 @@
 
 #define Visited(p) ((p)->f)
 
-#define Identical_refs(e1, e2) (e1 == e2)
+#define Identical_refs(e1, e2) bool(e1 == e2)

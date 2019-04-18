@@ -13,11 +13,7 @@
 #include <QPixmap>
 #include <QMessageBox>
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include <wce_msg.h>
-#endif
 #include "TUIFileBrowserButton.h"
 #include "TUIApplication.h"
 

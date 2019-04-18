@@ -97,11 +97,8 @@
 #include "icons/covise.xpm"
 #endif
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
-#else
-#include "wce_msg.h"
-#endif
+#include <net/message_types.h>
 
 #ifndef _WIN32
 #include <signal.h>
@@ -641,6 +638,8 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
 {
     if((msg->type == covise::COVISE_MESSAGE_SOCKET_CLOSED) || (msg->type == covise::COVISE_MESSAGE_CLOSE_SOCKET))
     {
+        std::cerr << "TUIMainWindow: socket closed" << std::endl;
+
         delete clientSN;
         clientSN = NULL;
         connections->remove(msg->conn); //remove connection;
@@ -692,6 +691,10 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
             TUIContainer *parentElem = dynamic_cast<TUIContainer *>(parentElement);
             if (parentElement && !parentElem)
                 std::cerr << "TUIApplication::handleClient warn: parent element " << parent << " is not a container: " << ID << std::endl;
+#if 0
+            else if (!parentElement)
+                std::cerr << "TUIApplication::handleClient warn: no parent for: " << ID << std::endl;
+#endif
 
             QWidget *parentWidget = mainFrame;
             if (parentElem)
@@ -705,20 +708,6 @@ bool TUIMainWindow::handleClient(covise::Message *msg)
                 QString parentName;
                 if (parentElem)
                     parentName = parentElem->getName();
-                std::string blacklist = "COVER.TabletUI.Blacklist:";
-                QString qname(name);
-                qname.replace(".", "").replace(":", "");
-                blacklist += qname.toStdString();
-// TODO: won't work for items with identical names but different parents - a random item will be found
-//std::string value = covise::coCoviseConfig::getEntry(blacklist);
-
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
-                std::string parent = covise::coCoviseConfig::getEntry("parent", blacklist);
-                if (covise::coCoviseConfig::isOn(blacklist, false) && (parent.empty() || parent == parentName.toStdString()))
-                {
-                    newElement->setHidden(true);
-                }
-#endif
             }
 
 #ifdef TABLET_PLUGIN

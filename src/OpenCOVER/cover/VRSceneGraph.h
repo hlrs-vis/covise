@@ -57,8 +57,6 @@ class coCombinedButtonInteraction;
 
 namespace opencover
 {
-class coVRStatsDisplay;
-
 class COVEREXPORT VRSceneGraph: public ui::Owner
 {
 public:
@@ -324,7 +322,6 @@ private:
 
     osg::ref_ptr<osg::MatrixTransform> m_objectsTransform;
     osg::ref_ptr<osg::Multisample> m_Multisample;
-    coVRStatsDisplay *statsDisplay;
     typedef std::set<osg::Node *> NodeSet;
     NodeSet m_specialBoundsNodeList;
     void dirtySpecialBounds();

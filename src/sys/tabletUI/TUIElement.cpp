@@ -8,11 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <net/tokenbuffer.h>
+#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <config/CoviseConfig.h>
-#else
-#include <wce_msg.h>
 #endif
 #include "TUIElement.h"
 #include "TUIContainer.h"
@@ -25,9 +23,7 @@ TUIElement::TUIElement(int id, int /*type*/, QWidget * /*w*/, int parent, QStrin
     parentContainer = NULL;
     enabled = true;
     hidden = false;
-    visible = false;
     highlighted = false;
-    ParentID = parent;
     ID = id;
     label = "";
     xPos = 0;
@@ -102,20 +98,21 @@ void TUIElement::setValue(TabletValue type, covise::TokenBuffer &tb)
         int c;
         tb >> c;
         TUIElement::setColor((Qt::GlobalColor)c);
+        setColor((Qt::GlobalColor)c);
     }
     else if (type == TABLET_SET_HIDDEN)
     {
-        int hide;
+        bool hide;
         tb >> hide;
-        setHidden(hide ? true : false);
         TUIElement::setHidden(hide ? true : false);
+        setHidden(hide ? true : false);
     }
     else if (type == TABLET_SET_ENABLED)
     {
-        int en;
+        bool en;
         tb >> en;
-        setEnabled(en ? true : false);
         TUIElement::setEnabled(en ? true : false);
+        setEnabled(en ? true : false);
     }
 }
 
@@ -135,7 +132,12 @@ void TUIElement::setWidget(QWidget *w)
 void TUIElement::setParent(TUIContainer *c)
 {
     parentContainer = c;
-    visible = true;
+    if (c && c->widget) {
+        if (widget)
+            widget->setParent(c->widget);
+        for (auto w: widgets)
+            w->setParent(c->widget);
+    }
 }
 
 /** Set UI element size. Use different values for all dimensions.
@@ -165,8 +167,8 @@ void TUIElement::setPos(int x, int y)
     {
         TUIMainWindow::getInstance()->addElementToLayout(this);
     }
-    if (widget)
-        widget->setVisible(!hidden);
+
+    setHidden(hidden);
 }
 
 /** Get parent container.
@@ -219,26 +221,24 @@ void TUIElement::setColor(Qt::GlobalColor color)
     }
 }
 
-/** Set element visibility.
-  @param newState true = element visible
-*/
-void TUIElement::setVisible(bool newState)
-{
-    if (visible == newState)
-        return; // state is already ok
-    visible = newState;
-}
-
 /** hide element
  */
 void TUIElement::setHidden(bool hide)
 {
+    //std::cerr << "TUIElement::setHidden(hide=" << hide << "), tab=" << getID() << "/" << getName().toStdString() << std::endl;
+
     hidden = hide;
     if (getWidget())
+    {
         getWidget()->setVisible(!hidden);
+        if (!hidden)
+            getWidget()->show();
+    }
     for (auto &w: widgets)
     {
         w->setVisible(!hidden);
+        if (!hidden)
+            w->show();
     }
 }
 
@@ -264,14 +264,6 @@ bool TUIElement::isEnabled()
 bool TUIElement::isHighlighted()
 {
     return highlighted;
-}
-
-/** Get visibility state.
-  @return visibility state (true = visible)
-*/
-bool TUIElement::isVisible()
-{
-    return visible;
 }
 
 const char *TUIElement::getClassName() const

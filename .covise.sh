@@ -104,16 +104,20 @@ fi
 
 BASEARCH=`echo $ARCHSUFFIX | sed -e 's/opt$//' -e 's/mpi$//' -e 's/xenomai$//'  `
 if [ -z "$EXTERNLIBS" ]; then
-  export EXTERNLIBS="${COVISEDIR}/extern_libs/${ARCHSUFFIX}"
-  if [ ! -d "$EXTERNLIBS" ]; then
-     export EXTERNLIBS="${COVISEDIR}/extern_libs/${BASEARCH}"
+  extlibs="${COVISEDIR}/extern_libs/${ARCHSUFFIX}"
+  if [ ! -d "$extlibs" ]; then
+     extlibs="${COVISEDIR}/extern_libs/${BASEARCH}"
   fi
 
-  if [ ! -d "$EXTERNLIBS" ]; then
-     export EXTERNLIBS="/data/extern_libs/$ARCHSUFFIX"
-     if [ ! -d "$EXTERNLIBS" ]; then
-        export EXTERNLIBS="/data/extern_libs/$BASEARCH"
+  if [ ! -d "$extlibs" ]; then
+     extlibs="/data/extern_libs/$ARCHSUFFIX"
+     if [ ! -d "$extlibs" ]; then
+        extlibs="/data/extern_libs/$BASEARCH"
      fi
+  fi
+
+  if [ -d "$extlibs" ]; then
+      export EXTERNLIBS="$extlibs"
   fi
 fi
 

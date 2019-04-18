@@ -21,13 +21,14 @@
 
 #include "RevitPlugin.h"
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 #include <cover/RenderObject.h>
 #include <cover/coVRMSController.h>
 #include <cover/coVRConfig.h>
 #include <cover/coVRSelectionManager.h>
-#include "cover/coVRTui.h"
-#include "cover/coVRShader.h"
-#include "cover/OpenCOVER.h"
+#include <cover/coVRTui.h>
+#include <cover/coVRShader.h>
+#include <cover/OpenCOVER.h>
 #include <OpenVRUI/coCheckboxMenuItem.h>
 #include <OpenVRUI/coButtonMenuItem.h>
 #include <OpenVRUI/coSubMenuItem.h>
@@ -55,6 +56,7 @@
 #include <net/covise_socket.h>
 #include <net/tokenbuffer.h>
 #include <config/CoviseConfig.h>
+#include <util/unixcompat.h>
 
 using covise::TokenBuffer;
 using covise::coCoviseConfig;
@@ -287,7 +289,7 @@ void RevitViewpointEntry::activate()
 
 	osg::Matrix scMat;
 	osg::Matrix iscMat;
-	float scaleFactor = REVIT_FEET_TO_M * 1000;
+	float scaleFactor = 1000;
 	cover->setScale(scaleFactor);
 	scMat.makeScale(scaleFactor, scaleFactor, scaleFactor);
 	iscMat.makeScale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0 / scaleFactor);
@@ -427,6 +429,7 @@ RevitPlugin::RevitPlugin()
 	fprintf(stderr, "RevitPlugin::RevitPlugin\n");
 	plugin = this;
 	MoveFinished = true;
+    setViewpoint = true;
 	int port = coCoviseConfig::getInt("port", "COVER.Plugin.Revit.Server", 31821);
     textureDir = coCoviseConfig::getEntry("textures", "COVER.Plugin.Revit", "C:/Program Files (x86)/Common Files/Autodesk Shared/Materials/Textures");
     localTextureDir = coCoviseConfig::getEntry("localTextures", "COVER.Plugin.Revit", "c:/tmp");
@@ -1187,6 +1190,22 @@ RevitPlugin::handleMessage(Message *m)
 			PluginMessageTypes::AnnotationTextMessage, tb3.get_length(), tb3.get_data());
 		break;
 	}
+    case MSG_DocumentInfo:
+    {
+        TokenBuffer tb(m);
+        char *fileName;
+        tb >> fileName;
+        if (fileName != currentRevitFile)
+        {
+            setViewpoint = true;
+            currentRevitFile = fileName;
+        }
+        else
+        {
+            setViewpoint = false;
+        }
+        break;
+    }
 	case MSG_AddView:
 	{
 		TokenBuffer tb(m);
@@ -1222,6 +1241,10 @@ RevitPlugin::handleMessage(Message *m)
 					vpe->setValues(pos, dir, up, name);
 					vpe->activate();
 				}
+                if (setViewpoint && strncasecmp("Start",vpe->getName().c_str(),5)==0)
+                {
+                    vpe->activate();
+                }
 				break;
 			}
 		}
@@ -1237,6 +1260,9 @@ RevitPlugin::handleMessage(Message *m)
 			viewpointMenu->add(menuEntry);
 			vpe->setMenuItem(menuEntry);
 			viewpointEntries.push_back(vpe);
+
+            if (setViewpoint && strncasecmp("Start", vpe->getName().c_str(),5) == 0)
+                vpe->activate();
 		}
 	}
 	break;
@@ -1332,7 +1358,7 @@ RevitPlugin::handleMessage(Message *m)
 			osg::Geode *geode = new osg::Geode();
 			geode->setName(name);
 			osg::Geometry *geom = new osg::Geometry();
-            cover->setRenderStrategy(geom);
+			cover->setRenderStrategy(geom);
 			geode->addDrawable(geom);
 
 			// set up geometry
@@ -1427,6 +1453,42 @@ RevitPlugin::handleMessage(Message *m)
 			info->ObjectID = ID;
 			OSGVruiUserDataCollection::setUserData(geode, "RevitInfo", info);
 			currentGroup.top()->addChild(geode);
+		}
+		else if (GeometryType == OBJ_TYPE_Inline)
+		{
+			std::string url;
+			tb >> url;
+			osg::MatrixTransform *mt = new osg::MatrixTransform();
+			mt->setMatrix(osg::Matrix::scale(REVIT_M_TO_FEET, REVIT_M_TO_FEET, REVIT_M_TO_FEET));
+			char buffer[333];
+			sprintf(buffer, "Default %d", ID);
+			mt->setName(buffer);
+			currentGroup.top()->addChild(mt);
+			osg::Node *inlineNode = NULL;
+			auto it = inlineNodes.find(url);
+			if (it != inlineNodes.end())
+			{
+				inlineNode = it->second;
+			}
+			else
+			{
+				osg::Group *g=new osg::Group();
+				inlineNode = coVRFileManager::instance()->loadFile(url.c_str(),NULL,g);
+				if (inlineNode)
+				{
+					inlineNodes[url] = inlineNode;
+				}
+				g->removeChild(inlineNode);
+			}
+			if (inlineNode)
+			{
+				mt->addChild(inlineNode);
+			}
+
+			ei->nodes.push_back(mt);
+			RevitInfo *info = new RevitInfo();
+			info->ObjectID = ID;
+			OSGVruiUserDataCollection::setUserData(mt, "RevitInfo", info);
 		}
 
 	}

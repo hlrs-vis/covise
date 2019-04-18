@@ -174,19 +174,27 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     )
 )
 
-if "%BASEARCHSUFFIX%" EQU "vcpkg" (
-    if "%VCPKG_ROOT%" NEQ "" (
+if "%VCPKG_ROOT%" NEQ "" (
+    if "%BASEARCHSUFFIX%" EQU "vcpkg" (
         set "PATH=%VCPKG_ROOT%\installed\x64-windows\bin;%VCPKG_ROOT%;%PATH%"
         set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\tools\osg\osgPlugins-3.6.2"
     )
 )
 
-if "%ARCHSUFFIX%" EQU "vcpkg" (
-    set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
+if "%VCPKG_ROOT%" NEQ "" (
+    if "%ARCHSUFFIX%" EQU "vcpkg" (
+          set "PATH=%VCPKG_ROOT%\installed\x64-windows\debug\bin;%PATH%"
+          set "OSG_LIBRARY_PATH=%VCPKG_ROOT%\installed\x64-windows\debug\tools\osg\osgPlugins-3.6.2"
+    )
 )
+
 
 if "%BASEARCHSUFFIX%" EQU "vcpkg" (
     goto FINALIZE
+)
+
+if defined CUDA_PATH_V10_0 (
+    set CUDA_PATH=%CUDA_PATH_V10_0%
 )
 
 if not defined QT_HOME ( 

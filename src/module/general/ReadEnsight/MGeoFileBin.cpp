@@ -27,7 +27,7 @@ using namespace std;
 //
 // Constructor
 //
-En6MGeoBIN::En6MGeoBIN(const coModule *mod, const string &name, EnFile::BinType binType)
+En6MGeoBIN::En6MGeoBIN(ReadEnsight *mod, const string &name, EnFile::BinType binType)
     : EnFile(mod, binType)
     , indexMap_(NULL)
 {
@@ -153,12 +153,12 @@ coDistributedObject *En6MGeoBIN::getDataObject(std::string s)
 }
 
 void
-En6MGeoBIN::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
+En6MGeoBIN::read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     readHeader();
 
     readCoords();
-    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
+    createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
 }
 
 //

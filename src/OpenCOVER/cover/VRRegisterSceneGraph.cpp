@@ -13,6 +13,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
 #include <cover/coVRPluginSupport.h>
+#include <cover/coVRPluginList.h>
 #include <net/message.h>
 #include <net/message_types.h>
 
@@ -224,7 +225,7 @@ void VRRegisterSceneGraph::sendRegisterMessage()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(regMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -239,7 +240,7 @@ void VRRegisterSceneGraph::sendUnregisterMessage()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(regMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -254,7 +255,7 @@ void VRRegisterSceneGraph::sendTransparencyMessage() //toGui
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 

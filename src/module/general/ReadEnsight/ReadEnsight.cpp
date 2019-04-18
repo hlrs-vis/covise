@@ -84,6 +84,20 @@ ReadEnsight::ReadEnsight(int argc, char *argv[])
     geoObjs_[0] = NULL;
     geoObjs_[1] = NULL;
     geoObjs_[2] = NULL;
+/*   Debug Memory on windows
+    // Get current flag
+	int tmpFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+
+	// Turn on leak-checking bit.
+	tmpFlag |= _CRTDBG_LEAK_CHECK_DF;
+
+	// Turn on CRT block checking bit.
+	tmpFlag |= _CRTDBG_CHECK_CRT_DF;
+	tmpFlag |= _CRTDBG_CHECK_ALWAYS_DF;
+	
+
+	// Set flag to the new value.
+	_CrtSetDbgFlag(tmpFlag);*/
 
     // parameter to decide if cell based data should be automatically transformed to
     // vertex based data. The default is true (=transform)
@@ -369,8 +383,12 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
     // set object names and create object arrays for timesteps
     string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
     string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-    coDistributedObject **objects2d = new coDistributedObject *[numTs + 1];
-    coDistributedObject **objects3d = new coDistributedObject *[numTs + 1];
+	int size = numTs + 1;
+	if (numTs == 0)
+		size = 2;
+		
+    coDistributedObject **objects2d = new coDistributedObject *[size];
+    coDistributedObject **objects3d = new coDistributedObject *[size];
 
     vector<string>::iterator ii;
 
@@ -405,7 +423,6 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
 
         PartList *pl = new PartList;
         enf->setPartList(pl);
-        enf->setMasterPL(masterPL_);
         enf->setActiveAlloc((cnt != 0));
 
         if (!enf->isOpen())
@@ -415,7 +432,7 @@ ReadEnsight::readGeometry(const int &portTok2d, const int &portTok3d)
         }
 
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
-        enf->read(this, EnFile::GEOMETRY, objects2d,objects3d, actObjNm2d,actObjNm3d,cnt);
+        enf->read(EnFile::GEOMETRY, objects2d,objects3d, actObjNm2d,actObjNm3d,cnt, numTs);
 
 #ifdef DEBUG
         cerr << " elem: " << pl->at(0).subParts_numElem.size() << " conn: " << pl->at(0).subParts_numConn.size() << endl;
@@ -594,7 +611,7 @@ ReadEnsight::readMGeometry(const int &portTok1d)
         }
 
         coModule::sendInfo(" start reading geometry ( %s ) - please be patient..", (*ii).c_str());
-        enf->read(this, EnFile::DIM1D, objects1d, actObjNm1d, cnt);
+        enf->read(EnFile::DIM1D, objects1d, actObjNm1d, cnt, realNumTs);
 
         numCoordsM_.push_back(enf->getDataCont().getNumCoord());
         objects1d[cnt] = enf->getDataObject(actObjNm1d);
@@ -1958,7 +1975,7 @@ ReadEnsight::createGeoOutObj(const string &baseName2d,
 coDistributedObject **
 ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
                                 DataCont &dcIn,
-                                const int &step, const bool &perVertex)
+                                const int &step, int numTimeSteps, const bool &perVertex)
 {
 #ifdef DEBUG
     cerr << "createDataOutObj3d()" << endl;
@@ -2259,8 +2276,10 @@ ReadEnsight::createDataOutObj(EnFile::dimType dim, const string &baseName,
         it++;
     }
     objects[cnt] = NULL;
-
-    retArr[0] = new coDoSet((baseName + "t" + std::to_string(step)).c_str(), (coDistributedObject **)objects);
+	if(numTimeSteps <=1)
+		retArr[0] = new coDoSet(baseName, (coDistributedObject **)objects);
+	else
+		retArr[0] = new coDoSet((baseName + "t" + std::to_string(step)).c_str(), (coDistributedObject **)objects);
 
     // delete !!!!
     int i;
@@ -2288,7 +2307,7 @@ ReadEnsight::readData1d(const int &portTok1d,
 
     // set object names and create object arrays for timesteps
     string objNameBase1d = READER_CONTROL->getAssocObjName(portTok1d);
-    coDistributedObject **objects1d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects1d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
@@ -2328,7 +2347,7 @@ ReadEnsight::readData1d(const int &portTok1d,
                 sendError(" could not open file %s", (*ii).c_str());
                 return 0;
             }
-            dFile->read(this, EnFile::EnFile::DIM1D, objects1d, actObjNm1d, cnt);
+            dFile->read(EnFile::EnFile::DIM1D, objects1d, actObjNm1d, cnt, rNumTs);
          /*   objects1d[cnt] = dFile->getDataObject(actObjNm1d);
             if (objects1d[cnt] != NULL)
             {
@@ -2423,7 +2442,7 @@ ReadEnsight::readData2d(const int &portTok2d,
 
     // set object names and create object arrays for timesteps
     string objNameBase2d = READER_CONTROL->getAssocObjName(portTok2d);
-    coDistributedObject **objects2d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects2d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
@@ -2461,19 +2480,9 @@ ReadEnsight::readData2d(const int &portTok2d,
                 return 0;
             }
             dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->read(this, EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt);
+            dFile->read(EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt, rNumTs);
             ddc = dFile->getDataCont();
             delete dFile;
-           /* // create DO's
-            coDistributedObject **oOut = createDataOutObj(EnFile::DIM2D,actObjNm2d, ddc, cnt);
-
-            ddc.cleanAll();
-
-            if (oOut[0] != NULL)
-                objects2d[cnt] = oOut[0];
-
-            ++cnt;*/
         }
         else // per cell
         {
@@ -2487,17 +2496,7 @@ ReadEnsight::readData2d(const int &portTok2d,
                 return 0;
             }
             dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->readCells(this, EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt);
-           /* // create DO's
-            DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj(EnFile::DIM2D,actObjNm2d, ddc, cnt, false);
-            delete dFile;
-
-            if (oOut[0] != NULL)
-                objects2d[cnt] = oOut[0];
-
-            cnt++;*/
+            dFile->readCells(EnFile::EnFile::DIM2D, objects2d, actObjNm2d, cnt, rNumTs);
         }
     }
 
@@ -2582,7 +2581,7 @@ ReadEnsight::readData3d(const int &portTok3d,
 
     // set object names and create object arrays for timesteps
     string objNameBase3d = READER_CONTROL->getAssocObjName(portTok3d);
-    coDistributedObject **objects3d = new coDistributedObject *[rNumTs + 1];
+    coDistributedObject **objects3d = new coDistributedObject *[rNumTs + 2];
 
     vector<string>::iterator ii;
 
@@ -2620,19 +2619,9 @@ ReadEnsight::readData3d(const int &portTok3d,
                 return 0;
             }
             dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->read(this, EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt);
+            dFile->read(EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt, rNumTs);
             ddc = dFile->getDataCont();
             delete dFile;
-         /*   // create DO's
-            coDistributedObject **oOut = createDataOutObj(EnFile::DIM3D, actObjNm3d, ddc, cnt);
-
-            ddc.cleanAll();
-
-            if (oOut[0] != NULL)
-                objects3d[cnt] = oOut[0];
-
-            ++cnt;*/
         }
         else // per cell
         {
@@ -2646,17 +2635,7 @@ ReadEnsight::readData3d(const int &portTok3d,
                 return 0;
             }
             dFile->setPartList(&globalParts_[cnt]);
-            dFile->setMasterPL(masterPL_);
-            dFile->readCells(this, EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt);
-            // create DO's
-         /*   DataCont ddc;
-            coDistributedObject **oOut = createDataOutObj(EnFile::DIM3D, actObjNm3d, ddc, cnt, false);
-            delete dFile;
-
-            if (oOut[0] != NULL)
-                objects3d[cnt] = oOut[0];
-
-            cnt++;*/
+            dFile->readCells(EnFile::EnFile::DIM3D, objects3d, actObjNm3d, cnt, rNumTs);
         }
     }
 

@@ -2,6 +2,9 @@ covise_find_package(X11)
 if (X11_ICE_FOUND)
     include_directories(X11_ICE_INCLUDE_PATH)
 endif()
+if (X11_FOUND)
+    include_directories(X11_X11_INCLUDE_PATH)
+endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -16,6 +19,7 @@ set(HEADERS
 
 set(SOURCES
     QtOsgWidget.cpp
+    QtOsgWidgetImpl.cpp
     QtView.cpp
     QtMainWindow.cpp
     WindowTypeQt.cpp
@@ -28,7 +32,14 @@ qt_add_resources(QRC_SOURCES about.qrc icons.qrc)
 qt_wrap_ui(UI_SOURCES AboutDialog.ui KeyboardHelp.ui)
 cover_add_plugin(WindowTypeQt ${HEADERS} ${SOURCES} ${QRC_SOURCES} ${UI_SOURCES})
 qt_use_modules(WindowTypeQt Core Widgets OpenGL)
+if (Qt5X11Extras_FOUND)
+    qt_use_modules(WindowTypeQt X11Extras)
+    add_definitions(-DHAVE_QTX11EXTRAS)
+endif()
 
 if (X11_ICE_FOUND)
     target_link_libraries(WindowTypeQt ${X11_ICE_LIB})
+endif()
+if (X11_FOUND)
+    target_link_libraries(WindowTypeQt ${X11_X11_LIB})
 endif()

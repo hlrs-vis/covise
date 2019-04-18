@@ -171,7 +171,7 @@ INT_PTR CALLBACK
     case WM_INITDIALOG:
     {
         th = (LODObject *)lParam;
-        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG)th);
+        SetWindowLongPtr(hDlg, GWLP_USERDATA, (LONG_PTR)th);
         SetDlgFont(hDlg, th->iObjParams->GetAppHFont());
 
         th->sizeSpin = GetISpinner(GetDlgItem(hDlg, IDC_LOD_SIZE_SPINNER));

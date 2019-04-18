@@ -75,8 +75,6 @@ protected:
     cv::Ptr<cv::aruco::Dictionary> dictionary;
     cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
 
-    vrui::coSubMenuItem *arMenuEntry;
-    
 private:
 
     bool bDrawDetMarker;

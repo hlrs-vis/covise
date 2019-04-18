@@ -12,10 +12,11 @@
 #include <osgDB/fstream>
 //#include <fstream>
 #include <QDir>
-#include "FileSysAccess.h"
+#include <qtutil/FileSysAccess.h>
 #include <cover/coVRCommunication.h>
 #include <cover/coVRMSController.h>
 #include <cover/OpenCOVER.h>
+#include <cover/coVRPluginSupport.h>
 #include <net/message.h>
 #include <net/message_types.h>
 
@@ -51,7 +52,7 @@ void VRBData::reqDirectoryList(std::string path, int pId)
     Message m(tb);
     this->mId = pId;
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setDirectoryList(Message &msg)
@@ -89,7 +90,7 @@ void VRBData::reqFileList(std::string path, int pId)
     Message m(tb);
     this->mId = pId;
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setFileList(Message &msg)
@@ -113,7 +114,7 @@ void VRBData::reqHomeDir(int pId)
     Message m(tb);
     this->mId = pId;
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 //TODO: Implement ReqHomeFiles
@@ -129,7 +130,7 @@ void VRBData::reqHomeFiles(int pId)
     Message m(tb);
     this->mId = pId;
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 //TODO: Implement ReqDirUp
@@ -175,7 +176,7 @@ void VRBData::reqClientList(int pId)
     tb << TABLET_REQ_CLIENTS;
     Message m(tb);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setClientList(Message &msg)
@@ -198,7 +199,7 @@ void VRBData::reqDrives(int pId)
     tb << this->mIP.c_str();
     Message m(tb);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setRemoteDirList(Message &msg)
@@ -244,7 +245,7 @@ void VRBData::setRemoteDirList(Message &msg)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 
     if (strcmp(location, "") == 0)
     {
@@ -295,7 +296,7 @@ void VRBData::setRemoteFileList(Message &msg)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setRemoteDir(Message &msg, std::string absPath)
@@ -318,7 +319,7 @@ void VRBData::setRemoteDir(Message &msg, std::string absPath)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setRemoteDrives(Message &msg)
@@ -358,7 +359,7 @@ void VRBData::setRemoteDrives(Message &msg)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setDrives(Message &msg)
@@ -411,7 +412,7 @@ std::string VRBData::getTmpFilename(const std::string url, int id)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 
     std::cerr << "Waiting for: " << path.c_str() << std::endl;
     if (this->VRBWait())
@@ -533,7 +534,7 @@ void VRBData::reqRemoteFile(std::string filename, int pId)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setFile(Message &msg)
@@ -621,7 +622,7 @@ void VRBData::setRemoteFile(Message &msg)
         Message m(tb2);
         m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
         //Send message
-        getVRB()->sendMessage(&m);
+        cover->sendVrbMessage(&m);
         return;
     }
     vrbFile.seekg(0, std::ios::end);
@@ -641,7 +642,7 @@ void VRBData::setRemoteFile(Message &msg)
         Message m(tb2);
         m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
         //Send message
-        getVRB()->sendMessage(&m);
+        cover->sendVrbMessage(&m);
         return;
     }
     vrbFile.close();
@@ -662,7 +663,7 @@ void VRBData::setRemoteFile(Message &msg)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_REMREQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }
 
 void VRBData::setSelectedPath(std::string path)
@@ -686,5 +687,5 @@ void VRBData::reqGlobalLoad(std::string url, int pId)
 
     Message m(rt);
     m.type = COVISE_MESSAGE_VRB_FB_RQ;
-    getVRB()->sendMessage(&m);
+    cover->sendVrbMessage(&m);
 }

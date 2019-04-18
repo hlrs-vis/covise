@@ -232,6 +232,7 @@ bool setupEnvironment(int argc, char *argv[])
                                 break;
                             }
                         }
+                        delete dir;
                     }
                     if (found)
                     {
@@ -279,16 +280,14 @@ bool setupEnvironment(int argc, char *argv[])
             std::cerr << "setupEnvironment(): checking directory " << dir << std::endl;
 #endif
 
-            if (coDirectory *cd = coDirectory::open(dir.c_str()))
+            if (coDirectory *archsuffix = coDirectory::open((dir + "/" + ARCHSUFFIX).c_str()))
             {
-                for (int i = 0; i < cd->count(); ++i)
+                delete archsuffix;
+                archsuffixfound = true;
+                if (coDirectory *python = coDirectory::open((dir + "/Python").c_str()))
                 {
-                    if (!strcmp(cd->name(i), ARCHSUFFIX))
-                        archsuffixfound = true;
-                    if (!strcmp(cd->name(i), "Python"))
-                        pythonfound = true;
-                    if (pythonfound && archsuffixfound)
-                        break;
+                    delete python;
+                    pythonfound = true;
                 }
             }
             if (pythonfound && archsuffixfound)

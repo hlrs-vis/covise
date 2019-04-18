@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cassert>
 
 #include "coSliderMenuItem.h"
 #include "coSliderToolboxItem.h"
@@ -61,6 +62,7 @@ coJoystickManager::coJoystickManager()
     selectOnRelease = false;
     oldX = 0;
     oldY = 0;
+    oldButton = 0;
     barrierXValue = 0.9f;
     barrierYValue = 0.5f;
     barrierMilliSeconds = 1000;
@@ -99,6 +101,8 @@ void coJoystickManager::setActive(bool a)
   */
 void coJoystickManager::registerMenu(coMenu *m, bool force)
 {
+    assert(m);
+
     std::vector<coMenu *> test;
     if (menus.end() == std::find(menus.begin(), menus.end(), m))
     {
@@ -131,6 +135,8 @@ void coJoystickManager::registerMenu(coMenu *m, bool force)
   */
 void coJoystickManager::unregisterMenu(coMenu *m)
 {
+    assert(m);
+
     if (m == rootMenu)
         rootMenu = NULL;
     if (m == activeMenu)
@@ -366,8 +372,11 @@ void coJoystickManager::setItemActive(bool b)
         aItem = numItems;
     }
 
-    goodItems[aItem - 1]->selected(b);
-    activeMenu->makeVisible(goodItems[aItem - 1]);
+    if (!goodItems.empty())
+    {
+        goodItems[aItem - 1]->selected(b);
+        activeMenu->makeVisible(goodItems[aItem - 1]);
+    }
 }
 
 /**

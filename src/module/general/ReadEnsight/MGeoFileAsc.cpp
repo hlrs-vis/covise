@@ -33,7 +33,7 @@ const int lineLen(250);
 //
 // Constructor
 //
-En6MGeoASC::En6MGeoASC(const coModule *mod)
+En6MGeoASC::En6MGeoASC(ReadEnsight *mod)
     : EnFile(mod)
     , lineCnt_(0)
     , numCoords_(0)
@@ -44,7 +44,7 @@ En6MGeoASC::En6MGeoASC(const coModule *mod)
     className_ = string("En6MGeoASC");
 }
 
-En6MGeoASC::En6MGeoASC(const coModule *mod, const string &name)
+En6MGeoASC::En6MGeoASC(ReadEnsight *mod, const string &name)
     : EnFile(mod, name)
     , lineCnt_(0)
     , numCoords_(0)
@@ -65,14 +65,14 @@ En6MGeoASC::~En6MGeoASC()
 }
 
 void
-En6MGeoASC::read(ReadEnsight *ens, dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep)
+En6MGeoASC::read(dimType dim, coDistributedObject **outObjects2d, coDistributedObject **outObjects3d, const string &actObjNm2d, const string &actObjNm3d, int &timeStep, int numTimeSteps)
 {
     // read header
     readHeader();
     // read coordinates
     En6MGeoASC::readCoords();
     // TBD: err handling
-    createGeoOutObj(ens, dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
+    createGeoOutObj(dim, outObjects2d, outObjects3d, actObjNm2d, actObjNm3d, timeStep);
 }
 
 // read header

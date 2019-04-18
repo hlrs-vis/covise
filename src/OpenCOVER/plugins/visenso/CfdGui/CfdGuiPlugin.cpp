@@ -16,6 +16,7 @@
 #include <config/CoviseConfig.h>
 #include <cover/OpenCOVER.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Manager.h>
 #include <net/message_types.h>
 #include <net/message.h>
 
@@ -29,7 +30,7 @@
 #include <grmsg/coGRObjTransformCaseMsg.h>
 #include <grmsg/coGRGraphicRessourceMsg.h>
 #include <grmsg/coGRKeyWordMsg.h>
-
+#include <cover/coVRPluginList.h>
 #include <osgDB/WriteFile>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 
@@ -218,7 +219,7 @@ CfdGuiPlugin::sendPresentationForwardMsgToGui()
         grmsg.type = covise::COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -236,7 +237,7 @@ CfdGuiPlugin::sendPresentationReloadMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -255,7 +256,7 @@ CfdGuiPlugin::sendPresentationBackwardMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 void
@@ -269,7 +270,7 @@ CfdGuiPlugin::sendPresentationPlayMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 void
@@ -286,7 +287,7 @@ CfdGuiPlugin::sendPresentationStopMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -304,7 +305,7 @@ CfdGuiPlugin::sendPresentationToStartMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -323,7 +324,7 @@ CfdGuiPlugin::sendPresentationToEndMsgToGui()
         grmsg.type = COVISE_MESSAGE_UI;
         grmsg.data = (char *)(keyWordMsg.c_str());
         grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
 
@@ -386,7 +387,7 @@ void CfdGuiPlugin::key(int type, int keySym, int mod)
                 grmsg.type = COVISE_MESSAGE_UI;
                 grmsg.data = (char *)(keyWordMsg.c_str());
                 grmsg.length = strlen(grmsg.data) + 1;
-                cover->sendVrbMessage(&grmsg);
+                coVRPluginList::instance()->sendVisMessage(&grmsg);
             }
 
             if (keySym == 'p' || keySym == 'P')
@@ -397,7 +398,7 @@ void CfdGuiPlugin::key(int type, int keySym, int mod)
                 grmsg.type = COVISE_MESSAGE_UI;
                 grmsg.data = (char *)(keyWordMsg.c_str());
                 grmsg.length = strlen(grmsg.data) + 1;
-                cover->sendVrbMessage(&grmsg);
+                coVRPluginList::instance()->sendVisMessage(&grmsg);
             }
         }
     }

@@ -1755,7 +1755,7 @@ void coVRShaderList::loadMaterials()
 #else
         buf += "/share/covise/materials";
 #endif
-        coDirectory *dir = coDirectory::open(buf.c_str());
+        std::unique_ptr<coDirectory> dir(coDirectory::open(buf.c_str()));
         for (int i = 0; dir && i < dir->count(); i++)
         {
             if (dir->match(dir->name(i), "*.xml"))

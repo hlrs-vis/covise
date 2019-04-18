@@ -8,18 +8,10 @@
 #ifndef CO_TUI_SGBROWSER_TAB_H
 #define CO_TUI_SGBROWSER_TAB_H
 
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <util/coRestraint.h>
-#else
-#include "wce_Restraint.h"
-#endif
-
-#if !defined _WIN32_WCE && !defined ANDROID_TUI
 #include <util/coTypes.h>
+
 #include <net/covise_connect.h>
-#else
-#include "wce_connect.h"
-#endif
 
 #include "TUITab.h"
 #include "TUILabel.h"
@@ -168,6 +160,7 @@ private:
     QString texturePluginTempDir;
     QString textureDir;
     QString currentDir;
+    bool connectionClosed = false;
 
 public slots:
     void updateScene();
