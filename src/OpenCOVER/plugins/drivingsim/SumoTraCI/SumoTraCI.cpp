@@ -409,7 +409,7 @@ void SumoTraCI::subscribeToSimulation()
             {
                 client.person.subscribe(*it, variables, 0, TIME2STEPS(1000));
             }
-            fprintf(stderr, "There are currently %i persons in the simulation \n", personIDList.size());
+            fprintf(stderr, "There are currently %lu persons in the simulation \n", (unsigned long)personIDList.size());
         }
         else
         {

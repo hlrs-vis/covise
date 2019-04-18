@@ -33,7 +33,7 @@ public:
 
     void setMaster(bool m) override;
 
-    void setSession(const vrb::SessionID & id);
+    void setSession(const vrb::SessionID & id) override;
 
     void setUserInfo(const char * ui) override;
 

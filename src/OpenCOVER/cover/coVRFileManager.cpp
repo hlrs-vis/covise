@@ -1740,7 +1740,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 					}
 				}
 			}
-			else if (vrbc && vrbc->isConnected() || !coVRMSController::instance()->isMaster())
+			else if ((vrbc && vrbc->isConnected()) || !coVRMSController::instance()->isMaster())
 			{
 				if (coVRMSController::instance()->isMaster())
 				{

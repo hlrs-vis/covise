@@ -100,7 +100,7 @@ VRBServer::~VRBServer()
 {
     delete sConn;
 	delete udpConn;
-	delete ip;
+	delete[] ip;
     delete handler;
     //cerr << "closed Server connection" << endl;
 }
@@ -110,6 +110,7 @@ void VRBServer::closeServer()
     if (m_gui)
     {
     delete serverSN;
+    serverSN = nullptr;
     }
 
 
@@ -147,9 +148,11 @@ int VRBServer::openServer()
         sConn = NULL;
         return (-1);
     }
-    connections = new ConnectionList();
+    if (!connections)
+        connections = new ConnectionList();
     connections->add(sConn);
-    msg = new Message;
+    if (!msg)
+        msg = new Message;
 
     if (m_gui)
     {
@@ -262,6 +265,8 @@ bool VRBServer::startUdpServer()
 	udpConn = new ServerUdpConnection(new UDPSocket(m_udpPort)); 
 	if (udpConn->getSocket()->get_id() < 0)
 	{
+        delete udpConn;
+        udpConn = nullptr;
 		return false;
 	}
 	struct linger linger;
@@ -274,6 +279,8 @@ bool VRBServer::startUdpServer()
 		QObject::connect(sn, SIGNAL(activated(int)),
 			this, SLOT(processUdpMessages()));
 	}
+    if (!connections)
+        connections = new ConnectionList();
 	connections->add(udpConn);
 	return true;
 }
