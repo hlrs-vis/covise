@@ -1633,7 +1633,10 @@ std::string coVRFileManager::remoteFetch(const char *filename)
         delete msg;
     }
     std::string pathToTmpFile = cutFileName(std::string(result)) + "/" + getFileName(std::string(filename));
-    fs::rename(result, pathToTmpFile);
+    if (!fs::exists(pathToTmpFile))
+    {
+        fs::rename(result, pathToTmpFile);
+    }
     working = 0;
     return pathToTmpFile;
 }
@@ -1651,42 +1654,42 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
         //search file under sharedDataPath
         cutName(validPath);
         validPath = m_sharedDataPath + validPath;
-        if (!fs::exists(validPath)) //give up
+    }
+    if (!fs::exists(validPath)) //give up
+    {
+        TokenBuffer rtb;
+        rtb << requestorsID;
+        rtb << 0;
+        coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
+    }
+    else
+    {
+        if (stat(filename, &statbuf) >= 0)
         {
             TokenBuffer rtb;
             rtb << requestorsID;
-            rtb << 0;
-            coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-        }
-        else
-        {
-            if (stat(filename, &statbuf) >= 0)
-            {
-                TokenBuffer rtb;
-                rtb << requestorsID;
 #ifdef _WIN32
-                int fdesc = open(filename, O_RDONLY | O_BINARY);
+            int fdesc = open(filename, O_RDONLY | O_BINARY);
 #else
-                int fdesc = open(filename, O_RDONLY);
+            int fdesc = open(filename, O_RDONLY);
 #endif
-                if (fdesc > 0)
+            if (fdesc > 0)
+            {
+                rtb << (int)statbuf.st_size;
+                char *buf = (char *)rtb.allocBinary(statbuf.st_size);
+                int n = read(fdesc, buf, statbuf.st_size);
+                if (n == -1)
                 {
-                    rtb << (int)statbuf.st_size;
-                    char *buf = (char *)rtb.allocBinary(statbuf.st_size);
-                    int n = read(fdesc, buf, statbuf.st_size);
-                    if (n == -1)
-                    {
-                        cerr << "coVRCommunication::handleVRB: read failed: " << strerror(errno) << endl;
-                    }
-                    close(fdesc);
+                    cerr << "coVRCommunication::handleVRB: read failed: " << strerror(errno) << endl;
                 }
-                else
-                {
-                    cerr << " file access error, could not open " << filename << endl;
-                    rtb << 0;
-                }
-                coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
+                close(fdesc);
             }
+            else
+            {
+                cerr << " file access error, could not open " << filename << endl;
+                rtb << 0;
+            }
+            coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
         }
     }
 }
