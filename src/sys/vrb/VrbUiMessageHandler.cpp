@@ -31,7 +31,8 @@ void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, c
     }
     else
     {
-       appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(value)).c_str());
+        value.rewind();
+        appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(value)).c_str());
     }
 }
 

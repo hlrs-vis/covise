@@ -112,6 +112,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         else
         {
             // forward this request to the COVER that loaded the current file
+            VRBSClient* currentFileClient = clients.getLoadedFileClient(filename);
             if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->getID() != requestorsID))
             {
                 currentFileClient->conn->send_msg(msg);
@@ -168,23 +169,23 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #ifdef MB_DEBUG
             std::cerr << "====> Added length of msg to bytes sent!" << std::endl;
 #endif
-            currentFileClient = c;
+
             delete[] currentFile;
             char *buf;
             tb >> senderID;
             tb >> buf;
             currentFile = new char[strlen(buf) + 1];
-            strcpy(currentFile, buf);
+            c->addLoadedFile(std::string(currentFile));
 
             // send current file name to all clients
 #ifdef MB_DEBUG
             std::cerr << "====> Sending current file to all clients!" << std::endl;
 #endif
 
-            if (currentFile && currentFileClient)
+            if (currentFile)
             {
                 TokenBuffer rtb3;
-                rtb3 << currentFileClient->getID();
+                rtb3 << c->getID();
                 rtb3 << currentFile;
                 Message m(rtb3);
                 m.conn = msg->conn;
@@ -213,6 +214,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
 
         sessions[sessionID]->setVar(senderID, Class, variable, tb_value); //maybe handle no existing registry for the given session ID
 
+        if (strcmp(Class, "SharedState") == 0 && strcmp(variable, "coVRFileManager_filePaths") == 0)
+        {
+            storeLoadedFiles(tb_value, clients.get(msg->conn));
+        }
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
 #endif
@@ -242,6 +247,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
         createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
+        if (strcmp(Class, "SharedState") == 0 && strcmp(variable, "coVRFileManager_filePaths") == 0)
+        {
+            storeLoadedFiles(tb_value, clients.get(msg->conn));
+        }
         updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
@@ -381,17 +390,6 @@ void VrbMessageHandler::handleMessage(Message *msg)
         Message m(rtb2);
         m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
         c->conn->send_msg(&m);
-
-        // send current file name to new client
-        if (currentFile && currentFileClient)
-        {
-            TokenBuffer rtb3;
-            rtb3 << currentFileClient->getID();
-            rtb3 << currentFile;
-            Message m(rtb3);
-            m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
-            c->conn->send_msg(&m);
-        }
     }
     break;
     case COVISE_MESSAGE_RENDER:
@@ -1366,11 +1364,8 @@ void VrbMessageHandler::remove(Connection *conn)
 		clients.removeClient(c);
 		delete c;
 		disconectClientFromSessions(clID);
-		if (currentFileClient == c)
-			currentFileClient = NULL;
 
-
-		removeEntriesFromApplicationWindow(clID);
+        removeEntriesFromApplicationWindow(clID);
 		sendSessions();
 		clients.sendMessageToAll(rtb, COVISE_MESSAGE_VRB_QUIT);
 		if (wasMaster)
@@ -1679,6 +1674,19 @@ std::string VrbMessageHandler::getTime() const {
     strftime(buffer, sizeof(buffer), "%Y-%m-%d_%H-%M-%S", timeinfo);
     std::string str(buffer);
     return str;
+}
+void VrbMessageHandler::storeLoadedFiles(TokenBuffer &tb, VRBSClient *fileOwner)
+{
+    tb.rewind();
+    std::set<std::string> files;
+    vrb::deserializeWithType(tb, files);
+    for (auto file : files)
+    {
+        if (clients.insertFile(file))
+        {
+            fileOwner->addLoadedFile(file);
+        }
+    }
 }
 }
 

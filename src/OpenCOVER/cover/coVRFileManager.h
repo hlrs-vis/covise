@@ -43,6 +43,10 @@ namespace osgText
 {
 class Font;
 }
+namespace covise
+{
+class Message;
+}
 namespace opencover
 {
 
@@ -191,7 +195,8 @@ public:
     void SetDefaultFB(coTUIFileBrowserButton *fb);
 
     virtual bool update();
-
+    //send a requested File to vrb
+    void sendFile(covise::TokenBuffer &tb);
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();

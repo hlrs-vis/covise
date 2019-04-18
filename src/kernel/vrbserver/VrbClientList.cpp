@@ -45,8 +45,12 @@ VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool sen
 
 VRBSClient::~VRBSClient()
 {
-    //cerr << "instance" <<coRegistry::instance << endl;
-//cerr << "ID" <<myID << endl;
+//remove this client's files from known clients
+    for (auto file : m_loadedFiles)
+    {
+        clients.removeFile(file);
+    }
+
 	if(deleteClient)
        delete conn;
     cerr << "closed connection to client " << myID << endl;
@@ -116,6 +120,16 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
     rtb << userInfo;
     rtb << m_publicSession;
     rtb << m_master;
+}
+
+bool VRBSClient::hasFileLoaded(const std::string & fileName)
+{
+    return m_loadedFiles.find(fileName) != m_loadedFiles.end();
+}
+
+bool VRBSClient::addLoadedFile(const std::string & fileName)
+{
+    return m_loadedFiles.insert(fileName).second;
 }
 
 void VRBSClient::setUserInfo(const char *ui)
@@ -302,6 +316,34 @@ void VRBClientList::collectClientInfo(covise::TokenBuffer & tb)
     {
         cl->getInfo(tb);
     }
+}
+
+VRBSClient * VRBClientList::getLoadedFileClient(const std::string & fileName)
+{
+    for (auto cl : m_clients)
+    {
+        if (cl->hasFileLoaded(fileName))
+        {
+            return cl;
+        }
+    }
+    return nullptr;
+}
+
+bool VRBClientList::insertFile(std::string & fileName)
+{
+    return m_knownFiles.insert(fileName).second;
+}
+
+bool VRBClientList::removeFile(std::string & fileName)
+{
+    auto it = m_knownFiles.find(fileName);
+    if (it == m_knownFiles.end())
+    {
+        return false;
+    }
+    m_knownFiles.erase(it);
+    return true;
 }
 
 VRBSClient *VRBClientList::get(const char *ip)

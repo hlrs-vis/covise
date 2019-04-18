@@ -65,7 +65,6 @@ protected:
     virtual void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var);
     virtual void removeEntriesFromApplicationWindow(int sender);
 
-    VRBSClient *currentFileClient = nullptr;
     char *currentFile = nullptr;
 
     const std::string suffix = ".vrbreg";
@@ -90,9 +89,15 @@ protected:
     void disconectClientFromSessions(int clID);
     ///assign a client to a session
     void setSession(vrb::SessionID & sessionId, int clID);
+    ///writes the session "id" and the private sessions of id's participants to disc
     void saveSession(const vrb::SessionID & id);
+    ///load a session from disc into currentSession 
     void loadSesion(const std::string & name, const vrb::SessionID &currentSession);
+    ///get current time as a formatted string for filenames
     std::string getTime() const;
+    ///stores new loaded files in the fileOwner for later reference when a file needs to be fetched
+    void storeLoadedFiles(covise::TokenBuffer & tb, VRBSClient *fileOwner);
+    ///
 };
 }
 #endif // !VRB_MESAGE_HANDLER_H

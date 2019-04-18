@@ -729,45 +729,7 @@ void coVRCommunication::handleVRB(Message *msg)
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
     {
-        struct stat statbuf;
-        char *filename;
-        tb >> filename;
-        int requestorsID;
-        tb >> requestorsID;
-        if (stat(filename, &statbuf) >= 0)
-        {
-            TokenBuffer rtb;
-            rtb << requestorsID;
-#ifdef _WIN32
-            int fdesc = open(filename, O_RDONLY | O_BINARY);
-#else
-            int fdesc = open(filename, O_RDONLY);
-#endif
-            if (fdesc > 0)
-            {
-                rtb << (int)statbuf.st_size;
-                char *buf = (char *)rtb.allocBinary(statbuf.st_size);
-                int n = read(fdesc, buf, statbuf.st_size);
-                if (n == -1)
-                {
-                    cerr << "coVRCommunication::handleVRB: read failed: " << strerror(errno) << endl;
-                }
-                close(fdesc);
-            }
-            else
-            {
-                cerr << " file access error, could not open " << filename << endl;
-                rtb << 0;
-            }
-            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-        }
-        else
-        {
-            TokenBuffer rtb;
-            rtb << requestorsID;
-            rtb << 0;
-            sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-        }
+        coVRFileManager::instance()->sendFile(tb);
     }
     break;
     case COVISE_MESSAGE_VRB_CURRENT_FILE:

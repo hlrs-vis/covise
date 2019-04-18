@@ -53,7 +53,7 @@ template <>
 VRBEXPORT SharedStateDataType getSharedStateType<char >(const char &type);
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<double>(const double &type);
-//tries to convert the serialized tokenbuffer to a string
+//tries to convert the serializedWithType tokenbuffer to a string
 VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID = -1);
 
 ///////////////////////SERIALIZE //////////////////////////
