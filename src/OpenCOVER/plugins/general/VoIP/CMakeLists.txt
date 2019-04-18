@@ -15,7 +15,8 @@ TARGET_LINK_LIBRARIES(VoIP
   ortp
   pthread
   rt
-  mediastreamer
+  mediastreamer_base
+  mediastreamer_voip
 )
 
 add_definitions(
