@@ -28,6 +28,9 @@ if(NOT COVISE_OPENCOVER_INTERNAL_PROJECT)
     option(COVISE_USE_OSMESA "Use OSMesa OpenGL library for CPU based off-screen rendering" OFF)
 endif()
 
+option(COVER_ENABLE_VOIP "Enable VoIP linphone client plugin" OFF)
+mark_as_advanced(COVER_ENABLE_VOIP)
+
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
    if (WIN32)
