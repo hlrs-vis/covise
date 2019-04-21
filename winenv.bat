@@ -118,11 +118,14 @@ if "%BASEARCHSUFFIX%" EQU "zebu"  (
 
 if "%VC14_15%" EQU "yes" (
    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
     
     if NOT defined VS150COMNTOOLS% (
+    if NOT defined VS160COMNTOOLS% (
     cd /d "%VS140COMNTOOLS%"\..\..\vc
 	call vcvarsall.bat x64
     cd /d "%COVISEDIR%"\
+	)
 	)
 ) else if "%BASEARCHSUFFIX%" EQU "win32" (
     call "%PROGFILES%"\"Microsoft Visual Studio .NET 2003"\Vc7\bin\vcvars32.bat
