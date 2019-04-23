@@ -699,10 +699,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        //make sure to get the identical button name as the partners
-        std::string fn(fileName);
-        cutName(fn);
-        button = new ui::Button(m_fileGroup, std::string("File."+ fn));
+        button = new ui::Button(m_fileGroup, getButtonName(fileName));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -1105,22 +1102,28 @@ void coVRFileManager::cutName(std::string & fileName)
 
 std::string coVRFileManager::findFile(const std::string & fileName)
 {
+    //find local file
     if (fs::exists(fileName))
     {
         return fs::canonical(fileName).string();
     }
+    //find file under sharedData link
     std::string path = m_sharedDataPath + fileName;
     if (fs::exists(path))
     {
         return path;
     }
-    else
+    //find fetched file in tmp
+    path = fs::temp_directory_path().string() + "/" + cutFileName(fileName);
+    if (fs::exists(path))
     {
-        std::string fetch =  remoteFetch(fileName.c_str());
-        if (fs::exists(fetch))
-        {
-            return fetch;
-        }
+        return path;
+    }
+    //fetch the file
+    path =  remoteFetch(fileName.c_str());
+    if (fs::exists(path))
+    {
+        return path;
     }
     return "";
 }
@@ -1728,5 +1731,18 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
     }
     cerr << "invalid file path : " << fileName << endl;
     return "";
+}
+std::string coVRFileManager::getButtonName(const std::string &fileName)
+{
+    std::string can = fs::canonical(fileName).string();
+    std::string btnName = "File";
+    for (auto c : can)
+    {
+        if (isalnum(c) && c != '_' && c != '-')
+        {
+            btnName.push_back(c);
+        }
+    }
+    return btnName;
 }
 }

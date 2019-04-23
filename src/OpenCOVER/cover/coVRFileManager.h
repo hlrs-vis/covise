@@ -249,9 +249,13 @@ private:
     void getSharedDataPath();
     std::string m_sharedDataPath;
     void convertBackslash(std::string &path);
+    ///request the file from vrb -> file gets copied to tmp
     std::string remoteFetch(const char * filename);
     std::string getFileName(const std::string & fileName);
+    ///if fileName contains m_sharedDataPath, cut it out
     std::string cutFileName(const std::string & fileName);
+    ///rosolves links in the file path from filename, cutName(fileName) and removs non-aphanumeric characters
+    std::string getButtonName(const std::string & fileName);
 };
 }
 #endif
