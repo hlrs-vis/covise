@@ -1734,7 +1734,11 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
 }
 std::string coVRFileManager::getButtonName(const std::string &fileName)
 {
-    std::string can = fs::canonical(fileName).string();
+	std::string can;
+	if (fs::exists(fileName))
+	{
+		can = fs::canonical(fileName).string();
+	}
     std::string btnName = "File";
     for (auto c : can)
     {
