@@ -117,8 +117,12 @@ if "%BASEARCHSUFFIX%" EQU "zebu"  (
 )
 
 if "%VC14_15%" EQU "yes" (
-   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
-    if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   if exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" ( 
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+   ) else if exist "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" ( 
+   call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat" -arch=x64 
+   )
+    
     
     if NOT defined VS150COMNTOOLS% (
     if NOT defined VS160COMNTOOLS% (
@@ -198,6 +202,9 @@ if "%BASEARCHSUFFIX%" EQU "vcpkg" (
 
 if defined CUDA_PATH_V10_0 (
     set CUDA_PATH=%CUDA_PATH_V10_0%
+)
+if defined CUDA_PATH_V10_1 (
+    set CUDA_PATH=%CUDA_PATH_V10_1%
 )
 
 if not defined QT_HOME ( 
