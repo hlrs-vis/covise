@@ -850,7 +850,7 @@ bool OpenCOVER::init()
     //connect to covise vrb
 	if (loadCovisePlugin && coCommandLine::argv(0) != "-c")
     {
-
+		cerr << "___AAAAAAA_____" << coCommandLine::argv(0) << endl;
 		char * coviseModuleID = coCommandLine::argv(4);
         char *ipAdress = coCommandLine::argv(5);
 		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
