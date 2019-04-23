@@ -126,8 +126,8 @@ public:
     const char *getName(const char *file);
     //removes sharedDataPath from filePath
     void cutName(std::string &fileName);
-    //search the file under COVISE_PATH; Return the first path to a valid file or an empty string
-    std::string findSharedFile(const std::string &fileName);
+    //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found.
+    std::string findFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 

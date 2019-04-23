@@ -634,21 +634,20 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         return nullptr;
     }
     START("coVRFileManager::loadFile");
-    fs::path p(fileName);
-    if (!fs::exists(p))
+    std::string validFileName = findFile(fileName);
+    if (validFileName == "")
     {
-        cerr << "file " << p.string() << " does not exist" << endl;
+        cerr << "file " << fileName << " does not exist" << endl;
         return nullptr;
     }
-    std::string canonicalPath = fs::canonical(p).string();
-    convertBackslash(canonicalPath);
-    if (m_files.find(canonicalPath) != m_files.end())
+    convertBackslash(validFileName);
+    if (m_files.find(validFileName) != m_files.end())
     {
         cerr << "The File : " << fileName << " is already loaded" << endl;
         cerr << "Loading a file multiple times is currently not supported" << endl;
         return nullptr;
     }
-    std::string relativePath = canonicalPath;
+    std::string relativePath = validFileName;
     cutName(relativePath);
     std::string adjustedFileName;
     std::string key;
@@ -656,14 +655,14 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     if (fb)
     {
         //Store filename associated with corresponding fb instance
-        key = canonicalPath;
+        key = validFileName;
         fileFBMap[key] = fb;
     }
 
-    Url url = Url::fromFileOrUrl(canonicalPath);
+    Url url = Url::fromFileOrUrl(validFileName);
     if (!url.valid())
     {
-        std::cerr << "failed to parse URL " << canonicalPath << std::endl;
+        std::cerr << "failed to parse URL " << validFileName << std::endl;
         return  nullptr;
     }
     std::cerr << "Loading " << url.str() << std::endl;
@@ -700,7 +699,10 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, std::string("File_"+ relativePath));
+        //make sure to get the identical button name as the partners
+        std::string fn(fileName);
+        cutName(fn);
+        button = new ui::Button(m_fileGroup, std::string("File."+ fn));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -708,7 +710,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->filebrowser = fb;
 
     OpenCOVER::instance()->hud->setText2("loading");
-    OpenCOVER::instance()->hud->setText3(canonicalPath);
+    OpenCOVER::instance()->hud->setText3(validFileName);
     OpenCOVER::instance()->hud->redraw();
     if (isRoot)
     {
@@ -717,7 +719,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
             const char *ext = strchr(url.path().c_str(), '.');
             if(ext)
             {
-                viewPointFile = canonicalPath;
+                viewPointFile = validFileName;
                 std::string::size_type pos = viewPointFile.find_last_of('.');
                 viewPointFile = viewPointFile.substr(0,pos);
                 viewPointFile+=".vwp";
@@ -745,7 +747,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         {
             filePaths = v;
         }
-        m_files[canonicalPath] = fe;
+        m_files[validFileName] = fe;
 
 
         if (node)
@@ -1101,11 +1103,11 @@ void coVRFileManager::cutName(std::string & fileName)
     }
 }
 
-std::string coVRFileManager::findSharedFile(const std::string & fileName)
+std::string coVRFileManager::findFile(const std::string & fileName)
 {
     if (fs::exists(fileName))
     {
-        return fileName;
+        return fs::canonical(fileName).string();
     }
     std::string path = m_sharedDataPath + fileName;
     if (fs::exists(path))
@@ -1114,8 +1116,13 @@ std::string coVRFileManager::findSharedFile(const std::string & fileName)
     }
     else
     {
-        return remoteFetch(fileName.c_str());
+        std::string fetch =  remoteFetch(fileName.c_str());
+        if (fs::exists(fetch))
+        {
+            return fetch;
+        }
     }
+    return "";
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
@@ -1479,7 +1486,7 @@ void coVRFileManager::loadPartnerFiles()
     std::set_difference(filePaths.value().begin(), filePaths.value().end(), alreadyLoadedFiles.begin(), alreadyLoadedFiles.end(), std::inserter(newFiles, newFiles.begin()));
     for (auto newFile : newFiles)
     {
-        loadFile(findSharedFile(newFile).c_str());
+        loadFile(newFile.c_str());
     }
 }
 
