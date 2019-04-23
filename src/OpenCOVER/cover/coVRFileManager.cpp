@@ -1745,7 +1745,7 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 }
 std::string coVRFileManager::getPathIdentifier(const std::string& path)
 {
-	std::string can;
+	std::string can = path;
 	if (fs::exists(path))
 	{
 		can = fs::canonical(path).string();
