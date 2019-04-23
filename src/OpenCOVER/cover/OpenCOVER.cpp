@@ -847,10 +847,16 @@ bool OpenCOVER::init()
     }
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
-    if (loadCovisePlugin)
+    //connect to covise vrb
+	if (loadCovisePlugin)
     {
-        char * coviseModuleID = coCommandLine::argv(4);
-        char *ipAdress = coCommandLine::argv(5);
+		int moduleID = 4;
+		if (coCommandLine::argv(0) == "-c")
+		{
+			moduleID -= 2;
+		}
+		char * coviseModuleID = coCommandLine::argv(moduleID);
+        char *ipAdress = coCommandLine::argv(moduleID+1);
         TokenBuffer tb;
         tb << "CRB";
         tb << ipAdress;
