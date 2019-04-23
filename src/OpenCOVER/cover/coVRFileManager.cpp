@@ -647,8 +647,6 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         cerr << "Loading a file multiple times is currently not supported" << endl;
         return nullptr;
     }
-    std::string relativePath = validFileName;
-    cutName(relativePath);
     std::string adjustedFileName;
     std::string key;
 
@@ -699,7 +697,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, getButtonName(fileName));
+        button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(getPathIdentifier(fileName)));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -740,7 +738,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
         std::set<std::string> v = filePaths;
-        if (v.insert(relativePath).second)
+        if (v.insert(getPathIdentifier(fileName)).second)
         {
             filePaths = v;
         }
@@ -1087,7 +1085,7 @@ const char *coVRFileManager::getName(const char *file)
     return NULL;
 }
 
-void coVRFileManager::cutName(std::string & fileName)
+void coVRFileManager::relativePath(std::string & fileName)
 {
     boost::filesystem::path filePath(fileName);
     if (!boost::filesystem::exists(filePath))
@@ -1466,7 +1464,7 @@ void coVRFileManager::loadPartnerFiles()
         bool found = false;
         
         auto shortPath = myFile.first;
-        cutName(shortPath);
+        relativePath(shortPath);
         alreadyLoadedFiles.insert(shortPath);
         for (auto theirFile : filePaths.value())
         {
@@ -1662,7 +1660,7 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
     if (!fs::exists(validPath))
     {
         //search file under sharedDataPath
-        cutName(validPath);
+        relativePath(validPath);
         validPath = m_sharedDataPath + validPath;
     }
     if (!fs::exists(validPath)) //give up
@@ -1732,21 +1730,29 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
     cerr << "invalid file path : " << fileName << endl;
     return "";
 }
-std::string coVRFileManager::getButtonName(const std::string &fileName)
+std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 {
-	std::string can;
-	if (fs::exists(fileName))
-	{
-		can = fs::canonical(fileName).string();
-	}
-    std::string btnName = "File";
-    for (auto c : can)
+
+    std::string red;
+    for (auto c : str)
     {
         if (isalnum(c) && c != '_' && c != '-')
         {
-            btnName.push_back(c);
+			red.push_back(c);
         }
     }
-    return btnName;
+    return red;
 }
+std::string coVRFileManager::getPathIdentifier(const std::string& path)
+{
+	std::string can;
+	if (fs::exists(path))
+	{
+		can = fs::canonical(path).string();
+	}
+	convertBackslash(can);
+	relativePath(can);
+	return can;
+}
+
 }

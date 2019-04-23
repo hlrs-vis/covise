@@ -125,7 +125,7 @@ public:
     // returns the full path for file
     const char *getName(const char *file);
     //removes sharedDataPath from filePath
-    void cutName(std::string &fileName);
+    void relativePath(std::string &fileName);
     //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found.
     std::string findFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
@@ -255,7 +255,9 @@ private:
     ///if fileName contains m_sharedDataPath, cut it out
     std::string cutFileName(const std::string & fileName);
     ///rosolves links in the file path from filename, cutName(fileName) and removs non-aphanumeric characters
-    std::string getButtonName(const std::string & fileName);
+    std::string reduceToAlphanumeric(const std::string & str);
+	///converts the path to a shared path
+	std::string getPathIdentifier(const std::string& path);
 };
 }
 #endif
