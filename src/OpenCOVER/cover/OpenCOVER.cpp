@@ -859,12 +859,8 @@ bool OpenCOVER::init()
         tb << coviseModuleID;
         Message msg(tb);
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
-        cover->sendVrbMessage(&msg);
+        //cover->sendVrbMessage(&msg);
     }
-	else
-	{
-		cerr << "I am local slave, my master is  " << coCommandLine::argv(1) << endl;
-	}
     frame();
     double frameEnd = cover->currentTime();
     hud->hideLater();
