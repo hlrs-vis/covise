@@ -851,7 +851,7 @@ bool OpenCOVER::init()
 	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
 		cover->connectToCovise();
-		char * coviseModuleID = coCommandLine::argv(3);
+		char * coviseModuleID = coCommandLine::argv(4);
         char *ipAdress = coCommandLine::argv(5);
 		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
         TokenBuffer tb;
@@ -861,6 +861,11 @@ bool OpenCOVER::init()
         Message msg(tb);
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
         cover->sendVrbMessage(&msg);
+		//cerr << "_____________________________" << endl;
+		//for (size_t i = 0; i < coCommandLine::argc(); i++)
+		//{
+		//	cerr << "[" << i << "] " << coCommandLine::argv(i) << endl;
+		//}
     }
     frame();
     double frameEnd = cover->currentTime();
