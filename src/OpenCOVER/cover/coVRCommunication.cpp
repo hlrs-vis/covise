@@ -521,11 +521,12 @@ void coVRCommunication::becomeMaster()
 
 void coVRCommunication::handleVRB(Message *msg)
 {
-	fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
-    //if (vrbc == NULL) //only if not started by covise
-    //{
-    //    vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-    //}
+	//fprintf(stderr,"slave: %d msgProcessed: %s\n",coVRMSController::instance()->isSlave(),covise_msg_types_array[msg->type]);
+
+    if (vrbc == NULL && !cover->connectedToCovise()) 
+	{
+        vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
+    }
     TokenBuffer tb(msg);
     switch (msg->type)
     {

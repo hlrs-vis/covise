@@ -2482,75 +2482,78 @@ bool coVRMSController::syncVRBMessages()
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
 
     Message *vrbMsg = new Message;
-    if (master)
-    {
-        if (vrbc && vrbc->isConnected())
-        {
-            while (vrbc->poll(vrbMsg))
-            {
-                vrbMsgs[numVrbMessages] = vrbMsg;
-                numVrbMessages++;
-                vrbMsg = new Message;
-                if (numVrbMessages >= MAX_VRB_MESSAGES)
-                {
-                    cerr << "too many VRB Messages!!" << endl;
-                    break;
-                }
-                if (!vrbc->isConnected())
-                    break;
-            }
-        }
-        else
-        {
-            static double oldSec = 0;
-            double curSec;
-            curSec = cover->frameTime();
+	if (!cover->connectedToCovise())
+	{
+		if (master)
+		{
+			if (vrbc && vrbc->isConnected())
+			{
+				while (vrbc->poll(vrbMsg))
+				{
+					vrbMsgs[numVrbMessages] = vrbMsg;
+					numVrbMessages++;
+					vrbMsg = new Message;
+					if (numVrbMessages >= MAX_VRB_MESSAGES)
+					{
+						cerr << "too many VRB Messages!!" << endl;
+						break;
+					}
+					if (!vrbc->isConnected())
+						break;
+				}
+			}
+			else
+			{
+				static double oldSec = 0;
+				double curSec;
+				curSec = cover->frameTime();
 
-            // try to reconnect
-            if ((curSec - oldSec) > 2.0)
-            {
-                if (cover->debugLevel(3))
-                {
-                    fprintf(stderr, "trying to establish VRB connection\n");
-                }
+				// try to reconnect
+				if ((curSec - oldSec) > 2.0)
+				{
+					if (cover->debugLevel(3))
+					{
+						fprintf(stderr, "trying to establish VRB connection\n");
+					}
 
-                if (vrbc == NULL)
-                    vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
-                vrbc->connectToServer();
-                oldSec = curSec;
-            }
-        }
-        sendSlaves(&numVrbMessages, sizeof(int));
-        //cerr << "numMasterMSGS " <<  numVrbMessages << endl;
-        int i;
-        for (i = 0; i < numVrbMessages; i++)
-        {
-            sendSlaves(vrbMsgs[i]);
-            coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
-            vrbMsgs[i]->data = NULL;
-            delete vrbMsgs[i];
-        }
-    }
-    else
-    {
-        //get number of Messages
-        if (readMaster(&numVrbMessages, sizeof(int)) < 0)
-        {
-            cerr << "sync_exit16 myID=" << myID << endl;
-            exit(0);
-        }
-        //cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
-        int i;
-        for (i = 0; i < numVrbMessages; i++)
-        {
-            if (readMaster(vrbMsg) < 0)
-            {
-                cerr << "sync_exit17 myID=" << myID << endl;
-                exit(0);
-            }
-            coVRCommunication::instance()->handleVRB(vrbMsg);
-        }
-    }
+					if (vrbc == NULL)
+						vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
+					vrbc->connectToServer();
+					oldSec = curSec;
+				}
+			}
+			sendSlaves(&numVrbMessages, sizeof(int));
+			//cerr << "numMasterMSGS " <<  numVrbMessages << endl;
+			int i;
+			for (i = 0; i < numVrbMessages; i++)
+			{
+				sendSlaves(vrbMsgs[i]);
+				coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
+				vrbMsgs[i]->data = NULL;
+				delete vrbMsgs[i];
+			}
+		}
+		else
+		{
+			//get number of Messages
+			if (readMaster(&numVrbMessages, sizeof(int)) < 0)
+			{
+				cerr << "sync_exit16 myID=" << myID << endl;
+				exit(0);
+			}
+			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+			int i;
+			for (i = 0; i < numVrbMessages; i++)
+			{
+				if (readMaster(vrbMsg) < 0)
+				{
+					cerr << "sync_exit17 myID=" << myID << endl;
+					exit(0);
+				}
+				coVRCommunication::instance()->handleVRB(vrbMsg);
+			}
+		}
+	}
     vrbMsg->data = NULL;
     delete vrbMsg;
 

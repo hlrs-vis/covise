@@ -523,7 +523,10 @@ public:
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
     VRBMessageSender *getSender();
+	void connectToCovise();
+	bool connectedToCovise();
 private:
+	bool m_connectedToCovise = false;
     VRBMessageSender m_sender;
     void setFrameRealTime(double ft);
 

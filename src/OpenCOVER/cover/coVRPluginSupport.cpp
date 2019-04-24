@@ -406,6 +406,15 @@ VRBMessageSender * coVRPluginSupport::getSender()
     return &m_sender;
 }
 
+void coVRPluginSupport::connectToCovise()
+{
+	m_connectedToCovise = true;
+}
+
+bool coVRPluginSupport::connectedToCovise()
+{
+	return m_connectedToCovise;
+}
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
