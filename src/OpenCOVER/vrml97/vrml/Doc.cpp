@@ -279,7 +279,7 @@ bool Doc::filename(char *fn, int nfn)
     fn[0] = '\0';
 
     char *e = 0, *s = (char *)stripProtocol(d_url);
-
+	std::string path;
     char *endString = NULL;
     int endLength = 0;
     if ((e = strrchr(s, '#')) != 0)
@@ -320,10 +320,11 @@ bool Doc::filename(char *fn, int nfn)
         // if not, the try to fetch it from a remote site if possible
         cerr << "file " << s << " not local, try to get it from remote " << endl;
 
-        if ((s = (char *)System::the->remoteFetch(d_url)))
+		path = System::the->remoteFetch(d_url);
+		if (path != "")
         {
-            d_tmpfile = new char[strlen(s) + 1 + endLength];
-            strcpy(d_tmpfile, s);
+            d_tmpfile = new char[path.length() + 1 + endLength];
+            strcpy(d_tmpfile, path.c_str());
             //delete [] s; This causes a memory leak
             s = NULL;
             // XXX: there is a problem here: freeing sth not malloced...
@@ -341,28 +342,15 @@ bool Doc::filename(char *fn, int nfn)
     {
         // we have a local file now but does this exist?
         // if not, the try to fetch it from a remote site if possible
+		int statint;
 #ifdef WIN32
         struct _stat64 sbuf;
-        if (_stat64(s, &sbuf))
-        {
-            cerr << "file " << s << " not local, try to get it from remote " << endl;
-
-            if (d_tmpfile) // Already fetched it
-            {
-                s = d_tmpfile;
-            }
-            else if ((s = (char *)System::the->remoteFetch(s)))
-            {
-                d_tmpfile = new char[strlen(s) + 1 + endLength];
-                strcpy(d_tmpfile, s);
-                // XXX: there is a problem here: freeing sth not malloced...
-                //free(const_cast<char *>(s));        // assumes tempnam or equiv...
-                s = d_tmpfile;
-            }
-        }
+		statint = _stat64(s, &sbuf);
 #else
-        struct stat sbuf;
-        if (stat(s, &sbuf))
+		struct stat sbuf;
+		stat = stat(s, &sbuf);
+#endif
+        if (statint)
         {
             cerr << "file " << s << " not local, try to get it from remote " << endl;
 
@@ -370,16 +358,15 @@ bool Doc::filename(char *fn, int nfn)
             {
                 s = d_tmpfile;
             }
-            else if ((s = (char *)System::the->remoteFetch(s)))
+            else if ((path = System::the->remoteFetch(s)) != "")
             {
-                d_tmpfile = new char[strlen(s) + 1 + endLength];
-                strcpy(d_tmpfile, s);
+                d_tmpfile = new char[path.length() + 1 + endLength];
+                strcpy(d_tmpfile, path.c_str());
                 // XXX: there is a problem here: freeing sth not malloced...
                 //free(const_cast<char *>(s));        // assumes tempnam or equiv...
                 s = d_tmpfile;
             }
         }
-#endif
         if (s)
         {
             strncpy(fn, s, nfn - 1);

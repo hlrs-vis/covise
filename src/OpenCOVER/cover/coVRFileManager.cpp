@@ -1640,6 +1640,10 @@ std::string coVRFileManager::remoteFetch(const char *filename)
         }
         delete msg;
     }
+	if (!result)
+	{
+		return "";
+	}
     std::string pathToTmpFile = cutFileName(std::string(result)) + "/" + getFileName(std::string(filename));
     if (!fs::exists(pathToTmpFile))
     {

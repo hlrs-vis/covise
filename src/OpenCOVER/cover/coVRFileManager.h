@@ -197,6 +197,9 @@ public:
     virtual bool update();
     //send a requested File to vrb
     void sendFile(covise::TokenBuffer &tb);
+
+	///request the file from vrb -> file gets copied to tmp
+	std::string remoteFetch(const char* filename);
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
@@ -249,8 +252,6 @@ private:
     void getSharedDataPath();
     std::string m_sharedDataPath;
     void convertBackslash(std::string &path);
-    ///request the file from vrb -> file gets copied to tmp
-    std::string remoteFetch(const char * filename);
     std::string getFileName(const std::string & fileName);
     ///if fileName contains m_sharedDataPath, cut it out
     std::string cutFileName(const std::string & fileName);
