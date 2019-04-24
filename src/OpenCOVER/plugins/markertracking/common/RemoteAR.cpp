@@ -768,7 +768,7 @@ int RemoteAR::sendBinARMessage(covise::TokenBuffer &tb)
         if (cover->isVRBconnected())
         {
             covise::Message msg;
-            msg.type = covise::COVISE_MESSAGE_VRB_MESSAGE;
+            msg.type = covise::COVISE_MESSAGE_RENDER;
             return cover->sendVrbMessage(&msg);
         }
     }
