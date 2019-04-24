@@ -307,8 +307,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     case COVISE_MESSAGE_CLOSE_SOCKET:
     case COVISE_MESSAGE_SOCKET_CLOSED:
     {
-        handleClosedMsg(msg);
-		m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
+        	m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
+			handleClosedMsg(msg);
         break;
     }
 
@@ -321,8 +321,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
         break;
 
     case COVISE_MESSAGE_QUIT:
-        handleQuit(msg);
 		m_handler.handleMessage(msg); // make sure VRB gets informed if the socket to a module is closed
+		handleQuit(msg);
         break;
 
     //  FINALL: Module says it has finished
