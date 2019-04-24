@@ -690,7 +690,7 @@ bool OpenCOVER::init()
     }
 
     // Connect to VRBroker, if available
-    if (coVRMSController::instance()->isMaster())
+    if (!loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
         if (vrbHost == NULL)
         {
@@ -848,14 +848,9 @@ bool OpenCOVER::init()
 
     VRViewer::instance()->forceCompile(); // compile all OpenGL objects once after all files have been loaded
     //connect to covise vrb
-	if (loadCovisePlugin && coCommandLine::argv(0) != "-c")
+	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
-		cerr << "coCommandLine::argv" << endl;
-		for (size_t i = 0; i < 10; i++)
-		{
-			cerr << "[" << i << "] " << coCommandLine::argv(i) << endl;
-		}
-		char * coviseModuleID = coCommandLine::argv(4);
+		char * coviseModuleID = coCommandLine::argv(3);
         char *ipAdress = coCommandLine::argv(5);
 		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;
         TokenBuffer tb;
@@ -866,6 +861,10 @@ bool OpenCOVER::init()
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
         cover->sendVrbMessage(&msg);
     }
+	else
+	{
+		cerr << "I am local slave, my master is  " << coCommandLine::argv(1) << endl;
+	}
     frame();
     double frameEnd = cover->currentTime();
     hud->hideLater();
