@@ -342,7 +342,7 @@ bool Doc::filename(char *fn, int nfn)
     {
         // we have a local file now but does this exist?
         // if not, the try to fetch it from a remote site if possible
-		int statint;
+		bool statint;
 #ifdef WIN32
         struct _stat64 sbuf;
 		statint = _stat64(s, &sbuf);
@@ -367,6 +367,7 @@ bool Doc::filename(char *fn, int nfn)
                 s = d_tmpfile;
             }
         }
+
         if (s)
         {
             strncpy(fn, s, nfn - 1);
