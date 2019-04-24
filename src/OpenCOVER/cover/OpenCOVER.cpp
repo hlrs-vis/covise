@@ -639,7 +639,8 @@ bool OpenCOVER::init()
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-        m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
+		cover->connectToCovise();
+		m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
         if (!m_visPlugin)
         {
             fprintf(stderr, "failed to load COVISE plugin\n");
