@@ -859,7 +859,7 @@ bool OpenCOVER::init()
         tb << coviseModuleID;
         Message msg(tb);
         msg.type = COVISE_MESSAGE_VRB_CONTACT;
-        //cover->sendVrbMessage(&msg);
+        cover->sendVrbMessage(&msg);
     }
     frame();
     double frameEnd = cover->currentTime();
