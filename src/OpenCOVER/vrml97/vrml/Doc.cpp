@@ -342,15 +342,15 @@ bool Doc::filename(char *fn, int nfn)
     {
         // we have a local file now but does this exist?
         // if not, the try to fetch it from a remote site if possible
-		bool statint;
+		bool statbool;
 #ifdef WIN32
         struct _stat64 sbuf;
-		statint = _stat64(s, &sbuf);
+		statbool = _stat64(s, &sbuf);
 #else
 		struct stat sbuf;
-		stat = stat(s, &sbuf);
+		statbool = stat(s, &sbuf);
 #endif
-        if (statint)
+        if (statbool)
         {
             cerr << "file " << s << " not local, try to get it from remote " << endl;
 
