@@ -141,7 +141,9 @@ bool PointCloudPlugin::init()
         if (state)
         {
             //enable interaction
+
             vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
+
             //cover->addPlugin("NurbsSurface");
         }
         else

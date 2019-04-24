@@ -90,6 +90,7 @@ private:
     bool m_deselection = false;
 
     std::vector<pointSelection> selectedPoints;
+	cout << selectedPoints << endl;
     std::vector<pointSelection> previewPoints;
     //pointSelection previewPoint;
 
