@@ -124,12 +124,29 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
 
 bool VRBSClient::hasFileLoaded(const std::string & fileName)
 {
-    return m_loadedFiles.find(fileName) != m_loadedFiles.end();
+    return m_loadedFiles.find(VRBClientList::cutFileName(fileName)) != m_loadedFiles.end();
 }
 
 bool VRBSClient::addLoadedFile(const std::string & fileName)
 {
-    return m_loadedFiles.insert(fileName).second;
+    return m_loadedFiles.insert(VRBClientList::cutFileName(fileName)).second;
+}
+
+bool VRBSClient::doesNotKnowFile(const std::string& fileName)
+{
+	for (auto f : m_unknownFiles)
+	{
+		if (f == fileName)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void VRBSClient::addUnknownFile(const std::string& fileName)
+{
+	m_unknownFiles.insert(fileName);
 }
 
 void VRBSClient::setUserInfo(const char *ui)
@@ -346,6 +363,18 @@ bool VRBClientList::removeFile(std::string & fileName)
     return true;
 }
 
+VRBSClient* VRBClientList::getNextPossibleFileOwner(const std::string& fileName, const vrb::SessionID& id)
+{
+	for (auto cl : m_clients)
+	{
+		if (cl->getSession() == id && !cl->doesNotKnowFile(fileName))
+		{
+			return cl;
+		}
+	}
+	return nullptr;
+}
+
 VRBSClient *VRBClientList::get(const char *ip)
 {
     for (VRBSClient *cl : m_clients)
@@ -492,5 +521,20 @@ void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_ms
     {
         cl->conn->send_msg(&m);
     }
+}
+std::string VRBClientList::cutFileName(const std::string& fileName)
+{
+	std::string name = fileName;
+	for (size_t i = fileName.length() - 1; i > 0; --i)
+	{
+		name.pop_back();
+		if (fileName[i] == '/' || fileName[i] == '\\')
+		{
+			return name;
+		}
+
+	}
+	cerr << "invalid file path : " << fileName << endl;
+	return "";
 }
 }

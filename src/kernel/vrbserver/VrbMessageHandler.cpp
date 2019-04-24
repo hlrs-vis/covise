@@ -80,9 +80,11 @@ void VrbMessageHandler::handleMessage(Message *msg)
         int requestorsID;
         tb >> requestorsID;
         TokenBuffer rtb;
+		//file found local on the vrb server
         if (stat(filename, &statbuf) >= 0)
         {
             rtb << requestorsID;
+			rtb << std::string(filename);
             if ((fd = open(filename, O_RDONLY)) > 0)
             {
                 rtb << (int)statbuf.st_size;
@@ -111,7 +113,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         }
         else
         {
-            // forward this request to the COVER that loaded the current file
+            // forward this request to the COVER that loaded the requested file
             VRBSClient* currentFileClient = clients.getLoadedFileClient(filename);
             if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->getID() != requestorsID))
             {
@@ -121,6 +123,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
             else
             {
                 rtb << requestorsID;
+				rtb << filename;
                 rtb << 0; // file not found
                 Message m(rtb);
                 m.type = COVISE_MESSAGE_VRB_SEND_FILE;
@@ -143,8 +146,26 @@ void VrbMessageHandler::handleMessage(Message *msg)
         {
             c->addBytesSent(msg->length);
         }
-        int destinationID;
+        int destinationID, buffersize;
+		std::string fileName;
         tb >> destinationID;
+		tb >> fileName;
+		tb >> buffersize;
+		if (buffersize == 0) //send request to next client in session
+		{
+			c->addUnknownFile(fileName);
+			VRBSClient* nextCl = clients.getNextPossibleFileOwner(fileName, c->getSession());
+			if (nextCl)
+			{
+				TokenBuffer rtb;
+				rtb << fileName;
+				rtb << destinationID;
+				Message rmsg(rtb);
+				rmsg.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
+				nextCl->conn->send_msg(&rmsg);
+				break;
+			}
+		}
         // forward this File to the one that requested it
         c = clients.get(destinationID);
         if (c)

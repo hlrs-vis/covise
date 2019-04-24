@@ -599,7 +599,9 @@ std::string SystemCover::remoteFetch(const std::string& filename)
 //        {
 //            TokenBuffer tb(msg);
 //            int myID;
+	//std::string fn;
 //            tb >> myID; // this should be my ID
+	//tb >> fn; //this should be the requested file
 //            tb >> numBytes;
 //            buf = tb.getBinary(numBytes);
 //            if ((numBytes > 0) && (result = tempnam(0, "VR")))

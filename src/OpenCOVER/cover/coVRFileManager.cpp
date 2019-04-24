@@ -1611,7 +1611,9 @@ std::string coVRFileManager::remoteFetch(const char *filename)
         {
             TokenBuffer tb(msg);
             int myID;
+			std::string fn;
             tb >> myID; // this should be my ID
+			tb >> fn; //this should be the requested file
             tb >> numBytes;
             buf = tb.getBinary(numBytes);
             if ((numBytes > 0) && (result = tempnam(0, "VR")))
@@ -1671,6 +1673,7 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
     {
         TokenBuffer rtb;
         rtb << requestorsID;
+		rtb << filename;
         rtb << 0;
         coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
 		return;
@@ -1680,6 +1683,7 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
 	{
 		TokenBuffer rtb;
 		rtb << requestorsID;
+		rtb << filename;
 #ifdef _WIN32
 		int fdesc = open(validPath.c_str(), O_RDONLY | O_BINARY);
 #else

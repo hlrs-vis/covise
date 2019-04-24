@@ -65,25 +65,28 @@ public:
     void getInfo(covise::TokenBuffer &rtb);
     bool hasFileLoaded(const std::string &fileName);
     bool addLoadedFile(const std::string &fileName);
-
+	//return true if a file request to this client for fileName was already unsuccessful
+	bool doesNotKnowFile(const std::string& fileName);
+	void addUnknownFile(const std::string& fileName);
 protected:
-    //list of files that this client has loaded
+    //list of directories that this client has loaded
     std::set<std::string> m_loadedFiles;
+	std::set<std::string> m_unknownFiles;
     std::string address;
     std::string m_name;
     std::string userInfo;
     int myID = -1;
     vrb::SessionID m_publicSession, m_privateSession;
     int m_master = false;
-    long bytesSent;
-    long bytesReceived;
+    long bytesSent = 0;
+    long bytesReceived = 0;
     double lastRecTime = -1.;
     double lastSendTime = -1.;
-    float interval;
-    int bytesSentPerInterval;
-    int bytesReceivedPerInterval;
-    int bytesSentPerSecond;
-    int bytesReceivedPerSecond;
+    float interval = 0;
+    int bytesSentPerInterval = 0;
+    int bytesReceivedPerInterval = 0;
+    int bytesSentPerSecond = 0;
+    int bytesReceivedPerSecond = 0;
 	bool deleteClient = true;
     
     double time();
@@ -114,6 +117,7 @@ public:
     ///send message to the client with id
     void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
+	static std::string cutFileName(const std::string& fileName);
     int numInSession(vrb::SessionID &Group);
     int numberOfClients();
     void addClient(VRBSClient *cl);
@@ -127,6 +131,7 @@ public:
     VRBSClient *getLoadedFileClient(const std::string &fileName);
     bool insertFile(std::string &fileName);
     bool removeFile(std::string &fileName);
+	VRBSClient* getNextPossibleFileOwner(const std::string& fileName, const vrb::SessionID& id);
 };
 extern VRBSERVEREXPORT VRBClientList clients;
 
