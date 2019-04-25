@@ -259,6 +259,9 @@ private:
     std::string reduceToAlphanumeric(const std::string & str);
 	///converts the path to a shared path
 	std::string getPathIdentifier(const std::string& path);
+	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
+	std::string writeTmpFile(const std::string& fileName, const char* content, int size);
+	std::vector<covise::Message*> m_sendFileMessages;
 };
 }
 #endif
