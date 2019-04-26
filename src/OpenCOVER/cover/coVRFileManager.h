@@ -263,6 +263,8 @@ private:
 	std::string getPathIdentifier(const std::string& path);
 	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
 	std::string writeTmpFile(const std::string& fileName, const char* content, int size);
+	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
+	int guessFileOwner(const std::string& filePath);
 	std::vector<covise::Message*> m_sendFileMessages;
 };
 }

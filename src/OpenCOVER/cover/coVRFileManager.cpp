@@ -1103,13 +1103,13 @@ void coVRFileManager::relativePath(std::string & fileName)
     }
 }
 
-std::string coVRFileManager::findOrGetFile(const std::string & fileName)
+std::string coVRFileManager::findOrGetFile(const std::string & filePath)
 {
-	std::string path = m_sharedDataPath + fileName;
+	std::string path = m_sharedDataPath + filePath;
 	//find local file
-	if (fs::exists(fileName))
+	if (fs::exists(filePath))
 	{
-		path = fs::canonical(fileName).string();
+		path = fs::canonical(filePath).string();
 		convertBackslash(path);
 		return path;
 	}
@@ -1119,19 +1119,14 @@ std::string coVRFileManager::findOrGetFile(const std::string & fileName)
 		return path;
 	}
 	//find fetched file in tmp
-	path = fs::temp_directory_path().string() + "/OpenCOVER/" + cutFileName(fileName);
+	path = fs::temp_directory_path().string() + "/OpenCOVER/" + cutFileName(filePath);
 	if (fs::exists(path))
 	{
 		return path;
 	}
     ////fetch the file
-	auto it = m_sharedFiles.value().find(fileName);
-	int fileOwner = -1;
-	if (it != m_sharedFiles.value().end())
-	{
-		fileOwner = it->second;
-	}
-    path =  remoteFetch(fileName, fileOwner);
+	int fileOwner = guessFileOwner(filePath);
+    path =  remoteFetch(filePath, fileOwner);
     if (fs::exists(path))
     {
         return path;
@@ -1792,6 +1787,35 @@ std::string coVRFileManager::writeTmpFile(const std::string& fileName, const cha
 	}
 	return pathToTmpFile;
 }
-
+int coVRFileManager::guessFileOwner(const std::string& fileName)
+{
+	auto it = m_sharedFiles.value().find(fileName);
+	int fileOwner = -1;
+	if (it != m_sharedFiles.value().end())
+	{
+		fileOwner = it->second;
+	}
+	else
+	{
+		int bestmatch = 0;
+		for (auto p : m_sharedFiles.value())
+		{
+			int match = 0;
+			for (size_t i = 0; i < std::max(p.first.length(), fileName.length()); i++)
+			{
+				if (p.first[i] == fileName[i])
+				{
+					++match;
+				}
+			}
+			if (match > bestmatch)
+			{
+				bestmatch = match;
+				fileOwner = p.second;
+			}
+		}
+	}
+	return fileOwner;
+}
 
 }
