@@ -63,14 +63,9 @@ public:
     void addBytesSent(int b);
     void addBytesReceived(int b);
     void getInfo(covise::TokenBuffer &rtb);
-    bool hasFileLoaded(const std::string &fileName);
-    bool addLoadedFile(const std::string &fileName);
-	//return true if a file request to this client for fileName was already unsuccessful
 	bool doesNotKnowFile(const std::string& fileName);
 	void addUnknownFile(const std::string& fileName);
 protected:
-    //list of directories that this client has loaded
-    std::set<std::string> m_loadedFiles;
 	std::set<std::string> m_unknownFiles;
     std::string address;
     std::string m_name;
@@ -97,7 +92,6 @@ class VRBSERVEREXPORT VRBClientList
 {
 protected:
     std::set<VRBSClient *> m_clients;
-    std::set<std::string> m_knownFiles;
 
 public:
     VRBSClient *get(covise::Connection *c);
@@ -128,9 +122,6 @@ public:
     void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     ///write the info of all clients in the tokenbuffer
     void collectClientInfo(covise::TokenBuffer &tb);
-    VRBSClient *getLoadedFileClient(const std::string &fileName);
-    bool insertFile(std::string &fileName);
-    bool removeFile(std::string &fileName);
 	VRBSClient* getNextPossibleFileOwner(const std::string& fileName, const vrb::SessionID& id);
 };
 extern VRBSERVEREXPORT VRBClientList clients;

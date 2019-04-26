@@ -923,35 +923,36 @@ void coVRCommunication::handleVRB(Message *msg)
 
 void coVRCommunication::setCurrentFile(const char *filename)
 {
-    if (!filename)
-        return;
-    me->setFile(filename);
-    TokenBuffer tb;
-    tb << filename;
-    registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
+	assert(true);
+	//if (!filename)
+    //    return;
+    //me->setFile(filename);
+    //TokenBuffer tb;
+    //tb << filename;
+    //registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
 
-    if (currentFile)
-    {
-        if (strcmp(currentFile, filename) == 0)
-        {
-            return;
-        }
-    }
-    delete[] currentFile;
-    currentFile = new char[strlen(filename) + 1];
-    strcpy(currentFile, filename);
-    TokenBuffer rtb3;
-    rtb3 << me->getID();
-    rtb3 << (char *)filename;
-    sendMessage(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
+    //if (currentFile)
+    //{
+    //    if (strcmp(currentFile, filename) == 0)
+    //    {
+    //        return;
+    //    }
+    //}
+    //delete[] currentFile;
+    //currentFile = new char[strlen(filename) + 1];
+    //strcpy(currentFile, filename);
+    //TokenBuffer rtb3;
+    //rtb3 << me->getID();
+    //rtb3 << (char *)filename;
+    //sendMessage(rtb3, COVISE_MESSAGE_VRB_CURRENT_FILE);
 
-    if (coVRPluginList::instance()->getPlugin("ACInterface"))
-    {
-        TokenBuffer tb;
-        tb << filename;
-        cover->sendMessage(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
-        tb.delete_data();
-    }
+    //if (coVRPluginList::instance()->getPlugin("ACInterface"))
+    //{
+    //    TokenBuffer tb;
+    //    tb << filename;
+    //    cover->sendMessage(NULL, "ACInterface", PluginMessageTypes::HLRS_ACInterfaceModelLoadedPath, tb.get_length(), tb.get_data());
+    //    tb.delete_data();
+    //}
 }
 
 int coVRCommunication::getNumberOfPartners()

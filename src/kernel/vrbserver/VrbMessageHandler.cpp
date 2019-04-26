@@ -75,17 +75,18 @@ void VrbMessageHandler::handleMessage(Message *msg)
         {
             c->addBytesSent(msg->length);
         }
-        char *filename;
+        std::string filename;
         tb >> filename;
-        int requestorsID;
+        int requestorsID, fileOwner;
         tb >> requestorsID;
+		tb >> fileOwner;
         TokenBuffer rtb;
 		//file found local on the vrb server
-        if (stat(filename, &statbuf) >= 0)
+        if (stat(filename.c_str(), &statbuf) >= 0)
         {
             rtb << requestorsID;
 			rtb << std::string(filename);
-            if ((fd = open(filename, O_RDONLY)) > 0)
+            if ((fd = open(filename.c_str(), O_RDONLY)) > 0)
             {
                 rtb << (int)statbuf.st_size;
                 const char *buf = rtb.allocBinary(statbuf.st_size);
@@ -114,7 +115,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         else
         {
             // forward this request to the COVER that loaded the requested file
-            VRBSClient* currentFileClient = clients.getLoadedFileClient(filename);
+            VRBSClient* currentFileClient = clients.get(fileOwner);
             if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->getID() != requestorsID))
             {
                 currentFileClient->conn->send_msg(msg);
@@ -180,49 +181,49 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Current file message!" << std::endl;
 #endif
-        VRBSClient *c = clients.get(msg->conn);
-        if (c)
-        {
-#ifdef MB_DEBUG
-            std::cerr << "====> Client valid!" << std::endl;
-#endif
-            c->addBytesSent(msg->length);
-#ifdef MB_DEBUG
-            std::cerr << "====> Added length of msg to bytes sent!" << std::endl;
-#endif
-
-            delete[] currentFile;
-            char *buf;
-            tb >> senderID;
-            tb >> buf;
-            currentFile = new char[strlen(buf) + 1];
-            c->addLoadedFile(std::string(currentFile));
-
-            // send current file name to all clients
-#ifdef MB_DEBUG
-            std::cerr << "====> Sending current file to all clients!" << std::endl;
-#endif
-
-            if (currentFile)
-            {
-                TokenBuffer rtb3;
-                rtb3 << c->getID();
-                rtb3 << currentFile;
-                Message m(rtb3);
-                m.conn = msg->conn;
-                m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
-                c->conn->send_msg(&m);
-#ifdef MB_DEBUG
-                std::cerr << "====> Send done!" << std::endl;
-#endif
-                clients.passOnMessage(&m);
-
-#ifdef MB_DEBUG
-                std::cerr << "====> Iterate all vrb clients for current file xmit!" << std::endl;
-#endif
-                //delete[] currentFile;
-            }
-        }
+		assert(true);
+		//        VRBSClient *c = clients.get(msg->conn);
+//        if (c)
+//        {
+//#ifdef MB_DEBUG
+//            std::cerr << "====> Client valid!" << std::endl;
+//#endif
+//            c->addBytesSent(msg->length);
+//#ifdef MB_DEBUG
+//            std::cerr << "====> Added length of msg to bytes sent!" << std::endl;
+//#endif
+//
+//            delete[] currentFile;
+//            char *buf;
+//            tb >> senderID;
+//            tb >> buf;
+//            currentFile = new char[strlen(buf) + 1];
+//
+//            // send current file name to all clients
+//#ifdef MB_DEBUG
+//            std::cerr << "====> Sending current file to all clients!" << std::endl;
+//#endif
+//
+//            if (currentFile)
+//            {
+//                TokenBuffer rtb3;
+//                rtb3 << c->getID();
+//                rtb3 << currentFile;
+//                Message m(rtb3);
+//                m.conn = msg->conn;
+//                m.type = COVISE_MESSAGE_VRB_CURRENT_FILE;
+//                c->conn->send_msg(&m);
+//#ifdef MB_DEBUG
+//                std::cerr << "====> Send done!" << std::endl;
+//#endif
+//                clients.passOnMessage(&m);
+//
+//#ifdef MB_DEBUG
+//                std::cerr << "====> Iterate all vrb clients for current file xmit!" << std::endl;
+//#endif
+//                //delete[] currentFile;
+//            }
+//        }
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE: // Set Registry value
@@ -235,10 +236,6 @@ void VrbMessageHandler::handleMessage(Message *msg)
 
         sessions[sessionID]->setVar(senderID, Class, variable, tb_value); //maybe handle no existing registry for the given session ID
 
-        if (strcmp(Class, "SharedState") == 0 && strcmp(variable, "coVRFileManager_filePaths") == 0)
-        {
-            storeLoadedFiles(tb_value, clients.get(msg->conn));
-        }
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
 #endif
@@ -268,11 +265,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
         createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
-        if (strcmp(Class, "SharedState") == 0 && strcmp(variable, "coVRFileManager_filePaths") == 0)
-        {
-            storeLoadedFiles(tb_value, clients.get(msg->conn));
-        }
-        updateApplicationWindow(Class, senderID, variable, tb_value);
+
+		updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
@@ -1696,18 +1690,6 @@ std::string VrbMessageHandler::getTime() const {
     std::string str(buffer);
     return str;
 }
-void VrbMessageHandler::storeLoadedFiles(TokenBuffer &tb, VRBSClient *fileOwner)
-{
-    tb.rewind();
-    std::set<std::string> files;
-    vrb::deserializeWithType(tb, files);
-    for (auto file : files)
-    {
-        if (clients.insertFile(file))
-        {
-            fileOwner->addLoadedFile(file);
-        }
-    }
-}
+
 }
 

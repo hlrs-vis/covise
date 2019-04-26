@@ -513,7 +513,7 @@ double SystemCover::time()
 //      Also add file:// path substition here?
 std::string SystemCover::remoteFetch(const std::string& filename)
 {
-	return coVRFileManager::instance()->findFile(filename);
+	return coVRFileManager::instance()->findOrGetFile(filename);
 //    char *result = 0;
 //    const char *buf = NULL;
 //    int numBytes = 0;

@@ -127,7 +127,7 @@ public:
     //removes sharedDataPath from filePath
     void relativePath(std::string &fileName);
     //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found.
-    std::string findFile(const std::string &fileName);
+    std::string findOrGetFile(const std::string &fileName);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -199,7 +199,7 @@ public:
     void sendFile(covise::TokenBuffer &tb);
 
 	///request the file from vrb -> file gets copied to tmp
-	std::string remoteFetch(const char* filename);
+	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
@@ -218,7 +218,7 @@ private:
     typedef std::map<std::string, osg::ref_ptr<osg::Texture2D> > TextureMap;
     TextureMap textureList;
     std::map<std::string, coTUIFileBrowserButton *> fileFBMap;
-    coTUIFileBrowserButton *mDefaultFB;
+    coTUIFileBrowserButton *mDefaultFB = nullptr;
 
     struct IOReadOperation
     {
@@ -240,7 +240,9 @@ private:
     LoadedFile *m_lastFile = nullptr;
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
-    vrb::SharedState<std::set<std::string>> filePaths;
+	///map of fileowners(client id) and file paths
+	typedef std::map<std::string, int> fileOwnerMap;
+    vrb::SharedState<fileOwnerMap> m_sharedFiles;
     void loadPartnerFiles();
     struct Compare {
         bool operator()(const std::string& first, const std::string& second) {

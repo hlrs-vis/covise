@@ -95,8 +95,6 @@ protected:
     void loadSesion(const std::string & name, const vrb::SessionID &currentSession);
     ///get current time as a formatted string for filenames
     std::string getTime() const;
-    ///stores new loaded files in the fileOwner for later reference when a file needs to be fetched
-    void storeLoadedFiles(covise::TokenBuffer & tb, VRBSClient *fileOwner);
     ///
 };
 }
