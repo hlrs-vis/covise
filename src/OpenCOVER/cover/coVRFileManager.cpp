@@ -278,7 +278,6 @@ struct LoadedFile
       {
           button->setText(shortenUrl(url));
           button->setState(true);
-          button->setShared(true);
           button->setCallback([this](bool state){
               if (state)
               {
@@ -733,7 +732,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     fe->parent = parent;
 
     auto node = fe->load();
-
+	fe->button->setShared(true);
     if (isRoot)
     {
         //if file is not shared, add it to the shared filePaths list
