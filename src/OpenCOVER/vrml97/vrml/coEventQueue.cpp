@@ -225,7 +225,7 @@ void coEventQueue::sendEvents()
     lastUpdate = currentTime;
     if (numQueuedEvents)
     {
-        //cerr << "sending " << numQueuedEvents << " events, " << numQueuedEventSources << " eventSources"<< endl;
+        cerr << "sending " << numQueuedEvents << " events, " << numQueuedEventSources << " eventSources"<< endl;
         int buflen = 2 * sizeof(int);
         buflen += 2 * sizeof(int);
         buflen += eventSourceSize;
