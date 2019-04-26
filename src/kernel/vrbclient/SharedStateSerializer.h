@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
@@ -26,7 +27,8 @@ enum SharedStateDataType
     STRING, //4
     DOUBLE, //5
     VECTOR, //6
-    SET     //7
+    SET,    //7
+	MAP		//8
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
@@ -39,6 +41,10 @@ SharedStateDataType getSharedStateType(const std::vector<T> &type) {
 template<class T>
 SharedStateDataType getSharedStateType(const std::set<T> &type) {
     return SET;
+}
+template<class K, class V>
+SharedStateDataType getSharedStateType(const std::map<K, V>& type) {
+	return MAP;
 }
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type); 
@@ -101,6 +107,26 @@ void serialize(covise::TokenBuffer &tb, const std::set<T> &value) {
         serialize(tb, entry);
     }
 }
+template <class K, class V>
+void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value) {
+	int size = value.size();
+	if (size == 0)
+	{
+		tb << UNDEFINED;
+		tb << UNDEFINED;
+	}
+	else
+	{
+		tb << getSharedStateType(value.begin()->first);
+		tb << getSharedStateType(value.begin()->second);
+	}
+	tb << size;
+	for (const auto entry : value)
+	{
+		serialize(tb, entry.first);
+		serialize(tb, entry.second);
+	}
+}
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
 template<class T>
@@ -137,6 +163,23 @@ void deserialize(covise::TokenBuffer &tb, std::set<T> &value)
         deserialize(tb, entry);
         value.insert(entry);
     }
+}
+template <class K, class V>
+void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
+{
+	int size, typeID;
+	tb >> typeID;
+	tb >> typeID;
+	tb >> size;
+	value.clear();
+	for (int i = 0; i < size; i++)
+	{
+		K key;
+		V val;
+		deserialize(tb, key);
+		deserialize(tb, val);
+		value[key] = val;
+	}
 }
 ///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>
