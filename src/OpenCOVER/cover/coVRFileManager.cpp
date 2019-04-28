@@ -1801,7 +1801,7 @@ int coVRFileManager::guessFileOwner(const std::string& fileName)
 		for (auto p : m_sharedFiles.value())
 		{
 			int match = 0;
-			for (size_t i = 0; i < std::max(p.first.length(), fileName.length()); i++)
+			for (size_t i = 0; i < std::min(p.first.length(), fileName.length()); i++)
 			{
 				if (p.first[i] == fileName[i])
 				{
