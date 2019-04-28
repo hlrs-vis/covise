@@ -8,6 +8,7 @@ extern "C" {
 #include <cover/coVRPluginSupport.h>
 #include <cover/VRViewer.h>
 #include <cover/coVRStatsDisplay.h>
+#include <util/unixcompat.h>
 
 using namespace opencover;
 

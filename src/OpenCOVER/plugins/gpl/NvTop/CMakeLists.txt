@@ -1,4 +1,4 @@
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/nvtop/cmake/modules;${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/nvtop/cmake/modules")
 
 covise_find_package(NVML)
 if (NOT NVML_FOUND)
@@ -18,8 +18,12 @@ set(HEADERS
 set(SOURCES
     NvTop.cpp
     nvtop/src/extract_gpuinfo.c
-    nvtop/src/get_process_info_linux.c
 )
+if(WIN32)
+set(SOURCES ${SOURCES} nvtop/src/get_process_info_windows.c )
+else(WIN32)
+set(SOURCES ${SOURCES} nvtop/src/get_process_info_linux.c )
+endif(WIN32)
 
 cover_add_plugin(NvTop)
 target_link_libraries(NvTop ${NVML_LIBRARIES})

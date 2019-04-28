@@ -334,7 +334,7 @@ set PATH=%PATH%;%EXTERNLIBS%\bison\bin
 
 :FINALIZE
 set LOGNAME=covise
-set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins
+set PATH=%PATH%;%COVISEDIR%\%ARCHSUFFIX%\bin;%COVISEDIR%\%ARCHSUFFIX%\lib;%COVISEDIR%\bin;%COVISEDIR%\%ARCHSUFFIX%\bin\Renderer;%COVISEDIR%\%ARCHSUFFIX%\lib\opencover\plugins;C:\Program Files\NVIDIA Corporation\NVSMI
 
 if not defined COVISEDESTDIR   set COVISEDESTDIR=%COVISEDIR%
 if not defined COVISE_PATH (
