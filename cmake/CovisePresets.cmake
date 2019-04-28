@@ -32,6 +32,11 @@ IF(COMMAND cmake_policy)
         cmake_policy(SET CMP0060 NEW) # always link to full path never convert to -lLibraryName
     endif()
     # Works around warnings about escaped quotes in ADD_DEFINITIONS statements.
+
+    if(POLICY CMP0071)
+        cmake_policy(SET CMP0071 NEW) # always link to full path never convert to -lLibraryName
+    endif()
+
     cmake_policy(SET CMP0005 NEW)
 
     # allow the commands include() and COVISE_FIND_PACKAGE() to do their default cmake_policy PUSH and POP.
