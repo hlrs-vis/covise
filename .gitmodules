@@ -9,4 +9,4 @@
 	url = https://github.com/szellmann/visionaray
 [submodule "src/OpenCOVER/plugins/gpl/NvTop/nvtop"]
 	path = src/OpenCOVER/plugins/gpl/NvTop/nvtop
-	url = git://github.com/hlrs-vis/nvtop.git
+	url = git@github.com:hlrs-vis/nvtop.git
