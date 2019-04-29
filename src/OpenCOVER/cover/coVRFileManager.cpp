@@ -1562,7 +1562,10 @@ void coVRFileManager::convertBackslash(std::string & path)
 
 std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOwner)
 {
-    const char *buf = nullptr;
+	//!!!!!!!!!!!!remote fetch can currently delete files!!!!!!!!!!!!
+	return "";
+
+	const char *buf = nullptr;
     int numBytes = 0;
 	Message* mymsg = nullptr;
 
