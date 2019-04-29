@@ -635,10 +635,13 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
 	std::string validFileName(fileName);
-	if (fileExist(fileName) && fs::path(fileName).is_absolute())
+	if (fileExist(fileName))
 	{
-		std::string validFileName = fs::canonical(fileName).string();
-		convertBackslash(validFileName);
+		if (fs::path(fileName).is_absolute())
+		{
+			std::string validFileName = fs::canonical(fileName).string();
+			convertBackslash(validFileName);
+		}
 	}
 	else
 	{
@@ -964,6 +967,17 @@ coVRFileManager::coVRFileManager()
     /// path for the viewpoint file: initialized by 1st param() call
     assert(!s_instance);
     getSharedDataPath();
+	//register my files with my ID
+	coVRCommunication::instance()->addOnConnectCallback([this](void) {
+		fileOwnerMap files = m_sharedFiles.value();
+		auto path = files.begin();
+		while (path != files.end())
+		{
+			path->second = coVRCommunication::instance()->getID();
+			++path;
+		}
+		m_sharedFiles = files;
+		});
     if (cover) {
         m_owner.reset(new ui::Owner("FileManager", cover->ui));
 
