@@ -611,7 +611,20 @@ const char *coVRFileManager::buildFileName(const char *texture)
 
 bool coVRFileManager::fileExist(const char *fileName)
 {
-	return fs::exists(fileName);
+	try
+	{
+		return fs::exists(fileName);
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+	
+}
+
+bool coVRFileManager::fileExist(const std::string& fileName)
+{
+	return fileExist(fileName.c_str());
 }
 
 osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButton *fb, osg::Group *parent, const char *covise_key)
@@ -622,7 +635,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
 	std::string validFileName(fileName);
-	if (fs::exists(fileName))
+	if (fileExist(fileName) && fs::path(fileName).is_absolute())
 	{
 		std::string validFileName = fs::canonical(fileName).string();
 		convertBackslash(validFileName);
@@ -1090,44 +1103,45 @@ const char *coVRFileManager::getName(const char *file)
     return NULL;
 }
 
-void coVRFileManager::relativePath(std::string & fileName)
+bool coVRFileManager::relativePath(std::string & fileName)
 {
-    boost::filesystem::path filePath(fileName);
-    if (!boost::filesystem::exists(filePath))
+    if (!fileExist(fileName))
     {
-        return;
+        return false;
     }
     if (fileName.compare(0, m_sharedDataPath.length(), m_sharedDataPath)== 0)
     {
         fileName.erase(0, m_sharedDataPath.length());
+		return true;
     }
+	return false;
 }
 
 std::string coVRFileManager::findOrGetFile(const std::string & filePath)
 {
 	std::string path = m_sharedDataPath + filePath;
 	//find local file
-	if (fs::exists(filePath))
+	if (fileExist(filePath))
 	{
 		path = fs::canonical(filePath).string();
 		convertBackslash(path);
 		return path;
 	}
 	//find file under sharedData link
-	if (fs::exists(path))
+	if (fileExist(path))
 	{
 		return path;
 	}
 	//find fetched file in tmp
 	path = fs::temp_directory_path().string() + "/OpenCOVER/" + cutFileName(filePath);
-	if (fs::exists(path))
+	if (fileExist(path))
 	{
 		return path;
 	}
     ////fetch the file
 	int fileOwner = guessFileOwner(filePath);
     path =  remoteFetch(filePath, fileOwner);
-    if (fs::exists(path))
+    if (fileExist(path))
     {
         return path;
     }
@@ -1506,7 +1520,7 @@ void coVRFileManager::getSharedDataPath()
     for (const auto path : p)
     {
         std::string link = path + "/../sharedData";
-        if (fs::exists(link))
+        if (fileExist(link))
         {
             m_sharedDataPath = fs::canonical(link).string();
             convertBackslash(m_sharedDataPath);
@@ -1658,13 +1672,13 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
     tb >> requestorsID;
     std::string validPath(filename);
     //if filenot found
-    if (!fs::exists(validPath))
+    if (!fileExist(validPath))
     {
         //search file under sharedDataPath
         relativePath(validPath);
         validPath = m_sharedDataPath + validPath;
     }
-    if (!fs::exists(validPath)) //give up
+    if (!fileExist(validPath)) //give up
     {
         TokenBuffer rtb;
         rtb << requestorsID;
@@ -1748,13 +1762,16 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
 std::string coVRFileManager::getPathIdentifier(const std::string& path)
 {
 	std::string can = path;
-	if (fs::exists(path))
+	if (fileExist(path))
 	{
 		can = fs::canonical(path).string();
 	}
 	convertBackslash(can);
-	relativePath(can);
-	return can;
+	if (relativePath(can))
+	{
+		return can;
+	}
+	return path;
 }
 std::string coVRFileManager::writeTmpFile(const std::string& fileName, const char* content, int size)
 {
@@ -1762,7 +1779,7 @@ std::string coVRFileManager::writeTmpFile(const std::string& fileName, const cha
 	fs::create_directory(pathToTmpFile);
 	pathToTmpFile += "/" + fileName;
 
-	if ((size > 0) && !fs::exists(pathToTmpFile))
+	if ((size > 0) && !fileExist(pathToTmpFile))
 	{
 #ifndef _WIN32
 		int fd = open(pathToTmpFile.c_str(), O_RDWR | O_CREAT, 0777);
