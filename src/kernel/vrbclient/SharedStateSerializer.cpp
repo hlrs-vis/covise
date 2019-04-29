@@ -78,6 +78,23 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
             valueString += "\n [" + std::to_string(i) + "] ";
             valueString += tokenBufferToString(std::move(tb), tID);
         }
+		break;
+	case MAP:
+	{
+		int keyType, valueType, size;
+		tb >> keyType;
+		tb >> valueType;
+		tb >> size;
+		valueString = "Map of size: " + std::to_string(size); 
+		for (int i = 0; i < size; i++)
+		{
+			valueString += "\n [" + std::to_string(i) + "] ";
+			valueString += tokenBufferToString(std::move(tb), keyType);
+			valueString += " | ";
+			valueString += tokenBufferToString(std::move(tb), valueType);
+		}
+	}
+	break;
 
     }
     return valueString;
