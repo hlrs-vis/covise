@@ -99,11 +99,11 @@ public:
     std::unique_ptr<vrb::VrbClientRegistry> registry;
     bool sendMessage(covise::Message *msg);
     bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
-
+	void addOnConnectCallback(std::function<void(void)> function);
+	void addOnDisconnectCallback(std::function<void(void)> function);
 private:
     coVRCommunication();
     static coVRCommunication *s_instance;
-    char *currentFile;
     coVRPartner *me = nullptr;
     int RILockArray[1000];
     int randomID;
@@ -111,6 +111,12 @@ private:
     std::map<int, VRBData *> mfbData;
     std::unique_ptr<VrbMenue> m_vrbMenue;
     vrb::SessionID m_privateSessionID;
+	std::vector<std::function<void(void)>> onConnectCallbacks;
+	std::vector<std::function<void(void)>> onDisconnectCallbacks;
+	//inform interested parties about connention to vrb or covise
+	void connected();
+	//inform interested parties about disconnection from vrb or covise
+	void disconnected();
 };
 }
 #endif

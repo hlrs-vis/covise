@@ -107,7 +107,6 @@ coVRCommunication::coVRCommunication()
     {
         RILockArray[i] = -1;
     }
-    currentFile = NULL;
     me = new coVRPartner();
     //randomID = (int)rand(); //nessesary??
 
@@ -118,10 +117,30 @@ coVRCommunication::coVRCommunication()
     m_vrbMenue.reset(new VrbMenue());
 }
 
+void opencover::coVRCommunication::connected()
+{
+	for (auto function : onConnectCallbacks)
+	{
+		if (function)
+		{
+			function();
+		}
+	}
+}
+
+void opencover::coVRCommunication::disconnected()
+{
+	for (auto function : onDisconnectCallbacks)
+	{
+		if (function)
+		{
+			function();
+		}
+	}
+}
+
 coVRCommunication::~coVRCommunication()
 {
-    delete[] currentFile;
-
     coVRPartnerList::instance()->deletePartner(me->getID());
 
     s_instance = NULL;
@@ -586,6 +605,7 @@ void coVRCommunication::handleVRB(Message *msg)
         tb >> id;
         tb >> session;
         me = me->setID(id);
+		connected();
         if (session.isPrivate())
         {
             m_privateSessionID = session;
@@ -602,14 +622,7 @@ void coVRCommunication::handleVRB(Message *msg)
 
             me->sendHello();
         }
-        //registry->subscribeClass(getSessionID(), "VRMLFile", this);
-        //registry->subscribeClass(getSessionID(), "COVERPlugins", this);
-        if (currentFile)
-        {
-            TokenBuffer tb;
-            tb << currentFile;
-            registry->setVar(0, "VRMLFile", std::to_string(me->getID()), std::move(tb));
-        }
+
         if (m_privateSessionID.owner() == 0)
         {
             TokenBuffer rns;
@@ -719,6 +732,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_CLOSE_VRB_CONNECTION:
     {
         cerr << "VRB requests to quit " << msg->type<< endl;
+		disconnected();
         coVRPartnerList::instance()->deleteOthers();
         m_vrbMenue->updateState(false);
         me->setSession(vrb::SessionID());
@@ -726,6 +740,7 @@ void coVRCommunication::handleVRB(Message *msg)
         delete vrbc;
         vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
         coVRCollaboration::instance()->updateSharedStates();
+
     }
         break;
     case COVISE_MESSAGE_VRB_REQUEST_FILE:
@@ -984,6 +999,16 @@ bool opencover::coVRCommunication::sendMessage(TokenBuffer & tb, covise_msg_type
     Message msg(tb);
     msg.type = type;
     return sendMessage(&msg);
+}
+
+void opencover::coVRCommunication::addOnConnectCallback(std::function<void(void)> function)
+{
+	onConnectCallbacks.push_back(function);
+}
+
+void opencover::coVRCommunication::addOnDisconnectCallback(std::function<void(void)> function)
+{
+	onDisconnectCallbacks.push_back(function);
 }
 
 void coVRCommunication::setFBData(IData *data)
