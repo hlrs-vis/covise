@@ -635,15 +635,16 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
 	std::string validFileName(fileName);
-	if (fileExist(fileName))
+	if (fs::path(fileName).is_relative())
 	{
-		if (fs::path(fileName).is_absolute())
-		{
-			std::string validFileName = fs::canonical(fileName).string();
-			convertBackslash(validFileName);
-		}
+		validFileName = fs::current_path().string() + validFileName;
 	}
-	else
+	else if (fileExist(fileName))
+	{
+		std::string validFileName = fs::canonical(fileName).string();
+	}
+	convertBackslash(validFileName);
+	if(!fileExist(validFileName))
 	{
 		cerr << "File " << fileName << " not found locally" << endl;
 	}
@@ -1562,8 +1563,6 @@ void coVRFileManager::convertBackslash(std::string & path)
 
 std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOwner)
 {
-	//!!!!!!!!!!!!remote fetch can currently delete files!!!!!!!!!!!!
-	return "";
 
 	const char *buf = nullptr;
     int numBytes = 0;
@@ -1695,15 +1694,6 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
         relativePath(validPath);
         validPath = m_sharedDataPath + validPath;
     }
-    if (!fileExist(validPath)) //give up
-    {
-        TokenBuffer rtb;
-        rtb << requestorsID;
-		rtb << filename;
-        rtb << 0;
-        coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-		return;
-    }
 
 	if (stat(validPath.c_str(), &statbuf) >= 0)
 	{
@@ -1725,14 +1715,23 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
 				cerr << "coVRCommunication::handleVRB: read failed: " << strerror(errno) << endl;
 			}
 			close(fdesc);
-	}
+		}
 		else
 		{
 			cerr << " file access error, could not open " << validPath << endl;
 			rtb << 0;
 		}
 		coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-}
+	}
+	else
+	{
+		TokenBuffer rtb;
+		rtb << requestorsID;
+		rtb << filename;
+		rtb << 0;
+		coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
+		return;
+	}
 }
 std::string coVRFileManager::getFileName(const std::string &fileName)
 {
