@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cstring>
 #include <cctype>
+#include <stdlib.h>
 
 #include <osg/Texture2D>
 #include <osgDB/ReadFile>
@@ -707,7 +708,9 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-        button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(getPathIdentifier(fileName)));
+		std::string relPath(fileName);
+		relativePath(relPath);
+		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath));
     }
     auto fe = new LoadedFile(url, button);
     if (covise_key)
@@ -758,7 +761,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     {
         //if file is not shared, add it to the shared filePaths list
 		fileOwnerMap v = m_sharedFiles;
-		std::string pathIdentifier = getPathIdentifier(fileName);
+		std::string pathIdentifier = fileName;
+		relativePath(pathIdentifier);
         if (v.find(pathIdentifier) == v.end())
         {
 			v[pathIdentifier] = coVRCommunication::instance()->getID();
@@ -1120,22 +1124,26 @@ const char *coVRFileManager::getName(const char *file)
 
 bool coVRFileManager::relativePath(std::string & fileName)
 {
-
+	convertBackslash(fileName);
 	if (!fileExist(fileName) || m_sharedDataPath.length() >= fileName.length())
     {
         return false;
     }
-	std::string p = fs::canonical(fileName).string();
-	convertBackslash(p);
-	for (size_t i = 0; i < m_sharedDataPath.length(); i++)
+	if (int pos = fileName.find(m_sharedDataPath) != std::string::npos)
 	{
-		if (std::tolower(m_sharedDataPath[i]) != std::tolower(p[i]))
+		fileName.erase(0, pos + m_sharedDataPath.length());
+		return true;
+	}
+	std::string abs = fs::canonical(m_sharedDataPath).string();
+	convertBackslash(abs);
+	for (size_t i = 0; i < abs.length(); i++)
+	{
+		if (std::tolower(abs[i]) != std::tolower(fileName[i]))
 		{
 			return false;
 		}
 	}
-	p.erase(0, m_sharedDataPath.length());
-	fileName = p;
+	fileName.erase(0, abs.length());
 	return true;
 }
 
@@ -1539,14 +1547,15 @@ void coVRFileManager::getSharedDataPath()
 #else
     std::vector<std::string> p = split(covisepath, ':');
 #endif
-    for (const auto path : p)
+    for (auto path : p)
     {
-        std::string link = path + "/../sharedData";
+		convertBackslash(path);
+		int delimiter = path.rfind('/');
+		std::string link = path.erase(delimiter, path.length()- delimiter) + "/sharedData";
         if (fileExist(link))
         {
-            m_sharedDataPath = fs::canonical(link).string();
-            convertBackslash(m_sharedDataPath);
-
+			m_sharedDataPath = link;
+			return;
         }
     }
 }
@@ -1781,20 +1790,7 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
     }
     return red;
 }
-std::string coVRFileManager::getPathIdentifier(const std::string& path)
-{
-	std::string can = path;
-	if (fileExist(path))
-	{
-		can = fs::canonical(path).string();
-	}
-	convertBackslash(can);
-	if (relativePath(can))
-	{
-		return can;
-	}
-	return path;
-}
+
 std::string coVRFileManager::writeTmpFile(const std::string& fileName, const char* content, int size)
 {
 	std::string pathToTmpFile = fs::temp_directory_path().string() + "/OpenCOVER";
@@ -1856,5 +1852,6 @@ int coVRFileManager::guessFileOwner(const std::string& fileName)
 	}
 	return fileOwner;
 }
+
 
 }

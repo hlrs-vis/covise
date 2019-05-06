@@ -259,8 +259,7 @@ private:
     std::string cutFileName(const std::string & fileName);
     ///rosolves links in the file path from filename, cutName(fileName) and removs non-aphanumeric characters
     std::string reduceToAlphanumeric(const std::string & str);
-	///converts the path to a shared path (relative path for files under sharedData link and paths relative to working directory, else absolute path)
-	std::string getPathIdentifier(const std::string& path);
+
 	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
 	std::string writeTmpFile(const std::string& fileName, const char* content, int size);
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
