@@ -15,18 +15,17 @@ uniform float revitOY;
      
     void main( void )
     {
-        normal   = gl_NormalMatrix * gl_Normal;
-        Binormal = gl_NormalMatrix * aBinormal;
-        Tangent  = gl_NormalMatrix * aTangent; 
+        normal   = vec3((gl_NormalMatrix * gl_Normal).xyz);
+        Binormal = (gl_NormalMatrix * aBinormal).xzy;
+        Tangent  = (gl_NormalMatrix * aTangent).xyz; 
 		
-     
-     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+     	vec3 vVertex = vec3((gl_ModelViewMatrix * gl_Vertex).xyz);
 		// compute texture coordinates (box mapping)
 if(gl_Normal.x &gt; 0.5|| gl_Normal.x &lt; -0.5)
 Texcoord = gl_Vertex.yz;
-if(gl_Normal.y &gt; 0.5| gl_Normal.y &lt; -0.5)
+if(gl_Normal.y &gt; 0.5|| gl_Normal.y &lt; -0.5)
 Texcoord = gl_Vertex.xz;
-if(gl_Normal.z &gt; 0.5| gl_Normal.z&lt; -0.5)
+if(gl_Normal.z &gt; 0.5|| gl_Normal.z&lt; -0.5)
 Texcoord = gl_Vertex.xy;
 Texcoord.x/=revitSX;
 Texcoord.y/=revitSY;
@@ -56,7 +55,7 @@ gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
       vec4 final_color = 
       	(gl_FrontLightModelProduct.sceneColor * gl_FrontMaterial.ambient) + 
       	(gl_LightSource[0].ambient * gl_FrontMaterial.ambient);
-      vec3 bumpmap = 2.0 * Bumpiness * (texture2D( normalMap, Texcoord ) - vec3(0.5,0.5,0.5));
+      vec3 bumpmap = 2.0 * Bumpiness * (texture2D( normalMap, Texcoord ).xyz - vec3(0.5,0.5,0.5));
       
       vec3 N = normalize(normal);
       vec3 Tn = normalize(Tangent);
