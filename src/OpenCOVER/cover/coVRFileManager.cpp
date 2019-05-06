@@ -636,21 +636,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     }
     START("coVRFileManager::loadFile");
 	std::string validFileName(fileName);
-	if (fs::path(fileName).is_relative())
-	{
-		validFileName = fs::current_path().string() + validFileName;
-	}
-	else if (fileExist(fileName))
-	{
-		validFileName = fs::canonical(fileName).string();
-	}
 	convertBackslash(validFileName);
-	if(!fileExist(validFileName))
-	{
-		cerr << "File " << fileName << " not found locally" << endl;
-	}
-
-
 
     if (m_files.find(validFileName) != m_files.end())
     {
@@ -1125,16 +1111,16 @@ const char *coVRFileManager::getName(const char *file)
 bool coVRFileManager::relativePath(std::string & fileName)
 {
 	convertBackslash(fileName);
-	if (!fileExist(fileName) || m_sharedDataPath.length() >= fileName.length())
+	if (!fileExist(fileName) || m_sharedDataLink.length() >= fileName.length())
     {
         return false;
     }
-	if (int pos = fileName.find(m_sharedDataPath) != std::string::npos)
+	if (int pos = fileName.find(m_sharedDataLink) != std::string::npos)
 	{
-		fileName.erase(0, pos + m_sharedDataPath.length()-1);
+		fileName.erase(0, pos + m_sharedDataLink.length()-1);
 		return true;
 	}
-	std::string abs = fs::canonical(m_sharedDataPath).string();
+	std::string abs = fs::canonical(m_sharedDataLink).string();
 	convertBackslash(abs);
 	for (size_t i = 0; i < abs.length(); i++)
 	{
@@ -1149,7 +1135,7 @@ bool coVRFileManager::relativePath(std::string & fileName)
 
 std::string coVRFileManager::findOrGetFile(const std::string & filePath)
 {
-	std::string path = m_sharedDataPath + filePath;
+	std::string path; 
 	//find local file
 	if (fileExist(filePath))
 	{
@@ -1157,7 +1143,14 @@ std::string coVRFileManager::findOrGetFile(const std::string & filePath)
 		convertBackslash(path);
 		return path;
 	}
+	//find file in working dir
+	path = fs::current_path().string() + filePath;
+	if (fileExist(path))
+	{
+		return path;
+	}
 	//find file under sharedData link
+	path = m_sharedDataLink + filePath;
 	if (fileExist(path))
 	{
 		return path;
@@ -1554,7 +1547,7 @@ void coVRFileManager::getSharedDataPath()
 		std::string link = path.erase(delimiter, path.length()- delimiter) + "/sharedData";
         if (fileExist(link))
         {
-			m_sharedDataPath = link;
+			m_sharedDataLink = link;
 			return;
         }
     }
@@ -1708,7 +1701,7 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
     {
         //search file under sharedDataPath
         relativePath(validPath);
-        validPath = m_sharedDataPath + validPath;
+        validPath = m_sharedDataLink + validPath;
     }
 
 	if (stat(validPath.c_str(), &statbuf) >= 0)

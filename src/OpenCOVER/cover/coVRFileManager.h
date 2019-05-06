@@ -252,12 +252,14 @@ private:
     ///returns the full path of the symbolic link that points to the shared data
     ///the link should be in COVISE_PATH/.. and named sharedData
     void getSharedDataPath();
-    std::string m_sharedDataPath;
+    std::string m_sharedDataLink;
+	///convert all backslashes to forward slashes
     void convertBackslash(std::string &path);
-    std::string getFileName(const std::string & fileName);
-    ///if fileName contains m_sharedDataPath, cut it out
-    std::string cutFileName(const std::string & fileName);
-    ///rosolves links in the file path from filename, cutName(fileName) and removs non-aphanumeric characters
+	///get the filename + extension from a path: path/fileName -> fileName
+	std::string getFileName(const std::string & filePath);
+	///cut the filename from path:  path/fileName --> path
+    std::string cutFileName(const std::string & filePath);
+    ///removs non-aphanumeric characters
     std::string reduceToAlphanumeric(const std::string & str);
 
 	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
