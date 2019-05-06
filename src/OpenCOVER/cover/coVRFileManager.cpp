@@ -1133,7 +1133,7 @@ bool coVRFileManager::relativePath(std::string & fileName)
 	return true;
 }
 
-std::string coVRFileManager::findOrGetFile(const std::string & filePath)
+std::string coVRFileManager::findOrGetFile(const std::string & filePath, bool isTmp)
 {
 	std::string path; 
 	//find local file
@@ -1166,7 +1166,8 @@ std::string coVRFileManager::findOrGetFile(const std::string & filePath)
     path =  remoteFetch(filePath, fileOwner);
     if (fileExist(path))
     {
-        return path;
+		isTmp = true;
+		return path;
     }
     return "";
 }

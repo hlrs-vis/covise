@@ -511,7 +511,7 @@ double SystemCover::time()
 //      Return the path to the file in local temp dir.
 //      --> Handle vrb:// and agtk3://
 //      Also add file:// path substition here?
-std::string SystemCover::remoteFetch(const std::string& filename)
+std::string SystemCover::remoteFetch(const std::string& filename, bool isTmp)
 {
 	return coVRFileManager::instance()->findOrGetFile(filename);
 //    char *result = 0;

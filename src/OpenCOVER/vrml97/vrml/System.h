@@ -77,7 +77,7 @@ public:
 
     virtual const char *httpHost(const char *url, int *port);
     virtual const char *httpFetch(const char *url);
-    virtual std::string remoteFetch(const std::string &filename) = 0;
+    virtual std::string remoteFetch(const std::string &filename, bool isTmp = false) = 0;
 
     virtual void removeFile(const char *fn);
 

@@ -75,7 +75,7 @@ public:
     }
     virtual double time();
 
-    virtual std::string remoteFetch(const std::string &filename);
+    virtual std::string remoteFetch(const std::string &filename, bool isTmp = false);
 
     bool loadUrl(const char *url, int np, char **parameters);
 

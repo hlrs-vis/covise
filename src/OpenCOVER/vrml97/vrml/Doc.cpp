@@ -71,7 +71,10 @@ Doc::~Doc()
     delete d_ostream;
     if (d_tmpfile)
     {
-        System::the->removeFile(d_tmpfile);
+		if (d_isTmp)
+		{
+			System::the->removeFile(d_tmpfile);
+		}
         delete[] d_tmpfile;
         d_tmpfile = 0;
     }
@@ -320,7 +323,7 @@ bool Doc::filename(char *fn, int nfn)
         // if not, the try to fetch it from a remote site if possible
         cerr << "file " << s << " not local, try to get it from remote " << endl;
 
-		path = System::the->remoteFetch(d_url);
+		path = System::the->remoteFetch(d_url, d_isTmp);
 		if (path != "")
         {
             d_tmpfile = new char[path.length() + 1 + endLength];
@@ -358,7 +361,7 @@ bool Doc::filename(char *fn, int nfn)
             {
                 s = d_tmpfile;
             }
-            else if ((path = System::the->remoteFetch(s)) != "")
+            else if ((path = System::the->remoteFetch(s, d_isTmp)) != "")
             {
                 d_tmpfile = new char[path.length() + 1 + endLength];
                 strcpy(d_tmpfile, path.c_str());
@@ -419,7 +422,10 @@ void Doc::fclose()
     d_fp = 0;
     if (d_tmpfile)
     {
-        System::the->removeFile(d_tmpfile);
+		if (d_isTmp)
+		{
+			System::the->removeFile(d_tmpfile);
+		}
         delete[] d_tmpfile;
         d_tmpfile = 0;
     }
@@ -470,7 +476,10 @@ void Doc::gzclose()
     d_gz = 0;
     if (d_tmpfile)
     {
-        System::the->removeFile(d_tmpfile);
+		if (d_isTmp)
+		{
+			System::the->removeFile(d_tmpfile);
+		}
         delete[] d_tmpfile;
         d_tmpfile = 0;
     }

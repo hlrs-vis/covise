@@ -126,8 +126,8 @@ public:
     const char *getName(const char *file);
     //if filePath starts with sharedDataPath, return true and removes sharedDataPath from filePath. Ignore upper/lower case differences
     bool relativePath(std::string &fileName);
-    //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found.
-    std::string findOrGetFile(const std::string &fileName);
+    //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
+    std::string findOrGetFile(const std::string &fileName, bool isTmp = false);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
