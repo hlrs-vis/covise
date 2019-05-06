@@ -1133,7 +1133,7 @@ bool coVRFileManager::relativePath(std::string & fileName)
 		}
 	}
 	fileName.erase(0, m_sharedDataPath.length());
-	return false;
+	return true;
 }
 
 std::string coVRFileManager::findOrGetFile(const std::string & filePath)
