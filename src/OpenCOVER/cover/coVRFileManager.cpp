@@ -1125,14 +1125,17 @@ bool coVRFileManager::relativePath(std::string & fileName)
     {
         return false;
     }
+	std::string p = fs::canonical(fileName).string();
+	convertBackslash(p);
 	for (size_t i = 0; i < m_sharedDataPath.length(); i++)
 	{
-		if (std::tolower(m_sharedDataPath[i]) != std::tolower(fileName[i]))
+		if (std::tolower(m_sharedDataPath[i]) != std::tolower(p[i]))
 		{
 			return false;
 		}
 	}
-	fileName.erase(0, m_sharedDataPath.length());
+	p.erase(0, m_sharedDataPath.length());
+	fileName = p;
 	return true;
 }
 
