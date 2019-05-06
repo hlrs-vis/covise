@@ -1131,7 +1131,7 @@ bool coVRFileManager::relativePath(std::string & fileName)
     }
 	if (int pos = fileName.find(m_sharedDataPath) != std::string::npos)
 	{
-		fileName.erase(0, pos + m_sharedDataPath.length());
+		fileName.erase(0, pos + m_sharedDataPath.length()-1);
 		return true;
 	}
 	std::string abs = fs::canonical(m_sharedDataPath).string();
