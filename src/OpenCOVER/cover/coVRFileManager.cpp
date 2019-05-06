@@ -641,7 +641,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	}
 	else if (fileExist(fileName))
 	{
-		std::string validFileName = fs::canonical(fileName).string();
+		validFileName = fs::canonical(fileName).string();
 	}
 	convertBackslash(validFileName);
 	if(!fileExist(validFileName))
