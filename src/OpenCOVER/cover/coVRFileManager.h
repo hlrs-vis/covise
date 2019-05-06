@@ -124,7 +124,7 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-    //if filePath starts with sharedDataPath, return true and removes sharedDataPath from filePath
+    //if filePath starts with sharedDataPath, return true and removes sharedDataPath from filePath. Ignore upper/lower case differences
     bool relativePath(std::string &fileName);
     //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found.
     std::string findOrGetFile(const std::string &fileName);

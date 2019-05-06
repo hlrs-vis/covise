@@ -1120,15 +1120,19 @@ const char *coVRFileManager::getName(const char *file)
 
 bool coVRFileManager::relativePath(std::string & fileName)
 {
-    if (!fileExist(fileName))
+
+	if (!fileExist(fileName) || m_sharedDataPath.length() >= fileName.length())
     {
         return false;
     }
-    if (fileName.compare(0, m_sharedDataPath.length(), m_sharedDataPath)== 0)
-    {
-        fileName.erase(0, m_sharedDataPath.length());
-		return true;
-    }
+	for (size_t i = 0; i < m_sharedDataPath.length(); i++)
+	{
+		if (std::tolower(m_sharedDataPath[i]) != std::tolower(fileName[i]))
+		{
+			return false;
+		}
+	}
+	fileName.erase(0, m_sharedDataPath.length());
 	return false;
 }
 
@@ -1730,7 +1734,6 @@ void coVRFileManager::sendFile(TokenBuffer &tb)
 		rtb << filename;
 		rtb << 0;
 		coVRCommunication::instance()->sendMessage(rtb, COVISE_MESSAGE_VRB_SEND_FILE);
-		return;
 	}
 }
 std::string coVRFileManager::getFileName(const std::string &fileName)
