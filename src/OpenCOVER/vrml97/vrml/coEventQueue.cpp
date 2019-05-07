@@ -46,7 +46,7 @@ void coEventSourceData::setName(const char *name)
     int len = (int)strlen(name) + 1;
     nodeName = new char[len];
     strcpy(nodeName, name);
-    bufferSize = 5*sizeof(int) + len + 8 - (len % 8);
+    bufferSize = 16 + len + 8 - (len % 8);
 }
 
 void coEventSourceData::addToMsg(VrmlMessage *msg)
@@ -68,16 +68,14 @@ char *coEventSourceData::readFromBuf(char *buf)
     remoteNode = (VrmlNode *)(*((uint64_t *)buf));
     buf += sizeof(uint64_t);
 	int p = *((int *)buf);
-	buf += sizeof(int);
 	int n = *((int*)buf);
-	buf += sizeof(int);
 
 #ifdef BYTESWAP
     byteSwap(p);
 	byteSwap(n);
 #endif
 	namespaceNum = NamespaceNum(p, n);
-
+    buf += sizeof(int);
     setName(buf);
 
     // find node * for remoteNode
