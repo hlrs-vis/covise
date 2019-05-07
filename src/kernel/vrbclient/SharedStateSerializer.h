@@ -28,7 +28,8 @@ enum SharedStateDataType
     DOUBLE, //5
     VECTOR, //6
     SET,    //7
-	MAP		//8
+	MAP,	//8
+	PAIR	//9
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
@@ -45,6 +46,10 @@ SharedStateDataType getSharedStateType(const std::set<T> &type) {
 template<class K, class V>
 SharedStateDataType getSharedStateType(const std::map<K, V>& type) {
 	return MAP;
+}
+template<class K, class V>
+SharedStateDataType getSharedStateType(const std::pair<K, V>& type) {
+	return PAIR;
 }
 template <>
 VRBEXPORT SharedStateDataType getSharedStateType<bool>(const bool &type); 
@@ -127,6 +132,14 @@ void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value) {
 		serialize(tb, entry.second);
 	}
 }
+template <class K, class V>
+void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
+{
+	tb << getSharedStateType(value.first);
+	tb << getSharedStateType(value.second);
+	tb << value.first;
+	tb << value.second;
+}
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
 template<class T>
@@ -180,6 +193,15 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 		deserialize(tb, val);
 		value[key] = val;
 	}
+}
+template <class K, class V>
+void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
+{
+	int type;
+	tb >> type;
+	tb >> type;
+	tb >> value.first;
+	tb >> value.second;
 }
 ///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>

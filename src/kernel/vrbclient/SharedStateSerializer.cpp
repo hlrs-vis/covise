@@ -95,7 +95,17 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
 		}
 	}
 	break;
-
+	case PAIR:
+	{
+		int firstType, secondType;
+		tb >> firstType;
+		tb >> secondType;
+		valueString = "Pair: ";
+		valueString += tokenBufferToString(std::move(tb), firstType);
+		valueString += " | ";
+		valueString += tokenBufferToString(std::move(tb), secondType);
+	}
+	break;
     }
     return valueString;
 }
