@@ -403,8 +403,8 @@ bool VrmlScene::load(const char *url, const char *localCopy, bool replace)
     {
         tryUrl = new Doc(url, d_url);
     }
-
-    VrmlNamespace *newScope = new VrmlNamespace();
+	;
+    VrmlNamespace *newScope = new VrmlNamespace(System::the->getFileId(url));
     bool wasEncrypted = false;
     VrmlMFNode *newNodes = readWrl(tryUrl, newScope, &wasEncrypted);
     d_WasEncrypted = d_WasEncrypted | wasEncrypted;

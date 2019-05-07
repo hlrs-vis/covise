@@ -32,7 +32,7 @@ list<const coEventType *> coEventQueue::eventHandlerList;
 coEventSourceData::coEventSourceData()
 {
     nodeName = NULL;
-    namespaceNum = 0;
+    namespaceNum = NamespaceNum(0, 0);
 }
 
 coEventSourceData::~coEventSourceData()
@@ -52,7 +52,8 @@ void coEventSourceData::setName(const char *name)
 void coEventSourceData::addToMsg(VrmlMessage *msg)
 {
     msg->append((char *)&node, sizeof(uint64_t));
-    msg->append(namespaceNum);
+    msg->append(namespaceNum.first);
+	msg->append(namespaceNum.second);
     msg->append(nodeName, strlen(nodeName) + 1);
     char dummy[8 + 8];
     msg->append(dummy, 8 + 8 - ((strlen(nodeName) + 1) % 8));
@@ -66,10 +67,14 @@ char *coEventSourceData::readFromBuf(char *buf)
     node = NULL;
     remoteNode = (VrmlNode *)(*((uint64_t *)buf));
     buf += sizeof(uint64_t);
-    namespaceNum = *((int *)buf);
+	int p = *((int *)buf);
+	int n = *((int*)buf);
+
 #ifdef BYTESWAP
-    byteSwap(namespaceNum);
+    byteSwap(p);
+	byteSwap(n);
 #endif
+	namespaceNum = NamespaceNum(p, n);
     buf += sizeof(int);
     setName(buf);
 
@@ -93,7 +98,7 @@ char *coEventSourceData::readFromBuf(char *buf)
             node = VrmlNamespace::findNode(nodeName, namespaceNum);
             if (node == NULL)
             {
-                cerr << "Node not Found: " << nodeName << " Namespace: " << namespaceNum << endl;
+                cerr << "Node not Found: " << nodeName << " Namespace: " << namespaceNum.first << " | " << namespaceNum.second << endl;
             }
         }
 

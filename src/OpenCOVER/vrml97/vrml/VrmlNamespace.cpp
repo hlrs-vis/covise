@@ -39,7 +39,7 @@ list<VrmlNodeType *> VrmlNamespace::builtInList;
 NamespaceList VrmlNamespace::allNamespaces;
 bool VrmlNamespace::definedBuiltins;
 
-static int numNamespaces = 0;
+static std::map<int, int> numNamespaces{ NamespaceNum(-1,0) };
 
 VrmlNamespace::VrmlNamespace(VrmlNamespace *parent)
     : d_parent(parent)
@@ -50,11 +50,32 @@ VrmlNamespace::VrmlNamespace(VrmlNamespace *parent)
         definedBuiltins = true;
         defineBuiltIns();
     }
+	if (parent)
+	{
+		namespaceNum = NamespaceNum(parent->getNumber().first, numNamespaces[parent->getNumber().first]++);
+	}
+	else
+	{
+		namespaceNum = NamespaceNum(-1, numNamespaces[-1]++);
+	}
 
-    namespaceNum = numNamespaces++;
     allNamespaces.push_back(this);
     //fprintf(stderr,"new Namespace %d",namespaceNum);
     //fprintf(stderr,".");
+}
+
+vrml::VrmlNamespace::VrmlNamespace(int parentId)
+	:d_parent(nullptr)
+{
+	// Initialize typeList with built in nodes
+	if (!definedBuiltins)
+	{
+		definedBuiltins = true;
+		defineBuiltIns();
+	}
+	namespaceNum = NamespaceNum(parentId, 0);
+	numNamespaces[parentId] = 1;
+	allNamespaces.push_back(this);
 }
 
 VrmlNamespace::~VrmlNamespace()
@@ -62,7 +83,11 @@ VrmlNamespace::~VrmlNamespace()
     // Free nameList
     for (auto &n: d_nameList)
         n.second->dereference();
-
+	//reset namespace counter 
+	if (d_parent == nullptr)
+	{
+		numNamespaces[namespaceNum.first] = 0;
+	}
     // Free typeList
     list<VrmlNodeType *>::iterator i;
     for (i = d_typeList.begin(); i != d_typeList.end(); ++i)
@@ -72,15 +97,7 @@ VrmlNamespace::~VrmlNamespace()
     // remove myself from allNamespaces
 
     allNamespaces.remove(this);
-    /*       NamespaceList::iterator it;
-   for (it = allNamespaces.begin(); it != allNamespaces.end(); it++)
-   {
-      if(*it==this)
-      {
-         break;
-      }
-   }
-   */
+
 }
 
 //
@@ -398,10 +415,10 @@ VrmlNode *VrmlNamespace::findNode(const char *name)
     return 0;
 }
 
-VrmlNode *VrmlNamespace::findNode(const char *name, int num)
+VrmlNode *VrmlNamespace::findNode(const char *name, NamespaceNum num)
 {
     VrmlNamespace *ns = NULL;
-    if (num >= 0)
+    if (num.second >= 0)
     {
         NamespaceList::iterator it;
 

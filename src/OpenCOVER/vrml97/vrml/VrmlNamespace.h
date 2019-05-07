@@ -36,11 +36,12 @@ class VrmlNode;
 class VrmlNamespace;
 
 typedef std::list<VrmlNamespace *> NamespaceList;
-
+typedef std::pair<int, int> NamespaceNum;
 class VRMLEXPORT VrmlNamespace
 {
 public:
-    VrmlNamespace(VrmlNamespace *parent = 0);
+    VrmlNamespace(VrmlNamespace *parent = nullptr);
+	VrmlNamespace(int parentId);
     ~VrmlNamespace();
 
     // PROTO definitions add node types to the namespace.
@@ -76,10 +77,10 @@ public:
     VrmlNode *findNode(const char *name);
 
     // Find a node by name in a specified Namespace.
-    static VrmlNode *findNode(const char *name, int num);
+    static VrmlNode *findNode(const char *name, NamespaceNum num);
 
     // get the number of this namespace
-    int getNumber()
+	NamespaceNum getNumber()
     {
         return namespaceNum;
     };
@@ -111,8 +112,8 @@ private:
     // all Namespaces
     static NamespaceList allNamespaces;
 
-    //  number of this Namespace
-    int namespaceNum;
+    //  number of this Namespace (number for the global parent file + number for this file)
+   NamespaceNum namespaceNum;
     static bool definedBuiltins;
 
     // map for EXPORT ... AS commands

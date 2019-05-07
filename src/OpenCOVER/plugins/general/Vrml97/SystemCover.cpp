@@ -634,6 +634,11 @@ std::string SystemCover::remoteFetch(const std::string& filename, bool isTmp)
 //    return result;
 }
 
+int SystemCover::getFileId(const char* url)
+{
+	return coVRFileManager::instance()->getFileId(url);
+}
+
 void SystemCover::setSyncMode(const char *mode)
 {
     coVRCollaboration::instance()->setSyncMode(mode);
