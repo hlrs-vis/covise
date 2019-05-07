@@ -200,6 +200,8 @@ public:
 
 	///request the file from vrb -> file gets copied to tmp
 	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
+	///compares the url with m_sharedFiles. If found returns its position in, else -1;
+	int getFileId(const char* url);
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
@@ -240,9 +242,10 @@ private:
     LoadedFile *m_lastFile = nullptr;
     LoadedFile *m_loadingFile = nullptr;
     std::map<std::string, LoadedFile *> m_files;
+	typedef std::pair<std::string, int> fileOwner;
 	///map of fileowners(client id) and file paths
-	typedef std::map<std::string, int> fileOwnerMap;
-    vrb::SharedState<fileOwnerMap> m_sharedFiles;
+	typedef std::vector<fileOwner> fileOwnerList;
+    vrb::SharedState<fileOwnerList> m_sharedFiles;
     void loadPartnerFiles();
     struct Compare {
         bool operator()(const std::string& first, const std::string& second) {

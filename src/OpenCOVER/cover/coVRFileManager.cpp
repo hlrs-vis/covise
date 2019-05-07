@@ -698,6 +698,29 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 		relativePath(relPath);
 		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath));
     }
+	if (isRoot)
+	{
+		//if file is not shared, add it to the shared filePaths list
+		fileOwnerList v = m_sharedFiles;
+		std::string pathIdentifier(fileName);
+		relativePath(pathIdentifier);
+		bool found = false;
+		for (auto p : v)
+		{
+			if (p.first == pathIdentifier)
+			{
+				found = true;
+				break;
+			}
+		}
+
+
+		if (!found)
+		{
+			v.push_back(fileOwner(pathIdentifier, coVRCommunication::instance()->getID()));
+			m_sharedFiles = v;
+		}
+	}
     auto fe = new LoadedFile(url, button);
     if (covise_key)
         fe->key = covise_key;
@@ -745,19 +768,8 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 
     if (isRoot)
     {
-        //if file is not shared, add it to the shared filePaths list
-		fileOwnerMap v = m_sharedFiles;
-		std::string pathIdentifier = fileName;
-		relativePath(pathIdentifier);
-        if (v.find(pathIdentifier) == v.end())
-        {
-			v[pathIdentifier] = coVRCommunication::instance()->getID();
-			m_sharedFiles = v;
-        }
-        m_files[validFileName] = fe;
-
-
-        if (node)
+		m_files[validFileName] = fe;
+		if (node)
             OpenCOVER::instance()->hud->setText2("done loading");
         else
             OpenCOVER::instance()->hud->setText2("failed to load");
@@ -952,7 +964,7 @@ coVRFileManager *coVRFileManager::instance()
 
 coVRFileManager::coVRFileManager()
     : fileHandlerList()
-    , m_sharedFiles("coVRFileManager_filePaths", fileOwnerMap(), vrb::ALWAYS_SHARE)
+    , m_sharedFiles("coVRFileManager_filePaths", fileOwnerList(), vrb::ALWAYS_SHARE)
 {
     START("coVRFileManager::coVRFileManager");
     /// path for the viewpoint file: initialized by 1st param() call
@@ -960,7 +972,7 @@ coVRFileManager::coVRFileManager()
     getSharedDataPath();
 	//register my files with my ID
 	coVRCommunication::instance()->addOnConnectCallback([this](void) {
-		fileOwnerMap files = m_sharedFiles.value();
+		fileOwnerList files = m_sharedFiles.value();
 		auto path = files.begin();
 		while (path != files.end())
 		{
@@ -1507,18 +1519,22 @@ void coVRFileManager::loadPartnerFiles()
     std::set<std::string> alreadyLoadedFiles;
     for (auto myFile : m_files)
     {
-        bool found = false;
-        
         auto shortPath = myFile.first;
         relativePath(shortPath);
         alreadyLoadedFiles.insert(shortPath);
-		if (m_sharedFiles.value().find(shortPath) != m_sharedFiles.value().end() || m_sharedFiles.value().find(myFile.first) != m_sharedFiles.value().end())
+		bool found = false;
+		for (auto p : m_sharedFiles.value())
+		{
+			if (p.first == shortPath || p.first == myFile.first)
+			{
+				myFile.second->load();
+				found = true;
+				break;
+			}
+		}
+		if (!found)
 		{
 			unloadFile(myFile.first.c_str());
-		}
-		else
-		{
-            myFile.second->load();
 		}
     }
 
@@ -1689,6 +1705,19 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 	}
 	return "";
 }
+int coVRFileManager::getFileId(const char* url)
+{
+	std::string p(url);
+	relativePath(p);
+	for (size_t i = 0; i < m_sharedFiles.value().size(); i++)
+	{
+		if (m_sharedFiles.value()[i].first == p)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
 void coVRFileManager::sendFile(TokenBuffer &tb)
 {
     struct stat statbuf;
@@ -1818,30 +1847,23 @@ std::string coVRFileManager::writeTmpFile(const std::string& fileName, const cha
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
 {
-	auto it = m_sharedFiles.value().find(fileName);
+
 	int fileOwner = -1;
-	if (it != m_sharedFiles.value().end())
+	int bestmatch = 0;
+	for (auto p : m_sharedFiles.value())
 	{
-		fileOwner = it->second;
-	}
-	else
-	{
-		int bestmatch = 0;
-		for (auto p : m_sharedFiles.value())
+		int match = 0;
+		for (size_t i = 0; i < std::min(p.first.length(), fileName.length()); i++)
 		{
-			int match = 0;
-			for (size_t i = 0; i < std::min(p.first.length(), fileName.length()); i++)
+			if (p.first[i] == fileName[i])
 			{
-				if (p.first[i] == fileName[i])
-				{
-					++match;
-				}
+				++match;
 			}
-			if (match > bestmatch)
-			{
-				bestmatch = match;
-				fileOwner = p.second;
-			}
+		}
+		if (match > bestmatch)
+		{
+			bestmatch = match;
+			fileOwner = p.second;
 		}
 	}
 	return fileOwner;
