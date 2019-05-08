@@ -527,11 +527,13 @@ CuttingDrawable::CuttingDrawable(ui::Button *m,
 
         name = geom->getName();
     }
-
-    menu->setCallback([this](bool state){
-            if (!state)
-            interactorChanged = true;
-    });
+	if (menu)
+	{
+		menu->setCallback([this](bool state) {
+			if (!state)
+				interactorChanged = true;
+			});
+	}
 }
 
 CuttingDrawable::~CuttingDrawable()

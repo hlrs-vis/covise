@@ -128,7 +128,7 @@ void Colors::initCOLORS()
     p_data = addInputPort("DataIn0", "Vec3|IntArr|Int|Float|Byte", "scalar data");
     p_data->setRequired(0);
 
-    p_alphaIn = addInputPort("DataIn1", "Vec3|IntArr|Int|Float|Byte", "scalar value");
+    p_alphaIn = addInputPort("DataIn1", "Vec3|IntArr|Int|Float|Byte", "scalar data for transparency 0 to 1");
     p_alphaIn->setRequired(0);
 
     p_histoIn = addInputPort("DataIn2", "Float", "histogram data");
