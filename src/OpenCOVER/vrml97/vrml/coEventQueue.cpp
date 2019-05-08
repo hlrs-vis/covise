@@ -46,7 +46,7 @@ void coEventSourceData::setName(const char *name)
     int len = (int)strlen(name) + 1;
     nodeName = new char[len];
     strcpy(nodeName, name);
-    bufferSize = 5*sizeof(int) + len + 8 - (len % 8);
+    bufferSize = 16 + 4 + len + 8 - (len % 8);
 }
 
 void coEventSourceData::addToMsg(VrmlMessage *msg)
@@ -110,7 +110,7 @@ char *coEventSourceData::readFromBuf(char *buf)
         strcpy(lastNodeName, nodeName);
     }
 
-    return (buf + bufferSize - (2 * sizeof(int)));
+    return (buf + bufferSize - (3 * sizeof(int)));
 }
 
 void coEventData::addToMsg(VrmlMessage *msg)
