@@ -789,7 +789,7 @@ VrmlNodeType *VrmlScene::readPROTO(VrmlMFString *urls, Doc *relative)
     // that refers back to this namespace (protos), which will be invalid
     // after we exit this function. I guess it needs to be allocated and
     // ref counted too...
-    VrmlNamespace *protos = new VrmlNamespace(); // Leek, but better than deleting
+    VrmlNamespace *protos = new VrmlNamespace(System::the->getFileId(relative->url())); // Leek, but better than deleting
     // because this would destroy the just read PROTO
     Doc urlDoc;
     VrmlNodeType *def = 0;

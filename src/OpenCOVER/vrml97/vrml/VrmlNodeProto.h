@@ -142,7 +142,7 @@ private:
     VrmlNode *firstNode() const;
 
     // Instantiate the proto by cloning the node type implementation nodes.
-    void instantiate();
+    void instantiate(const char* relUrl = nullptr);
 
     // Find a field by name
     NameValueRec *findField(const char *fieldName) const;

@@ -126,7 +126,7 @@ VrmlNodeProto *VrmlNodeProto::toProto() const
 // *references* (DEF/USE) to the nodes in the PROTO definition,
 // we need to actually clone new nodes...
 
-void VrmlNodeProto::instantiate()
+void VrmlNodeProto::instantiate(const char* relUrl)
 {
     System::the->debug("%s::%s instantiate\n", d_nodeType->getName(),
                        name());
@@ -137,8 +137,7 @@ void VrmlNodeProto::instantiate()
         int nNodes = protoNodes ? protoNodes->size() : 0;
         int i;
 
-        d_scope = new VrmlNamespace();
-
+        d_scope = new VrmlNamespace(System::the->getFileId(relUrl));
         // Clear all flags - encountering a set flag during cloning
         // indicates a USEd node, which should be referenced rather
         // than cloned.
@@ -252,7 +251,7 @@ void VrmlNodeProto::addToScene(VrmlScene *s, const char *relUrl)
 
     // Make sure my nodes are here
     if (!d_instantiated)
-        instantiate();
+        instantiate(relUrl);
     System::the->debug("VrmlNodeProto::%s addToScene(%d nodes)\n",
                        name(), d_nodes ? d_nodes->size() : 0);
 

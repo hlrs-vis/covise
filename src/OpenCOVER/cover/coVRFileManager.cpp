@@ -1707,6 +1707,10 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 }
 int coVRFileManager::getFileId(const char* url)
 {
+	if (!url)
+	{
+		return -1;
+	}
 	std::string p(url);
 	relativePath(p);
 	for (size_t i = 0; i < m_sharedFiles.value().size(); i++)

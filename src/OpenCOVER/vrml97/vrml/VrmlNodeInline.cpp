@@ -222,7 +222,7 @@ void VrmlNodeInline::load(const char *relativeUrl)
         }
         if (sgObject == 0L)
         {
-            VrmlNamespace *ns = new VrmlNamespace();
+            VrmlNamespace *ns = new VrmlNamespace(System::the->getFileId(relativeUrl));
             VrmlMFNode *kids = 0;
             Doc url;
             int i, n = d_url.size();
