@@ -10,6 +10,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <utility>
 
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
@@ -68,13 +69,23 @@ VRBEXPORT SharedStateDataType getSharedStateType<double>(const double &type);
 VRBEXPORT std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID = -1);
 
 ///////////////////////SERIALIZE //////////////////////////
-
+//pay attention to order fot comilation on linux!
 
 ///convert the value to a TokenBuffer
+
 template<class T>
 void serialize(covise::TokenBuffer &tb, const T &value)
 {
     tb << value;
+}
+
+template <class K, class V>
+void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
+{
+	tb << getSharedStateType(value.first);
+	tb << getSharedStateType(value.second);
+	serialize(tb, value.first);
+	serialize(tb, value.second);
 }
 
 template <class T>
@@ -132,14 +143,7 @@ void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value) {
 		serialize(tb, entry.second);
 	}
 }
-template <class K, class V>
-void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
-{
-	tb << getSharedStateType(value.first);
-	tb << getSharedStateType(value.second);
-	tb << value.first;
-	tb << value.second;
-}
+
 /////////////////////DESERIALIZE///////////////////////////////////
 ///converts the TokenBuffer back to the value
 template<class T>
@@ -147,6 +151,17 @@ void deserialize(covise::TokenBuffer &tb, T &value)
 {
     tb >> value;
 }
+
+template <class K, class V>
+void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
+{
+	int type;
+	tb >> type;
+	tb >> type;
+	deserialize(tb, value.first);
+	deserialize(tb, value.second);
+}
+
 template <class T>
 void deserialize(covise::TokenBuffer &tb, std::vector<T> &value) 
 {
@@ -193,15 +208,6 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 		deserialize(tb, val);
 		value[key] = val;
 	}
-}
-template <class K, class V>
-void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
-{
-	int type;
-	tb >> type;
-	tb >> type;
-	tb >> value.first;
-	tb >> value.second;
 }
 ///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>
