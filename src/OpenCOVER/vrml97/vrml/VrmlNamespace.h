@@ -43,6 +43,8 @@ public:
     VrmlNamespace(VrmlNamespace *parent = nullptr);
 	VrmlNamespace(int parentId);
     ~VrmlNamespace();
+	//initialize the Namespace an set namespaceNum based on parentID
+	void init(int parentId);
 
     // PROTO definitions add node types to the namespace.
     // PROTO implementations are a separate node type namespace,
@@ -96,7 +98,8 @@ public:
 
     // Builtin node types are stored (once) in this data structure:
     static std::list<VrmlNodeType *> builtInList;
-
+	//clear namespaces of that parent
+	static void resetNamespaces(int parentId);
 private:
     void defineBuiltIns();
 

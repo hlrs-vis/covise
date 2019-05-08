@@ -144,7 +144,8 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-    System::the->destroyMenu();
+	VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();
 
@@ -654,6 +655,7 @@ VrmlMFNode *VrmlScene::readWrl(Doc *tryUrl, VrmlNamespace *ns, bool *encrypted)
             VrmlNamespace nodeDefs;
             if (ns)
                 yyNodeTypes = ns;
+			
             else
                 yyNodeTypes = &nodeDefs;
 

@@ -30,6 +30,7 @@
 #include "System.h"
 #include <stdio.h>
 #include <list>
+#include <set>
 using std::list;
 
 using namespace vrml;
@@ -39,43 +40,26 @@ list<VrmlNodeType *> VrmlNamespace::builtInList;
 NamespaceList VrmlNamespace::allNamespaces;
 bool VrmlNamespace::definedBuiltins;
 
-static std::map<int, int> numNamespaces{ NamespaceNum(-1,0) };
+static std::map<int, std::set<int>> numNamespaces{ std::pair<int, std::set<int>>(-1, std::set<int>{0}) };
 
 VrmlNamespace::VrmlNamespace(VrmlNamespace *parent)
     : d_parent(parent)
 {
-    // Initialize typeList with built in nodes
-    if (!definedBuiltins)
-    {
-        definedBuiltins = true;
-        defineBuiltIns();
-    }
 	if (parent)
 	{
-		namespaceNum = NamespaceNum(parent->getNumber().first, numNamespaces[parent->getNumber().first]++);
+		init(parent->getNumber().first);
 	}
 	else
 	{
-		namespaceNum = NamespaceNum(-1, numNamespaces[-1]++);
+		init(-1);
 	}
-
-    allNamespaces.push_back(this);
-    //fprintf(stderr,"new Namespace %d",namespaceNum);
-    //fprintf(stderr,".");
 }
 
 vrml::VrmlNamespace::VrmlNamespace(int parentId)
 	:d_parent(nullptr)
 {
-	// Initialize typeList with built in nodes
-	if (!definedBuiltins)
-	{
-		definedBuiltins = true;
-		defineBuiltIns();
-	}
-	namespaceNum = NamespaceNum(parentId, 0);
-	numNamespaces[parentId] = 1;
-	allNamespaces.push_back(this);
+	init(parentId);
+
 }
 
 VrmlNamespace::~VrmlNamespace()
@@ -83,11 +67,7 @@ VrmlNamespace::~VrmlNamespace()
     // Free nameList
     for (auto &n: d_nameList)
         n.second->dereference();
-	//reset namespace counter 
-	if (d_parent == nullptr)
-	{
-		numNamespaces[namespaceNum.first] = 0;
-	}
+
     // Free typeList
     list<VrmlNodeType *>::iterator i;
     for (i = d_typeList.begin(); i != d_typeList.end(); ++i)
@@ -97,7 +77,39 @@ VrmlNamespace::~VrmlNamespace()
     // remove myself from allNamespaces
 
     allNamespaces.remove(this);
+	//reset namespace counter 
+	bool found = false;
+	for (auto ns : allNamespaces)
+	{
+		if (ns->namespaceNum ==namespaceNum)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		numNamespaces[namespaceNum.first].erase(namespaceNum.second);
+	}
 
+}
+
+void vrml::VrmlNamespace::init(int parentId)
+{
+	// Initialize typeList with built in nodes
+	if (!definedBuiltins)
+	{
+		definedBuiltins = true;
+		defineBuiltIns();
+	}
+	auto &it = numNamespaces[parentId];
+	int id = 0;
+	do
+	{
+		++id;
+	} while (!it.insert(id).second);
+	namespaceNum = NamespaceNum(parentId, id);
+	allNamespaces.push_back(this);
 }
 
 //
@@ -191,6 +203,24 @@ VrmlNamespace::addBuiltIn(VrmlNodeType *type)
 #include "VrmlNodeViewpoint.h"
 #include "VrmlNodeVisibilitySensor.h"
 #include "VrmlNodeWorldInfo.h"
+
+
+void vrml::VrmlNamespace::resetNamespaces(int parentId)
+{
+	auto it = allNamespaces.begin();
+	while (it != allNamespaces.end())
+	{
+		if ((*it)->getNumber().first == parentId)
+		{
+			it = allNamespaces.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	numNamespaces.erase(parentId);
+}
 
 void VrmlNamespace::defineBuiltIns()
 {
