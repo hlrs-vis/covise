@@ -881,6 +881,10 @@ void coVRCommunication::handleVRB(Message *msg)
         for (size_t i = 0; i < size; ++i)
         {
             tb >> id;
+			if (id == getSessionID())
+			{
+				getSessionID().setOwner(id.owner());
+			}
             sessions.push_back(id);
         }
         m_vrbMenue->updateSessions(sessions);

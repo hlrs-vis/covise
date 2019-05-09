@@ -45,7 +45,7 @@ int SessionID::owner() const
     return m_owner;
 }
 
-void SessionID::setOwner(int id)
+void SessionID::setOwner(int id) const
 {
     m_owner = id;
 }

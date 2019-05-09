@@ -5,6 +5,8 @@
 
  * License: LGPL 2+ */
 
+///base class to process vrb messages used in the vrb application and COVISE for the communication between OpenCOVERs
+
 #ifndef VRB_MESAGE_HANDLER_H
 #define VRB_MESAGE_HANDLER_H
 
@@ -85,8 +87,9 @@ protected:
     ///return a path to the curren directory
     std::string home();
     ///get a kist of all files of type .fileEnding in the directory
-    std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = "")const;
-    void disconectClientFromSessions(int clID);
+    std::set<std::string> getFilesInDir(const std::string &path, const std::string &fileEnding = std::string())const;
+    ///delete sessions owned by this client if there are not other clients in it, else change session owner
+	void disconectClientFromSessions(int clID);
     ///assign a client to a session
     void setSession(vrb::SessionID & sessionId, int clID);
     ///writes the session "id" and the private sessions of id's participants to disc

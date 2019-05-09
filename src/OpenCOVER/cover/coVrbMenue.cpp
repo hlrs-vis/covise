@@ -194,15 +194,21 @@ void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
 {
     availiableSessions.clear();
     std::vector<std::string> sessionNames;
-    for (const auto &session : sessions)
+	int index = 0;
+	for (const auto &session : sessions)
     {
         if (!session.isPrivate() || session.owner() ==  coVRCommunication::instance()->getID())
         {
             availiableSessions.push_back(session);
             sessionNames.push_back(session.toText());
         }
+		if (session == coVRCommunication::instance()->getSessionID())
+		{
+			index = sessionNames.size() - 1;
+		}
     }
     sessionsSl->setList(sessionNames);
+	sessionsSl->select(index);
 }
 void VrbMenue::setCurrentSession(const vrb::SessionID & session)
 {

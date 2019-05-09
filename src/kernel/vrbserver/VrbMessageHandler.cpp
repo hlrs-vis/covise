@@ -1544,19 +1544,15 @@ void VrbMessageHandler::disconectClientFromSessions(int clID)
             }
             else
             {
-                vrb::SessionID newId(it->first);
                 VRBSClient *newOwner = clients.getNextInGroup(it->first);
                 if (newOwner)
                 {
-                    newId.setOwner(newOwner->getID());
-                    sessions[newId] = it->second;
+                    it->first.setOwner(newOwner->getID());
                 }
-                //int newOwner;
-                bool first = false;
-                TokenBuffer stb;
-                stb << newId;
-                clients.sendMessage(stb, it->first, COVISE_MESSAGE_VRBC_SET_SESSION);
-                it = sessions.erase(it);
+				else
+				{
+					it = sessions.erase(it); //detele session if there are no more clients in it
+				}
             }
         }
         else
@@ -1566,6 +1562,7 @@ void VrbMessageHandler::disconectClientFromSessions(int clID)
 
 
     }
+	sendSessions();
 }
 void VrbMessageHandler::setSession(vrb::SessionID & sessionId, int clID)
 {

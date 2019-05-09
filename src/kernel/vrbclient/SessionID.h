@@ -27,7 +27,7 @@ public:
     std::string name() const;
     bool isPrivate()const ;
     int owner() const;
-    void setOwner(int id);
+    void setOwner(int id) const;
     void setName(const std::string &name);
     void setPrivate(bool isPrivate);
     bool operator ==(const SessionID &other) const;
@@ -37,7 +37,7 @@ public:
     SessionID &operator=(const int other) = delete;
     std::string toText() const;
 private:
-    int m_owner = 0;
+	mutable int m_owner = 0;
     std::string m_name = "";
     bool m_isPrivate = true;
 };
