@@ -99,7 +99,7 @@ public:
     typedef int (*LoadCB)(char *buf, int bufSize);
     static VrmlMFNode *readFunction(LoadCB cb, Doc *url, VrmlNamespace *ns);
 
-    static VrmlNodeType *readPROTO(VrmlMFString *url, Doc *relative = 0);
+    static VrmlNodeType *readPROTO(VrmlMFString *url, Doc *relative = nullptr, int parentId = -1);
 
     //
     VrmlScene(const char *url = 0, const char *localCopy = 0);

@@ -51,7 +51,7 @@ public:
                           const VrmlField &fieldValue);
     virtual const VrmlField *getField(const char *fieldName) const;
 
-    void load(const char *relativeUrl);
+    void load(const char *relativeUrl, int parentId = -1);
 
     virtual VrmlNode *findInside(const char *exportName);
 

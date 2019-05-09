@@ -120,7 +120,7 @@ public:
         return d_name;
     }
 
-    VrmlMFNode *getImplementationNodes();
+    VrmlMFNode *getImplementationNodes(int parentId = -1);
 
     VrmlNode *firstNode();
 
@@ -155,7 +155,7 @@ public:
 
 private:
     // Grab the implementation of an EXTERNPROTO
-    void fetchImplementation();
+    void fetchImplementation(int parentId = -1);
 
     void add(FieldList &, const char *, VrmlField::VrmlFieldType);
     VrmlField::VrmlFieldType has(const FieldList &, const char *) const;

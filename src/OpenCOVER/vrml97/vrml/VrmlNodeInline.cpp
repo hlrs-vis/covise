@@ -86,7 +86,14 @@ VrmlNodeInline *VrmlNodeInline::toInline() const
 void VrmlNodeInline::addToScene(VrmlScene *s, const char *relativeUrl)
 {
     d_scene = s;
-    load(relativeUrl);
+	if (s)
+	{
+		load(relativeUrl, System::the->getFileId(s->urlDoc()->url()));
+	}
+	else
+	{
+		load(relativeUrl);
+	}
     VrmlNodeGroup::addToScene(s, relativeUrl);
 }
 
@@ -173,7 +180,7 @@ void VrmlNodeInline::render(Viewer *viewer)
 
 //  Load the children from the URL
 
-void VrmlNodeInline::load(const char *relativeUrl)
+void VrmlNodeInline::load(const char *relativeUrl, int parentId)
 {
     if (!relativeUrl)
         //URL is empty, should not occur -> return
@@ -222,7 +229,7 @@ void VrmlNodeInline::load(const char *relativeUrl)
         }
         if (sgObject == 0L)
         {
-            VrmlNamespace *ns = new VrmlNamespace(System::the->getFileId(relativeUrl));
+            VrmlNamespace *ns = new VrmlNamespace(parentId);
             VrmlMFNode *kids = 0;
             Doc url;
             int i, n = d_url.size();
