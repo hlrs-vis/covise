@@ -55,7 +55,6 @@ private:
     double latitude;
     double altitude;
     double time;
-    float speed;
     std::string text;
     std::string filename;
     std::string myDirectory;
@@ -63,7 +62,7 @@ private:
 public:
     GPSPoint(std::string directory);
     ~GPSPoint();  
-    void setPointData (double x, double y, double z, double time, float v, std::string &name);
+    void setPointData (double x, double y, std::string &name);
     void setIndex(int i);
     void draw();
     void createSphere(osg::Vec4 *colVec);

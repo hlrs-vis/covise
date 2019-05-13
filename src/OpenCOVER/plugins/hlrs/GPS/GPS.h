@@ -97,7 +97,7 @@ public:
     osg::ref_ptr<osg::Image> textbackground;
 
     coVRLabel *Label;
-    float zOffset=4.0;
+    float zOffset=1.0;
 
 
     std::string dir;//Coordinates

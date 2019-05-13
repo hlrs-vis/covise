@@ -114,9 +114,7 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
 {
     double x;
     double y;
-    double z;
-    double t;
-    float v;
+    //double t;
     std::string typetext;
     XMLCh *t1 = NULL;
 
@@ -126,35 +124,23 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
     sscanf(lon, "%lf", &x);
     sscanf(lat, "%lf", &y);
 
-    //fprintf(stderr, "read from file:   lon: %s\n",lon);
-    //fprintf(stderr, "read from file:   lat: %s\n",lat);
-
-
-    xercesc::DOMNodeList *nodeContentList = node->getChildNodes();
-    int nodeContentListLength = nodeContentList->getLength();
-    for (int i = 0; i < nodeContentListLength; ++i)
+    for (xercesc::DOMNode *currentContentNode = node->getFirstChild() ; currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
     {
-        xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(nodeContentList->item(i));
+        xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(currentContentNode);
         if (!nodeContent)
             continue;
         char *tmp = xercesc::XMLString::transcode(nodeContent->getNodeName());
         std::string nodeContentName = tmp;
         xercesc::XMLString::release(&tmp);
-        if(nodeContentName == "ele")
-        {
-            char *alt = xercesc::XMLString::transcode(nodeContent->getTextContent());
-            //fprintf(stderr, "read from file:   ele: %s\n",alt);
-            sscanf(alt, "%lf", &z);
-            xercesc::XMLString::release(&alt);
-        }
-        else if(nodeContentName == "time")
-        {
-            char *time = xercesc::XMLString::transcode(nodeContent->getTextContent());
-            //fprintf(stderr, "read from file:   time: %s\n",time);
-            sscanf(time, "%lf", &t);
-            xercesc::XMLString::release(&time);
-        }
-        else if(nodeContentName == "name")
+
+        //else if(nodeContentName == "time")
+        //{
+        //    char *time = xercesc::XMLString::transcode(nodeContent->getTextContent());
+        //    //fprintf(stderr, "read from file:   time: %s\n",time);
+        //    sscanf(time, "%lf", &t);
+        //    xercesc::XMLString::release(&time);
+        //}
+        if(nodeContentName == "name")
         {
             char *name = xercesc::XMLString::transcode(nodeContent->getTextContent());
             //fprintf(stderr, "read from file:   name: %s\n",name);
@@ -167,11 +153,9 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
         }
         else if(nodeContentName == "link")
         {
-            xercesc::DOMNodeList *extensionsList = nodeContent->getChildNodes();
-            int extensionsListLength = extensionsList->getLength();
-            for (int k = 0; k < extensionsListLength; ++k)
+            for (xercesc::DOMNode *currentExtensionNode = nodeContent->getFirstChild() ; currentExtensionNode != NULL; currentExtensionNode = currentExtensionNode->getNextSibling())
             {
-                xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsList->item(k));
+                xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(currentExtensionNode);
                 if (!extensionNode)
                     continue;
                 char *tmp = xercesc::XMLString::transcode(extensionNode->getNodeName());
@@ -198,26 +182,24 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
         }
 
     }
-    this->setPointData(x, y, z, t, v, typetext);
+    this->setPointData(x, y, typetext);
 
     xercesc::XMLString::release(&lat);
     xercesc::XMLString::release(&lon);
 }
 
-void GPSPoint::setPointData (double x, double y, double z, double t, float v, std::string &name)
+void GPSPoint::setPointData (double x, double y, std::string &name)
 {
-    altitude = GPSPlugin::instance()->getAlt(x,y)+GPSPlugin::instance()->zOffset;
+    altitude = GPSPlugin::instance()->getAlt(x,y);
     x *= DEG_TO_RAD;
     y *= DEG_TO_RAD;
     longitude = x;
     latitude = y;
-    time = t;
-    speed = v;
 
     int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
 
     osg::Matrix m;
-    m.makeTranslate(osg::Vec3(longitude,latitude,altitude-4));
+    m.makeTranslate(osg::Vec3(longitude,latitude,altitude));
     geoTrans->setMatrix(m);
 
 
@@ -337,7 +319,7 @@ void GPSPoint::createSphere(osg::Vec4 *colVec)
 {
     float Radius = 5.0f;
 
-    sphere = new osg::Sphere(osg::Vec3(0, 0 , 5), Radius);
+    sphere = new osg::Sphere(osg::Vec3(0, 0 , Radius), Radius);
 
     osg::ref_ptr<osg::Material> material_sphere = new osg::Material();
     material_sphere->setDiffuse(osg::Material::FRONT_AND_BACK, *colVec);
@@ -551,7 +533,7 @@ void GPSPoint::createSound()
 {
     if (GPSPlugin::player)
     {
-        audio = new Audio((myDirectory+"/data/sounds/"+filename).c_str());
+        audio = new Audio((myDirectory+"/data/"+filename).c_str());
         if (audio == NULL)
         {
             fprintf(stderr, "Audio not found for %s\n", filename.c_str());
@@ -652,12 +634,7 @@ void GPSPoint::createText()
     v[1].set(hsize / 2.0, offset, height);
     v[2].set(hsize / 2.0, offset, height + vsize );
     v[3].set(-hsize / 2.0, offset, height + vsize );
-/*
-    v[4].set(-hsize / 2.0 + frame, offset, height + frame);
-    v[5].set(hsize / 2.0 - frame, offset, height + frame);
-    v[6].set(hsize / 2.0 - frame, offset, height + vsize - frame);
-    v[7].set(-hsize / 2.0 + frame, offset, height + vsize - frame);
-*/
+
     v[4].set(-hsize / 2.0, offset, height + 1);
     v[5].set(hsize / 2.0, offset, height + 1);
     v[6].set(hsize / 2.0, offset, height + vsize - 0.2);
@@ -727,75 +704,7 @@ void GPSPoint::createText()
     BackgroundVertices->push_back(v[7]);
     BackgroundTexCoords->push_back(osg::Vec2(0, 0.8));
     BackgroundNormals->push_back(n);
-/*
-    // I
-    BackgroundVertices->push_back(v[0]);
-    BackgroundTexCoords->push_back(osg::Vec2(0, 0));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[1]);
-    BackgroundTexCoords->push_back(osg::Vec2(1, 0));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[5]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[4]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
-    BackgroundNormals->push_back(n);
 
-    // II
-    BackgroundVertices->push_back(v[1]);
-    BackgroundTexCoords->push_back(osg::Vec2(1, 0));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[2]);
-    BackgroundTexCoords->push_back(osg::Vec2(1, 1));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[6]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[5]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
-    BackgroundNormals->push_back(n);
-
-    // III
-    BackgroundVertices->push_back(v[2]);
-    BackgroundTexCoords->push_back(osg::Vec2(1, 1));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[3]);
-    BackgroundTexCoords->push_back(osg::Vec2(0, 1));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[7]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[6]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
-    BackgroundNormals->push_back(n);
-    // IV
-    BackgroundVertices->push_back(v[3]);
-    BackgroundTexCoords->push_back(osg::Vec2(0, 1));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[0]);
-    BackgroundTexCoords->push_back(osg::Vec2(0, 0));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[4]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[7]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
-    BackgroundNormals->push_back(n);
-    // V
-    BackgroundVertices->push_back(v[4]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 80/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[5]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 80/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[6]);
-    BackgroundTexCoords->push_back(osg::Vec2(350/442, 520/600));
-    BackgroundNormals->push_back(n);
-    BackgroundVertices->push_back(v[7]);
-    BackgroundTexCoords->push_back(osg::Vec2(80/442, 520/600));
-    BackgroundNormals->push_back(n);
-*/
     osg::DrawArrays *Background = new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, BackgroundVertices->size());
     BackgroundGeometry->addPrimitiveSet(Background);
     BBoard->addChild(TextGeode);
@@ -828,7 +737,7 @@ void GPSPoint::createPicture()
     if(!img)
     {
         fprintf(stderr, "Picture first run\n");
-        std::string fn = myDirectory+"/data/pictures/" + filename;
+        std::string fn = myDirectory+"/data/" + filename;
         fprintf(stderr, "fn %s\n", fn.c_str());
         const char *fn2 = opencover::coVRFileManager::instance()->getName(fn.c_str());
         if(fn2 == NULL)
@@ -960,6 +869,7 @@ void GPSPoint::activate()
             else
             {
                 fprintf(stderr,"Playing sound. Duration: %lf \n", audio->duration());
+                fprintf(stderr,"Audiofile name: %s \n", filename.c_str());
                 source->play();
             }
         }

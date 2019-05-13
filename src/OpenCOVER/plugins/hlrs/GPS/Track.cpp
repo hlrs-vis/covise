@@ -80,7 +80,6 @@ void Track::addPoint(double x, double y, double v)
     int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
     if(error !=0 )
     {
-        fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
         fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
     }
 
@@ -99,9 +98,7 @@ void Track::readFile (xercesc::DOMElement *node)
     //fprintf(stderr, "Trackreading started\n");
     auto start = std::chrono::steady_clock::now();
 
-    xercesc::DOMNodeList *TrackNodeList = node->getChildNodes();
-    int TrackNodeListLength = TrackNodeList->getLength();
-    for (xercesc::DOMNode *currentTrackNode = TrackNodeList->item(0) ; currentTrackNode != NULL; currentTrackNode = currentTrackNode->getNextSibling())
+    for (xercesc::DOMNode *currentTrackNode = node->getFirstChild() ; currentTrackNode != NULL; currentTrackNode = currentTrackNode->getNextSibling())
     {
         xercesc::DOMElement *TrackNode = dynamic_cast<xercesc::DOMElement *>(currentTrackNode);
         if (!TrackNode)
@@ -141,8 +138,7 @@ void Track::readFile (xercesc::DOMElement *node)
                     xercesc::XMLString::release(&lat);
                     xercesc::XMLString::release(&lon);
 
-                    xercesc::DOMNodeList *nodeContentList = TrackPoint->getChildNodes();
-                    for (xercesc::DOMNode *currentContentNode = nodeContentList->item(0) ; currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
+                    for (xercesc::DOMNode *currentContentNode = TrackPoint->getFirstChild() ; currentContentNode != NULL; currentContentNode = currentContentNode->getNextSibling())
                     {
                         xercesc::DOMElement *nodeContent = dynamic_cast<xercesc::DOMElement *>(currentContentNode);
                         if (!nodeContent)
@@ -160,8 +156,8 @@ void Track::readFile (xercesc::DOMElement *node)
                         //}
                         if(nodeContentName == "extensions")
                         {
-                            xercesc::DOMNodeList *extensionsList = nodeContent->getChildNodes();
-                            for (xercesc::DOMNode *extensionsListContent = extensionsList->item(0) ; extensionsListContent != NULL; extensionsListContent = extensionsListContent->getNextSibling())
+
+                            for (xercesc::DOMNode *extensionsListContent = nodeContent->getFirstChild() ; extensionsListContent != NULL; extensionsListContent = extensionsListContent->getNextSibling())
                             {
                                 xercesc::DOMElement *extensionNode = dynamic_cast<xercesc::DOMElement *>(extensionsListContent);
                                 if (!extensionNode)
