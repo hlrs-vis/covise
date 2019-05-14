@@ -99,8 +99,17 @@ public:
     std::unique_ptr<vrb::VrbClientRegistry> registry;
     bool sendMessage(covise::Message *msg);
     bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
+	//add callback that is called after first contact with vrb
 	void addOnConnectCallback(std::function<void(void)> function);
+	//add callback that is called when vrb disconnects
 	void addOnDisconnectCallback(std::function<void(void)> function);
+	//set link to covise plugin function to get message from covise socket
+	void setWaitMessagesCallback(std::function<std::vector<covise::Message*>(void)> cb);
+	//set link to covise plugin function to handle a covise message
+	void setHandleMessageCallback(std::function<void(covise::Message *)> cb);
+
+	std::vector<covise::Message*> waitCoviseMessages();
+	void handleCoviseMessage(covise::Message* m);
 private:
     coVRCommunication();
     static coVRCommunication *s_instance;
@@ -113,6 +122,9 @@ private:
     vrb::SessionID m_privateSessionID;
 	std::vector<std::function<void(void)>> onConnectCallbacks;
 	std::vector<std::function<void(void)>> onDisconnectCallbacks;
+	//covise plugin callbacks
+	std::function <std::vector<covise::Message*>(void)> waitMessagesCallback;
+	std::function<void(covise::Message*)> handleMessageCallback;
 	//inform interested parties about connention to vrb or covise
 	void connected();
 	//inform interested parties about disconnection from vrb or covise

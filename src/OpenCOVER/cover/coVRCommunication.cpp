@@ -1015,6 +1015,33 @@ void opencover::coVRCommunication::addOnDisconnectCallback(std::function<void(vo
 	onDisconnectCallbacks.push_back(function);
 }
 
+void opencover::coVRCommunication::setWaitMessagesCallback(std::function<std::vector<Message*> (void)> cb)
+{
+	waitMessagesCallback = cb;
+}
+
+void opencover::coVRCommunication::setHandleMessageCallback(std::function<void(Message*)> cb)
+{
+	handleMessageCallback = cb;
+}
+
+std::vector<Message*> opencover::coVRCommunication::waitCoviseMessages()
+{
+	if (waitMessagesCallback)
+	{
+		return waitMessagesCallback();
+	}
+	return std::vector<Message*>();
+}
+
+void opencover::coVRCommunication::handleCoviseMessage(Message* m)
+{
+	if (handleMessageCallback)
+	{
+		handleMessageCallback(m);
+	}
+}
+
 void coVRCommunication::setFBData(IData *data)
 {
     VRBData *locData = dynamic_cast<VRBData *>(data);

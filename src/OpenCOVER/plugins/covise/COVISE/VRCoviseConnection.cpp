@@ -74,7 +74,86 @@ using namespace covise;
 using namespace grmsg;
 
 VRCoviseConnection *VRCoviseConnection::covconn = NULL;
+static std::vector<covise::Message*>waitMessages()
+{
+	coVRMSController* ms = coVRMSController::instance();
+	if (!ms->isCluster())
+		return std::vector<covise::Message*>();
 
+	if (cover->debugLevel(5))
+		fprintf(stderr, "\ncoVRMSController::checkAndHandle\n");
+
+	Message* appMsgs[100];
+	Message* appMsg;
+	int numMessages = 0;
+	if (ms->isMaster())
+	{
+		MARK0("COVER cluster master checking covise messages");
+
+		while ((numMessages < 100) && (appMsg = (CoviseRender::appmod)->check_for_ctl_msg()) != NULL)
+		{
+			appMsgs[numMessages] = appMsg;
+			numMessages++;
+		}
+		ms->sendSlaves(&numMessages, sizeof(int));
+	}
+	else
+	{
+		MARK0("COVER cluster slave reading covise messages from cluster master");
+
+		//get number of Messages
+		if (ms->readMaster(&numMessages, sizeof(int)) < 0)
+		{
+			cerr << "sync_exit172 myID=" << ms->getID() << endl;
+			exit(0);
+		}
+		for (int i = 0; i < numMessages; i++)
+		{
+			appMsg = new Message;
+			if (ms->readMaster(appMsg) < 0)
+			{
+				cerr << "sync_exit18 myID=" << ms->getID() << endl;
+				exit(0);
+			}
+			MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
+			MARK0("done");
+			appMsgs[i] = appMsg;
+		}
+	}
+	return std::vector<covise::Message*>(appMsgs, appMsgs + numMessages);
+}
+static void handleMessages(covise::Message* msg)
+{
+	coVRMSController* ms = coVRMSController::instance();
+	if (!ms->isCluster())
+		return;
+
+
+	if (ms->isMaster())
+	{
+
+		MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[msg->type]);
+		ms->sendSlaves(msg);
+		MARK0("done");
+	}
+	CoviseRender::set_applMsg(msg);
+	CoviseRender::handleControllerMessage(); // handles the messange and deletes it
+
+	CoviseRender::set_applMsg(nullptr);
+}
+static bool checkAndHandle()
+{
+	std::vector<covise::Message*> msgs = waitMessages();
+	if (msgs.size() == 0)
+	{
+		return false;
+	}
+	for (auto msg : msgs)
+	{
+		handleMessages(msg);
+	}
+	return true;
+}
 VRCoviseConnection::VRCoviseConnection()
 {
     covconn = this;
@@ -108,6 +187,8 @@ VRCoviseConnection::VRCoviseConnection()
 
     CoviseRender::set_param_callback(VRCoviseConnection::paramCallback, this);
     CoviseRender::send_ui_message("MODULE_DESC", "Newest VR-Renderer");
+	coVRCommunication::instance()->setWaitMessagesCallback(waitMessages);
+	coVRCommunication::instance()->setHandleMessageCallback(handleMessages);
 }
 
 VRCoviseConnection::~VRCoviseConnection()
@@ -122,83 +203,83 @@ void VRCoviseConnection::sendQuit()
     CoviseRender::send_ui_message("DEL_REQ", "");
 }
 
-static bool checkAndHandle()
-{
-    coVRMSController *ms = coVRMSController::instance();
-    if (!ms->isCluster())
-        return false;
-
-    if (cover->debugLevel(5))
-        fprintf(stderr, "\ncoVRMSController::checkAndHandle\n");
-
-    Message *appMsgs[100];
-    Message *appMsg;
-    int numMessages = 0;
-    if (ms->isMaster())
-    {
-        MARK0("COVER cluster master checking covise messages");
-
-        while ((numMessages < 100) && (appMsg = (CoviseRender::appmod)->check_for_ctl_msg()) != NULL)
-        {
-            appMsgs[numMessages] = appMsg;
-            numMessages++;
-        }
-
-        ms->sendSlaves(&numMessages, sizeof(int));
-
-        for (int i = 0; i < numMessages; i++)
-        {
-            MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
-            ms->sendSlaves(appMsgs[i]);
-            MARK0("done");
-            CoviseRender::set_applMsg(appMsgs[i]);
-            CoviseRender::handleControllerMessage(); // handles the messange and deletes it
-        }
-        appMsg = NULL;
-        CoviseRender::set_applMsg(appMsg);
-
-#ifdef HAS_MPI
-//if (syncMode == SYNC_MPI)
+//static bool checkAndHandle()
 //{
-//MPI_Barrier(appComm);
+//    coVRMSController *ms = coVRMSController::instance();
+//    if (!ms->isCluster())
+//        return false;
+//
+//    if (cover->debugLevel(5))
+//        fprintf(stderr, "\ncoVRMSController::checkAndHandle\n");
+//
+//    Message *appMsgs[100];
+//    Message *appMsg;
+//    int numMessages = 0;
+//    if (ms->isMaster())
+//    {
+//        MARK0("COVER cluster master checking covise messages");
+//
+//        while ((numMessages < 100) && (appMsg = (CoviseRender::appmod)->check_for_ctl_msg()) != NULL)
+//        {
+//            appMsgs[numMessages] = appMsg;
+//            numMessages++;
+//        }
+//
+//        ms->sendSlaves(&numMessages, sizeof(int));
+//
+//        for (int i = 0; i < numMessages; i++)
+//        {
+//            MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
+//            ms->sendSlaves(appMsgs[i]);
+//            MARK0("done");
+//            CoviseRender::set_applMsg(appMsgs[i]);
+//            CoviseRender::handleControllerMessage(); // handles the messange and deletes it
+//        }
+//        appMsg = NULL;
+//        CoviseRender::set_applMsg(appMsg);
+//
+//#ifdef HAS_MPI
+////if (syncMode == SYNC_MPI)
+////{
+////MPI_Barrier(appComm);
+////}
+//#endif
+//    }
+//    else
+//    {
+//        MARK0("COVER cluster slave reading covise messages from cluster master");
+//
+//        //get number of Messages
+//        if (ms->readMaster(&numMessages, sizeof(int)) < 0)
+//        {
+//            cerr << "sync_exit172 myID=" << ms->getID() << endl;
+//            exit(0);
+//        }
+//        for (int i = 0; i < numMessages; i++)
+//        {
+//            appMsg = new Message;
+//            if (ms->readMaster(appMsg) < 0)
+//            {
+//                cerr << "sync_exit18 myID=" << ms->getID() << endl;
+//                exit(0);
+//            }
+//            MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
+//            MARK0("done");
+//            CoviseRender::set_applMsg(appMsg);
+//            CoviseRender::handleControllerMessage(); //deletes the Message
+//        }
+//        appMsg = NULL;
+//        CoviseRender::set_applMsg(appMsg);
+//
+//#ifdef HAS_MPI
+////if (syncMode == SYNC_MPI)
+////{
+////MPI_Barrier(appComm);
+////}
+//#endif
+//    }
+//    return numMessages > 0;
 //}
-#endif
-    }
-    else
-    {
-        MARK0("COVER cluster slave reading covise messages from cluster master");
-
-        //get number of Messages
-        if (ms->readMaster(&numMessages, sizeof(int)) < 0)
-        {
-            cerr << "sync_exit172 myID=" << ms->getID() << endl;
-            exit(0);
-        }
-        for (int i = 0; i < numMessages; i++)
-        {
-            appMsg = new Message;
-            if (ms->readMaster(appMsg) < 0)
-            {
-                cerr << "sync_exit18 myID=" << ms->getID() << endl;
-                exit(0);
-            }
-            MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
-            MARK0("done");
-            CoviseRender::set_applMsg(appMsg);
-            CoviseRender::handleControllerMessage(); //deletes the Message
-        }
-        appMsg = NULL;
-        CoviseRender::set_applMsg(appMsg);
-
-#ifdef HAS_MPI
-//if (syncMode == SYNC_MPI)
-//{
-//MPI_Barrier(appComm);
-//}
-#endif
-    }
-    return numMessages > 0;
-}
 
 bool
 VRCoviseConnection::update(bool handleOneMessageOnly)
