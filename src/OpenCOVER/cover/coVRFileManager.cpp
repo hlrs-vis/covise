@@ -1626,7 +1626,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 			cover->sendVrbMessage(&m);
 		}
 		int message = 1;
-		Message* msg = new Message;
+		Message* msg; 
 		Message* mymsg = nullptr;
 		//wait for the file
 		if (cover->connectedToCovise())
@@ -1673,6 +1673,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		{
 			do
 			{
+				msg = new Message;
 				if (coVRMSController::instance()->isMaster())
 				{
 					if (vrbc->isConnected())
@@ -1742,10 +1743,6 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		std::string pathToTmpFile = writeTmpFile(getFileName(std::string(filePath)), buf, numBytes);
 		delete mymsg;
 		mymsg = nullptr;
-		if (msg)
-		{
-			delete msg;
-		}
 		return pathToTmpFile;
 	}
 
