@@ -77,8 +77,6 @@ VRCoviseConnection *VRCoviseConnection::covconn = NULL;
 static std::vector<covise::Message*>waitMessages()
 {
 	coVRMSController* ms = coVRMSController::instance();
-	if (!ms->isCluster())
-		return std::vector<covise::Message*>();
 
 	if (cover->debugLevel(5))
 		fprintf(stderr, "\ncoVRMSController::checkAndHandle\n");
