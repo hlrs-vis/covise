@@ -246,8 +246,9 @@ public:
 	//udp socket for server
 	UDPSocket(int p);
     ~UDPSocket();
-    int read(void *buf, unsigned nbyte);
-    int write(const void *buf, unsigned nbyte);
+    int read(void *buf, unsigned nbyte) override;
+	int Read(void* buf, unsigned nbyte) override;
+    int write(const void *buf, unsigned nbyte) override;
 };
 
 #ifdef HAVEMULTICAST

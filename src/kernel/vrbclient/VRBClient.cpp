@@ -167,14 +167,8 @@ int VRBClient::poll(Message *m)
 	{
 		return 0;
 	}
-	if (udpConn->check_for_input())
-	{
-		udpConn->recv_msg(m);
-		return 1;
-	}
+	return udpConn->recv_msg(m);
 
-
-    return 0;
 }
 
 int VRBClient::wait(Message *m)

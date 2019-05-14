@@ -248,7 +248,7 @@ bool VRBServer::startUdpServer()
 	linger.l_linger = 0;
 	setsockopt(udpConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)& linger, sizeof(linger));
 
-	udpConn->listen();
+	//udpConn->listen();
 	if (!udpConn->is_connected()) // could not open server port
 	{
 		fprintf(stderr, "Could not open server port %d\n", port + 1);

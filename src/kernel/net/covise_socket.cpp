@@ -1253,6 +1253,22 @@ int UDPSocket::read(void *buf, unsigned nbyte)
 {
     return (recvfrom(sock_id, (char *)buf, nbyte, 0, NULL, 0));
 }
+int UDPSocket::Read(void* buf, unsigned nbyte)
+{
+	try
+	{
+		int l = (recvfrom(sock_id, (char*)buf, nbyte, 0, NULL, 0));
+		if (l <= 0)
+		{
+			return 0;
+		}
+		else return l;
+	}
+	catch (const std::exception&)
+	{
+		return -1;
+	}
+}
 UDPSocket::~UDPSocket()
 {
 }
