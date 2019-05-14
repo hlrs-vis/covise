@@ -1631,6 +1631,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		//wait for the file
 		if (cover->connectedToCovise())
 		{
+			return "";
 			do
 			{
 				std::vector<covise::Message*> msgs = coVRCommunication::instance()->waitCoviseMessages();
