@@ -386,7 +386,12 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
 }
 void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
 {
-    int t;
+	if (!tb.get_data())
+	{
+		cerr << "invalid vrb render message" << endl;
+		return;
+	}
+	int t;
     tb >> t;
     vrb::vrbMessageType type = (vrbMessageType)t;
     switch (type)
