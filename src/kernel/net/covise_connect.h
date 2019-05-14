@@ -299,7 +299,7 @@ public:
 class NETEXPORT UDPConnection : public Connection
 {
 public:
-    UDPConnection(int id, int s_type, int p, char *address);
+    UDPConnection(int id, int s_type, int p, const char *address);
 };
 #ifdef MULTICAST
 class NETEXPORT MulticastConnection : public Connection

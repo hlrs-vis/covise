@@ -226,8 +226,7 @@ int ServerConnection::listen() // listen for connection (after bind)
     return sock->listen();
 }
 
-UDPConnection::UDPConnection(int id, int s_type, int p,
-                             char *address)
+UDPConnection::UDPConnection(int id, int s_type, int p,  const char *address)
     : Connection()
 {
     sender_id = id;

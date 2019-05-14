@@ -14,6 +14,7 @@
 #include "coVRPluginList.h"
 #include "coVRPlugin.h"
 #include "coVRMSController.h"
+
 #include <OpenVRUI/coUpdateManager.h>
 #include <OpenVRUI/coInteractionManager.h>
 #include <OpenVRUI/coToolboxMenu.h>
@@ -66,6 +67,7 @@
 #include "coVRConfig.h"
 
 #include <grmsg/coGRKeyWordMsg.h>
+
 
 using namespace vrui;
 using namespace grmsg;
@@ -1459,6 +1461,19 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
     }
 
     return false;
+}
+bool coVRPluginSupport::sendVrbUdpMessage(const covise::Message* msg) const
+{
+	if (coVRPluginList::instance()->sendVisMessage(msg))
+	{
+		return true;
+	}
+	else if (vrbc)
+	{
+		return vrbc->sendUdpMessage(msg);
+	}
+
+	return false;
 }
 
 void coVRPluginSupport::personSwitched(size_t personNum)

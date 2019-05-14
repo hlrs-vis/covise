@@ -169,9 +169,17 @@ void VRBServer::processMessages()
 {
     while (Connection *conn = connections->check_for_input(0.0001f))
     {
-        if (conn == sConn) // connection to server port
-        {
-            Connection *clientConn = sConn->spawn_connection();
+		Connection* clientConn = nullptr;
+		if (conn == sConn) // connection to server port
+		{
+			clientConn = sConn->spawn_connection();
+		}
+		if (conn == udpConn)
+		{
+			clientConn = udpConn->spawn_connection();
+		}
+		if(clientConn)
+		{
             struct linger linger;
             linger.l_onoff = 0;
             linger.l_linger = 0;
@@ -228,6 +236,29 @@ void VRBServer::processMessages()
 
         }
     }
+}
+
+bool VRBServer::startUdpServer() 
+{
+	
+	covise::Socket *s = (Socket*)(new UDPSocket(port + 1)); //better define additional udp port in config
+	udpConn = new ServerConnection(s);
+	struct linger linger;
+	linger.l_onoff = 0;
+	linger.l_linger = 0;
+	setsockopt(udpConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)& linger, sizeof(linger));
+
+	udpConn->listen();
+	if (!udpConn->is_connected()) // could not open server port
+	{
+		fprintf(stderr, "Could not open server port %d\n", port + 1);
+		delete udpConn;
+		udpConn = NULL;
+		return (-1);
+	}
+	connections->add(udpConn);
+
+	return 0;
 }
 
 

@@ -54,6 +54,10 @@ int main(int argc, char **argv)
     {
         return -1;
     }
+	if (server.startUdpServer() < 0)
+	{
+		cerr << "failed to open udp socket" << endl;
+	}
     if (!gui)
     {
         server.loop();

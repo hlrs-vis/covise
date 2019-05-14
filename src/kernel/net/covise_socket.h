@@ -242,7 +242,9 @@ protected:
 class NETEXPORT UDPSocket : public Socket
 {
 public:
-    UDPSocket(char *address, int p);
+    UDPSocket(const char *address, int p);
+	//udp socket for server
+	UDPSocket(int p);
     ~UDPSocket();
     int read(void *buf, unsigned nbyte);
     int write(const void *buf, unsigned nbyte);

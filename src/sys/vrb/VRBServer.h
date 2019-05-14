@@ -51,6 +51,7 @@ public:
     VRBServer(bool gui);
     ~VRBServer();
     void loop();
+	bool startUdpServer();
     int openServer();
     void closeServer();
     void removeConnection(covise::Connection *conn) override;
@@ -61,7 +62,7 @@ private:
     QPixmap *pix_master = NULL;
     QPixmap *pix_slave = NULL;
     covise::ServerConnection *sConn = nullptr;
-
+	covise::ServerConnection* udpConn = nullptr;
     QSocketNotifier *serverSN = nullptr;
 
     vrb::VrbMessageHandler *handler;

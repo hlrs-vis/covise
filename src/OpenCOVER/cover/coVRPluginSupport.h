@@ -310,8 +310,11 @@ public:
 
     bool isVRBconnected();
 
-    //! send a message either via COVISE connection or via VRB
+    //! send a message either via COVISE connection or via tcp to VRB
     bool sendVrbMessage(const covise::Message *msg) const;
+
+	//! send a message either via COVISE connection or via udp to VRB
+	bool sendVrbUdpMessage(const covise::Message* msg) const;
 
     // tracker data
 

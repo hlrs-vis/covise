@@ -1144,7 +1144,7 @@ void Socket::print()
 #endif
 }
 
-UDPSocket::UDPSocket(char *address, int p)
+UDPSocket::UDPSocket(const char *address, int p)
 {
     struct sockaddr_in addr;
     struct in_addr grpaddr;
@@ -1217,6 +1217,34 @@ UDPSocket::UDPSocket(char *address, int p)
     s_addr_in.sin_addr = grpaddr;
 }
 
+UDPSocket::UDPSocket(int p)
+{
+	port = p;
+	this->connected = false;
+
+	sock_id = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sock_id < 0)
+	{
+		fprintf(stderr, "creating socket for port %d failed: %s\n", p, coStrerror(getErrno()));
+		sock_id = -1;
+		return;
+	}
+	
+	memset((char*)& s_addr_in, 0, sizeof(s_addr_in));
+	s_addr_in.sin_family = AF_INET;
+	s_addr_in.sin_addr.s_addr = INADDR_ANY;
+	s_addr_in.sin_port = htons(port);
+	// Assign a name to the socket.
+	errno = 0;
+	if (bind(sock_id, (sockaddr*)(void*)& s_addr_in, sizeof(s_addr_in)) < 0)
+	{
+		fprintf(stderr, "binding of udp socket to port %d failed: %s\n",
+			p, coStrerror(getErrno()));
+		sock_id = -1;
+		return;
+	}
+	host = new Host(s_addr_in.sin_addr.s_addr);
+}
 int UDPSocket::write(const void *buf, unsigned nbyte)
 {
     return (sendto(sock_id, (char *)buf, nbyte, 0, (sockaddr *)(void *)&s_addr_in, sizeof(struct sockaddr_in)));
