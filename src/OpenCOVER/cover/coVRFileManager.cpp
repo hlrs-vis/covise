@@ -1619,7 +1619,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 		{
 			TokenBuffer rtb;
 			rtb << filePath;
-			rtb << vrbc->getID();
+			rtb << coVRCommunication::instance()->getID();
 			rtb << fileOwner;
 			Message m(rtb);
 			m.type = COVISE_MESSAGE_VRB_REQUEST_FILE;
