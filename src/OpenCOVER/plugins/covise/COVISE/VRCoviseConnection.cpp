@@ -120,7 +120,10 @@ static std::vector<covise::Message*>waitClusterMessages()
 			cerr << "sync_exit172 myID=" << ms->getID() << endl;
 			exit(0);
 		}
-		cerr << "COVER slave reading " << numMessages << " messages ";
+		if (numMessages > 0)
+		{
+			cerr << "COVER slave reading " << numMessages << " messages ";
+		}
 		for (int i = 0; i < numMessages; i++)
 		{
 			appMsg = new Message;
@@ -129,13 +132,16 @@ static std::vector<covise::Message*>waitClusterMessages()
 				cerr << "sync_exit18 myID=" << ms->getID() << endl;
 				exit(0);
 			}
-			cerr <<  i << ", " << endl;
+			cerr <<  i << ", ";
 			MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
 			MARK0("done");
 			appMsgs[i] = appMsg;
 		}
 		++messageCount;
-		cerr << " succsessfull (msgNum = " << messageCount << endl;
+		if (numMessages)
+		{
+			cerr << " succsessfull (msgNum = " << messageCount << endl;
+		}
 	}
 	return std::vector<covise::Message*>(appMsgs, appMsgs + numMessages);
 }
