@@ -701,17 +701,33 @@ void CoviseRender::do_one_event()
 
 int CoviseRender::check_and_handle_event(float time)
 {
-
-    if (appmod == 0)
+	covise::Message* msg = check_event(time);
+	
+	if (!msg)
         return 0;
 
-    applMsg = appmod->check_for_ctl_msg(time);
-    if (applMsg == NULL)
-        return 0;
-
-    handleControllerMessage(); /// use global applMsg
+	handle_event(msg);
 
     return 1;
+}
+covise::Message* CoviseRender::check_event(float time)
+{
+
+	if (!appmod)
+		return nullptr;
+
+	covise::Message* msg = appmod->check_for_ctl_msg(time);
+	return msg;
+}
+void CoviseRender::handle_event(covise::Message *msg)
+{
+	if (!msg)
+	{
+		return;
+	}
+	applMsg = msg;
+	handleControllerMessage(); /// use global applMsg
+	applMsg = nullptr;
 }
 
 //=====================================================================

@@ -105,6 +105,8 @@ public:
 
     static void sendFinishedMsg();
     static int check_and_handle_event(float time = 0.0);
+	static covise::Message* check_event(float time = 0.0);
+	static void handle_event(covise::Message* msg);
     static void do_one_event();
     static void ReceiveOneMsg();
     static int deleteConnection();

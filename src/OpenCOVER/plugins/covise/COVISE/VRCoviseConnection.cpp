@@ -74,7 +74,7 @@ using namespace covise;
 using namespace grmsg;
 
 VRCoviseConnection *VRCoviseConnection::covconn = NULL;
-static std::vector<covise::Message*>waitMessages()
+static std::vector<covise::Message*>waitClusterMessages()
 {
 	coVRMSController* ms = coVRMSController::instance();
 
@@ -120,13 +120,18 @@ static std::vector<covise::Message*>waitMessages()
 	}
 	return std::vector<covise::Message*>(appMsgs, appMsgs + numMessages);
 }
-static void handleMessages(covise::Message* msg)
+static std::vector<covise::Message*>waitMessages()
+{
+	std::vector<covise::Message*> msgs;
+	while (covise::Message *msg = CoviseRender::check_event())
+	{
+		msgs.push_back(msg);
+	}
+	return msgs;
+}
+static void handleMessage(covise::Message* msg)
 {
 	coVRMSController* ms = coVRMSController::instance();
-	if (!ms->isCluster())
-		return;
-
-
 	if (ms->isMaster())
 	{
 
@@ -134,21 +139,26 @@ static void handleMessages(covise::Message* msg)
 		ms->sendSlaves(msg);
 		MARK0("done");
 	}
-	CoviseRender::set_applMsg(msg);
-	CoviseRender::handleControllerMessage(); // handles the messange and deletes it
-
-	CoviseRender::set_applMsg(nullptr);
+	CoviseRender::handle_event(msg);// handles the messange and deletes it
 }
 static bool checkAndHandle()
 {
-	std::vector<covise::Message*> msgs = waitMessages();
+	std::vector<covise::Message*> msgs;
+	if (coVRMSController::instance()->isCluster())
+	{
+		msgs = waitClusterMessages();
+	}
+	else
+	{
+		msgs = waitMessages();
+	}
 	if (msgs.size() == 0)
 	{
 		return false;
 	}
 	for (auto msg : msgs)
 	{
-		handleMessages(msg);
+		handleMessage(msg);
 	}
 	return true;
 }
@@ -185,8 +195,16 @@ VRCoviseConnection::VRCoviseConnection()
 
     CoviseRender::set_param_callback(VRCoviseConnection::paramCallback, this);
     CoviseRender::send_ui_message("MODULE_DESC", "Newest VR-Renderer");
-	coVRCommunication::instance()->setWaitMessagesCallback(waitMessages);
-	coVRCommunication::instance()->setHandleMessageCallback(handleMessages);
+
+	if (coVRMSController::instance()->isCluster())
+	{
+		coVRCommunication::instance()->setWaitMessagesCallback(waitClusterMessages);
+	}
+	else
+	{
+		coVRCommunication::instance()->setWaitMessagesCallback(waitMessages);
+	}
+	coVRCommunication::instance()->setHandleMessageCallback(handleMessage);
 }
 
 VRCoviseConnection::~VRCoviseConnection()
