@@ -87,13 +87,14 @@ static std::vector<covise::Message*>waitClusterMessages()
 	if (ms->isMaster())
 	{
 		MARK0("COVER cluster master checking covise messages");
-
+		cerr << "COVER cluster master start checking covise messages" << endl;
 		while ((numMessages < 100) && (appMsg = (CoviseRender::appmod)->check_for_ctl_msg()) != NULL)
 		{
 			appMsgs[numMessages] = appMsg;
 			numMessages++;
 		}
 		ms->sendSlaves(&numMessages, sizeof(int));
+		cerr << "sendSlaves " << numMessages << endl;
 		if (ms->isMaster())
 		{
 
@@ -104,6 +105,7 @@ static std::vector<covise::Message*>waitClusterMessages()
 				MARK0("done");
 			}
 		}
+		cerr << "COVER cluster master send finished" << endl;
 	}
 	else
 	{
@@ -115,18 +117,22 @@ static std::vector<covise::Message*>waitClusterMessages()
 			cerr << "sync_exit172 myID=" << ms->getID() << endl;
 			exit(0);
 		}
+		cerr << "cover slave read master " << numMessages << "messages" << endl;
 		for (int i = 0; i < numMessages; i++)
 		{
+			cerr << "reading msg " << i;
 			appMsg = new Message;
 			if (ms->readMaster(appMsg) < 0)
 			{
 				cerr << "sync_exit18 myID=" << ms->getID() << endl;
 				exit(0);
 			}
+			cerr << "succsessfull" << endl;
 			MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
 			MARK0("done");
 			appMsgs[i] = appMsg;
 		}
+		cerr << "cover slave finished read read master " << endl;
 	}
 	return std::vector<covise::Message*>(appMsgs, appMsgs + numMessages);
 }
@@ -141,7 +147,6 @@ static std::vector<covise::Message*>waitMessages()
 }
 static void handleMessage(covise::Message* msg)
 {
-	coVRMSController* ms = coVRMSController::instance();
 	CoviseRender::handle_event(msg);// handles the messange and deletes it
 }
 static bool checkAndHandle()
