@@ -94,6 +94,16 @@ static std::vector<covise::Message*>waitClusterMessages()
 			numMessages++;
 		}
 		ms->sendSlaves(&numMessages, sizeof(int));
+		if (ms->isMaster())
+		{
+
+			for (size_t i = 0; i < numMessages; i++)
+			{
+				MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
+				ms->sendSlaves(appMsgs[i]);
+				MARK0("done");
+			}
+		}
 	}
 	else
 	{
@@ -132,13 +142,6 @@ static std::vector<covise::Message*>waitMessages()
 static void handleMessage(covise::Message* msg)
 {
 	coVRMSController* ms = coVRMSController::instance();
-	if (ms->isMaster())
-	{
-
-		MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[msg->type]);
-		ms->sendSlaves(msg);
-		MARK0("done");
-	}
 	CoviseRender::handle_event(msg);// handles the messange and deletes it
 }
 static bool checkAndHandle()
@@ -162,63 +165,6 @@ static bool checkAndHandle()
 	}
 	return true;
 }
-VRCoviseConnection::VRCoviseConnection()
-{
-    covconn = this;
-    exitFlag = false;
-    if (cover->debugLevel(3))
-        fprintf(stderr, "new VRCoviseConnection\n");
-
-    CoviseRender::reset();
-    CoviseRender::set_module_description("Newest VR-Renderer");
-    CoviseRender::add_port(INPUT_PORT, "RenderData", "ColorMap|Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float|Vec3", "render geometry");
-    CoviseRender::add_port(PARIN, "Viewpoints", "Browser", "Viewpoints");
-    CoviseRender::set_port_default("Viewpoints", "./default.vwp");
-    CoviseRender::add_port(PARIN, "Viewpoints___filter", "BrowserFilter", "Viewpoints");
-    CoviseRender::set_port_default("Viewpoints___filter", "Viewpoints *.vwp/*");
-    CoviseRender::add_port(PARIN, "Plugins", "String", "Additional plugins");
-    CoviseRender::set_port_default("Plugins", "");
-
-    // only used, when embedded="true" in WindowConfig
-    CoviseRender::add_port(PARIN, "WindowID", "IntScalar", "window ID to render to");
-    CoviseRender::set_port_default("WindowID", "0");
-
-    if (coVRMSController::instance()->isMaster())
-        CoviseRender::init(coCommandLine::argc(), coCommandLine::argv());
-
-    CoviseRender::set_render_callback(VRCoviseConnection::renderCallback, this);
-    CoviseRender::set_master_switch_callback(VRCoviseConnection::masterSwitchCallback, this);
-    CoviseRender::set_quit_info_callback(VRCoviseConnection::quitInfoCallback, this);
-    CoviseRender::set_add_object_callback(VRCoviseConnection::addObjectCallback, this);
-    CoviseRender::set_covise_error_callback(VRCoviseConnection::coviseErrorCallback, this);
-    CoviseRender::set_delete_object_callback(VRCoviseConnection::deleteObjectCallback, this);
-
-    CoviseRender::set_param_callback(VRCoviseConnection::paramCallback, this);
-    CoviseRender::send_ui_message("MODULE_DESC", "Newest VR-Renderer");
-
-	if (coVRMSController::instance()->isCluster())
-	{
-		coVRCommunication::instance()->setWaitMessagesCallback(waitClusterMessages);
-	}
-	else
-	{
-		coVRCommunication::instance()->setWaitMessagesCallback(waitMessages);
-	}
-	coVRCommunication::instance()->setHandleMessageCallback(handleMessage);
-}
-
-VRCoviseConnection::~VRCoviseConnection()
-{
-    if (cover->debugLevel(2))
-        fprintf(stderr, "delete VRCoviseConnection\n");
-}
-
-void VRCoviseConnection::sendQuit()
-{
-
-    CoviseRender::send_ui_message("DEL_REQ", "");
-}
-
 //static bool checkAndHandle()
 //{
 //    coVRMSController *ms = coVRMSController::instance();
@@ -296,6 +242,64 @@ void VRCoviseConnection::sendQuit()
 //    }
 //    return numMessages > 0;
 //}
+VRCoviseConnection::VRCoviseConnection()
+{
+    covconn = this;
+    exitFlag = false;
+    if (cover->debugLevel(3))
+        fprintf(stderr, "new VRCoviseConnection\n");
+
+    CoviseRender::reset();
+    CoviseRender::set_module_description("Newest VR-Renderer");
+    CoviseRender::add_port(INPUT_PORT, "RenderData", "ColorMap|Geometry|UnstructuredGrid|Points|Spheres|StructuredGrid|Polygons|TriangleStrips|Lines|Float|Vec3", "render geometry");
+    CoviseRender::add_port(PARIN, "Viewpoints", "Browser", "Viewpoints");
+    CoviseRender::set_port_default("Viewpoints", "./default.vwp");
+    CoviseRender::add_port(PARIN, "Viewpoints___filter", "BrowserFilter", "Viewpoints");
+    CoviseRender::set_port_default("Viewpoints___filter", "Viewpoints *.vwp/*");
+    CoviseRender::add_port(PARIN, "Plugins", "String", "Additional plugins");
+    CoviseRender::set_port_default("Plugins", "");
+
+    // only used, when embedded="true" in WindowConfig
+    CoviseRender::add_port(PARIN, "WindowID", "IntScalar", "window ID to render to");
+    CoviseRender::set_port_default("WindowID", "0");
+
+    if (coVRMSController::instance()->isMaster())
+        CoviseRender::init(coCommandLine::argc(), coCommandLine::argv());
+
+    CoviseRender::set_render_callback(VRCoviseConnection::renderCallback, this);
+    CoviseRender::set_master_switch_callback(VRCoviseConnection::masterSwitchCallback, this);
+    CoviseRender::set_quit_info_callback(VRCoviseConnection::quitInfoCallback, this);
+    CoviseRender::set_add_object_callback(VRCoviseConnection::addObjectCallback, this);
+    CoviseRender::set_covise_error_callback(VRCoviseConnection::coviseErrorCallback, this);
+    CoviseRender::set_delete_object_callback(VRCoviseConnection::deleteObjectCallback, this);
+
+    CoviseRender::set_param_callback(VRCoviseConnection::paramCallback, this);
+    CoviseRender::send_ui_message("MODULE_DESC", "Newest VR-Renderer");
+
+	if (coVRMSController::instance()->isCluster())
+	{
+		coVRCommunication::instance()->setWaitMessagesCallback(waitClusterMessages);
+	}
+	else
+	{
+		coVRCommunication::instance()->setWaitMessagesCallback(waitMessages);
+	}
+	coVRCommunication::instance()->setHandleMessageCallback(handleMessage);
+}
+
+VRCoviseConnection::~VRCoviseConnection()
+{
+    if (cover->debugLevel(2))
+        fprintf(stderr, "delete VRCoviseConnection\n");
+}
+
+void VRCoviseConnection::sendQuit()
+{
+
+    CoviseRender::send_ui_message("DEL_REQ", "");
+}
+
+
 
 bool
 VRCoviseConnection::update(bool handleOneMessageOnly)
