@@ -151,6 +151,9 @@ public:
     //! camera stream are allowed to be send to remote
     bool getCallCameraEnabled();
 
+    //! get current linphone state
+    LinphoneClientState getCurrentState();
+
     //! easier readability for debugging purposes
     std::string getStateString(LinphoneClientState);
 

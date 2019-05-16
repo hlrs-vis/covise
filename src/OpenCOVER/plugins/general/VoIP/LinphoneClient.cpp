@@ -743,6 +743,15 @@ bool LinphoneClient::getCallCameraEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! get current linphone state
+// ------------------------------------------------------------------------
+LinphoneClientState LinphoneClient::getCurrentState()
+{
+    return lp_state;
+}
+
+
+// ------------------------------------------------------------------------
 //! easier readability for debugging purposes
 // ------------------------------------------------------------------------
 std::string LinphoneClient::getStateString(LinphoneClientState state)
