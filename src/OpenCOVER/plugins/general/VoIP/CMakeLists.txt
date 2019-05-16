@@ -1,10 +1,12 @@
 #OpenCOVER plugins general VoIP
 
 SET(HEADERS
+  LinphoneClient.h
   VoIP.h
 )
 
 SET(SOURCES
+  LinphoneClient.cpp
   VoIP.cpp
 )
 
@@ -20,6 +22,7 @@ TARGET_LINK_LIBRARIES(VoIP
 )
 
 add_definitions(
+  -Wno-deprecated-declarations
   -DVOIP_DEBUG
   -D_REENTRANT
   -DORTP_INET6
