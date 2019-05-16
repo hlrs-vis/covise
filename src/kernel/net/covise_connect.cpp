@@ -231,7 +231,7 @@ UDPConnection::UDPConnection(int id, int s_type, int p,  const char *address)
 {
     sender_id = id;
     send_type = s_type;
-    sock = (Socket *)(new UDPSocket(address, p));
+    sock = (Socket *)(new UDPSocket(p, address));
     port = p;
 }
 

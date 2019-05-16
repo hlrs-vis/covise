@@ -161,22 +161,19 @@ void VRBServer::loop()
 {
     while (1)
     {
-        processMessages();
+		processUdpMessages();
+		processMessages();
     }
 }
 
 void VRBServer::processMessages()
 {
-    while (Connection *conn = connections->check_for_input(0.0001f))
+	while (Connection *conn = connections->check_for_input(0.0001f))
     {
 		Connection* clientConn = nullptr;
 		if (conn == sConn) // connection to server port
 		{
 			clientConn = sConn->spawn_connection();
-		}
-		if (conn == udpConn)
-		{
-			clientConn = udpConn->spawn_connection();
 		}
 		if(clientConn)
 		{
@@ -190,6 +187,7 @@ void VRBServer::processMessages()
                 QSocketNotifier *sn = new QSocketNotifier(clientConn->get_id(NULL), QSocketNotifier::Read);
                 QObject::connect(sn, SIGNAL(activated(int)),
                     this, SLOT(processMessages()));
+
                 VrbUiClient *cl = new VrbUiClient(clientConn, sn);
                 handler->addClient(cl);
                 std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
@@ -237,7 +235,15 @@ void VRBServer::processMessages()
         }
     }
 }
-
+void VRBServer::processUdpMessages()
+{
+	covise::Message* msg = new covise::Message;
+	while (udpConn->recv_msg(msg))
+	{
+		handler->handleMessage(msg);
+	}
+	delete msg;
+}
 bool VRBServer::startUdpServer() 
 {
 	
@@ -247,8 +253,12 @@ bool VRBServer::startUdpServer()
 	linger.l_onoff = 0;
 	linger.l_linger = 0;
 	setsockopt(udpConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)& linger, sizeof(linger));
-	connections->add(udpConn);
-
+	if (m_gui)
+	{
+		QSocketNotifier* sn = new QSocketNotifier(udpConn->get_id(NULL), QSocketNotifier::Read);
+		QObject::connect(sn, SIGNAL(activated(int)),
+			this, SLOT(processUdpMessages()));
+	}
 	return 0;
 }
 

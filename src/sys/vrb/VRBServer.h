@@ -51,6 +51,7 @@ public:
     VRBServer(bool gui);
     ~VRBServer();
     void loop();
+	void processUdpMessages();
 	bool startUdpServer();
     int openServer();
     void closeServer();
