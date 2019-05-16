@@ -408,9 +408,17 @@ VRBMessageSender * coVRPluginSupport::getSender()
     return &m_sender;
 }
 
-void coVRPluginSupport::connectToCovise()
+void coVRPluginSupport::connectToCovise(bool connected)
 {
-	m_connectedToCovise = true;
+	if (coVRMSController::instance()->isMaster())
+	{
+		coVRMSController::instance()->sendSlaves((bool*)&connected, sizeof(connected));
+	}
+	else
+	{
+		coVRMSController::instance()->readMaster((bool*)& connected, sizeof(connected));
+	}
+	m_connectedToCovise = connected;
 }
 
 bool coVRPluginSupport::connectedToCovise()

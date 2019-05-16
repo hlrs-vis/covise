@@ -52,6 +52,7 @@
 	
    <VRB>
     <Server value="localhost" port="31200" />
+	<remoteFetch value="true" />
    </VRB>
 
    <CRB>

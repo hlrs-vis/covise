@@ -526,7 +526,7 @@ public:
 
     void setRenderStrategy(osg::Drawable *draw, bool dynamic=false);
     VRBMessageSender *getSender();
-	void connectToCovise();
+	void connectToCovise(bool connected);
 	bool connectedToCovise();
 private:
 	bool m_connectedToCovise = false;

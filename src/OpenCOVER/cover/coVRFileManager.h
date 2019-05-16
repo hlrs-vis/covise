@@ -124,9 +124,13 @@ public:
 
     // returns the full path for file
     const char *getName(const char *file);
-    //if filePath starts with sharedDataPath, return true and removes sharedDataPath from filePath. Ignore upper/lower case differences
-    bool relativePath(std::string &fileName);
-    //search file locally, in sharedData and then try to remote fetch the file until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
+    //if filePath starts with sharedDataPath, return true and remove sharedDataPath from filePath. Ignore upper/lower case differences
+    bool makeRelativeToSharedDataLink(std::string &fileName);
+	//return true if fileName contains tmp path
+	bool isInTmpDir(const std::string& fileName);
+	//changes fileName to be relative to basePath
+	bool makeRelativePath(std::string& fileName, const std::string& basePath);
+    //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
     std::string findOrGetFile(const std::string &fileName, bool isTmp = false);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
@@ -205,7 +209,8 @@ public:
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
-
+	//set in 'config/system/vrb/remoteFetch value = "true"' to enable remote fetch. 
+	bool remote_fetch_enabled = false;
     std::string viewPointFile;
     int m_loadCount = 0;
     std::unique_ptr<ui::Owner> m_owner;
@@ -269,6 +274,7 @@ private:
 	std::string writeTmpFile(const std::string& fileName, const char* content, int size);
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
 	int guessFileOwner(const std::string& filePath);
+	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
 	std::vector<covise::Message*> m_sendFileMessages;
 };
 }

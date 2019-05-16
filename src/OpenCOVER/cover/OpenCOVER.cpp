@@ -635,11 +635,10 @@ bool OpenCOVER::init()
         //fprintf(stderr, "no covise connection\n");
     }
     hud = coHud::instance();
-
+	cover->connectToCovise(loadCovisePlugin);
     loadCovisePlugin = coVRMSController::instance()->syncBool(loadCovisePlugin);
     if (loadCovisePlugin)
     {
-		cover->connectToCovise();
 		m_visPlugin = coVRPluginList::instance()->addPlugin("COVISE");
         if (!m_visPlugin)
         {
@@ -851,7 +850,6 @@ bool OpenCOVER::init()
     //connect to covise vrb
 	if (loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
-		cover->connectToCovise();
 		char * coviseModuleID = coCommandLine::argv(4);
         char *ipAdress = coCommandLine::argv(5);
 		cerr << "I am local master " << coviseModuleID << ", my ip is " << ipAdress << endl;

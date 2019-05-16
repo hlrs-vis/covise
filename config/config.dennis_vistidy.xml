@@ -52,6 +52,7 @@
 	
    <VRB>
     <Server value="vistidy.hlrs.de" port="31201" />
+	<remoteFetch value = "true" />
    </VRB>
 
    <CRB>

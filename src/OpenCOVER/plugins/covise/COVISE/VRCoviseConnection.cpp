@@ -94,20 +94,16 @@ static std::vector<covise::Message*>waitClusterMessages()
 			numMessages++;
 		}
 		ms->sendSlaves(&numMessages, sizeof(int));
-		if (ms->isMaster())
+		for (size_t i = 0; i < numMessages; i++)
 		{
-
-			for (size_t i = 0; i < numMessages; i++)
-			{
-				MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
-				ms->sendSlaves(appMsgs[i]);
-				MARK0("done");
-			}
+			MARK1("COVER cluster master send [%s] to cluster slave", covise_msg_types_array[appMsgs[i]->type]);
+			ms->sendSlaves(appMsgs[i]);
+			MARK0("done");
 		}
 		if (numMessages > 0)
 		{
 			++messageCount;
-			cerr << "COVER cluster master sending " << numMessages << " to slaves (msgNum = " << numMessages <<")" << endl;
+			cerr << "COVER cluster master sending " << numMessages << " to slaves (msgNum = " << messageCount <<")" << endl;
 		}
 	}
 	else
@@ -132,14 +128,14 @@ static std::vector<covise::Message*>waitClusterMessages()
 				cerr << "sync_exit18 myID=" << ms->getID() << endl;
 				exit(0);
 			}
-			cerr <<  i << ", ";
-			MARK1("COVER cluster slave reveived [%s] from cluster master", covise_msg_types_array[appMsg->type]);
+			cerr <<  i+1 << ", ";
+			MARK1("COVER cluster slave received [%s] from cluster master", covise_msg_types_array[appMsg->type]);
 			MARK0("done");
 			appMsgs[i] = appMsg;
 		}
-		++messageCount;
 		if (numMessages)
 		{
+			++messageCount;
 			cerr << " succsessfull (msgNum = " << messageCount << endl;
 		}
 	}
