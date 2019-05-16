@@ -35,7 +35,7 @@ VoIPPlugin::VoIPPlugin()
     identity.displayname = coCoviseConfig::getEntry("displayname", "COVER.Plugin.VoIP.Identity", "displayname");
     identity.username = coCoviseConfig::getEntry("username", "COVER.Plugin.VoIP.Identity", "username");
     identity.password = coCoviseConfig::getEntry("password", "COVER.Plugin.VoIP.Identity", "password");
-    
+
     std::vector<std::string> contactsRead = coCoviseConfig::getScopeNames("COVER.Plugin.VoIP", "contact");
 
     for(std::vector<std::string>::iterator it = contactsRead.begin(); it != contactsRead.end(); ++it) 
@@ -92,6 +92,22 @@ bool VoIPPlugin::init()
 #endif
     
     createMenu();
+
+    if (coCoviseConfig::isOn("autoregistration", "COVER.Plugin.VoIP.SIPServer", false) == true)
+    {
+        bool success = lpc->doRegistration(identity.sipaddress, identity.password);
+
+        // here all we know is that the initiation was successful or was not
+        if (success)
+        {
+            menuCheckboxRegister->setState(true);
+            menuCheckboxRegister->setLabel("Registering ...");
+        }
+        else
+        {
+            menuCheckboxRegister->setState(false);
+        }
+    }
     
     return true;
 }
