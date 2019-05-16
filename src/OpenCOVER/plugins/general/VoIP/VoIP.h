@@ -76,6 +76,7 @@ protected:
     vrui::coSubMenuItem* menuContactListItem = nullptr;
     vrui::coLabelMenuItem* menuLabelSIPAddress = nullptr;
     vrui::coLabelMenuItem* menuLabelCallNameOfPartner = nullptr;
+    vrui::coLabelMenuItem* menuLabelCallState = nullptr;
     vrui::coRowMenu* menuVoIP = nullptr;
     vrui::coRowMenu* menuAudio = nullptr;
     vrui::coRowMenu* menuVideo = nullptr;

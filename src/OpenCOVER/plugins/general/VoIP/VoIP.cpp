@@ -137,6 +137,39 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
             menuCheckboxRegister->setLabel("Register");
         }
     }
+    else if (oldState == LinphoneClientState::registered)
+    {
+        if (currentState == LinphoneClientState::callInProgress)
+        {
+            menuLabelCallState->setLabel("Call: in progress");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: initiating failed");
+        }
+    }
+    else if (oldState == LinphoneClientState::callInProgress)
+    {
+        if (currentState == LinphoneClientState::callRinging)
+        {
+            menuLabelCallState->setLabel("Call: ringing ...");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: call failed");
+        }
+    }
+    else if (oldState == LinphoneClientState::callRinging)
+    {
+        if (currentState == LinphoneClientState::callConnected)
+        {
+            menuLabelCallState->setLabel("Call: connected");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: call failed");
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -184,6 +217,9 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
         if (it != menuContacts.end())
         {
             lpc->initiateCall((*contact).sipaddress);
+
+            menuLabelCallState->setLabel("Call: in progress");
+            menuLabelCallNameOfPartner->setLabel("Addr: " + (*contact).sipaddress);
         }
     }
 }
@@ -212,8 +248,8 @@ void VoIPPlugin::createMenu()
     
     menuCall =  new vrui::coRowMenu("Call");
 
-    menuLabelCallNameOfPartner = new vrui::coLabelMenuItem("Call: -");
-    menuCall->add(menuLabelCallNameOfPartner);
+    menuLabelCallState = new vrui::coLabelMenuItem("Call: -");
+    menuCall->add(menuLabelCallState);
     menuLabelCallNameOfPartner = new vrui::coLabelMenuItem("Addr: -");
     menuCall->add(menuLabelCallNameOfPartner);
     menuButtonHangUp = new vrui::coButtonMenuItem("Hang Up");
@@ -448,6 +484,7 @@ void VoIPPlugin::destroyMenu()
     delete menuLabelRingerDeviceList;
     delete menuLabelVideoDeviceList;
     delete menuLabelCallNameOfPartner;
+    delete menuLabelCallState;
     delete menuCheckboxSpkrMute;
     
     for(vector<vrui::coCheckboxMenuItem*>::iterator it = menuCaptureDevices.begin();
