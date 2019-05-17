@@ -1280,10 +1280,13 @@ namespace visionaray
             if (impl_->triangles[i].empty())
                 continue;
 
-            impl_->host_bvhs[i] = build<host_bvh_type>(
+            binned_sah_builder builder;
+            builder.enable_spatial_splits(impl_->state->data_var == Static);
+
+            impl_->host_bvhs[i] = builder.build(
+                    host_bvh_type{},
                     impl_->triangles[i].data(),
-                    impl_->triangles[i].size(),
-                    impl_->state->data_var == Static /* consider spatial splits if scene is static */
+                    impl_->triangles[i].size()
                     );
         }
 
