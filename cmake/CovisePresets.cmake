@@ -229,7 +229,12 @@ ENDIF()
 
 if(APPLE)
    if(BASEARCHSUFFIX STREQUAL "libc++")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wno-stdlibcxx-not-found")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+      include(CheckCXXCompilerFlag)
+      check_cxx_compiler_flag("-Wno-stdlibcxx-not-found" have_wno_stdlibcxx_not_found)
+      if(${have_wno_stdlibcxx_not_found})
+         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -Wno-stdlibcxx-not-found")
+      endif()
    endif()
 endif(APPLE)
 
