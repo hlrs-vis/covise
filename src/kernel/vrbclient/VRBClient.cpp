@@ -213,7 +213,8 @@ int VRBClient::wait(Message *m, int messageType)
             Message *msg = new Message(*m);
             messageQueue.append(msg);
         }
-
+        if(udpConn)
+        {
 		ret = udpConn->recv_msg(m);
 		if (m->type == messageType)
 		{
@@ -224,6 +225,7 @@ int VRBClient::wait(Message *m, int messageType)
 			Message* msg = new Message(*m);
 			messageQueue.append(msg);
 		}
+        }
 
 
     }
@@ -448,7 +450,10 @@ int VRBClient::connectToUdpServer()
 
 void VRBClient::setupUdpConn() 
 {
+    if(serverHost)
+    {
 	udpConn = new UDPConnection(0, 0, udpPort, serverHost->getAddress());
+    }
 }
 
 void VRBClient::setID(int i)
