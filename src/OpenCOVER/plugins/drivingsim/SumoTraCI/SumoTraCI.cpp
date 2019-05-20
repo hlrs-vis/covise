@@ -343,25 +343,32 @@ void SumoTraCI::updateVehiclePosition()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-            if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
-            {
-                loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
-            }
+			if (pedestrianModels.size() > 0)
+			{
+				if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
+				{
+					loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+				}
+			}
         }
         else
         {
-            // new vehicle appeared
-            if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
-            {
-                loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
-            }
-            else
-            {
-                /*osg::Matrix rmat,tmat;
-            rmat.makeRotate(orientation);
-            tmat.makeTranslate(currentResults[i].position);
-            loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
-            }
+			auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
+			if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
+			{
+				// new vehicle appeared
+				if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+				{
+					loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+				}
+				else
+				{
+					/*osg::Matrix rmat,tmat;
+				rmat.makeRotate(orientation);
+				tmat.makeTranslate(currentResults[i].position);
+				loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
+				}
+			}
         }
     }
 }
