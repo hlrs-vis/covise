@@ -83,6 +83,15 @@ private:
     ui::Menu *traciMenu;
 	ui::Button *pedestriansVisible;
 	ui::Button *pauseUI;
+	ui::Button *addTrafficUI;
+	ui::Slider *trafficRateUI;
+
+	//Modal split
+	ui::Slider *modalSplitPassengerUI;
+	ui::Slider *modalSplitBusUI;
+	ui::Slider *modalSplitCyclingUI;
+	ui::Slider *modalSplitWalkingUI;
+	std::map<std::string, ui::Slider*> modalSplits;
 	
     bool m_pedestrianVisible = true;
     void setPedestriansVisible(bool);
@@ -119,8 +128,11 @@ private:
     double previousTime;
     double currentTime;
     double framedt;
+	double lastParticipantStartedTime;
 	std::vector<int> variables;
 	std::map<const std::string, AgentVehicle *> loadedVehicles;
+
+	int uniqueIDValue = 0;
 
 	void subscribeToSimulation();
 	void updateVehiclePosition();

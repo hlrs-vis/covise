@@ -38,6 +38,7 @@
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
+#include <cover/ui/Slider.h>
 
 
 int gPrecision;
@@ -134,6 +135,7 @@ bool SumoTraCI::init()
     }
     previousResults = currentResults;
     simTime = cover->frameTime();
+	currentTime = cover->frameTime();
 
     if(coVRMSController::instance()->isMaster())
     {
@@ -173,6 +175,39 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
     });
 	pauseUI = new ui::Button(traciMenu, "Pause");
 
+	addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
+	addTrafficUI->setText("Add new Persons");
+	addTrafficUI->setState(false);
+	
+	trafficRateUI = new ui::Slider(traciMenu, "timeBetweenNew");
+	trafficRateUI->setText("seconds until new traffic participant starts route");
+	trafficRateUI->setBounds(0.0, 60.0);
+	trafficRateUI->setPresentation(ui::Slider::AsDial);
+	trafficRateUI->setValue(1.0);
+
+	//Modal Split
+	modalSplitBusUI = new  ui::Slider(traciMenu, "modalSplitBus");
+	modalSplits.insert(std::pair<std::string, ui::Slider *>("bus", modalSplitBusUI));
+	modalSplitBusUI->setBounds(0.0, 100.0);
+	modalSplitBusUI->setValue(25.0);
+
+	modalSplitCyclingUI = new  ui::Slider(traciMenu, "modalSplitCycling");
+	modalSplits.insert(std::pair<std::string, ui::Slider *>("bicycle", modalSplitCyclingUI));
+	modalSplitCyclingUI->setBounds(0.0, 100.0);
+	modalSplitCyclingUI->setValue(25.0);
+	
+	modalSplitPassengerUI = new  ui::Slider(traciMenu, "modalSplitPassenger");
+	modalSplits.insert(std::pair<std::string, ui::Slider *>("passenger", modalSplitPassengerUI));
+	modalSplitPassengerUI->setBounds(0.0, 100.0);
+	modalSplitPassengerUI->setValue(25.0);
+	
+	modalSplitWalkingUI =  new ui::Slider(traciMenu, "modalSplitWalking");
+	modalSplits.insert(std::pair<std::string, ui::Slider *>("pedestrian", modalSplitWalkingUI));
+	modalSplitWalkingUI->setBounds(0.0, 100.0);
+	modalSplitWalkingUI->setValue(25.0);
+	
+	//balanceModalSplits();
+	
     return true;
 }
 
@@ -182,6 +217,27 @@ void SumoTraCI::preFrame()
     previousTime = currentTime;
     currentTime = cover->frameTime();
     framedt = currentTime - previousTime;
+	if (addTrafficUI->state() && (trafficRateUI->value() < (currentTime - lastParticipantStartedTime)))
+	{
+		static std::mt19937 gen(0);
+		std::uniform_real_distribution<> dis(0.0, 100.0);
+		double mode = dis(gen);
+		std::string newPerson;
+		for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+		{
+			mode -= iter->second->value();
+			newPerson = iter->first.c_str();
+			if (mode <= 0)
+				break;
+		}
+		fprintf(stderr, "Random Vehicle will be %s \n", newPerson.c_str());
+
+		std::vector<std::string> routes = client.route.getIDList();
+		std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
+		uniqueIDValue++;
+		client.vehicle.add(uniqueID,*routes.begin());
+		lastParticipantStartedTime = currentTime;
+	}
     if ((currentTime - nextSimTime) > 1)
     {
         subscribeToSimulation();
@@ -353,7 +409,7 @@ void SumoTraCI::updateVehiclePosition()
         }
         else
         {
-			auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
+			auto matchingType = vehicleModelMap.find(currentResults[i].vehicleClass);
 			if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
 			{
 				// new vehicle appeared
