@@ -329,7 +329,7 @@ int VRBClient::isConnected()
     return sConn->is_connected();
 }
 
-int VRBClient::connectToServer()
+int VRBClient::connectToServer(const std::string& sessionName)
 {
 	if (!udpConn)
 	{
@@ -377,9 +377,18 @@ int VRBClient::connectToServer()
                 Host host;
 
                 TokenBuffer tb;
+				if (sessionName == "")
+				{
+					tb << name;
+					tb << host.getAddress();
+				}
+				else
+				{
+					tb << "-g";
+					tb << host.getAddress();
+					tb << sessionName.c_str();
+				}
 
-                tb << name;
-                tb << host.getAddress();
 
                 Message msg(tb);
                 msg.type = COVISE_MESSAGE_VRB_CONTACT;

@@ -638,6 +638,11 @@ void coVRMSController::setDrawStatistics(bool enable)
     m_drawStatistics = enable;
 }
 
+void coVRMSController::setStartSession(const std::string& sessionName)
+{
+	startSession = sessionName;
+}
+
 void coVRMSController::checkMark(const char *file, int line)
 {
     cerr << file << line << endl;
@@ -2518,7 +2523,7 @@ bool coVRMSController::syncVRBMessages()
 
 					if (vrbc == NULL)
 						vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str());
-					vrbc->connectToServer();
+					vrbc->connectToServer(startSession);
 					oldSec = curSec;
 				}
 			}

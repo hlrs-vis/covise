@@ -37,7 +37,7 @@ public:
     VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
     VRBClient(const char *name, const char *host, int pPort, bool isSlave = false);
     ~VRBClient();
-    int connectToServer(); // returns -1, if Connection to Server fails
+    int connectToServer(const std::string &sessionName = ""); // returns -1, if Connection to Server fails
     void connectToCOVISE(int argc, const char **argv);
     int isCOVERRunning();
     int isConnected();

@@ -350,8 +350,8 @@ bool OpenCOVER::init()
     vrbHost = NULL;
     vrbPort = 0;
     int c = 0;
-    std::string collaborativeOptionsFile, viewpointsFile;
-    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::")) != -1)
+    std::string collaborativeOptionsFile, viewpointsFile, startSession;
+    while ((c = getopt(coCommandLine::argc(), coCommandLine::argv(), "hdC:s:v:c:::g:")) != -1)
     {
         switch (c)
         {
@@ -384,6 +384,11 @@ bool OpenCOVER::init()
             }
             break;
         }
+		case 'g':
+		{
+			startSession = optarg;
+		}
+		break;
         case 'h':
             usage();
             exit(EXIT_SUCCESS);
@@ -688,7 +693,7 @@ bool OpenCOVER::init()
         hud->show();
         hud->redraw();
     }
-
+	coVRMSController::instance()->setStartSession(startSession);
     // Connect to VRBroker, if available
     if (!loadCovisePlugin && coVRMSController::instance()->isMaster())
     {
@@ -698,7 +703,7 @@ bool OpenCOVER::init()
             hud->setText3("to VRB");
             hud->redraw();
             vrbc = new VRBClient("COVER", coVRConfig::instance()->collaborativeOptionsFile.c_str(), coVRMSController::instance()->isSlave());
-            vrbc->connectToServer();
+            vrbc->connectToServer(startSession);
         }
         else
         {
@@ -706,7 +711,7 @@ bool OpenCOVER::init()
             hud->setText3("AG mode");
             hud->redraw();
             vrbc = new VRBClient("COVER", vrbHost, vrbPort, coVRMSController::instance()->isSlave());
-            vrbc->connectToServer();
+            vrbc->connectToServer(startSession);
         }
     }
 

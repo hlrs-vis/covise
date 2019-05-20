@@ -1301,9 +1301,14 @@ int UDPSocket::Read(void* buf, unsigned nbyte)
 
 	FD_SET(sock_id, &stReadFDS);
 	int retval = select(-1, &stReadFDS, 0, 0, &stTimeOut);
+	static bool first = true;
 	if (retval < 0)
 	{
-		cerr << "select() failed on socket " << sock_id << endl;
+		if (first)
+		{
+			cerr << "select() failed on socket " << sock_id << endl;
+			first = false;
+		}
 		return 0;
 	}
 	else if(retval)

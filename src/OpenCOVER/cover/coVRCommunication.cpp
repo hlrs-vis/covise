@@ -624,9 +624,8 @@ void coVRCommunication::handleVRB(Message *msg)
         if (vrbc)
         {
             vrbc->setID(id);
-
-            me->sendHello();
         }
+		me->sendHello();
 
         if (m_privateSessionID.owner() == 0)
         {

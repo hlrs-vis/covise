@@ -350,17 +350,23 @@ void VrbMessageHandler::handleMessage(Message *msg)
 
         c->setContactInfo(ip, name, sid);
         std::cerr << "VRB new client: Numclients=" << clients.numberOfClients() << std::endl;
-        //if the client is started by covise it has a muduleID that can be translated to sessionID
-        if (strcasecmp(name, "CRB") == 0)
+        //if the client is started by covise (CRB) it has a muduleID that can be translated to sessionID
+		//if OpenCOVER got a session from commandline (-s) the client will also send this given session name
+        if (strcasecmp(name, "CRB") == 0 || (strcasecmp(name, "-g") == 0))
         {
-            char *coviseModuleID;
+            char *coviseModuleID; 
             tb >> coviseModuleID;
-            vrb::SessionID sid = vrb::SessionID(-1, std::string(coviseModuleID), false);
-
+            //set session owner to the client that created the session
+			vrb::SessionID sid = vrb::SessionID(c->getID(), std::string(coviseModuleID), false);
+			auto it = sessions.find(sid);
+			if (it != sessions.end())
+			{
+				sid.setOwner(it->first.owner());
+			}
             createSessionIfnotExists(sid, c->getID());
             sendSessions();
             c->setSession(sid);
-            setSession(sid, c->getID());
+			m_sessionsToSet.insert(c->getID());
         }
         else
         {
@@ -405,6 +411,13 @@ void VrbMessageHandler::handleMessage(Message *msg)
         Message m(rtb2);
         m.type = COVISE_MESSAGE_VRB_SET_USERINFO;
         c->conn->send_msg(&m);
+		//if the client chose a starting session set it now 
+		auto it = m_sessionsToSet.find(c->getID());
+		if (it != m_sessionsToSet.end())
+		{
+			setSession(c->getSession(), c->getID());
+			m_sessionsToSet.erase(it);
+		}
     }
     break;
     case COVISE_MESSAGE_RENDER:

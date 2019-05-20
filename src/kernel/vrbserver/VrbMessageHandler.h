@@ -63,16 +63,18 @@ public:
 
 protected:
     ServerInterface *m_server;
+	///update the vrb userinterface
     virtual void updateApplicationWindow(const char *cl, int sender, const char *var, covise::TokenBuffer &value);
     virtual void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var);
     virtual void removeEntriesFromApplicationWindow(int sender);
 
-    char *currentFile = nullptr;
 
+	///file suffix for registry files
     const std::string suffix = ".vrbreg";
-
+	
     std::map<vrb::SessionID, std::shared_ptr<vrb::VrbServerRegistry>> sessions;
-
+	///stack of sessions that have to be set at the client after he received the userdata of all clients
+	std::set<int> m_sessionsToSet;
 
 
     ///changes the given ID to a unique sessionID as close as possible to the given ID; Private/Publi state keeps unchanged

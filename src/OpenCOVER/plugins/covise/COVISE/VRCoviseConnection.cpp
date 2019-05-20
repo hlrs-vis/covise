@@ -76,7 +76,6 @@ using namespace grmsg;
 VRCoviseConnection *VRCoviseConnection::covconn = NULL;
 static std::vector<covise::Message*>waitClusterMessages()
 {
-	static int messageCount = 0; //debug only
 	coVRMSController* ms = coVRMSController::instance();
 
 	if (cover->debugLevel(5))
@@ -100,11 +99,6 @@ static std::vector<covise::Message*>waitClusterMessages()
 			ms->sendSlaves(appMsgs[i]);
 			MARK0("done");
 		}
-		if (numMessages > 0)
-		{
-			++messageCount;
-			cerr << "COVER cluster master sending " << numMessages << " to slaves (msgNum = " << messageCount <<")" << endl;
-		}
 	}
 	else
 	{
@@ -115,10 +109,6 @@ static std::vector<covise::Message*>waitClusterMessages()
 		{
 			cerr << "sync_exit172 myID=" << ms->getID() << endl;
 			exit(0);
-		}
-		if (numMessages > 0)
-		{
-			cerr << "COVER slave reading " << numMessages << " messages ";
 		}
 		for (int i = 0; i < numMessages; i++)
 		{
@@ -132,11 +122,6 @@ static std::vector<covise::Message*>waitClusterMessages()
 			MARK1("COVER cluster slave received [%s] from cluster master", covise_msg_types_array[appMsg->type]);
 			MARK0("done");
 			appMsgs[i] = appMsg;
-		}
-		if (numMessages)
-		{
-			++messageCount;
-			cerr << " succsessfull (msgNum = " << messageCount << endl;
 		}
 	}
 	return std::vector<covise::Message*>(appMsgs, appMsgs + numMessages);
