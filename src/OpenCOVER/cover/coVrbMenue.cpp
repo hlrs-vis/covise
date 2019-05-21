@@ -154,7 +154,7 @@ void VrbMenue::requestNewSession(const std::string &name)
 	//test udp
 	covise::Message msg(tb);
 	msg.type = covise::COVISE_MESSAGE_VRB_REQUEST_NEW_SESSION;
-	cover->sendVrbUdpMessage(&msg);
+	cover->sendVrbMessage(&msg);
 }
 void VrbMenue::selectSession(int id)
 {
