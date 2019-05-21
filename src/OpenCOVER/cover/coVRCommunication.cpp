@@ -380,7 +380,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
     }
     else 
     {
-    cerr << "pls adress new processVRBMessage function" << endl;
+    cerr << " Render Message with key " << key << " not known, consider adressing new processVRBMessage function:" << endl;
     }
 
 }

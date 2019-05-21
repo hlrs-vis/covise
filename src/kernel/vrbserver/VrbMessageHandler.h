@@ -60,7 +60,7 @@ public:
 	/// remove client with connection c
 	void remove(covise::Connection *c); 
 
-
+	void matchAndHandleUdpMessage(covise::Message* msg, const char *ip);
 protected:
     ServerInterface *m_server;
 	///update the vrb userinterface

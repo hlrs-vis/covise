@@ -88,6 +88,21 @@ void VrbMenue::init()
     sessionsSl->setList(std::vector<std::string>());
 
     menue->setVisible(false);
+	//test
+	ui::Action *testBtn = new ui::Action(ioGroup, "testBtn");
+	testBtn->setText("testBtn");
+	testBtn->setCallback([this]()
+		{
+			static int count = 0;
+			++count;
+			covise::TokenBuffer tb;
+			std::string s = "udp mesage number " + std::to_string(count);
+			tb << s;
+			covise::Message msg(tb);
+			msg.type = covise::COVISE_MESSAGE_RENDER;
+			cover->sendVrbUdpMessage(&msg);
+
+		});
 
 }
 void VrbMenue::updateState(bool state)

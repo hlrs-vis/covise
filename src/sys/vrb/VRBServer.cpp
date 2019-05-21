@@ -188,7 +188,7 @@ void VRBServer::processMessages()
                 QObject::connect(sn, SIGNAL(activated(int)),
                     this, SLOT(processMessages()));
 
-                VrbUiClient *cl = new VrbUiClient(clientConn, sn);
+                VrbUiClient *cl = new VrbUiClient(clientConn, udpConn, sn);
                 handler->addClient(cl);
                 std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
             }
@@ -238,17 +238,17 @@ void VRBServer::processMessages()
 void VRBServer::processUdpMessages()
 {
 	covise::Message* msg = new covise::Message;
-	while (udpConn->recv_msg(msg))
+	char* ip = new char [16];
+	while (udpConn->recv_msg(msg, ip))
 	{
-		handler->handleMessage(msg);
+		handler->matchAndHandleUdpMessage(msg, ip);
 	}
 	delete msg;
+	delete[] ip;
 }
 bool VRBServer::startUdpServer() 
 {
-	
-	covise::Socket *s = (Socket*)(new UDPSocket(port + 1)); //better define additional udp port in config
-	udpConn = new ServerConnection(s);
+	udpConn = new ServerUdpConnection(new UDPSocket(port + 1)); //better define additional udp port in config
 	struct linger linger;
 	linger.l_onoff = 0;
 	linger.l_linger = 0;

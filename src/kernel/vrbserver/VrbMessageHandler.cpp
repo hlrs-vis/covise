@@ -341,7 +341,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         VRBSClient *c = clients.get(msg->conn);
         if (!c)
         {
-            c = new VRBSClient(msg->conn, ip, name, false,false);
+            c = new VRBSClient(msg->conn, nullptr, ip, name, false,false);
             clients.addClient(c);
         }
         //create unique private session for the client
@@ -452,7 +452,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #ifdef MB_DEBUG
         //std::cerr << "====> Iterate through all vrbcs!" << std::endl;
 #endif
-        clients.passOnMessage(msg, toGroup);
+        clients.passOnMessage(msg, toGroup, VRBSClient::TCP);
     }
     break;
     case COVISE_MESSAGE_VRB_CHECK_COVER:
@@ -1413,6 +1413,19 @@ void VrbMessageHandler::remove(Connection *conn)
 			}
 		}
 	}
+}
+void VrbMessageHandler::matchAndHandleUdpMessage(covise::Message* msg,const char *ip)
+{
+	VRBSClient* c = clients.get(ip);
+	if (c)
+	{
+		msg->conn = c->conn;
+	}
+	else
+	{
+		cerr << "received udp message from unregistered client with ip: " << ip << endl;
+	}
+	handleMessage(msg);
 }
 void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer &value)
 {

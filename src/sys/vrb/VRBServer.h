@@ -21,6 +21,7 @@
 namespace covise
 {
 class ServerConnection;
+class ServerUdpConnection;
 class Connection;
 class ConnectionList;
 class Message;
@@ -46,12 +47,12 @@ Q_OBJECT
 private slots:
 
     void processMessages();
-
+	void processUdpMessages();
 public:
     VRBServer(bool gui);
     ~VRBServer();
     void loop();
-	void processUdpMessages();
+
 	bool startUdpServer();
     int openServer();
     void closeServer();
@@ -63,7 +64,7 @@ private:
     QPixmap *pix_master = NULL;
     QPixmap *pix_slave = NULL;
     covise::ServerConnection *sConn = nullptr;
-	covise::ServerConnection* udpConn = nullptr;
+	covise::ServerUdpConnection* udpConn = nullptr;
     QSocketNotifier *serverSN = nullptr;
 
     vrb::VrbMessageHandler *handler;

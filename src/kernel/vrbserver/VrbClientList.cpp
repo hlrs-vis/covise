@@ -20,14 +20,18 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool send, bool dc)
+VRBSClient::VRBSClient(Connection * c, ServerUdpConnection* udpc, const char * ip, const char * n, bool send, bool dc)
+	:deleteClient(dc)
+	,address(ip)
+	,m_name(n)
+	,myID(clients.getNextFreeClientID())
+	,m_publicSession(vrb::SessionID())
+	,conn(c)
+	,udpConn(udpc)
+	,m_master(0)
+	,lastRecTime(0.0)
+,lastSendTime(0.0)
 {
-	deleteClient = dc;
-    address = ip;
-    m_name = n;
-    conn = c;
-    myID = clients.getNextFreeClientID();
-    m_publicSession = vrb::SessionID();
     if (send)
     {
         TokenBuffer rtb;
@@ -37,9 +41,6 @@ VRBSClient::VRBSClient(Connection * c, const char * ip, const char * n, bool sen
         m.type = COVISE_MESSAGE_VRB_GET_ID;
         conn->send_msg(&m);
     }
-    m_master = 0;
-    lastRecTime = 0.0;
-    lastSendTime = 0.0;
 
 }
 
@@ -47,6 +48,7 @@ VRBSClient::~VRBSClient()
 {
 	if(deleteClient)
        delete conn;
+	delete udpConn;
     cerr << "closed connection to client " << myID << endl;
 }
 
@@ -110,6 +112,7 @@ void VRBSClient::getInfo(TokenBuffer &rtb)
 {
     rtb << myID;
     rtb << address;
+	cerr << "my ip is " << address << endl;
     rtb << m_name;
     rtb << userInfo;
     rtb << m_publicSession;
@@ -136,6 +139,29 @@ void VRBSClient::addUnknownFile(const std::string& fileName)
 void VRBSClient::setUserInfo(const char *ui)
 {
     userInfo = ui;
+}
+
+void VRBSClient::sendMsg(covise::Message* msg, Protocol p)
+{
+	switch (p)
+	{
+	case vrb::VRBSClient::TCP:
+		conn->send_msg(msg);
+		break;
+	case vrb::VRBSClient::UDP:
+		if (udpConn)
+		{
+			udpConn->sendMessageTo(msg, address.c_str());
+		}
+		else if(firstTryUdp)
+		{
+			firstTryUdp = false;
+			cerr << "trying to send udp message to a client without udp connection: type = " << msg->type << endl; 
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 std::string VRBSClient::getName() const
@@ -294,7 +320,7 @@ void VRBClientList::remove(Connection * c)
 	}
 }
 
-void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session)
+void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session, VRBSClient::Protocol p)
 {
     if (session.isPrivate())
     {
@@ -304,7 +330,7 @@ void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &s
     {
         if (cl->conn != msg->conn && (cl->getSession() == session || session == vrb::SessionID(0, "", false)))
         {
-            cl->conn->send_msg(msg);
+            cl->sendMsg(msg, p);
             cl->addBytesReceived(msg->length);
         }
     }
@@ -443,7 +469,7 @@ void VRBClientList::deleteAll()
     m_clients.clear();
 }
 
-void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, covise_msg_type type)
+void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, covise_msg_type type, VRBSClient::Protocol p)
 {
     Message m(stb);
     m.type = type;
@@ -452,30 +478,30 @@ void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, c
     {
         if (group == vrb::SessionID(0, std::string(), false) || group == cl->getSession())
         {
-            cl->conn->send_msg(&m);
+            cl->sendMsg(&m, p);
         }
     }
 }
 
-void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type type)
+void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type type, VRBSClient::Protocol p)
 {
     Message m(stb);
     m.type = type;
     VRBSClient *cl = get(ID);
     if (cl)
     {
-        cl->conn->send_msg(&m);
+		cl->sendMsg(&m, p);
     }
 }
 
-void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type)
+void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type, VRBSClient::Protocol p)
 {
     Message m(stb);
     m.type = type;
 
     for (VRBSClient *cl : m_clients)
     {
-        cl->conn->send_msg(&m);
+		cl->sendMsg(&m , p);
     }
 }
 std::string VRBClientList::cutFileName(const std::string& fileName)

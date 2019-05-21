@@ -619,6 +619,91 @@ SimpleServerConnection *ServerConnection::spawnSimpleConnection()
     return new_conn;
 }
 
+ServerUdpConnection::ServerUdpConnection(UDPSocket* s)
+	:ServerConnection((Socket*)s)
+{
+}
+bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
+{
+	UDPSocket* s = (UDPSocket*)sock;
+	int retval = 0, tmp_bytes_written;
+	char write_buf[WRITE_BUFFER_SIZE];
+	int* write_buf_int;
+
+	if (!sock)
+		return 0;
+#ifdef SHOWMSG
+	LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], msg->length);
+#endif
+#ifdef CRAY
+	int tmp_buf[4];
+	tmp_buf[0] = sender_id;
+	tmp_buf[1] = send_type;
+	tmp_buf[2] = msg->type;
+	tmp_buf[3] = msg->length;
+#ifdef _CRAYT3E
+	converter.int_array_to_exch(tmp_buf, write_buf, 4);
+#else
+	conv_array_int_c8i4(tmp_buf, (int*)write_buf, 4, START_EVEN);
+#endif
+#else
+	//Compose COVISE header
+	write_buf_int = (int*)write_buf;
+	write_buf_int[0] = sender_id;
+	write_buf_int[1] = send_type;
+	write_buf_int[2] = msg->type;
+	write_buf_int[3] = msg->length;
+	swap_bytes((unsigned int*)write_buf_int, 4);
+#endif
+
+	if (msg->length == 0)
+		retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT, address);
+	else
+	{
+#ifdef SHOWMSG
+		LOGINFO("msg->length: %d", msg->length);
+#endif
+		// Decide wether the message including the COVISE header
+		// fits into one packet
+		if (msg->length < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
+		{
+			// Write data to socket for data blocks smaller than the
+			// socket write-buffer reduced by the size of the COVISE
+			// header
+			memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data, msg->length);
+			retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT + msg->length, address);
+		}
+		else
+		{
+			// Message and COVISE header summed-up size is bigger than one network
+			// packet. Therefore it is transmitted in multiple pakets.
+
+			// Copy data block of size WRITE_BUFFER_SIZE to send buffer
+			memcpy(&write_buf[16], msg->data, WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
+#ifdef SHOWMSG
+			LOGINFO("write_buf: %d %d %d %d", write_buf_int[0], write_buf_int[1], write_buf_int[2], write_buf_int[3]);
+#endif
+			//Send first packet of size WRITE_BUFFER_SIZE
+			retval = s->writeTo(write_buf, WRITE_BUFFER_SIZE, address);
+#ifdef CRAY
+			tmp_bytes_written = (UDPSocket*)sock->writeTo(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
+				msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
+#else
+			// Send next packet with remaining data. Thnis code assumes that an overall
+			// message size does never exceed 2x WRITE_BUFFER_SIZE.
+			tmp_bytes_written = s->writeTo(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
+				msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT), address);
+#endif
+			// Check if the socket was invalidated while transmitting multiple packets.
+			// Otherwise returned the summed-up amount of bytes as return value
+			if (tmp_bytes_written == COVISE_SOCKET_INVALID)
+				return COVISE_SOCKET_INVALID;
+			else
+				retval += tmp_bytes_written;
+		}
+	}
+	return retval;
+}
 void ServerConnection::get_dataformat()
 {
     char dataformat;
@@ -869,7 +954,7 @@ int Connection::recv_msg_fast(Message *msg)
     return read_bytes + read_msg_bytes;
 }
 
-int Connection::recv_msg(Message *msg)
+int Connection::recv_msg(Message *msg, char* ip)
 {
     int bytes_read, bytes_to_read, tmp_read;
     char *read_buf_ptr;
@@ -933,7 +1018,7 @@ int Connection::recv_msg(Message *msg)
 
     while (bytes_to_process < 16)
     {
-        tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process);
+        tmp_read = sock->Read(read_buf + bytes_to_process, READ_BUFFER_SIZE - bytes_to_process, ip);
         if (tmp_read == 0)
             return (0);
         if (tmp_read < 0)
