@@ -73,6 +73,7 @@ private:
     int port; // port Number (default: 31800) covise.config: VRB.TCPPort
   
     covise::Message *msg = nullptr;
+	char* ip = new char[16];
     bool requestToQuit = false;
 
 };

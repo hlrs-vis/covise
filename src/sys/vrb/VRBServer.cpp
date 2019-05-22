@@ -161,7 +161,6 @@ void VRBServer::loop()
 {
     while (1)
     {
-		processUdpMessages();
 		processMessages();
     }
 }
@@ -171,9 +170,17 @@ void VRBServer::processMessages()
 	while (Connection *conn = connections->check_for_input(0.0001f))
     {
 		Connection* clientConn = nullptr;
-		if (conn == sConn) // connection to server port
+		if (conn == sConn) //tcp connection to server port
 		{
 			clientConn = sConn->spawn_connection();
+		}
+		if (conn == udpConn) //udp connection
+		{
+				while (udpConn->recv_msg(msg, ip))
+				{
+					handler->matchAndHandleUdpMessage(msg, ip);
+				}
+				return;
 		}
 		if(clientConn)
 		{
@@ -192,6 +199,12 @@ void VRBServer::processMessages()
                 handler->addClient(cl);
                 std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
             }
+			else
+			{
+				VRBSClient* cl = new VRBSClient(clientConn, udpConn, "localhost", "NONE", false);
+				handler->addClient(cl);
+				std::cerr << "VRB new client: Numclients=" << handler->numberOfClients() << std::endl;
+			}
             connections->add(clientConn); //add new connection;
         }
         else
@@ -210,7 +223,6 @@ void VRBServer::processMessages()
 #ifdef MB_DEBUG
                 std::cerr << "Message found!" << std::endl;
 #endif
-
                 if (msg)
                 {
                     handler->handleMessage(msg);
@@ -237,14 +249,10 @@ void VRBServer::processMessages()
 }
 void VRBServer::processUdpMessages()
 {
-	covise::Message* msg = new covise::Message;
-	char* ip = new char [16];
 	while (udpConn->recv_msg(msg, ip))
 	{
 		handler->matchAndHandleUdpMessage(msg, ip);
 	}
-	delete msg;
-	delete[] ip;
 }
 bool VRBServer::startUdpServer() 
 {
@@ -259,6 +267,7 @@ bool VRBServer::startUdpServer()
 		QObject::connect(sn, SIGNAL(activated(int)),
 			this, SLOT(processUdpMessages()));
 	}
+	connections->add(udpConn);
 	return 0;
 }
 

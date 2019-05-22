@@ -750,7 +750,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     coVRIOReader *reader = findIOHandler(adjustedFileName.c_str());
     if (!handler && !fileTypeString.empty())
         handler = findFileHandler(fileTypeString.c_str());
-	//reader and handler will remote fetch missing files themselves
+	//vrml will remote fetch missing files itself
 	std::string xt = url.extension();
 	if (xt != ".wrl" && xt != ".wrl.ive" && xt != ".ive" && xt != ".wrz")
 	{

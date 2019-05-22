@@ -452,7 +452,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #ifdef MB_DEBUG
         //std::cerr << "====> Iterate through all vrbcs!" << std::endl;
 #endif
-        clients.passOnMessage(msg, toGroup, VRBSClient::TCP);
+        clients.passOnMessage(msg, toGroup, VRBSClient::UDP);
     }
     break;
     case COVISE_MESSAGE_VRB_CHECK_COVER:
