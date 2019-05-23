@@ -218,7 +218,7 @@
 
 
    <VRB>
-    <Server port="31200" />
+    <Server tcpPort="31200" />
 	    <!--Server value="141.58.8.11" /-->
     </VRB>
 

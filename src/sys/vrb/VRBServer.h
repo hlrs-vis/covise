@@ -70,7 +70,7 @@ private:
     vrb::VrbMessageHandler *handler;
 
     covise::ConnectionList *connections = nullptr;
-    int port; // port Number (default: 31800) covise.config: VRB.TCPPort
+    int m_tcpPort, m_udpPort; // port Number (default: 31800) covise.config: VRB.TCPPort
   
     covise::Message *msg = nullptr;
 	char* ip = new char[16];

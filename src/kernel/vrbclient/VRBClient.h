@@ -35,7 +35,7 @@ class VRBEXPORT VRBClient
 
 public:
     VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
-    VRBClient(const char *name, const char *host, int pPort, bool isSlave = false);
+    VRBClient(const char *name, const char *host, int tcp_p, int udp_p, bool isSlave = false);
     ~VRBClient();
     int connectToServer(const std::string &sessionName = ""); // returns -1, if Connection to Server fails
     void connectToCOVISE(int argc, const char **argv);
@@ -64,8 +64,8 @@ private:
 	UDPConnection* udpConn = nullptr; //udp connection to server
 
     char *name;
-    int port = 31800;
-	int udpPort = 31801; //port + 1 for up (fix me: define up port in config)
+    int m_tcpPort = 31800;
+	int m_udpPort = 31801; //port + 1 for up (fix me: define up port in config)
     int ID = -1;
     Host *serverHost = nullptr;
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server

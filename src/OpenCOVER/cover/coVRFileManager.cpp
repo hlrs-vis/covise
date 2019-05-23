@@ -1017,11 +1017,7 @@ coVRFileManager::coVRFileManager()
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
-	std::string s = coCoviseConfig::getEntry("value", "System.VRB.remoteFetch", "false");
-	if (s=="true")
-	{
-		remote_fetch_enabled = true;
-	}
+	remote_fetch_enabled = coCoviseConfig::isOn("value", "System.VRB.remoteFetch", "false");
 }
 
 coVRFileManager::~coVRFileManager()

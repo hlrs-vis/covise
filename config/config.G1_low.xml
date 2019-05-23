@@ -45,7 +45,7 @@
   <System>
   
    <VRB>
-    <!--Server value="visent.hlrs.de" port="31200" /-->
+    <!--Server value="visent.hlrs.de" tcpPort="31200" /-->
    </VRB>
    <CRB>
     <ModuleAlias ARCH="x11" value="Renderer/IvRenderer" name="Renderer/Renderer" />

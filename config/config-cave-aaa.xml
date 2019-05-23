@@ -330,7 +330,7 @@
 
   <System>
     <VRB> 
-      <!--Server value="visper.hlrs.de" port="31200" /-->
+      <!--Server value="visper.hlrs.de" tcpPort="31200" /-->
     </VRB>
   </System>
 

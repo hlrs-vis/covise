@@ -93,7 +93,7 @@
 
 
    <VRB>
-    <!--Server value="141.58.8.5" port="31200" /-->
+    <!--Server value="141.58.8.5" tcpPort="31200" /-->
    </VRB>
 
    <HostConfig>

@@ -1348,7 +1348,13 @@ void VrbMessageHandler::handleMessage(Message *msg)
     }
     break;
     default:
-        cerr << "unknown message in vrb: type=" << msg->type << endl;
+
+		cerr << "unknown message in vrb: type=" << msg->type;
+		if (VRBSClient * c = clients.get(msg->conn))
+		{
+			cerr << " from " << c->getID();
+		}
+		cerr << endl;
         break;
 
 

@@ -103,7 +103,6 @@ void VrbMenue::init()
 			cover->sendVrbUdpMessage(&msg);
 
 		});
-
 }
 void VrbMenue::updateState(bool state)
 {
@@ -182,6 +181,10 @@ void VrbMenue::selectSession(int id)
         //inform the server about the new session
         coVRCommunication::instance()->setSessionID(*it);
     }
+}
+
+void VrbMenue::test(int a, int b)
+{
 }
 
 //session functions : public

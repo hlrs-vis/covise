@@ -64,13 +64,13 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
                 else if (strncmp(buf, "port:", 5) == 0)
                 {
                     size_t retval;
-                    retval = sscanf(buf, "port:%d", &port);
+                    retval = sscanf(buf, "port:%d", &m_tcpPort);
                     if (retval != 1)
                     {
                         std::cerr << ": sscanf failed" << std::endl;
                         return;
                     }
-					udpPort = port + 1;
+					m_udpPort = m_tcpPort + 1;
                 }
             }
             fclose(fp);
@@ -78,8 +78,8 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
     }
     if (serverHost == NULL)
     {
-        port = coCoviseConfig::getInt("port", "System.VRB.Server", port);
-		udpPort = port + 1;
+		m_tcpPort = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
+		m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort + 1);
         std::string line = coCoviseConfig::getEntry("System.VRB.Server");
         if (!line.empty())
         {
@@ -95,7 +95,7 @@ VRBClient::VRBClient(const char *n, const char *collaborativeConfigurationFile, 
     }
 }
 
-VRBClient::VRBClient(const char *n, const char *host, int pPort, bool slave)
+VRBClient::VRBClient(const char *n, const char *host, int tcp_p, int udp_p, bool slave)
     : sendDelay(0.1f)
 	, isSlave(slave)
 {
@@ -103,8 +103,8 @@ VRBClient::VRBClient(const char *n, const char *host, int pPort, bool slave)
     strcpy(name, n);
     serverHost = NULL;
     //port = 31800;
-    port = pPort;
-	udpPort = port + 1;
+    m_tcpPort = tcp_p;
+	m_udpPort = udp_p;
     if (host && strcmp(host, ""))
     {
         serverHost = new Host(host);
@@ -115,7 +115,7 @@ VRBClient::VRBClient(const char *n, const char *host, int pPort, bool slave)
         if (!line.empty())
         {
             size_t retval;
-            retval = sscanf(line.c_str(), "%d", &port);
+            retval = sscanf(line.c_str(), "%d", &m_tcpPort);
             if (retval != 1)
             {
                 std::cerr << "VRBClient::VRBClient: sscanf failed" << std::endl;
@@ -342,12 +342,12 @@ int VRBClient::connectToServer(const std::string& sessionName)
     {
         connFuture = std::async(std::launch::async, [this]() -> ClientConnection *
         {
-            ClientConnection *myConn = new ClientConnection(serverHost, port, 0, (sender_type)0,0, 1.0);
+            ClientConnection *myConn = new ClientConnection(serverHost, m_tcpPort, 0, (sender_type)0,0, 1.0);
             if (!myConn->is_connected()) // could not open server port
             {
                 if (firstVrbConnection)
                 {
-                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
+                    fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), m_tcpPort);
                     firstVrbConnection = false;
                 }
 
@@ -415,12 +415,12 @@ int VRBClient::connectToUdpServer()
 	{
 		udpConnFuture = std::async(std::launch::async, [this]() -> UDPConnection *
 			{
-				UDPConnection* myConn = new UDPConnection(0, 0, udpPort, serverHost->getAddress());
+				UDPConnection* myConn = new UDPConnection(0, 0, m_udpPort, serverHost->getAddress());
 				if (!myConn->is_connected()) // could not open server port
 				{
 					if (firstUdpVrbConnection)
 					{
-						fprintf(stderr, "Could not connect to server via UDP on %s; port %d\n", serverHost->getAddress(), udpPort);
+						fprintf(stderr, "Could not connect to server via UDP on %s; port %d\n", serverHost->getAddress(), m_udpPort);
 						firstUdpVrbConnection = false;
 					}
 
@@ -461,7 +461,7 @@ void VRBClient::setupUdpConn()
 {
     if(serverHost)
     {
-	udpConn = new UDPConnection(0, 0, udpPort, serverHost->getAddress());
+	udpConn = new UDPConnection(0, 0, m_udpPort, serverHost->getAddress());
     }
 }
 

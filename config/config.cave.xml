@@ -145,7 +145,7 @@
 
 
    <VRB>
-    <Server value="vistidy" port="31201" />
+    <Server value="vistidy" tcpPort="31201" />
    </VRB>
 
    <HostConfig>

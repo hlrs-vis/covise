@@ -78,7 +78,8 @@ VRBServer::VRBServer(bool gui)
 {
     covise::Socket::initialize();
 
-    port = coCoviseConfig::getInt("port", "System.VRB.Server", 31800);
+    m_tcpPort = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
+	m_udpPort = coCoviseConfig::getInt("udpPort", "System.VRB.Server", m_tcpPort +1);
     requestToQuit = false;
     if (gui)
     {
@@ -98,6 +99,8 @@ VRBServer::VRBServer(bool gui)
 VRBServer::~VRBServer()
 {
     delete sConn;
+	delete udpConn;
+	delete ip;
     delete handler;
     //cerr << "closed Server connection" << endl;
 }
@@ -129,7 +132,7 @@ void VRBServer::removeConnection(covise::Connection * conn)
 
 int VRBServer::openServer()
 {
-    sConn = new ServerConnection(port, 0, (sender_type)0);
+    sConn = new ServerConnection(m_tcpPort, 0, (sender_type)0);
 
     struct linger linger;
     linger.l_onoff = 0;
@@ -139,7 +142,7 @@ int VRBServer::openServer()
     sConn->listen();
     if (!sConn->is_connected()) // could not open server port
     {
-        fprintf(stderr, "Could not open server port %d\n", port);
+        fprintf(stderr, "Could not open server port %d\n", m_tcpPort);
         delete sConn;
         sConn = NULL;
         return (-1);
@@ -256,7 +259,11 @@ void VRBServer::processUdpMessages()
 }
 bool VRBServer::startUdpServer() 
 {
-	udpConn = new ServerUdpConnection(new UDPSocket(port + 1)); //better define additional udp port in config
+	udpConn = new ServerUdpConnection(new UDPSocket(m_udpPort)); 
+	if (udpConn->getSocket()->get_id() < 0)
+	{
+		return false;
+	}
 	struct linger linger;
 	linger.l_onoff = 0;
 	linger.l_linger = 0;
@@ -268,7 +275,7 @@ bool VRBServer::startUdpServer()
 			this, SLOT(processUdpMessages()));
 	}
 	connections->add(udpConn);
-	return 0;
+	return true;
 }
 
 

@@ -48,7 +48,6 @@ VRBSClient::~VRBSClient()
 {
 	if(deleteClient)
        delete conn;
-	delete udpConn;
     cerr << "closed connection to client " << myID << endl;
 }
 
