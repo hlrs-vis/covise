@@ -446,7 +446,25 @@ void GPSPlugin::openImage(std::string &name)
 
         }
 }
+bool GPSPlugin::checkBounds(double x, double y)
+{
+    if( y<= 48.64 && y>=48.54)
+    {
+        if( x<= 8.98 && x >= 8.77)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
 
+}
 float GPSPlugin::getAlt(double x, double y)
 {
     int col = int((x - xOrigin) / pixelWidth);

@@ -50,6 +50,7 @@ class GPSPoint
 public:
     enum pointType {Good, Medium ,Bad,Angst,Text,Foto,Sprachaufnahme,Barriere, OtherChoice};
     pointType PT;
+    bool inBound;
 private:
     double longitude;
     double latitude;

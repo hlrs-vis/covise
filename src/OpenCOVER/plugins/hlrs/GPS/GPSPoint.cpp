@@ -190,70 +190,78 @@ void GPSPoint::readFile (xercesc::DOMElement *node)
 
 void GPSPoint::setPointData (double x, double y, std::string &name)
 {
-    altitude = GPSPlugin::instance()->getAlt(x,y);
-    x *= DEG_TO_RAD;
-    y *= DEG_TO_RAD;
-    longitude = x;
-    latitude = y;
+    if( GPSPlugin::instance()->checkBounds(x,y) )
+    {
+        inBound = true;
+        altitude = GPSPlugin::instance()->getAlt(x,y);
+        x *= DEG_TO_RAD;
+        y *= DEG_TO_RAD;
+        longitude = x;
+        latitude = y;
 
-    int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
+        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &longitude, &latitude, NULL);
 
-    osg::Matrix m;
-    m.makeTranslate(osg::Vec3(longitude,latitude,altitude));
-    geoTrans->setMatrix(m);
+        osg::Matrix m;
+        m.makeTranslate(osg::Vec3(longitude,latitude,altitude));
+        geoTrans->setMatrix(m);
 
 
-    if(error !=0 )
-    {
-        fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
-        fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
-    }
+        if(error !=0 )
+        {
+            fprintf(stderr, "------ \nError transforming coordinates, code %d \n", error);
+            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
+        }
 
-    if(name.empty())
+        if(name.empty())
+        {
+            fprintf(stderr, "Error: unidentified GPSPoint\n");
+        }
+        else if(name == "Good")
+        {
+            PT = Good;
+        }
+        else if(name == "Medium")
+        {
+            PT = Medium;
+        }
+        else if(name == "Bad")
+        {
+            PT = Bad;
+        }
+        else if(name == "Angst")
+        {
+            PT = Angst;
+        }
+        else if(name == "Foto")
+        {
+            PT = Foto;
+            mySensor = new PointSensor(this, Point);
+        }
+        else if(name == "Sprachaufnahme")
+        {
+            PT = Sprachaufnahme;
+            mySensor = new PointSensor(this, Point);
+        }
+        else if(name == "Barriere")
+        {
+            PT = Barriere;
+        }
+        else if(name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
+        {
+            PT = OtherChoice;
+        }
+        else {
+            PT = Text;
+            text = name;
+            mySensor = new PointSensor(this, Point);
+        }
+        Point->setName(Point->getName() + " " + name);
+        geoTrans->setName(geoTrans->getName() + " " + name);
+    }
+    else
     {
-        fprintf(stderr, "Error: unidentified GPSPoint\n");
+        inBound = false;
     }
-    else if(name == "Good")
-    {
-        PT = Good;
-    }
-    else if(name == "Medium")
-    {
-        PT = Medium;
-    }
-    else if(name == "Bad")
-    {
-        PT = Bad;
-    }
-    else if(name == "Angst")
-    {
-        PT = Angst;
-    }
-    else if(name == "Foto")
-    {
-        PT = Foto;
-        mySensor = new PointSensor(this, Point);
-    }
-    else if(name == "Sprachaufnahme")
-    {
-        PT = Sprachaufnahme;
-        mySensor = new PointSensor(this, Point);
-    }
-    else if(name == "Barriere")
-    {
-        PT = Barriere;
-    }
-    else if(name == "Fussgaenger" || name == "Fahrrad" || name == "Öpnv" || name == "Miv")
-    {
-        PT = OtherChoice;
-    }
-    else {
-        PT = Text;
-        text = name;
-        mySensor = new PointSensor(this, Point);
-    }
-    Point->setName(Point->getName() + " " + name);
-    geoTrans->setName(geoTrans->getName() + " " + name);
 }
 void GPSPoint::draw()
 {

@@ -72,18 +72,20 @@ void Track::setIndex(int i)
 }
 void Track::addPoint(double x, double y, double v)
 {
-    double z = GPSPlugin::instance()->getAlt(x,y)+GPSPlugin::instance()->zOffset;
-
-    x *= DEG_TO_RAD;
-    y *= DEG_TO_RAD;
-    std::array<double, 4> arr = {x, y, z, v };
-    int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
-    if(error !=0 )
+    if( GPSPlugin::instance()->checkBounds(x,y) )
     {
-        fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
-    }
+        double z = GPSPlugin::instance()->getAlt(x,y)+GPSPlugin::instance()->zOffset;
 
-    PointsVec.push_back(arr);
+        x *= DEG_TO_RAD;
+        y *= DEG_TO_RAD;
+        std::array<double, 4> arr = {x, y, z, v };
+        int error = pj_transform(GPSPlugin::instance()->pj_from, GPSPlugin::instance()->pj_to, 1, 1, &arr.at(0), &arr.at(1), NULL);
+        if(error !=0 )
+        {
+            fprintf (stderr, "%s \n ------ \n", pj_strerrno (error));
+        }
+        PointsVec.push_back(arr);
+    }
 }
 
 void Track::drawBirdView()
@@ -201,7 +203,7 @@ void Track::readFile (xercesc::DOMElement *node)
     }
     auto end = std::chrono::steady_clock::now();
     std::cerr << "Trackreading finished after " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
-        << "milliseconds Trackpoints: " << PointsVec.size() << "\n";
+        << " milliseconds Trackpoints: " << PointsVec.size() << "\n";
 }
 
 void Track::drawTrack()
@@ -231,7 +233,7 @@ void Track::drawTrack()
     {
         std::array<double, 4> a1 = PointsVec.at(t);
         float s = a1.at(3);
-        colArr->push_back(osg::Vec4(1.0f, 1.0f/(1.0f+s), (1.0f+s), 1.0f));
+        colArr->push_back(osg::Vec4(s*0.2, 0 , 4.0f/(0.1f+s), 1.0f));
     }
     geom->setColorArray(colArr);
     geom->setColorBinding(osg::Geometry::BIND_PER_VERTEX );

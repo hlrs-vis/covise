@@ -63,6 +63,7 @@ public:
 
     float getAlt(double x, double y);
     void addFile(File *f);
+    bool checkBounds (double x, double y);
 
     static int SloadGPX(const char *filename, osg::Group *parent, const char *);
     static int SunloadGPX(const char *filename, const char *);

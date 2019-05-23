@@ -154,8 +154,15 @@ void File::readFile(const std::string &filename)
             if(nodeName == "wpt")
             {
                 GPSPoint *p = new GPSPoint(myDirectory);
-                addPoint(p);
                 p->readFile(node);
+                if (p->inBound)
+                {
+                    addPoint(p);
+                }
+                else
+                {
+                    delete p;
+                }
             }
             else if(nodeName == "trk")
             {
