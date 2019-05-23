@@ -22,6 +22,7 @@
 #include <osg/ShapeDrawable>
 
 #include <utils/traci/TraCIAPI.h>
+#include <libsumo/TraCIDefs.h>
 
 #include <vector>
 #include <random>
@@ -141,5 +142,7 @@ private:
 	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
 void sendSimResults();
 void readSimResults();
+
+std::vector<std::string> TAZs;
 };
 #endif

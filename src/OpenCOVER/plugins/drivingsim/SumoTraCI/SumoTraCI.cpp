@@ -152,6 +152,16 @@ bool SumoTraCI::init()
 
     updateVehiclePosition();
 
+	//find TAZs
+	std::vector<std::string> edges = client.edge.getIDList();
+	for (auto iter = edges.begin(); iter != edges.end(); iter++)
+	{
+		if (!(iter->compare(0, 3, "taz")))
+		{
+			fprintf(stderr, "Found TAZ %s \n", iter->c_str());
+			TAZs.push_back(*iter);
+		}
+	}
 
     //AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
@@ -234,9 +244,27 @@ void SumoTraCI::preFrame()
 
 		std::vector<std::string> routes = client.route.getIDList();
 		std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
+		std::string uniquePersonID = "uniquePerson" + std::to_string(uniqueIDValue);
+		std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
 		uniqueIDValue++;
-		client.vehicle.add(uniqueID,*routes.begin());
+		std::vector<std::string> edges = client.edge.getIDList();
+		
+		client.simulation.getDistanceRoad(edges[1],0.0,edges[2],0.0);
+		libsumo::TraCIStage newStage = client.simulation.findRoute(TAZs[1], TAZs[2]);
+
+		client.route.add(uniqueRouteID,newStage.edges);
+		client.vehicle.add(uniqueID, uniqueRouteID);
+		//client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
+		//client.vehicle.setRoute(uniqueID,newStage.edges);
+		std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
+		client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+		std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
+		std::vector<std::string> lanes = client.lane.getIDList();
+		std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
+		client.person.appendWalkingStage(uniquePersonID, ped1Edges, 10.0);
+		client.person.appendWaitingStage(uniquePersonID,1000.0);
 		lastParticipantStartedTime = currentTime;
+		
 	}
     if ((currentTime - nextSimTime) > 1)
     {
@@ -381,7 +409,7 @@ void SumoTraCI::subscribeToSimulation()
             {
                 client.person.subscribe(*it, variables, 0, TIME2STEPS(1000));
             }
-            //fprintf(stderr, "There are currently %i persons in the simulation ", personIDList.size());
+            fprintf(stderr, "There are currently %i persons in the simulation \n", personIDList.size());
         }
         else
         {
