@@ -1685,26 +1685,6 @@ TraCIAPI::SimulationScope::findRoute(const std::string& fromEdge, const std::str
 	ret.depart = inMsg.readDouble();
 
 	return ret;
-
-	/*outputStorage.writeUnsignedByte(TYPE_COMPOUND);
-	outputStorage.writeInt(6);
-	outputStorage.writeUnsignedByte(TYPE_INTEGER);
-	outputStorage.writeInt(stage.type);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.line);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.destStop);
-	outputStorage.writeUnsignedByte(TYPE_STRINGLIST);
-	outputStorage.writeStringList(stage.edges);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.travelTime);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.cost);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.intended);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.depart);*/
-
 }
 
 
