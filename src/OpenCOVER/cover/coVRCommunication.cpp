@@ -47,6 +47,8 @@
 #include "coVRTui.h"
 #include <net/covise_host.h>
 #include <net/message_types.h>
+#include <net/udpMessage.h>
+#include <net/udp_message_types.h>
 #include "coVRCollaboration.h"
 #include "VRAvatar.h"
 #include "coVRSelectionManager.h"
@@ -944,6 +946,27 @@ void coVRCommunication::handleVRB(Message *msg)
     }
 }
 
+void coVRCommunication::handleUdp(vrb::UdpMessage* msg)
+{
+	TokenBuffer tb(msg);
+	switch (msg->type)
+	{
+	case vrb::EMPTY:
+		break;
+	case vrb::AVATAR_HMD_POSITION:
+	{
+		std::string s;
+		tb >> s;
+		cerr << "received udp msg from client " << msg->sender << ": " << s << ""<< endl;
+	}
+		break;
+	case vrb::AVATAR_CONTROLLER_POSITION:
+		break;
+	default:
+		break;
+	}
+
+}
 void coVRCommunication::setCurrentFile(const char *filename)
 {
 	assert(true);

@@ -75,7 +75,10 @@ namespace osg
 {
 class MatrixTransform;
 }
-
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace osgText
 {
 class Font;
@@ -314,7 +317,7 @@ public:
     bool sendVrbMessage(const covise::Message *msg) const;
 
 	//! send a message either via COVISE connection or via udp to VRB
-	bool sendVrbUdpMessage(const covise::Message* msg) const;
+	bool sendVrbUdpMessage(const vrb::UdpMessage* msg) const;
 
     // tracker data
 

@@ -8,6 +8,8 @@
 #include <util/common.h>
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
+#include <net/tokenbuffer.h>
+#include <net/udpMessage.h>
 #include <net/covise_host.h>
 #include <config/CoviseConfig.h>
 #include "coVRSlave.h"
@@ -111,6 +113,45 @@ int coVRSlave::sendMessage(const Message *msg)
         written += numSent;
     }
     return len;
+}
+
+void coVRSlave::sendMessage(const vrb::UdpMessage* msg)
+{
+	char *write_buf = new char[UDP_MESSAGE_HEADER_SIZE + msg->length];
+	int* write_buf_int;
+	write_buf_int = (int*)write_buf;
+	write_buf_int[0] = msg->type;
+	write_buf_int[1] = msg->sender;
+
+	if (UDP_MESSAGE_HEADER_SIZE + msg->length > WRITE_BUFFER_SIZE)
+	{
+		cerr << "udp message of type " << msg->type << " is too long!" << endl;
+	}
+	write_buf_int[2] = msg->length;
+	//cerr << "sending udp msg to slave " << getID() << " type = " << write_buf_int[0] << " sender = " << write_buf_int[1] << " length = " << write_buf_int[2] << endl;
+	memcpy(write_buf + UDP_MESSAGE_HEADER_SIZE, msg->data, msg->length);
+	send(write_buf, UDP_MESSAGE_HEADER_SIZE + msg->length);
+	delete[]write_buf;
+}
+
+int coVRSlave::readMessage(vrb::UdpMessage* msg)
+{
+	char read_buf[UDP_MESSAGE_HEADER_SIZE];
+	int* read_buf_int = (int*)read_buf;
+	int ret = read(read_buf, UDP_MESSAGE_HEADER_SIZE);
+	if (ret < UDP_MESSAGE_HEADER_SIZE)
+		return -1;
+	msg->type = (vrb::udp_msg_type)read_buf_int[0];
+	msg->sender = read_buf_int[1];
+	msg->length = read_buf_int[2];
+	if (msg->length > WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
+	{
+		cerr << "udp message of type " << msg->type << " was too long to read;" << endl;
+		return 0;
+	}
+	msg->data = new char[msg->length];
+	ret = read(msg->data, msg->length);
+	return ret;
 }
 
 coVRTcpSlave::coVRTcpSlave(int ID)

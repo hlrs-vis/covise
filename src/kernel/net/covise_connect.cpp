@@ -44,6 +44,8 @@ typedef SSL_METHOD *CONST_SSL_METHOD_P;
 #include "covise_connect.h"
 #include "covise_host.h"
 #include "covise_socket.h"
+#include "udpMessage.h"
+#include "udp_message_types.h"
 #include "tokenbuffer.h"
 #include <util/coErr.h>
 #include <config/CoviseConfig.h>
@@ -172,6 +174,124 @@ const char *Connection::get_hostname()
     return sock ? sock->get_hostname() : NULL;
 }
 
+UDPConnection::UDPConnection(int id, int s_type, int p, const char* address)
+	: Connection()
+{
+	sender_id = id;
+	send_type = s_type;
+	sock = (Socket*)(new UDPSocket(p, address));
+	port = p;
+}
+#define UDP_HEADER_SIZE 2 * SIZEOF_IEEE_INT
+bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
+{
+	int l;
+	char* read_buf_ptr;
+	int* int_read_buf;
+
+
+#ifdef SHOWMSG
+	char tmp_str[255];
+#endif
+#ifdef CRAY
+	int tmp_buf[4];
+#endif
+
+	msg->sender = -1;
+	msg->length = 0;
+	msg->type = vrb::udp_msg_type::EMPTY;
+	if (msg->data)
+	{
+		delete[] msg->data;
+		msg->data = nullptr;
+	}
+	message_to_do = 0;
+
+	if (!sock)
+		return 0;
+
+	l = sock->Read(read_buf, READ_BUFFER_SIZE, msg->m_ip);
+	if (l <= 0)
+	{
+		return false;
+	}
+	//read header
+	read_buf_ptr = read_buf;
+	int_read_buf = (int*)read_buf_ptr;
+
+#ifdef SHOWMSG
+	LOGINFO("read_buf: %d %d", int_read_buf[0], int_read_buf[1]);
+#endif
+
+
+#ifdef BYTESWAP
+	swap_bytes((unsigned int*)int_read_buf, 2);
+#endif
+	msg->type = (vrb::udp_msg_type)int_read_buf[0];
+	msg->sender = int_read_buf[1];
+	l -= UDP_HEADER_SIZE;
+	msg->length = l;
+	char* data = new char[l];
+	memcpy(data, read_buf + UDP_HEADER_SIZE, l);
+	msg->data = data;
+	return true;
+
+}
+
+bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char* ip)
+{
+	cerr << "sending udp msg to ";
+	if (ip)
+	{
+		cerr << ip << endl;
+	}
+
+	int retval = 0, tmp_bytes_written;
+	char write_buf[WRITE_BUFFER_SIZE];
+	int* write_buf_int;
+
+	if (!sock)
+		return 0;
+
+	//Compose udp header
+
+	write_buf_int = (int*)write_buf;
+	write_buf_int[0] = msg->type;
+	write_buf_int[1] = msg->sender;
+
+	swap_bytes((unsigned int*)write_buf_int, 2);
+
+
+	if (msg->length == 0)
+		retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE, ip);
+	else
+	{
+#ifdef SHOWMSG
+		LOGINFO("msg->length: %d", msg->length);
+#endif
+		// Decide wether the message including the COVISE header
+		// fits into one packet
+		if (msg->length < WRITE_BUFFER_SIZE - UDP_HEADER_SIZE)
+		{
+			// Write data to socket for data blocks smaller than the
+			// socket write-buffer reduced by the size of the header
+			memcpy(&write_buf[UDP_HEADER_SIZE], msg->data, msg->length);
+			retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE + msg->length, ip);
+			if (retval < 0)
+			{
+				cerr << "UDPSOcket writeTo failed" << endl;
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			cerr << "udp message of type " << msg->type << " is to long! length = " << msg->length << endl;
+			return false;
+		}
+	}
+
+}
 SimpleServerConnection::SimpleServerConnection(Socket *s)
     : ServerConnection(s)
 {
@@ -224,15 +344,6 @@ ServerConnection::ServerConnection(int *p, int id, int s_type)
 int ServerConnection::listen() // listen for connection (after bind)
 {
     return sock->listen();
-}
-
-UDPConnection::UDPConnection(int id, int s_type, int p,  const char *address)
-    : Connection()
-{
-    sender_id = id;
-    send_type = s_type;
-    sock = (Socket *)(new UDPSocket(p, address));
-    port = p;
 }
 
 #ifdef MULTICAST

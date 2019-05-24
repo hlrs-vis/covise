@@ -18,6 +18,8 @@
 
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
+#include <net/udp_message_types.h>
+#include <net/udpMessage.h>
 #include <net/covise_connect.h>
 
 #include <stdio.h>
@@ -452,7 +454,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
 #ifdef MB_DEBUG
         //std::cerr << "====> Iterate through all vrbcs!" << std::endl;
 #endif
-        clients.passOnMessage(msg, toGroup, VRBSClient::UDP);
+        clients.passOnMessage(msg, toGroup);
     }
     break;
     case COVISE_MESSAGE_VRB_CHECK_COVER:
@@ -1420,18 +1422,34 @@ void VrbMessageHandler::remove(Connection *conn)
 		}
 	}
 }
-void VrbMessageHandler::matchAndHandleUdpMessage(covise::Message* msg,const char *ip)
+void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 {
-	VRBSClient* c = clients.get(ip);
-	if (c)
+	VRBSClient* sender = clients.get(msg->sender);
+	if (!sender)
 	{
-		msg->conn = c->conn;
+		cerr << "received udp message from unknown client wit ip = " << msg->m_ip << endl;
+		return;
 	}
-	else
+	msg->conn = sender->conn;
+	covise::TokenBuffer tb(msg);
+	switch (msg->type)
 	{
-		cerr << "received udp message from unregistered client with ip: " << ip << endl;
+	case vrb::EMPTY:
+		cerr << "received empty udp message" << endl;
+		break;
+	case vrb::AVATAR_HMD_POSITION:
+	case vrb::AVATAR_CONTROLLER_POSITION:
+	{
+		//
+	std:string m;
+		tb >> m;
+		cerr << "received udp message: " << m << endl;
+		clients.passOnMessage(msg, sender->getSession());
 	}
-	handleMessage(msg);
+	break;
+	default:
+		break;
+	}
 }
 void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer &value)
 {

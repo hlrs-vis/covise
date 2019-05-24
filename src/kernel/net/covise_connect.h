@@ -18,7 +18,10 @@
 #include <netinet/in.h>
 
 #endif
-
+namespace vrb
+{
+	class UdpMessage;
+}
 #include <util/coExport.h>
 #include "message.h"
 
@@ -196,6 +199,15 @@ public:
     const char *get_hostname();
 };
 
+class NETEXPORT UDPConnection : public Connection
+{
+public:
+	UDPConnection(int id, int s_type, int p, const char* address);
+	//receive a udp message from socket, return true on succsess (deletes old data and creates new data)
+	bool recv_udp_msg(vrb::UdpMessage* msg);
+	//send udp message to ip, if no ip given use member address. Retun true on succsess
+	bool send_udp_msg(const vrb::UdpMessage* msg, const char* ip = nullptr);
+};
 // Connection that acts as server
 class NETEXPORT ServerConnection : public Connection
 {
@@ -302,11 +314,7 @@ public:
     ~ControllerConnection() // close connection
         {};
 };
-class NETEXPORT UDPConnection : public Connection
-{
-public:
-    UDPConnection(int id, int s_type, int p, const char *address);
-};
+
 #ifdef MULTICAST
 class NETEXPORT MulticastConnection : public Connection
 {

@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <net/tokenbuffer.h>
 #include <net/message.h>
+#include <net/udpMessage.h>
 #include <net/message_types.h>
 #include <OpenVRUI/sginterface/vruiButtons.h>
 #include <OpenVRUI/osg/mathUtils.h>
@@ -1470,17 +1471,13 @@ bool coVRPluginSupport::sendVrbMessage(const covise::Message *msg) const
 
     return false;
 }
-bool coVRPluginSupport::sendVrbUdpMessage(const covise::Message* msg) const
+bool coVRPluginSupport::sendVrbUdpMessage(const vrb::UdpMessage* msg) const
 {
-	if (coVRPluginList::instance()->sendVisMessage(msg))
-	{
-		return true;
-	}
-	else if (vrbc)
+
+	if (vrbc)
 	{
 		return vrbc->sendUdpMessage(msg);
 	}
-
 	return false;
 }
 

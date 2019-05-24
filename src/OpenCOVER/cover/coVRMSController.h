@@ -37,6 +37,11 @@
 #else
 #define CLUSTER_MARK() ;
 #endif
+#define UDP_MESSAGE_HEADER_SIZE  3 *sizeof(int)
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace covise
 {
 class Socket;
@@ -136,9 +141,11 @@ public:
     void sendSlaves(const SlaveData &c);
     void sendSlavesDraw(const void *c, int n);
     void sendSlaves(const covise::Message *msg);
+	void sendSlaves(const vrb::UdpMessage* msg);
     int readMaster(covise::Message *msg);
     void sendMaster(const covise::Message *msg);
-    void sendMaster(const std::string &s);
+	int readMaster(vrb::UdpMessage* msg);
+	void sendMaster(const std::string &s);
     void readSlave(int i, std::string &s);
     int getID()
     {

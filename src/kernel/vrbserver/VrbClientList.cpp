@@ -11,7 +11,7 @@
 #include <net/message.h>
 #include <net/message_types.h>
 #include <net/covise_connect.h>
-
+#include <net/udpMessage.h>
 #include <boost/algorithm/string.hpp>
 
 using namespace covise;
@@ -20,7 +20,7 @@ namespace vrb
 {
 VRBClientList clients;
 
-VRBSClient::VRBSClient(Connection * c, ServerUdpConnection* udpc, const char * ip, const char * n, bool send, bool dc)
+VRBSClient::VRBSClient(Connection * c, UDPConnection* udpc, const char * ip, const char * n, bool send, bool dc)
 	:deleteClient(dc)
 	,address(ip)
 	,m_name(n)
@@ -140,26 +140,24 @@ void VRBSClient::setUserInfo(const char *ui)
     userInfo = ui;
 }
 
-void VRBSClient::sendMsg(covise::Message* msg, Protocol p)
+void VRBSClient::sendMsg(covise::MessageBase* msg)
 {
-	switch (p)
+	if (covise::Message * tcp = dynamic_cast<covise::Message*>(msg))
 	{
-	case vrb::VRBSClient::TCP:
-		conn->send_msg(msg);
-		break;
-	case vrb::VRBSClient::UDP:
+		conn->send_msg(tcp);
+		return;
+	}
+	if (UdpMessage * udp = dynamic_cast<UdpMessage*>(msg))
+	{
 		if (udpConn)
 		{
-			udpConn->sendMessageTo(msg, address.c_str());
+			udpConn->send_udp_msg(udp, address.c_str());
 		}
-		else if(firstTryUdp)
+		else if (firstTryUdp)
 		{
 			firstTryUdp = false;
-			cerr << "trying to send udp message to a client without udp connection: type = " << msg->type << endl; 
+			cerr << "trying to send udp message to a client without udp connection: type = " << dynamic_cast<UdpMessage*>(msg)->type << endl;
 		}
-		break;
-	default:
-		break;
 	}
 }
 
@@ -319,7 +317,7 @@ void VRBClientList::remove(Connection * c)
 	}
 }
 
-void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &session, VRBSClient::Protocol p)
+void VRBClientList::passOnMessage(covise::MessageBase* msg, const vrb::SessionID &session)
 {
     if (session.isPrivate())
     {
@@ -329,8 +327,7 @@ void VRBClientList::passOnMessage(covise::Message * msg, const vrb::SessionID &s
     {
         if (cl->conn != msg->conn && (cl->getSession() == session || session == vrb::SessionID(0, "", false)))
         {
-            cl->sendMsg(msg, p);
-            cl->addBytesReceived(msg->length);
+            cl->sendMsg(msg);
         }
     }
 }
@@ -468,7 +465,7 @@ void VRBClientList::deleteAll()
     m_clients.clear();
 }
 
-void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, covise_msg_type type, VRBSClient::Protocol p)
+void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, covise_msg_type type)
 {
     Message m(stb);
     m.type = type;
@@ -477,30 +474,30 @@ void VRBClientList::sendMessage(TokenBuffer &stb, const vrb::SessionID &group, c
     {
         if (group == vrb::SessionID(0, std::string(), false) || group == cl->getSession())
         {
-            cl->sendMsg(&m, p);
+            cl->sendMsg(&m);
         }
     }
 }
 
-void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type type, VRBSClient::Protocol p)
+void VRBClientList::sendMessageToID(TokenBuffer &stb, int ID, covise_msg_type type)
 {
     Message m(stb);
     m.type = type;
     VRBSClient *cl = get(ID);
     if (cl)
     {
-		cl->sendMsg(&m, p);
+		cl->sendMsg(&m);
     }
 }
 
-void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type, VRBSClient::Protocol p)
+void VRBClientList::sendMessageToAll(covise::TokenBuffer &stb, covise::covise_msg_type type)
 {
     Message m(stb);
     m.type = type;
 
     for (VRBSClient *cl : m_clients)
     {
-		cl->sendMsg(&m , p);
+		cl->sendMsg(&m);
     }
 }
 std::string VRBClientList::cutFileName(const std::string& fileName)

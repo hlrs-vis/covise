@@ -18,13 +18,14 @@ namespace covise
 class TokenBuffer;
 class Connection;
 class UDPConnection;
-class ServerUdpConnection;
 class Message;
+class MessageBase;
 }
 
 namespace vrb
 {
 class ServerInterface;
+class UdpMessage;
 
 enum VRBSERVEREXPORT Columns {
     Master,
@@ -38,22 +39,19 @@ enum VRBSERVEREXPORT Columns {
 };
 class VRBSERVEREXPORT VRBSClient
 {
+	///Vrb Server client that holds a connection and information about the client
 public:
-   	enum Protocol
-	{
-		TCP,
-		UDP
-	}; ///Vrb Server client that holds a connection and information about the client
+
     ///send = false if you dont want to inform the client immediatly about the contact
-    VRBSClient(covise::Connection *c, covise::ServerUdpConnection* udpc, const char *ip, const char *name , bool send = true, bool deleteClient = true);
+    VRBSClient(covise::Connection *c, covise::UDPConnection* udpc, const char *ip, const char *name , bool send = true, bool deleteClient = true);
     virtual ~VRBSClient();
     ///set clientinformation and inform the client about its server id and session
     virtual void setContactInfo(const char *ip, const char *n, vrb::SessionID &session);
     ///store userinfo like email, pc-name, ...
     virtual void setUserInfo(const char *userInfo);
     covise::Connection *conn = nullptr;
-	covise::ServerUdpConnection* udpConn = nullptr;
-	void sendMsg(covise::Message* msg, Protocol p = TCP);
+	covise::UDPConnection* udpConn = nullptr;
+	void sendMsg(covise::MessageBase* msg);
     std::string getName() const;
     std::string getIP() const;
     int getID() const;
@@ -116,10 +114,10 @@ public:
     void setInterval(float i);
     void deleteAll();
     ///send mesage to every member of the session
-    void sendMessage(covise::TokenBuffer &stb, const vrb::SessionID &group = vrb::SessionID(0, "all", false), covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI, VRBSClient::Protocol p = VRBSClient::TCP);
+    void sendMessage(covise::TokenBuffer &stb, const vrb::SessionID &group = vrb::SessionID(0, "all", false), covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
     ///send message to the client with id
-    void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI, VRBSClient::Protocol p = VRBSClient::TCP);
-    void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI, VRBSClient::Protocol p = VRBSClient::TCP);
+    void sendMessageToID(covise::TokenBuffer &stb, int id, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
+    void sendMessageToAll(covise::TokenBuffer &tb, covise::covise_msg_type type = covise::COVISE_MESSAGE_VRB_GUI);
 	static std::string cutFileName(const std::string& fileName);
     int numInSession(vrb::SessionID &Group);
     int numberOfClients();
@@ -128,7 +126,7 @@ public:
 	/// remove client with connection c
 	void remove(covise::Connection *c);
     ///send Message to all clients but the sender of the message
-    void passOnMessage(covise::Message * msg, const vrb::SessionID &session = vrb::SessionID(0, "", false), VRBSClient::Protocol p = VRBSClient::TCP);
+    void passOnMessage(covise::MessageBase* msg, const vrb::SessionID &session = vrb::SessionID(0, "", false));
     ///write the info of all clients in the tokenbuffer
     void collectClientInfo(covise::TokenBuffer &tb);
 	VRBSClient* getNextPossibleFileOwner(const std::string& fileName, const vrb::SessionID& id);

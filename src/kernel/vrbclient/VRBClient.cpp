@@ -22,6 +22,8 @@
 #include <net/tokenbuffer.h>
 #include <net/covise_host.h>
 #include <net/message.h>
+#include<net/udpMessage.h>
+#include <net/udp_message_types.h>
 #include <net/message_types.h>
 
 using namespace covise;
@@ -162,15 +164,18 @@ int VRBClient::poll(Message *m)
         sConn->recv_msg(m);
         return 1;
     }
+	return 0;
 
-	if (!udpConn)
-	{
-		return 0;
-	}
-	return udpConn->recv_msg(m);
 
 }
-
+bool VRBClient::pollUdp(vrb::UdpMessage* m)
+{
+	if (!udpConn)
+	{
+		return false;
+	}
+	return udpConn->recv_udp_msg(m);
+}
 int VRBClient::wait(Message *m)
 {
 #ifdef MB_DEBUG
@@ -264,19 +269,21 @@ void covise::VRBClient::sendMessage(TokenBuffer & tb, int type)
     sendMessage(&m);
 }
 
-int VRBClient::sendUdpMessage(const Message* m)
+int VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 {
 	if (!udpConn) // not connected to a server
 	{
 		return 0;
 	}
-	return sendMessage(m, udpConn);
+	return udpConn->send_udp_msg(m);
+
 }
 
-void covise::VRBClient::sendUdpMessage(TokenBuffer& tb, int type)
+void covise::VRBClient::sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender)
 {
-	Message m(tb);
+	vrb::UdpMessage m(tb);
 	m.type = type;
+	m.sender = sender;
 	sendUdpMessage(&m);
 }
 
@@ -331,12 +338,13 @@ int VRBClient::isConnected()
 
 int VRBClient::connectToServer(const std::string& sessionName)
 {
-	if (!udpConn)
+	if (!udpConn && !isSlave)
 	{
 		setupUdpConn();
 	}
 	if (isSlave || serverHost == NULL|| sConn != nullptr)
         return 0;
+
     connMutex.lock();
     if (!connFuture.valid())
     {
@@ -406,56 +414,6 @@ int VRBClient::connectToServer(const std::string& sessionName)
     return true;
 }
 
-int VRBClient::connectToUdpServer()
-{
-	if (isSlave || serverHost == NULL || udpConn != nullptr)
-		return 0;
-	udpConnMutex.lock();
-	if (!udpConnFuture.valid())
-	{
-		udpConnFuture = std::async(std::launch::async, [this]() -> UDPConnection *
-			{
-				UDPConnection* myConn = new UDPConnection(0, 0, m_udpPort, serverHost->getAddress());
-				if (!myConn->is_connected()) // could not open server port
-				{
-					if (firstUdpVrbConnection)
-					{
-						fprintf(stderr, "Could not connect to server via UDP on %s; port %d\n", serverHost->getAddress(), m_udpPort);
-						firstUdpVrbConnection = false;
-					}
-
-					delete myConn;
-					myConn = NULL;
-					sleep(1);
-					return nullptr;
-				}
-				struct linger linger;
-				linger.l_onoff = 0;
-				linger.l_linger = 1;
-				setsockopt(myConn->get_id(NULL), SOL_SOCKET, SO_LINGER, (char*)& linger, sizeof(linger));
-
-				return myConn;
-			});
-	}
-	udpConnMutex.unlock();
-	if (udpConnFuture.valid())
-	{
-		udpConnMutex.lock();
-		auto status = udpConnFuture.wait_for(std::chrono::seconds(0));
-		if (status == std::future_status::ready)
-		{
-			udpConn = udpConnFuture.get();
-		}
-		udpConnMutex.unlock();
-	}
-
-
-	if (!sConn)
-	{
-		return false;
-	}
-	return true;
-}
 
 void VRBClient::setupUdpConn() 
 {

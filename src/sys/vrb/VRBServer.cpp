@@ -51,6 +51,7 @@ extern ApplicationWindow *mw;
 #include <net/covise_socket.h>
 #include <net/covise_connect.h>
 #include <net/message_types.h>
+#include <net/udpMessage.h>
 #include <util/unixcompat.h>
 
 #include <qtutil/NetHelp.h>
@@ -153,7 +154,8 @@ int VRBServer::openServer()
     connections->add(sConn);
     if (!msg)
         msg = new Message;
-
+if(!udpMsg)
+	udpMsg = new UdpMessage;
     if (m_gui)
     {
         QSocketNotifier *serverSN = new QSocketNotifier(sConn->get_id(NULL), QSocketNotifier::Read);
@@ -182,11 +184,8 @@ void VRBServer::processMessages()
 		}
 		if (conn == udpConn) //udp connection
 		{
-				while (udpConn->recv_msg(msg, ip))
-				{
-					handler->matchAndHandleUdpMessage(msg, ip);
-				}
-				return;
+			processUdpMessages();
+			return;
 		}
 		if(clientConn)
 		{
@@ -255,14 +254,14 @@ void VRBServer::processMessages()
 }
 void VRBServer::processUdpMessages()
 {
-	while (udpConn->recv_msg(msg, ip))
+	while (udpConn->recv_udp_msg(udpMsg))
 	{
-		handler->matchAndHandleUdpMessage(msg, ip);
+		handler->handleUdpMessage(udpMsg);
 	}
 }
 bool VRBServer::startUdpServer() 
 {
-	udpConn = new ServerUdpConnection(new UDPSocket(m_udpPort)); 
+	udpConn = new UDPConnection(0,0, m_udpPort, nullptr); 
 	if (udpConn->getSocket()->get_id() < 0)
 	{
         delete udpConn;

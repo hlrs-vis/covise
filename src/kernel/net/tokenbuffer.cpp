@@ -11,6 +11,7 @@
 #include "message.h"
 #include "message_types.h"
 
+
 #include <util/coErr.h>
 #include <util/byteswap.h>
 
@@ -73,7 +74,7 @@ using namespace covise;
     } while (false)
 
 
-TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
+TokenBuffer::TokenBuffer(const MessageBase *msg, bool nbo)
 {
 #ifndef TB_DEBUG_TAG
 #ifdef TB_DEBUG
@@ -82,10 +83,7 @@ TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
 #endif
     //std::cerr << "new TokenBuffer(Message) " << this << ": debug=" << debug << std::endl;
     assert(msg);
-    if (msg->type == COVISE_MESSAGE_SOCKET_CLOSED)
-    {
-        //std::cerr << "TokenBuffer: cannot handle SOCKET_CLOSED message" << std::endl;
-    }
+
     buflen = 0;
     length = msg->length;
     data = currdata = msg->data;
@@ -93,6 +91,7 @@ TokenBuffer::TokenBuffer(const Message *msg, bool nbo)
 
     rewind();
 }
+
 
 TokenBuffer::TokenBuffer(const char *dat, int len, bool nbo)
 {

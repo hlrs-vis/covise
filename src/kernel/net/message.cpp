@@ -56,27 +56,47 @@ Initial revision
 \***********************************************************************/
 
 namespace covise {
+MessageBase::MessageBase()
+	:length(0)
+	, data(NULL)
+	, conn(NULL)
+	, mustDelete(false) {
 
-Message::Message(TokenBuffer *t)
-    : type(Message::EMPTY)
-    , conn(NULL)
-    , mustDelete(false)
+}
+MessageBase::MessageBase(TokenBuffer* t)
+	:mustDelete(false)
 {
-    length = t->get_length();
-    data = (char *)t->get_data();
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
+	length = t->get_length();
+	data = (char*)t->get_data();
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+}
+
+MessageBase::MessageBase(const TokenBuffer& t)
+	:mustDelete(false)
+{
+	length = t.get_length();
+	data = (char*)t.get_data();
+	//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+
+}
+
+MessageBase::~MessageBase()
+{
+	if (mustDelete)
+		delete[] data;
+	data = NULL;
+	// do NOT delete this pointer here - some apps take over the buffer!!
+}
+Message::Message(TokenBuffer *t)
+    :MessageBase(t)
+	,type(Message::EMPTY)
+{
 }
 
 Message::Message(const TokenBuffer &t)
-    : type(Message::EMPTY)
-    , conn(NULL)
-    , mustDelete(false)
+    :MessageBase(t)
+	,type(Message::EMPTY)
 {
-    length = t.get_length();
-    data = (char *)t.get_data();
-    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-    print();
 }
 
 void Message::print()

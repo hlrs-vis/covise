@@ -28,14 +28,12 @@ class Message;
 }
 class QTreeWidgetItem;
 class QSocketNotifier;
-namespace vrb
-{
-class VrbServerRegistry;
-}
 
 namespace vrb
 {
+	class VrbServerRegistry;
 class VRBClientList;
+class UdpMessage;
 }
 extern vrb::VRBClientList *vrbClients;
 
@@ -64,7 +62,7 @@ private:
     QPixmap *pix_master = NULL;
     QPixmap *pix_slave = NULL;
     covise::ServerConnection *sConn = nullptr;
-	covise::ServerUdpConnection* udpConn = nullptr;
+	covise::UDPConnection* udpConn = nullptr;
     QSocketNotifier *serverSN = nullptr;
 
     vrb::VrbMessageHandler *handler;
@@ -73,6 +71,7 @@ private:
     int m_tcpPort, m_udpPort; // port Number (default: 31800) covise.config: VRB.TCPPort
   
     covise::Message *msg = nullptr;
+	vrb::UdpMessage* udpMsg = nullptr;
 	char* ip = new char[16];
     bool requestToQuit = false;
 

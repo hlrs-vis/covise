@@ -13,6 +13,7 @@
 #include <net/covise_connect.h>
 #include <net/covise_socket.h>
 #include <net/covise_host.h>
+#include <net/udpMessage.h>
 #include "coVRSlave.h"
 #include "coVRPluginSupport.h"
 #include "coVRCommunication.h"
@@ -743,7 +744,13 @@ void coVRMSController::sendSlaves(const Message *msg)
 #endif
     }
 }
-
+void coVRMSController::sendSlaves(const vrb::UdpMessage* msg)
+{
+	for (int i = 0; i < numSlaves; i++)
+	{
+		slaves[i]->sendMessage(msg);
+	}
+}
 int coVRMSController::readMaster(Message *msg)
 {
     assert(isSlave());
@@ -911,6 +918,26 @@ void coVRMSController::sendMaster(const Message *msg)
     }
 }
 
+int coVRMSController::readMaster(vrb::UdpMessage* msg)
+{
+	char read_buf[UDP_MESSAGE_HEADER_SIZE];
+	int ret = readMaster(read_buf, UDP_MESSAGE_HEADER_SIZE);
+	if (ret < UDP_MESSAGE_HEADER_SIZE)
+		return -1;
+	int* read_buf_int = (int*)read_buf;
+	msg->type = (vrb::udp_msg_type)read_buf_int[0];
+	msg->sender = read_buf_int[1];
+	msg->length = read_buf_int[2];
+	//cerr << "reading master, type = " << read_buf_int[0] << " sender = " << read_buf_int[1] << " length = " << read_buf_int[2] << endl;
+	if (msg->length >  WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
+	{
+		cerr << "udp message of type " << msg->type << " was too long to read;" << endl;
+		return 0;
+	}
+	msg->data = new char[msg->length];
+	ret = readMaster(msg->data, msg->length);
+	return ret;
+}
 void coVRMSController::sendMaster(const std::string &s)
 {
     int sz = s.size();
@@ -2479,20 +2506,22 @@ bool coVRMSController::syncVRBMessages()
 {
 #define MAX_VRB_MESSAGES 500
     Message *vrbMsgs[MAX_VRB_MESSAGES];
+	vrb::UdpMessage* udpMsgs[MAX_VRB_MESSAGES];
     int numVrbMessages = 0;
-    //if (numSlaves == 0) // we have to handle vrb messages also in non cluster mode
-    //    return;
+	int numUdpMessages = 0;
 
     if (cover->debugLevel(4))
         fprintf(stderr, "\ncoVRMSController::syncVRBMessages\n");
 
     Message *vrbMsg = new Message;
+	vrb::UdpMessage* udpMsg = new vrb::UdpMessage;
 	if (!cover->connectedToCovise())
 	{
 		if (master)
 		{
 			if (vrbc && vrbc->isConnected())
 			{
+				//poll tcp messages
 				while (vrbc->poll(vrbMsg))
 				{
 					vrbMsgs[numVrbMessages] = vrbMsg;
@@ -2501,6 +2530,20 @@ bool coVRMSController::syncVRBMessages()
 					if (numVrbMessages >= MAX_VRB_MESSAGES)
 					{
 						cerr << "too many VRB Messages!!" << endl;
+						break;
+					}
+					if (!vrbc->isConnected())
+						break;
+				}
+				//poll udp messages
+				while (vrbc->pollUdp(udpMsg))
+				{
+					udpMsgs[numUdpMessages] = udpMsg;
+					numUdpMessages++;
+					udpMsg = new vrb::UdpMessage;
+					if (numVrbMessages >= MAX_VRB_MESSAGES)
+					{
+						cerr << "too many UDP Messages!!" << endl;
 						break;
 					}
 					if (!vrbc->isConnected())
@@ -2537,6 +2580,14 @@ bool coVRMSController::syncVRBMessages()
 				vrbMsgs[i]->data = NULL;
 				delete vrbMsgs[i];
 			}
+			sendSlaves(&numUdpMessages, sizeof(int));
+			for (i = 0; i < numUdpMessages; i++)
+			{
+				sendSlaves(udpMsgs[i]);
+				coVRCommunication::instance()->handleUdp(udpMsgs[i]);
+				udpMsgs[i]->data = NULL;
+				delete udpMsgs[i];
+			}
 		}
 		else
 		{
@@ -2557,11 +2608,27 @@ bool coVRMSController::syncVRBMessages()
 				}
 				coVRCommunication::instance()->handleVRB(vrbMsg);
 			}
+			if (readMaster(&numUdpMessages, sizeof(int)) < 0)
+			{
+				cerr << "sync_exit160 myID=" << myID << endl;
+				exit(0);
+			}
+			//cerr << "numSlaveMSGS " <<  numVrbMessages << endl;
+			for (i = 0; i < numUdpMessages; i++)
+			{
+				if (readMaster(udpMsg) < 0)
+				{
+					cerr << "sync_exit170 myID=" << myID << endl;
+					exit(0);
+				}
+				coVRCommunication::instance()->handleUdp(udpMsg);
+			}
 		}
 	}
-    vrbMsg->data = NULL;
+    vrbMsg->data = nullptr;
+	udpMsg->data = nullptr;
     delete vrbMsg;
-
+	delete udpMsg;
     return numVrbMessages>0;
 }
 

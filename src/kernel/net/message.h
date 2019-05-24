@@ -107,8 +107,27 @@ inline void swap_short_bytes(unsigned short *, int){};
 #endif
 
 class TokenBuffer;
+class NETEXPORT MessageBase
+{
+public:
+	int length; // length of the message in byte
+	char* data = nullptr; // pointer to the data of the message
+	Connection* conn; // connection at which message has been received (if so)
+	MessageBase();
+	MessageBase(TokenBuffer*);
+	MessageBase(const TokenBuffer&);
+	~MessageBase();
 
-class NETEXPORT Message // class for messages
+	virtual void print() = 0;
+	void delete_data()
+	{
+		delete[] data;
+		data = NULL;
+	};
+protected:
+	bool mustDelete;
+};
+class NETEXPORT Message : public MessageBase// class for messages
 {
 public:
     // message types
@@ -134,37 +153,25 @@ public:
     int sender; // sender of message (max. 3bytes)
     int send_type; // type of sender
     int type; // type of the message
-    int length; // length of the message in byte
-    char *data; // pointer to the data of the message
-    Connection *conn; // connection at which message has been received (if so)
+
     // empty initialization:
     Message()
         : sender(-1)
         , send_type(Message::UNDEFINED)
         , type(Message::EMPTY)
-        , length(0)
-        , data(NULL)
-        , conn(NULL)
-        , mustDelete(false)
     {
         //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
         print();
     };
-
-    Message(TokenBuffer *);
-
-    Message(const TokenBuffer &);
-
+	Message(TokenBuffer* t);
+	Message(const TokenBuffer& t);
     Message(Connection *c)
         : sender(-1)
         , send_type(Message::UNDEFINED)
         , type(Message::EMPTY)
-        , length(0)
-        , data(NULL)
-        , conn(c)
-        , mustDelete(false)
     {
-        //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+		conn = c;
+		//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
         print();
     };
     // initialization with data only (for sending):
@@ -172,12 +179,9 @@ public:
         : sender(-1)
         , send_type(Message::UNDEFINED)
         , type(message_type)
-        , length(0)
-        , data(NULL)
-        , conn(NULL)
-        , mustDelete(true)
     {
-        if (!str.empty())
+		mustDelete = true;
+		if (!str.empty())
         {
             length = (int)str.length() + 1;
             data = new char[length];
@@ -189,10 +193,6 @@ public:
         : sender(-1)
         , send_type(Message::UNDEFINED)
         , type(message_type)
-        , length(0)
-        , data(NULL)
-        , conn(NULL)
-        , mustDelete(false)
     {
         //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
         if (d)
@@ -215,12 +215,9 @@ public:
         : sender(-1)
         , send_type(Message::UNDEFINED)
         , type(message_type)
-        , length(l)
-        , data(NULL)
-        , conn(NULL)
-        , mustDelete(false)
     {
-        //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+		length = l;
+		//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
         if (cp == MSG_NOCOPY || d == NULL)
         {
             data = d;
@@ -234,14 +231,7 @@ public:
         print();
     };
     Message(const Message &); // copy constructor
-    ~Message()
-    {
-        if (mustDelete)
-            delete[] data;
 
-        data = NULL;
-        // do NOT delete this pointer here - some apps take over the buffer!!
-    };
     Message &operator=(const Message &); // assignment
     void delete_data()
     {
@@ -249,10 +239,8 @@ public:
         data = NULL;
     };
     char *extract_data();
-    void print();
+    void print() override;
 
-private:
-    bool mustDelete;
 };
 }
 #endif

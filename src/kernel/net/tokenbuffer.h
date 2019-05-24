@@ -65,11 +65,15 @@
  **                                                                     **
  **                                                                     **
 \***********************************************************************/
-
+namespace vrb
+{
+	class UdpMessage;
+}
 namespace covise
 {
 
-class Message;
+class MessageBase;
+
 
 class NETEXPORT TokenBuffer // class for tokens
 {
@@ -109,7 +113,7 @@ public:
     virtual ~TokenBuffer();
 
     void delete_data();
-    TokenBuffer(const Message *msg, bool nbo = false);
+    TokenBuffer(const MessageBase *msg, bool nbo = false);
     TokenBuffer(const char *dat, int len, bool nbo = false);
     TokenBuffer &operator=(TokenBuffer &&other);
     void copy(const TokenBuffer &other);

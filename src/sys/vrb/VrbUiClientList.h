@@ -19,14 +19,14 @@ class VRBCurve;
 namespace covise
 {
 class Connenction;
-class ServerUdpConnection;
+class UDPConnection;
 }
 
 class VrbUiClient : public vrb::VRBSClient
 {
 public: 
-    VrbUiClient(covise::Connection *c, covise::ServerUdpConnection* udpc, const char *ip, const char *n, bool send = true);
-    VrbUiClient(covise::Connection *c, covise::ServerUdpConnection *udpc, QSocketNotifier *sn);
+    VrbUiClient(covise::Connection *c, covise::UDPConnection* udpc, const char *ip, const char *n, bool send = true);
+    VrbUiClient(covise::Connection *c, covise::UDPConnection*udpc, QSocketNotifier *sn);
     ~VrbUiClient();
 
     void setContactInfo(const char *ip, const char *n, vrb::SessionID &session) override;

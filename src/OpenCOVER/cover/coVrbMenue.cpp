@@ -32,6 +32,10 @@
 #include <net/message.h>
 #include <fcntl.h>
 #include <boost/filesystem/operations.hpp>
+
+//udp test
+#include <net/udp_message_types.h>
+#include <net/udpMessage.h>
 using namespace covise;
 namespace fs = boost::filesystem;
 namespace opencover
@@ -98,8 +102,9 @@ void VrbMenue::init()
 			covise::TokenBuffer tb;
 			std::string s = "udp mesage number " + std::to_string(count);
 			tb << s;
-			covise::Message msg(tb);
-			msg.type = covise::COVISE_MESSAGE_RENDER;
+			vrb::UdpMessage msg(tb);
+			msg.type = vrb::AVATAR_HMD_POSITION;
+			msg.sender = coVRCommunication::instance()->getID();
 			cover->sendVrbUdpMessage(&msg);
 
 		});

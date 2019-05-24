@@ -14,7 +14,11 @@
 #include <util/coTypes.h>
 
 
-
+namespace vrb
+{
+	class UdpMessage;
+	enum udp_msg_type : int;
+}
 namespace covise
 {
 
@@ -42,16 +46,16 @@ public:
     int isCOVERRunning();
     int isConnected();
     int poll(Message *m);
+	bool pollUdp(vrb::UdpMessage* m);
     int wait(Message *m);
     int wait(Message *m, int messageType);
     int setUserInfo(const char *userInfo);
     int sendMessage(const Message *m);
     void sendMessage(TokenBuffer &tb, int type);
 
-	int connectToUdpServer(); // returns -1, if Connection to Server fails, uses port +1 (fix me: define udp port in config)
 	void setupUdpConn();
-	int sendUdpMessage(const Message* m);
-	void sendUdpMessage(TokenBuffer& tb, int type);
+	int sendUdpMessage(const vrb::UdpMessage* m);
+	void sendUdpMessage(TokenBuffer& tb, vrb::udp_msg_type type, int sender);
 
     int getID();
     void setID(int ID);
