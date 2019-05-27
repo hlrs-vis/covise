@@ -1685,27 +1685,77 @@ TraCIAPI::SimulationScope::findRoute(const std::string& fromEdge, const std::str
 	ret.depart = inMsg.readDouble();
 
 	return ret;
-
-	/*outputStorage.writeUnsignedByte(TYPE_COMPOUND);
-	outputStorage.writeInt(6);
-	outputStorage.writeUnsignedByte(TYPE_INTEGER);
-	outputStorage.writeInt(stage.type);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.line);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.destStop);
-	outputStorage.writeUnsignedByte(TYPE_STRINGLIST);
-	outputStorage.writeStringList(stage.edges);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.travelTime);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.cost);
-	outputStorage.writeUnsignedByte(TYPE_STRING);
-	outputStorage.writeString(stage.intended);
-	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
-	outputStorage.writeDouble(stage.depart);*/
-
 }
+
+std::vector<libsumo::TraCIStage>
+TraCIAPI::SimulationScope::findIntermodalRoute(const std::string& fromEdge, const std::string& toEdge, const std::string& modes,
+double depart, const int routingMode, double speed, double walkFactor, double departPos, double arrivalPos, const double departPosLat,
+const std::string& pType, const std::string& vType, const std::string& destStop)
+{
+    tcpip::Storage content;
+    content.writeByte(TYPE_COMPOUND);
+    content.writeInt(13);
+    content.writeByte(TYPE_STRING);
+    content.writeString(fromEdge);
+    content.writeByte(TYPE_STRING);
+    content.writeString(toEdge);
+    content.writeByte(TYPE_STRING);
+    content.writeString(modes);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(depart);
+    content.writeByte(TYPE_INTEGER);
+    content.writeInt(routingMode);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(speed);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(walkFactor);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(departPos);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(arrivalPos);
+    content.writeByte(TYPE_DOUBLE);
+    content.writeDouble(departPosLat);
+    content.writeByte(TYPE_STRING);
+    content.writeString(pType);
+    content.writeByte(TYPE_STRING);
+    content.writeString(vType);
+    content.writeByte(TYPE_STRING);
+    content.writeString(destStop);
+
+    myParent.send_commandGetVariable(CMD_GET_SIM_VARIABLE, FIND_INTERMODAL_ROUTE, "", &content);
+    tcpip::Storage inMsg;
+    myParent.processGET(inMsg, CMD_GET_SIM_VARIABLE, TYPE_COMPOUND);
+
+    std::vector<libsumo::TraCIStage> ret;
+
+    const int stageNo = inMsg.readInt();
+
+    for (int i = 0; i < stageNo; ++i) {
+        libsumo::TraCIStage stage;
+        inMsg.readUnsignedByte();
+        const int test = inMsg.readInt();
+        inMsg.readUnsignedByte();
+        stage.type = inMsg.readInt();
+        inMsg.readUnsignedByte();
+        stage.line = inMsg.readString();
+        inMsg.readUnsignedByte();
+        stage.destStop = inMsg.readString();
+        inMsg.readUnsignedByte();
+        stage.edges = inMsg.readStringList();
+        inMsg.readUnsignedByte();
+        stage.travelTime = inMsg.readDouble();
+        inMsg.readUnsignedByte();
+        stage.cost = inMsg.readDouble();
+        inMsg.readUnsignedByte();
+        stage.intended = inMsg.readString();
+        inMsg.readUnsignedByte();
+        stage.depart = inMsg.readDouble();
+        ret.push_back(stage);
+    }
+    return ret;
+}
+
+
 
 
 // ---------------------------------------------------------------------------
