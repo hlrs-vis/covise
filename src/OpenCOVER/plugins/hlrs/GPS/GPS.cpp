@@ -288,7 +288,6 @@ void GPSPlugin::GPSTab_create(void)
     });
     TrackSizeSlider = new ui::Slider(GPSTab, "ScaleTracksize");
     TrackSizeSlider->setText("Scale Tracksize");
-    TrackSizeSlider->setVisible(false, ui::View::VR);
     TrackSizeSlider->setBounds(1, 100);
     TrackSizeSlider->setScale(ui::Slider::Linear);
     TrackSizeSlider->setValue(5);
@@ -303,8 +302,7 @@ void GPSPlugin::GPSTab_create(void)
     });
     PointSizeSlider = new ui::Slider(GPSTab, "ScalePointsize");
     PointSizeSlider->setText("Scale Pointsize");
-    PointSizeSlider->setVisible(false, ui::View::VR);
-    PointSizeSlider->setBounds(0.1, 100);
+    PointSizeSlider->setBounds(1, 100);
     PointSizeSlider->setScale(ui::Slider::Logarithmic);
     PointSizeSlider->setValue(1);
     PointSizeSlider->setCallback([this](double value, bool released){
