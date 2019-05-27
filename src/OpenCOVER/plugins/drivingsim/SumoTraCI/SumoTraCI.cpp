@@ -248,21 +248,26 @@ void SumoTraCI::preFrame()
 		std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
 		uniqueIDValue++;
 		std::vector<std::string> edges = client.edge.getIDList();
-		
-		client.simulation.getDistanceRoad(edges[1],0.0,edges[2],0.0);
-		libsumo::TraCIStage newStage = client.simulation.findRoute(TAZs[1], TAZs[2]);
+
+		client.simulation.getDistanceRoad(edges[1], 0.0, edges[2], 0.0);
+		libsumo::TraCIStage newStage = client.simulation.findRoute(TAZs[1], TAZs[2], "ped_pedestrian");
+		fprintf(stderr, "Starting intermodal route at %s \n", newStage.edges.begin()->c_str());
+		std::string fromEdge = *(newStage.edges.begin()+1);
+		std::string toEdge = *(newStage.edges.end()-2);
+		std::vector<libsumo::TraCIStage> newIntermodalRoute = client.simulation.findIntermodalRoute(fromEdge, toEdge, "public");
 
 		client.route.add(uniqueRouteID,newStage.edges);
 		client.vehicle.add(uniqueID, uniqueRouteID);
 		//client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
 		//client.vehicle.setRoute(uniqueID,newStage.edges);
 		std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
-		client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+		//client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+		client.person.add(uniquePersonID, *newIntermodalRoute.begin()->edges.begin(), 1.0, -1.0, "ped_pedestrian");
 		std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
 		std::vector<std::string> lanes = client.lane.getIDList();
 		std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
-		client.person.appendWalkingStage(uniquePersonID, ped1Edges, 10.0);
-		client.person.appendWaitingStage(uniquePersonID,1000.0);
+		client.person.appendWalkingStage(uniquePersonID, newIntermodalRoute.begin()->edges, 10.0);
+		//client.person.appendWaitingStage(uniquePersonID,1000.0);
 		lastParticipantStartedTime = currentTime;
 		
 	}
