@@ -37,7 +37,9 @@ LoadCadData::LoadCadData(int argc, char **argv)
     p_backface = addBooleanParam("backface", "Backface Culling");
     p_orientation_iv = addBooleanParam("orientation_iv", "Orientation of iv models like in Inventor Renderer");
     p_convert_xforms_iv = addBooleanParam("convert_xforms_iv", "create LoadCadData DCS nodes");
+    p_isect = addBooleanParam("doIsect", "do intersectiontest");
 
+    p_isect->setValue(false);
     p_scale->setValue(-1.0);
     p_rotangle->setValue(0);
     p_resize->setValue(1, 1, 1);
@@ -65,6 +67,7 @@ int LoadCadData::compute(const char * /* port */)
     bool backface = p_backface->getValue();
     bool orientation_iv = p_orientation_iv->getValue();
     bool convertXforms_iv = p_convert_xforms_iv->getValue();
+    bool doIsect = p_isect->getValue();
 
     float c = 0.f;
     point = new coDoPoints(p_pointName->getObjName(), 1, &c, &c, &c);
@@ -90,6 +93,10 @@ int LoadCadData::compute(const char * /* port */)
         else
             point->addAttribute("PFIV_CONVERT_XFORMS", "OFF");
 
+        if(doIsect)
+	{
+            point->addAttribute("DO_ISECT", "ON");
+	}
         if (scale < 0.0)
         {
             point->addAttribute("SCALE", "viewAll");

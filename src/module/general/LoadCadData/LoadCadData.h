@@ -32,6 +32,7 @@ private:
     coBooleanParam *p_backface;
     coBooleanParam *p_orientation_iv;
     coBooleanParam *p_convert_xforms_iv;
+    coBooleanParam *p_isect;
 
     char modelPath[1024];
     char *pointName;
