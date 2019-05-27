@@ -155,10 +155,6 @@ private:
     typedef std::map<const void *, int> TimestepMap;
     TimestepMap timestepMap;
 
-    void sendAnimationStateMessage();
-    void sendAnimationSpeedMessage();
-    void sendAnimationStepMessage();
-
     double timestepScale, timestepBase;
     std::string timestepUnit;
     bool m_animationPaused = false;

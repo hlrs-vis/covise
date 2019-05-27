@@ -184,7 +184,7 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     if (debugOn)
         std::cerr << "new Client" << std::endl;
     Host *serverHost = NULL;
-    int port = coCoviseConfig::getInt("port", "System.VRB.Server", 31800);
+    int tcp_p = coCoviseConfig::getInt("tcpPort", "System.VRB.Server", 31800);
     std::string line = coCoviseConfig::getEntry("System.VRB.Server");
     if (!line.empty())
     {
@@ -197,12 +197,12 @@ VRBPClient::VRBPClient(Connection *c, VRBProxy *p)
     {
         serverHost = NULL;
     }
-    toVRB = new ClientConnection(serverHost, port, 0, 0, 0);
+    toVRB = new ClientConnection(serverHost, tcp_p, 0, 0, 0);
     if (toVRB)
     {
         if (!toVRB->is_connected()) // could not open server port
         {
-            fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), port);
+            fprintf(stderr, "Could not connect to server on %s; port %d\n", serverHost->getAddress(), tcp_p);
             delete toVRB;
             toVRB = NULL;
         }

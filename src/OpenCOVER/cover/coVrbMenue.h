@@ -55,6 +55,7 @@ private:
     void requestNewSession(const std::string & name);
     void selectSession(int id);
     const std::string noSavedSession = "nothing";
+	void test(int a = 0, int b = 0);
 public:
     VrbMenue();
     void updateState(bool state);

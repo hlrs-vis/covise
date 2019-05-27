@@ -1644,6 +1644,69 @@ TraCIAPI::SimulationScope::getDistanceRoad(const std::string& edgeID1, double po
     return inMsg.readDouble();
 }
 
+libsumo::TraCIStage 
+TraCIAPI::SimulationScope::findRoute(const std::string& fromEdge, const std::string& toEdge, const std::string& vType, const double depart, const int routingMode) {
+	tcpip::Storage content;
+	content.writeByte(TYPE_COMPOUND);
+	content.writeInt(5);
+	content.writeByte(TYPE_STRING);
+	content.writeString(fromEdge);
+	content.writeByte(TYPE_STRING);
+	content.writeString(toEdge);
+	content.writeByte(TYPE_STRING);
+	content.writeString(vType);
+	content.writeByte(TYPE_DOUBLE);
+	content.writeDouble(depart);
+	content.writeByte(TYPE_INTEGER);
+	content.writeInt(routingMode);
+	myParent.send_commandGetVariable(CMD_GET_SIM_VARIABLE, FIND_ROUTE, "", &content);
+	tcpip::Storage inMsg;
+	inMsg.reset();
+	myParent.processGET(inMsg, CMD_GET_SIM_VARIABLE, TYPE_COMPOUND);
+
+	libsumo::TraCIStage ret;
+
+	const int test = inMsg.readInt();
+	inMsg.readUnsignedByte();
+	ret.type = inMsg.readInt();
+	inMsg.readUnsignedByte();
+	ret.line = inMsg.readString();
+	inMsg.readUnsignedByte();
+	ret.destStop = inMsg.readString();
+	inMsg.readUnsignedByte();
+	ret.edges = inMsg.readStringList();
+	inMsg.readUnsignedByte();
+	ret.travelTime = inMsg.readDouble();
+	inMsg.readUnsignedByte();
+	ret.cost = inMsg.readDouble();
+	inMsg.readUnsignedByte();
+	ret.intended = inMsg.readString();
+	inMsg.readUnsignedByte();
+	ret.depart = inMsg.readDouble();
+
+	return ret;
+
+	/*outputStorage.writeUnsignedByte(TYPE_COMPOUND);
+	outputStorage.writeInt(6);
+	outputStorage.writeUnsignedByte(TYPE_INTEGER);
+	outputStorage.writeInt(stage.type);
+	outputStorage.writeUnsignedByte(TYPE_STRING);
+	outputStorage.writeString(stage.line);
+	outputStorage.writeUnsignedByte(TYPE_STRING);
+	outputStorage.writeString(stage.destStop);
+	outputStorage.writeUnsignedByte(TYPE_STRINGLIST);
+	outputStorage.writeStringList(stage.edges);
+	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
+	outputStorage.writeDouble(stage.travelTime);
+	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
+	outputStorage.writeDouble(stage.cost);
+	outputStorage.writeUnsignedByte(TYPE_STRING);
+	outputStorage.writeString(stage.intended);
+	outputStorage.writeUnsignedByte(TYPE_DOUBLE);
+	outputStorage.writeDouble(stage.depart);*/
+
+}
+
 
 // ---------------------------------------------------------------------------
 // TraCIAPI::TrafficLightScope-methods
