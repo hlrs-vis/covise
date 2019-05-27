@@ -1687,7 +1687,7 @@ TraCIAPI::SimulationScope::findRoute(const std::string& fromEdge, const std::str
 	return ret;
 }
 
-std::vector<ilibsumo::TraCIStage>
+std::vector<libsumo::TraCIStage>
 TraCIAPI::SimulationScope::findIntermodalRoute(const std::string& fromEdge, const std::string& toEdge, const std::string& modes,
 double depart, const int routingMode, double speed, double walkFactor, double departPos, double arrivalPos, const double departPosLat,
 const std::string& pType, const std::string& vType, const std::string& destStop)
@@ -1752,6 +1752,7 @@ const std::string& pType, const std::string& vType, const std::string& destStop)
         stage.depart = inMsg.readDouble();
         ret.push_back(stage);
     }
+    return ret;
 }
 
 
