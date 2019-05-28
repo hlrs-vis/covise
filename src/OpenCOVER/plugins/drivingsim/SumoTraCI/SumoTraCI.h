@@ -57,6 +57,13 @@ struct pedestrianModel
     pedestrianModel(std::string, double);
 };
 
+struct modalSplit
+{
+    ui::Slider* modalSplitSlider;
+    ui::Button* modalSplitButton;
+    std::string modalSplitString;
+};
+
 pedestrianModel::pedestrianModel(std::string n, double s) : fileName(n), scale(s) {}
 
 struct vehicleModel
@@ -75,37 +82,45 @@ public:
     ~SumoTraCI();
 
     void preFrame();
-	bool init();
+    bool init();
 
 private:
-	TraCIAPI client;
+    TraCIAPI client;
 
     bool initUI();
+    bool compareTAZending(std::string& TAZ, std::string ending);
     ui::Menu *traciMenu;
-	ui::Button *pedestriansVisible;
-	ui::Button *pauseUI;
-	ui::Button *addTrafficUI;
-	ui::Slider *trafficRateUI;
+    ui::Button *pedestriansVisible;
+    ui::Button *pauseUI;
+    ui::Button *addTrafficUI;
+    ui::Slider *trafficRateUI;
 
-	//Modal split
-	ui::Slider *modalSplitPassengerUI;
-	ui::Slider *modalSplitBusUI;
-	ui::Slider *modalSplitCyclingUI;
-	ui::Slider *modalSplitWalkingUI;
-	std::map<std::string, ui::Slider*> modalSplits;
-	
+    //Modal split
+    ui::Slider *modalSplitPassengerUI;
+    ui::Button *fixModalSplitPassengerUI;
+    ui::Slider *modalSplitBusUI;
+    ui::Button *fixModalSplitBusUI;
+    ui::Slider *modalSplitCyclingUI;
+    ui::Button *fixModalSplitCyclingUI;
+    ui::Slider *modalSplitWalkingUI;
+    ui::Button *fixModalSplitWalkingUI;
+    
+    std::vector<modalSplit> modalSplits;
+    //std::map<std::string, ui::Slider*> modalSplits;
+    
+    
     bool m_pedestrianVisible = true;
     void setPedestriansVisible(bool);
 
     libsumo::SubscriptionResults simResults;
     libsumo::SubscriptionResults pedestrianSimResults;
-	std::vector<simData> currentResults;
-	std::vector<simData> previousResults;
+    std::vector<simData> currentResults;
+    std::vector<simData> previousResults;
         std::map<std::string, AgentVehicle *> vehicleMap;
         AgentVehicle *getAgentVehicle(const std::string &vehicleID, const std::string &vehicleClass, const std::string &vehicleType);
 
-	osg::Group *vehicleGroup;
-	std::string vehicleDirectory;
+    osg::Group *vehicleGroup;
+    std::string vehicleDirectory;
 
     osg::ref_ptr<osg::Group> pedestrianGroup;
 
@@ -129,20 +144,23 @@ private:
     double previousTime;
     double currentTime;
     double framedt;
-	double lastParticipantStartedTime;
-	std::vector<int> variables;
-	std::map<const std::string, AgentVehicle *> loadedVehicles;
+    double lastParticipantStartedTime;
+    std::vector<int> variables;
+    std::map<const std::string, AgentVehicle *> loadedVehicles;
 
-	int uniqueIDValue = 0;
+    int uniqueIDValue = 0;
 
-	void subscribeToSimulation();
-	void updateVehiclePosition();
-	AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
-	void interpolateVehiclePosition();
-	osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
+    void subscribeToSimulation();
+    void updateVehiclePosition();
+    AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
+    void interpolateVehiclePosition();
+    osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
 void sendSimResults();
 void readSimResults();
 
-std::vector<std::string> TAZs;
+bool balanceModalSplits();
+
+std::vector<std::string> sourceTAZs;
+std::vector<std::string> sinkTAZs;
 };
 #endif

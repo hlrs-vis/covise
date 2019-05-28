@@ -58,7 +58,7 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
     pedestrianGroup =  new osg::Group;
     pedestrianGroup->setName("pedestrianGroup");
     cover->getObjectsRoot()->addChild(pedestrianGroup.get());
-	pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
+    pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
     getVehiclesFromConfig();
     loadAllVehicles();
@@ -104,18 +104,18 @@ bool SumoTraCI::init()
     fprintf(stderr, "SumoTraCI::init\n");
     if(coVRMSController::instance()->isMaster())
     {
-		bool connected = false;
-		do{
+        bool connected = false;
+        do{
 
-		try {
-			client.connect("localhost", 1337);
-			connected = true;
-		}
-		catch (tcpip::SocketException&) {
+        try {
+            client.connect("localhost", 1337);
+            connected = true;
+        }
+        catch (tcpip::SocketException&) {
             fprintf(stderr, "could not connect to localhost port 1337\n");
             usleep(10000);
-		}
-		} while (!connected);
+        }
+        } while (!connected);
     }
 
     // identifiers: 57, 64, 67, 73, 79
@@ -135,7 +135,7 @@ bool SumoTraCI::init()
     }
     previousResults = currentResults;
     simTime = cover->frameTime();
-	currentTime = cover->frameTime();
+    currentTime = cover->frameTime();
 
     if(coVRMSController::instance()->isMaster())
     {
@@ -152,20 +152,23 @@ bool SumoTraCI::init()
 
     updateVehiclePosition();
 
-	//find TAZs
-	std::vector<std::string> edges = client.edge.getIDList();
-	for (auto iter = edges.begin(); iter != edges.end(); iter++)
-	{
-		if (!(iter->compare(0, 3, "taz")))
-		{
-			fprintf(stderr, "Found TAZ %s \n", iter->c_str());
-			TAZs.push_back(*iter);
-		}
-	}
+    //find TAZs
+    std::vector<std::string> edges = client.edge.getIDList();
+    for (auto iter = edges.begin(); iter != edges.end(); iter++)
+    {
+        if (!(iter->compare(0, 3, "taz")))
+        {
+            fprintf(stderr, "Found TAZ %s \n", iter->c_str());
+            if (compareTAZending(*iter, "source"))
+                sourceTAZs.push_back(*iter);
+            else if (compareTAZending(*iter, "sink"))
+                sinkTAZs.push_back(*iter);
+        }
+    }
 
     //AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
-
+    lastParticipantStartedTime = 0.0;
     return true;
 }
 
@@ -183,42 +186,74 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
         setPedestriansVisible(false);
         }
     });
-	pauseUI = new ui::Button(traciMenu, "Pause");
+    pauseUI = new ui::Button(traciMenu, "Pause");
 
-	addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
-	addTrafficUI->setText("Add new Persons");
-	addTrafficUI->setState(false);
-	
-	trafficRateUI = new ui::Slider(traciMenu, "timeBetweenNew");
-	trafficRateUI->setText("seconds until new traffic participant starts route");
-	trafficRateUI->setBounds(0.0, 60.0);
-	trafficRateUI->setPresentation(ui::Slider::AsDial);
-	trafficRateUI->setValue(1.0);
+    addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
+    addTrafficUI->setText("Add new Persons");
+    addTrafficUI->setState(false);
+    
+    trafficRateUI = new ui::Slider(traciMenu, "timeBetweenNew");
+    trafficRateUI->setText("seconds until new traffic participant starts route");
+    trafficRateUI->setBounds(0.0, 60.0);
+    trafficRateUI->setPresentation(ui::Slider::AsDial);
+    trafficRateUI->setValue(1.0);
 
-	//Modal Split
-	modalSplitBusUI = new  ui::Slider(traciMenu, "modalSplitBus");
-	modalSplits.insert(std::pair<std::string, ui::Slider *>("bus", modalSplitBusUI));
-	modalSplitBusUI->setBounds(0.0, 100.0);
-	modalSplitBusUI->setValue(25.0);
+    //Modal Split
+    modalSplit bus;
+    bus.modalSplitButton = new ui::Button(traciMenu, "fixModalSplitBus");
+    bus.modalSplitSlider = new  ui::Slider(traciMenu, "modalSplitBus");
+    bus.modalSplitString = "bus";
+    bus.modalSplitSlider->setBounds(0.0, 100.0);
+    bus.modalSplitSlider->setValue(25.0);
+    bus.modalSplitSlider->setCallback([this](double value, bool released) {
+        balanceModalSplits();
+    });
+    modalSplits.push_back(bus);
 
-	modalSplitCyclingUI = new  ui::Slider(traciMenu, "modalSplitCycling");
-	modalSplits.insert(std::pair<std::string, ui::Slider *>("bicycle", modalSplitCyclingUI));
-	modalSplitCyclingUI->setBounds(0.0, 100.0);
-	modalSplitCyclingUI->setValue(25.0);
-	
-	modalSplitPassengerUI = new  ui::Slider(traciMenu, "modalSplitPassenger");
-	modalSplits.insert(std::pair<std::string, ui::Slider *>("passenger", modalSplitPassengerUI));
-	modalSplitPassengerUI->setBounds(0.0, 100.0);
-	modalSplitPassengerUI->setValue(25.0);
-	
-	modalSplitWalkingUI =  new ui::Slider(traciMenu, "modalSplitWalking");
-	modalSplits.insert(std::pair<std::string, ui::Slider *>("pedestrian", modalSplitWalkingUI));
-	modalSplitWalkingUI->setBounds(0.0, 100.0);
-	modalSplitWalkingUI->setValue(25.0);
-	
-	//balanceModalSplits();
-	
+    /*modalSplitCyclingUI = new  ui::Slider(traciMenu, "modalSplitCycling");
+    modalSplits.insert(std::pair<std::string, ui::Slider *>("bicycle", modalSplitCyclingUI));
+    modalSplitCyclingUI->setBounds(0.0, 100.0);
+    modalSplitCyclingUI->setValue(25.0);
+    fixModalSplitCyclingUI = new ui::Button(traciMenu, "fixModalSplitCycling");*/
+    
+    modalSplit passenger;
+    passenger.modalSplitButton = new ui::Button(traciMenu, "fixModalSplitpassenger");
+    passenger.modalSplitSlider = new  ui::Slider(traciMenu, "modalSplitpassenger");
+    passenger.modalSplitString = "passenger";
+    passenger.modalSplitSlider->setBounds(0.0, 100.0);
+    passenger.modalSplitSlider->setValue(25.0);
+    passenger.modalSplitSlider->setCallback([this](double value, bool released) {
+        balanceModalSplits();
+    });
+    modalSplits.push_back(passenger);
+
+    modalSplit pedestrian;
+    pedestrian.modalSplitButton = new ui::Button(traciMenu, "fixModalSplitpedestrian");
+    pedestrian.modalSplitSlider = new  ui::Slider(traciMenu, "modalSplitpedestrian");
+    pedestrian.modalSplitString = "pedestrian";
+    pedestrian.modalSplitSlider->setBounds(0.0, 100.0);
+    pedestrian.modalSplitSlider->setValue(25.0);
+    pedestrian.modalSplitSlider->setCallback([this](double value, bool released) {
+        balanceModalSplits();
+    });
+    modalSplits.push_back(pedestrian);
+
+    
+    balanceModalSplits();
+    
     return true;
+}
+
+bool SumoTraCI::compareTAZending(std::string& TAZ, std::string ending)
+{
+    if (TAZ.length() >= ending.length())
+    {
+        return (0 == TAZ.compare(TAZ.length() - ending.length(), ending.length(), ending));
+    }
+    else 
+    {
+        return false;
+    }
 }
 
 void SumoTraCI::preFrame()
@@ -227,50 +262,76 @@ void SumoTraCI::preFrame()
     previousTime = currentTime;
     currentTime = cover->frameTime();
     framedt = currentTime - previousTime;
-	if (addTrafficUI->state() && (trafficRateUI->value() < (currentTime - lastParticipantStartedTime)))
-	{
-		static std::mt19937 gen(0);
-		std::uniform_real_distribution<> dis(0.0, 100.0);
-		double mode = dis(gen);
-		std::string newPerson;
-		for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
-		{
-			mode -= iter->second->value();
-			newPerson = iter->first.c_str();
-			if (mode <= 0)
-				break;
-		}
-		fprintf(stderr, "Random Vehicle will be %s \n", newPerson.c_str());
+    if (addTrafficUI->state() && (trafficRateUI->value() < (currentTime - lastParticipantStartedTime)))
+    {
+        static std::mt19937 gen(0);
+        std::uniform_real_distribution<> dis(0.0, 100.0);
+        double mode = dis(gen);
+        std::string newPerson;
+        for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+        {
+            mode -= iter->modalSplitSlider->value();
+            newPerson = iter->modalSplitString.c_str();
+            if (mode <= 0)
+                break;
+        }
+        fprintf(stderr, "Random Vehicle will be %s \n", newPerson.c_str());
 
-		std::vector<std::string> routes = client.route.getIDList();
-		std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
-		std::string uniquePersonID = "uniquePerson" + std::to_string(uniqueIDValue);
-		std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
-		uniqueIDValue++;
-		std::vector<std::string> edges = client.edge.getIDList();
+        std::vector<std::string> routes = client.route.getIDList();
+        std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
+        std::string uniquePersonID = "uniquePerson" + std::to_string(uniqueIDValue);
+        std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
+        uniqueIDValue++;
+        std::vector<std::string> edges = client.edge.getIDList();
 
-		client.simulation.getDistanceRoad(edges[1], 0.0, edges[2], 0.0);
-		libsumo::TraCIStage newStage = client.simulation.findRoute(TAZs[1], TAZs[2], "ped_pedestrian");
-		fprintf(stderr, "Starting intermodal route at %s \n", newStage.edges.begin()->c_str());
-		std::string fromEdge = *(newStage.edges.begin()+1);
-		std::string toEdge = *(newStage.edges.end()-2);
-		std::vector<libsumo::TraCIStage> newIntermodalRoute = client.simulation.findIntermodalRoute(fromEdge, toEdge, "public");
+        //client.simulation.getDistanceRoad(edges[1], 0.0, edges[2], 0.0);
+        if ((sourceTAZs.size() > 0) && (sinkTAZs.size() > 0))
+        {
+            static std::mt19937 gen2(0);
+            static std::mt19937 gen3(0);
+            std::uniform_int_distribution<> dis2(0, sourceTAZs.size() - 1);
+            std::uniform_int_distribution<> dis3(0, sinkTAZs.size() - 1);
+            int sourceTAZ = dis2(gen2);
+            int sinkTAZ = dis3(gen3);
+            while (sinkTAZ == sourceTAZ)
+            {
+                sinkTAZ = dis3(gen3);
+            }
+            libsumo::TraCIStage newStage = client.simulation.findRoute(sourceTAZs[sourceTAZ], sinkTAZs[1], "ped_pedestrian");
+            //fprintf(stderr, "Starting intermodal route at %s \n", newStage.edges.begin()->c_str());
+            std::string fromEdge = *(newStage.edges.begin() + 1);
+            std::string toEdge = *(newStage.edges.end() - 2);
+            std::vector<libsumo::TraCIStage> newIntermodalRoute = client.simulation.findIntermodalRoute(fromEdge, toEdge, "public");
+            if (newIntermodalRoute.size() > 1)
+                fprintf(stderr, "Somebody used the bus!");
+            client.route.add(uniqueRouteID, newStage.edges);
 
-		client.route.add(uniqueRouteID,newStage.edges);
-		client.vehicle.add(uniqueID, uniqueRouteID);
-		//client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
-		//client.vehicle.setRoute(uniqueID,newStage.edges);
-		std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
-		//client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
-		client.person.add(uniquePersonID, *newIntermodalRoute.begin()->edges.begin(), 1.0, -1.0, "ped_pedestrian");
-		std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
-		std::vector<std::string> lanes = client.lane.getIDList();
-		std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
-		client.person.appendWalkingStage(uniquePersonID, newIntermodalRoute.begin()->edges, 10.0);
-		//client.person.appendWaitingStage(uniquePersonID,1000.0);
-		lastParticipantStartedTime = currentTime;
-		
-	}
+            if (newPerson.compare("passenger"))
+            {
+                client.vehicle.add(uniqueID, uniqueRouteID);
+            }
+            else if ((newPerson.compare("pedestrian")) || (newPerson.compare("bus")))
+            {
+                client.person.add(uniquePersonID, *newIntermodalRoute.begin()->edges.begin(), 0.0, -1.0);// , "ped_pedestrian");
+                client.person.appendWalkingStage(uniquePersonID, newIntermodalRoute.begin()->edges, 0.0);
+            }
+            //client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
+            //client.vehicle.setRoute(uniqueID,newStage.edges);
+            //std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
+            //client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+
+            //std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
+            //std::vector<std::string> lanes = client.lane.getIDList();
+            //std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
+            //client.person.appendWaitingStage(uniquePersonID,1000.0);
+            lastParticipantStartedTime = currentTime;
+        }
+        else
+        {
+            fprintf(stderr, "Adding persons only works with TAZs");
+        }
+        
+    }
     if ((currentTime - nextSimTime) > 1)
     {
         subscribeToSimulation();
@@ -280,17 +341,17 @@ void SumoTraCI::preFrame()
         
         if(coVRMSController::instance()->isMaster())
         {
-			if(!pauseUI->state())
-			{ 
+            if(!pauseUI->state())
+            { 
             client.simulationStep();
             simResults = client.vehicle.getAllSubscriptionResults();
             pedestrianSimResults = client.person.getAllSubscriptionResults();
-			}
-			else
-			{
-				simResults.clear();
-				pedestrianSimResults.clear();
-			}
+            }
+            else
+            {
+                simResults.clear();
+                pedestrianSimResults.clear();
+            }
             sendSimResults();
         }
         else
@@ -414,7 +475,7 @@ void SumoTraCI::subscribeToSimulation()
             {
                 client.person.subscribe(*it, variables, 0, TIME2STEPS(1000));
             }
-            fprintf(stderr, "There are currently %lu persons in the simulation \n", (unsigned long)personIDList.size());
+            //fprintf(stderr, "There are currently %lu persons in the simulation \n", (unsigned long)personIDList.size());
         }
         else
         {
@@ -432,32 +493,32 @@ void SumoTraCI::updateVehiclePosition()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-			if (pedestrianModels.size() > 0)
-			{
-				if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
-				{
-					loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
-				}
-			}
+            if (pedestrianModels.size() > 0)
+            {
+                if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
+                {
+                    loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                }
+            }
         }
         else
         {
-			auto matchingType = vehicleModelMap.find(currentResults[i].vehicleClass);
-			if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
-			{
-				// new vehicle appeared
-				if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
-				{
-					loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
-				}
-				else
-				{
-					/*osg::Matrix rmat,tmat;
-				rmat.makeRotate(orientation);
-				tmat.makeTranslate(currentResults[i].position);
-				loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
-				}
-			}
+            auto matchingType = vehicleModelMap.find(currentResults[i].vehicleClass);
+            if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
+            {
+                // new vehicle appeared
+                if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+                {
+                    loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                }
+                else
+                {
+                    /*osg::Matrix rmat,tmat;
+                rmat.makeRotate(orientation);
+                tmat.makeTranslate(currentResults[i].position);
+                loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
+                }
+            }
         }
     }
 }
@@ -531,10 +592,10 @@ void SumoTraCI::interpolateVehiclePosition()
                         p->setWalkingSpeed(0.0);
                     }
 
-					if(p->isGeometryWithinLOD())
-					{
-					    p->update(cover->frameDuration());
-					}
+                    if(p->isGeometryWithinLOD())
+                    {
+                        p->update(cover->frameDuration());
+                    }
                 }
             }
         }
@@ -654,10 +715,10 @@ void SumoTraCI::getVehiclesFromConfig()
                 vehicles->push_back(m);
             }
         }
-		if (vehicles->size() == 0)
-		{
-			fprintf(stderr, "please add vehicle config %s\n", ("COVER.Plugin.SumoTraCI.Vehicles." + *itr).c_str());
-		}
+        if (vehicles->size() == 0)
+        {
+            fprintf(stderr, "please add vehicle config %s\n", ("COVER.Plugin.SumoTraCI.Vehicles." + *itr).c_str());
+        }
     }
 }
 
@@ -685,5 +746,53 @@ void SumoTraCI::setPedestriansVisible(bool pedestrianVisibility)
             cover->getObjectsRoot()->removeChild(pedestrianGroup.get());
         m_pedestrianVisible = pedestrianVisibility;
     }
+}
+
+bool SumoTraCI::balanceModalSplits()
+{
+    double fixedSplits = 0.0;
+    double nonFixedSplits = 0.0;
+    int numFixed = 0;
+    for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+    {
+        if (iter->modalSplitButton->state())
+        {
+            fixedSplits += iter->modalSplitSlider->value();
+            numFixed++;
+        }
+        else 
+            nonFixedSplits += iter->modalSplitSlider->value();
+    }
+    if (fixedSplits > 100.0)
+    {
+        for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+        {
+            if (iter->modalSplitButton->state())
+                iter->modalSplitSlider->setValue(iter->modalSplitSlider->value() / fixedSplits * 100.0);
+            else
+                iter->modalSplitSlider->setValue(0.0);
+        }
+        fixedSplits = 100.0;
+    }
+    if (numFixed < modalSplits.size() && (nonFixedSplits>0.0))
+    {
+        double factor = (100.0 - fixedSplits)/nonFixedSplits;
+        for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+        {
+            if (!iter->modalSplitButton->state())
+            {
+                iter->modalSplitSlider->setValue(iter->modalSplitSlider->value() * factor);
+            }
+        }
+    }
+    else if ((numFixed == modalSplits.size()) && (fixedSplits < 100.0))
+    {
+        double factor = (100.0 / fixedSplits);
+        for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+        {
+            iter->modalSplitSlider->setValue(iter->modalSplitSlider->value() * factor);
+        }
+    }
+    return 0;
 }
 COVERPLUGIN(SumoTraCI)
