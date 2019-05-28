@@ -153,19 +153,21 @@ bool SumoTraCI::init()
     updateVehiclePosition();
 
     //find TAZs
-    std::vector<std::string> edges = client.edge.getIDList();
-    for (auto iter = edges.begin(); iter != edges.end(); iter++)
+    if (coVRMSController::instance()->isMaster())
     {
-        if (!(iter->compare(0, 3, "taz")))
+        std::vector<std::string> edges = client.edge.getIDList();
+        for (auto iter = edges.begin(); iter != edges.end(); iter++)
         {
-            fprintf(stderr, "Found TAZ %s \n", iter->c_str());
-            if (compareTAZending(*iter, "source"))
-                sourceTAZs.push_back(*iter);
-            else if (compareTAZending(*iter, "sink"))
-                sinkTAZs.push_back(*iter);
+            if (!(iter->compare(0, 3, "taz")))
+            {
+                fprintf(stderr, "Found TAZ %s \n", iter->c_str());
+                if (compareTAZending(*iter, "source"))
+                    sourceTAZs.push_back(*iter);
+                else if (compareTAZending(*iter, "sink"))
+                    sinkTAZs.push_back(*iter);
+            }
         }
     }
-
     //AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
     lastParticipantStartedTime = 0.0;
@@ -262,75 +264,78 @@ void SumoTraCI::preFrame()
     previousTime = currentTime;
     currentTime = cover->frameTime();
     framedt = currentTime - previousTime;
-    if (addTrafficUI->state() && (trafficRateUI->value() < (currentTime - lastParticipantStartedTime)))
+    if (coVRMSController::instance()->isMaster())
     {
-        static std::mt19937 gen(0);
-        std::uniform_real_distribution<> dis(0.0, 100.0);
-        double mode = dis(gen);
-        std::string newPerson;
-        for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
+        if (addTrafficUI->state() && (trafficRateUI->value() < (currentTime - lastParticipantStartedTime)))
         {
-            mode -= iter->modalSplitSlider->value();
-            newPerson = iter->modalSplitString.c_str();
-            if (mode <= 0)
-                break;
-        }
-        fprintf(stderr, "Random Vehicle will be %s \n", newPerson.c_str());
-
-        std::vector<std::string> routes = client.route.getIDList();
-        std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
-        std::string uniquePersonID = "uniquePerson" + std::to_string(uniqueIDValue);
-        std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
-        uniqueIDValue++;
-        std::vector<std::string> edges = client.edge.getIDList();
-
-        //client.simulation.getDistanceRoad(edges[1], 0.0, edges[2], 0.0);
-        if ((sourceTAZs.size() > 0) && (sinkTAZs.size() > 0))
-        {
-            static std::mt19937 gen2(0);
-            static std::mt19937 gen3(0);
-            std::uniform_int_distribution<> dis2(0, sourceTAZs.size() - 1);
-            std::uniform_int_distribution<> dis3(0, sinkTAZs.size() - 1);
-            int sourceTAZ = dis2(gen2);
-            int sinkTAZ = dis3(gen3);
-            while (sinkTAZ == sourceTAZ)
+            static std::mt19937 gen(0);
+            std::uniform_real_distribution<> dis(0.0, 100.0);
+            double mode = dis(gen);
+            std::string newPerson;
+            for (auto iter = modalSplits.begin(); iter != modalSplits.end(); iter++)
             {
-                sinkTAZ = dis3(gen3);
+                mode -= iter->modalSplitSlider->value();
+                newPerson = iter->modalSplitString.c_str();
+                if (mode <= 0)
+                    break;
             }
-            libsumo::TraCIStage newStage = client.simulation.findRoute(sourceTAZs[sourceTAZ], sinkTAZs[1], "ped_pedestrian");
-            //fprintf(stderr, "Starting intermodal route at %s \n", newStage.edges.begin()->c_str());
-            std::string fromEdge = *(newStage.edges.begin() + 1);
-            std::string toEdge = *(newStage.edges.end() - 2);
-            std::vector<libsumo::TraCIStage> newIntermodalRoute = client.simulation.findIntermodalRoute(fromEdge, toEdge, "public");
-            if (newIntermodalRoute.size() > 1)
-                fprintf(stderr, "Somebody used the bus!");
-            client.route.add(uniqueRouteID, newStage.edges);
+            fprintf(stderr, "Random Vehicle will be %s \n", newPerson.c_str());
 
-            if (newPerson.compare("passenger"))
-            {
-                client.vehicle.add(uniqueID, uniqueRouteID);
-            }
-            else if ((newPerson.compare("pedestrian")) || (newPerson.compare("bus")))
-            {
-                client.person.add(uniquePersonID, *newIntermodalRoute.begin()->edges.begin(), 0.0, -1.0);// , "ped_pedestrian");
-                client.person.appendWalkingStage(uniquePersonID, newIntermodalRoute.begin()->edges, 0.0);
-            }
-            //client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
-            //client.vehicle.setRoute(uniqueID,newStage.edges);
-            //std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
-            //client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+            std::vector<std::string> routes = client.route.getIDList();
+            std::string uniqueID = "unique" + std::to_string(uniqueIDValue);
+            std::string uniquePersonID = "uniquePerson" + std::to_string(uniqueIDValue);
+            std::string uniqueRouteID = "uniqueRoute" + std::to_string(uniqueIDValue);
+            uniqueIDValue++;
+            std::vector<std::string> edges = client.edge.getIDList();
 
-            //std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
-            //std::vector<std::string> lanes = client.lane.getIDList();
-            //std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
-            //client.person.appendWaitingStage(uniquePersonID,1000.0);
-            lastParticipantStartedTime = currentTime;
+            //client.simulation.getDistanceRoad(edges[1], 0.0, edges[2], 0.0);
+            if ((sourceTAZs.size() > 0) && (sinkTAZs.size() > 0))
+            {
+                static std::mt19937 gen2(0);
+                static std::mt19937 gen3(0);
+                std::uniform_int_distribution<> dis2(0, sourceTAZs.size() - 1);
+                std::uniform_int_distribution<> dis3(0, sinkTAZs.size() - 1);
+                int sourceTAZ = dis2(gen2);
+                int sinkTAZ = dis3(gen3);
+                while (sinkTAZ == sourceTAZ)
+                {
+                    sinkTAZ = dis3(gen3);
+                }
+                libsumo::TraCIStage newStage = client.simulation.findRoute(sourceTAZs[sourceTAZ], sinkTAZs[1], "ped_pedestrian");
+                //fprintf(stderr, "Starting intermodal route at %s \n", newStage.edges.begin()->c_str());
+                std::string fromEdge = *(newStage.edges.begin() + 1);
+                std::string toEdge = *(newStage.edges.end() - 2);
+                std::vector<libsumo::TraCIStage> newIntermodalRoute = client.simulation.findIntermodalRoute(fromEdge, toEdge, "public");
+                if (newIntermodalRoute.size() > 1)
+                    fprintf(stderr, "Somebody used the bus!");
+                client.route.add(uniqueRouteID, newStage.edges);
+
+                if (newPerson.compare("passenger"))
+                {
+                    client.vehicle.add(uniqueID, uniqueRouteID);
+                }
+                else if ((newPerson.compare("pedestrian")) || (newPerson.compare("bus")))
+                {
+                    client.person.add(uniquePersonID, *newIntermodalRoute.begin()->edges.begin(), 0.0, -1.0);// , "ped_pedestrian");
+                    client.person.appendWalkingStage(uniquePersonID, newIntermodalRoute.begin()->edges, 0.0);
+                }
+                //client.vehicle.add(uniqueID, *routes.begin(), "DEFAULT_VEHTYPE","-1","first","base","0","current","max","current", TAZs[1],TAZs[2]);
+                //client.vehicle.setRoute(uniqueID,newStage.edges);
+                //std::vector<std::string> route1Edges = client.route.getEdges(*routes.begin());
+                //client.person.add(uniquePersonID, *edges.begin(),0.0,-1.0,"ped_pedestrian");
+
+                //std::vector<std::string> ped1Edges = client.person.getEdges(pedestrianSimResults.begin()->first);
+                //std::vector<std::string> lanes = client.lane.getIDList();
+                //std::vector<std::string> allowedOnLane = client.lane.getAllowed(*lanes.begin());
+                //client.person.appendWaitingStage(uniquePersonID,1000.0);
+                lastParticipantStartedTime = currentTime;
+            }
+            else
+            {
+                fprintf(stderr, "Adding persons only works with TAZs");
+            }
+
         }
-        else
-        {
-            fprintf(stderr, "Adding persons only works with TAZs");
-        }
-        
     }
     if ((currentTime - nextSimTime) > 1)
     {
