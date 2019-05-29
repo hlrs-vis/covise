@@ -851,7 +851,7 @@ bool LinphoneClient::initiateCall(std::string dest)
     
     call = linphone_core_invite(lc, dest.c_str());
 
-    if (call==NULL)
+    if (call == NULL)
     {
         cout << "error: could not place call to " << dest << endl;
         return false;
@@ -865,7 +865,97 @@ bool LinphoneClient::initiateCall(std::string dest)
     return true;
 }
 
+// ------------------------------------------------------------------------
+//! hang up current call
+// ------------------------------------------------------------------------
+void LinphoneClient::hangUpCall()
+{
+    if (call != NULL)
+    {
+        linphone_call_terminate(call);
+        linphone_call_unref(call);        
+    }
+}
 
+// ------------------------------------------------------------------------
+//! pause or resume current call
+// ------------------------------------------------------------------------
+void LinphoneClient::pauseCall(bool pause)
+{
+    if (call != NULL)
+    {
+        if (pause)
+        {
+            linphone_call_pause(call);
+        }
+        else
+        {
+            linphone_call_resume(call);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------
+//! mute mic while in call
+//! \fixme linphone_core_mute_mic is deprecated but
+//!        linphone_call_set_microphone_muted not implemented in 3.12.0-3
+// ------------------------------------------------------------------------
+void LinphoneClient::setMicMute(bool mute)
+{
+    if (call != NULL)
+    {
+        linphone_core_mute_mic(lc, mute);
+        //linphone_call_set_microphone_muted(call, mute);
+    }
+}
+
+// ------------------------------------------------------------------------
+//! mute speaker while in call
+//! \fixme linphone_call_set_speaker_muted  not implemented in 3.12.0-3
+// ------------------------------------------------------------------------
+void LinphoneClient::setSpeakerMute(bool mute)
+{
+    if (call != NULL)
+    {
+        //linphone_call_set_speaker_muted(call, mute);
+        if (mute)
+        {
+            savedSpeakerGain = linphone_call_get_speaker_volume_gain(call);
+            linphone_call_set_speaker_volume_gain(call, 0.0);
+        }
+        else
+        {
+            linphone_call_set_speaker_volume_gain(call, savedSpeakerGain);
+        }
+    }
+}
+
+// ------------------------------------------------------------------------
+//! enable mic when starting a call
+// ------------------------------------------------------------------------
+void LinphoneClient::setMicrophoneEnabled(bool enable)
+{
+    linphone_core_enable_mic(lc, enable);
+}
+
+// ------------------------------------------------------------------------
+//! enable  camera when starting a call
+// ------------------------------------------------------------------------
+void LinphoneClient::setCallCameraEnabled(bool enable)
+{
+    if (call != NULL)
+    {
+        linphone_call_enable_camera(call, enable);
+    }
+}
+
+// ------------------------------------------------------------------------
+//! enable self view/pip in video window
+// ------------------------------------------------------------------------
+void LinphoneClient::setCallSelfViewEnabled(bool enable)
+{
+    linphone_core_enable_self_view(lc, enable);
+}
 
 // ------------------------------------------------------------------------
 //! LinphoneClient main loop

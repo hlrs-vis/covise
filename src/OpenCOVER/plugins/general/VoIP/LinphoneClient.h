@@ -159,6 +159,27 @@ public:
 
     //! initiate call to given sip address, keep valid reference to call ptr
     bool initiateCall(std::string);
+
+    //! hang up current call
+    void hangUpCall();
+
+    //! pause current call
+    void pauseCall(bool pause);
+
+    //! mute mic while in call
+    void setMicMute(bool mute);
+
+    //! mute speaker while in call
+    void setSpeakerMute(bool mute);
+
+    //! enable mic when starting a call
+    void setMicrophoneEnabled(bool enable);
+    
+    //! enable  camera when starting a call
+    void setCallCameraEnabled(bool enable);
+
+    //! enable self view/pip in video window
+    void setCallSelfViewEnabled(bool enable);  
     
 protected:
 
@@ -181,6 +202,8 @@ protected:
 
     bool oneTime = false;  // TODO: remove
 
+    float savedSpeakerGain; // FIXME: workaround for missing speaker mute
+    
     const unsigned int timeout = 10; // * intervall ms
     const unsigned int intervall = 500; // time intervall core iterator polls
     

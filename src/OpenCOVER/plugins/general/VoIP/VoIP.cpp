@@ -203,6 +203,40 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
             lpc->doUnregistration();
         }
     }
+    else if (aButton == menuButtonHangUp)
+    {
+        lpc->hangUpCall();
+    }
+    else if (aButton == menuCheckboxPause)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->pauseCall(cbx->getState());
+    }
+    else if (aButton == menuCheckboxMicMute)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setMicMute(cbx->getState());
+    }
+    else if (aButton == menuCheckboxSpkrMute)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setSpeakerMute(cbx->getState());
+    }
+    else if (aButton == menuCheckboxMicEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setMicrophoneEnabled(cbx->getState());
+    }
+    else if (aButton == menuCheckboxEnableCamera)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setCallCameraEnabled(cbx->getState());
+    }
+    else if (aButton == menuCheckboxSelfViewEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setCallSelfViewEnabled(cbx->getState());
+    }
     else 
     {
         std::vector<SIPIdentity>::iterator contact = contacts.begin();
@@ -253,23 +287,30 @@ void VoIPPlugin::createMenu()
     menuLabelCallNameOfPartner = new vrui::coLabelMenuItem("Addr: -");
     menuCall->add(menuLabelCallNameOfPartner);
     menuButtonHangUp = new vrui::coButtonMenuItem("Hang Up");
+    menuButtonHangUp->setMenuListener(this);
     menuCall->add(menuButtonHangUp);
     menuCheckboxPause = new vrui::coCheckboxMenuItem("Pause", false);
+    menuCheckboxPause->setMenuListener(this);
     menuCall->add(menuCheckboxPause);
     menuCheckboxMicMute = new vrui::coCheckboxMenuItem("Microphone Muted",
                                                        lpc->getCallMicrophoneMuted());
+    menuCheckboxMicMute->setMenuListener(this);
     menuCall->add(menuCheckboxMicMute);
     menuCheckboxSpkrMute = new vrui::coCheckboxMenuItem("Speaker Muted",
                                                         lpc->getCallSpeakerMuted());
+    menuCheckboxSpkrMute->setMenuListener(this);
     menuCall->add(menuCheckboxSpkrMute);
     menuCheckboxMicEnabled = new vrui::coCheckboxMenuItem("Mic Enabled",
                                                           lpc->getMicrophoneIsEnabled());
+    menuCheckboxMicEnabled->setMenuListener(this);
     menuCall->add(menuCheckboxMicEnabled);
     menuCheckboxEnableCamera = new vrui::coCheckboxMenuItem("Enable Camera",
                                                             lpc->getCallCameraEnabled());
+    menuCheckboxEnableCamera->setMenuListener(this);
     menuCall->add(menuCheckboxEnableCamera);
     menuCheckboxSelfViewEnabled = new vrui::coCheckboxMenuItem("Self View Enabled",
                                                                lpc->getCallSelfViewEnabled());
+    menuCheckboxSelfViewEnabled->setMenuListener(this);
     menuCall->add(menuCheckboxSelfViewEnabled);
 
     // mixer menu
