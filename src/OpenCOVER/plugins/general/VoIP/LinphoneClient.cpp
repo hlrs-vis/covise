@@ -705,20 +705,18 @@ string LinphoneClient::getCurrentVideoCaptureDevice()
 // ------------------------------------------------------------------------
 bool LinphoneClient::getCallMicrophoneMuted()
 {
-    //LinphoneCall* call = linphone_core_get_current_call(lc);
-    
-    return false; //linphone_call_get_microphone_muted(call);
+    return linphone_core_is_mic_muted(lc);
 }
 
 // ------------------------------------------------------------------------
 //! get speaker muted state
-//! \todo linphone_call_get_speaker_muted not found in 3.12 ?
+//! \fixme workaround for missing linphone_call_get_speaker_muted in 3.12
 // ------------------------------------------------------------------------
 bool LinphoneClient::getCallSpeakerMuted()
 {
-    //LinphoneCall* call = linphone_core_get_current_call(lc);
-    
-    return  false;//linphone_call_get_speaker_muted(call);
+    float gain = linphone_call_get_speaker_volume_gain(call); 
+
+    return (gain < 0.01);
 }
 
 // ------------------------------------------------------------------------
