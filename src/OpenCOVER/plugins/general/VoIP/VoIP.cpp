@@ -153,6 +153,7 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
         if (currentState == LinphoneClientState::callRinging)
         {
             menuLabelCallState->setLabel("Call: ringing ...");
+            updateMenu();
         }
         else
         {
@@ -165,10 +166,63 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
         {
             menuLabelCallState->setLabel("Call: connected");
         }
+        else if (currentState == LinphoneClientState::callStreaming)
+        {
+            menuLabelCallState->setLabel("Call: streaming");
+        }
         else
         {
             menuLabelCallState->setLabel("Call: call failed");
         }
+        updateMenu();
+    }
+    else if (oldState == LinphoneClientState::callConnected)
+    {
+        if (currentState == LinphoneClientState::callStreaming)
+        {
+            menuLabelCallState->setLabel("Call: streaming");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: call failed");
+        }
+    }
+    else if (oldState == LinphoneClientState::callStreaming)
+    {
+        if (currentState == LinphoneClientState::callPaused)
+        {
+            menuLabelCallState->setLabel("Call: paused");
+        }
+        else if (currentState == LinphoneClientState::callEnded)
+        {
+            menuLabelCallState->setLabel("Call: ended");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: call failed");
+        }
+    }
+    else if (oldState == LinphoneClientState::callPaused)
+    {
+        if (currentState == LinphoneClientState::callResuming)
+        {
+            menuLabelCallState->setLabel("Call: resuming");
+        }
+    }
+    else if (oldState == LinphoneClientState::callResuming)
+    {
+        if (currentState == LinphoneClientState::callStreaming)
+        {
+            menuLabelCallState->setLabel("Call: streaming");
+        }
+    }
+    else if (oldState == LinphoneClientState::callEnded)
+    {
+        if (currentState == LinphoneClientState::registered)
+        {
+            menuLabelCallState->setLabel("Call: -");
+        }
+        updateMenu();        
     }
 }
 
@@ -296,14 +350,14 @@ void VoIPPlugin::createMenu()
                                                        lpc->getCallMicrophoneMuted());
     menuCheckboxMicMute->setMenuListener(this);
     menuCall->add(menuCheckboxMicMute);
-    menuCheckboxSpkrMute = new vrui::coCheckboxMenuItem("Speaker Muted",
-                                                        lpc->getCallSpeakerMuted());
-    menuCheckboxSpkrMute->setMenuListener(this);
-    menuCall->add(menuCheckboxSpkrMute);
     menuCheckboxMicEnabled = new vrui::coCheckboxMenuItem("Mic Enabled",
                                                           lpc->getMicrophoneIsEnabled());
     menuCheckboxMicEnabled->setMenuListener(this);
     menuCall->add(menuCheckboxMicEnabled);
+    menuCheckboxSpkrMute = new vrui::coCheckboxMenuItem("Speaker Muted",
+                                                        lpc->getCallSpeakerMuted());
+    menuCheckboxSpkrMute->setMenuListener(this);
+    menuCall->add(menuCheckboxSpkrMute);
     menuCheckboxEnableCamera = new vrui::coCheckboxMenuItem("Enable Camera",
                                                             lpc->getCallCameraEnabled());
     menuCheckboxEnableCamera->setMenuListener(this);
@@ -475,6 +529,31 @@ void VoIPPlugin::createMenu()
     menuMainItem->setMenu(menuVoIP);
     
     cover->getMenu()->add(menuMainItem);
+
+    updateMenu();        
+}
+
+// ----------------------------------------------------------------------------
+void VoIPPlugin::updateMenu()
+{
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::updateMenu()" << endl;
+#endif
+
+    if (lpc->getNoOfCalls() > 0)
+    {
+        menuButtonHangUp->setActive(true);
+        menuCheckboxPause->setActive(true);
+        menuCheckboxSpkrMute->setActive(true);
+        menuCheckboxEnableCamera->setActive(true);
+    }
+    else
+    {
+        menuButtonHangUp->setActive(false);
+        menuCheckboxPause->setActive(false);
+        menuCheckboxSpkrMute->setActive(false);
+        menuCheckboxEnableCamera->setActive(false);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -502,8 +581,7 @@ void VoIPPlugin::destroyMenu()
     delete menuPotiMicLevel;
     delete menuPotiVolLevel;
     delete menuPotiMicGain;
-    delete menuPotiPlaybackGain;
-
+    delete menuPotiPlaybackGain;    
     //delete menuCheckboxEnableAudio;
     //delete menuCheckboxEnableVideo;
     delete menuCheckboxEnableCamera;

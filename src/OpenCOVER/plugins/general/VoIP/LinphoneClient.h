@@ -35,6 +35,8 @@ enum class LinphoneClientState
     callRinging,
     callFailed,
     callConnected,
+    callPaused,
+    callResuming,
     callStreaming,
     callEnded
 };
@@ -179,8 +181,11 @@ public:
     void setCallCameraEnabled(bool enable);
 
     //! enable self view/pip in video window
-    void setCallSelfViewEnabled(bool enable);  
-    
+    void setCallSelfViewEnabled(bool enable);
+
+    //! get no. of calls
+    int getNoOfCalls();
+        
 protected:
 
     std::vector< std::function<void (LinphoneClientState, LinphoneClientState)> * > handlerList;

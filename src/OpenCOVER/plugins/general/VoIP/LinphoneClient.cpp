@@ -157,6 +157,16 @@ static void call_state_changed(struct _LinphoneCore* lc,
         lp_state = LinphoneClientState::callStreaming;
         break;
     }
+    case LinphoneCallPaused:
+    {
+        lp_state = LinphoneClientState::callPaused;
+        break;
+    }
+    case LinphoneCallResuming:
+    {
+        lp_state = LinphoneClientState::callResuming;
+        break;
+    }
     case LinphoneCallEnd:
     {
         lp_state = LinphoneClientState::callEnded;
@@ -714,9 +724,15 @@ bool LinphoneClient::getCallMicrophoneMuted()
 // ------------------------------------------------------------------------
 bool LinphoneClient::getCallSpeakerMuted()
 {
-    float gain = linphone_call_get_speaker_volume_gain(call); 
-
-    return (gain < 0.01);
+    if (call != NULL)
+    {
+        float gain = linphone_call_get_speaker_volume_gain(call);
+        return (gain < 0.01);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ------------------------------------------------------------------------
@@ -747,7 +763,6 @@ LinphoneClientState LinphoneClient::getCurrentState()
 {
     return lp_state;
 }
-
 
 // ------------------------------------------------------------------------
 //! easier readability for debugging purposes
@@ -796,6 +811,16 @@ std::string LinphoneClient::getStateString(LinphoneClientState state)
     case LinphoneClientState::callIncoming:
     {
         rstrg = "callIncoming";
+        break;
+    }
+    case LinphoneClientState::callPaused:
+    {
+        rstrg = "callPaused";
+        break;
+    }
+    case LinphoneClientState::callResuming:
+    {
+        rstrg = "callResuming";
         break;
     }
     case LinphoneClientState::callInit:
@@ -900,11 +925,12 @@ void LinphoneClient::pauseCall(bool pause)
 // ------------------------------------------------------------------------
 void LinphoneClient::setMicMute(bool mute)
 {
-    if (call != NULL)
-    {
-        linphone_core_mute_mic(lc, mute);
-        //linphone_call_set_microphone_muted(call, mute);
-    }
+    linphone_core_mute_mic(lc, mute);
+    
+    // if (call != NULL)
+    // {
+    //     linphone_call_set_microphone_muted(call, mute);
+    // }
 }
 
 // ------------------------------------------------------------------------
@@ -954,6 +980,15 @@ void LinphoneClient::setCallSelfViewEnabled(bool enable)
 {
     linphone_core_enable_self_view(lc, enable);
 }
+
+// ------------------------------------------------------------------------
+//! get no. of calls
+// ------------------------------------------------------------------------
+int LinphoneClient::getNoOfCalls()
+{
+    return linphone_core_get_calls_nb(lc);
+}
+
 
 // ------------------------------------------------------------------------
 //! LinphoneClient main loop

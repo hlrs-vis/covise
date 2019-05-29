@@ -63,6 +63,7 @@ public:
 protected:
 
     void createMenu();
+    void updateMenu();
     void destroyMenu();
 
     static VoIPPlugin* plugin;
