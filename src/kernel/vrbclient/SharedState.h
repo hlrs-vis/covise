@@ -122,7 +122,8 @@ public:
 
     void deserializeValue(covise::TokenBuffer &data) override
     {
-        deserializeWithType(data, m_value);
+		m_oldValue = m_value;
+		deserializeWithType(data, m_value);
     }
 
     //! sends the value change to the vrb
@@ -139,10 +140,17 @@ public:
         return m_value;
     }
 
+	const T& oldValue() const
+	{
+		return m_oldValue;
+	}
+
 private:
     T m_value; ///the value of the SharedState
-
+	T m_oldValue; ///the value the SharedState had before the last change
 };
+
+
 }
 #endif
 
