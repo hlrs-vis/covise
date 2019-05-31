@@ -28,6 +28,7 @@ void PluginMenu::Plugin::add(ui::Menu *menu, bool onlyTui)
     if (!configured)
         button->setPriority(ui::Element::Low);
     button->setState(plugin != nullptr);
+	button->setShared(true);
     button->setCallback([this](bool load){
         plugin = coVRPluginList::instance()->getPlugin(name.c_str());
         if (load)
