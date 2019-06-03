@@ -93,5 +93,6 @@ std::set<T> getRemovedObjects(const std::set<T> oldObjs, const std::set<T> newOb
 	}
 	return removed;
 };
+
 }
 #endif

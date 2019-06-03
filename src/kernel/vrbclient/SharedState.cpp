@@ -17,9 +17,10 @@
 namespace vrb
 {
 
-SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
+SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, const std::string& className)
     : m_registry(SharedStateManager::instance()->getRegistry())
     , variableName(name)
+	, m_className(className)
 {
     auto news = SharedStateManager::instance()->add(this, mode);
     sessionID = news.first;
@@ -30,16 +31,15 @@ SharedStateBase::~SharedStateBase()
 {
     if(m_registry)
     {
-        m_registry->unsubscribeVar(className, variableName);
-    }
-    SharedStateManager::instance()->remove(this);
+        m_registry->unsubscribeVar(m_className, variableName);
+    }    SharedStateManager::instance()->remove(this);
 }
 
 void SharedStateBase::subscribe(covise::TokenBuffer && val)
 {
     if(m_registry)
     {
-        m_registry->subscribeVar(sessionID, className, variableName, std::move(val), this);
+        m_registry->subscribeVar(sessionID, m_className, variableName, std::move(val), this);
     }
 }
 
@@ -96,15 +96,21 @@ bool SharedStateBase::getMute()
 
 void SharedStateBase::resubscribe(SessionID &id)
 {
+<<<<<<< .mine
+    if (m_registry->getClass(m_className)->getVar(variableName))
+
+
+=======
     if(m_registry == NULL)
         return;
     if (m_registry->getClass(className)->getVar(variableName))
+>>>>>>> .theirs
     {
-        m_registry->unsubscribeVar(className, variableName, true);
+        m_registry->unsubscribeVar(m_className, variableName, true);
     }
 
     covise::TokenBuffer tb;
-    m_registry->subscribeVar(id, className, variableName, std::move(tb), this);
+    m_registry->subscribeVar(id, m_className, variableName, std::move(tb), this);
 }
 
 void SharedStateBase::frame(double time)
@@ -117,7 +123,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, className, variableName, std::move(tb_value), muted);
+        m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
         lastUpdateTime = time;
         send = false;
     }

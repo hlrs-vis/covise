@@ -189,10 +189,8 @@ public:
         return (myClass);
     };
     /// set value
-    inline void setValue(const covise::TokenBuffer &v)
-    {
-        value.copy(v);
-    }
+	void setValue(const covise::TokenBuffer& v);
+
     /// returns true if this Var is static
     int isStatic()
     {
