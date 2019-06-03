@@ -8,7 +8,9 @@
 #ifndef _VRB_CLIENT_H
 #define _VRB_CLIENT_H
 #include <stdio.h>
+#ifndef _M_CEE //no future in Managed OpenCOVER
 #include <future>
+#endif
 #include <mutex>
 #include <util/DLinkList.h>
 #include <util/coTypes.h>
@@ -75,11 +77,15 @@ private:
     bool isSlave; // it true, we are a slave in a multiPC config, so do not actually connect to server
     float sendDelay; // low-pass filtered time for sending one packet of 1000 bytes
     std::mutex connMutex;
+#ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<ClientConnection *> connFuture;
+#endif
     bool firstVrbConnection = true;
 
 	std::mutex udpConnMutex;
+#ifndef _M_CEE //no future in Managed OpenCOVER
 	std::future<UDPConnection*> udpConnFuture;
+#endif
 	bool firstUdpVrbConnection = true;
 
 	int sendMessage(const Message* m, Connection* conn);

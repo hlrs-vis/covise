@@ -28,7 +28,10 @@
 #include <queue>
 #include <map>
 #include <string>
+
+#ifndef _M_CEE //no future in Managed OpenCOVER
 #include <future>
+#endif
 //#ifndef WIN32
 //#include <stdint.h>
 //#define FILESYS_SEP "\\"
@@ -130,7 +133,9 @@ protected:
     bool firstConnection = true;
 
     covise::Connection *conn = nullptr;
+#ifndef _M_CEE //no future in Managed OpenCOVER
     std::future<covise::Host *> connFuture;
+#endif
 };
 
 
