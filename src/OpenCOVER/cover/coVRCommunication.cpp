@@ -930,6 +930,12 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_VRB_MESSAGE:
     {
+
+		if (msg->length == 0)
+		{
+			fprintf(stderr, "empty message\n");
+			return;
+		}
         processVRBMessage(tb);
     }
     break;
