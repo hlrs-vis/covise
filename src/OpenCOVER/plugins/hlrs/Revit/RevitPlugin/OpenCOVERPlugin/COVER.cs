@@ -272,22 +272,22 @@ namespace OpenCOVERPlugin
             | ((source & 0xFF000000) >> 24)));
         }
 
-        public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, Autodesk.Revit.UI.UIApplication application)
+        public void SendGeometry(Autodesk.Revit.DB.FilteredElementIterator iter, UIDocument uidoc, Document doc)
         {
-            UIDocument uidoc = application.ActiveUIDocument;
-            Application app = application.Application;
-            Document doc = uidoc.Document;
+            if(uidoc !=null) // this is a child document don't clear
+            { 
             if (MaterialInfos == null)
                 MaterialInfos = new Dictionary<ElementId, bool>();
             MaterialInfos.Clear();
             MessageBuffer mb = new MessageBuffer();
             mb.add(1);
             sendMessage(mb.buf, MessageTypes.ClearAll);
+            }
             MessageBuffer mbdocinfo = new MessageBuffer();
             mbdocinfo.add(doc.PathName);
             sendMessage(mbdocinfo.buf, MessageTypes.DocumentInfo);
             View3D = null;
-            if (uidoc.ActiveView is View3D)
+            if (uidoc !=null && uidoc.ActiveView is View3D)
             {
                 View3D = uidoc.ActiveView as View3D;
             }
@@ -516,8 +516,40 @@ namespace OpenCOVERPlugin
             {
                 sendTextNote(elem);
             }
+            if(elem is Autodesk.Revit.DB.RevitLinkInstance)
+            {
+                Autodesk.Revit.DB.RevitLinkInstance link = (Autodesk.Revit.DB.RevitLinkInstance)elem;
+                /*if(!Autodesk.Revit.DB.RevitLinkType.IsLoaded(document,link.Id))
+                {
+                    link.Load();
+                }*/
+
+                MessageBuffer mb = new MessageBuffer();
+                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                try
+                {
+                    mb.add(link.GetTransform().BasisX.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().BasisY.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().BasisZ.Multiply(link.GetTransform().Scale));
+                    mb.add(link.GetTransform().Origin);
+                }
+                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                {
+                    mb.add(new XYZ(1, 0, 0));
+                    mb.add(new XYZ(0, 1, 0));
+                    mb.add(new XYZ(0, 0, 1));
+                    mb.add(new XYZ(0, 0, 0));
+                }
+                sendMessage(mb.buf, MessageTypes.NewTransform);
+                Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(link.GetLinkDocument());
+                COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), null, link.GetLinkDocument());
+                mb = new MessageBuffer();
+                sendMessage(mb.buf, MessageTypes.EndGroup);
+
+            }
             // if it is a Group. we will need to look at its components.
-            if (elem is Autodesk.Revit.DB.Group)
+            else if (elem is Autodesk.Revit.DB.Group)
             {
 
                 /* if we add this, the elements of the Group are duplicates
@@ -1753,7 +1785,8 @@ namespace OpenCOVERPlugin
                 case MessageTypes.Resend:
                     {
                         Autodesk.Revit.DB.FilteredElementCollector collector = new Autodesk.Revit.DB.FilteredElementCollector(uidoc.Document);
-                        COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), app);
+
+                    COVER.Instance.SendGeometry(collector.WhereElementIsNotElementType().GetElementIterator(), uidoc, uidoc.Document);
 
                         ElementClassFilter FamilyFilter = new ElementClassFilter(typeof(FamilySymbol));
                         FilteredElementCollector FamilyCollector = new FilteredElementCollector(uidoc.Document);
