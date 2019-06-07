@@ -16,6 +16,7 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 	
 #include <vector>
 #include <string>
+#include <map>
 #include <functional>
 #include <cassert>
 
@@ -43,7 +44,7 @@ enum SharedStateType
 class  VRBEXPORT SharedStateBase : public regVarObserver
 {
 public:
-    SharedStateBase(std::string name, SharedStateType mode);
+    SharedStateBase(const std::string name, SharedStateType mode, const std::string &className = "SharedState");
 
     virtual ~SharedStateBase();
 
@@ -73,7 +74,7 @@ protected:
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
     void subscribe(covise::TokenBuffer &&val);
     void setVar(covise::TokenBuffer &&val);
-    const std::string className = "SharedState";
+    std::string m_className;
     std::string variableName;
     bool doSend = false;
     bool doReceive = false;
@@ -86,7 +87,7 @@ private:
     SessionID sessionID = 0; ///the session to send updates to 
     bool muted = false;
     bool send = false;
-    float syncInterval = 0.1f;
+    float syncInterval = 0.1f; ///how often messages get sent. if >= 0 messages will be sent immediately
     double lastUpdateTime = 0.0;
     covise::TokenBuffer tb_value;
 };
@@ -150,7 +151,108 @@ private:
 	T m_oldValue; ///the value the SharedState had before the last change
 };
 
+template <class Key, class Val>
+class  SharedMap: public SharedStateBase
+{
+	typedef std::map<Key, Val> T;
+public:
+	SharedMap(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
+		: SharedStateBase(name, mode, "SharedMap")
+		, m_value(value)
+	{
+		assert(m_registry);
+		covise::TokenBuffer data;
+		serializeWithType(data, m_value);
+		subscribe(std::move(data));
+		setSyncInterval(0);
+	}
 
+	SharedMap<Key, Val>& operator=(T value)
+	{
+		if (m_value != value)
+		{
+			m_value = value;
+			push();
+		}
+		return *this;
+	}
+
+	operator T() const
+	{
+		return m_value;
+	}
+
+	void deserializeValue(covise::TokenBuffer& data) override
+	{
+		m_oldValue = m_value;
+		deserializeWithType(data, m_value);
+	}
+
+	//! sends the value change to the vrb
+	void push()
+	{
+		valueChanged = false;
+		covise::TokenBuffer data;
+		data << ChangeType::WHOLE;
+		serialize(data, m_value);
+		setVar(std::move(data));
+	}
+
+	const T& value() const
+	{
+		return m_value;
+	}
+
+	const T& oldValue() const
+	{
+		return m_oldValue;
+	}
+	void changeEntry(Key& k, Val& v)
+	{
+		int pos = -1;
+		covise::TokenBuffer data;
+		if (lastPos->first == k)
+		{
+			pos = std::distance(m_value.begin(), lastPos);
+
+		}
+		else if ((auto it = m_value.find(k))!= m_value.end)
+		{
+			it->second = v;
+			lastPos = it;
+			pos = std::distance(m_value.begin(), it);
+		}
+		if (pos >= 0)
+		{
+			data << ChangeType::ENTRY_CHANGE;
+			data << pos;
+			serialize(data, v);
+		}
+		else
+		{
+			m_value[k] = v;
+			auto p = m_value.insert(std::make_pair(k, v));
+			pos = std::distance(m_value.begin(), p.first);
+			data << ChangeType::ADD_ENTRY;
+			data << pos;
+			serialize(k);
+			serialize(data, v);
+		}
+	}
+	void removeEntry(Key& k)
+	{
+		m_value.erase(k);
+		covise::TokenBuffer tb;
+		tb << ChangeType::ROMOVE_ENRY;
+		serialize(tb, k);
+		//send;
+	}
+private:
+
+	T m_value; ///the value of the SharedState
+	T m_oldValue; ///the value the SharedState had before the last change
+	typename std::map<Key, Val>::iterator  lastPos; ///hint to find the changed 
+};
 }
 #endif
 

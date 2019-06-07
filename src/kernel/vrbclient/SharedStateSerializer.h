@@ -11,12 +11,44 @@
 #include <set>
 #include <map>
 #include <utility>
-
+#include "SharedStateContainerFunctions.h"
 #ifndef SHARED_STATE_SERIALIZER_H
 #define SHARED_STATE_SERIALIZER_H
 
 namespace vrb {
+	//template <class T>
+	//class SharedStateSerializer
+	//{
+	//public:
+	//	void send(covise::TokenBuffer& tb, const T& value)
+	//	{
+	//		serialize(tb, value);
+	//	}
+	//	void receive(covise::TokenBuffer& tb, T& value)
+	//	{
+	//		deserialize(covise::TokenBuffer & tb, T & value)
+	//	}
+	//};
+	//template <class Key, class val>
+	//class SharedStateSerializer<std::map<Key, val>>
+	//{
+	//private:
+	//	std::map<Key, val> oldVal;
+	//	std::iterator<std::map<Key, val>> pos;
 
+
+
+	//public:
+	//	void send(covise::TokenBuffer& tb, const T& value)
+	//	{
+	//		
+	//		serialize(tb, value);
+	//	}
+	//	void receive(covise::TokenBuffer& tb, T& value)
+	//	{
+	//		deserialize(covise::TokenBuffer & tb, T & value)
+	//	}
+	//};
 ///////////////////////DATA TYPE FUNCTIONS //////////////////////////
 
 enum SharedStateDataType
@@ -31,6 +63,14 @@ enum SharedStateDataType
     SET,    //7
 	MAP,	//8
 	PAIR	//9
+};
+//how a sharedMap has changed
+enum ChangeType
+{
+	WHOLE, //every entry -> sent whole map (with types)
+	ADD_ENTRY, //send key and value
+	ENTRY_CHANGE, // send position and new value
+	ROMOVE_ENRY	//send Key and value
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {
