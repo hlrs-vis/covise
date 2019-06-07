@@ -87,7 +87,7 @@ private:
     SessionID sessionID = 0; ///the session to send updates to 
     bool muted = false;
     bool send = false;
-    float syncInterval = 0.1f;
+    float syncInterval = 0.1f; ///how often messages get sent. if >= 0 messages will be sent immediately
     double lastUpdateTime = 0.0;
     covise::TokenBuffer tb_value;
 };
@@ -164,6 +164,7 @@ public:
 		covise::TokenBuffer data;
 		serializeWithType(data, m_value);
 		subscribe(std::move(data));
+		setSyncInterval(0);
 	}
 
 	SharedMap<Key, Val>& operator=(T value)
@@ -230,7 +231,10 @@ public:
 		else
 		{
 			m_value[k] = v;
+			auto p = m_value.insert(std::make_pair(k, v));
+			pos = std::distance(m_value.begin(), p.first);
 			data << ChangeType::ADD_ENTRY;
+			data << pos;
 			serialize(k);
 			serialize(data, v);
 		}

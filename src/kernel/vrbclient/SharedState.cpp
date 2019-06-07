@@ -46,7 +46,15 @@ void SharedStateBase::subscribe(covise::TokenBuffer && val)
 void SharedStateBase::setVar(covise::TokenBuffer && val)
 {
     tb_value = std::move(val);
-    send = true;
+	if (syncInterval <= 0)
+	{
+		m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
+	}
+	else
+	{
+		send = true;
+	}
+
 }
 
 void SharedStateBase::setUpdateFunction(std::function<void()> function)
