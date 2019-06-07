@@ -42,6 +42,7 @@ namespace opencover
 {
 VrbMenue::VrbMenue()
     :ui::Owner("VRBMenue", cover->ui)
+	, test("test")
 {
     init();
 }
@@ -188,9 +189,6 @@ void VrbMenue::selectSession(int id)
     }
 }
 
-void VrbMenue::test(int a, int b)
-{
-}
 
 //session functions : public
 void VrbMenue::updateSessions(const std::vector<vrb::SessionID>& sessions)
