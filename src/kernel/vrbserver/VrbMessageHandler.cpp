@@ -233,7 +233,6 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> sessionID;
         tb >> senderID;
         tb >> Class;
-
         tb >> variable;
         tb >> tb_value;
 

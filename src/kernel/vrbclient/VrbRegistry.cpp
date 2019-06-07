@@ -5,16 +5,4 @@
 
  * License: LGPL 2+ */
 
-#include "VrbRegistry.h"
-#include "regClass.h"
 
-regClass* vrb::VrbRegistry::getClass(const std::string& name) const
-{
-
-	auto cl = myClasses.find(name);
-	if (cl == myClasses.end())
-	{
-		return nullptr;
-	}
-	return cl->second.get();
-}

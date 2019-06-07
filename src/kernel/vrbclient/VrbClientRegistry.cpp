@@ -106,7 +106,7 @@ clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const 
         rc = new clientRegClass(cl, clientID, this);
         myClasses[cl].reset(rc);
     }
-    clientRegVar *rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+    clientRegVar *rv = rc->getVar(var);
     if (!rv)
     {
         rv = new clientRegVar(rc, var, value);
@@ -178,7 +178,7 @@ void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl,
         return; //maybe create class
     }
     rc->setLastEditor(clientID);
-    clientRegVar *rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+    clientRegVar *rv = rc->getVar(var);
     if (!rv)
     {
         rv = new clientRegVar(rc, var, value);
@@ -208,7 +208,7 @@ void VrbClientRegistry::destroyVar(const SessionID sessionID, const std::string 
     clientRegClass * rc = getClass(cl);
     if (rc)
     {
-        clientRegVar *rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+        clientRegVar *rv = rc->getVar(var);
         if (rv)
         {
             rc->deleteVar(var);
@@ -256,7 +256,7 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
         if (rc)
         {
             rc->setDeleted(false);
-            rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+            rv = rc->getVar(var);
             if (rv)
             {
                 //inform var observer if not receiving my own message
@@ -287,7 +287,7 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
                 rc->notifyLocalObserver();
                 return;
             }
-            rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+            rv = rc->getVar(var);
             if (rv)
             {
                 rv->setDeleted();

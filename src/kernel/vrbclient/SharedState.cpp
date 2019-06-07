@@ -17,10 +17,9 @@
 namespace vrb
 {
 
-SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, const std::string& className)
+SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
     : m_registry(SharedStateManager::instance()->getRegistry())
     , variableName(name)
-	, m_className(className)
 {
     auto news = SharedStateManager::instance()->add(this, mode);
     sessionID = news.first;
@@ -32,7 +31,8 @@ SharedStateBase::~SharedStateBase()
     if(m_registry)
     {
         m_registry->unsubscribeVar(m_className, variableName);
-    }    SharedStateManager::instance()->remove(this);
+    }
+    SharedStateManager::instance()->remove(this);
 }
 
 void SharedStateBase::subscribe(covise::TokenBuffer && val)
@@ -46,15 +46,7 @@ void SharedStateBase::subscribe(covise::TokenBuffer && val)
 void SharedStateBase::setVar(covise::TokenBuffer && val)
 {
     tb_value = std::move(val);
-	if (syncInterval <= 0)
-	{
-		m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
-	}
-	else
-	{
-		send = true;
-	}
-
+    send = true;
 }
 
 void SharedStateBase::setUpdateFunction(std::function<void()> function)
@@ -104,21 +96,13 @@ bool SharedStateBase::getMute()
 
 void SharedStateBase::resubscribe(SessionID &id)
 {
-<<<<<<< .mine
-    if (m_registry->getClass(m_className)->getVar(variableName))
-
-
-=======
-    if(m_registry == NULL)
-        return;
-    if (m_registry->getClass(className)->getVar(variableName))
->>>>>>> .theirs
+    if (m_registry && m_registry->getClass(className)->getVar(variableName))
     {
-        m_registry->unsubscribeVar(m_className, variableName, true);
+        m_registry->unsubscribeVar(className, variableName, true);
     }
 
     covise::TokenBuffer tb;
-    m_registry->subscribeVar(id, m_className, variableName, std::move(tb), this);
+    m_registry->subscribeVar(id, className, variableName, std::move(tb), this);
 }
 
 void SharedStateBase::frame(double time)
@@ -131,7 +115,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
+        m_registry->setVar(sessionID, className, variableName, std::move(tb_value), muted);
         lastUpdateTime = time;
         send = false;
     }
