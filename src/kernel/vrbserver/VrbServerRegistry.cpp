@@ -21,25 +21,12 @@ VrbServerRegistry::VrbServerRegistry(SessionID &session)
 {
 }
 
-VrbServerRegistry::~VrbServerRegistry()
-{
-}
 
-serverRegClass *VrbServerRegistry::getClass(const std::string & name)
-{
-
-    auto cl = myClasses.find(name);
-    if (cl == myClasses.end())
-    {
-        return nullptr;
-    }
-    return cl->second.get();
-}
 /// set a Value or create new Entry
 void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
 
-    serverRegClass *rc = getClass(className);
+    regClass *rc = getClass(className);
     if (!rc)
     {
         rc = new serverRegClass(className, ID);
@@ -47,7 +34,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
 
     }
     rc->setID(ID);
-    serverRegVar *rv = rc->getVar(name);
+    regVar *rv = rc->getVar(name);
     if (rv)
     {
         rv->setValue(value);
@@ -57,27 +44,23 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
         rv = new serverRegVar(rc, name, value);
         rc->append(rv);
     }
-
+	serverRegVar* srv = dynamic_cast<serverRegVar*>(rv);
     //call observers
-    std::set<int> collectiveObservers = *rc->getOList();
-    collectiveObservers.insert(rv->getOList()->begin(), rv->getOList()->end());
-    sendVariableChange(rv, collectiveObservers);
-    updateUI(rv);
+    std::set<int> collectiveObservers = dynamic_cast<serverRegClass*>(rc)->getOList();
+    collectiveObservers.insert(srv->getOList().begin(), srv->getOList().end());
+    sendVariableChange(srv, collectiveObservers);
+    updateUI(srv);
 
 
 }
 
-void VrbServerRegistry::updateUI(serverRegVar *rv)
-{
-
-}
 /// create new Entry
 void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
-    serverRegClass *rc = getClass(className);
+    regClass *rc = getClass(className);
     if (rc)
     {
-        serverRegVar *rv = rc->getVar(name);
+        serverRegVar *rv = dynamic_cast<serverRegVar*>(rc->getVar(name));
         if (rv)
         {
             return;
@@ -88,10 +71,10 @@ void VrbServerRegistry::create(int ID, const std::string &className, const std::
 /// get a boolean Variable
 int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::string &name, int def)
 {
-    serverRegClass *rc = getClass(className);
+    regClass *rc = getClass(className);
     if (rc)
     {
-        serverRegVar *rv = rc->getVar(name);
+        serverRegVar *rv = dynamic_cast<serverRegVar*>(rc->getVar(name));
         if (rv)
         {
             bool b;
@@ -139,11 +122,15 @@ void VrbServerRegistry::sendVariableChange(serverRegVar * rv, std::set<int> obse
     }
 }
 
+void VrbServerRegistry::updateUI(serverRegVar* rv)
+{
+}
+
 void VrbServerRegistry::observe(int sender)
 {
     for (auto cl : myClasses)
     {
-        cl.second->observeAllVars(sender);
+		std::dynamic_pointer_cast<vrb::serverRegClass>(cl.second)->observeAllVars(sender);
     }
 }
 
@@ -152,10 +139,11 @@ void VrbServerRegistry::observeVar(int ID, const std::string &className, const s
     auto classIt = myClasses.find(className);
     if (classIt == myClasses.end()) //if class does not exists create it
     {
-        auto rc = std::make_shared<serverRegClass>(className, ID);
+		auto rc = std::shared_ptr< serverRegClass>(new serverRegClass(className, ID));
+//		auto rc = std::make_shared<serverRegClass>(className, ID);
         classIt = myClasses.emplace(className, rc).first;
     }
-    classIt->second->observeVar(ID, variableName, value);
+	std::dynamic_pointer_cast<vrb::serverRegClass>(classIt->second)->observeVar(ID, variableName, value);
 }
 
 void VrbServerRegistry::observeClass(int ID, const std::string &className)
@@ -163,10 +151,10 @@ void VrbServerRegistry::observeClass(int ID, const std::string &className)
     auto classIt = myClasses.find(className);
     if (classIt == myClasses.end()) //if class does not exists create it
     {
-        auto rc = std::make_shared<serverRegClass>(className, ID);
+		auto rc = std::shared_ptr< serverRegClass>(new serverRegClass(className, ID));
         classIt = myClasses.emplace(className, rc).first;
     }
-    classIt->second->observe(ID);
+	std::dynamic_pointer_cast<vrb::serverRegClass>(classIt->second)->observe(ID);
 }
 ///unobserve a single variable
 void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const std::string &variableName)
@@ -174,7 +162,7 @@ void VrbServerRegistry::unObserveVar(int ID, const std::string &className, const
     auto classIt = myClasses.find(className);
     if (classIt != myClasses.end())
     {
-        classIt->second->unObserveVar(ID, variableName);
+		std::dynamic_pointer_cast<vrb::serverRegClass>(classIt->second)->unObserveVar(ID, variableName);
         if (classIt->second->getID() == ID)
         {
             classIt->second->setID(-1);
@@ -194,7 +182,7 @@ void VrbServerRegistry::unObserveClass(int ID, const std::string &className)
     auto classIt = myClasses.find(className);
     if (classIt != myClasses.end())
     {
-        classIt->second->unObserve(ID);
+		std::dynamic_pointer_cast<vrb::serverRegClass>(classIt->second)->unObserve(ID);
         if (classIt->second->getID() == ID)
         {
             classIt->second->setID(-1);
@@ -206,7 +194,7 @@ void VrbServerRegistry::unObserve(int recvID)
 {
     for (const auto cl : myClasses)
     {
-        cl.second->unObserve(recvID);
+		std::dynamic_pointer_cast<vrb::serverRegClass>(cl.second)->unObserve(recvID);
         if (cl.second->getID() == recvID)
         {
             cl.second->setID(-1);
@@ -214,7 +202,7 @@ void VrbServerRegistry::unObserve(int recvID)
     }
 }
 
-std::shared_ptr<serverRegClass> VrbServerRegistry::createClass(const std::string &name, int id)
+std::shared_ptr<regClass> VrbServerRegistry::createClass(const std::string &name, int id)
 {
     return std::shared_ptr<serverRegClass>(new serverRegClass(name, id));
 }
@@ -236,17 +224,17 @@ void serverRegVar::update(int recvID)
 
 void serverRegVar::informDeleteObservers()
 {
-
-    covise::TokenBuffer sb;
+	covise::TokenBuffer sb;
     sb << getClass()->getID();
     sb << getClass()->getName();
     sb << getName();
     sb << getValue();
     std::set<int> combinedObservers = observers;
-    if (getClass()->getOList()->size()!= 0)
-    {
-        combinedObservers.insert(getClass()->getOList()->begin(), getClass()->getOList()->end());
-    }
+	auto c = dynamic_cast<serverRegVar*>(getClass());
+	if (c && c->getOList().size() != 0)
+	{
+		combinedObservers.insert(c->getOList().begin(), c->getOList().end());
+	}
     for (const int obs : combinedObservers)
     {
         clients.sendMessageToID(sb, obs, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED);
@@ -265,8 +253,9 @@ void serverRegClass::observeAllVars(int sender)
     {
         for (auto var : myVariables)
         {
-            var.second->observe(sender);
-            var.second->update(sender);
+			auto v = std::dynamic_pointer_cast<serverRegVar>(var.second);
+			v->observe(sender);
+            v->update(sender);
         }
     }
 }
@@ -278,7 +267,7 @@ void serverRegClass::observe(int recvID)
 
 void serverRegClass::observeVar(int recvID, const std::string &variableName, covise::TokenBuffer &value)
 {
-    serverRegVar *rv = getVar(variableName);
+    serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (!rv)
     {
         rv = new serverRegVar(this, variableName, value);
@@ -293,7 +282,7 @@ void serverRegClass::observeVar(int recvID, const std::string &variableName, cov
 
 void serverRegClass::unObserveVar(int recvID, const std::string &variableName)
 {
-    serverRegVar *rv = getVar(variableName);
+    serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (rv)
     {
         rv->unObserve(recvID);
@@ -305,11 +294,11 @@ void serverRegClass::unObserve(int recvID)
     observers.erase(recvID);
     for (const auto &var : myVariables)
     {
-        var.second->unObserve(recvID);
+       std::dynamic_pointer_cast<serverRegVar>(var.second)->unObserve(recvID);
     }
 }
 
-std::shared_ptr<serverRegVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
 {
     return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
 }

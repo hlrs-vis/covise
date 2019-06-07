@@ -154,7 +154,7 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
     {
         if (theChangedClass->getName() == "VRMLFile")
         {
-            for (std::map<const std::string, std::shared_ptr<clientRegVar>>::iterator it = theChangedClass->getAllVariables().begin();
+            for (std::map<const std::string, std::shared_ptr<regVar>>::iterator it = theChangedClass->getAllVariables().begin();
                 it != theChangedClass->getAllVariables().end(); ++it)
             {
                 coVRPartner *p = NULL;

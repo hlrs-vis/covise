@@ -21,7 +21,7 @@ class VRBClient;
 namespace vrb
 {
 class VrbMessageSenderInterface;
-class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
+class VRBEXPORT VrbClientRegistry : public VrbRegistry
 {
 public:
     static VrbClientRegistry *instance;
@@ -119,7 +119,7 @@ public:
         return sessionID;
     }
 
-    std::shared_ptr<clientRegClass> createClass(const std::string &name, int id) override;
+    std::shared_ptr<regClass> createClass(const std::string &name, int id) override;
 private:
     int clientID = -1;
     SessionID sessionID;

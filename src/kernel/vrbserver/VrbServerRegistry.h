@@ -13,6 +13,7 @@
 #include <vrbclient/SessionID.h>
 
 
+
 #ifndef VrbClientRegistry_H
 #define VrbClientRegistry_H
 
@@ -24,19 +25,15 @@ class TokenBuffer;
 
 namespace vrb
 {
-class VrbServerRegistry : public VrbRegistry<serverRegClass, serverRegVar>
+class serverRegVar;
+
+class VrbServerRegistry : public VrbRegistry
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
     VrbServerRegistry(SessionID &session);
-    ~VrbServerRegistry();
 
 
-
-    std::map<int, std::shared_ptr<serverRegClass>> getClasses(const std::string &name);
-    /// get a map with an entry of the specified classes of all clients if the have that class
-///int : client id, regClass : regClass with name that belongs to that client
-    serverRegClass *getClass(const std::string &name);
     /// set a Value or create new Entry, s for isStatic
     void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s = false);
     /// create new Entry
@@ -74,13 +71,13 @@ public:
     {
         return -1;
     }
-    std::shared_ptr<serverRegClass> createClass(const std::string &name, int id) override;
+    std::shared_ptr<regClass> createClass(const std::string &name, int id) override;
 private:
     SessionID sessionID;
     int owner;
 };
 
-class serverRegVar : public regVar<serverRegClass>
+class serverRegVar : public regVar
 {
 private:
     std::set<int> observers;
@@ -103,15 +100,15 @@ public:
         observers.erase(recvID);
     };
     /// get list of Observers
-    std::set<int> *getOList()
+    std::set<int> &getOList()
     {
-        return (&observers);
+        return observers;
     };
     void informDeleteObservers();
 
 };
 
-class serverRegClass : public regClass<serverRegVar>
+class serverRegClass : public regClass
 {
 private:
     std::set<int> observers; // clients
@@ -129,12 +126,12 @@ public:
     ///remove the observer from all variables
     void unObserve(int recvID);
     /// get list of Observers
-    std::set<int> *getOList()
-    {
-        return (&observers);
-    }
+	std::set<int>& getOList()
+	{
+		return observers;
+	};
     void informDeleteObservers();
-    std::shared_ptr<serverRegVar> createVar(const std::string &name, covise::TokenBuffer &&value);
+    std::shared_ptr<regVar> createVar(const std::string &name, covise::TokenBuffer &&value);
 
 };
 }
