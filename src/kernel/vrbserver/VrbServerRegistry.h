@@ -24,7 +24,7 @@ class TokenBuffer;
 
 namespace vrb
 {
-class VrbServerRegistry : public VrbRegistry<serverRegClass, serverRegVar>
+class VrbServerRegistry : public VrbRegistry
 {
 public:
     /// constructor initializes Variables with values from yac.config:regVariables
@@ -80,7 +80,7 @@ private:
     int owner;
 };
 
-class serverRegVar : public regVar<serverRegClass>
+class serverRegVar : public regVar
 {
 private:
     std::set<int> observers;
@@ -111,7 +111,7 @@ public:
 
 };
 
-class serverRegClass : public regClass<serverRegVar>
+class serverRegClass : public regClass
 {
 private:
     std::set<int> observers; // clients
@@ -134,7 +134,7 @@ public:
         return (&observers);
     }
     void informDeleteObservers();
-    std::shared_ptr<serverRegVar> createVar(const std::string &name, covise::TokenBuffer &&value);
+    std::shared_ptr<regVar> createVar(const std::string &name, covise::TokenBuffer &&value);
 
 };
 }

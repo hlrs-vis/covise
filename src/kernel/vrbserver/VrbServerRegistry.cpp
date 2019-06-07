@@ -33,7 +33,7 @@ serverRegClass *VrbServerRegistry::getClass(const std::string & name)
     {
         return nullptr;
     }
-    return cl->second.get();
+    return std::dynamic_pointer_cast<serverRegClass>(cl->second.get());
 }
 /// set a Value or create new Entry
 void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
@@ -47,7 +47,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
 
     }
     rc->setID(ID);
-    serverRegVar *rv = rc->getVar(name);
+    regVar *rv = rc->getVar(name);
     if (rv)
     {
         rv->setValue(value);
@@ -57,12 +57,12 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
         rv = new serverRegVar(rc, name, value);
         rc->append(rv);
     }
-
+	serverRegVar* srv = dynamic_cast<serverRegVar*>(rv);
     //call observers
     std::set<int> collectiveObservers = *rc->getOList();
-    collectiveObservers.insert(rv->getOList()->begin(), rv->getOList()->end());
-    sendVariableChange(rv, collectiveObservers);
-    updateUI(rv);
+    collectiveObservers.insert(srv->getOList()->begin(), srv->getOList()->end());
+    sendVariableChange(srv, collectiveObservers);
+    updateUI(srv);
 
 
 }
@@ -77,7 +77,7 @@ void VrbServerRegistry::create(int ID, const std::string &className, const std::
     serverRegClass *rc = getClass(className);
     if (rc)
     {
-        serverRegVar *rv = rc->getVar(name);
+        serverRegVar *rv = dynamic_cast<serverRegVar*>(rc->getVar(name));
         if (rv)
         {
             return;
@@ -91,7 +91,7 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
     serverRegClass *rc = getClass(className);
     if (rc)
     {
-        serverRegVar *rv = rc->getVar(name);
+        serverRegVar *rv = dynamic_cast<serverRegVar*>(rc->getVar(name));
         if (rv)
         {
             bool b;
@@ -243,9 +243,10 @@ void serverRegVar::informDeleteObservers()
     sb << getName();
     sb << getValue();
     std::set<int> combinedObservers = observers;
-    if (getClass()->getOList()->size()!= 0)
+	auto c = dynamic_cast<serverRegVar*>(getClass());
+	if (c->getOList()->size()!= 0)
     {
-        combinedObservers.insert(getClass()->getOList()->begin(), getClass()->getOList()->end());
+        combinedObservers.insert(c->getOList()->begin(),c->getOList()->end());
     }
     for (const int obs : combinedObservers)
     {
@@ -265,8 +266,9 @@ void serverRegClass::observeAllVars(int sender)
     {
         for (auto var : myVariables)
         {
-            var.second->observe(sender);
-            var.second->update(sender);
+			auto v = std::dynamic_pointer_cast<serverRegVar>(var.second);
+			v->observe(sender);
+            v->update(sender);
         }
     }
 }
@@ -278,7 +280,7 @@ void serverRegClass::observe(int recvID)
 
 void serverRegClass::observeVar(int recvID, const std::string &variableName, covise::TokenBuffer &value)
 {
-    serverRegVar *rv = getVar(variableName);
+    serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (!rv)
     {
         rv = new serverRegVar(this, variableName, value);
@@ -293,7 +295,7 @@ void serverRegClass::observeVar(int recvID, const std::string &variableName, cov
 
 void serverRegClass::unObserveVar(int recvID, const std::string &variableName)
 {
-    serverRegVar *rv = getVar(variableName);
+    serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (rv)
     {
         rv->unObserve(recvID);
@@ -305,11 +307,11 @@ void serverRegClass::unObserve(int recvID)
     observers.erase(recvID);
     for (const auto &var : myVariables)
     {
-        var.second->unObserve(recvID);
+       std::dynamic_pointer_cast<serverRegVar>(var.second)->unObserve(recvID);
     }
 }
 
-std::shared_ptr<serverRegVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
 {
     return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
 }
