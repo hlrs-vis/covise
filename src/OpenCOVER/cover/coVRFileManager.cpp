@@ -685,7 +685,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         parent = cover->getObjectsRoot();
     else
     {
-        parent->setNodeMask(parent->getNodeMask() & (~Isect::Intersection));
+        // why do you want to disable intersection test here? parent->setNodeMask(parent->getNodeMask() & (~Isect::Intersection));
         if (cover->debugLevel(3))
             fprintf(stderr, "coVRFileManager::loadFile setting nodeMask of parent to %x\n", parent->getNodeMask());
     }
@@ -988,32 +988,35 @@ coVRFileManager::coVRFileManager()
         auto fileOpen = new ui::FileBrowser("OpenFile", m_owner.get());
         fileOpen->setText("Open");
         fileOpen->setFilter(getFilterList());
-        cover->fileMenu->add(fileOpen);
-        fileOpen->setCallback([this](const std::string &file){
-                loadFile(file.c_str());
-        });
-        m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
-        m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
-        m_fileGroup->setText("Files");
-        cover->fileMenu->add(m_fileGroup);
+        if(cover->fileMenu)
+        {
+          cover->fileMenu->add(fileOpen);
+          fileOpen->setCallback([this](const std::string &file){
+                  loadFile(file.c_str());
+          });
+          m_sharedFiles.setUpdateFunction([this](void) {loadPartnerFiles(); });
+          m_fileGroup = new ui::Group("LoadedFiles", m_owner.get());
+          m_fileGroup->setText("Files");
+          cover->fileMenu->add(m_fileGroup);
+  
+          auto fileReload = new ui::Action("ReloadFile", m_owner.get());
+          cover->fileMenu->add(fileReload);
+          fileReload->setText("Reload file");
+          fileReload->setCallback([this](){
+                  reloadFile();
+          });
 
-        auto fileReload = new ui::Action("ReloadFile", m_owner.get());
-        cover->fileMenu->add(fileReload);
-        fileReload->setText("Reload file");
-        fileReload->setCallback([this](){
-                reloadFile();
-        });
+          auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
+          fileSave->setText("Save");
+          fileSave->setFilter(getWriteFilterList());
+          cover->fileMenu->add(fileSave);
+          fileSave->setCallback([this](const std::string &file){
+                  if (coVRMSController::instance()->isMaster())
+                  VRSceneGraph::instance()->saveScenegraph(file);
+          });
 
-        auto fileSave = new ui::FileBrowser("SaveFile", m_owner.get(), true);
-        fileSave->setText("Save");
-        fileSave->setFilter(getWriteFilterList());
-        cover->fileMenu->add(fileSave);
-        fileSave->setCallback([this](const std::string &file){
-                if (coVRMSController::instance()->isMaster())
-                VRSceneGraph::instance()->saveScenegraph(file);
-        });
-
-        cover->getUpdateManager()->add(this);
+          cover->getUpdateManager()->add(this);
+        }
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
