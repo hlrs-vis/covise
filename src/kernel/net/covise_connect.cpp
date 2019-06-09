@@ -251,7 +251,7 @@ bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char*
 	int* write_buf_int;
 
 	if (!sock)
-		return 0;
+		return false;
 
 	//Compose udp header
 
@@ -262,35 +262,36 @@ bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char*
 	swap_bytes((unsigned int*)write_buf_int, 2);
 
 
+    // Decide wether the message including the COVISE header
+    // fits into one packet
+    if (msg->length >= WRITE_BUFFER_SIZE - UDP_HEADER_SIZE)
+    {
+        cerr << "udp message of type " << msg->type << " is to long! length = " << msg->length << endl;
+        return false;
+    }
+
 	if (msg->length == 0)
+    {
 		retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE, ip);
+    }
 	else
 	{
 #ifdef SHOWMSG
 		LOGINFO("msg->length: %d", msg->length);
 #endif
-		// Decide wether the message including the COVISE header
-		// fits into one packet
-		if (msg->length < WRITE_BUFFER_SIZE - UDP_HEADER_SIZE)
-		{
-			// Write data to socket for data blocks smaller than the
-			// socket write-buffer reduced by the size of the header
-			memcpy(&write_buf[UDP_HEADER_SIZE], msg->data, msg->length);
-			retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE + msg->length, ip);
-			if (retval < 0)
-			{
-				cerr << "UDPSOcket writeTo failed" << endl;
-				return false;
-			}
-			return true;
-		}
-		else
-		{
-			cerr << "udp message of type " << msg->type << " is to long! length = " << msg->length << endl;
-			return false;
-		}
+        // Write data to socket for data blocks smaller than the
+        // socket write-buffer reduced by the size of the header
+        memcpy(&write_buf[UDP_HEADER_SIZE], msg->data, msg->length);
+        retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE + msg->length, ip);
 	}
 
+    if (retval < 0)
+    {
+        cerr << "UDPSOcket writeTo failed" << endl;
+        return false;
+    }
+
+    return true;
 }
 SimpleServerConnection::SimpleServerConnection(Socket *s)
     : ServerConnection(s)
