@@ -37,9 +37,12 @@ public:
 	virtual void run();
 private:
 	covise::SerialCom *serial;
-	float angle,oldAngle;
+	double angle,oldAngle;
 	std::string defaultDevice;
 	std::string devstring;
+	int direction;
+	int loopsPerRev;
+	int countsPerRev;
 	OpenThreads::Mutex mutex;
 	volatile bool doRun;
 };
