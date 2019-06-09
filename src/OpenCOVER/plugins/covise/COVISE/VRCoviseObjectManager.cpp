@@ -503,7 +503,7 @@ coInteractor *ObjectManager::handleInteractors(CoviseRenderObject *container, Co
             int n = ro[k]->getAllAttributes(name, value);
             for (int i = 0; i < n; i++)
             {
-                if (strcmp(name[i], "MODULE") == 0)
+                if (strcmp(name[i], "MODULE") == 0 || strcmp(name[i], "PLUGIN") == 0)
                 {
                     cover->addPlugin(value[i]);
                 }
@@ -794,6 +794,10 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
     //fprintf ( stderr,"ObjectManager::addGeometry=%s type=%s ......... \n", geometry->getName(), gtype);
     // check for plugin to load
+	if (const char* pluginName = geometry->getAttribute("PLUGIN"))
+	{
+		cover->addPlugin(pluginName);
+	}
     if (const char *pluginName = geometry->getAttribute("MODULE"))
     {
         cover->addPlugin(pluginName);
