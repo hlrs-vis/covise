@@ -11,6 +11,13 @@
 #include <net/covise_socket.h>
 #include <xenomai/init.h>
 
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRMSController.h>
+#include <vrbclient/SharedStateManager.h>
+
+using namespace opencover;
+
+
 int main(int argc, char* const* argv)
 {
     if (argc < 2)
@@ -32,6 +39,8 @@ fasi::fasi(const char *filename)
 {
     system = NULL;
     myFasi = this;
+    new vrb::SharedStateManager(NULL);
+    opencover::cover = new opencover::coVRPluginSupport();
     serverConn = new covise::ServerConnection(31880, 1234, -1);
     if (!serverConn->getSocket())
     {
@@ -349,6 +358,7 @@ void fasi::run()
             remoteData.slipRL = 0;
             remoteData.slipRR = 0;
             remoteData.chassisTransform = vehicleDynamics->getVehicleTransformation();
+            remoteData.motionPlatformTransform = ValidateMotionPlatform::instance()->motionPlatformPosition();
             remoteData.gear = sharedState.gear;
             remoteData.buttonStates = 0;
             remoteData.buttonStates |= p_kombi->getLightState() << 8;
