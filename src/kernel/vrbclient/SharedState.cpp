@@ -28,13 +28,19 @@ SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
 
 SharedStateBase::~SharedStateBase()
 {
-    m_registry->unsubscribeVar(className, variableName);
+    if(m_registry)
+    {
+        m_registry->unsubscribeVar(className, variableName);
+    }
     SharedStateManager::instance()->remove(this);
 }
 
 void SharedStateBase::subscribe(covise::TokenBuffer && val)
 {
-    m_registry->subscribeVar(sessionID, className, variableName, std::move(val), this);
+    if(m_registry)
+    {
+        m_registry->subscribeVar(sessionID, className, variableName, std::move(val), this);
+    }
 }
 
 void SharedStateBase::setVar(covise::TokenBuffer && val)
@@ -90,6 +96,8 @@ bool SharedStateBase::getMute()
 
 void SharedStateBase::resubscribe(SessionID &id)
 {
+    if(m_registry == NULL)
+        return;
     if (m_registry->getClass(className)->getVar(variableName))
     {
         m_registry->unsubscribeVar(className, variableName, true);
@@ -101,6 +109,8 @@ void SharedStateBase::resubscribe(SessionID &id)
 
 void SharedStateBase::frame(double time)
 {
+    if(m_registry == NULL)
+        return;
     if (sessionID == SessionID())
     {
         return;
