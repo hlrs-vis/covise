@@ -694,7 +694,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     ui::Button *button = nullptr;
     if (cover && isRoot)
     {
-		std::string relPath(fileName);
+		std::string relPath(adjustedFileName);
 		makeRelativeToSharedDataLink(relPath);
 		button = new ui::Button(m_fileGroup, "File" + reduceToAlphanumeric(relPath));
     }
@@ -702,7 +702,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	{
 		//if file is not shared, add it to the shared filePaths list
 		fileOwnerList v = m_sharedFiles;
-		std::string pathIdentifier(fileName);
+		std::string pathIdentifier(adjustedFileName);
 		makeRelativeToSharedDataLink(pathIdentifier);
 		bool found = false;
 		for (auto p : v)
@@ -754,7 +754,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	std::string xt = url.extension();
 	if (xt != ".wrl" && xt != ".wrl.ive" && xt != ".ive" && xt != ".wrz")
 	{
-		validFileName = findOrGetFile(fileName);
+		validFileName = findOrGetFile(adjustedFileName);
 		fe->url = Url::fromFileOrUrl(validFileName);
 	}
     fe->handler = handler;
