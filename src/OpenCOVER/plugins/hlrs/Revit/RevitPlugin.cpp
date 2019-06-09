@@ -1757,6 +1757,7 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
                 diffuseImage = osgDB::readImageFile(localTextureFileOnly);
                 if (diffuseImage == NULL)
                 {
+			cerr << "did not find it under any of its names, even not " << localTextureFileOnly<< endl;
                     return NULL;
                 }
             }
