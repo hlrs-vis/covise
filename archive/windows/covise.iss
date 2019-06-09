@@ -559,6 +559,8 @@ Source: {#OPENSCENEGRAPH}\bin\osgPlugins-{#OSG_VER_NUM}\*; DestDir: {#DLIB}; Com
 Source: {#EXTERNLIBS}\OpenAL\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\Cal3d\bin\*.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\osgCal\bin\*.dll; DestDir: {#DLIB}; Components: opencover
+Source: {#EXTERNLIBS}\osgEphemeris\bin\*.dll; DestDir: {#DLIB}; Components: opencover          
+Source: C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll; DestDir: {#DLIB}; Components: opencover
 Source: {#EXTERNLIBS}\Proj4\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\embree3\bin\*.dll; DestDir: {#DLIB}; Flags: skipifsourcedoesntexist; Components: opencover
 Source: {#EXTERNLIBS}\ALVAR\bin\*.dll; DestDir: {#DLIB}; Components: opencover
