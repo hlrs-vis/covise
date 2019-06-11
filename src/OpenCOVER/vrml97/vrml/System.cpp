@@ -576,3 +576,8 @@ void System::saveTimestamp(const char *name)
         fprintf(stderr, "saving timestamp failed: %s: %f\n", name, realTime());
     }
 }
+
+bool vrml::System::doOptimize()
+{
+	return true;
+}

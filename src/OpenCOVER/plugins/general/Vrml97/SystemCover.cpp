@@ -133,7 +133,8 @@ SystemCover::SystemCover()
     record = false;
     fileNumber = 0;
     doRemoteFetch = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoRemoteFetch", false);
-
+	m_optimize = coCoviseConfig::isOn("COVER.Plugin.Vrml97.DoOptimize", true);
+	cerr << "vrml optimizer  = " << m_optimize << endl;
     if (coVRMSController::instance()->isMaster())
     {
         if (const char *cache = getenv("COCACHE"))
@@ -353,6 +354,11 @@ void SystemCover::update()
             }
         }
     }
+}
+
+bool SystemCover::doOptimize()
+{
+	return m_optimize;
 }
 
 void SystemCover::startCapture()
@@ -1146,8 +1152,11 @@ void SystemCover::storeInline(const char *name, const Viewer::Object d_viewerObj
         {
 
             // run optimization over the scene graph
-            osgUtil::Optimizer optimzer;
-            optimzer.optimize(osgNode);
+			if (m_optimize)
+			{
+				osgUtil::Optimizer optimzer;
+				optimzer.optimize(osgNode);
+			}
             std::string n(name);
             if (coVRMSController::instance()->isMaster() || coVRFileManager::instance()->isInTmpDir(n))
                 osgDB::writeNodeFile(*osgNode, n.c_str());

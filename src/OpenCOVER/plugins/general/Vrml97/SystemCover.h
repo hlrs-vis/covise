@@ -161,7 +161,7 @@ public:
     {
         return viewpointEntries;
     }
-
+	bool doOptimize() override;
 protected:
     ui::Menu *vrmlMenu = nullptr;
     ui::Group *viewpointGroup = nullptr;
@@ -182,5 +182,7 @@ protected:
     bool doRemoteFetch;
     int viewPointCount = 0;
     CacheMode cacheMode = CACHE_CREATE;
+
+	bool m_optimize;
 };
 #endif // SYSTEM_COVER_H

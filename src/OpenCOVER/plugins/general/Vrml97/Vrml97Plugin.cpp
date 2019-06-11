@@ -657,8 +657,11 @@ Vrml97Plugin::key(int type, int keySym, int mod)
         // reconnect audio server
         if (!coVRMSController::instance()->isSlave())
         {
-            osgUtil::Optimizer optimizer;
-            optimizer.optimize(plugin->viewer->VRMLRoot, 0xfffffff);
+			if (System::the->doOptimize())
+			{
+				osgUtil::Optimizer optimizer;
+				optimizer.optimize(plugin->viewer->VRMLRoot, 0xfffffff);
+			}
 
             if (osgDB::writeNodeFile(*plugin->viewer->VRMLRoot, filename.c_str()))
             {

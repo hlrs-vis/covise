@@ -170,6 +170,7 @@
 	  <ViewpointType value = "standardNoFov"/>
      <!--Audio value="OpenAL" /-->
      <ViewpointType value = "standardNoFov"/>
+	 <DoOptimize value = "off" />
     </Vrml97>
 
     <DistortViewer value="off" />
