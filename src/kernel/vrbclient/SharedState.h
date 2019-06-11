@@ -219,7 +219,7 @@ public:
 	{
 		int pos = -1;
 		covise::TokenBuffer data;
-		if (lastPos->first == k)
+		if (lastPos->first && lastPos->first == k)
 		{
 			pos = std::distance(m_value.begin(), lastPos);
 

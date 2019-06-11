@@ -51,7 +51,7 @@ std::vector<T> getRemovedObjects(const std::vector<T> oldObjs, const std::vector
 		bool found = false;
 		for (auto it = newCopie.begin(); it != newCopie.end(); it++)
 		{
-			if (newObj == *it)
+			if (oldObj == *it)
 			{
 				found = true;
 				newCopie.erase(it);
