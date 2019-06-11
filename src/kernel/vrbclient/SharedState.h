@@ -155,6 +155,11 @@ template <class Key, class Val>
 class  SharedMap: public SharedStateBase
 {
 	typedef std::map<Key, Val> T;
+private:
+
+	T m_value; ///the value of the SharedState
+	T m_oldValue; ///the value the SharedState had before the last change
+	typename std::map<Key, Val>::iterator  lastPos; ///hint to find the changed 
 public:
 	SharedMap(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
 		: SharedStateBase(name, mode, "SharedMap")
@@ -162,6 +167,7 @@ public:
 	{
 		assert(m_registry);
 		covise::TokenBuffer data;
+		data << (int) WHOLE;
 		serializeWithType(data, m_value);
 		subscribe(std::move(data));
 		setSyncInterval(0);
@@ -207,6 +213,7 @@ public:
 	{
 		return m_oldValue;
 	}
+
 	void changeEntry(Key& k, Val& v)
 	{
 		int pos = -1;
@@ -216,15 +223,19 @@ public:
 			pos = std::distance(m_value.begin(), lastPos);
 
 		}
-		else if ((auto it = m_value.find(k))!= m_value.end)
+		else 
 		{
-			it->second = v;
-			lastPos = it;
-			pos = std::distance(m_value.begin(), it);
+			T::iterator it = m_value.find(k);
+			if (it != m_value.end())
+			{
+				it->second = v;
+				lastPos = it;
+				pos = std::distance(m_value.begin(), it);
+			}
 		}
 		if (pos >= 0)
 		{
-			data << ChangeType::ENTRY_CHANGE;
+			data << (int)ChangeType::ENTRY_CHANGE;
 			data << pos;
 			serialize(data, v);
 		}
@@ -233,25 +244,22 @@ public:
 			m_value[k] = v;
 			auto p = m_value.insert(std::make_pair(k, v));
 			pos = std::distance(m_value.begin(), p.first);
-			data << ChangeType::ADD_ENTRY;
+			data << (int)ChangeType::ADD_ENTRY;
 			data << pos;
-			serialize(k);
+			serialize(data, k);
 			serialize(data, v);
 		}
 	}
+
 	void removeEntry(Key& k)
 	{
 		m_value.erase(k);
 		covise::TokenBuffer tb;
-		tb << ChangeType::ROMOVE_ENRY;
+		tb << (int)ChangeType::ROMOVE_ENRY;
 		serialize(tb, k);
 		//send;
 	}
-private:
 
-	T m_value; ///the value of the SharedState
-	T m_oldValue; ///the value the SharedState had before the last change
-	typename std::map<Key, Val>::iterator  lastPos; ///hint to find the changed 
 };
 }
 #endif

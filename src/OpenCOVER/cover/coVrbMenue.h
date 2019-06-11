@@ -47,7 +47,7 @@ private:
     std::vector<std::string> savedRegistries;
     std::vector<vrb::SessionID> availiableSessions;
 
-	vrb::SharedState < std::map<int, std::string>> test;
+	vrb::SharedMap<std::string, std::string> test;
     void init();
     void saveSession();
     void loadSession(int index);

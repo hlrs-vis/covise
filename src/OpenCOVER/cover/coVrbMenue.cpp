@@ -100,14 +100,7 @@ void VrbMenue::init()
 		{
 			static int count = 0;
 			++count;
-			covise::TokenBuffer tb;
-			std::string s = "udp mesage number " + std::to_string(count);
-			tb << s;
-			vrb::UdpMessage msg(tb);
-			msg.type = vrb::AVATAR_HMD_POSITION;
-			msg.sender = coVRCommunication::instance()->getID();
-			cover->sendVrbUdpMessage(&msg);
-
+			test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
 		});
 }
 void VrbMenue::updateState(bool state)

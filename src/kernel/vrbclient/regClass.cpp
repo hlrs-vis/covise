@@ -130,7 +130,7 @@ namespace vrb
 		staticVar = s;
 		setValue(v);
 		isDel = false;
-		lastPos = changedEtries.begin();
+		m_lastPos = m_changedEtries.begin();
 	}
 	regVar::~regVar()
 	{
@@ -148,15 +148,15 @@ namespace vrb
 		return (myClass);
 	};
 	/// set value
-	inline void regVar::setValue(const covise::TokenBuffer& v)
+	void regVar::setValue(const covise::TokenBuffer& v)
 	{
 		if (myClass->getName() == "SharedMap")
 		{
-			std::shared_ptr<covise::TokenBuffer> tb;
+			std::shared_ptr<covise::TokenBuffer> tb = std::make_shared<covise::TokenBuffer>();
 			tb->copy(v);
 
 			int type, pos;
-			value >> type;
+			*tb.get() >> type;
 			switch ((ChangeType)type)
 			{
 			case vrb::WHOLE:
@@ -166,29 +166,28 @@ namespace vrb
 			{
 				*tb.get() >> pos;
 				int i = 0;
-				int k = 0;
+
 				EntryMap newChangedEntries;
-				for (auto it = changedEtries.begin(); it != changedEtries.end(); ++it)
+				for (auto it = m_changedEtries.begin(); it != m_changedEtries.end(); ++it)
 				{
 					if (i = pos)
 					{
 						newChangedEntries[i] = tb;
 						++i;
 					}
-					newChangedEntries[i] = changedEtries[k];
+					newChangedEntries[i] =it->second;
 					++i;
-					++k;
 				}
 			}
 				break;
 			case vrb::ENTRY_CHANGE:
 			{
 				*tb.get() >> pos;
-				if (!lastPos->first == pos)
+				if (!m_lastPos->first == pos)
 				{
-					lastPos = changedEtries.find(pos);
+					m_lastPos = m_changedEtries.find(pos);
 				}
-				lastPos->second = tb;
+				m_lastPos->second = tb;
 			}
 				break;
 			case vrb::ROMOVE_ENRY:
