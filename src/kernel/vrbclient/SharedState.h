@@ -164,6 +164,7 @@ public:
 	SharedMap(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
 		: SharedStateBase(name, mode, "SharedMap")
 		, m_value(value)
+		, lastPos(m_value.begin())
 	{
 		assert(m_registry);
 		covise::TokenBuffer data;
