@@ -198,20 +198,11 @@ SerialCom::SerialCom(const char *device, int baudrate, int Parity, int DataBits,
     case 38400:
         SerialSpeed |= B38400;
         break;
-	case 56000:
-		SerialSpeed |= B56000;
-		break;
-	case 57600:
-		SerialSpeed |= B57600;
-		break;
 	case 115200:
 		SerialSpeed |= B115200;
 		break;
-	case 128000:
-		SerialSpeed |= B128000;
-		break;
-	case 256000:
-		SerialSpeed |= B256000;
+	case 1500000:
+		SerialSpeed |= B1500000;
 		break;
     default:
         sprintf(d_error, "Serial Speed %s not valid", strerror(errno));
