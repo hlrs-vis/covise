@@ -111,7 +111,7 @@ int WriteNetCDF::compute(const char *)
     for (int i = 0; i < numVars; ++i) {
         if (varUsed[i] > 0)
         {
-            sprintf(buf, p_varName[i]->getValue());
+            sprintf(buf, "%s", p_varName[i]->getValue());
             var[i] = ncOutFile->add_var(buf, ncFloat, dimTime, dimSN, dimEW);
         }
     }
@@ -137,6 +137,8 @@ int WriteNetCDF::compute(const char *)
 
     }
      ncOutFile->sync();
+
+     return CONTINUE_PIPELINE;
 }
 
 
