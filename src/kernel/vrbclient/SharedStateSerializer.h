@@ -68,9 +68,8 @@ enum SharedStateDataType
 enum ChangeType
 {
 	WHOLE, //every entry -> sent whole map (with types)
-	ADD_ENTRY, //send key and value
 	ENTRY_CHANGE, // send position and new value
-	ROMOVE_ENRY	//send Key and value
+
 };
 template<class T>
 SharedStateDataType getSharedStateType(const T &type) {

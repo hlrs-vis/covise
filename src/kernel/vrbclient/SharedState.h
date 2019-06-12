@@ -159,12 +159,11 @@ private:
 
 	T m_value; ///the value of the SharedState
 	T m_oldValue; ///the value the SharedState had before the last change
-	typename std::map<Key, Val>::iterator  lastPos; ///hint to find the changed 
+	int  lastPos = -1; ///hint to find the changed 
 public:
 	SharedMap(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
 		: SharedStateBase(name, mode, "SharedMap")
 		, m_value(value)
-		, lastPos(m_value.begin())
 	{
 		assert(m_registry);
 		covise::TokenBuffer data;
@@ -214,53 +213,39 @@ public:
 	{
 		return m_oldValue;
 	}
-
+///change a single entrry of the map, the entry nust exist
 	void changeEntry(Key& k, Val& v)
 	{
-		int pos = -1;
-		covise::TokenBuffer data;
-		if (lastPos->first && lastPos->first == k)
+		bool found = false;
+		auto it = m_value.begin();
+		if (lastPos > 0)
 		{
-			pos = std::distance(m_value.begin(), lastPos);
-
-		}
-		else 
-		{
-			T::iterator it = m_value.find(k);
-			if (it != m_value.end())
+			std::advance(it, lastPos);
+			if (it->first == k)
 			{
-				it->second = v;
-				lastPos = it;
-				pos = std::distance(m_value.begin(), it);
+				found = true;
 			}
 		}
-		if (pos >= 0)
+		if (!found)
 		{
-			data << (int)ChangeType::ENTRY_CHANGE;
-			data << pos;
-			serialize(data, v);
+			it = m_value.find(k);
+			if (it != m_value.end())
+			{
+				lastPos = std::distance(m_value.begin(), it);
+				found = true;
+			}
 		}
-		else
+		if (!found)
 		{
-			m_value[k] = v;
-			auto p = m_value.insert(std::make_pair(k, v));
-			pos = std::distance(m_value.begin(), p.first);
-			data << (int)ChangeType::ADD_ENTRY;
-			data << pos;
-			serialize(data, k);
-			serialize(data, v);
+			std::cerr << m_className << " " << variableName << ": couldn't find entry in map" << std::endl;
+			return;
 		}
+		covise::TokenBuffer data;
+		data << (int)ChangeType::ENTRY_CHANGE;
+		data << lastPos;
+		serialize(data, v);
+		setVar(std::move(data));
 	}
-
-	void removeEntry(Key& k)
-	{
-		m_value.erase(k);
-		covise::TokenBuffer tb;
-		tb << (int)ChangeType::ROMOVE_ENRY;
-		serialize(tb, k);
-		//send;
-	}
-
 };
 }
 #endif

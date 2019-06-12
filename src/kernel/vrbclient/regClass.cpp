@@ -130,7 +130,6 @@ namespace vrb
 		staticVar = s;
 		setValue(v);
 		isDel = false;
-		m_lastPos = m_changedEtries.begin();
 	}
 	regVar::~regVar()
 	{
@@ -154,7 +153,7 @@ namespace vrb
 		{
 			std::shared_ptr<covise::TokenBuffer> tb = std::make_shared<covise::TokenBuffer>();
 			tb->copy(v);
-
+			tb->rewind();
 			int type, pos;
 			*tb.get() >> type;
 			switch ((ChangeType)type)
@@ -162,37 +161,11 @@ namespace vrb
 			case vrb::WHOLE:
 				value.copy(v);
 				break;
-			case vrb::ADD_ENTRY:
-			{
-				*tb.get() >> pos;
-				int i = 0;
-
-				EntryMap newChangedEntries;
-				for (auto it = m_changedEtries.begin(); it != m_changedEtries.end(); ++it)
-				{
-					if (i = pos)
-					{
-						newChangedEntries[i] = tb;
-						++i;
-					}
-					newChangedEntries[i] =it->second;
-					++i;
-				}
-			}
-				break;
 			case vrb::ENTRY_CHANGE:
 			{
 				*tb.get() >> pos;
-				if (!m_lastPos->first == pos)
-				{
-					m_lastPos = m_changedEtries.find(pos);
-				}
-				m_lastPos->second = tb;
-			}
-				break;
-			case vrb::ROMOVE_ENRY:
-			{
-
+				auto it = m_changedEtries.begin();
+				m_changedEtries[pos] = tb;
 			}
 				break;
 			default:

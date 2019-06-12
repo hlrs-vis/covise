@@ -45,6 +45,11 @@ VrbMenue::VrbMenue()
 	, test("test")
 {
     init();
+	std::map<std::string, std::string> m;
+	m["1"] = "nicht 1";
+	m["2"] = "nicht 2";
+	m["3"] = "nicht 3";
+	test = m;
 }
 
 void VrbMenue::init()

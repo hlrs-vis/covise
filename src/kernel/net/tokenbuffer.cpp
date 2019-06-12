@@ -291,7 +291,7 @@ void TokenBuffer::copy(const TokenBuffer &other) {
 	length = other.length;
     buflen = other.get_length();
     data = nb;
-	currdata = nb;
+	currdata = other.currdata;
 	networkByteOrder = other.networkByteOrder;
 }
 

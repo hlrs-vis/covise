@@ -60,7 +60,7 @@ std::vector<T> getRemovedObjects(const std::vector<T> oldObjs, const std::vector
 		}
 		if (!found)
 		{
-			removed.push_back(newObj);
+			removed.push_back(oldObj);
 		}
 	}
 	return removed;

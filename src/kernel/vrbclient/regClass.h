@@ -85,7 +85,6 @@ protected:
 	std::vector<covise::TokenBuffer> addedEntries, removedEntries;
 	typedef std::map<int, std::shared_ptr<covise::TokenBuffer>> EntryMap;
 	EntryMap m_changedEtries;
-	EntryMap::iterator m_lastPos;
     std::string name;
     regClass *myClass;
     bool staticVar;
