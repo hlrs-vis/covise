@@ -162,7 +162,7 @@ public:
     int syncData(void *data, int size);
     int syncMessage(covise::Message *msg);
     bool syncBool(bool);
-    bool reduceOr(bool); // master will resceive logical or of all inputs
+    bool reduceOr(bool); // master will receive logical or of all inputs
     bool reduceAnd(bool);
     bool allReduceOr(bool); // master and slaves will receive logical or of all inputs
     bool allReduceAnd(bool);
