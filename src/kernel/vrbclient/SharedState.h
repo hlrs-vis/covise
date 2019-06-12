@@ -214,7 +214,7 @@ public:
 		return m_oldValue;
 	}
 ///change a single entrry of the map, the entry nust exist
-	void changeEntry(Key& k, Val& v)
+	void changeEntry(const Key& k, const Val& v)
 	{
 		bool found = false;
 		auto it = m_value.begin();
