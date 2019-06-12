@@ -31,6 +31,9 @@ endif()
 option(COVER_ENABLE_VOIP "Enable VoIP linphone client plugin" OFF)
 mark_as_advanced(COVER_ENABLE_VOIP)
 
+option(COVER_ENABLE_ARUCO "Enable ARUCO marker tracking plugin" OFF)
+mark_as_advanced(COVER_ENABLE_ARUCO)
+
 macro (GETENV_PATH var name)
    set(${var} $ENV{${name}})
    if (WIN32)
