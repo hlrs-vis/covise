@@ -10,7 +10,6 @@
  *******************************************************************/
 
 
-//TODO: test for timedependet input
 
 #include "ReadWRFChem.h"
 
@@ -124,9 +123,9 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
             { // FIXME: what will we do here?
 
                 // A list of variable names (unaltered)
-                /*char* newEntry = new char[50]; 
-				strcpy(newEntry,var->name());
-				VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
+                /*char* newEntry = new char[50];
+                strcpy(newEntry,var->name());
+                VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
                 varIds[num2d3dVars] = i;
 
                 // A list of info to display for each variable
