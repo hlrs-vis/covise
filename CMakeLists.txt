@@ -22,7 +22,7 @@ IF(in_source_build)
 ENDIF(in_source_build)
 
 # covise project
-PROJECT(covise CXX C)
+PROJECT(covise VERSION 2019 LANGUAGES CXX C)
 
 set(COVISE_EXPORTS_FILE "covise-exports.cmake")
 
