@@ -1,3 +1,5 @@
+
+ADD_SUBDIRECTORY(RevitPlugin)
 SET(HEADERS
   RevitPlugin.h
   GenNormals.h
