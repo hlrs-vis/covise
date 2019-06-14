@@ -1,14 +1,22 @@
-<MapColorsTexture>
+<MapColorsAttrib>
+<!-- also used by Vistle -->
+<attribute name="dataAttrib" type="float" value="10"/>
+
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
-<uniform name="texUnit0" type="sampler2DRect" value="0"/>
 <uniform name="texUnit1" type="sampler1D" value="1"/>
+
 <vertexProgram>
+attribute float dataAttrib;
+varying float data;
+
 varying vec3 V;
 varying vec3 N;
 
 void main (void)
 {
+    data = dataAttrib;
+
     // Eye-coordinate position of vertex, needed in various calculations
     V = vec3(gl_ModelViewMatrix * gl_Vertex);
     N = normalize(gl_NormalMatrix * gl_Normal);
@@ -25,10 +33,10 @@ void main (void)
 <fragmentProgram>
 #extension GL_ARB_texture_rectangle: enable
 
-uniform sampler2DRect texUnit0;
 uniform sampler1D texUnit1;
 uniform float rangeMin, rangeMax;
 
+varying float data;
 varying vec3 V;
 varying vec3 N;
 
@@ -110,11 +118,9 @@ vec4 flight(in vec3 normal, vec4 color)
 
 void main (void) 
 {
-    vec2 tc = gl_TexCoord[0].xy;
-    float data = texture2DRect(texUnit0, tc).x;
     float t = (data-rangeMin)/(rangeMax-rangeMin);
     vec4 color = texture1D(texUnit1, t);
     gl_FragColor = flight(normalize(N), color);
 }
 </fragmentProgram>
-</MapColorsTexture>
+</MapColorsAttrib>
