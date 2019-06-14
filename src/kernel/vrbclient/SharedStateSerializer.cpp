@@ -110,4 +110,10 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
     return valueString;
 }
 
+template<>
+covise::TokenBuffer& fillMap<covise::TokenBuffer>(covise::TokenBuffer& v)
+{
+	return std::move(v);
+}
+
 }

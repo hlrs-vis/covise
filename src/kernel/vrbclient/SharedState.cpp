@@ -36,20 +36,20 @@ SharedStateBase::~SharedStateBase()
     SharedStateManager::instance()->remove(this);
 }
 
-void SharedStateBase::subscribe(covise::TokenBuffer && val)
+void SharedStateBase::subscribe(DataHandle & val)
 {
     if(m_registry)
     {
-        m_registry->subscribeVar(sessionID, m_className, variableName, std::move(val), this);
+        m_registry->subscribeVar(sessionID, m_className, variableName, val, this);
     }
 }
 
-void SharedStateBase::setVar(covise::TokenBuffer && val)
+void SharedStateBase::setVar(DataHandle & val)
 {
-    tb_value = std::move(val);
+    m_valueData = val;
 	if (syncInterval <= 0)
 	{
-		m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
+		m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
 	}
 	else
 	{
@@ -79,8 +79,8 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     {
         return;
     }
-    theChangedVar->getValue().rewind();
-    deserializeValue(theChangedVar->getValue());
+    covise::TokenBuffer tb(theChangedVar->getValue().data(), theChangedVar->getValue().length());
+    deserializeValue(tb);
     valueChanged = true;
     if (updateCallback != nullptr)
     {
@@ -110,8 +110,7 @@ void SharedStateBase::resubscribe(SessionID &id)
         m_registry->unsubscribeVar(m_className, variableName, true);
     }
 
-    covise::TokenBuffer tb;
-    m_registry->subscribeVar(id, m_className, variableName, std::move(tb), this);
+    m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
 }
 
 void SharedStateBase::frame(double time)
@@ -124,7 +123,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, m_className, variableName, std::move(tb_value), muted);
+        m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
         lastUpdateTime = time;
         send = false;
     }
@@ -142,7 +141,7 @@ float SharedStateBase::getSyncInerval()
 void SharedStateBase::becomeMaster()
 {
     muted = false;
-    if (tb_value.get_length() > 0)
+    if (m_valueData.length() > 0)
     {
         send = true;
     }

@@ -72,8 +72,8 @@ public:
 protected:
     //convert tokenbuffer to datatype of the sharedState
     virtual void deserializeValue(covise::TokenBuffer &data) = 0;
-    void subscribe(covise::TokenBuffer &&val);
-    void setVar(covise::TokenBuffer &&val);
+    void subscribe(DataHandle &val);
+    void setVar(DataHandle &val);
     std::string m_className;
     std::string variableName;
     bool doSend = false;
@@ -89,7 +89,7 @@ private:
     bool send = false;
     float syncInterval = 0.1f; ///how often messages get sent. if >= 0 messages will be sent immediately
     double lastUpdateTime = 0.0;
-    covise::TokenBuffer tb_value;
+	DataHandle  m_valueData;
 };
 
 template <class T>
@@ -190,8 +190,51 @@ public:
 
 	void deserializeValue(covise::TokenBuffer& data) override
 	{
-		m_oldValue = m_value;
-		deserializeWithType(data, m_value);
+		covise::TokenBuffer mapInfo;
+		data >> mapInfo;
+		int type;
+		mapInfo >> type;
+		switch (type)
+		{
+		case WHOLE:
+		{
+			deserialize(mapInfo, m_value);
+			std::map<int, covise::TokenBuffer> changes;
+			//deserialize(mapInfo, changes);
+			auto change = changes.begin();
+			while (change != changes.end())
+			{
+				auto it = m_value.begin();
+				if (change->first > m_value.size())
+				{
+					std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
+					return;
+				}
+				std::advance(it, change->first);
+				deserialize(change->second, it->second);
+				++change;
+			}
+		}
+			break;
+		case ENTRY_CHANGE:
+		{
+			int pos;
+			Val v;
+			data >> pos;
+			if (pos > m_value.size())
+			{
+				std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
+				return;
+			}
+			deserialize(data, v);
+			auto it = m_value.begin();
+			std::advance(it, pos);
+			it->second = v;
+		}
+			break;
+		default:
+			break;
+		}
 	}
 
 	//! sends the value change to the vrb

@@ -116,14 +116,34 @@ namespace vrb
 			file >> valueSize;
 			char* value = new char[valueSize];
 			file.read(value, valueSize);
-			covise::TokenBuffer tb(value, valueSize);
-			myVariables[varName] = createVar(varName, std::move(tb));
+			DataHandle valueData(value, valueSize);
+			myVariables[varName] = createVar(varName, valueData);
 			delete[] value; //createVar did copy the tokenbuffer
 		}
 
 	};
+	void regVar::sendValueChange(covise::TokenBuffer& tb)
+	{
+		tb.addBinary(value.data(), value.length());
+	}
+	void regVar::sendValue(covise::TokenBuffer& tb)
+	{
+
+		if (myClass->getName() == "SharedMap")
+		{
+			tb.addBinary(wholeMap.data(), wholeMap.length());
+			for (auto change : m_changedEtries)
+			{
+				tb.addBinary(change.second.data(), change.second.length());
+			}
+		}
+		else
+		{
+			sendValue(tb);
+		}
+	}
 	////////////////////////////////REGVAR//////////////////////////
-	regVar::regVar(regClass* c, const std::string& n, covise::TokenBuffer& v, bool s)
+	regVar::regVar(regClass* c, const std::string& n, DataHandle & v, bool s)
 	{
 		myClass = c;
 		name = n;
@@ -133,13 +153,11 @@ namespace vrb
 	}
 	regVar::~regVar()
 	{
-		value.delete_data();
 	}
 	/// returns the value
-	covise::TokenBuffer& regVar::getValue()
+	DataHandle& regVar::getValue()
 	{
-		value.rewind();
-		return (value);
+		return value;
 	};
 	/// returns the class of this variable
 	regClass* regVar::getClass()
@@ -147,25 +165,25 @@ namespace vrb
 		return (myClass);
 	};
 	/// set value
-	void regVar::setValue(const covise::TokenBuffer& v)
+	void regVar::setValue(const DataHandle& v)
 	{
+		value = v;
 		if (myClass->getName() == "SharedMap")
 		{
-			std::shared_ptr<covise::TokenBuffer> tb = std::make_shared<covise::TokenBuffer>();
-			tb->copy(v);
-			tb->rewind();
+			covise::TokenBuffer  tb(v.data(), v.length());
 			int type, pos;
-			*tb.get() >> type;
+			tb >> type;
 			switch ((ChangeType)type)
 			{
 			case vrb::WHOLE:
-				value.copy(v);
+				wholeMap = v;
+				m_changedEtries.clear();
 				break;
 			case vrb::ENTRY_CHANGE:
 			{
-				*tb.get() >> pos;
-				auto it = m_changedEtries.begin();
-				m_changedEtries[pos] = tb;
+				tb >> pos;
+				m_changedEtries[pos] = v;
+
 			}
 				break;
 			default:
@@ -173,12 +191,6 @@ namespace vrb
 				break;
 			}
 		}
-		else
-		{
-			value.copy(v);
-		}
-
-
 	}
 	/// returns true if this Var is static
 	int regVar::isStatic()
@@ -202,9 +214,9 @@ namespace vrb
 	void regVar::writeVar(std::ofstream& file)
 	{
 		file << "    " << name << "; ";
-		int length = value.get_length();
+		int length = value.length();
 		file << length;
-		file.write(value.get_data(), value.get_length());
+		file.write(value.data(), value.length());
 	}
 	
 	
@@ -233,7 +245,7 @@ void clientRegVar::subscribe(regVarObserver * ob, const SessionID &sessionID)
     tb << myClass->getID();
     tb << myClass->getName();
     tb << name;
-    tb << value;
+    sendValue(tb);
     // inform vrb about creation
     dynamic_cast<clientRegClass *>(myClass)->sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_VARIABLE);
 }
@@ -303,7 +315,7 @@ clientRegClass::VariableMap &clientRegClass::getAllVariables()
     return myVariables;
 }
 
-std::shared_ptr<regVar> clientRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
+std::shared_ptr<regVar> clientRegClass::createVar(const std::string &name, DataHandle &value)
 {
     return std::shared_ptr<clientRegVar>(new clientRegVar(this, name, value));
 }
