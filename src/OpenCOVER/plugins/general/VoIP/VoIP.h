@@ -40,6 +40,10 @@ public:
     {
         std::string sipaddress = "";
         std::string transport = "";
+        int portMinAudio = 0;
+        int portMaxAudio = 0;
+        int portMinVideo = 0;
+        int portMaxVideo = 0;
     };
 
     struct SIPIdentity

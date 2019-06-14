@@ -56,6 +56,12 @@ public:
 
     //! sets the callback handler
     void addHandler(std::function<void (LinphoneClientState, LinphoneClientState)>* handler);
+
+    //! sets the UDP port range for audio streaming
+    void setAudioPortRange(unsigned int portMin, unsigned int portMax);
+    
+    //! sets the UDP port range for video streaming
+    void setVideoPortRange(unsigned int portMin, unsigned int portMax);
     
     //! create new thread, start core iterator
     void startCoreIterator();

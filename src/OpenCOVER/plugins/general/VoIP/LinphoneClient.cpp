@@ -367,9 +367,25 @@ void LinphoneClient::addHandler(std::function<void (LinphoneClientState, Linphon
     handlerList.push_back(handler);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! sets the UDP port range for audio streaming
+// ------------------------------------------------------------------------
+void LinphoneClient::setAudioPortRange(unsigned int portMin, unsigned int portMax)
+{
+    linphone_core_set_audio_port_range(lc, portMin, portMax);
+}
+
+// ------------------------------------------------------------------------
+//! sets the UDP port range for video streaming
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoPortRange(unsigned int portMin, unsigned int portMax)
+{
+    linphone_core_set_video_port_range(lc, portMin, portMax);
+}
+
+// ------------------------------------------------------------------------
 //! create new thread, start core iterator                                                                                       
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::startCoreIterator()
 {
 #ifdef VOIP_DEBUG

@@ -29,9 +29,14 @@ VoIPPlugin::VoIPPlugin()
         
     server.sipaddress = coCoviseConfig::getEntry("sipaddress", "COVER.Plugin.VoIP.SIPServer", "sip:ip");
     server.transport = coCoviseConfig::getEntry("transport", "COVER.Plugin.VoIP.SIPServer", "udp");
-    
+
+    server.portMinAudio = coCoviseConfig::getInt("min_port", "COVER.Plugin.VoIP.AudioRTPPorts", 10000);
+    server.portMaxAudio = coCoviseConfig::getInt("max_port", "COVER.Plugin.VoIP.AudioRTPPorts", 14999);
+    server.portMinVideo = coCoviseConfig::getInt("min_port", "COVER.Plugin.VoIP.VideoRTPPorts", 15000);
+    server.portMaxVideo = coCoviseConfig::getInt("max_port", "COVER.Plugin.VoIP.VideoRTPPorts", 20000);
+        
     identity.sipaddress = coCoviseConfig::getEntry("sipaddress", "COVER.Plugin.VoIP.Identity", "sip:name@ip");
-    identity.localport =coCoviseConfig::getInt("localport", "COVER.Plugin.VoIP.Identity", 5060);
+    identity.localport = coCoviseConfig::getInt("localport", "COVER.Plugin.VoIP.Identity", 5060);
     identity.displayname = coCoviseConfig::getEntry("displayname", "COVER.Plugin.VoIP.Identity", "displayname");
     identity.username = coCoviseConfig::getEntry("username", "COVER.Plugin.VoIP.Identity", "username");
     identity.password = coCoviseConfig::getEntry("password", "COVER.Plugin.VoIP.Identity", "password");
@@ -56,6 +61,11 @@ VoIPPlugin::VoIPPlugin()
     handler = std::bind(&VoIPPlugin::msgCallback, this, std::placeholders::_1, std::placeholders::_2);
     lpc->addHandler(&handler);
 
+    // configure linphone
+    
+    lpc->setAudioPortRange(server.portMinAudio, server.portMaxAudio);
+    lpc->setVideoPortRange(server.portMinVideo, server.portMaxVideo);
+    
     lpc->startCoreIterator();
 }
 
