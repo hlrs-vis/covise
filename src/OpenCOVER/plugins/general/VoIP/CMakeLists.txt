@@ -1,4 +1,5 @@
 #OpenCOVER plugins general VoIP
+USING(LINPHONEDESKTOP)
 
 SET(HEADERS
   LinphoneClient.h
@@ -10,20 +11,11 @@ SET(SOURCES
   VoIP.cpp
 )
 
-cover_add_plugin(VoIP)
-
-TARGET_LINK_LIBRARIES(VoIP 
-  linphone
-  ortp
-  pthread
-  rt
-  mediastreamer_base
-  mediastreamer_voip
-)
-
 add_definitions(
   -Wno-deprecated-declarations
   -DVOIP_DEBUG
-  -D_REENTRANT
+  -D_REENTRANT  # ?
   -DORTP_INET6
 )
+
+cover_add_plugin(VoIP)

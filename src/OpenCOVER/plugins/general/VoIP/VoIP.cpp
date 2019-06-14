@@ -93,7 +93,9 @@ bool VoIPPlugin::init()
     
     createMenu();
 
-    if (coCoviseConfig::isOn("autoregistration", "COVER.Plugin.VoIP.SIPServer", false) == true)
+    bool exists;
+
+    if (coCoviseConfig::isOn("autoregistration", "COVER.Plugin.VoIP.SIPServer", false, &exists) == true)
     {
         bool success = lpc->doRegistration(identity.sipaddress, identity.password);
 
