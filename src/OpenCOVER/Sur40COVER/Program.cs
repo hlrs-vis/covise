@@ -54,8 +54,8 @@ namespace Sur40COVER
 
             //private Affine2DManipulationProcessor manipulationProcessor;
             //private Affine2DInertiaProcessor inertiaProcessor;
-            private bool manipulating;
-            private bool extrapolating;
+            //private bool manipulating;
+            //private bool extrapolating;
             
 
             //private List<Manipulator> currentManipulators = new List<Manipulator>();
