@@ -1,4 +1,4 @@
-
+USING(Revit)
 PROJECT(RevitPlugin CSharp)
 include(CSharpUtilities)
 
@@ -50,10 +50,8 @@ set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION 
 #set_property(TARGET OpenCOVERPlugin PROPERTY WIN32_EXECUTABLE TRUE)
 
 set_property(TARGET OpenCOVERPlugin PROPERTY VS_DOTNET_REFERENCES
-    "C:/Program Files/Autodesk/Revit 2020/AdWindows.dll"
+    ${EXTRA_REFS}
     "PresentationCore"
-	"C:/Program Files/Autodesk/Revit 2020/RevitAPI.dll"
-	"C:/Program Files/Autodesk/Revit 2020/RevitAPIUI.dll"
     "System"
     "System.Core"
     "System.Data"
