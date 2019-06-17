@@ -144,6 +144,12 @@ stateset->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF); */
 
     setStateSet(stateset);
 
+    updateBounds();
+}
+
+
+void PointCloudGeometry::updateBounds()
+{
     // init bounding box
     box.init();
 
@@ -195,7 +201,7 @@ void PointCloudGeometry::changeLod(float sampleNum)
     else
     {
         auto prim = getPrimitiveSet(0);
-        auto arr = dynamic_cast<osg::DrawArrays *>(prim);
+        auto arr = static_cast<osg::DrawArrays *>(prim);
         arr->setCount(pointSet->size * sampleNum);
     }
 
@@ -206,4 +212,11 @@ void PointCloudGeometry::setPointSize(float psize)
 {
     pointSize = psize;
     pointstate->setSize(pointSize / ((subsample / 4.0) + (3.0 / 4.0)));
+}
+
+void PointCloudGeometry::updateCoords()
+{
+    memcpy(&points->at(0), pointSet->points, pointSet->size*sizeof(pointSet->points[0]));
+    points->dirty();
+    updateBounds();
 }

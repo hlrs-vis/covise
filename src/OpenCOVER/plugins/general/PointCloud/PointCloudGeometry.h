@@ -57,6 +57,7 @@ public:
     void changeLod(float sampleNum); // adjust point density
     void setPointSize(float pointSize); // adjust point size
 
+    void updateCoords();
 protected:
     PointCloudGeometry(); // hide default constructor
     PointCloudGeometry &operator=(const PointCloudGeometry &)
@@ -72,6 +73,8 @@ protected:
 #endif
 
 private:
+    void updateBounds();
+
     PointSet *pointSet;
     float subsample = 1.;
     float pointSize = 1.;
