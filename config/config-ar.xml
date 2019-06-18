@@ -84,14 +84,14 @@
 					<!--Pelton -->
                     <Marker name="ObjectMarker10" >
                         <Pattern value="31" />
-                        <Size value="426" />
-                        <Offset x="931" y="-931" z="-266" h="180" p="0" r="-90" />
+                        <Size value="500" />
+                        <Offset x="800" y="-991" z="-420" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
                     <Marker name="ObjectMarker11" >
                         <Pattern value="32" />
-                        <Size value="426" />
-                        <Offset x="931" y="-931" z="532" h="180" p="0" r="-90" />
+                        <Size value="500" />
+                        <Offset x="800" y="-991" z="490" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
 			
@@ -277,12 +277,12 @@
                         <VrmlToPf value="TRUE" />
                     </Marker>
                     -->
-                    <Marker name="ObjectMarker11" >
+                    <!--Marker name="ObjectMarker11" >
                         <Pattern value="29" />
                         <Size value="250" />
                         <Offset x="-400" y="-1087" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="TRUE" />
-                    </Marker>
+                    </Marker-->
 					
 					<Marker name="Tracer12" >
                         <Pattern value="60" />
@@ -303,7 +303,7 @@
                 <ALVAR value="ON">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="1" width="1920" height="1080" />
+                    <VideoDevice value="0" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->

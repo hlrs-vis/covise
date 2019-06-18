@@ -15,6 +15,14 @@
 </GLOBAL>
  <INCLUDE global="1" configname="general" >config.xml </INCLUDE>
  <GLOBAL>
+ 
+  <System>
+   <VRB>
+    <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31253"/>
+   </VRB>
+   
+
+  </System>
   <COVER>
   <Input>
         <MouseNav value="true" />
