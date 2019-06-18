@@ -127,6 +127,9 @@ protected:
     
     std::vector<vrui::coButtonMenuItem*> menuContacts;
 
+    std::vector<std::string> vecCaptureSoundDevices;
+    std::vector<std::string> vecPlaybackSoundDevices;
+    
     SIPServer server;
     SIPIdentity identity;
     std::vector<SIPIdentity> contacts;

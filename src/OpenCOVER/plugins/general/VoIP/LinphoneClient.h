@@ -92,12 +92,21 @@ public:
 
     //! gets the name of the currently capture sound device
     std::string getCurrentCaptureSoundDevice();
-    
+
+    //! sets the name of the currently capture sound device
+    void setCurrentCaptureSoundDevice(std::string newDevice);
+
     //! gets the name of the currently playback sound device
     std::string getCurrentPlaybackSoundDevice();
+
+    //! sets the name of the currently playback sound device
+    void setCurrentPlaybackSoundDevice(std::string newDevice);
     
     //! gets the name of the currently ringer sound device
     std::string getCurrentRingerSoundDevice();
+
+    //! sets the name of the currently playback sound device
+    void setCurrentRingerSoundDevice(std::string newDevice);
     
     //! gets the name of the currently media sound device
     //std::string getCurrentMediaSoundDevice();
@@ -111,12 +120,21 @@ public:
     //! returns true if echo cancellation is enabled
     bool getEchoCancellationIsEnabled();
 
+    //! set echo cancellation onoff
+    void setEchoCancellation(bool onoff);
+    
     //! returns true if echo limiter is enabled
     bool getEchoLimiterIsEnabled();
 
+    //! set echo limiter onoff
+    void setEchoLimiter(bool onoff);
+    
     //! tells whether the audio adaptive jitter compensation is enabled
     bool getAudioJitterCompensation();
-    
+
+    //! tset audio adaptive jitter compensation onoff
+    void setAudioJitterCompensation(bool onoff);
+
     //! get microphone gain in db
     float getMicGain();
 

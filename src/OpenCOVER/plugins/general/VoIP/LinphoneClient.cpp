@@ -568,11 +568,27 @@ std::string LinphoneClient::getCurrentCaptureSoundDevice()
 }
 
 // ------------------------------------------------------------------------
+//! sets the name of the currently capture sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentCaptureSoundDevice(std::string newDevice)
+{
+    linphone_core_set_capture_device(lc, newDevice.c_str());
+}
+
+// ------------------------------------------------------------------------
 //! gets the name of the currently playback sound device
 // ------------------------------------------------------------------------
 std::string LinphoneClient::getCurrentPlaybackSoundDevice()
 {
     return string(linphone_core_get_playback_device(lc));
+}
+
+// ------------------------------------------------------------------------
+//! sets the name of the currently playback sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentPlaybackSoundDevice(std::string newDevice)
+{
+    linphone_core_set_playback_device(lc, newDevice.c_str());
 }
 
 // ------------------------------------------------------------------------
@@ -583,6 +599,14 @@ std::string LinphoneClient::getCurrentRingerSoundDevice()
     return string(linphone_core_get_ringer_device(lc));
 }
 
+// ------------------------------------------------------------------------
+//! sets the name of the currently ringer sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentRingerSoundDevice(std::string newDevice)
+{
+    linphone_core_set_ringer_device(lc, newDevice.c_str());
+}
+    
 // ------------------------------------------------------------------------
 //! gets the name of the currently media sound device
 // FIXME: not available in 3.12 (?)
@@ -618,6 +642,14 @@ bool LinphoneClient::getEchoCancellationIsEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set echo cancellation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setEchoCancellation(bool onoff)
+{
+    linphone_core_enable_echo_cancellation(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! returns true if echo limiter is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getEchoLimiterIsEnabled()
@@ -626,11 +658,27 @@ bool LinphoneClient::getEchoLimiterIsEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set echo limiter onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setEchoLimiter(bool onoff)
+{
+    linphone_core_enable_echo_limiter(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! tells whether the audio adaptive jitter compensation is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getAudioJitterCompensation()
 {
     return linphone_core_audio_adaptive_jittcomp_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set audio adaptive jitter compensation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setAudioJitterCompensation(bool onoff)
+{
+    linphone_core_enable_video_adaptive_jittcomp(lc, onoff);
 }
 
 // ------------------------------------------------------------------------

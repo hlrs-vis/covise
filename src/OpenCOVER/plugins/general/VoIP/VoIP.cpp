@@ -306,31 +306,134 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
     else if (aButton == menuPotiMicGain)
     {
         vrui::coPotiMenuItem* pot = static_cast<vrui::coPotiMenuItem*>(aButton);
-        cout << pot->getValue() << endl;
+        lpc->setMicGain(pot->getValue());
     }
     else if (aButton == menuPotiPlaybackGain)
     {
         vrui::coPotiMenuItem* pot = static_cast<vrui::coPotiMenuItem*>(aButton);
-        cout << pot->getValue() << endl;
+        lpc->setPlaybackGain(pot->getValue());
+    }
+    else if(aButton == menuCheckboxEchoCancellationEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setEchoCancellation(cbx->getState());
+    }
+
+    else if(aButton == menuCheckboxEchoLimiterEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setEchoLimiter(cbx->getState());
+    }
+    
+    else if(aButton == menuCheckboxAudioJitterCompensation)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setAudioJitterCompensation(cbx->getState());
     }
     else 
     {
-        std::vector<SIPIdentity>::iterator contact = contacts.begin();
-        std::vector<vrui::coButtonMenuItem*>::iterator it = menuContacts.begin();
-
-        while ((it != menuContacts.end()) && (aButton != (*it)))
         {
-            ++it;
-            ++contact;
+            std::vector<SIPIdentity>::iterator contact = contacts.begin();
+            std::vector<vrui::coButtonMenuItem*>::iterator it = menuContacts.begin();
+            
+            while ((it != menuContacts.end()) && (aButton != (*it)))
+            {
+                ++it;
+                ++contact;
+            }
+            
+            if (it != menuContacts.end())
+            {
+                lpc->initiateCall((*contact).sipaddress);
+                
+                menuLabelCallState->setLabel("Call: in progress");
+                menuLabelCallNameOfPartner->setLabel("Addr: " + (*contact).sipaddress);
+            }
+        }
+        
+        {
+            std::vector<vrui::coCheckboxMenuItem*>::iterator it = menuPlaybackDevices.begin();
+            std::vector<std::string>::iterator devName = vecPlaybackSoundDevices.begin();
+
+            while ((it != menuPlaybackDevices.end()) && (aButton != (*it)))
+            {
+                ++it;
+                ++devName;
+            }
+            
+            if (it != menuPlaybackDevices.end())
+            {
+                // uncheck every device
+                for(std::vector<vrui::coCheckboxMenuItem*>::iterator forIt = menuPlaybackDevices.begin();
+                    forIt != menuPlaybackDevices.end();
+                    ++forIt) 
+                {
+                    (*forIt)->setState(false);
+                }
+                
+                // check selected
+                (*it)->setState(true);
+                
+                lpc->setCurrentPlaybackSoundDevice(*devName);
+            }
         }
 
-        if (it != menuContacts.end())
         {
-            lpc->initiateCall((*contact).sipaddress);
+            std::vector<vrui::coCheckboxMenuItem*>::iterator it = menuCaptureDevices.begin();
+            std::vector<std::string>::iterator devName = vecCaptureSoundDevices.begin();
 
-            menuLabelCallState->setLabel("Call: in progress");
-            menuLabelCallNameOfPartner->setLabel("Addr: " + (*contact).sipaddress);
+            while ((it != menuCaptureDevices.end()) && (aButton != (*it)))
+            {
+                ++it;
+                ++devName;
+            }
+            
+            if (it != menuCaptureDevices.end())
+            {
+                // uncheck every device
+                for(std::vector<vrui::coCheckboxMenuItem*>::iterator forIt = menuCaptureDevices.begin();
+                    forIt != menuCaptureDevices.end();
+                    ++forIt) 
+                {
+                    (*forIt)->setState(false);
+                }
+                
+                // check selected
+                (*it)->setState(true);
+
+                lpc->setCurrentCaptureSoundDevice(*devName);
+            }
         }
+        
+        {
+            std::vector<vrui::coCheckboxMenuItem*>::iterator it = menuRingerDevices.begin();
+            std::vector<std::string>::iterator devName = vecPlaybackSoundDevices.begin();
+
+            while ((it != menuRingerDevices.end()) && (aButton != (*it)))
+            {
+                ++it;
+                ++devName;
+            }
+            
+            if (it != menuRingerDevices.end())
+            {
+                // uncheck every device
+                for(std::vector<vrui::coCheckboxMenuItem*>::iterator forIt = menuRingerDevices.begin();
+                    forIt != menuRingerDevices.end();
+                    ++forIt) 
+                {
+                    (*forIt)->setState(false);
+                }
+                
+                // check selected
+                (*it)->setState(true);
+                
+                lpc->setCurrentRingerSoundDevice(*devName);
+            }
+        }
+
+
+        
     }
 }
 
@@ -396,8 +499,8 @@ void VoIPPlugin::createMenu()
     menuPotiMicGain = new vrui::coPotiMenuItem("Mic Gain (dB)", -100.0, 100.0, lpc->getMicGain());
     menuPotiMicGain->setMenuListener(this);
     menuPotiMicGain->setIncrement(1.0);
-    menuPotiMicGain->setValue(0.0);
     menuPotiMicGain->setInteger(true);
+    menuPotiMicGain->setValue(0.0);
     menuMixer->add(menuPotiMicGain);
     //menuPotiMicLevel = new vrui::coPotiMenuItem("Mic Level", 0.0, 100.0, 75.0);
     //menuMixer->add(menuPotiMicLevel);
@@ -416,16 +519,19 @@ void VoIPPlugin::createMenu()
 
     menuCheckboxEchoCancellationEnabled = new vrui::coCheckboxMenuItem("Echo Cancellation Enabled",
                                                                        lpc->getEchoCancellationIsEnabled());
+    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
     menuAudio->add(menuCheckboxEchoCancellationEnabled);
     menuCheckboxEchoLimiterEnabled = new vrui::coCheckboxMenuItem("Echo Limiter Enabled",
                                                                   lpc->getEchoLimiterIsEnabled());
+    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
     menuAudio->add(menuCheckboxEchoLimiterEnabled);
     menuCheckboxAudioJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation",
                                                                        lpc->getAudioJitterCompensation());
+    menuCheckboxAudioJitterCompensation->setMenuListener(this);
     menuAudio->add(menuCheckboxAudioJitterCompensation);
     
-    vector<string> vecCaptureSoundDevices = lpc->getCaptureSoundDevicesList();
-    vector<string> vecPlaybackSoundDevices = lpc->getPlaybackSoundDevicesList();
+    vecCaptureSoundDevices = lpc->getCaptureSoundDevicesList();
+    vecPlaybackSoundDevices = lpc->getPlaybackSoundDevicesList();
 
     menuLabelCaptureDeviceList = new vrui::coLabelMenuItem("Capture Devices");
     menuAudio->add(menuLabelCaptureDeviceList);
@@ -441,7 +547,9 @@ void VoIPPlugin::createMenu()
         {
             menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
         }
+        menuCheckboxDevice->setMenuListener(this);
         menuAudio->add(menuCheckboxDevice);
+        menuCheckboxDevice->setMenuListener(this);
         menuCaptureDevices.push_back(menuCheckboxDevice);
     }
     
@@ -459,6 +567,7 @@ void VoIPPlugin::createMenu()
         {
             menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
         }
+        menuCheckboxDevice->setMenuListener(this);
         menuAudio->add(menuCheckboxDevice);
         menuPlaybackDevices.push_back(menuCheckboxDevice);
     }
@@ -477,6 +586,7 @@ void VoIPPlugin::createMenu()
         {
             menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
         }
+        menuCheckboxDevice->setMenuListener(this);
         menuAudio->add(menuCheckboxDevice);
         menuRingerDevices.push_back(menuCheckboxDevice);
     }
