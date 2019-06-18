@@ -26,13 +26,10 @@ void main (void)
 #ifdef __GLSL_CG_DATA_TYPES
     gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
 #endif
-    gl_TexCoord[0] = gl_MultiTexCoord0;
 }
 </vertexProgram>
 
 <fragmentProgram>
-#extension GL_ARB_texture_rectangle: enable
-
 uniform sampler1D texUnit1;
 uniform float rangeMin, rangeMax;
 
