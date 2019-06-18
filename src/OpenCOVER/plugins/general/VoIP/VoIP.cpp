@@ -51,7 +51,7 @@ VoIPPlugin::VoIPPlugin()
         string s = *it;
         std::replace(s.begin(), s.end(), '|', ':');
         std::replace(s.begin(), s.end(), '_', '.'); 
-        
+
         newContact.sipaddress = s;
         contacts.push_back(newContact);
     }
@@ -234,7 +234,7 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
         {
             menuLabelCallState->setLabel("Call: -");
         }
-        updateMenu();        
+        updateMenu();
     }
 }
 
@@ -302,6 +302,16 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
     {
         vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
         lpc->setCallSelfViewEnabled(cbx->getState());
+    }
+    else if (aButton == menuPotiMicGain)
+    {
+        vrui::coPotiMenuItem* pot = static_cast<vrui::coPotiMenuItem*>(aButton);
+        cout << pot->getValue() << endl;
+    }
+    else if (aButton == menuPotiPlaybackGain)
+    {
+        vrui::coPotiMenuItem* pot = static_cast<vrui::coPotiMenuItem*>(aButton);
+        cout << pot->getValue() << endl;
     }
     else 
     {
@@ -384,13 +394,21 @@ void VoIPPlugin::createMenu()
     menuMixer =  new vrui::coRowMenu("Audio Mixer"); 
     
     menuPotiMicGain = new vrui::coPotiMenuItem("Mic Gain (dB)", -100.0, 100.0, lpc->getMicGain());
+    menuPotiMicGain->setMenuListener(this);
+    menuPotiMicGain->setIncrement(1.0);
+    menuPotiMicGain->setValue(0.0);
+    menuPotiMicGain->setInteger(true);
     menuMixer->add(menuPotiMicGain);
-    menuPotiMicLevel = new vrui::coPotiMenuItem("Mic Level", 0.0, 100.0, 75.0);
-    menuMixer->add(menuPotiMicLevel);
+    //menuPotiMicLevel = new vrui::coPotiMenuItem("Mic Level", 0.0, 100.0, 75.0);
+    //menuMixer->add(menuPotiMicLevel);
     menuPotiPlaybackGain = new vrui::coPotiMenuItem("Playback Gain (dB)", -100.0, 100.0, lpc->getPlaybackGain());
+    menuPotiPlaybackGain->setMenuListener(this);
+    menuPotiPlaybackGain->setIncrement(1.0);
+    menuPotiPlaybackGain->setValue(0.0);
+    menuPotiPlaybackGain->setInteger(true);
     menuMixer->add(menuPotiPlaybackGain);
-    menuPotiVolLevel = new vrui::coPotiMenuItem("Volume Level", 0.0, 100.0, 75.0);
-    menuMixer->add(menuPotiVolLevel);
+    //menuPotiVolLevel = new vrui::coPotiMenuItem("Volume Level", 0.0, 100.0, 75.0);
+    //menuMixer->add(menuPotiVolLevel);
 
     // audio menu
     
@@ -542,7 +560,7 @@ void VoIPPlugin::createMenu()
     
     cover->getMenu()->add(menuMainItem);
 
-    updateMenu();        
+    updateMenu();
 }
 
 // ----------------------------------------------------------------------------
@@ -655,5 +673,8 @@ void VoIPPlugin::destroyMenu()
 }
 
 // ----------------------------------------------------------------------------
+void VoIPPlugin::potiValueChanged(float oldValue, float newValue, vrui::coValuePoti *poti, int context)
+{
+}
 
 COVERPLUGIN(VoIPPlugin)

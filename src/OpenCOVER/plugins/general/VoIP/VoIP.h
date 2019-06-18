@@ -32,7 +32,8 @@
 // ----------------------------------------------------------------------------
 class VoIPPlugin : public opencover::coVRPlugin,
                    public vrui::coMenuListener,
-                   public opencover::coTUIListener
+                   public opencover::coTUIListener,
+                   public vrui::coValuePotiActor
 {
 public:
 
@@ -70,9 +71,11 @@ protected:
     void updateMenu();
     void destroyMenu();
 
+    void potiValueChanged(float oldValue, float newValue, vrui::coValuePoti *poti, int context = -1);
+    
     static VoIPPlugin* plugin;
     std::function<void (LinphoneClientState, LinphoneClientState)> handler;
-    
+
     vrui::coSubMenuItem* menuMainItem = nullptr;
     vrui::coSubMenuItem* menuAudioItem = nullptr;
     vrui::coSubMenuItem* menuVideoItem = nullptr;

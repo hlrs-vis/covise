@@ -642,11 +642,27 @@ float LinphoneClient::getMicGain()
 }
 
 // ------------------------------------------------------------------------
+//! set microphone gain in db
+// ------------------------------------------------------------------------
+void LinphoneClient::setMicGain(float gain)
+{
+    linphone_core_set_mic_gain_db(lc, gain);
+}
+
+// ------------------------------------------------------------------------
 //! get playback gain in db before entering sound card.
 // ------------------------------------------------------------------------
 float LinphoneClient::getPlaybackGain()
 {
     return linphone_core_get_playback_gain_db(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set playback gain in db before entering sound card.
+// ------------------------------------------------------------------------
+void LinphoneClient::setPlaybackGain(float gain)
+{
+    linphone_core_set_playback_gain_db(lc, gain);
 }
 
 // ------------------------------------------------------------------------

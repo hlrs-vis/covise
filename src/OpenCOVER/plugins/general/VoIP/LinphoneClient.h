@@ -120,9 +120,15 @@ public:
     //! get microphone gain in db
     float getMicGain();
 
+    //! set microphone gain in db
+    void setMicGain(float gain);
+    
     //! get playback gain in db before entering sound card
     float getPlaybackGain();
 
+    //! set playback gain in db before entering sound card
+    void setPlaybackGain(float gain);
+    
     //! tells whether video capture is enabled
     bool getVideoCaptureEnabled();
 
