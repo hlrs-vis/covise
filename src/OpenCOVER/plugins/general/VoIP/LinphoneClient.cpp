@@ -1085,9 +1085,9 @@ void LinphoneClient::thdMain()
     {
         linphone_core_iterate(lc);
 
-#ifdef VOIP_DEBUG            
-        cout << "lp_state = " << static_cast<int>(lp_state)<< endl;
-#endif
+//#ifdef VOIP_DEBUG            
+//        cout << "lp_state = " << static_cast<int>(lp_state)<< endl;
+//#endif
 
         // call external stateChanged handlers
 
