@@ -41,19 +41,24 @@ VoIPPlugin::VoIPPlugin()
     identity.username = coCoviseConfig::getEntry("username", "COVER.Plugin.VoIP.Identity", "username");
     identity.password = coCoviseConfig::getEntry("password", "COVER.Plugin.VoIP.Identity", "password");
 
-    std::vector<std::string> contactsRead = coCoviseConfig::getScopeNames("COVER.Plugin.VoIP", "contact");
+    vector<string> contactsRead = coCoviseConfig::getScopeNames("COVER.Plugin.VoIP","Contact");
 
-    for(std::vector<std::string>::iterator it = contactsRead.begin(); it != contactsRead.end(); ++it) 
+    coCoviseConfig::ScopeEntries keysEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.VoIP","Contact");
+
+    const char **keys = keysEntries.getValue();
+    
+    if (keys != NULL)
     {
-        SIPIdentity newContact;
+        int i = 0;
+        while (keys[i] != NULL)
+        {
+            //cout << keys[i++] << endl;
 
-        // FIXME: getScopeNames reads wrong character set ?
-        string s = *it;
-        std::replace(s.begin(), s.end(), '|', ':');
-        std::replace(s.begin(), s.end(), '_', '.'); 
-
-        newContact.sipaddress = s;
-        contacts.push_back(newContact);
+            SIPIdentity newContact;
+            newContact.sipaddress = string(keys[++i]);
+            contacts.push_back(newContact);
+            ++i;
+        }
     }
 
     lpc = new LinphoneClient();
