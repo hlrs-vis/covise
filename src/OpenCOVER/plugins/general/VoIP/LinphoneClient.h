@@ -150,26 +150,47 @@ public:
     //! tells whether video capture is enabled
     bool getVideoCaptureEnabled();
 
+    //! set video capture onoff
+    void setVideoCaptureEnabled(bool onoff);
+   
     //! tells whether video display is enabled
     bool getVideoDisplayEnabled();
-    
+
+    //! set video display onoff
+    void setVideoDisplayEnabled(bool onoff);
+   
     //! tells whether video preview is enabled
     bool getVideoPreviewEnabled();
-    
+
+    //! set video preview onoff
+    void setVideoPreviewEnabled(bool onoff);
+   
     //! get the default policy for acceptance of incoming video
     bool getAutoAcceptVideo();
+
+    //! set the default policy for acceptance of incoming video
+    void setAutoAcceptVideo(bool onoff);
     
     //! get the default policy for initiating video
     bool getAutoInitiateVideo();
+
+    //! set the default policy for initiating video
+    void setAutoInitiateVideo(bool onoff);
     
     //! tells whether the video adaptive jitter compensation is enabled
     bool getVideoJitterCompensation();
 
+    //! set the video adaptive jitter compensation onoff
+    void getVideoJitterCompensation(bool onoff);
+    
     //! gets a list of the available video capture devices
     std::vector<std::string> getVideoCaptureDevicesList();
 
     //! returns the name of the currently active video device    
     std::string getCurrentVideoCaptureDevice();
+
+    //! set the currently active video device    
+    void setCurrentVideoCaptureDevice(std::string newDevice);
     
     //! get microphone muted state
     bool getCallMicrophoneMuted();

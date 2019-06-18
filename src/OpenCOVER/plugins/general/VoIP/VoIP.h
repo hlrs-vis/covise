@@ -129,6 +129,7 @@ protected:
 
     std::vector<std::string> vecCaptureSoundDevices;
     std::vector<std::string> vecPlaybackSoundDevices;
+    std::vector<std::string> vecVideoCaptureDevices;
     
     SIPServer server;
     SIPIdentity identity;

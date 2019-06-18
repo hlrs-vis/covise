@@ -335,6 +335,38 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
         vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
         lpc->setAudioJitterCompensation(cbx->getState());
     }
+    else if(aButton == menuCheckboxVideoCaptureEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setVideoCaptureEnabled(cbx->getState());
+    }
+    else if(aButton == menuCheckboxVideoDisplayEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setVideoDisplayEnabled(cbx->getState());
+        
+    }
+    else if(aButton == menuCheckboxVideoPreviewEnabled)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setVideoPreviewEnabled(cbx->getState());
+        
+    }
+    else if(aButton == menuCheckboxAutoAcceptVideo)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setAutoAcceptVideo(cbx->getState());
+    }
+    else if(aButton == menuCheckboxAutoInitiateVideo)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->setAutoInitiateVideo(cbx->getState());        
+    }
+    else if(aButton == menuCheckboxVideoJitterCompensation)
+    {
+        vrui::coCheckboxMenuItem* cbx = static_cast<vrui::coCheckboxMenuItem*>(aButton);
+        lpc->getVideoJitterCompensation(cbx->getState());
+    }
     else 
     {
         {
@@ -411,6 +443,33 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
         }
         
         {
+            std::vector<vrui::coCheckboxMenuItem*>::iterator it = menuVideoCaptureDevices.begin();
+            std::vector<std::string>::iterator devName = vecVideoCaptureDevices.begin();
+
+            while ((it != menuVideoCaptureDevices.end()) && (aButton != (*it)))
+            {
+                ++it;
+                ++devName;
+            }
+
+            if (it != menuVideoCaptureDevices.end())
+            {
+                // uncheck every device
+                for(std::vector<vrui::coCheckboxMenuItem*>::iterator forIt = menuVideoCaptureDevices.begin();
+                    forIt != menuVideoCaptureDevices.end();
+                    ++forIt) 
+                {
+                    (*forIt)->setState(false);
+                }
+                
+                // check selected
+                (*it)->setState(true);
+
+                lpc->setCurrentVideoCaptureDevice(*devName);
+            }
+        }
+        
+        {
             std::vector<vrui::coCheckboxMenuItem*>::iterator it = menuRingerDevices.begin();
             std::vector<std::string>::iterator devName = vecPlaybackSoundDevices.begin();
 
@@ -435,10 +494,7 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
                 
                 lpc->setCurrentRingerSoundDevice(*devName);
             }
-        }
-
-
-        
+        } 
     }
 }
 
@@ -602,27 +658,33 @@ void VoIPPlugin::createMenu()
 
     menuCheckboxVideoCaptureEnabled = new vrui::coCheckboxMenuItem("Video Capture Enabled",
                                                                    lpc->getVideoCaptureEnabled());
+    menuCheckboxVideoCaptureEnabled->setMenuListener(this);
     menuVideo->add(menuCheckboxVideoCaptureEnabled);
     menuCheckboxVideoDisplayEnabled = new vrui::coCheckboxMenuItem("Video Display Enabled",
                                                                    lpc->getVideoDisplayEnabled());
+    menuCheckboxVideoDisplayEnabled->setMenuListener(this);
     menuVideo->add(menuCheckboxVideoDisplayEnabled);
     menuCheckboxVideoPreviewEnabled = new vrui::coCheckboxMenuItem("Video Preview Enabled",
                                                                    lpc->getVideoPreviewEnabled());
+    menuCheckboxVideoPreviewEnabled->setMenuListener(this);
     menuVideo->add(menuCheckboxVideoPreviewEnabled);
     menuCheckboxAutoAcceptVideo = new vrui::coCheckboxMenuItem("Auto Accept Video",
                                                                lpc->getAutoAcceptVideo());
+    menuCheckboxAutoAcceptVideo->setMenuListener(this);
     menuVideo->add(menuCheckboxAutoAcceptVideo);
     menuCheckboxAutoInitiateVideo = new vrui::coCheckboxMenuItem("Auto Initiate Video",
                                                                  lpc->getAutoInitiateVideo());
+    menuCheckboxAutoInitiateVideo->setMenuListener(this);
     menuVideo->add(menuCheckboxAutoInitiateVideo);
     menuCheckboxVideoJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation",
                                                                        lpc->getVideoJitterCompensation());
+    menuCheckboxVideoJitterCompensation->setMenuListener(this);
     menuVideo->add(menuCheckboxVideoJitterCompensation);
   
     menuLabelVideoDeviceList = new vrui::coLabelMenuItem("Video Capture Devices");
     menuVideo->add(menuLabelVideoDeviceList);
 
-    vector<string> vecVideoCaptureDevices = lpc->getVideoCaptureDevicesList();
+    vecVideoCaptureDevices = lpc->getVideoCaptureDevicesList();
     
     for(vector<string>::iterator it = vecVideoCaptureDevices.begin(); it != vecVideoCaptureDevices.end(); ++it) 
     {
@@ -636,6 +698,7 @@ void VoIPPlugin::createMenu()
         {
             menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
         }
+        menuCheckboxDevice->setMenuListener(this);
         menuVideo->add(menuCheckboxDevice);
         menuVideoCaptureDevices.push_back(menuCheckboxDevice);
     }

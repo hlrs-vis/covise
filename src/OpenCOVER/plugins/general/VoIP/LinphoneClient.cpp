@@ -722,6 +722,14 @@ bool LinphoneClient::getVideoCaptureEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set video capture onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoCaptureEnabled(bool onoff)
+{
+    linphone_core_enable_video_capture(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! Tells whether video display is enabled.
 // ------------------------------------------------------------------------
 bool LinphoneClient::getVideoDisplayEnabled()
@@ -730,11 +738,27 @@ bool LinphoneClient::getVideoDisplayEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set video display onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoDisplayEnabled(bool onoff)
+{
+    linphone_core_enable_video_display(lc, onoff);
+}   
+
+// ------------------------------------------------------------------------
 //! tells whether video preview is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getVideoPreviewEnabled()
 {
     return linphone_core_video_preview_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set video preview onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoPreviewEnabled(bool onoff)
+{
+    linphone_core_enable_video_preview(lc, onoff);
 }
 
 // ------------------------------------------------------------------------
@@ -747,6 +771,16 @@ bool LinphoneClient::getAutoAcceptVideo()
 }
 
 // ------------------------------------------------------------------------
+//! set the default policy for acceptance of incoming video
+// ------------------------------------------------------------------------
+void LinphoneClient::setAutoAcceptVideo(bool onoff)
+{
+    LinphoneVideoActivationPolicy* policy = linphone_core_get_video_activation_policy(lc);
+    linphone_video_activation_policy_set_automatically_accept(policy, onoff);
+    linphone_core_set_video_activation_policy(lc, policy);   
+}
+
+// ------------------------------------------------------------------------
 //! get the default policy for initiating video
 // ------------------------------------------------------------------------
 bool LinphoneClient::getAutoInitiateVideo()
@@ -756,11 +790,29 @@ bool LinphoneClient::getAutoInitiateVideo()
 }
 
 // ------------------------------------------------------------------------
+//! set the default policy for initiating video
+// ------------------------------------------------------------------------
+void LinphoneClient::setAutoInitiateVideo(bool onoff)
+{
+    LinphoneVideoActivationPolicy* policy = linphone_core_get_video_activation_policy(lc);
+    linphone_video_activation_policy_set_automatically_initiate(policy, onoff);
+    linphone_core_set_video_activation_policy(lc, policy);   
+}
+
+// ------------------------------------------------------------------------
 //! tells whether the video adaptive jitter compensation is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getVideoJitterCompensation()
 {
     return linphone_core_video_adaptive_jittcomp_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set the video adaptive jitter compensation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::getVideoJitterCompensation(bool onoff)
+{
+    linphone_core_enable_video_adaptive_jittcomp(lc, onoff);
 }
 
 // ------------------------------------------------------------------------                                                      
@@ -787,6 +839,14 @@ vector<string> LinphoneClient::getVideoCaptureDevicesList()
 string LinphoneClient::getCurrentVideoCaptureDevice()
 {
     return linphone_core_get_video_device(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set the currently active video device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentVideoCaptureDevice(std::string newDevice)
+{
+    linphone_core_set_video_device(lc, newDevice.c_str());    
 }
 
 // ------------------------------------------------------------------------
