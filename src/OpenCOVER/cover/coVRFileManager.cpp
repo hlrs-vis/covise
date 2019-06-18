@@ -1165,7 +1165,7 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 	fileName.erase(0, abs.length());
 	return true;
 }
-std::string coVRFileManager::findOrGetFile(const std::string & filePath, bool isTmp)
+std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isTmp)
 {
 	coVRMSController* ms = coVRMSController::instance();
 	enum FilePlace
@@ -1178,7 +1178,7 @@ std::string coVRFileManager::findOrGetFile(const std::string & filePath, bool is
 		REMOTE		//fetch from remote in tmp directory
 	};
 	FilePlace filePlace = MISS;
-	std::string path; 
+	std::string path;
 	//find local file
 	if (fileExist(filePath))
 	{
@@ -1190,12 +1190,12 @@ std::string coVRFileManager::findOrGetFile(const std::string & filePath, bool is
 	{
 		filePlace = WORK;
 	}
-	else if(fileExist(path = m_sharedDataLink + filePath))//find file under sharedData link
+	else if (fileExist(path = m_sharedDataLink + filePath))//find file under sharedData link
 	{
-		
+
 		filePlace = LINK;
 	}
-	else if (fileExist(path = fs::temp_directory_path().string() + "/OpenCOVER/" + cutFileName(filePath)))	//find fetched file in tmp
+	else if (fileExist(path = fs::temp_directory_path().string() + "/OpenCOVER/" + getFileName(filePath)))	//find fetched file in tmp
 	{
 		filePlace = TMP;
 	}
@@ -1276,9 +1276,12 @@ std::string coVRFileManager::findOrGetFile(const std::string & filePath, bool is
 			}
 		}
 	}
+	if (filePlace == MISS)
+	{
+		path = "";
+	}
 
-
-    return path;
+	return path;
 }
 
 std::string coVRFileManager::getFontFile(const char *fontname)
