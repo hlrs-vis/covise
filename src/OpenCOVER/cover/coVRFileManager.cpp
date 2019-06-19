@@ -277,7 +277,12 @@ struct LoadedFile
   {
       if  (button)
       {
-          button->setText(coVRFileManager::instance()->getFileName(shortenUrl(url)));
+		  auto n = coVRFileManager::instance()->getFileName(shortenUrl(url));
+		  if (n.length() == 0)
+		  {
+			  n = url.str();
+		  }
+		  button->setText(n);
           button->setState(true);
           button->setCallback([this](bool state){
               if (state)
@@ -1622,21 +1627,21 @@ void coVRFileManager::loadPartnerFiles()
         auto shortPath = myFile.first;
 		auto fileName = getFileName(shortPath);
         makeRelativeToSharedDataLink(shortPath);
-        alreadyLoadedFiles.insert(shortPath);
+        alreadyLoadedFiles.insert(fileName);
 		bool found = false;
 		for (auto p : m_sharedFiles.value())
 		{
 			auto pFileName = getFileName(p.first);
 			if (pFileName == fileName)
 			{
-				myFile.second->load();
+				//myFile.second->load();
 				found = true;
 				break;
 			}
 		}
 		if (!found)
 		{
-			unloadFile(myFile.first.c_str());
+			//unloadFile(myFile.first.c_str());
 		}
     }
 
@@ -1644,7 +1649,7 @@ void coVRFileManager::loadPartnerFiles()
     std::set<std::string> newFiles;
 	for (auto theirFile : m_sharedFiles.value())
 	{
-		if (alreadyLoadedFiles.find(theirFile.first) == alreadyLoadedFiles.end())
+		if (alreadyLoadedFiles.find(getFileName(theirFile.first)) == alreadyLoadedFiles.end())
 		{
 			loadFile(theirFile.first.c_str());
 		}
@@ -1874,8 +1879,7 @@ std::string coVRFileManager::getFileName(const std::string &fileName)
         }
         name.insert(name.begin(), fileName[i]);
     }
-    cerr << "invalid file path : " << fileName << endl;
-    return "";
+    return fileName;
 }
 std::string coVRFileManager::cutFileName(const std::string &fileName)
 {
@@ -1889,7 +1893,6 @@ std::string coVRFileManager::cutFileName(const std::string &fileName)
         }
 
     }
-    cerr << "invalid file path : " << fileName << endl;
     return "";
 }
 std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)

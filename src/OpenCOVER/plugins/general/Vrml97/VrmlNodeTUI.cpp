@@ -60,7 +60,8 @@ VrmlNodeType *VrmlNodeTUIElement::defineType(VrmlNodeType *t)
     t->addExposedField("elementName", VrmlField::SFSTRING);
     t->addExposedField("parent", VrmlField::SFSTRING);
     t->addExposedField("shaderParam", VrmlField::SFSTRING);
-    t->addExposedField("pos", VrmlField::SFVEC2F);
+	t->addExposedField("pos", VrmlField::SFVEC2F);
+	t->addExposedField("shared", VrmlField::SFBOOL);
 
     return t;
 }
@@ -72,7 +73,8 @@ VrmlNodeTUIElement::VrmlNodeTUIElement(VrmlScene *scene)
     , d_elementName("")
     , d_parent("")
     , d_shaderParam("")
-    , d_pos(0, 0)
+	, d_pos(0, 0)
+	, d_shared(false)
     , d_TUIElement(NULL)
 {
 }
@@ -153,7 +155,9 @@ void VrmlNodeTUIElement::setField(const char *fieldName,
         TRY_FIELD(shaderParam, SFString)
     else if
         TRY_FIELD(pos, SFVec2f)
-    else
+    else if
+		TRY_FIELD(shared, SFBool)
+	else
         VrmlNodeChild::setField(fieldName, fieldValue);
 
     if(d_TUIElement != NULL)
@@ -177,8 +181,10 @@ const VrmlField *VrmlNodeTUIElement::getField(const char *fieldName) const
         return &d_parent;
     else if (strcmp(fieldName, "shaderParam") == 0)
         return &d_shaderParam;
-    else if (strcmp(fieldName, "pos") == 0)
-        return &d_pos;
+	else if (strcmp(fieldName, "pos") == 0)
+		return &d_pos;
+	else if (strcmp(fieldName, "shared") == 0)
+		return &d_shared;
     else
         cerr << "Node does not have this eventOunt or exposed field " << nodeType()->getName() << "::" << name() << "." << fieldName << endl;
     return 0;
@@ -600,6 +606,20 @@ VrmlNodeType *VrmlNodeTUIToggleButton::defineType(VrmlNodeType *t)
     return t;
 }
 
+void VrmlNodeTUIToggleButton::eventIn(double timeStamp,
+	const char* eventName,
+	const VrmlField* fieldValue)
+{
+	setModified();
+	VrmlNodeTUIElement::eventIn(timeStamp, eventName, fieldValue);
+	if (d_TUIElement != NULL)
+	{
+		if (strcmp(eventName, "elementName") == 0)
+		{
+		}
+	}
+}
+
 // Set the value of one of the node fields.
 
 void VrmlNodeTUIToggleButton::setField(const char *fieldName,
@@ -614,10 +634,15 @@ void VrmlNodeTUIToggleButton::setField(const char *fieldName,
         VrmlNodeTUIElement::setField(fieldName, fieldValue);
 
     if (d_TUIElement)
-    {
+	{
+		
         coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
-        if (strcmp(fieldName, "state") == 0 && fieldValue.toSFBool() != NULL)
-            tb->setState(fieldValue.toSFBool()->get());
+		if (strcmp(fieldName, "state") == 0 && fieldValue.toSFBool() != NULL)
+		{
+			tb->setState(fieldValue.toSFBool()->get());
+			if (sharedState && d_shared.get())
+				*sharedState = fieldValue.toSFBool()->get();
+		}
         else if (strcmp(fieldName, "choice") == 0 && fieldValue.toSFInt() != NULL)
         {
             d_state.set(fieldValue.toSFInt()->get() >= 0);
@@ -653,6 +678,12 @@ void VrmlNodeTUIToggleButton::tabletEvent(coTUIElement *)
     coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
     d_state.set(tb->getState());
     eventOut(timeStamp, "state", d_state);
+
+	
+	if (sharedState)
+	{
+		*sharedState = tb->getState();
+	}
     if (tb->getState())
         d_choice.set(0);
     else
@@ -671,6 +702,28 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
         d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+		if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
+		{
+			std::string sName = d_parent.get();
+			sName = sName + ".";
+			sName = sName + d_elementName.get();
+			sharedState = new vrb::SharedState<bool>(sName, d_state.get());
+			sharedState->setUpdateFunction([this]() {
+				if (d_shared.get())
+				{
+					coTUIToggleButton* tb = (coTUIToggleButton*)d_TUIElement;
+					tb->setState(*sharedState);
+					d_state.set(tb->getState());
+					double timeStamp = System::the->time();
+					eventOut(timeStamp, "state", d_state);
+					if (tb->getState())
+						d_choice.set(0);
+					else
+						d_choice.set(-1);
+					eventOut(timeStamp, "choice", d_choice);
+				}
+				});
+		}
         }
         VrmlNodeTUIElement::render(viewer);
         coTUIToggleButton *tb = (coTUIToggleButton *)d_TUIElement;
@@ -996,6 +1049,10 @@ void VrmlNodeTUIFloatSlider::tabletEvent(coTUIElement *)
     double timeStamp = System::the->time();
     coTUIFloatSlider *sl = (coTUIFloatSlider *)d_TUIElement;
     d_value.set(sl->getValue());
+	if (sharedState)
+	{
+		*sharedState = sl->getValue();
+	}
     eventOut(timeStamp, "value", d_value);
     if (strlen(d_shaderParam.get()) > 0)
     {
@@ -1041,6 +1098,23 @@ void VrmlNodeTUIFloatSlider::render(Viewer *viewer)
                 ori = true;
             fs->setOrientation(ori);
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+			if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
+			{
+				std::string sName = d_parent.get();
+				sName = sName + ".";
+				sName = sName + d_elementName.get();
+				sharedState = new vrb::SharedState<float>(sName, d_value.get());
+				sharedState->setUpdateFunction([this]() {
+					if (d_shared.get())
+					{
+						coTUIFloatSlider* sl = (coTUIFloatSlider*)d_TUIElement;
+						double timeStamp = System::the->time();
+						sl->setValue(*sharedState);
+						d_value.set(sl->getValue());
+						eventOut(timeStamp, "value", d_value);
+					}
+					});
+			}
         }
         VrmlNodeTUIElement::render(viewer);
         clearModified();
@@ -1070,6 +1144,10 @@ void VrmlNodeTUIFloatSlider::eventIn(double timeStamp,
         else if(strcmp(fieldName,"value")==0)
         {
             ts->setValue(d_value.get());
+			if (sharedState)
+			{
+				*sharedState = d_value.get();
+			}
 	    if (strlen(d_shaderParam.get()) > 0)
     {
         std::string shaderName;
@@ -1128,6 +1206,10 @@ void VrmlNodeTUIFloatSlider::setField(const char *fieldName,
         else if(strcmp(fieldName,"value")==0)
         {
             ts->setValue(d_value.get());
+			if (sharedState)
+			{
+				*sharedState = d_value.get();
+			}
         }
         else if(strcmp(fieldName,"orientation")==0)
         {
@@ -1399,6 +1481,10 @@ void VrmlNodeTUIComboBox::tabletEvent(coTUIElement *)
     else
         d_choice.set(cb->getSelectedEntry());
     eventOut(timeStamp, "choice", d_choice);
+	if (sharedState)
+	{
+		*sharedState = d_choice.get();
+	}
 }
 
 void VrmlNodeTUIComboBox::render(Viewer *viewer)
@@ -1420,6 +1506,24 @@ void VrmlNodeTUIComboBox::render(Viewer *viewer)
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+
+			if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
+			{
+				std::string sName = d_parent.get();
+				sName = sName + ".";
+				sName = sName + d_elementName.get();
+				sharedState = new vrb::SharedState<int>(sName, d_choice.get());
+				sharedState->setUpdateFunction([this]() {
+					if (d_shared.get())
+					{
+						coTUIComboBox* cb = (coTUIComboBox*)d_TUIElement;
+						double timeStamp = System::the->time();
+						cb->setSelectedEntry(*sharedState);
+						d_choice.set(*sharedState);
+						eventOut(timeStamp, "choice", d_choice);
+					}
+					});
+			}
         }
         VrmlNodeTUIElement::render(viewer);
         clearModified();
@@ -1449,6 +1553,10 @@ void VrmlNodeTUIComboBox::setField(const char *fieldName,
     {
         if (strcmp(fieldName, "choice") == 0 && fieldValue.toSFInt() != NULL)
         {
+			if (sharedState)
+			{
+				*sharedState = d_choice.get();
+			}
             if (d_withNone.get())
                 cb->setSelectedEntry(fieldValue.toSFInt()->get() + 1);
             else
@@ -1525,6 +1633,10 @@ void VrmlNodeTUIListBox::tabletEvent(coTUIElement *)
     else
         d_choice.set(cb->getSelectedEntry());
     eventOut(timeStamp, "choice", d_choice);
+	if (sharedState)
+	{
+		*sharedState = d_choice.get();
+	}
 }
 
 void VrmlNodeTUIListBox::render(Viewer *viewer)
@@ -1546,6 +1658,23 @@ void VrmlNodeTUIListBox::render(Viewer *viewer)
             VrmlTUIElements.append(d_TUIElement);
             VrmlTUIElements.setNoDelete();
             d_TUIElement->setPos((int)d_pos.x(), (int)d_pos.y());
+			if (strcmp(d_elementName.get(), "") != 0 && strcmp(d_parent.get(), "") != 0 && sharedState == nullptr)
+			{
+				std::string sName = d_parent.get();
+				sName = sName + ".";
+				sName = sName + d_elementName.get();
+				sharedState = new vrb::SharedState<int>(sName, d_choice.get());
+				sharedState->setUpdateFunction([this]() {
+					if (d_shared.get())
+					{
+						coTUIListBox* cb = (coTUIListBox*)d_TUIElement;
+						double timeStamp = System::the->time();
+						cb->setSelectedEntry(*sharedState);
+						d_choice.set(*sharedState);
+						eventOut(timeStamp, "choice", d_choice);
+					}
+					});
+			}
         }
         VrmlNodeTUIElement::render(viewer);
         clearModified();
@@ -1567,6 +1696,11 @@ void VrmlNodeTUIListBox::setField(const char *fieldName,
         TRY_FIELD(defaultChoice, SFInt)
     else
         VrmlNodeTUIElement::setField(fieldName, fieldValue);
+
+	if (sharedState)
+	{
+		*sharedState = d_choice.get();
+	}
 }
 
 const VrmlField *VrmlNodeTUIListBox::getField(const char *fieldName) const

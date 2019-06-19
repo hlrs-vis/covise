@@ -144,7 +144,10 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-	VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	if (d_namespace != NULL)
+	{
+		VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	}
 	System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();
