@@ -2,11 +2,13 @@
 USING(LINPHONEDESKTOP)
 
 SET(HEADERS
+  NotifyDialog.h
   LinphoneClient.h
   VoIP.h
 )
 
 SET(SOURCES
+  NotifyDialog.cpp
   LinphoneClient.cpp
   VoIP.cpp
 )
