@@ -206,6 +206,10 @@ public:
 	std::string remoteFetch(const std::string &filePath, int fileOwner = -1);
 	///compares the url with m_sharedFiles. If found returns its position in, else -1;
 	int getFileId(const char* url);
+
+	///get the filename + extension from a path: path/fileName -> fileName
+	std::string getFileName(const std::string& filePath);
+
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
@@ -263,8 +267,6 @@ private:
     std::string m_sharedDataLink;
 	///convert all backslashes to forward slashes
     void convertBackslash(std::string &path);
-	///get the filename + extension from a path: path/fileName -> fileName
-	std::string getFileName(const std::string & filePath);
 	///cut the filename from path:  path/fileName --> path
     std::string cutFileName(const std::string & filePath);
     ///removs non-aphanumeric characters

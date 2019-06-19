@@ -277,7 +277,7 @@ struct LoadedFile
   {
       if  (button)
       {
-          button->setText(shortenUrl(url));
+          button->setText(coVRFileManager::instance()->getFileName(shortenUrl(url)));
           button->setState(true);
           button->setCallback([this](bool state){
               if (state)
@@ -1620,12 +1620,14 @@ void coVRFileManager::loadPartnerFiles()
     for (auto myFile : m_files)
     {
         auto shortPath = myFile.first;
+		auto fileName = getFileName(shortPath);
         makeRelativeToSharedDataLink(shortPath);
         alreadyLoadedFiles.insert(shortPath);
 		bool found = false;
 		for (auto p : m_sharedFiles.value())
 		{
-			if (p.first == shortPath || p.first == myFile.first)
+			auto pFileName = getFileName(p.first);
+			if (pFileName == fileName)
 			{
 				myFile.second->load();
 				found = true;
