@@ -94,6 +94,12 @@
                         <Offset x="800" y="-991" z="490" h="180" p="0" r="-90" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
+                    <Marker name="ObjectMarker12" >
+                        <Pattern value="77" />
+                        <Size value="800" />
+                        <Offset x="1300" y="0" z="0" h="90" p="110" r="0" />
+                        <VrmlToPf value="FALSE" />
+                    </Marker>
 			
 <!--  Lino-Line 
 		    <Marker name="ObjectMarker5" >
@@ -233,19 +239,19 @@
                     </Marker>
 -->
                     <Marker name="Tracer1" >
-                        <Pattern value="77" />
+                        <Pattern value="177" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
                     <Marker name="Tracer2" >
-                        <Pattern value="77" />
+                        <Pattern value="177" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
                     </Marker>
                     <Marker name="Tracer3" >
-                        <Pattern value="77" />
+                        <Pattern value="177" />
                         <Size value="100" />
                         <Offset x="0" y="0" z="0" h="0" p="0" r="0" />
                         <VrmlToPf value="FALSE"/>
