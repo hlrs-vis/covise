@@ -367,6 +367,14 @@ void LinphoneClient::addHandler(std::function<void (LinphoneClientState, Linphon
     handlerList.push_back(handler);
 }
 
+// ------------------------------------------------------------------------                                                      
+//! sets the callback notifier
+// ------------------------------------------------------------------------                                                      
+void LinphoneClient::addNotifier(std::function<void (std::string)>* notifier)
+{
+    notifierList.push_back(notifier);
+}
+
 // ------------------------------------------------------------------------
 //! sets the UDP port range for audio streaming
 // ------------------------------------------------------------------------
@@ -1129,6 +1137,37 @@ int LinphoneClient::getNoOfCalls()
     return linphone_core_get_calls_nb(lc);
 }
 
+// ------------------------------------------------------------------------
+//! accept current call
+// ------------------------------------------------------------------------
+void LinphoneClient::acceptIncomingCall()
+{
+    call = linphone_core_get_current_call(lc);
+    linphone_call_accept(call);
+    linphone_call_ref(call);        
+}
+
+// ------------------------------------------------------------------------
+//! reject current call with reason declined
+// ------------------------------------------------------------------------
+void LinphoneClient::rejectIncomingCall()
+{
+    LinphoneCall* call = linphone_core_get_current_call(lc);
+    linphone_call_decline(call, LinphoneReasonDeclined);
+}
+
+// ------------------------------------------------------------------------
+//! get remote address of current call
+// ------------------------------------------------------------------------
+std::string LinphoneClient::getCurrentRemoteAddress()
+{
+    if ((call != NULL) || (lp_state == LinphoneClientState::callIncoming))
+    {
+        LinphoneCall* call = linphone_core_get_current_call(lc);
+        return  string(linphone_call_get_remote_contact(call));
+    }
+    return "";
+}
 
 // ------------------------------------------------------------------------
 //! LinphoneClient main loop
@@ -1183,12 +1222,18 @@ void LinphoneClient::thdMain()
         
         if (lp_state == LinphoneClientState::callIncoming)
         {
-            // TODO
+            LinphoneCall* call = linphone_core_get_current_call(lc);
+            string strCallId = "incoming call from " + string(linphone_call_get_remote_contact(call));
+            
+            for (auto& notifier : notifierList)
+            {
+                (*notifier)(strCallId);
+            }
         }
 
         if ((lp_state == LinphoneClientState::callStreaming) && (oneTime == false))
         {
-            // TODO
+            // TODO: get video stream from mediastreamer
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(intervall));

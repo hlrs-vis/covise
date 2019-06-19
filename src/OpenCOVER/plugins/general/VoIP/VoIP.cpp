@@ -66,6 +66,9 @@ VoIPPlugin::VoIPPlugin()
     handler = std::bind(&VoIPPlugin::msgCallback, this, std::placeholders::_1, std::placeholders::_2);
     lpc->addHandler(&handler);
 
+    notifier = std::bind(&VoIPPlugin::msgNotify, this, std::placeholders::_1);
+    lpc->addNotifier(&notifier);
+    
     // configure linphone
     
     lpc->setAudioPortRange(server.portMinAudio, server.portMaxAudio);
@@ -108,6 +111,8 @@ bool VoIPPlugin::init()
     
     createMenu();
 
+    nodNotifyQuestion = new NotifyDialog;
+    
     bool exists;
 
     if (coCoviseConfig::isOn("autoregistration", "COVER.Plugin.VoIP.SIPServer", false, &exists) == true)
@@ -127,6 +132,36 @@ bool VoIPPlugin::init()
     }
     
     return true;
+}
+
+// ----------------------------------------------------------------------------
+void VoIPPlugin::msgNotify(std::string strNotification)
+{
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::msgNotify()" << endl;
+#endif
+
+    if (lpc->getCurrentState() == LinphoneClientState::callIncoming)
+    {
+        if (bNotified == false)
+        {
+            nodNotifyQuestion->setText(strNotification, "accept", "reject");
+            menuLabelCallNameOfPartner->setLabel("Addr: " + lpc->getCurrentRemoteAddress());
+            nodNotifyQuestion->show();
+            bNotified = true;
+        }
+        else
+        {
+            if (nodNotifyQuestion->getSelection() == "accept")
+            {
+                lpc->acceptIncomingCall();
+            }
+            else if (nodNotifyQuestion->getSelection() == "reject")
+            {
+                lpc->rejectIncomingCall();
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -160,11 +195,32 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
         {
             menuLabelCallState->setLabel("Call: in progress");
         }
+        else if (currentState == LinphoneClientState::callIncoming)
+        {
+            menuLabelCallState->setLabel("Call: incoming");            
+        }
         else
         {
             menuLabelCallState->setLabel("Call: initiating failed");
         }
     }
+    else if (oldState == LinphoneClientState::callIncoming)
+    {
+        if (currentState == LinphoneClientState::callEnded)
+        {
+            menuLabelCallState->setLabel("Call: ended");
+        }
+        else if (currentState == LinphoneClientState::callStreaming)
+        {
+            menuLabelCallState->setLabel("Call: streaming");
+        }
+        else
+        {
+            menuLabelCallState->setLabel("Call: call failed");
+        }
+        updateMenu();
+    }
+
     else if (oldState == LinphoneClientState::callInProgress)
     {
         if (currentState == LinphoneClientState::callRinging)

@@ -57,6 +57,9 @@ public:
     //! sets the callback handler
     void addHandler(std::function<void (LinphoneClientState, LinphoneClientState)>* handler);
 
+    //! sets the callback notifier
+    void addNotifier(std::function<void (std::string)>* handler);
+
     //! sets the UDP port range for audio streaming
     void setAudioPortRange(unsigned int portMin, unsigned int portMax);
     
@@ -207,7 +210,7 @@ public:
     //! get current linphone state
     LinphoneClientState getCurrentState();
 
-    //! easier readability for debugging purposes
+    //! easier readability fordebugging purposes
     std::string getStateString(LinphoneClientState);
 
     //! initiate call to given sip address, keep valid reference to call ptr
@@ -236,14 +239,24 @@ public:
 
     //! get no. of calls
     int getNoOfCalls();
-        
+
+    //! accept current call
+    void acceptIncomingCall();
+
+    //! reject current call with reason declined
+    void rejectIncomingCall();
+
+    //! get remote address of current call
+    std::string getCurrentRemoteAddress();
+    
 protected:
 
     std::vector< std::function<void (LinphoneClientState, LinphoneClientState)> * > handlerList;
+    std::vector< std::function<void (std::string)> * > notifierList;
     
     LinphoneCore *lc = NULL;
     LinphoneCall *call = NULL;
-    
+
     LinphoneCoreVTable vtable = {0};
     LinphoneProxyConfig* proxy_cfg = NULL;
     LinphoneAddress *from = NULL;
@@ -257,7 +270,7 @@ protected:
     std::thread thdFunction;
 
     bool oneTime = false;  // TODO: remove
-
+    
     float savedSpeakerGain; // FIXME: workaround for missing speaker mute
     
     const unsigned int timeout = 10; // * intervall ms

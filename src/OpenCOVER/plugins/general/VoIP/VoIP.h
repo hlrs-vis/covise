@@ -27,6 +27,7 @@
 #include <functional>
 
 #include "LinphoneClient.h"
+#include "NotifyDialog.h"
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -63,8 +64,9 @@ public:
 
     virtual bool init();
     void msgCallback(LinphoneClientState oldState, LinphoneClientState currentState);
+    void msgNotify(std::string);
     virtual void menuEvent(vrui::coMenuItem *aButton);
-                       
+    
 protected:
 
     void createMenu();
@@ -75,6 +77,7 @@ protected:
     
     static VoIPPlugin* plugin;
     std::function<void (LinphoneClientState, LinphoneClientState)> handler;
+    std::function<void (std::string)> notifier;
 
     vrui::coSubMenuItem* menuMainItem = nullptr;
     vrui::coSubMenuItem* menuAudioItem = nullptr;
@@ -118,6 +121,8 @@ protected:
     vrui::coCheckboxMenuItem* menuCheckboxAutoAcceptVideo = nullptr;
     vrui::coCheckboxMenuItem* menuCheckboxAutoInitiateVideo = nullptr;
     vrui::coCheckboxMenuItem* menuCheckboxVideoJitterCompensation = nullptr;
+
+    opencover::NotifyDialog* nodNotifyQuestion = nullptr;
     
     std::vector<vrui::coCheckboxMenuItem*> menuCaptureDevices;
     std::vector<vrui::coCheckboxMenuItem*> menuPlaybackDevices;
@@ -135,6 +140,8 @@ protected:
     SIPIdentity identity;
     std::vector<SIPIdentity> contacts;
 
+    bool bNotified = false;
+    
     LinphoneClient* lpc;
 };
 
