@@ -246,7 +246,7 @@ bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char*
 		cerr << ip << endl;
 	}
 
-	int retval = 0, tmp_bytes_written;
+	int retval = 0;
 	char write_buf[WRITE_BUFFER_SIZE];
 	int* write_buf_int;
 

@@ -126,6 +126,8 @@ public:
     void setTimestep(int timestep);
     //! send a message to all plugins
     void message(int toWhom, int t, int l, const void *b) const;
+	//! send a UDPmessage to all plugins
+	void UDPmessage(int t, int l, const void* b) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
     void forwardMessage(int len, const void *buf) const;

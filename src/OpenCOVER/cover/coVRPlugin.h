@@ -246,6 +246,14 @@ public:
         (void)length;
         (void)data;
     }
+	// this function is called if a UDPmessage arrives
+	virtual void UDPmessage(int type, int length, const void* data)
+	{
+		(void)type;
+		(void)length;
+		(void)data;
+	}
+
 
     //! this functions is called when the current timestep is changed
     //! plugins should display this timestep if possible

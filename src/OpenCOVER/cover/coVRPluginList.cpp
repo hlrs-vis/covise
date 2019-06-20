@@ -521,6 +521,11 @@ void coVRPluginList::message(int toWhom, int t, int l, const void *b) const
     DOALL(plugin->message(toWhom, t, l, b));
 }
 
+void coVRPluginList::UDPmessage(int t, int l, const void* b) const
+{
+	DOALL(plugin->UDPmessage(t, l, b));
+}
+
 coVRPlugin *coVRPluginList::getPlugin(const char *name) const
 {
     PluginMap::const_iterator it = m_plugins.find(name);
