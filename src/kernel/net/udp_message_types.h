@@ -39,6 +39,7 @@ enum udp_msg_type : int
 	EMPTY = 0,
 	AVATAR_HMD_POSITION ,
 	AVATAR_CONTROLLER_POSITION,
+	AUDIO_STREAM,
 };
 
 
