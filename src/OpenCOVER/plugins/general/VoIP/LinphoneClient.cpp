@@ -359,17 +359,17 @@ LinphoneClient::~LinphoneClient()
     cout << "exit" << endl;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! sets the callback handler
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::addHandler(std::function<void (LinphoneClientState, LinphoneClientState)>* handler)
 {
     handlerList.push_back(handler);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! sets the callback notifier
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::addNotifier(std::function<void (std::string)>* notifier)
 {
     notifierList.push_back(notifier);
@@ -392,7 +392,7 @@ void LinphoneClient::setVideoPortRange(unsigned int portMin, unsigned int portMa
 }
 
 // ------------------------------------------------------------------------
-//! create new thread, start core iterator                                                                                       
+//! create new thread, start core iterator
 // ------------------------------------------------------------------------
 void LinphoneClient::startCoreIterator()
 {
@@ -403,9 +403,9 @@ void LinphoneClient::startCoreIterator()
     thdFunction = std::thread(&LinphoneClient::thdMain, this);
 }
 
-// ------------------------------------------------------------------------                                                      
-//! initiate register/login to sip server with given credentials                                                                 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! initiate register/login to sip server with given credentials
+// ------------------------------------------------------------------------
 bool LinphoneClient::doRegistration(std::string identity, std::string password)
 {
 #ifdef VOIP_DEBUG
@@ -447,19 +447,19 @@ bool LinphoneClient::doRegistration(std::string identity, std::string password)
     return true;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! initiate unregistration
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::doUnregistration()
 {
 #ifdef VOIP_DEBUG
     cout << "LinphoneClient::doUnregistration()" << endl;
 #endif
-    
-    proxy_cfg = linphone_core_get_default_proxy_config(lc); // get default proxy config                                      
-    linphone_proxy_config_edit(proxy_cfg); // start editing proxy configuration                                              
-    linphone_proxy_config_enable_register(proxy_cfg,FALSE); // de-activate registration for this proxy config                
-    linphone_proxy_config_done(proxy_cfg); // initiate REGISTER with expire = 0                                              
+
+    proxy_cfg = linphone_core_get_default_proxy_config(lc); // get default proxy config
+    linphone_proxy_config_edit(proxy_cfg); // start editing proxy configuration
+    linphone_proxy_config_enable_register(proxy_cfg,FALSE); // de-activate registration for this proxy config
+    linphone_proxy_config_done(proxy_cfg); // initiate REGISTER with expire = 0
 
     while(linphone_proxy_config_get_state(proxy_cfg) !=  LinphoneRegistrationCleared)
     {
@@ -469,9 +469,9 @@ void LinphoneClient::doUnregistration()
     }
 }
 
-// ------------------------------------------------------------------------                                                      
-//! check if audio is enabled within a call                                                                                      
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! check if audio is enabled within a call
+// ------------------------------------------------------------------------
 bool LinphoneClient::callAudioIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -485,9 +485,9 @@ bool LinphoneClient::callAudioIsEnabled()
     return linphone_call_params_audio_enabled(params);
 }
 
-// ------------------------------------------------------------------------                                                      
-//! check if video is enabled within a call                                                                                      
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! check if video is enabled within a call
+// ------------------------------------------------------------------------
 bool LinphoneClient::callVideoIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -501,9 +501,9 @@ bool LinphoneClient::callVideoIsEnabled()
     return linphone_call_params_video_enabled(params);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! check if camera stream is allowed to be sent within a call
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 bool LinphoneClient::callCameraIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -515,17 +515,17 @@ bool LinphoneClient::callCameraIsEnabled()
     return linphone_call_camera_enabled(call);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! gets the name of the currently assigned sound device for playback
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 const char* LinphoneClient::getPlaybackDeviceName()
 {
     return linphone_core_get_playback_device(lc);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! Gets the list of the available sound devices which can capture sound
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getCaptureSoundDevicesList()
 {
     vector<string> vecList;
@@ -545,9 +545,9 @@ vector<string> LinphoneClient::getCaptureSoundDevicesList()
     return vecList;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! Gets the list of the available sound devices which can playback sound
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getPlaybackSoundDevicesList()
 {
     vector<string> vecList;
@@ -823,9 +823,9 @@ void LinphoneClient::getVideoJitterCompensation(bool onoff)
     linphone_core_enable_video_adaptive_jittcomp(lc, onoff);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! gets a list of the available video capture devices
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getVideoCaptureDevicesList()
 {
     vector<string> vecList;
