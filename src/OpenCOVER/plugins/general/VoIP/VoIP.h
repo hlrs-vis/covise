@@ -57,25 +57,50 @@ public:
         std::string password="";
     };
 
+    struct SyncMenu
+    {
+        std::string strNODQuestion1 = ""; // nodNotifyQuestion->setText()
+        std::string strNODQuestion2 = "";
+        std::string strNODQuestion3 = "";
+        std::string strMLBCallNameOfPartner = ""; // menuLabelCallNameOfPartner->setLabel()
+        std::string strMCBRegister = ""; // menuCheckboxRegister->setLabel()
+        std::string strMLBCallState = ""; // menuLabelCallState->setLabel()
+        
+        bool bNODNotifyQuestionShow  = false; // nodNotifyQuestion->show()
+        bool bMCBRegister = false; //  menuCheckboxRegister->setState()
+    };
+    
     VoIPPlugin();
     ~VoIPPlugin();
 
     static VoIPPlugin* instance();
 
     virtual bool init();
+    virtual void menuEvent(vrui::coMenuItem *aButton);
+
     void msgCallback(LinphoneClientState oldState, LinphoneClientState currentState);
     void msgNotify(std::string);
-    virtual void menuEvent(vrui::coMenuItem *aButton);
+
+    bool update();
     
 protected:
 
+    static VoIPPlugin* plugin;
+
+    // tools to sync master/slaves
+    
+    SyncMenu syncMenu;
+    bool bRequestUpdate = false;
+    void requestUpdate() { bRequestUpdate = true; }
+
+    // VR menu
+    
     void createMenu();
     void updateMenu();
     void destroyMenu();
 
     void potiValueChanged(float oldValue, float newValue, vrui::coValuePoti *poti, int context = -1);
-    
-    static VoIPPlugin* plugin;
+
     std::function<void (LinphoneClientState, LinphoneClientState)> handler;
     std::function<void (std::string)> notifier;
 
