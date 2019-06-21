@@ -52,7 +52,7 @@
 	
    <VRB>
     <Server value="localhost" tcpPort="31251" udpPort="31253" />
-	<remoteFetch value="true" />
+	<RemoteFetch value="on" />
    </VRB>
 
    <CRB>
