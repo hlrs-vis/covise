@@ -360,9 +360,12 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
             
             // here all we know is that the initiation was successful or was not
             if (success)
-            {
+            {                                                      
+
                 syncMenu.strMCBRegister = "Registering ...";
                 cbx->setLabel(syncMenu.strMCBRegister);
+                syncMenu.bMCBRegister = true;
+                cbx->setState(syncMenu.bMCBRegister);
             }
             else
             {
@@ -903,6 +906,20 @@ void VoIPPlugin::createMenu()
     string strCurrentCaptureSoundDevice = "not available";
     string strCurrentPlaybackSoundDevice = "not available";
     string strCurrentRingerSoundDevice = "not available";
+
+    const int BUFFER_SIZE = 10;
+    const int BUFFER_LENGTH = 128;
+    char buffer_CAP[BUFFER_SIZE][BUFFER_LENGTH];
+    char buffer_PLB[BUFFER_SIZE][BUFFER_LENGTH];
+    int vec_size_CAP = 0;
+    int vec_size_PLB = 0;
+    int index;
+    
+    if ((vecCaptureSoundDevices.size() > BUFFER_SIZE) ||
+        (vecPlaybackSoundDevices.size() > BUFFER_SIZE))
+    {
+        cout << "WARNING (VoIP): sync buffer too small" << endl;
+    }
     
     if (coVRMSController::instance()->isMaster())
     {
@@ -913,13 +930,69 @@ void VoIPPlugin::createMenu()
         strCurrentPlaybackSoundDevice = lpc->getCurrentPlaybackSoundDevice();
         strCurrentRingerSoundDevice = lpc->getCurrentRingerSoundDevice();
 
-        // TODO
+        std::vector<std::string>::iterator forIt = vecCaptureSoundDevices.begin();
+        vec_size_CAP = vecCaptureSoundDevices.size();
+        index = 0;
+        while (forIt != vecCaptureSoundDevices.end())
+        {
+            (*forIt).copy(buffer_CAP[index], (*forIt).size());
+            buffer_CAP[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        forIt = vecPlaybackSoundDevices.begin();
+        vec_size_PLB = vecPlaybackSoundDevices.size();
+        index = 0;
+        while (forIt != vecPlaybackSoundDevices.end())
+        {
+            (*forIt).copy(buffer_PLB[index], (*forIt).size());
+            buffer_PLB[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        coVRMSController::instance()->sendSlaves((char *)&buffer_PLB, sizeof(buffer_PLB));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_PLB, sizeof(vec_size_PLB));
+        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+
+        coVRMSController::instance()->sendSlaves((char *)&strCurrentCaptureSoundDevice,
+                                                 sizeof(strCurrentCaptureSoundDevice));
+        coVRMSController::instance()->sendSlaves((char *)&strCurrentPlaybackSoundDevice,
+                                                 sizeof(strCurrentPlaybackSoundDevice));
+        coVRMSController::instance()->sendSlaves((char *)&strCurrentRingerSoundDevice,
+                                                 sizeof(strCurrentRingerSoundDevice));
     }
     else
     {
-        // TODO
-    }    
+        coVRMSController::instance()->readMaster((char *)&buffer_PLB, sizeof(buffer_PLB));
+        coVRMSController::instance()->readMaster((char *)&vec_size_PLB, sizeof(vec_size_PLB));
+        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
 
+        coVRMSController::instance()->readMaster((char *)&strCurrentCaptureSoundDevice,
+                                                 sizeof(strCurrentCaptureSoundDevice));
+        coVRMSController::instance()->readMaster((char *)&strCurrentPlaybackSoundDevice,
+                                                 sizeof(strCurrentPlaybackSoundDevice));
+        coVRMSController::instance()->readMaster((char *)&strCurrentRingerSoundDevice,
+                                                 sizeof(strCurrentRingerSoundDevice));
+    }
+
+    vecCaptureSoundDevices.clear();
+    for (int i = 0; i < vec_size_CAP; ++i)
+    {
+        std::string s(buffer_CAP[i]);
+        vecCaptureSoundDevices.push_back(s);
+    }
+
+    vecPlaybackSoundDevices.clear();
+    for (int i = 0; i < vec_size_PLB; ++i)
+    {
+        std::string s(buffer_PLB[i]);
+        vecPlaybackSoundDevices.push_back(s);
+    }
+    
     menuLabelCaptureDeviceList = new vrui::coLabelMenuItem("Capture Devices");
     menuAudio->add(menuLabelCaptureDeviceList);
     
@@ -1068,12 +1141,39 @@ void VoIPPlugin::createMenu()
     {
         vecVideoCaptureDevices = lpc->getVideoCaptureDevicesList();
         strCurrentVideoCaptureDevice = lpc->getCurrentVideoCaptureDevice();
-        // TODO
+
+        std::vector<std::string>::iterator forIt = vecVideoCaptureDevices.begin();
+        vec_size_CAP = vecVideoCaptureDevices.size();
+        index = 0;
+        while (forIt != vecVideoCaptureDevices.end())
+        {
+            (*forIt).copy(buffer_CAP[index], (*forIt).size());
+            buffer_CAP[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+
+        coVRMSController::instance()->sendSlaves((char *)&strCurrentVideoCaptureDevice,
+                                                 sizeof(strCurrentVideoCaptureDevice));
     }
     else
     {
-        // TODO
-    }    
+        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+
+        coVRMSController::instance()->readMaster((char *)&strCurrentVideoCaptureDevice,
+                                                 sizeof(strCurrentVideoCaptureDevice));
+    }
+
+    vecVideoCaptureDevices.clear();
+    for (int i = 0; i < vec_size_CAP; ++i)
+    {
+        std::string s(buffer_CAP[i]);
+        vecVideoCaptureDevices.push_back(s);
+    }
     
     for(vector<string>::iterator it = vecVideoCaptureDevices.begin(); it != vecVideoCaptureDevices.end(); ++it) 
     {
