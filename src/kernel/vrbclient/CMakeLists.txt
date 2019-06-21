@@ -8,7 +8,6 @@ USING(BOOST)
 ADD_DEFINITIONS(-DCOVISE_VRB)
 
 SET(VRBCLIENT_SOURCES
-  dataHandle.cpp
   VRBClient.cpp
   VRBMessage.cpp
   VrbRegistry.cpp
@@ -21,7 +20,6 @@ SET(VRBCLIENT_SOURCES
 )
 
 SET(VRBCLIENT_HEADERS
-  dataHandle.h
   VRBClient.h
   VRBMessage.h
   VrbRegistry.h

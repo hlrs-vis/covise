@@ -9,7 +9,7 @@
 #include <net/tokenbuffer.h>
 #include <VrbClientList.h>
 #include <iostream>
-#include <vrbclient/SharedStateSerializer.h>
+
 #include <assert.h>
 
 
@@ -23,7 +23,7 @@ VrbServerRegistry::VrbServerRegistry(SessionID &session)
 
 
 /// set a Value or create new Entry
-void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, DataHandle &value, bool s)
+void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
 
     regClass *rc = getClass(className);
@@ -55,7 +55,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
 }
 
 /// create new Entry
-void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, DataHandle &value, bool s)
+void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s)
 {
     regClass *rc = getClass(className);
     if (rc)
@@ -78,8 +78,8 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
         if (rv)
         {
             bool b;
-			covise::TokenBuffer tb(rv->getValue().data(), rv->getValue().length());
-            tb >> b;
+            rv->getValue() >> b;
+            rv->getValue().rewind();
             return b;
         }
         return def;
@@ -134,7 +134,7 @@ void VrbServerRegistry::observe(int sender)
     }
 }
 
-void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, DataHandle &value)
+void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value)
 {
     auto classIt = myClasses.find(className);
     if (classIt == myClasses.end()) //if class does not exists create it
@@ -218,26 +218,17 @@ void serverRegVar::update(int recvID)
     sb << myClass->getID();
     sb << myClass->getName();
     sb << getName();
-	sendValueChange(sb);
+    sb << getValue();
     clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
 }
-void serverRegVar::updateMap(int recvID)
-{
-	covise::TokenBuffer sb;
 
-	sb << myClass->getID();
-	sb << myClass->getName();
-	sb << getName();
-	sendValue(sb);
-	clients.sendMessageToID(sb, recvID, COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED);
-}
 void serverRegVar::informDeleteObservers()
 {
 	covise::TokenBuffer sb;
     sb << getClass()->getID();
     sb << getClass()->getName();
     sb << getName();
-	sendValueChange(sb);
+    sb << getValue();
     std::set<int> combinedObservers = observers;
 	auto c = dynamic_cast<serverRegVar*>(getClass());
 	if (c && c->getOList().size() != 0)
@@ -274,7 +265,7 @@ void serverRegClass::observe(int recvID)
     observers.insert(recvID);
 }
 
-void serverRegClass::observeVar(int recvID, const std::string &variableName, DataHandle &value)
+void serverRegClass::observeVar(int recvID, const std::string &variableName, covise::TokenBuffer &value)
 {
     serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (!rv)
@@ -284,14 +275,7 @@ void serverRegClass::observeVar(int recvID, const std::string &variableName, Dat
     }
     else
     {
-		if (name == "SharedMap")
-		{
-			rv->updateMap(recvID);
-		}
-		else
-		{
-			rv->update(recvID);
-		}
+        rv->update(recvID);
     }
     rv->observe(recvID);
 }
@@ -314,7 +298,7 @@ void serverRegClass::unObserve(int recvID)
     }
 }
 
-std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, DataHandle &value)
+std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, covise::TokenBuffer &&value)
 {
     return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
 }

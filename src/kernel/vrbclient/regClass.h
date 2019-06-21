@@ -8,8 +8,6 @@
 #ifndef REGCLASS_H
 #define REGCLASS_H
 
-#include "dataHandle.h"
-
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
 #include <map>
@@ -69,7 +67,7 @@ public:
     ///reads the name and value out of stream, return false if class has no variable
 	void readVar(std::ifstream& file);
 
-    virtual std::shared_ptr<regVar> createVar(const std::string &name, DataHandle &value) = 0;
+    virtual std::shared_ptr<regVar> createVar(const std::string &name, covise::TokenBuffer &&value) = 0;
 
 protected:
     std::string name;
@@ -82,32 +80,30 @@ protected:
 class VRBEXPORT regVar
 {
 protected:
-    DataHandle value, wholeMap;
+    covise::TokenBuffer value;
 	//for SahredMaps
-	typedef std::map<int, DataHandle> EntryMap;
+	std::vector<covise::TokenBuffer> addedEntries, removedEntries;
+	typedef std::map<int, std::shared_ptr<covise::TokenBuffer>> EntryMap;
 	EntryMap m_changedEtries;
     std::string name;
     regClass *myClass;
     bool staticVar;
     bool isDel;
-	///writes value to tb
-	void sendValueChange(covise::TokenBuffer& tb);
-	///writes value to tb, in case of SahredMap also writes all changes
-	void sendValue(covise::TokenBuffer& tb);
+
 public:
 
-	regVar(regClass* c, const std::string& n, DataHandle & v, bool s = 1);
+	regVar(regClass* c, const std::string& n, covise::TokenBuffer& v, bool s = 1);
 
 	virtual ~ regVar();
 
 	/// returns the value
-	DataHandle& getValue();
+	covise::TokenBuffer& getValue();
 
     /// returns the class of this variable
 	regClass* getClass();
 
 	/// set value
-	void setValue(const DataHandle& v);
+	void setValue(const covise::TokenBuffer& v);
 
     /// returns true if this Var is static
 	int isStatic();
@@ -152,7 +148,7 @@ public:
     void resubscribe(const SessionID &sessionID);
     void subscribe(regClassObserver *obs, const SessionID &sessionID);
     VariableMap &getAllVariables();
-    std::shared_ptr<regVar> createVar(const std::string &name, DataHandle &value) override;
+    std::shared_ptr<regVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
 };
 class VRBEXPORT clientRegVar : public regVar
 {

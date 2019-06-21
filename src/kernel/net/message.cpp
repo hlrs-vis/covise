@@ -87,12 +87,6 @@ MessageBase::~MessageBase()
 	data = NULL;
 	// do NOT delete this pointer here - some apps take over the buffer!!
 }
-
-char* MessageBase::takeData()
-{
-	mustDelete = false;
-	return data;
-}
 Message::Message(TokenBuffer *t)
     :MessageBase(t)
 	,type(Message::EMPTY)

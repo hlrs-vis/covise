@@ -62,7 +62,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
     char *value;
     int fd;
     TokenBuffer tb(msg);
-	DataHandle  valueData;
+    TokenBuffer tb_value;
 
     switch (msg->type)
     {
@@ -234,15 +234,15 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-		deserialize(tb, valueData);
+        tb >> tb_value;
 
-        sessions[sessionID]->setVar(senderID, Class, variable, valueData); //maybe handle no existing registry for the given session ID
+        sessions[sessionID]->setVar(senderID, Class, variable, tb_value); //maybe handle no existing registry for the given session ID
 
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Set registry value, class=" << Class << ", name=" << variable << std::endl;
 #endif
 
-        updateApplicationWindow(Class, senderID, variable, valueData);
+        updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_SUBSCRIBE_CLASS:
@@ -262,13 +262,13 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        deserialize(tb, valueData);
+        tb >> tb_value;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
-        createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, valueData);
+        createSessionIfnotExists(sessionID, senderID)->observeVar(senderID, Class, variable, tb_value);
 
-		updateApplicationWindow(Class, senderID, variable, valueData);
+		updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_UNSUBSCRIBE_CLASS:
@@ -309,10 +309,10 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        deserialize(tb, valueData);
+        tb >> tb_value;
         tb >> isStatic;
-        createSessionIfnotExists(sessionID, senderID)->create(senderID, Class, variable, valueData, isStatic);
-        updateApplicationWindow(Class, senderID, variable, valueData);
+        createSessionIfnotExists(sessionID, senderID)->create(senderID, Class, variable, tb_value, isStatic);
+        updateApplicationWindow(Class, senderID, variable, tb_value);
     }
     break;
     case COVISE_MESSAGE_VRB_REGISTRY_DELETE_ENTRY:
@@ -1451,7 +1451,7 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		break;
 	}
 }
-void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, DataHandle &value)
+void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer &value)
 {
     //std::cerr <<"userinterface not implemented" << std:endl;
 }

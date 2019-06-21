@@ -50,15 +50,6 @@ VrbMenue::VrbMenue()
 	m["2"] = "nicht 2";
 	m["3"] = "nicht 3";
 	test = m;
-	test.setUpdateFunction([this]()
-		{
-			std::cerr << "test map got updated: ____________________" << std::endl;
-			for (auto it : test.value())
-			{
-				cerr << it.first << ": " << it.second << endl;
-			}
-			cerr << "_____________________________________________________________" << endl;
-		});
 }
 
 void VrbMenue::init()
@@ -173,7 +164,6 @@ void VrbMenue::updateRegistries(const std::vector<std::string> &registries)
     loadSL->setList(savedRegistries);
 }
 //session functions : private
-
 void VrbMenue::requestNewSession(const std::string &name)
 {
     covise::TokenBuffer tb;

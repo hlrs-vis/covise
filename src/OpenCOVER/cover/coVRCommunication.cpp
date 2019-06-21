@@ -165,9 +165,11 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
                 }
                 if ((p = coVRPartnerList::instance()->get(remoteID)))
                 {
-                    p->setFile(it->second->getValue().data());
+                    char * value;
+                    it->second->getValue() >> value;
+                    p->setFile(value);
                     cerr << theChangedClass->getName() << endl;
-                    cerr << it->second->getValue().data() << endl;
+                    cerr << value << endl;
                 }
             }
         }

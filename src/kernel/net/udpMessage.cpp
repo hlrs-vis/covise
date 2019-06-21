@@ -38,7 +38,7 @@ UdpMessage::UdpMessage(const covise::TokenBuffer& tb, udp_msg_type type)
 void UdpMessage::print()
 {
 #ifdef DEBUG
-	cerr <<" udpMessage m_type = " vrb::udp_msg_types_vector[(int)m_type] << " m_sender = " << sender << " length = " << length << endl;
+	cerr <<" udpMessage m_type = " vrb::udp_msg_types_vector[(int)m_type] << " m_sender = " << m_sender << " length = " << length << endl;
 #endif
 }
 

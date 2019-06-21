@@ -93,7 +93,7 @@ clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, co
     return rc;
 }
 
-clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, DataHandle &value, regVarObserver *ob)
+clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob)
 {
     // attach to the list
     if (var == "VRVMenue_testTest")
@@ -169,7 +169,7 @@ void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &
     sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, DataHandle  &value, bool muted)
+void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, TokenBuffer &&value, bool muted)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);
@@ -198,7 +198,7 @@ void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl,
     tb << clientID;// local client ID
     tb << cl;
     tb << var;
-	serialize(tb, value);
+    tb << value;
 
     sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_SET_VALUE);
 }

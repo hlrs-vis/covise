@@ -121,17 +121,11 @@ public:
 	virtual void print() = 0;
 	void delete_data()
 	{
-		if (mustDelete)
-		{
-			delete[] data;
-			data = NULL;
-		}
+		delete[] data;
+		data = NULL;
 	};
-	char* takeData();
-
 protected:
 	bool mustDelete;
-	
 };
 class NETEXPORT Message : public MessageBase// class for messages
 {
