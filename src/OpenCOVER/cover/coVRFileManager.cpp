@@ -642,8 +642,16 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
     START("coVRFileManager::loadFile");
 	std::string validFileName(fileName);
 	convertBackslash(validFileName);
-
-    if (m_files.find(validFileName) != m_files.end())
+	bool found = false;
+	for (auto file : m_files)
+	{
+		if (getFileName(file.first) == getFileName(validFileName))
+		{
+			found = true;
+			break;
+		}
+	}
+    if (found)
     {
         cerr << "The File : " << fileName << " is already loaded" << endl;
         cerr << "Loading a file multiple times is currently not supported" << endl;
@@ -773,7 +781,12 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 	if (!isVRML)
 	{
 		validFileName = findOrGetFile(adjustedFileName);
+		if (validFileName.length() == 0)
+		{
+			return nullptr;
+		}
 		fe->url = Url::fromFileOrUrl(validFileName);
+
 	}
     fe->handler = handler;
     fe->reader = reader;
@@ -1200,7 +1213,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isT
 	//find local file
 	if (fileExist(filePath))
 	{
-		path = fs::canonical(filePath).string();
+		path = filePath;
 		convertBackslash(path);
 		filePlace = LOCAL;
 	}
