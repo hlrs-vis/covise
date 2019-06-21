@@ -757,7 +757,20 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
         handler = findFileHandler(fileTypeString.c_str());
 	//vrml will remote fetch missing files itself
 	std::string xt = url.extension();
-	if (xt != ".WRL" && xt != ".WRL.IVE" && xt != ".wrl" && xt != ".wrl.ive" && xt != ".ive" && xt != ".wrz")
+	
+	std::vector<std::string> vrmlExtentions{ "x3dv", "wrl", "wrz" };
+	std::string lowXt(xt);
+	std::transform(xt.begin(), xt.end(), lowXt.begin(), ::tolower);
+	bool isVRML = false;
+	for (auto ext : vrmlExtentions)
+	{
+		if (("." + ext) == lowXt)
+		{
+			isVRML = true;
+			break;
+		}
+	}
+	if (!isVRML)
 	{
 		validFileName = findOrGetFile(adjustedFileName);
 		fe->url = Url::fromFileOrUrl(validFileName);
