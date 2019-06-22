@@ -30,6 +30,10 @@
 #include "NotifyDialog.h"
 
 // ----------------------------------------------------------------------------
+
+#define SYNCBUFFER_SIZE 64
+
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 class VoIPPlugin : public opencover::coVRPlugin,
                    public vrui::coMenuListener,
@@ -59,12 +63,13 @@ public:
 
     struct SyncMenu
     {
-        std::string strNODQuestion1 = ""; // nodNotifyQuestion->setText()
-        std::string strNODQuestion2 = "";
-        std::string strNODQuestion3 = "";
-        std::string strMLBCallNameOfPartner = ""; // menuLabelCallNameOfPartner->setLabel()
-        std::string strMCBRegister = ""; // menuCheckboxRegister->setLabel()
-        std::string strMLBCallState = ""; // menuLabelCallState->setLabel()
+        char strNODQuestion1[SYNCBUFFER_SIZE] = {0}; // nodNotifyQuestion->setText()
+        char strNODQuestion2[SYNCBUFFER_SIZE] = {0};
+        char strNODQuestion3[SYNCBUFFER_SIZE] = {0};
+
+        char strMLBCallNameOfPartner[SYNCBUFFER_SIZE] = {0}; // menuLabelCallNameOfPartner->setLabel()
+        char strMCBRegister[SYNCBUFFER_SIZE] = {0}; // menuCheckboxRegister->setLabel()
+        char strMLBCallState[SYNCBUFFER_SIZE] = {0}; // menuLabelCallState->setLabel()
         
         bool bNODNotifyQuestionShow  = false; // nodNotifyQuestion->show()
         bool bMCBRegister = false; //  menuCheckboxRegister->setState()
@@ -92,6 +97,9 @@ protected:
     SyncMenu syncMenu;
     bool bRequestUpdate = false;
     void requestUpdate() { bRequestUpdate = true; }
+
+    bool bPostInitCompleted = false;
+    bool postInit();
 
     // VR menu
     
@@ -167,7 +175,7 @@ protected:
 
     bool bNotified = false;
     
-    LinphoneClient* lpc;
+    LinphoneClient* lpc = nullptr;
 };
 
 // ----------------------------------------------------------------------------

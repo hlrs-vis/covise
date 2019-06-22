@@ -52,8 +52,6 @@ VoIPPlugin::VoIPPlugin()
         int i = 0;
         while (keys[i] != NULL)
         {
-            //cout << keys[i++] << endl;
-
             SIPIdentity newContact;
             newContact.sipaddress = string(keys[++i]);
             contacts.push_back(newContact);
@@ -117,37 +115,86 @@ bool VoIPPlugin::init()
     cout << "VoIPPlugin::init()" << endl;
 #endif
     
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+//! postInit()
+//! is called once by the first update() call within this plugin
+// ----------------------------------------------------------------------------
+bool VoIPPlugin::postInit()
+{
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::postInit()" << endl;
+#endif
+
     createMenu();
 
     bool exists;
     
     if (coCoviseConfig::isOn("autoregistration", "COVER.Plugin.VoIP.SIPServer", false, &exists) == true)
     {
-        bool success;
+        bool bSuccess;
+
         if (coVRMSController::instance()->isMaster())
         {
-            success = lpc->doRegistration(identity.sipaddress, identity.password);
-            coVRMSController::instance()->sendSlaves((char *)&success, sizeof(success));
+            bSuccess = lpc->doRegistration(identity.sipaddress, identity.password);
         }
-        else
-        {
-            coVRMSController::instance()->readMaster((char *)&success, sizeof(success));
-        }
-        
+        bSuccess = coVRMSController::instance()->syncBool(&bSuccess);
+
         // here all we know is that the initiation was successful or was not
-        if (success)
+        if (bSuccess)
         {
-            menuCheckboxRegister->setState(true);
-            menuCheckboxRegister->setLabel("Registering ...");
+            syncMenu.bMCBRegister = true;
+            sprintf(syncMenu.strMCBRegister, "%s", "Registering ...");
+            menuCheckboxRegister->setState(syncMenu.bMCBRegister);
+            menuCheckboxRegister->setLabel(syncMenu.strMCBRegister);
         }
         else
         {
-            menuCheckboxRegister->setState(false);
+            syncMenu.bMCBRegister = false;
+            menuCheckboxRegister->setState(syncMenu.bMCBRegister);
         }
-        updateMenu();
+        requestUpdate();
     }
-    
+
+    updateMenu();
+
     return true;
+}
+
+// ----------------------------------------------------------------------------
+//! update()
+//! is called in sync with slaves
+//! runs postInit() once at the very beginning
+//! syncs RequestUpdate from master to slaves, so something had been chenged
+// ----------------------------------------------------------------------------
+bool VoIPPlugin::update()
+{
+// #ifdef VOIP_DEBUG
+//     cout << "VoIPPlugin::update()" << endl;
+// #endif
+
+    if (bPostInitCompleted == false)
+    {
+        bPostInitCompleted = postInit();
+    }
+
+    char c = bRequestUpdate ? 1 : 0;
+    coVRMSController::instance()->syncData(&c, 1);
+    bRequestUpdate = (c != 0);
+
+    if (bRequestUpdate == true)
+    {
+        cout << "VoIPPlugin::update() requested sync" << endl;
+        updateMenu();
+        bRequestUpdate = false;
+        return true;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -159,16 +206,23 @@ void VoIPPlugin::msgNotify(std::string strNotification)
 {
 #ifdef VOIP_DEBUG
     cout << "VoIPPlugin::msgNotify()" << endl;
+
+    assert(coVRMSController::instance()->isMaster() == true);
+    assert(lpc != nullptr);
+    assert(strNotification.size() < SYNCBUFFER_SIZE);
 #endif
 
     if (lpc->getCurrentState() == LinphoneClientState::callIncoming)
     {
         if (bNotified == false)
         {
-            syncMenu.strNODQuestion1 = strNotification;
-            syncMenu.strNODQuestion2 = "accept";
-            syncMenu.strNODQuestion3 = "reject";
-            syncMenu.strMLBCallNameOfPartner = "Addr: " + lpc->getCurrentRemoteAddress();
+            sprintf(syncMenu.strNODQuestion1, "%s", strNotification.c_str());
+            sprintf(syncMenu.strNODQuestion2, "%s", "accept");
+            sprintf(syncMenu.strNODQuestion3, "%s", "reject");
+
+            string strTemp =  "Addr: " + lpc->getCurrentRemoteAddress();
+            sprintf(syncMenu.strMLBCallNameOfPartner, "%s", strTemp.c_str());
+
             syncMenu.bNODNotifyQuestionShow  = true;
 
             requestUpdate();
@@ -203,6 +257,9 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     cout << "old was : " << lpc->getStateString(oldState) << endl;
     cout << "current : " << lpc->getStateString(currentState) << endl;
     cout << "********************************************" << endl;
+
+    assert(coVRMSController::instance()->isMaster() == true);
+    assert(lpc != nullptr);
 #endif
 
     if (oldState == LinphoneClientState::registering)
@@ -210,12 +267,12 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
         if (currentState == LinphoneClientState::registered)
         {
             syncMenu.bMCBRegister = true;
-            syncMenu.strMCBRegister = "Registered";                
+            sprintf(syncMenu.strMCBRegister, "%s", "Registered");
         }
         else
         {
             syncMenu.bMCBRegister = false;
-            syncMenu.strMCBRegister = "Register";
+            sprintf(syncMenu.strMCBRegister, "%s", "Register");
         }
         requestUpdate();
     }
@@ -223,15 +280,15 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callInProgress)
         {
-            syncMenu.strMLBCallState = "Call: in progress";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: in progress");
         }
         else if (currentState == LinphoneClientState::callIncoming)
         {
-            syncMenu.strMLBCallState = "Call: incoming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: incoming");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: initiating failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: initiating failed");
         }
         requestUpdate();
     }
@@ -239,15 +296,15 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callEnded)
         {
-            syncMenu.strMLBCallState = "Call: ended";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: ended");
         }
         else if (currentState == LinphoneClientState::callStreaming)
         {
-            syncMenu.strMLBCallState = "Call: streaming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: streaming");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: call failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: call failed");
         }
         requestUpdate();
     }
@@ -256,11 +313,11 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callRinging)
         {
-            syncMenu.strMLBCallState = "Call: ringing ...";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: ringing ...");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: call failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: call failed");
         }
         requestUpdate();
     }
@@ -268,15 +325,15 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callConnected)
         {
-            syncMenu.strMLBCallState = "Call: connected";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: connected");
         }
         else if (currentState == LinphoneClientState::callStreaming)
         {
-            syncMenu.strMLBCallState = "Call: streaming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: streaming");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: call failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: call failed");
         }
         requestUpdate();
     }
@@ -284,11 +341,11 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callStreaming)
         {
-            syncMenu.strMLBCallState = "Call: streaming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: streaming");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: call failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: call failed");
         }
         requestUpdate();
     }
@@ -296,15 +353,15 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callPaused)
         {
-            syncMenu.strMLBCallState = "Call: paused";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: paused");
         }
         else if (currentState == LinphoneClientState::callEnded)
         {
-            syncMenu.strMLBCallState = "Call: ended";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: ended");
         }
         else
         {
-            syncMenu.strMLBCallState = "Call: call failed";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: call failed");
         }
         requestUpdate();
     }
@@ -312,7 +369,7 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callResuming)
         {
-            syncMenu.strMLBCallState = "Call: resuming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: resuming");
         }
         requestUpdate();
     }
@@ -320,7 +377,7 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::callStreaming)
         {
-            syncMenu.strMLBCallState = "Call: streaming";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: streaming");
         }
         requestUpdate();
     }
@@ -328,12 +385,532 @@ void VoIPPlugin::msgCallback(LinphoneClientState oldState, LinphoneClientState c
     {
         if (currentState == LinphoneClientState::registered)
         {
-            syncMenu.strMLBCallState = "Call: -";
+            sprintf(syncMenu.strMLBCallState, "%s", "Call: -");
         }
         requestUpdate();
     }
 }
 
+// ----------------------------------------------------------------------------
+//! createMenu()
+//! is called once by postInit()
+// ----------------------------------------------------------------------------
+void VoIPPlugin::createMenu()
+{
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::createMenu()" << endl;
+#endif
+
+    // contacts menu
+    
+    menuContactList = new vrui::coRowMenu("Contact List");
+    
+    for(std::vector<SIPIdentity>::iterator it = contacts.begin(); it != contacts.end(); ++it) 
+    {
+        vrui::coButtonMenuItem* menuButtonContact = new vrui::coButtonMenuItem((*it).sipaddress);
+
+        menuButtonContact->setMenuListener(this);
+        menuContactList->add(menuButtonContact);
+        menuContacts.push_back(menuButtonContact);
+    }
+
+    // call menu
+    
+    menuCall =  new vrui::coRowMenu("Call");
+
+    sprintf(syncMenu.strMLBCallState, "%s", "Call: -");
+    menuLabelCallState = new vrui::coLabelMenuItem(syncMenu.strMLBCallState);
+    menuCall->add(menuLabelCallState);
+
+    sprintf(syncMenu.strMLBCallNameOfPartner, "%s", "Addr: -");
+    menuLabelCallNameOfPartner = new vrui::coLabelMenuItem(syncMenu.strMLBCallNameOfPartner);
+    menuCall->add(menuLabelCallNameOfPartner);
+
+    menuButtonHangUp = new vrui::coButtonMenuItem("Hang Up");
+    menuButtonHangUp->setMenuListener(this);
+    menuCall->add(menuButtonHangUp);
+
+    menuCheckboxPause = new vrui::coCheckboxMenuItem("Pause", false);
+    menuCheckboxPause->setMenuListener(this);
+    menuCall->add(menuCheckboxPause);
+
+    bool bState;
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getCallMicrophoneMuted();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxMicMute = new vrui::coCheckboxMenuItem("Microphone Muted", bState);
+    menuCheckboxMicMute->setMenuListener(this);
+    menuCall->add(menuCheckboxMicMute);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getMicrophoneIsEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxMicEnabled = new vrui::coCheckboxMenuItem("Mic Enabled", bState);
+    menuCheckboxMicEnabled->setMenuListener(this);
+    menuCall->add(menuCheckboxMicEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getCallSpeakerMuted();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxSpkrMute = new vrui::coCheckboxMenuItem("Speaker Muted", bState);
+    menuCheckboxSpkrMute->setMenuListener(this);
+    menuCall->add(menuCheckboxSpkrMute);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getCallCameraEnabled();
+    }    
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxEnableCamera = new vrui::coCheckboxMenuItem("Enable Camera", bState);
+    menuCheckboxEnableCamera->setMenuListener(this);
+    menuCall->add(menuCheckboxEnableCamera);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getCallSelfViewEnabled();
+    }    
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxSelfViewEnabled = new vrui::coCheckboxMenuItem("Self View Enabled", bState);
+    menuCheckboxSelfViewEnabled->setMenuListener(this);
+    menuCall->add(menuCheckboxSelfViewEnabled);
+
+    // mixer menu
+    
+    menuMixer =  new vrui::coRowMenu("Audio Mixer"); 
+
+    float fValue;
+    if (coVRMSController::instance()->isMaster())
+    {
+        fValue = lpc->getMicGain();
+    }    
+    coVRMSController::instance()->syncData(&fValue, sizeof(fValue));
+    menuPotiMicGain = new vrui::coPotiMenuItem("Mic Gain (dB)", -100.0, 100.0, fValue);
+    menuPotiMicGain->setMenuListener(this);
+    menuPotiMicGain->setIncrement(1.0);
+    menuPotiMicGain->setInteger(true);
+    menuPotiMicGain->setValue(0.0);
+    menuMixer->add(menuPotiMicGain);
+
+    // vvv not available in linphone sdk 3.12
+    //menuPotiMicLevel = new vrui::coPotiMenuItem("Mic Level", 0.0, 100.0, 75.0);
+    //menuMixer->add(menuPotiMicLevel);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        fValue = lpc->getPlaybackGain();
+    }
+    coVRMSController::instance()->syncData(&fValue, sizeof(fValue));
+    menuPotiPlaybackGain = new vrui::coPotiMenuItem("Playback Gain (dB)", -100.0, 100.0, fValue);
+    menuPotiPlaybackGain->setMenuListener(this);
+    menuPotiPlaybackGain->setIncrement(1.0);
+    menuPotiPlaybackGain->setValue(0.0);
+    menuPotiPlaybackGain->setInteger(true);
+    menuMixer->add(menuPotiPlaybackGain);
+
+    // vvv not available in linphone sdk 3.12
+    //menuPotiVolLevel = new vrui::coPotiMenuItem("Volume Level", 0.0, 100.0, 75.0);
+    //menuMixer->add(menuPotiVolLevel);
+
+    // audio menu
+    
+    menuAudio =  new vrui::coRowMenu("Audio Settings");
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getEchoCancellationIsEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxEchoCancellationEnabled = new vrui::coCheckboxMenuItem("Echo Cancellation Enabled", bState);
+    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
+    menuAudio->add(menuCheckboxEchoCancellationEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getEchoLimiterIsEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxEchoLimiterEnabled = new vrui::coCheckboxMenuItem("Echo Limiter Enabled", bState);
+    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
+    menuAudio->add(menuCheckboxEchoLimiterEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getAudioJitterCompensation();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxAudioJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation", bState);
+    menuCheckboxAudioJitterCompensation->setMenuListener(this);
+    menuAudio->add(menuCheckboxAudioJitterCompensation);
+
+    string strCurrentCaptureSoundDevice = "not available";
+    string strCurrentPlaybackSoundDevice = "not available";
+    string strCurrentRingerSoundDevice = "not available";
+
+    const int BUFFER_SIZE = 10;
+    const int BUFFER_LENGTH = 128;
+    char buffer_CAP[BUFFER_SIZE][BUFFER_LENGTH];
+    char buffer_PLB[BUFFER_SIZE][BUFFER_LENGTH];
+    char bufferStr[BUFFER_SIZE];
+    int vec_size_CAP = 0;
+    int vec_size_PLB = 0;
+    int index;
+    
+    if ((vecCaptureSoundDevices.size() > BUFFER_SIZE) ||
+        (vecPlaybackSoundDevices.size() > BUFFER_SIZE))
+    {
+        cout << "WARNING (VoIP): sync buffer too small" << endl;
+    }
+    
+    if (coVRMSController::instance()->isMaster())
+    {
+        vecCaptureSoundDevices = lpc->getCaptureSoundDevicesList();
+        vecPlaybackSoundDevices = lpc->getPlaybackSoundDevicesList();
+
+        strCurrentCaptureSoundDevice = lpc->getCurrentCaptureSoundDevice();
+        strCurrentPlaybackSoundDevice = lpc->getCurrentPlaybackSoundDevice();
+        strCurrentRingerSoundDevice = lpc->getCurrentRingerSoundDevice();
+
+        std::vector<std::string>::iterator forIt = vecCaptureSoundDevices.begin();
+        vec_size_CAP = vecCaptureSoundDevices.size();
+        index = 0;
+        while (forIt != vecCaptureSoundDevices.end())
+        {
+            (*forIt).copy(buffer_CAP[index], (*forIt).size());
+            buffer_CAP[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        forIt = vecPlaybackSoundDevices.begin();
+        vec_size_PLB = vecPlaybackSoundDevices.size();
+        index = 0;
+        while (forIt != vecPlaybackSoundDevices.end())
+        {
+            (*forIt).copy(buffer_PLB[index], (*forIt).size());
+            buffer_PLB[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        coVRMSController::instance()->sendSlaves((char *)&buffer_PLB, sizeof(buffer_PLB));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_PLB, sizeof(vec_size_PLB));
+        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster((char *)&buffer_PLB, sizeof(buffer_PLB));
+        coVRMSController::instance()->readMaster((char *)&vec_size_PLB, sizeof(vec_size_PLB));
+        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+    }
+
+    vecCaptureSoundDevices.clear();
+    for (int i = 0; i < vec_size_CAP; ++i)
+    {
+        std::string s(buffer_CAP[i]);
+        vecCaptureSoundDevices.push_back(s);
+    }
+
+    vecPlaybackSoundDevices.clear();
+    for (int i = 0; i < vec_size_PLB; ++i)
+    {
+        std::string s(buffer_PLB[i]);
+        vecPlaybackSoundDevices.push_back(s);
+    }
+
+    strCurrentPlaybackSoundDevice.copy(bufferStr, strCurrentPlaybackSoundDevice.size());
+    bufferStr[strCurrentPlaybackSoundDevice.size()] = '\0';
+    coVRMSController::instance()->syncData(&bufferStr, BUFFER_SIZE);
+    strCurrentPlaybackSoundDevice = string(bufferStr);
+            
+    strCurrentCaptureSoundDevice.copy(bufferStr, strCurrentCaptureSoundDevice.size());
+    bufferStr[strCurrentCaptureSoundDevice.size()] = '\0';
+    coVRMSController::instance()->syncData(&bufferStr, BUFFER_SIZE);
+    strCurrentCaptureSoundDevice = string(bufferStr);
+
+    strCurrentRingerSoundDevice.copy(bufferStr, strCurrentRingerSoundDevice.size());
+    bufferStr[strCurrentRingerSoundDevice.size()] = '\0';
+    coVRMSController::instance()->syncData(&bufferStr, BUFFER_SIZE);
+    strCurrentRingerSoundDevice = string(bufferStr);
+    
+    menuLabelCaptureDeviceList = new vrui::coLabelMenuItem("Capture Devices");
+    menuAudio->add(menuLabelCaptureDeviceList);
+    
+    for(vector<string>::iterator it = vecCaptureSoundDevices.begin(); it != vecCaptureSoundDevices.end(); ++it) 
+    {
+        vrui::coCheckboxMenuItem* menuCheckboxDevice;
+        if (strCurrentCaptureSoundDevice == *it)
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
+        }
+        else
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
+        }
+        menuCheckboxDevice->setMenuListener(this);
+        menuAudio->add(menuCheckboxDevice);
+        menuCheckboxDevice->setMenuListener(this);
+        menuCaptureDevices.push_back(menuCheckboxDevice);
+    }
+    
+    menuLabelPlaybackDeviceList = new vrui::coLabelMenuItem("Playback Devices");
+    menuAudio->add(menuLabelPlaybackDeviceList);
+
+    for(vector<string>::iterator it = vecPlaybackSoundDevices.begin(); it != vecPlaybackSoundDevices.end(); ++it) 
+    {
+        vrui::coCheckboxMenuItem* menuCheckboxDevice;
+        if (strCurrentPlaybackSoundDevice == *it)
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
+        }
+        else
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
+        }
+        menuCheckboxDevice->setMenuListener(this);
+        menuAudio->add(menuCheckboxDevice);
+        menuPlaybackDevices.push_back(menuCheckboxDevice);
+    }
+
+    menuLabelRingerDeviceList = new vrui::coLabelMenuItem("Ringer Devices");;
+    menuAudio->add(menuLabelRingerDeviceList);
+
+    for(vector<string>::iterator it = vecPlaybackSoundDevices.begin(); it != vecPlaybackSoundDevices.end(); ++it) 
+    {
+        vrui::coCheckboxMenuItem* menuCheckboxDevice;
+        if (strCurrentRingerSoundDevice == *it)
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
+        }
+        else
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
+        }
+        menuCheckboxDevice->setMenuListener(this);
+        menuAudio->add(menuCheckboxDevice);
+        menuRingerDevices.push_back(menuCheckboxDevice);
+    }
+
+    // video settings
+    
+    menuVideo =  new vrui::coRowMenu("Video Settings"); 
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getVideoCaptureEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxVideoCaptureEnabled = new vrui::coCheckboxMenuItem("Video Capture Enabled", bState);
+    menuCheckboxVideoCaptureEnabled->setMenuListener(this);
+    menuVideo->add(menuCheckboxVideoCaptureEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getVideoDisplayEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxVideoDisplayEnabled = new vrui::coCheckboxMenuItem("Video Display Enabled", bState);
+    menuCheckboxVideoDisplayEnabled->setMenuListener(this);
+    menuVideo->add(menuCheckboxVideoDisplayEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getVideoPreviewEnabled();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxVideoPreviewEnabled = new vrui::coCheckboxMenuItem("Video Preview Enabled",bState);
+    menuCheckboxVideoPreviewEnabled->setMenuListener(this);
+    menuVideo->add(menuCheckboxVideoPreviewEnabled);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getAutoAcceptVideo();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxAutoAcceptVideo = new vrui::coCheckboxMenuItem("Auto Accept Video", bState);
+    menuCheckboxAutoAcceptVideo->setMenuListener(this);
+    menuVideo->add(menuCheckboxAutoAcceptVideo);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getAutoInitiateVideo();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxAutoInitiateVideo = new vrui::coCheckboxMenuItem("Auto Initiate Video", bState);
+    menuCheckboxAutoInitiateVideo->setMenuListener(this);
+    menuVideo->add(menuCheckboxAutoInitiateVideo);
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        bState = lpc->getVideoJitterCompensation();
+    }
+    bState = coVRMSController::instance()->syncBool(&bState);
+    menuCheckboxVideoJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation", bState);
+    menuCheckboxVideoJitterCompensation->setMenuListener(this);
+    menuVideo->add(menuCheckboxVideoJitterCompensation);
+    
+    menuLabelVideoDeviceList = new vrui::coLabelMenuItem("Video Capture Devices");
+    menuVideo->add(menuLabelVideoDeviceList);
+
+    string strCurrentVideoCaptureDevice = "not available";
+
+    if (coVRMSController::instance()->isMaster())
+    {
+        vecVideoCaptureDevices = lpc->getVideoCaptureDevicesList();
+        strCurrentVideoCaptureDevice = lpc->getCurrentVideoCaptureDevice();
+
+        std::vector<std::string>::iterator forIt = vecVideoCaptureDevices.begin();
+        vec_size_CAP = vecVideoCaptureDevices.size();
+        index = 0;
+        while (forIt != vecVideoCaptureDevices.end())
+        {
+            (*forIt).copy(buffer_CAP[index], (*forIt).size());
+            buffer_CAP[index][(*forIt).size()] = '\0';
+            ++forIt;
+            ++index;
+        }
+
+        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
+        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
+
+    }
+
+    vecVideoCaptureDevices.clear();
+    for (int i = 0; i < vec_size_CAP; ++i)
+    {
+        std::string s(buffer_CAP[i]);
+        vecVideoCaptureDevices.push_back(s);
+    }
+
+    strCurrentVideoCaptureDevice.copy(bufferStr, strCurrentVideoCaptureDevice.size());
+    bufferStr[strCurrentVideoCaptureDevice.size()] = '\0';
+    coVRMSController::instance()->syncData(&bufferStr, BUFFER_SIZE);
+    strCurrentVideoCaptureDevice = string(bufferStr);
+
+    for(vector<string>::iterator it = vecVideoCaptureDevices.begin(); it != vecVideoCaptureDevices.end(); ++it) 
+    {
+        vrui::coCheckboxMenuItem* menuCheckboxDevice;
+
+        if (strCurrentVideoCaptureDevice == *it)
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
+        }
+        else
+        {
+            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
+        }
+        menuCheckboxDevice->setMenuListener(this);
+        menuVideo->add(menuCheckboxDevice);
+        menuVideoCaptureDevices.push_back(menuCheckboxDevice);
+    }
+    
+    // plugin main menu
+    
+    menuLabelSIPAddress = new vrui::coLabelMenuItem(identity.sipaddress);
+    sprintf(syncMenu.strMCBRegister, "%s", "Register");
+    menuCheckboxRegister = new vrui::coCheckboxMenuItem(syncMenu.strMCBRegister, false); 
+    menuCheckboxRegister->setMenuListener(this);
+    
+    menuContactListItem = new vrui::coSubMenuItem("Contact List..."); 
+    menuContactListItem->setMenu(menuContactList);
+
+    menuCallItem = new vrui::coSubMenuItem("Call..."); 
+    menuCallItem->setMenu(menuCall);
+
+    menuMixerItem = new vrui::coSubMenuItem("Audio Mixer..."); 
+    menuMixerItem->setMenu(menuMixer);
+    
+    menuAudioItem = new vrui::coSubMenuItem("Audio Settings..."); 
+    menuAudioItem->setMenu(menuAudio);
+    
+    menuVideoItem = new vrui::coSubMenuItem("Video Settings..."); 
+    menuVideoItem->setMenu(menuVideo);
+    
+    menuVoIP = new vrui::coRowMenu("VoIP");
+    menuVoIP->add(menuLabelSIPAddress);
+    menuVoIP->add(menuCheckboxRegister);
+    menuVoIP->add(menuContactListItem);
+    menuVoIP->add(menuCallItem);
+    menuVoIP->add(menuMixerItem);
+    menuVoIP->add(menuAudioItem);
+    menuVoIP->add(menuVideoItem);
+    
+    menuMainItem = new vrui::coSubMenuItem("VoIP");
+    menuMainItem->setMenu(menuVoIP);
+    
+    cover->getMenu()->add(menuMainItem);
+}
+
+// ----------------------------------------------------------------------------
+void VoIPPlugin::updateMenu()
+{
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::updateMenu()" << endl;
+#endif
+
+    cout << "SIZE: " << sizeof(syncMenu) << endl;
+
+
+    int iNoOfCalls = 0;
+    if (coVRMSController::instance()->isMaster())
+    {
+        iNoOfCalls = lpc->getNoOfCalls();
+        coVRMSController::instance()->sendSlaves((char *)&syncMenu, sizeof(syncMenu));
+        coVRMSController::instance()->sendSlaves((char *)&iNoOfCalls, sizeof(iNoOfCalls));
+    }
+    else
+    {
+        coVRMSController::instance()->readMaster((char *)&syncMenu, sizeof(syncMenu));
+        coVRMSController::instance()->readMaster((char *)&iNoOfCalls, sizeof(iNoOfCalls));
+    }
+    
+    nodNotifyQuestion->setText(syncMenu.strNODQuestion1,
+                               syncMenu.strNODQuestion2,
+                               syncMenu.strNODQuestion3);
+    menuLabelCallNameOfPartner->setLabel(syncMenu.strMLBCallNameOfPartner);
+    menuCheckboxRegister->setState(syncMenu.bMCBRegister);
+    menuCheckboxRegister->setLabel(syncMenu.strMCBRegister);
+    menuLabelCallState->setLabel(syncMenu.strMLBCallState);
+    
+    if (syncMenu.bNODNotifyQuestionShow == true)
+    {
+        nodNotifyQuestion->show();
+        syncMenu.bNODNotifyQuestionShow = false;
+    }
+    
+    if (iNoOfCalls > 0)
+    {
+        menuButtonHangUp->setActive(true);
+        menuCheckboxPause->setActive(true);
+        menuCheckboxSpkrMute->setActive(true);
+        menuCheckboxEnableCamera->setActive(true);
+    }
+    else
+    {
+        menuButtonHangUp->setActive(false);
+        menuCheckboxPause->setActive(false);
+        menuCheckboxSpkrMute->setActive(false);
+        menuCheckboxEnableCamera->setActive(false);
+    }
+
+#ifdef VOIP_DEBUG
+    cout << "VoIPPlugin::updateMenu() update done" << endl;
+#endif
+}
 // ----------------------------------------------------------------------------
 void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
 {
@@ -347,22 +924,17 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
 
         if (cbx->getState() == true)
         {
-            bool success;
+            bool bSuccess;
             if (coVRMSController::instance()->isMaster())
             {
-                success = lpc->doRegistration(identity.sipaddress, identity.password);
-                coVRMSController::instance()->sendSlaves((char *)&success, sizeof(success));
+                bSuccess = lpc->doRegistration(identity.sipaddress, identity.password);
             }
-            else
-            {
-                coVRMSController::instance()->readMaster((char *)&success, sizeof(success));
-            }
-            
-            // here all we know is that the initiation was successful or was not
-            if (success)
-            {                                                      
+            bSuccess = coVRMSController::instance()->syncBool(&bSuccess);
 
-                syncMenu.strMCBRegister = "Registering ...";
+            // here all we know is that the initiation was successful or was not
+            if (bSuccess)
+            {                                                      
+                sprintf(syncMenu.strMCBRegister, "%s", "Registering ...");
                 cbx->setLabel(syncMenu.strMCBRegister);
                 syncMenu.bMCBRegister = true;
                 cbx->setState(syncMenu.bMCBRegister);
@@ -376,7 +948,7 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
         }
         else
         {
-            syncMenu.strMCBRegister = "Register";
+            sprintf(syncMenu.strMCBRegister, "%s", "Register");
             cbx->setLabel(syncMenu.strMCBRegister);
             syncMenu.bMCBRegister = false;
             requestUpdate();
@@ -551,9 +1123,11 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
                     lpc->initiateCall((*contact).sipaddress);
                 }
 
-                syncMenu.strMLBCallState = "Call: in progress";
+                sprintf(syncMenu.strMLBCallState, "%s", "Call: in progress");
                 menuLabelCallState->setLabel(syncMenu.strMLBCallState);
-                syncMenu.strMLBCallNameOfPartner = "Addr: " + (*contact).sipaddress;
+
+                string strTemp =  "Addr: " + (*contact).sipaddress;
+                sprintf(syncMenu.strMLBCallNameOfPartner, "%s", strTemp.c_str());
                 menuLabelCallNameOfPartner->setLabel(syncMenu.strMLBCallNameOfPartner);
             }
         }
@@ -680,606 +1254,6 @@ void VoIPPlugin::menuEvent(vrui::coMenuItem *aButton)
     }
 }
 
-// ----------------------------------------------------------------------------
-bool VoIPPlugin::update()
-{
-// #ifdef VOIP_DEBUG
-//     cout << "VoIPPlugin::update()" << endl;
-// #endif
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        coVRMSController::instance()->sendSlaves((char *)&bRequestUpdate, sizeof(bRequestUpdate));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bRequestUpdate, sizeof(bRequestUpdate));
-    }
-
-    if (bRequestUpdate == true)
-    {
-        cout << "VoIPPlugin::update() requested sync" << endl;
-        updateMenu();
-        bRequestUpdate = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-// ----------------------------------------------------------------------------
-void VoIPPlugin::createMenu()
-{
-#ifdef VOIP_DEBUG
-    cout << "VoIPPlugin::createMenu()" << endl;
-#endif
-
-    // contacts menu
-    
-    menuContactList = new vrui::coRowMenu("Contact List");
-    
-    for(std::vector<SIPIdentity>::iterator it = contacts.begin(); it != contacts.end(); ++it) 
-    {
-        vrui::coButtonMenuItem* menuButtonContact = new vrui::coButtonMenuItem((*it).sipaddress);
-
-        menuButtonContact->setMenuListener(this);
-        menuContactList->add(menuButtonContact);
-        menuContacts.push_back(menuButtonContact);
-    }
-
-    // call menu
-    
-    menuCall =  new vrui::coRowMenu("Call");
-
-    syncMenu.strMLBCallState = "Call: -";
-    menuLabelCallState = new vrui::coLabelMenuItem(syncMenu.strMLBCallState);
-    menuCall->add(menuLabelCallState);
-
-    syncMenu.strMLBCallNameOfPartner = "Addr: -";
-    menuLabelCallNameOfPartner = new vrui::coLabelMenuItem(syncMenu.strMLBCallNameOfPartner);
-    menuCall->add(menuLabelCallNameOfPartner);
-
-    menuButtonHangUp = new vrui::coButtonMenuItem("Hang Up");
-    menuButtonHangUp->setMenuListener(this);
-    menuCall->add(menuButtonHangUp);
-
-    menuCheckboxPause = new vrui::coCheckboxMenuItem("Pause", false);
-    menuCheckboxPause->setMenuListener(this);
-    menuCall->add(menuCheckboxPause);
-
-    bool bState;
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getCallMicrophoneMuted();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxMicMute = new vrui::coCheckboxMenuItem("Microphone Muted", bState);
-    menuCheckboxMicMute->setMenuListener(this);
-    menuCall->add(menuCheckboxMicMute);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getMicrophoneIsEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxMicEnabled = new vrui::coCheckboxMenuItem("Mic Enabled", bState);
-    menuCheckboxMicEnabled->setMenuListener(this);
-    menuCall->add(menuCheckboxMicEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getCallSpeakerMuted();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxSpkrMute = new vrui::coCheckboxMenuItem("Speaker Muted", bState);
-    menuCheckboxSpkrMute->setMenuListener(this);
-    menuCall->add(menuCheckboxSpkrMute);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getCallCameraEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxEnableCamera = new vrui::coCheckboxMenuItem("Enable Camera", bState);
-    menuCheckboxEnableCamera->setMenuListener(this);
-    menuCall->add(menuCheckboxEnableCamera);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getCallSelfViewEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxSelfViewEnabled = new vrui::coCheckboxMenuItem("Self View Enabled", bState);
-    menuCheckboxSelfViewEnabled->setMenuListener(this);
-    menuCall->add(menuCheckboxSelfViewEnabled);
-
-    // mixer menu
-    
-    menuMixer =  new vrui::coRowMenu("Audio Mixer"); 
-
-    float fValue;
-    if (coVRMSController::instance()->isMaster())
-    {
-        fValue = lpc->getMicGain();
-        coVRMSController::instance()->sendSlaves((char *)&fValue, sizeof(fValue));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&fValue, sizeof(fValue));
-    }    
-    menuPotiMicGain = new vrui::coPotiMenuItem("Mic Gain (dB)", -100.0, 100.0, fValue);
-    menuPotiMicGain->setMenuListener(this);
-    menuPotiMicGain->setIncrement(1.0);
-    menuPotiMicGain->setInteger(true);
-    menuPotiMicGain->setValue(0.0);
-    menuMixer->add(menuPotiMicGain);
-
-    // vvv not available in linphone sdk 3.12
-    //menuPotiMicLevel = new vrui::coPotiMenuItem("Mic Level", 0.0, 100.0, 75.0);
-    //menuMixer->add(menuPotiMicLevel);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        fValue = lpc->getPlaybackGain();
-        coVRMSController::instance()->sendSlaves((char *)&fValue, sizeof(fValue));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&fValue, sizeof(fValue));
-    }    
-    menuPotiPlaybackGain = new vrui::coPotiMenuItem("Playback Gain (dB)", -100.0, 100.0, fValue);
-    menuPotiPlaybackGain->setMenuListener(this);
-    menuPotiPlaybackGain->setIncrement(1.0);
-    menuPotiPlaybackGain->setValue(0.0);
-    menuPotiPlaybackGain->setInteger(true);
-    menuMixer->add(menuPotiPlaybackGain);
-
-    // vvv not available in linphone sdk 3.12
-    //menuPotiVolLevel = new vrui::coPotiMenuItem("Volume Level", 0.0, 100.0, 75.0);
-    //menuMixer->add(menuPotiVolLevel);
-
-    // audio menu
-    
-    menuAudio =  new vrui::coRowMenu("Audio Settings");
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getEchoCancellationIsEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxEchoCancellationEnabled = new vrui::coCheckboxMenuItem("Echo Cancellation Enabled", bState);
-    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
-    menuAudio->add(menuCheckboxEchoCancellationEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getEchoLimiterIsEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxEchoLimiterEnabled = new vrui::coCheckboxMenuItem("Echo Limiter Enabled", bState);
-    menuCheckboxEchoCancellationEnabled->setMenuListener(this);
-    menuAudio->add(menuCheckboxEchoLimiterEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getAudioJitterCompensation();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxAudioJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation", bState);
-    menuCheckboxAudioJitterCompensation->setMenuListener(this);
-    menuAudio->add(menuCheckboxAudioJitterCompensation);
-
-    string strCurrentCaptureSoundDevice = "not available";
-    string strCurrentPlaybackSoundDevice = "not available";
-    string strCurrentRingerSoundDevice = "not available";
-
-    const int BUFFER_SIZE = 10;
-    const int BUFFER_LENGTH = 128;
-    char buffer_CAP[BUFFER_SIZE][BUFFER_LENGTH];
-    char buffer_PLB[BUFFER_SIZE][BUFFER_LENGTH];
-    int vec_size_CAP = 0;
-    int vec_size_PLB = 0;
-    int index;
-    
-    if ((vecCaptureSoundDevices.size() > BUFFER_SIZE) ||
-        (vecPlaybackSoundDevices.size() > BUFFER_SIZE))
-    {
-        cout << "WARNING (VoIP): sync buffer too small" << endl;
-    }
-    
-    if (coVRMSController::instance()->isMaster())
-    {
-        vecCaptureSoundDevices = lpc->getCaptureSoundDevicesList();
-        vecPlaybackSoundDevices = lpc->getPlaybackSoundDevicesList();
-
-        strCurrentCaptureSoundDevice = lpc->getCurrentCaptureSoundDevice();
-        strCurrentPlaybackSoundDevice = lpc->getCurrentPlaybackSoundDevice();
-        strCurrentRingerSoundDevice = lpc->getCurrentRingerSoundDevice();
-
-        std::vector<std::string>::iterator forIt = vecCaptureSoundDevices.begin();
-        vec_size_CAP = vecCaptureSoundDevices.size();
-        index = 0;
-        while (forIt != vecCaptureSoundDevices.end())
-        {
-            (*forIt).copy(buffer_CAP[index], (*forIt).size());
-            buffer_CAP[index][(*forIt).size()] = '\0';
-            ++forIt;
-            ++index;
-        }
-
-        forIt = vecPlaybackSoundDevices.begin();
-        vec_size_PLB = vecPlaybackSoundDevices.size();
-        index = 0;
-        while (forIt != vecPlaybackSoundDevices.end())
-        {
-            (*forIt).copy(buffer_PLB[index], (*forIt).size());
-            buffer_PLB[index][(*forIt).size()] = '\0';
-            ++forIt;
-            ++index;
-        }
-
-        coVRMSController::instance()->sendSlaves((char *)&buffer_PLB, sizeof(buffer_PLB));
-        coVRMSController::instance()->sendSlaves((char *)&vec_size_PLB, sizeof(vec_size_PLB));
-        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
-        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
-
-        coVRMSController::instance()->sendSlaves((char *)&strCurrentCaptureSoundDevice,
-                                                 sizeof(strCurrentCaptureSoundDevice));
-        coVRMSController::instance()->sendSlaves((char *)&strCurrentPlaybackSoundDevice,
-                                                 sizeof(strCurrentPlaybackSoundDevice));
-        coVRMSController::instance()->sendSlaves((char *)&strCurrentRingerSoundDevice,
-                                                 sizeof(strCurrentRingerSoundDevice));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&buffer_PLB, sizeof(buffer_PLB));
-        coVRMSController::instance()->readMaster((char *)&vec_size_PLB, sizeof(vec_size_PLB));
-        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
-        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
-
-        coVRMSController::instance()->readMaster((char *)&strCurrentCaptureSoundDevice,
-                                                 sizeof(strCurrentCaptureSoundDevice));
-        coVRMSController::instance()->readMaster((char *)&strCurrentPlaybackSoundDevice,
-                                                 sizeof(strCurrentPlaybackSoundDevice));
-        coVRMSController::instance()->readMaster((char *)&strCurrentRingerSoundDevice,
-                                                 sizeof(strCurrentRingerSoundDevice));
-    }
-
-    vecCaptureSoundDevices.clear();
-    for (int i = 0; i < vec_size_CAP; ++i)
-    {
-        std::string s(buffer_CAP[i]);
-        vecCaptureSoundDevices.push_back(s);
-    }
-
-    vecPlaybackSoundDevices.clear();
-    for (int i = 0; i < vec_size_PLB; ++i)
-    {
-        std::string s(buffer_PLB[i]);
-        vecPlaybackSoundDevices.push_back(s);
-    }
-    
-    menuLabelCaptureDeviceList = new vrui::coLabelMenuItem("Capture Devices");
-    menuAudio->add(menuLabelCaptureDeviceList);
-    
-    for(vector<string>::iterator it = vecCaptureSoundDevices.begin(); it != vecCaptureSoundDevices.end(); ++it) 
-    {
-        vrui::coCheckboxMenuItem* menuCheckboxDevice;
-        if (strCurrentCaptureSoundDevice == *it)
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
-        }
-        else
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
-        }
-        menuCheckboxDevice->setMenuListener(this);
-        menuAudio->add(menuCheckboxDevice);
-        menuCheckboxDevice->setMenuListener(this);
-        menuCaptureDevices.push_back(menuCheckboxDevice);
-    }
-    
-    menuLabelPlaybackDeviceList = new vrui::coLabelMenuItem("Playback Devices");
-    menuAudio->add(menuLabelPlaybackDeviceList);
-
-    for(vector<string>::iterator it = vecPlaybackSoundDevices.begin(); it != vecPlaybackSoundDevices.end(); ++it) 
-    {
-        vrui::coCheckboxMenuItem* menuCheckboxDevice;
-        if (strCurrentPlaybackSoundDevice == *it)
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
-        }
-        else
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
-        }
-        menuCheckboxDevice->setMenuListener(this);
-        menuAudio->add(menuCheckboxDevice);
-        menuPlaybackDevices.push_back(menuCheckboxDevice);
-    }
-
-    menuLabelRingerDeviceList = new vrui::coLabelMenuItem("Ringer Devices");;
-    menuAudio->add(menuLabelRingerDeviceList);
-
-    for(vector<string>::iterator it = vecPlaybackSoundDevices.begin(); it != vecPlaybackSoundDevices.end(); ++it) 
-    {
-        vrui::coCheckboxMenuItem* menuCheckboxDevice;
-        if (strCurrentRingerSoundDevice == *it)
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
-        }
-        else
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
-        }
-        menuCheckboxDevice->setMenuListener(this);
-        menuAudio->add(menuCheckboxDevice);
-        menuRingerDevices.push_back(menuCheckboxDevice);
-    }
-
-    // video settings
-    
-    menuVideo =  new vrui::coRowMenu("Video Settings"); 
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getVideoCaptureEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxVideoCaptureEnabled = new vrui::coCheckboxMenuItem("Video Capture Enabled", bState);
-    menuCheckboxVideoCaptureEnabled->setMenuListener(this);
-    menuVideo->add(menuCheckboxVideoCaptureEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getVideoDisplayEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxVideoDisplayEnabled = new vrui::coCheckboxMenuItem("Video Display Enabled", bState);
-    menuCheckboxVideoDisplayEnabled->setMenuListener(this);
-    menuVideo->add(menuCheckboxVideoDisplayEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getVideoPreviewEnabled();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxVideoPreviewEnabled = new vrui::coCheckboxMenuItem("Video Preview Enabled",bState);
-    menuCheckboxVideoPreviewEnabled->setMenuListener(this);
-    menuVideo->add(menuCheckboxVideoPreviewEnabled);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getAutoAcceptVideo();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxAutoAcceptVideo = new vrui::coCheckboxMenuItem("Auto Accept Video", bState);
-    menuCheckboxAutoAcceptVideo->setMenuListener(this);
-    menuVideo->add(menuCheckboxAutoAcceptVideo);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getAutoInitiateVideo();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxAutoInitiateVideo = new vrui::coCheckboxMenuItem("Auto Initiate Video", bState);
-    menuCheckboxAutoInitiateVideo->setMenuListener(this);
-    menuVideo->add(menuCheckboxAutoInitiateVideo);
-
-    if (coVRMSController::instance()->isMaster())
-    {
-        bState = lpc->getVideoJitterCompensation();
-        coVRMSController::instance()->sendSlaves((char *)&bState, sizeof(bState));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&bState, sizeof(bState));
-    }    
-    menuCheckboxVideoJitterCompensation = new vrui::coCheckboxMenuItem("Jitter Compensation", bState);
-    menuCheckboxVideoJitterCompensation->setMenuListener(this);
-    menuVideo->add(menuCheckboxVideoJitterCompensation);
-    
-    menuLabelVideoDeviceList = new vrui::coLabelMenuItem("Video Capture Devices");
-    menuVideo->add(menuLabelVideoDeviceList);
-
-    string strCurrentVideoCaptureDevice = "not available";
-    if (coVRMSController::instance()->isMaster())
-    {
-        vecVideoCaptureDevices = lpc->getVideoCaptureDevicesList();
-        strCurrentVideoCaptureDevice = lpc->getCurrentVideoCaptureDevice();
-
-        std::vector<std::string>::iterator forIt = vecVideoCaptureDevices.begin();
-        vec_size_CAP = vecVideoCaptureDevices.size();
-        index = 0;
-        while (forIt != vecVideoCaptureDevices.end())
-        {
-            (*forIt).copy(buffer_CAP[index], (*forIt).size());
-            buffer_CAP[index][(*forIt).size()] = '\0';
-            ++forIt;
-            ++index;
-        }
-
-        coVRMSController::instance()->sendSlaves((char *)&buffer_CAP, sizeof(buffer_CAP));
-        coVRMSController::instance()->sendSlaves((char *)&vec_size_CAP, sizeof(vec_size_CAP));
-
-        coVRMSController::instance()->sendSlaves((char *)&strCurrentVideoCaptureDevice,
-                                                 sizeof(strCurrentVideoCaptureDevice));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&buffer_CAP, sizeof(buffer_CAP));
-        coVRMSController::instance()->readMaster((char *)&vec_size_CAP, sizeof(vec_size_CAP));
-
-        coVRMSController::instance()->readMaster((char *)&strCurrentVideoCaptureDevice,
-                                                 sizeof(strCurrentVideoCaptureDevice));
-    }
-
-    vecVideoCaptureDevices.clear();
-    for (int i = 0; i < vec_size_CAP; ++i)
-    {
-        std::string s(buffer_CAP[i]);
-        vecVideoCaptureDevices.push_back(s);
-    }
-    
-    for(vector<string>::iterator it = vecVideoCaptureDevices.begin(); it != vecVideoCaptureDevices.end(); ++it) 
-    {
-        vrui::coCheckboxMenuItem* menuCheckboxDevice;
-
-        if (strCurrentVideoCaptureDevice == *it)
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, true);
-        }
-        else
-        {
-            menuCheckboxDevice = new vrui::coCheckboxMenuItem(*it, false);
-        }
-        menuCheckboxDevice->setMenuListener(this);
-        menuVideo->add(menuCheckboxDevice);
-        menuVideoCaptureDevices.push_back(menuCheckboxDevice);
-    }
-    
-    // plugin main menu
-    
-    menuLabelSIPAddress = new vrui::coLabelMenuItem(identity.sipaddress);
-    syncMenu.strMCBRegister = "Register";
-    menuCheckboxRegister = new vrui::coCheckboxMenuItem(syncMenu.strMCBRegister, false); 
-    menuCheckboxRegister->setMenuListener(this);
-    
-    menuContactListItem = new vrui::coSubMenuItem("Contact List..."); 
-    menuContactListItem->setMenu(menuContactList);
-
-    menuCallItem = new vrui::coSubMenuItem("Call..."); 
-    menuCallItem->setMenu(menuCall);
-
-    menuMixerItem = new vrui::coSubMenuItem("Audio Mixer..."); 
-    menuMixerItem->setMenu(menuMixer);
-    
-    menuAudioItem = new vrui::coSubMenuItem("Audio Settings..."); 
-    menuAudioItem->setMenu(menuAudio);
-    
-    menuVideoItem = new vrui::coSubMenuItem("Video Settings..."); 
-    menuVideoItem->setMenu(menuVideo);
-    
-    menuVoIP = new vrui::coRowMenu("VoIP");
-    menuVoIP->add(menuLabelSIPAddress);
-    menuVoIP->add(menuCheckboxRegister);
-    menuVoIP->add(menuContactListItem);
-    menuVoIP->add(menuCallItem);
-    menuVoIP->add(menuMixerItem);
-    menuVoIP->add(menuAudioItem);
-    menuVoIP->add(menuVideoItem);
-    
-    menuMainItem = new vrui::coSubMenuItem("VoIP");
-    menuMainItem->setMenu(menuVoIP);
-    
-    cover->getMenu()->add(menuMainItem);
-
-    updateMenu();
-}
-
-// ----------------------------------------------------------------------------
-void VoIPPlugin::updateMenu()
-{
-#ifdef VOIP_DEBUG
-    cout << "VoIPPlugin::updateMenu()" << endl;
-#endif
-
-    int iNoOfCalls = 0;
-    if (coVRMSController::instance()->isMaster())
-    {
-        iNoOfCalls = lpc->getNoOfCalls();
-        coVRMSController::instance()->sendSlaves((char *)&syncMenu, sizeof(syncMenu));
-        coVRMSController::instance()->sendSlaves((char *)&iNoOfCalls, sizeof(iNoOfCalls));
-    }
-    else
-    {
-        coVRMSController::instance()->readMaster((char *)&syncMenu, sizeof(syncMenu));
-        coVRMSController::instance()->readMaster((char *)&iNoOfCalls, sizeof(iNoOfCalls));
-    }
-    
-    nodNotifyQuestion->setText(syncMenu.strNODQuestion1,
-                               syncMenu.strNODQuestion2,
-                               syncMenu.strNODQuestion3);
-    menuLabelCallNameOfPartner->setLabel(syncMenu.strMLBCallNameOfPartner);
-    menuCheckboxRegister->setState(syncMenu.bMCBRegister);
-    menuCheckboxRegister->setLabel(syncMenu.strMCBRegister);
-    menuLabelCallState->setLabel(syncMenu.strMLBCallState);
-    
-    if (syncMenu.bNODNotifyQuestionShow == true)
-    {
-        nodNotifyQuestion->show();
-        syncMenu.bNODNotifyQuestionShow = false;
-    }
-    
-    if (iNoOfCalls > 0)
-    {
-        menuButtonHangUp->setActive(true);
-        menuCheckboxPause->setActive(true);
-        menuCheckboxSpkrMute->setActive(true);
-        menuCheckboxEnableCamera->setActive(true);
-    }
-    else
-    {
-        menuButtonHangUp->setActive(false);
-        menuCheckboxPause->setActive(false);
-        menuCheckboxSpkrMute->setActive(false);
-        menuCheckboxEnableCamera->setActive(false);
-    }
-}
 
 // ----------------------------------------------------------------------------
 void VoIPPlugin::destroyMenu()
