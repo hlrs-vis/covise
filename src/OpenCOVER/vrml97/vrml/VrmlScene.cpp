@@ -103,6 +103,7 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
     , oldNi(0)
     , resetVPFlag(true)
     , d_WasEncrypted(false)
+	, d_loadSuccess(false)
 {
     d_nodes.addToScene(this, sceneUrl);
     d_backgrounds = new VrmlNodeList;
@@ -132,8 +133,14 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
         {
             cache = new InlineCache(localCopy);
         }
-        if (!load(sceneUrl, localCopy))
-            System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		if (!load(sceneUrl, localCopy))
+		{
+			System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		}
+		else
+		{
+			d_loadSuccess = true;
+		}
     }
 }
 

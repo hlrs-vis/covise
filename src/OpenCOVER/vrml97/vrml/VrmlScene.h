@@ -298,6 +298,7 @@ public:
     Viewer::Object getCachedInline(const char *url, const char *pathname);
 
     bool wasEncrypted() const;
+	bool loadSucceeded() {return d_loadSuccess;	};
 
 protected:
     bool headlightOn();
@@ -415,6 +416,7 @@ protected:
 
 private:
     bool d_WasEncrypted;
+	bool d_loadSuccess;
 };
 }
 #endif // _VRMLSCENE_

@@ -393,7 +393,12 @@ osg::Node *LoadedFile::load()
             fprintf(stderr, "coVRFileManager::loadFile(name=%s)   handler\n", url.str().c_str());
         if (handler->loadUrl)
         {
-            handler->loadUrl(url, fakeParent, covise_key);
+			if (handler->loadUrl(url, fakeParent, covise_key) < 0)
+			{
+				if (button)
+					button->setState(false);
+				return NULL;
+			}
         }
         else
         {
@@ -790,7 +795,7 @@ osg::Node *coVRFileManager::loadFile(const char *fileName, coTUIFileBrowserButto
 		fe->button->setShared(true);
 	}
 
-    if (isRoot)
+    if (isRoot && node != NULL)
     {
 		m_files[validFileName] = fe;
 		if (node)
