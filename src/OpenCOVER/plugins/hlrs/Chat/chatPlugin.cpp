@@ -24,13 +24,8 @@
 #include "ChatPlugin.h"
 #include <net/udpMessage.h>
 #include <net/udp_message_types.h>
-extern "C"
-{
-#include <libavutil/channel_layout.h>
-#include <libavutil/common.h>
-}
 
-
+#include <speex/speex_jitter.h>
 
 
 #ifndef WIN32
@@ -111,7 +106,7 @@ bool ChatPlugin::init()
 		outStream = output->start();
 	}
 	CHATtab_create();
-	initialize_encoding_audio();
+	initSpeex();
 	return true;
 }
 
@@ -123,24 +118,26 @@ bool ChatPlugin::destroy()
 //------------------------------------------------------------------------------
 ChatPlugin::~ChatPlugin()
 {
-
+	/*Destroy the encoder state*/
+	speex_encoder_destroy(encoderState);
+	/*Destroy the bit-packing struct*/
+	speex_bits_destroy(&bits);
 }
 
 bool ChatPlugin::update()
 {
 	if(inStream)
 	{
-		int bufferSize = 64 * 1024;
-		QByteArray ba;
 		vrb::UdpMessage audioMessage;
 		audioMessage.type = vrb::AUDIO_STREAM;
 		//while (inStream->bytesAvailable() > bufferSize)
 		do{
-			ba = inStream->read(bufferSize);
-			audioMessage.length = ba.length();
-			audioMessage.data = (char*)ba.constData();
+			audioBuffer = inStream->read(frameSize);
+			int encodedLength = encodeSpeex();
+			audioMessage.length = encodedLength;
+			audioMessage.data = (char*)cbits;
 			cover->sendVrbUdpMessage(&audioMessage);
-		} while (ba.length() > 0);
+		} while (audioBuffer.length() > 0);
 		audioMessage.data = nullptr;
 	}
 	return true;
@@ -164,7 +161,8 @@ void ChatPlugin::UDPmessage(int type, int length, const void* data)
 	{
 		if(outStream)
 		{
-			outStream->write((const char*)data, length);
+			int outSize = decodeSpeex(data, length);
+			outStream->write((const char*)outputDataShort, outSize);
 		}
 	}
 }
@@ -214,198 +212,49 @@ void ChatPlugin::CHATtab_delete(void)
 	}
 }
 
-int ChatPlugin::select_sample_rate(AVCodec* codec)
+void ChatPlugin::initSpeex()
 {
-	const int* p;
-	int best_samplerate = 0;
+	/*Create a new encoder state in narrowband mode*/
+	encoderState = speex_encoder_init(&speex_nb_mode);
 
-	if (!codec->supported_samplerates)
-		return 44100;
+	/*Set the quality to 8 (15 kbps)*/
+	int tmp = 8;
+	speex_encoder_ctl(encoderState, SPEEX_SET_QUALITY, &tmp);
+	/*Initialization of the structure that holds the bits*/
+	speex_bits_init(&bits);
 
-	p = codec->supported_samplerates;
-	while (*p) {
-		best_samplerate = FFMAX(*p, best_samplerate);
-		p++;
-
-	}
-	return best_samplerate;
+	/*Create a new decoder state in narrowband mode*/
+	decoderState = speex_decoder_init(&speex_nb_mode);
+	
+	/*Set the perceptual enhancement on*/
+	tmp = 1;
+	speex_decoder_ctl(decoderState, SPEEX_SET_ENH, &tmp);
 }
-bool ChatPlugin::initialize_encoding_audio()
+int ChatPlugin::encodeSpeex()
 {
-	int ret;
-	AVCodecID aud_codec_id = AV_CODEC_ID_OPUS;
-	AVSampleFormat sample_fmt = AV_SAMPLE_FMT_S16;
-
-	avcodec_register_all();
-	av_register_all();
-
-	aud_codec = avcodec_find_encoder(aud_codec_id);
-	avcodec_register(aud_codec);
-
-	if (!aud_codec)
-	{
-		fprintf(stderr, "could not find OPUS codec\n");
-		return false;
-	}
-
-	aud_codec_context = avcodec_alloc_context3(aud_codec);
-	if (!aud_codec_context)
-	{
-		fprintf(stderr, "context creation failed\n");
-		return false;
-	}
-
-	aud_codec_context->bit_rate = 192000;
-	aud_codec_context->sample_rate = select_sample_rate(aud_codec);
-	aud_codec_context->sample_fmt = sample_fmt;
-	aud_codec_context->channel_layout = AV_CH_LAYOUT_MONO;
-	aud_codec_context->channels = av_get_channel_layout_nb_channels(aud_codec_context->channel_layout);
-
-	aud_codec_context->codec = aud_codec;
-	aud_codec_context->codec_id = aud_codec_id;
-
-	ret = avcodec_open2(aud_codec_context, aud_codec, NULL);
-
-	if (ret < 0)
-	{
-		fprintf(stderr, "could not open OPUS codec\n");
-		return false;
-	}
-	/*
-	outctx = avformat_alloc_context();
-	ret = avformat_alloc_output_context2(&outctx, NULL, "mp4", filename);
-
-	outctx->audio_codec = aud_codec;
-	outctx->audio_codec_id = aud_codec_id;
-
-	audio_st = avformat_new_stream(outctx, aud_codec);
-
-	audio_st->codecpar->bit_rate = aud_codec_context->bit_rate;
-	audio_st->codecpar->sample_rate = aud_codec_context->sample_rate;
-	audio_st->codecpar->channels = aud_codec_context->channels;
-	audio_st->codecpar->channel_layout = aud_codec_context->channel_layout;
-	audio_st->codecpar->codec_id = aud_codec_id;
-	audio_st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
-	audio_st->codecpar->format = sample_fmt;
-	audio_st->codecpar->frame_size = aud_codec_context->frame_size;
-	audio_st->codecpar->block_align = aud_codec_context->block_align;
-	audio_st->codecpar->initial_padding = aud_codec_context->initial_padding;
-
-	outctx->streams = new AVStream * [1];
-	outctx->streams[0] = audio_st;
-
-	av_dump_format(outctx, 0, filename, 1);
-
-	if (!(outctx->oformat->flags & AVFMT_NOFILE))
-	{
-		if (avio_open(&outctx->pb, filename, AVIO_FLAG_WRITE) < 0)
-			return COULD_NOT_OPEN_FILE;
-	}
-
-	ret = avformat_write_header(outctx, NULL);
-	*/
-	aud_frame = av_frame_alloc();
-	aud_frame->nb_samples = aud_codec_context->frame_size;
-	aud_frame->format = aud_codec_context->sample_fmt;
-	aud_frame->channel_layout = aud_codec_context->channel_layout;
-
-	int buffer_size = av_samples_get_buffer_size(NULL, aud_codec_context->channels, aud_codec_context->frame_size,
-		aud_codec_context->sample_fmt, 0);
-
-	av_frame_get_buffer(aud_frame, buffer_size / aud_codec_context->channels);
-
-	if (!aud_frame)
-	{
-		fprintf(stderr, "frame allocation failed\n");
-		return false;
-	}
-
-	aud_frame_counter = 0;
-
-	return true;
+	const short* in = (const short*)audioBuffer.constData();
+	for (int i = 0; i < frameSize; i++)
+		inputData[i] = (float)in[i];
+	/*Flush all the bits in the struct so we can encode a new frame*/
+	speex_bits_reset(&bits);
+	/*Encode the frame*/
+	speex_encode(encoderState, inputData, &bits);
+	return speex_bits_write(&bits, cbits, 1024);
 }
-int ChatPlugin::encode_audio_samples(uint8_t** aud_samples)
+
+int ChatPlugin::decodeSpeex(const void* data, int length)
 {
-	int ret;
-	/*
-	int buffer_size = av_samples_get_buffer_size(NULL, aud_codec_context->channels, aud_codec_context->frame_size,
-		aud_codec_context->sample_fmt, 0);
+	/*Copy the data into the bit-stream struct*/
+	speex_bits_read_from(&bits, (const char *)data, length);
+	
+	/*Decode the data*/
+	speex_decode(decoderState, &bits, outputData);
+	/*Copy from float to short (16 bits) for output*/
+	
+	for (int i = 0; i < frameSize; i++)
+		outputDataShort[i] = outputData[i];
 
-	for (size_t i = 0; i < buffer_size / aud_codec_context->channels; i++)
-	{
-		aud_frame->data[0][i] = aud_samples[0][i];
-		aud_frame->data[1][i] = aud_samples[1][i];
-	}
-
-	aud_frame->pts = aud_frame_counter++;
-
-	ret = avcodec_send_frame(aud_codec_context, aud_frame);
-	if (ret < 0)
-		return ERROR_ENCODING_SAMPLES_SEND;
-
-	AVPacket pkt;
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
-
-	fflush(stdout);
-
-	while (true)
-	{
-		ret = avcodec_receive_packet(aud_codec_context, &pkt);
-		if (!ret)
-		{
-			av_packet_rescale_ts(&pkt, aud_codec_context->time_base, audio_st->time_base);
-
-			pkt.stream_index = audio_st->index;
-			av_write_frame(outctx, &pkt);
-			av_packet_unref(&pkt);
-		}
-		if (ret == AVERROR(EAGAIN))
-			break;
-		else if (ret < 0)
-			return ERROR_ENCODING_SAMPLES_RECEIVE;
-		else
-			break;
-	}
-	*/
-	return 0;
-}
-int ChatPlugin::finish_audio_encoding()
-{
-	AVPacket pkt;
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
-
-	fflush(stdout);
-	/*
-	int ret = avcodec_send_frame(aud_codec_context, NULL);
-	if (ret < 0)
-		return ERROR_ENCODING_FRAME_SEND;
-
-	while (true)
-	{
-		ret = avcodec_receive_packet(aud_codec_context, &pkt);
-		if (!ret)
-		{
-			if (pkt.pts != AV_NOPTS_VALUE)
-				pkt.pts = av_rescale_q(pkt.pts, aud_codec_context->time_base, audio_st->time_base);
-			if (pkt.dts != AV_NOPTS_VALUE)
-				pkt.dts = av_rescale_q(pkt.dts, aud_codec_context->time_base, audio_st->time_base);
-
-			av_write_frame(outctx, &pkt);
-			av_packet_unref(&pkt);
-		}
-		if (ret == -AVERROR(AVERROR_EOF))
-			break;
-		else if (ret < 0)
-			return ERROR_ENCODING_FRAME_RECEIVE;
-	}
-
-	av_write_trailer(outctx);
-	*/
-	return 0;
+	return frameSize*sizeof(short);
 }
 
 //--------------------------------------------------------------------
