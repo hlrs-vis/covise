@@ -37,6 +37,7 @@ class VRBEXPORT regClass
 public:
     typedef std::map<const std::string, std::shared_ptr<regVar>> VariableMap;
 	regClass(const std::string& n, int ID);
+    virtual ~regClass();
 
     /// get Class ID
 	int getID();

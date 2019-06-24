@@ -24,6 +24,11 @@ namespace vrb
 		, isDel(false)
 	{
 	}
+
+    regClass::~regClass()
+    {
+    }
+
 	/// get Class ID
 	int regClass::getID()
 	{
