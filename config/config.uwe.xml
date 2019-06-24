@@ -18,7 +18,7 @@
  
   <System>
    <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31253"/>
+    <Server value="visent.hlrs.de" tcpPort="31252" udpPort="31253"/>
    </VRB>
    
 
