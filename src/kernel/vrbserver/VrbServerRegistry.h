@@ -35,9 +35,9 @@ public:
 
 
     /// set a Value or create new Entry, s for isStatic
-    void setVar(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s = false);
+    void setVar(int ID, const std::string &className, const std::string &name, DataHandle &value, bool s = false);
     /// create new Entry
-    void create(int ID, const std::string &className, const std::string &name, covise::TokenBuffer &value, bool s);
+    void create(int ID, const std::string &className, const std::string &name, DataHandle&value, bool s);
     /// remove an Entry
     void deleteEntry(const std::string &className, const std::string &name);
     /// remove all Entries from one Module
@@ -45,7 +45,7 @@ public:
     ///add sender sa observer to every vaiable and every class that has no variables
     void observe(int sender);
     /// add a new observer to a specific variable and provide a default value
-    void observeVar(int ID, const std::string &className, const std::string &variableName, covise::TokenBuffer &value);
+    void observeVar(int ID, const std::string &className, const std::string &variableName, DataHandle &value);
     ///add a observer to a class an all its variables
     void observeClass(int ID, const std::string &className);
     /// remove an observer
@@ -87,6 +87,8 @@ public:
     ~serverRegVar();
     /// send Value to recvID
     void update(int recvID);
+	///updatafunction for SharedMaps
+	void updateMap(int recvID);
     /// send Value UIs depending on UI variable RegistryMode
     void updateUIs();
     /// add an observer to my list
@@ -120,7 +122,7 @@ public:
     /// add a new observer to this class and all of its variables
     void observe(int recvID);
     ///add Observer to a specific variable
-    void observeVar(int recvID, const std::string &variableName, covise::TokenBuffer &value);
+    void observeVar(int recvID, const std::string &variableName, DataHandle &value);
     /// remove an observer from this class and variable of this class. 
     void unObserveVar(int recvID, const std::string &variableName);
     ///remove the observer from all variables
@@ -131,7 +133,7 @@ public:
 		return observers;
 	};
     void informDeleteObservers();
-    std::shared_ptr<regVar> createVar(const std::string &name, covise::TokenBuffer &&value);
+    std::shared_ptr<regVar> createVar(const std::string &name, DataHandle &value);
 
 };
 }

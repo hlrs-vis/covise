@@ -176,10 +176,12 @@ void serialize(covise::TokenBuffer& tb, const std::map<K, V>& value) {
 		tb << getSharedStateType(value.begin()->second);
 	}
 	tb << size;
-	for (const auto entry : value)
+	auto entry = value.begin();
+	while (entry != value.end())
 	{
-		serialize(tb, entry.first);
-		serialize(tb, entry.second);
+		serialize(tb, entry->first);
+		serialize(tb, entry->second);
+		++entry;
 	}
 }
 
@@ -231,6 +233,15 @@ void deserialize(covise::TokenBuffer &tb, std::set<T> &value)
         value.insert(entry);
     }
 }
+
+template <class V>
+V& fillMap(V& v)
+{
+	return v;
+}
+template<>
+covise::TokenBuffer& fillMap<covise::TokenBuffer>(covise::TokenBuffer& v);
+
 template <class K, class V>
 void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 {
@@ -245,9 +256,12 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 		V val;
 		deserialize(tb, key);
 		deserialize(tb, val);
-		value[key] = val;
+		value.emplace(std::make_pair(fillMap(key), fillMap(val)));
 	}
 }
+
+
+
 ///////////////////TYPE SERIALIZATION/////////////////////////
 template<class T>
 void serializeWithType(covise::TokenBuffer &tb, const T &value)
