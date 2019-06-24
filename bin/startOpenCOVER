@@ -4,8 +4,7 @@ if [ -d $1 ]; then
   cd $1
 fi
 shift
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/mvapich2/lib
-export DISPLAY=:0.0
+#export DISPLAY=:0.0
 export ARCHSUFFIX=$1; shift
 export COVISEDIR=$1; shift
 export COVISE_PATH=$1; shift
