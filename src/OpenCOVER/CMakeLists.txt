@@ -64,7 +64,7 @@ if(COVISE_OPENCOVER_INTERNAL_PROJECT)
 
    set(COVISE_GPU_LIBRARIES ${COVISE_GPU_LIBRARY})
 
-   set(COVISE_INCLUDE_DIR ../kernel)
+   set(COVISE_INCLUDE_DIRS ../kernel)
    set(COVISE_FOUND TRUE)
 else()
    cmake_minimum_required(VERSION 3.1)
