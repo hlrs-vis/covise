@@ -162,6 +162,15 @@ void coVRAnimationManager::initAnimMenu()
         setAnimationSpeed(val);
     });
 
+    animSkipItem = new ui::Slider(animRowMenu, "Step");
+    animSkipItem->setPresentation(ui::Slider::AsSlider);
+    animSkipItem->setIntegral(true);
+    animSkipItem->setBounds(1, 10);
+    animSkipItem->setValue(1);
+    animSkipItem->setCallback([this](ui::Slider::ValueType val, bool released){
+        setAnimationSkip(val);
+    });
+
     animLimitGroup = new ui::Group(animRowMenu, "LimitGroup");
     animLimitGroup->setText("");
 
@@ -252,14 +261,15 @@ coVRAnimationManager::requestAnimationFrame(int currentFrame)
     {
         if (currentFrame < 0)
             currentFrame = (currentFrame % numFrames) + numFrames;
-        if (numFrames > 0)
-            currentFrame %= numFrames;
+        currentFrame %= numFrames;
     }
 
     if (stopFrame >= startFrame)
         currentFrame = (currentFrame - startFrame + stopFrame - startFrame + 1) % (stopFrame - startFrame + 1) + startFrame;
     else
         currentFrame = startFrame;
+
+    currentFrame = (currentFrame/aniSkip)*aniSkip;
 
     bool change = false;
     if (currentAnimationFrame != currentFrame && requestedAnimationFrame == -1)
@@ -349,7 +359,7 @@ coVRAnimationManager::updateAnimationFrame()
             if ((cover->frameTime() - lastAnimationUpdate > 1.0 / animSpeedItem->value())
                 || (animSpeedItem->value() > AnimSliderMax - 0.001))
             {
-                return requestAnimationFrame(currentAnimationFrame + aniDirection);
+                return requestAnimationFrame(currentAnimationFrame + aniDirection * aniSkip);
             }
         }
         else if (animSpeedItem->value() < 0.0)
@@ -357,7 +367,7 @@ coVRAnimationManager::updateAnimationFrame()
             if ((cover->frameTime() - lastAnimationUpdate > -1.0 / animSpeedItem->value())
                 || (animSpeedItem->value() < AnimSliderMin + 0.001))
             {
-                return requestAnimationFrame(currentAnimationFrame - aniDirection);
+                return requestAnimationFrame(currentAnimationFrame - aniDirection * aniSkip);
             }
         }
     }
@@ -392,6 +402,17 @@ coVRAnimationManager::setAnimationSpeed(float speed)
         speed = animSpeedItem->max();
 
     animSpeedItem->setValue(speed);
+}
+
+void coVRAnimationManager::setAnimationSkip(int frames)
+{
+    if (frames < animSkipItem->min())
+        frames = animSkipItem->min();
+    if (frames > animSkipItem->max())
+        frames = animSkipItem->max();
+
+    animSkipItem->setValue(frames);
+    aniSkip = frames;
 }
 
 bool
