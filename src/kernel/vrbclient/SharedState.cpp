@@ -36,7 +36,7 @@ SharedStateBase::~SharedStateBase()
     SharedStateManager::instance()->remove(this);
 }
 
-void SharedStateBase::subscribe(DataHandle & val)
+void SharedStateBase::subscribe(const DataHandle &val)
 {
     if(m_registry)
     {
@@ -44,7 +44,7 @@ void SharedStateBase::subscribe(DataHandle & val)
     }
 }
 
-void SharedStateBase::setVar(DataHandle & val)
+void SharedStateBase::setVar(const DataHandle & val)
 {
     m_valueData = val;
 	if (syncInterval <= 0)
@@ -87,7 +87,7 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     }
 }
 
-void SharedStateBase::setID(SessionID &id)
+void SharedStateBase::setID(const SessionID &id)
 {
     sessionID = id;
 }
@@ -102,7 +102,7 @@ bool SharedStateBase::getMute()
     return muted;
 }
 
-void SharedStateBase::resubscribe(SessionID &id)
+void SharedStateBase::resubscribe(const SessionID &id)
 {
     if (m_registry && m_registry->getClass(m_className)->getVar(variableName))
     {

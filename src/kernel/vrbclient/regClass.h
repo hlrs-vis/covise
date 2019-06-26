@@ -70,7 +70,7 @@ public:
     ///reads the name and value out of stream, return false if class has no variable
 	void readVar(std::ifstream& file);
 
-    virtual std::shared_ptr<regVar> createVar(const std::string &name, DataHandle &value) = 0;
+    virtual std::shared_ptr<regVar> createVar(const std::string &name, const DataHandle &value) = 0;
 
 protected:
     std::string name;
@@ -102,7 +102,7 @@ public:
 	DataHandle wholeMap;
 	EntryMap m_changedEtries;
 
-	regVar(regClass* c, const std::string& n, DataHandle & v, bool s = 1);
+	regVar(regClass* c, const std::string& n, const DataHandle & v, bool s = 1);
 
 	virtual ~ regVar();
 
@@ -158,7 +158,7 @@ public:
     void resubscribe(const SessionID &sessionID);
     void subscribe(regClassObserver *obs, const SessionID &sessionID);
     VariableMap &getAllVariables();
-    std::shared_ptr<regVar> createVar(const std::string &name, DataHandle &value) override;
+    std::shared_ptr<regVar> createVar(const std::string &name, const DataHandle &value) override;
 };
 class VRBEXPORT clientRegVar : public regVar
 {

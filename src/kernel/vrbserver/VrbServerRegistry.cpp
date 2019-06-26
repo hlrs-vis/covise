@@ -23,7 +23,7 @@ VrbServerRegistry::VrbServerRegistry(SessionID &session)
 
 
 /// set a Value or create new Entry
-void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, DataHandle &value, bool s)
+void VrbServerRegistry::setVar(int ID, const std::string &className, const std::string &name, const DataHandle &value, bool s)
 {
 
     regClass *rc = getClass(className);
@@ -55,7 +55,7 @@ void VrbServerRegistry::setVar(int ID, const std::string &className, const std::
 }
 
 /// create new Entry
-void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, DataHandle &value, bool s)
+void VrbServerRegistry::create(int ID, const std::string &className, const std::string &name, const DataHandle &value, bool s)
 {
     regClass *rc = getClass(className);
     if (rc)
@@ -134,7 +134,7 @@ void VrbServerRegistry::observe(int sender)
     }
 }
 
-void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, DataHandle &value)
+void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, const DataHandle &value)
 {
     auto classIt = myClasses.find(className);
     if (classIt == myClasses.end()) //if class does not exists create it
@@ -274,7 +274,7 @@ void serverRegClass::observe(int recvID)
     observers.insert(recvID);
 }
 
-void serverRegClass::observeVar(int recvID, const std::string &variableName, DataHandle &value)
+void serverRegClass::observeVar(int recvID, const std::string &variableName, const DataHandle &value)
 {
     serverRegVar *rv = dynamic_cast<serverRegVar*>(getVar(variableName));
     if (!rv)
@@ -314,7 +314,7 @@ void serverRegClass::unObserve(int recvID)
     }
 }
 
-std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, DataHandle &value)
+std::shared_ptr<regVar> serverRegClass::createVar(const std::string &name, const DataHandle &value)
 {
     return std::shared_ptr<serverRegVar>(new serverRegVar(this, name, value));
 }

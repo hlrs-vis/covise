@@ -56,11 +56,11 @@ public:
 
     //! is called from the registryAcces when the registry entry got changed from the server
     void update(clientRegVar *theChangedRegEntry) override;
-    void setID(SessionID &id);
+    void setID(const SessionID &id);
     void setMute(bool m);
     bool getMute();
     ///resubscribe to the local registry and the vrb after sessionID has changed
-    void resubscribe(SessionID& id);
+    void resubscribe(const SessionID& id);
     //send value to local registry and vrb if syncInterval allows it
     void frame(double time);
     void setSyncInterval(float time);
@@ -70,8 +70,8 @@ public:
 protected:
     //convert tokenbuffer to datatype of the sharedState
     virtual void deserializeValue(const regVar *data) = 0;
-    void subscribe(DataHandle &val);
-    void setVar(DataHandle &val);
+    void subscribe(const DataHandle &val);
+    void setVar(const DataHandle &val);
     std::string m_className;
     std::string variableName;
     bool doSend = false;

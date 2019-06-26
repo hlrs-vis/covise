@@ -93,7 +93,7 @@ clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, co
     return rc;
 }
 
-clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, DataHandle &value, regVarObserver *ob)
+clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, const DataHandle &value, regVarObserver *ob)
 {
     // attach to the list
     if (var == "VRVMenue_testTest")

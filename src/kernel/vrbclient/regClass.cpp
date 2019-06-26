@@ -149,7 +149,7 @@ namespace vrb
 		}
 	}
 	////////////////////////////////REGVAR//////////////////////////
-	regVar::regVar(regClass* c, const std::string& n, DataHandle & v, bool s)
+	regVar::regVar(regClass* c, const std::string& n, const DataHandle & v, bool s)
 	{
 		myClass = c;
 		name = n;
@@ -343,7 +343,7 @@ clientRegClass::VariableMap &clientRegClass::getAllVariables()
     return myVariables;
 }
 
-std::shared_ptr<regVar> clientRegClass::createVar(const std::string &name, DataHandle &value)
+std::shared_ptr<regVar> clientRegClass::createVar(const std::string &name, const DataHandle &value)
 {
     return std::shared_ptr<clientRegVar>(new clientRegVar(this, name, value));
 }
