@@ -101,7 +101,8 @@ public:
         assert(m_registry);
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        subscribe(DataHandle(data));
+		DataHandle d(data)
+        subscribe(d);
     }
 
     SharedState<T> &operator=(T value)
@@ -132,7 +133,8 @@ public:
         valueChanged = false;
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        setVar(DataHandle(data));
+		DataHandle d(data)
+        setVar(d);
     }
 
     const T &value() const
@@ -175,7 +177,8 @@ public:
 		assert(m_registry);
 		covise::TokenBuffer data;
 		composeData(data);
-		subscribe(DataHandle(data));
+		DataHandle d(data)
+		subscribe(d);
 		setSyncInterval(0);
 	}
 
@@ -227,7 +230,8 @@ public:
 		valueChanged = false;
 		covise::TokenBuffer data;
 		composeData(data);
-		setVar(DataHandle(data));
+		DataHandle d(data)
+		setVar(d);
 	}
 
 	const T& value() const
@@ -270,7 +274,8 @@ public:
 		data << (int)ChangeType::ENTRY_CHANGE;
 		data << lastPos;
 		serialize(data, v);
-		setVar(DataHandle(data));
+		DataHandle d(data)
+		setVar(d);
 	}
 };
 }
