@@ -58,7 +58,7 @@ Initial revision
 
 using namespace covise;
 
-//#define TB_DEBUG // define to enable debugging
+#define TB_DEBUG // define to enable debugging
 #define TB_DEBUG_TAG // include whether debug mode is enabled in first byte of TokenBuffer, for interoperability with debug-enabled TokenBuffer's
 
 #define CHECK(size_type, error_ret)                                                                                       \
@@ -432,12 +432,11 @@ TokenBuffer &TokenBuffer::operator>>(TokenBuffer &tb)
 
     uint32_t l = 0;
     *this >> l;
-
     tb.data = new char[l];
     tb.length = l;
     tb.buflen = l;
     memcpy(tb.data, currdata, l);
-
+	currdata += l;
     tb.rewind();
 
     return *this;
@@ -627,7 +626,6 @@ TokenBuffer &TokenBuffer::operator>>(double &f)
         *i |= ((uint64_t)(*(unsigned char *)currdata)) << 56;
         currdata++;
     }
-    length += 8;
     return (*this);
 }
 
@@ -699,7 +697,6 @@ TokenBuffer &TokenBuffer::operator>>(float &f)
         *i |= (*(unsigned char *)currdata) << 24;
         currdata++;
     }
-    length += 4;
     return (*this);
 }
 
@@ -731,8 +728,6 @@ float TokenBuffer::get_float_token()
         i |= (*(unsigned char *)currdata) << 24;
         currdata++;
     }
-
-    length += 4;
     return (*((float *)(void *)&i));
 }
 
@@ -745,7 +740,16 @@ char *TokenBuffer::get_charp_token()
     currdata++;
     return (ret);
 }
-
+char* TokenBuffer::take_data()
+{
+	//assert(buflen != 0);
+	if (buflen = 0)
+	{
+		throw;
+	}
+	buflen = 0;
+	return data;
+}
 uint32_t TokenBuffer::get_int_token()
 {
     checktype(TbInt32);
@@ -774,8 +778,6 @@ uint32_t TokenBuffer::get_int_token()
         i |= (*(unsigned char *)currdata) << 24;
         currdata++;
     }
-
-    length += 4;
     return (i);
 }
 
@@ -815,8 +817,6 @@ TokenBuffer &TokenBuffer::operator>>(uint32_t &i)
         i |= (*(unsigned char *)currdata) << 24;
         currdata++;
     }
-
-    length += 4;
     return (*this);
 }
 

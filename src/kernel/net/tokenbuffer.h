@@ -162,11 +162,7 @@ public:
     {
         return (data);
     }
-	char* take_data()
-	{
-		buflen = 0;
-		return data;
-	}
+	char* take_data();
     void reset();
     void rewind();
 };
