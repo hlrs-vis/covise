@@ -214,7 +214,7 @@ public:
 			c >> pos;
 			if (type != 1 || pos != change->first)
 			{
-				cerr << "Shared Map " << variableName << " :changes in wrong format" << endl;
+				std::cerr << "Shared Map " << variableName << " :changes in wrong format" << std::endl;
 			}
 			deserialize(c, it->second);
 			++change;
