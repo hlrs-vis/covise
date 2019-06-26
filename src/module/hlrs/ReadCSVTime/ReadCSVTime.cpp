@@ -348,15 +348,15 @@ int ReadCSVTime::readASCIIData()
                     sscanf(time_str, "%d-%d-%dT%d:%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min,&tm.tm_sec);
                 }else if (dFormat == 1)
                 {
-                    strptime(time_str, "%d/%m/%Y %H:%M", &tm);
+                    //strptime(time_str, "%d/%m/%Y %H:%M", &tm);
                     sscanf(time_str, "%d/%d/%d %d:%d",&tm.tm_mday,&tm.tm_mon,&tm.tm_year,&tm.tm_hour,&tm.tm_min);
                 }else if (dFormat == 2)
                 {
-                    strptime(time_str, "%Y.%m.%dT%H:%M", &tm);
+                    //strptime(time_str, "%Y.%m.%dT%H:%M", &tm);
                     sscanf(time_str, "%d.%d.%dT%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min);
                 }else if (dFormat == 3)
                 {
-                   strptime(time_str, "%Y-%m-%d",&tm);
+                   //strptime(time_str, "%Y-%m-%d",&tm);
                    sscanf(time_str, "%d-%d-%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday);
                 }
                 time_t t = mktime(&tm);
