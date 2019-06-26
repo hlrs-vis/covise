@@ -113,8 +113,26 @@ void VrbMenue::init()
 	testBtn->setCallback([this]()
 		{
 			static int count = 0;
-			++count;
-			test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
+			static int loop = 0;
+			if (count < test.value().size())
+			{
+				++count;
+				test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
+			}
+			else if (count > 5)
+			{
+				count = 1;
+				++loop;
+				test.changeEntry(std::to_string(count), "new loop (" + std::to_string(loop) + ") at pos " + std::to_string(count));
+			}
+			else
+			{
+				++count;
+				std::map<std::string, std::string> m = test.value();
+				m[std::to_string(count)] = "new entry at " + std::to_string(count);
+				test = m;
+			}
+
 		});
 }
 void VrbMenue::updateState(bool state)

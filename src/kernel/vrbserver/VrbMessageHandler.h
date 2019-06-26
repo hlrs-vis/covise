@@ -48,9 +48,8 @@ class VRBSERVEREXPORT VrbMessageHandler
 public:
     VrbMessageHandler(ServerInterface *server);
     ///do stuff depening on message type
-    virtual void handleMessage(covise::Message *msg);
+    void handleMessage(covise::Message *msg);
     ///
-    virtual  
     ///inform clients about closing the socket
     void closeConnection();
     ///return numer of clients

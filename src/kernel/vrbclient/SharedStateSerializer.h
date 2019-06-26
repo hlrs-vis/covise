@@ -256,7 +256,7 @@ void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 		V val;
 		deserialize(tb, key);
 		deserialize(tb, val);
-		value.emplace(std::make_pair(fillMap(key), fillMap(val)));
+		value[key] = val;
 	}
 }
 

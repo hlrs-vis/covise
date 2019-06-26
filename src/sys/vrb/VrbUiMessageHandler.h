@@ -9,7 +9,10 @@
 #endif // !VRBUIMESAGEHANDLER_H
 
 #include <vrbserver/VrbMessageHandler.h>
-
+namespace vrb
+{
+	class DataHandle;
+}
 namespace covise
 {
 class Message;
@@ -18,7 +21,7 @@ class VrbUiMessageHandler : public vrb::VrbMessageHandler
 {
 public:
     using vrb::VrbMessageHandler::VrbMessageHandler;
-    void updateApplicationWindow(const char *cl, int sender, const char *var, covise::TokenBuffer &value) override;
+    void updateApplicationWindow(const char *cl, int sender, const char *var, vrb::DataHandle& value) override;
     void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var) override;
     void removeEntriesFromApplicationWindow(int sender) override;
     ///get the client corresponding to con and change its QSocketNotifier state; Return true if client exists

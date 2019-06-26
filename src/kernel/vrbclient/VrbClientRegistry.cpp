@@ -237,7 +237,6 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
     int senderID;
     std::string cl;
     std::string var;
-    covise::TokenBuffer val;
     clientRegClass *rc;
     clientRegVar *rv;
     tb >> senderID;
@@ -247,33 +246,35 @@ void VrbClientRegistry::update(TokenBuffer &tb, int reason)
     {
 
     case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_CHANGED:
+	{
 
+		DataHandle  valueData;
+		deserialize(tb, valueData);
 
-        tb >> val;
-
-        // call all class specific observers
-        rc = getClass(cl);
-        if (rc)
-        {
-            rc->setDeleted(false);
-            rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
-            if (rv)
-            {
-                //inform var observer if not receiving my own message
-                rv->setDeleted(false);
-                if (!(rv->getLastEditor() == clientID && senderID == clientID))
-                {
-                    rv->setLastEditor(senderID);
-                    rv->setValue(val);
-                    rv->notifyLocalObserver();
-                }
-            }
-            //inform class observer if not receiving my own message
-            if (!(rc->getLastEditor() == clientID && senderID == clientID))
-            {
-                rc->notifyLocalObserver();
-            }
-        }
+		// call all class specific observers
+		rc = getClass(cl);
+		if (rc)
+		{
+			rc->setDeleted(false);
+			rv = dynamic_cast<clientRegVar*>(rc->getVar(var));
+			if (rv)
+			{
+				//inform var observer if not receiving my own message
+				rv->setDeleted(false);
+				if (!(rv->getLastEditor() == clientID && senderID == clientID))
+				{
+					rv->setLastEditor(senderID);
+					rv->setValue(valueData);
+					rv->notifyLocalObserver();
+				}
+			}
+			//inform class observer if not receiving my own message
+			if (!(rc->getLastEditor() == clientID && senderID == clientID))
+			{
+				rc->notifyLocalObserver();
+			}
+		}
+	}
         break;
 
     case COVISE_MESSAGE_VRB_REGISTRY_ENTRY_DELETED:

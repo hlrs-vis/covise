@@ -79,8 +79,7 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     {
         return;
     }
-    covise::TokenBuffer tb(theChangedVar->getValue().data(), theChangedVar->getValue().length());
-    deserializeValue(tb);
+    deserializeValue(theChangedVar);
     valueChanged = true;
     if (updateCallback != nullptr)
     {

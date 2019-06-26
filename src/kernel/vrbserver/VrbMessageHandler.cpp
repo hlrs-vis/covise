@@ -12,6 +12,7 @@
 
 #include <vrbclient/SessionID.h>
 #include <vrbclient/SharedStateSerializer.h>
+#include <vrbclient/dataHandle.h>
 
 #include <util/coTabletUIMessages.h>
 #include <util/unixcompat.h>
@@ -57,12 +58,11 @@ void VrbMessageHandler::handleMessage(Message *msg)
     char *Class;
     vrb::SessionID sessionID;
     int senderID;
-    int modeID; // =senderID for looseCoupling, =0 for observe all, else =-1  
     char *variable;
     char *value;
     int fd;
     TokenBuffer tb(msg);
-	DataHandle  valueData;
+
 
     switch (msg->type)
     {
@@ -234,7 +234,9 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
+		DataHandle  valueData;
 		deserialize(tb, valueData);
+
 
         sessions[sessionID]->setVar(senderID, Class, variable, valueData); //maybe handle no existing registry for the given session ID
 
@@ -262,7 +264,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        deserialize(tb, valueData);
+		DataHandle  valueData;
+		deserialize(tb, valueData);
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
@@ -309,7 +312,8 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        deserialize(tb, valueData);
+		DataHandle  valueData;
+		deserialize(tb, valueData);
         tb >> isStatic;
         createSessionIfnotExists(sessionID, senderID)->create(senderID, Class, variable, valueData, isStatic);
         updateApplicationWindow(Class, senderID, variable, valueData);

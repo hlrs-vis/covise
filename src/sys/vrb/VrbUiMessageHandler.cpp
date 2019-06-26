@@ -9,6 +9,7 @@
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
 #include <vrbclient/SharedStateSerializer.h>
+#include <vrbclient/dataHandle.h>
 #include <vrbclient/SessionID.h>
 #include "VRBServer.h"
 #include "VrbUiClientList.h"
@@ -21,18 +22,23 @@
 
 using namespace covise;
 
-void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, covise::TokenBuffer & value)
+void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, vrb::DataHandle& value)
 {
-    char * val;
-    if (strcmp(cl, "SharedState") != 0)
+    char * charVal;
+	TokenBuffer tb(value.data(), value.length());
+    if (strcmp(cl, "SharedState") == 0)
     {
-        value >> val;
-       appwin->registry->updateEntry(cl, sender, var, val);
+		appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(tb)).c_str());
     }
+	else if (strcmp(cl, "SharedMap") == 0)
+	{
+		std::string t("SharedMap");
+		appwin->registry->updateEntry(cl, sender, var, t.c_str());
+	}
     else
     {
-        value.rewind();
-        appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(value)).c_str());
+		tb >> charVal;
+		appwin->registry->updateEntry(cl, sender, var, charVal);
     }
 }
 

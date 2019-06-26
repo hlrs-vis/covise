@@ -25,13 +25,11 @@ make sure the variable name is unique for each SharedState e.g. by naming the va
 #include "regClass.h"
 #include "SharedStateSerializer.h"
 #include "SessionID.h"
-
+#include "regClass.h"
 
 
 namespace vrb
 {
-
-class clientRegVar;
 
 enum SharedStateType
 {
@@ -71,7 +69,7 @@ public:
     void becomeMaster();
 protected:
     //convert tokenbuffer to datatype of the sharedState
-    virtual void deserializeValue(covise::TokenBuffer &data) = 0;
+    virtual void deserializeValue(const regVar *data) = 0;
     void subscribe(DataHandle &val);
     void setVar(DataHandle &val);
     std::string m_className;
@@ -103,7 +101,7 @@ public:
         assert(m_registry);
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        subscribe(std::move(data));
+        subscribe(DataHandle(data));
     }
 
     SharedState<T> &operator=(T value)
@@ -121,10 +119,11 @@ public:
         return m_value;
     }
 
-    void deserializeValue(covise::TokenBuffer &data) override
+    void deserializeValue(const regVar *data) override
     {
 		m_oldValue = m_value;
-		deserializeWithType(data, m_value);
+		covise::TokenBuffer d(data->getValue().data(), data->getValue().length());
+		deserializeWithType(d, m_value);
     }
 
     //! sends the value change to the vrb
@@ -133,7 +132,7 @@ public:
         valueChanged = false;
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        setVar(std::move(data));
+        setVar(DataHandle(data));
     }
 
     const T &value() const
@@ -160,6 +159,14 @@ private:
 	T m_value; ///the value of the SharedState
 	T m_oldValue; ///the value the SharedState had before the last change
 	int  lastPos = -1; ///hint to find the changed 
+
+	void composeData(covise::TokenBuffer &data) {
+		covise::TokenBuffer serializedMap;
+		serialize(serializedMap, m_value);
+		data << (int)WHOLE;
+		data << serializedMap;
+		serialize(data, std::map<int, DataHandle>());//we do not send changes since the Shared Map holds the complete value
+	}
 public:
 	SharedMap(std::string name, T value = T(), SharedStateType mode = USE_COUPLING_MODE)
 		: SharedStateBase(name, mode, "SharedMap")
@@ -167,9 +174,8 @@ public:
 	{
 		assert(m_registry);
 		covise::TokenBuffer data;
-		data << (int) WHOLE;
-		serializeWithType(data, m_value);
-		subscribe(std::move(data));
+		composeData(data);
+		subscribe(DataHandle(data));
 		setSyncInterval(0);
 	}
 
@@ -188,52 +194,30 @@ public:
 		return m_value;
 	}
 
-	void deserializeValue(covise::TokenBuffer& data) override
+	void deserializeValue(const regVar* data) override
 	{
-		covise::TokenBuffer mapInfo;
-		data >> mapInfo;
-		int type;
-		mapInfo >> type;
-		switch (type)
+		covise::TokenBuffer serializedMap(data->wholeMap.data(), data->wholeMap.length());
+		deserialize(serializedMap, m_value);
+		auto change = data->m_changedEtries.begin();
+		while (change != data->m_changedEtries.end())
 		{
-		case WHOLE:
-		{
-			deserialize(mapInfo, m_value);
-			std::map<int, covise::TokenBuffer> changes;
-			//deserialize(mapInfo, changes);
-			auto change = changes.begin();
-			while (change != changes.end())
-			{
-				auto it = m_value.begin();
-				if (change->first > m_value.size())
-				{
-					std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
-					return;
-				}
-				std::advance(it, change->first);
-				deserialize(change->second, it->second);
-				++change;
-			}
-		}
-			break;
-		case ENTRY_CHANGE:
-		{
-			int pos;
-			Val v;
-			data >> pos;
-			if (pos > m_value.size())
+			if (change->first > m_value.size())
 			{
 				std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
 				return;
 			}
-			deserialize(data, v);
 			auto it = m_value.begin();
-			std::advance(it, pos);
-			it->second = v;
-		}
-			break;
-		default:
-			break;
+			std::advance(it, change->first);
+			covise::TokenBuffer c(change->second.data(), change->second.length());
+			int type, pos;
+			c >> type; 
+			c >> pos;
+			if (type != 1 || pos != change->first)
+			{
+				cerr << "Shared Map " << variableName << " :changes in wrong format" << endl;
+			}
+			deserialize(c, it->second);
+			++change;
 		}
 	}
 
@@ -242,9 +226,8 @@ public:
 	{
 		valueChanged = false;
 		covise::TokenBuffer data;
-		data << ChangeType::WHOLE;
-		serialize(data, m_value);
-		setVar(std::move(data));
+		composeData(data);
+		setVar(DataHandle(data));
 	}
 
 	const T& value() const
@@ -287,7 +270,7 @@ public:
 		data << (int)ChangeType::ENTRY_CHANGE;
 		data << lastPos;
 		serialize(data, v);
-		setVar(std::move(data));
+		setVar(DataHandle(data));
 	}
 };
 }

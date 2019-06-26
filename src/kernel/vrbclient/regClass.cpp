@@ -129,22 +129,23 @@ namespace vrb
 	};
 	void regVar::sendValueChange(covise::TokenBuffer& tb)
 	{
-		tb.addBinary(value.data(), value.length());
+		serialize(tb, value);
 	}
 	void regVar::sendValue(covise::TokenBuffer& tb)
 	{
 
 		if (myClass->getName() == "SharedMap")
 		{
-			tb.addBinary(wholeMap.data(), wholeMap.length());
-			for (auto change : m_changedEtries)
-			{
-				tb.addBinary(change.second.data(), change.second.length());
-			}
+			covise::TokenBuffer v;
+			covise::TokenBuffer serializedMap(wholeMap.data(), wholeMap.length());
+			v << (int)vrb::WHOLE;
+			v << serializedMap;
+			serialize(v, m_changedEtries);
+			tb << v;
 		}
 		else
 		{
-			sendValue(tb);
+			sendValueChange(tb);
 		}
 	}
 	////////////////////////////////REGVAR//////////////////////////
@@ -155,12 +156,28 @@ namespace vrb
 		staticVar = s;
 		setValue(v);
 		isDel = false;
+
+		//std::string t("test string");
+		//covise::TokenBuffer tb1;
+		//tb1 << t;
+		//DataHandle dh(tb1);
+		//covise::TokenBuffer tb2(dh.data(), dh.length());
+		//t = "";
+		//tb2 >> t;
+		//covise::TokenBuffer tb3;
+		//serialize(tb3, dh);
+		//tb3.rewind();
+		//deserialize(tb3, dh);
+		//t = "";
+		//covise::TokenBuffer tb4(dh.data(), dh.length());
+		//tb4 >> t;
+		
 	}
 	regVar::~regVar()
 	{
 	}
 	/// returns the value
-	DataHandle& regVar::getValue()
+	const DataHandle& regVar::getValue() const
 	{
 		return value;
 	};
@@ -181,12 +198,18 @@ namespace vrb
 			switch ((ChangeType)type)
 			{
 			case vrb::WHOLE:
-				wholeMap = v;
+			{
+				covise::TokenBuffer m;
+				tb >> m;
+				wholeMap = DataHandle(m);
 				m_changedEtries.clear();
+				deserialize(tb, m_changedEtries); //should be empty after complete map was send
 				break;
+			}
 			case vrb::ENTRY_CHANGE:
 			{
 				tb >> pos;
+				DataHandle change;
 				m_changedEtries[pos] = v;
 
 			}

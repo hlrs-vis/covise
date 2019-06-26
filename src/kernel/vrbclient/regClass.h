@@ -83,10 +83,8 @@ protected:
 class VRBEXPORT regVar
 {
 protected:
-    DataHandle value, wholeMap;
-	//for SahredMaps
-	typedef std::map<int, DataHandle> EntryMap;
-	EntryMap m_changedEtries;
+
+
     std::string name;
     regClass *myClass;
     bool staticVar;
@@ -95,14 +93,21 @@ protected:
 	void sendValueChange(covise::TokenBuffer& tb);
 	///writes value to tb, in case of SahredMap also writes all changes
 	void sendValue(covise::TokenBuffer& tb);
+
+	DataHandle value;
+
 public:
+	//for SahredMaps
+	typedef std::map<int, DataHandle> EntryMap;
+	DataHandle wholeMap;
+	EntryMap m_changedEtries;
 
 	regVar(regClass* c, const std::string& n, DataHandle & v, bool s = 1);
 
 	virtual ~ regVar();
 
 	/// returns the value
-	DataHandle& getValue();
+	const DataHandle& getValue() const;
 
     /// returns the class of this variable
 	regClass* getClass();
