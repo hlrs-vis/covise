@@ -33,7 +33,6 @@
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoPoints.h>
 
-
 // remove  path from filename
 inline const char *coBasename(const char *str)
 {
@@ -309,7 +308,6 @@ int ReadCSVTime::readASCIIData()
         std::vector<int> timeIntIdx;
         std::vector<int> NumOfVal;
         char time_str[50];
-        //char *time_str;
         struct tm tm={};
         time_t last_t = 0;
 
@@ -346,16 +344,20 @@ int ReadCSVTime::readASCIIData()
             {
                 if (dFormat == 0)
                 {
-                    strptime(time_str, "%Y-%m-%dT%H:%M:%S", &tm);
+                    //strptime(time_str, "%Y-%m-%dT%H:%M:%S", &tm);
+                    sscanf(time_str, "%d-%d-%dT%d:%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min,&tm.tm_sec);
                 }else if (dFormat == 1)
                 {
                     strptime(time_str, "%d/%m/%Y %H:%M", &tm);
+                    sscanf(time_str, "%d/%d/%d %d:%d",&tm.tm_mday,&tm.tm_mon,&tm.tm_year,&tm.tm_hour,&tm.tm_min);
                 }else if (dFormat == 2)
                 {
                     strptime(time_str, "%Y.%m.%dT%H:%M", &tm);
+                    sscanf(time_str, "%d.%d.%dT%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min);
                 }else if (dFormat == 3)
                 {
                    strptime(time_str, "%Y-%m-%d",&tm);
+                   sscanf(time_str, "%d-%d-%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday);
                 }
                 time_t t = mktime(&tm);
                 //printf("TIME: %s\n", ctime(&t));
