@@ -101,7 +101,7 @@ public:
         assert(m_registry);
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-		DataHandle d(data)
+		DataHandle d(data);
         subscribe(d);
     }
 
@@ -133,7 +133,7 @@ public:
         valueChanged = false;
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-		DataHandle d(data)
+		DataHandle d(data);
         setVar(d);
     }
 
@@ -177,7 +177,7 @@ public:
 		assert(m_registry);
 		covise::TokenBuffer data;
 		composeData(data);
-		DataHandle d(data)
+		DataHandle d(data);
 		subscribe(d);
 		setSyncInterval(0);
 	}
@@ -230,7 +230,7 @@ public:
 		valueChanged = false;
 		covise::TokenBuffer data;
 		composeData(data);
-		DataHandle d(data)
+		DataHandle d(data);
 		setVar(d);
 	}
 
@@ -274,7 +274,7 @@ public:
 		data << (int)ChangeType::ENTRY_CHANGE;
 		data << lastPos;
 		serialize(data, v);
-		DataHandle d(data)
+		DataHandle d(data);
 		setVar(d);
 	}
 };
