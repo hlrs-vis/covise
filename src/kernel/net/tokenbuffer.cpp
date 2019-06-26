@@ -742,13 +742,12 @@ char *TokenBuffer::get_charp_token()
 }
 char* TokenBuffer::take_data()
 {
-	//assert(buflen != 0);
-	if (buflen = 0)
-	{
-		throw;
-	}
-	buflen = 0;
-	return data;
+	assert(buflen != 0);
+
+	char* d = data;
+	buflen = length = 0;
+	data = currdata = nullptr;
+	return d;
 }
 uint32_t TokenBuffer::get_int_token()
 {

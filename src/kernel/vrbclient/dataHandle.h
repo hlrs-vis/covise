@@ -7,15 +7,10 @@
 
 #ifndef DATA_HANDLE_H
 #define DATA_HANDLE_H
-#include <set>
-#include <functional>
+#include <memory>
 #include "SharedStateSerializer.h"
 #include <util/coExport.h>
-namespace covise
-{
-	class TokenBuffer;
-	class MessageBase;
-}
+
 
 namespace vrb
 {
@@ -24,25 +19,17 @@ class VRBEXPORT DataHandle
 {
 public:
 	DataHandle();
-	DataHandle(char* data, int length);
-	//takes conrol over the TokenBuffer data if tb owns its data
-	DataHandle(covise::TokenBuffer &tb);
-	DataHandle(covise::MessageBase& m);
-	~DataHandle();
+	DataHandle(char* data, const int length);
 
 	const char* data() const;
 	const int length() const;
-	DataHandle& operator=(const DataHandle& other);
-	//copies the data of tb
-	void copyTokenBuffer(const covise::TokenBuffer& tb);
-private:
-	const char* m_data;
-	int m_length;
-	bool m_ownsData;
-	mutable std::set<const DataHandle*> m_others;
 
-	void deleteMe(void);
+private:
+
+	std::shared_ptr<char> m_data;
+	int m_length;
 };
+
 template<>
 void VRBEXPORT serialize<DataHandle>(covise::TokenBuffer& tb, const DataHandle& value);
 

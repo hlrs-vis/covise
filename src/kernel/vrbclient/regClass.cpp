@@ -201,7 +201,7 @@ namespace vrb
 			{
 				covise::TokenBuffer m;
 				tb >> m;
-				wholeMap = DataHandle(m);
+				wholeMap = DataHandle(m.take_data(), m.get_length());
 				m_changedEtries.clear();
 				deserialize(tb, m_changedEtries); //should be empty after complete map was send
 				break;
