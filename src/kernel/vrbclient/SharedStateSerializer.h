@@ -234,14 +234,6 @@ void deserialize(covise::TokenBuffer &tb, std::set<T> &value)
     }
 }
 
-template <class V>
-V& fillMap(V& v)
-{
-	return v;
-}
-template<>
-covise::TokenBuffer& fillMap<covise::TokenBuffer>(covise::TokenBuffer& v);
-
 template <class K, class V>
 void deserialize(covise::TokenBuffer& tb, std::map<K, V>& value)
 {
