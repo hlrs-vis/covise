@@ -27,10 +27,18 @@
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
 #include <cover/ui/Label.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
 
 #include <osg/Group>
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
+#include <osg/AnimationPath>
+#include <osg/PositionAttitudeTransform> 
+#include <osg/Material>
 
 #include <Blood.h>
+#include "globalConstants.h"
 
 using namespace opencover;
 

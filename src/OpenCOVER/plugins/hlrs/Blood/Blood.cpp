@@ -11,22 +11,23 @@
  ** Description: Hello OpenCOVER Plugin (is polite)                          **
  **                                                                          **
  **                                                                          **
- ** Author: U.Woessner		                                                  **
+ ** Author: U.Woessner		                                             **
  **                                                                          **
- ** History:  								                                         **
- ** June 2008  v1	    				       		                                **
+ ** History:  								     **
+ ** June 2008  v1	    				       		     **
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
 
 #include "Blood.h"
 #include "BloodPlugin.h"
+#include "droplet.h"
 #include <cover/coVRPluginSupport.h>
 using namespace opencover;
-Blood::Blood()
-{
-    sphere = new coSphere();
 
+Blood::Blood() {
+cerr << "Hello Blood" << endl;
+    sphere = new coSphere();
     a.set(0, 0, -9.81);
 
     sphere->setMaxRadius(100);
@@ -36,13 +37,11 @@ Blood::Blood()
 }
 
 // this is called if the plugin is removed at runtime
-Blood::~Blood()
-{
+Blood::~Blood() {
     BloodPlugin::instance()->bloodNode->removeChild(sphere);
 }
 
-void Blood::integrate(float dt, osg::Vec3 vObj)
-{
+void Blood::integrate(float dt, osg::Vec3 vObj) {
     for (int i = 0; i < drops.size(); i++)
     {
         Drop *drop = &drops[i];
