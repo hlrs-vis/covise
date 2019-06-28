@@ -8,7 +8,7 @@
 			<Server value="vistidy.hlrs.de" tcpPort="31251" udpPort="31253" />
 			<RemoteFetch value="on" />
 		</VRB>
-   <System/>
+   </System>
    
   <COVER>
    <MultiPC>
