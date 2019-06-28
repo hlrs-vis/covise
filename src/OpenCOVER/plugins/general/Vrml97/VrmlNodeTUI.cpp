@@ -707,7 +707,7 @@ void VrmlNodeTUIToggleButton::render(Viewer *viewer)
 			std::string sName = d_parent.get();
 			sName = sName + ".";
 			sName = sName + d_elementName.get();
-			sharedState = new vrb::SharedState<bool>(sName, d_state.get());
+			sharedState.reset(new vrb::SharedState<bool>(sName, d_state.get()));
 			sharedState->setUpdateFunction([this]() {
 				if (d_shared.get())
 				{
@@ -1042,10 +1042,6 @@ VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
 
 VrmlNodeTUIFloatSlider::~VrmlNodeTUIFloatSlider()
 {
-	if (sharedState)
-	{
-		delete sharedState;
-	}
 }
 
 void VrmlNodeTUIFloatSlider::tabletEvent(coTUIElement *)
@@ -1107,7 +1103,7 @@ void VrmlNodeTUIFloatSlider::render(Viewer *viewer)
 				std::string sName = d_parent.get();
 				sName = sName + ".";
 				sName = sName + d_elementName.get();
-				sharedState = new vrb::SharedState<float>(sName, d_value.get());
+				sharedState.reset(new vrb::SharedState<float>(sName, d_value.get()));
 				sharedState->setUpdateFunction([this]() {
 					if (d_shared.get())
 					{
@@ -1516,7 +1512,7 @@ void VrmlNodeTUIComboBox::render(Viewer *viewer)
 				std::string sName = d_parent.get();
 				sName = sName + ".";
 				sName = sName + d_elementName.get();
-				sharedState = new vrb::SharedState<int>(sName, d_choice.get());
+				sharedState.reset(new vrb::SharedState<int>(sName, d_choice.get()));
 				sharedState->setUpdateFunction([this]() {
 					if (d_shared.get())
 					{
@@ -1667,7 +1663,7 @@ void VrmlNodeTUIListBox::render(Viewer *viewer)
 				std::string sName = d_parent.get();
 				sName = sName + ".";
 				sName = sName + d_elementName.get();
-				sharedState = new vrb::SharedState<int>(sName, d_choice.get());
+				sharedState.reset(new vrb::SharedState<int>(sName, d_choice.get()));
 				sharedState->setUpdateFunction([this]() {
 					if (d_shared.get())
 					{

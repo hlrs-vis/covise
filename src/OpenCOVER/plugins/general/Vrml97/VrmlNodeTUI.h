@@ -31,6 +31,8 @@
 #include <cover/coTabletUI.h>
 #include <vrbclient/SharedState.h>
 
+#include <memory>
+
 namespace vrml
 {
 class VrmlScene;
@@ -183,7 +185,7 @@ public:
 private:
     VrmlSFBool d_state;
     VrmlSFInt d_choice;
-	vrb::SharedState<bool>* sharedState=nullptr;
+    std::unique_ptr<vrb::SharedState<bool>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIFrame : public VrmlNodeTUIElement
@@ -282,7 +284,7 @@ private:
     VrmlSFFloat d_max;
     VrmlSFFloat d_value;
     VrmlSFString d_orientation;
-	vrb::SharedState<float>* sharedState = nullptr;
+    std::unique_ptr<vrb::SharedState<float>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIComboBox : public VrmlNodeTUIElement
@@ -307,7 +309,7 @@ private:
     VrmlSFBool d_withNone;
     VrmlSFInt d_defaultChoice;
     VrmlSFInt d_choice;
-	vrb::SharedState<int>* sharedState = nullptr;
+    std::unique_ptr<vrb::SharedState<int>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIListBox : public VrmlNodeTUIElement
@@ -332,7 +334,7 @@ private:
     VrmlSFBool d_withNone;
     VrmlSFInt d_defaultChoice;
     VrmlSFInt d_choice;
-	vrb::SharedState<int>* sharedState = nullptr;
+    std::unique_ptr<vrb::SharedState<int>> sharedState;
 };
 
 class VRML97COVEREXPORT VrmlNodeTUIMap : public VrmlNodeTUIElement
