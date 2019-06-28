@@ -1214,7 +1214,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isT
 		convertBackslash(path);
 		filePlace = LOCAL;
 	}
-	else if (fileExist(path = fs::current_path().string() + filePath))//find file in working dir
+	else if (fileExist(path = fs::current_path().string() + filePath) || fileExist(path = fs::current_path().string() + "/" + filePath))//find file in working dir
 	{
 		filePlace = WORK;
 	}
