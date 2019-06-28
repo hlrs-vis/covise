@@ -107,7 +107,6 @@ namespace vrb
 	///reads the name and value out of stream, return false if class has no variable
 	void regClass::readVar(std::ifstream& file)
 	{
-
 		while (true)
 		{
 			std::string varName = "invalid";
@@ -118,12 +117,42 @@ namespace vrb
 				return;
 			}
 			varName.pop_back();
+			if (name == sharedMapName)
+			{
+				//nur fertiges datahandle übergeben
+				covise::TokenBuffer outerTb;
+				outerTb << WHOLE;
+				//read serialized map data
+				file >> valueSize;
+				char* value = new char[valueSize];
+				file.read(value, valueSize);
+				covise::TokenBuffer innerTb(value, valueSize);
+				outerTb << innerTb;
+				//read changes of map
+				file >> valueSize;
+				std::map<int, DataHandle> changes;
+				for (size_t i = 0; i < valueSize; i++)
+				{
+					int pos, size;
+					file >> pos;
+					file >> size;
+					char* v = new char[size];
+					file.read(v, size);
+					changes[pos] = DataHandle(v, size);
+				}
+				serialize(outerTb, changes);
+				myVariables[varName] = createVar(varName, DataHandle(outerTb.take_data(), outerTb.get_length()));
+				delete[] value;
+			}
+			else
+			{
 			file >> valueSize;
 			char* value = new char[valueSize];
 			file.read(value, valueSize);
 			DataHandle valueData(value, valueSize);
 			myVariables[varName] = createVar(varName, valueData);
-			delete[] value; //createVar did copy the tokenbuffer
+			}
+
 		}
 
 	};
@@ -134,7 +163,7 @@ namespace vrb
 	void regVar::sendValue(covise::TokenBuffer& tb)
 	{
 
-		if (myClass->getName() == "SharedMap")
+		if (myClass->getName() == sharedMapName)
 		{
 			covise::TokenBuffer v;
 			covise::TokenBuffer serializedMap(wholeMap.data(), wholeMap.length());
@@ -190,7 +219,7 @@ namespace vrb
 	void regVar::setValue(const DataHandle& v)
 	{
 		value = v;
-		if (myClass->getName() == "SharedMap")
+		if (myClass->getName() == sharedMapName)
 		{
 			covise::TokenBuffer  tb(v.data(), v.length());
 			int type, pos;
@@ -203,7 +232,7 @@ namespace vrb
 				tb >> m;
 				wholeMap = DataHandle(m.take_data(), m.get_length());
 				m_changedEtries.clear();
-				deserialize(tb, m_changedEtries); //should be empty after complete map was send
+				deserialize(tb, m_changedEtries); //should be empty after complete map was send from ckient, may be filled after session was loaded from file
 				break;
 			}
 			case vrb::ENTRY_CHANGE:
@@ -242,9 +271,25 @@ namespace vrb
 	void regVar::writeVar(std::ofstream& file)
 	{
 		file << "    " << name << "; ";
-		int length = value.length();
-		file << length;
-		file.write(value.data(), value.length());
+		if (myClass->getName() == sharedMapName)
+		{
+			file << wholeMap.length();
+			file.write(wholeMap.data(), wholeMap.length());
+			file << (int)m_changedEtries.size();
+			for (auto change : m_changedEtries)
+			{
+				file << change.first;
+				file << change.second.length();
+				file.write(change.second.data(), change.second.length());
+			}
+		}
+		else
+		{
+
+			int length = value.length();
+			file << length;
+			file.write(value.data(), value.length());
+		}
 	}
 	
 	

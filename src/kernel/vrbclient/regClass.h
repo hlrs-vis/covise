@@ -79,7 +79,7 @@ protected:
     VariableMap myVariables;
 };
 
-
+const std::string sharedMapName = "SharedMap";
 class VRBEXPORT regVar
 {
 protected:
