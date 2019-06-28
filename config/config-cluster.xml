@@ -3,6 +3,13 @@
 
 <COCONFIG version="1" >
  <GLOBAL>
+   <System>
+		<VRB>
+			<Server value="vistidy.hlrs.de" tcpPort="31251" udpPort="31253" />
+			<RemoteFetch value="on" />
+		</VRB>
+   <System/>
+   
   <COVER>
    <MultiPC>
     <SyncMode value="TCP" hosts="localhost,localhost" />
