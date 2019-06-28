@@ -4,7 +4,7 @@
 #
 # @author Blasius Czink
 
-
+USING(Surface)
 IF(NOT WIN32)
   RETURN()
 ENDIF(WIN32)
