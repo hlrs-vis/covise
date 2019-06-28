@@ -153,11 +153,6 @@
 
   <System>
 
-
-   <VRB>
-    <Server value="vistidy" tcpPort="31201" />
-   </VRB>
-
    <HostConfig>
     <Host timeout="300" memory="shm" method="ssh" name="visent.hlrs.de" hostname="visent.hlrs.de" />
     <Host timeout="300" memory="shm" method="ssh" name="visent" hostname="visent" />  

@@ -1042,6 +1042,10 @@ VrmlNodeTUIFloatSlider::VrmlNodeTUIFloatSlider(VrmlScene *scene)
 
 VrmlNodeTUIFloatSlider::~VrmlNodeTUIFloatSlider()
 {
+	if (sharedState)
+	{
+		delete sharedState;
+	}
 }
 
 void VrmlNodeTUIFloatSlider::tabletEvent(coTUIElement *)
