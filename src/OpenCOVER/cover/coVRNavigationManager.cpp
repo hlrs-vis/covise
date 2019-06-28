@@ -825,7 +825,7 @@ coVRNavigationManager::update()
 
     //fprintf(stderr, "coVRNavigationManager: doMouseNav=%d, mouseFlag=%d, navMode=%d, handLocked=%d\n", (int)doMouseNav, (int)mouseFlag, (int)navMode, (int)handLocked);
 
-    if (interactionA->wasStarted())
+    if (interactionA->wasStarted() && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) || coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM)))
     {
         switch (navMode)
         {
@@ -875,7 +875,7 @@ coVRNavigationManager::update()
         startXform();
     }
 
-    if (interactionA->isRunning())
+    if (interactionA->isRunning() && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) || coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM)))
     {
         switch (navMode)
         {
