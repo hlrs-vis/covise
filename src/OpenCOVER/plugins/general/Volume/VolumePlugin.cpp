@@ -71,7 +71,7 @@ using namespace vrui;
 namespace vrb
 {
 	template <>
-	vrb::SharedStateDataType vrb::getSharedStateType < vvTransFunc >(const vvTransFunc& type) {
+	SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type) {
 		return TRANSFERFUCTION;
 	}
 }

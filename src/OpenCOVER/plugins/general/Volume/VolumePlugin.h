@@ -47,7 +47,7 @@ using namespace vrb;
 namespace vrb {
 
 	template <>
-	vrb::SharedStateDataType vrb::getSharedStateType < vvTransFunc >(const vvTransFunc& type);
+    SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type);
 
 	covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
 	covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
