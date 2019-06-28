@@ -205,11 +205,6 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     TokenBuffer tb;
     tb << id;
     tb << me->getID();
-
-	for (int i = 0; i < NUM_LOCKS; i++)
-	{
-		RILockArray[i] = -1;
-	}
     sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
 }
 
@@ -447,10 +442,6 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     {
         bool showAvatar;
         tb >> showAvatar;
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         if (showAvatar)
         {
             coVRPartnerList::instance()->showAvatars();
@@ -463,20 +454,12 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
         break;
     case vrb::MASTER:
     {
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         coVRPartnerList::instance()->setMaster(me->getID());
         coVRCollaboration::instance()->updateSharedStates();
     }
         break;
     case vrb::SLAVE:
     {
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         coVRPartnerList::instance()->setMaster(-1); //nobody is master here?
         coVRCollaboration::instance()->updateSharedStates();
     }
