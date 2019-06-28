@@ -217,7 +217,7 @@ void coVRCommunication::RILock(int lockID)
 {
     int myID = getID();
     //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if (RILockArray[lockID] < myID)
+    if (RILockArray[lockID] == -1)
     {
         covise::TokenBuffer tb;
         tb << vrb::LOCK;
@@ -250,7 +250,7 @@ void coVRCommunication::RIUnLock(int lockID)
 
 void coVRCommunication::RIRemoteLock(int lockID, int remoteID)
 {
-    if (RILockArray[lockID] < remoteID)
+    if (RILockArray[lockID] > 0)
     {
         RILockArray[lockID] = remoteID;
         cerr << "REMOTE_LOCK ID: " << lockID << " remoteID:" << remoteID << endl;
@@ -268,25 +268,15 @@ void coVRCommunication::RIRemoteUnLock(int lockID, int remoteID)
 
 bool coVRCommunication::isRILocked(int lockID)
 {
-    int myID = me->getID();
-    if (myID < 0)
-    {
-        myID = randomID;
-    }
-    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] != myID))
+    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] != getID()))
         return true;
     return false;
 }
 
 bool coVRCommunication::isRILockedByMe(int lockID)
 {
-    int myID = me->getID();
-    if (myID < 0)
-    {
-        myID = randomID;
-    }
     //cerr << "tryIsLOCKedByMe ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] == myID))
+    if (RILockArray[lockID] == getID())
         return true;
     return false;
 }
@@ -678,6 +668,10 @@ void coVRCommunication::handleVRB(Message *msg)
         if (id != me->getID())
         {
              coVRPartnerList::instance()->deletePartner(id);
+			 for (size_t i = 0; i < NUM_LOCKS; i++)
+			 {
+				 RIRemoteUnLock(i, id);
+			 }
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);

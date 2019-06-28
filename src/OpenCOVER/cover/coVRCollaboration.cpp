@@ -279,12 +279,11 @@ bool coVRCollaboration::update()
         }
 
         if ((coVRCommunication::instance()->collaborative())
-            && (syncMode != LooseCoupling)
-            && ((syncMode != MasterSlaveCoupling) || (isMaster())))
+            && (syncMode == TightCoupling || (syncMode == MasterSlaveCoupling) && isMaster()))
         {
             if (!(coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
                 && !(coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
-                && (syncXform == 1))
+                && (syncXform == true))
             {
                 coVRCommunication::instance()->RILock(coVRCommunication::TRANSFORM);
             }
