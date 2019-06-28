@@ -217,7 +217,7 @@ void coVRCommunication::RILock(int lockID)
 {
     int myID = getID();
     //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if (RILockArray[lockID] == -1)
+    if (RILockArray[lockID] <= 0)
     {
         covise::TokenBuffer tb;
         tb << vrb::LOCK;
@@ -250,7 +250,7 @@ void coVRCommunication::RIUnLock(int lockID)
 
 void coVRCommunication::RIRemoteLock(int lockID, int remoteID)
 {
-    if (RILockArray[lockID] > 0)
+    if (RILockArray[lockID] <= 0)
     {
         RILockArray[lockID] = remoteID;
         cerr << "REMOTE_LOCK ID: " << lockID << " remoteID:" << remoteID << endl;
