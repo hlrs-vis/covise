@@ -62,7 +62,8 @@ enum SharedStateDataType
     VECTOR, //6
     SET,    //7
 	MAP,	//8
-	PAIR	//9
+	PAIR,	//9
+	TRANSFERFUCTION	//10
 };
 //how a sharedMap has changed
 enum ChangeType

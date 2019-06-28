@@ -39,6 +39,36 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <vrbclient/SharedState.h>
+#include <vrbclient/SharedStateSerializer.h>
+
+using namespace vrb;
+
+namespace vrb {
+
+	template <>
+	vrb::SharedStateDataType vrb::getSharedStateType < vvTransFunc >(const vvTransFunc& type);
+
+	covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
+	covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
+	/*
+	template <>
+	void serialize(covise::TokenBuffer& tb, const vvTransFunc& value)
+	{
+		//tb << getSharedStateType(value.first);
+		//tb << getSharedStateType(value.second);
+		//serialize(tb, value.first);
+		//serialize(tb, value.second);
+	}
+	template<class T>
+	void deserialize(covise::TokenBuffer& tb, vvTransFunc& value)
+	{
+		//tb >> value;
+	}
+	*/
+
+}
+
 namespace covise
 {
 class coDoGeometry;
@@ -108,6 +138,8 @@ public:
     bool updateVolume(const std::string &name, vvVolDesc *vd, bool mapTF = true, const std::string &filename = std::string(), const RenderObject *container=nullptr);
     void saveVolume();
     void cropVolume();
+	void syncTransferFunction();
+
 
     //tablet UI listener
     void tabletPressEvent(coTUIElement *tUIItem) override;
@@ -196,7 +228,8 @@ private:
         bool boundaries;
         virvo::VolumeDrawable::BlendMode blendMode;
         std::string filename;
-        std::vector<vvTransFunc> tf;
+		std::vector<vvTransFunc> tf;
+		std::vector< std::unique_ptr < vrb::SharedState<vvTransFunc>>> tfState;
         bool mapTF;
         int curChannel;
         bool multiDimTF;

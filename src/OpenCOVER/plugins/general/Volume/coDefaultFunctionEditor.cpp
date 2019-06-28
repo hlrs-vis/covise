@@ -478,6 +478,7 @@ void coDefaultFunctionEditor::potiReleased(coValuePoti *poti, int context)
 
 void coDefaultFunctionEditor::updateVolume()
 {
+	VolumePlugin::plugin->syncTransferFunction();
     if (instantClassification)
     {
         (*applyFunction)(userData);
