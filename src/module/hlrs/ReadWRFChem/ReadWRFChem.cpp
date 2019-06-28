@@ -220,11 +220,11 @@ int ReadWRFChem::compute(const char *)
         }
 
         NcVar *varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
-        char *dateVal[edges[0]];
+       /* char *dateVal[edges[0]];
         for (int i = 0; i < varDate->num_dims(); ++i)
         {
             dateVal[i]  = varDate->as_string(i);
-        }
+        }*/
         if (edges[0] > 1)
         {
             has_timesteps = 1;
