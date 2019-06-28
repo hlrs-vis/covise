@@ -487,7 +487,10 @@ fs::Path getProcessor<fs::Model, fs::Path>(CaseInfo &info, int processor) {
         s << info.casedir << "/processor" + std::to_string(processor) + ".zip";
     auto it = info.archives.find(processor);
     if (it == info.archives.end()) {
-        info.archives[processor].reset(new fs::Model(s.str()));
+        if (info.format == CaseInfo::FormatZip)
+            info.archives[processor].reset(new fs::Model(s.str(), fs::Model::FormatZip));
+        else
+            info.archives[processor].reset(new fs::Model(s.str()));
     }
     it = info.archives.find(processor);
     assert(it != info.archives.end());

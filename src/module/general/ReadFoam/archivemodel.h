@@ -127,8 +127,16 @@ class Model {
    friend class ModelPrivate;
 public:
 
-   Model(const std::string &archiveOrDirectory);
+   enum Format {
+       FormatUnspecified,
+       FormatDirectory,
+       FormatTar,
+       FormatZip
+   };
 
+   Model(const std::string &archiveOrDirectory, Format format = FormatUnspecified);
+
+   Format getFormat();
    bool isDirectory(const std::string &path) const;
    bool isDirectory(const Path &path) const;
    bool exists(const Path &path, bool requireDirectory=false) const;
@@ -143,6 +151,7 @@ private:
    Entry *addPath(const std::string &path);
 
    bool archive = false;
+   Format format = FormatUnspecified;
    std::string container;
    Directory root;
    std::shared_ptr<ModelPrivate> d;
