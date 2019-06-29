@@ -26,10 +26,8 @@ coInteraction::coInteraction(InteractionType type, const string &name, Interacti
     this->name = name;
     registered = false;
     hasPriorityFlag = false;
-    remoteLockID = 0; // don't synchronize Interaction
-    remoteLock = false;
 
-    runningState = StateNotRunning;
+	runningState = StateNotRunning;
 }
 
 coInteraction::~coInteraction()
@@ -37,10 +35,6 @@ coInteraction::~coInteraction()
     //fprintf(stderr,"coInteraction::~coInteraction \n");
     if (state == Active || state == Paused || state == ActiveNotify)
         cancelInteraction();
-    if ((remoteLock) && (remoteLockID > 0) && vruiRendererInterface::the()->isLockedByMe(remoteLockID))
-    {
-        vruiRendererInterface::the()->remoteUnLock(remoteLockID);
-    }
     state = Idle;
     coInteractionManager::the()->unregisterInteraction(this);
 }
@@ -48,75 +42,14 @@ coInteraction::~coInteraction()
 void coInteraction::setGroup(coInteraction::InteractionGroup group)
 {
     this->group = group;
+
 }
 
 void coInteraction::pause()
 {
     //fprintf(stderr,"coInteraction::paus \n");
     state = Paused;
-}
-void coInteraction::setRemoteLockID(int ID)
-{
-    //fprintf(stderr,"coInteraction::setRemoteLockID \n");
-    remoteLockID = ID;
-}
-
-void coInteraction::setRemoteLock(bool s)
-{
-    //fprintf(stderr,"coInteraction::setRemoteLock \n");
-    remoteLock = s;
-    if ((remoteLock) && (remoteLockID > 0)) // remote locking has been enabled
-    {
-        if (state == Active || state == ActiveNotify)
-        {
-            if (vruiRendererInterface::the()->isLocked(remoteLockID) && !vruiRendererInterface::the()->isLockedByMe(remoteLockID))
-            {
-                // someone else has a lock on this interaction so pause our own
-                state = Paused;
-            }
-            else if (!vruiRendererInterface::the()->isLockedByMe(remoteLockID))
-            {
-                vruiRendererInterface::the()->remoteLock(remoteLockID);
-            }
-        }
-    }
-    else // remote locking has been disabled
-    {
-        if (state == RemoteActive)
-        {
-            state = Idle;
-        }
-        if (vruiRendererInterface::the()->isLockedByMe(remoteLockID))
-        {
-            vruiRendererInterface::the()->remoteUnLock(remoteLockID);
-        }
-    }
-}
-
-void coInteraction::setRemoteActive(bool ra)
-{
-    //fprintf(stderr,"coInteraction::setRemoteActive \n");
-    if (ra)
-    {
-        if (state == Active || state == ActiveNotify)
-        {
-            if (vruiRendererInterface::the()->isLocked(remoteLockID) && !vruiRendererInterface::the()->isLockedByMe(remoteLockID))
-            {
-                // someone else has a lock on this interaction so pause our own
-                state = Paused;
-            }
-        }
-        state = RemoteActive;
-    }
-    else if (state == RemoteActive)
-    {
-        state = Idle;
-    }
-    else
-    {
-        // other cases should never happen
-        cerr << "this should not happen, remoteActive false without being true" << endl;
-    }
+	coInteractionManager::the()->doRemoteUnLock(group);
 }
 
 void coInteraction::requestActivation()
@@ -141,6 +74,7 @@ void coInteraction::cancelInteraction()
     if (state == Active || state == Paused || state == ActiveNotify)
     {
         state = Idle;
+		coInteractionManager::the()->doRemoteUnLock(group);
     }
 }
 
@@ -155,34 +89,28 @@ bool coInteraction::activate()
     else if (state == Idle)
     {
         //fprintf(stderr,"coInteraction::activate (state == Idle)\n");
-        if (isNotifyOnly())
+
+        if (coInteractionManager::the()->isOneActive(type))
         {
-            if ((remoteLock) && (remoteLockID > 0) && (vruiRendererInterface::the()->isLocked(remoteLockID) && !vruiRendererInterface::the()->isLockedByMe(remoteLockID)))
-            {
-                state = RemoteActive;
-                return false;
-            }
-            state = ActiveNotify;
-            return true;
-        }
-        else if (coInteractionManager::the()->isOneActive(type))
-        {
-            return false;
+			cerr << "interaction " << name << " of type " << type << " is blocked" << std::endl;
+			return false;
         }
         else if (group != GroupNonexclusive && coInteractionManager::the()->isOneActive(group))
         {
-            return false;
+			cerr << "interaction " << name << " of group " << group << " is remote blocked" << std::endl;
+			return false;
         }
-        else
-        {
-            if ((remoteLock) && (remoteLockID > 0) && (vruiRendererInterface::the()->isLocked(remoteLockID) && !vruiRendererInterface::the()->isLockedByMe(remoteLockID)))
-            {
-                state = RemoteActive;
-                return false;
-            }
-            state = Active;
-            return true;
-        }
+		else if (isNotifyOnly())
+		{
+			state = ActiveNotify;
+			return true;
+		}
+		else
+		{
+			state = Active;
+			coInteractionManager::the()->doRemoteLock(group);
+			return true;
+		}
     }
     return false;
 }
@@ -196,11 +124,6 @@ void coInteraction::cancelPendingActivation()
 void coInteraction::doActivation()
 {
     //fprintf(stderr,"coInteraction::doActivation \n");
-    if ((remoteLock) && (remoteLockID > 0) && (vruiRendererInterface::the()->isLocked(remoteLockID) && !vruiRendererInterface::the()->isLockedByMe(remoteLockID)))
-    {
-        state = RemoteActive;
-        return;
-    }
     state = notifyOnly ? ActiveNotify : Active;
 }
 
@@ -253,5 +176,23 @@ void coInteraction::setNotifyOnly(bool flag)
 {
     //fprintf(stderr,"coInteraction::setNotifyOnly \n");
     notifyOnly = flag;
+}
+
+coInteraction::InteractionState coInteraction::getState()
+{
+	return state;
+}
+
+void coInteraction::setState(InteractionState s)
+{
+	if (state == InteractionState::Idle && s != InteractionState::Idle)
+	{
+		coInteractionManager::the()->doRemoteLock(group);
+	}
+	else
+	{
+		coInteractionManager::the()->doRemoteUnLock(group);
+	}
+	state = s;
 }
 }

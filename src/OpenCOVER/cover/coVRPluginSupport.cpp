@@ -1508,7 +1508,7 @@ void coVRPluginSupport::unwatchFileDescriptor(int fd)
     OpenCOVER::instance()->unwatchFileDescriptor(fd);
 }
 
-bool VRBMessageSender::sendMessage(const covise::Message * msg)
+bool VRBMessageSender::sendMessage(const covise::Message * msg)  
 {
     return cover->sendVrbMessage(msg);
 }

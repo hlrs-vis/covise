@@ -75,7 +75,7 @@ public:
 protected:
     std::string name;
     int classID = -1;
-    bool isDel;
+    bool isDel = false;
     VariableMap myVariables;
 };
 
@@ -86,9 +86,9 @@ protected:
 
 
     std::string name;
-    regClass *myClass;
-    bool staticVar;
-    bool isDel;
+    regClass *myClass = nullptr;
+    bool staticVar = false;
+    bool isDel = false;
 	///writes value to tb
 	void sendValueChange(covise::TokenBuffer& tb);
 	///writes value to tb, in case of SahredMap also writes all changes

@@ -58,7 +58,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
-#include <vrbclient/VrbClientRegistry.h>
+
 #include <vrbclient/VRBClient.h>
 #include <vrbclient/SharedStateManager.h>
 
@@ -557,8 +557,9 @@ bool OpenCOVER::init()
 #ifndef _WIN32
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
-    cover = new coVRPluginSupport();
-    coVRCommunication::instance();
+	coVRCommunication::instance();
+	cover = new coVRPluginSupport();
+	coVRCommunication::instance()->init();
     cover->initUI();
     if (cover->debugLevel(2))
     {

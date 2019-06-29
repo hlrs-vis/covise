@@ -63,7 +63,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
-
+#include <OpenVRUI/coNavInteraction.h>
 #include "ui/Owner.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -98,27 +98,28 @@ coVRCommunication *coVRCommunication::instance()
 }
 
 coVRCommunication::coVRCommunication()
-: ui::Owner("VRCommunication", cover->ui)
+//: ui::Owner("VRCommunication", cover->ui)
 {
     assert(!s_instance);
 
     srand((unsigned)time(NULL)); // Initialize the random timer
     ignoreRemoteTransform = coCoviseConfig::isOn("COVER.IgnoreRemoteTransform", false);
 
-    for (int i = 0; i < NUM_LOCKS; i++)
-    {
-        RILockArray[i] = -1;
-    }
-    me = new coVRPartner();
-    //randomID = (int)rand(); //nessesary??
 
-    //me->setID(randomID);
-    coVRPartnerList::instance()->addPartner(me);
-    registry.reset(new VrbClientRegistry(me->getID(), cover->getSender()));
+
+    registry.reset(new VrbClientRegistry(-1));
     new SharedStateManager(registry.get());
-    m_vrbMenue.reset(new VrbMenue());
 }
+void coVRCommunication::init()
+{
+	me = new coVRPartner();
 
+	coVRPartnerList::instance()->addPartner(me);
+	registry->setID(me->getID(), me->getSessionID());
+	registry->registerSender(cover->getSender());
+	m_vrbMenue.reset(new VrbMenue());
+	remoteNavInteraction = new vrui::coNavInteraction(vrui::coInteraction::NoButton, "remoteNavInteraction");
+}
 void opencover::coVRCommunication::connected()
 {
 	for (auto function : onConnectCallbacks)
@@ -144,7 +145,7 @@ void opencover::coVRCommunication::disconnected()
 coVRCommunication::~coVRCommunication()
 {
     coVRPartnerList::instance()->deletePartner(me->getID());
-
+	delete remoteNavInteraction;
     s_instance = NULL;
 }
 
@@ -205,80 +206,7 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     TokenBuffer tb;
     tb << id;
     tb << me->getID();
-
-	for (int i = 0; i < NUM_LOCKS; i++)
-	{
-		RILockArray[i] = -1;
-	}
     sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
-}
-
-void coVRCommunication::RILock(int lockID)
-{
-    int myID = getID();
-    //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if (RILockArray[lockID] <= 0)
-    {
-        covise::TokenBuffer tb;
-        tb << vrb::LOCK;
-        tb << lockID;
-        tb << myID;
-        Message msg(tb);
-        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
-        cover->sendVrbMessage(&msg);
-        RILockArray[lockID] = myID;
-        cerr << "LOCK ID: " << lockID << " myID:" << myID << endl;
-    }
-}
-
-void coVRCommunication::RIUnLock(int lockID)
-{
-    int myID = getID();
-    if (RILockArray[lockID] == myID)
-    {
-        covise::TokenBuffer tb;
-        tb << vrb::UNLOCK;
-        tb << lockID;
-        tb << myID;
-        Message msg(tb);
-        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
-        cover->sendVrbMessage(&msg);
-        RILockArray[lockID] = -1;
-        cerr << "UNLOCK ID: " << lockID << " myID:" << myID << endl;
-    }
-}
-
-void coVRCommunication::RIRemoteLock(int lockID, int remoteID)
-{
-    if (RILockArray[lockID] <= 0)
-    {
-        RILockArray[lockID] = remoteID;
-        cerr << "REMOTE_LOCK ID: " << lockID << " remoteID:" << remoteID << endl;
-    }
-}
-
-void coVRCommunication::RIRemoteUnLock(int lockID, int remoteID)
-{
-    if (RILockArray[lockID] == remoteID)
-    {
-        RILockArray[lockID] = -1;
-        cerr << "REMOTE_UNLOCK ID: " << lockID << " remoteID:" << remoteID << endl;
-    }
-}
-
-bool coVRCommunication::isRILocked(int lockID)
-{
-    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] != getID()))
-        return true;
-    return false;
-}
-
-bool coVRCommunication::isRILockedByMe(int lockID)
-{
-    //cerr << "tryIsLOCKedByMe ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if (RILockArray[lockID] == getID())
-        return true;
-    return false;
 }
 
 const char *coVRCommunication::getHostaddress()
@@ -391,22 +319,6 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     vrb::vrbMessageType type = (vrbMessageType)t;
     switch (type)
     {
-    case vrb::LOCK:
-    {
-        int lockID = 0, myID = -1;
-        tb >> lockID;
-        tb >> myID;
-        RIRemoteLock(lockID, myID);
-    }
-        break;
-    case vrb::UNLOCK:
-    {
-        int lockID = 0, myID = -1;
-        tb >> lockID;
-        tb >> myID;
-        RIRemoteUnLock(lockID, myID);
-    }
-        break;
     case vrb::AVATAR:
     {
         coVRPartnerList::instance()->receiveAvatarMessage(tb);
@@ -437,10 +349,6 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     {
         bool showAvatar;
         tb >> showAvatar;
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         if (showAvatar)
         {
             coVRPartnerList::instance()->showAvatars();
@@ -453,20 +361,12 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
         break;
     case vrb::MASTER:
     {
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         coVRPartnerList::instance()->setMaster(me->getID());
         coVRCollaboration::instance()->updateSharedStates();
     }
         break;
     case vrb::SLAVE:
     {
-		for (int i = 0; i < NUM_LOCKS; i++)
-		{
-			RILockArray[i] = -1;
-		}
         coVRPartnerList::instance()->setMaster(-1); //nobody is master here?
         coVRCollaboration::instance()->updateSharedStates();
     }
@@ -668,10 +568,7 @@ void coVRCommunication::handleVRB(Message *msg)
         if (id != me->getID())
         {
              coVRPartnerList::instance()->deletePartner(id);
-			 for (size_t i = 0; i < NUM_LOCKS; i++)
-			 {
-				 RIRemoteUnLock(i, id);
-			 }
+			 vrui::coInteractionManager::the()->resetLocks(id);
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);

@@ -23,12 +23,16 @@ VrbClientRegistry *VrbClientRegistry::instance = NULL;
 // class VrbClientRegistry
 //
 //==========================================================================
-VrbClientRegistry::VrbClientRegistry(int ID, VrbMessageSenderInterface *sender)
+VrbClientRegistry::VrbClientRegistry(int ID)
     :clientID(ID)
-    , m_sender(sender)
+	,m_sender(nullptr)
 {
     assert(!instance);
     instance = this;
+}
+void VrbClientRegistry::registerSender(VrbMessageSenderInterface* sender)
+{
+	m_sender = sender;
 }
 
 VrbClientRegistry::~VrbClientRegistry()
@@ -58,9 +62,14 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
 {
     if (!oldSession.isPrivate()) //unobserve old public session
     {
-        covise::TokenBuffer tb;
+		if (!m_sender)
+		{
+			return;
+		}
+		covise::TokenBuffer tb;
         tb << oldSession;
         tb << clientID;
+
         m_sender->sendMessage(tb, COVISE_MESSAGE_VRBC_UNOBSERVE_SESSION);
     }
     // resubscribe all registry entries on reconnect
@@ -75,7 +84,11 @@ void VrbClientRegistry::resubscribe(const SessionID &sessionID, const SessionID 
 
 void VrbClientRegistry::sendMsg(TokenBuffer &tb, covise::covise_msg_type type)
 {
-    if (clientID != -1)
+	if (!m_sender)
+	{
+		return;
+	}
+	if (clientID != -1)
     {
         m_sender->sendMessage(tb, type);
     }

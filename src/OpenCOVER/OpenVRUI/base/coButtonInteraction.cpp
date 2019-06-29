@@ -91,7 +91,7 @@ void coButtonInteraction::updateState(vruiButtons *button)
             wheelCount = button->getWheelCount(1);
     }
 
-    if (state == Idle)
+    if (getState() == Idle)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Idle\n");
         // here whe do the mapping between Interaction types and the button bitmask
@@ -107,16 +107,16 @@ void coButtonInteraction::updateState(vruiButtons *button)
             }
         }
     }
-    else if (state == Paused)
+    else if (getState() == Paused)
     {
         runningState = StateStopped;
         if (!conditionMet())
         {
             stopInteraction();
-            state = Stopped;
+            setState(Stopped);
         }
     }
-    else if (state == Active)
+    else if (getState() == Active)
     {
         //fprintf(stderr,"coButtonInteraction::update state == Active || state == Paused\n");
         if (conditionMet())
@@ -132,28 +132,28 @@ void coButtonInteraction::updateState(vruiButtons *button)
             //fprintf(stderr,"coButtonInteraction::update 7 StateStopped\n");
             runningState = StateStopped;
             stopInteraction();
-            state = Stopped;
+            setState(Stopped);
             if (type == WheelVertical || type == WheelHorizontal || type == NoButton)
             {
-                state = Idle;
+                setState(Idle);
             }
         }
     }
-    else if (state == Stopped) // das soll einen Frame verzoegern
+    else if (getState() == Stopped) // das soll einen Frame verzoegern
     {
         //fprintf(stderr,"coButtonInteraction::update state == Stopped\n");
-        state = Idle;
+        setState(Idle);
     }
 }
 
 void coButtonInteraction::cancelInteraction()
 {
     //fprintf(stderr,"coButtonInteraction::cancelInteraction \n");
-    if (state == Active || state == Paused)
+    if (getState() == Active || getState() == Paused)
     {
         runningState = StateNotRunning;
         stopInteraction();
-        state = Idle;
+        setState(Idle);
     }
 }
 

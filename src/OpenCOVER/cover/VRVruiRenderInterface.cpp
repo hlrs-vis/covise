@@ -564,22 +564,11 @@ void VRVruiRenderInterface::sendCollabMessage(vruiCollabInterface *myinterface, 
     }
 }
 
-void VRVruiRenderInterface::remoteLock(int ID)
+int VRVruiRenderInterface::getClientId()
 {
-    coVRCommunication::instance()->RILock(ID);
+    return coVRCommunication::instance()->getID();
 }
-void VRVruiRenderInterface::remoteUnLock(int ID)
-{
-    coVRCommunication::instance()->RIUnLock(ID);
-}
-bool VRVruiRenderInterface::isLocked(int ID)
-{
-    return coVRCommunication::instance()->isRILocked(ID);
-}
-bool VRVruiRenderInterface::isLockedByMe(int ID)
-{
-    return coVRCommunication::instance()->isRILockedByMe(ID);
-}
+
 
 double VRVruiRenderInterface::getFrameTime() const
 {

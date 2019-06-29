@@ -255,19 +255,10 @@ bool coVRCollaboration::update()
         fprintf(stderr, "coVRCollaboration::update\n");
 
     bool changed = false;
-
-    double thisTime = cover->frameTime();
-
-    bool lo = coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM);
-    if (lo && !wasLo)
-        fprintf(stderr, "TRANSFORM locked\n");
-    else if (!lo && wasLo)
-        fprintf(stderr, "TRANSFORM not locked\n");
-	wasLo = lo;
-
     if (updateCollaborativeMenu())
         changed = true;
-
+	//
+	double thisTime = cover->frameTime();
     if (syncScale)
     {
         static float last_dcs_scale_factor = 0.0;
@@ -278,84 +269,25 @@ bool coVRCollaboration::update()
             VRSceneGraph::instance()->setScaleFactor(scaleFactor, false);
         }
 
-        if ((coVRCommunication::instance()->collaborative())
-            && (syncMode == TightCoupling || (syncMode == MasterSlaveCoupling) && isMaster()))
-        {
-            if (!(coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
-                && !(coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
-                && (syncXform == true))
-            {
-                coVRCommunication::instance()->RILock(coVRCommunication::TRANSFORM);
-            }
-            if (!(coVRCommunication::instance()->isRILockedByMe(coVRCommunication::SCALE))
-                && !(coVRCommunication::instance()->isRILocked(coVRCommunication::SCALE))
-                && (syncScale == 1))
-            {
-                coVRCommunication::instance()->RILock(coVRCommunication::SCALE);
-            }
-            this->scaleFactor = scaleFactor;
-            syncScale = 0;
-        }
+		//syncScale = 0;
     }
-    else
-    {
-        //this only unlocks if it is locked by me
-        if ((coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM)) && (syncXform == 0) && (syncScale == 0))
-        {
-            coVRCommunication::instance()->RIUnLock(coVRCommunication::TRANSFORM);
-        }
-        //this only unlocks if it is locked by me
-        if ((coVRCommunication::instance()->isRILockedByMe(coVRCommunication::SCALE)) && (syncScale == 0))
-        {
-            coVRCommunication::instance()->RIUnLock(coVRCommunication::SCALE);
-        }
-    }
-
-    if (syncXform)
-    {
-        //      cerr << "syncXform locked:" << coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) << endl;
-
-        if ((coVRCommunication::instance()->collaborative())
-            && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
-            && (syncMode != LooseCoupling)
-            && ((syncMode != MasterSlaveCoupling) || (isMaster())))
-        {
-            if (!(coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
-                && !(coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
-                && (syncXform == 1))
-            {
-                coVRCommunication::instance()->RILock(coVRCommunication::TRANSFORM);
-            }
-            avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-        }
-    }
-    else
-    {
-        //this only unlocks if it is locked by me
-        if ((coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM)) && (syncXform == 0) && (syncScale == 0))
-        {
-            coVRCommunication::instance()->RIUnLock(coVRCommunication::TRANSFORM);
-        }
-    }
-
-    static double lastAvatarUpdateTime = 0.0;
+    //sync avatar position 
+	static double lastAvatarUpdateTime = 0.0;
     if (m_visible
         && (thisTime > lastAvatarUpdateTime + syncInterval)
         && (syncMode == LooseCoupling))
     {
-        // in LOOSE Coupling, we transfer AVATAR data
-        // changed, now we always transfer avatar data when avatars are visible
-        // visibility is synchronized....!
-
         coVRPartnerList::instance()->sendAvatarMessage();
-
         lastAvatarUpdateTime = thisTime;
     }
-    if (coVRCommunication::instance()->getSessionID().isPrivate())
-    {
-        avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-        scaleFactor = VRSceneGraph::instance()->scaleFactor();
-    }
+	//store my viewpoint in shared state to be able to reload it
+	if (coVRCommunication::instance()->getSessionID().isPrivate() 
+		|| syncMode == TightCoupling
+		|| (syncMode == MasterSlaveCoupling && isMaster()))
+	{
+		avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+		scaleFactor = VRSceneGraph::instance()->scaleFactor();
+	}
     return changed;
 }
 

@@ -27,7 +27,7 @@ public:
 private:
 
 	std::shared_ptr<char> m_data;
-	int m_length;
+	int m_length = 0;
 };
 
 template<>

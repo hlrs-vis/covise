@@ -34,7 +34,7 @@ void coNavInteraction::update()
 
     runningState = StateNotRunning;
 
-    if (state == Idle)
+    if (getState() == Idle)
     {
         if (button->wasPressed(1<<type))
         {
@@ -45,12 +45,12 @@ void coNavInteraction::update()
             }
         }
     }
-    else if (state == Active || state == Paused || state == ActiveNotify)
+    else if (getState() == Active || getState() == Paused || getState() == ActiveNotify)
     //else if (state == Active)
     {
         if (button->getStatus() & (1<<type))
         {
-            if (state == Paused)
+            if (getState() == Paused)
             {
                 runningState = StateStopped;
             }
@@ -64,18 +64,18 @@ void coNavInteraction::update()
         {
             runningState = StateStopped;
             stopInteraction();
-            state = Idle;
+            setState(Idle);
         }
     }
 }
 
 void coNavInteraction::cancelInteraction()
 {
-    if (state == Active || state == Paused || state == ActiveNotify)
+    if (getState() == Active || getState() == Paused || getState() == ActiveNotify)
     {
         runningState = StateNotRunning;
         stopInteraction();
-        state = Idle;
+        setState(Idle);
     }
 }
 

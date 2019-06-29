@@ -784,278 +784,275 @@ coVRNavigationManager::update()
             break;
         }
     }
-	if (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM) || coVRCommunication::instance()->isRILockedByMe(coVRCommunication::TRANSFORM))
+	if (interactionMA->isRunning() || interactionMB->isRunning() || interactionMC->isRunning())
 	{
-		if (interactionMA->isRunning() || interactionMB->isRunning() || interactionMC->isRunning())
+		switch (navMode)
 		{
-			switch (navMode)
-			{
-			case Walk:
-			case Glide:
-				doMouseWalk();
-				break;
-			case Scale:
-				doMouseScale();
-				break;
-			case XForm:
-			case XFormTranslate:
-			case XFormRotate:
-				doMouseXform();
-				break;
-			case Fly:
-				doMouseFly();
-				break;
-			case ShowName:
-				doShowName();
-				break;
-			case SelectInteract:
-				doSelectInteract();
-				break;
-			case Measure:
-				doMeasure();
-				break;
-			case NavNone:
-			case TraverseInteractors:
-			case Menu:
-				break;
-			default:
-				fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode interaction %d\n", navMode);
-				break;
-			}
+		case Walk:
+		case Glide:
+			doMouseWalk();
+			break;
+		case Scale:
+			doMouseScale();
+			break;
+		case XForm:
+		case XFormTranslate:
+		case XFormRotate:
+			doMouseXform();
+			break;
+		case Fly:
+			doMouseFly();
+			break;
+		case ShowName:
+			doShowName();
+			break;
+		case SelectInteract:
+			doSelectInteract();
+			break;
+		case Measure:
+			doMeasure();
+			break;
+		case NavNone:
+		case TraverseInteractors:
+		case Menu:
+			break;
+		default:
+			fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode interaction %d\n", navMode);
+			break;
 		}
+	}
 
-		//fprintf(stderr, "coVRNavigationManager: doMouseNav=%d, mouseFlag=%d, navMode=%d, handLocked=%d\n", (int)doMouseNav, (int)mouseFlag, (int)navMode, (int)handLocked);
+	//fprintf(stderr, "coVRNavigationManager: doMouseNav=%d, mouseFlag=%d, navMode=%d, handLocked=%d\n", (int)doMouseNav, (int)mouseFlag, (int)navMode, (int)handLocked);
 
-		if (interactionA->wasStarted())
+	if (interactionA->wasStarted())
+	{
+		switch (navMode)
 		{
-			switch (navMode)
-			{
-			case XForm:
-			case XFormTranslate:
-			case XFormRotate:
-				startXform();
-				break;
-			case Fly:
-				startFly();
-				break;
-			case Walk:
-				startWalk();
-				break;
-			case Glide:
-				startDrive();
-				break;
-			case Scale:
-				startScale();
-				break;
-			case ShowName:
-				startShowName();
-				break;
-			case SelectInteract:
-				startSelectInteract();
-				break;
-			case Measure:
-				startMeasure();
-				break;
-			case TraverseInteractors:
-			case Menu:
-			case NavNone:
-				break;
-			default:
-				fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
-				break;
-			}
-		}
-		if (interactionB->wasStarted())
-		{
-
-			if (navMode != TraverseInteractors)
-				startDrive();
-		}
-		if (interactionC->wasStarted())
-		{
+		case XForm:
+		case XFormTranslate:
+		case XFormRotate:
 			startXform();
+			break;
+		case Fly:
+			startFly();
+			break;
+		case Walk:
+			startWalk();
+			break;
+		case Glide:
+			startDrive();
+			break;
+		case Scale:
+			startScale();
+			break;
+		case ShowName:
+			startShowName();
+			break;
+		case SelectInteract:
+			startSelectInteract();
+			break;
+		case Measure:
+			startMeasure();
+			break;
+		case TraverseInteractors:
+		case Menu:
+		case NavNone:
+			break;
+		default:
+			fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
+			break;
 		}
+	}
+	if (interactionB->wasStarted())
+	{
 
-		if (interactionA->isRunning())
+		if (navMode != TraverseInteractors)
+			startDrive();
+	}
+	if (interactionC->wasStarted())
+	{
+		startXform();
+	}
+
+	if (interactionA->isRunning())
+	{
+		switch (navMode)
 		{
-			switch (navMode)
-			{
-			case XForm:
-				doXform();
-				break;
-			case Fly:
-				doFly();
-				break;
-			case Walk:
-				doWalk();
-				break;
-			case Glide:
-				doDrive();
-				break;
-			case Scale:
-				doScale();
-				break;
-			case ShowName:
-				doShowName();
-				break;
-			case SelectInteract:
-				doSelectInteract();
-				break;
-			case Measure:
-				doMeasure();
-				break;
-			case XFormTranslate:
-				doXformTranslate();
-				break;
-			case XFormRotate:
-				doXformRotate();
-				break;
-			case TraverseInteractors:
-			case Menu:
-			case NavNone:
-				break;
-			default:
-				fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
-				break;
-			}
-		}
-		if (interactionB->isRunning())
-		{
-			if (navMode != TraverseInteractors)
-				doDrive();
-		}
-		if (interactionC->isRunning())
-		{
+		case XForm:
 			doXform();
+			break;
+		case Fly:
+			doFly();
+			break;
+		case Walk:
+			doWalk();
+			break;
+		case Glide:
+			doDrive();
+			break;
+		case Scale:
+			doScale();
+			break;
+		case ShowName:
+			doShowName();
+			break;
+		case SelectInteract:
+			doSelectInteract();
+			break;
+		case Measure:
+			doMeasure();
+			break;
+		case XFormTranslate:
+			doXformTranslate();
+			break;
+		case XFormRotate:
+			doXformRotate();
+			break;
+		case TraverseInteractors:
+		case Menu:
+		case NavNone:
+			break;
+		default:
+			fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
+			break;
 		}
+	}
+	if (interactionB->isRunning())
+	{
+		if (navMode != TraverseInteractors)
+			doDrive();
+	}
+	if (interactionC->isRunning())
+	{
+		doXform();
+	}
 
-		if (interactionA->wasStopped())
+	if (interactionA->wasStopped())
+	{
+		switch (navMode)
 		{
-			switch (navMode)
-			{
-			case XForm:
-			case XFormTranslate:
-			case XFormRotate:
-				stopXform();
-				break;
-			case Fly:
-				stopFly();
-				break;
-			case Walk:
-				stopWalk();
-				break;
-			case Glide:
-				stopDrive();
-				break;
-			case Scale:
-				stopScale();
-				break;
-			case ShowName:
-				stopShowName();
-				break;
-			case SelectInteract:
-				stopSelectInteract(false);
-				break;
-			case Measure:
-				stopMeasure();
-				break;
-			case TraverseInteractors:
-			case Menu:
-			case NavNone:
-				break;
-			default:
-				fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
-				break;
-			}
-		}
-		if (interactionB->wasStopped())
-		{
-			stopDrive();
-		}
-		if (interactionC->wasStopped())
-		{
+		case XForm:
+		case XFormTranslate:
+		case XFormRotate:
 			stopXform();
+			break;
+		case Fly:
+			stopFly();
+			break;
+		case Walk:
+			stopWalk();
+			break;
+		case Glide:
+			stopDrive();
+			break;
+		case Scale:
+			stopScale();
+			break;
+		case ShowName:
+			stopShowName();
+			break;
+		case SelectInteract:
+			stopSelectInteract(false);
+			break;
+		case Measure:
+			stopMeasure();
+			break;
+		case TraverseInteractors:
+		case Menu:
+		case NavNone:
+			break;
+		default:
+			fprintf(stderr, "coVRNavigationManager::update: unhandled navigation mode %d\n", (int)navMode);
+			break;
+		}
+	}
+	if (interactionB->wasStopped())
+	{
+		stopDrive();
+	}
+	if (interactionC->wasStopped())
+	{
+		stopXform();
+	}
+
+	if (interactionRel->wasStarted())
+	{
+		switch (getMode())
+		{
+		case Scale:
+			startMouseNav();
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (interactionRel->isRunning())
+	{
+		osg::Matrix relMat = Input::instance()->getRelativeMat();
+		coCoord co(relMat);
+		osg::Matrix tf = VRSceneGraph::instance()->getTransform()->getMatrix();
+		auto tr = applySpeedFactor(relMat.getTrans());
+
+		switch (getMode())
+		{
+		case Scale:
+		{
+			double s = pow(1.03, co.hpr[0]);
+			doMouseScale(cover->getScale() * s);
+			break;
+		}
+		case XForm:
+		{
+			osg::Vec3 center = getCenter();
+
+			relMat.makeTranslate(-tr);
+			tf *= relMat;
+
+			MAKE_EULER_MAT(relMat, -co.hpr[0], -co.hpr[1], -co.hpr[2]);
+			osg::Matrix originTrans, invOriginTrans;
+			originTrans.makeTranslate(center); // rotate arround the center of the objects in objectsRoot
+			invOriginTrans.makeTranslate(-center);
+			relMat = invOriginTrans * relMat * originTrans;
+			tf *= relMat;
+			break;
+		}
+		case Fly:
+		{
+			relMat.setTrans(tr);
+			tf *= relMat;
+			break;
+		}
+		case Glide:
+		case Walk:
+		{
+			MAKE_EULER_MAT(relMat, co.hpr[0], 0, 0);
+			relMat.setTrans(tr);
+			tf *= relMat;
+			break;
+		}
+		default:
+		{
+			break;
+		}
 		}
 
-		if (interactionRel->wasStarted())
+		if (tf != VRSceneGraph::instance()->getTransform()->getMatrix())
 		{
-			switch (getMode())
-			{
-			case Scale:
-				startMouseNav();
-				break;
-			default:
-				break;
-			}
+			VRSceneGraph::instance()->getTransform()->setMatrix(tf);
+			coVRCollaboration::instance()->SyncXform();
 		}
+	}
 
-		if (interactionRel->isRunning())
+	if (interactionRel->wasStopped())
+	{
+		switch (getMode())
 		{
-			osg::Matrix relMat = Input::instance()->getRelativeMat();
-			coCoord co(relMat);
-			osg::Matrix tf = VRSceneGraph::instance()->getTransform()->getMatrix();
-			auto tr = applySpeedFactor(relMat.getTrans());
-
-			switch (getMode())
-			{
-			case Scale:
-			{
-				double s = pow(1.03, co.hpr[0]);
-				doMouseScale(cover->getScale() * s);
-				break;
-			}
-			case XForm:
-			{
-				osg::Vec3 center = getCenter();
-
-				relMat.makeTranslate(-tr);
-				tf *= relMat;
-
-				MAKE_EULER_MAT(relMat, -co.hpr[0], -co.hpr[1], -co.hpr[2]);
-				osg::Matrix originTrans, invOriginTrans;
-				originTrans.makeTranslate(center); // rotate arround the center of the objects in objectsRoot
-				invOriginTrans.makeTranslate(-center);
-				relMat = invOriginTrans * relMat * originTrans;
-				tf *= relMat;
-				break;
-			}
-			case Fly:
-			{
-				relMat.setTrans(tr);
-				tf *= relMat;
-				break;
-			}
-			case Glide:
-			case Walk:
-			{
-				MAKE_EULER_MAT(relMat, co.hpr[0], 0, 0);
-				relMat.setTrans(tr);
-				tf *= relMat;
-				break;
-			}
-			default:
-			{
-				break;
-			}
-			}
-
-			if (tf != VRSceneGraph::instance()->getTransform()->getMatrix())
-			{
-				VRSceneGraph::instance()->getTransform()->setMatrix(tf);
-				coVRCollaboration::instance()->SyncXform();
-			}
-		}
-
-		if (interactionRel->wasStopped())
-		{
-			switch (getMode())
-			{
-			case Scale:
-				stopMouseNav();
-				break;
-			default:
-				break;
-			}
+		case Scale:
+			stopMouseNav();
+			break;
+		default:
+			break;
 		}
 	}
     
@@ -1064,7 +1061,6 @@ coVRNavigationManager::update()
 
     if (jsEnabled && AnalogX >= 0.0 && AnalogY >= 0.0
         && (!cover->isPointerLocked())
-        && (!coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
         && (!(cover->getMouseButton() && (doMouseNav))))
     {
         dcs_mat = VRSceneGraph::instance()->getTransform()->getMatrix();
@@ -1564,7 +1560,7 @@ void coVRNavigationManager::setNavMode(NavMode mode, bool updateGroup)
         break;
     }
 
-    if (mode == NavNone || coVRCommunication::instance()->isRILocked(coVRCommunication::TRANSFORM))
+    if (mode == NavNone)
     {
         if (interactionA->isRegistered())
         {

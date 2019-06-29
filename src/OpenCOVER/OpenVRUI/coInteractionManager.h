@@ -8,8 +8,13 @@
 #ifndef CO_INTERACTIONMANAGER
 #define CO_INTERACTIONMANAGER
 
-#include <OpenVRUI/coInteraction.h>
+#include <map>
+#include <memory>
 #include <list>
+
+#include <OpenVRUI/coInteraction.h>
+
+#include <vrbclient/SharedState.h>
 
 namespace vrui
 {
@@ -17,23 +22,34 @@ namespace vrui
 class OPENVRUIEXPORT coInteractionManager
 {
 public:
-    coInteractionManager();
-    virtual ~coInteractionManager();
+    explicit coInteractionManager();
+	coInteractionManager(const coInteractionManager&) = delete;
+	coInteractionManager& operator=(const coInteractionManager&) = delete;
+	~coInteractionManager();
+    //virtual ~coInteractionManager();
 
     bool update();
+	//initialize the sheredState for remote locking this group if neccecary
+	void registerGroup(int group);
     void registerInteraction(coInteraction *);
     void unregisterInteraction(coInteraction *);
     bool isOneActive(coInteraction::InteractionType type);
     bool isOneActive(coInteraction::InteractionGroup group);
 
     static coInteractionManager *the();
-
+	void resetLocks(int id);
+	void doRemoteLock(int groupId);
+	void doRemoteUnLock(int groupId);
 private:
     // list of registered interactions
     std::list<coInteraction *> interactionStack[coInteraction::NumInteractorTypes];
     // list of active but unregistered interactions
     std::list<coInteraction *> activeUnregisteredInteractions[coInteraction::NumInteractorTypes];
-
+	//store the client id that locked a interaction group. -1 if not locked
+	std::map<int, std::unique_ptr<vrb::SharedState<int>>> remoteLocks;
+	//setup SharedState for this group
+	void initializeRemoteLock(int group);
+	
 protected:
     static coInteractionManager *im;
 };

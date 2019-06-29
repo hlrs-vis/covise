@@ -137,19 +137,9 @@ public:
     }
 
     virtual void sendCollabMessage(vruiCollabInterface *myinterface, const char *buffer, int length) = 0;
-    virtual void remoteLock(int)
+    virtual int getClientId()
     {
-    }
-    virtual void remoteUnLock(int)
-    {
-    }
-    virtual bool isLocked(int)
-    {
-        return false;
-    }
-    virtual bool isLockedByMe(int)
-    {
-        return false;
+		return -1;
     }
 
     static vruiRendererInterface *the();

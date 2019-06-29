@@ -90,10 +90,7 @@ public:
 
     virtual double getFrameTime() const override;
 
-    virtual void remoteLock(int) override;
-    virtual void remoteUnLock(int) override;
-    virtual bool isLocked(int) override;
-    virtual bool isLockedByMe(int) override;
+	virtual int getClientId() override;
 
 private:
     vrui::OSGVruiNode *groupNode = nullptr;

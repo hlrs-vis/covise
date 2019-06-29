@@ -109,8 +109,9 @@ public:
     void init();
 
     bool update();
-
+	//sync transform of viewer with partners
     void SyncXform();
+	//sync scale of world with partner
     void UnSyncXform();
     void SyncScale();
     void UnSyncScale();

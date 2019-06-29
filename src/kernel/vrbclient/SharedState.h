@@ -121,7 +121,6 @@ public:
 
     void deserializeValue(const regVar *data) override
     {
-		m_oldValue = m_value;
 		covise::TokenBuffer d(data->getValue().data(), data->getValue().length());
 		deserializeWithType(d, m_value);
     }
@@ -140,14 +139,9 @@ public:
         return m_value;
     }
 
-	const T& oldValue() const
-	{
-		return m_oldValue;
-	}
-
 private:
     T m_value; ///the value of the SharedState
-	T m_oldValue; ///the value the SharedState had before the last change
+
 };
 
 template <class Key, class Val>
@@ -157,7 +151,6 @@ class  SharedMap: public SharedStateBase
 private:
 
 	T m_value; ///the value of the SharedState
-	T m_oldValue; ///the value the SharedState had before the last change
 	int  lastPos = -1; ///hint to find the changed 
 
 	void composeData(covise::TokenBuffer &data) {
@@ -235,10 +228,6 @@ public:
 		return m_value;
 	}
 
-	const T& oldValue() const
-	{
-		return m_oldValue;
-	}
 ///change a single entrry of the map, the entry nust exist
 	void changeEntry(const Key& k, const Val& v)
 	{
