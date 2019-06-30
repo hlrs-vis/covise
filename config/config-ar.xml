@@ -96,8 +96,8 @@
                     </Marker>
                     <Marker name="ObjectMarker12" >
                         <Pattern value="77" />
-                        <Size value="800" />
-                        <Offset x="1300" y="0" z="0" h="90" p="110" r="0" />
+                        <Size value="760" />
+                        <Offset x="3340" y="-80" z="1000" h="-90" p="-104" r="180" />
                         <VrmlToPf value="FALSE" />
                     </Marker>
 			
@@ -309,7 +309,7 @@
                 <ALVAR value="ON">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
-                    <VideoDevice value="0" width="1920" height="1080" />
+                    <VideoDevice value="1" width="1920" height="1080" />
                     <!--VideoDevice value="2" width="1280" height="1024" /-->
                     <!--VideoDevice value="2" width="1200" height="1024" /-->
                     <!--CameraCalibrationFile value="/data/ARToolKit/ptgrey.xml" /-->
