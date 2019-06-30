@@ -1228,13 +1228,14 @@ bool OpenCOVER::frame()
     if (m_renderNext)
         render = true;
 
-    if (!render && coVRMSController::instance()->syncVRBMessages())
+    if (coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of VRB message" << std::endl;
         render = true;
     }
 
+    render = coVRMSController::instance()->syncBool(render);
     if (!render)
     {
         int maxfd = -1;
@@ -1254,6 +1255,7 @@ bool OpenCOVER::frame()
                 std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
             render = true;
         }
+        render = coVRMSController::instance()->syncBool(render);
     }
 
     if (!render)
@@ -1324,13 +1326,6 @@ bool OpenCOVER::frame()
     }
 
     coVRShaderList::instance()->update();
-
-    if (coVRMSController::instance()->syncVRBMessages())
-    {
-        if (cover->debugLevel(4))
-            std::cerr << "OpenCOVER::frame: rendering next frame because of VRB message" << std::endl;
-        m_renderNext = true;
-    }
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {
