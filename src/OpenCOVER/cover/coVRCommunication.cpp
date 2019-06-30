@@ -1030,7 +1030,15 @@ Message *coVRCommunication::waitForMessage(int messageType)
     if (!m)
     {
         m = new Message;
-        vrbc->wait(m, messageType);
+        if (coVRMSController::instance()->isMaster())
+        {
+            vrbc->wait(m, messageType);
+            coVRMSController::instance()->sendSlaves(m);
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster(m);
+        }
     }
 
     return m;
