@@ -56,9 +56,9 @@ class COVEREXPORT coVRIntersectionInteractor : public vrui::coAction, public vru
 {
 private:
     osg::StateSet *loadDefaultGeostate();
-    bool constantInteractorSize_;
+    bool constantInteractorSize_ = true;
     float iconSize_;
-    bool firstTime;
+    bool firstTime = true;
 
     osg::Geode *findGeode(osg::Node *n);
 
@@ -67,22 +67,22 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> moveTransform;
     osg::ref_ptr<osg::MatrixTransform> scaleTransform;
     osg::ref_ptr<osg::MatrixTransform> interactorCaseTransform;
-    osg::MatrixTransform *parent;
-    char *_interactorName;
-    char *labelStr_;
+    osg::MatrixTransform *parent = nullptr;
+    char *_interactorName = nullptr;
+    char *labelStr_ = nullptr;
 
-    bool _hit;
-    bool _intersectionEnabled;
-    bool _justHit;
-    bool _wasHit;
-    bool _standardHL;
+    bool _hit = false;
+    bool _intersectionEnabled = true;
+    bool _justHit = false;
+    bool _wasHit = false;
+    bool _standardHL = true;
     osg::ref_ptr<osg::Node> _hitNode;
     osg::Vec3 _hitPos;
-    vrui::OSGVruiNode *vNode;
+    vrui::OSGVruiNode *vNode = nullptr;
 
     osg::ref_ptr<osg::StateSet> _selectedHl, _intersectedHl, _oldHl;
 
-    coVRLabel *label_;
+    coVRLabel *label_ = nullptr;
     bool m_isInitializedThroughSharedState = false;
     float _interSize; // size in mm in world coordinates
     float _scale = 1.; // scale factor for retaining screen size of interactor
