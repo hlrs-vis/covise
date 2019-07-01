@@ -10,6 +10,8 @@
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
 #include <OpenVRUI/util/vruiLog.h>
 
+#include <cassert>
+
 using namespace std;
 
 namespace vrui
@@ -19,11 +21,13 @@ coInteractionManager *coInteractionManager::im = 0;
 
 coInteractionManager::coInteractionManager()
 {
+    assert(!im);
     im = this;
 }
 
 coInteractionManager::~coInteractionManager()
 {
+    im = nullptr;
 }
 
 coInteractionManager *coInteractionManager::the()
