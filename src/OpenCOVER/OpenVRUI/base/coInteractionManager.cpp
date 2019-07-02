@@ -345,7 +345,7 @@ void coInteractionManager::initializeRemoteLock(int group)
 				interaction != interactionStack[i].rend();
 				++interaction)
 			{
-				if ((*interaction)->getGroup() == remoteLocks[group]->value())
+				if (vruiRendererInterface::the()->isRemoteBlockNececcary() &&(*interaction)->getGroup() == group)
 				{
 					(*interaction)->cancelInteraction();
 					(*interaction)->pause();
