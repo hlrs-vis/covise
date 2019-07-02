@@ -320,6 +320,7 @@ void coInteractionManager::doRemoteLock(int groupId)
 	if ((*it->second).value() < 0)
 	{
 		*(it->second) = vruiRendererInterface::the()->getClientId();
+		naviagationBlockedByme = true;
 	}
 }
 
@@ -329,14 +330,19 @@ void coInteractionManager::doRemoteUnLock(int groupId)
 	if ((*it->second).value() == vruiRendererInterface::the()->getClientId())
 	{
 		*(it->second) = -1;
+		naviagationBlockedByme = false;
 	}
+}
+bool coInteractionManager::isNaviagationBlockedByme()
+{
+	return naviagationBlockedByme;
 }
 void coInteractionManager::initializeRemoteLock(int group)
 {
 	auto it = remoteLocks.find(group);
 	if (it == remoteLocks.end())
 	{
-		it = remoteLocks.emplace(group, std::unique_ptr<vrb::SharedState<int>>(new vrb::SharedState<int>(("coInteractionManager_remoteLock_" + std::to_string(group)), -1, vrb::ALWAYS_SHARE))).first;
+		it = remoteLocks.emplace(group, std::unique_ptr<vrb::SharedState<int>>(new vrb::SharedState<int>(("coInteractionManager_remoteLock_" + std::to_string(group)), -1, vrb::USE_COUPLING_MODE))).first;
 	}
 	it->second->setUpdateFunction([this, group]() {
 		for (int i = 0; i < coInteraction::NumInteractorTypes; ++i)
@@ -349,6 +355,7 @@ void coInteractionManager::initializeRemoteLock(int group)
 				{
 					(*interaction)->cancelInteraction();
 					(*interaction)->pause();
+					naviagationBlockedByme = false;
 				}
 			}
 		}

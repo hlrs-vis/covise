@@ -40,6 +40,7 @@ public:
 	void resetLocks(int id);
 	void doRemoteLock(int groupId);
 	void doRemoteUnLock(int groupId);
+	bool isNaviagationBlockedByme();
 private:
     // list of registered interactions
     std::list<coInteraction *> interactionStack[coInteraction::NumInteractorTypes];
@@ -49,6 +50,7 @@ private:
 	std::map<int, std::unique_ptr<vrb::SharedState<int>>> remoteLocks;
 	//setup SharedState for this group
 	void initializeRemoteLock(int group);
+	bool naviagationBlockedByme = false;
 	
 protected:
     static coInteractionManager *im;

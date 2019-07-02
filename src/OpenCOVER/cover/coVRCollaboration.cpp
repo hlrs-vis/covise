@@ -280,13 +280,16 @@ bool coVRCollaboration::update()
         coVRPartnerList::instance()->sendAvatarMessage();
         lastAvatarUpdateTime = thisTime;
     }
-	//store my viewpoint in shared state to be able to reload it
-	if (coVRCommunication::instance()->getSessionID().isPrivate() 
-		|| syncMode == TightCoupling
-		|| (syncMode == MasterSlaveCoupling && isMaster()))
+	if (vrui::coInteractionManager::the()->isNaviagationBlockedByme()) //i am navigating
 	{
-		avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
-		scaleFactor = VRSceneGraph::instance()->scaleFactor();
+		//store my viewpoint in shared state to be able to reload it
+		if (coVRCommunication::instance()->getSessionID().isPrivate()
+			|| syncMode == TightCoupling
+			|| (syncMode == MasterSlaveCoupling && isMaster()))
+		{
+			avatarPosition = VRSceneGraph::instance()->getTransform()->getMatrix();
+			scaleFactor = VRSceneGraph::instance()->scaleFactor();
+		}
 	}
     return changed;
 }
