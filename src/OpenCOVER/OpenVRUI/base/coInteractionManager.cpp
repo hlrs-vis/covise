@@ -73,7 +73,7 @@ bool coInteractionManager::isOneActive(coInteraction::InteractionType type)
 bool coInteractionManager::isOneActive(coInteraction::InteractionGroup group)
 {
 	int lockID = remoteLocks[group]->value();
-	if (lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
+	if (vruiRendererInterface::the()->isRemoteBlockNececcary() && lockID > 0 && lockID != vruiRendererInterface::the()->getClientId())
 	{
 		return true;
 	}
@@ -326,7 +326,7 @@ void coInteractionManager::doRemoteLock(int groupId)
 void coInteractionManager::doRemoteUnLock(int groupId)
 {
 	auto it = remoteLocks.find(groupId);
-	if ((*it->second).value() == groupId)
+	if ((*it->second).value() == vruiRendererInterface::the()->getClientId())
 	{
 		*(it->second) = -1;
 	}

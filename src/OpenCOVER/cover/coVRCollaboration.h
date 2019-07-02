@@ -85,7 +85,7 @@ public:
     vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
     // returns collaboration mode
-    SyncMode getSyncMode() const;
+    SyncMode getCouplingMode() const;
 
     void setSyncMode(const char *mode); // set one of "LOOSE", "MS", "TIGHT"
 

@@ -1385,7 +1385,7 @@ void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
                 drawable->setROISize(pd->size);
             }
 
-            if ((coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::TightCoupling))
+            if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::TightCoupling))
             {
                 if (drawable && drawable->getROISize() > 0.)
                 {
@@ -2334,11 +2334,11 @@ void VolumePlugin::preFrame()
         {
             if (drawable->getROISize() <= 0.0f)
                 drawable->setROISize(0.00001f);
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
             {
                 drawable->setROIPosition(currentVolume->second.roiPosObj);
-                if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2347,7 +2347,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionB->isRunning())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
         {
             bool mouse = interactionB->is2D();
@@ -2374,7 +2374,7 @@ void VolumePlugin::preFrame()
                 {
                     currentVolume->second.roiCellSize = roiCellSize;
                 }
-                if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2383,7 +2383,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionA->wasStopped())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             if (!roiVisible())
@@ -2405,7 +2405,7 @@ void VolumePlugin::preFrame()
                 return;
             }
 
-            if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }
@@ -2478,7 +2478,7 @@ void VolumePlugin::setROIMode(bool newMode)
                 roiCellSize = 1.0f;
             currentVolume->second.roiMode = true;
         }
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiMode = true;
@@ -2490,7 +2490,7 @@ void VolumePlugin::setROIMode(bool newMode)
     }
     else
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiCellSize = 0.0f;
@@ -2511,10 +2511,10 @@ void VolumePlugin::setROIMode(bool newMode)
     {
         drawable->setROISize(roiCellSize);
 
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }

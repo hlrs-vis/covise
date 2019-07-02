@@ -90,6 +90,7 @@ public:
     void becomeMaster();
     covise::Message *waitForMessage(int messageType);
     std::unique_ptr<vrb::VrbClientRegistry> registry;
+	std::unique_ptr<vrb::SharedStateManager> sharedStateManager;
     bool sendMessage(covise::Message *msg);
     bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
 	//add callback that is called after first contact with vrb

@@ -92,7 +92,6 @@ bool coInteraction::activate()
 
         if (coInteractionManager::the()->isOneActive(type))
         {
-			cerr << "interaction " << name << " of type " << type << " is blocked" << std::endl;
 			return false;
         }
         else if (group != GroupNonexclusive && coInteractionManager::the()->isOneActive(group))

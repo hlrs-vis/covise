@@ -29,11 +29,14 @@ SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, c
 
 SharedStateBase::~SharedStateBase()
 {
-    if(m_registry)
-    {
-        m_registry->unsubscribeVar(m_className, variableName);
-    }
-    SharedStateManager::instance()->remove(this);
+	if (SharedStateManager::instance())
+	{
+		if (m_registry)
+		{
+			m_registry->unsubscribeVar(m_className, variableName);
+		}
+		SharedStateManager::instance()->remove(this);
+	}
 }
 
 void SharedStateBase::subscribe(const DataHandle &val)
@@ -114,7 +117,7 @@ void SharedStateBase::resubscribe(const SessionID &id)
 
 void SharedStateBase::frame(double time)
 {
-    if(m_registry == NULL)
+    if(!m_registry)
         return;
     if (sessionID == SessionID())
     {

@@ -91,7 +91,7 @@ public:
     virtual double getFrameTime() const override;
 
 	virtual int getClientId() override;
-
+	virtual bool isRemoteBlockNececcary() override;
 private:
     vrui::OSGVruiNode *groupNode = nullptr;
     vrui::OSGVruiNode *sceneNode = nullptr;

@@ -141,6 +141,10 @@ public:
     {
 		return -1;
     }
+	virtual bool isRemoteBlockNececcary()
+	{
+		return false;
+	}
 
     static vruiRendererInterface *the();
 

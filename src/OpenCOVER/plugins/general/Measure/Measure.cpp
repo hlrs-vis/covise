@@ -508,7 +508,7 @@ otherwise ACTION_DONE is returned
 */
 int Mark::hit(vruiHit *)
 {
-    if ((coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
          && !coVRCollaboration::instance()->isMaster())
         || placing)
         return ACTION_CALL_ON_MISS;
@@ -683,7 +683,7 @@ Measure::removeMenuEntry()
 void Measure::menuEvent(coMenuItem *item)
 {
 
-    if (coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
         return;
     TokenBuffer tb;

@@ -108,7 +108,7 @@ coVRCommunication::coVRCommunication()
 
 
     registry.reset(new VrbClientRegistry(-1));
-    new SharedStateManager(registry.get());
+	sharedStateManager.reset(new SharedStateManager(registry.get()));
 }
 void coVRCommunication::init()
 {

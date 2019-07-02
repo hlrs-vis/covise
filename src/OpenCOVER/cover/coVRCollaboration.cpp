@@ -397,24 +397,9 @@ float coVRCollaboration::getSyncInterval()
     return syncInterval;
 }
 
-coVRCollaboration::SyncMode coVRCollaboration::getSyncMode() const
+coVRCollaboration::SyncMode coVRCollaboration::getCouplingMode() const
 {
-    SyncMode s = LooseCoupling;
-    switch (syncMode)
-    {
-    case 0 :
-        s = LooseCoupling;
-        break;
-    case 1:
-        s = MasterSlaveCoupling;
-        break;
-    case 2:
-        s = TightCoupling;
-        break;
-    default:
-        break;
-    }
-    return s;
+	return (coVRCollaboration::SyncMode)syncMode.value();
 }
 
 bool coVRCollaboration::isMaster()
