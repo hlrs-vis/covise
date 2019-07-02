@@ -104,6 +104,8 @@ public:
 
 	std::vector<covise::Message*> waitCoviseMessages();
 	void handleCoviseMessage(covise::Message* m);
+	//called from coVRFileManager to make sure cover->filemenue is initialized
+	void initVrbFileMenue();
 private:
     coVRCommunication();
     static coVRCommunication *s_instance;

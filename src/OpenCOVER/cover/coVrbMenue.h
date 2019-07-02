@@ -58,7 +58,8 @@ private:
     const std::string noSavedSession = "nothing";
 public:
     VrbMenue();
-    void updateState(bool state);
+	void initFileMenue();
+	void updateState(bool state);
     void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);

@@ -52,63 +52,45 @@ VrbMenue::VrbMenue()
 	test = m;
 	test.setUpdateFunction([this]()
 		{
-			std::cerr << "test map got updated: ____________________" << std::endl;
+			/*std::cerr << "test map got updated: ____________________" << std::endl;
 			for (auto it : test.value())
 			{
 				cerr << it.first << ": " << it.second << endl;
 			}
-			cerr << "_____________________________________________________________" << endl;
+			cerr << "_____________________________________________________________" << endl;*/
 		});
 }
 
 void VrbMenue::init()
 {
     menue = new ui::Menu("VrbOptions", this);
-    menue->setText("Vrb");
+    menue->setText("Connections");
 
-    ioGroup = new ui::Group(menue, "ioGroup");
+	sessionGroup = new ui::Group(menue, "sessisonGroup");
 
-    saveBtn = new ui::Action(ioGroup, "SaveSession");
-    saveBtn->setText("Save session");
-    saveBtn->setCallback([this]()
-    {
-        saveSession();
-    });
+	newSessionBtn = new ui::Action(sessionGroup, "newSession");
+	newSessionBtn->setText("New session");
+	newSessionBtn->setCallback([this](void) {
+		requestNewSession("");
+		});
 
-    loadSL = new ui::SelectionList(ioGroup, "LoadSession");
-    loadSL->setText("Load session");
-    loadSL->setCallback([this](int index)
-    {
-        loadSession(index);
-    });
-    loadSL->setList(savedRegistries);
+	newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
+	newSessionEf->setText("enter session name");
+	newSessionEf->setCallback([this](std::string name) {
+		requestNewSession(name);
+		});
 
-    sessionGroup = new ui::Group(menue, "sessisonGroup");
-
-    newSessionBtn = new ui::Action(sessionGroup, "newSession");
-    newSessionBtn->setText("New session");
-    newSessionBtn->setCallback([this](void) {
-        requestNewSession("");
-    });
-
-    newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
-    newSessionEf->setText("enter session name");
-    newSessionEf->setCallback([this](std::string name) {
-        requestNewSession(name);
-    });
-
-
-    sessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
-    sessionsSl->setText("Available sessions");
-    sessionsSl->setCallback([this](int id)
-    {
-        selectSession(id);
-    });
-    sessionsSl->setList(std::vector<std::string>());
+	sessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
+	sessionsSl->setText("Available sessions");
+	sessionsSl->setCallback([this](int id)
+		{
+			selectSession(id);
+		});
+	sessionsSl->setList(std::vector<std::string>());
 
     menue->setVisible(false);
 	//test
-	ui::Action *testBtn = new ui::Action(ioGroup, "testBtn");
+	ui::Action *testBtn = new ui::Action(sessionGroup, "testBtn");
 	testBtn->setText("testBtn");
 	testBtn->setCallback([this]()
 		{
@@ -134,10 +116,37 @@ void VrbMenue::init()
 			}
 
 		});
+	testBtn->setEnabled(false);
+}
+
+void VrbMenue::initFileMenue()
+{
+	ioGroup = new ui::Group("Sessions", this);
+	cover->fileMenu->add(ioGroup);
+	saveBtn = new ui::Action(ioGroup, "SaveSession");
+	saveBtn->setText("Save session");
+	saveBtn->setCallback([this]()
+		{
+			saveSession();
+		});
+	saveBtn->setVisible(false);
+
+	loadSL = new ui::SelectionList(ioGroup, "LoadSession");
+	loadSL->setText("Load session");
+	loadSL->setCallback([this](int index)
+		{
+			loadSession(index);
+		});
+	loadSL->setList(savedRegistries);
+	loadSL->setVisible(false);
 }
 void VrbMenue::updateState(bool state)
 {
     menue->setVisible(state);
+	ioGroup->setVisible(state);
+	saveBtn->setVisible(state);
+	loadSL->setVisible(state);
+
 }
 //io functions : private
 void VrbMenue::saveSession()

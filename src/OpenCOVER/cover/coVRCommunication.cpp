@@ -990,6 +990,11 @@ void opencover::coVRCommunication::handleCoviseMessage(Message* m)
 	}
 }
 
+void opencover::coVRCommunication::initVrbFileMenue()
+{
+	m_vrbMenue->initFileMenue();
+}
+
 void coVRCommunication::setFBData(IData *data)
 {
     VRBData *locData = dynamic_cast<VRBData *>(data);
