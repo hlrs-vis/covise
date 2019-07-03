@@ -927,14 +927,19 @@ Message *coVRCommunication::waitForMessage(int messageType)
     if (!m)
     {
         m = new Message;
+	int ret = 0;
         if (coVRMSController::instance()->isMaster())
         {
-            vrbc->wait(m, messageType);
-            coVRMSController::instance()->sendSlaves(m);
+            ret = vrbc->wait(m, messageType);
+            coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
+            if (ret != -1)
+       		coVRMSController::instance()->sendSlaves(m);
         }
         else
         {
-            coVRMSController::instance()->readMaster(m);
+            coVRMSController::instance()->readMaster(&ret, sizeof(ret));
+            if (ret != -1)
+            	coVRMSController::instance()->readMaster(m);
         }
     }
 
