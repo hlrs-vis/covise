@@ -1711,7 +1711,7 @@ RevitPlugin::handleMessage(Message *m)
 			cerr << "connection to Revit closed" << endl;
 			break;
 		default:
-			cerr << "Unknown message [" << MSG_NewObject << "] " << m->type << endl;
+			cerr << "Unknown message [" << m->type << "] "  << endl;
 			break;
 		}
 	}
@@ -2084,7 +2084,7 @@ void RevitPlugin::requestTexture(int matID, TextureInfo * texture)
         if (RevitPlugin::instance()->sendMessage(message) == false)
         {
             gotMsg = '\0';
-            coVRMSController::instance()->sendSlaves(msg);
+			coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
         }
         else
         {
