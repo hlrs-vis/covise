@@ -2052,7 +2052,7 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 	char delimiter = '%';
 
 #else 
-	char delimiter1 = '$';
+	char delimiter = '$';
 	char delimiter2 = '/';
 #endif
 	auto it = s.begin();
