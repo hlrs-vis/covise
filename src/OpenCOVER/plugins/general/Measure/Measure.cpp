@@ -237,7 +237,8 @@ Dimension::Dimension(int idParam, Measure *m)
     int i;
     for (i = 0; i < 2; i++)
     {
-        marks[i] = NULL;
+        //marks[i] = new Mark(i, this);
+		marks[i] = nullptr;
     }
     myDCS = new osg::MatrixTransform();
     geos = new osg::Switch();
@@ -803,8 +804,15 @@ void Measure::message(int toWhom, int type, int len, const void *buf)
                 break;
             }
         }
-        if (dim)
-            dim->marks[Mid]->setPos(mat);
+		if (dim)
+		{
+			if (!dim->marks[Mid])
+			{
+				dim->marks[Mid] = new Mark(Mid, dim);
+			}
+			dim->marks[Mid]->setPos(mat);
+		}
+            
     }
     break;
     case REMOVE: // Remove
