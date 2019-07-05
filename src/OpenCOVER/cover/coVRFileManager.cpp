@@ -2074,12 +2074,12 @@ std::string coVRFileManager::resolveEnvs(const std::string& s)
 				env.push_back(*it);
 				++it;
 			}
-#ifndef WIN32
-			env.push_back('/');
-#endif // !WIN32
 
 			env = getenv(env.c_str());
 			env = cutStringAt(env, ';');
+#ifndef WIN32
+			env.push_back(delimiter2);
+#endif // !WIN32
 			stringWithoutEnvs += env;
 			++it;
 			lastIt = it;
