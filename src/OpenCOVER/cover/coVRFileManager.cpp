@@ -1954,7 +1954,7 @@ std::string coVRFileManager::writeFile(const std::string& fileName, const char* 
 	if ((size > 0) && !fileExist(p))
 	{
 #ifndef _WIN32
-		int fd = open(pathToTmpFile.c_str(), O_RDWR | O_CREAT, 0777);
+		int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
 #else
 		int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
 #endif
