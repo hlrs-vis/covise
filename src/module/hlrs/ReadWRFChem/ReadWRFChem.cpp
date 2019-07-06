@@ -230,7 +230,7 @@ int ReadWRFChem::compute(const char *)
             has_timesteps = 1;
         }
 
-        sendInfo("Found %d time steps\n", edges[0]);
+        sendInfo("Found %ld time steps\n", (long)edges[0]);
 
         int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1], nTime = edges[0];
         if (has_timesteps > 0)
