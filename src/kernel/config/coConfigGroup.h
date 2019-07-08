@@ -49,18 +49,18 @@ public:
 
     virtual void setValue(const QString &variable, const QString &value,
                           const QString &section,
-                          const QString &configuration = QString::null,
-                          const QString &targetHost = QString::null, bool move = false);
+                          const QString &configuration = QString(),
+                          const QString &targetHost = QString(), bool move = false);
 
     virtual void setValue(const QString &simpleVariable, const QString &value);
 
     virtual bool deleteValue(const QString &variable, const QString &section,
-                             const QString &configuration = QString::null,
-                             const QString &targetHost = QString::null);
+                             const QString &configuration = QString(),
+                             const QString &targetHost = QString());
 
     virtual bool deleteSection(const QString &section,
-                               const QString &configuration = QString::null,
-                               const QString &targetHost = QString::null);
+                               const QString &configuration = QString(),
+                               const QString &targetHost = QString());
 
     virtual QStringList getHostnameList() /*const*/;
     virtual QString getActiveHost() const;
@@ -78,7 +78,7 @@ public:
     virtual coConfigRoot *addConfig(const QString &filename, const QString &name, bool create = false);
     virtual void removeConfig(const QString &name);
 
-    virtual bool save(const QString &filename = QString::null) const;
+    virtual bool save(const QString &filename = QString()) const;
 
     void setReadOnly(const QString &config, bool ro);
     void setReadOnly(bool ro);

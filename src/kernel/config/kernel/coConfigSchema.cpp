@@ -381,7 +381,7 @@ QString coConfigSchema::printCompositorTypeConnector(xercesc::XSModelGroup::COMP
         return QString("COMPOSITOR_ALL");
         break;
     }
-    return QString::null;
+    return QString();
 }
 
 /// return a List of all Groups (is used in mainwindow to create treeModel)

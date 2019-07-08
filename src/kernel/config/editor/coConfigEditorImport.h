@@ -24,9 +24,9 @@ class CONFIGEDITOREXPORT coConfigEditorImport : public QObject
     Q_OBJECT
 
 public:
-    coConfigEditorImport(const QString &source = QString::null,
-                         const QString &dest = QString::null,
-                         const QString &transform = QString::null);
+    coConfigEditorImport(const QString &source = QString(),
+                         const QString &dest = QString(),
+                         const QString &transform = QString());
 
     ~coConfigEditorImport();
 

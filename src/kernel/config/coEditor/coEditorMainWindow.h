@@ -40,15 +40,15 @@ class coEditorMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    coEditorMainWindow(const QString &fileName = QString::null);
+    coEditorMainWindow(const QString &fileName = QString());
     ~coEditorMainWindow();
     QHash<QString, covise::coConfigEntry *> loadFile(const QString &fileName);
 
 public slots:
     void setValue(const QString &variable, const QString &value,
-                  const QString &section, const QString &targetHost = QString::null);
+                  const QString &section, const QString &targetHost = QString());
     void deleteValue(const QString &variable, const QString &section,
-                     const QString &targetHost = QString::null);
+                     const QString &targetHost = QString());
     // show a message for timeout time in the status bar
     void showStatusBar(const QString &message, int timeout = 0);
     void putInLog(qint64 bytes); // add a message to the ErrorLog
@@ -79,7 +79,7 @@ private:
     void readSettings();
     void writeSettings();
 
-    bool saveFile(const QString &fileName = QString::null);
+    bool saveFile(const QString &fileName = QString());
     void setCurrentFile(const QString &fileName);
     void loadConfig(const QString &filename);
     void addFile(const QString &fileName);

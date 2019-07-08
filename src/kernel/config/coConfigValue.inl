@@ -36,7 +36,7 @@ coConfigValue<T>::coConfigValue(const QString & variable, const QString & sectio
 
    this->variable = variable;
    this->section = section;
-   this->configGroupName = QString::null;
+   this->configGroupName = QString();
    this->autoUpdate = false;
 
    this->modified = false;
@@ -54,7 +54,7 @@ coConfigValue<T>::coConfigValue(const QString & simpleVariable)
 
    this->variable = "value";
    this->section = simpleVariable;
-   this->configGroupName = QString::null;
+   this->configGroupName = QString();
    this->autoUpdate = false;
 
    this->modified = false;
@@ -72,7 +72,7 @@ coConfigValue<T>::coConfigValue(coConfigGroup * group, const QString & simpleVar
 
    this->variable = "value";
    this->section = simpleVariable;
-   this->configGroupName = QString::null;
+   this->configGroupName = QString();
    this->autoUpdate = false;
 
    this->modified = false;
@@ -91,7 +91,7 @@ coConfigValue<T>::coConfigValue(coConfigGroup * group,
 
    this->variable = variable;
    this->section = section;
-   this->configGroupName = QString::null;
+   this->configGroupName = QString();
    this->autoUpdate = false;
 
    this->modified = false;

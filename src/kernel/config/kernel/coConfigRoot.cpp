@@ -335,8 +335,8 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         globalConfig->merge(coConfigXercesEntry::restoreFromDom(node, configName));
                     }
                     // Temporary attributes cleanup
-                    globalConfig->deleteValue("scope", QString::null);
-                    globalConfig->deleteValue("configname", QString::null);
+                    globalConfig->deleteValue("scope", QString());
+                    globalConfig->deleteValue("configname", QString());
                 }
             }
             else if (nodeName == "LOCAL")
@@ -371,8 +371,8 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         // Temporary attributes cleanup
                         if (globalConfig)
                         {
-                            globalConfig->deleteValue("scope", QString::null);
-                            globalConfig->deleteValue("configname", QString::null);
+                            globalConfig->deleteValue("scope", QString());
+                            globalConfig->deleteValue("configname", QString());
                         }
                     }
                 }
@@ -412,8 +412,8 @@ void coConfigXercesRoot::setContentsFromDom(const xercesc::DOMNode *node)
                         // Temporary attributes cleanup
                         if (globalConfig)
                         {
-                            globalConfig->deleteValue("scope", QString::null);
-                            globalConfig->deleteValue("configname", QString::null);
+                            globalConfig->deleteValue("scope", QString());
+                            globalConfig->deleteValue("configname", QString());
                         }
                     }
                 }
@@ -709,7 +709,7 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
     //  scope = oldValue.getConfigScope();
     //}
 
-    if (targetHost == QString::null)
+    if (targetHost == QString())
     {
         scope = coConfigConstants::Global;
     }
@@ -730,7 +730,7 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         break;
 
     case coConfigConstants::Cluster:
-        if (targetHost == QString::null)
+        if (targetHost == QString())
         {
             if (!clusterConfig->setValue(variable, value, section))
                 clusterConfig->addValue(variable, value, section);
@@ -748,7 +748,7 @@ void coConfigRoot::setValue(const QString &variable, const QString &value,
         break;
 
     case coConfigConstants::Host:
-        if ((targetHost.toLower() == activeHostname) || (targetHost == QString::null))
+        if ((targetHost.toLower() == activeHostname) || (targetHost == QString()))
         {
             if (!hostConfig->setValue(variable, value, section))
                 hostConfig->addValue(variable, value, section);
@@ -784,7 +784,7 @@ bool coConfigRoot::deleteValue(const QString &variable, const QString &section,
         return false;
     }
 
-    if (targetHost == QString::null)
+    if (targetHost == QString())
     {
         if (globalConfig)
             return globalConfig->deleteValue(variable, section);
@@ -807,7 +807,7 @@ bool coConfigRoot::deleteSection(const QString &section, const QString &targetHo
         return false;
     }
 
-    if (targetHost == QString::null)
+    if (targetHost == QString())
     {
         if (globalConfig)
             return globalConfig->deleteSection(section);
@@ -832,12 +832,12 @@ bool coConfigRoot::save(const QString &filename) const
     }
 
     QString saveToFile = filename;
-    if (filename == QString::null)
+    if (filename == QString())
     {
         saveToFile = this->filename;
     }
 
-    if (saveToFile == QString::null)
+    if (saveToFile == QString())
     {
         COCONFIGDBG("coConfigRoot::save info: no filename given, skipping save");
         return true;

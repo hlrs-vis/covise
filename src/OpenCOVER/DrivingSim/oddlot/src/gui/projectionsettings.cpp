@@ -60,7 +60,7 @@ ProjectionSettings::ProjectionSettings()
     ui->setupUi(this);
 
     //connect(this, SIGNAL(accepted()), this, SLOT(okPressed()));
-    connect(ui->presetBox, QOverload<const QString&>::of(&QComboBox::currentIndexChanged),[=](const QString &change){PresetIndexChanged(change);});
+    connect(ui->presetBox, &QComboBox::currentTextChanged, [=](const QString &change){PresetIndexChanged(change);});
 
     //Initialize presetBox
     /*QStringList set;

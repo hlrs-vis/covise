@@ -327,7 +327,7 @@ bool coConfigGroup::deleteValue(const QString &variable, const QString &section,
 
     QString configurationName = configuration;
 
-    if (configuration == QString::null)
+    if (configuration == QString())
     {
 
         coConfigEntryString oldValue = getValue(variable, section);
@@ -368,7 +368,7 @@ bool coConfigGroup::deleteSection(const QString &section, const QString &configu
     bool removed = false;
     QString configurationName = configuration;
 
-    if (configuration == QString::null)
+    if (configuration == QString())
     {
         for (QHash<QString, coConfigRoot *>::iterator i = configs.begin(); i != configs.end(); ++i)
         {
@@ -390,7 +390,7 @@ bool coConfigGroup::save(const QString &filename) const
         return true;
     }
 
-    if (filename == QString::null && configs.count() > 1)
+    if (filename == QString() && configs.count() > 1)
     {
         COCONFIGDBG("coConfigGroup::save warn: saving more than one config group, only the last one will be saved, consider flattening the configuration");
     }

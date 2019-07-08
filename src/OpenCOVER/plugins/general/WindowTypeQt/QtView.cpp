@@ -796,7 +796,7 @@ void QtSliderWidget::setText(const QString &text)
 void QtSliderWidget::setWidthText(const QString &text)
 {
     QFontMetrics fm(m_label->font());
-    int w = fm.width(text);
+    int w = fm.horizontalAdvance(text);
     m_label->setMinimumWidth(w);
     //std::cerr << "Slider label width " << w << " for " << text.toStdString() << std::endl;
 }

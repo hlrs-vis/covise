@@ -560,11 +560,11 @@ void OSCObjectSettings::addTreeItem(QTreeWidget *arrayTree, int name, OpenScenar
 	item->setText(0, QString::number(name));
 	if (object->validate() == OpenScenario::oscObjectBase::VAL_valid)
 	{
-		item->setTextColor(0, QColor(128, 195, 66));   // lightgreen
+		item->setForeground(0, QBrush(QColor(128, 195, 66)));   // lightgreen
 	}
 	else
 	{
-		item->setTextColor(0, Qt::white);
+		item->setForeground(0, QBrush(Qt::white));
 	}
 
 	arrayTree->addTopLevelItem(item);
