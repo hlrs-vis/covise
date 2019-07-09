@@ -18,11 +18,11 @@ namespace vrb
 class VRBEXPORT DataHandle
 {
 public:
-	DataHandle();
-	DataHandle(char* data, const int length);
+    DataHandle();
+    DataHandle(char* data, const int length);
 
 	const char* data() const;
-	const int length() const;
+    int length() const;
 
 private:
 

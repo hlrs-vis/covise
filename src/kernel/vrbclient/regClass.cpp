@@ -141,7 +141,8 @@ namespace vrb
 					changes[pos] = DataHandle(v, size);
 				}
 				serialize(outerTb, changes);
-				myVariables[varName] = createVar(varName, DataHandle(outerTb.take_data(), outerTb.get_length()));
+                auto l = outerTb.get_length();
+                myVariables[varName] = createVar(varName, DataHandle(outerTb.take_data(), l));
 				delete[] value;
 			}
 			else
@@ -230,7 +231,8 @@ namespace vrb
 			{
 				covise::TokenBuffer m;
 				tb >> m;
-				wholeMap = DataHandle(m.take_data(), m.get_length());
+                auto l = m.get_length();
+                wholeMap = DataHandle(m.take_data(), l);
 				m_changedEtries.clear();
 				deserialize(tb, m_changedEtries); //should be empty after complete map was send from ckient, may be filled after session was loaded from file
 				break;

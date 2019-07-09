@@ -140,7 +140,7 @@ void serialize(covise::TokenBuffer &tb, const std::vector<T> &value) {
         tb << getSharedStateType(value.front());
     }
     tb << size;
-    for (const T entry: value)
+    for (const T &entry: value)
     {
         serialize(tb, entry);
     }
@@ -158,7 +158,7 @@ void serialize(covise::TokenBuffer &tb, const std::set<T> &value) {
         tb << getSharedStateType(*value.begin());
     }
     tb << size;
-    for (const T entry : value)
+    for (const T &entry : value)
     {
         serialize(tb, entry);
     }

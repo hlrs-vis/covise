@@ -13,11 +13,8 @@
 using namespace std;
 namespace vrb
 {
-vrb::DataHandle::DataHandle()
-	:m_data(nullptr)
-	, m_length(0)
-{
-}
+
+DataHandle::DataHandle() = default;
 
 DataHandle::DataHandle(char* data, const int length)
 	: m_length(length)
@@ -31,7 +28,7 @@ const char* vrb::DataHandle::data() const
 	return m_data.get();
 }
 
-const int vrb::DataHandle::length() const
+int vrb::DataHandle::length() const
 {
 	return m_length;
 }
@@ -50,7 +47,8 @@ void deserialize<DataHandle>(covise::TokenBuffer& tb, DataHandle& value)
 {
 	covise::TokenBuffer n;
 	tb >> n;
-	value = DataHandle(n.take_data(), n.get_length());
+    auto l = n.get_length();
+    value = DataHandle(n.take_data(), l);
 
 }
 }
