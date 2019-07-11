@@ -796,7 +796,7 @@ void QtSliderWidget::setText(const QString &text)
 void QtSliderWidget::setWidthText(const QString &text)
 {
     QFontMetrics fm(m_label->font());
-#if QT_VERSION >= 0x051200
+#if QT_VERSION >= 0x050c00
     int w = fm.horizontalAdvance(text);
 #else
     int w = fm.width(text);
