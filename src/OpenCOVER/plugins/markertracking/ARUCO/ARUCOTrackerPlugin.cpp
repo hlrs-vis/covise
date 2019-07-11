@@ -319,9 +319,17 @@ void ARUCOPlugin::preFrame()
                 //cout << "#marker detected " << ids.size() << endl;
                 //cout << "#marker rejected " << rejected.size() << endl;
 
-                // todo: uses default marker size only
-                cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
-                                                     matDistCoefs, rvecs, tvecs);
+                try
+                {
+                    // todo: uses default marker size only
+                    cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
+                                                         matDistCoefs, rvecs, tvecs);
+                }
+                catch (cv::Exception &ex)
+                {
+                    std::cerr << "OpenCV exception: " << ex.what() << std::endl;
+                    ids.clear();
+                }
             }
 
             // draw results
