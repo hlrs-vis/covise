@@ -7,19 +7,7 @@
 
 #ifndef _ARUCO_PLUGIN_H
 #define _ARUCO_PLUGIN_H
-/****************************************************************************\ 
-**                                                            (C)2001 HLRS  **
-**                                                                          **
-** Description: ARUCO Plugin                                                **
-**                                                                          **
-**                                                                          **
-** Author: U.Woessner		                                                **
-**                                                                          **
-** History:  								                                **
-** Mar-16  v1	    				       		                            **
-**                                                                          **
-**                                                                          **
-\****************************************************************************/
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coVRCollaboration.h>
@@ -84,7 +72,10 @@ private:
     ui::Button* uiBtnDrawDetMarker = nullptr;
     ui::Button* uiBtnDrawRejMarker = nullptr;
     
-   
+    int markerSize; // default marker size
+
+
+
     
 
 
@@ -124,8 +115,8 @@ private:
 private:
     coVRCollaboration::SyncMode syncmode;
     
-void estimatePoseSingleMarker(cv::InputArrayOfArrays _corners,
-                               cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs,
-                               cv::OutputArrayOfArrays _rvecs, cv::OutputArrayOfArrays _tvecs);
+    void estimatePoseSingleMarker(cv::InputArrayOfArrays _corners,
+                                  cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs,
+                                  cv::OutputArrayOfArrays _rvecs, cv::OutputArrayOfArrays _tvecs);
 };
 #endif
