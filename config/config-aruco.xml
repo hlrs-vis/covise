@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 
 <COCONFIG version="1" >
+ <INCLUDE global="1" configname="general" >config.xml</INCLUDE>
+
   <GLOBAL>
     <COVER>
 
@@ -33,8 +35,10 @@
 
         <ARUCO value="ON">
           <Capture value="on" />
-          <VideoDevice value="1" width="1920" height="1080" />
-          <CameraCalibrationFile value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml" />
+          <VideoDevice ARCH="linux" value="0" width="1920" height="1080" fourcc="MJPG" fps="60" />
+          <CameraCalibrationFile ARCH="linux" value="/data/aruco/cameras/Logitech_HDProWebcamC920_No2_1920x1080.yaml" />
+          <VideoDevice ARCH="macos" value="0" width="1280" height="720" />
+          <CameraCalibrationFile ARCH="macos" value="config/opencv/apple_facetime_hd_camera.yaml" />
           <DictionaryID value="7" /> <!-- 7=DICT_5x5_1000 --> 
         </ARUCO>
 	
@@ -63,9 +67,5 @@
       
     </COVER>
   </GLOBAL>
-  
-  <INCLUDE global="1" configname="colormap" >config-colormaps.xml </INCLUDE>
-  <INCLUDE global="1" configname="filetypes" >config-filetypes.xml </INCLUDE>
-  <INCLUDE global="1" configname="spray" >config-spray.xml </INCLUDE>
   
 </COCONFIG>
