@@ -3,7 +3,6 @@ if(NOT COVISE_USE_OPENCV3)
     return()
 endif()
 
-USING(GLUT)
 USING(OpenCV)
 USING(ARUCO)
 

@@ -71,11 +71,13 @@ using std::endl;
 
 using namespace cv;
 
+#ifndef _WIN32
 struct myMsgbuf
 {
     long mtype;
     char mtext[100];
 };
+#endif
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -218,6 +220,9 @@ bool ARUCOPlugin::init()
         {
             cout << "capture device: device " << selectedDevice << " is open" << endl;
 
+            inputVideo.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+            std::cerr << "FOURCC: " << inputVideo.get(cv::CAP_PROP_FOURCC) << std::endl;
+
             int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
             int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
             std::cout << "   current size  = " << width << "x" << height << std::endl;
@@ -345,16 +350,13 @@ bool ARUCOPlugin::destroy()
 // ----------------------------------------------------------------------------
 void ARUCOPlugin::preFrame()
 {
-#ifndef _WIN32
-    struct myMsgbuf message;
-#endif
-
     if (ARToolKit::instance()->running)
     {
 
 #ifndef _WIN32
         if (msgQueue > 0)
         {
+            struct myMsgbuf message;
             // allow right capture process to continue
             message.mtype = 1;
             msgsnd(msgQueue, &message, 1, 0);

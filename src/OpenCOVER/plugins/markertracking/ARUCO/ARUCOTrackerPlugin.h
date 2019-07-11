@@ -19,8 +19,6 @@
 
 #include <cover/coVRPlugin.h>
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
 #include <opencv2/videoio/videoio.hpp>
 #include <opencv2/aruco.hpp>
 
