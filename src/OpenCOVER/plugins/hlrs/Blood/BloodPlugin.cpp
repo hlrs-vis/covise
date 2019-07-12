@@ -71,7 +71,7 @@ bool BloodPlugin::init() {
     //initialization
     knife.timeElapsed = cover -> frameDuration();
     knife.prevPosition = osg::Vec3(0,0,0);
-    knife.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).postMult(knife.length);
+    knife.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).preMult(knife.lengthInOR);
     //osg::Matrix hand = cover -> getPointerMat(); //convert pointerMat to ObjectsRoot coordinates
     //knife.currentPosition = hand.postMult(knife.length); //4x4 hand matrix * 3x1 length vector = 3x1 vector of the x/y/z coordinate of the tip of the knife
     
@@ -104,7 +104,8 @@ bool BloodPlugin::init() {
 
     //draw the sphere at the tip of the knife
     //tip of the knife: 0,-1500,0 but make it 0,-1450,0 to see it
-    particle.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).preMult(osg::Vec3(0,-1450,0)); //base units are in m
+    //particle.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).postMult(knife.lengthInOR); //base units are in m
+    particle.currentPosition = (cover -> getPointerMat()).postMult(knife.lengthInWC); //in world coordinates, units are mm
 
     particle.mass = 0.01;
     particle.dragModel = cdModel::CD_MOLERUS;
@@ -205,7 +206,9 @@ bool BloodPlugin::update() {
     knifeTransform -> setMatrix(rot * handInObjectsRoot);
 
     knife.prevPosition = knife.currentPosition;
-    knife.currentPosition = handInObjectsRoot.postMult(osg::Vec3(0,-1450,0)); //should be hand or handInObjectsRoot?
+    //knife.currentPosition = handInObjectsRoot.postMult(knife.lengthInOR); //should be hand or handInObjectsRoot?
+    knife.currentPosition = hand.postMult(knife.lengthInWC);
+    knife.currentPosition *= 100; //to match world coordinates system
 
     osg::Vec3 knifeShift = knife.currentPosition - knife.prevPosition;
     knife.velocity = (knifeShift / knife.timeElapsed);
@@ -232,35 +235,35 @@ To do
 - not actually sure if the projectile motion based on the knife velocity is rendering correctly so check that
  */
 
-double BloodPlugin::isSliding() {
-    //need to isolate the 4th row of the getPointerMat() matrix to determine the position of the knife
-    osg::Matrix knifePos = cover -> getPointerMat() * cover -> getInvBaseMat();
-    osg::Vec3 knifeTip = knifePos.postMult(knife.length); //vecor from the origin through the tip of the knife
+// double BloodPlugin::isSliding() {
+//     //need to isolate the 4th row of the getPointerMat() matrix to determine the position of the knife
+//     osg::Matrix knifePos = cover -> getPointerMat() * cover -> getInvBaseMat();
+//     osg::Vec3 knifeTip = knifePos.postMult(knife.length); //vecor from the origin through the tip of the knife
 
-    //necessary?
-    osg::Vec4 fourthAxis = osg::Vec4(0,0,0,1);
-    osg::Vec4 fourthRow = knifePos.postMult(fourthAxis);
-    osg::Vec3 newRefAxis = osg::Vec3(fourthRow.x(), 0,0); //set the new reference axis as a line in the x-direction through the midpoint of the knife
+//     //necessary?
+//     osg::Vec4 fourthAxis = osg::Vec4(0,0,0,1);
+//     osg::Vec4 fourthRow = knifePos.postMult(fourthAxis);
+//     osg::Vec3 newRefAxis = osg::Vec3(fourthRow.x(), 0,0); //set the new reference axis as a line in the x-direction through the midpoint of the knife
     
-    double hypotenuse = knife.tip.length();
-    double sinTheta = knife.tip.z() / hypotenuse;
-    double cosTheta = hypot(knife.tip.x(), knife.tip.y()) / hypotenuse;
+//     double hypotenuse = knife.tip.length();
+//     double sinTheta = knife.tip.z() / hypotenuse;
+//     double cosTheta = hypot(knife.tip.x(), knife.tip.y()) / hypotenuse;
 
-    double a = (GRAVITY * sinTheta) - (COEFF_STATIC_FRICTION * GRAVITY * cosTheta);
-    double pos = (0.5 * a * particle.timeElapsed * particle.timeElapsed) + (particle.velocity.x() * particle.timeElapsed);
+//     double a = (GRAVITY * sinTheta) - (COEFF_STATIC_FRICTION * GRAVITY * cosTheta);
+//     double pos = (0.5 * a * particle.timeElapsed * particle.timeElapsed) + (particle.velocity.x() * particle.timeElapsed);
     
-    if(pos > knife.length.length()) {
-        particle.onKnife = false;
-    } else { 
-        particle.onKnife = true;
-    }
-    if(a > 0) {
-        return a;
-    } else {
-        return 0.0;
-    }
+//     if(pos > knife.length.length()) {
+//         particle.onKnife = false;
+//     } else { 
+//         particle.onKnife = true;
+//     }
+//     if(a > 0) {
+//         return a;
+//     } else {
+//         return 0.0;
+//     }
    
-}
+// }
 
 void BloodPlugin::doAddBlood() { //seg faults
     //create a bunch of blood on the object
