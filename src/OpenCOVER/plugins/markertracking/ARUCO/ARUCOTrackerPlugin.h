@@ -49,16 +49,17 @@ public:
     
 protected:
     cv::VideoCapture inputVideo;
-    cv::Mat image;
+    cv::Mat image[3]; // for triple buffering
+    int displayIdx = 0, readyIdx = 1, captureIdx = 2;
     
     cv::Mat matCameraMatrix;
     cv::Mat matDistCoefs;
 
-    std::vector<int> ids;
+    std::vector<int> ids[3];
     std::vector<std::vector<cv::Point2f>> corners;
     std::vector<std::vector<cv::Point2f>> rejected;
-    std::vector<cv::Vec3d> rvecs;
-    std::vector<cv::Vec3d> tvecs;
+    std::vector<cv::Vec3d> rvecs[3];
+    std::vector<cv::Vec3d> tvecs[3];
     
     cv::Ptr<cv::aruco::Dictionary> dictionary;
     cv::Ptr<cv::aruco::DetectorParameters> detectorParams;
@@ -118,5 +119,11 @@ private:
     void estimatePoseSingleMarker(cv::InputArrayOfArrays _corners,
                                   cv::InputArray _cameraMatrix, cv::InputArray _distCoeffs,
                                   cv::OutputArrayOfArrays _rvecs, cv::OutputArrayOfArrays _tvecs);
+
+    std::mutex opencvMutex;
+    std::thread opencvThread;
+    bool opencvRunning = false;
+
+    void opencvLoop();
 };
 #endif
