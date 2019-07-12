@@ -813,11 +813,6 @@ ARToolKitMarker::ARToolKitMarker(const char *name)
             fprintf(stderr, "pattern load error for %s!!\n", pattern.c_str());
             pattID = 0;
         }
-        if (pattID > 100)
-        {
-            fprintf(stderr, "Pattern ID out of range !!\n");
-            pattID = 0;
-        }
     }
     char *label = new char[strlen(name) + 100];
     sprintf(label, "%s:", name);
