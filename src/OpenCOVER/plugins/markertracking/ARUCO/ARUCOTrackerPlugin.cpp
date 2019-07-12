@@ -31,6 +31,8 @@
 #include <cover/coVRMSController.h>
 #include <opencv2/calib3d/calib3d.hpp>
 
+#include <cover/coVRFileManager.h>
+
 
 #include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
@@ -236,6 +238,7 @@ bool ARUCOPlugin::init()
 
             // load calib data from file
 
+            calibrationFilename = coVRFileManager::instance()->getName(calibrationFilename.c_str());
             std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
 
             cv::FileStorage fs;
@@ -253,7 +256,7 @@ bool ARUCOPlugin::init()
             }
             else
             {
-                std::cerr << "failed to open file " << calibrationFilename << std::endl;
+                std::cerr << "failed to open calibration file " << calibrationFilename << std::endl;
                 return false;
             }
         }
