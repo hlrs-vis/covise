@@ -34,7 +34,7 @@ TUISlider::TUISlider(int id, int type, QWidget *w, int parent, QString name)
 
     string = new QLineEdit(w);
 
-    connect(string, SIGNAL(returnPressed()), this, SLOT(released()));
+    connect(string, SIGNAL(editingFinished()), this, SLOT(released()));
     slider->setMinimum(0);
     slider->setMaximum(1000);
 
