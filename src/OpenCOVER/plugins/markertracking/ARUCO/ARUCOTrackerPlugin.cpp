@@ -217,11 +217,17 @@ bool ARUCOPlugin::init()
         {
             cout << "capture device: device " << selectedDevice << " is open" << endl;
 
+            int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
+            int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
+            std::cout << "                width  = " << width << std::endl;
+            std::cout << "                height = " << height << std::endl;
+
+            xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
+            ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
+
             inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, xsize);
             inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, ysize);
-            
-            std::cout << "                width  = " << inputVideo.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
-            std::cout << "                height = " << inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+
 
             cv::Mat image;
 
