@@ -4,10 +4,10 @@
 <COCONFIG version="1" >
  <GLOBAL>
    <System>
-		<VRB>
+		<!--<VRB>
 			<Server value="vistidy.hlrs.de" tcpPort="31251" udpPort="31253" />
 			<RemoteFetch value="on" />
-		</VRB>
+		</VRB> -->
    </System>
    
   <COVER>
@@ -16,7 +16,8 @@
     <NumSlaves value="1" />
     
     <Startup ARCH="x11" value="${COVISEDIR}/bin/startOpenCOVER `pwd` $ARCHSUFFIX $COVISEDIR $COVISE_PATH $COCONFIG" name="0"/>
-    <Startup ARCH="windows" value="covRemote OpenCOVER 1;" name="0" />   	 
+    <Startup ARCH="windows" value="startOpenCover;" name="0" />   	 
+    <Host ARCH="windows" value="localhost" name="0" />   	 
    </MultiPC>
 
    <ScreenConfig>
