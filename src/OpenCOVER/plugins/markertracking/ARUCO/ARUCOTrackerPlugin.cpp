@@ -37,6 +37,7 @@
 #include <cover/coTabletUI.h>
 #include <cover/coVRPlugin.h>
 #include <cover/coInteractor.h>
+#include <util/unixcompat.h>
 
 #include <vector>
 #include <string>

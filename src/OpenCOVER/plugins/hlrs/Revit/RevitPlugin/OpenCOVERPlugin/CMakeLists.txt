@@ -13,6 +13,8 @@ ExportContext.cs
 MessageBuffer.cs
 Properties/AssemblyInfo.cs
 )
+# Set the C# language version (defaults to 3.0).
+set(CMAKE_CSharp_FLAGS "/langversion:latest")
 
 SET(BINLIB_SUFFIX "lib")
 SET(MYPATH_POSTFIX )
