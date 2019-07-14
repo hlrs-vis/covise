@@ -69,6 +69,7 @@ using namespace covise;
             std::cerr << "TokenBuffer: read past end (" << __FILE__ << ":" << __LINE__ << ")" << std::endl;               \
             std::cerr << "  required: " << sizeof(size_type) << ", available: " << data + length - currdata << std::endl; \
             assert(0 == "read past end");                                                                                 \
+            abort();                                                                                                      \
             return error_ret;                                                                                             \
         }                                                                                                                 \
     } while (false)
@@ -740,15 +741,27 @@ char *TokenBuffer::get_charp_token()
     currdata++;
     return (ret);
 }
+
+int TokenBuffer::get_length() const
+{
+    return (length);
+}
+
+const char *TokenBuffer::get_data() const
+{
+    return (data);
+}
+
 char* TokenBuffer::take_data()
 {
-	assert(buflen != 0);
+    assert(buflen != 0);
 
-	char* d = data;
-	buflen = length = 0;
+    char* d = data;
+    buflen = length = 0;
 	data = currdata = nullptr;
 	return d;
 }
+
 uint32_t TokenBuffer::get_int_token()
 {
     checktype(TbInt32);

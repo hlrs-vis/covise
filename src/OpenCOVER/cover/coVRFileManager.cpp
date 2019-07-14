@@ -1049,7 +1049,19 @@ coVRFileManager::coVRFileManager()
     }
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
-	remote_fetch_enabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
+	remoteFetchEnabled = coCoviseConfig::isOn("value", "System.VRB.RemoteFetch", false, nullptr);
+	std::string path = coCoviseConfig::getEntry("path", "System.VRB.RemoteFetch");
+	path = resolveEnvs(path);
+	if (fileExist(path))
+	{
+		remoteFetchPath = path;
+	}
+	else
+	{
+		std::string tmp = fs::temp_directory_path().string() + "/OpenCOVER";
+		fs::create_directory(tmp);
+		remoteFetchPath = tmp;
+	}
 }
 
 coVRFileManager::~coVRFileManager()
@@ -1194,7 +1206,7 @@ bool coVRFileManager::makeRelativePath(std::string& fileName,  const std::string
 	fileName.erase(0, abs.length());
 	return true;
 }
-std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isTmp)
+std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool *isTmp)
 {
 	coVRMSController* ms = coVRMSController::instance();
 	enum FilePlace
@@ -1203,7 +1215,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isT
 		LOCAL,		//local file
 		WORK,		//in current working directory
 		LINK,		//under shared data link
-		TMP,		//already in tmp directory
+		FETCHED,		//already in remote fetch directory
 		REMOTE		//fetch from remote in tmp directory
 	};
 	FilePlace filePlace = MISS;
@@ -1224,11 +1236,11 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isT
 
 		filePlace = LINK;
 	}
-	else if (fileExist(path = fs::temp_directory_path().string() + "/OpenCOVER/" + getFileName(filePath)))	//find fetched file in tmp
+	else if (remoteFetchPath.size() != 0 && fileExist(path = remoteFetchPath + "/" + getFileName(filePath)))
 	{
-		filePlace = TMP;
+		filePlace = FETCHED;
 	}
-	if (remote_fetch_enabled) //check if all have found the find locally
+	if (remoteFetchEnabled) //check if all have found the find locally
 	{
 		bool sync = true;
 		bool found = filePlace != MISS;
@@ -1283,7 +1295,7 @@ std::string coVRFileManager::findOrGetFile(const std::string& filePath, bool isT
 					else
 					{
 						const char* buf = tb.getBinary(numBytes);
-						path = writeTmpFile(getFileName(std::string(filePath)), buf, numBytes);
+						path = writeFile(getFileName(std::string(filePath)), buf, numBytes);
 					}
 				}
 				else
@@ -1845,7 +1857,7 @@ std::string coVRFileManager::remoteFetch(const std::string& filePath, int fileOw
 			return "";
 		}
 		buf = tb.getBinary(numBytes);
-		std::string pathToTmpFile = writeTmpFile(getFileName(std::string(filePath)), buf, numBytes);
+		std::string pathToTmpFile = writeFile(getFileName(std::string(filePath)), buf, numBytes);
 		delete mymsg;
 		mymsg = nullptr;
 		return pathToTmpFile;
@@ -1933,18 +1945,18 @@ std::string coVRFileManager::reduceToAlphanumeric(const std::string &str)
     return red;
 }
 
-std::string coVRFileManager::writeTmpFile(const std::string& fileName, const char* content, int size)
+std::string coVRFileManager::writeFile(const std::string& fileName, const char* content, int size)
 {
-	std::string pathToTmpFile = fs::temp_directory_path().string() + "/OpenCOVER";
-	fs::create_directory(pathToTmpFile);
-	pathToTmpFile += "/" + fileName;
+	
+	std::string p(remoteFetchPath);
+	p += "/" + fileName;
 
-	if ((size > 0) && !fileExist(pathToTmpFile))
+	if ((size > 0) && !fileExist(p))
 	{
 #ifndef _WIN32
-		int fd = open(pathToTmpFile.c_str(), O_RDWR | O_CREAT, 0777);
+		int fd = open(p.c_str(), O_RDWR | O_CREAT, 0777);
 #else
-		int fd = open(pathToTmpFile.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
+		int fd = open(p.c_str(), O_RDWR | O_CREAT | O_BINARY, 0777);
 #endif
 		if (fd != -1)
 		{
@@ -1958,11 +1970,11 @@ std::string coVRFileManager::writeTmpFile(const std::string& fileName, const cha
 		}
 		else
 		{
-			cerr << "opening file " << pathToTmpFile << " failed";
+			cerr << "opening file " << p << " failed";
 			return "";
 		}
 	}
-	return pathToTmpFile;
+	return p;
 }
 int coVRFileManager::guessFileOwner(const std::string& fileName)
 {
@@ -2021,6 +2033,61 @@ bool coVRFileManager::serializeFile(const std::string& fileName, covise::TokenBu
 	}
 	return true;
 }
+std::string coVRFileManager::cutStringAt(const std::string &s, char delimiter)
+{
+	std::string r;
+	auto it = s.begin();
+	while (it != s.end() && *it != delimiter)
+	{
+		r.push_back(*it);
+		++it;
+	}
+	return r;
+}
 
+std::string coVRFileManager::resolveEnvs(const std::string& s)
+{
+	std::string stringWithoutEnvs;
+#ifdef WIN32	
+	char delimiter = '%';
+
+#else 
+	char delimiter = '$';
+	char delimiter2 = '/';
+#endif
+	auto it = s.begin();
+	auto lastIt = s.begin();
+	while (it != s.end())
+	{
+		if (*it == delimiter)
+		{
+			stringWithoutEnvs.append(lastIt, it);
+			++it;
+			std::string env;
+#ifdef WIN32
+			while (*it != delimiter)
+#else		
+			while(*it != delimiter2)
+#endif
+			{
+
+				env.push_back(*it);
+				++it;
+			}
+
+			env = getenv(env.c_str());
+			env = cutStringAt(env, ';');
+#ifndef WIN32
+			env.push_back(delimiter2);
+#endif // !WIN32
+			stringWithoutEnvs += env;
+			++it;
+			lastIt = it;
+		}
+		++it;
+	}
+	stringWithoutEnvs.append(lastIt, s.end());
+	return stringWithoutEnvs;
+}
 
 }

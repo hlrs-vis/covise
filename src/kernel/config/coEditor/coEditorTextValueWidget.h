@@ -27,8 +27,8 @@ signals:
 
 public slots:
     void setValue(const QString &valueName, const QString &value,
-                  const QString &readableAttrRule = QString::null,
-                  const QString &attributeDescription = QString::null,
+                  const QString &readableAttrRule = QString(),
+                  const QString &attributeDescription = QString(),
                   bool required = false, const QRegExp &rx = QRegExp("^.*"));
     void suicide();
     void undo(); // relay to QlineEdit

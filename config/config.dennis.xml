@@ -52,6 +52,7 @@
 	
    <VRB>
     <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31253" />
+	<RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
    </VRB>
 
    <CRB>

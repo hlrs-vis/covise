@@ -101,7 +101,8 @@ public:
         assert(m_registry);
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        subscribe(DataHandle(data.take_data(), data.get_length()));
+        auto l = data.get_length();
+        subscribe(DataHandle(data.take_data(), l));
     }
 
     SharedState<T> &operator=(T value)
@@ -131,7 +132,8 @@ public:
         valueChanged = false;
         covise::TokenBuffer data;
         serializeWithType(data, m_value);
-        setVar(DataHandle(data.take_data(), data.get_length()));
+        auto l = data.get_length();
+        setVar(DataHandle(data.take_data(), l));
     }
 
     const T &value() const
@@ -168,11 +170,12 @@ public:
 		assert(m_registry);
 		covise::TokenBuffer data;
 		composeData(data);
-		subscribe(DataHandle(data.take_data(), data.get_length()));
+        auto l = data.get_length();
+        subscribe(DataHandle(data.take_data(), l));
 		setSyncInterval(0);
 	}
 
-	SharedMap<Key, Val>& operator=(T value)
+    SharedMap<Key, Val>& operator=(const T &value)
 	{
 		if (m_value != value)
 		{
@@ -220,7 +223,8 @@ public:
 		valueChanged = false;
 		covise::TokenBuffer data;
 		composeData(data);
-		setVar(DataHandle(data.take_data(), data.get_length()));
+        auto l = data.get_length();
+        setVar(DataHandle(data.take_data(), l));
 	}
 
 	const T& value() const

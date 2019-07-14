@@ -173,11 +173,11 @@ void ListStrListTModel::sort(int column, Qt::SortOrder order)
 
       if (sortOrder == Qt::AscendingOrder)
       {
-         qStableSort(listStrList.begin(), listStrList.end(), lt);
+          std::stable_sort(listStrList.begin(), listStrList.end(), lt);
       }
       else
       {
-         qStableSort(listStrList.begin(), listStrList.end(), gt);
+          std::stable_sort(listStrList.begin(), listStrList.end(), gt);
       }
 
       if (listStrList.size() > 0)

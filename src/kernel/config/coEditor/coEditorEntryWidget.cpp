@@ -187,7 +187,7 @@ void coEditorEntryWidget::examineEntry()
 
         // get value for this attribute from coConfigEntry
         if (rootEntry)
-            value = rootEntry->getValue((*item), QString::null);
+            value = rootEntry->getValue((*item), QString());
         //check wether there is a attrData structure for this attribute and get Data
         attrData *attributeData = info->getAttributeData((*item));
         if (attributeData)
@@ -381,7 +381,7 @@ void coEditorEntryWidget::suicide()
         {
             for (QList<QString>::const_iterator item = attributes.begin(); item != attributes.end(); ++item)
             {
-                rootEntry->deleteValue(*item, QString::null);
+                rootEntry->deleteValue(*item, QString());
             }
         }
     }

@@ -22,7 +22,7 @@ class CONFIGEDITOREXPORT coQtFileSelection : public Q3HBox
     Q_OBJECT
 
 public:
-    coQtFileSelection(QString filename = QString::null,
+    coQtFileSelection(QString filename = QString(),
                       QWidget *parent = 0);
     ~coQtFileSelection();
 

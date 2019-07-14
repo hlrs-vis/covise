@@ -39,7 +39,7 @@ public:
     coConfigXercesRoot(const QString &name, const QString &filename,
                        bool create = false, coConfigGroup *group = NULL);
     coConfigXercesRoot(const xercesc::DOMNode *node, const QString &name,
-                       const QString &filename = QString::null, coConfigGroup *group = NULL);
+                       const QString &filename = QString(), coConfigGroup *group = NULL);
 
     virtual ~coConfigXercesRoot();
 

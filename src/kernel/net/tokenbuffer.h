@@ -154,14 +154,8 @@ public:
     char get_char_token();;
     float get_float_token();
     char *get_charp_token();;
-    int get_length() const
-    {
-        return (length);
-    }
-    const char *get_data() const
-    {
-        return (data);
-    }
+    int get_length() const;
+    const char *get_data() const;
 	char* take_data();
     void reset();
     void rewind();

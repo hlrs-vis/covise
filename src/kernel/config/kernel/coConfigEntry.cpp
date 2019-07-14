@@ -32,7 +32,7 @@ coConfigEntry::coConfigEntry()
     : isListNode(false)
     , readOnly(false)
     , cName(0)
-    , name(QString::null)
+    , name(QString())
 {
     schemaInfos = 0;
 }
@@ -404,7 +404,7 @@ coConfigEntryStringList coConfigEntry::getScopeList(QString scope)
         else
         {
             childname = scope;
-            scope = QString::null;
+            scope = QString();
         }
 
         for (coConfigEntryPtrList::iterator child = children.begin();
@@ -466,7 +466,7 @@ coConfigEntryStringList coConfigEntry::getVariableList(QString scope)
         else
         {
             childname = scope;
-            scope = QString::null;
+            scope = QString();
         }
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
@@ -495,13 +495,13 @@ coConfigEntryString coConfigEntry::getValue(const QString &variable, QString sco
 {
     if (!matchingAttributes())
     {
-        return coConfigEntryString(QString::null);
+        return coConfigEntryString();
     }
 
     if (!scope.isEmpty())
     {
 
-        coConfigEntryString value(QString::null);
+        coConfigEntryString value;
         QString childname;
 
         if (scope.contains('.'))
@@ -550,10 +550,10 @@ coConfigEntryString coConfigEntry::getValue(const QString &variable, QString sco
     else
     {
         //COCONFIGLOG("coConfigEntry::getValue info: variable " << var << " not found");
-        return coConfigEntryString(QString::null);
+        return coConfigEntryString(QString());
     }
 
-    return coConfigEntryString(QString::null);
+    return coConfigEntryString(QString());
 }
 
 const char *coConfigEntry::getEntry(const char *variable)
@@ -651,7 +651,7 @@ bool coConfigEntry::setValue(const QString &variable,
         else
         {
             childname = scope;
-            scope = QString::null;
+            scope = QString();
         }
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)
@@ -687,13 +687,13 @@ bool coConfigEntry::setValue(const QString &variable,
     {
         delete[] this->cName;
         this->cName = 0;
-        this->name = QString::null;
+        this->name = QString();
     }
     else if (var == "index")
     {
         delete[] this->cName;
         this->cName = 0;
-        this->name = QString::null;
+        this->name = QString();
     }
     entryChanged(); //msg Observer
     return true;
@@ -727,7 +727,7 @@ void coConfigEntry::addValue(const QString &variable, const QString &value, cons
         else
         {
             childname = scope;
-            scope = QString::null;
+            scope = QString();
         }
 
         listOne->clear();
@@ -843,7 +843,7 @@ bool coConfigEntry::deleteValue(const QString &variable, const QString &section)
         else
         {
             childname = scope;
-            scope = QString::null;
+            scope = QString();
         }
 
         for (coConfigEntryPtrList::iterator child = children.begin(); child != children.end(); ++child)

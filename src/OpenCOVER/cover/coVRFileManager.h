@@ -131,7 +131,7 @@ public:
 	//changes fileName to be relative to basePath
 	bool makeRelativePath(std::string& fileName, const std::string& basePath);
     //search file locally, in sharedData and then try to remote fetch the file(if activated) until a the file gets found. Return "" if no file found. Use isTmp to eventually delete tmp files
-    std::string findOrGetFile(const std::string &fileName, bool isTmp = false);
+    std::string findOrGetFile(const std::string &fileName, bool *isTmp = (bool *)false);
     // load a OSG or VRML97 or other (via plugin) file
     osg::Node *loadFile(const char *file, coTUIFileBrowserButton *fb = NULL, osg::Group *parent = NULL, const char *covise_key = "");
 
@@ -213,8 +213,10 @@ public:
 private:
     // Get the configured font style.
     int coLoadFontDefaultStyle();
-	//set in 'config/system/vrb/remoteFetch value = "true"' to enable remote fetch. 
-	bool remote_fetch_enabled = false;
+	//set in 'config/system/vrb/RemoteFetch value = "on" to enable remote fetch in local usr tmp directory. 
+	bool remoteFetchEnabled = false;
+	//set in 'config/system/vrb/RemoteFetch path="your path" to chose a differen directory to remote Fetch to. 
+	std::string remoteFetchPath;
     std::string viewPointFile;
     int m_loadCount = 0;
     std::unique_ptr<ui::Owner> m_owner;
@@ -273,11 +275,18 @@ private:
     std::string reduceToAlphanumeric(const std::string & str);
 
 	///writes content into a file unter tmp/OpenCOVER/fileName. Returns the path to the file or "" on failure
-	std::string writeTmpFile(const std::string& fileName, const char* content, int size);
+	std::string writeFile(const std::string& fileName, const char* content, int size);
 	///compares the filePaths of m_sharedFiels wit filePath and returns the best matching fileOwner
 	int guessFileOwner(const std::string& filePath);
 	bool serializeFile(const std::string& fileName, covise::TokenBuffer& tb);
 	std::vector<covise::Message*> m_sendFileMessages;
+
+	//utility
+	public:
+		///return the substring of s until the delimiter(delimiter is cut off)
+		static std::string cutStringAt(const std::string &s, char delimiter);
+		///replaces all occurences of environmentvariables (%env$ on win or $env/ on unix) with the first entry (delimited by ';')
+		static std::string resolveEnvs(const std::string& s);
 };
 }
 #endif

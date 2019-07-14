@@ -136,7 +136,7 @@ SignalTreeWidget::init()
 				categoryMap.insert(signCategory,categoryWidget); 
 				QColor color;
 	            color.setHsv(signalManager_->getCategoryNumber(signCategory) * colorIndex, 255, 255, 255);
-				categoryWidget->setBackgroundColor(1, color);
+				categoryWidget->setBackground(1, QBrush(color));
 			}
 			QTreeWidgetItem *signs = new QTreeWidgetItem(categoryWidget); 
 			signs->setText(0,container->getSignalName());
@@ -164,7 +164,7 @@ SignalTreeWidget::init()
 				categoryMap.insert(objectCategory, categoryWidget); 
 				QColor color;
 	            color.setHsv(signalManager_->getCategoryNumber(objectCategory) * colorIndex, 255, 255, 255);
-				categoryWidget->setBackgroundColor(1, color);
+				categoryWidget->setBackground(1, QBrush(color));
 			}
 			QTreeWidgetItem *object = new QTreeWidgetItem(categoryWidget); 
 			object->setText(0,container->getObjectType());	
@@ -177,7 +177,7 @@ SignalTreeWidget::init()
 	bridgeWidget->setText(1,tr(""));
 	QColor color;
 	color.setHsv((categorySize - 1) * colorIndex, 255, 255, 255);
-	bridgeWidget->setBackgroundColor(1, color);
+	bridgeWidget->setBackground(1, QBrush(color));
 	rootList.append(bridgeWidget);
 
 	// add tunnel
@@ -185,7 +185,7 @@ SignalTreeWidget::init()
 	tunnelWidget->setText(0, "Tunnel");
 	tunnelWidget->setText(1,tr(""));
 	color.setHsv(categorySize * colorIndex, 255, 255, 255);
-	tunnelWidget->setBackgroundColor(1, color);
+	tunnelWidget->setBackground(1, QBrush(color));
 	rootList.append(tunnelWidget);
 
 	insertTopLevelItems(0,rootList);

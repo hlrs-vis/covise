@@ -68,6 +68,9 @@
 using namespace osg;
 using namespace vrui;
 
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
+
 namespace vrb
 {
 	template <>
@@ -2543,7 +2546,7 @@ virvo::VolumeDrawable *VolumePlugin::getCurrentDrawable()
 
 COVERPLUGIN(VolumePlugin)
 
-covise::TokenBuffer& vrb::operator<<(covise::TokenBuffer& tb, const vvTransFunc& id)
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id)
 {
 	std::vector<char> buf;
 	typedef boost::iostreams::back_insert_device<std::vector<char> > sink_type;
@@ -2560,12 +2563,12 @@ covise::TokenBuffer& vrb::operator<<(covise::TokenBuffer& tb, const vvTransFunc&
 
 	// Don't forget to flush the stream!!!
 	stream.flush();
-	tb << buf.size();
+	tb << int(buf.size());
 	tb.addBinary(&buf[0], buf.size());
 	return tb;
 }
 
-covise::TokenBuffer& vrb::operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
 {
 	int size;
 	tb >> size;

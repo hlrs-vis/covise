@@ -132,7 +132,7 @@ TUISGBrowserTab::TUISGBrowserTab(int id, int type, QWidget *w, int parent, QStri
 
     findEdit = new QLineEdit(frame);
     findEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    connect(findEdit, SIGNAL(returnPressed()), this, SLOT(findItemSLOT()));
+    connect(findEdit, SIGNAL(editingFinished()), this, SLOT(findItemSLOT()));
 
     Hlayout->addWidget(findEdit);
     Hlayout->addLayout(findlayout);

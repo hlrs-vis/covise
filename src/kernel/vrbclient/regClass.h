@@ -135,8 +135,8 @@ class VRBEXPORT clientRegClass : public regClass
 {
 private:
     regClassObserver *_observer = nullptr; //local observer class
-    int lastEditor;
-    VrbClientRegistry *registry;
+    int lastEditor = -1;
+    VrbClientRegistry *registry = nullptr;
 public:
     void sendMsg(covise::TokenBuffer &tb, covise::covise_msg_type type);
     clientRegClass(const std::string &n, int ID, VrbClientRegistry *reg);
@@ -163,8 +163,8 @@ public:
 class VRBEXPORT clientRegVar : public regVar
 {
 private:
-    regVarObserver *_observer;
-    int lastEditor;
+    regVarObserver *_observer = nullptr;
+    int lastEditor = -1;
 public:
     using regVar::regVar;
     ///returns the clent side observer
