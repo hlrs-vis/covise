@@ -7,13 +7,19 @@
 
 
 
-FIND_LIBRARY(REVIT_DIRECTORY NAMES "Revit 2024" "Revit 2023" "Revit 2022" "Revit 2021" "Revit 2020" "Revit 2019" "Revit 2018"
+FIND_PATH(REVIT_DIRECTORY NAMES AdWindows.dll RevitAPI.dll
   PATHS
-  $ENV{ProgramFiles}/Autodesk
+  $ENV{ProgramFiles}/Autodesk/"Revit 2024"
+  $ENV{ProgramFiles}/Autodesk/"Revit 2023"
+  $ENV{ProgramFiles}/Autodesk/"Revit 2022"
+  $ENV{ProgramFiles}/Autodesk/"Revit 2021"
+  $ENV{ProgramFiles}/Autodesk/"Revit 2020"
+  $ENV{ProgramFiles}/Autodesk/"Revit 2019"
+  "c:/Program Files/Autodesk/Revit 2020"
   NO_DEFAULT_PATH
 )
 IF (REVIT_DIRECTORY)
-  SET(REVIT_LIBRARIES ${REVIT_DIRECTORY}/AdWindows.dll ${REVIT_DIRECTORY}/RevitAPI.dll${REVIT_DIRECTORY}/RevitAPIUI.dll)
+  SET(REVIT_LIBRARIES ${REVIT_DIRECTORY}/AdWindows.dll ${REVIT_DIRECTORY}/RevitAPI.dll ${REVIT_DIRECTORY}/RevitAPIUI.dll)
 ELSE (REVIT_DIRECTORY)
   SET(REVIT_LIBRARIES NOTFOUND)
 ENDIF (REVIT_DIRECTORY)
