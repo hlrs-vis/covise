@@ -12,4 +12,4 @@
 	url = https://github.com/hlrs-vis/nvtop.git
 [submodule "src/tools/OpenFOAM-Exporter"]
 	path = src/tools/OpenFOAM-Exporter
-	url = git@github.com:hlrs-vis/OpenFOAM-Exporter.git
+	url = https://github.com/hlrs-vis/OpenFOAM-Exporter.git
