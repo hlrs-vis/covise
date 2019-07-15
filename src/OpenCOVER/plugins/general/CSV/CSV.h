@@ -134,7 +134,7 @@ public:
     void createMenu(const std::string &label);
     ui::Menu *labelMenu;
     ui::Label *currentLabel;
-    int64_t currentLabelNumber;
+    uint64_t currentLabelNumber;
     void updateLabel(int64_t ts);
     std::vector<LabelInfo> labels;
     virtual void setTimestep(int t);

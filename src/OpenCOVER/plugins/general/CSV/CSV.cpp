@@ -398,7 +398,7 @@ void CSVPlugin::updateLabel(int64_t ts)
     }
     if (labels.size()>currentLabelNumber && labels[currentLabelNumber].start < seconds && labels[currentLabelNumber].stop > seconds)
         return;
-    for (int i = 0; i < labels.size(); i++)
+    for (uint i = 0; i < labels.size(); i++)
     {
         if (labels[i].start < seconds && labels[i].stop > seconds)
         {
