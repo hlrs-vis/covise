@@ -137,7 +137,7 @@ bool BloodPlugin::init() {
     bloodTransform -> setName("bloodTransform");
     
     //create a sphere to model the blood, radius 10, position at the tip of the knife
-    bloodSphere = new osg::Sphere(particle.prevPosition, 5);
+    bloodSphere = new osg::Sphere(particle.prevPosition, 10);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodShapeDrawable -> setColor(bloodColor);
@@ -176,6 +176,12 @@ bool BloodPlugin::init() {
 }
 
 //unit discrepancy(?): do calcs in m for consistency
+
+/*
+- why doesn't the particle start/draw at the same spot as the knife (ie: cover -> getPointerMat())?
+- particle transitions too quickly from slipping to freefall, not sure if there's even any friction present
+ */
+
 bool BloodPlugin::update() { 
     osg::Matrix hand = cover -> getPointerMat();
     osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
@@ -187,66 +193,99 @@ bool BloodPlugin::update() {
     //moving and drawing the knife
     knifeTransform -> setMatrix(rot * handInObjectsRoot);
 
-    osg::Vec3 knifeLength(0,300,0); //in world coordinates (mm)
-    
-    knife.currentPosition = hand.postMult(knifeLength);
-    knife.currentPosition *= 100;
+    knife.currentPosition = knife.lengthInWC * rot * handInObjectsRoot;
+    //knife.currentPosition = knife.lengthInOR * rot * handInObjectsRoot;
 
-    if(knife.prevPosition.x() == 0) {
+    if(knife.prevPosition.x() == 0) { //from init()
         knife.prevPosition = knife.currentPosition;
+        particle.currentPosition = knife.currentPosition;
     }
 
     knife.shift = knife.currentPosition - knife.prevPosition;
 
+        //cerr << knife.currentPosition[0] << "," << knife.currentPosition[1] << "," << knife.currentPosition[2] << endl;
     knife.prevPosition = knife.currentPosition;
 
-    double knifeSpeed = knife.shift.length() / double(cover -> frameDuration());
+    double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
+    //cout << "knife speed: " << knifeSpeed << endl;
 
-    if(knifeSpeed > 1 || !particle.onKnife) {
-        //particle leaves the knife with an initial velocity equal to the knife's velocity
-        particle.velocity.set(knife.shift / double(cover -> frameDuration()));
-        particle.onKnife = false;
-    } else {
-        //particle has the same velocity as the knife
-        particle.velocity.set(0,0,0);
-        particle.currentPosition.set(knife.currentPosition);
+    //*************************************************************************************
+    // if(knifeSpeed > 5 || !particle.onKnife) {
+    //     //particle leaves the knife with an initial velocity equal to the knife's velocity
+    //     particle.velocity.set(knife.shift / (cover -> frameDuration()));
+    //     particle.onKnife = false;
+    // } else {
+    //     //particle has the same velocity as the knife
+    //     particle.velocity.set(0,0,0);
+    //     particle.currentPosition.set(knife.currentPosition);
+    // }
+    // particle.velocity += particle.gravity * float(cover -> frameDuration());
+    // particle.currentPosition += particle.velocity * (cover -> frameDuration());
+    //**************************************************************************************/
+
+    
+    if(firstUpdate) { //for the first iteration, set the particle velocity to be the same as the knife since you know the particle is on the knife at t = 0
+        particle.velocity.set(knife.shift / (cover -> frameDuration()));
+        firstUpdate = false;
+    }
+    
+    //double acceleration = isSliding(knife.shift);
+    static osg::Vec3 oldVelocity(0,0,0);
+    osg::Vec3 acceleration = oldVelocity - particle.velocity;
+    oldVelocity = particle.velocity;
+
+    if(acceleration.length() != 0) cout << "acceleration: " << acceleration.length() << endl << endl; //testing
+
+    //if((acceleration.length() > 2 && acceleration.length() < 10) || !particle.onKnife) { //assume the particle left the knife
+    if((acceleration.length() > 2000 && acceleration.length() < 10000) /* || !particle.onKnife */) {
+        //???????????????????????no downwards acceleration from gravity??????????????????????????????????
+        particle.currentPosition += (particle.gravity * 0.5 * pow(cover -> frameDuration(), 2.0)) + (particle.velocity * cover -> frameDuration());
+        //particle.onKnife = false;
+
+        // if(!particle.onKnife) { //particle has left the knife, particle is in freefall
+        //     //x =  1/2gt^2 + vt
+        //     particle.currentPosition = particle.gravity * 0.5 * (cover -> frameDuration() * cover -> frameDuration) + particle.velocity * cover -> frameDuration;
+        // } else {
+        //     //velocity = relative motion of particle wrt knife + velocity of knife
+        //     particle.velocity.set((acceleration * (cover -> frameDuration())) + (knife.shift / (cover -> frameDuration()));
+        //     particle.currentPosition += particle.velocity / (cover -> frameDuration());
+        // }
+
+    } else { //particle is still on the knife
+        particle.velocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
+        particle.currentPosition += particle.velocity * (cover -> frameDuration());
     }
 
-    particle.velocity += particle.gravity * float(cover -> frameDuration());
-    particle.currentPosition += particle.velocity * double(cover -> frameDuration());
-    
     particle.matrix.makeTranslate(particle.currentPosition);
-    bloodBaseTransform *= particle.matrix;
-    bloodTransform -> setMatrix(bloodBaseTransform);
+    bloodTransform -> setMatrix(particle.matrix);
+
 
     return true;
 }
 
-/*
-To do
-- why doesn't the particle start/draw at the same spot as the knife (ie: cover -> getPointerMat())?
-- particle transitions too quickly from slipping to freefall, not sure if there's even any friction present
-- particle position won't draw/show up if you do x = v*t
- */
+double BloodPlugin::isSliding(osg::Vec3 deltaPos) {
+    // double hypotenuse = signedLength(deltaPos);
+    // if(hypotenuse < 0) { //current - prev < 0: current position is below previous position
+    //     //assume that if the position is lower then friction force has been overcome
+        
+    // } else { //current - prev > 0, current position is above previous postion
 
-double BloodPlugin::isSliding() {
-    osg::Vec3 knifeTip = (cover -> getPointerMat() * cover -> getInvBaseMat()).postMult(knife.lengthInOR); //position of the tip of the knife
-
-    double hypotenuse = knifeTip.length();
-    double sinTheta = knifeTip.z() / hypotenuse;
-    double cosTheta = knifeTip.y() / hypotenuse;
+    // }
+    double hypotenuse = deltaPos.length();
+    double sinTheta = deltaPos.z() / hypotenuse; //doesnt work since this value is always 0
+    double cosTheta = deltaPos.y() / hypotenuse;
 
     double a_y = (GRAVITY * sinTheta) - (COEFF_STATIC_FRICTION * GRAVITY * cosTheta);
 
-    // if(a_y > 0) {
-    //     double pos = (0.5 * a_y * particle.timeElapsed * particle.timeElapsed) + (particle.velocity.y() * particle.timeElapsed);
+    if(a_y > 0) {
+        double pos = (0.5 * a_y * particle.timeElapsed * particle.timeElapsed)/*  + (particle.velocity.y() * particle.timeElapsed) */;
 
-    //     if(pos > knife.lengthInOR.length()) {
-    //         particle.onKnife = false;
-    //     } else {
-    //         particle.onKnife = true;
-    //     }
-    // }
+        if(pos > knife.lengthInOR.length()) {
+            particle.onKnife = false;
+        } else {
+            particle.onKnife = true;
+        }
+    }
 
     return a_y;
 }
@@ -261,71 +300,3 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 COVERPLUGIN(BloodPlugin)
-
-//when simulating multiple particles and using a vector of particles, remove a particle from the beginning of the vector
-    // if(isSliding()) { //frictional force has been overcome
-    //     if(!particle.onKnife) { 
-    //         //if particle left the knife, then do air resistance calculations
-    //         particle.airResistanceVelocity();
-    //         particle.prevPosition = particle.currentPosition;
-    //         particle.determinePosition();
-    //     } else {
-    //         particle.velocity = osg::Vec3(particle.a_x * particle.timeElapsed, particle.velocity.y(), particle.velocity.z()); //v and a in x is same as knife
-    //         particle.prevPosition = particle.currentPosition;
-    //         particle.currentPosition = osg::Vec3(particle.xPosition, particle.prevPosition.y(), particle.prevPosition.z());
-    //     }
-    // } else { //friction force hasn't been overcome yet, the particle moves as though it is a part of the knife
-    //     particle.velocity = knife.velocity;
-    //     particle.prevPosition = particle.currentPosition;
-    //     particle.currentPosition = knife.currentPosition;
-    // }
-
-    // double accel = isSliding(); //??????????????????????????????????????????????????????????????????????i think this function is messed up but thats a tomorrow problem
-    // //isSliding is a function which returns the acceleration of the particle if it is sliding on the knife
-    // if(accel > 0) {
-    //     if(particle.onKnife) { //if the particle is still on the knife, particle.velocity = knife.velocity + particle's relative velocity
-    //         particle.velocity.y() = knife.velocity.y() + accel * particle.timeElapsed; //assuming sliding happens in the y-direction
-    //         particle.velocity.z() = knife.velocity.z();
-    //         particle.velocity.x() = knife.velocity.x();
-    //         if(once) cout << "particle.onKnife == TRUE" << endl;
-    //     } else { //particle has left the knife, particle.velocity = velocity in air
-    //         particle.velocity = particle.airResistanceVelocity();
-    //         if(once) cout << "particle.onKnife == FALSE" << endl;
-    //     }
-    // } else { //the frictional force has not been overcome, particle.velocity = knife.velocity
-    //     particle.velocity = knife.velocity;
-    //     //if(once) cout << "accel < 0" << endl;
-    // }
-
-    // particle.currentPosition = particle.velocity * particle.timeElapsed;
-
-    // //testing
-    // // cout << "particle velocity: " << particle.velocity.x() << " " << particle.velocity.y() << " " << particle.velocity.z() << endl;
-    // cout << "particle position: " << particle.currentPosition.x() << " " << particle.currentPosition.y() << " " << particle.currentPosition.z() << endl << endl;
-    
-    // // if(knifeShift.length() == 0) {
-    // //     particle.currentPosition = particle.prevPosition;
-    // // } else {
-   
-    // //}
-    
-    // // particle.prevPosition = particle.currentPosition; //currentPosition in init() initialized to the same thing as handInObjectsRoot
-    // // particle.velocity = knife.velocity; //assuming for now the particle is on the knife, it travels with the same velocity as the knife
-    // // //particle.velocity += particle.gravity * particle.timeElapsed;//this causes it to not show up on the screen
-    // // particle.currentPosition += particle.velocity * particle.timeElapsed; //can't add acceleration otherwise it doesn't show on screen?
-    
-    // double acceleration = isSliding();
-    // cout << "isSliding return value: " << acceleration << endl; //testing
-    // particle.velocity = knife.velocity;
-
-    // if(acceleration > 0) { //static friction force has been overcome, adjust velocity accordingly
-    //     if(particle.onKnife) { //particle is still on the knife but is sliding
-    //         particle.velocity.y() += acceleration * particle.timeElapsed; //particle sliding in y direction along the knife
-    //         
-    //     } else { //particle has left the knife
-    //         particle.velocity = particle.airResistanceVelocity();
-    //         
-    //     }
-    // } else { //particle is still on the knife, frictional force has not been overcome yet
-    //     cout << "Ff > Fg_x" << endl;
-    // }

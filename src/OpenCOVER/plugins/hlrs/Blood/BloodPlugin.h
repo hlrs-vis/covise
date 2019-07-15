@@ -65,7 +65,7 @@ public:
     ~BloodPlugin(); 
     virtual bool init();
     virtual bool update();
-    double isSliding();
+    double isSliding(osg::Vec3 deltaPos);
     void doAddBlood();
     osg::ref_ptr<osg::Group> bloodNode;
     std::list<Blood*> bloodJunks;

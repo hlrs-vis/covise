@@ -30,6 +30,24 @@ enum cdModel {
     CD_NONE
 };
 
+// /* inline */ double volumeOfSphere(double radius); /* {
+// 	return 4/3 * PI * pow(radius, 2.0);
+// } */
+
+// /* inline */ double crossSectionalArea(double radius);/*  {
+//     return PI * radius * radius;
+// } */
+
+// /* inline */ double pythagoras(osg::Vec3 aVector);/*  {
+// 	double x2 = aVector.x() * aVector.x(); 
+// 	double y2 = aVector.y() * aVector.y();
+// 	double z2 = aVector.z() * aVector.z();
+	
+// 	return sqrt(x2 + y2 + z2);
+// }*/
+
+// /* inline */ double signedLength(osg::Vec3 anotherVector);
+
 inline double volumeOfSphere(double radius) {
 	return 4/3 * PI * pow(radius, 2.0);
 }
@@ -44,6 +62,14 @@ inline double pythagoras(osg::Vec3 aVector) {
 	double z2 = aVector.z() * aVector.z();
 	
 	return sqrt(x2 + y2 + z2);
+}
+
+inline double signedLength(osg::Vec3 anotherVector) {
+    if(anotherVector.x() < 0 || anotherVector.y() < 0 || anotherVector.z() < 0) {
+        return -1 * anotherVector.length();
+    } else {
+        return anotherVector.length();
+    }
 }
 
 #endif
