@@ -58,7 +58,7 @@ public:
 	Droplet();
 	~Droplet();
     double timeElapsed; //time between 2 successive readings, units: s
-    bool onKnife;
+    bool onKnife = true;;
     
     //kinematics data
     double radius; //units: m
