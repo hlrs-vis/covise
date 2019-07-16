@@ -104,6 +104,7 @@ bool BloodPlugin::init() {
     //initializing things for the particle
     particle.radius = 0.001; //radius = 10mm, Droplet class uses m as base unit
     particle.prevPosition.set(0,0,0);
+    particle.prevVelocity.set(0,0,0);
 
     //draw the sphere at the tip of the knife
     //tip of the knife: 0,-1500,0 but make it 0,-1450,0 to see it
@@ -117,7 +118,7 @@ bool BloodPlugin::init() {
     particle.timeElapsed = double(cover -> frameDuration());
     
     //any arbitrary velocity, change to velocity of knife later
-    //particle.velocity = osg::Vec3(10,0,100);
+    //particle.currentVelocity = osg::Vec3(10,0,100);
 
     //function calls to find the values of the fluid dynamics variables
     // particle.findReynoldsNum();
@@ -188,7 +189,7 @@ bool BloodPlugin::update() {
 
     //rotate clockwise 90 degrees about z-axis
     osg::Matrix rot;
-    rot.makeRotate((osg::PI_2 - osg::PI), osg::Vec3(0,0,1)); 
+    rot.makeRotate(-osg::PI_2, osg::Vec3(0,0,1)); 
 
     //moving and drawing the knife
     knifeTransform -> setMatrix(rot * handInObjectsRoot);
@@ -203,7 +204,6 @@ bool BloodPlugin::update() {
 
     knife.shift = knife.currentPosition - knife.prevPosition;
 
-        //cerr << knife.currentPosition[0] << "," << knife.currentPosition[1] << "," << knife.currentPosition[2] << endl;
     knife.prevPosition = knife.currentPosition;
 
     double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
@@ -212,53 +212,49 @@ bool BloodPlugin::update() {
     //*************************************************************************************
     // if(knifeSpeed > 5 || !particle.onKnife) {
     //     //particle leaves the knife with an initial velocity equal to the knife's velocity
-    //     particle.velocity.set(knife.shift / (cover -> frameDuration()));
+    //     particle.currentVelocity.set(knife.shift / (cover -> frameDuration()));
     //     particle.onKnife = false;
     // } else {
     //     //particle has the same velocity as the knife
-    //     particle.velocity.set(0,0,0);
+    //     particle.currentVelocity.set(0,0,0);
     //     particle.currentPosition.set(knife.currentPosition);
     // }
-    // particle.velocity += particle.gravity * float(cover -> frameDuration());
-    // particle.currentPosition += particle.velocity * (cover -> frameDuration());
+    // particle.currentVelocity += particle.gravity * float(cover -> frameDuration());
+    // particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
     //**************************************************************************************/
 
     
     if(firstUpdate) { //for the first iteration, set the particle velocity to be the same as the knife since you know the particle is on the knife at t = 0
-        particle.velocity.set(knife.shift / (cover -> frameDuration()));
+        particle.currentVelocity.set(knife.shift / (cover -> frameDuration()));
         firstUpdate = false;
     }
     
-    //double acceleration = isSliding(knife.shift);
-    static osg::Vec3 oldVelocity(0,0,0);
-    osg::Vec3 acceleration = oldVelocity - particle.velocity;
-    oldVelocity = particle.velocity;
+    osg::Vec3 acceleration = (particle.currentVelocity - particle.prevVelocity)/*  / cover -> frameDuration() */;
+    particle.prevVelocity = particle.currentVelocity;
 
     if(acceleration.length() != 0) cout << "acceleration: " << acceleration.length() << endl << endl; //testing
 
-    //if((acceleration.length() > 2 && acceleration.length() < 10) || !particle.onKnife) { //assume the particle left the knife
-    if((acceleration.length() > 2000 && acceleration.length() < 10000) /* || !particle.onKnife */) {
+    //if((acceleration.length() > 2 && acceleration.length() < 15) || !particle.onKnife) { //assume the particle left the knife
+    if((acceleration.length() > 2000 && acceleration.length() < 10000) || !particle.onKnife) {
         //???????????????????????no downwards acceleration from gravity??????????????????????????????????
-        particle.currentPosition += (particle.gravity * 0.5 * pow(cover -> frameDuration(), 2.0)) + (particle.velocity * cover -> frameDuration());
-        //particle.onKnife = false;
-
-        // if(!particle.onKnife) { //particle has left the knife, particle is in freefall
-        //     //x =  1/2gt^2 + vt
-        //     particle.currentPosition = particle.gravity * 0.5 * (cover -> frameDuration() * cover -> frameDuration) + particle.velocity * cover -> frameDuration;
-        // } else {
-        //     //velocity = relative motion of particle wrt knife + velocity of knife
-        //     particle.velocity.set((acceleration * (cover -> frameDuration())) + (knife.shift / (cover -> frameDuration()));
-        //     particle.currentPosition += particle.velocity / (cover -> frameDuration());
-        // }
+        //particle.currentVelocity += acceleration * cover -> frameDuration();
+        particle.currentPosition += (particle.gravity * 0.5 * pow(cover -> frameDuration(), 2.0)) + (particle.currentVelocity * cover -> frameDuration());
+        particle.onKnife = false;
 
     } else { //particle is still on the knife
-        particle.velocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
-        particle.currentPosition += particle.velocity * (cover -> frameDuration());
-    }
+        particle.currentVelocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
+        particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
+
+        // if(acceleration.length() > 10000) {
+        //     particle.onKnife = false;
+        // }
+    } 
+    
+    //cout << particle.currentPosition[0] << "," << particle.currentPosition[1] << "," << particle.currentPosition[2] << endl;
+
 
     particle.matrix.makeTranslate(particle.currentPosition);
     bloodTransform -> setMatrix(particle.matrix);
-
 
     return true;
 }
@@ -278,7 +274,7 @@ double BloodPlugin::isSliding(osg::Vec3 deltaPos) {
     double a_y = (GRAVITY * sinTheta) - (COEFF_STATIC_FRICTION * GRAVITY * cosTheta);
 
     if(a_y > 0) {
-        double pos = (0.5 * a_y * particle.timeElapsed * particle.timeElapsed)/*  + (particle.velocity.y() * particle.timeElapsed) */;
+        double pos = (0.5 * a_y * particle.timeElapsed * particle.timeElapsed)/*  + (particle.currentVelocity.y() * particle.timeElapsed) */;
 
         if(pos > knife.lengthInOR.length()) {
             particle.onKnife = false;

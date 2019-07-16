@@ -78,7 +78,7 @@ Droplet::~Droplet() {
 
 void Droplet::findReynoldsNum() {
     double Re;
-    Re = (RHO_BLOOD * pythagoras(velocity) * 2 * radius) / DYN_VISC_BLOOD;
+    Re = (RHO_BLOOD * pythagoras(currentVelocity) * 2 * radius) / DYN_VISC_BLOOD;
     cout << "Re = " << Re << endl;
 
     if(Re >= REYNOLDS_LIMIT) {
@@ -162,13 +162,13 @@ void Droplet::findTerminalVelocity() {
 osg::Vec3 Droplet::airResistanceVelocity() {
     //v_x = v_o * cos(theta) * exp(-gravity * time / terminalVelocity)
     //v_z = v_o * sin(theta) * exp(-gravity * time / terminalVelocity) - terminalVelocity * (1 - exp(-gravity * timeElapsed / terminalVelocity))
-    double velocityInY = velocity.y() * exp((-1) * GRAVITY * timeElapsed / terminalVelocity);
-    double velocityInZ = velocity.z() * exp(-1 * GRAVITY * timeElapsed / terminalVelocity) - terminalVelocity * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
+    double velocityInY = currentVelocity.y() * exp((-1) * GRAVITY * timeElapsed / terminalVelocity);
+    double velocityInZ = currentVelocity.z() * exp(-1 * GRAVITY * timeElapsed / terminalVelocity) - terminalVelocity * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
     
     //either assign these values to the velocity member var or make a new osg::Vec3 var
     //haven't decided yet
     osg::Vec3 velVec;
-    velVec = osg::Vec3(velocity.x(), velocityInY , velocityInZ);
+    velVec = osg::Vec3(currentVelocity.x(), velocityInY , velocityInZ);
     return velVec;    
 }
 
@@ -180,11 +180,11 @@ osg::Vec3 Droplet::determinePosition() {
 
     osg::Vec3 posVec;
 
-    //positionInX = velocity.x() * timeElapsed; 
-    positionInY = (velocity.y() * terminalVelocity) / GRAVITY * (1-exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
-    positionInX = velocity.x() * timeElapsed;
-    //positionInZ = velocity.z() * timeElapsed; 
-    positionInZ = (terminalVelocity / GRAVITY) * (velocity.z() + terminalVelocity) * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity)) - (terminalVelocity * timeElapsed);
+    //positionInX = currentVelocity.x() * timeElapsed; 
+    positionInY = (currentVelocity.y() * terminalVelocity) / GRAVITY * (1-exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
+    positionInX = currentVelocity.x() * timeElapsed;
+    //positionInZ = currentVelocity.z() * timeElapsed; 
+    positionInZ = (terminalVelocity / GRAVITY) * (currentVelocity.z() + terminalVelocity) * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity)) - (terminalVelocity * timeElapsed);
     
     //assign these values to the dropletPosition member variable or return a new osg::Vec3 type haven't decided yet
     posVec = osg::Vec3(positionInX, positionInY, positionInZ);
@@ -196,8 +196,8 @@ void Droplet::maxPosition() {
     //x = v_o * terminalVelocity * cos(theta) / g
     //z = terminalVelocity/gravity * (v_o * sin(theta) + terminalVelocity) - terminalVelocity * timeElapsed
     
-    double maxX = velocity.x() * terminalVelocity / GRAVITY;
-    double maxZ = terminalVelocity / GRAVITY * (velocity.z() + terminalVelocity) - (terminalVelocity * timeElapsed);
+    double maxX = currentVelocity.x() * terminalVelocity / GRAVITY;
+    double maxZ = terminalVelocity / GRAVITY * (currentVelocity.z() + terminalVelocity) - (terminalVelocity * timeElapsed);
     
     maxDisplacement.x() = maxX;
     maxDisplacement.z() = maxZ;
@@ -227,7 +227,7 @@ bool isSlipping() {
 
     double a_x = GRAVITY * sinTheta - COEFF_STATIC_FRICTION * GRAVITY * cosTheta;
 
-    double newDropletPosition = 0.5 * a_x * particle.timeElapsed * particle.timeElapsed + particle.velocity * particle.timeElapsed;
+    double newDropletPosition = 0.5 * a_x * particle.timeElapsed * particle.timeElapsed + particle.currentparticle.currentVelocity * particle.timeElapsed;
     
     
     
