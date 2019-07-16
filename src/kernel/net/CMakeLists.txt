@@ -17,6 +17,7 @@ SET(NET_SOURCES
   covise_connect.cpp
   covise_host.cpp
   covise_socket.cpp
+  dataHandle.cpp
   message.cpp
   tokenbuffer.cpp
   udpMessage.cpp
@@ -26,6 +27,7 @@ SET(NET_HEADERS
   covise_connect.h
   covise_host.h
   covise_socket.h
+  dataHandle.h
   message.h
   message_types.h
   tokenbuffer.h

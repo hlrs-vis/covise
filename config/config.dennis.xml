@@ -51,7 +51,7 @@
     <WSInterface value="false" />
 	
    <VRB>
-    <Server value="visent.hlrs.de" tcpPort="31251" udpPort="31253" />
+    <Server value="viscluster80.hlrs.de" tcpPort="31251" udpPort="49999" />
 	<RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
    </VRB>
 
