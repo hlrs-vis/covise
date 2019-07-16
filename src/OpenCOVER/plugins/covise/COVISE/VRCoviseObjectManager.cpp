@@ -1374,6 +1374,15 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             groupNode->setUserData(new InteractorReference(inter));
         }
 
+
+        if (groupNode)
+        {
+            if (osg::Sequence * pSequence = dynamic_cast<osg::Sequence*>(groupNode)) // timesteps
+            {
+                coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
+            }
+        }
+
         return groupNode;
     }
 
