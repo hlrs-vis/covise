@@ -5,11 +5,17 @@
 
  * License: LGPL 2+ */
 #include "VrbServerRegistry.h"
+
 #include <util/unixcompat.h>
+
 #include <net/tokenbuffer.h>
+#include <net/dataHandle.h>
+
 #include <VrbClientList.h>
-#include <iostream>
 #include <vrbclient/SharedStateSerializer.h>
+
+#include <iostream>
+
 #include <assert.h>
 
 
@@ -137,10 +143,10 @@ void VrbServerRegistry::observe(int sender)
 void VrbServerRegistry::observeVar(int ID, const std::string &className, const std::string &variableName, const DataHandle &value)
 {
     auto classIt = myClasses.find(className);
+    //std::map<const std::string, std::shared_ptr< serverRegClass>>::iterator classIt = myClasses.find(className);
     if (classIt == myClasses.end()) //if class does not exists create it
     {
 		auto rc = std::shared_ptr< serverRegClass>(new serverRegClass(className, ID));
-//		auto rc = std::make_shared<serverRegClass>(className, ID);
         classIt = myClasses.emplace(className, rc).first;
     }
 	std::dynamic_pointer_cast<vrb::serverRegClass>(classIt->second)->observeVar(ID, variableName, value);

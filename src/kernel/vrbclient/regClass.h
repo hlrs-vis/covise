@@ -8,8 +8,7 @@
 #ifndef REGCLASS_H
 #define REGCLASS_H
 
-#include "dataHandle.h"
-
+#include <net/dataHandle.h>
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
 #include <map>
@@ -23,6 +22,7 @@ class coCharBuffer;
 namespace covise
 {
 class VRBClient;
+class DataHandle;
 }
 
 namespace vrb
@@ -70,7 +70,7 @@ public:
     ///reads the name and value out of stream, return false if class has no variable
 	void readVar(std::ifstream& file);
 
-    virtual std::shared_ptr<regVar> createVar(const std::string &name, const DataHandle &value) = 0;
+    virtual std::shared_ptr<regVar> createVar(const std::string &name, const covise::DataHandle &value) = 0;
 
 protected:
     std::string name;
@@ -94,26 +94,26 @@ protected:
 	///writes value to tb, in case of SahredMap also writes all changes
 	void sendValue(covise::TokenBuffer& tb);
 
-	DataHandle value;
+	covise::DataHandle value;
 
 public:
 	//for SahredMaps
-	typedef std::map<int, DataHandle> EntryMap;
-	DataHandle wholeMap;
+	typedef std::map<int, covise::DataHandle> EntryMap;
+	covise::DataHandle wholeMap;
 	EntryMap m_changedEtries;
 
-	regVar(regClass* c, const std::string& n, const DataHandle & v, bool s = 1);
+	regVar(regClass* c, const std::string& n, const covise::DataHandle & v, bool s = 1);
 
 	virtual ~ regVar();
 
 	/// returns the value
-	const DataHandle& getValue() const;
+	const covise::DataHandle& getValue() const;
 
     /// returns the class of this variable
 	regClass* getClass();
 
 	/// set value
-	void setValue(const DataHandle& v);
+	void setValue(const covise::DataHandle& v);
 
     /// returns true if this Var is static
 	int isStatic();
@@ -158,7 +158,7 @@ public:
     void resubscribe(const SessionID &sessionID);
     void subscribe(regClassObserver *obs, const SessionID &sessionID);
     VariableMap &getAllVariables();
-    std::shared_ptr<regVar> createVar(const std::string &name, const DataHandle &value) override;
+    std::shared_ptr<regVar> createVar(const std::string &name, const covise::DataHandle &value) override;
 };
 class VRBEXPORT clientRegVar : public regVar
 {

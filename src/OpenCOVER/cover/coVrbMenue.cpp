@@ -94,29 +94,34 @@ void VrbMenue::init()
 	testBtn->setText("testBtn");
 	testBtn->setCallback([this]()
 		{
-			static int count = 0;
-			static int loop = 0;
-			if (count < test.value().size())
-			{
-				++count;
-				test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
-			}
-			else if (count > 5)
-			{
-				count = 1;
-				++loop;
-				test.changeEntry(std::to_string(count), "new loop (" + std::to_string(loop) + ") at pos " + std::to_string(count));
-			}
-			else
-			{
-				++count;
-				std::map<std::string, std::string> m = test.value();
-				m[std::to_string(count)] = "new entry at " + std::to_string(count);
-				test = m;
-			}
+			covise::TokenBuffer tb;
+			tb << std::string("test udp message from OpenCOVER");
+			vrb::UdpMessage m(tb);
+			m.type = vrb::udp_msg_type::AVATAR_HMD_POSITION;
+			cover->sendVrbUdpMessage(&m);
+			//static int count = 0;
+			//static int loop = 0;
+			//if (count < test.value().size())
+			//{
+			//	++count;
+			//	test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
+			//}
+			//else if (count > 5)
+			//{
+			//	count = 1;
+			//	++loop;
+			//	test.changeEntry(std::to_string(count), "new loop (" + std::to_string(loop) + ") at pos " + std::to_string(count));
+			//}
+			//else
+			//{
+			//	++count;
+			//	std::map<std::string, std::string> m = test.value();
+			//	m[std::to_string(count)] = "new entry at " + std::to_string(count);
+			//	test = m;
+			//}
 
 		});
-	testBtn->setEnabled(false);
+	testBtn->setEnabled(true);
 }
 
 void VrbMenue::initFileMenue()

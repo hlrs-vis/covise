@@ -11,8 +11,13 @@
 #include <cassert>
 
 using namespace std;
-namespace vrb
+namespace covise
 {
+DataHandle::DataHandle()
+	:m_data(nullptr)
+	, m_length(0)
+{
+}
 
 DataHandle::DataHandle() = default;
 
@@ -23,32 +28,14 @@ DataHandle::DataHandle(char* data, const int length)
 }
 
 
-const char* vrb::DataHandle::data() const
+const char* DataHandle::data() const
 {
 	return m_data.get();
 }
 
-int vrb::DataHandle::length() const
+const int DataHandle::length() const
 {
 	return m_length;
 }
 
-
-
-template<>
-void serialize<DataHandle>(covise::TokenBuffer& tb, const DataHandle& value)
-{
-	covise::TokenBuffer n(value.data(), value.length());
-	tb << n;
-}
-//!copies the data 
-template<>
-void deserialize<DataHandle>(covise::TokenBuffer& tb, DataHandle& value)
-{
-	covise::TokenBuffer n;
-	tb >> n;
-    auto l = n.get_length();
-    value = DataHandle(n.take_data(), l);
-
-}
 }

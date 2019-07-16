@@ -6,14 +6,19 @@
  * License: LGPL 2+ */
 
 #include "SharedState.h"
-#include <vrbclient/regClass.h>
 #include "SharedStateManager.h"
-#include <vrbclient/VrbClientRegistry.h>
+#include "regClass.h"
+#include "VrbClientRegistry.h"
+
 #include <chrono>
 #include <ctime>
 
+#include <net/tokenbuffer.h>
+#include <net/dataHandle.h>
 
 
+
+using namespace covise;
 namespace vrb
 {
 
@@ -49,10 +54,10 @@ void SharedStateBase::subscribe(const DataHandle &val)
 
 void SharedStateBase::setVar(const DataHandle & val)
 {
-    m_valueData = val;
+    m_valueData.reset(&val);
 	if (syncInterval <= 0)
 	{
-		m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
+		m_registry->setVar(sessionID, m_className, variableName, val, muted);
 	}
 	else
 	{
@@ -112,7 +117,7 @@ void SharedStateBase::resubscribe(const SessionID &id)
         m_registry->unsubscribeVar(m_className, variableName, true);
     }
 
-    m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
+    m_registry->subscribeVar(id, m_className, variableName, *m_valueData, this);
 }
 
 void SharedStateBase::frame(double time)
@@ -125,7 +130,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
+        m_registry->setVar(sessionID, m_className, variableName, *m_valueData, muted);
         lastUpdateTime = time;
         send = false;
     }
@@ -143,7 +148,7 @@ float SharedStateBase::getSyncInerval()
 void SharedStateBase::becomeMaster()
 {
     muted = false;
-    if (m_valueData.length() > 0)
+    if (m_valueData->length() > 0)
     {
         send = true;
     }

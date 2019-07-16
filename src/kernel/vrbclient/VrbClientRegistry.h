@@ -17,6 +17,7 @@
 namespace covise
 {
 class VRBClient;
+class DataHandle;
 }
 namespace vrb
 {
@@ -49,7 +50,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    clientRegVar *subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, const DataHandle &value, regVarObserver *ob);
+    clientRegVar *subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &value, regVarObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
@@ -77,7 +78,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @flag   flag=0: session local variable, flag=1: global variable surviving a session
        */
-    void createVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
+    void createVar(const SessionID sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &value, bool isStatic = false);
 
     /**
        *  Sets a specific variable value in the registry. The Vrb server
@@ -87,7 +88,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @val    current variable value to be set in the registry
        */
-    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, DataHandle &val, bool muted = false);
+    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &val, bool muted = false);
 
     /**
        *  Destroys a specific variable in the registry. All observers attached
