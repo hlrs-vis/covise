@@ -5,16 +5,21 @@
 
  * License: LGPL 2+ */
 #include "VrbUiMessageHandler.h"
+#include "VRBServer.h"
+#include "VrbUiClientList.h"
+
+#include "gui/VRBapplication.h"
+#include "gui/coRegister.h"
+
 #include <net/message.h>
 #include <net/message_types.h>
 #include <net/tokenbuffer.h>
+#include <net/dataHandle.h>
+
 #include <vrbclient/SharedStateSerializer.h>
-#include <vrbclient/dataHandle.h>
 #include <vrbclient/SessionID.h>
-#include "VRBServer.h"
-#include "VrbUiClientList.h"
-#include "gui/VRBapplication.h"
-#include "gui/coRegister.h"
+
+
 
 #include <qsocketnotifier.h>
 #define IOMANIPH
@@ -22,7 +27,7 @@
 
 using namespace covise;
 
-void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, vrb::DataHandle& value)
+void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle& value)
 {
     char * charVal;
 	TokenBuffer tb(value.data(), value.length());

@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 #include "SharedStateSerializer.h"
-
+#include <net/dataHandle.h>
 namespace vrb
 {
 template <>
@@ -110,4 +110,17 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
     return valueString;
 }
 
+template<>
+void serialize<covise::DataHandle>(covise::TokenBuffer& tb, const covise::DataHandle& value) {
+    covise::TokenBuffer n(value.data(), value.length());
+    tb << n;
+}
+//!copies the data 
+template<>
+void deserialize<covise::DataHandle>(covise::TokenBuffer& tb, covise::DataHandle& value) {
+    covise::TokenBuffer n;
+    tb >> n;
+    value = covise::DataHandle(n.take_data(), n.get_length());
+
+}
 }

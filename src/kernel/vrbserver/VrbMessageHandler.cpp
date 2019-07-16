@@ -12,7 +12,6 @@
 
 #include <vrbclient/SessionID.h>
 #include <vrbclient/SharedStateSerializer.h>
-#include <vrbclient/dataHandle.h>
 
 #include <util/coTabletUIMessages.h>
 #include <util/unixcompat.h>
@@ -22,6 +21,7 @@
 #include <net/udp_message_types.h>
 #include <net/udpMessage.h>
 #include <net/covise_connect.h>
+#include <net/dataHandle.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1455,7 +1455,7 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		break;
 	}
 }
-void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, DataHandle &value)
+void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle &value)
 {
     //std::cerr <<"userinterface not implemented" << std:endl;
 }
