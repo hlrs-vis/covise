@@ -232,10 +232,10 @@ bool BloodPlugin::update() {
     osg::Vec3 acceleration = (particle.currentVelocity - particle.prevVelocity)/*  / cover -> frameDuration() */;
     particle.prevVelocity = particle.currentVelocity;
 
-    if(acceleration.length() != 0) cout << "acceleration: " << acceleration.length() << endl << endl; //testing
+    if(acceleration.length() != 0) cout << "acceleration: " << acceleration << endl << endl; //testing
 
     //if((acceleration.length() > 2 && acceleration.length() < 15) || !particle.onKnife) { //assume the particle left the knife
-    if((acceleration.length() > 2000 && acceleration.length() < 10000) || !particle.onKnife) {
+    if(/* particle.currentPosition.z() > 0 &&  */((acceleration.length() > 2000 && acceleration.length() < 10000) || !particle.onKnife)) {
         //???????????????????????no downwards acceleration from gravity??????????????????????????????????
         //particle.currentVelocity += acceleration * cover -> frameDuration();
         particle.currentPosition += (particle.gravity * 0.5 * pow(cover -> frameDuration(), 2.0)) + (particle.currentVelocity * cover -> frameDuration());
@@ -245,13 +245,13 @@ bool BloodPlugin::update() {
         particle.currentVelocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
         particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
 
-        // if(acceleration.length() > 10000) {
-        //     particle.onKnife = false;
-        // }
-    } 
+        if(acceleration.length() > 20000) {
+            particle.onKnife = false;
+        }
+    }
     
+    cout << particle.currentPosition << endl << endl;
     //cout << particle.currentPosition[0] << "," << particle.currentPosition[1] << "," << particle.currentPosition[2] << endl;
-
 
     particle.matrix.makeTranslate(particle.currentPosition);
     bloodTransform -> setMatrix(particle.matrix);

@@ -72,4 +72,9 @@ inline double signedLength(osg::Vec3 anotherVector) {
     }
 }
 
+inline ostream& operator<<(ostream& os, const osg::Vec3 toPrint) {
+    os << toPrint.x() << " " << toPrint.y() << " " << toPrint.z();
+    return os;
+}
+
 #endif
