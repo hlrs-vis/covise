@@ -645,6 +645,10 @@ void ReadABAQUSfil::param(const char *paramName, bool in_map_loading)
 		      jobhead.no_sup_elems = jobhead.no_sup_elems - 1;
 		      break;
 
+		    case 4914359945723593801: // IDCOUP3D
+		      jobhead.no_sup_elems = jobhead.no_sup_elems - 1;
+		      break;
+		      
 		    case 2314885530818458707: // S4
 		      jobhead.no_conn = jobhead.no_conn + 4;
 		      break;
@@ -979,7 +983,9 @@ int ReadABAQUSfil::compute(const char *port)
 	    case 2325039727751676740: // DCOUP3D
 	      ii_Elems = ii_Elems - 1;
 	      break;
-
+	    case 4914359945723593801: // IDCOUP3D
+	      ii_Elems = ii_Elems - 1;
+	      break;
 	    case 2314885530818458707: // S4
 	      for (ii = 0; ii < 4; ++ii)
                 {
