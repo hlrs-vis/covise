@@ -79,7 +79,7 @@ Droplet::~Droplet() {
 void Droplet::findReynoldsNum() {
     double Re;
     Re = (RHO_BLOOD * pythagoras(currentVelocity) * 2 * radius) / DYN_VISC_BLOOD;
-    cout << "Re = " << Re << endl;
+    //cout << "Re = " << Re << endl;
 
     if(Re >= REYNOLDS_LIMIT) {
         cout << "Drag modeling behaves correctly until Re = "<< REYNOLDS_LIMIT << " ! Currently Re = " << Re << "\nPropagation may be incorrect!" << endl;
@@ -106,41 +106,41 @@ void Droplet::findDragCoefficient() {
     
     if(dragModel == cdModel::CD_STOKES) {
         cdLam = 24/ReynoldsNum;
-        cout << "Cd_lam = " << cdLam << endl;
+        //cout << "Cd_lam = " << cdLam << endl;
         
         //???????????????????????????????????cdLam is always a small number because ReynoldsNum is on the order of magnitude of 10^5
         //thus cdLam will almost never be > CD_TURB so function will always return CD_TURB
         
         if(cdLam > CD_TURB) {//idk why you have to do this but they did it in gen.cpp so...
-            cout << "cdLam > cdTurb (0.15)" << endl;
+            //cout << "cdLam > cdTurb (0.15)" << endl;
             //return cdLam;
             dragCoeff = cdLam;
         } else {
-            cout << "cdLam <= cdTurb (0.15)" << endl;
+            //cout << "cdLam <= cdTurb (0.15)" << endl;
             //return CD_TURB;
             dragCoeff = CD_TURB;
         }
         
     } else if(dragModel == cdModel::CD_MOLERUS) {
         cdLam = 24/ReynoldsNum + 0.4/sqrt(ReynoldsNum) + 0.4;
-        cout << "Cd_lam = " << cdLam << endl;
+        //cout << "Cd_lam = " << cdLam << endl;
         //return cdLam;
         dragCoeff = cdLam;
         
     } else if(dragModel == cdModel::CD_MUSCHELK) {
         cdLam = 21.5/ReynoldsNum + 6.5/sqrt(ReynoldsNum) + 0.23;
-        cout << "Cd_lam = " << cdLam << endl;
+        //cout << "Cd_lam = " << cdLam << endl;
         //return cdLam;
         dragCoeff = cdLam;
         
     } else if(dragModel == cdModel::CD_NONE) {
         cdLam = 0.0;
-        cout << "Cd_lam = " << cdLam << endl;
+        //cout << "Cd_lam = " << cdLam << endl;
         //return cdLam;
         dragCoeff = cdLam;
         
     } else {
-        cout << "Cd_lam = 0.47" << endl;
+        //cout << "Cd_lam = 0.47" << endl;
         //return 0.47; //drag coefficient for a smooth sphere with Re = 1x10^5 (from Wikipedia)
         dragCoeff = 0.47;
     }

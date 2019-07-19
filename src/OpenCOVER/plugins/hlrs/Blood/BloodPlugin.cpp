@@ -102,7 +102,7 @@ bool BloodPlugin::init() {
     
     //*********************************************************************************************************************************INITIALIZING DROPLET CLASS
     //initializing things for the particle
-    particle.radius = 0.001; //radius = 10mm, Droplet class uses m as base unit
+    particle.radius = 0.001; //particle radius = 1mm
     particle.prevPosition.set(0,0,0);
     particle.prevVelocity.set(0,0,0);
 
@@ -172,17 +172,12 @@ bool BloodPlugin::init() {
     addBlood->setText("Add Blood");
     addBlood->setCallback([this]() {doAddBlood(); });
     
+    cout << "frame duration: " << cover -> frameDuration() << endl; //frame duration: 1.3 seconds
         
     return true;
 }
 
 //unit discrepancy(?): do calcs in m for consistency
-
-/*
-- why doesn't the particle start/draw at the same spot as the knife (ie: cover -> getPointerMat())?
-- particle transitions too quickly from slipping to freefall, not sure if there's even any friction present
- */
-
 bool BloodPlugin::update() { 
     osg::Matrix hand = cover -> getPointerMat();
     osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
@@ -194,64 +189,99 @@ bool BloodPlugin::update() {
     //moving and drawing the knife
     knifeTransform -> setMatrix(rot * handInObjectsRoot);
 
-    knife.currentPosition = knife.lengthInWC * rot * handInObjectsRoot;
-    //knife.currentPosition = knife.lengthInOR * rot * handInObjectsRoot;
-
-    if(knife.prevPosition.x() == 0) { //from init()
+    //knife.currentPosition = knife.lengthInWC * rot * handInObjectsRoot;
+    knife.currentPosition = knife.lengthInOR * rot * handInObjectsRoot;
+    
+    if(knife.prevPosition.x() == 0) { //will be true on the first time update() is run
         knife.prevPosition = knife.currentPosition;
-        particle.currentPosition = knife.currentPosition;
+        particle.currentPosition/*. set(0,0,0) */ = knife.currentPosition; //testing
+        //cout << "from init(), particle position is: " << particle.currentPosition << endl; //testing
     }
+
+    if(firstUpdate && particle.currentVelocity.length() != 0) {
+        particle.findReynoldsNum();
+        particle.findDragCoefficient();
+        //particle.findWindForce();
+        particle.findTerminalVelocity(); //terminal velocity approx 27 m/s (92 km/h)
+        //cout << "particle terminal velocity: " << particle.terminalVelocity << endl;
+        firstUpdate = false;
+    }
+    
 
     knife.shift = knife.currentPosition - knife.prevPosition;
 
     knife.prevPosition = knife.currentPosition;
 
-    double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
-    //cout << "knife speed: " << knifeSpeed << endl;
+    static double prevKnifeSpeed;
+    double knifeAccel;
+
+    static bool elseEntered = false; //testing
+    if(particle.onKnife) {
+        prevKnifeSpeed = 0;
+        double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
+        knifeAccel = (knifeSpeed - prevKnifeSpeed) / cover -> frameDuration();
+        prevKnifeSpeed = knifeSpeed;
+
+        //if(knifeSpeed != 0) cout << "knife speed: " << knifeSpeed << endl;
+        if(knifeAccel != 0) cout << "knife acceleration: " << knifeAccel << endl << endl;
+    }
+
+    //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
 
     //*************************************************************************************
-    // if(knifeSpeed > 5 || !particle.onKnife) {
-    //     //particle leaves the knife with an initial velocity equal to the knife's velocity
-    //     particle.currentVelocity.set(knife.shift / (cover -> frameDuration()));
-    //     particle.onKnife = false;
-    // } else {
-    //     //particle has the same velocity as the knife
-    //     particle.currentVelocity.set(0,0,0);
-    //     particle.currentPosition.set(knife.currentPosition);
-    // }
-    // particle.currentVelocity += particle.gravity * float(cover -> frameDuration());
-    // particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
-    //**************************************************************************************/
+    if(!particle.onKnife || (particle.currentVelocity.length() > 5 && particle.currentVelocity.length() < 50)) {
+        //particle leaves the knife with an initial velocity equal to the knife's velocity
+        //cout << "frame duration: " << cover -> frameDuration() << endl;
+        
+        //preventing the particle from moving backwards
+        if(particle.currentVelocity.x() < 0) {
+            cout << "changing the direction of x-component of velocity" << endl;
+            particle.currentVelocity.x() = abs(particle.currentVelocity.x());
+        }
+        if(particle.currentVelocity.y() < 0) {
+            cout << "changing the direction of y-component of velocity" << endl;
+            particle.currentVelocity.y() = abs(particle.currentVelocity.y());
+        }
 
-    
-    if(firstUpdate) { //for the first iteration, set the particle velocity to be the same as the knife since you know the particle is on the knife at t = 0
-        particle.currentVelocity.set(knife.shift / (cover -> frameDuration()));
-        firstUpdate = false;
-    }
-    
-    osg::Vec3 acceleration = (particle.currentVelocity - particle.prevVelocity)/*  / cover -> frameDuration() */;
-    particle.prevVelocity = particle.currentVelocity;
+        //checking that velocity < terminal velocity
+        if(abs(particle.currentVelocity.x()) < particle.terminalVelocity && 
+           abs(particle.currentVelocity.y()) < particle.terminalVelocity && 
+           abs(particle.currentVelocity.z()) < particle.terminalVelocity) {
 
-    if(acceleration.length() != 0) cout << "acceleration: " << acceleration << endl << endl; //testing
+                particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
+                
+        } else if(abs(particle.currentVelocity.x()) >= particle.terminalVelocity) {
+            particle.currentVelocity.set(particle.terminalVelocity, particle.currentVelocity.y(), particle.currentVelocity.z());
+            
+        } else if(abs(particle.currentVelocity.y()) >= particle.terminalVelocity) {
+            particle.currentVelocity.set(particle.currentVelocity.x(), particle.terminalVelocity, particle.currentVelocity.z());
+            
+        } else if(abs(particle.currentVelocity.z()) >= particle.terminalVelocity) {
+            particle.currentVelocity.set(particle.currentVelocity.x(), particle.currentVelocity.y(), -particle.terminalVelocity);
+        
+        } else {
+            particle.currentVelocity.set(particle.terminalVelocity, particle.terminalVelocity, -particle.terminalVelocity);
+        }
 
-    //if((acceleration.length() > 2 && acceleration.length() < 15) || !particle.onKnife) { //assume the particle left the knife
-    if(/* particle.currentPosition.z() > 0 &&  */((acceleration.length() > 2000 && acceleration.length() < 10000) || !particle.onKnife)) {
-        //???????????????????????no downwards acceleration from gravity??????????????????????????????????
-        //particle.currentVelocity += acceleration * cover -> frameDuration();
-        particle.currentPosition += (particle.gravity * 0.5 * pow(cover -> frameDuration(), 2.0)) + (particle.currentVelocity * cover -> frameDuration());
+        particle.currentPosition += particle.currentVelocity * double(cover -> frameDuration());
         particle.onKnife = false;
-
-    } else { //particle is still on the knife
-        particle.currentVelocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
-        particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
-
-        if(acceleration.length() > 20000) {
-            particle.onKnife = false;
+            
+        if(particle.currentVelocity.length() != 0 /* && elseEntered *//* once */) {
+            cout << "if-statement particle speed: " << particle.currentVelocity << endl; //testing
+            cout << "particle position: " << particle.currentPosition << endl << endl;
+            // elseEntered = false;
+        }
+        
+    } else {
+        //particle has the same velocity as the knife
+        particle.currentVelocity.set(knife.shift / double(cover -> frameDuration()));
+        particle.currentPosition.set(/* osg::Vec3(-60,-1300,0) */knife.currentPosition); //move this to a visible position
+        if(particle.currentVelocity.length() != 0) {
+            cout << "else-statement particle speed: " << particle.currentVelocity << endl << endl; //testing
+            elseEntered = true;
         }
     }
-    
-    cout << particle.currentPosition << endl << endl;
-    //cout << particle.currentPosition[0] << "," << particle.currentPosition[1] << "," << particle.currentPosition[2] << endl;
+    //**************************************************************************************/
 
     particle.matrix.makeTranslate(particle.currentPosition);
     bloodTransform -> setMatrix(particle.matrix);
@@ -259,34 +289,7 @@ bool BloodPlugin::update() {
     return true;
 }
 
-double BloodPlugin::isSliding(osg::Vec3 deltaPos) {
-    // double hypotenuse = signedLength(deltaPos);
-    // if(hypotenuse < 0) { //current - prev < 0: current position is below previous position
-    //     //assume that if the position is lower then friction force has been overcome
-        
-    // } else { //current - prev > 0, current position is above previous postion
-
-    // }
-    double hypotenuse = deltaPos.length();
-    double sinTheta = deltaPos.z() / hypotenuse; //doesnt work since this value is always 0
-    double cosTheta = deltaPos.y() / hypotenuse;
-
-    double a_y = (GRAVITY * sinTheta) - (COEFF_STATIC_FRICTION * GRAVITY * cosTheta);
-
-    if(a_y > 0) {
-        double pos = (0.5 * a_y * particle.timeElapsed * particle.timeElapsed)/*  + (particle.currentVelocity.y() * particle.timeElapsed) */;
-
-        if(pos > knife.lengthInOR.length()) {
-            particle.onKnife = false;
-        } else {
-            particle.onKnife = true;
-        }
-    }
-
-    return a_y;
-}
-
-void BloodPlugin::doAddBlood() { //seg faults
+void BloodPlugin::doAddBlood() { //this function causes seg faults
     //create a bunch of blood on the object
     bloodJunks.push_back(new Blood());
 }
@@ -296,3 +299,37 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 COVERPLUGIN(BloodPlugin)
+
+
+    // if(firstUpdate) { //for the first iteration, set the particle velocity to be the same as the knife since you know the particle is on the knife at t = 0
+    //     particle.currentVelocity.set(knife.shift / (cover -> frameDuration()));
+    //     firstUpdate = false;
+    // }
+
+    // osg::Vec3 acceleration;
+    // if(particle.onKnife) { //acceleration is only relevant if the particle is on the knife
+    //     acceleration = (particle.currentVelocity - particle.prevVelocity)/*  / double(cover -> frameDuration()) */;
+    //     particle.prevVelocity = particle.currentVelocity;
+    // }
+
+    // if(acceleration.length() != 0) cout << "acceleration: " << acceleration << endl; //testing
+
+    // if((!particle.onKnife || (acceleration.length() > 2000 && acceleration.length() < 10000))) {
+    //     particle.currentVelocity.set(particle.gravity * cover -> frameDuration());
+    //     particle.onKnife = false;
+
+    // } else {
+    //     particle.currentVelocity.set(knife.shift / (cover -> frameDuration())); //travels with same speed as knife
+
+        
+    //     //particle.currentPosition += particle.currentVelocity * (cover -> frameDuration());
+    //     //cout << "in else block of if-else statement" << endl << endl; //testing
+
+    //     // if(acceleration.length() > 10000) {
+    //     //     particle.onKnife = false;
+    //     //     //cout << "set particle.onKnife to false in second if-else statement" << endl << endl; //testing
+    //     // }
+    // }
+    
+    
+    //particle.currentPosition += particle.currentVelocity * cover -> frameDuration();
