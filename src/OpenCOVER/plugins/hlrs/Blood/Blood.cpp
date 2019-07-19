@@ -165,8 +165,6 @@ osg::Vec3 Droplet::airResistanceVelocity() {
     double velocityInY = currentVelocity.y() * exp((-1) * GRAVITY * timeElapsed / terminalVelocity);
     double velocityInZ = currentVelocity.z() * exp(-1 * GRAVITY * timeElapsed / terminalVelocity) - terminalVelocity * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
     
-    //either assign these values to the velocity member var or make a new osg::Vec3 var
-    //haven't decided yet
     osg::Vec3 velVec;
     velVec = osg::Vec3(currentVelocity.x(), velocityInY , velocityInZ);
     return velVec;    

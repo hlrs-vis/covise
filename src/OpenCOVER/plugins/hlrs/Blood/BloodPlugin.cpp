@@ -66,17 +66,12 @@ double t[] = {1.,0.,0.,0., //x scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
 bool BloodPlugin::init() {
-    // particlePosition.set(0,0,0);
-    // velocity.set(10,0,100);
-    // acc.set(0,0,-10);
     
     //*********************************************************************************************************************************INITIALIZING WEAPON CLASS
     //initialization
     knife.timeElapsed = cover -> frameDuration();
     knife.prevPosition = osg::Vec3(0,0,0);
     knife.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).preMult(knife.lengthInOR);
-    //osg::Matrix hand = cover -> getPointerMat(); //convert pointerMat to ObjectsRoot coordinates
-    //knife.currentPosition = hand.postMult(knife.length); //4x4 hand matrix * 3x1 length vector = 3x1 vector of the x/y/z coordinate of the tip of the knife
     
     //****************************************************************************************************************************DRAWING THE KNIFE	  
     //loading an external 3D knife model
@@ -85,9 +80,7 @@ bool BloodPlugin::init() {
     
     //matrix controlling the movement of the knife, eventually should be the same as pointer matrix/hand matrix
     knifeTransform = new osg::MatrixTransform;
-   
-   //???knife is currently positioned in -x direcion, multiply it to transform to y-direction
-   //try makeRotate and rotate it 90 degrees clockwise (90 degrees about z-axis)
+
     knifeBaseTransform.set(t);
     knifeTransform -> setMatrix(knifeBaseTransform);
     knifeTransform -> addChild(knife.knifePtr);
@@ -106,25 +99,9 @@ bool BloodPlugin::init() {
     particle.prevPosition.set(0,0,0);
     particle.prevVelocity.set(0,0,0);
 
-    //draw the sphere at the tip of the knife
-    //tip of the knife: 0,-1500,0 but make it 0,-1450,0 to see it
-    //particle.currentPosition.set(10,10,10);
-    //particle.currentPosition.set(cover -> getPointerMat() * cover -> getInvBaseMat()).postMult(knife.lengthInOR); //base units are in m
-    //particle.currentPosition.set(cover -> getPointerMat()).postMult(knife.lengthInWC); //in world coordinates, units are mm
-    //cout << "in init(), starting position: " << particle.currentPosition.x() << " " << particle.currentPosition.y() << " " << particle.currentPosition.z() << endl; //testing
-
     particle.mass = 0.05;
     particle.dragModel = cdModel::CD_MOLERUS;
     particle.timeElapsed = double(cover -> frameDuration());
-    
-    //any arbitrary velocity, change to velocity of knife later
-    //particle.currentVelocity = osg::Vec3(10,0,100);
-
-    //function calls to find the values of the fluid dynamics variables
-    // particle.findReynoldsNum();
-    // particle.findDragCoefficient();
-    // particle.findWindForce();
-    // particle.findTerminalVelocity();
     
     //*********************************************************************************************************************************DRAWING BLOOD
     //creating a red sphere
@@ -194,15 +171,14 @@ bool BloodPlugin::update() {
     
     if(knife.prevPosition.x() == 0) { //will be true on the first time update() is run
         knife.prevPosition = knife.currentPosition;
-        particle.currentPosition/*. set(0,0,0) */ = knife.currentPosition; //testing
+        particle.currentPosition = knife.currentPosition;
         //cout << "from init(), particle position is: " << particle.currentPosition << endl; //testing
     }
 
     if(firstUpdate && particle.currentVelocity.length() != 0) {
         particle.findReynoldsNum();
         particle.findDragCoefficient();
-        //particle.findWindForce();
-        particle.findTerminalVelocity(); //terminal velocity approx 27 m/s (92 km/h)
+        particle.findTerminalVelocity();
         //cout << "particle terminal velocity: " << particle.terminalVelocity << endl;
         firstUpdate = false;
     }
@@ -227,7 +203,6 @@ bool BloodPlugin::update() {
     }
 
     //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
-
     //*************************************************************************************
     if(!particle.onKnife || (particle.currentVelocity.length() > 5 && particle.currentVelocity.length() < 50)) {
         //particle leaves the knife with an initial velocity equal to the knife's velocity
@@ -266,19 +241,19 @@ bool BloodPlugin::update() {
         particle.currentPosition += particle.currentVelocity * double(cover -> frameDuration());
         particle.onKnife = false;
             
-        if(particle.currentVelocity.length() != 0 /* && elseEntered *//* once */) {
+        if(particle.currentVelocity.length() != 0 /* && elseEntered */) {
             cout << "if-statement particle speed: " << particle.currentVelocity << endl; //testing
             cout << "particle position: " << particle.currentPosition << endl << endl;
-            // elseEntered = false;
         }
         
     } else {
         //particle has the same velocity as the knife
         particle.currentVelocity.set(knife.shift / double(cover -> frameDuration()));
-        particle.currentPosition.set(/* osg::Vec3(-60,-1300,0) */knife.currentPosition); //move this to a visible position
+        //particle.currentPosition.set(osg::Vec3(-60,-1300,0)); //move this to a visible position
+        particle.currentPosition.set(knife.currentPosition); 
+        
         if(particle.currentVelocity.length() != 0) {
             cout << "else-statement particle speed: " << particle.currentVelocity << endl << endl; //testing
-            elseEntered = true;
         }
     }
     //**************************************************************************************/
@@ -333,3 +308,19 @@ COVERPLUGIN(BloodPlugin)
     
     
     //particle.currentPosition += particle.currentVelocity * cover -> frameDuration();
+
+    //draw the sphere at the tip of the knife
+    //tip of the knife: 0,-1500,0 but make it 0,-1450,0 to see it
+    //particle.currentPosition.set(10,10,10);
+    //particle.currentPosition.set(cover -> getPointerMat() * cover -> getInvBaseMat()).postMult(knife.lengthInOR); //base units are in m
+    //particle.currentPosition.set(cover -> getPointerMat()).postMult(knife.lengthInWC); //in world coordinates, units are mm
+    //cout << "in init(), starting position: " << particle.currentPosition.x() << " " << particle.currentPosition.y() << " " << particle.currentPosition.z() << endl; //testing
+    
+    //any arbitrary velocity, change to velocity of knife later
+    //particle.currentVelocity = osg::Vec3(10,0,100);
+
+    //function calls to find the values of the fluid dynamics variables
+    // particle.findReynoldsNum();
+    // particle.findDragCoefficient();
+    // particle.findWindForce();
+    // particle.findTerminalVelocity();
