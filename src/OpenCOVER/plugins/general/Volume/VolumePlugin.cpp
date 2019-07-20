@@ -1512,11 +1512,29 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                         }
                     }
                     assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
+                    /*
+                    for (size_t i = 0; i < noVox; ++i)
                     {
-                        for (int c = 0; c<noChan; ++c)
+                        for (int c = 0; c < noChan; ++c)
                         {
-                            *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
+                            *p++ = (uchar)((chan[c][i] - min[c]) * range[c]);
+                        }
+                    }
+                            */
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                //i = ((z * xy) + (y * sizeX) + (x));
+                                for (int c = 0; c < noChan; ++c)
+                                {
+                                    *p++ = (uchar)((chan[c][i] - min[c]) * range[c]);
+                                }
+                            }
                         }
                     }
                 }
@@ -1533,16 +1551,54 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                         }
                     }
                     assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
+                    /*for (size_t i=0; i<noVox; ++i)
                     {
                         for (int c = 0; c<noChan; ++c)
                         {
                             *p++ = chan[c][i];
                         }
+                    }*/
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                for (int c = 0; c < noChan; ++c)
+                                {
+                                    *p++ = chan[c][i];
+                                }
+                            }
+                        }
                     }
                 }
                 else
                 {
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                                {
+                                    if (byteChannels[c])
+                                    {
+                                        *p++ = byteChannels[c][i];
+                                    }
+                                    else if (floatChannels[c])
+                                    {
+                                        *p++ = (uchar)((floatChannels[c][i] - min[c]) * irange[c] * 255.99);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    /*
                     for (size_t i=0; i<noVox; ++i)
                     {
                         for (int c = Field::Channel0; c < Field::NumChannels; ++c)
@@ -1556,7 +1612,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                                 *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                             }
                         }
-                    }
+                    }*/
                 }
             }
             else if (red && green && blue)
@@ -1747,11 +1803,14 @@ void VolumePlugin::cropVolume()
 
 void VolumePlugin::syncTransferFunction()
 {
-	for (int i = 0; i < currentVolume->second.tf.size(); ++i)
-	{
+    if (currentVolume != volumes.end())
+    {
+        for (int i = 0; i < currentVolume->second.tf.size(); ++i)
+        {
 
-		*currentVolume->second.tfState[i] = currentVolume->second.tf[i];
-	}
+            *currentVolume->second.tfState[i] = currentVolume->second.tf[i];
+        }
+    }
 
 }
 
