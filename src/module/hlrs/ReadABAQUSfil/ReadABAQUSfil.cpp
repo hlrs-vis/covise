@@ -29,6 +29,7 @@
 #include <vector>
 #ifdef WIN32
 #include <stdint.h>
+#include <io.h>
 #else
 #include <inttypes.h>
 #endif
@@ -45,7 +46,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <io.h>
 #include <stdio.h>
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -173,7 +173,7 @@ void ReadABAQUSfil::param(const char* paramName, bool in_map_loading)
 #ifdef WIN32
         int fd = _open(p_filFile->getValue(), _O_RDONLY | _O_BINARY);
 #else
-        int fd = open(p_filFile->getValue(), _O_RDONLY);
+        int fd = open(p_filFile->getValue(), O_RDONLY);
 #endif
         if (fd)
         {
@@ -218,7 +218,7 @@ void ReadABAQUSfil::param(const char* paramName, bool in_map_loading)
 #ifdef WIN32
             _close(fd);
 #else
-            _close(fd);
+            close(fd);
 #endif
         }
         else
