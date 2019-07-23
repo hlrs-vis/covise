@@ -465,6 +465,7 @@ osg::Node *LoadedFile::load()
         //obj-Objects must not be rotated
         osgDB::ReaderWriter::Options *op = new osgDB::ReaderWriter::Options();
         op->setOptionString("noRotation");
+        op->setOptionString("noTriStripPolygons"); // don't run optimizer on STL and OBJ files
 
         std::string tmpFileName = adjustedFileName;
         if (fb)
