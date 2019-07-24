@@ -115,7 +115,7 @@ bool BloodPlugin::init() {
     bloodTransform -> setName("bloodTransform");
     
     //create a sphere to model the blood, radius 10, position at the tip of the knife
-    bloodSphere = new osg::Sphere(particle.prevPosition, 10);
+    bloodSphere = new osg::Sphere(particle.prevPosition, 5);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodShapeDrawable -> setColor(bloodColor);
@@ -148,13 +148,10 @@ bool BloodPlugin::init() {
     addBlood = new ui::Action(bloodMenu, "addBlood");
     addBlood->setText("Add Blood");
     addBlood->setCallback([this]() {doAddBlood(); });
-    
-    cout << "frame duration: " << cover -> frameDuration() << endl; //frame duration: 1.3 seconds
         
     return true;
 }
 
-//unit discrepancy(?): do calcs in m for consistency
 bool BloodPlugin::update() { 
     osg::Matrix hand = cover -> getPointerMat();
     osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
@@ -163,26 +160,20 @@ bool BloodPlugin::update() {
     osg::Matrix rotKnife;
     rotKnife.makeRotate(-osg::PI_2, osg::Vec3(0,0,1)); 
 
-    // osg::Matrix rotPos;
-    // rotPos.makeRotate(osg::PI_2, osg::Vec3(0,0,1));
-
     //moving and drawing the knife
     knifeTransform -> setMatrix(rotKnife * handInObjectsRoot);
 
-    knife.currentPosition = knife.lengthInWC /* * rotKnife  */*  handInObjectsRoot;
-    //knife.currentPosition = (knife.lengthInOR * /* rotKnife *  */handInObjectsRoot) + osg::Vec3(0,50,0);
+    knife.currentPosition = knife.lengthInOR *  handInObjectsRoot;
     
     if(knife.prevPosition.x() == 0) { //will be true on the first time update() is run
         knife.prevPosition = knife.currentPosition;
-        particle.currentPosition = knife.currentPosition/*  + osg::Vec3(0,50,0) */; //testing
-        //particle.currentPosition = knife.currentPosition;
+        particle.currentPosition = knife.currentPosition;
     }
 
     if(firstUpdate && particle.currentVelocity.length() != 0) {
         particle.findReynoldsNum();
         particle.findDragCoefficient();
         particle.findTerminalVelocity();
-        //cout << "particle terminal velocity: " << particle.terminalVelocity << endl; //testing
         firstUpdate = false;
     }
     
@@ -192,24 +183,19 @@ bool BloodPlugin::update() {
     static double prevKnifeSpeed;
     double knifeAccel;
 
-    static bool elseEntered = false; //testing
     if(particle.onKnife) {
         prevKnifeSpeed = 0;
         double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
         knifeAccel = (knifeSpeed - prevKnifeSpeed) / cover -> frameDuration();
         prevKnifeSpeed = knifeSpeed;
-
-        //if(knifeSpeed != 0) cout << "knife speed: " << knifeSpeed << endl;
-        //if(knifeAccel != 0) cout << "knife acceleration: " << knifeAccel << endl << endl;
     }
 
     //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
     //*************************************************************************************
     if(!particle.onKnife || (particle.currentVelocity.length() > 5 && particle.currentVelocity.length() < 50)) {
+
         //particle leaves the knife with an initial velocity equal to the knife's velocity
-        
-        //cout << "frame duration: " << cover -> frameDuration() << endl; //testing
-        
+    
         //testing: preventing the particle from moving backwards
         // if(particle.currentVelocity.x() < 0) {
         //     cout << "changing the direction of x-component of velocity" << endl;
@@ -220,42 +206,36 @@ bool BloodPlugin::update() {
         //     particle.currentVelocity.y() = abs(particle.currentVelocity.y());
         // }
 
-        //testing: make sure the particle falls downwards
-        // if(particle.currentVelocity.z() > 0) {
-        //     cout << "changing the direction of z-component of velocity" << endl;
-        //     particle.currentVelocity.z() = -(particle.currentVelocity.z());
-        // }
-
         //checking that velocity < terminal velocity
-        // if(abs(particle.currentVelocity.x()) < particle.terminalVelocity && 
-        //    abs(particle.currentVelocity.y()) < particle.terminalVelocity && 
-        //    abs(particle.currentVelocity.z()) < particle.terminalVelocity) {
+        if(abs(particle.currentVelocity.x()) < particle.terminalVelocity && 
+           abs(particle.currentVelocity.y()) < particle.terminalVelocity && 
+           abs(particle.currentVelocity.z()) < particle.terminalVelocity) {
 
-        //         particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
+                particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
                 
-        // } else {
-        //     cout << "v > term" << endl;
-        //     particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
+        } else {
+            cout << "v > term" << endl;
+            particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
 
-        //     if(abs(particle.currentVelocity.x()) >= particle.terminalVelocity) {
-        //         particle.currentVelocity.x() = (particle.currentVelocity.x() / abs(particle.currentVelocity.x())) * particle.terminalVelocity;
-        //     }
-        //     if(abs(particle.currentVelocity.y()) >= particle.terminalVelocity) {
-        //         particle.currentVelocity.y() = (particle.currentVelocity.y() / abs(particle.currentVelocity.y())) * particle.terminalVelocity;
-        //     }
-        //     if(abs(particle.currentVelocity.z()) >= particle.terminalVelocity) {
-        //         particle.currentVelocity.z() = (particle.currentVelocity.z() / abs(particle.currentVelocity.z())) * particle.terminalVelocity;
-        //     }
-        // }
+            if(abs(particle.currentVelocity.x()) >= particle.terminalVelocity) {
+                particle.currentVelocity.x() = (particle.currentVelocity.x() / abs(particle.currentVelocity.x())) * particle.terminalVelocity;
+            }
+            if(abs(particle.currentVelocity.y()) >= particle.terminalVelocity) {
+                particle.currentVelocity.y() = (particle.currentVelocity.y() / abs(particle.currentVelocity.y())) * particle.terminalVelocity;
+            }
+            if(abs(particle.currentVelocity.z()) >= particle.terminalVelocity) {
+                particle.currentVelocity.z() = (particle.currentVelocity.z() / abs(particle.currentVelocity.z())) * particle.terminalVelocity;
+            }
+        }
         
         //no checks for terminal velocity
-        particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
+        // particle.currentVelocity += particle.gravity * double(cover -> frameDuration());
         
         particle.currentPosition += particle.currentVelocity * double(cover -> frameDuration());
         particle.onKnife = false;
             
-        if(particle.currentVelocity.length() != 0 /* && elseEntered */) { //testing
-            //cout << "if-statement particle speed: " << particle.currentVelocity << endl; //testing
+        if(particle.currentVelocity.length() != 0) { //testing
+            cout << "if-statement particle speed: " << particle.currentVelocity << endl; //testing
             cout << "if-statement particle position: " << particle.currentPosition << endl << endl;
         }
 
@@ -264,20 +244,22 @@ bool BloodPlugin::update() {
         
     } else {
         //particle has the same velocity as the knife
-        particle.currentVelocity.set(knife.shift / double(cover -> frameDuration()));
-        //particle.currentPosition = knife.currentPosition + osg::Vec3(0,50,0);
-        particle.currentPosition.set(knife.currentPosition); 
+        particle.currentVelocity.set(knife.shift / double(100*cover -> frameDuration()));
+        
+        if(knife.shift.length() != 0) {
+            cout << "knife shift: " << knife.shift << endl;
+            cout << "cover -> frameDuration(): " << cover -> frameDuration() << endl;
+        }
 
-        //cout << "knife currentPosition: " << knife.currentPosition << endl;
+        particle.currentPosition.set(knife.currentPosition); 
         
         if(particle.currentVelocity.length() != 0) {
             cout << "knife position: " << knife.currentPosition << endl;
             cout << "particle position: " << particle.currentPosition << endl;
-            cout << "else-statement particle speed: " << particle.currentVelocity << endl << endl; //testing
+            cout << "else-statement particle speed: " << particle.currentVelocity << " particle speed scalar " << particle.currentVelocity.length() << endl << endl; //testing
         }
 
         particle.matrix.makeTranslate(particle.currentPosition);
-        //particle.matrix.makeTranslate(osg::Vec3(0,50,0));
         bloodTransform -> setMatrix(particle.matrix);
     }
     //**************************************************************************************/

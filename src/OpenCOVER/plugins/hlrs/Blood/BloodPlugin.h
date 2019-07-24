@@ -77,8 +77,7 @@ private:
     
     Droplet particle;
     Weapon knife;
-    osg::Vec3 particlePosition;
-    osg::Vec3 velocity;
-    osg::Vec3 acc;
+    std::vector<Droplet* > particleList;
+    int particleCount = 1;
 };
 #endif

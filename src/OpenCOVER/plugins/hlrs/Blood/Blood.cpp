@@ -37,7 +37,7 @@ cerr << "Hello Blood" << endl;
     sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
 
     BloodPlugin::instance()->bloodNode->addChild(sphere); //causes segmentation fault in function doAddBlood()
-    //seg fault reason: BloodPlugin::instance returns inst, inst is initialized to NULL
+    //seg fault reason: BloodPlugin::instance returns inst, inst is initialized to NULL at the top of BloodPlugin.cpp
 }
 
 // this is called if the plugin is removed at runtime

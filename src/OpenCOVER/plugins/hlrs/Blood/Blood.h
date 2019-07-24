@@ -22,7 +22,9 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <PluginUtil/coSphere.h>
+
 #include <vector>
+
 #include "globals.h"
 
 //************************************************************************************************Class Drop
@@ -57,6 +59,7 @@ class Droplet{
 public:
 	Droplet();
 	~Droplet();
+
     double timeElapsed; //time between 2 successive readings, units: s
     bool onKnife = true;;
     
@@ -107,8 +110,8 @@ public:
     osg::Vec3 prevPosition;
     osg::Vec3 currentPosition;
     osg::Vec3 shift;
-    osg::Vec3 lengthInWC = osg::Vec3(0,50,0); //length of the knife in world coordinates (mm)
-    osg::Vec3 lengthInOR = osg::Vec3(0,0.40,0); //length of the knife in object's root coordinates (m)
+    osg::Vec3 lengthInWC = osg::Vec3(0,200,0); //length of the knife in world coordinates (mm)
+    osg::Vec3 lengthInOR = osg::Vec3(0,50,-5); //length of the knife in object's root coordinates (m)
     osg::Vec3 tip = osg::Vec3(-60,-1450,0); //knife tip is at 0,-1450,0
     osg::Vec3 tipInmm = osg::Vec3(-0.6, -14.5, 0);
 };
