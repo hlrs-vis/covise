@@ -59,8 +59,56 @@ void Blood::integrate(float dt, osg::Vec3 vObj) {
     }
 }
 
+double m[] = {1.,0.,0.,0., //x scaling
+              0.,1.,0.,0., //y scaling
+              0.,0.,1.,0., //z scaling
+              1.,1.,1.,1.}; //translation operation in x/y/z direction
+
 //*************************************************************************************Functions for class Droplet
 Droplet::Droplet() {
+    radius = 0.001; //particle radius = 1mm
+    prevPosition.set(0,0,0);
+    prevVelocity.set(0,0,0);
+
+    mass = 0.05;
+    dragModel = cdModel::CD_MOLERUS;
+    timeElapsed = double(cover -> frameDuration());
+
+    bloodGeode = new osg::Geode;
+    
+    //matrix controlling the movement of the sphere
+    bloodTransform = new osg::MatrixTransform;
+    bloodBaseTransform.set(m);
+    bloodTransform -> setMatrix(bloodBaseTransform);
+    bloodTransform -> addChild(bloodGeode);
+    bloodTransform -> setName("bloodTransform"); //later update name to include the particle number
+    
+    //create a sphere to model the blood, radius 10, position at the tip of the knife
+    bloodSphere = new osg::Sphere(prevPosition, 5);
+
+    bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
+    bloodShapeDrawable -> setColor(bloodColor);
+    bloodGeode -> addDrawable(bloodShapeDrawable);
+    bloodGeode -> setName("bloodGeode"); //later update name to include the particle number
+
+    //********************************RENDERING THE SPHERE IN OPENCOVER************************************
+    if(bloodGeode) {
+    	bloodStateSet = bloodGeode -> getOrCreateStateSet(); //stateset controls all of the aesthetic properties of the geode
+		bloodMaterial = new osg::Material;
+		
+		//setting the color properties for the sphere
+		bloodMaterial -> setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		bloodMaterial -> setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
+		bloodMaterial -> setShininess(osg::Material::FRONT_AND_BACK, 25.0);
+		bloodStateSet -> setAttributeAndModes(bloodMaterial);
+		bloodStateSet -> setNestRenderBins(false);
+		
+		cover -> getObjectsRoot() -> addChild(bloodTransform);
+
+    	cout << "Hello Blood" << endl;
+    }
 }
 
 Droplet::~Droplet() {

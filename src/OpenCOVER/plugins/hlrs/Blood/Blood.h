@@ -23,6 +23,13 @@
 #include <cover/coVRPlugin.h>
 #include <PluginUtil/coSphere.h>
 
+#include <osg/Group>
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
+#include <osg/AnimationPath>
+#include <osg/PositionAttitudeTransform> 
+#include <osg/Material>
+
 #include <vector>
 
 #include "globals.h"
@@ -61,7 +68,8 @@ public:
 	~Droplet();
 
     double timeElapsed; //time between 2 successive readings, units: s
-    bool onKnife = true;;
+    bool onKnife = true;
+    double mass; //units: kg
     
     //kinematics data
     double radius; //units: m
@@ -73,12 +81,18 @@ public:
     osg::Vec3 gravity = osg::Vec3(0,0,-9.81);
 
     osg::Matrix matrix;
-    
-    double a_x;
-    double xPosition;
 
+    //member variables for displaying blood
+    osg::ref_ptr<osg::Geode> bloodGeode;
+	osg::Vec4 bloodColor = osg::Vec4(1.0, 0.0, 0.0, 1.0);
+	osg::ref_ptr<osg::MatrixTransform> bloodTransform;
+	osg::Matrix bloodBaseTransform;
+	osg::ref_ptr<osg::Sphere> bloodSphere;
+	osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
+	osg::ref_ptr<osg::StateSet> bloodStateSet;
+	osg::ref_ptr<osg::Material> bloodMaterial;
+    
     osg::Vec3 maxDisplacement; //the furthest distance the droplet can travel before hitting the ground again, excluding trivial solutions
-    double mass; //units: kg
     
     //drag data
     double ReynoldsNum; //dimensionless
@@ -117,5 +131,3 @@ public:
 };
 
 #endif
-
-/* */

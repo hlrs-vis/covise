@@ -44,18 +44,16 @@ using namespace opencover;
 
 class BloodPlugin : public opencover::coVRPlugin, public ui::Owner
 {
-public:
-    osg::Vec3 startPosition = osg::Vec3(-100, 0, 100);
-	
+public:	
     //member variables for displaying blood
-    osg::ref_ptr<osg::Geode> bloodGeode;
-	osg::Vec4 bloodColor = osg::Vec4(1.0, 0.0, 0.0, 1.0);
-	osg::ref_ptr<osg::MatrixTransform> bloodTransform;
-	osg::Matrix bloodBaseTransform;
-	osg::ref_ptr<osg::Sphere> bloodSphere;
-	osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
-	osg::ref_ptr<osg::StateSet> bloodStateSet;
-	osg::ref_ptr<osg::Material> bloodMaterial;
+    // osg::ref_ptr<osg::Geode> bloodGeode;
+	// osg::Vec4 bloodColor = osg::Vec4(1.0, 0.0, 0.0, 1.0);
+	// osg::ref_ptr<osg::MatrixTransform> bloodTransform;
+	// osg::Matrix bloodBaseTransform;
+	// osg::ref_ptr<osg::Sphere> bloodSphere;
+	// osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
+	// osg::ref_ptr<osg::StateSet> bloodStateSet;
+	// osg::ref_ptr<osg::Material> bloodMaterial;
 	
     //member variables for displaying knife
     osg::ref_ptr<osg::MatrixTransform> knifeTransform;
@@ -75,9 +73,9 @@ private:
     ui::Menu* bloodMenu = nullptr;
     ui::Action* addBlood = nullptr;
     
-    Droplet particle;
+    // Droplet particle;
     Weapon knife;
-    std::vector<Droplet* > particleList;
-    int particleCount = 1;
+    std::vector<Droplet*> particleList;
+    int numParticles = 1;
 };
 #endif
