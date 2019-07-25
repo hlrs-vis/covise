@@ -24,7 +24,7 @@
 
 #include "Blood.h"
 #include "BloodPlugin.h"
-//#include "globals.h"
+#include "globals.h"
 
 using namespace opencover;
 
@@ -36,8 +36,8 @@ cerr << "Hello Blood" << endl;
     sphere->setMaxRadius(100);
     sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
 
-    BloodPlugin::instance()->bloodNode->addChild(sphere); //causes segmentation fault in function doAddBlood()
-    //seg fault reason: BloodPlugin::instance returns inst, inst is initialized to NULL at the top of BloodPlugin.cpp
+    BloodPlugin::instance() -> bloodNode -> addChild(sphere); //causes segmentation fault in function doAddBlood()
+    //instance() returns inst, but inst is initialized to NULL in BloodPlugin.cpp
 }
 
 // this is called if the plugin is removed at runtime
@@ -59,13 +59,15 @@ void Blood::integrate(float dt, osg::Vec3 vObj) {
     }
 }
 
-double m[] = {1.,0.,0.,0., //x scaling
+//*************************************************************************************Functions for class Droplet
+//defines the transformation matrix in x,y,z world coordinates and sets artificial 4th coordinate to 1
+double d[] = {1.,0.,0.,0., //x scaling
               0.,1.,0.,0., //y scaling
               0.,0.,1.,0., //z scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
-//*************************************************************************************Functions for class Droplet
 Droplet::Droplet() {
+    id++;
     radius = 0.001; //particle radius = 1mm
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
@@ -78,18 +80,95 @@ Droplet::Droplet() {
     
     //matrix controlling the movement of the sphere
     bloodTransform = new osg::MatrixTransform;
-    bloodBaseTransform.set(m);
+    bloodBaseTransform.set(d);
     bloodTransform -> setMatrix(bloodBaseTransform);
     bloodTransform -> addChild(bloodGeode);
-    bloodTransform -> setName("bloodTransform"); //later update name to include the particle number
-    
+
+
+
+
+    // string transformName = "bloodTransform " + std::to_string(id);
+    // bloodTransform -> setName(transformName); //later update name to include the particle number    
+
+
+
+
     //create a sphere to model the blood, radius 10, position at the tip of the knife
     bloodSphere = new osg::Sphere(prevPosition, 5);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodShapeDrawable -> setColor(bloodColor);
     bloodGeode -> addDrawable(bloodShapeDrawable);
-    bloodGeode -> setName("bloodGeode"); //later update name to include the particle number
+
+
+
+
+    // string geodeName = "bloodGeode " + std::to_string(id);
+    // bloodGeode -> setName(geodeName); //later update name to include the particle number
+
+
+
+
+    //********************************RENDERING THE SPHERE IN OPENCOVER************************************
+    if(bloodGeode) {
+    	bloodStateSet = bloodGeode -> getOrCreateStateSet(); //stateset controls all of the aesthetic properties of the geode
+		bloodMaterial = new osg::Material;
+		
+		//setting the color properties for the sphere
+		bloodMaterial -> setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		bloodMaterial -> setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
+		bloodMaterial -> setShininess(osg::Material::FRONT_AND_BACK, 25.0);
+		bloodStateSet -> setAttributeAndModes(bloodMaterial);
+		bloodStateSet -> setNestRenderBins(false);
+        
+        // cover -> getObjectsRoot() -> addChild(bloodTransform);
+    	// cout << "Hello Blood" << endl;
+    }
+}
+
+Droplet::Droplet(int numParticles) {
+    id++;
+    radius = 0.001; //particle radius = 1mm
+    prevPosition.set(0,0,0);
+    prevVelocity.set(0,0,0);
+
+    mass = 0.05;
+    dragModel = cdModel::CD_MOLERUS;
+    timeElapsed = double(cover -> frameDuration());
+
+    bloodGeode = new osg::Geode;
+    
+    //matrix controlling the movement of the sphere
+    bloodTransform = new osg::MatrixTransform;
+    bloodBaseTransform.set(d);
+    bloodTransform -> setMatrix(bloodBaseTransform);
+    bloodTransform -> addChild(bloodGeode);
+
+
+
+    // string transformName = "bloodTransform " + std::to_string(id);
+    // bloodTransform -> setName(transformName); //later update name to include the particle number
+    
+
+
+
+    //create a sphere to model the blood, radius 10, position at the tip of the knife
+    bloodSphere = new osg::Sphere(prevPosition, 5);
+
+    bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
+    bloodShapeDrawable -> setColor(osg::Vec4(0.0, 0.0, 1.0, 1.0));
+    bloodGeode -> addDrawable(bloodShapeDrawable);
+
+
+
+
+    // string geodeName = "bloodGeode " + std::to_string(id);
+    // bloodGeode -> setName(geodeName); //later update name to include the particle number
+
+
+
 
     //********************************RENDERING THE SPHERE IN OPENCOVER************************************
     if(bloodGeode) {
@@ -105,9 +184,9 @@ Droplet::Droplet() {
 		bloodStateSet -> setAttributeAndModes(bloodMaterial);
 		bloodStateSet -> setNestRenderBins(false);
 		
-		cover -> getObjectsRoot() -> addChild(bloodTransform);
+		// cover -> getObjectsRoot() -> addChild(bloodTransform);
 
-    	cout << "Hello Blood" << endl;
+    	// cout << "Hello Added Blood" << endl;
     }
 }
 

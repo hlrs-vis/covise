@@ -31,6 +31,7 @@
 #include <osg/Material>
 
 #include <vector>
+#include <string>
 
 #include "globals.h"
 
@@ -65,9 +66,10 @@ public:
 class Droplet{
 public:
 	Droplet();
+    Droplet(int numParticles);
 	~Droplet();
 
-    double timeElapsed; //time between 2 successive readings, units: s
+    double timeElapsed; //time between frames
     bool onKnife = true;
     double mass; //units: kg
     

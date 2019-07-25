@@ -22,6 +22,7 @@
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
 #include <cmath>
+#include <string>
 
 #include <cover/ui/Menu.h>
 #include <cover/ui/Action.h>
@@ -61,21 +62,27 @@ public:
 
     BloodPlugin();
     ~BloodPlugin(); 
+
     virtual bool init();
     virtual bool update();
-    double isSliding(osg::Vec3 deltaPos);
+    
+    
     void doAddBlood();
     osg::ref_ptr<osg::Group> bloodNode;
     std::list<Blood*> bloodJunks;
     static BloodPlugin *instance();
-private:
-    static BloodPlugin *inst;
-    ui::Menu* bloodMenu = nullptr;
-    ui::Action* addBlood = nullptr;
-    
+
     // Droplet particle;
     Weapon knife;
     std::vector<Droplet*> particleList;
+
+    int getNumParticles();
+
+private:
     int numParticles = 1;
+    
+    static BloodPlugin *inst;
+    ui::Menu* bloodMenu = nullptr;
+    ui::Action* addBlood = nullptr;
 };
 #endif

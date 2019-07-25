@@ -42,12 +42,18 @@ int num = 0; //testing
 
 bool firstUpdate = true;
 
+//defines the transformation matrix in x,y,z world coordinates and sets artificial 4th coordinate to 1
+double t[] = {1.,0.,0.,0., //x scaling
+              0.,1.,0.,0., //y scaling
+              0.,0.,1.,0., //z scaling
+              1.,1.,1.,1.}; //translation operation in x/y/z direction
+
 BloodPlugin::BloodPlugin() : ui::Owner("Blood", cover->ui)
 {
     fprintf(stderr, "BloodPlugin\n");
 }
 
-BloodPlugin *BloodPlugin::inst=nullptr;
+BloodPlugin *BloodPlugin::inst = nullptr; // never reassigned to a different value(???)
 
 // this is called if the plugin is removed at runtime
 BloodPlugin::~BloodPlugin()
@@ -59,20 +65,15 @@ BloodPlugin::~BloodPlugin()
     bloodJunks.clear();
 
     for(int i = 0; i < numParticles; i++) {
-        //remove node to delete from the scene graph
-        cover -> getObjectsRoot() -> removeChild(particleList[i] -> bloodTransform.get()); 
+        //remove node to delete from the scene graph - not sure which one to use?
+        cover -> removeNode(particleList[i] -> bloodTransform.get()); 
+        //cover -> getObjectsRoot() -> removeChild(particleList[i] -> bloodTransform.get());
 
         delete particleList[i];
         particleList[i] = NULL;
     }
     particleList.clear();
 }
-
-//defines the transformation matrix in x,y,z world coordinates and sets artificial 4th coordinate to 1
-double t[] = {1.,0.,0.,0., //x scaling
-              0.,1.,0.,0., //y scaling
-              0.,0.,1.,0., //z scaling
-              1.,1.,1.,1.}; //translation operation in x/y/z direction
 
 bool BloodPlugin::init() {
 
@@ -108,6 +109,9 @@ bool BloodPlugin::init() {
 
     for(int i = 0; i < numParticles; i++) {
         particleList[i] = new Droplet(); 
+        cover -> getObjectsRoot() -> addChild(particleList[i] -> bloodTransform);
+
+    	cout << "Hello Blood" << endl;
     }
 
     //*****************************************************************************************************************CREATING THE BLOOD PLUGIN UI MENU
@@ -168,10 +172,13 @@ bool BloodPlugin::update() {
     //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
     //*************************************************************************************
     if(!particleList[numParticles - 1] -> onKnife || 
-    (particleList[numParticles - 1] -> currentVelocity.length() > 5 && 
-    particleList[numParticles - 1] -> currentVelocity.length() < 50)) {
+    (particleList[numParticles - 1] -> currentVelocity.length() > 5000 && 
+    particleList[numParticles - 1] -> currentVelocity.length() < 50000)) {
         //particle leaves the knife with an initial velocity equal to the knife's velocity
-    
+        
+        cout << "particle " << numParticles<< " has left the knife" << endl;
+        //cout << "numParticles is now: " << numParticles - 1 << endl;
+
         //checking that velocity < terminal velocity
         if(abs(particleList[numParticles - 1] -> currentVelocity.x()) < particleList[numParticles - 1] -> terminalVelocity && 
            abs(particleList[numParticles - 1] -> currentVelocity.y()) < particleList[numParticles - 1] -> terminalVelocity && 
@@ -224,43 +231,48 @@ bool BloodPlugin::update() {
             cout << "if-statement particle speed: " << particleList[numParticles - 1] -> currentVelocity << endl; //testing
             cout << "if-statement particle position: " << particleList[numParticles - 1] -> currentPosition << endl << endl;
         }
-        
+
     } else {
         //particle has the same velocity as the knife
         particleList[numParticles - 1] -> currentVelocity.set(knife.shift / double(100*cover -> frameDuration()));
-        
-        if(knife.shift.length() != 0) {
-            cout << "knife shift: " << knife.shift << endl;
-            cout << "cover -> frameDuration(): " << cover -> frameDuration() << endl;
-        }
-
         particleList[numParticles - 1] -> currentPosition.set(knife.currentPosition); 
         
         if(particleList[numParticles - 1] -> currentVelocity.length() != 0) {
-            cout << "knife position: " << knife.currentPosition << endl;
             cout << "particle position: " << particleList[numParticles - 1] -> currentPosition << endl;
-            cout << "else-statement particle speed: " << particleList[numParticles - 1] -> currentVelocity << 
-            " particle speed scalar " << particleList[numParticles - 1] -> currentVelocity.length() << endl << endl; //testing
+            cout << "else-statement particle speed: " << particleList[numParticles - 1] -> currentVelocity << endl << endl; //testing
         }
 
-        //particleList[numParticles - 1] -> matrix.makeTranslate(particleList[numParticles - 1] -> currentPosition);
-        //particleList[numParticles - 1] -> bloodTransform -> setMatrix(particleList[numParticles - 1] -> matrix);
-        
     }
     //**************************************************************************************/
     particleList[numParticles - 1] -> matrix.makeTranslate(particleList[numParticles - 1] -> currentPosition);
     particleList[numParticles - 1] -> bloodTransform -> setMatrix(particleList[numParticles - 1] -> matrix);
+
+    //need a way to decrement numParticles once a particle goes out of bounds
+    // if(!particleList[numParticles - 1] -> onKnife) {
+    //     numParticles--;
+    // }
 
     return true;
 }
 
 void BloodPlugin::doAddBlood() { //this function causes seg faults
     //create a bunch of blood on the object
-    bloodJunks.push_back(new Blood());
+    //bloodJunks.push_back(new Blood()); //old code
+    
+    numParticles++;
+    particleList.push_back(new Droplet(numParticles));
+
+    cover -> getObjectsRoot() -> addChild(particleList[numParticles - 1] -> bloodTransform);
+
+    cout << "added new particle, number of existing particles is now: " << numParticles << endl;
 }
 
 BloodPlugin * BloodPlugin::instance() {
     return inst;
+}
+
+int BloodPlugin::getNumParticles() {
+    return numParticles;
 }
 
 COVERPLUGIN(BloodPlugin)
