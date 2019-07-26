@@ -1521,8 +1521,8 @@ int ReadABAQUSfil::compute(const char* port)
 
             default:
 
-                sendError("While counting set connections : Unknown element type '%d' with index '%d' in set '%d'",
-                    outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]], kk, SetNo);
+                sendError("While counting set connections : Unknown element type '%d' with index '%ld' in set '%d'",
+                    outTypeList[cref_elems[vsets[SetNo].elem_numbers[kk]]], (long)kk, SetNo);
                 computeRunning = false;
                 return FAIL;
                 break;
