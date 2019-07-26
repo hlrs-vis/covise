@@ -66,7 +66,7 @@ public:
         conn = msg->conn;
         convert = conn->convert_to;
         buffer = msg->data.accessData();
-        msg->data = DataHandle{};
+        msg->data = 0L;
         intbuffer = (int *)buffer;
         buffer_size = msg->data.length();
         intbuffer_size = msg->data.length() / sizeof(int);

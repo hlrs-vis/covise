@@ -582,13 +582,18 @@ int main(int argc, char *argv[])
     set_port_default("AnnotationString", "empty");
     set_port_immediate("AnnotationString", 1);
 
-    char* d = get_description_message();
-    Message message{ COVISE_MESSAGE_PARINFO , DataHandle{d, strlen(d) + 1, false} };
-    appmod->send_ctl_msg(&message);
+    Message *message = new Message();
+    message->data = get_description_message();
+
+    message->type = COVISE_MESSAGE_PARINFO; // should be a real type
+    message->length = strlen(message->data) + 1;
+    appmod->send_ctl_msg(message);
+    delete message;
     strcpy(username, "me");
 
     // get username from Controller
     strcpy(username, "me");
+    message = new Message();
     char msg_buffer[300];
     sprintf(msg_buffer, "USERNAME\n%s\n%s\n%s\n%d\n", appmod->get_hostname(), m_name, instance, appmod->get_id());
 
@@ -604,13 +609,18 @@ int main(int argc, char *argv[])
 
     //      cerr << "MAIN: Modinfo coMsg string: " << ModuleInfo->getCoMsgHeader() << endl;
 
-    Message message2{ COVISE_MESSAGE_UI , DataHandle{msg_buffer, strlen(msg_buffer) + 1, false} };
-    appmod->send_ctl_msg(&message2);
+    message->data = msg_buffer;
+    message->type = COVISE_MESSAGE_UI; // should be a real type
+    message->length = strlen(message->data) + 1;
+    appmod->send_ctl_msg(message);
 
     sprintf(msg_buffer, "MODULE_DESC\n%s\n%s\n%s\n%s", m_name, instance, appmod->get_hostname(), module_description);
-    message2.data.setLength(strlen(msg_buffer) + 1);
-    appmod->send_ctl_msg(&message2);
+    message->data = msg_buffer;
+    message->type = COVISE_MESSAGE_UI; // should be a real type
+    message->length = strlen(message->data) + 1;
+    appmod->send_ctl_msg(message);
 
+    delete message;
     print_comment(__LINE__, __FILE__, "Renderer Process succeeded");
 
     /*    socket_id = appmod->get_socket_id(); in InvPort.h */

@@ -281,19 +281,27 @@ int InvCommunication::parseMessage(char *line, char *token[], int tmax, char *se
 void InvCommunication::sendCameraMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "CAMERA";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
 #ifdef TIMING
     time_str = new char[100];
     sprintf(time_str, "%s: Sending TRANSFORM[%d]", appmod->getName(), transform_send_ctr++);
     covise_time->mark(__LINE__, time_str);
 #endif
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -302,19 +310,27 @@ void InvCommunication::sendCameraMessage(char *message)
 void InvCommunication::sendVRMLCameraMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "VRMLCAMERA";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
 #ifdef TIMING
     time_str = new char[100];
     sprintf(time_str, "%s: Sending TRANSFORM[%d]", appmod->getName(), transform_send_ctr++);
     covise_time->mark(__LINE__, time_str);
 #endif
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -323,20 +339,26 @@ void InvCommunication::sendVRMLCameraMessage(char *message)
 void InvCommunication::sendTransformMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "TRANSFORM";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
 #ifdef TIMING
     time_str = new char[100];
     sprintf(time_str, "%s: Sending TRANSFORM[%d]", appmod->getName(), transform_send_ctr++);
     covise_time->mark(__LINE__, time_str);
 #endif
+    appmod->send_ctl_msg(msg);
 
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -345,13 +367,16 @@ void InvCommunication::sendTransformMessage(char *message)
 void InvCommunication::sendTelePointerMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "TELEPOINTER";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
 #ifdef TIMING
     time_str = new char[100];
@@ -359,6 +384,10 @@ void InvCommunication::sendTelePointerMessage(char *message)
     covise_time->mark(__LINE__, time_str);
 #endif
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -367,13 +396,16 @@ void InvCommunication::sendTelePointerMessage(char *message)
 void InvCommunication::sendVRMLTelePointerMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "VRML_TELEPOINTER";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
 #ifdef TIMING
     time_str = new char[100];
@@ -381,7 +413,10 @@ void InvCommunication::sendVRMLTelePointerMessage(char *message)
     covise_time->mark(__LINE__, time_str);
 #endif
 
+    appmod->send_ctl_msg(msg);
 
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -390,13 +425,21 @@ void InvCommunication::sendVRMLTelePointerMessage(char *message)
 void InvCommunication::sendDrawstyleMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "DRAWSTYLE";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -405,13 +448,21 @@ void InvCommunication::sendDrawstyleMessage(char *message)
 void InvCommunication::sendLightModeMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "LIGHTMODE";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -420,14 +471,21 @@ void InvCommunication::sendLightModeMessage(char *message)
 void InvCommunication::sendColormapMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "COLORMAP";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -436,32 +494,52 @@ void InvCommunication::sendColormapMessage(char *message)
 void InvCommunication::sendSelectionMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "SELECTION";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 void
 InvCommunication::sendCSFeedback(char *key, char *message)
 {
     //     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
+
     std::string nl("\n");
     std::string dataBuf(key);
     dataBuf = dataBuf + nl;
     dataBuf = dataBuf + std::string(message);
     dataBuf = dataBuf + nl;
-    send_ctl_msg(const_cast<char*>(dataBuf.c_str()), COVISE_MESSAGE_UI);
+
+    msg->type = COVISE_MESSAGE_UI;
+    //    msg->length = strlen(DataBuffer)+1;
+    msg->length = dataBuf.size() + 1;
+    //    msg->data = DataBuffer;
+    msg->data = const_cast<char *>(dataBuf.c_str());
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 void
 InvCommunication::sendAnnotation(char *key, char *message)
 {
 
+    Message *msg = new Message;
 
     std::string nl("\n");
     std::string dataBuf(key);
@@ -469,7 +547,16 @@ InvCommunication::sendAnnotation(char *key, char *message)
     dataBuf = dataBuf + std::string(message);
     dataBuf = dataBuf + nl;
 
-    send_ctl_msg(const_cast<char*>(dataBuf.c_str()), COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    //    msg->length = strlen(DataBuffer)+1;
+    msg->length = dataBuf.size() + 1;
+    //    msg->data = DataBuffer;
+    msg->data = const_cast<char *>(dataBuf.c_str());
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -478,13 +565,21 @@ InvCommunication::sendAnnotation(char *key, char *message)
 void InvCommunication::sendDeselectionMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "DESELECTION";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -493,13 +588,21 @@ void InvCommunication::sendDeselectionMessage(char *message)
 void InvCommunication::sendPartMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "PART";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -508,14 +611,21 @@ void InvCommunication::sendPartMessage(char *message)
 void InvCommunication::sendReferencePartMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "REFPART";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -524,11 +634,19 @@ void InvCommunication::sendReferencePartMessage(char *message)
 void InvCommunication::sendResetSceneMessage()
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "RESET";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -537,13 +655,21 @@ void InvCommunication::sendResetSceneMessage()
 void InvCommunication::sendTransparencyMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "TRANSPARENCY";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -552,13 +678,21 @@ void InvCommunication::sendTransparencyMessage(char *message)
 void InvCommunication::sendSyncModeMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "SYNC";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -567,13 +701,21 @@ void InvCommunication::sendSyncModeMessage(char *message)
 void InvCommunication::sendFogMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "FOG";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -582,13 +724,21 @@ void InvCommunication::sendFogMessage(char *message)
 void InvCommunication::sendAntialiasingMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "ANTIALIASING";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -597,13 +747,21 @@ void InvCommunication::sendAntialiasingMessage(char *message)
 void InvCommunication::sendBackcolorMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "BACKCOLOR";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -612,13 +770,21 @@ void InvCommunication::sendBackcolorMessage(char *message)
 void InvCommunication::sendAxisMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "AXIS";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -627,14 +793,21 @@ void InvCommunication::sendAxisMessage(char *message)
 void InvCommunication::sendClippingPlaneMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "CLIP";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -643,13 +816,21 @@ void InvCommunication::sendClippingPlaneMessage(char *message)
 void InvCommunication::sendViewingMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "VIEWING";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -658,14 +839,21 @@ void InvCommunication::sendViewingMessage(char *message)
 void InvCommunication::sendProjectionMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "PROJECTION";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -674,14 +862,21 @@ void InvCommunication::sendProjectionMessage(char *message)
 void InvCommunication::sendDecorationMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "DECORATION";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -690,15 +885,21 @@ void InvCommunication::sendDecorationMessage(char *message)
 void InvCommunication::sendHeadlightMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "HEADLIGHT";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
 
+    appmod->send_ctl_msg(msg);
 
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -707,13 +908,21 @@ void InvCommunication::sendHeadlightMessage(char *message)
 void InvCommunication::sendSequencerMessage(char *message)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "SEQUENCER";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, message);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_RENDER);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -728,9 +937,12 @@ void InvCommunication::sendQuitMessage()
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     msg->type = COVISE_MESSAGE_QUIT;
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_REQ_UI);
+    appmod->send_ctl_msg(msg);
 
     print_comment(__LINE__, __FILE__, "sended quit message");
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -738,8 +950,10 @@ void InvCommunication::sendQuitMessage()
 //==========================================================================
 void InvCommunication::sendQuitRequestMessage()
 {
+    Message *msg = new Message;
     char DataBuffer[MAXDATALEN];
 
+    msg->type = COVISE_MESSAGE_REQ_UI;
     strcpy(DataBuffer, m_name);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, inst_no);
@@ -747,9 +961,14 @@ void InvCommunication::sendQuitRequestMessage()
     strcat(DataBuffer, h_name);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, "QUIT");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_REQ_UI);
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+    appmod->send_ctl_msg(msg);
 
     print_comment(__LINE__, __FILE__, "sended quit message");
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -758,12 +977,20 @@ void InvCommunication::sendQuitRequestMessage()
 void InvCommunication::sendFinishMessage()
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_FINISHED);
+    msg->type = COVISE_MESSAGE_FINISHED;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
     print_comment(__LINE__, __FILE__, "sended finished message");
+
+    msg->data = 0L;
+    delete msg;
 }
 
 //==========================================================================
@@ -772,20 +999,23 @@ void InvCommunication::sendFinishMessage()
 void InvCommunication::sendShowHelpMessage(const char *url)
 {
     char DataBuffer[MAXDATALEN];
+    Message *msg = new Message;
     const char *key = "SHOW_HELP";
 
     strcpy(DataBuffer, key);
     strcat(DataBuffer, "\n");
     strcat(DataBuffer, url);
     strcat(DataBuffer, "\n");
-    send_ctl_msg(DataBuffer, COVISE_MESSAGE_UI);
+    msg->type = COVISE_MESSAGE_UI;
+    msg->length = strlen(DataBuffer) + 1;
+    msg->data = DataBuffer;
+
+    appmod->send_ctl_msg(msg);
+
+    msg->data = NULL;
+    delete msg;
 }
 
-void InvCommunication::send_ctl_msg(const char* message, int type)
-{
-    Message msg{ (covise_msg_type)type, DataHandle{(char*)message, strlen(message) + 1, false} };
-    appmod->send_ctl_msg(&msg);
-}
 //==========================================================================
 // receive a add object  message
 //==========================================================================
