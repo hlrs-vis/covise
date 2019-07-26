@@ -71,6 +71,7 @@ public:
 
     double timeElapsed; //time between frames
     bool onKnife = true;
+    bool firstUpdate = true;
     double mass; //units: kg
     
     //kinematics data

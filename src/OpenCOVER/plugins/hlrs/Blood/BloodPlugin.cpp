@@ -40,7 +40,7 @@ using namespace opencover;
 bool once = true; //testing
 int num = 0; //testing
 
-bool firstUpdate = true;
+//bool firstUpdate = true;
 
 //defines the transformation matrix in x,y,z world coordinates and sets artificial 4th coordinate to 1
 double t[] = {1.,0.,0.,0., //x scaling
@@ -73,6 +73,8 @@ BloodPlugin::~BloodPlugin()
         particleList[i] = NULL;
     }
     particleList.clear();
+
+    numParticles = 0;
 }
 
 bool BloodPlugin::init() {
@@ -105,6 +107,7 @@ bool BloodPlugin::init() {
     
     //*********************************************************************************************************************************INITIALIZING DROPLET CLASS
     //initializing things for the particle
+    numParticles++;
     particleList.resize(numParticles);
 
     for(int i = 0; i < numParticles; i++) {
@@ -149,11 +152,13 @@ bool BloodPlugin::update() {
     }
     
     //**************************only animate the numParticle-1 element of the vector*******************************
-    if(firstUpdate && particleList[numParticles - 1] -> currentVelocity.length() != 0) {
+    if(particleList[numParticles - 1] -> firstUpdate && particleList[numParticles - 1] -> currentVelocity.length() != 0) {
         particleList[numParticles - 1] -> findReynoldsNum();
         particleList[numParticles - 1] -> findDragCoefficient();
         particleList[numParticles - 1] -> findTerminalVelocity();
-        firstUpdate = false;
+
+        if(numParticles == 2) cout << particleList[numParticles - 1] -> terminalVelocity << endl;
+        particleList[numParticles - 1] -> firstUpdate = false;
     }
     
     knife.shift = knife.currentPosition - knife.prevPosition;
@@ -172,12 +177,20 @@ bool BloodPlugin::update() {
     //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
     //*************************************************************************************
     if(!particleList[numParticles - 1] -> onKnife || 
-    (particleList[numParticles - 1] -> currentVelocity.length() > 5000 && 
-    particleList[numParticles - 1] -> currentVelocity.length() < 50000)) {
+    (particleList[numParticles - 1] -> currentVelocity.length() > 5/* 000 */ && 
+    particleList[numParticles - 1] -> currentVelocity.length() < 50/* 000 */)) {
         //particle leaves the knife with an initial velocity equal to the knife's velocity
         
-        cout << "particle " << numParticles<< " has left the knife" << endl;
+        cout << "particle " << numParticles << " has left the knife" << endl;
         //cout << "numParticles is now: " << numParticles - 1 << endl;
+        
+       /*  if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x() )) {
+            cout << "velocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
+            cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl;   
+            
+        } else  */if(isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
+            while(true);
+        }
 
         //checking that velocity < terminal velocity
         if(abs(particleList[numParticles - 1] -> currentVelocity.x()) < particleList[numParticles - 1] -> terminalVelocity && 
@@ -186,31 +199,58 @@ bool BloodPlugin::update() {
 
                 particleList[numParticles - 1] -> currentVelocity += particleList[numParticles - 1] -> gravity * 
                 double(cover -> frameDuration());
+
+                if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x() )) {
+                    cout << "if\nvelocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
+                    cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl; 
+                    //while(true);  
+                }
                 
         } else {
             cout << "v > term" << endl;
+    
+            if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
+                cout << "else\nvelocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
+                cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl;   
+                num++;
+
+                if(num == 2) {
+                    
+                    //while(true);
+                }
+                
+            } else if(isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
+                while(true);
+            }
+
+            //? when new particle is added via doAddBlood, the velocity of the particle at this point is always 0?
 
             particleList[numParticles - 1] -> currentVelocity += 
             particleList[numParticles - 1] -> gravity * double(cover -> frameDuration());
 
             if(abs(particleList[numParticles - 1] -> currentVelocity.x()) >= 
-            particleList[numParticles - 1] -> terminalVelocity) {
+            particleList[numParticles - 1] -> terminalVelocity && 
+            particleList[numParticles - 1] -> currentVelocity.x() != 0) {
 
                 particleList[numParticles - 1] -> currentVelocity.x() = 
                 (particleList[numParticles - 1] -> currentVelocity.x() / 
                 abs(particleList[numParticles - 1] -> currentVelocity.x())) * 
                 particleList[numParticles - 1] -> terminalVelocity;
             }
+
             if(abs(particleList[numParticles - 1] -> currentVelocity.y()) >= 
-            particleList[numParticles - 1] -> terminalVelocity) {
+            particleList[numParticles - 1] -> terminalVelocity && 
+            particleList[numParticles - 1] -> currentVelocity.y() != 0) {
 
                 particleList[numParticles - 1] -> currentVelocity.y() = 
                 (particleList[numParticles - 1] -> currentVelocity.y() / 
                 abs(particleList[numParticles - 1] -> currentVelocity.y())) * 
                 particleList[numParticles - 1] -> terminalVelocity;
             }
+
             if(abs(particleList[numParticles - 1] -> currentVelocity.z()) >= 
-            particleList[numParticles - 1] -> terminalVelocity) {
+            particleList[numParticles - 1] -> terminalVelocity && 
+            particleList[numParticles - 1] -> currentVelocity.z() != 0) {
 
                 particleList[numParticles - 1] -> currentVelocity.z() = 
                 (particleList[numParticles - 1] -> currentVelocity.z() / 
@@ -259,20 +299,20 @@ void BloodPlugin::doAddBlood() { //this function causes seg faults
     //create a bunch of blood on the object
     //bloodJunks.push_back(new Blood()); //old code
     
-    numParticles++;
+    //numParticles++;
     particleList.push_back(new Droplet(numParticles));
+    numParticles++;
 
     cover -> getObjectsRoot() -> addChild(particleList[numParticles - 1] -> bloodTransform);
-
     cout << "added new particle, number of existing particles is now: " << numParticles << endl;
+    //??additional particles have nan as speed/position/cull matrix when animated?
+
+    // cout << "still working on this" << endl << endl;
+    // while(true);
 }
 
 BloodPlugin * BloodPlugin::instance() {
     return inst;
-}
-
-int BloodPlugin::getNumParticles() {
-    return numParticles;
 }
 
 COVERPLUGIN(BloodPlugin)

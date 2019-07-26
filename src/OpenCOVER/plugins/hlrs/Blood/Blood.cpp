@@ -67,7 +67,7 @@ double d[] = {1.,0.,0.,0., //x scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
 Droplet::Droplet() {
-    id++;
+    //id++;
     radius = 0.001; //particle radius = 1mm
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
@@ -87,8 +87,8 @@ Droplet::Droplet() {
 
 
 
-    // string transformName = "bloodTransform " + std::to_string(id);
-    // bloodTransform -> setName(transformName); //later update name to include the particle number    
+    string transformName = "bloodTransform"/*  + std::to_string(id) */;
+    bloodTransform -> setName(transformName); //later update name to include the particle number    
 
 
 
@@ -103,8 +103,8 @@ Droplet::Droplet() {
 
 
 
-    // string geodeName = "bloodGeode " + std::to_string(id);
-    // bloodGeode -> setName(geodeName); //later update name to include the particle number
+    string geodeName = "bloodGeode"/*  + std::to_string(id) */;
+    bloodGeode -> setName(geodeName); //later update name to include the particle number
 
 
 
@@ -123,13 +123,14 @@ Droplet::Droplet() {
 		bloodStateSet -> setAttributeAndModes(bloodMaterial);
 		bloodStateSet -> setNestRenderBins(false);
         
+        //moved to BloodPlugin.cpp
         // cover -> getObjectsRoot() -> addChild(bloodTransform);
     	// cout << "Hello Blood" << endl;
     }
 }
 
 Droplet::Droplet(int numParticles) {
-    id++;
+    //id++;
     radius = 0.001; //particle radius = 1mm
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
@@ -148,8 +149,8 @@ Droplet::Droplet(int numParticles) {
 
 
 
-    // string transformName = "bloodTransform " + std::to_string(id);
-    // bloodTransform -> setName(transformName); //later update name to include the particle number
+    string transformName = "bloodTransform"/*  + std::to_string(id) */;
+    bloodTransform -> setName(transformName); //later update name to include the particle number
     
 
 
@@ -164,8 +165,8 @@ Droplet::Droplet(int numParticles) {
 
 
 
-    // string geodeName = "bloodGeode " + std::to_string(id);
-    // bloodGeode -> setName(geodeName); //later update name to include the particle number
+    string geodeName = "bloodGeode"/*  + std::to_string(id) */;
+    bloodGeode -> setName(geodeName); //later update name to include the particle number
 
 
 
@@ -184,8 +185,8 @@ Droplet::Droplet(int numParticles) {
 		bloodStateSet -> setAttributeAndModes(bloodMaterial);
 		bloodStateSet -> setNestRenderBins(false);
 		
+        //moved to BloodPlugin.cpp
 		// cover -> getObjectsRoot() -> addChild(bloodTransform);
-
     	// cout << "Hello Added Blood" << endl;
     }
 }

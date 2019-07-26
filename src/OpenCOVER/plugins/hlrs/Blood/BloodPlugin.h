@@ -76,10 +76,8 @@ public:
     Weapon knife;
     std::vector<Droplet*> particleList;
 
-    int getNumParticles();
-
 private:
-    int numParticles = 1;
+    int numParticles = 0;
     
     static BloodPlugin *inst;
     ui::Menu* bloodMenu = nullptr;
