@@ -104,7 +104,7 @@ void ApplicationProcess::exch_data_msg(Message *msg, int count...)
         delete[] type_list;
         return;
     }
-    msg->data = 0L;
+    msg->data = DataHandle{};
 
     int type_match = 0;
     while (!type_match)
@@ -118,7 +118,7 @@ void ApplicationProcess::exch_data_msg(Message *msg, int count...)
             if (msg->type == COVISE_MESSAGE_NEW_SDS)
             {
                 handle_shm_msg(msg);
-                msg->data = 0L;
+                msg->data = DataHandle{};
             }
             else
             {
@@ -379,7 +379,7 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
     Message *msg = wait_for_ctl_msg();
     if (msg->type == COVISE_MESSAGE_APP_CONTACT_DM)
     {
-        //	cerr << "contact DM at port " << *(int *)msg->data << "\n";
+        //	cerr << "contact DM at port " << *(int *)msg->data.data() << "\n";
         uport = *(int *)msg->data.data();
         swap_byte(uport);
         //	cerr << "swapped port: " << uport << endl;

@@ -75,7 +75,7 @@ void InvMsgManager::dataReceived(int)
         if (msg->data.length() > 0)
         {
             //cerr << "_____________________________________________" << endl;
-            //cerr << msg->data << endl;
+            //cerr << msg->data.data() << endl;
             //cerr << "_____________________________________________" << endl;
             list = QString(msg->data.data()).split("\n");
         }

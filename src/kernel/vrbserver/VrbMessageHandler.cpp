@@ -190,7 +190,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
 //#ifdef MB_DEBUG
 //            std::cerr << "====> Client valid!" << std::endl;
 //#endif
-//            c->addBytesSent(msg->length);
+//            c->addBytesSent(msg->data.length());
 //#ifdef MB_DEBUG
 //            std::cerr << "====> Added length of msg to bytes sent!" << std::endl;
 //#endif
@@ -434,7 +434,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
     case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
     {
 #ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->length << "!" << std::endl;
+        std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->data.length() << "!" << std::endl;
 #endif
         vrb::SessionID toGroup;
 #ifdef MB_DEBUG

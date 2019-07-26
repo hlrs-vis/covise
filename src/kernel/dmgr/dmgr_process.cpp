@@ -98,9 +98,9 @@ void DataManagerProcess::ask_for_object(Message *msg)
     const char *addr;
     char tmp_str[255];
 
-    //    cerr << "local ASK_FOR_OBJECT: " << msg->data << "\n";
+    //    cerr << "local ASK_FOR_OBJECT: " << msg->data.data() << "\n";
     oe = get_local_object(msg->data);
-    sprintf(tmp_str, "sending Object %s ++++++", msg->data);
+    sprintf(tmp_str, "sending Object %s ++++++", msg->data.data());
     print_comment(__LINE__, __FILE__, tmp_str, 4);
     msg->data = DataHandle();
     if (oe)
@@ -471,7 +471,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
     Message msg{ COVISE_MESSAGE_SEND_ID, DataHandle(msg_data, len) };
 
     dm->send_msg(&msg);
-    msg.data = NULL;
+    msg.data = DataHandle();
     msg = *wait_for_msg(COVISE_MESSAGE_SEND_ID, dm);
 
     if (msg.type == COVISE_MESSAGE_SEND_ID)
@@ -678,7 +678,7 @@ int DataManagerProcess::forward_new_part(Message *partmsg)
         }
         else
         {
-            // partmsg->data and partmsg->len should still be ok here
+            // partmsg->data.data() and partmsg->data.length() should still be ok here
             partmsg->type = COVISE_MESSAGE_NEW_PART_AVAILABLE;
             acc->conn->send_msg(partmsg);
             part->pack_and_send_object(partmsg, this);
@@ -1589,7 +1589,7 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
             tmpdmgr = data_mgrs->next();
         }
         print_comment(__LINE__, __FILE__, "returning NULL");
-        return NULL;
+        return DataHandle();
     }
 }
 
@@ -1717,7 +1717,6 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
           Message *msg = new Message(HAS_OBJECT_CHANGED, len, data);
           oe->dmgr->conn->send_msg(msg);
           delete [] msg->data;
-          msg->data = NULL;
           covise_msg_type_arr[0] = OBJECT_UPDATE;
           covise_msg_type_arr[1] = OBJECT_OK;
           msg = wait_for_msg(covise_msg_type_arr, 2, oe->dmgr->conn);
@@ -1730,8 +1729,6 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
          //		cerr << oe->name << " not updated\n";
          break;
          }
-         delete [] msg->data;
-         msg->data = NULL;
          delete msg;
          */
         }
@@ -1933,7 +1930,6 @@ void ObjectEntry::remove_access(Connection *c)
         {
             msg = new Message(COVISE_MESSAGE_OBJECT_NO_LONGER_USED, name);
             dmgr->conn->send_msg(msg);
-            msg->data = NULL;
             delete msg;
         }
     }

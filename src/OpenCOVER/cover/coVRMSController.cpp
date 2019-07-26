@@ -700,7 +700,7 @@ void coVRMSController::sendSlaves(const Message *msg)
         header_int[0] = msg->sender;
         header_int[1] = msg->send_type;
         header_int[2] = msg->type;
-        header_int[3] = msg->length;
+        header_int[3] = msg->data.length();
 
         // Write header via multicast
         if (multicast->write_mcast(header, headerSize) != Rel_Mcast::RM_OK)
@@ -710,22 +710,22 @@ void coVRMSController::sendSlaves(const Message *msg)
         }
 
         // Write data via multicast (split up into pieces if necessary)
-        int numMsg = msg->length / multicastMaxLength;
-        if (msg->length % multicastMaxLength != 0)
+        int numMsg = msg->data.length() / multicastMaxLength;
+        if (msg->data.length() % multicastMaxLength != 0)
             numMsg++;
         int curMsg;
 
         // Write first numMsg-1 messages
         for (curMsg = 1; curMsg < numMsg; curMsg++)
         {
-            if (multicast->write_mcast(msg->data + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
+            if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
                 exit(0);
             }
         }
         // Write numMsg message
-        if (multicast->write_mcast(msg->data + multicastMaxLength * (curMsg - 1), msg->length % multicastMaxLength) != Rel_Mcast::RM_OK)
+        if (multicast->write_mcast(msg->data.data() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
             exit(0);
@@ -775,33 +775,32 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = header_int[0];
         msg->send_type = (sender_type)header_int[1];
         msg->type = header_int[2];
-        msg->length = header_int[3];
-        msg->data = new char[msg->length];
+        msg->data = DataHandle{ header_int[3] };
 
         // Read data via multicast (Read piece-by-piece if necessary)
-        int numMsg = msg->length / multicastMaxLength;
-        if (msg->length % multicastMaxLength != 0)
+        int numMsg = msg->data.length() / multicastMaxLength;
+        if (msg->data.length() % multicastMaxLength != 0)
             numMsg++;
         int curMsg;
 
         // Read first numMsg-1 messages
         for (curMsg = 1; curMsg < numMsg; curMsg++)
         {
-            if (multicast->read_mcast(msg->data + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
+            if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), multicastMaxLength) != Rel_Mcast::RM_OK)
             {
                 delete multicast;
                 exit(0);
             }
         }
         // Read numMsg message
-        if (multicast->read_mcast(msg->data + multicastMaxLength * (curMsg - 1), msg->length % multicastMaxLength) != Rel_Mcast::RM_OK)
+        if (multicast->read_mcast(msg->data.accessData() + multicastMaxLength * (curMsg - 1), msg->data.length() % multicastMaxLength) != Rel_Mcast::RM_OK)
         {
             delete multicast;
             exit(0);
         }
 
         // Return size
-        return msg->length + headerSize;
+        return msg->data.length() + headerSize;
     }
     else
 #endif
@@ -2573,7 +2572,6 @@ bool coVRMSController::syncVRBMessages()
 			{
 				sendSlaves(vrbMsgs[i]);
 				coVRCommunication::instance()->handleVRB(vrbMsgs[i]);
-				vrbMsgs[i]->data = NULL;
 				delete vrbMsgs[i];
 			}
 			sendSlaves(&numUdpMessages, sizeof(int));
@@ -2581,7 +2579,6 @@ bool coVRMSController::syncVRBMessages()
 			{
 				sendSlaves(udpMsgs[i]);
 				coVRCommunication::instance()->handleUdp(udpMsgs[i]);
-				udpMsgs[i]->data = NULL;
 				delete udpMsgs[i];
 			}
 		}

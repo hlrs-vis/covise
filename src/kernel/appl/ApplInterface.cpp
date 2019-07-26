@@ -1509,7 +1509,7 @@ void Covise::doStart(Message *m)
 
     msg = new CtlMessage(m);
 
-    //cerr << msg->data << endl;
+    //cerr << msg->data.data() << endl;
 
     // call back the function provided by the user
     if (startCallbackFunc != NULL)
@@ -1517,7 +1517,7 @@ void Covise::doStart(Message *m)
 
     msg->create_finall_message();
 
-    //  cerr << "Sending message to controller :" << msg->data << endl;
+    //  cerr << "Sending message to controller :" << msg->data.data() << endl;
 
     appmod->send_ctl_msg((Message *)msg);
 

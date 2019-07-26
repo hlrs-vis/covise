@@ -326,7 +326,7 @@ int DM_data::start_crb(int type, const string& host, const string& user, const s
 
     Message *msg = new Message(COVISE_MESSAGE_QUERY_DATA_PATH, "");
     dm->send_msg(msg);
-    msg->data = NULL;
+    msg->data = DataHandle{};
 
     dm->recv_msg(msg);
     if (msg->type == COVISE_MESSAGE_SEND_DATA_PATH)
@@ -715,7 +715,7 @@ void rhost::send_ctrl_quit()
 //	fprintf(msg_prot, "send rhost\n%i %i \n %s \n", msg->sender, msg->type, msg->data);
 //	fflush(msg_prot);
 #endif
-        msg->data = NULL;
+        msg->data = DataHandle{};
         ctrl->recv_msg(recvmsg);
         switch (recvmsg->type)
         {

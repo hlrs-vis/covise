@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
        msg = new Message;
        msg->type = COVISE_MESSAGE_INIT;
        msg->data = (char*)CoviseVersion::shortVersion();
-       msg->length = strlen(msg->data)+1;
+       msg->data.length() = strlen(msg->data)+1;
        datamgr->send_ctl_msg(msg);
        delete msg;
    */
@@ -706,7 +706,7 @@ int main(int argc, char* argv[])
 #ifdef _WIN32
         msg.data.accessData()[0] = ';';
 #else
-            msg.data[0] = ':';
+            msg.data.accessData()[0] = ':';
 #endif
         if (getenv("COVISE_PATH"))
         {

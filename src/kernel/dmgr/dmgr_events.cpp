@@ -353,7 +353,7 @@ int DataManagerProcess::handle_msg(Message *msg)
             char* d = new char[sizeof(int) * (MAX_NO_SHM * 2 + 1)];
             shm->get_shmlist(d);
             msg->data = DataHandle(d, *(int*)d * sizeof(int) * 2 + sizeof(int));
-            print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d msg->length: %d", *(int*)msg->data.data(),
+            print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d msg->data.length(): %d", *(int*)msg->data.data(),
                 ((int*)msg->data.data())[1], ((int*)msg->data.data())[2], msg->data.length());
 
         }
@@ -681,7 +681,7 @@ int DataManagerProcess::handle_msg(Message *msg)
         print_comment(__LINE__, __FILE__, tmp_str);
 //	    cerr << "message " << msg->type << ": ";
 //	    if(msg->data)
-//	    	cerr << *(int *)msg->data << " from " << *(int *)&msg->data[SIZEOF_IEEE_INT];
+//	    	cerr << *(int *)msg->data.data() << " from " << *(int *)&msg->data[SIZEOF_IEEE_INT];
 //	    cerr << endl;
 //	    msg->conn->send_msg(msg);
 #endif
