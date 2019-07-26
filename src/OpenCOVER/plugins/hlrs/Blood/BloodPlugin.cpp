@@ -184,14 +184,6 @@ bool BloodPlugin::update() {
         cout << "particle " << numParticles << " has left the knife" << endl;
         //cout << "numParticles is now: " << numParticles - 1 << endl;
         
-       /*  if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x() )) {
-            cout << "velocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
-            cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl;   
-            
-        } else  */if(isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
-            while(true);
-        }
-
         //checking that velocity < terminal velocity
         if(abs(particleList[numParticles - 1] -> currentVelocity.x()) < particleList[numParticles - 1] -> terminalVelocity && 
            abs(particleList[numParticles - 1] -> currentVelocity.y()) < particleList[numParticles - 1] -> terminalVelocity && 
@@ -199,12 +191,6 @@ bool BloodPlugin::update() {
 
                 particleList[numParticles - 1] -> currentVelocity += particleList[numParticles - 1] -> gravity * 
                 double(cover -> frameDuration());
-
-                if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x() )) {
-                    cout << "if\nvelocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
-                    cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl; 
-                    //while(true);  
-                }
                 
         } else {
             cout << "v > term" << endl;
