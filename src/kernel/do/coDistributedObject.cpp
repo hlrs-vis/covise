@@ -337,7 +337,7 @@ int coDistributedObject::destroy()
     Message msg{ COVISE_MESSAGE_DESTROY_OBJECT, DataHandle{name, strlen(name) + 1, false} };
     // next line changed from send_data_msg
     ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_MSG_OK, COVISE_MESSAGE_MSG_FAILED);
-    //    msg->data = NULL;
+    //    msg->data = DataHandle{};
     //    ApplicationProcess::approc->recv_data_msg(msg);
     if (msg.type == COVISE_MESSAGE_MSG_OK)
     {
