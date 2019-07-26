@@ -158,6 +158,7 @@ public:
 		assert(m_registry);
 		covise::TokenBuffer data;
 		composeData(data);
+        auto l = data.get_length();
         subscribe(data.getData());
 		setSyncInterval(0);
 	}
