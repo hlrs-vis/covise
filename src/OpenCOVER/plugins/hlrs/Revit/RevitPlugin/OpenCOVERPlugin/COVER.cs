@@ -62,7 +62,7 @@ namespace OpenCOVERPlugin
     public sealed class COVER
     {
 
-        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo };
+        public enum MessageTypes { NewObject = 500, DeleteObject, ClearAll, UpdateObject, NewGroup, NewTransform, EndGroup, AddView, DeleteElement, NewParameters, SetParameter, NewMaterial, NewPolyMesh, NewInstance, EndInstance, SetTransform, UpdateView, AvatarPosition, RoomInfo, NewAnnotation, ChangeAnnotation, ChangeAnnotationText, NewAnnotationID, Views, SetView, Resend, NewDoorGroup, File, Finished, DocumentInfo, NewPointCloud };
         public enum ObjectTypes { Mesh = 1, Curve, Instance, Solid, RenderElement, Polymesh, Inline };
         public enum TextureTypes { Diffuse = 1, Bump };
         private Thread messageThread;
@@ -510,6 +510,16 @@ namespace OpenCOVERPlugin
                 {
                     return;
                 }
+            }
+            if(elem is Autodesk.Revit.DB.PointCloudInstance)
+            {
+                Autodesk.Revit.DB.PointCloudInstance pointcloud = (Autodesk.Revit.DB.PointCloudInstance)elem;
+                String n = pointcloud.Name; MessageBuffer mb = new MessageBuffer();
+                mb.add(elem.Id.IntegerValue);
+                mb.add(elem.Name + "__" + elem.UniqueId.ToString());
+                mb.add(elem.Name);
+                sendMessage(mb.buf, MessageTypes.NewPointCloud);
+
             }
 
             if (elem is Autodesk.Revit.DB.TextNote)

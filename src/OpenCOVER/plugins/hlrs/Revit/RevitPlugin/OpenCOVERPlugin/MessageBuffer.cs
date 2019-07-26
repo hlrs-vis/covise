@@ -37,11 +37,11 @@ namespace OpenCOVERPlugin
         {
             currentPos = 1;
             buf = new byte[b.Length];
+            b.CopyTo(buf, 0);
             if (buf[0] == 0)
                 typeInfo = false;
             else
                 typeInfo = true;
-            b.CopyTo(buf, 0);
         }
         private void readTypeInfo(Types expectedType)
         {
