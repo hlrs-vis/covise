@@ -205,15 +205,6 @@ public:
         //}
     }
 
-	//! sends the value change to the vrb
-	void push()
-	{
-		valueChanged = false;
-		covise::TokenBuffer data;
-		composeData(data);
-        setVar(DataHandle(data.getData()));
-	}
-
     //! sends the value change to the vrb
     void push() {
         valueChanged = false;
