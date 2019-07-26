@@ -711,9 +711,9 @@ void AnnotationPlugin::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 tb2 << activeAnnotation->getOwnerID();
                 tb2 << text;
                 cover->sendMessage(this, coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
+                                   PluginMessageTypes::AnnotationTextMessage, tb2.getData().length(), tb2.getData().data());
                 cover->sendMessage(this, "Revit",
-                                   PluginMessageTypes::AnnotationTextMessage, tb2.get_length(), tb2.get_data());
+                                   PluginMessageTypes::AnnotationTextMessage, tb2.getData().length(), tb2.getData().data());
             }
             break;
         }
@@ -1179,7 +1179,7 @@ void AnnotationPlugin::message(int toWhom, int type, int len, const void *buf)
 
     else if (type == PluginMessageTypes::AnnotationTextMessage)
     {
-        TokenBuffer tb((char *)buf, len);
+        TokenBuffer tb(DataHandle((char *)buf, len, false));
         int id;
         tb >> id;
         int owner;

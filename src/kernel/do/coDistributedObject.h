@@ -48,7 +48,7 @@
 \***********************************************************************/
 namespace covise
 {
-
+class DataHandle;
 class ApplicationProcess;
 
 DOEXPORT void PackElement_print(class PackElement *);
@@ -306,15 +306,15 @@ protected:
     coIntShm version;
     mutable coIntShm refcount;
     mutable coShmArray *shmarr;
-    coStringShmArray *attributes;
-    mutable coDoHeader *header;
+    coStringShmArray *attributes = nullptr;
+    mutable coDoHeader *header = nullptr;
     char type_name[7];
-    int type_no;
-    char *name;
-    int loc_version;
+    int type_no = 0;
+    char *name = nullptr;
+    int loc_version = -1;
     bool new_ok;
-    int size;
-    mutable char *attribs; // Data space for Attributes
+    int size = 0;
+    mutable char *attribs = nullptr; // Data space for Attributes
     int getShmArray() const;
     int createFromShm(coShmArray *arr)
     {
@@ -482,7 +482,7 @@ public:
 
     const coDistributedObject *createUnknown() const;
 
-    int *store_header(int, int, int, int *, data_type *, long *, int **);
+    int *store_header(int, int, int, int *, data_type *, long *, covise::DataHandle &idata);
     int restore_header(int **, int, int *, int *, shmSizeType *);
     void init_header(int *, int *, int, data_type **, long **);
 

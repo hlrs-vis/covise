@@ -821,11 +821,10 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = bufferInt[0];
         msg->send_type = bufferInt[1];
         msg->type = bufferInt[2];
-        msg->length = bufferInt[3];
 
-        msg->data = new char[msg->length];
+        msg->data = DataHandle(bufferInt[3]);
 
-        return received + readMaster(msg->data, msg->length);
+        return received + readMaster(msg->data.accessData(), msg->data.length());
     }
     else
 #endif
@@ -842,17 +841,16 @@ int coVRMSController::readMaster(Message *msg)
         msg->sender = read_buf_int[0];
         msg->send_type = read_buf_int[1];
         msg->type = read_buf_int[2];
-        msg->length = read_buf_int[3];
-        msg->data = new char[msg->length];
+        msg->data = DataHandle(read_buf_int[3]);
 #ifdef DEBUG_MESSAGES
         debugMessagesCheck = false;
 #endif
-        while (bytesRead < msg->length)
+        while (bytesRead < msg->data.length())
         {
-            toRead = msg->length - bytesRead;
+            toRead = msg->data.length() - bytesRead;
             if (toRead > READ_BUFFER_SIZE)
                 toRead = READ_BUFFER_SIZE;
-            int ret = readMaster(msg->data + bytesRead, toRead);
+            int ret = readMaster(msg->data.accessData() + bytesRead, toRead);
             if (ret < toRead)
             {
                 //cerr << "Short Message" << ret << endl;
@@ -880,10 +878,10 @@ void coVRMSController::sendMaster(const Message *msg)
         header[0] = msg->sender;
         header[1] = msg->send_type;
         header[2] = msg->type;
-        header[3] = msg->length;
+        header[3] = msg->data.length();
 
         sendMaster(reinterpret_cast<char *>(&header[0]), 4 * sizeof(int));
-        sendMaster(msg->data, msg->length);
+        sendMaster(msg->data.data(), msg->data.length());
     }
     else
 #endif
@@ -891,7 +889,7 @@ void coVRMSController::sendMaster(const Message *msg)
         char write_buf[WRITE_BUFFER_SIZE];
         int *write_buf_int;
         int headerSize = 4 * sizeof(int);
-        int len = msg->length + headerSize;
+        int len = msg->data.length() + headerSize;
         int toWrite;
         int written = 0;
         toWrite = len;
@@ -901,10 +899,10 @@ void coVRMSController::sendMaster(const Message *msg)
         write_buf_int[0] = msg->sender;
         write_buf_int[1] = msg->send_type;
         write_buf_int[2] = msg->type;
-        write_buf_int[3] = msg->length;
+        write_buf_int[3] = msg->data.length();
         if (toWrite > WRITE_BUFFER_SIZE)
             toWrite = WRITE_BUFFER_SIZE;
-        memcpy(write_buf + headerSize, msg->data, toWrite - headerSize);
+        memcpy(write_buf + headerSize, msg->data.data(), toWrite - headerSize);
         sendMaster(write_buf, toWrite);
         written += toWrite;
         while (written < len)
@@ -912,7 +910,7 @@ void coVRMSController::sendMaster(const Message *msg)
             toWrite = len - written;
             if (toWrite > WRITE_BUFFER_SIZE)
                 toWrite = WRITE_BUFFER_SIZE;
-            sendMaster(msg->data + written - headerSize, toWrite);
+            sendMaster(msg->data.data() + written - headerSize, toWrite);
             written += toWrite;
         }
     }
@@ -927,15 +925,14 @@ int coVRMSController::readMaster(vrb::UdpMessage* msg)
 	int* read_buf_int = (int*)read_buf;
 	msg->type = (vrb::udp_msg_type)read_buf_int[0];
 	msg->sender = read_buf_int[1];
-	msg->length = read_buf_int[2];
 	//cerr << "reading master, type = " << read_buf_int[0] << " sender = " << read_buf_int[1] << " length = " << read_buf_int[2] << endl;
-	if (msg->length >  WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
+	if (read_buf_int[2] >  WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
 	{
 		cerr << "udp message of type " << msg->type << " was too long to read;" << endl;
 		return 0;
 	}
-	msg->data = new char[msg->length];
-	ret = readMaster(msg->data, msg->length);
+    msg->data = DataHandle(read_buf_int[2]);
+	ret = readMaster(msg->data.accessData(), msg->data.length());
 	return ret;
 }
 void coVRMSController::sendMaster(const std::string &s)
@@ -2341,14 +2338,14 @@ int coVRMSController::syncMessage(covise::Message *msg)
     int buffer[headerSize];
 
     if (!coVRMSController::instance()->isCluster())
-        return sizeof(buffer)+msg->length;
+        return sizeof(buffer)+msg->data.length();
 
     if (coVRMSController::instance()->isMaster())
     {
         buffer[0] = msg->sender;
         buffer[1] = msg->send_type;
         buffer[2] = msg->type;
-        buffer[3] = msg->length;
+        buffer[3] = msg->data.length();
     }
     int ret = syncData(&buffer[0], sizeof(buffer));
     if (ret >= 0)
@@ -2358,10 +2355,9 @@ int coVRMSController::syncMessage(covise::Message *msg)
             msg->sender = buffer[0];
             msg->send_type = buffer[1];
             msg->type = buffer[2];
-            msg->length = buffer[3];
-            msg->data = new char[msg->length];
+            msg->data = DataHandle(buffer[3]);
         }
-        int n = syncData(msg->data, msg->length);
+        int n = syncData(msg->data.accessData(), msg->data.length());
         if (n >= 0)
             return ret + n;
     }
@@ -2625,8 +2621,6 @@ bool coVRMSController::syncVRBMessages()
 			}
 		}
 	}
-    vrbMsg->data = nullptr;
-	udpMsg->data = nullptr;
     delete vrbMsg;
 	delete udpMsg;
     return numVrbMessages>0;

@@ -86,7 +86,7 @@ private:
     bool send = false;
     float syncInterval = 0.1f; ///how often messages get sent. if >= 0 messages will be sent immediately
     double lastUpdateTime = 0.0;
-    std::unique_ptr<const covise::DataHandle>  m_valueData;
+    covise::DataHandle  m_valueData;
 };
 
 template <class T>
@@ -96,9 +96,9 @@ public:
         : SharedStateBase(name, mode)
         , m_value(value) {
         assert(m_registry);
-        covise::TokenBuffer data;
-        serializeWithType(data, m_value);
-        subscribe(data.getData());
+        covise::TokenBuffer tb;
+        serializeWithType(tb, m_value);
+        subscribe(tb.getData());
     }
 
     SharedState<T>& operator=(T value) {
@@ -114,7 +114,7 @@ public:
     }
 
     void deserializeValue(const regVar* data) override {
-        covise::TokenBuffer d(data->getValue().data(), data->getValue().length());
+        covise::TokenBuffer d(data->getValue());
         deserializeWithType(d, m_value);
     }
 
@@ -178,26 +178,31 @@ public:
     }
 
     void deserializeValue(const regVar* data) override {
-        covise::TokenBuffer serializedMap(data->wholeMap.data(), data->wholeMap.length());
-        deserialize(serializedMap, m_value);
-        auto change = data->m_changedEtries.begin();
-        while (change != data->m_changedEtries.end()) {
-            if (change->first > m_value.size()) {
-                std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
-                return;
-            }
-            auto it = m_value.begin();
-            std::advance(it, change->first);
-            covise::TokenBuffer c(change->second.data(), change->second.length());
-            int type, pos;
-            c >> type;
-            c >> pos;
-            if (type != 1 || pos != change->first) {
-                std::cerr << "Shared Map " << variableName << " :changes in wrong format" << std::endl;
-            }
-            deserialize(c, it->second);
-            ++change;
-        }
+
+
+
+
+
+        //covise::TokenBuffer serializedMap(data->wholeMap);
+        //deserialize(serializedMap, m_value);
+        //auto change = data->m_changedEtries.begin();
+        //while (change != data->m_changedEtries.end()) {
+        //    if (change->first > m_value.size()) {
+        //        std::cerr << m_className << "," << variableName << ": receive map change out of map size" << std::endl;
+        //        return;
+        //    }
+        //    auto it = m_value.begin();
+        //    std::advance(it, change->first);
+        //    covise::TokenBuffer c(change->second);
+        //    int type, pos;
+        //    c >> type;
+        //    c >> pos;
+        //    if (type != 1 || pos != change->first) {
+        //        std::cerr << "Shared Map " << variableName << " :changes in wrong format" << std::endl;
+        //    }
+        //    deserialize(c, it->second);
+        //    ++change;
+        //}
     }
 
 	//! sends the value change to the vrb
@@ -208,6 +213,14 @@ public:
 		composeData(data);
         setVar(DataHandle(data.getData()));
 	}
+
+    //! sends the value change to the vrb
+    void push() {
+        valueChanged = false;
+        covise::TokenBuffer data;
+        composeData(data);
+        setVar(data.getData());
+    }
 
     const T& value() const {
         return m_value;

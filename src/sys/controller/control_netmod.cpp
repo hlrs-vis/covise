@@ -267,7 +267,7 @@ net_module::~net_module()
 
 void net_module::add_error(Message *msg)
 {
-    string p_str = "Error log: " + string(msg->data);
+    string p_str = "Error log: " + string(msg->data.data());
     m_errlist.push_back(p_str);
 }
 
@@ -1268,13 +1268,13 @@ int net_module::init(int nodeid, const string &name, const string &instanz, cons
     mod = get_type();
     Message *msg = new Message;
     applmod->recv_msg(msg);
-    if (msg->data == NULL)
+    if (!msg->data.data())
     {
         cerr << endl << " net_module::init() - NULL module description received\n";
         exit(0);
     }
 
-    mod->read_description(msg->data);
+    mod->read_description(msg->data.data());
     delete msg;
 
     this->create_netlink(name, instanz, host, CTRLGlobal::getInstance()->netList);
@@ -2204,8 +2204,7 @@ int display::start(AppModule *dmod, const string &info_str, module *mod, const s
     // status dem Rendermodule mitteilen
     Message *msg = new Message;
     applmod->recv_msg(msg);
-    mod->read_description(msg->data);
-    msg->delete_data();
+    mod->read_description(msg->data.data());
     delete msg;
     this->send_status(info_str);
 
@@ -4160,11 +4159,11 @@ void net_module_list::send_renderer(Message *msg)
             }
             else // sending the VRML msg to VRMLRenderer
             {
-                if ((strncmp(msg->data, "VRML", 4) == 0) && tmp_mod->get_name() == "VRMLRenderer")
+                if ((strncmp(msg->data.data(), "VRML", 4) == 0) && tmp_mod->get_name() == "VRMLRenderer")
                 {
                     ((render_module *)tmp_mod)->send_msg(msg);
                 }
-                else if (strncmp(msg->data, "GRMSG", 5) == 0)
+                else if (strncmp(msg->data.data(), "GRMSG", 5) == 0)
                 {
                     ((render_module *)tmp_mod)->send_msg(msg);
                 }
@@ -4174,28 +4173,28 @@ void net_module_list::send_renderer(Message *msg)
 }
 
 /// send generic information( INFO, WARNING, ERROR) to all renderers
-void net_module_list::send_gen_info_renderer(Message *msg)
+void net_module_list::send_gen_info_renderer(Message* msg)
 {
-    Message *rmsg = new Message(*msg);
+    Message* rmsg = new Message(*msg);
 
-    char *new_data = new char[msg->length + 10];
+    DataHandle new_data{(size_t)(msg->data.length() + 10)};
     switch (rmsg->type)
     {
     case COVISE_MESSAGE_INFO:
     {
-        sprintf(new_data, "INFO\n%s", msg->data);
+        sprintf(new_data.accessData(), "INFO\n%s", msg->data.data());
         break;
     }
 
     case COVISE_MESSAGE_WARNING:
     {
-        sprintf(new_data, "WARNING\n%s", msg->data);
+        sprintf(new_data.accessData(), "WARNING\n%s", msg->data.data());
         break;
     }
 
     case COVISE_MESSAGE_COVISE_ERROR:
     {
-        sprintf(new_data, "ERROR\n%s", msg->data);
+        sprintf(new_data.accessData(), "ERROR\n%s", msg->data.data());
         break;
     }
     default:
@@ -4204,7 +4203,7 @@ void net_module_list::send_gen_info_renderer(Message *msg)
     }
     }
 
-    rmsg->length = (int)strlen(new_data) + 1;
+    new_data.setLength((int)strlen(new_data.data()) + 1);
     rmsg->data = new_data;
     rmsg->type = COVISE_MESSAGE_COVISE_ERROR;
 

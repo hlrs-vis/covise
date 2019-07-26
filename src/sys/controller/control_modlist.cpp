@@ -218,16 +218,16 @@ AppModule *DM_data::get_DM()
     return dm;
 }
 
-int DM_data::start_crb(int type, const string &host, const string &user, const string &passwd, const string &script_name, coHostType & /*htype*/)
+int DM_data::start_crb(int type, const string& host, const string& user, const string& passwd, const string& script_name, coHostType& /*htype*/)
 {
-    
-    CTRLGlobal *global = CTRLGlobal::getInstance();
+
+    CTRLGlobal* global = CTRLGlobal::getInstance();
 
     string executable = "crb";
     if (CTRLHandler::instance()->Config->getshminfo(host.c_str()) == COVISE_PROXIE)
         executable = "crbProxy";
 
-    Host *p_host = new Host(host.c_str());
+    Host* p_host = new Host(host.c_str());
     switch (type)
     {
     case COVISE_LOCAL:
@@ -281,10 +281,10 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
     }
     // check if we have information about partner version
     string main_version = CoviseVersion::shortVersion();
-    if (list_msg->data == NULL)
+    if (!list_msg->data.data())
         return 0;
 
-    string version_info = strchr(list_msg->data, '@');
+    string version_info = strchr(list_msg->data.data(), '@');
     version_info.erase(0, 1);
     if (!version_info.empty())
     {
@@ -295,8 +295,7 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
             text = text + partner_version + " from host " + host + " are different !!!";
             CTRLGlobal::getInstance()->userinterfaceList->sendWarning2m(text);
         }
-    }
-    else
+    } else
     {
         string text = "Controller WARNING : main covise version = " + main_version;
         text = text + " and the partner version = \"unknown\" from host " + host + " are different !!!";
@@ -305,13 +304,12 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
 
     // patch Message to include hostname & user !!
     string module_info;
-    module_info.append(list_msg->data);
+    module_info.append(list_msg->data.data());
     module_info.insert(5, host + "\n" + user + "\n");
-    char *txt = new char[module_info.length() + 1];
+    char* txt = new char[module_info.length() + 1];
     strcpy(txt, module_info.c_str());
 
-    list_msg->delete_data();
-    list_msg->data = txt;
+    list_msg->data = DataHandle{txt, module_info.length() + 1};
 
     interface_msg = new Message;
     dm->recv_msg(interface_msg);
@@ -333,7 +331,7 @@ int DM_data::start_crb(int type, const string &host, const string &user, const s
     dm->recv_msg(msg);
     if (msg->type == COVISE_MESSAGE_SEND_DATA_PATH)
     {
-        dm->covise_path = msg->data;
+        dm->covise_path = msg->data.data();
     }
     switch (msg->type)
     {
@@ -667,7 +665,7 @@ int rhost::start_ctrl(int type, const string &script_name, coHostType &htype)
             cerr << endl << " ERROR: list_msg = NULL !!!\n";
             return 0;
         }
-        string module_info = tmp_data->list_msg->data;
+        string module_info = tmp_data->list_msg->data.data();
         CTRLGlobal::getInstance()->moduleList->add_module_list(hostname, user, module_info);
 
 //  DC-info received from remote host
@@ -738,7 +736,6 @@ void rhost::send_ctrl_quit()
     }
 
     delete msg;
-    recvmsg->delete_data();
     delete recvmsg;
 }
 
@@ -1061,7 +1058,7 @@ int rhost_list::rmv_host(const string &hostname, const string &user_id)
     if (p_msg)
     {
         // patch the LIST message
-        char *mod_list = p_msg->data;
+        const char *mod_list = p_msg->data.data();
         mod_info = "RMV_LIST\n";
         mod_info.append(hostname + "\n");
         mod_info.append(user_id + "\n");
@@ -1230,7 +1227,7 @@ int UIMapEditor::start(bool restart) // if restart is true a restart was done
 
     if (msg->type == COVISE_MESSAGE_MSG_OK)
     {
-        if (msg->data)
+        if (msg->data.data())
         {
             msg->type = COVISE_MESSAGE_UI;
             dmod->send_msg(msg); //message for CRB that an embedded renderer is possible
@@ -1456,10 +1453,9 @@ int userinterface::xstart(const string &pyFile)
     if (msg->type == COVISE_MESSAGE_MSG_OK)
     {
         rendererIsPossible = false;
-        if (NULL != msg->data)
+        if (msg->data.data() && !strcmp(msg->data.data(), "RENDERER_INSIDE_OK"))
         {
-            if (!strcmp(msg->data, "RENDERER_INSIDE_OK"))
-                rendererIsPossible = true;
+            rendererIsPossible = true;
         }
         delete msg;
         return 1;
@@ -2233,17 +2229,17 @@ void ui_list::update_ui(userinterface *ui)
     // send all already existing lists to new uif
     if (ui)
     {
-        Message *ui_msg = new Message;
-        ui_msg->type = COVISE_MESSAGE_UI;
+        Message ui_msg;
+        ui_msg.type = COVISE_MESSAGE_UI;
         CTRLGlobal::getInstance()->dataManagerList->reset();
         DM_data *p_data = CTRLGlobal::getInstance()->dataManagerList->next();
         while (p_data)
         {
             if (p_data->list_msg)
             {
-                ui_msg->data = p_data->list_msg->data;
-                ui_msg->length = (int)strlen(ui_msg->data) + 1;
-                ui->send(ui_msg);
+                ui_msg.data = p_data->list_msg->data;
+                ui_msg.data.setLength((int)strlen(ui_msg.data.data()) + 1);
+                ui->send(&ui_msg);
             }
             else
                 cerr << endl << "Controller ERROR : NULL list_msg !!!\n";
@@ -2259,14 +2255,12 @@ void ui_list::update_ui(userinterface *ui)
             DC_info = p_host->get_DC_list();
             if (!DC_info.empty())
             {
-                ui_msg->data = (char *)DC_info;
-                ui_msg->length = strlen(ui_msg->data) + 1;
-                ui->send(ui_msg);
+                ui_msg.data = DataHandle{ (char*)DC_info, strlen(DC_info) + 1, false };
+                ui->send(&ui_msg);
             }
             p_host = CTRLGlobal::getInstance()->hostList->next();
         }
 #endif
-        delete ui_msg;
     }
 }
 
@@ -2330,8 +2324,7 @@ void uif::start(AppModule *dmod, const string &execname, const string &category,
 
     char *tmp = new char[data.length() + 1];
     strcpy(tmp, data.c_str());
-    msg->data = tmp;
-    msg->length = (int)strlen(tmp) + 1;
+    msg->data = DataHandle{ tmp, strlen(tmp) + 1 };
     msg->type = COVISE_MESSAGE_GENERIC;
     applmod->send_msg(msg);
 
@@ -2387,15 +2380,7 @@ int uif::get_procid()
 
 void uif::send_msg(Message *msg)
 {
-    Message *send_msg = new Message;
-    send_msg->type = msg->type;
-    send_msg->length = msg->length;
-    send_msg->data = new char[strlen(msg->data) + 1];
-    strcpy(send_msg->data, msg->data);
-
-    applmod->send_msg(send_msg);
-
-    delete send_msg;
+    applmod->send_msg(msg);
 }
 
 //************************************************************************

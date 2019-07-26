@@ -24,9 +24,9 @@ VariantUI::VariantUI(std::string varName, ui::Menu *Variant_menu, coTUITab *Vari
         TokenBuffer tb;
         tb << varName;
         if (state)
-            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.get_length(), tb.get_data());
+            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantShow, tb.getData().length(), tb.getData().data());
         else
-            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.get_length(), tb.get_data());
+            cover->sendMessage(VariantPlugin::plugin, coVRPluginSupport::TO_ALL, PluginMessageTypes::VariantHide, tb.getData().length(), tb.getData().data());
     });
     //Cb_item->setMenuListener(Variant::variantClass);
     //Variant_menu->add(Cb_item);

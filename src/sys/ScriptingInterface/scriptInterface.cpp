@@ -28,12 +28,14 @@
 
 #include <covise/covise.h>
 #include <net/covise_socket.h>
+#include <net/dataHandle.h>
 #include "config/CoviseConfig.h"
 #include <util/coLog.h>
 #include "scriptInterface.h"
 #include "coMsgStruct.h"
 
 using covise::Message;
+using covise::DataHandle;
 using covise::UserInterface;
 using covise::COVISE_MESSAGE_UI;
 using covise::COVISE_MESSAGE_RENDER;
@@ -113,12 +115,11 @@ run_xuif(int argc, char **argv)
 
         else if (msg->type == COVISE_MESSAGE_UI) // parse message
         {
-            Msg_Parse(msg->data, token, TOKMAX, "\n");
+            Msg_Parse(msg->data.accessData(), token, TOKMAX, "\n");
             if (strcmp(token[0], "MASTER") == 0)
             {
                 Master = true;
                 //fprintf(stderr, "xuif : MASTER \n");
-                delete[] msg -> data;
                 delete msg;
                 break;
             }
@@ -126,13 +127,10 @@ run_xuif(int argc, char **argv)
             {
                 Master = false;
                 //fprintf(stderr, "xuif : SLAVE \n");
-                delete[] msg -> data;
                 delete msg;
                 break;
             }
         }
-
-        delete[] msg -> data;
         delete msg;
     }
 
@@ -150,21 +148,19 @@ run_xuif(int argc, char **argv)
 int
 openMap(const char *fileName)
 {
-    char Buffer[512];
+    char *buffer = new char[512];
     char newBuf[512];
 
     strcpy(newBuf, fileName);
     strcat(newBuf, "\n");
 
-    strcpy(Buffer, "NEW\n");
-    Ctrl_Msg->length = strlen(Buffer) + 1;
-    Ctrl_Msg->data = Buffer;
+    strcpy(buffer, "NEW\n");
+    Ctrl_Msg->data = covise::DataHandle(buffer, strlen(buffer) + 1);
     UIF->send_ctl_msg(Ctrl_Msg);
 
-    strcpy(Buffer, "OPEN\n");
-    strcat(Buffer, newBuf);
-    Ctrl_Msg->length = strlen(Buffer) + 1;
-    Ctrl_Msg->data = Buffer;
+    strcpy(buffer, "OPEN\n");
+    strcat(buffer, newBuf);
+    Ctrl_Msg->data = covise::DataHandle(buffer, strlen(buffer) + 1);
     UIF->send_ctl_msg(Ctrl_Msg);
 
     return (0);
@@ -174,11 +170,10 @@ openMap(const char *fileName)
 int
 runMap()
 {
-    char Buffer[512];
+    char* buffer = new char[512];
 
-    strcpy(Buffer, "EXEC\n");
-    Ctrl_Msg->length = strlen(Buffer) + 1;
-    Ctrl_Msg->data = Buffer;
+    strcpy(buffer, "EXEC\n");
+    Ctrl_Msg->data = covise::DataHandle(buffer, strlen(buffer) + 1);
     UIF->send_ctl_msg(Ctrl_Msg);
     return (0);
 }
@@ -188,8 +183,7 @@ int
 clean()
 {
     strcpy(Buffer, "NEW\n");
-    Ctrl_Msg->length = strlen(Buffer) + 1;
-    Ctrl_Msg->data = Buffer;
+    Ctrl_Msg->data = DataHandle{ Buffer, Ctrl_Msg->data.length(), false };
     UIF->send_ctl_msg(Ctrl_Msg);
     return (0);
 }
@@ -199,12 +193,8 @@ int
 quit()
 {
 
-    Message *msg = new Message();
-    msg->type = COVISE_MESSAGE_QUIT;
-    msg->data = NULL;
-    msg->length = 0;
-
-    UIF->send_ctl_msg(msg);
+    Message msg{ COVISE_MESSAGE_QUIT, covise::DataHandle() };
+    UIF->send_ctl_msg(&msg);
 
     return (0);
 }
@@ -216,15 +206,13 @@ getSingleMsg()
 {
     CoMsg ret;
     ret.type = -1;
-    ret.data = NULL;
+    ret.data = nullptr;
     Message *msg = UIF->check_for_msg();
-    if (msg != NULL)
+    if (msg != nullptr)
     {
         ret.type = msg->type;
-        int l = 1 + strlen(msg->data);
-        ret.data = new char[l];
-        strncpy(ret.data, msg->data, l);
-        delete[] msg -> data;
+        ret.data = msg->data.accessData();
+        ret.dh = msg->data;
         delete msg;
     }
 
@@ -249,11 +237,9 @@ sendMsgToUIF(char *msg, Message *aMessageDataNotSetYet)
 {
     char *buffer = new char[strlen(msg) + 1];
     strcpy(buffer, msg);
-    aMessageDataNotSetYet->length = strlen(buffer) + 1;
-    aMessageDataNotSetYet->data = buffer;
+    aMessageDataNotSetYet->data = covise::DataHandle(buffer, strlen(buffer) + 1);
     if (UIF)
         UIF->send_ctl_msg(aMessageDataNotSetYet);
-    delete[] buffer;
     return (0);
 }
 

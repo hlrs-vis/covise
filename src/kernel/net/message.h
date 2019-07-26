@@ -8,6 +8,8 @@
 #ifndef EC_MESSAGE_H
 #define EC_MESSAGE_H
 
+#include "dataHandle.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
@@ -110,28 +112,13 @@ class TokenBuffer;
 class NETEXPORT MessageBase
 {
 public:
-	int length; // length of the message in byte
-	char* data = nullptr; // pointer to the data of the message
-	Connection* conn; // connection at which message has been received (if so)
+    DataHandle data;
+    Connection* conn; // connection at which message has been received (if so)
 	MessageBase();
-	MessageBase(TokenBuffer*);
-	MessageBase(const TokenBuffer&);
-	~MessageBase();
-
+	MessageBase(TokenBuffer& tb);
+    MessageBase(DataHandle& dh);
+	virtual ~MessageBase();
 	virtual void print() = 0;
-	void delete_data()
-	{
-		if (mustDelete)
-		{
-			delete[] data;
-			data = NULL;
-		}
-	};
-	char* takeData();
-
-protected:
-	bool mustDelete;
-	
 };
 class NETEXPORT Message : public MessageBase// class for messages
 {
@@ -169,8 +156,7 @@ public:
         //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
         print();
     };
-	Message(TokenBuffer* t);
-	Message(const TokenBuffer& t);
+	Message(TokenBuffer& t);
     Message(Connection *c)
         : sender(-1)
         , send_type(Message::UNDEFINED)
@@ -186,65 +172,62 @@ public:
         , send_type(Message::UNDEFINED)
         , type(message_type)
     {
-		mustDelete = true;
 		if (!str.empty())
         {
-            length = (int)str.length() + 1;
-            data = new char[length];
-            memcpy(data, str.c_str(), length);
+            data = DataHandle(str.length() + 1);
+            memcpy(data.accessData(), str.c_str(), data.length());
         }
         print();
     };
-    Message(int message_type, const char *d, int cp)
-        : sender(-1)
-        , send_type(Message::UNDEFINED)
-        , type(message_type)
-    {
-        //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-        if (d)
-            length = (int)strlen(d) + 1;
-        else
-            length = 0;
-        if (cp == MSG_NOCOPY || d == NULL)
-        {
-            data = (char *)d;
-        }
-        else
-        {
-            data = new char[length];
-            memcpy(data, d, length);
-            mustDelete = true;
-        }
-        print();
-    };
-    Message(int message_type, int l, char *d, int cp = MSG_COPY)
-        : sender(-1)
-        , send_type(Message::UNDEFINED)
-        , type(message_type)
-    {
-		length = l;
-		//printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
-        if (cp == MSG_NOCOPY || d == NULL)
-        {
-            data = d;
-        }
-        else
-        {
-            data = new char[length];
-            memcpy(data, d, length);
-            mustDelete = true;
-        }
-        print();
-    };
-    Message(const Message &); // copy constructor
+    Message(int message_type, const DataHandle& dh);
 
-    Message &operator=(const Message &); // assignment
-    void delete_data()
-    {
-        delete[] data;
-        data = NULL;
-    };
-    char *extract_data();
+    //Message(int message_type, const char *d, int cp)
+    //    : sender(-1)
+    //    , send_type(Message::UNDEFINED)
+    //    , type(message_type)
+    //{
+    //    //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+    //    int l = 0;
+    //    if (d)
+    //        l = (int)strlen(d) + 1;
+    //    if (cp == MSG_NOCOPY || d == NULL)
+    //    {
+    //        data = DataHandle((char *)d, l);
+    //    }
+    //    else
+    //    {
+    //        data = DataHandle(l);
+    //        memcpy(data.accessData, d, l);
+    //        mustDelete = true;
+    //    }
+    //    print();
+    //};
+
+  //  Message(int message_type, int l, char *d, int cp = MSG_COPY)
+  //      : sender(-1)
+  //      , send_type(Message::UNDEFINED)
+  //      , type(message_type)
+  //  {
+		//length = l;
+		////printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
+  //      if (cp == MSG_NOCOPY || d == NULL)
+  //      {
+  //          data = d;
+  //      }
+  //      else
+  //      {
+  //          data = new char[length];
+  //          memcpy(data, d, length);
+  //          mustDelete = true;
+  //      }
+  //      print();
+  //  };
+    Message(const Message &); // copy constructor
+    //copies data
+    Message &operator=(const Message &src); // assignment
+    //does not copy data
+    void copyAndReuseData(const Message& src);
+    //char *extract_data();
     void print() override;
 
 };

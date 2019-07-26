@@ -51,7 +51,7 @@
     <WSInterface value="false" />
 	
    <VRB>
-    <Server value="viscluster80.hlrs.de" tcpPort="31251" udpPort="49999" />
+    <Server value="localhost" tcpPort="31251" udpPort="49999" />
 	<RemoteFetch value="on" path="C:\src\covise\remoteFetch" />
    </VRB>
 
@@ -255,7 +255,7 @@
    </Menu>
    <ViewerPosition x="0" y="-1500" z="0" />
    <SceneSize value="1000" />
-   <DebugLevel value="1" />
+   <DebugLevel value="2" />
    <FPS value="true" />
    
 

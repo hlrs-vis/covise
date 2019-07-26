@@ -49,13 +49,12 @@ bool rendererIsActive = false;
 DataManagerProcess *datamgr;
 Host *host;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     covise::setupEnvironment(argc, argv);
 
-    Message *msg;
     int key;
-    char *msg_key;
+    char* msg_key;
     moduleList mod;
 
     if (argc != 4 && argc != 5 && argc != 6)
@@ -64,24 +63,23 @@ int main(int argc, char *argv[])
         print_exit(__LINE__, __FILE__, 1);
     }
 
-//cerr << ".................  " << argc << "  " << argv[argc-1] << endl;
+    //cerr << ".................  " << argc << "  " << argv[argc-1] << endl;
 
 #if !defined(_WIN32) && !defined(__APPLE__)
     // set the right DISPLAY environment
     if (argc == 6)
     {
-        char *dsp = new char[strlen(argv[argc - 1]) + 9];
+        char* dsp = new char[strlen(argv[argc - 1]) + 9];
         sprintf(dsp, "DISPLAY=%s", argv[argc - 1]);
         putenv(dsp);
-    }
-    else
+    } else
     {
         if (getenv("DISPLAY") == NULL)
-            putenv((char *)"DISPLAY=:0");
+            putenv((char*)"DISPLAY=:0");
     }
 #endif
 
-    putenv((char *)"CO_MODULE_BACKEND=covise");
+    putenv((char*)"CO_MODULE_BACKEND=covise");
 
 #ifdef _WIN32
     WORD wVersionRequested;
@@ -100,7 +98,7 @@ int main(int argc, char *argv[])
     int send_back = 0;
 
     key = 2000 + (id << 24);
-    datamgr = new DataManagerProcess((char *)"CRB", id, &key);
+    datamgr = new DataManagerProcess((char*)"CRB", id, &key);
 
     datamgr->contact_controller(port, host);
 
@@ -109,7 +107,7 @@ int main(int argc, char *argv[])
         cerr << "CRB (CoviseRequestBroker) failed to connect to controller\n" << endl;
         print_exit(__LINE__, __FILE__, 1);
     }
-    /* 
+    /*
        msg = new Message;
        msg->type = COVISE_MESSAGE_INIT;
        msg->data = (char*)CoviseVersion::shortVersion();
@@ -118,35 +116,24 @@ int main(int argc, char *argv[])
        delete msg;
    */
 
-    char *list_content = mod.get_list_message();
-    const char *version = CoviseVersion::shortVersion();
+    char* list_content = mod.get_list_message();
+    const char* version = CoviseVersion::shortVersion();
 
-    char *list_body = new char[strlen(list_content) + strlen(version) + 5];
+    char* list_body = new char[strlen(list_content) + strlen(version) + 5];
     sprintf(list_body, "%s@%s", list_content, version);
     delete[] list_content;
 
-    msg = new Message;
-    msg->type = COVISE_MESSAGE_INIT;
-    msg->data = list_body;
-    msg->length = (int)strlen(msg->data) + 1;
-    datamgr->send_ctl_msg(msg);
-    msg->delete_data();
-    delete msg; // msg->data can be deleted
+    Message msg{ COVISE_MESSAGE_INIT, DataHandle{list_body, strlen(list_body) + 1 } };
 
-    msg = new Message;
-    msg->data = datamgr->get_list_of_interfaces();
-    msg->type = COVISE_MESSAGE_INIT;
-    msg->length = (int)strlen(msg->data) + 1;
-    datamgr->send_ctl_msg(msg);
-    msg->delete_data(); // because datamgr allocated data
-    delete msg; // msg->data can be deleted
+    datamgr->send_ctl_msg(&msg);
+    char* d = datamgr->get_list_of_interfaces();//  datamgr allocated data without delete
+    msg.data = DataHandle{d, strlen(d) + 1}; 
+    datamgr->send_ctl_msg(&msg);
 
-    bool localAlloc = false;
     while (1)
     {
-        msg = datamgr->wait_for_msg();
-        localAlloc = false;
-        switch (msg->type)
+        msg = *datamgr->wait_for_msg();
+        switch (msg.type)
         {
 
         /////  UI
@@ -159,16 +146,16 @@ int main(int argc, char *argv[])
         case COVISE_MESSAGE_UI: /* get Message-Keyword */
         {
             char bbuf[2000];
-            if ((msg != NULL) && (msg->data != NULL))
+            if (msg.data.data())
             {
-                strcpy(bbuf, msg->data);
+                strcpy(bbuf, msg.data.data());
             }
             else
             {
                 break;
             }
 
-            char *end = msg->data;
+            char *end = msg.data.accessData();
             msg_key = strsep(&end, "\n");
 
             if (strcmp(msg_key, "QUERY_IMBEDDED_RENDERER") == 0)
@@ -299,13 +286,9 @@ int main(int argc, char *argv[])
                         buf += '\n';
                         buf += (const char *)buf3;
 
-                        Message *retmsg = new Message;
-                        retmsg->type = COVISE_MESSAGE_UI;
-                        retmsg->data = (char *)((const char *)buf);
-                        retmsg->length = (int)strlen(retmsg->data) + 1;
-                        datamgr->send_ctl_msg(retmsg);
-                        retmsg->data = NULL;
-                        delete retmsg;
+                        char* b = buf.return_data();
+                        Message retmsg{ COVISE_MESSAGE_UI , DataHandle{b, strlen(b) + 1} };
+                        datamgr->send_ctl_msg(&retmsg);
                     }
                 }
 
@@ -357,14 +340,10 @@ int main(int argc, char *argv[])
                 buf += (const char *)buf3;
                 //delete[] path;
 
-                Message *retmsg = new Message;
-                retmsg->type = COVISE_MESSAGE_UI;
-                retmsg->data = (char *)((const char *)buf);
                 //cerr << "____________FILE_SEARCH  " << buf << endl;
-                retmsg->length = (int)strlen(retmsg->data) + 1;
-                datamgr->send_ctl_msg(retmsg);
-                retmsg->data = NULL;
-                delete retmsg;
+                char* b = buf.return_data();
+                Message retmsg{ COVISE_MESSAGE_UI , DataHandle{b, strlen(b) + 1} };
+                datamgr->send_ctl_msg(&retmsg);
 
 #ifdef _WIN32
             }
@@ -560,14 +539,9 @@ int main(int argc, char *argv[])
                 }
 
                 //cerr << "____________FILE_LOOKUP  " << buf << endl;
-
-                Message *retmsg = new Message;
-                retmsg->type = COVISE_MESSAGE_UI;
-                retmsg->data = (char *)((const char *)buf);
-                retmsg->length = (int)strlen(retmsg->data) + 1;
-                datamgr->send_ctl_msg(retmsg);
-                retmsg->data = NULL;
-                delete retmsg;
+                char* b = buf.return_data();
+                Message retmsg{ COVISE_MESSAGE_UI , DataHandle{b, strlen(b) + 1} };
+                datamgr->send_ctl_msg(&retmsg);
             }
 
             else
@@ -583,50 +557,50 @@ int main(int argc, char *argv[])
     case COVISE_MESSAGE_CRB_EXEC_MEMCHECK:
     {
         Start::Flags mode = Start::Normal;
-        if (msg->type == COVISE_MESSAGE_CRB_EXEC_DEBUG)
+        if (msg.type == COVISE_MESSAGE_CRB_EXEC_DEBUG)
             mode = Start::Debug;
-        if (msg->type == COVISE_MESSAGE_CRB_EXEC_MEMCHECK)
+        if (msg.type == COVISE_MESSAGE_CRB_EXEC_MEMCHECK)
             mode = Start::Memcheck;
 
-        if (msg->data[0] != '\001')
+        if (msg.data.data()[0] != '\001')
         {
             char *name = NULL, *cat = NULL;
             int i = 0;
-            name = msg->data;
-            while (msg->data[i])
+            name = msg.data.accessData();
+            while (msg.data.data()[i])
             {
-                if (msg->data[i] == ' ')
+                if (msg.data.data()[i] == ' ')
                 {
-                    msg->data[i] = '\0';
+                    msg.data.accessData()[i] = '\0';
                     i++;
-                    cat = msg->data + i;
+                    cat = msg.data.accessData() + i;
                     break;
                 }
                 i++;
             }
-            while (msg->data[i])
+            while (msg.data.data()[i])
             {
-                if (msg->data[i] == ' ')
+                if (msg.data.data()[i] == ' ')
                 {
-                    msg->data[i] = '\0';
+                    msg.data.accessData()[i] = '\0';
                     i++;
                     break;
                 }
                 i++;
             }
 
-            mod.start(name, cat, msg->data + i, mode);
+            mod.start(name, cat, msg.data.accessData() + i, mode);
         }
         else
         {
             char *args[1000];
             int i = 1, n = 0;
-            while (msg->data[i])
+            while (msg.data.data()[i])
             {
-                if (msg->data[i] == ' ')
+                if (msg.data.data()[i] == ' ')
                 {
-                    msg->data[i] = '\0';
-                    args[n] = msg->data + i + 1;
+                    msg.data.accessData()[i] = '\0';
+                    args[n] = msg.data.accessData() + i + 1;
                     //fprintf(stderr,"args %d:%s\n",n,args[n]);
                     n++;
                 }
@@ -722,23 +696,23 @@ int main(int argc, char *argv[])
 
     case COVISE_MESSAGE_QUERY_DATA_PATH:
     {
-        msg->type = COVISE_MESSAGE_SEND_DATA_PATH;
+        msg.type = COVISE_MESSAGE_SEND_DATA_PATH;
         int len = 2;
         if (getenv("COVISE_PATH"))
         {
             len = (int)strlen(getenv("COVISE_PATH")) + 2;
         }
-        msg->data = new char[len];
+        msg.data = DataHandle(len);
 #ifdef _WIN32
-        msg->data[0] = ';';
+        msg.data.accessData()[0] = ';';
 #else
-            msg->data[0] = ':';
+            msg.data[0] = ':';
 #endif
         if (getenv("COVISE_PATH"))
         {
-            strcpy(msg->data + 1, getenv("COVISE_PATH"));
+            strcpy(msg.data.accessData() + 1, getenv("COVISE_PATH"));
 #ifdef _WIN32
-            char *p = msg->data + 1;
+            char *p = msg.data.accessData() + 1;
             while (*p)
             {
                 if (*p == '\\')
@@ -749,18 +723,16 @@ int main(int argc, char *argv[])
         }
         else
         {
-            strcpy(msg->data + 1, "");
+            strcpy(msg.data.accessData() + 1, "");
         }
-        msg->length = (int)strlen(msg->data) + 1;
-        msg->conn->send_msg(msg);
-        delete[] msg -> data;
-        msg->data = NULL;
+        msg.data.setLength(strlen(msg.data.data()) + 1);
+        msg.conn->send_msg(&msg);
     }
     break;
 
     default:
 
-        send_back = datamgr->handle_msg(msg, localAlloc);
+        send_back = datamgr->handle_msg(&msg);
 
         if (send_back == 3)
         {
@@ -768,20 +740,12 @@ int main(int argc, char *argv[])
             exit(0);
             //print_exit(__LINE__, __FILE__, 0);
         }
-        if ((send_back == 2) && (msg->type != COVISE_MESSAGE_EMPTY))
-            msg->conn->send_msg(msg);
+        if ((send_back == 2) && (msg.type != COVISE_MESSAGE_EMPTY))
+            msg.conn->send_msg(&msg);
 
         break;
     }
-    if (localAlloc)
-    {
-        datamgr->deleteMessageData(msg);
-    }
-    else
-    {
-        msg->delete_data();
-    }
-    datamgr->delete_msg(msg);
+
 
     if (datamgr->getConnectionList()->count() <= 0)
     {

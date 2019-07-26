@@ -496,7 +496,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 }
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetProperties,
-                                   _tb.get_length(), _tb.get_data());
+                                   _tb.getData().length(), _tb.getData().data());
             }
             if (mode == GET_PROPERTIES)
             {
@@ -507,7 +507,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 _tb << pPath;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserGetProperties,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == REMOVE_TEXTURE)
             {
@@ -519,7 +519,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 _tb << texNumber;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveTexture,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == GET_SHADER)
             {
@@ -589,7 +589,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 _tb << path;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserRemoveShader,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == STORE_SHADER)
             {
@@ -611,7 +611,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 _tb << name;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetShader,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == SET_UNIFORM)
             {
@@ -629,7 +629,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetUniform,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
 
             if (mode == SET_INPUT_TYPE)
@@ -645,7 +645,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetInputType,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == SET_OUTPUT_TYPE)
             {
@@ -660,7 +660,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetOutputType,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == SET_NUM_VERT)
             {
@@ -675,7 +675,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetNumVertex,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == SET_VERTEX)
             {
@@ -689,7 +689,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetVertex,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
 
             if (mode == SET_TESSCONTROL)
@@ -704,7 +704,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessControl,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
 
             if (mode == SET_TESSEVAL)
@@ -719,7 +719,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTessEval,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
 
             if (mode == SET_FRAGMENT)
@@ -734,7 +734,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetFragment,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
             if (mode == SET_GEOMETRY)
             {
@@ -748,7 +748,7 @@ void SGBrowser::tabletDataEvent(coTUIElement *tUIItem, TokenBuffer &tb)
                 myMes = true;
 
                 cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetGeometry,
-                                   _tb.get_length(), _tb.get_data());
+                    _tb.getData().length(), _tb.getData().data());
             }
 
             break;
@@ -781,9 +781,7 @@ void SGBrowser::tabletEvent(coTUIElement *tUIItem)
             _tb.addBinary(sGBrowserTab->getData(), dataLength);
 
             cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserSetTexture,
-                               _tb.get_length(), _tb.get_data());
-
-            _tb.delete_data();
+                _tb.getData().length(), _tb.getData().data());
 
             break;
         }
@@ -1910,10 +1908,10 @@ void MyNodeVisitor::addMyNode()
 
         if (currentMode == HIDE_NODE)
             cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserHideNode,
-                               tb.get_length(), tb.get_data());
+                tb.getData().length(), tb.getData().data());
         else
             cover->sendMessage(SGBrowser::plugin, coVRPluginSupport::TO_SAME, PluginMessageTypes::SGBrowserShowNode,
-                               tb.get_length(), tb.get_data());
+                tb.getData().length(), tb.getData().data());
     }
     else if (currentMode == CLEAR_SELECTION)
     {

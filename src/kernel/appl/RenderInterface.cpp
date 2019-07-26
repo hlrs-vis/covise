@@ -553,15 +553,11 @@ void CoviseRender::init(int argc, char *argv[])
     sig_handler.addSignal(SIGFPE, (void *)signal_handler, NULL);
 #endif
     init_emergency_message();
-    Message *message = new Message();
 
-    message->data = get_description_message();
-    message->type = COVISE_MESSAGE_PARINFO; // should be a real type
-    message->length = (int)strlen(message->data) + 1;
+    char * d = get_description_message();
+    Message message{ COVISE_MESSAGE_PARINFO, DataHandle(d, strlen(d) + 1) }; // should be a real type
     if (appmod)
-        appmod->send_ctl_msg(message);
-    delete[] message -> data;
-    delete message;
+        appmod->send_ctl_msg(&message);
 }
 #endif
 
@@ -571,32 +567,27 @@ void CoviseRender::init(int argc, char *argv[])
 int CoviseRender::send_render_message(const char *keyword, const char *string)
 {
     int size;
-    Message *message;
 
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {
 
-        message = new Message();
+
 
         size = 1; // final '\0'
         size += (int)strlen(keyword) + 1;
         size += (int)strlen(string) + 1;
 
-        message->data = new char[size];
+        Message message{ COVISE_MESSAGE_RENDER , DataHandle(size)};
 
-        strcpy(&(message->data[0]), keyword);
-        strcat(message->data, "\n");
-        strcat(message->data, string);
+        strcpy(&(message.data.accessData()[0]), keyword);
+        strcat(message.data.accessData(), "\n");
+        strcat(message.data.accessData(), string);
 
         //cerr << "RENDER SENDING MESSAGE TO SLAVES : " << message->data << endl;
-
-        message->type = COVISE_MESSAGE_RENDER;
-        message->length = (int)strlen(message->data) + 1;
+        message.data.setLength(strlen(message.data.data()) + 1);
 
         if (appmod)
-            appmod->send_ctl_msg(message);
-        delete[] message -> data;
-        delete message;
+            appmod->send_ctl_msg(&message);
         return 1;
     }
     else
@@ -612,29 +603,22 @@ int CoviseRender::send_render_message(const char *keyword, const char *string)
 int CoviseRender::send_render_binmessage(const char *keyword, const char *data, int len)
 {
     int size;
-    Message *message;
 
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {
 
-        message = new Message();
 
         size = (int)strlen(keyword) + 2;
         size += len;
 
-        message->data = new char[size];
-        message->data[0] = 0;
-        strcpy(&message->data[1], keyword);
-        memcpy(&message->data[strlen(keyword) + 2], data, len);
+        Message message{ COVISE_MESSAGE_RENDER , DataHandle(size)};
+        message.data.accessData()[0] = 0;
+        strcpy(&message.data.accessData()[1], keyword);
+        memcpy(&message.data.accessData()[strlen(keyword) + 2], data, len);
         //cerr << "RENDER SENDING MESSAGE TO SLAVES : " << message->data << endl;
 
-        message->type = COVISE_MESSAGE_RENDER;
-        message->length = size;
-
         if (appmod)
-            appmod->send_ctl_msg(message);
-        delete[] message -> data;
-        delete message;
+            appmod->send_ctl_msg(&message);
         return 1;
     }
     else
@@ -760,7 +744,6 @@ void CoviseRender::handleControllerMessage()
     case COVISE_MESSAGE_CLOSE_SOCKET:
         print_comment(__LINE__, __FILE__, "Renderer pid %d is requested to exit", getpid());
         quit_now = doQuit();
-        applMsg->delete_data();
         if (appmod)
             appmod->delete_msg(applMsg);
         delete appmod;
@@ -775,11 +758,11 @@ void CoviseRender::handleControllerMessage()
 
     ///////////////////////////////////////////////////////////////////////
     case COVISE_MESSAGE_RENDER:
-        if (applMsg->data[0] != 0)
+        if (applMsg->data.data()[0] != 0)
         {
-            char *buffer = new char[strlen(applMsg->data) + 1];
-            strcpy(buffer, applMsg->data);
-            parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
+            char *buffer = new char[strlen(applMsg->data.data()) + 1];
+            strcpy(buffer, applMsg->data.data());
+            parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
             if (strcmp(token[0], "MASTER") == 0)
             {
                 doMasterSwitch();
@@ -791,26 +774,26 @@ void CoviseRender::handleControllerMessage()
             else
             {
                 char *pos = strchr(buffer, '\n');
-                strcpy(&applMsg->data[strlen(token[0]) + 1], pos + 1);
-                doRender(token[0], &applMsg->data[strlen(token[0]) + 1]);
+                strcpy(&applMsg->data.accessData()[strlen(token[0]) + 1], pos + 1);
+                doRender(token[0], &applMsg->data.accessData()[strlen(token[0]) + 1]);
             }
         }
         else
         {
-            doRender(&applMsg->data[1], &applMsg->data[strlen(&applMsg->data[1]) + 2]);
+            doRender(&applMsg->data.accessData()[1], &applMsg->data.accessData()[strlen(&applMsg->data.accessData()[1]) + 2]);
         }
         break;
 
     ///////////////////////////////////////////////////////////////////////
     case COVISE_MESSAGE_RENDER_MODULE:
-        doRenderModule(applMsg->length, applMsg->data);
+        doRenderModule(applMsg->data);
         break;
 
     ///////////////////////////////////////////////////////////////////////
     case COVISE_MESSAGE_ADD_OBJECT:
     {
         addObjectCallbackData = (void *)applMsg;
-        parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
+        parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
 
         // AW: try to create the object, so we know whether it is empty
         MARK0("COVER ADD_OBJECT get object shm address");
@@ -826,8 +809,8 @@ void CoviseRender::handleControllerMessage()
 
     case COVISE_MESSAGE_COVISE_ERROR:
     {
-        coviseErrorCallbackData = (void *)applMsg->data;
-        doCoviseError(applMsg->data);
+        coviseErrorCallbackData = (void *)applMsg->data.data();
+        doCoviseError(applMsg->data.data());
         break;
     }
 
@@ -837,7 +820,7 @@ void CoviseRender::handleControllerMessage()
         MARK0("COVER DELETE_OBJECT");
 
         deleteObjectCallbackData = (void *)applMsg;
-        parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
+        parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
         replaceObject = false;
         doReplace(token[0]); // aw: name may be replaced: NULL obj handling
         doDeleteObject(token[0]);
@@ -848,7 +831,7 @@ void CoviseRender::handleControllerMessage()
     ///////////////////////////////////////////////////////////////////////
     case COVISE_MESSAGE_REPLACE_OBJECT:
     {
-        parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
+        parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
         if (token[0] == NULL || token[1] == NULL)
             print_comment(__LINE__, __FILE__, "ERROR: got empty object name");
         else
@@ -883,11 +866,9 @@ void CoviseRender::handleControllerMessage()
 
     } // Message type switch
 
-    if (applMsg)
+    if (applMsg && appmod)
     {
-        applMsg->delete_data();
-        if (appmod)
-            appmod->delete_msg(applMsg);
+        appmod->delete_msg(applMsg);
     }
 }
 
@@ -1043,13 +1024,13 @@ void CoviseRender::doRender(char *key, char *data)
 //=====================================================================
 //
 //=====================================================================
-void CoviseRender::doRenderModule(int len, const void *data)
+void CoviseRender::doRenderModule(const DataHandle& dh)
 {
 
     // call back the function provided by the user
     if (renderModuleCallbackFunc != NULL)
     {
-        (*renderModuleCallbackFunc)(len, data);
+        (*renderModuleCallbackFunc)(dh);
     }
 }
 
@@ -1058,23 +1039,18 @@ void CoviseRender::doRenderModule(int len, const void *data)
 //=====================================================================
 void CoviseRender::sendFinishedMsg()
 {
-    char buf[100];
-
     if (appmod != NULL)
     {
 
-        Message *msg = new Message;
+   
         const char *key = "";
+        char* buf = new char[100];
         strcpy(buf, key);
         strcat(buf, "\n");
-        msg->type = COVISE_MESSAGE_FINISHED;
-        msg->length = (int)strlen(buf) + 1;
-        msg->data = buf;
+        Message msg{ COVISE_MESSAGE_FINISHED, DataHandle(buf, strlen(buf) + 1) };
 
-        appmod->send_ctl_msg(msg);
+        appmod->send_ctl_msg(&msg);
         // print_comment( __LINE__ , __FILE__ , "sended finished message" );
-        msg->data = 0L;
-        delete msg;
     }
 }
 
@@ -1209,10 +1185,10 @@ void CoviseRender::doParam(Message *m)
         reply_buffer = NULL;
     }
 
-    datacopy = new char[strlen(m->data) + 1];
-    strcpy(datacopy, m->data);
+    datacopy = new char[strlen(m->data.data()) + 1];
+    strcpy(datacopy, m->data.data());
 
-    char *p = m->data;
+    char *p = m->data.accessData();
     reply_keyword = strsep(&p, "\n");
 
     if ((strcmp(reply_keyword, "INEXEC") == 0) || (strcmp(reply_keyword, "FINISHED") == 0))

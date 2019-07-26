@@ -309,7 +309,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
 }
 void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
 {
-	if (!tb.get_data())
+	if (!tb.getData().data())
 	{
 		cerr << "invalid vrb render message" << endl;
 		return;
@@ -622,20 +622,20 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER_MODULE:
     {
-        coVRPluginList::instance()->forwardMessage(msg->length, msg->data);
+        coVRPluginList::instance()->forwardMessage(msg->data);
     }
     break;
     case COVISE_MESSAGE_RENDER:
     {
-        if (msg->data[0] != 0)
+        if (msg->data.data()[0] != 0)
         {
-            std::string data(msg->data);
+            std::string data(msg->data.data());
             std::vector<std::string> tokens = split(data, '\n');
             processRenderMessage(tokens[0].c_str(), tokens[1].c_str());
         }
         else
         {
-            processRenderMessage(&msg->data[1], &msg->data[strlen(&msg->data[1]) + 2]);
+            processRenderMessage(&msg->data.data()[1], &msg->data.data()[strlen(&msg->data.data()[1]) + 2]);
         }
     }
     break;
@@ -837,7 +837,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_MESSAGE:
     {
 
-		if (msg->length == 0)
+		if (msg->data.length() == 0)
 		{
 			fprintf(stderr, "empty message\n");
 			return;
@@ -875,7 +875,7 @@ void coVRCommunication::handleUdp(vrb::UdpMessage* msg)
 	case vrb::AVATAR_CONTROLLER_POSITION:
 		break;
 	default:
-		coVRPluginList::instance()->UDPmessage(msg->type, msg->length, msg->data);
+		coVRPluginList::instance()->UDPmessage(msg->type, msg->data);
 		break;
 	}
 

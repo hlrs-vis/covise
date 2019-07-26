@@ -22,7 +22,7 @@
 #include <net/tokenbuffer.h>
 #include <net/covise_host.h>
 #include <net/message.h>
-#include<net/udpMessage.h>
+#include <net/udpMessage.h>
 #include <net/udp_message_types.h>
 #include <net/message_types.h>
 
@@ -275,6 +275,7 @@ int VRBClient::sendUdpMessage(const vrb::UdpMessage* m)
 	{
 		return 0;
 	}
+    m->sender = ID;
 	return udpConn->send_udp_msg(m);
 
 }
@@ -321,8 +322,8 @@ int covise::VRBClient::sendMessage(const Message* m, Connection* conn)
 	float delay = (end.tv_usec - start.tv_usec) * 1e-6f + end.tv_sec - start.tv_sec;
 #endif
 
-	if (m->length > 1000)
-		delay /= m->length / 1000;
+	if (m->data.length() > 1000)
+		delay /= m->data.length() / 1000;
 	sendDelay = 0.99f * sendDelay + delay * 0.01f;
 	return 1;
 }
@@ -445,7 +446,6 @@ int VRBClient::isCOVERRunning()
     sConn->send_msg(&msg);
     if (sConn->check_for_input(5))
     {
-        msg.data = NULL;
         sConn->recv_msg(&msg);
         if (msg.type == COVISE_MESSAGE_VRB_CHECK_COVER)
         {

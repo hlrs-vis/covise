@@ -41,6 +41,7 @@ class coMenuItem;
 namespace covise
 {
 class Message;
+class DataHandle;
 }
 
 // use COVERPLUGIN(YourMainPluginClass) in your plugin implementation
@@ -247,11 +248,10 @@ public:
         (void)data;
     }
 	// this function is called if a UDPmessage arrives
-	virtual void UDPmessage(int type, int length, const void* data)
+	virtual void UDPmessage(int type, const covise::DataHandle& dh)
 	{
 		(void)type;
-		(void)length;
-		(void)data;
+		(void)dh;
 	}
 
 
