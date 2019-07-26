@@ -39,19 +39,16 @@ void coCoviseInteractor::sendFeedback(const char *info, const char *key, const c
 
 void coCoviseInteractor::sendFeedbackMessage(int len, const char *data)
 {
-    Message *message = new Message();
+
     int sLen = strlen(d_feedbackInfo);
     char *tmpData = new char[sLen + len];
     strcpy(tmpData, d_feedbackInfo + 1);
     memcpy(tmpData + sLen, data, len);
 
-    message->data = tmpData;
-    message->type = COVISE_MESSAGE_FEEDBACK;
-    message->length = sLen + len;
+    Message message{ COVISE_MESSAGE_FEEDBACK , DataHandle{tmpData, sLen + len} };
 
-    CoviseRender::appmod->send_ctl_msg(message);
-    delete[] tmpData;
-    delete message;
+    CoviseRender::appmod->send_ctl_msg(&message);
+
 }
 
 // ---------------------------------------------------------------------------

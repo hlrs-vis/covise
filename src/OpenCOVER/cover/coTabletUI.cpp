@@ -621,7 +621,7 @@ void coTUIFileBrowserButton::resend(bool create)
     //std::cerr << "Resend: Current directory: " << this->mDataObj->getCurrentPath().c_str() << std::endl;
     tui()->send(rt);
 
-    rt.delete_data();
+    rt.reset();
     //Send FileList
     rt << TABLET_SET_VALUE;
     rt << TABLET_SET_FILELIST;
@@ -638,7 +638,7 @@ void coTUIFileBrowserButton::resend(bool create)
     }
     tui()->send(rt);
 
-    rt.delete_data();
+    rt.reset();
     //Send DirList
     rt << TABLET_SET_VALUE;
     rt << TABLET_SET_DIRLIST;
@@ -657,7 +657,7 @@ void coTUIFileBrowserButton::resend(bool create)
     tui()->send(rt);
 
     //Send DirList
-    rt.delete_data();
+    rt.reset();
     rt << TABLET_SET_VALUE;
     rt << TABLET_SET_MODE;
     rt << ID;
@@ -665,7 +665,7 @@ void coTUIFileBrowserButton::resend(bool create)
 
     tui()->send(rt);
 
-    rt.delete_data();
+    rt.reset();
     rt << TABLET_SET_VALUE;
     rt << TABLET_SET_FILTERLIST;
     rt << ID;

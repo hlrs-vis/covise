@@ -65,11 +65,11 @@ public:
         msg = m;
         conn = msg->conn;
         convert = conn->convert_to;
-        buffer = msg->data;
+        buffer = msg->data.accessData();
         msg->data = 0L;
         intbuffer = (int *)buffer;
-        buffer_size = msg->length;
-        intbuffer_size = msg->length / sizeof(int);
+        buffer_size = msg->data.length();
+        intbuffer_size = msg->data.length() / sizeof(int);
         intbuffer_ptr = 0;
     };
     PackBuffer(Message *m) // initialize for send

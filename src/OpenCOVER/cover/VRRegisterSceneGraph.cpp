@@ -221,10 +221,7 @@ void VRRegisterSceneGraph::sendRegisterMessage()
     {
 
         coGRObjRegisterMsg regMsg(whole_message.c_str(), NULL);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(regMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{COVISE_MESSAGE_UI, DataHandle((char*)(regMsg.c_str()), strlen((regMsg.c_str())) + 1, false)};
         coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
@@ -236,10 +233,7 @@ void VRRegisterSceneGraph::sendUnregisterMessage()
     {
 
         coGRObjRegisterMsg regMsg(whole_message.c_str(), NULL, true);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(regMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHandle((char*)(regMsg.c_str()), strlen((regMsg.c_str())) + 1, false) };
         coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
@@ -251,10 +245,7 @@ void VRRegisterSceneGraph::sendTransparencyMessage() //toGui
     {
 
         coGRKeyWordMsg keyWordMsg(transparency_message.c_str(), false);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(keyWordMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHandle((char*)(keyWordMsg.c_str()), strlen((keyWordMsg.c_str())) + 1, false) };
         coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }

@@ -116,9 +116,9 @@ void coVRBoxOfInterest::showHide(bool state)
     std::string pPath = path.substr(0, path.find_last_of(";"));
     tb << pPath;
     if (state)
-        cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb.get_length(), tb.get_data());
+        cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserShowNode, tb.getData().length(), tb.getData().data());
     else
-        cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb.get_length(), tb.get_data());
+        cover->sendMessage(plugin, "SGBrowser", PluginMessageTypes::SGBrowserHideNode, tb.getData().length(), tb.getData().data());
 }
 //-----------------------------------------------------------
 //void coVRBoxOfInterest::setCoord(osg::Vec3 center,osg::Vec3 length )

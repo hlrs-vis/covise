@@ -30,7 +30,7 @@ using namespace covise;
 void VrbUiMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle& value)
 {
     char * charVal;
-	TokenBuffer tb(value.data(), value.length());
+	TokenBuffer tb(value);
     if (strcmp(cl, "SharedState") == 0)
     {
 		appwin->registry->updateEntry(cl, sender, var, vrb::tokenBufferToString(std::move(tb)).c_str());

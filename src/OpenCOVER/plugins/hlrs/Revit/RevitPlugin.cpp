@@ -836,10 +836,7 @@ void RevitPlugin::message(int toWhom, int type, int len, const void *buf)
 	}
 	else if (type >= PluginMessageTypes::HLRS_Revit_Message && type <= (PluginMessageTypes::HLRS_Revit_Message + 100))
 	{
-		Message m;
-		m.type = type - PluginMessageTypes::HLRS_Revit_Message + MSG_NewObject;
-		m.length = len;
-		m.data = (char *)buf;
+        Message m{ type - PluginMessageTypes::HLRS_Revit_Message + MSG_NewObject , DataHandle{(char*)buf, len, false} };
 		handleMessage(&m);
 	}
 
@@ -1187,7 +1184,7 @@ RevitPlugin::handleMessage(Message *m)
 		tb3 << 101; // owner
 		tb3 << text;
 		cover->sendMessage(this, "Annotation",
-			PluginMessageTypes::AnnotationTextMessage, tb3.get_length(), tb3.get_data());
+			PluginMessageTypes::AnnotationTextMessage, tb3.getData().length(), tb3.getData().data());
 		break;
 	}
     case MSG_DocumentInfo:
@@ -1887,7 +1884,7 @@ RevitPlugin::preFrame()
 				coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
 				coVRMSController::instance()->sendSlaves(msg);
 
-				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->length, msg->data);
+				cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->data.length(), msg->data.data());
 				handleMessage(msg);
 			}
 			else
@@ -2096,7 +2093,7 @@ void RevitPlugin::requestTexture(int matID, TextureInfo * texture)
                     gotMsg = '\1';
                     coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                     coVRMSController::instance()->sendSlaves(msg);
-                    cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->length, msg->data);
+                    cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS, PluginMessageTypes::HLRS_Revit_Message + msg->type - MSG_NewObject, msg->data.length(), msg->data.data());
                     handleMessage(msg);
                     if (msg->type == MSG_File)
                         break; // done

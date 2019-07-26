@@ -176,7 +176,7 @@ bool opencover::coVRDistributionManager::init()
             for (size_t ctr = 0; ctr < renderNodeInfo.data.size(); ++ctr)
             {
 
-                covise::TokenBuffer tb(static_cast<char *>(renderNodeInfo.data[ctr]), *reinterpret_cast<int *>(renderNodeSize.data[ctr]));
+                covise::TokenBuffer tb{covise:: DataHandle{static_cast<char*>(renderNodeInfo.data[ctr]), *reinterpret_cast<int*>(renderNodeSize.data[ctr]), false} };
                 tb >> node;
 
                 if (node.isDisplay())
@@ -247,7 +247,7 @@ bool opencover::coVRDistributionManager::init()
                 if (master.slaveIndex > 0)
                 {
                     tb[master.getSlaveIndex() - 1] << rg->getHostlist();
-                    maxTbSize = std::max(tb[master.getSlaveIndex() - 1].get_length(), maxTbSize);
+                    maxTbSize = std::max(tb[master.getSlaveIndex() - 1].getData().length(), maxTbSize);
                     LOG_CERR(master.getSlaveIndex() << "m : " << rg->getHostlist() << std::endl);
                 }
 
@@ -259,7 +259,7 @@ bool opencover::coVRDistributionManager::init()
                     {
                         tb[slave->getSlaveIndex() - 1] << rg->getHostlist();
                         tb[slave->getSlaveIndex() - 1] << master;
-                        maxTbSize = std::max(tb[slave->getSlaveIndex() - 1].get_length(), maxTbSize);
+                        maxTbSize = std::max(tb[slave->getSlaveIndex() - 1].getData().length(), maxTbSize);
                         LOG_CERR(slave->getSlaveIndex() << "s : " << rg->getHostlist() << std::endl);
                     }
                 }
@@ -269,8 +269,8 @@ bool opencover::coVRDistributionManager::init()
 
             for (size_t ctr = 0; ctr < tb.size(); ++ctr)
             {
-                LOG_CERR("coVRDistributionManager::init info: sending " << maxTbSize << "b to slave " << ctr << " (payload " << tb[ctr].get_length() << "b)" << std::endl);
-                memcpy(d.data[ctr], tb[ctr].get_data(), tb[ctr].get_length());
+                LOG_CERR("coVRDistributionManager::init info: sending " << maxTbSize << "b to slave " << ctr << " (payload " << tb[ctr].getData().length() << "b)" << std::endl);
+                memcpy(d.data[ctr], tb[ctr].getData().data(), tb[ctr].getData().length());
             }
 
             // Send group hostlist to slaves
@@ -290,12 +290,12 @@ bool opencover::coVRDistributionManager::init()
             {
                 covise::TokenBuffer tb;
                 tb << this->self;
-                int renderNodeSize = tb.get_length();
+                int renderNodeSize = tb.getData().length();
 
                 opencover::coVRMSController::instance()->sendMaster(&renderNodeSize, sizeof(int));
                 LOG_CERR("coVRDistributionManager::init info: renderNodeSize is " << renderNodeSize << "b" << std::endl);
 
-                opencover::coVRMSController::instance()->sendMaster(tb.get_data(), renderNodeSize);
+                opencover::coVRMSController::instance()->sendMaster(tb.getData().data(), renderNodeSize);
             }
 
             // Get render group information from head node
@@ -309,7 +309,7 @@ bool opencover::coVRDistributionManager::init()
 
             LOG_CERR(" <- done" << std::endl);
 
-            covise::TokenBuffer tb(tbContent, maxTbSize);
+            covise::TokenBuffer tb{ covise::DataHandle{tbContent, maxTbSize} };
 
             std::string hostlist;
             RenderNode master;

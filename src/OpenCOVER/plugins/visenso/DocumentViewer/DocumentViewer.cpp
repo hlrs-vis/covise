@@ -139,10 +139,7 @@ DocumentViewerPlugin::add(const char *documentName, const char *imageName)
     float hs = a * vs;
     //fprintf(stderr,"COVER send coGRSetDocPageSizeMsg MESSAGE to Gui objectName=%s pageNo=%d hs=%f vs=%f\n", initialObjectName_.c_str(), pageNo, hs, vs);
     coGRSetDocPageSizeMsg pageSizeMsg(initialObjectName_.c_str(), pageNo, hs, vs);
-    Message grmsg;
-    grmsg.type = COVISE_MESSAGE_UI;
-    grmsg.data = (char *)(pageSizeMsg.c_str());
-    grmsg.length = strlen(grmsg.data) + 1;
+    Message grmsg{ Message::UI, covise::DataHandle{(char*)(pageSizeMsg.c_str()), strlen(pageSizeMsg.c_str()) + 1 , false} }; +1;
     coVRPluginList::instance()->sendVisMessage(&grmsg);
 
     return true;
@@ -168,10 +165,7 @@ void DocumentViewerPlugin::registerObjAtUi(string name)
         fprintf(stderr, "DocumentViewerPlugin::registerObjAtUi name=%s\n", name.c_str());
     initialObjectName_ = name;
     coGRObjRegisterMsg regMsg(name.c_str(), NULL);
-    Message grmsg;
-    grmsg.type = COVISE_MESSAGE_UI;
-    grmsg.data = (char *)(regMsg.c_str());
-    grmsg.length = strlen(grmsg.data) + 1;
+    Message grmsg{ Message::UI, covise::DataHandle{(char*)(regMsg.c_str()), strlen(regMsg.c_str()) + 1 , false} }; +1;
     coVRPluginList::instance()->sendVisMessage(&grmsg);
 }
 
@@ -296,10 +290,7 @@ DocumentViewerPlugin::addObject(const RenderObject *container, osg::Group *, con
             }
 
             coGRSendDocNumbersMsg docNumMsg(container->getName(), minPage, maxPage);
-            Message grmsg;
-            grmsg.type = COVISE_MESSAGE_UI;
-            grmsg.data = (char *)(docNumMsg.c_str());
-            grmsg.length = strlen(grmsg.data) + 1;
+            Message grmsg{ Message::UI, covise::DataHandle{(char*)(docNumMsg.c_str()), strlen(docNumMsg.c_str()) + 1 , false} }; +1;
             coVRPluginList::instance()->sendVisMessage(&grmsg);
         }
     }

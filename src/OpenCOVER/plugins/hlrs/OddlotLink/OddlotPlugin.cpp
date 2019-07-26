@@ -331,10 +331,7 @@ void OddlotPlugin::message(int toWhom, int type, int len, const void *buf)
     }
     else if(type >= PluginMessageTypes::HLRS_Oddlot_Message && type <= (PluginMessageTypes::HLRS_Oddlot_Message+100))
     {
-        Message m;
-        m.type = type-PluginMessageTypes::HLRS_Oddlot_Message + MSG_GetHeight;
-        m.length = len;
-        m.data = (char *)buf;
+        Message m{ type - PluginMessageTypes::HLRS_Oddlot_Message + MSG_GetHeight , covise::DataHandle{(char *)buf, len, false} };
         handleMessage(&m);
     }
 
@@ -493,7 +490,7 @@ OddlotPlugin::preFrame()
                 coVRMSController::instance()->sendSlaves(&gotMsg, sizeof(char));
                 coVRMSController::instance()->sendSlaves(msg);
                 
-                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Oddlot_Message+msg->type-MSG_GetHeight,msg->length, msg->data);
+                cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Oddlot_Message+msg->type-MSG_GetHeight,msg->data.length(), msg->data.data());
                 handleMessage(msg);
             }
             else

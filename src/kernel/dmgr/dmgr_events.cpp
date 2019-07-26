@@ -39,12 +39,9 @@ static int rngbuf = coDistributedObject::calcType("RNGBUF");
       2 if the Message must be sent back
       3 for the QUIT Message (on SGI only)
 \*********************************************************/
-void DataManagerProcess::deleteMessageData(Message *msg)
-{
-    delete[] msg -> data;
-}
 
-int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
+
+int DataManagerProcess::handle_msg(Message *msg)
 {
     int ok;
     coShmPtr *shmptr = NULL;
@@ -62,7 +59,6 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     char *tmp_ptr, *data;
     ObjectEntry *oe;
     static int first = 1;
-    localAlloc = false;
 
 //	covise_time->mark(__LINE__, "START handle_msg");
 #ifdef DEBUG
@@ -74,10 +70,10 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     //	covise_time->mark(__LINE__, tmp_ptr);
     switch (msg->type)
     {
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_ASK_FOR_OBJECT:
-//-------------------------------------------------------------------------
-// message from other datamanager, conversion may be necessary
+        //-------------------------------------------------------------------------
+        // message from other datamanager, conversion may be necessary
 #ifdef DEBUG
         sprintf(tmp_str, "ASK_FOR_OBJECT %s", msg->data);
         print_comment(__LINE__, __FILE__, tmp_str);
@@ -85,10 +81,10 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         ask_for_object(msg);
         retval = 1;
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_HAS_OBJECT_CHANGED:
-//-------------------------------------------------------------------------
-// message from other datamanager, conversion may be necessary
+        //-------------------------------------------------------------------------
+        // message from other datamanager, conversion may be necessary
 #ifdef DEBUG
         sprintf(tmp_str, "HAS_OBJECT_CHANGED %s", &msg->data[SIZEOF_IEEE_INT]);
         print_comment(__LINE__, __FILE__, tmp_str);
@@ -96,107 +92,105 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         has_object_changed(msg);
         retval = 1;
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_SHM_MALLOC_LIST:
     {
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "SHM_MALLOC_LIST");
 #endif
-        DmgrMessage *dmgrmsg = (DmgrMessage *)msg;
+        DmgrMessage* dmgrmsg = (DmgrMessage*)msg;
         dmgrmsg->process_list(this);
-        localAlloc = true;
+
         break;
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_SHM_MALLOC:
     {
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "SHM_MALLOC");
 #endif
-        DmgrMessage *dmgrmsg = (DmgrMessage *)msg;
+        DmgrMessage* dmgrmsg = (DmgrMessage*)msg;
         shmptr = shm_alloc(dmgrmsg);
-        msg->delete_data();
         ShmMessage tmpmsg(shmptr);
-        msg->length = tmpmsg.length;
         msg->data = tmpmsg.data;
         msg->type = tmpmsg.type;
-        tmpmsg.data = NULL;
-        localAlloc = true;
         break;
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_OBJECT:
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+    {
+        // message from local application, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_OBJECT");
         sprintf(tmp_str, "in NEW_OBJECT: %s (%d, %d)",
-                &msg->data[2 * sizeof(int)],
-                *(int *)msg->data,
-                *(int *)(&msg->data[sizeof(int)]));
+            &msg->data[2 * sizeof(int)],
+            *(int*)msg->data,
+            *(int*)(&msg->data[sizeof(int)]));
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        ok = add_object(&msg->data[2 * sizeof(int)], *(int *)msg->data,
-                        *(int *)(&msg->data[sizeof(int)]), msg->conn);
+        DataHandle dh = msg->data;
+        dh.movePtr(2 * sizeof(int));
+        ok = add_object(dh, *(int*)msg->data.data(),
+            *(int*)(&msg->data.data()[sizeof(int)]), msg->conn);
         if (ok == 1)
             msg->type = COVISE_MESSAGE_MSG_OK;
         else
             msg->type = COVISE_MESSAGE_MSG_FAILED;
-        msg->length = 0;
-        msg->data = (char *)0L;
+        msg->data = DataHandle();
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_OBJECT finished");
 #endif
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_OBJECT_VERSION:
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
+    {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_OBJECT_VERSION");
 #endif
         retval = 1;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_GET_OBJECT:
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+    {
+        // message from local application, no conversion necessary
 // and message contains only character data
 #ifdef DEBUG
         sprintf(tmp_str, "GET_OBJECT %s", msg->data);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         oe = get_object(msg->data, msg->conn);
-        msg->delete_data();
-        msg->data = (char *)0L;
+        msg->data = DataHandle();
         if (oe)
         {
             oe->pack_address(msg);
-        }
-        else
+        } else
         {
-            msg->length = 0;
             msg->type = COVISE_MESSAGE_OBJECT_NOT_FOUND;
         }
-        localAlloc = true;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_OBJECT_SHM_MALLOC_LIST:
     {
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_OBJECT_SHM_MALLOC_LIST");
         //	    print_shared_memory_statistics();
         print_shm_list = 1;
 #endif
-        DmgrMessage *dmgrmsg = (DmgrMessage *)msg;
+        DmgrMessage* dmgrmsg = (DmgrMessage*)msg;
         ok = dmgrmsg->process_new_object_list(this);
-        localAlloc = true;
         if (ok == 1)
             msg->type = COVISE_MESSAGE_NEW_OBJECT_OK;
         else
@@ -206,17 +200,18 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         }
 #ifdef DEBUG
         sprintf(tmp_str, "NEW_OBJECT_SHM_MALLOC_LIST: %s (%d, %d)",
-                msg->data,
-                *(int *)msg->data,
-                *(int *)(&msg->data[sizeof(int)]));
+            msg->data,
+            *(int*)msg->data,
+            *(int*)(&msg->data[sizeof(int)]));
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
         break;
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_PART_ADDED:
-//-------------------------------------------------------------------------
-// message from local module, no conversion necessary
+        //-------------------------------------------------------------------------
+    {
+        // message from local module, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_PART_ADDED");
 #endif
@@ -226,11 +221,12 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
 #endif
         retval = 1;
         break;
-
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_PART_AVAILABLE:
-//-------------------------------------------------------------------------
-// message from local module, no conversion necessary
+        //-------------------------------------------------------------------------
+    {
+        // message from local module, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_PART_AVAILABLE");
 #endif
@@ -240,20 +236,20 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
 #endif
         retval = 1;
         break;
-
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_PREPARE_CONTACT:
     {
-//-------------------------------------------------------------------------
-// message from controller, conversion necessary
+        //-------------------------------------------------------------------------
+        // message from controller, conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "PREPARE_CONTACT");
 #endif
-        prepare_for_contact((int *)&port);
+        prepare_for_contact((int*)& port);
         //		cerr << host->get_name() << " port in PREPARE_CONTACT: " << port << endl;
         swap_byte(port);
         //		cerr << host->get_name() << " port nach swap:          " << port << endl;
-        Message portmsg(COVISE_MESSAGE_PORT, sizeof(int), (char *)&port);
+        Message portmsg{ COVISE_MESSAGE_PORT, DataHandle{(char*)& port, sizeof(int), false} };
         msg->conn->send_msg(&portmsg);
         wait_for_contact();
         retval = 1;
@@ -265,12 +261,12 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_PREPARE_CONTACT_DM:
     {
-//-------------------------------------------------------------------------
-// message from controller, conversion necessary
+        //-------------------------------------------------------------------------
+        // message from controller, conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "PREPARE_CONTACT_DM");
 #endif
-        prepare_for_contact((int *)&port);
+        prepare_for_contact((int*)& port);
 #ifdef DEBUG
         sprintf(tmp_str, "Port number is: %d", port);
         print_comment(__LINE__, __FILE__, tmp_str);
@@ -279,17 +275,17 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
 #ifdef _CRAYT3E
         converter.int_to_exch(port, dmsg_data);
 #else
-        conv_single_int_c8i4(port, (int *)dmsg_data);
+        conv_single_int_c8i4(port, (int*)dmsg_data);
 #endif
 #else
         //		cerr << host->get_name() << " port in PREPARE_CONTACT_DM: " << port << endl;
         swap_byte(port);
         //		cerr << host->get_name() << " port nach swap:             " << port << endl;
-        *((unsigned int *)dmsg_data) = port;
+        *((unsigned int*)dmsg_data) = port;
 #endif
-        Host *tmphost = get_host();
+        Host* tmphost = get_host();
         strncpy(&dmsg_data[SIZEOF_IEEE_INT], tmphost->getAddress(), 76);
-//	    covise_gethostname(&dmsg_data[SIZEOF_IEEE_INT], 76);
+        //	    covise_gethostname(&dmsg_data[SIZEOF_IEEE_INT], 76);
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, &dmsg_data[SIZEOF_IEEE_INT]);
 #endif
@@ -298,7 +294,7 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         sprintf(tmp_str, "Message length is: %d", len);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        Message portmsg(COVISE_MESSAGE_PORT, len, dmsg_data);
+        Message portmsg{ COVISE_MESSAGE_PORT, DataHandle{dmsg_data, len, false} };
 #ifdef DEBUG
         bytes_sent = msg->conn->send_msg(&portmsg);
         sprintf(tmp_str, "%d bytes sent", bytes_sent);
@@ -316,25 +312,25 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_DM_CONTACT_DM:
     {
-//-------------------------------------------------------------------------
-// message from controller, conversion necessary
+        //-------------------------------------------------------------------------
+        // message from controller, conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "DM_CONTACT_DM");
-//	    cerr << "contact DM on host " << &msg->data[SIZEOF_IEEE_INT] <<
-//	    	    " at port " << *(int *)msg->data << "\n";
+        //	    cerr << "contact DM on host " << &msg->data.data()[SIZEOF_IEEE_INT] <<
+        //	    	    " at port " << *(int *)msg->data.data() << "\n";
 #endif
-        Host *tmphost = new Host(&msg->data[SIZEOF_IEEE_INT]);
+        Host* tmphost = new Host(&msg->data.data()[SIZEOF_IEEE_INT]);
 #if defined(CRAY)
 #ifdef _CRAYT3E
-        converter.exch_to_uint(msg->data, &port);
+        converter.exch_to_uint(msg->data.accessData(), &port);
 #else
-        conv_single_int_i4c8(*(int *)msg->data, &port);
+        conv_single_int_i4c8(*(int*)msg->data.data(), &port);
 #endif
 #else
-        port = *(int *)msg->data;
+        port = *(int*)msg->data.data();
         //		cerr << host->get_name() << " port in DM_CONTACT_DM: " << port << endl;
         swap_byte(port);
-//		cerr << host->get_name() << " port nach swap:        " << port << endl;
+        //		cerr << host->get_name() << " port nach swap:        " << port << endl;
 #endif
         contact_datamanager(port, tmphost);
 #ifdef DEBUG
@@ -348,33 +344,30 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_GET_SHM_KEY:
-//-------------------------------------------------------------------------
-// this should not happen on a Cray, therefore no #ifdef CRAY
+        //-------------------------------------------------------------------------
+        // this should not happen on a Cray, therefore no #ifdef CRAY
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "GET_SHM_KEY");
 #endif
-        if (msg->length > 0)
         {
-            delete[] msg -> data;
-        }
-        msg->data = new char[sizeof(int) * (MAX_NO_SHM * 2 + 1)];
-        shm->get_shmlist(msg->data);
-        msg->length = *(int *)msg->data * sizeof(int) * 2 + sizeof(int);
-        print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d msg->length: %d", *(int *)msg->data,
-                      ((int *)msg->data)[1], ((int *)msg->data)[2], msg->length);
+            char* d = new char[sizeof(int) * (MAX_NO_SHM * 2 + 1)];
+            shm->get_shmlist(d);
+            msg->data = DataHandle(d, *(int*)d * sizeof(int) * 2 + sizeof(int));
+            print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d msg->length: %d", *(int*)msg->data.data(),
+                ((int*)msg->data.data())[1], ((int*)msg->data.data())[2], msg->data.length());
 
-        localAlloc = true; //??
+        }
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_CONNECT_TRANSFERMANAGER:
     {
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "CONNECT_TRANSFERMANAGER");
 #endif
         if (!transfermanager)
             start_transfermanager();
-        Message portmsg(COVISE_MESSAGE_CONNECT_TRANSFERMANAGER, (char *)NULL, 0);
+        Message portmsg(COVISE_MESSAGE_CONNECT_TRANSFERMANAGER, DataHandle());
         send_trf_msg(&portmsg);
         msg->conn->send_msg(&portmsg);
         break;
@@ -382,14 +375,14 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_GET_TRANSFER_PORT:
     {
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "GET_TRANSFER_PORT");
 #endif
         if (!transfermanager)
             start_transfermanager();
 
-        Message portmsg(COVISE_MESSAGE_GET_TRANSFER_PORT, (char *)NULL, 0);
+        Message portmsg(COVISE_MESSAGE_GET_TRANSFER_PORT, DataHandle());
         exch_trf_msg(&portmsg);
         if (portmsg.type == COVISE_MESSAGE_TRANSFER_PORT)
         {
@@ -407,21 +400,24 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
     }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_SHM_FREE:
-//-------------------------------------------------------------------------
-// no data that needs to be converted
+        //-------------------------------------------------------------------------
+    {
+        // no data that needs to be converted
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "in SHM_FREE");
 #endif
-        number = (msg->length / sizeof(int)) / 2;
-        idata = (int *)msg->data;
+        number = (msg->data.length() / sizeof(int)) / 2;
+        idata = (int*)msg->data.data();
         for (i = 0; i < number; i++)
             shm_free(idata[i * 2], idata[i * 2 + 1]);
         retval = 1;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_DESTROY_OBJECT:
-//-------------------------------------------------------------------------
-// no data that needs to be converted
+        //-------------------------------------------------------------------------
+        // no data that needs to be converted
+    {
 #ifdef DEBUG
         sprintf(tmp_str, "DESTROY_OBJECT %s", msg->data);
         print_comment(__LINE__, __FILE__, tmp_str);
@@ -431,8 +427,7 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
             msg->type = COVISE_MESSAGE_MSG_OK;
         else
             msg->type = COVISE_MESSAGE_MSG_FAILED;
-        msg->length = 0;
-        msg->data = (char *)0L;
+        msg->data = DataHandle();
 
         if (print_shm_list == 1)
         {
@@ -440,34 +435,36 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
             print_shm_list = 0;
         }
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_CTRL_DESTROY_OBJECT:
-//-------------------------------------------------------------------------
-// no data that needs to be converted
+        //-------------------------------------------------------------------------
+        // no data that needs to be converted
+    {
 #ifdef DEBUG
-        sprintf(tmp_str, "CTRL_DESTROY_OBJECT %s", msg->data);
+        sprintf(tmp_str, "CTRL_DESTROY_OBJECT %s", msg->data.data());
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        ok = destroy_object(msg->data, 0L);
+        ok = destroy_object(msg->data, nullptr);
         if (ok == 1)
             msg->type = COVISE_MESSAGE_MSG_OK;
         else
             msg->type = COVISE_MESSAGE_MSG_FAILED;
-        msg->length = 0;
-        msg->delete_data();
-        msg->data = (char *)0L;
+        msg->data = DataHandle();
         if (print_shm_list == 1)
         {
             //		print_shared_memory_statistics();
             print_shm_list = 0;
         }
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_OBJECT_NO_LONGER_USED:
-//-------------------------------------------------------------------------
-// message contains only character data, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message contains only character data, no conversion necessary
+    {
 #ifdef DEBUG
-        sprintf(tmp_str, "OBJECT_NO_LONGER_USED %s", msg->data);
+        sprintf(tmp_str, "OBJECT_NO_LONGER_USED %s", msg->data.data());
         print_comment(__LINE__, __FILE__, tmp_str);
         if (print_shm_list == 1)
         {
@@ -482,28 +479,33 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
             print_comment(__LINE__, __FILE__, "Object has not been accessed");
         retval = 1;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_SET_ACCESS:
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
+    {
 #ifdef DEBUG
-        sprintf(tmp_str, "SET_ACCESS %s", &msg->data[sizeof(int)]);
+        sprintf(tmp_str, "SET_ACCESS %s", &msg->data.data()[sizeof(int)]);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        oe = get_object(&msg->data[sizeof(int)]);
+        auto dh = msg->data;
+        dh.movePtr(sizeof(int));
+        oe = get_object(dh);
         if (oe)
-            oe->set_current_access(msg->conn, *(access_type *)msg->data);
+            oe->set_current_access(msg->conn, *(access_type*)msg->data.data());
         else
             print_comment(__LINE__, __FILE__, "No such Object to access");
-        msg->delete_data();
+
         msg->type = COVISE_MESSAGE_EMPTY;
-        msg->data = (char *)0L;
-        msg->length = 0;
+        msg->data = DataHandle();
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_REGISTER_TYPE:
-//-------------------------------------------------------------------------
-// message from local application, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from local application, no conversion necessary
+    {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "REGISTER_TYPE");
 #endif
@@ -512,7 +514,7 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
             rngbuf = coDistributedObject::calcType("RNGBUF");
             first = 0;
         }
-        if (*(int *)msg->data == rngbuf)
+        if (*(int*)msg->data.data() == rngbuf)
         {
             if (transfermanager == 0L)
             {
@@ -521,72 +523,70 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         }
         msg->type = COVISE_MESSAGE_MSG_OK;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_GET_LIST_OF_INTERFACES:
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "GET_LIST_OF_INTERFACES");
 #endif
-        msg->delete_data();
-        msg->data = get_list_of_interfaces();
-        msg->length = (int)strlen(msg->data);
-        localAlloc = true; //??
+        {
+            char* c = get_list_of_interfaces(); //allocates memory
+            msg->data = DataHandle(c, (int)strlen(c));
+        }
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_COMPLETE_DATA_CONNECTION:
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "COMPLETE_DATA_CONNECTION");
 #endif
         complete_data_connection(msg);
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_MAKE_DATA_CONNECTION:
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "MAKE_DATA_CONNECTION");
 #endif
-        tmp_ptr = msg->data;
-        i = 0;
-        while (*tmp_ptr != '\0')
-            remote_name[i++] = *tmp_ptr++;
-        tmp_ptr++;
-        i = 0;
-        while (*tmp_ptr != '\0')
-            new_interface_name[i++] = *tmp_ptr++;
-        if (make_data_connection(remote_name, new_interface_name) == 0)
-            print_comment(__LINE__, __FILE__, "Making Dataconnection failed");
+        {
+            tmp_ptr = msg->data.accessData();
+            i = 0;
+            while (*tmp_ptr != '\0')
+                remote_name[i++] = *tmp_ptr++;
+            tmp_ptr++;
+            i = 0;
+            while (*tmp_ptr != '\0')
+                new_interface_name[i++] = *tmp_ptr++;
+            if (make_data_connection(remote_name, new_interface_name) == 0)
+                print_comment(__LINE__, __FILE__, "Making Dataconnection failed");
+        }
         break;
-    //-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
     case COVISE_MESSAGE_OBJECT_ON_HOSTS:
-//-------------------------------------------------------------------------
+        //-------------------------------------------------------------------------
+    {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "OBJECT_ON_HOSTS");
 #endif
         if (processing_object_on_hosts)
         {
-            msg->data = 0L;
-            msg->length = 0;
+            msg->data = DataHandle();
             msg->type = COVISE_MESSAGE_OBJECT_NOT_FOUND;
-        }
-        else
+        } else
         {
             processing_object_on_hosts = 1;
-            data = get_all_hosts_for_object(msg->data);
-            msg->delete_data();
-            msg->data = data;
-            if (data)
-                msg->length = (int)strlen(data) + 1;
-            else
-                msg->length = 0;
+            msg->data = get_all_hosts_for_object(msg->data);
+
             processing_object_on_hosts = 0;
         }
-        localAlloc = true;
         break;
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_NEW_DESK:
-//-------------------------------------------------------------------------
-// message from controller, no conversion necessary
+        //-------------------------------------------------------------------------
+    {
+        // message from controller, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "NEW_DESK");
 #endif
@@ -597,27 +597,31 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         print_comment(__LINE__, __FILE__, "Data Manager created a new desk");
 #endif
         break;
+    }
 
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_CRB_QUIT:
-//-------------------------------------------------------------------------
-// message from controller, no conversion necessary
+        //-------------------------------------------------------------------------
+        // message from controller, no conversion necessary
+    {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "CRB_QUIT");
 #endif
         //cerr << endl << "---CRB_QUIT for : " << msg->data;
-        rmv_rdmgr(msg->data);
+        rmv_rdmgr(msg->data.accessData());
 
         retval = 1;
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "Another Data Manager quits");
 #endif
         break;
+    }
 
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_QUIT:
 //-------------------------------------------------------------------------
-// message from controller, no conversion necessary
+    {
+        // message from controller, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "QUIT");
 #endif
@@ -632,11 +636,12 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         print_comment(__LINE__, __FILE__, "Data Manager correctly finished");
 #endif
         break;
-
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_SEND_APPL_PROCID:
 //-------------------------------------------------------------------------
-// message from local process, no conversion necessary
+    {
+        // message from local process, no conversion necessary
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "SEND_APPL_PROCID");
 #endif
@@ -644,18 +649,19 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         pid_list = new pid_t[++no_of_pids];
         for (i = 0; i < no_of_pids - 1; i++)
             pid_list[i] = tmp_pid[i];
-        pid_list[i] = *(pid_t *)msg->data;
+        pid_list[i] = *(pid_t*)msg->data.data();
         delete[] tmp_pid;
         //#ifdef DEBUG
-        print_comment(__LINE__, __FILE__, "SEND_APPL_PROCID: %d", *(pid_t *)msg->data);
+        print_comment(__LINE__, __FILE__, "SEND_APPL_PROCID: %d", *(pid_t*)msg->data.data());
         //#endif
         retval = 1;
         break;
-
+    }
     //-------------------------------------------------------------------------
     case COVISE_MESSAGE_CLOSE_SOCKET:
 //-------------------------------------------------------------------------
-// message from application module
+    {
+        // message from application module
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "CLOSE_SOCKET");
 #endif
@@ -666,7 +672,7 @@ int DataManagerProcess::handle_msg(Message *msg, bool &localAlloc)
         delete msg->conn;
         retval = 1;
         break;
-
+    }
     //-------------------------------------------------------------------------
     default:
 //-------------------------------------------------------------------------

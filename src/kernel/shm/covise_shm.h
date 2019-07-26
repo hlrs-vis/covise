@@ -405,8 +405,8 @@ public:
     };
     coShmPtr(Message *msg)
     {
-        shm_seq_no = *(int *)msg->data;
-        offset = *(int *)(&msg->data[sizeof(int)]);
+        shm_seq_no = *(int *)msg->data.data();
+        offset = *(int *)(&msg->data.data()[sizeof(int)]);
         recalc();
     };
     void setPtr(int no, shmSizeType o)
@@ -522,8 +522,8 @@ public:
 
     coShmArray(Message *msg)
     {
-        shm_seq_no = *(int *)msg->data;
-        offset = *(int *)(&msg->data[sizeof(int)]);
+        shm_seq_no = *(int *)msg->data.data();
+        offset = *(int *)(&msg->data.data()[sizeof(int)]);
         recalc();
     }
     void set_length(ArrayLengthType l)

@@ -394,8 +394,8 @@ void Mark::update()
             cover->sendMessage(Measure::plugin,
                                coVRPluginSupport::TO_SAME,
                                PluginMessageTypes::Measure0,
-                               tb.get_length(),
-                               tb.get_data());
+                               tb.getData().length(),
+                               tb.getData().data());
         }
         if (interactionA->wasStarted()) // button pressed
         {
@@ -447,10 +447,10 @@ void Mark::update()
                     }
                 }
                 cover->sendMessage(Measure::plugin,
-                                   coVRPluginSupport::TO_SAME,
-                                   PluginMessageTypes::Measure0,
-                                   tb.get_length(),
-                                   tb.get_data());
+                    coVRPluginSupport::TO_SAME,
+                    PluginMessageTypes::Measure0,
+                    tb.getData().length(),
+                    tb.getData().data());
             }
             if (interactionA->wasStopped())
             {
@@ -695,10 +695,10 @@ void Measure::menuEvent(coMenuItem *item)
             tb << NEW_DIMENSION;
             tb << maxDimID;
             cover->sendMessage(this,
-                               coVRPluginSupport::TO_SAME,
-                               PluginMessageTypes::Measure0,
-                               tb.get_length(),
-                               tb.get_data());
+                coVRPluginSupport::TO_SAME,
+                PluginMessageTypes::Measure0,
+                tb.getData().length(),
+                tb.getData().data());
         }
         else
         {
@@ -759,13 +759,13 @@ void Measure::menuEvent(coMenuItem *item)
     }
 }
 
-void Measure::message(int toWhom, int type, int len, const void *buf)
+void Measure::message(int toWhom, int type, int len, const void* buf)
 {
 
     if (type != PluginMessageTypes::Measure0 && type != PluginMessageTypes::Measure1)
         return;
 
-    TokenBuffer tb((char *)buf, len);
+    TokenBuffer tb{covise::DataHandle{(char*)buf, len, false}};
     char msgType;
     tb >> msgType;
     switch (msgType)

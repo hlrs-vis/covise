@@ -697,15 +697,9 @@ void SystemCover::sendAndDeleteMessage(VrmlMessage *msg)
     {
         cerr << "SystemCover::sendAndDeleteMessage: msg->pos > msg->size !!!" << endl;
     }
+    Message message{ COVISE_MESSAGE_RENDER_MODULE, DataHandle{msg->buf, msg->size, false} };
+    cover->sendVrbMessage(&message);
 
-    Message *message = new Message();
-    message->data = msg->buf;
-    message->type = COVISE_MESSAGE_RENDER_MODULE;
-    message->length = msg->size;
-
-    cover->sendVrbMessage(message);
-
-    delete message;
     delete msg;
 }
 

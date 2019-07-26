@@ -53,14 +53,13 @@ int coVRSlave::readMessage(Message *msg)
     msg->sender = read_buf_int[0];
     msg->send_type = read_buf_int[1];
     msg->type = read_buf_int[2];
-    msg->length = read_buf_int[3];
-    msg->data = new char[msg->length];
-    while (bytesRead < msg->length)
+    msg->data = DataHandle(read_buf_int[3]);
+    while (bytesRead < msg->data.length())
     {
-        toRead = msg->length - bytesRead;
+        toRead = msg->data.length() - bytesRead;
         if (toRead > READ_BUFFER_SIZE)
             toRead = READ_BUFFER_SIZE;
-        ret = read(msg->data + bytesRead, toRead);
+        ret = read(msg->data.accessData() + bytesRead, toRead);
         if (ret < toRead)
             return ret;
         bytesRead += toRead;
@@ -74,7 +73,7 @@ int coVRSlave::sendMessage(const Message *msg)
     char write_buf[WRITE_BUFFER_SIZE];
     int *write_buf_int;
     int headerSize = 4 * sizeof(int);
-    int len = msg->length + headerSize;
+    int len = msg->data.length() + headerSize;
     int toWrite;
     int written = 0;
     toWrite = len;
@@ -84,10 +83,10 @@ int coVRSlave::sendMessage(const Message *msg)
     write_buf_int[0] = msg->sender;
     write_buf_int[1] = msg->send_type;
     write_buf_int[2] = msg->type;
-    write_buf_int[3] = msg->length;
+    write_buf_int[3] = msg->data.length();
     if (toWrite > WRITE_BUFFER_SIZE)
         toWrite = WRITE_BUFFER_SIZE;
-    memcpy(write_buf + headerSize, msg->data, toWrite - headerSize);
+    memcpy(write_buf + headerSize, msg->data.data(), toWrite - headerSize);
 #ifdef DEBUG_MESSAGES
     int tmpLen;
     send((char *)&headerSize, sizeof(headerSize));
@@ -101,7 +100,7 @@ int coVRSlave::sendMessage(const Message *msg)
         toWrite = len - written;
         if (toWrite > WRITE_BUFFER_SIZE)
             toWrite = WRITE_BUFFER_SIZE;
-        int numSent = send(msg->data + written - headerSize, toWrite);
+        int numSent = send(msg->data.data() + written - headerSize, toWrite);
         if (numSent < toWrite)
         {
             cerr << "numSent = " << numSent << " toWrite = " << toWrite << endl;
@@ -117,20 +116,20 @@ int coVRSlave::sendMessage(const Message *msg)
 
 void coVRSlave::sendMessage(const vrb::UdpMessage* msg)
 {
-	char *write_buf = new char[UDP_MESSAGE_HEADER_SIZE + msg->length];
+	char *write_buf = new char[UDP_MESSAGE_HEADER_SIZE + msg->data.length()];
 	int* write_buf_int;
 	write_buf_int = (int*)write_buf;
 	write_buf_int[0] = msg->type;
 	write_buf_int[1] = msg->sender;
 
-	if (UDP_MESSAGE_HEADER_SIZE + msg->length > WRITE_BUFFER_SIZE)
+	if (UDP_MESSAGE_HEADER_SIZE + msg->data.length() > WRITE_BUFFER_SIZE)
 	{
 		cerr << "udp message of type " << msg->type << " is too long!" << endl;
 	}
-	write_buf_int[2] = msg->length;
+	write_buf_int[2] = msg->data.length();
 	//cerr << "sending udp msg to slave " << getID() << " type = " << write_buf_int[0] << " sender = " << write_buf_int[1] << " length = " << write_buf_int[2] << endl;
-	memcpy(write_buf + UDP_MESSAGE_HEADER_SIZE, msg->data, msg->length);
-	send(write_buf, UDP_MESSAGE_HEADER_SIZE + msg->length);
+	memcpy(write_buf + UDP_MESSAGE_HEADER_SIZE, msg->data.data(), msg->data.length());
+	send(write_buf, UDP_MESSAGE_HEADER_SIZE + msg->data.length());
 	delete[]write_buf;
 }
 
@@ -143,14 +142,13 @@ int coVRSlave::readMessage(vrb::UdpMessage* msg)
 		return -1;
 	msg->type = (vrb::udp_msg_type)read_buf_int[0];
 	msg->sender = read_buf_int[1];
-	msg->length = read_buf_int[2];
-	if (msg->length > WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
+	if (read_buf_int[2] > WRITE_BUFFER_SIZE - UDP_MESSAGE_HEADER_SIZE)
 	{
 		cerr << "udp message of type " << msg->type << " was too long to read;" << endl;
 		return 0;
 	}
-	msg->data = new char[msg->length];
-	ret = read(msg->data, msg->length);
+    msg->data = DataHandle(read_buf_int[2]);
+	ret = read(msg->data.accessData(), msg->data.length());
 	return ret;
 }
 
@@ -454,11 +452,10 @@ int coVRMpiSlave::readMessage(Message *msg)
     msg->sender = bufferInt[0];
     msg->send_type = bufferInt[1];
     msg->type = bufferInt[2];
-    msg->length = bufferInt[3];
 
-    msg->data = new char[msg->length];
+    msg->data = DataHandle(bufferInt[3]);
 
-    return received + read(msg->data, msg->length);
+    return received + read(msg->data.accessData(), msg->data.length());
 }
 
 int coVRMpiSlave::sendMessage(const Message *msg)
@@ -470,10 +467,10 @@ int coVRMpiSlave::sendMessage(const Message *msg)
     header[0] = msg->sender;
     header[1] = msg->send_type;
     header[2] = msg->type;
-    header[3] = msg->length;
+    header[3] = msg->data.length();
 
     sent = send(reinterpret_cast<char *>(&header[0]), 4 * sizeof(int));
 
-    return sent + send(msg->data, msg->length);
+    return sent + send(msg->data.data(), msg->data.length());
 }
 #endif

@@ -72,12 +72,12 @@ void InvMsgManager::dataReceived(int)
 
     while ((msg = renderer->appmod->check_for_ctl_msg()) != NULL)
     {
-        if (msg->length > 0)
+        if (msg->data.length() > 0)
         {
             //cerr << "_____________________________________________" << endl;
             //cerr << msg->data << endl;
             //cerr << "_____________________________________________" << endl;
-            list = QString(msg->data).split("\n");
+            list = QString(msg->data.data()).split("\n");
         }
 
         /* otherwise quit messages are ignored else
@@ -411,7 +411,6 @@ void InvMsgManager::dataReceived(int)
         default:
             break;
         }
-        msg->delete_data();
         delete msg;
 
     } // end while

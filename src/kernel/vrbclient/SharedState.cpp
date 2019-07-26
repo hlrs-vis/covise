@@ -54,7 +54,7 @@ void SharedStateBase::subscribe(const DataHandle &val)
 
 void SharedStateBase::setVar(const DataHandle & val)
 {
-    m_valueData.reset(&val);
+    m_valueData = val;
 	if (syncInterval <= 0)
 	{
 		m_registry->setVar(sessionID, m_className, variableName, val, muted);
@@ -117,7 +117,7 @@ void SharedStateBase::resubscribe(const SessionID &id)
         m_registry->unsubscribeVar(m_className, variableName, true);
     }
 
-    m_registry->subscribeVar(id, m_className, variableName, *m_valueData, this);
+    m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
 }
 
 void SharedStateBase::frame(double time)
@@ -130,7 +130,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, m_className, variableName, *m_valueData, muted);
+        m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
         lastUpdateTime = time;
         send = false;
     }
@@ -148,7 +148,7 @@ float SharedStateBase::getSyncInerval()
 void SharedStateBase::becomeMaster()
 {
     muted = false;
-    if (m_valueData->length() > 0)
+    if (m_valueData.length() > 0)
     {
         send = true;
     }
