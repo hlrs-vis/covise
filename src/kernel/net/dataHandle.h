@@ -8,13 +8,14 @@
 #ifndef DATA_HANDLE_H
 #define DATA_HANDLE_H
 #include <memory>
+#include "SharedStateSerializer.h"
 #include <util/coExport.h>
 
 
-namespace covise
+namespace vrb
 {
 	//controlls the lifetime of data
-class NETEXPORT DataHandle
+class VRBEXPORT DataHandle
 {
 public:
     DataHandle();
@@ -25,9 +26,18 @@ public:
 
 private:
 
-	std::shared_ptr<const char> m_data;
+	std::shared_ptr<char> m_data;
 	int m_length = 0;
 };
+
+template<>
+void VRBEXPORT serialize<DataHandle>(covise::TokenBuffer& tb, const DataHandle& value);
+
+
+template<>
+void VRBEXPORT deserialize<DataHandle>(covise::TokenBuffer& tb, DataHandle& value);
+
+
 }
 #endif // !DATA_HANDLE_H
 

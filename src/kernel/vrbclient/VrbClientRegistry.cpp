@@ -5,18 +5,12 @@
 
  * License: LGPL 2+ */
 
-
+#include "VrbClientRegistry.h"
 #include <assert.h>
-
+#include <net/message.h>
+#include <net/message_types.h>
 #include "VRBClient.h"
 #include "VrbMessageSenderInterface.h"
-#include "SharedStateSerializer.h"
-#include "VrbClientRegistry.h"
-
-#include <net/message.h>
-#include <net/dataHandle.h>
-#include <net/message_types.h>
-
 
 
 
@@ -174,7 +168,7 @@ void VrbClientRegistry::unsubscribeVar(const std::string &cl, const std::string 
     }
 }
 
-void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &cl, const std::string &var, const covise::DataHandle& value, bool isStatic)
+void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic)
 {
 
     // compose message
@@ -183,12 +177,12 @@ void VrbClientRegistry::createVar(const SessionID sessionID, const std::string &
     tb << clientID;
     tb << cl;
     tb << var;
-    serialize(tb, value);
+    tb << value;
     tb << isStatic;
     sendMsg(tb, COVISE_MESSAGE_VRB_REGISTRY_CREATE_ENTRY);
 }
 
-void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, const DataHandle  &value, bool muted)
+void VrbClientRegistry::setVar(const SessionID sessionID, const std::string &cl, const std::string &var, DataHandle  &value, bool muted)
 {
     // attach to the list
     clientRegClass *rc = getClass(cl);

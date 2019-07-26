@@ -9,7 +9,6 @@
 #include "SessionID.h"
 #include <net/message.h>
 #include <net/message_types.h>
-#include <net/dataHandle.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
 
@@ -241,7 +240,9 @@ namespace vrb
 			case vrb::ENTRY_CHANGE:
 			{
 				tb >> pos;
+				DataHandle change;
 				m_changedEtries[pos] = v;
+
 			}
 				break;
 			default:
