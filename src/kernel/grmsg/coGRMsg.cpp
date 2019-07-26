@@ -93,19 +93,13 @@ GRMSGEXPORT vector<string> coGRMsg::getAllTokens()
 
 GRMSGEXPORT const char *coGRMsg::c_str()
 {
-    return content_.c_str();
-    //if (str_ && strcmp(str_, content_.c_str()) == 0)
-    //{
-    //    return str_;
-    //}
-    //else
-    //{
-    //    delete[] str_;
-    //    str_ = strcpy(new char[content_.length() + 1], content_.c_str());
-    //}
+    if (str_ != NULL)
+    {
+        delete[] str_;
+    }
 
-
-
+    str_ = strcpy(new char[content_.length() + 1], content_.c_str());
+    return str_;
 }
 
 GRMSGEXPORT void coGRMsg::print_stdout()

@@ -92,9 +92,9 @@ static void initPinboard(VRPinboard *pb)
 }
 #endif
 
-static void messageCallback(const DataHandle &dh)
+static void messageCallback(int len, const void *buf)
 {
-    coVRPluginList::instance()->forwardMessage(dh);
+    coVRPluginList::instance()->forwardMessage(len, buf);
 }
 
 bool CovisePlugin::init()

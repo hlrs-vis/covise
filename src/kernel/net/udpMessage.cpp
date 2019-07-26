@@ -15,15 +15,21 @@
 using namespace covise;
 namespace vrb {
 
+UdpMessage::UdpMessage(TokenBuffer *t)
+    :MessageBase(t)
+	,type(udp_msg_type::EMPTY)
+{
 
-UdpMessage::UdpMessage(TokenBuffer &t)
+}
+
+UdpMessage::UdpMessage(const TokenBuffer &t)
     :MessageBase(t)
 	,type(udp_msg_type::EMPTY)
 
 {
 }
 
-UdpMessage::UdpMessage(covise::TokenBuffer& tb, udp_msg_type type)
+UdpMessage::UdpMessage(const covise::TokenBuffer& tb, udp_msg_type type)
 	:UdpMessage(tb)
 {
 	type = type;
@@ -39,9 +45,9 @@ void UdpMessage::print()
 UdpMessage::UdpMessage(const UdpMessage &src)
 {
     type = src.type;
-    data = DataHandle(src.data.length());
-    if (src.data.length() && src.data.data())
-        memcpy(data.accessData(), src.data.data(), data.length());
+    length = src.length;
+    data = new char[length];
+    memcpy(data, src.data, length);
     print();
 }
 
@@ -56,14 +62,24 @@ UdpMessage &UdpMessage::operator=(const UdpMessage &src)
         // always cope these
         sender = src.sender;
         type = src.type;
+        length = src.length;
 
-        data = DataHandle(src.data.length());
-
-        if (src.data.length() && src.data.data())
-            memcpy(data.accessData(), src.data.data(), data.length());
+        // copy data (if existent)
+        delete[] data;
+        data = new char[length];
+        if (length && src.data)
+            memcpy(data, src.data, length);
     }
     print();
     return *this;
 }
+
+char *UdpMessage::extract_data()
+{
+    char *tmpdata = data;
+    data = NULL;
+    return tmpdata;
+}
+
 
 } // namespace vrb

@@ -676,9 +676,14 @@ void moduleList::startRenderer(char *name, char *category)
             buf += "NO";
         }
     }
-    char* d = buf.return_data();
-    Message retmsg{ COVISE_MESSAGE_UI, DataHandle{d, strlen(d) + 1} };
-    datamgr->send_ctl_msg(&retmsg);
+
+    Message *retmsg = new Message;
+    retmsg->type = COVISE_MESSAGE_UI;
+    retmsg->data = (char *)((const char *)buf);
+    retmsg->length = (int)strlen(retmsg->data) + 1;
+    datamgr->send_ctl_msg(retmsg);
+    retmsg->data = NULL;
+    delete retmsg;
 }
 
 char *moduleList::get_list_message()

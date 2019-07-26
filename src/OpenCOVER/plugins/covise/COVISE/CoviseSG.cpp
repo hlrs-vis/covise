@@ -21,7 +21,6 @@ CoviseSG::CoviseSG()
 {
     sgDebug_ = getenv("COVISE_SG_DEBUG") != NULL;
     hostName_ = getenv("HOST");
-    sgDebug_ = true;
 }
 
 CoviseSG::~CoviseSG()

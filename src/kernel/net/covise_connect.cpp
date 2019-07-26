@@ -198,9 +198,13 @@ bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
 #endif
 
 	msg->sender = -1;
-	msg->data = DataHandle();
+	msg->length = 0;
 	msg->type = vrb::udp_msg_type::EMPTY;
-
+	if (msg->data)
+	{
+		delete[] msg->data;
+		msg->data = nullptr;
+	}
 	message_to_do = 0;
 
 	if (!sock)
@@ -226,9 +230,10 @@ bool covise::UDPConnection::recv_udp_msg(vrb::UdpMessage* msg)
 	msg->type = (vrb::udp_msg_type)int_read_buf[0];
 	msg->sender = int_read_buf[1];
 	l -= UDP_HEADER_SIZE;
+	msg->length = l;
 	char* data = new char[l];
 	memcpy(data, read_buf + UDP_HEADER_SIZE, l);
-	msg->data = DataHandle(data, l);
+	msg->data = data;
 	return true;
 
 }
@@ -259,25 +264,25 @@ bool covise::UDPConnection::send_udp_msg(const vrb::UdpMessage* msg, const char*
 
     // Decide wether the message including the COVISE header
     // fits into one packet
-    if (msg->data.length() >= WRITE_BUFFER_SIZE - UDP_HEADER_SIZE)
+    if (msg->length >= WRITE_BUFFER_SIZE - UDP_HEADER_SIZE)
     {
-        cerr << "udp message of type " << msg->type << " is to long! length = " << msg->data.length() << endl;
+        cerr << "udp message of type " << msg->type << " is to long! length = " << msg->length << endl;
         return false;
     }
 
-	if (msg->data.length() == 0)
+	if (msg->length == 0)
     {
 		retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE, ip);
     }
 	else
 	{
 #ifdef SHOWMSG
-		LOGINFO("msg->data.length(): %d", msg->data.length());
+		LOGINFO("msg->length: %d", msg->length);
 #endif
         // Write data to socket for data blocks smaller than the
         // socket write-buffer reduced by the size of the header
-        memcpy(&write_buf[UDP_HEADER_SIZE], msg->data.data(), msg->data.length());
-        retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE + msg->data.length(), ip);
+        memcpy(&write_buf[UDP_HEADER_SIZE], msg->data, msg->length);
+        retval = ((UDPSocket*)sock)->writeTo(write_buf, UDP_HEADER_SIZE + msg->length, ip);
 	}
 
     if (retval < 0)
@@ -615,6 +620,7 @@ void Connection::set_hostid(int id)
     msg.type = Message::HOSTID;
     send_msg(&msg);
     hostid = id;
+    tb.delete_data();
 }
 
 int ServerConnection::acceptOne()
@@ -739,14 +745,14 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 	if (!sock)
 		return 0;
 #ifdef SHOWMSG
-	LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], msg->data.length());
+	LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], msg->length);
 #endif
 #ifdef CRAY
 	int tmp_buf[4];
 	tmp_buf[0] = sender_id;
 	tmp_buf[1] = send_type;
 	tmp_buf[2] = msg->type;
-	tmp_buf[3] = msg->data.length();
+	tmp_buf[3] = msg->length;
 #ifdef _CRAYT3E
 	converter.int_array_to_exch(tmp_buf, write_buf, 4);
 #else
@@ -758,26 +764,26 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 	write_buf_int[0] = sender_id;
 	write_buf_int[1] = send_type;
 	write_buf_int[2] = msg->type;
-	write_buf_int[3] = msg->data.length();
+	write_buf_int[3] = msg->length;
 	swap_bytes((unsigned int*)write_buf_int, 4);
 #endif
 
-	if (msg->data.length() == 0)
+	if (msg->length == 0)
 		retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT, address);
 	else
 	{
 #ifdef SHOWMSG
-		LOGINFO("msg->data.length(): %d", msg->data.length());
+		LOGINFO("msg->length: %d", msg->length);
 #endif
 		// Decide wether the message including the COVISE header
 		// fits into one packet
-		if (msg->data.length() < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
+		if (msg->length < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
 		{
 			// Write data to socket for data blocks smaller than the
 			// socket write-buffer reduced by the size of the COVISE
 			// header
-			memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data.data(), msg->data.length());
-			retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT + msg->data.length(), address);
+			memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data, msg->length);
+			retval = s->writeTo(write_buf, 4 * SIZEOF_IEEE_INT + msg->length, address);
 		}
 		else
 		{
@@ -785,7 +791,7 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 			// packet. Therefore it is transmitted in multiple pakets.
 
 			// Copy data block of size WRITE_BUFFER_SIZE to send buffer
-			memcpy(&write_buf[16], msg->data.data(), WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
+			memcpy(&write_buf[16], msg->data, WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
 #ifdef SHOWMSG
 			LOGINFO("write_buf: %d %d %d %d", write_buf_int[0], write_buf_int[1], write_buf_int[2], write_buf_int[3]);
 #endif
@@ -793,12 +799,12 @@ bool ServerUdpConnection::sendMessageTo(Message* msg, const char* address)
 			retval = s->writeTo(write_buf, WRITE_BUFFER_SIZE, address);
 #ifdef CRAY
 			tmp_bytes_written = (UDPSocket*)sock->writeTo(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
+				msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
 #else
 			// Send next packet with remaining data. Thnis code assumes that an overall
 			// message size does never exceed 2x WRITE_BUFFER_SIZE.
-			tmp_bytes_written = s->writeTo(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-				msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT), address);
+			tmp_bytes_written = s->writeTo(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
+				msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT), address);
 #endif
 			// Check if the socket was invalidated while transmitting multiple packets.
 			// Otherwise returned the summed-up amount of bytes as return value
@@ -890,7 +896,7 @@ int Connection::send_msg_fast(const Message *msg)
     header_int[0] = sender_id;
     header_int[1] = send_type;
     header_int[2] = msg->type;
-    header_int[3] = msg->data.length();
+    header_int[3] = msg->length;
 
     int ret = sock->write(header_int, 4 * SIZEOF_IEEE_INT);
     if (ret < 0)
@@ -900,15 +906,15 @@ int Connection::send_msg_fast(const Message *msg)
 
     bytes_written += ret;
 
-    while (offset < msg->data.length())
+    while (offset < msg->length)
     {
-        if (msg->data.length() - offset < WRITE_BUFFER_SIZE)
+        if (msg->length - offset < WRITE_BUFFER_SIZE)
         {
-            ret = sock->write((void *)&(msg->data.data()[offset]), msg->data.length() - offset);
+            ret = sock->write((void *)&(msg->data[offset]), msg->length - offset);
         }
         else
         {
-            ret = sock->write((void *)&(msg->data.data()[offset]), WRITE_BUFFER_SIZE);
+            ret = sock->write((void *)&(msg->data[offset]), WRITE_BUFFER_SIZE);
         }
         if (ret < 0)
         {
@@ -929,14 +935,14 @@ int Connection::send_msg(const Message *msg)
     if (!sock)
         return 0;
 #ifdef SHOWMSG
-    LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], data.length());
+    LOGINFO("send: s: %d st: %d mt: %s l: %d", sender_id, send_type, covise_msg_types_array[msg->type], msg->length);
 #endif
 #ifdef CRAY
     int tmp_buf[4];
     tmp_buf[0] = sender_id;
     tmp_buf[1] = send_type;
     tmp_buf[2] = msg->type;
-    tmp_buf[3] = msg->data.length();
+    tmp_buf[3] = msg->length;
 #ifdef _CRAYT3E
     converter.int_array_to_exch(tmp_buf, write_buf, 4);
 #else
@@ -948,26 +954,26 @@ int Connection::send_msg(const Message *msg)
     write_buf_int[0] = sender_id;
     write_buf_int[1] = send_type;
     write_buf_int[2] = msg->type;
-    write_buf_int[3] = msg->data.length();
+    write_buf_int[3] = msg->length;
     swap_bytes((unsigned int *)write_buf_int, 4);
 #endif
 
-    if (msg->data.length() == 0)
+    if (msg->length == 0)
         retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT);
     else
     {
 #ifdef SHOWMSG
-        LOGINFO("data.length(): %d", msg->data.length());
+        LOGINFO("msg->length: %d", msg->length);
 #endif
         // Decide wether the message including the COVISE header
         // fits into one packet
-        if (msg->data.length() < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
+        if (msg->length < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
         {
             // Write data to socket for data blocks smaller than the
             // socket write-buffer reduced by the size of the COVISE
             // header
-            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data.data(), msg->data.length());
-            retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT + msg->data.length());
+            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data, msg->length);
+            retval = sock->write(write_buf, 4 * SIZEOF_IEEE_INT + msg->length);
         }
         else
         {
@@ -975,7 +981,7 @@ int Connection::send_msg(const Message *msg)
             // packet. Therefore it is transmitted in multiple pakets.
 
             // Copy data block of size WRITE_BUFFER_SIZE to send buffer
-            memcpy(&write_buf[16], msg->data.data(), WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
+            memcpy(&write_buf[16], msg->data, WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT);
 #ifdef SHOWMSG
             LOGINFO("write_buf: %d %d %d %d", write_buf_int[0], write_buf_int[1], write_buf_int[2], write_buf_int[3]);
 #endif
@@ -983,12 +989,12 @@ int Connection::send_msg(const Message *msg)
             retval = sock->write(write_buf, WRITE_BUFFER_SIZE);
 #ifdef CRAY
             tmp_bytes_written = sock->writea(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-                                             msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
+                                             msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
 #else
             // Send next packet with remaining data. Thnis code assumes that an overall
             // message size does never exceed 2x WRITE_BUFFER_SIZE.
-            tmp_bytes_written = sock->write(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-                                            msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
+            tmp_bytes_written = sock->write(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
+                                            msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
 #endif
             // Check if the socket was invalidated while transmitting multiple packets.
             // Otherwise returned the summed-up amount of bytes as return value
@@ -1009,7 +1015,7 @@ int Connection::recv_msg_fast(Message *msg)
     int read_bytes = 0;
 
     //Store size of existing buffer in Message
-    int existing_buffer_len = msg->data.length();
+    int existing_buffer_len = msg->length;
 
     //Read header
     read_bytes = sock->read(header_int, 4 * SIZEOF_IEEE_INT);
@@ -1023,24 +1029,26 @@ int Connection::recv_msg_fast(Message *msg)
     //send_type = header_int[1];
 
     msg->type = header_int[2];
+    msg->length = header_int[3];
+
     //Extend buffer if necessary, which is costly
-    if (existing_buffer_len < header_int[3])
+    if (existing_buffer_len < msg->length)
     {
         //Realloc
-
-        msg->data = DataHandle(header_int[3]);
+        delete[] msg -> data;
+        msg->data = new char[msg->length];
     }
 
     //Now read data in 64K blocks
-    char *buffer = msg->data.accessData();
+    char *buffer = msg->data;
     int ret = 0;
     int read_msg_bytes = 0;
 
-    while (read_msg_bytes < msg->data.length())
+    while (read_msg_bytes < msg->length)
     {
-        if (msg->data.length() - read_msg_bytes < READ_BUFFER_SIZE)
+        if (msg->length - read_msg_bytes < READ_BUFFER_SIZE)
         {
-            ret = sock->read(buffer, msg->data.length() - read_msg_bytes);
+            ret = sock->read(buffer, msg->length - read_msg_bytes);
         }
         else
         {
@@ -1072,8 +1080,7 @@ int Connection::recv_msg(Message *msg, char* ip)
     int tmp_buf[4];
 #endif
 
-    msg->sender = 0;
-    msg->data.setLength(0);
+    msg->sender = msg->length = 0;
     msg->send_type = Message::UNDEFINED;
     msg->type = Message::EMPTY;
     msg->conn = this;
@@ -1155,7 +1162,7 @@ int Connection::recv_msg(Message *msg, char* ip)
         msg->sender = tmp_buf[0];
         msg->send_type = int(tmp_buf[1]);
         msg->type = covise_msg_type(tmp_buf[2]);
-        msg->data.setLength(tmp_buf[3]);
+        msg->length = tmp_buf[3];
 #else
 #ifdef BYTESWAP
         swap_bytes((unsigned int *)int_read_buf, 4);
@@ -1163,9 +1170,9 @@ int Connection::recv_msg(Message *msg, char* ip)
         msg->sender = int_read_buf[0];
         msg->send_type = int(int_read_buf[1]);
         msg->type = int_read_buf[2];
-        msg->data.setLength(int_read_buf[3]);
+        msg->length = int_read_buf[3];
 //	sprintf(retstr, "msg header: sender %d, sender_type %d, covise_msg_type %d, length %d",
-//	        msg->sender, msg->send_type, msg->type, msg->data.length());
+//	        msg->sender, msg->send_type, msg->type, msg->length);
 //	        LOGINFO( retstr);
 #endif
 
@@ -1173,32 +1180,37 @@ int Connection::recv_msg(Message *msg, char* ip)
         sprintf(tmp_str, "recv: s: %d st: %d mt: %s l: %d",
                 msg->sender, msg->send_type,
                 (msg->type < 0 || msg->type > COVISE_MESSAGE_LAST_DUMMY_MESSAGE) ? (msg->type == -1 ? "EMPTY" : "(invalid)") : covise_msg_types_array[msg->type],
-                msg->data.length());
+                msg->length);
         LOGINFO(tmp_str);
 #endif
 
         bytes_to_process -= 4 * SIZEOF_IEEE_INT;
 #ifdef SHOWMSG
-        LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
+        LOGINFO("bytes_to_process %d bytes, msg->length %d", bytes_to_process, msg->length);
 #endif
         read_buf_ptr += 4 * SIZEOF_IEEE_INT;
-        if (msg->data.length() > 0) // if msg->data.length() == 0, no data will be received
+        if (msg->length > 0) // if msg->length == 0, no data will be received
         {
+            if (msg->data)
+            {
+                delete[] msg -> data;
+                msg->data = NULL;
+            }
             // bring message data space to 16 byte alignment
-            data_length = msg->data.length() + ((msg->data.length() % 16 != 0) * (16 - msg->data.length() % 16));
-            msg->data = DataHandle(new char[data_length], msg->data.length());
-            if (msg->data.length() > bytes_to_process)
+            data_length = msg->length + ((msg->length % 16 != 0) * (16 - msg->length % 16));
+            msg->data = new char[data_length];
+            if (msg->length > bytes_to_process)
             {
                 bytes_read = bytes_to_process;
 #ifdef SHOWMSG
-                LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
+                LOGINFO("bytes_to_process %d bytes, msg->length %d", bytes_to_process, msg->length);
 #endif
                 if (bytes_read != 0)
-                    memcpy(msg->data.accessData(), read_buf_ptr, bytes_read);
+                    memcpy(msg->data, read_buf_ptr, bytes_read);
                 bytes_to_process = 0;
-                bytes_to_read = msg->data.length() - bytes_read;
-                read_data = &msg->data.accessData()[bytes_read];
-                while (bytes_read < msg->data.length())
+                bytes_to_read = msg->length - bytes_read;
+                read_data = &msg->data[bytes_read];
+                while (bytes_read < msg->length)
                 {
 
 #ifdef SHOWMSG
@@ -1209,7 +1221,8 @@ int Connection::recv_msg(Message *msg, char* ip)
                     tmp_read = sock->Read(read_data, bytes_to_read);
                     if (tmp_read < 0)
                     {
-                        msg->data = DataHandle();
+                        delete[] msg -> data;
+                        msg->data = NULL;
                         return 0;
                     }
                     else
@@ -1217,35 +1230,36 @@ int Connection::recv_msg(Message *msg, char* ip)
                         // covise_time->mark(__LINE__, "nach weiterem sock->read(read_buf)");
                         bytes_read += tmp_read;
                         bytes_to_read -= tmp_read;
-                        read_data = &msg->data.accessData()[bytes_read];
+                        read_data = &msg->data[bytes_read];
                     }
                 }
 #ifdef SHOWMSG
                 LOGINFO("message_to_do = 0");
 #endif
                 //	        covise_time->mark(__LINE__, "    recv_msg: Ende");
-                return msg->data.length();
+                return msg->length;
             }
-            else if (msg->data.length() < bytes_to_process)
+            else if (msg->length < bytes_to_process)
             {
-                memcpy(msg->data.accessData(), read_buf_ptr, msg->data.length());
-                bytes_to_process -= msg->data.length();
-                read_buf_ptr += msg->data.length();
+                memcpy(msg->data, read_buf_ptr, msg->length);
+                bytes_to_process -= msg->length;
+                read_buf_ptr += msg->length;
 #ifdef SHOWMSG
-                LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
+                LOGINFO("bytes_to_process %d bytes, msg->length %d", bytes_to_process, msg->length);
 #endif
                 memmove(read_buf, read_buf_ptr, bytes_to_process);
                 read_buf_ptr = read_buf;
                 while (bytes_to_process < 16)
                 {
 #ifdef SHOWMSG
-                    LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
+                    LOGINFO("bytes_to_process %d bytes, msg->length %d", bytes_to_process, msg->length);
 #endif
                     tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
                                           READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
-                        msg->data = DataHandle();
+                        delete[] msg -> data;
+                        msg->data = NULL;
                         return 0;
                     }
                     bytes_to_process += tmp_read;
@@ -1255,40 +1269,42 @@ int Connection::recv_msg(Message *msg, char* ip)
                 LOGINFO("message_to_do = 1");
 #endif
                 //	        covise_time->mark(__LINE__, "    recv_msg: Ende");
-                return msg->data.length();
+                return msg->length;
             }
             else
             {
-                memcpy(msg->data.accessData(), read_buf_ptr, bytes_to_process);
+                memcpy(msg->data, read_buf_ptr, bytes_to_process);
                 bytes_to_process = 0;
 #ifdef SHOWMSG
                 LOGINFO("message_to_do = 0");
 #endif
                 //	            covise_time->mark(__LINE__, "    recv_msg: Ende");
-                return msg->data.length();
+                return msg->length;
             }
         }
 
-        else //msg->data.length() == 0, no data will be received
+        else //msg->length == 0, no data will be received
         {
-            if (msg->data.data())
+            if (msg->data)
             {
-                msg->data = DataHandle(nullptr, msg->data.length());
+                delete[] msg -> data;
+                msg->data = NULL;
             }
-            if (msg->data.length() < bytes_to_process)
+            if (msg->length < bytes_to_process)
             {
                 memmove(read_buf, read_buf_ptr, bytes_to_process);
                 read_buf_ptr = read_buf;
                 while (bytes_to_process < 16)
                 {
 #ifdef SHOWMSG
-                    LOGINFO("bytes_to_process %d bytes, msg->data.length() %d", bytes_to_process, msg->data.length());
+                    LOGINFO("bytes_to_process %d bytes, msg->length %d", bytes_to_process, msg->length);
 #endif
                     tmp_read = sock->Read(&read_buf_ptr[bytes_to_process],
                                           READ_BUFFER_SIZE - bytes_to_process);
                     if (tmp_read < 0)
                     {
-                        msg->data = DataHandle(nullptr, msg->data.length());
+                        delete[] msg -> data;
+                        msg->data = NULL;
                         return 0;
                     }
                     bytes_to_process += tmp_read;
@@ -1685,8 +1701,7 @@ int SSLConnection::recv_msg(Message *msg)
     int bytes_read = 0;
 
     //Init block
-    msg->sender = 0;
-    msg->data.setLength(0);
+    msg->sender = msg->length = 0;
     msg->send_type = Message::UNDEFINED;
     msg->type = Message::EMPTY;
     msg->conn = this;
@@ -1761,12 +1776,12 @@ int SSLConnection::send_msg(const Message *msg)
     write_buf_int[0] = sender_id;
     write_buf_int[1] = send_type;
     write_buf_int[2] = msg->type;
-    write_buf_int[3] = msg->data.length();
+    write_buf_int[3] = msg->length;
     swap_bytes((unsigned int *)write_buf_int, 4);
 
     SSLSocket *locSocket = dynamic_cast<SSLSocket *>(sock);
 
-    if (msg->data.length() == 0)
+    if (msg->length == 0)
     {
         //Zero length message, just write message header data to socket
         retval = locSocket->write(write_buf, 4 * SIZEOF_IEEE_INT);
@@ -1774,22 +1789,22 @@ int SSLConnection::send_msg(const Message *msg)
     else
     {
         //Data message write header and data to socket
-        if (msg->data.length() < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
+        if (msg->length < WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT)
         {
             // Handle case where data buffer fits in the given data buffer
             // of the socket.
-            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data.data(), msg->data.length());
-            retval = locSocket->write(write_buf, 4 * SIZEOF_IEEE_INT + msg->data.length());
+            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data, msg->length);
+            retval = locSocket->write(write_buf, 4 * SIZEOF_IEEE_INT + msg->length);
         }
         else
         {
             // Handle case where data buffer doesn't fit
             // in the given data buffer of the socket.
             // The buffer has to be split up in several write attempts
-            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data.data(), msg->data.length());
+            memcpy(&write_buf[4 * SIZEOF_IEEE_INT], msg->data, msg->length);
             retval = locSocket->write(write_buf, WRITE_BUFFER_SIZE);
-            tmp_bytes_written = locSocket->write(&msg->data.data()[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
-                                                 msg->data.length() - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
+            tmp_bytes_written = locSocket->write(&msg->data[WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT],
+                                                 msg->length - (WRITE_BUFFER_SIZE - 4 * SIZEOF_IEEE_INT));
             if (tmp_bytes_written == COVISE_SOCKET_INVALID)
             {
                 // Error or nothing left to write anymore

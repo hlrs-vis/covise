@@ -142,8 +142,15 @@ int InvCommunicator::getCurrentPK()
 //==========================================================================
 void InvCommunicator::sendMSG(QString message)
 {
-    Message msg{ COVISE_MESSAGE_RENDER , DataHandle{message.toLatin1().data() ,  message.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+    Message *msg = new Message;
+
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = message.length() + 1;
+    msg->data = (char *)((const char *)(message.toLatin1()));
+    renderer->appmod->send_ctl_msg(msg);
+    msg->data = NULL;
+
+    delete msg;
 }
 
 //==========================================================================
@@ -248,24 +255,40 @@ void InvCommunicator::sendSelectionMessage(QString message)
 
 void InvCommunicator::sendCSFeedback(const char *key, QString message)
 {
+
+    Message *msg = new Message;
     QString dataBuf(key);
     dataBuf += "\n";
     dataBuf += message;
     dataBuf += "\n";
 
-    Message msg{ COVISE_MESSAGE_UI , DataHandle{dataBuf.toLatin1().data(),  dataBuf.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+    msg->type = COVISE_MESSAGE_UI;
+    msg->length = dataBuf.size() + 1;
+    msg->data = (char *)((const char *)dataBuf.toLatin1());
+
+    renderer->appmod->send_ctl_msg(msg);
+
+    msg->data = NULL;
+    delete msg;
 }
 
 void InvCommunicator::sendAnnotation(const char *key, QString message)
 {
+
+    Message *msg = new Message;
     QString dataBuf(key);
     dataBuf += "\n";
     dataBuf += message;
     dataBuf += "\n";
 
-    Message msg{ COVISE_MESSAGE_RENDER , DataHandle{dataBuf.toLatin1().data(), dataBuf.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+    msg->type = COVISE_MESSAGE_RENDER;
+    msg->length = dataBuf.size() + 1;
+    msg->data = (char *)((const char *)(dataBuf.toLatin1()));
+
+    renderer->appmod->send_ctl_msg(msg);
+
+    msg->data = NULL;
+    delete msg;
 }
 
 //==========================================================================
@@ -450,13 +473,19 @@ void InvCommunicator::sendSequencerMessage(QString message)
 //==========================================================================
 void InvCommunicator::sendQuitMessage()
 {
-
+    Message *msg = new Message;
 
     buffer = "";
     buffer.append("\n");
-    Message msg{ COVISE_MESSAGE_QUIT , DataHandle{buffer.toLatin1().data(), buffer.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+
+    msg->type = COVISE_MESSAGE_QUIT;
+    msg->length = buffer.length() + 1;
+    msg->data = (char *)((const char *)(buffer.toLatin1()));
+    renderer->appmod->send_ctl_msg(msg);
     print_comment(__LINE__, __FILE__, "sended quit message");
+    msg->data = NULL;
+
+    delete msg;
 }
 
 //==========================================================================
@@ -465,15 +494,20 @@ void InvCommunicator::sendQuitMessage()
 void InvCommunicator::sendQuitRequestMessage()
 {
     QStringList list;
+    Message *msg = new Message;
 
     list << m_name << inst_no << h_name << "QUIT";
     buffer = list.join("\n");
 
-    Message msg{ COVISE_MESSAGE_REQ_UI , DataHandle{buffer.toLatin1().data(), buffer.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+    msg->type = COVISE_MESSAGE_REQ_UI;
+    msg->length = buffer.length() + 1;
+    msg->data = (char *)((const char *)(buffer.toLatin1()));
+    renderer->appmod->send_ctl_msg(msg);
+    msg->data = NULL;
 
     print_comment(__LINE__, __FILE__, "sended quit message");
 
+    delete msg;
     list.clear();
 }
 
@@ -482,11 +516,19 @@ void InvCommunicator::sendQuitRequestMessage()
 //==========================================================================
 void InvCommunicator::sendFinishMessage()
 {
+    Message *msg = new Message;
+
     buffer = "";
     buffer.append("\n");
 
-    Message msg{ COVISE_MESSAGE_FINISHED , DataHandle{buffer.toLatin1().data() ,  buffer.length() + 1, false} };
-    renderer->appmod->send_ctl_msg(&msg);
+    msg->type = COVISE_MESSAGE_FINISHED;
+    msg->length = buffer.length() + 1;
+    msg->data = (char *)((const char *)(buffer.toLatin1()));
+    renderer->appmod->send_ctl_msg(msg);
+    print_comment(__LINE__, __FILE__, "sended quit message");
+    msg->data = NULL;
+
+    delete msg;
 }
 
 //==========================================================================

@@ -820,6 +820,7 @@ Message *Process::wait_for_msg()
         //break;
         case COVISE_MESSAGE_NEW_SDS:
             handle_shm_msg(msg);
+            delete[] msg -> data;
             delete msg;
             return wait_for_msg();
         //break;
@@ -891,6 +892,7 @@ Message *Process::check_for_msg(float time)
             //break;
             case COVISE_MESSAGE_NEW_SDS:
                 handle_shm_msg(msg);
+                delete[] msg -> data;
                 delete msg;
                 return check_for_msg(time);
             //break;
@@ -921,6 +923,7 @@ Message *Process::wait_for_msg(int covise_msg_type, Connection *conn = 0)
         {
         case COVISE_MESSAGE_NEW_SDS:
             handle_shm_msg(msg);
+            delete[] msg -> data;
             delete msg;
             break;
         case COVISE_MESSAGE_CLOSE_SOCKET:
@@ -977,6 +980,7 @@ Message *Process::wait_for_msg(int *covise_msg_type, int no,
         {
         case COVISE_MESSAGE_NEW_SDS:
             handle_shm_msg(msg);
+            delete[] msg -> data;
             delete msg;
             break;
         case COVISE_MESSAGE_CLOSE_SOCKET:

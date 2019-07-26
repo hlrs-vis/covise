@@ -127,9 +127,10 @@ void Covise::generic(Message *applMsg)
     // key2: hier UIFINFO (APPINFO und INIT kommen nicht im Module vor
     // name,nr,host: beim ersten Mal speichern !
 
-    tmp = new char[strlen(applMsg->data.data()) + 1];
-    strcpy(tmp, applMsg->data.data());
+    tmp = new char[strlen(applMsg->data) + 1];
+    strcpy(tmp, applMsg->data);
     parseMessage(tmp, &token[0], MAXTOKENS, sep); /*ntok =*/
+
     // check modkey-Variable
     if (modkey == NULL)
     {
@@ -139,8 +140,8 @@ void Covise::generic(Message *applMsg)
 
     if (strcmp(token[5], "SYNC") == 0)
     {
-        tmp = new char[strlen(applMsg->data.data()) + 1];
-        strcpy(tmp, applMsg->data.data());
+        tmp = new char[strlen(applMsg->data) + 1];
+        strcpy(tmp, applMsg->data);
 
         for (int k = 0; k <= 5; k++)
         {
@@ -168,8 +169,8 @@ void Covise::generic(Message *applMsg)
     else
     {
 
-        tmp = new char[strlen(applMsg->data.data()) + 1];
-        strcpy(tmp, applMsg->data.data());
+        tmp = new char[strlen(applMsg->data) + 1];
+        strcpy(tmp, applMsg->data);
 
         for (int k = 0; k <= 4; k++)
         {
@@ -576,11 +577,15 @@ void Covise::init(int argc, char *argv[])
 // initialize time for time measurements
 //    open_timing();
 #endif
+    Message *message = new Message();
 
-    char* d = get_description_message();
-    Message message{ COVISE_MESSAGE_PARINFO, DataHandle(d, strlen(d) + 1) }; // should be a real type
+    message->data = get_description_message();
+    message->type = COVISE_MESSAGE_PARINFO; // should be a real type
+    message->length = (int)strlen(message->data) + 1;
 
-    appmod->send_ctl_msg(&message);
+    appmod->send_ctl_msg(message);
+    delete[] message -> data;
+    delete message;
 }
 
 //=====================================================================
@@ -602,9 +607,13 @@ void Covise::send_stop_pipeline()
         strcat(msgdata, "\n");
         strcat(msgdata, h_name);
 
-        Message message{ COVISE_MESSAGE_COVISE_STOP_PIPELINE , DataHandle(msgdata, strlen(msgdata) + 1)};
-        appmod->send_ctl_msg(&message);
+        Message message;
+        message.type = COVISE_MESSAGE_COVISE_STOP_PIPELINE;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
+        appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
@@ -615,12 +624,15 @@ void Covise::send_stop_pipeline()
 //=====================================================================
 //
 //=====================================================================
-int Covise::send_ctl_message(covise_msg_type type, char *string)
+int Covise::send_ctl_message(covise_msg_type type, const char *string)
 {
     if ((m_name != NULL) && (h_name != NULL) && (instance != NULL) && (appmod != NULL))
     {
         //cerr << "MODULE SENDING MESSAGE TO CONTROLLER : " << message->data << endl;
-        Message message{ type, DataHandle(string, strlen(string) + 1) };
+        Message message;
+        message.type = type;
+        message.data = const_cast<char *>(string);
+        message.length = (int)strlen(message.data) + 1;
         appmod->send_ctl_msg(&message);
         return 1;
     }
@@ -661,9 +673,13 @@ int Covise::send_generic_message(const char *keyword, const char *string)
 
         //cerr << "MODULE SENDING MESSAGE TO CONTROLLER : " << message->data << endl;
 
-        Message message{ COVISE_MESSAGE_GENERIC , DataHandle(msgdata , strlen(msgdata ) + 1)};
+        Message message;
+        message.type = COVISE_MESSAGE_GENERIC;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -711,8 +727,13 @@ int Covise::send_genericinit_message(const char *mkey, const char *keyword, cons
 
         //cerr << "MODULE SENDING MESSAGE TO CONTROLLER : " << message->data << endl;
 
-        Message message{ COVISE_MESSAGE_GENERIC , DataHandle(msgdata , strlen(msgdata) + 1 )};
+        Message message;
+        message.type = COVISE_MESSAGE_GENERIC;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
+
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -747,8 +768,13 @@ void Covise::cancel_param(const char *name)
         strcat(msgdata, "\n");
         strcat(msgdata, name);
 
-        Message message{ COVISE_MESSAGE_REQ_UI , DataHandle(msgdata , strlen(msgdata) + 1) };
+        Message message;
+        message.type = COVISE_MESSAGE_REQ_UI;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
+
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send show_param message without instance/init before");
@@ -779,8 +805,13 @@ void Covise::reopen_param(const char *name)
         strcat(msgdata, "\n");
         strcat(msgdata, name);
 
-        Message message{ COVISE_MESSAGE_REQ_UI , DataHandle(msgdata , strlen(msgdata) + 1) };
+        Message message;
+        message.type = COVISE_MESSAGE_REQ_UI;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
+
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send show_param message without instance/init before");
@@ -856,6 +887,7 @@ void Covise::main_loop()
             doCustom(applMsg);
             break;
         }
+        applMsg->delete_data();
         appmod->delete_msg(applMsg);
     }
 }
@@ -931,6 +963,7 @@ void Covise::progress_main_loop()
                 doCustom(applMsg);
                 break;
             }
+            applMsg->delete_data();
             appmod->delete_msg(applMsg);
         }
     }
@@ -999,6 +1032,7 @@ void Covise::do_one_event()
         doCustom(applMsg);
         break;
     }
+    applMsg->delete_data();
     appmod->delete_msg(applMsg);
 }
 
@@ -1076,7 +1110,7 @@ int Covise::check_and_handle_event(float time)
         {
             //	  cerr << "Covise::check_and_handle_event() : ADD_OBJECT" << endl;
 
-            parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
+            parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
 
             objNameToAdd_ = token[0];
             objNameToDelete_ = NULL;
@@ -1089,7 +1123,7 @@ int Covise::check_and_handle_event(float time)
         {
             //	  cerr << "Covise::check_and_handle_event() : DELETE_OBJECT" << endl;
 
-            parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
+            parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
 
             objNameToAdd_ = NULL;
             objNameToDelete_ = token[0];
@@ -1103,7 +1137,7 @@ int Covise::check_and_handle_event(float time)
         {
             //	  cerr << "Covise::check_and_handle_event() : REPLACE_OBJECT" << endl;
 
-            parseMessage(applMsg->data.accessData(), &token[0], MAXTOKENS, sep);
+            parseMessage(applMsg->data, &token[0], MAXTOKENS, sep);
 
             objNameToAdd_ = token[1];
             objNameToDelete_ = token[0];
@@ -1129,6 +1163,7 @@ int Covise::check_and_handle_event(float time)
             doCustom(applMsg);
             break;
         }
+        applMsg->delete_data();
         appmod->delete_msg(applMsg);
         return 1;
     } // if
@@ -1206,6 +1241,7 @@ void Covise::ReceiveOneMsg()
         doCustom(applMsg);
         break;
     }
+    applMsg->delete_data();
     appmod->delete_msg(applMsg);
 }
 
@@ -1277,9 +1313,9 @@ void Covise::callFeedbackCallback(Message *msg)
 {
     if (!msg)
         return;
-    int sLen = (int)strlen(msg->data.data()) + 1;
+    int sLen = (int)strlen(msg->data) + 1;
     if (feedbackCallbackFunc)
-        (*feedbackCallbackFunc)(feedbackUserData, msg->data.length() - sLen, msg->data.data() + sLen);
+        (*feedbackCallbackFunc)(feedbackUserData, msg->length - sLen, msg->data + sLen);
 }
 
 //=====================================================================
@@ -1521,6 +1557,7 @@ void Covise::doStart(Message *m)
 
     appmod->send_ctl_msg((Message *)msg);
 
+    msg->delete_data();
     delete msg;
 
     // call back the after finish function provided by the user
@@ -1552,13 +1589,18 @@ Covise::sendFinishedMsg()
     if (appmod != NULL)
     {
 
+        Message *msg = new Message;
         const char *key = "";
         strcpy(buf, key);
         strcat(buf, "\n");
-        Message message{ COVISE_MESSAGE_FINISHED, DataHandle(buf, strlen(buf) + 1) };
+        msg->type = COVISE_MESSAGE_FINISHED;
+        msg->length = (int)strlen(buf) + 1;
+        msg->data = buf;
 
-        appmod->send_ctl_msg(&message);
+        appmod->send_ctl_msg(msg);
         // print_comment( __LINE__ , __FILE__ , "sended finished message" );
+        msg->data = 0L;
+        delete msg;
     }
 }
 
@@ -1613,6 +1655,7 @@ void Covise::sendFinishedMsg(void *Msg)
 
         appmod->send_ctl_msg((Message *)msg);
 
+        delete[] msg -> data;
         delete msg;
 
         // cerr << "[" << counter << "] CtlMessage has been deleted ############# " << endl;
@@ -1679,8 +1722,8 @@ void Covise::doPortReply(Message *m)
         reply_buffer = NULL;
     }
 
-    datacopy = new char[strlen(m->data.data()) + 1];
-    strcpy(datacopy, m->data.data());
+    datacopy = new char[strlen(m->data) + 1];
+    strcpy(datacopy, m->data);
 
     char *p = datacopy;
     reply_port_name = strsep(&p, "\n");
@@ -1783,17 +1826,22 @@ void Covise::doParam(Message *m)
         reply_buffer = NULL;
     }
     //cerr << " do Param " << endl  << m->data << endl;
-    char *buf = new char[strlen(m->data.data()) + 1];
+    char *buf = new char[strlen(m->data) + 1];
     char *p = buf;
-    strcpy(p, m->data.data());
+    strcpy(p, m->data);
 
     reply_keyword = strsep(&p, "\n");
     if (strcmp(reply_keyword, "GETDESC") == 0)
     {
-        char * d = get_description_message();
-        Message message{ COVISE_MESSAGE_PARINFO , DataHandle(d, strlen(d) + 1)}; // should be a real type
+        Message *message = new Message();
 
-        appmod->send_ctl_msg(&message);
+        message->data = get_description_message();
+        message->type = COVISE_MESSAGE_PARINFO; // should be a real type
+        message->length = (int)strlen(message->data) + 1;
+
+        appmod->send_ctl_msg(message);
+        delete[] message->data;
+        delete message;
     }
     else if ((strcmp(reply_keyword, "INEXEC") != 0) && (strcmp(reply_keyword, "FINISHED") != 0))
     {

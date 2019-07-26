@@ -17,29 +17,16 @@ namespace covise
 class NETEXPORT DataHandle
 {
 public:
-	DataHandle();
-    virtual ~DataHandle();
-	explicit DataHandle(char* data, const size_t length, bool doDelete = true);
-    explicit DataHandle(char* data, const int length, bool doDelete = true);
-    DataHandle(size_t size);
+    DataHandle();
+    DataHandle(char* data, const int length);
+
 	const char* data() const;
+    int length() const;
 
-    char* accessData();
+private:
 
-	const int length() const;
-    //pointer to the last char
-    const char* end() const;
-    char* end();
-    void setLength(const int l);
-    void incLength(const int inc);
-    void movePtr(int amount);
-protected:
-    //char* m_dataSection = nullptr;
-	std::shared_ptr<char> m_ManagedData;
-    char* m_dataPtr = nullptr;
-    int m_length = 0;
-    //check that m_dataPtr points in the the managed memory
-    void checkPtr() const;
+	std::shared_ptr<const char> m_data;
+	int m_length = 0;
 };
 }
 #endif // !DATA_HANDLE_H

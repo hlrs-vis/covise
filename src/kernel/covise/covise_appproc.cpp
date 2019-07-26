@@ -81,7 +81,7 @@ void ApplicationProcess::recv_data_msg(Message *msg)
 void ApplicationProcess::exch_data_msg(Message *msg, int count...)
 {
     va_list ap;
-
+    Message *list_msg;
 #ifdef DEBUG
     char tmp_str[255];
 #endif
@@ -122,8 +122,9 @@ void ApplicationProcess::exch_data_msg(Message *msg, int count...)
             }
             else
             {
-                Message *list_msg = new Message;
-                list_msg->copyAndReuseData(*msg);
+                list_msg = new Message(*msg);
+                delete[] msg -> data;
+                msg->data = NULL;
                 msg_queue->add(list_msg);
 #ifdef DEBUG
                 sprintf(tmp_str, "msg %s added to queue", covise_msg_types_array[msg->type]);
@@ -145,14 +146,16 @@ void ApplicationProcess::contact_datamanager(int p)
     datamanager = new DataManagerConnection(p, id, send_type);
     //    print_comment(__LINE__, __FILE__, "nach new Connection");
     list_of_connections->add(datamanager);
-    msg = new Message{ COVISE_MESSAGE_GET_SHM_KEY, DataHandle{} };
+    msg = new Message(COVISE_MESSAGE_GET_SHM_KEY, len, (char *)0L);
     exch_data_msg(msg, 1, COVISE_MESSAGE_GET_SHM_KEY);
-    if (msg->type != COVISE_MESSAGE_GET_SHM_KEY || msg->data.data() == nullptr)
+    if (msg->type != COVISE_MESSAGE_GET_SHM_KEY || msg->data==NULL)
     {
         cerr << "didn't get GET_SHM_KEY\n";
         print_exit(__LINE__, __FILE__, 1);
     }
-    shm = new ShmAccess(msg->data.accessData());
+    shm = new ShmAccess(msg->data);
+    delete[] msg -> data;
+    msg->data = 0L;
     delete msg;
 }
 
@@ -213,7 +216,8 @@ Message *ApplicationProcess::wait_for_ctl_msg()
         {
             print_comment(__LINE__, __FILE__, "process_msg_from_dmgr");
             process_msg_from_dmgr(msg);
-             msg->data = DataHandle();
+            delete[] msg -> data;
+            msg->data = 0;
             delete msg;
         }
         else
@@ -273,7 +277,8 @@ Message *ApplicationProcess::check_for_ctl_msg(float time)
         print_comment(__LINE__, __FILE__, "msg->type %d received", msg->type);
         print_comment(__LINE__, __FILE__, "process_msg_from_dmgr");
         process_msg_from_dmgr(msg);
-        msg->data = DataHandle();
+        delete[] msg -> data;
+        msg->data = 0;
         delete msg;
         print_comment(__LINE__, __FILE__, "recheck for msg");
         msg = check_for_msg(time);
@@ -380,25 +385,28 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
     if (msg->type == COVISE_MESSAGE_APP_CONTACT_DM)
     {
         //	cerr << "contact DM at port " << *(int *)msg->data << "\n";
-        uport = *(int *)msg->data.data();
+        uport = *(int *)msg->data;
         swap_byte(uport);
         //	cerr << "swapped port: " << uport << endl;
         contact_datamanager((int)uport);
         msg->type = COVISE_MESSAGE_SEND_APPL_PROCID;
+        delete[] msg -> data;
         pid = getpid();
-        msg->data = DataHandle{ (char*)& pid, sizeof(pid_t), false };
+        msg->data = (char *)&pid;
 #ifdef DEBUG
         sprintf(tmp_str, "SEND_APPL_PROCID: %d", *(pid_t *)msg->data);
         print_comment(__LINE__, __FILE__, tmp_str);
         sprintf(tmp_str, "pid: %d", pid);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
+        msg->length = sizeof(pid_t);
         if (datamanager->send_msg(msg) == COVISE_SOCKET_INVALID)
         {
             list_of_connections->remove(datamanager);
             print_error(__LINE__, __FILE__,
                         "datamaner socket invalid in new ApplicationProcess");
         }
+        msg->data = 0L;
         //cerr << "contact succeeded\n";
     }
     else
@@ -408,6 +416,8 @@ ApplicationProcess::ApplicationProcess(const char *n, int argc, char *argv[],
         cerr << "Please, change it to shm." << endl;
         print_exit(__LINE__, __FILE__, 1);
     }
+    delete[] msg -> data;
+    msg->data = 0L;
     delete msg;
 #else
     int key = 1;
@@ -439,8 +449,8 @@ void ApplicationProcess::handle_shm_msg(Message *msg)
 {
     int tmpkey, size;
 
-    tmpkey = ((int *)msg->data.data())[0];
-    size = ((int *)msg->data.data())[1];
+    tmpkey = ((int *)msg->data)[0];
+    size = ((int *)msg->data)[1];
     shm->add_new_segment(tmpkey, size);
     //cerr << "new SharedMemory" << endl;
     print_comment(__LINE__, __FILE__, "new SharedMemory");

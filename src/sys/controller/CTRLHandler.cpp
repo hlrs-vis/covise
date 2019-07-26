@@ -179,8 +179,9 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
     m_autosavefile = file.toStdString();
 
     m_dummyMessage.type = COVISE_MESSAGE_LAST_DUMMY_MESSAGE; //  initialize dummy message
-    m_dummyMessage.data = DataHandle(2);
-    memcpy(m_dummyMessage.data.accessData(), " ", 2);
+    m_dummyMessage.data = (char *)" ";
+    m_dummyMessage.length = 2;
+
     m_SSLDaemonPort = 0;
     m_SSLClient = NULL;
 
@@ -243,14 +244,15 @@ CTRLHandler::CTRLHandler(int argc, char *argv[])
             {
                 //  set timeout to 500 seconds
                 char partner_host[128], partner_name[128];
-                DataHandle partner_msg(400);
+                char partner_msg[400];
                 input.getline(partner_host, 128);
                 input.getline(partner_name, 128);
 
-                sprintf(partner_msg.accessData(), "ADDPARTNER\n%s\n%s\nNONE\n%d\n500\n \n",
+                sprintf(partner_msg, "ADDPARTNER\n%s\n%s\nNONE\n%d\n500\n \n",
                         partner_host, partner_name, m_startScript ? COVISE_SCRIPT : COVISE_MANUAL);
-                partner_msg.setLength(strlen(partner_msg.data()) + 1);
+
                 msg->data = partner_msg;
+                msg->length = (int)strlen(msg->data) + 1;
                 msg->type = COVISE_MESSAGE_UI;
                 startMainLoop = false;
             }
@@ -291,8 +293,8 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
     string copyMessageData;
 
     //  copy message to a secure place
-    if (msg->data.length() > 0)
-        copyMessageData = msg->data.data();
+    if (msg->length > 0)
+        copyMessageData = msg->data;
 
     //  Switch across message types
 
@@ -343,7 +345,7 @@ void CTRLHandler::handleAndDeleteMsg(Message *msg)
                 if (m_quitAfterExececute)
                 {
                     m_quitNow = 1;
-                    msg->data.setLength(0);
+                    msg->length = 0;
                     copyMessageData.clear();
                 }
 
@@ -689,8 +691,13 @@ void CTRLHandler::handleClosedMsg(Message *msg)
             if (del_mod)
             {
                 sprintf(msg_txt, "DIED\n%s\n%s\n%s\n", name.c_str(), nr.c_str(), host.c_str());
-                Message msg{ COVISE_MESSAGE_UI, DataHandle{msg_txt, strlen(msg_txt) + 1, false} };
-                global->userinterfaceList->send_all(&msg);
+                Message *msg = new Message;
+                msg->type = COVISE_MESSAGE_UI;
+                msg->data = msg_txt;
+                msg->length = (int)strlen(msg->data) + 1;
+                global->userinterfaceList->send_all(msg);
+                delete msg;
+                msg = NULL;
 
                 //  the last running module to delete = >finished exec
                 if (p_mod->get_status() != 0 && CTRLHandler::m_numRunning == 1)
@@ -1138,9 +1145,9 @@ void CTRLHandler::loadNetworkFile()
 void CTRLHandler::handleAccessGridDaemon(Message *msg)
 {
 
-    if (strncmp(msg->data.data(), "join", 4) == 0)
+    if (strncmp(msg->data, "join", 4) == 0)
     {
-        const char *hname = msg->data.data() + 5;
+        const char *hname = msg->data + 5;
         const char *passwd = "sessionpwd";
         const char *user_id = "AG2User";
         const char *c = strchr(hname, ':');
@@ -1176,8 +1183,14 @@ void CTRLHandler::handleAccessGridDaemon(Message *msg)
             char *msg_tmp = new char[200];
             sprintf(msg_tmp, "ADDPARTNER_FAILED\n%s\n%s\nPassword\n", hostname.c_str(), user_id);
 
-            Message f_msg{ COVISE_MESSAGE_UI , DataHandle{msg_tmp, strlen(msg_tmp) + 1} };
-            CTRLGlobal::getInstance()->userinterfaceList->send_master(&f_msg);
+            Message *f_msg = new Message;
+            f_msg->type = COVISE_MESSAGE_UI;
+            f_msg->data = msg_tmp;
+            f_msg->length = (int)strlen(msg_tmp) + 1;
+            CTRLGlobal::getInstance()->userinterfaceList->send_master(f_msg);
+
+            delete[] f_msg -> data;
+            delete f_msg;
         }
     }
 }
@@ -1396,7 +1409,7 @@ void CTRLHandler::handleFinall(Message *msg, string copyMessageData)
         if (m_quitAfterExececute)
         {
             m_quitNow = 1;
-            msg->data.setLength(0);
+            msg->length = 0;
             copyMessageData.clear();
         }
 
@@ -3555,7 +3568,7 @@ string CTRLHandler::handleBrowserPath(const string &name, const string &nr, cons
             module->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                vector<string> revList = splitString(rmsg->data.data(), "\n");
+                vector<string> revList = splitString(rmsg->data, "\n");
                 value = revList[7];
             }
             delete rmsg;
@@ -4132,9 +4145,9 @@ void CTRLHandler::getAllConnections()
 void CTRLHandler::handleSSLDaemon(Message *msg)
 {
 
-    if (strncmp(msg->data.data(), "join", 4) == 0)
+    if (strncmp(msg->data, "join", 4) == 0)
     {
-        const char *hname = msg->data.data() + 5;
+        const char *hname = msg->data + 5;
         const char *passwd = "<empty>";
         const char *user_id = "<empty>";
         const char *c = strchr(hname, ':');
@@ -4170,8 +4183,13 @@ void CTRLHandler::handleSSLDaemon(Message *msg)
             char *msg_tmp = new char[200];
             sprintf(msg_tmp, "ADDPARTNER_FAILED\n%s\n%s\nPassword\n", hostname.c_str(), user_id);
 
-            Message f_msg{ COVISE_MESSAGE_UI , DataHandle{msg_tmp, strlen(msg_tmp) + 1} };
-            CTRLGlobal::getInstance()->userinterfaceList->send_master(&f_msg);
+            Message *f_msg = new Message;
+            f_msg->type = COVISE_MESSAGE_UI;
+            f_msg->data = msg_tmp;
+            f_msg->length = (int)strlen(msg_tmp) + 1;
+            CTRLGlobal::getInstance()->userinterfaceList->send_master(f_msg);
+            delete[] f_msg -> data;
+            delete f_msg;
         }
     }
 }

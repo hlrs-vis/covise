@@ -109,8 +109,11 @@ void MEMessageHandler::handleWork()
 //!
 void MEMessageHandler::sendMessage(int type, const QString &text)
 {
+    Message *msg = new Message;
+    msg->type = (covise::covise_msg_type)type;
     QByteArray ba = text.toUtf8();
-    Message msg{ (covise::covise_msg_type)type , covise::DataHandle{ba.data(),strlen(ba.data()) + 1, false } };
+    msg->data = ba.data();
+    msg->length = int(strlen(msg->data) + 1);
 
 #if 0
    qDebug() << "Message send _____________________________ ";
@@ -119,7 +122,8 @@ void MEMessageHandler::sendMessage(int type, const QString &text)
 #endif
 
     if (m_userInterface)
-        m_userInterface->send_ctl_msg(&msg);
+        m_userInterface->send_ctl_msg(msg);
+    delete msg;
 }
 
 //!
@@ -136,21 +140,22 @@ void MEMessageHandler::dataReceived(int)
         while (Message *msg = m_userInterface->check_for_msg())
         {
             // empty message
-            if (msg->data.length() == 0)
+            if (msg->length == 0)
             {
                 covise::print_comment(__LINE__, __FILE__, "empty message");
+                msg->delete_data();
                 m_userInterface->delete_msg(msg);
                 // empty messages are generated when connection list is empty
                 break;
             }
             else
             {
-                QStringList list = QString(msg->data.data()).split("\n", QString::SkipEmptyParts);
+                QStringList list = QString(msg->data).split("\n", QString::SkipEmptyParts);
 
 #if 0
             qDebug() << "Message received _________________________";
             qDebug() << msg->type;
-            qDebug() << msg->data.data();
+            qDebug() << msg->data;
             qDebug() << "__________________________________________";
 #endif
 
@@ -317,8 +322,13 @@ void MEMessageHandler::dataReceived(int)
 
                 case covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE:
                 {
-                    Message msg2{ covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE , covise::DataHandle{(char*)" ", 2, false} };
-                    m_userInterface->send_ctl_msg(&msg2);
+                    Message *msg2 = new Message();
+                    msg2->type = covise::COVISE_MESSAGE_LAST_DUMMY_MESSAGE;
+                    msg2->data = (char *)" ";
+                    msg2->length = 2;
+                    m_userInterface->send_ctl_msg(msg2);
+                    delete[] msg2 -> data;
+                    delete msg2;
                     break;
                 }
 
@@ -328,10 +338,11 @@ void MEMessageHandler::dataReceived(int)
 
                 default:
                     qCritical() << "======> unknown message type" << msg->type;
-                    qCritical() << "======> ... data = " << msg->data.data();
+                    qCritical() << "======> ... data = " << msg->data;
                     break;
                 }
             }
+            msg->delete_data();
             m_userInterface->delete_msg(msg);
         }
     }
@@ -343,7 +354,7 @@ void MEMessageHandler::dataReceived(int)
 void MEMessageHandler::receiveUIMessage(Message *msg)
 {
 
-    const char *data = msg->data.data();
+    char *data = msg->data;
 
     QString mname, hname, number;
     QString ptype, pname, pvalue;

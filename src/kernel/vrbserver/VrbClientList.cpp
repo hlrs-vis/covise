@@ -151,7 +151,6 @@ void VRBSClient::sendMsg(covise::MessageBase* msg)
 	{
 		if (udpConn)
 		{
-            udpConn->send_udp_msg(udp, "188.40.97.72");
 			udpConn->send_udp_msg(udp, address.c_str());
 		}
 		else if (firstTryUdp)

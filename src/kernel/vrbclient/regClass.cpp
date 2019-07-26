@@ -121,13 +121,14 @@ namespace vrb
 			if (name == sharedMapName)
 			{
 				//nur fertiges datahandle übergeben
-				covise::TokenBuffer tb;
-				tb << WHOLE;
+				covise::TokenBuffer outerTb;
+				outerTb << WHOLE;
 				//read serialized map data
 				file >> valueSize;
-                DataHandle dh(valueSize);
-				file.read(dh.accessData(), dh.length());
-				tb << dh;
+				char* value = new char[valueSize];
+				file.read(value, valueSize);
+				covise::TokenBuffer innerTb(value, valueSize);
+				outerTb << innerTb;
 				//read changes of map
 				file >> valueSize;
 				std::map<int, DataHandle> changes;
@@ -140,8 +141,10 @@ namespace vrb
 					file.read(v, size);
 					changes[pos] = DataHandle(v, size);
 				}
-				serialize(tb, changes);
-				myVariables[varName] = createVar(varName, tb.getData());
+				serialize(outerTb, changes);
+                auto l = outerTb.get_length();
+                myVariables[varName] = createVar(varName, DataHandle(outerTb.take_data(), l));
+				delete[] value;
 			}
 			else
 			{
@@ -157,7 +160,7 @@ namespace vrb
 	};
 	void regVar::sendValueChange(covise::TokenBuffer& tb)
 	{
-        tb << value;
+		serialize(tb, value);
 	}
 	void regVar::sendValue(covise::TokenBuffer& tb)
 	{
@@ -165,8 +168,9 @@ namespace vrb
 		if (myClass->getName() == sharedMapName)
 		{
 			covise::TokenBuffer v;
-   			v << (int)vrb::WHOLE;
-			v << wholeMap;
+			covise::TokenBuffer serializedMap(wholeMap.data(), wholeMap.length());
+			v << (int)vrb::WHOLE;
+			v << serializedMap;
 			serialize(v, m_changedEtries);
 			tb << v;
 		}
@@ -219,14 +223,17 @@ namespace vrb
 		value = v;
 		if (myClass->getName() == sharedMapName)
 		{
-            covise::TokenBuffer  tb(v);
+			covise::TokenBuffer  tb(v.data(), v.length());
 			int type, pos;
 			tb >> type;
 			switch ((ChangeType)type)
 			{
 			case vrb::WHOLE:
 			{
-				tb >> wholeMap;
+				covise::TokenBuffer m;
+				tb >> m;
+                auto l = m.get_length();
+                wholeMap = DataHandle(m.take_data(), l);
 				m_changedEtries.clear();
 				deserialize(tb, m_changedEtries); //should be empty after complete map was send from ckient, may be filled after session was loaded from file
 				break;

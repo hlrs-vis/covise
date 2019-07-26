@@ -259,7 +259,7 @@ OfficePlugin::~OfficePlugin()
 
 void OfficePlugin::message(int toWhom, int type, int len, const void *buf)
 {
-    TokenBuffer tb{ covise::DataHandle{(char*)buf, len, false} };
+    TokenBuffer tb((const char *)buf,len);
     if (type == PluginMessageTypes::PBufferDoneSnapshot)
     {
         std::string fileName;
@@ -396,7 +396,7 @@ void officeList::checkAndHandleMessages()
                     coVRMSController::instance()->sendSlaves(&sc, sizeof(sc));
                     coVRMSController::instance()->sendSlaves(msg);
 
-                    cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg->type-OfficePlugin::MSG_String,msg->data.length(), msg->data.data());
+                    cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg->type-OfficePlugin::MSG_String,msg->length, msg->data);
                     OfficePlugin::instance()->handleMessage(oc,msg);
                     if(deletedConnection)
                         break;
@@ -431,7 +431,7 @@ void officeList::checkAndHandleMessages()
                 }
                 Message msg;
                 coVRMSController::instance()->readMaster(&msg);
-                cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.data.length(), msg.data.data());
+                cover->sendMessage(OfficePlugin::instance(), coVRPluginSupport::TO_SAME_OTHERS,PluginMessageTypes::HLRS_Office_Message+msg.type-OfficePlugin::MSG_String,msg.length, msg.data);
                 if(localOc)
                 {
                     OfficePlugin::instance()->handleMessage(localOc,&msg);

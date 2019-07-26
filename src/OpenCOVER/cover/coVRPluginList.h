@@ -29,7 +29,6 @@
 namespace covise
 {
 class Message;
-class DataHandle;
 };
 
 namespace osg
@@ -128,10 +127,10 @@ public:
     //! send a message to all plugins
     void message(int toWhom, int t, int l, const void *b) const;
 	//! send a UDPmessage to all plugins
-	void UDPmessage(int type, const covise::DataHandle &dh) const;
+	void UDPmessage(int t, int l, const void* b) const;
     //! add new plugins, if not already loaded
     //! unpack and distribute a Message
-    void forwardMessage(const covise::DataHandle &dh) const;
+    void forwardMessage(int len, const void *buf) const;
     //! request to terminate COVER or COVISE session
     void requestQuit(bool killSession) const;
     //! send a message to COVISE/visualisation system - delivered via only one plugin

@@ -97,6 +97,9 @@ void serialize(covise::TokenBuffer& tb, const T& value)
     tb << value;
 }
 
+template<>
+void VRBEXPORT serialize<covise::DataHandle>(covise::TokenBuffer& tb, const covise::DataHandle& value);
+
 template <class K, class V>
 void serialize(covise::TokenBuffer& tb, const std::pair<K, V>& value)
 {
@@ -172,6 +175,8 @@ void deserialize(covise::TokenBuffer& tb, T& value)
     tb >> value;
 }
 
+template<>
+void VRBEXPORT deserialize<covise::DataHandle>(covise::TokenBuffer& tb, covise::DataHandle& value);
 template <class K, class V>
 void deserialize(covise::TokenBuffer& tb, std::pair<K, V>& value)
 {

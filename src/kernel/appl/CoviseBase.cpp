@@ -109,8 +109,9 @@ void CoviseBase::init_emergency_message(void)
         strcat(emergency_data, "\n");
         strcat(emergency_data, "You may try to restart the module in the Mapeditor.");
         size = strlen(emergency_data) + 1;
-        emergency_message.data = DataHandle(emergency_data, size);
+        emergency_message.data = emergency_data;
         emergency_message.type = COVISE_MESSAGE_UI;
+        emergency_message.length = (int)size;
     }
 }
 
@@ -829,7 +830,9 @@ void CoviseBase::sendError(const char *fmt, ...)
 
         Message message;
         message.type = COVISE_MESSAGE_COVISE_ERROR;
-        message.data = DataHandle(msgdata, (int)strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
+
         appmod->send_ctl_msg(&message);
         delete[] msgdata;
     }
@@ -882,9 +885,11 @@ void CoviseBase::sendWarning(const char *fmt, ...)
 
         Message message;
         message.type = COVISE_MESSAGE_WARNING;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
@@ -937,9 +942,11 @@ void CoviseBase::sendInfo(const char *fmt, ...)
 
         Message message;
         message.type = COVISE_MESSAGE_INFO;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
@@ -977,9 +984,11 @@ int CoviseBase::send_ui_message(const char *keyword, const char *string)
         //cerr << "MODULE SENDING MESSAGE TO UI : " << message->data << endl;
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -1014,9 +1023,11 @@ int CoviseBase::send_message(covise_msg_type type, const char *string)
         //cerr << "MODULE SENDING MESSAGE TO CONTROLLER : " << message->data << endl;
         Message message;
         message.type = type;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -1089,9 +1100,11 @@ int CoviseBase::send_feedback_message(const char *keyword, const char *string)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -1128,9 +1141,11 @@ int CoviseBase::request_param(const char *param_name)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
         return 1;
     }
     else
@@ -1171,9 +1186,11 @@ void CoviseBase::enable_param(const char *name)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send enable_param message without instance/init before");
@@ -1210,9 +1227,11 @@ void CoviseBase::disable_param(const char *name)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send disable_param message without instance/init before");
@@ -1246,9 +1265,11 @@ void CoviseBase::hide_param(const char *name)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);;
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send hide_param message without instance/init before");
@@ -1282,9 +1303,11 @@ void CoviseBase::show_param(const char *name)
 
         Message message;
         message.type = COVISE_MESSAGE_UI;
-        message.data = DataHandle(msgdata, strlen(msgdata) + 1);
+        message.data = msgdata;
+        message.length = (int)strlen(message.data) + 1;
 
         appmod->send_ctl_msg(&message);
+        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send show_param message without instance/init before");

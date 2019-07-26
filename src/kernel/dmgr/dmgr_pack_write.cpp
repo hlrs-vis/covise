@@ -89,9 +89,12 @@ inline
 {
     if (intbuffer_ptr != 0)
     {
-        msg->data = DataHandle(buffer, intbuffer_ptr * sizeof(int));
-        print_comment(__LINE__, __FILE__, "msg->data.length(): %d", msg->data.length());
+        msg->length = intbuffer_ptr * sizeof(int);
+        print_comment(__LINE__, __FILE__, "msg->length: %d", msg->length);
+        delete msg->data;
+        msg->data = buffer;
         conn->send_msg(msg);
+        msg->data = 0L;
     }
 }
 

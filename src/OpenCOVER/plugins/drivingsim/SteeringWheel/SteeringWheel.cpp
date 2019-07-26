@@ -1700,7 +1700,7 @@ SteeringWheelPlugin::preFrame()
 
             cover->sendMessage(this, coVRPluginSupport::TO_SAME_OTHERS,
                                PluginMessageTypes::HLRS_SteeringWheelRemoteVehiclePosition,
-                               tb.getData().length(), tb.getData().data());
+                               tb.get_length(), tb.get_data());
         }
     }
     UpdateInputState();

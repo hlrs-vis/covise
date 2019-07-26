@@ -84,7 +84,7 @@ int VrbServerRegistry::isTrue(int ID, const std::string &className, const std::s
         if (rv)
         {
             bool b;
-			covise::TokenBuffer tb(rv->getValue());
+			covise::TokenBuffer tb(rv->getValue().data(), rv->getValue().length());
             tb >> b;
             return b;
         }

@@ -99,10 +99,13 @@ Proxy::Proxy(char *messageData, CRBConnection *crbC)
         strcat(newMessage, " ");
     }
     //cerr << " new Message:" << newMessage << endl;
-    Message msg{ COVISE_MESSAGE_CRB_EXEC, DataHandle(newMessage, strlen(newMessage) + 1) };
-
-    crbConn->toCrb->send_msg(&msg);
-
+    Message *msg = new Message;
+    msg->type = COVISE_MESSAGE_CRB_EXEC;
+    msg->data = newMessage;
+    msg->length = (int)strlen(msg->data) + 1;
+    crbConn->toCrb->send_msg(msg);
+    msg->data = NULL;
+    delete msg;
     if (moduleConn->acceptOne(60) < 0)
     {
         delete moduleConn;

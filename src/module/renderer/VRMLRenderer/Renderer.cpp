@@ -171,12 +171,15 @@ void Renderer::quit(void *callbackData)
 
     if (m_wconn != NULL)
     {
-        int l = strlen(" ") + 1;
-        char* d = new char[l];
-        strcpy(d, " ");
-        Message p_msg{ COVISE_MESSAGE_SOCKET_CLOSED , DataHandle(d, l)};
+        Message *p_msg;
 
-        m_wconn->send_msg(&p_msg);
+        p_msg = new Message;
+        p_msg->type = COVISE_MESSAGE_SOCKET_CLOSED;
+        p_msg->data = (char *)" ";
+        p_msg->length = (int)strlen(p_msg->data) + 1;
+
+        m_wconn->send_msg(p_msg);
+        delete p_msg;
 
         m_connList->remove(m_wconn);
         delete m_wconn;
@@ -358,7 +361,7 @@ void Renderer::doCustom(void *callbackData)
                 cerr << "\n Error starting aws !!!\n";
             break;
         case COVISE_MESSAGE_COMPLETE_DATA_CONNECTION:
-            tmp = strtok(msg->data.accessData(), " ");
+            tmp = strtok(msg->data, " ");
             m_aws_cport = atoi(tmp);
             tmp = strtok(NULL, " ");
             m_aws_wport = atoi(tmp);
@@ -367,7 +370,7 @@ void Renderer::doCustom(void *callbackData)
             break;
 
         case COVISE_MESSAGE_PORT:
-            tmp = strtok(msg->data.accessData(), " ");
+            tmp = strtok(msg->data, " ");
             m_aws_cport = atoi(tmp);
             tmp = strtok(NULL, " ");
             m_aws_wport = atoi(tmp);
@@ -388,7 +391,7 @@ void Renderer::doCustom(void *callbackData)
             }
             break;
         case COVISE_MESSAGE_SET_ACCESS:
-            m_camera_update = atoi(msg->data.data());
+            m_camera_update = atoi(msg->data);
             if (m_camera_update && objlist != NULL)
             {
                 if (m_obj_needed)
@@ -496,10 +499,17 @@ void Renderer::start(void)
 
 int Renderer::check_aws(void)
 {
+    Message *p_msg;
+
     cerr << "\n Check aws on the host " << m_host->getName() << endl;
 
-    Message p_msg{ COVISE_MESSAGE_INIT , DataHandle((char*)m_host->getName(),strlen(m_host->getName()) + 1 , false)};
-    m_wconn->send_msg(&p_msg);
+    p_msg = new Message;
+    p_msg->type = COVISE_MESSAGE_INIT;
+    p_msg->data = (char *)m_host->getName();
+    p_msg->length = (int)strlen(p_msg->data) + 1;
+
+    m_wconn->send_msg(p_msg);
+    delete p_msg;
 
     return 1;
 }
@@ -521,21 +531,27 @@ int Renderer::start_aws(void)
 
 int Renderer::register_vrml(void)
 {
-
-    DataHandle txt(250);
+    Message *p_msg;
+    char txt[250];
 
     // modulname_port(hostname).cgi-rnd#cport_wport
-    snprintf(txt.accessData(), txt.length(), "%s_%d(%s).cgi-rnd#%d_%d", m_app->getName(), m_open_port, m_host->getName(), m_aws_cport, m_aws_wport);
+    snprintf(txt, sizeof(txt), "%s_%d(%s).cgi-rnd#%d_%d", m_app->getName(), m_open_port, m_host->getName(), m_aws_cport, m_aws_wport);
 
     //cerr << "\n Registering the renderer : " << txt << endl;
-    txt.setLength((int)strlen(txt.data()) + 1);
-    Message p_msg{ COVISE_MESSAGE_START, txt };
 
-    m_wconn->send_msg(&p_msg);
+    p_msg = new Message;
+    p_msg->type = COVISE_MESSAGE_START;
+    p_msg->data = &txt[0];
+    p_msg->length = (int)strlen(p_msg->data) + 1;
 
-    strcat(txt.accessData(), " has been registered !!!");
+    m_wconn->send_msg(p_msg);
 
-    CoviseRender::sendInfo("%s", txt.data());
+    strcat(txt, " has been registered !!!");
+
+    CoviseRender::sendInfo("%s", txt);
+
+    delete p_msg;
+
     return 1;
 }
 
@@ -544,9 +560,14 @@ int Renderer::sendObjectOK(void)
     if (m_wconn == NULL)
         return 0;
 
-    Message p_msg{ COVISE_MESSAGE_OBJECT_OK, DataHandle{(char*)" ", strlen(" ") + 1, false} };
+    Message *p_msg = new Message;
+    p_msg->type = COVISE_MESSAGE_OBJECT_OK;
+    p_msg->data = (char *)" ";
+    p_msg->length = (int)strlen(p_msg->data) + 1;
     //cerr << endl << "&&&& Sending OBJECT_OK " << endl;
-    m_wconn->send_msg(&p_msg);
+    m_wconn->send_msg(p_msg);
+
+    delete p_msg;
 
     return 1;
 }
@@ -560,11 +581,14 @@ int Renderer::sendViewPoint(void)
         char *camera = objlist->getViewPoint();
         if (camera != NULL)
         {
-            Message p_msg{ COVISE_MESSAGE_PARINFO, DataHandle{camera, strlen(camera) + 1, false} };
-            p_msg.type = COVISE_MESSAGE_PARINFO;
+            Message *p_msg = new Message;
+            p_msg->type = COVISE_MESSAGE_PARINFO;
+            p_msg->data = camera;
+            p_msg->length = (int)strlen(p_msg->data) + 1;
             //cerr << endl << "&&&& Sending CAMERA: " << camera << endl;
-            m_wconn->send_msg(&p_msg); // send ViewPoint
+            m_wconn->send_msg(p_msg); // send ViewPoint
 
+            delete p_msg;
             //m_cam_needed = 0;
         }
         else

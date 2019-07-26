@@ -114,6 +114,7 @@ void data::del_data(AppModule *dmod)
 //	fflush(msg_prot);
 #endif
 
+    msg->delete_data();
     delete msg;
 }
 

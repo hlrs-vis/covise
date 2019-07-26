@@ -71,20 +71,26 @@ static coShmArray *getShmArray(const char *name)
     int len = (int)strlen(name) + 1;
     char *tmpptr = new char[len];
     strcpy(tmpptr, name);
-    Message msg{ COVISE_MESSAGE_GET_OBJECT, DataHandle{tmpptr, len} };
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    Message *msg = new Message(COVISE_MESSAGE_GET_OBJECT, len, tmpptr, MSG_NOCOPY);
+    ApplicationProcess::approc->exch_data_msg(msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    delete[] tmpptr;
+
     coShmArray *shmarr = NULL;
     // this is a local message, so no conversion is necessary
-    if (msg.type == COVISE_MESSAGE_OBJECT_FOUND)
+    if (msg->type == COVISE_MESSAGE_OBJECT_FOUND)
     {
-        shmarr = new coShmArray(*(int *)msg.data.data(),
-                                *(shmSizeType *)(&msg.data.data()[sizeof(int)]));
+        shmarr = new coShmArray(*(int *)msg->data,
+                                *(shmSizeType *)(&msg->data[sizeof(int)]));
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "shmarr: %d %d",
                       *(int *)msg->data,
                       *(shmSizeType *)(&msg->data[sizeof(int)]));
 #endif
+        delete[] msg -> data;
+        msg->data = NULL;
     } // else we probably have a socket closed message and should quit.
+    delete msg;
+
     return shmarr;
 }
 }
@@ -183,7 +189,7 @@ const coDistributedObject *coDistributedObject::createUnknown() const
 
 coDistributedObject::~coDistributedObject()
 {
-
+    Message *msg;
     if (NULL != attribs)
     {
         delete[] attribs; // if get_all_attributes was called, free up allocated space
@@ -192,9 +198,13 @@ coDistributedObject::~coDistributedObject()
 
     if (name)
     {
-        Message msg{ COVISE_MESSAGE_OBJECT_NO_LONGER_USED, DataHandle{name, strlen(name) + 1, false} };
+        msg = new Message(COVISE_MESSAGE_OBJECT_NO_LONGER_USED, (int)strlen(name) + 1, name, MSG_NOCOPY);
         if (ApplicationProcess::approc)
-            ApplicationProcess::approc->send_data_msg(&msg);
+            ApplicationProcess::approc->send_data_msg(msg);
+
+        delete[] name;
+        msg->data = NULL; // do NOT delete again since == name
+        delete msg;
     }
     delete shmarr;
 }
@@ -331,45 +341,60 @@ int coDistributedObject::getObjectInfo(coDoInfo **info_list) const
 
 int coDistributedObject::destroy()
 {
+    Message *msg;
+
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "destroying object %s", name);
 #endif
-    Message msg{ COVISE_MESSAGE_DESTROY_OBJECT, DataHandle{name, strlen(name) + 1, false} };
+    msg = new Message(COVISE_MESSAGE_DESTROY_OBJECT, (int)strlen(name) + 1, name);
     // next line changed from send_data_msg
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_MSG_OK, COVISE_MESSAGE_MSG_FAILED);
+    ApplicationProcess::approc->exch_data_msg(msg, 2, COVISE_MESSAGE_MSG_OK, COVISE_MESSAGE_MSG_FAILED);
     //    msg->data = NULL;
     //    ApplicationProcess::approc->recv_data_msg(msg);
-    if (msg.type == COVISE_MESSAGE_MSG_OK)
+    if (msg->type == COVISE_MESSAGE_MSG_OK)
     {
         new_ok = 0;
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
         return 1;
     }
     else
     {
         print_comment(__LINE__, __FILE__, "DESTROY_OBJECT failed for %s", name);
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
         return 0;
     }
 }
 
 char *coDistributedObject::object_on_hosts() const
 {
+    Message *msg;
     char *data;
 
-    Message msg{ COVISE_MESSAGE_OBJECT_ON_HOSTS, DataHandle{name, strlen(name) + 1, false} };
-    ApplicationProcess::approc->exch_data_msg(&msg, 1, COVISE_MESSAGE_OBJECT_ON_HOSTS);
-    if (msg.type == COVISE_MESSAGE_OBJECT_ON_HOSTS)
+    msg = new Message(COVISE_MESSAGE_OBJECT_ON_HOSTS, name, MSG_NOCOPY);
+    ApplicationProcess::approc->exch_data_msg(msg, 1, COVISE_MESSAGE_OBJECT_ON_HOSTS);
+    if (msg->type == COVISE_MESSAGE_OBJECT_ON_HOSTS)
     {
-        return msg.data.accessData();
+        data = msg->data;
+        msg->data = NULL;
+        delete msg;
+        return data;
     }
     else
     {
-        return nullptr;
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
+        return NULL;
     }
 }
 
 int coDistributedObject::access(access_type acc)
 {
-
+    Message *msg;
     char *data;
     int length;
 
@@ -377,18 +402,25 @@ int coDistributedObject::access(access_type acc)
     data = new char[length];
     *(int *)data = acc;
     sprintf(&data[sizeof(int)], "%s", name);
-    Message msg(COVISE_MESSAGE_SET_ACCESS, DataHandle(data, length));
-    ApplicationProcess::approc->send_data_msg(&msg);
-    msg.data = DataHandle();
-    ApplicationProcess::approc->recv_data_msg(&msg);
+    msg = new Message(COVISE_MESSAGE_SET_ACCESS, length, data, MSG_NOCOPY);
+    ApplicationProcess::approc->send_data_msg(msg);
+    delete[] msg -> data;
+    msg->data = NULL;
+    ApplicationProcess::approc->recv_data_msg(msg);
     if (acc == (ACC_READ_AND_WRITE | ACC_WRITE_ONLY))
     {
-        if (msg.type == COVISE_MESSAGE_MSG_OK)
+        if (msg->type == COVISE_MESSAGE_MSG_OK)
         {
+            delete[] msg -> data;
+            msg->data = 0;
+            delete msg;
             return 1;
         }
         else
         {
+            delete[] msg -> data;
+            msg->data = 0;
+            delete msg;
             return 0;
         }
     }
@@ -417,7 +449,7 @@ void coDistributedObject::init_header(int *size, int *no_of_allocs, int count,
 }
 
 int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
-                                       int *shmarr_count, data_type *dt, long *ct, covise::DataHandle& idata)
+                                       int *shmarr_count, data_type *dt, long *ct, int **idata)
 {
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "size without header: %d", size);
@@ -448,16 +480,17 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
     print_comment(__LINE__, __FILE__, "name of new  object %s", name);
 #endif
     int otype = type_no;
-    ShmMessage shmmsg{ name, otype, dt, ct, no_of_allocs };
-    ApplicationProcess::approc->exch_data_msg(&shmmsg, 2, COVISE_MESSAGE_NEW_OBJECT_OK, COVISE_MESSAGE_NEW_OBJECT_FAILED);
+    ShmMessage *shmmsg = new ShmMessage(name, otype, dt, ct, no_of_allocs);
+    ApplicationProcess::approc->exch_data_msg(shmmsg, 2, COVISE_MESSAGE_NEW_OBJECT_OK, COVISE_MESSAGE_NEW_OBJECT_FAILED);
     delete[] ct;
     delete[] dt;
 
-    if (shmmsg.type != COVISE_MESSAGE_NEW_OBJECT_OK)
+    if (shmmsg->type != COVISE_MESSAGE_NEW_OBJECT_OK)
     {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "error in store_header of distributed object %s", name);
 #endif
+        delete shmmsg;
         return 0; // we can do this here, all memory given back
     }
 
@@ -467,12 +500,12 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
     // it more transparent and avoids the alignment problems that could occur
     // if a char pointer were used.
 
-    //idata = (int *)shmmsg.data.data(); // pointer to shm-pointers //error with datahandle
+    *idata = (int *)shmmsg->data; // pointer to shm-pointers
+    //delete[] shmmsg->data; // Achtung, ich hoffe, dasss ich das hier loeschen kann
+    // Uwe Woessner
+    delete shmmsg;
 
-    idata = shmmsg.data;
-    const int* idataArray = (const int*)idata.data();
-
-    shmarr = new coShmArray((idataArray)[0], *((shmSizeType *)&(idataArray)[1]));
+    shmarr = new coShmArray((*idata)[0], *((shmSizeType *)&(*idata)[1]));
     int *iptr = (int *)shmarr->getPtr(); // pointer to the structure data
     header = (coDoHeader *)iptr;
 #ifdef DEBUG
@@ -509,8 +542,8 @@ int *coDistributedObject::store_header(int size, int no_of_allocs, int count,
         refcount.setPtr(shmarr->shm_seq_no,
                         shmarr->offset + header->get_refcount_offset());
 
-        header->set_name((idataArray)[(no_of_allocs - 1) * 2],
-                         *(shmSizeType *)(&(idataArray)[(no_of_allocs - 1) * 2 + 1]), name);
+        header->set_name((*idata)[(no_of_allocs - 1) * 2],
+                         *(shmSizeType *)(&(*idata)[(no_of_allocs - 1) * 2 + 1]), name);
         header->addAttributes(0, 0);
     }
     *shmarr_count = header->getIntHeaderSize();
@@ -530,13 +563,13 @@ void _Insight_set_option(char *, char *);
 int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
 {
     int i;
-    data_type *dt = nullptr;
-    long *ct = nullptr;
+    data_type *dt;
+    long *ct;
     int no_of_allocs, shmarr_count;
-    coShmArray *tmparray = nullptr;
-    coShmPtr *tmpptr = nullptr;
+    coShmArray *tmparray;
+    coShmPtr *tmpptr;
     int retval = 1;
-    int *iptr = nullptr;
+    int *iptr, *idata = NULL;
 
     int alignBytes; // Needed for correct alignment in first switch
     // statement. The problem occured first on Cray T3E
@@ -631,10 +664,9 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
     _Insight_set_option("runtime", "off");
 #endif
 
-    DataHandle idata;
     ///// This calls the CRB and gets the object !!!
-    iptr = store_header(size, no_of_allocs, count, &shmarr_count, dt, ct, idata);
-    const int* idataArray = (const int *)idata.data();
+    iptr = store_header(size, no_of_allocs, count, &shmarr_count, dt, ct, &idata);
+
     if (iptr == NULL)
     {
         print_comment(__LINE__, __FILE__, "Error in store_header called by store_shared");
@@ -717,14 +749,14 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
                 free_list[current_free++] = iptr[shmarr_count + 1];
             }
             iptr[shmarr_count - 1] = SHMPTR;
-            iptr[shmarr_count++] = idataArray[2 + alloc_count * 2];
-            *(shmSizeType *)(&iptr[shmarr_count++]) = *(shmSizeType *)(&idataArray[2 + alloc_count * 2 + 1]);
+            iptr[shmarr_count++] = idata[2 + alloc_count * 2];
+            *(shmSizeType *)(&iptr[shmarr_count++]) = *(shmSizeType *)(&idata[2 + alloc_count * 2 + 1]);
             if(sizeof(shmSizeType) > sizeof(int))
                 shmarr_count++;
 
             tmparray = (coShmArray *)dl[i].ptr;
-            tmparray->setPtr(idataArray[2 + alloc_count * 2],
-                             *(shmSizeType *)(&idataArray[2 + alloc_count * 2 + 1]));
+            tmparray->setPtr(idata[2 + alloc_count * 2],
+                             *(shmSizeType *)(&idata[2 + alloc_count * 2 + 1]));
             alloc_count++;
             break;
 
@@ -753,12 +785,18 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
 #ifdef INSURE
     _Insight_set_option("runtime", "on");
 #endif
+
+    delete[] idata;
+
     // current_free = number of entries in free_list ( = 2 * number of elements to free)
 
     if (current_free)
     {
-        Message msg(COVISE_MESSAGE_SHM_FREE, DataHandle((char *)free_list, current_free * sizeof(int)));
-        ApplicationProcess::approc->send_data_msg(&msg);
+        Message *msg = new Message(COVISE_MESSAGE_SHM_FREE, current_free * sizeof(int), (char *)free_list);
+        ApplicationProcess::approc->send_data_msg(msg);
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
     }
     delete free_list;
 
@@ -866,8 +904,16 @@ int coDistributedObject::update_shared_dl(int count, covise_data_list *dl)
     int len = (int)strlen(name) + 1;
     char *data = new char[len];
     strcpy(data, name);
-    Message msg(COVISE_MESSAGE_NEW_OBJECT_VERSION, DataHandle(data, len));
-    ApplicationProcess::approc->send_data_msg(&msg);
+    Message *msg = new Message(COVISE_MESSAGE_NEW_OBJECT_VERSION, len, data);
+    ApplicationProcess::approc->send_data_msg(msg);
+    delete[] data;
+
+    delete[] msg -> data;
+    msg->data = NULL;
+    delete msg;
+
+    // all dynamically created objects have to be cleaned up
+
     return retval;
 }
 
@@ -1217,6 +1263,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     shmSizeType of;
     long ct[2];
     data_type dt[2];
+    Message *msg;
     ShmMessage *shmmsg;
     coStringShmArray *tmparr;
     coCharShmArray *charr;
@@ -1255,7 +1302,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
         delete shmmsg;
         return;
     }
-    const char *cdata = shmmsg->data.data(); // pointer to shm-pointers
+    char *cdata = shmmsg->data; // pointer to shm-pointers
     int seq = *(int *)cdata;
     cdata +=sizeof(int);
     shmSizeType offset = *(shmSizeType *)cdata;
@@ -1266,6 +1313,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     offset = *(shmSizeType *)cdata;
     cdata +=sizeof(shmSizeType);
     charr = new coCharShmArray(seq, offset);
+    delete[] shmmsg -> data;
     delete shmmsg;
     tmpstr = new char[attr_len];
     sprintf(tmpstr, "%s:%s", attr_name, attr_val);
@@ -1290,8 +1338,10 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
         tmparr->stringPtrSet(i, charr->get_shm_seq_no(), charr->get_offset());
         shmfree[0] = attributes->get_shm_seq_no();
         *(shmSizeType *)(&shmfree[1]) = attributes->get_offset();
-        Message msg{ COVISE_MESSAGE_SHM_FREE, DataHandle{(char*)shmfree, sizeof(int) + sizeof(shmSizeType), false} };
-        ApplicationProcess::approc->send_data_msg(&msg);
+        msg = new Message(COVISE_MESSAGE_SHM_FREE, sizeof(int)+sizeof(shmSizeType), (char *)shmfree, MSG_NOCOPY);
+        ApplicationProcess::approc->send_data_msg(msg);
+        msg->data = NULL;
+        delete msg;
     }
     else
     {
@@ -1317,6 +1367,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     shmSizeType of;
     long *ct;
     data_type *dt;
+    Message *msg;
     ShmMessage *shmmsg;
     coStringShmArray *tmparr;
     coCharShmArray *charr;
@@ -1352,9 +1403,9 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         delete shmmsg;
         return;
     }
-    idata = (int *)shmmsg->data.data(); // pointer to shm-pointers
+    idata = (int *)shmmsg->data; // pointer to shm-pointers
     
-    const char *cdata = shmmsg->data.data(); // pointer to shm-pointers
+    char *cdata = shmmsg->data; // pointer to shm-pointers
     int seq = *(int *)cdata;
     cdata +=sizeof(int);
     shmSizeType offset = *(shmSizeType *)cdata;
@@ -1364,7 +1415,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
     if (attributes)
     {
         ArrayLengthType i;
-        for (i = 0; i < attributes->get_length(); i++)
+        for ( i = 0; i < attributes->get_length(); i++)
         {
             attributes->stringPtrGet(i, &sn, &of);
             print_comment(__LINE__, __FILE__, "sn: %d of: %d", sn, of);
@@ -1373,30 +1424,32 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         }
         for (int j = 0; j < no; j++)
         {
-            seq = *(int*)cdata;
-            cdata += sizeof(int);
-            offset = *(shmSizeType*)cdata;
-            cdata += sizeof(shmSizeType);
+            seq = *(int *)cdata;
+            cdata +=sizeof(int);
+            offset = *(shmSizeType *)cdata;
+            cdata +=sizeof(shmSizeType);
             charr = new coCharShmArray(seq, offset);
             tmpstr = new char[attr_len[j]];
             sprintf(tmpstr, "%s:%s", attr_name[j], attr_val[j]);
 
             // convert attribute name to upper case
-            for (char* p = tmpstr; *p != ':'; ++p)
-                * p = toupper(*p);
+            for (char *p = tmpstr; *p != ':'; ++p)
+                *p = toupper(*p);
 
             //print_comment(__LINE__, __FILE__, tmpstr);
             charr->setString(tmpstr);
             delete[] tmpstr;
             tmparr->stringPtrSet(i + j, charr->get_shm_seq_no(),
-                charr->get_offset());
+                                 charr->get_offset());
             delete charr;
         }
         // local message: no conversion necessary:
         shmfree[0] = attributes->get_shm_seq_no();
-        *(shmSizeType*)(&shmfree[1]) = attributes->get_offset();
-        Message msg{ COVISE_MESSAGE_SHM_FREE, DataHandle{(char*)shmfree, sizeof(int) + sizeof(shmSizeType), false } };
-        ApplicationProcess::approc->send_data_msg(&msg);
+        *(shmSizeType *)(&shmfree[1]) = attributes->get_offset();
+        msg = new Message(COVISE_MESSAGE_SHM_FREE, sizeof(int)+sizeof(shmSizeType), (char *)shmfree, MSG_NOCOPY);
+        ApplicationProcess::approc->send_data_msg(msg);
+        msg->data = NULL;
+        delete msg;
     }
     else
     {
@@ -1423,6 +1476,7 @@ void coDistributedObject::addAttributes(int no, const char *const *attr_name,
         }
     }
     attributes = tmparr;
+    delete[] shmmsg -> data;
     delete shmmsg;
     delete[] attr_len;
     delete[] ct;
@@ -1693,26 +1747,34 @@ void coDistributedObject::getObjectFromShm()
         new_ok = 0;
         return;
     }
+    Message *msg;
     int len;
     char *tmpptr;
 
     len = (int)strlen(name) + 1;
     tmpptr = new char[len];
     strcpy(tmpptr, name);
-    Message msg(COVISE_MESSAGE_GET_OBJECT, DataHandle(tmpptr, len));
-    ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    msg = new Message(COVISE_MESSAGE_GET_OBJECT, len, tmpptr, MSG_NOCOPY);
+    ApplicationProcess::approc->exch_data_msg(msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
+    delete[] tmpptr;
     // this is a local message, so no conversion is necessary
-    if (msg.type == COVISE_MESSAGE_OBJECT_FOUND)
+    if (msg->type == COVISE_MESSAGE_OBJECT_FOUND)
     {
-        const char *cPtr = msg.data.data();
+        char *cPtr = (char *)msg->data;
         shmarr = new coShmArray(*(int *)cPtr, *(shmSizeType *)(cPtr+sizeof(int)));
         header = (coDoHeader *)shmarr->getPtr();
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "shmarr: %d %d", iPtr[0], iPtr[1]);
 #endif
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
     }
     else
     {
+        delete[] msg -> data;
+        msg->data = NULL;
+        delete msg;
         new_ok = 0;
         return;
     }

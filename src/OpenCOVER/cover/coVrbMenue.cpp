@@ -98,10 +98,7 @@ void VrbMenue::init()
 			tb << std::string("test udp message from OpenCOVER");
 			vrb::UdpMessage m(tb);
 			m.type = vrb::udp_msg_type::AVATAR_HMD_POSITION;
-            if (!cover->sendVrbUdpMessage(&m))
-            {
-                std::cerr << "could not send udp message" << std::endl;
-            }
+			cover->sendVrbUdpMessage(&m);
 			//static int count = 0;
 			//static int loop = 0;
 			//if (count < test.value().size())

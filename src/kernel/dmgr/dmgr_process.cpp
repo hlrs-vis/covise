@@ -94,6 +94,7 @@ void DataManagerProcess::ask_for_object(Message *msg)
 {
     ObjectEntry *oe;
     DMEntry *dm_ptr;
+    Message *trfmsg;
     char data[20];
     const char *addr;
     char tmp_str[255];
@@ -102,7 +103,8 @@ void DataManagerProcess::ask_for_object(Message *msg)
     oe = get_local_object(msg->data);
     sprintf(tmp_str, "sending Object %s ++++++", msg->data);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
-    msg->data = DataHandle();
+    msg->delete_data();
+    msg->data = NULL;
     if (oe)
     {
         data_mgrs->reset();
@@ -115,9 +117,9 @@ void DataManagerProcess::ask_for_object(Message *msg)
                 start_transfermanager();
             if (dm_ptr->transfermgr == 0)
             {
-                Message trfmsg{ COVISE_MESSAGE_GET_TRANSFER_PORT, DataHandle() };
-                exch_trf_msg(&trfmsg);
-                *(int *)data = *(int *)trfmsg.data.data();
+                trfmsg = new Message(COVISE_MESSAGE_GET_TRANSFER_PORT, (char *)NULL);
+                exch_trf_msg(trfmsg);
+                *(int *)data = *(int *)trfmsg->data;
                 if (*(int *)data == -1)
                 {
                     print_comment(__LINE__, __FILE__,
@@ -126,14 +128,19 @@ void DataManagerProcess::ask_for_object(Message *msg)
                 }
                 addr = host->getAddress();
                 strncpy(&data[4], addr, 16);
-                trfmsg.data = DataHandle(data, 4 + 1 + (int)strlen(addr));
-                trfmsg.type = COVISE_MESSAGE_CONNECT_TRANSFERMANAGER;
-                dm_ptr->conn->send_msg(&trfmsg);
+                delete trfmsg->data;
+                trfmsg->data = data;
+                trfmsg->length = 4 + 1 + (int)strlen(addr);
+                trfmsg->type = COVISE_MESSAGE_CONNECT_TRANSFERMANAGER;
+                dm_ptr->conn->send_msg(trfmsg);
+                trfmsg->data = NULL;
+                delete trfmsg;
                 dm_ptr->transfermgr = 1;
             }
         }
         msg->type = COVISE_MESSAGE_OBJECT_FOLLOWS;
-        msg->data = DataHandle();
+        msg->data = NULL;
+        msg->length = 0;
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "ASK: vor OBJECT_FOLLOWS", 4);
 #endif
@@ -154,11 +161,13 @@ void DataManagerProcess::ask_for_object(Message *msg)
 #ifdef DEBUG
 //        print_comment(__LINE__, __FILE__, "nach dm_ptr->send_data_msg");
 #endif
-        msg->data = DataHandle();
+        delete[] msg -> data;
+        msg->data = NULL;
     }
     else
     {
-        msg->data = DataHandle();
+        msg->data = NULL;
+        msg->length = 0;
         msg->type = COVISE_MESSAGE_OBJECT_NOT_FOUND;
         msg->conn->send_msg(msg);
     }
@@ -201,14 +210,17 @@ Message *DataManagerProcess::wait_for_msg(int covise_msg_type, Connection *conn 
         {
         case COVISE_MESSAGE_ASK_FOR_OBJECT:
             ask_for_object(msg);
+            msg->delete_data();
             delete msg;
             break;
         case COVISE_MESSAGE_HAS_OBJECT_CHANGED:
             has_object_changed(msg);
+            msg->delete_data();
             delete msg;
             break;
         case COVISE_MESSAGE_GET_TRANSFER_PORT:
             has_object_changed(msg);
+            msg->delete_data();
             delete msg;
             break;
         default:
@@ -240,10 +252,12 @@ Message *DataManagerProcess::wait_for_msg(int *covise_msg_type, int no,
         {
         case COVISE_MESSAGE_ASK_FOR_OBJECT:
             ask_for_object(msg);
+            msg->delete_data();
             delete msg;
             break;
         case COVISE_MESSAGE_HAS_OBJECT_CHANGED:
             has_object_changed(msg);
+            msg->delete_data();
             delete msg;
             break;
         default:
@@ -279,8 +293,9 @@ void DataManagerProcess::has_object_changed(Message *msg)
     //    cerr << "local HAS_OBJECT_CHANGED:\n";
     //    cerr << "dummy so far\n";
     msg->type = COVISE_MESSAGE_OBJECT_OK;
-
-    msg->data = DataHandle();
+    msg->delete_data();
+    msg->data = NULL;
+    msg->length = 0;
     msg->conn->send_msg(msg);
 }
 
@@ -289,7 +304,7 @@ namespace covise
 int ObjectEntry_compare(ObjectEntry *a, ObjectEntry *b)
 {
     //    cerr << "a: " << a->name << "   b: " << b->name << " -> ";
-    char *an = a->name.accessData(), *bn = b->name.accessData();
+    char *an = a->name, *bn = b->name;
 
     while (*an && (*an == *bn))
     {
@@ -450,7 +465,7 @@ void DataManagerProcess::contact_controller(int p, Host *h)
 void DataManagerProcess::contact_datamanager(int p, Host *host)
 {
     Connection *dm;
-    char *msg_data = new char[80];
+    char msg_data[80];
     DMEntry *dme = NULL;
     unsigned int sid;
 
@@ -468,13 +483,14 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
 #endif
     strcpy(&msg_data[SIZEOF_IEEE_INT], get_host()->getAddress());
     int len = SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1;
-    Message msg{ COVISE_MESSAGE_SEND_ID, DataHandle(msg_data, len) };
+    Message *msg = new Message(COVISE_MESSAGE_SEND_ID, len, msg_data);
 
-    dm->send_msg(&msg);
-    msg.data = NULL;
-    msg = *wait_for_msg(COVISE_MESSAGE_SEND_ID, dm);
+    dm->send_msg(msg);
+    msg->data = NULL;
+    delete msg;
+    msg = wait_for_msg(COVISE_MESSAGE_SEND_ID, dm);
 
-    if (msg.type == COVISE_MESSAGE_SEND_ID)
+    if (msg->type == COVISE_MESSAGE_SEND_ID)
     {
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
@@ -492,6 +508,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
     {
         print_comment(__LINE__, __FILE__, "wrong message type");
     }
+    delete msg;
     data_mgrs->add(dme);
 }
 
@@ -521,7 +538,7 @@ void DataManagerProcess::wait_for_contact()
 void DataManagerProcess::wait_for_dm_contact()
 {
     Message *msg;
-    char *msg_data = new char[80];
+    char msg_data[80];
     DMEntry *dme;
 
     if (tmpconn == NULL)
@@ -542,8 +559,9 @@ void DataManagerProcess::wait_for_dm_contact()
 
     if (msg->type == COVISE_MESSAGE_SEND_ID)
     {
-        dme = new DMEntry(*((int *)msg->data.data()), &msg->data.accessData()[SIZEOF_IEEE_INT], tmpconn);
+        dme = new DMEntry(*((int *)msg->data), &msg->data[SIZEOF_IEEE_INT], tmpconn);
         data_mgrs->add(dme);
+        msg->delete_data();
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
         converter.int_to_exch(id, msg_data);
@@ -555,9 +573,11 @@ void DataManagerProcess::wait_for_dm_contact()
         swap_byte(*((unsigned int *)msg_data));
 #endif
         strcpy(&msg_data[SIZEOF_IEEE_INT], get_host()->getAddress());
-        msg->data = DataHandle(msg_data, SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1);
+        msg->length = SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1;
+        msg->data = msg_data;
 
         msg->conn->send_msg(msg);
+        msg->data = NULL;
     }
     else
     {
@@ -609,31 +629,35 @@ void DataManagerProcess::start_transfermanager()
         }
         list_of_connections->add(transfermanager);
         msg = wait_for_msg(COVISE_MESSAGE_GET_SHM_KEY, transfermanager);
-        handle_msg(msg);
+        bool localAlloc = false;
+        handle_msg(msg, localAlloc);
         transfermanager->send_msg(msg);
         delete msg;
         data_mgrs->reset();
         while ((dmg = data_mgrs->next()))
         {
-            msg = new Message(COVISE_MESSAGE_GET_TRANSFER_PORT,DataHandle());
+            msg = new Message(COVISE_MESSAGE_GET_TRANSFER_PORT, 0, (char *)NULL);
             dmg->conn->send_msg(msg);
             delete msg;
             msg = wait_for_msg(COVISE_MESSAGE_TRANSFER_PORT, dmg->conn);
-            tport = *(int *)msg->data.data();
+            tport = *(int *)msg->data;
             if (tport != -1)
             {
-                thost = &msg->data.accessData()[SIZEOF_IEEE_INT];
+                thost = &msg->data[SIZEOF_IEEE_INT];
                 mdata = new char[sizeof(int) + strlen(thost) + 1];
 
 #ifdef CRAY
 // conv
 #else
                 *(int *)mdata = tport;
-                strcpy(&mdata[sizeof(int)], &msg->data.data()[SIZEOF_IEEE_INT]);
-                msg->data = DataHandle(mdata, msg->data.length());
+                strcpy(&mdata[sizeof(int)], &msg->data[SIZEOF_IEEE_INT]);
+                msg->delete_data();
+                msg->data = mdata;
 #endif
                 msg->type = COVISE_MESSAGE_CONNECT_TRANSFERMANAGER;
                 send_trf_msg(msg);
+                delete[] msg -> data;
+                msg->data = NULL;
             }
         }
     }
@@ -653,12 +677,12 @@ void DataManagerProcess::send_to_all_connections(Message *msg)
 
 int DataManagerProcess::forward_new_part(Message *partmsg)
 {
-    DataHandle object_name, part_name;
+    char *object_name, *part_name;
     ObjectEntry *object, *part;
     AccessEntry *acc;
 
-    object_name = part_name = partmsg->data;
-    part_name.movePtr(strlen(object_name.data()) + 1);
+    object_name = partmsg->data;
+    part_name = &partmsg->data[strlen(object_name) + 1];
     object = get_object(object_name);
     part = get_object(part_name);
     if (object && part == 0)
@@ -672,7 +696,7 @@ int DataManagerProcess::forward_new_part(Message *partmsg)
         if (acc->acc != ACC_REMOTE_DATA_MANAGER)
         {
             // partmsg->data still holds the object name
-            partmsg->data.setLength(strlen(object_name.data()) + 1);
+            partmsg->length = (int)strlen(object_name) + 1;
             partmsg->type = COVISE_MESSAGE_NEW_PART_AVAILABLE;
             partmsg->conn->send_msg(partmsg);
         }
@@ -691,7 +715,7 @@ int DataManagerProcess::forward_new_part(Message *partmsg)
 
 int DataManagerProcess::receive_new_part(Message *msg)
 {
-    DataHandle object_name; //, *part_name;
+    char *object_name; //, *part_name;
     ObjectEntry *object, *part;
     AccessEntry *acc;
     Message *part_msg = new Message;
@@ -721,9 +745,11 @@ int DataManagerProcess::receive_new_part(Message *msg)
             {
                 if (acc->acc != ACC_REMOTE_DATA_MANAGER)
                 {
-                    msg->data =object_name;
+                    msg->data = object_name;
                     msg->type = COVISE_MESSAGE_NEW_PART_AVAILABLE;
+                    msg->length = (int)strlen(object_name) + 1;
                     msg->conn->send_msg(msg);
+                    msg->data = NULL;
                 }
             }
         }
@@ -903,7 +929,7 @@ coShmPtr *DataManagerProcess::shm_alloc(ShmMessage *shmmsg)
     return shm_alloc(dt, size);
 }
 
-int DataManagerProcess::add_object(const DataHandle& n, int otype, int no, int o, Connection *conn)
+int DataManagerProcess::add_object(char *n, int otype, int no, int o, Connection *conn)
 {
     coDoHeader *header;
     coShmArray *shmarr;
@@ -1037,7 +1063,7 @@ void DataManagerProcess::save_object_id()
     }
 }
 
-int DataManagerProcess::add_object(const DataHandle &n, int no, int o, Connection *conn)
+int DataManagerProcess::add_object(char *n, int no, int o, Connection *conn)
 {
     coDoHeader *header;
     coShmArray *shmarr;
@@ -1102,7 +1128,7 @@ int DataManagerProcess::add_object(ObjectEntry *oe)
     return objects->insert_node(oe);
 }
 
-int DataManagerProcess::delete_object(const DataHandle& n)
+int DataManagerProcess::delete_object(char *n)
 {
 #ifdef DEBUG
     char tmp_str[255];
@@ -1184,11 +1210,12 @@ void DataManagerProcess::rmv_acc2objs(CO_AVL_Node<ObjectEntry> *root, Connection
         rmv_acc2objs(root->right, conn);
 }
 
-int DataManagerProcess::destroy_object(const DataHandle& n, Connection* c)
+int DataManagerProcess::destroy_object(char *n, Connection *c)
 {
     AccessEntry *ae;
     ObjectEntry *oe = NULL, *tmpoe = new ObjectEntry(n);
     int covise_msg_types[2];
+    Message *msg;
 
 #ifdef DEBUG
     int tmpval;
@@ -1219,13 +1246,14 @@ int DataManagerProcess::destroy_object(const DataHandle& n, Connection* c)
                 if (ae->acc == ACC_REMOTE_DATA_MANAGER)
                 {
                     //	    	    cerr << "destroy object " << oe->name << " on remote dmgr\n";
-                    Message msg{ COVISE_MESSAGE_CTRL_DESTROY_OBJECT, n };
-                    ae->conn->send_msg(&msg);
-
+                    msg = new Message(COVISE_MESSAGE_CTRL_DESTROY_OBJECT, (int)strlen(n) + 1, n);
+                    ae->conn->send_msg(msg);
+                    msg->data = NULL;
+                    delete msg;
                     covise_msg_types[0] = COVISE_MESSAGE_MSG_OK;
                     covise_msg_types[1] = COVISE_MESSAGE_MSG_FAILED;
-                    msg = *wait_for_msg(covise_msg_types, 2, ae->conn);
-                    if (msg.type == COVISE_MESSAGE_MSG_FAILED)
+                    msg = wait_for_msg(covise_msg_types, 2, ae->conn);
+                    if (msg->type == COVISE_MESSAGE_MSG_FAILED)
                     {
                     }
                 }
@@ -1267,12 +1295,14 @@ int DataManagerProcess::destroy_object(const DataHandle& n, Connection* c)
                 sprintf(tmp_str, "destroy object %s for remote dmgr", oe->name);
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
-                Message msg{ COVISE_MESSAGE_CTRL_DESTROY_OBJECT, n };
-                ae->conn->send_msg(&msg);
+                msg = new Message(COVISE_MESSAGE_CTRL_DESTROY_OBJECT, (int)strlen(n) + 1, n);
+                ae->conn->send_msg(msg);
+                msg->data = NULL;
+                delete msg;
                 covise_msg_types[0] = COVISE_MESSAGE_MSG_OK;
                 covise_msg_types[1] = COVISE_MESSAGE_MSG_FAILED;
-                msg = *wait_for_msg(covise_msg_types, 2, ae->conn);
-                if (msg.type == COVISE_MESSAGE_MSG_FAILED)
+                msg = wait_for_msg(covise_msg_types, 2, ae->conn);
+                if (msg->type == COVISE_MESSAGE_MSG_FAILED)
                 {
                 }
             }
@@ -1473,8 +1503,7 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
             return 0;
         }
     }
-    
-    ObjectEntry* tmpoe = new ObjectEntry{ DataHandle{obj_name, strlen(obj_name) + 1, false} };
+    ObjectEntry *tmpoe = new ObjectEntry(obj_name);
 #ifdef DEBUG
     sprintf(tmp_str, "Removing object %s from list", obj_name);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
@@ -1505,7 +1534,7 @@ int DataManagerProcess::shm_free(int shm_seq_no, int offset)
     return 1;
 }
 
-DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
+char *DataManagerProcess::get_all_hosts_for_object(char *n)
 {
     ObjectEntry *oe = get_object(n);
     DMEntry *tmpdmgr;
@@ -1517,7 +1546,7 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
 
     if (oe)
     {
-        print_comment(__LINE__, __FILE__, "object %s found on local host", n.data());
+        print_comment(__LINE__, __FILE__, "object %s found on local host", n);
         if (oe->dmgr)
         {
             msg = new Message(COVISE_MESSAGE_OBJECT_ON_HOSTS, n);
@@ -1526,19 +1555,18 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
             if (msg->type == COVISE_MESSAGE_OBJECT_ON_HOSTS)
             {
                 print_comment(__LINE__, __FILE__, "object was created on other host and found there");
-                DataHandle dh = msg->data;
-                delete msg;
-                return dh;
+                return msg->data;
             }
             else
             {
                 print_comment(__LINE__, __FILE__, "object was created on other host but not found there");
-                DataHandle dh{ strlen(get_host()->getAddress()) + 1 + 2 };
-                dh.accessData()[0] = '?';
-                dh.accessData()[1] = ' ';
-                strcpy(&dh.accessData()[2], get_host()->getAddress());
+                data = new char[strlen(get_host()->getAddress()) + 1 + 2];
+                data[0] = '?';
+                data[1] = ' ';
+                strcpy(&data[2], get_host()->getAddress());
+                //		delete [] tmpdata;
                 delete msg;
-                return dh;
+                return data;
             }
         }
         else
@@ -1565,12 +1593,12 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
                 }
                 ae = oe->access->next();
             }
-            return DataHandle(data, strlen(data) + 1);
+            return data;
         }
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "object %s not found on local host", n.data());
+        print_comment(__LINE__, __FILE__, "object %s not found on local host", n);
         data_mgrs->reset();
         tmpdmgr = data_mgrs->next();
         while (tmpdmgr)
@@ -1582,9 +1610,10 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
             if (msg->type == COVISE_MESSAGE_OBJECT_FOUND)
             {
                 print_comment(__LINE__, __FILE__, "object found on other host");
-                DataHandle dh = msg->data;
+                data = msg->data;
+                msg->data = NULL;
                 delete msg;
-                return dh;
+                return data;
             }
             tmpdmgr = data_mgrs->next();
         }
@@ -1593,7 +1622,7 @@ DataHandle DataManagerProcess::get_all_hosts_for_object(const DataHandle& n)
     }
 }
 
-ObjectEntry *DataManagerProcess::get_object(const DataHandle& n, Connection *conn)
+ObjectEntry *DataManagerProcess::get_object(char *n, Connection *conn)
 {
     ObjectEntry *oe = get_object(n);
 
@@ -1614,7 +1643,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle& n, Connection *con
     return oe;
 }
 
-ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
+ObjectEntry *DataManagerProcess::get_object(char *n)
 {
     ObjectEntry *oe;
     ObjectEntry *tmpoe = new ObjectEntry(n);
@@ -1626,8 +1655,8 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
     int covise_msg_type_arr[2];
     Message *data_msg;
 
-    tmp_name = new char[n.length() + sizeof(int)];
-    strcpy(tmp_name, n.data());
+    tmp_name = new char[strlen(n) + 1 + sizeof(int)];
+    strcpy(tmp_name, n);
 #ifdef DEBUG
     sprintf(tmp_str, "in get_object: %s", tmp_name);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
@@ -1645,11 +1674,12 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
         while (!found && (dme = data_mgrs->next()))
         {
             len = strlen(tmp_name) + 1;
-            Message *msg = new Message(COVISE_MESSAGE_ASK_FOR_OBJECT, DataHandle(tmp_name, len));
+            Message *msg = new Message(COVISE_MESSAGE_ASK_FOR_OBJECT, (int)len, tmp_name);
             tmp_str_ptr = new char[100];
             sprintf(tmp_str_ptr, "GET: asking for object %s ", tmp_name);
             //	    covise_time->mark(__LINE__, tmp_str_ptr);
             dme->conn->send_msg(msg);
+            msg->data = NULL;
             delete msg;
             covise_msg_type_arr[0] = COVISE_MESSAGE_OBJECT_FOLLOWS;
             covise_msg_type_arr[1] = COVISE_MESSAGE_OBJECT_NOT_FOUND;
@@ -1698,7 +1728,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
 #ifdef DEBUG
             print_comment(__LINE__, __FILE__, "oe->dmgr != NULL", 4);
 #endif
-            char *data = new char[strlen(oe->name.data()) + 1 + sizeof(int)];
+            char *data = new char[strlen(oe->name) + 1 + sizeof(int)];
 #if defined(CRAY) && !defined(_WIN32)
 #ifdef _CRAYT3E
             converter.int_to_exch(oe->version, data);
@@ -1709,8 +1739,8 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
             *(int *)data = oe->version;
             swap_byte(*(unsigned int *)data);
 #endif
-            strcpy(&data[SIZEOF_IEEE_INT], oe->name.data());
-            len = n.length() + SIZEOF_IEEE_INT;
+            strcpy(&data[SIZEOF_IEEE_INT], oe->name);
+            len = strlen(n) + 1 + SIZEOF_IEEE_INT;
 
             // Objects never change, so forget about this for now
             /*
@@ -1749,7 +1779,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
     return oe;
 }
 
-ObjectEntry *DataManagerProcess::get_local_object(const DataHandle &n)
+ObjectEntry *DataManagerProcess::get_local_object(char *n)
 {
     ObjectEntry *oe;
     ObjectEntry *tmpoe = new ObjectEntry(n);
@@ -1781,10 +1811,12 @@ ObjectEntry *DataManagerProcess::create_object_from_msg(Message *msg, DMEntry *d
 
     shm_ptr = pack_object->unpack(&tmp_name);
 
-    oe = new ObjectEntry(DataHandle(tmp_name, strlen(tmp_name) + 1), shm_ptr->shm_seq_no, shm_ptr->offset,
+    oe = new ObjectEntry(tmp_name, shm_ptr->shm_seq_no, shm_ptr->offset,
                          msg->conn, dme);
 
+    //    delete [] msg->data;
     delete pack_object;
+    //    msg->data = NULL;
     return oe;
 }
 
@@ -1825,7 +1857,7 @@ int DataManagerProcess::complete_data_connection(Message *msg)
     return 0;
 }
 
-ObjectEntry::ObjectEntry(const DataHandle& n)
+ObjectEntry::ObjectEntry(char *n)
 {
     //    printf("ObjectEntry new   : %x\n", this);
     name = n;
@@ -1836,12 +1868,13 @@ ObjectEntry::ObjectEntry(const DataHandle& n)
     access = new List<AccessEntry>;
 }
 
-ObjectEntry::ObjectEntry(const DataHandle &n, int otype, int no, int o, Connection *conn, DMEntry *dm)
+ObjectEntry::ObjectEntry(char *n, int otype, int no, int o, Connection *conn, DMEntry *dm)
 {
     coShmPtr *tmpptr;
 
     //    printf("ObjectEntry new   : %x\n", this);
-    name = n;
+    name = new char[strlen(n) + 1];
+    strcpy(name, n);
     shm_seq_no = no;
     offset = o;
     tmpptr = new coShmPtr(no, o);
@@ -1854,12 +1887,13 @@ ObjectEntry::ObjectEntry(const DataHandle &n, int otype, int no, int o, Connecti
     add_access(owner, ACC_READ_WRITE_DESTROY, ACC_READ_AND_WRITE);
 }
 
-ObjectEntry::ObjectEntry(const DataHandle& n, int no, int o, Connection *conn, DMEntry *dm)
+ObjectEntry::ObjectEntry(char *n, int no, int o, Connection *conn, DMEntry *dm)
 {
     coShmPtr *tmpptr;
 
     //    printf("ObjectEntry new   : %x\n", this);
-    name = n;
+    name = new char[strlen(n) + 1];
+    strcpy(name, n);
     shm_seq_no = no;
     offset = o;
     tmpptr = new coShmPtr(no, o);
@@ -1897,7 +1931,7 @@ void ObjectEntry::print()
     tmpiptr = (int *)tmparr->getPtr();
     tmpname = coDistributedObject::calcTypeString(tmpiptr[0]);
 
-    sprintf(tmp_str, "(%d, %8d) %s of type %s", shm_seq_no, offset, name.data(), tmpname);
+    sprintf(tmp_str, "(%d, %8d) %s of type %s", shm_seq_no, offset, name, tmpname);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
     sprintf(tmp_str, "Length: %d, Version: %d, Refcount: %d", tmpiptr[6], tmpiptr[8], tmpiptr[10]);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
@@ -1931,7 +1965,7 @@ void ObjectEntry::remove_access(Connection *c)
         access->reset();
         if (access->current() == NULL)
         {
-            msg = new Message(COVISE_MESSAGE_OBJECT_NO_LONGER_USED, name);
+            msg = new Message(COVISE_MESSAGE_OBJECT_NO_LONGER_USED, (int)strlen(name) + 1, name);
             dmgr->conn->send_msg(msg);
             msg->data = NULL;
             delete msg;
@@ -1963,13 +1997,13 @@ void ObjectEntry::set_current_access(Connection *c, access_type c_a)
                 if ((ae->acc != ACC_DENIED) && (ae->acc != ACC_READ_ONLY))
                 {
                     ae->curr_acc = ACC_WRITE_ONLY;
-                    msg = new Message(COVISE_MESSAGE_MSG_OK, DataHandle());
+                    msg = new Message(COVISE_MESSAGE_MSG_OK, 0, (char *)NULL);
                     ae->conn->send_msg(msg);
                     delete msg;
                 }
                 else
                 {
-                    msg = new Message(COVISE_MESSAGE_MSG_FAILED, DataHandle());
+                    msg = new Message(COVISE_MESSAGE_MSG_FAILED, 0, (char *)NULL);
                     ae->conn->send_msg(msg);
                     delete msg;
                 }
@@ -1978,13 +2012,13 @@ void ObjectEntry::set_current_access(Connection *c, access_type c_a)
                 if ((ae->acc != ACC_DENIED) && (ae->acc != ACC_READ_ONLY) && (ae->acc != ACC_WRITE_ONLY))
                 {
                     ae->curr_acc = ACC_READ_AND_WRITE;
-                    msg = new Message(COVISE_MESSAGE_MSG_OK, DataHandle());
+                    msg = new Message(COVISE_MESSAGE_MSG_OK, 0, (char *)NULL);
                     ae->conn->send_msg(msg);
                     delete msg;
                 }
                 else
                 {
-                    msg = new Message(COVISE_MESSAGE_MSG_FAILED, DataHandle());
+                    msg = new Message(COVISE_MESSAGE_MSG_FAILED, 0, (char *)NULL);
                     ae->conn->send_msg(msg);
                     delete msg;
                 }
@@ -2057,13 +2091,13 @@ void ObjectEntry::pack_and_send_object(Message *msg, DataManagerProcess *)
    */
 #endif
     msg->type = COVISE_MESSAGE_OBJECT_FOLLOWS;
-    msg->data.setLength(size);
+    msg->length = size;
     //    delete pack_list;
 }
 
 void ObjectEntry::pack_address(Message *msg)
 {
-    //    cerr << "in pack_address for " << name->data() << endl;
+    //    cerr << "in pack_address for " << name << endl;
     int *ia;
 
     // this is a local message, so no conversion is necessary
@@ -2071,8 +2105,9 @@ void ObjectEntry::pack_address(Message *msg)
 
     ia[0] = shm_seq_no;
     ia[1] = offset;
-    msg->data = DataHandle((char *)ia, 2 * sizeof(int));
+    msg->data = (char *)ia;
     msg->type = COVISE_MESSAGE_OBJECT_FOUND;
+    msg->length = 2 * sizeof(int);
 }
 
 DMEntry::DMEntry(int i, char *h, Connection *c)
@@ -2098,8 +2133,8 @@ int DMEntry::complete_data_conn(Message *msg)
     int data_port;
     Host *data_host;
 
-    data_host = new Host(&msg->data.data()[SIZEOF_IEEE_INT]);
-    data_port = *(int *)msg->data.data();
+    data_host = new Host(&msg->data[SIZEOF_IEEE_INT]);
+    data_port = *(int *)msg->data;
     data_conn = new ClientConnection(data_host, data_port, id, DATAMANAGER);
     return 1;
 }
@@ -2107,7 +2142,7 @@ int DMEntry::complete_data_conn(Message *msg)
 int DMEntry::make_data_conn(char *new_interface)
 {
     char *data;
-    int length;
+    size_t length;
     int data_port;
     ServerConnection *tmp_conn;
 
@@ -2117,7 +2152,7 @@ int DMEntry::make_data_conn(char *new_interface)
     tmp_conn->listen();
     *(int *)data = data_port;
     strcpy(&data[SIZEOF_IEEE_INT], new_interface);
-    Message *msg = new Message(COVISE_MESSAGE_COMPLETE_DATA_CONNECTION, DataHandle(data, length));
+    Message *msg = new Message(COVISE_MESSAGE_COMPLETE_DATA_CONNECTION, data, (int)length);
     conn->send_msg(msg);
     delete msg;
 

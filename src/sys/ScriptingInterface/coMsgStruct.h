@@ -8,13 +8,10 @@
 #ifndef CO_MSG_STRUCT_H
 #define CO_MSG_STRUCT_H
 
-#include <net/dataHandle.h>
-
 typedef struct
 {
     int type;
-    char* data;
-    covise::DataHandle dh;
+    char *data;
 } CoMsg;
 
 #endif

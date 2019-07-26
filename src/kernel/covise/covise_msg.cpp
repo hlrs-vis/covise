@@ -82,17 +82,19 @@ ShmMessage::ShmMessage(coShmPtr *ptr)
     if (ptr != NULL)
     {
         type = COVISE_MESSAGE_MALLOC_OK;
+        length = 2 * sizeof(int);
         int *idata = new int[2];
         idata[0] = ptr->shm_seq_no;
         idata[1] = ptr->offset;
-        data = DataHandle((char *)idata, 2 * sizeof(int));
+        data = (char *)idata;
         //cerr << "Message coShmPtr: " << ptr->shm_seq_no <<
         //     ": " << ptr->offset << "\n";
     }
     else
     {
         type = COVISE_MESSAGE_MALLOC_FAILED;
-        data = DataHandle();
+        length = 0;
+        data = NULL;
     }
     //printf("+ in message no. %d for %p, line %d, type %d (%s)\n", 0, this, __LINE__, type, covise_msg_types_array[type]);
     print();
@@ -114,16 +116,17 @@ ShmMessage::ShmMessage(data_type *d, long *count, int no)
     sprintf(tmp_str, "no: %d", no);
     LOGINFO(tmp_str);
 #endif
-    data = DataHandle(no * (sizeof(data_type) + sizeof(long)));
+    length = no * (sizeof(data_type) + sizeof(long));
+    data = new char[length];
     for (i = 0, j = 0; i < no; i++)
     {
-        *(data_type *)(data.accessData() + j) = d[i];
+        *(data_type *)(data + j) = d[i];
 #ifdef DEBUG
         sprintf(tmp_str, "data_type: %ld", *(data_type *)(data + j));
         LOGINFO(tmp_str);
 #endif
         j += sizeof(data_type);
-        *(long *)(data.accessData() + j) = count[i];
+        *(long *)(data + j) = count[i];
 #ifdef DEBUG
         sprintf(tmp_str, "size: %ld", *(long *)(data + j));
         LOGINFO(tmp_str);
@@ -154,17 +157,17 @@ ShmMessage::ShmMessage(char *name, int otype, data_type *d, long *count, int no)
     sprintf(tmp_str, "no: %d", no);
     LOGINFO(tmp_str);
 #endif
-    int l = strlen(name) + 1;
-    if (l % SIZEOF_ALIGNMENT)
-        start_data = sizeof(long) + (l / SIZEOF_ALIGNMENT + 1) * SIZEOF_ALIGNMENT;
+    length = (int)strlen(name) + 1;
+    if (length % SIZEOF_ALIGNMENT)
+        start_data = sizeof(long) + (length / SIZEOF_ALIGNMENT + 1) * SIZEOF_ALIGNMENT;
     else
-        start_data = sizeof(long) + l;
-    l = sizeof(long) + start_data + no * (sizeof(data_type) + sizeof(long));
-    data = DataHandle(l);
-    memset(data.accessData(), '\0', data.length());
-    *(int *)data.accessData() = otype;
-    strcpy(&data.accessData()[sizeof(int)], name);
-    tmp_data = data.accessData() + start_data;
+        start_data = sizeof(long) + length;
+    length = sizeof(long) + start_data + no * (sizeof(data_type) + sizeof(long));
+    data = new char[length];
+    memset(data, '\0', length);
+    *(int *)data = otype;
+    strcpy(&data[sizeof(int)], name);
+    tmp_data = data + start_data;
     for (i = 0, j = 0; i < no; i++)
     {
         *(data_type *)(tmp_data + j) = d[i];
@@ -196,7 +199,7 @@ void CtlMessage::init_list()
     int no, i, j, sel, len;
 
     m_name = NULL;
-    char *p = data.accessData();
+    char *p = data;
     tmpchptr = strsep(&p, "\n");
     if (tmpchptr)
     {
@@ -1281,222 +1284,226 @@ int CtlMessage::create_finall_message()
     for (i = 0; i < no_of_release_objects; i++)
         size += strlen(release_names[i]) + 1;
 
-    char *d = new char[size];
+    if (data)
+    {
+        delete[] data;
+    }
+    data = new char[size];
 
-    strcpy(d, m_name);
-    strcat(d, "\n");
+    strcpy(data, m_name);
+    strcat(data, "\n");
 
-    strcat(d, inst_no);
-    strcat(d, "\n");
+    strcat(data, inst_no);
+    strcat(data, "\n");
 
-    strcat(d, h_name);
-    strcat(d, "\n");
+    strcat(data, h_name);
+    strcat(data, "\n");
 
     sprintf(numbuf, "%d\n", no_of_params_out);
-    strcat(d, numbuf);
+    strcat(data, numbuf);
     sprintf(numbuf, "%d\n", no_of_save_objects);
-    strcat(d, numbuf);
+    strcat(data, numbuf);
     sprintf(numbuf, "%d\n", no_of_release_objects);
-    strcat(d, numbuf);
+    strcat(data, numbuf);
 
     for (i = 0; i < no_of_params_out; i++)
     {
-        strcat(d, params_out[i]->name);
-        strcat(d, "\n");
+        strcat(data, params_out[i]->name);
+        strcat(data, "\n");
 
         switch (params_out[i]->type)
         {
 
         case STRING:
-            strcat(d, "String");
-            strcat(data.accessData(), "\n");
+            strcat(data, "String");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamString *)params_out[i])->list);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamString *)params_out[i])->list);
+            strcat(data, "\n");
             break;
 
         case TEXT:
-            strcpy(d, "Text");
-            strcat(d, "\n");
+            strcpy(data, "Text");
+            strcat(data, "\n");
             // no of tokens
             sprintf(numbuf, "%d\n", (params_out[i]->no) + 1);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             // string length
             sprintf(numbuf, "%d\n", ((ParamText *)params_out[i])->length);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < ((ParamText *)params_out[i])->line_num; j++)
             {
-                strcat(d, ((ParamText *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamText *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
             break;
 
         case COVISE_BOOLEAN:
-            strcat(d, "Boolean");
-            strcat(d, "\n");
+            strcat(data, "Boolean");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamBoolean *)params_out[i])->list);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamBoolean *)params_out[i])->list);
+            strcat(data, "\n");
             break;
 
         case BROWSER:
-            strcat(d, "Browser");
-            strcat(d, "\n");
+            strcat(data, "Browser");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamBrowser *)params_out[i])->list);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamBrowser *)params_out[i])->list);
+            strcat(data, "\n");
             break;
 
         case FLOAT_SLIDER:
-            strcat(d, "FloatSlider");
-            strcat(d, "\n");
+            strcat(data, "FloatSlider");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamFloatSlider *)params_out[i])->list[0]);
-            strcat(d, "\n");
-            strcat(d, ((ParamFloatSlider *)params_out[i])->list[1]);
-            strcat(d, "\n");
-            strcat(d, ((ParamFloatSlider *)params_out[i])->list[2]);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamFloatSlider *)params_out[i])->list[0]);
+            strcat(data, "\n");
+            strcat(data, ((ParamFloatSlider *)params_out[i])->list[1]);
+            strcat(data, "\n");
+            strcat(data, ((ParamFloatSlider *)params_out[i])->list[2]);
+            strcat(data, "\n");
             break;
 
         case INT_SLIDER:
-            strcat(d, "IntSlider");
-            strcat(d, "\n");
+            strcat(data, "IntSlider");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamIntSlider *)params_out[i])->list[0]);
-            strcat(d, "\n");
-            strcat(d, ((ParamIntSlider *)params_out[i])->list[1]);
-            strcat(d, "\n");
-            strcat(d, ((ParamIntSlider *)params_out[i])->list[2]);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamIntSlider *)params_out[i])->list[0]);
+            strcat(data, "\n");
+            strcat(data, ((ParamIntSlider *)params_out[i])->list[1]);
+            strcat(data, "\n");
+            strcat(data, ((ParamIntSlider *)params_out[i])->list[2]);
+            strcat(data, "\n");
             break;
 
         case COLORMAP_MSG:
-            strcat(d, "Colormap");
-            strcat(d, "\n");
+            strcat(data, "Colormap");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
-                strcat(d, ((ParamColormap *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamColormap *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
             break;
 
         case COLOR_MSG:
-            strcat(d, "Color");
-            strcat(d, "\n");
+            strcat(data, "Color");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
-                strcat(d, ((ParamColormap *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamColormap *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
             break;
 
         case CHOICE:
-            strcat(d, "Choice");
-            strcat(d, "\n");
+            strcat(data, "Choice");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", (params_out[i]->no) + 1);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             sprintf(numbuf, "%d\n", ((ParamChoice *)params_out[i])->sel);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
-                strcat(d, ((ParamChoice *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamChoice *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
 
             break;
 
         case FLOAT_VECTOR:
-            strcat(d, "FloatVector");
-            strcat(d, "\n");
+            strcat(data, "FloatVector");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
-                strcat(d, ((ParamFloatVector *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamFloatVector *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
             break;
 
         case INT_VECTOR:
-            strcat(d, "IntVector");
-            strcat(d, "\n");
+            strcat(data, "IntVector");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
+            strcat(data, numbuf);
             for (j = 0; j < params_out[i]->no; j++)
             {
-                strcat(d, ((ParamIntVector *)params_out[i])->list[j]);
-                strcat(d, "\n");
+                strcat(data, ((ParamIntVector *)params_out[i])->list[j]);
+                strcat(data, "\n");
             }
             break;
 
         case FLOAT_SCALAR:
-            strcat(d, "FloatScalar");
-            strcat(d, "\n");
+            strcat(data, "FloatScalar");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamFloatScalar *)params_out[i])->list);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamFloatScalar *)params_out[i])->list);
+            strcat(data, "\n");
             break;
 
         case INT_SCALAR:
-            strcat(d, "IntScalar");
-            strcat(d, "\n");
+            strcat(data, "IntScalar");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamIntScalar *)params_out[i])->list);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamIntScalar *)params_out[i])->list);
+            strcat(data, "\n");
             break;
 
         case TIMER:
-            strcat(d, "Timer");
-            strcat(d, "\n");
+            strcat(data, "Timer");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamTimer *)params_out[i])->list[0]);
-            strcat(d, "\n");
-            strcat(d, ((ParamTimer *)params_out[i])->list[1]);
-            strcat(d, "\n");
-            strcat(d, ((ParamTimer *)params_out[i])->list[2]);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamTimer *)params_out[i])->list[0]);
+            strcat(data, "\n");
+            strcat(data, ((ParamTimer *)params_out[i])->list[1]);
+            strcat(data, "\n");
+            strcat(data, ((ParamTimer *)params_out[i])->list[2]);
+            strcat(data, "\n");
             break;
 
         case PASSWD:
-            strcat(d, "Passwd");
-            strcat(d, "\n");
+            strcat(data, "Passwd");
+            strcat(data, "\n");
             sprintf(numbuf, "%d\n", params_out[i]->no);
-            strcat(d, numbuf);
-            strcat(d, ((ParamPasswd *)params_out[i])->list[0]);
-            strcat(d, "\n");
-            strcat(d, ((ParamPasswd *)params_out[i])->list[1]);
-            strcat(d, "\n");
-            strcat(d, ((ParamPasswd *)params_out[i])->list[2]);
-            strcat(d, "\n");
+            strcat(data, numbuf);
+            strcat(data, ((ParamPasswd *)params_out[i])->list[0]);
+            strcat(data, "\n");
+            strcat(data, ((ParamPasswd *)params_out[i])->list[1]);
+            strcat(data, "\n");
+            strcat(data, ((ParamPasswd *)params_out[i])->list[2]);
+            strcat(data, "\n");
             break;
         }
     }
     for (i = 0; i < no_of_save_objects; i++)
     {
-        strcat(d, save_names[i]);
-        strcat(d, "\n");
+        strcat(data, save_names[i]);
+        strcat(data, "\n");
     }
     for (i = 0; i < no_of_release_objects; i++)
     {
-        strcat(d, release_names[i]);
-        strcat(d, "\n");
+        strcat(data, release_names[i]);
+        strcat(data, "\n");
     }
 
     type = COVISE_MESSAGE_FINALL;
-    data = DataHandle(d, strlen(d) + 1);
+    length = int(strlen(data) + 1);
 
     return 1;
 }
@@ -1510,19 +1517,23 @@ int CtlMessage::create_finpart_message()
     size += int(strlen(inst_no) + 1);
     size += int(strlen(h_name) + 1);
 
-    char *d = new char[size];
+    if (data)
+    {
+        delete[] data;
+    }
+    data = new char[size];
 
-    strcpy(d, m_name);
-    strcat(d, "\n");
+    strcpy(data, m_name);
+    strcat(data, "\n");
 
-    strcat(d, inst_no);
-    strcat(d, "\n");
+    strcat(data, inst_no);
+    strcat(data, "\n");
 
-    strcat(d, h_name);
-    strcat(d, "\n");
+    strcat(data, h_name);
+    strcat(data, "\n");
 
     type = COVISE_MESSAGE_FINPART;
-    data = DataHandle(d, strlen(d) + 1);
+    length = int(strlen(data) + 1);
 
     return 1;
 }
@@ -1599,7 +1610,7 @@ void RenderMessage::init_list()
     int i;
     //char tmp_str[255];
 
-    m_name = get_part(data.accessData());
+    m_name = get_part(data);
     inst_no = get_part();
     h_name = get_part();
     no_of_objects = atoi(get_part());
