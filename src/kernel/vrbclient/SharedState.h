@@ -241,7 +241,7 @@ public:
         data << (int)ChangeType::ENTRY_CHANGE;
         data << lastPos;
         serialize(data, v);
-        setVar(covise::DataHandle(data.take_data(), data.get_length()));
+        setVar(data.getData());
     }
 };
 }
