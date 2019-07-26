@@ -331,10 +331,7 @@ void TransformBehavior::sendMessageToGUI()
     if (opencover::coVRMSController::instance()->isMaster())
     {
         grmsg::coGRObjMovedMsg movedMsg(_sceneObject->getCoviseKey().c_str(), trans.x(), trans.y(), trans.z(), rot.x(), rot.y(), rot.z(), rot.w());
-        covise::Message grmsg;
-        grmsg.type = covise::COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(movedMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHanle{(char*)movedMsg.c_str(),strlen(movedMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
 }

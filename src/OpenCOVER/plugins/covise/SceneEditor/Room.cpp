@@ -259,10 +259,7 @@ void Room::sendMessageGeometryToGUI()
     if (coVRMSController::instance()->isMaster())
     {
         grmsg::coGRObjGeometryMsg geoMsg(getCoviseKey().c_str(), _width, _height, _length);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(geoMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHanle{(char *)geoMsg.c_str(),strlen(geoMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
 }
