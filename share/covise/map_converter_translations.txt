@@ -480,6 +480,7 @@ port: GeometryOut0 > geometryOut
 port: GridOut0 > meshOut
 port: DataOut0 > dataOut
 port: DataOut1 > normalsOut
+parameter: point_or_value > Interactor
 
 module: IsoSurfaceComp
 port: GridIn0 > meshIn

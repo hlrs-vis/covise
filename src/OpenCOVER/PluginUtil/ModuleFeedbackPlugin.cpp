@@ -452,7 +452,15 @@ void ModuleFeedbackPlugin::setStringParam(const char *name, const char *val)
     }
 }
 
-/// set choice parameter, pos starts with 1
+/// set choice parameter, pos starts with 0
+void ModuleFeedbackPlugin::setChoiceParam(const char *name, int pos)
+{
+    for (std::list<coInteractor *>::iterator it = interactors.begin(); it != interactors.end(); it++)
+    {
+        (*it)->setChoiceParam(name, pos);
+    }
+}
+
 void ModuleFeedbackPlugin::setChoiceParam(const char *name, int num, const char *const *list, int pos)
 {
     for (std::list<coInteractor *>::iterator it = interactors.begin(); it != interactors.end(); it++)
