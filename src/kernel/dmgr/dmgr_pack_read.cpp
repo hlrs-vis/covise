@@ -84,13 +84,11 @@ void PackBuffer::receive()
     conn->recv_msg(msg);
     if (msg->type == COVISE_MESSAGE_OBJECT_FOLLOWS)
     {
-        delete[] buffer;
-        buffer = msg->data.accessData();
+        buffer = msg->data;
         msg->data = DataHandle{};
-        intbuffer = (int *)buffer;
-        buffer_size = msg->data.length();
-        print_comment(__LINE__, __FILE__, "msg->data.length(): %d", buffer_size);
-        intbuffer_size = buffer_size / sizeof(int) + ((buffer_size % sizeof(int)) ? 1 : 0);
+        intbuffer = (int *)buffer.length();
+        print_comment(__LINE__, __FILE__, "msg->data.length(): %d", buffer.length());
+        intbuffer_size = buffer.length() / sizeof(int) + ((buffer.length() % sizeof(int)) ? 1 : 0);
         intbuffer_ptr = 0;
     }
     else

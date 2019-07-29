@@ -10,7 +10,7 @@
 
 #include "dmgr.h"
 #include <covise/covise.h>
-
+#include <net/dataHandle.h>
 #ifdef shm_ptr
 #undef shm_ptr
 #endif
@@ -48,8 +48,7 @@ const int SIZE_PER_TYPE_ENTRY = sizeof(int) + MAX_INT_PER_DATA * sizeof(int);
 class DMGREXPORT PackBuffer
 {
 private:
-    char *buffer; // Buffer for write
-    int buffer_size; // Buffer size
+    covise::DataHandle buffer; // Buffer for write
     int *intbuffer; // integer pointer to write buffer
     int intbuffer_ptr; // current field for integer write buffer
     int intbuffer_size; // integer size of write buffer
@@ -65,10 +64,9 @@ public:
         msg = m;
         conn = msg->conn;
         convert = conn->convert_to;
-        buffer = msg->data.accessData();
+        buffer = msg->data;
         msg->data = DataHandle{};
-        intbuffer = (int *)buffer;
-        buffer_size = msg->data.length();
+        intbuffer = (int *)buffer.data();
         intbuffer_size = msg->data.length() / sizeof(int);
         intbuffer_ptr = 0;
     };
@@ -78,15 +76,13 @@ public:
         msg = m;
         conn = msg->conn;
         convert = conn->convert_to;
-        buffer = new char[OBJECT_BUFFER_SIZE];
-        intbuffer = (int *)buffer;
-        buffer_size = OBJECT_BUFFER_SIZE;
-        intbuffer_size = OBJECT_BUFFER_SIZE / sizeof(int);
+        buffer = DataHandle{ OBJECT_BUFFER_SIZE };
+        intbuffer = (int *)buffer.data();
+        intbuffer_size = buffer.length() / sizeof(int);
         intbuffer_ptr = 0;
     };
     ~PackBuffer()
     {
-        delete[] buffer;
         //	delete msg;
     };
     void send();
