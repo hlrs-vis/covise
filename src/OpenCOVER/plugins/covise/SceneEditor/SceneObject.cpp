@@ -200,7 +200,7 @@ EventErrors::Type SceneObject::receiveEvent(Event *e)
         if (opencover::coVRMSController::instance()->isMaster())
         {
             grmsg::coGRObjSelectMsg selectMsg(_covise_key.c_str(), select);
-            covise::Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)selectMsg.c_str(),strlen(selectMsg.c_str()) + 1 , false} };
+            covise::Message grmsg{ covise::COVISE_MESSAGE_UI, covise::DataHandle{(char*)selectMsg.c_str(),strlen(selectMsg.c_str()) + 1 , false} };
             opencover::cover->sendVrbMessage(&grmsg);
         }
     }
