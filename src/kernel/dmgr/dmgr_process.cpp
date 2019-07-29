@@ -1645,7 +1645,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
         while (!found && (dme = data_mgrs->next()))
         {
             len = strlen(tmp_name) + 1;
-            Message *msg = new Message(COVISE_MESSAGE_ASK_FOR_OBJECT, DataHandle(tmp_name, len));
+            Message* msg = new Message{ COVISE_MESSAGE_ASK_FOR_OBJECT, DataHandle{tmp_name, len, false} };
             tmp_str_ptr = new char[100];
             sprintf(tmp_str_ptr, "GET: asking for object %s ", tmp_name);
             //	    covise_time->mark(__LINE__, tmp_str_ptr);
@@ -1683,6 +1683,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
                 print_comment(__LINE__, __FILE__, "wrong message type");
                 break;
             }
+            delete[] tmp_name;
             delete msg;
         }
     }
