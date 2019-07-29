@@ -831,7 +831,6 @@ void CoviseBase::sendError(const char *fmt, ...)
         message.type = COVISE_MESSAGE_COVISE_ERROR;
         message.data = DataHandle(msgdata, (int)strlen(msgdata) + 1);
         appmod->send_ctl_msg(&message);
-        delete[] msgdata;
     }
     else
         print_comment(__LINE__, __FILE__, "Cannot send message without instance/init before");
