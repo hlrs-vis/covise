@@ -392,7 +392,7 @@ void SceneObject::sendAddChildMessage(SceneObject *so, bool add)
         if (!add)
             remove = 1;
         grmsg::coGRObjAddChildMsg childMsg(_covise_key.c_str(), so->getCoviseKey().c_str(), remove);
-        covise::MessageMessage grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)childMsg.c_str(),strlen(childMsg.c_str()) + 1 , false} };
+        covise::Message grmsg{ covise::COVISE_MESSAGE_UI, covise::DataHandle{(char*)childMsg.c_str(),strlen(childMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
 }
