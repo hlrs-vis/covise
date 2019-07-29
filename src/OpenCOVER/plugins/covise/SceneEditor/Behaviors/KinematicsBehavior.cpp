@@ -914,7 +914,7 @@ void KinematicsBehavior::sendStateToGui()
         string transformStateMsg = makeStateForBodyTransforms(transforms);
 
         grmsg::coGRObjKinematicsStateMsg stateMsg(_sceneObject->getCoviseKey().c_str(), transformStateMsg.c_str());
-        Message grmsg{ COVISE_MESSAGE_UI, DataHanle{(char*)stateMsg.c_str(),strlen(stateMsg.c_str()) + 1 , false} };
+        Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)stateMsg.c_str(),strlen(stateMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
 }

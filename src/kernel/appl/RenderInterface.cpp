@@ -31,6 +31,7 @@
 #include <covise/Covise_Util.h>
 #include <util/coLog.h>
 #include <do/coDistributedObject.h>
+#include <net/dataHandle.h>
 
 #ifdef _WIN32
 #include <fcntl.h>
