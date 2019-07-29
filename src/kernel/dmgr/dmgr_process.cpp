@@ -1733,7 +1733,6 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
          */
         }
     }
-    delete[] tmp_name;
 #ifdef DEBUG
     char *tmp_ptr;
     if (oe)
