@@ -379,10 +379,7 @@ int SceneObjectManager::requestDeleteSceneObject(SceneObject *so)
     if (opencover::coVRMSController::instance()->isMaster())
     {
         grmsg::coGRObjDelMsg selectMsg(so->getCoviseKey().c_str(), 1);
-        covise::Message grmsg;
-        grmsg.type = covise::COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(selectMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        covise::Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)selectMsg.c_str(),strlen(selectMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
     return 1;

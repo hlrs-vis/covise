@@ -200,7 +200,7 @@ EventErrors::Type SceneObject::receiveEvent(Event *e)
         if (opencover::coVRMSController::instance()->isMaster())
         {
             grmsg::coGRObjSelectMsg selectMsg(_covise_key.c_str(), select);
-            Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)selectMsg.c_str(),strlen(selectMsg.c_str()) + 1 , false} };
+            covise::Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)selectMsg.c_str(),strlen(selectMsg.c_str()) + 1 , false} };
             opencover::cover->sendVrbMessage(&grmsg);
         }
     }
@@ -392,7 +392,7 @@ void SceneObject::sendAddChildMessage(SceneObject *so, bool add)
         if (!add)
             remove = 1;
         grmsg::coGRObjAddChildMsg childMsg(_covise_key.c_str(), so->getCoviseKey().c_str(), remove);
-        Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)childMsg.c_str(),strlen(childMsg.c_str()) + 1 , false} };
+        covise::MessageMessage grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)childMsg.c_str(),strlen(childMsg.c_str()) + 1 , false} };
         opencover::cover->sendVrbMessage(&grmsg);
     }
 }
