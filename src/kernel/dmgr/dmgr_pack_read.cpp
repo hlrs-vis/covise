@@ -86,7 +86,7 @@ void PackBuffer::receive()
     {
         buffer = msg->data;
         msg->data = DataHandle{};
-        intbuffer = (int *)buffer.length();
+        intbuffer = (int *)buffer.data();
         print_comment(__LINE__, __FILE__, "msg->data.length(): %d", buffer.length());
         intbuffer_size = buffer.length() / sizeof(int) + ((buffer.length() % sizeof(int)) ? 1 : 0);
         intbuffer_ptr = 0;
