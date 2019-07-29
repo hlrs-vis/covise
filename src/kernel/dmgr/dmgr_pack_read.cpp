@@ -72,7 +72,8 @@ using namespace covise;
 
 Packer::Packer(Message *m, DataManagerProcess *dm)
 {
-    shm_obj_ptr = 0L;
+    shm_ptr = nullptr;
+    shm_obj_ptr = nullptr;
     convert = m->conn->convert_to;
     buffer = new PackBuffer(dm, m);
     number_of_data_elements = 0;
@@ -86,9 +87,8 @@ void PackBuffer::receive()
     {
         buffer = msg->data;
         msg->data = DataHandle{};
-        intbuffer = (int *)buffer.data();
         print_comment(__LINE__, __FILE__, "msg->data.length(): %d", buffer.length());
-        intbuffer_size = buffer.length() / sizeof(int) + ((buffer.length() % sizeof(int)) ? 1 : 0);
+        //intbuffer_size = buffer.length() / sizeof(int) + ((buffer.length() % sizeof(int)) ? 1 : 0);
         intbuffer_ptr = 0;
     }
     else
@@ -107,21 +107,21 @@ inline
 #ifdef BYTESWAP
     unsigned int *urd;
 #endif
-    if (intbuffer_ptr >= intbuffer_size) // if end of buffer (all read)
+    if (intbuffer_ptr >= intbuffer_size()) // if end of buffer (all read)
         receive();
 #ifdef CRAY
     if (convert) // at the moment cv == IEEE <=> !cv
 #ifdef _CRAYT3E
-        converter.exch_to_int((char *)&intbuffer[intbuffer_ptr], &rd);
+        converter.exch_to_int((char *)&intbuffer()[intbuffer_ptr], &rd);
 #else
-        conv_single_int_i4c8(intbuffer[intbuffer_ptr], &rd);
+        conv_single_int_i4c8(intbuffer()[intbuffer_ptr], &rd);
 #endif
     else
         rd = intbuffer[intbuffer_ptr];
     intbuffer_ptr += 1;
     return;
 #else
-    rd = intbuffer[intbuffer_ptr];
+    rd = intbuffer()[intbuffer_ptr];
 #ifdef BYTESWAP
     urd = (unsigned int *)&rd;
     swap_byte(*urd);
@@ -159,10 +159,10 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
 #ifdef DEBUG
     print_comment(__LINE__, __FILE__, "PackBuffer::get_current_pointer_for_n_bytes");
     sprintf(tmp_str, "intbuffer_ptr: %d  intbuffer_size: %d",
-            intbuffer_ptr, intbuffer_size);
+            intbuffer_ptr, intbuffer_size());
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-    if (intbuffer_ptr >= intbuffer_size) // pointer is at the end
+    if (intbuffer_ptr >= intbuffer_size()) // pointer is at the end
     {
 #ifdef DEBUG
         print_comment(__LINE__, __FILE__, "receiving new data");
@@ -170,16 +170,16 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
         receive();
         intbuffer_ptr = 0;
     }
-    if ((intbuffer_size - intbuffer_ptr) * (int)sizeof(int) < n)
+    if ((intbuffer_size() - intbuffer_ptr) * (int)sizeof(int) < n)
     {
 #ifdef DEBUG
         sprintf(tmp_str, "only returning partial data: %d bytes of %d",
-                (intbuffer_size - intbuffer_ptr) * sizeof(int), n);
+                (intbuffer_size() - intbuffer_ptr) * sizeof(int), n);
         print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-        n = (intbuffer_size - intbuffer_ptr) * sizeof(int);
+        n = (intbuffer_size() - intbuffer_ptr) * sizeof(int);
         tmp_intbuffer_ptr = intbuffer_ptr;
-        intbuffer_ptr = intbuffer_size;
+        intbuffer_ptr = intbuffer_size();
     }
     else
     {
@@ -200,7 +200,7 @@ char *PackBuffer::get_current_pointer_for_n_bytes(int &n)
             intbuffer_ptr, intbuffer_size);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-    return (char *)&intbuffer[tmp_intbuffer_ptr];
+    return (char *)&intbuffer()[tmp_intbuffer_ptr];
 }
 
 // read_object assumes that all pointers are prepared correctly

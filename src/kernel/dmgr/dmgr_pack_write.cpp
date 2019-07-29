@@ -82,6 +82,14 @@ Packer::Packer(Message *m, int s, int o)
 }
 
 #if !defined(CRAY) && !defined(__hpux) && !defined(_SX)
+int* covise::PackBuffer::intbuffer()
+{
+    return (int*)buffer.accessData();
+}
+int covise::PackBuffer::intbuffer_size()
+{
+    return buffer.length() / sizeof(int);
+}
 inline
 #endif
     void
@@ -118,7 +126,7 @@ inline
     sprintf(tmp_str, "PackBuffer::write_int %d", wi);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-    if (intbuffer_ptr >= intbuffer_size) // if buffer full
+    if (intbuffer_ptr >= intbuffer_size()) // if buffer full
     {
         send();
         intbuffer_ptr = 0;
@@ -126,18 +134,18 @@ inline
 #ifdef CRAY
     if (convert) // at the moment cv == IEEE <=> !cv
 #ifdef _CRAYT3E
-        converter.int_to_exch(wi, (char *)&intbuffer[intbuffer_ptr]);
+        converter.int_to_exch(wi, (char *)&intbuffer()[intbuffer_ptr]);
 #else
-        conv_single_int_c8i4(wi, &intbuffer[intbuffer_ptr]);
+        conv_single_int_c8i4(wi, &intbuffer()[intbuffer_ptr]);
 #endif
     else
-        intbuffer[intbuffer_ptr] = wi;
+        intbuffer()[intbuffer_ptr] = wi;
     intbuffer_ptr += 1;
     return;
 #else
-    intbuffer[intbuffer_ptr] = wi;
+    intbuffer()[intbuffer_ptr] = wi;
 #ifdef BYTESWAP
-    ui = (unsigned int *)&intbuffer[intbuffer_ptr];
+    ui = (unsigned int *)&intbuffer()[intbuffer_ptr];
     swap_byte(*ui);
 #endif
     intbuffer_ptr += 2;
@@ -163,21 +171,21 @@ char *PackBuffer::get_ptr_for_n_bytes(int &n) // always aligned
     //   1) n > buffersize: return pointer and set n to buffersize
     //   2) n <= buffersize: a)
 
-    if (intbuffer_ptr == intbuffer_size)
+    if (intbuffer_ptr == intbuffer_size())
     {
         send();
         intbuffer_ptr = 0;
     }
 
     tmp_ptr = intbuffer_ptr;
-    if (n <= (intbuffer_size - intbuffer_ptr) * (int)sizeof(int))
+    if (n <= (intbuffer_size() - intbuffer_ptr) * (int)sizeof(int))
     {
         intbuffer_ptr += n / sizeof(int) + (n % sizeof(int) ? 1 : 0);
     }
     else
     {
-        n = (intbuffer_size - intbuffer_ptr) * sizeof(int);
-        intbuffer_ptr = intbuffer_size;
+        n = (intbuffer_size() - intbuffer_ptr) * sizeof(int);
+        intbuffer_ptr = intbuffer_size();
     }
     //#ifndef CRAY        muesste so allgemeingueltig sein:
     // assure alignment to SIZEOF_ALIGNMENT (already guaranteed on Cray)
@@ -191,7 +199,7 @@ char *PackBuffer::get_ptr_for_n_bytes(int &n) // always aligned
             intbuffer_ptr, intbuffer_size);
     print_comment(__LINE__, __FILE__, tmp_str);
 #endif
-    return (char *)&intbuffer[tmp_ptr];
+    return (char *)&intbuffer()[tmp_ptr];
 }
 
 inline int Packer::write_int()

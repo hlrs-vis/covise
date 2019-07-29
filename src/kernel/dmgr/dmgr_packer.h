@@ -49,9 +49,9 @@ class DMGREXPORT PackBuffer
 {
 private:
     covise::DataHandle buffer; // Buffer for write
-    int *intbuffer; // integer pointer to write buffer
+    int *intbuffer(); // integer pointer to write buffer
     int intbuffer_ptr; // current field for integer write buffer
-    int intbuffer_size; // integer size of write buffer
+    int intbuffer_size(); // integer size of write buffer
     int convert; // conversion necessary?
     Message *msg; // message that will be sent
     Connection *conn; // connection through which the message will be sent
@@ -66,8 +66,6 @@ public:
         convert = conn->convert_to;
         buffer = msg->data;
         msg->data = DataHandle{};
-        intbuffer = (int *)buffer.data();
-        intbuffer_size = msg->data.length() / sizeof(int);
         intbuffer_ptr = 0;
     };
     PackBuffer(Message *m) // initialize for send
@@ -77,8 +75,6 @@ public:
         conn = msg->conn;
         convert = conn->convert_to;
         buffer = DataHandle{ OBJECT_BUFFER_SIZE };
-        intbuffer = (int *)buffer.data();
-        intbuffer_size = buffer.length() / sizeof(int);
         intbuffer_ptr = 0;
     };
     ~PackBuffer()
