@@ -74,7 +74,7 @@ public:
 
     // Droplet particle;
     Weapon knife;
-    std::list<Droplet*> particleList;
+    std::vector<Droplet*> particleList;
 
 private:
     int numParticles = 0;
