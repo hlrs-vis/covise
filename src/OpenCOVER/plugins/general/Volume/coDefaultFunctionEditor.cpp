@@ -84,17 +84,8 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     channelLabel->setPos(80, -68, 1);
     channelLabel->setFontSize(8);
 
-    bool ignore;
-    const bool useHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", false, &ignore);
-    if (useHistogram)
-    {
-        hist = new coToggleButton(new coSquareButtonGeometry("Volume/histogram"), this);
-        hist->setPos(67, -70.8);
-    }
-    else
-    {
-        hist = NULL;
-    }
+    hist = new coToggleButton(new coSquareButtonGeometry("Volume/histogram"), this);
+    hist->setPos(67, -70.8);
     apply = new coPushButton(new coSquareButtonGeometry("Volume/apply"), this);
     apply->setPos(77, -70.8);
     load = new coPushButton(new coSquareButtonGeometry("Volume/load"), this);
@@ -146,10 +137,7 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
     panel->addElement(defColor);
     panel->addElement(defAlpha);
     panel->addElement(undo);
-    if (useHistogram)
-    {
-        panel->addElement(hist);
-    }
+    panel->addElement(hist);
     panel->addElement(apply);
     panel->addElement(load);
     panel->addElement(save);
@@ -182,6 +170,9 @@ coDefaultFunctionEditor::coDefaultFunctionEditor(void (*applyFunc)(void *),
 
     pinedit->init();
     updatePinList();
+
+    hist->setState(true);
+    enableHistogram(useHistogram);
 
     enqueueTransfuncFilenames(".");
 }
@@ -732,4 +723,19 @@ void coDefaultFunctionEditor::setActiveChannel(int num)
     coFunctionEditor::setActiveChannel(num);
     updatePinList();
     updateLabels();
+}
+
+void coDefaultFunctionEditor::enableHistogram(bool enable)
+{
+    useHistogram = enable;
+    if (useHistogram)
+    {
+        panel->show(hist);
+        pinedit->setBackgroundType(!hist->getState());
+    }
+    else
+    {
+        panel->hide(hist);
+        pinedit->setBackgroundType(1);
+    }
 }

@@ -433,6 +433,7 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
+    maxHistogramVoxels = covise::coCoviseConfig::getLong("value", "COVER.Plugin.Volume.MaxHistogramVoxels", maxHistogramVoxels);
     showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
@@ -2055,13 +2056,18 @@ void VolumePlugin::updateTFEData()
                 vvVolDesc *vd = tfApplyCBData.drawable->getVolumeDescription();
                 if (vd)
                 {
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
                         vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
                         editor->pinedit->setBackgroundType(0); // histogram
+                        editor->enableHistogram(true);
+                    }
+                    else
+                    {
+                        editor->enableHistogram(false);
                     }
 
                     editor->setNumChannels(vd->getChan());
@@ -2097,7 +2103,7 @@ void VolumePlugin::updateTFEData()
                         coTUIFunctionEditorTab::histogramBuckets,
                         vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
                     };
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->getChan() == 1)
@@ -2107,6 +2113,13 @@ void VolumePlugin::updateTFEData()
                             vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
                                               std::min(vd->range(0)[0], vd->range(1)[0]),
                                               std::max(vd->range(0)[1], vd->range(1)[1]));
+                        editor->enableHistogram(true);
+                        std::cerr << "enabling histogram" << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "disabling histogram" << std::endl;
+                        editor->enableHistogram(false);
                     }
                 }
             }
