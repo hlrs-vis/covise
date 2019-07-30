@@ -230,7 +230,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 {
     //std::cerr << "Controller::start_datamanager: name=" << name << ", rhost name=" <<  rhost->getName() << ", v4=" << rhost->get_ipv4() << std::endl;
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
     char *dsp = CTRLHandler::instance()->Config->getDisplayIP(*rhost);
 
