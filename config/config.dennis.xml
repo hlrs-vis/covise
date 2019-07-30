@@ -255,7 +255,7 @@
    </Menu>
    <ViewerPosition x="0" y="-1500" z="0" />
    <SceneSize value="1000" />
-   <DebugLevel value="5" />
+   <DebugLevel value="1" />
    <FPS value="true" />
    
 
