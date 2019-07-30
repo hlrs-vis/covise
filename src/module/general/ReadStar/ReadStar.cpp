@@ -447,7 +447,7 @@ int ReadStar::handleChangedDataPath(const char *newpath,
 {
     int newFiles = 0;
     const char *path;
-    char bfr[500];
+    char bfr[1024];
     char tmpfile[500];
     size_t i;
     //int hdl;

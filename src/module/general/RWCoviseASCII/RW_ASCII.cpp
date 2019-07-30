@@ -1377,7 +1377,9 @@ coDistributedObject *
 RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
 {
     // get sizes
-    char errBuf[600];
+
+    // errBuf unused
+    // char errBuf[600];
     char buffer[100000];
     int xSize = 0, ySize = 0, zSize = 0;
 
@@ -1429,9 +1431,11 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
-                            "ERROR: Illegal read in VERTEX definition '%s'",
-                            buffer);
+
+                    // errBuf unused
+                    // sprintf(errBuf,
+                    //         "ERROR: Illegal read in VERTEX definition '%s'",
+                    //         buffer);
 
                     // clean up
                     delete rctgrd;
@@ -1451,9 +1455,11 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
-                            "ERROR: Illegal read in VERTEX definition '%s'",
-                            buffer);
+
+                    // errBuf unused
+                    // sprintf(errBuf,
+                    //         "ERROR: Illegal read in VERTEX definition '%s'",
+                    //         buffer);
 
                     // clean up
                     delete rctgrd;
@@ -1473,9 +1479,11 @@ RW_ASCII::readRCTGRD(const char *name, char *command, istream &str)
                 {
 
                     // an error occured in VERTEX definition
-                    sprintf(errBuf,
-                            "ERROR: Illegal read in VERTEX definition '%s'",
-                            buffer);
+
+                    // errBuf unused                    
+                    // sprintf(errBuf,
+                    //         "ERROR: Illegal read in VERTEX definition '%s'",
+                    //        buffer);
 
                     // clean up
                     delete rctgrd;

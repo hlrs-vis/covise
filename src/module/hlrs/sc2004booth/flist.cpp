@@ -46,7 +46,7 @@ struct Flist *AllocFlistStruct(int portion)
 
 void FreeFlistStruct(struct Flist *flist)
 {
-    char buf[50];
+    char buf[128];
 
     if (flist)
     {
