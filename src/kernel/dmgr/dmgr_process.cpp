@@ -450,7 +450,7 @@ void DataManagerProcess::contact_controller(int p, Host *h)
 void DataManagerProcess::contact_datamanager(int p, Host *host)
 {
     Connection *dm;
-    char *msg_data = new char[80];
+    char msg_data[80];
     DMEntry *dme = NULL;
     unsigned int sid;
 
@@ -468,7 +468,7 @@ void DataManagerProcess::contact_datamanager(int p, Host *host)
 #endif
     strcpy(&msg_data[SIZEOF_IEEE_INT], get_host()->getAddress());
     int len = SIZEOF_IEEE_INT + (int)strlen(&msg_data[SIZEOF_IEEE_INT]) + 1;
-    Message msg{ COVISE_MESSAGE_SEND_ID, DataHandle(msg_data, len) };
+    Message msg{ COVISE_MESSAGE_SEND_ID, DataHandle{msg_data, len, false} };
 
     dm->send_msg(&msg);
     msg.data = DataHandle();
