@@ -90,7 +90,7 @@ RadialRunner::RadialRunner(int argc, char *argv[])
 		free(pfn);
 	}
 	else
-		fprintf(0, "WARNING: pfn ist NULL !\n");
+		fprintf(stderr, "WARNING: pfn ist NULL !\n");
 
 	// WE build the User-Menue ...
 	RadialRunner::CreateUserMenu();
