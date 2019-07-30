@@ -1620,14 +1620,13 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
     ObjectEntry *tmpoe = new ObjectEntry(n);
     DMEntry *dme;
     size_t len;
-    char *tmp_name;
     char tmp_str[255];
     char *tmp_str_ptr;
     int covise_msg_type_arr[2];
     Message *data_msg;
 
-    tmp_name = new char[n.length() + sizeof(int)];
-    strcpy(tmp_name, n.data());
+    DataHandle tmp_name{ n.length() + sizeof(int) };
+    strcpy(tmp_name.accessData(), n.data());
 #ifdef DEBUG
     sprintf(tmp_str, "in get_object: %s", tmp_name);
     print_comment(__LINE__, __FILE__, tmp_str, 4);
@@ -1644,10 +1643,10 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
         int found = 0;
         while (!found && (dme = data_mgrs->next()))
         {
-            len = strlen(tmp_name) + 1;
-            Message* msg = new Message{ COVISE_MESSAGE_ASK_FOR_OBJECT, DataHandle{tmp_name, len, false} };
+            tmp_name.setLength(strlen(tmp_name.data()) + 1);
+            Message* msg = new Message{ COVISE_MESSAGE_ASK_FOR_OBJECT, tmp_name };
             tmp_str_ptr = new char[100];
-            sprintf(tmp_str_ptr, "GET: asking for object %s ", tmp_name);
+            sprintf(tmp_str_ptr, "GET: asking for object %s ", tmp_name.data());
             //	    covise_time->mark(__LINE__, tmp_str_ptr);
             dme->conn->send_msg(msg);
             delete msg;
@@ -1662,7 +1661,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
             case COVISE_MESSAGE_OBJECT_FOLLOWS:
 #ifdef DEBUG
                 sprintf(tmp_str, "%s found at remote datamanager",
-                        tmp_name);
+                        tmp_name.data());
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
 #endif
                 data_msg = new Message;
@@ -1683,7 +1682,6 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
                 print_comment(__LINE__, __FILE__, "wrong message type");
                 break;
             }
-            delete[] tmp_name;
             delete msg;
         }
     }
