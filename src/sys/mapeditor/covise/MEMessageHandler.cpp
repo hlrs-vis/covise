@@ -139,9 +139,6 @@ void MEMessageHandler::dataReceived(int)
             if (msg->data.length() == 0)
             {
                 covise::print_comment(__LINE__, __FILE__, "empty message");
-                m_userInterface->delete_msg(msg);
-                // empty messages are generated when connection list is empty
-                break;
             }
             else
             {

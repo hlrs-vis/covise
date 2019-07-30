@@ -61,19 +61,24 @@ static coShmArray *getShmArray(const char *name)
 {
     if (!name)
     {
-        print_comment(__LINE__, __FILE__, "tried getShmArray with name == NULL");
-        return NULL;
+        print_comment(__LINE__, __FILE__, "tried getShmArray with name == nullptr");
+        return nullptr;
     }
 
     if (!ApplicationProcess::approc)
-        return NULL;
+        return nullptr;
 
     int len = (int)strlen(name) + 1;
+    if (len == 1)
+    {
+        print_comment(__LINE__, __FILE__, "tried getShmArray with empty name");
+        return nullptr;
+    }
     char *tmpptr = new char[len];
     strcpy(tmpptr, name);
     Message msg{ COVISE_MESSAGE_GET_OBJECT, DataHandle{tmpptr, len} };
     ApplicationProcess::approc->exch_data_msg(&msg, 2, COVISE_MESSAGE_OBJECT_FOUND, COVISE_MESSAGE_OBJECT_NOT_FOUND);
-    coShmArray *shmarr = NULL;
+    coShmArray *shmarr = nullptr;
     // this is a local message, so no conversion is necessary
     if (msg.type == COVISE_MESSAGE_OBJECT_FOUND)
     {
@@ -99,9 +104,9 @@ int coDistributedObject::set_vconstr(const char *t,
     int t_no = calcType(t);
     //    cerr << "in set_vconstr with " << t_no << endl;
 
-    if (vconstr_list == NULL)
+    if (vconstr_list == nullptr)
     {
-        //print_comment(__LINE__, __FILE__, "vconstr_list == NULL");
+        //print_comment(__LINE__, __FILE__, "vconstr_list == nullptr");
         coDistributedObject::vconstr_list = new List<VirtualConstructor>;
     }
     vconstr_list->reset();
@@ -119,11 +124,11 @@ const coDistributedObject *coDistributedObject::createFromShm(const coObjInfo &i
 {
     coShmArray *shmarr = ::getShmArray(info.getName());
     if (!shmarr)
-        return NULL;
+        return nullptr;
 
     const coDistributedObject *obj = createUnknown(shmarr);
     if (!obj)
-        return NULL;
+        return nullptr;
 
     if (obj->objectOk())
     {
@@ -131,7 +136,7 @@ const coDistributedObject *coDistributedObject::createFromShm(const coObjInfo &i
     }
 
     delete obj;
-    return NULL;
+    return nullptr;
 }
 
 const coDistributedObject *coDistributedObject::createUnknown(int seg, shmSizeType offs)
@@ -150,9 +155,9 @@ const coDistributedObject *coDistributedObject::createUnknown(coShmArray *arr)
     int ltype = *iptr;
 
     tmp_arr = new coShmArray(arr->shm_seq_no, arr->offset);
-    if (vconstr_list == NULL)
+    if (vconstr_list == nullptr)
     {
-        //print_comment(__LINE__, __FILE__, "vconstr_list == NULL");
+        //print_comment(__LINE__, __FILE__, "vconstr_list == nullptr");
         coDistributedObject::vconstr_list = new List<VirtualConstructor>;
     }
     vconstr_list->reset();
@@ -163,31 +168,31 @@ const coDistributedObject *coDistributedObject::createUnknown(coShmArray *arr)
     }
     delete tmp_arr;
     print_comment(__LINE__, __FILE__, "createUnknown failed for type id %d", ltype);
-    return NULL;
+    return nullptr;
 }
 
 const coDistributedObject *coDistributedObject::createUnknown() const
 {
-    if (name == NULL)
+    if (name == nullptr)
     {
         print_comment(__LINE__, __FILE__, "Object has no name");
-        return NULL;
+        return nullptr;
     }
     if (!shmarr)
         getShmArray();
     if (shmarr)
         return createUnknown(shmarr);
     else
-        return NULL;
+        return nullptr;
 }
 
 coDistributedObject::~coDistributedObject()
 {
 
-    if (NULL != attribs)
+    if (nullptr != attribs)
     {
         delete[] attribs; // if get_all_attributes was called, free up allocated space
-        attribs = NULL;
+        attribs = nullptr;
     }
 
     if (name)
@@ -223,7 +228,7 @@ int coDistributedObject::getObjectInfo(coDoInfo **info_list) const
     {
         il = &(*info_list)[i];
         il->type = iptr[shmarr_count++];
-        il->obj_name = NULL;
+        il->obj_name = nullptr;
         switch (il->type)
         {
         case CHARSHM:
@@ -273,7 +278,7 @@ int coDistributedObject::getObjectInfo(coDoInfo **info_list) const
 
         case COVISE_NULLPTR:
             il->type_name = "Nullpointer";
-            il->ptr = NULL;
+            il->ptr = nullptr;
             shmarr_count += 2;
             break;
 
@@ -635,7 +640,7 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
     ///// This calls the CRB and gets the object !!!
     iptr = store_header(size, no_of_allocs, count, &shmarr_count, dt, ct, idata);
     const int* idataArray = (const int *)idata.data();
-    if (iptr == NULL)
+    if (iptr == nullptr)
     {
         print_comment(__LINE__, __FILE__, "Error in store_header called by store_shared");
         return 0;
@@ -729,7 +734,7 @@ int coDistributedObject::store_shared_dl(int count, covise_data_list *dl)
             break;
 
         case DISTROBJ:
-            if (dl[i].ptr != NULL)
+            if (dl[i].ptr != nullptr)
             {
                 tmparray = ((coDistributedObject *)dl[i].ptr)->shmarr;
                 iptr[shmarr_count - 1] = SHMPTR;
@@ -840,7 +845,7 @@ int coDistributedObject::update_shared_dl(int count, covise_data_list *dl)
                 shmarr_count++;
             break;
         case DISTROBJ:
-            if (dl[i].ptr != NULL)
+            if (dl[i].ptr != nullptr)
             {
                 tmparray = ((coDistributedObject *)dl[i].ptr)->shmarr;
                 iptr[shmarr_count - 1] = SHMPTR;
@@ -907,7 +912,7 @@ int coDistributedObject::restore_header(int **iptr, int count, int *shmarr_count
 
     if ((tmpname = header->getName()))
     {
-        if (name == NULL)
+        if (name == nullptr)
         {
             int len = (int)strlen(tmpname) + 1;
             name = new char[len];
@@ -925,11 +930,11 @@ int coDistributedObject::restore_header(int **iptr, int count, int *shmarr_count
     if (header->get_attr_type() == SHMPTR)
     {
         attributes = header->getAttributes();
-        if (attributes == NULL)
+        if (attributes == nullptr)
             return 0;
     }
     else
-        attributes = NULL;
+        attributes = nullptr;
 
     *iptr = tmp_iptr;
     *shmarr_count = header->getIntHeaderSize();
@@ -940,7 +945,7 @@ int coDistributedObject::restore_header(int **iptr, int count, int *shmarr_count
 int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
 {
     /// if we call a c'tor without SHM array, this is not ok
-    if (shmarr == NULL || shmarr == (coShmArray *)-1)
+    if (shmarr == nullptr || shmarr == (coShmArray *)-1)
     {
         new_ok = 0;
         return 0;
@@ -1017,7 +1022,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                 if (iptr[shmarr_count - 1] & 0x80 && iptr[shmarr_count] == 0)
                 {
                     // this is an empty array, data not yet available
-                    *(void **)dl[i].ptr = NULL;
+                    *(void **)dl[i].ptr = nullptr;
                     shmarr_count += 2;
                 }
                 else
@@ -1073,7 +1078,7 @@ int coDistributedObject::restore_shared_dl(int count, covise_data_list *dl)
                         if (iptr[shmarr_count - 1] == COVISE_NULLPTR)
                         {
                             // does not work on 64bit *(long *)dl[i].ptr = 0;
-                            *(void **)dl[i].ptr = NULL;
+                            *(void **)dl[i].ptr = nullptr;
                         }
                         else
                         {
@@ -1222,26 +1227,26 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     coCharShmArray *charr;
     coDoHeader *header;
     char *tmpstr;
-    if (NULL == attr_name)
+    if (nullptr == attr_name)
     {
         print_comment(__LINE__, __FILE__, "error in addAttribute for distributed object ");
         return;
     }
-    if (NULL == attr_val)
+    if (nullptr == attr_val)
     {
-        print_comment(__LINE__, __FILE__, "error in addAttribute for attr_name=%s, attr_val==NULL", attr_name);
+        print_comment(__LINE__, __FILE__, "error in addAttribute for attr_name=%s, attr_val==nullptr", attr_name);
         return;
     }
 
     attr_len = (int)strlen(attr_name) + 1 + (int)strlen(attr_val) + 1;
     if (attributes)
     {
-        print_comment(__LINE__, __FILE__, "attributes != NULL");
+        print_comment(__LINE__, __FILE__, "attributes != nullptr");
         ct[0] = attributes->get_length() + 1;
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "attributes == NULL");
+        print_comment(__LINE__, __FILE__, "attributes == nullptr");
         ct[0] = 1;
     }
     dt[0] = STRINGSHMARRAY;
@@ -1279,7 +1284,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     delete[] tmpstr;
     if (attributes)
     {
-        print_comment(__LINE__, __FILE__, "attributes != NULL");
+        print_comment(__LINE__, __FILE__, "attributes != nullptr");
         ArrayLengthType i;
         for (i = 0; i < attributes->get_length(); i++)
         {
@@ -1295,7 +1300,7 @@ void coDistributedObject::addAttribute(const char *attr_name, const char *attr_v
     }
     else
     {
-        print_comment(__LINE__, __FILE__, "attributes == NULL");
+        print_comment(__LINE__, __FILE__, "attributes == nullptr");
         tmparr->stringPtrSet(0, charr->get_shm_seq_no(), charr->get_offset());
     }
     delete attributes;
@@ -1448,7 +1453,7 @@ char *coDistributedObject::getAttribute(char *attr_name) {
     if(!attributes) {
    // FUCK! sprintf(tmp_str, "ATTR get for %s: %s -> failed", name, attr_name);
 // D.R. print_comment(__LINE__, __FILE__, tmp_str);
-return NULL;
+return nullptr;
 }
 tmp_array = new coShmArray(attributes->get_shm_seq_no(), attributes->get_offset());
 idata = (int *)tmp_array->getDataPtr();
@@ -1477,7 +1482,7 @@ delete tmp_ch;
 }
 // FUCK! sprintf(tmp_str, "ATTR get: %s -> failed", attr_name);
 // D.R.  print_comment(__LINE__, __FILE__, tmp_str);
-return NULL;
+return nullptr;
 } */
 
 const char *coDistributedObject::getAttribute(const char *attr_name) const
@@ -1489,7 +1494,7 @@ const char *coDistributedObject::getAttribute(const char *attr_name) const
     char *chdata;
 
     if (!attributes)
-        return NULL;
+        return nullptr;
     tmp_array = new coShmArray(attributes->get_shm_seq_no(), attributes->get_offset());
     idata = (int *)tmp_array->getDataPtr();
     delete tmp_array;
@@ -1515,7 +1520,7 @@ const char *coDistributedObject::getAttribute(const char *attr_name) const
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 int coDistributedObject::getNumAttributes() const
@@ -1538,10 +1543,10 @@ int coDistributedObject::getAllAttributes(const char ***name,
     if (!attributes)
         return 0;
 
-    if (attribs != NULL)
+    if (attribs != nullptr)
     {
         delete[] attribs;
-        attribs = NULL;
+        attribs = nullptr;
     }
 
     tmp_array = new coShmArray(attributes->get_shm_seq_no(), attributes->get_offset());
@@ -1665,11 +1670,11 @@ coStringShmArray *coDoHeader::getAttributes()
         else
         {
             print_error(__LINE__, __FILE__, "wrong attribute type");
-            return NULL;
+            return nullptr;
         }
     }
     else
-        return NULL;
+        return nullptr;
 }
 
 /////////
@@ -1805,14 +1810,14 @@ bool coDistributedObject::checkObj(int shmSeg, shmSizeType shmOffs, bool &printe
                         else
                         {
                             // try to create a 'dummy' object to get class structure
-                            coDistributedObject *obj = NULL;
+                            coDistributedObject *obj = nullptr;
                             VirtualConstructor *tmpptr;
                             vconstr_list->reset();
                             while ((tmpptr = vconstr_list->next()))
                             {
                                 if (tmpptr->type == type)
                                 {
-                                    // trick out the != NULL test but fail at restore_shared_dl
+                                    // trick out the != nullptr test but fail at restore_shared_dl
                                     obj = tmpptr->vconstr((coShmArray *)-1);
                                 }
                             }
