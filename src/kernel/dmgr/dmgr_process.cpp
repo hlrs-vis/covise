@@ -1675,7 +1675,7 @@ ObjectEntry *DataManagerProcess::get_object(const DataHandle &n)
             case COVISE_MESSAGE_OBJECT_NOT_FOUND:
                 //               covise_time->mark(__LINE__, "GET: object not found");
                 sprintf(tmp_str, "%s not found at remote datamanager",
-                        tmp_name);
+                        tmp_name.data());
                 print_comment(__LINE__, __FILE__, tmp_str, 4);
                 break;
             default:
