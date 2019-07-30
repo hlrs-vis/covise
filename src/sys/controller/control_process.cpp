@@ -46,7 +46,7 @@ extern "C" int rexec(char **ahost, int inport, char *user, char *passwd,
 AppModule *Controller::start_datamanager(const string &name)
 {
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
 
     module_count += 2;
