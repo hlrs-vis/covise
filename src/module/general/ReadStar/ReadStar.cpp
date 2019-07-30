@@ -1416,7 +1416,7 @@ int ReadStar::transData()
                 char *Table = Covise::get_object_name("cellTable");
                 if (num_elem > 1)
                 {
-                    sprintf(namebuf, "%s_%d", Table, step_no);
+                    sprintf(namebuf, "%s_%d", Table ? Table : "null", step_no);
                 }
                 else
                 {
