@@ -4358,14 +4358,22 @@ void net_module_list::save_config(const string &filename)
 
     Message err_msg(COVISE_MESSAGE_COVISE_ERROR, std::string("Error saving file " + filename));
 
+#ifdef _WIN32
+    ofstream outFile(filename.c_str(), std::ios::binary);
+#else
     ofstream outFile(filename.c_str());
+#endif
     if (!outFile.good())
     {
         string covisepath = getenv("COVISEDIR");
         if (filename == "UNDO.NET" && !covisepath.empty())
         {
             string filestr = covisepath + "/" + filename;
+#ifdef _WIN32
+            ofstream outFile2(filestr.c_str(), std::ios::binary);
+#else
             ofstream outFile2(filestr.c_str());
+#endif
             if (!outFile2.good())
             {
                 string tmp = "Error saving file " + filename;
