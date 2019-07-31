@@ -366,11 +366,7 @@ int main(int argc, char **argv)
     {
 
         // check if file exists
-#ifdef _WIN32
-        FILE *fd = fopen(outFile.c_str(), "rb");
-#else
         FILE *fd = fopen(outFile.c_str(), "r");
-#endif
         if (fd)
         {
 
@@ -387,7 +383,11 @@ int main(int argc, char **argv)
             }
         }
 
+#ifdef _WIN32
+        ofstream oFileS(outFile.c_str(), std::ios::binary);
+#else
         ofstream oFileS(outFile.c_str());
+#endif
         if (!oFileS)
         {
             cerr << "map_converter: could not open file "
