@@ -401,7 +401,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            oFileS << "#" << NET_FILE_VERERSION << endl;
+            oFileS << "#" << NET_FILE_VERSION << endl;
             oFileS << *nFile;
         }
         oFileS.close();
@@ -412,7 +412,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        cout << "#" << NET_FILE_VERERSION << endl;
+        cout << "#" << NET_FILE_VERSION << endl;
         cout << *nFile;
     }
 

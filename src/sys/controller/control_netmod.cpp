@@ -4434,7 +4434,7 @@ void net_module_list::save_config(const string &filename)
 
         // write content
         // get hosts
-        outFile << "#" << NET_FILE_VERERSION << endl;
+        outFile << "#" << NET_FILE_VERSION << endl;
         string hdata = CTRLGlobal::getInstance()->hostList->get_hosts(local_name, local_user);
 
         // get module descrptions

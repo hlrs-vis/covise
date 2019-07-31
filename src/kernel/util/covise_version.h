@@ -11,7 +11,7 @@
 #include <util/coTypes.h>
 
 // update, when .net file format changes
-#define NET_FILE_VERERSION 633
+#define NET_FILE_VERSION 633
 
 namespace covise
 {
