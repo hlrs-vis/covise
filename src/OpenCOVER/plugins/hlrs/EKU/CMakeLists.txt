@@ -2,6 +2,7 @@ SET(HEADERS
   EKU.h
   Cam.h
   Truck.h
+  openGA.hpp
 )
 SET(SOURCES
   EKU.cpp
