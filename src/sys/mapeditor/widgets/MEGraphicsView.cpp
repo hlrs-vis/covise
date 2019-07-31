@@ -1695,7 +1695,7 @@ void MEGraphicsView::addHost(MEHost *host)
 void MEGraphicsView::removeHost(MEHost *host)
 {
     m_hostPopup->removeAction(host->getHostAction());
-    m_copyMovePopup->addAction(host->getCopyMoveAction());
+    m_copyMovePopup->removeAction(host->getCopyMoveAction());
 }
 
 
