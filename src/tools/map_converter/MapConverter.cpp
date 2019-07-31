@@ -366,7 +366,11 @@ int main(int argc, char **argv)
     {
 
         // check if file exists
+#ifdef _WIN32
+        FILE *fd = fopen(outFile.c_str(), "rb");
+#else
         FILE *fd = fopen(outFile.c_str(), "r");
+#endif
         if (fd)
         {
 
