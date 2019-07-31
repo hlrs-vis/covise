@@ -428,9 +428,9 @@ void SumoTraCI::sendSimResults()
         stb << currentResults[i].vehicleType;
         stb << currentResults[i].vehicleID;
     }
-    unsigned int sizeInBytes=stb.get_length();
+    unsigned int sizeInBytes=stb.getData().length();
     coVRMSController::instance()->sendSlaves(&sizeInBytes,sizeof(sizeInBytes));
-    coVRMSController::instance()->sendSlaves(stb.get_data(),sizeInBytes);
+    coVRMSController::instance()->sendSlaves(stb.getData().data(),sizeInBytes);
 }
 void SumoTraCI::readSimResults()
 {

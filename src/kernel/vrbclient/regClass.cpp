@@ -9,6 +9,7 @@
 #include "SessionID.h"
 #include <net/message.h>
 #include <net/message_types.h>
+#include <net/dataHandle.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <vrbclient/VRBClient.h>
 
@@ -120,14 +121,13 @@ namespace vrb
 			if (name == sharedMapName)
 			{
 				//nur fertiges datahandle übergeben
-				covise::TokenBuffer outerTb;
-				outerTb << WHOLE;
+				covise::TokenBuffer tb;
+				tb << WHOLE;
 				//read serialized map data
 				file >> valueSize;
-				char* value = new char[valueSize];
-				file.read(value, valueSize);
-				covise::TokenBuffer innerTb(value, valueSize);
-				outerTb << innerTb;
+                DataHandle dh(valueSize);
+				file.read(dh.accessData(), dh.length());
+				tb << dh;
 				//read changes of map
 				file >> valueSize;
 				std::map<int, DataHandle> changes;
@@ -140,10 +140,8 @@ namespace vrb
 					file.read(v, size);
 					changes[pos] = DataHandle(v, size);
 				}
-				serialize(outerTb, changes);
-                auto l = outerTb.get_length();
-                myVariables[varName] = createVar(varName, DataHandle(outerTb.take_data(), l));
-				delete[] value;
+				serialize(tb, changes);
+				myVariables[varName] = createVar(varName, tb.getData());
 			}
 			else
 			{
@@ -159,7 +157,7 @@ namespace vrb
 	};
 	void regVar::sendValueChange(covise::TokenBuffer& tb)
 	{
-		serialize(tb, value);
+        tb << value;
 	}
 	void regVar::sendValue(covise::TokenBuffer& tb)
 	{
@@ -167,9 +165,8 @@ namespace vrb
 		if (myClass->getName() == sharedMapName)
 		{
 			covise::TokenBuffer v;
-			covise::TokenBuffer serializedMap(wholeMap.data(), wholeMap.length());
-			v << (int)vrb::WHOLE;
-			v << serializedMap;
+   			v << (int)vrb::WHOLE;
+			v << wholeMap;
 			serialize(v, m_changedEtries);
 			tb << v;
 		}
@@ -222,17 +219,14 @@ namespace vrb
 		value = v;
 		if (myClass->getName() == sharedMapName)
 		{
-			covise::TokenBuffer  tb(v.data(), v.length());
+            covise::TokenBuffer  tb(v);
 			int type, pos;
 			tb >> type;
 			switch ((ChangeType)type)
 			{
 			case vrb::WHOLE:
 			{
-				covise::TokenBuffer m;
-				tb >> m;
-                auto l = m.get_length();
-                wholeMap = DataHandle(m.take_data(), l);
+				tb >> wholeMap;
 				m_changedEtries.clear();
 				deserialize(tb, m_changedEtries); //should be empty after complete map was send from ckient, may be filled after session was loaded from file
 				break;
@@ -240,9 +234,7 @@ namespace vrb
 			case vrb::ENTRY_CHANGE:
 			{
 				tb >> pos;
-				DataHandle change;
 				m_changedEtries[pos] = v;
-
 			}
 				break;
 			default:

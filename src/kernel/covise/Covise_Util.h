@@ -85,7 +85,7 @@ public:
     char *return_data()
     {
         char *tmp = buf;
-        buf = NULL;
+        buf = nullptr;
         cur_len = 0;
         len = 0;
         return (tmp);

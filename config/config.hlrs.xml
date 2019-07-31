@@ -62,7 +62,6 @@
 
     <VncServer value="false" rfbPort="5901" benchmark="true" />
     <Volume value="false" menu="true">
-       <UseHistogram value="false" />
 
      <Files>
         <Knee value="/data/VolData/vhd/female-knee-marked3.xvf" />

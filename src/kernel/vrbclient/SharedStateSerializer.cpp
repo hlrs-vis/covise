@@ -42,7 +42,7 @@ std::string tokenBufferToString(covise::TokenBuffer &&tb, int typeID) {
     switch (typeID)
     {
     case vrb::UNDEFINED:
-        valueString = "data of length: " + std::to_string(tb.get_length());
+        valueString = "data of length: " + std::to_string(tb.getData().length());
         break;
     case vrb::BOOL:
         bool b;

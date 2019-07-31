@@ -46,7 +46,7 @@ extern "C" int rexec(char **ahost, int inport, char *user, char *passwd,
 AppModule *Controller::start_datamanager(const string &name)
 {
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
 
     module_count += 2;
@@ -230,7 +230,7 @@ AppModule *Controller::start_datamanager(Host *rhost, const char *user, const ch
 {
     //std::cerr << "Controller::start_datamanager: name=" << name << ", rhost name=" <<  rhost->getName() << ", v4=" << rhost->get_ipv4() << std::endl;
     char chport[10];
-    char chid[10];
+    char chid[16];
     int port;
     char *dsp = CTRLHandler::instance()->Config->getDisplayIP(*rhost);
 
@@ -539,10 +539,8 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{remote_command, strlen(remote_command) + 1, false};
     dmod->send_msg(msg);
-    msg->data = NULL;
     delete msg;
 
     if (conn->acceptOne(timeout) < 0)
@@ -595,7 +593,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             dmod->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                if (rmsg->data && strcmp(rmsg->data, "YES") == 0)
+                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
                     flag = true;
             }
             delete rmsg;
@@ -637,8 +635,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };
 
     // start renderer (OPENSG) inside the mapeditor
     // inform CRB
@@ -699,7 +696,7 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
             dmod->recv_msg(rmsg);
             if (rmsg->type == COVISE_MESSAGE_UI)
             {
-                if (rmsg->data && strcmp(rmsg->data, "YES") == 0)
+                if (rmsg->data.data() && strcmp(rmsg->data.data(), "YES") == 0)
                     flag = true;
             }
             delete rmsg;
@@ -754,8 +751,8 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
         msg->type = COVISE_MESSAGE_CRB_EXEC;
         break;
     }
-    msg->data = remote_command;
-    msg->length = (int)strlen(msg->data) + 1;
+    msg->data = DataHandle{ remote_command, strlen(remote_command) + 1, false };;
+
 
     // start renderer (OPENSG) inside the mapeditor
     // inform CRB
@@ -782,20 +779,18 @@ AppModule *Controller::start_applicationmodule(sender_type peer_type,
 
 void Controller::get_shared_memory(AppModule *dmod)
 {
-    Message *msg = new Message(COVISE_MESSAGE_GET_SHM_KEY, 0, (char *)NULL);
+    Message msg{ COVISE_MESSAGE_GET_SHM_KEY , DataHandle{} };
 
     print_comment(__LINE__, __FILE__, "in get_shared_memory");
-    dmod->send_msg(msg);
-    dmod->recv_msg(msg);
-    if (msg->type == COVISE_MESSAGE_GET_SHM_KEY)
+    dmod->send_msg(&msg);
+    dmod->recv_msg(&msg);
+    if (msg.type == COVISE_MESSAGE_GET_SHM_KEY)
     {
-        print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d length: %d", *(int *)msg->data,
-                      ((int *)msg->data)[1], ((int *)msg->data)[2], msg->length);
-        shm = new ShmAccess(msg->data, 0);
+        print_comment(__LINE__, __FILE__, "GET_SHM_KEY: %d: %x, %d length: %d", *(int *)msg.data.data(),
+                      ((int *)msg.data.data())[1], ((int *)msg.data.data())[2], msg.data.length());
+        shm = new ShmAccess(msg.data.accessData(), 0);
     }
     // data of received message can be deleted
-    msg->delete_data();
-    delete msg;
 }
 
 void Controller::handle_shm_msg(Message *msg)
@@ -804,8 +799,8 @@ void Controller::handle_shm_msg(Message *msg)
 
     if (msg->conn->get_sender_id() == 1)
     {
-        tmpkey = ((int *)msg->data)[0];
-        size = ((int *)msg->data)[1];
+        tmpkey = ((int *)msg->data.data())[0];
+        size = ((int *)msg->data.data())[1];
         shm->add_new_segment(tmpkey, size);
         print_comment(__LINE__, __FILE__, "new SharedMemory");
     }

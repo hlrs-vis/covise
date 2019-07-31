@@ -60,6 +60,7 @@ protected:
     virtual void remoteOngoing(const char *message);
     std::vector<vvTransFunc> theTransferFunc;
     void *userData;
+    bool useHistogram = true;
 
 public:
     virtual void updateColorBar();
@@ -105,5 +106,7 @@ public:
     void setInstantMode(bool);
     void putUndoBuffer();
     coPin *getCurrentPin();
+
+    void enableHistogram(bool enable);
 };
 #endif

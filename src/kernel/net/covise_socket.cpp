@@ -1158,7 +1158,7 @@ UDPSocket::UDPSocket(int p,const char *address)
 	s_addr_in.sin_family = AF_INET;
 	s_addr_in.sin_addr.s_addr = INADDR_ANY;
 	s_addr_in.sin_port = htons(port);
-	sockaddr_in c_addr_in = s_addr_in;
+	sockaddr_in c_addr_in = s_addr_in; //save adress in s_addr_in for sending, but bind without it
 	if (address)
 	{
 		int err = inet_pton(AF_INET, address, &s_addr_in.sin_addr.s_addr);

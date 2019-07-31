@@ -8,10 +8,13 @@
 #ifndef TokenBuffer_H
 #define TokenBuffer_H
 
+#include "dataHandle.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
+
 
 #include <util/coExport.h>
 #include <util/byteswap.h>
@@ -73,9 +76,9 @@ namespace covise
 {
 
 class MessageBase;
+class DataHandle;
 
-
-class NETEXPORT TokenBuffer // class for tokens
+class NETEXPORT TokenBuffer// class for tokens
 {
 private:
     enum Types
@@ -87,20 +90,16 @@ private:
         TbDouble,
         TbString,
         TbChar,
-        TbTB,
+        TbTB, //TokenBuffer or DataHandle
         TbBinary,
     };
-
+    DataHandle data;
     void puttype(Types t);
     bool checktype(Types t);
 
-    TokenBuffer(const TokenBuffer &other) = delete;
-    TokenBuffer &operator=(const TokenBuffer &other) = delete;
-
     bool debug = false;
     int buflen = 0; // number of allocated bytes
-    int length = 0; // number of used bytes
-    char *data = nullptr; // pointer to the tokens
+
     char *currdata = nullptr; // pointer to the tokens
     bool networkByteOrder = false;
 
@@ -109,15 +108,16 @@ private:
 public:
     TokenBuffer();
     explicit TokenBuffer(bool nbo);
+    //creates a TokenBuffer with allocated memory
     TokenBuffer(int al, bool nbo = false);
-    virtual ~TokenBuffer();
 
-    void delete_data();
     TokenBuffer(const MessageBase *msg, bool nbo = false);
+    TokenBuffer(const DataHandle& dh, bool nbo = false);
     TokenBuffer(const char *dat, int len, bool nbo = false);
-    TokenBuffer &operator=(TokenBuffer &&other);
-    void copy(const TokenBuffer &other);
+    virtual ~TokenBuffer();
+    TokenBuffer &operator=(const TokenBuffer &other);
 
+    const DataHandle& getData();
     const char *getBinary(int n);
     void addBinary(const char *buf, int n);
     const char *allocBinary(int n);
@@ -134,6 +134,7 @@ public:
     TokenBuffer &operator<<(const float f);
     TokenBuffer &operator<<(const double f);
     TokenBuffer &operator<<(const char *c);
+    TokenBuffer& operator<<(const DataHandle& d);
     TokenBuffer &operator<<(const TokenBuffer &t);
 
     TokenBuffer &operator>>(bool &b);
@@ -149,14 +150,13 @@ public:
     TokenBuffer &operator>>(double &f);
     TokenBuffer &operator>>(std::string &s);
     TokenBuffer &operator>>(char *&c);
+    TokenBuffer& operator>>(DataHandle& d);
     TokenBuffer &operator>>(TokenBuffer &tb);
     uint32_t get_int_token();
     char get_char_token();;
     float get_float_token();
     char *get_charp_token();;
-    int get_length() const;
-    const char *get_data() const;
-	char* take_data();
+
     void reset();
     void rewind();
 };

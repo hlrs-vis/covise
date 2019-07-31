@@ -185,7 +185,7 @@ ReadCadmould::openFiles()
     const char *selFile = p_filename->getValue();
 
     // make sure we can work with the file name
-    char basename[MAXPATHLEN + 1], filename[MAXPATHLEN + 1];
+    char basename[MAXPATHLEN + 1], filename[MAXPATHLEN + 16];
 
     //// Open mesh file: clip off last char if old style
     strncpy(basename, selFile, MAXPATHLEN);

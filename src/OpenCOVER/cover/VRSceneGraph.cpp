@@ -1473,16 +1473,16 @@ void VRSceneGraph::scaleAllObjects(bool resetView)
 	covise::TokenBuffer tb;
         tb << scaleFactor;
         tb << matrix;
-        len = tb.get_length();
+        len = tb.getData().length();
         coVRMSController::instance()->sendSlaves(&len, sizeof(len));
-        coVRMSController::instance()->sendSlaves(tb.get_data(), tb.get_length());
+        coVRMSController::instance()->sendSlaves(tb.getData().data(), tb.getData().length());
     }
     else
     {
         coVRMSController::instance()->readMaster(&len, sizeof(len));
-        std::vector<char> buf(len);
-        coVRMSController::instance()->readMaster(&buf[0], len);
-	covise::TokenBuffer tb(&buf[0], len);
+        covise::DataHandle buf(len);
+        coVRMSController::instance()->readMaster(&buf.accessData()[0], len);
+        covise::TokenBuffer tb(buf);
         tb >> masterScale;
         if (masterScale != scaleFactor)
         {

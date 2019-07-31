@@ -27,8 +27,8 @@
 #include <grmsg/coGRSetTimestepMsg.h>
 
 #include <vrbclient/VRBMessage.h>
-#include <net/message.h>
-#include <net/message_types.h>
+//#include <net/message.h>
+//#include <net/message_types.h>
 using namespace opencover;
 using namespace grmsg;
 using namespace covise;

@@ -570,23 +570,16 @@ bool Manager::buttonEvent(int button) const
 
 void Manager::flushUpdates()
 {
-    if (!m_updates)
-    {
-        assert(m_numUpdates == 0);
-        m_updates.reset(new covise::TokenBuffer);
-    }
 
     for (const auto &state: m_elemState)
     {
         auto id = state.first;
         auto mask = state.second.first;
-        auto tb = state.second.second;
 
-        *m_updates << id;
-        *m_updates << mask;
-        *m_updates << false; // trigger
-        *m_updates << tb->get_length();
-        m_updates->addBinary(tb->get_data(), tb->get_length());
+        m_updates << id;
+        m_updates << mask;
+        m_updates << false; // trigger
+        m_updates << state.second.second;
 
         ++m_numUpdates;
     }
@@ -629,11 +622,10 @@ void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, boo
         covise::TokenBuffer tb;
         elem->save(tb);
 
-        *m_updates << elem->elementId();
-        *m_updates << mask;
-        *m_updates << trigger;
-        *m_updates << tb.get_length();
-        m_updates->addBinary(tb.get_data(), tb.get_length());
+        m_updates << elem->elementId();
+        m_updates << mask;
+        m_updates << trigger;
+        m_updates << tb;
 
         ++m_numUpdates;
     }
@@ -641,33 +633,31 @@ void Manager::queueUpdate(const Element *elem, Element::UpdateMaskType mask, boo
     {
         if (it == m_elemState.end())
         {
-            it = m_elemState.emplace(elem->elementId(), std::make_pair(Element::UpdateMaskType(0),std::make_shared<covise::TokenBuffer>())).first;
+            it = m_elemState.emplace(elem->elementId(), std::make_pair(Element::UpdateMaskType(0), covise::TokenBuffer{})).first;
         }
         else
         {
-            it->second.second = std::make_shared<covise::TokenBuffer>();
+            it->second.second = covise::TokenBuffer();
         }
         it->second.first = mask;
-        elem->save(*it->second.second);
+        elem->save(it->second.second);
     }
 }
 
-void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed)
+void Manager::processUpdates(covise::TokenBuffer &updates, int numUpdates, bool runTriggers, std::set<ButtonGroup *> &delayed)
 {
-    updates->rewind();
 
     for (int i=0; i<numUpdates; ++i)
     {
         //std::cerr << "processing " << i << std::flush;
         int id = -1;
-        *updates >> id;
+        updates >> id;
         Element::UpdateMaskType mask(0);
-        *updates >> mask;
+        updates >> mask;
         bool trigger = false;
-        *updates >> trigger;
-        int len = 0;
-        *updates >> len;
-        auto data = updates->getBinary(len);
+        updates >> trigger;
+        covise::TokenBuffer tb;
+        updates >> tb;
         auto elem = getById(id);
         if (!elem)
         {
@@ -676,7 +666,6 @@ void Manager::processUpdates(std::shared_ptr<covise::TokenBuffer> updates, int n
         }
         if (cover->debugLevel(5))
             std::cerr << "ui::Manager::processUpdates for id=" << id << ": " << elem->path() << std::endl;
-        covise::TokenBuffer tb(data, len);
         //std::cerr << ": id=" << id << ", trigger=" << trigger << std::endl;
         assert(elem);
         elem->load(tb);
@@ -714,14 +703,14 @@ bool Manager::sync()
             //std::cerr << "ui::Manager: syncing " << m_numUpdates << " updates" << std::endl;
             if (ms->isMaster())
             {
-                covise::Message msg(*m_updates);
+                covise::Message msg(m_updates);
                 coVRMSController::instance()->syncMessage(&msg);
             }
             else
             {
                 covise::Message msg;
                 coVRMSController::instance()->syncMessage(&msg);
-                m_updates.reset(new covise::TokenBuffer(&msg));
+                m_updates = covise::TokenBuffer{ &msg };
             }
         }
     }
@@ -734,8 +723,11 @@ bool Manager::sync()
         changed = true;
 
         //std::cerr << "ui::Manager: processing " << m_numUpdates << " updates in round " << round << std::endl;
-        std::shared_ptr<covise::TokenBuffer> updates = m_updates;
-        m_updates.reset(new covise::TokenBuffer);
+
+        covise::TokenBuffer updates{ m_updates };
+        updates.rewind();
+
+        m_updates = covise::TokenBuffer{};
         int numUpdates = m_numUpdates;
         m_numUpdates = 0;
 

@@ -207,7 +207,8 @@ bool VrmlNodeCSV::loadFile(const std::string &fileName)
     float tmpData[maxFloats];
     numColumns = -1;
     RowCount = 0;
-    fgets(buf, lineSize, fp);
+    if (!fgets(buf, lineSize, fp))
+        return false;
     char *c = buf;
     while (*c != '\0')
     {
@@ -264,7 +265,8 @@ bool VrmlNodeCSV::loadFile(const std::string &fileName)
             break;
         }
         rows.push_back(fdata);
-        fgets(buf, lineSize, fp);
+        if (!fgets(buf, lineSize, fp))
+            break;
 
         char *c = buf;
         while (*c != '\0')
@@ -286,14 +288,16 @@ bool VrmlNodeCSV::loadLabelFile(const std::string &fileName)
         return false;
     const int lineSize = 1000;
     char buf[lineSize];
-    fgets(buf, lineSize, fp);
+    if (!fgets(buf, lineSize, fp))
+        return false;
     MenuLabel = buf;
     MenuLabel.erase(MenuLabel.find_last_not_of(" \n\r\t") + 1);
     int RowCount = 1;
     while(!feof(fp))
     {
         char *cbuf=NULL;
-        fgets(buf, lineSize, fp);
+        if (!fgets(buf, lineSize, fp))
+            break;
         int64_t startTime;
         int64_t stopTime;
         std::string label;
@@ -341,7 +345,8 @@ bool VrmlNodeCSV::loadGPSFile(const std::string &fileName)
     while (!feof(fp))
     {
         char *cbuf = NULL;
-        fgets(buf, lineSize, fp);
+        if (!fgets(buf, lineSize, fp))
+            break;
         std::string line(buf);
         std::replace(line.begin(), line.end(), ',', '.'); // replace all 'x' to 'y'
         gpsData gpsd;

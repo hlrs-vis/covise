@@ -36,7 +36,7 @@ coShmAlloc::coShmAlloc(int *key, DataManagerProcess *d)
 
 coShmPtr *coShmAlloc::malloc(shmSizeType size)
 {
-    int msg_data[2];
+    int *msg_data = new int[2];
     int tmp_key = 0;
     shmSizeType new_size;
     SharedMemory *new_shm;
@@ -82,7 +82,7 @@ coShmPtr *coShmAlloc::malloc(shmSizeType size)
         free_size_list->insert_chunk(mnode);
         msg_data[0] = tmp_key;
         msg_data[1] = new_size;
-        msg = new Message(COVISE_MESSAGE_NEW_SDS, 2 * sizeof(int), (char *)&msg_data[0]);
+        msg = new Message(COVISE_MESSAGE_NEW_SDS, DataHandle((char *)&msg_data[0], 2 * sizeof(int)));
         print_comment(__LINE__, __FILE__, "dmgrproc->send_to_all_connections");
         dmgrproc->send_to_all_connections(msg);
         free_node = free_size_list->get_chunk(size);

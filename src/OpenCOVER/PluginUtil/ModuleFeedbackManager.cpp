@@ -295,10 +295,7 @@ void ModuleFeedbackManager::registerObjAtUi(string name)
         if (cover->debugLevel(3))
             fprintf(stderr, "\nModuleFeedbackManager::registerObjAtUi %s\n", initialObjectName_.c_str());
         coGRObjRegisterMsg regMsg(initialObjectName_.c_str(), NULL);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(regMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char *)(regMsg.c_str()), strlen(regMsg.c_str()) + 1, false} };
         coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }
@@ -915,10 +912,7 @@ ModuleFeedbackManager::sendHideMsg(bool hide)
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::GEO_VISIBLE, initialObjectName_.c_str(), !hide);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(visMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
+        Message grmsg{ COVISE_MESSAGE_UI, DataHandle{(char*)(visMsg.c_str()), strlen(visMsg.c_str()) + 1, false} };
         coVRPluginList::instance()->sendVisMessage(&grmsg);
     }
 }

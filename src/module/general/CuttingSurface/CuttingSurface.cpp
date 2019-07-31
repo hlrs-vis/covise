@@ -752,7 +752,7 @@ CuttingSurfaceModule::addFeedbackParams(coDistributedObject *obj)
     // add old-style feedback messages
     if (fbStyle_ == FEED_OLD || fbStyle_ == FEED_BOTH)
     {
-        char buf[1024];
+        char buf[1024+64];
         sprintf(buf, "C%s\n%s\n%s\n",
                 Covise::get_module(),
                 Covise::get_instance(), Covise::get_host());

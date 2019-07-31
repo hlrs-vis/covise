@@ -692,10 +692,10 @@ void ARToolKit::update()
         //}
         //delete[] msg_t;
         //    }
-        if (msg.data != NULL)
+        if (msg.data.data() != nullptr)
         {
-            char *datablock = &msg.data[strlen(&msg.data[1]) + 2];
-            if (strcmp(&(msg.data[1]), "AR_VIDEO_FRAME") == 0)
+            char *datablock = &msg.data.accessData()[strlen(&msg.data.data()[1]) + 2];
+            if (strcmp(&(msg.data.data()[1]), "AR_VIDEO_FRAME") == 0)
             {
                 remoteAR->receiveImage(datablock);
             }

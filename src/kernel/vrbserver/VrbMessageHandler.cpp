@@ -12,7 +12,6 @@
 
 #include <vrbclient/SessionID.h>
 #include <vrbclient/SharedStateSerializer.h>
-#include <vrbclient/dataHandle.h>
 
 #include <util/coTabletUIMessages.h>
 #include <util/unixcompat.h>
@@ -22,6 +21,7 @@
 #include <net/udp_message_types.h>
 #include <net/udpMessage.h>
 #include <net/covise_connect.h>
+#include <net/dataHandle.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,7 +75,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         vrb::VRBSClient *c = clients.get(msg->conn);
         if (c)
         {
-            c->addBytesSent(msg->length);
+            c->addBytesSent(msg->data.length());
         }
         std::string filename;
         tb >> filename;
@@ -110,7 +110,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
             m.type = COVISE_MESSAGE_VRB_SEND_FILE;
             if (c)
             {
-                c->addBytesReceived(m.length);
+                c->addBytesReceived(m.data.length());
             }
             msg->conn->send_msg(&m);
         }
@@ -121,7 +121,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
             if ((currentFileClient) && (currentFileClient != c) && (currentFileClient->getID() != requestorsID))
             {
                 currentFileClient->conn->send_msg(msg);
-                currentFileClient->addBytesReceived(msg->length);
+                currentFileClient->addBytesReceived(msg->data.length());
             }
             else
             {
@@ -132,7 +132,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 m.type = COVISE_MESSAGE_VRB_SEND_FILE;
                 if (c)
                 {
-                    c->addBytesReceived(m.length);
+                    c->addBytesReceived(m.data.length());
                 }
                 msg->conn->send_msg(&m);
             }
@@ -147,7 +147,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         VRBSClient *c = clients.get(msg->conn);
         if (c)
         {
-            c->addBytesSent(msg->length);
+            c->addBytesSent(msg->data.length());
         }
         int destinationID, buffersize;
 		std::string fileName;
@@ -174,7 +174,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         if (c)
         {
             c->conn->send_msg(msg);
-            c->addBytesReceived(msg->length);
+            c->addBytesReceived(msg->data.length());
         }
     }
     break;
@@ -190,7 +190,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
 //#ifdef MB_DEBUG
 //            std::cerr << "====> Client valid!" << std::endl;
 //#endif
-//            c->addBytesSent(msg->length);
+//            c->addBytesSent(msg->data.length());
 //#ifdef MB_DEBUG
 //            std::cerr << "====> Added length of msg to bytes sent!" << std::endl;
 //#endif
@@ -264,8 +264,12 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
+        if (Class == "SharedMap")
+        {
+            cerr << "map" << endl;
+        }
 		DataHandle  valueData;
-		deserialize(tb, valueData);
+		tb >> valueData;
 #ifdef MB_DEBUG
         std::cerr << "::HANDLECLIENT VRB Registry subscribe variable=" << variable << ", class=" << Class << std::endl;
 #endif
@@ -430,7 +434,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
     case COVISE_MESSAGE_RENDER_MODULE: // send Message to all others in same group
     {
 #ifdef MB_DEBUG
-        std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->length << "!" << std::endl;
+        std::cerr << "::HANDLECLIENT VRB Render/Render Module of length " << msg->data.length() << "!" << std::endl;
 #endif
         vrb::SessionID toGroup;
 #ifdef MB_DEBUG
@@ -446,7 +450,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
             //std::cerr << "====> Sender: " << c->getIP() << std::endl;
 #endif
             toGroup = c->getSession();
-            c->addBytesSent(msg->length);
+            c->addBytesSent(msg->data.length());
 #ifdef MB_DEBUG
             //std::cerr << "====> Increased amount of sent bytes!" << std::endl;
 #endif
@@ -993,7 +997,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
                 //Send message
                 receiver->conn->send_msg(&m2);
 
-                ltb.delete_data();
+                ltb.reset();
                 ltb << TABLET_SET_CURDIR;
                 ltb << id;
                 std::string shome = file.getLocalHomeDirStr().toStdString();
@@ -1348,7 +1352,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         if (c)
         {
             toGroup = c->getSession();
-            c->addBytesSent(msg->length);
+            c->addBytesSent(msg->data.length());
         }
         clients.passOnMessage(msg, toGroup);
     }
@@ -1455,7 +1459,7 @@ void VrbMessageHandler::handleUdpMessage(vrb::UdpMessage* msg)
 		break;
 	}
 }
-void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, DataHandle &value)
+void VrbMessageHandler::updateApplicationWindow(const char * cl, int sender, const char * var, const covise::DataHandle &value)
 {
     //std::cerr <<"userinterface not implemented" << std:endl;
 }

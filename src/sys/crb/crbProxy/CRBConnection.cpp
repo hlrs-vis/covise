@@ -119,7 +119,7 @@ void CRBConnection::processMessages()
         //break;
         break;
         case COVISE_MESSAGE_CRB_EXEC:
-            modules.append(new Proxy(msg->data, this));
+            modules.append(new Proxy(msg->data.accessData(), this));
             break;
         default:
             forwardMessage(msg, conn);

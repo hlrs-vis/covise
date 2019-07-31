@@ -277,6 +277,7 @@ private:
 
     void updateTFEData();
     bool computeHistogram;
+    size_t maxHistogramVoxels = 60000000;
     bool showTFE; ///< initially show TFE
     bool lighting;
     bool preIntegration;

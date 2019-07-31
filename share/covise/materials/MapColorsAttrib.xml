@@ -5,6 +5,7 @@
 <uniform name="rangeMin" type="float" value="0."/>
 <uniform name="rangeMax" type="float" value="1."/>
 <uniform name="texUnit1" type="sampler1D" value="1"/>
+<uniform name="blendWithMaterial" type="bool" value="false"/>
 
 <vertexProgram>
 attribute float dataAttrib;
@@ -32,6 +33,7 @@ void main (void)
 <fragmentProgram>
 uniform sampler1D texUnit1;
 uniform float rangeMin, rangeMax;
+uniform bool blendWithMaterial;
 
 varying float data;
 varying vec3 V;
@@ -117,6 +119,12 @@ void main (void)
 {
     float t = (data-rangeMin)/(rangeMax-rangeMin);
     vec4 color = texture1D(texUnit1, t);
+    if (blendWithMaterial)
+    {
+        color = mix(gl_FrontMaterial.diffuse, color, color.a);
+        color.a = 1.0;
+    }
+
     gl_FragColor = flight(normalize(N), color);
 }
 </fragmentProgram>

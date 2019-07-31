@@ -112,8 +112,7 @@ public:
     /// destructor
     virtual ~coGRMsg()
     {
-        if (str_)
-            delete[] str_;
+        delete[] str_;
     };
 
     /// whether recreate was succesful

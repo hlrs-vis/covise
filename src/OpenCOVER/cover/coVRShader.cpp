@@ -57,7 +57,12 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
     value = v;
     overwrite = false;
     unique = false;
-    if (type == "float")
+    if (type == "bool")
+    {
+        bool b = !(strcmp(value.c_str(),"false")==0 || strtod(value.c_str(), NULL)==0);
+        uniform = new osg::Uniform(name.c_str(), b);
+    }
+    else if (type == "float")
     {
         float f = (float)strtod(value.c_str(), NULL);
         uniform = new osg::Uniform(name.c_str(), f);
@@ -262,6 +267,15 @@ void coVRUniform::setValue(float f)
     uniform->set(f);
 }
 
+void coVRUniform::setValue(bool b)
+{
+    char fs[100];
+    sprintf(fs, "%s", b ? "true" : "false");
+    value = fs;
+    uniform->set(b);
+}
+
+
 void coVRUniform::setValue(osg::Vec3 v)
 {
     char vs[300];
@@ -291,7 +305,12 @@ void coVRUniform::setWrapMode(std::string wm)
 void coVRUniform::setValue(const char *val)
 {
     value = val;
-    if (type == "float")
+    if (type == "bool")
+    {
+        bool b = !(strcmp(val,"false")==0 || strtod(val, NULL)==0);
+        uniform = new osg::Uniform(name.c_str(), b);
+    }
+    else if (type == "float")
     {
 
         float f = (float)strtod(val, NULL);
@@ -2533,3 +2552,15 @@ void coTangentSpaceGenerator::compute(osg::PrimitiveSet *pset,
 
 }
 
+
+void opencover::coVRShader::setBoolUniform(const std::string &name, bool b)
+{
+    std::list<coVRUniform *>::iterator it;
+    for (it = uniforms.begin(); it != uniforms.end(); it++)
+    {
+        if ((*it)->getName() == name)
+        {
+            (*it)->setValue(b);
+        }
+    }
+}

@@ -1261,8 +1261,6 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
                 }
             }
         }
-
-        osg::Group *groupNode = NULL;
         if (coVRMSController::instance()->isMaster())
         {
             if (tstep_attrib != NULL)
@@ -1283,7 +1281,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             is_animation = false;
             CoviseBase::sendInfo("timesteps <=1 --> static");
         }
-
+        osg::Group* groupNode = nullptr;
         if (container->isAssignedToMe())
         {
             groupNode = GeometryManager::instance()->addGroup(object, is_animation);
@@ -1372,6 +1370,13 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
         {
             std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
             groupNode->setUserData(new InteractorReference(inter));
+        }
+        if (groupNode)
+        {
+            if (osg::Sequence * pSequence = dynamic_cast<osg::Sequence*>(groupNode)) // timesteps
+            {
+                coVRAnimationManager::instance()->addSequence(pSequence, coVRAnimationManager::Cycle);
+            }
         }
 
 

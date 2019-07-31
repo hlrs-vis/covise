@@ -6,14 +6,19 @@
  * License: LGPL 2+ */
 
 #include "SharedState.h"
-#include <vrbclient/regClass.h>
 #include "SharedStateManager.h"
-#include <vrbclient/VrbClientRegistry.h>
+#include "regClass.h"
+#include "VrbClientRegistry.h"
+
 #include <chrono>
 #include <ctime>
 
+#include <net/tokenbuffer.h>
+#include <net/dataHandle.h>
 
 
+
+using namespace covise;
 namespace vrb
 {
 
@@ -52,7 +57,7 @@ void SharedStateBase::setVar(const DataHandle & val)
     m_valueData = val;
 	if (syncInterval <= 0)
 	{
-		m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
+		m_registry->setVar(sessionID, m_className, variableName, val, muted);
 	}
 	else
 	{

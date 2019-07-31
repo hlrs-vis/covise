@@ -26,6 +26,7 @@
 namespace covise
 {
 class Connection;
+class DataHandle;
 }
 
 namespace vrb
@@ -34,7 +35,6 @@ class VRBSClient;
 class SessionID;
 class VrbServerRegistry;
 class UdpMessage;
-class DataHandle;
 
 class VRBSERVEREXPORT ServerInterface
 {
@@ -65,7 +65,7 @@ public:
 protected:
     ServerInterface *m_server;
 	///update the vrb userinterface
-    virtual void updateApplicationWindow(const char *cl, int sender, const char *var, DataHandle &value);
+    virtual void updateApplicationWindow(const char *cl, int sender, const char *var, const covise::DataHandle &value);
     virtual void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var);
     virtual void removeEntriesFromApplicationWindow(int sender);
 
