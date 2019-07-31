@@ -4534,7 +4534,7 @@ bool net_module_list::load_config(const string &filename)
             //we have a version information
             int version;
             int n = sscanf(buffer + 1, "%d", &version);
-            if (n == 1 && version >= NET_FILE_VERERSION)
+            if (n == 1 && version >= NET_FILE_VERSION)
             {
                 oldFile = false; // this is a new .net file, convert all other files
             }
