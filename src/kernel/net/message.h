@@ -116,7 +116,7 @@ public:
 	MessageBase();
 	MessageBase(TokenBuffer*);
 	MessageBase(const TokenBuffer&);
-	virtual ~MessageBase();
+	~MessageBase();
 
 	virtual void print() = 0;
 	void delete_data()
