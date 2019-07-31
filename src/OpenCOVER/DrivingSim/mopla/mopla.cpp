@@ -69,12 +69,23 @@ mopla::mopla(const char *filename)
     p_beckhoff->setDigitalOut(0, 6, false);
     p_beckhoff->setDigitalOut(0, 7, false);
     
+    
     motPlat->start();
-    start();
+    run();
 }
 
 void mopla::run()
 {
+
+    std::cout << "motPlat run" << std::endl;
+  //==========================================
+    enum state { standby, movingUp, running, movingDown, stop };
+    state st = stop;
+    bool isRunning = false;
+    double startTime = 0;
+
+    //====================
+
     fum->update();
     std::cerr << "--- motPlat->start();  ---" << std::endl;
     while (!motPlat->isInitialized())
@@ -82,8 +93,10 @@ void mopla::run()
         rt_task_sleep(1000000);
         std::cerr << "--- motPlat->waiting for initialization();  ---" << std::endl;
     }
+    sleep(10);
     std::cerr << "--- motPlat->start(); done ---" << std::endl;
     set_periodic(period);
+    std::cerr << "--- motPlat->start();set_periodic done ---" << std::endl;
     motPlat->getSendMutex().acquire(period);
     motPlat->switchToMode<ValidateMotionPlatform::controlToGround>();
     motPlat->getSendMutex().release();
@@ -91,40 +104,118 @@ void mopla::run()
     {
         rt_task_wait_period(&overruns);
     }
+    
+    std::cout << "Plattform on ground" << std::endl;
+    
     std::cerr << "--- isGrounded(); done ---" << std::endl;
     motPlat->getSendMutex().acquire(period);
     motPlat->switchToMode<ValidateMotionPlatform::controlDisabled>();
     motPlat->getSendMutex().release();
-    /*
+    //============================
+    std::cout << "Platfom control disabled, state == standby" << std::endl;
+    state oldState;
+    oldState = st = standby;
     
-    motPlat->getSendMutex().acquire(period);
-    motPlat->switchToMode<ValidateMotionPlatform::controlMiddleLift>();
-    motPlat->getSendMutex().release();
-    
-    
+    isRunning = true;
+	
+	while(isRunning)
+	{
+
+	 
+	 
+		if (st == standby && p_ignitionLock->getLockState() == IgnitionLock::ENGINESTART)
+		{
+		std::cout << "EngineStart detected: state == movingUp, controlMiddleLift" << std::endl;
+			st = movingUp;
+			motPlat->getSendMutex().acquire(period);
+			motPlat->switchToMode<ValidateMotionPlatform::controlMiddleLift>();
+			motPlat->getSendMutex().release();
+		}
+
+		if (st == movingUp)
+		{
+			double relativeSpeed = 0.1;
+			double relativeAccel = 0.1;
+		
+			if(motPlat->isMiddleLifted())
+			{
 				motPlat->getSendMutex().acquire(period);
-				//motPlat->switchToMode<ValidateMotionPlatform::controlPositioning>();
 				motPlat->switchToMode<ValidateMotionPlatform::controlInterpolatedPositioning>();
 				for (unsigned int motIt = 0; motIt < motPlat->numLinMots; ++motIt)
 				{
-					motPlat->setVelocitySetpoint(motIt, ValidateMotionPlatform::velMax);
-					motPlat->setAccelerationSetpoint(motIt, ValidateMotionPlatform::accMax);
+					motPlat->setVelocitySetpoint(motIt, ValidateMotionPlatform::velMax*relativeSpeed);
+					motPlat->setAccelerationSetpoint(motIt, ValidateMotionPlatform::accMax*relativeAccel);
 				}
 				motPlat->getSendMutex().release();
-    while (runTask)
-	{
-		
+				startTime = opencover::cover->frameTime();
+				st = running;
+			        std::cout << "Setup done, state = running" << std::endl;
+			
+			}
+			
+
+		}
     
-		motPlat->getSendMutex().acquire(period);
-		//Right
-		motPlat->setPositionSetpoint(0, ValidateMotionPlatform::posMiddle + carState.mpRZ);
-		//Left
-		motPlat->setPositionSetpoint(1, ValidateMotionPlatform::posMiddle + carState.mpLZ);
-		//Rear
-		motPlat->setPositionSetpoint(2, ValidateMotionPlatform::posMiddle + carState.mpBZ);
-		motPlat->getSendMutex().release();
-   }
-		*/
+		if (st == running)
+		{
+			double amplitude = 0.05; //meters
+			double wavePeriod = 2.0; //seconds
+			double time = (opencover::cover->frameTime()) - startTime;
+			double newPosition = amplitude*(sin((2*M_PI/wavePeriod)*time));
+
+			std::cout << "pos: " << newPosition << std::endl;
+			motPlat->getSendMutex().acquire(period);
+			//Right---- 
+			motPlat->setPositionSetpoint(0, ValidateMotionPlatform::posMiddle + newPosition); 
+			//Left
+			motPlat->setPositionSetpoint(1, ValidateMotionPlatform::posMiddle + newPosition);
+			//Rear
+			motPlat->setPositionSetpoint(2, ValidateMotionPlatform::posMiddle + newPosition);
+			
+			motPlat->getSendMutex().release();
+		}
+     
+		if (st != movingDown && p_ignitionLock->getLockState() == IgnitionLock::ENGINESTOP)
+		{
+			std::cout << "ENGINESTOP detected" << std::endl;
+			st = movingDown;
+			motPlat->getSendMutex().acquire(period);
+			motPlat->switchToMode<ValidateMotionPlatform::controlToGround>();
+			motPlat->getSendMutex().release();
+			
+			
+		}
+		
+		if (st == movingDown)
+		{
+			if (motPlat->isGrounded())
+   			 {
+        
+				motPlat->getSendMutex().acquire(period);
+   			        motPlat->switchToMode<ValidateMotionPlatform::controlDisabled>();
+                                motPlat->getSendMutex().release();
+                                st = standby;
+				std::cout << "Platform down, control disabled" << std::endl;
+   			 }
+		
+		}
+		
+		if (p_klsm->getHornStat() == true)
+		{
+			std::cout << "horn detected, isRunning == false" << std::endl;
+			isRunning = false;
+		}
+                if(st != oldState)
+                {
+			std::cout << "state = " << st << std::endl;
+                        oldState = st;
+                }
+                
+                rt_task_wait_period(&overruns);
+		
+	}
+
+
     
 }
 
