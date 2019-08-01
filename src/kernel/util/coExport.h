@@ -22,7 +22,7 @@
 // Author: Uwe Woessner, Ruth Lang                                        //
 // Date:  30.10.03  V1.0                                                  */
 
-#if defined(__APPLE__) || defined(CO_rhel3) || (defined(CO_ia64icc) && (__GNUC__ >= 4))
+#if defined(__arm__) || defined(__APPLE__) || defined(CO_rhel3) || (defined(CO_ia64icc) && (__GNUC__ >= 4))
 #define EXPORT_TEMPLATE(x)
 #define EXPORT_TEMPLATE2(x, y)
 #define EXPORT_TEMPLATE3(x, y, z)
