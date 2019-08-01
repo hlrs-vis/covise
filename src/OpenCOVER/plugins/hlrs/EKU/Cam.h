@@ -15,6 +15,8 @@
 #include <osg/NodeCallback>
 #include <osg/PositionAttitudeTransform>
 #include <osg/Material>
+#include<osg/MatrixTransform>
+#include<osg/Quat>
 
 
 
@@ -26,21 +28,25 @@ private:
     osg::Vec2i rot;
     osg::Vec3i pos;
     osg::ref_ptr<osg::Geode> camGeode;
-    osg::PositionAttitudeTransform* revolution;
-public:
+    osg::ref_ptr<osg::MatrixTransform> transMat;
+    osg::ref_ptr<osg::MatrixTransform> rotMat;
+    //osg::PositionAttitudeTransform* revolution;
 
+public:
+    static int imgWidth;
+    static int imgHeight;
     static int imgWidthPixel;
-    static int imgHeigthPixel;
+    static int imgHeightPixel;
     static int fov;
     static int depthView;
     static int focalLengthPixel;
-    //osg::Matrix Rz = osg::Matrix::rotate(rot(0),0,0,1);// Z rotation
+   // osg::Matrix Rz = osg::Matrix::rotate(rot(0),0,0,1);// Z rotation
     //osg::Matrix Ry = osg::Matrix::rotate(rot(1),0,1,0);// Y rotation
     //osg::Matrix T =  osg::Matrix::translate(pos); //Translation
 
 
 
-    Cam();
+    Cam(osg::Vec3i pos,osg::Vec2i rot);
     ~Cam();
 
     osg::Geode* plotCam();
@@ -54,7 +60,7 @@ public:
 
 };
 
-class RotationCallback : public osg::NodeCallback
+/*class RotationCallback : public osg::NodeCallback
 {
 public:
    // Default constructor.
@@ -82,3 +88,4 @@ public:
 private:
    float angle;
 };
+*/

@@ -10,17 +10,37 @@
 
 using namespace opencover;
 
-int Cam::imgHeigthPixel = 1080;
+
+int Cam::imgHeightPixel = 1080;
 int Cam::imgWidthPixel = 1920;
-int Cam::fov = 60;
+int Cam::fov = 30;
 int Cam::depthView = 30;
 int Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_PI/180));
+int Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
+int Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
 
-Cam::Cam()
+Cam::Cam(osg::Vec3i pos,osg::Vec2i rot):pos(pos),rot(rot)
 {
     fprintf(stderr, "new Cam\n");
     camGeode = plotCam();
-    cover->getObjectsRoot()->addChild(camGeode);
+    transMat=new osg::MatrixTransform();
+    osg::Matrix m;
+    m.setTrans(pos.x(),pos.y(),pos.z());
+    rotMat = new osg::MatrixTransform();
+    osg::Matrix r;
+    osg::Quat xRot, zRot;
+
+    xRot.makeRotate(osg::DegreesToRadians((float)rot.x()), osg::X_AXIS);
+    zRot.makeRotate(osg::DegreesToRadians((float)rot.y()), osg::Z_AXIS);
+    // concatenate the 2 into a resulting quat
+    osg::Quat fullRot = xRot * zRot;
+    r.setRotate(fullRot);
+    rotMat->setMatrix(r);
+    transMat->setMatrix(m);
+    //OpenGL first rotate than translate
+    rotMat->addChild(camGeode);
+    transMat->addChild(rotMat);
+    cover->getObjectsRoot()->addChild(transMat);
 
    /* revolution =new osg::PositionAttitudeTransform();
     revolution->setUpdateCallback( new RotationCallback());
@@ -44,11 +64,11 @@ osg::Geode* Cam::plotCam()
     geode->addDrawable(geom);
     // Declare an array of vertices to create a simple pyramid.
     verts = new osg::Vec3Array;
-    verts->push_back( osg::Vec3(-1.5f, -1.5f, -1.5f) ); // 0 left  front base
-    verts->push_back( osg::Vec3( 1.5f, -1.5f, -1.5f) ); // 1 right front base
-    verts->push_back( osg::Vec3( 1.5f,  1.5f, -1.5f) ); // 2 right back  base
-    verts->push_back( osg::Vec3(-1.5f,  1.5f, -1.5f) ); // 3 left  back  base
-    verts->push_back( osg::Vec3( 0.0f,  0.0f,  1.5f) ); // 4 peak
+    verts->push_back( osg::Vec3(-Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 0 left  front base
+    verts->push_back( osg::Vec3( Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 1 right front base
+    verts->push_back( osg::Vec3( Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 2 right back  base
+    verts->push_back( osg::Vec3(-Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 3 left  back  base
+    verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
 
 
     // Associate this set of vertices with the Geometry.

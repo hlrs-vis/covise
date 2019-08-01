@@ -96,6 +96,7 @@ private:
 
     //Landscape
     osg::Geode* createPolygon();
+    osg::Geode* createPoints();
 
 };
 #endif

@@ -171,7 +171,7 @@ EKU *EKU::plugin = NULL;
 
 EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
 {
-    sleep(10);
+   // sleep(10);
 
   /*  osg::Node* d3model;
     d3model = coVRFileManager::instance()->loadIcon("knife");
@@ -182,7 +182,9 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     fprintf(stderr, "EKUplugin::EKUplugin\n");
 
    // trucks.push_back(new Truck());
-    cameras.push_back(new Cam());
+    osg::Vec2i o{30,60};
+    osg::Vec3i p{0,0,0};
+   // cameras.push_back(new Cam(p,o));
 
     //Create UI
     EKUMenu  = new ui::Menu("EKU", this);
@@ -226,7 +228,8 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     });
 
 
-    // cover->getObjectsRoot()->addChild(createPolygon());
+     cover->getObjectsRoot()->addChild(createPolygon());
+     cover->getObjectsRoot()->addChild(createPoints());
 
   /*  //Position of Objects
     moveDown = new osg::PositionAttitudeTransform();
@@ -266,7 +269,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
      ga_obj.best_stall_max=10;
      ga_obj.elite_count=10;
      ga_obj.solve();
-  //   std::cout<<"The problem is optimized in "<<timer.toc()<<" seconds."<<std::endl;
+     std::cout<<"The problem is optimized in "<<timer.toc()<<" seconds."<<std::endl;
 
      output_file.close();
 }
@@ -365,4 +368,68 @@ osg::Geode* EKU::createPolygon()
    // Return the geode as the root of this geometry.
    return geode;
 }
+
+osg::Geode* EKU::createPoints()
+// create POINTS
+    {
+        osg::Geode* geode = new osg::Geode();
+        // create Geometry object to store all the vertices and points primitive.
+        osg::Geometry* pointsGeom = new osg::Geometry();
+
+        // create a Vec3Array and add to it all my coordinates.
+        // Like all the *Array variants (see include/osg/Array) , Vec3Array is derived from both osg::Array
+        // and std::vector<>.  osg::Array's are reference counted and hence sharable,
+        // which std::vector<> provides all the convenience, flexibility and robustness
+        // of the most popular of all STL containers.
+        osg::Vec3Array* vertices = new osg::Vec3Array;
+        vertices->push_back(osg::Vec3(-1.02168, -2.15188e-09, 0.885735));
+        vertices->push_back(osg::Vec3(-0.976368, -2.15188e-09, 0.832179));
+        vertices->push_back(osg::Vec3(-0.873376, 9.18133e-09, 0.832179));
+        vertices->push_back(osg::Vec3(-0.836299, -2.15188e-09, 0.885735));
+        vertices->push_back(osg::Vec3(-0.790982, 9.18133e-09, 0.959889));
+
+        // pass the created vertex array to the points geometry object.
+        pointsGeom->setVertexArray(vertices);
+
+
+
+        // create the color of the geometry, one single for the whole geometry.
+        // for consistency of design even one single color must added as an element
+        // in a color array.
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        // add a white color, colors take the form r,g,b,a with 0.0 off, 1.0 full on.
+        colors->push_back(osg::Vec4(1.0f,1.0f,0.0f,1.0f));
+
+        // pass the color array to points geometry, note the binding to tell the geometry
+        // that only use one color for the whole object.
+        pointsGeom->setColorArray(colors, osg::Array::BIND_OVERALL);
+
+
+        // Set the normal in the same way as the color.
+        // (0,-1,0) points toward the viewer, in the default coordinate
+        // setup.  Even for POINTS, the normal specified here
+        // is used to determine how the geometry appears under different
+        // lighting conditions.
+        osg::Vec3Array* normals = new osg::Vec3Array;
+        normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
+        pointsGeom->setNormalArray(normals, osg::Array::BIND_OVERALL);
+
+
+        // create and add a DrawArray Primitive (see include/osg/Primitive).  The first
+        // parameter passed to the DrawArrays constructor is the Primitive::Mode which
+        // in this case is POINTS (which has the same value GL_POINTS), the second
+        // parameter is the index position into the vertex array of the first point
+        // to draw, and the third parameter is the number of points to draw.
+        pointsGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,vertices->size()));
+
+
+
+        // add the points geometry to the geode.
+        geode->addDrawable(pointsGeom);
+
+        return geode;
+    }
+
+
+
 COVERPLUGIN(EKU)
