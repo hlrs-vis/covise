@@ -41,7 +41,7 @@ class CanOpenDevice; // fwd class declaration
 
 //--------------------------------------------------------------------
 // TODO(sebastian): Class comments
-class CANProvider : public CANMsgDB
+class VEHICLEUTILEXPORT CANProvider : public CANMsgDB
 {
 public:
     virtual ~CANProvider();
