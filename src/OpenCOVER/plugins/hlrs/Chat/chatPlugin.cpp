@@ -134,11 +134,10 @@ bool ChatPlugin::update()
 		do{
 			audioBuffer = inStream->read(frameSize);
 			int encodedLength = encodeSpeex();
-			audioMessage.length = encodedLength;
-			audioMessage.data = (char*)cbits;
+			audioMessage.data = DataHandle((char*)cbits, encodedLength,false);
 			cover->sendVrbUdpMessage(&audioMessage);
 		} while (audioBuffer.length() > 0);
-		audioMessage.data = nullptr;
+		audioMessage.data = DataHandle(nullptr, 0, false);;
 	}
 	return true;
 }
