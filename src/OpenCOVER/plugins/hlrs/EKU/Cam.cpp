@@ -10,19 +10,26 @@
 
 using namespace opencover;
 
+int Cam::imgHeigthPixel = 1080;
+int Cam::imgWidthPixel = 1920;
+int Cam::fov = 60;
+int Cam::depthView = 30;
+int Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_PI/180));
+
 Cam::Cam()
 {
     fprintf(stderr, "new Cam\n");
-    camGeode = createPyramid();
-    //cover->getObjectsRoot()->addChild(camGeode);
+    camGeode = plotCam();
+    cover->getObjectsRoot()->addChild(camGeode);
 
-    revolution =new osg::PositionAttitudeTransform();
+   /* revolution =new osg::PositionAttitudeTransform();
     revolution->setUpdateCallback( new RotationCallback());
     revolution->addChild(camGeode);
     cover->getObjectsRoot()->addChild(revolution);
+    */
 }
 
-osg::Geode* Cam::createPyramid()
+osg::Geode* Cam::plotCam()
 {
     // The Drawable geometry is held under Geode objects.
     osg::Geode* geode = new osg::Geode();

@@ -55,6 +55,7 @@ class Action;
 #include<Cam.h>
 #include<Truck.h>
 
+
 using namespace opencover;
 
 class EKU: public opencover::coVRPlugin, public opencover::ui::Owner
@@ -73,6 +74,7 @@ public:
 
     std::vector<Truck*> trucks;
     std::vector<Cam*> cameras;
+
 
 
 private:

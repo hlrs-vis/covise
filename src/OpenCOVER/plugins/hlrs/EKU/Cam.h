@@ -20,23 +20,36 @@
 
 class Cam
 {
+private:
+
+    osg::Vec3Array* verts;
+    osg::Vec2i rot;
+    osg::Vec3i pos;
+    osg::ref_ptr<osg::Geode> camGeode;
+    osg::PositionAttitudeTransform* revolution;
 public:
+
+    static int imgWidthPixel;
+    static int imgHeigthPixel;
+    static int fov;
+    static int depthView;
+    static int focalLengthPixel;
+    //osg::Matrix Rz = osg::Matrix::rotate(rot(0),0,0,1);// Z rotation
+    //osg::Matrix Ry = osg::Matrix::rotate(rot(1),0,1,0);// Y rotation
+    //osg::Matrix T =  osg::Matrix::translate(pos); //Translation
+
+
 
     Cam();
     ~Cam();
 
-    osg::Geode* createPyramid();
+    osg::Geode* plotCam();
     void setFOV(float radius);
     void setVisibility(float vis);
     void updateFOV(float value);
     void updateVisibility(float value);
 
-private:
 
-    osg::Vec3Array* verts;
-    osg::ref_ptr<osg::Geode> camGeode;
-
-    osg::PositionAttitudeTransform* revolution;
 
 
 };
