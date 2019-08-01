@@ -27,6 +27,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 
 using namespace grmsg;
+using namespace std;
 
 int TracerPlugin::debugLevel_ = 0;
 
@@ -124,7 +125,7 @@ TracerPlugin::guiToRenderMsg(const char *msg)
     {
         fprintf(stderr, "\n--- TracerPlugin:: guiToRenderMsg\n");
     }
-    string fullMsg(string("GRMSG\n") + msg);
+    std::string fullMsg(string("GRMSG\n") + msg);
     coGRMsg grMsg(fullMsg.c_str());
     if (grMsg.isValid())
     {
