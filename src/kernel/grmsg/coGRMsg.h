@@ -124,12 +124,12 @@ public:
     virtual void print_stdout();
 
     /// access to private variables
-    Mtype getType()
+    Mtype getType() const
     {
         return type_;
     };
-    const char *c_str();
-    std::string getString();;
+    const char *c_str() const;
+    std::string getString() const;
 
 protected:
     /// construct used by child class

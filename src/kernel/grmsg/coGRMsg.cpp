@@ -91,7 +91,7 @@ GRMSGEXPORT vector<string> coGRMsg::getAllTokens()
     return tok;
 }
 
-GRMSGEXPORT const char *coGRMsg::c_str()
+GRMSGEXPORT const char *coGRMsg::c_str() const
 {
     return content_.c_str();
     //if (str_ && strcmp(str_, content_.c_str()) == 0)
@@ -108,7 +108,7 @@ GRMSGEXPORT const char *coGRMsg::c_str()
 
 }
 
-string coGRMsg::getString()
+string coGRMsg::getString() const
 {
     return content_;
 }
