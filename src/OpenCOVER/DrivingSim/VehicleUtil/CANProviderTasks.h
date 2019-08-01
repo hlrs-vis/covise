@@ -43,6 +43,7 @@ public:
     ~SendTask();
     void registerDevice(CanOpenDevice *d);
     void shutdown();
+    int numUninitializedDevices(){return initCanOpenDevices.size();};
 
 protected:
     void run(); // override Xenomai Method

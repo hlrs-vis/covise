@@ -49,6 +49,7 @@ public:
     void routeCANDMessage(const can_frame &);
     void routeCANKMessage(const can_frame &);
     void registerDevice(CanOpenDevice *d);
+    int numUninitializedDevices();
     void shutdown();
 
     bool keyIsIn();
