@@ -10,6 +10,8 @@
 #include <sstream>
 #include <cstdio>
 
+using namespace std;
+
 namespace grmsg
 {
 

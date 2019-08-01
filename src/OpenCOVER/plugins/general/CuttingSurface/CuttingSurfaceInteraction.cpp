@@ -616,7 +616,7 @@ CuttingSurfaceInteraction::sendRestrictNoneMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjRestrictAxisMsg restrictNoneMsg(coGRMsg::RESTRICT_AXIS, initialObjectName_.c_str(), "freeAxis");
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictNoneMsg.c_str()), strlen(restrictNoneMsg.c_str()) + 1 , false} }; + 1;
+        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictNoneMsg.c_str()), strlen(restrictNoneMsg.c_str()) + 1 , false} };
         cover->sendVrbMessage(&grmsg);
     }
 }

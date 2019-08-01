@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSendDocNumbersMsg::coGRSendDocNumbersMsg(const char *document_name, int minPage, int maxPage)

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSetDocPageMsg::coGRSetDocPageMsg(const char *document_name, int page)

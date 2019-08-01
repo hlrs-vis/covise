@@ -8,6 +8,7 @@
 #include <cstring>
 #include "coGRObjSetCaseMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjSetCaseMsg::coGRObjSetCaseMsg(Mtype type, const char *obj_name, const char *caseName)

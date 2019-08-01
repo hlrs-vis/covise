@@ -8,6 +8,7 @@
 #include <cstring>
 #include "coGRObjRestrictAxisMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjRestrictAxisMsg::coGRObjRestrictAxisMsg(Mtype type, const char *obj_name, const char *axisName)

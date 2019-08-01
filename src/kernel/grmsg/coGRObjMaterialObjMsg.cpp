@@ -8,6 +8,7 @@
 #include "coGRObjMaterialObjMsg.h"
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjMaterialObjMsg::coGRObjMaterialObjMsg(Mtype type,

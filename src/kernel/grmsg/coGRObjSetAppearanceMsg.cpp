@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include "coGRObjSetAppearanceMsg.h"
 
+using namespace std;
+
 namespace grmsg
 {
 

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRGraphicRessourceMsg::coGRGraphicRessourceMsg(const char *msg)

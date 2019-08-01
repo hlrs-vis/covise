@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRShowViewpointMsg::coGRShowViewpointMsg(const char *msg)

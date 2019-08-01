@@ -27,7 +27,7 @@ FlightPathVisualizer::FlightPathVisualizer(coVRPluginSupport *cover,
     eyepoint[2] = coCoviseConfig::getFloat("z", "COVER.ViewerPosition", 0.0f);
 
     // Load initial Viewpoints (1, 10, 100, 1000 etc.)
-    for (vector<ViewDesc *>::iterator it = viewpoints->begin(); it < viewpoints->end(); it++)
+    for (std::vector<ViewDesc *>::iterator it = viewpoints->begin(); it < viewpoints->end(); it++)
     {
         addViewpoint(*it);
     }
@@ -286,8 +286,8 @@ void FlightPathVisualizer::updateDrawnCurve()
     }
 
     //create List with active VP
-    list<ViewDesc *> activeVpList;
-    for (list<ViewDesc *>::const_iterator iter = vpList.begin(); iter != vpList.end(); iter++)
+    std::list<ViewDesc *> activeVpList;
+    for (std::list<ViewDesc *>::const_iterator iter = vpList.begin(); iter != vpList.end(); iter++)
     {
         if ((*iter)->getFlightPathActivated() && (*iter)->hasGeometry())
         {
@@ -301,7 +301,7 @@ void FlightPathVisualizer::updateDrawnCurve()
         return;
     }
 
-    list<ViewDesc *>::const_iterator iter;
+    std::list<ViewDesc *>::const_iterator iter;
     iter = activeVpList.begin();
 
     std::vector<BezierCurveVisualizer *>::iterator iter2;

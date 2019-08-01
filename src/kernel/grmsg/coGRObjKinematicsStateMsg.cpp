@@ -10,6 +10,8 @@
 #include <sstream>
 #include "coGRObjKinematicsStateMsg.h"
 
+using namespace std;
+
 namespace grmsg
 {
 

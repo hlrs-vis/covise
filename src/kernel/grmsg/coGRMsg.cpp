@@ -108,6 +108,11 @@ GRMSGEXPORT const char *coGRMsg::c_str()
 
 }
 
+string coGRMsg::getString()
+{
+    return content_;
+}
+
 GRMSGEXPORT void coGRMsg::print_stdout()
 {
     const char *typeStr[] = { "NO_TYPE", "GEO_VISIBLE", "REGISTER", "INTERACTOR_VISIBLE" };
