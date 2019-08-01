@@ -544,8 +544,7 @@ CuttingSurfaceInteraction::sendClipPlaneToGui()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjAttachedClipPlaneMsg msg(coGRMsg::ATTACHED_CLIPPLANE, initialObjectName_.c_str(), activeClipPlane_, clipPlaneOffsetSlider_->value(), clipPlaneFlipCheckbox_->state());
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(msg.c_str()), strlen(msg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(msg);
     }
 }
 
@@ -558,8 +557,7 @@ CuttingSurfaceInteraction::sendShowPickInteractorMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 1);
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(visMsg.c_str()), strlen(visMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg);
     }
 }
 
@@ -572,8 +570,7 @@ CuttingSurfaceInteraction::sendHidePickInteractorMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 0);
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(visMsg.c_str()), strlen(visMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg);
     }
 }
 
@@ -583,8 +580,7 @@ CuttingSurfaceInteraction::sendRestrictXMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjRestrictAxisMsg restrictXMsg(coGRMsg::RESTRICT_AXIS, initialObjectName_.c_str(), "xAxis");
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictXMsg.c_str()), strlen(restrictXMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(restrictXMsg);
     }
 }
 
@@ -594,8 +590,7 @@ CuttingSurfaceInteraction::sendRestrictYMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjRestrictAxisMsg restrictYMsg(coGRMsg::RESTRICT_AXIS, initialObjectName_.c_str(), "yAxis");
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictYMsg.c_str()), strlen(restrictYMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(restrictYMsg);
     }
 }
 
@@ -605,8 +600,7 @@ CuttingSurfaceInteraction::sendRestrictZMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjRestrictAxisMsg restrictZMsg(coGRMsg::RESTRICT_AXIS, initialObjectName_.c_str(), "zAxis");
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictZMsg.c_str()), strlen(restrictZMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(restrictZMsg);
     }
 }
 
@@ -616,8 +610,7 @@ CuttingSurfaceInteraction::sendRestrictNoneMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjRestrictAxisMsg restrictNoneMsg(coGRMsg::RESTRICT_AXIS, initialObjectName_.c_str(), "freeAxis");
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(restrictNoneMsg.c_str()), strlen(restrictNoneMsg.c_str()) + 1 , false} };
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(restrictNoneMsg);
     }
 }
 

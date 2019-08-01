@@ -427,8 +427,16 @@ void coVRPluginSupport::connectToCovise(bool connected)
 
 bool coVRPluginSupport::connectedToCovise()
 {
-	return m_connectedToCovise;
+    return m_connectedToCovise;
 }
+
+bool coVRPluginSupport::sendGrMessage(const coGRMsg &gr, int msgType) const
+{
+    std::string s = gr.getString();
+    Message grmsg{ msgType, DataHandle{const_cast<char *>(s.c_str()), s.length()+1, false} };
+    return sendVrbMessage(&grmsg);
+}
+
 void coVRPluginSupport::setFrameRealTime(double ft)
 {
     frameStartRealTime = ft;
@@ -528,8 +536,7 @@ void coVRPluginSupport::update()
     if (old != baseMatrix && coVRMSController::instance()->isMaster())
     {
         coGRKeyWordMsg keyWordMsg("VIEW_CHANGED", false);
-        Message grmsg{ Message::UI , DataHandle{(char*)(keyWordMsg.c_str()), strlen(keyWordMsg.c_str()) + 1, false} };
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        sendGrMessage(keyWordMsg);
     }
 
 #ifdef DOTIMING

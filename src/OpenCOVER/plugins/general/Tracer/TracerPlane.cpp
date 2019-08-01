@@ -1132,8 +1132,7 @@ TracerPlane::sendShowPickInteractorMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 1);
-        Message grmsg{ Message::UI , DataHandle{(char*)(visMsg.c_str()),strlen(visMsg.c_str()) + 1, false } };;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg);
         //fprintf(stderr,"msg sent!\n");
     }
 }
@@ -1148,8 +1147,7 @@ TracerPlane::sendHidePickInteractorMsg()
     if (coVRMSController::instance()->isMaster())
     {
         coGRObjVisMsg visMsg(coGRMsg::INTERACTOR_VISIBLE, initialObjectName_.c_str(), 0);
-        Message grmsg{ Message::UI , DataHandle{(char*)(visMsg.c_str()),strlen(visMsg.c_str()) + 1, false } };;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(visMsg);
         //fprintf(stderr,"msg sent!\n");
     }
 }

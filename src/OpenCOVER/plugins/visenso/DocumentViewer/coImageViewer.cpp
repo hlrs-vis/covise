@@ -341,8 +341,7 @@ coImageViewer::setPageNo(int pageNo)
 
     //send current page name an object name (for identification) for GUI
     coGRSendCurrentDocMsg currentDocMsg(documentName_, imageItemList_[currentPageIndex_]->getName(), objName_);
-    Message grmsg{ Message::UI , DataHandle{(char*)(currentDocMsg.c_str()), strlen((currentDocMsg.c_str())), false} };
-    cover->sendVrbMessage(&grmsg);
+    cover->sendGrMessage(currentDocMsg);
 
     // set scale for current image
     float s = imageItemList_[currentPageIndex_]->getScale();

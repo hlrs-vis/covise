@@ -101,8 +101,7 @@ void DNABaseUnit::registerAtGui()
             fprintf(stderr, "DNABaseUnit::registerObjAtUi %s\n", _interactorName);
 
         coGRObjRegisterMsg regMsg(getNameforMessage(), NULL);
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(regMsg.c_str()), strlen(regMsg.c_str()) + 1 , false} }; +1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(regMsg);
     }
 
     registered_ = true;
@@ -526,11 +525,9 @@ void DNABaseUnit::sendMatrixToGUI()
             registerAtGui();
 
         coGRObjMovedMsg moveMsg(getNameforMessage(), trans.x(), trans.y(), trans.z(), rot.x(), rot.y(), rot.z(), rot.w());
+        cover->sendGrMessage(moveMsg);
         coGRObjTransformMsg moveMsg2(getNameforMessage(), m(0, 0), m(1, 0), m(2, 0), m(3, 0), m(0, 1), m(1, 1), m(2, 1), m(3, 1), m(0, 2), m(1, 2), m(2, 2), m(3, 2), m(0, 3), m(1, 3), m(2, 3), m(3, 3));
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(moveMsg.c_str()), strlen(moveMsg.c_str()) + 1 , false} }; +1;
-        Message grmsg2{ Message::UI, covise::DataHandle{(char*)(moveMsg2.c_str()), strlen(moveMsg2.c_str()) + 1 , false} }; +1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
-        coVRPluginList::instance()->sendVisMessage(&grmsg2);
+        cover->sendGrMessage(moveMsg2);
     }
 }
 
@@ -546,8 +543,7 @@ void DNABaseUnit::sendConnectionToGUI(std::string conn1, std::string conn2, int 
             registerAtGui();
 
         coGRObjSetConnectionMsg setConnMsg(getNameforMessage(), conn1.c_str(), conn2.c_str(), connected, enabled, connObj.c_str());
-        Message grmsg{ Message::UI, covise::DataHandle{(char*)(setConnMsg.c_str()), strlen(setConnMsg.c_str()) + 1 , false} }; +1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
+        cover->sendGrMessage(setConnMsg);
     }
 }
 

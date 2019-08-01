@@ -118,11 +118,7 @@ GeneralGeometryInteraction::menuEvent(coMenuItem *item)
         //       for( std::vector<osg::Geode*>::iterator it= geodes.begin(); it != geodes.end(); it++)
         //       {
         coGRObjSetTransparencyMsg vMsg(coGRMsg::SET_TRANSPARENCY, initialObjectName_.c_str(), transparency);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(vMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        cover->sendVrbMessage(&grmsg);
+        cover->sendGrMessage(vMsg);
         //       }
     }
 }
