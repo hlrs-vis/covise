@@ -22,6 +22,7 @@
 #include "Spray.h"
 
 #include <cover/ui/Manager.h>
+#include <cover/coVRMSController.h>
 
 class nozzleManager* nM = nozzleManager::instance();
 
@@ -117,7 +118,13 @@ bool SprayPlugin::init()
     ui::Action* acceptL = new ui::Action(loadSaveMenu_, "Load_nozzles");
     acceptL->setCallback([this]()
     {
+        static bool running = false;
+	if(running)
+	{
+	   return;
+	}
         nM->loadNozzle(pathNameField_, fileNameField_);
+	running = true;
         while(nM->checkAll() != NULL)
         {
             nozzle* temporary = nM->checkAll();
@@ -132,12 +139,24 @@ bool SprayPlugin::init()
             edit_->setEnabled(true);
             remove_->setEnabled(true);
         }
+	running = false;
     });
 
     ui::Action* acceptS = new ui::Action(loadSaveMenu_, "Save_nozzles");
     acceptS->setCallback([this]()
     {
-        nM->saveNozzle(pathNameField_, fileNameField_);
+    
+        static bool running = false;
+        if(running)
+	{
+	   return;
+	}
+	running = true;
+	if(coVRMSController::instance()->isMaster())
+	{
+            nM->saveNozzle(pathNameField_, fileNameField_);
+	}
+	running = false;
     });
 
 
