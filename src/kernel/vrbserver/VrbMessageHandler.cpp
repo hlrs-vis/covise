@@ -264,7 +264,7 @@ void VrbMessageHandler::handleMessage(Message *msg)
         tb >> senderID;
         tb >> Class;
         tb >> variable;
-        if (Class == "SharedMap")
+        if (strcmp(Class, "SharedMap") == 0)
         {
             cerr << "map" << endl;
         }
