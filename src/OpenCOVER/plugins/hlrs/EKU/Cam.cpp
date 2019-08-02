@@ -13,7 +13,7 @@ using namespace opencover;
 
 int Cam::imgHeightPixel = 1080;
 int Cam::imgWidthPixel = 1920;
-int Cam::fov = 30;
+int Cam::fov = 60;
 int Cam::depthView = 30;
 int Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_PI/180));
 int Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
@@ -147,24 +147,30 @@ osg::Geode* Cam::plotCam()
 
 void Cam::updateFOV(float value)
 {
+    Cam::fov = value;
+    Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
+    Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
     verts->resize(0);
-    verts->push_back( osg::Vec3(-value, -value, -1.5) ); // 0 left  front base
-    verts->push_back( osg::Vec3( value, -value, -1.5) ); // 1 right front base
-    verts->push_back( osg::Vec3( value,  value, -1.5) ); // 2 right back  base
-    verts->push_back( osg::Vec3(-value,  value, -1.5) ); // 3 left  back  base
-    verts->push_back( osg::Vec3( 0.0f,  0.0f,  1.5f) );  // 4 peak
+    verts->push_back( osg::Vec3(-Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 0 left  front base
+    verts->push_back( osg::Vec3( Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 1 right front base
+    verts->push_back( osg::Vec3( Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 2 right back  base
+    verts->push_back( osg::Vec3(-Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 3 left  back  base
+    verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
     verts->dirty();
 
 }
 
 void Cam::updateVisibility(float value)
 {
+    Cam::depthView = value;
+    Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
+    Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
     verts->resize(0);
-    verts->push_back( osg::Vec3(-1.5f, -1.5f, -value) ); // 0 left  front base
-    verts->push_back( osg::Vec3( 1.5f, -1.5f, -value) ); // 1 right front base
-    verts->push_back( osg::Vec3( 1.5f,  1.5f, -value) ); // 2 right back  base
-    verts->push_back( osg::Vec3(-1.5f,  1.5f, -value) ); // 3 left  back  base
-    verts->push_back( osg::Vec3( 0.0f,  0.0f,  1.5f) );  // 4 peak
+    verts->push_back( osg::Vec3(-Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 0 left  front base
+    verts->push_back( osg::Vec3( Cam::imgWidth, -Cam::imgHeight, -Cam::depthView ) ); // 1 right front base
+    verts->push_back( osg::Vec3( Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 2 right back  base
+    verts->push_back( osg::Vec3(-Cam::imgWidth,  Cam::imgHeight, -Cam::depthView ) ); // 3 left  back  base
+    verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
     verts->dirty();
 }
 

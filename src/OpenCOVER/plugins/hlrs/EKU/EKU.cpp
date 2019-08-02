@@ -183,8 +183,8 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
 
    // trucks.push_back(new Truck());
     osg::Vec2i o{30,60};
-    osg::Vec3i p{0,0,0};
-   // cameras.push_back(new Cam(p,o));
+    osg::Vec3i p{0,0,100};
+    cameras.push_back(new Cam(p,o));
 
     //Create UI
     EKUMenu  = new ui::Menu("EKU", this);
@@ -210,8 +210,8 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     //FOV
     FOVRegulator = new ui::Slider(EKUMenu , "Slider1");
     FOVRegulator->setText("FOV");
-    FOVRegulator->setBounds(0., 10.);
-    FOVRegulator->setValue(1.5);
+    FOVRegulator->setBounds(30., 180.);
+    FOVRegulator->setValue(60.);
     FOVRegulator->setCallback([this](double value, bool released){
         for(auto x :cameras)
           x->updateFOV(value);
@@ -220,8 +220,8 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     //Camera visibility
     VisibilityRegulator = new ui::Slider(EKUMenu , "Slider2");
     VisibilityRegulator->setText("Visibility");
-    VisibilityRegulator->setBounds(1.0, 10.);
-    VisibilityRegulator->setValue(1.0);
+    VisibilityRegulator->setBounds(10., 50.);
+    VisibilityRegulator->setValue(30.0);
     VisibilityRegulator->setCallback([this](double value, bool released){
         for(auto x :cameras)
           x->updateVisibility(value);
@@ -375,7 +375,6 @@ osg::Geode* EKU::createPoints()
         osg::Geode* geode = new osg::Geode();
         // create Geometry object to store all the vertices and points primitive.
         osg::Geometry* pointsGeom = new osg::Geometry();
-
         // create a Vec3Array and add to it all my coordinates.
         // Like all the *Array variants (see include/osg/Array) , Vec3Array is derived from both osg::Array
         // and std::vector<>.  osg::Array's are reference counted and hence sharable,
@@ -390,7 +389,6 @@ osg::Geode* EKU::createPoints()
 
         // pass the created vertex array to the points geometry object.
         pointsGeom->setVertexArray(vertices);
-
 
 
         // create the color of the geometry, one single for the whole geometry.
@@ -423,9 +421,9 @@ osg::Geode* EKU::createPoints()
         pointsGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,vertices->size()));
 
 
-
         // add the points geometry to the geode.
         geode->addDrawable(pointsGeom);
+
 
         return geode;
     }
