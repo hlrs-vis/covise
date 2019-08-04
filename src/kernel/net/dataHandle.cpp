@@ -43,7 +43,7 @@ DataHandle::DataHandle(char* data, const int length, bool doDelete)
 
 DataHandle::DataHandle(size_t size)
 {
-    m_ManagedData.reset(new char[size]);
+    m_ManagedData.reset(new char[size], std::default_delete<char[]>());
     m_dataPtr = m_ManagedData.get();
     m_length = static_cast<int>(size);
 }
