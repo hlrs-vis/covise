@@ -30,6 +30,8 @@ PointCloudInteractor::PointCloudInteractor(coInteraction::InteractionType type, 
     fprintf(stderr, "\nPointCloudInteractor\n");
     selectedPointsGroup = new osg::Group();
     previewPointsGroup = new osg::Group();
+	MovedPTSGroup = new osg::Group();
+	cover->getObjectsRoot()->addChild(MovedPTSGroup.get());
     cover->getObjectsRoot()->addChild(selectedPointsGroup.get());
     cover->getObjectsRoot()->addChild(previewPointsGroup.get());
 }
@@ -44,12 +46,14 @@ bool PointCloudInteractor::destroy()
 {
     cover->getObjectsRoot()->removeChild(selectedPointsGroup.get());
     cover->getObjectsRoot()->removeChild(previewPointsGroup.get());
+	cover->getObjectsRoot()->removeChild(MovedPTSGroup.get());
     return true;
 }
 
 void
 PointCloudInteractor::startInteraction()
 {
+	cout << "Start Interaction" << endl;
     if (cover->debugLevel(3))
         fprintf(stderr, "\nPointCloudInteractor::startMove\n");
 
@@ -78,6 +82,49 @@ PointCloudInteractor::stopInteraction()
             if (hitPointSuccess)
             {
                 highlightPoint(bestPoint);
+				if (m_translation || m_rotation)
+				{
+					MovedPTS.push_back(selectedPoints[selectedPoints.size() - 1]);
+					int neededPts;
+					if (m_translation)
+					{
+						neededPts = 2;
+					}
+					if (m_rotation)
+					{
+						neededPts = 3;
+					}
+					if (MovedPTS.size() == neededPts)
+					{
+						//Vec3 CoorBestPoint = Vec3(bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].x,
+						//	bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].y,
+						//	bestPoint.file->pointSet[bestPoint.pointSetIndex].points[bestPoint.pointIndex].z);
+						std::vector<Vec3> CoordPts;
+						for (std::vector<pointSelection>::iterator iter = MovedPTS.begin(); iter != MovedPTS.end(); iter++)
+						{
+							int i = iter->pointSetIndex;
+							int j = iter->pointIndex;
+							CoordPts.push_back(Vec3(iter->file->pointSet[i].points[j].x, iter->file->pointSet[i].points[j].y, iter->file->pointSet[i].points[j].z));
+						}
+						Vec3 CoorBestPoint = CoordPts[1] - CoordPts[0];
+						string filename = bestPoint.file->filename;
+						cout << "1 Mpts: " << MovedPTS.size() << endl;
+						cout << "1 selPts: " << selectedPoints.size() << endl;
+						CalcMoveVec(CoorBestPoint, filename);
+						//MovedPTS.clear();
+						MovedPTS.clear();
+						selectedPointsGroup->removeChildren(0, selectedPointsGroup->getNumChildren());
+						selectedPoints.clear();
+						cout << "Mpts: " << MovedPTS.size() << endl;
+						cout << "selPts: " << selectedPoints.size() << endl;
+						cout << "selectedPointsGroup: " << selectedPointsGroup->getNumChildren() << endl;
+					}
+					cout << "selectedPointsGroup: " << selectedPointsGroup->getNumChildren();
+					//if (MovedPTS.size() == 2 || MovedPTS.size() == 3)
+					//{
+					//	MovedPTS.clear();
+					//}
+				}
             }
         }
         else
@@ -96,16 +143,14 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
         Matrix invBase = cover->getInvBaseMat();
 
         currHandMat = currHandMat * invBase;
-
         Vec3 currHandBegin = currHandMat.preMult(Vec3(0.0, 0.0, 0.0));
         Vec3 currHandEnd = currHandMat.preMult(Vec3(0.0, 1.0, 0.0));
         Vec3 currHandDirection = currHandEnd - currHandBegin;
 
         double smallestDistance = FLT_MAX;
-
         for (std::vector<FileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
-            if (fit->pointSet)
+			if (fit->pointSet)
             {
                 //std::string fileName = fit->filename;
                 //fprintf(stderr, "Testing Set %s \n", fileName.c_str());
@@ -152,12 +197,10 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
     return hitPointSuccess;
 }
 
-void
-PointCloudInteractor::doInteraction()
+void PointCloudInteractor::doInteraction()
 {
     if (cover->debugLevel(3))
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
-
     pointSelection bestPoint;
     bool hitPointSuccess= hitPoint(bestPoint);
     if (hitPointSuccess)
@@ -166,24 +209,181 @@ PointCloudInteractor::doInteraction()
     }
 }
 
+void PointCloudInteractor::CalcMoveVec(Vec3 SelPoint, string filename)
+{
+	PointSet *PTSet;
+	PTSet = MovedPTS.begin()->file->pointSet;
+	osg::Matrixf *Move = new osg::Matrixf();
+	if (m_translation)
+	{
+		Move = MakeTranslate(SelPoint, Move, PTSet);
+	}
+	if (m_rotation)
+	{
+		Move = MakeRotate(SelPoint, Move, PTSet);
+	}
+	//Old but working
+	//Move->makeTranslate(SelPoint);
+	osg::MatrixTransform *MoTra = new osg::MatrixTransform();
+	osg::Node *oldDrawing, *newDrawing, *nGroupNode = new osg::Node();
+	for (unsigned int i = 0; i < cover->getObjectsRoot()->getNumChildren(); i++)
+	{
+		nGroupNode = cover->getObjectsRoot()->getChild(i);
+		if (nGroupNode->getName() == filename)
+		{
+			cout << "neue geode zeichnen" << endl;
+			oldDrawing = nGroupNode->asGroup()->getChild(0);
+		}
+	}
+	MoTra->addChild(oldDrawing);
+	MoTra->setMatrix(*Move);
+	MoTra->setName("TraMa");
+	newDrawing = MoTra;
+	newDrawing->setName("Moved Geode");
+	nGroupNode->asGroup()->replaceChild(oldDrawing, newDrawing);
+	//Old but working
+	//PTSet = selectedPoints.begin()->file->pointSet;
+	//for (int i = 0; i < PTSet->size; i++)
+	//{
+	//	PTSet->points[i].x = PTSet->points[i].x + SelPoint.x();
+	//	PTSet->points[i].y = PTSet->points[i].y + SelPoint.y();
+	//	PTSet->points[i].z = PTSet->points[i].z + SelPoint.z();
+	//}
+
+	NodeInfo NI;
+	FileInfo FI;
+	FI = *MovedPTS.begin()->file;
+	FI.nodes.clear();
+	FI.pointSet = PTSet;
+	PointCloudGeometry *drawable = new PointCloudGeometry(PTSet);
+	drawable->changeLod(1.f);
+	drawable->setPointSize(1.f);
+	drawable->setName("Drawable Gedrehte Punkte");
+	Geode *nGeode = new Geode();
+	nGeode->addDrawable(drawable);
+	nGeode->setName("Gedrehte Punkte");
+	NI.node = nGeode;
+	FI.nodes.push_back(NI);
+	UpdatedFIVec.clear();
+	UpdatedFIVec.push_back(FI);
+	updatePoints(&UpdatedFIVec);
+	if (MovedPTSGroup->getNumChildren() > 0)
+	{
+		MovedPTSGroup->replaceChild(MovedPTSGroup->getChild(0), nGeode);
+	}
+
+	/*
+	altes Zeug läuft nicht
+	FI = *selectedPoints.begin()->file;
+	PTSet = selectedPoints.begin()->file->pointSet;
+	std::vector<Vec3> CoordPts;
+	for (std::vector<pointSelection>::iterator iter = selectedPoints.begin(); iter != selectedPoints.end(); iter++)
+	{
+		int i = iter->pointSetIndex;
+		int j = iter->pointIndex;
+		CoordPts.push_back(Vec3(iter->file->pointSet[i].points[j].x, iter->file->pointSet[i].points[j].y, iter->file->pointSet[i].points[j].z));
+	}
+
+	Vec3f VecAB, VecBC, MoveAreaVec;
+	VecAB = CoordPts[1] - CoordPts[0];
+	if (CoordPts.size() == 3)
+	{
+		cout << "rotation" << endl;
+		VecBC = CoordPts[2] - CoordPts[1];
+		MoveAreaVec = Vec3f(VecAB.operator^(VecBC));
+		PointCloudInteractor::MakeRotate(MoveAreaVec);
+	}
+	if (m_translation)
+	{
+		cout << "translation" << endl;
+		PointCloudInteractor::MakeTranslate(VecAB);
+	}
+
+	for (unsigned int i = 0; i < cover->getObjectsRoot()->getNumChildren(); i++)
+	{
+		nGroupNode = cover->getObjectsRoot()->getChild(i);
+		if (cover->getObjectsRoot()->getChild(i)->getName() == filename)
+		{
+			cout << "neue geode zeichnen" << endl;
+			oldGeode = nGroupNode->asGroup()->getChild(0);
+			oldGeode->setName("Moved Geode!");
+			MoveTransformation->addChild(oldGeode);
+			MoveTransformation->setMatrix(*MoveMat);
+			drawNode = MoveTransformation;
+		}
+	}
+	nGroupNode->asGroup()->replaceChild(oldGeode, drawNode);
+	NodeInfo NI;
+	FI.nodes.clear();
+	FI.pointSet = PTSet;
+	PointCloudGeometry *drawable = new PointCloudGeometry(PTSet);
+	//PointCloudGeometry *drawable = dynamic_cast<PointCloudGeometry*>(drawNode->asGeode()->getDrawable()->asGeometry());
+	drawable->changeLod(1.f);
+	drawable->setPointSize(4.f);
+	drawable->setName("Drawable Gedrehte Punkte");
+	Geode *nGeode = new Geode();
+	nGeode->addDrawable(drawable);
+	nGeode->setName("Gedrehte Punkte");
+	//if (cover->getObjectsRoot()->getChild(cover->getObjectsRoot()->getNumChildren() - 1)->getName() == "Gedrehte Punkte")
+	//{
+	//	cover->getObjectsRoot()->removeChild(cover->getObjectsRoot()->getNumChildren() - 1);
+	//}
+	//cover->getObjectsRoot()->addChild(nGeode);
+	NI.node = nGeode;
+	FI.nodes.push_back(NI);
+	UpdatedFIVec.clear();
+	UpdatedFIVec.push_back(FI);
+	updatePoints(&UpdatedFIVec);
+	*/
+}
+
+osg::Matrixf*
+PointCloudInteractor::MakeRotate(Vec3 PTVec, osg::Matrixf *RotMat, PointSet *PTSet)
+{
+	RotMat->makeRotate(PTVec, Vec3(PTVec));
+	for (int i = 0; i < PTSet->size; i++)
+	{
+		Vec3f PtsCoord = Vec3f(PTSet->points[i].x, PTSet->points[i].y, PTSet->points[i].z);
+		PtsCoord = RotMat->getRotate().operator*(PtsCoord);
+		PTSet->points[i].x = PtsCoord.x();
+		PTSet->points[i].y = PtsCoord.y();
+		PTSet->points[i].z = PtsCoord.z();
+	}
+	return RotMat;
+}
+
+osg::Matrixf*
+PointCloudInteractor::MakeTranslate(Vec3 PTVec, osg::Matrixf *TraMat, PointSet *PTSet)
+{
+	TraMat->makeTranslate(PTVec);
+	for (int i = 0; i < PTSet->size; i++)
+	{
+		PTSet->points[i].x = PTSet->points[i].x + PTVec.x();
+		PTSet->points[i].y = PTSet->points[i].y + PTVec.y();
+		PTSet->points[i].z = PTSet->points[i].z + PTVec.z();
+	}
+	return TraMat;
+}
+
 void
 PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview)
-{   
+{
+	Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
+		selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
+		selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
+	//fprintf(stderr,"Selected point has ID %d", selectedPoint.file->pointSet[selectedPoint.pointSetIndex].IDs[selectedPoint.pointIndex]);
 
-    Vec3 newSelectedPoint = Vec3(selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].x,
-                                 selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].y,
-                                 selectedPoint.file->pointSet[selectedPoint.pointSetIndex].points[selectedPoint.pointIndex].z);
-    //fprintf(stderr,"Selected point has ID %d", selectedPoint.file->pointSet[selectedPoint.pointSetIndex].IDs[selectedPoint.pointIndex]);
     osg::Matrix *sphereTransformationMatrix = new osg::Matrix;
     sphereTransformationMatrix->makeTranslate(newSelectedPoint);
 
     osg::MatrixTransform *sphereTransformation = new osg::MatrixTransform;
     sphereTransformation->setMatrix(*sphereTransformationMatrix);
+	sphereTransformation->setName("Sphere Transformation");
     selectedPoint.transformationMatrix = sphereTransformation;
 
     osg::Geode *sphereGeode = new osg::Geode;
     sphereTransformation->addChild(sphereGeode);
-    osg::Sphere *selectedSphere = new osg::Sphere(Vec3(.0f,0.f,0.f),1.0f);
+    osg::Sphere *selectedSphere = new osg::Sphere(newSelectedPoint,1.0f);
     osg::TessellationHints *hint = new osg::TessellationHints();
     hint->setDetailRatio(0.5);
     osg::StateSet* stateSet = VRSceneGraph::instance()->loadDefaultGeostate(osg::Material::AMBIENT_AND_DIFFUSE);
@@ -378,7 +578,7 @@ bool PointCloudInteractor::deselectPoint()
     {
         Matrix currHandMat = cover->getPointerMat();
         Matrix invBase = cover->getInvBaseMat();
-
+		
         currHandMat = currHandMat * invBase;
 
         Vec3 currHandBegin = currHandMat.preMult(Vec3(0.0, 0.0, 0.0));
@@ -409,6 +609,22 @@ bool PointCloudInteractor::deselectPoint()
     }
     updateMessage(selectedPoints);
     return hitPointSuccess;
+}
+
+void PointCloudInteractor::setTranslation(bool translation)
+{
+	if (translation)
+		m_translation = true;
+	else
+		m_translation = false;
+}
+
+void PointCloudInteractor::setRotation(bool rotation)
+{
+	if (rotation)
+		m_rotation = true;
+	else
+		m_rotation = false;
 }
 
 void PointCloudInteractor::setDeselection(bool deselection)

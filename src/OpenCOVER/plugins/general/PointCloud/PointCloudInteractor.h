@@ -43,6 +43,13 @@ public:
     // start the interaction
     void startInteraction();
 
+	//calculate moving vector
+	void CalcMoveVec(osg::Vec3, string);
+
+	//move and draw pointset
+	void MovePointSet(osg::Vec3, PointSet&);
+
+
     void addSelectedPoint(osg::Vec3);
     void updateMessage(vector<pointSelection> points);
 
@@ -53,7 +60,10 @@ public:
         this->m_files = allFiles;
     };
 
-        void setDeselection(bool);
+	void setTranslation(bool);
+	void setRotation(bool);
+
+    void setDeselection(bool);
 
     // measure angle between hand position-point and hand-direction
     // returns -1 on pointing away from point
@@ -81,6 +91,14 @@ private:
     bool hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset);
     double LinePointDistance(osg::Vec3 center, osg::Vec3 handPos, osg::Vec3 handDirection);
 
+	std::vector<FileInfo> UpdatedFIVec;
+
+	bool m_rotation = false;
+	osg::Matrixf* PointCloudInteractor::MakeRotate(osg::Vec3f PTVec, osg::Matrixf *RotMat, PointSet *PTSet);
+
+	bool m_translation = false;
+	osg::Matrixf* PointCloudInteractor::MakeTranslate(osg::Vec3f PTVec, osg::Matrixf *TraMat, PointSet *PTSet);
+
     bool hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, osg::Vec3 center, float radius);
 
     osg::MatrixTransform *sc; 
@@ -90,14 +108,15 @@ private:
     bool m_deselection = false;
 
     std::vector<pointSelection> selectedPoints;
-	cout << selectedPoints << endl;
     std::vector<pointSelection> previewPoints;
+	std::vector<pointSelection> MovedPTS;
     //pointSelection previewPoint;
 
     osg::ref_ptr<osg::MatrixTransform> highlight;
 
     osg::ref_ptr<osg::Group> selectedPointsGroup;
     osg::ref_ptr<osg::Group> previewPointsGroup;
+	osg::ref_ptr<osg::Group> MovedPTSGroup;
 
     int selectionSetIndex = 0;
     bool m_selectionIsBoundary = false;

@@ -143,7 +143,6 @@ bool PointCloudPlugin::init()
             //enable interaction
 
             vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
-
             //cover->addPlugin("NurbsSurface");
         }
         else
@@ -151,6 +150,54 @@ bool PointCloudPlugin::init()
             vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
         } 
     });
+
+	// NEW 
+	// Menu for Moving Points by selection
+	//sw = new osg::Switch();
+	singleSelectButton = new ui::Button(selectionGroup, "MakeTranslate", selectionButtonGroup);
+	singleSelectButton->setText("Make Translate");
+	singleSelectButton->setCallback([this](bool state) {
+		if (state)
+		{
+			//enable interaction
+			//for (int i = 0; i < cover->getObjectsRoot()->getNumChildren(); i++)
+			//{
+			//	sw->addChild(cover->getObjectsRoot()->getChild(i));
+			//	cout << sw->getChild(i)->getName() << endl;
+			//}
+			//cover->getObjectsRoot()->addChild(sw);
+			//sw->setAllChildrenOff();
+			//cout << "Make Translate" << endl;
+			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			s_pointCloudInteractor->setTranslation(true);
+			//cover->addPlugin("NurbsSurface");
+		}
+		else
+		{
+			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			s_pointCloudInteractor->setTranslation(false);
+		}
+	});
+	singleSelectButton = new ui::Button(selectionGroup, "MakeRotate", selectionButtonGroup);
+	singleSelectButton->setText("Make Rotate");
+	singleSelectButton->setCallback([this](bool state) {
+		if (state)
+		{
+			//enable interaction
+			cout << "Make Rotate" << endl;
+			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			s_pointCloudInteractor->setRotation(true);
+			//cover->addPlugin("NurbsSurface");
+		}
+		else
+		{
+			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			s_pointCloudInteractor->setRotation(false);
+		}
+	});
+
+	//End new buttons
+
     deselectButton = new ui::Button(selectionGroup, "DeselectPoints", selectionButtonGroup);
     deselectButton->setText("Deselect Points");
     deselectButton->setCallback([this](bool state){
@@ -898,14 +945,22 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     Geode *currentGeode = new Geode();
 					currentGeode->addDrawable(drawable);
 					currentGeode->setName(filename);
+					cout << "Org Geode Size: " << currentGeode->getNumChildren() << endl;
 					parent->addChild(currentGeode);
 					NodeInfo ni;
 					ni.node = currentGeode;
+					cout << "Org NodeInfo: " << ni.node->getNumChildren() << endl;
 					fi.nodes.push_back(ni);
+					cout << "PointSet Org: " << fi.pointSetSize << endl;
+					fi.filename = filename;
 				}
 			}
-
 			files.push_back(fi);
+			for (std::vector<FileInfo>::iterator i = files.begin(); i < files.end(); i++)
+			{
+				cout << "Name OrgData: " << i->filename << endl;
+				cout << "Size OrgData: " << i->pointSetSize << endl;
+			}
             s_pointCloudInteractor->updatePoints(&files);
 			eReader.Close();
 			return;
