@@ -17,47 +17,54 @@
 #include <osg/Material>
 #include<osg/MatrixTransform>
 #include<osg/Quat>
+#include<osg/BlendFunc>
 
 
 
 class Cam
+{   
+public:
+    static double imgWidth;
+    static double imgHeight;
+    static double imgWidthPixel;
+    static double imgHeightPixel;
+    static double fov;
+    static double depthView;
+    static double focalLengthPixel;
+
+    Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observationPoints);
+    Cam(const osg::Vec3 pos, const osg::Vec2 rot);
+    ~Cam();
+
+
+    const osg::Vec2 rot; // [0]=alpha =zRot, [1]=beta =yRot
+    const osg::Vec3 pos;
+
+    //const osg::Vec3Array* obsPoints =nullptr; // NOTE: remove later
+
+    void calcVisMat(const osg::Vec3Array &observationPoints);
+    std::vector<int> visMat;
+
+};
+
+class CamDrawable: public Cam
 {
 private:
-
     osg::Vec3Array* verts;
-    osg::Vec2i rot;
-    osg::Vec3i pos;
     osg::ref_ptr<osg::Geode> camGeode;
     osg::ref_ptr<osg::MatrixTransform> transMat;
     osg::ref_ptr<osg::MatrixTransform> rotMat;
     //osg::PositionAttitudeTransform* revolution;
 
+
 public:
-    static int imgWidth;
-    static int imgHeight;
-    static int imgWidthPixel;
-    static int imgHeightPixel;
-    static int fov;
-    static int depthView;
-    static int focalLengthPixel;
-   // osg::Matrix Rz = osg::Matrix::rotate(rot(0),0,0,1);// Z rotation
-    //osg::Matrix Ry = osg::Matrix::rotate(rot(1),0,1,0);// Y rotation
-    //osg::Matrix T =  osg::Matrix::translate(pos); //Translation
-
-
-
-    Cam(osg::Vec3i pos,osg::Vec2i rot);
-    ~Cam();
-
     osg::Geode* plotCam();
-    void setFOV(float radius);
-    void setVisibility(float vis);
     void updateFOV(float value);
     void updateVisibility(float value);
 
-
-
-
+    CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot);
+    //CamDrawable(Cam cam);
+    ~CamDrawable();
 };
 
 /*class RotationCallback : public osg::NodeCallback

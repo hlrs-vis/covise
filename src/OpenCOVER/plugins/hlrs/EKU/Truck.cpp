@@ -23,6 +23,7 @@ Truck::Truck(osg::Vec3 pos):pos(pos)
     truckGeode->addDrawable(truckDrawable);
 
     cover->getObjectsRoot()->addChild(truckGeode.get());
+
 }
 Truck::~Truck()
 {

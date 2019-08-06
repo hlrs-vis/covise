@@ -181,10 +181,26 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     plugin = this;
     fprintf(stderr, "EKUplugin::EKUplugin\n");
 
-   // trucks.push_back(new Truck());
-    osg::Vec2i o{30,60};
-    osg::Vec3i p{0,0,100};
-    cameras.push_back(new Cam(p,o));
+    trucks.push_back(new Truck(osg::Vec3(20,0,0)));
+    trucks.push_back(new Truck(osg::Vec3(40,0,20)));
+    trucks.push_back(new Truck(osg::Vec3(40,30,20)));
+    trucks.push_back(new Truck(osg::Vec3(48,0,0)));
+
+    const osg::Vec2 o{10,50};
+    const osg::Vec3 p{0,-10,40};
+    //const osg::Vec2 o1{10,-60};
+    //const osg::Vec3 p1{0,0,-100};
+    osg::Vec3Array* obsPoints = new osg::Vec3Array;
+
+      for(auto x:trucks)
+        obsPoints->push_back( x->pos);
+
+
+
+    cameras.push_back(new Cam(p,o,*obsPoints));
+    finalCams.push_back(new CamDrawable(p,o));
+   // finalCams.push_back(new CamDrawable(p1,o1));
+
 
     //Create UI
     EKUMenu  = new ui::Menu("EKU", this);
@@ -210,11 +226,14 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     //FOV
     FOVRegulator = new ui::Slider(EKUMenu , "Slider1");
     FOVRegulator->setText("FOV");
-    FOVRegulator->setBounds(30., 180.);
+    FOVRegulator->setBounds(30., 120.);
     FOVRegulator->setValue(60.);
-    FOVRegulator->setCallback([this](double value, bool released){
-        for(auto x :cameras)
+    FOVRegulator->setCallback([this,obsPoints](double value, bool released){
+        for(auto x :finalCams)
+        {
           x->updateFOV(value);
+          x->calcVisMat(*obsPoints);
+        }
     });
 
     //Camera visibility
@@ -222,14 +241,17 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     VisibilityRegulator->setText("Visibility");
     VisibilityRegulator->setBounds(10., 50.);
     VisibilityRegulator->setValue(30.0);
-    VisibilityRegulator->setCallback([this](double value, bool released){
-        for(auto x :cameras)
+    VisibilityRegulator->setCallback([this,obsPoints](double value, bool released){
+        for(auto x :finalCams)
+        {
           x->updateVisibility(value);
+          x->calcVisMat(*obsPoints);
+        }
     });
 
 
      cover->getObjectsRoot()->addChild(createPolygon());
-     cover->getObjectsRoot()->addChild(createPoints());
+     //cover->getObjectsRoot()->addChild(createPoints());
 
   /*  //Position of Objects
     moveDown = new osg::PositionAttitudeTransform();
@@ -243,7 +265,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     moveUp->setUpdateCallback( new RotationCallback() );
 */
 
-
+/*
      output_file.open("results.txt");
      output_file<<"step"<<"\t"<<"cost_avg"<<"\t"<<"cost_best"<<"\t"<<"solution_best"<<"\n";
 
@@ -272,6 +294,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
      std::cout<<"The problem is optimized in "<<timer.toc()<<" seconds."<<std::endl;
 
      output_file.close();
+     */
 }
 
 EKU::~EKU()
@@ -324,10 +347,10 @@ osg::Geode* EKU::createPolygon()
    geode->addDrawable(geom);
    // Declare an array of vertices to create a simple polygon.
    osg::Vec3Array* verts = new osg::Vec3Array;
-   verts->push_back( osg::Vec3(-50.0f, -50.0f,  0.0f) ); // 0 left  front
-   verts->push_back( osg::Vec3( 50.0f, -50.0f,  0.0f) ); // 1 right front
    verts->push_back( osg::Vec3( 50.0f,  50.0f,  0.0f) ); // 2 right back
+   verts->push_back( osg::Vec3( 50.0f, -50.0f,  0.0f) ); // 1 right front
    verts->push_back( osg::Vec3(-50.0f,  50.0f,  0.0f) ); // 3 left  back
+   verts->push_back( osg::Vec3(-50.0f, -50.0f,  0.0f) ); // 0 left  front
    // Associate this set of vertices with the Geometry.
    geom->setVertexArray(verts);
    // Next, create a primitive set and add it to the Geometry as a polygon.
@@ -380,12 +403,11 @@ osg::Geode* EKU::createPoints()
         // and std::vector<>.  osg::Array's are reference counted and hence sharable,
         // which std::vector<> provides all the convenience, flexibility and robustness
         // of the most popular of all STL containers.
+
         osg::Vec3Array* vertices = new osg::Vec3Array;
-        vertices->push_back(osg::Vec3(-1.02168, -2.15188e-09, 0.885735));
-        vertices->push_back(osg::Vec3(-0.976368, -2.15188e-09, 0.832179));
-        vertices->push_back(osg::Vec3(-0.873376, 9.18133e-09, 0.832179));
-        vertices->push_back(osg::Vec3(-0.836299, -2.15188e-09, 0.885735));
-        vertices->push_back(osg::Vec3(-0.790982, 9.18133e-09, 0.959889));
+        vertices->push_back(osg::Vec3(20,0,10));
+        vertices->push_back(osg::Vec3(50,0,0));
+
 
         // pass the created vertex array to the points geometry object.
         pointsGeom->setVertexArray(vertices);

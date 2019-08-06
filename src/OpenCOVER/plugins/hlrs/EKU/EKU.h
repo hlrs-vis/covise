@@ -74,6 +74,7 @@ public:
 
     std::vector<Truck*> trucks;
     std::vector<Cam*> cameras;
+    std::vector<CamDrawable*> finalCams;
 
 
 
