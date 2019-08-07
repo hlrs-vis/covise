@@ -84,30 +84,18 @@ Droplet::Droplet(osg::Vec4 color) {
     bloodTransform -> setMatrix(bloodBaseTransform);
     bloodTransform -> addChild(bloodGeode);
 
-
-
-
     string transformName = "bloodTransform"/*  + std::to_string(id) */;
     bloodTransform -> setName(transformName); //later update name to include the particle number    
 
-
-
-
     //create a sphere to model the blood, radius 10, position at the tip of the knife
-    bloodSphere = new osg::Sphere(prevPosition, 0.05);
+    bloodSphere = new osg::Sphere(prevPosition, 5);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodShapeDrawable -> setColor(color);
     bloodGeode -> addDrawable(bloodShapeDrawable);
 
-
-
-
     string geodeName = "bloodGeode"/*  + std::to_string(id) */;
     bloodGeode -> setName(geodeName); //later update name to include the particle number
-
-
-
 
     //********************************RENDERING THE SPHERE IN OPENCOVER************************************
     if(bloodGeode) {
@@ -127,9 +115,7 @@ Droplet::Droplet(osg::Vec4 color) {
         // cover -> getObjectsRoot() -> addChild(bloodTransform);
     	// cout << "Hello Blood" << endl;
     }
-    bloodGeode->setNodeMask(bloodGeode->getNodeMask() & ~Isect::Intersection);
 }
-
 
 Droplet::~Droplet() {
 }
@@ -140,7 +126,7 @@ Droplet::~Droplet() {
    - rho: density of the fluid (SI units: kg/m^3)
    - u: velocity of the fluid with respect to the object (m/s)
    - L: characteristic linear dimension (m), typically use radius or diameter for circles/spheres
-   - mu: dynamic viscosity of the fluid (Pa·s or N·s/m^2 or kg/m·s)
+   - mu: dynamic viscosity of the fluid (PaÂ·s or NÂ·s/m^2 or kg/mÂ·s)
 
 * onset of turbulent flow: 2.3x10^3 -> 5.0x10^4 for pipe flow, 10^6 for boundary layers
 - reference numbers: Re for blood flow in brain = 1x10^2, Re for blood flow in aorta = 1x10^3  */
