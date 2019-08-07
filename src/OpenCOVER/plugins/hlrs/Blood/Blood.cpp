@@ -67,7 +67,6 @@ double d[] = {1.,0.,0.,0., //x scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
 Droplet::Droplet(osg::Vec4 color) {
-    //id++;
     radius = 0.001; //particle radius = 1mm
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
@@ -88,7 +87,7 @@ Droplet::Droplet(osg::Vec4 color) {
     bloodTransform -> setName(transformName); //later update name to include the particle number    
 
     //create a sphere to model the blood, radius 10, position at the tip of the knife
-    bloodSphere = new osg::Sphere(prevPosition, 5);
+    bloodSphere = new osg::Sphere(prevPosition, 0.005);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodShapeDrawable -> setColor(color);

@@ -71,6 +71,7 @@ public:
     double timeElapsed; //time between frames
     bool onKnife = true;
     bool firstUpdate = true;
+    bool onFloor = false;
     double mass; //units: kg
     
     //kinematics data
@@ -117,6 +118,10 @@ class Weapon {
 public:
     Weapon();
     ~Weapon();
+
+    double currentSpeed;
+    double prevSpeed = 0;
+    double accel;
 
     osg::Node* knifePtr;
     osg::Vec3 a;

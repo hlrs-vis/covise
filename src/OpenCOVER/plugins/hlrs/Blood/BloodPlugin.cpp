@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-/****************************************************************************\ 
+/****************************************************************************\
  **                                                            (C)2008 HLRS  **
  **                                                                          **
  ** Description: BloodPlugin OpenCOVER Plugin (is polite)                    **
@@ -21,7 +21,7 @@
 
 #include "BloodPlugin.h"
 #include "globals.h"
-
+#include <cover/VRSceneGraph.h>
 
 using namespace opencover;
 
@@ -66,7 +66,7 @@ BloodPlugin::~BloodPlugin()
 
     for(int i = 0; i < numParticles; i++) {
         //remove node to delete from the scene graph - not sure which one to use?
-        cover -> removeNode(particleList[i] -> bloodTransform.get()); 
+        cover -> removeNode(particleList[i] -> bloodTransform.get());
         //cover -> getObjectsRoot() -> removeChild(particleList[i] -> bloodTransform.get());
 
         delete particleList[i];
@@ -84,12 +84,12 @@ bool BloodPlugin::init() {
     knife.timeElapsed = cover -> frameDuration();
     knife.prevPosition = osg::Vec3(0,0,0);
     knife.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).preMult(knife.lengthInOR);
-    
-    //****************************************************************************************************************************DRAWING THE KNIFE	  
+
+    //****************************************************************************************************************************DRAWING THE KNIFE
     //loading an external 3D knife model
     knife.knifePtr = coVRFileManager::instance()->loadIcon("knife"); //loads 3d model of a knife into OpenCOVER
     knife.knifePtr -> setName("KnifePtr");
-    
+
     //matrix controlling the movement of the knife, eventually should be the same as pointer matrix/hand matrix
     knifeTransform = new osg::MatrixTransform;
 
@@ -97,21 +97,21 @@ bool BloodPlugin::init() {
     knifeTransform -> setMatrix(knifeBaseTransform);
     knifeTransform -> addChild(knife.knifePtr);
     knifeTransform -> setName("knifeTransform");
-  	
+
     //********************************RENDERING THE KNIFE IN OPENCOVER************************************
     if(knife.knifePtr) { //check if the knife image loaded properly, if so, add it to the graph
         cover -> getObjectsRoot() -> addChild(knifeTransform);
    		cout << "Hello Knife" << endl;
    		cout << "Hello Knife Animation" << endl;
     }
-    
+
     //*********************************************************************************************************************************INITIALIZING DROPLET CLASS
     //initializing things for the particle
     numParticles++;
     particleList.resize(numParticles);
 
     for(int i = 0; i < numParticles; i++) {
-        particleList[i] = new Droplet(); 
+        particleList[i] = new Droplet();
         cover -> getObjectsRoot() -> addChild(particleList[i] -> bloodTransform);
 
     	cout << "Hello Blood" << endl;
@@ -124,177 +124,138 @@ bool BloodPlugin::init() {
     addBlood = new ui::Action(bloodMenu, "addBlood");
     addBlood->setText("Add Blood");
     addBlood->setCallback([this]() {doAddBlood(); });
-
+	
+	cover -> setScale(1000);
     return true;
 }
 
-bool BloodPlugin::update() { 
-    
-    if(numParticles < 1) {
-        return false;
-    }
+bool BloodPlugin::update() {
 
     osg::Matrix hand = cover -> getPointerMat();
     osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
 
     //rotate clockwise 90 degrees about z-axis
     osg::Matrix rotKnife;
-    rotKnife.makeRotate(-osg::PI_2, osg::Vec3(0,0,1)); 
+    rotKnife.makeRotate(-osg::PI_2, osg::Vec3(0,0,1));
 
     //moving and drawing the knife
     knifeTransform -> setMatrix(rotKnife * handInObjectsRoot);
 
     knife.currentPosition = knife.lengthInOR *  handInObjectsRoot;
 
-    if(knife.prevPosition.x() == 0) { //will be true on the first time update() is run
+    if(knife.prevPosition.length() == 0) { //will be true on the first time update() is run
         knife.prevPosition = knife.currentPosition;
-        particleList[numParticles - 1] -> currentPosition = knife.currentPosition;
     }
-    
-    //**************************only animate the numParticle-1 element of the vector*******************************
-    if(particleList[numParticles - 1] -> firstUpdate && particleList[numParticles - 1] -> currentVelocity.length() != 0) {
-        particleList[numParticles - 1] -> findReynoldsNum();
-        particleList[numParticles - 1] -> findDragCoefficient();
-        particleList[numParticles - 1] -> findTerminalVelocity();
 
-        if(numParticles == 2) cout << particleList[numParticles - 1] -> terminalVelocity << endl;
-        particleList[numParticles - 1] -> firstUpdate = false;
-    }
-    
-    knife.shift = knife.currentPosition - knife.prevPosition;
+	knife.shift = knife.currentPosition - knife.prevPosition;
     knife.prevPosition = knife.currentPosition;
 
-    static double prevKnifeSpeed;
-    double knifeAccel;
+	knife.velocity = knife.shift / double(cover -> frameDuration());
 
-    if(particleList[numParticles - 1] -> onKnife) {
-        prevKnifeSpeed = 0;
-        double knifeSpeed = knife.shift.length() / (cover -> frameDuration());
-        knifeAccel = (knifeSpeed - prevKnifeSpeed) / cover -> frameDuration();
-        prevKnifeSpeed = knifeSpeed;
-    }
-    
-    //?: need a way to limit the position/velocity of the particle, can do terminal velocity/bounded z-position?
-    //*************************************************************************************
-    if(!particleList[numParticles - 1] -> onKnife || 
-    (particleList[numParticles - 1] -> currentVelocity.length() > 5/* 000 */ && 
-    particleList[numParticles - 1] -> currentVelocity.length() < 50/* 000 */)) {
-        //particle leaves the knife with an initial velocity equal to the knife's velocity
-        
-        cout << "particle " << numParticles << " has left the knife" << endl;
-        //cout << "numParticles is now: " << numParticles - 1 << endl;
-        
-        //checking that velocity < terminal velocity
-        if(abs(particleList[numParticles - 1] -> currentVelocity.x()) < particleList[numParticles - 1] -> terminalVelocity && 
-           abs(particleList[numParticles - 1] -> currentVelocity.y()) < particleList[numParticles - 1] -> terminalVelocity && 
-           abs(particleList[numParticles - 1] -> currentVelocity.z()) < particleList[numParticles - 1] -> terminalVelocity) {
+	for(int thisParticle = 0; thisParticle < numParticles; thisParticle++) { //loop through all particles in the vector
 
-                particleList[numParticles - 1] -> currentVelocity += particleList[numParticles - 1] -> gravity * 
-                double(cover -> frameDuration());
-                
-        } else {
-            cout << "v > term" << endl;
-    
-            if(numParticles == 2 && !isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
-                cout << "else\nvelocity: " << particleList[numParticles - 1] -> currentVelocity << endl;
-                cout << "position: " << particleList[numParticles - 1] -> currentPosition << endl;   
-                num++;
+		if(particleList[thisParticle] -> firstUpdate) {
+			particleList[thisParticle] -> currentPosition = knife.currentPosition;
 
-                if(num == 2) {
-                    
-                    //while(true);
-                }
-                
-            } else if(isnan(particleList[numParticles - 1] -> currentVelocity.x())) {
-                while(true);
-            }
+			if(particleList[thisParticle] -> currentVelocity.length() != 0) {
+				particleList[thisParticle] -> findReynoldsNum();
+				particleList[thisParticle] -> findDragCoefficient();
+				particleList[thisParticle] -> findTerminalVelocity();
 
-            //? when new particle is added via doAddBlood, the velocity of the particle at this point is always 0?
+				particleList[thisParticle] -> firstUpdate = false;
+			}
+		}
 
-            particleList[numParticles - 1] -> currentVelocity += 
-            particleList[numParticles - 1] -> gravity * double(cover -> frameDuration());
+		//for finding knife acceleration, can be used for friction and other forces
+		if(particleList[thisParticle] -> onKnife) {
+			if(knife.prevSpeed = 0) {
+				knife.prevSpeed = knife.currentSpeed;
+			}
 
-            if(abs(particleList[numParticles - 1] -> currentVelocity.x()) >= 
-            particleList[numParticles - 1] -> terminalVelocity && 
-            particleList[numParticles - 1] -> currentVelocity.x() != 0) {
+			knife.currentSpeed = knife.velocity.length();
+			knife.accel = (knife.currentSpeed - knife.prevSpeed) / double(cover -> frameDuration());
+			knife.prevSpeed = knife.currentSpeed;
+		}
 
-                particleList[numParticles - 1] -> currentVelocity.x() = 
-                (particleList[numParticles - 1] -> currentVelocity.x() / 
-                abs(particleList[numParticles - 1] -> currentVelocity.x())) * 
-                particleList[numParticles - 1] -> terminalVelocity;
-            }
+		if(/*!particleList[thisParticle] -> onFloor && */(!particleList[thisParticle] -> onKnife || 
+		(particleList[thisParticle] -> currentVelocity.length() > 5 && particleList[thisParticle] -> currentVelocity.length() < 50))) {
+			//particle leaves the knife with an initial velocity equal to the knife's velocity
+			cout << "particle " << numParticles << " has left the knife" << endl;
 
-            if(abs(particleList[numParticles - 1] -> currentVelocity.y()) >= 
-            particleList[numParticles - 1] -> terminalVelocity && 
-            particleList[numParticles - 1] -> currentVelocity.y() != 0) {
+			//checking that velocity < terminal velocity
+			if(abs(particleList[thisParticle] -> currentVelocity.x()) < particleList[thisParticle] -> terminalVelocity &&
+			abs(particleList[thisParticle] -> currentVelocity.y()) < particleList[thisParticle] -> terminalVelocity &&
+			abs(particleList[thisParticle] -> currentVelocity.z()) < particleList[thisParticle] -> terminalVelocity) {
+				particleList[thisParticle] -> currentVelocity += particleList[thisParticle] -> gravity * double(cover -> frameDuration());
 
-                particleList[numParticles - 1] -> currentVelocity.y() = 
-                (particleList[numParticles - 1] -> currentVelocity.y() / 
-                abs(particleList[numParticles - 1] -> currentVelocity.y())) * 
-                particleList[numParticles - 1] -> terminalVelocity;
-            }
+			} else { //velocity > terminal velocity
+				cout << "v > term" << endl;
 
-            if(abs(particleList[numParticles - 1] -> currentVelocity.z()) >= 
-            particleList[numParticles - 1] -> terminalVelocity && 
-            particleList[numParticles - 1] -> currentVelocity.z() != 0) {
+				particleList[thisParticle] -> currentVelocity += particleList[thisParticle] -> gravity * double(cover -> frameDuration());
 
-                particleList[numParticles - 1] -> currentVelocity.z() = 
-                (particleList[numParticles - 1] -> currentVelocity.z() / 
-                abs(particleList[numParticles - 1] -> currentVelocity.z())) * 
-                particleList[numParticles - 1] -> terminalVelocity;
-            }
-        }
-        
-        //no checks for terminal velocity
-        // particleList[numParticles - 1] -> currentVelocity += particleList[numParticles - 1] -> gravity * double(cover -> frameDuration());
-        
-        particleList[numParticles - 1] -> currentPosition += particleList[numParticles - 1] -> currentVelocity * 
-        double(cover -> frameDuration());
+				if(abs(particleList[thisParticle] -> currentVelocity.x()) >= particleList[thisParticle] -> terminalVelocity) {
+					particleList[thisParticle] -> currentVelocity.x() = signOf(particleList[thisParticle] -> currentVelocity.x()) * particleList[thisParticle] -> terminalVelocity;
+				}
 
-        particleList[numParticles - 1] -> onKnife = false;
-            
-        if(particleList[numParticles - 1] -> currentVelocity.length() != 0) { //testing
-            cout << "if-statement particle speed: " << particleList[numParticles - 1] -> currentVelocity << endl; //testing
-            cout << "if-statement particle position: " << particleList[numParticles - 1] -> currentPosition << endl << endl;
-        }
+				if(abs(particleList[thisParticle] -> currentVelocity.y()) >= particleList[thisParticle] -> terminalVelocity) {
+					particleList[thisParticle] -> currentVelocity.y() = signOf(particleList[thisParticle] -> currentVelocity.y()) * particleList[thisParticle] -> terminalVelocity;
+				}
 
-    } else {
-        //particle has the same velocity as the knife
-        particleList[numParticles - 1] -> currentVelocity.set(knife.shift / double(100*cover -> frameDuration()));
-        particleList[numParticles - 1] -> currentPosition.set(knife.currentPosition); 
-        
-        if(particleList[numParticles - 1] -> currentVelocity.length() != 0) {
-            cout << "particle position: " << particleList[numParticles - 1] -> currentPosition << endl;
-            cout << "else-statement particle speed: " << particleList[numParticles - 1] -> currentVelocity << endl << endl; //testing
-        }
+				if(abs(particleList[thisParticle] -> currentVelocity.z()) >= particleList[thisParticle] -> terminalVelocity) {
+					particleList[thisParticle] -> currentVelocity.z() = signOf(particleList[thisParticle] -> currentVelocity.z()) * particleList[thisParticle] -> terminalVelocity;
+				}
+			}
 
-    }
-    //**************************************************************************************/
-    particleList[numParticles - 1] -> matrix.makeTranslate(particleList[numParticles - 1] -> currentPosition);
-    particleList[numParticles - 1] -> bloodTransform -> setMatrix(particleList[numParticles - 1] -> matrix);
+			//no checks for terminal velocity
+			// particleList[thisParticle] -> currentVelocity += particleList[thisParticle] -> gravity * double(cover -> frameDuration());
 
-    //need a way to decrement numParticles once a particle goes out of bounds
-    // if(!particleList[numParticles - 1] -> onKnife) {
-    //     numParticles--;
-    // }
+			// check if particle is below the floorHeight in the CAVE, if it is, don't change the position anymore
+			// ******************can't tell if this check messes up a bunch of features or not bc the particle drops??? but the velocity is messed up maybe???
+			if(particleList[thisParticle] -> currentPosition.z() > VRSceneGraph::instance() -> floorHeight() / 1000.0) {
+				particleList[thisParticle] -> currentPosition += particleList[thisParticle] -> currentVelocity * double(cover -> frameDuration());
+
+			} else {
+				particleList[thisParticle] -> currentVelocity = osg::Vec3(0,0,0);
+				particleList[thisParticle] -> currentPosition.z() = VRSceneGraph::instance() -> floorHeight() / 1000.0;
+				particleList[thisParticle] -> onFloor = true;
+				cout << "particle has hit the floor" << endl;
+			}
+
+			particleList[thisParticle] -> onKnife = false;
+
+			if(particleList[thisParticle] -> currentVelocity.length() != 0) { //testing
+				cout << "if-statement particle speed: " << particleList[thisParticle] -> currentVelocity << endl; //testing
+				cout << "if-statement particle position: " << particleList[thisParticle] -> currentPosition << endl << endl;
+			}
+
+		} else { //particle is still on the knife
+			//particle has the same velocity as the knife
+			particleList[thisParticle] -> currentVelocity.set(knife.velocity);
+			particleList[thisParticle] -> currentPosition.set(knife.currentPosition);
+
+			if(particleList[thisParticle] -> currentVelocity.length() != 0) {
+				cout << "else-statement particle speed: " << particleList[thisParticle] -> currentVelocity << endl << endl; //testing
+				cout << "particle position: " << particleList[thisParticle] -> currentPosition << endl;
+			}
+
+		}
+
+		//matrix transformations to draw the new position
+		particleList[thisParticle] -> matrix.makeTranslate(particleList[thisParticle] -> currentPosition);
+		particleList[thisParticle] -> bloodTransform -> setMatrix(particleList[thisParticle] -> matrix);
+
+	//for loop should end here
+	}
 
     return true;
 }
 
-void BloodPlugin::doAddBlood() { //this function causes seg faults
-    //create a bunch of blood on the object
-    //bloodJunks.push_back(new Blood()); //old code
-    
-    //numParticles++;
+void BloodPlugin::doAddBlood() {
     particleList.push_back(new Droplet(osg::Vec4(0,0,1,1)));
     numParticles++;
 
-    cover -> getObjectsRoot() -> addChild(particleList[numParticles - 1] -> bloodTransform);
+    cover -> getObjectsRoot() -> addChild(particleList[numParticles - 1] -> bloodTransform); //keep this as numParticles-1
     cout << "added new particle, number of existing particles is now: " << numParticles << endl;
-    //??additional particles have nan as speed/position/cull matrix when animated?
-
-    // cout << "still working on this" << endl << endl;
-    // while(true);
 }
 
 BloodPlugin * BloodPlugin::instance() {

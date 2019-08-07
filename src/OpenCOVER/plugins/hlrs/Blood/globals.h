@@ -77,4 +77,12 @@ inline ostream& operator<<(ostream& os, const osg::Vec3 toPrint) {
     return os;
 }
 
+inline int signOf(int number) {
+    if(number == 0) {
+        return 1;
+    } else {
+        return number / abs(number);
+    }
+}
+
 #endif
