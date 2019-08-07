@@ -150,7 +150,7 @@ bool SumoTraCI::init()
     }
     nextSimTime = cover->frameTime();
 
-    updateVehiclePosition();
+    insertMissingEntities();
 
     //find TAZs
     if (coVRMSController::instance()->isMaster())
@@ -171,7 +171,28 @@ bool SumoTraCI::init()
     //AgentVehicle* tmpVehicle = createVehicle("passenger", "audi", "12");
     //tmpVehicle->setTransform(osg::Matrix::translate(5,0,0));
     lastParticipantStartedTime = 0.0;
+    lineUpAllPedestrianModels();
     return true;
+}
+
+void SumoTraCI::lineUpAllPedestrianModels()
+{
+    for (int i = 0; i < pedestrianModels.size(); i++)
+    {
+        std::string ID = "pedestrianTest" + std::to_string(i);
+        PedestrianAnimations a = PedestrianAnimations();
+
+        int pedestrianIndex = i;
+
+        pedestrianModel p = pedestrianModels[pedestrianIndex];
+        PedestrianGeometry* pedgeom = new PedestrianGeometry(ID, p.fileName, p.scale, 40.0, a, pedestrianGroup);
+        osg::Vec3d position = osg::Vec3d((double)i, 0.0, 50.0);
+
+        osg::Quat orientation(osg::DegreesToRadians(0.0), osg::Vec3d(0, 0, -1));
+
+        Transform trans = Transform(Vector3D(position.x(), position.y(), position.z()), Quaternion(orientation.w(), orientation.x(), orientation.y(), orientation.z()));
+        pedgeom->setTransform(trans, M_PI);
+    }
 }
 
 bool SumoTraCI::initUI()
@@ -364,7 +385,7 @@ void SumoTraCI::preFrame()
             readSimResults();
         }
         
-        updateVehiclePosition();
+        insertMissingEntities();
     }
     else
     {
@@ -489,7 +510,7 @@ void SumoTraCI::subscribeToSimulation()
     }
 }
 
-void SumoTraCI::updateVehiclePosition()
+void SumoTraCI::insertMissingEntities()
 {
     osg::Matrix rotOffset;
     rotOffset.makeRotate(M_PI_2, 0, 0, 1);
@@ -498,7 +519,18 @@ void SumoTraCI::updateVehiclePosition()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-            if (pedestrianModels.size() > 0)
+            if (!currentResults[i].vehicleType.compare("scooter"))
+            {
+                auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
+                if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
+                {
+                    if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+                    {
+                        loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                    }
+                }
+            }
+            else if (pedestrianModels.size() > 0)
             {
                 if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
                 {
@@ -515,13 +547,6 @@ void SumoTraCI::updateVehiclePosition()
                 if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
                 {
                     loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
-                }
-                else
-                {
-                    /*osg::Matrix rmat,tmat;
-                rmat.makeRotate(orientation);
-                tmat.makeTranslate(currentResults[i].position);
-                loadedVehicles.find(currentResults[i].vehicleID)->second->setTransform(rotOffset*rmat*tmat);*/
                 }
             }
         }
