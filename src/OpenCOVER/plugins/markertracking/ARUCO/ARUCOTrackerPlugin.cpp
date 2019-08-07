@@ -220,19 +220,40 @@ bool ARUCOPlugin::init()
 
             int width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
             int height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
-            std::cout << "                width  = " << width << std::endl;
-            std::cout << "                height = " << height << std::endl;
+            std::cout << "   current size  = " << width << "x" << height << std::endl;
 
             xsize = coCoviseConfig::getInt("width", "COVER.Plugin.ARUCO.VideoDevice", width);
             ysize = coCoviseConfig::getInt("height", "COVER.Plugin.ARUCO.VideoDevice", height);
 
-            inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, xsize);
-            inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, ysize);
+            if ((xsize != width) || (ysize != height))
+            {
+                inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, xsize);
+                inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, ysize);
 
+                width = inputVideo.get(cv::CAP_PROP_FRAME_WIDTH);
+                height =  inputVideo.get(cv::CAP_PROP_FRAME_HEIGHT);
+
+                if ((xsize != width) || (ysize != height))
+                {
+                    std::cout << "WARNING: could not set capture frame size" << std::endl;
+                }
+                else
+                {
+                    std::cout << "   new size  = " << width << "x" << height << std::endl;
+                }
+            }
 
             cv::Mat image;
 
-            inputVideo >> image;
+            std::cout << "capture first frame after resetting camera" << std::endl;
+            try
+            {
+                inputVideo >> image;
+            }
+            catch (cv::Exception &ex)
+            {
+                std::cerr << "OpenCV exception: " << ex.what() << std::endl;
+            }
 
             ARToolKit::instance()->running = true;
             ARToolKit::instance()->videoMode = GL_BGR;
@@ -245,7 +266,8 @@ bool ARUCOPlugin::init()
 
             // load calib data from file
 
-            calibrationFilename = coVRFileManager::instance()->getName(calibrationFilename.c_str());
+            // calibrationFilename = coVRFileManager::instance()->getName(calibrationFilename.c_str());
+
             std::cout << "loading calibration data from file " << calibrationFilename << std::endl;
 
             cv::FileStorage fs;
@@ -263,8 +285,26 @@ bool ARUCOPlugin::init()
             }
             else
             {
-                std::cerr << "failed to open calibration file " << calibrationFilename << std::endl;
-                return false;
+                std::cout << "failed to open camera calibration file " << calibrationFilename << std::endl;
+                std::cout << "trying to guess a calibration ... " << std::endl;
+
+                double matCameraData[9] = {0, 0, 0, 0, 0, 0, 0, 0, 1};
+                // approximately normal focal length
+                matCameraData[0] = 2 * width / 3;
+                matCameraData[4] = 2 * width / 3;
+                matCameraData[2] = width / 2;
+                matCameraData[5] = height / 2;
+                cv::Mat matC = cv::Mat(3, 3, CV_64F, matCameraData);
+                matCameraMatrix = matC.clone();
+
+                double matDistData[5] = {0, 0, 0, 0, 0};
+                cv::Mat matD = cv::Mat(1, 5, CV_64F, matDistData);
+                matDistCoefs = matD.clone();
+
+                std::cout << "camera matrix: " << std::endl;
+                std::cout << matCameraMatrix << std::endl;
+                std::cout << "dist coefs: " << std::endl;
+                std::cout << matDistCoefs << std::endl;
             }
         }
         else
@@ -301,6 +341,8 @@ bool ARUCOPlugin::destroy()
     return true;
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void ARUCOPlugin::preFrame()
 {
 #ifndef _WIN32
@@ -368,6 +410,8 @@ void ARUCOPlugin::opencvLoop()
                     // todo: uses default marker size only
                     cv::aruco::estimatePoseSingleMarkers(corners, markerSize / 1000.0, matCameraMatrix,
                                                          matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
+                    // estimatePoseSingleMarker(corners, markerSize / 1000.0, matCameraMatrix,
+                    //                          matDistCoefs, rvecs[captureIdx], tvecs[captureIdx]);
                 }
                 catch (cv::Exception &ex)
                 {
