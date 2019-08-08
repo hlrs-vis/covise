@@ -333,7 +333,7 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.x() = stof(cmd);
-                        if(parser::instance()->getSphereRenderType() == 0)
+                        //if(parser::instance()->getSphereRenderType() == 0)
                             editNozzle->setColor(newColor);
 
                     }//try
@@ -353,7 +353,7 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.y() = stof(cmd);
-                        if(parser::instance()->getSphereRenderType() == 0)
+                        //if(parser::instance()->getSphereRenderType() == 0)
                             editNozzle->setColor(newColor);
 
                     }//try
@@ -373,7 +373,7 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.z() = stof(cmd);
-                        if(parser::instance()->getSphereRenderType() == 0)
+                        //if(parser::instance()->getSphereRenderType() == 0)
                             editNozzle->setColor(newColor);
 
                     }//try
@@ -393,6 +393,7 @@ bool SprayPlugin::init()
                     try
                     {
                         newColor.w() = stof(cmd);
+                            editNozzle->setColor(newColor);
 
                     }//try
 
