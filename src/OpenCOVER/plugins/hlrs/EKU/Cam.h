@@ -18,6 +18,8 @@
 #include<osg/MatrixTransform>
 #include<osg/Quat>
 #include<osg/BlendFunc>
+#include<osgText/Font>
+#include<osgText/Text>
 
 
 
@@ -32,8 +34,8 @@ public:
     static double depthView;
     static double focalLengthPixel;
 
-    Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observationPoints);
-    Cam(const osg::Vec3 pos, const osg::Vec2 rot);
+    Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observationPoints,const std::string name);
+    Cam(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
     ~Cam();
 
 
@@ -45,24 +47,33 @@ public:
     void calcVisMat(const osg::Vec3Array &observationPoints);
     std::vector<int> visMat;
 
+protected:
+    const std::string name;
+
+
+
 };
 
 class CamDrawable: public Cam
 {
 private:
     osg::Vec3Array* verts;
+    osg::ref_ptr<osg::Group> group;
     osg::ref_ptr<osg::Geode> camGeode;
     osg::ref_ptr<osg::MatrixTransform> transMat;
     osg::ref_ptr<osg::MatrixTransform> rotMat;
+    osg::ref_ptr<osgText::Text> text;
     //osg::PositionAttitudeTransform* revolution;
 
 
 public:
+    static size_t count;
+
     osg::Geode* plotCam();
     void updateFOV(float value);
     void updateVisibility(float value);
 
-    CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot);
+    CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
     //CamDrawable(Cam cam);
     ~CamDrawable();
 };

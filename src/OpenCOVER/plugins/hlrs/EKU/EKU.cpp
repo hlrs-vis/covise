@@ -166,7 +166,6 @@ void SO_report_generation(int generation_number,const EA::GenerationType<MySolut
 }
 
 
-
 EKU *EKU::plugin = NULL;
 
 EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
@@ -185,9 +184,13 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     trucks.push_back(new Truck(osg::Vec3(40,0,20)));
     trucks.push_back(new Truck(osg::Vec3(40,30,20)));
     trucks.push_back(new Truck(osg::Vec3(48,0,0)));
+    trucks.push_back(new Truck(osg::Vec3(-10,0,10)));
+    trucks.push_back(new Truck(osg::Vec3(10,-10,5)));
+    trucks.push_back(new Truck(osg::Vec3(-20,-10,5)));
+    trucks.push_back(new Truck(osg::Vec3(10,-20,5)));
 
-    const osg::Vec2 o{10,50};
-    const osg::Vec3 p{0,-10,40};
+    const osg::Vec2 o{90*M_PI/180,30*M_PI/180};
+    const osg::Vec3 p{0,0,20};
     //const osg::Vec2 o1{10,-60};
     //const osg::Vec3 p1{0,0,-100};
     osg::Vec3Array* obsPoints = new osg::Vec3Array;
@@ -195,13 +198,49 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
       for(auto x:trucks)
         obsPoints->push_back( x->pos);
 
+{   // for each location create a cam with different alpha and beta angles
+
+    std::vector<osg::Vec2> camRots;
+    const int userParam =6;//stepsize = PI/userParam
+    const int n_alpha = 2*userParam;
+    const int n_beta = userParam/2;//+1;
 
 
-    cameras.push_back(new Cam(p,o,*obsPoints));
-    finalCams.push_back(new CamDrawable(p,o));
-   // finalCams.push_back(new CamDrawable(p1,o1));
+   /* for(int alpha = 0; alpha <=n_alpha*180/userParam; alpha+=180/userParam){
+        for(int beta = 0; beta <=n_beta*180/userParam; beta+=180/userParam){//stepsize ok?
+            osg::Vec2 vec((double)alpha*M_PI/180, (double)beta*M_PI/180);
+          // osg::Vec2 vec((double)alpha*M_PI/180, 0);
+          //  osg::Vec2 vec(0, (double)beta*M_PI/180);
+            camRots.push_back(vec);
+        }
+    }
+    */
+    double alpha =0;
+    double beta =0;
+    for(int cnt = 0; cnt<n_alpha; cnt++){
+        for(int cnt2 = 0; cnt2<n_beta; cnt2++){//stepsize ok?
+            osg::Vec2 vec(alpha*M_PI/180, beta*M_PI/180);
 
+          //osg::Vec2 vec((double)alpha*M_PI/180, 0);
+          //  osg::Vec2 vec(0, (double)beta*M_PI/180);
+            camRots.push_back(vec);
+            beta+=180/userParam;
+        }
+        beta=0;
+        alpha+=180/userParam;
+    }
 
+    const std::string myString="Cam";
+    size_t cnt=0;
+    for(auto& x:camRots)
+    {
+       cnt++;
+       cameras.push_back(new Cam(p,x,*obsPoints,myString+std::to_string(cnt)));
+       finalCams.push_back(new CamDrawable(p,x,myString+std::to_string(cnt)));
+        // finalCams.push_back(new CamDrawable(p1,o1));
+    }
+
+}
     //Create UI
     EKUMenu  = new ui::Menu("EKU", this);
 

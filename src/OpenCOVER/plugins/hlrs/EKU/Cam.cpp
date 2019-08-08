@@ -18,13 +18,16 @@ double Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_P
 double Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
 double Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
 
-Cam::Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observationPoints):pos(pos),rot(rot)
+
+Cam::Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observationPoints,const std::string name):pos(pos),rot(rot),name(name)
 {
+
     calcVisMat(observationPoints);
     std::cout<<"new Cam with visMat"<<std::endl;
+
 }
 
-Cam::Cam(const osg::Vec3 pos,const osg::Vec2 rot):pos(pos),rot(rot)
+Cam::Cam(const osg::Vec3 pos, const osg::Vec2 rot, const std::string name):pos(pos),rot(rot),name(name)
 {
 
     std::cout<<"new Cam without visMat"<<std::endl;
@@ -36,6 +39,7 @@ Cam::~Cam()
 
 }
 
+//check if points are visible for this camera
 void Cam::calcVisMat(const osg::Vec3Array &observationPoints)
 {
      visMat.clear();
@@ -59,15 +63,13 @@ void Cam::calcVisMat(const osg::Vec3Array &observationPoints)
 //    osg::Matrix T;
 //    T.makeTranslate(-pos);
     osg::Matrix T = osg::Matrix::translate(-pos);
-    osg::Matrix zRot = osg::Matrix::rotate(osg::DegreesToRadians(-rot.x()), osg::Z_AXIS);
-    osg::Matrix yRot = osg::Matrix::rotate(osg::DegreesToRadians(-rot.y()), osg::Y_AXIS);
+    osg::Matrix zRot = osg::Matrix::rotate(-rot.x(), osg::Z_AXIS);
+    osg::Matrix yRot = osg::Matrix::rotate(-rot.y(), osg::Y_AXIS);
+    // BUGFIX: still problem at borders?
     for(const auto& p : observationPoints)
     {
 
         auto newPoint = p*T*zRot*yRot;
-        //auto newPoint1 =p*T1*zRot1*yRot1;
-        std::cout<<"NewPoint:"<<(float)newPoint.x()<<", "<<(float)newPoint.y()<<", "<<(float)newPoint.z()<<std::endl;
-
         if((newPoint.x()<=Cam::depthView ) && (newPoint.x()>=0) &&
            (std::abs(newPoint.y()) <= Cam::imgWidth/2 * newPoint.x()/Cam::depthView) &&
            (std::abs(newPoint.z())<=Cam::imgHeight/2 * newPoint.x()/Cam::depthView))
@@ -79,36 +81,68 @@ void Cam::calcVisMat(const osg::Vec3Array &observationPoints)
 
     }
 
-    std::cout<<"visMat: ";
-    for(auto x: visMat )
-        std::cout <<x<<" ";
+    size_t cnt =1;
+    std::cout<<name<<":"<<"visMat: ";
+    for(auto x: visMat )     
+    {
+        std::cout <<"P"<<cnt<<": "<<x<<" ";
+        cnt++;
+    }
     std::cout <<"\n"<<std::endl;
 
 }
 
-CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot):Cam(pos,rot) //call Cam Constructor
+size_t CamDrawable::count=0;
+
+CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::string name):Cam(pos,rot,name) //call Cam Constructor
 {
+    count++;
     fprintf(stderr, "new CamDrawable from Point\n");
+    group = new osg::Group;
+    group->setName("Cam"+std::to_string(CamDrawable::count));
+
+    text = new osgText::Text;
+    text->setName("Text");
+    text->setText("Cam"+std::to_string(CamDrawable::count));
+    //text->setColor()
+    text->setCharacterSize(17);
+
     camGeode = plotCam();
-    transMat=new osg::MatrixTransform();
+
+    //Translation
+    transMat= new osg::MatrixTransform();
+    transMat->setName("Translation");
+    //group->addChild(transMat);
     osg::Matrix m;
     m.setTrans(pos.x(),pos.y(),pos.z());
+    transMat->setMatrix(m);
+
+    //Rotation
     rotMat = new osg::MatrixTransform();
+    rotMat ->setName("Rotation");
+    //group->addChild(rotMat);
     osg::Matrix r;
     osg::Quat yRot, zRot;
-
-    zRot.makeRotate(osg::DegreesToRadians((float)rot.x()), osg::Z_AXIS);
-    yRot.makeRotate(osg::DegreesToRadians((float)rot.y()), osg::Y_AXIS);
-
-    // concatenate the 2 into a resulting quat
-    osg::Quat fullRot = zRot * yRot;
+    zRot.makeRotate((float)rot.x(), osg::Z_AXIS);
+    yRot.makeRotate((float)rot.y(), osg::Y_AXIS);
+    osg::Quat fullRot = yRot*zRot; //NOTE: Be careful, changed order of Matrix Multiplication here
     r.setRotate(fullRot);
     rotMat->setMatrix(r);
-    transMat->setMatrix(m);
+
+
     //OpenGL first rotate than translate
-    rotMat->addChild(camGeode);
-    transMat->addChild(rotMat);
-    cover->getObjectsRoot()->addChild(transMat);
+    camGeode->addChild(text.get());
+    rotMat->addChild(camGeode.get());
+    transMat->addChild(rotMat.get());
+    group->addChild(transMat.get());
+   //cover->getObjectsRoot()->addChild(transMat.get());
+    cover->getObjectsRoot()->addChild(group.get());
+
+   // transMat->addChild(camGeode.get());
+   // rotMat->addChild(transMat.get());
+   // cover->getObjectsRoot()->addChild(rotMat.get());
+
+    //cover->getObjectsRoot()->addChild(camGeode.get());
 
    /* revolution =new osg::PositionAttitudeTransform();
     revolution->setUpdateCallback( new RotationCallback());
@@ -117,37 +151,7 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot):Cam(pos,rot) /
     */
 }
 
-/*
-CamDrawable::CamDrawable(Cam cam):Cam(cam.pos,cam.rot)
-{
-    std::cout<<"new CamDrawable from Cam"<<std::endl;
-    camGeode = plotCam();
-    transMat=new osg::MatrixTransform();
-    osg::Matrix m;
-    m.setTrans(pos.x(),pos.y(),pos.z());
-    rotMat = new osg::MatrixTransform();
-    osg::Matrix r;
-    osg::Quat xRot, zRot;
 
-    xRot.makeRotate(osg::DegreesToRadians((float)rot.x()), osg::X_AXIS);
-    zRot.makeRotate(osg::DegreesToRadians((float)rot.y()), osg::Z_AXIS);
-    // concatenate the 2 into a resulting quat
-    osg::Quat fullRot = xRot * zRot;
-    r.setRotate(fullRot);
-    rotMat->setMatrix(r);
-    transMat->setMatrix(m);
-    //OpenGL first rotate than translate
-    rotMat->addChild(camGeode);
-    transMat->addChild(rotMat);
-    cover->getObjectsRoot()->addChild(transMat);
-
-    revolution =new osg::PositionAttitudeTransform();
-    revolution->setUpdateCallback( new RotationCallback());
-    revolution->addChild(camGeode);
-    cover->getObjectsRoot()->addChild(revolution);
-
-}
-*/
 
 CamDrawable::~CamDrawable()
 {
@@ -158,7 +162,7 @@ osg::Geode* CamDrawable::plotCam()
 {
     // The Drawable geometry is held under Geode objects.
     osg::Geode* geode = new osg::Geode();
-    geode->setName("Cam");
+    geode->setName("Pyramid");
     osg::Geometry* geom = new osg::Geometry();
     osg::StateSet *stateset = geode->getOrCreateStateSet();
     //necessary for dynamic redraw (command:dirty)
@@ -233,14 +237,15 @@ osg::Geode* CamDrawable::plotCam()
     geom->setNormalArray(normals);
     geom->setNormalBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
 
-    //create Materal
+    //create Material
     osg::Material *material = new osg::Material;
     material->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
     material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 0.2f, 0.2f, 1.0f));
     material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
     material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
     material->setShininess(osg::Material::FRONT_AND_BACK, 25.0);
-    material->setTransparency(osg::Material::FRONT,0);
+    material->setTransparency(osg::Material::FRONT_AND_BACK,0.2);
+    material->setAlpha(osg::Material::FRONT_AND_BACK,0.2);
     stateset->setAttributeAndModes(material);
     stateset->setNestRenderBins(false);
 
