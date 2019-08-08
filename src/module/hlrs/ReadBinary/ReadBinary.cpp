@@ -30,10 +30,14 @@
 ReadBinary::ReadBinary(int argc, char *argv[])
     : coModule(argc, argv, "Annas first Reader")
 {
+	cout << "ReadBinary::ReadBinary()" << endl;
+
+
     grid = addOutputPort("mesh", "UnstructuredGrid", "unstructured grid");                                  //Output Gitter
 
     a_binaryData = addFileBrowserParam("filename", "Specify the filename of the binary data file(s).");     //Dialogfenster zum Dateneinlesen
-    a_binaryData->setValue("./mnt/raid/data/hidalgo/airflow/mesh_out.bin", "*.bin/");                       //Defaulf file, zulaessige Datentypen
+    //a_binaryData->setValue("./mnt/raid/data/hidalgo/airflow/mesh_out.bin", "*.bin/");                       //Defaulf file, zulaessige Datentypen
+	//a_binaryData->setValue("./.", "*.bin/");                       //Defaulf file, zulaessige Datentypen
 
     a_filename = new char[256];                                                                             //Dateiname der Binaerdaten speichern
     strcpy(a_filename, a_binaryData->getValue());
@@ -42,6 +46,8 @@ ReadBinary::ReadBinary(int argc, char *argv[])
 // destructor
 ReadBinary::~ReadBinary()
 {
+	cout << "ReadBinary::~ReadBinary()" << endl;
+
     if (a_filename != NULL)
     {
         delete[] a_filename;
@@ -52,6 +58,8 @@ ReadBinary::~ReadBinary()
 // compute() is called once for every EXECUTE message
 int ReadBinary::compute(const char *port)
 {
+	cout << "ReadBinary::compute()" << endl;
+
     (void)port;
     sendInfo("Annas zweites Modul!");
     read_mesh(a_filename, &mesh, bswap);            //binaerdatei wird gelesen und im filepointer mesh abgelegt
@@ -139,7 +147,7 @@ void ReadBinary::param(const char *name, bool inMapLoading)
 }
 
 // Data functions
-int ReadBinary::getDataset(){
+void ReadBinary::getDataset(){
 
     coDoUnstructuredGrid *g = new coDoUnstructuredGrid(grid->getObjName(), 2, 13, mesh.nvertices, 1);
     int *el, *cl, *tl;
@@ -152,7 +160,7 @@ int ReadBinary::getDataset(){
 //    delete z;
 
 }
-int ReadBinary::getVertices(int dim, double* vertices, float* x, float* y, float* z){
+void ReadBinary::getVertices(int dim, double* vertices, float* x, float* y, float* z){
 
     if(dim==2){
     sendInfo("dimension = 2");

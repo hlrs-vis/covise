@@ -73,8 +73,8 @@ private:
       uint32_t type;
     } BinaryFileHeader;
 
-    int getDataset();
-    int getVertices(int dim, double* vertices, float* x, float* y, float* z);
+    void getDataset();
+    void getVertices(int dim, double* vertices, float* x, float* y, float* z);
     int getNVertices();
     int getCells();
     int getNCells();
