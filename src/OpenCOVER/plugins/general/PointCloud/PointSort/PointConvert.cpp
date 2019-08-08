@@ -657,6 +657,8 @@ void printHelpPage()
     cout << "options" << endl;
     cout << "  -h              show this help list" << endl;
     cout << "  -f INPUTFORMAT  use selected input format" << endl;
+    cout << "  -i              use intensity only" << endl;
+    cout << "  -s              read scanner position" << endl;
     cout << endl;
     cout << "input formats" << endl;
     cout << "  IRGB            x y z i r g b     (i is ignored)" << endl;
@@ -668,7 +670,7 @@ void printHelpPage()
     cout << "  i - intensity/reflectivity " << endl;
     cout << endl;
     cout << "examples" << endl;
-    cout << "  PointConvert file1.xyz file2.xyz file3.xyz result.pts" << endl;
+    cout << "  PointConvert file1.xyz file2.xyz file3.xyz result.ptsb" << endl;
     cout << endl;
     cout << "note" << endl;
     cout << "  Currently there are two params under main, one to set a maximum number of" << endl;
