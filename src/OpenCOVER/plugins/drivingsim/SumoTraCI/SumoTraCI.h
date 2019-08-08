@@ -71,8 +71,11 @@ struct vehicleModel
     std::string vehicleName;
     std::string fileName;
     vehicleModel(std::string, std::string);
+    double scale=1;
+    vehicleModel(std::string t, std::string n, double s);
 };
 
+vehicleModel::vehicleModel(std::string t, std::string n, double s) : vehicleName(t), fileName(n),scale(s) {}
 vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
 
 class SumoTraCI : public opencover::coVRPlugin , public ui::Owner

@@ -519,14 +519,14 @@ void SumoTraCI::insertMissingEntities()
         osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
-            if (!currentResults[i].vehicleType.compare("scooter"))
+            if (!currentResults[i].vehicleType.compare("escooter"))
             {
                 auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
                 if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
                 {
                     if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
                     {
-                        loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                        loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleType, currentResults[i].vehicleType, currentResults[i].vehicleID)));
                     }
                 }
             }
@@ -571,7 +571,7 @@ void SumoTraCI::interpolateVehiclePosition()
             }
         }
 
-        if (!previousResults[i].vehicleClass.compare("pedestrian"))
+        if ( (!previousResults[i].vehicleClass.compare("pedestrian")) && previousResults[i].vehicleType.compare("escooter") )
         {
             PedestrianMap::iterator itr = loadedPedestrians.find(previousResults[i].vehicleID);
 
@@ -653,11 +653,18 @@ void SumoTraCI::interpolateVehiclePosition()
                     osg::Quat orientation;
                     orientation.slerp(weight, pastOrientation, futureOrientation);
 
-                    osg::Matrix rmat, tmat;
+                    osg::Matrix rmat, tmat, smat;
                     rmat.makeRotate(orientation);
                     tmat.makeTranslate(position);
+                    double scale = 1.0;
+                    if (!(previousResults[i].vehicleType.compare("escooter")))
+                    {
+                        scale = 0.0254;
+                        rotOffset.makeRotate(M_PI, 0, 0, 1);
+                    }
+                    smat.makeScale(osg::Vec3d(scale, scale, scale));
                     AgentVehicle * av = itr->second;
-                    av->setTransform(rotOffset*rmat*tmat);
+                    av->setTransform(smat*rotOffset*rmat*tmat);
                     VehicleState vs;
                     vs.du = drivingSpeed;
                     av->getCarGeometry()->updateCarParts(1, framedt, vs);
@@ -689,7 +696,14 @@ AgentVehicle* SumoTraCI::createVehicle(const std::string &vehicleClass, const st
     AgentVehicle *av = getAgentVehicle(vehicleID,vehicleClass,vehicleType);
 
     VehicleParameters vp;
-    vp.rangeLOD = 400;
+    if (vehicleType.compare("escooter"))
+    {
+        vp.rangeLOD = 400;
+    }
+    else
+    {
+        vp.rangeLOD = 1600;
+    }
     return new AgentVehicle(av, vehicleID,vp,NULL,0.0,0);
 }
 
