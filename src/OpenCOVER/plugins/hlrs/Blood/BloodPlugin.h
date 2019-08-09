@@ -75,9 +75,11 @@ public:
     // Droplet particle;
     Weapon knife;
     std::list<Droplet*> particleList;
+    std::list<Droplet*> particlesOnGround; //need to write your own copy constructor to copy particles fron particleList to particlesOnGround
 
 private:
     int numParticles = 0;
+    //std::list<Droplet*>::iterator thisParticle;
     
     static BloodPlugin *inst;
     ui::Menu* bloodMenu = nullptr;

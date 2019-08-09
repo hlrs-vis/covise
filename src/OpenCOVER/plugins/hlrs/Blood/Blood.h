@@ -65,7 +65,8 @@ public:
 //************************************************************************************************Class Droplet
 class Droplet{
 public:
-	Droplet(osg::Vec4 color = osg::Vec4(1,0,0,1));
+	Droplet(osg::Vec4 color = osg::Vec4(1,0,0,1)); //default color is red
+	//Droplet(const Droplet& rhs); //copy constructor
 	~Droplet();
 
     double timeElapsed; //time between frames
@@ -87,7 +88,7 @@ public:
 
     //member variables for displaying blood
     osg::ref_ptr<osg::Geode> bloodGeode;
-	osg::Vec4 bloodColor = osg::Vec4(1.0, 0.0, 0.0, 1.0);
+	osg::Vec4 bloodColor;
 	osg::ref_ptr<osg::MatrixTransform> bloodTransform;
 	osg::Matrix bloodBaseTransform;
 	osg::ref_ptr<osg::Sphere> bloodSphere;

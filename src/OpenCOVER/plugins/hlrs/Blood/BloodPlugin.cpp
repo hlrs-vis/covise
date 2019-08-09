@@ -111,6 +111,7 @@ bool BloodPlugin::init() {
 
     	cout << "Hello Blood" << endl;
     }
+    //thisParticle = particleList.begin();
 
     //*****************************************************************************************************************CREATING THE BLOOD PLUGIN UI MENU
     bloodMenu = new ui::Menu("Blood", this);
@@ -146,7 +147,8 @@ bool BloodPlugin::update() {
     knife.prevPosition = knife.currentPosition;
 
 	knife.velocity = knife.shift / double(cover -> frameDuration());
-
+	
+	//while(thisParticle != particleList.end()) {
 	for(auto thisParticle = particleList.begin(); thisParticle != particleList.end(); thisParticle++) { //loop through all particles in the vector
 
 		if((*thisParticle) -> firstUpdate) {
@@ -205,22 +207,36 @@ bool BloodPlugin::update() {
 			// (*thisParticle) -> currentVelocity += (*thisParticle) -> gravity * double(cover -> frameDuration());
 
 			// check if particle is below the floorHeight in the CAVE, if it is, don't change the position anymore
-			// ******************can't tell if this check messes up a bunch of features or not bc the particle drops??? but the velocity is messed up maybe???
 			if((*thisParticle) -> currentPosition.z() > VRSceneGraph::instance() -> floorHeight() / 1000.0) {
 				(*thisParticle) -> currentPosition += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
+				(*thisParticle) -> onKnife = false;
+				
+				if((*thisParticle) -> currentVelocity.length() != 0) { //testing
+					cout << "if-statement particle speed: " << (*thisParticle) -> currentVelocity << endl; //testing
+					cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+				}
+				
+				//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
+				//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
+				//thisParticle++;
 
 			} else {
 				(*thisParticle) -> currentVelocity = osg::Vec3(0,0,0);
 				(*thisParticle) -> currentPosition.z() = VRSceneGraph::instance() -> floorHeight() / 1000.0;
 				(*thisParticle) -> onFloor = true;
+				(*thisParticle) -> onKnife = false;
+
+				particlesOnGround.push_front(*thisParticle);
+				thisParticle = particleList.erase(thisParticle);
+
+				numParticles--;
+				
+				if(thisParticle != particleList.begin() && thisParticle!= particleList.end()) {
+					thisParticle--;
+				}
+
 				cout << "particle has hit the floor" << endl;
-			}
-
-			(*thisParticle) -> onKnife = false;
-
-			if((*thisParticle) -> currentVelocity.length() != 0) { //testing
-				cout << "if-statement particle speed: " << (*thisParticle) -> currentVelocity << endl; //testing
-				cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+				continue;
 			}
 
 		} else { //particle is still on the knife
@@ -228,18 +244,18 @@ bool BloodPlugin::update() {
 			(*thisParticle) -> currentVelocity.set(knife.velocity);
 			(*thisParticle) -> currentPosition.set(knife.currentPosition);
 
-			if((*thisParticle) -> currentVelocity.length() != 0) {
+			if((*thisParticle) -> currentVelocity.length() != 0) { //testing
 				cout << "else-statement particle speed: " << (*thisParticle) -> currentVelocity << endl << endl; //testing
-				cout << "particle position: " << (*thisParticle) -> currentPosition << endl;
+				cout << "else-statement particle position: " << (*thisParticle) -> currentPosition << endl;
 			}
-
+			
+			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
+			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
+			//thisParticle++;
 		}
-
-		//matrix transformations to draw the new position
+		
 		(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
 		(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
-
-	//for loop should end here
 	}
 
     return true;

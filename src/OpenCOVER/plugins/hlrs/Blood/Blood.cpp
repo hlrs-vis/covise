@@ -87,10 +87,11 @@ Droplet::Droplet(osg::Vec4 color) {
     bloodTransform -> setName(transformName); //later update name to include the particle number    
 
     //create a sphere to model the blood, radius 10, position at the tip of the knife
-    bloodSphere = new osg::Sphere(prevPosition, 0.005);
+    bloodSphere = new osg::Sphere(prevPosition, 0.05);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
-    bloodShapeDrawable -> setColor(color);
+    bloodColor = color;
+    bloodShapeDrawable -> setColor(bloodColor);
     bloodGeode -> addDrawable(bloodShapeDrawable);
 
     string geodeName = "bloodGeode"/*  + std::to_string(id) */;
@@ -115,6 +116,62 @@ Droplet::Droplet(osg::Vec4 color) {
     	// cout << "Hello Blood" << endl;
     }
 }
+
+/*deep copy constructor for copying:
+osg::ref_ptr<osg::Geode> bloodGeode;
+osg::ref_ptr<osg::MatrixTransform> bloodTransform;
+osg::ref_ptr<osg::Sphere> bloodSphere;
+osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
+osg::ref_ptr<osg::StateSet> bloodStateSet;
+osg::ref_ptr<osg::Material> bloodMaterial;
+*/
+/* Droplet::Droplet(const Droplet& rhs) {
+	radius = rhs.radius;
+	prevPosition = rhs.prevPosition;
+	prevVelocity = rhs.prevVelocity;
+	
+	mass = rhs.mass;
+	dragModel = rhs.dragModel;
+	timeElapsed = rhs.timeElapsed;
+	
+	bloodGeode = new osg::Geode;
+	
+	bloodTransform = new osg::MatrixTransform;
+	bloodBaseTransform.set(rhs.matrix);
+	bloodTransform -> setMatrix(rhs.matrix);
+	bloodTransform -> addChild(bloodGeode);
+	
+	string transformName = "bloodTransform";
+	bloodTransform -> setName(transformName);
+	
+	bloodSphere = new osg::Sphere(prevPosition, 0.05);
+	
+	bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
+	bloodColor = rhs.bloodColor;
+	bloodShapeDrawable -> setColor(rhs.bloodColor);
+	bloodGeode -> addDrawable(bloodShapeDrawable);
+	
+	string geodeName = "bloodGeode";
+	bloodGeode -> setName(geodeName);
+	
+	if(bloodGeode) {
+		bloodStateSet = bloodGeode -> getOrCreateStateSet(); //stateset controls all of the aesthetic properties of the geode
+		bloodMaterial = new osg::Material;
+		
+		//setting the color properties for the sphere
+		bloodMaterial -> setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		bloodMaterial -> setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 1.0f, 0.2f, 1.0f));
+		bloodMaterial -> setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
+		bloodMaterial -> setShininess(osg::Material::FRONT_AND_BACK, 25.0);
+		bloodStateSet -> setAttributeAndModes(bloodMaterial);
+		bloodStateSet -> setNestRenderBins(false);
+		
+		cover -> getObjectsRoot() -> addChild(bloodTransform);
+	}
+} */
+
+//need deep assignment operator?
 
 Droplet::~Droplet() {
 }
