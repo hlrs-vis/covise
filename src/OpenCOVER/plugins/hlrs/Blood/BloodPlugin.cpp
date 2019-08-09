@@ -103,14 +103,12 @@ bool BloodPlugin::init() {
 
     //*********************************************************************************************************************************INITIALIZING DROPLET CLASS
     //initializing things for the particle
-    numParticles++;
+    numParticles = 1;
     
-    for(int i = 0; i < numParticles; i++) {
-        particleList.push_front(new Droplet());
-        cover -> getObjectsRoot() -> addChild(particleList.front()-> bloodTransform);
+    particleList.push_back(new Droplet());
+    cover -> getObjectsRoot() -> addChild(particleList.front() -> bloodTransform);
 
-    	cout << "Hello Blood" << endl;
-    }
+	cout << "Hello Blood" << endl;
     //thisParticle = particleList.begin();
 
     //*****************************************************************************************************************CREATING THE BLOOD PLUGIN UI MENU
@@ -147,11 +145,11 @@ bool BloodPlugin::update() {
     knife.prevPosition = knife.currentPosition;
 
 	knife.velocity = knife.shift / double(cover -> frameDuration());
-	
-	//while(thisParticle != particleList.end()) {
-	for(auto thisParticle = particleList.begin(); thisParticle != particleList.end(); thisParticle++) { //loop through all particles in the vector
+	auto thisParticle = particleList.begin(); 
+	while(thisParticle != particleList.end()) {
+	//for(auto thisParticle = particleList.begin(); thisParticle != particleList.end(); thisParticle++) { //loop through all particles in the vector
 
-		if((*thisParticle) -> firstUpdate) {
+		if((*thisParticle) -> firstUpdate) { //if update() is entered for the first time, calculate the necessary mechanics numbers
 			(*thisParticle) -> currentPosition = knife.currentPosition;
 
 			if((*thisParticle) -> currentVelocity.length() != 0) {
@@ -175,7 +173,7 @@ bool BloodPlugin::update() {
 		}
 
 		if(/*!(*thisParticle) -> onFloor && */(!(*thisParticle) -> onKnife || 
-		((*thisParticle) -> currentVelocity.length() > 5 && (*thisParticle) -> currentVelocity.length() < 50))) {
+		((*thisParticle) -> currentVelocity.length() > 5 && (*thisParticle) -> currentVelocity.length() < 50))) { //tests to see if the particle has left the knife
 			//particle leaves the knife with an initial velocity equal to the knife's velocity
 			cout << "particle " << numParticles << " has left the knife" << endl;
 
@@ -206,8 +204,8 @@ bool BloodPlugin::update() {
 			//no checks for terminal velocity
 			// (*thisParticle) -> currentVelocity += (*thisParticle) -> gravity * double(cover -> frameDuration());
 
-			// check if particle is below the floorHeight in the CAVE, if it is, don't change the position anymore
-			if((*thisParticle) -> currentPosition.z() > VRSceneGraph::instance() -> floorHeight() / 1000.0) {
+			// check if particle is below the floorHeight in the CAVE
+			if((*thisParticle) -> currentPosition.z() > VRSceneGraph::instance() -> floorHeight() / 1000.0) { //divide by 1000 since floorHeight is in mm
 				(*thisParticle) -> currentPosition += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
 				(*thisParticle) -> onKnife = false;
 				
@@ -218,7 +216,6 @@ bool BloodPlugin::update() {
 				
 				//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
 				//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
-				//thisParticle++;
 
 			} else {
 				(*thisParticle) -> currentVelocity = osg::Vec3(0,0,0);
@@ -231,9 +228,12 @@ bool BloodPlugin::update() {
 
 				numParticles--;
 				
-				if(thisParticle != particleList.begin() && thisParticle!= particleList.end()) {
-					thisParticle--;
-				}
+				//(particlesOnGround.front()) -> matrix.makeTranslate((particlesOnGround.front()) -> currentPosition);
+				//(particlesOnGround.front()) -> bloodTransform -> setMatrix((particlesOnGround.front()) -> matrix);
+				
+				//if(thisParticle != particleList.begin() && thisParticle!= particleList.end()) {
+				//	thisParticle--;
+				//}
 
 				cout << "particle has hit the floor" << endl;
 				continue;
@@ -251,21 +251,21 @@ bool BloodPlugin::update() {
 			
 			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
 			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
-			//thisParticle++;
 		}
 		
 		(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
 		(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
+		thisParticle++;
 	}
 
     return true;
 }
 
 void BloodPlugin::doAddBlood() {
-    particleList.push_front(new Droplet(osg::Vec4(0,0,1,1)));
+    particleList.push_back(new Droplet(osg::Vec4(0,0,1,1)));
     numParticles++;
 
-    cover -> getObjectsRoot() -> addChild(particleList.front() -> bloodTransform);
+    cover -> getObjectsRoot() -> addChild(particleList.back() -> bloodTransform);
     cout << "added new particle, number of existing particles is now: " << numParticles << endl;
 }
 

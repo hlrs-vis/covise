@@ -86,7 +86,7 @@ Droplet::Droplet(osg::Vec4 color) {
     string transformName = "bloodTransform"/*  + std::to_string(id) */;
     bloodTransform -> setName(transformName); //later update name to include the particle number    
 
-    //create a sphere to model the blood, radius 10, position at the tip of the knife
+    //create a sphere to model the blood
     bloodSphere = new osg::Sphere(prevPosition, 0.05);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
@@ -115,6 +115,8 @@ Droplet::Droplet(osg::Vec4 color) {
         // cover -> getObjectsRoot() -> addChild(bloodTransform);
     	// cout << "Hello Blood" << endl;
     }
+    
+	bloodGeode->setNodeMask((bloodGeode->getNodeMask() & ~Isect::Update )& (~Isect::Intersection));
 }
 
 /*deep copy constructor for copying:

@@ -79,7 +79,6 @@ public:
 
 private:
     int numParticles = 0;
-    //std::list<Droplet*>::iterator thisParticle;
     
     static BloodPlugin *inst;
     ui::Menu* bloodMenu = nullptr;
