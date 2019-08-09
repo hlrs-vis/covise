@@ -65,7 +65,7 @@ public:
 
     virtual bool init();
     virtual bool update();
-    
+    osg::Vec3 particleSlip(Droplet* p);
     
     void doAddBlood();
     osg::ref_ptr<osg::Group> bloodNode;

@@ -128,7 +128,11 @@ public:
     osg::Vec3 a;
 
     double timeElapsed;
-    osg::Vec3 velocity;
+    double mass;
+    osg::Vec3 currentVelocity;
+    osg::Vec3 prevVelocity;
+    osg::Vec3 acceleration;
+    
     osg::Vec3 prevPosition;
     osg::Vec3 currentPosition;
     osg::Vec3 shift;
