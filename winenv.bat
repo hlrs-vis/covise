@@ -309,7 +309,7 @@ if not defined CUDA_HOME  (
 )
 
 if not defined PYTHONHOME  (
-   set "PYTHONHOME=%EXTERNLIBS%\..\shared\Python;%EXTERNLIBS%\Python"
+   set "PYTHONHOME=%EXTERNLIBS%\Python"
    rem PYTHON_HOME is for compiling Python 
    rem  while PYTHONHOME is for executing Python and can consist of
    rem several different paths
