@@ -36,8 +36,7 @@ cerr << "Hello Blood" << endl;
     sphere->setMaxRadius(100);
     sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
 
-    BloodPlugin::instance() -> bloodNode -> addChild(sphere); //causes segmentation fault in function doAddBlood()
-    //instance() returns inst, but inst is initialized to NULL in BloodPlugin.cpp
+    BloodPlugin::instance() -> bloodNode -> addChild(sphere);
 }
 
 // this is called if the plugin is removed at runtime
@@ -87,7 +86,7 @@ Droplet::Droplet(osg::Vec4 color) {
     bloodTransform -> setName(transformName); //later update name to include the particle number    
 
     //create a sphere to model the blood
-    bloodSphere = new osg::Sphere(prevPosition, 0.05);
+    bloodSphere = new osg::Sphere(prevPosition, 0.01);
 
     bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
     bloodColor = color;
