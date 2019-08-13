@@ -174,7 +174,7 @@ bool BloodPlugin::update() {
 
 		if((!(*thisParticle) -> onKnife || ((*thisParticle) -> currentVelocity.length() > 5 && (*thisParticle) -> currentVelocity.length() < 50))) { //tests to see if the particle has left the knife
 			//particle leaves the knife with an initial velocity equal to the knife's velocity
-			cout << "particle " << numParticles << " has left the knife" << endl;
+			//cout << "particle " << numParticles << " has left the knife" << endl;
 
 			//checking that velocity < terminal velocity
 			if(abs((*thisParticle) -> currentVelocity.x()) < (*thisParticle) -> terminalVelocity &&
@@ -208,10 +208,10 @@ bool BloodPlugin::update() {
 				(*thisParticle) -> currentPosition += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
 				(*thisParticle) -> onKnife = false;
 				
-				if((*thisParticle) -> currentVelocity.length() != 0) { //testing
+				/*if((*thisParticle) -> currentVelocity.length() != 0) { //testing
 					cout << "if-statement particle speed: " << (*thisParticle) -> currentVelocity << endl; //testing
 					cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
-				}
+				}*/
 				
 			} else {
 				(*thisParticle) -> currentVelocity = osg::Vec3(0,0,0);
@@ -230,7 +230,9 @@ bool BloodPlugin::update() {
 
 		} else { //particle is still on the knife
 			(*thisParticle) -> acceleration = particleSlip(*thisParticle);
-
+			
+			cout << "a: " << (*thisParticle) -> acceleration << endl;			
+			
 			(*thisParticle) -> currentVelocity = knife.currentVelocity + (*thisParticle) -> acceleration * double(cover -> frameDuration());
 			(*thisParticle) -> currentPosition = knife.currentPosition + (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
 
@@ -263,9 +265,38 @@ BloodPlugin * BloodPlugin::instance() {
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	double sinAngleOfInclination = knife.currentPosition.z()/*hypot(knife.currentPosition.x(), knife.currentPosition.y())*/ / knife.currentPosition.length();
 	
+	double magSF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
+	double magKF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
+	
+	osg::Vec3 fGravity = p -> gravity * p -> mass;
+	osg::Vec3 fApplied = knife.acceleration * knife.mass;
+	
+	osg::Vec3 directionOfMotion;
+	if(p -> currentVelocity.length() != 0) {
+		directionOfMotion = normalize(p -> currentVelocity);
+	} else {
+		directionOfMotion = osg::Vec3(0,0,0);
+	}
+	
+	osg::Vec3 fSF = -directionOfMotion * magSF;
+	osg::Vec3 fKF = -directionOfMotion * magKF;
+	
+	osg::Vec3 netForce;
+	netForce += fGravity;
+	
+	if(fApplied < fSF) {
+		netForce += fApplied + fSF;
+	} else if(fApplied == fSF) {
+		netForce += osg::Vec3(0,0,0);
+	} else {
+		netForce += fApplied + fKF;
+	}
+	
+	return netForce / p -> mass; //acceleration = net force/mass
+	
 	//frictional forces are a scalar with unit vector in the opposite direction as movement
-	double sF = -GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
-	double kF = -GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
+	/*double sF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
+	double kF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
 	
 	osg::Vec3 grav = p -> gravity * p -> mass;
 	osg::Vec3 forceApplied = knife.acceleration * knife.mass;
@@ -294,7 +325,7 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	
 	a = netForce / p -> mass;
 	cout << "a: " << a << endl << endl;
-	return a;
+	return a;*/
 	
 }
 

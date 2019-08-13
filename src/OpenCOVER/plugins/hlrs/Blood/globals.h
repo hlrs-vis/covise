@@ -85,4 +85,8 @@ inline int signOf(int number) {
     }
 }
 
+inline osg::Vec3 normalize(osg::Vec3 thirdVector) {
+	return thirdVector/thirdVector.length();
+}
+
 #endif
