@@ -69,6 +69,10 @@ int ReadNek::compute(const char* port) {
     //velocitiesAllTimes = new coDoSet(p_velocity->getObjName(), 0);
     velocities.clear();
     pressures.clear();
+    int blocksToRead = p_partitions->getValue();
+    if (blocksToRead < 0) {
+        blocksToRead = iNumBlocks;
+    }
     for (int timestep = -1; timestep < iNumTimesteps; ++timestep) {
         coObjInfo vInfo("nek_velocities_" + to_string(timestep));
         vInfo.timeStep = timestep;
@@ -78,7 +82,9 @@ int ReadNek::compute(const char* port) {
             velocities.push_back(new coDoSet(vInfo, 0));
             pressures.push_back(new coDoSet(pInfo, 0));
         }
-        for (size_t block = 0; block < p_partitions->getValue(); block++) {
+        for (size_t block = 0; block < blocksToRead; block++) {
+            std::cerr << "will not see this\rreading block " << block << " of timestep " << timestep << "                 " << std::flush;
+ 
             if (timestep == -1) {
                 if (!ReadMesh(timestepToUseForMesh, block)) {
                     return false;
@@ -129,7 +135,8 @@ int ReadNek::compute(const char* port) {
 }
 
 void ReadNek::param(const char* name, bool inMapLoading)  {
-   
+    std::cerr << "will not see this\rwill see this" << std::flush;
+    std::cerr << std::endl;
     if (p_data_path->getValue() && strlen(p_data_path->getValue()) > 1) {
         parseMetaDataFile();
         ParseNekFileHeader();
@@ -1099,15 +1106,16 @@ ReadNek::DomainParams ReadNek::GetDomainSizeAndVarOffset(int iTimestep, const ch
 ReadNek::ReadNek(int argc, char* argv[])
     :coModule(argc, argv, "ReadNek5000")
 {
+
     // Output ports
    p_grid = addOutputPort("mesh", "StructuredGrid", "grid");
    p_velocity = addOutputPort("velosity_out", "Vector", "velocity");
-   p_pressure = addOutputPort("pressure_out", "Scalar", "pressure data");
+   p_pressure = addOutputPort("pressure_out", "Float", "pressure data");
 
    // Parameters
    p_data_path = addFileBrowserParam("filename", "Geometry file path");
-   p_partitions = addInt32Param("byteswap", "Perform Byteswapping");
-   p_partitions->setValue(1);
+   p_partitions = addInt32Param("blocksToRead", "number of blocks that will be read, < 0 to read all");
+   p_partitions->setValue(-1);
 
 
 
