@@ -66,11 +66,11 @@ double d[] = {1.,0.,0.,0., //x scaling
               1.,1.,1.,1.}; //translation operation in x/y/z direction
 
 Droplet::Droplet(osg::Vec4 color) {
-    radius = 0.001; //particle radius = 1mm
+    radius = 0.001;
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
 
-    mass = 0.05;
+    mass = 0.5;
     dragModel = cdModel::CD_MOLERUS;
     timeElapsed = double(cover -> frameDuration());
 

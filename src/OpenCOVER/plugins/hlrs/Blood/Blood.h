@@ -136,6 +136,7 @@ public:
     osg::Vec3 prevPosition;
     osg::Vec3 currentPosition;
     osg::Vec3 shift;
+    osg::Vec3 end;
 
     osg::Vec3 tip = osg::Vec3(0,50,-5); //length of the knife in object's root coordinates (m)
     osg::Vec3 hilt = osg::Vec3(1,1,1);

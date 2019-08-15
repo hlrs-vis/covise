@@ -89,4 +89,7 @@ inline osg::Vec3 normalize(osg::Vec3 thirdVector) {
 	return thirdVector/thirdVector.length();
 }
 
+inline osg::Vec3 absoluteValue(osg::Vec3 fourthVector) {
+	return osg::Vec3(abs(fourthVector.x()), abs(fourthVector.y()), abs(fourthVector.z()));
+}
 #endif
