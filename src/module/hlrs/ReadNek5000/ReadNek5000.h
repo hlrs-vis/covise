@@ -86,14 +86,16 @@ private:
 //  1 2 3 or S03  indicate 3 other scalar fields
     void ParseFieldTags(std::ifstream& f);
 
+    void ReadCombined();
+
     //      Gets the mesh associated with this file.  The mesh is returned as a
 //      derived type of vtkDataSet (ie vtkRectilinearGrid, vtkStructuredGrid,
 //      vtkUnstructuredGrid, etc).
-    bool ReadMesh(int timestep, int element);
+    bool ReadMesh(int timestep, int block, float* x = nullptr, float* y = nullptr, float* z = nullptr);
     //read velocity in x, y and z
-    bool ReadVelocity(int timestep, int block);
+    bool ReadVelocity(int timestep, int block, float* x = nullptr, float* y = nullptr, float* z = nullptr);
     //read var with varname in data
-    bool ReadVar(const char* varname, int timestep, int block);
+    bool ReadVar(const char* varname, int timestep, int block, float* data = nullptr);
     void ReadBlockLocations();
     void UpdateCyclesAndTimes();
 //      Create a filename from the template and other info.
@@ -102,6 +104,8 @@ private:
 //      data to skip at the beginning of each file.  This method tells where to
 //      seek to, to read data for the first block.
     void FindAsciiDataStart(FILE* fd, int& outDataStart, int& outLineLen);
+
+    void makeConectivityList(int* connectivityList, int numBlocks);
 
     struct DomainParams {
         int domSizeInFloats = 0;
@@ -126,6 +130,7 @@ private:
     // Parameters
     covise::coFileBrowserParam* p_data_path = nullptr;
     covise::coIntScalarParam* p_partitions = nullptr;
+    covise::coBooleanParam* p_combineBlocks = nullptr;
 
     covise::coDoSet* grids = nullptr;
     std::vector<covise::coDoSet*> velocities, pressures;
