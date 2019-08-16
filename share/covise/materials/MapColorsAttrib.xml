@@ -6,6 +6,8 @@
 <uniform name="rangeMax" type="float" value="1."/>
 <uniform name="texUnit1" type="sampler1D" value="1"/>
 <uniform name="blendWithMaterial" type="bool" value="false"/>
+<uniform name="Light0Enabled" type="bool" value="true"/>
+<uniform name="Light1Enabled" type="bool" value="false"/>
 
 <vertexProgram>
 attribute float dataAttrib;
@@ -106,8 +108,10 @@ vec4 flight(in vec3 normal, vec4 color)
     Diffuse  = vec4 (0.0);
     Specular = vec4 (0.0);
 
-    pointLight(0, normal, eye);
-    //pointLight(1, normal, eye);
+    if (Light0Enabled)
+        pointLight(0, normal, eye);
+    if (Light1Enabled)
+        pointLight(1, normal, eye);
 
     //directionalLight(2, normal);
 

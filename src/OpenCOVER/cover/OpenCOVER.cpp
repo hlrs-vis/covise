@@ -608,10 +608,11 @@ bool OpenCOVER::init()
     VRViewer::instance();
 
     coVRAnimationManager::instance();
-    coVRShaderList::instance()->update();
+    coVRShaderList::instance();
 
     // init scene graph
     VRSceneGraph::instance()->init();
+    coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
 	Input::instance()->update(); // requires scenegraph

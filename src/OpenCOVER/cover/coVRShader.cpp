@@ -13,6 +13,7 @@
 #include <config/CoviseConfig.h>
 #include "VRSceneGraph.h"
 #include "coVRAnimationManager.h"
+#include "coVRLighting.h"
 #include "coVRConfig.h"
 
 #include <osg/Uniform>
@@ -59,6 +60,15 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
     unique = false;
     if (type == "bool")
     {
+        if (name == "Light0Enabled") {
+            uniform = coVRShaderList::instance()->getLightEnabled(0);
+        } else if (name == "Light1Enabled") {
+            uniform = coVRShaderList::instance()->getLightEnabled(1);
+        } else if (name == "Light2Enabled") {
+            uniform = coVRShaderList::instance()->getLightEnabled(2);
+        } else if (name == "Light3Enabled") {
+            uniform = coVRShaderList::instance()->getLightEnabled(3);
+        }
         bool b = !(strcmp(value.c_str(),"false")==0 || strtod(value.c_str(), NULL)==0);
         uniform = new osg::Uniform(name.c_str(), b);
     }
@@ -1738,6 +1748,7 @@ coVRShaderList::coVRShaderList()
 
     projectionMatrix = new osg::Uniform("Projection", osg::Matrixf::translate(100, 0, 0));
     lightMatrix = new osg::Uniform("Light", osg::Matrixf::translate(100, 0, 0));
+    lightEnabled.resize(4);
     if (cover)
     {
         timeUniform = new osg::Uniform("Time", (int)(cover->frameTime() * 1000.0));
@@ -1745,6 +1756,9 @@ coVRShaderList::coVRShaderList()
         durationUniform = new osg::Uniform("Duration", (int)(cover->frameDuration() * 1000.0));
         viewportWidthUniform = new osg::Uniform("ViewportWidth", cover->frontWindowHorizontalSize);
         viewportHeightUniform = new osg::Uniform("ViewportHeight", cover->frontWindowVerticalSize);
+        for (size_t i=0; i<lightEnabled.size(); ++i) {
+            lightEnabled[i] = new osg::Uniform(("Light" + std::to_string(i) + "Enabled").c_str(), i==0);
+        }
     }
     else
     {
@@ -1753,6 +1767,9 @@ coVRShaderList::coVRShaderList()
         durationUniform = new osg::Uniform("Duration", 1);
         viewportWidthUniform = new osg::Uniform("ViewportWidth", 1024);
         viewportHeightUniform = new osg::Uniform("ViewportHeight", 768);
+        for (size_t i=0; i<lightEnabled.size(); ++i) {
+            lightEnabled[i] = new osg::Uniform(("Light" + std::to_string(i) + "Enabled").c_str(), i==0);
+        }
     }
     stereoUniform = new osg::Uniform("Stereo", 0);
 }
@@ -1899,6 +1916,13 @@ osg::Uniform *coVRShaderList::getTimeStep()
 {
     return timeStepUniform.get();
 }
+osg::Uniform *coVRShaderList::getLightEnabled(size_t ln)
+{
+    if (ln > lightEnabled.size())
+        return nullptr;
+    return lightEnabled[ln];
+}
+
 //ab hier neu
 osg::Uniform *coVRShaderList::getLight()
 {
@@ -2140,6 +2164,11 @@ void coVRShaderList::update()
         viewportWidthUniform->set(cover->frontWindowHorizontalSize);
         viewportHeightUniform->set(cover->frontWindowVerticalSize);
     }
+
+   for (auto i=0; i<lightEnabled.size(); ++i)
+   {
+       lightEnabled[i]->set(coVRLighting::instance()->isLightEnabled(i));
+   }
 }
 
 coVRShaderInstance::coVRShaderInstance(osg::Drawable *d)

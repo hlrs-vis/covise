@@ -280,6 +280,7 @@ private:
     static coVRShaderList *s_instance;
     coVRShaderList();
     void loadMaterials();
+    std::vector<osg::ref_ptr<osg::Uniform>> lightEnabled;
     osg::ref_ptr<osg::Uniform> timeUniform;
     osg::ref_ptr<osg::Uniform> timeStepUniform;
     osg::ref_ptr<osg::Uniform> lightMatrix;
@@ -297,6 +298,7 @@ public:
     coVRShader *add(const std::string &name, std::string &dirName);
     static coVRShaderList *instance();
     void setData(covise::TokenBuffer &tb);
+    osg::Uniform *getLightEnabled(size_t lightnum);
     osg::Uniform *getTime();
     osg::Uniform *getTimeStep();
     osg::Uniform *getLight();

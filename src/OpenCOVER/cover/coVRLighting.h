@@ -147,6 +147,7 @@ public:
     osg::LightSource *getShadowLight(){return shadowlight;};
     void setShadowLight(osg::LightSource *ls);
 
+    bool isLightEnabled(size_t ln) const;
 };
 }
 #endif

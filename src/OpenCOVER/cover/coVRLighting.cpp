@@ -387,8 +387,6 @@ coVRLighting::createLightSource(const char *configName, const LightDef &def, boo
     return light;
 }
 
-#define RESERVED_TEX_UNITS 3
-
 int coVRLighting::addLight(osg::LightSource *ls, osg::Group *parent, osg::Node *root, const char *menuName)
 {
     // fprintf(stderr, "add light: %p to %p lighting %p (num=%lu)\n",
@@ -618,6 +616,13 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
     return NULL;
 }
 
+bool coVRLighting::isLightEnabled(size_t ln) const
+{
+    if (ln >= lightList.size())
+        return false;
+
+    return lightList[ln].on;
+}
 
 void coVRLighting::setShadowLight(osg::LightSource *ls)
 {
