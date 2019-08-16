@@ -237,23 +237,45 @@ bool BloodPlugin::update() {
 				cout << "particle has hit the floor" << endl;
 				continue;
 			}
+			
+			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
+			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
+			//thisParticle++;
 
 		} else { //particle is still on the knife
 			(*thisParticle) -> acceleration = particleSlip(*thisParticle);
+			
+			/*(osg::Vec3(0,9.81,0) * (*thisParticle) -> mass - osg::Vec3(0.65,0,0)) / (*thisParticle) -> mass;*/ //testing
 			
 			cout << "a: " << (*thisParticle) -> acceleration << endl;
 			cout << "a * time: " << (*thisParticle) -> acceleration * double(cover -> frameDuration()) << endl;
 			
 			(*thisParticle) -> prevPosition = (*thisParticle) -> currentPosition;			
-			cout << "prev position: " << (*thisParticle) -> prevPosition << endl;
+			//cout << "else statement prev position: " << (*thisParticle) -> prevPosition << endl;
 			
 			(*thisParticle) -> currentVelocity = knife.currentVelocity + ((*thisParticle) -> acceleration) * double(cover -> frameDuration());
-			(*thisParticle) -> currentPosition = knife.currentPosition + (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
+			(*thisParticle) -> disp += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
+			(*thisParticle) -> currentPosition = knife.currentPosition + (*thisParticle) -> disp;
 			
 			if((*thisParticle) -> prevPosition != (*thisParticle) -> currentPosition) { //testing
 				cout << "else-statement particle speed: " << (*thisParticle) -> currentVelocity << endl;
-				cout << "else-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+				//cout << "else-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+				
+				cout << "prev pos: " << (*thisParticle) -> prevPosition - knife.currentPosition << endl;
+				cout << "current:  " << (*thisParticle) -> currentPosition - knife.currentPosition << endl << endl;
 			}
+			
+			//(*thisParticle) -> currentPosition = (knifeTransform -> getMatrix()).preMult((*thisParticle) -> currentPosition); 
+			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
+			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
+			//thisParticle++;
+			
+			if(!((*thisParticle) -> currentPosition.y() < knife.end.y() || (*thisParticle) -> currentPosition.y() == knife.end.y())) {
+				(*thisParticle) -> onKnife = false;
+			} else {
+				(*thisParticle) -> onKnife = true;
+			}
+			
 		}
 		
 		(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
@@ -279,8 +301,8 @@ BloodPlugin * BloodPlugin::instance() {
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	double sinAngleOfInclination = knife.currentPosition.z()/*hypot(knife.currentPosition.x(), knife.currentPosition.y())*/ / knife.currentPosition.length();
 	
-	double magSF = GRAVITY /* * sinAngleOfInclination */ * p -> mass * COEFF_STATIC_FRICTION;
-	double magKF = GRAVITY /* * sinAngleOfInclination */ * p -> mass * COEFF_KINETIC_FRICTION;
+	double magSF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
+	double magKF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
 	
 	osg::Vec3 fGravity = p -> gravity * p -> mass;
 	//cout << "gravity: " << fGravity << endl;
@@ -291,26 +313,31 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	osg::Vec3 directionOfMotion;
 	if(p -> currentVelocity.length() != 0) {
 		directionOfMotion = normalize(p -> currentVelocity);
+		directionOfMotion.z() = 0;
 	} else {
 		directionOfMotion = normalize(p -> gravity);
 	}
 	
+	
 	//cout << "direction of motion: " << directionOfMotion << endl;
 	
-	osg::Vec3 fSF = -directionOfMotion * magSF;
-	//cout << "static friction: " << fSF << endl;
-	osg::Vec3 fKF = -directionOfMotion * magKF;
-	//cout << "kinetic friction: " << fKF << endl;
+	osg::Vec3 fSF = -directionOfMotion /*osg::Vec3(0,-1,0)*/ * magSF;
+	cout << "static friction: " << fSF << endl;
+	osg::Vec3 fKF = -directionOfMotion /*osg::Vec3(0,-1,0)*/ * magKF;
+	cout << "kinetic friction: " << fKF << endl;
 	
 	osg::Vec3 netForce;
-	netForce += fGravity;
+	//netForce += fGravity;
 	
-	if(absoluteValue(fApplied) < absoluteValue(fSF)) {
-		netForce += fApplied + fSF;
-	} else if(absoluteValue(fApplied) == absoluteValue(fSF)) {
-		netForce += osg::Vec3(0,0,0);
-	} else {
+	if(absoluteValue(fSF) < absoluteValue(fApplied)) {
 		netForce += fApplied + fKF;
+		cout << "greater" << endl;
+	} else if(absoluteValue(fApplied) == absoluteValue(fSF)) {
+		netForce = osg::Vec3(0,0,0);
+		cout << "equal" << endl;
+	} else {
+		netForce = osg::Vec3(0,0,0)/*fApplied + fSF*/;
+		cout << "less" << endl;
 	}
 	cout << "net force: " << netForce << endl;
 	

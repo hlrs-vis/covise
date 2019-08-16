@@ -80,6 +80,7 @@ public:
     osg::Vec3 currentVelocity; //units: m/s, (v_x,v_y,v_z)
     osg::Vec3 prevVelocity;
     osg::Vec3 acceleration;
+    osg::Vec3 disp;
     osg::Vec3 currentPosition; //units: m (pos_x, pos_y, pos_z)
     osg::Vec3 prevPosition;
     osg::Vec3 gravity = osg::Vec3(0,0,-9.81);
