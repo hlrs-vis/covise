@@ -153,9 +153,9 @@ public:
     TokenBuffer& operator>>(DataHandle& d);
     TokenBuffer &operator>>(TokenBuffer &tb);
     uint32_t get_int_token();
-    char get_char_token();;
+    char get_char_token();
     float get_float_token();
-    char *get_charp_token();;
+    char *get_charp_token();
 
     void reset();
     void rewind();
