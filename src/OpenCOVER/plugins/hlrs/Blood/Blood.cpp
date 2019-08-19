@@ -69,6 +69,7 @@ Droplet::Droplet(osg::Vec4 color) {
     radius = 0.001;
     prevPosition.set(0,0,0);
     prevVelocity.set(0,0,0);
+    acceleration.set(0,0,0);
 
     mass = 0.5;
     dragModel = cdModel::CD_MOLERUS;

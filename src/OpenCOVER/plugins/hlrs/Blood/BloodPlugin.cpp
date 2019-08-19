@@ -81,7 +81,9 @@ bool BloodPlugin::init() {
     knife.timeElapsed = cover -> frameDuration();
     knife.prevPosition = osg::Vec3(0,0,0);
     knife.currentPosition = (cover -> getPointerMat() * cover -> getInvBaseMat()).preMult(knife.hilt/*knife.tip*/);
-
+    knife.prevVelocity = osg::Vec3(0,0,0);
+	knife.acceleration = osg::Vec3(0,0,0);
+	
     //****************************************************************************************************************************DRAWING THE KNIFE
     //loading an external 3D knife model
     knife.knifePtr = coVRFileManager::instance()->loadIcon("knife"); //loads 3d model of a knife into OpenCOVER
@@ -220,7 +222,7 @@ bool BloodPlugin::update() {
 				
 				/*if((*thisParticle) -> currentVelocity.length() != 0) { //testing
 					cout << "if-statement particle speed: " << (*thisParticle) -> currentVelocity << endl; //testing
-					cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+					//cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
 				}*/
 				
 			} else {
@@ -237,10 +239,6 @@ bool BloodPlugin::update() {
 				cout << "particle has hit the floor" << endl;
 				continue;
 			}
-			
-			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
-			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
-			//thisParticle++;
 
 		} else { //particle is still on the knife
 			(*thisParticle) -> acceleration = particleSlip(*thisParticle);
@@ -254,27 +252,23 @@ bool BloodPlugin::update() {
 			//cout << "else statement prev position: " << (*thisParticle) -> prevPosition << endl;
 			
 			(*thisParticle) -> currentVelocity = knife.currentVelocity + ((*thisParticle) -> acceleration) * double(cover -> frameDuration());
-			(*thisParticle) -> disp += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
-			(*thisParticle) -> currentPosition = knife.currentPosition + (*thisParticle) -> disp;
+			//(*thisParticle) -> disp += (*thisParticle) -> currentVelocity * double(cover -> frameDuration());
+			(*thisParticle) -> currentPosition += /*knife.currentPosition + */(*thisParticle) -> currentVelocity * double(cover -> frameDuration());
+			//(*thisParticle) -> disp;
 			
 			if((*thisParticle) -> prevPosition != (*thisParticle) -> currentPosition) { //testing
 				cout << "else-statement particle speed: " << (*thisParticle) -> currentVelocity << endl;
 				//cout << "else-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
 				
-				cout << "prev pos: " << (*thisParticle) -> prevPosition - knife.currentPosition << endl;
-				cout << "current:  " << (*thisParticle) -> currentPosition - knife.currentPosition << endl << endl;
+				cout << "prev pos: " << (*thisParticle) -> prevPosition << endl;
+				cout << "current:  " << (*thisParticle) -> currentPosition << endl << endl;;
 			}
 			
-			//(*thisParticle) -> currentPosition = (knifeTransform -> getMatrix()).preMult((*thisParticle) -> currentPosition); 
-			//(*thisParticle) -> matrix.makeTranslate((*thisParticle) -> currentPosition);
-			//(*thisParticle) -> bloodTransform -> setMatrix((*thisParticle) -> matrix);
-			//thisParticle++;
-			
-			if(!((*thisParticle) -> currentPosition.y() < knife.end.y() || (*thisParticle) -> currentPosition.y() == knife.end.y())) {
+			/*if(!((*thisParticle) -> currentPosition.y() < knife.end.y() || (*thisParticle) -> currentPosition.y() == knife.end.y())) {
 				(*thisParticle) -> onKnife = false;
 			} else {
 				(*thisParticle) -> onKnife = true;
-			}
+			}*/
 			
 		}
 		
@@ -299,82 +293,85 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
-	double sinAngleOfInclination = knife.currentPosition.z()/*hypot(knife.currentPosition.x(), knife.currentPosition.y())*/ / knife.currentPosition.length();
+	/*double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
+	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
 	
-	double magSF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
-	double magKF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
+	osg::Vec3 fGravity = p -> gravity * p -> mass; //direction: -z
+	osg::Vec3 fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
 	
-	osg::Vec3 fGravity = p -> gravity * p -> mass;
-	//cout << "gravity: " << fGravity << endl;
-	//cout << "knife acceleration: " << knife.acceleration << endl;
-	osg::Vec3 fApplied = knife.acceleration * knife.mass;
-	//cout << "fApplied: " << fApplied << endl;
+	osg::Vec3 fNormal;
 	
-	osg::Vec3 directionOfMotion;
+	if(knife.shift.length() != 0 && knife.currentVelocity.length() != 0) {
+		fNormal = normalize(knife.shift ^ knife.currentVelocity) * GRAVITY * p -> mass; //direction: perpendicular to knife
+	} else {
+		fNormal = osg::Vec3(0,0,1) * GRAVITY * p -> mass; //direction: perpendicular to knife
+	}
+	
+	osg::Vec3 fStaticFriction;
+	osg::Vec3 fKineticFriction;
+	
 	if(p -> currentVelocity.length() != 0) {
-		directionOfMotion = normalize(p -> currentVelocity);
-		directionOfMotion.z() = 0;
+		fStaticFriction = -normalize(knife.acceleration) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(knife.acceleration) * kineticFriction; //direction: opposes motion;
 	} else {
-		directionOfMotion = normalize(p -> gravity);
+		fStaticFriction = -normalize(p -> gravity) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(p -> gravity) * kineticFriction; //direction: opposes motion;
 	}
 	
 	
-	//cout << "direction of motion: " << directionOfMotion << endl;
-	
-	osg::Vec3 fSF = -directionOfMotion /*osg::Vec3(0,-1,0)*/ * magSF;
-	cout << "static friction: " << fSF << endl;
-	osg::Vec3 fKF = -directionOfMotion /*osg::Vec3(0,-1,0)*/ * magKF;
-	cout << "kinetic friction: " << fKF << endl;
-	
-	osg::Vec3 netForce;
-	//netForce += fGravity;
-	
-	if(absoluteValue(fSF) < absoluteValue(fApplied)) {
-		netForce += fApplied + fKF;
-		cout << "greater" << endl;
-	} else if(absoluteValue(fApplied) == absoluteValue(fSF)) {
-		netForce = osg::Vec3(0,0,0);
-		cout << "equal" << endl;
+	osg::Vec3 fNet = fGravity + fNormal;
+	osg::Vec3 acceleration;
+				
+	if(fStaticFriction < fApplied) { //applied force > static friction
+		fNet += fApplied + fKineticFriction;
 	} else {
-		netForce = osg::Vec3(0,0,0)/*fApplied + fSF*/;
-		cout << "less" << endl;
+		if(fStaticFriction < fGravity) {
+			fNet += fKineticFriction;
+		}
 	}
-	cout << "net force: " << netForce << endl;
 	
-	return netForce / p -> mass; //acceleration = net force/mass
+	acceleration = fNet / p -> mass;
 	
-	//frictional forces are a scalar with unit vector in the opposite direction as movement
-	/*double sF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_STATIC_FRICTION;
-	double kF = GRAVITY * sinAngleOfInclination * p -> mass * COEFF_KINETIC_FRICTION;
-	
-	osg::Vec3 grav = p -> gravity * p -> mass;
-	osg::Vec3 forceApplied = knife.acceleration * knife.mass;
-	cout << "force applied: " << forceApplied << endl;
+	cout << "gravity: " << fGravity << endl;
+	cout << "applied: " << fApplied << endl;
+	cout << "normal:  " << fNormal << endl;
+	cout << "static:  " << fStaticFriction << endl;
+	cout << "kinetic: " << fKineticFriction << endl;
+	cout << "net:     " << fNet << endl << endl;
 
-	osg::Vec3 posForce = forceApplied + grav;
-	cout << "positive forces: " << posForce << endl;
-	osg::Vec3 posForceUnitVector = posForce / posForce.length();
+	return acceleration;*/
 	
-	osg::Vec3 staticFriction = -posForceUnitVector * sF;
-	cout << "static friction: " << staticFriction << endl;
-	osg::Vec3 kineticFriction = -posForceUnitVector * kF;
-	cout << "kinetic friction: " << kineticFriction << endl;
- 	
-	osg::Vec3 netForce;
-	osg::Vec3 a;
-
-	if(posForce < staticFriction) {
-		netForce = posForce + staticFriction;
-	} else if (posForce == staticFriction) {
-		netForce = osg::Vec3(0,0,0);
+	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
+	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
+	
+	osg::Vec3 fApplied;
+	osg::Vec3 fStaticFriction;
+	osg::Vec3 fKineticFriction;
+	
+	if(knife.shift.length() != 0) {
+		fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
 	} else {
-		netForce = posForce + kineticFriction;
-	}
-	cout << "net force: " << netForce << endl;
+		fApplied = osg::Vec3(0,0,0);
+	} 
 	
-	a = netForce / p -> mass;
-	cout << "a: " << a << endl << endl;
-	return a;*/
+	
+	if(fApplied.length() != 0) {
+		fStaticFriction = -normalize(fApplied) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(fApplied) * kineticFriction; //direction: opposes motion;
+	} else {
+		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
+		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
+	}
+	
+	osg::Vec3 fNet;
+	
+	if(fStaticFriction < fApplied) { //applied force > static friction
+		fNet += fApplied + fKineticFriction;
+	} else {
+		fNet = osg::Vec3(0,0,0);
+	}
+	
+	return fNet / p -> mass;
 }
 
 COVERPLUGIN(BloodPlugin)
