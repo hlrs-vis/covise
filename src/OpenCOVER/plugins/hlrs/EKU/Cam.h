@@ -6,6 +6,7 @@
 
  * License: LGPL 2+ */
 
+#pragma once
 
 #include <unistd.h>
 

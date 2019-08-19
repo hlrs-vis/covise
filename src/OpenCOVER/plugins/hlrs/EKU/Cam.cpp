@@ -12,8 +12,8 @@ using namespace opencover;
 
 double Cam::imgHeightPixel = 1080;
 double Cam::imgWidthPixel = 1920;
-double Cam::fov = 60;
-double Cam::depthView = 30;
+double Cam::fov = 70;
+double Cam::depthView = 50;
 double Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_PI/180));
 double Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
 double Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);

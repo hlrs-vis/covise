@@ -50,13 +50,16 @@ class Action;
 
 #include <iostream>
 #include <vector>
+#include<functional>
 
 #include <cover/ui/Owner.h>
 #include<Cam.h>
 #include<Truck.h>
+#include<GA.hpp>
 
 
 using namespace opencover;
+
 
 class EKU: public opencover::coVRPlugin, public opencover::ui::Owner
 {
@@ -64,8 +67,6 @@ public:
     EKU();
     ~EKU();
     bool init();
-
-
     void doAddTruck();
     void doRemoveTruck();
     void doAddCam();
@@ -76,8 +77,7 @@ public:
     std::vector<Cam*> cameras;
     std::vector<CamDrawable*> finalCams;
 
-
-
+    GA *ga;
 private:
     //UI
     static EKU *plugin;

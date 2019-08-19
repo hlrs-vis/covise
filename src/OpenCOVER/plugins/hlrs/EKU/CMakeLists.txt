@@ -3,14 +3,14 @@ SET(HEADERS
   Cam.h
   Truck.h
   openGA.hpp
-  #myGAproblem.hpp
+  GA.hpp
   
 )
 SET(SOURCES
   EKU.cpp
   Cam.cpp
   Truck.cpp
-  #myGAproblem.cpp
+  GA.cpp
   
 )
 cover_add_plugin(EKU ${HEADERS} ${SOURCES})
