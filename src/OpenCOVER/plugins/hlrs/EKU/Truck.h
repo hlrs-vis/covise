@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRFileManager.h>
 #include <osg/ShapeDrawable>
