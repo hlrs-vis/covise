@@ -136,7 +136,8 @@ bool BloodPlugin::update() {
 
     //moving and drawing the knife
     knifeTransform -> setMatrix(rotKnife * handInObjectsRoot);
-
+	
+	knife.start = knife.hilt * handInObjectsRoot;
     knife.end = knife.tip * handInObjectsRoot;
     /*knife.currentPosition = knife.hilt * handInObjectsRoot;
 
@@ -171,7 +172,7 @@ bool BloodPlugin::update() {
 		knife.acceleration = (knife.currentVelocity - knife.prevVelocity) / double(cover -> frameDuration());
 		knife.prevVelocity = knife.currentVelocity;
 		
-		if((*thisParticle) -> firstUpdate) { //if update() is entered for the first time, calculate the necessary mechanics number
+		if((*thisParticle) -> firstUpdate) { //if update() is entered for the first time, calculate the drag stuff
 			(*thisParticle) -> currentPosition = knife.currentPosition;
 			(*thisParticle) -> currentVelocity = knife.currentVelocity;
 		
@@ -194,7 +195,7 @@ bool BloodPlugin::update() {
 			abs((*thisParticle) -> currentVelocity.z()) < (*thisParticle) -> terminalVelocity) {
 				(*thisParticle) -> currentVelocity += (*thisParticle) -> gravity * double(cover -> frameDuration());
 
-			} else { //velocity > terminal velocity
+			} else { //if velocity > terminal velocity, set velocity of the component(s) to terminal velocity
 				cout << "v > term" << endl;
 
 				(*thisParticle) -> currentVelocity += (*thisParticle) -> gravity * double(cover -> frameDuration());
@@ -293,6 +294,50 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
+	//use a LineSegment representing the knife and see if any particle intersects with the LineSegment
+	//if they intersect find the vector normal to the point of intersection (function getLocalIntersectNormal())
+	//use the normal vector as the direction vector for fNormal (normalize it first)
+	//fNet = fGravity + fNormal + fApplied + fWhateverFriction
+	
+	/*osg::ref_ptr<osg::LineSegment> knifeLineSegment = new osg::LineSegment(knife.start, knife.end);
+	osgUtil::IntersectVisitor iSect;
+	iSect.addLineSegment(segmentPtr);
+	//how to traverse the IntersectVisitor?
+	*/
+	
+	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
+	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
+	
+	osg::Vec3 fApplied, fStaticFriction, fKineticFriction;
+	//osg::Vec3 fGravity = p -> mass * p -> gravity; //direction: -z
+	//osg::Vec3 fNormal = p -> mass * p -> gravity; //direction: perpendicular to knife's surface
+	osg::Vec3 fNet;
+	
+	if(knife.shift.length() != 0) {
+		fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
+	} else {
+		fApplied = osg::Vec3(0,0,0);
+	} 
+	
+	
+	if(fApplied.length() != 0) {
+		fStaticFriction = -normalize(fApplied) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(fApplied) * kineticFriction; //direction: opposes motion;
+	} else {
+		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
+		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
+	}
+	
+	
+	
+	if(fStaticFriction < fApplied) { //applied force > static friction
+		fNet += fApplied + fKineticFriction;
+	} else {
+		fNet = osg::Vec3(0,0,0);
+	}
+	
+	return fNet / p -> mass;
+	
 	/*double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
 	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
 	
@@ -340,38 +385,6 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	cout << "net:     " << fNet << endl << endl;
 
 	return acceleration;*/
-	
-	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
-	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
-	
-	osg::Vec3 fApplied;
-	osg::Vec3 fStaticFriction;
-	osg::Vec3 fKineticFriction;
-	
-	if(knife.shift.length() != 0) {
-		fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
-	} else {
-		fApplied = osg::Vec3(0,0,0);
-	} 
-	
-	
-	if(fApplied.length() != 0) {
-		fStaticFriction = -normalize(fApplied) * staticFriction; //direction: opposes motion
-		fKineticFriction = -normalize(fApplied) * kineticFriction; //direction: opposes motion;
-	} else {
-		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
-		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
-	}
-	
-	osg::Vec3 fNet;
-	
-	if(fStaticFriction < fApplied) { //applied force > static friction
-		fNet += fApplied + fKineticFriction;
-	} else {
-		fNet = osg::Vec3(0,0,0);
-	}
-	
-	return fNet / p -> mass;
 }
 
 COVERPLUGIN(BloodPlugin)
