@@ -13,7 +13,7 @@ using namespace opencover;
 double Cam::imgHeightPixel = 1080;
 double Cam::imgWidthPixel = 1920;
 double Cam::fov = 70;
-double Cam::depthView = 50;
+double Cam::depthView = 55;
 double Cam::focalLengthPixel = Cam::imgWidthPixel*0.5/(std::tan(Cam::fov*0.5*M_PI/180));
 double Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
 double Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
@@ -155,7 +155,10 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
 
 CamDrawable::~CamDrawable()
 {
-
+    std::cout<<"CamDrawable Destructor called"<<std::endl;
+  //  group->getParent(0)->removeChild(group);
+  //  verts->resize(0);
+   // verts->dirty();
 }
 
 osg::Geode* CamDrawable::plotCam()
@@ -174,6 +177,8 @@ osg::Geode* CamDrawable::plotCam()
    // stateset->setAttributeAndModes(new osg::BlendFunc(GL_SRC_ALPHA ,GL_ONE_MINUS_SRC_ALPHA), osg::StateAttribute::ON);
     // Associate the Geometry with the Geode.
     geode->addDrawable(geom);
+    geode->getStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+
     geode->getStateSet()->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
     // Declare an array of vertices to create a simple pyramid.
     verts = new osg::Vec3Array;
@@ -251,11 +256,11 @@ osg::Geode* CamDrawable::plotCam()
 
     // Create a separate color for each face.
     osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4(1.0f, 1.0f, 0.0f, 0.1f) ); // yellow  - base
-    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.1f) ); // cyan    - left
-    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.1f) ); // cyan    - right
-    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.1f) ); // magenta - front
-    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.1f) ); // magenta - back
+    colors->push_back( osg::Vec4(1.0f, 1.0f, 0.0f, 0.5f) ); // yellow  - base
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - left
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - right
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) ); // magenta - front
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) ); // magenta - back
     // The next step is to associate the array of colors with the geometry.
     // Assign the color indices created above to the geometry and set the
     // binding mode to _PER_PRIMITIVE_SET.
