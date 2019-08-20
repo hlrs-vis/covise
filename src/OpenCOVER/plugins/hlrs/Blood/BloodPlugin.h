@@ -46,16 +46,6 @@ using namespace opencover;
 class BloodPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:	
-    //member variables for displaying blood
-    // osg::ref_ptr<osg::Geode> bloodGeode;
-	// osg::Vec4 bloodColor = osg::Vec4(1.0, 0.0, 0.0, 1.0);
-	// osg::ref_ptr<osg::MatrixTransform> bloodTransform;
-	// osg::Matrix bloodBaseTransform;
-	// osg::ref_ptr<osg::Sphere> bloodSphere;
-	// osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
-	// osg::ref_ptr<osg::StateSet> bloodStateSet;
-	// osg::ref_ptr<osg::Material> bloodMaterial;
-	
     //member variables for displaying knife
     osg::ref_ptr<osg::MatrixTransform> knifeTransform;
     osg::Matrix knifeBaseTransform;
@@ -75,7 +65,7 @@ public:
     // Droplet particle;
     Weapon knife;
     std::list<Droplet*> particleList;
-    std::list<Droplet*> particlesOnGround; //need to write your own copy constructor to copy particles fron particleList to particlesOnGround
+    std::list<Droplet*> particlesOnGround;
 
 private:
     int numParticles = 0;
