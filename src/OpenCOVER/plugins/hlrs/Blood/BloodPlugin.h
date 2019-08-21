@@ -46,6 +46,12 @@ using namespace opencover;
 class BloodPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:	
+	
+    // Droplet particle;
+    Weapon knife;
+    std::list<Droplet*> particleList;
+    std::list<Droplet*> particlesOnGround;
+    
     //member variables for displaying knife
     osg::ref_ptr<osg::MatrixTransform> knifeTransform;
     osg::Matrix knifeBaseTransform;
@@ -55,17 +61,12 @@ public:
 
     virtual bool init();
     virtual bool update();
+    void doAddBlood();
     osg::Vec3 particleSlip(Droplet* p);
     
-    void doAddBlood();
     osg::ref_ptr<osg::Group> bloodNode;
     std::list<Blood*> bloodJunks;
     static BloodPlugin *instance();
-
-    // Droplet particle;
-    Weapon knife;
-    std::list<Droplet*> particleList;
-    std::list<Droplet*> particlesOnGround;
 
 private:
     int numParticles = 0;

@@ -119,62 +119,6 @@ Droplet::Droplet(osg::Vec4 color) {
 	bloodGeode->setNodeMask((bloodGeode->getNodeMask() & ~Isect::Update )& (~Isect::Intersection));
 }
 
-/*deep copy constructor for copying:
-osg::ref_ptr<osg::Geode> bloodGeode;
-osg::ref_ptr<osg::MatrixTransform> bloodTransform;
-osg::ref_ptr<osg::Sphere> bloodSphere;
-osg::ref_ptr<osg::ShapeDrawable> bloodShapeDrawable;
-osg::ref_ptr<osg::StateSet> bloodStateSet;
-osg::ref_ptr<osg::Material> bloodMaterial;
-*/
-/* Droplet::Droplet(const Droplet& rhs) {
-	radius = rhs.radius;
-	prevPosition = rhs.prevPosition;
-	prevVelocity = rhs.prevVelocity;
-	
-	mass = rhs.mass;
-	dragModel = rhs.dragModel;
-	timeElapsed = rhs.timeElapsed;
-	
-	bloodGeode = new osg::Geode;
-	
-	bloodTransform = new osg::MatrixTransform;
-	bloodBaseTransform.set(rhs.matrix);
-	bloodTransform -> setMatrix(rhs.matrix);
-	bloodTransform -> addChild(bloodGeode);
-	
-	string transformName = "bloodTransform";
-	bloodTransform -> setName(transformName);
-	
-	bloodSphere = new osg::Sphere(prevPosition, 0.05);
-	
-	bloodShapeDrawable = new osg::ShapeDrawable(bloodSphere);
-	bloodColor = rhs.bloodColor;
-	bloodShapeDrawable -> setColor(rhs.bloodColor);
-	bloodGeode -> addDrawable(bloodShapeDrawable);
-	
-	string geodeName = "bloodGeode";
-	bloodGeode -> setName(geodeName);
-	
-	if(bloodGeode) {
-		bloodStateSet = bloodGeode -> getOrCreateStateSet(); //stateset controls all of the aesthetic properties of the geode
-		bloodMaterial = new osg::Material;
-		
-		//setting the color properties for the sphere
-		bloodMaterial -> setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
-		bloodMaterial -> setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0f, 1.0f, 0.2f, 1.0f));
-		bloodMaterial -> setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.1f, 1.0f, 0.2f, 1.0f));
-		bloodMaterial -> setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(1.0, 1.0, 1.0, 1.0));
-		bloodMaterial -> setShininess(osg::Material::FRONT_AND_BACK, 25.0);
-		bloodStateSet -> setAttributeAndModes(bloodMaterial);
-		bloodStateSet -> setNestRenderBins(false);
-		
-		cover -> getObjectsRoot() -> addChild(bloodTransform);
-	}
-} */
-
-//need deep assignment operator?
-
 Droplet::~Droplet() {
 }
 
@@ -196,20 +140,8 @@ void Droplet::findReynoldsNum() {
 
     if(Re >= REYNOLDS_LIMIT) {
         cout << "Drag modeling behaves correctly until Re = "<< REYNOLDS_LIMIT << " ! Currently Re = " << Re << "\nPropagation may be incorrect!" << endl;
-    } else {
-        //cout << "Below Reynolds Number limit, proceed" << endl; //test
     }
-    
-//        if(Re >= REYNOLDS_THRESHOLD) { //REYNOLDS_THRESHOLD = 2230 from gen.cpp
-//            if(Re >= REYNOLDS_LIMIT) { //REYNOLDS_LIMIT = 170000 from gen.cpp
-//                cout << "Drag modeling behaves correctly until Re = "<< REYNOLDS_LIMIT << " ! Currently Re = " << Re << "\nPropagation may be incorrect!" << endl;
-//            }
-//            return CD_TURB;
-//        } else {
-//            cout << "Below Reynolds Threshold, proceed" << endl; //test
-//        }
 
-    //return Re;
     ReynoldsNum = Re;
 }
 
@@ -219,42 +151,26 @@ void Droplet::findDragCoefficient() {
     
     if(dragModel == cdModel::CD_STOKES) {
         cdLam = 24/ReynoldsNum;
-        //cout << "Cd_lam = " << cdLam << endl;
-        
-        //???????????????????????????????????cdLam is always a small number because ReynoldsNum is on the order of magnitude of 10^5
-        //thus cdLam will almost never be > CD_TURB so function will always return CD_TURB
-        
-        if(cdLam > CD_TURB) {//idk why you have to do this but they did it in gen.cpp so...
-            //cout << "cdLam > cdTurb (0.15)" << endl;
-            //return cdLam;
+        if(cdLam > CD_TURB) {
             dragCoeff = cdLam;
         } else {
-            //cout << "cdLam <= cdTurb (0.15)" << endl;
-            //return CD_TURB;
             dragCoeff = CD_TURB;
         }
         
     } else if(dragModel == cdModel::CD_MOLERUS) {
         cdLam = 24/ReynoldsNum + 0.4/sqrt(ReynoldsNum) + 0.4;
-        //cout << "Cd_lam = " << cdLam << endl;
-        //return cdLam;
         dragCoeff = cdLam;
         
     } else if(dragModel == cdModel::CD_MUSCHELK) {
         cdLam = 21.5/ReynoldsNum + 6.5/sqrt(ReynoldsNum) + 0.23;
-        //cout << "Cd_lam = " << cdLam << endl;
-        //return cdLam;
         dragCoeff = cdLam;
         
     } else if(dragModel == cdModel::CD_NONE) {
         cdLam = 0.0;
-        //cout << "Cd_lam = " << cdLam << endl;
-        //return cdLam;
         dragCoeff = cdLam;
         
     } else {
-        //cout << "Cd_lam = 0.47" << endl;
-        //return 0.47; //drag coefficient for a smooth sphere with Re = 1x10^5 (from Wikipedia)
+		//drag coefficient for a smooth sphere with Re = 1x10^5 (from Wikipedia)
         dragCoeff = 0.47;
     }
 }
@@ -291,10 +207,8 @@ osg::Vec3 Droplet::determinePosition() {
 
     osg::Vec3 posVec;
 
-    //positionInX = currentVelocity.x() * timeElapsed; 
     positionInY = (currentVelocity.y() * terminalVelocity) / GRAVITY * (1-exp(-1 * GRAVITY * timeElapsed / terminalVelocity));
     positionInX = currentVelocity.x() * timeElapsed;
-    //positionInZ = currentVelocity.z() * timeElapsed; 
     positionInZ = (terminalVelocity / GRAVITY) * (currentVelocity.z() + terminalVelocity) * (1 - exp(-1 * GRAVITY * timeElapsed / terminalVelocity)) - (terminalVelocity * timeElapsed);
     
     //assign these values to the dropletPosition member variable or return a new osg::Vec3 type haven't decided yet
@@ -321,42 +235,3 @@ Weapon::Weapon() {
 
 Weapon::~Weapon() {
 }
-
-/*
-bool isSlipping() {
-    //need to isolate the 4th row of the getPointerMat() matrix to determine the position of the knife
-    osg::Matrix knifePos = cover -> getPointerMat();
-    osg::Vec4 fourthAxis = osg::Vec4(0,0,0,1);
-
-    osg::Vec4 fourthRow = knifePos.postMult(fourthAxis);
-    osg::Vec3 newRefAxis = osg::Vec3(fourthRow.x(), 0,0); //set the new reference axis as a line in the x-direction through the midpoint of the knife
-    osg::Vec3 knifeTip = knifePos.postMult(knife.length); //vecor from the origin through the tip of the knife
-    
-    double hypotenuse = pythaoras(knifeTip.x(), knifeTip.y(), knifeTip.z());
-    double cosTheta = knifeTip.z() / hypotenuse;
-    double sinThea = hypot(knifeTip.x(), knifeTip.y()) / hypotenuse;
-
-    double a_x = GRAVITY * sinTheta - COEFF_STATIC_FRICTION * GRAVITY * cosTheta;
-
-    double newDropletPosition = 0.5 * a_x * particle.timeElapsed * particle.timeElapsed + particle.currentparticle.currentVelocity * particle.timeElapsed;
-    
-    
-    
-    osg::Vec3 knifeTranslation = osg::Vec3(fourthRow.x(), fourthRow.y(), fourthRow.z()); //isolate the translation elements of the 4th row of PointerMat()
-
-    double hypot = pythagoras(knifeTranslation.x(), knifeTranslation.y(), knifeTranslation.z());
-
-    double sinTheta = knifeTranslation.z() / hypot; 
-    double cosTheta = knifeTranslation.x() / hypot;
-
-    double a_x = GRAVITY * sinTheta - COEFF_STATIC_FRICTION * GRAVITY * cosTheta;
-
-    //if a_x < 0, static friction force > x-component of gravity
-    //if a_x > 0, x-component of gravity > static friction force
-    if(a_x < 0) {
-        return false;
-    } else if(a_x > 0) {
-        return true;
-    }
-}
- */

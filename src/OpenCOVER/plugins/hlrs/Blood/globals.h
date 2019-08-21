@@ -38,6 +38,11 @@ inline double crossSectionalArea(double radius) {
     return PI * radius * radius;
 }
 
+inline ostream& operator<<(ostream& os, const osg::Vec3 toPrint) {
+    os << toPrint.x() << " " << toPrint.y() << " " << toPrint.z();
+    return os;
+}
+
 inline double pythagoras(osg::Vec3 aVector) {
 	double x2 = aVector.x() * aVector.x(); 
 	double y2 = aVector.y() * aVector.y();
@@ -52,11 +57,6 @@ inline double signedLength(osg::Vec3 anotherVector) {
     } else {
         return anotherVector.length();
     }
-}
-
-inline ostream& operator<<(ostream& os, const osg::Vec3 toPrint) {
-    os << toPrint.x() << " " << toPrint.y() << " " << toPrint.z();
-    return os;
 }
 
 inline int signOf(int number) {

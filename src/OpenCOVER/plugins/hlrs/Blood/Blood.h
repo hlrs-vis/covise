@@ -66,7 +66,6 @@ public:
 class Droplet{
 public:
 	Droplet(osg::Vec4 color = osg::Vec4(1,0,0,1)); //default color is red
-	//Droplet(const Droplet& rhs); //copy constructor
 	~Droplet();
 
     double timeElapsed; //time between frames
@@ -76,7 +75,7 @@ public:
     double mass; //units: kg
     
     //kinematics data
-    double radius; //units: m
+    double radius;             //units: m
     osg::Vec3 currentVelocity; //units: m/s, (v_x,v_y,v_z)
     osg::Vec3 prevVelocity;
     osg::Vec3 acceleration;
@@ -101,9 +100,9 @@ public:
     
     //drag data
     double ReynoldsNum; //dimensionless
-    cdModel dragModel; //CD is an enum type, can be either Stokes/Molerus/Muschelk/None   
-    double dragCoeff; //laminar flow drag coefficient
-    double windForce; //air resistance
+    cdModel dragModel;  //CD is an enum type, can be either Stokes/Molerus/Muschelk/None   
+    double dragCoeff;   //laminar flow drag coefficient
+    double windForce;   //air resistance
     double terminalVelocity;
    
     void findReynoldsNum();
@@ -143,10 +142,6 @@ public:
 
     osg::Vec3 tip = osg::Vec3(0,50,-5); //length of the knife in object's root coordinates (m)
     osg::Vec3 hilt = osg::Vec3(1,1,1);
-    
-    //osg::Vec3 lengthInWC = osg::Vec3(0,200,0); //length of the knife in world coordinates (mm)
-    //osg::Vec3 tip = osg::Vec3(-60,-1450,0); //knife tip is at 0,-1450,0
-    //osg::Vec3 tipInmm = osg::Vec3(-0.6, -14.5, 0);
 };
 
 #endif
