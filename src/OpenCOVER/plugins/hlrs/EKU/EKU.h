@@ -47,6 +47,10 @@ class Action;
 #include <osg/Material>
 #include <osg/Vec4>
 #include <osg/PositionAttitudeTransform>
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+#include<osg/Node>
+
 
 #include <iostream>
 #include <vector>
@@ -56,6 +60,7 @@ class Action;
 #include<Cam.h>
 #include<Truck.h>
 #include<GA.hpp>
+#include<FileReader.hpp>
 
 
 using namespace opencover;
@@ -99,6 +104,12 @@ private:
     //Landscape
     osg::Geode* createPolygon();
     osg::Geode* createPoints();
+
+    osg::ref_ptr<osg::Node> scene;
+  //  FileReaderWriter *readerWriter;
+  //  FindNamedNode fnn;//NOTE: make to pointer
+
+
 
 
 };

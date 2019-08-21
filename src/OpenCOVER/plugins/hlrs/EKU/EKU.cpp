@@ -18,77 +18,67 @@ EKU *EKU::plugin = NULL;
 
 EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
 {
-   // sleep(10);
-
-  /*  osg::Node* d3model;
-    d3model = coVRFileManager::instance()->loadIcon("knife");
-    d3model->setName("knife");
-*/
 
     plugin = this;
     fprintf(stderr, "EKUplugin::EKUplugin\n");
 
-    trucks.push_back(new Truck(osg::Vec3(20,0,20)));
-    trucks.push_back(new Truck(osg::Vec3(-40,0,20)));
-    trucks.push_back(new Truck(osg::Vec3(0,20,0)));
-    trucks.push_back(new Truck(osg::Vec3(0,40,0)));
-  //  trucks.push_back(new Truck(osg::Vec3(-10,0,10)));
-  //  trucks.push_back(new Truck(osg::Vec3(10,-10,5)));
-  //  trucks.push_back(new Truck(osg::Vec3(-20,-10,5)));
-  //  trucks.push_back(new Truck(osg::Vec3(10,-20,5)));
+    // read file
+    scene = osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/data/osgt/EKU_Box.osgt");
+    if (!scene.valid())
+      {
+          osg::notify( osg::FATAL ) << "Unable to load data file. Exiting." << std::endl;
+          //return( 1 );
+      }
 
-    const osg::Vec2 o{90*M_PI/180,30*M_PI/180};
-    const osg::Vec3 p{0,0,20};
-    //const osg::Vec2 o1{10,-60};
-    //const osg::Vec3 p1{0,0,-100};
-    osg::Vec3Array* obsPoints = new osg::Vec3Array;
+    //all Points to observe from file
+    std::vector<osg::Vec3> truckPos;
+    FindNamedNode *fnnPoints= new FindNamedNode( "px",&truckPos);
+    scene->accept(*fnnPoints );
+    delete fnnPoints;
+    for(const auto& x : truckPos)
+        trucks.push_back(new Truck(x));
 
-      for(auto x:trucks)
+
+    osg::Vec3Array* obsPoints = new osg::Vec3Array; //Note: Remove this unecessary
+    for(auto x:trucks)
         obsPoints->push_back( x->pos);
 
-{   // for each location create a cam with different alpha and beta angles
 
-    std::vector<osg::Vec2> camRots;
-    const int userParam =4;//stepsize = PI/userParam
-    const int n_alpha = 2*userParam;
-    const int n_beta = userParam/2;//+1;
+    //all possible camera locations from file
+    std::vector<osg::Vec3> camPos;
+    FindNamedNode *fnnCam= new FindNamedNode( "cx",&camPos);
+    scene->accept(*fnnCam );
+    delete fnnCam;
+    {   // for each location create a cam with different alpha and beta angles
+        std::vector<osg::Vec2> camRots;
+        const int userParam =4;//stepsize = PI/userParam
+        const int n_alpha = 2*userParam;
+        const int n_beta = userParam/2;//+1;
+        double alpha =0;
+        double beta =0;
+        for(int cnt = 0; cnt<n_alpha; cnt++){
+            for(int cnt2 = 0; cnt2<n_beta; cnt2++){//stepsize ok?
+                osg::Vec2 vec(alpha*M_PI/180, beta*M_PI/180);
+                camRots.push_back(vec);
+                beta+=180/userParam;
+            }
+            beta=0;
+            alpha+=180/userParam;
+        }
 
+        const std::string myString="Cam";
+        size_t cnt=0;
+        for(const auto& c: camPos)
+        {
+            for(const auto& x:camRots)
+            {
+               cnt++;
+               cameras.push_back(new Cam(c,x,*obsPoints,myString+std::to_string(cnt)));
 
-   /* for(int alpha = 0; alpha <=n_alpha*180/userParam; alpha+=180/userParam){
-        for(int beta = 0; beta <=n_beta*180/userParam; beta+=180/userParam){//stepsize ok?
-            osg::Vec2 vec((double)alpha*M_PI/180, (double)beta*M_PI/180);
-          // osg::Vec2 vec((double)alpha*M_PI/180, 0);
-          //  osg::Vec2 vec(0, (double)beta*M_PI/180);
-            camRots.push_back(vec);
+            }
         }
     }
-    */
-    double alpha =0;
-    double beta =0;
-    for(int cnt = 0; cnt<n_alpha; cnt++){
-        for(int cnt2 = 0; cnt2<n_beta; cnt2++){//stepsize ok?
-            osg::Vec2 vec(alpha*M_PI/180, beta*M_PI/180);
 
-          //osg::Vec2 vec((double)alpha*M_PI/180, 0);
-          //  osg::Vec2 vec(0, (double)beta*M_PI/180);
-            camRots.push_back(vec);
-            beta+=180/userParam;
-        }
-        beta=0;
-        alpha+=180/userParam;
-    }
-
-    const std::string myString="Cam";
-    size_t cnt=0;
-    for(auto& x:camRots)
-    {
-       cnt++;
-       cameras.push_back(new Cam(p,x,*obsPoints,myString+std::to_string(cnt)));
-      // finalCams.push_back(new CamDrawable(p,x,myString+std::to_string(cnt)));
-        // finalCams.push_back(new CamDrawable(p1,o1));
-    }
-
-}
     //Create UI
     EKUMenu  = new ui::Menu("EKU", this);
 
@@ -136,14 +126,10 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
         }
     });
 
-
-     cover->getObjectsRoot()->addChild(createPolygon());
-     //cover->getObjectsRoot()->addChild(createPoints());
-
      /*
-       Start GA algorithm and plot final cams
-     */
-     {
+      *Start GA algorithm and plot final cams
+      */
+       {
 
          const size_t pointsToObserve = trucks.size();
          ga =new GA(cameras,pointsToObserve);
@@ -160,11 +146,20 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
          }
      }
 
+     /*
+      * Read osgt file and write obj file
+      */
+        //readerWriter = new FileReaderWriter();
+
+
+   cover->getObjectsRoot()->addChild(createPolygon());
+   cover->getObjectsRoot()->addChild(scene.get());
 }
 
 EKU::~EKU()
 {
     fprintf(stderr, "BorePlugin::~BorePlugin\n");
+
 }
 
 bool EKU::init()
@@ -256,65 +251,5 @@ osg::Geode* EKU::createPolygon()
    // Return the geode as the root of this geometry.
    return geode;
 }
-
-osg::Geode* EKU::createPoints()
-// create POINTS
-    {
-        osg::Geode* geode = new osg::Geode();
-        // create Geometry object to store all the vertices and points primitive.
-        osg::Geometry* pointsGeom = new osg::Geometry();
-        // create a Vec3Array and add to it all my coordinates.
-        // Like all the *Array variants (see include/osg/Array) , Vec3Array is derived from both osg::Array
-        // and std::vector<>.  osg::Array's are reference counted and hence sharable,
-        // which std::vector<> provides all the convenience, flexibility and robustness
-        // of the most popular of all STL containers.
-
-        osg::Vec3Array* vertices = new osg::Vec3Array;
-        vertices->push_back(osg::Vec3(20,0,10));
-        vertices->push_back(osg::Vec3(50,0,0));
-
-
-        // pass the created vertex array to the points geometry object.
-        pointsGeom->setVertexArray(vertices);
-
-
-        // create the color of the geometry, one single for the whole geometry.
-        // for consistency of design even one single color must added as an element
-        // in a color array.
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        // add a white color, colors take the form r,g,b,a with 0.0 off, 1.0 full on.
-        colors->push_back(osg::Vec4(1.0f,1.0f,0.0f,1.0f));
-
-        // pass the color array to points geometry, note the binding to tell the geometry
-        // that only use one color for the whole object.
-        pointsGeom->setColorArray(colors, osg::Array::BIND_OVERALL);
-
-
-        // Set the normal in the same way as the color.
-        // (0,-1,0) points toward the viewer, in the default coordinate
-        // setup.  Even for POINTS, the normal specified here
-        // is used to determine how the geometry appears under different
-        // lighting conditions.
-        osg::Vec3Array* normals = new osg::Vec3Array;
-        normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
-        pointsGeom->setNormalArray(normals, osg::Array::BIND_OVERALL);
-
-
-        // create and add a DrawArray Primitive (see include/osg/Primitive).  The first
-        // parameter passed to the DrawArrays constructor is the Primitive::Mode which
-        // in this case is POINTS (which has the same value GL_POINTS), the second
-        // parameter is the index position into the vertex array of the first point
-        // to draw, and the third parameter is the number of points to draw.
-        pointsGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::POINTS,0,vertices->size()));
-
-
-        // add the points geometry to the geode.
-        geode->addDrawable(pointsGeom);
-
-
-        return geode;
-    }
-
-
 
 COVERPLUGIN(EKU)

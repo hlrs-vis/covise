@@ -128,8 +128,6 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     osg::Quat fullRot = yRot*zRot; //NOTE: Be careful, changed order of Matrix Multiplication here
     r.setRotate(fullRot);
     rotMat->setMatrix(r);
-
-
     //OpenGL first rotate than translate
     camGeode->addChild(text.get());
     rotMat->addChild(camGeode.get());
@@ -149,6 +147,7 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     revolution->addChild(camGeode);
     cover->getObjectsRoot()->addChild(revolution);
     */
+
 }
 
 
@@ -172,7 +171,6 @@ osg::Geode* CamDrawable::plotCam()
     geom->setDataVariance(osg::Object::DataVariance::DYNAMIC) ;
     geom->setUseDisplayList(false);
     geom->setUseVertexBufferObjects(true);
-
    // stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
    // stateset->setAttributeAndModes(new osg::BlendFunc(GL_SRC_ALPHA ,GL_ONE_MINUS_SRC_ALPHA), osg::StateAttribute::ON);
     // Associate the Geometry with the Geode.

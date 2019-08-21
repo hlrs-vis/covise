@@ -10,12 +10,12 @@
 
 #include <unistd.h>
 
-#include <cover/coVRPluginSupport.h>
-#include <osg/ShapeDrawable>
-#include <osg/Vec4>
-#include <osg/NodeCallback>
-#include <osg/PositionAttitudeTransform>
-#include <osg/Material>
+#include<cover/coVRPluginSupport.h>
+#include<osg/ShapeDrawable>
+#include<osg/Vec4>
+#include<osg/NodeCallback>
+#include<osg/PositionAttitudeTransform>
+#include<osg/Material>
 #include<osg/MatrixTransform>
 #include<osg/Quat>
 #include<osg/BlendFunc>
@@ -77,6 +77,8 @@ public:
     CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
     //CamDrawable(Cam cam);
     ~CamDrawable();
+
+    osg::ref_ptr<osg::Group> getCamDrawable(){return group;};
 };
 
 /*class RotationCallback : public osg::NodeCallback

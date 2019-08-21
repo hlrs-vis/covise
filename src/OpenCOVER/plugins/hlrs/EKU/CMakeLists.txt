@@ -4,6 +4,7 @@ SET(HEADERS
   Truck.h
   openGA.hpp
   GA.hpp
+  FileReader.hpp
   
 )
 SET(SOURCES
@@ -11,6 +12,7 @@ SET(SOURCES
   Cam.cpp
   Truck.cpp
   GA.cpp
+  FileReader.cpp
   
 )
 cover_add_plugin(EKU ${HEADERS} ${SOURCES})
