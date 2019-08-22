@@ -134,7 +134,7 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     transMat->addChild(rotMat.get());
     group->addChild(transMat.get());
    //cover->getObjectsRoot()->addChild(transMat.get());
-    cover->getObjectsRoot()->addChild(group.get());
+   //cover->getObjectsRoot()->addChild(group.get());
 
    // transMat->addChild(camGeode.get());
    // rotMat->addChild(transMat.get());

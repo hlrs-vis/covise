@@ -32,7 +32,6 @@ Truck::Truck(osg::Vec3 pos):pos(pos)
     text->setPosition(truck->getCenter());
 
     truckGeode->addChild(text.get());
-    cover->getObjectsRoot()->addChild(truckGeode.get());
 
 
 }

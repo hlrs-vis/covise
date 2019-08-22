@@ -106,6 +106,8 @@ private:
     osg::Geode* createPoints();
 
     osg::ref_ptr<osg::Node> scene;
+    osg::ref_ptr<osg::Group> finalScene;
+
   //  FileReaderWriter *readerWriter;
   //  FindNamedNode fnn;//NOTE: make to pointer
 

@@ -78,7 +78,7 @@ public:
     //CamDrawable(Cam cam);
     ~CamDrawable();
 
-    osg::ref_ptr<osg::Group> getCamDrawable(){return group;};
+    osg::ref_ptr<osg::Group> getCamDrawable()const{return group;}
 };
 
 /*class RotationCallback : public osg::NodeCallback

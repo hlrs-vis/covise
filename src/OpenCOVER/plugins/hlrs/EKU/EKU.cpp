@@ -150,10 +150,15 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
       * Read osgt file and write obj file
       */
         //readerWriter = new FileReaderWriter();
+    finalScene = new osg::Group;
+    finalScene->setName("finalScene");
+    finalScene->addChild(scene.get());
+    for(const auto& x:finalCams)
+        finalScene->addChild(x->getCamDrawable().get());
+    for(const auto& x:trucks)
+        finalScene->addChild(x->getTruckDrawable().get());
 
-
-   cover->getObjectsRoot()->addChild(createPolygon());
-   cover->getObjectsRoot()->addChild(scene.get());
+    cover->getObjectsRoot()->addChild(finalScene.get());
 }
 
 EKU::~EKU()

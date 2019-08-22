@@ -23,6 +23,8 @@ public:
     virtual bool destroy();
     static size_t count;
 
+    osg::ref_ptr<osg::Geode> getTruckDrawable()const{return truckGeode;}
+
 private:
     const float length = 2.0f;
     const float width = 2.0f;
