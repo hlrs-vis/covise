@@ -39,18 +39,19 @@ private:
     // parameters
     covise::coFileBrowserParam *p_fileBrowser;
     covise::coChoiceParam *p_variables[numParams];
- //  covise::coChoiceParam *p_grid_choice_x;
-  //  covise::coChoiceParam *p_grid_choice_y;
-  //  covise::coChoiceParam *p_grid_choice_z;
+    covise::coChoiceParam *p_grid_lat;
+    covise::coChoiceParam *p_grid_lon;
+    covise::coChoiceParam *p_grid_pressure_level;
     covise::coFloatParam *p_verticalScale;
   //  covise::coChoiceParam *p_date_choice;
-
+    covise::coIntScalarParam *p_numTimesteps;
     // ports
-  //  covise::coOutputPort *p_grid_out;
+    covise::coOutputPort *p_grid_out;
     covise::coOutputPort *p_unigrid_out;
     covise::coOutputPort *p_data_outs[numParams];
   //  covise::coOutputPort *p_surface_out;
 
+    float pressureAltitude(float p);
     // the ECMWF File to be read from
     NcFile *ncDataFile;
 

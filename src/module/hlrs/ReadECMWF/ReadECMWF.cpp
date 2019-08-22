@@ -11,6 +11,9 @@
 
 
 
+/*  TODO:
+*       add true earth curvature
+*/
 #include "ReadECMWF.h"
 
 #include <iostream>
@@ -19,6 +22,8 @@
 #include "do/coDoStructuredGrid.h"
 #include "do/coDoData.h"
 #include <do/coDoSet.h>
+
+#define PI 3.14159265
 
 using namespace covise;
 
@@ -36,14 +41,12 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
 {
     ncDataFile = NULL;
 
-    // define parameters
-
     // File browser
     p_fileBrowser = addFileBrowserParam("NC_file", "NC File");
     p_fileBrowser->setValue("/data/openforecast/testdata_OF.nc",
                             "*.nc");
 
-    // Variables to visualise
+    // Variables
     for (int i = 0; i < numParams; i++)
     {
         char namebuf[50];
@@ -52,13 +55,24 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
         p_variables[i]->setValue(1, NoneChoices, 0);
     }
 
-    // Vertical scale box
+
+    p_grid_lat = addChoiceParam("GridLat", "Latitude");
+    p_grid_lat->setValue(1, NoneChoices, 1);
+    p_grid_lon = addChoiceParam("GridLon", "Longitude");
+    p_grid_lon->setValue(1, NoneChoices, 2);
+    p_grid_pressure_level = addChoiceParam("GridPLevel", "Pressure Level");
+    p_grid_pressure_level->setValue(1, NoneChoices, 3);
+
+    // Vertical scale
     p_verticalScale = addFloatParam("VerticalScale", "VerticalScale");
     p_verticalScale->setValue(1.0);
 
-    // define ports
-
+    // define grid ports
+    p_grid_out = addOutputPort("outPort", "StructuredGrid", "Grid output");
     p_unigrid_out = addOutputPort("uniGridPort", "StructuredGrid", "Uniform grid output");
+
+    p_numTimesteps = addInt32Param("numTimesteps", "number of timesteps");
+    p_numTimesteps->setValue(1);
 
     // Data ports
     for (int i = 0; i < numParams; i++)
@@ -91,6 +105,11 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
     {
         // enable parameter menus for selection
         p_verticalScale->enable();
+        p_grid_lat->enable();
+        p_grid_lon->enable();
+        p_grid_pressure_level->enable();
+        p_numTimesteps->enable();
+
         for (int i = 0; i < numParams; i++)
             p_variables[i]->enable();
 
@@ -141,7 +160,13 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
                 num2dVars++;
             }
         }
-
+        // Fill axis menus
+        p_grid_lat->setValue(num2dVars,
+                                  AxisChoices, p_grid_lat->getValue());
+        p_grid_lon->setValue(num2dVars,
+                                  AxisChoices, p_grid_lon->getValue());
+        p_grid_pressure_level->setValue(num2dVars,
+                                  AxisChoices, p_grid_pressure_level->getValue());
 
     }
     else
@@ -150,7 +175,17 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
         for (int i = 0; i < numParams; i++)
             p_variables[i]->disable();
         p_verticalScale->disable();
+        p_grid_lat->disable();
+        p_grid_lon->disable();
+        p_grid_pressure_level->disable();
+        p_numTimesteps->disable();
     }
+}
+
+
+float ReadECMWF::pressureAltitude(float p)
+{
+    return (44.30769396 * (1.0 - std::pow(p/1013.25, 0.190284)));
 }
 
 // -----------------------------------------------------------------------------
@@ -199,15 +234,125 @@ int ReadECMWF::compute(const char *)
                 nz = edges[numdims - 3];
             }
         }else if (numdims >=3){
-           // nz = edges[numdims - 3]; //for 4D data only
+            nz = edges[numdims - 3]; //for 4D data only
         }
 
-        // THE GRID
+
+
+
+
+        /********************************\
+        * THE SPHERICAL GRID
+        \********************************/
         coDistributedObject **time_grid;
         coDistributedObject **time_unigrid;
-        //float *x_coord, *y_coord, *z_coord;
-
+        float *x_coord, *y_coord, *z_coord;
         float scale = p_verticalScale->getValue();
+
+        int numTimesteps = p_numTimesteps->getValue();
+        if (numTimesteps < nTime )
+            nTime = numTimesteps;
+
+        // Find the variable corresponding to the users choice for each axis
+        NcVar *varLat = ncDataFile->get_var(
+            AxisChoices[p_grid_lat->getValue()]);
+        NcVar *varLon = ncDataFile->get_var(
+            AxisChoices[p_grid_lon->getValue()]);
+        NcVar *varPLevel = ncDataFile->get_var(
+            AxisChoices[p_grid_pressure_level->getValue()]);
+
+
+
+        if (has_timesteps > 0)
+        {
+
+            //
+            float *xVals = new float[varLat->num_vals()];
+            float *yVals = new float[varLon->num_vals()];
+            varLat->get(xVals,varLat->edges());
+            varLon->get(yVals,varLon->edges());
+            float *zVals;
+            if (nz<=1)
+            {
+                zVals = new float[1];
+                zVals[0] = 0;
+            }else{
+                zVals = new float[varPLevel->num_vals()];
+                varPLevel->get(zVals, varPLevel->edges());
+            }
+
+
+            time_grid = new coDistributedObject *[nTime + 1];
+            time_grid[nTime] = NULL;
+            for (int t = 0; t < nTime; ++t)
+            {
+                sprintf(buf, "%s_%d", p_grid_out->getObjName(), t);
+                coDoStructuredGrid *outGrid = new coDoStructuredGrid(buf, nz, nx, ny);
+                outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
+                time_grid[t] = outGrid;
+
+
+                //conversion to ECEF coordinates
+                int n = 0;
+                float A = 6380; //actually N(lat)
+                for (int k = 0; k < nz; k++)
+                {
+                     A = (6480 + scale*pressureAltitude(zVals[k]))*1000;
+                    for (int i = 0; i < nx; i++)
+                    {
+                        for (int j = 0; j < ny; j++, n++)
+                         {
+
+                                     x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
+                                     y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
+                                     z_coord[n] = A*sin(xVals[i]*PI/180);
+                          }
+                     }
+                }
+
+            }
+
+            coDoSet *time_outGrid = new coDoSet(p_grid_out->getObjName(), time_grid);
+            sprintf(buf, "1 %d", nTime);
+            time_outGrid->addAttribute("TIMESTEP", buf);
+            p_grid_out->setCurrentObject(time_outGrid);
+
+            delete [] time_grid;
+            delete[] xVals;
+            delete[] yVals;
+            delete[] zVals;
+
+        }else {
+
+            coDoStructuredGrid *outGrid = new coDoStructuredGrid(p_grid_out->getObjName(), nx, ny, nz);
+
+            // Get the addresses of the 3 coord arrays (each nz*ny*nx long)
+            outGrid->getAddresses(&x_coord, &y_coord, &z_coord);
+            float *xVals, *yVals, *zVals;// = new float[varPLevel->num_vals()];
+            varLat->get(xVals, varLat->edges());
+            varLon->get(yVals, varLon->edges());
+            varPLevel->get(zVals, varPLevel->edges());
+            float A = 6380; //actually N(lat)
+            int n = 0;
+            for (int i = 0; i < nx; i++)
+            {
+                int m = 0;
+                for (int j = 0; j < ny; j++)
+                    for (int k = 0; k < nz; k++, m++, n++)
+                    {
+                        x_coord[n] = A*cos(xVals[n])*cos(yVals[n]);
+                        y_coord[n] = A*cos(xVals[n])*sin(yVals[n]);
+                        z_coord[n] = A*sin(xVals[n]);
+                    }
+            }
+       }
+
+
+
+        /*************************\
+        // THE UNIFORM (flat) GRID
+        \*************************/
+
         int m, n = 0;
 
         float *x_unicoord, *y_unicoord, *z_unicoord;
@@ -268,8 +413,9 @@ int ReadECMWF::compute(const char *)
             }
         }
 
-
-        // Variables
+        /******************\
+        // VARIABLES
+        \******************/
         coDistributedObject **time_data;
         if (has_timesteps > 0)
         {
@@ -286,7 +432,7 @@ int ReadECMWF::compute(const char *)
                 num_vals = 1;
                 var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
                 long* cur = var->edges();
-
+                //check that there is indeed timesteps
                 for (int d = 0; d < var->num_dims(); ++d)
                 {
                     NcDim *dim = var->get_dim(d);
@@ -323,6 +469,7 @@ int ReadECMWF::compute(const char *)
                 }else
                 {
                     //static
+                    sendInfo("Could not find timesteps for selected variable");
                     float *floatData;
                     var = ncDataFile->get_var(varIds[p_variables[i]->getValue()]);
                     dataOut[i] = new coDoFloat(p_data_outs[i]->getObjName(), num_vals);
