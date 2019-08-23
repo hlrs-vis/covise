@@ -157,6 +157,19 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
 
     cover->getObjectsRoot()->addChild(finalScene.get());
 
+
+    //osg::Vec3 start(0,0,-20);
+    //osg::Vec3 end(0,0,0);
+    osg::Vec3 start = cameras[2]->pos;
+    osg::Vec3 end = trucks[0]->pos;
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(start,end);
+    osgUtil::IntersectionVisitor visitor(intersector);
+    finalScene->accept(visitor);
+    const osgUtil::LineSegmentIntersector::Intersections hits = intersector->getIntersections();
+    std::cout<<"hits"<<hits.size()<<std::endl;
+
+
+
     //Write obj file
     osgDB::writeNodeFile(*finalScene, "OpenCOVER/plugins/hlrs/EKU/EKU_result.obj");
 }
