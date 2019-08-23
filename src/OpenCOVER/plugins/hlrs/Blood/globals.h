@@ -5,7 +5,6 @@
 #include <cmath>
 using namespace std;
 
-//*****************************************************************************************************CONSTANTS
 const double PI = 3.1415926;
 const double RHO_BLOOD = 1060.0; //units: kg/m^3
 const double GRAVITY = 9.81;
@@ -17,7 +16,7 @@ const double KIN_VISC_BLOOD = 0.04;   //kinematic viscosity of whole blood (bloo
 const double KIN_VISC_PLASMA = 0.015; //kinematic viscosity of plasma
 const double DYN_VISC_BLOOD = 0.0035; //units: N*S/m^2, Pa*s
 
-//constants determined from gen.cpp
+//from gen.cpp
 const int REYNOLDS_THRESHOLD = 2230;
 const int REYNOLDS_LIMIT = 170000;
 const double CD_TURB = 0.15;
@@ -36,6 +35,14 @@ inline double volumeOfSphere(double radius) {
 
 inline double crossSectionalArea(double radius) {
     return PI * radius * radius;
+}
+
+inline int signOf(int number) {
+    if(number == 0) {
+        return 1;
+    } else {
+        return number / abs(number);
+    }
 }
 
 inline ostream& operator<<(ostream& os, const osg::Vec3 toPrint) {
@@ -59,14 +66,6 @@ inline double signedLength(osg::Vec3 anotherVector) {
     }
 }
 
-inline int signOf(int number) {
-    if(number == 0) {
-        return 1;
-    } else {
-        return number / abs(number);
-    }
-}
-
 inline osg::Vec3 normalize(osg::Vec3 thirdVector) {
 	return thirdVector/thirdVector.length();
 }
@@ -74,4 +73,5 @@ inline osg::Vec3 normalize(osg::Vec3 thirdVector) {
 inline osg::Vec3 absoluteValue(osg::Vec3 fourthVector) {
 	return osg::Vec3(abs(fourthVector.x()), abs(fourthVector.y()), abs(fourthVector.z()));
 }
+
 #endif

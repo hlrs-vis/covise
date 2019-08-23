@@ -129,14 +129,11 @@ Droplet::~Droplet() {
    - u: velocity of the fluid with respect to the object (m/s)
    - L: characteristic linear dimension (m), typically use radius or diameter for circles/spheres
    - mu: dynamic viscosity of the fluid (PaÂ·s or NÂ·s/m^2 or kg/mÂ·s)
-
-* onset of turbulent flow: 2.3x10^3 -> 5.0x10^4 for pipe flow, 10^6 for boundary layers
-- reference numbers: Re for blood flow in brain = 1x10^2, Re for blood flow in aorta = 1x10^3  */
+*/
 
 void Droplet::findReynoldsNum() {
     double Re;
     Re = (RHO_BLOOD * pythagoras(currentVelocity) * 2 * radius) / DYN_VISC_BLOOD;
-    //cout << "Re = " << Re << endl;
 
     if(Re >= REYNOLDS_LIMIT) {
         cout << "Drag modeling behaves correctly until Re = "<< REYNOLDS_LIMIT << " ! Currently Re = " << Re << "\nPropagation may be incorrect!" << endl;
@@ -170,13 +167,12 @@ void Droplet::findDragCoefficient() {
         dragCoeff = cdLam;
         
     } else {
-		//drag coefficient for a smooth sphere with Re = 1x10^5 (from Wikipedia)
         dragCoeff = 0.47;
     }
 }
 
 void Droplet::findWindForce() {
-    //k = 0.5*densityOfFluid*p->r*p->r*Pi*cwTemp/p->m
+    //k = 0.5*densityOfFluid*radius^2*Pi*cwTemp/mass
     double k = 0.5 * RHO_BLOOD * radius * radius * PI * dragCoeff / mass;
     windForce = k;
 }

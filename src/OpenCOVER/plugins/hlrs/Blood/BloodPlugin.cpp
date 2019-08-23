@@ -220,7 +220,7 @@ bool BloodPlugin::update() {
 				
 				/*if((*thisParticle) -> currentVelocity.length() != 0) { //testing
 					cout << "if-statement particle speed: " << (*thisParticle) -> currentVelocity << endl; //testing
-					//cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
+					cout << "if-statement particle position: " << (*thisParticle) -> currentPosition << endl << endl;
 				}*/
 				
 			} else {

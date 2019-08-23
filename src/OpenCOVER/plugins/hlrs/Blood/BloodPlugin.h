@@ -47,7 +47,6 @@ class BloodPlugin : public opencover::coVRPlugin, public ui::Owner
 {
 public:	
 	
-    // Droplet particle;
     Weapon knife;
     std::list<Droplet*> particleList;
     std::list<Droplet*> particlesOnGround;
