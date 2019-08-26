@@ -291,7 +291,7 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 
 	osg::Vec3 fApplied, fStaticFriction, fKineticFriction;
 	osg::Vec3 fGravity = p -> gravity * p -> mass; //direction: -z
-	//direction of fNormal: perpendicular to the surface
+	//fNormal: projection of fGravity onto z-axis unit vector
 	osg::Vec3 fNormal = osg::Vec3(fGravity.x() * zAxisUnitVector.x(), fGravity.y() * zAxisUnitVector.y(), fGravity.z() * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
 	osg::Vec3 fNet;
 	
