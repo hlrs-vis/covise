@@ -132,13 +132,12 @@ bool BloodPlugin::init() {
 }
 
 bool BloodPlugin::update() {
-    osg::Matrix hand = cover -> getPointerMat();
-    osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
+    hand = cover -> getPointerMat();
+    handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
 
     //rotate clockwise 90 degrees about z-axis
     osg::Matrix rotKnife;
     rotKnife.makeRotate(-osg::PI_2, osg::Vec3(0,0,1));
-
     //moving and drawing the knife
     knifeTransform -> setMatrix(rotKnife * handInObjectsRoot);
 	
@@ -282,23 +281,18 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
-	//use a LineSegment representing the knife and see if any particle intersects with the LineSegment
-	//if they intersect find the vector normal to the point of intersection (function getLocalIntersectNormal())
-	//use the normal vector as the direction vector for fNormal (normalize it first)
-	//fNet = fGravity + fNormal + fApplied + fWhateverFriction
-	
-	/*osg::ref_ptr<osg::LineSegment> knifeLineSegment = new osg::LineSegment(knife.start, knife.end);
-	osgUtil::IntersectVisitor iSect;
-	iSect.addLineSegment(segmentPtr);
-	//how to traverse the IntersectVisitor?
-	*/
 	
 	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
 	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
 	
+	osg::Vec3 yAxis = osg::Vec3(handInObjectsRoot(2,0), handInObjectsRoot(2,1), handInObjectsRoot(2,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
+	osg::Vec3 zAxis = osg::Vec3(handInObjectsRoot(3,0), handInObjectsRoot(3,1), handInObjectsRoot(3,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
+	osg::Vec3 zAxisUnitVector = normalize(zAxis);
+
 	osg::Vec3 fApplied, fStaticFriction, fKineticFriction;
-	//osg::Vec3 fGravity = p -> mass * p -> gravity; //direction: -z
-	//osg::Vec3 fNormal = p -> mass * p -> gravity; //direction: perpendicular to knife's surface
+	osg::Vec3 fGravity = p -> gravity * p -> mass; //direction: -z
+	//direction of fNormal: perpendicular to the surface
+	osg::Vec3 fNormal = osg::Vec3(fGravity.x() * zAxisUnitVector.x(), fGravity.y() * zAxisUnitVector.y(), fGravity.z() * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
 	osg::Vec3 fNet;
 	
 	if(knife.shift.length() != 0) {
@@ -309,14 +303,14 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	
 	
 	if(fApplied.length() != 0) {
-		fStaticFriction = -normalize(fApplied) * staticFriction; //direction: opposes motion
-		fKineticFriction = -normalize(fApplied) * kineticFriction; //direction: opposes motion;
+		fStaticFriction = -normalize(yAxis) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(yAxis) * kineticFriction; //direction: opposes motion
 	} else {
 		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
 		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
 	}
 	
-	
+	fNet = fGravity + fNormal;
 	
 	if(fStaticFriction < fApplied) { //applied force > static friction
 		fNet += fApplied + fKineticFriction;

@@ -67,6 +67,9 @@ public:
     std::list<Blood*> bloodJunks;
     static BloodPlugin *instance();
 
+    osg::Matrix hand;
+    osg::Matrix handInObjectsRoot;
+
 private:
     int numParticles = 0;
     
