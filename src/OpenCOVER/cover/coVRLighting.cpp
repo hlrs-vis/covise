@@ -433,11 +433,8 @@ int coVRLighting::addLight(osg::LightSource *ls, osg::Group *parent, osg::Node *
 
     if (lightList.size() > 8)
     {
-        cerr << "ERROR" << endl;
-        cerr << "ERROR" << endl;
-        cerr << "To many lights " << (lightList.size()) << " only 8 are supported" << endl;
-        cerr << "ERROR" << endl;
-        cerr << "ERROR" << endl;
+        cerr << "ERROR: ";
+        cerr << "Too many lights " << (lightList.size()) << " only 8 are supported" << endl;
     }
     light->setLightNum(lightList.size() - 1);
 
@@ -592,7 +589,8 @@ osg::LightSource *coVRLighting::switchLight(osg::LightSource *ls, bool on, osg::
                 value = osg::StateAttribute::ON;
             }
 
-            lightList[i].on = on;
+            if (!limitToBranch)
+                lightList[i].on = on;
             osg::ref_ptr<osg::Node> root = limitToBranch;
             if (!root.get())
                 root = lightList[i].root;

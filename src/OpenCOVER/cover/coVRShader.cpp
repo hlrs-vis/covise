@@ -60,17 +60,27 @@ coVRUniform::coVRUniform(const coVRShader *s, const std::string &n, const std::s
     unique = false;
     if (type == "bool")
     {
-        if (name == "Light0Enabled") {
+        if (name == "Light0Enabled")
+        {
             uniform = coVRShaderList::instance()->getLightEnabled(0);
-        } else if (name == "Light1Enabled") {
+        }
+        else if (name == "Light1Enabled")
+        {
             uniform = coVRShaderList::instance()->getLightEnabled(1);
-        } else if (name == "Light2Enabled") {
+        }
+        else if (name == "Light2Enabled")
+        {
             uniform = coVRShaderList::instance()->getLightEnabled(2);
-        } else if (name == "Light3Enabled") {
+        }
+        else if (name == "Light3Enabled")
+        {
             uniform = coVRShaderList::instance()->getLightEnabled(3);
         }
-        bool b = !(strcmp(value.c_str(),"false")==0 || strtod(value.c_str(), NULL)==0);
-        uniform = new osg::Uniform(name.c_str(), b);
+        else
+        {
+            bool b = !(strcmp(value.c_str(),"false")==0 || strtod(value.c_str(), NULL)==0);
+            uniform = new osg::Uniform(name.c_str(), b);
+        }
     }
     else if (type == "float")
     {
