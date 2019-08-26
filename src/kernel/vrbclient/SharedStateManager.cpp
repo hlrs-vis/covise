@@ -24,11 +24,10 @@ SharedStateManager::SharedStateManager(VrbClientRegistry * reg)
 
 SharedStateManager::~SharedStateManager()
 {
+	s_instance = nullptr;
 }
 
 VrbClientRegistry * SharedStateManager::getRegistry()
-
-
 {
     return registry;
 }

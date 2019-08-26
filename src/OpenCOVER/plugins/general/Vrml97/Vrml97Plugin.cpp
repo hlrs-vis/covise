@@ -183,50 +183,58 @@ int Vrml97Plugin::loadVrml(const char *filename, osg::Group *group, const char *
         if (proto.empty() || proto=="file")
             local = filename;
         plugin->vrmlScene = new VrmlScene(filename, local);
-        if (group)
-            plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
-        else
-            plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
-        plugin->viewer->setPlayer(plugin->player);
-        plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
-        //worldChangedCB(VrmlScene::REPLACE_WORLD);
-        plugin->isNewVRML = true;
+		if (plugin->vrmlScene->loadSucceeded())
+		{
+			if (group)
+				plugin->viewer = new ViewerOsg(plugin->vrmlScene, group);
+			else
+				plugin->viewer = new ViewerOsg(plugin->vrmlScene, cover->getObjectsRoot());
+			plugin->viewer->setPlayer(plugin->player);
+			plugin->vrmlScene->addWorldChangedCallback(worldChangedCB);
+			//worldChangedCB(VrmlScene::REPLACE_WORLD);
+			plugin->isNewVRML = true;
+		}
+		else
+		{
+			delete plugin->vrmlScene;
+			plugin->vrmlScene = NULL;
+		}
     }
-    if (plugin->vrmlScene->wasEncrypted())
-    {
-        cover->protectScenegraph();
-    }
-    plugin->vrmlFilename = filename;
-    OpenCOVER::instance()->hud->setText2("done parsing");
-    if (plugin->viewer)
-        plugin->viewer->update();
-    if (plugin->player)
-        plugin->player->update();
-    if (System::the)
-        System::the->update();
-    osg::Node *root = getRegistrationRoot();
+	if (plugin->vrmlScene)
+	{
+		if (plugin->vrmlScene->wasEncrypted())
+		{
+			cover->protectScenegraph();
+		}
+		plugin->vrmlFilename = filename;
+		OpenCOVER::instance()->hud->setText2("done parsing");
+		if (plugin->viewer)
+			plugin->viewer->update();
+		if (plugin->player)
+			plugin->player->update();
+		if (System::the)
+			System::the->update();
+		osg::Node* root = getRegistrationRoot();
 
-    VRRegisterSceneGraph::instance()->registerNode(root, "root");
-    // set OPAQUE_BIN for VRML root
-    if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.ForceOpaqueBin", false))
-    {
-        osg::StateSet *sset = root->getOrCreateStateSet();
-        sset->setRenderBinMode(osg::StateSet::OVERRIDE_RENDERBIN_DETAILS);
-        sset->setRenderingHint(osg::StateSet::OPAQUE_BIN);
-    }
+		VRRegisterSceneGraph::instance()->registerNode(root, "root");
+		// set OPAQUE_BIN for VRML root
+		if (coCoviseConfig::isOn("COVER.Plugin.Vrml97.ForceOpaqueBin", false))
+		{
+			osg::StateSet* sset = root->getOrCreateStateSet();
+			sset->setRenderBinMode(osg::StateSet::OVERRIDE_RENDERBIN_DETAILS);
+			sset->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+		}
 
-    for (int i = 0; i < plugin->viewer->sensors.size(); i++)
-    {
+		for (int i = 0; i < plugin->viewer->sensors.size(); i++)
+		{
 
-        // send sensors to GUI (a message for each sensor)
-        coGRObjSensorMsg sensorMsg(coGRMsg::SENSOR, plugin->vrmlFilename.c_str(), i);
-        Message grmsg;
-        grmsg.type = COVISE_MESSAGE_UI;
-        grmsg.data = (char *)(sensorMsg.c_str());
-        grmsg.length = strlen(grmsg.data) + 1;
-        coVRPluginList::instance()->sendVisMessage(&grmsg);
-    }
-    return 0;
+			// send sensors to GUI (a message for each sensor)
+			coGRObjSensorMsg sensorMsg(coGRMsg::SENSOR, plugin->vrmlFilename.c_str(), i);
+            cover->sendGrMessage(sensorMsg);
+		}
+		return 0;
+	}
+	return -1;
 }
 
 int Vrml97Plugin::replaceVrml(const char *filename, osg::Group *group, const char *)
@@ -657,8 +665,11 @@ Vrml97Plugin::key(int type, int keySym, int mod)
         // reconnect audio server
         if (!coVRMSController::instance()->isSlave())
         {
-            osgUtil::Optimizer optimizer;
-            optimizer.optimize(plugin->viewer->VRMLRoot, 0xfffffff);
+			if (System::the->doOptimize())
+			{
+				osgUtil::Optimizer optimizer;
+				optimizer.optimize(plugin->viewer->VRMLRoot, 0xfffffff);
+			}
 
             if (osgDB::writeNodeFile(*plugin->viewer->VRMLRoot, filename.c_str()))
             {

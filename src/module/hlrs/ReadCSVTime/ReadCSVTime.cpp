@@ -15,8 +15,7 @@
  *  Author: Leyla Kern
  *
  *******************************************************************/
-//TODO: generalize for other timestamp formats
-//      adopt interval for hours (T>60min)
+
 
 #include "ReadCSVTime.h"
 
@@ -33,7 +32,6 @@
 #include <do/coDoSet.h>
 #include <do/coDoUnstructuredGrid.h>
 #include <do/coDoPoints.h>
-
 
 // remove  path from filename
 inline const char *coBasename(const char *str)
@@ -59,17 +57,13 @@ ReadCSVTime::ReadCSVTime(int argc, char *argv[])
     z_col = addChoiceParam("z_col", "Select column for z-coordinates");
     ID_col = addChoiceParam("ID","Select column for ID");
     time_col = addChoiceParam("timestamp","Select column for timestamp");
-    interval_size = addInt32Param("Time Interval","Interval length in minutes");
+    interval_size = addInt32Param("Time Interval","Interval length in seconds");
     interval_size->setValue(1);
     d_dataFile = NULL;
 
-    vector<string> dFormatChoice;
-    dFormatChoice.push_back("2019-01-01T08:15:00");
-    dFormatChoice.push_back("1/1/2019 8:15");
-    dFormatChoice.push_back("01.01.2019 08:15:00");
-    p_dateFormat = addChoiceParam("DateFormat", "Select format of datetime");
-    p_dateFormat->setValue(dFormatChoice.size(), dFormatChoice, 0);
-
+    const char *dFormatChoice[] = {"2019-01-01T08:15:00","1/1/2019 8:15","01.01.2019 08:15:00","2019-01-01"};
+    p_dateFormat = addChoiceParam("DateFormat","Select format of datetime");
+    p_dateFormat->setValue(sizeof(dFormatChoice)/sizeof(dFormatChoice[0]), dFormatChoice, 0);
 }
 
 ReadCSVTime::~ReadCSVTime()
@@ -150,11 +144,16 @@ ReadCSVTime::param(const char *paramName, bool inMapLoading)
                             y_col->setValue((int)varInfos.size() + 1, dataChoices, 2);
                         if (varInfos.size() > 2)
                             z_col->setValue((int)varInfos.size() + 1, dataChoices, 3);
-                        if (varInfos.size() > 4) 
+                        if (varInfos.size() > 1)
                         {
-                            ID_col->setValue((int)varInfos.size() + 1, dataChoices, 0);
-                            time_col->setValue((int)varInfos.size() + 1, dataChoices, 4);
+                            ID_col->setValue((int)varInfos.size() + 1, dataChoices, 1);
+                            time_col->setValue((int)varInfos.size() + 1, dataChoices, 2);
                         }
+                        dataChoices.clear();
+
+                       // const char *dFormatChoice[] = {"2019-01-01T08:15:00","1/1/2019 8:15","01.01.2019 08:15:00","2019-01-01"};
+                       // p_dateFormat->setValue(sizeof(dFormatChoice)/sizeof(dFormatChoice[0]), dFormatChoice, 0);
+
                     }
                 }
                 return;
@@ -305,16 +304,13 @@ int ReadCSVTime::readASCIIData()
         CurrRow = 0;
 
         int timeInt = 0;
-        int time_last = 0;
-        int time_last_hours = 0;
         float *xValInt, *yValInt, *zValInt;
         std::vector<int> timeIntIdx;
-      //  timeIntIdx.push_back(0);
         std::vector<int> NumOfVal;
         char time_str[50];
-        int t_dif = 0;
-        char *tmp_p;
-        int t_minutes, t_hours;
+        struct tm tm={};
+        time_t last_t = 0;
+
         while (fgets(buf, sizeof(buf), d_dataFile) != NULL)
         {
      
@@ -325,6 +321,9 @@ int ReadCSVTime::readASCIIData()
 
             if ((cbuf = strtok(buf, ",;")) != NULL)
             {
+                if (col_for_time == 0) {
+                    sscanf(cbuf, "%[^\n]s", time_str);
+                }
                 sscanf(cbuf, "%f", &tmpdat[0]);
             }
             else
@@ -337,39 +336,35 @@ int ReadCSVTime::readASCIIData()
             {
                 ii = ii + 1;
                 sscanf(cbuf, "%f", &tmpdat[ii]);
+
                 if (ii == col_for_time) sscanf(cbuf, "%[^\n]s", time_str);
+
             }
-            /*
-            if (ii < varInfos.size() - 1)
-            {
-                coModule::sendWarning("Found less values than header elements in data Line %d", RowCount + 1);
-            }
-            */
             if (has_timestamps != 0)
-            { //TODO: if coords changed for same ID within interval : treat as two separate sensors
+            {
                 if (dFormat == 0)
                 {
-                   tmp_p = strchr(time_str, 'T');
-                   if (tmp_p != NULL)
-                   {
-                       sscanf(tmp_p,"T%02d:%02d", &t_hours, &t_minutes); //TODO: hours
-                   }
+                    //strptime(time_str, "%Y-%m-%dT%H:%M:%S", &tm);
+                    sscanf(time_str, "%d-%d-%dT%d:%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min,&tm.tm_sec);
                 }else if (dFormat == 1)
                 {
-                    sscanf(time_str,"%*d/%*d/%*d %d:%d", &t_hours, &t_minutes);
-
+                    //strptime(time_str, "%d/%m/%Y %H:%M", &tm);
+                    sscanf(time_str, "%d/%d/%d %d:%d",&tm.tm_mday,&tm.tm_mon,&tm.tm_year,&tm.tm_hour,&tm.tm_min);
                 }else if (dFormat == 2)
                 {
-                    sscanf(time_str,"%*d.%*d.%*d %d:%d", &t_hours, &t_minutes);
-
+                    //strptime(time_str, "%Y.%m.%dT%H:%M", &tm);
+                    sscanf(time_str, "%d.%d.%dT%d:%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday,&tm.tm_hour,&tm.tm_min);
+                }else if (dFormat == 3)
+                {
+                   //strptime(time_str, "%Y-%m-%d",&tm);
+                   sscanf(time_str, "%d-%d-%d",&tm.tm_year,&tm.tm_mon,&tm.tm_mday);
                 }
-                t_dif = t_minutes - time_last;
-               // printf("TIME: Last is %d, this is %d\n",time_last_hours, t_hours);
-                if ( (t_dif >= MAX_TIME_INT) || ((60 + t_dif >= MAX_TIME_INT) && (t_hours > time_last_hours) ) || (CurrRow == 0) )
+                time_t t = mktime(&tm);
+                //printf("TIME: %s\n", ctime(&t));
+                if ((difftime(t, last_t) > (MAX_TIME_INT) ) || CurrRow == 0 )
                 {
                      timeIntIdx.push_back(CurrRow);
-                     time_last = t_minutes;
-                     time_last_hours = t_hours;
+                     last_t = t;
                      timeInt++;
                      for (int i = 0; i < varInfos.size(); i++)
                      {
@@ -390,7 +385,6 @@ int ReadCSVTime::readASCIIData()
 
                 }else  //check if sensor *id* occurs multiple times in interval
                 {
-                     //sendInfo("Check for double occurence of sensor in interval in line %d", RowCount);
                      auto idx_f = CurrRow+10;
                      int tmp_idx = 1;
                      if (timeIntIdx.size() >= 1)
@@ -404,7 +398,6 @@ int ReadCSVTime::readASCIIData()
                      }
                      if (idx_f < CurrRow ) //else if index point to last element -> nothing was found
                      { //double occurence of ID
-                         //sendInfo("Multiple occurence of ID found at idx %d (Curr=%i), ID=%d", idx_f,CurrRow,static_cast<int>(tmpdat[col_for_id]));
                          for (int i = 0; i < varInfos.size(); i++)
                          {
                              if (varInfos[i].assoc == 1)
@@ -412,16 +405,8 @@ int ReadCSVTime::readASCIIData()
                                  varInfos[i].x_d[idx_f] += tmpdat[i];
                              }
                          }
-                   /*    if ((col_for_x >= 0) && (col_for_y >= 0) && (col_for_z >= 0))
-                         {
-                             xCoords[idx_f] = tmpdat[col_for_x];
-                             yCoords[idx_f] = tmpdat[col_for_y];
-                             zCoords[idx_f] = tmpdat[col_for_z];
-                         }*/
-                         //id[idx_f] = tmpdat[col_for_id];
                          NumOfVal[idx_f] += 1;
                      }else { //ID does not occure in current interval -> add to interval
-                          //sendInfo("Could not find ID (idx_f=%i, Curr=%i, tmpidx=%i) adding new ID to interval",idx_f,CurrRow,tmp_idx);
                           for (int i = 0; i < varInfos.size(); i++)
                           {
                               if (varInfos[i].assoc == 1)
@@ -450,7 +435,6 @@ int ReadCSVTime::readASCIIData()
                }
                if ((col_for_x >= 0) && (col_for_y >= 0) && (col_for_z >= 0))
                {
-                   //printf("%f %f %f %d\n",tmpdat[col_for_x],tmpdat[col_for_y],tmpdat[col_for_z],RowCount);
                    xCoords[RowCount] = tmpdat[col_for_x];
                    yCoords[RowCount] = tmpdat[col_for_y];
                    zCoords[RowCount] = tmpdat[col_for_z];
@@ -461,7 +445,7 @@ int ReadCSVTime::readASCIIData()
         }
         timeIntIdx.push_back(CurrRow-1);
         if (has_timestamps != 0)
-        {//TODO: resize varInfos: CurrRow ?
+        {
             for(int j = 0; j < NumOfVal.size(); j++ )
             {
                 if (NumOfVal[j] > 1)
@@ -476,7 +460,6 @@ int ReadCSVTime::readASCIIData()
                     }
                 }
             }
-          // timeInt--;
             sendInfo("Found %d time intervals",timeInt);
             coDistributedObject **time_outdat = new coDistributedObject *[timeInt+1];
             coDistributedObject **time_outdat_grid = new coDistributedObject *[timeInt+1];

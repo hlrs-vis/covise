@@ -73,11 +73,11 @@ public:
     virtual ~SystemCover()
     {
     }
-    virtual double time();
+    double time() override;
 
-    virtual std::string remoteFetch(const std::string &filename, bool isTmp = false);
-	virtual int getFileId(const char* url);
-    bool loadUrl(const char *url, int np, char **parameters);
+    std::string remoteFetch(const std::string &filename, bool isTmp = false) override;
+    int getFileId(const char* url) override;
+    bool loadUrl(const char *url, int np, char **parameters) override;
 
 #if 0
     virtual void setBuiltInFunctionState(const char *fname, int val);
@@ -85,75 +85,75 @@ public:
     virtual void callBuiltInFunctionCallback(const char *fname);
 #endif
 
-    virtual void setSyncMode(const char *mode);
+    void setSyncMode(const char *mode) override;
 
-    virtual void setTimeStep(int ts); // set the timestep number for COVISE Animations
-    virtual void setActivePerson(int p); // set the active Person
+    void setTimeStep(int ts) override; // set the timestep number for COVISE Animations
+    void setActivePerson(int p) override; // set the active Person
 
-    virtual bool isMaster();
-    virtual void becomeMaster();
+    bool isMaster() override;
+    void becomeMaster() override;
 
-    virtual VrmlMessage *newMessage(size_t size);
-    virtual void sendAndDeleteMessage(VrmlMessage *msg);
-    virtual bool hasRemoteConnection();
+    VrmlMessage *newMessage(size_t size) override;
+    void sendAndDeleteMessage(VrmlMessage *msg) override;
+    bool hasRemoteConnection() override;
 
-    virtual Player *getPlayer();
+    Player *getPlayer() override;
 
-    virtual long getMaxHeapBytes();
-    virtual bool getHeadlight();
-    virtual void setHeadlight(bool enable);
-    virtual bool getPreloadSwitch();
-    virtual float getSyncInterval();
+    long getMaxHeapBytes() override;
+    bool getHeadlight() override;
+    void setHeadlight(bool enable) override;
+    bool getPreloadSwitch() override;
+    float getSyncInterval() override;
 
-    virtual void addViewpoint(VrmlScene *scene, VrmlNodeViewpoint *viewpoint);
-    virtual bool removeViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpoint);
-    virtual bool setViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpoint);
+    void addViewpoint(VrmlScene *scene, VrmlNodeViewpoint *viewpoint) override;
+    bool removeViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpoint) override;
+    bool setViewpoint(VrmlScene *scene, const VrmlNodeViewpoint *viewpoint) override;
 
-    virtual void setCurrentFile(const char *filename);
+    void setCurrentFile(const char *filename) override;
 
-    virtual void setMenuVisibility(bool visible);
-    virtual void createMenu();
-    virtual void destroyMenu();
+    void setMenuVisibility(bool visible) override;
+    void createMenu() override;
+    void destroyMenu() override;
 
-    virtual void setNavigationType(NavigationType nav);
-    virtual void setNavigationStepSize(double size);
-    virtual void setNavigationDriveSpeed(double speed);
-    virtual void setNearFar(float near, float far);
+    void setNavigationType(NavigationType nav) override;
+    void setNavigationStepSize(double size) override;
+    void setNavigationDriveSpeed(double speed) override;
+    void setNearFar(float near, float far) override;
 
-    virtual double getAvatarHeight();
-    virtual int getNumAvatars();
-    virtual bool getAvatarPositionAndOrientation(int num, float pos[3], float ori[4]);
+    double getAvatarHeight() override;
+    int getNumAvatars() override;
+    bool getAvatarPositionAndOrientation(int num, float pos[3], float ori[4]) override;
 
-    virtual bool getViewerPositionAndOrientation(float pos[3], float ori[4]);
-    virtual bool getLocalViewerPositionAndOrientation(float pos[3], float ori[4]);
+    bool getViewerPositionAndOrientation(float pos[3], float ori[4]) override;
+    bool getLocalViewerPositionAndOrientation(float pos[3], float ori[4]) override;
 
-    virtual bool getViewerFeetPositionAndOrientation(float pos[3], float ori[4]);
-    virtual bool getPositionAndOrientationFromMatrix(const double *M, float pos[3], float ori[4]);
+    bool getViewerFeetPositionAndOrientation(float pos[3], float ori[4]) override;
+    bool getPositionAndOrientationFromMatrix(const double *M, float pos[3], float ori[4]) override;
     bool getPositionAndOrientationFromMatrix(const osg::Matrix &mat, float pos[3], float ori[4]);
-    virtual void transformByMatrix(const double *M, float pos[3], float ori[4]);
-    virtual void getInvBaseMat(double *M);
-    virtual void getPositionAndOrientationOfOrigin(const double *M, float pos[3], float ori[4]);
+    void transformByMatrix(const double *M, float pos[3], float ori[4]) override;
+    void getInvBaseMat(double *M) override;
+    void getPositionAndOrientationOfOrigin(const double *M, float pos[3], float ori[4]) override;
 
-    virtual std::string getConfigEntry(const char *key);
-    virtual bool getConfigState(const char *key, bool defaultVal);
+    std::string getConfigEntry(const char *key) override;
+    bool getConfigState(const char *key, bool defaultVal) override;
 
-    virtual CacheMode getCacheMode() const;
-    virtual std::string getCacheName(const char *url, const char *pathname) const;
-    virtual void storeInline(const char *name, const Viewer::Object d_viewerObject);
-    virtual Viewer::Object getInline(const char *name);
-    virtual void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject);
+    CacheMode getCacheMode() const override;
+    std::string getCacheName(const char *url, const char *pathname) const override;
+    void storeInline(const char *name, const Viewer::Object d_viewerObject) override;
+    Viewer::Object getInline(const char *name) override;
+    void insertObject(Viewer::Object d_viewerObject, Viewer::Object sgObject) override;
 
-    bool loadPlugin(const char *name);
+    bool loadPlugin(const char *name) override;
 
-    virtual float getLODScale();
-    virtual float defaultCreaseAngle();
-    virtual void tabletEvent(coTUIElement *tUIItem);
-    virtual void tabletPressEvent(coTUIElement *tUIItem);
+    float getLODScale() override;
+    float defaultCreaseAngle() override;
+    void tabletEvent(coTUIElement *tUIItem) override;
+    void tabletPressEvent(coTUIElement *tUIItem) override;
 
     void startCapture();
     void stopCapture();
     void printViewpoint();
-    virtual void update();
+    void update() override;
     int maxEntryNumber;
     coTUITab *vrmlTab;
 
@@ -161,7 +161,7 @@ public:
     {
         return viewpointEntries;
     }
-
+	bool doOptimize() override;
 protected:
     ui::Menu *vrmlMenu = nullptr;
     ui::Group *viewpointGroup = nullptr;
@@ -182,5 +182,7 @@ protected:
     bool doRemoteFetch;
     int viewPointCount = 0;
     CacheMode cacheMode = CACHE_CREATE;
+
+	bool m_optimize;
 };
 #endif // SYSTEM_COVER_H

@@ -156,7 +156,7 @@ EditSlider::EditSlider(int min, int max, int step, int start, QWidget *parent, c
     //label->setMinimumWidth(40);
 
     connect(slider, SIGNAL(sliderMoved(int)), this, SLOT(moveSlot(int)));
-    connect(edit, SIGNAL(returnPressed()), this, SLOT(editChanged()));
+    connect(edit, SIGNAL(editingFinished()), this, SLOT(editChanged()));
     connect(edit, SIGNAL(textChanged(const QString &)), this, SLOT(editTextChanged(const QString &)));
     intValidator = new QIntValidator(min, max, this);
     edit->setValidator(intValidator);

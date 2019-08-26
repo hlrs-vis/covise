@@ -84,6 +84,7 @@ private:
     int getNextPK();
     int getCurrentPK();
     int pk_;
+    void send_ctl_msg(const char* message, int type);
 
 public:
     InvCommunication();
@@ -121,6 +122,7 @@ public:
     void sendCSFeedback(char *key, char *message);
     void sendAnnotation(char *key, char *message);
     void sendShowHelpMessage(const char *url);
+
     void receiveAddObjectMessage(const coDistributedObject *obj, char *message, int doreplace);
     void addgeometry(char *object, int doreplace, int is_timestep, int timestep,
                      char *root,
@@ -161,7 +163,6 @@ public:
     void receiveMasterSlaveMessage(char *, char *, char *);
     void handleAttributes(const char *name, const coDistributedObject *obj);
     ~InvCommunication(){};
-
     // AW: replacing by empty objects
     void setReplace(char *oldName, char *newName);
 };

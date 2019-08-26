@@ -488,7 +488,7 @@ void WindowTypeQtPlugin::windowFullScreen(int num, bool state)
         }
         //win.window->setWindowFlag(Qt::FramelessWindowHint, true);
         win.window->showFullScreen();
-        if (!win.state & Qt::WindowFullScreen)
+        if (!(win.state & Qt::WindowFullScreen))
             win.window->setWindowState(win.state | Qt::WindowFullScreen);
     } else {
 #ifdef __APPLE__

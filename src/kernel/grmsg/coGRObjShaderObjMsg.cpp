@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include "coGRObjShaderObjMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjShaderObjMsg::coGRObjShaderObjMsg(Mtype type,

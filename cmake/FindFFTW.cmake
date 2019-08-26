@@ -24,7 +24,7 @@ FIND_PATH(FFTW_INCLUDE_DIR "fftw3.h"
   DOC "FFTW - Headers"
 )
 
-SET(FFTW_NAMES fftw3 fftw-3.3 fftw3-3 libfftw3-3.lib)
+SET(FFTW_NAMES fftw3 fftw-3.3 fftw3-3 libfftw3-3.lib libfftw-3.3)
 SET(FFTW_DBG_NAMES fftw3 fftw3-3 libfftw-3.3d fftw-3.3d )
 
 FIND_LIBRARY(FFTW_LIBRARY NAMES ${FFTW_NAMES}

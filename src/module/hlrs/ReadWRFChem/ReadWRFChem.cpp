@@ -59,8 +59,8 @@ ReadWRFChem::ReadWRFChem(int argc, char *argv[])
     p_grid_choice_y->setValue(1, NoneChoices, 2);
     p_grid_choice_z = addChoiceParam("GridOutZ", "Grid z");
     p_grid_choice_z->setValue(1, NoneChoices, 3);
-  //  p_date_choice = addChoiceParam("Date","Date or Time");
-  //  p_date_choice->setValue(1, NoneChoices, 4);
+    p_date_choice = addChoiceParam("Date","Date or Time");
+    p_date_choice->setValue(1, NoneChoices, 4);
 
     // Vertical scale box
     p_verticalScale = addFloatParam("VerticalScale", "VerticalScale");
@@ -109,7 +109,7 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         p_grid_choice_y->enable();
         p_grid_choice_z->enable();
         p_verticalScale->enable();
-   //     p_date_choice->enable();
+        p_date_choice->enable();
         for (int i = 0; i < numParams; i++)
             p_variables[i]->enable();
 
@@ -174,7 +174,7 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         p_grid_choice_z->setValue(num2dVars,
                                   AxisChoices, p_grid_choice_z->getValue());
 
-    //    p_date_choice->setValue(num2dVars, AxisChoices, p_date_choice->getValue());
+        p_date_choice->setValue(num2dVars, AxisChoices, p_date_choice->getValue());
     }
     else
     {
@@ -185,7 +185,7 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         p_grid_choice_y->disable();
         p_grid_choice_z->disable();
         p_verticalScale->disable();
-     //   p_date_choice->disable();
+        p_date_choice->disable();
     }
 }
 
@@ -219,19 +219,19 @@ int ReadWRFChem::compute(const char *)
             }
         }
 
- /*       NcVar *varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
-        char *dateVal[edges[0]];
+        NcVar *varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
+       /* char *dateVal[edges[0]];
         for (int i = 0; i < varDate->num_dims(); ++i)
         {
             dateVal[i]  = varDate->as_string(i);
-        }
+        }*/
         if (edges[0] > 1)
         {
             has_timesteps = 1;
         }
 
-        sendInfo("Found %d time steps\n", edges[0]);
-*/
+        sendInfo("Found %ld time steps\n", (long)edges[0]);
+
         int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1], nTime = edges[0];
         if (has_timesteps > 0)
         {

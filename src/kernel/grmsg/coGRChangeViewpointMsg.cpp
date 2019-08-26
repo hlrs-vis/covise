@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRChangeViewpointMsg::coGRChangeViewpointMsg(const char *msg)

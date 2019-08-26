@@ -75,7 +75,7 @@ class NETEXPORT UdpMessage : public covise::MessageBase// class for messages
 {
 public:
 	udp_msg_type type; //type of message
-    int sender = -1; // sender of message, < 0: invalid, 0 = server, > 0 clients 
+    mutable int sender = -1; // sender of message, < 0: invalid, 0 = server, > 0 clients 
 	char* m_ip = new char[16];
 
     UdpMessage()
@@ -85,11 +85,9 @@ public:
         print();
     };
 
-    UdpMessage(covise::TokenBuffer *tb);
+    UdpMessage(covise::TokenBuffer &tb);
 
-    UdpMessage(const covise::TokenBuffer &tb);
-
-	UdpMessage(const covise::TokenBuffer&tb, udp_msg_type type);
+	UdpMessage(covise::TokenBuffer&tb, udp_msg_type type);
     
     UdpMessage(const UdpMessage &); // copy constructor
     ~UdpMessage()
@@ -98,7 +96,6 @@ public:
     };
     UdpMessage &operator=(const UdpMessage &); // assignment
 
-    char *extract_data();
     void print();
 
 ;

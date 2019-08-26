@@ -333,7 +333,7 @@ void coVRIntersectionInteractor::addIcon()
     //fprintf(stderr,"coVRIntersectionInteractor(%s)::addIcon and show intersected hl\n", _interactorName);
     coInteraction::addIcon();
 
-    if (state == coInteraction::Idle)
+    if (getState() == coInteraction::Idle)
     {
         _oldHl = moveTransform->getStateSet();
 

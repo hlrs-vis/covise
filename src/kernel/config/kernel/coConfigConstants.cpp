@@ -43,7 +43,7 @@ coConfigConstants::coConfigConstants()
     backend = "covise";
 #endif
 
-    hostname = QString::null;
+    hostname = QString();
 
     rank = -1;
 }
@@ -96,16 +96,16 @@ const QString &coConfigConstants::getHostname()
     if (!instance)
         new coConfigConstants();
 
-    if (instance->hostname == QString::null)
+    if (instance->hostname == QString())
     {
         instance->hostname = getenv("COVISE_CONFIG");
-        if (instance->hostname != QString::null)
+        if (instance->hostname != QString())
         {
             COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from COVISE_CONFIG)");
         }
     }
 
-    if (instance->hostname == QString::null)
+    if (instance->hostname == QString())
     {
 #ifdef _WIN32
         WORD wVersionRequested;
@@ -129,7 +129,7 @@ const QString &coConfigConstants::getHostname()
                 instance->hostname = instance->hostname.split('.')[0];
         }
 
-        if (instance->hostname != QString::null)
+        if (instance->hostname != QString())
         {
             COCONFIGDBG_DEFAULT("coConfigConstants::getHostname info: LOCAL hostname is '" + instance->hostname + "' (from gethostname)");
         }
@@ -154,7 +154,7 @@ const QString &coConfigConstants::getMaster()
     if (!instance)
         new coConfigConstants();
 
-    if (instance->master == QString::null)
+    if (instance->master == QString())
     {
         //COCONFIGLOG("coConfigConstants::getMaster info: master hostname is not set");
     }

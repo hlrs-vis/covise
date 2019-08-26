@@ -359,17 +359,41 @@ LinphoneClient::~LinphoneClient()
     cout << "exit" << endl;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! sets the callback handler
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::addHandler(std::function<void (LinphoneClientState, LinphoneClientState)>* handler)
 {
     handlerList.push_back(handler);
 }
 
-// ------------------------------------------------------------------------                                                      
-//! create new thread, start core iterator                                                                                       
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! sets the callback notifier
+// ------------------------------------------------------------------------
+void LinphoneClient::addNotifier(std::function<void (std::string)>* notifier)
+{
+    notifierList.push_back(notifier);
+}
+
+// ------------------------------------------------------------------------
+//! sets the UDP port range for audio streaming
+// ------------------------------------------------------------------------
+void LinphoneClient::setAudioPortRange(unsigned int portMin, unsigned int portMax)
+{
+    linphone_core_set_audio_port_range(lc, portMin, portMax);
+}
+
+// ------------------------------------------------------------------------
+//! sets the UDP port range for video streaming
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoPortRange(unsigned int portMin, unsigned int portMax)
+{
+    linphone_core_set_video_port_range(lc, portMin, portMax);
+}
+
+// ------------------------------------------------------------------------
+//! create new thread, start core iterator
+// ------------------------------------------------------------------------
 void LinphoneClient::startCoreIterator()
 {
 #ifdef VOIP_DEBUG
@@ -379,9 +403,9 @@ void LinphoneClient::startCoreIterator()
     thdFunction = std::thread(&LinphoneClient::thdMain, this);
 }
 
-// ------------------------------------------------------------------------                                                      
-//! initiate register/login to sip server with given credentials                                                                 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! initiate register/login to sip server with given credentials
+// ------------------------------------------------------------------------
 bool LinphoneClient::doRegistration(std::string identity, std::string password)
 {
 #ifdef VOIP_DEBUG
@@ -423,19 +447,19 @@ bool LinphoneClient::doRegistration(std::string identity, std::string password)
     return true;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! initiate unregistration
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 void LinphoneClient::doUnregistration()
 {
 #ifdef VOIP_DEBUG
     cout << "LinphoneClient::doUnregistration()" << endl;
 #endif
-    
-    proxy_cfg = linphone_core_get_default_proxy_config(lc); // get default proxy config                                      
-    linphone_proxy_config_edit(proxy_cfg); // start editing proxy configuration                                              
-    linphone_proxy_config_enable_register(proxy_cfg,FALSE); // de-activate registration for this proxy config                
-    linphone_proxy_config_done(proxy_cfg); // initiate REGISTER with expire = 0                                              
+
+    proxy_cfg = linphone_core_get_default_proxy_config(lc); // get default proxy config
+    linphone_proxy_config_edit(proxy_cfg); // start editing proxy configuration
+    linphone_proxy_config_enable_register(proxy_cfg,FALSE); // de-activate registration for this proxy config
+    linphone_proxy_config_done(proxy_cfg); // initiate REGISTER with expire = 0
 
     while(linphone_proxy_config_get_state(proxy_cfg) !=  LinphoneRegistrationCleared)
     {
@@ -445,9 +469,9 @@ void LinphoneClient::doUnregistration()
     }
 }
 
-// ------------------------------------------------------------------------                                                      
-//! check if audio is enabled within a call                                                                                      
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! check if audio is enabled within a call
+// ------------------------------------------------------------------------
 bool LinphoneClient::callAudioIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -461,9 +485,9 @@ bool LinphoneClient::callAudioIsEnabled()
     return linphone_call_params_audio_enabled(params);
 }
 
-// ------------------------------------------------------------------------                                                      
-//! check if video is enabled within a call                                                                                      
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! check if video is enabled within a call
+// ------------------------------------------------------------------------
 bool LinphoneClient::callVideoIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -477,9 +501,9 @@ bool LinphoneClient::callVideoIsEnabled()
     return linphone_call_params_video_enabled(params);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! check if camera stream is allowed to be sent within a call
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 bool LinphoneClient::callCameraIsEnabled()
 {
 #ifdef VOIP_DEBUG
@@ -491,17 +515,17 @@ bool LinphoneClient::callCameraIsEnabled()
     return linphone_call_camera_enabled(call);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! gets the name of the currently assigned sound device for playback
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 const char* LinphoneClient::getPlaybackDeviceName()
 {
     return linphone_core_get_playback_device(lc);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! Gets the list of the available sound devices which can capture sound
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getCaptureSoundDevicesList()
 {
     vector<string> vecList;
@@ -521,9 +545,9 @@ vector<string> LinphoneClient::getCaptureSoundDevicesList()
     return vecList;
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 //! Gets the list of the available sound devices which can playback sound
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getPlaybackSoundDevicesList()
 {
     vector<string> vecList;
@@ -552,11 +576,27 @@ std::string LinphoneClient::getCurrentCaptureSoundDevice()
 }
 
 // ------------------------------------------------------------------------
+//! sets the name of the currently capture sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentCaptureSoundDevice(std::string newDevice)
+{
+    linphone_core_set_capture_device(lc, newDevice.c_str());
+}
+
+// ------------------------------------------------------------------------
 //! gets the name of the currently playback sound device
 // ------------------------------------------------------------------------
 std::string LinphoneClient::getCurrentPlaybackSoundDevice()
 {
     return string(linphone_core_get_playback_device(lc));
+}
+
+// ------------------------------------------------------------------------
+//! sets the name of the currently playback sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentPlaybackSoundDevice(std::string newDevice)
+{
+    linphone_core_set_playback_device(lc, newDevice.c_str());
 }
 
 // ------------------------------------------------------------------------
@@ -567,6 +607,14 @@ std::string LinphoneClient::getCurrentRingerSoundDevice()
     return string(linphone_core_get_ringer_device(lc));
 }
 
+// ------------------------------------------------------------------------
+//! sets the name of the currently ringer sound device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentRingerSoundDevice(std::string newDevice)
+{
+    linphone_core_set_ringer_device(lc, newDevice.c_str());
+}
+    
 // ------------------------------------------------------------------------
 //! gets the name of the currently media sound device
 // FIXME: not available in 3.12 (?)
@@ -602,11 +650,27 @@ bool LinphoneClient::getEchoCancellationIsEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set echo cancellation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setEchoCancellation(bool onoff)
+{
+    linphone_core_enable_echo_cancellation(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! returns true if echo limiter is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getEchoLimiterIsEnabled()
 {
     return linphone_core_echo_limiter_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set echo limiter onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setEchoLimiter(bool onoff)
+{
+    linphone_core_enable_echo_limiter(lc, onoff);
 }
 
 // ------------------------------------------------------------------------
@@ -618,11 +682,27 @@ bool LinphoneClient::getAudioJitterCompensation()
 }
 
 // ------------------------------------------------------------------------
+//! set audio adaptive jitter compensation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setAudioJitterCompensation(bool onoff)
+{
+    linphone_core_enable_video_adaptive_jittcomp(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! get microphone gain in db
 // ------------------------------------------------------------------------
 float LinphoneClient::getMicGain()
 {
     return linphone_core_get_mic_gain_db(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set microphone gain in db
+// ------------------------------------------------------------------------
+void LinphoneClient::setMicGain(float gain)
+{
+    linphone_core_set_mic_gain_db(lc, gain);
 }
 
 // ------------------------------------------------------------------------
@@ -634,11 +714,27 @@ float LinphoneClient::getPlaybackGain()
 }
 
 // ------------------------------------------------------------------------
+//! set playback gain in db before entering sound card.
+// ------------------------------------------------------------------------
+void LinphoneClient::setPlaybackGain(float gain)
+{
+    linphone_core_set_playback_gain_db(lc, gain);
+}
+
+// ------------------------------------------------------------------------
 //! tells whether video capture is enabled.
 // ------------------------------------------------------------------------
 bool LinphoneClient::getVideoCaptureEnabled()
 {
     return linphone_core_video_capture_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set video capture onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoCaptureEnabled(bool onoff)
+{
+    linphone_core_enable_video_capture(lc, onoff);
 }
 
 // ------------------------------------------------------------------------
@@ -650,11 +746,27 @@ bool LinphoneClient::getVideoDisplayEnabled()
 }
 
 // ------------------------------------------------------------------------
+//! set video display onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoDisplayEnabled(bool onoff)
+{
+    linphone_core_enable_video_display(lc, onoff);
+}   
+
+// ------------------------------------------------------------------------
 //! tells whether video preview is enabled
 // ------------------------------------------------------------------------
 bool LinphoneClient::getVideoPreviewEnabled()
 {
     return linphone_core_video_preview_enabled(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set video preview onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::setVideoPreviewEnabled(bool onoff)
+{
+    linphone_core_enable_video_preview(lc, onoff);
 }
 
 // ------------------------------------------------------------------------
@@ -667,12 +779,32 @@ bool LinphoneClient::getAutoAcceptVideo()
 }
 
 // ------------------------------------------------------------------------
+//! set the default policy for acceptance of incoming video
+// ------------------------------------------------------------------------
+void LinphoneClient::setAutoAcceptVideo(bool onoff)
+{
+    LinphoneVideoActivationPolicy* policy = linphone_core_get_video_activation_policy(lc);
+    linphone_video_activation_policy_set_automatically_accept(policy, onoff);
+    linphone_core_set_video_activation_policy(lc, policy);   
+}
+
+// ------------------------------------------------------------------------
 //! get the default policy for initiating video
 // ------------------------------------------------------------------------
 bool LinphoneClient::getAutoInitiateVideo()
 {
     LinphoneVideoActivationPolicy* policy = linphone_core_get_video_activation_policy(lc);
     return linphone_video_activation_policy_get_automatically_accept(policy);
+}
+
+// ------------------------------------------------------------------------
+//! set the default policy for initiating video
+// ------------------------------------------------------------------------
+void LinphoneClient::setAutoInitiateVideo(bool onoff)
+{
+    LinphoneVideoActivationPolicy* policy = linphone_core_get_video_activation_policy(lc);
+    linphone_video_activation_policy_set_automatically_initiate(policy, onoff);
+    linphone_core_set_video_activation_policy(lc, policy);   
 }
 
 // ------------------------------------------------------------------------
@@ -683,9 +815,17 @@ bool LinphoneClient::getVideoJitterCompensation()
     return linphone_core_video_adaptive_jittcomp_enabled(lc);
 }
 
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
+//! set the video adaptive jitter compensation onoff
+// ------------------------------------------------------------------------
+void LinphoneClient::getVideoJitterCompensation(bool onoff)
+{
+    linphone_core_enable_video_adaptive_jittcomp(lc, onoff);
+}
+
+// ------------------------------------------------------------------------
 //! gets a list of the available video capture devices
-// ------------------------------------------------------------------------                                                      
+// ------------------------------------------------------------------------
 vector<string> LinphoneClient::getVideoCaptureDevicesList()
 {
     vector<string> vecList;
@@ -707,6 +847,14 @@ vector<string> LinphoneClient::getVideoCaptureDevicesList()
 string LinphoneClient::getCurrentVideoCaptureDevice()
 {
     return linphone_core_get_video_device(lc);
+}
+
+// ------------------------------------------------------------------------
+//! set the currently active video device
+// ------------------------------------------------------------------------
+void LinphoneClient::setCurrentVideoCaptureDevice(std::string newDevice)
+{
+    linphone_core_set_video_device(lc, newDevice.c_str());    
 }
 
 // ------------------------------------------------------------------------
@@ -989,6 +1137,37 @@ int LinphoneClient::getNoOfCalls()
     return linphone_core_get_calls_nb(lc);
 }
 
+// ------------------------------------------------------------------------
+//! accept current call
+// ------------------------------------------------------------------------
+void LinphoneClient::acceptIncomingCall()
+{
+    call = linphone_core_get_current_call(lc);
+    linphone_call_accept(call);
+    linphone_call_ref(call);        
+}
+
+// ------------------------------------------------------------------------
+//! reject current call with reason declined
+// ------------------------------------------------------------------------
+void LinphoneClient::rejectIncomingCall()
+{
+    LinphoneCall* call = linphone_core_get_current_call(lc);
+    linphone_call_decline(call, LinphoneReasonDeclined);
+}
+
+// ------------------------------------------------------------------------
+//! get remote address of current call
+// ------------------------------------------------------------------------
+std::string LinphoneClient::getCurrentRemoteAddress()
+{
+    if ((call != NULL) || (lp_state == LinphoneClientState::callIncoming))
+    {
+        LinphoneCall* call = linphone_core_get_current_call(lc);
+        return  string(linphone_call_get_remote_contact(call));
+    }
+    return "";
+}
 
 // ------------------------------------------------------------------------
 //! LinphoneClient main loop
@@ -1005,9 +1184,9 @@ void LinphoneClient::thdMain()
     {
         linphone_core_iterate(lc);
 
-#ifdef VOIP_DEBUG            
-        cout << "lp_state = " << static_cast<int>(lp_state)<< endl;
-#endif
+//#ifdef VOIP_DEBUG            
+//        cout << "lp_state = " << static_cast<int>(lp_state)<< endl;
+//#endif
 
         // call external stateChanged handlers
 
@@ -1043,12 +1222,18 @@ void LinphoneClient::thdMain()
         
         if (lp_state == LinphoneClientState::callIncoming)
         {
-            // TODO
+            LinphoneCall* call = linphone_core_get_current_call(lc);
+            string strCallId = "incoming call from " + string(linphone_call_get_remote_contact(call));
+            
+            for (auto& notifier : notifierList)
+            {
+                (*notifier)(strCallId);
+            }
         }
 
         if ((lp_state == LinphoneClientState::callStreaming) && (oneTime == false))
         {
-            // TODO
+            // TODO: get video stream from mediastreamer
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(intervall));

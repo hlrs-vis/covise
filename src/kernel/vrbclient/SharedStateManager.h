@@ -47,8 +47,8 @@ private:
     std::set<SharedStateBase *> useCouplingMode, alwaysShare, neverShare, shareWithAll;
     SessionID m_privateSessionID;
     SessionID m_publicSessionID;
-    bool m_muted;
-    VrbClientRegistry *registry;
+    bool m_muted = false;
+    VrbClientRegistry *registry = nullptr;
 };
 }
 #endif

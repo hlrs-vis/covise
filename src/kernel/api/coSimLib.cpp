@@ -528,16 +528,18 @@ int coSimLib::startSim(int reattach)
         cerr << "Startup Line: " << startLine << endl;
 
     // build the CO_SIMLIB_CONN variable
-    char envVar[64];
-	char buf[100];
-	if (modIsServer)
-	{
-		inet_ntop(AF_INET, &d_localIP, buf, 100);
-		sprintf(envVar, "C:%s/%d_%f_%d", buf,d_usePort, timeout, d_verbose);
-	}
+    char envVar[128];
+    char buf[100];
+    if (modIsServer)
+    {
+        inet_ntop(AF_INET, &d_localIP, buf, 100);
+        sprintf(envVar, "C:%s/%d_%f_%d", buf,d_usePort, timeout, d_verbose);
+    }
     else
+    {
         sprintf(envVar, "S:%d-%d_%f_%d", d_minPort, d_maxPort, timeout, d_verbose);
-
+    }
+    
     printf("CO_SIMLIB_CONN: [%s]\n", envVar);
 
     // now: build the command line

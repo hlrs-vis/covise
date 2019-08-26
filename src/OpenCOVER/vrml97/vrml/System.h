@@ -250,6 +250,8 @@ public:
     }
 
     virtual void saveTimestamp(const char *name);
+
+	virtual bool doOptimize();
 };
 }
 #endif // SYSTEM_H

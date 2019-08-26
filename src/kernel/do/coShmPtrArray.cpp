@@ -137,8 +137,8 @@ int coShmPtrArray::grow(ApplicationProcess *a, unsigned int s)
     //    print();
     shmmsg = new ShmMessage(SHMPTRARRAY, length + s);
     a->exch_data_msg(shmmsg, 2, COVISE_MESSAGE_MALLOC_OK, COVISE_MESSAGE_MALLOC_FAILED);
-    shm_seq_no = *(int *)&shmmsg->data[0];
-    offset = *(int *)&shmmsg->data[sizeof(int)];
+    shm_seq_no = *(int *)&shmmsg->data.data()[0];
+    offset = *(int *)&shmmsg->data.data()[sizeof(int)];
     tmparr = new coShmArray(shm_seq_no, offset);
     iptr_new = (int *)tmparr->getPtr();
     iptr_old = (int *)getPtr();

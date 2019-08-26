@@ -13,6 +13,9 @@
 #include <vector>
 
 #include <boost/make_shared.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include "VolumePlugin.h"
 
@@ -65,6 +68,16 @@
 using namespace osg;
 using namespace vrui;
 
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id);
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id);
+
+namespace vrb
+{
+	template <>
+	SharedStateDataType getSharedStateType < vvTransFunc >(const vvTransFunc& type) {
+		return TRANSFERFUCTION;
+	}
+}
 #undef VERBOSE
 
 VolumePlugin *VolumePlugin::plugin = NULL;
@@ -420,6 +433,7 @@ bool VolumePlugin::init()
     backgroundColor = BgDefault;
     bool ignore;
     computeHistogram = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.UseHistogram", true, &ignore);
+    maxHistogramVoxels = covise::coCoviseConfig::getLong("value", "COVER.Plugin.Volume.MaxHistogramVoxels", maxHistogramVoxels);
     showTFE = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.ShowTFE", true, &ignore);
     lighting = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.Lighting", false, &ignore);
     preIntegration = covise::coCoviseConfig::isOn("value", "COVER.Plugin.Volume.PreIntegration", false, &ignore);
@@ -1375,7 +1389,7 @@ void VolumePlugin::message(int toWhom, int type, int len, const void *buf)
                 drawable->setROISize(pd->size);
             }
 
-            if ((coVRCollaboration::instance()->getSyncMode() == coVRCollaboration::TightCoupling))
+            if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::TightCoupling))
             {
                 if (drawable && drawable->getROISize() > 0.)
                 {
@@ -1499,11 +1513,29 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                         }
                     }
                     assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
+                    /*
+                    for (size_t i = 0; i < noVox; ++i)
                     {
-                        for (int c = 0; c<noChan; ++c)
+                        for (int c = 0; c < noChan; ++c)
                         {
-                            *p++ = (uchar)((chan[c][i]-min[c])*range[c]);
+                            *p++ = (uchar)((chan[c][i] - min[c]) * range[c]);
+                        }
+                    }
+                            */
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                //i = ((z * xy) + (y * sizeX) + (x));
+                                for (int c = 0; c < noChan; ++c)
+                                {
+                                    *p++ = (uchar)((chan[c][i] - min[c]) * range[c]);
+                                }
+                            }
                         }
                     }
                 }
@@ -1520,16 +1552,54 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                         }
                     }
                     assert(ch == noChan);
-                    for (size_t i=0; i<noVox; ++i)
+                    /*for (size_t i=0; i<noVox; ++i)
                     {
                         for (int c = 0; c<noChan; ++c)
                         {
                             *p++ = chan[c][i];
                         }
+                    }*/
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                for (int c = 0; c < noChan; ++c)
+                                {
+                                    *p++ = chan[c][i];
+                                }
+                            }
+                        }
                     }
                 }
                 else
                 {
+                    size_t zy = (size_t)sizeY * (size_t)sizeZ;
+                    for (size_t x = 0; x < sizeX; x++)
+                    {
+                        for (size_t y = 0; y < sizeY; y++)
+                        {
+                            for (size_t z = 0; z < sizeZ; z++)
+                            {
+                                size_t i = (((sizeX - x - 1)) * zy) + (y * sizeZ) + z;
+                                for (int c = Field::Channel0; c < Field::NumChannels; ++c)
+                                {
+                                    if (byteChannels[c])
+                                    {
+                                        *p++ = byteChannels[c][i];
+                                    }
+                                    else if (floatChannels[c])
+                                    {
+                                        *p++ = (uchar)((floatChannels[c][i] - min[c]) * irange[c] * 255.99);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    /*
                     for (size_t i=0; i<noVox; ++i)
                     {
                         for (int c = Field::Channel0; c < Field::NumChannels; ++c)
@@ -1543,7 +1613,7 @@ void VolumePlugin::addObject(const RenderObject *container, osg::Group *, const 
                                 *p++ = (uchar)((floatChannels[c][i]-min[c])*irange[c] * 255.99);
                             }
                         }
-                    }
+                    }*/
                 }
             }
             else if (red && green && blue)
@@ -1732,6 +1802,19 @@ void VolumePlugin::cropVolume()
     currentVolume->second.roiCellSize = roiCellSize;
 }
 
+void VolumePlugin::syncTransferFunction()
+{
+    if (currentVolume != volumes.end())
+    {
+        for (int i = 0; i < currentVolume->second.tf.size(); ++i)
+        {
+
+            *currentVolume->second.tfState[i] = currentVolume->second.tf[i];
+        }
+    }
+
+}
+
 void VolumePlugin::saveVolume()
 {
     if (coVRMSController::instance()->isSlave())
@@ -1815,6 +1898,7 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
         if (volumes[name].multiDimTF)
         {
             volumes[name].tf.resize(1);
+			volumes[name].tfState.resize(1);
             if (vd->tf[0].isEmpty())
             {
                 volumes[name].tf[0] = editor->getTransferFunc(0);
@@ -1823,10 +1907,15 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 volumes[name].tf[0] = vd->tf[0];
             }
+			volumes[name].tfState[0].reset(new vrb::SharedState<vvTransFunc>(("TransFunc" + name + "0"), volumes[name].tf[0], vrb::ALWAYS_SHARE));
+			volumes[name].tfState[0]->setUpdateFunction([this, name]() {
+				volumes[name].tf[0] = volumes[name].tfState[0]->value();
+				});
         }
         else
         {
-            volumes[name].tf.resize(vd->getChan());
+			volumes[name].tf.resize(vd->getChan());
+			volumes[name].tfState.resize(vd->getChan());
             if (vd->tf.empty() || vd->tf.size() != vd->getChan())
             {
                 for (int i = 0; i < volumes[name].tf.size(); ++i)
@@ -1839,6 +1928,13 @@ bool VolumePlugin::updateVolume(const std::string &name, vvVolDesc *vd, bool map
             {
                 volumes[name].tf = vd->tf;
             }
+			for (int i = 0; i < volumes[name].tf.size(); ++i)
+			{
+				volumes[name].tfState[i].reset(new vrb::SharedState<vvTransFunc>(("TransFunc" + name + std::to_string(i)), volumes[name].tf[i], vrb::ALWAYS_SHARE));
+				volumes[name].tfState[i]->setUpdateFunction([this, name, i]() {
+					volumes[name].tf[i] = volumes[name].tfState[i]->value();
+					});
+			}
 
             if (vd->channelWeights.size() != vd->getChan())
             {
@@ -1960,13 +2056,18 @@ void VolumePlugin::updateTFEData()
                 vvVolDesc *vd = tfApplyCBData.drawable->getVolumeDescription();
                 if (vd)
                 {
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         size_t res[] = { TEXTURE_RES_BACKGROUND, TEXTURE_RES_BACKGROUND };
                         vvColor fg(1.0f, 1.0f, 1.0f);
                         vd->makeHistogramTexture(0, 0, 1, res, &tfeBackgroundTexture[0], vvVolDesc::VV_LOGARITHMIC, &fg, vd->range(0)[0], vd->range(0)[1]);
                         editor->updateBackground(&tfeBackgroundTexture[0]);
                         editor->pinedit->setBackgroundType(0); // histogram
+                        editor->enableHistogram(true);
+                    }
+                    else
+                    {
+                        editor->enableHistogram(false);
                     }
 
                     editor->setNumChannels(vd->getChan());
@@ -2002,7 +2103,7 @@ void VolumePlugin::updateTFEData()
                         coTUIFunctionEditorTab::histogramBuckets,
                         vd->getChan() == 1 ? 1 : coTUIFunctionEditorTab::histogramBuckets
                     };
-                    if (computeHistogram)
+                    if (computeHistogram && vd->getFrameVoxels() < maxHistogramVoxels)
                     {
                         functionEditorTab->histogramData = new int[buckets[0] * buckets[1]];
                         if (vd->getChan() == 1)
@@ -2012,6 +2113,13 @@ void VolumePlugin::updateTFEData()
                             vd->makeHistogram(0, 0, 2, buckets, functionEditorTab->histogramData,
                                               std::min(vd->range(0)[0], vd->range(1)[0]),
                                               std::max(vd->range(0)[1], vd->range(1)[1]));
+                        editor->enableHistogram(true);
+                        std::cerr << "enabling histogram" << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "disabling histogram" << std::endl;
+                        editor->enableHistogram(false);
                     }
                 }
             }
@@ -2301,11 +2409,11 @@ void VolumePlugin::preFrame()
         {
             if (drawable->getROISize() <= 0.0f)
                 drawable->setROISize(0.00001f);
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
             {
                 drawable->setROIPosition(currentVolume->second.roiPosObj);
-                if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2314,7 +2422,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionB->isRunning())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
                 || coVRCollaboration::instance()->isMaster())
         {
             bool mouse = interactionB->is2D();
@@ -2341,7 +2449,7 @@ void VolumePlugin::preFrame()
                 {
                     currentVolume->second.roiCellSize = roiCellSize;
                 }
-                if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+                if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
                 {
                     sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
                 }
@@ -2350,7 +2458,7 @@ void VolumePlugin::preFrame()
     }
     if (interactionA->wasStopped())
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             if (!roiVisible())
@@ -2372,7 +2480,7 @@ void VolumePlugin::preFrame()
                 return;
             }
 
-            if (drawable && coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (drawable && coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }
@@ -2445,7 +2553,7 @@ void VolumePlugin::setROIMode(bool newMode)
                 roiCellSize = 1.0f;
             currentVolume->second.roiMode = true;
         }
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiMode = true;
@@ -2457,7 +2565,7 @@ void VolumePlugin::setROIMode(bool newMode)
     }
     else
     {
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
             roiCellSize = 0.0f;
@@ -2478,10 +2586,10 @@ void VolumePlugin::setROIMode(bool newMode)
     {
         drawable->setROISize(roiCellSize);
 
-        if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::MasterSlaveCoupling
+        if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::MasterSlaveCoupling
             || coVRCollaboration::instance()->isMaster())
         {
-            if (coVRCollaboration::instance()->getSyncMode() != coVRCollaboration::LooseCoupling)
+            if (coVRCollaboration::instance()->getCouplingMode() != coVRCollaboration::LooseCoupling)
             {
                 sendROIMessage(drawable->getROIPosition(), drawable->getROISize());
             }
@@ -2509,3 +2617,51 @@ virvo::VolumeDrawable *VolumePlugin::getCurrentDrawable()
 }
 
 COVERPLUGIN(VolumePlugin)
+
+covise::TokenBuffer& operator<<(covise::TokenBuffer& tb, const vvTransFunc& id)
+{
+	std::vector<char> buf;
+	typedef boost::iostreams::back_insert_device<std::vector<char> > sink_type;
+	typedef boost::iostreams::stream<sink_type> stream_type;
+
+	sink_type sink(buf);
+	stream_type stream(sink);
+
+	// Create a serializer
+	boost::archive::binary_oarchive archive(stream);
+
+	// Serialize the message
+	archive << id;
+
+	// Don't forget to flush the stream!!!
+	stream.flush();
+	tb << int(buf.size());
+	tb.addBinary(&buf[0], buf.size());
+	return tb;
+}
+
+covise::TokenBuffer& operator>>(covise::TokenBuffer& tb, vvTransFunc& id)
+{
+	int size;
+	tb >> size;
+	std::vector<char> buf;
+	buf.reserve(size);
+	for (int i = 0; i < size; i++)
+	{
+		char c;
+		tb >> c;
+		buf.push_back(c);
+	}
+	typedef boost::iostreams::basic_array_source<char> source_type;
+	typedef boost::iostreams::stream<source_type> stream_type;
+
+	source_type source(&buf[0], buf.size());
+	stream_type stream(source);
+
+	// Create a deserialzer
+	boost::archive::binary_iarchive archive(stream);
+
+	// Deserialize the message
+	archive >> id;
+	return tb;
+}

@@ -15,7 +15,8 @@
 #include <vrbclient/SessionID.h>
 #include "ui/Owner.h"
 #include <vrbclient/SharedState.h>
-
+//test
+#include <vrbclient/SharedState.h>
 namespace vrb
 {
 class SessionID;
@@ -46,7 +47,7 @@ private:
     std::vector<std::string> savedRegistries;
     std::vector<vrb::SessionID> availiableSessions;
 
-
+	vrb::SharedMap<std::string, std::string> test;
     void init();
     void saveSession();
     void loadSession(int index);
@@ -55,10 +56,10 @@ private:
     void requestNewSession(const std::string & name);
     void selectSession(int id);
     const std::string noSavedSession = "nothing";
-	void test(int a = 0, int b = 0);
 public:
     VrbMenue();
-    void updateState(bool state);
+	void initFileMenue();
+	void updateState(bool state);
     void updateRegistries(const std::vector<std::string> &registries);
     void updateSessions(const std::vector<vrb::SessionID> &sessions);
     void setCurrentSession(const vrb::SessionID &session);

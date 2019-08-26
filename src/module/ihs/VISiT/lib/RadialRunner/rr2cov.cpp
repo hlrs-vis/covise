@@ -581,7 +581,7 @@ void AddXMGRSet2Plot(char *plbuf, float *xy, float *x, float *y, int num,
 					 int q_flag, int graph, int set)
 {
 	int i;
-	char buf[CHAR_LEN], gname[CHAR_LEN], sname[CHAR_LEN];
+	char buf[2*CHAR_LEN+64], gname[CHAR_LEN], sname[CHAR_LEN];
 
 	float xy_min, xy_max;
 

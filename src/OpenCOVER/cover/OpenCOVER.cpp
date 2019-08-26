@@ -58,7 +58,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgGA/GUIActionAdapter>
-#include <vrbclient/VrbClientRegistry.h>
+
 #include <vrbclient/VRBClient.h>
 #include <vrbclient/SharedStateManager.h>
 
@@ -187,8 +187,6 @@ OpenCOVER::OpenCOVER()
 {
     initCudaGlInterop();
 
-	// always parse floats with . as separator
-	setlocale(LC_NUMERIC, "C");
 #ifdef WIN32
     parentWindow = NULL;
 #else
@@ -268,6 +266,8 @@ void OpenCOVER::waitForWindowID()
 
 bool OpenCOVER::run()
 {
+	// always parse floats with . as separator
+	setlocale(LC_NUMERIC, "C");
     int dl = coCoviseConfig::getInt("COVER.DebugLevel", 0);
 
     if (init())
@@ -557,8 +557,9 @@ bool OpenCOVER::init()
 #ifndef _WIN32
     coVRConfig::instance()->m_useDISPLAY = useDISPLAY;
 #endif
-    cover = new coVRPluginSupport();
-    coVRCommunication::instance();
+	coVRCommunication::instance();
+	cover = new coVRPluginSupport();
+	coVRCommunication::instance()->init();
     cover->initUI();
     if (cover->debugLevel(2))
     {
@@ -607,10 +608,11 @@ bool OpenCOVER::init()
     VRViewer::instance();
 
     coVRAnimationManager::instance();
-    coVRShaderList::instance()->update();
+    coVRShaderList::instance();
 
     // init scene graph
     VRSceneGraph::instance()->init();
+    coVRShaderList::instance()->update();
     VRViewer::instance()->setSceneData(cover->getScene());
 
 	Input::instance()->update(); // requires scenegraph
@@ -1228,13 +1230,14 @@ bool OpenCOVER::frame()
     if (m_renderNext)
         render = true;
 
-    if (!render && coVRMSController::instance()->syncVRBMessages())
+    if (coVRMSController::instance()->syncVRBMessages())
     {
         if (cover->debugLevel(4))
             std::cerr << "OpenCOVER::frame: rendering because of VRB message" << std::endl;
         render = true;
     }
 
+    render = coVRMSController::instance()->syncBool(render);
     if (!render)
     {
         int maxfd = -1;
@@ -1254,6 +1257,7 @@ bool OpenCOVER::frame()
                 std::cerr << "OpenCOVER::frame: rendering because of filedescriptor activity" << std::endl;
             render = true;
         }
+        render = coVRMSController::instance()->syncBool(render);
     }
 
     if (!render)
@@ -1324,13 +1328,6 @@ bool OpenCOVER::frame()
     }
 
     coVRShaderList::instance()->update();
-
-    if (coVRMSController::instance()->syncVRBMessages())
-    {
-        if (cover->debugLevel(4))
-            std::cerr << "OpenCOVER::frame: rendering next frame because of VRB message" << std::endl;
-        m_renderNext = true;
-    }
 
     if (VRViewer::instance()->getViewerStats() && VRViewer::instance()->getViewerStats()->collectStats("opencover"))
     {

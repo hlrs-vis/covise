@@ -22,7 +22,7 @@ IF(in_source_build)
 ENDIF(in_source_build)
 
 # covise project
-PROJECT(covise CXX C)
+PROJECT(covise VERSION 2019 LANGUAGES CXX C)
 
 set(COVISE_EXPORTS_FILE "covise-exports.cmake")
 
@@ -51,8 +51,12 @@ SET(COVISEDIR "${CMAKE_SOURCE_DIR}")
 SET(ARCHSUFFIX "$ENV{ARCHSUFFIX}")
 # archsuffix has to be set
 IF(ARCHSUFFIX STREQUAL "")
-   MATH(EXPR BITS '${CMAKE_SIZEOF_VOID_P}*8')
-   SET(ARCHSUFFIX ${CMAKE_SYSTEM_NAME}${BITS})
+   set(BITS "")
+   if (NOT CMAKE_SIZEOF_VOID_P STREQUAL "")
+       MATH(EXPR BITS ${CMAKE_SIZEOF_VOID_P}*8)
+   endif()
+   SET(ARCHSUFFIX ${CMAKE_SYSTEM_NAME}${BITS}opt)
+   STRING(TOLOWER "${ARCHSUFFIX}" ARCHSUFFIX)
    MESSAGE(WARNING "Environment variable ARCHSUFFIX was not set, using ARCHSUFFIX=${ARCHSUFFIX}")
 ENDIF()
 

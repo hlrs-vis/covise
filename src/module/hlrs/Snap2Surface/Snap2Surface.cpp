@@ -131,7 +131,7 @@ int Snap2Surface::compute(const char *)
 
     delta = p_delta->getValue();
     axis = p_axis->getValue();
-    printf("numPoly %d\n", numPoly);
+    //printf("numPoly %d\n", numPoly);
 
     coDoPoints *pointsOut = new coDoPoints(p_pointsOut->getNewObjectInfo(), numPoints); //TODO: size
     pointsOut->getAddresses(&x_out, &y_out, &z_out);

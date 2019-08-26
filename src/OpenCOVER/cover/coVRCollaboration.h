@@ -85,7 +85,7 @@ public:
     vrb::SharedState<float> scaleFactor;
     float getSyncInterval();
     // returns collaboration mode
-    SyncMode getSyncMode() const;
+    SyncMode getCouplingMode() const;
 
     void setSyncMode(const char *mode); // set one of "LOOSE", "MS", "TIGHT"
 
@@ -109,8 +109,9 @@ public:
     void init();
 
     bool update();
-
+	//sync transform of viewer with partners
     void SyncXform();
+	//sync scale of world with partner
     void UnSyncXform();
     void SyncScale();
     void UnSyncScale();

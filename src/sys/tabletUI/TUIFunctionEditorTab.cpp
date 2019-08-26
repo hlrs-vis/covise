@@ -450,7 +450,7 @@ void TUIFunctionEditorTab::makeEditor()
     tfval = new QLineEdit(widget);
     tfval->setText("NONE");
     tfval->setToolTip("Current value");
-    connect(tfval, SIGNAL(returnPressed()), this, SLOT(newWidgetValue()));
+    connect(tfval, SIGNAL(editingFinished()), this, SLOT(newWidgetValue()));
     hb->addWidget(tfval);
     hb->addStretch(5);
 

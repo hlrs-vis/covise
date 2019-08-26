@@ -8,6 +8,7 @@
 #include "coGRObjColorObjMsg.h"
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjColorObjMsg::coGRObjColorObjMsg(Mtype type, const char *obj_name, int r, int g, int b)

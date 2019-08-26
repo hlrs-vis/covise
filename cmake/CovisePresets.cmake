@@ -92,7 +92,7 @@ endif(WIN32)
 # if you wish to reconfigure use cmake, ccmake or cmakesetup directly
 #SET(CMAKE_SUPPRESS_REGENERATION false)
 
-set(COVISE_DESTDIR $ENV{COVISEDIR})
+set(COVISE_DESTDIR ${COVISEDIR})
 if(NOT "$ENV{COVISEDESTDIR}" STREQUAL "" AND NOT COVISE_DESTDIR STREQUAL "$ENV{COVISEDESTDIR}")
     message("COVISE internal build: COVISE_DESTDIR reset from $ENV{COVISEDESTDIR} to ${COVISE_DESTDIR}")
 endif()

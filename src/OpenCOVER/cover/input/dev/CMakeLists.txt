@@ -1,3 +1,4 @@
+set(PLUGIN_CATEGORY "Input")
 add_subdirectory(dtrack) 
 add_subdirectory(NatNet) 
 add_subdirectory(mousebuttons) 

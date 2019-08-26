@@ -849,14 +849,14 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
 
 							if (bIntensity) {		//Normalize intensity to 0 - 1.
-								int intensity = ((intData[i] - intOffset) / intRange) * 255;
+								float intensity = ((intData[i] - intOffset) / intRange);
 								color.r = intensity;
 								color.g = intensity;
 								color.b = intensity;
 							}
 
 
-							if (bColor) {			//Normalize color to 0 - 255
+							if (bColor) {			//Normalize color to 0 - 1
 								color.r = (redData[i] - colorRedOffset) / (float)colorRedRange;
 								color.g = (greenData[i] - colorGreenOffset) / (float)colorBlueRange;
 								color.b = (blueData[i] - colorBlueOffset) / (float)colorBlueRange;

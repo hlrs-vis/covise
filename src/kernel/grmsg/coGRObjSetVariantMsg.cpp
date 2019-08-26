@@ -10,6 +10,8 @@
 #include <sstream>
 #include "coGRObjSetVariantMsg.h"
 
+using namespace std;
+
 namespace grmsg
 {
 

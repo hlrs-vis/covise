@@ -148,15 +148,11 @@ InvMain::InvMain(int argc, char *argv[])
     QStringList tmplist;
     QString tmp;
 
-    Message *message = new Message();
     QString msg = get_description_message();
     QByteArray ba = msg.toLatin1();
-    message->data = (char *)((const char *)ba);
-    message->type = COVISE_MESSAGE_PARINFO; // should be a real type
-    message->length = (int) (strlen(message->data) + 1);
-    appmod->send_ctl_msg(message);
-    message->data = NULL;
-    delete message;
+
+    Message message{ COVISE_MESSAGE_FINISHED , DataHandle{ba.data() ,  ba.length() + 1, false} };
+    renderer->appmod->send_ctl_msg(&message);
 
     m_username = "me";
     backgroundColorEditor = NULL;
@@ -164,15 +160,13 @@ InvMain::InvMain(int argc, char *argv[])
     // get username from Controller
     hostname = appmod->get_hostname();
     modId = appmod->get_id();
-    message = new Message();
+
     tmplist << "USERNAME" << hostname << m_name << instance << QString().setNum(modId);
     tmp = tmplist.join("\n");
     ba = tmp.toLatin1();
-    message->data = (char *)((const char *)ba);
-    message->type = COVISE_MESSAGE_UI;
-    message->length = tmp.length() + 1;
-    appmod->send_ctl_msg(message);
-    delete message;
+    message.data = DataHandle(ba.data(), ba.length() + 1, false);
+    message.type = COVISE_MESSAGE_UI;
+    appmod->send_ctl_msg(&message);
     tmplist.clear();
 
     print_comment(__LINE__, __FILE__, "Renderer Process succeeded");

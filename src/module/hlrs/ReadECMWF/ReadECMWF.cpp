@@ -189,7 +189,7 @@ int ReadECMWF::compute(const char *)
             has_timesteps = 1;
         }
 
-        sendInfo("Found %d time steps\n", edges[0]);
+        sendInfo("Found %ld time steps\n", edges[0]);
 
         int nx = edges[numdims - 2], ny = edges[numdims - 1], nz = 1, nTime = edges[0];
         if (has_timesteps > 0)

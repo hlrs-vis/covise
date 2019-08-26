@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRDocVisibleMsg::coGRDocVisibleMsg(const char *document_name, int is_visible)

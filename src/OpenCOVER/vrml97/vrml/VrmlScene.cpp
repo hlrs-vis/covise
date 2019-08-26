@@ -103,6 +103,7 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
     , oldNi(0)
     , resetVPFlag(true)
     , d_WasEncrypted(false)
+	, d_loadSuccess(false)
 {
     d_nodes.addToScene(this, sceneUrl);
     d_backgrounds = new VrmlNodeList;
@@ -132,8 +133,14 @@ VrmlScene::VrmlScene(const char *sceneUrl, const char *localCopy)
         {
             cache = new InlineCache(localCopy);
         }
-        if (!load(sceneUrl, localCopy))
-            System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		if (!load(sceneUrl, localCopy))
+		{
+			System::the->error("VRMLScene: Couldn't load '%s'.\n", sceneUrl);
+		}
+		else
+		{
+			d_loadSuccess = true;
+		}
     }
 }
 
@@ -144,7 +151,10 @@ void VrmlScene::setMenuVisible(bool vis)
 
 VrmlScene::~VrmlScene()
 {
-	VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	if (d_namespace != NULL)
+	{
+		VrmlNamespace::resetNamespaces(d_namespace->getNumber().first);
+	}
 	System::the->destroyMenu();
     d_nodes.addToScene(0, 0);
     d_nodes.removeChildren();

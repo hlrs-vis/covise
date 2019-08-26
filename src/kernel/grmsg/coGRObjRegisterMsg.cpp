@@ -11,6 +11,7 @@
 #include <cstdio>
 #include "coGRObjRegisterMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 #define NO_PARENT "__NO_PARENT__"

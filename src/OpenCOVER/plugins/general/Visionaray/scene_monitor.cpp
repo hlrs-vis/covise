@@ -25,7 +25,7 @@ Material::Material(osg::Material *om, material_list &vm, size_t idx)
     , cs_(om->getSpecular(osg::Material::Face::FRONT))
     , ce_(om->getEmission(osg::Material::Face::FRONT))
     , shininess_(om->getShininess(osg::Material::Face::FRONT))
-    , specular_(opencover::coVRLighting::instance()->specularlightState)
+    , specular_(opencover::coVRLighting::instance()->specularlightStrength)
 {
 }
 
@@ -36,7 +36,7 @@ bool Material::changed()
     auto cs = osg_mat_->getSpecular(osg::Material::Face::FRONT);
     auto ce = osg_mat_->getEmission(osg::Material::Face::FRONT);
     auto sh = osg_mat_->getShininess(osg::Material::Face::FRONT);
-    bool sp = opencover::coVRLighting::instance()->specularlightState;
+    auto sp = opencover::coVRLighting::instance()->specularlightStrength;
 
     return ca_ != ca || cd_ != cd || cs_ != cs || ce_ != ce || shininess_ != sh || specular_ != sp;
 }
@@ -48,7 +48,7 @@ void Material::visit()
     auto cs = osg_mat_->getSpecular(osg::Material::Face::FRONT);
     auto ce = osg_mat_->getEmission(osg::Material::Face::FRONT);
     auto sh = osg_mat_->getShininess(osg::Material::Face::FRONT);
-    bool sp = opencover::coVRLighting::instance()->specularlightState;
+    auto sp = opencover::coVRLighting::instance()->specularlightStrength;
 
     vsnray_mats_[index_] = osg_cast(osg_mat_, sp);
     ca_ = ca;

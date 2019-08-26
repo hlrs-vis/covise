@@ -34,8 +34,8 @@
 	<VoIP value="ON">
 	  <SIPServer sipaddress="sip:141.58.2.25" transport="udp" />
 	  <Identity sipaddress="sip:testaccount@141.58.2.25" localport="5060" displayname="test account" username="test account" password="t3stacc0unt"/>
-          <contact name="sip:wolfgang@141.58.2.25" username="wolfgang" />
-          <contact name="sip:uwe@141.58.2.25" username="uwe" />
+          <Contact name="wolfgang" value="sip:wolfgang@141.58.2.25" />
+          <Contact name="uwe" value="sip:uwe@141.58.2.25" />
 	</VoIP>
 	
       </Plugin>

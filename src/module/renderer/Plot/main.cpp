@@ -612,13 +612,9 @@ int main(int argc, char *argv[])
     set_module_description("XMGR Plot Module");
     add_port(INPUT_PORT, "RenderData", "Vec2|RectilinearGrid", "plot_data");
 
-    Message *message = new Message();
-    message->data = get_description_message();
-    message->type = COVISE_MESSAGE_PARINFO; // should be a real type
-    message->length = strlen(message->data) + 1;
-    appmod->send_ctl_msg(message);
-    delete[] message -> data;
-    delete message;
+    char* c = get_description_message();
+    Message message{ COVISE_MESSAGE_PARINFO , DataHandle{c, strlen(c) + 1 } };
+    appmod->send_ctl_msg(&message);
 
     print_comment(__LINE__, __FILE__, "Renderer Process succeeded");
 

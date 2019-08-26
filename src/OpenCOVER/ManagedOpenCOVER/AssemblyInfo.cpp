@@ -5,7 +5,7 @@
 
  * License: LGPL 2+ */
 
-#include "stdafx.h"
+//#include "stdafx.h"
 
 using namespace System;
 using namespace System::Reflection;

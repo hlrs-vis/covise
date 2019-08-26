@@ -122,6 +122,6 @@ void coConfigEditorImport::importWizard()
 coQtFileSelection *coConfigEditorImport::makeFileSelectionWidget()
 {
 
-    coQtFileSelection *fs = new coQtFileSelection(QString::null, wizard);
+    coQtFileSelection *fs = new coQtFileSelection(QString(), wizard);
     return fs;
 }

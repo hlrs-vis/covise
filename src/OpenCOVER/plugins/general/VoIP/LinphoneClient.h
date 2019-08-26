@@ -56,6 +56,15 @@ public:
 
     //! sets the callback handler
     void addHandler(std::function<void (LinphoneClientState, LinphoneClientState)>* handler);
+
+    //! sets the callback notifier
+    void addNotifier(std::function<void (std::string)>* handler);
+
+    //! sets the UDP port range for audio streaming
+    void setAudioPortRange(unsigned int portMin, unsigned int portMax);
+    
+    //! sets the UDP port range for video streaming
+    void setVideoPortRange(unsigned int portMin, unsigned int portMax);
     
     //! create new thread, start core iterator
     void startCoreIterator();
@@ -86,12 +95,21 @@ public:
 
     //! gets the name of the currently capture sound device
     std::string getCurrentCaptureSoundDevice();
-    
+
+    //! sets the name of the currently capture sound device
+    void setCurrentCaptureSoundDevice(std::string newDevice);
+
     //! gets the name of the currently playback sound device
     std::string getCurrentPlaybackSoundDevice();
+
+    //! sets the name of the currently playback sound device
+    void setCurrentPlaybackSoundDevice(std::string newDevice);
     
     //! gets the name of the currently ringer sound device
     std::string getCurrentRingerSoundDevice();
+
+    //! sets the name of the currently playback sound device
+    void setCurrentRingerSoundDevice(std::string newDevice);
     
     //! gets the name of the currently media sound device
     //std::string getCurrentMediaSoundDevice();
@@ -105,41 +123,77 @@ public:
     //! returns true if echo cancellation is enabled
     bool getEchoCancellationIsEnabled();
 
+    //! set echo cancellation onoff
+    void setEchoCancellation(bool onoff);
+    
     //! returns true if echo limiter is enabled
     bool getEchoLimiterIsEnabled();
 
+    //! set echo limiter onoff
+    void setEchoLimiter(bool onoff);
+    
     //! tells whether the audio adaptive jitter compensation is enabled
     bool getAudioJitterCompensation();
-    
+
+    //! tset audio adaptive jitter compensation onoff
+    void setAudioJitterCompensation(bool onoff);
+
     //! get microphone gain in db
     float getMicGain();
 
+    //! set microphone gain in db
+    void setMicGain(float gain);
+    
     //! get playback gain in db before entering sound card
     float getPlaybackGain();
 
+    //! set playback gain in db before entering sound card
+    void setPlaybackGain(float gain);
+    
     //! tells whether video capture is enabled
     bool getVideoCaptureEnabled();
 
+    //! set video capture onoff
+    void setVideoCaptureEnabled(bool onoff);
+   
     //! tells whether video display is enabled
     bool getVideoDisplayEnabled();
-    
+
+    //! set video display onoff
+    void setVideoDisplayEnabled(bool onoff);
+   
     //! tells whether video preview is enabled
     bool getVideoPreviewEnabled();
-    
+
+    //! set video preview onoff
+    void setVideoPreviewEnabled(bool onoff);
+   
     //! get the default policy for acceptance of incoming video
     bool getAutoAcceptVideo();
+
+    //! set the default policy for acceptance of incoming video
+    void setAutoAcceptVideo(bool onoff);
     
     //! get the default policy for initiating video
     bool getAutoInitiateVideo();
+
+    //! set the default policy for initiating video
+    void setAutoInitiateVideo(bool onoff);
     
     //! tells whether the video adaptive jitter compensation is enabled
     bool getVideoJitterCompensation();
 
+    //! set the video adaptive jitter compensation onoff
+    void getVideoJitterCompensation(bool onoff);
+    
     //! gets a list of the available video capture devices
     std::vector<std::string> getVideoCaptureDevicesList();
 
     //! returns the name of the currently active video device    
     std::string getCurrentVideoCaptureDevice();
+
+    //! set the currently active video device    
+    void setCurrentVideoCaptureDevice(std::string newDevice);
     
     //! get microphone muted state
     bool getCallMicrophoneMuted();
@@ -156,7 +210,7 @@ public:
     //! get current linphone state
     LinphoneClientState getCurrentState();
 
-    //! easier readability for debugging purposes
+    //! easier readability fordebugging purposes
     std::string getStateString(LinphoneClientState);
 
     //! initiate call to given sip address, keep valid reference to call ptr
@@ -185,14 +239,24 @@ public:
 
     //! get no. of calls
     int getNoOfCalls();
-        
+
+    //! accept current call
+    void acceptIncomingCall();
+
+    //! reject current call with reason declined
+    void rejectIncomingCall();
+
+    //! get remote address of current call
+    std::string getCurrentRemoteAddress();
+    
 protected:
 
     std::vector< std::function<void (LinphoneClientState, LinphoneClientState)> * > handlerList;
+    std::vector< std::function<void (std::string)> * > notifierList;
     
     LinphoneCore *lc = NULL;
     LinphoneCall *call = NULL;
-    
+
     LinphoneCoreVTable vtable = {0};
     LinphoneProxyConfig* proxy_cfg = NULL;
     LinphoneAddress *from = NULL;
@@ -206,7 +270,7 @@ protected:
     std::thread thdFunction;
 
     bool oneTime = false;  // TODO: remove
-
+    
     float savedSpeakerGain; // FIXME: workaround for missing speaker mute
     
     const unsigned int timeout = 10; // * intervall ms

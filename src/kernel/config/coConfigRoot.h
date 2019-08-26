@@ -73,7 +73,7 @@ public:
     virtual const QString &getConfigName() const;
 
     virtual void reload();
-    virtual bool save(const QString &filename = QString::null) const;
+    virtual bool save(const QString &filename = QString()) const;
 
     void setGroup(coConfigGroup *group);
 

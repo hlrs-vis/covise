@@ -181,6 +181,7 @@
 	</PLMXML>
 	
 
+    <Chat value="off" menu="true" />
     <PDB value="off" menu="false" >
      <PDBPluginPymolDir value="/var/tmp/pymol/" />
      <PDBPluginTempDir value="/var/tmp/pdb/" />

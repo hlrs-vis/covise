@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSetDocPageSizeMsg::coGRSetDocPageSizeMsg(const char *document_name, int pageNo, float hsize, float vsize)

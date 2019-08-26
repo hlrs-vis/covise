@@ -629,84 +629,197 @@ void WriteData(char *filename, std::vector<Point> &vec, std::vector<ScannerPosit
 	cout << "Data Written!" << endl;
 }
 
+// ----------------------------------------------------------------------------
+char* getCmdOption(char** begin, char** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+    return std::find(begin, end, option) != end;
+}
+
+// ----------------------------------------------------------------------------
+void printHelpPage()
+{
+    cout << endl;
+    cout << "PointConvert converts ascii files to pts divided models." << endl;
+    cout << endl;
+    cout << "Usage: PointConvert [options ...] inputfile [inputfiles] outputfile" << endl;
+    cout << endl;
+    cout << "options" << endl;
+    cout << "  -h              show this help list" << endl;
+    cout << "  -f INPUTFORMAT  use selected input format" << endl;
+    cout << "  -i              use intensity only" << endl;
+    cout << "  -s              read scanner position" << endl;
+    cout << endl;
+    cout << "input formats" << endl;
+    cout << "  IRGB            x y z i r g b     (i is ignored)" << endl;
+    cout << "  RGBI            x y z r g b i                   " << endl;
+    cout << "  If              x y z i                         " << endl;
+    cout << "  RGB             x y z                           " << endl;
+    cout << "  UVRGBI          x y z u v r g b i               " << endl;
+    cout << endl;
+    cout << "  i - intensity/reflectivity " << endl;
+    cout << endl;
+    cout << "examples" << endl;
+    cout << "  PointConvert file1.xyz file2.xyz file3.xyz result.ptsb" << endl;
+    cout << endl;
+    cout << "note" << endl;
+    cout << "  Currently there are two params under main, one to set a maximum number of" << endl;
+    cout << "  points per cube and the other specifies the number of segments along the" << endl;
+    cout << "  longest dimension to divide up the space the points are bound in." << endl;
+    cout << endl;
+}
+
+// ----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
+    if (cmdOptionExists(argv, argv+argc, "-h"))
+    {
+        printHelpPage();
+        return 0;
+    }    
 
-	// TODO these values should be command line arguments
-	formatTypes format = FORMAT_IRGB;
-	//format = FORMAT_RGB;
-	std::vector<Point> vec;
-	vec.reserve(1000000);
+    formatTypes format = FORMAT_IRGB;  // default
+
+    if (cmdOptionExists(argv, argv+argc, "-f"))
+    {
+        char* caFormat = getCmdOption(argv, argv + argc, "-f");        
+
+        for (int i=0; i<strlen(caFormat); i++)
+        {
+            caFormat[i] = toupper(caFormat[i]);
+        }
+
+        if (strcmp(caFormat, "IRGB") == 0)
+        {
+            cout << "using IRGB input format" << endl;
+            format = FORMAT_IRGB;
+        }
+        else if (strcmp(caFormat, "RGBI") == 0)
+        {
+            cout << "using RGBI input format" << endl;
+            format = FORMAT_RGBI;
+        }
+        else if (strcmp(caFormat, "IF") == 0)
+        {
+            cout << "using If input format" << endl;
+            format = FORMAT_If;
+        }
+        else if (strcmp(caFormat, "RGB") == 0)
+        {
+            cout << "using RGB input format" << endl;
+            format = FORMAT_RGB;
+        }
+        else if (strcmp(caFormat, "UVRGBI") == 0)
+        {
+            cout << "using UVRGBI input format" << endl;
+            format = FORMAT_UVRGBI;
+        }
+        else
+        {
+            cout << "error: -f unknown input format" << endl;
+            printHelpPage();
+            return -1;
+        }
+    }
+
+    if (cmdOptionExists(argv, argv+argc, "-i"))
+    {
+        cout << "using intensity only" << endl;
+        intensityOnly = true;
+    }
+
+    if (cmdOptionExists(argv, argv+argc, "-s"))
+    {
+        cout << "using scanner position" << endl;
+        readScannerPosition = true;
+    }
+    
+    if (argc < 3) /* argc should be > 3 for correct execution */
+    {
+        cout << "error: minimal two params required" << endl;
+        printHelpPage();
+        return -1;
+    }
+
+    std::vector<Point> vec;
+    vec.reserve(1000000);
 
     std::vector<ScannerPosition> scanPositions;
 
-	min_x = min_y = min_z = FLT_MAX;
-	max_x = max_y = max_z = FLT_MIN;
+    min_x = min_y = min_z = FLT_MAX;
+    max_x = max_y = max_z = FLT_MIN;
 
     int nread = 0;
-	if (argc < 3) /* argc should be > 3 for correct execution */
-	{
-		printf("Minimal two params required. read README.txt\n");
-	}
-	else
-	{
-		for (int i = 1; i < argc - 1; i++)
-		{
-			int len = strlen(argv[i]);
-			if ((len > 1) && argv[i][0] == '-')
-			{
-				if (argv[i][1] == 'i')
-				{
-					intensityOnly = true;
-				}
-				if (argv[i][1] == 'r')
-                {
-                    format = FORMAT_RGB;
-                }
-                if (argv[i][1] == 's')
-                {
-                    readScannerPosition = true;
-                }
-			}
-			else
-			{
-                ++nread;
-                printf("Reading in %s\n", argv[i]);
-				if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
-				{
-                    ScannerPosition pos;
-                    pos.begin = vec.size();
-                    ReadPTX(argv[i], vec, pos.point);
-                    pos.end = vec.size();
-                    pos.ID = nread;
-                    scanPositions.push_back(pos);
-				}
-				else if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
-				{
-					ReadE57(argv[i], vec);
-				}
-				else if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
-				{
-					format = FORMAT_RGBI;
-					ReadData(argv[i], vec, format);
-				}
-				else if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
-				{   if (format != FORMAT_RGB)
-					    format = FORMAT_If;
-					ReadData(argv[i], vec, format);
-				}
-				else
-				{
-					ReadData(argv[i], vec, format);
-				}
-			}
-		}
-        if (nread > 0)
-            WriteData(argv[argc - 1], vec, scanPositions);
-        else
-            printf("Did not read any data\n");
-	}
+    int i = 1;
 
+    while (i < argc -1)
+    {
+        if (argv[i][0] == '-')
+        {
+            if (argv[i][1] == 'f')
+            {
+                i += 2;
+            }
+            else
+            {
+                ++i;
+            }
+            continue;
+        }
+
+        int len = strlen(argv[i]);
+	
+        ++nread;
+        printf("Reading in %s\n", argv[i]);
+        
+        if ((len > 4) && strcasecmp((argv[i] + len - 4), ".ptx") == 0)
+        {
+            ScannerPosition pos;
+            pos.begin = vec.size();
+            ReadPTX(argv[i], vec, pos.point);
+            pos.end = vec.size();
+            pos.ID = nread;
+            scanPositions.push_back(pos);
+        }
+        else if ((len > 4) && strcasecmp((argv[i] + len - 4), ".e57") == 0)
+        {
+            ReadE57(argv[i], vec);
+        }
+        else if ((len > 4) && strcmp((argv[i] + len - 4), ".xyz") == 0)
+        {
+            format = FORMAT_RGBI;
+            ReadData(argv[i], vec, format);
+        }
+        else if ((len > 4) && strcmp((argv[i] + len - 4), ".pts") == 0)
+        {   
+            if (format != FORMAT_RGB)
+                format = FORMAT_If;
+            format = FORMAT_IRGB;
+            ReadData(argv[i], vec, format);
+        }
+        else
+        {
+            ReadData(argv[i], vec, format);
+        }
+
+        ++i;        
+    }
+
+    if (nread > 0)
+        WriteData(argv[argc - 1], vec, scanPositions);
+    else
+        printf("Did not read any data\n");
+    
     //printf("maxPointsPerCube=%d, divisionSize=%d\n", maxPointsPerCube, divisionSize);
-	return 0;
+    return 0;
 }

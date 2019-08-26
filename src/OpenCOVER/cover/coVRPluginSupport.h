@@ -56,6 +56,8 @@
 #include "coVRPlugin.h"
 
 #include <vrbclient/VrbMessageSenderInterface.h>
+#include <net/message_types.h>
+
 namespace opencover {
 namespace ui {
 class ButtonGroup;
@@ -67,6 +69,10 @@ class VruiView;
 
 namespace covise {
 class Message;
+}
+
+namespace grmsg {
+class coGRMsg;
 }
 
 #define MAX_NUMBER_JOYSTICKS 64
@@ -196,6 +202,7 @@ class COVEREXPORT coVRPluginSupport
     friend class OpenCOVER;
     friend class fasi;
     friend class fasi2;
+    friend class mopla;
     friend class coVRMSController;
     friend class coIntersection;
 
@@ -531,6 +538,8 @@ public:
     VRBMessageSender *getSender();
 	void connectToCovise(bool connected);
 	bool connectedToCovise();
+
+    bool sendGrMessage(const grmsg::coGRMsg &grmsg, int msgType = covise::COVISE_MESSAGE_UI) const;
 private:
 	bool m_connectedToCovise = false;
     VRBMessageSender m_sender;

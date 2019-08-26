@@ -8,9 +8,11 @@
 #ifndef REGCLASS_H
 #define REGCLASS_H
 
+#include <net/dataHandle.h>
 #include <net/tokenbuffer.h>
 #include <net/message_types.h>
 #include <map>
+#include <vector>
 #include <set>
 #include <memory>
 #include <util/coExport.h>
@@ -20,214 +22,121 @@ class coCharBuffer;
 namespace covise
 {
 class VRBClient;
+class DataHandle;
 }
 
 namespace vrb
 {
-class clientRegClass;
-class clientRegVar;
-class serverRegVar;
-class serverRegClass;
+class regVar;
 class regClassObserver;
 class regVarObserver;
 class VrbClientRegistry;
 class SessionID;
 
-template<class variableType>
-class regClass
+
+class VRBEXPORT regClass
 {
 public:
-    typedef std::map<const std::string, std::shared_ptr<variableType>> VariableMap;
-    regClass<variableType>(const std::string &n, int ID)
-        : name(n)
-        , classID(ID)
-        , isDel(false)
-    {
-    }
+    typedef std::map<const std::string, std::shared_ptr<regVar>> VariableMap;
+	regClass(const std::string& n, int ID);
+    virtual ~regClass();
+
     /// get Class ID
-    int getID()
-    {
-        return (classID);
-    }
-    void setID(int id)
-    {
-        classID = id;
-    }
-    const std::string &getName()
-    {
-        return (name);
-    }
+	int getID();
+
+	void setID(int id);
+
+	const std::string& getName();
+
     ///creates a  a regvar entry  in the map
-    void append(variableType * var)
-    {
-        myVariables[var->getName()].reset(var);
-    }
+	void append(regVar* var);
+
     /// getVariableEntry, returns NULL if not found
-    variableType *getVar(const std::string &n)
-    {
-        auto it = myVariables.find(n);
-        if (it == myVariables.end())
-        {
-            return (NULL);
-        }
-        return it->second.get();
-    }
+	regVar* getVar(const std::string& n);
+
     /// remove a Variable
-    void deleteVar(const std::string &n)
-    {
-        myVariables.erase(n);
-    }
+	void deleteVar(const std::string& n);
+
     /// remove some Variables
-    void deleteAllNonStaticVars()
-    {
-        typename VariableMap::iterator it = myVariables.begin();
-        while (it != myVariables.end())
-        {
-            if (it->second->isStatic())
-            {
-                it = myVariables.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-    }
-    bool isDeleted()
-    {
-        return isDel;
-    }
-    void setDeleted(bool isdeleted = true)
-    {
-        isDel = isdeleted;
-        for (const auto var : myVariables)
-        {
-            var.second->setDeleted(isdeleted);
-        }
-    }
+	void deleteAllNonStaticVars();
+
+	bool isDeleted();
+
+	void setDeleted(bool isdeleted = true);
+
     ///write the classname and all variables in a .vrbreg file
-    void writeClass(std::ofstream &file) {
-        file << name;
-        file << "\n";
-        file << "{";
-        file << "\n";
-        for (const auto var : myVariables)
-        {
-            var.second->writeVar(file);
-            file << "\n";
-        }
-        file << "}";
+	void writeClass(std::ofstream& file);
 
-    }
     ///reads the name and value out of stream, return false if class has no variable
-    void readVar(std::ifstream &file)
-    {
+	void readVar(std::ifstream& file);
 
-        while (true)
-        {
-            std::string varName = "invalid";
-            int valueSize = -1;
-            file >> varName;
-            if (varName == "}")
-            {
-                return;
-            }
-            varName.pop_back();
-            file >> valueSize;
-            char *value = new char[valueSize];
-            file.read(value, valueSize);
-            covise::TokenBuffer tb(value, valueSize);
-            myVariables[varName] = createVar(varName, std::move(tb));
-            delete[] value; //createVar did copy the tokenbuffer
-        }
+    virtual std::shared_ptr<regVar> createVar(const std::string &name, const covise::DataHandle &value) = 0;
 
-    };
-    virtual std::shared_ptr<variableType> createVar(const std::string &name, covise::TokenBuffer &&value) = 0;
-    ~regClass()
-    {
-    };
 protected:
     std::string name;
     int classID = -1;
-    bool isDel;
+    bool isDel = false;
     VariableMap myVariables;
 };
 
-template<class classType>
-class regVar
+const std::string sharedMapName = "SharedMap";
+class VRBEXPORT regVar
 {
 protected:
-    covise::TokenBuffer value;
+
+
     std::string name;
-    classType *myClass;
-    bool staticVar;
-    bool isDel;
+    regClass *myClass = nullptr;
+    bool staticVar = false;
+    bool isDel = false;
+	///writes value to tb
+	void sendValueChange(covise::TokenBuffer& tb);
+	///writes value to tb, in case of SahredMap also writes all changes
+	void sendValue(covise::TokenBuffer& tb);
+
+	covise::DataHandle value;
 
 public:
+	//for SahredMaps
+	typedef std::map<int, covise::DataHandle> EntryMap;
+	covise::DataHandle wholeMap;
+	EntryMap m_changedEtries;
 
-    regVar(classType *c, const std::string &n, covise::TokenBuffer &v, bool s = 1)
-    {
-        myClass = c;
-        name = n;
-        staticVar = s;
-        setValue(v);
-        isDel = false;
-    }
-    ~regVar()
-    {
-        value.delete_data();
-    }
-    /// returns the value
-    covise::TokenBuffer &getValue()
-    {
-        value.rewind();
-        return (value);
-    };
+	regVar(regClass* c, const std::string& n, const covise::DataHandle & v, bool s = 1);
+
+	virtual ~ regVar();
+
+	/// returns the value
+	const covise::DataHandle& getValue() const;
+
     /// returns the class of this variable
-    classType *getClass()
-    {
-        return (myClass);
-    };
-    /// set value
-    inline void setValue(const covise::TokenBuffer &v)
-    {
-        value.copy(v);
-    }
-    /// returns true if this Var is static
-    int isStatic()
-    {
-        return (staticVar);
-    };
-    /// returns the Name
-    const std::string &getName()
-    {
-        return (name);
-    };
+	regClass* getClass();
 
-    bool isDeleted()
-    {
-        return isDel;
-    }
-    void setDeleted(bool isdeleted = true)
-    {
-        isDel = isdeleted;
-    }
-    void writeVar(std::ofstream &file) 
-    {
-        file << "    " << name << "; ";
-        int length = value.get_length();
-        file << length;
-        file.write(value.get_data(), value.get_length());
-    }
+	/// set value
+	void setValue(const covise::DataHandle& v);
+
+    /// returns true if this Var is static
+	int isStatic();
+
+    /// returns the Name
+	const std::string& getName();
+
+
+	bool isDeleted();
+
+	void setDeleted(bool isdeleted = true);
+
+	void writeVar(std::ofstream& file);
+
 };
 
 
-class VRBEXPORT clientRegClass : public regClass<clientRegVar>
+class VRBEXPORT clientRegClass : public regClass
 {
 private:
     regClassObserver *_observer = nullptr; //local observer class
-    int lastEditor;
-    VrbClientRegistry *registry;
+    int lastEditor = -1;
+    VrbClientRegistry *registry = nullptr;
 public:
     void sendMsg(covise::TokenBuffer &tb, covise::covise_msg_type type);
     clientRegClass(const std::string &n, int ID, VrbClientRegistry *reg);
@@ -249,13 +158,13 @@ public:
     void resubscribe(const SessionID &sessionID);
     void subscribe(regClassObserver *obs, const SessionID &sessionID);
     VariableMap &getAllVariables();
-    std::shared_ptr<clientRegVar> createVar(const std::string &name, covise::TokenBuffer &&value) override;
+    std::shared_ptr<regVar> createVar(const std::string &name, const covise::DataHandle &value) override;
 };
-class VRBEXPORT clientRegVar : public regVar<clientRegClass>
+class VRBEXPORT clientRegVar : public regVar
 {
 private:
-    regVarObserver *_observer;
-    int lastEditor;
+    regVarObserver *_observer = nullptr;
+    int lastEditor = -1;
 public:
     using regVar::regVar;
     ///returns the clent side observer

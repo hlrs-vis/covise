@@ -63,7 +63,7 @@
 #include <PluginUtil/PluginMessageTypes.h>
 #include <vrbclient/VrbClientRegistry.h>
 #include <config/CoviseConfig.h>
-
+#include <OpenVRUI/coNavInteraction.h>
 #include "ui/Owner.h"
 #include "ui/Action.h"
 #include "ui/Button.h"
@@ -98,27 +98,28 @@ coVRCommunication *coVRCommunication::instance()
 }
 
 coVRCommunication::coVRCommunication()
-: ui::Owner("VRCommunication", cover->ui)
+//: ui::Owner("VRCommunication", cover->ui)
 {
     assert(!s_instance);
 
     srand((unsigned)time(NULL)); // Initialize the random timer
     ignoreRemoteTransform = coCoviseConfig::isOn("COVER.IgnoreRemoteTransform", false);
 
-    for (int i = 0; i < NUM_LOCKS; i++)
-    {
-        RILockArray[i] = -1;
-    }
-    me = new coVRPartner();
-    //randomID = (int)rand(); //nessesary??
 
-    //me->setID(randomID);
-    coVRPartnerList::instance()->addPartner(me);
-    registry.reset(new VrbClientRegistry(me->getID(), cover->getSender()));
-    new SharedStateManager(registry.get());
-    m_vrbMenue.reset(new VrbMenue());
+
+    registry.reset(new VrbClientRegistry(-1));
+	sharedStateManager.reset(new SharedStateManager(registry.get()));
 }
+void coVRCommunication::init()
+{
+	me = new coVRPartner();
 
+	coVRPartnerList::instance()->addPartner(me);
+	registry->setID(me->getID(), me->getSessionID());
+	registry->registerSender(cover->getSender());
+	m_vrbMenue.reset(new VrbMenue());
+	remoteNavInteraction = new vrui::coNavInteraction(vrui::coInteraction::NoButton, "remoteNavInteraction");
+}
 void opencover::coVRCommunication::connected()
 {
 	for (auto function : onConnectCallbacks)
@@ -144,7 +145,7 @@ void opencover::coVRCommunication::disconnected()
 coVRCommunication::~coVRCommunication()
 {
     coVRPartnerList::instance()->deletePartner(me->getID());
-
+	delete remoteNavInteraction;
     s_instance = NULL;
 }
 
@@ -154,7 +155,7 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
     {
         if (theChangedClass->getName() == "VRMLFile")
         {
-            for (std::map<const std::string, std::shared_ptr<clientRegVar>>::iterator it = theChangedClass->getAllVariables().begin();
+            for (std::map<const std::string, std::shared_ptr<regVar>>::iterator it = theChangedClass->getAllVariables().begin();
                 it != theChangedClass->getAllVariables().end(); ++it)
             {
                 coVRPartner *p = NULL;
@@ -165,11 +166,9 @@ void coVRCommunication::update(clientRegClass *theChangedClass)
                 }
                 if ((p = coVRPartnerList::instance()->get(remoteID)))
                 {
-                    char * value;
-                    it->second->getValue() >> value;
-                    p->setFile(value);
+                    p->setFile(it->second->getValue().data());
                     cerr << theChangedClass->getName() << endl;
-                    cerr << value << endl;
+                    cerr << it->second->getValue().data() << endl;
                 }
             }
         }
@@ -208,84 +207,6 @@ void opencover::coVRCommunication::setSessionID(const vrb::SessionID &id)
     tb << id;
     tb << me->getID();
     sendMessage(tb, COVISE_MESSAGE_VRBC_SET_SESSION);
-}
-
-void coVRCommunication::RILock(int lockID)
-{
-    int myID = getID();
-    //   cerr << "tryLOCK ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if (RILockArray[lockID] < myID)
-    {
-        covise::TokenBuffer tb;
-        tb << vrb::LOCK;
-        tb << lockID;
-        tb << myID;
-        Message msg(tb);
-        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
-        cover->sendVrbMessage(&msg);
-        RILockArray[lockID] = myID;
-        cerr << "LOCK ID: " << lockID << " myID:" << myID << endl;
-    }
-}
-
-void coVRCommunication::RIUnLock(int lockID)
-{
-    int myID = getID();
-    if (RILockArray[lockID] == myID)
-    {
-        covise::TokenBuffer tb;
-        tb << vrb::UNLOCK;
-        tb << lockID;
-        tb << myID;
-        Message msg(tb);
-        msg.type = COVISE_MESSAGE_VRB_MESSAGE;
-        cover->sendVrbMessage(&msg);
-        RILockArray[lockID] = -1;
-        cerr << "UNLOCK ID: " << lockID << " myID:" << myID << endl;
-    }
-}
-
-void coVRCommunication::RIRemoteLock(int lockID, int remoteID)
-{
-    if (RILockArray[lockID] < remoteID)
-    {
-        RILockArray[lockID] = remoteID;
-        cerr << "REMOTE_LOCK ID: " << lockID << " remoteID:" << remoteID << endl;
-    }
-}
-
-void coVRCommunication::RIRemoteUnLock(int lockID, int remoteID)
-{
-    if (RILockArray[lockID] == remoteID)
-    {
-        RILockArray[lockID] = -1;
-        cerr << "REMOTE_UNLOCK ID: " << lockID << " remoteID:" << remoteID << endl;
-    }
-}
-
-bool coVRCommunication::isRILocked(int lockID)
-{
-    int myID = me->getID();
-    if (myID < 0)
-    {
-        myID = randomID;
-    }
-    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] != myID))
-        return true;
-    return false;
-}
-
-bool coVRCommunication::isRILockedByMe(int lockID)
-{
-    int myID = me->getID();
-    if (myID < 0)
-    {
-        myID = randomID;
-    }
-    //cerr << "tryIsLOCKedByMe ID: " << lockID << " myID:" << myID << " RILockArray:"<< RILockArray[lockID] <<endl;
-    if ((RILockArray[lockID] >= 0) && (RILockArray[lockID] == myID))
-        return true;
-    return false;
 }
 
 const char *coVRCommunication::getHostaddress()
@@ -388,7 +309,7 @@ void coVRCommunication::processRenderMessage(const char *key, const char *tmp)
 }
 void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
 {
-	if (!tb.get_data())
+	if (!tb.getData().data())
 	{
 		cerr << "invalid vrb render message" << endl;
 		return;
@@ -398,22 +319,6 @@ void coVRCommunication::processVRBMessage(covise::TokenBuffer &tb)
     vrb::vrbMessageType type = (vrbMessageType)t;
     switch (type)
     {
-    case vrb::LOCK:
-    {
-        int lockID = 0, myID = -1;
-        tb >> lockID;
-        tb >> myID;
-        RIRemoteLock(lockID, myID);
-    }
-        break;
-    case vrb::UNLOCK:
-    {
-        int lockID = 0, myID = -1;
-        tb >> lockID;
-        tb >> myID;
-        RIRemoteUnLock(lockID, myID);
-    }
-        break;
     case vrb::AVATAR:
     {
         coVRPartnerList::instance()->receiveAvatarMessage(tb);
@@ -663,6 +568,7 @@ void coVRCommunication::handleVRB(Message *msg)
         if (id != me->getID())
         {
              coVRPartnerList::instance()->deletePartner(id);
+			 vrui::coInteractionManager::the()->resetLocks(id);
         }
         if (coVRPartnerList::instance()->numberOfPartners() <= 1)
             coVRCollaboration::instance()->showCollaborative(false);
@@ -716,20 +622,20 @@ void coVRCommunication::handleVRB(Message *msg)
     break;
     case COVISE_MESSAGE_RENDER_MODULE:
     {
-        coVRPluginList::instance()->forwardMessage(msg->length, msg->data);
+        coVRPluginList::instance()->forwardMessage(msg->data);
     }
     break;
     case COVISE_MESSAGE_RENDER:
     {
-        if (msg->data[0] != 0)
+        if (msg->data.data()[0] != 0)
         {
-            std::string data(msg->data);
+            std::string data(msg->data.data());
             std::vector<std::string> tokens = split(data, '\n');
             processRenderMessage(tokens[0].c_str(), tokens[1].c_str());
         }
         else
         {
-            processRenderMessage(&msg->data[1], &msg->data[strlen(&msg->data[1]) + 2]);
+            processRenderMessage(&msg->data.data()[1], &msg->data.data()[strlen(&msg->data.data()[1]) + 2]);
         }
     }
     break;
@@ -931,7 +837,7 @@ void coVRCommunication::handleVRB(Message *msg)
     case COVISE_MESSAGE_VRB_MESSAGE:
     {
 
-		if (msg->length == 0)
+		if (msg->data.length() == 0)
 		{
 			fprintf(stderr, "empty message\n");
 			return;
@@ -969,6 +875,7 @@ void coVRCommunication::handleUdp(vrb::UdpMessage* msg)
 	case vrb::AVATAR_CONTROLLER_POSITION:
 		break;
 	default:
+		coVRPluginList::instance()->UDPmessage(msg->type, msg->data);
 		break;
 	}
 
@@ -1020,7 +927,20 @@ Message *coVRCommunication::waitForMessage(int messageType)
     if (!m)
     {
         m = new Message;
-        vrbc->wait(m, messageType);
+	int ret = 0;
+        if (coVRMSController::instance()->isMaster())
+        {
+            ret = vrbc->wait(m, messageType);
+            coVRMSController::instance()->sendSlaves(&ret, sizeof(ret));
+            if (ret != -1)
+       		coVRMSController::instance()->sendSlaves(m);
+        }
+        else
+        {
+            coVRMSController::instance()->readMaster(&ret, sizeof(ret));
+            if (ret != -1)
+            	coVRMSController::instance()->readMaster(m);
+        }
     }
 
     return m;
@@ -1073,6 +993,11 @@ void opencover::coVRCommunication::handleCoviseMessage(Message* m)
 	{
 		handleMessageCallback(m);
 	}
+}
+
+void opencover::coVRCommunication::initVrbFileMenue()
+{
+	m_vrbMenue->initFileMenue();
 }
 
 void coVRCommunication::setFBData(IData *data)

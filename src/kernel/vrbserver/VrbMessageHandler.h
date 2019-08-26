@@ -26,6 +26,7 @@
 namespace covise
 {
 class Connection;
+class DataHandle;
 }
 
 namespace vrb
@@ -47,9 +48,8 @@ class VRBSERVEREXPORT VrbMessageHandler
 public:
     VrbMessageHandler(ServerInterface *server);
     ///do stuff depening on message type
-    virtual void handleMessage(covise::Message *msg);
+    void handleMessage(covise::Message *msg);
     ///
-    virtual  
     ///inform clients about closing the socket
     void closeConnection();
     ///return numer of clients
@@ -65,7 +65,7 @@ public:
 protected:
     ServerInterface *m_server;
 	///update the vrb userinterface
-    virtual void updateApplicationWindow(const char *cl, int sender, const char *var, covise::TokenBuffer &value);
+    virtual void updateApplicationWindow(const char *cl, int sender, const char *var, const covise::DataHandle &value);
     virtual void removeEntryFromApplicationWindow(const char *cl, int sender, const char *var);
     virtual void removeEntriesFromApplicationWindow(int sender);
 

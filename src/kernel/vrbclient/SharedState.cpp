@@ -6,20 +6,26 @@
  * License: LGPL 2+ */
 
 #include "SharedState.h"
-#include <vrbclient/regClass.h>
 #include "SharedStateManager.h"
-#include <vrbclient/VrbClientRegistry.h>
+#include "regClass.h"
+#include "VrbClientRegistry.h"
+
 #include <chrono>
 #include <ctime>
 
+#include <net/tokenbuffer.h>
+#include <net/dataHandle.h>
 
 
+
+using namespace covise;
 namespace vrb
 {
 
-SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
+SharedStateBase::SharedStateBase(const std::string name, SharedStateType mode, const std::string& className)
     : m_registry(SharedStateManager::instance()->getRegistry())
     , variableName(name)
+	, m_className(className)
 {
     auto news = SharedStateManager::instance()->add(this, mode);
     sessionID = news.first;
@@ -28,25 +34,36 @@ SharedStateBase::SharedStateBase(std::string name, SharedStateType mode)
 
 SharedStateBase::~SharedStateBase()
 {
-    if(m_registry)
-    {
-        m_registry->unsubscribeVar(className, variableName);
-    }
-    SharedStateManager::instance()->remove(this);
+	if (SharedStateManager::instance())
+	{
+		if (m_registry)
+		{
+			m_registry->unsubscribeVar(m_className, variableName);
+		}
+		SharedStateManager::instance()->remove(this);
+	}
 }
 
-void SharedStateBase::subscribe(covise::TokenBuffer && val)
+void SharedStateBase::subscribe(const DataHandle &val)
 {
     if(m_registry)
     {
-        m_registry->subscribeVar(sessionID, className, variableName, std::move(val), this);
+        m_registry->subscribeVar(sessionID, m_className, variableName, val, this);
     }
 }
 
-void SharedStateBase::setVar(covise::TokenBuffer && val)
+void SharedStateBase::setVar(const DataHandle & val)
 {
-    tb_value = std::move(val);
-    send = true;
+    m_valueData = val;
+	if (syncInterval <= 0)
+	{
+		m_registry->setVar(sessionID, m_className, variableName, val, muted);
+	}
+	else
+	{
+		send = true;
+	}
+
 }
 
 void SharedStateBase::setUpdateFunction(std::function<void()> function)
@@ -70,8 +87,7 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     {
         return;
     }
-    theChangedVar->getValue().rewind();
-    deserializeValue(theChangedVar->getValue());
+    deserializeValue(theChangedVar);
     valueChanged = true;
     if (updateCallback != nullptr)
     {
@@ -79,7 +95,7 @@ void SharedStateBase::update(clientRegVar *theChangedVar)
     }
 }
 
-void SharedStateBase::setID(SessionID &id)
+void SharedStateBase::setID(const SessionID &id)
 {
     sessionID = id;
 }
@@ -94,22 +110,19 @@ bool SharedStateBase::getMute()
     return muted;
 }
 
-void SharedStateBase::resubscribe(SessionID &id)
+void SharedStateBase::resubscribe(const SessionID &id)
 {
-    if(m_registry == NULL)
-        return;
-    if (m_registry->getClass(className)->getVar(variableName))
+    if (m_registry && m_registry->getClass(m_className)->getVar(variableName))
     {
-        m_registry->unsubscribeVar(className, variableName, true);
+        m_registry->unsubscribeVar(m_className, variableName, true);
     }
 
-    covise::TokenBuffer tb;
-    m_registry->subscribeVar(id, className, variableName, std::move(tb), this);
+    m_registry->subscribeVar(id, m_className, variableName, m_valueData, this);
 }
 
 void SharedStateBase::frame(double time)
 {
-    if(m_registry == NULL)
+    if(!m_registry)
         return;
     if (sessionID == SessionID())
     {
@@ -117,7 +130,7 @@ void SharedStateBase::frame(double time)
     }
     if (send && time >= lastUpdateTime + syncInterval)
     {
-        m_registry->setVar(sessionID, className, variableName, std::move(tb_value), muted);
+        m_registry->setVar(sessionID, m_className, variableName, m_valueData, muted);
         lastUpdateTime = time;
         send = false;
     }
@@ -135,7 +148,7 @@ float SharedStateBase::getSyncInerval()
 void SharedStateBase::becomeMaster()
 {
     muted = false;
-    if (tb_value.get_length() > 0)
+    if (m_valueData.length() > 0)
     {
         send = true;
     }

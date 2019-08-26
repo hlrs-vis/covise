@@ -112,7 +112,7 @@ inline visionaray::tex_address_mode osg_cast(osg::Texture::WrapMode mode)
     }
 }
 
-inline material_type osg_cast(osg::Material const *mat, bool specular = true)
+inline material_type osg_cast(osg::Material const *mat, float specular = 1.f)
 {
     using namespace visionaray;
 
@@ -140,7 +140,7 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
         vsnray_mat.ls() = 1.0f;
         return material_type(vsnray_mat);
     }
-    else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f) || !specular)
+    else if ((cs[0] == 0.0f && cs[1] == 0.0f && cs[2] == 0.0f) || specular == 0.0f)
     {
         matte<float> vsnray_mat;
         vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
@@ -154,7 +154,7 @@ inline material_type osg_cast(osg::Material const *mat, bool specular = true)
         plastic<float> vsnray_mat;
         vsnray_mat.ca() = from_rgb(osg_cast(ca).xyz());
         vsnray_mat.cd() = from_rgb(osg_cast(cd).xyz());
-        vsnray_mat.cs() = from_rgb(osg_cast(cs).xyz());
+        vsnray_mat.cs() = from_rgb(osg_cast(cs).xyz() * specular);
         vsnray_mat.ka() = 1.0f;
         vsnray_mat.kd() = 1.0f;
         vsnray_mat.ks() = 1.0f;

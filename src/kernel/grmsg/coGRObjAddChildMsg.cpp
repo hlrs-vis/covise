@@ -13,6 +13,8 @@
 
 #define NO_CHILD "__NO_CHILD__"
 
+using namespace std;
+
 namespace grmsg
 {
 

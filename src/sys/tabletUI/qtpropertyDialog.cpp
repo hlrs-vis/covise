@@ -417,16 +417,16 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
 
     VecEdit1 = new QLineEdit();
     VecEdit1->setMaximumWidth(120);
-    connect(VecEdit1, SIGNAL(returnPressed()), this, SLOT(handleUniformVec()));
+    connect(VecEdit1, SIGNAL(editingFinished()), this, SLOT(handleUniformVec()));
     VecEdit2 = new QLineEdit();
     VecEdit2->setMaximumWidth(120);
-    connect(VecEdit2, SIGNAL(returnPressed()), this, SLOT(handleUniformVec()));
+    connect(VecEdit2, SIGNAL(editingFinished()), this, SLOT(handleUniformVec()));
     VecEdit3 = new QLineEdit();
     VecEdit3->setMaximumWidth(120);
-    connect(VecEdit3, SIGNAL(returnPressed()), this, SLOT(handleUniformVec()));
+    connect(VecEdit3, SIGNAL(editingFinished()), this, SLOT(handleUniformVec()));
     VecEdit4 = new QLineEdit();
     VecEdit4->setMaximumWidth(120);
-    connect(VecEdit4, SIGNAL(returnPressed()), this, SLOT(handleUniformVec()));
+    connect(VecEdit4, SIGNAL(editingFinished()), this, SLOT(handleUniformVec()));
 
     VecEdit1->hide();
     VecEdit2->hide();
@@ -441,7 +441,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     editLabel->hide();
     uniformEdit = new QLineEdit();
     uniformEdit->setMaximumWidth(120);
-    connect(uniformEdit, SIGNAL(returnPressed()), this, SLOT(handleSetUniformL()));
+    connect(uniformEdit, SIGNAL(editingFinished()), this, SLOT(handleSetUniformL()));
     uniformSlider = new QSlider();
     uniformSlider->setOrientation(Qt::Horizontal);
     uniformSlider->setMaximumWidth(120);
@@ -453,7 +453,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     uniformTexFileEdit = new QLineEdit();
     uniformTexFileEdit->setMaximumWidth(250);
     uniformTexFileEdit->setWindowTitle("default texture");
-    connect(uniformTexFileEdit, SIGNAL(returnPressed()), this, SLOT(handleUniformText()));
+    connect(uniformTexFileEdit, SIGNAL(editingFinished()), this, SLOT(handleUniformText()));
     uniformTexFileEdit->hide();
     reloadLabel = new QLabel("Please remove shader and set Shader again");
     reloadLabel->hide();
@@ -859,7 +859,7 @@ PropertyDialog::PropertyDialog(TUISGBrowserTab *tab, QWidget *parent)
     connect(discardButton, SIGNAL(pressed()), this, SLOT(onDiscardPressed()));
     connect(closeButton, SIGNAL(pressed()), this, SLOT(onClosePressed()));
     connect(applyButton, SIGNAL(pressed()), this, SLOT(onApplyPressed()));
-    connect(childrenEdit, SIGNAL(returnPressed()), this, SLOT(onApplyPressed()));
+    connect(childrenEdit, SIGNAL(editingFinished()), this, SLOT(onApplyPressed()));
 
     setLayout(mainLayout);
 

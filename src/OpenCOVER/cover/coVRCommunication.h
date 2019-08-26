@@ -35,11 +35,14 @@ class Message;
 #include <vrbclient/SessionID.h>
 #include <net/message_types.h>
 
-
+namespace vrui
+{
+class coNavInteraction;
+}
 namespace vrb {
-    class SharedStateManager;
-    class VrbClientRegistry;
-	class UdpMessage;
+class SharedStateManager;
+class VrbClientRegistry;
+class UdpMessage;
 }
 namespace opencover
 {
@@ -55,23 +58,11 @@ class FileBrowser;
 class Action;
 class SelectionList;
 };
-class COVEREXPORT coVRCommunication: public vrb::regClassObserver, public ui::Owner
+class COVEREXPORT coVRCommunication: public vrb::regClassObserver
 {
 public:
-    enum
-    {
-        TRANSFORM = 0,
-        SCALE,
-        MOVE_DNA,
-        NUM_LOCKS
-    };
+	void init();
     static coVRCommunication *instance();
-    void RILock(int lockID);
-    void RIUnLock(int lockID);
-    void RIRemoteLock(int lockID, int remoteID);
-    void RIRemoteUnLock(int lockID, int remoteID);
-    bool isRILocked(int lockID);
-    bool isRILockedByMe(int lockID);
 
     ~coVRCommunication();
     void processRenderMessage(const char * key, const char * tmp);
@@ -99,6 +90,7 @@ public:
     void becomeMaster();
     covise::Message *waitForMessage(int messageType);
     std::unique_ptr<vrb::VrbClientRegistry> registry;
+	std::unique_ptr<vrb::SharedStateManager> sharedStateManager;
     bool sendMessage(covise::Message *msg);
     bool sendMessage(covise::TokenBuffer &tb, covise::covise_msg_type type);
 	//add callback that is called after first contact with vrb
@@ -112,13 +104,16 @@ public:
 
 	std::vector<covise::Message*> waitCoviseMessages();
 	void handleCoviseMessage(covise::Message* m);
+	//called from coVRFileManager to make sure cover->filemenue is initialized
+	void initVrbFileMenue();
 private:
     coVRCommunication();
     static coVRCommunication *s_instance;
     coVRPartner *me = nullptr;
-    int RILockArray[1000];
-    int randomID;
-    bool ignoreRemoteTransform;
+
+	vrui::coNavInteraction* remoteNavInteraction = nullptr;;
+    int randomID = 0;
+    bool ignoreRemoteTransform = false;
     std::map<int, VRBData *> mfbData;
     std::unique_ptr<VrbMenue> m_vrbMenue;
     vrb::SessionID m_privateSessionID;

@@ -195,7 +195,10 @@ void MEDataPort::getDataObjectInfo()
 {
 
     if (m_dataObject)
+    {
         delete m_dataObject;
+        m_dataObject = NULL;
+    }
 
     // show only data objects on local host & for output ports that are connected to a local input port
 

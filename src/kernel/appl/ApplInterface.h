@@ -389,7 +389,7 @@ public:
     static char *get_generic_message();
 
     static void send_stop_pipeline();
-    static int send_ctl_message(covise_msg_type type, const char *msg_string);
+    static int send_ctl_message(covise_msg_type type, char *msg_string);
     static void sendFinishedMsg();
 
     //

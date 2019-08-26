@@ -492,7 +492,7 @@ int ReadIHS2::ReadGeoSimRB(struct geometry *geo)
    FILE *stream;
    char datei[300];
 
-   char buf[200], errbuf[200];
+   char buf[300], errbuf[300];
 
    int i, n, z, dummy, n_elem, len;
    int dimension = 0;

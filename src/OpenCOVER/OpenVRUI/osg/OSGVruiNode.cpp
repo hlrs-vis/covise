@@ -24,12 +24,10 @@ OSGVruiNode::OSGVruiNode(Node *node)
 {
     parent = 0;
     this->node = node;
-    node->ref();
 }
 
 OSGVruiNode::~OSGVruiNode()
 {
-    node->unref();
     delete parent;
 }
 

@@ -8,6 +8,7 @@
 #include "coGRObjSetTransparencyMsg.h"
 #include <cstdio>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjSetTransparencyMsg::coGRObjSetTransparencyMsg(Mtype type, const char *obj_name, float trans)

@@ -27,12 +27,18 @@
 #include <functional>
 
 #include "LinphoneClient.h"
+#include "NotifyDialog.h"
+
+// ----------------------------------------------------------------------------
+
+#define SYNCBUFFER_SIZE 64
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 class VoIPPlugin : public opencover::coVRPlugin,
                    public vrui::coMenuListener,
-                   public opencover::coTUIListener
+                   public opencover::coTUIListener,
+                   public vrui::coValuePotiActor
 {
 public:
 
@@ -40,6 +46,10 @@ public:
     {
         std::string sipaddress = "";
         std::string transport = "";
+        int portMinAudio = 0;
+        int portMaxAudio = 0;
+        int portMinVideo = 0;
+        int portMaxVideo = 0;
     };
 
     struct SIPIdentity
@@ -51,24 +61,57 @@ public:
         std::string password="";
     };
 
+    struct SyncMenu
+    {
+        char strNODQuestion1[SYNCBUFFER_SIZE] = {0}; // nodNotifyQuestion->setText()
+        char strNODQuestion2[SYNCBUFFER_SIZE] = {0};
+        char strNODQuestion3[SYNCBUFFER_SIZE] = {0};
+
+        char strMLBCallNameOfPartner[SYNCBUFFER_SIZE] = {0}; // menuLabelCallNameOfPartner->setLabel()
+        char strMCBRegister[SYNCBUFFER_SIZE] = {0}; // menuCheckboxRegister->setLabel()
+        char strMLBCallState[SYNCBUFFER_SIZE] = {0}; // menuLabelCallState->setLabel()
+        
+        bool bNODNotifyQuestionShow  = false; // nodNotifyQuestion->show()
+        bool bMCBRegister = false; //  menuCheckboxRegister->setState()
+    };
+    
     VoIPPlugin();
     ~VoIPPlugin();
 
     static VoIPPlugin* instance();
 
     virtual bool init();
-    void msgCallback(LinphoneClientState oldState, LinphoneClientState currentState);
     virtual void menuEvent(vrui::coMenuItem *aButton);
-                       
+
+    void msgCallback(LinphoneClientState oldState, LinphoneClientState currentState);
+    void msgNotify(std::string);
+
+    bool update();
+    
 protected:
 
+    static VoIPPlugin* plugin;
+
+    // tools to sync master/slaves
+    
+    SyncMenu syncMenu;
+    bool bRequestUpdate = false;
+    void requestUpdate() { bRequestUpdate = true; }
+
+    bool bPostInitCompleted = false;
+    bool postInit();
+
+    // VR menu
+    
     void createMenu();
     void updateMenu();
     void destroyMenu();
 
-    static VoIPPlugin* plugin;
+    void potiValueChanged(float oldValue, float newValue, vrui::coValuePoti *poti, int context = -1);
+
     std::function<void (LinphoneClientState, LinphoneClientState)> handler;
-    
+    std::function<void (std::string)> notifier;
+
     vrui::coSubMenuItem* menuMainItem = nullptr;
     vrui::coSubMenuItem* menuAudioItem = nullptr;
     vrui::coSubMenuItem* menuVideoItem = nullptr;
@@ -111,6 +154,8 @@ protected:
     vrui::coCheckboxMenuItem* menuCheckboxAutoAcceptVideo = nullptr;
     vrui::coCheckboxMenuItem* menuCheckboxAutoInitiateVideo = nullptr;
     vrui::coCheckboxMenuItem* menuCheckboxVideoJitterCompensation = nullptr;
+
+    opencover::NotifyDialog* nodNotifyQuestion = nullptr;
     
     std::vector<vrui::coCheckboxMenuItem*> menuCaptureDevices;
     std::vector<vrui::coCheckboxMenuItem*> menuPlaybackDevices;
@@ -120,11 +165,17 @@ protected:
     
     std::vector<vrui::coButtonMenuItem*> menuContacts;
 
+    std::vector<std::string> vecCaptureSoundDevices;
+    std::vector<std::string> vecPlaybackSoundDevices;
+    std::vector<std::string> vecVideoCaptureDevices;
+    
     SIPServer server;
     SIPIdentity identity;
     std::vector<SIPIdentity> contacts;
 
-    LinphoneClient* lpc;
+    bool bNotified = false;
+    
+    LinphoneClient* lpc = nullptr;
 };
 
 // ----------------------------------------------------------------------------

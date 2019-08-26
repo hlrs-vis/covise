@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRSendCurrentDocMsg::coGRSendCurrentDocMsg(const char *document_name, const char *current_document, const char *objName)

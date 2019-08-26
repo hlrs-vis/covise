@@ -24,7 +24,7 @@ class CONFIGEXPORT coConfigEntryString : public QString
 {
 
 public:
-    coConfigEntryString(const QString &string = QString::null,
+    coConfigEntryString(const QString &string = QString(),
                         const coConfigConstants::ConfigScope scope = coConfigConstants::Default,
                         const QString &configName = "",
                         bool isListItem = false);

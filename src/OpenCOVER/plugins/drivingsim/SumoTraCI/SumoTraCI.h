@@ -71,8 +71,11 @@ struct vehicleModel
     std::string vehicleName;
     std::string fileName;
     vehicleModel(std::string, std::string);
+    double scale=1;
+    vehicleModel(std::string t, std::string n, double s);
 };
 
+vehicleModel::vehicleModel(std::string t, std::string n, double s) : vehicleName(t), fileName(n),scale(s) {}
 vehicleModel::vehicleModel(std::string t, std::string n) : vehicleName(t), fileName(n) {}
 
 class SumoTraCI : public opencover::coVRPlugin , public ui::Owner
@@ -132,8 +135,9 @@ private:
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
     std::vector<pedestrianModel> pedestrianModels;
     void getPedestriansFromConfig();
+    void lineUpAllPedestrianModels();
 
-    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle"};
+    std::vector<std::string> vehicleClasses = {"passenger", "bus", "truck", "bicycle","escooter"};
     std::map<std::string, std::vector<vehicleModel> *> vehicleModelMap;
 
     void getVehiclesFromConfig();
@@ -151,7 +155,7 @@ private:
     int uniqueIDValue = 0;
 
     void subscribeToSimulation();
-    void updateVehiclePosition();
+    void insertMissingEntities();
     AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     void interpolateVehiclePosition();
     osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);

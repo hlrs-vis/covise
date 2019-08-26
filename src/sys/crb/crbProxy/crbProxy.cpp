@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
    Message *retmsg= new Message;
    retmsg->type=UI;
    retmsg->data=(char *)((const char *)buf);
-   retmsg->length=strlen(retmsg->data)+1;
+   retmsg->data.length()=strlen(retmsg->data)+1;
    datamgr->send_ctl_msg(retmsg);
    retmsg->data=NULL;
    delete retmsg;

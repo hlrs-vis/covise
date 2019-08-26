@@ -9,6 +9,7 @@
 #include <cstdio>
 #include "coGRObjMoveInterMsg.h"
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRObjMoveInterMsg::coGRObjMoveInterMsg(Mtype type, const char *obj_name, const char *interName, float x, float y, float z)

@@ -470,7 +470,7 @@ ARTracePlugin::~ARTracePlugin()
 
 void ARTracePlugin::newInteractor(const RenderObject *, coInteractor *inter)
 {
-    fprintf(stderr, "ARTracePlugin::feedback\n");
+    //fprintf(stderr, "ARTracePlugin::feedback\n");
 
     modules.reset();
     while (modules.current())

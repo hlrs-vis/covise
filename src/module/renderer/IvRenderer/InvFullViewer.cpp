@@ -3315,7 +3315,7 @@ InvFullViewer::menuPick(Widget w, int id, XmAnyCallbackStruct *cb)
 
     switch (id)
     {
-    // HELP: 	v->openViewerHelpCard(); break;
+        // HELP: 	v->openViewerHelpCard(); break;
     case VIEW_ALL:
         v->viewAll();
         break;
@@ -3364,18 +3364,16 @@ InvFullViewer::menuPick(Widget w, int id, XmAnyCallbackStruct *cb)
         v->copyView(eventTime);
         break;
     case MASTER_REQUEST:
-        struct passwd *pwd = getpwuid(getuid());
+        struct passwd* pwd = getpwuid(getuid());
         strcpy(username, pwd->pw_name);
         strcpy(hostname, appmod->get_hostname());
-        message = new Message();
+
         strcpy(Buffer, "MASTERREQ\n");
         strcat(Buffer, hostname);
         strcat(Buffer, "\n");
         strcat(Buffer, username);
         strcat(Buffer, "\n");
-        message->type = COVISE_MESSAGE_UI;
-        message->length = strlen(Buffer) + 1;
-        message->data = Buffer;
+        message = new Message{ COVISE_MESSAGE_UI, DataHandle{Buffer, strlen(Buffer) + 1, false } };
         appmod->send_ctl_msg(message);
         delete message;
         break;

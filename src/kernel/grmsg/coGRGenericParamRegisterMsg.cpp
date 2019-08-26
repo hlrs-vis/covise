@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 
+using namespace std;
 using namespace grmsg;
 
 GRMSGEXPORT coGRGenericParamRegisterMsg::coGRGenericParamRegisterMsg(const char *msg)

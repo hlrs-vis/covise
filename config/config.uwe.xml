@@ -15,6 +15,14 @@
 </GLOBAL>
  <INCLUDE global="1" configname="general" >config.xml </INCLUDE>
  <GLOBAL>
+ 
+  <System>
+   <VRB>
+    <Server value="localhost" tcpPort="31252" udpPort="31253"/>
+   </VRB>
+   
+
+  </System>
   <COVER>
   <Input>
         <MouseNav value="true" />

@@ -28,7 +28,6 @@ SET(VRBCLIENT_HEADERS
   regClass.h
   SessionID.cpp
   SharedState.h
-  SharedStateContainerFunctions.h
   SharedStateManager.h
   SharedStateSerializer.h
 )

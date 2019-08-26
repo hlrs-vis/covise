@@ -9,6 +9,7 @@
 #include "coGRAddDocMsg.h"
 
 using namespace grmsg;
+using namespace std;
 
 GRMSGEXPORT coGRAddDocMsg::coGRAddDocMsg(const char *document_name, const char *image_name)
     : coGRDocMsg(ADD_DOCUMENT, document_name)

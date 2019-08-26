@@ -22,7 +22,9 @@
                         <bus>
                             <Shuttle value="/data/campus/Shuttle/Shuttle.wrl" />
                         </bus>
-						
+                     <escooter>
+                        <ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRider.WRL"/>
+                    </escooter
                     </Vehicles>
                 </SumoTraCI>
             </Plugin>

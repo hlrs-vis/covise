@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cstdlib>
 
+using namespace std;
 using namespace grmsg;
 
 /*needs a second parameter to be different of second constructor with msg*/

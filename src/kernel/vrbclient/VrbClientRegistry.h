@@ -17,16 +17,18 @@
 namespace covise
 {
 class VRBClient;
+class DataHandle;
 }
 namespace vrb
 {
 class VrbMessageSenderInterface;
-class VRBEXPORT VrbClientRegistry : public VrbRegistry<clientRegClass, clientRegVar>
+class VRBEXPORT VrbClientRegistry : public VrbRegistry
 {
 public:
     static VrbClientRegistry *instance;
     /// construct a registry access path to the controller
-    VrbClientRegistry(int id, VrbMessageSenderInterface *sender);
+    VrbClientRegistry(int id);
+	void registerSender(VrbMessageSenderInterface* sender);
     ///gets id from server
     void setID(int clID, const SessionID &session);
     ///unsubscribe all clases and variables from old session and subscribe to the new one (ignore sharedStates, they resubscribe them selves)
@@ -48,7 +50,7 @@ public:
        *  @var      variable in registry cl
        *  @ob       observer cl to be attached for updates
        */
-    clientRegVar *subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&value, regVarObserver *ob);
+    clientRegVar *subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &value, regVarObserver *ob);
 
     /**
        *  Unsubscribe from a registry cl (previously subscribed with subscribecl)
@@ -76,7 +78,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @flag   flag=0: session local variable, flag=1: global variable surviving a session
        */
-    void createVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &value, bool isStatic = false);
+    void createVar(const SessionID sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &value, bool isStatic = false);
 
     /**
        *  Sets a specific variable value in the registry. The Vrb server
@@ -86,7 +88,7 @@ public:
        *  @var    registry variable belonging to the cl
        *  @val    current variable value to be set in the registry
        */
-    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, covise::TokenBuffer &&val, bool muted = false);
+    void setVar(const SessionID sessionID, const std::string &cl, const std::string &var, const covise::DataHandle &val, bool muted = false);
 
     /**
        *  Destroys a specific variable in the registry. All observers attached
@@ -119,11 +121,11 @@ public:
         return sessionID;
     }
 
-    std::shared_ptr<clientRegClass> createClass(const std::string &name, int id) override;
+    std::shared_ptr<regClass> createClass(const std::string &name, int id) override;
 private:
     int clientID = -1;
     SessionID sessionID;
-    VrbMessageSenderInterface *m_sender;
+    VrbMessageSenderInterface *m_sender = nullptr;
 
 };
 }

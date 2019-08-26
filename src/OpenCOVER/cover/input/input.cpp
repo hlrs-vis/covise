@@ -721,16 +721,16 @@ bool Input::update()
 
         tb << changed;
 
-        len = tb.get_length();
+        len = tb.getData().length();
         coVRMSController::instance()->syncData(&len, sizeof(len));
-        coVRMSController::instance()->syncData(const_cast<char *>(tb.get_data()), len);
+        coVRMSController::instance()->syncData(const_cast<char *>(tb.getData().data()), len);
     }
     else
     {
         coVRMSController::instance()->syncData(&len, sizeof(len));
-        std::vector<char> data(len);
-        coVRMSController::instance()->syncData(&data[0], len);
-        TokenBuffer tb(&data[0], len);
+        DataHandle data(len);
+        coVRMSController::instance()->syncData(&data.accessData()[0], len);
+        TokenBuffer tb(data);
         tb >> activePerson;
         tb >> nButtons >> nValuators >> nBodies;
 

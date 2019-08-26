@@ -33,6 +33,8 @@ using namespace covise;
 #undef min
 #endif
 
+static char progress[] = "-\\|/";
+
 void DTrackDriver::initArrays()
 {
     m_numFlySticks = dt->getNumFlyStick();
@@ -229,7 +231,8 @@ bool DTrackDriver::poll()
 
         if (dt->getLastDataError() == DTrackSDK::ERR_TIMEOUT)
         {
-            cout << "--- timeout while waiting for tracking data" << endl;
+            ++timeoutcount;
+            cout << " " << progress[timeoutcount%4] << " " << m_name << ": timeout while waiting for tracking data\r" << flush;
             //return -1;
         }
 

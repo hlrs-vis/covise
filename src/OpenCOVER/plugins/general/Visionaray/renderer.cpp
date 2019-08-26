@@ -506,7 +506,7 @@ namespace visionaray
                     auto mattr = set ? set->getAttribute(osg::StateAttribute::MATERIAL) : nullptr;
                     auto mat = dynamic_cast<osg::Material *>(mattr);
 
-                    bool spec = opencover::coVRLighting::instance()->specularlightState;
+                    float spec = opencover::coVRLighting::instance()->specularlightStrength;
 
                     if (mat)
                     {
