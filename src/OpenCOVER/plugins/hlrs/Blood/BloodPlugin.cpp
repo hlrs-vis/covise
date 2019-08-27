@@ -256,6 +256,14 @@ bool BloodPlugin::update() {
 				
 				cout << "prev pos: " << (*thisParticle) -> prevPosition << endl;
 				cout << "current:  " << (*thisParticle) -> currentPosition << endl << endl;;
+			} */
+			
+			if(knife.end < (*thisParticle) -> currentPosition) {
+				(*thisParticle) -> onKnife = false;
+			}
+			
+			/*if((*thisParticle) -> currentPosition.y() > knife.end.y() || (*thisParticle) -> currentPosition.z() < knife.end.z()) {
+				(*thisParticle) -> onKnife = false;
 			}*/
 			
 		}
@@ -281,6 +289,8 @@ BloodPlugin * BloodPlugin::instance() {
 }
 
 osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
+	osg::Matrix handInObjectsRoot = cover -> getPointerMat() * cover -> getInvBaseMat();
+	osg::Matrix invHandInObjectsRoot = osg::Matrix::inverse(handInObjectsRoot);
 	
 	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
 	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
@@ -289,34 +299,29 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	osg::Vec3 yAxis = osg::Vec3(handInObjectsRoot(1,0), handInObjectsRoot(1,1), handInObjectsRoot(1,2));
 	osg::Vec3 zAxis = osg::Vec3(handInObjectsRoot(2,0), handInObjectsRoot(2,1), handInObjectsRoot(2,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
 	osg::Vec3 zAxisUnitVector = normalize(zAxis);
+	
+	osg::Vec3 normalVector = xAxis ^ yAxis;
+	cout << "normal vector: " << normalVector << endl;
+	osg::Plane knifePlane(normalVector, knife.currentPosition);
+	double knifeParticleDistance = knifePlane.distance(p -> currentPosition);
+	cout << "distance: " << knifeParticleDistance << endl;
+	double restorativeFactor = 5.0;
+	osg::Vec3 fRestorative = normalize(normalVector) * knifeParticleDistance * restorativeFactor;
 
 	osg::Vec3 fApplied, fStaticFriction, fKineticFriction;
 	osg::Vec3 fGravity = p -> gravity * p -> mass; //direction: -z
 	//fNormal: projection of fGravity (multiply with z-axis unit vector) onto z-axis unit vector
-	osg::Vec3 fNormal = osg::Vec3(abs(fGravity.x()) * zAxisUnitVector.x(), abs(fGravity.y()) * zAxisUnitVector.y(), abs(fGravity.z()) * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
+	//osg::Vec3 fNormal = osg::Vec3(abs(fGravity.x()) * zAxisUnitVector.x(), abs(fGravity.y()) * zAxisUnitVector.y(), abs(fGravity.z()) * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
 	osg::Vec3 fNet;
 	
-	if(knife.shift.length() != 0) {
-		fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
-	} else {
-		fApplied = osg::Vec3(0,0,0);
-	}
+	osg::Vec3 veloInPlane = osg::Matrix::transform3x3(knife.currentVelocity,invHandInObjectsRoot);
+	veloInPlane.z() = 0;
+	veloInPlane = osg::Matrix::transform3x3(veloInPlane,handInObjectsRoot);
 	
-	if(fApplied.length() != 0) {
-		fStaticFriction = -normalize(yAxis) * staticFriction; //direction: opposes motion
-		fKineticFriction = -normalize(yAxis) * kineticFriction; //direction: opposes motion
-	} else {
-		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
-		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
-	}
+	fApplied = (veloInPlane * p -> mass * COEFF_STATIC_FRICTION)/cover -> frameDuration();
 	
-	fNet = fGravity + fNormal;
-	
-	if(fStaticFriction < fApplied) { //applied force > static friction
-		fNet += fApplied + fKineticFriction;
-	} else {
-		fNet += fStaticFriction;
-	}
+	fNet = /*fGravity + */fRestorative/* + fApplied*/;
+	return fNet / p -> mass;
 	
 	/*cout << "gravity: " << fGravity << endl;
 	cout << "applied: " << fApplied << endl;
@@ -328,4 +333,20 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	return fNet / p -> mass;
 }
 
+/*if(fApplied.length() != 0) {
+		fStaticFriction = -normalize(veloInPlane) * staticFriction; //direction: opposes motion
+		fKineticFriction = -normalize(veloInPlane) * kineticFriction; //direction: opposes motion
+	} else {
+		fStaticFriction = osg::Vec3(0,0,0); //direction: opposes motion
+		fKineticFriction = osg::Vec3(0,0,0); //direction: opposes motion;
+	}
+	
+	fNet = fGravity + fNormal;
+	
+	if(fStaticFriction < fApplied) { //applied force > static friction
+		fNet += fApplied + fKineticFriction;
+	} else {
+		fNet += fStaticFriction;
+	}*/
+	
 COVERPLUGIN(BloodPlugin)
