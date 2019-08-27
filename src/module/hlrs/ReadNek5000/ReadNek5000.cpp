@@ -86,7 +86,7 @@ int ReadNek::compute(const char* port) {
             pressures.push_back(new coDoSet(pInfo, 0));
         }
         for (size_t block = 0; block < blocksToRead; block++) {
-            std::cerr << "will not see this\rreading block " << block << " of timestep " << timestep << "                 " << std::flush;
+            std::cerr << "\rreading block " << block << " of timestep " << timestep << "                 " << std::flush;
  
             if (timestep == -1) {
                 if (!ReadMesh(timestepToUseForMesh, block)) {
@@ -108,7 +108,7 @@ int ReadNek::compute(const char* port) {
             }
         }
     }
-
+    cerr << std::endl;
     char ts[100];
     sprintf(ts, "1 %lu", (unsigned long)iNumTimesteps);
     coDoSet* gridsOut = new coDoSet(p_grid->getObjName(), 0);
@@ -480,80 +480,94 @@ void ReadNek::ParseFieldTags(ifstream& f) {
 }
 
 void ReadNek::ReadCombined() {
-    int blocksToRead = p_partitions->getValue();
-    if (blocksToRead < 0) {
-        blocksToRead = iNumBlocks;
+    int totalBlocksToRead = p_partitions->getValue();
+    if (totalBlocksToRead < 0) {
+        totalBlocksToRead = iNumBlocks;
     }
+    string ts("1 " + std::to_string(iNumTimesteps));
+
     float* x, * y, * z;
-    //grid
-    int hexes_per_element = (iBlockSize[0] - 1) * (iBlockSize[1] - 1);
-    if (iDim == 3)
-        hexes_per_element *= (iBlockSize[2] - 1);
-    int total_hexes = hexes_per_element * blocksToRead;
-    int numConn = (iDim == 3 ? 8 * total_hexes : 4 * total_hexes);
+    coDoSet *gridsOut = new coDoSet(p_grid->getObjName(), 0);
+    coDoSet* velocitiesOut = new coDoSet(p_velocity->getObjName(), 0);
+    coDoSet* pressuresOut = new coDoSet(p_pressure->getObjName(), 0);
+    int blocksRead = 0;
+    for (size_t g = 0; g < p_numberOfGrids->getValue(); g++) {
+        int blocksToRead = totalBlocksToRead / p_numberOfGrids->getValue();
+        if (g == 0) {
+            blocksToRead += totalBlocksToRead % p_numberOfGrids->getValue();
+        }
+        //grid
+        int hexes_per_element = (iBlockSize[0] - 1) * (iBlockSize[1] - 1);
+        if (iDim == 3)
+            hexes_per_element *= (iBlockSize[2] - 1);
+        int total_hexes = hexes_per_element * blocksToRead;
+        int numConn = (iDim == 3 ? 8 * total_hexes : 4 * total_hexes);
 
-    coDoUnstructuredGrid* grid = new coDoUnstructuredGrid("nek_mesh", total_hexes, numConn , blocksToRead * iTotalBlockSize, true);
-    int* elementList, *connectivityList, *typeList;
-    grid->getAddresses(&elementList, &connectivityList, &x, &y, &z);
-    grid->getTypeList(&typeList);
-    if (iDim == 2) {
-        std::fill_n(typeList, total_hexes, ELEM_TYPE::TYPE_QUAD);
-    }
-    else {
-        std::fill_n(typeList,  total_hexes, ELEM_TYPE::TYPE_HEXAEDER);
-    }
-    makeConectivityList(connectivityList, blocksToRead);
-    for (size_t i = 0; i < total_hexes; i++) {
+        coDoUnstructuredGrid* grid = new coDoUnstructuredGrid("nek_mesh:of_grid_" + std::to_string(g), total_hexes, numConn, blocksToRead * iTotalBlockSize, true);
+        int* elementList, * connectivityList, * typeList;
+        grid->getAddresses(&elementList, &connectivityList, &x, &y, &z);
+        grid->getTypeList(&typeList);
         if (iDim == 2) {
-            elementList[i] = 4 * i;
+            std::fill_n(typeList, total_hexes, ELEM_TYPE::TYPE_QUAD);
+        } else {
+            std::fill_n(typeList, total_hexes, ELEM_TYPE::TYPE_HEXAEDER);
         }
-        else {
-            elementList[i] = 8 * i;
+        makeConectivityList(connectivityList, blocksToRead);
+        for (size_t i = 0; i < total_hexes; i++) {
+            if (iDim == 2) {
+                elementList[i] = 4 * i;
+            } else {
+                elementList[i] = 8 * i;
+            }
         }
+
+        for (size_t i = 0; i < blocksToRead; i++) {
+            ReadMesh(timestepToUseForMesh, blocksRead + i, x + i * iTotalBlockSize, y + i * iTotalBlockSize, z + i * iTotalBlockSize);
+        }
+        coDoSet* grids = new coDoSet("all_blocks_of_grid_" + std::to_string(g), 0);
+        grids->addAttribute("TIMESTEP", ts.c_str());
+        for (size_t i = 0; i < iNumTimesteps; i++) {
+            grids->addElement(grid);
+        }
+        gridsOut->addElement(grids);
+        //velocity
+        if (bHasVelocity) {
+            velocitiesAllTimes = new coDoSet("velocity_timesteps_of_grid_" + std::to_string(g), 0);
+            for (size_t timestep = 0; timestep < iNumTimesteps; timestep++) {
+                coObjInfo info("nek_velocity_" + to_string(timestep));
+                info.timeStep = timestep;
+                coDoVec3* velocity = new coDoVec3(info, iTotalBlockSize * blocksToRead);
+                velocity->addAttribute("_species", "velocity");
+                velocity->addAttribute("TIMESTEP", ts.c_str());
+                velocity->getAddresses(&x, &y, &z);
+                for (size_t block = 0; block < blocksToRead; block++) {
+                    ReadVelocity(timestep, blocksRead + block, x + block * iTotalBlockSize, y + block * iTotalBlockSize, z + block * iTotalBlockSize);
+                }
+                velocitiesAllTimes->addElement(velocity);
+            }
+            velocitiesOut->addElement(velocitiesAllTimes);
+        }
+        //pressure
+        if (bHasPressure) {
+            pressuresAllTime = new coDoSet("pressure_timesteps_of_grid_" + std::to_string(g), 0);
+            for (size_t timestep = 0; timestep < iNumTimesteps; timestep++) {
+                coObjInfo info("nek_pressure_" + to_string(timestep));
+                info.timeStep = timestep;
+                coDoFloat* pressure = new coDoFloat(info, iTotalBlockSize * blocksToRead);
+                pressure->addAttribute("_species", "pressure");
+                pressure->addAttribute("TIMESTEP", ts.c_str());
+                pressure->getAddress(&x);
+                for (size_t block = 0; block <  blocksToRead; block++) {
+                    ReadVar("pressure", timestep, blocksRead + block, x + block * iTotalBlockSize);
+                }
+                pressuresAllTime->addElement(pressure);
+            }
+            pressuresOut->addElement(pressuresAllTime);
+        }
+        blocksRead += blocksToRead;
     }
 
-    for (size_t i = 0; i < blocksToRead; i++) {
-        ReadMesh(timestepToUseForMesh, i, x + i * iTotalBlockSize, y + i * iTotalBlockSize, z + i * iTotalBlockSize);
-    }
-    char ts[100];
-    sprintf(ts, "1 %lu", (unsigned long)iNumTimesteps);
-    coDoSet* gridsOut = new coDoSet(p_grid->getObjName(), 0);
-    gridsOut->addAttribute("TIMESTEP", ts);
-    for (size_t i = 0; i < iNumTimesteps; i++) {
-        gridsOut->addElement(grid);
-    }
-    //velocity
-    if (bHasVelocity) {
-        velocitiesAllTimes = new coDoSet(p_velocity->getObjName(), 0);
-        for (size_t timestep = 0; timestep < iNumTimesteps; timestep++) {
-            coObjInfo info("nek_velocity_" + to_string(timestep));
-            info.timeStep = timestep;
-            coDoVec3* velocity = new coDoVec3(info, iTotalBlockSize * blocksToRead);
-            velocity->addAttribute("_species", "velocity");
-            velocity->addAttribute("TIMESTEP", ts);
-            velocity->getAddresses(&x, &y, &z);
-            for (size_t block = 0; block < blocksToRead; block++) {
-                ReadVelocity(timestep, block, x + block * iTotalBlockSize, y + block * iTotalBlockSize, z + block * iTotalBlockSize);
-            }
-            velocitiesAllTimes->addElement(velocity);
-        }
-    }
-    //pressure
-    if (bHasPressure) {
-        pressuresAllTime = new coDoSet(p_pressure->getObjName(), 0);
-        for (size_t timestep = 0; timestep < iNumTimesteps; timestep++) {
-            coObjInfo info("nek_pressure_" + to_string(timestep));
-            info.timeStep = timestep;
-            coDoFloat* pressure = new coDoFloat(info, iTotalBlockSize * blocksToRead);
-            pressure->addAttribute("_species", "pressure");
-            pressure->addAttribute("TIMESTEP", ts);
-            pressure->getAddress(&x);
-            for (size_t block = 0; block < blocksToRead; block++) {
-                ReadVar("pressure", timestep, block, x + block * iTotalBlockSize);
-            }
-            pressuresAllTime->addElement(pressure);
-        }
-    }
+
 
 }
 
@@ -1241,8 +1255,8 @@ ReadNek::ReadNek(int argc, char* argv[])
    p_partitions->setValue(-1);
    p_combineBlocks = addBooleanParam("combineBlocks", "combine all block to one grid");
    p_combineBlocks->setValue(false);
-
-
+   p_numberOfGrids = addInt32Param("blocksPerGrid", "number of blocks that will be combined to a single grid");
+   p_numberOfGrids->setValue(1);
 }
 
 ReadNek::~ReadNek() {

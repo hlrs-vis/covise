@@ -130,6 +130,7 @@ private:
     // Parameters
     covise::coFileBrowserParam* p_data_path = nullptr;
     covise::coIntScalarParam* p_partitions = nullptr;
+    covise::coIntScalarParam* p_numberOfGrids = nullptr;
     covise::coBooleanParam* p_combineBlocks = nullptr;
 
     covise::coDoSet* grids = nullptr;
