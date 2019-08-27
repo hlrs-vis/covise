@@ -285,22 +285,22 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	double staticFriction = GRAVITY * p -> mass * COEFF_STATIC_FRICTION;
 	double kineticFriction = GRAVITY * p -> mass * COEFF_KINETIC_FRICTION;
 	
-	osg::Vec3 yAxis = osg::Vec3(handInObjectsRoot(2,0), handInObjectsRoot(2,1), handInObjectsRoot(2,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
-	osg::Vec3 zAxis = osg::Vec3(handInObjectsRoot(3,0), handInObjectsRoot(3,1), handInObjectsRoot(3,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
+	osg::Vec3 xAxis = osg::Vec3(handInObjectsRoot(0,0), handInObjectsRoot(0,1), handInObjectsRoot(0,2));
+	osg::Vec3 yAxis = osg::Vec3(handInObjectsRoot(1,0), handInObjectsRoot(1,1), handInObjectsRoot(1,2));
+	osg::Vec3 zAxis = osg::Vec3(handInObjectsRoot(2,0), handInObjectsRoot(2,1), handInObjectsRoot(2,2)); //3rd row of matrix is z-vector, use this as the normal for the subsequent calculations
 	osg::Vec3 zAxisUnitVector = normalize(zAxis);
 
 	osg::Vec3 fApplied, fStaticFriction, fKineticFriction;
 	osg::Vec3 fGravity = p -> gravity * p -> mass; //direction: -z
-	//fNormal: projection of fGravity onto z-axis unit vector
-	osg::Vec3 fNormal = osg::Vec3(fGravity.x() * zAxisUnitVector.x(), fGravity.y() * zAxisUnitVector.y(), fGravity.z() * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
+	//fNormal: projection of fGravity (multiply with z-axis unit vector) onto z-axis unit vector
+	osg::Vec3 fNormal = osg::Vec3(abs(fGravity.x()) * zAxisUnitVector.x(), abs(fGravity.y()) * zAxisUnitVector.y(), abs(fGravity.z()) * zAxisUnitVector.z()); //direction: perpendicular to knife's surface
 	osg::Vec3 fNet;
 	
 	if(knife.shift.length() != 0) {
 		fApplied = knife.acceleration * knife.mass; //direction: same axis as knife
 	} else {
 		fApplied = osg::Vec3(0,0,0);
-	} 
-	
+	}
 	
 	if(fApplied.length() != 0) {
 		fStaticFriction = -normalize(yAxis) * staticFriction; //direction: opposes motion
@@ -315,7 +315,7 @@ osg::Vec3 BloodPlugin::particleSlip(Droplet* p) {
 	if(fStaticFriction < fApplied) { //applied force > static friction
 		fNet += fApplied + fKineticFriction;
 	} else {
-		fNet = osg::Vec3(0,0,0);
+		fNet += fStaticFriction;
 	}
 	
 	/*cout << "gravity: " << fGravity << endl;
