@@ -55,7 +55,7 @@ namespace ui
 class Owner;
 class Group;
 class FileBrowser;
-};
+}
 
 class coTUIFileBrowserButton;
 class coVRIOReader;

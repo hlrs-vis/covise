@@ -30,13 +30,13 @@ namespace covise
 {
 class Message;
 class DataHandle;
-};
+}
 
 namespace osg
 {
 class Node;
 class Group;
-};
+}
 
 namespace opencover
 {

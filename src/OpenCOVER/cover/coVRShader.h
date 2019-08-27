@@ -38,7 +38,7 @@ namespace osg
 {
 class Node;
 class Geode;
-};
+}
 namespace opencover
 {
 class coVRShader;
