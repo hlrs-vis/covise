@@ -25,7 +25,6 @@ using namespace covise;
 const char *NoneChoices[] = { "none" };
 // Lets assume no more than 100 variables per file
 int varIds[100];
-char *VarDisplayList[100];
 char *AxisChoices[100];
 
 // -----------------------------------------------------------------------------
@@ -40,8 +39,7 @@ ReadWRFChem::ReadWRFChem(int argc, char *argv[])
 
     // File browser
     p_fileBrowser = addFileBrowserParam("NC_file", "NC File");
-    p_fileBrowser->setValue("/data/openforecast/testdata_OF.nc",
-                            "*.nc");
+    p_fileBrowser->setValue("/data/openforecast/testdata_OF.nc", "*.nc");
 
     // Variables to visualise
     for (int i = 0; i < numParams; i++)
@@ -54,13 +52,13 @@ ReadWRFChem::ReadWRFChem(int argc, char *argv[])
 
     // Choice of "coordinate variables" for axes
     p_grid_choice_x = addChoiceParam("GridOutX", "Grid x");
-    p_grid_choice_x->setValue(1, NoneChoices, 1);
+    p_grid_choice_x->setValue(1, NoneChoices, 0);
     p_grid_choice_y = addChoiceParam("GridOutY", "Grid y");
-    p_grid_choice_y->setValue(1, NoneChoices, 2);
+    p_grid_choice_y->setValue(1, NoneChoices, 0);
     p_grid_choice_z = addChoiceParam("GridOutZ", "Grid z");
-    p_grid_choice_z->setValue(1, NoneChoices, 3);
+    p_grid_choice_z->setValue(1, NoneChoices, 0);
     p_date_choice = addChoiceParam("Date","Date or Time");
-    p_date_choice->setValue(1, NoneChoices, 4);
+    p_date_choice->setValue(1, NoneChoices, 0);
 
     // Vertical scale box
     p_verticalScale = addFloatParam("VerticalScale", "VerticalScale");
@@ -100,10 +98,24 @@ ReadWRFChem::~ReadWRFChem()
 // -----------------------------------------------------------------------------
 void ReadWRFChem::param(const char *paramName, bool inMapLoading)
 {
-    sendInfo("param callback");
+    //sendInfo("param callback");
 
     if (openNcFile())
     {
+        if (ncDataFile->num_vars() < 4) //check that there are at least 3 grid and one data variable
+        {
+            sendError("file does not contain enough variables (required > 3)");
+            for (int i = 0; i < numParams; i++)
+            {
+                p_variables[i]->disable();
+            }
+            p_grid_choice_x->disable();
+            p_grid_choice_y->disable();
+            p_grid_choice_z->disable();
+            p_verticalScale->disable();
+            p_date_choice->disable();
+            return;
+        }
         // enable parameter menus for selection
         p_grid_choice_x->enable();
         p_grid_choice_y->enable();
@@ -111,48 +123,52 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
         p_verticalScale->enable();
         p_date_choice->enable();
         for (int i = 0; i < numParams; i++)
+        {
             p_variables[i]->enable();
-
+        }
         // Create "Variable" menu entries for all 2D and 3D variables
         NcVar *var;
         int num2d3dVars = 0;
+        char *VarDisplayList[100];
+
         for (int i = 0; i < ncDataFile->num_vars(); i++)
         {
             var = ncDataFile->get_var(i);
             if (var->num_dims() >= 0)
-            { // FIXME: what will we do here?
-
-                // A list of variable names (unaltered)
-                /*char* newEntry = new char[50];
-                strcpy(newEntry,var->name());
-                VarChoices[num2d3dVars] = newEntry; // FIXME: Redundant. An int array will do.*/
+            {
                 varIds[num2d3dVars] = i;
 
                 // A list of info to display for each variable
                 char *dispListEntry = new char[50];
                 if (var->num_dims() > 0)
                 {
-                    sprintf(dispListEntry, "%s (%dD) : [", var->name(),
-                            var->num_dims());
-                    for (int i = 0; i < var->num_dims() - 1; i++)
-                        sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(i)->name());
-                    sprintf(dispListEntry, "%s %s ]", dispListEntry,
-                            var->get_dim(var->num_dims() - 1)->name());
-                }
-                else
+                    sprintf(dispListEntry, "%s (%dD) : [", var->name(), var->num_dims());
+                    if (var->num_dims() > 1)
+                    {
+                        for (int j = 0; j < var->num_dims() - 1; j++)
+                        {
+                            sprintf(dispListEntry, "%s %s,", dispListEntry, var->get_dim(j)->name());
+                        }
+                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var->get_dim(var->num_dims() - 1)->name());
+                    }else
+                    {
+                        sprintf(dispListEntry, "%s %s ]", dispListEntry, var->get_dim(0)->name());
+                    }
+                }else
+                {
                     sprintf(dispListEntry, "%s (%dD)", var->name(), var->num_dims());
+                }
                 VarDisplayList[num2d3dVars] = dispListEntry;
-
                 num2d3dVars++;
             }
         }
+
         // Fill the menu. Default selection = last selected. (#1 initially).
         for (int i = 0; i < numParams; i++)
-            p_variables[i]->setValue(num2d3dVars, VarDisplayList,
-                                     p_variables[i]->getValue());
-
-        // Create "Axis" menu entries for 2D variables only
+        {
+            p_variables[i]->setValue(num2d3dVars, VarDisplayList, p_variables[i]->getValue());
+        }
+       // Create "Axis" menu entries for 2D variables only
         int num2dVars = 0;
         for (int i = 0; i < ncDataFile->num_vars(); ++i)
         {
@@ -175,12 +191,15 @@ void ReadWRFChem::param(const char *paramName, bool inMapLoading)
                                   AxisChoices, p_grid_choice_z->getValue());
 
         p_date_choice->setValue(num2dVars, AxisChoices, p_date_choice->getValue());
+
     }
     else
     {
         // No nc file, disable parameters
         for (int i = 0; i < numParams; i++)
+        {
             p_variables[i]->disable();
+        }
         p_grid_choice_x->disable();
         p_grid_choice_y->disable();
         p_grid_choice_z->disable();
@@ -219,7 +238,7 @@ int ReadWRFChem::compute(const char *)
             }
         }
 
-        NcVar *varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
+        NcVar *varDate;
        /* char *dateVal[edges[0]];
         for (int i = 0; i < varDate->num_dims(); ++i)
         {
@@ -228,9 +247,10 @@ int ReadWRFChem::compute(const char *)
         if (edges[0] > 1)
         {
             has_timesteps = 1;
+            varDate = ncDataFile->get_var(AxisChoices[p_date_choice->getValue()]);
+            sendInfo("Found %ld time steps\n", (long)edges[0]);
         }
 
-        sendInfo("Found %ld time steps\n", (long)edges[0]);
 
         int nx = 1, ny = edges[numdims - 2], nz = edges[numdims - 1], nTime = edges[0];
         if (has_timesteps > 0)
@@ -552,7 +572,7 @@ bool ReadWRFChem::openNcFile()
     }
     else
     {
-        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly);
+        ncDataFile = new NcFile(sFileName.c_str(), NcFile::ReadOnly, NULL, 0,NcFile::Offset64Bits);
 
         if (!ncDataFile->is_valid())
         {

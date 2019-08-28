@@ -11,7 +11,7 @@
 #include <api/coModule.h>
 #include <netcdfcpp.h>
 
-#define numParams 6
+#define numParams 4
 
 // -------------------------------------------------------------------
 // class ReadWRFChem

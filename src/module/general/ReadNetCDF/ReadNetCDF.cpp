@@ -122,9 +122,9 @@ void ReadNetCDF::param(const char *paramName, bool inMapLoading)
                 {
                     sprintf(dispListEntry, "%s (%dD) : [", var->name(),
                             var->num_dims());
-                    for (int i = 0; i < var->num_dims() - 1; i++)
+                    for (int j = 0; j < var->num_dims() - 1; j++)
                         sprintf(dispListEntry, "%s %s,", dispListEntry,
-                                var->get_dim(i)->name());
+                                var->get_dim(j)->name());
                     sprintf(dispListEntry, "%s %s ]", dispListEntry,
                             var->get_dim(var->num_dims() - 1)->name());
                 }
