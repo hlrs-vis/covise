@@ -32,13 +32,10 @@
 
 #include "ReadNek5000.h"
 
-
 #include <util/byteswap.h>
 
 #include "ReadNek5000.h"
 
-
-#include <direct.h>
 #include <stdio.h>
 
 #include <do/coDoStructuredGrid.h>
@@ -49,7 +46,6 @@
 
 using namespace covise;
 using namespace std;
-//namespace fs = boost::filesystem;
 
 #ifndef STREQUAL
 #if defined(_WIN32) 
