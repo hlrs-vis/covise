@@ -163,8 +163,11 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         ColorsModule &mod = it->second;
         ++mod.useCount;
 
-        const char *colormapString = NULL;
-        colormapString = inter->getString(0); // Colormap string
+        const char *colormapString = inter->getString(0); // Colormap string
+        if (!colormapString)
+        {
+            colormapString = container->getAttribute("COLORMAP");
+        }
 
         float min = 0.0;
         float max = 1.0;

@@ -14,9 +14,14 @@
 using namespace vrui;
 using namespace opencover;
 
-static const char *MINMAX = "MinMax";
-static const char *STEPS = "numSteps";
-static const char *AUTOSCALE = "autoScales";
+static const char MINMAX[] = "MinMax";
+static const char STEPS[] = "numSteps";
+static const char AUTOSCALE[] = "autoScales";
+
+static const char V_STEPS[] = "steps";
+static const char V_MIN[] = "min";
+static const char V_MAX[] = "max";
+static const char V_AUTOSCALE[] = "auto_range";
 
 ColorBar::ColorBar(const char *name, char *species,
                    float min, float max, int numColors,
@@ -75,15 +80,15 @@ ColorBar::ColorBar(coSubMenuItem *colorsButton, coRowMenu *moduleMenu, const cha
     float maxMin = min + diff;
     float minMax = max - diff;
     float maxMax = max + diff;
-    minSlider_ = new coSliderMenuItem("MIN", minMin, maxMin, min);
+    minSlider_ = new coSliderMenuItem("Min", minMin, maxMin, min);
     minSlider_->setPrecision(6);
-    maxSlider_ = new coSliderMenuItem("MAX", minMax, maxMax, max);
+    maxSlider_ = new coSliderMenuItem("Max", minMax, maxMax, max);
     maxSlider_->setPrecision(6);
     stepSlider_ = new coSliderMenuItem("Steps", 2, numColors, numColors);
     stepSlider_->setInteger(true);
 
-    autoScale_ = new coCheckboxMenuItem("autoScale", false);
-    execute_ = new coButtonMenuItem("execute");
+    autoScale_ = new coCheckboxMenuItem("Auto range", false);
+    execute_ = new coButtonMenuItem("Execute");
 
     autoScale_->setMenuListener(this);
     execute_->setMenuListener(this);
@@ -160,7 +165,7 @@ void ColorBar::createMenuEntry(const char *name, float min, float max, int numCo
 
     _minL = new coTUILabel("Min", _tab->getID());
     _maxL = new coTUILabel("Max", _tab->getID());
-    _stepL = new coTUILabel("numSteps", _tab->getID());
+    _stepL = new coTUILabel("Steps", _tab->getID());
 
     _min = new coTUIEditFloatField("min", _tab->getID());
     _max = new coTUIEditFloatField("max", _tab->getID());
@@ -179,7 +184,7 @@ void ColorBar::createMenuEntry(const char *name, float min, float max, int numCo
     _max->setValue(max);
     _steps->setValue(numColors);
 
-    _autoScale = new coTUIToggleButton("autoScale", _tab->getID());
+    _autoScale = new coTUIToggleButton("Auto range", _tab->getID());
     _autoScale->setPos(0, 6);
 
     _execute = new coTUIButton("Execute", _tab->getID());
@@ -212,14 +217,23 @@ void ColorBar::tabletPressEvent(coTUIElement *tUIItem)
             minmax[0] = _min->getValue();
             minmax[1] = _max->getValue();
             inter_->setVectorParam(MINMAX, 2, minmax);
+            inter_->setScalarParam(V_MIN, minmax[0]);
+            inter_->setScalarParam(V_MAX, minmax[1]);
 
             int num = _steps->getValue();
             inter_->setScalarParam(STEPS, num);
+            inter_->setScalarParam(V_STEPS, num);
 
             if (_autoScale->getState())
+            {
                 inter_->setBooleanParam(AUTOSCALE, 1);
+                inter_->setBooleanParam(V_AUTOSCALE, 1);
+            }
             else
+            {
                 inter_->setBooleanParam(AUTOSCALE, 0);
+                inter_->setBooleanParam(V_AUTOSCALE, 0);
+            }
 
             inter_->executeModule();
         }
@@ -270,7 +284,8 @@ ColorBar::update(const char *species, float min, float max, int numColors, float
     if (inter_)
     {
 
-        inter_->getBooleanParam(AUTOSCALE, state);
+        if (inter_->getBooleanParam(AUTOSCALE, state) == -1)
+            inter_->getBooleanParam(V_AUTOSCALE, state);
         if (state)
             autoScale_->setState(true);
         else
@@ -316,20 +331,24 @@ ColorBar::getName()
 void
 ColorBar::menuEvent(coMenuItem *menuItem)
 {
-    (void)menuItem;
-    if (inter_)
-    {
-        if (menuItem == execute_)
-        {
-            inter_->executeModule();
-        }
-        if (menuItem == autoScale_)
-        {
+    if (!inter_)
+        return;
 
-            if (autoScale_->getState())
-                inter_->setBooleanParam(AUTOSCALE, 1);
-            else
-                inter_->setBooleanParam(AUTOSCALE, 0);
+    if (menuItem == execute_)
+    {
+        inter_->executeModule();
+    }
+    if (menuItem == autoScale_)
+    {
+        if (autoScale_->getState())
+        {
+            inter_->setBooleanParam(AUTOSCALE, 1);
+            inter_->setBooleanParam(V_AUTOSCALE, 1);
+        }
+        else
+        {
+            inter_->setBooleanParam(AUTOSCALE, 0);
+            inter_->setBooleanParam(V_AUTOSCALE, 0);
         }
     }
 }
@@ -347,10 +366,15 @@ ColorBar::menuReleaseEvent(coMenuItem *menuItem)
             inter_->setVectorParam(MINMAX, 2, minmax);
             //inter_->executeModule();
         }
+        if (menuItem == minSlider_)
+            inter_->setScalarParam(V_MIN, minSlider_->getValue());
+        if (menuItem == maxSlider_)
+            inter_->setScalarParam(V_MAX, maxSlider_->getValue());
         if (menuItem == stepSlider_)
         {
             int num = static_cast<int>(stepSlider_->getValue());
             inter_->setScalarParam(STEPS, num);
+            inter_->setScalarParam(V_STEPS, num);
             //inter_->executeModule();
         }
     }
