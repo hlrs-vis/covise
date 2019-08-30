@@ -288,7 +288,7 @@ bool ReadNek::ParseNekFileHeader() {
     ifstream  f(blockfilename, ifstream::binary);
 
     if (!f.is_open()) {
-        sendError("Could not open file %s, which should exist according to header file %s.", blockfilename, p_data_path);
+        sendError("Could not open file %s, which should exist according to header file %s.", blockfilename.c_str(), p_data_path->getValue());
         return false;
     }
 
@@ -597,8 +597,7 @@ bool ReadNek::ReadMesh(int timestep, int block, float* x, float* y, float* z) {
             fdMesh = fopen(meshfilename.c_str(), "rb");
             curOpenMeshFile = meshfilename;
             if (!fdMesh)                 {
-                string err = "nek5000: can't open file: " + meshfilename;
-                sendError(err.c_str());
+                sendError("Cannot open file %s", meshfilename.c_str());
                 return false;
             }
         }
@@ -706,7 +705,7 @@ bool ReadNek::ReadVelocity(int timestep, int block, float * x, float* y, float* 
 
         fdVar = fopen(filename.c_str(), "rb");
         if (!fdVar) {
-            sendError(filename.c_str());
+            sendError("Cannot open %s", filename.c_str());
             return false;
         }
 
@@ -777,7 +776,7 @@ bool ReadNek::ReadVelocity(int timestep, int block, float * x, float* y, float* 
                 (long)ii * iAsciiCurrFileLineLen +
                 (long)dp.varOffsetAscii, SEEK_SET);
             if (iDim == 3) {
-                int res = fscanf(fdVar, " %f %f %f", x[ii], y[ii], z[ii]); (void)res;
+                int res = fscanf(fdVar, " %f %f %f", &x[ii], &y[ii], &z[ii]); (void)res;
             } else {
                 int res = fscanf(fdVar, " %f %f", &x[ii], &y[ii]); (void)res;
                 z[ii] = 0.0f;
@@ -819,7 +818,7 @@ bool ReadNek::ReadVar(const char* varname, int timestep, int block, float* data)
 
         fdVar = fopen(filename.c_str(), "rb");
         if (!fdVar)             {
-            sendError(string(".nek500: can not open file" + filename).c_str());
+            sendError("Cannot open file %s", filename.c_str());
             return false;
         }
 
