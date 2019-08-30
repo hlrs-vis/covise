@@ -63,8 +63,8 @@ class OPENVRUIEXPORT coTexturedBackground
 public:
     coTexturedBackground(const std::string &normalTexture, const std::string &highlightTexture,
                          const std::string &disabledTexture, coTexturedBackgroundActor *actor = 0);
-    coTexturedBackground(uint *normalImage, uint *highlightImage,
-                         uint *disabledImage, int comp, int ns, int nt, int nr,
+    coTexturedBackground(const uint *normalImage, const uint *highlightImage,
+                         const uint *disabledImage, int comp, int ns, int nt, int nr,
                          coTexturedBackgroundActor *actor = 0);
     virtual ~coTexturedBackground();
 
@@ -72,7 +72,7 @@ public:
     {
 
     public:
-        TextureSet(uint *nt, uint *ht, uint *dt, int comp, int s, int t, int r)
+        TextureSet(const uint *nt, const uint *ht, const uint *dt, int comp, int s, int t, int r)
             : start(0.0f, 0.0f)
             , end(1.0f, 1.0f)
         {
@@ -85,9 +85,9 @@ public:
             this->r = r;
         }
 
-        uint *normalTextureImage;
-        uint *highlightedTextureImage;
-        uint *disabledTextureImage;
+        const uint *normalTextureImage;
+        const uint *highlightedTextureImage;
+        const uint *disabledTextureImage;
         int comp;
         int s;
         int t;
@@ -142,8 +142,8 @@ public:
         return texYSize;
     }
 
-    void setImage(uint *normalImage, uint *highlightImage,
-                  uint *disabledImage, int comp, int ns, int nt, int nr);
+    void setImage(const uint *normalImage, const uint *highlightImage,
+                  const uint *disabledImage, int comp, int ns, int nt, int nr);
 
     /// get the Element's classname
     virtual const char *getClassName() const;

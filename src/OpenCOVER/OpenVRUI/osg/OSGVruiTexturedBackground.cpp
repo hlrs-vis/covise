@@ -26,6 +26,8 @@ using namespace std;
 namespace vrui
 {
 
+static const int MipMapLevels = 8;
+
 ref_ptr<Vec3Array> OSGVruiTexturedBackground::normal = 0;
 
 /** Constructor
@@ -119,12 +121,12 @@ void OSGVruiTexturedBackground::update()
         }
         else
         {
-            texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP);
-            texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP);
-            texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP);
+            texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+            texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
+            texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+            texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
+            texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+            texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
         }
     }
 
@@ -249,9 +251,11 @@ void OSGVruiTexturedBackground::createTexturesFromFiles()
 
     if (texNormal.valid())
     {
-        texNormal->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP);
+        texNormal->setNumMipmapLevels(MipMapLevels);
+        texNormal->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+        texNormal->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+        texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+        texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
     }
     else
     {
@@ -265,9 +269,11 @@ void OSGVruiTexturedBackground::createTexturesFromFiles()
 
     if (texHighlighted.valid())
     {
-        texHighlighted->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP);
+        texHighlighted->setNumMipmapLevels(MipMapLevels);
+        texHighlighted->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+        texHighlighted->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+        texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+        texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
     }
     else
     {
@@ -282,9 +288,11 @@ void OSGVruiTexturedBackground::createTexturesFromFiles()
 
     if (texDisabled.valid())
     {
-        texDisabled->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP);
+        texDisabled->setNumMipmapLevels(MipMapLevels);
+        texDisabled->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+        texDisabled->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+        texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+        texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
     }
     else
     {
@@ -296,9 +304,9 @@ void OSGVruiTexturedBackground::createTexturesFromFiles()
 
 /** create texture from arrays
  */
-void OSGVruiTexturedBackground::createTexturesFromArrays(uint *normalImage,
-                                                         uint *highlightImage,
-                                                         uint *disabledImage,
+void OSGVruiTexturedBackground::createTexturesFromArrays(const uint *normalImage,
+                                                         const uint *highlightImage,
+                                                         const uint *disabledImage,
                                                          int comp, int ns, int nt, int nr)
 {
     texNormal = new Texture2D();
@@ -312,9 +320,11 @@ void OSGVruiTexturedBackground::createTexturesFromArrays(uint *normalImage,
         image->setImage(ns, nt, nr, pixel_format, pixel_format, GL_UNSIGNED_BYTE,
                         (unsigned char *)normalImage, Image::NO_DELETE, comp);
         texNormal->setImage(image.get());
-        texNormal->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-        texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP);
-        texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP);
+        texNormal->setNumMipmapLevels(MipMapLevels);
+        texNormal->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+        texNormal->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+        texNormal->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+        texNormal->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
     }
     else
     {
@@ -330,9 +340,11 @@ void OSGVruiTexturedBackground::createTexturesFromArrays(uint *normalImage,
             image->setImage(ns, nt, nr, pixel_format, pixel_format, GL_UNSIGNED_BYTE,
                             (unsigned char *)highlightImage, Image::NO_DELETE, comp);
             texHighlighted->setImage(image.get());
-            texHighlighted->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-            texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP);
+            texHighlighted->setNumMipmapLevels(MipMapLevels);
+            texHighlighted->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+            texHighlighted->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+            texHighlighted->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+            texHighlighted->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
         }
     }
     else
@@ -349,9 +361,11 @@ void OSGVruiTexturedBackground::createTexturesFromArrays(uint *normalImage,
             image->setImage(ns, nt, nr, pixel_format, pixel_format, GL_UNSIGNED_BYTE,
                             (unsigned char *)disabledImage, Image::NO_DELETE, comp);
             texDisabled->setImage(image.get());
-            texDisabled->setFilter(Texture::MIN_FILTER, Texture::LINEAR);
-            texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP);
-            texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP);
+            texDisabled->setNumMipmapLevels(MipMapLevels);
+            texDisabled->setFilter(Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+            texDisabled->setFilter(Texture::MAG_FILTER, osg::Texture::NEAREST);
+            texDisabled->setWrap(Texture::WRAP_S, Texture::CLAMP_TO_EDGE);
+            texDisabled->setWrap(Texture::WRAP_T, Texture::CLAMP_TO_EDGE);
         }
     }
     else

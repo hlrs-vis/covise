@@ -126,16 +126,15 @@ coColorBar::coColorBar(const char *n, const char *species, float mi, float ma, i
     max_ = ma;
 
     //fprintf(stderr,"new coColorBar [%s] with %d colors\n", name_, numColors_);
-    image_ = NULL;
+    image_.clear();
 
     // create the
     makeLabelValues();
-    tickImage_ = new unsigned char[4 * 2 * 16];
     makeTickImage();
     for (i = 0; i < MAX_LABELS; i++)
     {
         labels_[i] = new vrui::coLabel();
-        hspaces_[i] = new vrui::coTexturedBackground((uint *)tickImage_, (uint *)tickImage_, (uint *)tickImage_, 4, 2, 16, 1);
+        hspaces_[i] = new vrui::coTexturedBackground((const uint *)tickImage_.data(), (const uint *)tickImage_.data(), (const uint *)tickImage_.data(), 4, 32, 32, 1);
         hspaces_[i]->setMinWidth(60);
         hspaces_[i]->setMinHeight(60);
         labelAndHspaces_[i] = new vrui::coRowContainer(vrui::coRowContainer::HORIZONTAL);
@@ -166,15 +165,15 @@ coColorBar::coColorBar(const char *n, const char *species, float mi, float ma, i
     }
 
     // create texture
-    image_ = new unsigned char[4 * 256 * 2]; // 4 componenten, 256*2 gross
+    image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
     makeImage(numColors_, r, g, b, a);
-    texture_ = new vrui::coTexturedBackground((uint *)image_, (uint *)image_, (uint *)image_, 4, 2, 256, 1);
+    texture_ = new vrui::coTexturedBackground((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setMinHeight(60.0f); // entspricht einer color
     texture_->setMinWidth(100);
     texture_->setHeight(60.0f * (numLabels_ - 1));
     vspace_ = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
     vspace_->setMinWidth(2);
-    vspace_->setMinHeight(60);
+    vspace_->setMinHeight(30);
     textureAndVspace_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
     textureAndVspace_->setVgap(0.0);
     textureAndVspace_->setHgap(0.0);
@@ -251,7 +250,7 @@ coColorBar::update(float mi, float ma, int nc, float *r, float *g, float *b, flo
 
     // update image
     makeImage(numColors_, r, g, b, a);
-    texture_->setImage((uint *)image_, (uint *)image_, (uint *)image_, 4, 2, 256, 1);
+    texture_->setImage((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
     texture_->setHeight(60.0f * (numLabels_ - 1));
 }
 
@@ -261,7 +260,7 @@ coColorBar::makeImage(int numColors, float *r, float *g, float *b, float *a)
     unsigned char *cur;
     int x, y, idx;
 
-    cur = image_;
+    cur = image_.data();
     for (y = 0; y < 256; y++)
     {
         for (x = 0; x < 2; x++)
@@ -288,13 +287,14 @@ coColorBar::makeTickImage()
     unsigned char *cur;
     int x, y;
 
-    cur = tickImage_;
+    tickImage_.resize(4*32*32);
+    cur = tickImage_.data();
 
-    for (y = 0; y < 16; y++) // white
+    for (y = 0; y < 32; y++) // white
     {
-        for (x = 0; x < 2; x++)
+        for (x = 0; x < 32; x++)
         {
-            if (y < 2 && x < 1)
+            if (y >= 15 && y <= 17 && x < 16)
             {
                 *cur = (unsigned char)(255.0 * 1.0);
                 cur++;

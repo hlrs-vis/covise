@@ -23,6 +23,7 @@
 
 #include <OpenVRUI/coMenuItem.h>
 #include <util/coTypes.h>
+#include <vector>
 
 namespace vrui
 {
@@ -63,7 +64,7 @@ private:
 
     int numColors_;
     float min_, max_;
-    unsigned char *image_, *tickImage_;
+    std::vector<unsigned char> image_, tickImage_;
     char *name_; // the name of the colors module for example Colors_1
 
     void makeImage(int numColors, float *r, float *g, float *b, float *a);
