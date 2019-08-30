@@ -36,32 +36,23 @@
 namespace opencover
 {
 
-class PLUGIN_UTILEXPORT ColorBar : public vrui::coMenuListener, public opencover::coTUIListener
+class PLUGIN_UTILEXPORT ColorBar: public ui::Owner
 {
 private:
-    coColorBar *colorbar_;
-    vrui::coMenu *pinboard_;
-    vrui::coSubMenuItem *colorsButton_, *myColorsButton_;
-    vrui::coRowMenu *colorsMenu_;
-    char *title_;
-    char *name_;
-    char *species_;
-    vrui::coSliderMenuItem *minSlider_;
-    vrui::coSliderMenuItem *maxSlider_;
-    vrui::coSliderMenuItem *stepSlider_;
-    vrui::coCheckboxMenuItem *autoScale_;
-    vrui::coButtonMenuItem *execute_;
+    coColorBar *colorbar_ = nullptr;
+    ui::Menu *colorsMenu_ = nullptr;
+    std::string title_;
+    std::string name_;
+    std::string species_;
+    ui::Slider *minSlider_ = nullptr;
+    ui::Slider *maxSlider_ = nullptr;
+    ui::Slider *stepSlider_ = nullptr;
+    ui::Button *autoScale_ = nullptr;
+    ui::Action *execute_ = nullptr;
 
-    opencover::coInteractor *inter_;
+    opencover::coInteractor *inter_ = nullptr;
 
-    void menuEvent(vrui::coMenuItem *);
-    void menuReleaseEvent(vrui::coMenuItem *);
-
-    bool tabUI;
-
-    void tabletPressEvent(opencover::coTUIElement *);
-    void createMenuEntry(const char *name, float min, float max, int numColors, int tabID);
-    void removeMenuEntry();
+    void updateTitle();
 
     /// The TabletUI Interface
     opencover::coTUITab *_tab;
@@ -76,19 +67,6 @@ private:
     opencover::coTUIButton *_execute;
 
 public:
-    /** constructor
-       *  create create containers, texture and labels
-       *  @param name the name of the colorbar, identical with module name, eg, g, Colors_1
-       *  @param species data species name, currently not displayed
-       *  @param min data minimum
-       *  @param max data maximum
-       *  @param numColors number of different colors in colorbar
-       *  @param r red colors
-       *  @param g green colors
-       *  @param b blue colors
-       *  @param a red colors
-       */
-    ColorBar(const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
 
     /** constructor when the colorbar is not to be opened from the pinboard
        *  create create containers, texture and labels
@@ -103,7 +81,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    ColorBar(vrui::coSubMenuItem *colorsButton, vrui::coRowMenu *moduleMenu, const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a, int tabID = -1);
+    ColorBar(ui::Menu *menu, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
 
     /// destructor
     ~ColorBar();

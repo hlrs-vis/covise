@@ -112,7 +112,7 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
     maxIO = (float)max;
 }
 
-coColorBar::coColorBar(const char *n, char *species, float mi, float ma, int nc, float *r, float *g, float *b, float *a)
+coColorBar::coColorBar(const char *n, const char *species, float mi, float ma, int nc, float *r, float *g, float *b, float *a)
     : coMenuItem(n)
 {
     int i;

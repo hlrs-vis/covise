@@ -45,8 +45,6 @@ bool ColorBarPlugin::init()
     if (cover->visMenu)
     {
         colorSubmenu = new ui::Menu("Colors", this);
-        colorSubmenu->setVisible(false);
-        colorSubmenu->setVisible(true, ui::View::VR);
         cover->visMenu->add(colorSubmenu, 1); // after Execute
     }
 
@@ -231,13 +229,7 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
             mod.menu = new ui::Menu(menuName, &mod);
             colorSubmenu->add(mod.menu);
 
-            if (cover->vruiView)
-            {
-                auto menu = dynamic_cast<vrui::coRowMenu *>(cover->vruiView->getMenu(mod.menu));
-                auto item = dynamic_cast<vrui::coSubMenuItem *>(cover->vruiView->getItem(mod.menu));
-                if (menu && item)
-                    mod.colorbar = new ColorBar(item, menu, menuName.c_str(), species, min, max, numColors, r, g, b, a, tabID);
-            }
+            mod.colorbar = new ColorBar(mod.menu, species, min, max, numColors, r, g, b, a);
         }
         if (mod.colorbar)
             mod.colorbar->addInter(inter);

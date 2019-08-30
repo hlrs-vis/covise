@@ -83,7 +83,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    coColorBar(const char *name, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    coColorBar(const char *name, const char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
 
     /// destructor
     ~coColorBar();
