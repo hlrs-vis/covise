@@ -25,6 +25,7 @@
 #include <OpenVRUI/coMenu.h>
 #include <OpenVRUI/coSubMenuItem.h>
 #include <config/CoviseConfig.h>
+#include <cmath>
 
 using namespace opencover;
 
@@ -152,9 +153,18 @@ coColorBar::coColorBar(const char *n, const char *species, float mi, float ma, i
     {
         sprintf(format_str_, "%%.%sf", precision.c_str());
     }
+    else if ((fabs(ma) > 1e-4 || fabs(mi) > 1e-4) && fabs(mi) < 1e+6 && fabs(ma) < 1e+6)
+    {
+        int ndig = 5;
+        int prec = std::max(0, ndig-(int)std::log10(std::max(fabs(mi), fabs(ma))));
+        std::string sign = "";
+        if (mi < 0 || ma < 0)
+            sign = "+";
+        sprintf(format_str_, "%%%s%d.%df", sign.c_str(), ndig-prec, prec);
+    }
     else
     {
-        strcpy(format_str_, "%g");
+        sprintf(format_str_, "%%g");
     }
 
     for (i = 0; i < numLabels_; i++)
