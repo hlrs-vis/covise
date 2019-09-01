@@ -37,15 +37,11 @@ bool ColorBarPlugin::init()
     //fprintf(stderr,"ColorBarPlugin::ColorBarPlugin\n");
     colorSubmenu = NULL;
     colorsModuleMap.clear();
-    tabID = 0;
-
-    // create the TabletUI User-Interface
-    createMenuEntry();
 
     if (cover->visMenu)
     {
         colorSubmenu = new ui::Menu("Colors", this);
-        cover->visMenu->add(colorSubmenu, 1); // after Execute
+        cover->visMenu->add(colorSubmenu, 0); // after Execute
     }
 
     return true;
@@ -57,30 +53,6 @@ ColorBarPlugin::~ColorBarPlugin()
     //fprintf(stderr,"ColorBarPlugin::~ColorBarPlugin\n");
 
     colorsModuleMap.clear();
-
-    removeMenuEntry();
-}
-
-void ColorBarPlugin::createMenuEntry()
-{
-    colorBarTab = new coTUITab("ColorBars", coVRTui::instance()->mainFolder->getID());
-    colorBarTab->setPos(0, 0);
-    colorBarTab->setEventListener(this);
-
-    _tabFolder = new coTUITabFolder("Folder", colorBarTab->getID());
-    _tabFolder->setPos(0, 0);
-
-    tabID = _tabFolder->getID();
-}
-
-void ColorBarPlugin::removeMenuEntry()
-{
-    delete _tabFolder;
-    delete colorBarTab;
-}
-
-void ColorBarPlugin::tabletPressEvent(coTUIElement *)
-{
 }
 
 void

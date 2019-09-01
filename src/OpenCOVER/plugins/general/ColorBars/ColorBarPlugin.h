@@ -20,9 +20,6 @@
 #include <cover/coVRPlugin.h>
 #include <map>
 
-#include <cover/coTabletUI.h>
-#include <util/coTabletUIMessages.h>
-#include <cover/coVRTui.h>
 #include <PluginUtil/ColorBar.h>
 
 #include <cover/ui/Owner.h>
@@ -49,15 +46,7 @@ public:
 
 private:
     void removeInteractor(const std::string &container);
-    void tabletPressEvent(opencover::coTUIElement *);
-    void createMenuEntry();
-    void removeMenuEntry();
     std::vector<std::string> removeQueue;
-
-    /// The TabletUI Interface
-    opencover::coTUITab *colorBarTab = nullptr;
-    opencover::coTUITabFolder *_tabFolder = nullptr;
-    int tabID;
 
     // VR Menu
     opencover::ui::Menu *colorSubmenu;
