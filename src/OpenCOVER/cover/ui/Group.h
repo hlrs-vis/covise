@@ -15,7 +15,7 @@ class COVER_UI_EXPORT Group: public Element, public Container {
     ~Group();
 
     //! add an Element to this Group
-    bool add(Element *elem, int where=Back) override;
+    bool add(Element *elem, int where=Append) override;
     //! remove an Element from this Group
     bool remove(Element *elem) override;
 };

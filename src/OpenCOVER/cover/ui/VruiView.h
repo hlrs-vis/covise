@@ -69,6 +69,7 @@ class VruiView: public View
  private:
    VruiViewElement *vruiElement(const std::string &path) const;
    VruiViewElement *vruiElement(const Element *elem) const;
+   bool isReparented(const Element *elem) const;
    VruiViewElement *vruiParent(const Element *elem) const;
    VruiViewElement *vruiContainer(const Element *elem) const;
 

@@ -224,6 +224,27 @@ VruiViewElement *VruiView::vruiElement(const Element *elem) const
     return ve;
 }
 
+bool VruiView::isReparented(const Element *elem) const {
+    if (!elem)
+        return false;
+
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("parent", configPath(elem->path()), &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return true;
+        }
+        if (auto parent = vruiElement(parentPath))
+            return true;
+
+    }
+
+    return false;
+}
+
 VruiViewElement *VruiView::vruiParent(const Element *elem) const
 {
     if (!elem)
@@ -281,13 +302,13 @@ void VruiView::add(VruiViewElement *ve, const Element *elem)
         {
             ve->m_toolboxItem->setParentMenu(tb);
             int n = tb->index(m_root->m_toolboxItem);
-            if (n >= 0)
+            if (n < 0)
             {
-                tb->insert(ve->m_toolboxItem, n);
+                tb->add(ve->m_toolboxItem);
             }
             else
             {
-                tb->add(ve->m_toolboxItem);
+                tb->insert(ve->m_toolboxItem, n);
             }
         }
     }
@@ -430,7 +451,11 @@ void VruiView::updateParent(const Element *elem)
             auto parent = vruiContainer(elem);
             if (parent && parent->m_menu)
             {
-                parent->m_menu->add(ve->m_menuItem);
+                auto idx =  elem->parent()->index(elem);
+                if (idx < 0 || isReparented(elem))
+                    parent->m_menu->add(ve->m_menuItem);
+                else
+                    parent->m_menu->insert(ve->m_menuItem, idx);
             }
             else
             {
