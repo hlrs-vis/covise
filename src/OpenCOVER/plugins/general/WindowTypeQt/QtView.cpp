@@ -830,9 +830,18 @@ int QtSliderWidget::maximum() const
     return m_slider->maximum();
 }
 
+
+
 QtSliderAction::QtSliderAction(QObject *parent)
 : QWidgetAction(parent)
 {
+    connect(this, &QAction::changed, this, &QtSliderAction::actionChanged);
+}
+
+void QtSliderAction::actionChanged()
+{
+    for (auto w: createdWidgets())
+        w->setVisible(isVisible());
 }
 
 void QtSliderAction::setToolTip(const QString &tip)
@@ -928,6 +937,7 @@ QWidget *QtSliderAction::createWidget(QWidget *parent)
     s->setValue(m_value);
     s->setText(m_text);
     s->setWidthText(m_widthText);
+    s->setVisible(isVisible());
     connect(s, &QtSliderWidget::sliderMoved, [this, s](int value){
         m_value = value;
         for (auto w: createdWidgets())
