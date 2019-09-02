@@ -898,8 +898,6 @@ VRCoviseConnection::executeCallback(void *, buttonSpecCell *)
 
     if (coVRMSController::instance()->isMaster())
     {
-        fprintf(stdout, "\a");
-        fflush(stdout);
         if (CoviseRender::get_feedback_info())
         {
             strcpy(buf, CoviseRender::get_feedback_info());

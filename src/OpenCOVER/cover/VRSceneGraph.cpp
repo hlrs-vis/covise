@@ -1021,8 +1021,6 @@ VRSceneGraph::update()
             vrui::coInteractionManager::the()->registerInteraction(m_interactionHQ);
         }
         m_highQuality = true;
-        fprintf(stdout, "\a");
-        fflush(stdout);
     }
     else if (m_highQuality && (cover->getPointerButton()->wasPressed() || (cover->getMouseButton() && cover->getMouseButton()->wasPressed())))
     {
