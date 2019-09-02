@@ -65,9 +65,9 @@ private:
     int numColors_;
     float min_, max_;
     std::vector<unsigned char> image_, tickImage_;
-    char *name_; // the name of the colors module for example Colors_1
+    std::string name_; // the name of the colors module for example Colors_1
 
-    void makeImage(int numColors, float *r, float *g, float *b, float *a);
+    void makeImage(int numColors, const float *r, const float *g, const float *b, const float *a);
     void makeTickImage();
     void makeLabelValues();
 
@@ -84,7 +84,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    coColorBar(const char *name, const char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    coColorBar(const std::string &name, const std::string &species, float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a);
 
     /// destructor
     ~coColorBar();
@@ -98,15 +98,12 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    void update(float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    void update(float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a);
 
     /** get name
        *  @return name the name of the colorbar, identical with module name, eg, g, Colors_1
        */
-    const char *getName()
-    {
-        return name_;
-    };
+    const char *getName() const;;
 
     virtual vrui::coUIElement *getUIElement();
 

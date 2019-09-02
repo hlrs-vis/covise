@@ -113,20 +113,19 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
     maxIO = (float)max;
 }
 
-coColorBar::coColorBar(const char *n, const char *species, float mi, float ma, int nc, float *r, float *g, float *b, float *a)
-    : coMenuItem(n)
+coColorBar::coColorBar(const std::string &name, const std::string &species, float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a)
+    : coMenuItem(name.c_str())
+    , name_(name)
 {
     int i;
     char str[100];
     (void)species;
 
-    name_ = new char[strlen(n) + 1];
-    strcpy(name_, n);
     numColors_ = nc;
     min_ = mi;
     max_ = ma;
 
-    //fprintf(stderr,"new coColorBar [%s] with %d colors\n", name_, numColors_);
+    //fprintf(stderr,"new coColorBar [%s] with %d colors\n", name_.c_str(), numColors_);
     image_.clear();
 
     // create the
@@ -229,12 +228,10 @@ coColorBar::~coColorBar()
 
     delete textureAndLabels_;
     delete background_;
-
-    delete[] name_;
 }
 
 void
-coColorBar::update(float mi, float ma, int nc, float *r, float *g, float *b, float *a)
+coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a)
 {
     int i;
     char str[100];
@@ -264,8 +261,13 @@ coColorBar::update(float mi, float ma, int nc, float *r, float *g, float *b, flo
     texture_->setHeight(60.0f * (numLabels_ - 1));
 }
 
+const char *coColorBar::getName() const
+{
+    return name_.c_str();
+}
+
 void
-coColorBar::makeImage(int numColors, float *r, float *g, float *b, float *a)
+coColorBar::makeImage(int numColors, const float *r, const float *g, const float *b, const float *a)
 {
     unsigned char *cur;
     int x, y, idx;

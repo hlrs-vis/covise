@@ -16,6 +16,7 @@
 #include <cover/ui/Action.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
+#include <cover/ui/SpecialElement.h>
 
 static const char MINMAX[] = "MinMax";
 static const char STEPS[] = "numSteps";
@@ -25,62 +26,56 @@ static const char V_STEPS[] = "steps";
 static const char V_MIN[] = "min";
 static const char V_MAX[] = "max";
 static const char V_AUTOSCALE[] = "auto_range";
+static const char V_CENTER[] = "center";
+static const char V_COMPRESS[] = "range_compression";
+
+static const char V_NEST[] = "nest";
+static const char V_INSETAUTOCENTER[] = "auto_center";
+static const char V_INSETRELATIVE[] = "inset_relative";
+static const char V_INSETCENTER[] = "inset_center";
+static const char V_INSETWIDTH[] = "inset_width";
+static const char V_OPACITYFACTOR[] = "opacity_factor";
+static const char V_BLENDWITHMATERIAL[] = "blend_with_material";
 
 using namespace  vrui;
 
 namespace opencover
 {
 
-ColorBar::ColorBar(ui::Menu *menu, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a)
-: ui::Owner(std::string("ColorBar")+species, menu)
+ColorBar::ColorBar(ui::Menu *menu)
+: ui::Owner(std::string("ColorBar"), menu)
+, species("NoColors")
+, numColors(2)
+, min(0.)
+, max(1.)
+, r{0., 1.}
+, g{0., 1.}
+, b{0., 1.}
+, a{0., 1.}
 {
     title_ = species;
     colorsMenu_ = menu;
 
-    float diff = (max - min) / 2;
-    float minMin = min - diff;
-    float maxMin = min + diff;
-    float minMax = max - diff;
-    float maxMax = max + diff;
-    minSlider_ = new ui::Slider(colorsMenu_, "Min");
-    minSlider_->setBounds(minMin, maxMin);
-    minSlider_->setValue(min);
-    minSlider_->setCallback([this](double value, bool released){
-        if (!inter_)
-            return;
-        inter_->setScalarParam(V_MIN, static_cast<float>(value));
-        float minmax[2];
-        minmax[0] = value;
-        minmax[1] = maxSlider_->value();
-        inter_->setVectorParam(MINMAX, 2, minmax);
+    uiColorBar_ = new ui::SpecialElement("VruiColorBar", this);
+
+    colorsMenu_->add(uiColorBar_);
+    uiColorBar_->registerCreateDestroy(cover->vruiView->typeBit(),
+                                       [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
+        auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
+        assert(vve);
+        colorbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data());
+        vve->m_menuItem = colorbar_;
+    },
+    [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
+        delete colorbar_;
+        colorbar_ = nullptr;
+        auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
+        assert(vve);
+        vve->m_menuItem = nullptr;
     });
 
-    maxSlider_ = new ui::Slider(colorsMenu_, "Max");
-    maxSlider_->setBounds(minMax, maxMax);
-    maxSlider_->setValue(max);
-    maxSlider_->setCallback([this](double value, bool released){
-        if (!inter_)
-            return;
-        inter_->setScalarParam(V_MAX, static_cast<float>(value));
-        float minmax[2];
-        minmax[0] = minSlider_->value();
-        minmax[1] = value;
-        inter_->setVectorParam(MINMAX, 2, minmax);
-    });
-
-    stepSlider_ = new ui::Slider(colorsMenu_, "Steps");
-    stepSlider_->setBounds(1, numColors);
-    stepSlider_->setIntegral(true);
-    stepSlider_->setCallback([this](double value, bool released){
-        if (!inter_)
-            return;
-        int num = static_cast<int>(value);
-        inter_->setScalarParam(STEPS, num);
-        inter_->setScalarParam(V_STEPS, num);
-        //inter_->executeModule();
-    });
-
-    autoScale_ = new ui::Button(colorsMenu_, "AutoRange");
+    autoScale_ = new ui::Button("AutoRange", this);
+    colorsMenu_->add(autoScale_);
     autoScale_->setText("Auto range");
     autoScale_->setState(false);
     autoScale_->setCallback([this](bool state){
@@ -90,27 +85,119 @@ ColorBar::ColorBar(ui::Menu *menu, char *species, float min, float max, int numC
         inter_->setBooleanParam(V_AUTOSCALE, state);
     });
 
-    execute_ = new ui::Action(colorsMenu_, "Execute");
+    float diff = (max - min) / 2;
+    minSlider_ = new ui::Slider("Min", this);
+    colorsMenu_->add(minSlider_);
+    minSlider_->setBounds(min-diff, min+diff);
+    minSlider_->setValue(min);
+    minSlider_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        float dummy = 0.;
+        if (inter_->getFloatScalarParam(V_MIN, dummy) != -1)
+            inter_->setScalarParam(V_MIN, static_cast<float>(value));
+        float minmax[2];
+        minmax[0] = value;
+        minmax[1] = maxSlider_->value();
+        inter_->setVectorParam(MINMAX, 2, minmax);
+    });
+
+    maxSlider_ = new ui::Slider("Max", this);
+    colorsMenu_->add(maxSlider_);
+    maxSlider_->setBounds(max-diff, max+diff);
+    maxSlider_->setValue(max);
+    maxSlider_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        float dummy = 0.;
+        if (inter_->getFloatScalarParam(V_MAX, dummy) != -1)
+            inter_->setScalarParam(V_MAX, static_cast<float>(value));
+        float minmax[2];
+        minmax[0] = minSlider_->value();
+        minmax[1] = value;
+        inter_->setVectorParam(MINMAX, 2, minmax);
+    });
+
+    center_ = new ui::Slider("Center", this);
+    colorsMenu_->add(center_);
+    center_->setBounds(0., 1.);
+    center_->setValue(0.5);
+    center_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        inter_->setScalarParam(V_CENTER, static_cast<float>(value));
+    });
+
+    compress_ = new ui::Slider("RangeCompression", this);
+    colorsMenu_->add(compress_);
+    compress_->setText("Range compression");
+    compress_->setBounds(-1, 1);
+    compress_->setValue(0);
+    compress_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        inter_->setScalarParam(V_COMPRESS, static_cast<float>(value));
+    });
+
+    stepSlider_ = new ui::Slider("Steps", this);
+    colorsMenu_->add(stepSlider_);
+    stepSlider_->setBounds(2, numColors);
+    stepSlider_->setIntegral(true);
+    stepSlider_->setScale(ui::Slider::Logarithmic);
+    stepSlider_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        int num = static_cast<int>(value);
+        inter_->setScalarParam(STEPS, num);
+        inter_->setScalarParam(V_STEPS, num);
+        //inter_->executeModule();
+    });
+
+    insetCenter_ = new ui::Slider("InsetCenter", this);
+    colorsMenu_->add(insetCenter_);
+    insetCenter_->setText("Inset center");
+    insetCenter_->setBounds(0, 1);
+    insetCenter_->setValue(0.5);
+    insetCenter_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        inter_->setScalarParam(V_INSETCENTER, static_cast<float>(value));
+    });
+
+    insetWidth_ = new ui::Slider("InsetWidth", this);
+    colorsMenu_->add(insetWidth_);
+    insetWidth_->setText("Inset width");
+    insetWidth_->setBounds(0., 1.);
+    insetWidth_->setValue(0.1);
+    insetWidth_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        inter_->setScalarParam(V_INSETWIDTH, static_cast<float>(value));
+    });
+
+    opacityFactor_ = new ui::Slider("OpacityFactor", this);
+    colorsMenu_->add(opacityFactor_);
+    opacityFactor_->setText("Opacity factor");
+    opacityFactor_->setBounds(0., 1.);
+    opacityFactor_->setValue(1.);
+    opacityFactor_->setCallback([this](double value, bool released){
+        if (!inter_)
+            return;
+        inter_->setScalarParam(V_OPACITYFACTOR, static_cast<float>(value));
+    });
+
+    execute_ = new ui::Action("Execute", this);
+    colorsMenu_->add(execute_);
     execute_->setCallback([this](){
         if (inter_)
             inter_->executeModule();
     });
-
-    if (cover->vruiView)
-    {
-        auto menu = dynamic_cast<vrui::coRowMenu *>(cover->vruiView->getMenu(colorsMenu_));
-        auto item = dynamic_cast<vrui::coSubMenuItem *>(cover->vruiView->getItem(colorsMenu_));
-        if (menu && item)
-        {
-            colorbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r, g, b, a);
-            menu->add(colorbar_);
-        }
-    }
 }
 
 ColorBar::~ColorBar()
 {
     delete colorbar_;
+    colorbar_ = nullptr;
 
     if (inter_)
     {
@@ -129,52 +216,168 @@ void ColorBar::updateTitle()
     {
         title_ = species_;
     }
+    title_ = name_;
     colorsMenu_->setText(title_);
 }
 
 
 void
-ColorBar::update(const char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a)
+ColorBar::update(const std::string &species, float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a)
 {
+    species_ = species;
+    updateTitle();
+
     if (colorbar_)
         colorbar_->update(min, max, numColors, r, g, b, a);
 
-    if (species)
-        species_ = species;
-    else
-        species_.clear();
-    updateTitle();
-
-    float diff = (max - min) / 2;
-    float minMin = min - diff;
-    float maxMin = min + diff;
-    float minMax = max - diff;
-    float maxMax = max + diff;
-
-    if (minSlider_)
+    if (stepSlider_)
     {
-        minSlider_->setBounds(minMin, maxMin);
-        minSlider_->setValue(min);
-        maxSlider_->setBounds(minMax, maxMax);
-        maxSlider_->setValue(max);
-
-        if (numColors > stepSlider_->max())
+        int imin=0, imax=0, ival=0;
+        if (!inter_ || inter_->getIntSliderParam(V_STEPS, imin, imax, ival) == -1)
         {
-            stepSlider_->setBounds(1, numColors);
+            if (numColors > stepSlider_->max())
+            {
+                stepSlider_->setBounds(2, numColors);
+            }
+            stepSlider_->setValue(numColors);
         }
-        stepSlider_->setValue(numColors);
+    }
+
+    if (minSlider_ && maxSlider_)
+    {
+        float smin = 0.f, smax = 0.f, sval = 0.f;
+        if (!inter_
+            || inter_->getFloatSliderParam(V_MIN, smin, smax, sval) == -1
+            || inter_->getFloatSliderParam(V_MAX, smin, smax, sval) == -1)
+        {
+            float diff = (max - min) / 2;
+
+            minSlider_->setBounds(min-diff, min+diff);
+            maxSlider_->setBounds(max-diff, max+diff);
+        }
+    }
+}
+
+void ColorBar::updateInteractor()
+{
+    if (!inter_)
+        return;
+
+    if (stepSlider_)
+    {
+        int imin=0, imax=0, ival=0;
+        if (inter_->getIntSliderParam(V_STEPS, imin, imax, ival) != -1)
+        {
+            stepSlider_->setBounds(imin, imax);
+            stepSlider_->setValue(ival);
+        }
+    }
+
+    int num = 0;
+    float *minmax = nullptr;
+    if (inter_->getFloatVectorParam(MINMAX, num, minmax) != -1 && num == 2)
+    {
+        if (minSlider_)
+        {
+            minSlider_->setValue(minmax[0]);
+        }
+
+        if (maxSlider_)
+        {
+            maxSlider_->setValue(minmax[1]);
+        }
+    }
+
+    float smin = 0.f, smax = 0.f, sval = 0.f;
+    if (minSlider_ && inter_->getFloatSliderParam(V_MIN, smin, smax, sval) != -1)
+    {
+        minSlider_->setBounds(smin, smax);
+        minSlider_->setValue(sval);
+
+    }
+
+    if (maxSlider_ && inter_->getFloatSliderParam(V_MAX, smin, smax, sval) != -1)
+    {
+        maxSlider_->setBounds(smin, smax);
+        maxSlider_->setValue(sval);
     }
 
     int state = 0;
-    if (inter_)
-    {
+    if (inter_->getBooleanParam(AUTOSCALE, state) == -1)
+        inter_->getBooleanParam(V_AUTOSCALE, state);
+    if (state)
+        autoScale_->setState(true);
+    else
+        autoScale_->setState(false);
 
-        if (inter_->getBooleanParam(AUTOSCALE, state) == -1)
-            inter_->getBooleanParam(V_AUTOSCALE, state);
-        if (state)
-            autoScale_->setState(true);
-        else
-            autoScale_->setState(false);
+    int nest = 0;
+    if (inter_->getBooleanParam(V_NEST, nest) == -1)
+        nest = 0;
+
+    float center = 0.;
+    if (center_ && inter_->getFloatScalarParam(V_CENTER, center) != -1)
+    {
+        center_->setValue(center);
+        center_->setVisible(nest == 0);
+    }
+    else
+    {
+        center_->setVisible(false);
+    }
+
+    float compress = 0.;
+    if (compress_ && inter_->getFloatScalarParam(V_COMPRESS, compress) != -1)
+    {
+        compress_->setValue(compress);
+        compress_->setVisible(nest == 0);
+    }
+    else
+    {
+        compress_->setVisible(false);
+    }
+
+    int autocenter = 1;
+    if (inter_->getBooleanParam(V_INSETAUTOCENTER, autocenter) == -1)
+        autocenter = 1;
+    int inset_rel = 0;
+    if (inter_->getBooleanParam(V_INSETRELATIVE, inset_rel) == -1)
+        inset_rel = 0;
+
+    float insetCenter = 0.;
+    if (insetCenter_ && inter_->getFloatScalarParam(V_INSETCENTER, insetCenter) != -1)
+    {
+        insetCenter_->setValue(insetCenter);
+        insetCenter_->setVisible(inset_rel == 1 && nest != 0 && autocenter == 0);
+    }
+    else
+    {
+        insetCenter_->setVisible(false);
+    }
+
+    float insetWidth = 0.;
+    if (insetWidth_ && inter_->getFloatScalarParam(V_INSETWIDTH, insetWidth) != -1)
+    {
+        insetWidth_->setValue(insetWidth);
+        insetWidth_->setVisible(inset_rel == 1 && nest != 0);
+    }
+    else
+    {
+        insetWidth_->setVisible(false);
+    }
+
+    int blendWithMaterial = 0;
+    if (inter_->getBooleanParam(V_BLENDWITHMATERIAL, blendWithMaterial) == -1)
+        blendWithMaterial = 0;
+
+    float opacityFactor = 1.;
+    if (opacityFactor_ && inter_->getFloatScalarParam(V_OPACITYFACTOR, opacityFactor) != -1)
+    {
+        opacityFactor_->setValue(opacityFactor);
+        opacityFactor_->setVisible(blendWithMaterial != 0);
+    }
+    else
+    {
+        opacityFactor_->setVisible(false);
     }
 }
 
@@ -192,7 +395,10 @@ ColorBar::setName(const char *name)
 const char *
 ColorBar::getName()
 {
-    return colorbar_->getName();
+    if (colorbar_)
+        return colorbar_->getName();
+
+    return "";
 }
 
 void
@@ -205,12 +411,14 @@ ColorBar::addInter(coInteractor *inter)
     }
     inter_ = inter;
     inter_->incRefCount();
+
+    updateInteractor();
 }
 
 void
-ColorBar::parseAttrib(const char *attrib, char *&species,
+ColorBar::parseAttrib(const char *attrib, std::string &species,
                       float &min, float &max, int &numColors,
-                      float *&r, float *&g, float *&b, float *&a)
+                      std::vector<float> &r, std::vector<float> &g, std::vector<float> &b, std::vector<float> &a)
 {
     // convert to a istringstream
     int bufLen = strlen(attrib) + 1;
@@ -220,25 +428,34 @@ ColorBar::parseAttrib(const char *attrib, char *&species,
     //fprintf(stderr,"colorsPlugin::addColorbar [%s]\n", name);
 
     // COLORS_1_OUT_001 pressure min max ncolors 0 r g b rgb rgb ....
-    species = new char[bufLen];
-    int i;
+    char *s = new char[bufLen];
 
-    attribs.getline(species, bufLen, '\n'); // overread obj name
-    attribs.getline(species, bufLen, '\n'); // read species
-    attribs >> min >> max >> numColors >> i;
+    attribs.getline(s, bufLen, '\n'); // overread obj name
+    attribs.getline(s, bufLen, '\n'); // read species
+    species = s;
+    delete[] s;
 
-    r = new float[numColors];
-    g = new float[numColors];
-    b = new float[numColors];
-    a = new float[numColors];
+    int v = 0;
+    attribs >> min >> max >> numColors >> v;
 
-    for (i = 0; i < numColors; i++)
+    r.resize(numColors);
+    g.resize(numColors);
+    b.resize(numColors);
+    a.resize(numColors);
+
+    for (int i = 0; i < numColors; i++)
     {
         attribs >> r[i] >> g[i] >> b[i] >> a[i];
         //      a[i]=1.0f;
     }
 
     delete[] buffer;
+}
+
+void ColorBar::parseAttrib(const char *attrib)
+{
+    parseAttrib(attrib, species_, min, max, numColors, r, g, b, a);
+    update(species, min, max, numColors, r.data(), g.data(), b.data(), a.data());
 }
 
 void ColorBar::setVisible(bool visible)

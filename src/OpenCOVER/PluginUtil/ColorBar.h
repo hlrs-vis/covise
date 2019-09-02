@@ -35,6 +35,10 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 namespace opencover
 {
+namespace ui
+{
+class SpecialElement;
+}
 
 class PLUGIN_UTILEXPORT ColorBar: public ui::Owner
 {
@@ -44,27 +48,27 @@ private:
     std::string title_;
     std::string name_;
     std::string species_;
+    ui::SpecialElement *uiColorBar_ = nullptr;
     ui::Slider *minSlider_ = nullptr;
     ui::Slider *maxSlider_ = nullptr;
     ui::Slider *stepSlider_ = nullptr;
     ui::Button *autoScale_ = nullptr;
     ui::Action *execute_ = nullptr;
+    ui::Slider *center_ = nullptr;
+    ui::Slider *compress_ = nullptr;
+    ui::Slider *insetCenter_ = nullptr;
+    ui::Slider *insetWidth_ = nullptr;
+    ui::Slider *opacityFactor_ = nullptr;
 
     opencover::coInteractor *inter_ = nullptr;
 
     void updateTitle();
 
-    /// The TabletUI Interface
-    opencover::coTUITab *_tab;
-    opencover::coTUIEditFloatField *_min;
-    opencover::coTUIEditFloatField *_max;
-    opencover::coTUIEditIntField *_steps;
-    opencover::coTUILabel *_minL;
-    opencover::coTUILabel *_maxL;
-    opencover::coTUILabel *_stepL;
-
-    opencover::coTUIToggleButton *_autoScale;
-    opencover::coTUIButton *_execute;
+    float min = 0.0;
+    float max = 1.0;
+    int numColors = 0;
+    std::vector<float> r, g, b, a;
+    std::string species;
 
 public:
 
@@ -81,7 +85,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    ColorBar(ui::Menu *menu, char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    ColorBar(ui::Menu *menu);
 
     /// destructor
     ~ColorBar();
@@ -96,7 +100,7 @@ public:
        *  @param b blue colors
        *  @param a red colors
        */
-    void update(const char *species, float min, float max, int numColors, float *r, float *g, float *b, float *a);
+    void update(const std::string &species, float min, float max, int numColors, const float *r, const float *g, const float *b, const float *a);
 
     /** set name */
     void setName(const char *name);
@@ -117,14 +121,16 @@ public:
        * @param b: blue (the client should delete this pointer)
        * @param a: alpha (the client should delete this pointer)
        */
-    static void parseAttrib(const char *attrib, char *&species,
+    static void parseAttrib(const char *attrib, std::string &species,
                             float &min, float &max, int &numColors,
-                            float *&r, float *&g, float *&b, float *&a);
+                            std::vector<float> &r, std::vector<float> &g, std::vector<float> &b, std::vector<float> &a);
 
+    void parseAttrib(const char *attrib);
     void setVisible(bool);
     bool isVisible();
 
     void addInter(opencover::coInteractor *inter);
+    void updateInteractor();
 };
 }
 #endif

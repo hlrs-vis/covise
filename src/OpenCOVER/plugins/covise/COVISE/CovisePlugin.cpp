@@ -107,7 +107,7 @@ bool CovisePlugin::init()
     {
         cover->visMenu = new ui::Menu("COVISE", this);
         auto e = new ui::Action("Execute", cover->visMenu);
-        cover->visMenu->add(e, ui::Container::Front);
+        cover->visMenu->add(e, ui::Container::KeepFirst);
         e->setShortcut("e");
         e->setCallback([this](){
             executeAll();
