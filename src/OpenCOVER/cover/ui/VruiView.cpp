@@ -36,6 +36,7 @@
 #include "EditField.h"
 #include "FileBrowser.h"
 #include "CollaborativePartner.h"
+#include "SpecialElement.h"
 #include "Manager.h"
 
 #include <cover/coVRPluginSupport.h>
@@ -372,22 +373,23 @@ void VruiView::updateVisible(const Element *elem)
             //auto mve = vruiElement(m);
             //if (mve)
             //{
-                auto menu = container->m_menu;
-                if (menu)
+                if (auto menu = container->m_menu)
                 {
-                auto idx = menu->index(ve->m_menuItem);
-                if ((inMenu && elem->visible(this)) && idx < 0)
-                {
-                    if (menu)
-                        menu->add(ve->m_menuItem);
-                }
-                else if ((!elem->visible(this) || !inMenu) && idx >= 0)
-                {
-                    if (menu)
+                    auto idx = menu->index(ve->m_menuItem);
+                    if ((inMenu && elem->visible(this)) && idx < 0)
+                    {
+                        auto i = elem->parent()->index(elem);
+                        if (i < 0 || isReparented(elem))
+                            menu->add(ve->m_menuItem);
+                        else
+                            menu->insert(ve->m_menuItem, i);
+                    }
+                    else if ((!elem->visible(this) || !inMenu) && idx >= 0)
+                    {
                         menu->remove(ve->m_menuItem);
+                    }
                 }
-                }
-            //}
+                //}
         }
     }
 }
@@ -715,6 +717,13 @@ VruiViewElement *VruiView::elementFactoryImplementation(CollaborativePartner *cp
     return ve;
 }
 
+VruiViewElement *VruiView::elementFactoryImplementation(SpecialElement *se)
+{
+    auto ve = new VruiViewElement(se);
+    add(ve, se);
+    return ve;
+}
+
 bool VruiView::useToolbar() const
 {
     return m_useToolbar;
@@ -800,6 +809,11 @@ VruiViewElement::VruiViewElement(Element *elem)
 
 VruiViewElement::~VruiViewElement()
 {
+    if (auto se = dynamic_cast<SpecialElement *>(element))
+    {
+        se->destroy(this);
+    }
+
     if (m_menu)
     {
         m_menu->closeMenu();

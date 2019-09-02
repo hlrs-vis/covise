@@ -11,6 +11,7 @@
 #include "EditField.h"
 #include "FileBrowser.h"
 #include "CollaborativePartner.h"
+#include "SpecialElement.h"
 
 #include <iostream>
 #include <cassert>
@@ -90,12 +91,21 @@ View::ViewElement *View::elementFactory(Element *elem)
     {
         ve = elementFactoryImplementation(fb);
     }
+    else if (auto se = dynamic_cast<SpecialElement *>(elem))
+    {
+        ve = elementFactoryImplementation(se);
+    }
 
     if (ve)
     {
         assert(ve->element == elem);
         ve->view = this;
         m_viewElements[elem] = ve;
+
+        if (auto se = dynamic_cast<SpecialElement *>(elem))
+        {
+            se->create(ve, nullptr);
+        }
     }
 
     return ve;
@@ -105,6 +115,12 @@ View::ViewElement *View::elementFactoryImplementation(CollaborativePartner *cp)
 {
     return elementFactoryImplementation(static_cast<Button *>(cp));
 }
+
+View::ViewElement *View::elementFactoryImplementation(SpecialElement *se)
+{
+    return nullptr;
+}
+
 
 void View::updateViewpoint(const CollaborativePartner *cp)
 {

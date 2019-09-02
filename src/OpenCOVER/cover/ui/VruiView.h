@@ -20,7 +20,7 @@ namespace opencover {
 namespace ui {
 
 //! store the data for the representation of a UI Element within a VruiView
-struct VruiViewElement: public View::ViewElement, public vrui::coMenuListener
+struct COVER_UI_EXPORT VruiViewElement: public View::ViewElement, public vrui::coMenuListener
 {
    VruiViewElement(Element *elem);
    ~VruiViewElement();
@@ -98,6 +98,7 @@ class VruiView: public View
    VruiViewElement *elementFactoryImplementation(EditField *input) override;
    VruiViewElement *elementFactoryImplementation(FileBrowser *fb) override;
    VruiViewElement *elementFactoryImplementation(CollaborativePartner *cp) override;
+   VruiViewElement *elementFactoryImplementation(SpecialElement *se) override;
 
    vrui::coMenu *m_rootMenu = nullptr;
    VruiViewElement *m_root = nullptr;
