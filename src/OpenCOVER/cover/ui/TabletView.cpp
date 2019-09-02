@@ -16,6 +16,8 @@
 
 #include <cover/coVRPluginSupport.h>
 
+#include <config/CoviseConfig.h>
+
 namespace opencover {
 namespace ui {
 
@@ -23,6 +25,18 @@ const bool GroupAsGroupbox = false;
 const bool GroupWithTitle = true;
 const bool SlidersOnOwnRow = true;
 const int SliderLength = 2;
+
+namespace {
+
+std::string configPath(const std::string &path)
+{
+    if (path.empty())
+        return "COVER.UI";
+
+    return "COVER.UI." + path;
+}
+
+}
 
 TabletView::TabletView(const std::string &name, coTabletUI *tui)
 : View(name)
@@ -81,6 +95,21 @@ TabletViewElement *TabletView::tuiParent(const Element *elem) const
 {
     if (!elem)
         return nullptr;
+
+    bool exists = false;
+    std::string parentPath = covise::coCoviseConfig::getEntry("tuiParent", configPath(elem->path()), &exists);
+    //std::cerr << "config: " << configPath << " parent: " << parentPath << std::endl;
+    if (exists)
+    {
+        if (parentPath.empty())
+        {
+            return m_root;
+        }
+        if (auto parent = tuiElement(parentPath))
+            return parent;
+
+        std::cerr << "ui::Vrui: did not find configured parent '" << parentPath << "' for '" << elem->path() << "'" << std::endl;
+    }
 
     if (elem->parent())
         return tuiElement(elem->parent());

@@ -80,6 +80,9 @@
                   <!--Lighting parent="" /-->
               </ViewOptions>
           </Manager>
+          <ColorBarPlugin>
+              <Colors tuiParent="" />
+          </ColorBarPlugin>
       </UI>
       <!--GLVersion value="3.0" /-->
       <!--GLDebug value="true" level="2" /-->
