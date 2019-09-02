@@ -108,110 +108,110 @@ ColorBarPlugin::removeInteractor(const std::string &container)
 void
 ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter)
 {
-    if (strcmp(inter->getPluginName(), "ColorBars") == 0)
+    if (strcmp(inter->getPluginName(), "ColorBars") != 0)
+        return;
+
+    const char *containerName = container->getName();
+    interactorMap[containerName] = inter;
+    inter->incRefCount();
+
+    bool found = false;
+    ColorsModuleMap::iterator it = colorsModuleMap.begin();
+    for (; it != colorsModuleMap.end(); ++it)
     {
-        const char *containerName = container->getName();
-        interactorMap[containerName] = inter;
-        inter->incRefCount();
-
-        bool found = false;
-        ColorsModuleMap::iterator it = colorsModuleMap.begin();
-        for (; it != colorsModuleMap.end(); ++it)
+        if (it->first->isSame(inter))
         {
-            if (it->first->isSame(inter))
-            {
-                found = true;
-                break;
-            }
+            found = true;
+            break;
         }
-
-        if (!found)
-        {
-            it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
-            inter->incRefCount();
-        }
-        ColorsModule &mod = it->second;
-        ++mod.useCount;
-
-        const char *colormapString = inter->getString(0); // Colormap string
-        if (!colormapString)
-        {
-            colormapString = container->getAttribute("COLORMAP");
-        }
-
-        float min = 0.0;
-        float max = 1.0;
-        int numColors;
-        float *r = NULL;
-        float *g = NULL;
-        float *b = NULL;
-        float *a = NULL;
-        char *species = NULL;
-        if (colormapString)
-        {
-            ColorBar::parseAttrib(colormapString, species, min, max, numColors, r, g, b, a);
-        }
-        else
-        {
-            species = new char[16];
-            strcpy(species, "NoColors");
-            numColors = 2;
-            min = 0.0;
-            max = 1.0;
-            r = new float[2];
-            g = new float[2];
-            b = new float[2];
-            a = new float[2];
-            r[0] = 0.0;
-            g[0] = 0.0;
-            b[0] = 0.0;
-            a[0] = 1.0;
-            r[1] = 1.0;
-            g[1] = 1.0;
-            b[1] = 1.0;
-            a[1] = 1.0;
-        }
-
-        // get the module name
-        std::string moduleName = inter->getModuleName();
-        int instance = inter->getModuleInstance();
-        std::string host = inter->getModuleHost();
-
-        char buf[32];
-        sprintf(buf, "_%d", instance);
-        moduleName += buf;
-        moduleName += "@" + host;
-
-        std::string menuName = moduleName;
-        if (inter->getObject() && inter->getObject()->getAttribute("OBJECTNAME"))
-            menuName = inter->getObject()->getAttribute("OBJECTNAME");
-        if (container && container->getAttribute("OBJECTNAME"))
-            menuName = container->getAttribute("OBJECTNAME");
-
-        if (found)
-        {
-            if (mod.colorbar)
-            {
-                mod.colorbar->update(species, min, max, numColors, r, g, b, a);
-                mod.colorbar->setName(menuName.c_str());
-            }
-        }
-        else
-        {
-            mod.menu = new ui::Menu(menuName, &mod);
-            colorSubmenu->add(mod.menu);
-
-            mod.colorbar = new ColorBar(mod.menu, species, min, max, numColors, r, g, b, a);
-        }
-        if (mod.colorbar)
-            mod.colorbar->addInter(inter);
-
-        delete[] species;
-        delete[] r;
-        delete[] g;
-        delete[] b;
-        delete[] a;
     }
+
+    if (!found)
+    {
+        it = colorsModuleMap.emplace(inter, ColorsModule(std::string(inter->getModuleName())+"_"+std::to_string(inter->getModuleInstance()), this)).first;
+        inter->incRefCount();
+    }
+    ColorsModule &mod = it->second;
+    ++mod.useCount;
+
+    const char *colormapString = inter->getString(0); // Colormap string
+    if (!colormapString)
+    {
+        colormapString = container->getAttribute("COLORMAP");
+    }
+
+    float min = 0.0;
+    float max = 1.0;
+    int numColors = 0;
+    float *r = NULL;
+    float *g = NULL;
+    float *b = NULL;
+    float *a = NULL;
+    char *species = NULL;
+    if (colormapString)
+    {
+        ColorBar::parseAttrib(colormapString, species, min, max, numColors, r, g, b, a);
+    }
+    else
+    {
+        species = new char[16];
+        strcpy(species, "NoColors");
+        numColors = 2;
+        min = 0.0;
+        max = 1.0;
+        r = new float[2];
+        g = new float[2];
+        b = new float[2];
+        a = new float[2];
+        r[0] = 0.0;
+        g[0] = 0.0;
+        b[0] = 0.0;
+        a[0] = 1.0;
+        r[1] = 1.0;
+        g[1] = 1.0;
+        b[1] = 1.0;
+        a[1] = 1.0;
+    }
+
+    // get the module name
+    std::string moduleName = inter->getModuleName();
+    int instance = inter->getModuleInstance();
+    std::string host = inter->getModuleHost();
+
+    moduleName += "_" + std::to_string(instance);
+    moduleName += "@" + host;
+
+    std::string menuName = moduleName;
+    if (inter->getObject() && inter->getObject()->getAttribute("OBJECTNAME"))
+        menuName = inter->getObject()->getAttribute("OBJECTNAME");
+    if (container && container->getAttribute("OBJECTNAME"))
+        menuName = container->getAttribute("OBJECTNAME");
+
+    if (found)
+    {
+        if (mod.colorbar)
+        {
+            mod.colorbar->update(species, min, max, numColors, r, g, b, a);
+        }
+    }
+    else
+    {
+        mod.menu = new ui::Menu(menuName, &mod);
+        colorSubmenu->add(mod.menu);
+
+        mod.colorbar = new ColorBar(mod.menu, species, min, max, numColors, r, g, b, a);
+    }
+    if (mod.colorbar)
+    {
+        mod.colorbar->addInter(inter);
+        mod.colorbar->setName(menuName.c_str());
+    }
+
+    delete[] species;
+    delete[] r;
+    delete[] g;
+    delete[] b;
+    delete[] a;
 }
 
 COVERPLUGIN(ColorBarPlugin)
