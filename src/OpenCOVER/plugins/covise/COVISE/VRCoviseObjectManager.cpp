@@ -1368,7 +1368,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
 
         if (inter && groupNode)
         {
-            std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
+            //std::cerr << "setting interactor user data on Group " << groupNode->getName() << std::endl;
             groupNode->setUserData(new InteractorReference(inter));
         }
         if (groupNode)
@@ -2027,7 +2027,7 @@ osg::Node *ObjectManager::addGeometry(const char *object, osg::Group *root, Covi
             {
                 if (inter && newNode)
                 {
-                    std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
+                    //std::cerr << "setting interactor user data on Node " << newNode->getName() << std::endl;
                     newNode->setUserData(new InteractorReference(inter));
                 }
                 return newNode;
