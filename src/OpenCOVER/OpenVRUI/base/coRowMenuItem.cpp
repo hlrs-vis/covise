@@ -13,6 +13,7 @@
 #include <OpenVRUI/coMenuContainer.h>
 #include <OpenVRUI/coUIElement.h>
 #include <OpenVRUI/sginterface/vruiRendererInterface.h>
+#include <OpenVRUI/coRowMenu.h>
 
 using namespace std;
 
@@ -47,6 +48,7 @@ coRowMenuItem::coRowMenuItem(const string &symbolicName, const string &labelStri
     background->setXAlignment(coUIContainer::MIN);
     container = new coMenuContainer();
     container->setVgap(10);
+    container->setHgap(15);
     background->addElement(container);
     label = new coLabel(labelString);
 }
@@ -136,4 +138,33 @@ void coRowMenuItem::selected(bool selected)
     //if (vruiRendererInterface::the()->isJoystickActive())
     background->setHighlighted(selected);
 }
+
+void coRowMenuItem::setVisible(bool v)
+{
+    bool visible = isVisible();
+
+    coMenuItem::setVisible(v);
+
+    if (auto menu = dynamic_cast<coRowMenu *>(myMenu))
+    {
+        if (v) {
+            if (visible != v)
+            {
+                auto items = menu->getAllItems();
+                int idx = 0;
+                for (auto item: items) {
+                    if (item == this)
+                        break;
+                    if (item->isVisible())
+                        ++idx;
+                }
+                menu->itemsContainer->insertElement(getUIElement(), idx);
+            }
+        } else {
+            menu->itemsContainer->removeElement(getUIElement());
+        }
+        menu->itemsContainer->childResized();
+    }
+}
+
 }

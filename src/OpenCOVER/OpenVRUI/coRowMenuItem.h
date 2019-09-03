@@ -53,6 +53,8 @@ public:
     virtual void setActive(bool a);
 
     virtual void selected(bool selected);
+
+    void setVisible(bool visible) override;
 };
 }
 #endif
