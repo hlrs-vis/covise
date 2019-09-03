@@ -50,7 +50,10 @@ public:
 
 protected:
     const std::string name;
+private:
 
+    // Calculates if Obstacles are in line of sigth betwenn camera and observation Point
+    bool calcIntersection(const osg::Vec3d& end);
 
 
 };

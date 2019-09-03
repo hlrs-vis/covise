@@ -52,6 +52,7 @@ class Action;
 #include<osg/Node>
 
 
+
 #include <iostream>
 #include <vector>
 #include<functional>
@@ -83,9 +84,10 @@ public:
     std::vector<CamDrawable*> finalCams;
 
     GA *ga;
+    static EKU *plugin;
+    osg::ref_ptr<osg::Node> scene;
 private:
     //UI
-    static EKU *plugin;
     ui::Menu *EKUMenu  = nullptr;
     ui::Action *AddTruck = nullptr, *RmvTruck = nullptr,*AddCam = nullptr;
     ui::Slider *FOVRegulator = nullptr, *VisibilityRegulator = nullptr;
@@ -105,7 +107,7 @@ private:
     osg::Geode* createPolygon();
     osg::Geode* createPoints();
 
-    osg::ref_ptr<osg::Node> scene;
+
     osg::ref_ptr<osg::Group> finalScene;
 
   //  FileReaderWriter *readerWriter;

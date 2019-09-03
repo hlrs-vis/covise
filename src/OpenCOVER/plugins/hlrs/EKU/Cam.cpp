@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include <Cam.h>
-
+#include <EKU.h>
 using namespace opencover;
 
 double Cam::imgHeightPixel = 1080;
@@ -23,14 +23,11 @@ Cam::Cam(const osg::Vec3 pos, const osg::Vec2 rot, const osg::Vec3Array &observa
 {
 
     calcVisMat(observationPoints);
-    std::cout<<"new Cam with visMat"<<std::endl;
 
 }
 
 Cam::Cam(const osg::Vec3 pos, const osg::Vec2 rot, const std::string name):pos(pos),rot(rot),name(name)
 {
-
-    std::cout<<"new Cam without visMat"<<std::endl;
 
 }
 
@@ -66,31 +63,56 @@ void Cam::calcVisMat(const osg::Vec3Array &observationPoints)
     osg::Matrix zRot = osg::Matrix::rotate(-rot.x(), osg::Z_AXIS);
     osg::Matrix yRot = osg::Matrix::rotate(-rot.y(), osg::Y_AXIS);
     // BUGFIX: still problem at borders?
+
+    size_t cnt =1;
+    std::cout<<name<<": ";
     for(const auto& p : observationPoints)
     {
+
 
         auto newPoint = p*T*zRot*yRot;
         if((newPoint.x()<=Cam::depthView ) && (newPoint.x()>=0) &&
            (std::abs(newPoint.y()) <= Cam::imgWidth/2 * newPoint.x()/Cam::depthView) &&
            (std::abs(newPoint.z())<=Cam::imgHeight/2 * newPoint.x()/Cam::depthView))
         {
-            visMat.push_back(1);
+            if(calcIntersection(p)==false)
+                visMat.push_back(1);
+            else
+                visMat.push_back(0);
         }
         else
             visMat.push_back(0);
 
-    }
 
-    size_t cnt =1;
-    std::cout<<name<<":"<<"visMat: ";
-    for(auto x: visMat )     
-    {
-        std::cout <<"P"<<cnt<<": "<<x<<" ";
+        std::cout <<"P"<<cnt<<": "<<visMat.back()<<" ";
         cnt++;
     }
-    std::cout <<"\n"<<std::endl;
-
+    std::cout<<" "<<std::endl;
 }
+bool Cam::calcIntersection(const osg::Vec3d& end)
+{
+    osg::ref_ptr<osgUtil::LineSegmentIntersector> intersector = new osgUtil::LineSegmentIntersector(pos,end);
+    intersector->setIntersectionLimit(osgUtil::Intersector::IntersectionLimit::LIMIT_ONE_PER_DRAWABLE);
+    osgUtil::IntersectionVisitor visitor(intersector);
+    EKU::plugin->scene->accept(visitor); // NOTE: how to do this rigth ? wihout acces to class EKU?
+    const osgUtil::LineSegmentIntersector::Intersections hits = intersector->getIntersections();
+    std::cout<<"Intersect: "<<hits.size()<<" with ";
+    size_t numberOfNonRelevantObstacles = 0;
+    for(osgUtil::LineSegmentIntersector::Intersections::iterator hitr =hits.begin(); hitr!=hits.end();++hitr)
+    {
+        std::string name = hitr->nodePath.back()->getName();
+
+        // Nodes with cx and px are safety areas or possible camera positions, these are no real obstacles
+        if((name.find("cx") != std::string::npos) || (name.find("px") != std::string::npos))
+            ++numberOfNonRelevantObstacles;
+        std::cout<<hitr->nodePath.back()->getName()<<" & ";
+    }
+    if(hits.size()-numberOfNonRelevantObstacles>0)
+        return true;
+    else
+        return false;
+}
+
 
 size_t CamDrawable::count=0;
 
