@@ -331,66 +331,30 @@ void VruiView::updateEnabled(const Element *elem)
 
 void VruiView::updateVisible(const Element *elem)
 {
-    //std::cerr << "Vrui: updateVisible(" << elem->path() << ")" << std::endl;
     auto ve = vruiElement(elem);
     if (!ve)
         return;
 
     bool inMenu = elem->priority() >= ui::Element::Default;
+    bool visible = elem->visible(this) && inMenu;
 
-    if (auto m = dynamic_cast<const Menu *>(elem))
+    if (!visible)
     {
-        if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
+        if (auto m = dynamic_cast<const Menu *>(elem))
         {
-            if (!m->visible(this) || !inMenu)
+            if (auto smi = dynamic_cast<coSubMenuItem *>(ve->m_menuItem))
             {
                 smi->closeSubmenu();
-                delete smi;
-                ve->m_menuItem = nullptr;
-            }
-        } else if (!ve->m_menuItem) {
-            if (m->visible(this) && inMenu)
-            {
-                auto smi = new coSubMenuItem(m->text()+"...");
-                smi->setMenu(ve->m_menu);
-                ve->m_menuItem = smi;
-                add(ve, m);
             }
         }
+
         if (ve->m_menu)
-        {
-            if (!elem->visible(this) || !inMenu)
-                ve->m_menu->setVisible(elem->visible(this));
-        }
+            ve->m_menu->setVisible(false);
     }
-    else if (ve->m_menuItem)
+
+    if (ve->m_menuItem)
     {
-        auto container = vruiContainer(elem);
-        if (container)
-        {
-            //std::cerr << "changing visible to " << elem->visible(this) << ": elem=" << elem->path() << ", container=" << (container&&container->element ? container->element->path() : "(null)") << std::endl;
-            //auto m = dynamic_cast<const Menu *>(container->element);
-            //auto mve = vruiElement(m);
-            //if (mve)
-            //{
-                if (auto menu = container->m_menu)
-                {
-                    auto idx = menu->index(ve->m_menuItem);
-                    if ((inMenu && elem->visible(this)) && idx < 0)
-                    {
-                        auto i = elem->parent()->index(elem);
-                        if (i < 0 || isReparented(elem))
-                            menu->add(ve->m_menuItem);
-                        else
-                            menu->insert(ve->m_menuItem, i);
-                    }
-                    else if ((!elem->visible(this) || !inMenu) && idx >= 0)
-                    {
-                        menu->remove(ve->m_menuItem);
-                    }
-                }
-                //}
-        }
+        ve->m_menuItem->setVisible(visible);
     }
 }
 
