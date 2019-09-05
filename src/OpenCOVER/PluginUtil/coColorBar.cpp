@@ -26,8 +26,12 @@
 #include <OpenVRUI/coSubMenuItem.h>
 #include <config/CoviseConfig.h>
 #include <cmath>
+#include <cassert>
 
 using namespace opencover;
+
+static const float LabelHeight = 60.;
+static const float Height = (MAX_LABELS - 1) * LabelHeight;
 
 // this should be in libm, but is missing unter linux
 inline int xx_round(double x)
@@ -136,12 +140,15 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
         labels_[i] = new vrui::coLabel();
         hspaces_[i] = new vrui::coTexturedBackground((const uint *)tickImage_.data(), (const uint *)tickImage_.data(), (const uint *)tickImage_.data(), 4, 32, 32, 1);
         hspaces_[i]->setMinWidth(60);
-        hspaces_[i]->setMinHeight(60);
+        hspaces_[i]->setMinHeight(LabelHeight);
         labelAndHspaces_[i] = new vrui::coRowContainer(vrui::coRowContainer::HORIZONTAL);
         labelAndHspaces_[i]->setVgap(0.0);
         labelAndHspaces_[i]->setHgap(0.0);
         labelAndHspaces_[i]->addElement(hspaces_[i]);
         labelAndHspaces_[i]->addElement(labels_[i]);
+        vspaces_[i] = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+        vspaces_[i]->setMinWidth(60);
+        vspaces_[i]->setMinHeight(0);
     }
     allLabels_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
     allLabels_->setVgap(0.0);
@@ -166,20 +173,13 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
         sprintf(format_str_, "%%g");
     }
 
-    for (i = 0; i < numLabels_; i++)
-    {
-        snprintf(str, sizeof(str), format_str_, labelValues_[i]);
-        labels_[i]->setString(str);
-        allLabels_->addElement(labelAndHspaces_[i]);
-    }
-
     // create texture
     image_.resize(4 * 256 * 2); // 4 componenten, 256*2 gross
     makeImage(numColors_, r, g, b, a);
     texture_ = new vrui::coTexturedBackground((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
-    texture_->setMinHeight(60.0f); // entspricht einer color
+    texture_->setMinHeight(LabelHeight); // entspricht einer color
     texture_->setMinWidth(100);
-    texture_->setHeight(60.0f * (numLabels_ - 1));
+    texture_->setHeight(Height);
     vspace_ = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
     vspace_->setMinWidth(2);
     vspace_->setMinHeight(30);
@@ -201,6 +201,8 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     // create background and add top container
     background_ = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
     background_->addElement(textureAndLabels_);
+
+    update(min_, max_, numColors_, r, g, b, a);
 }
 
 /// return the actual UI Element that represents this menu.
@@ -241,24 +243,32 @@ coColorBar::update(float mi, float ma, int nc, const float *r, const float *g, c
     max_ = ma;
 
     // remove old labels
-    for (i = 0; i < numLabels_; i++)
+    for (i = 0; i < MAX_LABELS; i++)
     {
         allLabels_->removeElement(labelAndHspaces_[i]);
+        allLabels_->removeElement(vspaces_[i]);
     }
 
     // update labels
     makeLabelValues();
+    float vgap = (Height - (numLabels_-1)*LabelHeight)/(numLabels_-1);
+
     for (i = 0; i < numLabels_; i++)
     {
         snprintf(str, sizeof(str), format_str_, labelValues_[i]);
         labels_[i]->setString(str);
         allLabels_->addElement(labelAndHspaces_[i]);
+        if (i < numLabels_-1)
+        {
+            vspaces_[i]->setMinHeight(vgap);
+            allLabels_->addElement(vspaces_[i]);
+        }
     }
 
     // update image
     makeImage(numColors_, r, g, b, a);
     texture_->setImage((const uint *)image_.data(), (const uint *)image_.data(), (const uint *)image_.data(), 4, 2, 256, 1);
-    texture_->setHeight(60.0f * (numLabels_ - 1));
+    texture_->setHeight(Height);
 }
 
 const char *coColorBar::getName() const
@@ -341,6 +351,18 @@ coColorBar::makeLabelValues()
 
     // create labels
     numLabels_ = numColors_ + 1;
+    if (numColors_ < 256)
+    {
+        for (int i=1; i<(256/MAX_LABELS)+1; ++i)
+        {
+            if (numColors_ % i != 0)
+                continue;
+            if (numColors_/i+1 > MAX_LABELS)
+                continue;
+            numLabels_ = numColors_/i + 1;
+            break;
+        }
+    }
 
     // adapt the min/max values to more readible values
     if (numLabels_ >= MAX_LABELS)
@@ -356,6 +378,7 @@ coColorBar::makeLabelValues()
         int dummyNum = numLabels_;
         calcFormat(dummyMin, dummyMax, format_str_, dummyNum);
     }
+    assert(numLabels_ <= MAX_LABELS);
 
     step = (max_ - min_) / (numLabels_ - 1);
 

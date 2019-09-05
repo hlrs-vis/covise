@@ -53,6 +53,7 @@ private:
     vrui::coLabel *labels_[MAX_LABELS];
     vrui::coTexturedBackground *hspaces_[MAX_LABELS];
     vrui::coRowContainer *labelAndHspaces_[MAX_LABELS];
+    vrui::coColoredBackground *vspaces_[MAX_LABELS];
     vrui::coRowContainer *allLabels_;
 
     // horiz conatiner around textureAndVspacer and all labels
