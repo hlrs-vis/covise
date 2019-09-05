@@ -68,7 +68,6 @@ private:
     float max = 1.0;
     int numColors = 0;
     std::vector<float> r, g, b, a;
-    std::string species;
 
 public:
 

@@ -44,7 +44,7 @@ namespace opencover
 
 ColorBar::ColorBar(ui::Menu *menu)
 : ui::Owner(std::string("ColorBar"), menu)
-, species("NoColors")
+, species_("NoColors")
 , numColors(2)
 , min(0.)
 , max(1.)
@@ -53,7 +53,6 @@ ColorBar::ColorBar(ui::Menu *menu)
 , b{0., 1.}
 , a{0., 1.}
 {
-    title_ = species;
     colorsMenu_ = menu;
 
     uiColorBar_ = new ui::SpecialElement("VruiColorBar", this);
@@ -192,6 +191,8 @@ ColorBar::ColorBar(ui::Menu *menu)
         if (inter_)
             inter_->executeModule();
     });
+
+    updateTitle();
 }
 
 ColorBar::~ColorBar()
@@ -208,15 +209,11 @@ ColorBar::~ColorBar()
 
 void ColorBar::updateTitle()
 {
-    if (species_ == "Color" || species_.empty())
-    {
-        title_ = name_;
-    }
-    else
-    {
-        title_ = species_;
-    }
     title_ = name_;
+    if (species_ != "Color" && !species_.empty())
+    {
+        title_ += ": " + species_;
+    }
     colorsMenu_->setText(title_);
 }
 
@@ -455,7 +452,7 @@ ColorBar::parseAttrib(const char *attrib, std::string &species,
 void ColorBar::parseAttrib(const char *attrib)
 {
     parseAttrib(attrib, species_, min, max, numColors, r, g, b, a);
-    update(species, min, max, numColors, r.data(), g.data(), b.data(), a.data());
+    update(species_, min, max, numColors, r.data(), g.data(), b.data(), a.data());
 }
 
 void ColorBar::setVisible(bool visible)
