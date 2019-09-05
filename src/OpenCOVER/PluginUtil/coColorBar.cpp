@@ -27,6 +27,7 @@
 #include <config/CoviseConfig.h>
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 
 using namespace opencover;
 
