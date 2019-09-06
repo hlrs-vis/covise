@@ -102,6 +102,10 @@ public:
     {
         return canBePassed;
     }
+    bool activeState = true;
+    bool isActive() { return activeState; };
+    void setActive() { activeState = true; };
+    void clearActive() { activeState = false; };
 
     Road *getRoad() const;
 

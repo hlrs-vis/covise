@@ -200,6 +200,11 @@ C:\src\externlibs\zebu\nvtt\lib\static\bc6hd.lib
 
 #boost
 bootstrap.bat
+set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
+b2 install address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-python --without-mpi -j8  --debug-configuration -d+2
+
+
+## boost.Python and Boost.mpi not needed anymore, thus don't do this:
 
 the following goes to user-config.jam, than add --user-config=user-config.jam or add it to project-config.jam
 # Configure specific Python version.
@@ -215,7 +220,26 @@ using python : 3.5 : /src/externlibs/zebu/python : /src/externlibs/zebu/python/i
 ####b2 address-model=64 --build-type=complete --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared
 #specifying zlib binaries does not work, specifying a source dir does:
 set ZLIB_SOURCE=d:\src\gitbase\zlib-1.2.8
-b2 address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-mpi -j8  --debug-configuration -d+2 --user-config=user-config.jam
+b2 address-model=64 architecture=x86 --prefix=c:\src\externlibs\zebu\boost --build-dir=build  variant=debug,release link=static,shared threading=multi runtime-link=shared --without-mpi -j8  --debug-configuration python-debugging=on -d+2
+
+#pybind11:
+Then edit \path\to\python\include\pybind11\detail\common.h. Remove these blocks:
+
+About line 106
+
+#  if defined(_DEBUG)
+#    define PYBIND11_DEBUG_MARKER
+#    undef _DEBUG
+#  endif
+About line 131
+
+#  if defined(PYBIND11_DEBUG_MARKER)
+#    define _DEBUG
+#    undef PYBIND11_DEBUG_MARKER
+#  endif
+Now then, Microsoft has safe APIs for strdup and sscanf. If you rename these in pybind11 code, the crashes on quit disappear.
+
+Edit pybind11.h and replace strdup with _strdup. Edit detail\common.h and replace sscanf with sscanf_s.
 
 
 #OpenCV3
