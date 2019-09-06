@@ -20,18 +20,13 @@
  **                                                                          **
  **                                                                          **
 \****************************************************************************/
-#include <cover/coVRPlugin.h>
 #include <PluginUtil/coSphere.h>
 
-#include <osg/Group>
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
-#include <osg/AnimationPath>
-#include <osg/PositionAttitudeTransform> 
 #include <osg/Material>
 
 #include <vector>
-#include <string>
 
 #include "globals.h"
 

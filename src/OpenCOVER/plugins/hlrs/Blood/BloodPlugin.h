@@ -21,25 +21,18 @@
  **                                                                          **
 \****************************************************************************/
 #include <cover/coVRPlugin.h>
-#include <cmath>
-#include <string>
+#include <cover/ui/Owner.h>
 
-#include <cover/ui/Menu.h>
-#include <cover/ui/Action.h>
-#include <cover/ui/Button.h>
-#include <cover/ui/Slider.h>
-#include <cover/ui/Label.h>
-#include <cover/coVRPluginSupport.h>
-#include <cover/coVRFileManager.h>
-
-#include <osg/Group>
 #include <osg/Geode>
-#include <osg/ShapeDrawable>
-#include <osg/AnimationPath>
-#include <osg/PositionAttitudeTransform> 
-#include <osg/Material>
 
 #include <Blood.h>
+
+namespace opencover {
+namespace ui {
+class Menu;
+class Action;
+}
+}
 
 using namespace opencover;
 
@@ -63,7 +56,7 @@ public:
     void doAddBlood();
     osg::Vec3 particleSlip(Droplet* p);
     
-    osg::ref_ptr<osg::Group> bloodNode;
+    osg::ref_ptr<osg::Geode> bloodGeode;
     std::list<Blood*> bloodJunks;
     static BloodPlugin *instance();
 
