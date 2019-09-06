@@ -123,7 +123,6 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     , name_(name)
 {
     int i;
-    char str[100];
     (void)species;
 
     numColors_ = nc;
@@ -397,7 +396,7 @@ const char *coColorBar::getClassName() const
     return "coColorBar";
 }
 
-bool coColorBar::isOfClassName(char *classname)
+bool coColorBar::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())

@@ -104,14 +104,14 @@ public:
     /** get name
        *  @return name the name of the colorbar, identical with module name, eg, g, Colors_1
        */
-    const char *getName() const;;
+    const char *getName() const override;
 
-    virtual vrui::coUIElement *getUIElement();
+    virtual vrui::coUIElement *getUIElement() override;
 
     /// get the Element's classname
-    virtual const char *getClassName() const;
+    virtual const char *getClassName() const override;
     /// check if the Element or any ancestor is this classname
-    virtual bool isOfClassName(char *);
+    virtual bool isOfClassName(const char *) const override;
 };
 }
 
