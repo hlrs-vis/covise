@@ -722,7 +722,7 @@ bool VrmlNode::isOnlyGeometry() const
         return false;
     }
 
-    if (strstr(name(), "NoCache") != NULL)
+    if (strstr(name(), "NotCached") != NULL || strstr(name(), "NoCache") != NULL)
     {
         //std::cerr << "Nn" << std::flush;
         return false;
