@@ -98,6 +98,7 @@ private:
     ui::Slider *FOVRegulator = nullptr, *VisibilityRegulator = nullptr;
     ui::Group *Frame = nullptr;
     ui::Label *Label = nullptr;
+    ui::Button *MakeCamsInvisible = nullptr;
 
     osg::MatrixTransform *mymtf;
     vrui::coTrackerButtonInteraction *myinteraction;

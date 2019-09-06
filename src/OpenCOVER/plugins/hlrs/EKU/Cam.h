@@ -70,7 +70,6 @@ private:
     osg::ref_ptr<osg::MatrixTransform> transMat;
     osg::ref_ptr<osg::MatrixTransform> rotMat;
     osg::ref_ptr<osgText::Text> text;
-
 public:
     static size_t count;
     Cam* cam=nullptr;
@@ -79,6 +78,8 @@ public:
     void updateVisibility(float value);
     void updateColor();
     void resetColor();
+    void activate(){group->setNodeMask(UINT_MAX);}
+    void disactivate(){group->setNodeMask(0);}
     //CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
     CamDrawable(Cam* cam);
     //CamDrawable(Cam cam);

@@ -155,6 +155,28 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
         }
     });
 
+    //Make Cameras invisible
+    MakeCamsInvisible = new ui::Button(EKUMenu , "Cameras visible");
+    MakeCamsInvisible->setText("Cameras visible");
+    MakeCamsInvisible->setState(true);
+    MakeCamsInvisible->setCallback([this](bool state){
+        if(!state)
+        {
+            for(auto x :finalCams)
+            {
+              x->disactivate();
+            }
+           // MakeCamsInvisible->setState(false);
+        }
+        else
+        {
+            for(auto x :finalCams)
+            {
+              x->activate();
+            }
+        }
+    });
+
 
      // Start GA algorithm and plot final cams
 
