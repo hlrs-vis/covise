@@ -22,6 +22,10 @@
 #include "BloodPlugin.h"
 #include "globals.h"
 #include <cover/VRSceneGraph.h>
+#include <cover/coVRPluginSupport.h>
+#include <cover/coVRFileManager.h>
+#include <cover/ui/Action.h>
+#include <cover/ui/Menu.h>
 
 using namespace opencover;
 

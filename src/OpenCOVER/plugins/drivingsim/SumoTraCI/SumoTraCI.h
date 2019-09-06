@@ -95,6 +95,7 @@ private:
     ui::Menu *traciMenu;
     ui::Button *pedestriansVisible;
     ui::Button *pauseUI;
+    ui::Button* turboUI;
     ui::Button *addTrafficUI;
     ui::Slider *trafficRateUI;
 
@@ -143,12 +144,16 @@ private:
     void getVehiclesFromConfig();
     void loadAllVehicles();
 
-    double simTime;
-    double nextSimTime;
-    double previousTime;
-    double currentTime;
+    double simTime=0.0;
+    double nextSimTime=0.0;
+    double TimeOffset = 0.0;
+    double startStep = 0.0;
+    double previousTime=0.0;
+    double currentTime=0.0;
     double framedt;
     double lastParticipantStartedTime;
+    double deltaT = 1.0;
+    int timeStep=0;
     std::vector<int> variables;
     std::map<const std::string, AgentVehicle *> loadedVehicles;
 

@@ -36,12 +36,12 @@ cerr << "Hello Blood" << endl;
     sphere->setMaxRadius(100);
     sphere->setRenderMethod(coSphere::RENDER_METHOD_ARB_POINT_SPRITES);    //Doesn't work properly on AMD RADEON 7600M
 
-    BloodPlugin::instance() -> bloodNode -> addChild(sphere);
+    BloodPlugin::instance()->bloodGeode->addDrawable(sphere);
 }
 
 // this is called if the plugin is removed at runtime
 Blood::~Blood() {
-    BloodPlugin::instance()->bloodNode->removeChild(sphere);
+    BloodPlugin::instance()->bloodGeode->removeDrawable(sphere);
 }
 
 void Blood::integrate(float dt, osg::Vec3 vObj) {

@@ -125,6 +125,7 @@ bool SumoTraCI::init()
     if(coVRMSController::instance()->isMaster())
     {
         client.simulationStep();
+        timeStep++;
         simResults = client.vehicle.getAllSubscriptionResults();
         pedestrianSimResults = client.person.getAllSubscriptionResults();
         sendSimResults();
@@ -137,9 +138,11 @@ bool SumoTraCI::init()
     simTime = cover->frameTime();
     currentTime = cover->frameTime();
 
+    startStep = cover->frameTime();
     if(coVRMSController::instance()->isMaster())
     {
-        client.simulationStep();
+        client.simulationStep(); 
+        timeStep++;
         simResults = client.vehicle.getAllSubscriptionResults();
         pedestrianSimResults = client.person.getAllSubscriptionResults();
         sendSimResults();
@@ -148,6 +151,11 @@ bool SumoTraCI::init()
     {
         readSimResults();
     }
+    deltaT = client.getDouble(CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "");
+  /*      const {
+        return myParent.getDouble(CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "");
+    }*/
+
     nextSimTime = cover->frameTime();
 
     insertMissingEntities();
@@ -214,6 +222,10 @@ pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
     addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
     addTrafficUI->setText("Add new Persons");
     addTrafficUI->setState(false);
+
+    turboUI = new ui::Button(traciMenu, "TurboButton");
+    turboUI->setText("Speedup x10");
+    turboUI->setState(false);
     
     trafficRateUI = new ui::Slider(traciMenu, "timeBetweenNew");
     trafficRateUI->setText("seconds until new traffic participant starts route");
@@ -362,16 +374,29 @@ void SumoTraCI::preFrame()
     {
         subscribeToSimulation();
         simTime = nextSimTime;
-        nextSimTime = cover->frameTime();
+        nextSimTime = cover->frameTime()+TimeOffset;
         previousResults = currentResults;
         
         if(coVRMSController::instance()->isMaster())
         {
-            if(!pauseUI->state())
-            { 
-            client.simulationStep();
-            simResults = client.vehicle.getAllSubscriptionResults();
-            pedestrianSimResults = client.person.getAllSubscriptionResults();
+            if (!pauseUI->state())
+            {
+                if (turboUI->state())
+                {
+                    TimeOffset += 1.0;
+                    //fprintf(stderr, "%d %f", timeStep + 10, (timeStep + 10) * deltaT);
+                    //client.simulationStep((timeStep +10)* deltaT);
+                    for(int i=0;i<10;i++)
+                        client.simulationStep();
+                    timeStep += 10;
+                }
+                else
+                {
+                    client.simulationStep();
+                    timeStep++;
+                }
+                simResults = client.vehicle.getAllSubscriptionResults();
+                pedestrianSimResults = client.person.getAllSubscriptionResults();
             }
             else
             {
@@ -494,12 +519,12 @@ void SumoTraCI::subscribeToSimulation()
             std::vector<std::string> departedIDList = client.simulation.getDepartedIDList();
             for (std::vector<std::string>::iterator it = departedIDList.begin(); it != departedIDList.end(); ++it)
             {
-                client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(1000));
+                client.vehicle.subscribe(*it, variables, 0, TIME2STEPS(10000));
             }
             std::vector<std::string> personIDList = client.person.getIDList();
             for (std::vector<std::string>::iterator it = personIDList.begin(); it != personIDList.end();it++)
             {
-                client.person.subscribe(*it, variables, 0, TIME2STEPS(1000));
+                client.person.subscribe(*it, variables, 0, TIME2STEPS(10000));
             }
             //fprintf(stderr, "There are currently %lu persons in the simulation \n", (unsigned long)personIDList.size());
         }
@@ -512,43 +537,64 @@ void SumoTraCI::subscribeToSimulation()
 
 void SumoTraCI::insertMissingEntities()
 {
-    osg::Matrix rotOffset;
-    rotOffset.makeRotate(M_PI_2, 0, 0, 1);
     for(int i=0;i < currentResults.size(); i++)
     {
-        osg::Quat orientation(osg::DegreesToRadians(currentResults[i].angle), osg::Vec3d(0, 0, -1));
         if (!currentResults[i].vehicleClass.compare("pedestrian"))
         {
             if (!currentResults[i].vehicleType.compare("escooter"))
             {
-                auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
-                if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
+                if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
                 {
-                    if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+                    auto matchingType = vehicleModelMap.find(currentResults[i].vehicleType);
+                    if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
                     {
-                        loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleType, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                        loadedVehicles.insert(std::pair<const std::string, AgentVehicle*>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleType, currentResults[i].vehicleType, currentResults[i].vehicleID)));
                     }
                 }
             }
             else if (pedestrianModels.size() > 0)
             {
-                if (loadedPedestrians.find(currentResults[i].vehicleID) == loadedPedestrians.end())
+                auto activePedestrian = loadedPedestrians.find(currentResults[i].vehicleID);
+                if (activePedestrian == loadedPedestrians.end())
                 {
                     loadedPedestrians.insert(std::pair<const std::string, PedestrianGeometry *>((currentResults[i].vehicleID), createPedestrian(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                }
+                else
+                {
+                    //activePedestrian->second->setActive();
                 }
             }
         }
         else
         {
-            auto matchingType = vehicleModelMap.find(currentResults[i].vehicleClass);
-            if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
+            // new vehicle appeared
+            auto activeVehicle = loadedVehicles.find(currentResults[i].vehicleID);
+            if (activeVehicle == loadedVehicles.end())
             {
-                // new vehicle appeared
-                if (loadedVehicles.find(currentResults[i].vehicleID) == loadedVehicles.end())
+                auto matchingType = vehicleModelMap.find(currentResults[i].vehicleClass);
+                if ((matchingType != vehicleModelMap.end()) && (matchingType->second->size() > 0))
                 {
-                    loadedVehicles.insert(std::pair<const std::string, AgentVehicle *>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
+                    loadedVehicles.insert(std::pair<const std::string, AgentVehicle*>((currentResults[i].vehicleID), createVehicle(currentResults[i].vehicleClass, currentResults[i].vehicleType, currentResults[i].vehicleID)));
                 }
             }
+            else
+            {
+                activeVehicle->second->setActive();
+            }
+        }
+    }
+
+    for(auto inactiveVehicle = loadedVehicles.begin(); inactiveVehicle!= loadedVehicles.end();) // delete inactive vehicles
+    {
+        if (!inactiveVehicle->second->isActive())
+        {
+            delete inactiveVehicle->second;
+            inactiveVehicle = loadedVehicles.erase(inactiveVehicle);
+        }
+        else
+        {
+            inactiveVehicle->second->clearActive();
+            inactiveVehicle++;
         }
     }
 }

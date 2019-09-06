@@ -625,24 +625,27 @@ void TUISGBrowserTab::setValue(TabletValue type, covise::TokenBuffer &tb)
         tb >> index;
         tb >> dataLength;
 
+		const char* recvData = tb.getBinary(dataLength);
+
         if (depth == 24)
             dataLength = (dataLength * 4) / 3;
 
-        char *sendData = new char[dataLength];
+		char* sendData = new char[dataLength];
 
+		int pos = 0;
         for (int i = 0; i < dataLength; i++)
         {
             if ((i % 4) == 3)
                 if (depth == 24)
                     sendData[i] = 1;
                 else
-                    tb >> sendData[i];
+                    sendData[i]=recvData[pos++];
             else if ((i % 4) == 2)
-                tb >> sendData[i - 2];
+                sendData[i - 2] = recvData[pos++];
             else if ((i % 4) == 1)
-                tb >> sendData[i];
+                sendData[i] = recvData[pos++];
             else if ((i % 4) == 0)
-                tb >> sendData[i + 2];
+                sendData[i + 2] = recvData[pos++];
         }
         QImage image;
         if (dataLength > 0)

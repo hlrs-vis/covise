@@ -116,7 +116,7 @@ vec4 flight(in vec3 normal, vec4 color)
 
     //directionalLight(2, normal);
 
-    return color * (Diffuse + Ambient) + Specular;
+    return color * (Diffuse + Ambient) + Specular * color.a;
 }
 
 
@@ -131,6 +131,11 @@ void main (void)
     }
 
     gl_FragColor = flight(normalize(N), color);
+
+    if (!blendWithMaterial)
+    {
+        gl_FragColor.a = color.a;
+    }
 }
 </fragmentProgram>
 </MapColorsAttrib>
