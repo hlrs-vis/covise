@@ -33,6 +33,8 @@ demo() {
         commands["$key"]="opencover $4"
     elif [ "$3" = "sasu" ]; then
         commands["$key"]="sasuctrl $4"
+    elif [ "$3" = "vistle" ]; then
+        commands["$key"]="vistle -e $4"
     else
         commands["$key"]="$3"
     fi
@@ -260,6 +262,31 @@ demo 121 "Receiver: Volume Up" sasu kenwoodVolUp
 demo 122 "Receiver: Volume Down" sasu kenwoodVolDown
 demo 123 "Receiver: Input: Video 1" sasu kenwoodVideo
 demo 124 "Receiver: Input: Au" sasu kenwoodAux
+
+# Vistle
+category="Vistle"
+demo 25 "Audi" vistle /data/vistle/audi.vsl
+run_ihs_pumpturbine_remote() {
+    ssh visent.hlrs.de /mnt/raid/soft/vistle/bin/run_vistle.sh -b -e /data/vistle/pt-cached.vsl &
+    SSH=$!
+    vistle -c visent.hlrs.de
+    kill $SSH
+}
+demo 26 "IHS Pumpturbine (Remote)" run_ihs_pumpturbine_remote
+run_itlr() {
+    ssh visent.hlrs.de /mnt/raid/soft/vistle/bin/run_vistle.sh -b -e /data/vistle/itlr-ray-cached.vsl &
+    SSH=$!
+    vistle -c visent.hlrs.de
+    kill $SSH
+}
+demo 27 "ITLR Strahlzerfall (Remote)" run_itlr
+run_lego() {
+    ssh visent.hlrs.de /mnt/raid/soft/vistle/bin/run_vistle.sh -b -e /data/vistle/lego-strain-cached-remote.vsl &
+    SSH=$!
+    vistle -c visent.hlrs.de
+    kill $SSH
+}
+demo 28 "LEGO Porsche vs. Bugatti (Remote)" run_lego
 
 
 printmenu() {
