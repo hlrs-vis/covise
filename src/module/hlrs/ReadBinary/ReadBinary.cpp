@@ -81,7 +81,7 @@ int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap) {
     return -1;
   }
 
-  fread(&mesh_hdr, sizeof(BinaryFileHeader), 1, mesh_fp);
+  size_t header = fread(&mesh_hdr, sizeof(BinaryFileHeader), 1, mesh_fp);
 //  if (bswap)
 //    bswap_hdr(&mesh_hdr);
 //  if ((mesh_hdr.magic != BINARY_MAGIC_V1 &&
@@ -90,9 +90,9 @@ int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap) {
 //    return -1;
 
 
-  fread(&(mesh->dim), sizeof(int), 1, mesh_fp);
-  fread(&(mesh->type), sizeof(int), 1, mesh_fp);
-  fread(&(mesh->nvertices), sizeof(int), 1, mesh_fp);
+  size_t dim = fread(&(mesh->dim), sizeof(int), 1, mesh_fp);
+  size_t type = fread(&(mesh->type), sizeof(int), 1, mesh_fp);
+  size_t nvertices = fread(&(mesh->nvertices), sizeof(int), 1, mesh_fp);
 
 //  if(bswap) {
 //    mesh->dim = bswap_int(mesh->dim);
@@ -111,9 +111,9 @@ int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap) {
   }
   else
     mesh->vertices = (double *)malloc(mesh->dim * mesh->nvertices * sizeof(double));
-  fread(mesh->vertices, sizeof(double), mesh->dim * mesh->nvertices , mesh_fp);
+  size_t vertices = fread(mesh->vertices, sizeof(double), mesh->dim * mesh->nvertices , mesh_fp);
 
-  fread(&mesh->ncells, sizeof(int), 1, mesh_fp);
+  size_t ncells = fread(&mesh->ncells, sizeof(int), 1, mesh_fp);
 
 //  if (bswap) {
 //    bswap_data(mesh->vertices, mesh->dim * mesh->nvertices);
@@ -127,7 +127,7 @@ int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap) {
   }
   else
     mesh->cells = (int *)malloc(mesh->ncells * mesh->type * sizeof(int));
-  fread(mesh->cells, sizeof(int), mesh->ncells * mesh->type, mesh_fp);
+  size_t cells = fread(mesh->cells, sizeof(int), mesh->ncells * mesh->type, mesh_fp);
   fclose(mesh_fp);
 
 //  if (bswap)
