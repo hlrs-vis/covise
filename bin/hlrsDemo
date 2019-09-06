@@ -109,7 +109,7 @@ run_herrenberg() {
 }
 demo 39 "Herrenberg" run_herrenberg
 run_campus() {
-    bash /mnt/raid/data/campus/Sumo/CampusReduced/startSumo.sh &
+    bash /data/campus/Sumo/CampusReduced/startSumo.sh &
     SUMO=$!
     opencover /data/campus/out/praesentation_campus.wrl opencover://plugin/SumoTraCI
     kill $SUMO
