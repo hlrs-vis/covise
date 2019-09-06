@@ -1804,10 +1804,24 @@ VRSceneGraph::loadDefaultGeostate(osg::Material::ColorMode mode)
     material->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     material->setAlpha(osg::Material::FRONT_AND_BACK, 1.0f);
 
+    osg::AlphaFunc *alphaFunc = new osg::AlphaFunc();
+    alphaFunc->setFunction(osg::AlphaFunc::GREATER, 0.0);
+
+    osg::BlendFunc *blendFunc = new osg::BlendFunc();
+    blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
+
+    osg::LightModel *defaultLm = new osg::LightModel();
+    defaultLm->setLocalViewer(true);
+    defaultLm->setTwoSided(true);
+    //defaultLm->setColorControl(osg::LightModel::SINGLE_COLOR);
+
     osg::StateSet *stateSet = new osg::StateSet();
     stateSet->setRenderingHint(osg::StateSet::OPAQUE_BIN);
     stateSet->setAttributeAndModes(material, osg::StateAttribute::ON);
     stateSet->setMode(GL_LIGHTING, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(alphaFunc, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
+    stateSet->setAttributeAndModes(defaultLm, osg::StateAttribute::ON);
     return stateSet;
 }
 
@@ -1832,8 +1846,7 @@ VRSceneGraph::loadTransparentGeostate(osg::Material::ColorMode mode)
     osg::BlendFunc *blendFunc = new osg::BlendFunc();
     blendFunc->setFunction(osg::BlendFunc::SRC_ALPHA, osg::BlendFunc::ONE_MINUS_SRC_ALPHA);
 
-    osg::LightModel *defaultLm;
-    defaultLm = new osg::LightModel();
+    osg::LightModel *defaultLm = new osg::LightModel();
     defaultLm->setLocalViewer(true);
     defaultLm->setTwoSided(true);
     defaultLm->setColorControl(osg::LightModel::SINGLE_COLOR);
