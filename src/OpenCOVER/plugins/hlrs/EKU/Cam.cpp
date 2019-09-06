@@ -36,29 +36,11 @@ Cam::~Cam()
 
 }
 
-//check if points are visible for this camera
+
 void Cam::calcVisMat(const osg::Vec3Array &observationPoints)
 {
      visMat.clear();
- /*   osg::Matrix T={1,0,0,0,
-                   0,1,0,0,
-                   0,0,1,0,
-                   -pos.x(),-pos.y(),-pos.z(),1};
 
-    osg::Matrix zRot={cos(osg::DegreesToRadians(rot.x())),-sin(osg::DegreesToRadians(rot.x())),0,0,
-                      sin(osg::DegreesToRadians(rot.x())), cos(osg::DegreesToRadians(rot.x())),0,0,
-                       0, 0, 1, 0,
-                       0, 0, 0, 1
-                      };
-
-    osg::Matrix yRot = {cos(osg::DegreesToRadians(rot.y())), 0, sin(osg::DegreesToRadians(rot.y())),0,
-                        0, 1, 0, 0,
-                        -sin(osg::DegreesToRadians(rot.y())), 0, cos(osg::DegreesToRadians(rot.y())), 0,
-                        0, 0, 0, 1
-                       };
-*/
-//    osg::Matrix T;
-//    T.makeTranslate(-pos);
     osg::Matrix T = osg::Matrix::translate(-pos);
     osg::Matrix zRot = osg::Matrix::rotate(-rot.x(), osg::Z_AXIS);
     osg::Matrix yRot = osg::Matrix::rotate(-rot.y(), osg::Y_AXIS);
@@ -114,9 +96,10 @@ bool Cam::calcIntersection(const osg::Vec3d& end)
 }
 
 
+
 size_t CamDrawable::count=0;
 
-CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::string name):Cam(pos,rot,name) //call Cam Constructor
+CamDrawable::CamDrawable(Cam* cam):cam(cam)
 {
     count++;
     fprintf(stderr, "new CamDrawable from Point\n");
@@ -124,10 +107,10 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     group->setName("Cam"+std::to_string(CamDrawable::count));
 
     text = new osgText::Text;
-    text->setName("Text");
-    text->setText("Cam"+std::to_string(CamDrawable::count));
+   // text->setName("Text");
+   // text->setText("Cam"+std::to_string(CamDrawable::count));
     //text->setColor()
-    text->setCharacterSize(17);
+  //  text->setCharacterSize(17);
 
     camGeode = plotCam();
 
@@ -136,7 +119,7 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     transMat->setName("Translation");
     //group->addChild(transMat);
     osg::Matrix m;
-    m.setTrans(pos.x(),pos.y(),pos.z());
+    m.setTrans(cam->pos.x(),cam->pos.y(),cam->pos.z());
     transMat->setMatrix(m);
 
     //Rotation
@@ -145,8 +128,8 @@ CamDrawable::CamDrawable(const osg::Vec3 pos,const osg::Vec2 rot,const std::stri
     //group->addChild(rotMat);
     osg::Matrix r;
     osg::Quat yRot, zRot;
-    zRot.makeRotate((float)rot.x(), osg::Z_AXIS);
-    yRot.makeRotate((float)rot.y(), osg::Y_AXIS);
+    zRot.makeRotate((float)cam->rot.x(), osg::Z_AXIS);
+    yRot.makeRotate((float)cam->rot.y(), osg::Y_AXIS);
     osg::Quat fullRot = yRot*zRot; //NOTE: Be careful, changed order of Matrix Multiplication here
     r.setRotate(fullRot);
     rotMat->setMatrix(r);
@@ -275,12 +258,13 @@ osg::Geode* CamDrawable::plotCam()
     stateset->setNestRenderBins(false);
 
     // Create a separate color for each face.
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back( osg::Vec4(1.0f, 1.0f, 0.0f, 0.5f) ); // yellow  - base
+   // osg::Vec4Array* colors = new osg::Vec4Array;
+    colors = new osg::Vec4Array;
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // yellow  - base
     colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - left
     colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - right
-    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) ); // magenta - front
-    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) ); // magenta - back
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // magenta - front
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // magenta - back
     // The next step is to associate the array of colors with the geometry.
     // Assign the color indices created above to the geometry and set the
     // binding mode to _PER_PRIMITIVE_SET.
@@ -292,52 +276,54 @@ osg::Geode* CamDrawable::plotCam()
 
 void CamDrawable::updateFOV(float value)
 {
-    Cam::fov = value;
-    Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
-    Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
+    cam->fov = value;
+    cam->imgWidth = 2*cam->depthView*std::tan(cam->fov/2*osg::PI/180);
+    cam->imgHeight = cam->imgWidth/(cam->imgWidthPixel/cam->imgHeightPixel);
     verts->resize(0);
-    verts->push_back( osg::Vec3(Cam::depthView, -Cam::imgWidth/2, Cam::imgHeight/2 ) ); // 0 upper  front base
-    verts->push_back( osg::Vec3(Cam::depthView, -Cam::imgWidth/2,-Cam::imgHeight/2 ) ); // 1 lower front base
-    verts->push_back( osg::Vec3(Cam::depthView,  Cam::imgWidth/2,-Cam::imgHeight/2 ) ); // 3 lower  back  base
-    verts->push_back( osg::Vec3(Cam::depthView,  Cam::imgWidth/2, Cam::imgHeight/2 ) ); // 2 upper back  base
+    verts->push_back( osg::Vec3(cam->depthView, -cam->imgWidth/2, cam->imgHeight/2 ) ); // 0 upper  front base
+    verts->push_back( osg::Vec3(cam->depthView, -cam->imgWidth/2,-cam->imgHeight/2 ) ); // 1 lower front base
+    verts->push_back( osg::Vec3(cam->depthView,  cam->imgWidth/2,-cam->imgHeight/2 ) ); // 3 lower  back  base
+    verts->push_back( osg::Vec3(cam->depthView,  cam->imgWidth/2, cam->imgHeight/2 ) ); // 2 upper back  base
     verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
     verts->dirty();
-
-
 
 }
 
 void CamDrawable::updateVisibility(float value)
 {
-    Cam::depthView = value;
-    Cam::imgWidth = 2*depthView*std::tan(Cam::fov/2*osg::PI/180);
-    Cam::imgHeight = Cam::imgWidth/(Cam::imgWidthPixel/Cam::imgHeightPixel);
+    cam->depthView = value;
+    cam->imgWidth = 2*cam->depthView*std::tan(cam->fov/2*osg::PI/180);
+    cam->imgHeight = cam->imgWidth/(cam->imgWidthPixel/cam->imgHeightPixel);
     verts->resize(0);
-    verts->push_back( osg::Vec3(Cam::depthView, -Cam::imgWidth/2, Cam::imgHeight/2 ) ); // 0 upper  front base
-    verts->push_back( osg::Vec3(Cam::depthView, -Cam::imgWidth/2,-Cam::imgHeight/2 ) ); // 1 lower front base
-    verts->push_back( osg::Vec3(Cam::depthView,  Cam::imgWidth/2,-Cam::imgHeight/2 ) ); // 3 lower  back  base
-    verts->push_back( osg::Vec3(Cam::depthView,  Cam::imgWidth/2, Cam::imgHeight/2 ) ); // 2 upper back  base
+    verts->push_back( osg::Vec3(cam->depthView, -cam->imgWidth/2, cam->imgHeight/2 ) ); // 0 upper  front base
+    verts->push_back( osg::Vec3(cam->depthView, -cam->imgWidth/2,-cam->imgHeight/2 ) ); // 1 lower front base
+    verts->push_back( osg::Vec3(cam->depthView,  cam->imgWidth/2,-cam->imgHeight/2 ) ); // 3 lower  back  base
+    verts->push_back( osg::Vec3(cam->depthView,  cam->imgWidth/2, cam->imgHeight/2 ) ); // 2 upper back  base
     verts->push_back( osg::Vec3( 0,  0,  0) ); // 4 peak
     verts->dirty();
-
-
-
 }
 
-/*void Cam::isPointVisible()
+void CamDrawable::updateColor()
 {
-osg::Matrix T(1,0,0,0,
-               0,1,0,0,
-               0,0,1,0,
-               -pos.x(),-pos.y(),-pos.z(),1);
-osg::Matrix Rz(std::cos(rot.x()),-std::sin(rot.x()),0,0,
-               std::sin(rot.x()), std::cos(rot.x()),0,0,
-               0, 0, 1, 0,
-               0, 0, 0, 1);
-osg::Matrix Ry(std::cos(rot.y()), 0, std::sin(rot.y()),0,
-               0, 1, 0, 0,
-               -std::sin(rot.y()), 0, std::cos(rot.y()), 0,
-               0, 0, 0, 1);
+
+    colors->resize(0);
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) );
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) );
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) );
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) );
+    colors->push_back( osg::Vec4(1.0f, 0.0f, 1.0f, 0.5f) );
+    colors->dirty();
 }
 
-*/
+void CamDrawable::resetColor()
+{
+
+    colors->resize(0);
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // yellow  - base
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - left
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // cyan    - right
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // magenta - front
+    colors->push_back( osg::Vec4(0.0f, 1.0f, 1.0f, 0.5f) ); // magenta - back
+    colors->dirty();
+}
+

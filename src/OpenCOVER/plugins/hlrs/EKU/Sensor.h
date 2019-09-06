@@ -6,13 +6,19 @@
 #include<cover/coVRSelectionManager.h>
 #include<PluginUtil/coSensor.h>
 
+#include<Cam.h>
+#include<Truck.h>
 using namespace covise;
 using namespace opencover;
 
+class Truck;
+class CamDrawable;
 class mySensor : public coPickSensor
 {
 public:
     mySensor(osg::Node *node, std::string name,vrui::coTrackerButtonInteraction *_interactionA, osg::ShapeDrawable *cSphDr);
+    mySensor(osg::Node *node, std::string name,vrui::coTrackerButtonInteraction *_interactionA, CamDrawable *camDr,std::vector<Truck*> *observationPoints);
+
     ~mySensor();
 
     void activate();
@@ -24,6 +30,8 @@ private:
     std::string sensorName;
     bool isActive;
     vrui::coTrackerButtonInteraction *_interA;
-    osg::ShapeDrawable *shapDr;
+    osg::ShapeDrawable *shapDr = nullptr;
+    CamDrawable *camDr = nullptr;
+    std::vector<Truck*> *observationPoints=nullptr;
 };
 

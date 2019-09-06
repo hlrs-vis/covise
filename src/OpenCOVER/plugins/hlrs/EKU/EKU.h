@@ -62,13 +62,16 @@ class Action;
 #include<Truck.h>
 #include<GA.hpp>
 #include<FileReader.hpp>
+#include<Sensor.h>
+
 
 
 using namespace opencover;
 
-
+class mySensor;
 class EKU: public opencover::coVRPlugin, public opencover::ui::Owner
 {
+    friend class mySensor;
 public:
     EKU();
     ~EKU();
@@ -78,6 +81,7 @@ public:
     void doAddCam();
     void doRemoveCamera();
     //osg::Material *mtl;
+   void preFrame();
 
     std::vector<Truck*> trucks;
     std::vector<Cam*> cameras;
@@ -86,6 +90,7 @@ public:
     GA *ga;
     static EKU *plugin;
     osg::ref_ptr<osg::Node> scene;
+
 private:
     //UI
     ui::Menu *EKUMenu  = nullptr;
@@ -94,20 +99,16 @@ private:
     ui::Group *Frame = nullptr;
     ui::Label *Label = nullptr;
 
-    //
-  /*  //Position of Objects
-    osg::PositionAttitudeTransform* moveDown;
-    osg::PositionAttitudeTransform* moveToSide;
-    osg::PositionAttitudeTransform* moveUp;
-
-   */
+    osg::MatrixTransform *mymtf;
+    vrui::coTrackerButtonInteraction *myinteraction;
+    bool interActing;
+    coSensorList sensorList;
+    std::vector<mySensor*> userInteraction;
 
 
     //Landscape
     osg::Geode* createPolygon();
     osg::Geode* createPoints();
-
-
     osg::ref_ptr<osg::Group> finalScene;
 
   //  FileReaderWriter *readerWriter;

@@ -8,10 +8,12 @@
 #include<osgText/Font>
 #include<osgText/Text>
 
+#include<Sensor.h>
 using namespace opencover;
 
 class Truck
 {
+    friend class mySensor;
 public:
 
     osg::Box *truck;
@@ -24,6 +26,8 @@ public:
     static size_t count;
 
     osg::ref_ptr<osg::Geode> getTruckDrawable()const{return truckGeode;}
+    void updateColor();
+    void resetColor();
 
 private:
     const float length = 2.0f;
@@ -32,7 +36,9 @@ private:
 
     osg::ref_ptr<osg::Geode> truckGeode;
     osg::ref_ptr<osgText::Text> text;
-
+    osg::ref_ptr<osg::TessellationHints> hint;
+    osg::ShapeDrawable *truckDrawable;
+    void setStateSet(osg::StateSet *stateSet);
 };
 
 

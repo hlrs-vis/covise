@@ -1,19 +1,48 @@
 #include "EKU.h"
 
 
-#include <iostream>       // std::cout, std::endl
-#include <thread>         // std::this_thread::sleep_for
-#include <chrono>         // std::chrono::seconds
+#include <iostream>
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <string>
 #include <numeric>
 #include <stdlib.h>
 
-#include <osg/Material>
+
+
 
 using namespace opencover;
 
 EKU *EKU::plugin = NULL;
+void EKU::preFrame()
+{
+    sensorList.update();
+    //Test if button is pressed
+    int state = cover->getPointerButton()->getState();
+    if (myinteraction->isRunning()) //when interacting the Sphere will be moved
+    {
+        static osg::Matrix invStartHand;
+        static osg::Matrix startPos;
+        if (!interActing)
+        {
+            //remember invStartHand-Matrix, when interaction started and mouse button was pressed
+            invStartHand.invert(cover->getPointerMat() * cover->getInvBaseMat());
+            startPos = mymtf->getMatrix(); //remember position of sphere, when interaction started
+            interActing = true; //register interaction
+        }
+        else
+        {
+            //calc the tranformation matrix when interacting is running and mouse button was pressed
+            osg::Matrix transMat = startPos * invStartHand * (cover->getPointerMat() * cover->getInvBaseMat());
+            mymtf->setMatrix(transMat);
+        }
+    }
+    if (myinteraction->wasStopped() && state == false)
+    {
+        interActing = false; //unregister interaction
+    }
+}
 
 
 EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
@@ -23,7 +52,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     fprintf(stderr, "EKUplugin::EKUplugin\n");
 
     // read file
-    scene = osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/data/osgt/EKU_Box.osgt");
+    scene = osgDB::readNodeFile("/home/AD.EKUPD.COM/matthias.epple/data/osgt/EKU_Box_large.osgt");
     if (!scene.valid())
       {
           osg::notify( osg::FATAL ) << "Unable to load data file. Exiting." << std::endl;
@@ -109,7 +138,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
         for(auto x :finalCams)
         {
           x->updateFOV(value);
-          x->calcVisMat(*obsPoints);
+          x->cam->calcVisMat(*obsPoints);
         }
     });
 
@@ -122,13 +151,13 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
         for(auto x :finalCams)
         {
           x->updateVisibility(value);
-          x->calcVisMat(*obsPoints);
+          x->cam->calcVisMat(*obsPoints);
         }
     });
 
-     /*
-      *Start GA algorithm and plot final cams
-      */
+
+     // Start GA algorithm and plot final cams
+
        {
 
          const size_t pointsToObserve = trucks.size();
@@ -139,9 +168,10 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
          const std::string camName="Cam";
          for(auto& x:finalCamIndex)
          {
-             if(x==1)
-                finalCams.push_back(new CamDrawable(cameras.at(cnt2)->pos,cameras.at(cnt2)->rot,camName+std::to_string(cnt2)));
-
+             if(x==1){
+                //finalCams.push_back(new CamDrawable(cameras.at(cnt2)->pos,cameras.at(cnt2)->rot,camName+std::to_string(cnt2)));
+                    finalCams.push_back(new CamDrawable(cameras.at(cnt2)));
+                }
             cnt2++;
          }
      }
@@ -150,13 +180,22 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     finalScene = new osg::Group;
     finalScene->setName("finalScene");
     finalScene->addChild(scene.get());
+    myinteraction = new vrui::coTrackerButtonInteraction(vrui::coInteraction::ButtonA, "MoveMode", vrui::coInteraction::Medium);
+    interActing = false;
     for(const auto& x:finalCams)
+    {
         finalScene->addChild(x->getCamDrawable().get());
+        //add User interaction to each final camera
+        userInteraction.push_back(new mySensor(x->getCamGeode(), x->cam->getName(), myinteraction,x,&trucks));
+    }
     for(const auto& x:trucks)
         finalScene->addChild(x->getTruckDrawable().get());
 
-    cover->getObjectsRoot()->addChild(finalScene.get());
+    // add sensors to sensorList
+    for(const auto& x : userInteraction)
+        sensorList.append(x);
 
+    cover->getObjectsRoot()->addChild(finalScene.get());
 
     //Write obj file
     osgDB::writeNodeFile(*finalScene, "OpenCOVER/plugins/hlrs/EKU/EKU_result.obj");
@@ -167,7 +206,6 @@ EKU::~EKU()
     fprintf(stderr, "BorePlugin::~BorePlugin\n");
 
 }
-
 bool EKU::init()
 {
 

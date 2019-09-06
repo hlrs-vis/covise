@@ -22,8 +22,9 @@
 #include<osgText/Font>
 #include<osgText/Text>
 
+#include<Sensor.h>
 
-
+class mySensor;
 class Cam
 {   
 public:
@@ -45,9 +46,10 @@ public:
 
     //const osg::Vec3Array* obsPoints =nullptr; // NOTE: remove later
 
+    //check if points are visible for this camera
     void calcVisMat(const osg::Vec3Array &observationPoints);
     std::vector<int> visMat;
-
+    std::string getName()const{return name;}
 protected:
     const std::string name;
 private:
@@ -58,58 +60,32 @@ private:
 
 };
 
-class CamDrawable: public Cam
+class CamDrawable
 {
 private:
     osg::Vec3Array* verts;
+    osg::Vec4Array* colors;
     osg::ref_ptr<osg::Group> group;
     osg::ref_ptr<osg::Geode> camGeode;
     osg::ref_ptr<osg::MatrixTransform> transMat;
     osg::ref_ptr<osg::MatrixTransform> rotMat;
     osg::ref_ptr<osgText::Text> text;
-    //osg::PositionAttitudeTransform* revolution;
-
 
 public:
     static size_t count;
-
+    Cam* cam=nullptr;
     osg::Geode* plotCam();
     void updateFOV(float value);
     void updateVisibility(float value);
-
-    CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
+    void updateColor();
+    void resetColor();
+    //CamDrawable(const osg::Vec3 pos, const osg::Vec2 rot,const std::string name);
+    CamDrawable(Cam* cam);
     //CamDrawable(Cam cam);
     ~CamDrawable();
 
     osg::ref_ptr<osg::Group> getCamDrawable()const{return group;}
+    osg::ref_ptr<osg::Geode> getCamGeode()const{return camGeode;}
 };
 
-/*class RotationCallback : public osg::NodeCallback
-{
-public:
-   // Default constructor.
-   RotationCallback()
-      : osg::NodeCallback()
-      , angle(0.0f)
-   {}
-   // This updater function rotates the geometry by incrementing the current
-   // angle by one degree each rendering update.
-   virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
-   {
-#ifndef _WIN32
-      // On Linux, only update at 36 frames per second.
-      usleep((unsigned long)((1.0 / 36.0) * 1000.0));
-#endif
-      osg::PositionAttitudeTransform* pat =
-         dynamic_cast<osg::PositionAttitudeTransform*>(node);
-      if ( pat ) {
-         pat->setAttitude( osg::Quat( osg::DegreesToRadians(angle), osg::Vec3(0.0f, 1.0f, 0.0f) ) );
-         angle += 1.0f;
-      }
-      // Always call base class traverse to send the visitor on its way.
-      traverse(node, nv);
-   }
-private:
-   float angle;
-};
-*/
+
