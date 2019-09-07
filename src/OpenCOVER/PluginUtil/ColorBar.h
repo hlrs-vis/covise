@@ -43,7 +43,8 @@ class SpecialElement;
 class PLUGIN_UTILEXPORT ColorBar: public ui::Owner
 {
 private:
-    coColorBar *colorbar_ = nullptr;
+    vrui::vruiMatrix *floatingMat_ = nullptr;
+    coColorBar *colorbar_ = nullptr, *hudbar_ = nullptr;
     ui::Menu *colorsMenu_ = nullptr;
     std::string title_;
     std::string name_;
@@ -59,6 +60,7 @@ private:
     ui::Slider *insetCenter_ = nullptr;
     ui::Slider *insetWidth_ = nullptr;
     ui::Slider *opacityFactor_ = nullptr;
+    ui::Button *show_ = nullptr;
 
     opencover::coInteractor *inter_ = nullptr;
 
@@ -68,6 +70,7 @@ private:
     float max = 1.0;
     int numColors = 0;
     std::vector<float> r, g, b, a;
+    bool hudVisible_ = false;
 
 public:
 
@@ -88,6 +91,9 @@ public:
 
     /// destructor
     ~ColorBar();
+
+    bool hudVisible() const;
+    void setHudPosition(osg::Vec3 pos, osg::Vec3 hpr, float size);
 
     /** colorbar update
        *  @param species title bar content

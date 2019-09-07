@@ -37,20 +37,21 @@ class ColorBarPlugin: public opencover::coVRPlugin, public opencover::ui::Owner,
 public:
     ColorBarPlugin();
     ~ColorBarPlugin();
-    bool init();
+    bool init() override;
 
     // this will be called if an object with feedback arrives
-    void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i);
-    void removeObject(const char *container, bool replace);
-    void postFrame();
+    void newInteractor(const opencover::RenderObject *, opencover::coInteractor *i) override;
+    void removeObject(const char *container, bool replace) override;
+    void preFrame() override;
+    void postFrame() override;
 
 private:
     void removeInteractor(const std::string &container);
     std::vector<std::string> removeQueue;
 
     // VR Menu
-    opencover::ui::Menu *colorSubmenu;
-    opencover::ui::Menu *_menu;
+    opencover::ui::Menu *colorSubmenu = nullptr;
+    opencover::ui::Menu *_menu = nullptr;
     typedef std::map<std::string, opencover::coInteractor *> InteractorMap;
     InteractorMap interactorMap; // from container to interactor
     struct ColorsModule: public opencover::ui::Owner
@@ -66,11 +67,17 @@ private:
             delete colorbar;
         }
 
+        bool hudVisible() const
+        {
+            return colorbar && colorbar->hudVisible();
+        }
+
         int useCount;
         opencover::ColorBar *colorbar;
         opencover::ui::Menu *menu;
     };
     typedef std::map<opencover::coInteractor *, ColorsModule> ColorsModuleMap;
     ColorsModuleMap colorsModuleMap;
+    std::vector<const ColorsModule *> visibleHuds;
 };
 #endif

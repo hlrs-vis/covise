@@ -18,6 +18,8 @@
 #include <cover/ui/Slider.h>
 #include <cover/ui/SpecialElement.h>
 
+#include <cover/VRVruiRenderInterface.h>
+
 static const char MINMAX[] = "MinMax";
 static const char STEPS[] = "numSteps";
 static const char AUTOSCALE[] = "autoScales";
@@ -45,15 +47,45 @@ namespace opencover
 ColorBar::ColorBar(ui::Menu *menu)
 : ui::Owner(std::string("ColorBar"), menu)
 , species_("NoColors")
-, numColors(2)
 , min(0.)
 , max(1.)
+, numColors(2)
 , r{0., 1.}
 , g{0., 1.}
 , b{0., 1.}
 , a{0., 1.}
 {
     colorsMenu_ = menu;
+
+    show_ = new ui::Button("Show", this);
+    colorsMenu_->add(show_);
+    show_->setVisible(false, ui::View::VR);
+    show_->setState(hudVisible_);
+    show_->setCallback([this](bool state){
+        hudVisible_ = state;
+        if (state)
+        {
+            if (!hudbar_)
+            {
+                hudbar_ = new coColorBar(name_.c_str(), species_.c_str(), min, max, numColors, r.data(), g.data(), b.data(), a.data(), false);
+                hudbar_->getUIElement()->createGeometry();
+            }
+
+            auto vtr = hudbar_->getUIElement()->getDCS();
+            VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
+            hudbar_->setVisible(true);
+        }
+        else
+        {
+            if (hudbar_)
+            {
+                auto vtr = hudbar_->getUIElement()->getDCS();
+                VRVruiRenderInterface::the()->getAlwaysVisibleGroup()->addChild(vtr);
+                hudbar_->setVisible(false);
+            }
+        }
+
+    });
 
     uiColorBar_ = new ui::SpecialElement("VruiColorBar", this);
 
@@ -66,10 +98,11 @@ ColorBar::ColorBar(ui::Menu *menu)
         vve->m_menuItem = colorbar_;
     },
     [this](ui::SpecialElement *se, ui::View::ViewElement *ve){
-        delete colorbar_;
-        colorbar_ = nullptr;
         auto vve = dynamic_cast<ui::VruiViewElement *>(ve);
         assert(vve);
+        assert(!colorbar_ || !vve->m_menuItem || vve->m_menuItem == colorbar_);
+        delete colorbar_;
+        colorbar_ = nullptr;
         vve->m_menuItem = nullptr;
     });
 
@@ -199,12 +232,31 @@ ColorBar::~ColorBar()
 {
     delete colorbar_;
     colorbar_ = nullptr;
+    delete hudbar_;
+    hudbar_ = nullptr;
 
     if (inter_)
     {
         inter_->decRefCount();
         inter_ = NULL;
     }
+}
+
+bool ColorBar::hudVisible() const
+{
+    return hudVisible_;
+}
+
+void ColorBar::setHudPosition(osg::Vec3 pos, osg::Vec3 hpr, float size)
+{
+    if (!hudbar_)
+        return;
+
+    auto mat = coUIElement::getMatrixFromPositionHprScale(pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], size);
+    auto uie = hudbar_->getUIElement();
+    auto vtr = uie->getDCS();
+    vtr->setMatrix(mat);
+    vruiRendererInterface::the()->deleteMatrix(mat);
 }
 
 void ColorBar::updateTitle()
@@ -226,6 +278,8 @@ ColorBar::update(const std::string &species, float min, float max, int numColors
 
     if (colorbar_)
         colorbar_->update(min, max, numColors, r, g, b, a);
+    if (hudbar_)
+        hudbar_->update(min, max, numColors, r, g, b, a);
 
     if (stepSlider_)
     {
