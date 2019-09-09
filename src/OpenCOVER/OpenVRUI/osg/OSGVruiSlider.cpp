@@ -148,9 +148,9 @@ void OSGVruiSlider::updateSlider()
 {
     float r, step;
 
-    float value = slider->getValue();
-    float minVal = slider->getMin();
-    float maxVal = slider->getMax();
+    float value = slider->getLinearValue();
+    float minVal = slider->getLinearMin();
+    float maxVal = slider->getLinearMax();
     int precision = slider->getPrecision();
 
     slider->adjustSlider(minVal, maxVal, value, step, precision);

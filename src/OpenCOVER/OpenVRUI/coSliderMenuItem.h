@@ -47,6 +47,8 @@ public:
     int getPrecision() const;
     bool isInteger() const;
     void setInteger(bool on);
+    bool isLogarithmic() const;
+    void setLogarithmic(bool on);
     void sliderEvent(coSlider *slider);
     void sliderReleasedEvent(coSlider *);
 

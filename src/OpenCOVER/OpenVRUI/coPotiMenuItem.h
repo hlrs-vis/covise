@@ -36,11 +36,13 @@ public:
     void setMin(float m);
     void setInteger(bool i);
     void setIncrement(float incr);
+    void setLogarithmic(bool on);
 
     float getMax() const;
     float getMin() const;
     bool isInteger() const;
     bool isDiscrete() const;
+    bool isLogarithmic() const;
 
     int hit(vruiHit *hit);
     void miss();

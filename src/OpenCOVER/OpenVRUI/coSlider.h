@@ -56,16 +56,21 @@ public:
 
     void setValue(float val, bool generateEvent = false);
     float getValue() const;
+    float getLinearValue() const;
     void setMin(float mi);
     float getMin() const;
+    float getLinearMin() const;
     void setMax(float ma);
     float getMax() const;
+    float getLinearMax() const;
     void setNumTicks(float nt);
     float getNumTicks() const;
     void setPrecision(int nt);
     int getPrecision() const;
     void setInteger(bool on);
     bool isInteger() const;
+    void setLogarithmic(bool on);
+    bool isLogarithmic() const;
     float getDialSize() const;
     void setPos(float x, float y, float z = 0.0f);
 
@@ -111,6 +116,7 @@ protected:
     void clamp() const;
 
     bool integer; ///< true = slider processes only integer values
+    bool logarithmic; ///< true = slider shows logarithm of value
     bool showValue; ///< true = the slider value is displayed
     coCombinedButtonInteraction *interactionA; ///< interaction for first button
     ///< interaction for wheel
@@ -127,6 +133,7 @@ protected:
     float minVal; ///< minimum slider value
     float maxVal; ///< maximum slider value
     mutable float value; ///< current slider value
+    mutable float linearValue; ///< current linear slider value (=value or log(value))
     float numTicks; ///< number of tickmarks on slider dial
     int precision; ///< precision of slider value display: number of decimals
 
