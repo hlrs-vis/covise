@@ -70,5 +70,5 @@ void Truck::updateColor()
 
 void Truck::resetColor()
 {
-    truckDrawable->setColor(osg::Vec4(1.0, .0, .0, 1.0f));
+    truckDrawable->setColor(osg::Vec4(1.0, 0.0, 1.0, 1.0f));
 }

@@ -210,9 +210,14 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
         //add User interaction to each final camera
         userInteraction.push_back(new mySensor(x->getCamGeode(), x->cam->getName(), myinteraction,x,&trucks));
     }
+    int cntTrucks =0;
     for(const auto& x:trucks)
+    {
         finalScene->addChild(x->getTruckDrawable().get());
-
+        //add User interaction to each safety zone
+        userInteraction.push_back(new mySensor(x->getTruckDrawable(),cntTrucks, "Truck", myinteraction,x,&finalCams));
+        cntTrucks++;
+    }
     // add sensors to sensorList
     for(const auto& x : userInteraction)
         sensorList.append(x);

@@ -18,7 +18,7 @@ class mySensor : public coPickSensor
 public:
     mySensor(osg::Node *node, std::string name,vrui::coTrackerButtonInteraction *_interactionA, osg::ShapeDrawable *cSphDr);
     mySensor(osg::Node *node, std::string name,vrui::coTrackerButtonInteraction *_interactionA, CamDrawable *camDr,std::vector<Truck*> *observationPoints);
-
+    mySensor(osg::Node *node,int pos, std::string name,vrui::coTrackerButtonInteraction *_interactionA, Truck *safetyDraw ,std::vector<CamDrawable*> *cams);
     ~mySensor();
 
     void activate();
@@ -32,6 +32,9 @@ private:
     vrui::coTrackerButtonInteraction *_interA;
     osg::ShapeDrawable *shapDr = nullptr;
     CamDrawable *camDr = nullptr;
+    Truck *safetyDr = nullptr;
     std::vector<Truck*> *observationPoints=nullptr;
+    std::vector<CamDrawable*> *cams=nullptr;
+    int pos;
 };
 
