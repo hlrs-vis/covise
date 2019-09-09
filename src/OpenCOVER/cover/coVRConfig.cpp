@@ -313,7 +313,9 @@ coVRConfig::coVRConfig()
             
             screens[i].render = coCoviseConfig::isOn("render", str, true);
             screens[i].hsize = (float)hsize;
+            screens[i].configuredHsize = screens[i].hsize;
             screens[i].vsize = (float)vsize;
+            screens[i].configuredVsize = screens[i].vsize;
             screens[i].xyz.set((float)x, (float)y, (float)z);
             screens[i].hpr.set(h, p, r);
         }
