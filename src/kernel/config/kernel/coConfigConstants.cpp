@@ -37,11 +37,7 @@ coConfigConstants::coConfigConstants()
 
     instance = this;
 
-#ifdef YAC
-    backend = "yac";
-#else
     backend = "covise";
-#endif
 
     hostname = QString();
 
@@ -262,12 +258,7 @@ void coConfigDefaultPaths::setNames()
     QString configLocalOverride = getenv("COCONFIG_LOCAL");
     QString configDir = getenv("COCONFIG_DIR");
 
-    if (coConfigConstants::getBackend() == "yac")
-    {
-        COCONFIGDBG_DEFAULT("coConfigConstants::setNames info: yac environment");
-        yacdir = getenv("YACDIR");
-    }
-    else if (coConfigConstants::getBackend() == "covise")
+    if (coConfigConstants::getBackend() == "covise")
     {
         COCONFIGDBG_DEFAULT("coConfigConstants::setNames info: covise environment");
         yacdir = getenv("COVISEDIR");
@@ -275,11 +266,7 @@ void coConfigDefaultPaths::setNames()
     else
     {
         COCONFIGLOG("coConfigConstants::setNames warn: unknown environment");
-        yacdir = getenv("YACDIR");
-        if (yacdir.isEmpty())
-        {
-            yacdir = getenv("COVISEDIR");
-        }
+        yacdir = getenv("COVISEDIR");
     }
 
     if (!yacdir.isEmpty() || !configDir.isEmpty())
@@ -316,7 +303,7 @@ void coConfigDefaultPaths::setNames()
     }
     else if (configGlobalOverride.isEmpty())
     {
-        COCONFIGLOG("coConfigDefaultPaths::setNames warn: no COVISE- or YACPATH set");
+        COCONFIGLOG("coConfigDefaultPaths::setNames warn: no COVISE_PATH set");
         configGlobal = configGlobalOverride;
     }
 
@@ -390,8 +377,6 @@ void coConfigDefaultPaths::setNames()
 
     if (coConfigConstants::getBackend() == "covise")
         sPath = getenv("COVISE_PATH");
-    else if (coConfigConstants::getBackend() == "yac")
-        sPath = getenv("YAC_PATH");
     else
         COCONFIGDBG("coConfigDefaultPaths::setNames warn: unknown environment, not setting any search path");
 
