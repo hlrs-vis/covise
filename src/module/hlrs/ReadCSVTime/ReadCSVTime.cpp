@@ -57,7 +57,7 @@ ReadCSVTime::ReadCSVTime(int argc, char *argv[])
     z_col = addChoiceParam("z_col", "Select column for z-coordinates");
     ID_col = addChoiceParam("ID","Select column for ID");
     time_col = addChoiceParam("timestamp","Select column for timestamp");
-    interval_size = addInt32Param("Time Interval","Interval length in seconds");
+    interval_size = addInt32Param("time_interval","Interval length in seconds");
     interval_size->setValue(1);
     d_dataFile = NULL;
 
