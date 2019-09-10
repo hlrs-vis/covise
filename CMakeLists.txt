@@ -233,6 +233,20 @@ FILE(WRITE ${COVISE_EXPORTS_PATH}/${COVISE_EXPORTS_FILE} "")
 # Create macro list for USING
 CREATE_USING()
 
+set(BOOST_COMPONENTS chrono program_options system thread filesystem iostreams date_time serialization regex locale)
+IF(WIN32)
+    #set(BOOST_COMPONENTS ${BOOST_COMPONENTS} zlib)
+ENDIF(WIN32)
+
+set (BOOST_INCLUDEDIR /usr/include/boost169)  
+set (BOOST_LIBRARYDIR /usr/lib64/boost169)
+
+covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET)
+if (Boost_FOUND AND (NOT Boost_VERSION VERSION_LESS "105300"))
+    set(COMPONENTS ${BOOST_COMPONENTS} atomic)
+    covise_find_package(Boost COMPONENTS ${BOOST_COMPONENTS} QUIET)
+endif()
+
 if (NOT COVISE_BUILD_ONLY_FILE)
     # find important covise dependencies
     IF(APPLE)
