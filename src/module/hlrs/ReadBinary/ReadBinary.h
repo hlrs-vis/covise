@@ -62,9 +62,9 @@ private:
       int dim;
     } Mesh;
     Mesh mesh;
-    int read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap);
+    int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap);
 
-    uint8_t bswap;
+	uint8_t bswap = 0;
 
     typedef struct {
       uint32_t magic;
@@ -81,5 +81,6 @@ private:
     int getDim();
     int getType();
 
+	void myfread(void* ptr, size_t size, size_t count, FILE* stream);
 };
 #endif
