@@ -62,7 +62,7 @@ private:
       int dim;
     } Mesh;
     Mesh mesh;
-    int ReadBinary::read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap);
+    int read_mesh(char *a_filename, Mesh *mesh, uint8_t bswap);
 
 	uint8_t bswap = 0;
 
