@@ -1,0 +1,48 @@
+<_Ladesymbol cullFace="off" transparent="true"><uniform name="Time" type="int" value="0"/><uniform name="diffuseMap" type="sampler2D" value="0"/><uniform name="Speed" type="float" value="1.0"/><uniform name="LoadingSpeed" type="float" value="1.0"/><vertexProgram>
+  
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+
+
+    uniform int Time;
+    uniform float Speed;
+    uniform float LoadingSpeed;
+
+    void main( void )
+    {
+        float time = (Time/5000.0)*Speed;
+        normal   = gl_NormalMatrix * gl_Normal;
+		float lt = time * LoadingSpeed;
+		int lind = int(lt) %4;
+        Texcoord.x = gl_MultiTexCoord0.x *0.1 +time*Speed;
+        Texcoord.y = gl_MultiTexCoord0.y *0.25 + lind*0.25;
+     
+     	vec3 vVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+
+     	lightDir = vec3(gl_LightSource[0].position.xyz - vVertex);
+     	eyeVec = -vVertex;
+     	
+     
+	gl_Position = ftransform();	
+#ifdef __GLSL_CG_DATA_TYPES
+gl_ClipVertex = gl_ModelViewMatrix*gl_Vertex;
+#endif
+    }
+  </vertexProgram><fragmentProgram>
+   
+    varying vec3 normal, lightDir, eyeVec;
+    varying vec2 Texcoord;
+   
+   
+    uniform sampler2D diffuseMap;
+    uniform int Time;
+
+
+   
+    void main( void )
+    {
+      vec4 final_color = texture2D( diffuseMap, Texcoord);
+	gl_FragColor = final_color;	
+          
+    }
+  </fragmentProgram></_Ladesymbol>

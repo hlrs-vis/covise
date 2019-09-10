@@ -49,6 +49,8 @@ public:
     int getPrecision() const;
     void setInteger(bool);
     bool isInteger() const;
+    void setLogarithmic(bool);
+    bool isLogarithmic() const;
     void setLabel(const std::string &labelstr);
     void sliderEvent(coSlider *);
     void sliderReleasedEvent(coSlider *);

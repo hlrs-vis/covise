@@ -233,6 +233,16 @@ void coSliderMenuItem::setInteger(bool val)
     slider->setInteger(val);
 }
 
+bool coSliderMenuItem::isLogarithmic() const
+{
+    return slider->isLogarithmic();
+}
+
+void coSliderMenuItem::setLogarithmic(bool on)
+{
+    slider->setLogarithmic(on);
+}
+
 const char *coSliderMenuItem::getClassName() const
 {
     return "coSliderMenuItem";

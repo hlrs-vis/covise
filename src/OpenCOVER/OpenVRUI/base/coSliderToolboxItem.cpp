@@ -246,6 +246,16 @@ bool coSliderToolboxItem::isInteger() const
     return slider->isInteger();
 }
 
+void coSliderToolboxItem::setLogarithmic(bool on)
+{
+    slider->setLogarithmic(on);
+}
+
+bool coSliderToolboxItem::isLogarithmic() const
+{
+    return slider->isLogarithmic();
+}
+
 /** Set integer or floating point value display.
   @param val true = integer display, false = floating point display
 */

@@ -175,6 +175,11 @@ void coPotiMenuItem::setIncrement(float incr)
     poti->setIncrement(incr);
 }
 
+void coPotiMenuItem::setLogarithmic(bool on)
+{
+    poti->setLogarithmic(on);
+}
+
 /** Set maximum poti value.
   @param m maximum value
 */
@@ -205,6 +210,11 @@ float coPotiMenuItem::getMin() const
 bool coPotiMenuItem::isInteger() const
 {
     return poti->isInteger();
+}
+
+bool coPotiMenuItem::isLogarithmic() const
+{
+    return poti->isLogarithmic();
 }
 
 const char *coPotiMenuItem::getClassName() const

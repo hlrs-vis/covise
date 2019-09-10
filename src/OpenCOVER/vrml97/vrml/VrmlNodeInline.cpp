@@ -157,7 +157,7 @@ void VrmlNodeInline::render(Viewer *viewer)
         else // render the children an store the viewerObject in the cache
         {
             VrmlNodeGroup::render(viewer);
-            if (d_viewerObject && (strstr(name(), "NotCached") == NULL) && isOnlyGeometry())
+            if (d_viewerObject && isOnlyGeometry())
             {
                 d_wasCached = System::the->getCacheMode() != System::CACHE_DISABLE;
                 Doc url;
@@ -209,10 +209,13 @@ void VrmlNodeInline::load(const char *relativeUrl, int parentId)
         if (d_url.get(0) && strlen(d_url.get(0))>0)
         {
 #if 1
-            sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
-            if (sgObject)
+            if (isOnlyGeometry())
             {
-                setModified();
+                sgObject = d_scene->getCachedInline(d_url.get(0), url.localName()); // relative files in cache
+                if (sgObject)
+                {
+                    setModified();
+                }
             }
 #else
             if (strstr(name(), "Cached") != NULL)

@@ -49,6 +49,10 @@ public:
     virtual ~vruiRendererInterface();
 
     virtual vruiNode *getMenuGroup() = 0;
+    virtual vruiNode *getAlwaysVisibleGroup()
+    {
+        return NULL;
+    }
 
     virtual vruiNode *getScene()
     {

@@ -505,6 +505,18 @@ void VruiView::updateIntegral(const Slider *slider)
 
 void VruiView::updateScale(const Slider *slider)
 {
+    auto ve = vruiElement(slider);
+    if (!ve)
+        return;
+    if (auto vslider = dynamic_cast<coSliderMenuItem *>(ve->m_menuItem)) {
+        vslider->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    } else if (auto vpoti = dynamic_cast<coPotiMenuItem *>(ve->m_menuItem)) {
+        vpoti->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    }
+
+    if (auto tslider = dynamic_cast<coSliderToolboxItem *>(ve->m_toolboxItem)) {
+        tslider->setLogarithmic(slider->scale() == Slider::Logarithmic);
+    }
     updateBounds(slider);
     updateValue(slider);
 }

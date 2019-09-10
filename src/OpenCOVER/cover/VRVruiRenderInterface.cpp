@@ -28,6 +28,7 @@
 #include "VRSceneGraph.h"
 #include "coVRTouchTable.h"
 #include "coVRConfig.h"
+#include "VRSceneGraph.h"
 
 #undef START
 #undef STOP
@@ -119,6 +120,8 @@ VRVruiRenderInterface::VRVruiRenderInterface()
 
 VRVruiRenderInterface::~VRVruiRenderInterface()
 {
+    delete alwaysVisibleNode;
+    alwaysVisibleNode = nullptr;
     delete groupNode;
     groupNode = 0;
     delete sceneNode;
@@ -135,6 +138,17 @@ VRVruiRenderInterface::~VRVruiRenderInterface()
 
     //delete coIntersection::instance();
     vruiRendererInterface::theInterface = 0;
+}
+
+vruiNode *VRVruiRenderInterface::getAlwaysVisibleGroup()
+{
+    if (!alwaysVisibleNode)
+    {
+        Group *group = VRSceneGraph::instance()->getAlwaysVisibleGroup();
+        alwaysVisibleNode = new OSGVruiNode(group);
+    }
+    return alwaysVisibleNode;
+
 }
 
 vruiNode *VRVruiRenderInterface::getMenuGroup()

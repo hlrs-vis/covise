@@ -118,13 +118,12 @@ static void calcFormat(float &minIO, float &maxIO, char * /*mask*/, int &iSteps)
     maxIO = (float)max;
 }
 
-coColorBar::coColorBar(const std::string &name, const std::string &species, float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a)
+coColorBar::coColorBar(const std::string &name, const std::string &species, float mi, float ma, int nc, const float *r, const float *g, const float *b, const float *a, bool inMenu)
     : coMenuItem(name.c_str())
     , name_(name)
+    , species_(species)
 {
     int i;
-    char str[100];
-    (void)species;
 
     numColors_ = nc;
     min_ = mi;
@@ -132,6 +131,8 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
 
     //fprintf(stderr,"new coColorBar [%s] with %d colors\n", name_.c_str(), numColors_);
     image_.clear();
+
+    auto bg = inMenu ? vrui::coUIElement::ITEM_BACKGROUND_NORMAL : vrui::coUIElement::BLACK;
 
     // create the
     makeLabelValues();
@@ -147,13 +148,15 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
         labelAndHspaces_[i]->setHgap(0.0);
         labelAndHspaces_[i]->addElement(hspaces_[i]);
         labelAndHspaces_[i]->addElement(labels_[i]);
-        vspaces_[i] = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+        vspaces_[i] = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
         vspaces_[i]->setMinWidth(60);
         vspaces_[i]->setMinHeight(0);
     }
     allLabels_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
     allLabels_->setVgap(0.0);
     allLabels_->setHgap(0.0);
+
+    speciesLabel_ = new vrui::coLabel();
 
     std::string precision = covise::coCoviseConfig::getEntry("ColorsPlugin.Precision");
     if (!precision.empty())
@@ -181,7 +184,7 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     texture_->setMinHeight(LabelHeight); // entspricht einer color
     texture_->setMinWidth(100);
     texture_->setHeight(Height);
-    vspace_ = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+    vspace_ = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
     vspace_->setMinWidth(2);
     vspace_->setMinHeight(30);
     textureAndVspace_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
@@ -200,8 +203,23 @@ coColorBar::coColorBar(const std::string &name, const std::string &species, floa
     textureAndLabels_->addElement(allLabels_);
 
     // create background and add top container
-    background_ = new vrui::coColoredBackground(vrui::coUIElement::ITEM_BACKGROUND_NORMAL, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
-    background_->addElement(textureAndLabels_);
+    background_ = new vrui::coColoredBackground(bg, vrui::coUIElement::ITEM_BACKGROUND_HIGHLIGHTED, vrui::coUIElement::ITEM_BACKGROUND_DISABLED);
+
+    if (inMenu)
+    {
+        background_->addElement(textureAndLabels_);
+    }
+    else
+    {
+        everything_ = new vrui::coRowContainer(vrui::coRowContainer::VERTICAL);
+        everything_->setVgap(10.0);
+        everything_->setHgap(10.0);
+
+        speciesLabel_->setString(species_);
+        everything_->addElement(textureAndLabels_);
+        everything_->addElement(speciesLabel_);
+        background_->addElement(everything_);
+    }
 
     update(min_, max_, numColors_, r, g, b, a);
 }
@@ -230,6 +248,7 @@ coColorBar::~coColorBar()
     delete textureAndVspace_;
 
     delete textureAndLabels_;
+    delete speciesLabel_;
     delete background_;
 }
 
@@ -397,7 +416,7 @@ const char *coColorBar::getClassName() const
     return "coColorBar";
 }
 
-bool coColorBar::isOfClassName(char *classname)
+bool coColorBar::isOfClassName(const char *classname) const
 {
     // paranoia makes us mistrust the string library and check for NULL.
     if (classname && getClassName())
