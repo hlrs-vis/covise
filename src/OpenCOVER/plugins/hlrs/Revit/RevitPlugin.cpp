@@ -1727,9 +1727,9 @@ osg::Image *RevitPlugin::readImage(std::string fileName)
     found = fileName.find("Autodesk Shared/Materials/Textures//", 0);
     if (found != std::string::npos)
     {
-        fprintf(stderr,"%s %d",fileName.c_str(),found);
+        fprintf(stderr,"%s %d",fileName.c_str(), (int)found);
         fileName = fileName.substr(found+36);
-        fprintf(stderr,"new %s %d",fileName.c_str(),found);
+        fprintf(stderr,"new %s %d",fileName.c_str(), (int)found);
     }
     localTextureFile = localTextureDir + "/" + fileName;
     found = fileName.find_last_of('\\');
