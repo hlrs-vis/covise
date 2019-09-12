@@ -22,7 +22,6 @@ public:
     SessionID();
     SessionID(int id, bool isPrivate = true);
     SessionID(int id, const std::string &name, bool isPrivate = true);
-    SessionID(const SessionID &id);
 
     std::string name() const;
     bool isPrivate()const ;

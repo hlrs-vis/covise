@@ -26,12 +26,7 @@ SessionID::SessionID(int id, const std::string & name, bool isPrivate)
     , m_name(name)
 {
 }
-SessionID::SessionID(const SessionID &id)
-    :m_owner(id.m_owner)
-    , m_name(id.m_name)
-    , m_isPrivate(id.m_isPrivate)
-{
-}
+
 std::string SessionID::name() const
 {
     return m_name;
