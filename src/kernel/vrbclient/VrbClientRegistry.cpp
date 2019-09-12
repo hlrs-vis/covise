@@ -115,10 +115,6 @@ clientRegClass *VrbClientRegistry::subscribeClass(const SessionID &sessionID, co
 clientRegVar *VrbClientRegistry::subscribeVar(const SessionID &sessionID, const std::string &cl, const std::string &var, const DataHandle &value, regVarObserver *ob)
 {
     // attach to the list
-    if (var == "VRVMenue_testTest")
-    {
-        std::cerr << "debug" << var << std::endl;
-    }
     clientRegClass *rc = getClass(cl);
     if (!rc) //class does not exist
     {
