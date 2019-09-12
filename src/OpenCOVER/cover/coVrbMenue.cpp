@@ -43,13 +43,21 @@ namespace opencover
 VrbMenue::VrbMenue()
     :ui::Owner("VRBMenue", cover->ui)
 	, test("test")
+    , test2("ClipPlane")
 {
-    init();
 	std::map<std::string, std::string> m;
 	m["1"] = "nicht 1";
 	m["2"] = "nicht 2";
 	m["3"] = "nicht 3";
 	test = m;
+    test2.setUpdateFunction([this]() {
+        std::vector<float> v = test2;
+        std::cerr << "received test clipplane: ";
+        for (auto f : v) {
+            std::cerr << f << "  ";
+              }
+        std::cerr << std::endl;
+        });
 	test.setUpdateFunction([this]()
 		{
 			/*std::cerr << "test map got updated: ____________________" << std::endl;
@@ -61,76 +69,80 @@ VrbMenue::VrbMenue()
 		});
 }
 
-void VrbMenue::init()
-{
-    menue = new ui::Menu("VrbOptions", this);
-    menue->setText("Connections");
-
-	sessionGroup = new ui::Group(menue, "sessisonGroup");
-
-	newSessionBtn = new ui::Action(sessionGroup, "newSession");
-	newSessionBtn->setText("New session");
-	newSessionBtn->setCallback([this](void) {
-		requestNewSession("");
-		});
-
-	newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
-	newSessionEf->setText("enter session name");
-	newSessionEf->setCallback([this](std::string name) {
-		requestNewSession(name);
-		});
-
-	sessionsSl = new ui::SelectionList(sessionGroup, "AvailableSessions");
-	sessionsSl->setText("Available sessions");
-	sessionsSl->setCallback([this](int id)
-		{
-			selectSession(id);
-		});
-	sessionsSl->setList(std::vector<std::string>());
-
-    menue->setVisible(false);
-	//test
-	ui::Action *testBtn = new ui::Action(sessionGroup, "testBtn");
-	testBtn->setText("testBtn");
-	testBtn->setCallback([this]()
-		{
-			covise::TokenBuffer tb;
-			tb << std::string("test udp message from OpenCOVER");
-			vrb::UdpMessage m(tb);
-			m.type = vrb::udp_msg_type::AVATAR_HMD_POSITION;
-            if (!cover->sendVrbUdpMessage(&m))
-            {
-                std::cerr << "could not send udp message" << std::endl;
-            }
-			//static int count = 0;
-			//static int loop = 0;
-			//if (count < test.value().size())
-			//{
-			//	++count;
-			//	test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
-			//}
-			//else if (count > 5)
-			//{
-			//	count = 1;
-			//	++loop;
-			//	test.changeEntry(std::to_string(count), "new loop (" + std::to_string(loop) + ") at pos " + std::to_string(count));
-			//}
-			//else
-			//{
-			//	++count;
-			//	std::map<std::string, std::string> m = test.value();
-			//	m[std::to_string(count)] = "new entry at " + std::to_string(count);
-			//	test = m;
-			//}
-
-		});
-	testBtn->setEnabled(true);
-}
 
 void VrbMenue::initFileMenue()
 {
-	ioGroup = new ui::Group("Sessions", this);
-	cover->fileMenu->add(ioGroup);
+    //session management
+    sessionGroup = new ui::Group("sessisonGroup", this);
+    cover->fileMenu->add(sessionGroup);
+
+
+    newSessionBtn = new ui::Action(sessionGroup, "newSession");
+    newSessionBtn->setText("New session");
+    newSessionBtn->setCallback([this](void) {
+        requestNewSession("");
+        });
+
+    newSessionEf = new ui::EditField(sessionGroup, "newSessionEf");
+    newSessionEf->setText("enter session name");
+    newSessionEf->setCallback([this](std::string name) {
+        requestNewSession(name);
+        });
+
+    sessionsSl = new ui::SelectionList(sessionGroup, "CurrentSessionSl");
+    sessionsSl->setText("Current session");
+    sessionsSl->setCallback([this](int id) {
+        selectSession(id);
+        });
+    sessionsSl->setList(std::vector<std::string>());
+
+    //test
+    ui::Action* testBtn = new ui::Action(sessionGroup, "testBtn");
+    testBtn->setText("testBtn");
+    testBtn->setCallback([this]() {
+        std::vector<float> v = test2;
+
+        for (auto it = v.begin(); it != v.end(); ++it) {
+            *it = *it + 1;
+        }
+        test2 = v;
+        //covise::TokenBuffer tb;
+        //tb << std::string("test udp message from OpenCOVER");
+        //vrb::UdpMessage m(tb);
+        //m.type = vrb::udp_msg_type::AVATAR_HMD_POSITION;
+//         if (!cover->sendVrbUdpMessage(&m))
+//         {
+//             std::cerr << "could not send udp message" << std::endl;
+//         }
+
+
+         //static int count = 0;
+         //static int loop = 0;
+         //if (count < test.value().size())
+         //{
+         //	++count;
+         //	test.changeEntry(std::to_string(count), "value at pos " + std::to_string(count));
+         //}
+         //else if (count > 5)
+         //{
+         //	count = 1;
+         //	++loop;
+         //	test.changeEntry(std::to_string(count), "new loop (" + std::to_string(loop) + ") at pos " + std::to_string(count));
+         //}
+         //else
+         //{
+         //	++count;
+         //	std::map<std::string, std::string> m = test.value();
+         //	m[std::to_string(count)] = "new entry at " + std::to_string(count);
+         //	test = m;
+         //}
+
+        });
+    testBtn->setEnabled(false);
+    testBtn->setVisible(false);
+    //save and load sessions
+    ioGroup = new ui::Group("Sessions", this);
+    cover->fileMenu->add(ioGroup);
 	saveBtn = new ui::Action(ioGroup, "SaveSession");
 	saveBtn->setText("Save session");
 	saveBtn->setCallback([this]()
@@ -147,10 +159,15 @@ void VrbMenue::initFileMenue()
 		});
 	loadSL->setList(savedRegistries);
 	loadSL->setVisible(false);
+
+
+
+
 }
 void VrbMenue::updateState(bool state)
 {
-    menue->setVisible(state);
+    sessionGroup->setVisible(state);
+
 	ioGroup->setVisible(state);
 	saveBtn->setVisible(state);
 	loadSL->setVisible(state);

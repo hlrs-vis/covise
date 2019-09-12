@@ -36,7 +36,6 @@ class Slider;
 class VrbMenue: public ui::Owner
 {
 private:
-    ui::Menu *menue;
     ui::Group *sessionGroup;
     ui::Group *ioGroup;
     ui::EditField *newSessionEf;
@@ -48,7 +47,7 @@ private:
     std::vector<vrb::SessionID> availiableSessions;
 
 	vrb::SharedMap<std::string, std::string> test;
-    void init();
+    vrb::SharedState<std::vector<float>> test2;
     void saveSession();
     void loadSession(int index);
     void loadSession(const std::string &filename);
