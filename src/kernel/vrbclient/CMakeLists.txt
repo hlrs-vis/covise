@@ -26,7 +26,7 @@ SET(VRBCLIENT_HEADERS
   VrbClientRegistry.h
   VrbMessageSenderInterface.h
   regClass.h
-  SessionID.cpp
+  SessionID.h
   SharedState.h
   SharedStateManager.h
   SharedStateSerializer.h
