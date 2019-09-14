@@ -157,12 +157,14 @@ public:
     std::list<Note *> notes;
     //std::list<Note *>::iterator lastNoteIt;
 
+	void clearStore();
     osg::ref_ptr<osg::MatrixTransform> TrackRoot;
     void update();
     void reset();
     void setVisible(bool state);
     int trackNumber;
     void addNote(Note*);
+	void endNote(MidiEvent& me);
     vrml::Player::Source *trackSource;
     vrml::Audio *trackAudio;
     osg::Geode *createLinesGeometry();
@@ -187,10 +189,12 @@ public:
     NoteInfo(int nN);
     ~NoteInfo();
     void createGeom();
-    osg::ref_ptr<osg::Geode> geometry;
+    osg::ref_ptr<osg::Node> geometry;
     osg::Vec3 initialPosition;
     osg::Vec3 initialVelocity;
     osg::Vec4 color;
+	std::string modelName;
+	float modelScale = 1.0;
     int noteNumber;
 };
 
@@ -218,7 +222,7 @@ public:
     MidiFile midifile;
     double startTime;
     int currentTrack;
-
+	void clearStore();
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);
     int loadFile(const char *filename, osg::Group *parent);
@@ -236,7 +240,7 @@ public:
 
     // destructor
     virtual ~MidiPlugin();
-    osg::Geode *createGeometry(int i);
+    osg::Node *createGeometry(int i);
     osg::ref_ptr<osg::TessellationHints> hint;
     osg::ref_ptr<osg::StateSet> shadedStateSet;
     osg::ref_ptr<osg::StateSet> lineStateSet;
@@ -271,7 +275,9 @@ public:
     AmplitudeSurface *amplitudeSurface;
 
     ui::Menu *MIDITab = nullptr;
-    ui::Button *reset = nullptr;
+	ui::Button* reset = nullptr;
+	ui::Button* clearStoreButton = nullptr;
+	
     ui::Slider *radius1Slider = nullptr;
     ui::Slider *radius2Slider = nullptr;
     ui::Slider *yStepSlider = nullptr;
@@ -280,6 +286,8 @@ public:
     ui::Slider *accelSlider = nullptr;
     ui::Slider *raccelSlider = nullptr;
     ui::Slider *spiralSpeedSlider = nullptr;
+	ui::Slider* sphereScaleSlider = nullptr;
+	
     ui::EditField *trackNumber = nullptr;
     ui::SelectionList *inputDevice[NUMMidiStreams];
     ui::SelectionList *outputDevice = nullptr;
@@ -287,6 +295,7 @@ public:
     float acceleration=-300;
     float rAcceleration=0.2;
     float spiralSpeed=0.1;
+	float sphereScale = 1.0;
 private:
 
     static MidiPlugin *plugin;

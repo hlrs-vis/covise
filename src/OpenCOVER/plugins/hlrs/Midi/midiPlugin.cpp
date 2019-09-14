@@ -411,11 +411,20 @@ void MidiPlugin::key(int type, int keySym, int mod)
 {
 	if (type == osgGA::GUIEventAdapter::KEYDOWN)
 	{
+		MidiEvent me;
+		me.makeNoteOn(11, keySym, 1);
+		addEvent(me, 0);
 		//fprintf(stdout,"--- coVRKey called (KeyPress, keySym=%d, mod=%d)\n",
 		//	keySym,mod);
 		return;
 		//}else{
 		//fprintf(stdout,"--- coVRKey called (KeyRelease, keySym=%d)\n",keySym);
+	}
+	else if (type == osgGA::GUIEventAdapter::KEYUP)
+	{
+		MidiEvent me;
+		me.makeNoteOff(11, keySym, 0);
+		addEvent(me, 0);
 	}
 
 	switch (keySym)
@@ -546,20 +555,33 @@ MidiPlugin * MidiPlugin::instance()
 {
 	return plugin;
 }
-osg::Geode *MidiPlugin::createGeometry(int i)
+osg::Node *MidiPlugin::createGeometry(int i)
 {
-	osg::Geode *geode;
-
-	osg::Sphere *mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
-	osg::ShapeDrawable *mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
-	if (noteInfos[i] != NULL)
+	osg::Node* returnNode = NULL;
+	if (noteInfos[i] != NULL && noteInfos[i]->modelName.length() > 0)
 	{
-		mySphereDrawable->setColor(noteInfos[i]->color);
+		osg::MatrixTransform* mt = new osg::MatrixTransform();
+		mt->setName(noteInfos[i]->modelName.c_str());
+		mt->setMatrix(osg::Matrix::scale(noteInfos[i]->modelScale, noteInfos[i]->modelScale, noteInfos[i]->modelScale)*osg::Matrix::rotate(M_PI_2,0,0,1));
+		mt->addChild(osgDB::readNodeFile(noteInfos[i]->modelName.c_str()));
+		returnNode = mt;
 	}
-	geode = new osg::Geode();
-	geode->addDrawable(mySphereDrawable);
-	geode->setStateSet(shadedStateSet.get());
-	return geode;
+	if(returnNode ==NULL)
+	{
+		osg::Geode* geode;
+
+		osg::Sphere* mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
+		osg::ShapeDrawable* mySphereDrawable = new osg::ShapeDrawable(mySphere, hint.get());
+		if (noteInfos[i] != NULL)
+		{
+			mySphereDrawable->setColor(noteInfos[i]->color);
+		}
+		geode = new osg::Geode();
+		geode->addDrawable(mySphereDrawable);
+		geode->setStateSet(shadedStateSet.get());
+		returnNode = geode;
+	}
+	return returnNode;
 }
 
 NoteInfo::NoteInfo(int nN)
@@ -710,6 +732,235 @@ bool MidiPlugin::init()
 	noteInfos[40]->color = osg::Vec4(153.0 / 255.0, 51.0 / 255.0, 153.0 / 255.0, 1);
 	noteInfos[40]->initialPosition.set(0.0, 0.0, 0.0);
 
+	noteInfos[5] = new NoteInfo(5);
+	noteInfos[5]->color = osg::Vec4(3.0 / 255.0, 165.0 / 255.0, 252.0/255.0, 1);
+	noteInfos[5]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[6] = new NoteInfo(6);
+	noteInfos[6]->color = osg::Vec4(36.0 / 255.0, 148.0 / 255.0, 209.0 / 255.0, 1);
+	noteInfos[6]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[7] = new NoteInfo(7);
+	noteInfos[7]->color = osg::Vec4(36.0 / 255.0, 89.0 / 255.0, 117.0 / 255.0, 1);
+	noteInfos[7]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[8] = new NoteInfo(8); 
+	noteInfos[8]->color = osg::Vec4(14.0 / 255.0, 124.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[8]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[9] = new NoteInfo(9);
+	noteInfos[9]->color = osg::Vec4(14.0 / 255.0, 48.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[9]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[10] = new NoteInfo(10);
+	noteInfos[10]->color = osg::Vec4(14.0 / 255.0, 36.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[10]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[11] = new NoteInfo(11);
+	noteInfos[11]->color = osg::Vec4(47.0 / 255.0, 14.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[11]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[12] = new NoteInfo(12);
+	noteInfos[12]->color = osg::Vec4(98.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[12]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[13] = new NoteInfo(13);
+	noteInfos[13]->color = osg::Vec4(141.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[13]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[14] = new NoteInfo(14);
+	noteInfos[14]->color = osg::Vec4(188.0 / 255.0, 14.0 / 255.0, 232.0 / 255.0, 1);
+	noteInfos[14]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[15] = new NoteInfo(15);
+	noteInfos[15]->color = osg::Vec4(145.0 / 255.0, 70.0 / 255.0, 163.0 / 255.0, 1);
+	noteInfos[15]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[16] = new NoteInfo(16);
+	noteInfos[16]->color = osg::Vec4(223.0 / 255.0, 12.0 / 255.0, 235.0 / 255.0, 1);
+	noteInfos[16]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[17] = new NoteInfo(17);
+	noteInfos[17]->color = osg::Vec4(235.0 / 255.0, 12.0 / 255.0, 194.0 / 255.0, 1);
+	noteInfos[17]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[18] = new NoteInfo(18);
+	noteInfos[18]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 97.0 / 255.0, 1);
+	noteInfos[18]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[19] = new NoteInfo(19);
+	noteInfos[19]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 61.0 / 255.0, 1);
+	noteInfos[19]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[20] = new NoteInfo(20);
+	noteInfos[20]->color = osg::Vec4(230.0 / 255.0, 9.0 / 255.0, 20.0 / 255.0, 1);
+	noteInfos[20]->initialPosition.set(0.0, 0.0, 0.0);
+
+	noteInfos[100] = new NoteInfo(100);
+	noteInfos[100]->color = osg::Vec4(250.0 / 255.0, 22.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[100]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[100]->modelName = "/data/Jeremy/A1.osg";
+	noteInfos[100]->modelScale = 1.0;
+	noteInfos[101] = new NoteInfo(101);
+	noteInfos[101]->color = osg::Vec4(250.0 / 255.0, 66.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[101]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[101]->modelName = "/data/Jeremy/A2.osg";
+	noteInfos[101]->modelScale = 1.0;
+	noteInfos[102] = new NoteInfo(102);
+	noteInfos[102]->color = osg::Vec4(250.0 / 255.0, 110.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[102]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[102]->modelName = "/data/Jeremy/A3.osg";
+	noteInfos[102]->modelScale = 1.0;
+	noteInfos[103] = new NoteInfo(103);
+	noteInfos[103]->color = osg::Vec4(250.0 / 255.0, 170.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[103]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[103]->modelName = "/data/Jeremy/A4.osg";
+	noteInfos[103]->modelScale = 1.0;
+	noteInfos[104] = new NoteInfo(104);
+	noteInfos[104]->color = osg::Vec4(250.0 / 255.0, 214.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[104]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[104]->modelName = "/data/Jeremy/A5.osg";
+	noteInfos[104]->modelScale = 1.0;
+	noteInfos[105] = new NoteInfo(105);
+	noteInfos[105]->color = osg::Vec4(246.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[105]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[105]->modelName = "/data/Jeremy/A6.osg";
+	noteInfos[105]->modelScale = 1.0;
+	noteInfos[106] = new NoteInfo(106);
+	noteInfos[106]->color = osg::Vec4(198.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[106]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[106]->modelName = "/data/Jeremy/A7.osg";
+	noteInfos[106]->modelScale = 1.0;
+	noteInfos[107] = new NoteInfo(107);
+	noteInfos[107]->color = osg::Vec4(130.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[107]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[107]->modelName = "/data/Jeremy/A8.osg";
+	noteInfos[107]->modelScale = 1.0;
+	noteInfos[108] = new NoteInfo(108);
+	noteInfos[108]->color = osg::Vec4(10.0 / 255.0, 250.0 / 255.0, 42.0 / 255.0, 1);
+	noteInfos[108]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[108]->modelName = "/data/Jeremy/A1.osg";
+	noteInfos[108]->modelScale = 1.0;
+	noteInfos[109] = new NoteInfo(109);
+	noteInfos[109]->color = osg::Vec4(29.0 / 255.0, 181.0 / 255.0, 49.0 / 255.0, 1);
+	noteInfos[109]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[109]->modelName = "/data/Jeremy/A2.osg";
+	noteInfos[109]->modelScale = 1.0;
+	noteInfos[110] = new NoteInfo(110);
+	noteInfos[110]->color = osg::Vec4(32.0 / 255.0, 199.0 / 255.0, 149.0 / 255.0, 1);
+	noteInfos[110]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[110]->modelName = "/data/Jeremy/A3.osg";
+	noteInfos[110]->modelScale = 1.0;
+	noteInfos[111] = new NoteInfo(111);
+	noteInfos[111]->color = osg::Vec4(17.0 / 255.0, 240.0 / 255.0, 210.0 / 255.0, 1);
+	noteInfos[111]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[111]->modelName = "/data/Jeremy/A4.osg";
+	noteInfos[111]->modelScale = 1.0;
+	noteInfos[112] = new NoteInfo(112);
+	noteInfos[112]->color = osg::Vec4(29.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0, 1);
+	noteInfos[112]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[112]->modelName = "/data/Jeremy/A5.osg";
+	noteInfos[112]->modelScale = 1.0;
+	noteInfos[113] = new NoteInfo(113);
+	noteInfos[113]->color = osg::Vec4(232.0 / 255.0, 119.0 / 255.0, 14.0 / 255.0, 1);
+	noteInfos[113]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[113]->modelName = "/data/Jeremy/A6.osg";
+	noteInfos[113]->modelScale = 1.0;
+	noteInfos[114] = new NoteInfo(114);
+	noteInfos[114]->color = osg::Vec4(244.0 / 255.0, 204.0 / 255.0, 24.0 / 255.0, 1);
+	noteInfos[114]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[114]->modelName = "/data/Jeremy/A7.osg";
+	noteInfos[114]->modelScale = 1.0;
+	noteInfos[115] = new NoteInfo(115);
+	noteInfos[115]->color = osg::Vec4(248.0 / 255.0, 252.0 / 255.0, 3.0 / 255.0, 1);
+	noteInfos[115]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[115]->modelName = "/data/Jeremy/A8.osg";
+	noteInfos[115]->modelScale = 1.0;
+
+
+
+	noteInfos[80] = new NoteInfo(80);
+	noteInfos[80]->color = osg::Vec4(250.0 / 255.0, 22.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[80]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[81] = new NoteInfo(81);
+	noteInfos[81]->color = osg::Vec4(250.0 / 255.0, 66.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[81]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[82] = new NoteInfo(82);
+	noteInfos[82]->color = osg::Vec4(250.0 / 255.0, 110.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[82]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[83] = new NoteInfo(83);
+	noteInfos[83]->color = osg::Vec4(250.0 / 255.0, 170.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[83]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[84] = new NoteInfo(84);
+	noteInfos[84]->color = osg::Vec4(250.0 / 255.0, 214.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[84]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[85] = new NoteInfo(85);
+	noteInfos[85]->color = osg::Vec4(246.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[85]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[86] = new NoteInfo(86);
+	noteInfos[86]->color = osg::Vec4(198.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[86]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[87] = new NoteInfo(87);
+	noteInfos[87]->color = osg::Vec4(130.0 / 255.0, 250.0 / 255.0, 10.0 / 255.0, 1);
+	noteInfos[87]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[88] = new NoteInfo(88);
+	noteInfos[88]->color = osg::Vec4(10.0 / 255.0, 250.0 / 255.0, 42.0 / 255.0, 1);
+	noteInfos[88]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[89] = new NoteInfo(89);
+	noteInfos[89]->color = osg::Vec4(29.0 / 255.0, 181.0 / 255.0, 49.0 / 255.0, 1);
+	noteInfos[89]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[90] = new NoteInfo(90);
+	noteInfos[90]->color = osg::Vec4(32.0 / 255.0, 199.0 / 255.0, 149.0 / 255.0, 1);
+	noteInfos[90]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[91] = new NoteInfo(91);
+	noteInfos[91]->color = osg::Vec4(17.0 / 255.0, 240.0 / 255.0, 210.0 / 255.0, 1);
+	noteInfos[91]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[92] = new NoteInfo(92);
+	noteInfos[92]->color = osg::Vec4(29.0 / 255.0, 128.0 / 255.0, 114.0 / 255.0, 1);
+	noteInfos[92]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[93] = new NoteInfo(93);
+	noteInfos[93]->color = osg::Vec4(232.0 / 255.0, 119.0 / 255.0, 14.0 / 255.0, 1);
+	noteInfos[93]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[94] = new NoteInfo(94);
+	noteInfos[94]->color = osg::Vec4(244.0 / 255.0, 204.0 / 255.0, 24.0 / 255.0, 1);
+	noteInfos[94]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[95] = new NoteInfo(95);
+	noteInfos[95]->color = osg::Vec4(248.0 / 255.0, 252.0 / 255.0, 3.0 / 255.0, 1);
+	noteInfos[95]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[60] = new NoteInfo(60);
+	noteInfos[60]->color = osg::Vec4(128.0 / 255.0, 128.0 / 255.0, 0, 1);
+	noteInfos[60]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[61] = new NoteInfo(61);
+	noteInfos[61]->color = osg::Vec4(153.0 / 255.0, 153.0 / 255.0, 0, 1);
+	noteInfos[61]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[62] = new NoteInfo(62);
+	noteInfos[62]->color = osg::Vec4(255.0 / 255.0, 255.0 / 255.0, 200.0 / 255.0, 1);
+	noteInfos[62]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[63] = new NoteInfo(63);
+	noteInfos[63]->color = osg::Vec4(230.0 / 255.0, 92.0 / 255.0, 0, 1);
+	noteInfos[63]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[64] = new NoteInfo(64);
+	noteInfos[64]->color = osg::Vec4(204.0 / 255.0, 82.0 / 255.0, 0, 1);
+	noteInfos[64]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[65] = new NoteInfo(65);
+	noteInfos[65]->color = osg::Vec4(1, 102.0 / 255.0, 20.0 / 255.0, 1);
+	noteInfos[65]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[66] = new NoteInfo(66);
+	noteInfos[66]->color = osg::Vec4(1, 102.0 / 255.0, 0, 1);
+	noteInfos[66]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[67] = new NoteInfo(67);
+	noteInfos[67]->color = osg::Vec4(179.0 / 255.0, 204.0 / 255.0, 1, 1);
+	noteInfos[67]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[68] = new NoteInfo(68);
+	noteInfos[68]->color = osg::Vec4(128.0 / 255.0, 170.0 / 255.0, 1, 1);
+	noteInfos[68]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[69] = new NoteInfo(69);
+	noteInfos[69]->color = osg::Vec4(77.0 / 255.0, 136.0 / 255.0, 1, 1);
+	noteInfos[69]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[70] = new NoteInfo(70);
+	noteInfos[70]->color = osg::Vec4(26.0 / 255.0, 102.0 / 255.0, 1, 1);
+	noteInfos[70]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[71] = new NoteInfo(71);
+	noteInfos[71]->color = osg::Vec4(0, 77.0 / 255.0, 230.0 / 255.0, 1);
+	noteInfos[71]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[72] = new NoteInfo(72);
+	noteInfos[72]->color = osg::Vec4(0, 60.0 / 255.0, 179.0 / 255.0, 1);
+	noteInfos[72]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[73] = new NoteInfo(73);
+	noteInfos[73]->color = osg::Vec4(0, 51.0 / 255.0, 153.0 / 255.0, 1);
+	noteInfos[73]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[74] = new NoteInfo(74);
+	noteInfos[74]->color = osg::Vec4(0, 43.0 / 255.0, 128.0 / 255.0, 1);
+	noteInfos[74]->initialPosition.set(0.0, 0.0, 0.0);
+	noteInfos[75] = new NoteInfo(75);
+	noteInfos[75]->color = osg::Vec4(0, 34.0 / 255.0, 102.0 / 255.0, 1);
+	noteInfos[75]->initialPosition.set(0.0, 0.0, 0.0);
+
 
 	/* HLRS Drum kit*/
 	 /*
@@ -740,7 +991,7 @@ bool MidiPlugin::init()
 	for (int i = 0; i < nIs.size(); i++)
 	{
 		nIs[i]->createGeom();
-		float angle = ((float)i / nIs.size())*2.0*M_PI;
+		float angle = ((float)i / nIs.size())*2.0*M_PI*2;
 		//float radius = 300.0+(float)i/nIs.size()*800.0;
 		float radius = 800.0;
 		if (nIs[i]->initialPosition == osg::Vec3(0, 0, 0))
@@ -1023,6 +1274,13 @@ void MidiPlugin::MIDItab_create(void)
 			lTrack[i]->reset();
 		}
 	});
+
+	clearStoreButton = new ui::Button(MIDITab, "ClearStore");
+	clearStoreButton->setText("Clear Store");
+	clearStoreButton->setCallback([this](bool) {
+		clearStore();
+		});
+
 	radius1Slider = new ui::Slider(MIDITab, "Radius1");
 	radius1Slider->setText("Radius1");
 	radius1Slider->setBounds(1, 100);
@@ -1085,27 +1343,38 @@ void MidiPlugin::MIDItab_create(void)
 	spiralSpeedSlider->setCallback([this](float value, bool) {
 		spiralSpeed = value;
 	});
+
+	sphereScaleSlider = new ui::Slider(MIDITab, "SphereScale");
+	sphereScaleSlider->setText("sphereScale");
+	sphereScaleSlider->setBounds(0.1, 10);
+	sphereScaleSlider->setValue(1.0);
+	sphereScaleSlider->setCallback([this](float value, bool) {
+		sphereScale = value;
+		});
 	
 	trackNumber = new  ui::EditField(MIDITab, "trackNumber");
 	trackNumber->setValue(0);
 	trackNumber->setCallback([this](std::string newVal) {
-		currentTrack = std::stoi(newVal);
-		if (currentTrack >= 0 && currentTrack < tracks.size())
+		if (newVal.length() > 0)
 		{
-		}
-		else
-		{
-			currentTrack = 0;
-		}
-		if (currentTrack >= 0 && currentTrack < tracks.size())
-		{
-			tracks[currentTrack]->setVisible(false);
-
-			if (currentTrack >= 0)
+			currentTrack = std::stoi(newVal);
+			if (currentTrack >= 0 && currentTrack < tracks.size())
 			{
-				tracks[currentTrack]->reset();
-				startTime = cover->frameTime();
-				tracks[currentTrack]->setVisible(true);
+			}
+			else
+			{
+				currentTrack = 0;
+			}
+			if (currentTrack >= 0 && currentTrack < tracks.size())
+			{
+				tracks[currentTrack]->setVisible(false);
+
+				if (currentTrack >= 0)
+				{
+					tracks[currentTrack]->reset();
+					startTime = cover->frameTime();
+					tracks[currentTrack]->setVisible(true);
+				}
 			}
 		}
 	});
@@ -1244,6 +1513,7 @@ Track::Track(int tn, bool l)
 	TrackRoot->addChild(geometryLines);
 	lastNum = 0;
 	lastPrimitive = 0;
+	eventNumber = 0;
 }
 Track::~Track()
 {
@@ -1288,6 +1558,26 @@ void Track::addNote(Note *n)
 	lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 }
 
+void Track::endNote(MidiEvent& me)
+{
+	Note *note = NULL;
+	// find key press for this release
+	for (auto it = notes.end(); it != notes.begin(); )
+	{
+		it--;
+		if ((*it)->event.getKeyNumber() == me.getKeyNumber())
+		{
+			note = *it;
+			break;
+		}
+	}
+	if (note != NULL)
+	{
+
+	}
+	
+}
+
 osg::Geode *Track::createLinesGeometry()
 {
 	osg::Geode *geode;
@@ -1328,6 +1618,18 @@ void Track::store()
 	mat = osg::Matrix::scale(0.00003, 0.00003, 0.00003)*osg::Matrix::translate(0.5 * xp, 0.5, (0.5*yp) + 0.5);
 	TrackRoot->setMatrix(mat);
 }
+void MidiPlugin::clearStore()
+{
+	for (auto it = storedTracks.begin(); it != storedTracks.end(); it++)
+	{
+		(*it)->clearStore();
+	}
+	storedTracks.clear();
+}
+void Track::clearStore()
+{
+	TrackRoot->getParent(0)->removeChild(TrackRoot);
+}
 void Track::reset()
 {
 	eventNumber = 0;
@@ -1341,7 +1643,13 @@ void Track::reset()
 	}
 	notes.clear();
 	lineVert->resize(0);
+	lineColor->resize(0);
 	linePrimitives->resize(0);
+
+	lineVert->dirty();
+	lineColor->dirty();
+	linePrimitives->dirty();
+
 	lastNum = 0;
 	lastPrimitive = 0;
 }
@@ -1390,6 +1698,8 @@ void Track::update()
 					}
 					else
 					{
+						me.setKeyNumber(key);
+						me.setVelocity(value);
 					fprintf(stderr, "Midi info release %d %d\n", (int)key, (int)value);
 						// key release
 					}
@@ -1418,9 +1728,16 @@ void Track::update()
 			me.setP1(buf[1]);
 			me.setP2(buf[2]);
 		}
-		if (me.isNote() && me.getVelocity() > 0)
+		if (me.isNote())
 		{
-			addNote(new Note(me, this));
+			if (me.getVelocity() > 0)
+			{
+				addNote(new Note(me, this));
+			}
+			else
+			{
+				endNote(me);
+			}
 		}
 	}
 	else
@@ -1455,17 +1772,20 @@ void Track::update()
 	{
 
 		(*it)->integrate(cover->frameTime() - oldTime);
-		osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
-		(*lineVert)[vNum] = v;
-		float len = v.length();
-		v.normalize();
-		osg::Vec4 c;
-		c[0] = v[0];
-		c[1] = v[1];
-		c[2] = v[2];
-		c[3] = 1.0;
-		(*lineColor)[vNum] = c;
-		vNum++;
+		if (vNum < lineVert->size())
+		{
+			osg::Vec3 v = ((*it)->transform->getMatrix().getTrans());
+			(*lineVert)[vNum] = v;
+			float len = v.length();
+			v.normalize();
+			osg::Vec4 c;
+			c[0] = v[0];
+			c[1] = v[1];
+			c[2] = v[2];
+			c[3] = 1.0;
+			(*lineColor)[vNum] = c;
+			vNum++;
+		}
 	}
 	lineVert->dirty();
 	lineColor->dirty();
@@ -1498,7 +1818,7 @@ Note::Note(MidiEvent &me, Track *t)
 	track = t;
 	NoteInfo *ni = MidiPlugin::instance()->noteInfos[me.getKeyNumber()];
 	transform = new osg::MatrixTransform();
-	float s = event.getVelocity() / 10.0;
+	float s = MidiPlugin::instance()->sphereScale * event.getVelocity() / 10.0;
 	if (ni == NULL)
 	{
 		fprintf(stderr, "no NoteInfo for Key %d\n", me.getKeyNumber());
