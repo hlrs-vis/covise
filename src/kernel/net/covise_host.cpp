@@ -303,7 +303,7 @@ void Host::HostSymbolic(const char *n)
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
     hints.ai_socktype = 0; /* any type of socket */
-    hints.ai_flags = AI_ADDRCONFIG;
+    //hints.ai_flags = AI_ADDRCONFIG; // this prevents localhost from being resolved if no network is connected on windows
     hints.ai_protocol = 0;          /* Any protocol */
 
     //std::cerr << "HostSymbolic: calling getaddrinfo for n=" << n << std::endl;
