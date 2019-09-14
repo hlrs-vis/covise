@@ -70,6 +70,7 @@
   
     <AnimationSpeed max="60" />
             <Plugin>
+                <Revit value="On"/>
                 <Midi value="Off" InPort="0" OutPort="2"/>
                 <ALVAR value="OFF">
                     <Capture value="on" />
