@@ -215,7 +215,8 @@ osg::Geode* CamDrawable::plotCam()
     face->push_back(0);
     geom->addPrimitiveSet(face);
 
-  /*  //base1
+#if 0
+    //base1
     face = new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
     face->push_back(0);
     face->push_back(3);
@@ -306,7 +307,8 @@ osg::Geode* CamDrawable::plotCam()
     face->push_back(8);//4
     face->push_back(12);//8
     geom->addPrimitiveSet(face);
-*/
+    */
+#endif
     // 1 left face
     face = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
     face->push_back(3);

@@ -7,10 +7,8 @@
 #include <fstream>
 #include <string>
 #include <numeric>
-#include <stdlib.h>
-
-
-
+#include <array>
+#include <cstdlib>
 
 using namespace opencover;
 

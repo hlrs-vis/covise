@@ -9,8 +9,9 @@
 #include <vector>
 #include <numeric>
 #include <fstream>
-#include<cstdlib>
-#include<ctime>
+#include <cstdlib>
+#include <ctime>
+#include <array>
 
 #include "GA.hpp"
 #define CAMS_PER_POINT 4
