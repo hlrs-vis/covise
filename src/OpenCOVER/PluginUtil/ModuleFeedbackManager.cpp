@@ -369,9 +369,11 @@ ModuleFeedbackManager::update(const RenderObject *containerObject, coInteractor 
 
     if (inter_ != inter)
     {
-        inter_->decRefCount();
+        if (inter_)
+            inter_->decRefCount();
         inter_ = inter;
-        inter_->incRefCount();
+        if (inter_)
+            inter_->incRefCount();
     }
 
     if (containerObject)

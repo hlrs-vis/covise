@@ -161,8 +161,16 @@ ColorBarPlugin::newInteractor(const RenderObject *container, coInteractor *inter
         return;
 
     const char *containerName = container->getName();
+    coInteractor *oldInter = nullptr;
+    auto iit = interactorMap.find(containerName);
+    if (iit != interactorMap.end())
+    {
+        oldInter = iit->second;
+    }
     interactorMap[containerName] = inter;
     inter->incRefCount();
+    if (oldInter)
+        oldInter->decRefCount();
 
     const char *colormapString = inter->getString(0); // Colormap string
     if (!colormapString)
