@@ -19,7 +19,7 @@
 //384
 //returns a float between 0 & 1
 #define RANDOM_NUM ((float)rand()/(RAND_MAX+1))
-struct GA::MySolution
+/*struct GA::MySolution
 {   // FIXME: Use template to generate std::array with another size
    // std::vector<int> cam(100);
     std::array<int,NUMBER_OF_CAMS> cam; //NOTE: why this type of declaration?
@@ -50,7 +50,7 @@ struct GA:: MyMiddleCost
 
     int objective;
 };
-
+*/
 
 
 int GA:: myrandom() {

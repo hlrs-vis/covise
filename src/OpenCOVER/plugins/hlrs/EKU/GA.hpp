@@ -24,8 +24,28 @@ private:
     const size_t nbrcams=camlist.size();    //number of cameras
    // std::vector<int> cam=std::vector<int>(nbrcams);
 
-    struct MySolution;
-    struct MyMiddleCost;
+    struct MySolution{   // FIXME: Use template to generate std::array with another size
+        // std::vector<int> cam(100);
+         std::array<int,NUMBER_OF_CAMS> cam; //NOTE: why this type of declaration?
+
+
+         std::string to_string() const
+         {
+
+             std::string myString;
+             int cnt =1;
+             for(auto i : cam)
+             {
+                myString += "cam"+std::to_string(cnt)+":"+std::to_string(i)+" ";
+                cnt++;
+             }
+             return
+                 std::string("{") + myString + "}";
+
+         }
+
+     };
+    struct MyMiddleCost{int objective;};
     struct MyTest;
     typedef EA::Genetic<MySolution,MyMiddleCost> GA_Type;
     typedef EA::GenerationType<MySolution,MyMiddleCost> Generation_Type;
