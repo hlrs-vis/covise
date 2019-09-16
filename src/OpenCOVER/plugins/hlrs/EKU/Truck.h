@@ -30,7 +30,7 @@ public:
     void resetColor();
 
 private:
-    const float length = 2.0f;
+    const float length = 7.0f;
     const float width = 2.0f;
     const float height = 2.0f;
 

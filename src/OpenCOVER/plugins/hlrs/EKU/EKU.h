@@ -65,7 +65,6 @@ class Action;
 #include<Sensor.h>
 
 
-
 using namespace opencover;
 
 class mySensor;

@@ -11,8 +11,8 @@ mySensor::mySensor(osg::Node *node, std::string name, vrui::coTrackerButtonInter
     shapDr = cSphDr;
 }
 
-mySensor::mySensor(osg::Node *node, std::string name, vrui::coTrackerButtonInteraction *_interactionA, CamDrawable *camDraw,std::vector<Truck*> *observationPoints)
-    : observationPoints(observationPoints), coPickSensor(node)
+mySensor::mySensor(osg::Node *node, std::string name, vrui::coTrackerButtonInteraction *_interactionA, CamDrawable *camDraw,std::vector<Truck*> *observationPoints,std::vector<CamDrawable*> *cams)
+    : observationPoints(observationPoints), cams(cams), coPickSensor(node)
 {
     sensorName = name;
     isActive = false;
@@ -44,7 +44,7 @@ void mySensor::activate()
     else if(camDr != nullptr)
     {
         size_t cnt=0;
-        camDr->updateColor();
+        //camDr->updateColor();
         for(const auto& x: camDr->cam->visMat)
         {
             if(x==1)
@@ -52,6 +52,10 @@ void mySensor::activate()
                 observationPoints->at(cnt)->updateColor();
             }
         cnt++;
+        }
+        for(const auto& x:*cams)
+        {    if(x != camDr)
+                x->disactivate();
         }
     }
     else if(safetyDr != nullptr)
@@ -80,7 +84,7 @@ void mySensor::disactivate()
     else if(camDr != nullptr)
     {
         size_t cnt=0;
-        camDr->resetColor();
+        //camDr->resetColor();
         for(const auto& x: camDr->cam->visMat)
         {
             if(x==1)
@@ -88,6 +92,10 @@ void mySensor::disactivate()
                 observationPoints->at(cnt)->resetColor();
             }
         cnt++;
+        }
+        for(const auto& x:*cams)
+        {    if(x != camDr)
+                x->activate();
         }
     }
     else if(safetyDr != nullptr)

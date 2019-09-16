@@ -21,6 +21,7 @@
 #include<osg/BlendFunc>
 #include<osgText/Font>
 #include<osgText/Text>
+#include<osg/ShadeModel>
 
 #include<Sensor.h>
 
@@ -56,6 +57,8 @@ private:
 
     // Calculates if Obstacles are in line of sigth betwenn camera and observation Point
     bool calcIntersection(const osg::Vec3d& end);
+    // sensor will gather the most relevant data only at a particular distance with gradually fading efficiency on either side of it
+    double calcRangeDistortionFactor(const osg::Vec3d& point);
 
 
 };

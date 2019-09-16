@@ -16,7 +16,7 @@ Truck::Truck(osg::Vec3 pos):pos(pos)
     truckGeode->setName("Truck" +std::to_string(Truck::count));
 
     osg::Vec4 _color;
-    _color.set(1.0, 0.0, 1.0, 1.0);
+    _color.set(1.0, 0.0, 0.0, 1.0);
     truckDrawable->setColor(_color);
     truckDrawable->setUseDisplayList(false);
     osg::StateSet *mystateSet = truckGeode->getOrCreateStateSet();
@@ -70,5 +70,5 @@ void Truck::updateColor()
 
 void Truck::resetColor()
 {
-    truckDrawable->setColor(osg::Vec4(1.0, 0.0, 1.0, 1.0f));
+    truckDrawable->setColor(osg::Vec4(1.0, 0.0, 0.0, 1.0f));
 }

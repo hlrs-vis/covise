@@ -145,7 +145,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     //Camera visibility
     VisibilityRegulator = new ui::Slider(EKUMenu , "Slider2");
     VisibilityRegulator->setText("Visibility");
-    VisibilityRegulator->setBounds(10., 50.);
+    VisibilityRegulator->setBounds(10., 60.);
     VisibilityRegulator->setValue(30.0);
     VisibilityRegulator->setCallback([this,obsPoints](double value, bool released){
         for(auto x :finalCams)
@@ -156,8 +156,8 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     });
 
     //Make Cameras invisible
-    MakeCamsInvisible = new ui::Button(EKUMenu , "Cameras visible");
-    MakeCamsInvisible->setText("Cameras visible");
+    MakeCamsInvisible = new ui::Button(EKUMenu , "CamerasVisible");
+    MakeCamsInvisible->setText("CamerasVisible");
     MakeCamsInvisible->setState(true);
     MakeCamsInvisible->setCallback([this](bool state){
         if(!state)
@@ -208,7 +208,7 @@ EKU::EKU(): ui::Owner("EKUPlugin", cover->ui)
     {
         finalScene->addChild(x->getCamDrawable().get());
         //add User interaction to each final camera
-        userInteraction.push_back(new mySensor(x->getCamGeode(), x->cam->getName(), myinteraction,x,&trucks));
+        userInteraction.push_back(new mySensor(x->getCamGeode(), x->cam->getName(), myinteraction,x,&trucks,&finalCams));
     }
     int cntTrucks =0;
     for(const auto& x:trucks)
