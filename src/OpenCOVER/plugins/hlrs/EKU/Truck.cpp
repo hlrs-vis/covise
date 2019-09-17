@@ -33,7 +33,7 @@ Truck::Truck(osg::Vec3 pos):pos(pos)
   //  text->setCharacterSize(4);
   //  text->setPosition(truck->getCenter());
 
-    truckGeode->addChild(text.get());
+    //truckGeode->addChild(text.get());
 }
 
 void Truck::setStateSet(osg::StateSet *stateSet)
