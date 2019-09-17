@@ -144,7 +144,7 @@ CamDrawable::CamDrawable(Cam* cam):cam(cam)
     r.setRotate(fullRot);
     rotMat->setMatrix(r);
     //OpenGL first rotate than translate
-    camGeode->addChild(text.get());
+    //camGeode->addChild(text.get()); //in older OSG versions osg::Geode doesn't have function addChild
     rotMat->addChild(camGeode.get());
     transMat->addChild(rotMat.get());
     group->addChild(transMat.get());
