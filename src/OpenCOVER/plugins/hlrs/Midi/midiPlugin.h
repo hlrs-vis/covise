@@ -56,6 +56,40 @@ using namespace opencover;
 using namespace covise;
 using namespace smf;
 
+
+class NoteInfo
+{
+public:
+	NoteInfo(int nN);
+	~NoteInfo();
+	void createGeom();
+	osg::ref_ptr<osg::Node> geometry;
+	osg::Vec3 initialPosition;
+	osg::Vec3 initialVelocity;
+	osg::Vec4 color;
+	std::string modelName;
+	float modelScale = 1.0;
+	int noteNumber;
+};
+class MidiInstrument
+{
+public:
+	MidiInstrument(std::string name, int id);
+	~MidiInstrument();
+	std::string type;
+	std::vector<NoteInfo*> noteInfos;
+};
+class MidiDevice
+{
+public:
+	MidiDevice(std::string name, int id);
+	~MidiDevice();
+	std::string name;
+	int ID;
+	int instrumentNumber;
+	MidiInstrument* instrument;
+};
+
 class WaveSurface
 {
 public:
@@ -167,6 +201,7 @@ public:
 	void endNote(MidiEvent& me);
     vrml::Player::Source *trackSource;
     vrml::Audio *trackAudio;
+	MidiInstrument *instrument;
     osg::Geode *createLinesGeometry();
 
     osg::ref_ptr<osg::Geode> geometryLines;
@@ -183,21 +218,6 @@ private:
     enum deviceType devType=Track::Drum;
 };
 
-class NoteInfo
-{
-public:
-    NoteInfo(int nN);
-    ~NoteInfo();
-    void createGeom();
-    osg::ref_ptr<osg::Node> geometry;
-    osg::Vec3 initialPosition;
-    osg::Vec3 initialVelocity;
-    osg::Vec4 color;
-	std::string modelName;
-	float modelScale = 1.0;
-    int noteNumber;
-};
-
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
 {
 private:
@@ -210,15 +230,15 @@ private:
 public:
     static const size_t NUMMidiStreams = 4;
     double  tempo;
+	std::vector<std::unique_ptr<MidiInstrument>> instruments;
+	std::vector<std::unique_ptr<MidiDevice>> devices;
     std::vector<Track *> tracks;
-    std::vector<NoteInfo *> noteInfos;
     std::list<MidiEvent> eventqueue[NUMMidiStreams];
     static MidiPlugin *instance();
     vrml::Player *player;
     //scenegraph
     osg::ref_ptr<osg::Group> MIDIRoot;
     osg::ref_ptr<osg::MatrixTransform> MIDITrans[NUMMidiStreams];
-    std::vector<NoteInfo *> nIs;
     MidiFile midifile;
     double startTime;
     int currentTrack;
