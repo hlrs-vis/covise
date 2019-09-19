@@ -575,7 +575,7 @@ void NoteInfo::createGeom()
 	{
 		osg::Geode* geode;
 
-		osg::Sphere* mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0);
+		osg::Sphere* mySphere = new osg::Sphere(osg::Vec3(0, 0, 0), 20.0*modelScale);
 		osg::ShapeDrawable* mySphereDrawable = new osg::ShapeDrawable(mySphere, MidiPlugin::instance()->hint.get());
 		mySphereDrawable->setColor(color);
 		geode = new osg::Geode();
@@ -590,6 +590,7 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 	noteInfos.resize(128);
 	for (int i = 0; i < 128; i++)
 		noteInfos[i] = NULL;
+	type = coCoviseConfig::getEntry("type", "COVER.Plugin.Midi." + name,  "none");
 
 	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi."+name, "Key");
 	const char** it = InstrumentEntries.getValue();
@@ -599,13 +600,13 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 
 		std::string configName = "COVER.Plugin.Midi." + name + "." + n;
 
-		int keyNumber = coCoviseConfig::getInt(configName, "name", 0);
+		int keyNumber = coCoviseConfig::getInt("name", configName, 0);
 		NoteInfo *noteInfo = new NoteInfo(keyNumber);
 		float r, g, b, a;
-		r = coCoviseConfig::getFloat(configName, "r", 1.0);
-		g = coCoviseConfig::getFloat(configName, "g", 1.0);
-		b = coCoviseConfig::getFloat(configName, "b", 1.0);
-		a = coCoviseConfig::getFloat(configName, "a", 1.0);
+		r = coCoviseConfig::getFloat("r", configName, 1.0);
+		g = coCoviseConfig::getFloat("g", configName, 1.0);
+		b = coCoviseConfig::getFloat("b", configName, 1.0);
+		a = coCoviseConfig::getFloat("a", configName,  1.0);
 		if (r > 1.0)
 			r = r / 255.0;
 		if (g > 1.0)
@@ -615,19 +616,20 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 		if (a > 1.0)
 			a = a / 255.0;
 		noteInfo->color = osg::Vec4(r,g,b,a);
-		noteInfo->initialPosition.set(coCoviseConfig::getFloat(configName, "x", 0.0), coCoviseConfig::getFloat(configName, "y", 0.0), coCoviseConfig::getFloat(configName, "z", 0.0));
-		noteInfo->modelScale = coCoviseConfig::getFloat(configName, "modelScale", 1.0);
-		noteInfo->modelName = coCoviseConfig::getEntry(configName, "modelName", "");
+		noteInfo->initialPosition.set(coCoviseConfig::getFloat("x", configName,  0.0), coCoviseConfig::getFloat("y", configName, 0.0), coCoviseConfig::getFloat("z", configName,  0.0));
+		noteInfo->modelScale = coCoviseConfig::getFloat("modelScale", configName,  1.0);
+		noteInfo->modelName = coCoviseConfig::getEntry("modelName", configName,  "");
 		noteInfos[keyNumber] = noteInfo;
 
-		it++;
+		it++;// value
+		it++;// next key
 	}
 
 
 
 
 	/* Jeremys drum kit*/
-	noteInfos[4] = new NoteInfo(4); //stomp
+	/*noteInfos[4] = new NoteInfo(4); //stomp
 	noteInfos[4]->color = osg::Vec4(1, 0, 0, 1);
 	noteInfos[4]->initialPosition.set(0.0, 0.0, 0.0);
 	noteInfos[29] = new NoteInfo(29); //cymbal1
@@ -931,7 +933,7 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 	noteInfos[75] = new NoteInfo(75);
 	noteInfos[75]->color = osg::Vec4(0, 34.0 / 255.0, 102.0 / 255.0, 1);
 	noteInfos[75]->initialPosition.set(0.0, 0.0, 0.0);
-
+	*/
 
 	/* HLRS Drum kit*/
 	 /*
@@ -992,7 +994,7 @@ MidiDevice::MidiDevice(std::string n, int id)
 	ID = id;
 
 	std::string configName = "COVER.Plugin.Midi." + name;
-	int instID = coCoviseConfig::getInt(configName, "instrument",0);
+	int instID = coCoviseConfig::getInt("instrument", configName, 0);
 	if( MidiPlugin::instance()->instruments.size()>instID)
 	{
 		instrument = MidiPlugin::instance()->instruments[instID].get();
@@ -1021,6 +1023,7 @@ bool MidiPlugin::init()
 		instruments.push_back(std::move(instrument));
 
 		it++;
+		it++;
 	}
 	coCoviseConfig::ScopeEntries DeviceEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Device");
 	it = DeviceEntries.getValue();
@@ -1030,6 +1033,7 @@ bool MidiPlugin::init()
 		std::unique_ptr<MidiDevice> device = std::unique_ptr<MidiDevice>(new MidiDevice(n, devices.size()));
 		devices.push_back(std::move(device));
 
+		it++;
 		it++;
 	}
 
@@ -1079,7 +1083,7 @@ bool MidiPlugin::init()
 		MIDITrans[i]->setName(name);
 		MIDIRoot->addChild(MIDITrans[i].get());
 		float angle = ((M_PI*2.0) / NUMMidiStreams) * i;
-		MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1)));
+		//MIDITrans[i]->setMatrix(osg::Matrix::rotate(angle, osg::Vec3(0, 0, 1)));
 	}
 
 
@@ -1206,13 +1210,25 @@ MidiPlugin::~MidiPlugin()
 	for (int i = 0; i < NUMMidiStreams; i++)
 	{
 		delete lTrack[i];
+#ifdef WIN32
+		if (hMidiDevice && hMidiDevice[i])
+			midiInClose(hMidiDevice[i]);
+#else
+		if(midifd[i]>=0)
+		close(midifd[i]);
+#endif
 	}
+
 	SDL_Quit();
 }
 
 void MidiPlugin::addEvent(MidiEvent &me, int MidiStream)
 {
 	if (me.isNoteOn() && me.getVelocity() > 0)
+	{
+		eventqueue[MidiStream].push_back(me);
+	}
+	if (me.isNoteOff())
 	{
 		eventqueue[MidiStream].push_back(me);
 	}
@@ -1280,9 +1296,16 @@ void MidiPlugin::preFrame()
 			}
 			else
 			{
-				lTrack[i]->addNote(new Note(me, lTrack[i]));
+
+				if (me.isNoteOn())
+				{
+					lTrack[i]->addNote(new Note(me, lTrack[i]));
+				}
+				else
+				{
+					lTrack[i]->endNote(me);
+				}
 			}
-			printf("key: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 		}
 		lTrack[i]->update();
 	}
@@ -1566,7 +1589,7 @@ Track::Track(int tn, bool l)
 {
 	life = l;
 	TrackRoot = new osg::MatrixTransform();
-	TrackRoot->setName("TrackRoot");
+	TrackRoot->setName("TrackRoot"+std::to_string(tn));
 	trackNumber = tn;
 	streamNum = trackNumber % MidiPlugin::instance()->NUMMidiStreams;
 
@@ -1613,47 +1636,68 @@ Track::~Track()
 }
 void Track::addNote(Note *n)
 {
+	if (n->track->instrument->type == "keyboard")
+	{
+		notes.push_back(n);
+		n->setInactive(false);
+		n->vertNum = lineVert->size();
+		lineVert->push_back(n->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 
-	Note* lastNode = NULL;
-	int num = notes.size() - 1;
-	if (num >= 0)
-	{
-		std::list<Note *>::iterator it;
-		it = notes.end();
-		it--;
-		lastNode = *it;
+		Note* currentNote = new Note(n->event, this);
+		notes.push_back(currentNote);
+		currentNote->vertNum = lineVert->size();
+		lineVert->push_back(currentNote->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
+		//int numLines = linePrimitives->size();
+		linePrimitives->push_back(2);
 	}
-	notes.push_back(n);
-	if (lastNode == NULL || ((n->event.seconds - lastNode->event.seconds) > 1.0))
+	else
 	{
-		if (lastNode != NULL && num - lastNum == 0)
+		Note* lastNode = NULL;
+		int num = notes.size() - 1;
+		if (num >= 0)
 		{
-			fprintf(stderr, "new zero line\n");
-			linePrimitives->push_back(1);
+			std::list<Note*>::iterator it;
+			it = notes.end();
+			it--;
+			lastNode = *it;
 		}
-		lastNum = num;
-		fprintf(stderr, "%d\n", (num - lastNum) + 1);
-		fprintf(stderr, "td\n");
+		notes.push_back(n);
+		n->setInactive(false);
+		if (lastNode == NULL || ((n->event.seconds - lastNode->event.seconds) > 1.0))
+		{
+			if (lastNode != NULL && num - lastNum == 0)
+			{
+				fprintf(stderr, "new zero line\n");
+				linePrimitives->push_back(1);
+			}
+			lastNum = num;
+			fprintf(stderr, "%d\n", (num - lastNum) + 1);
+			fprintf(stderr, "td\n");
+		}
+		//fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
+		if (num - lastNum == 1)
+		{
+			fprintf(stderr, "new line\n");
+			lastPrimitive = linePrimitives->size();
+			linePrimitives->push_back((num - lastNum) + 1);
+		}
+		if (num - lastNum > 0)
+		{
+			//fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
+			(*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
+		}
+		lineVert->push_back(n->transform->getMatrix().getTrans());
+		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 	}
-	//fprintf(stderr, "num %d lastNum %d\n", num, lastNum);
-	if (num - lastNum == 1)
-	{
-		fprintf(stderr, "new line\n");
-		lastPrimitive = linePrimitives->size();
-		linePrimitives->push_back((num - lastNum) + 1);
-	}
-	if (num - lastNum > 0)
-	{
-		//fprintf(stderr, "addLineVert%d\n", (num - lastNum) + 1);
-		(*linePrimitives)[lastPrimitive] = (num - lastNum) + 1;
-	}
-	lineVert->push_back(n->transform->getMatrix().getTrans());
-	lineColor->push_back(osg::Vec4(1, 0, 0, 1));
 }
 
 void Track::endNote(MidiEvent& me)
 {
 	Note *note = NULL;
+	printf("notOnkey: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+
 	// find key press for this release
 	for (auto it = notes.end(); it != notes.begin(); )
 	{
@@ -1661,6 +1705,16 @@ void Track::endNote(MidiEvent& me)
 		if ((*it)->event.getKeyNumber() == me.getKeyNumber())
 		{
 			note = *it;
+			printf("foundNoteOn: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+			if (note->track->instrument->type == "keyboard")
+			{
+				Note* lastNode = *it;
+				if (it != notes.begin())
+					it--;
+				note = *it;
+				me.setVelocity(note->event.getVelocity());
+				lastNode->setInactive(false);
+			}
 			break;
 		}
 	}
@@ -1823,7 +1877,7 @@ void Track::update()
 		}
 		if (me.isNote())
 		{
-			if (me.getVelocity() > 0)
+			if (me.isNoteOn() && me.getVelocity() > 0)
 			{
 				addNote(new Note(me, this));
 			}
@@ -1907,8 +1961,15 @@ Note::Note(MidiEvent &me, Track *t)
 	if (ni == NULL)
 	{
 		fprintf(stderr, "no NoteInfo for Key %d\n", me.getKeyNumber());
-		ni = track->instrument->noteInfos[0];
-		event.setKeyNumber(0);
+		for (int i = 0; i < 128; i++)
+		{
+			if ((ni = track->instrument->noteInfos[i]) != NULL)
+			{
+				break;
+			}
+		}
+		
+		//event.setKeyNumber(0);
 	}
 	transform->setMatrix(osg::Matrix::scale(s, s, s) * osg::Matrix::translate(ni->initialPosition));
 	if (ni->geometry != NULL)
@@ -1926,6 +1987,8 @@ Note::~Note()
 }
 void Note::integrate(double time)
 {
+	if (inactive)
+		return;
 	osg::Matrix nm = transform->getMatrix();
 	osg::Vec3 pos = nm.getTrans();
 	osg::Vec3 spiral;
@@ -1947,6 +2010,11 @@ void Note::integrate(double time)
 	nm.setTrans(pos);
 	transform->setMatrix(nm);
 }
+void Note::setInactive(bool state)
+{
+	inactive = state;
+}
+
 FrequencySurface::FrequencySurface(osg::Group * parent, AudioInStream *s) :WaveSurface(parent, s, s->outputSize / 4)
 {
 	lastMagnitudes = new double[width];

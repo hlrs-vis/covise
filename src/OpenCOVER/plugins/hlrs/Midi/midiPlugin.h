@@ -179,6 +179,9 @@ public:
     osg::ref_ptr<osg::MatrixTransform> transform;
     osg::Vec3 velo;
     MidiEvent event;
+	int vertNum;
+	void setInactive(bool state);
+	bool inactive = true;
 };
 class Track
 {
