@@ -1301,7 +1301,7 @@ void MidiPlugin::preFrame()
 				{
 					lTrack[i]->addNote(new Note(me, lTrack[i]));
 				}
-				else
+				else if (me.isNoteOff())
 				{
 					lTrack[i]->endNote(me);
 				}
@@ -1636,6 +1636,7 @@ Track::~Track()
 }
 void Track::addNote(Note *n)
 {
+	fprintf(stderr,"add: %02d velo %03d chan %d device %d\n", n->event.getKeyNumber(), n->event.getVelocity(), n->event.getChannel());
 	if (n->track->instrument->type == "keyboard")
 	{
 		notes.push_back(n);
@@ -1696,7 +1697,7 @@ void Track::addNote(Note *n)
 void Track::endNote(MidiEvent& me)
 {
 	Note *note = NULL;
-	printf("notOnkey: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+	fprintf(stderr,"end: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 
 	// find key press for this release
 	for (auto it = notes.end(); it != notes.begin(); )
@@ -1705,7 +1706,7 @@ void Track::endNote(MidiEvent& me)
 		if ((*it)->event.getKeyNumber() == me.getKeyNumber())
 		{
 			note = *it;
-			printf("foundNoteOn: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+			//printf("foundNoteOn: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 			if (note->track->instrument->type == "keyboard")
 			{
 				Note* lastNode = *it;
@@ -1801,6 +1802,7 @@ void Track::reset()
 	lastPrimitive = 0;
 }
 
+
 void Track::update()
 {
 	double speed = MidiPlugin::instance()->midifile.getTicksPerQuarterNote();
@@ -1809,81 +1811,82 @@ void Track::update()
 	if (life)
 	{
 		char buf[1000];
-		int numRead = 0;
-		if (MidiPlugin::instance()->midifd[streamNum] > 0)
-		{
-			numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
-			
-		}
-		if (numRead > 0)
-		{
-			if (buf[0] != -2)
+		int numRead = 1;
+		while(numRead > 0)
+		{	
+		
+			me.setP0(0);
+			me.setP1(0);
+			me.setP2(0);
+			if (coVRMSController::instance()->isMaster())
 			{
-			      
-				if (buf[0] == -112 || buf[0] == -103 ||(buf[1] == -112 ))
-				{
-					int key = buf[1];
-					if(buf[1] == -112)
-					{
-					me.setP0(buf[1]);
-					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf,1);
-					me.setP0(buf[0]);
-					}
-					me.setP0(buf[0]);
-					me.setP1(buf[1]);
-					int numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 2);
-					
-					int value = buf[0];
-					me.setP2(buf[0]);
-					me.seconds = cover->frameTime();
-					if (value > 0)
-					{
-						// key press
-						me.setKeyNumber(key);
-						me.setVelocity(value);
-					fprintf(stderr, "Midi info press %d %d\n", (int)key, (int)value);
-					}
-					else
-					{
-						me.setKeyNumber(key);
-						me.setVelocity(value);
-					fprintf(stderr, "Midi info release %d %d\n", (int)key, (int)value);
-						// key release
-					}
-				}
-				else
-				{
-				       //if(buf[1]!=-8)
-				//	fprintf(stderr, "Unknown midi info %d %d\n", (int)buf[0], (int)buf[1]);
-				}
-			}
-		}
-		if (coVRMSController::instance()->isMaster())
-		{
-			char buf[3];
-			buf[0] = me.getP0();
-			buf[1] = me.getP1();
-			buf[2] = me.getP2();
-			coVRMSController::instance()->sendSlaves((char *)buf, 3);
+				   if (MidiPlugin::instance()->midifd[streamNum] > 0)
+				   {
+					 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf, 1);
 
-		}
-		else
-		{
-			char buf[3];
-			coVRMSController::instance()->readMaster((char *)buf, 3);
-			me.setP0(buf[0]);
-			me.setP1(buf[1]);
-			me.setP2(buf[2]);
-		}
-		if (me.isNote())
-		{
-			if (me.isNoteOn() && me.getVelocity() > 0)
-			{
-				addNote(new Note(me, this));
+				   }
+				   else
+				   {
+				      numRead = -1;
+				   }
+				   if (numRead > 0)
+				   {
+					 if (buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103)
+					 {
+			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
+						 if(numRead < 2)
+						 {
+		                			fprintf(stderr,"oopps %d %d\n",(int)buf[0],numRead);
+						 }
+
+							 me.setP0(buf[0]);
+							 me.setP1(buf[1]);
+							 me.setP2(buf[2]);
+							 
+
+					 }
+					 else
+					 {
+			                      buf[0] = 0;
+			                      buf[1] = 0;
+			                      buf[2] = 0;
+					 }
+				   }
+				   
+				   
+				   
+				signed char buf[4];
+				buf[0] = me.getP0();
+				buf[1] = me.getP1();
+				buf[2] = me.getP2();
+				buf[3] = numRead;
+				coVRMSController::instance()->sendSlaves((char *)buf, 4);
+	//fprintf(stderr,"sent: %01d %02d velo %03d chan %d numRead %d \n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
+
 			}
 			else
 			{
-				endNote(me);
+				signed char buf[4];
+				coVRMSController::instance()->readMaster((char *)buf, 4);
+				me.setP0(buf[0]);
+				me.setP1(buf[1]);
+				me.setP2(buf[2]);
+				numRead = buf[3];
+	//fprintf(stderr,"received: %01d %02d velo %03d chan %d numRead %d\n", me.isNoteOn(),me.getKeyNumber(), me.getVelocity(), me.getChannel(),numRead);
+			}
+			if(numRead > 0 &&  me.getP0()!=0)
+			{
+			if (me.isNote())
+			{
+				if (me.isNoteOn() && me.getVelocity() > 0)
+				{
+					addNote(new Note(me, this));
+				}
+				else if(me.isNoteOff())
+				{
+					endNote(me);
+				}
+			}
 			}
 		}
 	}
