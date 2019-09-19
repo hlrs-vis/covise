@@ -1130,11 +1130,11 @@ bool MidiPlugin::openMidiIn(int streamNum, int device)
 	if (device == 0)
 		sprintf(devName, "/dev/midi");
 	else
-		sprintf(devName, "/dev/midi%d", device + 1);
+		sprintf(devName, "/dev/midi%d", device );
 	midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	if (midifd[streamNum] <= 0)
 	{
-		sprintf(devName, "/dev/midi%d", device + 1);
+		sprintf(devName, "/dev/midi%d", device);
 		midifd[streamNum] = open(devName, O_RDONLY | O_NONBLOCK);
 	}
 	fprintf(stderr, "open %s %d\n", devName, midifd[streamNum]);
