@@ -489,7 +489,8 @@ void VRSceneGraph::initAxis()
 void VRSceneGraph::initHandDeviceGeometry()
 {
     m_handLine = loadHandLine();
-    m_handTransform->addChild(m_handLine.get());
+    if (m_handLine)
+        m_handTransform->addChild(m_handLine.get());
 
     // add hand device geometry
     m_handSphere = loadHandIcon("HandSphere");
@@ -822,7 +823,7 @@ VRSceneGraph::update()
     }
 
     // transparency of handLine
-    if (transparentPointer_)
+    if (transparentPointer_ && m_handLine)
     {
         osg::Material *mat = dynamic_cast<osg::Material *>(m_handLine->getOrCreateStateSet()->getAttribute(osg::StateAttribute::MATERIAL));
         if (mat)
@@ -1289,9 +1290,12 @@ VRSceneGraph::loadHandIcon(const char *name)
 osg::Node *
 VRSceneGraph::loadHandLine()
 {
-    osg::Node *result;
+    if (!coCoviseConfig::isOn("visible", "COVER.PointerAppearance.IconName", true))
+        return nullptr;
 
-    osg::Node *n;
+    osg::Node *result = nullptr;
+
+    osg::Node *n = nullptr;
     string iconName = coCoviseConfig::getEntry("COVER.PointerAppearance.IconName");
     if (!iconName.empty())
     {
