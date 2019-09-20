@@ -39,6 +39,8 @@ char *AxisChoices[100];
 ReadECMWF::ReadECMWF(int argc, char *argv[])
     : coModule(argc, argv, "ECMWF Reader")
 {
+
+    const char * coordTypeList[] = {"pressure level","ocean depth"};
     ncDataFile = NULL;
 
     // File browser
@@ -54,7 +56,9 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
         p_variables[i] = addChoiceParam(namebuf, namebuf);
         p_variables[i]->setValue(1, NoneChoices, 0);
     }
-
+    //coordinate
+    p_coord_type = addChoiceParam("CoordType","Coordinate type for grid z component");
+    p_coord_type->setValue(2,coordTypeList,1);
 
     p_grid_lat = addChoiceParam("GridLat", "Latitude");
     p_grid_lat->setValue(1, NoneChoices, 1);
@@ -62,6 +66,10 @@ ReadECMWF::ReadECMWF(int argc, char *argv[])
     p_grid_lon->setValue(1, NoneChoices, 2);
     p_grid_pressure_level = addChoiceParam("GridPLevel", "Pressure Level");
     p_grid_pressure_level->setValue(1, NoneChoices, 3);
+    p_grid_depth = addChoiceParam("GridDepth", "Ocean depth");
+    p_grid_depth->setValue(1, NoneChoices, 3);
+    p_grid_depth->disable();
+    p_grid_depth->hide();
 
     // Vertical scale
     p_verticalScale = addFloatParam("VerticalScale", "VerticalScale");
@@ -105,9 +113,11 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
     {
         // enable parameter menus for selection
         p_verticalScale->enable();
+        p_coord_type->enable();
         p_grid_lat->enable();
         p_grid_lon->enable();
         p_grid_pressure_level->enable();
+        p_grid_depth->enable();
         p_numTimesteps->enable();
 
         for (int i = 0; i < numParams; i++)
@@ -167,7 +177,22 @@ void ReadECMWF::param(const char *paramName, bool inMapLoading)
                                   AxisChoices, p_grid_lon->getValue());
         p_grid_pressure_level->setValue(num2dVars,
                                   AxisChoices, p_grid_pressure_level->getValue());
+        p_grid_depth->setValue(num2dVars,
+                                  AxisChoices, p_grid_depth->getValue());
+        switch (p_coord_type->getValue())
+        {
+        case PRESSURE:
+            p_grid_pressure_level->show();
+            p_grid_depth->disable();
+            p_grid_depth->hide();
+            break;
+        case DEPTH:
+            p_grid_depth->show();
+            p_grid_pressure_level->disable();
+            p_grid_pressure_level->hide();
+            break;
 
+        }
     }
     else
     {
@@ -239,8 +264,6 @@ int ReadECMWF::compute(const char *)
 
 
 
-
-
         /********************************\
         * THE SPHERICAL GRID
         \********************************/
@@ -258,9 +281,14 @@ int ReadECMWF::compute(const char *)
             AxisChoices[p_grid_lat->getValue()]);
         NcVar *varLon = ncDataFile->get_var(
             AxisChoices[p_grid_lon->getValue()]);
-        NcVar *varPLevel = ncDataFile->get_var(
-            AxisChoices[p_grid_pressure_level->getValue()]);
-
+        NcVar *varPLevel;
+        if (p_coord_type->getValue() == PRESSURE)
+        {
+            varPLevel = ncDataFile->get_var(AxisChoices[p_grid_pressure_level->getValue()]);
+        }else
+        {
+            varPLevel = ncDataFile->get_var(AxisChoices[p_grid_depth->getValue()]);
+        }
 
 
         if (has_timesteps > 0)
@@ -292,23 +320,48 @@ int ReadECMWF::compute(const char *)
                 time_grid[t] = outGrid;
 
 
-                //conversion to ECEF coordinates
                 int n = 0;
                 float A = 6380; //actually N(lat)
-                for (int k = 0; k < nz; k++)
-                {
-                     A = (6480 + scale*pressureAltitude(zVals[k]))*1000;
-                    for (int i = 0; i < nx; i++)
-                    {
-                        for (int j = 0; j < ny; j++, n++)
-                         {
 
-                                     x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
-                                     y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
-                                     z_coord[n] = A*sin(xVals[i]*PI/180);
-                          }
-                     }
+                switch (p_coord_type->getValue())
+                {
+                case PRESSURE:
+                    //conversion to ECEF coordinates
+
+                    for (int k = 0; k < nz; k++)
+                    {
+                         A = (6380 + scale*pressureAltitude(zVals[k]))*1000;
+                        for (int i = 0; i < nx; i++)
+                        {
+                            for (int j = 0; j < ny; j++, n++)
+                             {
+
+                                         x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
+                                         y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
+                                         z_coord[n] = A*sin(xVals[i]*PI/180);
+                              }
+                         }
+                    }
+                    break;
+                case DEPTH:
+                    //conversion to ECEF coordinates
+                    for (int k = 0; k < nz; k++)
+                    {
+                        A = (6380*1000 - scale*zVals[k]);
+                        for (int i = 0; i < nx; i++)
+                        {
+                            for (int j = 0; j < ny; j++, n++)
+                             {
+
+                                         x_coord[n] = A*cos(xVals[i*ny+j]*PI/180)*cos(yVals[i*ny+j]*PI/180);
+                                         y_coord[n] = A*cos(xVals[i*ny+j]*PI/180)*sin(yVals[i*ny+j]*PI/180);
+                                         z_coord[n] = A*sin(xVals[i*ny+j]*PI/180);
+                              }
+                         }
+                    }
+                    break;
                 }
+
 
             }
 
@@ -324,17 +377,19 @@ int ReadECMWF::compute(const char *)
 
         }else {
 
-            coDoStructuredGrid *outGrid = new coDoStructuredGrid(p_grid_out->getObjName(), nx, ny, nz);
+            coDoStructuredGrid *outGrid = new coDoStructuredGrid(p_grid_out->getObjName(), nz, nx, ny);
 
             // Get the addresses of the 3 coord arrays (each nz*ny*nx long)
-            outGrid->getAddresses(&x_coord, &y_coord, &z_coord);
-            float *xVals, *yVals, *zVals;// = new float[varPLevel->num_vals()];
+            outGrid->getAddresses(&z_coord, &x_coord, &y_coord);
+            float *xVals= new float[varLat->num_vals()];
+            float *yVals= new float[varLon->num_vals()];
+            float *zVals = new float[varPLevel->num_vals()];
             varLat->get(xVals, varLat->edges());
             varLon->get(yVals, varLon->edges());
             varPLevel->get(zVals, varPLevel->edges());
             float A = 6380; //actually N(lat)
             int n = 0;
-            for (int i = 0; i < nx; i++)
+          /*  for (int i = 0; i < nx; i++)
             {
                 int m = 0;
                 for (int j = 0; j < ny; j++)
@@ -344,7 +399,24 @@ int ReadECMWF::compute(const char *)
                         y_coord[n] = A*cos(xVals[n])*sin(yVals[n]);
                         z_coord[n] = A*sin(xVals[n]);
                     }
+            }*/
+            for (int k = 0; k < nz; k++)
+            {
+                 A = (6380 + scale*(zVals[k]))*1000;//(6380 + scale*pressureAltitude(zVals[k]))*1000;
+                for (int i = 0; i < nx; i++)
+                {
+                    for (int j = 0; j < ny; j++, n++)
+                     {
+
+                                 x_coord[n] = A*cos(xVals[i]*PI/180)*cos(yVals[j]*PI/180);
+                                 y_coord[n] = A*cos(xVals[i]*PI/180)*sin(yVals[j]*PI/180);
+                                 z_coord[n] = A*sin(xVals[i]*PI/180);
+                      }
+                 }
             }
+            delete [] xVals;
+            delete [] yVals;
+            delete [] zVals;
        }
 
 
@@ -436,9 +508,16 @@ int ReadECMWF::compute(const char *)
                 for (int d = 0; d < var->num_dims(); ++d)
                 {
                     NcDim *dim = var->get_dim(d);
-                    if(strcmp(dim->name(), "time") == 0)
+                    if((strcmp(dim->name(), "time") == 0)||(strcmp(dim->name(),"time_counter") == 0))
                     {
                         time_dependent = true;
+                        if (nTime > dim->size())
+                         {
+
+                            nTime = dim->size();
+                            sendInfo("Max. available time steps is %d", nTime);
+                        }
+
                     }else {
                          num_vals = num_vals * dim->size();
                     }

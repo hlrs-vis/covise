@@ -30,6 +30,10 @@ public:
 
     /// compute callback
     virtual int compute(const char *);
+    enum CoordType {
+        PRESSURE = 0,
+        DEPTH = 1
+    };
 
 private:
     /// open and check the netCFD File
@@ -39,9 +43,11 @@ private:
     // parameters
     covise::coFileBrowserParam *p_fileBrowser;
     covise::coChoiceParam *p_variables[numParams];
+    covise::coChoiceParam *p_coord_type;
     covise::coChoiceParam *p_grid_lat;
     covise::coChoiceParam *p_grid_lon;
     covise::coChoiceParam *p_grid_pressure_level;
+    covise::coChoiceParam *p_grid_depth;
     covise::coFloatParam *p_verticalScale;
   //  covise::coChoiceParam *p_date_choice;
     covise::coIntScalarParam *p_numTimesteps;
