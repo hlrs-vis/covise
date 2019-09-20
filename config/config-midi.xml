@@ -1,3 +1,7 @@
+<?xml version="1.0"?>
+
+<COCONFIG version="1" >
+
 
  <GLOBAL>
   <COVER>
@@ -113,3 +117,4 @@
   </COVER>
 				
  </GLOBAL>
+</COCONFIG>
