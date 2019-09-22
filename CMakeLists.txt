@@ -329,6 +329,7 @@ INSTALL(FILES
     config/config-filetypes.xml
     config/config-ar.xml
     config/config-spray.xml
+    config/config-midi.xml
     DESTINATION config)
 
 INSTALL(DIRECTORY share bin scripts
