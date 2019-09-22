@@ -21,7 +21,7 @@
 #include <cover/coVRMSController.h>
 #include <cover/coVRTui.h>
 #include <config/CoviseConfig.h>
-#include "ChatPlugin.h"
+#include "chatPlugin.h"
 #include <net/udpMessage.h>
 #include <net/udp_message_types.h>
 
