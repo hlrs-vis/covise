@@ -1636,7 +1636,7 @@ Track::~Track()
 }
 void Track::addNote(Note *n)
 {
-	fprintf(stderr,"add: %02d velo %03d chan %d device %d\n", n->event.getKeyNumber(), n->event.getVelocity(), n->event.getChannel());
+	fprintf(stderr,"add: %02d velo %03d chan %d\n", n->event.getKeyNumber(), n->event.getVelocity(), n->event.getChannel());
 	if (n->track->instrument->type == "keyboard")
 	{
 		notes.push_back(n);
@@ -1697,7 +1697,7 @@ void Track::addNote(Note *n)
 void Track::endNote(MidiEvent& me)
 {
 	Note *note = NULL;
-	fprintf(stderr,"end: %02d velo %03d chan %d device %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
+	fprintf(stderr,"end: %02d velo %03d chan %d\n", me.getKeyNumber(), me.getVelocity(), me.getChannel());
 
 	// find key press for this release
 	for (auto it = notes.end(); it != notes.begin(); )

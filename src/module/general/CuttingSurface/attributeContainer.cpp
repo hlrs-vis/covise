@@ -163,7 +163,9 @@ attributeContainer::addAttributes(coDistributedObject *obj,
     for (it = _primaryAttributes.begin(); it != _primaryAttributes.end(); ++it)
     {
         vector<pair<string, string> >::iterator wo = find_if(theseAttributes.begin(), theseAttributes.end(),
-                                                             bind2nd(ptr_fun(firstPart), *it));
+                [it](const pair<string,string> &right) {
+                    return (it->first == right.first);
+                });
         if (wo == theseAttributes.end())
         {
             obj->addAttribute(it->first.c_str(), it->second.c_str());

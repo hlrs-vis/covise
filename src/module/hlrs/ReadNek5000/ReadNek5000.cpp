@@ -959,10 +959,7 @@ void ReadNek::ReadBlockLocations() {
     //badFile = UnifyMinimumValue(badFile);
     if (badFile < iNumBlocks) {
         blockfilename = GetFileName(0, badFile);
-        char msg[1024];
-        snprintf(msg, 1024, "Could not open file \"%s\" to read block "
-            "locations.", blockfilename.c_str());
-        sendError(".nek5000 ", msg);
+        sendError("Could not open file \"%s\" to read block locations.", blockfilename.c_str());
     }
     delete[] tmpBlocks;
 

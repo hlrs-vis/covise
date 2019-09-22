@@ -104,7 +104,7 @@ MagmaUtils::CellNeighbours(const vector<int> &el,
                                   std::back_inserter(common_cells));
             std::remove_copy_if(common_cells.begin(), common_cells.end(),
                                 std::back_inserter(local_elem_neighbours),
-                                std::bind2nd(std::equal_to<int>(), elem));
+                                std::bind(std::equal_to<int>(), std::placeholders::_1, elem));
             std::fill_n(std::back_inserter(local_edge_neighbours),
                         common_cells.size() - 1, (node0 < node1) ? Edge(node0, node1) : Edge(node1, node0));
         }

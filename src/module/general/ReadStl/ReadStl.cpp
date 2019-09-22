@@ -476,9 +476,9 @@ int ReadStl::readBinary()
             // we proceed to produce both feature and domain lines
             // in a single object
             std::transform(dll.begin(), dll.end(), dll.begin(),
-                           std::bind2nd(std::plus<int>(), (int)vl.size()));
+                           std::bind(std::plus<int>(), std::placeholders::_1, (int)vl.size()));
             std::transform(dvl.begin(), dvl.end(), dvl.begin(),
-                           std::bind2nd(std::plus<int>(), (int)lx.size()));
+                           std::bind(std::plus<int>(), std::placeholders::_1, (int)lx.size()));
             std::copy(dll.begin(), dll.end(), std::back_inserter(ll));
             std::copy(dvl.begin(), dvl.end(), std::back_inserter(vl));
             std::copy(dlx.begin(), dlx.end(), std::back_inserter(lx));
@@ -632,9 +632,9 @@ int ReadStl::readASCII()
             // we proceed to produce both feature and domain lines
             // in a single object
             std::transform(dll.begin(), dll.end(), dll.begin(),
-                           std::bind2nd(std::plus<int>(), (int)cl.size()));
+                           std::bind(std::plus<int>(), std::placeholders::_1, (int)cl.size()));
             std::transform(dcl.begin(), dcl.end(), dcl.begin(),
-                           std::bind2nd(std::plus<int>(), (int)lx.size()));
+                           std::bind(std::plus<int>(), std::placeholders::_1, (int)lx.size()));
             std::copy(dll.begin(), dll.end(), std::back_inserter(ll));
             std::copy(dcl.begin(), dcl.end(), std::back_inserter(cl));
             std::copy(dlx.begin(), dlx.end(), std::back_inserter(lx));
