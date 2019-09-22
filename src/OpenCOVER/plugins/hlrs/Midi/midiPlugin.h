@@ -180,8 +180,11 @@ public:
     osg::Vec3 velo;
     MidiEvent event;
 	int vertNum;
+	float noteScale;
 	void setInactive(bool state);
 	bool inactive = true;
+	osg::Vec3 spin;
+	osg::Vec3 rot;
 };
 class Track
 {
@@ -202,6 +205,7 @@ public:
     int trackNumber;
     void addNote(Note*);
 	void endNote(MidiEvent& me);
+	void setRotation(osg::Vec3 &rotationSpeed);
     vrml::Player::Source *trackSource;
     vrml::Audio *trackAudio;
 	MidiInstrument *instrument;
@@ -211,6 +215,7 @@ public:
     osg::Vec3Array *lineVert = new osg::Vec3Array;
     osg::Vec4Array *lineColor = new osg::Vec4Array;
     osg::DrawArrayLengths *linePrimitives;
+	void handleEvent(MidiEvent& me);
 	void store();
 private:
     bool life;
@@ -219,6 +224,7 @@ private:
     double oldTime = 0.0;
     int streamNum;
     enum deviceType devType=Track::Drum;
+	osg::Vec3 rotationSpeed;
 };
 
 class MidiPlugin : public coVRPlugin, public coTUIListener, public ui::Owner
@@ -244,7 +250,9 @@ public:
     osg::ref_ptr<osg::MatrixTransform> MIDITrans[NUMMidiStreams];
     MidiFile midifile;
     double startTime;
+	float speedFactor = 1.0;
     int currentTrack;
+	void handleController(MidiEvent& me);
 	void clearStore();
     static int unloadMidi(const char *filename, const char *);
     static int loadMidi(const char *filename, osg::Group *parent, const char *);

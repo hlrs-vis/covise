@@ -101,10 +101,10 @@
 					       <Key name="40"  r="153" g="51"  b="153"/>
 						   
 						   
-					       <Key name="5"   r="3"   g="165" b="252"/>
-					       <Key name="6"   r="36"  g="148" b="209"/>
-					       <Key name="7"   r="36"  g="89"  b="117"/>
-					       <Key name="8"   r="14"  g="124" b="235"/>
+					       <Key name="5" modelName = "/data/Jeremy/star.osg"  r="3"   g="165" b="252"/>
+					       <Key name="6" modelName = "/data/Jeremy/star.osg"  r="36"  g="148" b="209"/>
+					       <Key name="7" modelName = "/data/Jeremy/star.osg"  r="36"  g="89"  b="117"/>
+					       <Key name="8" modelName = "/data/Jeremy/star.osg"  r="14"  g="124" b="235"/>
 					       <Key name="9"   r="14"  g="48"  b="235"/>
 					       <Key name="10"  r="14"  g="36"  b="235"/>
 					       <Key name="11"  r="47"  g="14"  b="235"/>
@@ -135,22 +135,22 @@
 					       <Key name="114"  r="244" g="204" b="24" modelName = "/data/Jeremy/A7.osg" modelScale = "1.0"/>
 					       <Key name="115"  r="248" g="252" b="3" modelName = "/data/Jeremy/A8.osg" modelScale = "1.0"/>
 						   
-					       <Key name="80"  r="250" g="22"  b="10"/>
-					       <Key name="81"  r="250" g="66"  b="10"/>
-					       <Key name="82"  r="250" g="110" b="10"/>
-					       <Key name="83"  r="250" g="170" b="10"/>
-					       <Key name="84"  r="250" g="214" b="10"/>
-					       <Key name="85"  r="246" g="250" b="10"/>
-					       <Key name="86"  r="198" g="250" b="10"/>
-					       <Key name="87"  r="130" g="250" b="10"/>
-					       <Key name="88"  r="10"  g="250" b="42"/>
-					       <Key name="89"  r="29"  g="181" b="49"/>
-					       <Key name="90"  r="32"  g="199" b="149"/>
-					       <Key name="91"  r="17"  g="240" b="210"/>
-					       <Key name="92"  r="29"  g="128" b="114"/>
-					       <Key name="93"  r="232" g="119" b="14"/>
-					       <Key name="94"  r="244" g="204" b="24"/>
-					       <Key name="95"  r="248" g="252" b="3"/>
+					       <Key name="80"   modelName = "/data/Jeremy/star.osg" r="250" g="22"  b="10"/>
+					       <Key name="81"  modelName = "/data/Jeremy/star.osg" r="250" g="66"  b="10"/>
+					       <Key name="82"  modelName = "/data/Jeremy/star.osg" r="250" g="110" b="10"/>
+					       <Key name="83"  modelName = "/data/Jeremy/star.osg" r="250" g="170" b="10"/>
+					       <Key name="84"  modelName = "/data/Jeremy/star.osg" r="250" g="214" b="10"/>
+					       <Key name="85"  modelName = "/data/Jeremy/star.osg" r="246" g="250" b="10"/>
+					       <Key name="86"  modelName = "/data/Jeremy/star.osg" r="198" g="250" b="10"/>
+					       <Key name="87"  modelName = "/data/Jeremy/star.osg" r="130" g="250" b="10"/>
+					       <Key name="88"  modelName = "/data/Jeremy/star.osg" r="10"  g="250" b="42"/>
+					       <Key name="89"  modelName = "/data/Jeremy/star.osg" r="29"  g="181" b="49"/>
+					       <Key name="90"  modelName = "/data/Jeremy/star.osg" r="32"  g="199" b="149"/>
+					       <Key name="91"  modelName = "/data/Jeremy/star.osg" r="17"  g="240" b="210"/>
+					       <Key name="92"  modelName = "/data/Jeremy/star.osg" r="29"  g="128" b="114"/>
+					       <Key name="93"  modelName = "/data/Jeremy/star.osg" r="232" g="119" b="14"/>
+					       <Key name="94"  modelName = "/data/Jeremy/star.osg" r="244" g="204" b="24"/>
+					       <Key name="95"  modelName = "/data/Jeremy/star.osg" r="248" g="252" b="3"/>
 						   
 						   
 					       <Key name="60"  r="128" g="128"  b="0"/>

@@ -1224,14 +1224,7 @@ MidiPlugin::~MidiPlugin()
 
 void MidiPlugin::addEvent(MidiEvent &me, int MidiStream)
 {
-	if (me.isNoteOn() && me.getVelocity() > 0)
-	{
-		eventqueue[MidiStream].push_back(me);
-	}
-	if (me.isNoteOff())
-	{
-		eventqueue[MidiStream].push_back(me);
-	}
+	eventqueue[MidiStream].push_back(me);
 }
 bool MidiPlugin::destroy()
 {
@@ -1296,15 +1289,7 @@ void MidiPlugin::preFrame()
 			}
 			else
 			{
-
-				if (me.isNoteOn())
-				{
-					lTrack[i]->addNote(new Note(me, lTrack[i]));
-				}
-				else if (me.isNoteOff())
-				{
-					lTrack[i]->endNote(me);
-				}
+				lTrack[i]->handleEvent(me);
 			}
 		}
 		lTrack[i]->update();
@@ -1365,6 +1350,63 @@ osg::Geode *MidiPlugin::createBallGeometry(int ballId)
 void MidiPlugin::setTimestep(int t)
 {
 }
+
+void MidiPlugin::handleController(MidiEvent& me)
+{
+	fprintf(stderr, "Controller Nr.%d, value %d\n", me.getP1(), me.getP2());
+	int controllerID = me.getP1();
+	int value = me.getP2();
+	if (controllerID == 55)
+	{
+		frequencySurface->radius1 = value;
+		amplitudeSurface->radius1 = value;
+	}
+	if (controllerID == 60)
+	{
+		frequencySurface->radius2 = value;
+		amplitudeSurface->radius2 = value;
+	}
+	if (controllerID == 61)
+	{
+		sphereScale = 0.1+((value/127.0)*10.0);
+		sphereScaleSlider->setValue(sphereScale);
+	}
+	if (controllerID == 56)
+	{
+		frequencySurface->yStep = value;
+		amplitudeSurface->yStep = value;
+	}
+	if (controllerID == 57)
+	{
+		frequencySurface->amplitudeFactor = (value-63)/12.0;
+		amplitudeSurface->amplitudeFactor = (value - 63) / 12.0;
+	}
+	if (controllerID == 62)
+	{
+		frequencySurface->frequencyFactor = (value - 63) / 12.0;
+		amplitudeSurface->frequencyFactor = (value - 63) / 12.0;
+	}
+	if (controllerID == 52) // slider left
+	{
+		float sliderValue = ((float)(value - 64) / 64.0)*5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
+	}
+	if (controllerID == 63) // distance sensor
+	{
+		float sliderValue = value / 127.0;
+		speedFactor = (100.0 * sliderValue) + 1.0;
+	}
+
+
+}
+
 //--------------------------------------------------------------------
 void MidiPlugin::MIDItab_create(void)
 {
@@ -1588,6 +1630,7 @@ COVERPLUGIN(MidiPlugin)
 Track::Track(int tn, bool l)
 {
 	life = l;
+	rotationSpeed.set(0, 0, 0);
 	TrackRoot = new osg::MatrixTransform();
 	TrackRoot->setName("TrackRoot"+std::to_string(tn));
 	trackNumber = tn;
@@ -1637,6 +1680,7 @@ Track::~Track()
 void Track::addNote(Note *n)
 {
 	fprintf(stderr,"add: %02d velo %03d chan %d\n", n->event.getKeyNumber(), n->event.getVelocity(), n->event.getChannel());
+	n->spin = rotationSpeed;
 	if (n->track->instrument->type == "keyboard")
 	{
 		notes.push_back(n);
@@ -1647,6 +1691,7 @@ void Track::addNote(Note *n)
 
 		Note* currentNote = new Note(n->event, this);
 		notes.push_back(currentNote);
+		currentNote->spin = -rotationSpeed;
 		currentNote->vertNum = lineVert->size();
 		lineVert->push_back(currentNote->transform->getMatrix().getTrans());
 		lineColor->push_back(osg::Vec4(1, 0, 0, 1));
@@ -1726,6 +1771,11 @@ void Track::endNote(MidiEvent& me)
 	
 }
 
+void Track::setRotation(osg::Vec3& rotSpeed)
+{
+	rotationSpeed = rotSpeed;
+}
+
 osg::Geode *Track::createLinesGeometry()
 {
 	osg::Geode *geode;
@@ -1753,6 +1803,21 @@ osg::Geode *Track::createLinesGeometry()
 	geode->addDrawable(geom);
 
 	return geode;
+}
+void Track::handleEvent(MidiEvent& me)
+{
+	if (me.isNoteOn())
+	{
+		addNote(new Note(me, this));
+	}
+	else if (me.isNoteOff())
+	{
+		endNote(me);
+	}
+	else if (me.isController())
+	{
+		MidiPlugin::instance()->handleController(me);
+	}
 }
 void Track::store()
 {
@@ -1876,17 +1941,7 @@ void Track::update()
 			}
 			if(numRead > 0 &&  me.getP0()!=0)
 			{
-			if (me.isNote())
-			{
-				if (me.isNoteOn() && me.getVelocity() > 0)
-				{
-					addNote(new Note(me, this));
-				}
-				else if(me.isNoteOff())
-				{
-					endNote(me);
-				}
-			}
+				handleEvent(me);
 			}
 		}
 	}
@@ -1900,11 +1955,7 @@ void Track::update()
 		{
 			me = MidiPlugin::instance()->midifile[trackNumber][eventNumber];
 			me.getDurationInSeconds();
-			if (me.isNoteOn())
-			{
-				//fprintf(stderr,"new note %d\n",me.getKeyNumber());
-				notes.push_back(new Note(me, this));
-			}
+			handleEvent(me);
 			eventNumber++;
 		}
 	}
@@ -1958,9 +2009,11 @@ Note::Note(MidiEvent &me, Track *t)
 {
 	event = me;
 	track = t;
+	spin.set(0, 0, 0);
+	rot.set(0, 0, 0);
 	NoteInfo *ni = track->instrument->noteInfos[me.getKeyNumber()];
 	transform = new osg::MatrixTransform();
-	float s = MidiPlugin::instance()->sphereScale * event.getVelocity() / 10.0;
+	noteScale = MidiPlugin::instance()->sphereScale * event.getVelocity() / 10.0;
 	if (ni == NULL)
 	{
 		fprintf(stderr, "no NoteInfo for Key %d\n", me.getKeyNumber());
@@ -1974,7 +2027,7 @@ Note::Note(MidiEvent &me, Track *t)
 		
 		//event.setKeyNumber(0);
 	}
-	transform->setMatrix(osg::Matrix::scale(s, s, s) * osg::Matrix::translate(ni->initialPosition));
+	transform->setMatrix(osg::Matrix::scale(noteScale, noteScale, noteScale) * osg::Matrix::translate(ni->initialPosition));
 	if (ni->geometry != NULL)
 	{
 		transform->addChild(ni->geometry);
@@ -2010,7 +2063,11 @@ void Note::integrate(double time)
 	a *= MidiPlugin::instance()->acceleration;
 	velo = velo + a * time;
 	pos += (velo + spiral+toCenter) * time;
+	rot += spin*time* MidiPlugin::instance()->speedFactor;
+	osg::Quat currentRot = osg::Quat(rot[0], osg::X_AXIS, rot[1] * time, osg::Y_AXIS, rot[2] * time, osg::Z_AXIS);
 	nm.setTrans(pos);
+	nm.setRotate(currentRot);
+	nm= osg::Matrix::scale(noteScale, noteScale, noteScale)*nm;
 	transform->setMatrix(nm);
 }
 void Note::setInactive(bool state)
