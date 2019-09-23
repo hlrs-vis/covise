@@ -105,10 +105,62 @@
 					       <Key name="75"  r="0" g="34" b="102"/>
 						   
 					   </Instrument>
-				       <Instrument name="1" type="Keyboard">
-				       
-					       <Key name="60"  r="128" g="128"  b="0"/>
-					       <Key name="61"  r="153" g="153"  b="0"/>
+				       <Instrument name="1" type="keyboard">
+					   
+					       <Key name="36"  modelScale = "0.2" r="250" g="0"  b="0"/>
+					       <Key name="37" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="38" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="39" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="40" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="41" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="42" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="43" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="44" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="45" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="46" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="47" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="48" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="49" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="50" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="51" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="52" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="53" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="54" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="55" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="56" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="57" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="58" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="59" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="60" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="61" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="62" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="63" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="64" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="65" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="66" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="67" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="68" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="69" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="70" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="71" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="72" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="73" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="74" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="75" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="76" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="77" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="78" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="79" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="80" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="81" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="82" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="83" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="84" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="85" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="86" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="87" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="88" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
+					       <Key name="89" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
 					   </Instrument>
 				</Midi>
             </Plugin>
