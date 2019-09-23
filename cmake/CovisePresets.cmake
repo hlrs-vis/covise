@@ -9,6 +9,7 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
 # disable rpath - only rely on LD_LIBRARY_PATH and the likes
 set(CMAKE_SKIP_RPATH TRUE)
+set(CMAKE_MACOSX_RPATH FALSE)
 
 macro(covise_cmake_policy)
 # policy settings
