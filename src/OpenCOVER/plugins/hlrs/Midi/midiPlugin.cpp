@@ -569,6 +569,22 @@ void NoteInfo::createGeom()
 		mt->setName(modelName.c_str());
 		mt->setMatrix(osg::Matrix::scale(modelScale, modelScale, modelScale) * osg::Matrix::rotate(M_PI_2, 0, 0, 1));
 		mt->addChild(osgDB::readNodeFile(modelName.c_str()));
+		osg::StateSet *geoState = mt->getOrCreateStateSet();
+
+	osg::Material *colorMaterial = new osg::Material;
+		colorMaterial->setColorMode(osg::Material::AMBIENT_AND_DIFFUSE);
+		colorMaterial->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.2f, 0.2f, 0.2f, 1.0));
+		colorMaterial->setDiffuse(osg::Material::FRONT_AND_BACK, color);
+		colorMaterial->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.4f, 0.4f, 0.4f, 1.0));
+		colorMaterial->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0f, 0.0f, 0.0f, 1.0));
+		colorMaterial->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
+
+	geoState->setAttributeAndModes(colorMaterial, osg::StateAttribute::ON);
+	
+	
+	
+	
+	
 		geometry = mt;
 	}
 	if (geometry == NULL)
@@ -1912,7 +1928,7 @@ void Track::update()
 					 }
 					 else
 					 {
-                                             if(buf[0]!=-2)
+                                             if(buf[0]!=-2 && buf[0]!=-8 )
 {
 		                			fprintf(stderr,"unknown message %d %d\n",(int)buf[0],numRead);
 }
@@ -2068,6 +2084,7 @@ void Note::integrate(double time)
 	velo = velo + a * time;
 	pos += (velo + spiral+toCenter) * time;
 	rot += spin*time* MidiPlugin::instance()->speedFactor;
+	fprintf(stderr,"%f\n",rot[2]);
 	osg::Quat currentRot = osg::Quat(rot[0], osg::X_AXIS, rot[1] * time, osg::Y_AXIS, rot[2] * time, osg::Z_AXIS);
 	nm.setTrans(pos);
 	nm.setRotate(currentRot);
