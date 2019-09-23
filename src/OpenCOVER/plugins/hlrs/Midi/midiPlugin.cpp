@@ -1896,7 +1896,7 @@ void Track::update()
 				   }
 				   if (numRead > 0)
 				   {
-					 if (buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103)
+					 if (buf[0] ==  -112 ||buf[0] == -119 ||buf[0] == -103||buf[0]==-80)
 					 {
 			        		 numRead = read(MidiPlugin::instance()->midifd[streamNum], buf+1, 2);
 						 if(numRead < 2)
@@ -1912,6 +1912,10 @@ void Track::update()
 					 }
 					 else
 					 {
+                                             if(buf[0]!=-2)
+{
+		                			fprintf(stderr,"unknown message %d %d\n",(int)buf[0],numRead);
+}
 			                      buf[0] = 0;
 			                      buf[1] = 0;
 			                      buf[2] = 0;
