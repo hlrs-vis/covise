@@ -78,6 +78,9 @@
 						<escooter>
 							<ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
 						</escooter>
+						<bicycle>
+							<ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
+						</bicycle>
                     </Vehicles>
                 </SumoTraCI>
             </Plugin>
