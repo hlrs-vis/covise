@@ -14,6 +14,7 @@
 #include <osg/Transform>
 #include <osg/Switch>
 #include <osg/Node>
+#include <osg/Group>
 #include <osg/LOD>
 #include <osgDB/ReadFile>
 
@@ -25,10 +26,11 @@ using namespace opencover;
 
 std::map<std::string, osg::Node *> CarGeometry::filenameNodeMap;
 
-CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
+CarGeometry::CarGeometry(CarGeometry *geo, std::string name, osg::Group* rootNode)
     : carNode(NULL)
     , carParts(NULL)
     , boundingCircleRadius(0.0)
+	
 {
     // new instance of already loaded car geometry //
 
@@ -42,7 +44,16 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
     carTransform->setName(name);
     // no need to do intersection tests on cars
     carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
-    cover->getObjectsRoot()->addChild(carTransform);
+	if (rootNode != nullptr)
+		parentGroup = rootNode;
+	if (parentGroup != nullptr)
+	{
+		parentGroup->addChild(carTransform);
+	}
+	else
+	{
+		cover->getObjectsRoot()->addChild(carTransform);
+	}
 
     // LOD //
     //
@@ -125,7 +136,7 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name)
     boundingCircleRadius = (boundingSphere.center() - carTransform->getMatrix().getTrans()).length() + boundingSphere.radius();
 }
 
-CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGraph)
+CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGraph, osg::Group* rootNode)
     : carNode(NULL)
     , carParts(NULL)
     , boundingCircleRadius(0.0)
@@ -141,7 +152,16 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
     carTransform = new osg::MatrixTransform();
     if (addToSceneGraph)
     {
-        cover->getObjectsRoot()->addChild(carTransform);
+		if (rootNode != nullptr)
+			parentGroup = rootNode;
+		if (parentGroup != nullptr)
+		{
+			parentGroup->addChild(carTransform);
+		}
+		else
+		{
+			cover->getObjectsRoot()->addChild(carTransform);
+		}
         // no need to do intersection tests on cars
         carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk | Isect::Update));
     }
@@ -204,7 +224,8 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
 
 CarGeometry::~CarGeometry()
 {
-    cover->getObjectsRoot()->removeChild(carTransform);
+	while(carTransform->getNumParents()>0)
+        carTransform->getParent(0)->removeChild(carTransform);
 }
 
 void
@@ -540,7 +561,8 @@ osg::Node *CarGeometry::getCarNode(std::string file)
 
 void CarGeometry::removeFromSceneGraph()
 {
-    cover->getObjectsRoot()->removeChild(carTransform);
+	while (carTransform->getNumParents() > 0)
+		carTransform->getParent(0)->removeChild(carTransform);
 }
 
 osg::Node *CarGeometry::getDefaultCarNode()

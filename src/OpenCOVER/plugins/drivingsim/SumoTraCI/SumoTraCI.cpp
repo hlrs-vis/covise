@@ -39,6 +39,7 @@
 #include <cover/ui/Menu.h>
 #include <cover/ui/Button.h>
 #include <cover/ui/Slider.h>
+#include <osg/Switch>
 
 
 int gPrecision;
@@ -55,9 +56,18 @@ SumoTraCI::SumoTraCI() : ui::Owner("SumoTraCI", cover->ui)
     //AgentVehicle *av = getAgentVehicle("veh_passenger","passenger","veh_passenger");
     //av = getAgentVehicle("truck","truck","truck_truck");
     pf = PedestrianFactory::Instance();
-    pedestrianGroup =  new osg::Group;
+    pedestrianGroup =  new osg::Switch;
     pedestrianGroup->setName("pedestrianGroup");
-    cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+	cover->getObjectsRoot()->addChild(pedestrianGroup.get());
+	passengerGroup = new osg::Switch;
+	passengerGroup->setName("passengerGroup");
+	cover->getObjectsRoot()->addChild(passengerGroup.get());
+	bicycleGroup = new osg::Switch;
+	bicycleGroup->setName("bicycleGroup");
+	cover->getObjectsRoot()->addChild(bicycleGroup.get());
+	busGroup = new osg::Switch;
+	busGroup->setName("busGroup");
+	cover->getObjectsRoot()->addChild(busGroup.get());
     pedestrianGroup->setNodeMask(pedestrianGroup->getNodeMask() & ~Isect::Update); // don't use the update traversal, tey are updated manually when in range
     getPedestriansFromConfig();
     getVehiclesFromConfig();
@@ -81,7 +91,14 @@ AgentVehicle *SumoTraCI::getAgentVehicle(const std::string &vehicleID, const std
     }
     else
     {
-        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false), 0, NULL, 0, 1, 0.0, 1);
+		osg::Group* parent = nullptr;
+		if (vehicleClass == "bus")
+			parent = busGroup;
+		if (vehicleClass == "passenger")
+			parent = passengerGroup;
+		if (vehicleClass == "bicycle")
+			parent = bicycleGroup;
+        av= new AgentVehicle(vehicleID, new CarGeometry(vehicleID, vehicles->at(vehicleIndex).fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
         vehicleMap.insert(std::pair<std::string, AgentVehicle *>(vehicles->at(vehicleIndex).vehicleName,av));
     }
     return av;
@@ -205,23 +222,28 @@ void SumoTraCI::lineUpAllPedestrianModels()
 
 bool SumoTraCI::initUI()
 {
-traciMenu = new ui::Menu("TraCI", this);
-pedestriansVisible = new ui::Button(traciMenu,"Pedestrians");
-    pedestriansVisible->setCallback([this](bool state){
-        if (state)
-        {
-        setPedestriansVisible(true);
-        }
-        else
-        {
-        setPedestriansVisible(false);
-        }
-    });
-    pauseUI = new ui::Button(traciMenu, "Pause");
+	traciMenu = new ui::Menu("TraCI", this);
+	pedestriansVisible = new ui::Button(traciMenu, "Pedestrians");
+	pedestriansVisible->setCallback([this](bool state) {
+		setPedestriansVisible(state);
+		});
+	passengerVisible = new ui::Button(traciMenu, "Passenger");
+	passengerVisible->setCallback([this](bool state) {
+		setPassengerVisible(state);
+		});
+	bicycleVisible = new ui::Button(traciMenu, "Bicycle");
+	bicycleVisible->setCallback([this](bool state) {
+		setBicycleVisible(state);
+		});
+	busVisible = new ui::Button(traciMenu, "Buses");
+	busVisible->setCallback([this](bool state) {
+		setBusVisible(state);
+		});
+	pauseUI = new ui::Button(traciMenu, "Pause");
 
-    addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
-    addTrafficUI->setText("Add new Persons");
-    addTrafficUI->setState(false);
+	addTrafficUI = new ui::Button(traciMenu, "AddNewPersons");
+	addTrafficUI->setText("Add new Persons");
+	addTrafficUI->setState(false);
 
     turboUI = new ui::Button(traciMenu, "TurboButton");
     turboUI->setText("Speedup x10");
@@ -836,6 +858,42 @@ void SumoTraCI::setPedestriansVisible(bool pedestrianVisibility)
             cover->getObjectsRoot()->removeChild(pedestrianGroup.get());
         m_pedestrianVisible = pedestrianVisibility;
     }
+}
+
+void SumoTraCI::setPassengerVisible(bool vis)
+{
+	if (m_passengerVisible != vis)
+	{
+		if (vis)
+			cover->getObjectsRoot()->addChild(passengerGroup.get());
+		else
+			cover->getObjectsRoot()->removeChild(passengerGroup.get());
+		m_passengerVisible = vis;
+	}
+}
+
+void SumoTraCI::setBicycleVisible(bool vis)
+{
+	if (m_bicycleVisible != vis)
+	{
+		if (vis)
+			cover->getObjectsRoot()->addChild(bicycleGroup.get());
+		else
+			cover->getObjectsRoot()->removeChild(bicycleGroup.get());
+		m_bicycleVisible = vis;
+	}
+}
+
+void SumoTraCI::setBusVisible(bool vis)
+{
+	if (m_busVisible != vis)
+	{
+		if (vis)
+			cover->getObjectsRoot()->addChild(busGroup.get());
+		else
+			cover->getObjectsRoot()->removeChild(busGroup.get());
+		m_busVisible = vis;
+	}
 }
 
 bool SumoTraCI::balanceModalSplits()

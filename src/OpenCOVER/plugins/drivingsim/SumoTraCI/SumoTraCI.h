@@ -93,7 +93,10 @@ private:
     bool initUI();
     bool compareTAZending(std::string& TAZ, std::string ending);
     ui::Menu *traciMenu;
-    ui::Button *pedestriansVisible;
+	ui::Button* pedestriansVisible;
+	ui::Button* busVisible;
+	ui::Button* passengerVisible;
+	ui::Button* bicycleVisible;
     ui::Button *pauseUI;
     ui::Button* turboUI;
     ui::Button *addTrafficUI;
@@ -115,6 +118,12 @@ private:
     
     bool m_pedestrianVisible = true;
     void setPedestriansVisible(bool);
+	bool m_passengerVisible = true;
+	void setPassengerVisible(bool);
+	bool m_bicycleVisible = true;
+	void setBicycleVisible(bool);
+	bool m_busVisible = true;
+	void setBusVisible(bool);
 
     libsumo::SubscriptionResults simResults;
     libsumo::SubscriptionResults pedestrianSimResults;
@@ -126,7 +135,10 @@ private:
     osg::Group *vehicleGroup;
     std::string vehicleDirectory;
 
-    osg::ref_ptr<osg::Group> pedestrianGroup;
+	osg::ref_ptr<osg::Switch> pedestrianGroup;
+	osg::ref_ptr<osg::Switch> passengerGroup;
+	osg::ref_ptr<osg::Switch> bicycleGroup;
+	osg::ref_ptr<osg::Switch> busGroup;
 
     PedestrianFactory *pf;
     typedef std::map<std::string, PedestrianGeometry *> PedestrianMap;

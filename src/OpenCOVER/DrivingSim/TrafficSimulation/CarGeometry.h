@@ -21,8 +21,8 @@
 class TRAFFICSIMULATIONEXPORT CarGeometry : public VehicleGeometry
 {
 public:
-    CarGeometry(CarGeometry *, std::string);
-    CarGeometry(std::string = "no name", std::string = "cars/hotcar.osg", bool = true);
+    CarGeometry(CarGeometry *, std::string, osg::Group* rootNode = NULL);
+    CarGeometry(std::string = "no name", std::string = "cars/hotcar.osg", bool = true, osg::Group *rootNode = NULL);
     ~CarGeometry();
 
     void setTransform(Transform &, double);
@@ -67,6 +67,7 @@ protected:
     static osg::Node *getDefaultCarNode();
 
     osg::Node *carNode;
+	osg::Group* parentGroup=nullptr;
     osg::LOD *carLOD;
     osg::MatrixTransform *carParts;
     std::map<std::string, osg::Switch *> carPartsSwitchList;
