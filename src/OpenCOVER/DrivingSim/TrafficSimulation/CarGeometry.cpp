@@ -44,6 +44,8 @@ CarGeometry::CarGeometry(CarGeometry *geo, std::string name, osg::Group* rootNod
     carTransform->setName(name);
     // no need to do intersection tests on cars
     carTransform->setNodeMask(carTransform->getNodeMask() & ~(Isect::Intersection | Isect::Collision | Isect::Walk));
+	if(geo->parentGroup)
+		parentGroup = geo->parentGroup;
 	if (rootNode != nullptr)
 		parentGroup = rootNode;
 	if (parentGroup != nullptr)
@@ -150,10 +152,11 @@ CarGeometry::CarGeometry(std::string name, std::string file, bool addToSceneGrap
     // TRANSFORMATION //
     //
     carTransform = new osg::MatrixTransform();
+	if (rootNode != nullptr)
+		parentGroup = rootNode;
     if (addToSceneGraph)
     {
-		if (rootNode != nullptr)
-			parentGroup = rootNode;
+		
 		if (parentGroup != nullptr)
 		{
 			parentGroup->addChild(carTransform);

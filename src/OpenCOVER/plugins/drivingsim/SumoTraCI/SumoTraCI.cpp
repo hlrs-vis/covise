@@ -224,18 +224,22 @@ bool SumoTraCI::initUI()
 {
 	traciMenu = new ui::Menu("TraCI", this);
 	pedestriansVisible = new ui::Button(traciMenu, "Pedestrians");
+	pedestriansVisible->setState(true);
 	pedestriansVisible->setCallback([this](bool state) {
 		setPedestriansVisible(state);
 		});
 	passengerVisible = new ui::Button(traciMenu, "Passenger");
+	passengerVisible->setState(true);
 	passengerVisible->setCallback([this](bool state) {
 		setPassengerVisible(state);
 		});
 	bicycleVisible = new ui::Button(traciMenu, "Bicycle");
+	bicycleVisible->setState(true);
 	bicycleVisible->setCallback([this](bool state) {
 		setBicycleVisible(state);
 		});
 	busVisible = new ui::Button(traciMenu, "Buses");
+	busVisible->setState(true);
 	busVisible->setCallback([this](bool state) {
 		setBusVisible(state);
 		});
@@ -839,10 +843,17 @@ void SumoTraCI::loadAllVehicles()
     for (auto itr = vehicleModelMap.begin(); itr!=vehicleModelMap.end(); itr++)
     {
         auto vehicles = itr->second;
+		auto vehicleClass = itr->first;
         for (auto itr2 =vehicles->begin(); itr2!= vehicles->end(); itr2++)
         {
-            AgentVehicle * av;
-            av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false), 0, NULL, 0, 1, 0.0, 1);
+			osg::Group* parent = nullptr;
+			if (vehicleClass == "bus")
+				parent = busGroup;
+			if (vehicleClass == "passenger")
+				parent = passengerGroup;
+			if (vehicleClass == "bicycle")
+				parent = bicycleGroup;
+            AgentVehicle * av= new AgentVehicle("test1", new CarGeometry("test2", itr2->fileName, false, parent), 0, NULL, 0, 1, 0.0, 1);
             vehicleMap.insert(std::pair<std::string, AgentVehicle *>(itr2->vehicleName,av));
         }
     }
