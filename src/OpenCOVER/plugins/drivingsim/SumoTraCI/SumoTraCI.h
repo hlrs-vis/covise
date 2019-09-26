@@ -85,7 +85,7 @@ public:
     ~SumoTraCI();
 
     void preFrame();
-    bool init();
+    bool initConnection();
 
 private:
     TraCIAPI client;
@@ -141,8 +141,8 @@ private:
 	osg::ref_ptr<osg::Switch> busGroup;
 
     PedestrianFactory *pf;
-    typedef std::map<std::string, PedestrianGeometry *> PedestrianMap;
-    PedestrianMap loadedPedestrians;
+    typedef std::map<std::string, coEntity *> EntityMap;
+	EntityMap loadedEntities;
     
     PedestrianGeometry* createPedestrian(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     double interpolateAngles(double lambda, double pastAngle, double futureAngle);
@@ -155,24 +155,22 @@ private:
 
     void getVehiclesFromConfig();
     void loadAllVehicles();
-
-    double simTime=0.0;
-    double nextSimTime=0.0;
-    double TimeOffset = 0.0;
-    double startStep = 0.0;
+	bool connected;
+	double lastResultTime=0.0;
     double previousTime=0.0;
     double currentTime=0.0;
     double framedt;
     double lastParticipantStartedTime;
-    double deltaT = 1.0;
+    //double deltaT = 1.0;
     int timeStep=0;
     std::vector<int> variables;
-    std::map<const std::string, AgentVehicle *> loadedVehicles;
+
+	void getSimulationResults();
 
     int uniqueIDValue = 0;
 
     void subscribeToSimulation();
-    void insertMissingEntities();
+    void processNewResults();
     AgentVehicle* createVehicle(const std::string &vehicleClass, const std::string &vehicleType, const std::string &vehicleID);
     void interpolateVehiclePosition();
     osg::Vec3d interpolatePositions(double lambda, osg::Vec3d pastPosition, osg::Vec3d futurePosition);
