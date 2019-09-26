@@ -80,6 +80,7 @@
 						</escooter>
 						<bicycle>
 							<ElectricScooter_ST01_09 value="/data/campus/Scooter/scooterFemaleRiderScaleNew.WRL"/>
+							<ElectricScooter value="/data/campus/Scooter/scooterOnly.WRL"/>
 						</bicycle>
                     </Vehicles>
                 </SumoTraCI>
