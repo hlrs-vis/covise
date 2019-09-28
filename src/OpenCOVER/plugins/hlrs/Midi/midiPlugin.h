@@ -77,6 +77,7 @@ public:
 	MidiInstrument(std::string name, int id);
 	~MidiInstrument();
 	std::string type;
+	int channel = 0;
 	std::vector<NoteInfo*> noteInfos;
 };
 class MidiDevice
@@ -87,7 +88,7 @@ public:
 	std::string name;
 	int ID;
 	int instrumentNumber;
-	MidiInstrument* instrument;
+	MidiInstrument* instrument=nullptr;
 };
 
 class WaveSurface
@@ -208,7 +209,7 @@ public:
 	void setRotation(osg::Vec3 &rotationSpeed);
     vrml::Player::Source *trackSource;
     vrml::Audio *trackAudio;
-	MidiInstrument *instrument;
+	MidiInstrument *instrument=nullptr;
     osg::Geode *createLinesGeometry();
 
     osg::ref_ptr<osg::Geode> geometryLines;
@@ -237,7 +238,7 @@ private:
 	std::list<WaveSurface *>waveSurfaces;
 
 public:
-    static const size_t NUMMidiStreams = 4;
+    static const size_t NUMMidiStreams = 16;
     double  tempo;
 	std::vector<std::unique_ptr<MidiInstrument>> instruments;
 	std::vector<std::unique_ptr<MidiDevice>> devices;

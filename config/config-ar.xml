@@ -319,7 +319,7 @@
                 </ARToolKit>
 
                 <ARInteractors value="ON" menu="ON"/>
-                <ALVAR value="ON">
+                <ALVAR value="OFF">
                     <Capture value="on" />
                     <!--VideoDevice value="0" width="1280" height="720" /-->
                     <VideoDevice value="0" width="1920" height="1080" />

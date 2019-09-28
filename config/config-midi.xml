@@ -5,9 +5,7 @@
   <COVER>
             <Plugin>
                 <Midi value="Off" InPort="0" OutPort="2">
-				       <Device name="0" instrument="0"/>
-				       <Device name="1" instrument="1"/>
-				       <Instrument name="0" type="Drumkit">
+				       <Instrument name="0" channel="9" type="Drumkit">
 					       <Key name="4"  modelName = "/data/Jeremy/star.osg"  r="1"   g="0"   b="0"  />
 					       <Key name="29" modelName = "/data/Jeremy/star.osg"  r="1"   g="1"   b="102"/>
 					       <Key name="49" modelName = "/data/Jeremy/star.osg"  r="1"   g="1"   b="26" />
@@ -105,7 +103,7 @@
 					       <Key name="75"  r="0" g="34" b="102"/>
 						   
 					   </Instrument>
-				       <Instrument name="1" type="keyboard">
+				       <Instrument name="1" channel="0" type="keyboard">
 					       <Key name="20" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
 					       <Key name="21" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>
 					       <Key name="22" modelScale = "0.2" r="0.5" g="1"  b="0.5"/>

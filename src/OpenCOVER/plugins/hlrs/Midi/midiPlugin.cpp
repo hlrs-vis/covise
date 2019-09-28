@@ -606,7 +606,8 @@ MidiInstrument::MidiInstrument(std::string name,int id)
 	noteInfos.resize(128);
 	for (int i = 0; i < 128; i++)
 		noteInfos[i] = NULL;
-	type = coCoviseConfig::getEntry("type", "COVER.Plugin.Midi." + name,  "none");
+	type = coCoviseConfig::getEntry("type", "COVER.Plugin.Midi." + name, "none");
+	channel = coCoviseConfig::getInt("channel", "COVER.Plugin.Midi." + name, 0);
 
 	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi."+name, "Key");
 	const char** it = InstrumentEntries.getValue();
@@ -1029,12 +1030,25 @@ bool MidiPlugin::init()
 {
 	currentTrack = 0;
 
+	for (int i = 0; i < NUMMidiStreams; i++)
+	{
+#ifdef WIN32
+		hMidiDevice[i] = NULL;
+#else
+#endif
+		midifd[i] = -1;
+		inputDevice[i] = NULL;
+
+		lTrack[i] = NULL;
+		lTrack[i] = new Track(i, true);
+	}
 	coCoviseConfig::ScopeEntries InstrumentEntries = coCoviseConfig::getScopeEntries("COVER.Plugin.Midi", "Instrument");
 	const char** it = InstrumentEntries.getValue();
 	while (it && *it)
 	{
 		string n = *it;
 		std::unique_ptr<MidiInstrument> instrument = std::unique_ptr<MidiInstrument>(new MidiInstrument(n,instruments.size()));
+		lTrack[instrument->channel]->instrument = instrument.get();
 
 		instruments.push_back(std::move(instrument));
 
@@ -1058,18 +1072,6 @@ bool MidiPlugin::init()
 	int midiPortOut = coCoviseConfig::getInt("OutPort", "COVER.Plugin.Midi", 1);
 
 
-	for (int i = 0; i < NUMMidiStreams; i++)
-	{
-#ifdef WIN32
-		hMidiDevice[i] = NULL;
-#else
-#endif
-		midifd[i] = -1;
-		inputDevice[i] = NULL;
-
-		lTrack[i] = NULL;
-		lTrack[i] = new Track(i, true);
-	}
 	coVRFileManager::instance()->registerFileHandler(&handlers[0]);
 	coVRFileManager::instance()->registerFileHandler(&handlers[1]);
 	//----------------------------------------------------------------------------
@@ -1305,7 +1307,17 @@ void MidiPlugin::preFrame()
 			}
 			else
 			{
-				lTrack[i]->handleEvent(me);
+				int channel = me.getChannel();
+				if (lTrack[channel]->instrument != nullptr)
+				{
+					lTrack[channel]->handleEvent(me);
+				}
+				else
+				{
+					if (me.getKeyNumber() > 0)
+					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
+
+				}
 			}
 		}
 		lTrack[i]->update();
@@ -1418,6 +1430,30 @@ void MidiPlugin::handleController(MidiEvent& me)
 	{
 		float sliderValue = value / 127.0;
 		speedFactor = (100.0 * sliderValue) + 1.0;
+	}
+	if (controllerID == 1) // PitchBendUp
+	{
+		float sliderValue = ((float)(value ) / 127.0) * 5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
+	}
+	if (controllerID == 2) // PitchBendDown
+	{
+		float sliderValue = ((float)(value) / 127.0) * -5.0;
+		osg::Vec3 rotSpeed;
+		rotSpeed.set(sliderValue, sliderValue / 2.0, 0);
+
+		fprintf(stderr, "rot%f, %f, %f\n", rotSpeed[0], rotSpeed[1], rotSpeed[2]);
+		for (int i = 0; i < NUMMidiStreams; i++)
+		{
+			lTrack[i]->setRotation(rotSpeed);
+		}
 	}
 
 
@@ -1961,7 +1997,18 @@ void Track::update()
 			}
 			if(numRead > 0 &&  me.getP0()!=0)
 			{
-				handleEvent(me);
+
+				int channel = me.getChannel();
+				if (MidiPlugin::instance()->lTrack[channel]->instrument != nullptr)
+				{
+					MidiPlugin::instance()->lTrack[channel]->handleEvent(me);
+				}
+				else
+				{
+					if(me.getKeyNumber()>0)
+					fprintf(stderr, "unconfigured instrument channel: %d  key: %02d velo %03d \n", me.getChannel(), me.getKeyNumber(), me.getVelocity());
+
+				}
 			}
 		}
 	}
@@ -2084,7 +2131,6 @@ void Note::integrate(double time)
 	velo = velo + a * time;
 	pos += (velo + spiral+toCenter) * time;
 	rot += spin*time* MidiPlugin::instance()->speedFactor;
-	fprintf(stderr,"%f\n",rot[2]);
 	osg::Quat currentRot = osg::Quat(rot[0], osg::X_AXIS, rot[1] * time, osg::Y_AXIS, rot[2] * time, osg::Z_AXIS);
 	nm.setTrans(pos);
 	nm.setRotate(currentRot);
