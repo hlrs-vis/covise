@@ -20,6 +20,7 @@ public:
 	void setActive(bool state) { activeState = state; };
 	double newAngle;
 	double currentAngle;
+        float aSpeed=0.0;
 	osg::Vec3 speed;
 	osg::Vec3 newPosition;
 	osg::Vec3 currentPosition;

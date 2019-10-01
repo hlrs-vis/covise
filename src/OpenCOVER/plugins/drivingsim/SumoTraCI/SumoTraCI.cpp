@@ -422,6 +422,7 @@ void SumoTraCI::preFrame()
 		lastResultTime = currentTime;
 
 		getSimulationResults();
+                        fprintf(stderr,"%f\n",lastResultTime);
 		processNewResults();
     }
     interpolateVehiclePosition();
@@ -632,25 +633,30 @@ void SumoTraCI::interpolateVehiclePosition()
 	osg::Vec3  speed;
 	double aSpeed;
 	float timeToDest = 1 - (currentTime - lastResultTime);
+                        fprintf(stderr,"%f\n",timeToDest);
 
+        int v=0;
 	// loop over all entities and compute their new position
 	for (auto currentEntity = loadedEntities.begin(); currentEntity != loadedEntities.end(); currentEntity++) // delete inactive vehicles
 	{
 		coEntity* entity = currentEntity->second;
 
-		if (timeToDest > 0.0)
+		if (timeToDest > 0.99999)
 		{
-			speed = (entity->newPosition - entity->currentPosition) * 0.9 / timeToDest; // drive a little slower so that if we have jitter in network communication, we don't see that in the car movement
-			aSpeed = (entity->newAngle - entity->currentAngle) * 0.9 / timeToDest;
+			entity->speed = (entity->newPosition - entity->currentPosition) * 0.9 / timeToDest; // drive a little slower so that if we have jitter in network communication, we don't see that in the car movement
+			entity->aSpeed = (entity->newAngle - entity->currentAngle) * 0.9 / timeToDest;
 		}
-		else
+		else if (timeToDest < 0.0001)
 		{
 			timeToDest = 0.0;
-			speed.set(0, 0, 0);
-			aSpeed = 0.0;
+			entity->speed.set(0, 0, 0);
+			entity->aSpeed = 0.0;
 		}
-		entity->currentPosition += speed * framedt;
-		entity->currentAngle += aSpeed * framedt;
+                //if(v == 0)
+                //fprintf(stderr,"speed %f %f %f\n",speed[0],speed[1],speed[2]);
+                //    v++;
+		entity->currentPosition += entity->speed * framedt;
+		entity->currentAngle += entity->aSpeed * framedt;
 
 		osg::Quat orientation(entity->currentAngle, osg::Vec3d(0, 0, -1));
 		PedestrianGeometry* pedestrian = dynamic_cast<PedestrianGeometry *>(entity);
