@@ -337,7 +337,7 @@ int VRBClient::isConnected()
     return sConn->is_connected();
 }
 
-int VRBClient::connectToServer(const std::string& sessionName)
+int VRBClient::connectToServer(std::string sessionName)
 {
 	if (!udpConn && !isSlave)
 	{

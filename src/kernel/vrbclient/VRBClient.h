@@ -12,6 +12,7 @@
 #include <future>
 #endif
 #include <mutex>
+#include <string>
 #include <util/DLinkList.h>
 #include <util/coTypes.h>
 
@@ -43,7 +44,7 @@ public:
     VRBClient(const char *name, const char *collaborativeConfigurationFile = NULL, bool isSlave = false);
     VRBClient(const char *name, const char *host, int tcp_p, int udp_p, bool isSlave = false);
     ~VRBClient();
-    int connectToServer(const std::string &sessionName = ""); // returns -1, if Connection to Server fails
+    int connectToServer(std::string sessionName = ""); // returns -1, if Connection to Server fails
     void connectToCOVISE(int argc, const char **argv);
     int isCOVERRunning();
     int isConnected();
