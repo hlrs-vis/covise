@@ -475,7 +475,7 @@ TracerPlane::preFrame()
                     plugin->executeModule();
 
                 /// hier nicht, weil coInteractionManager coTrackerButtonInteraction::RunningState nicht kennt
-                /// und daher nicht auf Idle setzt -> abwarten bis zum n�chsten preFrame
+                /// und daher nicht auf Idle setzt -> abwarten bis zum nächsten preFrame
                 ///if (_directInteractor->registered)
                 ///{
                 ///   coInteractionManager::im->unregisterInteraction(_directInteractor);
