@@ -511,6 +511,11 @@ void coVRAnimationManager::setNumTimesteps(int t)
     animStartItem->setValue(startFrame);
     stopFrame = numFrames - 1;
     animStopItem->setValue(startFrame);
+
+    if (currentAnimationFrame >= numFrames)
+    {
+        requestAnimationFrame(0);
+    }
 }
 
 void coVRAnimationManager::showAnimMenu(bool visible)
