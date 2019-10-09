@@ -25,7 +25,7 @@
 #include <net/udpMessage.h>
 #include <net/udp_message_types.h>
 
-#include <speex/speex_jitter.h>
+#include <speex/speex.h>
 
 
 #ifndef WIN32
