@@ -49,13 +49,15 @@ class Dimension
 public:
     Dimension(int idParam, BulletProbe *m);
     virtual ~Dimension();
-    
+
+    virtual void create();
+
     virtual bool isplaced();
     virtual void update();
     int getID();
 
     Mark *marks[2]; //!< two cones: first and second placed
-
+    
 protected:
 
     //void makeText();
@@ -83,7 +85,7 @@ public:
     
     LinearDimension(int idParam, BulletProbe *m);
     virtual ~LinearDimension();
-    
+
     virtual void update();
     
 protected:
@@ -91,48 +93,47 @@ protected:
     osg::ref_ptr<osg::MatrixTransform> line;
 };
 
-
-
-
-
-
-
 // ----------------------------------------------------------------------------
 //! start and end point of line; represented as cones with spheres on top
 // ----------------------------------------------------------------------------
 class Mark : public coAction
 {
-private:
-    int id;
-    bool moveStarted;
-    osg::MatrixTransform *pos;
-    osg::MatrixTransform *sc;
-    osg::Node *geo;
-    osg::Switch *icons;
-    Dimension *dim;
-    osg::Matrix startPos;
-    osg::Matrix invStartHand;
-    OSGVruiNode *vNode;
-    coTrackerButtonInteraction *interactionA; ///< interaction for first button
-
 public:
+
     bool placing;
     bool moveMarker;
 
     Mark(int id, Dimension *dim);
     virtual ~Mark();
+
     virtual int hit(vruiHit *hit);
     virtual void miss();
     void update();
-    int getID()
-    {
-        return id;
-    };
+    int getID();
     void setPos(osg::Matrix &mat);
     void resize();
-    float getDist(osg::Vec3 &a);
+//    float getDist(osg::Vec3 &a);
     void getMat(osg::Matrix &);
     void setIcon(int i);
+
+    void create();
+    
+private:
+
+    int id;
+    bool moveStarted;
+
+    Dimension *dim;
+    
+    osg::MatrixTransform *pos;
+    osg::MatrixTransform *sc;
+    osg::Node *geo;
+    osg::Switch *icons;
+    osg::Matrix startPos;
+    osg::Matrix invStartHand;
+
+    OSGVruiNode *vNode;
+    coTrackerButtonInteraction *interactionA; ///< interaction for first button
 };
 
 // ----------------------------------------------------------------------------

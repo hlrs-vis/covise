@@ -87,6 +87,15 @@ Dimension::~Dimension()
 }
 
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Dimension::create()
+{
+    marks[0]->placing = false;
+    marks[1]->placing = false;
+    placedMarks = 2;
+}
+
+// ----------------------------------------------------------------------------
 //! true if a marker is currently being placed
 // ----------------------------------------------------------------------------
 bool Dimension::isplaced()
@@ -199,8 +208,6 @@ LinearDimension::LinearDimension(int idParam, BulletProbe *m)
     //     globalRedmtl->setShininess(osg::Material::FRONT_AND_BACK, 16.0f);
     // }
 
-
-
     osg::ShapeDrawable *sd;
 //    sd = new osg::ShapeDrawable(new osg::Cylinder(osg::Vec3(0, 0, 0.5), 10, 10));
 
@@ -241,12 +248,18 @@ LinearDimension::LinearDimension(int idParam, BulletProbe *m)
     cover->getObjectsRoot()->addChild(line.get());
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 LinearDimension::~LinearDimension()
 {
     while (line->getNumParents())
+    {
         line->getParent(0)->removeChild(line.get());
+    }
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void LinearDimension::update()
 {
     Dimension::update();
@@ -359,13 +372,81 @@ void LinearDimension::update()
     line->setMatrix(mat);
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+Mark::Mark(int i, Dimension *d)
+{
+    id = i;
+    dim = d;
 
+    placing = true;
+    moveMarker = false;
+    moveStarted = false;
+    pos = new osg::MatrixTransform;
+    sc = new osg::MatrixTransform;
+    pos->addChild(sc);
+    icons = new osg::Switch();
+    sc->addChild(icons);
 
+    geo = coVRFileManager::instance()->loadIcon("sphere2");
+    icons->addChild(geo);
+    geo = coVRFileManager::instance()->loadIcon("sphere");
+    icons->addChild(geo);
+    icons->setSingleChildOn(0);
+    cover->getObjectsRoot()->addChild(pos);
+    vNode = new OSGVruiNode(pos);
+    vruiIntersection::getIntersectorForAction("coAction")->add(vNode, this);
+    interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA,
+                                                  "MarkPlacement",
+                                                  coInteraction::Medium);
+}
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+Mark::~Mark()
+{
+    vruiIntersection::getIntersectorForAction("coAction")->remove(vNode);
+    pos->getParent(0)->removeChild(pos);
+    
+    delete vNode;
+    delete interactionA;
+}
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+int Mark::hit(vruiHit *)
+{
+    if ((coVRCollaboration::instance()->getCouplingMode()
+         == coVRCollaboration::MasterSlaveCoupling
+         && !coVRCollaboration::instance()->isMaster())
+        || placing)
+    {
+        return ACTION_CALL_ON_MISS;
+    }
+
+    moveMarker = true;
+    setIcon(1);
+
+    return ACTION_CALL_ON_MISS;
+}
+
+// ----------------------------------------------------------------------------
+//! Miss is called once after a hit, if the button is not intersected anymore.
+// ----------------------------------------------------------------------------
+void Mark::miss()
+{
+    if (!interactionA->isRunning())
+    {
+        moveMarker = false;
+        moveStarted = false;
+        setIcon(0);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void Mark::update()
 {
-
     resize();
     TokenBuffer tb;
     if ((placing) || (moveMarker))
@@ -443,6 +524,7 @@ void Mark::update()
                 tb << MOVE_MARK;
                 tb << dim->getID();
                 tb << id;
+
                 osg::Matrix dMat = invStartHand * cover->getPointerMat();
                 osg::Matrix current;
                 osg::Matrix tmp;
@@ -457,14 +539,17 @@ void Mark::update()
                         tb << (float)current(i, j);
                     }
                 }
+
                 cover->sendMessage(BulletProbe::plugin,
-                    coVRPluginSupport::TO_SAME,
-                    PluginMessageTypes::Measure0,
-                    tb.getData().length(),
-                    tb.getData().data());
+                                   coVRPluginSupport::TO_SAME,
+                                   PluginMessageTypes::Measure0,
+                                   tb.getData().length(),
+                     tb.getData().data());
+
             }
             if (interactionA->wasStopped())
             {
+
                 if (moveStarted)
                 {
                     moveMarker = false;
@@ -481,73 +566,28 @@ void Mark::update()
     }
 }
 
-Mark::Mark(int i, Dimension *d)
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+int Mark::getID()
 {
-    id = i;
-    dim = d;
-
-    placing = true;
-    moveMarker = false;
-    moveStarted = false;
-    pos = new osg::MatrixTransform;
-    sc = new osg::MatrixTransform;
-    pos->addChild(sc);
-    icons = new osg::Switch();
-    sc->addChild(icons);
-    geo = coVRFileManager::instance()->loadIcon("sphere2");
-    icons->addChild(geo);
-    geo = coVRFileManager::instance()->loadIcon("sphere");
-    icons->addChild(geo);
-    icons->setSingleChildOn(0);
-    cover->getObjectsRoot()->addChild(pos);
-    vNode = new OSGVruiNode(pos);
-    vruiIntersection::getIntersectorForAction("coAction")->add(vNode, this);
-    interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA, "ProbePlacement", coInteraction::Medium);
+    return id;
 }
 
-Mark::~Mark()
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Mark::setPos(osg::Matrix &mat)
 {
-    vruiIntersection::getIntersectorForAction("coAction")->remove(vNode);
-    pos->getParent(0)->removeChild(pos);
-    delete vNode;
-    delete interactionA;
+    coCoord c;
+    c = mat;
+    c.makeMat(mat);
+
+    pos->setMatrix(mat);
+    //mat.print(1,1,"coorded mat:",stderr);
+    resize();
 }
 
-/**
-@param hitPoint,hit  Performer intersection information
-@return ACTION_CALL_ON_MISS if you want miss to be called,
-otherwise ACTION_DONE is returned
-*/
-int Mark::hit(vruiHit *)
-{
-    if ((coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
-         && !coVRCollaboration::instance()->isMaster())
-        || placing)
-        return ACTION_CALL_ON_MISS;
-
-    moveMarker = true;
-    setIcon(1);
-
-    return ACTION_CALL_ON_MISS;
-}
-
-/// Miss is called once after a hit, if the button is not intersected anymore.
-void Mark::miss()
-{
-
-    if (!interactionA->isRunning())
-    {
-        moveMarker = false;
-        moveStarted = false;
-        setIcon(0);
-    }
-}
-
-void Mark::setIcon(int i)
-{
-    icons->setSingleChildOn(i);
-}
-
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void Mark::resize()
 {
     osg::Vec3 wpoint1 = osg::Vec3(0, 0, 0);
@@ -568,20 +608,28 @@ void Mark::resize()
     sc->setMatrix(osg::Matrix::scale(scaleFactor, scaleFactor, scaleFactor));
 }
 
-void Mark::setPos(osg::Matrix &mat)
-{
-    coCoord c;
-    c = mat;
-    c.makeMat(mat);
-
-    pos->setMatrix(mat);
-    //mat.print(1,1,"coorded mat:",stderr);
-    resize();
-}
-
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void Mark::getMat(osg::Matrix &m)
 {
     m = pos->getMatrix();
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Mark::setIcon(int i)
+{
+    icons->setSingleChildOn(i);
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Mark::create()
+{
+    if (!interactionA->isRegistered())
+    {
+        coInteractionManager::the()->registerInteraction(interactionA);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -621,7 +669,7 @@ bool BulletProbe::init()
     currentProbe = NULL;
     moving = false;
     interactionA = new coTrackerButtonInteraction(coInteraction::ButtonA,
-                                                  "ProbePlacement",
+                                                  "MeasurePlacement",
                                                   coInteraction::Medium);
     return true;
 }
@@ -640,8 +688,11 @@ void BulletProbe::preFrame()
 // ----------------------------------------------------------------------------
 void BulletProbe::message(int toWhom, int type, int len, const void* buf)
 {
-    if (type != PluginMessageTypes::Measure0 && type != PluginMessageTypes::Measure1)
+    if (type != PluginMessageTypes::Measure0
+        && type != PluginMessageTypes::Measure1)
+    {
         return;
+    }
 
     TokenBuffer tb{covise::DataHandle{(char*)buf, len, false}};
     char msgType;
@@ -652,6 +703,7 @@ void BulletProbe::message(int toWhom, int type, int len, const void* buf)
     {
         int id;
         tb >> id;
+        
         maxDimID++;
         dims.append(new LinearDimension(id, this));
     }
@@ -664,6 +716,7 @@ void BulletProbe::message(int toWhom, int type, int len, const void* buf)
         tb >> Mid;
         int i, j;
         float f;
+
         osg::Matrix mat;
         for (i = 0; i < 4; i++)
         {
@@ -682,15 +735,14 @@ void BulletProbe::message(int toWhom, int type, int len, const void* buf)
                 break;
             }
         }
-		if (dim)
-		{
-			if (!dim->marks[Mid])
-			{
-				dim->marks[Mid] = new Mark(Mid, dim);
-			}
-			dim->marks[Mid]->setPos(mat);
-		}
-            
+        if (dim)
+        {
+            if (!dim->marks[Mid])
+            {
+                dim->marks[Mid] = new Mark(Mid, dim);
+            }
+            dim->marks[Mid]->setPos(mat);
+        }
     }
     break;
     case REMOVE: // Remove
@@ -719,7 +771,8 @@ void BulletProbe::setCurrentMeasure(Mark *m)
 // ----------------------------------------------------------------------------
 void BulletProbe::menuEvent(coMenuItem *item)
 {
-    if (coVRCollaboration::instance()->getCouplingMode() == coVRCollaboration::MasterSlaveCoupling
+    if (coVRCollaboration::instance()->getCouplingMode()
+        == coVRCollaboration::MasterSlaveCoupling
         && !coVRCollaboration::instance()->isMaster())
     {
         return;
@@ -753,36 +806,122 @@ void BulletProbe::menuEvent(coMenuItem *item)
         ifstream infile; 
         osg::Matrix m0, m1;
 
+        int count = 0;
+        
         float a00,a01,a02,a03;
         float a10,a11,a12,a13;
         float a20,a21,a22,a23;
         float a30,a31,a32,a33;
+
+        float b00,b01,b02,b03;
+        float b10,b11,b12,b13;
+        float b20,b21,b22,b23;
+        float b30,b31,b32,b33;
             
         char data[100];
 
-        infile.open("marks.dat"); 
+        std::string filename =  "marks.dat";  // TODO: read form config
+        
+        infile.open(filename); 
  
-        cout << "Reading from the file" << endl;
-
-        while (!infile.eof())
+        if (infile.is_open())
         {
-            infile >> data;
-            if (data[0] == '{')
+            cout << "Reading from file " << filename << endl;
+            
+            while (!infile.eof())
             {
-                infile >> a00 >> a01 >> a02 >> a03;
-                infile >> a10 >> a11 >> a12 >> a13;
-                infile >> a20 >> a21 >> a22 >> a23;
-                infile >> a30 >> a31 >> a32 >> a33;
+                infile >> data;
 
-                m0 = osg::Matrix(a00,a01,a02,a03,a10,a11,a12,a13,a20,a21,a22,a23,a30,a31,a32,a33);
+                if (data[0] == '{')
+                {
+                    if (count % 2 == 0)
+                    {
+                        count += 1;
+                        
+                        infile >> a00 >> a01 >> a02 >> a03;
+                        infile >> a10 >> a11 >> a12 >> a13;
+                        infile >> a20 >> a21 >> a22 >> a23;
+                        infile >> a30 >> a31 >> a32 >> a33;
 
-                cout << m0 << endl;
+                        m0 = osg::Matrix(a00,a01,a02,a03,
+                                         a10,a11,a12,a13,
+                                         a20,a21,a22,a23,
+                                         a30,a31,a32,a33);
+                    }
+                    else
+                    {
+                        count += 1;
 
-                // TODO m0,m1 -> Marks
-                
+                        infile >> b00 >> b01 >> b02 >> b03;
+                        infile >> b10 >> b11 >> b12 >> b13;
+                        infile >> b20 >> b21 >> b22 >> b23;
+                        infile >> b30 >> b31 >> b32 >> b33;
+
+                        m1 = osg::Matrix(b00,b01,b02,b03,
+                                         b10,b11,b12,b13,
+                                         b20,b21,b22,b23,
+                                         b30,b31,b32,b33);
+                        
+                        TokenBuffer tb0,tb1,tb2;
+                        
+                        tb0 << NEW_DIMENSION;
+                        tb0 << count / 2 - 1;
+                        
+                        cover->sendMessage(this,
+                               coVRPluginSupport::TO_SAME,
+                               PluginMessageTypes::Measure0,
+                               tb0.getData().length(),
+                               tb0.getData().data());
+
+                        tb1 << MOVE_MARK;
+                        tb1 << count / 2 - 1;
+                        tb1 << 0;
+
+                        tb1 << a00 << a01 << a02 << a03;
+                        tb1 << a10 << a11 << a12 << a13;
+                        tb1 << a20 << a21 << a22 << a23;
+                        tb1 << a30 << a31 << a32 << a33;
+
+                        cover->sendMessage(BulletProbe::plugin,
+                                           coVRPluginSupport::TO_SAME,
+                                           PluginMessageTypes::Measure0,
+                                           tb1.getData().length(),
+                                           tb1.getData().data());
+
+                        tb2 << MOVE_MARK;
+                        tb2 << count / 2 - 1;
+                        tb2 << 1;
+
+                        tb2 << b00 << b01 << b02 << b03;
+                        tb2 << b10 << b11 << b12 << b13;
+                        tb2 << b20 << b21 << b22 << b23;
+                        tb2 << b30 << b31 << b32 << b33;
+                        
+                        cover->sendMessage(BulletProbe::plugin,
+                                           coVRPluginSupport::TO_SAME,
+                                           PluginMessageTypes::Measure1,
+                                           tb2.getData().length(),
+                                           tb2.getData().data());
+
+                        // do what placing is doing during manual creation
+                        // for the loaded dim & marks
+                        for (dims.reset(); dims.current(); dims.next())
+                        {
+                            dims.current()->marks[0]->placing = false;
+                            dims.current()->marks[0]->create();
+                            dims.current()->marks[1]->placing = false;
+                            dims.current()->marks[0]->create();
+                            dims.current()->create();
+                        }
+                    }
+                }
             }
         }
-
+        else
+        {
+            cout << "BulletProbe: Reading from file "
+                 << filename << "failed" << endl;
+        }
     }
     else if (item == bmiSaveToFile)
     {
@@ -906,14 +1045,13 @@ void BulletProbe::createMenuEntry()
     // checkboxArray.push_back(new coCheckboxMenuItem("Yard", false));
     scaleArray.push_back(0.0254f * 12.f * 3.f);
     unitArray.push_back("yd");
-
     // for (size_t i = 0; i < checkboxArray.size(); ++i)
     // {
     //     checkboxArray[i]->setMenuListener(this);
     //     unitsMenu->add(checkboxArray[i]);
     // }
 
-    markerScalePoti = new coPotiMenuItem("Cone Size", 0, 600, 150);
+    markerScalePoti = new coPotiMenuItem("Marker Size", 0, 600, 150);
     markerScalePoti->setMenuListener(this);
     measureMenu->add(markerScalePoti);
 
