@@ -54,6 +54,8 @@ public:
 
     virtual bool isplaced();
     virtual void update();
+    virtual void setExtraLength(float _fExtraLength) = 0;
+    
     int getID();
     void setVisible(bool visibleOnOff);
 
@@ -71,6 +73,8 @@ protected:
     int placedMarks;
     bool placing;
     double oldDist;
+    float fExtraLength;
+    
     osg::MatrixTransform *myDCS;
     osg::Switch *geos;
     // osgText::Text *labelText; ///< label text string in Performer format
@@ -88,9 +92,10 @@ public:
     virtual ~LinearDimension();
 
     virtual void update();
+    void setExtraLength(float _fExtraLength);
     
 protected:
-    
+
     osg::ref_ptr<osg::MatrixTransform> line;
 };
 
@@ -182,6 +187,7 @@ private:
     coPotiMenuItem *markerScalePoti;
     coPotiMenuItem *fontScalePoti;
     coPotiMenuItem *lineWidthPoti;
+    coPotiMenuItem *pmiExtraLength;
     coSubMenuItem *measureMenuItem;
     coSubMenuItem *unitsMenuItem;
     coRowMenu *measureMenu;

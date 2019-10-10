@@ -59,7 +59,8 @@ Dimension::Dimension(int idParam, BulletProbe *m)
       placedMarks(0),
       id(idParam),
       oldDist(0.0),
-      placing(false)
+      placing(false),
+      fExtraLength(1.0)
 {
     marks[0] = nullptr;
     marks[1] = nullptr;
@@ -386,13 +387,21 @@ void LinearDimension::update()
              dist[1] = 0.0;
              dist[2] = 0.0;
          }
-         Scale.makeScale(10 * scaleFactor, 10 * scaleFactor, len); // set new length
+         Scale.makeScale(10 * scaleFactor, 10 * scaleFactor,
+                         len * fExtraLength); // set new length
 //         Scale.makeScale(1, 1, len); // set new length
          Rot.makeRotate(zAxis, dist);
          mat = Scale * Rot * Trans;
     }
 
     line->setMatrix(mat);
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void LinearDimension::setExtraLength(float _fExtraLength)
+{
+    fExtraLength = _fExtraLength;
 }
 
 // ----------------------------------------------------------------------------
@@ -697,7 +706,7 @@ bool BulletProbe::init()
     lineWidth = coCoviseConfig::getFloat("COVER.Plugin.BulletProbe.LineWidth", 27.0);
 
     maxDimID = 0;
-
+    
     // get the root node for COVISE objects
     objectsRoot = cover->getObjectsRoot();
 
@@ -1001,6 +1010,13 @@ void BulletProbe::menuEvent(coMenuItem *item)
             lineWidth = lineWidthPoti->getValue();
         }
     }
+    else if (item == pmiExtraLength)
+    {
+        for (dims.reset(); dims.current(); dims.next())
+        {
+            dims.current()->setExtraLength(pmiExtraLength->getValue());
+        }
+    }
 
     // for the units
     for (size_t i = 0; i < checkboxArray.size(); ++i)
@@ -1103,6 +1119,10 @@ void BulletProbe::createMenuEntry()
     lineWidthPoti = new coPotiMenuItem("Line Width", 1, 30, 30);
     lineWidthPoti->setMenuListener(this);
     measureMenu->add(lineWidthPoti);
+
+    pmiExtraLength = new coPotiMenuItem("Add Extra Length", 0.99, 5, 1);
+    pmiExtraLength->setMenuListener(this);
+    measureMenu->add(pmiExtraLength);
 
     cover->getMenu()->add(measureMenuItem);
 }
