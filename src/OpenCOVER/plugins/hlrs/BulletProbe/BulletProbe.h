@@ -55,6 +55,7 @@ public:
     virtual bool isplaced();
     virtual void update();
     int getID();
+    void setVisible(bool visibleOnOff);
 
     Mark *marks[2]; //!< two cones: first and second placed
     
@@ -117,6 +118,7 @@ public:
     void setIcon(int i);
 
     void create();
+    void setVisible(bool visibleOnOff);
     
 private:
 
@@ -172,7 +174,7 @@ private:
     // menu
 
     coButtonMenuItem *clearItem;
-    coButtonMenuItem *bmiHideAll;
+    coCheckboxMenuItem *cmiHideAll;
     coButtonMenuItem *bmiLoadFromFile;
     coButtonMenuItem *bmiSaveToFile;
     coButtonMenuItem* bmiItem1;

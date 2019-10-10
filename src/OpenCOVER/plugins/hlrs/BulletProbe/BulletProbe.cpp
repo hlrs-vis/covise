@@ -140,6 +140,29 @@ int Dimension::getID()
 }
 
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+void Dimension::setVisible(bool visibleOnOff)
+{
+    if (visibleOnOff)
+    {
+        geos->setNodeMask(~0);
+    }
+    else
+    {
+        geos->setNodeMask(0);
+    }
+
+    if (marks[0])
+    {
+        marks[0]->setVisible(visibleOnOff);
+    }
+    if (marks[1])
+    {
+        marks[1]->setVisible(visibleOnOff);
+    }
+}
+
+// ----------------------------------------------------------------------------
 //! generate OSG text string and attach it to a node.
 // ----------------------------------------------------------------------------
 //void Dimension::makeText()
@@ -634,6 +657,20 @@ void Mark::create()
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
+void Mark::setVisible(bool visibleOnOff)
+{
+    if (visibleOnOff)
+    {
+        icons->setNodeMask(~0);
+    }
+    else
+    {
+        icons->setNodeMask(0);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 BulletProbe::BulletProbe()
 {
     plugin = this;
@@ -798,8 +835,12 @@ void BulletProbe::menuEvent(coMenuItem *item)
             checkboxTog = true;
         }
     }
-    else if (item == bmiHideAll)
+    else if (item == cmiHideAll)
     {
+        for (dims.reset(); dims.current(); dims.next())
+        {
+            dims.current()->setVisible(!cmiHideAll->getState());
+        }
     }
     else if (item == bmiLoadFromFile)
     {
@@ -986,9 +1027,9 @@ void BulletProbe::createMenuEntry()
     linearItem->setMenuListener(this);
     measureMenu->add(linearItem);
 
-    bmiHideAll = new coButtonMenuItem("Hide All");
-    bmiHideAll->setMenuListener(this);
-    measureMenu->add(bmiHideAll);
+    cmiHideAll = new coCheckboxMenuItem("Hide All", false);
+    cmiHideAll->setMenuListener(this);
+    measureMenu->add(cmiHideAll);
     
     bmiLoadFromFile = new coButtonMenuItem("Load From File");
     bmiLoadFromFile->setMenuListener(this);
@@ -1077,7 +1118,7 @@ void BulletProbe::removeMenuEntry()
     delete markerScalePoti;
     delete clearItem;
 
-    delete bmiHideAll;
+    delete cmiHideAll;
     delete bmiLoadFromFile;
     delete bmiSaveToFile;
 
