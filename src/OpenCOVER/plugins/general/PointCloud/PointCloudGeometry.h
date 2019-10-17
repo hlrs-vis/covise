@@ -55,7 +55,7 @@ public:
         return "PointModeGeometry";
     }
     void changeLod(float sampleNum); // adjust point density
-    void setPointSize(float pointSize); // adjust point size
+    void setPointSize(float newPointSize); // adjust point size
 
     void updateCoords();
 protected:

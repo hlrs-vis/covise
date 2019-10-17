@@ -5,6 +5,7 @@
 
  * License: LGPL 2+ */
 
+
 #include <cover/coVRPluginSupport.h>
 #include <cover/coVRMSController.h>
 #include <cover/VRSceneGraph.h>
@@ -51,10 +52,12 @@ void
 PointCloudInteractor::startInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::startMove\n");
+    }
 
     // store hand mat
-    Matrix initHandMat = cover->getPointerMat();
+    const Matrix &initHandMat = cover->getPointerMat();
     // get postion and direction of pointer
     m_initHandPos = initHandMat.preMult(Vec3(0.0, 0.0, 0.0));
     m_initHandDirection = initHandMat.preMult(Vec3(0.0, 1.0, 0.0));
@@ -65,35 +68,39 @@ void
 PointCloudInteractor::stopInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
+    }
+    
+    while (previewPointsGroup->getNumChildren() > 0)
+    {
+        previewPointsGroup->removeChild(0,1);
+    }
 
-        while (previewPointsGroup->getNumChildren() > 0)
-            previewPointsGroup->removeChild(0,1);
-
-        previewPoints.clear();
-        if (!m_deselection)
+    previewPoints.clear();
+    if (!m_deselection)
+    {
+        pointSelection bestPoint;
+        bool hitPointSuccess = hitPoint(bestPoint);
+        if (hitPointSuccess)
         {
-            pointSelection bestPoint;
-            bool hitPointSuccess = hitPoint(bestPoint);
-            if (hitPointSuccess)
-            {
-                highlightPoint(bestPoint);
-            }
+            highlightPoint(bestPoint);
         }
-        else
-        {
-            deselectPoint();
-        }
+    }
+    else
+    {
+        deselectPoint();
+    }
 }
 
 
 bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 {
     bool hitPointSuccess = false;
-    if (m_files)
+    if (m_files != nullptr)
     {
         Matrix currHandMat = cover->getPointerMat();
-        Matrix invBase = cover->getInvBaseMat();
+        const Matrix &invBase = cover->getInvBaseMat();
 
         currHandMat = currHandMat * invBase;
 
@@ -105,7 +112,7 @@ bool PointCloudInteractor::hitPoint(pointSelection& bestPoint)
 
         for (std::vector<FileInfo>::const_iterator fit = m_files->begin(); fit != m_files->end(); fit++)
         {
-            if (fit->pointSet)
+            if (fit->pointSet != nullptr)
             {
                 //std::string fileName = fit->filename;
                 //fprintf(stderr, "Testing Set %s \n", fileName.c_str());
@@ -156,7 +163,9 @@ void
 PointCloudInteractor::doInteraction()
 {
     if (cover->debugLevel(3))
+    {
         fprintf(stderr, "\nPointCloudInteractor::stopMove\n");
+    }
 
     pointSelection bestPoint;
     bool hitPointSuccess= hitPoint(bestPoint);
@@ -199,9 +208,13 @@ PointCloudInteractor::highlightPoint(pointSelection& selectedPoint, bool preview
         selMaterial->setShininess(osg::Material::FRONT_AND_BACK, 10.f);
         selMaterial->setColorMode(osg::Material::OFF);
         if (previewPointsGroup->getNumChildren() == 0)
+        {
             previewPointsGroup->addChild(sphereTransformation);
+        }
         else
+        {
             previewPointsGroup->setChild(0,sphereTransformation);
+        }
         previewPoints.clear();
         previewPoints.push_back(selectedPoint);
     }
@@ -244,7 +257,9 @@ void PointCloudInteractor::updateMessage(vector<pointSelection> points)
     for (auto iter=points.begin(); iter !=points.end(); iter++)
     {
         if (iter->isBoundaryPoint)
+        {
             fprintf(stderr, "PointCloudInteractor::updateMessage sending boundary point!\n");
+        }
     }
 }
 
@@ -257,7 +272,9 @@ PointCloudInteractor::LinePointMeasure(Vec3 center, Vec3 handPos, Vec3 handDirec
     double c = sqrt(pMinusC * pMinusC - b * b);
     //double d = pMinusC.length();
     if (pMinusC.length()==0.)
+    {
         return 0.;
+    }
     
     double d = c * pMinusC.length();
     return d;
@@ -278,11 +295,8 @@ PointCloudInteractor::LinePointDistance(Vec3 center, Vec3 handPos, Vec3 handDire
 bool PointCloudInteractor::hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, Vec3 center, float radius)
 {
     float distance = LinePointDistance(center,handPos, handDir);
-    if (distance<=radius)
-    {
-        return true;
-    }
-    return false;
+
+    return (distance <= radius);
 }
 
 bool PointCloudInteractor::hitPointSet(osg::Vec3 handDir, osg::Vec3 handPos, PointSet *pointset)
@@ -374,10 +388,10 @@ void PointCloudInteractor::resize()
 bool PointCloudInteractor::deselectPoint()
 {
     bool hitPointSuccess = false;
-    if (m_files)
+    if (m_files != nullptr)
     {
         Matrix currHandMat = cover->getPointerMat();
-        Matrix invBase = cover->getInvBaseMat();
+        const Matrix &invBase = cover->getInvBaseMat();
 
         currHandMat = currHandMat * invBase;
 
@@ -414,9 +428,13 @@ bool PointCloudInteractor::deselectPoint()
 void PointCloudInteractor::setDeselection(bool deselection)
 {
     if (deselection)
+    {
         m_deselection = true;
+    }
     else
+    {
         m_deselection = false;
+    }
 }
 
 void PointCloudInteractor::setSelectionSetIndex(int selectionSet)

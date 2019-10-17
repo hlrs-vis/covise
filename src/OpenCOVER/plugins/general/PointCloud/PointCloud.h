@@ -124,7 +124,7 @@ public:
 	}
     static int loadPTS(const char *filename, osg::Group *loadParent, const char *covise_key);
     static int unloadPTS(const char *filename, const char *covise_key);
-    int unloadFile(std::string filename);
+    int unloadFile(const std::string &filename);
     static PointCloudPlugin *plugin;
     ui::Group *FileGroup;
 };
