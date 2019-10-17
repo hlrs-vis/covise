@@ -125,6 +125,17 @@ MESSAGE("COVISEDIR=${COVISEDIR}")
 MESSAGE("ARCHSUFFIX=${ARCHSUFFIX}, BASEARCHSUFFIX=${BASEARCHSUFFIX}")
 MESSAGE("COVISE_VERSION = ${COVISE_VERSION}, Last git change on ${COVISE_GIT_DATE}")
 
+# CLANG-TIDY option
+OPTION(BUILD_USE_CLANG_TIDY "use clang-tidy framework for diagnosing and fixing typical programming errors" OFF)
+MARK_AS_ADVANCED(BUILD_USE_CLANG_TIDY)
+if (BUILD_USE_CLANG_TIDY)
+    SET(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,boost-*,bugprone-*,cert-*,clang-analyzer-*,misc-*,performance-*,readability-*,cppcoreguidelines-*)
+    #SET(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,boost-*,bugprone-*,cert-*,clang-analyzer-*,misc-*,modernize-*,performance-*,readability-redundant-*,readability-string-compare,google-readability-casting,cppcoreguidelines-avoid-goto,readability-function-size,-modernize-use-trailing-return-type)
+    MARK_AS_ADVANCED(CMAKE_CXX_CLANG_TIDY)
+else()
+    UNSET(CMAKE_CXX_CLANG_TIDY)
+endif()
+
 # COVISE global options
 option(COVISE_CMAKE_VERBOSE "more verbose CMake output" OFF)
 OPTION(COVISE_BUILD_ONLY_FILE "only build COVISE file I/O library" OFF)
