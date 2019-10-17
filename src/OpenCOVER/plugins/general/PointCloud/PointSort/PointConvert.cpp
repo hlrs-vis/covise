@@ -672,11 +672,6 @@ void printHelpPage()
     cout << "examples" << endl;
     cout << "  PointConvert file1.xyz file2.xyz file3.xyz result.ptsb" << endl;
     cout << endl;
-    cout << "note" << endl;
-    cout << "  Currently there are two params under main, one to set a maximum number of" << endl;
-    cout << "  points per cube and the other specifies the number of segments along the" << endl;
-    cout << "  longest dimension to divide up the space the points are bound in." << endl;
-    cout << endl;
 }
 
 // ----------------------------------------------------------------------------
