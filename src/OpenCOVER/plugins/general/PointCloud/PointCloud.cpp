@@ -57,6 +57,7 @@ using vrui::coInteraction;
 const int MAX_POINTS = 30000000;
 PointCloudPlugin *PointCloudPlugin::plugin = NULL;
 PointCloudInteractor *PointCloudPlugin::s_pointCloudInteractor = NULL;
+PointCloudInteractor *PointCloudPlugin::rightClick = NULL;
 
 
 COVERPLUGIN(PointCloudPlugin)
@@ -141,7 +142,6 @@ bool PointCloudPlugin::init()
         if (state)
         {
             //enable interaction
-
             vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor); 
             //cover->addPlugin("NurbsSurface");
         }
@@ -169,13 +169,19 @@ bool PointCloudPlugin::init()
 			//sw->setAllChildrenOff();
 			//cout << "Make Translate" << endl;
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->registerInteraction(rightClick);
+			//s_pointCloudInteractor->setSelectedPts(rightClick->getSelectedPtS());
 			s_pointCloudInteractor->setTranslation(true);
+			//rightClick->setSelectedPts(s_pointCloudInteractor);
+			rightClick->setTranslation(true);
 			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
 			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->unregisterInteraction(rightClick);
 			s_pointCloudInteractor->setTranslation(false);
+			rightClick->setTranslation(false);
 		}
 	});
 	singleSelectButton = new ui::Button(selectionGroup, "MakeRotate", selectionButtonGroup);
@@ -186,13 +192,17 @@ bool PointCloudPlugin::init()
 			//enable interaction
 			cout << "Make Rotate" << endl;
 			vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->registerInteraction(rightClick);
 			s_pointCloudInteractor->setRotation(true);
+			rightClick->setRotation(true);
 			//cover->addPlugin("NurbsSurface");
 		}
 		else
 		{
 			vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
+			vrui::coInteractionManager::the()->unregisterInteraction(rightClick);
 			s_pointCloudInteractor->setRotation(false);
+			rightClick->setRotation(false);
 		}
 	});
 
@@ -205,12 +215,15 @@ bool PointCloudPlugin::init()
         {
         //enable interaction
         vrui::coInteractionManager::the()->registerInteraction(s_pointCloudInteractor);
+		vrui::coInteractionManager::the()->registerInteraction(rightClick);
         s_pointCloudInteractor->setDeselection(true);
+		rightClick->setDeselection(true);
         }
         else
         {
         vrui::coInteractionManager::the()->unregisterInteraction(s_pointCloudInteractor);
         s_pointCloudInteractor->setDeselection(false);
+		rightClick->setDeselection(false);
         }
     });
     createNurbsSurface = new ui::Button(pointCloudMenu,"createNurbsSurface");
@@ -332,7 +345,9 @@ bool PointCloudPlugin::init()
     */
 
     assert(!s_pointCloudInteractor);
+	assert(!rightClick);
     s_pointCloudInteractor = new PointCloudInteractor(coInteraction::ButtonA, "PointCloud", coInteraction::High);
+	rightClick = new PointCloudInteractor(coInteraction::ButtonC, "PointCloud", coInteraction::High);
 
     return true;
 }
@@ -366,6 +381,8 @@ PointCloudPlugin::~PointCloudPlugin()
     
     delete s_pointCloudInteractor;
     s_pointCloudInteractor = nullptr;
+	delete rightClick;
+	rightClick = nullptr;
     vector<ImageFileEntry>::iterator itEntry = pointVec.begin();
     for (; itEntry < pointVec.end(); itEntry++)
     {
@@ -720,7 +737,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
 
 #ifdef HAVE_E57
 
-		osg::Matrix m;
+		osg::Matrixd m;
 		m.makeIdentity();
 		try
 		{
@@ -945,23 +962,22 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
                     Geode *currentGeode = new Geode();
 					currentGeode->addDrawable(drawable);
 					currentGeode->setName(filename);
-					cout << "Org Geode Size: " << currentGeode->getNumChildren() << endl;
 					parent->addChild(currentGeode);
 					NodeInfo ni;
 					ni.node = currentGeode;
-					cout << "Org NodeInfo: " << ni.node->getNumChildren() << endl;
 					fi.nodes.push_back(ni);
-					cout << "PointSet Org: " << fi.pointSetSize << endl;
+					fi.Rotation = rot;
+					fi.Translation = trans;
 					fi.filename = filename;
 				}
 			}
 			files.push_back(fi);
-			for (std::vector<FileInfo>::iterator i = files.begin(); i < files.end(); i++)
+			for (std::vector<FileInfo>::const_iterator i = files.begin(); i < files.end(); i++)
 			{
-				cout << "Name OrgData: " << i->filename << endl;
-				cout << "Size OrgData: " << i->pointSetSize << endl;
+				cout << "Fileinfo: " << i->filename << endl;
 			}
             s_pointCloudInteractor->updatePoints(&files);
+			rightClick->updatePoints(&files);
 			eReader.Close();
 			return;
 		}
@@ -1081,6 +1097,7 @@ void PointCloudPlugin::createGeodes(Group *parent, const string &filename)
         cerr << "closing the file" << endl;
         file.close();
         s_pointCloudInteractor->updatePoints(&files);
+		rightClick->updatePoints(&files);
         return;
     }
 }
@@ -1201,8 +1218,19 @@ void PointCloudPlugin::selectedMenuButton(ui::Element *menuItem)
 /// Called before each frame
 void PointCloudPlugin::preFrame()
 {
+	if (s_pointCloudInteractor->actionsuccess)
+	{
+		rightClick->getData(s_pointCloudInteractor);
+		s_pointCloudInteractor->actionsuccess = false;
+	}
+	if (rightClick->actionsuccess)
+	{
+		s_pointCloudInteractor->getData(rightClick);
+		rightClick->actionsuccess = false;
+	}
     //resize the speheres of selected and preview points
-    s_pointCloudInteractor->resize();
+	s_pointCloudInteractor->resize();
+	rightClick->resize();
 
     if (!adaptLOD)
         return;
@@ -1292,10 +1320,12 @@ void PointCloudPlugin::message(int toWhom, int type, int len, const void *buf)
     {
         int *selectionSet = (int *)buf;
         s_pointCloudInteractor->setSelectionSetIndex(*selectionSet);
+		rightClick->setSelectionSetIndex(*selectionSet);
     }
     if (type == PluginMessageTypes::PointCloudSelectionIsBoundaryMsg)
     {
         bool *selectionIsBoundary = (bool *)buf;
         s_pointCloudInteractor->setSelectionIsBoundary(*selectionIsBoundary);
+		rightClick->setSelectionIsBoundary(*selectionIsBoundary);
     }
 }

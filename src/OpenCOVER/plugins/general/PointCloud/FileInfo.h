@@ -21,6 +21,8 @@ public:
     std::vector<NodeInfo> nodes;
     int pointSetSize;
     PointSet *pointSet;
+	osg::Matrixd Rotation;
+	osg::Matrixd Translation;
 };
 
 #endif

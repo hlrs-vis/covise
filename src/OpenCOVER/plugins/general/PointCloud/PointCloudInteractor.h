@@ -44,11 +44,7 @@ public:
     void startInteraction();
 
 	//calculate moving vector
-	void CalcMoveVec(osg::Vec3, string);
-
-	//move and draw pointset
-	void MovePointSet(osg::Vec3, PointSet&);
-
+	void CalcMoveVec(std::vector<osg::Vec3>, std::vector<osg::Vec3>, string);
 
     void addSelectedPoint(osg::Vec3);
     void updateMessage(vector<pointSelection> points);
@@ -59,7 +55,7 @@ public:
     {
         this->m_files = allFiles;
     };
-
+	void getData(PointCloudInteractor *PCI);
 	void setTranslation(bool);
 	void setRotation(bool);
 
@@ -75,11 +71,27 @@ public:
     void setSelectionSetIndex(int selectionSet);
     void setSelectionIsBoundary(bool selectionIsBoundary);
     bool getSelectionIsBoundary();
+	bool actionsuccess =0;
 
 private:
 
     // needed for interaction
-    osg::Vec3 m_initHandPos, m_initHandDirection;
+    osg::Vec3 m_initHandPos, m_initHandDirection, OrgVec, RotAxis, PrevHandPos;
+	string filename;
+	void MoveCloud(osg::MatrixTransform *MoveMat, bool Snap);
+	bool snapOn = false;
+
+	osg::Matrixd RotMat = osg::Matrixd();
+	osg::Matrixd TraMat = osg::Matrixd();
+	std::vector<osg::Matrixd> PrevMats;
+	std::vector<std::string> MatNames;
+	//osg::Matrixd PrevMat = osg::Matrixd();
+
+	double OldAngle = 0;
+	double PreAngle = 0;
+
+	void MovePoints(osg::Matrixd MoveMat);
+	void CloudMatrix();
 
     const std::vector<FileInfo> *m_files;
     bool m_selectedWithBox;
@@ -94,10 +106,8 @@ private:
 	std::vector<FileInfo> UpdatedFIVec;
 
 	bool m_rotation = false;
-	osg::Matrixf* PointCloudInteractor::MakeRotate(osg::Vec3f PTVec, osg::Matrixf *RotMat, PointSet *PTSet);
 
 	bool m_translation = false;
-	osg::Matrixf* PointCloudInteractor::MakeTranslate(osg::Vec3f PTVec, osg::Matrixf *TraMat, PointSet *PTSet);
 
     bool hitPointSetBoundingSphere(osg::Vec3 handDir, osg::Vec3 handPos, osg::Vec3 center, float radius);
 

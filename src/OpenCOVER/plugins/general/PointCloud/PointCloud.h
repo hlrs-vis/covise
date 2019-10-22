@@ -81,6 +81,7 @@ private:
     float lodScale = 1.f;
     bool adaptLOD = true;
     static PointCloudInteractor *s_pointCloudInteractor;
+	static PointCloudInteractor *rightClick;
     std::vector<ScannerPosition> positions;
     void message(int toWhom, int type, int len, const void *buf); ///< handle incoming messages
     void calcMinMax(PointSet& pointSet);
@@ -129,6 +130,7 @@ public:
     int unloadFile(std::string filename);
     static PointCloudPlugin *plugin;
     ui::Group *FileGroup;
+	std::vector<pointSelection>& getInteractor();
 };
 
 #endif
