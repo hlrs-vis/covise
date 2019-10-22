@@ -244,7 +244,7 @@ int ChatPlugin::encodeSpeex()
 int ChatPlugin::decodeSpeex(const void* data, int length)
 {
 	/*Copy the data into the bit-stream struct*/
-	speex_bits_read_from(&bits, (const char *)data, length);
+	speex_bits_read_from(&bits, (char *)data, length);
 	
 	/*Decode the data*/
 	speex_decode(decoderState, &bits, outputData);
