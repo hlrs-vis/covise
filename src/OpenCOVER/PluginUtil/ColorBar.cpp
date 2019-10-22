@@ -473,8 +473,7 @@ ColorBar::parseAttrib(const char *attrib, std::string &species,
 {
     // convert to a istringstream
     int bufLen = strlen(attrib) + 1;
-    char *buffer = strcpy(new char[bufLen], attrib);
-    istringstream attribs(buffer);
+    istringstream attribs(attrib);
 
     //fprintf(stderr,"colorsPlugin::addColorbar [%s]\n", name);
 
@@ -499,8 +498,6 @@ ColorBar::parseAttrib(const char *attrib, std::string &species,
         attribs >> r[i] >> g[i] >> b[i] >> a[i];
         //      a[i]=1.0f;
     }
-
-    delete[] buffer;
 }
 
 void ColorBar::parseAttrib(const char *attrib)
